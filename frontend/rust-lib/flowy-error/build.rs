@@ -6,5 +6,10 @@ fn main() {
   flowy_codegen::protobuf_file::ts_gen("flowy-error", flowy_codegen::Project::Tauri);
 
   #[cfg(feature = "web_ts")]
-  flowy_codegen::protobuf_file::ts_gen("flowy-error", flowy_codegen::Project::Web);
+  flowy_codegen::protobuf_file::ts_gen(
+    "flowy-error",
+    flowy_codegen::Project::Web {
+      relative_path: "../../".to_string(),
+    },
+  );
 }

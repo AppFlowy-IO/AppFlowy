@@ -19,11 +19,16 @@ export async function invoke<T>(cmd: string, args?: InvokeArgs): Promise<T> {
       }
 
       const { ty, payload } = request;
-      if (typeof ty !== 'string' || !(payload instanceof Uint8Array)) {
-        throw new Error("Invalid 'ty' or 'payload' in request for 'invoke_request'");
+
+      if (typeof ty !== 'string') {
+        throw new Error("Invalid 'ty' in request for 'invoke_request'");
       }
 
-      return async_event(ty, payload);
+      if (!(payload instanceof Array)) {
+        throw new Error("Invalid 'payload' in request for 'invoke_request'");
+      }
+
+      return async_event(ty, new Uint8Array(payload));
     default:
       throw new Error(`Unknown command: ${cmd}`);
   }

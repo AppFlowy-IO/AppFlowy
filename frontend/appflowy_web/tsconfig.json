@@ -21,10 +21,11 @@
     "noFallthroughCasesInSwitch": true,
     "typeRoots": ["./node_modules/@types", "./src/@types"],
 
+    "baseUrl": "./",
     "paths": {
       "@/*": ["src/*"],
     }
   },
-  "include": ["src"],
+  "include": ["src", "vite.config.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

@@ -2,10 +2,12 @@ import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import "./App.css";
 import { useEffect } from "react";
-import {initApp,  invoke} from "./application/app.ts";
-import { subscribeNotification } from "./application/notification.ts";
+import { initApp } from "@/application/app.ts";
+import { subscribeNotification } from "@/application/notification.ts";
 import { NotifyArgs } from "./@types/global";
 import {init_tracing_log, init_wasm_core} from "../wasm-libs/af-wasm/pkg";
+import { v4 as uuidv4 } from 'uuid';
+import {AddUserPB, UserWasmEventAddUser} from "@/services/backend/events/af-user";
 
 init_tracing_log();
 // FIXME: handle the promise that init_wasm_core returns
@@ -20,13 +22,20 @@ function App() {
   }, []);
 
   const handleClick = async () => {
-      let args = {
-          request: {
-              ty: "test",
-              payload: new TextEncoder().encode("someString"),
-          },
-      };
-      invoke("invoke_request", args);
+      // let args = {
+      //     request: {
+      //         ty: "test",
+      //         payload: new TextEncoder().encode("someString"),
+      //     },
+      // };
+      // invoke("invoke_request", args);
+    let email = `${uuidv4()}@example.com`;
+    let password = "AppFlowy!2024";
+    const payload = AddUserPB.fromObject({email: email, password: password })
+    let result = await UserWasmEventAddUser(payload);
+    if (!result.ok) {
+
+    }
   };
 
   return (

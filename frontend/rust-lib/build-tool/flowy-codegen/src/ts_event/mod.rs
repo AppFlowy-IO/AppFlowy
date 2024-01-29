@@ -15,7 +15,7 @@ use walkdir::WalkDir;
 
 pub fn gen(crate_name: &str, project: Project) {
   let root = project.event_root();
-  let backend_service_path = std::env::var("TAURI_BACKEND_SERVICE_PATH").unwrap_or(project.dst());
+  let backend_service_path = project.dst();
 
   let crate_path = std::fs::canonicalize(".")
     .unwrap()

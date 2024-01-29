@@ -171,7 +171,7 @@ fn generate_ts_protobuf_files(
   project: &Project,
 ) {
   let root = project.model_root();
-  let backend_service_path = std::env::var("TAURI_BACKEND_SERVICE_PATH").unwrap_or(project.dst());
+  let backend_service_path = project.dst();
 
   let mut output = PathBuf::new();
   output.push(root);
