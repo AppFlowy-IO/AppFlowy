@@ -19,10 +19,21 @@ class SupabaseCloudURLsBloc
     on<SupabaseCloudURLsEvent>((event, emit) async {
       await event.when(
         updateUrl: (String url) {
-          emit(state.copyWith(updatedUrl: url));
+          emit(
+            state.copyWith(
+              updatedUrl: url,
+              showRestartHint: url.isNotEmpty && state.upatedAnonKey.isNotEmpty,
+            ),
+          );
         },
         updateAnonKey: (String anonKey) {
-          emit(state.copyWith(upatedAnonKey: anonKey));
+          emit(
+            state.copyWith(
+              upatedAnonKey: anonKey,
+              showRestartHint:
+                  anonKey.isNotEmpty && state.updatedUrl.isNotEmpty,
+            ),
+          );
         },
         confirmUpdate: () async {
           if (state.updatedUrl.isEmpty) {
@@ -100,6 +111,7 @@ class SupabaseCloudURLsState with _$SupabaseCloudURLsState {
     required Option<String> urlError,
     required Option<String> anonKeyError,
     required bool restartApp,
+    required bool showRestartHint,
   }) = _SupabaseCloudURLsState;
 
   factory SupabaseCloudURLsState.initial() {
@@ -110,6 +122,7 @@ class SupabaseCloudURLsState with _$SupabaseCloudURLsState {
       urlError: none(),
       anonKeyError: none(),
       restartApp: false,
+      showRestartHint: config.url.isNotEmpty && config.anon_key.isNotEmpty,
       config: config,
     );
   }

@@ -64,6 +64,7 @@ pub extern "C" fn init_sdk(data: *mut c_char) -> i64 {
 
   let log_crates = vec!["flowy-ffi".to_string()];
   let config = AppFlowyCoreConfig::new(
+    configuration.app_version,
     configuration.custom_app_path,
     configuration.origin_app_path,
     configuration.device_id,

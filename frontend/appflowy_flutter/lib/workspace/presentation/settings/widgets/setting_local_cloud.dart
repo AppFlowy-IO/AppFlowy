@@ -14,6 +14,7 @@ class SettingLocalCloud extends StatelessWidget {
   Widget build(BuildContext context) {
     return RestartButton(
       onClick: () => onPressed(context),
+      showRestartHint: true,
     );
   }
 

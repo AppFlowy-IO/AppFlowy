@@ -9,7 +9,7 @@ import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_setting.pb.dart';
-import 'package:dartz/dartz.dart' show Either, Some;
+import 'package:dartz/dartz.dart' show Either;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -58,22 +58,27 @@ class AppFlowyCloudViewSetting extends StatelessWidget {
     return BlocProvider(
       create: (context) => AppFlowyCloudSettingBloc(setting)
         ..add(const AppFlowyCloudSettingEvent.initial()),
-      child: Column(
-        children: [
-          const AppFlowyCloudEnableSync(),
-          const VSpace(12),
-          RestartButton(
-            onClick: () {
-              NavigatorAlertDialog(
-                title: LocaleKeys.settings_menu_restartAppTip.tr(),
-                confirm: () async {
-                  await useAppFlowyBetaCloudWithURL(serverURL);
-                  restartAppFlowy();
+      child: BlocBuilder<AppFlowyCloudSettingBloc, AppFlowyCloudSettingState>(
+        builder: (context, state) {
+          return Column(
+            children: [
+              const AppFlowyCloudEnableSync(),
+              const VSpace(12),
+              RestartButton(
+                onClick: () {
+                  NavigatorAlertDialog(
+                    title: LocaleKeys.settings_menu_restartAppTip.tr(),
+                    confirm: () async {
+                      await useAppFlowyBetaCloudWithURL(serverURL);
+                      restartAppFlowy();
+                    },
+                  ).show(context);
                 },
-              ).show(context);
-            },
-          ),
-        ],
+                showRestartHint: state.showRestartHint,
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -184,6 +189,7 @@ class AppFlowyCloudURLs extends StatelessWidget {
                       },
                     ).show(context);
                   },
+                  showRestartHint: state.showRestartHint,
                 ),
               ],
             );

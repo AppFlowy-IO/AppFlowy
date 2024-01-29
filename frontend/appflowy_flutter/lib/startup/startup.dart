@@ -81,14 +81,13 @@ class FlowyRunner {
 
     final config = LaunchConfiguration(
       isAnon: isAnon,
+      // Unit test can't use the package_info_plus plugin
+      version: mode.isUnitTest
+          ? '1.0.0'
+          : await PackageInfo.fromPlatform().then((value) => value.version),
       rustEnvs: rustEnvsBuilder?.call() ?? {},
     );
 
-    if (!mode.isUnitTest) {
-      // Unit test can't use the package_info_plus plugin
-      config.rustEnvs["APP_VERSION"] =
-          await PackageInfo.fromPlatform().then((value) => value.version);
-    }
     // Specify the env
     await initGetIt(getIt, mode, f, config);
     await didInitGetItCallback?.call();

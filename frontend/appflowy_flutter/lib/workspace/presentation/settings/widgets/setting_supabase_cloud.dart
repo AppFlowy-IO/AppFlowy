@@ -1,4 +1,3 @@
-import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/settings/supabase_cloud_setting_bloc.dart';
 import 'package:appflowy/workspace/application/settings/supabase_cloud_urls_bloc.dart';
@@ -119,6 +118,7 @@ class SupabaseCloudURLs extends StatelessWidget {
                 const VSpace(20),
                 RestartButton(
                   onClick: () => _restartApp(context),
+                  showRestartHint: state.showRestartHint,
                 ),
               ],
             );
