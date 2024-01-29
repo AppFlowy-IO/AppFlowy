@@ -69,7 +69,7 @@ Future<Directory> appFlowyApplicationDataDirectory() async {
   switch (integrationMode()) {
     case IntegrationMode.develop:
       final Directory documentsDir = await getApplicationSupportDirectory()
-        ..create();
+          .then((directory) => directory.create());
       return Directory(path.join(documentsDir.path, 'data_dev')).create();
     case IntegrationMode.release:
       final Directory documentsDir = await getApplicationSupportDirectory();

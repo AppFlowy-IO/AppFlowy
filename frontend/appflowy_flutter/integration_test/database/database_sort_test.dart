@@ -28,7 +28,7 @@ void main() {
         '',
       ];
       for (final (index, content) in textCells.indexed) {
-        await tester.assertCellContent(
+        tester.assertCellContent(
           rowIndex: index,
           fieldType: FieldType.RichText,
           content: content,
@@ -51,7 +51,7 @@ void main() {
         '',
         '',
       ].indexed) {
-        await tester.assertCellContent(
+        tester.assertCellContent(
           rowIndex: index,
           fieldType: FieldType.RichText,
           content: content,
@@ -75,7 +75,7 @@ void main() {
         '',
         '',
       ].indexed) {
-        await tester.assertCellContent(
+        tester.assertCellContent(
           rowIndex: index,
           fieldType: FieldType.RichText,
           content: content,
@@ -153,7 +153,7 @@ void main() {
         '12',
         '',
       ].indexed) {
-        await tester.assertCellContent(
+        tester.assertCellContent(
           rowIndex: index,
           fieldType: FieldType.Number,
           content: content,
@@ -176,7 +176,7 @@ void main() {
         '-2',
         '',
       ].indexed) {
-        await tester.assertCellContent(
+        tester.assertCellContent(
           rowIndex: index,
           fieldType: FieldType.Number,
           content: content,
@@ -255,7 +255,7 @@ void main() {
         '2',
         '',
       ].indexed) {
-        await tester.assertCellContent(
+        tester.assertCellContent(
           rowIndex: index,
           fieldType: FieldType.Number,
           content: content,

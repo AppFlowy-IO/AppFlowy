@@ -128,7 +128,7 @@ class _SmartEditBlockComponentWidgetState
         if (state.result.isEmpty) {
           completer.complete(true);
         } else {
-          showDialog(
+          await showDialog(
             context: context,
             builder: (context) {
               return DiscardDialog(

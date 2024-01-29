@@ -23,7 +23,7 @@ void main() {
         input: 'hello world',
       );
 
-      await tester.assertCellContent(
+      tester.assertCellContent(
         rowIndex: 0,
         fieldType: FieldType.RichText,
         content: 'hello world',
@@ -56,13 +56,13 @@ void main() {
         cellIndex: 1,
       );
 
-      await tester.assertCellContent(
+      tester.assertCellContent(
         rowIndex: 0,
         fieldType: FieldType.RichText,
         content: 'hello',
       );
 
-      await tester.assertCellContent(
+      tester.assertCellContent(
         rowIndex: 0,
         fieldType: FieldType.RichText,
         content: 'world',
@@ -95,7 +95,7 @@ void main() {
         input: '0.2',
       );
       // -1 -> -1
-      await tester.assertCellContent(
+      tester.assertCellContent(
         rowIndex: 0,
         fieldType: fieldType,
         content: '-1',
@@ -108,7 +108,7 @@ void main() {
         input: '.1',
       );
       // 0.2 -> 0.2
-      await tester.assertCellContent(
+      tester.assertCellContent(
         rowIndex: 1,
         fieldType: fieldType,
         content: '0.2',
@@ -121,7 +121,7 @@ void main() {
         input: '',
       );
       // .1 -> 0.1
-      await tester.assertCellContent(
+      tester.assertCellContent(
         rowIndex: 2,
         fieldType: fieldType,
         content: '0.1',

@@ -348,7 +348,7 @@ class DatabaseViewSettingTile extends StatelessWidget {
         },
       );
       if (newLayout != null && newLayout != databaseLayout) {
-        DatabaseViewBackendService.updateLayout(
+        await DatabaseViewBackendService.updateLayout(
           viewId: databaseController.viewId,
           layout: newLayout,
         );
@@ -357,7 +357,7 @@ class DatabaseViewSettingTile extends StatelessWidget {
     }
 
     if (setting == DatabaseViewSettings.board) {
-      showMobileBottomSheet<DatabaseLayoutPB>(
+      await showMobileBottomSheet<DatabaseLayoutPB>(
         context,
         resizeToAvoidBottomInset: false,
         builder: (context) {
@@ -373,7 +373,7 @@ class DatabaseViewSettingTile extends StatelessWidget {
     }
 
     if (setting == DatabaseViewSettings.calendar) {
-      showMobileBottomSheet<DatabaseLayoutPB>(
+      await showMobileBottomSheet<DatabaseLayoutPB>(
         context,
         resizeToAvoidBottomInset: false,
         builder: (context) {

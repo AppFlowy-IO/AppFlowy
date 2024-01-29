@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:appflowy/mobile/presentation/setting/font/font_picker_screen.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_toolbar_theme.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
@@ -30,12 +32,14 @@ class FontFamilyItem extends StatelessWidget {
       onTap: () async {
         final selection = editorState.selection;
         // disable the floating toolbar
-        editorState.updateSelectionWithReason(
-          selection,
-          extraInfo: {
-            selectionExtraInfoDisableFloatingToolbar: true,
-            selectionExtraInfoDisableMobileToolbarKey: true,
-          },
+        unawaited(
+          editorState.updateSelectionWithReason(
+            selection,
+            extraInfo: {
+              selectionExtraInfoDisableFloatingToolbar: true,
+              selectionExtraInfoDisableMobileToolbarKey: true,
+            },
+          ),
         );
 
         final newFont = await context

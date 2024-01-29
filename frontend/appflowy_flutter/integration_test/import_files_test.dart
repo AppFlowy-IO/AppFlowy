@@ -33,7 +33,7 @@ void main() {
         File(path).writeAsStringSync(str);
       }
       // mock get files
-      await mockPickFilePaths(
+      mockPickFilePaths(
         paths: testFileNames
             .map((e) => p.join(context.applicationDataDirectory, e))
             .toList(),
