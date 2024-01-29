@@ -10,7 +10,7 @@ use flowy_user_pub::entities::Authenticator;
 
 use crate::migrations::migration::UserDataMigration;
 use crate::migrations::util::load_collab;
-use crate::services::entities::Session;
+use flowy_user_pub::session::Session;
 
 /// 1. Migrate the workspace: { favorite: [view_id] } to { favorite: { uid: [view_id] } }
 /// 2. Migrate { workspaces: [workspace object] } to { views: { workspace object } }. Make each folder

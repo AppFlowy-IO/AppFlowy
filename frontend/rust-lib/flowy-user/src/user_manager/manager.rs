@@ -36,13 +36,13 @@ use crate::services::collab_interact::{CollabInteract, DefaultCollabInteract};
 use crate::services::data_import::importer::import_data;
 use crate::services::data_import::ImportContext;
 
-use crate::services::entities::Session;
 use crate::services::sqlite_sql::user_sql::{select_user_profile, UserTable, UserTableChangeset};
 use crate::user_manager::manager_user_awareness::UserAwarenessDataSource;
 use crate::user_manager::manager_user_encryption::validate_encryption_sign;
 use crate::user_manager::manager_user_workspace::save_user_workspaces;
 use crate::user_manager::user_login_state::UserAuthProcess;
 use crate::{errors::FlowyError, notification::*};
+use flowy_user_pub::session::Session;
 
 pub struct UserManager {
   pub(crate) cloud_services: Arc<dyn UserCloudServiceProvider>,
@@ -171,9 +171,9 @@ impl UserManager {
               UserTokenState::Refresh { token } => {
                 // Only save the token if the token is different from the current token
                 if token != user_token {
-                  if let Some(pool) = weak_pool.upgrade() {
+                  if let Some(conn) = weak_pool.upgrade().and_then(|pool| pool.get().ok()) {
                     // Save the new token
-                    if let Err(err) = save_user_token(user_uid, pool, token) {
+                    if let Err(err) = save_user_token(user_uid, conn, token) {
                       error!("Save user token failed: {}", err);
                     }
                   }
@@ -423,7 +423,7 @@ impl UserManager {
   #[tracing::instrument(level = "info", skip(self))]
   pub async fn sign_out(&self) -> Result<(), FlowyError> {
     if let Ok(session) = self.get_session() {
-      let _ = remove_user_token(session.user_id, self.db_pool(session.user_id)?);
+      let _ = remove_user_token(session.user_id, self.db_connection(session.user_id)?);
       self.authenticate_user.database.close(session.user_id)?;
       self.authenticate_user.set_session(None)?;
 
@@ -448,7 +448,11 @@ impl UserManager {
   ) -> Result<(), FlowyError> {
     let changeset = UserTableChangeset::new(params.clone());
     let session = self.get_session()?;
-    upsert_user_profile_change(session.user_id, self.db_pool(session.user_id)?, changeset)?;
+    upsert_user_profile_change(
+      session.user_id,
+      self.db_connection(session.user_id)?,
+      changeset,
+    )?;
 
     let profile = self.get_user_profile_from_disk(session.user_id).await?;
     self
@@ -463,7 +467,7 @@ impl UserManager {
 
   pub async fn prepare_user(&self, session: &Session) {
     let _ = self.authenticate_user.database.close(session.user_id);
-    self.set_collab_config(session);
+    self.prepare_collab(session);
   }
 
   pub async fn prepare_backup(&self, session: &Session) {
@@ -513,7 +517,7 @@ impl UserManager {
           let changeset = UserTableChangeset::from_user_profile(new_user_profile);
           let _ = upsert_user_profile_change(
             uid,
-            self.authenticate_user.database.get_pool(uid)?,
+            self.authenticate_user.database.get_connection(uid)?,
             changeset,
           );
         }
@@ -647,7 +651,7 @@ impl UserManager {
       self.set_anon_user(session.clone());
     }
 
-    save_user_workspaces(uid, self.db_pool(uid)?, response.user_workspaces())?;
+    save_user_workspaces(uid, self.db_connection(uid)?, response.user_workspaces())?;
     event!(tracing::Level::INFO, "Save new user profile to disk");
     self.authenticate_user.set_session(Some(session.clone()))?;
     self
@@ -656,7 +660,7 @@ impl UserManager {
     Ok(())
   }
 
-  fn set_collab_config(&self, session: &Session) {
+  fn prepare_collab(&self, session: &Session) {
     let collab_builder = self.collab_builder.upgrade().unwrap();
     collab_builder.initialize(session.user_workspace.id.clone());
   }
@@ -673,7 +677,7 @@ impl UserManager {
       // Save the user profile change
       upsert_user_profile_change(
         user_update.uid,
-        self.db_pool(user_update.uid)?,
+        self.db_connection(user_update.uid)?,
         UserTableChangeset::from(user_update),
       )?;
     }
@@ -724,7 +728,7 @@ impl UserManager {
       self
         .authenticate_user
         .database
-        .get_pool(old_user.session.user_id)?,
+        .get_connection(old_user.session.user_id)?,
       &[old_user.session.user_workspace.clone()],
     )?;
     Ok(())
@@ -759,7 +763,7 @@ fn current_authenticator() -> Authenticator {
 
 fn upsert_user_profile_change(
   uid: i64,
-  pool: Arc<ConnectionPool>,
+  mut conn: DBConnection,
   changeset: UserTableChangeset,
 ) -> FlowyResult<()> {
   event!(
@@ -767,7 +771,6 @@ fn upsert_user_profile_change(
     "Update user profile with changeset: {:?}",
     changeset
   );
-  let mut conn = pool.get()?;
   diesel_update_table!(user_table, changeset, &mut *conn);
   let user: UserProfile = user_table::dsl::user_table
     .filter(user_table::id.eq(&uid.to_string()))
@@ -780,15 +783,14 @@ fn upsert_user_profile_change(
 }
 
 #[instrument(level = "info", skip_all, err)]
-fn save_user_token(uid: i64, pool: Arc<ConnectionPool>, token: String) -> FlowyResult<()> {
+fn save_user_token(uid: i64, conn: DBConnection, token: String) -> FlowyResult<()> {
   let params = UpdateUserProfileParams::new(uid).with_token(token);
   let changeset = UserTableChangeset::new(params);
-  upsert_user_profile_change(uid, pool, changeset)
+  upsert_user_profile_change(uid, conn, changeset)
 }
 
 #[instrument(level = "info", skip_all, err)]
-fn remove_user_token(uid: i64, pool: Arc<ConnectionPool>) -> FlowyResult<()> {
-  let mut conn = pool.get()?;
+fn remove_user_token(uid: i64, mut conn: DBConnection) -> FlowyResult<()> {
   diesel::update(user_table::dsl::user_table.filter(user_table::id.eq(&uid.to_string())))
     .set(user_table::token.eq(""))
     .execute(&mut *conn)?;

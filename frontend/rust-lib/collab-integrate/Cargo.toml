@@ -22,4 +22,4 @@ lib-infra = { workspace = true }
 
 [features]
 default = []
-wasm_build = ["collab-plugins/wasm_build"]
+enable_wasm = ["collab-plugins/wasm_build"]

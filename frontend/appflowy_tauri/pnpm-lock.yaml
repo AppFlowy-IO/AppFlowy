@@ -53,7 +53,7 @@ dependencies:
     specifier: ^3.3.0
     version: 3.3.0
   google-protobuf:
-    specifier: ^3.21.2
+    specifier: ^3.15.12
     version: 3.21.2
   i18next:
     specifier: ^22.4.10
@@ -86,8 +86,8 @@ dependencies:
     specifier: ^1.29.0
     version: 1.29.0
   protoc-gen-ts:
-    specifier: ^0.8.5
-    version: 0.8.6(google-protobuf@3.21.2)(typescript@4.9.5)
+    specifier: 0.8.7
+    version: 0.8.7
   quill:
     specifier: ^1.3.7
     version: 1.3.7
@@ -184,8 +184,8 @@ devDependencies:
     specifier: ^1.5.6
     version: 1.5.6
   '@types/google-protobuf':
-    specifier: ^3.15.6
-    version: 3.15.6
+    specifier: ^3.15.12
+    version: 3.15.12
   '@types/is-hotkey':
     specifier: ^0.1.7
     version: 0.1.7
@@ -2241,8 +2241,8 @@ packages:
     resolution: {integrity: sha512-LG4opVs2ANWZ1TJoKc937iMmNstM/d0ae1vNbnBvBhqCSezgVUOzcLCqbI5elV8Vy6WKwKjaqR+zO9VKirBBCA==}
     dev: true
 
-  /@types/google-protobuf@3.15.6:
-    resolution: {integrity: sha512-pYVNNJ+winC4aek+lZp93sIKxnXt5qMkuKmaqS3WGuTq0Bw1ZDYNBgzG5kkdtwcv+GmYJGo3yEg6z2cKKAiEdw==}
+  /@types/google-protobuf@3.15.12:
+    resolution: {integrity: sha512-40um9QqwHjRS92qnOaDpL7RmDK15NuZYo9HihiJRbYkMQZlWnuH8AdvbMy8/o6lgLmKbDUKa+OALCltHdbOTpQ==}
     dev: true
 
   /@types/graceful-fs@4.1.6:
@@ -5629,15 +5629,9 @@ packages:
       object-assign: 4.1.1
       react-is: 16.13.1
 
-  /protoc-gen-ts@0.8.6(google-protobuf@3.21.2)(typescript@4.9.5):
-    resolution: {integrity: sha512-66oeorGy4QBvYjQGd/gaeOYyFqKyRmRgTpofmnw8buMG0P7A0jQjoKSvKJz5h5tNUaVkIzvGBUTRVGakrhhwpA==}
+  /protoc-gen-ts@0.8.7:
+    resolution: {integrity: sha512-jr4VJey2J9LVYCV7EVyVe53g1VMw28cCmYJhBe5e3YX5wiyiDwgxWxeDf9oTqAe4P1bN/YGAkW2jhlH8LohwiQ==}
     hasBin: true
-    peerDependencies:
-      google-protobuf: ^3.13.0
-      typescript: 4.x.x
-    dependencies:
-      google-protobuf: 3.21.2
-      typescript: 4.9.5
     dev: false
 
   /proxy-compare@2.5.1:
@@ -6835,6 +6829,7 @@ packages:
     resolution: {integrity: sha512-1FXk9E2Hm+QzZQ7z+McJiHL4NW1F2EzMu9Nq9i3zAaGqibafqYwCVU6WyWAuyQRRzOlxou8xZSyXLEN8oKj24g==}
     engines: {node: '>=4.2.0'}
     hasBin: true
+    dev: true
 
   /unbox-primitive@1.0.2:
     resolution: {integrity: sha512-61pPlCD9h51VoreyJ0BReideM3MDKMKnh6+V9L08331ipq6Q8OFXZYiqP6n/tbHx4s5I9uRhcye6BrbkizkBDw==}
