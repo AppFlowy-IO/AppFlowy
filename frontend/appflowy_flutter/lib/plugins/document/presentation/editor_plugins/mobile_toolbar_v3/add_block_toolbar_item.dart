@@ -137,21 +137,21 @@ class _AddBlockMenu extends StatelessWidget {
     _AddBlockMenuItemData(
       blockType: BulletedListBlockKeys.type,
       backgroundColor: const Color(0xFFFFB9EF),
-      text: LocaleKeys.editor_bulletedList.tr(),
+      text: LocaleKeys.editor_bulletedListShortForm.tr(),
       icon: FlowySvgs.m_add_block_bulleted_list_s,
       onTap: () => _insertBlock(bulletedListNode()),
     ),
     _AddBlockMenuItemData(
       blockType: NumberedListBlockKeys.type,
       backgroundColor: const Color(0xFFFFB9EF),
-      text: LocaleKeys.editor_numberedList.tr(),
+      text: LocaleKeys.editor_numberedListShortForm.tr(),
       icon: FlowySvgs.m_add_block_numbered_list_s,
       onTap: () => _insertBlock(numberedListNode()),
     ),
     _AddBlockMenuItemData(
       blockType: ToggleListBlockKeys.type,
       backgroundColor: const Color(0xFFFFB9EF),
-      text: LocaleKeys.document_plugins_toggleList.tr(),
+      text: LocaleKeys.editor_toggleListShortForm.tr(),
       icon: FlowySvgs.m_add_block_toggle_s,
       onTap: () => _insertBlock(toggleListBlockNode()),
     ),
@@ -167,14 +167,14 @@ class _AddBlockMenu extends StatelessWidget {
     _AddBlockMenuItemData(
       blockType: CodeBlockKeys.type,
       backgroundColor: const Color(0xFFCABDFF),
-      text: LocaleKeys.document_selectionMenu_codeBlock.tr(),
+      text: LocaleKeys.editor_codeBlockShortForm.tr(),
       icon: FlowySvgs.m_add_block_code_s,
       onTap: () => _insertBlock(codeBlockNode()),
     ),
     _AddBlockMenuItemData(
       blockType: MathEquationBlockKeys.type,
       backgroundColor: const Color(0xFFCABDFF),
-      text: LocaleKeys.document_plugins_mathEquation_name.tr(),
+      text: LocaleKeys.editor_mathEquationShortForm.tr(),
       icon: FlowySvgs.m_add_block_formula_s,
       onTap: () {
         AppGlobals.rootNavKey.currentContext?.pop(true);
@@ -304,6 +304,7 @@ class _AddBlockMenuItem extends StatelessWidget {
               data.text,
               fontSize: 12.0,
               overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
             ),
           ),
         ],

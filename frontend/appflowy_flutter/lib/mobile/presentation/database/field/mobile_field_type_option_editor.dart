@@ -7,6 +7,7 @@ import 'package:appflowy/mobile/presentation/base/option_color_list.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/database/card/card_detail/widgets/widgets.dart';
 import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
+import 'package:appflowy/plugins/base/drag_handler.dart';
 import 'package:appflowy/plugins/database/application/field/field_service.dart';
 import 'package:appflowy/plugins/database/application/field/type_option/number_format_bloc.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/header/type_option/date/date_time_format.dart';
@@ -18,6 +19,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/uuid.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:protobuf/protobuf.dart';
@@ -338,7 +340,7 @@ class _FieldOptionEditorState extends State<FieldOptionEditor> {
       if (widget.actions.contains(FieldOptionAction.hide))
         FlowyOptionTile.text(
           text: LocaleKeys.grid_field_hide.tr(),
-          leftIcon: const FlowySvg(FlowySvgs.hide_s),
+          leftIcon: const FlowySvg(FlowySvgs.m_field_hide_s),
           onTap: () => widget.onAction?.call(FieldOptionAction.hide),
         ),
       if (widget.actions.contains(FieldOptionAction.show))
@@ -352,7 +354,7 @@ class _FieldOptionEditorState extends State<FieldOptionEditor> {
         FlowyOptionTile.text(
           showTopBorder: false,
           text: LocaleKeys.button_duplicate.tr(),
-          leftIcon: const FlowySvg(FlowySvgs.copy_s),
+          leftIcon: const FlowySvg(FlowySvgs.m_field_copy_s),
           onTap: () => widget.onAction?.call(FieldOptionAction.duplicate),
         ),
       if (widget.actions.contains(FieldOptionAction.delete) &&
@@ -362,7 +364,7 @@ class _FieldOptionEditorState extends State<FieldOptionEditor> {
           text: LocaleKeys.button_delete.tr(),
           textColor: Theme.of(context).colorScheme.error,
           leftIcon: FlowySvg(
-            FlowySvgs.delete_s,
+            FlowySvgs.m_delete_s,
             color: Theme.of(context).colorScheme.error,
           ),
           onTap: () => widget.onAction?.call(FieldOptionAction.delete),
@@ -642,7 +644,7 @@ class _NumberOption extends StatelessWidget {
       onTap: () {
         showMobileBottomSheet(
           context,
-          padding: EdgeInsets.zero,
+          backgroundColor: Theme.of(context).colorScheme.surface,
           builder: (context) {
             return DraggableScrollableSheet(
               expand: false,
@@ -665,7 +667,7 @@ class _NumberOption extends StatelessWidget {
   }
 }
 
-class _NumberFormatList extends StatelessWidget {
+class _NumberFormatList extends StatefulWidget {
   const _NumberFormatList({
     this.scrollController,
     required this.selectedFormat,
@@ -677,19 +679,80 @@ class _NumberFormatList extends StatelessWidget {
   final void Function(NumberFormatPB format) onSelected;
 
   @override
+  State<_NumberFormatList> createState() => _NumberFormatListState();
+}
+
+class _NumberFormatListState extends State<_NumberFormatList> {
+  List<NumberFormatPB> formats = NumberFormatPB.values;
+
+  @override
   Widget build(BuildContext context) {
     return ListView(
-      controller: scrollController,
-      children: NumberFormatPB.values
-          .mapIndexed(
-            (index, element) => FlowyOptionTile.checkbox(
-              text: element.title(),
-              isSelected: selectedFormat == element,
-              showTopBorder: index == 0,
-              onTap: () => onSelected(element),
+      controller: widget.scrollController,
+      children: [
+        const Center(
+          child: DragHandler(),
+        ),
+        Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          height: 44.0,
+          child: CupertinoSearchTextField(
+            prefixIcon: const FlowySvg(FlowySvgs.m_search_m),
+            prefixInsets: const EdgeInsets.only(left: 16.0),
+            suffixIcon: const Icon(Icons.close),
+            suffixInsets: const EdgeInsets.only(right: 16.0),
+            placeholderStyle: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  color: Theme.of(context).hintColor,
+                  fontWeight: FontWeight.w400,
+                  fontSize: 14.0,
+                ),
+            onChanged: (String value) {
+              setState(() {
+                formats = NumberFormatPB.values
+                    .where(
+                      (element) => element
+                          .title()
+                          .toLowerCase()
+                          .contains(value.toLowerCase()),
+                    )
+                    .toList();
+              });
+            },
+          ),
+        ),
+        ...formats.mapIndexed(
+          (index, element) => FlowyOptionTile.checkbox(
+            text: element.title(),
+            content: Expanded(
+              child: Row(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 4.0,
+                      vertical: 16.0,
+                    ),
+                    child: FlowyText(
+                      element.title(),
+                      fontSize: 16,
+                    ),
+                  ),
+                  const Spacer(),
+                  FlowyText(
+                    element.iconSymbol(),
+                    fontSize: 16,
+                  ),
+                  widget.selectedFormat != element
+                      ? const HSpace(30.0)
+                      : const HSpace(6.0),
+                ],
+              ),
             ),
-          )
-          .toList(),
+            isSelected: widget.selectedFormat == element,
+            showTopBorder: false,
+            onTap: () => widget.onSelected(element),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -730,7 +793,10 @@ class _SelectOption extends StatelessWidget {
         ),
         FlowyOptionTile.text(
           text: LocaleKeys.grid_field_addOption.tr(),
-          leftIcon: const FlowySvg(FlowySvgs.add_s),
+          leftIcon: const FlowySvg(
+            FlowySvgs.add_s,
+            size: Size.square(20),
+          ),
           onTap: () {
             onAddOptions([
               SelectOptionPB(

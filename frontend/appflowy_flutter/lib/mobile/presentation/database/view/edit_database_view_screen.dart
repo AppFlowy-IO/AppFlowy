@@ -336,18 +336,14 @@ class DatabaseViewSettingTile extends StatelessWidget {
       final databaseLayout = databaseLayoutFromViewLayout(view.layout);
       final newLayout = await showMobileBottomSheet<DatabaseLayoutPB>(
         context,
-        padding: EdgeInsets.zero,
         resizeToAvoidBottomInset: false,
         showDragHandle: true,
         builder: (context) {
-          return Padding(
-            padding: const EdgeInsets.only(top: 24, bottom: 46),
-            child: DatabaseViewLayoutPicker(
-              selectedLayout: databaseLayout,
-              onSelect: (layout) {
-                Navigator.of(context).pop(layout);
-              },
-            ),
+          return DatabaseViewLayoutPicker(
+            selectedLayout: databaseLayout,
+            onSelect: (layout) {
+              Navigator.of(context).pop(layout);
+            },
           );
         },
       );
@@ -363,7 +359,6 @@ class DatabaseViewSettingTile extends StatelessWidget {
     if (setting == DatabaseViewSettings.board) {
       await showMobileBottomSheet<DatabaseLayoutPB>(
         context,
-        padding: EdgeInsets.zero,
         resizeToAvoidBottomInset: false,
         builder: (context) {
           return Padding(
@@ -380,7 +375,6 @@ class DatabaseViewSettingTile extends StatelessWidget {
     if (setting == DatabaseViewSettings.calendar) {
       await showMobileBottomSheet<DatabaseLayoutPB>(
         context,
-        padding: EdgeInsets.zero,
         resizeToAvoidBottomInset: false,
         builder: (context) {
           return Padding(

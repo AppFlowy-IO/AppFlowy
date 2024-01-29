@@ -1,12 +1,12 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/base/option_color_list.dart';
+import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_search_text_field.dart';
 import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
 import 'package:appflowy/plugins/base/drag_handler.dart';
-import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
-import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
-import 'package:appflowy/plugins/database/widgets/cell_editor/extension.dart';
 import 'package:appflowy/plugins/database/application/cell/bloc/select_option_editor_bloc.dart';
+import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
+import 'package:appflowy/plugins/database/widgets/cell_editor/extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option_entities.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -65,6 +65,7 @@ class _MobileSelectOptionEditorState extends State<MobileSelectOptionEditor> {
                   padding: const EdgeInsets.symmetric(horizontal: 8.0),
                   child: _buildHeader(context),
                 ),
+                const Divider(height: 0.5),
                 Expanded(
                   child: Padding(
                     padding: EdgeInsets.symmetric(
@@ -146,6 +147,7 @@ class _MobileSelectOptionEditorState extends State<MobileSelectOptionEditor> {
     return SingleChildScrollView(
       child: Column(
         children: [
+          const VSpace(16),
           _SearchField(
             controller: searchController,
             hintText: LocaleKeys.grid_selectOption_searchOrCreateOption.tr(),
@@ -165,6 +167,7 @@ class _MobileSelectOptionEditorState extends State<MobileSelectOptionEditor> {
                   );
             },
           ),
+          const VSpace(22),
           _OptionList(
             onCreateOption: (optionName) {
               context
@@ -234,23 +237,11 @@ class _SearchField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textStyle = Theme.of(context).textTheme.bodyMedium;
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        vertical: 12,
-      ),
-      child: SizedBox(
-        height: 44, // the height is fixed.
-        child: FlowyTextField(
-          autoFocus: false,
-          hintText: hintText,
-          textStyle: textStyle,
-          hintStyle: textStyle?.copyWith(color: Theme.of(context).hintColor),
-          onChanged: onChanged,
-          onSubmitted: onSubmitted,
-          controller: controller,
-        ),
-      ),
+    return FlowyMobileSearchTextField(
+      controller: controller,
+      onChanged: onChanged,
+      onSubmitted: onSubmitted,
+      hintText: hintText,
     );
   }
 }
@@ -300,8 +291,7 @@ class _OptionList extends StatelessWidget {
         return ListView.separated(
           shrinkWrap: true,
           itemCount: cells.length,
-          separatorBuilder: (_, __) =>
-              VSpace(GridSize.typeOptionSeparatorHeight),
+          separatorBuilder: (_, __) => const VSpace(20),
           physics: const NeverScrollableScrollPhysics(),
           itemBuilder: (_, int index) => cells[index],
           padding: const EdgeInsets.only(bottom: 12.0),
@@ -327,7 +317,7 @@ class _SelectOption extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 44,
+      height: 40,
       child: GestureDetector(
         // no need to add click effect, so using gesture detector
         behavior: HitTestBehavior.translucent,
@@ -340,19 +330,28 @@ class _SelectOption extends StatelessWidget {
                   ? FlowySvgs.m_checkbox_checked_s
                   : FlowySvgs.m_checkbox_uncheck_s,
               size: const Size.square(24.0),
-              blendMode: null,
+              blendMode: checked ? null : BlendMode.srcIn,
             ),
             // padding
             const HSpace(12),
             // option tag
-            SelectOptionTag(
-              option: option,
-              padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 8),
+            Expanded(
+              child: SelectOptionTag(
+                option: option,
+                padding: const EdgeInsets.symmetric(
+                  vertical: 10,
+                ),
+                textAlign: TextAlign.center,
+                fontSize: 15.0,
+                isExpanded: true,
+              ),
             ),
-            const Spacer(),
+            const HSpace(24),
             // more options
             FlowyIconButton(
-              icon: const FlowySvg(FlowySvgs.three_dots_s),
+              icon: const FlowySvg(
+                FlowySvgs.m_field_more_s,
+              ),
               onPressed: onMoreOptions,
             ),
           ],
@@ -386,13 +385,13 @@ class _CreateOptionCell extends StatelessWidget {
             ),
             const HSpace(8),
             Expanded(
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: SelectOptionTag(
-                  name: optionName,
-                  color: Theme.of(context).colorScheme.surfaceVariant,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 11, vertical: 8),
+              child: SelectOptionTag(
+                isExpanded: true,
+                name: optionName,
+                color: Theme.of(context).colorScheme.surfaceVariant,
+                textAlign: TextAlign.center,
+                padding: const EdgeInsets.symmetric(
+                  vertical: 10,
                 ),
               ),
             ),
@@ -483,7 +482,7 @@ class _MoreOptionsState extends State<_MoreOptions> {
   Widget _buildDeleteButton(BuildContext context) {
     return FlowyOptionTile.text(
       text: LocaleKeys.button_delete.tr(),
-      leftIcon: const FlowySvg(FlowySvgs.delete_s),
+      leftIcon: const FlowySvg(FlowySvgs.m_delete_s),
       onTap: widget.onDelete,
     );
   }
