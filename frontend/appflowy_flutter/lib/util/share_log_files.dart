@@ -42,9 +42,15 @@ Future<void> shareLogFiles(BuildContext? context) async {
   }
 
   // create a zipped appflowy logs file
+  final path = Platform.isAndroid ? '/storage/emulated/0/Download' : dir.path;
   final zipFile =
-      await File(p.join(dir.path, 'appflowy_logs.zip')).writeAsBytes(zip);
-  await Share.shareUri(zipFile.uri);
+      await File(p.join(path, 'appflowy_logs.zip')).writeAsBytes(zip);
+
+  if (Platform.isIOS) {
+    await Share.shareUri(zipFile.uri);
+  } else {
+    await Share.shareXFiles([XFile(zipFile.path)]);
+  }
 
   // delete the zipped appflowy logs file
   await zipFile.delete();
