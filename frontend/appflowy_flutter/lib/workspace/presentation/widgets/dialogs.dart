@@ -100,11 +100,13 @@ class NavigatorAlertDialog extends StatefulWidget {
     required this.title,
     this.cancel,
     this.confirm,
+    this.hideCancleButton = false,
   });
 
   final String title;
   final void Function()? cancel;
   final void Function()? confirm;
+  final bool hideCancleButton;
 
   @override
   State<NavigatorAlertDialog> createState() => _CreateFlowyAlertDialog();
@@ -145,10 +147,12 @@ class _CreateFlowyAlertDialog extends State<NavigatorAlertDialog> {
                 widget.confirm?.call();
                 Navigator.of(context).pop();
               },
-              onCancelPressed: () {
-                widget.cancel?.call();
-                Navigator.of(context).pop();
-              },
+              onCancelPressed: widget.hideCancleButton
+                  ? null
+                  : () {
+                      widget.cancel?.call();
+                      Navigator.of(context).pop();
+                    },
             ),
           ],
         ],
@@ -249,7 +253,7 @@ class OkCancelButton extends StatelessWidget {
               onPressed: onCancelPressed,
               mode: mode,
             ),
-          HSpace(Insets.m),
+          if (onCancelPressed != null) HSpace(Insets.m),
           if (onOkPressed != null)
             PrimaryTextButton(
               okTitle ?? LocaleKeys.button_ok.tr(),

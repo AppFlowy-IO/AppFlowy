@@ -17,7 +17,7 @@ import 'package:dartz/dartz.dart';
 /// - `CloudType.local` is stored as "0".
 /// - `CloudType.supabase` is stored as "1".
 /// - `CloudType.appflowyCloud` is stored as "2".
-Future<void> setAuthenticatorType(AuthenticatorType ty) async {
+Future<void> _setAuthenticatorType(AuthenticatorType ty) async {
   switch (ty) {
     case AuthenticatorType.local:
       await getIt<KeyValueStorage>().set(KVKeys.kCloudType, 0.toString());
@@ -54,7 +54,7 @@ Future<AuthenticatorType> getAuthenticatorType() async {
   final value = await getIt<KeyValueStorage>().get(KVKeys.kCloudType);
   if (value.isNone() && !integrationMode().isUnitTest) {
     // if the cloud type is not set, then set it to AppFlowy Cloud as default.
-    await setAuthenticatorType(AuthenticatorType.appflowyCloud);
+    await useAppFlowyBetaCloudWithURL(kAppflowyCloudUrl);
     return AuthenticatorType.appflowyCloud;
   }
 
@@ -70,7 +70,7 @@ Future<AuthenticatorType> getAuthenticatorType() async {
     case "4":
       return AuthenticatorType.appflowyCloudDevelop;
     default:
-      await setAuthenticatorType(AuthenticatorType.appflowyCloud);
+      await useAppFlowyBetaCloudWithURL(kAppflowyCloudUrl);
       return AuthenticatorType.appflowyCloud;
   }
 }
@@ -171,11 +171,33 @@ AuthenticatorType currentCloudType() {
   return getIt<AppFlowyCloudSharedEnv>().authenticatorType;
 }
 
-Future<void> setAppFlowyCloudUrl(Option<String> url) async {
+Future<void> _setAppFlowyCloudUrl(Option<String> url) async {
   await url.fold(
     () => getIt<KeyValueStorage>().set(KVKeys.kAppflowyCloudBaseURL, ""),
     (s) => getIt<KeyValueStorage>().set(KVKeys.kAppflowyCloudBaseURL, s),
   );
+}
+
+Future<void> useSelfHostedAppFlowyCloudWithURL(String url) async {
+  await _setAuthenticatorType(AuthenticatorType.appflowyCloudSelfHost);
+  await _setAppFlowyCloudUrl(Some(url));
+}
+
+Future<void> useAppFlowyBetaCloudWithURL(String url) async {
+  await _setAuthenticatorType(AuthenticatorType.appflowyCloud);
+  await _setAppFlowyCloudUrl(Some(url));
+}
+
+Future<void> useLocalServer() async {
+  await _setAuthenticatorType(AuthenticatorType.local);
+}
+
+Future<void> useSupabaseCloud({
+  required String url,
+  required String anonKey,
+}) async {
+  await _setAuthenticatorType(AuthenticatorType.supabase);
+  await setSupbaseServer(Some(url), Some(anonKey));
 }
 
 /// Use getIt<AppFlowyCloudSharedEnv>() to get the shared environment.
@@ -198,12 +220,13 @@ class AppFlowyCloudSharedEnv {
       // Use the custom cloud configuration.
       var authenticatorType = await getAuthenticatorType();
 
-      final appflowyCloudConfig = authenticatorType.isLocal
-          ? AppFlowyCloudConfiguration.defaultConfig()
-          : await getAppFlowyCloudConfig(authenticatorType);
-      final supabaseCloudConfig = authenticatorType.isLocal
-          ? SupabaseConfiguration.defaultConfig()
-          : await getSupabaseCloudConfig();
+      final appflowyCloudConfig = authenticatorType.isAppFlowyCloudEnabled
+          ? await getAppFlowyCloudConfig(authenticatorType)
+          : AppFlowyCloudConfiguration.defaultConfig();
+
+      final supabaseCloudConfig = authenticatorType.isSupabaseEnabled
+          ? await getSupabaseCloudConfig()
+          : SupabaseConfiguration.defaultConfig();
 
       // In the backend, the value '2' represents the use of AppFlowy Cloud. However, in the frontend,
       // we distinguish between [AuthenticatorType.appflowyCloudSelfHost] and [AuthenticatorType.appflowyCloud].
@@ -283,7 +306,7 @@ Future<String> getAppFlowyCloudUrl() async {
   final result =
       await getIt<KeyValueStorage>().get(KVKeys.kAppflowyCloudBaseURL);
   return result.fold(
-    () => "https://beta.appflowy.cloud",
+    () => kAppflowyCloudUrl,
     (url) => url,
   );
 }

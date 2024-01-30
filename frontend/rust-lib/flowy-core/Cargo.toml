@@ -66,4 +66,3 @@ ts = [
 ]
 rev-sqlite = ["flowy-user/rev-sqlite"]
 openssl_vendored = ["flowy-sqlite/openssl_vendored"]
-enable_wasm = ["collab-integrate/enable_wasm"]

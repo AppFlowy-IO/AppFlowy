@@ -10,6 +10,7 @@ use flowy_server_pub::AuthenticatorType;
 pub struct AppFlowyDartConfiguration {
   /// The root path of the application
   pub root: String,
+  pub app_version: String,
   /// This path will be used to store the user data
   pub custom_app_path: String,
   pub origin_app_path: String,
