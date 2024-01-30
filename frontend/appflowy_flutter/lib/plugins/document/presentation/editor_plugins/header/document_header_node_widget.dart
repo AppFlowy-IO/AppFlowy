@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
@@ -14,6 +13,7 @@ import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/shared/appflowy_network_image.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide UploadImageMenu;
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -449,6 +449,7 @@ class DocumentCoverState extends State<DocumentCover> {
                                 minHeight: 80,
                               ),
                               child: UploadImageMenu(
+                                showMaximumImageSize: !_isLocalMode(),
                                 supportTypes: const [
                                   UploadImageType.color,
                                   UploadImageType.local,
@@ -574,6 +575,7 @@ class DocumentCoverState extends State<DocumentCover> {
               isPopoverOpen = true;
 
               return UploadImageMenu(
+                showMaximumImageSize: !_isLocalMode(),
                 supportTypes: const [
                   UploadImageType.color,
                   UploadImageType.local,
@@ -609,9 +611,7 @@ class DocumentCoverState extends State<DocumentCover> {
 
   Future<void> onCoverChanged(CoverType type, String? details) async {
     if (type == CoverType.file && details != null && !isURL(details)) {
-      final type = await getAuthenticatorType();
-      // if the user is using local authenticator, we need to save the image to local storage
-      if (type == AuthenticatorType.local) {
+      if (_isLocalMode()) {
         details = await saveImageToLocalStorage(details);
       } else {
         // else we should save the image to cloud storage
@@ -626,6 +626,12 @@ class DocumentCoverState extends State<DocumentCover> {
     setState(() {
       isOverlayButtonsHidden = value;
     });
+  }
+
+  bool _isLocalMode() {
+    final userProfilePB = context.read<DocumentBloc>().state.userProfilePB;
+    final type = userProfilePB?.authenticator ?? AuthenticatorPB.Local;
+    return type == AuthenticatorPB.Local;
   }
 }
 
