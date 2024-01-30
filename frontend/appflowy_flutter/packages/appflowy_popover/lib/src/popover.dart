@@ -235,14 +235,22 @@ class PopoverState extends State<Popover> {
     switch (widget.clickHandler) {
       case PopoverClickHandler.listener:
         return Listener(
-          onPointerDown: (_) => handler(),
+          onPointerDown: (_) => _callHandler(handler),
           child: child,
         );
       case PopoverClickHandler.gestureDetector:
         return GestureDetector(
-          onTap: handler,
+          onTap: () => _callHandler(handler),
           child: child,
         );
+    }
+  }
+
+  void _callHandler(VoidCallback handler) {
+    if (_rootEntry.contains(this)) {
+      close();
+    } else {
+      handler();
     }
   }
 }
