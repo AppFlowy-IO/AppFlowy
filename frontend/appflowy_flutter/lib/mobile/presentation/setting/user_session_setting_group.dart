@@ -1,4 +1,5 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/widgets/show_flowy_mobile_confirm_dialog.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/sign_in_bloc.dart';
@@ -44,8 +45,18 @@ class UserSessionSettingGroup extends StatelessWidget {
         MobileSignInOrLogoutButton(
           labelText: LocaleKeys.settings_menu_logout.tr(),
           onPressed: () async {
-            await getIt<AuthService>().signOut();
-            await runAppFlowy();
+            await showFlowyMobileConfirmDialog(
+              context,
+              content: FlowyText(
+                LocaleKeys.settings_menu_logoutPrompt.tr(),
+              ),
+              actionButtonTitle: LocaleKeys.button_yes.tr(),
+              actionButtonColor: Theme.of(context).colorScheme.error,
+              onActionButtonPressed: () async {
+                await getIt<AuthService>().signOut();
+                await runAppFlowy();
+              },
+            );
           },
         ),
       ],
