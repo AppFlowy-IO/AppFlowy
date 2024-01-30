@@ -18,7 +18,7 @@ class OutlineBlockKeys {
 
 // defining the callout block menu item for selection
 SelectionMenuItem outlineItem = SelectionMenuItem.node(
-  name: LocaleKeys.document_selectionMenu_outline.tr(),
+  getName: () => LocaleKeys.document_selectionMenu_outline.tr(),
   iconData: Icons.list_alt,
   keywords: ['outline', 'table of contents'],
   nodeBuilder: (editorState, _) => outlineBlockNode(),
