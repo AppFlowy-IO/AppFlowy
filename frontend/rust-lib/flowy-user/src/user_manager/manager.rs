@@ -37,9 +37,9 @@ use crate::services::data_import::importer::import_data;
 use crate::services::data_import::ImportContext;
 
 use crate::services::sqlite_sql::user_sql::{select_user_profile, UserTable, UserTableChangeset};
-use crate::services::sqlite_sql::workspace_sql::save_user_workspaces_op;
 use crate::user_manager::manager_user_awareness::UserAwarenessDataSource;
 use crate::user_manager::manager_user_encryption::validate_encryption_sign;
+use crate::user_manager::manager_user_workspace::save_user_workspaces;
 use crate::user_manager::user_login_state::UserAuthProcess;
 use crate::{errors::FlowyError, notification::*};
 use flowy_user_pub::session::Session;

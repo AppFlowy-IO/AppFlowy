@@ -1,8 +1,3 @@
-use client_api::ws::ConnectState;
-use client_api::ws::WSClient;
-use client_api::ws::WSClientConfig;
-use client_api::ws::WSConnectStateReceiver;
-use client_api::ws::WebSocketChannel;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 

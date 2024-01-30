@@ -1,3 +1,17 @@
+use std::convert::TryFrom;
+use std::sync::Arc;
+
+use collab_entity::{CollabObject, CollabType};
+use collab_integrate::CollabKVDB;
+use tracing::{error, info, instrument};
+
+use flowy_error::{FlowyError, FlowyResult};
+use flowy_folder_pub::entities::{AppFlowyData, ImportData};
+use flowy_sqlite::schema::user_workspace_table;
+use flowy_sqlite::{query_dsl::*, DBConnection, ExpressionMethods};
+use flowy_user_pub::entities::{Role, UserWorkspace, WorkspaceMember};
+use lib_dispatch::prelude::af_spawn;
+
 use crate::entities::{RepeatedUserWorkspacePB, ResetWorkspacePB};
 use crate::migrations::AnonUser;
 use crate::notification::{send_notification, UserNotification};
@@ -6,19 +20,7 @@ use crate::services::sqlite_sql::workspace_sql::{
   get_all_user_workspace_op, get_user_workspace_op, insert_new_workspaces_op, UserWorkspaceTable,
 };
 use crate::user_manager::UserManager;
-use collab_entity::{CollabObject, CollabType};
-use collab_plugins::CollabKVDB;
-use diesel::associations::HasTable;
-use diesel::RunQueryDsl;
-use flowy_error::{FlowyError, FlowyResult};
-use flowy_folder_pub::entities::{AppFlowyData, ImportData};
-use flowy_sqlite::schema::user_workspace_table::dsl::user_workspace_table;
-use flowy_sqlite::DBConnection;
-use flowy_user_pub::entities::{Role, UserWorkspace, WorkspaceMember};
 use flowy_user_pub::session::Session;
-use lib_dispatch::prelude::af_spawn;
-use std::sync::Arc;
-use tracing::{error, info, instrument};
 
 impl UserManager {
   /// Import appflowy data from the given path.
@@ -233,7 +235,7 @@ impl UserManager {
 
   pub async fn get_all_user_workspaces(&self, uid: i64) -> FlowyResult<Vec<UserWorkspace>> {
     let conn = self.db_connection(uid)?;
-    let mut workspaces = get_all_user_workspace_op(uid, conn)?;
+    let workspaces = get_all_user_workspace_op(uid, conn)?;
 
     if let Ok(service) = self.cloud_services.get_user_service() {
       if let Ok(pool) = self.db_pool(uid) {
