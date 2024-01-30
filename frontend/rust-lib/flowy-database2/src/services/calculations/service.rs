@@ -55,7 +55,7 @@ impl CalculationsService {
     });
 
     if !values.is_empty() {
-      Self::median(&values).to_string()
+      format!("{:.5}", Self::median(&values))
     } else {
       "".to_owned()
     }
@@ -80,7 +80,7 @@ impl CalculationsService {
     if !values.is_empty() {
       let min = values.iter().min_by(|a, b| a.total_cmp(b));
       if let Some(min) = min {
-        return min.to_string();
+        return format!("{:.5}", min);
       }
     }
 
@@ -96,7 +96,7 @@ impl CalculationsService {
     if !values.is_empty() {
       let max = values.iter().max_by(|a, b| a.total_cmp(b));
       if let Some(max) = max {
-        return max.to_string();
+        return format!("{:.5}", max);
       }
     }
 
@@ -107,7 +107,7 @@ impl CalculationsService {
     let values = self.reduce_values_f64(row_cells, |values| values.clone());
 
     if !values.is_empty() {
-      values.iter().sum::<f64>().to_string()
+      format!("{:.5}", values.iter().sum::<f64>())
     } else {
       "".to_owned()
     }

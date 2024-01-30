@@ -158,7 +158,7 @@ class CalculateCell extends StatelessWidget {
             const HSpace(8),
             Flexible(
               child: FlowyText(
-                calculation!.value,
+                _withoutTrailingZeros(calculation!.value),
                 color: AFThemeExtension.of(context).textColor,
               ),
             ),
@@ -171,6 +171,17 @@ class CalculateCell extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _withoutTrailingZeros(String value) {
+    final regex = RegExp(r'^(\d+(?:\.\d*?[1-9](?=0|\b))?)\.?0*$');
+    if (regex.hasMatch(value)) {
+      debugPrint("REACHED? ($value)");
+      final match = regex.firstMatch(value)!;
+      return match.group(1)!;
+    }
+
+    return value;
   }
 }
 
