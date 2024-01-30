@@ -39,10 +39,14 @@ class ShortcutsCubit extends Cubit<ShortcutsState> {
         commandShortcutEvents,
         customizeShortcuts,
       );
-      //sort the shortcuts
+      // Sort and filter out duplicate shortcuts (ie, "cut" from app and from editor)
+      final uniqueSet = <String>{};
       final List<CommandShortcutEvent> sortedShortcuts =
           commandShortcutEvents.fold(<CommandShortcutEvent>[], (acc, e) {
-        if (e.description == null) return acc;
+        if (e.description == null || uniqueSet.contains(e.description)) {
+          return acc;
+        }
+        uniqueSet.add(e.description!);
         return acc..add(e);
       })
             ..sort(
