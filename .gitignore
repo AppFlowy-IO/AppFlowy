@@ -40,3 +40,4 @@ frontend/package
 frontend/*.deb
 
 **/Cargo.toml.bak
+.tool-versions
