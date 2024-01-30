@@ -1,5 +1,5 @@
 use crate::entities::{CalculationType, FieldType};
-use crate::services::cell::CellDataDecoder;
+
 use crate::services::field::TypeOptionCellExt;
 use collab_database::fields::Field;
 use collab_database::rows::RowCell;
