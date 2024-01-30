@@ -181,6 +181,6 @@ fn make_user_workspace() -> UserWorkspace {
     id: uuid::Uuid::new_v4().to_string(),
     name: "My Workspace".to_string(),
     created_at: Default::default(),
-    database_view_tracker_id: uuid::Uuid::new_v4().to_string(),
+    workspace_database_object_id: uuid::Uuid::new_v4().to_string(),
   }
 }

@@ -127,7 +127,7 @@ pub(crate) fn import_appflowy_data_folder(
     // when doing import, we don't want to import the user workspace, database view tracker and the user awareness
     all_imported_object_ids.retain(|id| id != &imported_session.user_workspace.id);
     all_imported_object_ids
-      .retain(|id| id != &imported_session.user_workspace.database_view_tracker_id);
+      .retain(|id| id != &imported_session.user_workspace.workspace_database_object_id);
     all_imported_object_ids
       .retain(|id| id != &awareness_oid_from_user_uuid(&imported_session.user_uuid).to_string());
 
@@ -268,14 +268,14 @@ where
 {
   let database_view_tracker_collab = Collab::new(
     other_session.user_id,
-    &other_session.user_workspace.database_view_tracker_id,
+    &other_session.user_workspace.workspace_database_object_id,
     "phantom",
     vec![],
   );
   database_view_tracker_collab.with_origin_transact_mut(|txn| {
     other_collab_read_txn.load_doc_with_txn(
       other_session.user_id,
-      &other_session.user_workspace.database_view_tracker_id,
+      &other_session.user_workspace.workspace_database_object_id,
       txn,
     )
   })?;

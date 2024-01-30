@@ -9,6 +9,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/image/imag
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/resizeable_image.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/unsupport_image_widget.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/util/string_extension.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide ResizableImage;
 import 'package:easy_localization/easy_localization.dart';
@@ -355,27 +356,30 @@ class CustomImageBlockComponentState extends State<CustomImageBlockComponent>
 
   // only used on mobile platform
   List<Widget> _buildExtendActionWidgets(BuildContext context) {
-    final url = widget.node.attributes[CustomImageBlockKeys.url];
+    final String url = widget.node.attributes[CustomImageBlockKeys.url];
     if (!_checkIfURLIsValid(url)) {
       return [];
     }
 
     return [
-      FlowyOptionTile.text(
-        showTopBorder: false,
-        text: LocaleKeys.editor_copyLink.tr(),
-        leftIcon: const FlowySvg(
-          FlowySvgs.m_field_copy_s,
+      // disable the copy link button if the image is hosted on appflowy cloud
+      // because the url needs the verification token to be accessible
+      if (!url.isAppFlowyCloudUrl)
+        FlowyOptionTile.text(
+          showTopBorder: false,
+          text: LocaleKeys.editor_copyLink.tr(),
+          leftIcon: const FlowySvg(
+            FlowySvgs.m_field_copy_s,
+          ),
+          onTap: () async {
+            context.pop();
+            showSnackBarMessage(
+              context,
+              LocaleKeys.document_plugins_image_copiedToPasteBoard.tr(),
+            );
+            await getIt<ClipboardService>().setPlainText(url);
+          },
         ),
-        onTap: () async {
-          context.pop();
-          showSnackBarMessage(
-            context,
-            LocaleKeys.document_plugins_image_copiedToPasteBoard.tr(),
-          );
-          await getIt<ClipboardService>().setPlainText(url);
-        },
-      ),
       FlowyOptionTile.text(
         showTopBorder: false,
         text: LocaleKeys.document_imageBlock_saveImageToGallery.tr(),
