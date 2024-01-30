@@ -43,7 +43,7 @@ Node autoCompletionNode({
 }
 
 SelectionMenuItem autoGeneratorMenuItem = SelectionMenuItem.node(
-  name: LocaleKeys.document_plugins_autoGeneratorMenuItemName.tr(),
+  getName: () => LocaleKeys.document_plugins_autoGeneratorMenuItemName.tr(),
   iconData: Icons.generating_tokens,
   keywords: ['ai', 'openai' 'writer', 'autogenerator'],
   nodeBuilder: (editorState, _) {
@@ -172,9 +172,7 @@ class _AutoCompletionBlockComponentState
       maxLines: 5,
       focusNode: textFieldFocusNode,
       autoFocus: false,
-      hintTextConstraints: const BoxConstraints(
-        
-      ),
+      hintTextConstraints: const BoxConstraints(),
     );
   }
 

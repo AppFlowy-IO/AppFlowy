@@ -1,12 +1,14 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_picker.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/selectable_svg_widget.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/decoration.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 SelectionMenuItem emojiMenuItem = SelectionMenuItem(
-  name: 'Emoji',
+  getName: () => LocaleKeys.document_plugins_emoji.tr(),
   icon: (editorState, onSelected, style) => SelectableIconWidget(
     icon: Icons.emoji_emotions_outlined,
     isSelected: onSelected,

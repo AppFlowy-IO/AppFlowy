@@ -48,7 +48,7 @@ dependencies:
   appflowy_editor_plugins:
     git:
       url: https://github.com/LucasXu0/appflowy_editor_plugins
-      ref: "6c49fea"
+      ref: "0223cca"
 
   appflowy_popover:
     path: packages/appflowy_popover
@@ -106,8 +106,8 @@ dependencies:
   url_protocol:
   hive: ^2.2.3
   hive_flutter: ^1.1.0
-  super_clipboard: 0.8.1
-  go_router: ^12.1.1
+  super_clipboard: ^0.8.4
+  go_router: ^13.1.0
   string_validator: ^1.0.0
   unsplash_client: ^2.1.1
   flutter_emoji_mart:
@@ -152,8 +152,8 @@ dependency_overrides:
 
   supabase_flutter:
     git:
-      url: https://github.com/LucasXu0/supabase-flutter
-      ref: 4bd9139
+      url: https://github.com/supabase/supabase-flutter
+      ref: 9b05eea
       path: packages/supabase_flutter
 
   url_protocol:
@@ -164,11 +164,8 @@ dependency_overrides:
   appflowy_editor:
     git:
       url: https://github.com/AppFlowy-IO/appflowy-editor.git
-      ref: "31a18c5"
+      ref: "e80edfc"
 
-  file: ^7.0.0
-
-  logger: ^2.0.0
   uuid: ^4.1.0
 
   # The "flutter_lints" package below contains a set of recommended lints to

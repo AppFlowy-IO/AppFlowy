@@ -787,7 +787,9 @@
         "toContinue": "to continue",
         "newDatabase": "New Database",
         "linkToDatabase": "Link to Database"
-      }
+      },
+      "date": "Date",
+      "emoji": "Emoji"
     },
     "textBlock": {
       "placeholder": "Type '/' for commands"
