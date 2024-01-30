@@ -34,7 +34,7 @@ class SelectOptionFilterEditorBloc
     on<SelectOptionFilterEditorEvent>(
       (event, emit) async {
         event.when(
-          initial: () async {
+          initial: () {
             _startListening();
             _loadOptions();
           },

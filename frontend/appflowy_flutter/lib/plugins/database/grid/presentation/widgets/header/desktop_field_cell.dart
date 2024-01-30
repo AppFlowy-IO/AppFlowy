@@ -119,9 +119,9 @@ class _GridFieldCellState extends State<GridFieldCell> {
   }
 
   @override
-  Future<void> dispose() async {
+  void dispose() {
+    _bloc.close();
     super.dispose();
-    await _bloc.close();
   }
 }
 

@@ -25,11 +25,11 @@ class SettingFileImportBloc
             emit(
               state.copyWith(loadingState: const LoadingState.loading()),
             );
-            UserEventImportAppFlowyDataFolder(payload).send().then((result) {
-              if (!isClosed) {
-                add(SettingFileImportEvent.finishImport(result));
-              }
-            });
+            final result =
+                await UserEventImportAppFlowyDataFolder(payload).send();
+            if (!isClosed) {
+              add(SettingFileImportEvent.finishImport(result));
+            }
           },
           finishImport: (result) {
             result.fold(

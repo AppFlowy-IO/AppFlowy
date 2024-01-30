@@ -14,6 +14,7 @@ use crate::integrate::log::create_log_filter;
 #[derive(Clone)]
 pub struct AppFlowyCoreConfig {
   /// Different `AppFlowyCoreConfig` instance should have different name
+  pub(crate) app_version: String,
   pub(crate) name: String,
   pub(crate) device_id: String,
   /// Used to store the user data
@@ -30,6 +31,7 @@ pub struct AppFlowyCoreConfig {
 impl fmt::Debug for AppFlowyCoreConfig {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
     let mut debug = f.debug_struct("AppFlowy Configuration");
+    debug.field("app_version", &self.app_version);
     debug.field("storage_path", &self.storage_path);
     debug.field("application_path", &self.application_path);
     if let Some(config) = &self.cloud_config {
@@ -71,6 +73,7 @@ fn make_user_data_folder(root: &str, url: &str) -> String {
 
 impl AppFlowyCoreConfig {
   pub fn new(
+    app_version: String,
     custom_application_path: String,
     application_path: String,
     device_id: String,
@@ -89,6 +92,7 @@ impl AppFlowyCoreConfig {
     };
 
     AppFlowyCoreConfig {
+      app_version,
       name,
       storage_path,
       application_path,

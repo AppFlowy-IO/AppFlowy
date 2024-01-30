@@ -1,5 +1,6 @@
 import 'package:appflowy/env/env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/base/app_bar.dart';
 import 'package:appflowy/mobile/presentation/presentation.dart';
 import 'package:appflowy/mobile/presentation/setting/self_host_setting_group.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
@@ -18,8 +19,8 @@ class MobileLaunchSettingsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     context.watch<AppearanceSettingsCubit>();
     return Scaffold(
-      appBar: AppBar(
-        title: Text(LocaleKeys.settings_title.tr()),
+      appBar: FlowyAppBar(
+        titleText: LocaleKeys.settings_title.tr(),
       ),
       body: SingleChildScrollView(
         child: Padding(

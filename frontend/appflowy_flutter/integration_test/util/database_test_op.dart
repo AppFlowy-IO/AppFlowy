@@ -53,12 +53,12 @@ import 'package:appflowy/plugins/database/tab_bar/desktop/tab_bar_add_button.dar
 import 'package:appflowy/plugins/database/tab_bar/desktop/tab_bar_header.dart';
 import 'package:appflowy/plugins/database/widgets/database_layout_ext.dart';
 import 'package:appflowy/plugins/database/widgets/row/accessory/cell_accessory.dart';
-import 'package:appflowy/plugins/database/widgets/row/cells/checklist_cell/checklist_cell_editor.dart';
-import 'package:appflowy/plugins/database/widgets/row/cells/checklist_cell/checklist_progress_bar.dart';
-import 'package:appflowy/plugins/database/widgets/row/cells/date_cell/date_editor.dart';
-import 'package:appflowy/plugins/database/widgets/row/cells/select_option_cell/extension.dart';
-import 'package:appflowy/plugins/database/widgets/row/cells/select_option_cell/select_option_editor.dart';
-import 'package:appflowy/plugins/database/widgets/row/cells/select_option_cell/text_field.dart';
+import 'package:appflowy/plugins/database/widgets/cell_editor/checklist_cell_editor.dart';
+import 'package:appflowy/plugins/database/widgets/cell_editor/checklist_progress_bar.dart';
+import 'package:appflowy/plugins/database/widgets/cell_editor/date_editor.dart';
+import 'package:appflowy/plugins/database/widgets/cell_editor/extension.dart';
+import 'package:appflowy/plugins/database/widgets/cell_editor/select_option_editor.dart';
+import 'package:appflowy/plugins/database/widgets/cell_editor/select_option_text_field.dart';
 import 'package:appflowy/plugins/database/widgets/row/row_action.dart';
 import 'package:appflowy/plugins/database/widgets/row/row_banner.dart';
 import 'package:appflowy/plugins/database/widgets/row/row_detail.dart';
@@ -123,7 +123,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
       File(path).writeAsStringSync(str);
     }
     // mock get files
-    await mockPickFilePaths(
+    mockPickFilePaths(
       paths: paths,
     );
     await tapDatabaseRawDataButton();
@@ -211,12 +211,12 @@ extension AppFlowyDatabaseTest on WidgetTester {
   }
 
   /// The [fieldName] must be unique in the grid.
-  Future<void> assertCellContent({
+  void assertCellContent({
     required int rowIndex,
     required FieldType fieldType,
     required String content,
     int cellIndex = 0,
-  }) async {
+  }) {
     final findCell = cellFinder(rowIndex, fieldType, cellIndex: cellIndex);
     final findContent = find.descendant(
       of: findCell,
@@ -265,10 +265,10 @@ extension AppFlowyDatabaseTest on WidgetTester {
   }
 
   /// null percent means no progress bar should be found
-  Future<void> assertChecklistCellInGrid({
+  void assertChecklistCellInGrid({
     required int rowIndex,
     required double? percent,
-  }) async {
+  }) {
     final findCell = cellFinder(rowIndex, FieldType.Checklist);
 
     if (percent == null) {
@@ -907,14 +907,14 @@ extension AppFlowyDatabaseTest on WidgetTester {
     expect(widget.field.fieldType, fieldType);
   }
 
-  Future<void> findFieldWithName(String name) async {
+  void findFieldWithName(String name) {
     final field = find.byWidgetPredicate(
       (widget) => widget is FieldCellButton && widget.field.name == name,
     );
     expect(field, findsOneWidget);
   }
 
-  Future<void> noFieldWithName(String name) async {
+  void noFieldWithName(String name) {
     final field = find.byWidgetPredicate(
       (widget) => widget is FieldCellButton && widget.field.name == name,
     );
@@ -1586,7 +1586,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await tapButton(okButton);
   }
 
-  Future<void> assertCurrentDatabaseTagIs(DatabaseLayoutPB layout) async {
+  void assertCurrentDatabaseTagIs(DatabaseLayoutPB layout) {
     switch (layout) {
       case DatabaseLayoutPB.Board:
         expect(find.byType(BoardPage), findsOneWidget);

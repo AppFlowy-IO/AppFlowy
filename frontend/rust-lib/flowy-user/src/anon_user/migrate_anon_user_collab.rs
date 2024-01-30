@@ -21,7 +21,7 @@ use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_folder_pub::cloud::gen_view_id;
 
 use crate::migrations::AnonUser;
-use crate::services::entities::Session;
+use flowy_user_pub::session::Session;
 
 /// Migration the collab objects of the old user to new user. Currently, it only happens when
 /// the user is a local user and try to use AppFlowy cloud service.
@@ -57,7 +57,7 @@ pub fn migration_anon_user_on_sign_up(
       // Migration of all objects except the folder and database_with_views
       object_ids.retain(|id| {
         id != &old_user.session.user_workspace.id
-          && id != &old_user.session.user_workspace.database_view_tracker_id
+          && id != &old_user.session.user_workspace.workspace_database_object_id
       });
 
       info!("migrate collab objects: {:?}", object_ids.len());
@@ -148,20 +148,20 @@ where
 {
   let database_with_views_collab = Collab::new(
     old_user.session.user_id,
-    &old_user.session.user_workspace.database_view_tracker_id,
+    &old_user.session.user_workspace.workspace_database_object_id,
     "phantom",
     vec![],
   );
   database_with_views_collab.with_origin_transact_mut(|txn| {
     old_collab_r_txn.load_doc_with_txn(
       old_user.session.user_id,
-      &old_user.session.user_workspace.database_view_tracker_id,
+      &old_user.session.user_workspace.workspace_database_object_id,
       txn,
     )
   })?;
 
   let new_uid = new_user_session.user_id;
-  let new_object_id = &new_user_session.user_workspace.database_view_tracker_id;
+  let new_object_id = &new_user_session.user_workspace.workspace_database_object_id;
 
   let array = DatabaseViewTrackerList::from_collab(&database_with_views_collab);
   for database_view_tracker in array.get_all_database_tracker() {

@@ -16,7 +16,7 @@ async fn test() {
     vec![AFPlugin::new().event(event, hello)],
   ));
   let request = AFPluginRequest::new(event);
-  let _ = AFPluginDispatcher::async_send_with_callback(dispatch.clone(), request, |resp| {
+  let _ = AFPluginDispatcher::async_send_with_callback(dispatch.as_ref(), request, |resp| {
     Box::pin(async move {
       dbg!(&resp);
     })

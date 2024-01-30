@@ -106,7 +106,7 @@ class SettingsDialog extends StatelessWidget {
         return const SettingsNotificationsView();
       case SettingsPage.cloud:
         return SettingCloud(
-          didResetServerUrl: () => restartApp(),
+          restartAppFlowy: () => restartApp(),
         );
       case SettingsPage.shortcuts:
         return const SettingsCustomizeShortcutsWrapper();

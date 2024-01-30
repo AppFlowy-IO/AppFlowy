@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -202,9 +203,11 @@ class EditorOperations {
   /// Update the editor's selection
   Future<void> updateSelection(Selection selection) async {
     final editorState = getCurrentEditorState();
-    editorState.updateSelectionWithReason(
-      selection,
-      reason: SelectionUpdateReason.uiEvent,
+    unawaited(
+      editorState.updateSelectionWithReason(
+        selection,
+        reason: SelectionUpdateReason.uiEvent,
+      ),
     );
     await tester.pumpAndSettle(const Duration(milliseconds: 200));
   }

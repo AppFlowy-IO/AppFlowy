@@ -1,5 +1,5 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/mobile/presentation/base/app_bar_actions.dart';
+import 'package:appflowy/mobile/presentation/base/app_bar.dart';
 import 'package:appflowy/mobile/presentation/database/field/mobile_field_type_option_editor.dart';
 import 'package:appflowy/util/field_type_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
@@ -44,23 +44,10 @@ class _MobileNewPropertyScreenState extends State<MobileNewPropertyScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      appBar: FlowyAppBar(
         centerTitle: true,
-        title: FlowyText.medium(
-          LocaleKeys.grid_field_newProperty.tr(),
-        ),
-        leading: AppBarCancelButton(
-          onTap: () => context.pop(),
-        ),
-        leadingWidth: 120,
-        elevation: 0,
-        bottom: const PreferredSize(
-          preferredSize: Size.fromHeight(1),
-          child: Divider(
-            height: 1,
-            thickness: 1,
-          ),
-        ),
+        titleText: LocaleKeys.grid_field_newProperty.tr(),
+        leadingType: FlowyAppBarLeadingType.cancel,
         actions: [
           _SaveButton(
             onSave: () {
@@ -69,7 +56,7 @@ class _MobileNewPropertyScreenState extends State<MobileNewPropertyScreen> {
           ),
         ],
       ),
-      body: FieldOptionEditor(
+      body: MobileFieldEditor(
         mode: FieldOptionMode.add,
         defaultValues: optionValues,
         onOptionValuesChanged: (optionValues) {

@@ -53,7 +53,7 @@ class ChangeCoverPopoverBloc
             final updateImageList = currentState.imageNames
                 .where((path) => path != deleteImage.path)
                 .toList();
-            await _updateImagePathsInStorage(updateImageList);
+            _updateImagePathsInStorage(updateImageList);
             emit(Loaded(updateImageList));
           }
         },
@@ -69,7 +69,7 @@ class ChangeCoverPopoverBloc
                 _removeCoverImageFromNode();
               }
             }
-            await _updateImagePathsInStorage([]);
+            _updateImagePathsInStorage([]);
             emit(const Loaded([]));
           }
         },
@@ -84,14 +84,13 @@ class ChangeCoverPopoverBloc
       return imageNames;
     }
     imageNames.removeWhere((name) => !File(name).existsSync());
-    _prefs.setStringList(kLocalImagesKey, imageNames);
+    unawaited(_prefs.setStringList(kLocalImagesKey, imageNames));
     return imageNames;
   }
 
-  Future<void> _updateImagePathsInStorage(List<String> imagePaths) async {
+  void _updateImagePathsInStorage(List<String> imagePaths) async {
     await _initCompleter.future;
-    _prefs.setStringList(kLocalImagesKey, imagePaths);
-    return;
+    await _prefs.setStringList(kLocalImagesKey, imagePaths);
   }
 
   Future<void> _deleteImageInStorage(String path) async {
@@ -99,14 +98,14 @@ class ChangeCoverPopoverBloc
     await imageFile.delete();
   }
 
-  Future<void> _removeCoverImageFromNode() async {
+  void _removeCoverImageFromNode() {
     final transaction = editorState.transaction;
     transaction.updateNode(node, {
       DocumentHeaderBlockKeys.coverType: CoverType.none.toString(),
       DocumentHeaderBlockKeys.icon:
           node.attributes[DocumentHeaderBlockKeys.icon],
     });
-    return editorState.apply(transaction);
+    editorState.apply(transaction);
   }
 }
 

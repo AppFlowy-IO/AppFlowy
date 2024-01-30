@@ -106,7 +106,6 @@ class MobileDatabaseViewListButton extends StatelessWidget {
       onPressed: () {
         showMobileBottomSheet(
           context,
-          padding: EdgeInsets.zero,
           showDragHandle: true,
           builder: (_) {
             return BlocProvider<ViewBloc>(
@@ -126,7 +125,7 @@ class MobileDatabaseViewListButton extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           const FlowySvg(
-            FlowySvgs.blue_check_s,
+            FlowySvgs.m_blue_check_s,
             size: Size.square(20),
             blendMode: BlendMode.dst,
           ),
@@ -156,7 +155,6 @@ class MobileNewDatabaseViewButton extends StatelessWidget {
       onTap: () async {
         final result = await showMobileBottomSheet<(DatabaseLayoutPB, String)>(
           context,
-          padding: const EdgeInsets.only(bottom: 36),
           builder: (_) {
             return const MobileCreateDatabaseView();
           },

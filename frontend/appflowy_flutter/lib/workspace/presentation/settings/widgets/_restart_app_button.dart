@@ -8,13 +8,32 @@ import 'package:flutter/material.dart';
 class RestartButton extends StatelessWidget {
   const RestartButton({
     super.key,
+    required this.showRestartHint,
     required this.onClick,
   });
 
+  final bool showRestartHint;
   final VoidCallback onClick;
 
   @override
   Widget build(BuildContext context) {
+    final List<Widget> children = [_buildRestartButton()];
+    if (showRestartHint) {
+      children.add(
+        Padding(
+          padding: const EdgeInsets.only(top: 10),
+          child: FlowyText(
+            LocaleKeys.settings_menu_restartAppTip.tr(),
+            maxLines: null,
+          ),
+        ),
+      );
+    }
+
+    return Column(children: children);
+  }
+
+  Widget _buildRestartButton() {
     if (PlatformExtension.isDesktopOrWeb) {
       return Row(
         children: [

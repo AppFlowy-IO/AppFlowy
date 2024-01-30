@@ -17,7 +17,9 @@ pub fn init_flowy_core() -> AppFlowyCore {
   let device_id = uuid::Uuid::new_v4().to_string();
 
   std::env::set_var("RUST_LOG", "trace");
+  // TODO(nathan): pass the real version here
   let config = AppFlowyCoreConfig::new(
+    "1.0.0".to_string(),
     custom_application_path,
     application_path,
     device_id,
