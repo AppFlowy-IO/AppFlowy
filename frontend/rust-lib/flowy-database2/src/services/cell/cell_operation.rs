@@ -174,7 +174,7 @@ pub fn stringify_cell_data(
     .get_type_option_cell_data_handler(from_field_type)
   {
     None => "".to_string(),
-    Some(handler) => handler.stringify_cell_str(cell, to_field_type, field),
+    Some(handler) => handler.handle_stringify_cell(cell, to_field_type, field),
   }
 }
 

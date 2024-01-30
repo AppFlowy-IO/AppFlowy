@@ -1,11 +1,9 @@
-use collab_database::fields::Field;
-use std::sync::Arc;
-
-use collab_database::rows::RowCell;
-
 use crate::entities::{CalculationType, FieldType};
 use crate::services::cell::CellDataDecoder;
 use crate::services::field::TypeOptionCellExt;
+use collab_database::fields::Field;
+use collab_database::rows::RowCell;
+use std::sync::Arc;
 
 pub struct CalculationsService {}
 
@@ -35,13 +33,15 @@ impl CalculationsService {
     let mut sum = 0.0;
     let mut len = 0.0;
     let field_type = FieldType::from(field.field_type);
-    let handler = TypeOptionCellExt::new_with_cell_data_cache(field, None)
-      .get_type_option_cell_data_handler(&field_type)?;
-    for row_cell in row_cells {
-      if let Some(cell) = &row_cell.cell {
-        if let Some(value) = handler.numeric_cell(cell) {
-          sum += value;
-          len += 1.0;
+    if let Some(handler) = TypeOptionCellExt::new_with_cell_data_cache(field, None)
+      .get_type_option_cell_data_handler(&field_type)
+    {
+      for row_cell in row_cells {
+        if let Some(cell) = &row_cell.cell {
+          if let Some(value) = handler.handle_numeric_cell(cell) {
+            sum += value;
+            len += 1.0;
+          }
         }
       }
     }
@@ -125,12 +125,14 @@ impl CalculationsService {
     let mut values = vec![];
 
     let field_type = FieldType::from(field.field_type);
-    let handler = TypeOptionCellExt::new_with_cell_data_cache(field, None)
-      .get_type_option_cell_data_handler(&field_type)?;
-    for row_cell in row_cells {
-      if let Some(cell) = &row_cell.cell {
-        if let Some(value) = handler.numeric_cell(cell) {
-          values.push(value);
+    if let Some(handler) = TypeOptionCellExt::new_with_cell_data_cache(field, None)
+      .get_type_option_cell_data_handler(&field_type)
+    {
+      for row_cell in row_cells {
+        if let Some(cell) = &row_cell.cell {
+          if let Some(value) = handler.handle_numeric_cell(cell) {
+            values.push(value);
+          }
         }
       }
     }

@@ -7,13 +7,15 @@ use flowy_error::{internal_error, ErrorCode, FlowyResult};
 
 use crate::entities::{FieldType, SelectOptionCellDataPB};
 use crate::services::cell::{
-  CellDataDecoder, CellProtobufBlobParser, DecodedCellData, FromCellChangeset, ToCellChangeset,
+  CellDataChangeset, CellDataDecoder, CellProtobufBlobParser, DecodedCellData, FromCellChangeset,
+  ToCellChangeset,
 };
 use crate::services::field::selection_type_option::type_option_transform::SelectOptionTypeOptionTransformHelper;
 use crate::services::field::{
   make_selected_options, CheckboxCellData, MultiSelectTypeOption, SelectOption,
   SelectOptionCellData, SelectOptionColor, SelectOptionIds, SingleSelectTypeOption, TypeOption,
-  TypeOptionCellDataSerde, TypeOptionTransform, SELECTION_IDS_SEPARATOR,
+  TypeOptionCellDataCompare, TypeOptionCellDataFilter, TypeOptionCellDataSerde,
+  TypeOptionTransform, SELECTION_IDS_SEPARATOR,
 };
 
 /// Defines the shared actions used by SingleSelect or Multi-Select.
@@ -118,10 +120,10 @@ where
   }
 }
 
-impl<T> CellDataDecoder for T
+impl<T, C> CellDataDecoder for T
 where
-  T:
-    SelectTypeOptionSharedAction + TypeOption<CellData = SelectOptionIds> + TypeOptionCellDataSerde,
+  C: Into<SelectOptionIds> + for<'a> From<&'a Cell>,
+  T: SelectTypeOptionSharedAction + TypeOption<CellData = C> + TypeOptionCellDataSerde,
 {
   fn decode_cell(
     &self,
@@ -132,9 +134,9 @@ where
     self.parse_cell(cell)
   }
 
-  fn stringify_cell_data(&self, cell_data: <Self as TypeOption>::CellData) -> String {
+  fn stringify_cell_data(&self, cell_data: C) -> String {
     self
-      .get_selected_options(cell_data)
+      .get_selected_options(cell_data.into())
       .select_options
       .into_iter()
       .map(|option| option.name)
@@ -143,7 +145,7 @@ where
   }
 
   fn stringify_cell(&self, cell: &Cell) -> String {
-    let cell_data = Self::CellData::from(cell);
+    let cell_data = C::from(cell);
     self.stringify_cell_data(cell_data)
   }
 

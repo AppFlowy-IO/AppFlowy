@@ -62,7 +62,9 @@ pub trait TypeOptionCellDataHandler: Send + Sync + 'static {
   /// For example, the field type of the [TypeOptionCellDataHandler] is [FieldType::Date], and
   /// the if field_type is [FieldType::RichText], then the string would be something like "Mar 14, 2022".
   ///
-  fn stringify_cell_str(&self, cell: &Cell, field_type: &FieldType, field: &Field) -> String;
+  fn handle_stringify_cell(&self, cell: &Cell, field_type: &FieldType, field: &Field) -> String;
+
+  fn handle_numeric_cell(&self, cell: &Cell) -> Option<f64>;
 
   /// Format the cell to [BoxCellData] using the passed-in [FieldType] and [Field].
   /// The caller can get the cell data by calling [BoxCellData::unbox_or_none].
@@ -323,7 +325,7 @@ where
   /// is [FieldType::RichText], then the string will be transformed to a string that separated by comma with the
   /// option's name.
   ///
-  fn stringify_cell_str(&self, cell: &Cell, field_type: &FieldType, field: &Field) -> String {
+  fn handle_stringify_cell(&self, cell: &Cell, field_type: &FieldType, field: &Field) -> String {
     if self.transformable() {
       let cell_data = self.transform_type_option_cell(cell, field_type, field);
       if let Some(cell_data) = cell_data {
@@ -331,6 +333,10 @@ where
       }
     }
     self.stringify_cell(cell)
+  }
+
+  fn handle_numeric_cell(&self, cell: &Cell) -> Option<f64> {
+    self.numeric_cell(cell)
   }
 
   fn get_cell_data(
@@ -341,9 +347,10 @@ where
   ) -> FlowyResult<BoxCellData> {
     // tracing::debug!("get_cell_data: {:?}", std::any::type_name::<Self>());
     let cell_data = if self.transformable() {
-      self
-        .transform_type_option_cell(cell, field_type, field)
-        .unwrap_or_else(|| self.get_decoded_cell_data(cell, field_type, field)?)
+      match self.transform_type_option_cell(cell, field_type, field) {
+        None => self.get_decoded_cell_data(cell, field_type, field)?,
+        Some(cell_data) => cell_data,
+      }
     } else {
       self.get_decoded_cell_data(cell, field_type, field)?
     };
