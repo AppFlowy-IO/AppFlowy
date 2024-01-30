@@ -60,6 +60,8 @@
     "failedToLoad": "Something went wrong! Failed to load the workspace. Try to close any open instance of AppFlowy and try again.",
     "errorActions": {
       "reportIssue": "Report an issue",
+      "reportIssueOnGithub": "Report an issue on Github",
+      "exportLogFiles": "Export log files",
       "reachOut": "Reach out on Discord"
     }
   },
@@ -1243,5 +1245,6 @@
     "date": "Date",
     "addField": "Add field",
     "userIcon": "User icon"
-  }
+  },
+  "noLogFiles": "There're no log files"
 }
