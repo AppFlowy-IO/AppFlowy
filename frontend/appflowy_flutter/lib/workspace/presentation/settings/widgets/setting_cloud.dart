@@ -7,6 +7,7 @@ import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/settings/cloud_setting_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/setting_local_cloud.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:collection/collection.dart';
@@ -20,9 +21,9 @@ import 'setting_appflowy_cloud.dart';
 import 'setting_supabase_cloud.dart';
 
 class SettingCloud extends StatelessWidget {
-  const SettingCloud({required this.didResetServerUrl, super.key});
+  const SettingCloud({required this.restartAppFlowy, super.key});
 
-  final VoidCallback didResetServerUrl;
+  final VoidCallback restartAppFlowy;
 
   @override
   Widget build(BuildContext context) {
@@ -46,19 +47,15 @@ class SettingCloud extends StatelessWidget {
                               LocaleKeys.settings_menu_cloudServerType.tr(),
                             ),
                           ),
-                          Tooltip(
-                            message: LocaleKeys.settings_menu_cloudServerTypeTip
-                                .tr(),
-                            child: CloudTypeSwitcher(
-                              cloudType: state.cloudType,
-                              onSelected: (newCloudType) {
-                                context.read<CloudSettingBloc>().add(
-                                      CloudSettingEvent.updateCloudType(
-                                        newCloudType,
-                                      ),
-                                    );
-                              },
-                            ),
+                          CloudTypeSwitcher(
+                            cloudType: state.cloudType,
+                            onSelected: (newCloudType) {
+                              context.read<CloudSettingBloc>().add(
+                                    CloudSettingEvent.updateCloudType(
+                                      newCloudType,
+                                    ),
+                                  );
+                            },
                           ),
                         ],
                       ),
@@ -82,25 +79,25 @@ class SettingCloud extends StatelessWidget {
     switch (cloudType) {
       case AuthenticatorType.local:
         return SettingLocalCloud(
-          didResetServerUrl: didResetServerUrl,
+          restartAppFlowy: restartAppFlowy,
         );
       case AuthenticatorType.supabase:
         return SettingSupabaseCloudView(
-          didResetServerUrl: didResetServerUrl,
+          restartAppFlowy: restartAppFlowy,
         );
       case AuthenticatorType.appflowyCloud:
         return AppFlowyCloudViewSetting(
-          restartAppFlowy: didResetServerUrl,
+          restartAppFlowy: restartAppFlowy,
         );
       case AuthenticatorType.appflowyCloudSelfHost:
         return CustomAppFlowyCloudView(
-          restartAppFlowy: didResetServerUrl,
+          restartAppFlowy: restartAppFlowy,
         );
       case AuthenticatorType.appflowyCloudDevelop:
         return AppFlowyCloudViewSetting(
           serverURL: "http://localhost",
           authenticatorType: AuthenticatorType.appflowyCloudDevelop,
-          restartAppFlowy: didResetServerUrl,
+          restartAppFlowy: restartAppFlowy,
         );
     }
   }
@@ -215,7 +212,13 @@ class CloudTypeItem extends StatelessWidget {
             : null,
         onTap: () {
           if (currentCloudtype != cloudType) {
-            onSelected(cloudType);
+            NavigatorAlertDialog(
+              title: LocaleKeys.settings_menu_changeServerTip.tr(),
+              confirm: () async {
+                onSelected(cloudType);
+              },
+              hideCancleButton: true,
+            ).show(context);
           }
           PopoverContainer.of(context).close();
         },

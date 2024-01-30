@@ -1,6 +1,6 @@
 use crate::services::data_import::appflowy_data_import::import_appflowy_data_folder;
-use crate::services::entities::Session;
 use collab_integrate::{CollabKVAction, CollabKVDB, PersistenceError};
+use flowy_user_pub::session::Session;
 use std::collections::HashMap;
 
 use crate::services::data_import::ImportContext;

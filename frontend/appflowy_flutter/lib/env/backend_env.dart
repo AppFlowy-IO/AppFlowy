@@ -7,6 +7,7 @@ part 'backend_env.g.dart';
 class AppFlowyConfiguration {
   AppFlowyConfiguration({
     required this.root,
+    required this.app_version,
     required this.custom_app_path,
     required this.origin_app_path,
     required this.device_id,
@@ -20,6 +21,7 @@ class AppFlowyConfiguration {
       _$AppFlowyConfigurationFromJson(json);
 
   final String root;
+  final String app_version;
   final String custom_app_path;
   final String origin_app_path;
   final String device_id;

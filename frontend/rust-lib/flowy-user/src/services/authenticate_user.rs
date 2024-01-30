@@ -1,12 +1,13 @@
 use crate::migrations::session_migration::migrate_session_with_user_uuid;
 use crate::services::db::UserDB;
-use crate::services::entities::{Session, UserConfig, UserPaths};
+use crate::services::entities::{UserConfig, UserPaths};
 use crate::services::sqlite_sql::user_sql::vacuum_database;
 use collab_integrate::CollabKVDB;
 
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_sqlite::kv::StorePreferences;
 use flowy_sqlite::DBConnection;
+use flowy_user_pub::session::Session;
 use std::sync::{Arc, Weak};
 use tracing::{debug, error, info};
 

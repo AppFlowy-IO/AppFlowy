@@ -18,7 +18,7 @@ flowy-sqlite = { workspace = true }
 flowy-document = { workspace = true }
 flowy-document-pub = { workspace = true }
 flowy-error = { workspace = true }
-flowy-server = { workspace = true }
+flowy-server = { workspace = true, features = ["enable_supabase"] }
 flowy-server-pub = { workspace = true }
 flowy-config = { workspace = true }
 flowy-date = { workspace = true }
@@ -55,21 +55,14 @@ http_sync = []
 native_sync = []
 use_bunyan = ["lib-log/use_bunyan"]
 dart = [
-    "flowy-user/dart",
-    "flowy-date/dart",
     "flowy-folder/dart",
     "flowy-database2/dart",
-    "flowy-document/dart",
-    "flowy-config/dart",
 ]
 ts = [
-    "flowy-user/ts",
-    "flowy-date/ts",
+    "flowy-user/tauri_ts",
     "flowy-folder/ts",
     "flowy-database2/ts",
-    "flowy-document/ts",
-    "flowy-config/ts",
+    "flowy-config/tauri_ts",
 ]
 rev-sqlite = ["flowy-user/rev-sqlite"]
 openssl_vendored = ["flowy-sqlite/openssl_vendored"]
-single_thread = ["collab-integrate/wasm_build"]

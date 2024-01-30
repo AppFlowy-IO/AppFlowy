@@ -29,13 +29,17 @@ tracing.workspace = true
 lib-dispatch = { workspace = true }
 #flowy-core = { workspace = true, features = ["profiling"] }
 flowy-core = { workspace = true }
-flowy-notification = { workspace = true }
+flowy-notification = { workspace = true, features = ["dart"] }
+flowy-document = { workspace = true, features = ["dart"] }
+flowy-config = { workspace = true, features = ["dart"] }
+flowy-user = { workspace = true, features = ["dart"] }
+flowy-date = { workspace = true, features = ["dart"] }
 flowy-server = { workspace = true }
 flowy-server-pub = { workspace = true}
 collab-integrate = { workspace = true }
 flowy-derive.workspace = true
 serde_yaml = "0.9.27"
-flowy-error = { workspace = true, features = ["impl_from_sqlite", "impl_from_dispatch_error", "impl_from_appflowy_cloud", "impl_from_reqwest", "impl_from_serde"] }
+flowy-error = { workspace = true, features = ["impl_from_sqlite", "impl_from_dispatch_error", "impl_from_appflowy_cloud", "impl_from_reqwest", "impl_from_serde", "dart"] }
 
 [features]
 default = ["dart", "rev-sqlite"]

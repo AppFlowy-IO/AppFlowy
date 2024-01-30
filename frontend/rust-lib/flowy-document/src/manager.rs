@@ -25,6 +25,7 @@ use collab_integrate::CollabPersistenceConfig;
 use flowy_document_pub::cloud::DocumentCloudService;
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_storage::ObjectStorageService;
+use lib_dispatch::prelude::af_spawn;
 
 use crate::document::MutexDocument;
 use crate::entities::{
@@ -260,7 +261,7 @@ impl DocumentManager {
 
     // let the upload happen in the background
     let clone_url = url.clone();
-    tokio::spawn(async move {
+    af_spawn(async move {
       if let Err(e) = storage_service.put_object(clone_url, object_value).await {
         error!("upload file failed: {}", e);
       }
@@ -300,7 +301,7 @@ impl DocumentManager {
 
     // delete from cloud
     let storage_service = self.storage_service_upgrade()?;
-    tokio::spawn(async move {
+    af_spawn(async move {
       if let Err(e) = storage_service.delete_object(url).await {
         // TODO: add WAL to log the delete operation.
         // keep a list of files to be deleted, and retry later

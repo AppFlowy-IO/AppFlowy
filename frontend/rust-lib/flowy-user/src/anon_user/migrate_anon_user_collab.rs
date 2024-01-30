@@ -21,7 +21,7 @@ use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_folder_pub::cloud::gen_view_id;
 
 use crate::migrations::AnonUser;
-use crate::services::entities::Session;
+use flowy_user_pub::session::Session;
 
 /// Migration the collab objects of the old user to new user. Currently, it only happens when
 /// the user is a local user and try to use AppFlowy cloud service.

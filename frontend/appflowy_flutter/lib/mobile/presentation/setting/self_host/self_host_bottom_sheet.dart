@@ -3,7 +3,6 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/settings/appflowy_cloud_urls_bloc.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:dartz/dartz.dart' show Some;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -99,7 +98,7 @@ class _SelfHostUrlBottomSheetState extends State<SelfHostUrlBottomSheet> {
       if (value.isNotEmpty) {
         validateUrl(value).fold(
           (url) async {
-            await setAppFlowyCloudUrl(Some(url));
+            await useSelfHostedAppFlowyCloudWithURL(url);
             await runAppFlowy();
           },
           (err) => Log.error(err),

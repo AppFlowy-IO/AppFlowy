@@ -64,6 +64,7 @@ pub extern "C" fn init_sdk(data: *mut c_char) -> i64 {
 
   let log_crates = vec!["flowy-ffi".to_string()];
   let config = AppFlowyCoreConfig::new(
+    configuration.app_version,
     configuration.custom_app_path,
     configuration.origin_app_path,
     configuration.device_id,
@@ -100,7 +101,7 @@ pub extern "C" fn async_event(port: i64, input: *const u8, len: usize) {
     Some(dispatcher) => dispatcher,
   };
   AFPluginDispatcher::boxed_async_send_with_callback(
-    dispatcher,
+    dispatcher.as_ref(),
     request,
     move |resp: AFPluginEventResponse| {
       trace!("[FFI]: Post data to dart through {} port", port);

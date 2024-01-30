@@ -1,0 +1,42 @@
+[package]
+name = "af-wasm"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+wasm-bindgen = { version = "0.2.89" }
+lazy_static = "1.4.0"
+lib-dispatch = { workspace = true, features = ["use_serde"] }
+parking_lot.workspace = true
+tracing.workspace = true
+tracing-core = { version = "0.1.32" }
+tracing-wasm = "0.2.1"
+serde.workspace = true
+collab-integrate = { workspace = true }
+tokio-stream.workspace = true
+
+af-user.workspace = true
+flowy-notification = { workspace = true, features = ["web_ts"] }
+flowy-user-pub = { workspace = true }
+flowy-server = { workspace = true }
+flowy-server-pub = { workspace = true }
+flowy-error = { workspace = true, features = ["impl_from_dispatch_error", "web_ts"] }
+flowy-document = { workspace = true, features = ["web_ts"] }
+lib-infra = { workspace = true }
+collab = { workspace = true, features = ["async-plugin"] }
+web-sys = "0.3"
+wasm-bindgen-futures.workspace = true
+uuid.workspace = true
+serde-wasm-bindgen.workspace = true
+js-sys = "0.3.67"
+
+[dev-dependencies]
+wasm-bindgen-test = "0.3.40"
+tokio = { version = "1.0", features = ["sync"] }
+
+[features]
+localhost_dev = []
