@@ -105,7 +105,7 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
 
     if (invalidCounter >= _invalidSearchesAmount) {
       // Workaround to bring focus back to editor
-      widget.editorState
+      await widget.editorState
           .updateSelectionWithReason(widget.editorState.selection);
       return widget.onDismiss();
     }

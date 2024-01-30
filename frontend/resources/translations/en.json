@@ -1028,6 +1028,7 @@
     "timeFormat": "Time format",
     "clearDate": "Clear date",
     "reminderLabel": "Reminder",
+    "selectReminder": "Select reminder",
     "reminderOptions": {
       "none": "None",
       "atTimeOfEvent": "Time of event",
@@ -1037,6 +1038,7 @@
       "thirtyMinsBefore": "30 mins before",
       "oneHourBefore": "1 hour before",
       "twoHoursBefore": "2 hours before",
+      "onDayOfEvent": "On day of event",
       "oneDayBefore": "1 day before",
       "twoDaysBefore": "2 days before",
       "oneWeekBefore": "1 week before",

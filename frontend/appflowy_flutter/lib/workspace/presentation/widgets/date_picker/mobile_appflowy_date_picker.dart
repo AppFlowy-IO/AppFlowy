@@ -191,12 +191,12 @@ class _ReminderSelector extends StatelessWidget {
       availableOptions.remove(ReminderOption.custom);
     }
 
-    if (!hasTime) {
-      availableOptions.removeWhere((o) => o.requiresTime);
-    }
+    availableOptions.removeWhere(
+      (o) => !o.timeExempt && (!hasTime ? !o.withoutTime : o.requiresNoTime),
+    );
 
     return FlowyOptionTile.text(
-      text: 'Reminder',
+      text: LocaleKeys.datePicker_reminderLabel.tr(),
       trailing: Row(
         children: [
           const HSpace(6.0),
@@ -234,7 +234,7 @@ class _ReminderSelector extends StatelessWidget {
                     children: availableOptions.map<Widget>(
                       (o) {
                         String label = o.label;
-                        if (!o.requiresTime && !o.timeExempt) {
+                        if (o.withoutTime && !o.timeExempt) {
                           const time = "09:00";
                           final t = timeFormat == TimeFormatPB.TwelveHour
                               ? "$time AM"
@@ -287,8 +287,8 @@ class _ReminderSelectHeader extends StatelessWidget {
             width: 120,
             child: AppBarCancelButton(onTap: context.pop),
           ),
-          const FlowyText.medium(
-            'Select reminder',
+          FlowyText.medium(
+            LocaleKeys.datePicker_selectReminder.tr(),
             fontSize: 17.0,
           ),
           const HSpace(120),

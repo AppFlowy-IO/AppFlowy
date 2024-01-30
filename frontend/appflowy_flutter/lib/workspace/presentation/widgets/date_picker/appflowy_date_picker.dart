@@ -136,6 +136,18 @@ class _AppFlowyDatePickerState extends State<AppFlowyDatePicker> {
   late ReminderOption _selectedReminderOption = widget.selectedReminderOption;
 
   @override
+  void didUpdateWidget(covariant AppFlowyDatePicker oldWidget) {
+    _selectedDay = oldWidget.selectedDay != widget.selectedDay
+        ? widget.selectedDay
+        : _selectedDay;
+    _selectedReminderOption =
+        oldWidget.selectedReminderOption != widget.selectedReminderOption
+            ? widget.selectedReminderOption
+            : _selectedReminderOption;
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
   Widget build(BuildContext context) =>
       PlatformExtension.isMobile ? buildMobilePicker() : buildDesktopPicker();
 

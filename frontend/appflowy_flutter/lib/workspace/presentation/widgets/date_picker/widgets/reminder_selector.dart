@@ -5,6 +5,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/utils/layout.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pbenum.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
+import 'package:calendar_view/calendar_view.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 
@@ -33,14 +34,14 @@ class ReminderSelector extends StatelessWidget {
       options.remove(ReminderOption.custom);
     }
 
-    if (!hasTime) {
-      options.removeWhere((o) => o.requiresTime);
-    }
+    options.removeWhere(
+      (o) => !o.timeExempt && (!hasTime ? !o.withoutTime : o.requiresNoTime),
+    );
 
     final optionWidgets = options.map(
       (o) {
         String label = o.label;
-        if (!o.requiresTime && !o.timeExempt) {
+        if (o.withoutTime && !o.timeExempt) {
           const time = "09:00";
           final t = timeFormat == TimeFormatPB.TwelveHour ? "$time AM" : time;
 
@@ -68,7 +69,7 @@ class ReminderSelector extends StatelessWidget {
       mutex: mutex,
       offset: const Offset(8, 0),
       margin: EdgeInsets.zero,
-      constraints: const BoxConstraints(maxHeight: 350, maxWidth: 205),
+      constraints: const BoxConstraints(maxHeight: 400, maxWidth: 205),
       popupBuilder: (_) => Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -102,13 +103,18 @@ class ReminderSelector extends StatelessWidget {
 
 enum ReminderOption {
   none(time: Duration()),
-  atTimeOfEvent(time: Duration(), requiresTime: true),
-  fiveMinsBefore(time: Duration(minutes: 5), requiresTime: true),
-  tenMinsBefore(time: Duration(minutes: 10), requiresTime: true),
-  fifteenMinsBefore(time: Duration(minutes: 15), requiresTime: true),
-  thirtyMinsBefore(time: Duration(minutes: 30), requiresTime: true),
-  oneHourBefore(time: Duration(hours: 1), requiresTime: true),
-  twoHoursBefore(time: Duration(hours: 2), requiresTime: true),
+  atTimeOfEvent(time: Duration()),
+  fiveMinsBefore(time: Duration(minutes: 5)),
+  tenMinsBefore(time: Duration(minutes: 10)),
+  fifteenMinsBefore(time: Duration(minutes: 15)),
+  thirtyMinsBefore(time: Duration(minutes: 30)),
+  oneHourBefore(time: Duration(hours: 1)),
+  twoHoursBefore(time: Duration(hours: 2)),
+  onDayOfEvent(
+    time: Duration(hours: 9),
+    withoutTime: true,
+    requiresNoTime: true,
+  ),
   // 9:00 AM the day before (24-9)
   oneDayBefore(time: Duration(hours: 15), withoutTime: true),
   twoDaysBefore(time: Duration(days: 1, hours: 15), withoutTime: true),
@@ -118,12 +124,12 @@ enum ReminderOption {
   const ReminderOption({
     required this.time,
     this.withoutTime = false,
-    this.requiresTime = false,
+    this.requiresNoTime = false,
   });
 
   final Duration time;
   final bool withoutTime;
-  final bool requiresTime;
+  final bool requiresNoTime;
 
   bool get timeExempt =>
       [ReminderOption.none, ReminderOption.custom].contains(this);
@@ -144,6 +150,8 @@ enum ReminderOption {
           LocaleKeys.datePicker_reminderOptions_oneHourBefore.tr(),
         ReminderOption.twoHoursBefore =>
           LocaleKeys.datePicker_reminderOptions_twoHoursBefore.tr(),
+        ReminderOption.onDayOfEvent =>
+          LocaleKeys.datePicker_reminderOptions_onDayOfEvent.tr(),
         ReminderOption.oneDayBefore =>
           LocaleKeys.datePicker_reminderOptions_oneDayBefore.tr(),
         ReminderOption.twoDaysBefore =>
@@ -157,8 +165,15 @@ enum ReminderOption {
   static ReminderOption fromDateDifference(
     DateTime eventDate,
     DateTime reminderDate,
-  ) =>
-      fromMinutes(eventDate.difference(reminderDate).inMinutes);
+  ) {
+    final def = fromMinutes(eventDate.difference(reminderDate).inMinutes);
+    if (def != ReminderOption.custom) {
+      return def;
+    }
+
+    final diff = eventDate.withoutTime.difference(reminderDate).inMinutes;
+    return fromMinutes(diff);
+  }
 
   static ReminderOption fromMinutes(int minutes) => switch (minutes) {
         0 => ReminderOption.atTimeOfEvent,
@@ -168,8 +183,18 @@ enum ReminderOption {
         30 => ReminderOption.thirtyMinsBefore,
         60 => ReminderOption.oneHourBefore,
         120 => ReminderOption.twoHoursBefore,
-        1440 => ReminderOption.oneDayBefore,
-        2880 => ReminderOption.twoDaysBefore,
+        // Negative because Event Day Today + 940 minutes
+        -540 => ReminderOption.onDayOfEvent,
+        900 => ReminderOption.oneDayBefore,
+        2340 => ReminderOption.twoDaysBefore,
+        9540 => ReminderOption.oneWeekBefore,
         _ => ReminderOption.custom,
+      };
+
+  DateTime fromDate(DateTime date) => switch (withoutTime) {
+        true => requiresNoTime
+            ? date.withoutTime.add(time)
+            : date.withoutTime.subtract(time),
+        _ => date.subtract(time),
       };
 }

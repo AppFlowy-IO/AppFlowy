@@ -344,7 +344,7 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
             ReminderEvent.update(
               ReminderUpdate(
                 id: widget.reminderId!,
-                scheduledAt: parsedDate!.subtract(reminderOption.time),
+                scheduledAt: reminderOption.fromDate(parsedDate!),
               ),
             ),
           );

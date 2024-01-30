@@ -57,6 +57,7 @@ class DateCellEditorBloc
                 dateCellData.isRange == state.isRange && dateCellData.isRange
                     ? dateCellData.endDateTime
                     : null;
+            ReminderOption option = state.reminderOption;
 
             if (dateCellData.dateTime != null &&
                 (state.reminderId?.isEmpty ?? true) &&
@@ -73,8 +74,8 @@ class DateCellEditorBloc
                   objectId: cellController.viewId,
                   meta: {ReminderMetaKeys.rowId: cellController.rowId},
                   scheduledAt: Int64(
-                    date
-                            .subtract(state.reminderOption.time)
+                    state.reminderOption
+                            .fromDate(date)
                             .millisecondsSinceEpoch ~/
                         1000,
                   ),
@@ -88,12 +89,20 @@ class DateCellEditorBloc
                   ? dateCellData.dateTime!.withoutTime
                   : dateCellData.dateTime!;
 
+              if (option.requiresNoTime && dateCellData.includeTime) {
+                option = ReminderOption.atTimeOfEvent;
+              } else if (!option.withoutTime && !dateCellData.includeTime) {
+                option = ReminderOption.onDayOfEvent;
+              }
+
+              final scheduledAt = option.fromDate(date);
+
               // Update Reminder
               _reminderBloc.add(
                 ReminderEvent.update(
                   ReminderUpdate(
-                    id: state.reminderId!,
-                    scheduledAt: date.subtract(state.reminderOption.time),
+                    id: dateCellData.reminderId!,
+                    scheduledAt: scheduledAt,
                   ),
                 ),
               );
@@ -112,6 +121,7 @@ class DateCellEditorBloc
                 dateStr: dateCellData.dateStr,
                 endDateStr: dateCellData.endDateStr,
                 reminderId: dateCellData.reminderId,
+                reminderOption: option,
               ),
             );
           },
@@ -206,10 +216,7 @@ class DateCellEditorBloc
               await _updateDateData(reminderId: reminderId, date: selectedDay);
 
               emit(
-                state.copyWith(
-                  reminderOption: option,
-                  dateTime: selectedDay,
-                ),
+                state.copyWith(reminderOption: option, dateTime: selectedDay),
               );
             } else if (option == ReminderOption.none &&
                 (state.reminderId?.isNotEmpty ?? false)) {
@@ -220,12 +227,14 @@ class DateCellEditorBloc
               emit(state.copyWith(reminderOption: option));
             } else if (state.dateTime != null &&
                 (state.reminderId?.isNotEmpty ?? false)) {
+              final scheduledAt = option.fromDate(state.dateTime!);
+
               // Update reminder
               _reminderBloc.add(
                 ReminderEvent.update(
                   ReminderUpdate(
                     id: state.reminderId!,
-                    scheduledAt: state.dateTime!.subtract(option.time),
+                    scheduledAt: scheduledAt,
                   ),
                 ),
               );
@@ -253,24 +262,33 @@ class DateCellEditorBloc
           !(endDate != null && endTimeStr != null),
     );
 
+    final incTime = includeTime ?? state.includeTime;
+    final time = incTime ? timeStr ?? state.timeStr : null;
+    final endTime = incTime ? endTimeStr ?? state.endTimeStr : null;
+
     // if not updating the time, use the old time in the state
-    final String? newTime = timeStr ?? state.timeStr;
-    final DateTime? newDate = timeStr != null && timeStr.isNotEmpty
+    DateTime? newDate = date == null && (time != null && time.isNotEmpty)
         ? state.dateTime ?? DateTime.now()
         : _utcToLocalAndAddCurrentTime(date);
 
     // if not updating the time, use the old time in the state
-    final String? newEndTime = endTimeStr ?? state.endTimeStr;
-    final DateTime? newEndDate = endTimeStr != null && endTimeStr.isNotEmpty
-        ? state.endDateTime ?? DateTime.now()
-        : _utcToLocalAndAddCurrentTime(endDate);
+    DateTime? newEndDate =
+        endDate == null && (endTime != null && endTime.isNotEmpty)
+            ? state.endDateTime ?? DateTime.now()
+            : _utcToLocalAndAddCurrentTime(endDate);
+
+    // Don't store time if includeTime is false
+    if (!incTime) {
+      newDate = newDate?.withoutTime;
+      newEndDate = newEndDate?.withoutTime;
+    }
 
     final result = await _dateCellBackendService.update(
       date: newDate,
-      time: newTime,
+      time: time,
       endDate: newEndDate,
-      endTime: newEndTime,
-      includeTime: includeTime ?? state.includeTime,
+      endTime: endTime,
+      includeTime: incTime,
       isRange: isRange ?? state.isRange,
       reminderId: reminderId ?? state.reminderId,
     );
