@@ -2,6 +2,7 @@ use std::str::FromStr;
 use std::sync::Arc;
 
 use collab::core::any_map::AnyMapExtension;
+use collab_database::fields::Field;
 use collab_database::rows::{Row, RowCell};
 use flowy_error::FlowyResult;
 use serde::{Deserialize, Serialize};
@@ -21,6 +22,7 @@ use super::{Calculation, CalculationChangeset, CalculationsService};
 
 pub trait CalculationsDelegate: Send + Sync + 'static {
   fn get_cells_for_field(&self, view_id: &str, field_id: &str) -> Fut<Vec<Arc<RowCell>>>;
+  fn get_field(&self, field_id: &str) -> Option<Field>;
   fn get_calculation(&self, view_id: &str, field_id: &str) -> Fut<Option<Arc<Calculation>>>;
   fn update_calculation(&self, view_id: &str, calculation: Calculation);
   fn remove_calculation(&self, view_id: &str, calculation_id: &str);
@@ -264,11 +266,13 @@ impl CalculationsController {
       .delegate
       .get_cells_for_field(&self.view_id, &calculation.field_id)
       .await;
+    let field = self.delegate.get_field(&calculation.field_id)?;
 
     if !row_cells.is_empty() {
-      let value = self
-        .calculations_service
-        .calculate(calculation.calculation_type, row_cells);
+      let value =
+        self
+          .calculations_service
+          .calculate(&field, calculation.calculation_type, row_cells);
 
       if value != calculation.value {
         return Some(calculation.with_value(value));
@@ -290,9 +294,11 @@ impl CalculationsController {
         .get_cells_for_field(&self.view_id, &insert.field_id)
         .await;
 
+      let field = self.delegate.get_field(&insert.field_id)?;
+
       let value = self
         .calculations_service
-        .calculate(insert.calculation_type, row_cells);
+        .calculate(&field, insert.calculation_type, row_cells);
 
       notification = Some(CalculationChangesetNotificationPB::from_insert(
         &self.view_id,

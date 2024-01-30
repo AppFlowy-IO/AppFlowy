@@ -341,10 +341,9 @@ where
   ) -> FlowyResult<BoxCellData> {
     // tracing::debug!("get_cell_data: {:?}", std::any::type_name::<Self>());
     let cell_data = if self.transformable() {
-      match self.transform_type_option_cell(cell, field_type, field) {
-        None => self.get_decoded_cell_data(cell, field_type, field)?,
-        Some(cell_data) => cell_data,
-      }
+      self
+        .transform_type_option_cell(cell, field_type, field)
+        .unwrap_or_else(|| self.get_decoded_cell_data(cell, field_type, field)?)
     } else {
       self.get_decoded_cell_data(cell, field_type, field)?
     };

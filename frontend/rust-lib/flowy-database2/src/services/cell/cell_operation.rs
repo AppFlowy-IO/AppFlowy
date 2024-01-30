@@ -39,6 +39,8 @@ pub trait CellDataDecoder: TypeOption {
 
   /// Same as [CellDataDecoder::stringify_cell_data] but the input parameter is the [Cell]
   fn stringify_cell(&self, cell: &Cell) -> String;
+
+  fn numeric_cell(&self, cell: &Cell) -> Option<f64>;
 }
 
 pub trait CellDataChangeset: TypeOption {

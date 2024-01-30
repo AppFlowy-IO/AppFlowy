@@ -1,3 +1,4 @@
+use collab_database::fields::Field;
 use std::sync::Arc;
 
 use collab_database::rows::RowCell;
@@ -47,6 +48,10 @@ struct DatabaseViewCalculationsDelegateImpl(Arc<dyn DatabaseViewOperation>);
 impl CalculationsDelegate for DatabaseViewCalculationsDelegateImpl {
   fn get_cells_for_field(&self, view_id: &str, field_id: &str) -> Fut<Vec<Arc<RowCell>>> {
     self.0.get_cells_for_field(view_id, field_id)
+  }
+
+  fn get_field(&self, field_id: &str) -> Option<Field> {
+    self.0.get_field(field_id)
   }
 
   fn get_calculation(&self, view_id: &str, field_id: &str) -> Fut<Option<Arc<Calculation>>> {

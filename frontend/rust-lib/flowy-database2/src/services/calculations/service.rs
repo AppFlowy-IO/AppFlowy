@@ -1,8 +1,11 @@
+use collab_database::fields::Field;
 use std::sync::Arc;
 
 use collab_database::rows::RowCell;
 
-use crate::entities::CalculationType;
+use crate::entities::{CalculationType, FieldType};
+use crate::services::cell::CellDataDecoder;
+use crate::services::field::TypeOptionCellExt;
 
 pub struct CalculationsService {}
 
@@ -11,32 +14,34 @@ impl CalculationsService {
     Self {}
   }
 
-  pub fn calculate(&self, calculation_type: i64, row_cells: Vec<Arc<RowCell>>) -> String {
+  pub fn calculate(
+    &self,
+    field: &Field,
+    calculation_type: i64,
+    row_cells: Vec<Arc<RowCell>>,
+  ) -> String {
     let ty: CalculationType = calculation_type.into();
 
     match ty {
-      CalculationType::Average => self.calculate_average(row_cells),
-      CalculationType::Max => self.calculate_max(row_cells),
-      CalculationType::Median => self.calculate_median(row_cells),
-      CalculationType::Min => self.calculate_min(row_cells),
-      CalculationType::Sum => self.calculate_sum(row_cells),
+      CalculationType::Average => self.calculate_average(field, row_cells),
+      CalculationType::Max => self.calculate_max(field, row_cells),
+      CalculationType::Median => self.calculate_median(field, row_cells),
+      CalculationType::Min => self.calculate_min(field, row_cells),
+      CalculationType::Sum => self.calculate_sum(field, row_cells),
     }
   }
 
-  fn calculate_average(&self, row_cells: Vec<Arc<RowCell>>) -> String {
+  fn calculate_average(&self, field: &Field, row_cells: Vec<Arc<RowCell>>) -> String {
     let mut sum = 0.0;
     let mut len = 0.0;
+    let field_type = FieldType::from(field.field_type);
+    let handler = TypeOptionCellExt::new_with_cell_data_cache(field, None)
+      .get_type_option_cell_data_handler(&field_type)?;
     for row_cell in row_cells {
       if let Some(cell) = &row_cell.cell {
-        let data = cell.get("data");
-        if let Some(data) = data {
-          match data.to_string().parse::<f64>() {
-            Ok(value) => {
-              sum += value;
-              len += 1.0;
-            },
-            _ => tracing::info!("Failed to parse ({}) to f64", data),
-          }
+        if let Some(value) = handler.numeric_cell(cell) {
+          sum += value;
+          len += 1.0;
         }
       }
     }
@@ -48,8 +53,8 @@ impl CalculationsService {
     }
   }
 
-  fn calculate_median(&self, row_cells: Vec<Arc<RowCell>>) -> String {
-    let values = self.reduce_values_f64(row_cells, |values| {
+  fn calculate_median(&self, field: &Field, row_cells: Vec<Arc<RowCell>>) -> String {
+    let values = self.reduce_values_f64(field, row_cells, |values| {
       values.sort_by(|a, b| a.partial_cmp(b).unwrap());
       values.clone()
     });
@@ -71,8 +76,8 @@ impl CalculationsService {
     }
   }
 
-  fn calculate_min(&self, row_cells: Vec<Arc<RowCell>>) -> String {
-    let values = self.reduce_values_f64(row_cells, |values| {
+  fn calculate_min(&self, field: &Field, row_cells: Vec<Arc<RowCell>>) -> String {
+    let values = self.reduce_values_f64(field, row_cells, |values| {
       values.sort_by(|a, b| a.partial_cmp(b).unwrap());
       values.clone()
     });
@@ -87,8 +92,8 @@ impl CalculationsService {
     "".to_owned()
   }
 
-  fn calculate_max(&self, row_cells: Vec<Arc<RowCell>>) -> String {
-    let values = self.reduce_values_f64(row_cells, |values| {
+  fn calculate_max(&self, field: &Field, row_cells: Vec<Arc<RowCell>>) -> String {
+    let values = self.reduce_values_f64(field, row_cells, |values| {
       values.sort_by(|a, b| a.partial_cmp(b).unwrap());
       values.clone()
     });
@@ -103,8 +108,8 @@ impl CalculationsService {
     "".to_owned()
   }
 
-  fn calculate_sum(&self, row_cells: Vec<Arc<RowCell>>) -> String {
-    let values = self.reduce_values_f64(row_cells, |values| values.clone());
+  fn calculate_sum(&self, field: &Field, row_cells: Vec<Arc<RowCell>>) -> String {
+    let values = self.reduce_values_f64(field, row_cells, |values| values.clone());
 
     if !values.is_empty() {
       format!("{:.5}", values.iter().sum::<f64>())
@@ -113,20 +118,19 @@ impl CalculationsService {
     }
   }
 
-  fn reduce_values_f64<F, T>(&self, row_cells: Vec<Arc<RowCell>>, f: F) -> T
+  fn reduce_values_f64<F, T>(&self, field: &Field, row_cells: Vec<Arc<RowCell>>, f: F) -> T
   where
     F: FnOnce(&mut Vec<f64>) -> T,
   {
     let mut values = vec![];
 
+    let field_type = FieldType::from(field.field_type);
+    let handler = TypeOptionCellExt::new_with_cell_data_cache(field, None)
+      .get_type_option_cell_data_handler(&field_type)?;
     for row_cell in row_cells {
       if let Some(cell) = &row_cell.cell {
-        let data = cell.get("data");
-        if let Some(data) = data {
-          match data.to_string().parse::<f64>() {
-            Ok(value) => values.push(value),
-            _ => tracing::info!("Failed to parse ({}) to f64", data),
-          }
+        if let Some(value) = handler.numeric_cell(cell) {
+          values.push(value);
         }
       }
     }
