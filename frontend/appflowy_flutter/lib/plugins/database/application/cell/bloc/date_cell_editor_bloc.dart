@@ -21,6 +21,7 @@ import 'package:fixnum/fixnum.dart';
 import 'package:flowy_infra/time/duration.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:intl/intl.dart';
 import 'package:nanoid/non_secure.dart';
 import 'package:protobuf/protobuf.dart';
 
@@ -263,8 +264,8 @@ class DateCellEditorBloc
     );
 
     final incTime = includeTime ?? state.includeTime;
-    final time = incTime ? timeStr ?? state.timeStr : null;
-    final endTime = incTime ? endTimeStr ?? state.endTimeStr : null;
+    String? time = incTime ? timeStr ?? state.timeStr : null;
+    String? endTime = incTime ? endTimeStr ?? state.endTimeStr : null;
 
     // if not updating the time, use the old time in the state
     DateTime? newDate = date == null && (time != null && time.isNotEmpty)
@@ -281,6 +282,19 @@ class DateCellEditorBloc
     if (!incTime) {
       newDate = newDate?.withoutTime;
       newEndDate = newEndDate?.withoutTime;
+    }
+
+    // If Include Time is set, we add time of now
+    if (includeTime == true && timeStr == null) {
+      newDate = _utcToLocalAndAddCurrentTime(newDate);
+      newEndDate = _utcToLocalAndAddCurrentTime(newEndDate);
+
+      time = newDate != null
+          ? DateFormat(DateFormat.HOUR24_MINUTE).format(newDate)
+          : null;
+      endTime = newEndDate != null
+          ? DateFormat(DateFormat.HOUR24_MINUTE).format(newEndDate)
+          : null;
     }
 
     final result = await _dateCellBackendService.update(
