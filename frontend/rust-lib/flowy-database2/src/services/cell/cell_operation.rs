@@ -40,9 +40,9 @@ pub trait CellDataDecoder: TypeOption {
   /// Same as [CellDataDecoder::stringify_cell_data] but the input parameter is the [Cell]
   fn stringify_cell(&self, cell: &Cell) -> String;
 
-  // Decode the cell into f64
-  // Different field type has different way to decode the cell data into f64
-  // If the field type doesn't support to decode the cell data into f64, it will return None
+  /// Decode the cell into f64
+  /// Different field type has different way to decode the cell data into f64
+  /// If the field type doesn't support to decode the cell data into f64, it will return None
   fn numeric_cell(&self, cell: &Cell) -> Option<f64>;
 }
 
