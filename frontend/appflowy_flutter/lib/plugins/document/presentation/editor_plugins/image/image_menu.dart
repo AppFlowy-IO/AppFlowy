@@ -26,6 +26,8 @@ class ImageMenu extends StatefulWidget {
 }
 
 class _ImageMenuState extends State<ImageMenu> {
+  late final String? url = widget.node.attributes[ImageBlockKeys.url];
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -45,9 +47,10 @@ class _ImageMenuState extends State<ImageMenu> {
       child: Row(
         children: [
           const HSpace(4),
-          _ImageCopyLinkButton(
-            onTap: copyImageLink,
-          ),
+          if (!(url?.contains('appflowy.cloud') ?? false))
+            _ImageCopyLinkButton(
+              onTap: copyImageLink,
+            ),
           const HSpace(4),
           _ImageAlignButton(
             node: widget.node,
@@ -64,9 +67,8 @@ class _ImageMenuState extends State<ImageMenu> {
   }
 
   void copyImageLink() {
-    final url = widget.node.attributes[ImageBlockKeys.url];
     if (url != null) {
-      Clipboard.setData(ClipboardData(text: url));
+      Clipboard.setData(ClipboardData(text: url!));
       showSnackBarMessage(
         context,
         LocaleKeys.document_plugins_image_copiedToPasteBoard.tr(),
