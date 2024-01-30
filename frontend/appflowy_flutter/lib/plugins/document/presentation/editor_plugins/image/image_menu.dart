@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component.dart';
+import 'package:appflowy/util/string_extension.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -47,7 +48,9 @@ class _ImageMenuState extends State<ImageMenu> {
       child: Row(
         children: [
           const HSpace(4),
-          if (!(url?.contains('appflowy.cloud') ?? false))
+          // disable the copy link button if the image is hosted on appflowy cloud
+          // because the url needs the verification token to be accessible
+          if (!(url?.isAppFlowyCloudUrl ?? false))
             _ImageCopyLinkButton(
               onTap: copyImageLink,
             ),

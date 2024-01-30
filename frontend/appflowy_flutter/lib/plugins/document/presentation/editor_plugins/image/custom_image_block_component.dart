@@ -9,6 +9,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/image/imag
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/resizeable_image.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/unsupport_image_widget.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/util/string_extension.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide ResizableImage;
 import 'package:easy_localization/easy_localization.dart';
@@ -361,7 +362,9 @@ class CustomImageBlockComponentState extends State<CustomImageBlockComponent>
     }
 
     return [
-      if (!url.contains('appflowy.cloud'))
+      // disable the copy link button if the image is hosted on appflowy cloud
+      // because the url needs the verification token to be accessible
+      if (!url.isAppFlowyCloudUrl)
         FlowyOptionTile.text(
           showTopBorder: false,
           text: LocaleKeys.editor_copyLink.tr(),

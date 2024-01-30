@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:appflowy/shared/custom_image_cache_manager.dart';
+import 'package:appflowy/util/string_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -33,7 +34,7 @@ class FlowyNetworkImage extends StatelessWidget {
   Widget build(BuildContext context) {
     assert(isURL(url));
 
-    if (url.contains('appflowy.cloud')) {
+    if (url.isAppFlowyCloudUrl) {
       assert(userProfilePB != null && userProfilePB!.token.isNotEmpty);
     }
 
