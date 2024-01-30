@@ -37,9 +37,10 @@ extension AppFlowyTestBase on WidgetTester {
     AuthenticatorType? cloudType,
     String? email,
   }) async {
-    // view.physicalSize = windowsSize;
-    await binding.setSurfaceSize(windowSize);
-    // addTearDown(() => binding.setSurfaceSize(null));
+    if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
+      // Set the window size
+      await binding.setSurfaceSize(windowSize);
+    }
 
     mockHotKeyManagerHandlers();
     final applicationDataDirectory = dataDirectory ??

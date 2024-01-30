@@ -1,28 +1,30 @@
+import 'dart:io';
+
 import 'package:integration_test/integration_test.dart';
 
-import 'appearance_settings_test.dart' as appearance_test_runner;
-import 'board/board_test_runner.dart' as board_test_runner;
-import 'database/database_calendar_test.dart' as database_calendar_test;
-import 'database/database_cell_test.dart' as database_cell_test;
-import 'database/database_field_settings_test.dart'
+import 'desktop/appearance_settings_test.dart' as appearance_test_runner;
+import 'desktop/board/board_test_runner.dart' as board_test_runner;
+import 'desktop/database/database_calendar_test.dart' as database_calendar_test;
+import 'desktop/database/database_cell_test.dart' as database_cell_test;
+import 'desktop/database/database_field_settings_test.dart'
     as database_field_settings_test;
-import 'database/database_field_test.dart' as database_field_test;
-import 'database/database_filter_test.dart' as database_filter_test;
-import 'database/database_row_page_test.dart' as database_row_page_test;
-import 'database/database_row_test.dart' as database_row_test;
-import 'database/database_setting_test.dart' as database_setting_test;
-import 'database/database_share_test.dart' as database_share_test;
-import 'database/database_sort_test.dart' as database_sort_test;
-import 'database/database_view_test.dart' as database_view_test;
-import 'document/document_test_runner.dart' as document_test_runner;
-import 'empty_test.dart' as first_test;
-import 'hotkeys_test.dart' as hotkeys_test;
-import 'import_files_test.dart' as import_files_test;
-import 'settings/settings_runner.dart' as settings_test_runner;
-import 'share_markdown_test.dart' as share_markdown_test;
-import 'sidebar/sidebar_test_runner.dart' as sidebar_test_runner;
-import 'switch_folder_test.dart' as switch_folder_test;
-import 'tabs_test.dart' as tabs_test;
+import 'desktop/database/database_field_test.dart' as database_field_test;
+import 'desktop/database/database_filter_test.dart' as database_filter_test;
+import 'desktop/database/database_row_page_test.dart' as database_row_page_test;
+import 'desktop/database/database_row_test.dart' as database_row_test;
+import 'desktop/database/database_setting_test.dart' as database_setting_test;
+import 'desktop/database/database_share_test.dart' as database_share_test;
+import 'desktop/database/database_sort_test.dart' as database_sort_test;
+import 'desktop/database/database_view_test.dart' as database_view_test;
+import 'desktop/document/document_test_runner.dart' as document_test_runner;
+import 'desktop/empty_test.dart' as first_test;
+import 'desktop/hotkeys_test.dart' as hotkeys_test;
+import 'desktop/import_files_test.dart' as import_files_test;
+import 'desktop/settings/settings_runner.dart' as settings_test_runner;
+import 'desktop/share_markdown_test.dart' as share_markdown_test;
+import 'desktop/sidebar/sidebar_test_runner.dart' as sidebar_test_runner;
+import 'desktop/switch_folder_test.dart' as switch_folder_test;
+import 'desktop/tabs_test.dart' as tabs_test;
 // import 'auth/supabase_auth_test.dart' as supabase_auth_test_runner;
 
 /// The main task runner for all integration tests in AppFlowy.
@@ -35,6 +37,16 @@ import 'tabs_test.dart' as tabs_test;
 Future<void> main() async {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
+  if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
+    await runIntegrationOnDesktop();
+  } else if (Platform.isIOS || Platform.isAndroid) {
+    await runIntegrationOnMobile();
+  } else {
+    throw Exception('Unsupported platform');
+  }
+}
+
+Future<void> runIntegrationOnDesktop() async {
   // This test must be run first, otherwise the CI will fail.
   first_test.main();
 
@@ -75,8 +87,6 @@ Future<void> main() async {
 
   // User settings
   settings_test_runner.main();
-
-  // board_test.main();
-  // empty_document_test.main();
-  // smart_menu_test.main();
 }
+
+Future<void> runIntegrationOnMobile() async {}
