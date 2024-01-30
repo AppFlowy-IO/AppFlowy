@@ -449,7 +449,7 @@ class DocumentCoverState extends State<DocumentCover> {
                                 minHeight: 80,
                               ),
                               child: UploadImageMenu(
-                                showMaximumImageSize: !_isLocalMode(),
+                                limitMaximumImageSize: !_isLocalMode(),
                                 supportTypes: const [
                                   UploadImageType.color,
                                   UploadImageType.local,
@@ -575,7 +575,7 @@ class DocumentCoverState extends State<DocumentCover> {
               isPopoverOpen = true;
 
               return UploadImageMenu(
-                showMaximumImageSize: !_isLocalMode(),
+                limitMaximumImageSize: !_isLocalMode(),
                 supportTypes: const [
                   UploadImageType.color,
                   UploadImageType.local,

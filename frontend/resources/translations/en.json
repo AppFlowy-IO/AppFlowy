@@ -836,7 +836,8 @@
       "failedToAddImageToGallery": "Failed to add image to gallery",
       "successToAddImageToGallery": "Image added to gallery successfully",
       "unableToLoadImage": "Unable to load image",
-      "maximumImageSize": "Maximum supported upload image size is 10MB"
+      "maximumImageSize": "Maximum supported upload image size is 10MB",
+      "uploadImageErrorImageSizeTooBig": "Image size must be less than 10MB"
     },
     "codeBlock": {
       "language": {

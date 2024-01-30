@@ -48,7 +48,7 @@ class UploadImageMenu extends StatefulWidget {
     required this.onSelectedNetworkImage,
     this.onSelectedColor,
     this.supportTypes = UploadImageType.values,
-    this.showMaximumImageSize = false,
+    this.limitMaximumImageSize = false,
   });
 
   final void Function(String? path) onSelectedLocalImage;
@@ -56,7 +56,7 @@ class UploadImageMenu extends StatefulWidget {
   final void Function(String url) onSelectedNetworkImage;
   final void Function(String color)? onSelectedColor;
   final List<UploadImageType> supportTypes;
-  final bool showMaximumImageSize;
+  final bool limitMaximumImageSize;
 
   @override
   State<UploadImageMenu> createState() => _UploadImageMenuState();
@@ -158,7 +158,7 @@ class _UploadImageMenuState extends State<UploadImageMenu> {
               UploadImageFileWidget(
                 onPickFile: widget.onSelectedLocalImage,
               ),
-              if (widget.showMaximumImageSize) ...[
+              if (widget.limitMaximumImageSize) ...[
                 const VSpace(6.0),
                 FlowyText(
                   LocaleKeys.document_imageBlock_maximumImageSize.tr(),

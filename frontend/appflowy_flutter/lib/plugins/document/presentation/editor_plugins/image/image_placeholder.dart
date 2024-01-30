@@ -9,6 +9,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/image/cust
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/image_util.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/upload_image_menu.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/util/file_extension.dart';
 import 'package:appflowy/workspace/application/settings/application_data_storage.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_backend/log.dart';
@@ -85,7 +86,7 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
         clickHandler: PopoverClickHandler.gestureDetector,
         popupBuilder: (context) {
           return UploadImageMenu(
-            showMaximumImageSize: !_isLocalMode(),
+            limitMaximumImageSize: !_isLocalMode(),
             onSelectedLocalImage: (path) {
               controller.close();
               WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
@@ -141,7 +142,7 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
               minHeight: 80,
             ),
             child: UploadImageMenu(
-              showMaximumImageSize: !_isLocalMode(),
+              limitMaximumImageSize: !_isLocalMode(),
               supportTypes: const [
                 UploadImageType.local,
                 UploadImageType.url,
@@ -169,6 +170,17 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
   Future<void> insertLocalImage(String? url) async {
     if (url == null || url.isEmpty) {
       controller.close();
+      return;
+    }
+
+    final size = url.fileSize;
+    if (size == null || size > 10 * 1024 * 1024) {
+      // show error
+      controller.close();
+      showSnackBarMessage(
+        context,
+        LocaleKeys.document_imageBlock_uploadImageErrorImageSizeTooBig.tr(),
+      );
       return;
     }
 
