@@ -128,6 +128,7 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
     if (PlatformExtension.isDesktopOrWeb) {
       controller.show();
     } else {
+      final isLocalMode = _isLocalMode();
       showMobileBottomSheet(
         context,
         title: LocaleKeys.editor_image.tr(),
@@ -142,7 +143,7 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
               minHeight: 80,
             ),
             child: UploadImageMenu(
-              limitMaximumImageSize: !_isLocalMode(),
+              limitMaximumImageSize: !isLocalMode,
               supportTypes: const [
                 UploadImageType.local,
                 UploadImageType.url,

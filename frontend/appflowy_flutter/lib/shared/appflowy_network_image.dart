@@ -33,7 +33,7 @@ class FlowyNetworkImage extends StatelessWidget {
   Widget build(BuildContext context) {
     assert(isURL(url));
 
-    if (url.contains('beta.appflowy')) {
+    if (url.contains('appflowy.cloud')) {
       assert(userProfilePB != null && userProfilePB!.token.isNotEmpty);
     }
 

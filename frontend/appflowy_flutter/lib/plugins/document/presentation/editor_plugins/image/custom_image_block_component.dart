@@ -355,27 +355,28 @@ class CustomImageBlockComponentState extends State<CustomImageBlockComponent>
 
   // only used on mobile platform
   List<Widget> _buildExtendActionWidgets(BuildContext context) {
-    final url = widget.node.attributes[CustomImageBlockKeys.url];
+    final String url = widget.node.attributes[CustomImageBlockKeys.url];
     if (!_checkIfURLIsValid(url)) {
       return [];
     }
 
     return [
-      FlowyOptionTile.text(
-        showTopBorder: false,
-        text: LocaleKeys.editor_copyLink.tr(),
-        leftIcon: const FlowySvg(
-          FlowySvgs.m_field_copy_s,
+      if (!url.contains('appflowy.cloud'))
+        FlowyOptionTile.text(
+          showTopBorder: false,
+          text: LocaleKeys.editor_copyLink.tr(),
+          leftIcon: const FlowySvg(
+            FlowySvgs.m_field_copy_s,
+          ),
+          onTap: () async {
+            context.pop();
+            showSnackBarMessage(
+              context,
+              LocaleKeys.document_plugins_image_copiedToPasteBoard.tr(),
+            );
+            await getIt<ClipboardService>().setPlainText(url);
+          },
         ),
-        onTap: () async {
-          context.pop();
-          showSnackBarMessage(
-            context,
-            LocaleKeys.document_plugins_image_copiedToPasteBoard.tr(),
-          );
-          await getIt<ClipboardService>().setPlainText(url);
-        },
-      ),
       FlowyOptionTile.text(
         showTopBorder: false,
         text: LocaleKeys.document_imageBlock_saveImageToGallery.tr(),
