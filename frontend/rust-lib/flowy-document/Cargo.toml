@@ -54,8 +54,5 @@ dart = ["flowy-codegen/dart"]
 tauri_ts = ["flowy-codegen/ts"]
 web_ts = [
     "flowy-codegen/ts",
-    "collab-plugins/wasm_build",
-    "collab/wasm_build",
-    "collab-document/wasm_build",
 ]
 

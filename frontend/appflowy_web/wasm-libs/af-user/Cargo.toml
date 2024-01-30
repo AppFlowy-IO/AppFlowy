@@ -16,10 +16,10 @@ flowy-user-pub = { workspace = true }
 strum_macros = "0.25.2"
 tracing.workspace = true
 lib-infra = { workspace = true }
-collab = { workspace = true, features = ["wasm_build", "async-plugin"] }
+collab = { workspace = true, features = ["async-plugin"] }
 collab-entity.workspace = true
 collab-user.workspace = true
-collab-integrate = { workspace = true, features = ["enable_wasm"] }
+collab-integrate = { workspace = true }
 protobuf.workspace = true
 bytes.workspace = true
 anyhow.workspace = true

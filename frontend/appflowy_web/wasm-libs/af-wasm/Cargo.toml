@@ -16,18 +16,18 @@ tracing.workspace = true
 tracing-core = { version = "0.1.32" }
 tracing-wasm = "0.2.1"
 serde.workspace = true
-collab-integrate = { workspace = true, features = ["enable_wasm"] }
+collab-integrate = { workspace = true }
 tokio-stream.workspace = true
 
 af-user.workspace = true
 flowy-notification = { workspace = true, features = ["web_ts"] }
 flowy-user-pub = { workspace = true }
-flowy-server = { workspace = true, features = ["enable_wasm"] }
+flowy-server = { workspace = true }
 flowy-server-pub = { workspace = true }
 flowy-error = { workspace = true, features = ["impl_from_dispatch_error", "web_ts"] }
 flowy-document = { workspace = true, features = ["web_ts"] }
 lib-infra = { workspace = true }
-collab = { workspace = true, features = ["wasm_build", "async-plugin"] }
+collab = { workspace = true, features = ["async-plugin"] }
 web-sys = "0.3"
 wasm-bindgen-futures.workspace = true
 uuid.workspace = true
