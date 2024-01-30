@@ -29,7 +29,7 @@ class CalculationsBackendService {
       payload.calculationId = calculationId;
     }
 
-    DatabaseEventUpdateCalculation(payload).send();
+    await DatabaseEventUpdateCalculation(payload).send();
   }
 
   Future<void> removeCalculation(
@@ -41,6 +41,6 @@ class CalculationsBackendService {
       ..fieldId = fieldId
       ..calculationId = calculationId;
 
-    DatabaseEventRemoveCalculation(payload).send();
+    await DatabaseEventRemoveCalculation(payload).send();
   }
 }

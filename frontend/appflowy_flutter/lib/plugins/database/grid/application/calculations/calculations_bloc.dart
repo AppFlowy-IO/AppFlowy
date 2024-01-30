@@ -29,7 +29,7 @@ class CalculationsBloc extends Bloc<CalculationsEvent, CalculationsState> {
   @override
   Future<void> close() async {
     _fieldController.removeListener(onFieldsListener: _onReceiveFields);
-    super.close();
+    await super.close();
   }
 
   void _dispatch() {
@@ -37,7 +37,7 @@ class CalculationsBloc extends Bloc<CalculationsEvent, CalculationsState> {
       await event.when(
         started: () async {
           _startListening();
-          _getAllCalculations();
+          await _getAllCalculations();
 
           add(
             CalculationsEvent.didReceiveFieldUpdate(
