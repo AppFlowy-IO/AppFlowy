@@ -72,7 +72,10 @@ class DateCellEditorBloc
                 ReminderEvent.addById(
                   reminderId: dateCellData.reminderId!,
                   objectId: cellController.viewId,
-                  meta: {ReminderMetaKeys.rowId: cellController.rowId},
+                  meta: {
+                    ReminderMetaKeys.includeTime: true.toString(),
+                    ReminderMetaKeys.rowId: cellController.rowId,
+                  },
                   scheduledAt: Int64(
                     state.reminderOption
                             .fromDate(date)
@@ -85,15 +88,15 @@ class DateCellEditorBloc
 
             if ((dateCellData.reminderId?.isNotEmpty ?? false) &&
                 dateCellData.dateTime != null) {
-              final date = state.reminderOption.withoutTime
-                  ? dateCellData.dateTime!.withoutTime
-                  : dateCellData.dateTime!;
-
               if (option.requiresNoTime && dateCellData.includeTime) {
                 option = ReminderOption.atTimeOfEvent;
               } else if (!option.withoutTime && !dateCellData.includeTime) {
                 option = ReminderOption.onDayOfEvent;
               }
+
+              final date = option.withoutTime
+                  ? dateCellData.dateTime!.withoutTime
+                  : dateCellData.dateTime!;
 
               final scheduledAt = option.fromDate(date);
 
@@ -103,6 +106,7 @@ class DateCellEditorBloc
                   ReminderUpdate(
                     id: dateCellData.reminderId!,
                     scheduledAt: scheduledAt,
+                    includeTime: true,
                   ),
                 ),
               );
@@ -235,6 +239,7 @@ class DateCellEditorBloc
                   ReminderUpdate(
                     id: state.reminderId!,
                     scheduledAt: scheduledAt,
+                    includeTime: true,
                   ),
                 ),
               );
