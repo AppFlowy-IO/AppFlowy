@@ -10,7 +10,7 @@ import 'package:easy_localization/easy_localization.dart';
 
 SelectionMenuItem inlineGridMenuItem(DocumentBloc documentBloc) =>
     SelectionMenuItem(
-      name: LocaleKeys.document_slashMenu_grid_createANewGrid.tr(),
+      getName: () => LocaleKeys.document_slashMenu_grid_createANewGrid.tr(),
       icon: (editorState, onSelected, style) => SelectableSvgWidget(
         data: FlowySvgs.grid_s,
         isSelected: onSelected,
@@ -31,7 +31,7 @@ SelectionMenuItem inlineGridMenuItem(DocumentBloc documentBloc) =>
 
 SelectionMenuItem inlineBoardMenuItem(DocumentBloc documentBloc) =>
     SelectionMenuItem(
-      name: LocaleKeys.document_slashMenu_board_createANewBoard.tr(),
+      getName: () => LocaleKeys.document_slashMenu_board_createANewBoard.tr(),
       icon: (editorState, onSelected, style) => SelectableSvgWidget(
         data: FlowySvgs.board_s,
         isSelected: onSelected,
@@ -52,7 +52,8 @@ SelectionMenuItem inlineBoardMenuItem(DocumentBloc documentBloc) =>
 
 SelectionMenuItem inlineCalendarMenuItem(DocumentBloc documentBloc) =>
     SelectionMenuItem(
-      name: LocaleKeys.document_slashMenu_calendar_createANewCalendar.tr(),
+      getName: () =>
+          LocaleKeys.document_slashMenu_calendar_createANewCalendar.tr(),
       icon: (editorState, onSelected, style) => SelectableSvgWidget(
         data: FlowySvgs.date_s,
         isSelected: onSelected,

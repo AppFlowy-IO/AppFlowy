@@ -36,7 +36,7 @@ Node mathEquationNode({
 
 // defining the callout block menu item for selection
 SelectionMenuItem mathEquationItem = SelectionMenuItem.node(
-  name: 'MathEquation',
+  getName: () => LocaleKeys.document_plugins_mathEquation.tr(),
   iconData: Icons.text_fields_rounded,
   keywords: ['tex, latex, katex', 'math equation', 'formula'],
   nodeBuilder: (editorState, _) => mathEquationNode(),
