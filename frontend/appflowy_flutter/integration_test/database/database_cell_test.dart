@@ -1,6 +1,5 @@
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
-import 'package:calendar_view/calendar_view.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:intl/intl.dart';
@@ -219,7 +218,7 @@ void main() {
       tester.assertCellContent(
         rowIndex: 0,
         fieldType: FieldType.DateTime,
-        content: DateFormat('MMM dd, y').format(today.withoutTime),
+        content: DateFormat('MMM dd, y').format(today),
       );
 
       await tester.tapCellInGrid(rowIndex: 0, fieldType: fieldType);
@@ -233,7 +232,7 @@ void main() {
       tester.assertCellContent(
         rowIndex: 0,
         fieldType: FieldType.DateTime,
-        content: DateFormat('MMM dd, y HH:mm').format(now.withoutTime),
+        content: DateFormat('MMM dd, y HH:mm').format(now),
       );
 
       await tester.tapCellInGrid(rowIndex: 0, fieldType: fieldType);
@@ -248,7 +247,7 @@ void main() {
       tester.assertCellContent(
         rowIndex: 0,
         fieldType: FieldType.DateTime,
-        content: DateFormat('dd/MM/y HH:mm').format(now.withoutTime),
+        content: DateFormat('dd/MM/y HH:mm').format(now),
       );
 
       await tester.tapCellInGrid(rowIndex: 0, fieldType: fieldType);
@@ -263,7 +262,7 @@ void main() {
       tester.assertCellContent(
         rowIndex: 0,
         fieldType: FieldType.DateTime,
-        content: DateFormat('dd/MM/y hh:mm a').format(now.withoutTime),
+        content: DateFormat('dd/MM/y hh:mm a').format(now),
       );
 
       await tester.tapCellInGrid(rowIndex: 0, fieldType: fieldType);
