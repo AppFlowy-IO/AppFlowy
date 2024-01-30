@@ -31,9 +31,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-12]
+        os: [ubuntu-latest]
         include:
-          - os: macos-12
+          - os: ubuntu-latest
             target: aarch64-linux-android
     runs-on: ${{ matrix.os }}
 

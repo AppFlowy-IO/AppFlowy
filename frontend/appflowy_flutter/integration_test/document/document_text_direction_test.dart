@@ -29,8 +29,8 @@ void main() {
       // because this icons are defined in the appflowy_editor package, we can't fetch the icons by SVG data. [textDirectionItems]
       final textDirectionIconNames = [
         'toolbar/text_direction_auto',
-        'toolbar/text_direction_left',
-        'toolbar/text_direction_right',
+        'toolbar/text_direction_ltr',
+        'toolbar/text_direction_rtl',
       ];
       // no text direction items in default/LTR mode
       var button = find.byWidgetPredicate(
