@@ -85,6 +85,7 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
         clickHandler: PopoverClickHandler.gestureDetector,
         popupBuilder: (context) {
           return UploadImageMenu(
+            showMaximumImageSize: !_isLocalMode(),
             onSelectedLocalImage: (path) {
               controller.close();
               WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
@@ -140,6 +141,7 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
               minHeight: 80,
             ),
             child: UploadImageMenu(
+              showMaximumImageSize: !_isLocalMode(),
               supportTypes: const [
                 UploadImageType.local,
                 UploadImageType.url,
@@ -170,15 +172,13 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
       return;
     }
 
-    final userProfilePB = context.read<DocumentBloc>().state.userProfilePB;
-
     final transaction = editorState.transaction;
-    final type = userProfilePB?.authenticator ?? AuthenticatorPB.Local;
+
     String? path;
     CustomImageType imageType = CustomImageType.local;
 
     // if the user is using local authenticator, we need to save the image to local storage
-    if (type == AuthenticatorPB.Local) {
+    if (_isLocalMode()) {
       path = await saveImageToLocalStorage(url);
     } else {
       // else we should save the image to cloud storage
@@ -257,5 +257,11 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
       ImageBlockKeys.url: url,
     });
     await editorState.apply(transaction);
+  }
+
+  bool _isLocalMode() {
+    final userProfilePB = context.read<DocumentBloc>().state.userProfilePB;
+    final type = userProfilePB?.authenticator ?? AuthenticatorPB.Local;
+    return type == AuthenticatorPB.Local;
   }
 }
