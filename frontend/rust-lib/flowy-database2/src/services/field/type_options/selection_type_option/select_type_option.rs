@@ -7,14 +7,13 @@ use flowy_error::{internal_error, ErrorCode, FlowyResult};
 
 use crate::entities::{FieldType, SelectOptionCellDataPB};
 use crate::services::cell::{
-  CellDataDecoder, CellProtobufBlobParser, DecodedCellData, FromCellChangeset,
-  ToCellChangeset,
+  CellDataDecoder, CellProtobufBlobParser, DecodedCellData, FromCellChangeset, ToCellChangeset,
 };
 use crate::services::field::selection_type_option::type_option_transform::SelectOptionTypeOptionTransformHelper;
 use crate::services::field::{
   make_selected_options, CheckboxCellData, MultiSelectTypeOption, SelectOption,
-  SelectOptionCellData, SelectOptionColor, SelectOptionIds, SingleSelectTypeOption, TypeOption, TypeOptionCellDataSerde,
-  TypeOptionTransform, SELECTION_IDS_SEPARATOR,
+  SelectOptionCellData, SelectOptionColor, SelectOptionIds, SingleSelectTypeOption, TypeOption,
+  TypeOptionCellDataSerde, TypeOptionTransform, SELECTION_IDS_SEPARATOR,
 };
 
 /// Defines the shared actions used by SingleSelect or Multi-Select.
