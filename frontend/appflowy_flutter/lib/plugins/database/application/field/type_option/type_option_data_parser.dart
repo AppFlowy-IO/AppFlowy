@@ -1,10 +1,4 @@
-import 'package:appflowy_backend/protobuf/flowy-database2/checkbox_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/number_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/select_option_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/text_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/timestamp_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/url_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 
 abstract class TypeOptionParser<T> {
   T fromBuffer(List<int> buffer);
