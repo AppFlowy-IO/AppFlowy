@@ -36,7 +36,8 @@ use crate::util::{
 use crate::view_operation::{create_view, FolderOperationHandler, FolderOperationHandlers};
 
 /// [FolderUser] represents the user for folder.
-#[async_trait]
+#[cfg_attr(not(target_arch = "wasm32"), async_trait::async_trait)]
+#[cfg_attr(target_arch = "wasm32", async_trait::async_trait(?Send))]
 pub trait FolderUser: Send + Sync {
   fn user_id(&self) -> Result<i64, FlowyError>;
   fn collab_db(&self, uid: i64) -> Result<Weak<CollabKVDB>, FlowyError>;

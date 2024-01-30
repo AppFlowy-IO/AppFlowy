@@ -5,7 +5,7 @@ import { useEffect } from "react";
 import { initApp } from "@/application/app.ts";
 import { subscribeNotification } from "@/application/notification.ts";
 import { NotifyArgs } from "./@types/global";
-import {init_tracing_log, init_wasm_core} from "../wasm-libs/af-wasm/pkg";
+import {init_tracing_log, init_wasm_core } from "../wasm-libs/af-wasm/pkg";
 import { v4 as uuidv4 } from 'uuid';
 import {AddUserPB, UserWasmEventAddUser} from "@/services/backend/events/af-user";
 

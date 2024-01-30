@@ -115,6 +115,7 @@ dependencies = [
  "collab-integrate",
  "flowy-document",
  "flowy-error",
+ "flowy-folder",
  "flowy-notification",
  "flowy-server",
  "flowy-server-pub",
@@ -1292,6 +1293,39 @@ dependencies = [
  "thiserror",
  "tokio",
  "url",
+ "validator",
+]
+
+[[package]]
+name = "flowy-folder"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "bytes",
+ "chrono",
+ "collab",
+ "collab-entity",
+ "collab-folder",
+ "collab-integrate",
+ "collab-plugins",
+ "flowy-codegen",
+ "flowy-derive",
+ "flowy-error",
+ "flowy-folder-pub",
+ "flowy-notification",
+ "lazy_static",
+ "lib-dispatch",
+ "lib-infra",
+ "nanoid",
+ "parking_lot 0.12.1",
+ "protobuf",
+ "serde_json",
+ "strum_macros 0.21.1",
+ "tokio",
+ "tokio-stream",
+ "tracing",
+ "unicode-segmentation",
+ "uuid",
  "validator",
 ]
 
