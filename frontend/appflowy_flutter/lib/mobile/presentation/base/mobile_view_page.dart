@@ -1,4 +1,5 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/base/app_bar.dart';
 import 'package:appflowy/mobile/presentation/base/app_bar_actions.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_state_container.dart';
@@ -116,15 +117,12 @@ class _MobileViewPageState extends State<MobileViewPage> {
 
   Widget _buildApp(ViewPB? view, List<Widget> actions, Widget child) {
     final icon = view?.icon.value;
-    final elevation = (view?.layout.isDatabaseView ?? false) ? 0.0 : null;
     return Scaffold(
-      appBar: AppBar(
-        titleSpacing: 0,
-        elevation: elevation,
+      appBar: FlowyAppBar(
         title: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (icon != null)
+            if (icon != null && icon.isNotEmpty)
               EmojiText(
                 emoji: '$icon ',
                 fontSize: 22.0,
@@ -138,7 +136,6 @@ class _MobileViewPageState extends State<MobileViewPage> {
             ),
           ],
         ),
-        leading: const AppBarBackButton(),
         actions: actions,
       ),
       body: SafeArea(child: child),

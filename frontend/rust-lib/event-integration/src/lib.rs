@@ -133,7 +133,7 @@ pub fn document_from_document_doc_state(doc_id: &str, doc_state: CollabDocState)
   Document::from_doc_state(CollabOrigin::Empty, doc_state, doc_id, vec![]).unwrap()
 }
 
-#[cfg(feature = "single_thread")]
+#[cfg(target_arch = "wasm32")]
 async fn init_core(config: AppFlowyCoreConfig) -> AppFlowyCore {
   // let runtime = tokio::runtime::Runtime::new().unwrap();
   // let local_set = tokio::task::LocalSet::new();
@@ -141,7 +141,7 @@ async fn init_core(config: AppFlowyCoreConfig) -> AppFlowyCore {
   AppFlowyCore::new(config).await
 }
 
-#[cfg(not(feature = "single_thread"))]
+#[cfg(not(target_arch = "wasm32"))]
 async fn init_core(config: AppFlowyCoreConfig) -> AppFlowyCore {
   std::thread::spawn(|| AppFlowyCore::new(config))
     .join()

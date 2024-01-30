@@ -17,8 +17,7 @@ use parking_lot::Mutex;
 use collab_integrate::{CollabKVAction, CollabKVDB, PersistenceError};
 use flowy_error::FlowyResult;
 use flowy_user_pub::cloud::UserCloudService;
-
-use crate::services::entities::Session;
+use flowy_user_pub::session::Session;
 
 #[tracing::instrument(level = "info", skip_all, err)]
 pub async fn sync_supabase_user_data_to_cloud(

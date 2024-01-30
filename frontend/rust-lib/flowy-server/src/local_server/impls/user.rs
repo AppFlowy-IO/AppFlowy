@@ -87,8 +87,25 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
   fn generate_sign_in_url_with_email(&self, _email: &str) -> FutureResult<String, FlowyError> {
     FutureResult::new(async {
       Err(
-        FlowyError::internal().with_context("Can't generate callback url when using offline mode"),
+        FlowyError::local_version_not_support()
+          .with_context("Not support generate sign in url with email"),
       )
+    })
+  }
+
+  fn create_user(&self, _email: &str, _password: &str) -> FutureResult<(), FlowyError> {
+    FutureResult::new(async {
+      Err(FlowyError::local_version_not_support().with_context("Not support create user"))
+    })
+  }
+
+  fn sign_in_with_password(
+    &self,
+    _email: &str,
+    _password: &str,
+  ) -> FutureResult<UserProfile, FlowyError> {
+    FutureResult::new(async {
+      Err(FlowyError::local_version_not_support().with_context("Not support"))
     })
   }
 

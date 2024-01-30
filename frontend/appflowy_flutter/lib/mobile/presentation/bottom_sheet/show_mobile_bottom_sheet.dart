@@ -114,12 +114,10 @@ Future<T?> showMobileBottomSheet<T>(
         return children.first;
       }
 
-      // not full-screen mode
-      if (MediaQuery.of(context).padding.bottom == 0) {
-        children.add(
-          const VSpace(16),
-        );
-      }
+      // add default padding
+      children.add(
+        VSpace(MediaQuery.of(context).padding.bottom == 0 ? 28.0 : 16.0),
+      );
 
       return SafeArea(
         child: Column(
@@ -153,12 +151,7 @@ class _Header extends StatelessWidget {
             if (showCloseButton)
               const Align(
                 alignment: Alignment.centerLeft,
-                child: Padding(
-                  padding: EdgeInsets.only(left: 16),
-                  child: AppBarCloseButton(
-                    margin: EdgeInsets.zero,
-                  ),
-                ),
+                child: AppBarCloseButton(),
               ),
             Align(
               child: FlowyText(
@@ -170,11 +163,8 @@ class _Header extends StatelessWidget {
             if (showDoneButton)
               Align(
                 alignment: Alignment.centerRight,
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 16),
-                  child: AppBarDoneButton(
-                    onTap: () => Navigator.pop(context),
-                  ),
+                child: AppBarDoneButton(
+                  onTap: () => Navigator.pop(context),
                 ),
               ),
           ],

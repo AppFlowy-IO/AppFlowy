@@ -1,0 +1,19 @@
+.DS_Store
+node_modules
+/build
+/public
+/.svelte-kit
+/package
+/.vscode
+.env
+.env.*
+!.env.example
+
+# rust and generated ts code
+/src-tauri
+/src/services
+
+# Ignore files for PNPM, NPM and YARN
+pnpm-lock.yaml
+package-lock.json
+yarn.lock

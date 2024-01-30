@@ -1,8 +1,12 @@
 import 'dart:io';
-import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
-import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
-import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
+
 import 'package:flutter/material.dart';
+
+import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
+import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
+import 'package:appflowy/workspace/application/sidebar/rename_view/rename_view_bloc.dart';
+import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:provider/provider.dart';
 
@@ -91,6 +95,16 @@ class HomeHotKeys extends StatelessWidget {
         scope: HotKeyScope.inapp,
       ),
       keyDownHandler: (_) => _selectTab(context, 1),
+    ).register();
+
+    // Rename current view
+    HotKeyItem(
+      hotKey: HotKey(
+        KeyCode.f2,
+        scope: HotKeyScope.inapp,
+      ),
+      keyDownHandler: (_) =>
+          getIt<RenameViewBloc>().add(const RenameViewEvent.open()),
     ).register();
 
     return child;

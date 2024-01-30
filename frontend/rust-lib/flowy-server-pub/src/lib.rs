@@ -1,6 +1,33 @@
 use serde_repr::Deserialize_repr;
 
-pub mod af_cloud_config;
+macro_rules! if_native {
+    ($($item:item)*) => {$(
+        #[cfg(not(target_arch = "wasm32"))]
+        $item
+    )*}
+}
+
+macro_rules! if_wasm {
+    ($($item:item)*) => {$(
+        #[cfg(target_arch = "wasm32")]
+        $item
+    )*}
+}
+
+if_native! {
+    mod native;
+    pub mod af_cloud_config {
+      pub use crate::native::af_cloud_config::*;
+    }
+}
+
+if_wasm! {
+    mod wasm;
+    pub mod af_cloud_config {
+      pub use crate::wasm::af_cloud_config::*;
+    }
+}
+
 pub mod supabase_config;
 
 pub const CLOUT_TYPE_STR: &str = "APPFLOWY_CLOUD_ENV_CLOUD_TYPE";

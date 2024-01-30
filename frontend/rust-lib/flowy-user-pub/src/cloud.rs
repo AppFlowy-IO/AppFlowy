@@ -15,6 +15,7 @@ use flowy_error::{ErrorCode, FlowyError};
 
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
+use lib_infra::{if_native, if_wasm};
 
 use crate::entities::{
   AuthResponse, Authenticator, Role, UpdateUserProfileParams, UserCredentials, UserProfile,
@@ -56,13 +57,21 @@ impl Display for UserCloudConfig {
   }
 }
 
+if_native! {
+pub trait UserCloudServiceProvider: UserCloudServiceProviderBase + Send + Sync + 'static {}
+}
+
+if_wasm! {
+pub trait UserCloudServiceProvider: UserCloudServiceProviderBase + 'static {}
+}
+
 /// `UserCloudServiceProvider` defines a set of methods for managing user cloud services,
 /// including token management, synchronization settings, network reachability, and authentication.
 ///
 /// This trait is intended for implementation by providers that offer cloud-based services for users.
 /// It includes methods for handling authentication tokens, enabling/disabling synchronization,
 /// setting network reachability, managing encryption secrets, and accessing user-specific cloud services.
-pub trait UserCloudServiceProvider: Send + Sync + 'static {
+pub trait UserCloudServiceProviderBase {
   /// Sets the authentication token for the cloud service.
   ///
   /// # Arguments
@@ -94,7 +103,7 @@ pub trait UserCloudServiceProvider: Send + Sync + 'static {
 
   fn get_user_authenticator(&self) -> Authenticator;
 
-  /// Sets the network reachability statset_user_authenticatorus.
+  /// Sets the network reachability
   ///
   /// # Arguments
   /// * `reachable`: A boolean indicating whether the network is reachable.
@@ -139,9 +148,17 @@ pub trait UserCloudService: Send + Sync + 'static {
   /// Currently, only use the admin client for testing
   fn generate_sign_in_url_with_email(&self, email: &str) -> FutureResult<String, FlowyError>;
 
+  fn create_user(&self, email: &str, password: &str) -> FutureResult<(), FlowyError>;
+
+  fn sign_in_with_password(
+    &self,
+    email: &str,
+    password: &str,
+  ) -> FutureResult<UserProfile, FlowyError>;
+
   /// When the user opens the OAuth URL, it redirects to the corresponding provider's OAuth web page.
   /// After the user is authenticated, the browser will open a deep link to the AppFlowy app (iOS, macOS, etc.),
-  /// which will call [Client::sign_in_with_url] to sign in.
+  /// which will call [Client::sign_in_with_url]generate_sign_in_url_with_email to sign in.
   ///
   /// For example, the OAuth URL on Google looks like `https://appflowy.io/authorize?provider=google`.
   fn generate_oauth_url_with_provider(&self, provider: &str) -> FutureResult<String, FlowyError>;

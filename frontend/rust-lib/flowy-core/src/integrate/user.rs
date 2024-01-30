@@ -10,7 +10,7 @@ use flowy_document::manager::DocumentManager;
 use flowy_error::FlowyResult;
 use flowy_folder::manager::{FolderInitDataSource, FolderManager};
 use flowy_user::event_map::UserStatusCallback;
-use flowy_user_pub::cloud::{UserCloudConfig, UserCloudServiceProvider};
+use flowy_user_pub::cloud::{UserCloudConfig, UserCloudServiceProviderBase};
 use flowy_user_pub::entities::{Authenticator, UserProfile, UserWorkspace};
 use lib_infra::future::{to_fut, Fut};
 

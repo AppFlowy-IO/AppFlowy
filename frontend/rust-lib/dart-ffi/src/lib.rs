@@ -100,7 +100,7 @@ pub extern "C" fn async_event(port: i64, input: *const u8, len: usize) {
     Some(dispatcher) => dispatcher,
   };
   AFPluginDispatcher::boxed_async_send_with_callback(
-    dispatcher,
+    dispatcher.as_ref(),
     request,
     move |resp: AFPluginEventResponse| {
       trace!("[FFI]: Post data to dart through {} port", port);

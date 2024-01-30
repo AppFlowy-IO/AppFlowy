@@ -3,9 +3,11 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/base/app_bar_actions.dart';
 import 'package:appflowy/mobile/presentation/database/card/card_detail/widgets/widgets.dart';
 import 'package:appflowy/mobile/presentation/database/field/mobile_field_bottom_sheets.dart';
+import 'package:appflowy/mobile/presentation/database/field/mobile_field_type_option_editor.dart';
 import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
 import 'package:appflowy/plugins/database/application/field/field_backend_service.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
+import 'package:appflowy/plugins/database/application/field/field_service.dart';
 import 'package:appflowy/plugins/database/widgets/setting/field_visibility_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -36,14 +38,15 @@ class _QuickEditFieldState extends State<QuickEditField> {
     fieldId: widget.fieldInfo.field.id,
   );
 
-  late FieldType fieldType;
   late FieldVisibility fieldVisibility;
+  late FieldOptionValues _fieldOptionValues;
 
   @override
   void initState() {
     super.initState();
 
-    fieldType = widget.fieldInfo.fieldType;
+    _fieldOptionValues =
+        FieldOptionValues.fromField(field: widget.fieldInfo.field);
     fieldVisibility = widget.fieldInfo.fieldSettings?.visibility ??
         FieldVisibility.AlwaysShown;
     controller.text = widget.fieldInfo.field.name;
@@ -52,7 +55,6 @@ class _QuickEditFieldState extends State<QuickEditField> {
   @override
   void dispose() {
     controller.dispose();
-
     super.dispose();
   }
 
@@ -64,7 +66,7 @@ class _QuickEditFieldState extends State<QuickEditField> {
         const AppBarCloseButton(),
         OptionTextField(
           controller: controller,
-          type: fieldType,
+          type: _fieldOptionValues.type,
           onTextChanged: (text) async {
             await service.updateName(text);
           },
@@ -77,18 +79,44 @@ class _QuickEditFieldState extends State<QuickEditField> {
             widget.fieldInfo.field.freeze();
             final field = widget.fieldInfo.field.rebuild((field) {
               field.name = controller.text;
-              field.fieldType = fieldType;
+              field.fieldType = _fieldOptionValues.type;
+              field.typeOptionData =
+                  _fieldOptionValues.getTypeOptionData() ?? [];
             });
-            final optionValues = await showEditFieldScreen(
+            final fieldOptionValues = await showEditFieldScreen(
               context,
               widget.viewId,
               widget.fieldInfo.copyWith(field: field),
             );
-            if (optionValues != null) {
+            if (fieldOptionValues != null) {
+              if (fieldOptionValues.name != _fieldOptionValues.name) {
+                await service.updateName(fieldOptionValues.name);
+              }
+
+              if (fieldOptionValues.type != _fieldOptionValues.type) {
+                await FieldBackendService.updateFieldType(
+                  viewId: widget.viewId,
+                  fieldId: widget.fieldInfo.id,
+                  fieldType: fieldOptionValues.type,
+                );
+              }
+
+              final data = fieldOptionValues.getTypeOptionData();
+              if (data != null) {
+                await FieldBackendService.updateFieldTypeOption(
+                  viewId: widget.viewId,
+                  fieldId: widget.fieldInfo.id,
+                  typeOptionData: data,
+                );
+              }
               setState(() {
-                fieldType = optionValues.type;
-                controller.text = optionValues.name;
+                _fieldOptionValues = fieldOptionValues;
+                controller.text = fieldOptionValues.name;
               });
+            } else {
+              if (mounted) {
+                context.pop();
+              }
             }
           },
         ),

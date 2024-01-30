@@ -43,7 +43,7 @@ class OptionColorList extends StatelessWidget {
               alignment: Alignment.center,
               child: isSelected
                   ? const FlowySvg(
-                      FlowySvgs.blue_check_s,
+                      FlowySvgs.m_blue_check_s,
                       size: Size.square(28.0),
                       blendMode: null,
                     )

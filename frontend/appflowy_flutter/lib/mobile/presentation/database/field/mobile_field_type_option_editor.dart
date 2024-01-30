@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/base/flowy_search_text_field.dart';
 import 'package:appflowy/mobile/presentation/base/option_color_list.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/database/card/card_detail/widgets/widgets.dart';
@@ -19,7 +20,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/uuid.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:protobuf/protobuf.dart';
@@ -159,8 +159,8 @@ enum FieldOptionAction {
   delete,
 }
 
-class FieldOptionEditor extends StatefulWidget {
-  const FieldOptionEditor({
+class MobileFieldEditor extends StatefulWidget {
+  const MobileFieldEditor({
     super.key,
     required this.mode,
     required this.defaultValues,
@@ -182,11 +182,12 @@ class FieldOptionEditor extends StatefulWidget {
   final bool isPrimary;
 
   @override
-  State<FieldOptionEditor> createState() => _FieldOptionEditorState();
+  State<MobileFieldEditor> createState() => _MobileFieldEditorState();
 }
 
-class _FieldOptionEditorState extends State<FieldOptionEditor> {
+class _MobileFieldEditorState extends State<MobileFieldEditor> {
   final controller = TextEditingController();
+  bool isFieldNameChanged = false;
 
   late FieldOptionValues values;
 
@@ -219,6 +220,7 @@ class _FieldOptionEditorState extends State<FieldOptionEditor> {
               controller: controller,
               type: values.type,
               onTextChanged: (value) {
+                isFieldNameChanged = true;
                 _updateOptionValues(name: value);
               },
             ),
@@ -226,16 +228,18 @@ class _FieldOptionEditorState extends State<FieldOptionEditor> {
             if (!widget.isPrimary) ...[
               _PropertyType(
                 type: values.type,
-                onSelected: (type) => setState(
-                  () {
-                    if (widget.mode == FieldOptionMode.add) {
-                      controller.text = type.i18n;
-                      _updateOptionValues(name: type.i18n, type: type);
-                    } else {
+                onSelected: (type) {
+                  setState(
+                    () {
+                      if (widget.mode == FieldOptionMode.add &&
+                          !isFieldNameChanged) {
+                        controller.text = type.i18n;
+                        _updateOptionValues(name: type.i18n);
+                      }
                       _updateOptionValues(type: type);
-                    }
-                  },
-                ),
+                    },
+                  );
+                },
               ),
               const _Divider(),
               if (option.isNotEmpty) ...[
@@ -446,9 +450,10 @@ class _PropertyType extends StatelessWidget {
             return DraggableScrollableSheet(
               expand: false,
               snap: true,
-              initialChildSize: 0.7,
-              minChildSize: 0.7,
-              builder: (context, controller) => FieldOptions(
+              initialChildSize: 0.97,
+              minChildSize: 0.97,
+              maxChildSize: 0.97,
+              builder: (context, controller) => MobileFieldTypeGrid(
                 scrollController: controller,
                 mode: FieldOptionMode.edit,
                 onSelectFieldType: (type) {
@@ -649,8 +654,7 @@ class _NumberOption extends StatelessWidget {
             return DraggableScrollableSheet(
               expand: false,
               snap: true,
-              initialChildSize: 0.6,
-              minChildSize: 0.6,
+              minChildSize: 0.5,
               builder: (context, scrollController) => _NumberFormatList(
                 scrollController: scrollController,
                 selectedFormat: selectedFormat,
@@ -696,16 +700,7 @@ class _NumberFormatListState extends State<_NumberFormatList> {
         Container(
           margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
           height: 44.0,
-          child: CupertinoSearchTextField(
-            prefixIcon: const FlowySvg(FlowySvgs.m_search_m),
-            prefixInsets: const EdgeInsets.only(left: 16.0),
-            suffixIcon: const Icon(Icons.close),
-            suffixInsets: const EdgeInsets.only(right: 16.0),
-            placeholderStyle: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  color: Theme.of(context).hintColor,
-                  fontWeight: FontWeight.w400,
-                  fontSize: 14.0,
-                ),
+          child: FlowySearchTextField(
             onChanged: (String value) {
               setState(() {
                 formats = NumberFormatPB.values
@@ -727,19 +722,21 @@ class _NumberFormatListState extends State<_NumberFormatList> {
               child: Row(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 4.0,
-                      vertical: 16.0,
+                    padding: const EdgeInsets.fromLTRB(
+                      4.0,
+                      16.0,
+                      12.0,
+                      16.0,
                     ),
                     child: FlowyText(
                       element.title(),
                       fontSize: 16,
                     ),
                   ),
-                  const Spacer(),
                   FlowyText(
                     element.iconSymbol(),
                     fontSize: 16,
+                    color: Theme.of(context).hintColor,
                   ),
                   widget.selectedFormat != element
                       ? const HSpace(30.0)
@@ -894,10 +891,10 @@ class _SelectOptionTile extends StatefulWidget {
   final void Function(SelectOptionPB option) onUpdateOption;
 
   @override
-  State<_SelectOptionTile> createState() => __SelectOptionTileState();
+  State<_SelectOptionTile> createState() => _SelectOptionTileState();
 }
 
-class __SelectOptionTileState extends State<_SelectOptionTile> {
+class _SelectOptionTileState extends State<_SelectOptionTile> {
   final TextEditingController controller = TextEditingController();
   late SelectOptionPB option;
 
