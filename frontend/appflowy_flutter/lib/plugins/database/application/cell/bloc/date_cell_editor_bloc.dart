@@ -21,7 +21,6 @@ import 'package:fixnum/fixnum.dart';
 import 'package:flowy_infra/time/duration.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:intl/intl.dart';
 import 'package:nanoid/non_secure.dart';
 import 'package:protobuf/protobuf.dart';
 
@@ -263,46 +262,24 @@ class DateCellEditorBloc
           !(endDate != null && endTimeStr != null),
     );
 
-    final incTime = includeTime ?? state.includeTime;
-    String? time = incTime ? timeStr ?? state.timeStr : null;
-    String? endTime = incTime ? endTimeStr ?? state.endTimeStr : null;
-
     // if not updating the time, use the old time in the state
-    DateTime? newDate = date == null && (time != null && time.isNotEmpty)
+    final String? newTime = timeStr ?? state.timeStr;
+    final DateTime? newDate = timeStr != null && timeStr.isNotEmpty
         ? state.dateTime ?? DateTime.now()
         : _utcToLocalAndAddCurrentTime(date);
 
     // if not updating the time, use the old time in the state
-    DateTime? newEndDate =
-        endDate == null && (endTime != null && endTime.isNotEmpty)
-            ? state.endDateTime ?? DateTime.now()
-            : _utcToLocalAndAddCurrentTime(endDate);
-
-    // Don't store time if includeTime is false
-    if (!incTime) {
-      newDate = newDate?.withoutTime;
-      newEndDate = newEndDate?.withoutTime;
-    }
-
-    // If Include Time is set, we add time of now
-    if (includeTime == true && timeStr == null) {
-      newDate = _utcToLocalAndAddCurrentTime(newDate);
-      newEndDate = _utcToLocalAndAddCurrentTime(newEndDate);
-
-      time = newDate != null
-          ? DateFormat(DateFormat.HOUR24_MINUTE).format(newDate)
-          : null;
-      endTime = newEndDate != null
-          ? DateFormat(DateFormat.HOUR24_MINUTE).format(newEndDate)
-          : null;
-    }
+    final String? newEndTime = endTimeStr ?? state.endTimeStr;
+    final DateTime? newEndDate = endTimeStr != null && endTimeStr.isNotEmpty
+        ? state.endDateTime ?? DateTime.now()
+        : _utcToLocalAndAddCurrentTime(endDate);
 
     final result = await _dateCellBackendService.update(
       date: newDate,
-      time: time,
+      time: newTime,
       endDate: newEndDate,
-      endTime: endTime,
-      includeTime: incTime,
+      endTime: newEndTime,
+      includeTime: includeTime ?? state.includeTime,
       isRange: isRange ?? state.isRange,
       reminderId: reminderId ?? state.reminderId,
     );
@@ -532,8 +509,11 @@ class DateCellEditorState with _$DateCellEditorState {
       final reminder = reminderBloc.state.reminders
           .firstWhereOrNull((r) => r.id == dateCellData.reminderId);
       if (reminder != null) {
+        final eventDate = dateCellData.includeTime
+            ? dateCellData.dateTime!
+            : dateCellData.dateTime!.withoutTime;
         reminderOption = ReminderOption.fromDateDifference(
-          dateCellData.dateTime!,
+          eventDate,
           reminder.scheduledAt.toDateTime(),
         );
       }
