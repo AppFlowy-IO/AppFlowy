@@ -11,7 +11,6 @@ import 'package:appflowy/user/application/auth/supabase_mock_auth_service.dart';
 import 'package:appflowy/user/presentation/presentation.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/widgets.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
-import 'package:dartz/dartz.dart';
 import 'package:flowy_infra/uuid.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/gestures.dart';
@@ -78,14 +77,14 @@ extension AppFlowyTestBase on WidgetTester {
                   await useLocal();
                   break;
                 case AuthenticatorType.supabase:
-                  await useSupabaseCloud();
+                  await useTestSupabaseCloud();
                   getIt.unregister<AuthService>();
                   getIt.registerFactory<AuthService>(
                     () => SupabaseMockAuthService(),
                   );
                   break;
                 case AuthenticatorType.appflowyCloudSelfHost:
-                  await useAppFlowyCloud();
+                  await useTestSelfHostedAppFlowyCloud();
                   getIt.unregister<AuthService>();
                   getIt.registerFactory<AuthService>(
                     () => AppFlowyCloudMockAuthService(email: email),
@@ -249,20 +248,18 @@ extension AppFlowyFinderTestBase on CommonFinders {
 }
 
 Future<void> useLocal() async {
-  await setAuthenticatorType(AuthenticatorType.local);
+  await useLocalServer();
 }
 
-Future<void> useSupabaseCloud() async {
-  await setAuthenticatorType(AuthenticatorType.supabase);
-  await setSupbaseServer(
-    Some(TestEnv.supabaseUrl),
-    Some(TestEnv.supabaseAnonKey),
+Future<void> useTestSupabaseCloud() async {
+  await useSupabaseCloud(
+    url: TestEnv.supabaseUrl,
+    anonKey: TestEnv.supabaseAnonKey,
   );
 }
 
-Future<void> useAppFlowyCloud() async {
-  await setAuthenticatorType(AuthenticatorType.appflowyCloudSelfHost);
-  await setAppFlowyCloudUrl(Some(TestEnv.afCloudUrl));
+Future<void> useTestSelfHostedAppFlowyCloud() async {
+  await useSelfHostedAppFlowyCloudWithURL(TestEnv.afCloudUrl);
 }
 
 Future<String> mockApplicationDataStorage({

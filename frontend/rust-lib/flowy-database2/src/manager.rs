@@ -81,7 +81,7 @@ impl DatabaseManager {
     &self,
     uid: i64,
     workspace_id: String,
-    database_views_aggregate_id: String,
+    workspace_database_object_id: String,
   ) -> FlowyResult<()> {
     // 1. Clear all existing tasks
     self.task_scheduler.write().await.clear_task();
@@ -103,12 +103,12 @@ impl DatabaseManager {
 
     let mut workspace_database_doc_state = CollabDocState::default();
     // If the workspace database not exist in disk, try to fetch from remote.
-    if !self.is_collab_exist(uid, &collab_db, &database_views_aggregate_id) {
+    if !self.is_collab_exist(uid, &collab_db, &workspace_database_object_id) {
       trace!("workspace database not exist, try to fetch from remote");
       match self
         .cloud_service
         .get_database_object_doc_state(
-          &database_views_aggregate_id,
+          &workspace_database_object_id,
           CollabType::WorkspaceDatabase,
           &workspace_id,
         )
@@ -120,7 +120,7 @@ impl DatabaseManager {
         Err(err) => {
           return Err(FlowyError::record_not_found().with_context(format!(
             "get workspace database :{} failed: {}",
-            database_views_aggregate_id, err,
+            workspace_database_object_id, err,
           )));
         },
       }
@@ -130,11 +130,11 @@ impl DatabaseManager {
     event!(
       tracing::Level::INFO,
       "open aggregate database views object: {}",
-      &database_views_aggregate_id
+      &workspace_database_object_id
     );
     let collab = collab_builder.build_collab_with_config(
       uid,
-      &database_views_aggregate_id,
+      &workspace_database_object_id,
       CollabType::WorkspaceDatabase,
       collab_db.clone(),
       workspace_database_doc_state,
@@ -156,10 +156,10 @@ impl DatabaseManager {
     &self,
     user_id: i64,
     workspace_id: String,
-    database_views_aggregate_id: String,
+    workspace_database_object_id: String,
   ) -> FlowyResult<()> {
     self
-      .initialize(user_id, workspace_id, database_views_aggregate_id)
+      .initialize(user_id, workspace_id, workspace_database_object_id)
       .await?;
     Ok(())
   }

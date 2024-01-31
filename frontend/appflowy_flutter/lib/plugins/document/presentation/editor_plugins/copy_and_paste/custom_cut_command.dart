@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 ///
 final CommandShortcutEvent customCutCommand = CommandShortcutEvent(
   key: 'cut the selected content (with formatting)',
+  getDescription: () => 'cut the selected content (with formatting)',
   command: 'ctrl+x',
   macOSCommand: 'cmd+x',
   handler: _cutCommandHandler,

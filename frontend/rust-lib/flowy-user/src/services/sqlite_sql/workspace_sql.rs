@@ -37,6 +37,7 @@ pub fn get_all_user_workspace_op(
 
 /// Remove all existing workspaces for given user and insert the new ones.
 ///
+#[allow(dead_code)]
 pub fn save_user_workspaces_op(
   uid: i64,
   mut conn: DBConnection,
@@ -49,6 +50,7 @@ pub fn save_user_workspaces_op(
   })
 }
 
+#[allow(dead_code)]
 fn delete_existing_workspaces(uid: i64, conn: &mut SqliteConnection) -> Result<(), FlowyError> {
   diesel::delete(
     user_workspace_table::dsl::user_workspace_table.filter(user_workspace_table::uid.eq(uid)),
@@ -78,7 +80,7 @@ impl TryFrom<(i64, &UserWorkspace)> for UserWorkspaceTable {
     if value.1.id.is_empty() {
       return Err(FlowyError::invalid_data().with_context("The id is empty"));
     }
-    if value.1.database_view_tracker_id.is_empty() {
+    if value.1.workspace_database_object_id.is_empty() {
       return Err(FlowyError::invalid_data().with_context("The database storage id is empty"));
     }
 
@@ -87,7 +89,7 @@ impl TryFrom<(i64, &UserWorkspace)> for UserWorkspaceTable {
       name: value.1.name.clone(),
       uid: value.0,
       created_at: value.1.created_at.timestamp(),
-      database_storage_id: value.1.database_view_tracker_id.clone(),
+      database_storage_id: value.1.workspace_database_object_id.clone(),
     })
   }
 }
@@ -101,7 +103,7 @@ impl From<UserWorkspaceTable> for UserWorkspace {
         .timestamp_opt(value.created_at, 0)
         .single()
         .unwrap_or_default(),
-      database_view_tracker_id: value.database_storage_id,
+      workspace_database_object_id: value.database_storage_id,
     }
   }
 }

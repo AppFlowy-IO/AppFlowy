@@ -180,14 +180,14 @@ class SupabaseAuthService implements AuthService {
 }
 
 extension on String {
-  Provider toProvider() {
+  OAuthProvider toProvider() {
     switch (this) {
       case 'github':
-        return Provider.github;
+        return OAuthProvider.github;
       case 'google':
-        return Provider.google;
+        return OAuthProvider.google;
       case 'discord':
-        return Provider.discord;
+        return OAuthProvider.discord;
       default:
         throw UnimplementedError();
     }
@@ -235,17 +235,15 @@ Completer<Either<FlowyError, UserProfilePB>> supabaseLoginCompleter({
   return completer;
 }
 
-Map<String, String> queryParamsForProvider(Provider provider) {
+Map<String, String> queryParamsForProvider(OAuthProvider provider) {
   switch (provider) {
-    case Provider.github:
-      return {};
-    case Provider.google:
+    case OAuthProvider.google:
       return {
         'access_type': 'offline',
         'prompt': 'consent',
       };
-    case Provider.discord:
-      return {};
+    case OAuthProvider.github:
+    case OAuthProvider.discord:
     default:
       return {};
   }

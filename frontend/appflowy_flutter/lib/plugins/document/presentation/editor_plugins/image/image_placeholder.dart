@@ -9,6 +9,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/image/cust
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/image_util.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/upload_image_menu.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/util/file_extension.dart';
 import 'package:appflowy/workspace/application/settings/application_data_storage.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_backend/log.dart';
@@ -85,6 +86,7 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
         clickHandler: PopoverClickHandler.gestureDetector,
         popupBuilder: (context) {
           return UploadImageMenu(
+            limitMaximumImageSize: !_isLocalMode(),
             onSelectedLocalImage: (path) {
               controller.close();
               WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
@@ -126,6 +128,7 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
     if (PlatformExtension.isDesktopOrWeb) {
       controller.show();
     } else {
+      final isLocalMode = _isLocalMode();
       showMobileBottomSheet(
         context,
         title: LocaleKeys.editor_image.tr(),
@@ -140,6 +143,7 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
               minHeight: 80,
             ),
             child: UploadImageMenu(
+              limitMaximumImageSize: !isLocalMode,
               supportTypes: const [
                 UploadImageType.local,
                 UploadImageType.url,
@@ -170,15 +174,24 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
       return;
     }
 
-    final userProfilePB = context.read<DocumentBloc>().state.userProfilePB;
+    final size = url.fileSize;
+    if (size == null || size > 10 * 1024 * 1024) {
+      // show error
+      controller.close();
+      showSnackBarMessage(
+        context,
+        LocaleKeys.document_imageBlock_uploadImageErrorImageSizeTooBig.tr(),
+      );
+      return;
+    }
 
     final transaction = editorState.transaction;
-    final type = userProfilePB?.authenticator ?? AuthenticatorPB.Local;
+
     String? path;
     CustomImageType imageType = CustomImageType.local;
 
     // if the user is using local authenticator, we need to save the image to local storage
-    if (type == AuthenticatorPB.Local) {
+    if (_isLocalMode()) {
       path = await saveImageToLocalStorage(url);
     } else {
       // else we should save the image to cloud storage
@@ -257,5 +270,11 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
       ImageBlockKeys.url: url,
     });
     await editorState.apply(transaction);
+  }
+
+  bool _isLocalMode() {
+    final userProfilePB = context.read<DocumentBloc>().state.userProfilePB;
+    final type = userProfilePB?.authenticator ?? AuthenticatorPB.Local;
+    return type == AuthenticatorPB.Local;
   }
 }

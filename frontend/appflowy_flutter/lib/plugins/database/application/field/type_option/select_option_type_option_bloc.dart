@@ -1,27 +1,11 @@
-import 'dart:async';
-
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option_entities.pb.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+
+import 'select_type_option_actions.dart';
+
 part 'select_option_type_option_bloc.freezed.dart';
-
-abstract class ISelectOptionAction {
-  Future<List<SelectOptionPB>> insertOption(
-    List<SelectOptionPB> options,
-    String newOptionName,
-  );
-
-  List<SelectOptionPB> deleteOption(
-    List<SelectOptionPB> options,
-    SelectOptionPB deletedOption,
-  );
-
-  List<SelectOptionPB> updateOption(
-    List<SelectOptionPB> options,
-    SelectOptionPB updatedOption,
-  );
-}
 
 class SelectOptionTypeOptionBloc
     extends Bloc<SelectOptionTypeOptionEvent, SelectOptionTypeOptionState> {

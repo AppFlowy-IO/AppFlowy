@@ -4,11 +4,10 @@ import 'package:appflowy/plugins/database/grid/presentation/widgets/header/type_
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option_entities.pb.dart';
 
-import 'select_option_type_option_bloc.dart';
 import 'type_option_service.dart';
 
-class SingleSelectAction implements ISelectOptionAction {
-  SingleSelectAction({
+abstract class ISelectOptionAction {
+  ISelectOptionAction({
     required this.onTypeOptionUpdated,
     required String viewId,
     required String fieldId,
@@ -17,7 +16,11 @@ class SingleSelectAction implements ISelectOptionAction {
   final TypeOptionBackendService service;
   final TypeOptionDataCallback onTypeOptionUpdated;
 
-  @override
+  void updateTypeOption(List<SelectOptionPB> options) {
+    final newTypeOption = MultiSelectTypeOptionPB()..options.addAll(options);
+    onTypeOptionUpdated(newTypeOption.writeToBuffer());
+  }
+
   Future<List<SelectOptionPB>> insertOption(
     List<SelectOptionPB> options,
     String optionName,
@@ -32,7 +35,7 @@ class SingleSelectAction implements ISelectOptionAction {
             newOptions.insert(0, option);
           }
 
-          _updateTypeOption(newOptions);
+          updateTypeOption(newOptions);
           return newOptions;
         },
         (err) {
@@ -43,7 +46,6 @@ class SingleSelectAction implements ISelectOptionAction {
     });
   }
 
-  @override
   List<SelectOptionPB> deleteOption(
     List<SelectOptionPB> options,
     SelectOptionPB deletedOption,
@@ -55,28 +57,48 @@ class SingleSelectAction implements ISelectOptionAction {
       newOptions.removeAt(index);
     }
 
-    final newTypeOption = MultiSelectTypeOptionPB()..options.addAll(newOptions);
-    onTypeOptionUpdated(newTypeOption.writeToBuffer());
+    updateTypeOption(newOptions);
     return newOptions;
   }
 
-  @override
   List<SelectOptionPB> updateOption(
     List<SelectOptionPB> options,
-    SelectOptionPB updatedOption,
+    SelectOptionPB option,
   ) {
     final newOptions = List<SelectOptionPB>.from(options);
-    final index =
-        newOptions.indexWhere((option) => option.id == updatedOption.id);
+    final index = newOptions.indexWhere((element) => element.id == option.id);
     if (index != -1) {
-      newOptions[index] = updatedOption;
+      newOptions[index] = option;
     }
 
-    _updateTypeOption(newOptions);
+    updateTypeOption(newOptions);
     return newOptions;
   }
+}
 
-  void _updateTypeOption(List<SelectOptionPB> options) {
+class MultiSelectAction extends ISelectOptionAction {
+  MultiSelectAction({
+    required super.viewId,
+    required super.fieldId,
+    required super.onTypeOptionUpdated,
+  });
+
+  @override
+  void updateTypeOption(List<SelectOptionPB> options) {
+    final newTypeOption = MultiSelectTypeOptionPB()..options.addAll(options);
+    onTypeOptionUpdated(newTypeOption.writeToBuffer());
+  }
+}
+
+class SingleSelectAction extends ISelectOptionAction {
+  SingleSelectAction({
+    required super.viewId,
+    required super.fieldId,
+    required super.onTypeOptionUpdated,
+  });
+
+  @override
+  void updateTypeOption(List<SelectOptionPB> options) {
     final newTypeOption = SingleSelectTypeOptionPB()..options.addAll(options);
     onTypeOptionUpdated(newTypeOption.writeToBuffer());
   }
