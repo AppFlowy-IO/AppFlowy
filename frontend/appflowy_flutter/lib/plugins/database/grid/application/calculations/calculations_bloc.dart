@@ -87,6 +87,10 @@ class CalculationsBloc extends Bloc<CalculationsEvent, CalculationsState> {
 
     _calculationsListener.start(
       onCalculationChanged: (changesetOrFailure) {
+        if (isClosed) {
+          return;
+        }
+
         changesetOrFailure.fold(
           (changeset) {
             final calculationsMap = {...state.calculationsByFieldId};

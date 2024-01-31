@@ -1,7 +1,8 @@
 import 'dart:io';
 
 import 'package:appflowy/plugins/database/application/calculations/calculation_type_ext.dart';
-import 'package:appflowy/plugins/database/grid/presentation/widgets/calculations/calculations_row.dart';
+import 'package:appflowy/plugins/database/grid/presentation/widgets/calculations/calculate_cell.dart';
+import 'package:appflowy/plugins/database/grid/presentation/widgets/calculations/calculation_type_item.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/common/type_option_separator.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/header/type_option/number.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/checkbox.dart';
