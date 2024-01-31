@@ -2,7 +2,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/database/card/card_detail/widgets/widgets.dart';
 import 'package:appflowy/mobile/presentation/database/field/mobile_field_bottom_sheets.dart';
-import 'package:appflowy/mobile/presentation/database/field/mobile_field_type_option_editor.dart';
+import 'package:appflowy/mobile/presentation/database/field/mobile_full_field_editor.dart';
 import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
 import 'package:appflowy/plugins/database/application/field/field_backend_service.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';

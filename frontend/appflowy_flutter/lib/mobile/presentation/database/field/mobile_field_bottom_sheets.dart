@@ -13,7 +13,7 @@ import 'package:go_router/go_router.dart';
 import 'mobile_create_field_screen.dart';
 import 'mobile_edit_field_screen.dart';
 import 'mobile_field_picker_list.dart';
-import 'mobile_field_type_option_editor.dart';
+import 'mobile_full_field_editor.dart';
 import 'mobile_quick_field_editor.dart';
 
 const mobileSupportedFieldTypes = [
