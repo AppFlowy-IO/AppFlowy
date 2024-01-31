@@ -1,4 +1,4 @@
-name: Mobile-CI
+name: Android CI
 
 on:
   push:
@@ -125,4 +125,6 @@ jobs:
           api-level: 29
           arch: x86_64
           working-directory: frontend/appflowy_flutter
-          script: flutter test integration_test/runner.dart
+          script: flutter drive \
+            --driver=test_driver/integration_test.dart \
+            --target=integration_test/runner.dart
