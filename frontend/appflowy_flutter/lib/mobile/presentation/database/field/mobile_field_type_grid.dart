@@ -45,7 +45,7 @@ class MobileFieldTypeGrid extends StatelessWidget {
           const DragHandler(),
           _FieldHeader(mode: mode),
           const Divider(height: 0.5, thickness: 0.5),
-          const VSpace(12.0),
+          const VSpace(18.0),
           _GridView(
             crossAxisCount: 3,
             mainAxisSpacing: 4,
