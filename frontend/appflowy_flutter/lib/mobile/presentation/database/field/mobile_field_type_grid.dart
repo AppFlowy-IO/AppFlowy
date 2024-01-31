@@ -48,8 +48,7 @@ class MobileFieldTypeGrid extends StatelessWidget {
           const VSpace(18.0),
           _GridView(
             crossAxisCount: 3,
-            mainAxisSpacing: 4,
-            itemSize: const Size(82, 140),
+            verticalSpacing: 18,
             children: _supportedFieldTypes
                 .map(
                   (e) => _Field(
@@ -106,26 +105,39 @@ class _Field extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          FlowySvg(
-            type.svgData,
-            blendMode: null,
-            size: const Size.square(82),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return GestureDetector(
+          onTap: onTap,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              FlowySvg(
+                type.svgData,
+                blendMode: null,
+                size: Size.square(constraints.maxWidth * 0.75),
+              ),
+              const VSpace(6.0),
+              Stack(
+                children: [
+                  FlowyText(
+                    type.i18n,
+                    fontSize: 15.0,
+                    maxLines: 2,
+                    textAlign: TextAlign.center,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const FlowyText(
+                    "\n\n",
+                    fontSize: 15.0,
+                    maxLines: 2,
+                  ),
+                ],
+              ),
+            ],
           ),
-          const VSpace(6.0),
-          FlowyText(
-            type.i18n,
-            fontSize: 15.0,
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
@@ -134,14 +146,12 @@ class _GridView extends StatelessWidget {
   const _GridView({
     required this.children,
     required this.crossAxisCount,
-    required this.mainAxisSpacing,
-    required this.itemSize,
+    required this.verticalSpacing,
   });
 
   final List<Widget> children;
   final int crossAxisCount;
-  final double mainAxisSpacing;
-  final Size itemSize;
+  final double verticalSpacing;
 
   @override
   Widget build(BuildContext context) {
@@ -149,18 +159,33 @@ class _GridView extends StatelessWidget {
       children: [
         for (var i = 0; i < children.length; i += crossAxisCount)
           Padding(
-            padding: EdgeInsets.only(bottom: mainAxisSpacing),
+            padding: EdgeInsets.only(bottom: verticalSpacing),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                for (var j = 0; j < crossAxisCount; j++)
-                  i + j < children.length
-                      ? ConstrainedBox(
-                          constraints: BoxConstraints.tight(itemSize),
-                          child: children[i + j],
-                        )
-                      : SizedBox.fromSize(size: itemSize),
+                const Spacer(),
+                Flexible(
+                  flex: 6,
+                  fit: FlexFit.tight,
+                  child: children[i],
+                ),
+                const Spacer(flex: 2),
+                Flexible(
+                  flex: 6,
+                  fit: FlexFit.tight,
+                  child: i + 1 < children.length
+                      ? children[i + 1]
+                      : const SizedBox.shrink(),
+                ),
+                const Spacer(flex: 2),
+                Flexible(
+                  flex: 6,
+                  fit: FlexFit.tight,
+                  child: i + 2 < children.length
+                      ? children[i + 2]
+                      : const SizedBox.shrink(),
+                ),
+                const Spacer(),
               ],
             ),
           ),

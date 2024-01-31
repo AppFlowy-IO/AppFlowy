@@ -451,7 +451,7 @@ class _PropertyType extends StatelessWidget {
               expand: false,
               snap: true,
               minChildSize: 0.49,
-              maxChildSize: 0.85,
+              maxChildSize: 0.9,
               builder: (context, controller) => MobileFieldTypeGrid(
                 scrollController: controller,
                 mode: FieldOptionMode.edit,
