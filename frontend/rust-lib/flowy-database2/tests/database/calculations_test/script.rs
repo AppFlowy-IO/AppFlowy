@@ -48,7 +48,7 @@ impl DatabaseCalculationTest {
             .await
             .unwrap(),
         );
-        let _ = self.editor.update_calculation(payload).await.unwrap();
+        self.editor.update_calculation(payload).await.unwrap();
       },
       CalculationScript::AssertCalculationValue { expected } => {
         let calculations = self.editor.get_all_calculations(&self.view_id()).await;
