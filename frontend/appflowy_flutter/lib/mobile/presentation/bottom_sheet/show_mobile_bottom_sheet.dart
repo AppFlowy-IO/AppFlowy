@@ -26,6 +26,11 @@ Future<T?> showMobileBottomSheet<T>(
   Color? barrierColor,
   double? elevation,
   bool showDoneButton = false,
+  bool enableDraggableScrollable = false,
+  // only used when enableDraggableScrollable is true
+  double minChildSize = 0.5,
+  double maxChildSize = 0.8,
+  double initialChildSize = 0.51,
 }) async {
   assert(() {
     if (showCloseButton || title.isNotEmpty) assert(showHeader);
@@ -57,7 +62,7 @@ Future<T?> showMobileBottomSheet<T>(
     builder: (context) {
       final List<Widget> children = [];
 
-      final child = builder(context);
+      final Widget child = builder(context);
 
       // if the children is only one, we don't need to wrap it with a column
       if (!showDragHandle &&
@@ -91,6 +96,29 @@ Future<T?> showMobileBottomSheet<T>(
       }
 
       // ----- header area -----
+
+      if (enableDraggableScrollable) {
+        return DraggableScrollableSheet(
+          expand: false,
+          snap: true,
+          initialChildSize: initialChildSize,
+          minChildSize: minChildSize,
+          maxChildSize: maxChildSize,
+          builder: (context, scrollController) {
+            return Column(
+              children: [
+                ...children,
+                Expanded(
+                  child: SingleChildScrollView(
+                    controller: scrollController,
+                    child: child,
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      }
 
       // ----- content area -----
       if (resizeToAvoidBottomInset) {
