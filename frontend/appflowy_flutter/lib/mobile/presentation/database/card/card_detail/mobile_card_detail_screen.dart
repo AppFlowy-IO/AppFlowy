@@ -335,22 +335,22 @@ class MobileRowDetailPageContentState
                 )..add(const RowBannerEvent.initial()),
                 child: BlocBuilder<RowBannerBloc, RowBannerState>(
                   builder: (context, state) {
-                    if (state.primaryField != null) {
-                      final cellContext = CellContext(
-                        rowId: rowController.rowId,
-                        fieldId: state.primaryField!.id,
-                      );
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: cellBuilder.buildCustom(
-                          cellContext,
-                          skinMap: EditableCellSkinMap(
-                            textSkin: _TitleSkin(),
-                          ),
-                        ),
-                      );
+                    if (state.primaryField == null) {
+                      return const SizedBox.shrink();
                     }
-                    return const SizedBox.shrink();
+
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: cellBuilder.buildCustom(
+                        CellContext(
+                          rowId: rowController.rowId,
+                          fieldId: state.primaryField!.id,
+                        ),
+                        skinMap: EditableCellSkinMap(
+                          textSkin: _TitleSkin(),
+                        ),
+                      ),
+                    );
                   },
                 ),
               ),
@@ -420,6 +420,7 @@ class _TitleSkin extends IEditableTextCellSkin {
         isDense: true,
         isCollapsed: true,
       ),
+      onTapOutside: (event) => focusNode.unfocus(),
     );
   }
 }
