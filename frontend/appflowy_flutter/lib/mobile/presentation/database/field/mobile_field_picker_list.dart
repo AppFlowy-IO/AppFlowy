@@ -4,7 +4,7 @@ import 'package:appflowy/mobile/presentation/widgets/flowy_option_tile.dart';
 import 'package:appflowy/plugins/base/drag_handler.dart';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
-import 'package:appflowy/plugins/database/grid/presentation/widgets/header/field_type_extension.dart';
+import 'package:appflowy/util/field_type_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -140,7 +140,7 @@ class _FieldButton extends StatelessWidget {
       text: field.name,
       isSelected: isSelected,
       leftIcon: FlowySvg(
-        field.fieldType.icon(),
+        field.fieldType.svgData,
         size: const Size.square(20),
       ),
       showTopBorder: showTopBorder,

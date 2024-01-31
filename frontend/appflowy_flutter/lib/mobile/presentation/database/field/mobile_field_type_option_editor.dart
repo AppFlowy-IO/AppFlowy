@@ -427,7 +427,9 @@ class _PropertyType extends StatelessWidget {
       trailing: Row(
         children: [
           FlowySvg(
-            type.smallSvgData,
+            type.svgData,
+            size: const Size.square(22),
+            color: Theme.of(context).hintColor,
           ),
           const HSpace(6.0),
           FlowyText(

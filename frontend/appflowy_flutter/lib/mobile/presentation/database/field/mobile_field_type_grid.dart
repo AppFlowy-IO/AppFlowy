@@ -17,10 +17,10 @@ const _supportedFieldTypes = [
   FieldType.SingleSelect,
   FieldType.MultiSelect,
   FieldType.DateTime,
-  FieldType.Checkbox,
-  FieldType.Checklist,
   FieldType.LastEditedTime,
   FieldType.CreatedTime,
+  FieldType.Checkbox,
+  FieldType.Checklist,
 ];
 
 class MobileFieldTypeGrid extends StatelessWidget {
@@ -112,10 +112,20 @@ class _Field extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              FlowySvg(
-                type.svgData,
-                blendMode: null,
-                size: Size.square(constraints.maxWidth * 0.75),
+              Container(
+                height: constraints.maxWidth * 0.75,
+                width: constraints.maxWidth * 0.75,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(24),
+                  color: type.mobileIconBackgroundColor,
+                ),
+                child: Center(
+                  child: FlowySvg(
+                    type.svgData,
+                    blendMode: null,
+                    size: const Size.square(35),
+                  ),
+                ),
               ),
               const VSpace(6.0),
               Stack(
