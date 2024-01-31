@@ -5,6 +5,7 @@ import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
 import 'package:appflowy/plugins/trash/application/prelude.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -107,12 +108,16 @@ class _TrashActionAllButton extends StatelessWidget {
             context.pop();
             showFlowyMobileConfirmDialog(
               context,
-              title: isDeleteAll
-                  ? LocaleKeys.trash_confirmDeleteAll_title.tr()
-                  : LocaleKeys.trash_restoreAll.tr(),
-              content: isDeleteAll
-                  ? LocaleKeys.trash_confirmDeleteAll_caption.tr()
-                  : LocaleKeys.trash_confirmRestoreAll_caption.tr(),
+              title: FlowyText(
+                isDeleteAll
+                    ? LocaleKeys.trash_confirmDeleteAll_title.tr()
+                    : LocaleKeys.trash_restoreAll.tr(),
+              ),
+              content: FlowyText(
+                isDeleteAll
+                    ? LocaleKeys.trash_confirmDeleteAll_caption.tr()
+                    : LocaleKeys.trash_confirmRestoreAll_caption.tr(),
+              ),
               actionButtonTitle: isDeleteAll
                   ? LocaleKeys.trash_deleteAll.tr()
                   : LocaleKeys.trash_restoreAll.tr(),

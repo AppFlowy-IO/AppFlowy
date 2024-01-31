@@ -5,7 +5,7 @@ import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/application/setting/group_bloc.dart';
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/common/type_option_separator.dart';
-import 'package:appflowy/plugins/database/grid/presentation/widgets/header/field_type_extension.dart';
+import 'package:appflowy/util/field_type_extension.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle_style.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/board_entities.pb.dart';
@@ -154,7 +154,7 @@ class _GridGroupCell extends StatelessWidget {
             color: AFThemeExtension.of(context).textColor,
           ),
           leftIcon: FlowySvg(
-            fieldInfo.fieldType.icon(),
+            fieldInfo.fieldType.svgData,
             color: Theme.of(context).iconTheme.color,
           ),
           rightIcon: rightIcon,

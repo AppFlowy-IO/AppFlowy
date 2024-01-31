@@ -8,7 +8,7 @@ import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/application/field/field_service.dart';
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/common/type_option_separator.dart';
-import 'package:appflowy/plugins/database/grid/presentation/widgets/header/field_type_extension.dart';
+import 'package:appflowy/util/field_type_extension.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -563,9 +563,9 @@ class _SwitchFieldButtonState extends State<SwitchFieldButton> {
     return FlowyButton(
       onTap: () => _popoverController.show(),
       text: FlowyText.medium(
-        bloc.state.field.fieldType.title(),
+        bloc.state.field.fieldType.i18n,
       ),
-      leftIcon: FlowySvg(bloc.state.field.fieldType.icon()),
+      leftIcon: FlowySvg(bloc.state.field.fieldType.svgData),
       rightIcon: const FlowySvg(FlowySvgs.more_s),
     );
   }

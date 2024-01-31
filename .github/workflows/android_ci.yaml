@@ -118,6 +118,13 @@ jobs:
         run: |
           cargo make --profile development-android appflowy-android-dev-ci
 
+      - name: Prebuild AppFlowy
+        working-directory: frontend/appflowy_flutter
+        env:
+          ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+        run: |
+          flutter build apk --debug --target=integration_test/runner.dart
+
       - name: Run integration tests
         # https://github.com/ReactiveCircus/android-emulator-runner
         uses: reactivecircus/android-emulator-runner@v2
@@ -125,6 +132,4 @@ jobs:
           api-level: 29
           arch: x86_64
           working-directory: frontend/appflowy_flutter
-          script: flutter drive \
-            --driver=test_driver/integration_test.dart \
-            --target=integration_test/runner.dart
+          script: flutter test integration_test/runner.dart

@@ -82,7 +82,12 @@ jobs:
       - name: Build AppFlowy
         working-directory: frontend
         run: |
-          cargo make --profile development-ios-arm64-sim appflowy-core-dev-ios
+          cargo make --profile development-ios-arm64-sim appflowy-ios-dev
+
+      - name: Prebuild AppFlowy
+        working-directory: frontend/appflowy_flutter
+        run: |
+          flutter build ios --simulator --target=integration_test/runner.dart
 
       - name: Run integration tests
         working-directory: frontend/appflowy_flutter

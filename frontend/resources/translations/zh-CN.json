@@ -217,7 +217,7 @@
     "generate": "生成",
     "esc": "退出",
     "keep": "保留",
-    "tryAgain": "重试",
+    "tryAgain": "重新尝试",
     "discard": "放弃",
     "replace": "替换",
     "insertBelow": "在下方插入",
@@ -237,8 +237,7 @@
     "yes": "是",
     "Done": "完成",
     "Cancel": "取消",
-    "OK": "确定",
-    "tryAgain": "重新尝试"
+    "OK": "确定"
   },
   "label": {
     "welcome": "欢迎！",

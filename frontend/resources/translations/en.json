@@ -60,6 +60,8 @@
     "failedToLoad": "Something went wrong! Failed to load the workspace. Try to close any open instance of AppFlowy and try again.",
     "errorActions": {
       "reportIssue": "Report an issue",
+      "reportIssueOnGithub": "Report an issue on Github",
+      "exportLogFiles": "Export log files",
       "reachOut": "Reach out on Discord"
     }
   },
@@ -835,7 +837,9 @@
       "saveImageToGallery": "Save image",
       "failedToAddImageToGallery": "Failed to add image to gallery",
       "successToAddImageToGallery": "Image added to gallery successfully",
-      "unableToLoadImage": "Unable to load image"
+      "unableToLoadImage": "Unable to load image",
+      "maximumImageSize": "Maximum supported upload image size is 10MB",
+      "uploadImageErrorImageSizeTooBig": "Image size must be less than 10MB"
     },
     "codeBlock": {
       "language": {
@@ -1033,6 +1037,7 @@
     "timeFormat": "Time format",
     "clearDate": "Clear date",
     "reminderLabel": "Reminder",
+    "selectReminder": "Select reminder",
     "reminderOptions": {
       "none": "None",
       "atTimeOfEvent": "Time of event",
@@ -1042,8 +1047,10 @@
       "thirtyMinsBefore": "30 mins before",
       "oneHourBefore": "1 hour before",
       "twoHoursBefore": "2 hours before",
+      "onDayOfEvent": "On day of event",
       "oneDayBefore": "1 day before",
       "twoDaysBefore": "2 days before",
+      "oneWeekBefore": "1 week before",
       "custom": "Custom"
     }
   },
@@ -1241,5 +1248,6 @@
     "date": "Date",
     "addField": "Add field",
     "userIcon": "User icon"
-  }
+  },
+  "noLogFiles": "There're no log files"
 }
