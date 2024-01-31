@@ -165,7 +165,7 @@ class _VisitURLAccessoryState extends State<_VisitURLAccessory>
         preferBelow: false,
         child: _URLAccessoryIconContainer(
           child: FlowySvg(
-            FlowySvgs.attach_s,
+            FlowySvgs.url_s,
             color: AFThemeExtension.of(context).textColor,
           ),
         ),

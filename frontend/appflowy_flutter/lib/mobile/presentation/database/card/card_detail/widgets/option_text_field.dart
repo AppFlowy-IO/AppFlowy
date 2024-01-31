@@ -23,10 +23,20 @@ class OptionTextField extends StatelessWidget {
       autofocus: true,
       textFieldPadding: const EdgeInsets.symmetric(horizontal: 12.0),
       onTextChanged: onTextChanged,
-      leftIcon: FlowySvg(
-        type.svgData,
-        size: const Size.square(36.0),
-        blendMode: null,
+      leftIcon: Container(
+        height: 38,
+        width: 38,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          color: type.mobileIconBackgroundColor,
+        ),
+        child: Center(
+          child: FlowySvg(
+            type.svgData,
+            blendMode: null,
+            size: const Size.square(22),
+          ),
+        ),
       ),
     );
   }

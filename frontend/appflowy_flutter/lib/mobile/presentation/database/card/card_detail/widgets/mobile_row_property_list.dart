@@ -3,8 +3,8 @@ import 'package:appflowy/plugins/database/application/cell/cell_controller.dart'
 import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/grid/application/row/row_detail_bloc.dart';
-import 'package:appflowy/plugins/database/grid/presentation/widgets/header/field_type_extension.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_builder.dart';
+import 'package:appflowy/util/field_type_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -77,8 +77,9 @@ class _PropertyCellState extends State<_PropertyCell> {
         Row(
           children: [
             FlowySvg(
-              fieldInfo.fieldType.icon(),
+              fieldInfo.fieldType.svgData,
               color: Theme.of(context).hintColor,
+              size: const Size.square(16),
             ),
             const HSpace(6),
             Expanded(
