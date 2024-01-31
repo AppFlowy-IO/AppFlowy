@@ -1,12 +1,12 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/base/app_bar_actions.dart';
+import 'package:appflowy/plugins/base/drag_handler.dart';
 import 'package:appflowy/util/field_type_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 import 'mobile_field_type_option_editor.dart';
 
@@ -42,7 +42,9 @@ class MobileFieldTypeGrid extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          const DragHandler(),
           _FieldHeader(mode: mode),
+          const Divider(height: 0.5, thickness: 0.5),
           const VSpace(12.0),
           _GridView(
             crossAxisCount: 3,
@@ -71,24 +73,22 @@ class _FieldHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 56,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      height: 44,
+      child: Stack(
         children: [
-          SizedBox(
-            width: 120,
-            child: AppBarCancelButton(
-              onTap: () => context.pop(),
+          const Align(
+            alignment: Alignment.centerLeft,
+            child: AppBarCloseButton(),
+          ),
+          Align(
+            child: FlowyText.medium(
+              switch (mode) {
+                FieldOptionMode.add => LocaleKeys.grid_field_newProperty.tr(),
+                FieldOptionMode.edit => LocaleKeys.grid_field_editProperty.tr(),
+              },
+              fontSize: 17.0,
             ),
           ),
-          FlowyText.medium(
-            switch (mode) {
-              FieldOptionMode.add => LocaleKeys.grid_field_newProperty.tr(),
-              FieldOptionMode.edit => LocaleKeys.grid_field_editProperty.tr(),
-            },
-            fontSize: 17.0,
-          ),
-          const HSpace(120),
         ],
       ),
     );

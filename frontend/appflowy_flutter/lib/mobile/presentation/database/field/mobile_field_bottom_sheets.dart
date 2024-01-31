@@ -26,9 +26,8 @@ void showCreateFieldBottomSheet(
       return DraggableScrollableSheet(
         expand: false,
         snap: true,
-        initialChildSize: 0.97,
-        minChildSize: 0.97,
-        maxChildSize: 0.97,
+        minChildSize: 0.49,
+        maxChildSize: 0.85,
         builder: (context, controller) => MobileFieldTypeGrid(
           scrollController: controller,
           mode: FieldOptionMode.add,
