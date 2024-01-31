@@ -170,7 +170,7 @@ class _AddBlockMenu extends StatelessWidget {
       value: DividerBlockKeys.type,
       backgroundColor: const Color(0xFF98F4CD),
       text: LocaleKeys.editor_image.tr(),
-      icon: FlowySvgs.m_toolbar_imae_lg,
+      icon: FlowySvgs.m_add_block_image_s,
       onTap: (_, __) async {
         AppGlobals.rootNavKey.currentContext?.pop(true);
         Future.delayed(const Duration(milliseconds: 400), () async {
@@ -185,7 +185,7 @@ class _AddBlockMenu extends StatelessWidget {
       value: ParagraphBlockKeys.type,
       backgroundColor: const Color(0xFF91EAF5),
       text: LocaleKeys.editor_date.tr(),
-      icon: FlowySvgs.date_s,
+      icon: FlowySvgs.m_add_block_date_s,
       onTap: (_, __) => _insertBlock(dateMentionNode()),
     ),
 
