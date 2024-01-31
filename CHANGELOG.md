@@ -1,4 +1,20 @@
 # Release Notes
+## Version 0.4.4 - 01/31/2024
+### New Features
+- Added functionality for uploading images to cloud storage.
+- Enabled anonymous sign-in option for mobile platform users.
+- Introduced the ability to customize cloud settings directly from the startup page.
+- Added support for inserting reminders on the mobile platform.
+- Overhauled the user interface on mobile devices, including improvements to the action bottom sheet, editor toolbar, database details page, and app bar.
+- Implemented a shortcut (F2 key) to rename the current view.
+
+### Bug Fixes
+- Fixed an issue where the font family was not displaying correctly on the mobile platform.
+- Resolved a problem with the mobile row detail title not updating correctly.
+- Fixed issues related to deleting images and refactored the image actions menu for better usability.
+- Fixed other known issues.
+
+# Release Notes
 ## Version 0.4.3 - 01/16/2024
 ### Bug Fixes
 - Fixed file name too long issue
