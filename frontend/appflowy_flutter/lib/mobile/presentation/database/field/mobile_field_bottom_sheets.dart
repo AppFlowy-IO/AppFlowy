@@ -113,6 +113,7 @@ void showQuickEditField(
     padding: EdgeInsets.zero,
     backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
     resizeToAvoidBottomInset: true,
+    showDragHandle: true,
     builder: (context) {
       return SingleChildScrollView(
         child: QuickEditField(
