@@ -57,21 +57,14 @@ impl Display for UserCloudConfig {
   }
 }
 
-if_native! {
-pub trait UserCloudServiceProvider: UserCloudServiceProviderBase + Send + Sync + 'static {}
-}
-
-if_wasm! {
-pub trait UserCloudServiceProvider: UserCloudServiceProviderBase + 'static {}
-}
-
 /// `UserCloudServiceProvider` defines a set of methods for managing user cloud services,
 /// including token management, synchronization settings, network reachability, and authentication.
 ///
 /// This trait is intended for implementation by providers that offer cloud-based services for users.
 /// It includes methods for handling authentication tokens, enabling/disabling synchronization,
 /// setting network reachability, managing encryption secrets, and accessing user-specific cloud services.
-pub trait UserCloudServiceProviderBase {
+#[cfg_attr(not(target_arch = "wasm32"), derive(Send, Sync))]
+pub trait UserCloudServiceProvider: 'static {
   /// Sets the authentication token for the cloud service.
   ///
   /// # Arguments

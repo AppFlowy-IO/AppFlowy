@@ -1,5 +1,5 @@
 use crate::entities::*;
-use crate::manager::UserManagerWASM;
+use crate::manager::UserManager;
 use flowy_error::{FlowyError, FlowyResult};
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
 use lib_infra::box_any::BoxAny;
@@ -8,7 +8,7 @@ use std::rc::{Rc, Weak};
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub async fn oauth_sign_in_handler(
   data: AFPluginData<OauthSignInPB>,
-  manager: AFPluginState<Weak<UserManagerWASM>>,
+  manager: AFPluginState<Weak<UserManager>>,
 ) -> DataResult<UserProfilePB, FlowyError> {
   let manager = upgrade_manager(manager)?;
   let params = data.into_inner();
@@ -19,7 +19,7 @@ pub async fn oauth_sign_in_handler(
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub async fn add_user_handler(
   data: AFPluginData<AddUserPB>,
-  manager: AFPluginState<Weak<UserManagerWASM>>,
+  manager: AFPluginState<Weak<UserManager>>,
 ) -> Result<(), FlowyError> {
   let manager = upgrade_manager(manager)?;
   let params = data.into_inner();
@@ -30,7 +30,7 @@ pub async fn add_user_handler(
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub async fn sign_in_with_password_handler(
   data: AFPluginData<UserSignInPB>,
-  manager: AFPluginState<Weak<UserManagerWASM>>,
+  manager: AFPluginState<Weak<UserManager>>,
 ) -> DataResult<UserProfilePB, FlowyError> {
   let manager = upgrade_manager(manager)?;
   let params = data.into_inner();
@@ -40,9 +40,7 @@ pub async fn sign_in_with_password_handler(
   data_result_ok(UserProfilePB::from(user_profile))
 }
 
-fn upgrade_manager(
-  manager: AFPluginState<Weak<UserManagerWASM>>,
-) -> FlowyResult<Rc<UserManagerWASM>> {
+fn upgrade_manager(manager: AFPluginState<Weak<UserManager>>) -> FlowyResult<Rc<UserManager>> {
   let manager = manager
     .upgrade()
     .ok_or(FlowyError::internal().with_context("The user session is already drop"))?;

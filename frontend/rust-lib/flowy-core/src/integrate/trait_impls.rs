@@ -24,9 +24,7 @@ use flowy_folder_pub::cloud::{
 use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
 use flowy_server_pub::supabase_config::SupabaseConfiguration;
 use flowy_storage::ObjectValue;
-use flowy_user_pub::cloud::{
-  UserCloudService, UserCloudServiceProvider, UserCloudServiceProviderBase,
-};
+use flowy_user_pub::cloud::{UserCloudService, UserCloudServiceProvider, UserCloudServiceProvider};
 use flowy_user_pub::entities::{Authenticator, UserTokenState};
 use lib_infra::future::{to_fut, Fut, FutureResult};
 
@@ -65,9 +63,8 @@ impl ObjectStorageService for ServerProvider {
     })
   }
 }
-impl UserCloudServiceProvider for ServerProvider {}
 
-impl UserCloudServiceProviderBase for ServerProvider {
+impl UserCloudServiceProvider for ServerProvider {
   fn set_token(&self, token: &str) -> Result<(), FlowyError> {
     let server = self.get_server()?;
     server.set_token(token)?;

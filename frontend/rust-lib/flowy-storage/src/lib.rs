@@ -30,7 +30,9 @@ pub struct ObjectValue {
 /// Provides a service for object storage.
 ///
 /// The trait includes methods for CRUD operations on storage objects.
-pub trait ObjectStorageService: Send + Sync + 'static {
+///
+#[cfg_attr(not(target_arch = "wasm32"), derive(Send, Sync))]
+pub trait ObjectStorageService: 'static {
   /// Creates a new storage object.
   ///
   /// # Parameters

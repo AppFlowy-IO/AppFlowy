@@ -8,6 +8,7 @@ fn main() {
   #[cfg(feature = "web_ts")]
   flowy_codegen::protobuf_file::ts_gen(
     env!("CARGO_PKG_NAME"),
+    "notification",
     flowy_codegen::Project::Web {
       relative_path: "../../".to_string(),
     },
