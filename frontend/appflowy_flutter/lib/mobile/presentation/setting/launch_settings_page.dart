@@ -29,6 +29,7 @@ class MobileLaunchSettingsPage extends StatelessWidget {
             children: [
               const LanguageSettingGroup(),
               if (Env.enableCustomCloud) const SelfHostSettingGroup(),
+              const SupportSettingGroup(),
             ],
           ),
         ),

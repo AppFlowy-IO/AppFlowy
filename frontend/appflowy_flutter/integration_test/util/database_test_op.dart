@@ -10,6 +10,7 @@ import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/se
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/text.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/timestamp.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/url.dart';
+import 'package:appflowy/util/field_type_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -37,7 +38,6 @@ import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/filte
 import 'package:appflowy/plugins/database/grid/presentation/widgets/footer/grid_footer.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/header/desktop_field_cell.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/header/field_editor.dart';
-import 'package:appflowy/plugins/database/grid/presentation/widgets/header/field_type_extension.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/header/field_type_list.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/header/type_option/date/date_time_format.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/row/row.dart';
@@ -817,7 +817,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
     final fieldTypeButton = find.descendant(
       of: fieldTypeCell,
       matching: find.byWidgetPredicate(
-        (widget) => widget is FlowyText && widget.text == fieldType.title(),
+        (widget) => widget is FlowyText && widget.text == fieldType.i18n,
       ),
     );
     await tapButton(fieldTypeButton);

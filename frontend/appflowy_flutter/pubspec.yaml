@@ -98,7 +98,7 @@ dependencies:
   http: ^1.0.0
   path: ^1.8.3
   mocktail: ^1.0.1
-  archive: ^3.3.7
+  archive: ^3.4.10
   nanoid: ^1.0.0
   supabase_flutter: ^1.10.4
   envied: ^0.5.2
@@ -128,6 +128,7 @@ dependencies:
   keyboard_height_plugin: ^0.0.5
   scrollable_positioned_list: ^0.3.8
   flutter_cache_manager: ^3.3.1
+  share_plus: ^7.2.1
 
 dev_dependencies:
   flutter_lints: ^3.0.1

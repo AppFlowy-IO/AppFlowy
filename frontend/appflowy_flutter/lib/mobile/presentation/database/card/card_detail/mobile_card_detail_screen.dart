@@ -131,7 +131,7 @@ class _MobileRowDetailPageState extends State<MobileRowDetailPage> {
     showMobileBottomSheet(
       context,
       backgroundColor: Theme.of(context).colorScheme.background,
-      padding: const EdgeInsets.only(top: 8, bottom: 38),
+      showDragHandle: true,
       builder: (_) => Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -179,7 +179,6 @@ class _MobileRowDetailPageState extends State<MobileRowDetailPage> {
               color: Theme.of(context).colorScheme.error,
             ),
           ),
-          const Divider(height: 9),
         ],
       ),
     );
@@ -335,22 +334,22 @@ class MobileRowDetailPageContentState
                 )..add(const RowBannerEvent.initial()),
                 child: BlocBuilder<RowBannerBloc, RowBannerState>(
                   builder: (context, state) {
-                    if (state.primaryField != null) {
-                      final cellContext = CellContext(
-                        rowId: rowController.rowId,
-                        fieldId: state.primaryField!.id,
-                      );
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: cellBuilder.buildCustom(
-                          cellContext,
-                          skinMap: EditableCellSkinMap(
-                            textSkin: _TitleSkin(),
-                          ),
-                        ),
-                      );
+                    if (state.primaryField == null) {
+                      return const SizedBox.shrink();
                     }
-                    return const SizedBox.shrink();
+
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: cellBuilder.buildCustom(
+                        CellContext(
+                          rowId: rowController.rowId,
+                          fieldId: state.primaryField!.id,
+                        ),
+                        skinMap: EditableCellSkinMap(
+                          textSkin: _TitleSkin(),
+                        ),
+                      ),
+                    );
                   },
                 ),
               ),
@@ -420,6 +419,7 @@ class _TitleSkin extends IEditableTextCellSkin {
         isDense: true,
         isCollapsed: true,
       ),
+      onTapOutside: (event) => focusNode.unfocus(),
     );
   }
 }

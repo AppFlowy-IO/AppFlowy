@@ -2,10 +2,9 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/mobile/presentation/database/field/mobile_field_bottom_sheets.dart';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
+import 'package:appflowy/util/field_type_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
-
-import 'field_type_extension.dart';
 
 class MobileFieldButton extends StatelessWidget {
   const MobileFieldButton.first({
@@ -44,7 +43,7 @@ class MobileFieldButton extends StatelessWidget {
         margin: margin,
         leftIconSize: const Size.square(18),
         leftIcon: FlowySvg(
-          fieldInfo.fieldType.icon(),
+          fieldInfo.fieldType.svgData,
           size: const Size.square(18),
         ),
         text: FlowyText(
