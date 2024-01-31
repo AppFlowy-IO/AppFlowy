@@ -31,7 +31,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        os: [macos-latest]
+        os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -123,7 +123,6 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 29
-          arch: arm64-v8a
-          profile: Pixel 6
+          arch: x86_64
           working-directory: frontend/appflowy_flutter
           script: flutter test integration_test/runner.dart
