@@ -322,20 +322,23 @@ extension AppFlowyDatabaseTest on WidgetTester {
   }
 
   Future<void> selectReminderOption(ReminderOption option) async {
-    await hoverOnWidget(find.byType(ReminderSelector));
+    await tapButton(find.byType(ReminderSelector));
 
     final finder = find.descendant(
       of: find.byType(FlowyButton),
-      matching: find.text(option.label),
+      matching: find.textContaining(option.label),
     );
 
     await tapButton(finder);
   }
 
-  Future<void> selectLastDateInPicker() async {
+  Future<bool> selectLastDateInPicker() async {
     final finder = find.byType(CellContent).last;
+    final w = widget(finder) as CellContent;
 
     await tapButton(finder);
+
+    return w.isToday;
   }
 
   Future<void> toggleDateRange() async {

@@ -95,6 +95,7 @@ class _MobileDateCellEditScreenState extends State<MobileDateCellEditScreen> {
               includeTime: state.includeTime,
               use24hFormat: state.dateTypeOptionPB.timeFormat ==
                   TimeFormatPB.TwentyFourHour,
+              timeFormat: state.dateTypeOptionPB.timeFormat,
               selectedReminderOption: state.reminderOption,
               onStartTimeChanged: (String? time) {
                 if (time != null) {
@@ -125,9 +126,14 @@ class _MobileDateCellEditScreenState extends State<MobileDateCellEditScreen> {
               onClearDate: () => context
                   .read<DateCellEditorBloc>()
                   .add(const DateCellEditorEvent.clearDate()),
-              onReminderSelected: (option) => context
-                  .read<DateCellEditorBloc>()
-                  .add(DateCellEditorEvent.setReminderOption(option: option)),
+              onReminderSelected: (option) =>
+                  context.read<DateCellEditorBloc>().add(
+                        DateCellEditorEvent.setReminderOption(
+                          option: option,
+                          selectedDay:
+                              state.dateTime == null ? DateTime.now() : null,
+                        ),
+                      ),
             );
           },
         ),

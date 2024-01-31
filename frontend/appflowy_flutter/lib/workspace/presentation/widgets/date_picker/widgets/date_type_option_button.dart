@@ -31,7 +31,6 @@ class DateTypeOptionButton extends StatelessWidget {
         "${LocaleKeys.datePicker_dateFormat.tr()} & ${LocaleKeys.datePicker_timeFormat.tr()}";
     return AppFlowyPopover(
       mutex: popoverMutex,
-      triggerActions: PopoverTriggerFlags.hover | PopoverTriggerFlags.click,
       offset: const Offset(8, 0),
       margin: EdgeInsets.zero,
       constraints: BoxConstraints.loose(const Size(140, 100)),
