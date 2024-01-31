@@ -654,7 +654,9 @@
     },
     "menuName": "Grid",
     "referencedGridPrefix": "View of",
+    "calculate": "Calculate",
     "calculationTypeLabel": {
+      "none": "None",
       "average": "Average",
       "max": "Max",
       "median": "Median",

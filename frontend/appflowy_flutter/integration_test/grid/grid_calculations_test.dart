@@ -17,7 +17,7 @@ void main() {
 
       await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
 
-      // Change two Fields to Number
+      // Change one Field to Number
       await tester.changeFieldTypeOfFieldWithName('Type', FieldType.Number);
 
       expect(find.text('Calculate'), findsOneWidget);

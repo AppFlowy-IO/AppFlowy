@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 
@@ -18,8 +20,8 @@ class RemoveCalculationButton extends StatelessWidget {
     return SizedBox(
       height: GridSize.popoverItemHeight,
       child: FlowyButton(
-        text: const FlowyText.medium(
-          'None',
+        text: FlowyText.medium(
+          LocaleKeys.grid_calculationTypeLabel_none.tr(),
           overflow: TextOverflow.ellipsis,
         ),
         onTap: () {
