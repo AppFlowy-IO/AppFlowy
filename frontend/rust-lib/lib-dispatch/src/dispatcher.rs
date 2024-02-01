@@ -200,7 +200,7 @@ impl AFPluginDispatcher {
     }
   }
 
-  #[cfg(all(not(target_arch = "wasm32")))]
+  #[cfg(not(target_arch = "wasm32"))]
   pub fn sync_send(
     dispatch: Arc<AFPluginDispatcher>,
     request: AFPluginRequest,
