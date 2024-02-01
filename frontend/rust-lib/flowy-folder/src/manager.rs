@@ -15,7 +15,7 @@ use collab_integrate::{CollabKVDB, CollabPersistenceConfig};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_folder_pub::cloud::{gen_view_id, FolderCloudService};
 use flowy_folder_pub::folder_builder::ParentChildViews;
-use lib_infra::async_trait::async_trait;
+use lib_infra::conditional_send_sync_trait;
 
 use crate::entities::icon::UpdateViewIconParams;
 use crate::entities::{
@@ -35,12 +35,12 @@ use crate::util::{
 };
 use crate::view_operation::{create_view, FolderOperationHandler, FolderOperationHandlers};
 
-/// [FolderUser] represents the user for folder.
-#[cfg_attr(not(target_arch = "wasm32"), async_trait::async_trait)]
-#[cfg_attr(target_arch = "wasm32", async_trait::async_trait(?Send))]
-pub trait FolderUser: Send + Sync {
-  fn user_id(&self) -> Result<i64, FlowyError>;
-  fn collab_db(&self, uid: i64) -> Result<Weak<CollabKVDB>, FlowyError>;
+conditional_send_sync_trait! {
+  "[crate::manager::FolderUser] represents the user for folder.";
+   FolderUser {
+     fn user_id(&self) -> Result<i64, FlowyError>;
+     fn collab_db(&self, uid: i64) -> Result<Weak<CollabKVDB>, FlowyError>;
+  }
 }
 
 pub struct FolderManager {

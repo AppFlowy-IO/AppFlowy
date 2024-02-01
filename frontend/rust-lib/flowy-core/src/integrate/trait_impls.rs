@@ -24,7 +24,7 @@ use flowy_folder_pub::cloud::{
 use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
 use flowy_server_pub::supabase_config::SupabaseConfiguration;
 use flowy_storage::ObjectValue;
-use flowy_user_pub::cloud::{UserCloudService, UserCloudServiceProvider, UserCloudServiceProvider};
+use flowy_user_pub::cloud::{UserCloudService, UserCloudServiceProvider};
 use flowy_user_pub::entities::{Authenticator, UserTokenState};
 use lib_infra::future::{to_fut, Fut, FutureResult};
 

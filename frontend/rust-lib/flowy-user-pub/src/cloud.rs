@@ -15,7 +15,7 @@ use flowy_error::{ErrorCode, FlowyError};
 
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
-use lib_infra::{if_native, if_wasm};
+use lib_infra::{conditional_send_sync_trait, if_native, if_wasm};
 
 use crate::entities::{
   AuthResponse, Authenticator, Role, UpdateUserProfileParams, UserCredentials, UserProfile,
@@ -57,14 +57,12 @@ impl Display for UserCloudConfig {
   }
 }
 
-/// `UserCloudServiceProvider` defines a set of methods for managing user cloud services,
-/// including token management, synchronization settings, network reachability, and authentication.
-///
-/// This trait is intended for implementation by providers that offer cloud-based services for users.
-/// It includes methods for handling authentication tokens, enabling/disabling synchronization,
-/// setting network reachability, managing encryption secrets, and accessing user-specific cloud services.
-#[cfg_attr(not(target_arch = "wasm32"), derive(Send, Sync))]
-pub trait UserCloudServiceProvider: 'static {
+conditional_send_sync_trait! {
+  "This trait is intended for implementation by providers that offer cloud-based services for users.
+  It includes methods for handling authentication tokens, enabling/disabling synchronization,
+  setting network reachability, managing encryption secrets, and accessing user-specific cloud services.";
+
+  UserCloudServiceProvider {
   /// Sets the authentication token for the cloud service.
   ///
   /// # Arguments
@@ -119,8 +117,8 @@ pub trait UserCloudServiceProvider: 'static {
   /// # Returns
   /// A `String` representing the service URL.
   fn service_url(&self) -> String;
+  }
 }
-
 /// Provide the generic interface for the user cloud service
 /// The user cloud service is responsible for the user authentication and user profile management
 #[allow(unused_variables)]
