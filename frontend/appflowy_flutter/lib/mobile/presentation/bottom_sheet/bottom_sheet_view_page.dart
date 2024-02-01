@@ -1,9 +1,10 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
-import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
+import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_quick_action_button.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
 enum MobileViewBottomSheetBodyAction {
@@ -84,55 +85,46 @@ class MobileViewBottomSheetBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isFavorite = view.isFavorite;
-    return Column(
+    return SeparatedColumn(
       crossAxisAlignment: CrossAxisAlignment.stretch,
+      separatorBuilder: () => const Divider(
+        height: 8.5,
+        thickness: 0.5,
+      ),
       children: [
-        FlowyOptionTile.text(
+        MobileQuickActionButton(
           text: LocaleKeys.button_rename.tr(),
-          leftIcon: const FlowySvg(
-            FlowySvgs.m_rename_s,
-          ),
-          showTopBorder: false,
+          icon: FlowySvgs.m_rename_s,
           onTap: () => onAction(
             MobileViewBottomSheetBodyAction.rename,
           ),
         ),
-        FlowyOptionTile.text(
+        MobileQuickActionButton(
           text: isFavorite
               ? LocaleKeys.button_removeFromFavorites.tr()
               : LocaleKeys.button_addToFavorites.tr(),
-          leftIcon: FlowySvg(
-            size: const Size(20, 20),
-            isFavorite
-                ? FlowySvgs.m_favorite_selected_lg
-                : FlowySvgs.m_favorite_unselected_lg,
-            color: isFavorite ? Colors.yellow : null,
-          ),
-          showTopBorder: false,
+          icon: isFavorite
+              ? FlowySvgs.m_favorite_selected_lg
+              : FlowySvgs.m_favorite_unselected_lg,
+          iconColor: isFavorite ? Colors.yellow : null,
           onTap: () => onAction(
             isFavorite
                 ? MobileViewBottomSheetBodyAction.removeFromFavorites
                 : MobileViewBottomSheetBodyAction.addToFavorites,
           ),
         ),
-        FlowyOptionTile.text(
+        MobileQuickActionButton(
           text: LocaleKeys.button_duplicate.tr(),
-          leftIcon: const FlowySvg(
-            FlowySvgs.m_duplicate_s,
-          ),
-          showTopBorder: false,
+          icon: FlowySvgs.m_duplicate_s,
           onTap: () => onAction(
             MobileViewBottomSheetBodyAction.duplicate,
           ),
         ),
-        FlowyOptionTile.text(
+        MobileQuickActionButton(
           text: LocaleKeys.button_delete.tr(),
           textColor: Theme.of(context).colorScheme.error,
-          leftIcon: FlowySvg(
-            FlowySvgs.m_delete_s,
-            color: Theme.of(context).colorScheme.error,
-          ),
-          showTopBorder: false,
+          icon: FlowySvgs.m_delete_s,
+          iconColor: Theme.of(context).colorScheme.error,
           onTap: () => onAction(
             MobileViewBottomSheetBodyAction.delete,
           ),
