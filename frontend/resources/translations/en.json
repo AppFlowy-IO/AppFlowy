@@ -480,7 +480,11 @@
       "typeAValue": "Type a value...",
       "layout": "Layout",
       "databaseLayout": "Layout",
-      "viewList": "Database Views",
+      "viewList": {
+        "zero": "0 views",
+        "one": "{count} view",
+        "other": "{count} views"
+      },
       "editView": "Edit View",
       "boardSettings": "Board settings",
       "calendarSettings": "Calendar settings",

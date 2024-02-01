@@ -168,6 +168,7 @@ class _CalendarLayoutField extends StatelessWidget {
       onTap: () async {
         final newFieldId = await showFieldPicker(
           context,
+          LocaleKeys.calendar_settings_changeLayoutDateField.tr(),
           selectedFieldId,
           databaseController.fieldController,
           (field) => field.fieldType == FieldType.DateTime,
