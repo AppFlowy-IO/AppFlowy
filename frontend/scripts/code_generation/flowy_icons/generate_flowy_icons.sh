@@ -22,9 +22,8 @@ rm -rf assets/flowy_icons/
 mkdir -p assets/flowy_icons/
 rsync -r ../resources/flowy_icons/ assets/flowy_icons/
 
-if [ "$no_pub_get" = false ]; then
-  flutter packages pub get
-fi
+flutter pub get
+flutter packages pub get
 
 echo "Generating FlowySvg classes"
 dart run flowy_svg
