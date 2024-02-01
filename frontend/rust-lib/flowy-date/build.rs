@@ -10,7 +10,7 @@ fn main() {
     flowy_codegen::ts_event::gen(env!("CARGO_PKG_NAME"), flowy_codegen::Project::Tauri);
     flowy_codegen::protobuf_file::ts_gen(
       env!("CARGO_PKG_NAME"),
-      "document",
+      env!("CARGO_PKG_NAME"),
       flowy_codegen::Project::Tauri,
     );
   }
