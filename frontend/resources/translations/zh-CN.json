@@ -33,8 +33,8 @@
   "signIn": {
     "loginTitle": "登录 @:appName",
     "loginButtonText": "登录",
-    "loginStartWithAnonymous": "从匿名会话开始",
-    "continueAnonymousUser": "继续匿名会话",
+    "loginStartWithAnonymous": "用离线模式开始",
+    "continueAnonymousUser": "继续离线模式",
     "buttonText": "登录",
     "signingInText": "登录中...",
     "forgotPassword": "忘记密码?",
@@ -58,7 +58,7 @@
     "resetWorkspacePrompt": "重置工作区将删除其中的所有页面和数据。您确定要重置工作区吗？或者，您可以联系支持团队来恢复工作区",
     "hint": "工作区",
     "notFoundError": "找不到工作区",
-    "failedToLoad": "出了些问题！无法加载工作区。请尝试重启AppFlowy。",
+    "failedToLoad": "出了些问题！无法加载工作区。请尝试重启 AppFlowy。",
     "errorActions": {
       "reportIssue": "上报问题",
       "reachOut": "Discord 联系我们"
@@ -172,8 +172,8 @@
     "link": "关联"
   },
   "tooltip": {
-    "lightMode": "切换到亮色模式",
-    "darkMode": "切换到暗色模式",
+    "lightMode": "切换到浅色",
+    "darkMode": "切换到深色",
     "openAsPage": "作为页面打开",
     "addNewRow": "添加一行",
     "openMenu": "点击打开菜单",
@@ -303,14 +303,14 @@
       "configServerGuide": "选择“快速启动”后，导航至“设置”，然后选择“云设置”以配置您的自托管服务器。",
       "inputTextFieldHint": "你的秘密",
       "historicalUserList": "用户登录历史记录",
-      "historicalUserListTooltip": "此列表显示您的游客帐户。您可以单击某个帐户来查看其详细信息。单击“开始”按钮即可创建游客帐户",
+      "historicalUserListTooltip": "此列表显示您的离线模式帐户。您可以单击某个帐户来查看其详细信息。单击“开始”按钮即可创建离线模式帐户",
       "openHistoricalUser": "暂不登录",
       "customPathPrompt": "将 AppFlowy 数据文件夹存储在云同步文件夹（例如 Google Drive）中可能会带来风险。如果同时从多个位置访问或修改此文件夹中的数据库，可能会导致同步冲突和潜在的数据损坏",
       "importAppFlowyData": "由外部 AppFlowy 文件夹导入数据",
       "importingAppFlowyDataTip": "数据导入正在进行中。请不要关闭此程序",
       "importAppFlowyDataDescription": "从外部 AppFlowy 数据文件夹复制数据并将其导入到当前 AppFlowy 数据文件夹中",
-      "importSuccess": "成功导入AppFlowy数据文件夹",
-      "importFailed": "导入AppFlowy",
+      "importSuccess": "成功导入 AppFlowy 数据文件夹",
+      "importFailed": "导入 AppFlowy",
       "importGuide": "欲了解更多详情，请查看参考文档",
       "supabaseSetting": "Supabase 设置",
       "cloudSetting": "云设置"
@@ -328,9 +328,9 @@
         "search": "搜索"
       },
       "themeMode": {
-        "label": "主题",
-        "light": "浅色模式",
-        "dark": "深色模式",
+        "label": "色彩模式",
+        "light": "浅色",
+        "dark": "深色",
         "system": "跟随系统"
       },
       "documentSettings": {
@@ -1064,7 +1064,7 @@
     "mobile": {
       "title": "更新"
     },
-    "emptyTitle": "都处理了！",
+    "emptyTitle": "空空如也",
     "emptyBody": "都处理完成了，享受这份平静吧。",
     "tabs": {
       "inbox": "收件箱",
@@ -1216,7 +1216,7 @@
     "rowDuplicate": "复制行",
     "colClear": "清空本列内容",
     "rowClear": "清空本行内容",
-    "slashPlaceHolder": "输入 '/' 以插入块，或开始键入",
+    "slashPlaceHolder": "输入 '/' 以插入块，或开始输入",
     "typeSomething": "输入点东西..."
   },
   "favorite": {
