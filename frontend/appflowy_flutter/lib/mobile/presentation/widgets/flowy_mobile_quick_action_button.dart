@@ -25,6 +25,7 @@ class MobileQuickActionButton extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
+        splashColor: Colors.transparent,
         child: Container(
           height: 44,
           padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -35,7 +36,7 @@ class MobileQuickActionButton extends StatelessWidget {
                 size: const Size.square(20),
                 color: iconColor,
               ),
-              const HSpace(8),
+              const HSpace(12),
               Expanded(
                 child: FlowyText(
                   text,
