@@ -170,15 +170,6 @@ impl AFPluginDispatcher {
       callback: Some(Box::new(callback)),
     };
 
-    // Spawns a future onto the runtime.
-    //
-    // This spawns the given future onto the runtime's executor, usually a
-    // thread pool. The thread pool is then responsible for polling the future
-    // until it completes.
-    //
-    // The provided future will start running in the background immediately
-    // when `spawn` is called, even if you don't await the returned
-    // `JoinHandle`.
     let handle = dispatch.runtime.spawn(async move {
       service.call(service_ctx).await.unwrap_or_else(|e| {
         tracing::error!("Dispatch runtime error: {:?}", e);
@@ -186,17 +177,35 @@ impl AFPluginDispatcher {
       })
     });
 
-    let runtime = dispatch.runtime.clone();
-    DispatchFuture {
-      fut: Box::pin(async move {
-        let result = runtime.run_until(handle).await;
-        result.unwrap_or_else(|e| {
-          let msg = format!("EVENT_DISPATCH join error: {:?}", e);
-          tracing::error!("{}", msg);
-          let error = InternalError::JoinError(msg);
-          error.as_response()
-        })
-      }),
+    #[cfg(any(target_arch = "wasm32", feature = "local_set"))]
+    {
+      let result = dispatch.runtime.block_on(handle);
+      DispatchFuture {
+        fut: Box::pin(async move {
+          result.unwrap_or_else(|e| {
+            let msg = format!("EVENT_DISPATCH join error: {:?}", e);
+            tracing::error!("{}", msg);
+            let error = InternalError::JoinError(msg);
+            error.as_response()
+          })
+        }),
+      }
+    }
+
+    #[cfg(all(not(target_arch = "wasm32"), not(feature = "local_set")))]
+    {
+      let runtime = dispatch.runtime.clone();
+      DispatchFuture {
+        fut: Box::pin(async move {
+          let result = runtime.run_until(handle).await;
+          result.unwrap_or_else(|e| {
+            let msg = format!("EVENT_DISPATCH join error: {:?}", e);
+            tracing::error!("{}", msg);
+            let error = InternalError::JoinError(msg);
+            error.as_response()
+          })
+        }),
+      }
     }
   }
 

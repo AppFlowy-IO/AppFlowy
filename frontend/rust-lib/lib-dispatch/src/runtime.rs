@@ -14,8 +14,8 @@ pub struct AFPluginRuntime {
 
 impl Display for AFPluginRuntime {
   fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-    if cfg!(target_arch = "wasm32") {
-      write!(f, "Runtime(single_thread)")
+    if cfg!(any(target_arch = "wasm32", feature = "local_set")) {
+      write!(f, "Runtime(current_thread)")
     } else {
       write!(f, "Runtime(multi_thread)")
     }
