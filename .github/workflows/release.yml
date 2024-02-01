@@ -327,6 +327,8 @@ jobs:
       LINUX_PACKAGE_DEB_NAME: AppFlowy-${{ github.ref_name }}-linux-x86_64.deb
       LINUX_PACKAGE_RPM_NAME: AppFlowy-${{ github.ref_name }}-linux-x86_64.rpm
       LINUX_PACKAGE_TMP_RPM_NAME: AppFlowy-${{ github.ref_name }}-2.x86_64.rpm
+      LINUX_PACKAGE_TMP_APPIMAGE_NAME: AppFlowy-${{ github.ref_name }}-x86_64.AppImage
+      LINUX_PACKAGE_APPIMAGE_NAME: AppFlowy-${{ github.ref_name }}-linux-x86_64.AppImage
 
     strategy:
       fail-fast: false
@@ -395,11 +397,15 @@ jobs:
       - name: Build Linux package (.rpm)
         working-directory: ${{ env.LINUX_APP_RELEASE_PATH }}
         run: |
-          ls -a
           sudo alien -r ${{ env.LINUX_PACKAGE_DEB_NAME }}
-          echo '------------'
           cp -r ${{ env.LINUX_PACKAGE_TMP_RPM_NAME }} ${{ env.LINUX_PACKAGE_RPM_NAME }}
-          ls -a
+
+      - name: Build Linux package (.AppImage)
+        working-directory: frontend
+        continue-on-error: true
+        run: |
+          sh scripts/linux_distribution/appimage/build_appimage.sh ${{ github.ref_name }}
+          cp -r ${{ env.LINUX_PACKAGE_TMP_APPIMAGE_NAME }} ${{ env.LINUX_PACKAGE_APPIMAGE_NAME }}
 
       - name: Upload Asset
         id: upload-release-asset
@@ -432,6 +438,17 @@ jobs:
           upload_url: ${{ needs.create-release.outputs.upload_url }}
           asset_path: ${{ env.LINUX_APP_RELEASE_PATH }}/${{ env.LINUX_PACKAGE_RPM_NAME }}
           asset_name: ${{ env.LINUX_PACKAGE_RPM_NAME }}
+          asset_content_type: application/octet-stream
+
+      - name: Upload AppImage package
+        id: upload-release-asset-install-package-appimage
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ${{ env.LINUX_APP_RELEASE_PATH }}/${{ env.LINUX_PACKAGE_APPIMAGE_NAME }}
+          asset_name: ${{ env.LINUX_PACKAGE_APPIMAGE_NAME }}
           asset_content_type: application/octet-stream
 
   build-for-docker:
