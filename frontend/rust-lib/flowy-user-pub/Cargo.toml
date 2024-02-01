@@ -19,3 +19,5 @@ anyhow.workspace = true
 tokio = { workspace = true, features = ["sync"] }
 tokio-stream = "0.1.14"
 flowy-folder-pub.workspace = true
+tracing.workspace = true
+base64 = "0.21"

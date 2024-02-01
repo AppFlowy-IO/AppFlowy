@@ -201,6 +201,9 @@ class _MobileToolbarState extends State<_MobileToolbar>
     if (currentSelection != widget.editorState.selection) {
       currentSelection = widget.editorState.selection;
       closeItemMenu();
+      if (currentSelection != null) {
+        _showKeyboard();
+      }
     }
   }
 

@@ -22,7 +22,7 @@ class AppFlowyCloudSettingBloc
 
   @override
   Future<void> close() async {
-    _listener.stop();
+    await _listener.stop();
     return super.close();
   }
 
@@ -52,6 +52,7 @@ class AppFlowyCloudSettingBloc
             emit(
               state.copyWith(
                 setting: setting,
+                showRestartHint: setting.serverUrl.isNotEmpty,
               ),
             );
           },
@@ -75,11 +76,13 @@ class AppFlowyCloudSettingEvent with _$AppFlowyCloudSettingEvent {
 class AppFlowyCloudSettingState with _$AppFlowyCloudSettingState {
   const factory AppFlowyCloudSettingState({
     required CloudSettingPB setting,
+    required bool showRestartHint,
   }) = _AppFlowyCloudSettingState;
 
   factory AppFlowyCloudSettingState.initial(CloudSettingPB setting) =>
       AppFlowyCloudSettingState(
         setting: setting,
+        showRestartHint: setting.serverUrl.isNotEmpty,
       );
 }
 

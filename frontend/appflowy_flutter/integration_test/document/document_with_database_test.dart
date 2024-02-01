@@ -84,7 +84,7 @@ void main() {
 
       await createInlineDatabase(tester, ViewLayoutPB.Grid);
 
-      // validate the referenced grid is inserted
+      // validate the inline grid is created
       expect(
         find.descendant(
           of: find.byType(AppFlowyEditor),
@@ -100,7 +100,7 @@ void main() {
 
       await createInlineDatabase(tester, ViewLayoutPB.Board);
 
-      // validate the referenced grid is inserted
+      // validate the inline board is created
       expect(
         find.descendant(
           of: find.byType(AppFlowyEditor),
@@ -116,7 +116,7 @@ void main() {
 
       await createInlineDatabase(tester, ViewLayoutPB.Calendar);
 
-      // validate the referenced grid is inserted
+      // validate the inline calendar is created
       expect(
         find.descendant(
           of: find.byType(AppFlowyEditor),

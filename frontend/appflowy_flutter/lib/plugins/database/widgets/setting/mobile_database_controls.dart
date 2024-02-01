@@ -65,7 +65,13 @@ class MobileDatabaseControls extends StatelessWidget {
                   onTap: () {
                     showMobileBottomSheet(
                       context,
-                      padding: EdgeInsets.zero,
+                      showHeader: true,
+                      showDoneButton: true,
+                      title: LocaleKeys.grid_settings_editView.tr(),
+                      enableDraggableScrollable: true,
+                      initialChildSize: 0.98,
+                      minChildSize: 0.98,
+                      maxChildSize: 0.98,
                       builder: (_) {
                         return BlocProvider<ViewBloc>(
                           create: (_) {
@@ -90,12 +96,7 @@ class MobileDatabaseControls extends StatelessWidget {
                   onTap: () {
                     showMobileBottomSheet(
                       context,
-                      showHeader: true,
-                      showCloseButton: true,
-                      showDragHandle: true,
                       showDivider: false,
-                      title: LocaleKeys.grid_settings_viewList.tr(),
-                      padding: const EdgeInsets.only(bottom: 36.0),
                       builder: (_) {
                         return MultiBlocProvider(
                           providers: [

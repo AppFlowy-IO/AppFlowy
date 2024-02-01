@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component.dart';
+import 'package:appflowy/util/string_extension.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -26,6 +27,8 @@ class ImageMenu extends StatefulWidget {
 }
 
 class _ImageMenuState extends State<ImageMenu> {
+  late final String? url = widget.node.attributes[ImageBlockKeys.url];
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -45,9 +48,12 @@ class _ImageMenuState extends State<ImageMenu> {
       child: Row(
         children: [
           const HSpace(4),
-          _ImageCopyLinkButton(
-            onTap: copyImageLink,
-          ),
+          // disable the copy link button if the image is hosted on appflowy cloud
+          // because the url needs the verification token to be accessible
+          if (!(url?.isAppFlowyCloudUrl ?? false))
+            _ImageCopyLinkButton(
+              onTap: copyImageLink,
+            ),
           const HSpace(4),
           _ImageAlignButton(
             node: widget.node,
@@ -64,9 +70,8 @@ class _ImageMenuState extends State<ImageMenu> {
   }
 
   void copyImageLink() {
-    final url = widget.node.attributes[ImageBlockKeys.url];
     if (url != null) {
-      Clipboard.setData(ClipboardData(text: url));
+      Clipboard.setData(ClipboardData(text: url!));
       showSnackBarMessage(
         context,
         LocaleKeys.document_plugins_image_copiedToPasteBoard.tr(),

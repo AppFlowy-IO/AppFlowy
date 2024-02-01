@@ -1,5 +1,5 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/mobile/presentation/base/app_bar_actions.dart';
+import 'package:appflowy/mobile/presentation/base/app_bar.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/string_extension.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -15,13 +15,8 @@ class MobileCodeLanguagePickerScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        titleSpacing: 0,
-        title: FlowyText.semibold(
-          LocaleKeys.titleBar_language.tr(),
-          fontSize: 14.0,
-        ),
-        leading: const AppBarBackButton(),
+      appBar: FlowyAppBar(
+        titleText: LocaleKeys.titleBar_language.tr(),
       ),
       body: SafeArea(
         child: ListView.separated(

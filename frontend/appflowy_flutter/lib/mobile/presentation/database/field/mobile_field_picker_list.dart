@@ -1,11 +1,10 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/base/app_bar_actions.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_option_tile.dart';
 import 'package:appflowy/plugins/base/drag_handler.dart';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
-import 'package:appflowy/plugins/database/grid/presentation/widgets/header/field_type_extension.dart';
-import 'package:easy_localization/easy_localization.dart';
+import 'package:appflowy/util/field_type_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -13,11 +12,13 @@ import 'package:go_router/go_router.dart';
 class MobileFieldPickerList extends StatefulWidget {
   MobileFieldPickerList({
     super.key,
+    required this.title,
     required this.selectedFieldId,
     required FieldController fieldController,
     required bool Function(FieldInfo fieldInfo) filterBy,
   }) : fields = fieldController.fieldInfos.where(filterBy).toList();
 
+  final String title;
   final String? selectedFieldId;
   final List<FieldInfo> fields;
 
@@ -36,87 +37,79 @@ class _MobileFieldPickerListState extends State<MobileFieldPickerList> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        const Center(child: DragHandler()),
-        _Header(newFieldId: newFieldId),
-        Expanded(
-          child: ListView.builder(
-            itemCount: widget.fields.length,
-            itemBuilder: (context, index) => _FieldButton(
-              field: widget.fields[index],
-              showTopBorder: index == 0,
-              isSelected: widget.fields[index].id == newFieldId,
-              onSelect: (fieldId) => setState(() => newFieldId = fieldId),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _Header extends StatelessWidget {
-  const _Header({required this.newFieldId});
-
-  final String? newFieldId;
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return DraggableScrollableSheet(
+      expand: false,
+      snap: true,
+      initialChildSize: 0.98,
+      minChildSize: 0.98,
+      maxChildSize: 0.98,
+      builder: (context, scrollController) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            SizedBox.square(
-              dimension: 36,
-              child: IconButton(
-                highlightColor: Colors.transparent,
-                splashColor: Colors.transparent,
-                padding: EdgeInsets.zero,
-                onPressed: () => context.pop(),
-                icon: const FlowySvg(
-                  FlowySvgs.arrow_left_s,
-                  size: Size.square(20),
-                ),
-              ),
+            const DragHandler(),
+            _Header(
+              title: widget.title,
+              onDone: (context) => context.pop(newFieldId),
             ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(8, 4, 8, 8),
-              child: TextButton(
-                style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 5,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  elevation: 0,
-                  visualDensity: VisualDensity.compact,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  enableFeedback: true,
-                  backgroundColor: Theme.of(context).primaryColor,
-                ),
-                onPressed: () => context.pop(newFieldId),
-                child: FlowyText.medium(
-                  LocaleKeys.button_done.tr(),
-                  fontSize: 16,
-                  color: Theme.of(context).colorScheme.onPrimary,
-                  overflow: TextOverflow.ellipsis,
+            SingleChildScrollView(
+              controller: scrollController,
+              child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: widget.fields.length,
+                itemBuilder: (context, index) => _FieldButton(
+                  field: widget.fields[index],
+                  showTopBorder: index == 0,
+                  isSelected: widget.fields[index].id == newFieldId,
+                  onSelect: (fieldId) => setState(() => newFieldId = fieldId),
                 ),
               ),
             ),
           ],
+        );
+      },
+    );
+  }
+}
+
+/// Same header as the one in showMobileBottomSheet, but allows popping the
+/// sheet with a value.
+class _Header extends StatelessWidget {
+  const _Header({
+    required this.title,
+    required this.onDone,
+  });
+
+  final String title;
+  final void Function(BuildContext context) onDone;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4.0),
+      child: SizedBox(
+        height: 44.0,
+        child: Stack(
+          children: [
+            const Align(
+              alignment: Alignment.centerLeft,
+              child: AppBarBackButton(),
+            ),
+            Align(
+              child: FlowyText.medium(
+                title,
+                fontSize: 16.0,
+              ),
+            ),
+            Align(
+              alignment: Alignment.centerRight,
+              child: AppBarDoneButton(
+                onTap: () => onDone(context),
+              ),
+            ),
+          ],
         ),
-        Center(
-          child: FlowyText.medium(
-            LocaleKeys.calendar_settings_changeLayoutDateField.tr(),
-            fontSize: 16,
-          ),
-        ),
-      ],
+      ),
     );
   }
 }
@@ -140,7 +133,7 @@ class _FieldButton extends StatelessWidget {
       text: field.name,
       isSelected: isSelected,
       leftIcon: FlowySvg(
-        field.fieldType.icon(),
+        field.fieldType.svgData,
         size: const Size.square(20),
       ),
       showTopBorder: showTopBorder,

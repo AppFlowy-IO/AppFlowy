@@ -10,6 +10,7 @@ void main() {
 
   final shortcut = CommandShortcutEvent(
     key: 'Copy',
+    getDescription: () => 'Copy',
     command: 'ctrl+c',
     handler: dummyHandler,
   );

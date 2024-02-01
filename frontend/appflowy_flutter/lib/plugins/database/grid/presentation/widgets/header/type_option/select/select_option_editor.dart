@@ -43,7 +43,9 @@ class SelectOptionTypeOptionEditor extends StatelessWidget {
           BlocListener<EditSelectOptionBloc, EditSelectOptionState>(
             listenWhen: (p, c) => p.deleted != c.deleted,
             listener: (context, state) {
-              state.deleted.fold(() => null, (_) => onDeleted());
+              if (state.deleted) {
+                onDeleted();
+              }
             },
           ),
           BlocListener<EditSelectOptionBloc, EditSelectOptionState>(

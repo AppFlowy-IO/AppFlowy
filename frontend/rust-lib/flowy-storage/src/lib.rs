@@ -1,12 +1,19 @@
-use std::path::Path;
+if_native! {
+  mod native;
+  pub use native::*;
+}
+
+if_wasm! {
+  mod wasm;
+  pub use wasm::*;
+}
 
 use bytes::Bytes;
 
 use flowy_error::FlowyError;
 use lib_infra::future::FutureResult;
+use lib_infra::{if_native, if_wasm};
 use mime::Mime;
-use tokio::io::AsyncReadExt;
-use tracing::info;
 
 pub struct ObjectIdentity {
   pub workspace_id: String,
@@ -18,44 +25,6 @@ pub struct ObjectIdentity {
 pub struct ObjectValue {
   pub raw: Bytes,
   pub mime: Mime,
-}
-
-#[cfg(target_arch = "wasm32")]
-pub async fn object_from_disk(
-  workspace_id: &str,
-  local_file_path: &str,
-) -> Result<(ObjectIdentity, ObjectValue), FlowyError> {
-  todo!("object_from_disk is not implemented for wasm32")
-}
-
-#[cfg(not(target_arch = "wasm32"))]
-pub async fn object_from_disk(
-  workspace_id: &str,
-  local_file_path: &str,
-) -> Result<(ObjectIdentity, ObjectValue), FlowyError> {
-  let ext = Path::new(local_file_path)
-    .extension()
-    .and_then(std::ffi::OsStr::to_str)
-    .unwrap_or("")
-    .to_owned();
-  let mut file = tokio::fs::File::open(local_file_path).await?;
-  let mut content = Vec::new();
-  let n = file.read_to_end(&mut content).await?;
-  info!("read {} bytes from file: {}", n, local_file_path);
-  let mime = mime_guess::from_path(local_file_path).first_or_octet_stream();
-  let hash = fxhash::hash(&content);
-
-  Ok((
-    ObjectIdentity {
-      workspace_id: workspace_id.to_owned(),
-      file_id: hash.to_string(),
-      ext,
-    },
-    ObjectValue {
-      raw: content.into(),
-      mime,
-    },
-  ))
 }
 
 /// Provides a service for object storage.

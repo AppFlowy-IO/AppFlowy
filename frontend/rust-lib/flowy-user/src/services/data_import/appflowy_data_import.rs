@@ -1,9 +1,8 @@
 use crate::migrations::session_migration::migrate_session_with_user_uuid;
 use crate::services::data_import::importer::load_collab_by_oid;
 use crate::services::db::UserDBPath;
-use crate::services::entities::{Session, UserPaths};
+use crate::services::entities::UserPaths;
 use crate::services::sqlite_sql::user_sql::select_user_profile;
-use crate::user_manager::manager_user_awareness::awareness_oid_from_user_uuid;
 use crate::user_manager::run_collab_data_migration;
 use anyhow::anyhow;
 use collab::core::collab::{CollabDocState, MutexCollab};
@@ -27,7 +26,8 @@ use flowy_folder_pub::entities::{AppFlowyData, ImportData};
 use flowy_folder_pub::folder_builder::{ParentChildViews, ViewBuilder};
 use flowy_sqlite::kv::StorePreferences;
 use flowy_user_pub::cloud::{UserCloudService, UserCollabParams};
-use flowy_user_pub::entities::Authenticator;
+use flowy_user_pub::entities::{awareness_oid_from_user_uuid, Authenticator};
+use flowy_user_pub::session::Session;
 use parking_lot::{Mutex, RwLock};
 use std::collections::{HashMap, HashSet};
 use std::ops::{Deref, DerefMut};
@@ -127,7 +127,7 @@ pub(crate) fn import_appflowy_data_folder(
     // when doing import, we don't want to import the user workspace, database view tracker and the user awareness
     all_imported_object_ids.retain(|id| id != &imported_session.user_workspace.id);
     all_imported_object_ids
-      .retain(|id| id != &imported_session.user_workspace.database_view_tracker_id);
+      .retain(|id| id != &imported_session.user_workspace.workspace_database_object_id);
     all_imported_object_ids
       .retain(|id| id != &awareness_oid_from_user_uuid(&imported_session.user_uuid).to_string());
 
@@ -268,14 +268,14 @@ where
 {
   let database_view_tracker_collab = Collab::new(
     other_session.user_id,
-    &other_session.user_workspace.database_view_tracker_id,
+    &other_session.user_workspace.workspace_database_object_id,
     "phantom",
     vec![],
   );
   database_view_tracker_collab.with_origin_transact_mut(|txn| {
     other_collab_read_txn.load_doc_with_txn(
       other_session.user_id,
-      &other_session.user_workspace.database_view_tracker_id,
+      &other_session.user_workspace.workspace_database_object_id,
       txn,
     )
   })?;

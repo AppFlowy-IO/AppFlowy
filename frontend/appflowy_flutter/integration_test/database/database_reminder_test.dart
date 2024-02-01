@@ -32,13 +32,13 @@ void main() {
       await tester.findDateEditor(findsOneWidget);
 
       // Select date
-      await tester.selectLastDateInPicker();
+      final isToday = await tester.selectLastDateInPicker();
 
-      // Select Time of event reminder
-      await tester.selectReminderOption(ReminderOption.atTimeOfEvent);
+      // Select "On day of event" reminder
+      await tester.selectReminderOption(ReminderOption.onDayOfEvent);
 
-      // Expect Time of event to be displayed
-      tester.expectSelectedReminder(ReminderOption.atTimeOfEvent);
+      // Expect "On day of event" to be displayed
+      tester.expectSelectedReminder(ReminderOption.onDayOfEvent);
 
       // Dismiss the cell/date editor
       await tester.dismissCellEditor();
@@ -47,14 +47,20 @@ void main() {
       await tester.tapCellInGrid(rowIndex: 0, fieldType: FieldType.DateTime);
       await tester.findDateEditor(findsOneWidget);
 
-      // Expect Time of event to be displayed
-      tester.expectSelectedReminder(ReminderOption.atTimeOfEvent);
+      // Expect "On day of event" to be displayed
+      tester.expectSelectedReminder(ReminderOption.onDayOfEvent);
 
       // Dismiss the cell/date editor
       await tester.dismissCellEditor();
 
+      int tabIndex = 1;
+      final now = DateTime.now();
+      if (isToday && now.hour >= 9) {
+        tabIndex = 0;
+      }
+
       // Open "Upcoming" in Notification hub
-      await tester.openNotificationHub(tabIndex: 1);
+      await tester.openNotificationHub(tabIndex: tabIndex);
 
       // Expect 1 notification
       tester.expectNotificationItems(1);
@@ -80,13 +86,13 @@ void main() {
       await tester.findDateEditor(findsOneWidget);
 
       // Select date
-      await tester.selectLastDateInPicker();
+      final isToday = await tester.selectLastDateInPicker();
 
-      // Select Time of event reminder
-      await tester.selectReminderOption(ReminderOption.atTimeOfEvent);
+      // Select "On day of event"-reminder
+      await tester.selectReminderOption(ReminderOption.onDayOfEvent);
 
-      // Expect Time of event to be displayed
-      tester.expectSelectedReminder(ReminderOption.atTimeOfEvent);
+      // Expect "On day of event" to be displayed
+      tester.expectSelectedReminder(ReminderOption.onDayOfEvent);
 
       // Dismiss the cell/date editor
       await tester.dismissCellEditor();
@@ -95,8 +101,8 @@ void main() {
       await tester.tapCellInGrid(rowIndex: 0, fieldType: FieldType.DateTime);
       await tester.findDateEditor(findsOneWidget);
 
-      // Expect Time of event to be displayed
-      tester.expectSelectedReminder(ReminderOption.atTimeOfEvent);
+      // Expect "On day of event" to be displayed
+      tester.expectSelectedReminder(ReminderOption.onDayOfEvent);
 
       // Dismiss the cell/date editor
       await tester.dismissCellEditor();
@@ -105,8 +111,14 @@ void main() {
       await tester.createNewPageWithNameUnderParent();
       await tester.pumpAndSettle();
 
-      // Open "Upcoming" in Notification hub
-      await tester.openNotificationHub(tabIndex: 1);
+      int tabIndex = 1;
+      final now = DateTime.now();
+      if (isToday && now.hour >= 9) {
+        tabIndex = 0;
+      }
+
+      // Open correct tab in Notification hub
+      await tester.openNotificationHub(tabIndex: tabIndex);
 
       // Expect 1 notification
       tester.expectNotificationItems(1);
@@ -118,5 +130,77 @@ void main() {
       // Expect to see Row Editor Dialog
       tester.expectToSeeRowDetailsPageDialog();
     });
+
+    testWidgets(
+      'toggle include time sets reminder option correctly',
+      (tester) async {
+        await tester.initializeAppFlowy();
+        await tester.tapGoButton();
+
+        await tester.createNewPageWithNameUnderParent(
+          layout: ViewLayoutPB.Grid,
+        );
+
+        // Invoke the field editor
+        await tester.tapGridFieldWithName('Type');
+        await tester.tapEditFieldButton();
+
+        // Change to date type
+        await tester.tapSwitchFieldTypeButton();
+        await tester.selectFieldType(FieldType.DateTime);
+        await tester.dismissFieldEditor();
+
+        // Open date picker
+        await tester.tapCellInGrid(rowIndex: 0, fieldType: FieldType.DateTime);
+        await tester.findDateEditor(findsOneWidget);
+
+        // Select date
+        await tester.selectLastDateInPicker();
+
+        // Select "On day of event"-reminder
+        await tester.selectReminderOption(ReminderOption.onDayOfEvent);
+
+        // Expect "On day of event" to be displayed
+        tester.expectSelectedReminder(ReminderOption.onDayOfEvent);
+
+        // Dismiss the cell/date editor
+        await tester.dismissCellEditor();
+
+        // Open date picker again
+        await tester.tapCellInGrid(rowIndex: 0, fieldType: FieldType.DateTime);
+        await tester.findDateEditor(findsOneWidget);
+
+        // Expect "On day of event" to be displayed
+        tester.expectSelectedReminder(ReminderOption.onDayOfEvent);
+
+        // Toggle include time on
+        await tester.toggleIncludeTime();
+
+        // Expect "At time of event" to be displayed
+        tester.expectSelectedReminder(ReminderOption.atTimeOfEvent);
+
+        // Dismiss the cell/date editor
+        await tester.dismissCellEditor();
+
+        // Open date picker again
+        await tester.tapCellInGrid(rowIndex: 0, fieldType: FieldType.DateTime);
+        await tester.findDateEditor(findsOneWidget);
+
+        // Expect "At time of event" to be displayed
+        tester.expectSelectedReminder(ReminderOption.atTimeOfEvent);
+
+        // Select "One hour before"-reminder
+        await tester.selectReminderOption(ReminderOption.oneHourBefore);
+
+        // Expect "One hour before" to be displayed
+        tester.expectSelectedReminder(ReminderOption.oneHourBefore);
+
+        // Toggle include time off
+        await tester.toggleIncludeTime();
+
+        // Expect "On day of event" to be displayed
+        tester.expectSelectedReminder(ReminderOption.onDayOfEvent);
+      },
+    );
   });
 }

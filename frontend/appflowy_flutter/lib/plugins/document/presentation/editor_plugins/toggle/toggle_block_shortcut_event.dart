@@ -108,6 +108,7 @@ CharacterShortcutEvent insertChildNodeInsideToggleList = CharacterShortcutEvent(
 // toggle the todo list
 final CommandShortcutEvent toggleToggleListCommand = CommandShortcutEvent(
   key: 'toggle the toggle list',
+  getDescription: () => 'Toggle the toggle list',
   command: 'ctrl+enter',
   macOSCommand: 'cmd+enter',
   handler: _toggleToggleListCommandHandler,

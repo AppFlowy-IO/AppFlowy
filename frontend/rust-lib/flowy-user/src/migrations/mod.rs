@@ -1,4 +1,4 @@
-use crate::services::entities::Session;
+use flowy_user_pub::session::Session;
 
 pub mod document_empty_content;
 pub mod migration;

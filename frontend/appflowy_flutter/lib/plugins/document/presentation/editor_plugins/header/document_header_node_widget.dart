@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
@@ -14,6 +13,7 @@ import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/shared/appflowy_network_image.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide UploadImageMenu;
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -120,7 +120,7 @@ class _DocumentHeaderNodeWidgetState extends State<DocumentHeaderNodeWidget> {
         SizedBox(
           height: _calculateOverallHeight(),
           child: DocumentHeaderToolbar(
-            onCoverChanged: _saveCover,
+            onIconOrCoverChanged: _saveIconOrCover,
             node: widget.node,
             editorState: widget.editorState,
             hasCover: hasCover,
@@ -133,8 +133,8 @@ class _DocumentHeaderNodeWidgetState extends State<DocumentHeaderNodeWidget> {
             node: widget.node,
             coverType: coverType,
             coverDetails: coverDetails,
-            onCoverChanged: (type, details) =>
-                _saveCover(cover: (type, details)),
+            onChangeCover: (type, details) =>
+                _saveIconOrCover(cover: (type, details)),
           ),
         if (hasIcon)
           Positioned(
@@ -147,9 +147,7 @@ class _DocumentHeaderNodeWidgetState extends State<DocumentHeaderNodeWidget> {
               editorState: widget.editorState,
               node: widget.node,
               icon: viewIcon,
-              onIconChanged: (icon) async {
-                _saveCover(icon: icon);
-              },
+              onChangeIcon: (icon) => _saveIconOrCover(icon: icon),
             ),
           ),
       ],
@@ -169,7 +167,7 @@ class _DocumentHeaderNodeWidgetState extends State<DocumentHeaderNodeWidget> {
     }
   }
 
-  Future<void> _saveCover({(CoverType, String?)? cover, String? icon}) async {
+  void _saveIconOrCover({(CoverType, String?)? cover, String? icon}) async {
     final transaction = widget.editorState.transaction;
     final coverType = widget.node.attributes[DocumentHeaderBlockKeys.coverType];
     final coverDetails =
@@ -190,7 +188,7 @@ class _DocumentHeaderNodeWidgetState extends State<DocumentHeaderNodeWidget> {
     }
 
     transaction.updateNode(widget.node, attributes);
-    return widget.editorState.apply(transaction);
+    await widget.editorState.apply(transaction);
   }
 }
 
@@ -202,15 +200,15 @@ class DocumentHeaderToolbar extends StatefulWidget {
     required this.editorState,
     required this.hasCover,
     required this.hasIcon,
-    required this.onCoverChanged,
+    required this.onIconOrCoverChanged,
   });
 
   final Node node;
   final EditorState editorState;
   final bool hasCover;
   final bool hasIcon;
-  final Future<void> Function({(CoverType, String?)? cover, String? icon})
-      onCoverChanged;
+  final void Function({(CoverType, String?)? cover, String? icon})
+      onIconOrCoverChanged;
 
   @override
   State<DocumentHeaderToolbar> createState() => _DocumentHeaderToolbarState();
@@ -276,7 +274,7 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
       children.add(
         FlowyButton(
           leftIconSize: const Size.square(18),
-          onTap: () => widget.onCoverChanged(
+          onTap: () => widget.onIconOrCoverChanged(
             cover: PlatformExtension.isDesktopOrWeb
                 ? (CoverType.asset, builtInAssetImages.first)
                 : (CoverType.color, '0xffe8e0ff'),
@@ -294,7 +292,7 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
       children.add(
         FlowyButton(
           leftIconSize: const Size.square(18),
-          onTap: () => widget.onCoverChanged(icon: ""),
+          onTap: () => widget.onIconOrCoverChanged(icon: ""),
           useIntrinsicWidth: true,
           leftIcon: const Icon(
             Icons.emoji_emotions_outlined,
@@ -323,7 +321,7 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
                   MobileEmojiPickerScreen.routeName,
                 );
                 if (result != null) {
-                  widget.onCoverChanged(icon: result.emoji);
+                  widget.onIconOrCoverChanged(icon: result.emoji);
                 }
               },
       );
@@ -340,7 +338,7 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
             isPopoverOpen = true;
             return FlowyIconPicker(
               onSelected: (result) {
-                widget.onCoverChanged(icon: result.emoji);
+                widget.onIconOrCoverChanged(icon: result.emoji);
                 _popoverController.close();
               },
             );
@@ -370,14 +368,14 @@ class DocumentCover extends StatefulWidget {
     required this.editorState,
     required this.coverType,
     this.coverDetails,
-    required this.onCoverChanged,
+    required this.onChangeCover,
   });
 
   final Node node;
   final EditorState editorState;
   final CoverType coverType;
   final String? coverDetails;
-  final Future<void> Function(CoverType type, String? details) onCoverChanged;
+  final void Function(CoverType type, String? details) onChangeCover;
 
   @override
   State<DocumentCover> createState() => DocumentCoverState();
@@ -451,6 +449,7 @@ class DocumentCoverState extends State<DocumentCover> {
                                 minHeight: 80,
                               ),
                               child: UploadImageMenu(
+                                limitMaximumImageSize: !_isLocalMode(),
                                 supportTypes: const [
                                   UploadImageType.color,
                                   UploadImageType.local,
@@ -459,18 +458,18 @@ class DocumentCoverState extends State<DocumentCover> {
                                 ],
                                 onSelectedLocalImage: (path) async {
                                   context.pop();
-                                  widget.onCoverChanged(CoverType.file, path);
+                                  widget.onChangeCover(CoverType.file, path);
                                 },
                                 onSelectedAIImage: (_) {
                                   throw UnimplementedError();
                                 },
                                 onSelectedNetworkImage: (url) async {
                                   context.pop();
-                                  widget.onCoverChanged(CoverType.file, url);
+                                  widget.onChangeCover(CoverType.file, url);
                                 },
                                 onSelectedColor: (color) {
                                   context.pop();
-                                  widget.onCoverChanged(CoverType.color, color);
+                                  widget.onChangeCover(CoverType.color, color);
                                 },
                               ),
                             ),
@@ -490,7 +489,7 @@ class DocumentCoverState extends State<DocumentCover> {
                 SizedBox.square(
                   dimension: 32.0,
                   child: DeleteCoverButton(
-                    onTap: () => widget.onCoverChanged(CoverType.none, null),
+                    onTap: () => widget.onChangeCover(CoverType.none, null),
                   ),
                 ),
               ],
@@ -521,7 +520,7 @@ class DocumentCoverState extends State<DocumentCover> {
         final imageFile = File(detail);
         if (!imageFile.existsSync()) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            widget.onCoverChanged(CoverType.none, null);
+            widget.onChangeCover(CoverType.none, null);
           });
           return const SizedBox.shrink();
         }
@@ -576,20 +575,21 @@ class DocumentCoverState extends State<DocumentCover> {
               isPopoverOpen = true;
 
               return UploadImageMenu(
+                limitMaximumImageSize: !_isLocalMode(),
                 supportTypes: const [
                   UploadImageType.color,
                   UploadImageType.local,
                   UploadImageType.url,
                   UploadImageType.unsplash,
                 ],
-                onSelectedLocalImage: (path) async {
+                onSelectedLocalImage: (path) {
                   popoverController.close();
                   onCoverChanged(CoverType.file, path);
                 },
                 onSelectedAIImage: (_) {
                   throw UnimplementedError();
                 },
-                onSelectedNetworkImage: (url) async {
+                onSelectedNetworkImage: (url) {
                   popoverController.close();
                   onCoverChanged(CoverType.file, url);
                 },
@@ -611,16 +611,14 @@ class DocumentCoverState extends State<DocumentCover> {
 
   Future<void> onCoverChanged(CoverType type, String? details) async {
     if (type == CoverType.file && details != null && !isURL(details)) {
-      final type = await getAuthenticatorType();
-      // if the user is using local authenticator, we need to save the image to local storage
-      if (type == AuthenticatorType.local) {
+      if (_isLocalMode()) {
         details = await saveImageToLocalStorage(details);
       } else {
         // else we should save the image to cloud storage
         details = await saveImageToCloudStorage(details);
       }
     }
-    widget.onCoverChanged(type, details);
+    widget.onChangeCover(type, details);
   }
 
   void setOverlayButtonsHidden(bool value) {
@@ -628,6 +626,12 @@ class DocumentCoverState extends State<DocumentCover> {
     setState(() {
       isOverlayButtonsHidden = value;
     });
+  }
+
+  bool _isLocalMode() {
+    final userProfilePB = context.read<DocumentBloc>().state.userProfilePB;
+    final type = userProfilePB?.authenticator ?? AuthenticatorPB.Local;
+    return type == AuthenticatorPB.Local;
   }
 }
 
@@ -666,13 +670,13 @@ class DocumentIcon extends StatefulWidget {
     required this.node,
     required this.editorState,
     required this.icon,
-    required this.onIconChanged,
+    required this.onChangeIcon,
   });
 
   final Node node;
   final EditorState editorState;
   final String icon;
-  final Future<void> Function(String icon) onIconChanged;
+  final void Function(String icon) onChangeIcon;
 
   @override
   State<DocumentIcon> createState() => _DocumentIconState();
@@ -697,7 +701,7 @@ class _DocumentIconState extends State<DocumentIcon> {
         popupBuilder: (BuildContext popoverContext) {
           return FlowyIconPicker(
             onSelected: (result) {
-              widget.onIconChanged(result.emoji);
+              widget.onChangeIcon(result.emoji);
               _popoverController.close();
             },
           );
@@ -711,7 +715,7 @@ class _DocumentIconState extends State<DocumentIcon> {
             MobileEmojiPickerScreen.routeName,
           );
           if (result != null) {
-            widget.onIconChanged(result.emoji);
+            widget.onChangeIcon(result.emoji);
           }
         },
       );

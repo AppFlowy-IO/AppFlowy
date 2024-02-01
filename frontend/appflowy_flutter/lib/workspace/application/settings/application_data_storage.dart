@@ -44,7 +44,7 @@ class ApplicationDataStorage {
       await directory.create(recursive: true);
     }
 
-    setPath(path);
+    await setPath(path);
   }
 
   Future<void> setPath(String path) async {

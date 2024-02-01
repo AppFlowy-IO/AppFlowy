@@ -142,7 +142,7 @@ class _DatePickerState extends State<DatePicker> {
         calendarBuilders: CalendarBuilders(
           dowBuilder: (context, day) {
             final locale = context.locale.toLanguageTag();
-            final label = DateFormat.E(locale).format(day).substring(0, 2);
+            final label = DateFormat.E(locale).format(day);
             return Padding(
               padding: const EdgeInsets.only(bottom: 8.0),
               child: Center(

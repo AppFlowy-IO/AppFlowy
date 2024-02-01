@@ -21,8 +21,7 @@ fancy-regex = { version = "0.11.0" }
 
 [features]
 dart = ["flowy-codegen/dart"]
-ts = ["flowy-codegen/ts"]
-wasm_build = ["lib-dispatch/single_thread", "flowy-codegen/ts"]
+tauri_ts = ["flowy-codegen/ts"]
 
 [build-dependencies]
 flowy-codegen.workspace = true

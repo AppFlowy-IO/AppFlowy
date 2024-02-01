@@ -31,6 +31,7 @@ class InitRustSDKTask extends LaunchTask {
     // Pass the environment variables to the Rust SDK
     final env = _makeAppFlowyConfiguration(
       root.path,
+      context.config.version,
       dir.path,
       applicationPath.path,
       deviceId,
@@ -45,6 +46,7 @@ class InitRustSDKTask extends LaunchTask {
 
 AppFlowyConfiguration _makeAppFlowyConfiguration(
   String root,
+  String appVersion,
   String customAppPath,
   String originAppPath,
   String deviceId, {
@@ -53,6 +55,7 @@ AppFlowyConfiguration _makeAppFlowyConfiguration(
   final env = getIt<AppFlowyCloudSharedEnv>();
   return AppFlowyConfiguration(
     root: root,
+    app_version: appVersion,
     custom_app_path: customAppPath,
     origin_app_path: originAppPath,
     device_id: deviceId,
@@ -69,7 +72,7 @@ Future<Directory> appFlowyApplicationDataDirectory() async {
   switch (integrationMode()) {
     case IntegrationMode.develop:
       final Directory documentsDir = await getApplicationSupportDirectory()
-        ..create();
+          .then((directory) => directory.create());
       return Directory(path.join(documentsDir.path, 'data_dev')).create();
     case IntegrationMode.release:
       final Directory documentsDir = await getApplicationSupportDirectory();

@@ -4,7 +4,7 @@ use std::sync::{Arc, Weak};
 use crate::CollabKVDB;
 use anyhow::Error;
 use collab::core::collab::{CollabDocState, MutexCollab};
-use collab::preclude::{CollabBuilder, CollabPlugin};
+use collab::preclude::CollabBuilder;
 use collab_entity::{CollabObject, CollabType};
 use collab_plugins::connect_state::{CollabConnectReachability, CollabConnectState};
 use collab_plugins::local_storage::kv::snapshot::SnapshotPersistence;
@@ -16,8 +16,9 @@ if_wasm! {
 use collab_plugins::local_storage::indexeddb::IndexeddbDiskPlugin;
 }
 
+pub use crate::plugin_provider::CollabCloudPluginProvider;
 use collab_plugins::local_storage::CollabPersistenceConfig;
-use lib_infra::future::Fut;
+
 use lib_infra::{if_native, if_wasm};
 use parking_lot::{Mutex, RwLock};
 use tracing::trace;
@@ -61,31 +62,6 @@ impl Display for CollabPluginProviderContext {
       } => collab_object.to_string(),
     };
     write!(f, "{}", str)
-  }
-}
-
-pub trait CollabCloudPluginProvider: Send + Sync + 'static {
-  fn provider_type(&self) -> CollabPluginProviderType;
-
-  fn get_plugins(&self, context: CollabPluginProviderContext) -> Fut<Vec<Arc<dyn CollabPlugin>>>;
-
-  fn is_sync_enabled(&self) -> bool;
-}
-
-impl<T> CollabCloudPluginProvider for Arc<T>
-where
-  T: CollabCloudPluginProvider,
-{
-  fn provider_type(&self) -> CollabPluginProviderType {
-    (**self).provider_type()
-  }
-
-  fn get_plugins(&self, context: CollabPluginProviderContext) -> Fut<Vec<Arc<dyn CollabPlugin>>> {
-    (**self).get_plugins(context)
-  }
-
-  fn is_sync_enabled(&self) -> bool {
-    (**self).is_sync_enabled()
   }
 }
 
