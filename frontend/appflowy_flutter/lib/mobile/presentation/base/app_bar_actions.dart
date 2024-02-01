@@ -144,8 +144,6 @@ class AppBarButton extends StatelessWidget {
     required this.child,
   });
 
-  static const defaultWidth = 40.0;
-
   final VoidCallback onTap;
   final Widget child;
   final bool isActionButton;
@@ -153,6 +151,7 @@ class AppBarButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: onTap,
       child: Padding(
         padding: EdgeInsets.only(
