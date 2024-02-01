@@ -136,39 +136,14 @@ class _MobileRowDetailPageState extends State<MobileRowDetailPage> {
         mainAxisSize: MainAxisSize.min,
         children: [
           MobileQuickActionButton(
-            onTap: () {
-              final rowId = _bloc.state.currentRowId;
-              if (rowId == null) {
-                return;
-              }
-              RowBackendService.duplicateRow(viewId, rowId);
-              context
-                ..pop()
-                ..pop();
-              Fluttertoast.showToast(
-                msg: LocaleKeys.board_cardDuplicated.tr(),
-                gravity: ToastGravity.BOTTOM,
-              );
-            },
+            onTap: () =>
+                _performAction(viewId, _bloc.state.currentRowId, false),
             icon: FlowySvgs.copy_s,
             text: LocaleKeys.button_duplicate.tr(),
           ),
           const Divider(height: 8.5, thickness: 0.5),
           MobileQuickActionButton(
-            onTap: () {
-              final rowId = _bloc.state.currentRowId;
-              if (rowId == null) {
-                return;
-              }
-              RowBackendService.deleteRow(viewId, rowId);
-              context
-                ..pop()
-                ..pop();
-              Fluttertoast.showToast(
-                msg: LocaleKeys.board_cardDeleted.tr(),
-                gravity: ToastGravity.BOTTOM,
-              );
-            },
+            onTap: () => _performAction(viewId, _bloc.state.currentRowId, true),
             text: LocaleKeys.button_delete.tr(),
             textColor: Theme.of(context).colorScheme.error,
             icon: FlowySvgs.m_delete_m,
@@ -176,6 +151,26 @@ class _MobileRowDetailPageState extends State<MobileRowDetailPage> {
           ),
         ],
       ),
+    );
+  }
+
+  void _performAction(String viewId, String? rowId, bool deleteRow) {
+    if (rowId == null) {
+      return;
+    }
+
+    deleteRow
+        ? RowBackendService.deleteRow(viewId, rowId)
+        : RowBackendService.duplicateRow(viewId, rowId);
+
+    context
+      ..pop()
+      ..pop();
+    Fluttertoast.showToast(
+      msg: deleteRow
+          ? LocaleKeys.board_cardDeleted.tr()
+          : LocaleKeys.board_cardDuplicated.tr(),
+      gravity: ToastGravity.BOTTOM,
     );
   }
 }
