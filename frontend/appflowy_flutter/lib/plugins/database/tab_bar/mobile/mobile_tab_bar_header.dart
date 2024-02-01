@@ -101,12 +101,9 @@ class _DatabaseViewSelectorButton extends StatelessWidget {
                 ),
               ),
               const HSpace(8),
-              const RotatedBox(
-                quarterTurns: 0,
-                child: FlowySvg(
-                  FlowySvgs.arrow_tight_s,
-                  // size: Size.square(10),
-                ),
+              const FlowySvg(
+                FlowySvgs.arrow_tight_s,
+                size: Size.square(10),
               ),
             ],
           ),
