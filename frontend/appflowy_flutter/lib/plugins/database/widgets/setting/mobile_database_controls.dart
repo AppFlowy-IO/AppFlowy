@@ -1,10 +1,8 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
-import 'package:appflowy/mobile/presentation/database/view/database_view_list.dart';
-import 'package:appflowy/mobile/presentation/database/view/edit_database_view_screen.dart';
+import 'package:appflowy/mobile/presentation/database/view/database_field_list.dart';
 import 'package:appflowy/plugins/database/application/database_controller.dart';
-import 'package:appflowy/plugins/database/application/tab_bar_bloc.dart';
 import 'package:appflowy/plugins/database/grid/application/filter/filter_menu_bloc.dart';
 import 'package:appflowy/plugins/database/grid/application/sort/sort_menu_bloc.dart';
 import 'package:appflowy/plugins/database/grid/presentation/grid_page.dart';
@@ -58,62 +56,26 @@ class MobileDatabaseControls extends StatelessWidget {
               return const SizedBox.shrink();
             }
 
-            return Row(
-              children: [
-                _DatabaseControlButton(
-                  icon: FlowySvgs.settings_s,
-                  onTap: () {
-                    showMobileBottomSheet(
-                      context,
-                      showHeader: true,
-                      showDoneButton: true,
-                      title: LocaleKeys.grid_settings_editView.tr(),
-                      enableDraggableScrollable: true,
-                      initialChildSize: 0.98,
-                      minChildSize: 0.98,
-                      maxChildSize: 0.98,
-                      builder: (_) {
-                        return BlocProvider<ViewBloc>(
-                          create: (_) {
-                            return ViewBloc(
-                              view: context
-                                  .read<DatabaseTabBarBloc>()
-                                  .state
-                                  .tabBarControllerByViewId[controller.viewId]!
-                                  .view,
-                            )..add(const ViewEvent.initial());
-                          },
-                          child: MobileEditDatabaseViewScreen(
-                            databaseController: controller,
-                          ),
-                        );
-                      },
-                    );
-                  },
-                ),
-                _DatabaseControlButton(
-                  icon: FlowySvgs.align_left_s,
-                  onTap: () {
-                    showMobileBottomSheet(
-                      context,
-                      showDivider: false,
-                      builder: (_) {
-                        return MultiBlocProvider(
-                          providers: [
-                            BlocProvider<ViewBloc>.value(
-                              value: context.read<ViewBloc>(),
-                            ),
-                            BlocProvider<DatabaseTabBarBloc>.value(
-                              value: context.read<DatabaseTabBarBloc>(),
-                            ),
-                          ],
-                          child: const MobileDatabaseViewList(),
-                        );
-                      },
-                    );
-                  },
-                ),
-              ],
+            return _DatabaseControlButton(
+              icon: FlowySvgs.m_field_hide_s,
+              onTap: () => showMobileBottomSheet(
+                context,
+                resizeToAvoidBottomInset: false,
+                showDragHandle: true,
+                showHeader: true,
+                showBackButton: true,
+                title: LocaleKeys.grid_settings_properties.tr(),
+                showDivider: true,
+                builder: (_) {
+                  return BlocProvider.value(
+                    value: context.read<ViewBloc>(),
+                    child: MobileDatabaseFieldList(
+                      databaseController: controller,
+                      canCreate: false,
+                    ),
+                  );
+                },
+              ),
             );
           },
         ),

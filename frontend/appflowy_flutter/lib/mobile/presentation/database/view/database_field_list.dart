@@ -22,15 +22,18 @@ class MobileDatabaseFieldList extends StatelessWidget {
   const MobileDatabaseFieldList({
     super.key,
     required this.databaseController,
+    required this.canCreate,
   });
 
   final DatabaseController databaseController;
+  final bool canCreate;
 
   @override
   Widget build(BuildContext context) {
     return _MobileDatabaseFieldListBody(
       databaseController: databaseController,
       viewId: context.read<ViewBloc>().state.view.id,
+      canCreate: canCreate,
     );
   }
 }
@@ -39,10 +42,12 @@ class _MobileDatabaseFieldListBody extends StatelessWidget {
   const _MobileDatabaseFieldListBody({
     required this.databaseController,
     required this.viewId,
+    required this.canCreate,
   });
 
   final DatabaseController databaseController;
   final String viewId;
+  final bool canCreate;
 
   @override
   Widget build(BuildContext context) {
@@ -113,13 +118,15 @@ class _MobileDatabaseFieldListBody extends StatelessWidget {
                   .add(DatabasePropertyEvent.moveField(from, to));
             },
             header: firstCell,
-            footer: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _divider(),
-                _NewDatabaseFieldTile(viewId: viewId),
-              ],
-            ),
+            footer: canCreate
+                ? Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _divider(),
+                      _NewDatabaseFieldTile(viewId: viewId),
+                    ],
+                  )
+                : null,
             itemCount: cells.length,
             itemBuilder: (context, index) => cells[index],
           );

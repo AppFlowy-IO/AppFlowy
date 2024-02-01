@@ -240,6 +240,7 @@ class DatabaseViewSettingTile extends StatelessWidget {
             value: context.read<ViewBloc>(),
             child: MobileDatabaseFieldList(
               databaseController: databaseController,
+              canCreate: true,
             ),
           );
         },
