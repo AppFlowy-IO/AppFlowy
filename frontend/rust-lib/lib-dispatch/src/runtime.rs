@@ -8,7 +8,7 @@ use tokio::task::JoinHandle;
 
 pub struct AFPluginRuntime {
   inner: Runtime,
-  #[cfg(target_arch = "wasm32")]
+  #[cfg(any(target_arch = "wasm32", feature = "local_set"))]
   local: tokio::task::LocalSet,
 }
 
@@ -27,12 +27,12 @@ impl AFPluginRuntime {
     let inner = default_tokio_runtime()?;
     Ok(Self {
       inner,
-      #[cfg(target_arch = "wasm32")]
+      #[cfg(any(target_arch = "wasm32", feature = "local_set"))]
       local: tokio::task::LocalSet::new(),
     })
   }
 
-  #[cfg(target_arch = "wasm32")]
+  #[cfg(any(target_arch = "wasm32", feature = "local_set"))]
   #[track_caller]
   pub fn spawn<F>(&self, future: F) -> JoinHandle<F::Output>
   where
@@ -41,7 +41,7 @@ impl AFPluginRuntime {
     self.local.spawn_local(future)
   }
 
-  #[cfg(not(target_arch = "wasm32"))]
+  #[cfg(all(not(target_arch = "wasm32"), not(feature = "local_set")))]
   #[track_caller]
   pub fn spawn<F>(&self, future: F) -> JoinHandle<F::Output>
   where
@@ -51,7 +51,7 @@ impl AFPluginRuntime {
     self.inner.spawn(future)
   }
 
-  #[cfg(target_arch = "wasm32")]
+  #[cfg(any(target_arch = "wasm32", feature = "local_set"))]
   pub async fn run_until<F>(&self, future: F) -> F::Output
   where
     F: Future,
@@ -59,7 +59,7 @@ impl AFPluginRuntime {
     self.local.run_until(future).await
   }
 
-  #[cfg(not(target_arch = "wasm32"))]
+  #[cfg(all(not(target_arch = "wasm32"), not(feature = "local_set")))]
   pub async fn run_until<F>(&self, future: F) -> F::Output
   where
     F: Future,
@@ -67,7 +67,7 @@ impl AFPluginRuntime {
     future.await
   }
 
-  #[cfg(target_arch = "wasm32")]
+  #[cfg(any(target_arch = "wasm32", feature = "local_set"))]
   #[track_caller]
   pub fn block_on<F>(&self, f: F) -> F::Output
   where
@@ -76,7 +76,7 @@ impl AFPluginRuntime {
     self.local.block_on(&self.inner, f)
   }
 
-  #[cfg(not(target_arch = "wasm32"))]
+  #[cfg(all(not(target_arch = "wasm32"), not(feature = "local_set")))]
   #[track_caller]
   pub fn block_on<F>(&self, f: F) -> F::Output
   where
@@ -86,14 +86,14 @@ impl AFPluginRuntime {
   }
 }
 
-#[cfg(target_arch = "wasm32")]
+#[cfg(any(target_arch = "wasm32", feature = "local_set"))]
 pub fn default_tokio_runtime() -> io::Result<Runtime> {
   runtime::Builder::new_current_thread()
     .thread_name("dispatch-rt-st")
     .build()
 }
 
-#[cfg(not(target_arch = "wasm32"))]
+#[cfg(all(not(target_arch = "wasm32"), not(feature = "local_set")))]
 pub fn default_tokio_runtime() -> io::Result<Runtime> {
   runtime::Builder::new_multi_thread()
     .thread_name("dispatch-rt-mt")

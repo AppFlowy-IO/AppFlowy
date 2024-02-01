@@ -16,51 +16,51 @@ use crate::{
   service::{AFPluginServiceFactory, Service},
 };
 
-#[cfg(target_arch = "wasm32")]
+#[cfg(any(target_arch = "wasm32", feature = "local_set"))]
 pub trait AFConcurrent {}
 
-#[cfg(target_arch = "wasm32")]
+#[cfg(any(target_arch = "wasm32", feature = "local_set"))]
 impl<T> AFConcurrent for T where T: ?Sized {}
 
-#[cfg(not(target_arch = "wasm32"))]
+#[cfg(all(not(target_arch = "wasm32"), not(feature = "local_set")))]
 pub trait AFConcurrent: Send + Sync {}
 
-#[cfg(not(target_arch = "wasm32"))]
+#[cfg(all(not(target_arch = "wasm32"), not(feature = "local_set")))]
 impl<T> AFConcurrent for T where T: Send + Sync {}
 
-#[cfg(target_arch = "wasm32")]
+#[cfg(any(target_arch = "wasm32", feature = "local_set"))]
 pub type AFBoxFuture<'a, T> = futures_core::future::LocalBoxFuture<'a, T>;
 
-#[cfg(not(target_arch = "wasm32"))]
+#[cfg(all(not(target_arch = "wasm32"), not(feature = "local_set")))]
 pub type AFBoxFuture<'a, T> = futures_core::future::BoxFuture<'a, T>;
 
 pub type AFStateMap = std::sync::Arc<AFPluginStateMap>;
 
-#[cfg(target_arch = "wasm32")]
+#[cfg(any(target_arch = "wasm32", feature = "local_set"))]
 pub(crate) fn downcast_owned<T: 'static>(boxed: AFBox) -> Option<T> {
   boxed.downcast().ok().map(|boxed| *boxed)
 }
 
-#[cfg(not(target_arch = "wasm32"))]
+#[cfg(all(not(target_arch = "wasm32"), not(feature = "local_set")))]
 pub(crate) fn downcast_owned<T: 'static + Send + Sync>(boxed: AFBox) -> Option<T> {
   boxed.downcast().ok().map(|boxed| *boxed)
 }
 
-#[cfg(target_arch = "wasm32")]
+#[cfg(any(target_arch = "wasm32", feature = "local_set"))]
 pub(crate) type AFBox = Box<dyn Any>;
 
-#[cfg(not(target_arch = "wasm32"))]
+#[cfg(all(not(target_arch = "wasm32"), not(feature = "local_set")))]
 pub(crate) type AFBox = Box<dyn Any + Send + Sync>;
 
-#[cfg(target_arch = "wasm32")]
+#[cfg(any(target_arch = "wasm32", feature = "local_set"))]
 pub type BoxFutureCallback =
   Box<dyn FnOnce(AFPluginEventResponse) -> AFBoxFuture<'static, ()> + 'static>;
 
-#[cfg(not(target_arch = "wasm32"))]
+#[cfg(all(not(target_arch = "wasm32"), not(feature = "local_set")))]
 pub type BoxFutureCallback =
   Box<dyn FnOnce(AFPluginEventResponse) -> AFBoxFuture<'static, ()> + Send + Sync + 'static>;
 
-#[cfg(target_arch = "wasm32")]
+#[cfg(any(target_arch = "wasm32", feature = "local_set"))]
 pub fn af_spawn<T>(future: T) -> tokio::task::JoinHandle<T::Output>
 where
   T: Future + 'static,
@@ -69,7 +69,7 @@ where
   tokio::task::spawn_local(future)
 }
 
-#[cfg(not(target_arch = "wasm32"))]
+#[cfg(all(not(target_arch = "wasm32"), not(feature = "local_set")))]
 pub fn af_spawn<T>(future: T) -> tokio::task::JoinHandle<T::Output>
 where
   T: Future + Send + 'static,
@@ -200,7 +200,7 @@ impl AFPluginDispatcher {
     }
   }
 
-  #[cfg(not(target_arch = "wasm32"))]
+  #[cfg(all(not(target_arch = "wasm32")))]
   pub fn sync_send(
     dispatch: Arc<AFPluginDispatcher>,
     request: AFPluginRequest,
@@ -212,7 +212,7 @@ impl AFPluginDispatcher {
     ))
   }
 
-  #[cfg(target_arch = "wasm32")]
+  #[cfg(any(target_arch = "wasm32", feature = "local_set"))]
   #[track_caller]
   pub fn spawn<F>(&self, future: F) -> tokio::task::JoinHandle<F::Output>
   where
@@ -221,7 +221,7 @@ impl AFPluginDispatcher {
     self.runtime.spawn(future)
   }
 
-  #[cfg(not(target_arch = "wasm32"))]
+  #[cfg(all(not(target_arch = "wasm32"), not(feature = "local_set")))]
   #[track_caller]
   pub fn spawn<F>(&self, future: F) -> tokio::task::JoinHandle<F::Output>
   where
@@ -231,7 +231,7 @@ impl AFPluginDispatcher {
     self.runtime.spawn(future)
   }
 
-  #[cfg(target_arch = "wasm32")]
+  #[cfg(any(target_arch = "wasm32", feature = "local_set"))]
   pub async fn run_until<F>(&self, future: F) -> F::Output
   where
     F: Future + 'static,
@@ -240,7 +240,7 @@ impl AFPluginDispatcher {
     self.runtime.run_until(handle).await.unwrap()
   }
 
-  #[cfg(not(target_arch = "wasm32"))]
+  #[cfg(all(not(target_arch = "wasm32"), not(feature = "local_set")))]
   pub async fn run_until<'a, F>(&self, future: F) -> F::Output
   where
     F: Future + Send + 'a,

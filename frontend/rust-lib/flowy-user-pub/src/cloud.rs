@@ -14,8 +14,8 @@ use uuid::Uuid;
 use flowy_error::{ErrorCode, FlowyError};
 
 use lib_infra::box_any::BoxAny;
+use lib_infra::conditional_send_sync_trait;
 use lib_infra::future::FutureResult;
-use lib_infra::{conditional_send_sync_trait, if_native, if_wasm};
 
 use crate::entities::{
   AuthResponse, Authenticator, Role, UpdateUserProfileParams, UserCredentials, UserProfile,

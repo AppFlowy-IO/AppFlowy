@@ -26,7 +26,7 @@ parking_lot.workspace = true
 tracing.workspace = true
 
 # workspace
-lib-dispatch = { workspace = true }
+lib-dispatch = { workspace = true, features = ["local_set"] }
 #flowy-core = { workspace = true, features = ["profiling"] }
 flowy-core = { workspace = true }
 flowy-notification = { workspace = true, features = ["dart"] }

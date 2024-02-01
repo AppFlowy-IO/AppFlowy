@@ -11,8 +11,8 @@ if_wasm! {
 use bytes::Bytes;
 
 use flowy_error::FlowyError;
-use lib_infra::conditional_send_sync_trait;
 use lib_infra::future::FutureResult;
+use lib_infra::{conditional_send_sync_trait, if_native, if_wasm};
 use mime::Mime;
 
 pub struct ObjectIdentity {
