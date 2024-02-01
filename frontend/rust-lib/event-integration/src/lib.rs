@@ -136,9 +136,6 @@ pub fn document_from_document_doc_state(doc_id: &str, doc_state: CollabDocState)
 
 #[cfg(target_arch = "wasm32")]
 async fn init_core(config: AppFlowyCoreConfig) -> AppFlowyCore {
-  // let runtime = tokio::runtime::Runtime::new().unwrap();
-  // let local_set = tokio::task::LocalSet::new();
-  // runtime.block_on(AppFlowyCore::new(config))
   AppFlowyCore::new(config).await
 }
 

@@ -6,6 +6,7 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use tokio::sync::RwLock;
+use tokio::task::LocalSet;
 use tracing::{debug, error, event, info, instrument};
 
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabPluginProviderType};
@@ -53,13 +54,6 @@ pub struct AppFlowyCore {
 }
 
 impl AppFlowyCore {
-  #[cfg(target_arch = "wasm32")]
-  pub async fn new(config: AppFlowyCoreConfig) -> Self {
-    let runtime = Arc::new(AFPluginRuntime::new().unwrap());
-    Self::init(config, runtime).await
-  }
-
-  #[cfg(not(target_arch = "wasm32"))]
   pub fn new(config: AppFlowyCoreConfig) -> Self {
     let runtime = Arc::new(AFPluginRuntime::new().unwrap());
     let cloned_runtime = runtime.clone();
