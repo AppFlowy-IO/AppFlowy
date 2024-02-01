@@ -4,7 +4,7 @@ import 'package:appflowy/plugins/database/application/field/field_controller.dar
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/grid/application/sort/sort_create_bloc.dart';
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
-import 'package:appflowy/plugins/database/grid/presentation/widgets/header/field_type_extension.dart';
+import 'package:appflowy/util/field_type_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
@@ -166,7 +166,7 @@ class GridSortPropertyCell extends StatelessWidget {
       ),
       onTap: () => onTap(fieldInfo),
       leftIcon: FlowySvg(
-        fieldInfo.fieldType.icon(),
+        fieldInfo.fieldType.svgData,
         color: Theme.of(context).iconTheme.color,
       ),
     );

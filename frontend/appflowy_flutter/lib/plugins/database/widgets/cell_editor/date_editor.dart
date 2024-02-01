@@ -67,8 +67,12 @@ class _DateCellEditor extends State<DateCellEditor> {
             parseEndTimeError: state.parseEndTimeError,
             parseTimeError: state.parseTimeError,
             popoverMutex: popoverMutex,
-            onReminderSelected: (option) => dateCellBloc
-                .add(DateCellEditorEvent.setReminderOption(option: option)),
+            onReminderSelected: (option) => dateCellBloc.add(
+              DateCellEditorEvent.setReminderOption(
+                option: option,
+                selectedDay: state.dateTime == null ? DateTime.now() : null,
+              ),
+            ),
             selectedReminderOption: state.reminderOption,
             options: [
               OptionGroup(

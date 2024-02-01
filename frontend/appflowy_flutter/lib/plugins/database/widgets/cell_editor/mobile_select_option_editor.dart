@@ -161,6 +161,7 @@ class _MobileSelectOptionEditorState extends State<MobileSelectOptionEditor> {
           ),
           const VSpace(22),
           _OptionList(
+            fieldType: widget.cellController.fieldType,
             onCreateOption: (optionName) {
               context
                   .read<SelectOptionCellEditorBloc>()
@@ -240,11 +241,13 @@ class _SearchField extends StatelessWidget {
 
 class _OptionList extends StatelessWidget {
   const _OptionList({
+    required this.fieldType,
     required this.onCreateOption,
     required this.onCheck,
     required this.onMoreOptions,
   });
 
+  final FieldType fieldType;
   final void Function(String optionName) onCreateOption;
   final void Function(SelectOptionPB option, bool value) onCheck;
   final void Function(SelectOptionPB option) onMoreOptions;
@@ -272,6 +275,7 @@ class _OptionList extends StatelessWidget {
         cells.addAll(
           state.options.map(
             (option) => _SelectOption(
+              fieldType: fieldType,
               option: option,
               checked: state.selectedOptions.contains(option),
               onCheck: (value) => onCheck(option, value),
@@ -295,12 +299,14 @@ class _OptionList extends StatelessWidget {
 
 class _SelectOption extends StatelessWidget {
   const _SelectOption({
+    required this.fieldType,
     required this.option,
     required this.checked,
     required this.onCheck,
     required this.onMoreOptions,
   });
 
+  final FieldType fieldType;
   final SelectOptionPB option;
   final bool checked;
   final void Function(bool value) onCheck;
@@ -316,13 +322,14 @@ class _SelectOption extends StatelessWidget {
         onTap: () => onCheck(!checked),
         child: Row(
           children: [
-            // check icon
-            FlowySvg(
-              checked
-                  ? FlowySvgs.m_checkbox_checked_s
-                  : FlowySvgs.m_checkbox_uncheck_s,
-              size: const Size.square(24.0),
-              blendMode: checked ? null : BlendMode.srcIn,
+            // checked or selected icon
+            SizedBox(
+              height: 20,
+              width: 20,
+              child: _IsSelectedIndicator(
+                fieldType: fieldType,
+                isSelected: checked,
+              ),
             ),
             // padding
             const HSpace(12),
@@ -478,5 +485,51 @@ class _MoreOptionsState extends State<_MoreOptions> {
       leftIcon: const FlowySvg(FlowySvgs.m_delete_s),
       onTap: widget.onDelete,
     );
+  }
+}
+
+class _IsSelectedIndicator extends StatelessWidget {
+  const _IsSelectedIndicator({
+    required this.fieldType,
+    required this.isSelected,
+  });
+
+  final FieldType fieldType;
+  final bool isSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    return isSelected
+        ? DecoratedBox(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            child: Center(
+              child: fieldType == FieldType.MultiSelect
+                  ? FlowySvg(
+                      FlowySvgs.checkmark_tiny_s,
+                      color: Theme.of(context).colorScheme.onPrimary,
+                    )
+                  : Container(
+                      width: 7.5,
+                      height: 7.5,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Theme.of(context).colorScheme.onPrimary,
+                      ),
+                    ),
+            ),
+          )
+        : DecoratedBox(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.fromBorderSide(
+                BorderSide(
+                  color: Theme.of(context).dividerColor,
+                ),
+              ),
+            ),
+          );
   }
 }
