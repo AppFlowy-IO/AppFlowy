@@ -51,10 +51,8 @@ pub struct AppFlowyCore {
 }
 
 impl AppFlowyCore {
-  pub fn new(config: AppFlowyCoreConfig) -> Self {
-    let runtime = Arc::new(AFPluginRuntime::new().unwrap());
-    let cloned_runtime = runtime.clone();
-    runtime.block_on(Self::init(config, cloned_runtime))
+  pub async fn new(config: AppFlowyCoreConfig, runtime: Arc<AFPluginRuntime>) -> Self {
+    Self::init(config, runtime).await
   }
 
   pub fn close_db(&self) {

@@ -1,5 +1,6 @@
 #![allow(clippy::not_unsafe_ptr_arg_deref)]
 
+use allo_isolate::Isolate;
 use std::sync::Arc;
 use std::{ffi::CStr, os::raw::c_char};
 
@@ -13,6 +14,7 @@ use flowy_notification::{register_notification_sender, unregister_all_notificati
 use flowy_server_pub::AuthenticatorType;
 use lib_dispatch::prelude::ToBytes;
 use lib_dispatch::prelude::*;
+use lib_dispatch::runtime::AFPluginRuntime;
 
 use crate::appflowy_yaml::save_appflowy_cloud_config;
 use crate::env_serde::AppFlowyDartConfiguration;
@@ -52,7 +54,10 @@ unsafe impl Sync for MutexAppFlowyCore {}
 unsafe impl Send for MutexAppFlowyCore {}
 
 #[no_mangle]
-pub extern "C" fn init_sdk(data: *mut c_char) -> i64 {
+pub extern "C" fn init_sdk(port: i64, data: *mut c_char) -> i64 {
+  let isolate = Isolate::new(port);
+  // and sent it the `Rust's` result
+  // no need to convert anything :)
   let c_str = unsafe { CStr::from_ptr(data) };
   let serde_str = c_str.to_str().unwrap();
   let configuration = AppFlowyDartConfiguration::from_str(serde_str);
@@ -78,7 +83,12 @@ pub extern "C" fn init_sdk(data: *mut c_char) -> i64 {
     core.close_db();
   }
 
-  *APPFLOWY_CORE.0.lock() = Some(AppFlowyCore::new(config));
+  let runtime = Arc::new(AFPluginRuntime::new().unwrap());
+  let cloned_runtime = runtime.clone();
+  runtime.block_on(async move {
+    *APPFLOWY_CORE.0.lock() = Some(AppFlowyCore::new(config, cloned_runtime).await);
+    isolate.post("".to_string());
+  });
   0
 }
 
