@@ -19,6 +19,7 @@ use flowy_notification::register_notification_sender;
 use flowy_server::AppFlowyServer;
 use flowy_user::entities::AuthenticatorPB;
 use flowy_user::errors::FlowyError;
+use lib_dispatch::runtime::AFPluginRuntime;
 
 use crate::user_event::TestNotificationSender;
 
@@ -134,16 +135,14 @@ pub fn document_from_document_doc_state(doc_id: &str, doc_state: CollabDocState)
   Document::from_doc_state(CollabOrigin::Empty, doc_state, doc_id, vec![]).unwrap()
 }
 
-#[cfg(target_arch = "wasm32")]
 async fn init_core(config: AppFlowyCoreConfig) -> AppFlowyCore {
-  AppFlowyCore::new(config).await
-}
-
-#[cfg(not(target_arch = "wasm32"))]
-async fn init_core(config: AppFlowyCoreConfig) -> AppFlowyCore {
-  std::thread::spawn(|| AppFlowyCore::new(config))
-    .join()
-    .unwrap()
+  std::thread::spawn(|| {
+    let runtime = Arc::new(AFPluginRuntime::new().unwrap());
+    let cloned_runtime = runtime.clone();
+    runtime.block_on(async move { AppFlowyCore::new(config, cloned_runtime).await })
+  })
+  .join()
+  .unwrap()
 }
 
 impl std::ops::Deref for EventIntegrationTest {

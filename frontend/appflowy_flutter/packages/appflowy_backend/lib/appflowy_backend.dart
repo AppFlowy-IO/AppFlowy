@@ -27,12 +27,12 @@ class FlowySDK {
 
   Future<void> dispose() async {}
 
-  Future<Uint8List> init(String configuration) async {
+  Future<String> init(String configuration) async {
     final port = RustStreamReceiver.shared.port;
     ffi.set_stream_port(port);
     ffi.store_dart_post_cobject(NativeApi.postCObject);
 
-    final completer = Completer<Uint8List>();
+    final completer = Completer<String>();
     // Create a SendPort that accepts only one message.
     final sendPort = singleCompletePort(completer);
 

@@ -55,7 +55,6 @@ unsafe impl Send for MutexAppFlowyCore {}
 
 #[no_mangle]
 pub extern "C" fn init_sdk(port: i64, data: *mut c_char) -> i64 {
-  let isolate = Isolate::new(port);
   // and sent it the `Rust's` result
   // no need to convert anything :)
   let c_str = unsafe { CStr::from_ptr(data) };
@@ -85,6 +84,7 @@ pub extern "C" fn init_sdk(port: i64, data: *mut c_char) -> i64 {
 
   let runtime = Arc::new(AFPluginRuntime::new().unwrap());
   let cloned_runtime = runtime.clone();
+  let isolate = Isolate::new(port);
   runtime.block_on(async move {
     *APPFLOWY_CORE.0.lock() = Some(AppFlowyCore::new(config, cloned_runtime).await);
     isolate.post("".to_string());
