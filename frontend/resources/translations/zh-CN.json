@@ -237,8 +237,7 @@
     "yes": "是",
     "Done": "完成",
     "Cancel": "取消",
-    "OK": "确定",
-    "tryAgain": "重新尝试"
+    "OK": "确定"
   },
   "label": {
     "welcome": "欢迎！",
@@ -483,7 +482,6 @@
       "typeAValue": "输入一个值...",
       "layout": "布局",
       "databaseLayout": "布局",
-      "viewList": "数据库视图",
       "editView": "编辑视图",
       "boardSettings": "看板设置",
       "calendarSettings": "日历设置",
@@ -491,7 +489,8 @@
       "duplicateView": "复制视图",
       "deleteView": "删除视图",
       "numberOfVisibleFields": "显示 {}",
-      "Properties": "属性"
+      "Properties": "属性",
+      "viewList": "数据库视图"
     },
     "textFilter": {
       "contains": "包含",
