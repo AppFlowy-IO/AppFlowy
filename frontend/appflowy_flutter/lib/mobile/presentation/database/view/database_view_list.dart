@@ -77,7 +77,8 @@ class MobileDatabaseViewList extends StatelessWidget {
   }
 }
 
-/// Same header as the one in showMobile
+/// Same header as the one in showMobileBottomSheet, but allows popping the
+/// sheet with a value.
 class _Header extends StatelessWidget {
   const _Header({
     required this.title,
