@@ -37,26 +37,36 @@ function FormulaEditPopover({
         horizontal: 'center',
       }}
     >
-      <div className='flex p-2 '>
+      <div className='flex gap-1 p-3'>
         <TextField
           variant={'standard'}
           size={'small'}
           autoFocus={true}
           value={text}
+          spellCheck={false}
           placeholder={'E = mc^2'}
           onChange={(e) => setText(e.target.value)}
           fullWidth={true}
           onKeyDown={(e) => {
+            e.stopPropagation();
             if (e.key === 'Enter') {
+              e.preventDefault();
               onDone(text);
+            }
+
+            if (e.key === 'Escape') {
+              e.preventDefault();
+              onClose();
+            }
+
+            if (e.key === 'Tab') {
+              e.preventDefault();
             }
           }}
         />
-        <div className={'ml-2'}>
-          <Button size={'small'} variant={'text'} onClick={() => onDone(text)}>
-            {t('button.done')}
-          </Button>
-        </div>
+        <Button size={'small'} variant={'text'} onClick={() => onDone(text)}>
+          {t('button.done')}
+        </Button>
       </div>
     </Popover>
   );

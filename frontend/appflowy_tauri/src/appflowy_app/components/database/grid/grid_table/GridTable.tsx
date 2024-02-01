@@ -1,6 +1,6 @@
 import React, { FC, useCallback, useMemo, useRef } from 'react';
 import { RowMeta } from '$app/application/database';
-import { useDatabaseVisibilityFields, useDatabaseVisibilityRows } from '../../Database.hooks';
+import { useDatabaseRendered, useDatabaseVisibilityFields, useDatabaseVisibilityRows } from '../../Database.hooks';
 import { fieldsToColumns, GridColumn, RenderRow, RenderRowType, rowMetasToRenderRow } from '../constants';
 import { CircularProgress } from '@mui/material';
 import { GridChildComponentProps, GridOnScrollProps, VariableSizeGrid as Grid } from 'react-window';
@@ -23,6 +23,7 @@ export const GridTable: FC<GridTableProps> = React.memo(({ onEditRecord }) => {
   const ref = useRef<Grid<HTMLDivElement>>(null);
   const { columnWidth } = useGridColumn(columns, ref);
   const { rowHeight } = useGridRow();
+  const onRendered = useDatabaseRendered();
 
   const getItemKey = useCallback(
     ({ columnIndex, rowIndex }: { columnIndex: number; rowIndex: number }) => {
@@ -114,7 +115,11 @@ export const GridTable: FC<GridTableProps> = React.memo(({ onEditRecord }) => {
               style={{
                 overscrollBehavior: 'none',
               }}
-              outerRef={scrollElementRef}
+              className={'grid-scroll-container'}
+              outerRef={(el) => {
+                scrollElementRef.current = el;
+                onRendered();
+              }}
               innerRef={containerRef}
             >
               {Cell}

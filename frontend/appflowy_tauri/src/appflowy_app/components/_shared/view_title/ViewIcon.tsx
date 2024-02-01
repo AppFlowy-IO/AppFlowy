@@ -22,7 +22,6 @@ function ViewIcon({ icon, onUpdateIcon }: { icon?: PageIcon; onUpdateIcon: (icon
   const onEmojiSelect = useCallback(
     (emoji: string) => {
       onUpdateIcon(emoji);
-      setAnchorPosition(undefined);
     },
     [onUpdateIcon]
   );
@@ -38,13 +37,18 @@ function ViewIcon({ icon, onUpdateIcon }: { icon?: PageIcon; onUpdateIcon: (icon
       {open && (
         <Popover
           open={open}
+          autoFocus={true}
+          disableRestoreFocus={false}
           anchorReference='anchorPosition'
           anchorPosition={anchorPosition}
-          disableAutoFocus
-          disableRestoreFocus
           onClose={() => setAnchorPosition(undefined)}
         >
-          <EmojiPicker onEmojiSelect={onEmojiSelect} />
+          <EmojiPicker
+            onEscape={() => {
+              setAnchorPosition(undefined);
+            }}
+            onEmojiSelect={onEmojiSelect}
+          />
         </Popover>
       )}
     </>

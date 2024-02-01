@@ -1,8 +1,8 @@
 import { EditorNodeType } from '$app/application/document/document.types';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useSlate } from 'slate-react';
-import { Transforms } from 'slate';
+import { ReactEditor, useSlate } from 'slate-react';
+import { Path } from 'slate';
 import { getBlock } from '$app/components/editor/plugins/utils';
 import { ReactComponent as TextIcon } from '$app/assets/text.svg';
 import { ReactComponent as TodoListIcon } from '$app/assets/todo-list.svg';
@@ -17,13 +17,15 @@ import { ReactComponent as GridIcon } from '$app/assets/grid.svg';
 import { DataObjectOutlined, FunctionsOutlined, HorizontalRuleOutlined, MenuBookOutlined } from '@mui/icons-material';
 import { CustomEditor } from '$app/components/editor/command';
 import { randomEmoji } from '$app/utils/emoji';
+import { KeyboardNavigationOption } from '$app/components/_shared/keyboard_navigation/KeyboardNavigation';
+import { YjsEditor } from '@slate-yjs/core';
 
 enum SlashCommandPanelTab {
   BASIC = 'basic',
   ADVANCED = 'advanced',
 }
 
-enum SlashOptionType {
+export enum SlashOptionType {
   Paragraph,
   TodoList,
   Heading1,
@@ -89,16 +91,13 @@ const headingTypes = [SlashOptionType.Heading1, SlashOptionType.Heading2, SlashO
 export function useSlashCommandPanel({
   searchText,
   closePanel,
-  open,
 }: {
   searchText: string;
   closePanel: (deleteText?: boolean) => void;
-  open: boolean;
 }) {
   const { t } = useTranslation();
   const editor = useSlate();
-  const [selectedType, setSelectedType] = useState(SlashOptionType.Paragraph);
-  const onClick = useCallback(
+  const onConfirm = useCallback(
     (type: SlashOptionType) => {
       const node = getBlock(editor);
 
@@ -124,20 +123,26 @@ export function useSlashCommandPanel({
 
       if (nodeType === EditorNodeType.CodeBlock) {
         Object.assign(data, {
-          language: 'javascript',
+          language: 'json',
         });
       }
 
       closePanel(true);
 
       const newNode = getBlock(editor);
+      const block = CustomEditor.getBlock(editor);
 
-      if (!newNode) return;
+      const path = block ? block[1] : null;
 
-      const isEmpty = CustomEditor.isEmptyText(editor, newNode);
+      if (!newNode || !path) return;
+
+      const isEmpty = CustomEditor.isEmptyText(editor, newNode) && newNode.type === EditorNodeType.Paragraph;
 
       if (!isEmpty) {
-        Transforms.splitNodes(editor, { always: true });
+        const nextPath = Path.next(path);
+
+        CustomEditor.insertEmptyLine(editor as ReactEditor & YjsEditor, nextPath);
+        editor.select(nextPath);
       }
 
       CustomEditor.turnToBlock(editor, {
@@ -155,7 +160,7 @@ export function useSlashCommandPanel({
         Icon: TextIcon,
       },
       [SlashOptionType.TodoList]: {
-        label: t('document.plugins.todoList'),
+        label: t('editor.checkbox'),
         Icon: TodoListIcon,
       },
       [SlashOptionType.Heading1]: {
@@ -217,50 +222,55 @@ export function useSlashCommandPanel({
     };
   }, []);
 
-  const options = useMemo(() => {
+  const renderOptionContent = useCallback(
+    (type: SlashOptionType) => {
+      const Icon = typeToLabelIconMap[type].Icon;
+
+      return (
+        <div className={'flex items-center gap-2'}>
+          <div className={'flex h-6 w-6 items-center justify-center'}>
+            <Icon className={'h-4 w-4'} />
+          </div>
+
+          <div className={'flex-1'}>{typeToLabelIconMap[type].label}</div>
+        </div>
+      );
+    },
+    [typeToLabelIconMap]
+  );
+
+  const options: KeyboardNavigationOption<SlashOptionType | SlashCommandPanelTab>[] = useMemo(() => {
     return slashOptionGroup
       .map((group) => {
         return {
           key: group.key,
-          label: groupTypeToLabelMap[group.key],
-          options: group.options
+          content: <div className={'px-3 pb-1 pt-2 text-sm'}>{groupTypeToLabelMap[group.key]}</div>,
+          children: group.options
             .map((type) => {
               return {
                 key: type,
-                label: typeToLabelIconMap[type].label,
-                Icon: typeToLabelIconMap[type].Icon,
-                onClick: () => onClick(type),
+                content: renderOptionContent(type),
               };
             })
             .filter((option) => {
               if (!searchText) return true;
-              return option.label.toLowerCase().includes(searchText.toLowerCase());
+              const label = typeToLabelIconMap[option.key].label;
+
+              let newSearchText = searchText;
+
+              if (searchText.startsWith('/')) {
+                newSearchText = searchText.slice(1);
+              }
+
+              return label.toLowerCase().includes(newSearchText.toLowerCase());
             }),
         };
       })
-      .filter((group) => group.options.length > 0);
-  }, [groupTypeToLabelMap, onClick, searchText, typeToLabelIconMap]);
-
-  useEffect(() => {
-    if (open) {
-      const node = getBlock(editor);
-
-      if (!node) return;
-      const nodeType = node.type;
-
-      const optionType = Object.entries(slashOptionMapToEditorNodeType).find(([, type]) => type === nodeType);
-
-      if (optionType) {
-        setSelectedType(Number(optionType[0]));
-      }
-    } else {
-      setSelectedType(SlashOptionType.Paragraph);
-    }
-  }, [editor, open]);
+      .filter((group) => group.children.length > 0);
+  }, [searchText, groupTypeToLabelMap, typeToLabelIconMap, renderOptionContent]);
 
   return {
     options,
-    selectedType,
-    setSelectedType,
+    onConfirm,
   };
 }
