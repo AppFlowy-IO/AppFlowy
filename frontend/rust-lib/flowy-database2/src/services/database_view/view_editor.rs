@@ -162,6 +162,13 @@ impl DatabaseViewEditor {
       .send();
   }
 
+  pub async fn v_did_duplicate_row(&self, row_detail: &RowDetail) {
+    self
+      .calculations_controller
+      .did_receive_row_changed(row_detail.clone().row)
+      .await;
+  }
+
   #[tracing::instrument(level = "trace", skip_all)]
   pub async fn v_did_delete_row(&self, row: &Row) {
     let deleted_row = row.clone();
@@ -197,7 +204,7 @@ impl DatabaseViewEditor {
     af_spawn(async move {
       if let Some(calculations_controller) = weak_calculations_controller.upgrade() {
         calculations_controller
-          .did_receive_row_deleted(deleted_row)
+          .did_receive_row_changed(deleted_row)
           .await;
       }
     });

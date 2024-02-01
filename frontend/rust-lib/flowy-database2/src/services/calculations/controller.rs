@@ -99,7 +99,7 @@ impl CalculationsController {
   pub async fn process(&self, predicate: &str) -> FlowyResult<()> {
     let event_type = CalculationEvent::from_str(predicate).unwrap();
     match event_type {
-      CalculationEvent::RowDeleted(row) => self.handle_row_deleted(row).await,
+      CalculationEvent::RowChanged(row) => self.handle_row_changed(row).await,
       CalculationEvent::CellUpdated(field_id) => self.handle_cell_changed(field_id).await,
       CalculationEvent::FieldDeleted(field_id) => self.handle_field_deleted(field_id).await,
       CalculationEvent::FieldTypeChanged(field_id, new_field_type) => {
@@ -216,16 +216,16 @@ impl CalculationsController {
     }
   }
 
-  pub async fn did_receive_row_deleted(&self, row: Row) {
+  pub async fn did_receive_row_changed(&self, row: Row) {
     self
       .gen_task(
-        CalculationEvent::RowDeleted(row),
+        CalculationEvent::RowChanged(row),
         QualityOfService::UserInteractive,
       )
       .await
   }
 
-  async fn handle_row_deleted(&self, row: Row) {
+  async fn handle_row_changed(&self, row: Row) {
     let cells = row.cells.iter();
 
     let mut updates = vec![];
@@ -339,7 +339,7 @@ impl CalculationsController {
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 enum CalculationEvent {
-  RowDeleted(Row),
+  RowChanged(Row),
   CellUpdated(String),
   FieldTypeChanged(String, FieldType),
   FieldDeleted(String),

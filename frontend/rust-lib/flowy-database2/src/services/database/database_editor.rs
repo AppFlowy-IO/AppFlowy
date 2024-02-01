@@ -434,7 +434,12 @@ impl DatabaseEditor {
     match params {
       None => warn!("Failed to duplicate row: {}", row_id),
       Some(params) => {
-        let _ = self.create_row(view_id, None, params).await;
+        let result = self.create_row(view_id, None, params).await;
+        if let Some(row_detail) = result.unwrap_or(None) {
+          for view in self.database_views.editors().await {
+            view.v_did_duplicate_row(&row_detail).await;
+          }
+        }
       },
     }
   }
