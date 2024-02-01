@@ -8,8 +8,9 @@ import { ReactEditor, useSlateStatic } from 'slate-react';
 import { PopoverProps } from '@mui/material/Popover';
 
 import { EditorSelectedBlockContext } from '$app/components/editor/stores/selected';
+import withErrorBoundary from '$app/components/_shared/error_boundary/withError';
 
-export function BlockActionsToolbar() {
+const Toolbar = () => {
   const ref = useRef<HTMLDivElement | null>(null);
   const [openContextMenu, setOpenContextMenu] = useState(false);
   const { node } = useBlockActionsToolbar(ref, openContextMenu);
@@ -97,4 +98,6 @@ export function BlockActionsToolbar() {
       )}
     </>
   );
-}
+};
+
+export const BlockActionsToolbar = withErrorBoundary(Toolbar);

@@ -1,8 +1,9 @@
 import React, { memo, useRef } from 'react';
 import { useSelectionToolbar } from '$app/components/editor/components/tools/selection_toolbar/SelectionToolbar.hooks';
 import SelectionActions from '$app/components/editor/components/tools/selection_toolbar/SelectionActions';
+import withErrorBoundary from '$app/components/_shared/error_boundary/withError';
 
-export const SelectionToolbar = memo(() => {
+const Toolbar = memo(() => {
   const ref = useRef<HTMLDivElement | null>(null);
 
   const { visible, restoreSelection, storeSelection, isAcrossBlocks } = useSelectionToolbar(ref);
@@ -27,3 +28,5 @@ export const SelectionToolbar = memo(() => {
     </div>
   );
 });
+
+export const SelectionToolbar = withErrorBoundary(Toolbar);

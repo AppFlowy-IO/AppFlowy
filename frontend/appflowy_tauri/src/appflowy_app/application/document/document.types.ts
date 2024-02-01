@@ -170,16 +170,6 @@ export enum EditorNodeType {
   GridBlock = 'grid',
 }
 
-export const paragraphBlocks: EditorNodeType[] = [
-  EditorNodeType.Paragraph,
-  EditorNodeType.HeadingBlock,
-  EditorNodeType.TodoListBlock,
-  EditorNodeType.BulletedListBlock,
-  EditorNodeType.NumberedListBlock,
-  EditorNodeType.ToggleListBlock,
-  EditorNodeType.QuoteBlock,
-];
-
 export enum EditorInlineNodeType {
   Mention = 'mention',
   Formula = 'formula',

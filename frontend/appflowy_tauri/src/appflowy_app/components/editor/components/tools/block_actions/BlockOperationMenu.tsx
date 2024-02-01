@@ -14,9 +14,18 @@ import KeyboardNavigation, {
 import { Color } from '$app/components/editor/components/tools/block_actions/color';
 import { getModifier } from '$app/components/editor/plugins/shortcuts';
 import isHotkey from 'is-hotkey';
-import { EditorNodeType, paragraphBlocks } from '$app/application/document/document.types';
-
+import { EditorNodeType } from '$app/application/document/document.types';
 import { EditorSelectedBlockContext } from '$app/components/editor/stores/selected';
+
+export const canSetColorBlocks: EditorNodeType[] = [
+  EditorNodeType.Paragraph,
+  EditorNodeType.HeadingBlock,
+  EditorNodeType.TodoListBlock,
+  EditorNodeType.BulletedListBlock,
+  EditorNodeType.NumberedListBlock,
+  EditorNodeType.ToggleListBlock,
+  EditorNodeType.QuoteBlock,
+];
 
 export function BlockOperationMenu({
   node,
@@ -27,8 +36,8 @@ export function BlockOperationMenu({
   const editor = useSlateStatic();
   const { t } = useTranslation();
 
-  const colorVisible = useMemo(() => {
-    return paragraphBlocks.includes(node.type as EditorNodeType);
+  const canSetColor = useMemo(() => {
+    return canSetColorBlocks.includes(node.type as EditorNodeType);
   }, [node]);
   const selectedBlockContext = React.useContext(EditorSelectedBlockContext);
   const [openColorMenu, setOpenColorMenu] = React.useState(false);
@@ -120,7 +129,7 @@ export function BlockOperationMenu({
             },
           ],
         },
-        colorVisible && {
+        canSetColor && {
           key: 'color',
           content: <Divider />,
           children: [
@@ -147,7 +156,7 @@ export function BlockOperationMenu({
           ],
         },
       ].filter(Boolean),
-    [node, colorVisible, openColorMenu, t]
+    [node, canSetColor, openColorMenu, t]
   );
 
   const handleKeyDown = useCallback(
