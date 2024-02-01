@@ -268,6 +268,7 @@ class DatabaseViewSettingTile extends StatelessWidget {
         context,
         showDragHandle: true,
         showHeader: true,
+        showDivider: false,
         title: LocaleKeys.calendar_settings_name.tr(),
         builder: (context) {
           return MobileCalendarViewLayoutSettings(

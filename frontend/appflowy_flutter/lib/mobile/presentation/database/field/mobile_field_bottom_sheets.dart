@@ -128,14 +128,17 @@ void showQuickEditField(
 /// Display a list of fields in the current database that users can choose from.
 Future<String?> showFieldPicker(
   BuildContext context,
+  String title,
   String? selectedFieldId,
   FieldController fieldController,
   bool Function(FieldInfo fieldInfo) filterBy,
 ) {
   return showMobileBottomSheet<String>(
     context,
+    showDivider: false,
     builder: (context) {
       return MobileFieldPickerList(
+        title: title,
         selectedFieldId: selectedFieldId,
         fieldController: fieldController,
         filterBy: filterBy,
