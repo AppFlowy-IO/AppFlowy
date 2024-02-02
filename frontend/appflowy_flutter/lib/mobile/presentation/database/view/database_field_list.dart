@@ -3,7 +3,6 @@ import 'dart:ui';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_option_tile.dart';
-import 'package:appflowy/plugins/base/drag_handler.dart';
 import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
@@ -11,7 +10,6 @@ import 'package:appflowy/plugins/database/application/setting/property_bloc.dart
 import 'package:appflowy/plugins/database/widgets/setting/field_visibility_extension.dart';
 import 'package:appflowy/util/field_type_extension.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -30,61 +28,9 @@ class MobileDatabaseFieldList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DraggableScrollableSheet(
-      expand: false,
-      snap: true,
-      initialChildSize: 1.0,
-      minChildSize: 0.0,
-      builder: (context, controller) {
-        return Material(
-          child: Column(
-            children: [
-              const Center(child: DragHandler()),
-              const _MobileDatabaseFieldListHeader(),
-              Expanded(
-                child: SingleChildScrollView(
-                  child: _MobileDatabaseFieldListBody(
-                    databaseController: databaseController,
-                    view: context.read<ViewBloc>().state.view,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-}
-
-class _MobileDatabaseFieldListHeader extends StatelessWidget {
-  const _MobileDatabaseFieldListHeader();
-
-  @override
-  Widget build(BuildContext context) {
-    const iconWidth = 30.0;
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(8, 4, 8, 12),
-      child: Stack(
-        children: [
-          Align(
-            alignment: Alignment.centerLeft,
-            child: FlowyIconButton(
-              icon: const FlowySvg(
-                FlowySvgs.arrow_left_m,
-                size: Size.square(iconWidth),
-              ),
-              onPressed: () => Navigator.of(context).maybePop(),
-            ),
-          ),
-          Align(
-            child: FlowyText.medium(
-              LocaleKeys.grid_settings_properties.tr(),
-              fontSize: 16,
-            ),
-          ),
-        ],
-      ),
+    return _MobileDatabaseFieldListBody(
+      databaseController: databaseController,
+      viewId: context.read<ViewBloc>().state.view.id,
     );
   }
 }
@@ -92,17 +38,17 @@ class _MobileDatabaseFieldListHeader extends StatelessWidget {
 class _MobileDatabaseFieldListBody extends StatelessWidget {
   const _MobileDatabaseFieldListBody({
     required this.databaseController,
-    required this.view,
+    required this.viewId,
   });
 
   final DatabaseController databaseController;
-  final ViewPB view;
+  final String viewId;
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider<DatabasePropertyBloc>(
       create: (_) => DatabasePropertyBloc(
-        viewId: view.id,
+        viewId: viewId,
         fieldController: databaseController.fieldController,
       )..add(const DatabasePropertyEvent.initial()),
       child: BlocBuilder<DatabasePropertyBloc, DatabasePropertyState>(
@@ -114,7 +60,7 @@ class _MobileDatabaseFieldListBody extends StatelessWidget {
           final firstField = fields.removeAt(0);
           final firstCell = DatabaseFieldListTile(
             key: ValueKey(firstField.id),
-            viewId: view.id,
+            viewId: viewId,
             fieldController: databaseController.fieldController,
             fieldInfo: firstField,
             showTopBorder: true,
@@ -123,7 +69,7 @@ class _MobileDatabaseFieldListBody extends StatelessWidget {
               .mapIndexed(
                 (index, field) => DatabaseFieldListTile(
                   key: ValueKey(field.id),
-                  viewId: view.id,
+                  viewId: viewId,
                   fieldController: databaseController.fieldController,
                   fieldInfo: field,
                   index: index,
@@ -133,6 +79,7 @@ class _MobileDatabaseFieldListBody extends StatelessWidget {
               .toList();
 
           return ReorderableListView.builder(
+            padding: EdgeInsets.zero,
             proxyDecorator: (_, index, anim) {
               final field = fields[index];
               return AnimatedBuilder(
@@ -146,7 +93,7 @@ class _MobileDatabaseFieldListBody extends StatelessWidget {
                     child: Material(
                       child: DatabaseFieldListTile(
                         key: ValueKey(field.id),
-                        viewId: view.id,
+                        viewId: viewId,
                         fieldController: databaseController.fieldController,
                         fieldInfo: field,
                         index: index,
@@ -170,7 +117,7 @@ class _MobileDatabaseFieldListBody extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 _divider(),
-                _NewDatabaseFieldTile(viewId: view.id),
+                _NewDatabaseFieldTile(viewId: viewId),
               ],
             ),
             itemCount: cells.length,

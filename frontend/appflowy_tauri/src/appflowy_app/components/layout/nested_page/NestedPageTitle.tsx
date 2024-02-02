@@ -35,8 +35,8 @@ function NestedPageTitle({
 
   return (
     <div
-      className={`m-1 cursor-pointer rounded-lg px-2 py-1  ${isHovering ? 'bg-fill-list-hover' : ''} ${
-        isSelected ? 'bg-fill-list-active' : ''
+      className={`m-1 cursor-pointer rounded-lg bg-opacity-40 px-2 py-1  ${isHovering ? 'bg-fill-list-hover' : ''} ${
+        isSelected ? 'bg-fill-list-hover' : ''
       }`}
       onClick={onClick}
       onMouseEnter={() => setIsHovering(true)}

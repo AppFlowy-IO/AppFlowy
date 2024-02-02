@@ -183,3 +183,11 @@ export const useConnectDatabase = (viewId: string) => {
 
   return database;
 };
+
+const DatabaseRenderedContext = createContext<() => void>(() => {
+  // do nothing
+});
+
+export const DatabaseRenderedProvider = DatabaseRenderedContext.Provider;
+
+export const useDatabaseRendered = () => useContext(DatabaseRenderedContext);

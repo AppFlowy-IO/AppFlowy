@@ -1,15 +1,17 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import ActionButton from '$app/components/editor/components/tools/selection_toolbar/actions/_shared/ActionButton';
 import { useTranslation } from 'react-i18next';
 import { useSlateStatic } from 'slate-react';
 import { CustomEditor } from '$app/components/editor/command';
 import { ReactComponent as UnderlineSvg } from '$app/assets/underline.svg';
 import { EditorMarkFormat } from '$app/application/document/document.types';
+import { getHotKey } from '$app/components/editor/plugins/shortcuts';
 
 export function Underline() {
   const { t } = useTranslation();
   const editor = useSlateStatic();
   const isActivated = CustomEditor.isMarkActive(editor, EditorMarkFormat.Underline);
+  const modifier = useMemo(() => getHotKey(EditorMarkFormat.Underline).modifier, []);
 
   const onClick = useCallback(() => {
     CustomEditor.toggleMark(editor, {
@@ -19,7 +21,16 @@ export function Underline() {
   }, [editor]);
 
   return (
-    <ActionButton onClick={onClick} active={isActivated} tooltip={t('editor.underline')}>
+    <ActionButton
+      onClick={onClick}
+      active={isActivated}
+      tooltip={
+        <>
+          <div>{t('editor.underline')}</div>
+          <div className={'text-xs text-text-caption'}>{modifier}</div>
+        </>
+      }
+    >
       <UnderlineSvg />
     </ActionButton>
   );

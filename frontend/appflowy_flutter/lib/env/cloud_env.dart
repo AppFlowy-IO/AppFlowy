@@ -54,7 +54,10 @@ Future<AuthenticatorType> getAuthenticatorType() async {
   final value = await getIt<KeyValueStorage>().get(KVKeys.kCloudType);
   if (value.isNone() && !integrationMode().isUnitTest) {
     // if the cloud type is not set, then set it to AppFlowy Cloud as default.
-    await useAppFlowyBetaCloudWithURL(kAppflowyCloudUrl);
+    await useAppFlowyBetaCloudWithURL(
+      kAppflowyCloudUrl,
+      AuthenticatorType.appflowyCloud,
+    );
     return AuthenticatorType.appflowyCloud;
   }
 
@@ -70,7 +73,10 @@ Future<AuthenticatorType> getAuthenticatorType() async {
     case "4":
       return AuthenticatorType.appflowyCloudDevelop;
     default:
-      await useAppFlowyBetaCloudWithURL(kAppflowyCloudUrl);
+      await useAppFlowyBetaCloudWithURL(
+        kAppflowyCloudUrl,
+        AuthenticatorType.appflowyCloud,
+      );
       return AuthenticatorType.appflowyCloud;
   }
 }
@@ -183,8 +189,11 @@ Future<void> useSelfHostedAppFlowyCloudWithURL(String url) async {
   await _setAppFlowyCloudUrl(Some(url));
 }
 
-Future<void> useAppFlowyBetaCloudWithURL(String url) async {
-  await _setAuthenticatorType(AuthenticatorType.appflowyCloud);
+Future<void> useAppFlowyBetaCloudWithURL(
+  String url,
+  AuthenticatorType authenticatorType,
+) async {
+  await _setAuthenticatorType(authenticatorType);
   await _setAppFlowyCloudUrl(Some(url));
 }
 

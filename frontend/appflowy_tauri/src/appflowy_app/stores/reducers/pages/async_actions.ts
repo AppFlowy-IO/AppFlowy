@@ -75,6 +75,7 @@ export const updatePageName = createAsyncThunk(
         name,
       })
     );
+
     await updatePage({
       id,
       name,

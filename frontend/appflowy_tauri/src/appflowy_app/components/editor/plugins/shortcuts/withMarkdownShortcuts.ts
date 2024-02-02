@@ -3,6 +3,25 @@ import { Editor, Range, Element as SlateElement, Transforms } from 'slate';
 import { EditorMarkFormat, EditorNodeType } from '$app/application/document/document.types';
 import { CustomEditor } from '$app/components/editor/command';
 
+/**
+ * Markdown shortcuts
+ * @description
+ * - bold: **bold** or __bold__
+ * - italic: *italic* or _italic_
+ * - strikethrough: ~~strikethrough~~ or ~strikethrough~
+ * - code: `code`
+ * - heading: # or ## or ###
+ * - bulleted list: * or - or +
+ * - number list: 1. or 2. or 3.
+ * - toggle list: >
+ * - quote: ” or “ or "
+ * - todo list: -[ ] or -[x] or -[] or [] or [x] or [ ]
+ * - code block: ```
+ * - callout: [!TIP] or [!INFO] or [!WARNING] or [!DANGER]
+ * - divider: ---or***
+ * - equation: $$formula$$
+ */
+
 const regexMap: Record<
   string,
   {
@@ -12,7 +31,7 @@ const regexMap: Record<
 > = {
   [EditorNodeType.BulletedListBlock]: [
     {
-      pattern: /^(\*|-|\+)$/,
+      pattern: /^([*\-+])$/,
     },
   ],
   [EditorNodeType.ToggleListBlock]: [
@@ -36,19 +55,19 @@ const regexMap: Record<
   ],
   [EditorNodeType.TodoListBlock]: [
     {
-      pattern: /^\[ \]$/,
+      pattern: /^(-)?\[ ]$/,
       data: {
         checked: false,
       },
     },
     {
-      pattern: /^\[x\]$/,
+      pattern: /^(-)?\[x]$/,
       data: {
         checked: true,
       },
     },
     {
-      pattern: /^\[\]$/,
+      pattern: /^(-)?\[]$/,
       data: {
         checked: false,
       },
@@ -61,7 +80,7 @@ const regexMap: Record<
   ],
   [EditorNodeType.HeadingBlock]: [
     {
-      pattern: /^#{1}$/,
+      pattern: /^#$/,
       data: {
         level: 1,
       },
@@ -81,28 +100,54 @@ const regexMap: Record<
   ],
   [EditorNodeType.CodeBlock]: [
     {
-      pattern: /^```$/,
+      pattern: /^(`{3,})$/,
       data: {
-        language: 'javascript',
+        language: 'json',
       },
     },
   ],
   [EditorNodeType.CalloutBlock]: [
     {
-      pattern: /^(\[!)(TIP|INFO|WARNING|DANGER)(\])$/,
+      pattern: /^\[!TIP]$/,
+      data: {
+        icon: '💡',
+      },
+    },
+    {
+      pattern: /^\[!INFO]$/,
+      data: {
+        icon: 'ℹ️',
+      },
+    },
+    {
+      pattern: /^\[!WARNING]$/,
+      data: {
+        icon: '⚠️',
+      },
+    },
+    {
+      pattern: /^\[!DANGER]$/,
+      data: {
+        icon: '🚨',
+      },
     },
   ],
   [EditorNodeType.DividerBlock]: [
     {
-      pattern: /^(-{3,})$/,
+      pattern: /^(([-*]){3,})$/,
     },
   ],
   [EditorNodeType.EquationBlock]: [
     {
-      pattern: /^(\${2})(\s)*(.+)(\s)*(\${2})$/,
+      pattern: /^\$\$(.*)\$\$$/,
+      data: {
+        formula: '',
+      },
     },
   ],
 };
+
+const blockCommands = [' ', '-', '`', '$', '*'];
 
 const CharToMarkTypeMap: Record<string, EditorMarkFormat> = {
   '**': EditorMarkFormat.Bold,
@@ -114,14 +159,47 @@ const CharToMarkTypeMap: Record<string, EditorMarkFormat> = {
   '`': EditorMarkFormat.Code,
 };
 
-const matchShortcutType = (beforeText: string, endChar: string) => {
-  if (endChar === '-') {
+const inlineBlockCommands = ['*', '_', '~', '`'];
+const doubleCharCommands = ['*', '_', '~'];
+
+const matchBlockShortcutType = (beforeText: string, endChar: string) => {
+  // end with divider char: -
+  if (endChar === '-' || endChar === '*') {
     const dividerRegex = regexMap[EditorNodeType.DividerBlock][0];
 
     return dividerRegex.pattern.test(beforeText + endChar)
       ? {
           type: EditorNodeType.DividerBlock,
           data: {},
+        }
+      : null;
+  }
+
+  // end with code block char: `
+  if (endChar === '`') {
+    const codeBlockRegex = regexMap[EditorNodeType.CodeBlock][0];
+
+    return codeBlockRegex.pattern.test(beforeText + endChar)
+      ? {
+          type: EditorNodeType.CodeBlock,
+          data: codeBlockRegex.data,
+        }
+      : null;
+  }
+
+  if (endChar === '$') {
+    const equationBlockRegex = regexMap[EditorNodeType.EquationBlock][0];
+
+    const match = equationBlockRegex.pattern.exec(beforeText + endChar);
+
+    const formula = match?.[1];
+
+    return equationBlockRegex.pattern.test(beforeText + endChar)
+      ? {
+          type: EditorNodeType.EquationBlock,
+          data: {
+            formula,
+          },
         }
       : null;
   }
@@ -156,9 +234,56 @@ export const withMarkdownShortcuts = (editor: ReactEditor) => {
       return;
     }
 
+    // block shortcuts
+    if (blockCommands.some((char) => text.endsWith(char))) {
+      const endChar = text.slice(-1);
+      const [match] = Editor.nodes(editor, {
+        match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type === EditorNodeType.Text,
+      });
+
+      if (!match) {
+        insertText(text);
+        return;
+      }
+
+      const [, path] = match;
+
+      const { anchor } = selection;
+      const start = Editor.start(editor, path);
+      const range = { anchor, focus: start };
+      const beforeText = Editor.string(editor, range) + text.slice(0, -1);
+
+      if (beforeText === undefined) {
+        insertText(text);
+        return;
+      }
+
+      const matchItem = matchBlockShortcutType(beforeText, endChar);
+
+      if (matchItem) {
+        const { type, data } = matchItem;
+
+        Transforms.select(editor, range);
+
+        if (!Range.isCollapsed(range)) {
+          Transforms.delete(editor);
+        }
+
+        const newProperties: Partial<SlateElement> = {
+          type,
+          data,
+        };
+
+        CustomEditor.turnToBlock(editor, newProperties);
+
+        return;
+      }
+    }
+
+    // inline shortcuts
     // end with inline mark char: * or _ or ~ or `
     // eg: **bold** or *italic* or ~strikethrough~ or `code` or _italic_ or __bold__ or ~~strikethrough~~
-    const keyword = ['*', '_', '~', '`'].find((char) => text.endsWith(char));
+    const keyword = inlineBlockCommands.find((char) => text.endsWith(char));
 
     if (keyword !== undefined) {
       const { focus } = selection;
@@ -179,7 +304,7 @@ export const withMarkdownShortcuts = (editor: ReactEditor) => {
 
       let matchChar = keyword;
 
-      if (['*', '_', '~'].includes(keyword)) {
+      if (doubleCharCommands.includes(keyword)) {
         const doubleKeyword = `${keyword}${keyword}`;
 
         if (rangeText.includes(doubleKeyword)) {
@@ -218,52 +343,6 @@ export const withMarkdownShortcuts = (editor: ReactEditor) => {
         edge: 'end',
       });
       return;
-    }
-
-    // end with space
-    if (text.endsWith(' ') || text.endsWith('-')) {
-      const endChar = text.slice(-1);
-      const [match] = Editor.nodes(editor, {
-        match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type === EditorNodeType.Text,
-      });
-
-      if (!match) {
-        insertText(text);
-        return;
-      }
-
-      const [, path] = match;
-
-      const { anchor } = selection;
-      const start = Editor.start(editor, path);
-      const range = { anchor, focus: start };
-      const beforeText = Editor.string(editor, range) + text.slice(0, -1);
-
-      if (beforeText === undefined) {
-        insertText(text);
-        return;
-      }
-
-      const matchItem = matchShortcutType(beforeText, endChar);
-
-      if (matchItem) {
-        const { type, data } = matchItem;
-
-        Transforms.select(editor, range);
-
-        if (!Range.isCollapsed(range)) {
-          Transforms.delete(editor);
-        }
-
-        const newProperties: Partial<SlateElement> = {
-          type,
-          data,
-        };
-
-        CustomEditor.turnToBlock(editor, newProperties);
-
-        return;
-      }
     }
 
     insertText(text);

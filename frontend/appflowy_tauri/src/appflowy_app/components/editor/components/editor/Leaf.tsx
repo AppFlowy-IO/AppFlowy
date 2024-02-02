@@ -1,6 +1,6 @@
 import React, { CSSProperties } from 'react';
 import { RenderLeafProps } from 'slate-react';
-import { Link } from '$app/components/editor/components/marks';
+import { Link } from '$app/components/editor/components/inline_nodes/link';
 
 export function Leaf({ attributes, children, leaf }: RenderLeafProps) {
   let newChildren = children;
@@ -9,7 +9,12 @@ export function Leaf({ attributes, children, leaf }: RenderLeafProps) {
 
   if (leaf.code) {
     newChildren = (
-      <code className={'bg-gray-300 bg-opacity-50 text-xs font-normal tracking-wider text-[#EB5757]'}>
+      <code
+        style={{
+          fontSize: '0.85em',
+        }}
+        className={'bg-fill-list-active bg-opacity-50 font-normal tracking-wider text-[#EB5757]'}
+      >
         {newChildren}
       </code>
     );
