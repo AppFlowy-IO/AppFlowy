@@ -3,7 +3,7 @@ use flowy_error::ErrorCode;
 
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::FieldType;
-use crate::services::sort::{Sort, SortCondition, SortType};
+use crate::services::sort::{Sort, SortCondition};
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct SortPB {
@@ -157,12 +157,6 @@ pub struct DeleteSortPayloadPB {
   pub view_id: String,
 
   #[pb(index = 2)]
-  pub field_id: String,
-
-  #[pb(index = 3)]
-  pub field_type: FieldType,
-
-  #[pb(index = 4)]
   pub sort_id: String,
 }
 
@@ -173,32 +167,18 @@ impl TryInto<DeleteSortParams> for DeleteSortPayloadPB {
     let view_id = NotEmptyStr::parse(self.view_id)
       .map_err(|_| ErrorCode::DatabaseViewIdIsEmpty)?
       .0;
-    let field_id = NotEmptyStr::parse(self.field_id)
-      .map_err(|_| ErrorCode::FieldIdIsEmpty)?
-      .0;
 
     let sort_id = NotEmptyStr::parse(self.sort_id)
       .map_err(|_| ErrorCode::UnexpectedEmpty)?
       .0;
 
-    let sort_type = SortType {
-      sort_id: sort_id.clone(),
-      field_id,
-      field_type: self.field_type,
-    };
-
-    Ok(DeleteSortParams {
-      view_id,
-      sort_type,
-      sort_id,
-    })
+    Ok(DeleteSortParams { view_id, sort_id })
   }
 }
 
 #[derive(Debug, Clone)]
 pub struct DeleteSortParams {
   pub view_id: String,
-  pub sort_type: SortType,
   pub sort_id: String,
 }
 

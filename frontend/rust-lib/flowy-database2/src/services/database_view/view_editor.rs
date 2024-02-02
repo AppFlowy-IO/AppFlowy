@@ -38,7 +38,7 @@ use crate::services::filter::{
 };
 use crate::services::group::{GroupChangesets, GroupController, MoveGroupRowContext, RowChangeset};
 use crate::services::setting::CalendarLayoutSetting;
-use crate::services::sort::{DeletedSortType, Sort, SortChangeset, SortController, SortType};
+use crate::services::sort::{Sort, SortChangeset, SortController};
 
 pub struct DatabaseViewEditor {
   pub view_id: String,
@@ -452,7 +452,7 @@ impl DatabaseViewEditor {
   }
 
   #[tracing::instrument(level = "trace", skip(self), err)]
-  pub async fn v_insert_sort(&self, params: UpdateSortParams) -> FlowyResult<Sort> {
+  pub async fn insert_or_update_sort(&self, params: UpdateSortParams) -> FlowyResult<Sort> {
     let is_exist = params.sort_id.is_some();
     let sort_id = match params.sort_id {
       None => gen_database_sort_id(),
@@ -465,16 +465,16 @@ impl DatabaseViewEditor {
       field_type: params.field_type,
       condition: params.condition,
     };
-    let sort_type = SortType::from(&sort);
+
     let mut sort_controller = self.sort_controller.write().await;
     self.delegate.insert_sort(&self.view_id, sort.clone());
     let changeset = if is_exist {
       sort_controller
-        .did_receive_changes(SortChangeset::from_update(sort_type))
+        .apply_changeset(SortChangeset::from_update(sort.clone()))
         .await
     } else {
       sort_controller
-        .did_receive_changes(SortChangeset::from_insert(sort_type))
+        .apply_changeset(SortChangeset::from_insert(sort.clone()))
         .await
     };
     drop(sort_controller);
@@ -487,13 +487,12 @@ impl DatabaseViewEditor {
       .sort_controller
       .write()
       .await
-      .did_receive_changes(SortChangeset::from_delete(DeletedSortType::from(
-        params.clone(),
-      )))
+      .apply_changeset(SortChangeset::from_delete(params.sort_id.clone()))
       .await;
 
     self.delegate.remove_sort(&self.view_id, &params.sort_id);
     notify_did_update_sort(notification).await;
+
     Ok(())
   }
 

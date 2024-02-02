@@ -10,7 +10,7 @@ use tokio::sync::broadcast::Receiver;
 use flowy_database2::entities::{DeleteSortParams, FieldType, UpdateSortParams};
 use flowy_database2::services::cell::stringify_cell_data;
 use flowy_database2::services::database_view::DatabaseViewChanged;
-use flowy_database2::services::sort::{Sort, SortCondition, SortType};
+use flowy_database2::services::sort::{Sort, SortCondition};
 
 use crate::database::database_editor::DatabaseEditorTest;
 
@@ -20,7 +20,6 @@ pub enum SortScript {
     condition: SortCondition,
   },
   DeleteSort {
-    sort: Sort,
     sort_id: String,
   },
   AssertCellContentOrder {
@@ -81,7 +80,7 @@ impl DatabaseSortTest {
         let sort_rev = self.editor.create_or_update_sort(params).await.unwrap();
         self.current_sort_rev = Some(sort_rev);
       },
-      SortScript::DeleteSort { sort, sort_id } => {
+      SortScript::DeleteSort { sort_id } => {
         self.recv = Some(
           self
             .editor
@@ -91,7 +90,6 @@ impl DatabaseSortTest {
         );
         let params = DeleteSortParams {
           view_id: self.view_id.clone(),
-          sort_type: SortType::from(&sort),
           sort_id,
         };
         self.editor.delete_sort(params).await.unwrap();

@@ -5,7 +5,7 @@ use collab::core::any_map::AnyMapExtension;
 use collab_database::rows::RowId;
 use collab_database::views::{SortMap, SortMapBuilder};
 
-use crate::entities::{DeleteSortParams, FieldType};
+use crate::entities::FieldType;
 
 #[derive(Debug, Clone)]
 pub struct Sort {
@@ -98,23 +98,6 @@ impl From<i64> for SortCondition {
   }
 }
 
-#[derive(Hash, Eq, PartialEq, Debug, Clone)]
-pub struct SortType {
-  pub sort_id: String,
-  pub field_id: String,
-  pub field_type: FieldType,
-}
-
-impl From<&Sort> for SortType {
-  fn from(data: &Sort) -> Self {
-    Self {
-      sort_id: data.id.clone(),
-      field_id: data.field_id.clone(),
-      field_type: data.field_type,
-    }
-  }
-}
-
 #[derive(Clone)]
 pub struct ReorderAllRowsResult {
   pub view_id: String,
@@ -140,13 +123,13 @@ pub struct ReorderSingleRowResult {
 
 #[derive(Debug)]
 pub struct SortChangeset {
-  pub(crate) insert_sort: Option<SortType>,
-  pub(crate) update_sort: Option<SortType>,
-  pub(crate) delete_sort: Option<DeletedSortType>,
+  pub(crate) insert_sort: Option<Sort>,
+  pub(crate) update_sort: Option<Sort>,
+  pub(crate) delete_sort: Option<String>,
 }
 
 impl SortChangeset {
-  pub fn from_insert(sort: SortType) -> Self {
+  pub fn from_insert(sort: Sort) -> Self {
     Self {
       insert_sort: Some(sort),
       update_sort: None,
@@ -154,7 +137,7 @@ impl SortChangeset {
     }
   }
 
-  pub fn from_update(sort: SortType) -> Self {
+  pub fn from_update(sort: Sort) -> Self {
     Self {
       insert_sort: None,
       update_sort: Some(sort),
@@ -162,26 +145,11 @@ impl SortChangeset {
     }
   }
 
-  pub fn from_delete(deleted_sort: DeletedSortType) -> Self {
+  pub fn from_delete(sort_id: String) -> Self {
     Self {
       insert_sort: None,
       update_sort: None,
-      delete_sort: Some(deleted_sort),
-    }
-  }
-}
-
-#[derive(Debug)]
-pub struct DeletedSortType {
-  pub sort_type: SortType,
-  pub sort_id: String,
-}
-
-impl std::convert::From<DeleteSortParams> for DeletedSortType {
-  fn from(params: DeleteSortParams) -> Self {
-    Self {
-      sort_type: params.sort_type,
-      sort_id: params.sort_id,
+      delete_sort: Some(sort_id),
     }
   }
 }

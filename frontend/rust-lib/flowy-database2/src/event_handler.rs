@@ -101,6 +101,7 @@ pub(crate) async fn update_database_setting_handler(
   if let Some(update_sort) = params.alert_sort {
     let _ = editor.create_or_update_sort(update_sort).await?;
   }
+
   if let Some(delete_sort) = params.delete_sort {
     editor.delete_sort(delete_sort).await?;
   }

@@ -93,7 +93,6 @@ async fn sort_text_by_ascending_and_delete_sort_test() {
   let sort = test.current_sort_rev.as_ref().unwrap();
   let scripts = vec![
     DeleteSort {
-      sort: sort.clone(),
       sort_id: sort.id.clone(),
     },
     AssertCellContentOrder {
