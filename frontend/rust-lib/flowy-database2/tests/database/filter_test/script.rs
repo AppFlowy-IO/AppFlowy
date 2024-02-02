@@ -222,7 +222,7 @@ impl DatabaseFilterTest {
           view_id: self.view_id(),
           field_id: filter.field_id,
           filter_id: Some(filter.id),
-          field_type: filter.field_type.into(),
+          field_type: filter.field_type,
           condition: condition as i64,
           content,
         };
@@ -375,7 +375,7 @@ impl DatabaseFilterTest {
           field_id: filter_context.field_id,
           field_type: filter_context.field_type,
         };
-        let _ = self.editor.delete_filter(params).await.unwrap();
+        self.editor.delete_filter(params).await.unwrap();
       },
       FilterScript::AssertGridSetting { expected_setting } => {
         let setting = self
@@ -403,8 +403,8 @@ impl DatabaseFilterTest {
     let mut receiver = self.recv.take().unwrap();
     af_spawn(async move {
       match tokio::time::timeout(Duration::from_secs(2), receiver.recv()).await {
-        Ok(changed) => match changed.unwrap() {
-          DatabaseViewChanged::FilterNotification(notification) => {
+        Ok(changed) => {
+          if let DatabaseViewChanged::FilterNotification(notification) = changed.unwrap() {
             assert_eq!(
               notification.visible_rows.len(),
               change.showing_num_of_rows,
@@ -415,8 +415,7 @@ impl DatabaseFilterTest {
               change.hiding_num_of_rows,
               "invisible rows not match"
             );
-          },
-          _ => {},
+          }
         },
         Err(e) => {
           panic!("Process filter task timeout: {:?}", e);
@@ -427,7 +426,7 @@ impl DatabaseFilterTest {
 
   async fn insert_filter(&self, payload: UpdateFilterPayloadPB) {
     let params: UpdateFilterParams = payload.try_into().unwrap();
-    let _ = self.editor.create_or_update_filter(params).await.unwrap();
+    self.editor.create_or_update_filter(params).await.unwrap();
   }
 }
 
