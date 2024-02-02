@@ -48,7 +48,7 @@ class NotificationButton extends StatelessWidget {
     return Stack(
       children: [
         FlowySvg(
-          FlowySvgs.clock_alarm_s,
+          FlowySvgs.m_notification_unselected_lg,
           size: const Size.square(24),
           color: Theme.of(context).colorScheme.tertiary,
         ),
