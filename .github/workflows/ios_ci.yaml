@@ -84,6 +84,13 @@ jobs:
         id: simulator-action
         with:
           model: 'iPhone 13'
+          shutdown_after_job: false
+
+      - name: Prebuilt AppFlowy
+        working-directory: frontend/appflowy_flutter
+        run: |
+          flutter run -d ${{ steps.simulator-action.outputs.udid }}
+        shell: bash
 
       - name: Run integration tests
         working-directory: frontend/appflowy_flutter

@@ -57,7 +57,6 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           toolchain: ${{ env.RUST_TOOLCHAIN }}
-          target: aarch64-linux-android
           override: true
           profile: minimal
 
