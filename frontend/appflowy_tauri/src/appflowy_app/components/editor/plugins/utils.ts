@@ -5,11 +5,11 @@ import { CustomEditor } from '$app/components/editor/command';
 export function getHeadingCssProperty(level: number) {
   switch (level) {
     case 1:
-      return 'text-3xl py-[16px] font-bold';
+      return 'text-3xl pt-[10px] pb-[8px] font-bold';
     case 2:
-      return 'text-2xl py-[12px] font-bold';
+      return 'text-2xl pt-[8px] pb-[6px] font-bold';
     case 3:
-      return 'text-xl py-[8px] font-bold';
+      return 'text-xl pt-[4px] font-bold';
     default:
       return '';
   }

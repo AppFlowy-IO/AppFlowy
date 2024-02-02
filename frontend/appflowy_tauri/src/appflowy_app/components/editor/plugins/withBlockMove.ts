@@ -1,7 +1,15 @@
 import { ReactEditor } from 'slate-react';
 import { generateId } from '$app/components/editor/provider/utils/convert';
-import { Editor, Element, Location, NodeEntry, Path, Transforms } from 'slate';
+import { Editor, Element, Location, NodeEntry, Path, Node, Transforms } from 'slate';
 import { EditorNodeType } from '$app/application/document/document.types';
+
+const matchPath = (editor: Editor, path: Path): ((node: Node) => boolean) => {
+  const [node] = Editor.node(editor, path);
+
+  return (n) => {
+    return n === node;
+  };
+};
 
 export function withBlockMove(editor: ReactEditor) {
   const { moveNodes } = editor;
@@ -20,7 +28,9 @@ export function withBlockMove(editor: ReactEditor) {
       let { match } = args;
 
       if (!match) {
-        match = (n) => Element.isElement(n) && Editor.isBlock(editor, n) && n.blockId !== undefined;
+        match = Path.isPath(at)
+          ? matchPath(editor, at)
+          : (n) => Element.isElement(n) && Editor.isBlock(editor, n) && n.blockId !== undefined;
       }
 
       if (!at) {
@@ -28,7 +38,10 @@ export function withBlockMove(editor: ReactEditor) {
       }
 
       const matches = Editor.nodes(editor, { at, match, mode, voids });
-      const pathRefs = Array.from(matches, ([, p]) => Editor.pathRef(editor, p));
+
+      const pathRefs = Array.from(matches, ([, p]) => {
+        return Editor.pathRef(editor, p);
+      });
 
       for (const pathRef of pathRefs) {
         const path = pathRef.unref();
@@ -57,15 +70,16 @@ export function withBlockMove(editor: ReactEditor) {
         } else {
           const toPath = Path.next(parentPath);
 
-          parent.children.forEach((child, childIndex) => {
-            if (childIndex > index) {
-              Transforms.moveNodes(editor, {
-                at: [...parentPath, index + 1],
-                to: [...path, childIndex - index],
-                mode: 'all',
-              });
-            }
-          });
+          const node = parent.children[index] as Element;
+          const nodeChildrenLength = node.children.length;
+
+          for (let i = length - 1; i > index; i--) {
+            Transforms.moveNodes(editor, {
+              at: [...parentPath, i],
+              to: [...path, nodeChildrenLength],
+              mode: 'all',
+            });
+          }
 
           Transforms.moveNodes(editor, { at: path, to: toPath, voids });
         }
@@ -103,7 +117,7 @@ function replaceId(editor: Editor, at?: Location) {
     }
   );
 
-  if (textNode.type === EditorNodeType.Text) {
+  if (textNode && textNode.type === EditorNodeType.Text) {
     editor.setNodes(
       {
         textId: newTextId,

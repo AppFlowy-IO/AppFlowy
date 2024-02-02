@@ -34,7 +34,7 @@ function Layout({ children }: { children: ReactNode }) {
             style={{
               height: 'calc(100vh - 64px - 48px)',
             }}
-            className={'overflow-y-auto overflow-x-hidden'}
+            className={'appflowy-layout overflow-y-auto overflow-x-hidden'}
           >
             {children}
           </div>

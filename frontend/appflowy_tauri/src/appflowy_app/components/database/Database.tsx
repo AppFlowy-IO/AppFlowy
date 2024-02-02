@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { forwardRef, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useViewId } from '$app/hooks/ViewId.hooks';
 import { databaseViewService } from '$app/application/database';
 import { DatabaseTabBar } from './components';
@@ -19,8 +19,10 @@ interface Props {
   setSelectedViewId?: (viewId: string) => void;
 }
 
-export const Database = ({ selectedViewId, setSelectedViewId }: Props) => {
-  const ref = useRef<HTMLDivElement>(null);
+export const Database = forwardRef<HTMLDivElement, Props>(({ selectedViewId, setSelectedViewId }, ref) => {
+  const innerRef = useRef<HTMLDivElement>();
+  const databaseRef = (ref ?? innerRef) as React.MutableRefObject<HTMLDivElement>;
+
   const viewId = useViewId();
   const { t } = useTranslation();
   const [notFound, setNotFound] = useState(false);
@@ -28,26 +30,29 @@ export const Database = ({ selectedViewId, setSelectedViewId }: Props) => {
   const [editRecordRowId, setEditRecordRowId] = useState<string | null>(null);
   const [openCollections, setOpenCollections] = useState<string[]>([]);
 
+  const handleResetDatabaseViews = useCallback(async (viewId: string) => {
+    await databaseViewService
+      .getDatabaseViews(viewId)
+      .then((value) => {
+        setChildViewIds(value.map((view) => view.id));
+      })
+      .catch((err) => {
+        if (err.code === ErrorCode.RecordNotFound) {
+          setNotFound(true);
+        }
+      });
+  }, []);
+
   useEffect(() => {
-    const onPageChanged = () => {
-      void databaseViewService
-        .getDatabaseViews(viewId)
-        .then((value) => {
-          setChildViewIds(value.map((view) => view.id));
-        })
-        .catch((err) => {
-          if (err.code === ErrorCode.RecordNotFound) {
-            setNotFound(true);
-          }
-        });
-    };
-
-    onPageChanged();
-
+    void handleResetDatabaseViews(viewId);
     const unsubscribePromise = subscribeNotifications(
       {
-        [FolderNotification.DidUpdateView]: () => {
-          onPageChanged();
+        [FolderNotification.DidUpdateChildViews]: (changeset) => {
+          if (changeset.create_child_views.length === 0 && changeset.delete_child_views.length === 0) {
+            return;
+          }
+
+          void handleResetDatabaseViews(viewId);
         },
       },
       {
@@ -56,7 +61,7 @@ export const Database = ({ selectedViewId, setSelectedViewId }: Props) => {
     );
 
     return () => void unsubscribePromise.then((unsubscribe) => unsubscribe());
-  }, [viewId]);
+  }, [handleResetDatabaseViews, viewId]);
 
   const value = useMemo(() => {
     return Math.max(0, childViewIds.indexOf(selectedViewId ?? viewId));
@@ -100,7 +105,7 @@ export const Database = ({ selectedViewId, setSelectedViewId }: Props) => {
   }
 
   return (
-    <div ref={ref} className='appflowy-database relative flex flex-1 flex-col overflow-y-hidden'>
+    <div ref={databaseRef} className='appflowy-database relative flex flex-1 flex-col overflow-y-hidden'>
       <DatabaseTabBar
         pageId={viewId}
         setSelectedViewId={setSelectedViewId}
@@ -120,7 +125,7 @@ export const Database = ({ selectedViewId, setSelectedViewId }: Props) => {
             <DatabaseLoader viewId={id}>
               {selectedViewId === id && (
                 <>
-                  <Portal container={ref.current}>
+                  <Portal container={databaseRef.current}>
                     <div className={'absolute right-16 top-0 py-1'}>
                       <DatabaseSettings
                         onToggleCollection={(forceOpen?: boolean) => onToggleCollection(id, forceOpen)}
@@ -147,4 +152,4 @@ export const Database = ({ selectedViewId, setSelectedViewId }: Props) => {
       </SwipeableViews>
     </div>
   );
-};
+});

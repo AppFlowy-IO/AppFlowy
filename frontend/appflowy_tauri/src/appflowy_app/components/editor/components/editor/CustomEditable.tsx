@@ -7,5 +7,15 @@ type CustomEditableProps = Omit<ComponentProps<typeof Editable>, 'renderElement'
   Partial<Pick<ComponentProps<typeof Editable>, 'renderElement' | 'renderLeaf'>>;
 
 export function CustomEditable({ renderElement = Element, renderLeaf = Leaf, ...props }: CustomEditableProps) {
-  return <Editable {...props} renderElement={renderElement} renderLeaf={renderLeaf} />;
+  return (
+    <Editable
+      {...props}
+      autoCorrect={'off'}
+      autoComplete={'off'}
+      autoFocus
+      spellCheck={false}
+      renderElement={renderElement}
+      renderLeaf={renderLeaf}
+    />
+  );
 }

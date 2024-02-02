@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/base/app_bar_actions.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
 import 'package:appflowy/plugins/base/drag_handler.dart';
@@ -26,24 +27,106 @@ class MobileDatabaseViewList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ViewBloc, ViewState>(
-      builder: (context, state) {
-        final views = [state.view, ...state.view.childViews];
-        final children = [
-          ...views.mapIndexed(
-            (index, view) => MobileDatabaseViewListButton(
-              view: view,
-              showTopBorder: index == 0,
-            ),
-          ),
-          const VSpace(20),
-          const MobileNewDatabaseViewButton(),
-        ];
+    return DraggableScrollableSheet(
+      expand: false,
+      snap: true,
+      initialChildSize: 0.98,
+      minChildSize: 0.98,
+      maxChildSize: 0.98,
+      builder: (context, scrollController) {
+        return BlocBuilder<ViewBloc, ViewState>(
+          builder: (context, state) {
+            final views = [state.view, ...state.view.childViews];
 
-        return Column(
-          children: children,
+            return Column(
+              children: [
+                const DragHandler(),
+                _Header(
+                  title: LocaleKeys.grid_settings_viewList.plural(
+                    context.watch<DatabaseTabBarBloc>().state.tabBars.length,
+                    namedArgs: {
+                      'count':
+                          '${context.watch<DatabaseTabBarBloc>().state.tabBars.length}',
+                    },
+                  ),
+                  showBackButton: false,
+                  useFilledDoneButton: false,
+                  onDone: (context) => Navigator.pop(context),
+                ),
+                SingleChildScrollView(
+                  controller: scrollController,
+                  child: Column(
+                    children: [
+                      ...views.mapIndexed(
+                        (index, view) => MobileDatabaseViewListButton(
+                          view: view,
+                          showTopBorder: index == 0,
+                        ),
+                      ),
+                      const VSpace(20),
+                      const MobileNewDatabaseViewButton(),
+                    ],
+                  ),
+                ),
+              ],
+            );
+          },
         );
       },
+    );
+  }
+}
+
+/// Same header as the one in showMobileBottomSheet, but allows popping the
+/// sheet with a value.
+class _Header extends StatelessWidget {
+  const _Header({
+    required this.title,
+    required this.showBackButton,
+    required this.useFilledDoneButton,
+    required this.onDone,
+  });
+
+  final String title;
+  final bool showBackButton;
+  final bool useFilledDoneButton;
+  final void Function(BuildContext context) onDone;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4.0),
+      child: SizedBox(
+        height: 44.0,
+        child: Stack(
+          children: [
+            if (showBackButton)
+              const Align(
+                alignment: Alignment.centerLeft,
+                child: AppBarBackButton(),
+              ),
+            Align(
+              child: FlowyText.medium(
+                title,
+                fontSize: 16.0,
+              ),
+            ),
+            useFilledDoneButton
+                ? Align(
+                    alignment: Alignment.centerRight,
+                    child: AppBarFilledDoneButton(
+                      onTap: () => onDone(context),
+                    ),
+                  )
+                : Align(
+                    alignment: Alignment.centerRight,
+                    child: AppBarDoneButton(
+                      onTap: () => onDone(context),
+                    ),
+                  ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -155,6 +238,7 @@ class MobileNewDatabaseViewButton extends StatelessWidget {
       onTap: () async {
         final result = await showMobileBottomSheet<(DatabaseLayoutPB, String)>(
           context,
+          showDragHandle: true,
           builder: (_) {
             return const MobileCreateDatabaseView();
           },
@@ -199,12 +283,13 @@ class _MobileCreateDatabaseViewState extends State<MobileCreateDatabaseView> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        const Center(child: DragHandler()),
-        _CreateViewHeader(
-          textController: controller,
-          selectedLayout: layoutType,
+        _Header(
+          title: LocaleKeys.grid_settings_createView.tr(),
+          showBackButton: true,
+          useFilledDoneButton: true,
+          onDone: (context) =>
+              context.pop((layoutType, controller.text.trim())),
         ),
-        const VSpace(4.0),
         FlowyOptionTile.textField(
           autofocus: true,
           controller: controller,
@@ -215,77 +300,6 @@ class _MobileCreateDatabaseViewState extends State<MobileCreateDatabaseView> {
           onSelect: (layout) {
             setState(() => layoutType = layout);
           },
-        ),
-      ],
-    );
-  }
-}
-
-class _CreateViewHeader extends StatelessWidget {
-  const _CreateViewHeader({
-    required this.textController,
-    required this.selectedLayout,
-  });
-
-  final TextEditingController textController;
-  final DatabaseLayoutPB selectedLayout;
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            SizedBox.square(
-              dimension: 36,
-              child: IconButton(
-                highlightColor: Colors.transparent,
-                splashColor: Colors.transparent,
-                padding: EdgeInsets.zero,
-                onPressed: () => context.pop(),
-                icon: const FlowySvg(
-                  FlowySvgs.arrow_left_s,
-                  size: Size.square(24),
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(8, 4, 8, 8),
-              child: TextButton(
-                style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 5,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  elevation: 0,
-                  visualDensity: VisualDensity.compact,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  enableFeedback: true,
-                  backgroundColor: Theme.of(context).primaryColor,
-                ),
-                onPressed: () {
-                  context.pop((selectedLayout, textController.text.trim()));
-                },
-                child: FlowyText.medium(
-                  LocaleKeys.button_done.tr(),
-                  fontSize: 16,
-                  color: Theme.of(context).colorScheme.onPrimary,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ),
-          ],
-        ),
-        Center(
-          child: FlowyText.medium(
-            LocaleKeys.grid_settings_createView.tr(),
-            fontSize: 16,
-          ),
         ),
       ],
     );

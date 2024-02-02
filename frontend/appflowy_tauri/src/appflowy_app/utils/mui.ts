@@ -15,6 +15,18 @@ export const getDesignTokens = (mode: ThemeMode): ThemeOptions => {
       },
     },
     components: {
+      MuiMenuItem: {
+        defaultProps: {
+          sx: {
+            '&.Mui-selected.Mui-focusVisible': {
+              backgroundColor: 'var(--fill-list-hover)',
+            },
+            '&.Mui-focusVisible': {
+              backgroundColor: 'unset',
+            },
+          },
+        },
+      },
       MuiIconButton: {
         styleOverrides: {
           root: {

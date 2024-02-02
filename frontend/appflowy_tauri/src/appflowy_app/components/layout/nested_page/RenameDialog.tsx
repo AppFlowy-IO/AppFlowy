@@ -32,7 +32,20 @@ function RenameDialog({
         <TextField
           error={error}
           autoFocus
+          spellCheck={false}
           value={value}
+          onKeyDown={(e) => {
+            e.stopPropagation();
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              void onOk(value);
+            }
+
+            if (e.key === 'Escape') {
+              e.preventDefault();
+              onClose();
+            }
+          }}
           onChange={(e) => {
             setValue(e.target.value);
           }}

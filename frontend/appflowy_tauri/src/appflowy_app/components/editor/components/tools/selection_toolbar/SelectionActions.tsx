@@ -1,7 +1,5 @@
-import React, { useMemo } from 'react';
-import { useSlate } from 'slate-react';
-import { Range } from 'slate';
-import { CustomEditor } from '$app/components/editor/command';
+import React from 'react';
+
 import { Paragraph } from '$app/components/editor/components/tools/selection_toolbar/actions/paragraph';
 import { Heading } from '$app/components/editor/components/tools/selection_toolbar/actions/heading';
 import { Divider } from '@mui/material';
@@ -21,38 +19,22 @@ import { Align } from '$app/components/editor/components/tools/selection_toolbar
 import { Color } from '$app/components/editor/components/tools/selection_toolbar/actions/color';
 
 function SelectionActions({
+  isAcrossBlocks,
   storeSelection,
   restoreSelection,
 }: {
   storeSelection: () => void;
   restoreSelection: () => void;
+  isAcrossBlocks: boolean;
+  visible: boolean;
 }) {
-  const editor = useSlate();
-  const isAcrossBlockSelection = useMemo(() => {
-    if (!editor.selection) return false;
-    const selection = editor.selection;
-    const start = selection.anchor;
-    const end = selection.focus;
-
-    if (!start || !end) return false;
-
-    if (!Range.isExpanded(selection)) return false;
-
-    const startNode = CustomEditor.getBlock(editor, start);
-
-    const endNode = CustomEditor.getBlock(editor, end);
-
-    return Boolean(startNode && endNode && startNode[0].blockId !== endNode[0].blockId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editor.selection, editor]);
-
   return (
     <div className={'flex w-fit flex-grow items-center gap-1'}>
-      {!isAcrossBlockSelection && (
+      {!isAcrossBlocks && (
         <>
           <Paragraph />
           <Heading />
-          <Divider className={'opacity-40'} orientation={'vertical'} flexItem={true} />
+          <Divider className={'my-1.5 bg-line-on-toolbar opacity-40'} orientation={'vertical'} flexItem={true} />
         </>
       )}
       <Bold />
@@ -60,26 +42,26 @@ function SelectionActions({
       <Underline />
       <StrikeThrough />
       <InlineCode />
-      {!isAcrossBlockSelection && (
+      {!isAcrossBlocks && (
         <>
           <Formula />
-          <Divider className={'opacity-40'} orientation={'vertical'} flexItem={true} />
+          <Divider className={'my-1.5 bg-line-on-toolbar opacity-40'} orientation={'vertical'} flexItem={true} />
         </>
       )}
 
-      {!isAcrossBlockSelection && (
+      {!isAcrossBlocks && (
         <>
           <TodoList />
           <Quote />
           <ToggleList />
           <BulletedList />
           <NumberedList />
-          <Divider className={'opacity-40'} orientation={'vertical'} flexItem={true} />
+          <Divider className={'my-1.5 bg-line-on-toolbar opacity-40'} orientation={'vertical'} flexItem={true} />
         </>
       )}
-      {!isAcrossBlockSelection && <Href />}
+      {!isAcrossBlocks && <Href />}
       <Align />
-      <Color onOpen={storeSelection} onClose={restoreSelection} />
+      <Color onClose={restoreSelection} onOpen={storeSelection} />
     </div>
   );
 }
