@@ -55,7 +55,9 @@ Future<AuthenticatorType> getAuthenticatorType() async {
   if (value.isNone() && !integrationMode().isUnitTest) {
     // if the cloud type is not set, then set it to AppFlowy Cloud as default.
     await useAppFlowyBetaCloudWithURL(
-        kAppflowyCloudUrl, AuthenticatorType.appflowyCloud);
+      kAppflowyCloudUrl,
+      AuthenticatorType.appflowyCloud,
+    );
     return AuthenticatorType.appflowyCloud;
   }
 
@@ -72,7 +74,9 @@ Future<AuthenticatorType> getAuthenticatorType() async {
       return AuthenticatorType.appflowyCloudDevelop;
     default:
       await useAppFlowyBetaCloudWithURL(
-          kAppflowyCloudUrl, AuthenticatorType.appflowyCloud);
+        kAppflowyCloudUrl,
+        AuthenticatorType.appflowyCloud,
+      );
       return AuthenticatorType.appflowyCloud;
   }
 }
