@@ -20,7 +20,6 @@ export function transformToInlineElement(op: Op): Element | null {
       children: [
         {
           text: op.insert as string,
-          ...attributes,
         },
       ],
     };
@@ -52,6 +51,20 @@ export function getInlinesWithDelta(delta?: Op[]): (Text | Element)[] {
 
         if (matchInline) {
           return matchInline;
+        }
+
+        if (op.attributes) {
+          if ('font_color' in op.attributes && op.attributes['font_color'] === '') {
+            delete op.attributes['font_color'];
+          }
+
+          if ('bg_color' in op.attributes && op.attributes['bg_color'] === '') {
+            delete op.attributes['bg_color'];
+          }
+
+          if ('code' in op.attributes && !op.attributes['code']) {
+            delete op.attributes['code'];
+          }
         }
 
         return {

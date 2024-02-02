@@ -1,4 +1,8 @@
 # Release Notes
+## Version 0.4.5 - 02/01/2024
+### Bug Fixes
+- Fixed WebSocket connection issue
+
 ## Version 0.4.4 - 01/31/2024
 ### New Features
 - Added functionality for uploading images to cloud storage.

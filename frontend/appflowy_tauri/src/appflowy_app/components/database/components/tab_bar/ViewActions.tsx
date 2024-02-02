@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ReactComponent as DeleteSvg } from '$app/assets/delete.svg';
 import { ReactComponent as EditSvg } from '$app/assets/edit.svg';
-import { deleteView, updateView } from '$app/application/database/database_view/database_view_service';
+import { deleteView } from '$app/application/database/database_view/database_view_service';
 import { MenuItem, MenuProps, Menu } from '@mui/material';
 import RenameDialog from '$app/components/layout/nested_page/RenameDialog';
 import { Page } from '$app_reducers/pages/slice';
+import { useAppDispatch } from '$app/stores/store';
+import { updatePageName } from '$app_reducers/pages/async_actions';
 
 enum ViewAction {
   Rename,
@@ -15,6 +17,7 @@ enum ViewAction {
 function ViewActions({ view, ...props }: { view: Page } & MenuProps) {
   const { t } = useTranslation();
   const viewId = view.id;
+  const dispatch = useAppDispatch();
   const [openRenameDialog, setOpenRenameDialog] = useState(false);
   const options = [
     {
@@ -56,9 +59,12 @@ function ViewActions({ view, ...props }: { view: Page } & MenuProps) {
         onClose={() => setOpenRenameDialog(false)}
         onOk={async (val) => {
           try {
-            await updateView(viewId, {
-              name: val,
-            });
+            await dispatch(
+              updatePageName({
+                id: viewId,
+                name: val,
+              })
+            );
             setOpenRenameDialog(false);
             props.onClose?.({}, 'backdropClick');
           } catch (e) {

@@ -69,7 +69,10 @@ class AppFlowyCloudViewSetting extends StatelessWidget {
                   NavigatorAlertDialog(
                     title: LocaleKeys.settings_menu_restartAppTip.tr(),
                     confirm: () async {
-                      await useAppFlowyBetaCloudWithURL(serverURL);
+                      await useAppFlowyBetaCloudWithURL(
+                        serverURL,
+                        authenticatorType,
+                      );
                       restartAppFlowy();
                     },
                   ).show(context);

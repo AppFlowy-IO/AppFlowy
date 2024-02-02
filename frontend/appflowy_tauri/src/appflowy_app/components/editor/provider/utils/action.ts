@@ -90,42 +90,7 @@ function blockOps2BlockActions(
 
   let index = 0;
 
-  let newOps = ops;
-
-  if (ops.length > 1) {
-    const [deleteOp, insertOp, ...otherOps] = newOps;
-
-    const insert = insertOp.insert;
-
-    if (deleteOp.delete === 1 && insert && insert instanceof Y.XmlText) {
-      const textNode = getInsertTarget(blockYXmlText, [0]);
-      const textId = textNode.getAttribute('textId');
-
-      if (textId) {
-        const length = textNode.length;
-
-        insert.setAttribute('textId', textId);
-
-        actions.push(
-          ...generateApplyTextActions(insert, [
-            {
-              delete: length,
-            },
-            ...insert.toDelta(),
-          ])
-        );
-      }
-
-      newOps = [
-        {
-          retain: 1,
-        },
-        ...otherOps,
-      ];
-    }
-  }
-
-  newOps.forEach((op) => {
+  ops.forEach((op) => {
     if (op.insert) {
       if (op.insert instanceof Y.XmlText) {
         const insertYXmlText = op.insert;
@@ -136,16 +101,34 @@ function blockOps2BlockActions(
           throw new Error('blockId and textId is not exist');
         }
 
-        actions.push(...generateInsertBlockActions(insertYXmlText));
-        index += 1;
+        if (blockId) {
+          actions.push(...generateInsertBlockActions(insertYXmlText));
+          index += 1;
+        }
+
+        if (textId) {
+          const target = getInsertTarget(blockYXmlText, [0]);
+
+          if (target) {
+            const length = target.length;
+
+            const delta = [{ delete: length }, ...insertYXmlText.toDelta()];
+
+            // restore textId
+            insertYXmlText.setAttribute('textId', target.getAttribute('textId'));
+            actions.push(...generateApplyTextActions(target, delta));
+          }
+        }
       }
     } else if (op.retain) {
       index += op.retain;
     } else if (op.delete) {
-      for (let i = index; i < op.delete + index; i++) {
-        const target = getInsertTarget(blockYXmlText, [i]);
+      let i = 0;
 
-        if (target) {
+      for (; i < op.delete; i++) {
+        const target = getInsertTarget(blockYXmlText, [i + index]);
+
+        if (target && target !== blockYXmlText) {
           const deletedId = target.getAttribute('blockId') as string;
 
           if (deletedId) {
@@ -157,6 +140,8 @@ function blockOps2BlockActions(
           }
         }
       }
+
+      index += i;
     }
   });
 
@@ -238,6 +223,7 @@ export function generateInsertBlockActions(
   insertYXmlText: Y.XmlText
 ): ReturnType<typeof BlockActionPB.prototype.toObject>[] {
   const childrenId = generateId();
+
   const [textInsert, ...childrenInserts] = (insertYXmlText.toDelta() as YDelta).map((op) => op.insert);
   const textInsertActions = textInsert instanceof Y.XmlText ? generateInsertTextActions(textInsert) : [];
   const externalId = textInsertActions[0]?.payload.text_id;

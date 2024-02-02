@@ -1,5 +1,5 @@
 import React, { FC, HTMLAttributes, useMemo } from 'react';
-import { RenderElementProps } from 'slate-react';
+import { RenderElementProps, useSlateStatic } from 'slate-react';
 import {
   BlockData,
   EditorElementProps,
@@ -73,7 +73,9 @@ function Element({ element, attributes, children }: RenderElementProps) {
     }
   }, [node.type]) as FC<EditorElementProps & HTMLAttributes<HTMLElement>>;
 
-  const { isSelected } = useElementState(node);
+  const editor = useSlateStatic();
+  const { blockSelected } = useElementState(node);
+  const isEmbed = editor.isEmbed(node);
 
   const className = useMemo(() => {
     const align =
@@ -83,10 +85,10 @@ function Element({ element, attributes, children }: RenderElementProps) {
         }
       )?.align || 'left';
 
-    return `block-element flex rounded ${isSelected ? 'bg-content-blue-100' : ''} ${
-      align ? `block-align-${align}` : ''
+    return `block-element flex rounded ${align ? `block-align-${align}` : ''} ${
+      blockSelected && !isEmbed ? 'bg-content-blue-100' : ''
     }`;
-  }, [isSelected, node.data]);
+  }, [node.data, blockSelected, isEmbed]);
 
   const style = useMemo(() => {
     const data = (node.data as BlockData) || {};
@@ -99,9 +101,9 @@ function Element({ element, attributes, children }: RenderElementProps) {
 
   if (InlineComponent) {
     return (
-      <span {...attributes}>
-        <InlineComponent node={node}>{children}</InlineComponent>
-      </span>
+      <InlineComponent {...attributes} node={node}>
+        {children}
+      </InlineComponent>
     );
   }
 

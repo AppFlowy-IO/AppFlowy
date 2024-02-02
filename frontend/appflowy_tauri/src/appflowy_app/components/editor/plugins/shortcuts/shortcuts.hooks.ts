@@ -1,11 +1,34 @@
 import { ReactEditor } from 'slate-react';
 import { useCallback, KeyboardEvent } from 'react';
-import { EditorMarkFormat, EditorNodeType, TodoListNode } from '$app/application/document/document.types';
+import {
+  EditorMarkFormat,
+  EditorNodeType,
+  TodoListNode,
+  ToggleListNode,
+} from '$app/application/document/document.types';
 import isHotkey from 'is-hotkey';
-
 import { getBlock } from '$app/components/editor/plugins/utils';
 import { SOFT_BREAK_TYPES } from '$app/components/editor/plugins/constants';
 import { CustomEditor } from '$app/components/editor/command';
+import { getHotKeys } from '$app/components/editor/plugins/shortcuts/hotkey';
+
+/**
+ * Hotkeys shortcuts
+ * @description [getHotKeys] is defined in [hotkey.ts]
+ * - bold: Mod+b
+ * - italic: Mod+i
+ * - underline: Mod+u
+ * - strikethrough: Mod+Shift+s
+ * - code: Mod+Shift+c
+ * - align left: Mod+Shift+l
+ * - align center: Mod+Shift+e
+ * - align right: Mod+Shift+r
+ * - indent: Tab
+ * - outdent: Shift+Tab
+ * - split block: Enter
+ * - insert \n: Shift+Enter
+ * - toggle todo or toggle: Mod+Enter (toggle todo list or toggle list)
+ */
 
 const inputTypeToFormat: Record<string, EditorMarkFormat> = {
   formatBold: EditorMarkFormat.Bold,
@@ -13,14 +36,6 @@ const inputTypeToFormat: Record<string, EditorMarkFormat> = {
   formatUnderline: EditorMarkFormat.Underline,
   formatStrikethrough: EditorMarkFormat.StrikeThrough,
   formatCode: EditorMarkFormat.Code,
-};
-
-const hotKeys = {
-  formatBold: 'Mod+b',
-  formatItalic: 'Mod+i',
-  formatUnderline: 'Mod+u',
-  formatStrikethrough: 'Mod+Shift+s',
-  formatCode: 'Mod+Shift+c',
 };
 
 export function useShortcuts(editor: ReactEditor) {
@@ -47,18 +62,33 @@ export function useShortcuts(editor: ReactEditor) {
 
       // Apple Webkit does not support the input event for formatting
       if (isAppleWebkit) {
-        Object.entries(hotKeys).forEach(([key, hotkey]) => {
-          if (isHotkey(hotkey, e)) {
+        Object.entries(getHotKeys()).forEach(([_, item]) => {
+          if (isHotkey(item.hotkey, e)) {
+            e.stopPropagation();
             e.preventDefault();
+
+            if (item.markKey === EditorMarkFormat.Align) {
+              CustomEditor.toggleAlign(editor, item.markValue as string);
+              return;
+            }
+
             CustomEditor.toggleMark(editor, {
-              key: inputTypeToFormat[key],
-              value: true,
+              key: item.markKey,
+              value: item.markValue,
             });
+            return;
           }
         });
       }
 
       const node = getBlock(editor);
+
+      if (isHotkey('Escape', e)) {
+        e.preventDefault();
+        e.stopPropagation();
+        editor.deselect();
+        return;
+      }
 
       if (isHotkey('Tab', e)) {
         e.preventDefault();
@@ -96,9 +126,25 @@ export function useShortcuts(editor: ReactEditor) {
         return;
       }
 
-      if (isHotkey('mod+Enter', e) && node && node.type === EditorNodeType.TodoListBlock) {
+      if (isHotkey('mod+Enter', e) && node) {
+        if (node.type === EditorNodeType.TodoListBlock) {
+          e.preventDefault();
+          CustomEditor.toggleTodo(editor, node as TodoListNode);
+          return;
+        }
+
+        if (node.type === EditorNodeType.ToggleListBlock) {
+          e.preventDefault();
+          CustomEditor.toggleToggleList(editor, node as ToggleListNode);
+          return;
+        }
+      }
+
+      if (isHotkey('shift+backspace', e)) {
         e.preventDefault();
-        CustomEditor.toggleTodo(editor, node as TodoListNode);
+        e.stopPropagation();
+
+        editor.deleteBackward('character');
         return;
       }
     },

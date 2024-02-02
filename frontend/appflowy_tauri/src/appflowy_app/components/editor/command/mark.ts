@@ -13,17 +13,50 @@ export function toggleMark(
 
   const isActive = isMarkActive(editor, key);
 
-  if (isActive) {
+  if (isActive || !value) {
     Editor.removeMark(editor, key as string);
-  } else {
+  } else if (value) {
     Editor.addMark(editor, key as string, value);
   }
 }
 
+/**
+ * Check if the every text in the selection has the mark.
+ * @param editor
+ * @param format
+ */
 export function isMarkActive(editor: ReactEditor, format: EditorMarkFormat) {
   const selection = editor.selection;
 
   if (!selection) return false;
+
+  const isExpanded = Range.isExpanded(selection);
+
+  if (isExpanded) {
+    const matches = Array.from(getSelectionNodeEntry(editor) || []);
+
+    return matches.every((match) => {
+      const [node] = match;
+
+      const { text, ...attributes } = node;
+
+      if (!text) {
+        return true;
+      }
+
+      return !!(attributes as Record<string, boolean | string>)[format];
+    });
+  }
+
+  const marks = Editor.marks(editor) as Record<string, string | boolean> | null;
+
+  return marks ? !!marks[format] : false;
+}
+
+function getSelectionNodeEntry(editor: ReactEditor) {
+  const selection = editor.selection;
+
+  if (!selection) return null;
 
   const isExpanded = Range.isExpanded(selection);
 
@@ -40,36 +73,52 @@ export function isMarkActive(editor: ReactEditor, format: EditorMarkFormat) {
       }
     }
 
-    const matches = Array.from(
-      Editor.nodes(editor, {
-        match: Text.isText,
-        at: {
-          anchor,
-          focus,
-        },
-      })
-    );
-
-    return matches.every((match) => {
-      const [node] = match;
-
-      const { text, ...attributes } = node;
-
-      if (!text) {
-        return true;
-      }
-
-      return !!attributes[format];
+    return Editor.nodes(editor, {
+      match: Text.isText,
+      at: {
+        anchor,
+        focus,
+      },
     });
   }
 
-  const marks = Editor.marks(editor) as Record<string, string | boolean> | null;
+  return null;
+}
 
-  return marks ? !!marks[format] : false;
+/**
+ * Get all marks in the current selection.
+ * @param editor
+ */
+export function getAllMarks(editor: ReactEditor) {
+  const selection = editor.selection;
+
+  if (!selection) return null;
+
+  const isExpanded = Range.isExpanded(selection);
+
+  if (isExpanded) {
+    const matches = Array.from(getSelectionNodeEntry(editor) || []);
+
+    const marks: Record<string, string | boolean> = {};
+
+    matches.forEach((match) => {
+      const [node] = match;
+
+      Object.entries(node).forEach(([key, value]) => {
+        if (key !== 'text') {
+          marks[key] = value;
+        }
+      });
+    });
+
+    return marks;
+  }
+
+  return Editor.marks(editor) as Record<string, string | boolean> | null;
 }
 
 export function removeMarks(editor: ReactEditor) {
-  const marks = Editor.marks(editor);
+  const marks = getAllMarks(editor);
 
   if (!marks) return;
 

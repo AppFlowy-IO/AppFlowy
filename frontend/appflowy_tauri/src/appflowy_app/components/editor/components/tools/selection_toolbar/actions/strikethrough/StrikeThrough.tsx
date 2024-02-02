@@ -1,15 +1,17 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import ActionButton from '$app/components/editor/components/tools/selection_toolbar/actions/_shared/ActionButton';
 import { useTranslation } from 'react-i18next';
 import { useSlateStatic } from 'slate-react';
 import { CustomEditor } from '$app/components/editor/command';
 import { ReactComponent as StrikeThroughSvg } from '$app/assets/strikethrough.svg';
 import { EditorMarkFormat } from '$app/application/document/document.types';
+import { getHotKey } from '$app/components/editor/plugins/shortcuts';
 
 export function StrikeThrough() {
   const { t } = useTranslation();
   const editor = useSlateStatic();
   const isActivated = CustomEditor.isMarkActive(editor, EditorMarkFormat.StrikeThrough);
+  const modifier = useMemo(() => getHotKey(EditorMarkFormat.StrikeThrough).modifier, []);
 
   const onClick = useCallback(() => {
     CustomEditor.toggleMark(editor, {
@@ -19,7 +21,16 @@ export function StrikeThrough() {
   }, [editor]);
 
   return (
-    <ActionButton onClick={onClick} active={isActivated} tooltip={t('editor.strikethrough')}>
+    <ActionButton
+      onClick={onClick}
+      active={isActivated}
+      tooltip={
+        <>
+          <div>{t('editor.strikethrough')}</div>
+          <div className={'text-xs text-text-caption'}>{modifier}</div>
+        </>
+      }
+    >
       <StrikeThroughSvg />
     </ActionButton>
   );
