@@ -73,6 +73,9 @@ pub struct UploadFileParamsPB {
   #[pb(index = 2)]
   #[validate(custom = "required_valid_path")]
   pub local_file_path: String,
+
+  #[pb(index = 3)]
+  pub is_async: bool,
 }
 
 #[derive(Default, ProtoBuf, Validate)]

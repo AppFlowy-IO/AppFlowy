@@ -254,18 +254,25 @@ impl DocumentManager {
     &self,
     workspace_id: String,
     local_file_path: &str,
+    is_async: bool,
   ) -> FlowyResult<String> {
     let (object_identity, object_value) = object_from_disk(&workspace_id, local_file_path).await?;
     let storage_service = self.storage_service_upgrade()?;
     let url = storage_service.get_object_url(object_identity).await?;
 
-    // let the upload happen in the background
     let clone_url = url.clone();
-    af_spawn(async move {
-      if let Err(e) = storage_service.put_object(clone_url, object_value).await {
-        error!("upload file failed: {}", e);
-      }
-    });
+
+    match is_async {
+      false => storage_service.put_object(clone_url, object_value).await?,
+      true => {
+        // let the upload happen in the background
+        af_spawn(async move {
+          if let Err(e) = storage_service.put_object(clone_url, object_value).await {
+            error!("upload file failed: {}", e);
+          }
+        });
+      },
+    }
     Ok(url)
   }
 
