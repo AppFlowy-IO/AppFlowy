@@ -63,66 +63,56 @@ impl TryFrom<FilterMap> for Filter {
 }
 #[derive(Debug)]
 pub struct FilterChangeset {
-  pub(crate) insert_filter: Option<FilterType>,
-  pub(crate) update_filter: Option<UpdatedFilterType>,
-  pub(crate) delete_filter: Option<FilterType>,
+  pub(crate) insert_filter: Option<Filter>,
+  pub(crate) update_filter: Option<UpdatedFilter>,
+  pub(crate) delete_filter: Option<FilterContext>,
 }
 
 #[derive(Debug)]
-pub struct UpdatedFilterType {
-  pub old: Option<FilterType>,
-  pub new: FilterType,
+pub struct UpdatedFilter {
+  pub old: Option<Filter>,
+  pub new: Filter,
 }
 
-impl UpdatedFilterType {
-  pub fn new(old: Option<FilterType>, new: FilterType) -> UpdatedFilterType {
+impl UpdatedFilter {
+  pub fn new(old: Option<Filter>, new: Filter) -> UpdatedFilter {
     Self { old, new }
   }
 }
 
 impl FilterChangeset {
-  pub fn from_insert(filter_type: FilterType) -> Self {
+  pub fn from_insert(filter: Filter) -> Self {
     Self {
-      insert_filter: Some(filter_type),
+      insert_filter: Some(filter),
       update_filter: None,
       delete_filter: None,
     }
   }
 
-  pub fn from_update(filter_type: UpdatedFilterType) -> Self {
+  pub fn from_update(filter: UpdatedFilter) -> Self {
     Self {
       insert_filter: None,
-      update_filter: Some(filter_type),
+      update_filter: Some(filter),
       delete_filter: None,
     }
   }
-  pub fn from_delete(filter_type: FilterType) -> Self {
+  pub fn from_delete(filter_context: FilterContext) -> Self {
     Self {
       insert_filter: None,
       update_filter: None,
-      delete_filter: Some(filter_type),
+      delete_filter: Some(filter_context),
     }
   }
 }
 
-#[derive(Hash, Eq, PartialEq, Debug, Clone)]
-pub struct FilterType {
+#[derive(Debug, Clone)]
+pub struct FilterContext {
   pub filter_id: String,
   pub field_id: String,
   pub field_type: FieldType,
 }
 
-impl std::convert::From<&Filter> for FilterType {
-  fn from(filter: &Filter) -> Self {
-    Self {
-      filter_id: filter.id.clone(),
-      field_id: filter.field_id.clone(),
-      field_type: filter.field_type,
-    }
-  }
-}
-
-impl std::convert::From<&FilterPB> for FilterType {
+impl From<&FilterPB> for FilterContext {
   fn from(filter: &FilterPB) -> Self {
     Self {
       filter_id: filter.id.clone(),

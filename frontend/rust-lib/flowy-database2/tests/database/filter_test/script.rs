@@ -7,13 +7,13 @@ use std::time::Duration;
 
 use bytes::Bytes;
 use collab_database::rows::{Row, RowId};
+use flowy_database2::services::filter::{Filter, FilterContext};
 use futures::TryFutureExt;
 use tokio::sync::broadcast::Receiver;
 
 use flowy_database2::entities::{CheckboxFilterConditionPB, CheckboxFilterPB, ChecklistFilterConditionPB, ChecklistFilterPB, DatabaseViewSettingPB, DateFilterConditionPB, DateFilterPB, DeleteFilterPayloadPB, FieldType, FilterPB, NumberFilterConditionPB, NumberFilterPB, SelectOptionConditionPB, SelectOptionFilterPB, SelectOptionPB, TextFilterConditionPB, TextFilterPB, UpdateFilterParams, UpdateFilterPayloadPB};
 use flowy_database2::services::database_view::DatabaseViewChanged;
 use flowy_database2::services::field::SelectOption;
-use flowy_database2::services::filter::FilterType;
 use lib_dispatch::prelude::af_spawn;
 
 use crate::database::database_editor::DatabaseEditorTest;
@@ -85,8 +85,7 @@ pub enum FilterScript {
         count: i32,
     },
     DeleteFilter {
-        filter_id: String,
-        filter_type: FilterType,
+        filter_context: FilterContext,
         changed: Option<FilterRowChanged>,
     },
     AssertFilterContent {
@@ -255,10 +254,10 @@ impl DatabaseFilterTest {
                 assert_eq!(filter.condition, condition);
 
             }
-            FilterScript::DeleteFilter {  filter_id, filter_type ,changed} => {
+            FilterScript::DeleteFilter {  filter_context, changed} => {
                 self.recv = Some(self.editor.subscribe_view_changed(&self.view_id()).await.unwrap());
                 self.assert_future_changed(changed).await;
-                let params = DeleteFilterPayloadPB { filter_id, view_id: self.view_id(),field_id: filter_type.field_id, field_type: filter_type.field_type };
+                let params = DeleteFilterPayloadPB { filter_id: filter_context.filter_id, view_id: self.view_id(),field_id: filter_context.field_id, field_type: filter_context.field_type };
                 let _ = self.editor.delete_filter(params).await.unwrap();
             }
             FilterScript::AssertGridSetting { expected_setting } => {
