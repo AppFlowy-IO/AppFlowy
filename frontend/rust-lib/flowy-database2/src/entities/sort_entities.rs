@@ -42,6 +42,15 @@ impl std::convert::From<Sort> for SortPB {
 }
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
+pub struct SortWithIndexPB {
+  #[pb(index = 1)]
+  pub index: u32,
+
+  #[pb(index = 2)]
+  pub sort: SortPB,
+}
+
+#[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct RepeatedSortPB {
   #[pb(index = 1)]
   pub items: Vec<SortPB>,
@@ -105,10 +114,26 @@ pub struct UpdateSortPayloadPB {
 
   /// Create a new sort if the sort_id is None
   #[pb(index = 4, one_of)]
+  #[validate(custom = "super::utils::validate_sort_id")]
   pub sort_id: Option<String>,
 
   #[pb(index = 5)]
   pub condition: SortConditionPB,
+}
+
+#[derive(Debug, Default, Clone, Validate, ProtoBuf)]
+pub struct ReorderSortPayloadPB {
+  #[pb(index = 1)]
+  #[validate(custom = "lib_infra::validator_fn::required_not_empty_str")]
+  pub view_id: String,
+
+  #[pb(index = 2)]
+  #[validate(custom = "super::utils::validate_sort_id")]
+  pub from_sort_id: String,
+
+  #[pb(index = 3)]
+  #[validate(custom = "super::utils::validate_sort_id")]
+  pub to_sort_id: String,
 }
 
 #[derive(ProtoBuf, Debug, Default, Clone, Validate)]
@@ -118,7 +143,7 @@ pub struct DeleteSortPayloadPB {
   pub view_id: String,
 
   #[pb(index = 2)]
-  #[validate(custom = "lib_infra::validator_fn::required_not_empty_str")]
+  #[validate(custom = "super::utils::validate_sort_id")]
   pub sort_id: String,
 }
 
@@ -128,7 +153,7 @@ pub struct SortChangesetNotificationPB {
   pub view_id: String,
 
   #[pb(index = 2)]
-  pub insert_sorts: Vec<SortPB>,
+  pub insert_sorts: Vec<SortWithIndexPB>,
 
   #[pb(index = 3)]
   pub delete_sorts: Vec<SortPB>,

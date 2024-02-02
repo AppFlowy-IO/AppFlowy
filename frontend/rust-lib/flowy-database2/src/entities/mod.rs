@@ -35,3 +35,25 @@ pub use share_entities::*;
 pub use sort_entities::*;
 pub use type_option_entities::*;
 pub use view_entities::*;
+
+mod utils {
+  use fancy_regex::Regex;
+  use lib_infra::impl_regex_validator;
+  use validator::ValidationError;
+
+  impl_regex_validator!(
+    validate_filter_id,
+    Regex::new(r"^f:[A-Za-z0-9_-]{6}$").unwrap(),
+    "invalid filter_id"
+  );
+  impl_regex_validator!(
+    validate_sort_id,
+    Regex::new(r"^s:[A-Za-z0-9_-]{6}$").unwrap(),
+    "invalid sort_id"
+  );
+  impl_regex_validator!(
+    validate_group_id,
+    Regex::new(r"^g:[A-Za-z0-9_-]{6}$").unwrap(),
+    "invalid group_id"
+  );
+}

@@ -169,6 +169,7 @@ class _DatabasePropertyCellState extends State<DatabasePropertyCell> {
               FlowySvg(
                 widget.fieldInfo.fieldType.svgData,
                 color: Theme.of(context).iconTheme.color,
+                size: const Size.square(16),
               ),
             ],
           ),

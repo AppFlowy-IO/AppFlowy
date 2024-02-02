@@ -31,27 +31,25 @@ class SortMenu extends StatelessWidget {
       )..add(const SortMenuEvent.initial()),
       child: BlocBuilder<SortMenuBloc, SortMenuState>(
         builder: (context, state) {
-          if (state.sortInfos.isNotEmpty) {
-            return AppFlowyPopover(
-              controller: PopoverController(),
-              constraints: BoxConstraints.loose(const Size(320, 200)),
-              direction: PopoverDirection.bottomWithLeftAligned,
-              offset: const Offset(0, 5),
-              popupBuilder: (BuildContext popoverContext) {
-                return SingleChildScrollView(
-                  child: SortEditor(
-                    viewId: state.viewId,
-                    fieldController:
-                        context.read<SortMenuBloc>().fieldController,
-                    sortInfos: state.sortInfos,
-                  ),
-                );
-              },
-              child: SortChoiceChip(sortInfos: state.sortInfos),
-            );
+          if (state.sortInfos.isEmpty) {
+            return const SizedBox.shrink();
           }
 
-          return const SizedBox.shrink();
+          return AppFlowyPopover(
+            controller: PopoverController(),
+            constraints: BoxConstraints.loose(const Size(320, 200)),
+            direction: PopoverDirection.bottomWithLeftAligned,
+            offset: const Offset(0, 5),
+            margin: const EdgeInsets.fromLTRB(6.0, 0.0, 6.0, 6.0),
+            popupBuilder: (BuildContext popoverContext) {
+              return SortEditor(
+                viewId: state.viewId,
+                fieldController: context.read<SortMenuBloc>().fieldController,
+                sortInfos: state.sortInfos,
+              );
+            },
+            child: SortChoiceChip(sortInfos: state.sortInfos),
+          );
         },
       ),
     );

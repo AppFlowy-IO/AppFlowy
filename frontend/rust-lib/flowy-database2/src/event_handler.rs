@@ -88,28 +88,32 @@ pub(crate) async fn update_database_setting_handler(
 ) -> Result<(), FlowyError> {
   let manager = upgrade_manager(manager)?;
   let params = data.try_into_inner()?;
-  let editor = manager.get_database_with_view_id(&params.view_id).await?;
+  let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
 
   if let Some(update_filter) = params.update_filter {
-    editor
+    database_editor
       .create_or_update_filter(update_filter.try_into()?)
       .await?;
   }
 
   if let Some(delete_filter) = params.delete_filter {
-    editor.delete_filter(delete_filter).await?;
+    database_editor.delete_filter(delete_filter).await?;
   }
 
   if let Some(update_sort) = params.update_sort {
-    let _ = editor.create_or_update_sort(update_sort).await?;
+    let _ = database_editor.create_or_update_sort(update_sort).await?;
+  }
+
+  if let Some(reorder_sort) = params.reorder_sort {
+    database_editor.reorder_sort(reorder_sort).await?;
   }
 
   if let Some(delete_sort) = params.delete_sort {
-    editor.delete_sort(delete_sort).await?;
+    database_editor.delete_sort(delete_sort).await?;
   }
 
   if let Some(layout_type) = params.layout_type {
-    editor
+    database_editor
       .update_view_layout(&params.view_id, layout_type.into())
       .await?;
   }
