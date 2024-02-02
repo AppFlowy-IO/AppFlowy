@@ -84,8 +84,8 @@ pub extern "C" fn init_sdk(_port: i64, data: *mut c_char) -> i64 {
   let runtime = Arc::new(AFPluginRuntime::new().unwrap());
   let cloned_runtime = runtime.clone();
   // let isolate = allo_isolate::Isolate::new(port);
-  runtime.block_on(async move {
-    *APPFLOWY_CORE.0.lock() = Some(AppFlowyCore::new(config, cloned_runtime).await);
+  *APPFLOWY_CORE.0.lock() = runtime.block_on(async move {
+    Some(AppFlowyCore::new(config, cloned_runtime).await)
     // isolate.post("".to_string());
   });
   0
