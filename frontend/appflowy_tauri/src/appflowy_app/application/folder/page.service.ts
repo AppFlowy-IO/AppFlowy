@@ -49,8 +49,7 @@ export const createOrphanPage = async (
   return Promise.reject(result.val);
 };
 
-export const duplicatePage = async (id: string) => {
-  const page = await getPage(id);
+export const duplicatePage = async (page: Page) => {
   const payload = ViewPB.fromObject(page);
 
   const result = await FolderEventDuplicateView(payload);

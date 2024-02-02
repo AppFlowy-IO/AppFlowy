@@ -61,7 +61,7 @@ function LanguageSetting({
             }}
           >
             {languages.map((option) => (
-              <MenuItem key={option.key} value={option.key}>
+              <MenuItem key={option.key} className={'my-1 w-full rounded-none px-2 py-1 text-xs'} value={option.key}>
                 {option.title}
               </MenuItem>
             ))}

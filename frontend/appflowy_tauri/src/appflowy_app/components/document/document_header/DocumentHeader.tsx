@@ -19,7 +19,7 @@ export function DocumentHeader({ page }: DocumentHeaderProps) {
 
   if (!page) return null;
   return (
-    <div className={'document-header px-16 pt-4'}>
+    <div className={'document-header select-none px-16 pt-4'}>
       <ViewTitle showTitle={false} onUpdateIcon={onUpdateIcon} view={page} />
     </div>
   );

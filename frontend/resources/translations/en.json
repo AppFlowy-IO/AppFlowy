@@ -870,7 +870,9 @@
       "page": {
         "label": "Link to page",
         "tooltip": "Click to open page"
-      }
+      },
+      "deleted": "Deleted",
+      "deletedContent": "This content does not exist or has been deleted"
     },
     "toolbar": {
       "resetToDefaultFont": "Reset to default"

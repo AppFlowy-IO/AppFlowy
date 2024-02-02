@@ -138,6 +138,7 @@ export interface MentionPage {
   id: string;
   name: string;
   layout: ViewLayoutPB;
+  parentId: string;
   icon?: {
     ty: ViewIconTypePB;
     value: string;
