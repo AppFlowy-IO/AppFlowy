@@ -7,7 +7,7 @@ use collab_database::rows::RowId;
 use futures::stream::StreamExt;
 use tokio::sync::broadcast::Receiver;
 
-use flowy_database2::entities::{DeleteSortParams, FieldType, UpdateSortParams};
+use flowy_database2::entities::{DeleteSortPayloadPB, FieldType, UpdateSortPayloadPB};
 use flowy_database2::services::cell::stringify_cell_data;
 use flowy_database2::services::database_view::DatabaseViewChanged;
 use flowy_database2::services::sort::{Sort, SortCondition};
@@ -70,12 +70,12 @@ impl DatabaseSortTest {
             .await
             .unwrap(),
         );
-        let params = UpdateSortParams {
+        let params = UpdateSortPayloadPB {
           view_id: self.view_id.clone(),
           field_id: field.id.clone(),
           sort_id: None,
           field_type: FieldType::from(field.field_type),
-          condition,
+          condition: condition.into(),
         };
         let sort_rev = self.editor.create_or_update_sort(params).await.unwrap();
         self.current_sort_rev = Some(sort_rev);
@@ -88,7 +88,7 @@ impl DatabaseSortTest {
             .await
             .unwrap(),
         );
-        let params = DeleteSortParams {
+        let params = DeleteSortPayloadPB {
           view_id: self.view_id.clone(),
           sort_id,
         };

@@ -1,7 +1,6 @@
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use flowy_error::ErrorCode;
+use validator::Validate;
 
-use crate::entities::parser::NotEmptyStr;
 use crate::entities::FieldType;
 use crate::services::sort::{Sort, SortCondition};
 
@@ -91,12 +90,14 @@ impl std::convert::From<SortConditionPB> for SortCondition {
   }
 }
 
-#[derive(ProtoBuf, Debug, Default, Clone)]
+#[derive(ProtoBuf, Debug, Default, Clone, Validate)]
 pub struct UpdateSortPayloadPB {
   #[pb(index = 1)]
+  #[validate(custom = "lib_infra::validator_fn::required_not_empty_str")]
   pub view_id: String,
 
   #[pb(index = 2)]
+  #[validate(custom = "lib_infra::validator_fn::required_not_empty_str")]
   pub field_id: String,
 
   #[pb(index = 3)]
@@ -110,75 +111,14 @@ pub struct UpdateSortPayloadPB {
   pub condition: SortConditionPB,
 }
 
-impl TryInto<UpdateSortParams> for UpdateSortPayloadPB {
-  type Error = ErrorCode;
-
-  fn try_into(self) -> Result<UpdateSortParams, Self::Error> {
-    let view_id = NotEmptyStr::parse(self.view_id)
-      .map_err(|_| ErrorCode::DatabaseViewIdIsEmpty)?
-      .0;
-
-    let field_id = NotEmptyStr::parse(self.field_id)
-      .map_err(|_| ErrorCode::FieldIdIsEmpty)?
-      .0;
-
-    let sort_id = match self.sort_id {
-      None => None,
-      Some(sort_id) => Some(
-        NotEmptyStr::parse(sort_id)
-          .map_err(|_| ErrorCode::SortIdIsEmpty)?
-          .0,
-      ),
-    };
-
-    Ok(UpdateSortParams {
-      view_id,
-      field_id,
-      sort_id,
-      field_type: self.field_type,
-      condition: self.condition.into(),
-    })
-  }
-}
-
-#[derive(Debug)]
-pub struct UpdateSortParams {
-  pub view_id: String,
-  pub field_id: String,
-  /// Create a new sort if the sort is None
-  pub sort_id: Option<String>,
-  pub field_type: FieldType,
-  pub condition: SortCondition,
-}
-
-#[derive(ProtoBuf, Debug, Default, Clone)]
+#[derive(ProtoBuf, Debug, Default, Clone, Validate)]
 pub struct DeleteSortPayloadPB {
   #[pb(index = 1)]
+  #[validate(custom = "lib_infra::validator_fn::required_not_empty_str")]
   pub view_id: String,
 
   #[pb(index = 2)]
-  pub sort_id: String,
-}
-
-impl TryInto<DeleteSortParams> for DeleteSortPayloadPB {
-  type Error = ErrorCode;
-
-  fn try_into(self) -> Result<DeleteSortParams, Self::Error> {
-    let view_id = NotEmptyStr::parse(self.view_id)
-      .map_err(|_| ErrorCode::DatabaseViewIdIsEmpty)?
-      .0;
-
-    let sort_id = NotEmptyStr::parse(self.sort_id)
-      .map_err(|_| ErrorCode::UnexpectedEmpty)?
-      .0;
-
-    Ok(DeleteSortParams { view_id, sort_id })
-  }
-}
-
-#[derive(Debug, Clone)]
-pub struct DeleteSortParams {
-  pub view_id: String,
+  #[validate(custom = "lib_infra::validator_fn::required_not_empty_str")]
   pub sort_id: String,
 }
 

@@ -2,6 +2,7 @@ use std::convert::TryInto;
 
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
+use validator::Validate;
 
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::RowMetaPB;
@@ -130,15 +131,18 @@ pub struct GroupByFieldParams {
   pub view_id: String,
 }
 
-#[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
+#[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone, Validate)]
 pub struct UpdateGroupPB {
   #[pb(index = 1)]
+  #[validate(custom = "lib_infra::validator_fn::required_not_empty_str")]
   pub view_id: String,
 
   #[pb(index = 2)]
+  #[validate(custom = "lib_infra::validator_fn::required_not_empty_str")]
   pub group_id: String,
 
   #[pb(index = 3)]
+  #[validate(custom = "lib_infra::validator_fn::required_not_empty_str")]
   pub field_id: String,
 
   #[pb(index = 4, one_of)]

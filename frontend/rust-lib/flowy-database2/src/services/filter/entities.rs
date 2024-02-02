@@ -3,7 +3,7 @@ use collab::core::any_map::AnyMapExtension;
 use collab_database::rows::RowId;
 use collab_database::views::{FilterMap, FilterMapBuilder};
 
-use crate::entities::{DeleteFilterParams, FieldType, FilterPB, InsertedRowPB};
+use crate::entities::{FieldType, FilterPB, InsertedRowPB};
 
 #[derive(Debug, Clone)]
 pub struct Filter {
@@ -129,29 +129,6 @@ impl std::convert::From<&FilterPB> for FilterType {
       field_id: filter.field_id.clone(),
       field_type: filter.field_type,
     }
-  }
-}
-
-// #[derive(Hash, Eq, PartialEq, Debug, Clone)]
-// pub struct InsertedFilterType {
-//   pub field_id: String,
-//   pub filter_id: Option<String>,
-//   pub field_type: FieldType,
-// }
-//
-// impl std::convert::From<&Filter> for InsertedFilterType {
-//   fn from(params: &Filter) -> Self {
-//     Self {
-//       field_id: params.field_id.clone(),
-//       filter_id: Some(params.id.clone()),
-//       field_type: params.field_type.clone(),
-//     }
-//   }
-// }
-
-impl std::convert::From<&DeleteFilterParams> for FilterType {
-  fn from(params: &DeleteFilterParams) -> Self {
-    params.filter_type.clone()
   }
 }
 
