@@ -1,6 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
+import 'package:appflowy/mobile/presentation/bottom_sheet/show_transition_bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_quick_action_button.dart';
 import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
@@ -33,15 +33,11 @@ class MobileDatabaseViewQuickActions extends StatelessWidget {
         _actionButton(context, _Action.edit, () {
           final bloc = context.read<ViewBloc>();
           context.pop();
-          showMobileBottomSheet(
+          showTransitionMobileBottomSheet(
             context,
             showHeader: true,
             showDoneButton: true,
             title: LocaleKeys.grid_settings_editView.tr(),
-            enableDraggableScrollable: true,
-            initialChildSize: 0.98,
-            minChildSize: 0.98,
-            maxChildSize: 0.98,
             builder: (_) => BlocProvider.value(
               value: bloc,
               child: MobileEditDatabaseViewScreen(

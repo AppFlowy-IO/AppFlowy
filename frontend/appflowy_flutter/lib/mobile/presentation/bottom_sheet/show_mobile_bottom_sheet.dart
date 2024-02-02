@@ -79,7 +79,7 @@ Future<T?> showMobileBottomSheet<T>(
 
       if (showHeader) {
         children.add(
-          _Header(
+          Header(
             showCloseButton: showCloseButton,
             showBackButton: showBackButton,
             showDoneButton: showDoneButton,
@@ -152,8 +152,9 @@ Future<T?> showMobileBottomSheet<T>(
   );
 }
 
-class _Header extends StatelessWidget {
-  const _Header({
+class Header extends StatelessWidget {
+  const Header({
+    super.key,
     required this.showBackButton,
     required this.showCloseButton,
     required this.title,

@@ -1602,6 +1602,15 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.3.2"
+  sheet:
+    dependency: "direct main"
+    description:
+      path: sheet
+      ref: "8ee20bd"
+      resolved-ref: "8ee20bd36acaeb36996a09ba9d0f9e7059bb49df"
+      url: "https://github.com/richardshiue/modal_bottom_sheet"
+    source: git
+    version: "1.0.0-pre"
   shelf:
     dependency: transitive
     description:
