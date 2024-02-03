@@ -1,7 +1,11 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/mobile/presentation/bottom_sheet/show_mobile_bottom_sheet.dart';
+import 'package:appflowy/mobile/presentation/database/view/database_view_list.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
 import 'package:appflowy/plugins/database/application/tab_bar_bloc.dart';
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database/widgets/setting/mobile_database_controls.dart';
+import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:collection/collection.dart';
@@ -24,10 +28,11 @@ class _MobileTabBarHeaderState extends State<MobileTabBarHeader> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 14),
       child: Row(
-        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Expanded(child: _DatabaseViewList()),
-          const HSpace(10),
+          HSpace(GridSize.leadingHeaderPadding),
+          const _DatabaseViewSelectorButton(),
+          const Spacer(),
           BlocBuilder<DatabaseTabBarBloc, DatabaseTabBarState>(
             builder: (context, state) {
               final currentView = state.tabBars.firstWhereIndexedOrNull(
@@ -51,131 +56,77 @@ class _MobileTabBarHeaderState extends State<MobileTabBarHeader> {
   }
 }
 
-class _DatabaseViewList extends StatelessWidget {
-  const _DatabaseViewList();
+class _DatabaseViewSelectorButton extends StatelessWidget {
+  const _DatabaseViewSelectorButton();
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<DatabaseTabBarBloc, DatabaseTabBarState>(
       builder: (context, state) {
-        final currentView = state.tabBars.firstWhereIndexedOrNull(
+        final tabBar = state.tabBars.firstWhereIndexedOrNull(
           (index, tabBar) => index == state.selectedIndex,
         );
 
-        if (currentView == null) {
+        if (tabBar == null) {
           return const SizedBox.shrink();
         }
 
-        final children = state.tabBars.mapIndexed<Widget>((index, tabBar) {
-          return Padding(
-            padding: EdgeInsetsDirectional.only(
-              start: index == 0 ? 0 : 2,
-              end: 2,
+        return TextButton(
+          style: ButtonStyle(
+            padding: const MaterialStatePropertyAll(
+              EdgeInsets.fromLTRB(12, 8, 8, 8),
             ),
-            child: _DatabaseViewListItem(
-              tabBar: tabBar,
-              isSelected: currentView.viewId == tabBar.viewId,
+            maximumSize: const MaterialStatePropertyAll(Size(200, 48)),
+            minimumSize: const MaterialStatePropertyAll(Size(48, 0)),
+            shape: const MaterialStatePropertyAll(
+              RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(12)),
+              ),
             ),
-          );
-        }).toList();
-
-        children.insert(0, HSpace(GridSize.leadingHeaderPadding));
-
-        return SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(children: children),
+            backgroundColor: const MaterialStatePropertyAll(Color(0x0F212729)),
+            overlayColor: MaterialStatePropertyAll(
+              Theme.of(context).colorScheme.secondary,
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildViewIconButton(context, tabBar.view),
+              const HSpace(6),
+              Flexible(
+                child: FlowyText.medium(
+                  tabBar.view.name,
+                  fontSize: 13,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const HSpace(8),
+              const FlowySvg(
+                FlowySvgs.arrow_tight_s,
+                size: Size.square(10),
+              ),
+            ],
+          ),
+          onPressed: () {
+            showMobileBottomSheet(
+              context,
+              showDivider: false,
+              builder: (_) {
+                return MultiBlocProvider(
+                  providers: [
+                    BlocProvider<ViewBloc>.value(
+                      value: context.read<ViewBloc>(),
+                    ),
+                    BlocProvider<DatabaseTabBarBloc>.value(
+                      value: context.read<DatabaseTabBarBloc>(),
+                    ),
+                  ],
+                  child: const MobileDatabaseViewList(),
+                );
+              },
+            );
+          },
         );
-      },
-    );
-  }
-}
-
-class _DatabaseViewListItem extends StatefulWidget {
-  const _DatabaseViewListItem({
-    required this.tabBar,
-    required this.isSelected,
-  });
-
-  final DatabaseTabBar tabBar;
-  final bool isSelected;
-
-  @override
-  State<_DatabaseViewListItem> createState() => _DatabaseViewListItemState();
-}
-
-class _DatabaseViewListItemState extends State<_DatabaseViewListItem> {
-  late final MaterialStatesController statesController;
-
-  @override
-  void initState() {
-    super.initState();
-    statesController = MaterialStatesController(
-      <MaterialState>{if (widget.isSelected) MaterialState.selected},
-    );
-  }
-
-  @override
-  void didUpdateWidget(covariant oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.isSelected != oldWidget.isSelected) {
-      statesController.update(MaterialState.selected, widget.isSelected);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return TextButton(
-      statesController: statesController,
-      style: ButtonStyle(
-        padding: const MaterialStatePropertyAll(
-          EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-        ),
-        maximumSize: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.selected)) {
-            return const Size(150, 48);
-          }
-          return const Size(120, 48);
-        }),
-        minimumSize: const MaterialStatePropertyAll(Size(48, 0)),
-        shape: const MaterialStatePropertyAll(
-          RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(12)),
-          ),
-        ),
-        backgroundColor: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.selected)) {
-            return const Color(0x0F212729);
-          }
-          return Colors.transparent;
-        }),
-        overlayColor: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.selected)) {
-            return Colors.transparent;
-          }
-          return Theme.of(context).colorScheme.secondary;
-        }),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _buildViewIconButton(context, widget.tabBar.view),
-          const HSpace(6),
-          Flexible(
-            child: FlowyText(
-              widget.tabBar.view.name,
-              fontSize: 14,
-              fontWeight: widget.isSelected ? FontWeight.w500 : FontWeight.w400,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ],
-      ),
-      onPressed: () {
-        if (!widget.isSelected) {
-          context
-              .read<DatabaseTabBarBloc>()
-              .add(DatabaseTabBarEvent.selectView(widget.tabBar.viewId));
-        }
       },
     );
   }

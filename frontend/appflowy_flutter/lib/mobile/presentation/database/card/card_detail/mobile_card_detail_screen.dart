@@ -81,6 +81,7 @@ class _MobileRowDetailPageState extends State<MobileRowDetailPage> {
       child: Scaffold(
         appBar: FlowyAppBar(
           leadingType: FlowyAppBarLeadingType.close,
+          showDivider: false,
           actions: [
             AppBarMoreButton(
               onTap: (_) => _showCardActions(context),
