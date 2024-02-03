@@ -62,7 +62,7 @@ custom-protocol = ["tauri/custom-protocol"]
 # Run the script:
 # scripts/tool/update_client_api_rev.sh  new_rev_id
 # ⚠️⚠️⚠️️
-client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "0875329a4311eca5376804a0b8e39dedddbbaadc" }
+client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "820ffe2aca5d93a5efef43fed1b49e507fdb10bb" }
 # Please use the following script to update collab.
 # Working directory: frontend
 #
