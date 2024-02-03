@@ -411,10 +411,13 @@ pub(crate) async fn upload_file_handler(
   let AFPluginData(UploadFileParamsPB {
     workspace_id,
     local_file_path,
+    is_async,
   }) = params;
 
   let manager = upgrade_document(manager)?;
-  let url = manager.upload_file(workspace_id, &local_file_path).await?;
+  let url = manager
+    .upload_file(workspace_id, &local_file_path, is_async)
+    .await?;
 
   Ok(AFPluginData(UploadedFilePB {
     url,

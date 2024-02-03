@@ -109,3 +109,10 @@ pub struct UserWorkspaceIdPB {
   #[validate(custom = "required_not_empty_str")]
   pub workspace_id: String,
 }
+
+#[derive(ProtoBuf, Default, Clone, Validate)]
+pub struct CreateWorkspacePB {
+  #[pb(index = 1)]
+  #[validate(custom = "required_not_empty_str")]
+  pub name: String,
+}

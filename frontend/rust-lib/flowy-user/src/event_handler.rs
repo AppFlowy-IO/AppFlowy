@@ -466,7 +466,7 @@ pub async fn get_all_workspace_handler(
 ) -> DataResult<RepeatedUserWorkspacePB, FlowyError> {
   let manager = upgrade_manager(manager)?;
   let uid = manager.get_session()?.user_id;
-  let user_workspaces = manager.get_all_user_workspaces(uid)?;
+  let user_workspaces = manager.get_all_user_workspaces(uid).await?;
   data_result_ok(user_workspaces.into())
 }
 
@@ -650,5 +650,27 @@ pub async fn update_workspace_member_handler(
   manager
     .update_workspace_member(data.email, data.workspace_id, data.role.into())
     .await?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn create_workspace_handler(
+  data: AFPluginData<CreateWorkspacePB>,
+  manager: AFPluginState<Weak<UserManager>>,
+) -> DataResult<UserWorkspacePB, FlowyError> {
+  let data = data.try_into_inner()?;
+  let manager = upgrade_manager(manager)?;
+  let new_workspace = manager.add_workspace(&data.name).await?;
+  data_result_ok(new_workspace.into())
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn delete_workspace_handler(
+  delete_workspace_param: AFPluginData<UserWorkspaceIdPB>,
+  manager: AFPluginState<Weak<UserManager>>,
+) -> Result<(), FlowyError> {
+  let workspace_id = delete_workspace_param.try_into_inner()?.workspace_id;
+  let manager = upgrade_manager(manager)?;
+  manager.delete_workspace(&workspace_id).await?;
   Ok(())
 }

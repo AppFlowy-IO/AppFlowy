@@ -115,12 +115,24 @@ impl DatabaseEditor {
   /// Returns bool value indicating whether the database is empty.
   ///
   #[tracing::instrument(level = "debug", skip_all)]
-  pub async fn close_view_editor(&self, view_id: &str) -> bool {
+  pub async fn close_view(&self, view_id: &str) -> bool {
+    // If the database is empty, flush the database to the disk.
+    if self.database_views.editors().await.len() == 1 {
+      if let Some(database) = self.database.try_lock() {
+        let _ = database.flush();
+      }
+    }
+    self.database_views.close_view(view_id).await
+  }
+
+  #[tracing::instrument(level = "debug", skip_all)]
+  pub async fn close(&self) {
     if let Some(database) = self.database.try_lock() {
       let _ = database.flush();
     }
-
-    self.database_views.close_view(view_id).await
+    for view in self.database_views.editors().await {
+      view.close().await;
+    }
   }
 
   pub async fn get_layout_type(&self, view_id: &str) -> DatabaseLayout {

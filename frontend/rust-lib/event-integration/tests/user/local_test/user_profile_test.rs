@@ -1,13 +1,8 @@
-use nanoid::nanoid;
-
+use crate::user::local_test::helper::*;
 use event_integration::{event_builder::EventBuilder, EventIntegrationTest};
 use flowy_user::entities::{AuthenticatorPB, UpdateUserProfilePayloadPB, UserProfilePB};
 use flowy_user::{errors::ErrorCode, event_map::UserEvent::*};
-
-use crate::user::local_test::helper::*;
-
-// use serial_test::*;
-
+use nanoid::nanoid;
 #[tokio::test]
 async fn user_profile_get_failed() {
   let sdk = EventIntegrationTest::new().await;

@@ -30,8 +30,7 @@ pub trait FolderCloudService: Send + Sync + 'static {
     limit: usize,
   ) -> FutureResult<Vec<FolderSnapshot>, Error>;
 
-  /// The suffix 'f' in the method name serves as a workaround to avoid naming conflicts with the existing method `get_collab_doc_state`.
-  fn get_collab_doc_state_f(
+  fn get_folder_doc_state(
     &self,
     workspace_id: &str,
     uid: i64,
@@ -39,8 +38,7 @@ pub trait FolderCloudService: Send + Sync + 'static {
     object_id: &str,
   ) -> FutureResult<CollabDocState, Error>;
 
-  /// The suffix 'f' in the method name serves as a workaround to avoid naming conflicts with the existing method `get_collab_doc_state`.
-  fn batch_create_collab_object_f(
+  fn batch_create_folder_collab_objects(
     &self,
     workspace_id: &str,
     objects: Vec<FolderCollabParams>,

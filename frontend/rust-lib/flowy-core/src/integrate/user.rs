@@ -154,7 +154,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
       // for initializing a default workspace differs depending on the sign-up method used.
       let data_source = match folder_manager
         .cloud_service
-        .get_collab_doc_state_f(
+        .get_folder_doc_state(
           &user_workspace.id,
           user_profile.uid,
           CollabType::Folder,

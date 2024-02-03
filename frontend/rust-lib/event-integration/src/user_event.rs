@@ -16,9 +16,9 @@ use flowy_server::af_cloud::define::{USER_DEVICE_ID, USER_EMAIL, USER_SIGN_IN_UR
 use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
 use flowy_server_pub::AuthenticatorType;
 use flowy_user::entities::{
-  AuthenticatorPB, CloudSettingPB, ImportAppFlowyDataPB, OauthSignInPB, SignInUrlPB,
-  SignInUrlPayloadPB, SignUpPayloadPB, UpdateCloudConfigPB, UpdateUserProfilePayloadPB,
-  UserProfilePB,
+  AuthenticatorPB, CloudSettingPB, CreateWorkspacePB, ImportAppFlowyDataPB, OauthSignInPB,
+  RepeatedUserWorkspacePB, SignInUrlPB, SignInUrlPayloadPB, SignUpPayloadPB, UpdateCloudConfigPB,
+  UpdateUserProfilePayloadPB, UserProfilePB, UserWorkspaceIdPB, UserWorkspacePB,
 };
 use flowy_user::errors::{FlowyError, FlowyResult};
 use flowy_user::event_map::UserEvent;
@@ -210,6 +210,48 @@ impl EventIntegrationTest {
       Some(err) => Err(err),
       None => Ok(()),
     }
+  }
+
+  pub async fn create_workspace(&self, name: &str) -> UserWorkspacePB {
+    let payload = CreateWorkspacePB {
+      name: name.to_string(),
+    };
+    EventBuilder::new(self.clone())
+      .event(CreateWorkspace)
+      .payload(payload)
+      .async_send()
+      .await
+      .parse::<UserWorkspacePB>()
+  }
+
+  pub async fn get_all_workspaces(&self) -> RepeatedUserWorkspacePB {
+    EventBuilder::new(self.clone())
+      .event(GetAllWorkspace)
+      .async_send()
+      .await
+      .parse::<RepeatedUserWorkspacePB>()
+  }
+
+  pub async fn delete_workspace(&self, workspace_id: &str) {
+    let payload = UserWorkspaceIdPB {
+      workspace_id: workspace_id.to_string(),
+    };
+    EventBuilder::new(self.clone())
+      .event(DeleteWorkspace)
+      .payload(payload)
+      .async_send()
+      .await;
+  }
+
+  pub async fn open_workspace(&self, workspace_id: &str) {
+    let payload = UserWorkspaceIdPB {
+      workspace_id: workspace_id.to_string(),
+    };
+    EventBuilder::new(self.clone())
+      .event(OpenWorkspace)
+      .payload(payload)
+      .async_send()
+      .await;
   }
 }
 

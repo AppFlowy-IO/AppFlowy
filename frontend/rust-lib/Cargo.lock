@@ -1987,6 +1987,7 @@ dependencies = [
  "collab",
  "collab-document",
  "collab-entity",
+ "collab-folder",
  "collab-plugins",
  "dotenv",
  "flowy-database-pub",
