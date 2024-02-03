@@ -15,11 +15,11 @@ use flowy_error::{FlowyError, FlowyResult};
 use lib_dispatch::prelude::af_spawn;
 
 use crate::entities::{
-  CalendarEventPB, DatabaseLayoutMetaPB, DatabaseLayoutSettingPB, DeleteFilterParams,
-  DeleteSortParams, FieldType, FieldVisibility, GroupChangesPB, GroupPB, InsertedRowPB,
+  CalendarEventPB, DatabaseLayoutMetaPB, DatabaseLayoutSettingPB, DeleteFilterPayloadPB,
+  DeleteSortPayloadPB, FieldType, FieldVisibility, GroupChangesPB, GroupPB, InsertedRowPB,
   LayoutSettingChangeset, LayoutSettingParams, RemoveCalculationChangesetPB, RowMetaPB,
   RowsChangePB, SortChangesetNotificationPB, SortPB, UpdateCalculationChangesetPB,
-  UpdateFilterParams, UpdateSortParams,
+  UpdateFilterParams, UpdateSortPayloadPB,
 };
 use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::calculations::{Calculation, CalculationChangeset, CalculationsController};
@@ -38,11 +38,11 @@ use crate::services::database_view::{
 };
 use crate::services::field_settings::FieldSettings;
 use crate::services::filter::{
-  Filter, FilterChangeset, FilterController, FilterType, UpdatedFilterType,
+  Filter, FilterChangeset, FilterContext, FilterController, UpdatedFilter,
 };
 use crate::services::group::{GroupChangesets, GroupController, MoveGroupRowContext, RowChangeset};
 use crate::services::setting::CalendarLayoutSetting;
-use crate::services::sort::{DeletedSortType, Sort, SortChangeset, SortController, SortType};
+use crate::services::sort::{Sort, SortChangeset, SortController};
 
 use super::notify_did_update_calculation;
 use super::view_calculations::make_calculations_controller;
@@ -499,7 +499,7 @@ impl DatabaseViewEditor {
   }
 
   #[tracing::instrument(level = "trace", skip(self), err)]
-  pub async fn v_insert_sort(&self, params: UpdateSortParams) -> FlowyResult<Sort> {
+  pub async fn insert_or_update_sort(&self, params: UpdateSortPayloadPB) -> FlowyResult<Sort> {
     let is_exist = params.sort_id.is_some();
     let sort_id = match params.sort_id {
       None => gen_database_sort_id(),
@@ -510,18 +510,18 @@ impl DatabaseViewEditor {
       id: sort_id,
       field_id: params.field_id.clone(),
       field_type: params.field_type,
-      condition: params.condition,
+      condition: params.condition.into(),
     };
-    let sort_type = SortType::from(&sort);
+
     let mut sort_controller = self.sort_controller.write().await;
     self.delegate.insert_sort(&self.view_id, sort.clone());
     let changeset = if is_exist {
       sort_controller
-        .did_receive_changes(SortChangeset::from_update(sort_type))
+        .apply_changeset(SortChangeset::from_update(sort.clone()))
         .await
     } else {
       sort_controller
-        .did_receive_changes(SortChangeset::from_insert(sort_type))
+        .apply_changeset(SortChangeset::from_insert(sort.clone()))
         .await
     };
     drop(sort_controller);
@@ -529,18 +529,17 @@ impl DatabaseViewEditor {
     Ok(sort)
   }
 
-  pub async fn v_delete_sort(&self, params: DeleteSortParams) -> FlowyResult<()> {
+  pub async fn v_delete_sort(&self, params: DeleteSortPayloadPB) -> FlowyResult<()> {
     let notification = self
       .sort_controller
       .write()
       .await
-      .did_receive_changes(SortChangeset::from_delete(DeletedSortType::from(
-        params.clone(),
-      )))
+      .apply_changeset(SortChangeset::from_delete(params.sort_id.clone()))
       .await;
 
     self.delegate.remove_sort(&self.view_id, &params.sort_id);
     notify_did_update_sort(notification).await;
+
     Ok(())
   }
 
@@ -635,25 +634,20 @@ impl DatabaseViewEditor {
       condition: params.condition,
       content: params.content,
     };
-    let filter_type = FilterType::from(&filter);
     let filter_controller = self.filter_controller.clone();
     let changeset = if is_exist {
-      let old_filter_type = self
-        .delegate
-        .get_filter(&self.view_id, &filter.id)
-        .map(|field| FilterType::from(&field));
+      let old_filter = self.delegate.get_filter(&self.view_id, &filter.id);
 
-      self.delegate.insert_filter(&self.view_id, filter);
+      self.delegate.insert_filter(&self.view_id, filter.clone());
       filter_controller
-        .did_receive_changes(FilterChangeset::from_update(UpdatedFilterType::new(
-          old_filter_type,
-          filter_type,
+        .did_receive_changes(FilterChangeset::from_update(UpdatedFilter::new(
+          old_filter, filter,
         )))
         .await
     } else {
-      self.delegate.insert_filter(&self.view_id, filter);
+      self.delegate.insert_filter(&self.view_id, filter.clone());
       filter_controller
-        .did_receive_changes(FilterChangeset::from_insert(filter_type))
+        .did_receive_changes(FilterChangeset::from_insert(filter))
         .await
     };
     drop(filter_controller);
@@ -665,16 +659,20 @@ impl DatabaseViewEditor {
   }
 
   #[tracing::instrument(level = "trace", skip(self), err)]
-  pub async fn v_delete_filter(&self, params: DeleteFilterParams) -> FlowyResult<()> {
-    let filter_type = params.filter_type;
+  pub async fn v_delete_filter(&self, params: DeleteFilterPayloadPB) -> FlowyResult<()> {
+    let filter_context = FilterContext {
+      filter_id: params.filter_id.clone(),
+      field_id: params.field_id.clone(),
+      field_type: params.field_type,
+    };
     let changeset = self
       .filter_controller
-      .did_receive_changes(FilterChangeset::from_delete(filter_type.clone()))
+      .did_receive_changes(FilterChangeset::from_delete(filter_context.clone()))
       .await;
 
     self
       .delegate
-      .delete_filter(&self.view_id, &filter_type.filter_id);
+      .delete_filter(&self.view_id, &params.filter_id);
     if changeset.is_some() {
       notify_did_update_filter(changeset.unwrap()).await;
     }
@@ -799,11 +797,12 @@ impl DatabaseViewEditor {
         .delegate
         .get_filter_by_field_id(&self.view_id, field_id)
       {
-        let mut old = FilterType::from(&filter);
-        old.field_type = FieldType::from(old_field.field_type);
-        let new = FilterType::from(&filter);
-        let filter_type = UpdatedFilterType::new(Some(old), new);
-        let filter_changeset = FilterChangeset::from_update(filter_type);
+        let old = Filter {
+          field_type: FieldType::from(old_field.field_type),
+          ..filter.clone()
+        };
+        let updated_filter = UpdatedFilter::new(Some(old), filter);
+        let filter_changeset = FilterChangeset::from_update(updated_filter);
         let filter_controller = self.filter_controller.clone();
         af_spawn(async move {
           if let Some(notification) = filter_controller

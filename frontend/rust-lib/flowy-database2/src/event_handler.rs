@@ -87,27 +87,30 @@ pub(crate) async fn update_database_setting_handler(
   manager: AFPluginState<Weak<DatabaseManager>>,
 ) -> Result<(), FlowyError> {
   let manager = upgrade_manager(manager)?;
-  let params: DatabaseSettingChangesetParams = data.into_inner().try_into()?;
+  let params = data.try_into_inner()?;
   let editor = manager.get_database_with_view_id(&params.view_id).await?;
 
-  if let Some(update_filter) = params.insert_filter {
-    editor.create_or_update_filter(update_filter).await?;
+  if let Some(update_filter) = params.update_filter {
+    editor
+      .create_or_update_filter(update_filter.try_into()?)
+      .await?;
   }
 
   if let Some(delete_filter) = params.delete_filter {
     editor.delete_filter(delete_filter).await?;
   }
 
-  if let Some(update_sort) = params.alert_sort {
+  if let Some(update_sort) = params.update_sort {
     let _ = editor.create_or_update_sort(update_sort).await?;
   }
+
   if let Some(delete_sort) = params.delete_sort {
     editor.delete_sort(delete_sort).await?;
   }
 
   if let Some(layout_type) = params.layout_type {
     editor
-      .update_view_layout(&params.view_id, layout_type)
+      .update_view_layout(&params.view_id, layout_type.into())
       .await?;
   }
   Ok(())

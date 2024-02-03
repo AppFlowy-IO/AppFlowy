@@ -57,8 +57,6 @@ export async function deleteSort(viewId: string, sort: Sort): Promise<void> {
     delete_sort: {
       view_id: viewId,
       sort_id: sort.id,
-      field_id: sort.fieldId,
-      field_type: sort.fieldType,
     },
   });
 

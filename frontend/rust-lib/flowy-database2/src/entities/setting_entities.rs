@@ -5,12 +5,12 @@ use strum_macros::EnumIter;
 
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
+use validator::Validate;
 
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::{
-  CalendarLayoutSettingPB, DeleteFilterParams, DeleteFilterPayloadPB, DeleteSortParams,
-  DeleteSortPayloadPB, RepeatedFieldSettingsPB, RepeatedFilterPB, RepeatedGroupSettingPB,
-  RepeatedSortPB, UpdateFilterParams, UpdateFilterPayloadPB, UpdateGroupPB, UpdateSortParams,
+  CalendarLayoutSettingPB, DeleteFilterPayloadPB, DeleteSortPayloadPB, RepeatedFieldSettingsPB,
+  RepeatedFilterPB, RepeatedGroupSettingPB, RepeatedSortPB, UpdateFilterPayloadPB, UpdateGroupPB,
   UpdateSortPayloadPB,
 };
 use crate::services::setting::{BoardLayoutSetting, CalendarLayoutSetting};
@@ -69,82 +69,34 @@ impl std::convert::From<DatabaseLayoutPB> for DatabaseLayout {
   }
 }
 
-#[derive(Default, ProtoBuf)]
+#[derive(Default, Validate, ProtoBuf)]
 pub struct DatabaseSettingChangesetPB {
   #[pb(index = 1)]
+  #[validate(custom = "lib_infra::validator_fn::required_not_empty_str")]
   pub view_id: String,
 
   #[pb(index = 2, one_of)]
   pub layout_type: Option<DatabaseLayoutPB>,
 
   #[pb(index = 3, one_of)]
+  #[validate]
   pub update_filter: Option<UpdateFilterPayloadPB>,
 
   #[pb(index = 4, one_of)]
+  #[validate]
   pub delete_filter: Option<DeleteFilterPayloadPB>,
 
   #[pb(index = 5, one_of)]
+  #[validate]
   pub update_group: Option<UpdateGroupPB>,
 
   #[pb(index = 6, one_of)]
+  #[validate]
   pub update_sort: Option<UpdateSortPayloadPB>,
 
   #[pb(index = 7, one_of)]
+  #[validate]
   pub delete_sort: Option<DeleteSortPayloadPB>,
-}
-
-impl TryInto<DatabaseSettingChangesetParams> for DatabaseSettingChangesetPB {
-  type Error = ErrorCode;
-
-  fn try_into(self) -> Result<DatabaseSettingChangesetParams, Self::Error> {
-    let view_id = NotEmptyStr::parse(self.view_id)
-      .map_err(|_| ErrorCode::ViewIdIsInvalid)?
-      .0;
-
-    let insert_filter = match self.update_filter {
-      None => None,
-      Some(payload) => Some(payload.try_into()?),
-    };
-
-    let delete_filter = match self.delete_filter {
-      None => None,
-      Some(payload) => Some(payload.try_into()?),
-    };
-
-    let alert_sort = match self.update_sort {
-      None => None,
-      Some(payload) => Some(payload.try_into()?),
-    };
-
-    let delete_sort = match self.delete_sort {
-      None => None,
-      Some(payload) => Some(payload.try_into()?),
-    };
-
-    Ok(DatabaseSettingChangesetParams {
-      view_id,
-      layout_type: self.layout_type.map(|ty| ty.into()),
-      insert_filter,
-      delete_filter,
-      alert_sort,
-      delete_sort,
-    })
-  }
-}
-
-pub struct DatabaseSettingChangesetParams {
-  pub view_id: String,
-  pub layout_type: Option<DatabaseLayout>,
-  pub insert_filter: Option<UpdateFilterParams>,
-  pub delete_filter: Option<DeleteFilterParams>,
-  pub alert_sort: Option<UpdateSortParams>,
-  pub delete_sort: Option<DeleteSortParams>,
-}
-
-impl DatabaseSettingChangesetParams {
-  pub fn is_filter_changed(&self) -> bool {
-    self.insert_filter.is_some() || self.delete_filter.is_some()
-  }
 }
 
 #[derive(Debug, Eq, PartialEq, Default, ProtoBuf, Clone)]

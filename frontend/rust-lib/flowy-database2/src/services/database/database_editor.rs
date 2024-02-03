@@ -208,19 +208,19 @@ impl DatabaseEditor {
     Ok(())
   }
 
-  pub async fn delete_filter(&self, params: DeleteFilterParams) -> FlowyResult<()> {
+  pub async fn delete_filter(&self, params: DeleteFilterPayloadPB) -> FlowyResult<()> {
     let view_editor = self.database_views.get_view_editor(&params.view_id).await?;
     view_editor.v_delete_filter(params).await?;
     Ok(())
   }
 
-  pub async fn create_or_update_sort(&self, params: UpdateSortParams) -> FlowyResult<Sort> {
+  pub async fn create_or_update_sort(&self, params: UpdateSortPayloadPB) -> FlowyResult<Sort> {
     let view_editor = self.database_views.get_view_editor(&params.view_id).await?;
-    let sort = view_editor.v_insert_sort(params).await?;
+    let sort = view_editor.insert_or_update_sort(params).await?;
     Ok(sort)
   }
 
-  pub async fn delete_sort(&self, params: DeleteSortParams) -> FlowyResult<()> {
+  pub async fn delete_sort(&self, params: DeleteSortPayloadPB) -> FlowyResult<()> {
     let view_editor = self.database_views.get_view_editor(&params.view_id).await?;
     view_editor.v_delete_sort(params).await?;
     Ok(())

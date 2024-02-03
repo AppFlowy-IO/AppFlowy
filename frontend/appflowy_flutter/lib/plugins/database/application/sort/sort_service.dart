@@ -81,10 +81,8 @@ class SortBackendService {
     required FieldType fieldType,
   }) {
     final deleteSortPayload = DeleteSortPayloadPB.create()
-      ..fieldId = fieldId
       ..sortId = sortId
-      ..viewId = viewId
-      ..fieldType = fieldType;
+      ..viewId = viewId;
 
     final payload = DatabaseSettingChangesetPB.create()
       ..viewId = viewId

@@ -179,39 +179,25 @@ impl SortController {
   }
 
   #[tracing::instrument(level = "trace", skip(self))]
-  pub async fn did_receive_changes(
-    &mut self,
-    changeset: SortChangeset,
-  ) -> SortChangesetNotificationPB {
+  pub async fn apply_changeset(&mut self, changeset: SortChangeset) -> SortChangesetNotificationPB {
     let mut notification = SortChangesetNotificationPB::new(self.view_id.clone());
+
     if let Some(insert_sort) = changeset.insert_sort {
-      if let Some(sort) = self
-        .delegate
-        .get_sort(&self.view_id, &insert_sort.sort_id)
-        .await
-      {
+      if let Some(sort) = self.delegate.get_sort(&self.view_id, &insert_sort.id).await {
         notification.insert_sorts.push(sort.as_ref().into());
         self.sorts.push(sort);
       }
     }
 
-    if let Some(delete_sort_type) = changeset.delete_sort {
-      if let Some(index) = self
-        .sorts
-        .iter()
-        .position(|sort| sort.id == delete_sort_type.sort_id)
-      {
+    if let Some(sort_id) = changeset.delete_sort {
+      if let Some(index) = self.sorts.iter().position(|sort| sort.id == sort_id) {
         let sort = self.sorts.remove(index);
         notification.delete_sorts.push(sort.as_ref().into());
       }
     }
 
     if let Some(update_sort) = changeset.update_sort {
-      if let Some(updated_sort) = self
-        .delegate
-        .get_sort(&self.view_id, &update_sort.sort_id)
-        .await
-      {
+      if let Some(updated_sort) = self.delegate.get_sort(&self.view_id, &update_sort.id).await {
         notification.update_sorts.push(updated_sort.as_ref().into());
         if let Some(index) = self
           .sorts
