@@ -79,6 +79,10 @@ pub fn init(database_manager: Weak<DatabaseManager>) -> AFPlugin {
         .event(DatabaseEvent::GetFieldSettings, get_field_settings_handler)
         .event(DatabaseEvent::GetAllFieldSettings, get_all_field_settings_handler)
         .event(DatabaseEvent::UpdateFieldSettings, update_field_settings_handler)
+        // Calculations
+        .event(DatabaseEvent::GetAllCalculations, get_all_calculations_handler)
+        .event(DatabaseEvent::UpdateCalculation, update_calculation_handler)
+        .event(DatabaseEvent::RemoveCalculation, remove_calculation_handler)
 }
 
 /// [DatabaseEvent] defines events that are used to interact with the Grid. You could check [this](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/backend/protobuf)
@@ -329,4 +333,13 @@ pub enum DatabaseEvent {
   /// Updates the field settings for a field in the given view
   #[event(input = "FieldSettingsChangesetPB")]
   UpdateFieldSettings = 162,
+
+  #[event(input = "DatabaseViewIdPB", output = "RepeatedCalculationsPB")]
+  GetAllCalculations = 163,
+
+  #[event(input = "UpdateCalculationChangesetPB")]
+  UpdateCalculation = 164,
+
+  #[event(input = "RemoveCalculationChangesetPB")]
+  RemoveCalculation = 165,
 }

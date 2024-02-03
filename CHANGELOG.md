@@ -1,4 +1,8 @@
 # Release Notes
+## Version 0.4.6 - 02/03/2024
+### Bug Fixes
+- Fixed refresh token bug
+
 ## Version 0.4.5 - 02/01/2024
 ### Bug Fixes
 - Fixed WebSocket connection issue

@@ -657,7 +657,16 @@
       "showComplete": "Show all tasks"
     },
     "menuName": "Grid",
-    "referencedGridPrefix": "View of"
+    "referencedGridPrefix": "View of",
+    "calculate": "Calculate",
+    "calculationTypeLabel": {
+      "none": "None",
+      "average": "Average",
+      "max": "Max",
+      "median": "Median",
+      "min": "Min",
+      "sum": "Sum"
+    }
   },
   "document": {
     "menuName": "Document",

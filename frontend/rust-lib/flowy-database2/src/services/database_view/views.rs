@@ -17,6 +17,7 @@ use crate::services::group::RowChangeset;
 pub type RowEventSender = broadcast::Sender<DatabaseRowEvent>;
 pub type RowEventReceiver = broadcast::Receiver<DatabaseRowEvent>;
 pub type EditorByViewId = HashMap<String, Arc<DatabaseViewEditor>>;
+
 pub struct DatabaseViews {
   #[allow(dead_code)]
   database: Arc<MutexDatabase>,

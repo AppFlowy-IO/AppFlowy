@@ -152,6 +152,10 @@ impl CellDataDecoder for TimestampTypeOption {
     let cell_data = Self::CellData::from(cell);
     self.stringify_cell_data(cell_data)
   }
+
+  fn numeric_cell(&self, _cell: &Cell) -> Option<f64> {
+    None
+  }
 }
 
 impl CellDataChangeset for TimestampTypeOption {
