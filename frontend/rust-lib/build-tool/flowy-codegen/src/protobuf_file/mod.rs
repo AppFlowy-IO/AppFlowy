@@ -76,7 +76,7 @@ pub fn dart_gen(crate_name: &str) {
 }
 
 #[allow(unused_variables)]
-pub fn ts_gen(crate_name: &str, project: Project) {
+pub fn ts_gen(crate_name: &str, dest_folder_name: &str, project: Project) {
   // 1. generate the proto files to proto_file_dir
   #[cfg(feature = "proto_gen")]
   let proto_crates = gen_proto_files(crate_name);
@@ -116,7 +116,7 @@ pub fn ts_gen(crate_name: &str, project: Project) {
     // 2. generate the protobuf files(Dart)
     #[cfg(feature = "ts")]
     generate_ts_protobuf_files(
-      crate_name,
+      dest_folder_name,
       &proto_file_output_path,
       &proto_file_paths,
       &file_names,

@@ -13,7 +13,7 @@ use std::path::PathBuf;
 use syn::Item;
 use walkdir::WalkDir;
 
-pub fn gen(crate_name: &str, project: Project) {
+pub fn gen(dest_folder_name: &str, project: Project) {
   let root = project.event_root();
   let backend_service_path = project.dst();
 
@@ -40,7 +40,7 @@ pub fn gen(crate_name: &str, project: Project) {
   }
   render_result.push_str(TS_FOOTER);
 
-  let ts_event_folder: PathBuf = [&root, &backend_service_path, "events", crate_name]
+  let ts_event_folder: PathBuf = [&root, &backend_service_path, "events", dest_folder_name]
     .iter()
     .collect();
   if !ts_event_folder.as_path().exists() {
@@ -82,7 +82,10 @@ pub fn gen(crate_name: &str, project: Project) {
     Ok(ref mut file) => {
       let mut export = String::new();
       export.push_str("// Auto-generated, do not edit \n");
-      export.push_str(&format!("export * from '../../models/{}';\n", crate_name));
+      export.push_str(&format!(
+        "export * from '../../models/{}';\n",
+        dest_folder_name
+      ));
       export.push_str(&format!("export * from './{}';\n", event_file));
       file.write_all(export.as_bytes()).unwrap();
       File::flush(file).unwrap();

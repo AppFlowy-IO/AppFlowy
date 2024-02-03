@@ -24,6 +24,8 @@ flowy-error = { path = "../../rust-lib/flowy-error" }
 flowy-derive = { path = "../../rust-lib/build-tool/flowy-derive" }
 flowy-codegen = { path = "../../rust-lib/build-tool/flowy-codegen" }
 flowy-document = { path = "../../rust-lib/flowy-document" }
+flowy-folder = { path = "../../rust-lib/flowy-folder" }
+flowy-storage = { path = "../../rust-lib/flowy-storage" }
 lib-infra = { path = "../../rust-lib/lib-infra" }
 collab = { version = "0.1.0" }
 collab-entity = { version = "0.1.0" }
@@ -40,6 +42,7 @@ wasm-bindgen-futures = "0.4.40"
 serde-wasm-bindgen = "0.4"
 
 
+
 [profile.dev]
 opt-level = 0
 lto = false
@@ -50,11 +53,6 @@ lto = true
 opt-level = 3
 codegen-units = 1
 
-[profile.profiling]
-inherits = "release"
-debug = true
-codegen-units = 16
-lto = false
 
 [patch.crates-io]
 # Please using the following command to update the revision id

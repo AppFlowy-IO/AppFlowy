@@ -77,17 +77,20 @@ typedef _invoke_sync_Dart = Pointer<Uint8> Function(
 
 /// C function `init_sdk`.
 int init_sdk(
+  int port,
   Pointer<ffi.Utf8> data,
 ) {
-  return _init_sdk(data);
+  return _init_sdk(port, data);
 }
 
 final _init_sdk_Dart _init_sdk =
     _dart_ffi_lib.lookupFunction<_init_sdk_C, _init_sdk_Dart>('init_sdk');
 typedef _init_sdk_C = Int64 Function(
+  Int64 port,
   Pointer<ffi.Utf8> path,
 );
 typedef _init_sdk_Dart = int Function(
+  int port,
   Pointer<ffi.Utf8> path,
 );
 

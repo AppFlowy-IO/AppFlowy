@@ -13,6 +13,21 @@ macro_rules! if_wasm {
         $item
     )*}
 }
+// Define a generic macro to conditionally apply Send and Sync traits with documentation
+#[macro_export]
+macro_rules! conditional_send_sync_trait {
+    ($doc:expr; $trait_name:ident { $( $item:tt )* }) => {
+        // For wasm32 targets, define the trait without Send + Sync
+        #[doc = $doc]
+        #[cfg(target_arch = "wasm32")]
+        pub trait $trait_name { $( $item )* }
+
+        // For non-wasm32 targets, define the trait with Send + Sync
+        #[doc = $doc]
+        #[cfg(not(target_arch = "wasm32"))]
+        pub trait $trait_name: Send + Sync { $( $item )* }
+    };
+}
 
 pub fn move_vec_element<T, F>(
   vec: &mut Vec<T>,

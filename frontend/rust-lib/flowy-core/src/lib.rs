@@ -2,9 +2,7 @@
 
 use flowy_storage::ObjectStorageService;
 use std::sync::Arc;
-
 use std::time::Duration;
-
 use tokio::sync::RwLock;
 use tracing::{debug, error, event, info, instrument};
 
@@ -53,17 +51,8 @@ pub struct AppFlowyCore {
 }
 
 impl AppFlowyCore {
-  #[cfg(target_arch = "wasm32")]
-  pub async fn new(config: AppFlowyCoreConfig) -> Self {
-    let runtime = Arc::new(AFPluginRuntime::new().unwrap());
+  pub async fn new(config: AppFlowyCoreConfig, runtime: Arc<AFPluginRuntime>) -> Self {
     Self::init(config, runtime).await
-  }
-
-  #[cfg(not(target_arch = "wasm32"))]
-  pub fn new(config: AppFlowyCoreConfig) -> Self {
-    let runtime = Arc::new(AFPluginRuntime::new().unwrap());
-    let cloned_runtime = runtime.clone();
-    runtime.block_on(Self::init(config, cloned_runtime))
   }
 
   pub fn close_db(&self) {

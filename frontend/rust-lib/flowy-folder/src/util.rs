@@ -1,29 +1,11 @@
-use collab_folder::Folder;
-use collab_integrate::CollabKVAction;
-use collab_plugins::local_storage::kv::KVTransactionDB;
-use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use flowy_folder_pub::folder_builder::ParentChildViews;
-use std::sync::Arc;
-use tracing::{event, instrument};
-
 use crate::entities::UserFolderPB;
-use crate::manager::FolderUser;
+use collab_folder::Folder;
+use flowy_error::{ErrorCode, FlowyError};
+use flowy_folder_pub::folder_builder::ParentChildViews;
+use tracing::{event, instrument};
 
 pub(crate) fn folder_not_init_error() -> FlowyError {
   FlowyError::internal().with_context("Folder not initialized")
-}
-
-pub(crate) fn is_exist_in_local_disk(
-  user: &Arc<dyn FolderUser>,
-  doc_id: &str,
-) -> FlowyResult<bool> {
-  let uid = user.user_id()?;
-  if let Some(collab_db) = user.collab_db(uid)?.upgrade() {
-    let read_txn = collab_db.read_txn();
-    Ok(read_txn.is_exist(uid, doc_id))
-  } else {
-    Ok(false)
-  }
 }
 
 pub(crate) fn workspace_data_not_sync_error(uid: i64, workspace_id: &str) -> FlowyError {

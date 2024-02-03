@@ -12,7 +12,6 @@ use crate::manager_observer::{
   subscribe_folder_trash_changed, subscribe_folder_view_changed,
 };
 use crate::user_default::DefaultFolderBuilder;
-use crate::util::is_exist_in_local_disk;
 
 impl FolderManager {
   /// Called immediately after the application launched if the user already sign in/sign up.
@@ -47,7 +46,7 @@ impl FolderManager {
       FolderInitDataSource::LocalDisk {
         create_if_not_exist,
       } => {
-        let is_exist = is_exist_in_local_disk(&self.user, &workspace_id).unwrap_or(false);
+        let is_exist = self.is_workspace_exist_in_local(uid, &workspace_id).await;
         if is_exist {
           self
             .open_local_folder(uid, &workspace_id, collab_db, folder_notifier)
@@ -102,6 +101,15 @@ impl FolderManager {
     subscribe_folder_trash_changed(section_change_rx, &weak_mutex_folder);
     subscribe_folder_view_changed(view_rx, &weak_mutex_folder);
     Ok(())
+  }
+
+  async fn is_workspace_exist_in_local(&self, uid: i64, workspace_id: &str) -> bool {
+    if let Ok(weak_collab) = self.user.collab_db(uid) {
+      if let Some(collab_db) = weak_collab.upgrade() {
+        return collab_db.is_exist(uid, workspace_id).await.unwrap_or(false);
+      }
+    }
+    false
   }
 
   async fn create_default_folder(
