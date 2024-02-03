@@ -72,18 +72,16 @@ class MobileDatabaseViewQuickActions extends StatelessWidget {
     _Action action,
     VoidCallback onTap,
   ) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-      child: MobileQuickActionButton(
-        icon: action.icon,
-        text: action.label,
-        color: action.color(context),
-        onTap: onTap,
-      ),
+    return MobileQuickActionButton(
+      icon: action.icon,
+      text: action.label,
+      textColor: action.color(context),
+      iconColor: action.color(context),
+      onTap: onTap,
     );
   }
 
-  Widget _divider() => const Divider(height: 9);
+  Widget _divider() => const Divider(height: 8.5, thickness: 0.5);
 }
 
 enum _Action {
