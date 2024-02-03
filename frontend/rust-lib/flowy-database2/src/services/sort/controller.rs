@@ -217,18 +217,15 @@ impl SortController {
       let from_index = self.sorts.iter().position(|sort| sort.id == from_id);
       let to_index = self.sorts.iter().position(|sort| sort.id == to_id);
 
-      match (moved_sort, from_index, to_index) {
-        (Some(sort), Some(from_index), Some(to_index)) => {
-          self.sorts.remove(from_index);
-          self.sorts.insert(to_index, sort.clone());
+      if let (Some(sort), Some(from_index), Some(to_index)) = (moved_sort, from_index, to_index) {
+        self.sorts.remove(from_index);
+        self.sorts.insert(to_index, sort.clone());
 
-          notification.delete_sorts.push(sort.as_ref().into());
-          notification.insert_sorts.push(SortWithIndexPB {
-            index: to_index as u32,
-            sort: sort.as_ref().into(),
-          });
-        },
-        _ => {},
+        notification.delete_sorts.push(sort.as_ref().into());
+        notification.insert_sorts.push(SortWithIndexPB {
+          index: to_index as u32,
+          sort: sort.as_ref().into(),
+        });
       }
     }
 

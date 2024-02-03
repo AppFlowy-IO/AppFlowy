@@ -43,7 +43,7 @@ mod utils {
 
   impl_regex_validator!(
     validate_filter_id,
-    Regex::new(r"^f:[A-Za-z0-9_-]{6}$").unwrap(),
+    Regex::new(r"^[A-Za-z0-9_-]{6}$").unwrap(),
     "invalid filter_id"
   );
   impl_regex_validator!(
