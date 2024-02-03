@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/row/row_service.dart';
+import 'package:appflowy/plugins/database/grid/presentation/widgets/calculations/calculations_row.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/toolbar/grid_setting_bar.dart';
 import 'package:appflowy/plugins/database/tab_bar/desktop/setting_menu.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_builder.dart';
@@ -12,8 +13,7 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui_web.dart';
-import 'package:flowy_infra_ui/style_widget/scrolling/styled_scroll_bar.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scrollview.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -303,17 +303,22 @@ class _GridRows extends StatelessWidget {
     GridState state,
     List<RowInfo> rowInfos,
   ) {
-    final children = [
-      ...rowInfos.mapIndexed((index, rowInfo) {
-        return _renderRow(
-          context,
-          rowInfo.rowId,
-          isDraggable: state.reorderable,
-          index: index,
-        );
-      }),
-      const GridRowBottomBar(key: Key('gridFooter')),
-    ];
+    final children = rowInfos.mapIndexed((index, rowInfo) {
+      return _renderRow(
+        context,
+        rowInfo.rowId,
+        isDraggable: state.reorderable,
+        index: index,
+      );
+    }).toList()
+      ..add(const GridRowBottomBar(key: Key('grid_footer')))
+      ..add(
+        GridCalculationsRow(
+          key: const Key('grid_calculations'),
+          viewId: viewId,
+        ),
+      );
+
     return ReorderableListView.builder(
       ///  This is a workaround related to
       ///  https://github.com/flutter/flutter/issues/25652
@@ -434,9 +439,10 @@ class _GridFooter extends StatelessWidget {
           child: RichText(
             text: TextSpan(
               text: rowCountString(),
-              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                    color: Theme.of(context).hintColor,
-                  ),
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyMedium!
+                  .copyWith(color: Theme.of(context).hintColor),
               children: [
                 TextSpan(
                   text: ' $rowCount',

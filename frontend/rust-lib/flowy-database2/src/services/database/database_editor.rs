@@ -16,9 +16,8 @@ use lib_infra::priority_task::TaskDispatcher;
 
 use crate::entities::*;
 use crate::notification::{send_notification, DatabaseNotification};
-use crate::services::cell::{
-  apply_cell_changeset, get_cell_protobuf, AnyTypeCache, CellCache, ToCellChangeset,
-};
+use crate::services::calculations::Calculation;
+use crate::services::cell::{apply_cell_changeset, get_cell_protobuf, CellCache, ToCellChangeset};
 use crate::services::database::util::database_view_setting_pb_from_view;
 use crate::services::database::UpdatedRow;
 use crate::services::database_view::{
@@ -37,6 +36,7 @@ use crate::services::filter::Filter;
 use crate::services::group::{default_group_setting, GroupChangesets, GroupSetting, RowChangeset};
 use crate::services::share::csv::{CSVExport, CSVFormat};
 use crate::services::sort::Sort;
+use crate::utils::cache::AnyTypeCache;
 
 #[derive(Clone)]
 pub struct DatabaseEditor {
@@ -226,6 +226,26 @@ impl DatabaseEditor {
     Ok(())
   }
 
+  pub async fn get_all_calculations(&self, view_id: &str) -> RepeatedCalculationsPB {
+    if let Ok(view_editor) = self.database_views.get_view_editor(view_id).await {
+      view_editor.v_get_all_calculations().await.into()
+    } else {
+      RepeatedCalculationsPB { items: vec![] }
+    }
+  }
+
+  pub async fn update_calculation(&self, update: UpdateCalculationChangesetPB) -> FlowyResult<()> {
+    let view_editor = self.database_views.get_view_editor(&update.view_id).await?;
+    view_editor.v_update_calculations(update).await?;
+    Ok(())
+  }
+
+  pub async fn remove_calculation(&self, remove: RemoveCalculationChangesetPB) -> FlowyResult<()> {
+    let view_editor = self.database_views.get_view_editor(&remove.view_id).await?;
+    view_editor.v_remove_calculation(remove).await?;
+    Ok(())
+  }
+
   pub async fn get_all_filters(&self, view_id: &str) -> RepeatedFilterPB {
     if let Ok(view_editor) = self.database_views.get_view_editor(view_id).await {
       view_editor.v_get_all_filters().await.into()
@@ -310,6 +330,11 @@ impl DatabaseEditor {
     let notified_changeset =
       DatabaseFieldChangesetPB::delete(&database_id, vec![FieldIdPB::from(field_id)]);
     self.notify_did_update_database(notified_changeset).await?;
+
+    for view in self.database_views.editors().await {
+      view.v_did_delete_field(field_id).await;
+    }
+
     Ok(())
   }
 
@@ -364,6 +389,10 @@ impl DatabaseEditor {
               .set_field_type(new_field_type.into())
               .set_type_option(new_field_type.into(), Some(transformed_type_option));
           });
+
+        for view in self.database_views.editors().await {
+          view.v_did_update_field_type(field_id, new_field_type).await;
+        }
       },
     }
 
@@ -405,7 +434,12 @@ impl DatabaseEditor {
     match params {
       None => warn!("Failed to duplicate row: {}", row_id),
       Some(params) => {
-        let _ = self.create_row(view_id, None, params).await;
+        let result = self.create_row(view_id, None, params).await;
+        if let Some(row_detail) = result.unwrap_or(None) {
+          for view in self.database_views.editors().await {
+            view.v_did_duplicate_row(&row_detail).await;
+          }
+        }
       },
     }
   }
@@ -725,7 +759,9 @@ impl DatabaseEditor {
     let option_row = self.get_row_detail(view_id, &row_id);
     if let Some(new_row_detail) = option_row {
       for view in self.database_views.editors().await {
-        view.v_did_update_row(&old_row, &new_row_detail).await;
+        view
+          .v_did_update_row(&old_row, &new_row_detail, field_id.to_owned())
+          .await;
       }
     }
 
@@ -1423,6 +1459,23 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
     self.database.lock().remove_all_sorts(view_id);
   }
 
+  fn get_all_calculations(&self, view_id: &str) -> Vec<Arc<Calculation>> {
+    self
+      .database
+      .lock()
+      .get_all_calculations(view_id)
+      .into_iter()
+      .map(Arc::new)
+      .collect()
+  }
+
+  fn get_calculation(&self, view_id: &str, field_id: &str) -> Option<Calculation> {
+    self
+      .database
+      .lock()
+      .get_calculation::<Calculation>(view_id, field_id)
+  }
+
   fn get_all_filters(&self, view_id: &str) -> Vec<Arc<Filter>> {
     self
       .database
@@ -1568,6 +1621,17 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
     send_notification(view_id, DatabaseNotification::DidUpdateFieldSettings)
       .payload(FieldSettingsPB::from(new_field_settings))
       .send()
+  }
+
+  fn update_calculation(&self, view_id: &str, calculation: Calculation) {
+    self
+      .database
+      .lock()
+      .update_calculation(view_id, calculation)
+  }
+
+  fn remove_calculation(&self, view_id: &str, field_id: &str) {
+    self.database.lock().remove_calculation(view_id, field_id)
   }
 }
 

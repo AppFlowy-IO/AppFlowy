@@ -1,4 +1,5 @@
 mod board_entities;
+pub mod calculation;
 mod calendar_entities;
 mod cell_entities;
 mod database_entities;
@@ -19,6 +20,7 @@ mod view_entities;
 mod macros;
 
 pub use board_entities::*;
+pub use calculation::*;
 pub use calendar_entities::*;
 pub use cell_entities::*;
 pub use database_entities::*;

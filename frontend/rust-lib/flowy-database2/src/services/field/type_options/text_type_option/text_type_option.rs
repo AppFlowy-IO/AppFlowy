@@ -116,6 +116,10 @@ impl CellDataDecoder for RichTextTypeOption {
   fn stringify_cell(&self, cell: &Cell) -> String {
     Self::CellData::from(cell).to_string()
   }
+
+  fn numeric_cell(&self, cell: &Cell) -> Option<f64> {
+    StrCellData::from(cell).0.parse::<f64>().ok()
+  }
 }
 
 impl CellDataChangeset for RichTextTypeOption {

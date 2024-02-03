@@ -208,6 +208,11 @@ impl CellDataDecoder for NumberTypeOption {
     let cell_data = Self::CellData::from(cell);
     self.stringify_cell_data(cell_data)
   }
+
+  fn numeric_cell(&self, cell: &Cell) -> Option<f64> {
+    let num_cell_data = self.parse_cell(cell).ok()?;
+    num_cell_data.0.parse::<f64>().ok()
+  }
 }
 
 pub type NumberCellChangeset = String;

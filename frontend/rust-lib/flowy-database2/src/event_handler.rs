@@ -920,3 +920,45 @@ pub(crate) async fn update_field_settings_handler(
     .await?;
   Ok(())
 }
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn get_all_calculations_handler(
+  data: AFPluginData<DatabaseViewIdPB>,
+  manager: AFPluginState<Weak<DatabaseManager>>,
+) -> DataResult<RepeatedCalculationsPB, FlowyError> {
+  let manager = upgrade_manager(manager)?;
+  let view_id = data.into_inner();
+  let database_editor = manager.get_database_with_view_id(view_id.as_ref()).await?;
+
+  let calculations = database_editor.get_all_calculations(view_id.as_ref()).await;
+
+  data_result_ok(calculations)
+}
+
+#[tracing::instrument(level = "trace", skip(data, manager), err)]
+pub(crate) async fn update_calculation_handler(
+  data: AFPluginData<UpdateCalculationChangesetPB>,
+  manager: AFPluginState<Weak<DatabaseManager>>,
+) -> Result<(), FlowyError> {
+  let manager = upgrade_manager(manager)?;
+  let params: UpdateCalculationChangesetPB = data.into_inner();
+  let editor = manager.get_database_with_view_id(&params.view_id).await?;
+
+  editor.update_calculation(params).await?;
+
+  Ok(())
+}
+
+#[tracing::instrument(level = "trace", skip(data, manager), err)]
+pub(crate) async fn remove_calculation_handler(
+  data: AFPluginData<RemoveCalculationChangesetPB>,
+  manager: AFPluginState<Weak<DatabaseManager>>,
+) -> Result<(), FlowyError> {
+  let manager = upgrade_manager(manager)?;
+  let params: RemoveCalculationChangesetPB = data.into_inner();
+  let editor = manager.get_database_with_view_id(&params.view_id).await?;
+
+  editor.remove_calculation(params).await?;
+
+  Ok(())
+}
