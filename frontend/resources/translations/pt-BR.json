@@ -478,6 +478,7 @@
       "typeAValue": "Digite um valor...",
       "layout": "Disposição",
       "databaseLayout": "Disposição",
+      "viewList": "Visualizações de banco de dados",
       "editView": "Editar visualização",
       "boardSettings": "Configurações do quadro",
       "calendarSettings": "Configurações do calendário",
@@ -485,8 +486,7 @@
       "duplicateView": "Visualização duplicada",
       "deleteView": "Excluir visualização",
       "numberOfVisibleFields": "{} mostrando",
-      "Properties": "Propriedades",
-      "viewList": "Visualizações de banco de dados"
+      "Properties": "Propriedades"
     },
     "textFilter": {
       "contains": "Contém",

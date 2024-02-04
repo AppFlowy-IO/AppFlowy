@@ -478,14 +478,14 @@
       "typeAValue": "輸入一個值……",
       "layout": "配置",
       "databaseLayout": "配置",
+      "viewList": "資料庫檢視",
       "editView": "編輯檢視",
       "boardSettings": "看板設定",
       "calendarSettings": "日曆設定",
       "createView": "建立檢視",
       "duplicateView": "複製檢視",
       "deleteView": "刪除檢視",
-      "numberOfVisibleFields": "{} 顯示",
-      "viewList": "資料庫檢視"
+      "numberOfVisibleFields": "{} 顯示"
     },
     "textFilter": {
       "contains": "包含",

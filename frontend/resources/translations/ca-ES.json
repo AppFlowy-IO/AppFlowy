@@ -428,13 +428,13 @@
       "typeAValue": "Escriu un valor...",
       "layout": "Disseny",
       "databaseLayout": "Disseny",
+      "viewList": "Visualitzacions de la base de dades",
       "editView": "Edita la vista",
       "boardSettings": "Configuració del tauler",
       "calendarSettings": "Configuració del calendari",
       "createView": "Vista nova",
       "duplicateView": "Vista duplicada",
-      "deleteView": "Suprimeix la vista",
-      "viewList": "Visualitzacions de la base de dades"
+      "deleteView": "Suprimeix la vista"
     },
     "textFilter": {
       "contains": "Conté",

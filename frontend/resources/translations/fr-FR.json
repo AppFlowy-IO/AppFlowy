@@ -479,6 +479,7 @@
       "typeAValue": "Tapez une valeur...",
       "layout": "Mise en page",
       "databaseLayout": "Mise en page",
+      "viewList": "Vues de base de données",
       "editView": "Modifier vue",
       "boardSettings": "Paramètres du tableau",
       "calendarSettings": "Paramètres du calendrier",
@@ -486,8 +487,7 @@
       "duplicateView": "Dupliquer vue",
       "deleteView": "Supprimer vue",
       "numberOfVisibleFields": "{} affiché",
-      "Properties": "Propriétés",
-      "viewList": "Vues de base de données"
+      "Properties": "Propriétés"
     },
     "textFilter": {
       "contains": "Contient",

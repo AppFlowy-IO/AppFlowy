@@ -468,14 +468,14 @@
       "typeAValue": "Escriba un valor...",
       "layout": "Disposición",
       "databaseLayout": "Disposición",
+      "viewList": "Vistas de base de datos",
       "editView": "Editar vista",
       "boardSettings": "Configuración del tablero",
       "calendarSettings": "Configuración del calendario",
       "createView": "Nueva vista",
       "duplicateView": "Duplicar vista",
       "deleteView": "Eliminar vista",
-      "Properties": "Propiedades",
-      "viewList": "Vistas de base de datos"
+      "Properties": "Propiedades"
     },
     "textFilter": {
       "contains": "Contiene",

@@ -459,12 +459,12 @@
       "typeAValue": "Nhập một giá trị...",
       "layout": "Layout",
       "databaseLayout": "Layout",
+      "viewList": "Database Views",
       "editView": "Chỉnh sửa chế độ xem",
       "boardSettings": "Cài đặt bảng",
       "calendarSettings": "Cài đặt lịch",
       "deleteView": "Xóa chế độ xem",
-      "Properties": "Thuộc tính",
-      "viewList": "Database Views"
+      "Properties": "Thuộc tính"
     },
     "textFilter": {
       "contains": "Chứa",
