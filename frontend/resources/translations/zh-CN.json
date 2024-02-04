@@ -239,7 +239,8 @@
     "yes": "是",
     "Done": "完成",
     "Cancel": "取消",
-    "OK": "确定"
+    "OK": "确定",
+    "tryAgain": "重新尝试"
   },
   "label": {
     "welcome": "欢迎！",
