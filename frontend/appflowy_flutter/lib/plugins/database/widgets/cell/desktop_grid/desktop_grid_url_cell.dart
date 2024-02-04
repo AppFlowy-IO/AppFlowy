@@ -115,7 +115,7 @@ class _CopyURLAccessoryState extends State<_CopyURLAccessory>
   Widget build(BuildContext context) {
     if (widget.cellDataNotifier.value.isNotEmpty) {
       return FlowyTooltip(
-        message: LocaleKeys.tooltip_urlCopyAccessory.tr(),
+        message: LocaleKeys.grid_url_copy.tr(),
         preferBelow: false,
         child: _URLAccessoryIconContainer(
           child: FlowySvg(
@@ -161,7 +161,7 @@ class _VisitURLAccessoryState extends State<_VisitURLAccessory>
   Widget build(BuildContext context) {
     if (widget.cellDataNotifier.value.isNotEmpty) {
       return FlowyTooltip(
-        message: LocaleKeys.tooltip_urlLaunchAccessory.tr(),
+        message: LocaleKeys.grid_url_launch.tr(),
         preferBelow: false,
         child: _URLAccessoryIconContainer(
           child: FlowySvg(

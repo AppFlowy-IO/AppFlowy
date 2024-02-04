@@ -163,7 +163,7 @@ class MobileURLEditor extends StatelessWidget {
                 .textTheme
                 .bodyMedium
                 ?.copyWith(color: Theme.of(context).hintColor),
-            hintText: "Input a URL",
+            hintText: LocaleKeys.grid_url_textFieldHint.tr(),
             textStyle: Theme.of(context).textTheme.bodyMedium,
             keyboardType: null,
             hintTextConstraints: const BoxConstraints(maxHeight: 52),
@@ -183,7 +183,7 @@ class MobileURLEditor extends StatelessWidget {
             context.pop();
           },
           icon: FlowySvgs.url_s,
-          text: LocaleKeys.tooltip_urlLaunchAccessory.tr(),
+          text: LocaleKeys.grid_url_launch.tr(),
         ),
         const Divider(
           height: 8.5,
@@ -199,7 +199,7 @@ class MobileURLEditor extends StatelessWidget {
             context.pop();
           },
           icon: FlowySvgs.copy_s,
-          text: LocaleKeys.tooltip_urlCopyAccessory.tr(),
+          text: LocaleKeys.grid_url_copy.tr(),
         ),
         const Divider(
           height: 8.5,

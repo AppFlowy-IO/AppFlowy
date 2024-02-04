@@ -180,9 +180,7 @@
     "dragRow": "长按重新排序该行",
     "viewDataBase": "查看数据库",
     "referencePage": "这个 {name} 已被引用",
-    "addBlockBelow": "在下面添加一个块",
-    "urlLaunchAccessory": "在浏览器中打开",
-    "urlCopyAccessory": "复制链接"
+    "addBlockBelow": "在下面添加一个块"
   },
   "sideBar": {
     "closeSidebar": "关闭侧边栏",
@@ -237,8 +235,7 @@
     "yes": "是",
     "Done": "完成",
     "Cancel": "取消",
-    "OK": "确定",
-    "tryAgain": "重新尝试"
+    "OK": "确定"
   },
   "label": {
     "welcome": "欢迎！",
@@ -657,6 +654,10 @@
       "submitNewTask": "新建",
       "hideComplete": "隐藏已完成的任务",
       "showComplete": "显示所有任务"
+    },
+    "url": {
+      "launch": "在浏览器中打开",
+      "copy": "复制链接"
     },
     "menuName": "网格",
     "referencedGridPrefix": "视图"

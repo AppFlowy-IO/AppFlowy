@@ -181,9 +181,7 @@
     "dragRow": "Long press to reorder the row",
     "viewDataBase": "View database",
     "referencePage": "This {name} is referenced",
-    "addBlockBelow": "Add a block below",
-    "urlLaunchAccessory": "Open in browser",
-    "urlCopyAccessory": "Copy URL"
+    "addBlockBelow": "Add a block below"
   },
   "sideBar": {
     "closeSidebar": "Close side bar",
@@ -655,6 +653,11 @@
       "submitNewTask": "Create",
       "hideComplete": "Hide completed tasks",
       "showComplete": "Show all tasks"
+    },
+    "url": {
+      "launch": "Open link in browser",
+      "copy": "Copy link to clipboard",
+      "textFieldHint": "Enter a URL"
     },
     "menuName": "Grid",
     "referencedGridPrefix": "View of",

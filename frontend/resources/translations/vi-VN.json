@@ -175,8 +175,7 @@
     "openMenu": "Bấm để mở menu",
     "dragRow": "Nhấn và giữ để sắp xếp lại hàng",
     "viewDataBase": "Xem cơ sở dữ liệu",
-    "referencePage": "{name} này được tham chiếu",
-    "urlCopyAccessory": "Sao chép URL"
+    "referencePage": "{name} này được tham chiếu"
   },
   "sideBar": {
     "closeSidebar": "Đóng thanh bên",
@@ -613,6 +612,9 @@
       "searchOption": "Tìm kiếm một lựa chọn",
       "searchOrCreateOption": "Tìm kiếm hoặc tạo một tùy chọn...",
       "tagName": "Tên thẻ"
+    },
+    "url": {
+      "copy": "Sao chép URL"
     },
     "menuName": "Lưới"
   },

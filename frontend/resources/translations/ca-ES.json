@@ -176,9 +176,7 @@
     "dragRow": "Premeu llargament per reordenar la fila",
     "viewDataBase": "Veure base de dades",
     "referencePage": "Es fa referència a aquest {nom}",
-    "addBlockBelow": "Afegeix un bloc a continuació",
-    "urlLaunchAccessory": "Oberta al navegador",
-    "urlCopyAccessory": "Copia l'URL"
+    "addBlockBelow": "Afegeix un bloc a continuació"
   },
   "sideBar": {
     "closeSidebar": "Close sidebar",
@@ -575,6 +573,10 @@
     "checklist": {
       "addNew": "Afegeix un element",
       "submitNewTask": "Crear"
+    },
+    "url": {
+      "launch": "Oberta al navegador",
+      "copy": "Copia l'URL"
     },
     "menuName": "Quadrícula",
     "referencedGridPrefix": "Vista de"
