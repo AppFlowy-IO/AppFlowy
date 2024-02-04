@@ -6,8 +6,6 @@ import 'package:appflowy/plugins/database/application/cell/bloc/url_cell_bloc.da
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
-import 'package:url_launcher/url_launcher_string.dart';
 
 import '../editable_cell_skeleton/url.dart';
 
@@ -26,17 +24,16 @@ class MobileRowDetailURLCellSkin extends IEditableURLCellSkin {
       builder: (context, content) {
         return InkWell(
           borderRadius: const BorderRadius.all(Radius.circular(14)),
-          onTap: () {
-            if (content.isEmpty) {
-              _showURLEditor(context, bloc, content);
-              return;
-            }
-            final shouldAddScheme = !['http', 'https']
-                .any((pattern) => content.startsWith(pattern));
-            final url = shouldAddScheme ? 'http://$content' : content;
-            canLaunchUrlString(url).then((value) => launchUrlString(url));
-          },
-          onLongPress: () => _showURLEditor(context, bloc, content),
+          onTap: () => showMobileBottomSheet(
+            context,
+            showDragHandle: true,
+            builder: (_) {
+              return MobileURLEditor(
+                bloc: bloc,
+                textEditingController: textEditingController,
+              );
+            },
+          ),
           child: Container(
             constraints: const BoxConstraints(
               minHeight: 48,
@@ -76,25 +73,4 @@ class MobileRowDetailURLCellSkin extends IEditableURLCellSkin {
     URLCellDataNotifier cellDataNotifier,
   ) =>
       const [];
-
-  void _showURLEditor(BuildContext context, URLCellBloc bloc, String content) {
-    showMobileBottomSheet(
-      context,
-      title: LocaleKeys.board_mobile_editURL.tr(),
-      showHeader: true,
-      showCloseButton: true,
-      builder: (_) {
-        final controller = TextEditingController(text: content);
-        return TextField(
-          controller: controller,
-          autofocus: true,
-          keyboardType: TextInputType.url,
-          onEditingComplete: () {
-            bloc.add(URLCellEvent.updateURL(controller.text));
-            context.pop();
-          },
-        );
-      },
-    );
-  }
 }

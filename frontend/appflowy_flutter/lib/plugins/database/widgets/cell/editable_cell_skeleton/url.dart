@@ -1,5 +1,8 @@
 import 'dart:async';
 
+import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_quick_action_button.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database/application/database_controller.dart';
@@ -7,8 +10,13 @@ import 'package:appflowy/plugins/database/widgets/row/accessory/cell_accessory.d
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
 import 'package:appflowy/plugins/database/application/cell/bloc/url_cell_bloc.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_builder.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 import '../desktop_grid/desktop_grid_url_cell.dart';
 import '../desktop_row_detail/desktop_row_detail_url_cell.dart';
@@ -128,4 +136,76 @@ class _GridURLCellState extends GridEditableTextCell<EditableURLCell> {
 
   @override
   String? onCopy() => cellBloc.state.content;
+}
+
+class MobileURLEditor extends StatelessWidget {
+  const MobileURLEditor({
+    super.key,
+    required this.bloc,
+    required this.textEditingController,
+  });
+
+  final URLCellBloc bloc;
+  final TextEditingController textEditingController;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const VSpace(
+          4.0,
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: FlowyTextField(
+            controller: textEditingController,
+            hintStyle: Theme.of(context)
+                .textTheme
+                .bodyMedium
+                ?.copyWith(color: Theme.of(context).hintColor),
+            hintText: "Input a URL",
+            textStyle: Theme.of(context).textTheme.bodyMedium,
+            keyboardType: null,
+            hintTextConstraints: const BoxConstraints(maxHeight: 52),
+            onSubmitted: (text) => bloc.add(URLCellEvent.updateURL(text)),
+          ),
+        ),
+        const VSpace(
+          8.0,
+        ),
+        MobileQuickActionButton(
+          onTap: () {
+            final content = textEditingController.text;
+            final shouldAddScheme = !['http', 'https']
+                .any((pattern) => content.startsWith(pattern));
+            final url = shouldAddScheme ? 'http://$content' : content;
+            canLaunchUrlString(url).then((value) => launchUrlString(url));
+            context.pop();
+          },
+          icon: FlowySvgs.url_s,
+          text: LocaleKeys.tooltip_urlLaunchAccessory.tr(),
+        ),
+        const Divider(
+          height: 8.5,
+          thickness: 0.5,
+        ),
+        MobileQuickActionButton(
+          onTap: () {
+            if (textEditingController.text.isNotEmpty) {
+              Clipboard.setData(
+                ClipboardData(text: textEditingController.text),
+              );
+            }
+            context.pop();
+          },
+          icon: FlowySvgs.copy_s,
+          text: LocaleKeys.tooltip_urlCopyAccessory.tr(),
+        ),
+        const Divider(
+          height: 8.5,
+          thickness: 0.5,
+        ),
+      ],
+    );
+  }
 }
