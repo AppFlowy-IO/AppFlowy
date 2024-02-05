@@ -61,6 +61,8 @@
     "failedToLoad": "出了些问题！无法加载工作区。请尝试重启 AppFlowy。",
     "errorActions": {
       "reportIssue": "上报问题",
+      "reportIssueOnGithub": "在 Github 上提出 issue",
+      "exportLogFiles": "导出日志文件",
       "reachOut": "Discord 联系我们"
     }
   },
@@ -295,6 +297,7 @@
       "cloudWSURLHint": "输入您的服务器的 Websocket 地址",
       "restartApp": "重启",
       "restartAppTip": "重新启动应用程序以使更改生效。请注意，这可能会注销您当前的帐户",
+      "changeServerTip": "更改同步服务器后，你必须单击“重启”按钮才能使更改生效",
       "enableEncryptPrompt": "启用加密以使用此密钥保护您的数据。安全存放；一旦启用，就无法关闭。如果丢失，您的数据将无法恢复。点击复制",
       "inputEncryptPrompt": "请输入您的加密密钥",
       "clickToCopySecret": "点击复制密钥",
@@ -840,7 +843,9 @@
       "saveImageToGallery": "保存图片",
       "failedToAddImageToGallery": "无法将片像添加到图库",
       "successToAddImageToGallery": "图片已成功添加到图库",
-      "unableToLoadImage": "无法加载图片"
+      "unableToLoadImage": "无法加载图片",
+      "maximumImageSize": "支持上传的最大图片大小为 10MB",
+      "uploadImageErrorImageSizeTooBig": "图片大小必须小于 10MB"
     },
     "codeBlock": {
       "language": {
@@ -1049,6 +1054,7 @@
       "twoHoursBefore": "2小时前",
       "oneDayBefore": "1天前",
       "twoDaysBefore": "2天前",
+      "oneWeekBefore": "1周以前",
       "custom": "自定义"
     }
   },
@@ -1240,5 +1246,6 @@
     "date": "日期",
     "addField": "添加字段",
     "userIcon": "用户图标"
-  }
+  },
+  "noLogFiles": "没有日志文件"
 }
