@@ -17,7 +17,9 @@ use crate::entities::SortChangesetNotificationPB;
 use crate::entities::{FieldType, SortWithIndexPB};
 use crate::services::cell::CellCache;
 use crate::services::database_view::{DatabaseViewChanged, DatabaseViewChangedNotifier};
-use crate::services::field::{default_order, TypeOptionCellExt};
+use crate::services::field::{
+  default_order, TimestampCellData, TimestampCellDataWrapper, TypeOptionCellExt,
+};
 use crate::services::sort::{
   ReorderAllRowsResult, ReorderSingleRowResult, Sort, SortChangeset, SortCondition,
 };
@@ -81,9 +83,13 @@ impl SortController {
   }
 
   pub async fn did_receive_row_changed(&self, row_id: RowId) {
-    let task_type = SortEvent::RowDidChanged(row_id);
     if !self.sorts.is_empty() {
-      self.gen_task(task_type, QualityOfService::Background).await;
+      self
+        .gen_task(
+          SortEvent::RowDidChanged(row_id),
+          QualityOfService::Background,
+        )
+        .await;
     }
   }
 
@@ -252,14 +258,36 @@ fn cmp_row(
     .find(|field_rev| field_rev.id == sort.field_id)
   {
     None => default_order(),
-    Some(field_rev) => cmp_cell(
-      left.cells.get(&sort.field_id),
-      right.cells.get(&sort.field_id),
-      field_rev,
-      field_type,
-      cell_data_cache,
-      sort.condition,
-    ),
+    Some(field_rev) => {
+      let timestamp_cells = match field_type {
+        FieldType::LastEditedTime | FieldType::CreatedTime => {
+          let (left_cell, right_cell) = if field_type.is_created_time() {
+            (left.created_at, right.created_at)
+          } else {
+            (left.modified_at, right.modified_at)
+          };
+          let (left_cell, right_cell) = (
+            TimestampCellDataWrapper::from((field_type, TimestampCellData::new(left_cell))),
+            TimestampCellDataWrapper::from((field_type, TimestampCellData::new(right_cell))),
+          );
+          Some((Some(left_cell.into()), Some(right_cell.into())))
+        },
+        _ => None,
+      };
+
+      cmp_cell(
+        timestamp_cells
+          .as_ref()
+          .map_or_else(|| left.cells.get(&sort.field_id), |cell| cell.0.as_ref()),
+        timestamp_cells
+          .as_ref()
+          .map_or_else(|| right.cells.get(&sort.field_id), |cell| cell.1.as_ref()),
+        field_rev,
+        field_type,
+        cell_data_cache,
+        sort.condition,
+      )
+    },
   }
 }
 
@@ -276,13 +304,7 @@ fn cmp_cell(
   {
     None => default_order(),
     Some(handler) => {
-      let cal_order = || {
-        let order =
-          handler.handle_cell_compare(left_cell, right_cell, field.as_ref(), sort_condition);
-        Option::<Ordering>::Some(order)
-      };
-
-      cal_order().unwrap_or_else(default_order)
+      handler.handle_cell_compare(left_cell, right_cell, field.as_ref(), sort_condition)
     },
   }
 }

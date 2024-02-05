@@ -71,6 +71,8 @@ class FieldInfo with _$FieldInfo {
       case FieldType.DateTime:
       case FieldType.SingleSelect:
       case FieldType.MultiSelect:
+      case FieldType.LastEditedTime:
+      case FieldType.CreatedTime:
         return true;
       default:
         return false;

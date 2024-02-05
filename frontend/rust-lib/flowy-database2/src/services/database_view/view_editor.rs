@@ -160,6 +160,9 @@ impl DatabaseViewEditor {
     send_notification(&self.view_id, DatabaseNotification::DidUpdateViewRows)
       .payload(changes)
       .send();
+    self
+      .gen_view_tasks(row_detail.row.id.clone(), "".to_string())
+      .await;
   }
 
   pub async fn v_did_duplicate_row(&self, row_detail: &RowDetail) {
@@ -253,30 +256,9 @@ impl DatabaseViewEditor {
 
     // Each row update will trigger a calculations, filter and sort operation. We don't want
     // to block the main thread, so we spawn a new task to do the work.
-    let row_id = row_detail.row.id.clone();
-    let weak_filter_controller = Arc::downgrade(&self.filter_controller);
-    let weak_sort_controller = Arc::downgrade(&self.sort_controller);
-    let weak_calculations_controller = Arc::downgrade(&self.calculations_controller);
-    af_spawn(async move {
-      if let Some(filter_controller) = weak_filter_controller.upgrade() {
-        filter_controller
-          .did_receive_row_changed(row_id.clone())
-          .await;
-      }
-      if let Some(sort_controller) = weak_sort_controller.upgrade() {
-        sort_controller
-          .read()
-          .await
-          .did_receive_row_changed(row_id.clone())
-          .await;
-      }
-
-      if let Some(calculations_controller) = weak_calculations_controller.upgrade() {
-        calculations_controller
-          .did_receive_cell_changed(field_id)
-          .await;
-      }
-    });
+    self
+      .gen_view_tasks(row_detail.row.id.clone(), field_id)
+      .await;
   }
 
   pub async fn v_filter_rows(&self, row_details: &mut Vec<Arc<RowDetail>>) {
@@ -1072,5 +1054,30 @@ impl DatabaseViewEditor {
     } else {
       None
     }
+  }
+
+  async fn gen_view_tasks(&self, row_id: RowId, field_id: String) {
+    let weak_filter_controller = Arc::downgrade(&self.filter_controller);
+    let weak_sort_controller = Arc::downgrade(&self.sort_controller);
+    let weak_calculations_controller = Arc::downgrade(&self.calculations_controller);
+    af_spawn(async move {
+      if let Some(filter_controller) = weak_filter_controller.upgrade() {
+        filter_controller
+          .did_receive_row_changed(row_id.clone())
+          .await;
+      }
+      if let Some(sort_controller) = weak_sort_controller.upgrade() {
+        sort_controller
+          .read()
+          .await
+          .did_receive_row_changed(row_id)
+          .await;
+      }
+      if let Some(calculations_controller) = weak_calculations_controller.upgrade() {
+        calculations_controller
+          .did_receive_cell_changed(field_id)
+          .await;
+      }
+    });
   }
 }
