@@ -126,6 +126,7 @@ pub struct SortChangeset {
   pub(crate) insert_sort: Option<Sort>,
   pub(crate) update_sort: Option<Sort>,
   pub(crate) delete_sort: Option<String>,
+  pub(crate) reorder_sort: Option<(String, String)>,
 }
 
 impl SortChangeset {
@@ -134,6 +135,7 @@ impl SortChangeset {
       insert_sort: Some(sort),
       update_sort: None,
       delete_sort: None,
+      reorder_sort: None,
     }
   }
 
@@ -142,6 +144,7 @@ impl SortChangeset {
       insert_sort: None,
       update_sort: Some(sort),
       delete_sort: None,
+      reorder_sort: None,
     }
   }
 
@@ -150,6 +153,16 @@ impl SortChangeset {
       insert_sort: None,
       update_sort: None,
       delete_sort: Some(sort_id),
+      reorder_sort: None,
+    }
+  }
+
+  pub fn from_reorder(from_sort_id: String, to_sort_id: String) -> Self {
+    Self {
+      insert_sort: None,
+      update_sort: None,
+      delete_sort: None,
+      reorder_sort: Some((from_sort_id, to_sort_id)),
     }
   }
 }

@@ -71,6 +71,23 @@ class SortEditorBloc extends Bloc<SortEditorEvent, SortEditorState> {
             );
             result.fold((l) => null, (err) => Log.error(err));
           },
+          reorderSort: (fromIndex, toIndex) async {
+            if (fromIndex < toIndex) {
+              toIndex--;
+            }
+
+            final fromId = state.sortInfos[fromIndex].sortId;
+            final toId = state.sortInfos[toIndex].sortId;
+
+            final newSorts = [...state.sortInfos];
+            newSorts.insert(toIndex, newSorts.removeAt(fromIndex));
+            emit(state.copyWith(sortInfos: newSorts));
+            final result = await _sortBackendSvc.reorderSort(
+              fromSortId: fromId,
+              toSortId: toId,
+            );
+            result.fold((l) => null, (err) => Log.error(err));
+          },
         );
       },
     );
@@ -113,6 +130,8 @@ class SortEditorEvent with _$SortEditorEvent {
   ) = _SetCondition;
   const factory SortEditorEvent.deleteSort(SortInfo sortInfo) = _DeleteSort;
   const factory SortEditorEvent.deleteAllSorts() = _DeleteAllSorts;
+  const factory SortEditorEvent.reorderSort(int oldIndex, int newIndex) =
+      _ReorderSort;
 }
 
 @freezed

@@ -13,8 +13,8 @@ use flowy_error::FlowyResult;
 use lib_infra::future::Fut;
 use lib_infra::priority_task::{QualityOfService, Task, TaskContent, TaskDispatcher};
 
-use crate::entities::FieldType;
 use crate::entities::SortChangesetNotificationPB;
+use crate::entities::{FieldType, SortWithIndexPB};
 use crate::services::cell::CellCache;
 use crate::services::database_view::{DatabaseViewChanged, DatabaseViewChangedNotifier};
 use crate::services::field::{default_order, TypeOptionCellExt};
@@ -184,7 +184,10 @@ impl SortController {
 
     if let Some(insert_sort) = changeset.insert_sort {
       if let Some(sort) = self.delegate.get_sort(&self.view_id, &insert_sort.id).await {
-        notification.insert_sorts.push(sort.as_ref().into());
+        notification.insert_sorts.push(SortWithIndexPB {
+          index: self.sorts.len() as u32,
+          sort: sort.as_ref().into(),
+        });
         self.sorts.push(sort);
       }
     }
@@ -206,6 +209,23 @@ impl SortController {
         {
           self.sorts[index] = updated_sort;
         }
+      }
+    }
+
+    if let Some((from_id, to_id)) = changeset.reorder_sort {
+      let moved_sort = self.delegate.get_sort(&self.view_id, &from_id).await;
+      let from_index = self.sorts.iter().position(|sort| sort.id == from_id);
+      let to_index = self.sorts.iter().position(|sort| sort.id == to_id);
+
+      if let (Some(sort), Some(from_index), Some(to_index)) = (moved_sort, from_index, to_index) {
+        self.sorts.remove(from_index);
+        self.sorts.insert(to_index, sort.clone());
+
+        notification.delete_sorts.push(sort.as_ref().into());
+        notification.insert_sorts.push(SortWithIndexPB {
+          index: to_index as u32,
+          sort: sort.as_ref().into(),
+        });
       }
     }
 

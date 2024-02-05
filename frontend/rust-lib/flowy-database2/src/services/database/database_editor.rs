@@ -228,8 +228,14 @@ impl DatabaseEditor {
 
   pub async fn create_or_update_sort(&self, params: UpdateSortPayloadPB) -> FlowyResult<Sort> {
     let view_editor = self.database_views.get_view_editor(&params.view_id).await?;
-    let sort = view_editor.insert_or_update_sort(params).await?;
+    let sort = view_editor.v_create_or_update_sort(params).await?;
     Ok(sort)
+  }
+
+  pub async fn reorder_sort(&self, params: ReorderSortPayloadPB) -> FlowyResult<()> {
+    let view_editor = self.database_views.get_view_editor(&params.view_id).await?;
+    view_editor.v_reorder_sort(params).await?;
+    Ok(())
   }
 
   pub async fn delete_sort(&self, params: DeleteSortPayloadPB) -> FlowyResult<()> {
@@ -1457,6 +1463,13 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
 
   fn insert_sort(&self, view_id: &str, sort: Sort) {
     self.database.lock().insert_sort(view_id, sort);
+  }
+
+  fn move_sort(&self, view_id: &str, from_sort_id: &str, to_sort_id: &str) {
+    self
+      .database
+      .lock()
+      .move_sort(view_id, from_sort_id, to_sort_id);
   }
 
   fn remove_sort(&self, view_id: &str, sort_id: &str) {

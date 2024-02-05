@@ -17,8 +17,8 @@ use lib_dispatch::prelude::af_spawn;
 use crate::entities::{
   CalendarEventPB, DatabaseLayoutMetaPB, DatabaseLayoutSettingPB, DeleteFilterPayloadPB,
   DeleteSortPayloadPB, FieldType, FieldVisibility, GroupChangesPB, GroupPB, InsertedRowPB,
-  LayoutSettingChangeset, LayoutSettingParams, RemoveCalculationChangesetPB, RowMetaPB,
-  RowsChangePB, SortChangesetNotificationPB, SortPB, UpdateCalculationChangesetPB,
+  LayoutSettingChangeset, LayoutSettingParams, RemoveCalculationChangesetPB, ReorderSortPayloadPB,
+  RowMetaPB, RowsChangePB, SortChangesetNotificationPB, SortPB, UpdateCalculationChangesetPB,
   UpdateFilterParams, UpdateSortPayloadPB,
 };
 use crate::notification::{send_notification, DatabaseNotification};
@@ -499,7 +499,7 @@ impl DatabaseViewEditor {
   }
 
   #[tracing::instrument(level = "trace", skip(self), err)]
-  pub async fn insert_or_update_sort(&self, params: UpdateSortPayloadPB) -> FlowyResult<Sort> {
+  pub async fn v_create_or_update_sort(&self, params: UpdateSortPayloadPB) -> FlowyResult<Sort> {
     let is_exist = params.sort_id.is_some();
     let sort_id = match params.sort_id {
       None => gen_database_sort_id(),
@@ -513,9 +513,11 @@ impl DatabaseViewEditor {
       condition: params.condition.into(),
     };
 
-    let mut sort_controller = self.sort_controller.write().await;
     self.delegate.insert_sort(&self.view_id, sort.clone());
-    let changeset = if is_exist {
+
+    let mut sort_controller = self.sort_controller.write().await;
+
+    let notification = if is_exist {
       sort_controller
         .apply_changeset(SortChangeset::from_update(sort.clone()))
         .await
@@ -525,8 +527,27 @@ impl DatabaseViewEditor {
         .await
     };
     drop(sort_controller);
-    notify_did_update_sort(changeset).await;
+    notify_did_update_sort(notification).await;
     Ok(sort)
+  }
+
+  pub async fn v_reorder_sort(&self, params: ReorderSortPayloadPB) -> FlowyResult<()> {
+    self
+      .delegate
+      .move_sort(&self.view_id, &params.from_sort_id, &params.to_sort_id);
+
+    let notification = self
+      .sort_controller
+      .write()
+      .await
+      .apply_changeset(SortChangeset::from_reorder(
+        params.from_sort_id,
+        params.to_sort_id,
+      ))
+      .await;
+
+    notify_did_update_sort(notification).await;
+    Ok(())
   }
 
   pub async fn v_delete_sort(&self, params: DeleteSortPayloadPB) -> FlowyResult<()> {

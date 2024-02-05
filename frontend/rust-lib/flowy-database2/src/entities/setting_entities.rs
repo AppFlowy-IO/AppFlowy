@@ -15,7 +15,7 @@ use crate::entities::{
 };
 use crate::services::setting::{BoardLayoutSetting, CalendarLayoutSetting};
 
-use super::BoardLayoutSettingPB;
+use super::{BoardLayoutSettingPB, ReorderSortPayloadPB};
 
 /// [DatabaseViewSettingPB] defines the setting options for the grid. Such as the filter, group, and sort.
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
@@ -39,9 +39,8 @@ pub struct DatabaseViewSettingPB {
   pub field_settings: RepeatedFieldSettingsPB,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum, EnumIter)]
+#[derive(Debug, Default, Clone, PartialEq, Eq, ProtoBuf_Enum, EnumIter)]
 #[repr(u8)]
-#[derive(Default)]
 pub enum DatabaseLayoutPB {
   #[default]
   Grid = 0,
@@ -95,6 +94,10 @@ pub struct DatabaseSettingChangesetPB {
   pub update_sort: Option<UpdateSortPayloadPB>,
 
   #[pb(index = 7, one_of)]
+  #[validate]
+  pub reorder_sort: Option<ReorderSortPayloadPB>,
+
+  #[pb(index = 8, one_of)]
   #[validate]
   pub delete_sort: Option<DeleteSortPayloadPB>,
 }

@@ -75,6 +75,8 @@ pub trait DatabaseViewOperation: Send + Sync + 'static {
 
   fn insert_sort(&self, view_id: &str, sort: Sort);
 
+  fn move_sort(&self, view_id: &str, from_sort_id: &str, to_sort_id: &str);
+
   fn remove_sort(&self, view_id: &str, sort_id: &str);
 
   fn get_all_sorts(&self, view_id: &str) -> Vec<Sort>;

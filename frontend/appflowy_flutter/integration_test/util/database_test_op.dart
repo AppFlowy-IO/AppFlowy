@@ -1070,6 +1070,34 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await tapButton(findSortItem);
   }
 
+  /// Must call [tapSortMenuInSettingBar] first.
+  Future<void> reorderSort(
+    (FieldType, String) from,
+    (FieldType, String) to,
+  ) async {
+    final fromSortItem = find.byWidgetPredicate(
+      (widget) =>
+          widget is DatabaseSortItem &&
+          widget.sortInfo.fieldInfo.fieldType == from.$1 &&
+          widget.sortInfo.fieldInfo.name == from.$2,
+    );
+    final toSortItem = find.byWidgetPredicate(
+      (widget) =>
+          widget is DatabaseSortItem &&
+          widget.sortInfo.fieldInfo.fieldType == to.$1 &&
+          widget.sortInfo.fieldInfo.name == to.$2,
+    );
+    final dragElement = find.descendant(
+      of: fromSortItem,
+      matching: find.byType(ReorderableDragStartListener),
+    );
+    await drag(
+      dragElement,
+      getCenter(toSortItem) - getCenter(fromSortItem),
+    );
+    await pumpAndSettle(const Duration(milliseconds: 200));
+  }
+
   /// Must call [tapSortButtonByName] first.
   Future<void> tapSortByDescending() async {
     await tapButton(

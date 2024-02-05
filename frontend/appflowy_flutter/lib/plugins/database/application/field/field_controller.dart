@@ -282,16 +282,19 @@ class FieldController {
     ) {
       for (final newSortPB in changeset.insertSorts) {
         final sortIndex = newSortInfos
-            .indexWhere((element) => element.sortId == newSortPB.id);
+            .indexWhere((element) => element.sortId == newSortPB.sort.id);
         if (sortIndex == -1) {
           final fieldInfo = _findFieldInfo(
             fieldInfos: fieldInfos,
-            fieldId: newSortPB.fieldId,
-            fieldType: newSortPB.fieldType,
+            fieldId: newSortPB.sort.fieldId,
+            fieldType: newSortPB.sort.fieldType,
           );
 
           if (fieldInfo != null) {
-            newSortInfos.add(SortInfo(sortPB: newSortPB, fieldInfo: fieldInfo));
+            newSortInfos.insert(
+              newSortPB.index,
+              SortInfo(sortPB: newSortPB.sort, fieldInfo: fieldInfo),
+            );
           }
         }
       }

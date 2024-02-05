@@ -84,7 +84,7 @@ pub struct DeleteFilterPayloadPB {
   pub field_type: FieldType,
 
   #[pb(index = 3)]
-  #[validate(custom = "lib_infra::validator_fn::required_not_empty_str")]
+  #[validate(custom = "crate::entities::utils::validate_filter_id")]
   pub filter_id: String,
 
   #[pb(index = 4)]
@@ -103,7 +103,7 @@ pub struct UpdateFilterPayloadPB {
 
   /// Create a new filter if the filter_id is None
   #[pb(index = 3, one_of)]
-  #[validate(custom = "lib_infra::validator_fn::required_not_empty_str")]
+  #[validate(custom = "crate::entities::utils::validate_filter_id")]
   pub filter_id: Option<String>,
 
   #[pb(index = 4)]

@@ -12,7 +12,7 @@ const deleteSortsFromChange = (database: Database, changeset: SortChangesetNotif
 
 const insertSortsFromChange = (database: Database, changeset: SortChangesetNotificationPB) => {
   changeset.insert_sorts.forEach(sortPB => {
-    database.sorts.push(pbToSort(sortPB));
+    database.sorts.push(pbToSort(sortPB.sort));
   });
 };
 
