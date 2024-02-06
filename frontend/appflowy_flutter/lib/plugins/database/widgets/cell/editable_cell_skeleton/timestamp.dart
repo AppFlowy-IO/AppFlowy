@@ -83,7 +83,7 @@ class _TimestampCellState extends GridCellState<EditableTimestampCell> {
   }
 
   @override
-  void requestBeginFocus() {
+  void onRequestFocus() {
     widget.cellContainerNotifier.isFocus = true;
   }
 
