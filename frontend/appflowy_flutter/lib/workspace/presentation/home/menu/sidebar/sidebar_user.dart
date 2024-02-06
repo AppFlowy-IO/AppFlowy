@@ -20,7 +20,6 @@ import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
 
 final GlobalKey _settingsDialogKey = GlobalKey();
@@ -35,7 +34,7 @@ Future<HotKeyItem?> openSettingsHotKey(BuildContext context) async {
     },
     (userProfile) => HotKeyItem(
       hotKey: HotKey(
-        KeyCode.period,
+        KeyCode.comma,
         scope: HotKeyScope.inapp,
         modifiers: [
           PlatformExtension.isMacOS ? KeyModifier.meta : KeyModifier.control,
@@ -44,8 +43,9 @@ Future<HotKeyItem?> openSettingsHotKey(BuildContext context) async {
       keyDownHandler: (_) {
         if (_settingsDialogKey.currentContext == null) {
           _showSettingsDialog(context, userProfile);
-        } else if (context.canPop()) {
-          context.pop();
+        } else {
+          Navigator.of(context, rootNavigator: true)
+              .popUntil((route) => route.isFirst);
         }
       },
     ),
