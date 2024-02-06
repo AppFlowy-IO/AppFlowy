@@ -2,6 +2,7 @@
   "appName": "AppFlowy",
   "defaultUsername": "Ich",
   "welcomeText": "Willkommen bei @:appName",
+  "welcomeTo": "Willkommen bei",
   "githubStarText": "Mit einem Stern auf GitHub markieren",
   "subscribeNewsletterText": "Abonniere den Newsletter",
   "letsGoButtonText": "Los geht's",
@@ -35,6 +36,7 @@
     "loginStartWithAnonymous": "Anonyme Sitzung starten",
     "continueAnonymousUser": "in anonymer Sitzung fortfahren",
     "buttonText": "Anmelden",
+    "signingInText": "Du wirst eingeloggt...",
     "forgotPassword": "Passwort vergessen?",
     "emailHint": "E-Mail",
     "passwordHint": "Passwort",
@@ -46,7 +48,8 @@
     "LogInWithGoogle": "Mit Google-Account anmelden",
     "LogInWithGithub": "Mit GitHub-Account anmelden",
     "LogInWithDiscord": "Mit Discord-Account anmelden",
-    "signInWith": "Anmeldeoptionen:"
+    "signInWith": "Anmeldeoptionen:",
+    "loginAsGuestButtonText": "Als Gast anmelden"
   },
   "workspace": {
     "chooseWorkspace": "Arbeitsbereich wählen",
@@ -58,6 +61,8 @@
     "failedToLoad": "Etwas ist schief gelaufen! Der Arbeitsbereich konnte nicht geladen werden. Versuchen Sie, alle AppFlowy Instanzen zu schließen, und versuchen Sie es erneut.",
     "errorActions": {
       "reportIssue": "Problem melden",
+      "reportIssueOnGithub": "Ein Problem bei Github melden",
+      "exportLogFiles": "Protokolldateien exportieren",
       "reachOut": "Kontaktieren Sie uns auf Discord"
     }
   },
@@ -233,7 +238,9 @@
     "add": "Hinzufügen",
     "yes": "Ja",
     "Done": "Erledigt",
-    "Cancel": "Abbrechen"
+    "Cancel": "Abbrechen",
+    "OK": "Ok",
+    "tryAGain": "Erneut versuchen"
   },
   "label": {
     "welcome": "Willkommen!",
@@ -278,9 +285,12 @@
       "cloudLocal": "Lokal",
       "cloudSupabase": "Supabase",
       "cloudSupabaseUrl": "Supabase URL",
+      "cloudSupabaseUrlCanNotBeEmpty": "Die Supabase-URL darf nicht leer sein",
       "cloudSupabaseAnonKey": "Supabase anonymer Schlüssel",
       "cloudSupabaseAnonKeyCanNotBeEmpty": "Der anonyme Schlüssel darf nicht leer sein, wenn die Supabase URL gesetzt ist.",
       "cloudAppFlowy": "AppFlowy Cloud",
+      "cloudAppFlowySelfHost": "AppFlowy Cloud Selbstgehostet",
+      "appFlowyCloudUrlCanNotBeEmpty": "Die Cloud-URL darf nicht leer sein",
       "clickToCopy": "Klicken, um zu kopieren",
       "selfHostStart": "Falls Sie keinen Server haben, verweisen Sie bitte auf",
       "selfHostContent": "Dokument",
@@ -290,6 +300,7 @@
       "cloudWSURLHint": "Eingbe der Websocket Adresse Ihres Servers",
       "restartApp": "Neustart",
       "restartAppTip": "Programm neustarten, um die Änderungen zu übernehmen. Bitte bachten, dass Sie vom aktuellen Account eventuell ausgeloggt werden.",
+      "changeServerTip": "Nach dem Wechsel des Servers müssen Sie auf die Schaltfläche „Neustart“ klicken, damit die Änderungen wirksam werden",
       "enableEncryptPrompt": "Verschlüsselung aktivieren, um Ihre Daten mit dem Secret Key zu verschlüsseln. Verwahren Sie den Schlüssel sicher. Einmal aktiviert kann es nicht mehr rückgängig gemacht werden. Falls der Schlüssel verloren geht sind Ihre Daten unwiderbringlich verloren. Klicken, um zu kopieren.",
       "inputEncryptPrompt": "Bitte den Encryption Secret Code eingeben",
       "clickToCopySecret": "Klicken, um den Secret Code zu kopieren",
@@ -301,6 +312,7 @@
       "openHistoricalUser": "Klicken, um den anonymen Account zu öffnen",
       "customPathPrompt": "Den AppFlowy Daten-Ordner in einem mit der Cloud synchronisierten Ordner (z.B. Google Drive) zu speichern, könnte Risiken bergen. Falls die Datenbank innerhalb dieses Ordners gleichzeitig von mehreren Orten zugegriffen oder verändert wird könnte es zu Synchronisationskonflikten und potentiellen Daten-Beschädigung führen",
       "importAppFlowyData": "Daten von einem externen AppFlowy Ordner importieren.",
+      "importingAppFlowyDataTip": "Der Datenimport läuft. Bitte schließen Sie die App nicht",
       "importAppFlowyDataDescription": "Daten von einem externen AppFlowy Ordner kopieren und in den aktuellen AppFlowy Datenordner importieren.",
       "importSuccess": "Der AppFlowy Datenordner wurde erfolgreich importiert",
       "importFailed": "Der AppFlowy Datenordner-Import ist fehlgeschlagen",
@@ -445,10 +457,12 @@
       "joinDiscord": "Komm zu uns bei Discord",
       "privacyPolicy": "Datenschutz",
       "userAgreement": "Nutzungsbedingungen",
+      "termsAndConditions": "Geschäftsbedingungen",
       "userprofileError": "Das Nutzerprofil konnte nicht geladen werden",
       "userprofileErrorDescription": "Bitte abmelden und wieder anmelden, um zu prüfen ob das Problem weiterhin bestehen bleibt.",
       "selectLayout": "Layout auswählen",
-      "selectStartingDay": "Ersten Tag auswählen"
+      "selectStartingDay": "Ersten Tag auswählen",
+      "version": "Version"
     }
   },
   "grid": {
@@ -470,14 +484,14 @@
       "typeAValue": "Einen Wert eingeben...",
       "layout": "Layout",
       "databaseLayout": "Layout",
+      "viewList": "Datenbank-Ansichten",
       "editView": "Ansicht editieren",
       "boardSettings": "Board-Einstellungen",
       "calendarSettings": "Kalender-Einstellungen",
       "createView": "New Ansicht",
       "duplicateView": "Ansicht duplizieren",
       "deleteView": "Anslicht löschen",
-      "numberOfVisibleFields": "{} zeigen",
-      "viewList": "Datenbank-Ansichten"
+      "numberOfVisibleFields": "{} zeigen"
     },
     "textFilter": {
       "contains": "Enthält",
@@ -576,7 +590,8 @@
       "newProperty": "Neue Eigenschaft",
       "deleteFieldPromptMessage": "Sicher? Diese Eigenschaft wird gelöscht",
       "newColumn": "Neue Spalte",
-      "format": "Format"
+      "format": "Format",
+      "reminderOnDateTooltip": "In dieser Zelle ist eine Erinnerung geplant"
     },
     "rowPage": {
       "newField": "Ein neues Feld hinzufügen",
@@ -642,7 +657,16 @@
       "showComplete": "Zeige alle Aufgaben"
     },
     "menuName": "Raster",
-    "referencedGridPrefix": "Sicht von"
+    "referencedGridPrefix": "Sicht von",
+    "calculate": "Berechnen",
+    "calculationTypeLabel": {
+      "none": "Keiner",
+      "average": "Durchschnitt",
+      "max": "Max",
+      "median": "Median",
+      "min": "Min",
+      "sum": "Summe"
+    }
   },
   "document": {
     "menuName": "Dokument",
@@ -778,7 +802,9 @@
         "toContinue": "fortfahren",
         "newDatabase": "Neue Datenbank",
         "linkToDatabase": "Verknüpfung zur Datenbank"
-      }
+      },
+      "date": "Datum",
+      "emoji": "Emoji"
     },
     "textBlock": {
       "placeholder": "Geben Sie „/“ für Inhaltsblöcke ein"
@@ -824,7 +850,9 @@
       "saveImageToGallery": "Bild speichern",
       "failedToAddImageToGallery": "Das Bild konnte nicht zur Galerie hinzugefügt werden",
       "successToAddImageToGallery": "Das Bild wurde zur Galerie hinzugefügt werden",
-      "unableToLoadImage": "Das Bild konnte nicht geladen werden"
+      "unableToLoadImage": "Das Bild konnte nicht geladen werden",
+      "maximumImageSize": "Die maximal unterstützte Upload-Bildgröße beträgt 10 MB",
+      "uploadImageErrorImageSizeTooBig": "Die Bildgröße muss weniger als 10 MB betragen"
     },
     "codeBlock": {
       "language": {
@@ -912,6 +940,10 @@
       "previousMonth": "Vorheriger Monat",
       "nextMonth": "Nächster Monat"
     },
+    "mobileEventScreen": {
+      "emptyTitle": "Noch keine Veranstaltungen",
+      "emptyBody": "Drücken Sie die Plus-Taste, um an diesem Tag ein Ereignis zu erstellen."
+    },
     "settings": {
       "showWeekNumbers": "Wochennummern anzeigen",
       "showWeekends": "Wochenenden anzeigen",
@@ -924,7 +956,7 @@
         "one": "{count} Ereignisse ohne Datum",
         "other": "{count} Ereignisse ohne Datum"
       },
-      "unscheduledEventsTitle": "Unscheduled events",
+      "unscheduledEventsTitle": "Außerplanmäßige Ereignisse",
       "clickToAdd": "Klicken Sie, um es zum Kalender hinzuzufügen",
       "name": "Kalendereinstellungen"
     },
@@ -1000,6 +1032,10 @@
   "inlineActions": {
     "noResults": "Keine Ergebnisse",
     "pageReference": "Seitenreferenz",
+    "docReference": "Dokumentverweis",
+    "boardReference": "Board-Referenz",
+    "calReference": "Kalenderreferenz",
+    "gridReference": "Gitter Referenz",
     "date": "Datum",
     "reminder": {
       "groupTitle": "Erinnerung",
@@ -1012,7 +1048,24 @@
     "includeTime": "Inkl. Zeit",
     "isRange": "Enddatum",
     "timeFormat": "Zeitformat",
-    "clearDate": "Datum löschen"
+    "clearDate": "Datum löschen",
+    "reminderLabel": "Erinnerung",
+    "selectReminder": "Erinnerung auswählen",
+    "reminderOptions": {
+      "none": "Keiner",
+      "atTimeOfEvent": "Zeitpunkt des Ereignisses",
+      "fiveMinsBefore": "5 Minuten vorher",
+      "tenMinsBefore": "10 Minuten vorher",
+      "fifteenMinsBefore": "15 Minuten vorher",
+      "thirtyMinsBefore": "30 Minuten vorher",
+      "oneHourBefore": "1 Stunde vorher",
+      "twoHoursBefore": "2 Stunden vorher",
+      "onDayOfEvent": "Am Veranstaltungstag",
+      "oneDayBefore": "1 Tag vorher",
+      "twoDaysBefore": "2 Tage vorher",
+      "oneWeekBefore": "1 Woche vorher",
+      "custom": "Custom"
+    }
   },
   "relativeDates": {
     "yesterday": "Gestern",
@@ -1068,6 +1121,7 @@
   "editor": {
     "bold": "Fett",
     "bulletedList": "Stichpunktliste",
+    "bulletedListShortForm": "Mit Aufzählungszeichen",
     "checkbox": "Checkbox",
     "embedCode": "Eingebetteter Code",
     "heading1": "Überschrift 1",
@@ -1076,9 +1130,11 @@
     "highlight": "Hervorhebung",
     "color": "Farbe",
     "image": "Bild",
+    "date": "Datum",
     "italic": "Kursiv",
     "link": "Link",
     "numberedList": "Nummerierte Liste",
+    "numberedListShortForm": "Nummeriert",
     "quote": "Zitat",
     "strikethrough": "Durgestrichen",
     "text": "Text",
@@ -1177,7 +1233,11 @@
     "colClear": "Inhalt löschen",
     "rowClear": "Inhalt löschen",
     "slashPlaceHolder": "'/'-Taste, um einen Block einzufügen oder Text eingeben",
-    "typeSomething": "Etwas eingeben..."
+    "typeSomething": "Etwas eingeben...",
+    "toggleListShortForm": "Umschalten",
+    "quoteListShortForm": "Zitat",
+    "mathEquationShortForm": "Formel",
+    "codeBlockShortForm": "Code"
   },
   "favorite": {
     "noFavorite": "Keine Favoritenseite",
@@ -1201,5 +1261,6 @@
     "date": "Datum",
     "addField": "Ein Feld hinzufügen",
     "userIcon": "Nutzerbild"
-  }
+  },
+  "noLogFiles": "Es gibt keine Protokolldateien"
 }
