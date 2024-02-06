@@ -42,7 +42,7 @@ class HomeHotKeys extends StatelessWidget {
     // Collapse sidebar menu
     HotKeyItem(
       hotKey: HotKey(
-        KeyCode.backslash,
+        Platform.isMacOS ? KeyCode.period : KeyCode.backslash,
         modifiers: [Platform.isMacOS ? KeyModifier.meta : KeyModifier.control],
         // Set hotkey scope (default is HotKeyScope.system)
         scope: HotKeyScope.inapp, // Set as inapp-wide hotkey.
