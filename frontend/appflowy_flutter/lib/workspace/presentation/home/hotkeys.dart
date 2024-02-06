@@ -1,8 +1,11 @@
 import 'dart:io';
-import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
-import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
-import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
+
 import 'package:flutter/material.dart';
+
+import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
+import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
+import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
+import 'package:appflowy/workspace/presentation/command_palette/command_palette.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:provider/provider.dart';
 
@@ -91,6 +94,9 @@ class HomeHotKeys extends StatelessWidget {
       ),
       keyDownHandler: (_) => _selectTab(context, 1),
     ).register();
+
+    // Command Palette
+    commandPaletteHotKey(context).register();
 
     return child;
   }
