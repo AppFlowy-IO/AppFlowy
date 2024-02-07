@@ -16,6 +16,7 @@ import 'document_with_inline_page_test.dart' as document_with_inline_page_test;
 import 'document_with_outline_block_test.dart' as document_with_outline_block;
 import 'document_with_toggle_list_test.dart' as document_with_toggle_list_test;
 import 'edit_document_test.dart' as document_edit_test;
+import 'document_with_overview_block_test.dart' as document_with_overview_block_test;
 import 'document_inline_page_reference_test.dart'
     as document_inline_page_reference_test;
 
@@ -38,4 +39,5 @@ void startTesting() {
   document_option_action_test.main();
   document_with_image_block_test.main();
   document_inline_page_reference_test.main();
+  document_with_overview_block_test.main();
 }
