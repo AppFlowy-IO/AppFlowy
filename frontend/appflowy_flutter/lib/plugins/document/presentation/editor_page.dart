@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/document/presentation/editor_plugins/overview/workspace_overview_block_component.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -383,6 +384,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       emojiMenuItem,
       autoGeneratorMenuItem,
       dateMenuItem,
+      workspaceOverviewItem,
     ];
   }
 

@@ -85,8 +85,8 @@ class EditorStyleCustomizer {
         ),
       ),
       textSpanDecorator: customizeAttributeDecorator,
-      textScaleFactor:
-          context.watch<AppearanceSettingsCubit>().state.textScaleFactor,
+      //textScaleFactor:
+      //    context.watch<AppearanceSettingsCubit>().state.textScaleFactor,
     );
   }
 
@@ -135,8 +135,8 @@ class EditorStyleCustomizer {
       textSpanDecorator: customizeAttributeDecorator,
       mobileDragHandleBallSize: const Size.square(12.0),
       magnifierSize: const Size(144, 96),
-      textScaleFactor:
-          context.watch<AppearanceSettingsCubit>().state.textScaleFactor,
+      //textScaleFactor: 1,
+          //context.watch<AppearanceSettingsCubit>().state.textScaleFactor,
     );
   }
 
@@ -169,6 +169,17 @@ class EditorStyleCustomizer {
   }
 
   TextStyle outlineBlockPlaceholderStyleBuilder() {
+    final theme = Theme.of(context);
+    final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
+    return TextStyle(
+      fontFamily: builtInFontFamily,
+      fontSize: fontSize,
+      height: 1.5,
+      color: theme.colorScheme.onBackground.withOpacity(0.6),
+    );
+  }
+
+  TextStyle workspaceOverviewBlockPlaceholderStyleBuilder() {
     final theme = Theme.of(context);
     final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
     return TextStyle(
