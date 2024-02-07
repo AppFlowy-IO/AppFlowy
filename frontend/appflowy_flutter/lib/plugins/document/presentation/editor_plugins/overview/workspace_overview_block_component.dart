@@ -18,8 +18,8 @@ import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:collection/collection.dart';
 import 'package:dartz/dartz.dart' hide State;
 import 'package:easy_localization/easy_localization.dart' hide TextDirection;
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
-import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -79,7 +79,8 @@ class _OverviewBlockWidgetState extends State<WorkspaceOverviewBlockWidget>
     with
         BlockComponentConfigurable,
         BlockComponentTextDirectionMixin,
-        BlockComponentBackgroundColorMixin {
+        BlockComponentBackgroundColorMixin,
+        TickerProviderStateMixin {
   @override
   BlockComponentConfiguration get configuration => widget.configuration;
 
@@ -89,9 +90,61 @@ class _OverviewBlockWidgetState extends State<WorkspaceOverviewBlockWidget>
   @override
   Node get node => widget.node;
 
-  static const double leftIndentIncrementValue = 20.0;
+  static const double startingLeftIndent = 50.0;
+
+  static const double leftIndentIncrementValue = 14.0;
 
   String get viewId => context.read<DocumentBloc>().view.id;
+
+  final ValueNotifier<bool> _isExpandedNotifier = ValueNotifier(true);
+
+  bool get _isExpanded => _isExpandedNotifier.value;
+
+  late final AnimationController _expansionController;
+  late final Animation<double> _curvedAnimationExpansionController;
+  static const _expansionAnimationDuration = Duration(milliseconds: 400);
+
+  @override
+  void initState() {
+    super.initState();
+    _prepareAnimations();
+  }
+
+  void _prepareAnimations() {
+    _expansionController = AnimationController(
+      duration: _expansionAnimationDuration,
+      reverseDuration: _expansionAnimationDuration,
+      vsync: this,
+    );
+
+    _curvedAnimationExpansionController = CurvedAnimation(
+      parent: _expansionController,
+      curve: Curves.fastOutSlowIn,
+      reverseCurve: Curves.fastOutSlowIn,
+    );
+    _runExpandCheck();
+  }
+
+  void _runExpandCheck() {
+    if (_isExpanded) {
+      _expansionController.forward();
+    } else {
+      _expansionController.reverse();
+    }
+  }
+
+  @override
+  void didUpdateWidget(WorkspaceOverviewBlockWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _runExpandCheck();
+  }
+
+  @override
+  void dispose() {
+    _expansionController.stop();
+    _expansionController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -131,10 +184,11 @@ class _OverviewBlockWidgetState extends State<WorkspaceOverviewBlockWidget>
       layoutDirection: Directionality.maybeOf(context),
     );
 
-    const double leftIndent = 0.0;
-
-    final children =
-        _buildOverviewBlockChildren(view, textDirection, leftIndent);
+    final children = _buildOverviewBlockChildren(
+      view,
+      textDirection,
+      startingLeftIndent,
+    );
 
     Widget child = Container(
       constraints: const BoxConstraints(
@@ -144,8 +198,10 @@ class _OverviewBlockWidgetState extends State<WorkspaceOverviewBlockWidget>
       child: children.isEmpty
           ? const SizedBox.shrink()
           : Container(
-              padding:
-                  const EdgeInsets.symmetric(vertical: 10.0, horizontal: 15.0),
+              padding: const EdgeInsets.symmetric(
+                vertical: 10.0,
+                horizontal: 5.0,
+              ),
               decoration: BoxDecoration(
                 borderRadius: const BorderRadius.all(Radius.circular(8.0)),
                 color: backgroundColor,
@@ -156,12 +212,39 @@ class _OverviewBlockWidgetState extends State<WorkspaceOverviewBlockWidget>
                 mainAxisSize: MainAxisSize.min,
                 textDirection: textDirection,
                 children: [
-                  Text(
-                    LocaleKeys.document_workspaceOverviewBlock_placeholder.tr(),
-                    style: Theme.of(context).textTheme.titleLarge,
+                  Row(
+                    children: [
+                      ValueListenableBuilder<bool>(
+                        valueListenable: _isExpandedNotifier,
+                        builder: (context, value, _) => FlowyIconButton(
+                          key: const Key("OverviewBlockExpansionIcon"),
+                          onPressed: _overviewExpansionHandler,
+                          icon: Icon(
+                            value
+                                ? Icons.arrow_drop_down_outlined
+                                : Icons.arrow_right_outlined,
+                            size: 25.0,
+                          ),
+                          hoverColor: Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+                      const HSpace(10.0),
+                      Text(
+                        LocaleKeys.document_workspaceOverviewBlock_placeholder
+                            .tr(),
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                    ],
                   ),
-                  const VSpace(10.0),
-                  ...children,
+                  SizeTransition(
+                    sizeFactor: _curvedAnimationExpansionController,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      textDirection: textDirection,
+                      children: [const VSpace(10.0), ...children],
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -231,6 +314,11 @@ class _OverviewBlockWidgetState extends State<WorkspaceOverviewBlockWidget>
         defaultIcon: view.defaultIcon(),
       ),
     );
+  }
+
+  void _overviewExpansionHandler() {
+    _isExpandedNotifier.value = !_isExpanded;
+    _runExpandCheck();
   }
 }
 
