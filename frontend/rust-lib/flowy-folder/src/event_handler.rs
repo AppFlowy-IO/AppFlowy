@@ -154,7 +154,7 @@ pub(crate) async fn delete_view_handler(
   let weak_workspace_overview_manager =
     Arc::downgrade(&folder.workspace_overview_listener_id_manager);
   for view_id in &params.items {
-    let _ = folder
+    folder
       .move_view_to_trash(view_id, &weak_workspace_overview_manager)
       .await?;
   }

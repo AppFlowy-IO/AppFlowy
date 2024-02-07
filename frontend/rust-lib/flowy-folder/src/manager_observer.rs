@@ -310,7 +310,7 @@ pub(crate) fn notify_workspace_overview_parent_view_did_change<T: AsRef<str>>(
       .map(|trash| trash.id)
       .collect::<Vec<String>>();
 
-    for parent_view_id in parent_view_ids {
+    if let Some(parent_view_id) = parent_view_ids.into_iter().next() {
       let parent_view_id = parent_view_id.as_ref();
 
       // if the view's parent id equal to workspace id. Then it will fetch the current
@@ -406,20 +406,20 @@ pub(crate) fn contains_parent_view_in_overview_listener(
 ) {
   let parent_view_id = &view_pb.parent_view_id;
 
-  if parent_view_id != workspace_id || &view_pb.id != workspace_id {
+  if parent_view_id != workspace_id || view_pb.id != workspace_id {
     if listener_ids.contains(parent_view_id) {
       view_ids.push(parent_view_id.clone());
     }
 
     if let Some(view) = folder.views.get_view(parent_view_id) {
       let view_pb = view_pb_without_child_views(view);
-      return contains_parent_view_in_overview_listener(
+      contains_parent_view_in_overview_listener(
         &view_pb,
         listener_ids,
         workspace_id,
         folder,
         view_ids,
-      );
+      )
     }
   }
 }

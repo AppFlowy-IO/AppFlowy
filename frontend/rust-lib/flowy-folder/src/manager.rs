@@ -46,7 +46,7 @@ use crate::util::{
 use crate::view_operation::{create_view, FolderOperationHandler, FolderOperationHandlers};
 
 #[cfg(target_arch = "wasm32")]
-pub type BoxFuture<'a, T> = Pin<Box<dyn Future<Output = T> + 'a + Send>>;
+pub type BoxFuture<'a, T> = Pin<Box<dyn Future<Output = T> + 'a>>;
 
 #[cfg(not(target_arch = "wasm32"))]
 pub type BoxFuture<'a, T> = Pin<Box<dyn Future<Output = T> + 'a + Send + Sync>>;
@@ -668,7 +668,7 @@ impl FolderManager {
         folder.move_nested_view(&view_id, &new_parent_id, prev_view_id);
 
         let mut view_ids = vec![new_parent_id.clone()];
-        if &new_parent_id != &old_parent_id {
+        if new_parent_id != old_parent_id {
           view_ids.push(old_parent_id);
         }
 
@@ -1262,6 +1262,12 @@ impl Display for FolderInitDataSource {
 /// enabling notifications to be sent regarding updates in its child views across all levels.
 pub struct WorkspaceOverviewListenerIdManager {
   pub(crate) listener_view_ids: RwLock<Option<HashSet<String>>>,
+}
+
+impl Default for WorkspaceOverviewListenerIdManager {
+  fn default() -> Self {
+    Self::new()
+  }
 }
 
 impl WorkspaceOverviewListenerIdManager {
