@@ -280,9 +280,12 @@ pub(crate) fn notify_workspace_overview_view_did_change(
     if res {
       tracing::trace!("Did update workspace overview parent view: {:?}", view);
       let view_pb = view_pb_without_child_views(Arc::new(view.clone()));
-      send_notification(&view.id, FolderNotification::DidUpdateWorkspaceOverviewParentView)
-        .payload(view_pb)
-        .send();
+      send_notification(
+        &view.id,
+        FolderNotification::DidUpdateWorkspaceOverviewParentView,
+      )
+      .payload(view_pb)
+      .send();
     }
   }
 }
@@ -350,7 +353,7 @@ pub(crate) fn notify_workspace_overview_parent_view_did_change<T: AsRef<str>>(
             .send();
         }
       }
-      return Some(())
+      return Some(());
     }
   }
 

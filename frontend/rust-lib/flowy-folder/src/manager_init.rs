@@ -117,7 +117,7 @@ impl FolderManager {
 
     let folder_state_rx = folder.subscribe_sync_state();
     *self.mutex_folder.lock() = Some(folder);
-    
+
     let weak_mutex_folder = Arc::downgrade(&self.mutex_folder);
     let workspace_overview_listener_id_manager =
       Arc::downgrade(&self.workspace_overview_listener_id_manager);
