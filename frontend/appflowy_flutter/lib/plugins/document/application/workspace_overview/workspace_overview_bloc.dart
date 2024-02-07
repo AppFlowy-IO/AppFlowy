@@ -20,7 +20,12 @@ class WorkspaceOverviewBloc
       await event.map(
         initial: (e) async {
           _listener.start(
-            onParentViewUpdated: _onViewUpdated,
+            onParentViewUpdated: (updatedParentView) async {
+              final updatedView = await _onViewUpdated(updatedParentView);
+              if (!isClosed && updatedView != null) {
+                add(WorkspaceOverviewEvent.viewDidUpdate(updatedView));
+              }
+            },
             onChildViewsUpdated: (updatedChildViews) async {
               final updatedView = await _onChildViewsUpdated(updatedChildViews);
               if (!isClosed && updatedView != null) {
@@ -43,22 +48,13 @@ class WorkspaceOverviewBloc
 
   final WorkspaceOverviewListener _listener;
 
-  void _onViewUpdated(UpdateViewNotifiedValue update) {
-    bool isRebuildRequired = false;
-
-    if (state.view.name != update.name) {
-      state.view.name = update.name;
-      isRebuildRequired = true;
+  Future<ViewPB?> _onViewUpdated(UpdateViewNotifiedValue update) async {
+    if (state.view.name != update.name || state.view.icon != update.icon) {
+      final updatedView =
+          await ViewBackendService.getAllLevelOfViews(state.view.id);
+      return updatedView.fold((l) => l, (r) => null);
     }
-
-    if (state.view.icon != update.icon) {
-      state.view.icon = update.icon;
-      isRebuildRequired = true;
-    }
-
-    if (isRebuildRequired) {
-      add(WorkspaceOverviewEvent.viewDidUpdate(state.view));
-    }
+    return null;
   }
 
   Future<ViewPB?> _onChildViewsUpdated(
