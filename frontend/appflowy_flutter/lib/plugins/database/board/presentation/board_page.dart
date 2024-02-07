@@ -58,6 +58,9 @@ class BoardPageTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
   ) =>
       const SizedBox.shrink();
 
+  @override
+  void dispose() {}
+
   ValueKey _makeValueKey(DatabaseController controller) =>
       ValueKey(controller.viewId);
 }

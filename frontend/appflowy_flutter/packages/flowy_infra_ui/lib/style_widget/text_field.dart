@@ -69,7 +69,6 @@ class FlowyTextField extends StatefulWidget {
 class FlowyTextFieldState extends State<FlowyTextField> {
   late FocusNode focusNode;
   late TextEditingController controller;
-  late bool disposeController;
   Timer? _debounceOnChanged;
 
   @override
@@ -80,7 +79,6 @@ class FlowyTextFieldState extends State<FlowyTextField> {
     focusNode.addListener(notifyDidEndEditing);
 
     controller = widget.controller ?? TextEditingController();
-    disposeController = widget.controller == null;
 
     if (widget.text != null) {
       controller.text = widget.text!;
@@ -104,7 +102,7 @@ class FlowyTextFieldState extends State<FlowyTextField> {
     if (widget.focusNode == null) {
       focusNode.dispose();
     }
-    if (disposeController) {
+    if (widget.controller == null) {
       controller.dispose();
     }
     _debounceOnChanged?.cancel();

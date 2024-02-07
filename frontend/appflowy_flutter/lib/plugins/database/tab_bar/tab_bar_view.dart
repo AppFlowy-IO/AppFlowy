@@ -41,6 +41,10 @@ abstract class DatabaseTabBarItemBuilder {
     BuildContext context,
     DatabaseController controller,
   );
+
+  /// Should be called in case a builder has resources it
+  /// needs to dispose of.
+  void dispose();
 }
 
 class DatabaseTabBarView extends StatefulWidget {

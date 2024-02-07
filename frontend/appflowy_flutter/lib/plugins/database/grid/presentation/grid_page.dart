@@ -86,6 +86,11 @@ class DesktopGridTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
     );
   }
 
+  @override
+  void dispose() {
+    _toggleExtension.dispose();
+  }
+
   ValueKey _makeValueKey(DatabaseController controller) {
     return ValueKey(controller.viewId);
   }

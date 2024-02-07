@@ -63,6 +63,9 @@ class CalendarPageTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
     return SizedBox.fromSize();
   }
 
+  @override
+  void dispose() {}
+
   ValueKey _makeValueKey(DatabaseController controller) {
     return ValueKey(controller.viewId);
   }

@@ -242,7 +242,6 @@ abstract class GridCellState<T extends EditableCellWidget> extends State<T> {
   @override
   void initState() {
     super.initState();
-
     widget.requestFocus.setListener(requestBeginFocus);
   }
 

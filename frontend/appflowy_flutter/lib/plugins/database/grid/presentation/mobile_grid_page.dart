@@ -57,6 +57,9 @@ class MobileGridTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
   ) =>
       const SizedBox.shrink();
 
+  @override
+  void dispose() {}
+
   ValueKey _makeValueKey(DatabaseController controller) {
     return ValueKey(controller.viewId);
   }

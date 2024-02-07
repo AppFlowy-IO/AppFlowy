@@ -98,4 +98,10 @@ class TabsState {
         currentIndex: newIndex ?? currentIndex,
         pageManagers: pageManagers ?? _pageManagers,
       );
+
+  void dispose() {
+    for (final manager in pageManagers) {
+      manager.dispose();
+    }
+  }
 }
