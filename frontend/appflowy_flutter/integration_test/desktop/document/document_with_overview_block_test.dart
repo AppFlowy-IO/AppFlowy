@@ -18,11 +18,7 @@ void main() {
 
   group("Doc workspace overview block test: ", () {
     testWidgets('insert an overview block widget', (tester) async {
-      await tester.initializeAppFlowy();
-      await tester.tapGoButton();
-
-      await tester.editor.tapLineOfEditorAt(0);
-      await insertWorkspaceOverviewInDocument(tester);
+      await initializeEditorAndInsertOverviewBlock(tester);
 
       /// validate the [WorkspaceOverviewBlockWidget] component is inserted
       expect(find.byType(WorkspaceOverviewBlockWidget), findsOneWidget);
@@ -50,11 +46,7 @@ void main() {
     testWidgets('updating parent view item of overview block component',
         (tester) async {
       const String viewName = '$gettingStarted View';
-      await tester.initializeAppFlowy();
-      await tester.tapGoButton();
-
-      await tester.editor.tapLineOfEditorAt(0);
-      await insertWorkspaceOverviewInDocument(tester);
+      await initializeEditorAndInsertOverviewBlock(tester);
 
       await tester.hoverOnPageName(gettingStarted);
       await tester.renamePage(viewName);
@@ -90,12 +82,7 @@ void main() {
     testWidgets(
       'overview block test',
       (tester) async {
-        await tester.initializeAppFlowy();
-        await tester.tapGoButton();
-
-        await tester.editor.tapLineOfEditorAt(0);
-        await insertWorkspaceOverviewInDocument(tester);
-
+        await initializeEditorAndInsertOverviewBlock(tester);
         // validate the overview is inserted
         expect(find.byType(WorkspaceOverviewBlockWidget), findsOneWidget);
 
@@ -187,11 +174,7 @@ void main() {
     );
 
     testWidgets('overview block expansion test', (tester) async {
-      await tester.initializeAppFlowy();
-      await tester.tapGoButton();
-
-      await tester.editor.tapLineOfEditorAt(0);
-      await insertWorkspaceOverviewInDocument(tester);
+      await initializeEditorAndInsertOverviewBlock(tester);
 
       /// validate the [WorkspaceOverviewBlockWidget] component is inserted
       expect(find.byType(WorkspaceOverviewBlockWidget), findsOneWidget);
@@ -212,11 +195,7 @@ void main() {
 
     testWidgets('navigating to the selected page view item from overview block',
         (tester) async {
-      await tester.initializeAppFlowy();
-      await tester.tapGoButton();
-
-      await tester.editor.tapLineOfEditorAt(0);
-      await insertWorkspaceOverviewInDocument(tester);
+      await initializeEditorAndInsertOverviewBlock(tester);
 
       /// validate the [WorkspaceOverviewBlockWidget] component is inserted
       expect(find.byType(WorkspaceOverviewBlockWidget), findsOneWidget);
@@ -306,4 +285,14 @@ void checkOverviewBlockComponentChildItems(
       findsOneWidget,
     );
   }
+}
+
+Future<void> initializeEditorAndInsertOverviewBlock(WidgetTester tester) async {
+  await tester.initializeAppFlowy();
+  await tester.tapGoButton();
+
+  await tester.editor.tapLineOfEditorAt(0);
+  await insertWorkspaceOverviewInDocument(tester);
+
+  await tester.pumpAndSettle();
 }
