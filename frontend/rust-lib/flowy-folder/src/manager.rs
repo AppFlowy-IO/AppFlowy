@@ -1184,13 +1184,17 @@ impl FolderManager {
   pub fn register_workspace_overview_listerner(&self, view_id: String) -> FlowyResult<()> {
     self
       .workspace_overview_listener_id_manager
-      .add_listerner_view_id(view_id)
+      .add_listerner_view_id(view_id)?;
+
+    Ok(())
   }
 
   pub fn remove_workspace_overview_listerner(&self, view_id: &str) -> FlowyResult<()> {
     self
       .workspace_overview_listener_id_manager
-      .remove_listener_view_id(view_id)
+      .remove_listener_view_id(view_id)?;
+
+    Ok(())
   }
 }
 
@@ -1267,20 +1271,15 @@ impl WorkspaceOverviewListenerIdManager {
     self.listener_view_ids.read().clone()
   }
 
-  pub fn add_listerner_view_id(&self, view_id: String) -> FlowyResult<()> {
-    match self.listener_view_ids.write().as_mut() {
-      Some(view_ids) => {
-        view_ids.insert(view_id);
-      },
-      None => {
-        return Err(FlowyError::new(
-          ErrorCode::Internal,
-          "workspace overview listener id manager is already dropped",
-        ));
-      },
+  pub fn add_listerner_view_id(&self, view_id: String) -> FlowyResult<bool> {
+    if let Some(view_ids) = self.listener_view_ids.write().as_mut() {
+      return Ok(view_ids.insert(view_id));
     }
 
-    Ok(())
+    Err(FlowyError::new(
+      ErrorCode::Internal,
+      "workspace overview listener id manager is already dropped",
+    ))
   }
 
   pub fn contains(&self, view_id: &String) -> FlowyResult<bool> {
@@ -1293,22 +1292,15 @@ impl WorkspaceOverviewListenerIdManager {
     }
   }
 
-  pub fn remove_listener_view_id(&self, view_id: &str) -> FlowyResult<()> {
-    match self.listener_view_ids.write().as_mut() {
-      Some(view_ids) => {
-        if view_ids.contains(view_id) {
-          view_ids.remove(view_id);
-        }
-      },
-      None => {
-        return Err(FlowyError::new(
-          ErrorCode::Internal,
-          "workspace overview listener id manager is already dropped",
-        ));
-      },
+  pub fn remove_listener_view_id(&self, view_id: &str) -> FlowyResult<bool> {
+    if let Some(view_ids) = self.listener_view_ids.write().as_mut() {
+      return Ok(view_ids.remove(view_id));
     }
 
-    Ok(())
+    Err(FlowyError::new(
+      ErrorCode::Internal,
+      "workspace overview listener id manager is already dropped",
+    ))
   }
 }
 
