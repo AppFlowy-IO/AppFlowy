@@ -13,3 +13,7 @@ diesel_migrations = { version = "2.1.0", features = ["sqlite"] }
 tempfile = "3.9.0"
 flowy-error = { workspace = true, features = ["impl_from_sqlite"] }
 tracing.workspace = true
+tantivy = { version = "0.21.1" }
+
+[dev-dependencies]
+tempfile = "3.10.0"
