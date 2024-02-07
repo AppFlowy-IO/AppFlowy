@@ -76,6 +76,11 @@ class FlowyRunner {
       IntegrationTestHelper.rustEnvsBuilder = rustEnvsBuilder;
     }
 
+    // Clear and dispose tasks from previous AppLaunch
+    if (getIt.isRegistered(instance: AppLauncher)) {
+      await getIt<AppLauncher>().dispose();
+    }
+
     // Clear all the states in case of rebuilding.
     await getIt.reset();
 
