@@ -96,7 +96,7 @@ class _NumberCellState extends GridEditableTextCell<EditableNumberCell> {
   SingleListenerFocusNode focusNode = SingleListenerFocusNode();
 
   @override
-  void requestBeginFocus() {
+  void onRequestFocus() {
     focusNode.requestFocus();
   }
 
