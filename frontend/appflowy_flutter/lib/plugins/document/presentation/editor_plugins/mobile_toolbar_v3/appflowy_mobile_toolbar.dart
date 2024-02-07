@@ -478,7 +478,6 @@ class _ToolbarItemListViewState extends State<_ToolbarItemListView> {
   void dispose() {
     widget.editorState.selectionNotifier
         .removeListener(_debounceUpdatePilotPosition);
-
     super.dispose();
   }
 
