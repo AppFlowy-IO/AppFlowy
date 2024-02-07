@@ -2,7 +2,9 @@ import 'dart:core';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/overview/workspace_overview_block_component.dart';
+import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../util/util.dart';
@@ -71,6 +73,7 @@ void main() {
             [2, 3].map((e) => 'Sub-Doc View $e').toList();
         await buildViewItems(tester, firstLevelViewNames);
 
+        // navigating to `Getting Started` doc page
         await tester.openPage(gettingStarted);
 
         /// expect all views to be present under the first-level parent view of `Getting Started` doc page
@@ -100,7 +103,6 @@ void main() {
           ),
           findsNothing,
         );
-
         expect(
           find.descendant(
             of: find.byType(WorkspaceOverviewBlockWidget),
@@ -124,6 +126,88 @@ void main() {
         );
       },
     );
+
+    testWidgets('overview block expansion test', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapGoButton();
+
+      await tester.editor.tapLineOfEditorAt(0);
+      await insertWorkspaceOverviewInDocument(tester);
+
+      /// validate the [WorkspaceOverviewBlockWidget] component is inserted
+      expect(find.byType(WorkspaceOverviewBlockWidget), findsOneWidget);
+
+      // expect to find [WorkspaceOverviewBlockWidget] expanded
+      expect(find.byType(OverviewItemWidget).hitTestable(), findsOneWidget);
+
+      await tester.tapButton(
+        find.byKey(
+          const Key("OverviewBlockExpansionIcon"),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // expect to find [WorkspaceOverviewBlockWidget] collapsed
+      expect(find.byType(OverviewItemWidget).hitTestable(), findsNothing);
+    });
+
+    testWidgets('navigating to the selected page view item from overview block',
+        (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapGoButton();
+
+      await tester.editor.tapLineOfEditorAt(0);
+      await insertWorkspaceOverviewInDocument(tester);
+
+      /// validate the [WorkspaceOverviewBlockWidget] component is inserted
+      expect(find.byType(WorkspaceOverviewBlockWidget), findsOneWidget);
+
+      /// inserting views under the `Getting Started` doc page
+      final views = [1, 2].map((e) => 'Document View $e').toList();
+      await buildViewItems(tester, views);
+
+      // navigating to `Getting Started` doc page
+      await tester.openPage(gettingStarted);
+
+      // navigating to `Document View 1` doc page
+      await tester.tap(
+        find.descendant(
+          of: find.byType(WorkspaceOverviewBlockWidget),
+          matching: find.text(views[0]),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // expected to be at `Document View 1` doc page
+      expect(
+        find.descendant(
+          of: find.byType(HomeTopBar),
+          matching: find.text(views[0]),
+        ),
+        findsOne,
+      );
+
+      // navigating to `Getting Started` doc page
+      await tester.openPage(gettingStarted);
+
+      // navigating to `Document View 2` doc page
+      await tester.tap(
+        find.descendant(
+          of: find.byType(WorkspaceOverviewBlockWidget),
+          matching: find.text(views[1]),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // navigating to `Document View 2` doc page
+      expect(
+        find.descendant(
+          of: find.byType(HomeTopBar),
+          matching: find.text(views[1]),
+        ),
+        findsOne,
+      );
+    });
   });
 }
 
