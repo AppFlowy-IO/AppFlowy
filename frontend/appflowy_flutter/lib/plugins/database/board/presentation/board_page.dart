@@ -33,7 +33,7 @@ import '../application/board_bloc.dart';
 import 'toolbar/board_setting_bar.dart';
 import 'widgets/board_hidden_groups.dart';
 
-class BoardPageTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
+class BoardPageTabBarBuilderImpl extends DatabaseTabBarItemBuilder {
   @override
   Widget content(
     BuildContext context,
@@ -57,9 +57,6 @@ class BoardPageTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
     DatabaseController controller,
   ) =>
       const SizedBox.shrink();
-
-  @override
-  void dispose() {}
 
   ValueKey _makeValueKey(DatabaseController controller) =>
       ValueKey(controller.viewId);

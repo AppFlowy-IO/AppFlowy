@@ -44,7 +44,9 @@ abstract class DatabaseTabBarItemBuilder {
 
   /// Should be called in case a builder has resources it
   /// needs to dispose of.
-  void dispose();
+  ///
+  // If we add any logic in this method, add @mustCallSuper !
+  void dispose() {}
 }
 
 class DatabaseTabBarView extends StatefulWidget {

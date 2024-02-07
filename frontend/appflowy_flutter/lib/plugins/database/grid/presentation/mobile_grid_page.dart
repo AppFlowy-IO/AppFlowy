@@ -29,7 +29,7 @@ import 'widgets/header/mobile_grid_header.dart';
 import 'widgets/mobile_fab.dart';
 import 'widgets/row/mobile_row.dart';
 
-class MobileGridTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
+class MobileGridTabBarBuilderImpl extends DatabaseTabBarItemBuilder {
   @override
   Widget content(
     BuildContext context,
@@ -56,9 +56,6 @@ class MobileGridTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
     DatabaseController controller,
   ) =>
       const SizedBox.shrink();
-
-  @override
-  void dispose() {}
 
   ValueKey _makeValueKey(DatabaseController controller) {
     return ValueKey(controller.viewId);

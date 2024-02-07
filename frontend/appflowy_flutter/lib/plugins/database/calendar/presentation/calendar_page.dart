@@ -30,7 +30,7 @@ import 'calendar_day.dart';
 import 'layout/sizes.dart';
 import 'toolbar/calendar_setting_bar.dart';
 
-class CalendarPageTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
+class CalendarPageTabBarBuilderImpl extends DatabaseTabBarItemBuilder {
   @override
   Widget content(
     BuildContext context,
@@ -62,9 +62,6 @@ class CalendarPageTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
   ) {
     return SizedBox.fromSize();
   }
-
-  @override
-  void dispose() {}
 
   ValueKey _makeValueKey(DatabaseController controller) {
     return ValueKey(controller.viewId);
