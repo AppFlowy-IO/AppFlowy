@@ -32,6 +32,16 @@ class ChecklistCellBloc extends Bloc<ChecklistCellEvent, ChecklistCellState> {
   final ChecklistCellBackendService _checklistCellService;
   void Function()? _onCellChangedFn;
 
+  @override
+  Future<void> close() async {
+    if (_onCellChangedFn != null) {
+      cellController.removeListener(_onCellChangedFn!);
+      _onCellChangedFn = null;
+    }
+    await cellController.dispose();
+    return super.close();
+  }
+
   void _dispatch() {
     on<ChecklistCellEvent>(
       (event, emit) async {
@@ -77,16 +87,6 @@ class ChecklistCellBloc extends Bloc<ChecklistCellEvent, ChecklistCellState> {
         );
       },
     );
-  }
-
-  @override
-  Future<void> close() async {
-    if (_onCellChangedFn != null) {
-      cellController.removeListener(_onCellChangedFn!);
-      _onCellChangedFn = null;
-    }
-    await cellController.dispose();
-    return super.close();
   }
 
   void _startListening() {

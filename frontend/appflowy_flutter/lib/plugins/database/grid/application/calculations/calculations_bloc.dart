@@ -29,6 +29,7 @@ class CalculationsBloc extends Bloc<CalculationsEvent, CalculationsState> {
   @override
   Future<void> close() async {
     _fieldController.removeListener(onFieldsListener: _onReceiveFields);
+    await _calculationsListener.stop();
     await super.close();
   }
 

@@ -16,6 +16,16 @@ class CheckboxCellBloc extends Bloc<CheckboxCellEvent, CheckboxCellState> {
   final CheckboxCellController cellController;
   void Function()? _onCellChangedFn;
 
+  @override
+  Future<void> close() async {
+    if (_onCellChangedFn != null) {
+      cellController.removeListener(_onCellChangedFn!);
+      _onCellChangedFn = null;
+    }
+    await cellController.dispose();
+    return super.close();
+  }
+
   void _dispatch() {
     on<CheckboxCellEvent>(
       (event, emit) {
@@ -33,17 +43,6 @@ class CheckboxCellBloc extends Bloc<CheckboxCellEvent, CheckboxCellState> {
         );
       },
     );
-  }
-
-  @override
-  Future<void> close() async {
-    if (_onCellChangedFn != null) {
-      cellController.removeListener(_onCellChangedFn!);
-      _onCellChangedFn = null;
-    }
-
-    await cellController.dispose();
-    return super.close();
   }
 
   void _startListening() {

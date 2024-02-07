@@ -1,9 +1,13 @@
-import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
-import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
-import 'package:appflowy/plugins/database/application/database_controller.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+
+import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
+import 'package:appflowy/plugins/database/application/database_controller.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
+
+import '../row/accessory/cell_accessory.dart';
+import '../row/accessory/cell_shortcuts.dart';
+import '../row/cells/cell_container.dart';
 
 import 'editable_cell_skeleton/checkbox.dart';
 import 'editable_cell_skeleton/checklist.dart';
@@ -13,9 +17,6 @@ import 'editable_cell_skeleton/select_option.dart';
 import 'editable_cell_skeleton/text.dart';
 import 'editable_cell_skeleton/timestamp.dart';
 import 'editable_cell_skeleton/url.dart';
-import '../row/accessory/cell_accessory.dart';
-import '../row/accessory/cell_shortcuts.dart';
-import '../row/cells/cell_container.dart';
 
 enum EditableCellStyle {
   desktopGrid,
@@ -113,11 +114,12 @@ class EditableCellBuilder {
     CellContext cellContext, {
     required EditableCellSkinMap skinMap,
   }) {
-    final cellController = makeCellController(databaseController, cellContext);
+    final DatabaseController(:fieldController) = databaseController;
+    final fieldType = fieldController.getField(cellContext.fieldId)!.fieldType;
+
     final key = ValueKey(
       "${databaseController.viewId}${cellContext.fieldId}${cellContext.rowId}",
     );
-    final fieldType = cellController.fieldType;
     assert(skinMap.has(fieldType));
     return switch (fieldType) {
       FieldType.Checkbox => EditableCheckboxCell(

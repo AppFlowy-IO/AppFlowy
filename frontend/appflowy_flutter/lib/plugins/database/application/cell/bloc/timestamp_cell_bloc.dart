@@ -17,6 +17,16 @@ class TimestampCellBloc extends Bloc<TimestampCellEvent, TimestampCellState> {
   final TimestampCellController cellController;
   void Function()? _onCellChangedFn;
 
+  @override
+  Future<void> close() async {
+    if (_onCellChangedFn != null) {
+      cellController.removeListener(_onCellChangedFn!);
+      _onCellChangedFn = null;
+    }
+    await cellController.dispose();
+    return super.close();
+  }
+
   void _dispatch() {
     on<TimestampCellEvent>(
       (event, emit) async {
@@ -33,16 +43,6 @@ class TimestampCellBloc extends Bloc<TimestampCellEvent, TimestampCellState> {
         );
       },
     );
-  }
-
-  @override
-  Future<void> close() async {
-    if (_onCellChangedFn != null) {
-      cellController.removeListener(_onCellChangedFn!);
-      _onCellChangedFn = null;
-    }
-    await cellController.dispose();
-    return super.close();
   }
 
   void _startListening() {
