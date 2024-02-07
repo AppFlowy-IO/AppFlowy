@@ -270,7 +270,7 @@ pub(crate) fn notify_child_views_changed(payload: ChildViewUpdatePB) {
     .send();
 }
 
-/// Notify the parent view of workspace overview block
+/// Notify the parent view of workspace overview block component
 #[tracing::instrument(level = "debug", skip_all)]
 pub(crate) fn notify_workspace_overview_view_did_change(
   view: View,
@@ -279,7 +279,7 @@ pub(crate) fn notify_workspace_overview_view_did_change(
   if let Ok(res) = workspace_overview_manager.contains(&view.id) {
     if res {
       let view_pb = view_pb_without_child_views(Arc::new(view.clone()));
-      send_notification(&view.id, FolderNotification::DidUpdateView)
+      send_notification(&view.id, FolderNotification::DidUpdateWorkspaceOverviewParentView)
         .payload(view_pb)
         .send();
     }
