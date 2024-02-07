@@ -15,6 +15,7 @@ import 'package:appflowy/workspace/application/settings/appearance/appearance_cu
 import 'package:appflowy/workspace/application/settings/notifications/notification_settings_cubit.dart';
 import 'package:appflowy/workspace/application/sidebar/rename_view/rename_view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
+import 'package:appflowy/workspace/presentation/command_palette/command_palette.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
@@ -188,7 +189,13 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
                 data: MediaQuery.of(context).copyWith(
                   textScaler: TextScaler.linear(state.textScaleFactor),
                 ),
-                child: overlayManagerBuilder(context, child),
+                child: overlayManagerBuilder(
+                  context,
+                  CommandPalette(
+                    toggleNotifier: ValueNotifier<bool>(false),
+                    child: child,
+                  ),
+                ),
               ),
               debugShowCheckedModeBanner: false,
               theme: state.lightTheme,

@@ -7,6 +7,7 @@ import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/sidebar/rename_view/rename_view_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
+import 'package:appflowy/workspace/presentation/command_palette/command_palette.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_user.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:provider/provider.dart';
@@ -107,6 +108,9 @@ class HomeHotKeys extends StatelessWidget {
       keyDownHandler: (_) =>
           getIt<RenameViewBloc>().add(const RenameViewEvent.open()),
     ).register();
+
+    // Command Palette
+    commandPaletteHotKey(context).register();
 
     _asyncRegistration(context);
 
