@@ -135,6 +135,13 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
   }
 
   @override
+  void dispose() {
+    _scrollController.dispose();
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Focus(
       focusNode: _focusNode,

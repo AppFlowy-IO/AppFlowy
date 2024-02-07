@@ -45,7 +45,7 @@ class ToggleExtensionNotifier extends ChangeNotifier {
   }
 }
 
-class DesktopGridTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
+class DesktopGridTabBarBuilderImpl extends DatabaseTabBarItemBuilder {
   final _toggleExtension = ToggleExtensionNotifier();
 
   @override
@@ -84,6 +84,12 @@ class DesktopGridTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
       databaseController: controller,
       toggleExtension: _toggleExtension,
     );
+  }
+
+  @override
+  void dispose() {
+    _toggleExtension.dispose();
+    super.dispose();
   }
 
   ValueKey _makeValueKey(DatabaseController controller) {

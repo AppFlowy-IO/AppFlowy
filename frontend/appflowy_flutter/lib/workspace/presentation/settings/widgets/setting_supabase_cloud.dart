@@ -274,6 +274,12 @@ class SupabaseInputState extends State<SupabaseInput> {
   }
 
   @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return TextField(
       controller: _controller,
@@ -297,12 +303,6 @@ class SupabaseInputState extends State<SupabaseInput> {
       ),
       onChanged: widget.onChanged,
     );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
   }
 }
 

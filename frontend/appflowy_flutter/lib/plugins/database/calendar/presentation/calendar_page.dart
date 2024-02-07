@@ -30,7 +30,7 @@ import 'calendar_day.dart';
 import 'layout/sizes.dart';
 import 'toolbar/calendar_setting_bar.dart';
 
-class CalendarPageTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
+class CalendarPageTabBarBuilderImpl extends DatabaseTabBarItemBuilder {
   @override
   Widget content(
     BuildContext context,

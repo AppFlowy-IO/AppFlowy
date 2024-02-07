@@ -24,13 +24,19 @@ class MobileWorkspaceStartScreen extends StatefulWidget {
 class _MobileWorkspaceStartScreenState
     extends State<MobileWorkspaceStartScreen> {
   WorkspacePB? selectedWorkspace;
+  final TextEditingController controller = TextEditingController();
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context);
     final size = MediaQuery.of(context).size;
     const double spacing = 16.0;
-    final TextEditingController controller = TextEditingController();
     final List<DropdownMenuEntry<WorkspacePB>> workspaceEntries =
         <DropdownMenuEntry<WorkspacePB>>[];
     for (final WorkspacePB workspace in widget.workspaceState.workspaces) {

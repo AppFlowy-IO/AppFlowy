@@ -196,7 +196,6 @@ class _MobileFieldEditorState extends State<MobileFieldEditor> {
   @override
   void initState() {
     super.initState();
-
     values = widget.defaultValues;
     controller.text = values.name;
   }
@@ -204,7 +203,6 @@ class _MobileFieldEditorState extends State<MobileFieldEditor> {
   @override
   void dispose() {
     controller.dispose();
-
     super.dispose();
   }
 

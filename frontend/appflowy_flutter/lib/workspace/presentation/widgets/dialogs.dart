@@ -19,6 +19,7 @@ class NavigatorTextFieldDialog extends StatefulWidget {
     required this.value,
     required this.confirm,
     this.cancel,
+    this.maxLength,
   });
 
   final String value;
@@ -26,6 +27,7 @@ class NavigatorTextFieldDialog extends StatefulWidget {
   final void Function()? cancel;
   final void Function(String) confirm;
   final bool autoSelectAllText;
+  final int? maxLength;
 
   @override
   State<NavigatorTextFieldDialog> createState() =>
@@ -38,6 +40,7 @@ class _NavigatorTextFieldDialogState extends State<NavigatorTextFieldDialog> {
 
   @override
   void initState() {
+    super.initState();
     newValue = widget.value;
     controller.text = newValue;
     if (widget.autoSelectAllText) {
@@ -46,7 +49,12 @@ class _NavigatorTextFieldDialogState extends State<NavigatorTextFieldDialog> {
         extentOffset: newValue.length,
       );
     }
-    super.initState();
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
   }
 
   @override
@@ -63,9 +71,12 @@ class _NavigatorTextFieldDialogState extends State<NavigatorTextFieldDialog> {
           FlowyFormTextInput(
             hintText: LocaleKeys.dialogCreatePageNameHint.tr(),
             controller: controller,
-            textStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  fontSize: FontSizes.s16,
-                ),
+            textStyle: Theme.of(context)
+                .textTheme
+                .bodySmall
+                ?.copyWith(fontSize: FontSizes.s16),
+            maxLength: widget.maxLength,
+            showCounter: false,
             autoFocus: true,
             onChanged: (text) {
               newValue = text;
