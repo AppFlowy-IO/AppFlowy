@@ -349,6 +349,7 @@ pub(crate) fn notify_workspace_overview_parent_view_did_change<T: AsRef<str>>(
             .send();
         }
       }
+      return Some(())
     }
   }
 

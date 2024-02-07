@@ -673,7 +673,7 @@ impl FolderManager {
           folder,
           weak_workspace_overview_manager,
           view_ids,
-        )
+        );
       },
     );
     Ok(())
@@ -731,7 +731,7 @@ impl FolderManager {
                 folder,
                 weak_workspace_overview_manager,
                 view_ids,
-              )
+              );
             },
           );
         }
