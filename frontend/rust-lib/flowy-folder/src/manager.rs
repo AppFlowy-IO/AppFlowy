@@ -45,6 +45,10 @@ use crate::util::{
 };
 use crate::view_operation::{create_view, FolderOperationHandler, FolderOperationHandlers};
 
+#[cfg(target_arch = "wasm32")]
+pub type BoxFuture<'a, T> = Pin<Box<dyn Future<Output = T> + 'a + Send>>;
+
+#[cfg(not(target_arch = "wasm32"))]
 pub type BoxFuture<'a, T> = Pin<Box<dyn Future<Output = T> + 'a + Send + Sync>>;
 
 conditional_send_sync_trait! {
