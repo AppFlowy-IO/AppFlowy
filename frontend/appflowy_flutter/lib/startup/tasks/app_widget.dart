@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -7,12 +9,12 @@ import 'package:appflowy/workspace/application/notifications/notification_action
 import 'package:appflowy/workspace/application/notifications/notification_service.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/notifications/notification_settings_cubit.dart';
+import 'package:appflowy/workspace/presentation/command_palette/command_palette.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -174,7 +176,14 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
               data: MediaQuery.of(context).copyWith(
                 textScaler: const TextScaler.linear(1),
               ),
-              child: overlayManagerBuilder()(context, child),
+              child: overlayManagerBuilder()(
+                context,
+                // Command Palette relies on the Overlay Manager
+                CommandPalette(
+                  toggleNotifier: ValueNotifier<bool>(false),
+                  child: child,
+                ),
+              ),
             ),
             debugShowCheckedModeBanner: false,
             theme: state.lightTheme,
