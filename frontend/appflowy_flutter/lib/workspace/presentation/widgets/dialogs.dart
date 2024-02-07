@@ -40,6 +40,7 @@ class _NavigatorTextFieldDialogState extends State<NavigatorTextFieldDialog> {
 
   @override
   void initState() {
+    super.initState();
     newValue = widget.value;
     controller.text = newValue;
     if (widget.autoSelectAllText) {
@@ -48,7 +49,12 @@ class _NavigatorTextFieldDialogState extends State<NavigatorTextFieldDialog> {
         extentOffset: newValue.length,
       );
     }
-    super.initState();
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
   }
 
   @override

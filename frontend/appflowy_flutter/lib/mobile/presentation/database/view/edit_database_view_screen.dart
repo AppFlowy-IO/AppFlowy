@@ -84,6 +84,12 @@ class _NameAndIconState extends State<_NameAndIcon> {
   }
 
   @override
+  void dispose() {
+    textEditingController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return FlowyOptionTile.textField(
       autofocus: true,

@@ -278,6 +278,12 @@ class CloudURLInputState extends State<CloudURLInput> {
   }
 
   @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return TextField(
       controller: _controller,
@@ -305,12 +311,6 @@ class CloudURLInputState extends State<CloudURLInput> {
       ),
       onChanged: widget.onChanged,
     );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
   }
 }
 

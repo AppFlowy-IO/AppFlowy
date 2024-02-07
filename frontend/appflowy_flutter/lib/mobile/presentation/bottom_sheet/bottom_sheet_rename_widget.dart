@@ -27,14 +27,12 @@ class _MobileBottomSheetRenameWidgetState
   @override
   void initState() {
     super.initState();
-
     controller = TextEditingController(text: widget.name);
   }
 
   @override
   void dispose() {
     controller.dispose();
-
     super.dispose();
   }
 

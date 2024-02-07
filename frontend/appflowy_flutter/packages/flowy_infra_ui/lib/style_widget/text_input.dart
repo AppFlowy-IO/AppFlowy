@@ -158,12 +158,14 @@ class StyledSearchTextInput extends StatefulWidget {
 
 class StyledSearchTextInputState extends State<StyledSearchTextInput> {
   late TextEditingController _controller;
+  late bool disposeController;
   late FocusNode _focusNode;
 
   @override
   void initState() {
     _controller =
         widget.controller ?? TextEditingController(text: widget.initialValue);
+    disposeController = widget.controller == null;
     _focusNode = FocusNode(
       debugLabel: widget.label ?? '',
       onKey: (FocusNode node, RawKeyEvent evt) {
@@ -190,7 +192,9 @@ class StyledSearchTextInputState extends State<StyledSearchTextInput> {
 
   @override
   void dispose() {
-    _controller.dispose();
+    if (disposeController) {
+      _controller.dispose();
+    }
     _focusNode.dispose();
     super.dispose();
   }

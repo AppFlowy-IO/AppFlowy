@@ -247,6 +247,13 @@ class UserNameInputState extends State<UserNameInput> {
   }
 
   @override
+  void dispose() {
+    _controller.dispose();
+    _debounce?.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return TextField(
       controller: _controller,
@@ -276,13 +283,6 @@ class UserNameInputState extends State<UserNameInput> {
         });
       },
     );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    _debounce?.cancel();
-    super.dispose();
   }
 }
 
