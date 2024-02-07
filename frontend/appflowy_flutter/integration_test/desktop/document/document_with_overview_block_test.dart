@@ -3,14 +3,18 @@ import 'dart:core';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/overview/workspace_overview_block_component.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:integration_test/integration_test.dart';
 
 import '../util/util.dart';
 
 void main() {
+  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   const String firstLevelParentViewName = 'Overview Test';
+  const emoji = '😁';
 
   group("Doc workspace overview block test: ", () {
     testWidgets('insert an overview block widget', (tester) async {
@@ -43,8 +47,48 @@ void main() {
       );
     });
 
+    testWidgets('updating parent view item of overview block component',
+        (tester) async {
+      const String viewName = '$gettingStarted View';
+      await tester.initializeAppFlowy();
+      await tester.tapGoButton();
+
+      await tester.editor.tapLineOfEditorAt(0);
+      await insertWorkspaceOverviewInDocument(tester);
+
+      await tester.hoverOnPageName(gettingStarted);
+      await tester.renamePage(viewName);
+      await tester.pumpAndSettle();
+
+      // expect parent view name to be updated
+      expect(
+        find.descendant(
+          of: find.byType(WorkspaceOverviewBlockWidget),
+          matching: find.text(viewName),
+        ),
+        findsOne,
+      );
+
+      await tester.updatePageIconInSidebarByName(
+        name: viewName,
+        parentName: viewName,
+        layout: ViewLayoutPB.Document,
+        icon: emoji,
+      );
+      await tester.pumpAndSettle();
+
+      // expect parent view icon to be updated
+      expect(
+        find.descendant(
+          of: find.byType(WorkspaceOverviewBlockWidget),
+          matching: find.text(emoji, findRichText: true),
+        ),
+        findsOne,
+      );
+    });
+
     testWidgets(
-      'view actions to overview block test',
+      'overview block test',
       (tester) async {
         await tester.initializeAppFlowy();
         await tester.tapGoButton();
@@ -123,6 +167,21 @@ void main() {
             matching: find.text('View 1'),
           ),
           findsOneWidget,
+        );
+
+        await tester.updatePageIconInSidebarByName(
+          name: gettingStarted,
+          parentName: gettingStarted,
+          layout: ViewLayoutPB.Document,
+          icon: emoji,
+        );
+
+        expect(
+          find.descendant(
+            of: find.byType(WorkspaceOverviewBlockWidget),
+            matching: find.text(emoji, findRichText: true),
+          ),
+          findsOne,
         );
       },
     );
