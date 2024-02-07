@@ -222,8 +222,7 @@ class FlowyTextFieldState extends State<FlowyTextField> {
   String? _suffixText() {
     if (widget.maxLength != null) {
       return ' ${controller.text.length}/${widget.maxLength}';
-    } else {
-      return null;
     }
+    return null;
   }
 }
