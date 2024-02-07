@@ -780,7 +780,8 @@
     },
     "selectionMenu": {
       "outline": "Outline",
-      "codeBlock": "Code Block"
+      "codeBlock": "Code Block",
+      "workspaceOverview": "Workspace Overview"
     },
     "plugins": {
       "referencedBoard": "Referenced Board",
@@ -899,6 +900,9 @@
     },
     "outlineBlock": {
       "placeholder": "Table of Contents"
+    },
+    "workspaceOverviewBlock": {
+      "placeholder": "Workspace Overview"
     },
     "textBlock": {
       "placeholder": "Type '/' for commands"
