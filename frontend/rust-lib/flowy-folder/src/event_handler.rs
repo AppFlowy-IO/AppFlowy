@@ -366,14 +366,6 @@ pub(crate) async fn get_folder_snapshots_handler(
   data_result_ok(RepeatedFolderSnapshotPB { items: snapshots })
 }
 
-pub(crate) async fn reload_workspace_handler(
-  folder: AFPluginState<Weak<FolderManager>>,
-) -> Result<(), FlowyError> {
-  let folder = upgrade_folder(folder)?;
-  folder.reload_workspace().await?;
-  Ok(())
-}
-
 #[tracing::instrument(level = "debug", skip(data, folder), err)]
 pub(crate) async fn register_workspace_overview_listerner_id_handler(
   data: AFPluginData<ViewIdPB>,
@@ -392,4 +384,12 @@ pub(crate) async fn remove_workspace_overview_listerner_id_handler(
   let folder = upgrade_folder(folder)?;
   let view_id: ViewIdPB = data.into_inner();
   folder.remove_workspace_overview_listerner(&view_id.value)
+}
+
+pub(crate) async fn reload_workspace_handler(
+  folder: AFPluginState<Weak<FolderManager>>,
+) -> Result<(), FlowyError> {
+  let folder = upgrade_folder(folder)?;
+  folder.reload_workspace().await?;
+  Ok(())
 }
