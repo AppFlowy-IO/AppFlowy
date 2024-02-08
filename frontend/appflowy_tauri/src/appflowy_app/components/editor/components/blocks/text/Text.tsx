@@ -21,7 +21,7 @@ export const Text = memo(
         {renderIcon()}
         <Placeholder isEmpty={isEmpty} node={node} />
 
-        <span className={'min-w-[4px]'}>{children}</span>
+        <span className={'text-content min-w-[4px]'}>{children}</span>
       </span>
     );
   })

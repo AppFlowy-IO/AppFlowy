@@ -10,7 +10,7 @@ import { useViewId } from '$app/hooks';
 import { fieldService } from '$app/application/database';
 import { OrderObjectPositionTypePB, FieldVisibility } from '@/services/backend';
 import { MenuItem } from '@mui/material';
-import DeleteConfirmDialog from '$app/components/_shared/delete_confirm_dialog/DeleteConfirmDialog';
+import DeleteConfirmDialog from '$app/components/_shared/confirm_dialog/DeleteConfirmDialog';
 import { useTranslation } from 'react-i18next';
 
 export enum FieldAction {

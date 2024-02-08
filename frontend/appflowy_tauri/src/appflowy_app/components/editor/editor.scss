@@ -25,9 +25,7 @@
 .block-element.block-align-center {
   > div > .text-element {
     justify-content: center;
-
   }
-
 
 }
 
@@ -52,11 +50,34 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
   ::selection {
     @apply bg-content-blue-100;
   }
+  .text-content {
+    &::selection {
+      @apply bg-transparent;
+    }
+    span {
+      &::selection {
+        @apply bg-content-blue-100;
+      }
+    }
+  }
 }
+
+
 
 [data-dark-mode="true"] [role="textbox"]{
   ::selection {
     background-color: #1e79a2;
+  }
+
+  .text-content {
+    &::selection {
+      @apply bg-transparent;
+    }
+    span {
+      &::selection {
+        background-color: #1e79a2;
+      }
+    }
   }
 }
 

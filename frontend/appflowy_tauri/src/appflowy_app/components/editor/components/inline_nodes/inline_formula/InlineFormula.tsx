@@ -59,7 +59,7 @@ export const InlineFormula = memo(
           contentEditable={false}
           onDoubleClick={handleClick}
           onClick={handleClick}
-          className={`${attributes.className ?? ''} formula-inline relative rounded px-1 py-0.5 ${
+          className={`${attributes.className ?? ''} formula-inline relative cursor-pointer rounded px-1 py-0.5 ${
             selected ? 'selected' : ''
           }`}
         >

@@ -1,17 +1,5 @@
 import { EditorMarkFormat } from '$app/application/document/document.types';
-
-export const isMac = () => {
-  return navigator.userAgent.includes('Mac OS X');
-};
-
-const MODIFIERS = {
-  control: 'Ctrl',
-  meta: '⌘',
-};
-
-export const getModifier = () => {
-  return isMac() ? MODIFIERS.meta : MODIFIERS.control;
-};
+import { getModifier } from '$app/utils/get_modifier';
 
 /**
  * Hotkeys shortcuts

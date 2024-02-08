@@ -24,10 +24,6 @@ body {
     width: 8px;
 }
 
-.MuiPopover-root::-webkit-scrollbar {
-    width: 0;
-    height: 0;
-}
 
 
 :root[data-dark-mode=true] body {
