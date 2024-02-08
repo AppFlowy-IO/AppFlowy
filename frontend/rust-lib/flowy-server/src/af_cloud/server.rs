@@ -44,7 +44,12 @@ pub struct AppFlowyCloudServer {
 }
 
 impl AppFlowyCloudServer {
-  pub fn new(config: AFCloudConfiguration, enable_sync: bool, mut device_id: String) -> Self {
+  pub fn new(
+    config: AFCloudConfiguration,
+    enable_sync: bool,
+    mut device_id: String,
+    app_version: &str,
+  ) -> Self {
     // The device id can't be empty, so we generate a new one if it is.
     if device_id.is_empty() {
       warn!("Device ID is empty, generating a new one");
@@ -59,6 +64,7 @@ impl AppFlowyCloudServer {
       ClientConfiguration::default()
         .with_compression_buffer_size(10240)
         .with_compression_quality(8),
+      app_version,
     );
     let token_state_rx = api_client.subscribe_token_state();
     let enable_sync = Arc::new(AtomicBool::new(enable_sync));
