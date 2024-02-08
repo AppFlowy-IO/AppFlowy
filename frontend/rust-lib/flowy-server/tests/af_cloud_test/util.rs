@@ -26,7 +26,12 @@ pub fn get_af_cloud_config() -> Option<AFCloudConfiguration> {
 
 pub fn af_cloud_server(config: AFCloudConfiguration) -> Arc<AppFlowyCloudServer> {
   let fake_device_id = uuid::Uuid::new_v4().to_string();
-  Arc::new(AppFlowyCloudServer::new(config, true, fake_device_id))
+  Arc::new(AppFlowyCloudServer::new(
+    config,
+    true,
+    fake_device_id,
+    "flowy-server-test",
+  ))
 }
 
 pub async fn generate_sign_in_url(user_email: &str, config: &AFCloudConfiguration) -> String {
@@ -34,7 +39,9 @@ pub async fn generate_sign_in_url(user_email: &str, config: &AFCloudConfiguratio
     &config.base_url,
     &config.ws_base_url,
     &config.gotrue_url,
+    "fake_device_id",
     ClientConfiguration::default(),
+    "test",
   );
   let admin_email = std::env::var("GOTRUE_ADMIN_EMAIL").unwrap();
   let admin_password = std::env::var("GOTRUE_ADMIN_PASSWORD").unwrap();
@@ -42,7 +49,9 @@ pub async fn generate_sign_in_url(user_email: &str, config: &AFCloudConfiguratio
     client.base_url(),
     client.ws_addr(),
     client.gotrue_url(),
+    "fake_device_id",
     ClientConfiguration::default(),
+    &client.client_id,
   );
   admin_client
     .sign_in_password(&admin_email, &admin_password)

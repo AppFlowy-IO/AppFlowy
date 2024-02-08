@@ -72,15 +72,39 @@ impl FolderManager {
     Ok(manager)
   }
 
+  pub async fn reload_workspace(&self) -> FlowyResult<()> {
+    let workspace_id = self
+      .workspace_id
+      .read()
+      .as_ref()
+      .ok_or_else(|| {
+        FlowyError::internal().with_context("workspace id is empty when trying to reload workspace")
+      })?
+      .clone();
+
+    let uid = self.user.user_id()?;
+    let doc_state = self
+      .cloud_service
+      .get_folder_doc_state(&workspace_id, uid, CollabType::Folder, &workspace_id)
+      .await?;
+
+    self
+      .initialize(uid, &workspace_id, FolderInitDataSource::Cloud(doc_state))
+      .await?;
+    Ok(())
+  }
+
   #[instrument(level = "debug", skip(self), err)]
   pub async fn get_current_workspace(&self) -> FlowyResult<WorkspacePB> {
     self.with_folder(
       || {
         let uid = self.user.user_id()?;
-        let workspace_id = self.workspace_id.read().as_ref().cloned().ok_or(
-          FlowyError::from(ErrorCode::WorkspaceIdInvalid)
-            .with_context("Unexpected empty workspace id"),
-        )?;
+        let workspace_id = self
+          .workspace_id
+          .read()
+          .as_ref()
+          .cloned()
+          .ok_or_else(|| FlowyError::from(ErrorCode::WorkspaceInitializeError))?;
         Err(workspace_data_not_sync_error(uid, &workspace_id))
       },
       |folder| {
