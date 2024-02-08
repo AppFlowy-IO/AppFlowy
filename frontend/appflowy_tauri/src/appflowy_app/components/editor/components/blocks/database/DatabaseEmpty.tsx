@@ -13,7 +13,7 @@ function DatabaseEmpty({ node }: { node: GridNode }) {
   const [open, setOpen] = React.useState(false);
 
   const toggleDrawer = useCallback((open: boolean) => {
-    return (e: React.MouseEvent | KeyboardEvent) => {
+    return (e: React.MouseEvent | KeyboardEvent | React.FocusEvent) => {
       e.stopPropagation();
       setOpen(open);
     };
@@ -23,7 +23,7 @@ function DatabaseEmpty({ node }: { node: GridNode }) {
     <div
       ref={ref}
       onClick={toggleDrawer(false)}
-      className='relative flex w-full flex-1 flex-col items-center justify-center text-text-caption'
+      className='relative flex w-full flex-1 flex-col items-center justify-center py-2 text-text-caption'
     >
       <CreateNewFolderIcon className={'h-10 w-10'} />
       <div className={'mb-2 text-base'}>{t('document.plugins.database.noDataSource')}</div>

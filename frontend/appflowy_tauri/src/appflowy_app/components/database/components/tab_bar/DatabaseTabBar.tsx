@@ -14,6 +14,7 @@ export interface DatabaseTabBarProps {
   selectedViewId?: string;
   setSelectedViewId?: (viewId: string) => void;
   pageId: string;
+  settingRef?: React.RefObject<HTMLDivElement>;
 }
 
 const DatabaseIcons: {
@@ -25,7 +26,13 @@ const DatabaseIcons: {
   [ViewLayoutPB.Calendar]: GridSvg,
 };
 
-export const DatabaseTabBar: FC<DatabaseTabBarProps> = ({ pageId, childViews, selectedViewId, setSelectedViewId }) => {
+export const DatabaseTabBar: FC<DatabaseTabBarProps> = ({
+  pageId,
+  childViews,
+  selectedViewId,
+  setSelectedViewId,
+  settingRef,
+}) => {
   const { t } = useTranslation();
   const [contextMenuAnchorEl, setContextMenuAnchorEl] = useState<HTMLElement | null>(null);
   const [contextMenuView, setContextMenuView] = useState<Page | null>(null);
@@ -54,9 +61,20 @@ export const DatabaseTabBar: FC<DatabaseTabBarProps> = ({ pageId, childViews, se
 
   if (childViews.length === 0) return null;
   return (
-    <div className='-mb-px flex items-center px-16'>
-      <div className='flex flex-1 items-center border-b border-line-divider'>
-        <ViewTabs value={isSelected ? selectedViewId : childViews[0].id} onChange={handleChange}>
+    <div className='-mb-px flex w-full items-center gap-2 overflow-hidden px-16'>
+      <div
+        style={{
+          width: 'calc(100% - 120px)',
+        }}
+        className='flex items-center border-b border-line-divider'
+      >
+        <ViewTabs
+          scrollButtons={false}
+          variant='scrollable'
+          allowScrollButtonsMobile
+          value={isSelected ? selectedViewId : childViews[0].id}
+          onChange={handleChange}
+        >
           {childViews.map((view) => {
             const Icon = DatabaseIcons[view.layout];
 
@@ -76,6 +94,7 @@ export const DatabaseTabBar: FC<DatabaseTabBarProps> = ({ pageId, childViews, se
         </ViewTabs>
         <AddViewBtn pageId={pageId} onCreated={(id) => setSelectedViewId?.(id)} />
       </div>
+      <div ref={settingRef} className='database-settings-container' />
       {open && contextMenuView && (
         <ViewActions
           pageId={pageId}

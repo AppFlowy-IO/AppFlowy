@@ -86,8 +86,9 @@ export function useShortcuts(editor: ReactEditor) {
 
       if (isHotkey('Escape', e)) {
         e.preventDefault();
-        e.stopPropagation();
+
         editor.deselect();
+
         return;
       }
 

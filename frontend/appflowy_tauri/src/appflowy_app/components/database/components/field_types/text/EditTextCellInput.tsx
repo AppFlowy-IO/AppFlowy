@@ -22,7 +22,6 @@ function EditTextCellInput({ editing, anchorEl, onClose, text, onInput }: Props)
 
   return (
     <Popover
-      disableRestoreFocus={true}
       open={editing}
       anchorEl={anchorEl}
       PaperProps={{
@@ -36,10 +35,18 @@ function EditTextCellInput({ editing, anchorEl, onClose, text, onInput }: Props)
       transitionDuration={0}
       onClose={onClose}
       keepMounted={false}
+      onKeyDown={(e) => {
+        if (e.key === 'Escape') {
+          e.stopPropagation();
+          e.preventDefault();
+          onClose();
+        }
+      }}
     >
       <TextareaAutosize
         className='w-full resize-none whitespace-break-spaces break-all text-sm'
         autoFocus
+        spellCheck={false}
         autoCorrect='off'
         value={text}
         onInput={onInput}

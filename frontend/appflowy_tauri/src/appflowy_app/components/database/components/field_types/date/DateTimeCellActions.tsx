@@ -17,10 +17,14 @@ import { getDateFormat, getTimeFormat } from '$app/components/database/component
 function DateTimeCellActions({
   cell,
   field,
+  maxWidth,
+  maxHeight,
   ...props
 }: PopoverProps & {
   field: DateTimeField;
   cell: DateTimeCell;
+  maxWidth?: number;
+  maxHeight?: number;
 }) {
   const typeOption = useTypeOption<DateTimeTypeOption>(field.id);
 
@@ -34,10 +38,10 @@ function DateTimeCellActions({
 
   const { includeTime } = cell.data;
 
-  const timestamp = useMemo(() => cell.data.timestamp || dayjs().unix(), [cell.data.timestamp]);
-  const endTimestamp = useMemo(() => cell.data.endTimestamp || dayjs().unix(), [cell.data.endTimestamp]);
-  const time = useMemo(() => cell.data.time || dayjs().format(timeFormat), [cell.data.time, timeFormat]);
-  const endTime = useMemo(() => cell.data.endTime || dayjs().format(timeFormat), [cell.data.endTime, timeFormat]);
+  const timestamp = useMemo(() => cell.data.timestamp || undefined, [cell.data.timestamp]);
+  const endTimestamp = useMemo(() => cell.data.endTimestamp || undefined, [cell.data.endTimestamp]);
+  const time = useMemo(() => cell.data.time || undefined, [cell.data.time]);
+  const endTime = useMemo(() => cell.data.endTime || undefined, [cell.data.endTime]);
 
   const viewId = useViewId();
   const { t } = useTranslation();
@@ -65,7 +69,7 @@ function DateTimeCellActions({
           clearFlag: params.clearFlag,
         });
       } catch (e) {
-        // toast.error(e.message);
+        // TODO: handle error
       }
     },
     [cell, endTime, endTimestamp, includeTime, time, timestamp, viewId]
@@ -75,78 +79,94 @@ function DateTimeCellActions({
 
   return (
     <Popover
-      disableRestoreFocus={true}
       keepMounted={false}
-      anchorOrigin={{
-        vertical: 'bottom',
-        horizontal: 'left',
-      }}
-      transformOrigin={{
-        vertical: 'top',
-        horizontal: 'left',
-      }}
       {...props}
       PaperProps={{
+        ...props.PaperProps,
         className: 'pt-4 transform transition-all',
       }}
+      onKeyDown={(e) => {
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          e.stopPropagation();
+          props.onClose?.({}, 'escapeKeyDown');
+        }
+      }}
     >
-      <DateTimeSet
-        date={timestamp}
-        endTime={endTime}
-        endDate={endTimestamp}
-        dateFormat={dateFormat}
-        time={time}
-        timeFormat={timeFormat}
-        onChange={handleChange}
-        isRange={isRange}
-        includeTime={includeTime}
-      />
-
-      <CustomCalendar isRange={isRange} timestamp={timestamp} endTimestamp={endTimestamp} handleChange={handleChange} />
-
-      <Divider className={'my-0'} />
-      <div className={'flex flex-col gap-1 px-4 py-2'}>
-        <RangeSwitch
-          onIsRangeChange={(val) => {
-            void handleChange({
-              isRange: val,
-              // reset endTime when isRange is changed
-              endTime: time,
-              endDate: timestamp,
-            });
-          }}
-          checked={isRange}
+      <div
+        style={{
+          maxWidth: maxWidth,
+          maxHeight: maxHeight,
+        }}
+      >
+        <DateTimeSet
+          date={timestamp}
+          endTime={endTime}
+          endDate={endTimestamp}
+          dateFormat={dateFormat}
+          time={time}
+          timeFormat={timeFormat}
+          onChange={handleChange}
+          isRange={isRange}
+          includeTime={includeTime}
         />
-        <IncludeTimeSwitch
-          onIncludeTimeChange={(val) => {
-            void handleChange({
-              includeTime: val,
-              // reset time when includeTime is changed
-              time: val ? dayjs().format(timeFormat) : undefined,
-              endTime: val && isRange ? dayjs().format(timeFormat) : undefined,
-            });
-          }}
-          checked={includeTime}
+
+        <CustomCalendar
+          isRange={isRange}
+          timestamp={timestamp}
+          endTimestamp={endTimestamp}
+          handleChange={handleChange}
         />
+
+        <Divider className={'my-0'} />
+        <div className={'flex flex-col gap-1 px-4 py-2'}>
+          <RangeSwitch
+            onIsRangeChange={(val) => {
+              void handleChange({
+                isRange: val,
+                // reset endTime when isRange is changed
+                endTime: time,
+                endDate: timestamp,
+              });
+            }}
+            checked={isRange}
+          />
+          <IncludeTimeSwitch
+            disabled={!timestamp}
+            onIncludeTimeChange={(val) => {
+              void handleChange({
+                includeTime: val,
+                // reset time when includeTime is changed
+                time: val ? dayjs().format(timeFormat) : undefined,
+                endTime: val && isRange ? dayjs().format(timeFormat) : undefined,
+              });
+            }}
+            checked={includeTime}
+          />
+        </div>
+
+        <Divider className={'my-0'} />
+
+        <MenuList>
+          <DateTimeFormatSelect field={field} />
+          <MenuItem
+            className={'text-xs font-medium'}
+            onClick={async () => {
+              await handleChange({
+                isRange: false,
+                includeTime: false,
+              });
+              await handleChange({
+                clearFlag: true,
+              });
+
+              props.onClose?.({}, 'backdropClick');
+            }}
+          >
+            {t('grid.field.clearDate')}
+          </MenuItem>
+        </MenuList>
       </div>
-
-      <Divider className={'my-0'} />
-
-      <MenuList>
-        <DateTimeFormatSelect field={field} />
-        <MenuItem
-          className={'text-xs font-medium'}
-          onClick={async () => {
-            await handleChange({
-              clearFlag: true,
-            });
-
-            props.onClose?.({}, 'backdropClick');
-          }}
-        >
-          {t('grid.field.clearDate')}
-        </MenuItem>
-      </MenuList>
     </Popover>
   );
 }

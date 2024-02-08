@@ -67,8 +67,16 @@ export const SelectCell: FC<{
             anchorEl={anchorEl}
             {...menuProps}
             onClose={handleClose}
+            onMouseDown={(e) => {
+              const isInput = (e.target as Element).closest('input');
+
+              if (isInput) return;
+
+              e.preventDefault();
+              e.stopPropagation();
+            }}
           >
-            <SelectCellActions field={field} cell={cell} />
+            <SelectCellActions onClose={handleClose} field={field} cell={cell} />
           </Menu>
         ) : null}
       </Suspense>

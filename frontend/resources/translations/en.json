@@ -600,7 +600,8 @@
       "deleteFieldPromptMessage": "Are you sure? This property will be deleted",
       "newColumn": "New Column",
       "format": "Format",
-      "reminderOnDateTooltip": "This cell has a scheduled reminder"
+      "reminderOnDateTooltip": "This cell has a scheduled reminder",
+      "optionAlreadyExist": "Option already exists"
     },
     "rowPage": {
       "newField": "Add a new field",

@@ -14,18 +14,25 @@ function CustomCalendar({
 }: {
   handleChange: (params: { date?: number; endDate?: number }) => void;
   isRange: boolean;
-  timestamp: number;
-  endTimestamp: number;
+  timestamp?: number;
+  endTimestamp?: number;
 }) {
-  const [startDate, setStartDate] = useState<Date | null>(new Date(timestamp * 1000));
-  const [endDate, setEndDate] = useState<Date | null>(new Date(endTimestamp * 1000));
+  const [startDate, setStartDate] = useState<Date | null>(() => {
+    if (!timestamp) return null;
+    return new Date(timestamp * 1000);
+  });
+  const [endDate, setEndDate] = useState<Date | null>(() => {
+    if (!endTimestamp) return null;
+    return new Date(endTimestamp * 1000);
+  });
 
   useEffect(() => {
-    if (!isRange) return;
+    if (!isRange || !endTimestamp) return;
     setEndDate(new Date(endTimestamp * 1000));
   }, [isRange, endTimestamp]);
 
   useEffect(() => {
+    if (!timestamp) return;
     setStartDate(new Date(timestamp * 1000));
   }, [timestamp]);
 

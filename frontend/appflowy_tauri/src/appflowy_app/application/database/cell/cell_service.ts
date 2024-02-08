@@ -132,5 +132,9 @@ export async function updateDateCell(
 
   const result = await DatabaseEventUpdateDateCell(payload);
 
-  return result.unwrap();
+  if (!result.ok) {
+    return Promise.reject(result.val);
+  }
+
+  return result.val;
 }

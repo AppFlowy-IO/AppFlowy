@@ -32,6 +32,7 @@ interface FilterComponentProps {
   filter: FilterType;
   field: FieldData;
   onChange: (data: UndeterminedFilter['data']) => void;
+  onClose?: () => void;
 }
 
 type FilterComponent = FC<FilterComponentProps>;
@@ -119,7 +120,6 @@ function Filter({ filter, field }: Props) {
       />
       {condition !== undefined && open && (
         <Popover
-          disableRestoreFocus={true}
           anchorOrigin={{
             vertical: 'bottom',
             horizontal: 'center',
@@ -132,6 +132,13 @@ function Filter({ filter, field }: Props) {
           anchorEl={anchorEl}
           onClose={handleClose}
           keepMounted={false}
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') {
+              e.preventDefault();
+              e.stopPropagation();
+              handleClose();
+            }
+          }}
         >
           <div className={'flex items-center justify-between'}>
             <FilterConditionSelect
@@ -146,7 +153,7 @@ function Filter({ filter, field }: Props) {
             />
             <FilterActions filter={filter} />
           </div>
-          {Component && <Component filter={filter} field={field} onChange={onDataChange} />}
+          {Component && <Component onClose={handleClose} filter={filter} field={field} onChange={onDataChange} />}
         </Popover>
       )}
     </>

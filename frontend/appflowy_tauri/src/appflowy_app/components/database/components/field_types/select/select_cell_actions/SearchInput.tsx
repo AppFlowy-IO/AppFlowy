@@ -6,10 +6,12 @@ function SearchInput({
   setNewOptionName,
   newOptionName,
   onEnter,
+  onEscape,
 }: {
   newOptionName: string;
   setNewOptionName: (value: string) => void;
   onEnter: () => void;
+  onEscape?: () => void;
 }) {
   const handleInput = useCallback(
     (event: FormEvent) => {
@@ -27,9 +29,16 @@ function SearchInput({
         autoFocus={true}
         value={newOptionName}
         onInput={handleInput}
+        spellCheck={false}
         onKeyDown={(e) => {
           if (e.key === 'Enter') {
             onEnter();
+          }
+
+          if (e.key === 'Escape') {
+            e.stopPropagation();
+            e.preventDefault();
+            onEscape?.();
           }
         }}
         placeholder={t('grid.selectOption.searchOrCreateOption')}

@@ -86,7 +86,9 @@
         "height": 1200,
         "resizable": true,
         "title": "AppFlowy",
-        "width": 1200
+        "width": 1200,
+        "minWidth": 800,
+        "minHeight": 600
       }
     ]
   }

@@ -25,6 +25,7 @@ export const Database = forwardRef<HTMLDivElement, Props>(({ selectedViewId, set
   const innerRef = useRef<HTMLDivElement>();
   const databaseRef = (ref ?? innerRef) as React.MutableRefObject<HTMLDivElement>;
   const viewId = useViewId();
+  const databaseSettingsRef = useRef<HTMLDivElement>(null);
 
   const [page, setPage] = useState<Page | null>(null);
   const { t } = useTranslation();
@@ -161,12 +162,13 @@ export const Database = forwardRef<HTMLDivElement, Props>(({ selectedViewId, set
   }
 
   return (
-    <div ref={databaseRef} className='appflowy-database relative flex flex-1 flex-col overflow-y-hidden'>
+    <div ref={databaseRef} className='appflowy-database relative flex w-full flex-1 flex-col overflow-y-hidden'>
       <DatabaseTabBar
         pageId={viewId}
         setSelectedViewId={setSelectedViewId}
         selectedViewId={selectedViewId}
         childViews={childViews}
+        settingRef={databaseSettingsRef}
       />
       <SwipeableViews
         slideStyle={{
@@ -181,13 +183,14 @@ export const Database = forwardRef<HTMLDivElement, Props>(({ selectedViewId, set
             <DatabaseLoader viewId={view.id}>
               {selectedViewId === view.id && (
                 <>
-                  <Portal container={databaseRef.current}>
-                    <div className={'absolute right-16 top-0 py-1'}>
+                  {databaseSettingsRef.current && (
+                    <Portal container={databaseSettingsRef.current}>
                       <DatabaseSettings
                         onToggleCollection={(forceOpen?: boolean) => onToggleCollection(view.id, forceOpen)}
                       />
-                    </div>
-                  </Portal>
+                    </Portal>
+                  )}
+
                   <DatabaseCollection open={openCollections.includes(view.id)} />
                   {editRecordRowId && (
                     <ExpandRecordModal

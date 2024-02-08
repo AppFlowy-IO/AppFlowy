@@ -25,7 +25,7 @@ function Breadcrumb() {
 
   if (!currentPage) {
     if (isTrash) {
-      return <Typography color='text.primary'>{t('trash.text')}</Typography>;
+      return <Typography className={'text-text-title'}>{t('trash.text')}</Typography>;
     }
 
     return null;
@@ -48,10 +48,11 @@ function Breadcrumb() {
           {page.name || t('document.title.placeholder')}
         </Link>
       ))}
-      <Typography className={'flex select-auto gap-1'} color='text.primary'>
-        <div>{getPageIcon(currentPage)}</div>
-        {currentPage?.name || t('menuAppHeader.defaultNewPageName')}
-      </Typography>
+
+      <div className={'flex select-auto gap-1 text-text-title'}>
+        <div className={'select-none'}>{getPageIcon(currentPage)}</div>
+        {currentPage.name || t('menuAppHeader.defaultNewPageName')}
+      </div>
     </Breadcrumbs>
   );
 }

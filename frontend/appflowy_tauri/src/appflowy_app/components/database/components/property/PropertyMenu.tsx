@@ -1,5 +1,5 @@
 import { Divider, MenuList } from '@mui/material';
-import { FC, useCallback } from 'react';
+import { FC, useCallback, useRef } from 'react';
 import { useViewId } from '$app/hooks';
 import { Field, fieldService } from '$app/application/database';
 import PropertyTypeMenuExtension from '$app/components/database/components/property/property_type/PropertyTypeMenuExtension';
@@ -18,6 +18,7 @@ export interface GridFieldMenuProps extends PopoverProps {
 
 export const PropertyMenu: FC<GridFieldMenuProps> = ({ field, ...props }) => {
   const viewId = useViewId();
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const isPrimary = field.isPrimary;
 
@@ -35,7 +36,6 @@ export const PropertyMenu: FC<GridFieldMenuProps> = ({ field, ...props }) => {
 
   return (
     <Popover
-      disableRestoreFocus={true}
       transformOrigin={{
         vertical: -10,
         horizontal: 'left',
@@ -44,11 +44,26 @@ export const PropertyMenu: FC<GridFieldMenuProps> = ({ field, ...props }) => {
         vertical: 'bottom',
         horizontal: 'left',
       }}
-      onClick={(e) => e.stopPropagation()}
       keepMounted={false}
+      onClick={(e) => e.stopPropagation()}
+      onKeyDown={(e) => {
+        if (e.key === 'Escape') {
+          e.stopPropagation();
+          e.preventDefault();
+          props.onClose?.({}, 'escapeKeyDown');
+        }
+      }}
+      onMouseDown={(e) => {
+        const isInput = inputRef.current?.contains(e.target as Node);
+
+        if (isInput) return;
+
+        e.stopPropagation();
+        e.preventDefault();
+      }}
       {...props}
     >
-      <PropertyNameInput id={field.id} name={field.name} />
+      <PropertyNameInput ref={inputRef} id={field.id} name={field.name} />
       <MenuList>
         <div>
           {!isPrimary && (
@@ -59,6 +74,8 @@ export const PropertyMenu: FC<GridFieldMenuProps> = ({ field, ...props }) => {
           )}
           <PropertyTypeMenuExtension field={field} />
           <PropertyActions
+            inputRef={inputRef}
+            onClose={() => props.onClose?.({}, 'backdropClick')}
             isPrimary={isPrimary}
             actions={actions}
             onMenuItemClick={() => {

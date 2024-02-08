@@ -18,7 +18,11 @@ function TextFilter({ filter, onChange }: Props) {
   if (!showField) return null;
   return (
     <TextField
-      className={'p-2'}
+      spellCheck={false}
+      className={'p-2 pt-0'}
+      inputProps={{
+        className: 'text-xs p-1.5',
+      }}
       size={'small'}
       value={content}
       placeholder={t('grid.settings.typeAValue')}

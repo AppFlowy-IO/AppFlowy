@@ -9,19 +9,22 @@ import MenuItem from '@mui/material/MenuItem';
 
 interface Props extends MenuProps {
   rowId: string;
+  onEscape?: () => void;
   onClose?: () => void;
 }
-function RecordActions({ anchorEl, open, onClose, rowId }: Props) {
+function RecordActions({ anchorEl, open, onEscape, onClose, rowId }: Props) {
   const viewId = useViewId();
   const { t } = useTranslation();
 
   const handleDelRow = useCallback(() => {
     void rowService.deleteRow(viewId, rowId);
-  }, [viewId, rowId]);
+    onEscape?.();
+  }, [viewId, rowId, onEscape]);
 
   const handleDuplicateRow = useCallback(() => {
     void rowService.duplicateRow(viewId, rowId);
-  }, [viewId, rowId]);
+    onEscape?.();
+  }, [viewId, rowId, onEscape]);
 
   const menuOptions = [
     {
@@ -46,6 +49,7 @@ function RecordActions({ anchorEl, open, onClose, rowId }: Props) {
           onClick={() => {
             option.onClick();
             onClose?.();
+            onEscape?.();
           }}
         >
           <Icon className='mr-2'>{option.icon}</Icon>

@@ -60,7 +60,9 @@ function Properties({ onItemClick }: PropertiesProps) {
                     <MenuItem
                       ref={provided.innerRef}
                       {...provided.draggableProps}
-                      className={'flex w-full items-center justify-between overflow-hidden px-1.5'}
+                      className={
+                        'flex w-full items-center justify-between overflow-hidden rounded-none px-1.5 hover:bg-fill-list-hover'
+                      }
                       key={field.id}
                     >
                       <IconButton

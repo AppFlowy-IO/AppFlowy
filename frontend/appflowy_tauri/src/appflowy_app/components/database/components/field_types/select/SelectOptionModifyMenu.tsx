@@ -1,4 +1,4 @@
-import { FC, useState } from 'react';
+import { FC, useRef, useState } from 'react';
 import { t } from 'i18next';
 import { Divider, ListSubheader, MenuItem, MenuList, MenuProps, OutlinedInput } from '@mui/material';
 import { SelectOptionColorPB } from '@/services/backend';
@@ -32,9 +32,10 @@ const Colors = [
   SelectOptionColorPB.Blue,
 ];
 
-export const SelectOptionMenu: FC<SelectOptionMenuProps> = ({ fieldId, option, MenuProps: menuProps }) => {
+export const SelectOptionModifyMenu: FC<SelectOptionMenuProps> = ({ fieldId, option, MenuProps: menuProps }) => {
   const [tagName, setTagName] = useState(option.name);
   const viewId = useViewId();
+  const inputRef = useRef<HTMLInputElement>(null);
   const updateColor = async (color: SelectOptionColorPB) => {
     await insertOrUpdateSelectOption(viewId, fieldId, [
       {
@@ -79,10 +80,17 @@ export const SelectOptionMenu: FC<SelectOptionMenuProps> = ({ fieldId, option, M
       }}
       {...menuProps}
       onClose={onClose}
-      disableRestoreFocus={true}
+      onMouseDown={(e) => {
+        const isInput = inputRef.current?.contains(e.target as Node);
+
+        if (isInput) return;
+        e.preventDefault();
+        e.stopPropagation();
+      }}
     >
       <ListSubheader className='my-2 leading-tight'>
         <OutlinedInput
+          inputRef={inputRef}
           value={tagName}
           onChange={(e) => {
             setTagName(e.target.value);
@@ -91,6 +99,12 @@ export const SelectOptionMenu: FC<SelectOptionMenuProps> = ({ fieldId, option, M
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
               void updateName();
+            }
+
+            if (e.key === 'Escape') {
+              e.preventDefault();
+              e.stopPropagation();
+              onClose();
             }
           }}
           autoFocus={true}
@@ -114,7 +128,12 @@ export const SelectOptionMenu: FC<SelectOptionMenuProps> = ({ fieldId, option, M
       <MenuList className={'max-h-[300px] overflow-y-auto overflow-x-hidden px-2'}>
         {Colors.map((color) => (
           <MenuItem
-            onClick={() => {
+            onMouseDown={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+            onClick={(e) => {
+              e.preventDefault();
               void updateColor(color);
             }}
             key={color}

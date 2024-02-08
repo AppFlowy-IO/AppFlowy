@@ -12,6 +12,10 @@ function Layout({ children }: { children: ReactNode }) {
       if (e.key === 'Backspace' && e.target instanceof HTMLBodyElement) {
         e.preventDefault();
       }
+
+      if (e.key === 'Escape') {
+        e.preventDefault();
+      }
     };
 
     window.addEventListener('keydown', onKeyDown);
@@ -26,7 +30,7 @@ function Layout({ children }: { children: ReactNode }) {
         <div
           className='flex flex-1 flex-col bg-bg-body'
           style={{
-            width: isCollapsed ? 'auto' : `calc(100% - ${width}px)`,
+            width: isCollapsed ? '100%' : `calc(100% - ${width}px)`,
           }}
         >
           <TopBar />
@@ -34,7 +38,7 @@ function Layout({ children }: { children: ReactNode }) {
             style={{
               height: 'calc(100vh - 64px - 48px)',
             }}
-            className={'appflowy-layout overflow-y-auto overflow-x-hidden'}
+            className={'appflowy-layout appflowy-scroll-container overflow-y-auto overflow-x-hidden'}
           >
             {children}
           </div>

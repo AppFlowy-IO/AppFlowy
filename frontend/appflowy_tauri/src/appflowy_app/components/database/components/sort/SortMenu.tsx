@@ -30,25 +30,31 @@ export const SortMenu: FC<MenuProps> = (props) => {
   return (
     <>
       <Menu
-        disableRestoreFocus={true}
+        onKeyDown={(e) => {
+          if (e.key === 'Escape') {
+            e.preventDefault();
+            e.stopPropagation();
+            props.onClose?.({}, 'escapeKeyDown');
+          }
+        }}
         keepMounted={false}
         MenuListProps={{
-          className: 'py-1',
+          className: 'py-1  w-[360px]',
         }}
         {...props}
         onClose={onClose}
       >
-        <div className={'max-h-[300px] overflow-y-auto'}>
+        <div className={'flex max-h-[300px] w-full flex-col overflow-y-auto'}>
           <div className={'mb-1 px-1'}>
             {sorts.map((sort) => (
               <SortItem key={sort.id} className='m-2' sort={sort} />
             ))}
           </div>
 
-          <div className={'mx-1'}>
+          <div className={'mx-2 flex flex-col'}>
             <Button
               onClick={handleClick}
-              className={'w-full justify-start'}
+              className={'justify-start px-1.5'}
               variant={'text'}
               color={'inherit'}
               startIcon={<AddSvg />}
@@ -57,7 +63,7 @@ export const SortMenu: FC<MenuProps> = (props) => {
             </Button>
             <Button
               onClick={deleteAllSorts}
-              className={'w-full justify-start'}
+              className={'justify-start px-1.5'}
               variant={'text'}
               color={'inherit'}
               startIcon={<DeleteSvg />}

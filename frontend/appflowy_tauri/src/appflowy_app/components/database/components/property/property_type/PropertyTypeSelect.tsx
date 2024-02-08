@@ -16,19 +16,21 @@ function PropertyTypeSelect({ field, onUpdateFieldType }: Props) {
   const ref = useRef<HTMLLIElement>(null);
 
   return (
-    <div className={'px-1'}>
+    <div>
       <MenuItem
         ref={ref}
         onClick={() => {
           setExpanded(!expanded);
         }}
-        className={'px-23 mx-0'}
+        className={'mx-0 rounded-none px-0'}
       >
-        <ProppertyTypeSvg type={field.type} className='mr-2 text-base' />
-        <span className='flex-1 text-xs font-medium'>
-          <PropertyTypeText type={field.type} />
-        </span>
-        <MoreSvg className={`transform text-base ${expanded ? '' : 'rotate-90'}`} />
+        <div className={'flex w-full items-center px-3'}>
+          <ProppertyTypeSvg type={field.type} className='mr-2 text-base' />
+          <span className='flex-1 text-xs font-medium'>
+            <PropertyTypeText type={field.type} />
+          </span>
+          <MoreSvg className={`transform text-base ${expanded ? '' : 'rotate-90'}`} />
+        </div>
       </MenuItem>
       {expanded && (
         <PropertyTypeMenu

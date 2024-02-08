@@ -17,10 +17,12 @@ function SelectCellActions({
   field,
   cell,
   onUpdated,
+  onClose,
 }: {
   field: SelectField;
   cell: SelectCellType;
   onUpdated?: () => void;
+  onClose?: () => void;
 }) {
   const rowId = cell?.rowId;
   const viewId = useViewId();
@@ -118,7 +120,13 @@ function SelectCellActions({
 
   return (
     <div className={'text-base'}>
-      <SearchInput setNewOptionName={setNewOptionName} newOptionName={newOptionName} onEnter={handleEnter} />
+      <SearchInput
+        onEscape={onClose}
+        setNewOptionName={setNewOptionName}
+        newOptionName={newOptionName}
+        onEnter={handleEnter}
+      />
+
       <div className='mx-4 mb-2 mt-4 text-xs'>
         {shouldCreateOption ? t('grid.selectOption.createNew') : t('grid.selectOption.orSelectOne')}
       </div>
