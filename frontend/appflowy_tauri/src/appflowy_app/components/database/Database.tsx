@@ -25,7 +25,7 @@ export const Database = forwardRef<HTMLDivElement, Props>(({ selectedViewId, set
   const innerRef = useRef<HTMLDivElement>();
   const databaseRef = (ref ?? innerRef) as React.MutableRefObject<HTMLDivElement>;
   const viewId = useViewId();
-  const databaseSettingsRef = useRef<HTMLDivElement>(null);
+  const [settingDom, setSettingDom] = useState<HTMLDivElement | null>(null);
 
   const [page, setPage] = useState<Page | null>(null);
   const { t } = useTranslation();
@@ -168,7 +168,7 @@ export const Database = forwardRef<HTMLDivElement, Props>(({ selectedViewId, set
         setSelectedViewId={setSelectedViewId}
         selectedViewId={selectedViewId}
         childViews={childViews}
-        settingRef={databaseSettingsRef}
+        ref={setSettingDom}
       />
       <SwipeableViews
         slideStyle={{
@@ -183,8 +183,8 @@ export const Database = forwardRef<HTMLDivElement, Props>(({ selectedViewId, set
             <DatabaseLoader viewId={view.id}>
               {selectedViewId === view.id && (
                 <>
-                  {databaseSettingsRef.current && (
-                    <Portal container={databaseSettingsRef.current}>
+                  {settingDom && (
+                    <Portal container={settingDom}>
                       <DatabaseSettings
                         onToggleCollection={(forceOpen?: boolean) => onToggleCollection(view.id, forceOpen)}
                       />

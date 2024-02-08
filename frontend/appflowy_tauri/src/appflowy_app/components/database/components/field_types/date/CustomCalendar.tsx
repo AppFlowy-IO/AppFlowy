@@ -40,7 +40,7 @@ function CustomCalendar({
     <div className={'flex w-full items-center justify-center'}>
       <DatePicker
         calendarClassName={
-          'appflowy-date-picker-calendar bg-bg-body h-full border-none rounded-none flex w-full items-center justify-center'
+          'appflowy-date-picker-calendar select-none bg-bg-body h-full border-none rounded-none flex w-full items-center justify-center'
         }
         renderCustomHeader={(props: ReactDatePickerCustomHeaderProps) => {
           return (
@@ -63,8 +63,30 @@ function CustomCalendar({
         selected={startDate}
         onChange={(dates) => {
           if (!dates) return;
-          if (isRange) {
-            const [start, end] = dates as [Date | null, Date | null];
+          if (isRange && Array.isArray(dates)) {
+            let start = dates[0] as Date;
+            let end = dates[1] as Date;
+
+            if (!end && start && startDate && endDate) {
+              const currentTime = start.getTime();
+              const startTimeStamp = startDate.getTime();
+              const endTimeStamp = endDate.getTime();
+              const isGreaterThanStart = currentTime > startTimeStamp;
+              const isGreaterThanEnd = currentTime > endTimeStamp;
+              const isLessThanStart = currentTime < startTimeStamp;
+              const isLessThanEnd = currentTime < endTimeStamp;
+              const isEqualsStart = currentTime === startTimeStamp;
+              const isEqualsEnd = currentTime === endTimeStamp;
+
+              if ((isGreaterThanStart && isLessThanEnd) || isGreaterThanEnd) {
+                end = start;
+                start = startDate;
+              } else if (isEqualsStart || isEqualsEnd) {
+                end = start;
+              } else if (isLessThanStart) {
+                end = endDate;
+              }
+            }
 
             setStartDate(start);
             setEndDate(end);
