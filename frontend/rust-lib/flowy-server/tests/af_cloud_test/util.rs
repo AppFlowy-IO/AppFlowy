@@ -41,6 +41,7 @@ pub async fn generate_sign_in_url(user_email: &str, config: &AFCloudConfiguratio
     &config.gotrue_url,
     "fake_device_id",
     ClientConfiguration::default(),
+    "test",
   );
   let admin_email = std::env::var("GOTRUE_ADMIN_EMAIL").unwrap();
   let admin_password = std::env::var("GOTRUE_ADMIN_PASSWORD").unwrap();
