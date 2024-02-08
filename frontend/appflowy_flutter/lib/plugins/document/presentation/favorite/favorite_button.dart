@@ -20,8 +20,7 @@ class DocumentFavoriteButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<FavoriteBloc, FavoriteState>(
       builder: (context, state) {
-        final isFavorite =
-            state.views.map((v) => v.id).toList().contains(view.id);
+        final isFavorite = state.views.any((v) => v.id == view.id);
         return _buildFavoriteButton(context, isFavorite);
       },
     );
