@@ -8,6 +8,7 @@ import 'package:appflowy/plugins/document/document_page.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
 import 'package:appflowy/plugins/document/presentation/more/more_button.dart';
 import 'package:appflowy/plugins/document/presentation/share/share_button.dart';
+import 'package:appflowy/plugins/document/presentation/favorite/favorite_button.dart';
 import 'package:appflowy/plugins/util.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
@@ -120,6 +121,11 @@ class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
     return Row(
       children: [
         DocumentShareButton(key: ValueKey(view.id), view: view),
+        const HSpace(4),
+        DocumentFavoriteButton(
+          key: ValueKey('favorite_button_${view.id}'),
+          view: view,
+        ),
         const HSpace(4),
         const DocumentMoreButton(),
       ],
