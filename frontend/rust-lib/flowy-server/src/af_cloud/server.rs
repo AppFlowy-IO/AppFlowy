@@ -12,7 +12,8 @@ use client_api::{Client, ClientConfiguration};
 use flowy_storage::ObjectStorageService;
 use tokio::sync::watch;
 use tokio_stream::wrappers::WatchStream;
-use tracing::{error, event, info};
+use tracing::{error, event, info, warn};
+use uuid::Uuid;
 
 use flowy_database_pub::cloud::DatabaseCloudService;
 use flowy_document_pub::cloud::DocumentCloudService;
@@ -38,17 +39,23 @@ pub struct AppFlowyCloudServer {
   pub(crate) client: Arc<AFCloudClient>,
   enable_sync: Arc<AtomicBool>,
   network_reachable: Arc<AtomicBool>,
-  #[allow(dead_code)]
-  device_id: String,
+  pub device_id: String,
   ws_client: Arc<WSClient>,
 }
 
 impl AppFlowyCloudServer {
-  pub fn new(config: AFCloudConfiguration, enable_sync: bool, device_id: String) -> Self {
+  pub fn new(config: AFCloudConfiguration, enable_sync: bool, mut device_id: String) -> Self {
+    // The device id can't be empty, so we generate a new one if it is.
+    if device_id.is_empty() {
+      warn!("Device ID is empty, generating a new one");
+      device_id = Uuid::new_v4().to_string();
+    }
+
     let api_client = AFCloudClient::new(
       &config.base_url,
       &config.ws_base_url,
       &config.gotrue_url,
+      &device_id,
       ClientConfiguration::default()
         .with_compression_buffer_size(10240)
         .with_compression_quality(8),

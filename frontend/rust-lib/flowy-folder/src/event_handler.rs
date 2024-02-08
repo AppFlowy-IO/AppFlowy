@@ -329,3 +329,11 @@ pub(crate) async fn get_folder_snapshots_handler(
   let snapshots = folder.get_folder_snapshots(&data.value, 10).await?;
   data_result_ok(RepeatedFolderSnapshotPB { items: snapshots })
 }
+
+pub(crate) async fn reload_workspace_handler(
+  folder: AFPluginState<Weak<FolderManager>>,
+) -> Result<(), FlowyError> {
+  let folder = upgrade_folder(folder)?;
+  folder.reload_workspace().await?;
+  Ok(())
+}

@@ -331,6 +331,7 @@ async fn get_admin_client(client: &Arc<AFCloudClient>) -> FlowyResult<Client> {
     client.base_url(),
     client.ws_addr(),
     client.gotrue_url(),
+    &client.device_id,
     ClientConfiguration::default(),
   );
   admin_client

@@ -118,7 +118,7 @@ impl UserManager {
   /// the function will set up the collaboration configuration and initialize the user's awareness. Upon successful
   /// completion, a user status callback is invoked to signify that the initialization process is complete.
   #[instrument(level = "debug", skip_all, err)]
-  pub async fn init<C: UserStatusCallback + 'static, I: CollabInteract>(
+  pub async fn init_with_callback<C: UserStatusCallback + 'static, I: CollabInteract>(
     &self,
     user_status_callback: C,
     collab_interact: I,
@@ -159,27 +159,43 @@ impl UserManager {
       }
 
       // Subscribe the token state
+      let weak_cloud_services = Arc::downgrade(&self.cloud_services);
+      let weak_authenticate_user = Arc::downgrade(&self.authenticate_user);
       let weak_pool = Arc::downgrade(&self.db_pool(user.uid)?);
+      let cloned_session = session.clone();
       if let Some(mut token_state_rx) = self.cloud_services.subscribe_token_state() {
         event!(tracing::Level::DEBUG, "Listen token state change");
         let user_uid = user.uid;
-        let user_token = user.token.clone();
+        let local_token = user.token.clone();
         af_spawn(async move {
           while let Some(token_state) = token_state_rx.next().await {
             debug!("Token state changed: {:?}", token_state);
             match token_state {
-              UserTokenState::Refresh { token } => {
+              UserTokenState::Refresh { token: new_token } => {
                 // Only save the token if the token is different from the current token
-                if token != user_token {
+                if new_token != local_token {
                   if let Some(conn) = weak_pool.upgrade().and_then(|pool| pool.get().ok()) {
                     // Save the new token
-                    if let Err(err) = save_user_token(user_uid, conn, token) {
+                    if let Err(err) = save_user_token(user_uid, conn, new_token) {
                       error!("Save user token failed: {}", err);
                     }
                   }
                 }
               },
-              UserTokenState::Invalid => {},
+              UserTokenState::Invalid => {
+                // Force user to sign out when the token is invalid
+                if let (Some(cloud_services), Some(authenticate_user), Some(conn)) = (
+                  weak_cloud_services.upgrade(),
+                  weak_authenticate_user.upgrade(),
+                  weak_pool.upgrade().and_then(|pool| pool.get().ok()),
+                ) {
+                  if let Err(err) =
+                    sign_out(&cloud_services, &cloned_session, &authenticate_user, conn).await
+                  {
+                    error!("Sign out when token invalid failed: {:?}", err);
+                  }
+                }
+              },
             }
           }
         });
@@ -203,7 +219,12 @@ impl UserManager {
       }
       self.authenticate_user.vacuum_database_if_need();
       let cloud_config = get_cloud_config(session.user_id, &self.store_preferences);
-      if let Err(e) = user_status_callback
+      // Init the user awareness
+      self
+        .initialize_user_awareness(&session, UserAwarenessDataSource::Local)
+        .await;
+
+      user_status_callback
         .did_init(
           user.uid,
           &user.authenticator,
@@ -211,14 +232,7 @@ impl UserManager {
           &session.user_workspace,
           &self.authenticate_user.user_config.device_id,
         )
-        .await
-      {
-        error!("Failed to call did_init callback: {:?}", e);
-      }
-      // Init the user awareness
-      self
-        .initialize_user_awareness(&session, UserAwarenessDataSource::Local)
-        .await;
+        .await?;
     }
     Ok(())
   }
@@ -282,7 +296,7 @@ impl UserManager {
       .initialize_user_awareness(&session, UserAwarenessDataSource::Remote)
       .await;
 
-    if let Err(e) = self
+    self
       .user_status_callback
       .read()
       .await
@@ -291,10 +305,7 @@ impl UserManager {
         &latest_workspace,
         &self.authenticate_user.user_config.device_id,
       )
-      .await
-    {
-      error!("Failed to call did_sign_in callback: {:?}", e);
-    }
+      .await?;
     send_auth_state_notification(AuthStateChangedPB {
       state: AuthStatePB::AuthStateSignIn,
       message: "Sign in success".to_string(),
@@ -423,14 +434,13 @@ impl UserManager {
   #[tracing::instrument(level = "info", skip(self))]
   pub async fn sign_out(&self) -> Result<(), FlowyError> {
     if let Ok(session) = self.get_session() {
-      let _ = remove_user_token(session.user_id, self.db_connection(session.user_id)?);
-      self.authenticate_user.database.close(session.user_id)?;
-      self.authenticate_user.set_session(None)?;
-
-      let server = self.cloud_services.get_user_service()?;
-      if let Err(err) = server.sign_out(None).await {
-        event!(tracing::Level::ERROR, "{:?}", err);
-      }
+      sign_out(
+        &self.cloud_services,
+        &session,
+        &self.authenticate_user,
+        self.db_connection(session.user_id)?,
+      )
+      .await?;
     }
     Ok(())
   }
@@ -820,4 +830,22 @@ pub(crate) fn run_collab_data_migration(
     },
     Err(e) => error!("User data migration failed: {:?}", e),
   }
+}
+
+pub async fn sign_out(
+  cloud_services: &Arc<dyn UserCloudServiceProvider>,
+  session: &Session,
+  authenticate_user: &AuthenticateUser,
+  conn: DBConnection,
+) -> Result<(), FlowyError> {
+  let _ = remove_user_token(session.user_id, conn);
+  authenticate_user.database.close(session.user_id)?;
+  authenticate_user.set_session(None)?;
+
+  let server = cloud_services.get_user_service()?;
+  if let Err(err) = server.sign_out(None).await {
+    event!(tracing::Level::ERROR, "{:?}", err);
+  }
+
+  Ok(())
 }
