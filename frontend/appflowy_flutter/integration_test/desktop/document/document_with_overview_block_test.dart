@@ -43,7 +43,7 @@ void main() {
       );
     });
 
-    testWidgets('updating parent view item of overview block component',
+    testWidgets('update parent view',
         (tester) async {
       const String viewName = '$gettingStarted View';
       await initializeEditorAndInsertOverviewBlock(tester);
@@ -80,7 +80,7 @@ void main() {
     });
 
     testWidgets(
-      'overview block test',
+      'update child views',
       (tester) async {
         await initializeEditorAndInsertOverviewBlock(tester);
         // validate the overview is inserted
@@ -173,7 +173,7 @@ void main() {
       },
     );
 
-    testWidgets('overview block expansion test', (tester) async {
+    testWidgets('expansion test', (tester) async {
       await initializeEditorAndInsertOverviewBlock(tester);
 
       /// validate the [WorkspaceOverviewBlockWidget] component is inserted
