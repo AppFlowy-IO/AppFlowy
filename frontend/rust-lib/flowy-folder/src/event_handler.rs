@@ -102,6 +102,7 @@ pub(crate) async fn create_orphan_view_handler(
   data_result_ok(view_pb_without_child_views(Arc::new(view)))
 }
 
+#[tracing::instrument(level = "debug", skip(data, folder), err)]
 pub(crate) async fn read_view_handler(
   data: AFPluginData<ViewIdPB>,
   folder: AFPluginState<Weak<FolderManager>>,

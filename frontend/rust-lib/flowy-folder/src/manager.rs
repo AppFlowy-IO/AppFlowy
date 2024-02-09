@@ -455,7 +455,7 @@ impl FolderManager {
   /// Returns the view with the given view id.
   /// The child views of the view will only access the first. So if you want to get the child view's
   /// child view, you need to call this method again.
-  #[tracing::instrument(level = "debug", skip(self, view_id), err)]
+  #[tracing::instrument(level = "debug", skip(self))]
   pub async fn get_view_pb(&self, view_id: &str) -> FlowyResult<ViewPB> {
     let view_id = view_id.to_string();
     let folder = self.mutex_folder.lock();
@@ -467,11 +467,17 @@ impl FolderManager {
       .collect::<Vec<String>>();
 
     if trash_ids.contains(&view_id) {
-      return Err(FlowyError::record_not_found());
+      return Err(FlowyError::new(
+        ErrorCode::RecordNotFound,
+        format!("View:{} is in trash", view_id),
+      ));
     }
 
     match folder.views.get_view(&view_id) {
-      None => Err(FlowyError::record_not_found()),
+      None => {
+        error!("Can't find the view with id: {}", view_id);
+        Err(FlowyError::record_not_found())
+      },
       Some(view) => {
         let child_views = folder
           .views
