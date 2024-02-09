@@ -81,10 +81,6 @@ jobs:
           workspaces: |
             frontend/rust-lib
 
-      - uses: davidB/rust-cargo-make@v1
-        with:
-          version: "0.36.6"
-
       - name: Install prerequisites
         working-directory: frontend
         run: |
