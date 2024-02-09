@@ -47,6 +47,7 @@ jobs:
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
           sudo docker image prune --all --force
           sudo rm -rf /opt/hostedtoolcache/codeQL
+          sudo rm -rf $ANDROID_HOME/ndk
 
       - name: Checkout source code
         uses: actions/checkout@v2
@@ -61,9 +62,6 @@ jobs:
           channel: "beta"
           flutter-version: ${{ env.FLUTTER_VERSION }}
           cache: true
-
-      - name: Clean built-in NDKs
-        run: sudo rm -rf $ANDROID_HOME/ndk
 
       - uses: nttld/setup-ndk@v1
         id: setup-ndk
