@@ -553,6 +553,7 @@ impl FolderManager {
   }
 
   /// Returns information about the view and its entire hierarchy of child views
+  #[tracing::instrument(level = "debug", skip(self))]
   pub fn get_all_level_of_views_pb(&self, view_id: &str) -> BoxFuture<'_, FlowyResult<ViewPB>> {
     let view_id = view_id.to_string();
     let res = async move {
