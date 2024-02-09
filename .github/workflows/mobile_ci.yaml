@@ -46,6 +46,8 @@ jobs:
           sudo rm -rf /opt/ghc
           sudo rm -rf "/usr/local/share/boost"
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+          sudo docker image prune --all --force
+          sudo rm -rf /opt/hostedtoolcache/codeQL
 
       - name: Checkout source code
         uses: actions/checkout@v2
@@ -70,8 +72,8 @@ jobs:
       - uses: nttld/setup-ndk@v1
         id: setup-ndk
         with:
-            ndk-version: "r24"
-            add-to-path: true
+          ndk-version: "r24"
+          add-to-path: true
 
       - uses: gradle/gradle-build-action@v2
         with:
