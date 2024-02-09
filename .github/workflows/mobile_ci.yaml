@@ -47,13 +47,11 @@ jobs:
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
           sudo docker image prune --all --force
           sudo rm -rf /opt/hostedtoolcache/codeQL
+          sudo rm -rf ${GITHUB_WORKSPACE}/.git
           sudo rm -rf $ANDROID_HOME/ndk
 
       - name: Checkout source code
         uses: actions/checkout@v2
-
-      - name: Clean .git
-        run: sudo rm -rf ${GITHUB_WORKSPACE}/.git
 
       - name: Install flutter
         id: flutter
@@ -78,6 +76,10 @@ jobs:
           prefix-key: ${{ matrix.os }}
           workspaces: |
             frontend/rust-lib
+
+      - uses: davidB/rust-cargo-make@v1
+        with:
+          version: "0.36.6"
 
       - name: Install prerequisites
         working-directory: frontend
