@@ -47,6 +47,7 @@ jobs:
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
           sudo docker image prune --all --force
           sudo rm -rf /opt/hostedtoolcache/codeQL
+          sudo ls -d /opt/hostedtoolcache/
 
       - name: Checkout source code
         uses: actions/checkout@v2
