@@ -9,12 +9,12 @@ import 'package:integration_test/integration_test.dart';
 
 import '../util/util.dart';
 
+const String heading1 = "Heading 1";
+const String heading2 = "Heading 2";
+const String heading3 = "Heading 3";
+
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-
-  const String heading1 = "Heading 1";
-  const String heading2 = "Heading 2";
-  const String heading3 = "Heading 3";
 
   group('outline block test', () {
     testWidgets('insert an outline block', (tester) async {
@@ -40,12 +40,8 @@ void main() {
       await tester.createNewPageWithNameUnderParent(
         name: 'outline_test',
       );
-      await tester.editor.tapLineOfEditorAt(0);
 
-      await tester.ime.insertText('# $heading1\n');
-      await tester.ime.insertText('## $heading2\n');
-      await tester.ime.insertText('### $heading3\n');
-
+      await insertHeadingComponent(tester);
       /* Results in:
       * # Heading 1
       * ## Heading 2
@@ -100,12 +96,8 @@ void main() {
       await tester.createNewPageWithNameUnderParent(
         name: 'outline_test',
       );
-      await tester.editor.tapLineOfEditorAt(0);
 
-      await tester.ime.insertText('# $heading1\n');
-      await tester.ime.insertText('## $heading2\n');
-      await tester.ime.insertText('### $heading3\n');
-
+      await insertHeadingComponent(tester);
       /* Results in:
         * # Heading 1
         * ## Heading 2
@@ -133,7 +125,7 @@ void main() {
       );
       //////
 
-      /// expect to find only the 'heading1` and `heading2` under the [OutlineBlockWidget]
+      /// expect to find only the 'heading1' and 'heading2' under the [OutlineBlockWidget]
       await hoverAndClickDepthOptionAction(tester, [3], 2);
       expect(
         find.descendant(
@@ -197,4 +189,11 @@ Future<void> hoverAndClickDepthOptionAction(
   // in addition to 3 HoverButtons under the [DepthOptionAction] - (child of BlockOptionButton)
   await tester.tap(find.byType(HoverButton).hitTestable().at(3 + level));
   await tester.pumpAndSettle();
+}
+
+Future<void> insertHeadingComponent(WidgetTester tester) async {
+  await tester.editor.tapLineOfEditorAt(0);
+  await tester.ime.insertText('# $heading1\n');
+  await tester.ime.insertText('## $heading2\n');
+  await tester.ime.insertText('### $heading3\n');
 }
