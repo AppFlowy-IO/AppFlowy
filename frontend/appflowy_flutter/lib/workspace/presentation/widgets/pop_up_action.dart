@@ -7,6 +7,7 @@ import 'package:styled_widget/styled_widget.dart';
 class PopoverActionList<T extends PopoverAction> extends StatefulWidget {
   const PopoverActionList({
     super.key,
+    this.popoverMutex,
     required this.actions,
     required this.buildChild,
     required this.onSelected,
@@ -23,6 +24,7 @@ class PopoverActionList<T extends PopoverAction> extends StatefulWidget {
     ),
   });
 
+  final PopoverMutex? popoverMutex;
   final List<T> actions;
   final Widget Function(PopoverController) buildChild;
   final Function(T, PopoverController) onSelected;
@@ -74,6 +76,7 @@ class _PopoverActionListState<T extends PopoverAction>
             );
           } else if (action is PopoverActionCell) {
             return PopoverActionCellWidget<T>(
+              popoverMutex: widget.popoverMutex,
               popoverController: popoverController,
               action: action,
               itemHeight: ActionListSizes.itemHeight,
@@ -164,11 +167,13 @@ class ActionCellWidget<T extends PopoverAction> extends StatelessWidget {
 class PopoverActionCellWidget<T extends PopoverAction> extends StatefulWidget {
   const PopoverActionCellWidget({
     super.key,
+    this.popoverMutex,
     required this.popoverController,
     required this.action,
     required this.itemHeight,
   });
 
+  final PopoverMutex? popoverMutex;
   final T action;
   final double itemHeight;
 
@@ -190,6 +195,7 @@ class _PopoverActionCellWidgetState<T extends PopoverAction>
     final rightIcon =
         actionCell.rightIcon(Theme.of(context).colorScheme.onSurface);
     return AppFlowyPopover(
+      mutex: widget.popoverMutex,
       controller: popoverController,
       asBarrier: true,
       popupBuilder: (context) => actionCell.builder(
