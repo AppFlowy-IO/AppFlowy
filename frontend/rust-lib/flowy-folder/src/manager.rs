@@ -1334,8 +1334,10 @@ impl Clone for WorkspaceOverviewListenerIdManager {
 
 impl Drop for WorkspaceOverviewListenerIdManager {
   fn drop(&mut self) {
-    if let Some(view_ids) = self.listener_view_ids.write().as_mut() {
-      view_ids.clear();
+    let mut lock = self.listener_view_ids.write();
+
+    if let Some(view_ids) = lock.take() {
+      for _ in view_ids {}
     }
   }
 }
