@@ -113,7 +113,7 @@ pub(crate) async fn read_view_handler(
   data_result_ok(view_pb)
 }
 
-#[tracing::instrument(level= "debug", skip(data, folder), err)]
+#[tracing::instrument(level = "debug", skip(data, folder), err)]
 pub(crate) async fn read_all_level_of_views_handler(
   data: AFPluginData<ViewIdPB>,
   folder: AFPluginState<Weak<FolderManager>>,
