@@ -6,6 +6,7 @@ import 'package:appflowy/plugins/base/emoji/emoji_picker.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_skin_tone.dart';
 import 'package:appflowy/plugins/base/icon/icon_picker.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/block_action_add_button.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/block_action_option_button.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/cover_editor.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/document_header_node_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
@@ -238,6 +239,27 @@ class EditorOperations {
         if (withModifiedKey) {
           await tester.sendKeyUpEvent(LogicalKeyboardKey.altLeft);
         }
+      },
+    );
+  }
+
+  /// hover and click on the option menu button beside the block component.
+  Future<void> hoverAndClickOptionMenuButton(Path path) async {
+    final optionMenuButton = find.byWidgetPredicate(
+      (widget) =>
+          widget is BlockComponentActionWrapper &&
+          widget.node.path.equals(path),
+    );
+    await tester.hoverOnWidget(
+      optionMenuButton,
+      onHover: () async {
+        await tester.tapButton(
+          find.byWidgetPredicate(
+            (widget) =>
+                widget is BlockOptionButton &&
+                widget.blockComponentContext.node.path.equals(path),
+          ),
+        );
       },
     );
   }
