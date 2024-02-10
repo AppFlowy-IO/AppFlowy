@@ -142,7 +142,11 @@ class _OutlineBlockWidgetState extends State<OutlineBlockWidget>
               style: configuration.placeholderTextStyle(node),
             ),
           )
-        : DecoratedBox(
+        : Container(
+            padding: const EdgeInsets.symmetric(
+              vertical: 2.0,
+              horizontal: 5.0,
+            ),
             decoration: BoxDecoration(
               borderRadius: const BorderRadius.all(Radius.circular(8.0)),
               color: backgroundColor,
@@ -152,7 +156,19 @@ class _OutlineBlockWidgetState extends State<OutlineBlockWidget>
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               textDirection: textDirection,
-              children: children,
+              children: [
+                Text(
+                  LocaleKeys.document_outlineBlock_placeholder.tr(),
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                const VSpace(8.0),
+                Padding(
+                  padding: const EdgeInsets.only(left: 15.0),
+                  child: Column(
+                    children: children,
+                  ),
+                ),
+              ],
             ),
           );
 

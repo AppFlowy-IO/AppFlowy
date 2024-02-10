@@ -817,6 +817,9 @@
       "date": "Date",
       "emoji": "Emoji"
     },
+    "outlineBlock": {
+      "placeholder": "Table of Contents"
+    },
     "textBlock": {
       "placeholder": "Type '/' for commands"
     },
