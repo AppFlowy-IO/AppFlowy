@@ -264,11 +264,11 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
 
     try {
       if (timeFormat == TimeFormatPB.TwelveHour) {
-        return twelveHourFormat.parse(timeStr);
+        return twelveHourFormat.parseStrict(timeStr);
       }
 
       timeStr = _formatTimeStr(timeStr);
-      return twentyFourHourFormat.parse(timeStr);
+      return twentyFourHourFormat.parseStrict(timeStr);
     } on FormatException {
       Log.error("failed to parse time string ($timeStr)");
       return DateTime.now();
