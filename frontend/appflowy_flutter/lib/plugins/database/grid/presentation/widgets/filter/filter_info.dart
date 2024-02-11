@@ -1,11 +1,5 @@
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/checkbox_filter.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/checklist_filter.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/date_filter.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/select_option_filter.pbserver.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/text_filter.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/util.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 
 class FilterInfo {
   FilterInfo(this.viewId, this.filter, this.fieldInfo);
@@ -27,44 +21,40 @@ class FilterInfo {
   String get fieldId => filter.fieldId;
 
   DateFilterPB? dateFilter() {
-    if (![
-      FieldType.DateTime,
-      FieldType.LastEditedTime,
-      FieldType.CreatedTime,
-    ].contains(filter.fieldType)) {
-      return null;
-    }
-    return DateFilterPB.fromBuffer(filter.data);
+    return filter.fieldType == FieldType.DateTime
+        ? DateFilterPB.fromBuffer(filter.data)
+        : null;
   }
 
   TextFilterPB? textFilter() {
-    if (filter.fieldType != FieldType.RichText) {
-      return null;
-    }
-    return TextFilterPB.fromBuffer(filter.data);
+    return filter.fieldType == FieldType.RichText
+        ? TextFilterPB.fromBuffer(filter.data)
+        : null;
   }
 
   CheckboxFilterPB? checkboxFilter() {
-    if (filter.fieldType != FieldType.Checkbox) {
+    if (filter.fieldType == FieldType.Checkbox) {
       return null;
     }
     return CheckboxFilterPB.fromBuffer(filter.data);
   }
 
   SelectOptionFilterPB? selectOptionFilter() {
-    if (filter.fieldType == FieldType.SingleSelect ||
-        filter.fieldType == FieldType.MultiSelect) {
-      return SelectOptionFilterPB.fromBuffer(filter.data);
-    } else {
-      return null;
-    }
+    return filter.fieldType == FieldType.SingleSelect ||
+            filter.fieldType == FieldType.MultiSelect
+        ? SelectOptionFilterPB.fromBuffer(filter.data)
+        : null;
   }
 
   ChecklistFilterPB? checklistFilter() {
-    if (filter.fieldType == FieldType.Checklist) {
-      return ChecklistFilterPB.fromBuffer(filter.data);
-    } else {
-      return null;
-    }
+    return filter.fieldType == FieldType.Checklist
+        ? ChecklistFilterPB.fromBuffer(filter.data)
+        : null;
+  }
+
+  NumberFilterPB? numberFilter() {
+    return filter.fieldType == FieldType.Number
+        ? NumberFilterPB.fromBuffer(filter.data)
+        : null;
   }
 }
