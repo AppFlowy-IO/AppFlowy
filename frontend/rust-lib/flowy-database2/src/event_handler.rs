@@ -2,6 +2,7 @@ use std::sync::{Arc, Weak};
 
 use collab_database::database::gen_row_id;
 use collab_database::rows::RowId;
+use lib_infra::box_any::BoxAny;
 use tokio::sync::oneshot;
 
 use flowy_error::{FlowyError, FlowyResult};
@@ -11,9 +12,8 @@ use lib_infra::util::timestamp;
 use crate::entities::*;
 use crate::manager::DatabaseManager;
 use crate::services::cell::CellBuilder;
-use crate::services::field::checklist_type_option::ChecklistCellChangeset;
 use crate::services::field::{
-  type_option_data_from_pb, DateCellChangeset, SelectOptionCellChangeset,
+  type_option_data_from_pb, ChecklistCellChangeset, DateCellChangeset, SelectOptionCellChangeset,
 };
 use crate::services::field_settings::FieldSettingsChangesetParams;
 use crate::services::group::GroupChangeset;
@@ -454,7 +454,7 @@ pub(crate) async fn update_cell_handler(
       &params.view_id,
       RowId::from(params.row_id),
       &params.field_id,
-      params.cell_changeset.clone(),
+      BoxAny::new(params.cell_changeset),
     )
     .await?;
   Ok(())
@@ -551,7 +551,7 @@ pub(crate) async fn update_select_option_cell_handler(
       &params.cell_identifier.view_id,
       params.cell_identifier.row_id,
       &params.cell_identifier.field_id,
-      changeset,
+      BoxAny::new(changeset),
     )
     .await?;
   Ok(())
@@ -572,14 +572,19 @@ pub(crate) async fn update_checklist_cell_handler(
     update_options: params.update_options,
   };
   database_editor
-    .update_cell_with_changeset(&params.view_id, params.row_id, &params.field_id, changeset)
+    .update_cell_with_changeset(
+      &params.view_id,
+      params.row_id,
+      &params.field_id,
+      BoxAny::new(changeset),
+    )
     .await?;
   Ok(())
 }
 
 #[tracing::instrument(level = "trace", skip_all, err)]
 pub(crate) async fn update_date_cell_handler(
-  data: AFPluginData<DateChangesetPB>,
+  data: AFPluginData<DateCellChangesetPB>,
   manager: AFPluginState<Weak<DatabaseManager>>,
 ) -> Result<(), FlowyError> {
   let manager = upgrade_manager(manager)?;
@@ -602,7 +607,7 @@ pub(crate) async fn update_date_cell_handler(
       &cell_id.view_id,
       cell_id.row_id,
       &cell_id.field_id,
-      cell_changeset,
+      BoxAny::new(cell_changeset),
     )
     .await?;
   Ok(())
@@ -831,7 +836,7 @@ pub(crate) async fn move_calendar_event_handler(
       &cell_id.view_id,
       cell_id.row_id,
       &cell_id.field_id,
-      cell_changeset,
+      BoxAny::new(cell_changeset),
     )
     .await?;
   Ok(())

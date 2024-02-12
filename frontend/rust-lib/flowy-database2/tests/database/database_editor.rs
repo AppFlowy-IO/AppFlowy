@@ -5,12 +5,13 @@ use collab_database::database::{gen_database_view_id, timestamp};
 use collab_database::fields::Field;
 use collab_database::rows::{CreateRowParams, RowDetail, RowId};
 use collab_database::views::OrderObjectPosition;
+use lib_infra::box_any::BoxAny;
 use strum::EnumCount;
 
 use event_integration::folder_event::ViewTest;
 use event_integration::EventIntegrationTest;
 use flowy_database2::entities::{FieldType, FilterPB, RowMetaPB};
-use flowy_database2::services::cell::{CellBuilder, ToCellChangeset};
+use flowy_database2::services::cell::CellBuilder;
 use flowy_database2::services::database::DatabaseEditor;
 use flowy_database2::services::field::checklist_type_option::{
   ChecklistCellChangeset, ChecklistTypeOption,
@@ -180,11 +181,11 @@ impl DatabaseEditorTest {
       .unwrap()
   }
 
-  pub async fn update_cell<T: ToCellChangeset>(
+  pub async fn update_cell(
     &mut self,
     field_id: &str,
     row_id: RowId,
-    cell_changeset: T,
+    cell_changeset: BoxAny,
   ) -> FlowyResult<()> {
     let field = self
       .editor
@@ -212,7 +213,7 @@ impl DatabaseEditorTest {
       .clone();
 
     self
-      .update_cell(&field.id, row_id, content.to_string())
+      .update_cell(&field.id, row_id, BoxAny::new(content.to_string()))
       .await
   }
 
@@ -258,7 +259,9 @@ impl DatabaseEditorTest {
       .clone();
 
     let cell_changeset = SelectOptionCellChangeset::from_insert_option_id(option_id);
-    self.update_cell(&field.id, row_id, cell_changeset).await
+    self
+      .update_cell(&field.id, row_id, BoxAny::new(cell_changeset))
+      .await
   }
 
   pub async fn import(&self, s: String, format: CSVFormat) -> ImportResult {
