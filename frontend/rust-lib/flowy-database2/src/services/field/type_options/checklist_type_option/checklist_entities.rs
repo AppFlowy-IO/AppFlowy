@@ -19,7 +19,7 @@ impl ToString for ChecklistCellData {
 
 impl TypeOptionCellData for ChecklistCellData {
   fn is_cell_empty(&self) -> bool {
-    self.selected_option_ids.is_empty()
+    self.options.is_empty()
   }
 }
 

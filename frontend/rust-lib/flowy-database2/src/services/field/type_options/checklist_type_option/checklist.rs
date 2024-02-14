@@ -2,8 +2,8 @@ use crate::entities::{ChecklistCellDataPB, ChecklistFilterPB, FieldType, SelectO
 use crate::services::cell::{CellDataChangeset, CellDataDecoder};
 use crate::services::field::checklist_type_option::{ChecklistCellChangeset, ChecklistCellData};
 use crate::services::field::{
-  SelectOption, TypeOption, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
-  TypeOptionCellDataSerde, TypeOptionTransform, SELECTION_IDS_SEPARATOR,
+  SelectOption, TypeOption, TypeOptionCellData, TypeOptionCellDataCompare,
+  TypeOptionCellDataFilter, TypeOptionCellDataSerde, TypeOptionTransform, SELECTION_IDS_SEPARATOR,
 };
 use crate::services::sort::SortCondition;
 use collab_database::fields::{Field, TypeOptionData, TypeOptionDataBuilder};
@@ -191,16 +191,19 @@ impl TypeOptionCellDataCompare for ChecklistTypeOption {
     &self,
     cell_data: &<Self as TypeOption>::CellData,
     other_cell_data: &<Self as TypeOption>::CellData,
-    _sort_condition: SortCondition,
+    sort_condition: SortCondition,
   ) -> Ordering {
-    let left = cell_data.percentage_complete();
-    let right = other_cell_data.percentage_complete();
-    if left > right {
-      Ordering::Greater
-    } else if left < right {
-      Ordering::Less
-    } else {
-      Ordering::Equal
+    match (cell_data.is_cell_empty(), other_cell_data.is_cell_empty()) {
+      (true, true) => Ordering::Equal,
+      (true, false) => Ordering::Greater,
+      (false, true) => Ordering::Less,
+      (false, false) => {
+        let left = cell_data.percentage_complete();
+        let right = other_cell_data.percentage_complete();
+        // safe to unwrap because the two floats won't be NaN
+        let order = left.partial_cmp(&right).unwrap();
+        sort_condition.evaluate_order(order)
+      },
     }
   }
 }
