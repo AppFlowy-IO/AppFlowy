@@ -1,5 +1,5 @@
 # Release Notes
-## Version 0.4.7 - 02/08/2024
+## Version 0.4.8 - 02/13/2024
 ### Bug Fixes
 - Fixed a possible error when loading workspaces
 
