@@ -189,14 +189,17 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
 
     String? path;
     CustomImageType imageType = CustomImageType.local;
+    ImageUploadStatus status = ImageUploadStatus.uploading;
 
     // if the user is using local authenticator, we need to save the image to local storage
     if (_isLocalMode()) {
       path = await saveImageToLocalStorage(url);
+      status = ImageUploadStatus.success;
     } else {
       // else we should save the image to cloud storage
       path = await saveImageToCloudStorage(url);
       imageType = CustomImageType.internal;
+      status = ImageUploadStatus.uploading;
     }
 
     if (path == null && context.mounted) {
@@ -210,6 +213,8 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
     transaction.updateNode(widget.node, {
       CustomImageBlockKeys.url: path,
       CustomImageBlockKeys.imageType: imageType.toIntValue(),
+      CustomImageBlockKeys.localImageUrl: url,
+      CustomImageBlockKeys.status: status.toIntValue(),
     });
 
     await editorState.apply(transaction);
