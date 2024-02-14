@@ -33,10 +33,9 @@ class FilterInfo {
   }
 
   CheckboxFilterPB? checkboxFilter() {
-    if (filter.fieldType == FieldType.Checkbox) {
-      return null;
-    }
-    return CheckboxFilterPB.fromBuffer(filter.data);
+    return filter.fieldType == FieldType.Checkbox
+        ? CheckboxFilterPB.fromBuffer(filter.data)
+        : null;
   }
 
   SelectOptionFilterPB? selectOptionFilter() {
