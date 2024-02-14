@@ -181,7 +181,7 @@ class NumberFilterConditionPBList extends StatelessWidget {
           onTap: () => controller.show(),
         );
       },
-      onSelected: (action, controller) async {
+      onSelected: (action, controller) {
         onCondition(action.inner);
         controller.close();
       },
