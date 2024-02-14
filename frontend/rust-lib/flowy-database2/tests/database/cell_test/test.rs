@@ -58,7 +58,7 @@ async fn grid_cell_update() {
       scripts.push(UpdateCell {
         view_id: test.view_id.clone(),
         field_id: field.id.clone(),
-        row_id: row_detail.row.id.clone().into(),
+        row_id: row_detail.row.id.clone(),
         changeset: cell_changeset,
         is_err: false,
       });

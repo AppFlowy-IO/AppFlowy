@@ -212,9 +212,15 @@ pub fn insert_checkbox_cell(is_checked: bool, field: &Field) -> Cell {
   apply_cell_changeset(BoxAny::new(s), None, field, None).unwrap()
 }
 
-pub fn insert_date_cell(timestamp: i64, include_time: Option<bool>, field: &Field) -> Cell {
+pub fn insert_date_cell(
+  timestamp: i64,
+  time: Option<String>,
+  include_time: Option<bool>,
+  field: &Field,
+) -> Cell {
   let cell_data = DateCellChangeset {
     date: Some(timestamp),
+    time,
     include_time,
     ..Default::default()
   };
@@ -274,7 +280,10 @@ impl<'a> CellBuilder<'a> {
           },
           FieldType::DateTime => {
             if let Ok(timestamp) = cell_str.parse::<i64>() {
-              cells.insert(field_id, insert_date_cell(timestamp, Some(false), field));
+              cells.insert(
+                field_id,
+                insert_date_cell(timestamp, None, Some(false), field),
+              );
             }
           },
           FieldType::LastEditedTime | FieldType::CreatedTime => {
@@ -353,13 +362,19 @@ impl<'a> CellBuilder<'a> {
     }
   }
 
-  pub fn insert_date_cell(&mut self, field_id: &str, timestamp: i64) {
+  pub fn insert_date_cell(
+    &mut self,
+    field_id: &str,
+    timestamp: i64,
+    time: Option<String>,
+    include_time: Option<bool>,
+  ) {
     match self.field_maps.get(&field_id.to_owned()) {
       None => tracing::warn!("Can't find the date field with id: {}", field_id),
       Some(field) => {
         self.cells.insert(
           field_id.to_owned(),
-          insert_date_cell(timestamp, Some(false), field),
+          insert_date_cell(timestamp, time, include_time, field),
         );
       },
     }

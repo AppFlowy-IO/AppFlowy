@@ -17,8 +17,8 @@ use flowy_database2::services::field::checklist_type_option::{
   ChecklistCellChangeset, ChecklistTypeOption,
 };
 use flowy_database2::services::field::{
-  CheckboxTypeOption, DateCellChangeset, MultiSelectTypeOption, SelectOption,
-  SelectOptionCellChangeset, SingleSelectTypeOption,
+  CheckboxTypeOption, MultiSelectTypeOption, SelectOption, SelectOptionCellChangeset,
+  SingleSelectTypeOption,
 };
 use flowy_database2::services::share::csv::{CSVFormat, ImportResult};
 use flowy_error::FlowyResult;
@@ -318,20 +318,15 @@ impl<'a> TestRowBuilder<'a> {
 
   pub fn insert_date_cell(
     &mut self,
-    data: i64,
+    date: i64,
     time: Option<String>,
     include_time: Option<bool>,
     field_type: &FieldType,
   ) -> String {
-    let value = serde_json::to_string(&DateCellChangeset {
-      date: Some(data),
-      time,
-      include_time,
-      ..Default::default()
-    })
-    .unwrap();
     let date_field = self.field_with_type(field_type);
-    self.cell_build.insert_text_cell(&date_field.id, value);
+    self
+      .cell_build
+      .insert_date_cell(&date_field.id, date, time, include_time);
     date_field.id.clone()
   }
 
