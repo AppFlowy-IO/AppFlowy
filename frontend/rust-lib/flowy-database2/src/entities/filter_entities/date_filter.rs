@@ -5,8 +5,6 @@ use serde::{Deserialize, Serialize};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 
-use crate::services::filter::{Filter, FromFilterString};
-
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct DateFilterPB {
   #[pb(index = 1)]
@@ -79,37 +77,17 @@ impl std::convert::TryFrom<u8> for DateFilterConditionPB {
     }
   }
 }
-impl FromFilterString for DateFilterPB {
-  fn from_filter(filter: &Filter) -> Self
-  where
-    Self: Sized,
-  {
-    let condition = DateFilterConditionPB::try_from(filter.condition as u8)
-      .unwrap_or(DateFilterConditionPB::DateIs);
-    let mut date_filter = DateFilterPB {
+
+impl From<(u8, String)> for DateFilterPB {
+  fn from(value: (u8, String)) -> Self {
+    let condition =
+      DateFilterConditionPB::try_from(value.0).unwrap_or(DateFilterConditionPB::DateIs);
+    let mut date_filter = Self {
       condition,
       ..Default::default()
     };
 
-    if let Ok(content) = DateFilterContentPB::from_str(&filter.content) {
-      date_filter.start = content.start;
-      date_filter.end = content.end;
-      date_filter.timestamp = content.timestamp;
-    };
-
-    date_filter
-  }
-}
-impl std::convert::From<&Filter> for DateFilterPB {
-  fn from(filter: &Filter) -> Self {
-    let condition = DateFilterConditionPB::try_from(filter.condition as u8)
-      .unwrap_or(DateFilterConditionPB::DateIs);
-    let mut date_filter = DateFilterPB {
-      condition,
-      ..Default::default()
-    };
-
-    if let Ok(content) = DateFilterContentPB::from_str(&filter.content) {
+    if let Ok(content) = DateFilterContentPB::from_str(&value.1) {
       date_filter.start = content.start;
       date_filter.end = content.end;
       date_filter.timestamp = content.timestamp;

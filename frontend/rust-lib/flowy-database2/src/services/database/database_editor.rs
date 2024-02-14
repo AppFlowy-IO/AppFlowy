@@ -4,7 +4,9 @@ use std::sync::Arc;
 use collab_database::database::MutexDatabase;
 use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{Cell, Cells, CreateRowParams, Row, RowCell, RowDetail, RowId};
-use collab_database::views::{DatabaseLayout, DatabaseView, LayoutSetting, OrderObjectPosition};
+use collab_database::views::{
+  DatabaseLayout, DatabaseView, FilterMap, LayoutSetting, OrderObjectPosition,
+};
 use futures::StreamExt;
 use lib_infra::box_any::BoxAny;
 use tokio::sync::{broadcast, RwLock};
@@ -32,7 +34,7 @@ use crate::services::field::{
 use crate::services::field_settings::{
   default_field_settings_by_layout_map, FieldSettings, FieldSettingsChangesetParams,
 };
-use crate::services::filter::Filter;
+use crate::services::filter::{Filter, FilterChangeset};
 use crate::services::group::{default_group_setting, GroupChangesets, GroupSetting, RowChangeset};
 use crate::services::share::csv::{CSVExport, CSVFormat};
 use crate::services::sort::Sort;
@@ -214,16 +216,13 @@ impl DatabaseEditor {
     Ok(())
   }
 
-  #[tracing::instrument(level = "trace", skip_all, err)]
-  pub async fn create_or_update_filter(&self, params: UpdateFilterParams) -> FlowyResult<()> {
-    let view_editor = self.database_views.get_view_editor(&params.view_id).await?;
-    view_editor.v_insert_filter(params).await?;
-    Ok(())
-  }
-
-  pub async fn delete_filter(&self, params: DeleteFilterPayloadPB) -> FlowyResult<()> {
-    let view_editor = self.database_views.get_view_editor(&params.view_id).await?;
-    view_editor.v_delete_filter(params).await?;
+  pub async fn modify_view_filters(
+    &self,
+    view_id: &str,
+    changeset: FilterChangeset,
+  ) -> FlowyResult<()> {
+    let view_editor = self.database_views.get_view_editor(view_id).await?;
+    view_editor.v_modify_filters(changeset).await?;
     Ok(())
   }
 
@@ -267,7 +266,8 @@ impl DatabaseEditor {
 
   pub async fn get_all_filters(&self, view_id: &str) -> RepeatedFilterPB {
     if let Ok(view_editor) = self.database_views.get_view_editor(view_id).await {
-      view_editor.v_get_all_filters().await.into()
+      let filters = view_editor.v_get_all_filters().await;
+      RepeatedFilterPB::from(&filters)
     } else {
       RepeatedFilterPB { items: vec![] }
     }
@@ -1259,10 +1259,9 @@ impl DatabaseEditor {
     row_ids: Option<&Vec<String>>,
   ) -> FlowyResult<Vec<RelatedRowDataPB>> {
     let primary_field = self.database.lock().fields.get_primary_field().unwrap();
-    let handler =
-      TypeOptionCellExt::new_with_cell_data_cache(&primary_field, Some(self.cell_cache.clone()))
-        .get_type_option_cell_data_handler(&FieldType::RichText)
-        .ok_or(FlowyError::internal())?;
+    let handler = TypeOptionCellExt::new(&primary_field, Some(self.cell_cache.clone()))
+      .get_type_option_cell_data_handler(&FieldType::RichText)
+      .ok_or(FlowyError::internal())?;
 
     let row_data = {
       let database = self.database.lock();
@@ -1566,13 +1565,12 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
       .get_calculation::<Calculation>(view_id, field_id)
   }
 
-  fn get_all_filters(&self, view_id: &str) -> Vec<Arc<Filter>> {
+  fn get_all_filters(&self, view_id: &str) -> Vec<Filter> {
     self
       .database
       .lock()
       .get_all_filters(view_id)
       .into_iter()
-      .map(Arc::new)
       .collect()
   }
 
@@ -1581,7 +1579,14 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
   }
 
   fn insert_filter(&self, view_id: &str, filter: Filter) {
-    self.database.lock().insert_filter(view_id, filter);
+    self.database.lock().insert_filter(view_id, &filter);
+  }
+
+  fn save_filters(&self, view_id: &str, filters: &[Filter]) {
+    self
+      .database
+      .lock()
+      .save_filters::<Filter, FilterMap>(view_id, filters);
   }
 
   fn get_filter(&self, view_id: &str, filter_id: &str) -> Option<Filter> {
@@ -1589,15 +1594,6 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
       .database
       .lock()
       .get_filter::<Filter>(view_id, filter_id)
-  }
-
-  fn get_filter_by_field_id(&self, view_id: &str, field_id: &str) -> Option<Filter> {
-    self
-      .database
-      .lock()
-      .get_all_filters::<Filter>(view_id)
-      .into_iter()
-      .find(|filter| filter.field_id == field_id)
   }
 
   fn get_layout_setting(&self, view_id: &str, layout_ty: &DatabaseLayout) -> Option<LayoutSetting> {
@@ -1632,7 +1628,7 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
     field: &Field,
     field_type: &FieldType,
   ) -> Option<Box<dyn TypeOptionCellDataHandler>> {
-    TypeOptionCellExt::new_with_cell_data_cache(field, Some(self.cell_cache.clone()))
+    TypeOptionCellExt::new(field, Some(self.cell_cache.clone()))
       .get_type_option_cell_data_handler(field_type)
   }
 

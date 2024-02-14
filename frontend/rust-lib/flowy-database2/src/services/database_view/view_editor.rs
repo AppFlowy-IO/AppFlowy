@@ -2,9 +2,7 @@ use std::borrow::Cow;
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use collab_database::database::{
-  gen_database_calculation_id, gen_database_filter_id, gen_database_sort_id,
-};
+use collab_database::database::{gen_database_calculation_id, gen_database_sort_id};
 use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{Cells, Row, RowDetail, RowId};
 use collab_database::views::{DatabaseLayout, DatabaseView};
@@ -15,11 +13,10 @@ use flowy_error::{FlowyError, FlowyResult};
 use lib_dispatch::prelude::af_spawn;
 
 use crate::entities::{
-  CalendarEventPB, DatabaseLayoutMetaPB, DatabaseLayoutSettingPB, DeleteFilterPayloadPB,
-  DeleteSortPayloadPB, FieldType, FieldVisibility, GroupChangesPB, GroupPB, InsertedRowPB,
-  LayoutSettingChangeset, LayoutSettingParams, RemoveCalculationChangesetPB, ReorderSortPayloadPB,
-  RowMetaPB, RowsChangePB, SortChangesetNotificationPB, SortPB, UpdateCalculationChangesetPB,
-  UpdateFilterParams, UpdateSortPayloadPB,
+  CalendarEventPB, DatabaseLayoutMetaPB, DatabaseLayoutSettingPB, DeleteSortPayloadPB, FieldType,
+  FieldVisibility, GroupChangesPB, GroupPB, InsertedRowPB, LayoutSettingChangeset,
+  LayoutSettingParams, RemoveCalculationChangesetPB, ReorderSortPayloadPB, RowMetaPB, RowsChangePB,
+  SortChangesetNotificationPB, SortPB, UpdateCalculationChangesetPB, UpdateSortPayloadPB,
 };
 use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::calculations::{Calculation, CalculationChangeset, CalculationsController};
@@ -37,9 +34,7 @@ use crate::services::database_view::{
   DatabaseViewChangedNotifier, DatabaseViewChangedReceiverRunner,
 };
 use crate::services::field_settings::FieldSettings;
-use crate::services::filter::{
-  Filter, FilterChangeset, FilterContext, FilterController, UpdatedFilter,
-};
+use crate::services::filter::{Filter, FilterChangeset, FilterController};
 use crate::services::group::{GroupChangesets, GroupController, MoveGroupRowContext, RowChangeset};
 use crate::services::setting::CalendarLayoutSetting;
 use crate::services::sort::{Sort, SortChangeset, SortController};
@@ -618,71 +613,26 @@ impl DatabaseViewEditor {
     Ok(())
   }
 
-  pub async fn v_get_all_filters(&self) -> Vec<Arc<Filter>> {
+  pub async fn v_get_all_filters(&self) -> Vec<Filter> {
     self.delegate.get_all_filters(&self.view_id)
-  }
-
-  #[tracing::instrument(level = "trace", skip(self), err)]
-  pub async fn v_insert_filter(&self, params: UpdateFilterParams) -> FlowyResult<()> {
-    let is_exist = params.filter_id.is_some();
-    let filter_id = match params.filter_id {
-      None => gen_database_filter_id(),
-      Some(filter_id) => filter_id,
-    };
-    let filter = Filter {
-      id: filter_id.clone(),
-      field_id: params.field_id.clone(),
-      field_type: params.field_type,
-      condition: params.condition,
-      content: params.content,
-    };
-    let filter_controller = self.filter_controller.clone();
-    let changeset = if is_exist {
-      let old_filter = self.delegate.get_filter(&self.view_id, &filter.id);
-
-      self.delegate.insert_filter(&self.view_id, filter.clone());
-      filter_controller
-        .did_receive_changes(FilterChangeset::from_update(UpdatedFilter::new(
-          old_filter, filter,
-        )))
-        .await
-    } else {
-      self.delegate.insert_filter(&self.view_id, filter.clone());
-      filter_controller
-        .did_receive_changes(FilterChangeset::from_insert(filter))
-        .await
-    };
-    drop(filter_controller);
-
-    if let Some(changeset) = changeset {
-      notify_did_update_filter(changeset).await;
-    }
-    Ok(())
-  }
-
-  #[tracing::instrument(level = "trace", skip(self), err)]
-  pub async fn v_delete_filter(&self, params: DeleteFilterPayloadPB) -> FlowyResult<()> {
-    let filter_context = FilterContext {
-      filter_id: params.filter_id.clone(),
-      field_id: params.field_id.clone(),
-      field_type: params.field_type,
-    };
-    let changeset = self
-      .filter_controller
-      .did_receive_changes(FilterChangeset::from_delete(filter_context.clone()))
-      .await;
-
-    self
-      .delegate
-      .delete_filter(&self.view_id, &params.filter_id);
-    if changeset.is_some() {
-      notify_did_update_filter(changeset.unwrap()).await;
-    }
-    Ok(())
   }
 
   pub async fn v_get_filter(&self, filter_id: &str) -> Option<Filter> {
     self.delegate.get_filter(&self.view_id, filter_id)
+  }
+
+  #[tracing::instrument(level = "trace", skip(self), err)]
+  pub async fn v_modify_filters(&self, changeset: FilterChangeset) -> FlowyResult<()> {
+    let filter_controller = self.filter_controller.clone();
+
+    // self.delegate.insert_filter(&self.view_id, filter.clone());
+
+    let notification = filter_controller.apply_changeset(changeset).await;
+
+    drop(filter_controller);
+
+    notify_did_update_filter(notification).await;
+    Ok(())
   }
 
   /// Returns the current calendar settings
@@ -830,25 +780,13 @@ impl DatabaseViewEditor {
         })
         .await;
 
-      if let Some(filter) = self
-        .delegate
-        .get_filter_by_field_id(&self.view_id, field_id)
-      {
-        let old = Filter {
-          field_type: FieldType::from(old_field.field_type),
-          ..filter.clone()
-        };
-        let updated_filter = UpdatedFilter::new(Some(old), filter);
-        let filter_changeset = FilterChangeset::from_update(updated_filter);
+      if old_field.field_type != field.field_type {
         let filter_controller = self.filter_controller.clone();
-        af_spawn(async move {
-          if let Some(notification) = filter_controller
-            .did_receive_changes(filter_changeset)
-            .await
-          {
-            notify_did_update_filter(notification).await;
-          }
-        });
+        let changeset = FilterChangeset::DeleteAllWithFieldId {
+          field_id: field.id.clone(),
+        };
+        let notification = filter_controller.apply_changeset(changeset).await;
+        notify_did_update_filter(notification).await;
       }
     }
     Ok(())

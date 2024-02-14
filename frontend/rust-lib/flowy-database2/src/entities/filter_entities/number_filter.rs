@@ -1,8 +1,6 @@
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 
-use crate::services::filter::{Filter, FromFilterString};
-
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct NumberFilterPB {
   #[pb(index = 1)]
@@ -49,24 +47,12 @@ impl std::convert::TryFrom<u8> for NumberFilterConditionPB {
   }
 }
 
-impl FromFilterString for NumberFilterPB {
-  fn from_filter(filter: &Filter) -> Self
-  where
-    Self: Sized,
-  {
+impl From<(u8, String)> for NumberFilterPB {
+  fn from(value: (u8, String)) -> Self {
     NumberFilterPB {
-      condition: NumberFilterConditionPB::try_from(filter.condition as u8)
+      condition: NumberFilterConditionPB::try_from(value.0)
         .unwrap_or(NumberFilterConditionPB::Equal),
-      content: filter.content.clone(),
-    }
-  }
-}
-impl std::convert::From<&Filter> for NumberFilterPB {
-  fn from(filter: &Filter) -> Self {
-    NumberFilterPB {
-      condition: NumberFilterConditionPB::try_from(filter.condition as u8)
-        .unwrap_or(NumberFilterConditionPB::Equal),
-      content: filter.content.clone(),
+      content: value.1,
     }
   }
 }

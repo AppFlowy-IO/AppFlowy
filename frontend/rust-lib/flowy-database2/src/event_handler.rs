@@ -91,14 +91,28 @@ pub(crate) async fn update_database_setting_handler(
   let params = data.try_into_inner()?;
   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
 
-  if let Some(update_filter) = params.update_filter {
+  if let Some(payload) = params.insert_filter {
     database_editor
-      .create_or_update_filter(update_filter.try_into()?)
+      .modify_view_filters(&params.view_id, payload.try_into()?)
       .await?;
   }
 
-  if let Some(delete_filter) = params.delete_filter {
-    database_editor.delete_filter(delete_filter).await?;
+  if let Some(payload) = params.update_filter_type {
+    database_editor
+      .modify_view_filters(&params.view_id, payload.try_into()?)
+      .await?;
+  }
+
+  if let Some(payload) = params.update_filter_data {
+    database_editor
+      .modify_view_filters(&params.view_id, payload.try_into()?)
+      .await?;
+  }
+
+  if let Some(payload) = params.delete_filter {
+    database_editor
+      .modify_view_filters(&params.view_id, payload.into())
+      .await?;
   }
 
   if let Some(update_sort) = params.update_sort {

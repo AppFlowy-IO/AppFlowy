@@ -4,7 +4,6 @@ use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 
 use crate::services::field::SelectOptionIds;
-use crate::services::filter::{Filter, FromFilterString};
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct SelectOptionFilterPB {
@@ -45,27 +44,14 @@ impl std::convert::TryFrom<u8> for SelectOptionConditionPB {
     }
   }
 }
-impl FromFilterString for SelectOptionFilterPB {
-  fn from_filter(filter: &Filter) -> Self
-  where
-    Self: Sized,
-  {
-    let ids = SelectOptionIds::from_str(&filter.content).unwrap_or_default();
-    SelectOptionFilterPB {
-      condition: SelectOptionConditionPB::try_from(filter.condition as u8)
+impl From<(u8, String)> for SelectOptionFilterPB {
+  fn from(value: (u8, String)) -> Self {
+    Self {
+      condition: SelectOptionConditionPB::try_from(value.0)
         .unwrap_or(SelectOptionConditionPB::OptionIs),
-      option_ids: ids.into_inner(),
-    }
-  }
-}
-
-impl std::convert::From<&Filter> for SelectOptionFilterPB {
-  fn from(filter: &Filter) -> Self {
-    let ids = SelectOptionIds::from_str(&filter.content).unwrap_or_default();
-    SelectOptionFilterPB {
-      condition: SelectOptionConditionPB::try_from(filter.condition as u8)
-        .unwrap_or(SelectOptionConditionPB::OptionIs),
-      option_ids: ids.into_inner(),
+      option_ids: SelectOptionIds::from_str(&value.1)
+        .unwrap_or_default()
+        .into_inner(),
     }
   }
 }
