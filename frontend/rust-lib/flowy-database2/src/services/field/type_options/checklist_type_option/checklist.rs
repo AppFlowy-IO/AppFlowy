@@ -101,8 +101,11 @@ fn update_cell_data_with_changeset(
   changeset
     .insert_options
     .into_iter()
-    .for_each(|option_name| {
+    .for_each(|(option_name, is_selected)| {
       let option = SelectOption::new(&option_name);
+      if is_selected {
+        cell_data.selected_option_ids.push(option.id.clone())
+      }
       cell_data.options.push(option);
     });
 
@@ -153,7 +156,7 @@ impl CellDataDecoder for ChecklistTypeOption {
 
   fn stringify_cell_data(&self, cell_data: <Self as TypeOption>::CellData) -> String {
     cell_data
-      .selected_options()
+      .options
       .into_iter()
       .map(|option| option.name)
       .collect::<Vec<_>>()

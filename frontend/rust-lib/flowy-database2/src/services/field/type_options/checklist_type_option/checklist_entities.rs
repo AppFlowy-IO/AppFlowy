@@ -43,15 +43,20 @@ impl ChecklistCellData {
     ((selected_options as f64) / (total_options as f64) * 100.0).round() / 100.0
   }
 
-  pub fn from_options(options: Vec<String>) -> Self {
-    let options = options
+  pub fn from_options(options: Vec<(String, bool)>) -> Self {
+    let (options, selected_ids): (Vec<_>, Vec<_>) = options
       .into_iter()
-      .map(|option_name| SelectOption::new(&option_name))
-      .collect();
+      .map(|(name, is_selected)| {
+        let option = SelectOption::new(&name);
+        let selected_id = is_selected.then(|| option.id.clone());
+        (option, selected_id)
+      })
+      .unzip();
+    let selected_option_ids = selected_ids.into_iter().filter_map(|id| id).collect();
 
     Self {
       options,
-      ..Default::default()
+      selected_option_ids,
     }
   }
 }
@@ -77,7 +82,7 @@ impl From<ChecklistCellData> for Cell {
 #[derive(Debug, Clone, Default)]
 pub struct ChecklistCellChangeset {
   /// List of option names that will be inserted
-  pub insert_options: Vec<String>,
+  pub insert_options: Vec<(String, bool)>,
   pub selected_option_ids: Vec<String>,
   pub delete_option_ids: Vec<String>,
   pub update_options: Vec<SelectOption>,

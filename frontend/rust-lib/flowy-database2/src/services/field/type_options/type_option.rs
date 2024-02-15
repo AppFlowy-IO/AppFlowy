@@ -27,9 +27,10 @@ pub trait TypeOption {
   /// `FromCellString` and `Default` trait. If the cell string can not be decoded into the specified
   /// cell data type then the default value will be returned.
   /// For example:
-  ///     FieldType::Checkbox => CheckboxCellData
-  ///     FieldType::Date => DateCellData
-  ///     FieldType::URL => URLCellData
+  ///
+  /// - FieldType::Checkbox => CheckboxCellData
+  /// - FieldType::Date => DateCellData
+  /// - FieldType::URL => URLCellData
   ///
   /// Uses `StrCellData` for any `TypeOption` if their cell data is pure `String`.
   ///
@@ -57,7 +58,7 @@ pub trait TypeOption {
   ///
   type CellProtobufType: TryInto<Bytes, Error = ProtobufError> + Debug;
 
-  /// Represents as the filter configuration for this type option.
+  /// Represents the filter configuration for this type option.
   type CellFilter: FromFilterString + Send + Sync + 'static;
 }
 /// This trait providing serialization and deserialization methods for cell data.
@@ -81,12 +82,9 @@ pub trait TypeOptionCellDataSerde: TypeOption {
 }
 
 /// This trait that provides methods to extend the [TypeOption::CellData] functionalities.
-///
 pub trait TypeOptionCellData {
-  /// Checks if the cell content is considered empty.
-  ///
-  /// Even if a cell is initialized, its content might still be considered empty
-  /// based on certain criteria. e.g. empty text, date, select option, etc.
+  /// Checks if the cell content is considered empty based on certain criteria. e.g. empty text,
+  /// no date selected, no selected options
   fn is_cell_empty(&self) -> bool {
     false
   }
@@ -99,8 +97,8 @@ pub trait TypeOptionTransform: TypeOption {
   }
 
   /// Transform the TypeOption from one field type to another
-  /// For example, when switching from `checkbox` type-option to `single-select`
-  /// type-option, adding the `Yes` option if the `single-select` type-option doesn't contain it.
+  /// For example, when switching from `Checkbox` type option to `Single-Select`
+  /// type option, adding the `Yes` option if the `Single-select` type-option doesn't contain it.
   /// But the cell content is a string, `Yes`, it's need to do the cell content transform.
   /// The `Yes` string will be transformed to the `Yes` option id.
   ///
@@ -108,7 +106,6 @@ pub trait TypeOptionTransform: TypeOption {
   ///
   /// * `old_type_option_field_type`: the FieldType of the passed-in TypeOption
   /// * `old_type_option_data`: the data that can be parsed into corresponding `TypeOption`.
-  ///
   ///
   fn transform_type_option(
     &mut self,

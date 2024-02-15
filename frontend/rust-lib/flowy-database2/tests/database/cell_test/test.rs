@@ -47,7 +47,7 @@ async fn grid_cell_update() {
           ))
         },
         FieldType::Checklist => BoxAny::new(ChecklistCellChangeset {
-          insert_options: vec!["new option".to_string()],
+          insert_options: vec![("new option".to_string(), false)],
           ..Default::default()
         }),
         FieldType::Checkbox => BoxAny::new("1".to_string()),
