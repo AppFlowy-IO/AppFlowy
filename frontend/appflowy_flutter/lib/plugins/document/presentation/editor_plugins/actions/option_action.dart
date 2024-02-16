@@ -42,9 +42,9 @@ enum OptionAction {
       case OptionAction.divider:
         return const FlowySvgData('editor/divider');
       case OptionAction.align:
-      // TODO: depth action icon required
-      case OptionAction.depth:
         return FlowySvgs.m_aa_bulleted_list_s;
+      case OptionAction.depth:
+        return FlowySvgs.tag_s;
     }
   }
 
@@ -114,33 +114,14 @@ enum OptionAlignType {
 }
 
 enum OptionDepthType {
-  h1,
-  h2,
-  h3;
+  h1(1, "H1"),
+  h2(2, "H2"),
+  h3(3, "H3");
 
-  String get description {
-    switch (this) {
-      case OptionDepthType.h1:
-        return 'H1';
-      case OptionDepthType.h2:
-        return 'H2';
-      case OptionDepthType.h3:
-      default:
-        return 'H3';
-    }
-  }
+  const OptionDepthType(this.level, this.description);
 
-  int get level {
-    switch (this) {
-      case OptionDepthType.h1:
-        return 1;
-      case OptionDepthType.h2:
-        return 2;
-      case OptionDepthType.h3:
-      default:
-        return 3;
-    }
-  }
+  final String description;
+  final int level;
 
   static OptionDepthType fromLevel(int? level) {
     switch (level) {
@@ -339,9 +320,9 @@ class DepthOptionAction extends PopoverActionCell {
 
   @override
   Widget? leftIcon(Color iconColor) {
-    return const FlowySvg(
-      FlowySvgs.m_aa_bulleted_list_s,
-      size: Size.square(12),
+    return FlowySvg(
+      OptionAction.depth.svg,
+      size: const Size.square(12),
     ).padding(all: 2.0);
   }
 
@@ -368,7 +349,7 @@ class DepthOptionAction extends PopoverActionCell {
 
   List<Widget> buildDepthOptions(
     BuildContext context,
-    void Function(OptionDepthType) onTap,
+    Future<void> Function(OptionDepthType) onTap,
   ) {
     return OptionDepthType.values
         .map((e) => OptionDepthWrapper(e))
@@ -402,7 +383,6 @@ class DepthOptionAction extends PopoverActionCell {
       node,
       {OutlineBlockKeys.depth: depth.level},
     );
-
     await editorState.apply(transaction);
   }
 }
