@@ -23,6 +23,7 @@ flowy-server-pub = { workspace = true }
 flowy-notification  = { workspace = true }
 anyhow.workspace = true
 flowy-storage = { workspace = true }
+flowy-search = { workspace = true }
 
 serde.workspace = true
 serde_json.workspace = true

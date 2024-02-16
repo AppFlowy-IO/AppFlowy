@@ -2023,13 +2023,23 @@ dependencies = [
 name = "flowy-search"
 version = "0.1.0"
 dependencies = [
+ "async-stream",
+ "bytes",
  "diesel",
  "diesel_derives",
  "diesel_migrations",
+ "flowy-codegen",
+ "flowy-derive",
  "flowy-error",
+ "flowy-notification",
  "flowy-sqlite",
+ "futures",
+ "lib-dispatch",
+ "protobuf",
+ "strum_macros 0.26.1",
  "tantivy",
  "tempfile",
+ "tokio",
  "tracing",
 ]
 
@@ -5848,6 +5858,19 @@ name = "strum_macros"
 version = "0.25.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ad8d03b598d3d0fff69bf533ee3ef19b8eeb342729596df84bcc7e1f96ec4059"
+dependencies = [
+ "heck 0.4.1",
+ "proc-macro2",
+ "quote",
+ "rustversion",
+ "syn 2.0.47",
+]
+
+[[package]]
+name = "strum_macros"
+version = "0.26.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7a3417fc93d76740d974a01654a09777cb500428cc874ca9f45edfe0c4d4cd18"
 dependencies = [
  "heck 0.4.1",
  "proc-macro2",

@@ -33,7 +33,7 @@ pub fn create_log_filter(level: String, with_crates: Vec<String>) -> String {
   filters.push(format!("flowy_notification={}", "info"));
   filters.push(format!("lib_infra={}", level));
   filters.push(format!("flowy_search={}", level));
-  // filters.push(format!("lib_dispatch={}", level));
+  filters.push(format!("lib_dispatch={}", level));
 
   filters.push(format!("dart_ffi={}", "info"));
   filters.push(format!("flowy_sqlite={}", "info"));

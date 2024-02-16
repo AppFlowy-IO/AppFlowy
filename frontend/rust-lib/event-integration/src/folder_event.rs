@@ -2,6 +2,8 @@ use flowy_folder::entities::icon::UpdateViewIconPayloadPB;
 use flowy_folder::entities::*;
 use flowy_folder::event_map::FolderEvent;
 use flowy_folder::event_map::FolderEvent::*;
+use flowy_search::entities::{RepeatedSearchResultPB, SearchQueryPB};
+use flowy_search::event_map::SearchEvent;
 use flowy_user::entities::{
   AddWorkspaceMemberPB, QueryWorkspacePB, RemoveWorkspaceMemberPB, RepeatedWorkspaceMemberPB,
   WorkspaceMemberPB,
@@ -145,6 +147,18 @@ impl EventIntegrationTest {
       .async_send()
       .await
       .parse::<RepeatedSearchDataPB>()
+  }
+
+  pub async fn search2(&self, query: &str, limit: Option<i64>) -> RepeatedSearchResultPB {
+    EventBuilder::new(self.clone())
+      .event(SearchEvent::Search)
+      .payload(SearchQueryPB {
+        search: query.to_string(),
+        limit,
+      })
+      .async_send()
+      .await
+      .parse::<RepeatedSearchResultPB>()
   }
 }
 
