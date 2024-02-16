@@ -117,11 +117,19 @@ impl SortController {
           ));
       },
       SortEvent::RowDidChanged(row_id) => {
-        let old_row_index = self.row_index_cache.get(&row_id).cloned();
+        let old_row_index = self
+          .row_index_cache
+          .get(&row_id)
+          .cloned()
+          .unwrap_or_else(|| {
+            self.row_index_cache.insert(row_id.clone(), usize::MAX);
+            usize::MAX
+          });
+
         self.sort_rows(&mut row_details).await;
         let new_row_index = self.row_index_cache.get(&row_id).cloned();
-        match (old_row_index, new_row_index) {
-          (Some(old_row_index), Some(new_row_index)) => {
+        match new_row_index {
+          Some(new_row_index) => {
             if old_row_index == new_row_index {
               return Ok(());
             }
@@ -137,7 +145,10 @@ impl SortController {
                 notification,
               ));
           },
-          _ => tracing::trace!("The row index cache is outdated"),
+          _ => {
+            self.row_index_cache.remove(&row_id);
+            tracing::trace!("The row index cache is outdated");
+          },
         }
       },
     }
