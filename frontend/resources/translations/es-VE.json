@@ -72,12 +72,12 @@
     "copyLink": "Copiar enlace"
   },
   "moreAction": {
-    "small": "pequeño",
-    "medium": "medio",
-    "large": "grande",
     "fontSize": "Tamaño de fuente",
     "import": "Importar",
-    "moreOptions": "Mas opciones"
+    "moreOptions": "Mas opciones",
+    "small": "pequeño",
+    "medium": "medio",
+    "large": "grande"
   },
   "importPanel": {
     "textAndMarkdown": "Texto y descuento",
