@@ -480,12 +480,12 @@
       "typeAValue": "輸入一個值……",
       "layout": "版面佈局",
       "databaseLayout": "版面佈局",
-      "editView": "編輯視圖",
+      "editView": "編輯檢視",
       "boardSettings": "看板設定",
       "calendarSettings": "日曆設定",
-      "createView": "建立視圖",
-      "duplicateView": "複製視圖",
-      "deleteView": "刪除視圖",
+      "createView": "建立檢視",
+      "duplicateView": "複製檢視",
+      "deleteView": "刪除檢視",
       "numberOfVisibleFields": "{} 顯示",
       "viewList": "資料庫檢視"
     },
@@ -1114,7 +1114,7 @@
   },
   "error": {
     "weAreSorry": "我們很抱歉",
-    "loadingViewError": "我們在載入此視圖時遇到問題。請檢查您的網路連線，重新整理應用程式，並且如果問題持續，請隨時聯絡我們的團隊。"
+    "loadingViewError": "我們在載入此檢視時遇到問題。請檢查您的網路連線，重新整理應用程式，並且如果問題持續，請隨時聯絡我們的團隊。"
   },
   "editor": {
     "bold": "粗體",
