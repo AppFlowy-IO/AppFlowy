@@ -30,8 +30,8 @@ class _ImportAppFlowyDataState extends State<ImportAppFlowyData> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => SettingFileImporterBloc(),
-      child: BlocListener<SettingFileImporterBloc, SettingFileImportState>(
+      create: (context) => SettingFileImportBloc(),
+      child: BlocListener<SettingFileImportBloc, SettingFileImportState>(
         listener: (context, state) {
           state.successOrFail.fold(
             () {},
@@ -47,15 +47,20 @@ class _ImportAppFlowyDataState extends State<ImportAppFlowyData> {
             },
           );
         },
-        child: BlocBuilder<SettingFileImporterBloc, SettingFileImportState>(
+        child: BlocBuilder<SettingFileImportBloc, SettingFileImportState>(
           builder: (context, state) {
-            return const Column(
-              children: [
-                ImportAppFlowyDataButton(),
-                VSpace(6),
-                AppFlowyDataImportTip(),
-              ],
-            );
+            final List<Widget> children = [
+              const ImportAppFlowyDataButton(),
+              const VSpace(6),
+            ];
+
+            if (state.loadingState.isLoading()) {
+              children.add(const AppFlowyDataImportingTip());
+            } else {
+              children.add(const AppFlowyDataImportTip());
+            }
+
+            return Column(children: children);
           },
         ),
       ),
@@ -71,8 +76,9 @@ class _ImportAppFlowyDataState extends State<ImportAppFlowyData> {
 }
 
 class AppFlowyDataImportTip extends StatelessWidget {
-  final url = "https://docs.appflowy.io/docs/appflowy/product/data-storage";
   const AppFlowyDataImportTip({super.key});
+
+  final url = "https://docs.appflowy.io/docs/appflowy/product/data-storage";
 
   @override
   Widget build(BuildContext context) {
@@ -120,23 +126,54 @@ class ImportAppFlowyDataButton extends StatefulWidget {
 class _ImportAppFlowyDataButtonState extends State<ImportAppFlowyDataButton> {
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 40,
-      child: FlowyButton(
-        text: FlowyText(LocaleKeys.settings_menu_importAppFlowyData.tr()),
-        onTap: () async {
-          final path = await getIt<FilePickerService>().getDirectoryPath();
-          if (path == null) {
-            return;
-          }
-          if (!mounted) {
-            return;
-          }
+    return BlocBuilder<SettingFileImportBloc, SettingFileImportState>(
+      builder: (context, state) {
+        return Column(
+          children: [
+            SizedBox(
+              height: 40,
+              child: FlowyButton(
+                disable: state.loadingState.isLoading(),
+                text:
+                    FlowyText(LocaleKeys.settings_menu_importAppFlowyData.tr()),
+                onTap: () async {
+                  final path =
+                      await getIt<FilePickerService>().getDirectoryPath();
+                  if (path == null || !mounted) {
+                    return;
+                  }
 
-          context
-              .read<SettingFileImporterBloc>()
-              .add(SettingFileImportEvent.importAppFlowyDataFolder(path));
-        },
+                  context.read<SettingFileImportBloc>().add(
+                        SettingFileImportEvent.importAppFlowyDataFolder(path),
+                      );
+                },
+              ),
+            ),
+            if (state.loadingState.isLoading())
+              const LinearProgressIndicator(minHeight: 1),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class AppFlowyDataImportingTip extends StatelessWidget {
+  const AppFlowyDataImportingTip({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Opacity(
+      opacity: 0.6,
+      child: RichText(
+        text: TextSpan(
+          children: <TextSpan>[
+            TextSpan(
+              text: LocaleKeys.settings_menu_importingAppFlowyDataTip.tr(),
+              style: Theme.of(context).textTheme.bodySmall!,
+            ),
+          ],
+        ),
       ),
     );
   }

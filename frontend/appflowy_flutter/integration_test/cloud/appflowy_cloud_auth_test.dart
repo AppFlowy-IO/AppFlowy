@@ -22,7 +22,7 @@ void main() {
   group('appflowy cloud auth', () {
     testWidgets('sign in', (tester) async {
       await tester.initializeAppFlowy(
-        cloudType: AuthenticatorType.appflowyCloud,
+        cloudType: AuthenticatorType.appflowyCloudSelfHost,
       );
       await tester.tapGoogleLoginInButton();
       await tester.expectToSeeHomePageWithGetStartedPage();
@@ -30,7 +30,7 @@ void main() {
 
     testWidgets('sign out', (tester) async {
       await tester.initializeAppFlowy(
-        cloudType: AuthenticatorType.appflowyCloud,
+        cloudType: AuthenticatorType.appflowyCloudSelfHost,
       );
       await tester.tapGoogleLoginInButton();
 
@@ -49,7 +49,7 @@ void main() {
 
     testWidgets('sign in as annoymous', (tester) async {
       await tester.initializeAppFlowy(
-        cloudType: AuthenticatorType.appflowyCloud,
+        cloudType: AuthenticatorType.appflowyCloudSelfHost,
       );
       await tester.tapSignInAsGuest();
 
@@ -61,7 +61,7 @@ void main() {
 
     testWidgets('enable sync', (tester) async {
       await tester.initializeAppFlowy(
-        cloudType: AuthenticatorType.appflowyCloud,
+        cloudType: AuthenticatorType.appflowyCloudSelfHost,
       );
 
       await tester.tapGoogleLoginInButton();

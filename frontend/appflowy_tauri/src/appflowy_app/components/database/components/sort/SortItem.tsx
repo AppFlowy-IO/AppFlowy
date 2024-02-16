@@ -1,7 +1,7 @@
 import { IconButton, SelectChangeEvent, Stack } from '@mui/material';
 import { FC, useCallback } from 'react';
 import { ReactComponent as CloseSvg } from '$app/assets/close.svg';
-import { Field, Sort, sortService } from '../../application';
+import { Field, Sort, sortService } from '$app/application/database';
 import { PropertySelect } from '../property';
 import { SortConditionSelect } from './SortConditionSelect';
 import { useViewId } from '@/appflowy_app/hooks';

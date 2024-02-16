@@ -45,11 +45,8 @@ class _TimeTextFieldState extends State<TimeTextField> {
   void initState() {
     super.initState();
 
-    if (widget.isEndTime) {
-      _textController.text = widget.endTimeStr ?? "";
-    } else {
-      _textController.text = widget.timeStr ?? "";
-    }
+    _textController.text =
+        (widget.isEndTime ? widget.endTimeStr : widget.timeStr) ?? "";
 
     if (!widget.isEndTime && widget.timeStr != null) {
       text = widget.timeStr!;
@@ -89,6 +86,7 @@ class _TimeTextFieldState extends State<TimeTextField> {
       child: FlowyTextField(
         text: text,
         focusNode: _focusNode,
+        autoFocus: false,
         controller: _textController,
         submitOnLeave: true,
         hintText: widget.timeHintText,

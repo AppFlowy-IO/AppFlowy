@@ -102,6 +102,7 @@ pub(crate) async fn create_orphan_view_handler(
   data_result_ok(view_pb_without_child_views(Arc::new(view)))
 }
 
+#[tracing::instrument(level = "debug", skip(data, folder), err)]
 pub(crate) async fn read_view_handler(
   data: AFPluginData<ViewIdPB>,
   folder: AFPluginState<Weak<FolderManager>>,
@@ -330,15 +331,10 @@ pub(crate) async fn get_folder_snapshots_handler(
   data_result_ok(RepeatedFolderSnapshotPB { items: snapshots })
 }
 
-#[tracing::instrument(level = "debug", skip_all, err)]
-pub async fn import_appflowy_data_folder_handler(
-  data: AFPluginData<ImportAppFlowyDataPB>,
+pub(crate) async fn reload_workspace_handler(
   folder: AFPluginState<Weak<FolderManager>>,
 ) -> Result<(), FlowyError> {
   let folder = upgrade_folder(folder)?;
-  let data = data.try_into_inner()?;
-  folder
-    .import_appflowy_data(data.path, data.import_container_name)
-    .await?;
+  folder.reload_workspace().await?;
   Ok(())
 }

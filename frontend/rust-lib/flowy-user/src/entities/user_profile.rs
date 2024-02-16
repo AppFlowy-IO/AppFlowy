@@ -2,7 +2,7 @@ use std::convert::TryInto;
 use validator::Validate;
 
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use flowy_user_deps::entities::*;
+use flowy_user_pub::entities::*;
 
 use crate::entities::parser::{UserEmail, UserIcon, UserName, UserOpenaiKey, UserPassword};
 use crate::entities::AuthenticatorPB;
@@ -70,7 +70,7 @@ impl Default for EncryptionTypePB {
   }
 }
 
-impl std::convert::From<UserProfile> for UserProfilePB {
+impl From<UserProfile> for UserProfilePB {
   fn from(user_profile: UserProfile) -> Self {
     let (encryption_sign, encryption_ty) = match user_profile.encryption_type {
       EncryptionType::NoEncryption => ("".to_string(), EncryptionTypePB::NoEncryption),

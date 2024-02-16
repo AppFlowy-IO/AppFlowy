@@ -23,7 +23,7 @@ void main() {
         input: 'hello world',
       );
 
-      await tester.assertCellContent(
+      tester.assertCellContent(
         rowIndex: 0,
         fieldType: FieldType.RichText,
         content: 'hello world',
@@ -56,14 +56,13 @@ void main() {
         cellIndex: 1,
       );
 
-      await tester.assertCellContent(
+      tester.assertCellContent(
         rowIndex: 0,
         fieldType: FieldType.RichText,
         content: 'hello',
-        cellIndex: 0,
       );
 
-      await tester.assertCellContent(
+      tester.assertCellContent(
         rowIndex: 0,
         fieldType: FieldType.RichText,
         content: 'world',
@@ -96,7 +95,7 @@ void main() {
         input: '0.2',
       );
       // -1 -> -1
-      await tester.assertCellContent(
+      tester.assertCellContent(
         rowIndex: 0,
         fieldType: fieldType,
         content: '-1',
@@ -109,7 +108,7 @@ void main() {
         input: '.1',
       );
       // 0.2 -> 0.2
-      await tester.assertCellContent(
+      tester.assertCellContent(
         rowIndex: 1,
         fieldType: fieldType,
         content: '0.2',
@@ -122,7 +121,7 @@ void main() {
         input: '',
       );
       // .1 -> 0.1
-      await tester.assertCellContent(
+      tester.assertCellContent(
         rowIndex: 2,
         fieldType: fieldType,
         content: '0.1',
@@ -216,13 +215,13 @@ void main() {
 
       await tester.dismissCellEditor();
 
-      await tester.assertDateCellInGrid(
+      tester.assertCellContent(
         rowIndex: 0,
+        fieldType: FieldType.DateTime,
         content: DateFormat('MMM dd, y').format(today),
       );
 
       await tester.tapCellInGrid(rowIndex: 0, fieldType: fieldType);
-      await tester.findDateEditor(findsOneWidget);
 
       // Toggle include time
       final now = DateTime.now();
@@ -230,8 +229,9 @@ void main() {
 
       await tester.dismissCellEditor();
 
-      await tester.assertDateCellInGrid(
+      tester.assertCellContent(
         rowIndex: 0,
+        fieldType: FieldType.DateTime,
         content: DateFormat('MMM dd, y HH:mm').format(now),
       );
 
@@ -239,12 +239,14 @@ void main() {
       await tester.findDateEditor(findsOneWidget);
 
       // Change date format
+      await tester.tapChangeDateTimeFormatButton();
       await tester.changeDateFormat();
 
       await tester.dismissCellEditor();
 
-      await tester.assertDateCellInGrid(
+      tester.assertCellContent(
         rowIndex: 0,
+        fieldType: FieldType.DateTime,
         content: DateFormat('dd/MM/y HH:mm').format(now),
       );
 
@@ -252,12 +254,14 @@ void main() {
       await tester.findDateEditor(findsOneWidget);
 
       // Change time format
+      await tester.tapChangeDateTimeFormatButton();
       await tester.changeTimeFormat();
 
       await tester.dismissCellEditor();
 
-      await tester.assertDateCellInGrid(
+      tester.assertCellContent(
         rowIndex: 0,
+        fieldType: FieldType.DateTime,
         content: DateFormat('dd/MM/y hh:mm a').format(now),
       );
 
@@ -267,8 +271,9 @@ void main() {
       // Clear the date and time
       await tester.clearDate();
 
-      await tester.assertDateCellInGrid(
+      tester.assertCellContent(
         rowIndex: 0,
+        fieldType: FieldType.DateTime,
         content: '',
       );
 

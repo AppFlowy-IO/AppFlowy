@@ -13,7 +13,6 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:go_router/go_router.dart';
 
 typedef ViewItemOnSelected = void Function(ViewPB);
 typedef ActionPaneBuilder = ActionPane Function(BuildContext context);
@@ -323,7 +322,6 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
 
     Widget child = InkWell(
       borderRadius: BorderRadius.circular(4.0),
-      enableFeedback: true,
       onTap: () => widget.onSelected(widget.view),
       child: SizedBox(
         height: _itemHeight,
@@ -396,13 +394,14 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
           context,
           showHeader: true,
           title: title,
-          showCloseButton: true,
           showDragHandle: true,
-          builder: (_) {
+          showCloseButton: true,
+          useRootNavigator: true,
+          builder: (sheetContext) {
             return AddNewPageWidgetBottomSheet(
               view: widget.view,
               onAction: (layout) {
-                context.pop();
+                Navigator.of(sheetContext).pop();
                 context.read<ViewBloc>().add(
                       ViewEvent.createView(
                         LocaleKeys.menuAppHeader_defaultNewPageName.tr(),

@@ -130,7 +130,6 @@ class EditorStyleCustomizer {
       ),
       textSpanDecorator: customizeAttributeDecorator,
       mobileDragHandleBallSize: const Size.square(12.0),
-      mobileDragHandleWidth: 2.0,
       magnifierSize: const Size(144, 96),
     );
   }
@@ -252,9 +251,7 @@ class EditorStyleCustomizer {
           key: ValueKey(
             switch (type) {
               MentionType.page => mention[MentionBlockKeys.pageId],
-              MentionType.date ||
-              MentionType.reminder =>
-                mention[MentionBlockKeys.date],
+              MentionType.date => mention[MentionBlockKeys.date],
               _ => MentionBlockKeys.mention,
             },
           ),

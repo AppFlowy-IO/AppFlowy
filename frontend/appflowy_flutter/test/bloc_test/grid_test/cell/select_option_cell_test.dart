@@ -1,6 +1,6 @@
-import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_cell/select_option_editor_bloc.dart';
+import 'package:appflowy/plugins/database/application/cell/bloc/select_option_editor_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/select_option_entities.pb.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import '../util.dart';
@@ -15,7 +15,7 @@ void main() {
     test('create options', () async {
       await cellTest.createTestGrid();
       await cellTest.createTestRow();
-      final cellController = await cellTest.makeSelectOptionCellController(
+      final cellController = cellTest.makeSelectOptionCellController(
         FieldType.SingleSelect,
         0,
       );
@@ -34,7 +34,7 @@ void main() {
     test('update options', () async {
       await cellTest.createTestGrid();
       await cellTest.createTestRow();
-      final cellController = await cellTest.makeSelectOptionCellController(
+      final cellController = cellTest.makeSelectOptionCellController(
         FieldType.SingleSelect,
         0,
       );
@@ -59,7 +59,7 @@ void main() {
     test('delete options', () async {
       await cellTest.createTestGrid();
       await cellTest.createTestRow();
-      final cellController = await cellTest.makeSelectOptionCellController(
+      final cellController = cellTest.makeSelectOptionCellController(
         FieldType.SingleSelect,
         0,
       );
@@ -101,7 +101,7 @@ void main() {
     test('select/unselect option', () async {
       await cellTest.createTestGrid();
       await cellTest.createTestRow();
-      final cellController = await cellTest.makeSelectOptionCellController(
+      final cellController = cellTest.makeSelectOptionCellController(
         FieldType.SingleSelect,
         0,
       );
@@ -128,7 +128,7 @@ void main() {
     test('select an option or create one', () async {
       await cellTest.createTestGrid();
       await cellTest.createTestRow();
-      final cellController = await cellTest.makeSelectOptionCellController(
+      final cellController = cellTest.makeSelectOptionCellController(
         FieldType.SingleSelect,
         0,
       );
@@ -154,7 +154,7 @@ void main() {
     test('select multiple options', () async {
       await cellTest.createTestGrid();
       await cellTest.createTestRow();
-      final cellController = await cellTest.makeSelectOptionCellController(
+      final cellController = cellTest.makeSelectOptionCellController(
         FieldType.SingleSelect,
         0,
       );
@@ -185,7 +185,7 @@ void main() {
     test('filter options', () async {
       await cellTest.createTestGrid();
       await cellTest.createTestRow();
-      final cellController = await cellTest.makeSelectOptionCellController(
+      final cellController = cellTest.makeSelectOptionCellController(
         FieldType.SingleSelect,
         0,
       );

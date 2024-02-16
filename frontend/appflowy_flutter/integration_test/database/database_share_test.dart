@@ -16,7 +16,7 @@ void main() {
       // check the text cell
       final textCells = <String>['A', 'B', 'C', 'D', 'E', '', '', '', '', ''];
       for (final (index, content) in textCells.indexed) {
-        await tester.assertCellContent(
+        tester.assertCellContent(
           rowIndex: index,
           fieldType: FieldType.RichText,
           content: content,
@@ -57,7 +57,7 @@ void main() {
         '',
       ];
       for (final (index, content) in numberCells.indexed) {
-        await tester.assertCellContent(
+        tester.assertCellContent(
           rowIndex: index,
           fieldType: FieldType.Number,
           content: content,
@@ -74,7 +74,7 @@ void main() {
         '',
       ];
       for (final (index, content) in urlCells.indexed) {
-        await tester.assertCellContent(
+        tester.assertCellContent(
           rowIndex: index,
           fieldType: FieldType.URL,
           content: content,
@@ -135,7 +135,7 @@ void main() {
         null,
       ];
       for (final (index, percent) in checklistCells.indexed) {
-        await tester.assertChecklistCellInGrid(
+        tester.assertChecklistCellInGrid(
           rowIndex: index,
           percent: percent,
         );
@@ -155,8 +155,9 @@ void main() {
         '',
       ];
       for (final (index, content) in dateCells.indexed) {
-        await tester.assertDateCellInGrid(
+        tester.assertCellContent(
           rowIndex: index,
+          fieldType: FieldType.DateTime,
           content: content,
         );
       }

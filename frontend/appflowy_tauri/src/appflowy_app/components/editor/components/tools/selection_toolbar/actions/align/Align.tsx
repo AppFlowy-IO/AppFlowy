@@ -16,13 +16,13 @@ export function Align() {
   const align = CustomEditor.getAlign(editor);
   const [open, setOpen] = React.useState(false);
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     setOpen(false);
-  };
+  }, []);
 
-  const handleOpen = () => {
+  const handleOpen = useCallback(() => {
     setOpen(true);
-  };
+  }, []);
 
   const Icon = useMemo(() => {
     switch (align) {
@@ -41,9 +41,10 @@ export function Align() {
     (align: string) => {
       return () => {
         CustomEditor.toggleAlign(editor, align);
+        handleClose();
       };
     },
-    [editor]
+    [editor, handleClose]
   );
 
   const getAlignIcon = useCallback((key: string) => {
@@ -72,9 +73,10 @@ export function Align() {
             return (
               <IconButton
                 key={key}
-                className={'text-content-on-fill hover:bg-transparent hover:text-content-blue-400'}
+                className={`text-icon-on-toolbar ${
+                  align === key ? 'text-fill-hover' : ''
+                } hover:bg-transparent hover:text-content-blue-400`}
                 onClick={toggleAlign(key)}
-                disabled={align === key}
               >
                 {getAlignIcon(key)}
               </IconButton>

@@ -46,6 +46,12 @@ class PersonalInfoSettingGroup extends StatelessWidget {
                 onTap: () {
                   showMobileBottomSheet(
                     context,
+                    showHeader: true,
+                    title: LocaleKeys.settings_mobile_username.tr(),
+                    showCloseButton: true,
+                    showDragHandle: true,
+                    showDivider: false,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
                     builder: (_) {
                       return EditUsernameBottomSheet(
                         context,

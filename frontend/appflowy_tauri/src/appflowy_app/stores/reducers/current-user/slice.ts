@@ -8,6 +8,7 @@ export interface UserSetting {
   theme?: Theme;
   themeMode?: ThemeMode;
   language?: string;
+  isDark?: boolean;
 }
 
 export enum Theme {

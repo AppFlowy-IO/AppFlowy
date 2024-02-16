@@ -61,7 +61,6 @@ class SignUpForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Align(
-      alignment: Alignment.center,
       child: AuthFormContainer(
         children: [
           FlowyLogoTitle(
@@ -80,7 +79,7 @@ class SignUpForm extends StatelessWidget {
           const SignUpPrompt(),
           if (context.read<SignUpBloc>().state.isSubmitting) ...[
             const SizedBox(height: 8),
-            const LinearProgressIndicator(value: null),
+            const LinearProgressIndicator(),
           ],
         ],
       ),

@@ -34,6 +34,7 @@ export type BlockData = {
 };
 
 export interface HeadingNode extends Element {
+  blockId: string;
   type: EditorNodeType.HeadingBlock;
   data: {
     level: number;
@@ -41,6 +42,7 @@ export interface HeadingNode extends Element {
 }
 
 export interface GridNode extends Element {
+  blockId: string;
   type: EditorNodeType.GridBlock;
   data: {
     viewId?: string;
@@ -48,6 +50,7 @@ export interface GridNode extends Element {
 }
 
 export interface TodoListNode extends Element {
+  blockId: string;
   type: EditorNodeType.TodoListBlock;
   data: {
     checked: boolean;
@@ -55,6 +58,7 @@ export interface TodoListNode extends Element {
 }
 
 export interface CodeNode extends Element {
+  blockId: string;
   type: EditorNodeType.CodeBlock;
   data: {
     language: string;
@@ -62,19 +66,23 @@ export interface CodeNode extends Element {
 }
 
 export interface QuoteNode extends Element {
+  blockId: string;
   type: EditorNodeType.QuoteBlock;
 }
 
 export interface NumberedListNode extends Element {
   type: EditorNodeType.NumberedListBlock;
+  blockId: string;
 }
 
 export interface BulletedListNode extends Element {
   type: EditorNodeType.BulletedListBlock;
+  blockId: string;
 }
 
 export interface ToggleListNode extends Element {
   type: EditorNodeType.ToggleListBlock;
+  blockId: string;
   data: {
     collapsed: boolean;
   } & BlockData;
@@ -82,10 +90,12 @@ export interface ToggleListNode extends Element {
 
 export interface DividerNode extends Element {
   type: EditorNodeType.DividerBlock;
+  blockId: string;
 }
 
 export interface CalloutNode extends Element {
   type: EditorNodeType.CalloutBlock;
+  blockId: string;
   data: {
     icon: string;
   } & BlockData;
@@ -93,6 +103,7 @@ export interface CalloutNode extends Element {
 
 export interface MathEquationNode extends Element {
   type: EditorNodeType.EquationBlock;
+  blockId: string;
   data: {
     formula?: string;
   } & BlockData;
@@ -127,6 +138,7 @@ export interface MentionPage {
   id: string;
   name: string;
   layout: ViewLayoutPB;
+  parentId: string;
   icon?: {
     ty: ViewIconTypePB;
     value: string;
@@ -182,6 +194,7 @@ export enum EditorMarkFormat {
   Href = 'href',
   FontColor = 'font_color',
   BgColor = 'bg_color',
+  Align = 'align',
 }
 
 export enum MentionType {

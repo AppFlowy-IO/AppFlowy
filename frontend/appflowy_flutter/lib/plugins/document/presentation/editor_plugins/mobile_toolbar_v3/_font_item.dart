@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:appflowy/mobile/presentation/setting/font/font_picker_screen.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_toolbar_theme.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
+import 'package:appflowy/util/google_font_family_extension.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -27,8 +30,18 @@ class FontFamilyItem extends StatelessWidget {
     return MobileToolbarMenuItemWrapper(
       size: const Size(144, 52),
       onTap: () async {
-        keepEditorFocusNotifier.increase();
         final selection = editorState.selection;
+        // disable the floating toolbar
+        unawaited(
+          editorState.updateSelectionWithReason(
+            selection,
+            extraInfo: {
+              selectionExtraInfoDisableFloatingToolbar: true,
+              selectionExtraInfoDisableMobileToolbarKey: true,
+            },
+          ),
+        );
+
         final newFont = await context
             .read<GoRouter>()
             .push<String>(FontPickerScreen.routeName);
@@ -45,11 +58,12 @@ class FontFamilyItem extends StatelessWidget {
             selection,
             extraInfo: {
               selectionExtraInfoDisableFloatingToolbar: true,
+              selectionExtraInfoDisableMobileToolbarKey: false,
             },
           );
         });
       },
-      text: fontFamily ?? systemFonFamily,
+      text: (fontFamily ?? systemFonFamily).parseFontFamilyName(),
       fontFamily: fontFamily ?? systemFonFamily,
       backgroundColor: theme.toolbarMenuItemBackgroundColor,
       isSelected: false,

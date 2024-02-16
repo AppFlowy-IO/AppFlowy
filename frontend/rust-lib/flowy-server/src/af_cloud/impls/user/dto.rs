@@ -2,7 +2,7 @@ use anyhow::Error;
 use client_api::entity::auth_dto::{UpdateUserParams, UserMetaData};
 use client_api::entity::{AFRole, AFUserProfile, AFWorkspaceMember};
 
-use flowy_user_deps::entities::{
+use flowy_user_pub::entities::{
   Authenticator, Role, UpdateUserProfileParams, UserProfile, WorkspaceMember,
   USER_METADATA_ICON_URL, USER_METADATA_OPEN_AI_KEY, USER_METADATA_STABILITY_AI_KEY,
 };

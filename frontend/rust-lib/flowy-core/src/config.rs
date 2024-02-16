@@ -4,8 +4,8 @@ use std::path::Path;
 use base64::Engine;
 use tracing::{error, info};
 
-use flowy_server_config::af_cloud_config::AFCloudConfiguration;
-use flowy_server_config::supabase_config::SupabaseConfiguration;
+use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
+use flowy_server_pub::supabase_config::SupabaseConfiguration;
 use flowy_user::services::entities::URL_SAFE_ENGINE;
 use lib_infra::file_util::copy_dir_recursive;
 
@@ -14,6 +14,7 @@ use crate::integrate::log::create_log_filter;
 #[derive(Clone)]
 pub struct AppFlowyCoreConfig {
   /// Different `AppFlowyCoreConfig` instance should have different name
+  pub(crate) app_version: String,
   pub(crate) name: String,
   pub(crate) device_id: String,
   /// Used to store the user data
@@ -30,6 +31,7 @@ pub struct AppFlowyCoreConfig {
 impl fmt::Debug for AppFlowyCoreConfig {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
     let mut debug = f.debug_struct("AppFlowy Configuration");
+    debug.field("app_version", &self.app_version);
     debug.field("storage_path", &self.storage_path);
     debug.field("application_path", &self.application_path);
     if let Some(config) = &self.cloud_config {
@@ -41,7 +43,7 @@ impl fmt::Debug for AppFlowyCoreConfig {
   }
 }
 
-fn migrate_local_version_data_folder(root: &str, url: &str) -> String {
+fn make_user_data_folder(root: &str, url: &str) -> String {
   // Isolate the user data folder by using the base url of AppFlowy cloud. This is to avoid
   // the user data folder being shared by different AppFlowy cloud.
   let storage_path = if !url.is_empty() {
@@ -71,6 +73,7 @@ fn migrate_local_version_data_folder(root: &str, url: &str) -> String {
 
 impl AppFlowyCoreConfig {
   pub fn new(
+    app_version: String,
     custom_application_path: String,
     application_path: String,
     device_id: String,
@@ -82,13 +85,14 @@ impl AppFlowyCoreConfig {
         let supabase_config = SupabaseConfiguration::from_env().ok();
         match &supabase_config {
           None => custom_application_path,
-          Some(config) => migrate_local_version_data_folder(&custom_application_path, &config.url),
+          Some(config) => make_user_data_folder(&custom_application_path, &config.url),
         }
       },
-      Some(config) => migrate_local_version_data_folder(&custom_application_path, &config.base_url),
+      Some(config) => make_user_data_folder(&custom_application_path, &config.base_url),
     };
 
     AppFlowyCoreConfig {
+      app_version,
       name,
       storage_path,
       application_path,

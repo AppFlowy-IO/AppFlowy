@@ -1,4 +1,55 @@
 # Release Notes
+## Version 0.4.8 - 02/13/2024
+### Bug Fixes
+- Fixed a possible error when loading workspaces
+
+## Version 0.4.6 - 02/03/2024
+### Bug Fixes
+- Fixed refresh token bug
+
+## Version 0.4.5 - 02/01/2024
+### Bug Fixes
+- Fixed WebSocket connection issue
+
+## Version 0.4.4 - 01/31/2024
+### New Features
+- Added functionality for uploading images to cloud storage.
+- Enabled anonymous sign-in option for mobile platform users.
+- Introduced the ability to customize cloud settings directly from the startup page.
+- Added support for inserting reminders on the mobile platform.
+- Overhauled the user interface on mobile devices, including improvements to the action bottom sheet, editor toolbar, database details page, and app bar.
+- Implemented a shortcut (F2 key) to rename the current view.
+
+### Bug Fixes
+- Fixed an issue where the font family was not displaying correctly on the mobile platform.
+- Resolved a problem with the mobile row detail title not updating correctly.
+- Fixed issues related to deleting images and refactored the image actions menu for better usability.
+- Fixed other known issues.
+
+# Release Notes
+## Version 0.4.3 - 01/16/2024
+### Bug Fixes
+- Fixed file name too long issue
+
+## Version 0.4.2 - 01/15/2024
+AppFlowy for Android is available to download on GitHub.
+If you’ve been using our desktop app, it’s important to read [this guide](https://docs.appflowy.io/docs/guides/sync-desktop-and-mobile) before logging into the mobile app.
+### New Features
+- Enhanced RTL (Right-to-Left) support for mobile platforms.
+- Optimized selection gesture system on mobile.
+- Optimized the mobile toolbar menu.
+- Improved reference menu (‘@’ menu).
+- Updated privacy policy.
+- Improved the data import process for AppFlowy by implementing a progress indicator and compressing the data to enhance efficiency.
+- Enhanced the utilization of local disk space to optimize storage consumption.
+### Bug Fixes
+- Fixed sign-in cancellation issue on mobile.
+- Resolved keyboard close bug on Android.
+
+
+## Version 0.4.1 - 01/03/2024
+### Bug fixes
+- Fix import AppFlowy data folder
 
 ## Version 0.4.0 - 12/30/2023
 1. Added capability to import data from an AppFlowy data folder. For detailed information, please see [AppFlowy Data Storage Documentation](https://docs.appflowy.io/docs/appflowy/product/data-storage).

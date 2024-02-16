@@ -1,7 +1,9 @@
+import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/env/env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/settings/appflowy_cloud_setting_bloc.dart';
 import 'package:appflowy/workspace/application/settings/appflowy_cloud_urls_bloc.dart';
+import 'package:appflowy/workspace/presentation/settings/widgets/_restart_app_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
@@ -17,9 +19,78 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class SettingAppFlowyCloudView extends StatelessWidget {
-  final VoidCallback didResetServerUrl;
-  const SettingAppFlowyCloudView({required this.didResetServerUrl, super.key});
+class AppFlowyCloudViewSetting extends StatelessWidget {
+  const AppFlowyCloudViewSetting({
+    super.key,
+    this.serverURL = kAppflowyCloudUrl,
+    this.authenticatorType = AuthenticatorType.appflowyCloud,
+    required this.restartAppFlowy,
+  });
+
+  final String serverURL;
+  final AuthenticatorType authenticatorType;
+  final VoidCallback restartAppFlowy;
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<Either<CloudSettingPB, FlowyError>>(
+      future: UserEventGetCloudConfig().send(),
+      builder: (context, snapshot) {
+        if (snapshot.data != null &&
+            snapshot.connectionState == ConnectionState.done) {
+          return snapshot.data!.fold(
+            (setting) => _renderContent(context, setting),
+            (err) => FlowyErrorPage.message(err.toString(), howToFix: ""),
+          );
+        } else {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+      },
+    );
+  }
+
+  BlocProvider<AppFlowyCloudSettingBloc> _renderContent(
+    BuildContext context,
+    CloudSettingPB setting,
+  ) {
+    return BlocProvider(
+      create: (context) => AppFlowyCloudSettingBloc(setting)
+        ..add(const AppFlowyCloudSettingEvent.initial()),
+      child: BlocBuilder<AppFlowyCloudSettingBloc, AppFlowyCloudSettingState>(
+        builder: (context, state) {
+          return Column(
+            children: [
+              const AppFlowyCloudEnableSync(),
+              const VSpace(12),
+              RestartButton(
+                onClick: () {
+                  NavigatorAlertDialog(
+                    title: LocaleKeys.settings_menu_restartAppTip.tr(),
+                    confirm: () async {
+                      await useAppFlowyBetaCloudWithURL(
+                        serverURL,
+                        authenticatorType,
+                      );
+                      restartAppFlowy();
+                    },
+                  ).show(context);
+                },
+                showRestartHint: state.showRestartHint,
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+class CustomAppFlowyCloudView extends StatelessWidget {
+  const CustomAppFlowyCloudView({required this.restartAppFlowy, super.key});
+
+  final VoidCallback restartAppFlowy;
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +124,7 @@ class SettingAppFlowyCloudView extends StatelessWidget {
     // If the enableCustomCloud flag is true, then the user can dynamically configure cloud settings. Otherwise, the user cannot dynamically configure cloud settings.
     if (Env.enableCustomCloud) {
       children.add(
-        AppFlowyCloudURLs(didUpdateUrls: () => didResetServerUrl()),
+        AppFlowyCloudURLs(restartAppFlowy: () => restartAppFlowy()),
       );
     } else {
       children.add(
@@ -77,11 +148,9 @@ class SettingAppFlowyCloudView extends StatelessWidget {
 }
 
 class AppFlowyCloudURLs extends StatelessWidget {
-  final VoidCallback didUpdateUrls;
-  const AppFlowyCloudURLs({
-    required this.didUpdateUrls,
-    super.key,
-  });
+  const AppFlowyCloudURLs({super.key, required this.restartAppFlowy});
+
+  final VoidCallback restartAppFlowy;
 
   @override
   Widget build(BuildContext context) {
@@ -89,9 +158,9 @@ class AppFlowyCloudURLs extends StatelessWidget {
       create: (context) =>
           AppFlowyCloudURLsBloc()..add(const AppFlowyCloudURLsEvent.initial()),
       child: BlocListener<AppFlowyCloudURLsBloc, AppFlowyCloudURLsState>(
-        listener: (context, state) {
+        listener: (context, state) async {
           if (state.restartApp) {
-            didUpdateUrls();
+            restartAppFlowy();
           }
         },
         child: BlocBuilder<AppFlowyCloudURLsBloc, AppFlowyCloudURLsState>(
@@ -111,25 +180,19 @@ class AppFlowyCloudURLs extends StatelessWidget {
                         );
                   },
                 ),
-                const VSpace(20),
-                FlowyButton(
-                  isSelected: true,
-                  useIntrinsicWidth: true,
-                  margin: const EdgeInsets.symmetric(
-                    horizontal: 30,
-                    vertical: 10,
-                  ),
-                  text: FlowyText(
-                    LocaleKeys.settings_menu_restartApp.tr(),
-                  ),
-                  onTap: () {
+                const VSpace(8),
+                RestartButton(
+                  onClick: () {
                     NavigatorAlertDialog(
                       title: LocaleKeys.settings_menu_restartAppTip.tr(),
-                      confirm: () => context.read<AppFlowyCloudURLsBloc>().add(
-                            const AppFlowyCloudURLsEvent.confirmUpdate(),
-                          ),
+                      confirm: () {
+                        context.read<AppFlowyCloudURLsBloc>().add(
+                              const AppFlowyCloudURLsEvent.confirmUpdate(),
+                            );
+                      },
                     ).show(context);
                   },
+                  showRestartHint: state.showRestartHint,
                 ),
               ],
             );
@@ -141,9 +204,10 @@ class AppFlowyCloudURLs extends StatelessWidget {
 }
 
 class AppFlowySelfhostTip extends StatelessWidget {
+  const AppFlowySelfhostTip({super.key});
+
   final url =
       "https://docs.appflowy.io/docs/guides/appflowy/self-hosting-appflowy#build-appflowy-with-a-self-hosted-server";
-  const AppFlowySelfhostTip({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -187,19 +251,18 @@ class AppFlowySelfhostTip extends StatelessWidget {
 
 @visibleForTesting
 class CloudURLInput extends StatefulWidget {
-  final String title;
-  final String url;
-  final String hint;
-
-  final Function(String) onChanged;
-
   const CloudURLInput({
+    super.key,
     required this.title,
     required this.url,
     required this.hint,
     required this.onChanged,
-    super.key,
   });
+
+  final String title;
+  final String url;
+  final String hint;
+  final Function(String) onChanged;
 
   @override
   CloudURLInputState createState() => CloudURLInputState();
@@ -212,6 +275,12 @@ class CloudURLInputState extends State<CloudURLInput> {
   void initState() {
     super.initState();
     _controller = TextEditingController(text: widget.url);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
@@ -243,12 +312,6 @@ class CloudURLInputState extends State<CloudURLInput> {
       onChanged: widget.onChanged,
     );
   }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
 }
 
 class AppFlowyCloudEnableSync extends StatelessWidget {
@@ -262,12 +325,13 @@ class AppFlowyCloudEnableSync extends StatelessWidget {
           children: [
             FlowyText.medium(LocaleKeys.settings_menu_enableSync.tr()),
             const Spacer(),
-            Switch(
+            Switch.adaptive(
               onChanged: (bool value) {
                 context.read<AppFlowyCloudSettingBloc>().add(
                       AppFlowyCloudSettingEvent.enableSync(value),
                     );
               },
+              activeColor: Theme.of(context).colorScheme.primary,
               value: state.setting.enableSync,
             ),
           ],

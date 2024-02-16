@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/util.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -72,7 +74,7 @@ class _HeadingOrTextItem extends StatelessWidget {
           );
     return MobileToolbarMenuItemWrapper(
       size: const Size(76, 52),
-      onTap: () async => await _convert(isSelected),
+      onTap: () async => _convert(isSelected),
       icon: icon,
       isSelected: isSelected,
       iconPadding: padding,
@@ -80,7 +82,7 @@ class _HeadingOrTextItem extends StatelessWidget {
   }
 
   Future<void> _convert(bool isSelected) async {
-    editorState.convertBlockType(
+    await editorState.convertBlockType(
       blockType,
       isSelected: isSelected,
       extraAttributes: level != null
@@ -90,7 +92,17 @@ class _HeadingOrTextItem extends StatelessWidget {
           : null,
       selectionExtraInfo: {
         selectionExtraInfoDoNotAttachTextService: true,
+        selectionExtraInfoDisableFloatingToolbar: true,
       },
+    );
+    unawaited(
+      editorState.updateSelectionWithReason(
+        editorState.selection,
+        extraInfo: {
+          selectionExtraInfoDisableFloatingToolbar: true,
+          selectionExtraInfoDoNotAttachTextService: true,
+        },
+      ),
     );
   }
 }

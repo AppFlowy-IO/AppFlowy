@@ -18,4 +18,10 @@ export const notify = {
   loading: (message: string) => {
     toast.loading(message, commonOptions);
   },
+  info: (message: string) => {
+    toast(message, commonOptions);
+  },
+  clear: () => {
+    toast.dismiss();
+  },
 };

@@ -4,16 +4,18 @@ import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
 import 'package:appflowy/plugins/document/application/document_data_pb_extension.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
+import 'package:appflowy/shared/appflowy_network_image.dart';
 import 'package:appflowy/workspace/application/doc/doc_listener.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-document/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:string_validator/string_validator.dart';
 
 class MobileRecentView extends StatefulWidget {
@@ -140,7 +142,7 @@ class _MobileRecentViewState extends State<MobileRecentView> {
   Widget _buildCoverWidget() {
     return FutureBuilder<Node?>(
       future: _getPageNode(),
-      builder: ((context, snapshot) {
+      builder: (context, snapshot) {
         final node = snapshot.data;
         final placeholder = Container(
           // random color, update it once we have a better placeholder
@@ -161,9 +163,10 @@ class _MobileRecentViewState extends State<MobileRecentView> {
         switch (type) {
           case CoverType.file:
             if (isURL(cover)) {
-              return CachedNetworkImage(
-                imageUrl: cover,
-                fit: BoxFit.cover,
+              final userProfilePB = Provider.of<UserProfilePB?>(context);
+              return FlowyNetworkImage(
+                url: cover,
+                userProfilePB: userProfilePB,
               );
             }
             final imageFile = File(cover);
@@ -186,7 +189,7 @@ class _MobileRecentViewState extends State<MobileRecentView> {
           case CoverType.none:
             return placeholder;
         }
-      }),
+      },
     );
   }
 

@@ -27,14 +27,12 @@ class BottomSheetHeader extends StatelessWidget {
             child: Align(
               alignment: Alignment.centerLeft,
               child: AppBarCloseButton(
-                margin: EdgeInsets.zero,
                 onTap: onClose,
               ),
             ),
           ),
         if (title != null)
           Align(
-            alignment: Alignment.center,
             child: FlowyText.medium(
               title!,
               fontSize: 16,

@@ -13,7 +13,7 @@ import {
   rowListeners,
   sortListeners,
   filterListeners,
-} from './application';
+} from '$app/application/database';
 
 export function useSelectDatabaseView({ viewId }: { viewId?: string }) {
   const key = 'v';
@@ -183,3 +183,11 @@ export const useConnectDatabase = (viewId: string) => {
 
   return database;
 };
+
+const DatabaseRenderedContext = createContext<() => void>(() => {
+  // do nothing
+});
+
+export const DatabaseRenderedProvider = DatabaseRenderedContext.Provider;
+
+export const useDatabaseRendered = () => useContext(DatabaseRenderedContext);

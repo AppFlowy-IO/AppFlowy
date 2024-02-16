@@ -93,7 +93,6 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
       child: SizedBox(
         height: viewPB.pluginType == PluginType.calendar ? 700 : 400,
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildMenu(context, viewPB),
@@ -165,7 +164,7 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
               case _ActionType.delete:
                 final transaction = widget.editorState.transaction;
                 transaction.deleteNode(widget.node);
-                widget.editorState.apply(transaction);
+                await widget.editorState.apply(transaction);
                 break;
             }
             controller.close();
@@ -178,7 +177,7 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
   Future<void> _deletePage() async {
     final transaction = widget.editorState.transaction;
     transaction.deleteNode(widget.node);
-    widget.editorState.apply(transaction);
+    await widget.editorState.apply(transaction);
   }
 }
 
@@ -188,9 +187,9 @@ enum _ActionType {
 }
 
 class _ActionWrapper extends ActionCell {
-  final _ActionType inner;
-
   _ActionWrapper(this.inner);
+
+  final _ActionType inner;
 
   Widget? icon(Color iconColor) => null;
 

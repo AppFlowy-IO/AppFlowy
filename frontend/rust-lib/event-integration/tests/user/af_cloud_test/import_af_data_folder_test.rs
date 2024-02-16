@@ -1,5 +1,6 @@
 use crate::util::unzip_history_user_db;
 use assert_json_diff::assert_json_include;
+use collab_database::rows::database_row_document_id_from_row_id;
 use collab_entity::CollabType;
 use event_integration::user_event::user_localhost_af_cloud;
 use event_integration::{document_data_from_document_doc_state, EventIntegrationTest};
@@ -7,6 +8,47 @@ use flowy_core::DEFAULT_NAME;
 use flowy_user::errors::ErrorCode;
 use serde_json::{json, Value};
 use std::env::temp_dir;
+
+#[tokio::test]
+async fn import_appflowy_data_need_migration_test() {
+  // In 037, the workspace array will be migrated to view.
+  let import_container_name = "037_local".to_string();
+  let (cleaner, user_db_path) =
+    unzip_history_user_db("./tests/asset", &import_container_name).unwrap();
+  // Getting started
+  //  Document1
+  //  Document2(fav)
+  user_localhost_af_cloud().await;
+  let test = EventIntegrationTest::new_with_name(DEFAULT_NAME).await;
+  let _ = test.af_cloud_sign_up().await;
+  test
+    .import_appflowy_data(
+      user_db_path.to_str().unwrap().to_string(),
+      Some(import_container_name.clone()),
+    )
+    .await
+    .unwrap();
+  // after import, the structure is:
+  // workspace:
+  //   view: Getting Started
+  //   view: 037_local
+  //      view: Getting Started
+  //        view: Document1
+  //        view: Document2
+
+  let views = test.get_all_workspace_views().await;
+  assert_eq!(views.len(), 2);
+  assert_eq!(views[1].name, import_container_name);
+
+  let child_views = test.get_view(&views[1].id).await.child_views;
+  assert_eq!(child_views.len(), 1);
+
+  let child_views = test.get_view(&child_views[0].id).await.child_views;
+  assert_eq!(child_views.len(), 2);
+  assert_eq!(child_views[0].name, "Document1");
+  assert_eq!(child_views[1].name, "Document2");
+  drop(cleaner);
+}
 
 #[tokio::test]
 async fn import_appflowy_data_folder_into_new_view_test() {
@@ -45,22 +87,35 @@ async fn import_appflowy_data_folder_into_new_view_test() {
   assert_eq!(views.len(), 2);
   assert_eq!(views[1].name, import_container_name);
 
-  let local_child_views = test.get_views(&views[1].id).await.child_views;
+  // the 040_local should be an empty document, so try to get the document data
+  let _ = test.get_document_data(&views[1].id).await;
+
+  let local_child_views = test.get_view(&views[1].id).await.child_views;
   assert_eq!(local_child_views.len(), 1);
   assert_eq!(local_child_views[0].name, "Document1");
 
-  let document1_child_views = test.get_views(&local_child_views[0].id).await.child_views;
+  let document1_child_views = test.get_view(&local_child_views[0].id).await.child_views;
   assert_eq!(document1_child_views.len(), 1);
   assert_eq!(document1_child_views[0].name, "Document2");
 
   let document2_child_views = test
-    .get_views(&document1_child_views[0].id)
+    .get_view(&document1_child_views[0].id)
     .await
     .child_views;
   assert_eq!(document2_child_views.len(), 2);
   assert_eq!(document2_child_views[0].name, "Grid1");
   assert_eq!(document2_child_views[1].name, "Grid2");
 
+  let rows = test.get_database(&document2_child_views[1].id).await.rows;
+  assert_eq!(rows.len(), 3);
+
+  // In the 040_local, only the first row has a document with content
+  let row_document_id = database_row_document_id_from_row_id(&rows[0].id);
+  let row_document_view = test.get_view(&row_document_id).await;
+  assert_eq!(row_document_view.id, row_document_view.parent_view_id);
+
+  let row_document_data = test.get_document_data(&row_document_id).await;
+  assert_json_include!(actual: json!(row_document_data), expected: expected_row_doc_json());
   drop(cleaner);
 }
 
@@ -97,12 +152,12 @@ async fn import_appflowy_data_folder_into_current_workspace_test() {
   assert_eq!(views.len(), 2);
   assert_eq!(views[1].name, "Document1");
 
-  let document_1_child_views = test.get_views(&views[1].id).await.child_views;
+  let document_1_child_views = test.get_view(&views[1].id).await.child_views;
   assert_eq!(document_1_child_views.len(), 1);
   assert_eq!(document_1_child_views[0].name, "Document2");
 
   let document2_child_views = test
-    .get_views(&document_1_child_views[0].id)
+    .get_view(&document_1_child_views[0].id)
     .await
     .child_views;
   assert_eq!(document2_child_views.len(), 2);
@@ -216,14 +271,12 @@ async fn assert_040_local_2_import_content(test: &EventIntegrationTest, view_id:
   //            Doc3_grid_1
   //            Doc3_grid_2
   //            Doc3_calendar_1
-  let _local_2_child_views = test.get_views(view_id).await.child_views;
+  let _local_2_child_views = test.get_view(view_id).await.child_views;
   assert_eq!(_local_2_child_views.len(), 1);
   assert_eq!(_local_2_child_views[0].name, "Getting started");
 
-  let local_2_getting_started_child_views = test
-    .get_views(&_local_2_child_views[0].id)
-    .await
-    .child_views;
+  let local_2_getting_started_child_views =
+    test.get_view(&_local_2_child_views[0].id).await.child_views;
 
   // Check doc 1 local content
   let doc_1 = local_2_getting_started_child_views[0].clone();
@@ -258,7 +311,7 @@ async fn assert_040_local_2_import_content(test: &EventIntegrationTest, view_id:
   assert_eq!(local_2_getting_started_child_views[3].name, "Doc3");
 
   let doc_3_child_views = test
-    .get_views(&local_2_getting_started_child_views[3].id)
+    .get_view(&local_2_getting_started_child_views[3].id)
     .await
     .child_views;
   assert_eq!(doc_3_child_views.len(), 3);
@@ -370,5 +423,48 @@ fn expected_doc_2_json() -> Value {
       }
     },
     "page_id": "ZVogdaK9yO"
+  })
+}
+
+fn expected_row_doc_json() -> Value {
+  json!( {
+    "blocks": {
+      "eSBQHZ28e0": {
+        "children": "RbLAaE9UDJ",
+        "data": {},
+        "external_id": null,
+        "external_type": null,
+        "id": "eSBQHZ28e0",
+        "parent": "",
+        "ty": "page"
+      },
+      "eUIL6qjgj3": {
+        "children": "fUnGRcvPEA",
+        "data": {
+          "delta": [
+            {
+              "insert": "document in database row"
+            }
+          ]
+        },
+        "external_id": "-DliEUjHr2",
+        "external_type": "text",
+        "id": "eUIL6qjgj3",
+        "parent": "eSBQHZ28e0",
+        "ty": "paragraph"
+      }
+    },
+    "meta": {
+      "children_map": {
+        "RbLAaE9UDJ": [
+          "eUIL6qjgj3"
+        ],
+        "fUnGRcvPEA": []
+      },
+      "text_map": {
+        "-DliEUjHr2": "[{\"insert\":\"document in database row\"}]"
+      }
+    },
+    "page_id": "eSBQHZ28e0"
   })
 }

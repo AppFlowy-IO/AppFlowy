@@ -4,7 +4,7 @@ use anyhow::{anyhow, Error};
 use collab::core::collab::CollabDocState;
 use collab_entity::CollabType;
 
-use flowy_folder_deps::cloud::{
+use flowy_folder_pub::cloud::{
   gen_workspace_id, FolderCloudService, FolderCollabParams, FolderData, FolderSnapshot, Workspace,
   WorkspaceRecord,
 };
@@ -53,7 +53,7 @@ impl FolderCloudService for LocalServerFolderCloudServiceImpl {
     FutureResult::new(async move { Ok(vec![]) })
   }
 
-  fn get_collab_doc_state_f(
+  fn get_folder_doc_state(
     &self,
     _workspace_id: &str,
     _uid: i64,
@@ -67,7 +67,7 @@ impl FolderCloudService for LocalServerFolderCloudServiceImpl {
     })
   }
 
-  fn batch_create_collab_object_f(
+  fn batch_create_folder_collab_objects(
     &self,
     _workspace_id: &str,
     _objects: Vec<FolderCollabParams>,

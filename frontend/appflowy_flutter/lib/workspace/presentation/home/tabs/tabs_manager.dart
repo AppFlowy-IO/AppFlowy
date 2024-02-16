@@ -5,12 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class TabsManager extends StatefulWidget {
-  final PageController pageController;
+  const TabsManager({super.key, required this.pageController});
 
-  const TabsManager({
-    super.key,
-    required this.pageController,
-  });
+  final PageController pageController;
 
   @override
   State<TabsManager> createState() => _TabsManagerState();

@@ -17,17 +17,13 @@ textarea {
 }
 
 body {
-  font-family: Poppins;
-}
-
-::selection {
-  @apply bg-content-blue-100;
+    font-family: Poppins, serif;
 }
 
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+    width: 8px;
 }
+
 
 
 :root[data-dark-mode=true] body {
@@ -39,43 +35,6 @@ body {
     scrollbar-shadow-color: var(--bg-body);
 }
 
-.block-element {
-    @apply my-[1px];
-}
-
-.block-element .block-element {
-    @apply mb-0;
-}
-
-.block-element[data-block-type="page"] .text-element {
-    min-height: 52px !important;
-    line-height: 52px !important;
-}
-
-.block-element[data-block-type="paragraph"] .block-element {
-    margin-left: 24px;
-}
-
-.block-element.block-align-left .text-element {
-    justify-content: flex-start;
-}
-
-.block-element.block-align-right .text-element {
-    justify-content: flex-end;
-}
-
-.block-element.block-align-center .text-element {
-    justify-content: center;
-}
-
-.block-element[data-block-type="todo_list"] .checked > .text-element {
-    text-decoration: line-through;
-    color: var(--text-caption);
-}
-
-.block-element .collapsed .block-element {
-    display: none;
-}
 
 .btn {
   @apply rounded-xl border border-line-divider px-4 py-3;
@@ -94,10 +53,6 @@ th {
   @apply text-left font-normal;
 }
 
-span[data-slate-placeholder="true"]:not(.inline-block-content) {
-  @apply text-text-placeholder;
-  opacity: 1 !important;
-}
 
 .sketch-picker {
     background-color: var(--bg-body) !important;

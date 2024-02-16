@@ -4,12 +4,9 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 class NotificationTabBar extends StatelessWidget {
-  final TabController tabController;
+  const NotificationTabBar({super.key, required this.tabController});
 
-  const NotificationTabBar({
-    super.key,
-    required this.tabController,
-  });
+  final TabController tabController;
 
   @override
   Widget build(BuildContext context) {

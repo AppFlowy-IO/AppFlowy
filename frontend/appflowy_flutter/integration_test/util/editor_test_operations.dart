@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -6,9 +7,9 @@ import 'package:appflowy/plugins/base/emoji/emoji_skin_tone.dart';
 import 'package:appflowy/plugins/base/icon/icon_picker.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/block_action_add_button.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/cover_editor.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/header/custom_cover_picker.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/document_header_node_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/image/embed_image_url_widget.dart';
 import 'package:appflowy/plugins/inline_actions/widgets/inline_actions_handler.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
@@ -121,19 +122,25 @@ class EditorOperations {
   }
 
   Future<void> addNetworkImageCover(String imageUrl) async {
-    final findNewImageButton = find.byType(NewCustomCoverButton);
-    await tester.tapButton(findNewImageButton);
+    final embedLinkButton = find.findTextInFlowyText(
+      LocaleKeys.document_imageBlock_embedLink_label.tr(),
+    );
+    await tester.tapButton(embedLinkButton);
 
     final imageUrlTextField = find.descendant(
-      of: find.byType(NetworkImageUrlInput),
+      of: find.byType(EmbedImageUrlWidget),
       matching: find.byType(TextField),
     );
-    await tester.enterText(imageUrlTextField, imageUrl);
-    await tester.tapButtonWithName(
-      LocaleKeys.document_plugins_cover_add.tr(),
-    );
-    await tester.tapButtonWithName(
-      LocaleKeys.document_plugins_cover_saveToGallery.tr(),
+    final textField = tester.widget<TextField>(imageUrlTextField);
+    textField.controller?.text = imageUrl;
+    await tester.pumpAndSettle();
+    await tester.tapButton(
+      find.descendant(
+        of: find.byType(EmbedImageUrlWidget),
+        matching: find.findTextInFlowyText(
+          LocaleKeys.document_imageBlock_embedLink_label.tr(),
+        ),
+      ),
     );
   }
 
@@ -196,9 +203,11 @@ class EditorOperations {
   /// Update the editor's selection
   Future<void> updateSelection(Selection selection) async {
     final editorState = getCurrentEditorState();
-    editorState.updateSelectionWithReason(
-      selection,
-      reason: SelectionUpdateReason.uiEvent,
+    unawaited(
+      editorState.updateSelectionWithReason(
+        selection,
+        reason: SelectionUpdateReason.uiEvent,
+      ),
     );
     await tester.pumpAndSettle(const Duration(milliseconds: 200));
   }

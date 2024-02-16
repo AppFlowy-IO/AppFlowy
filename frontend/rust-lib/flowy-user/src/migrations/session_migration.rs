@@ -1,11 +1,8 @@
-use std::sync::Arc;
-
-use serde_json::{json, Value};
-use uuid::Uuid;
-
 use flowy_sqlite::kv::StorePreferences;
-
-use crate::services::entities::Session;
+use flowy_user_pub::session::Session;
+use serde_json::{json, Value};
+use std::sync::Arc;
+use uuid::Uuid;
 
 const MIGRATION_USER_NO_USER_UUID: &str = "migration_user_no_user_uuid";
 

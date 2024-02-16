@@ -117,7 +117,7 @@ class _NotificationDialogState extends State<NotificationDialog>
   }
 
   void _onDelete(ReminderPB reminder) {
-    _reminderBloc.add(ReminderEvent.remove(reminder: reminder));
+    _reminderBloc.add(ReminderEvent.remove(reminderId: reminder.id));
   }
 
   void _onReadChanged(ReminderPB reminder, bool isRead) {

@@ -8,19 +8,20 @@ use client_api::notify::{TokenState, TokenStateReceiver};
 use client_api::ws::{
   ConnectState, WSClient, WSClientConfig, WSConnectStateReceiver, WebSocketChannel,
 };
-use client_api::Client;
+use client_api::{Client, ClientConfiguration};
+use flowy_storage::ObjectStorageService;
 use tokio::sync::watch;
 use tokio_stream::wrappers::WatchStream;
-use tracing::{error, event, info};
+use tracing::{error, event, info, warn};
+use uuid::Uuid;
 
-use flowy_database_deps::cloud::DatabaseCloudService;
-use flowy_document_deps::cloud::DocumentCloudService;
+use flowy_database_pub::cloud::DatabaseCloudService;
+use flowy_document_pub::cloud::DocumentCloudService;
 use flowy_error::{ErrorCode, FlowyError};
-use flowy_folder_deps::cloud::FolderCloudService;
-use flowy_server_config::af_cloud_config::AFCloudConfiguration;
-use flowy_storage::FileStorageService;
-use flowy_user_deps::cloud::{UserCloudService, UserUpdate};
-use flowy_user_deps::entities::UserTokenState;
+use flowy_folder_pub::cloud::FolderCloudService;
+use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
+use flowy_user_pub::cloud::{UserCloudService, UserUpdate};
+use flowy_user_pub::entities::UserTokenState;
 use lib_dispatch::prelude::af_spawn;
 use lib_infra::future::FutureResult;
 
@@ -38,14 +39,33 @@ pub struct AppFlowyCloudServer {
   pub(crate) client: Arc<AFCloudClient>,
   enable_sync: Arc<AtomicBool>,
   network_reachable: Arc<AtomicBool>,
-  #[allow(dead_code)]
-  device_id: String,
+  pub device_id: String,
   ws_client: Arc<WSClient>,
 }
 
 impl AppFlowyCloudServer {
-  pub fn new(config: AFCloudConfiguration, enable_sync: bool, device_id: String) -> Self {
-    let api_client = AFCloudClient::new(&config.base_url, &config.ws_base_url, &config.gotrue_url);
+  pub fn new(
+    config: AFCloudConfiguration,
+    enable_sync: bool,
+    mut device_id: String,
+    app_version: &str,
+  ) -> Self {
+    // The device id can't be empty, so we generate a new one if it is.
+    if device_id.is_empty() {
+      warn!("Device ID is empty, generating a new one");
+      device_id = Uuid::new_v4().to_string();
+    }
+
+    let api_client = AFCloudClient::new(
+      &config.base_url,
+      &config.ws_base_url,
+      &config.gotrue_url,
+      &device_id,
+      ClientConfiguration::default()
+        .with_compression_buffer_size(10240)
+        .with_compression_quality(8),
+      app_version,
+    );
     let token_state_rx = api_client.subscribe_token_state();
     let enable_sync = Arc::new(AtomicBool::new(enable_sync));
     let network_reachable = Arc::new(AtomicBool::new(true));
@@ -130,7 +150,7 @@ impl AppFlowyServer for AppFlowyCloudServer {
     };
     let mut user_change = self.ws_client.subscribe_user_changed();
     let (tx, rx) = tokio::sync::mpsc::channel(1);
-    tokio::spawn(async move {
+    af_spawn(async move {
       while let Ok(user_message) = user_change.recv().await {
         if let UserMessage::ProfileChange(change) = user_message {
           let user_update = UserUpdate {
@@ -206,7 +226,7 @@ impl AppFlowyServer for AppFlowyCloudServer {
     }
   }
 
-  fn file_storage(&self) -> Option<Arc<dyn FileStorageService>> {
+  fn file_storage(&self) -> Option<Arc<dyn ObjectStorageService>> {
     let client = AFServerImpl {
       client: self.get_client(),
     };
@@ -240,7 +260,7 @@ fn spawn_ws_conn(
             // Try to reconnect if the connection is timed out.
             if let Some(api_client) = weak_api_client.upgrade() {
               if enable_sync.load(Ordering::SeqCst) {
-                match api_client.ws_url(&cloned_device_id) {
+                match api_client.ws_url(&cloned_device_id).await {
                   Ok(ws_addr) => {
                     event!(tracing::Level::INFO, "🟢reconnecting websocket");
                     let _ = ws_client.connect(ws_addr, &cloned_device_id).await;
@@ -273,7 +293,7 @@ fn spawn_ws_conn(
           if let (Some(api_client), Some(ws_client)) =
             (weak_api_client.upgrade(), weak_ws_client.upgrade())
           {
-            match api_client.ws_url(&device_id) {
+            match api_client.ws_url(&device_id).await {
               Ok(ws_addr) => {
                 info!("🟢token state: {:?}, reconnecting websocket", token_state);
                 let _ = ws_client.connect(ws_addr, &device_id).await;

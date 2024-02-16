@@ -7,11 +7,11 @@ use tracing::event;
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use flowy_database2::DatabaseManager;
 use flowy_document::manager::DocumentManager;
-use flowy_error::FlowyResult;
+use flowy_error::{FlowyError, FlowyResult};
 use flowy_folder::manager::{FolderInitDataSource, FolderManager};
 use flowy_user::event_map::UserStatusCallback;
-use flowy_user_deps::cloud::{UserCloudConfig, UserCloudServiceProvider};
-use flowy_user_deps::entities::{Authenticator, UserProfile, UserWorkspace};
+use flowy_user_pub::cloud::{UserCloudConfig, UserCloudServiceProvider};
+use flowy_user_pub::entities::{Authenticator, UserProfile, UserWorkspace};
 use lib_infra::future::{to_fut, Fut};
 
 use crate::integrate::server::{Server, ServerProvider};
@@ -73,7 +73,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
         .initialize(
           user_id,
           user_workspace.id.clone(),
-          user_workspace.database_view_tracker_id,
+          user_workspace.workspace_database_object_id,
         )
         .await?;
       document_manager
@@ -111,7 +111,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
         .initialize(
           user_id,
           user_workspace.id.clone(),
-          user_workspace.database_view_tracker_id,
+          user_workspace.workspace_database_object_id,
         )
         .await?;
       document_manager
@@ -154,7 +154,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
       // for initializing a default workspace differs depending on the sign-up method used.
       let data_source = match folder_manager
         .cloud_service
-        .get_collab_doc_state_f(
+        .get_folder_doc_state(
           &user_workspace.id,
           user_profile.uid,
           CollabType::Folder,
@@ -177,8 +177,13 @@ impl UserStatusCallback for UserStatusCallbackImpl {
             }
           },
         },
-        Err(_) => FolderInitDataSource::LocalDisk {
-          create_if_not_exist: true,
+        Err(err) => match server_type {
+          Server::Local => FolderInitDataSource::LocalDisk {
+            create_if_not_exist: true,
+          },
+          Server::AppFlowyCloud | Server::Supabase => {
+            return Err(FlowyError::from(err));
+          },
         },
       };
 
@@ -197,7 +202,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
         .initialize_with_new_user(
           user_profile.uid,
           user_workspace.id.clone(),
-          user_workspace.database_view_tracker_id,
+          user_workspace.workspace_database_object_id,
         )
         .await
         .context("DatabaseManager error")?;
@@ -235,7 +240,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
         .initialize(
           user_id,
           user_workspace.id.clone(),
-          user_workspace.database_view_tracker_id,
+          user_workspace.workspace_database_object_id,
         )
         .await?;
       document_manager

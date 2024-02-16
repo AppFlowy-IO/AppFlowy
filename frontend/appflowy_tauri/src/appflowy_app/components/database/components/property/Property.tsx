@@ -1,5 +1,5 @@
 import { FC, useEffect, useRef, useState } from 'react';
-import { Field as FieldType } from '../../application';
+import { Field as FieldType } from '$app/application/database';
 import { ProppertyTypeSvg } from './property_type/ProppertyTypeSvg';
 import { PropertyMenu } from '$app/components/database/components/property/PropertyMenu';
 

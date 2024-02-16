@@ -11,7 +11,6 @@ class CloudSettingBloc extends Bloc<CloudSettingEvent, CloudSettingState> {
       await event.when(
         initial: () async {},
         updateCloudType: (AuthenticatorType newCloudType) async {
-          await setAuthenticatorType(newCloudType);
           emit(state.copyWith(cloudType: newCloudType));
         },
       );

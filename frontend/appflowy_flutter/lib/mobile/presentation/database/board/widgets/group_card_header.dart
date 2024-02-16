@@ -1,8 +1,8 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
-import 'package:appflowy/plugins/database_view/board/application/board_bloc.dart';
-import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_extension.dart';
+import 'package:appflowy/plugins/database/board/application/board_bloc.dart';
+import 'package:appflowy/plugins/database/grid/presentation/widgets/header/field_type_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/group.pb.dart';
 import 'package:appflowy_board/appflowy_board.dart';
@@ -82,7 +82,6 @@ class _GroupCardHeaderState extends State<GroupCardHeader> {
                     _controller.text,
                   ),
                 ),
-            maxLines: 1,
             style: titleTextStyle,
             onTapOutside: (_) => context.read<BoardBloc>().add(
                   // group header switch from TextField to Text

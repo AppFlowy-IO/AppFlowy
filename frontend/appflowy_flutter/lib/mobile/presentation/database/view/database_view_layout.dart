@@ -1,10 +1,10 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_option_tile.dart';
-import 'package:appflowy/plugins/database_view/application/database_controller.dart';
-import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
-import 'package:appflowy/plugins/database_view/calendar/application/calendar_setting_bloc.dart';
-import 'package:appflowy/plugins/database_view/widgets/database_layout_ext.dart';
+import 'package:appflowy/plugins/database/application/database_controller.dart';
+import 'package:appflowy/plugins/database/application/field/field_info.dart';
+import 'package:appflowy/plugins/database/calendar/application/calendar_setting_bloc.dart';
+import 'package:appflowy/plugins/database/widgets/database_layout_ext.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -168,6 +168,7 @@ class _CalendarLayoutField extends StatelessWidget {
       onTap: () async {
         final newFieldId = await showFieldPicker(
           context,
+          LocaleKeys.calendar_settings_changeLayoutDateField.tr(),
           selectedFieldId,
           databaseController.fieldController,
           (field) => field.fieldType == FieldType.DateTime,

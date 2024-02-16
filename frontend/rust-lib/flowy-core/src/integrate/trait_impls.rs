@@ -1,84 +1,87 @@
+use flowy_storage::{ObjectIdentity, ObjectStorageService};
 use std::sync::Arc;
 
 use anyhow::Error;
-use bytes::Bytes;
 use client_api::collab_sync::{SinkConfig, SinkStrategy, SyncObject, SyncPlugin};
 use collab::core::collab::CollabDocState;
 use collab::core::origin::{CollabClient, CollabOrigin};
 use collab::preclude::CollabPlugin;
 use collab_entity::CollabType;
+use collab_plugins::cloud_storage::postgres::SupabaseDBPlugin;
 use tokio_stream::wrappers::WatchStream;
 use tracing::{debug, instrument};
 
 use collab_integrate::collab_builder::{
   CollabCloudPluginProvider, CollabPluginProviderContext, CollabPluginProviderType,
 };
-use collab_integrate::postgres::SupabaseDBPlugin;
-use flowy_database_deps::cloud::{CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot};
+use flowy_database_pub::cloud::{CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot};
 use flowy_document::deps::DocumentData;
-use flowy_document_deps::cloud::{DocumentCloudService, DocumentSnapshot};
+use flowy_document_pub::cloud::{DocumentCloudService, DocumentSnapshot};
 use flowy_error::FlowyError;
-use flowy_folder_deps::cloud::{
+use flowy_folder_pub::cloud::{
   FolderCloudService, FolderCollabParams, FolderData, FolderSnapshot, Workspace, WorkspaceRecord,
 };
-use flowy_server_config::af_cloud_config::AFCloudConfiguration;
-use flowy_server_config::supabase_config::SupabaseConfiguration;
-use flowy_storage::{FileStorageService, StorageObject};
-use flowy_user_deps::cloud::{UserCloudService, UserCloudServiceProvider};
-use flowy_user_deps::entities::{Authenticator, UserTokenState};
+use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
+use flowy_server_pub::supabase_config::SupabaseConfiguration;
+use flowy_storage::ObjectValue;
+use flowy_user_pub::cloud::{UserCloudService, UserCloudServiceProvider};
+use flowy_user_pub::entities::{Authenticator, UserTokenState};
 use lib_infra::future::{to_fut, Fut, FutureResult};
 
 use crate::integrate::server::{Server, ServerProvider};
 
-impl FileStorageService for ServerProvider {
-  fn create_object(&self, object: StorageObject) -> FutureResult<String, FlowyError> {
-    let server = self.get_server(&self.get_server_type());
+impl ObjectStorageService for ServerProvider {
+  fn get_object_url(&self, object_id: ObjectIdentity) -> FutureResult<String, FlowyError> {
+    let server = self.get_server();
     FutureResult::new(async move {
       let storage = server?.file_storage().ok_or(FlowyError::internal())?;
-      storage.create_object(object).await
+      storage.get_object_url(object_id).await
     })
   }
 
-  fn delete_object_by_url(&self, object_url: String) -> FutureResult<(), FlowyError> {
-    let server = self.get_server(&self.get_server_type());
+  fn put_object(&self, url: String, val: ObjectValue) -> FutureResult<(), FlowyError> {
+    let server = self.get_server();
     FutureResult::new(async move {
       let storage = server?.file_storage().ok_or(FlowyError::internal())?;
-      storage.delete_object_by_url(object_url).await
+      storage.put_object(url, val).await
     })
   }
 
-  fn get_object_by_url(&self, object_url: String) -> FutureResult<Bytes, FlowyError> {
-    let server = self.get_server(&self.get_server_type());
+  fn delete_object(&self, url: String) -> FutureResult<(), FlowyError> {
+    let server = self.get_server();
     FutureResult::new(async move {
       let storage = server?.file_storage().ok_or(FlowyError::internal())?;
-      storage.get_object_by_url(object_url).await
+      storage.delete_object(url).await
+    })
+  }
+
+  fn get_object(&self, url: String) -> FutureResult<flowy_storage::ObjectValue, FlowyError> {
+    let server = self.get_server();
+    FutureResult::new(async move {
+      let storage = server?.file_storage().ok_or(FlowyError::internal())?;
+      storage.get_object(url).await
     })
   }
 }
 
 impl UserCloudServiceProvider for ServerProvider {
   fn set_token(&self, token: &str) -> Result<(), FlowyError> {
-    let server = self.get_server(&self.get_server_type())?;
+    let server = self.get_server()?;
     server.set_token(token)?;
     Ok(())
   }
 
   fn subscribe_token_state(&self) -> Option<WatchStream<UserTokenState>> {
-    let server = self.get_server(&self.get_server_type()).ok()?;
+    let server = self.get_server().ok()?;
     server.subscribe_token_state()
   }
 
   fn set_enable_sync(&self, uid: i64, enable_sync: bool) {
-    if let Ok(server) = self.get_server(&self.get_server_type()) {
+    if let Ok(server) = self.get_server() {
       server.set_enable_sync(uid, enable_sync);
       *self.user_enable_sync.write() = enable_sync;
       *self.uid.write() = Some(uid);
     }
-  }
-
-  fn set_user_authenticator(&self, authenticator: &Authenticator) {
-    debug!("set user authenticator: {:?}", authenticator);
-    *self.user_authenticator.write() = authenticator.clone();
   }
 
   /// When user login, the provider type is set by the [Authenticator] and save to disk for next use.
@@ -87,13 +90,16 @@ impl UserCloudServiceProvider for ServerProvider {
   /// to create a new [AppFlowyServer] if it doesn't exist. Once the [Server] is set,
   /// it will be used when user open the app again.
   ///
-  fn set_authenticator(&self, authenticator: Authenticator) {
-    let server_type: Server = authenticator.into();
-    self.set_server_type(server_type.clone());
+  fn set_user_authenticator(&self, authenticator: &Authenticator) {
+    self.set_authenticator(authenticator.clone());
+  }
+
+  fn get_user_authenticator(&self) -> Authenticator {
+    self.get_authenticator()
   }
 
   fn set_network_reachable(&self, reachable: bool) {
-    if let Ok(server) = self.get_server(&self.get_server_type()) {
+    if let Ok(server) = self.get_server() {
       server.set_network_reachable(reachable);
     }
   }
@@ -103,16 +109,10 @@ impl UserCloudServiceProvider for ServerProvider {
     self.encryption.write().set_secret(secret);
   }
 
-  fn get_authenticator(&self) -> Authenticator {
-    let server_type = self.get_server_type();
-    Authenticator::from(server_type)
-  }
-
   /// Returns the [UserCloudService] base on the current [Server].
   /// Creates a new [AppFlowyServer] if it doesn't exist.
   fn get_user_service(&self) -> Result<Arc<dyn UserCloudService>, FlowyError> {
-    let server_type = self.get_server_type();
-    let user_service = self.get_server(&server_type)?.user_service();
+    let user_service = self.get_server()?.user_service();
     Ok(user_service)
   }
 
@@ -131,19 +131,19 @@ impl UserCloudServiceProvider for ServerProvider {
 
 impl FolderCloudService for ServerProvider {
   fn create_workspace(&self, uid: i64, name: &str) -> FutureResult<Workspace, Error> {
-    let server = self.get_server(&self.get_server_type());
+    let server = self.get_server();
     let name = name.to_string();
     FutureResult::new(async move { server?.folder_service().create_workspace(uid, &name).await })
   }
 
   fn open_workspace(&self, workspace_id: &str) -> FutureResult<(), Error> {
     let workspace_id = workspace_id.to_string();
-    let server = self.get_server(&self.get_server_type());
+    let server = self.get_server();
     FutureResult::new(async move { server?.folder_service().open_workspace(&workspace_id).await })
   }
 
   fn get_all_workspace(&self) -> FutureResult<Vec<WorkspaceRecord>, Error> {
-    let server = self.get_server(&self.get_server_type());
+    let server = self.get_server();
     FutureResult::new(async move { server?.folder_service().get_all_workspace().await })
   }
 
@@ -153,7 +153,7 @@ impl FolderCloudService for ServerProvider {
     uid: &i64,
   ) -> FutureResult<Option<FolderData>, Error> {
     let uid = *uid;
-    let server = self.get_server(&self.get_server_type());
+    let server = self.get_server();
     let workspace_id = workspace_id.to_string();
     FutureResult::new(async move {
       server?
@@ -169,7 +169,7 @@ impl FolderCloudService for ServerProvider {
     limit: usize,
   ) -> FutureResult<Vec<FolderSnapshot>, Error> {
     let workspace_id = workspace_id.to_string();
-    let server = self.get_server(&self.get_server_type());
+    let server = self.get_server();
     FutureResult::new(async move {
       server?
         .folder_service()
@@ -178,7 +178,7 @@ impl FolderCloudService for ServerProvider {
     })
   }
 
-  fn get_collab_doc_state_f(
+  fn get_folder_doc_state(
     &self,
     workspace_id: &str,
     uid: i64,
@@ -187,83 +187,83 @@ impl FolderCloudService for ServerProvider {
   ) -> FutureResult<CollabDocState, Error> {
     let object_id = object_id.to_string();
     let workspace_id = workspace_id.to_string();
-    let server = self.get_server(&self.get_server_type());
+    let server = self.get_server();
     FutureResult::new(async move {
       server?
         .folder_service()
-        .get_collab_doc_state_f(&workspace_id, uid, collab_type, &object_id)
+        .get_folder_doc_state(&workspace_id, uid, collab_type, &object_id)
         .await
     })
   }
 
-  fn batch_create_collab_object_f(
+  fn batch_create_folder_collab_objects(
     &self,
     workspace_id: &str,
     objects: Vec<FolderCollabParams>,
   ) -> FutureResult<(), Error> {
     let workspace_id = workspace_id.to_string();
-    let server = self.get_server(&self.get_server_type());
+    let server = self.get_server();
     FutureResult::new(async move {
       server?
         .folder_service()
-        .batch_create_collab_object_f(&workspace_id, objects)
+        .batch_create_folder_collab_objects(&workspace_id, objects)
         .await
     })
   }
 
   fn service_name(&self) -> String {
     self
-      .get_server(&self.get_server_type())
+      .get_server()
       .map(|provider| provider.folder_service().service_name())
       .unwrap_or_default()
   }
 }
 
 impl DatabaseCloudService for ServerProvider {
-  fn get_collab_doc_state_db(
+  fn get_database_object_doc_state(
     &self,
     object_id: &str,
     collab_type: CollabType,
     workspace_id: &str,
   ) -> FutureResult<CollabDocState, Error> {
     let workspace_id = workspace_id.to_string();
-    let server = self.get_server(&self.get_server_type());
+    let server = self.get_server();
     let database_id = object_id.to_string();
     FutureResult::new(async move {
       server?
         .database_service()
-        .get_collab_doc_state_db(&database_id, collab_type, &workspace_id)
+        .get_database_object_doc_state(&database_id, collab_type, &workspace_id)
         .await
     })
   }
 
-  fn batch_get_collab_doc_state_db(
+  fn batch_get_database_object_doc_state(
     &self,
     object_ids: Vec<String>,
     object_ty: CollabType,
     workspace_id: &str,
   ) -> FutureResult<CollabDocStateByOid, Error> {
     let workspace_id = workspace_id.to_string();
-    let server = self.get_server(&self.get_server_type());
+    let server = self.get_server();
     FutureResult::new(async move {
       server?
         .database_service()
-        .batch_get_collab_doc_state_db(object_ids, object_ty, &workspace_id)
+        .batch_get_database_object_doc_state(object_ids, object_ty, &workspace_id)
         .await
     })
   }
 
-  fn get_collab_snapshots(
+  fn get_database_collab_object_snapshots(
     &self,
     object_id: &str,
     limit: usize,
   ) -> FutureResult<Vec<DatabaseSnapshot>, Error> {
-    let server = self.get_server(&self.get_server_type());
+    let server = self.get_server();
     let database_id = object_id.to_string();
     FutureResult::new(async move {
       server?
         .database_service()
-        .get_collab_snapshots(&database_id, limit)
+        .get_database_collab_object_snapshots(&database_id, limit)
         .await
     })
   }
@@ -277,7 +277,7 @@ impl DocumentCloudService for ServerProvider {
   ) -> FutureResult<CollabDocState, FlowyError> {
     let workspace_id = workspace_id.to_string();
     let document_id = document_id.to_string();
-    let server = self.get_server(&self.get_server_type());
+    let server = self.get_server();
     FutureResult::new(async move {
       server?
         .document_service()
@@ -293,7 +293,7 @@ impl DocumentCloudService for ServerProvider {
     workspace_id: &str,
   ) -> FutureResult<Vec<DocumentSnapshot>, Error> {
     let workspace_id = workspace_id.to_string();
-    let server = self.get_server(&self.get_server_type());
+    let server = self.get_server();
     let document_id = document_id.to_string();
     FutureResult::new(async move {
       server?
@@ -309,7 +309,7 @@ impl DocumentCloudService for ServerProvider {
     workspace_id: &str,
   ) -> FutureResult<Option<DocumentData>, Error> {
     let workspace_id = workspace_id.to_string();
-    let server = self.get_server(&self.get_server_type());
+    let server = self.get_server();
     let document_id = document_id.to_string();
     FutureResult::new(async move {
       server?
@@ -328,7 +328,7 @@ impl CollabCloudPluginProvider for ServerProvider {
   #[instrument(level = "debug", skip(self, context), fields(server_type = %self.get_server_type()))]
   fn get_plugins(&self, context: CollabPluginProviderContext) -> Fut<Vec<Arc<dyn CollabPlugin>>> {
     // If the user is local, we don't need to create a sync plugin.
-    if self.user_authenticator.read().is_local() {
+    if self.get_server_type().is_local() {
       debug!(
         "User authenticator is local, skip create sync plugin for: {}",
         context
@@ -343,7 +343,7 @@ impl CollabCloudPluginProvider for ServerProvider {
         collab_object,
         local_collab,
       } => {
-        if let Ok(server) = self.get_server(&Server::AppFlowyCloud) {
+        if let Ok(server) = self.get_server() {
           to_fut(async move {
             let mut plugins: Vec<Arc<dyn CollabPlugin>> = vec![];
 
@@ -394,7 +394,7 @@ impl CollabCloudPluginProvider for ServerProvider {
       } => {
         let mut plugins: Vec<Arc<dyn CollabPlugin>> = vec![];
         if let Some(remote_collab_storage) = self
-          .get_server(&Server::Supabase)
+          .get_server()
           .ok()
           .and_then(|provider| provider.collab_storage(&collab_object))
         {

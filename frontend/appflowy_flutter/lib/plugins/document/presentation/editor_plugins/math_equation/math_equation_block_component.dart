@@ -36,7 +36,7 @@ Node mathEquationNode({
 
 // defining the callout block menu item for selection
 SelectionMenuItem mathEquationItem = SelectionMenuItem.node(
-  name: 'MathEquation',
+  getName: () => LocaleKeys.document_plugins_mathEquation_name.tr(),
   iconData: Icons.text_fields_rounded,
   keywords: ['tex, latex, katex', 'math equation', 'formula'],
   nodeBuilder: (editorState, _) => mathEquationNode(),
@@ -182,16 +182,15 @@ class MathEquationBlockComponentWidgetState
       child: Math.tex(
         formula,
         textStyle: const TextStyle(fontSize: 20),
-        mathStyle: MathStyle.display,
       ),
     );
   }
 
   void showEditingDialog() {
+    final controller = TextEditingController(text: formula);
     showDialog(
       context: context,
       builder: (context) {
-        final controller = TextEditingController(text: formula);
         return AlertDialog(
           backgroundColor: Theme.of(context).canvasColor,
           title: Text(
@@ -235,7 +234,7 @@ class MathEquationBlockComponentWidgetState
           actionsAlignment: MainAxisAlignment.spaceAround,
         );
       },
-    );
+    ).then((_) => controller.dispose());
   }
 
   void updateMathEquation(String mathEquation, BuildContext context) {

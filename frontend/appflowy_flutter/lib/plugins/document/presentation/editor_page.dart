@@ -1,5 +1,9 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
 import 'package:appflowy/plugins/document/application/doc_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_configuration.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/align_toolbar_item/custom_text_align_command.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/background_color/theme_background_color.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/page_reference_commands.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/i18n/editor_i18n.dart';
@@ -11,9 +15,6 @@ import 'package:appflowy/plugins/inline_actions/handlers/inline_page_reference.d
 import 'package:appflowy/plugins/inline_actions/handlers/reminder_reference.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_command.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_service.dart';
-import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/workspace/application/notifications/notification_action.dart';
-import 'package:appflowy/workspace/application/notifications/notification_action_bloc.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_service.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/emoji_picker/emoji_picker.dart';
@@ -21,8 +22,6 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 final List<CommandShortcutEvent> commandShortcutEvents = [
@@ -31,6 +30,7 @@ final List<CommandShortcutEvent> commandShortcutEvents = [
   customCopyCommand,
   customPasteCommand,
   customCutCommand,
+  ...customTextAlignCommands,
   ...standardCommandShortcutEvents,
 ];
 
@@ -50,6 +50,7 @@ class AppFlowyEditorPage extends StatefulWidget {
     required this.styleCustomizer,
     this.showParagraphPlaceholder,
     this.placeholderText,
+    this.initialSelection,
   });
 
   final Widget? header;
@@ -60,6 +61,10 @@ class AppFlowyEditorPage extends StatefulWidget {
   final EditorStyleCustomizer styleCustomizer;
   final ShowPlaceholder? showParagraphPlaceholder;
   final String Function(Node)? placeholderText;
+
+  /// Used to provide an initial selection on Page-load
+  ///
+  final Selection? initialSelection;
 
   @override
   State<AppFlowyEditorPage> createState() => _AppFlowyEditorPageState();
@@ -73,6 +78,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     handlers: [
       InlinePageReferenceService(
         currentViewId: documentBloc.view.id,
+        limitResults: 5,
       ).inlinePageReferenceDelegate,
       DateReferenceService(context).dateReferenceDelegate,
       ReminderReferenceService(context).reminderReferenceDelegate,
@@ -85,6 +91,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     customCopyCommand,
     customPasteCommand,
     customCutCommand,
+    ...customTextAlignCommands,
     ...standardCommandShortcutEvents,
     ..._buildFindAndReplaceCommands(),
   ];
@@ -93,13 +100,8 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     smartEditItem..isActive = onlyShowInSingleTextTypeSelectionAndExcludeTable,
     paragraphItem..isActive = onlyShowInSingleTextTypeSelectionAndExcludeTable,
     ...headingItems
-      ..forEach(
-        (e) => e.isActive = onlyShowInSingleSelectionAndTextType,
-      ),
-    ...markdownFormatItems
-      ..forEach(
-        (e) => e.isActive = showInAnyTextType,
-      ),
+      ..forEach((e) => e.isActive = onlyShowInSingleSelectionAndTextType),
+    ...markdownFormatItems..forEach((e) => e.isActive = showInAnyTextType),
     quoteItem..isActive = onlyShowInSingleTextTypeSelectionAndExcludeTable,
     bulletedListItem
       ..isActive = onlyShowInSingleTextTypeSelectionAndExcludeTable,
@@ -173,14 +175,11 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
 
   late final EditorScrollController editorScrollController;
 
-  Future<bool> showSlashMenu(editorState) async {
-    final result = await customSlashCommand(
-      slashMenuItems,
-      shouldInsertSlash: false,
-      style: styleCustomizer.selectionMenuStyleBuilder(),
-    ).handler(editorState);
-    return result;
-  }
+  Future<bool> showSlashMenu(editorState) async => customSlashCommand(
+        slashMenuItems,
+        shouldInsertSlash: false,
+        style: styleCustomizer.selectionMenuStyleBuilder(),
+      ).handler(editorState);
 
   @override
   void initState() {
@@ -212,6 +211,14 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
 
     // customize the dynamic theme color
     _customizeBlockComponentBackgroundColorDecorator();
+
+    if (widget.initialSelection != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        widget.editorState.updateSelectionWithReason(
+          widget.initialSelection,
+        );
+      });
+    }
   }
 
   @override
@@ -243,7 +250,6 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       textDirection: textDirection,
       child: AppFlowyEditor(
         editorState: widget.editorState,
-        editable: true,
         editorScrollController: editorScrollController,
         // setup the auto focus parameters
         autoFocus: widget.autoFocus ?? autoFocus,
@@ -271,7 +277,6 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     );
 
     final editorState = widget.editorState;
-    _setInitialSelection(editorScrollController);
 
     if (PlatformExtension.isMobile) {
       return AppFlowyMobileToolbar(
@@ -333,21 +338,6 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     );
   }
 
-  void _setInitialSelection(EditorScrollController scrollController) {
-    final action = getIt<NotificationActionBloc>().state.action;
-    final viewId = action?.objectId;
-    final nodePath =
-        action?.arguments?[ActionArgumentKeys.nodePath.name] as int?;
-
-    if (viewId != null && viewId == documentBloc.view.id && nodePath != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        scrollController.itemScrollController.jumpTo(index: nodePath);
-        widget.editorState.selection =
-            Selection.collapsed(Position(path: [nodePath]));
-      });
-    }
-  }
-
   List<SelectionMenuItem> _customSlashMenuItems() {
     final items = [...standardSelectionMenuItems];
     final imageItem = items.firstWhereOrNull(
@@ -383,9 +373,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     if (widget.editorState.document.isEmpty) {
       return (
         true,
-        Selection.collapsed(
-          Position(path: [0], offset: 0),
-        ),
+        Selection.collapsed(Position(path: [0])),
       );
     }
     final nodes = widget.editorState.document.root.children
@@ -393,12 +381,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     final isAllEmpty =
         nodes.isNotEmpty && nodes.every((element) => element.delta!.isEmpty);
     if (isAllEmpty) {
-      return (
-        true,
-        Selection.collapsed(
-          Position(path: nodes.first.path, offset: 0),
-        )
-      );
+      return (true, Selection.collapsed(Position(path: nodes.first.path)));
     }
     return const (false, null);
   }
@@ -417,9 +400,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   void _setRTLToolbarItems(bool isRTL) {
     final textDirectionItemIds = textDirectionItems.map((e) => e.id);
     // clear all the text direction items
-    toolbarItems.removeWhere(
-      (item) => textDirectionItemIds.contains(item.id),
-    );
+    toolbarItems.removeWhere((item) => textDirectionItemIds.contains(item.id));
     // only show the rtl item when the layout direction is ltr.
     if (isRTL) {
       toolbarItems.addAll(textDirectionItems);
@@ -437,20 +418,19 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
           style,
           showReplaceMenu,
           onDismiss,
-        ) {
-          return Material(
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceVariant,
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: FindAndReplaceMenuWidget(
-                editorState: editorState,
-                onDismiss: onDismiss,
-              ),
+        ) =>
+            Material(
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surfaceVariant,
+              borderRadius: BorderRadius.circular(4),
             ),
-          );
-        },
+            child: FindAndReplaceMenuWidget(
+              editorState: editorState,
+              onDismiss: onDismiss,
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -464,6 +444,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       if (tintColor != null) {
         return tintColor.color(context);
       }
+
       final themeColor = themeBackgroundColors[colorString];
       if (themeColor != null) {
         return themeColor.color(context);
@@ -484,9 +465,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     };
   }
 
-  void _initEditorL10n() {
-    AppFlowyEditorL10n.current = EditorI18n();
-  }
+  void _initEditorL10n() => AppFlowyEditorL10n.current = EditorI18n();
 
   Future<void> _focusOnLastEmptyParagraph() async {
     final editorState = widget.editorState;
@@ -514,6 +493,7 @@ bool showInAnyTextType(EditorState editorState) {
   if (selection == null) {
     return false;
   }
+
   final nodes = editorState.getNodesInSelection(selection);
   return nodes.any(
     (node) => toolbarItemWhiteList.contains(node.type),

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:appflowy/mobile/presentation/database/board/mobile_board_screen.dart';
 import 'package:appflowy/mobile/presentation/database/mobile_calendar_screen.dart';
 import 'package:appflowy/mobile/presentation/database/mobile_grid_screen.dart';
@@ -8,11 +10,11 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 extension MobileRouter on BuildContext {
-  Future<void> pushView(ViewPB view) async {
-    push(
+  Future<void> pushView(ViewPB view, [Map<String, dynamic>? arguments]) async {
+    await push(
       Uri(
         path: view.routeName,
-        queryParameters: view.queryParameters,
+        queryParameters: view.queryParameters(arguments),
       ).toString(),
     ).then((value) {
       RecentService().updateRecentViews([view.id], true);
@@ -36,7 +38,7 @@ extension on ViewPB {
     }
   }
 
-  Map<String, dynamic> get queryParameters {
+  Map<String, dynamic> queryParameters([Map<String, dynamic>? arguments]) {
     switch (layout) {
       case ViewLayoutPB.Document:
         return {
@@ -47,6 +49,7 @@ extension on ViewPB {
         return {
           MobileGridScreen.viewId: id,
           MobileGridScreen.viewTitle: name,
+          MobileGridScreen.viewArgs: jsonEncode(arguments),
         };
       case ViewLayoutPB.Calendar:
         return {

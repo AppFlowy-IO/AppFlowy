@@ -224,12 +224,12 @@
       "themeUpload": {
         "button": "アップロード",
         "description": "下のボタンを使用して、独自のAppFlowyテーマをアップロードします。",
-        "failure": "アップロードされたテーマの形式が無効でした。",
         "loading": "テーマを検証してアップロードするまでお待ちください...",
         "uploadSuccess": "テーマは正常にアップロードされました",
         "deletionFailure": "テーマの削除に失敗しました。手動で削除してみてください。",
         "filePickerDialogTitle": ".flowy_plugin ファイルを選択します",
-        "urlUploadFailure": "URLを開けませんでした: {}"
+        "urlUploadFailure": "URLを開けませんでした: {}",
+        "failure": "アップロードされたテーマの形式が無効でした。"
       },
       "theme": "テーマ",
       "builtInsLabel": "組み込みテーマ",

@@ -37,7 +37,7 @@ pub fn init(folder: Weak<FolderManager>) -> AFPlugin {
     .event(FolderEvent::ReadRecentViews, read_recent_views_handler)
     .event(FolderEvent::ToggleFavorite, toggle_favorites_handler)
     .event(FolderEvent::UpdateRecentViews, update_recent_views_handler)
-    .event(FolderEvent::ImportAppFlowyDataFolder, import_appflowy_data_folder_handler)
+    .event(FolderEvent::ReloadWorkspace, reload_workspace_handler)
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
@@ -154,6 +154,6 @@ pub enum FolderEvent {
   #[event(input = "UpdateRecentViewPayloadPB")]
   UpdateRecentViews = 37,
 
-  #[event(input = "ImportAppFlowyDataPB")]
-  ImportAppFlowyDataFolder = 38,
+  #[event()]
+  ReloadWorkspace = 38,
 }

@@ -2,6 +2,7 @@
   "appName": "AppFlowy",
   "defaultUsername": "Me",
   "welcomeText": "Welcome to @:appName",
+  "welcomeTo": "Welcome to",
   "githubStarText": "Star on GitHub",
   "subscribeNewsletterText": "Subscribe to Newsletter",
   "letsGoButtonText": "Quick Start",
@@ -35,6 +36,7 @@
     "loginStartWithAnonymous": "Start with an anonymous session",
     "continueAnonymousUser": "Continue with an anonymous session",
     "buttonText": "Sign In",
+    "signingInText": "Signing in...",
     "forgotPassword": "Forgot Password?",
     "emailHint": "Email",
     "passwordHint": "Password",
@@ -58,6 +60,8 @@
     "failedToLoad": "Something went wrong! Failed to load the workspace. Try to close any open instance of AppFlowy and try again.",
     "errorActions": {
       "reportIssue": "Report an issue",
+      "reportIssueOnGithub": "Report an issue on Github",
+      "exportLogFiles": "Export log files",
       "reachOut": "Reach out on Discord"
     }
   },
@@ -69,10 +73,7 @@
     "copyLink": "Copy Link"
   },
   "moreAction": {
-    "small": "small",
-    "medium": "medium",
-    "large": "large",
-    "fontSize": "Font Size",
+    "fontSize": "Font size",
     "import": "Import",
     "moreOptions": "More options"
   },
@@ -278,9 +279,12 @@
       "cloudLocal": "Local",
       "cloudSupabase": "Supabase",
       "cloudSupabaseUrl": "Supabase URL",
+      "cloudSupabaseUrlCanNotBeEmpty": "The supabase url can't be empty",
       "cloudSupabaseAnonKey": "Supabase anon key",
-      "cloudSupabaseAnonKeyCanNotBeEmpty": "The anon key can't be empty if the supabase url is not empty",
-      "cloudAppFlowy": "AppFlowy Cloud",
+      "cloudSupabaseAnonKeyCanNotBeEmpty": "The anon key can't be empty",
+      "cloudAppFlowy": "AppFlowy Cloud Beta",
+      "cloudAppFlowySelfHost": "AppFlowy Cloud Self-hosted",
+      "appFlowyCloudUrlCanNotBeEmpty": "The cloud url can't be empty",
       "clickToCopy": "Click to copy",
       "selfHostStart": "If you don't have a server, please refer to the",
       "selfHostContent": "document",
@@ -290,6 +294,7 @@
       "cloudWSURLHint": "Input the websocket address of your server",
       "restartApp": "Restart",
       "restartAppTip": "Restart the application for the changes to take effect. Please note that this might log out your current account",
+      "changeServerTip": "After changing the server, you must click the restart button for the changes to take effect",
       "enableEncryptPrompt": "Activate encryption to secure your data with this secret. Store it safely; once enabled, it can't be turned off. If lost, your data becomes irretrievable. Click to copy",
       "inputEncryptPrompt": "Please enter your encryption secret for",
       "clickToCopySecret": "Click to copy secret",
@@ -301,6 +306,7 @@
       "openHistoricalUser": "Click to open the anonymous account",
       "customPathPrompt": "Storing the AppFlowy data folder in a cloud-synced folder such as Google Drive can pose risks. If the database within this folder is accessed or modified from multiple locations at the same time, it may result in synchronization conflicts and potential data corruption",
       "importAppFlowyData": "Import Data from External AppFlowy Folder",
+      "importingAppFlowyDataTip": "Data import is in progress. Please do not close the app",
       "importAppFlowyDataDescription": "Copy data from an external AppFlowy data folder and import it into the current AppFlowy data folder",
       "importSuccess": "Successfully imported the AppFlowy data folder",
       "importFailed": "Importing the AppFlowy data folder failed",
@@ -343,7 +349,7 @@
         "rtl": "RTL"
       },
       "textDirection": {
-        "label": "Default text direction",
+        "label": "Default Text Direction",
         "hint": "Specify whether text should start from left or right as the default.",
         "ltr": "LTR",
         "rtl": "RTL",
@@ -354,7 +360,6 @@
         "button": "Upload",
         "uploadTheme": "Upload theme",
         "description": "Upload your own AppFlowy theme using the button below.",
-        "failure": "The theme that was uploaded had an invalid format.",
         "loading": "Please wait while we validate and upload your theme...",
         "uploadSuccess": "Your theme was uploaded successfully",
         "deletionFailure": "Failed to delete the theme. Try to delete it manually.",
@@ -437,18 +442,20 @@
     },
     "mobile": {
       "personalInfo": "Personal Information",
-      "username": "Username",
-      "usernameEmptyError": "Username cannot be empty",
+      "username": "User Name",
+      "usernameEmptyError": "User name cannot be empty",
       "about": "About",
       "pushNotifications": "Push Notifications",
       "support": "Support",
       "joinDiscord": "Join us in Discord",
       "privacyPolicy": "Privacy Policy",
       "userAgreement": "User Agreement",
+      "termsAndConditions": "Terms and Conditions",
       "userprofileError": "Failed to load user profile",
       "userprofileErrorDescription": "Please try to log out and log back in to check if the issue still persists.",
       "selectLayout": "Select layout",
-      "selectStartingDay": "Select starting day"
+      "selectStartingDay": "Select starting day",
+      "version": "Version"
     }
   },
   "grid": {
@@ -470,7 +477,11 @@
       "typeAValue": "Type a value...",
       "layout": "Layout",
       "databaseLayout": "Layout",
-      "viewList": "Database Views",
+      "viewList": {
+        "zero": "0 views",
+        "one": "{count} view",
+        "other": "{count} views"
+      },
       "editView": "Edit View",
       "boardSettings": "Board settings",
       "calendarSettings": "Calendar settings",
@@ -539,8 +550,8 @@
       "textFieldName": "Text",
       "checkboxFieldName": "Checkbox",
       "dateFieldName": "Date",
-      "updatedAtFieldName": "Last modified time",
-      "createdAtFieldName": "Created time",
+      "updatedAtFieldName": "Last modified",
+      "createdAtFieldName": "Created at",
       "numberFieldName": "Numbers",
       "singleSelectFieldName": "Select",
       "multiSelectFieldName": "Multiselect",
@@ -576,7 +587,8 @@
       "newProperty": "New property",
       "deleteFieldPromptMessage": "Are you sure? This property will be deleted",
       "newColumn": "New Column",
-      "format": "Format"
+      "format": "Format",
+      "reminderOnDateTooltip": "This cell has a scheduled reminder"
     },
     "rowPage": {
       "newField": "Add a new field",
@@ -642,7 +654,16 @@
       "showComplete": "Show all tasks"
     },
     "menuName": "Grid",
-    "referencedGridPrefix": "View of"
+    "referencedGridPrefix": "View of",
+    "calculate": "Calculate",
+    "calculationTypeLabel": {
+      "none": "None",
+      "average": "Average",
+      "max": "Max",
+      "median": "Median",
+      "min": "Min",
+      "sum": "Sum"
+    }
   },
   "document": {
     "menuName": "Document",
@@ -778,7 +799,9 @@
         "toContinue": "to continue",
         "newDatabase": "New Database",
         "linkToDatabase": "Link to Database"
-      }
+      },
+      "date": "Date",
+      "emoji": "Emoji"
     },
     "textBlock": {
       "placeholder": "Type '/' for commands"
@@ -824,7 +847,9 @@
       "saveImageToGallery": "Save image",
       "failedToAddImageToGallery": "Failed to add image to gallery",
       "successToAddImageToGallery": "Image added to gallery successfully",
-      "unableToLoadImage": "Unable to load image"
+      "unableToLoadImage": "Unable to load image",
+      "maximumImageSize": "Maximum supported upload image size is 10MB",
+      "uploadImageErrorImageSizeTooBig": "Image size must be less than 10MB"
     },
     "codeBlock": {
       "language": {
@@ -851,7 +876,9 @@
       "page": {
         "label": "Link to page",
         "tooltip": "Click to open page"
-      }
+      },
+      "deleted": "Deleted",
+      "deletedContent": "This content does not exist or has been deleted"
     },
     "toolbar": {
       "resetToDefaultFont": "Reset to default"
@@ -911,6 +938,10 @@
       "jumpToday": "Jump to Today",
       "previousMonth": "Previous Month",
       "nextMonth": "Next Month"
+    },
+    "mobileEventScreen": {
+      "emptyTitle": "No events yet",
+      "emptyBody": "Press the plus button to create an event on this day."
     },
     "settings": {
       "showWeekNumbers": "Show week numbers",
@@ -1000,6 +1031,10 @@
   "inlineActions": {
     "noResults": "No results",
     "pageReference": "Page reference",
+    "docReference": "Document reference",
+    "boardReference": "Board reference",
+    "calReference": "Calendar reference",
+    "gridReference": "Grid reference",
     "date": "Date",
     "reminder": {
       "groupTitle": "Reminder",
@@ -1012,7 +1047,24 @@
     "includeTime": "Include time",
     "isRange": "End date",
     "timeFormat": "Time format",
-    "clearDate": "Clear date"
+    "clearDate": "Clear date",
+    "reminderLabel": "Reminder",
+    "selectReminder": "Select reminder",
+    "reminderOptions": {
+      "none": "None",
+      "atTimeOfEvent": "Time of event",
+      "fiveMinsBefore": "5 mins before",
+      "tenMinsBefore": "10 mins before",
+      "fifteenMinsBefore": "15 mins before",
+      "thirtyMinsBefore": "30 mins before",
+      "oneHourBefore": "1 hour before",
+      "twoHoursBefore": "2 hours before",
+      "onDayOfEvent": "On day of event",
+      "oneDayBefore": "1 day before",
+      "twoDaysBefore": "2 days before",
+      "oneWeekBefore": "1 week before",
+      "custom": "Custom"
+    }
   },
   "relativeDates": {
     "yesterday": "Yesterday",
@@ -1068,6 +1120,7 @@
   "editor": {
     "bold": "Bold",
     "bulletedList": "Bulleted List",
+    "bulletedListShortForm": "Bulleted",
     "checkbox": "Checkbox",
     "embedCode": "Embed Code",
     "heading1": "H1",
@@ -1076,9 +1129,11 @@
     "highlight": "Highlight",
     "color": "Color",
     "image": "Image",
+    "date": "Date",
     "italic": "Italic",
     "link": "Link",
     "numberedList": "Numbered List",
+    "numberedListShortForm": "Numbered",
     "quote": "Quote",
     "strikethrough": "Strikethrough",
     "text": "Text",
@@ -1177,7 +1232,11 @@
     "colClear": "Clear Content",
     "rowClear": "Clear Content",
     "slashPlaceHolder": "Type '/' to insert a block, or start typing",
-    "typeSomething": "Type something..."
+    "typeSomething": "Type something...",
+    "toggleListShortForm": "Toggle",
+    "quoteListShortForm": "Quote",
+    "mathEquationShortForm": "Formula",
+    "codeBlockShortForm": "Code"
   },
   "favorite": {
     "noFavorite": "No favorite page",
@@ -1201,5 +1260,6 @@
     "date": "Date",
     "addField": "Add field",
     "userIcon": "User icon"
-  }
+  },
+  "noLogFiles": "There're no log files"
 }

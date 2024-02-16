@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 log = "0.4.17"
-serde = { version = "1.0", features = ["derive"]}
+serde = { workspace = true, features = ["derive"]}
 serde_json.workspace = true
 flowy-ast.workspace = true
 quote = "1.0"

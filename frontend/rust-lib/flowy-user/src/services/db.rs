@@ -2,10 +2,8 @@ use std::path::{Path, PathBuf};
 use std::{collections::HashMap, fs, io, sync::Arc, time::Duration};
 
 use chrono::Local;
-use parking_lot::RwLock;
-use tracing::{error, event, info, instrument};
-
-use collab_integrate::{PersistenceError, RocksCollabDB, YrsDocAction};
+use collab_integrate::{CollabKVAction, CollabKVDB, PersistenceError};
+use collab_plugins::local_storage::kv::KVTransactionDB;
 use flowy_error::FlowyError;
 use flowy_sqlite::schema::user_workspace_table;
 use flowy_sqlite::ConnectionPool;
@@ -14,15 +12,17 @@ use flowy_sqlite::{
   schema::{user_table, user_table::dsl},
   DBConnection, Database, ExpressionMethods,
 };
-use flowy_user_deps::entities::{UserProfile, UserWorkspace};
+use flowy_user_pub::entities::{UserProfile, UserWorkspace};
 use lib_dispatch::prelude::af_spawn;
 use lib_infra::file_util::{unzip_and_replace, zip_folder};
+use parking_lot::RwLock;
+use tracing::{error, event, info, instrument};
 
-use crate::services::user_sql::UserTable;
-use crate::services::workspace_sql::UserWorkspaceTable;
+use crate::services::sqlite_sql::user_sql::UserTable;
+use crate::services::sqlite_sql::workspace_sql::UserWorkspaceTable;
 
 pub trait UserDBPath: Send + Sync + 'static {
-  fn user_db_path(&self, uid: i64) -> PathBuf;
+  fn sqlite_db_path(&self, uid: i64) -> PathBuf;
   fn collab_db_path(&self, uid: i64) -> PathBuf;
   fn collab_db_history(&self, uid: i64, create_if_not_exist: bool) -> std::io::Result<PathBuf>;
 }
@@ -30,7 +30,7 @@ pub trait UserDBPath: Send + Sync + 'static {
 pub struct UserDB {
   paths: Box<dyn UserDBPath>,
   sqlite_map: RwLock<HashMap<i64, Database>>,
-  collab_db_map: RwLock<HashMap<i64, Arc<RocksCollabDB>>>,
+  collab_db_map: RwLock<HashMap<i64, Arc<CollabKVDB>>>,
 }
 
 impl UserDB {
@@ -84,6 +84,17 @@ impl UserDB {
     }
   }
 
+  #[cfg(debug_assertions)]
+  pub fn get_collab_backup_list(&self, uid: i64) -> Vec<String> {
+    let collab_db_path = self.paths.collab_db_path(uid);
+    if let Ok(history_folder) = self.paths.collab_db_history(uid, true) {
+      return CollabDBZipBackup::new(collab_db_path.clone(), history_folder)
+        .get_backup_list()
+        .unwrap_or_default();
+    }
+    vec![]
+  }
+
   #[instrument(level = "debug", skip_all)]
   pub fn restore_if_need(&self, uid: i64, workspace_id: &str) {
     if let Ok(history_folder) = self.paths.collab_db_history(uid, false) {
@@ -123,16 +134,16 @@ impl UserDB {
   }
 
   pub(crate) fn get_pool(&self, user_id: i64) -> Result<Arc<ConnectionPool>, FlowyError> {
-    let pool = self.open_user_db(self.paths.user_db_path(user_id), user_id)?;
+    let pool = self.open_sqlite_db(self.paths.sqlite_db_path(user_id), user_id)?;
     Ok(pool)
   }
 
-  pub(crate) fn get_collab_db(&self, user_id: i64) -> Result<Arc<RocksCollabDB>, FlowyError> {
+  pub(crate) fn get_collab_db(&self, user_id: i64) -> Result<Arc<CollabKVDB>, FlowyError> {
     let collab_db = self.open_collab_db(self.paths.collab_db_path(user_id), user_id)?;
     Ok(collab_db)
   }
 
-  pub fn open_user_db(
+  pub fn open_sqlite_db(
     &self,
     db_path: impl AsRef<Path>,
     user_id: i64,
@@ -183,7 +194,7 @@ impl UserDB {
     &self,
     collab_db_path: impl AsRef<Path>,
     uid: i64,
-  ) -> Result<Arc<RocksCollabDB>, PersistenceError> {
+  ) -> Result<Arc<CollabKVDB>, PersistenceError> {
     if let Some(collab_db) = self.collab_db_map.read().get(&uid) {
       return Ok(collab_db.clone());
     }
@@ -194,7 +205,7 @@ impl UserDB {
       uid,
       collab_db_path.as_ref()
     );
-    let db = match RocksCollabDB::open(&collab_db_path) {
+    let db = match CollabKVDB::open(&collab_db_path) {
       Ok(db) => Ok(db),
       Err(err) => {
         error!("open collab db error, {:?}", err);
@@ -224,9 +235,16 @@ impl CollabDBZipBackup {
 
   #[instrument(name = "backup_collab_db", skip_all, err)]
   pub fn backup(&self) -> io::Result<()> {
-    let today_zip_file = self
-      .history_folder
-      .join(format!("collab_db_{}.zip", today_zip_timestamp()));
+    let file_name = match std::env::var("APP_VERSION") {
+      Ok(version_num) => {
+        format!("collab_db_{}_{}.zip", version_num, today_zip_timestamp())
+      },
+      Err(_) => {
+        format!("collab_db_{}.zip", today_zip_timestamp())
+      },
+    };
+
+    let today_zip_file = self.history_folder.join(file_name);
 
     // Remove today's existing zip file if it exists
     if !today_zip_file.exists() {
@@ -240,9 +258,27 @@ impl CollabDBZipBackup {
     }
 
     // Clean up old backups
-    self.clean_old_backups()?;
+    if let Err(err) = self.clean_old_backups() {
+      error!("Clean up old backups failed: {:?}", err);
+    }
 
     Ok(())
+  }
+
+  #[cfg(debug_assertions)]
+  pub fn get_backup_list(&self) -> io::Result<Vec<String>> {
+    let mut backups = Vec::new();
+    for entry in fs::read_dir(&self.history_folder)? {
+      let entry = entry?;
+      let path = entry.path();
+      if path.is_file() && path.extension().and_then(|s| s.to_str()) == Some("zip") {
+        if let Some(file_name) = path.file_stem().and_then(|s| s.to_str()) {
+          backups.push(file_name.to_string());
+        }
+      }
+    }
+    backups.sort();
+    Ok(backups)
   }
 
   #[instrument(skip_all, err)]
@@ -258,7 +294,7 @@ impl CollabDBZipBackup {
       let path = entry.path();
       if path.is_file() && path.extension().and_then(|s| s.to_str()) == Some("zip") {
         if let Some(file_name) = path.file_stem().and_then(|s| s.to_str()) {
-          if let Some(timestamp_str) = file_name.strip_prefix("collab_db_") {
+          if let Some(timestamp_str) = file_name.split('_').last() {
             match latest_zip {
               Some((latest_timestamp, _)) if timestamp_str > latest_timestamp.as_str() => {
                 latest_zip = Some((timestamp_str.to_string(), path));
@@ -309,6 +345,7 @@ impl CollabDBZipBackup {
     // Remove backups older than 10 days
     let threshold_str = threshold_date.format(zip_time_format()).to_string();
 
+    info!("Current backup: {:?}", backups.len());
     // If there are more than 10 backups, remove the oldest ones
     while backups.len() > 10 {
       if let Some((date_str, path)) = backups.first() {
@@ -335,7 +372,7 @@ fn zip_time_format() -> &'static str {
 }
 
 pub(crate) fn validate_collab_db(
-  result: Result<Arc<RocksCollabDB>, PersistenceError>,
+  result: Result<Arc<CollabKVDB>, PersistenceError>,
   uid: i64,
   workspace_id: &str,
 ) -> bool {

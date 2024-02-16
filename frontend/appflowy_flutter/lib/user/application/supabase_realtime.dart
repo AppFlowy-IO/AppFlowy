@@ -16,14 +16,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 /// a reference to a Supabase instance and sets up the necessary subscriptions
 /// accordingly.
 class SupabaseRealtimeService {
-  final Supabase supabase;
-  final _authStateListener = UserAuthStateListener();
-
-  bool isLoggingOut = false;
-
-  RealtimeChannel? channel;
-  StreamSubscription<AuthState>? authStateSubscription;
-
   SupabaseRealtimeService({required this.supabase}) {
     _subscribeAuthState();
     _subscribeTablesChanges();
@@ -35,7 +27,7 @@ class SupabaseRealtimeService {
       },
       onInvalidAuth: (message) async {
         Log.error(message);
-        channel?.unsubscribe();
+        await channel?.unsubscribe();
         channel = null;
         if (!isLoggingOut) {
           isLoggingOut = true;
@@ -44,6 +36,14 @@ class SupabaseRealtimeService {
       },
     );
   }
+
+  final Supabase supabase;
+  final _authStateListener = UserAuthStateListener();
+
+  bool isLoggingOut = false;
+
+  RealtimeChannel? channel;
+  StreamSubscription<AuthState>? authStateSubscription;
 
   void _subscribeAuthState() {
     final auth = Supabase.instance.client.auth;
@@ -56,51 +56,43 @@ class SupabaseRealtimeService {
     final result = await UserBackendService.getCurrentUserProfile();
     result.fold((l) => null, (userProfile) {
       Log.info("Start listening supabase table changes");
+
       // https://supabase.com/docs/guides/realtime/postgres-changes
-      final List<ChannelFilter> filters = [
+
+      const ops = RealtimeChannelConfig(ack: true);
+      channel?.unsubscribe();
+      channel = supabase.client.channel("table-db-changes", opts: ops);
+      for (final name in [
         "document",
         "folder",
         "database",
         "database_row",
         "w_database",
-      ]
-          .map(
-            (name) => ChannelFilter(
-              event: 'INSERT',
-              schema: 'public',
-              table: "af_collab_update_$name",
-              filter: 'uid=eq.${userProfile.id}',
-            ),
-          )
-          .toList();
-
-      filters.add(
-        ChannelFilter(
-          event: 'UPDATE',
+      ]) {
+        channel?.onPostgresChanges(
+          event: PostgresChangeEvent.insert,
           schema: 'public',
-          table: "af_user",
-          filter: 'uid=eq.${userProfile.id}',
-        ),
-      );
-
-      const ops = RealtimeChannelConfig(ack: true);
-      channel?.unsubscribe();
-      channel = supabase.client.channel("table-db-changes", opts: ops);
-      for (final filter in filters) {
-        channel?.on(
-          RealtimeListenTypes.postgresChanges,
-          filter,
-          (payload, [ref]) {
-            try {
-              final jsonStr = jsonEncode(payload);
-              final pb = RealtimePayloadPB.create()..jsonStr = jsonStr;
-              UserEventPushRealtimeEvent(pb).send();
-            } catch (e) {
-              Log.error(e);
-            }
-          },
+          table: 'af_collab_update_$name',
+          filter: PostgresChangeFilter(
+            type: PostgresChangeFilterType.eq,
+            column: 'uid',
+            value: userProfile.id,
+          ),
+          callback: _onPostgresChangesCallback,
         );
       }
+
+      channel?.onPostgresChanges(
+        event: PostgresChangeEvent.update,
+        schema: 'public',
+        table: 'af_user',
+        filter: PostgresChangeFilter(
+          type: PostgresChangeFilterType.eq,
+          column: 'uid',
+          value: userProfile.id,
+        ),
+        callback: _onPostgresChangesCallback,
+      );
 
       channel?.subscribe(
         (status, [err]) {
@@ -116,5 +108,15 @@ class SupabaseRealtimeService {
     await _authStateListener.stop();
     await authStateSubscription?.cancel();
     await channel?.unsubscribe();
+  }
+
+  void _onPostgresChangesCallback(PostgresChangePayload payload) {
+    try {
+      final jsonStr = jsonEncode(payload);
+      final pb = RealtimePayloadPB.create()..jsonStr = jsonStr;
+      UserEventPushRealtimeEvent(pb).send();
+    } catch (e) {
+      Log.error(e);
+    }
   }
 }

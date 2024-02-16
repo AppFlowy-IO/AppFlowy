@@ -7,6 +7,7 @@ import 'package:appflowy_backend/appflowy_backend.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import 'deps_resolver.dart';
 import 'entry_point.dart';
@@ -21,9 +22,9 @@ abstract class EntryPoint {
 }
 
 class FlowyRunnerContext {
-  final Directory applicationDataDirectory;
-
   FlowyRunnerContext({required this.applicationDataDirectory});
+
+  final Directory applicationDataDirectory;
 }
 
 Future<void> runAppFlowy({bool isAnon = false}) async {
@@ -80,6 +81,10 @@ class FlowyRunner {
 
     final config = LaunchConfiguration(
       isAnon: isAnon,
+      // Unit test can't use the package_info_plus plugin
+      version: mode.isUnitTest
+          ? '1.0.0'
+          : await PackageInfo.fromPlatform().then((value) => value.version),
       rustEnvs: rustEnvsBuilder?.call() ?? {},
     );
 
@@ -103,7 +108,7 @@ class FlowyRunner {
         // there's a flag named _enable in memory_leak_detector.dart. If it's false, the task will be ignored.
         MemoryLeakDetectorTask(),
         const DebugTask(),
-        const DeviceInfoTask(),
+
         // localization
         const InitLocalizationTask(),
         // init the app window
@@ -116,6 +121,9 @@ class FlowyRunner {
         // init the app widget
         // ignore in test mode
         if (!mode.isUnitTest) ...[
+          // The DeviceOrApplicationInfoTask should be placed before the AppWidgetTask to fetch the app information.
+          // It is unable to get the device information from the test environment.
+          const DeviceOrApplicationInfoTask(),
           const HotKeyTask(),
           if (isSupabaseEnabled) InitSupabaseTask(),
           if (isAppFlowyCloudEnabled) InitAppFlowyCloudTask(),
@@ -165,10 +173,11 @@ Future<void> initGetIt(
 }
 
 class LaunchContext {
+  LaunchContext(this.getIt, this.env, this.config);
+
   GetIt getIt;
   IntegrationMode env;
   LaunchConfiguration config;
-  LaunchContext(this.getIt, this.env, this.config);
 }
 
 enum LaunchTaskType {

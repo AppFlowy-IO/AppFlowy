@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/setting/font/font_picker_screen.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
@@ -38,7 +40,9 @@ class FontSetting extends StatelessWidget {
         if (newFont != null && newFont != selectedFont) {
           if (context.mounted) {
             context.read<AppearanceSettingsCubit>().setFontFamily(newFont);
-            context.read<DocumentAppearanceCubit>().syncFontFamily(newFont);
+            unawaited(
+              context.read<DocumentAppearanceCubit>().syncFontFamily(newFont),
+            );
           }
         }
       },

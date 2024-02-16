@@ -21,13 +21,6 @@ import 'package:flutter/material.dart';
 import 'package:url_protocol/url_protocol.dart';
 
 class AppFlowyCloudDeepLink {
-  final _appLinks = AppLinks();
-  // The AppLinks is a singleton, so we need to cancel the previous subscription
-  // before creating a new one.
-  static StreamSubscription<Uri?>? _deeplinkSubscription;
-  ValueNotifier<DeepLinkResult?>? _stateNotifier = ValueNotifier(null);
-  Completer<Either<FlowyError, UserProfilePB>>? _completer;
-
   AppFlowyCloudDeepLink() {
     if (_deeplinkSubscription == null) {
       _deeplinkSubscription = _appLinks.uriLinkStream.listen(
@@ -49,6 +42,15 @@ class AppFlowyCloudDeepLink {
       _deeplinkSubscription?.resume();
     }
   }
+
+  final _appLinks = AppLinks();
+
+  ValueNotifier<DeepLinkResult?>? _stateNotifier = ValueNotifier(null);
+  Completer<Either<FlowyError, UserProfilePB>>? _completer;
+
+  // The AppLinks is a singleton, so we need to cancel the previous subscription
+  // before creating a new one.
+  static StreamSubscription<Uri?>? _deeplinkSubscription;
 
   Future<void> dispose() async {
     _deeplinkSubscription?.pause();
@@ -82,69 +84,69 @@ class AppFlowyCloudDeepLink {
     Uri? uri,
   ) async {
     _stateNotifier?.value = DeepLinkResult(state: DeepLinkState.none);
-    if (uri != null) {
-      _isAuthCallbackDeeplink(uri).fold(
-        (_) async {
-          final deviceId = await getDeviceId();
-          final payload = OauthSignInPB(
-            authenticator: AuthenticatorPB.AppFlowyCloud,
-            map: {
-              AuthServiceMapKeys.signInURL: uri.toString(),
-              AuthServiceMapKeys.deviceId: deviceId,
-            },
-          );
-          _stateNotifier?.value = DeepLinkResult(state: DeepLinkState.loading);
-          final result = await UserEventOauthSignIn(payload)
-              .send()
-              .then((value) => value.swap());
 
-          _stateNotifier?.value = DeepLinkResult(
-            state: DeepLinkState.finish,
-            result: result,
-          );
-          // If there is no completer, runAppFlowy() will be called.
-          if (_completer == null) {
-            result.fold(
-              (err) {
-                Log.error(err);
-                final context = AppGlobals.rootNavKey.currentState?.context;
-                if (context != null) {
-                  showSnackBarMessage(
-                    context,
-                    err.msg,
-                  );
-                }
-              },
-              (_) async {
-                await runAppFlowy();
-              },
-            );
-          } else {
-            _completer?.complete(result);
-            _completer = null;
-          }
-        },
-        (err) {
-          Log.error('onDeepLinkError: Unexpect deep link: $err');
-          if (_completer == null) {
-            final context = AppGlobals.rootNavKey.currentState?.context;
-            if (context != null) {
-              showSnackBarMessage(
-                context,
-                err.msg,
-              );
-            }
-          } else {
-            _completer?.complete(left(err));
-            _completer = null;
-          }
-        },
-      );
-    } else {
+    if (uri == null) {
       Log.error('onDeepLinkError: Unexpect empty deep link callback');
       _completer?.complete(left(AuthError.emptyDeeplink));
       _completer = null;
     }
+    return _isAuthCallbackDeeplink(uri!).fold(
+      (_) async {
+        final deviceId = await getDeviceId();
+        final payload = OauthSignInPB(
+          authenticator: AuthenticatorPB.AppFlowyCloud,
+          map: {
+            AuthServiceMapKeys.signInURL: uri.toString(),
+            AuthServiceMapKeys.deviceId: deviceId,
+          },
+        );
+        _stateNotifier?.value = DeepLinkResult(state: DeepLinkState.loading);
+        final result = await UserEventOauthSignIn(payload)
+            .send()
+            .then((value) => value.swap());
+
+        _stateNotifier?.value = DeepLinkResult(
+          state: DeepLinkState.finish,
+          result: result,
+        );
+        // If there is no completer, runAppFlowy() will be called.
+        if (_completer == null) {
+          await result.fold(
+            (err) {
+              Log.error(err);
+              final context = AppGlobals.rootNavKey.currentState?.context;
+              if (context != null) {
+                showSnackBarMessage(
+                  context,
+                  err.msg,
+                );
+              }
+            },
+            (_) async {
+              await runAppFlowy();
+            },
+          );
+        } else {
+          _completer?.complete(result);
+          _completer = null;
+        }
+      },
+      (err) {
+        Log.error('onDeepLinkError: Unexpect deep link: $err');
+        if (_completer == null) {
+          final context = AppGlobals.rootNavKey.currentState?.context;
+          if (context != null) {
+            showSnackBarMessage(
+              context,
+              err.msg,
+            );
+          }
+        } else {
+          _completer?.complete(left(err));
+          _completer = null;
+        }
+      },
+    );
   }
 
   Either<(), FlowyError> _isAuthCallbackDeeplink(Uri uri) {
@@ -192,10 +194,10 @@ class InitAppFlowyCloudTask extends LaunchTask {
 }
 
 class DeepLinkResult {
+  DeepLinkResult({required this.state, this.result});
+
   final DeepLinkState state;
   final Either<FlowyError, UserProfilePB>? result;
-
-  DeepLinkResult({required this.state, this.result});
 }
 
 enum DeepLinkState {

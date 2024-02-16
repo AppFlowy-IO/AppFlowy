@@ -4,27 +4,25 @@ on:
   push:
     branches:
       - "main"
-      - "develop"
       - "release/*"
     paths:
       - ".github/workflows/flutter_ci.yaml"
-      - "frontend/**"
-      - "!frontend/appflowy_tauri/**"
+      - "frontend/rust-lib/**"
+      - "frontend/appflowy_flutter/**"
 
   pull_request:
     branches:
       - "main"
-      - "develop"
       - "release/*"
     paths:
       - ".github/workflows/flutter_ci.yaml"
-      - "frontend/**"
-      - "!frontend/appflowy_tauri/**"
+      - "frontend/rust-lib/**"
+      - "frontend/appflowy_flutter/**"
 
 env:
   CARGO_TERM_COLOR: always
   FLUTTER_VERSION: "3.18.0-0.2.pre"
-  RUST_TOOLCHAIN: "1.70"
+  RUST_TOOLCHAIN: "1.75"
   CARGO_MAKE_VERSION: "0.36.6"
 
 concurrency:
@@ -241,20 +239,18 @@ jobs:
         working-directory: AppFlowy-Cloud
         run: |
           # log level
-          cp dev.env .env
+          cp deploy.env .env
           sed -i 's|RUST_LOG=.*|RUST_LOG=trace|' .env
-          sed -i 's/GOTRUE_SMTP_USER=.*/GOTRUE_SMTP_USER=${{ secrets.INTEGRATION_TEST_GOTRUE_SMTP_USER }}/' .env
-          sed -i 's/GOTRUE_SMTP_PASS=.*/GOTRUE_SMTP_PASS=${{ secrets.INTEGRATION_TEST_GOTRUE_SMTP_PASS }}/' .env
-          sed -i 's/GOTRUE_SMTP_ADMIN_EMAIL=.*/GOTRUE_SMTP_ADMIN_EMAIL=${{ secrets.INTEGRATION_TEST_GOTRUE_SMTP_ADMIN_EMAIL }}/' .env
           sed -i 's/GOTRUE_EXTERNAL_GOOGLE_ENABLED=.*/GOTRUE_EXTERNAL_GOOGLE_ENABLED=true/' .env
           sed -i 's|API_EXTERNAL_URL=.*|API_EXTERNAL_URL=http://localhost|' .env
-          cat .env
 
       - name: Run Docker-Compose
         working-directory: AppFlowy-Cloud
         run: |
-          #docker compose down -v --remove-orphans
+          docker compose down -v --remove-orphans
+          docker compose pull
           docker compose up -d
+          sleep 10
 
       - name: Checkout source code
         uses: actions/checkout@v2
@@ -303,6 +299,7 @@ jobs:
           export DISPLAY=:99
           sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
           sudo apt-get install network-manager
+          docker ps -a
           flutter test integration_test/cloud/cloud_runner.dart -d Linux --coverage
         shell: bash
 

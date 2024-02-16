@@ -4,24 +4,25 @@ use std::sync::{Arc, Weak};
 
 use collab::core::collab::{CollabDocState, MutexCollab};
 use collab_database::blocks::BlockEvent;
-use collab_database::database::{DatabaseData, MutexDatabase, YrsDocAction};
+use collab_database::database::{DatabaseData, MutexDatabase};
 use collab_database::error::DatabaseError;
 use collab_database::user::{
   CollabDocStateByOid, CollabFuture, DatabaseCollabService, WorkspaceDatabase,
 };
 use collab_database::views::{CreateDatabaseParams, CreateViewParams, DatabaseLayout};
 use collab_entity::CollabType;
+use collab_plugins::local_storage::kv::KVTransactionDB;
 use futures::executor::block_on;
 use lru::LruCache;
 use tokio::sync::{Mutex, RwLock};
 use tracing::{event, instrument, trace};
 
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
-use collab_integrate::{CollabPersistenceConfig, RocksCollabDB};
-use flowy_database_deps::cloud::DatabaseCloudService;
+use collab_integrate::{CollabKVAction, CollabKVDB, CollabPersistenceConfig};
+use flowy_database_pub::cloud::DatabaseCloudService;
 use flowy_error::{internal_error, FlowyError, FlowyResult};
-use flowy_task::TaskDispatcher;
 use lib_dispatch::prelude::af_spawn;
+use lib_infra::priority_task::TaskDispatcher;
 
 use crate::entities::{
   DatabaseDescriptionPB, DatabaseLayoutPB, DatabaseSnapshotPB, DidFetchRowPB,
@@ -35,8 +36,7 @@ use crate::services::share::csv::{CSVFormat, CSVImporter, ImportResult};
 
 pub trait DatabaseUser: Send + Sync {
   fn user_id(&self) -> Result<i64, FlowyError>;
-  fn token(&self) -> Result<Option<String>, FlowyError>;
-  fn collab_db(&self, uid: i64) -> Result<Weak<RocksCollabDB>, FlowyError>;
+  fn collab_db(&self, uid: i64) -> Result<Weak<CollabKVDB>, FlowyError>;
 }
 
 pub struct DatabaseManager {
@@ -66,7 +66,7 @@ impl DatabaseManager {
     }
   }
 
-  fn is_collab_exist(&self, uid: i64, collab_db: &Weak<RocksCollabDB>, object_id: &str) -> bool {
+  fn is_collab_exist(&self, uid: i64, collab_db: &Weak<CollabKVDB>, object_id: &str) -> bool {
     match collab_db.upgrade() {
       None => false,
       Some(collab_db) => {
@@ -76,16 +76,21 @@ impl DatabaseManager {
     }
   }
 
+  /// When initialize with new workspace, all the resources will be cleared.
   pub async fn initialize(
     &self,
     uid: i64,
     workspace_id: String,
-    database_views_aggregate_id: String,
+    workspace_database_object_id: String,
   ) -> FlowyResult<()> {
-    // Clear all existing tasks
+    // 1. Clear all existing tasks
     self.task_scheduler.write().await.clear_task();
-    // Release all existing editors
+    // 2. Release all existing editors
+    for (_, editor) in self.editors.lock().await.iter() {
+      editor.close().await;
+    }
     self.editors.lock().await.clear();
+    // 3. Clear the workspace database
     *self.workspace_database.write().await = None;
 
     let collab_db = self.user.collab_db(uid)?;
@@ -94,28 +99,28 @@ impl DatabaseManager {
       collab_builder: self.collab_builder.clone(),
       cloud_service: self.cloud_service.clone(),
     };
-    let config = CollabPersistenceConfig::new().snapshot_per_update(10);
-    let mut collab_raw_data = CollabDocState::default();
+    let config = CollabPersistenceConfig::new().snapshot_per_update(100);
 
+    let mut workspace_database_doc_state = CollabDocState::default();
     // If the workspace database not exist in disk, try to fetch from remote.
-    if !self.is_collab_exist(uid, &collab_db, &database_views_aggregate_id) {
+    if !self.is_collab_exist(uid, &collab_db, &workspace_database_object_id) {
       trace!("workspace database not exist, try to fetch from remote");
       match self
         .cloud_service
-        .get_collab_doc_state_db(
-          &database_views_aggregate_id,
+        .get_database_object_doc_state(
+          &workspace_database_object_id,
           CollabType::WorkspaceDatabase,
           &workspace_id,
         )
         .await
       {
-        Ok(updates) => {
-          collab_raw_data = updates;
+        Ok(remote_doc_state) => {
+          workspace_database_doc_state = remote_doc_state;
         },
         Err(err) => {
           return Err(FlowyError::record_not_found().with_context(format!(
             "get workspace database :{} failed: {}",
-            database_views_aggregate_id, err,
+            workspace_database_object_id, err,
           )));
         },
       }
@@ -125,20 +130,19 @@ impl DatabaseManager {
     event!(
       tracing::Level::INFO,
       "open aggregate database views object: {}",
-      &database_views_aggregate_id
+      &workspace_database_object_id
     );
     let collab = collab_builder.build_collab_with_config(
       uid,
-      &database_views_aggregate_id,
+      &workspace_database_object_id,
       CollabType::WorkspaceDatabase,
       collab_db.clone(),
-      collab_raw_data,
-      &config,
+      workspace_database_doc_state,
+      config.clone(),
     );
     let workspace_database =
       WorkspaceDatabase::open(uid, collab, collab_db, config, collab_builder);
     *self.workspace_database.write().await = Some(Arc::new(workspace_database));
-
     Ok(())
   }
 
@@ -152,10 +156,10 @@ impl DatabaseManager {
     &self,
     user_id: i64,
     workspace_id: String,
-    database_views_aggregate_id: String,
+    workspace_database_object_id: String,
   ) -> FlowyResult<()> {
     self
-      .initialize(user_id, workspace_id, database_views_aggregate_id)
+      .initialize(user_id, workspace_id, workspace_database_object_id)
       .await?;
     Ok(())
   }
@@ -234,7 +238,7 @@ impl DatabaseManager {
     if let Some(database_id) = database_id {
       let mut editors = self.editors.lock().await;
       if let Some(editor) = editors.get(&database_id) {
-        editor.close_view_editor(view_id).await;
+        editor.close_view(view_id).await;
       }
     }
 
@@ -350,7 +354,7 @@ impl DatabaseManager {
     let database_id = self.get_database_id_with_view_id(view_id).await?;
     let snapshots = self
       .cloud_service
-      .get_collab_snapshots(&database_id, limit)
+      .get_database_collab_object_snapshots(&database_id, limit)
       .await?
       .into_iter()
       .map(|snapshot| DatabaseSnapshotPB {
@@ -423,7 +427,7 @@ impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
         },
         Some(cloud_service) => {
           let updates = cloud_service
-            .get_collab_doc_state_db(&object_id, object_ty, &workspace_id)
+            .get_database_object_doc_state(&object_id, object_ty, &workspace_id)
             .await?;
           Ok(updates)
         },
@@ -446,7 +450,7 @@ impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
         },
         Some(cloud_service) => {
           let updates = cloud_service
-            .batch_get_collab_doc_state_db(object_ids, object_ty, &workspace_id)
+            .batch_get_database_object_doc_state(object_ids, object_ty, &workspace_id)
             .await?;
           Ok(updates)
         },
@@ -459,9 +463,9 @@ impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
     uid: i64,
     object_id: &str,
     object_type: CollabType,
-    collab_db: Weak<RocksCollabDB>,
+    collab_db: Weak<CollabKVDB>,
     collab_raw_data: CollabDocState,
-    config: &CollabPersistenceConfig,
+    persistence_config: CollabPersistenceConfig,
   ) -> Arc<MutexCollab> {
     block_on(self.collab_builder.build_with_config(
       uid,
@@ -469,7 +473,7 @@ impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
       object_type,
       collab_db,
       collab_raw_data,
-      config,
+      persistence_config,
       CollabBuilderConfig::default().sync_enable(true),
     ))
     .unwrap()

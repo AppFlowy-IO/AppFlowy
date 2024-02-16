@@ -14,8 +14,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SettingThirdPartyLogin extends StatelessWidget {
-  final VoidCallback didLogin;
   const SettingThirdPartyLogin({required this.didLogin, super.key});
+
+  final VoidCallback didLogin;
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +31,7 @@ class SettingThirdPartyLogin extends StatelessWidget {
         },
         builder: (_, state) {
           final indicator = state.isSubmitting
-              ? const CircularProgressIndicator.adaptive()
+              ? const LinearProgressIndicator(minHeight: 1)
               : const SizedBox.shrink();
 
           final promptMessage = state.isSubmitting
@@ -50,11 +51,12 @@ class SettingThirdPartyLogin extends StatelessWidget {
                     fontSize: 16,
                   ),
                   const HSpace(6),
-                  indicator,
                 ],
               ),
               const VSpace(6),
               promptMessage,
+              const VSpace(6),
+              indicator,
               const VSpace(6),
               if (isAuthEnabled) const ThirdPartySignInButtons(),
               const VSpace(6),

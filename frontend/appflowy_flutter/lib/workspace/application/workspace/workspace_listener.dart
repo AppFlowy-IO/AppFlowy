@@ -14,18 +14,16 @@ typedef AppListNotifyValue = Either<List<ViewPB>, FlowyError>;
 typedef WorkspaceNotifyValue = Either<WorkspacePB, FlowyError>;
 
 class WorkspaceListener {
+  WorkspaceListener({required this.user, required this.workspaceId});
+
+  final UserProfilePB user;
+  final String workspaceId;
+
   PublishNotifier<AppListNotifyValue>? _appsChangedNotifier = PublishNotifier();
   PublishNotifier<WorkspaceNotifyValue>? _workspaceUpdatedNotifier =
       PublishNotifier();
 
   FolderNotificationListener? _listener;
-  final UserProfilePB user;
-  final String workspaceId;
-
-  WorkspaceListener({
-    required this.user,
-    required this.workspaceId,
-  });
 
   void start({
     void Function(AppListNotifyValue)? appsChanged,

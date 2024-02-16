@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { NumberField, NumberTypeOption, updateTypeOption } from '$app/components/database/application';
+import { NumberField, NumberTypeOption, updateTypeOption } from '$app/application/database';
 import { Divider } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import NumberFormatSelect from '$app/components/database/components/field_types/number/NumberFormatSelect';

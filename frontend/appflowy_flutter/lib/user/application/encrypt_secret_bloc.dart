@@ -1,4 +1,4 @@
-import 'package:appflowy/plugins/database_view/application/defines.dart';
+import 'package:appflowy/plugins/database/application/defines.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -12,9 +12,14 @@ import 'auth/auth_service.dart';
 part 'encrypt_secret_bloc.freezed.dart';
 
 class EncryptSecretBloc extends Bloc<EncryptSecretEvent, EncryptSecretState> {
-  final UserProfilePB user;
   EncryptSecretBloc({required this.user})
       : super(EncryptSecretState.initial()) {
+    _dispatch();
+  }
+
+  final UserProfilePB user;
+
+  void _dispatch() {
     on<EncryptSecretEvent>((event, emit) async {
       await event.when(
         setEncryptSecret: (secret) async {
@@ -27,11 +32,10 @@ class EncryptSecretBloc extends Bloc<EncryptSecretEvent, EncryptSecretState> {
             ..encryptionSign = user.encryptionSign
             ..encryptionType = user.encryptionType
             ..userId = user.id;
-          UserEventSetEncryptionSecret(payload).send().then((result) {
-            if (!isClosed) {
-              add(EncryptSecretEvent.didFinishCheck(result));
-            }
-          });
+          final result = await UserEventSetEncryptionSecret(payload).send();
+          if (!isClosed) {
+            add(EncryptSecretEvent.didFinishCheck(result));
+          }
           emit(
             state.copyWith(
               loadingState: const LoadingState.loading(),
@@ -75,7 +79,11 @@ class EncryptSecretBloc extends Bloc<EncryptSecretEvent, EncryptSecretState> {
   bool isLoading() {
     final loadingState = state.loadingState;
     if (loadingState != null) {
-      return loadingState.when(loading: () => true, finish: (_) => false);
+      return loadingState.when(
+        loading: () => true,
+        finish: (_) => false,
+        idle: () => false,
+      );
     }
     return false;
   }

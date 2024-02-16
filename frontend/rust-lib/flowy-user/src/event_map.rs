@@ -4,23 +4,23 @@ use strum_macros::Display;
 
 use flowy_derive::{Flowy_Event, ProtoBuf_Enum};
 use flowy_error::FlowyResult;
-use flowy_user_deps::cloud::UserCloudConfig;
-use flowy_user_deps::entities::*;
+use flowy_user_pub::cloud::UserCloudConfig;
+use flowy_user_pub::entities::*;
 use lib_dispatch::prelude::*;
 use lib_infra::future::{to_fut, Fut};
 
 use crate::event_handler::*;
-use crate::manager::UserManager;
+use crate::user_manager::UserManager;
 
 #[rustfmt::skip]
-pub fn init(user_session: Weak<UserManager>) -> AFPlugin {
-  let store_preferences = user_session
+pub fn init(user_manager: Weak<UserManager>) -> AFPlugin {
+  let store_preferences = user_manager
     .upgrade()
     .map(|session| session.get_store_preferences())
     .unwrap();
   AFPlugin::new()
     .name("Flowy-User")
-    .state(user_session)
+    .state(user_manager)
     .state(store_preferences)
     .event(UserEvent::SignInWithEmailPassword, sign_in_with_email_password_handler)
     .event(UserEvent::SignUp, sign_up)
@@ -38,7 +38,6 @@ pub fn init(user_session: Weak<UserManager>) -> AFPlugin {
     .event(UserEvent::OauthSignIn, oauth_sign_in_handler)
     .event(UserEvent::GenerateSignInURL, gen_sign_in_url_handler)
     .event(UserEvent::GetOauthURLWithProvider, sign_in_with_provider_handler)
-    .event(UserEvent::GetAllWorkspace, get_all_workspace_handler)
     .event(UserEvent::OpenWorkspace, open_workspace_handler)
     .event(UserEvent::UpdateNetworkState, update_network_state_handler)
     .event(UserEvent::OpenAnonUser, open_anon_user_handler)
@@ -52,12 +51,17 @@ pub fn init(user_session: Weak<UserManager>) -> AFPlugin {
     .event(UserEvent::SetDateTimeSettings, set_date_time_settings)
     .event(UserEvent::GetDateTimeSettings, get_date_time_settings)
     .event(UserEvent::SetNotificationSettings, set_notification_settings)
-    .event(UserEvent::GetNotificationSettings, get_notification_settings) 
+    .event(UserEvent::GetNotificationSettings, get_notification_settings)
+    .event(UserEvent::ImportAppFlowyDataFolder, import_appflowy_data_folder_handler)
       // Workspace member
     .event(UserEvent::AddWorkspaceMember, add_workspace_member_handler)
     .event(UserEvent::RemoveWorkspaceMember, delete_workspace_member_handler)
     .event(UserEvent::GetWorkspaceMember, get_workspace_member_handler)
     .event(UserEvent::UpdateWorkspaceMember, update_workspace_member_handler)
+      // Workspace
+    .event(UserEvent::GetAllWorkspace, get_all_workspace_handler)
+    .event(UserEvent::CreateWorkspace, create_workspace_handler)
+    .event(UserEvent::DeleteWorkspace, delete_workspace_handler)
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
@@ -187,6 +191,15 @@ pub enum UserEvent {
 
   #[event(output = "QueryWorkspacePB")]
   GetWorkspaceMember = 40,
+
+  #[event(input = "ImportAppFlowyDataPB")]
+  ImportAppFlowyDataFolder = 41,
+
+  #[event(output = "CreateWorkspacePB")]
+  CreateWorkspace = 42,
+
+  #[event(input = "UserWorkspaceIdPB")]
+  DeleteWorkspace = 43,
 }
 
 pub trait UserStatusCallback: Send + Sync + 'static {

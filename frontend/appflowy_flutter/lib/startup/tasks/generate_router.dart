@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:appflowy/mobile/presentation/database/board/mobile_board_screen.dart';
 import 'package:appflowy/mobile/presentation/database/card/card.dart';
 import 'package:appflowy/mobile/presentation/database/date_picker/mobile_date_picker_screen.dart';
@@ -12,6 +14,7 @@ import 'package:appflowy/mobile/presentation/presentation.dart';
 import 'package:appflowy/mobile/presentation/setting/cloud/appflowy_cloud_page.dart';
 import 'package:appflowy/mobile/presentation/setting/font/font_picker_screen.dart';
 import 'package:appflowy/mobile/presentation/setting/language/language_picker_screen.dart';
+import 'package:appflowy/mobile/presentation/setting/launch_settings_page.dart';
 import 'package:appflowy/plugins/base/color/color_picker_screen.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_picker_screen.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/code_block/code_language_screen.dart';
@@ -47,9 +50,8 @@ GoRouter generateRouter(Widget child) {
       if (PlatformExtension.isMobile) ...[
         // settings
         _mobileHomeSettingPageRoute(),
-        _mobileSettingPrivacyPolicyPageRoute(),
-        _mobileSettingUserAgreementPageRoute(),
         _mobileCloudSettingAppFlowyCloudPageRoute(),
+        _mobileLaunchSettingsPageRoute(),
 
         // view page
         _mobileEditorScreenRoute(),
@@ -196,16 +198,6 @@ GoRoute _mobileHomeSettingPageRoute() {
   );
 }
 
-GoRoute _mobileSettingPrivacyPolicyPageRoute() {
-  return GoRoute(
-    parentNavigatorKey: AppGlobals.rootNavKey,
-    path: PrivacyPolicyPage.routeName,
-    pageBuilder: (context, state) {
-      return const MaterialPage(child: PrivacyPolicyPage());
-    },
-  );
-}
-
 GoRoute _mobileCloudSettingAppFlowyCloudPageRoute() {
   return GoRoute(
     parentNavigatorKey: AppGlobals.rootNavKey,
@@ -216,12 +208,12 @@ GoRoute _mobileCloudSettingAppFlowyCloudPageRoute() {
   );
 }
 
-GoRoute _mobileSettingUserAgreementPageRoute() {
+GoRoute _mobileLaunchSettingsPageRoute() {
   return GoRoute(
     parentNavigatorKey: AppGlobals.rootNavKey,
-    path: UserAgreementPage.routeName,
+    path: MobileLaunchSettingsPage.routeName,
     pageBuilder: (context, state) {
-      return const MaterialPage(child: UserAgreementPage());
+      return const MaterialPage(child: MobileLaunchSettingsPage());
     },
   );
 }
@@ -488,10 +480,13 @@ GoRoute _mobileGridScreenRoute() {
     pageBuilder: (context, state) {
       final id = state.uri.queryParameters[MobileGridScreen.viewId]!;
       final title = state.uri.queryParameters[MobileGridScreen.viewTitle];
+      final arguments = state.uri.queryParameters[MobileGridScreen.viewArgs];
+
       return MaterialPage(
         child: MobileGridScreen(
           id: id,
           title: title,
+          arguments: arguments != null ? jsonDecode(arguments) : null,
         ),
       );
     },
@@ -606,5 +601,5 @@ Widget _buildFadeTransition(
     FadeTransition(opacity: animation, child: child);
 
 Duration _slowDuration = Duration(
-  milliseconds: (RouteDurations.slow.inMilliseconds).round(),
+  milliseconds: RouteDurations.slow.inMilliseconds.round(),
 );

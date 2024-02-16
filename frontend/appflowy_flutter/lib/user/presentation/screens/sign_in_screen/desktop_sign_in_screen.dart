@@ -58,7 +58,6 @@ class DesktopSignInScreen extends StatelessWidget {
             const VSpace(indicatorMinHeight),
             isLoading
                 ? const LinearProgressIndicator(
-                    value: null,
                     minHeight: indicatorMinHeight,
                   )
                 : const VSpace(indicatorMinHeight),

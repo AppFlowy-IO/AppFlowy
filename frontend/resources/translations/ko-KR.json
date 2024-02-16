@@ -224,12 +224,12 @@
       "themeUpload": {
         "button": "업로드",
         "description": "아래 버튼을 사용하여 나만의 AppFlowy 테마를 업로드하세요.",
-        "failure": "업로드된 테마의 형식이 잘못되었습니다.",
         "loading": "테마를 확인하고 업로드하는 동안 잠시 기다려 주십시오...",
         "uploadSuccess": "테마가 성공적으로 업로드되었습니다.",
         "deletionFailure": "테마를 삭제하지 못했습니다. 수동으로 삭제해 보십시오.",
         "filePickerDialogTitle": ".flowy_plugin 파일 선택",
-        "urlUploadFailure": "URL을 열지 못했습니다: {}"
+        "urlUploadFailure": "URL을 열지 못했습니다: {}",
+        "failure": "업로드된 테마의 형식이 잘못되었습니다."
       },
       "theme": "주제",
       "builtInsLabel": "내장 테마",

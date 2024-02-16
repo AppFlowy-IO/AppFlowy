@@ -1,6 +1,6 @@
 /**
 * Do not edit directly
-* Generated on Wed, 12 Jul 2023 07:09:42 GMT
+* Generated on Mon, 29 Jan 2024 03:52:24 GMT
 * Generated from $pnpm css:variables 
 */
 
@@ -66,6 +66,6 @@ module.exports = {
     "pink": "var(--tint-pink)",
     "lime": "var(--tint-lime)",
     "aqua": "var(--tint-aqua)",
-    "orange": "var(--tint-orange)",
+    "orange": "var(--tint-orange)"
   }
 }

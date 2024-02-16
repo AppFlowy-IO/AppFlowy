@@ -257,7 +257,7 @@
       "label": "AF: Tauri UI Dev",
       "type": "shell",
       "isBackground": true,
-      "command": "pnpm sync:i18n && pnpm run dev",
+      "command": "pnpm run tauri:dev",
       "options": {
         "cwd": "${workspaceFolder}/appflowy_tauri"
       }
@@ -297,6 +297,6 @@
       "options": {
         "cwd": "${workspaceFolder}/appflowy_flutter"
       }
-    },
+    }
   ]
 }

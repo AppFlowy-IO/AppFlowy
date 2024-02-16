@@ -1,13 +1,10 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/database_view/application/cell/cell_service.dart';
-import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
-import 'package:appflowy/plugins/database_view/grid/application/row/row_detail_bloc.dart';
-import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_extension.dart';
-import 'package:appflowy/plugins/database_view/widgets/row/cell_builder.dart';
-import 'package:appflowy/plugins/database_view/widgets/row/cells/cells.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
-import 'package:easy_localization/easy_localization.dart';
+import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
+import 'package:appflowy/plugins/database/application/database_controller.dart';
+import 'package:appflowy/plugins/database/application/field/field_controller.dart';
+import 'package:appflowy/plugins/database/grid/application/row/row_detail_bloc.dart';
+import 'package:appflowy/plugins/database/widgets/cell/editable_cell_builder.dart';
+import 'package:appflowy/util/field_type_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -15,22 +12,19 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class MobileRowPropertyList extends StatelessWidget {
   const MobileRowPropertyList({
     super.key,
-    required this.viewId,
-    required this.fieldController,
+    required this.databaseController,
     required this.cellBuilder,
   });
 
-  final String viewId;
-  final FieldController fieldController;
-  final MobileRowDetailPageCellBuilder cellBuilder;
+  final DatabaseController databaseController;
+  final EditableCellBuilder cellBuilder;
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<RowDetailBloc, RowDetailState>(
       builder: (context, state) {
-        final List<DatabaseCellContext> visibleCells = state.visibleCells
-            .where((element) => !element.fieldInfo.field.isPrimary)
-            .toList();
+        final List<CellContext> visibleCells =
+            state.visibleCells.where((cell) => !_isCellPrimary(cell)).toList();
 
         return ListView.separated(
           shrinkWrap: true,
@@ -40,7 +34,7 @@ class MobileRowPropertyList extends StatelessWidget {
           itemBuilder: (context, index) => _PropertyCell(
             key: ValueKey('row_detail_${visibleCells[index].fieldId}'),
             cellContext: visibleCells[index],
-            fieldController: fieldController,
+            fieldController: databaseController.fieldController,
             cellBuilder: cellBuilder,
           ),
           separatorBuilder: (_, __) => const VSpace(22),
@@ -48,6 +42,9 @@ class MobileRowPropertyList extends StatelessWidget {
       },
     );
   }
+
+  bool _isCellPrimary(CellContext cell) =>
+      databaseController.fieldController.getField(cell.fieldId)!.isPrimary;
 }
 
 class _PropertyCell extends StatefulWidget {
@@ -58,9 +55,9 @@ class _PropertyCell extends StatefulWidget {
     required this.cellBuilder,
   });
 
-  final DatabaseCellContext cellContext;
+  final CellContext cellContext;
   final FieldController fieldController;
-  final MobileRowDetailPageCellBuilder cellBuilder;
+  final EditableCellBuilder cellBuilder;
 
   @override
   State<StatefulWidget> createState() => _PropertyCellState();
@@ -69,8 +66,10 @@ class _PropertyCell extends StatefulWidget {
 class _PropertyCellState extends State<_PropertyCell> {
   @override
   Widget build(BuildContext context) {
-    final style = _customCellStyle(widget.cellContext.fieldType);
-    final cell = widget.cellBuilder.build(widget.cellContext, style: style);
+    final fieldInfo =
+        widget.fieldController.getField(widget.cellContext.fieldId)!;
+    final cell = widget.cellBuilder
+        .buildStyled(widget.cellContext, EditableCellStyle.mobileRowDetail);
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -78,13 +77,14 @@ class _PropertyCellState extends State<_PropertyCell> {
         Row(
           children: [
             FlowySvg(
-              widget.cellContext.fieldInfo.field.fieldType.icon(),
+              fieldInfo.fieldType.svgData,
               color: Theme.of(context).hintColor,
+              size: const Size.square(16),
             ),
             const HSpace(6),
             Expanded(
               child: FlowyText.regular(
-                widget.cellContext.fieldInfo.field.name,
+                fieldInfo.name,
                 overflow: TextOverflow.ellipsis,
                 fontSize: 14,
                 color: Theme.of(context).hintColor,
@@ -97,61 +97,4 @@ class _PropertyCellState extends State<_PropertyCell> {
       ],
     );
   }
-}
-
-GridCellStyle? _customCellStyle(FieldType fieldType) {
-  switch (fieldType) {
-    case FieldType.Checkbox:
-      return GridCheckboxCellStyle(
-        cellPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-      );
-    case FieldType.DateTime:
-      return DateCellStyle(
-        placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
-        alignment: Alignment.centerLeft,
-        cellPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 13),
-        useRoundedBorder: true,
-      );
-    case FieldType.LastEditedTime:
-    case FieldType.CreatedTime:
-      return TimestampCellStyle(
-        placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
-        alignment: Alignment.centerLeft,
-        cellPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 13),
-        useRoundedBorder: true,
-      );
-    case FieldType.MultiSelect:
-      return SelectOptionCellStyle(
-        placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
-        cellPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 13),
-        useRoundedBorder: true,
-      );
-    case FieldType.Checklist:
-      return ChecklistCellStyle(
-        placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
-        cellPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 13),
-        useRoundedBorders: true,
-      );
-    case FieldType.Number:
-      return GridNumberCellStyle(
-        placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
-      );
-    case FieldType.RichText:
-      return GridTextCellStyle(
-        placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
-        useRoundedBorder: true,
-      );
-    case FieldType.SingleSelect:
-      return SelectOptionCellStyle(
-        placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
-        cellPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 13),
-        useRoundedBorder: true,
-      );
-    case FieldType.URL:
-      return GridURLCellStyle(
-        placeholder: LocaleKeys.grid_row_textPlaceholder.tr(),
-        accessoryTypes: [],
-      );
-  }
-  throw UnimplementedError;
 }

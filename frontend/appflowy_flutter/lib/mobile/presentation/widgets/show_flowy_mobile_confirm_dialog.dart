@@ -6,8 +6,8 @@ import 'package:flutter/material.dart';
 ///[onActionButtonPressed] and [onCancelButtonPressed] end with close the dialog
 Future<T?> showFlowyMobileConfirmDialog<T>(
   BuildContext context, {
-  String? title,
-  String? content,
+  Widget? title,
+  Widget? content,
   required String actionButtonTitle,
   Color? actionButtonColor,
   String? cancelButtonTitle,
@@ -18,13 +18,9 @@ Future<T?> showFlowyMobileConfirmDialog<T>(
     context: context,
     builder: (dialogContext) {
       final foregroundColor = Theme.of(context).colorScheme.onSurface;
-      return AlertDialog(
-        title: Text(
-          title ?? "",
-        ),
-        content: Text(
-          content ?? "",
-        ),
+      return AlertDialog.adaptive(
+        title: title,
+        content: content,
         actions: [
           TextButton(
             child: Text(
@@ -36,9 +32,7 @@ Future<T?> showFlowyMobileConfirmDialog<T>(
             onPressed: () {
               onActionButtonPressed?.call();
               // we cannot use dialogContext.pop() here because this is no GoRouter in dialogContext. Use Navigator instead to close the dialog.
-              Navigator.of(
-                dialogContext,
-              ).pop();
+              Navigator.of(dialogContext).pop();
             },
           ),
           TextButton(
@@ -50,9 +44,7 @@ Future<T?> showFlowyMobileConfirmDialog<T>(
             ),
             onPressed: () {
               onCancelButtonPressed?.call();
-              Navigator.of(
-                dialogContext,
-              ).pop();
+              Navigator.of(dialogContext).pop();
             },
           ),
         ],

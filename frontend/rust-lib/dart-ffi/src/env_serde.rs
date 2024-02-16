@@ -2,14 +2,15 @@ use std::collections::HashMap;
 
 use serde::Deserialize;
 
-use flowy_server_config::af_cloud_config::AFCloudConfiguration;
-use flowy_server_config::supabase_config::SupabaseConfiguration;
-use flowy_server_config::AuthenticatorType;
+use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
+use flowy_server_pub::supabase_config::SupabaseConfiguration;
+use flowy_server_pub::AuthenticatorType;
 
 #[derive(Deserialize, Debug)]
 pub struct AppFlowyDartConfiguration {
   /// The root path of the application
   pub root: String,
+  pub app_version: String,
   /// This path will be used to store the user data
   pub custom_app_path: String,
   pub origin_app_path: String,
@@ -28,15 +29,8 @@ impl AppFlowyDartConfiguration {
 
   pub fn write_env(&self) {
     self.authenticator_type.write_env();
-    match self.authenticator_type {
-      AuthenticatorType::AppFlowyCloud => {
-        self.appflowy_cloud_config.write_env();
-      },
-      AuthenticatorType::Supabase => {
-        self.supabase_config.write_env();
-      },
-      _ => {},
-    }
+    self.appflowy_cloud_config.write_env();
+    self.supabase_config.write_env();
 
     for (k, v) in self.envs.iter() {
       std::env::set_var(k, v);

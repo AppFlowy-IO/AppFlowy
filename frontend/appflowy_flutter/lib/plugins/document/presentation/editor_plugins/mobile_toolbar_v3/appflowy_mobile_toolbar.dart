@@ -201,6 +201,9 @@ class _MobileToolbarState extends State<_MobileToolbar>
     if (currentSelection != widget.editorState.selection) {
       currentSelection = widget.editorState.selection;
       closeItemMenu();
+      if (currentSelection != null) {
+        _showKeyboard();
+      }
     }
   }
 
@@ -289,7 +292,6 @@ class _MobileToolbarState extends State<_MobileToolbar>
             color: Color(0x0F181818),
             blurRadius: 40,
             offset: Offset(0, -4),
-            spreadRadius: 0,
           ),
         ],
       ),
@@ -476,7 +478,6 @@ class _ToolbarItemListViewState extends State<_ToolbarItemListView> {
   void dispose() {
     widget.editorState.selectionNotifier
         .removeListener(_debounceUpdatePilotPosition);
-
     super.dispose();
   }
 

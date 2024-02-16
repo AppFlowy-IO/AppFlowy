@@ -59,6 +59,7 @@ final CommandShortcutEvent insertNewParagraphNextToCodeBlockCommand =
     CommandShortcutEvent(
   key: 'insert a new paragraph next to the code block',
   command: 'shift+enter',
+  getDescription: () => 'Insert a new paragraph next to the code block',
   handler: _insertNewParagraphNextToCodeBlockCommandHandler,
 );
 
@@ -71,6 +72,7 @@ final CommandShortcutEvent tabToInsertSpacesInCodeBlockCommand =
     CommandShortcutEvent(
   key: 'tab to insert two spaces at the line start in code block',
   command: 'tab',
+  getDescription: () => 'Insert two spaces at the line start in code block',
   handler: _tabToInsertSpacesInCodeBlockCommandHandler,
 );
 
@@ -83,6 +85,7 @@ final CommandShortcutEvent tabToDeleteSpacesInCodeBlockCommand =
     CommandShortcutEvent(
   key: 'shift + tab to delete two spaces at the line start in code block',
   command: 'shift+tab',
+  getDescription: () => 'Delete two spaces at the line start in code block',
   handler: _tabToDeleteSpacesInCodeBlockCommandHandler,
 );
 
@@ -95,6 +98,7 @@ final CommandShortcutEvent selectAllInCodeBlockCommand = CommandShortcutEvent(
   key: 'ctrl + a to select all content inside a code block',
   command: 'ctrl+a',
   macOSCommand: 'meta+a',
+  getDescription: () => 'Select all content inside a code block',
   handler: _selectAllInCodeBlockCommandHandler,
 );
 
@@ -107,6 +111,7 @@ final CommandShortcutEvent pasteInCodeblock = CommandShortcutEvent(
   key: 'paste in codeblock',
   command: 'ctrl+v',
   macOSCommand: 'cmd+v',
+  getDescription: () => 'Paste text in codeblock',
   handler: _pasteInCodeBlock,
 );
 
@@ -175,7 +180,7 @@ CommandShortcutEventHandler _insertNewParagraphNextToCodeBlockCommandHandler =
       ),
     )
     ..afterSelection = Selection.collapsed(
-      Position(path: selection.end.path.next, offset: 0),
+      Position(path: selection.end.path.next),
     );
   editorState.apply(transaction);
   return KeyEventResult.handled;

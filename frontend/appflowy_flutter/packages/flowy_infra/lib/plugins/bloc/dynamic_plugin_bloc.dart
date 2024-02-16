@@ -3,6 +3,7 @@ import 'package:flowy_infra/plugins/service/models/exceptions.dart';
 import 'package:flowy_infra/plugins/service/plugin_service.dart';
 
 import '../../file_picker/file_picker_impl.dart';
+
 import 'dynamic_plugin_event.dart';
 import 'dynamic_plugin_state.dart';
 
@@ -37,8 +38,9 @@ class DynamicPluginBloc extends Bloc<DynamicPluginEvent, DynamicPluginState> {
         return;
       }
       await FlowyPluginService.instance.addPlugin(plugin);
-    } on PluginCompilationException {
-      return emit(const DynamicPluginState.compilationFailure());
+    } on PluginCompilationException catch (exception) {
+      return emit(DynamicPluginState.compilationFailure(
+          errorMessage: exception.message));
     }
 
     emit(const DynamicPluginState.compilationSuccess());

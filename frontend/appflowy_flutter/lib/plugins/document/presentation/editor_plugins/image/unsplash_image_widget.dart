@@ -57,7 +57,6 @@ class _UnsplashImageWidgetState extends State<UnsplashImageWidget> {
           children: [
             Expanded(
               child: FlowyTextField(
-                autoFocus: true,
                 hintText: LocaleKeys.document_imageBlock_searchForAnImage.tr(),
                 onChanged: (value) => query = value,
                 onEditingComplete: _search,

@@ -18,9 +18,10 @@ Future<void> showTextColorAndBackgroundColorPicker(
   await showMobileBottomSheet(
     context,
     showHeader: true,
-    showCloseButton: true,
-    showDivider: false,
+    showCloseButton: false,
+    showDivider: true,
     showDragHandle: true,
+    showDoneButton: true,
     barrierColor: Colors.transparent,
     backgroundColor: theme.toolbarMenuBackgroundColor,
     elevation: 20,
@@ -211,6 +212,7 @@ class _BackgroundColorItem extends StatelessWidget {
           color: color,
           borderRadius: Corners.s12Border,
           border: Border.all(
+            width: isSelected ? 2.0 : 1.0,
             color: isSelected
                 ? theme.toolbarMenuItemSelectedBackgroundColor
                 : Theme.of(context).dividerColor,
@@ -219,7 +221,7 @@ class _BackgroundColorItem extends StatelessWidget {
         alignment: Alignment.center,
         child: isSelected
             ? const FlowySvg(
-                FlowySvgs.blue_check_s,
+                FlowySvgs.m_blue_check_s,
                 size: Size.square(28.0),
                 blendMode: null,
               )
@@ -290,6 +292,7 @@ class _TextColorItem extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: Corners.s12Border,
           border: Border.all(
+            width: isSelected ? 2.0 : 1.0,
             color: isSelected
                 ? const Color(0xff00C6F1)
                 : Theme.of(context).dividerColor,

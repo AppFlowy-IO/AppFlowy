@@ -7,25 +7,48 @@ import 'package:flutter/material.dart';
 Future<T?> showMobileBottomSheet<T>(
   BuildContext context, {
   required WidgetBuilder builder,
-  ShapeBorder? shape,
+  bool useSafeArea = true,
   bool isDragEnabled = true,
-  bool resizeToAvoidBottomInset = true,
-  EdgeInsets padding = const EdgeInsets.fromLTRB(16, 16, 16, 32),
   bool showDragHandle = false,
   bool showHeader = false,
+  // this field is only used if showHeader is true
+  bool showBackButton = false,
   bool showCloseButton = false,
-  String title = '', // only works if showHeader is true
-  Color? backgroundColor,
+  // this field is only used if showHeader is true
+  String title = '',
+  bool resizeToAvoidBottomInset = true,
   bool isScrollControlled = true,
-  BoxConstraints? constraints,
   bool showDivider = true,
+  bool useRootNavigator = false,
+  ShapeBorder? shape,
+  // the padding of the content, the padding of the header area is fixed
+  EdgeInsets padding = EdgeInsets.zero,
+  Color? backgroundColor,
+  BoxConstraints? constraints,
   Color? barrierColor,
   double? elevation,
+  bool showDoneButton = false,
+  bool enableDraggableScrollable = false,
+  // only used when enableDraggableScrollable is true
+  double minChildSize = 0.5,
+  double maxChildSize = 0.8,
+  double initialChildSize = 0.51,
 }) async {
-  assert(() {
-    if (showCloseButton || title.isNotEmpty) assert(showHeader);
-    return true;
-  }());
+  assert(
+    showHeader ||
+        title.isEmpty && !showCloseButton && !showBackButton && !showDoneButton,
+  );
+  assert(!(showCloseButton && showBackButton));
+
+  shape ??= const RoundedRectangleBorder(
+    borderRadius: BorderRadius.vertical(
+      top: Corners.s12Radius,
+    ),
+  );
+
+  backgroundColor ??= Theme.of(context).brightness == Brightness.light
+      ? const Color(0xFFF7F8FB)
+      : const Color(0xFF626364);
 
   return showModalBottomSheet<T>(
     context: context,
@@ -33,81 +56,164 @@ Future<T?> showMobileBottomSheet<T>(
     enableDrag: isDragEnabled,
     useSafeArea: true,
     clipBehavior: Clip.antiAlias,
-    backgroundColor: backgroundColor,
     constraints: constraints,
     barrierColor: barrierColor,
     elevation: elevation,
-    shape: shape ??
-        const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(
-            top: Corners.s12Radius,
-          ),
-        ),
+    backgroundColor: backgroundColor,
+    shape: shape,
+    useRootNavigator: useRootNavigator,
     builder: (context) {
       final List<Widget> children = [];
 
+      final Widget child = builder(context);
+
+      // if the children is only one, we don't need to wrap it with a column
+      if (!showDragHandle &&
+          !showHeader &&
+          !showDivider &&
+          !resizeToAvoidBottomInset) {
+        return child;
+      }
+
+      // ----- header area -----
       if (showDragHandle) {
-        children.addAll([
+        children.add(
           const DragHandler(),
-        ]);
+        );
       }
 
       if (showHeader) {
-        children.addAll([
-          VSpace(padding.top),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              showCloseButton
-                  ? Padding(
-                      padding: EdgeInsets.only(left: padding.left),
-                      child: const AppBarCloseButton(
-                        margin: EdgeInsets.zero,
-                      ),
-                    )
-                  : const SizedBox.shrink(),
-              FlowyText(
-                title,
-                fontSize: 16.0,
-                fontWeight: FontWeight.w500,
-              ),
-              showCloseButton
-                  ? HSpace(padding.right + 24)
-                  : const SizedBox.shrink(),
-            ],
+        children.add(
+          _Header(
+            showCloseButton: showCloseButton,
+            showBackButton: showBackButton,
+            showDoneButton: showDoneButton,
+            title: title,
           ),
-          const VSpace(4),
-          if (showDivider) const Divider(),
-        ]);
+        );
+
+        if (showDivider) {
+          children.add(
+            const Divider(height: 0.5, thickness: 0.5),
+          );
+        }
       }
 
-      final child = builder(context);
+      // ----- header area -----
 
+      if (enableDraggableScrollable) {
+        return DraggableScrollableSheet(
+          expand: false,
+          snap: true,
+          initialChildSize: initialChildSize,
+          minChildSize: minChildSize,
+          maxChildSize: maxChildSize,
+          builder: (context, scrollController) {
+            return Column(
+              children: [
+                ...children,
+                Expanded(
+                  child: SingleChildScrollView(
+                    controller: scrollController,
+                    child: child,
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      }
+
+      // ----- content area -----
       if (resizeToAvoidBottomInset) {
         children.add(
-          AnimatedPadding(
+          Padding(
             padding: EdgeInsets.only(
-              top: showHeader ? 0 : padding.top,
+              top: padding.top,
               left: padding.left,
               right: padding.right,
               bottom: padding.bottom + MediaQuery.of(context).viewInsets.bottom,
             ),
-            duration: Duration.zero,
             child: child,
           ),
         );
       } else {
         children.add(child);
       }
+      // ----- content area -----
 
       if (children.length == 1) {
         return children.first;
       }
 
-      return Column(
-        mainAxisSize: MainAxisSize.min,
-        children: children,
+      // add default padding
+      children.add(
+        VSpace(MediaQuery.of(context).padding.bottom == 0 ? 28.0 : 16.0),
       );
+
+      return useSafeArea
+          ? SafeArea(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: children,
+              ),
+            )
+          : Column(
+              mainAxisSize: MainAxisSize.min,
+              children: children,
+            );
     },
   );
+}
+
+class _Header extends StatelessWidget {
+  const _Header({
+    required this.showBackButton,
+    required this.showCloseButton,
+    required this.title,
+    required this.showDoneButton,
+  });
+
+  final bool showBackButton;
+  final bool showCloseButton;
+  final String title;
+  final bool showDoneButton;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4.0),
+      child: SizedBox(
+        height: 44.0, // the height of the header area is fixed
+        child: Stack(
+          children: [
+            if (showBackButton)
+              const Align(
+                alignment: Alignment.centerLeft,
+                child: AppBarBackButton(),
+              ),
+            if (showCloseButton)
+              const Align(
+                alignment: Alignment.centerLeft,
+                child: AppBarCloseButton(),
+              ),
+            Align(
+              child: FlowyText(
+                title,
+                fontSize: 16.0,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            if (showDoneButton)
+              Align(
+                alignment: Alignment.centerRight,
+                child: AppBarDoneButton(
+                  onTap: () => Navigator.pop(context),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
 }

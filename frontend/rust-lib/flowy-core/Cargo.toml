@@ -9,21 +9,20 @@ edition = "2018"
 lib-dispatch = { workspace = true }
 lib-log = { workspace = true }
 flowy-user = { workspace = true }
-flowy-user-deps = { workspace = true }
+flowy-user-pub = { workspace = true }
 flowy-folder = { workspace = true }
-flowy-folder-deps = { workspace = true }
+flowy-folder-pub = { workspace = true }
 flowy-database2 = { workspace = true }
-flowy-database-deps = { workspace = true }
+flowy-database-pub = { workspace = true }
 flowy-sqlite = { workspace = true }
 flowy-document = { workspace = true }
-flowy-document-deps = { workspace = true }
+flowy-document-pub = { workspace = true }
 flowy-error = { workspace = true }
-flowy-task = { workspace = true }
-flowy-server = { workspace = true }
-flowy-server-config = { workspace = true }
+flowy-server = { workspace = true, features = ["enable_supabase"] }
+flowy-server-pub = { workspace = true }
 flowy-config = { workspace = true }
 flowy-date = { workspace = true }
-collab-integrate = { workspace = true, features = ["supabase_integrate", "appflowy_cloud_integrate", "snapshot_plugin"] }
+collab-integrate = { workspace = true }
 collab-entity = { version = "0.1.0" }
 collab-plugins = { version = "0.1.0" }
 collab = { version = "0.1.0" }
@@ -56,21 +55,14 @@ http_sync = []
 native_sync = []
 use_bunyan = ["lib-log/use_bunyan"]
 dart = [
-    "flowy-user/dart",
-    "flowy-date/dart",
     "flowy-folder/dart",
     "flowy-database2/dart",
-    "flowy-document/dart",
-    "flowy-config/dart",
 ]
 ts = [
-    "flowy-user/ts",
-    "flowy-date/ts",
-    "flowy-folder/ts",
+    "flowy-user/tauri_ts",
+    "flowy-folder/tauri_ts",
     "flowy-database2/ts",
-    "flowy-document/ts",
-    "flowy-config/ts",
+    "flowy-config/tauri_ts",
 ]
 rev-sqlite = ["flowy-user/rev-sqlite"]
 openssl_vendored = ["flowy-sqlite/openssl_vendored"]
-single_thread = ["lib-dispatch/single_thread"]

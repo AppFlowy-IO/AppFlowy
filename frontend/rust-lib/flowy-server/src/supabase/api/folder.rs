@@ -9,7 +9,7 @@ use serde_json::Value;
 use tokio::sync::oneshot::channel;
 use yrs::merge_updates_v1;
 
-use flowy_folder_deps::cloud::{
+use flowy_folder_pub::cloud::{
   gen_workspace_id, Folder, FolderCloudService, FolderCollabParams, FolderData, FolderSnapshot,
   Workspace, WorkspaceRecord,
 };
@@ -131,7 +131,7 @@ where
     })
   }
 
-  fn get_collab_doc_state_f(
+  fn get_folder_doc_state(
     &self,
     _workspace_id: &str,
     _uid: i64,
@@ -154,7 +154,7 @@ where
     FutureResult::new(async { rx.await? })
   }
 
-  fn batch_create_collab_object_f(
+  fn batch_create_folder_collab_objects(
     &self,
     _workspace_id: &str,
     _objects: Vec<FolderCollabParams>,

@@ -10,11 +10,11 @@ use flowy_server::af_cloud::AppFlowyCloudServer;
 use flowy_server::local_server::{LocalServer, LocalServerDB};
 use flowy_server::supabase::SupabaseServer;
 use flowy_server::{AppFlowyEncryption, AppFlowyServer, EncryptionImpl};
-use flowy_server_config::af_cloud_config::AFCloudConfiguration;
-use flowy_server_config::supabase_config::SupabaseConfiguration;
-use flowy_server_config::AuthenticatorType;
+use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
+use flowy_server_pub::supabase_config::SupabaseConfiguration;
+use flowy_server_pub::AuthenticatorType;
 use flowy_sqlite::kv::StorePreferences;
-use flowy_user_deps::entities::*;
+use flowy_user_pub::entities::*;
 
 use crate::AppFlowyCoreConfig;
 
@@ -33,6 +33,12 @@ pub enum Server {
   Supabase = 2,
 }
 
+impl Server {
+  pub fn is_local(&self) -> bool {
+    matches!(self, Server::Local)
+  }
+}
+
 impl Display for Server {
   fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
     match self {
@@ -49,7 +55,6 @@ impl Display for Server {
 /// Each server implements the [AppFlowyServer] trait, which provides the [UserCloudService], etc.
 pub struct ServerProvider {
   config: AppFlowyCoreConfig,
-  server: RwLock<Server>,
   providers: RwLock<HashMap<Server, Arc<dyn AppFlowyServer>>>,
   pub(crate) encryption: RwLock<Arc<dyn AppFlowyEncryption>>,
   #[allow(dead_code)]
@@ -57,7 +62,7 @@ pub struct ServerProvider {
   pub(crate) user_enable_sync: RwLock<bool>,
 
   /// The authenticator type of the user.
-  pub(crate) user_authenticator: RwLock<Authenticator>,
+  authenticator: RwLock<Authenticator>,
   pub(crate) uid: Arc<RwLock<Option<i64>>>,
 }
 
@@ -70,10 +75,9 @@ impl ServerProvider {
     let encryption = EncryptionImpl::new(None);
     Self {
       config,
-      server: RwLock::new(server),
       providers: RwLock::new(HashMap::new()),
       user_enable_sync: RwLock::new(true),
-      user_authenticator: RwLock::new(Authenticator::Local),
+      authenticator: RwLock::new(Authenticator::from(server)),
       encryption: RwLock::new(Arc::new(encryption)),
       store_preferences,
       uid: Default::default(),
@@ -81,30 +85,32 @@ impl ServerProvider {
   }
 
   pub fn get_server_type(&self) -> Server {
-    self.server.read().clone()
+    match &*self.authenticator.read() {
+      Authenticator::Local => Server::Local,
+      Authenticator::AppFlowyCloud => Server::AppFlowyCloud,
+      Authenticator::Supabase => Server::Supabase,
+    }
   }
 
-  pub fn set_server_type(&self, server_type: Server) {
-    let old_server_type = self.server.read().clone();
-    if server_type != old_server_type {
+  pub fn set_authenticator(&self, authenticator: Authenticator) {
+    let old_server_type = self.get_server_type();
+    *self.authenticator.write() = authenticator;
+    let new_server_type = self.get_server_type();
+
+    if old_server_type != new_server_type {
       self.providers.write().remove(&old_server_type);
     }
-
-    *self.server.write() = server_type;
   }
 
-  pub fn get_user_authenticator(&self) -> Authenticator {
-    self.user_authenticator.read().clone()
-  }
-
-  pub fn get_appflowy_cloud_server(&self) -> FlowyResult<Arc<dyn AppFlowyServer>> {
-    let server = self.get_server(&Server::AppFlowyCloud)?;
-    Ok(server)
+  pub fn get_authenticator(&self) -> Authenticator {
+    self.authenticator.read().clone()
   }
 
   /// Returns a [AppFlowyServer] trait implementation base on the provider_type.
-  pub fn get_server(&self, server_type: &Server) -> FlowyResult<Arc<dyn AppFlowyServer>> {
-    if let Some(provider) = self.providers.read().get(server_type) {
+  pub fn get_server(&self) -> FlowyResult<Arc<dyn AppFlowyServer>> {
+    let server_type = self.get_server_type();
+
+    if let Some(provider) = self.providers.read().get(&server_type) {
       return Ok(provider.clone());
     }
 
@@ -122,6 +128,7 @@ impl ServerProvider {
           config,
           *self.user_enable_sync.read(),
           self.config.device_id.clone(),
+          &self.config.app_version,
         ));
 
         Ok::<Arc<dyn AppFlowyServer>, FlowyError>(server)

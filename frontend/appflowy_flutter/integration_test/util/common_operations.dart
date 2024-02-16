@@ -14,6 +14,9 @@ import 'package:appflowy/workspace/presentation/home/menu/view/draggable_view_it
 import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_add_button.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_more_action_button.dart';
+import 'package:appflowy/workspace/presentation/notifications/widgets/flowy_tab.dart';
+import 'package:appflowy/workspace/presentation/notifications/widgets/notification_button.dart';
+import 'package:appflowy/workspace/presentation/notifications/widgets/notification_tab_bar.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_language_view.dart';
 import 'package:appflowy/workspace/presentation/widgets/view_title_bar.dart';
 import 'package:appflowy_backend/log.dart';
@@ -394,7 +397,6 @@ extension CommonOperations on WidgetTester {
     await hoverOnPageName(
       name,
       layout: layout,
-      useLast: true,
       onHover: () async {
         await tapFavoritePageButton();
         await pumpAndSettle();
@@ -409,7 +411,6 @@ extension CommonOperations on WidgetTester {
     await hoverOnPageName(
       name,
       layout: layout,
-      useLast: true,
       onHover: () async {
         await tapUnfavoritePageButton();
         await pumpAndSettle();
@@ -492,6 +493,30 @@ extension CommonOperations on WidgetTester {
     await tapButton(find.byType(EmojiPickerButton));
     await tapEmoji(icon);
     await pumpAndSettle();
+  }
+
+  Future<void> openNotificationHub({
+    int tabIndex = 0,
+  }) async {
+    final finder = find.descendant(
+      of: find.byType(NotificationButton),
+      matching: find.byWidgetPredicate(
+        (widget) => widget is FlowySvg && widget.svg == FlowySvgs.clock_alarm_s,
+      ),
+    );
+
+    await tap(finder);
+    await pumpAndSettle();
+
+    if (tabIndex == 1) {
+      final tabFinder = find.descendant(
+        of: find.byType(NotificationTabBar),
+        matching: find.byType(FlowyTabItem).at(1),
+      );
+
+      await tap(tabFinder);
+      await pumpAndSettle();
+    }
   }
 }
 

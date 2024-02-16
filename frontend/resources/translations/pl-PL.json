@@ -313,12 +313,12 @@
       "themeUpload": {
         "button": "Prześlij",
         "description": "Prześlij własny motyw AppFlowy za pomocą przycisku poniżej.",
-        "failure": "Przesłany motyw miał nieprawidłowy format.",
         "loading": "Poczekaj, aż zweryfikujemy i prześlemy Twój motyw...",
         "uploadSuccess": "Twój motyw został przesłany pomyślnie",
         "deletionFailure": "Nie udało się usunąć motywu. Spróbuj usunąć go ręcznie.",
         "filePickerDialogTitle": "Wybierz plik .flowy_plugin",
-        "urlUploadFailure": "Nie udało się otworzyć adresu URL: {}"
+        "urlUploadFailure": "Nie udało się otworzyć adresu URL: {}",
+        "failure": "Przesłany motyw miał nieprawidłowy format."
       },
       "theme": "Motyw",
       "builtInsLabel": "Wbudowane motywy",

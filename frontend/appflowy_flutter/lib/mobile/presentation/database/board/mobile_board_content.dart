@@ -3,11 +3,11 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/database/board/board.dart';
 import 'package:appflowy/mobile/presentation/database/board/widgets/group_card_header.dart';
 import 'package:appflowy/mobile/presentation/database/card/card.dart';
-import 'package:appflowy/plugins/database_view/board/application/board_bloc.dart';
-import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_extension.dart';
-import 'package:appflowy/plugins/database_view/widgets/card/card.dart';
-import 'package:appflowy/plugins/database_view/widgets/card/card_cell_builder.dart';
-import 'package:appflowy/plugins/database_view/widgets/card/cells/card_cell.dart';
+import 'package:appflowy/plugins/database/board/application/board_bloc.dart';
+import 'package:appflowy/plugins/database/grid/presentation/widgets/header/field_type_extension.dart';
+import 'package:appflowy/plugins/database/widgets/card/card.dart';
+import 'package:appflowy/plugins/database/widgets/cell/card_cell_builder.dart';
+import 'package:appflowy/plugins/database/widgets/cell/card_cell_style_maps/mobile_board_card_cell_style.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy_board/appflowy_board.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -26,28 +26,22 @@ class MobileBoardContent extends StatefulWidget {
 }
 
 class _MobileBoardContentState extends State<MobileBoardContent> {
-  final renderHook = RowCardRenderHook<String>();
   late final ScrollController scrollController;
   late final AppFlowyBoardScrollController scrollManager;
 
   @override
   void initState() {
     super.initState();
-    //mobile may not need this
-    //scroll to bottom when add a new card
+    // mobile may not need this
+    // scroll to bottom when add a new card
     scrollManager = AppFlowyBoardScrollController();
     scrollController = ScrollController();
-    renderHook.addSelectOptionHook((options, groupId, _) {
-      // The cell should hide if the option id is equal to the groupId.
-      final isInGroup =
-          options.where((element) => element.id == groupId).isNotEmpty;
+  }
 
-      if (isInGroup || options.isEmpty) {
-        return const SizedBox.shrink();
-      }
-
-      return null;
-    });
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -156,10 +150,10 @@ class _MobileBoardContentState extends State<MobileBoardContent> {
 
     /// Return placeholder widget if the rowCache is null.
     if (rowCache == null) return SizedBox.shrink(key: ObjectKey(groupItem));
-    final cellCache = rowCache.cellCache;
     final viewId = boardBloc.viewId;
 
-    final cellBuilder = CardCellBuilder<String>(cellCache);
+    final cellBuilder =
+        CardCellBuilder(databaseController: boardBloc.databaseController);
     final isEditing = boardBloc.state.isEditingRow &&
         boardBloc.state.editingRow?.row.id == groupItem.row.id;
 
@@ -169,15 +163,14 @@ class _MobileBoardContentState extends State<MobileBoardContent> {
       key: ValueKey(groupItemId),
       margin: cardMargin,
       decoration: _makeBoxDecoration(context),
-      child: RowCard<String>(
+      child: RowCard(
+        fieldController: boardBloc.fieldController,
         rowMeta: rowMeta,
         viewId: viewId,
         rowCache: rowCache,
-        cardData: groupData.group.groupId,
         groupingFieldId: groupItem.fieldInfo.id,
         isEditing: isEditing,
         cellBuilder: cellBuilder,
-        renderHook: renderHook,
         openCard: (context) {
           context.push(
             MobileRowDetailPage.routeName,
@@ -192,11 +185,9 @@ class _MobileBoardContentState extends State<MobileBoardContent> {
             .add(BoardEvent.startEditingRow(groupData.group, groupItem.row)),
         onEndEditing: () =>
             boardBloc.add(BoardEvent.endEditingRow(groupItem.row.id)),
-        styleConfiguration: const RowCardStyleConfiguration(
+        styleConfiguration: RowCardStyleConfiguration(
+          cellStyleMap: mobileBoardCardCellStyleMap(context),
           showAccessory: false,
-          hoverStyle: null,
-          cardPadding: EdgeInsets.all(8),
-          cellPadding: EdgeInsets.zero,
         ),
       ),
     );
@@ -214,18 +205,15 @@ class _MobileBoardContentState extends State<MobileBoardContent> {
               ),
             )
           : null,
-      boxShadow:
-          // The shadow is only visible in light mode.
-          themeMode == ThemeMode.light
-              ? [
-                  BoxShadow(
-                    color:
-                        Theme.of(context).colorScheme.outline.withOpacity(0.5),
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  ),
-                ]
-              : null,
+      boxShadow: themeMode == ThemeMode.light
+          ? [
+              BoxShadow(
+                color: Theme.of(context).colorScheme.outline.withOpacity(0.5),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              ),
+            ]
+          : null,
     );
   }
 }

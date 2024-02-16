@@ -23,7 +23,6 @@ env:
 
 jobs:
   test-on-ubuntu:
-#    environment: SUPABASE_CI
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source code
@@ -50,22 +49,6 @@ jobs:
           workspaces: |
             frontend/rust-lib
 
-#      - name: Create .env file in flowy-server
-#        working-directory: frontend/rust-lib/flowy-server
-#        run: |
-#          touch .env.ci
-#          echo SUPABASE_URL=${{ secrets.SUPABASE_URL }} >> .env.ci
-#          echo SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }} >> .env.ci
-#          echo SUPABASE_JWT_SECRET=${{ secrets.SUPABASE_JWT_SECRET }} >> .env.ci
-#
-#      - name: Create .env file in event-integration
-#        working-directory: frontend/rust-lib/event-integration
-#        run: |
-#          touch .env.ci
-#          echo SUPABASE_URL=${{ secrets.SUPABASE_URL }} >> .env.ci
-#          echo SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }} >> .env.ci
-#          echo SUPABASE_JWT_SECRET=${{ secrets.SUPABASE_JWT_SECRET }} >> .env.ci
-
       - name: Checkout appflowy cloud code
         uses: actions/checkout@v3
         with:
@@ -77,22 +60,26 @@ jobs:
         working-directory: AppFlowy-Cloud
         run: |
           # log level
-          cp dev.env .env
+          cp deploy.env .env
           sed -i 's|RUST_LOG=.*|RUST_LOG=trace|' .env
-          sed -i 's/GOTRUE_SMTP_USER=.*/GOTRUE_SMTP_USER=${{ secrets.INTEGRATION_TEST_GOTRUE_SMTP_USER }}/' .env
-          sed -i 's/GOTRUE_SMTP_PASS=.*/GOTRUE_SMTP_PASS=${{ secrets.INTEGRATION_TEST_GOTRUE_SMTP_PASS }}/' .env
-          sed -i 's/GOTRUE_SMTP_ADMIN_EMAIL=.*/GOTRUE_SMTP_ADMIN_EMAIL=${{ secrets.INTEGRATION_TEST_GOTRUE_SMTP_ADMIN_EMAIL }}/' .env
-          sed -i 's/GOTRUE_EXTERNAL_GOOGLE_ENABLED=.*/GOTRUE_EXTERNAL_GOOGLE_ENABLED=true/' .env
           sed -i 's|API_EXTERNAL_URL=.*|API_EXTERNAL_URL=http://localhost|' .env
 
       - name: Run Docker-Compose
         working-directory: AppFlowy-Cloud
         run: |
+          docker pull appflowyinc/appflowy_cloud:latest
           docker compose up -d
 
       - name: Run rust-lib tests
         working-directory: frontend/rust-lib
-        run: RUST_LOG=info RUST_BACKTRACE=1 cargo test --no-default-features --features="rev-sqlite"
+        env:
+          RUST_LOG: info
+          RUST_BACKTRACE: 1
+          af_cloud_test_base_url: http://localhost
+          af_cloud_test_ws_url: ws://localhost/ws
+          af_cloud_test_gotrue_url: http://localhost/gotrue
+        run: cargo test --no-default-features --features="rev-sqlite,dart" -- --nocapture
+
 
       - name: rustfmt rust-lib
         run: cargo fmt --all -- --check

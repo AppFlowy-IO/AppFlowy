@@ -24,13 +24,14 @@ abstract class HomeStackDelegate {
 }
 
 class HomeStack extends StatelessWidget {
-  final HomeStackDelegate delegate;
-  final HomeLayout layout;
   const HomeStack({
+    super.key,
     required this.delegate,
     required this.layout,
-    super.key,
   });
+
+  final HomeStackDelegate delegate;
+  final HomeLayout layout;
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +42,6 @@ class HomeStack extends StatelessWidget {
       child: BlocBuilder<TabsBloc, TabsState>(
         builder: (context, state) {
           return Column(
-            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Padding(
                 padding: EdgeInsets.only(left: layout.menuSpacing),
@@ -105,10 +105,6 @@ class _PageStackState extends State<PageStack>
 }
 
 class FadingIndexedStack extends StatefulWidget {
-  final int index;
-  final List<Widget> children;
-  final Duration duration;
-
   const FadingIndexedStack({
     super.key,
     required this.index,
@@ -117,6 +113,10 @@ class FadingIndexedStack extends StatefulWidget {
       milliseconds: 250,
     ),
   });
+
+  final int index;
+  final List<Widget> children;
+  final Duration duration;
 
   @override
   FadingIndexedStackState createState() => FadingIndexedStackState();
@@ -161,15 +161,15 @@ abstract mixin class NavigationItem {
 }
 
 class PageNotifier extends ChangeNotifier {
+  PageNotifier({Plugin? plugin})
+      : _plugin = plugin ?? makePlugin(pluginType: PluginType.blank);
+
   Plugin _plugin;
 
   Widget get titleWidget => _plugin.widgetBuilder.leftBarItem;
 
   Widget tabBarWidget(String pluginId) =>
       _plugin.widgetBuilder.tabBarItem(pluginId);
-
-  PageNotifier({Plugin? plugin})
-      : _plugin = plugin ?? makePlugin(pluginType: PluginType.blank);
 
   /// This is the only place where the plugin is set.
   /// No need compare the old plugin with the new plugin. Just set it.
@@ -188,11 +188,11 @@ class PageNotifier extends ChangeNotifier {
 
 // PageManager manages the view for one Tab
 class PageManager {
+  PageManager();
+
   final PageNotifier _notifier = PageNotifier();
 
   PageNotifier get notifier => _notifier;
-
-  PageManager();
 
   Widget title() {
     return _notifier.plugin.widgetBuilder.leftBarItem;
@@ -253,6 +253,10 @@ class PageManager {
       ),
     );
   }
+
+  void dispose() {
+    _notifier.dispose();
+  }
 }
 
 class HomeTopBar extends StatelessWidget {
@@ -275,7 +279,6 @@ class HomeTopBar extends StatelessWidget {
           horizontal: HomeInsets.topBarTitlePadding,
         ),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             HSpace(layout.menuSpacing),
             const FlowyNavigation(),

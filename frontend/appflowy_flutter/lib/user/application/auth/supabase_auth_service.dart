@@ -94,7 +94,7 @@ class SupabaseAuthService implements AuthService {
     final provider = platform.toProvider();
     final completer = supabaseLoginCompleter(
       onSuccess: (userId, userEmail) async {
-        return await _setupAuth(
+        return _setupAuth(
           map: {
             AuthServiceMapKeys.uuid: userId,
             AuthServiceMapKeys.email: userEmail,
@@ -137,7 +137,7 @@ class SupabaseAuthService implements AuthService {
   }) async {
     final completer = supabaseLoginCompleter(
       onSuccess: (userId, userEmail) async {
-        return await _setupAuth(
+        return _setupAuth(
           map: {
             AuthServiceMapKeys.uuid: userId,
             AuthServiceMapKeys.email: userEmail,
@@ -180,14 +180,14 @@ class SupabaseAuthService implements AuthService {
 }
 
 extension on String {
-  Provider toProvider() {
+  OAuthProvider toProvider() {
     switch (this) {
       case 'github':
-        return Provider.github;
+        return OAuthProvider.github;
       case 'google':
-        return Provider.google;
+        return OAuthProvider.google;
       case 'discord':
-        return Provider.discord;
+        return OAuthProvider.discord;
       default:
         throw UnimplementedError();
     }
@@ -228,24 +228,22 @@ Completer<Either<FlowyError, UserProfilePB>> supabaseLoginCompleter({
         user.email ?? user.newEmail ?? '',
       );
       // Only cancel the subscription if the Event is signedIn.
-      subscription.cancel();
+      await subscription.cancel();
       completer.complete(response);
     }
   });
   return completer;
 }
 
-Map<String, String> queryParamsForProvider(Provider provider) {
+Map<String, String> queryParamsForProvider(OAuthProvider provider) {
   switch (provider) {
-    case Provider.github:
-      return {};
-    case Provider.google:
+    case OAuthProvider.google:
       return {
         'access_type': 'offline',
         'prompt': 'consent',
       };
-    case Provider.discord:
-      return {};
+    case OAuthProvider.github:
+    case OAuthProvider.discord:
     default:
       return {};
   }

@@ -6,7 +6,7 @@ pub struct WorkspaceIdentify(pub String);
 impl WorkspaceIdentify {
   pub fn parse(s: String) -> Result<WorkspaceIdentify, ErrorCode> {
     if s.trim().is_empty() {
-      return Err(ErrorCode::WorkspaceIdInvalid);
+      return Err(ErrorCode::WorkspaceInitializeError);
     }
 
     Ok(Self(s))

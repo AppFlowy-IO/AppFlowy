@@ -80,7 +80,7 @@ void main() {
       // Hover over today's calendar cell
       await tester.hoverOnTodayCalendarCell(
         // Tap on create new event button
-        onHover: () async => await tester.tapAddCalendarEventButton(),
+        onHover: () async => tester.tapAddCalendarEventButton(),
       );
 
       // Make sure that the event editor popup is shown
@@ -158,7 +158,7 @@ void main() {
 
       // Create a new event on the first of this month
       final today = DateTime.now();
-      final firstOfThisMonth = DateTime(today.year, today.month, 1);
+      final firstOfThisMonth = DateTime(today.year, today.month);
       await tester.doubleClickCalendarCell(firstOfThisMonth);
       await tester.dismissEventEditor();
 

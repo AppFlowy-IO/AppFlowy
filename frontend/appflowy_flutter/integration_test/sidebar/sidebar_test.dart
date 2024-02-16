@@ -1,7 +1,7 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/database_view/board/presentation/board_page.dart';
-import 'package:appflowy/plugins/database_view/calendar/presentation/calendar_page.dart';
-import 'package:appflowy/plugins/database_view/grid/presentation/grid_page.dart';
+import 'package:appflowy/plugins/database/board/presentation/board_page.dart';
+import 'package:appflowy/plugins/database/calendar/presentation/calendar_page.dart';
+import 'package:appflowy/plugins/database/grid/presentation/grid_page.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/draggable_view_item.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_add_button.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
@@ -82,7 +82,6 @@ void main() {
         await tester.createNewPageWithNameUnderParent(
           name: names[i],
           parentName: parentName,
-          layout: ViewLayoutPB.Document,
         );
         tester.expectToSeePageName(names[i], parentName: parentName);
       }
@@ -148,7 +147,7 @@ void main() {
         name: document,
         openAfterCreated: false,
       );
-      tester.expectToSeePageName(document, layout: ViewLayoutPB.Document);
+      tester.expectToSeePageName(document);
 
       const grid = 'grid';
       await tester.createNewPageWithNameUnderParent(
@@ -190,7 +189,6 @@ void main() {
       await tester.createNewPageWithNameUnderParent(
         name: grid,
         layout: ViewLayoutPB.Grid,
-        openAfterCreated: true,
       );
       tester.expectToSeePageName(grid, layout: ViewLayoutPB.Grid);
 

@@ -1,32 +1,25 @@
 import React, { memo, useCallback } from 'react';
 import { Page, PageIcon } from '$app_reducers/pages/slice';
-import { useAppDispatch } from '$app/stores/store';
-import ViewTitle from '$app/components/_shared/ViewTitle';
-import { updatePageIcon } from '$app_reducers/pages/async_actions';
+import ViewTitle from '$app/components/_shared/view_title/ViewTitle';
+import { updatePageIcon } from '$app/application/folder/page.service';
 
 interface DocumentHeaderProps {
   page: Page;
 }
 
 export function DocumentHeader({ page }: DocumentHeaderProps) {
-  const dispatch = useAppDispatch();
-
   const pageId = page.id;
+
   const onUpdateIcon = useCallback(
-    (icon: PageIcon) => {
-      void dispatch(
-        updatePageIcon({
-          id: pageId,
-          icon: icon.value ? icon : undefined,
-        })
-      );
+    async (icon: PageIcon) => {
+      await updatePageIcon(pageId, icon.value ? icon : undefined);
     },
-    [dispatch, pageId]
+    [pageId]
   );
 
   if (!page) return null;
   return (
-    <div className={'document-header px-16 py-4'}>
+    <div className={'document-header select-none px-16 pt-4'}>
       <ViewTitle showTitle={false} onUpdateIcon={onUpdateIcon} view={page} />
     </div>
   );

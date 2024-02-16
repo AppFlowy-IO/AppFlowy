@@ -7,10 +7,10 @@ import { ReactComponent as DeleteSvg } from '$app/assets/delete.svg';
 import { ReactComponent as LeftSvg } from '$app/assets/left.svg';
 import { ReactComponent as RightSvg } from '$app/assets/right.svg';
 import { useViewId } from '$app/hooks';
-import { fieldService } from '$app/components/database/application';
+import { fieldService } from '$app/application/database';
 import { OrderObjectPositionTypePB, FieldVisibility } from '@/services/backend';
 import { MenuItem } from '@mui/material';
-import ConfirmDialog from '$app/components/_shared/app-dialog/ConfirmDialog';
+import DeleteConfirmDialog from '$app/components/_shared/confirm_dialog/DeleteConfirmDialog';
 import { useTranslation } from 'react-i18next';
 
 export enum FieldAction {
@@ -83,7 +83,8 @@ function PropertyActions({ fieldId, onMenuItemClick, isPrimary, actions = defaul
         break;
       case FieldAction.InsertLeft:
       case FieldAction.InsertRight: {
-        const fieldPosition = action === FieldAction.InsertLeft ? OrderObjectPositionTypePB.Before : OrderObjectPositionTypePB.After;
+        const fieldPosition =
+          action === FieldAction.InsertLeft ? OrderObjectPositionTypePB.Before : OrderObjectPositionTypePB.After;
 
         const field = await fieldService.createField({
           viewId,
@@ -124,7 +125,7 @@ function PropertyActions({ fieldId, onMenuItemClick, isPrimary, actions = defaul
           </MenuItem>
         );
       })}
-      <ConfirmDialog
+      <DeleteConfirmDialog
         open={openConfirm}
         subtitle={''}
         title={t('grid.field.deleteFieldPromptMessage')}

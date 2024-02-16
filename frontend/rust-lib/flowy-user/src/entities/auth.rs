@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::convert::TryInto;
 
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use flowy_user_deps::entities::*;
+use flowy_user_pub::entities::*;
 
 use crate::entities::parser::*;
 use crate::errors::ErrorCode;
@@ -177,6 +177,26 @@ pub enum AuthenticatorPB {
   Local = 0,
   Supabase = 1,
   AppFlowyCloud = 2,
+}
+
+impl From<Authenticator> for AuthenticatorPB {
+  fn from(auth_type: Authenticator) -> Self {
+    match auth_type {
+      Authenticator::Supabase => AuthenticatorPB::Supabase,
+      Authenticator::Local => AuthenticatorPB::Local,
+      Authenticator::AppFlowyCloud => AuthenticatorPB::AppFlowyCloud,
+    }
+  }
+}
+
+impl From<AuthenticatorPB> for Authenticator {
+  fn from(pb: AuthenticatorPB) -> Self {
+    match pb {
+      AuthenticatorPB::Supabase => Authenticator::Supabase,
+      AuthenticatorPB::Local => Authenticator::Local,
+      AuthenticatorPB::AppFlowyCloud => Authenticator::AppFlowyCloud,
+    }
+  }
 }
 
 impl Default for AuthenticatorPB {

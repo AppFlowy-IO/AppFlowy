@@ -3,11 +3,11 @@ use client_api::entity::QueryCollabResult::{Failed, Success};
 use client_api::entity::{QueryCollab, QueryCollabParams};
 use client_api::error::ErrorCode::RecordNotFound;
 use collab::core::collab::CollabDocState;
-use collab::core::collab_plugin::EncodedCollabV1;
+use collab::core::collab_plugin::EncodedCollab;
 use collab_entity::CollabType;
 use tracing::error;
 
-use flowy_database_deps::cloud::{CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot};
+use flowy_database_pub::cloud::{CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot};
 use lib_infra::future::FutureResult;
 
 use crate::af_cloud::AFServer;
@@ -18,7 +18,7 @@ impl<T> DatabaseCloudService for AFCloudDatabaseCloudServiceImpl<T>
 where
   T: AFServer,
 {
-  fn get_collab_doc_state_db(
+  fn get_database_object_doc_state(
     &self,
     object_id: &str,
     collab_type: CollabType,
@@ -48,7 +48,7 @@ where
     })
   }
 
-  fn batch_get_collab_doc_state_db(
+  fn batch_get_database_object_doc_state(
     &self,
     object_ids: Vec<String>,
     object_ty: CollabType,
@@ -72,7 +72,7 @@ where
           .into_iter()
           .flat_map(|(object_id, result)| match result {
             Success { encode_collab_v1 } => {
-              match EncodedCollabV1::decode_from_bytes(&encode_collab_v1) {
+              match EncodedCollab::decode_from_bytes(&encode_collab_v1) {
                 Ok(encode) => Some((object_id, encode.doc_state.to_vec())),
                 Err(err) => {
                   error!("Failed to decode collab: {}", err);
@@ -90,7 +90,7 @@ where
     })
   }
 
-  fn get_collab_snapshots(
+  fn get_database_collab_object_snapshots(
     &self,
     _object_id: &str,
     _limit: usize,

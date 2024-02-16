@@ -115,6 +115,7 @@ pub fn make_date_cell_string(timestamp: i64) -> String {
     include_time: Some(false),
     is_range: Some(false),
     clear_flag: None,
+    reminder_id: Some(String::new()),
   })
   .unwrap()
 }

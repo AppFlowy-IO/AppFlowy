@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/mobile_block_action_buttons.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/selectable_item_list_menu.dart';
@@ -105,7 +107,7 @@ Node codeBlockNode({
 
 // defining the callout block menu item for selection
 SelectionMenuItem codeBlockItem = SelectionMenuItem.node(
-  name: LocaleKeys.document_selectionMenu_codeBlock.tr(),
+  getName: () => LocaleKeys.document_selectionMenu_codeBlock.tr(),
   iconData: Icons.abc,
   keywords: ['code', 'codeblock'],
   nodeBuilder: (editorState, _) => codeBlockNode(),
@@ -301,21 +303,16 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
       ),
       child: FlowyTextButton(
         '${language?.capitalize() ?? 'Auto'} ',
-        padding: const EdgeInsets.symmetric(
-          horizontal: 8.0,
-          vertical: 6.0,
-        ),
         constraints: const BoxConstraints(maxWidth: maxWidth),
         fontColor: Theme.of(context).colorScheme.onBackground,
         fillColor: Colors.transparent,
-        mainAxisAlignment: MainAxisAlignment.start,
         onPressed: () async {
           if (PlatformExtension.isMobile) {
             final language = await context.push<String>(
               MobileCodeLanguagePickerScreen.routeName,
             );
             if (language != null) {
-              updateLanguage(language);
+              unawaited(updateLanguage(language));
             }
           }
         },

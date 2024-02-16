@@ -1,9 +1,12 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/base/app_bar.dart';
 import 'package:appflowy/mobile/presentation/base/app_bar_actions.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_state_container.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
 import 'package:appflowy/plugins/document/document_page.dart';
+import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
@@ -21,14 +24,16 @@ class MobileViewPage extends StatefulWidget {
   const MobileViewPage({
     super.key,
     required this.id,
-    this.title,
     required this.viewLayout,
+    this.title,
+    this.arguments,
   });
 
   /// view id
   final String id;
-  final String? title;
   final ViewLayoutPB viewLayout;
+  final String? title;
+  final Map<String, dynamic>? arguments;
 
   @override
   State<MobileViewPage> createState() => _MobileViewPageState();
@@ -40,7 +45,6 @@ class _MobileViewPageState extends State<MobileViewPage> {
   @override
   void initState() {
     super.initState();
-
     future = ViewBackendService.getView(widget.id);
   }
 
@@ -67,7 +71,10 @@ class _MobileViewPageState extends State<MobileViewPage> {
           body = state.data!.fold((view) {
             viewPB = view;
             actions.add(_buildAppBarMoreButton(view));
-            return view.plugin().widgetBuilder.buildWidget(shrinkWrap: false);
+            return view
+                .plugin(arguments: widget.arguments ?? const {})
+                .widgetBuilder
+                .buildWidget(shrinkWrap: false);
           }, (error) {
             return FlowyMobileStateContainer.error(
               emoji: '😔',
@@ -89,6 +96,10 @@ class _MobileViewPageState extends State<MobileViewPage> {
                 create: (_) =>
                     ViewBloc(view: viewPB!)..add(const ViewEvent.initial()),
               ),
+              BlocProvider.value(
+                value: getIt<ReminderBloc>()
+                  ..add(const ReminderEvent.started()),
+              ),
             ],
             child: Builder(
               builder: (context) {
@@ -106,15 +117,12 @@ class _MobileViewPageState extends State<MobileViewPage> {
 
   Widget _buildApp(ViewPB? view, List<Widget> actions, Widget child) {
     final icon = view?.icon.value;
-    final elevation = (view?.layout.isDatabaseView ?? false) ? 0.0 : null;
     return Scaffold(
-      appBar: AppBar(
-        titleSpacing: 0,
-        elevation: elevation,
+      appBar: FlowyAppBar(
         title: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (icon != null)
+            if (icon != null && icon.isNotEmpty)
               EmojiText(
                 emoji: '$icon ',
                 fontSize: 22.0,
@@ -128,12 +136,9 @@ class _MobileViewPageState extends State<MobileViewPage> {
             ),
           ],
         ),
-        leading: const AppBarBackButton(),
         actions: actions,
       ),
-      body: SafeArea(
-        child: child,
-      ),
+      body: SafeArea(child: child),
     );
   }
 
@@ -142,6 +147,9 @@ class _MobileViewPageState extends State<MobileViewPage> {
       onTap: (context) {
         showMobileBottomSheet(
           context,
+          showDragHandle: true,
+          showDivider: false,
+          backgroundColor: Theme.of(context).colorScheme.surface,
           builder: (_) => _buildViewPageBottomSheet(context),
         );
       },
