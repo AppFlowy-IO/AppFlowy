@@ -24,11 +24,11 @@ members = [
   "collab-integrate",
   "flowy-ai",
   "flowy-date",
+  "flowy-search",
   "lib-infra",
   "build-tool/flowy-ast",
   "build-tool/flowy-codegen",
   "build-tool/flowy-derive",
-  "flowy-search",
 ]
 resolver = "2"
 

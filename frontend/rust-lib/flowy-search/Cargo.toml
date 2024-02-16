@@ -4,16 +4,39 @@ version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+crate-type = ["cdylib", "rlib"]
 
 [dependencies]
+flowy-error = { workspace = true, features = [
+    "impl_from_sqlite",
+    "impl_from_dispatch_error",
+] }
+flowy-derive.workspace = true
 flowy-sqlite.workspace = true
+lib-dispatch = { path = "../lib-dispatch" }
+protobuf.workspace = true
+bytes.workspace = true
+strum_macros = "0.26.1"
+tracing.workspace = true
+flowy-notification = { workspace = true }
+async-stream = "0.3.4"
+futures.workspace = true
+
 diesel.workspace = true
 diesel_derives = { version = "2.1.0", features = ["sqlite", "r2d2"] }
 diesel_migrations = { version = "2.1.0", features = ["sqlite"] }
 tempfile = "3.9.0"
-flowy-error = { workspace = true, features = ["impl_from_sqlite"] }
-tracing.workspace = true
 tantivy = { version = "0.21.1" }
+tokio = { workspace = true }
+
+[build-dependencies]
+flowy-codegen.workspace = true
 
 [dev-dependencies]
 tempfile = "3.10.0"
+
+[features]
+dart = ["flowy-codegen/dart"]
+ts = ["flowy-codegen/ts"]
+wasm_build = ["lib-dispatch/single_thread", "flowy-codegen/ts"]
