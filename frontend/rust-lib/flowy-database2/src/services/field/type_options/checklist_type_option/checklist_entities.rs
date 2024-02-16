@@ -52,7 +52,7 @@ impl ChecklistCellData {
         (option, selected_id)
       })
       .unzip();
-    let selected_option_ids = selected_ids.into_iter().filter_map(|id| id).collect();
+    let selected_option_ids = selected_ids.into_iter().flatten().collect();
 
     Self {
       options,
