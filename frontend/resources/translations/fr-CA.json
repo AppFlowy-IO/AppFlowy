@@ -50,12 +50,12 @@
     "copyLink": "Copier le lien"
   },
   "moreAction": {
-    "small": "petit",
-    "medium": "moyen",
-    "large": "grand",
     "fontSize": "Taille de police",
     "import": "Importer",
-    "moreOptions": "Plus d'options"
+    "moreOptions": "Plus d'options",
+    "small": "petit",
+    "medium": "moyen",
+    "large": "grand"
   },
   "importPanel": {
     "textAndMarkdown": "Texte et Markdown",

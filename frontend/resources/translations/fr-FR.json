@@ -74,12 +74,12 @@
     "copyLink": "Copier le lien"
   },
   "moreAction": {
-    "small": "petit",
-    "medium": "moyen",
-    "large": "grand",
     "fontSize": "Taille de police",
     "import": "Importer",
-    "moreOptions": "Plus d'options"
+    "moreOptions": "Plus d'options",
+    "small": "petit",
+    "medium": "moyen",
+    "large": "grand"
   },
   "importPanel": {
     "textAndMarkdown": "Texte et Markdown",
@@ -659,7 +659,15 @@
       "showComplete": "Afficher toutes les tâches"
     },
     "menuName": "Grille",
-    "referencedGridPrefix": "Vue"
+    "referencedGridPrefix": "Vue",
+    "calculationTypeLabel": {
+      "none": "Vide",
+      "average": "Moyenne",
+      "max": "Maximum",
+      "median": "Médiane",
+      "min": "Minimum",
+      "sum": "Somme"
+    }
   },
   "document": {
     "menuName": "Document",
@@ -872,7 +880,8 @@
       "page": {
         "label": "Lien vers la page",
         "tooltip": "Cliquez pour ouvrir la page"
-      }
+      },
+      "deleted": "Supprimer"
     },
     "toolbar": {
       "resetToDefaultFont": "Réinitialiser aux valeurs par défaut"
@@ -944,10 +953,10 @@
       "layoutDateField": "Calendrier de mise en page par",
       "changeLayoutDateField": "Modifier le champ de mise en page",
       "noDateTitle": "Pas de date",
-      "noDateHint": "Les événements non planifiés s'afficheront ici",
       "unscheduledEventsTitle": "Événements imprévus",
       "clickToAdd": "Cliquez pour ajouter au calendrier",
-      "name": "Disposition du calendrier"
+      "name": "Disposition du calendrier",
+      "noDateHint": "Les événements non planifiés s'afficheront ici"
     },
     "referencedCalendarPrefix": "Vue",
     "quickJumpYear": "Sauter à"
@@ -1052,7 +1061,8 @@
       "onDayOfEvent": "Le jour de l'événement",
       "oneDayBefore": "1 jour avant",
       "twoDaysBefore": "2 jours avant",
-      "oneWeekBefore": "1 semaine avant"
+      "oneWeekBefore": "1 semaine avant",
+      "custom": "Personnaliser"
     }
   },
   "relativeDates": {
