@@ -51,7 +51,7 @@ jobs:
           sudo rm -rf $ANDROID_HOME/ndk
 
       - name: Checkout source code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Install flutter
         id: flutter
@@ -67,7 +67,7 @@ jobs:
           ndk-version: "r24"
           add-to-path: true
 
-      - uses: gradle/gradle-build-action@v2
+      - uses: gradle/gradle-build-action@v3
         with:
           gradle-version: 7.6.3
 

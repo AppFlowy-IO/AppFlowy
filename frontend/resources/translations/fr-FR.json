@@ -485,7 +485,6 @@
       "typeAValue": "Tapez une valeur...",
       "layout": "Mise en page",
       "databaseLayout": "Mise en page",
-      "viewList": "Vues de base de données",
       "editView": "Modifier vue",
       "boardSettings": "Paramètres du tableau",
       "calendarSettings": "Paramètres du calendrier",
@@ -493,7 +492,8 @@
       "duplicateView": "Dupliquer la vue",
       "deleteView": "Supprimer la vue",
       "numberOfVisibleFields": "{} affiché(s)",
-      "Properties": "Propriétés"
+      "Properties": "Propriétés",
+      "viewList": "Vues de base de données"
     },
     "textFilter": {
       "contains": "Contient",
@@ -663,7 +663,7 @@
     "referencedGridPrefix": "Vue",
     "calculate": "Calculer",
     "calculationTypeLabel": {
-      "none": "Aucun",
+      "none": "Vide",
       "average": "Moyenne",
       "max": "Maximum",
       "median": "Médiane",
@@ -883,8 +883,8 @@
         "label": "Lien vers la page",
         "tooltip": "Cliquez pour ouvrir la page"
       },
-      "deleted": "Supprimé",
-      "deletedContent": "Ce document n'existe pas ou a été supprimé"
+      "deletedContent": "Ce document n'existe pas ou a été supprimé",
+      "deleted": "Supprimer"
     },
     "toolbar": {
       "resetToDefaultFont": "Réinitialiser aux valeurs par défaut"
@@ -959,7 +959,8 @@
       "noDateHint": "Les événements non planifiés s'afficheront ici",
       "unscheduledEventsTitle": "Événements non planifiés",
       "clickToAdd": "Cliquez pour ajouter au calendrier",
-      "name": "Disposition du calendrier"
+      "name": "Disposition du calendrier",
+      "noDateHint": "Les événements non planifiés s'afficheront ici"
     },
     "referencedCalendarPrefix": "Vue",
     "quickJumpYear": "Sauter à"
