@@ -42,11 +42,11 @@
     "passwordHint": "密碼",
     "dontHaveAnAccount": "還沒有帳號？",
     "repeatPasswordEmptyError": "確認密碼不能為空",
-    "unmatchedPasswordError": "確認密碼與密碼不符",
+    "unmatchedPasswordError": "密碼重複輸入不一致",
     "syncPromptMessage": "同步資料可能需要一些時間。請不要關閉此頁面",
     "or": "或",
     "LogInWithGoogle": "使用 Google 登入",
-    "LogInWithGithub": "使用 GitHub 登入",
+    "LogInWithGithub": "使用 Github 登入",
     "LogInWithDiscord": "使用 Discord 登入",
     "signInWith": "透過以下方式登入："
   },
@@ -60,6 +60,8 @@
     "failedToLoad": "出了些問題！無法載入工作區。請嘗試關閉 AppFlowy 的任何開啟執行個體，然後再試一次。",
     "errorActions": {
       "reportIssue": "回報問題",
+      "reportIssueOnGithub": "在 Github 提交 issue",
+      "exportLogFiles": "匯出日誌記錄檔案",
       "reachOut": "在 Discord 上聯絡我們"
     }
   },
@@ -97,18 +99,18 @@
     "copyLink": "複製連結"
   },
   "blankPageTitle": "空白頁面",
-  "newPageText": "新頁面",
-  "newDocumentText": "新文件",
-  "newGridText": "新網格",
-  "newCalendarText": "新日曆",
-  "newBoardText": "新看板",
+  "newPageText": "新增頁面",
+  "newDocumentText": "新增文件",
+  "newGridText": "新增網格",
+  "newCalendarText": "新增日曆",
+  "newBoardText": "新增看板",
   "trash": {
     "text": "垃圾桶",
     "restoreAll": "全部還原",
     "deleteAll": "全部刪除",
     "pageHeader": {
       "fileName": "檔案名稱",
-      "lastModified": "最後修改時間",
+      "lastModified": "最近修改時間",
       "created": "建立時間"
     },
     "confirmDeleteAll": {
@@ -250,9 +252,9 @@
       "failedMsg": "請確認您已在瀏覽器中完成登入程序。"
     },
     "google": {
-      "title": "GOOGLE 登入",
+      "title": "Google 帳號登入",
       "instruction1": "若要匯入您的 Google 聯絡人，您必須透過瀏覽器授權此應用程式。",
-      "instruction2": "點選圖示或選取文字以複製程式碼：",
+      "instruction2": "點選圖示或選取文字以複製程式碼到剪貼簿：",
       "instruction3": "前往下列網址，並輸入上述程式碼：",
       "instruction4": "完成註冊後，請點選下方按鈕："
     }
@@ -284,12 +286,12 @@
       "cloudSupabaseAnonKey": "Supabase 匿名金鑰",
       "cloudSupabaseAnonKeyCanNotBeEmpty": "如果 Supabase 網址不為空，則匿名金鑰不得為空",
       "cloudAppFlowy": "AppFlowy 雲端測試版 (Beta)",
-      "cloudAppFlowySelfHost": "AppFlowy 雲端自建",
+      "cloudAppFlowySelfHost": "自架 AppFlowy 雲端伺服器",
       "appFlowyCloudUrlCanNotBeEmpty": "雲端網址不能為空",
       "clickToCopy": "點選以複製",
       "selfHostStart": "若您尚未設定伺服器，請參閱",
       "selfHostContent": "文件",
-      "selfHostEnd": "以瞭解如何自建您的伺服器",
+      "selfHostEnd": "有關如何自架個人伺服器的指南",
       "cloudURLHint": "請輸入您伺服器的基礎網址",
       "cloudWSURL": "Websocket 網址",
       "cloudWSURLHint": "請輸入您伺服器的 Websocket 位址",
@@ -300,7 +302,7 @@
       "inputEncryptPrompt": "請為 {username} 輸入您的加密金鑰",
       "clickToCopySecret": "點選以複製金鑰",
       "configServerSetting": "設定您的伺服器選項",
-      "configServerGuide": "在選擇「快速開始」之後，請前往「設定」並選擇「雲端設定」，以進行自託管伺服器的設定。",
+      "configServerGuide": "在選擇「快速開始」之後，請前往「設定」並選擇「雲端設定」，以進行自架伺服器的設定。",
       "inputTextFieldHint": "您的金鑰",
       "historicalUserList": "使用者登入歷史",
       "historicalUserListTooltip": "此列表顯示您的匿名帳號。您可以點選帳號以檢視其詳細資訊。透過點選「開始使用」按鈕來建立匿名帳號",
@@ -328,15 +330,15 @@
       "themeMode": {
         "label": "主題模式",
         "light": "亮色模式",
-        "dark": "暗色模式",
+        "dark": "深色模式",
         "system": "依照系統設定"
       },
       "documentSettings": {
         "cursorColor": "文件游標顏色",
         "selectionColor": "文件選取顏色",
-        "hexEmptyError": "Hex 顏色不能為空",
-        "hexLengthError": "Hex 值必須為 6 位數",
-        "hexInvalidError": "無效的 Hex 值",
+        "hexEmptyError": "十六進位色碼不能為空",
+        "hexLengthError": "十六進位值必須為 6 位數",
+        "hexInvalidError": "無效的十六進位值",
         "opacityEmptyError": "不透明度不能為空",
         "opacityRangeError": "不透明度必須在 1 到 100 之間",
         "app": "App",
@@ -346,15 +348,15 @@
       "layoutDirection": {
         "label": "版面配置方向",
         "hint": "控制螢幕上內容的流向，從左到右或從右到左。",
-        "ltr": "LTR",
-        "rtl": "RTL"
+        "ltr": "從左到右",
+        "rtl": "從右到左"
       },
       "textDirection": {
         "label": "預設文字方向",
-        "hint": "指定文字應從左邊或右邊開始為預設。",
-        "ltr": "LTR",
-        "rtl": "RTL",
-        "auto": "AUTO",
+        "hint": "預設指定文字應從左邊或右邊開始。",
+        "ltr": "從左到右",
+        "rtl": "從右到左",
+        "auto": "自動調整",
         "fallback": "與版面配置方向相同"
       },
       "themeUpload": {
@@ -476,8 +478,8 @@
       "deleteFilter": "刪除篩選器",
       "filterBy": "以……篩選",
       "typeAValue": "輸入一個值……",
-      "layout": "配置",
-      "databaseLayout": "配置",
+      "layout": "版面佈局",
+      "databaseLayout": "版面佈局",
       "editView": "編輯檢視",
       "boardSettings": "看板設定",
       "calendarSettings": "日曆設定",
@@ -614,7 +616,7 @@
       "textPlaceholder": "空白",
       "copyProperty": "已將屬性複製到剪貼簿",
       "count": "計數",
-      "newRow": "新行",
+      "newRow": "新增行",
       "action": "操作",
       "add": "點選以在下方新增",
       "drag": "拖曳以移動",
@@ -651,7 +653,16 @@
       "showComplete": "顯示所有任務"
     },
     "menuName": "網格",
-    "referencedGridPrefix": "檢視"
+    "referencedGridPrefix": "檢視",
+    "calculate": "計算",
+    "calculationTypeLabel": {
+      "none": "無",
+      "average": "平均",
+      "max": "最大值",
+      "median": "中間值",
+      "min": "最小值",
+      "sum": "總和"
+    }
   },
   "document": {
     "menuName": "文件",
@@ -688,7 +699,7 @@
       "autoGeneratorMenuItemName": "OpenAI 寫手",
       "autoGeneratorTitleName": "OpenAI：讓 AI 撰寫任何內容……",
       "autoGeneratorLearnMore": "瞭解更多",
-      "autoGeneratorGenerate": "生成",
+      "autoGeneratorGenerate": "產生",
       "autoGeneratorHintText": "問 OpenAI……",
       "autoGeneratorCantGetOpenAIKey": "無法取得 OpenAI 金鑰",
       "autoGeneratorRewrite": "改寫",
@@ -697,7 +708,7 @@
       "smartEditFixSpelling": "修正拼寫",
       "warning": "⚠️ AI 的回覆可能不準確或具有誤導性。",
       "smartEditSummarize": "總結",
-      "smartEditImproveWriting": "提高寫作水平",
+      "smartEditImproveWriting": "提高寫作水準",
       "smartEditMakeLonger": "做得更長",
       "smartEditCouldNotFetchResult": "無法取得 OpenAI 的結果",
       "smartEditCouldNotFetchKey": "無法取得 OpenAI 金鑰",
@@ -864,7 +875,9 @@
       "page": {
         "label": "連結到頁面",
         "tooltip": "點選以開啟頁面"
-      }
+      },
+      "deleted": "已刪除",
+      "deletedContent": "該內容不存在或已經刪除"
     },
     "toolbar": {
       "resetToDefaultFont": "重設為預設字型"
@@ -1035,6 +1048,7 @@
     "timeFormat": "時間格式",
     "clearDate": "清除日期",
     "reminderLabel": "提醒",
+    "selectReminder": "選擇提醒",
     "reminderOptions": {
       "none": "無",
       "atTimeOfEvent": "事件發生時",
@@ -1044,8 +1058,10 @@
       "thirtyMinsBefore": "提前 30 分鐘",
       "oneHourBefore": "提前 1 小時",
       "twoHoursBefore": "提前 2 小時",
+      "onDayOfEvent": "活動當天",
       "oneDayBefore": "提前 1 天",
       "twoDaysBefore": "提前 2 天",
+      "oneWeekBefore": "一週前",
       "custom": "自訂"
     }
   },
@@ -1098,7 +1114,7 @@
   },
   "error": {
     "weAreSorry": "我們很抱歉",
-    "loadingViewError": "我們在載入此視圖時遇到問題。請檢查您的網路連線，重新整理應用程式，並且如果問題持續，請隨時聯絡我們的團隊。"
+    "loadingViewError": "我們在載入此檢視時遇到問題。請檢查您的網路連線，重新整理應用程式，並且如果問題持續，請隨時聯絡我們的團隊。"
   },
   "editor": {
     "bold": "粗體",
@@ -1209,11 +1225,11 @@
     "colAddAfter": "在後面新增",
     "rowAddAfter": "在後面新增",
     "colRemove": "移除",
-    "rowRemove": "移除",
-    "colDuplicate": "複製",
-    "rowDuplicate": "複製",
-    "colClear": "清除內容",
-    "rowClear": "清除內容",
+    "rowRemove": "移除行",
+    "colDuplicate": "複製列",
+    "rowDuplicate": "複製行",
+    "colClear": "清除本列內容",
+    "rowClear": "清除本行內容",
     "slashPlaceHolder": "輸入 '/' 以插入區塊，或開始輸入",
     "typeSomething": "輸入一些東西...",
     "toggleListShortForm": "切換",
@@ -1243,5 +1259,6 @@
     "date": "日期",
     "addField": "新增欄位",
     "userIcon": "使用者圖示"
-  }
+  },
+  "noLogFiles": "這裡沒有日誌記錄檔案"
 }
