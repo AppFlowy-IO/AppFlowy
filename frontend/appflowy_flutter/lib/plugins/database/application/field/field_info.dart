@@ -47,9 +47,12 @@ class FieldInfo with _$FieldInfo {
   }
 
   bool get canCreateFilter {
-    if (hasFilter) return false;
+    if (hasFilter) {
+      return false;
+    }
 
     switch (field.fieldType) {
+      case FieldType.Number:
       case FieldType.Checkbox:
       case FieldType.MultiSelect:
       case FieldType.RichText:
@@ -62,7 +65,9 @@ class FieldInfo with _$FieldInfo {
   }
 
   bool get canCreateSort {
-    if (hasSort) return false;
+    if (hasSort) {
+      return false;
+    }
 
     switch (field.fieldType) {
       case FieldType.RichText:
