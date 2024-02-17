@@ -659,7 +659,15 @@
       "showComplete": "Afficher toutes les tâches"
     },
     "menuName": "Grille",
-    "referencedGridPrefix": "Vue"
+    "referencedGridPrefix": "Vue",
+    "calculationTypeLabel": {
+      "none": "Vide",
+      "average": "Moyenne",
+      "max": "Maximum",
+      "median": "Médiane",
+      "min": "Minimum",
+      "sum": "Somme"
+    }
   },
   "document": {
     "menuName": "Document",
@@ -872,7 +880,8 @@
       "page": {
         "label": "Lien vers la page",
         "tooltip": "Cliquez pour ouvrir la page"
-      }
+      },
+      "deleted": "Supprimer"
     },
     "toolbar": {
       "resetToDefaultFont": "Réinitialiser aux valeurs par défaut"
@@ -1052,7 +1061,8 @@
       "onDayOfEvent": "Le jour de l'événement",
       "oneDayBefore": "1 jour avant",
       "twoDaysBefore": "2 jours avant",
-      "oneWeekBefore": "1 semaine avant"
+      "oneWeekBefore": "1 semaine avant",
+      "custom": "Personnaliser"
     }
   },
   "relativeDates": {
