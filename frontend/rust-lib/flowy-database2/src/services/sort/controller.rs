@@ -21,7 +21,8 @@ use crate::services::field::{
   default_order, TimestampCellData, TimestampCellDataWrapper, TypeOptionCellExt,
 };
 use crate::services::sort::{
-  ReorderAllRowsResult, ReorderSingleRowResult, Sort, SortChangeset, SortCondition,
+  InsertSortedRowResult, ReorderAllRowsResult, ReorderSingleRowResult, Sort, SortChangeset,
+  SortCondition,
 };
 
 pub trait SortDelegate: Send + Sync {
@@ -117,19 +118,12 @@ impl SortController {
           ));
       },
       SortEvent::RowDidChanged(row_id) => {
-        let old_row_index = self
-          .row_index_cache
-          .get(&row_id)
-          .cloned()
-          .unwrap_or_else(|| {
-            self.row_index_cache.insert(row_id.clone(), usize::MAX);
-            usize::MAX
-          });
+        let old_row_index = self.row_index_cache.get(&row_id).cloned();
 
         self.sort_rows(&mut row_details).await;
         let new_row_index = self.row_index_cache.get(&row_id).cloned();
-        match new_row_index {
-          Some(new_row_index) => {
+        match (old_row_index, new_row_index) {
+          (Some(old_row_index), Some(new_row_index)) => {
             if old_row_index == new_row_index {
               return Ok(());
             }
@@ -145,10 +139,27 @@ impl SortController {
                 notification,
               ));
           },
-          _ => {
-            self.row_index_cache.remove(&row_id);
-            tracing::trace!("The row index cache is outdated");
+          _ => tracing::trace!("The row index cache is outdated"),
+        }
+      },
+      SortEvent::NewRowInserted(row_id) => {
+        self.sort_rows(&mut row_details).await;
+        let row_index = self.row_index_cache.get(&row_id).cloned();
+        match row_index {
+          Some(row_index) => {
+            let notification = InsertSortedRowResult {
+              row_id: row_id.clone(),
+              view_id: self.view_id.clone(),
+              index: row_index,
+            };
+            self.row_index_cache.insert(row_id, row_index);
+            let _ = self
+              .notifier
+              .send(DatabaseViewChanged::InsertSortedRowNotification(
+                notification,
+              ));
           },
+          _ => tracing::trace!("The row index cache is outdated"),
         }
       },
     }
@@ -324,6 +335,7 @@ fn cmp_cell(
 enum SortEvent {
   SortDidChanged,
   RowDidChanged(RowId),
+  NewRowInserted(RowId),
   DeleteAllSorts,
 }
 
