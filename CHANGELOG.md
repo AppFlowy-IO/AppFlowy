@@ -1,4 +1,8 @@
 # Release Notes
+## Version 0.4.8 - 02/13/2024
+### Bug Fixes
+- Fixed a possible error when loading workspaces
+
 ## Version 0.4.6 - 02/03/2024
 ### Bug Fixes
 - Fixed refresh token bug

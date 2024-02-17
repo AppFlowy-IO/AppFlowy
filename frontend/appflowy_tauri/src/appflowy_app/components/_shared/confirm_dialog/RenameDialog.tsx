@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import Dialog from '@mui/material/Dialog';
 import { useTranslation } from 'react-i18next';
 import TextField from '@mui/material/TextField';
-import { Button, DialogActions } from '@mui/material';
+import { Button, DialogActions, Divider } from '@mui/material';
 
 function RenameDialog({
   defaultValue,
@@ -25,20 +25,31 @@ function RenameDialog({
     setValue(defaultValue);
     setError(false);
   }, [defaultValue]);
+
+  const onDone = useCallback(async () => {
+    try {
+      await onOk(value);
+      onClose();
+    } catch (e) {
+      setError(true);
+    }
+  }, [onClose, onOk, value]);
+
   return (
     <Dialog keepMounted={false} onMouseDown={(e) => e.stopPropagation()} open={open} onClose={onClose}>
-      <DialogTitle>{t('menuAppHeader.renameDialog')}</DialogTitle>
-      <DialogContent className={'flex w-[540px]'}>
+      <DialogTitle className={'pb-2'}>{t('menuAppHeader.renameDialog')}</DialogTitle>
+      <DialogContent className={'flex'}>
         <TextField
           error={error}
           autoFocus
           spellCheck={false}
           value={value}
+          placeholder={t('dialogCreatePageNameHint')}
           onKeyDown={(e) => {
             e.stopPropagation();
             if (e.key === 'Enter') {
               e.preventDefault();
-              void onOk(value);
+              void onDone();
             }
 
             if (e.key === 'Escape') {
@@ -54,18 +65,12 @@ function RenameDialog({
           variant='standard'
         />
       </DialogContent>
-
-      <DialogActions>
-        <Button onClick={onClose}>{t('button.cancel')}</Button>
-        <Button
-          onClick={async () => {
-            try {
-              await onOk(value);
-            } catch (e) {
-              setError(true);
-            }
-          }}
-        >
+      <Divider className={'mb-1'} />
+      <DialogActions className={'mb-1 px-4'}>
+        <Button variant={'outlined'} onClick={onClose}>
+          {t('button.cancel')}
+        </Button>
+        <Button variant={'contained'} onClick={onDone}>
           {t('button.ok')}
         </Button>
       </DialogActions>

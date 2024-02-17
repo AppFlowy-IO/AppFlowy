@@ -47,6 +47,7 @@ export function useShortcuts(editor: ReactEditor) {
 
       if (format) {
         e.preventDefault();
+        if (CustomEditor.selectionIncludeRoot(editor)) return;
         return CustomEditor.toggleMark(editor, {
           key: format,
           value: true,
@@ -66,7 +67,7 @@ export function useShortcuts(editor: ReactEditor) {
           if (isHotkey(item.hotkey, e)) {
             e.stopPropagation();
             e.preventDefault();
-
+            if (CustomEditor.selectionIncludeRoot(editor)) return;
             if (item.markKey === EditorMarkFormat.Align) {
               CustomEditor.toggleAlign(editor, item.markValue as string);
               return;

@@ -45,7 +45,9 @@ class StyledSingleChildScrollViewState
 
   @override
   void dispose() {
-    // scrollController.dispose();
+    if (widget.controller == null) {
+      scrollController.dispose();
+    }
     super.dispose();
   }
 

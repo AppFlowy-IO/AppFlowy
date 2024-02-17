@@ -185,6 +185,14 @@ class _ChecklistItemState extends State<ChecklistItem> {
   }
 
   @override
+  void dispose() {
+    _textController.dispose();
+    _focusNode.dispose();
+    _debounceOnChanged?.cancel();
+    super.dispose();
+  }
+
+  @override
   void didUpdateWidget(ChecklistItem oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.task.data.name != oldWidget.task.data.name &&
@@ -298,6 +306,12 @@ class _NewTaskItemState extends State<NewTaskItem> {
     if (widget.focusNode.canRequestFocus) {
       widget.focusNode.requestFocus();
     }
+  }
+
+  @override
+  void dispose() {
+    _textEditingController.dispose();
+    super.dispose();
   }
 
   @override

@@ -35,7 +35,12 @@ class FilterMenu extends StatelessWidget {
           final List<Widget> children = [];
           children.addAll(
             state.filters
-                .map((filterInfo) => FilterMenuItem(filterInfo: filterInfo))
+                .map(
+                  (filterInfo) => FilterMenuItem(
+                    key: ValueKey(filterInfo.filter.id),
+                    filterInfo: filterInfo,
+                  ),
+                )
                 .toList(),
           );
 

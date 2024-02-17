@@ -10,7 +10,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
 
 import '../editable_cell_skeleton/checklist.dart';
 
@@ -113,40 +113,34 @@ class _ChecklistItemsState extends State<ChecklistItems> {
           ),
           const VSpace(4),
           ...children,
-          const ChecklistItemControl(),
+          ChecklistItemControl(cellNotifer: widget.cellContainerNotifier),
         ],
       ),
     );
   }
 }
 
-class ChecklistItemControl extends StatefulWidget {
-  const ChecklistItemControl({super.key});
+class ChecklistItemControl extends StatelessWidget {
+  const ChecklistItemControl({super.key, required this.cellNotifer});
 
-  @override
-  State<ChecklistItemControl> createState() => _ChecklistItemControlState();
-}
-
-class _ChecklistItemControlState extends State<ChecklistItemControl> {
-  bool _isHover = false;
+  final CellContainerNotifier cellNotifer;
 
   @override
   Widget build(BuildContext context) {
-    return MouseRegion(
-      onHover: (_) => setState(() => _isHover = true),
-      onExit: (_) => setState(() => _isHover = false),
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: () => context
-            .read<ChecklistCellBloc>()
-            .add(const ChecklistCellEvent.createNewTask("")),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(8.0, 4.0, 8.0, 0),
-          child: SizedBox(
+    return ChangeNotifierProvider.value(
+      value: cellNotifer,
+      child: Consumer<CellContainerNotifier>(
+        builder: (buildContext, notifier, _) => GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () => context
+              .read<ChecklistCellBloc>()
+              .add(const ChecklistCellEvent.createNewTask("")),
+          child: Container(
+            margin: const EdgeInsets.fromLTRB(8.0, 4.0, 8.0, 0),
             height: 12,
             child: AnimatedSwitcher(
               duration: const Duration(milliseconds: 150),
-              child: _isHover
+              child: notifier.isHover
                   ? FlowyTooltip(
                       message: LocaleKeys.grid_checklist_addNew.tr(),
                       child: Row(

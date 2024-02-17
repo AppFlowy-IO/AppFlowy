@@ -37,6 +37,7 @@ class _SelectOptionCellEditorState extends State<SelectOptionCellEditor> {
   @override
   void dispose() {
     popoverMutex.dispose();
+    textEditingController.dispose();
     super.dispose();
   }
 

@@ -769,6 +769,35 @@ impl DatabaseViewEditor {
     Ok(())
   }
 
+  pub async fn v_did_delete_field(&self, deleted_field_id: &str) {
+    let sorts = self.delegate.get_all_sorts(&self.view_id);
+
+    if let Some(sort) = sorts.iter().find(|sort| sort.field_id == deleted_field_id) {
+      self.delegate.remove_sort(&self.view_id, &sort.id);
+      let notification = self
+        .sort_controller
+        .write()
+        .await
+        .apply_changeset(SortChangeset::from_delete(sort.id.clone()))
+        .await;
+      if !notification.is_empty() {
+        notify_did_update_sort(notification).await;
+      }
+    }
+
+    self
+      .calculations_controller
+      .did_receive_field_deleted(deleted_field_id.to_string())
+      .await;
+  }
+
+  pub async fn v_did_update_field_type(&self, field_id: &str, new_field_type: &FieldType) {
+    self
+      .calculations_controller
+      .did_receive_field_type_changed(field_id.to_owned(), new_field_type.to_owned())
+      .await;
+  }
+
   /// Notifies the view's field type-option data is changed
   /// For the moment, only the groups will be generated after the type-option data changed. A
   /// [Field] has a property named type_options contains a list of type-option data.
@@ -1021,20 +1050,6 @@ impl DatabaseViewEditor {
       .update_field_settings(view_id, field_id, visibility, width);
 
     Ok(())
-  }
-
-  pub async fn v_did_delete_field(&self, field_id: &str) {
-    self
-      .calculations_controller
-      .did_receive_field_deleted(field_id.to_owned())
-      .await;
-  }
-
-  pub async fn v_did_update_field_type(&self, field_id: &str, new_field_type: &FieldType) {
-    self
-      .calculations_controller
-      .did_receive_field_type_changed(field_id.to_owned(), new_field_type.to_owned())
-      .await;
   }
 
   async fn mut_group_controller<F, T>(&self, f: F) -> Option<T>

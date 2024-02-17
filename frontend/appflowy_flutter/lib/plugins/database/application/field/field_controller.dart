@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:appflowy/plugins/database/application/database_view_service.dart';
 import 'package:appflowy/plugins/database/application/field_settings/field_settings_listener.dart';
 import 'package:appflowy/plugins/database/application/field_settings/field_settings_service.dart';
@@ -333,6 +335,32 @@ class FieldController {
       }
     }
 
+    void updateFieldInfos(
+      List<SortInfo> newSortInfos,
+      SortChangesetNotificationPB changeset,
+    ) {
+      final changedFieldIds = HashSet<String>.from([
+        ...changeset.insertSorts.map((sort) => sort.sort.fieldId),
+        ...changeset.updateSorts.map((sort) => sort.fieldId),
+        ...changeset.deleteSorts.map((sort) => sort.fieldId),
+      ]);
+
+      final newFieldInfos = [...fieldInfos];
+
+      for (final fieldId in changedFieldIds) {
+        final index =
+            newFieldInfos.indexWhere((fieldInfo) => fieldInfo.id == fieldId);
+        if (index == -1) {
+          continue;
+        }
+        newFieldInfos[index] = newFieldInfos[index].copyWith(
+          hasSort: newSortInfos.any((sort) => sort.fieldId == fieldId),
+        );
+      }
+
+      _fieldNotifier.fieldInfos = newFieldInfos;
+    }
+
     _sortsListener.start(
       onSortChanged: (result) {
         if (_isDisposed) {
@@ -346,6 +374,7 @@ class FieldController {
             updateSortFromChangeset(newSortInfos, changeset);
 
             _sortNotifier?.sorts = newSortInfos;
+            updateFieldInfos(newSortInfos, changeset);
           },
           (err) => Log.error(err),
         );

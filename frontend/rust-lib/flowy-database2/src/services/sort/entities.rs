@@ -121,7 +121,7 @@ pub struct ReorderSingleRowResult {
   pub new_index: usize,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct SortChangeset {
   pub(crate) insert_sort: Option<Sort>,
   pub(crate) update_sort: Option<Sort>,
@@ -133,36 +133,28 @@ impl SortChangeset {
   pub fn from_insert(sort: Sort) -> Self {
     Self {
       insert_sort: Some(sort),
-      update_sort: None,
-      delete_sort: None,
-      reorder_sort: None,
+      ..Default::default()
     }
   }
 
   pub fn from_update(sort: Sort) -> Self {
     Self {
-      insert_sort: None,
       update_sort: Some(sort),
-      delete_sort: None,
-      reorder_sort: None,
+      ..Default::default()
     }
   }
 
   pub fn from_delete(sort_id: String) -> Self {
     Self {
-      insert_sort: None,
-      update_sort: None,
       delete_sort: Some(sort_id),
-      reorder_sort: None,
+      ..Default::default()
     }
   }
 
   pub fn from_reorder(from_sort_id: String, to_sort_id: String) -> Self {
     Self {
-      insert_sort: None,
-      update_sort: None,
-      delete_sort: None,
       reorder_sort: Some((from_sort_id, to_sort_id)),
+      ..Default::default()
     }
   }
 }

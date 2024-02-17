@@ -187,10 +187,10 @@ class MathEquationBlockComponentWidgetState
   }
 
   void showEditingDialog() {
+    final controller = TextEditingController(text: formula);
     showDialog(
       context: context,
       builder: (context) {
-        final controller = TextEditingController(text: formula);
         return AlertDialog(
           backgroundColor: Theme.of(context).canvasColor,
           title: Text(
@@ -234,7 +234,7 @@ class MathEquationBlockComponentWidgetState
           actionsAlignment: MainAxisAlignment.spaceAround,
         );
       },
-    );
+    ).then((_) => controller.dispose());
   }
 
   void updateMathEquation(String mathEquation, BuildContext context) {

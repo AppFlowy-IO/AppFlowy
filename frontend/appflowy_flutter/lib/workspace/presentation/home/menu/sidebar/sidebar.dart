@@ -51,9 +51,6 @@ class HomeSideBar extends StatelessWidget {
             workspaceId: workspaceSetting.workspaceId,
           )..add(const MenuEvent.initial()),
         ),
-        BlocProvider(
-          create: (_) => FavoriteBloc()..add(const FavoriteEvent.initial()),
-        ),
       ],
       child: MultiBlocListener(
         listeners: [

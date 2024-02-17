@@ -22,9 +22,12 @@ const Toolbar = () => {
   const handleOpen = useCallback(() => {
     if (!node || !node.blockId) return;
     setOpenContextMenu(true);
+    const path = ReactEditor.findPath(editor, node);
+
+    editor.select(path);
     selectedBlockContext.clear();
     selectedBlockContext.add(node.blockId);
-  }, [node, selectedBlockContext]);
+  }, [editor, node, selectedBlockContext]);
 
   const handleClose = useCallback(() => {
     setOpenContextMenu(false);

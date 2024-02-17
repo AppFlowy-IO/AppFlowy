@@ -70,12 +70,12 @@
     "copyLink": "Skopiuj link"
   },
   "moreAction": {
-    "small": "mały",
-    "medium": "średni",
-    "large": "duży",
     "fontSize": "Rozmiar czcionki",
     "import": "Import",
-    "moreOptions": "Więcej opcji"
+    "moreOptions": "Więcej opcji",
+    "small": "mały",
+    "medium": "średni",
+    "large": "duży"
   },
   "importPanel": {
     "textAndMarkdown": "Tekst i Markdown",

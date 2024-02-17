@@ -85,7 +85,7 @@ class GridChecklistCellState extends GridCellState<EditableChecklistCell> {
   }
 
   @override
-  void requestBeginFocus() {
+  void onRequestFocus() {
     if (widget.skin is DesktopGridChecklistCellSkin) {
       _popover.show();
     }

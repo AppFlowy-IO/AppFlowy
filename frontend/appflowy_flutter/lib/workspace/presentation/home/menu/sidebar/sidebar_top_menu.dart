@@ -65,8 +65,7 @@ class SidebarTopMenu extends StatelessWidget {
           text: '${LocaleKeys.sideBar_closeSidebar.tr()}\n',
         ),
         TextSpan(
-          // TODO(Lucas.Xu): it doesn't work on macOS.
-          text: Platform.isMacOS ? '⌘+\\' : 'Ctrl+\\',
+          text: Platform.isMacOS ? '⌘+.' : 'Ctrl+\\',
         ),
       ],
     );

@@ -1,12 +1,11 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import Select from '@mui/material/Select';
 import { Theme, ThemeMode, UserSetting } from '$app/stores/reducers/current-user/slice';
 import MenuItem from '@mui/material/MenuItem';
 import { useTranslation } from 'react-i18next';
 
 function AppearanceSetting({
-  theme = Theme.Default,
-  themeMode = ThemeMode.Light,
+  themeMode = ThemeMode.System,
   onChange,
 }: {
   theme?: Theme;
@@ -14,13 +13,6 @@ function AppearanceSetting({
   onChange: (setting: UserSetting) => void;
 }) {
   const { t } = useTranslation();
-
-  useEffect(() => {
-    const html = document.documentElement;
-
-    html?.setAttribute('data-dark-mode', String(themeMode === ThemeMode.Dark));
-    html?.setAttribute('data-theme', theme);
-  }, [theme, themeMode]);
 
   const themeModeOptions = useMemo(
     () => [
@@ -31,6 +23,10 @@ function AppearanceSetting({
       {
         value: ThemeMode.Dark,
         content: t('settings.appearance.themeMode.dark'),
+      },
+      {
+        value: ThemeMode.System,
+        content: t('settings.appearance.themeMode.system'),
       },
     ],
     [t]
@@ -63,7 +59,7 @@ function AppearanceSetting({
                 }}
               >
                 {options.map((option) => (
-                  <MenuItem key={option.value} value={option.value}>
+                  <MenuItem key={option.value} className={'my-1 rounded-none px-2 py-1 text-xs'} value={option.value}>
                     {option.content}
                   </MenuItem>
                 ))}
@@ -86,6 +82,9 @@ function AppearanceSetting({
           onChange: (newValue) => {
             onChange({
               themeMode: newValue as ThemeMode,
+              isDark:
+                newValue === ThemeMode.Dark ||
+                (newValue === ThemeMode.System && window.matchMedia('(prefers-color-scheme: dark)').matches),
             });
           },
         },

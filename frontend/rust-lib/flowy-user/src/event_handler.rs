@@ -122,8 +122,17 @@ pub async fn get_user_profile_handler(
 
 #[tracing::instrument(level = "debug", skip(manager))]
 pub async fn sign_out_handler(manager: AFPluginState<Weak<UserManager>>) -> Result<(), FlowyError> {
-  let manager = upgrade_manager(manager)?;
-  manager.sign_out().await?;
+  let (tx, rx) = tokio::sync::oneshot::channel();
+  tokio::spawn(async move {
+    let result = async {
+      let manager = upgrade_manager(manager)?;
+      manager.sign_out().await?;
+      Ok::<(), FlowyError>(())
+    }
+    .await;
+    let _ = tx.send(result);
+  });
+  rx.await??;
   Ok(())
 }
 
@@ -565,7 +574,7 @@ pub async fn reset_workspace_handler(
   let reset_pb = data.into_inner();
   if reset_pb.workspace_id.is_empty() {
     return Err(FlowyError::new(
-      ErrorCode::WorkspaceIdInvalid,
+      ErrorCode::WorkspaceInitializeError,
       "The workspace id is empty",
     ));
   }

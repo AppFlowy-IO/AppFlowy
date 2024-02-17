@@ -9,6 +9,7 @@ on:
       - ".github/workflows/flutter_ci.yaml"
       - "frontend/rust-lib/**"
       - "frontend/appflowy_flutter/**"
+      - "frontend/resources/**"
 
   pull_request:
     branches:
@@ -18,6 +19,7 @@ on:
       - ".github/workflows/flutter_ci.yaml"
       - "frontend/rust-lib/**"
       - "frontend/appflowy_flutter/**"
+      - "frontend/resources/**"
 
 env:
   CARGO_TERM_COLOR: always
@@ -59,7 +61,7 @@ jobs:
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
 
       - name: Checkout source code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Install Rust toolchain
         id: rust_toolchain
@@ -120,7 +122,7 @@ jobs:
         run: |
           tar -czf appflowy_flutter.tar.gz frontend/appflowy_flutter
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: ${{ github.run_id }}-${{ matrix.os }}
           path: appflowy_flutter.tar.gz
@@ -140,7 +142,7 @@ jobs:
 
     steps:
       - name: Checkout source code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Install Rust toolchain
         id: rust_toolchain
@@ -192,7 +194,7 @@ jobs:
           fi
         shell: bash
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: ${{ github.run_id }}-${{ matrix.os }}
 
@@ -216,11 +218,11 @@ jobs:
         shell: bash
 
   cloud_integration_test:
-    needs: [ prepare ]
+    needs: [prepare]
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-latest ]
+        os: [ubuntu-latest]
         include:
           - os: ubuntu-latest
             flutter_profile: development-linux-x86_64
@@ -229,11 +231,10 @@ jobs:
 
     steps:
       - name: Checkout appflowy cloud code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: AppFlowy-IO/AppFlowy-Cloud
           path: AppFlowy-Cloud
-          depth: 1
 
       - name: Prepare appflowy cloud env
         working-directory: AppFlowy-Cloud
@@ -253,7 +254,7 @@ jobs:
           sleep 10
 
       - name: Checkout source code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Install flutter
         id: flutter
@@ -280,7 +281,7 @@ jobs:
           flutter config --enable-linux-desktop
         shell: bash
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: ${{ github.run_id }}-${{ matrix.os }}
 
@@ -318,7 +319,7 @@ jobs:
 
     steps:
       - name: Checkout source code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Install Rust toolchain
         id: rust_toolchain
@@ -363,7 +364,7 @@ jobs:
           fi
         shell: bash
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: ${{ github.run_id }}-${{ matrix.os }}
 
@@ -409,7 +410,7 @@ jobs:
 
     steps:
       - name: Checkout source code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Install Rust toolchain
         id: rust_toolchain
@@ -454,7 +455,7 @@ jobs:
           fi
         shell: bash
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: ${{ github.run_id }}-${{ matrix.os }}
 

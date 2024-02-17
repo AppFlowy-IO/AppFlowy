@@ -138,10 +138,10 @@ class ShortcutsListTile extends StatelessWidget {
   }
 
   void showKeyListenerDialog(BuildContext widgetContext) {
+    final controller = TextEditingController(text: shortcutEvent.command);
     showDialog(
       context: widgetContext,
       builder: (builderContext) {
-        final controller = TextEditingController(text: shortcutEvent.command);
         final formKey = GlobalKey<FormState>();
         return AlertDialog(
           title: Text(LocaleKeys.settings_shortcuts_updateShortcutStep.tr()),
@@ -184,7 +184,7 @@ class ShortcutsListTile extends StatelessWidget {
           ),
         );
       },
-    );
+    ).then((_) => controller.dispose());
   }
 
   String? _validateForConflicts(BuildContext context, String command) {

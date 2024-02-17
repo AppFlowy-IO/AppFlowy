@@ -327,6 +327,12 @@ class _RowEnterRegionState extends State<_RowEnterRegion> {
   }
 
   @override
+  Future<void> dispose() async {
+    _rowStateNotifier.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(
       value: _rowStateNotifier,
@@ -337,11 +343,5 @@ class _RowEnterRegionState extends State<_RowEnterRegion> {
         child: widget.child,
       ),
     );
-  }
-
-  @override
-  Future<void> dispose() async {
-    _rowStateNotifier.dispose();
-    super.dispose();
   }
 }

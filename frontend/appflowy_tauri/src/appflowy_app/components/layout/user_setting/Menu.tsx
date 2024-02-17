@@ -27,7 +27,7 @@ function UserSettingMenu({ selected, onSelect }: { onSelect: (selected: MenuItem
   }, [t]);
 
   return (
-    <div className={'h-[300px] w-[200px] border-r border-solid border-r-line-border pr-4 text-sm'}>
+    <div className={'h-[300px] w-[200px] border-r border-solid border-r-line-border pr-4 text-xs'}>
       {options.map((option) => {
         return (
           <div
@@ -35,7 +35,7 @@ function UserSettingMenu({ selected, onSelect }: { onSelect: (selected: MenuItem
             onClick={() => {
               onSelect(option.value);
             }}
-            className={`my-1 flex h-10 w-full cursor-pointer items-center justify-start rounded-md px-4 py-2 text-text-title ${
+            className={`my-1 flex w-full cursor-pointer items-center justify-start rounded-md p-2 text-xs text-text-title ${
               selected === option.value ? 'bg-fill-list-hover' : 'hover:text-content-blue-300'
             }`}
           >
