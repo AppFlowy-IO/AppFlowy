@@ -1,4 +1,4 @@
-import 'package:appflowy/plugins/database_view/widgets/database_view_widget.dart';
+import 'package:appflowy/plugins/database/widgets/database_view_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/built_in_page_widget.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
@@ -17,11 +17,8 @@ class DatabaseBlockKeys {
 
 class DatabaseViewBlockComponentBuilder extends BlockComponentBuilder {
   DatabaseViewBlockComponentBuilder({
-    this.configuration = const BlockComponentConfiguration(),
+    super.configuration,
   });
-
-  @override
-  final BlockComponentConfiguration configuration;
 
   @override
   BlockComponentWidget build(BlockComponentContext blockComponentContext) {
@@ -78,17 +75,24 @@ class _DatabaseBlockComponentWidgetState
         return DatabaseViewWidget(
           key: ValueKey(viewPB.id),
           view: viewPB,
-          shrinkWrap: true,
         );
       },
     );
 
     child = Padding(
       padding: padding,
-      child: child,
+      child: FocusScope(
+        skipTraversal: true,
+        onFocusChange: (value) {
+          if (value) {
+            context.read<EditorState>().selection = null;
+          }
+        },
+        child: child,
+      ),
     );
 
-    if (widget.actionBuilder != null) {
+    if (widget.showActions && widget.actionBuilder != null) {
       child = BlockComponentActionWrapper(
         node: widget.node,
         actionBuilder: widget.actionBuilder!,

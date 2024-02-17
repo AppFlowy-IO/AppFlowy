@@ -6,7 +6,7 @@ import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pbserver.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:dartz/dartz.dart' as dartz;
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -21,11 +21,11 @@ import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 
 class BuiltInPageWidget extends StatefulWidget {
   const BuiltInPageWidget({
-    Key? key,
+    super.key,
     required this.node,
     required this.editorState,
     required this.builder,
-  }) : super(key: key);
+  });
 
   final Node node;
   final EditorState editorState;
@@ -93,7 +93,6 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
       child: SizedBox(
         height: viewPB.pluginType == PluginType.calendar ? 700 : 400,
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildMenu(context, viewPB),
@@ -129,10 +128,10 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
           width: 24,
           height: 24,
           iconPadding: const EdgeInsets.all(3),
-          icon: FlowySvg(
+          icon: const FlowySvg(
             FlowySvgs.information_s,
-            color: Theme.of(context).iconTheme.color,
           ),
+          iconColorOnHover: Theme.of(context).colorScheme.onSecondary,
         ),
         // setting
         const Space(7, 0),
@@ -146,9 +145,9 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
             width: 24,
             height: 24,
             iconPadding: const EdgeInsets.all(3),
-            icon: FlowySvg(
+            iconColorOnHover: Theme.of(context).colorScheme.onSecondary,
+            icon: const FlowySvg(
               FlowySvgs.settings_s,
-              color: Theme.of(context).iconTheme.color,
             ),
             onPressed: () => controller.show(),
           ),
@@ -165,12 +164,12 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
               case _ActionType.delete:
                 final transaction = widget.editorState.transaction;
                 transaction.deleteNode(widget.node);
-                widget.editorState.apply(transaction);
+                await widget.editorState.apply(transaction);
                 break;
             }
             controller.close();
           },
-        )
+        ),
       ],
     );
   }
@@ -178,7 +177,7 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
   Future<void> _deletePage() async {
     final transaction = widget.editorState.transaction;
     transaction.deleteNode(widget.node);
-    widget.editorState.apply(transaction);
+    await widget.editorState.apply(transaction);
   }
 }
 
@@ -188,9 +187,9 @@ enum _ActionType {
 }
 
 class _ActionWrapper extends ActionCell {
-  final _ActionType inner;
-
   _ActionWrapper(this.inner);
+
+  final _ActionType inner;
 
   Widget? icon(Color iconColor) => null;
 

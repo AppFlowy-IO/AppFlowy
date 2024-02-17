@@ -8,7 +8,7 @@ import 'package:flutter/services.dart';
 final DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
 
 Future<String> getDeviceId() async {
-  if (integrationEnv().isTest) {
+  if (integrationMode().isTest) {
     return "test_device_id";
   }
 

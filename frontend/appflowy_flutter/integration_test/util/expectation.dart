@@ -1,23 +1,40 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/database/widgets/row/row_detail.dart';
 import 'package:appflowy/plugins/document/presentation/banner.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/document_header_node_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy/workspace/presentation/notifications/widgets/notification_item.dart';
+import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/reminder_selector.dart';
+import 'package:appflowy/workspace/presentation/widgets/view_title_bar.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'util.dart';
+
 // const String readme = 'Read me';
-const String gettingStarted = '⭐️ Getting started';
+const String gettingStarted = 'Getting started';
 
 extension Expectation on WidgetTester {
   /// Expect to see the home page and with a default read me page.
-  void expectToSeeHomePage() {
-    expect(find.byType(HomeStack), findsOneWidget);
-    expect(find.textContaining(gettingStarted), findsWidgets);
+  Future<void> expectToSeeHomePageWithGetStartedPage() async {
+    final finder = find.byType(HomeStack);
+    await pumpUntilFound(finder);
+    expect(finder, findsOneWidget);
+
+    final docFinder = find.textContaining(gettingStarted);
+    await pumpUntilFound(docFinder);
+  }
+
+  Future<void> expectToSeeHomePage() async {
+    final finder = find.byType(HomeStack);
+    await pumpUntilFound(finder);
+    expect(finder, findsOneWidget);
   }
 
   /// Expect to see the page name on the home page.
@@ -108,6 +125,13 @@ extension Expectation on WidgetTester {
     expect(iconWidget, findsOneWidget);
   }
 
+  void expectDocumentIconNotNull() {
+    final iconWidget = find.byWidgetPredicate(
+      (widget) => widget is EmojiIconWidget && widget.emoji.isNotEmpty,
+    );
+    expect(iconWidget, findsOneWidget);
+  }
+
   void expectToSeeDocumentCover(CoverType type) {
     final findCover = find.byWidgetPredicate(
       (widget) => widget is DocumentCover && widget.coverType == type,
@@ -157,12 +181,21 @@ extension Expectation on WidgetTester {
   }) {
     return find.byWidgetPredicate(
       (widget) =>
-          widget is ViewItem &&
+          widget is SingleInnerViewItem &&
           widget.view.isFavorite &&
           widget.categoryType == FolderCategoryType.favorite &&
           widget.view.name == name &&
           widget.view.layout == layout,
       skipOffstage: false,
+    );
+  }
+
+  Finder findAllFavoritePages() {
+    return find.byWidgetPredicate(
+      (widget) =>
+          widget is SingleInnerViewItem &&
+          widget.view.isFavorite &&
+          widget.categoryType == FolderCategoryType.favorite,
     );
   }
 
@@ -185,12 +218,57 @@ extension Expectation on WidgetTester {
     return find.descendant(
       of: find.byWidgetPredicate(
         (widget) =>
-            widget is ViewItem &&
+            widget is InnerViewItem &&
             widget.view.name == parentName &&
             widget.view.layout == parentLayout,
         skipOffstage: false,
       ),
       matching: findPageName(name, layout: layout),
+    );
+  }
+
+  void expectViewHasIcon(String name, ViewLayoutPB layout, String emoji) {
+    final pageName = findPageName(
+      name,
+      layout: layout,
+    );
+    final icon = find.descendant(
+      of: pageName,
+      matching: find.text(emoji),
+    );
+    expect(icon, findsOneWidget);
+  }
+
+  void expectViewTitleHasIcon(String name, ViewLayoutPB layout, String emoji) {
+    final icon = find.descendant(
+      of: find.byType(ViewTitleBar),
+      matching: find.text(emoji),
+    );
+    expect(icon, findsOneWidget);
+  }
+
+  void expectSelectedReminder(ReminderOption option) {
+    final findSelectedText = find.descendant(
+      of: find.byType(ReminderSelector),
+      matching: find.text(option.label),
+    );
+
+    expect(findSelectedText, findsOneWidget);
+  }
+
+  void expectNotificationItems(int amount) {
+    final findItems = find.byType(NotificationItem);
+
+    expect(findItems, findsNWidgets(amount));
+  }
+
+  void expectToSeeRowDetailsPageDialog() {
+    expect(
+      find.descendant(
+        of: find.byType(RowDetailPage),
+        matching: find.byType(SimpleDialog),
+      ),
+      findsOneWidget,
     );
   }
 }

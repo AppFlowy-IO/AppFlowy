@@ -8,9 +8,8 @@ use crate::entities::{
 use crate::services::cell::{
   insert_checkbox_cell, insert_date_cell, insert_select_option_cell, insert_url_cell,
 };
-use crate::services::field::{SelectOption, CHECK};
-use crate::services::group::controller::MoveGroupRowContext;
-use crate::services::group::{GeneratedGroupConfig, Group, GroupData};
+use crate::services::field::{SelectOption, SelectOptionIds, CHECK};
+use crate::services::group::{GeneratedGroupConfig, Group, GroupData, MoveGroupRowContext};
 
 pub fn add_or_remove_select_option_row(
   group: &mut GroupData,
@@ -31,7 +30,7 @@ pub fn add_or_remove_select_option_row(
         if !group.contains_row(&row_detail.row.id) {
           changeset
             .inserted_rows
-            .push(InsertedRowPB::new(RowMetaPB::from(&row_detail.meta)));
+            .push(InsertedRowPB::new(RowMetaPB::from(row_detail)));
           group.add_row(row_detail.clone());
         }
       } else if group.contains_row(&row_detail.row.id) {
@@ -52,12 +51,12 @@ pub fn add_or_remove_select_option_row(
 
 pub fn remove_select_option_row(
   group: &mut GroupData,
-  cell_data: &SelectOptionCellDataPB,
+  cell_data: &SelectOptionIds,
   row: &Row,
 ) -> Option<GroupRowsNotificationPB> {
   let mut changeset = GroupRowsNotificationPB::new(group.id.clone());
-  cell_data.select_options.iter().for_each(|option| {
-    if option.id == group.id && group.contains_row(&row.id) {
+  cell_data.iter().for_each(|option_id| {
+    if option_id == &group.id && group.contains_row(&row.id) {
       group.remove_row(&row.id);
       changeset.deleted_rows.push(row.id.clone().into_inner());
     }
@@ -104,7 +103,7 @@ pub fn move_group_row(
   }
 
   if group.id == *to_group_id {
-    let mut inserted_row = InsertedRowPB::new(RowMetaPB::from(&row_detail.meta));
+    let mut inserted_row = InsertedRowPB::new(RowMetaPB::from((*row_detail).clone()));
     match to_index {
       None => {
         changeset.inserted_rows.push(inserted_row);
@@ -174,11 +173,9 @@ pub fn make_inserted_cell(group_id: &str, field: &Field) -> Option<Cell> {
       Some(cell)
     },
     FieldType::DateTime => {
-      let date = NaiveDateTime::parse_from_str(
-        &format!("{} 00:00:00", group_id).to_string(),
-        "%Y/%m/%d %H:%M:%S",
-      )
-      .unwrap();
+      let date =
+        NaiveDateTime::parse_from_str(&format!("{} 00:00:00", group_id), "%Y/%m/%d %H:%M:%S")
+          .unwrap();
       let cell = insert_date_cell(date.timestamp(), None, field);
       Some(cell)
     },
@@ -188,6 +185,7 @@ pub fn make_inserted_cell(group_id: &str, field: &Field) -> Option<Cell> {
     },
   }
 }
+
 pub fn generate_select_option_groups(
   _field_id: &str,
   options: &[SelectOption],

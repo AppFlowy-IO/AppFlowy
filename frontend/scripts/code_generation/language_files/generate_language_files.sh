@@ -1,5 +1,13 @@
 #!/bin/bash
 
+no_pub_get=false
+
+while getopts 's' flag; do
+  case "${flag}" in
+    s) no_pub_get=true ;;
+  esac
+done
+
 echo "Generating language files"
 
 # Store the current working directory
@@ -16,6 +24,7 @@ rm -rf assets/translations/
 mkdir -p assets/translations/
 cp -f ../resources/translations/*.json assets/translations/
 
+flutter pub get
 flutter packages pub get
 
 echo "Specifying source directory for AppFlowy Localizations."

@@ -5,18 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:styled_widget/styled_widget.dart';
 
 class PopoverActionList<T extends PopoverAction> extends StatefulWidget {
-  final List<T> actions;
-  final PopoverMutex? mutex;
-  final Function(T, PopoverController) onSelected;
-  final BoxConstraints constraints;
-  final PopoverDirection direction;
-  final Widget Function(PopoverController) buildChild;
-  final VoidCallback? onPopupBuilder;
-  final VoidCallback? onClosed;
-  final bool asBarrier;
-  final Offset offset;
-
   const PopoverActionList({
+    super.key,
     required this.actions,
     required this.buildChild,
     required this.onSelected,
@@ -31,8 +21,18 @@ class PopoverActionList<T extends PopoverAction> extends StatefulWidget {
       maxWidth: 460,
       maxHeight: 300,
     ),
-    Key? key,
-  }) : super(key: key);
+  });
+
+  final List<T> actions;
+  final Widget Function(PopoverController) buildChild;
+  final Function(T, PopoverController) onSelected;
+  final PopoverMutex? mutex;
+  final VoidCallback? onClosed;
+  final VoidCallback? onPopupBuilder;
+  final PopoverDirection direction;
+  final bool asBarrier;
+  final Offset offset;
+  final BoxConstraints constraints;
 
   @override
   State<PopoverActionList<T>> createState() => _PopoverActionListState<T>();
@@ -131,15 +131,16 @@ class ActionListSizes {
 }
 
 class ActionCellWidget<T extends PopoverAction> extends StatelessWidget {
-  final T action;
-  final Function(T) onSelected;
-  final double itemHeight;
   const ActionCellWidget({
-    Key? key,
+    super.key,
     required this.action,
     required this.onSelected,
     required this.itemHeight,
-  }) : super(key: key);
+  });
+
+  final T action;
+  final Function(T) onSelected;
+  final double itemHeight;
 
   @override
   Widget build(BuildContext context) {
@@ -235,7 +236,7 @@ class HoverButton extends StatelessWidget {
             children: [
               if (leftIcon != null) ...[
                 leftIcon!,
-                HSpace(ActionListSizes.itemHPadding)
+                HSpace(ActionListSizes.itemHPadding),
               ],
               Expanded(
                 child: FlowyText.medium(

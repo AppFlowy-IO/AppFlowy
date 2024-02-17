@@ -12,7 +12,7 @@ mod tests {
   #[test]
   fn date_type_to_text_type() {
     let field_type = FieldType::DateTime;
-    let field = FieldBuilder::from_field_type(field_type.clone()).build();
+    let field = FieldBuilder::new(field_type, DateTypeOption::test()).build();
 
     assert_eq!(
       stringify_cell_data(
@@ -26,12 +26,41 @@ mod tests {
 
     let data = DateCellData {
       timestamp: Some(1647251762),
+      end_timestamp: None,
       include_time: true,
+      is_range: false,
+      reminder_id: String::new(),
     };
 
     assert_eq!(
-      stringify_cell_data(&data.into(), &FieldType::RichText, &field_type, &field),
-      "Mar 14, 2022"
+      stringify_cell_data(&(&data).into(), &FieldType::RichText, &field_type, &field),
+      "Mar 14, 2022 09:56"
+    );
+
+    let data = DateCellData {
+      timestamp: Some(1647251762),
+      end_timestamp: Some(1648533809),
+      include_time: true,
+      is_range: false,
+      reminder_id: String::new(),
+    };
+
+    assert_eq!(
+      stringify_cell_data(&(&data).into(), &FieldType::RichText, &field_type, &field),
+      "Mar 14, 2022 09:56"
+    );
+
+    let data = DateCellData {
+      timestamp: Some(1647251762),
+      end_timestamp: Some(1648533809),
+      include_time: true,
+      is_range: true,
+      reminder_id: String::new(),
+    };
+
+    assert_eq!(
+      stringify_cell_data(&(&data).into(), &FieldType::RichText, &field_type, &field),
+      "Mar 14, 2022 09:56 → Mar 29, 2022 06:03"
     );
   }
 
@@ -51,7 +80,7 @@ mod tests {
       options: vec![done_option.clone()],
       disable_color: false,
     };
-    let field = FieldBuilder::new(field_type.clone(), single_select).build();
+    let field = FieldBuilder::new(field_type, single_select).build();
 
     assert_eq!(
       stringify_cell_data(
@@ -81,7 +110,7 @@ mod tests {
     let france_option_id = france.id;
     let argentina_option_id = argentina.id;
 
-    let field_rev = FieldBuilder::new(field_type.clone(), multi_select).build();
+    let field_rev = FieldBuilder::new(field_type, multi_select).build();
 
     assert_eq!(
       stringify_cell_data(

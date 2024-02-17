@@ -121,6 +121,12 @@ class _MathInputTextFieldState extends State<MathInputTextField> {
   }
 
   @override
+  void dispose() {
+    textEditingController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: 240,
@@ -142,7 +148,7 @@ class _MathInputTextFieldState extends State<MathInputTextField> {
           ),
           const HSpace(4.0),
           FlowyButton(
-            text: FlowyText(LocaleKeys.button_Done.tr()),
+            text: FlowyText(LocaleKeys.button_done.tr()),
             useIntrinsicWidth: true,
             onTap: () => widget.onSubmit(textEditingController.text),
           ),

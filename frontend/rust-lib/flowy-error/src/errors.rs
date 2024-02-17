@@ -1,7 +1,10 @@
+use std::convert::TryInto;
 use std::fmt::Debug;
 
-use anyhow::Result;
+use protobuf::ProtobufError;
 use thiserror::Error;
+use tokio::task::JoinError;
+use validator::{ValidationError, ValidationErrors};
 
 use flowy_derive::ProtoBuf;
 
@@ -13,10 +16,13 @@ pub type FlowyResult<T> = anyhow::Result<T, FlowyError>;
 #[error("{code:?}: {msg}")]
 pub struct FlowyError {
   #[pb(index = 1)]
-  pub code: i32,
+  pub code: ErrorCode,
 
   #[pb(index = 2)]
   pub msg: String,
+
+  #[pb(index = 3)]
+  pub payload: Vec<u8>,
 }
 
 macro_rules! static_flowy_error {
@@ -31,31 +37,43 @@ macro_rules! static_flowy_error {
 impl FlowyError {
   pub fn new<T: ToString>(code: ErrorCode, msg: T) -> Self {
     Self {
-      code: code.value(),
+      code,
       msg: msg.to_string(),
+      payload: vec![],
     }
   }
-  pub fn context<T: Debug>(mut self, error: T) -> Self {
+  pub fn with_context<T: Debug>(mut self, error: T) -> Self {
     self.msg = format!("{:?}", error);
     self
   }
 
+  pub fn with_payload<T: TryInto<Vec<u8>, Error = ProtobufError>>(mut self, payload: T) -> Self {
+    self.payload = payload.try_into().unwrap_or_default();
+    self
+  }
+
   pub fn is_record_not_found(&self) -> bool {
-    self.code == ErrorCode::RecordNotFound.value()
+    self.code == ErrorCode::RecordNotFound
+  }
+
+  pub fn is_already_exists(&self) -> bool {
+    self.code == ErrorCode::RecordAlreadyExists
+  }
+
+  pub fn is_unauthorized(&self) -> bool {
+    self.code == ErrorCode::UserUnauthorized || self.code == ErrorCode::RecordNotFound
+  }
+
+  pub fn is_local_version_not_support(&self) -> bool {
+    self.code == ErrorCode::LocalVersionNotSupport
   }
 
   static_flowy_error!(internal, ErrorCode::Internal);
   static_flowy_error!(record_not_found, ErrorCode::RecordNotFound);
-  static_flowy_error!(workspace_name, ErrorCode::WorkspaceNameInvalid);
-  static_flowy_error!(workspace_id, ErrorCode::WorkspaceIdInvalid);
-  static_flowy_error!(color_style, ErrorCode::AppColorStyleInvalid);
-  static_flowy_error!(workspace_desc, ErrorCode::WorkspaceDescTooLong);
-  static_flowy_error!(app_name, ErrorCode::AppNameInvalid);
-  static_flowy_error!(invalid_app_id, ErrorCode::AppIdInvalid);
+  static_flowy_error!(workspace_initialize, ErrorCode::WorkspaceInitializeError);
   static_flowy_error!(view_name, ErrorCode::ViewNameInvalid);
   static_flowy_error!(view_thumbnail, ErrorCode::ViewThumbnailInvalid);
   static_flowy_error!(invalid_view_id, ErrorCode::ViewIdIsInvalid);
-  static_flowy_error!(view_desc, ErrorCode::ViewDescTooLong);
   static_flowy_error!(view_data, ErrorCode::ViewDataInvalid);
   static_flowy_error!(unauthorized, ErrorCode::UserUnauthorized);
   static_flowy_error!(email_empty, ErrorCode::EmailIsEmpty);
@@ -76,7 +94,6 @@ impl FlowyError {
   );
   static_flowy_error!(name_empty, ErrorCode::UserNameIsEmpty);
   static_flowy_error!(user_id, ErrorCode::UserIdInvalid);
-  static_flowy_error!(user_not_exist, ErrorCode::UserNotExist);
   static_flowy_error!(text_too_long, ErrorCode::TextTooLong);
   static_flowy_error!(invalid_data, ErrorCode::InvalidParams);
   static_flowy_error!(out_of_bounds, ErrorCode::OutOfBounds);
@@ -88,13 +105,19 @@ impl FlowyError {
     unexpect_calendar_field_type,
     ErrorCode::UnexpectedCalendarFieldType
   );
+  static_flowy_error!(collab_not_sync, ErrorCode::CollabDataNotSync);
+  static_flowy_error!(server_error, ErrorCode::InternalServerError);
+  static_flowy_error!(not_support, ErrorCode::NotSupportYet);
+  static_flowy_error!(local_version_not_support, ErrorCode::LocalVersionNotSupport);
 }
 
 impl std::convert::From<ErrorCode> for FlowyError {
   fn from(code: ErrorCode) -> Self {
+    let msg = format!("{}", code);
     FlowyError {
-      code: code.value(),
-      msg: format!("{}", code),
+      code,
+      msg,
+      payload: vec![],
     }
   }
 }
@@ -103,18 +126,30 @@ pub fn internal_error<T>(e: T) -> FlowyError
 where
   T: std::fmt::Debug,
 {
-  FlowyError::internal().context(e)
+  FlowyError::internal().with_context(e)
 }
 
 impl std::convert::From<std::io::Error> for FlowyError {
   fn from(error: std::io::Error) -> Self {
-    FlowyError::internal().context(error)
+    FlowyError::internal().with_context(error)
   }
 }
 
 impl std::convert::From<protobuf::ProtobufError> for FlowyError {
   fn from(e: protobuf::ProtobufError) -> Self {
-    FlowyError::internal().context(e)
+    FlowyError::internal().with_context(e)
+  }
+}
+
+impl From<ValidationError> for FlowyError {
+  fn from(value: ValidationError) -> Self {
+    FlowyError::new(ErrorCode::InvalidParams, value)
+  }
+}
+
+impl From<ValidationErrors> for FlowyError {
+  fn from(value: ValidationErrors) -> Self {
+    FlowyError::new(ErrorCode::InvalidParams, value)
   }
 }
 
@@ -122,5 +157,23 @@ impl From<anyhow::Error> for FlowyError {
   fn from(e: anyhow::Error) -> Self {
     e.downcast::<FlowyError>()
       .unwrap_or_else(|err| FlowyError::new(ErrorCode::Internal, err))
+  }
+}
+
+impl From<fancy_regex::Error> for FlowyError {
+  fn from(e: fancy_regex::Error) -> Self {
+    FlowyError::internal().with_context(e)
+  }
+}
+
+impl From<JoinError> for FlowyError {
+  fn from(e: JoinError) -> Self {
+    FlowyError::internal().with_context(e)
+  }
+}
+
+impl From<tokio::sync::oneshot::error::RecvError> for FlowyError {
+  fn from(e: tokio::sync::oneshot::error::RecvError) -> Self {
+    FlowyError::internal().with_context(e)
   }
 }

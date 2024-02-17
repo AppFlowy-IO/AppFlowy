@@ -1,7 +1,21 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { nanoid } from 'nanoid';
-import { WorkspaceSettingPB } from '@/services/backend/models/flowy-folder2/workspace';
-import { UserSetting } from '$app/interfaces';
+import { WorkspaceSettingPB } from '@/services/backend/models/flowy-folder/workspace';
+import { ThemeModePB as ThemeMode } from '@/services/backend';
+
+export { ThemeMode };
+
+export interface UserSetting {
+  theme?: Theme;
+  themeMode?: ThemeMode;
+  language?: string;
+  isDark?: boolean;
+}
+
+export enum Theme {
+  Default = 'default',
+  Dandelion = 'dandelion',
+  Lavender = 'lavender',
+}
 
 export interface ICurrentUser {
   id?: number;

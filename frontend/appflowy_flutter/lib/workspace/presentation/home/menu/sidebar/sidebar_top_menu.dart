@@ -8,6 +8,7 @@ import 'package:appflowy/workspace/application/menu/menu_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
+import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -46,12 +47,14 @@ class SidebarTopMenu extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    final name = Theme.of(context).brightness == Brightness.dark
+    final svgData = Theme.of(context).brightness == Brightness.dark
         ? FlowySvgs.flowy_logo_dark_mode_xl
         : FlowySvgs.flowy_logo_text_xl;
+
     return FlowySvg(
-      name,
+      svgData,
       size: const Size(92, 17),
+      blendMode: null,
     );
   }
 
@@ -62,12 +65,11 @@ class SidebarTopMenu extends StatelessWidget {
           text: '${LocaleKeys.sideBar_closeSidebar.tr()}\n',
         ),
         TextSpan(
-          // TODO(Lucas.Xu): it doesn't work on macOS.
-          text: Platform.isMacOS ? '⌘+\\' : 'Ctrl+\\',
+          text: Platform.isMacOS ? '⌘+.' : 'Ctrl+\\',
         ),
       ],
     );
-    return Tooltip(
+    return FlowyTooltip(
       richMessage: textSpan,
       child: FlowyIconButton(
         width: 28,

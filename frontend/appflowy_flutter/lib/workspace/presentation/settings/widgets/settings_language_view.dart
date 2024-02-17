@@ -1,6 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/workspace/application/appearance.dart';
+import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -9,7 +9,7 @@ import 'package:flowy_infra/language.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SettingsLanguageView extends StatelessWidget {
-  const SettingsLanguageView({Key? key}) : super(key: key);
+  const SettingsLanguageView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -31,11 +31,9 @@ class SettingsLanguageView extends StatelessWidget {
 }
 
 class LanguageSelector extends StatelessWidget {
+  const LanguageSelector({super.key, required this.currentLocale});
+
   final Locale currentLocale;
-  const LanguageSelector({
-    super.key,
-    required this.currentLocale,
-  });
 
   @override
   Widget build(BuildContext context) {
@@ -49,9 +47,7 @@ class LanguageSelector extends StatelessWidget {
       ),
       popupBuilder: (BuildContext context) {
         final allLocales = EasyLocalization.of(context)!.supportedLocales;
-        return LanguageItemsListView(
-          allLocales: allLocales,
-        );
+        return LanguageItemsListView(allLocales: allLocales);
       },
     );
   }
@@ -74,7 +70,10 @@ class LanguageItemsListView extends StatelessWidget {
       child: ListView.builder(
         itemBuilder: (context, index) {
           final locale = allLocales[index];
-          return LanguageItem(locale: locale, currentLocale: state.locale);
+          return LanguageItem(
+            locale: locale,
+            currentLocale: state.locale,
+          );
         },
         itemCount: allLocales.length,
       ),
@@ -83,13 +82,14 @@ class LanguageItemsListView extends StatelessWidget {
 }
 
 class LanguageItem extends StatelessWidget {
-  final Locale locale;
-  final Locale currentLocale;
   const LanguageItem({
     super.key,
     required this.locale,
     required this.currentLocale,
   });
+
+  final Locale locale;
+  final Locale currentLocale;
 
   @override
   Widget build(BuildContext context) {
@@ -105,6 +105,7 @@ class LanguageItem extends StatelessWidget {
           if (currentLocale != locale) {
             context.read<AppearanceSettingsCubit>().setLocale(context, locale);
           }
+          PopoverContainer.of(context).close();
         },
       ),
     );

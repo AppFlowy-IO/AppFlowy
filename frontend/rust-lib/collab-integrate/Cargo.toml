@@ -1,0 +1,24 @@
+[package]
+name = "collab-integrate"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+collab = { version = "0.1.0" }
+collab-plugins = { version = "0.1.0" }
+collab-entity = { version = "0.1.0" }
+serde.workspace = true
+serde_json.workspace = true
+anyhow.workspace = true
+tracing.workspace = true
+parking_lot.workspace = true
+async-trait.workspace = true
+tokio = { workspace = true, features = ["sync"]}
+lib-infra = { workspace = true }
+
+[features]
+default = []

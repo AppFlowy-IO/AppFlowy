@@ -1,7 +1,8 @@
 import 'package:time/time.dart';
+
 export 'package:time/time.dart';
 
-class Durations {
+class FlowyDurations {
   static Duration get fastest => .15.seconds;
 
   static Duration get fast => .25.seconds;

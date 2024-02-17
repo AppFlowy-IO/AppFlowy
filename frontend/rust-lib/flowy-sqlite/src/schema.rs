@@ -30,6 +30,9 @@ diesel::table! {
         token -> Text,
         email -> Text,
         auth_type -> Integer,
+        encryption_type -> Text,
+        stability_ai_key -> Text,
+        updated_at -> BigInt,
     }
 }
 

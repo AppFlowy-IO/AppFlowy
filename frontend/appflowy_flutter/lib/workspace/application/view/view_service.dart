@@ -1,10 +1,9 @@
 import 'dart:async';
 
-import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart';
-import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
+import 'package:dartz/dartz.dart';
 
 class ViewBackendService {
   static Future<Either<ViewPB, FlowyError>> createView({
@@ -95,7 +94,6 @@ class ViewBackendService {
       layoutType: layoutType,
       parentViewId: parentViewId,
       name: name,
-      openAfterCreate: false,
       ext: {
         'database_id': databaseId,
       },
@@ -108,7 +106,7 @@ class ViewBackendService {
   }) {
     final payload = ViewIdPB.create()..value = viewId;
 
-    return FolderEventReadView(payload).send().then((result) {
+    return FolderEventGetView(payload).send().then((result) {
       return result.fold(
         (view) => left(view.childViews),
         (error) => right(error),
@@ -149,7 +147,22 @@ class ViewBackendService {
     if (isFavorite != null) {
       payload.isFavorite = isFavorite;
     }
+
     return FolderEventUpdateView(payload).send();
+  }
+
+  static Future<Either<Unit, FlowyError>> updateViewIcon({
+    required String viewId,
+    required String viewIcon,
+  }) {
+    final icon = ViewIconPB()
+      ..ty = ViewIconTypePB.Emoji
+      ..value = viewIcon;
+    final payload = UpdateViewIconPayloadPB.create()
+      ..viewId = viewId
+      ..icon = icon;
+
+    return FolderEventUpdateViewIcon(payload).send();
   }
 
   // deprecated
@@ -200,10 +213,10 @@ class ViewBackendService {
 
   Future<List<ViewPB>> fetchViews() async {
     final result = <ViewPB>[];
-    return FolderEventGetCurrentWorkspace().send().then((value) async {
-      final workspaces = value.getLeftOrNull<WorkspaceSettingPB>();
-      if (workspaces != null) {
-        final views = workspaces.workspace.views;
+    return FolderEventReadCurrentWorkspace().send().then((value) async {
+      final workspace = value.getLeftOrNull<WorkspacePB>();
+      if (workspace != null) {
+        final views = workspace.views;
         for (final view in views) {
           result.add(view);
           final childViews = await getAllViews(view);
@@ -222,7 +235,7 @@ class ViewBackendService {
     if (childViews != null && childViews.isNotEmpty) {
       result.addAll(childViews);
       final views = await Future.wait(
-        childViews.map((e) async => await getAllViews(e)),
+        childViews.map((e) async => getAllViews(e)),
       );
       result.addAll(views.expand((element) => element));
     }
@@ -233,7 +246,7 @@ class ViewBackendService {
     String viewID,
   ) async {
     final payload = ViewIdPB.create()..value = viewID;
-    return FolderEventReadView(payload).send();
+    return FolderEventGetView(payload).send();
   }
 
   Future<Either<ViewPB, FlowyError>> getChildView({
@@ -241,7 +254,7 @@ class ViewBackendService {
     required String childViewId,
   }) async {
     final payload = ViewIdPB.create()..value = parentViewId;
-    return FolderEventReadView(payload).send().then((result) {
+    return FolderEventGetView(payload).send().then((result) {
       return result.fold(
         (app) => left(
           app.childViews.firstWhere((e) => e.id == childViewId),

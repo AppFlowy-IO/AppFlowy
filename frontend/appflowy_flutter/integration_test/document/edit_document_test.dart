@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -18,10 +17,7 @@ void main() {
 
       // create a new document called Sample
       const pageName = 'Sample';
-      await tester.createNewPageWithName(
-        name: pageName,
-        layout: ViewLayoutPB.Document,
-      );
+      await tester.createNewPageWithNameUnderParent(name: pageName);
 
       // focus on the editor
       await tester.editor.tapLineOfEditorAt(0);
@@ -75,10 +71,7 @@ void main() {
 
       // create a new document called Sample
       const pageName = 'Sample';
-      await tester.createNewPageWithName(
-        name: pageName,
-        layout: ViewLayoutPB.Document,
-      );
+      await tester.createNewPageWithNameUnderParent(name: pageName);
 
       // focus on the editor
       await tester.editor.tapLineOfEditorAt(0);
@@ -104,7 +97,7 @@ void main() {
   });
 }
 
-const _sample = r'''
+const _sample = '''
 # Heading 1
 ## Heading 2
 ### Heading 3
@@ -113,9 +106,9 @@ const _sample = r'''
 
 [] Type followed by bullet or num to create a list.
 
-[x] Click `+ New Page` button at the bottom of your sidebar to add a new page.
+[x] Click `New Page` button at the bottom of your sidebar to add a new page.
 
-[] Click `+` next to any page title in the sidebar to quickly add a new subpage, `Document`, `Grid`, or `Kanban Board`.
+[] Click the plus sign next to any page title in the sidebar to quickly add a new subpage, `Document`, `Grid`, or `Kanban Board`.
 ---
 * bulleted list 1
 

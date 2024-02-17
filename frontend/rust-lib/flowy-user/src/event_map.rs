@@ -1,187 +1,78 @@
-use std::sync::{Arc, Weak};
+use std::sync::Weak;
 
-use collab_folder::core::FolderData;
-use serde_json::Value;
 use strum_macros::Display;
 
 use flowy_derive::{Flowy_Event, ProtoBuf_Enum};
 use flowy_error::FlowyResult;
-use flowy_server_config::supabase_config::SupabaseConfiguration;
-use flowy_user_deps::cloud::UserService;
-use flowy_user_deps::entities::*;
+use flowy_user_pub::cloud::UserCloudConfig;
+use flowy_user_pub::entities::*;
 use lib_dispatch::prelude::*;
 use lib_infra::future::{to_fut, Fut};
 
-use crate::errors::FlowyError;
 use crate::event_handler::*;
-use crate::manager::UserManager;
+use crate::user_manager::UserManager;
 
-pub fn init(user_session: Weak<UserManager>) -> AFPlugin {
-  let store_preferences = user_session
+#[rustfmt::skip]
+pub fn init(user_manager: Weak<UserManager>) -> AFPlugin {
+  let store_preferences = user_manager
     .upgrade()
     .map(|session| session.get_store_preferences())
     .unwrap();
   AFPlugin::new()
     .name("Flowy-User")
-    .state(user_session)
+    .state(user_manager)
     .state(store_preferences)
-    .event(UserEvent::SignIn, sign_in)
+    .event(UserEvent::SignInWithEmailPassword, sign_in_with_email_password_handler)
     .event(UserEvent::SignUp, sign_up)
     .event(UserEvent::InitUser, init_user_handler)
     .event(UserEvent::GetUserProfile, get_user_profile_handler)
-    .event(UserEvent::SignOut, sign_out)
+    .event(UserEvent::SignOut, sign_out_handler)
     .event(UserEvent::UpdateUserProfile, update_user_profile_handler)
-    .event(UserEvent::CheckUser, check_user_handler)
     .event(UserEvent::SetAppearanceSetting, set_appearance_setting)
     .event(UserEvent::GetAppearanceSetting, get_appearance_setting)
     .event(UserEvent::GetUserSetting, get_user_setting)
-    .event(UserEvent::SetSupabaseConfig, set_supabase_config_handler)
-    .event(UserEvent::GetSupabaseConfig, get_supabase_config_handler)
-    .event(UserEvent::ThirdPartyAuth, third_party_auth_handler)
-    .event(
-      UserEvent::GetAllUserWorkspaces,
-      get_all_user_workspace_handler,
-    )
+    .event(UserEvent::SetCloudConfig, set_cloud_config_handler)
+    .event(UserEvent::GetCloudConfig, get_cloud_config_handler)
+    .event(UserEvent::SetEncryptionSecret, set_encrypt_secret_handler)
+    .event(UserEvent::CheckEncryptionSign, check_encrypt_secret_handler)
+    .event(UserEvent::OauthSignIn, oauth_sign_in_handler)
+    .event(UserEvent::GenerateSignInURL, gen_sign_in_url_handler)
+    .event(UserEvent::GetOauthURLWithProvider, sign_in_with_provider_handler)
     .event(UserEvent::OpenWorkspace, open_workspace_handler)
-    .event(UserEvent::AddUserToWorkspace, add_user_to_workspace_handler)
-    .event(
-      UserEvent::RemoveUserToWorkspace,
-      remove_user_from_workspace_handler,
-    )
     .event(UserEvent::UpdateNetworkState, update_network_state_handler)
-    .event(UserEvent::GetHistoricalUsers, get_historical_users_handler)
-    .event(UserEvent::OpenHistoricalUser, open_historical_users_handler)
+    .event(UserEvent::OpenAnonUser, open_anon_user_handler)
+    .event(UserEvent::GetAnonUser, get_anon_user_handler)
     .event(UserEvent::PushRealtimeEvent, push_realtime_event_handler)
     .event(UserEvent::CreateReminder, create_reminder_event_handler)
     .event(UserEvent::GetAllReminders, get_all_reminder_event_handler)
-}
-
-pub struct SignUpContext {
-  /// Indicate whether the user is new or not.
-  pub is_new: bool,
-  /// If the user is sign in as guest, and the is_new is true, then the folder data will be not
-  /// None.
-  pub local_folder: Option<FolderData>,
-}
-
-pub trait UserStatusCallback: Send + Sync + 'static {
-  /// When the [AuthType] changed, this method will be called. Currently, the auth type
-  /// will be changed when the user sign in or sign up.
-  fn auth_type_did_changed(&self, _auth_type: AuthType) {}
-  /// This will be called after the application launches if the user is already signed in.
-  /// If the user is not signed in, this method will not be called
-  fn did_init(
-    &self,
-    user_id: i64,
-    user_workspace: &UserWorkspace,
-    device_id: &str,
-  ) -> Fut<FlowyResult<()>>;
-  /// Will be called after the user signed in.
-  fn did_sign_in(
-    &self,
-    user_id: i64,
-    user_workspace: &UserWorkspace,
-    device_id: &str,
-  ) -> Fut<FlowyResult<()>>;
-  /// Will be called after the user signed up.
-  fn did_sign_up(
-    &self,
-    context: SignUpContext,
-    user_profile: &UserProfile,
-    user_workspace: &UserWorkspace,
-    device_id: &str,
-  ) -> Fut<FlowyResult<()>>;
-
-  fn did_expired(&self, token: &str, user_id: i64) -> Fut<FlowyResult<()>>;
-  fn open_workspace(&self, user_id: i64, user_workspace: &UserWorkspace) -> Fut<FlowyResult<()>>;
-  fn did_update_network(&self, _reachable: bool) {}
-  fn receive_realtime_event(&self, _json: Value) {}
-}
-
-/// The user cloud service provider.
-/// The provider can be supabase, firebase, aws, or any other cloud service.
-pub trait UserCloudServiceProvider: Send + Sync + 'static {
-  fn set_supabase_config(&self, supabase_config: &SupabaseConfiguration);
-  fn set_auth_type(&self, auth_type: AuthType);
-  fn set_device_id(&self, device_id: &str);
-  fn get_user_service(&self) -> Result<Arc<dyn UserService>, FlowyError>;
-  fn service_name(&self) -> String;
-}
-
-impl<T> UserCloudServiceProvider for Arc<T>
-where
-  T: UserCloudServiceProvider,
-{
-  fn set_supabase_config(&self, supabase_config: &SupabaseConfiguration) {
-    (**self).set_supabase_config(supabase_config)
-  }
-
-  fn set_auth_type(&self, auth_type: AuthType) {
-    (**self).set_auth_type(auth_type)
-  }
-
-  fn set_device_id(&self, device_id: &str) {
-    (**self).set_device_id(device_id)
-  }
-
-  fn get_user_service(&self) -> Result<Arc<dyn UserService>, FlowyError> {
-    (**self).get_user_service()
-  }
-
-  fn service_name(&self) -> String {
-    (**self).service_name()
-  }
-}
-
-/// Acts as a placeholder [UserStatusCallback] for the user session, but does not perform any function
-pub(crate) struct DefaultUserStatusCallback;
-impl UserStatusCallback for DefaultUserStatusCallback {
-  fn did_init(
-    &self,
-    _user_id: i64,
-    _user_workspace: &UserWorkspace,
-    _device_id: &str,
-  ) -> Fut<FlowyResult<()>> {
-    to_fut(async { Ok(()) })
-  }
-
-  fn did_sign_in(
-    &self,
-    _user_id: i64,
-    _user_workspace: &UserWorkspace,
-    _device_id: &str,
-  ) -> Fut<FlowyResult<()>> {
-    to_fut(async { Ok(()) })
-  }
-
-  fn did_sign_up(
-    &self,
-    _context: SignUpContext,
-    _user_profile: &UserProfile,
-    _user_workspace: &UserWorkspace,
-    _device_id: &str,
-  ) -> Fut<FlowyResult<()>> {
-    to_fut(async { Ok(()) })
-  }
-
-  fn did_expired(&self, _token: &str, _user_id: i64) -> Fut<FlowyResult<()>> {
-    to_fut(async { Ok(()) })
-  }
-
-  fn open_workspace(&self, _user_id: i64, _user_workspace: &UserWorkspace) -> Fut<FlowyResult<()>> {
-    to_fut(async { Ok(()) })
-  }
+    .event(UserEvent::RemoveReminder, remove_reminder_event_handler)
+    .event(UserEvent::UpdateReminder, update_reminder_event_handler)
+    .event(UserEvent::ResetWorkspace, reset_workspace_handler)
+    .event(UserEvent::SetDateTimeSettings, set_date_time_settings)
+    .event(UserEvent::GetDateTimeSettings, get_date_time_settings)
+    .event(UserEvent::SetNotificationSettings, set_notification_settings)
+    .event(UserEvent::GetNotificationSettings, get_notification_settings)
+    .event(UserEvent::ImportAppFlowyDataFolder, import_appflowy_data_folder_handler)
+      // Workspace member
+    .event(UserEvent::AddWorkspaceMember, add_workspace_member_handler)
+    .event(UserEvent::RemoveWorkspaceMember, delete_workspace_member_handler)
+    .event(UserEvent::GetWorkspaceMember, get_workspace_member_handler)
+    .event(UserEvent::UpdateWorkspaceMember, update_workspace_member_handler)
+      // Workspace
+    .event(UserEvent::GetAllWorkspace, get_all_workspace_handler)
+    .event(UserEvent::CreateWorkspace, create_workspace_handler)
+    .event(UserEvent::DeleteWorkspace, delete_workspace_handler)
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
 #[event_err = "FlowyError"]
 pub enum UserEvent {
-  /// Only use when the [AuthType] is Local or SelfHosted
+  /// Only use when the [Authenticator] is Local or SelfHosted
   /// Logging into an account using a register email and password
   #[event(input = "SignInPayloadPB", output = "UserProfilePB")]
-  SignIn = 0,
+  SignInWithEmailPassword = 0,
 
-  /// Only use when the [AuthType] is Local or SelfHosted
+  /// Only use when the [Authenticator] is Local or SelfHosted
   /// Creating a new account
   #[event(input = "SignUpPayloadPB", output = "UserProfilePB")]
   SignUp = 1,
@@ -198,11 +89,8 @@ pub enum UserEvent {
   #[event(output = "UserProfilePB")]
   GetUserProfile = 4,
 
-  /// Check the user current session is valid or not
-  #[event(output = "UserProfilePB")]
-  CheckUser = 5,
-
   /// Initialize resources for the current user after launching the application
+  ///
   #[event()]
   InitUser = 6,
 
@@ -218,41 +106,48 @@ pub enum UserEvent {
   #[event(output = "UserSettingPB")]
   GetUserSetting = 9,
 
-  #[event(input = "ThirdPartyAuthPB", output = "UserProfilePB")]
-  ThirdPartyAuth = 10,
+  #[event(input = "OauthSignInPB", output = "UserProfilePB")]
+  OauthSignIn = 10,
 
-  /// Set the supabase config. It will be written to the environment variables.
-  /// Check out the `write_to_env` of [SupabaseConfigPB].
-  #[event(input = "SupabaseConfigPB")]
-  SetSupabaseConfig = 13,
+  /// Get the OAuth callback url
+  /// Only use when the [Authenticator] is AFCloud
+  #[event(input = "SignInUrlPayloadPB", output = "SignInUrlPB")]
+  GenerateSignInURL = 11,
 
-  #[event(output = "SupabaseConfigPB")]
-  GetSupabaseConfig = 14,
+  #[event(input = "OauthProviderPB", output = "OauthProviderDataPB")]
+  GetOauthURLWithProvider = 12,
+
+  #[event(input = "UpdateCloudConfigPB")]
+  SetCloudConfig = 13,
+
+  #[event(output = "CloudSettingPB")]
+  GetCloudConfig = 14,
+
+  #[event(input = "UserSecretPB")]
+  SetEncryptionSecret = 15,
+
+  #[event(output = "UserEncryptionConfigurationPB")]
+  CheckEncryptionSign = 16,
 
   /// Return the all the workspaces of the user
-  #[event()]
-  GetAllUserWorkspaces = 20,
+  #[event(output = "RepeatedUserWorkspacePB")]
+  GetAllWorkspace = 17,
 
-  #[event(input = "UserWorkspacePB")]
+  #[event(input = "UserWorkspaceIdPB")]
   OpenWorkspace = 21,
-
-  #[event(input = "AddWorkspaceUserPB")]
-  AddUserToWorkspace = 22,
-
-  #[event(input = "RemoveWorkspaceUserPB")]
-  RemoveUserToWorkspace = 23,
 
   #[event(input = "NetworkStatePB")]
   UpdateNetworkState = 24,
 
-  #[event(output = "RepeatedHistoricalUserPB")]
-  GetHistoricalUsers = 25,
+  #[event(output = "UserProfilePB")]
+  GetAnonUser = 25,
 
-  #[event(input = "HistoricalUserPB")]
-  OpenHistoricalUser = 26,
+  #[event()]
+  OpenAnonUser = 26,
 
-  /// Push a realtime event to the user. Currently, the realtime event is only used
-  /// when the auth type is: [AuthType::Supabase].
+  /// Push a realtime event to the user. Currently, the realtime event
+  /// is only used when the auth type is: [Authenticator::Supabase].
+  ///
   #[event(input = "RealtimePayloadPB")]
   PushRealtimeEvent = 27,
 
@@ -261,4 +156,125 @@ pub enum UserEvent {
 
   #[event(output = "RepeatedReminderPB")]
   GetAllReminders = 29,
+
+  #[event(input = "ReminderIdentifierPB")]
+  RemoveReminder = 30,
+
+  #[event(input = "ReminderPB")]
+  UpdateReminder = 31,
+
+  #[event(input = "ResetWorkspacePB")]
+  ResetWorkspace = 32,
+
+  /// Change the Date/Time formats globally
+  #[event(input = "DateTimeSettingsPB")]
+  SetDateTimeSettings = 33,
+
+  /// Retrieve the Date/Time formats
+  #[event(output = "DateTimeSettingsPB")]
+  GetDateTimeSettings = 34,
+
+  #[event(input = "NotificationSettingsPB")]
+  SetNotificationSettings = 35,
+
+  #[event(output = "NotificationSettingsPB")]
+  GetNotificationSettings = 36,
+
+  #[event(output = "AddWorkspaceMemberPB")]
+  AddWorkspaceMember = 37,
+
+  #[event(output = "RemoveWorkspaceMemberPB")]
+  RemoveWorkspaceMember = 38,
+
+  #[event(output = "UpdateWorkspaceMemberPB")]
+  UpdateWorkspaceMember = 39,
+
+  #[event(output = "QueryWorkspacePB")]
+  GetWorkspaceMember = 40,
+
+  #[event(input = "ImportAppFlowyDataPB")]
+  ImportAppFlowyDataFolder = 41,
+
+  #[event(output = "CreateWorkspacePB")]
+  CreateWorkspace = 42,
+
+  #[event(input = "UserWorkspaceIdPB")]
+  DeleteWorkspace = 43,
+}
+
+pub trait UserStatusCallback: Send + Sync + 'static {
+  /// When the [Authenticator] changed, this method will be called. Currently, the auth type
+  /// will be changed when the user sign in or sign up.
+  fn authenticator_did_changed(&self, _authenticator: Authenticator) {}
+  /// This will be called after the application launches if the user is already signed in.
+  /// If the user is not signed in, this method will not be called
+  fn did_init(
+    &self,
+    user_id: i64,
+    user_authenticator: &Authenticator,
+    cloud_config: &Option<UserCloudConfig>,
+    user_workspace: &UserWorkspace,
+    device_id: &str,
+  ) -> Fut<FlowyResult<()>>;
+  /// Will be called after the user signed in.
+  fn did_sign_in(
+    &self,
+    user_id: i64,
+    user_workspace: &UserWorkspace,
+    device_id: &str,
+  ) -> Fut<FlowyResult<()>>;
+  /// Will be called after the user signed up.
+  fn did_sign_up(
+    &self,
+    is_new_user: bool,
+    user_profile: &UserProfile,
+    user_workspace: &UserWorkspace,
+    device_id: &str,
+  ) -> Fut<FlowyResult<()>>;
+
+  fn did_expired(&self, token: &str, user_id: i64) -> Fut<FlowyResult<()>>;
+  fn open_workspace(&self, user_id: i64, user_workspace: &UserWorkspace) -> Fut<FlowyResult<()>>;
+  fn did_update_network(&self, _reachable: bool) {}
+}
+
+/// Acts as a placeholder [UserStatusCallback] for the user session, but does not perform any function
+pub(crate) struct DefaultUserStatusCallback;
+impl UserStatusCallback for DefaultUserStatusCallback {
+  fn did_init(
+    &self,
+    _user_id: i64,
+    _authenticator: &Authenticator,
+    _cloud_config: &Option<UserCloudConfig>,
+    _user_workspace: &UserWorkspace,
+    _device_id: &str,
+  ) -> Fut<FlowyResult<()>> {
+    to_fut(async { Ok(()) })
+  }
+
+  fn did_sign_in(
+    &self,
+    _user_id: i64,
+    _user_workspace: &UserWorkspace,
+    _device_id: &str,
+  ) -> Fut<FlowyResult<()>> {
+    to_fut(async { Ok(()) })
+  }
+
+  fn did_sign_up(
+    &self,
+    _is_new_user: bool,
+    _user_profile: &UserProfile,
+    _user_workspace: &UserWorkspace,
+    _device_id: &str,
+  ) -> Fut<FlowyResult<()>> {
+    to_fut(async { Ok(()) })
+  }
+
+  fn did_expired(&self, _token: &str, _user_id: i64) -> Fut<FlowyResult<()>> {
+    to_fut(async { Ok(()) })
+  }
+
+  fn open_workspace(&self, _user_id: i64, _user_workspace: &UserWorkspace) -> Fut<FlowyResult<()>> {
+    to_fut(async { Ok(()) })
+  }
 }

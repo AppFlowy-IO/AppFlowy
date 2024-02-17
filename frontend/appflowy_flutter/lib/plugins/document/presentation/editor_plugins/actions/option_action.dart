@@ -5,11 +5,12 @@ import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
-
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:styled_widget/styled_widget.dart';
+
+const optionActionColorDefaultColor = 'appflowy_theme_default_color';
 
 enum OptionAction {
   delete,
@@ -243,19 +244,23 @@ class ColorOptionAction extends PopoverActionCell {
         }
         final bgColor =
             node.attributes[blockComponentBackgroundColor] as String?;
-        final selectedColor = bgColor?.toColor();
-        // get default background color from themeExtension
-        final defaultColor = AFThemeExtension.of(context).calloutBGColor;
+        final selectedColor = bgColor?.tryToColor();
+        // get default background color for callout block from themeExtension
+        final defaultColor = node.type == CalloutBlockKeys.type
+            ? AFThemeExtension.of(context).calloutBGColor
+            : Colors.transparent;
         final colors = [
           // reset to default background color
           FlowyColorOption(
             color: defaultColor,
-            name: LocaleKeys.document_plugins_optionAction_defaultColor.tr(),
+            i18n: LocaleKeys.document_plugins_optionAction_defaultColor.tr(),
+            id: optionActionColorDefaultColor,
           ),
           ...FlowyTint.values.map(
             (e) => FlowyColorOption(
               color: e.color(context),
-              name: e.tintName(AppFlowyEditorLocalizations.current),
+              i18n: e.tintName(AppFlowyEditorL10n.current),
+              id: e.id,
             ),
           ),
         ];
@@ -265,13 +270,11 @@ class ColorOptionAction extends PopoverActionCell {
           selected: selectedColor,
           border: Border.all(
             color: Theme.of(context).colorScheme.onBackground,
-            width: 1,
           ),
-          onTap: (color, index) async {
+          onTap: (option, index) async {
             final transaction = editorState.transaction;
-            final backgroundColor = color.toHex();
             transaction.updateNode(node, {
-              blockComponentBackgroundColor: backgroundColor,
+              blockComponentBackgroundColor: option.id,
             });
             await editorState.apply(transaction);
 

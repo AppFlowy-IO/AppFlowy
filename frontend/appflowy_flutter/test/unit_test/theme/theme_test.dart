@@ -47,6 +47,7 @@ void main() {
             BuiltInTheme.defaultTheme,
             BuiltInTheme.dandelion,
             BuiltInTheme.lavender,
+            BuiltInTheme.lemonade,
           ]),
         );
         expect(theme.lightTheme, isA<FlowyColorScheme>());
@@ -69,7 +70,7 @@ void main() {
 
     test('fromName throws error for non-existent theme', () async {
       expect(
-        () async => await AppTheme.fromName(
+        () async => AppTheme.fromName(
           'bogus',
           pluginService: MockPluginService(),
         ),

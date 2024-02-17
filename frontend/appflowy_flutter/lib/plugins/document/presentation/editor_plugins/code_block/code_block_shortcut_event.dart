@@ -9,9 +9,10 @@ final List<CharacterShortcutEvent> codeBlockCharacterEvents = [
 
 final List<CommandShortcutEvent> codeBlockCommands = [
   insertNewParagraphNextToCodeBlockCommand,
+  pasteInCodeblock,
+  selectAllInCodeBlockCommand,
   tabToInsertSpacesInCodeBlockCommand,
   tabToDeleteSpacesInCodeBlockCommand,
-  selectAllInCodeBlockCommand,
 ];
 
 /// press the enter key in code block to insert a new line in it.
@@ -35,7 +36,7 @@ final CharacterShortcutEvent enterInCodeBlock = CharacterShortcutEvent(
 ///   - mobile
 ///
 final List<CharacterShortcutEvent> ignoreKeysInCodeBlock =
-    [' ', '/', '_', '*', '~']
+    [' ', '/', '_', '*', '~', '-']
         .map(
           (e) => CharacterShortcutEvent(
             key: 'press enter in code block',
@@ -58,6 +59,7 @@ final CommandShortcutEvent insertNewParagraphNextToCodeBlockCommand =
     CommandShortcutEvent(
   key: 'insert a new paragraph next to the code block',
   command: 'shift+enter',
+  getDescription: () => 'Insert a new paragraph next to the code block',
   handler: _insertNewParagraphNextToCodeBlockCommandHandler,
 );
 
@@ -70,6 +72,7 @@ final CommandShortcutEvent tabToInsertSpacesInCodeBlockCommand =
     CommandShortcutEvent(
   key: 'tab to insert two spaces at the line start in code block',
   command: 'tab',
+  getDescription: () => 'Insert two spaces at the line start in code block',
   handler: _tabToInsertSpacesInCodeBlockCommandHandler,
 );
 
@@ -82,6 +85,7 @@ final CommandShortcutEvent tabToDeleteSpacesInCodeBlockCommand =
     CommandShortcutEvent(
   key: 'shift + tab to delete two spaces at the line start in code block',
   command: 'shift+tab',
+  getDescription: () => 'Delete two spaces at the line start in code block',
   handler: _tabToDeleteSpacesInCodeBlockCommandHandler,
 );
 
@@ -94,7 +98,21 @@ final CommandShortcutEvent selectAllInCodeBlockCommand = CommandShortcutEvent(
   key: 'ctrl + a to select all content inside a code block',
   command: 'ctrl+a',
   macOSCommand: 'meta+a',
+  getDescription: () => 'Select all content inside a code block',
   handler: _selectAllInCodeBlockCommandHandler,
+);
+
+/// ctrl + v to paste text in code block.
+///
+/// - support
+///   - desktop
+///   - web
+final CommandShortcutEvent pasteInCodeblock = CommandShortcutEvent(
+  key: 'paste in codeblock',
+  command: 'ctrl+v',
+  macOSCommand: 'cmd+v',
+  getDescription: () => 'Paste text in codeblock',
+  handler: _pasteInCodeBlock,
 );
 
 CharacterShortcutEventHandler _enterInCodeBlockCommandHandler =
@@ -161,9 +179,8 @@ CommandShortcutEventHandler _insertNewParagraphNextToCodeBlockCommandHandler =
         },
       ),
     )
-    ..afterSelection = Selection.collapse(
-      selection.end.path.next,
-      0,
+    ..afterSelection = Selection.collapsed(
+      Position(path: selection.end.path.next),
     );
   editorState.apply(transaction);
   return KeyEventResult.handled;
@@ -192,9 +209,11 @@ CommandShortcutEventHandler _tabToInsertSpacesInCodeBlockCommandHandler =
           index,
           spaces, // two spaces
         )
-        ..afterSelection = Selection.collapse(
-          selection.end.path,
-          selection.endIndex + spaces.length,
+        ..afterSelection = Selection.collapsed(
+          Position(
+            path: selection.end.path,
+            offset: selection.endIndex + spaces.length,
+          ),
         );
       editorState.apply(transaction);
       break;
@@ -228,9 +247,11 @@ CommandShortcutEventHandler _tabToDeleteSpacesInCodeBlockCommandHandler =
             index,
             spaces.length, // two spaces
           )
-          ..afterSelection = Selection.collapse(
-            selection.end.path,
-            selection.endIndex - spaces.length,
+          ..afterSelection = Selection.collapsed(
+            Position(
+              path: selection.end.path,
+              offset: selection.endIndex - spaces.length,
+            ),
           );
         editorState.apply(transaction);
       }
@@ -261,6 +282,52 @@ CommandShortcutEventHandler _selectAllInCodeBlockCommandHandler =
       endOffset: delta.length,
     ),
   );
+
+  return KeyEventResult.handled;
+};
+
+CommandShortcutEventHandler _pasteInCodeBlock = (editorState) {
+  var selection = editorState.selection;
+
+  if (selection == null) {
+    return KeyEventResult.ignored;
+  }
+
+  if (editorState.getNodesInSelection(selection).length != 1) {
+    return KeyEventResult.ignored;
+  }
+
+  final node = editorState.getNodeAtPath(selection.end.path);
+  if (node == null || node.type != CodeBlockKeys.type) {
+    return KeyEventResult.ignored;
+  }
+
+  // delete the selection first.
+  if (!selection.isCollapsed) {
+    editorState.deleteSelection(selection);
+  }
+
+  // fetch selection again.
+  selection = editorState.selection;
+  if (selection == null) {
+    return KeyEventResult.skipRemainingHandlers;
+  }
+  assert(selection.isCollapsed);
+
+  () async {
+    final data = await AppFlowyClipboard.getData();
+    final text = data.text;
+    if (text != null && text.isNotEmpty) {
+      final transaction = editorState.transaction
+        ..insertText(
+          node,
+          selection!.end.offset,
+          text,
+        );
+
+      await editorState.apply(transaction);
+    }
+  }();
 
   return KeyEventResult.handled;
 };

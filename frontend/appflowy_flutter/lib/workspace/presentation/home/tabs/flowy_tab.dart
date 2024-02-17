@@ -8,14 +8,14 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class FlowyTab extends StatefulWidget {
-  final PageManager pageManager;
-  final bool isCurrent;
-
   const FlowyTab({
     super.key,
     required this.pageManager,
     required this.isCurrent,
   });
+
+  final PageManager pageManager;
+  final bool isCurrent;
 
   @override
   State<FlowyTab> createState() => _FlowyTabState();
@@ -52,6 +52,9 @@ class _FlowyTabState extends State<FlowyTab> {
                       visible: _isHovering,
                       child: FlowyIconButton(
                         onPressed: _closeTab,
+                        hoverColor: Theme.of(context).hoverColor,
+                        iconColorOnHover:
+                            Theme.of(context).colorScheme.onSurface,
                         icon: const FlowySvg(
                           FlowySvgs.close_s,
                           size: Size.fromWidth(16),

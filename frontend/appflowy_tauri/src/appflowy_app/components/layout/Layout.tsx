@@ -1,9 +1,8 @@
 import React, { ReactNode, useEffect } from 'react';
-import SideBar from '$app/components/layout/SideBar';
-import TopBar from '$app/components/layout/TopBar';
+import SideBar from '$app/components/layout/side_bar/SideBar';
+import TopBar from '$app/components/layout/top_bar/TopBar';
 import { useAppSelector } from '$app/stores/store';
-import { FooterPanel } from '$app/components/layout/FooterPanel';
-import BlockDragDropContext from '$app/components/_shared/BlockDraggable/BlockDragDropContext';
+import './layout.scss';
 
 function Layout({ children }: { children: ReactNode }) {
   const { isCollapsed, width } = useAppSelector((state) => state.sidebar);
@@ -21,7 +20,7 @@ function Layout({ children }: { children: ReactNode }) {
     };
   }, []);
   return (
-    <BlockDragDropContext>
+    <>
       <div className='flex h-screen w-[100%] text-sm text-text-title'>
         <SideBar />
         <div
@@ -35,15 +34,13 @@ function Layout({ children }: { children: ReactNode }) {
             style={{
               height: 'calc(100vh - 64px - 48px)',
             }}
-            className={'overflow-y-auto overflow-x-hidden'}
+            className={'appflowy-layout overflow-y-auto overflow-x-hidden'}
           >
             {children}
           </div>
-
-          <FooterPanel />
         </div>
       </div>
-    </BlockDragDropContext>
+    </>
   );
 }
 

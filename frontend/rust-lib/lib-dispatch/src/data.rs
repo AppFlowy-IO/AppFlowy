@@ -2,6 +2,7 @@ use std::fmt::{Debug, Formatter};
 use std::ops;
 
 use bytes::Bytes;
+use validator::ValidationErrors;
 
 use crate::{
   byte_trait::*,
@@ -11,6 +12,12 @@ use crate::{
   util::ready::{ready, Ready},
 };
 
+pub trait AFPluginDataValidator {
+  fn validate(self) -> Result<Self, ValidationErrors>
+  where
+    Self: Sized;
+}
+
 pub struct AFPluginData<T>(pub T);
 
 impl<T> AFPluginData<T> {
@@ -19,11 +26,31 @@ impl<T> AFPluginData<T> {
   }
 }
 
+impl<T> AFPluginData<T>
+where
+  T: validator::Validate,
+{
+  pub fn try_into_inner(self) -> Result<T, ValidationErrors> {
+    self.0.validate()?;
+    Ok(self.0)
+  }
+}
+
 impl<T> ops::Deref for AFPluginData<T> {
   type Target = T;
 
   fn deref(&self) -> &T {
     &self.0
+  }
+}
+
+impl<T> AFPluginDataValidator for AFPluginData<T>
+where
+  T: validator::Validate,
+{
+  fn validate(self) -> Result<Self, ValidationErrors> {
+    self.0.validate()?;
+    Ok(self)
   }
 }
 
@@ -61,7 +88,7 @@ where
   fn respond_to(self, _request: &AFPluginEventRequest) -> AFPluginEventResponse {
     match self.into_inner().into_bytes() {
       Ok(bytes) => {
-        log::trace!(
+        tracing::trace!(
           "Serialize Data: {:?} to event response",
           std::any::type_name::<T>()
         );

@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/workspace/application/appearance.dart';
+import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
+import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_appearance/theme_setting_entry_template.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/theme_upload/theme_upload_view.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -26,13 +27,12 @@ class ColorSchemeSetting extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ThemeSettingEntryTemplateWidget(
+    return FlowySettingListTile(
       label: LocaleKeys.settings_appearance_theme.tr(),
       onResetRequested: context.read<AppearanceSettingsCubit>().resetTheme,
       trailing: [
-        ColorSchemeUploadOverlayButton(bloc: bloc),
-        const SizedBox(width: 4),
         ColorSchemeUploadPopover(currentTheme: currentTheme, bloc: bloc),
+        ColorSchemeUploadOverlayButton(bloc: bloc),
       ],
     );
   }
@@ -47,10 +47,14 @@ class ColorSchemeUploadOverlayButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return FlowyIconButton(
       width: 24,
-      icon: const FlowySvg(
+      icon: FlowySvg(
         FlowySvgs.folder_m,
+        size: const Size.square(16),
+        color: Theme.of(context).iconTheme.color,
       ),
       iconColorOnHover: Theme.of(context).colorScheme.onPrimary,
+      hoverColor: Theme.of(context).colorScheme.secondaryContainer,
+      tooltipText: LocaleKeys.settings_appearance_themeUpload_uploadTheme.tr(),
       onPressed: () => Dialogs.show(
         context,
         child: BlocProvider<DynamicPluginBloc>.value(
@@ -62,13 +66,9 @@ class ColorSchemeUploadOverlayButton extends StatelessWidget {
         ),
       ).then((value) {
         if (value == null) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: FlowyText.medium(
-              color: Theme.of(context).colorScheme.onPrimary,
-              LocaleKeys.settings_appearance_themeUpload_uploadSuccess.tr(),
-            ),
-          ),
+        showSnackBarMessage(
+          context,
+          LocaleKeys.settings_appearance_themeUpload_uploadSuccess.tr(),
         );
       }),
     );
@@ -105,11 +105,9 @@ class ColorSchemeUploadPopover extends StatelessWidget {
                 ready: (plugins) => Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    ...AppTheme.builtins
-                        .map(
-                          (theme) => _themeItemButton(context, theme.themeName),
-                        )
-                        .toList(),
+                    ...AppTheme.builtins.map(
+                      (theme) => _themeItemButton(context, theme.themeName),
+                    ),
                     if (plugins.isNotEmpty) ...[
                       const Divider(),
                       ...plugins
@@ -121,8 +119,7 @@ class ColorSchemeUploadPopover extends StatelessWidget {
                               theme.themeName,
                               false,
                             ),
-                          )
-                          .toList()
+                          ),
                     ],
                   ],
                 ),
@@ -156,10 +153,12 @@ class ColorSchemeUploadPopover extends StatelessWidget {
                 if (currentTheme != theme) {
                   context.read<AppearanceSettingsCubit>().setTheme(theme);
                 }
+                PopoverContainer.of(context).close();
               },
             ),
           ),
-          if (!isBuiltin)
+          // when the custom theme is not the current theme, show the remove button
+          if (!isBuiltin && currentTheme != theme)
             FlowyIconButton(
               icon: const FlowySvg(
                 FlowySvgs.close_s,
@@ -167,7 +166,7 @@ class ColorSchemeUploadPopover extends StatelessWidget {
               width: 20,
               onPressed: () =>
                   bloc.add(DynamicPluginEvent.removePlugin(name: theme)),
-            )
+            ),
         ],
       ),
     );

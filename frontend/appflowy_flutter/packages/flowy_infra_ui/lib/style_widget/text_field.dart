@@ -5,8 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class FlowyTextField extends StatefulWidget {
-  final String hintText;
-  final String text;
+  final String? hintText;
+  final String? text;
+  final TextStyle? textStyle;
   final void Function(String)? onChanged;
   final void Function()? onEditingComplete;
   final void Function(String)? onSubmitted;
@@ -19,11 +20,23 @@ class FlowyTextField extends StatefulWidget {
   final bool submitOnLeave;
   final Duration? debounceDuration;
   final String? errorText;
-  final int maxLines;
+  final int? maxLines;
+  final bool showCounter;
+  final Widget? prefixIcon;
+  final Widget? suffixIcon;
+  final BoxConstraints? prefixIconConstraints;
+  final BoxConstraints? suffixIconConstraints;
+  final BoxConstraints? hintTextConstraints;
+  final TextStyle? hintStyle;
+  final InputDecoration? decoration;
+  final TextAlignVertical? textAlignVertical;
+  final TextInputAction? textInputAction;
 
   const FlowyTextField({
+    super.key,
     this.hintText = "",
-    this.text = "",
+    this.text,
+    this.textStyle,
     this.onChanged,
     this.onEditingComplete,
     this.onSubmitted,
@@ -37,8 +50,17 @@ class FlowyTextField extends StatefulWidget {
     this.debounceDuration,
     this.errorText,
     this.maxLines = 1,
-    Key? key,
-  }) : super(key: key);
+    this.showCounter = true,
+    this.prefixIcon,
+    this.suffixIcon,
+    this.prefixIconConstraints,
+    this.suffixIconConstraints,
+    this.hintTextConstraints,
+    this.hintStyle,
+    this.decoration,
+    this.textAlignVertical,
+    this.textInputAction,
+  });
 
   @override
   State<FlowyTextField> createState() => FlowyTextFieldState();
@@ -51,21 +73,40 @@ class FlowyTextFieldState extends State<FlowyTextField> {
 
   @override
   void initState() {
+    super.initState();
+
     focusNode = widget.focusNode ?? FocusNode();
     focusNode.addListener(notifyDidEndEditing);
 
-    if (widget.controller != null) {
-      controller = widget.controller!;
-    } else {
-      controller = TextEditingController();
-      controller.text = widget.text;
+    controller = widget.controller ?? TextEditingController();
+
+    if (widget.text != null) {
+      controller.text = widget.text!;
     }
+
     if (widget.autoFocus) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         focusNode.requestFocus();
+        if (widget.controller == null) {
+          controller.selection = TextSelection.fromPosition(
+            TextPosition(offset: controller.text.length),
+          );
+        }
       });
     }
-    super.initState();
+  }
+
+  @override
+  void dispose() {
+    focusNode.removeListener(notifyDidEndEditing);
+    if (widget.focusNode == null) {
+      focusNode.dispose();
+    }
+    if (widget.controller == null) {
+      controller.dispose();
+    }
+    _debounceOnChanged?.cancel();
+    super.dispose();
   }
 
   void _debounceOnChangedText(Duration duration, String text) {
@@ -102,61 +143,75 @@ class FlowyTextFieldState extends State<FlowyTextField> {
           _onChanged(text);
         }
       },
+      textInputAction: widget.textInputAction,
       onSubmitted: (text) => _onSubmitted(text),
       onEditingComplete: widget.onEditingComplete,
+      minLines: 1,
       maxLines: widget.maxLines,
       maxLength: widget.maxLength,
       maxLengthEnforcement: MaxLengthEnforcement.truncateAfterCompositionEnds,
-      style: Theme.of(context).textTheme.bodyMedium,
-      decoration: InputDecoration(
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 10, vertical: 13),
-        enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(
-            color: Theme.of(context).colorScheme.outline,
-            width: 1.0,
+      style: widget.textStyle ?? Theme.of(context).textTheme.bodySmall,
+      textAlignVertical: widget.textAlignVertical ?? TextAlignVertical.center,
+      keyboardType: TextInputType.multiline,
+      decoration: widget.decoration ??
+          InputDecoration(
+            constraints: widget.hintTextConstraints ??
+                BoxConstraints(
+                  maxHeight: widget.errorText?.isEmpty ?? true ? 32 : 58,
+                ),
+            contentPadding: EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical:
+                  (widget.maxLines == null || widget.maxLines! > 1) ? 12 : 0,
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(
+                color: Theme.of(context).colorScheme.outline,
+                width: 1.0,
+              ),
+              borderRadius: Corners.s8Border,
+            ),
+            isDense: false,
+            hintText: widget.hintText,
+            errorText: widget.errorText,
+            errorStyle: Theme.of(context)
+                .textTheme
+                .bodySmall!
+                .copyWith(color: Theme.of(context).colorScheme.error),
+            hintStyle: widget.hintStyle ??
+                Theme.of(context)
+                    .textTheme
+                    .bodySmall!
+                    .copyWith(color: Theme.of(context).hintColor),
+            suffixText: widget.showCounter ? _suffixText() : "",
+            counterText: "",
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(
+                color: Theme.of(context).colorScheme.primary,
+                width: 1.0,
+              ),
+              borderRadius: Corners.s8Border,
+            ),
+            errorBorder: OutlineInputBorder(
+              borderSide: BorderSide(
+                color: Theme.of(context).colorScheme.error,
+                width: 1.0,
+              ),
+              borderRadius: Corners.s8Border,
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderSide: BorderSide(
+                color: Theme.of(context).colorScheme.error,
+                width: 1.0,
+              ),
+              borderRadius: Corners.s8Border,
+            ),
+            prefixIcon: widget.prefixIcon,
+            suffixIcon: widget.suffixIcon,
+            prefixIconConstraints: widget.prefixIconConstraints,
+            suffixIconConstraints: widget.suffixIconConstraints,
           ),
-          borderRadius: Corners.s10Border,
-        ),
-        isDense: true,
-        hintText: widget.hintText,
-        errorText: widget.errorText,
-        hintStyle: Theme.of(context)
-            .textTheme
-            .bodySmall!
-            .copyWith(color: Theme.of(context).hintColor),
-        suffixText: _suffixText(),
-        counterText: "",
-        focusedBorder: OutlineInputBorder(
-          borderSide: BorderSide(
-            color: Theme.of(context).colorScheme.primary,
-            width: 1.0,
-          ),
-          borderRadius: Corners.s10Border,
-        ),
-        errorBorder: OutlineInputBorder(
-          borderSide: BorderSide(
-            color: Theme.of(context).colorScheme.error,
-            width: 1.0,
-          ),
-          borderRadius: Corners.s10Border,
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderSide: BorderSide(
-            color: Theme.of(context).colorScheme.error,
-            width: 1.0,
-          ),
-          borderRadius: Corners.s10Border,
-        ),
-      ),
     );
-  }
-
-  @override
-  void dispose() {
-    focusNode.removeListener(notifyDidEndEditing);
-    focusNode.dispose();
-    super.dispose();
   }
 
   void notifyDidEndEditing() {
@@ -172,8 +227,7 @@ class FlowyTextFieldState extends State<FlowyTextField> {
   String? _suffixText() {
     if (widget.maxLength != null) {
       return ' ${controller.text.length}/${widget.maxLength}';
-    } else {
-      return null;
     }
+    return null;
   }
 }

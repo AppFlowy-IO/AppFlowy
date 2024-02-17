@@ -1,8 +1,8 @@
-import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
-import 'package:appflowy/plugins/database_view/application/database_controller.dart';
-import 'package:appflowy/plugins/database_view/application/setting/group_bloc.dart';
-import 'package:appflowy/plugins/database_view/board/application/board_bloc.dart';
-import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_cell/select_option_editor_bloc.dart';
+import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
+import 'package:appflowy/plugins/database/application/database_controller.dart';
+import 'package:appflowy/plugins/database/application/setting/group_bloc.dart';
+import 'package:appflowy/plugins/database/board/application/board_bloc.dart';
+import 'package:appflowy/plugins/database/application/cell/bloc/select_option_editor_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -27,7 +27,7 @@ void main() {
     // set grouped by the new multi-select field"
     final gridGroupBloc = DatabaseGroupBloc(
       viewId: context.gridView.id,
-      fieldController: context.fieldController,
+      databaseController: context.databaseController,
     )..add(const DatabaseGroupEvent.initial());
     await boardResponseFuture();
 
@@ -39,7 +39,7 @@ void main() {
     );
     await boardResponseFuture();
 
-    //assert only have the 'No status' group
+    // assert only have the 'No status' group
     final boardBloc = BoardBloc(
       view: context.gridView,
       databaseController: DatabaseController(view: context.gridView),
@@ -67,8 +67,9 @@ void main() {
     final multiSelectField = context.fieldContexts.last.field;
 
     // Create options
-    final cellController = await context.makeCellController(multiSelectField.id)
-        as SelectOptionCellController;
+    final cellController =
+        context.makeCellControllerFromFieldId(multiSelectField.id)
+            as SelectOptionCellController;
 
     final multiSelectOptionBloc =
         SelectOptionCellEditorBloc(cellController: cellController);
@@ -82,7 +83,7 @@ void main() {
     // set grouped by the new multi-select field"
     final gridGroupBloc = DatabaseGroupBloc(
       viewId: context.gridView.id,
-      fieldController: context.fieldController,
+      databaseController: context.databaseController,
     )..add(const DatabaseGroupEvent.initial());
     await boardResponseFuture();
 

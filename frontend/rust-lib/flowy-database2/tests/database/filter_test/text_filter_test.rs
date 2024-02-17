@@ -1,7 +1,7 @@
 use flowy_database2::entities::{
   FieldType, TextFilterConditionPB, TextFilterPB, UpdateFilterPayloadPB,
 };
-use flowy_database2::services::filter::FilterType;
+use flowy_database2::services::filter::FilterContext;
 
 use crate::database::filter_test::script::FilterScript::*;
 use crate::database::filter_test::script::*;
@@ -44,8 +44,7 @@ async fn grid_filter_text_is_not_empty_test() {
   test
     .run_scripts(vec![
       DeleteFilter {
-        filter_id: filter.id.clone(),
-        filter_type: FilterType::from(&filter),
+        filter_context: FilterContext::from(&filter),
         changed: Some(FilterRowChanged {
           showing_num_of_rows: 1,
           hiding_num_of_rows: 0,
@@ -208,8 +207,7 @@ async fn grid_filter_delete_test() {
   test
     .run_scripts(vec![
       DeleteFilter {
-        filter_id: filter.id.clone(),
-        filter_type: FilterType::from(&filter),
+        filter_context: FilterContext::from(&filter),
         changed: None,
       },
       AssertFilterCount { count: 0 },

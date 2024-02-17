@@ -8,9 +8,8 @@ import 'package:appflowy/workspace/presentation/home/navigation.dart';
 import 'package:appflowy/workspace/presentation/home/tabs/tabs_manager.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flowy_infra_ui/style_widget/extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
@@ -25,13 +24,14 @@ abstract class HomeStackDelegate {
 }
 
 class HomeStack extends StatelessWidget {
-  final HomeStackDelegate delegate;
-  final HomeLayout layout;
   const HomeStack({
+    super.key,
     required this.delegate,
     required this.layout,
-    Key? key,
-  }) : super(key: key);
+  });
+
+  final HomeStackDelegate delegate;
+  final HomeLayout layout;
 
   @override
   Widget build(BuildContext context) {
@@ -42,9 +42,11 @@ class HomeStack extends StatelessWidget {
       child: BlocBuilder<TabsBloc, TabsState>(
         builder: (context, state) {
           return Column(
-            mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              TabsManager(pageController: pageController),
+              Padding(
+                padding: EdgeInsets.only(left: layout.menuSpacing),
+                child: TabsManager(pageController: pageController),
+              ),
               state.currentPageManager.stackTopBar(layout: layout),
               Expanded(
                 child: PageView(
@@ -103,18 +105,18 @@ class _PageStackState extends State<PageStack>
 }
 
 class FadingIndexedStack extends StatefulWidget {
-  final int index;
-  final List<Widget> children;
-  final Duration duration;
-
   const FadingIndexedStack({
-    Key? key,
+    super.key,
     required this.index,
     required this.children,
     this.duration = const Duration(
       milliseconds: 250,
     ),
-  }) : super(key: key);
+  });
+
+  final int index;
+  final List<Widget> children;
+  final Duration duration;
 
   @override
   FadingIndexedStackState createState() => FadingIndexedStackState();
@@ -159,15 +161,15 @@ abstract mixin class NavigationItem {
 }
 
 class PageNotifier extends ChangeNotifier {
+  PageNotifier({Plugin? plugin})
+      : _plugin = plugin ?? makePlugin(pluginType: PluginType.blank);
+
   Plugin _plugin;
 
   Widget get titleWidget => _plugin.widgetBuilder.leftBarItem;
 
   Widget tabBarWidget(String pluginId) =>
       _plugin.widgetBuilder.tabBarItem(pluginId);
-
-  PageNotifier({Plugin? plugin})
-      : _plugin = plugin ?? makePlugin(pluginType: PluginType.blank);
 
   /// This is the only place where the plugin is set.
   /// No need compare the old plugin with the new plugin. Just set it.
@@ -186,11 +188,11 @@ class PageNotifier extends ChangeNotifier {
 
 // PageManager manages the view for one Tab
 class PageManager {
+  PageManager();
+
   final PageNotifier _notifier = PageNotifier();
 
   PageNotifier get notifier => _notifier;
-
-  PageManager();
 
   Widget title() {
     return _notifier.plugin.widgetBuilder.leftBarItem;
@@ -236,6 +238,7 @@ class PageManager {
                     shrinkWrap: false,
                   );
 
+                  // TODO(Xazin): Board should fill up full width
                   return Padding(
                     padding: builder.contentPadding,
                     child: pluginWidget,
@@ -250,24 +253,32 @@ class PageManager {
       ),
     );
   }
+
+  void dispose() {
+    _notifier.dispose();
+  }
 }
 
 class HomeTopBar extends StatelessWidget {
-  const HomeTopBar({Key? key, required this.layout}) : super(key: key);
+  const HomeTopBar({super.key, required this.layout});
 
   final HomeLayout layout;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Theme.of(context).colorScheme.onSecondaryContainer,
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.onSecondaryContainer,
+        border: Border(
+          bottom: BorderSide(color: Theme.of(context).dividerColor),
+        ),
+      ),
       height: HomeSizes.topBarHeight,
       child: Padding(
         padding: const EdgeInsets.symmetric(
           horizontal: HomeInsets.topBarTitlePadding,
         ),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             HSpace(layout.menuSpacing),
             const FlowyNavigation(),
@@ -282,7 +293,7 @@ class HomeTopBar extends StatelessWidget {
             ),
           ],
         ),
-      ).bottomBorder(color: Theme.of(context).dividerColor),
+      ),
     );
   }
 }

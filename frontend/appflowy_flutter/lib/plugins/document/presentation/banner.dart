@@ -7,29 +7,31 @@ import 'package:flutter/material.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 
 class DocumentBanner extends StatelessWidget {
-  final void Function() onRestore;
-  final void Function() onDelete;
   const DocumentBanner({
+    super.key,
     required this.onRestore,
     required this.onDelete,
-    Key? key,
-  }) : super(key: key);
+  });
+
+  final void Function() onRestore;
+  final void Function() onDelete;
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return ConstrainedBox(
       constraints: const BoxConstraints(minHeight: 60),
       child: Container(
         width: double.infinity,
-        color: Theme.of(context).colorScheme.primary,
+        color: colorScheme.surfaceVariant,
         child: FittedBox(
-          alignment: Alignment.center,
           fit: BoxFit.scaleDown,
           child: Row(
             children: [
               FlowyText.medium(
                 LocaleKeys.deletePagePrompt_text.tr(),
-                color: Colors.white,
+                color: colorScheme.tertiary,
+                fontSize: 14,
               ),
               const HSpace(20),
               BaseStyledButton(
@@ -37,15 +39,14 @@ class DocumentBanner extends StatelessWidget {
                 minHeight: 40,
                 contentPadding: EdgeInsets.zero,
                 bgColor: Colors.transparent,
-                hoverColor: Theme.of(context).colorScheme.primary,
-                highlightColor: Theme.of(context).colorScheme.primaryContainer,
-                outlineColor: Colors.white,
+                highlightColor: Theme.of(context).colorScheme.onErrorContainer,
+                outlineColor: colorScheme.tertiaryContainer,
                 borderRadius: Corners.s8Border,
                 onPressed: onRestore,
                 child: FlowyText.medium(
                   LocaleKeys.deletePagePrompt_restore.tr(),
-                  color: Theme.of(context).colorScheme.onPrimary,
-                  fontSize: 14,
+                  color: colorScheme.tertiary,
+                  fontSize: 13,
                 ),
               ),
               const HSpace(20),
@@ -54,15 +55,14 @@ class DocumentBanner extends StatelessWidget {
                 minHeight: 40,
                 contentPadding: EdgeInsets.zero,
                 bgColor: Colors.transparent,
-                hoverColor: Theme.of(context).colorScheme.primaryContainer,
-                highlightColor: Theme.of(context).colorScheme.primary,
-                outlineColor: Colors.white,
+                highlightColor: Theme.of(context).colorScheme.error,
+                outlineColor: colorScheme.tertiaryContainer,
                 borderRadius: Corners.s8Border,
                 onPressed: onDelete,
                 child: FlowyText.medium(
                   LocaleKeys.deletePagePrompt_deletePermanent.tr(),
-                  color: Theme.of(context).colorScheme.onPrimary,
-                  fontSize: 14,
+                  color: colorScheme.tertiary,
+                  fontSize: 13,
                 ),
               ),
             ],

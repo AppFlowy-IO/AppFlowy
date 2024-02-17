@@ -1,22 +1,30 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
+import 'package:appflowy/plugins/base/icon/icon_picker.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
+import 'package:appflowy/workspace/application/sidebar/rename_view/rename_view_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
-import 'package:appflowy/workspace/application/view/view_bloc.dart';
+import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/rename_view_dialog.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/draggable_view_item.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_add_button.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_more_action_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
+import 'package:appflowy/workspace/presentation/widgets/rename_view_popover.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
-import 'package:flutter/material.dart';
+import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 typedef ViewItemOnSelected = void Function(ViewPB);
@@ -34,6 +42,7 @@ class ViewItem extends StatelessWidget {
     this.isFirstChild = false,
     this.isDraggable = true,
     required this.isFeedback,
+    this.height = 28.0,
   });
 
   final ViewPB view;
@@ -65,6 +74,8 @@ class ViewItem extends StatelessWidget {
   // identify if the view item is rendered as feedback widget inside DraggableItem
   final bool isFeedback;
 
+  final double height;
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -76,14 +87,10 @@ class ViewItem extends StatelessWidget {
         listener: (context, state) =>
             context.read<TabsBloc>().openPlugin(state.lastCreatedView!),
         builder: (context, state) {
-          // don't remove this code. it's related to the backend service.
-          view.childViews
-            ..clear()
-            ..addAll(state.childViews);
           return InnerViewItem(
             view: state.view,
             parentView: parentView,
-            childViews: state.childViews,
+            childViews: state.view.childViews,
             categoryType: categoryType,
             level: level,
             leftPadding: leftPadding,
@@ -94,12 +101,15 @@ class ViewItem extends StatelessWidget {
             isFirstChild: isFirstChild,
             isDraggable: isDraggable,
             isFeedback: isFeedback,
+            height: height,
           );
         },
       ),
     );
   }
 }
+
+bool _isDragging = false;
 
 class InnerViewItem extends StatelessWidget {
   const InnerViewItem({
@@ -117,6 +127,7 @@ class InnerViewItem extends StatelessWidget {
     this.onTertiarySelected,
     this.isFirstChild = false,
     required this.isFeedback,
+    required this.height,
   });
 
   final ViewPB view;
@@ -136,6 +147,7 @@ class InnerViewItem extends StatelessWidget {
   final bool showActions;
   final ViewItemOnSelected onSelected;
   final ViewItemOnSelected? onTertiarySelected;
+  final double height;
 
   @override
   Widget build(BuildContext context) {
@@ -151,33 +163,56 @@ class InnerViewItem extends StatelessWidget {
       isDraggable: isDraggable,
       leftPadding: leftPadding,
       isFeedback: isFeedback,
+      height: height,
     );
 
     // if the view is expanded and has child views, render its child views
-    if (isExpanded && childViews.isNotEmpty) {
-      final children = childViews.map((childView) {
-        return ViewItem(
-          key: ValueKey('${categoryType.name} ${childView.id}'),
-          parentView: view,
-          categoryType: categoryType,
-          isFirstChild: childView.id == childViews.first.id,
-          view: childView,
-          level: level + 1,
-          onSelected: onSelected,
-          onTertiarySelected: onTertiarySelected,
-          isDraggable: isDraggable,
-          leftPadding: leftPadding,
-          isFeedback: isFeedback,
-        );
-      }).toList();
+    if (isExpanded) {
+      if (childViews.isNotEmpty) {
+        final children = childViews.map((childView) {
+          return ViewItem(
+            key: ValueKey('${categoryType.name} ${childView.id}'),
+            parentView: view,
+            categoryType: categoryType,
+            isFirstChild: childView.id == childViews.first.id,
+            view: childView,
+            level: level + 1,
+            onSelected: onSelected,
+            onTertiarySelected: onTertiarySelected,
+            isDraggable: isDraggable,
+            leftPadding: leftPadding,
+            isFeedback: isFeedback,
+          );
+        }).toList();
 
-      child = Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          child,
-          ...children,
-        ],
-      );
+        child = Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            child,
+            ...children,
+          ],
+        );
+      } else {
+        child = Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            child,
+            Container(
+              height: height,
+              alignment: Alignment.centerLeft,
+              child: Padding(
+                // add 2px to make the text align with the view item
+                padding: EdgeInsets.only(left: (level + 1) * leftPadding + 2),
+                child: FlowyText.medium(
+                  LocaleKeys.noPagesInside.tr(),
+                  color: Theme.of(context).hintColor,
+                ),
+              ),
+            ),
+          ],
+        );
+      }
     }
 
     // wrap the child with DraggableItem if isDraggable is true
@@ -186,6 +221,9 @@ class InnerViewItem extends StatelessWidget {
         isFirstChild: isFirstChild,
         view: view,
         child: child,
+        onDragging: (isDragging) {
+          _isDragging = isDragging;
+        },
         feedback: (context) {
           return ViewItem(
             view: view,
@@ -226,6 +264,7 @@ class SingleInnerViewItem extends StatefulWidget {
     required this.onSelected,
     this.onTertiarySelected,
     required this.isFeedback,
+    required this.height,
   });
 
   final ViewPB view;
@@ -242,39 +281,43 @@ class SingleInnerViewItem extends StatefulWidget {
   final ViewItemOnSelected onSelected;
   final ViewItemOnSelected? onTertiarySelected;
   final FolderCategoryType categoryType;
+  final double height;
 
   @override
   State<SingleInnerViewItem> createState() => _SingleInnerViewItemState();
 }
 
 class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
+  final controller = PopoverController();
+  bool isIconPickerOpened = false;
+
   @override
   Widget build(BuildContext context) {
     if (widget.isFeedback) {
       return _buildViewItem(false);
     }
 
+    final isSelected =
+        getIt<MenuSharedState>().latestOpenView?.id == widget.view.id;
+
     return FlowyHover(
       style: HoverStyle(
         hoverColor: Theme.of(context).colorScheme.secondary,
       ),
-      buildWhenOnHover: () => !widget.showActions,
-      builder: (_, onHover) => _buildViewItem(onHover),
-      isSelected: () =>
-          widget.showActions ||
-          getIt<MenuSharedState>().latestOpenView?.id == widget.view.id,
+      resetHoverOnRebuild: widget.showActions || !isIconPickerOpened,
+      buildWhenOnHover: () =>
+          !widget.showActions && !_isDragging && !isIconPickerOpened,
+      builder: (_, onHover) => _buildViewItem(onHover, isSelected),
+      isSelected: () => widget.showActions || isSelected,
     );
   }
 
-  Widget _buildViewItem(bool onHover) {
+  Widget _buildViewItem(bool onHover, [bool isSelected = false]) {
     final children = [
       // expand icon
       _buildLeftIcon(),
       // icon
-      SizedBox.square(
-        dimension: 16,
-        child: widget.view.defaultIcon(),
-      ),
+      _buildViewIconButton(),
       const HSpace(5),
       // title
       Expanded(
@@ -282,7 +325,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
           widget.view.name,
           overflow: TextOverflow.ellipsis,
         ),
-      )
+      ),
     ];
 
     // hover action
@@ -296,12 +339,12 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       }
     }
 
-    return GestureDetector(
+    final child = GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () => widget.onSelected(widget.view),
       onTertiaryTapDown: (_) => widget.onTertiarySelected?.call(widget.view),
       child: SizedBox(
-        height: 26,
+        height: widget.height,
         child: Padding(
           padding: EdgeInsets.only(left: widget.level * widget.leftPadding),
           child: Row(
@@ -309,6 +352,65 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
           ),
         ),
       ),
+    );
+
+    if (isSelected) {
+      final popoverController = getIt<RenameViewBloc>().state.controller;
+      return AppFlowyPopover(
+        controller: popoverController,
+        triggerActions: PopoverTriggerFlags.none,
+        offset: const Offset(0, 5),
+        direction: PopoverDirection.bottomWithLeftAligned,
+        popupBuilder: (_) => RenameViewPopover(
+          viewId: widget.view.id,
+          name: widget.view.name,
+          emoji: widget.view.icon.value,
+          popoverController: popoverController,
+          showIconChanger: false,
+        ),
+        child: child,
+      );
+    }
+
+    return child;
+  }
+
+  Widget _buildViewIconButton() {
+    final icon = widget.view.icon.value.isNotEmpty
+        ? EmojiText(
+            emoji: widget.view.icon.value,
+            fontSize: 18.0,
+          )
+        : SizedBox.square(
+            dimension: 20.0,
+            child: widget.view.defaultIcon(),
+          );
+    return AppFlowyPopover(
+      offset: const Offset(20, 0),
+      controller: controller,
+      direction: PopoverDirection.rightWithCenterAligned,
+      constraints: BoxConstraints.loose(const Size(360, 380)),
+      onClose: () => setState(() => isIconPickerOpened = false),
+      child: GestureDetector(
+        // prevent the tap event from being passed to the parent widget
+        onTap: () {},
+        child: FlowyTooltip(
+          message: LocaleKeys.document_plugins_cover_changeIcon.tr(),
+          child: icon,
+        ),
+      ),
+      popupBuilder: (context) {
+        isIconPickerOpened = true;
+        return FlowyIconPicker(
+          onSelected: (result) {
+            ViewBackendService.updateViewIcon(
+              viewId: widget.view.id,
+              viewIcon: result.emoji,
+            );
+            controller.close();
+          },
+        );
+      },
     );
   }
 
@@ -336,7 +438,8 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
 
   // + button
   Widget _buildViewAddButton(BuildContext context) {
-    return Tooltip(
+    final viewBloc = context.read<ViewBloc>();
+    return FlowyTooltip(
       message: LocaleKeys.menuAppHeader_addPageTooltip.tr(),
       child: ViewAddButton(
         parentViewId: widget.view.id,
@@ -350,17 +453,25 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
           createNewView,
         ) {
           if (createNewView) {
-            context.read<ViewBloc>().add(
-                  ViewEvent.createView(
-                    name ?? LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
-                    pluginBuilder.layoutType!,
-                    openAfterCreated: openAfterCreated,
-                  ),
-                );
+            createViewAndShowRenameDialogIfNeeded(
+              context,
+              _convertLayoutToHintText(pluginBuilder.layoutType!),
+              (viewName) {
+                if (viewName.isNotEmpty) {
+                  viewBloc.add(
+                    ViewEvent.createView(
+                      viewName,
+                      pluginBuilder.layoutType!,
+                      openAfterCreated: openAfterCreated,
+                    ),
+                  );
+                }
+              },
+            );
           }
-          context.read<ViewBloc>().add(
-                const ViewEvent.setIsExpanded(true),
-              );
+          viewBloc.add(
+            const ViewEvent.setIsExpanded(true),
+          );
         },
       ),
     );
@@ -368,7 +479,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
 
   // ··· more action button
   Widget _buildViewMoreActionButton(BuildContext context) {
-    return Tooltip(
+    return FlowyTooltip(
       message: LocaleKeys.menuAppHeader_moreButtonToolTip.tr(),
       child: ViewMoreActionButton(
         view: widget.view,
@@ -387,6 +498,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
                 title: LocaleKeys.disclosureAction_rename.tr(),
                 autoSelectAllText: true,
                 value: widget.view.name,
+                maxLength: 256,
                 confirm: (newValue) {
                   context.read<ViewBloc>().add(ViewEvent.rename(newValue));
                 },
@@ -407,6 +519,20 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
         },
       ),
     );
+  }
+
+  String _convertLayoutToHintText(ViewLayoutPB layout) {
+    switch (layout) {
+      case ViewLayoutPB.Document:
+        return LocaleKeys.newDocumentText.tr();
+      case ViewLayoutPB.Grid:
+        return LocaleKeys.newGridText.tr();
+      case ViewLayoutPB.Board:
+        return LocaleKeys.newBoardText.tr();
+      case ViewLayoutPB.Calendar:
+        return LocaleKeys.newCalendarText.tr();
+    }
+    return LocaleKeys.newPageText.tr();
   }
 }
 

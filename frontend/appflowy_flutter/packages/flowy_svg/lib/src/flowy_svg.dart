@@ -50,25 +50,21 @@ class FlowySvg extends StatelessWidget {
   Widget build(BuildContext context) {
     final iconColor = color ?? Theme.of(context).iconTheme.color;
 
-    final child = SvgPicture.asset(
-      _normalized(),
-      colorFilter:
-          iconColor != null && blendMode != null
-          ? ColorFilter.mode(
-              iconColor,
-              blendMode!,
-            )
-          : null,
+    return SizedBox(
+      width: size?.width,
+      height: size?.height,
+      child: SvgPicture.asset(
+        _normalized(),
+        width: size?.width,
+        height: size?.height,
+        colorFilter: iconColor != null && blendMode != null
+            ? ColorFilter.mode(
+                iconColor,
+                blendMode!,
+              )
+            : null,
+      ),
     );
-
-    if (size != null) {
-      return SizedBox.fromSize(
-        size: size,
-        child: child,
-      );
-    }
-
-    return child;
   }
 
   /// If the SVG's path does not start with `assets/`, it is

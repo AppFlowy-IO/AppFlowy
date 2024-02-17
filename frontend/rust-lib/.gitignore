@@ -17,3 +17,5 @@ AppFlowy-Collab/
 .env
 .env.**
 **/unit_test**
+jniLibs/
+**/pkg/

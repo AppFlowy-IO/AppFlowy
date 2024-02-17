@@ -1,12 +1,13 @@
 use std::collections::HashMap;
 
-use collab_database::rows::{Row, RowId, RowMeta};
-use collab_database::views::RowOrder;
+use collab_database::rows::{Row, RowDetail, RowId};
+use collab_database::views::{OrderObjectPosition, RowOrder};
 
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
 
 use crate::entities::parser::NotEmptyStr;
+use crate::entities::position_entities::OrderObjectPositionPB;
 use crate::services::database::{InsertedRow, UpdatedRow};
 
 /// [RowPB] Describes a row. Has the id of the parent Block. Has the metadata of the row.
@@ -59,29 +60,34 @@ pub struct RowMetaPB {
 
   #[pb(index = 4, one_of)]
   pub cover: Option<String>,
+
+  #[pb(index = 5)]
+  pub is_document_empty: bool,
 }
 
-impl std::convert::From<&RowMeta> for RowMetaPB {
-  fn from(row_meta: &RowMeta) -> Self {
+impl std::convert::From<&RowDetail> for RowMetaPB {
+  fn from(row_detail: &RowDetail) -> Self {
     Self {
-      id: row_meta.row_id.clone(),
-      document_id: row_meta.document_id.clone(),
-      icon: row_meta.icon_url.clone(),
-      cover: row_meta.cover_url.clone(),
+      id: row_detail.row.id.to_string(),
+      document_id: row_detail.document_id.clone(),
+      icon: row_detail.meta.icon_url.clone(),
+      cover: row_detail.meta.cover_url.clone(),
+      is_document_empty: row_detail.meta.is_document_empty,
     }
   }
 }
-
-impl std::convert::From<RowMeta> for RowMetaPB {
-  fn from(row_meta: RowMeta) -> Self {
+impl std::convert::From<RowDetail> for RowMetaPB {
+  fn from(row_detail: RowDetail) -> Self {
     Self {
-      id: row_meta.row_id,
-      document_id: row_meta.document_id,
-      icon: row_meta.icon_url,
-      cover: row_meta.cover_url,
+      id: row_detail.row.id.to_string(),
+      document_id: row_detail.document_id,
+      icon: row_detail.meta.icon_url,
+      cover: row_detail.meta.cover_url,
+      is_document_empty: row_detail.meta.is_document_empty,
     }
   }
 }
+//
 
 #[derive(Debug, Default, Clone, ProtoBuf)]
 pub struct UpdateRowMetaChangesetPB {
@@ -96,6 +102,9 @@ pub struct UpdateRowMetaChangesetPB {
 
   #[pb(index = 4, one_of)]
   pub cover_url: Option<String>,
+
+  #[pb(index = 5, one_of)]
+  pub is_document_empty: Option<bool>,
 }
 
 #[derive(Debug)]
@@ -104,6 +113,7 @@ pub struct UpdateRowMetaParams {
   pub view_id: String,
   pub icon_url: Option<String>,
   pub cover_url: Option<String>,
+  pub is_document_empty: Option<bool>,
 }
 
 impl TryInto<UpdateRowMetaParams> for UpdateRowMetaChangesetPB {
@@ -122,6 +132,7 @@ impl TryInto<UpdateRowMetaParams> for UpdateRowMetaChangesetPB {
       view_id,
       icon_url: self.icon_url,
       cover_url: self.cover_url,
+      is_document_empty: self.is_document_empty,
     })
   }
 }
@@ -251,7 +262,7 @@ impl std::convert::From<RowMetaPB> for InsertedRowPB {
 impl From<InsertedRow> for InsertedRowPB {
   fn from(data: InsertedRow) -> Self {
     Self {
-      row_meta: data.row_meta.into(),
+      row_meta: data.row_detail.into(),
       index: data.index,
       is_new: data.is_new,
     }
@@ -274,7 +285,7 @@ pub struct UpdatedRowPB {
 
 impl From<UpdatedRow> for UpdatedRowPB {
   fn from(data: UpdatedRow) -> Self {
-    let row_meta = data.row_meta.map(RowMetaPB::from);
+    let row_meta = data.row_detail.map(RowMetaPB::from);
     Self {
       row_id: data.row_id,
       field_ids: data.field_ids,
@@ -329,8 +340,8 @@ pub struct CreateRowPayloadPB {
   #[pb(index = 1)]
   pub view_id: String,
 
-  #[pb(index = 2, one_of)]
-  pub start_row_id: Option<String>,
+  #[pb(index = 2)]
+  pub row_position: OrderObjectPositionPB,
 
   #[pb(index = 3, one_of)]
   pub group_id: Option<String>,
@@ -348,7 +359,7 @@ pub struct RowDataPB {
 #[derive(Default)]
 pub struct CreateRowParams {
   pub view_id: String,
-  pub start_row_id: Option<RowId>,
+  pub row_position: OrderObjectPosition,
   pub group_id: Option<String>,
   pub cell_data_by_field_id: Option<HashMap<String, String>>,
 }
@@ -358,10 +369,10 @@ impl TryInto<CreateRowParams> for CreateRowPayloadPB {
 
   fn try_into(self) -> Result<CreateRowParams, Self::Error> {
     let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::ViewIdIsInvalid)?;
-    let start_row_id = self.start_row_id.map(RowId::from);
+    let position = self.row_position.try_into()?;
     Ok(CreateRowParams {
       view_id: view_id.0,
-      start_row_id,
+      row_position: position,
       group_id: self.group_id,
       cell_data_by_field_id: self.data.map(|data| data.cell_data_by_field_id),
     })

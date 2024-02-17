@@ -30,13 +30,15 @@ class TrashHeaderDelegate extends SliverPersistentHeaderDelegate {
 }
 
 class TrashHeaderItem {
+  TrashHeaderItem({required this.width, required this.title});
+
   double width;
   String title;
-
-  TrashHeaderItem({required this.width, required this.title});
 }
 
 class TrashHeader extends StatelessWidget {
+  TrashHeader({super.key});
+
   final List<TrashHeaderItem> items = [
     TrashHeaderItem(
       title: LocaleKeys.trash_pageHeader_fileName.tr(),
@@ -51,8 +53,6 @@ class TrashHeader extends StatelessWidget {
       width: TrashSizes.createTimeWidth,
     ),
   ];
-
-  TrashHeader({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

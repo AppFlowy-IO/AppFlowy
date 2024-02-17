@@ -1,15 +1,30 @@
+import 'dart:io';
+
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
+import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
-import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
-import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
+import 'package:appflowy/user/application/user_settings_service.dart';
+import 'package:appflowy/workspace/application/notifications/notification_action.dart';
+import 'package:appflowy/workspace/application/notifications/notification_action_bloc.dart';
+import 'package:appflowy/workspace/application/notifications/notification_service.dart';
+import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
+import 'package:appflowy/workspace/application/settings/notifications/notification_settings_cubit.dart';
+import 'package:appflowy/workspace/application/sidebar/rename_view/rename_view_bloc.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
-import 'package:flutter/material.dart';
+import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/theme.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
-import '../../user/application/user_settings_service.dart';
-import '../../workspace/application/appearance.dart';
-import '../startup.dart';
+import 'prelude.dart';
 
 class InitAppWidgetTask extends LaunchTask {
   const InitAppWidgetTask();
@@ -19,15 +34,23 @@ class InitAppWidgetTask extends LaunchTask {
 
   @override
   Future<void> initialize(LaunchContext context) async {
+    WidgetsFlutterBinding.ensureInitialized();
+
+    await NotificationService.initialize();
+
     final widget = context.getIt<EntryPoint>().create(context.config);
     final appearanceSetting =
         await UserSettingsBackendService().getAppearanceSetting();
+    final dateTimeSettings =
+        await UserSettingsBackendService().getDateTimeSettings();
 
     // If the passed-in context is not the same as the context of the
     // application widget, the application widget will be rebuilt.
     final app = ApplicationWidget(
       key: ValueKey(context),
       appearanceSetting: appearanceSetting,
+      dateTimeSettings: dateTimeSettings,
+      appTheme: await appTheme(appearanceSetting.theme),
       child: widget,
     );
 
@@ -36,6 +59,7 @@ class InitAppWidgetTask extends LaunchTask {
       EasyLocalization(
         supportedLocales: const [
           // In alphabetical order
+          Locale('am', 'ET'),
           Locale('ar', 'SA'),
           Locale('ca', 'ES'),
           Locale('de', 'DE'),
@@ -52,72 +76,168 @@ class InitAppWidgetTask extends LaunchTask {
           Locale('pl', 'PL'),
           Locale('pt', 'BR'),
           Locale('ru', 'RU'),
-          Locale('sv'),
+          Locale('sv', 'SE'),
+          Locale('th', 'TH'),
           Locale('tr', 'TR'),
+          Locale('uk', 'UA'),
+          Locale('ur'),
+          Locale('vi', 'VN'),
           Locale('zh', 'CN'),
           Locale('zh', 'TW'),
+          Locale('fa'),
+          Locale('hin'),
         ],
         path: 'assets/translations',
         fallbackLocale: const Locale('en'),
         useFallbackTranslations: true,
-        saveLocale: false,
         child: app,
       ),
     );
 
-    return Future(() => {});
+    return;
   }
+
+  @override
+  Future<void> dispose() async {}
 }
 
-class ApplicationWidget extends StatelessWidget {
-  final Widget child;
-  final AppearanceSettingsPB appearanceSetting;
-
+class ApplicationWidget extends StatefulWidget {
   const ApplicationWidget({
-    Key? key,
+    super.key,
     required this.child,
+    required this.appTheme,
     required this.appearanceSetting,
-  }) : super(key: key);
+    required this.dateTimeSettings,
+  });
+
+  final Widget child;
+  final AppTheme appTheme;
+  final AppearanceSettingsPB appearanceSetting;
+  final DateTimeSettingsPB dateTimeSettings;
+
+  @override
+  State<ApplicationWidget> createState() => _ApplicationWidgetState();
+}
+
+class _ApplicationWidgetState extends State<ApplicationWidget> {
+  late final GoRouter routerConfig;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // avoid rebuild routerConfig when the appTheme is changed.
+    routerConfig = generateRouter(widget.child);
+  }
 
   @override
   Widget build(BuildContext context) {
-    final cubit = AppearanceSettingsCubit(appearanceSetting)
-      ..readLocaleWhenAppLaunch(context);
-
     return MultiBlocProvider(
       providers: [
-        BlocProvider.value(value: cubit),
+        BlocProvider<AppearanceSettingsCubit>(
+          create: (_) => AppearanceSettingsCubit(
+            widget.appearanceSetting,
+            widget.dateTimeSettings,
+            widget.appTheme,
+          )..readLocaleWhenAppLaunch(context),
+        ),
+        BlocProvider<NotificationSettingsCubit>(
+          create: (_) => NotificationSettingsCubit(),
+        ),
         BlocProvider<DocumentAppearanceCubit>(
           create: (_) => DocumentAppearanceCubit()..fetch(),
         ),
+        BlocProvider.value(value: getIt<RenameViewBloc>()),
+        BlocProvider.value(value: getIt<NotificationActionBloc>()),
+        BlocProvider.value(
+          value: getIt<ReminderBloc>()..add(const ReminderEvent.started()),
+        ),
       ],
-      child: BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
-        builder: (context, state) => MaterialApp(
-          builder: overlayManagerBuilder(),
-          debugShowCheckedModeBanner: false,
-          theme: state.lightTheme,
-          darkTheme: state.darkTheme,
-          themeMode: state.themeMode,
-          localizationsDelegates: context.localizationDelegates +
-              [AppFlowyEditorLocalizations.delegate],
-          supportedLocales: context.supportedLocales,
-          locale: state.locale,
-          navigatorKey: AppGlobals.rootNavKey,
-          home: child,
+      child: BlocListener<NotificationActionBloc, NotificationActionState>(
+        listenWhen: (_, curr) => curr.action != null,
+        listener: (context, state) {
+          final action = state.action;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (action?.type == ActionType.openView &&
+                PlatformExtension.isDesktop) {
+              final view = action!.arguments?[ActionArgumentKeys.view];
+              if (view != null) {
+                AppGlobals.rootNavKey.currentContext?.pushView(view);
+              }
+            } else if (action?.type == ActionType.openRow &&
+                PlatformExtension.isMobile) {
+              final view = action!.arguments?[ActionArgumentKeys.view];
+              if (view != null) {
+                final view = action.arguments?[ActionArgumentKeys.view];
+                final rowId = action.arguments?[ActionArgumentKeys.rowId];
+                AppGlobals.rootNavKey.currentContext?.pushView(view, {
+                  PluginArgumentKeys.rowId: rowId,
+                });
+              }
+            }
+          });
+        },
+        child: BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
+          builder: (context, state) {
+            _setSystemOverlayStyle(state);
+            return MaterialApp.router(
+              builder: (context, child) => MediaQuery(
+                // use the 1.0 as the textScaleFactor to avoid the text size
+                //  affected by the system setting.
+                data: MediaQuery.of(context).copyWith(
+                  textScaler: const TextScaler.linear(1),
+                ),
+                child: overlayManagerBuilder(context, child),
+              ),
+              debugShowCheckedModeBanner: false,
+              theme: state.lightTheme,
+              darkTheme: state.darkTheme,
+              themeMode: state.themeMode,
+              localizationsDelegates: context.localizationDelegates,
+              supportedLocales: context.supportedLocales,
+              locale: state.locale,
+              routerConfig: routerConfig,
+            );
+          },
         ),
       ),
     );
   }
+
+  void _setSystemOverlayStyle(AppearanceSettingsState state) {
+    if (Platform.isAndroid) {
+      SystemUiOverlayStyle style = SystemUiOverlayStyle.dark;
+      final themeMode = state.themeMode;
+      if (themeMode == ThemeMode.dark) {
+        style = SystemUiOverlayStyle.light;
+      } else if (themeMode == ThemeMode.light) {
+        style = SystemUiOverlayStyle.dark;
+      } else {
+        final brightness = Theme.of(context).brightness;
+        // reverse the brightness of the system status bar.
+        style = brightness == Brightness.dark
+            ? SystemUiOverlayStyle.light
+            : SystemUiOverlayStyle.dark;
+      }
+
+      SystemChrome.setSystemUIOverlayStyle(
+        style.copyWith(
+          statusBarColor: Colors.transparent,
+          systemNavigationBarColor: Colors.transparent,
+        ),
+      );
+    }
+  }
 }
 
 class AppGlobals {
+  // static GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey();
   static GlobalKey<NavigatorState> rootNavKey = GlobalKey();
   static NavigatorState get nav => rootNavKey.currentState!;
 }
 
 class ApplicationBlocObserver extends BlocObserver {
   @override
-  // ignore: unnecessary_overrides
   void onTransition(Bloc bloc, Transition transition) {
     // Log.debug("[current]: ${transition.currentState} \n\n[next]: ${transition.nextState}");
     // Log.debug("${transition.nextState}");
@@ -135,4 +255,16 @@ class ApplicationBlocObserver extends BlocObserver {
   //   Log.debug("$event");
   //   super.onEvent(bloc, event);
   // }
+}
+
+Future<AppTheme> appTheme(String themeName) async {
+  if (themeName.isEmpty) {
+    return AppTheme.fallback;
+  } else {
+    try {
+      return await AppTheme.fromName(themeName);
+    } catch (e) {
+      return AppTheme.fallback;
+    }
+  }
 }

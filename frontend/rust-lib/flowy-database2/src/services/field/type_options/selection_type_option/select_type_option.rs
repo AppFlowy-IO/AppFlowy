@@ -26,6 +26,7 @@ pub trait SelectTypeOptionSharedAction: Send + Sync {
   /// If the option does not exist, it will be inserted at the beginning.
   fn insert_option(&mut self, new_option: SelectOption) {
     let options = self.mut_options();
+
     if let Some(index) = options
       .iter()
       .position(|option| option.id == new_option.id || option.name == new_option.name)
@@ -37,12 +38,9 @@ pub trait SelectTypeOptionSharedAction: Send + Sync {
     }
   }
 
-  fn delete_option(&mut self, delete_option: SelectOption) {
+  fn delete_option(&mut self, option_id: &str) {
     let options = self.mut_options();
-    if let Some(index) = options
-      .iter()
-      .position(|option| option.id == delete_option.id)
-    {
+    if let Some(index) = options.iter().position(|option| option.id == option_id) {
       options.remove(index);
     }
   }
@@ -120,10 +118,10 @@ where
   }
 }
 
-impl<T> CellDataDecoder for T
+impl<T, C> CellDataDecoder for T
 where
-  T:
-    SelectTypeOptionSharedAction + TypeOption<CellData = SelectOptionIds> + TypeOptionCellDataSerde,
+  C: Into<SelectOptionIds> + for<'a> From<&'a Cell>,
+  T: SelectTypeOptionSharedAction + TypeOption<CellData = C> + TypeOptionCellDataSerde,
 {
   fn decode_cell(
     &self,
@@ -134,9 +132,9 @@ where
     self.parse_cell(cell)
   }
 
-  fn stringify_cell_data(&self, cell_data: <Self as TypeOption>::CellData) -> String {
+  fn stringify_cell_data(&self, cell_data: C) -> String {
     self
-      .get_selected_options(cell_data)
+      .get_selected_options(cell_data.into())
       .select_options
       .into_iter()
       .map(|option| option.name)
@@ -145,8 +143,12 @@ where
   }
 
   fn stringify_cell(&self, cell: &Cell) -> String {
-    let cell_data = Self::CellData::from(cell);
+    let cell_data = C::from(cell);
     self.stringify_cell_data(cell_data)
+  }
+
+  fn numeric_cell(&self, _cell: &Cell) -> Option<f64> {
+    None
   }
 }
 

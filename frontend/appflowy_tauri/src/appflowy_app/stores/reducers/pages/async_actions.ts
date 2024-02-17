@@ -1,8 +1,7 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { RootState } from '$app/stores/store';
-import { DragInsertType } from '$app_reducers/block-draggable/slice';
-import { PageController } from '$app/stores/effects/workspace/page/page_controller';
-import { PageIcon } from '$app_reducers/pages/slice';
+import { pagesActions } from '$app_reducers/pages/slice';
+import { movePage, updatePage } from '$app/application/folder/page.service';
 
 export const movePageThunk = createAsyncThunk(
   'pages/movePage',
@@ -10,12 +9,12 @@ export const movePageThunk = createAsyncThunk(
     payload: {
       sourceId: string;
       targetId: string;
-      insertType: DragInsertType;
+      insertType: 'before' | 'after' | 'inside';
     },
     thunkAPI
   ) => {
     const { sourceId, targetId, insertType } = payload;
-    const { getState } = thunkAPI;
+    const { getState, dispatch } = thunkAPI;
     const { pageMap, relationMap } = (getState() as RootState).pages;
     const sourcePage = pageMap[sourceId];
     const targetPage = pageMap[targetId];
@@ -33,14 +32,14 @@ export const movePageThunk = createAsyncThunk(
 
     let prevId, parentId;
 
-    if (insertType === DragInsertType.BEFORE) {
+    if (insertType === 'before') {
       const prevIndex = targetIndex - 1;
 
       parentId = targetParentId;
       if (prevIndex >= 0) {
         prevId = targetParentChildren[prevIndex];
       }
-    } else if (insertType === DragInsertType.AFTER) {
+    } else if (insertType === 'after') {
       prevId = targetId;
       parentId = targetParentId;
     } else {
@@ -52,41 +51,36 @@ export const movePageThunk = createAsyncThunk(
       }
     }
 
-    const controller = new PageController(sourceId);
+    dispatch(pagesActions.movePage({ id: sourceId, newParentId: parentId, prevId }));
 
-    await controller.movePage({ parentId, prevId });
+    await movePage({
+      view_id: sourceId,
+      new_parent_id: parentId,
+      prev_view_id: prevId,
+    });
   }
 );
 
 export const updatePageName = createAsyncThunk(
   'pages/updateName',
-  async (
-    payload: {
-      id: string;
-      name: string;
-    },
-    thunkAPI
-  ) => {
-    const controller = new PageController(payload.id);
+  async (payload: { id: string; name: string }, thunkAPI) => {
+    const { dispatch, getState } = thunkAPI;
+    const { pageMap } = (getState() as RootState).pages;
+    const { id, name } = payload;
+    const page = pageMap[id];
 
-    await controller.updatePage({
-      id: payload.id,
-      name: payload.name,
+    if (name === page.name) return;
+
+    dispatch(
+      pagesActions.onPageChanged({
+        ...page,
+        name,
+      })
+    );
+
+    await updatePage({
+      id,
+      name,
     });
-  }
-);
-
-export const updatePageIcon = createAsyncThunk(
-  'pages/updateIcon',
-  async (
-    payload: {
-      id: string;
-      icon?: PageIcon;
-    },
-    thunkAPI
-  ) => {
-    const controller = new PageController(payload.id);
-
-    await controller.updatePageIcon(payload.icon);
   }
 );

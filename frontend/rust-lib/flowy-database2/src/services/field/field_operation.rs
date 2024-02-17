@@ -9,7 +9,6 @@ use crate::services::database::DatabaseEditor;
 use crate::services::field::{MultiSelectTypeOption, SingleSelectTypeOption};
 
 pub async fn edit_field_type_option<T: From<TypeOptionData> + Into<TypeOptionData>>(
-  view_id: &str,
   field_id: &str,
   editor: Arc<DatabaseEditor>,
   action: impl FnOnce(&mut T),
@@ -25,7 +24,7 @@ pub async fn edit_field_type_option<T: From<TypeOptionData> + Into<TypeOptionDat
       action(&mut type_option);
       let type_option_data: TypeOptionData = type_option.into();
       editor
-        .update_field_type_option(view_id, field_id, type_option_data, old_field)
+        .update_field_type_option(field_id, type_option_data, old_field)
         .await?;
     }
   }
@@ -34,19 +33,17 @@ pub async fn edit_field_type_option<T: From<TypeOptionData> + Into<TypeOptionDat
 }
 
 pub async fn edit_single_select_type_option(
-  view_id: &str,
   field_id: &str,
   editor: Arc<DatabaseEditor>,
   action: impl FnOnce(&mut SingleSelectTypeOption),
 ) -> FlowyResult<()> {
-  edit_field_type_option(view_id, field_id, editor, action).await
+  edit_field_type_option(field_id, editor, action).await
 }
 
 pub async fn edit_multi_select_type_option(
-  view_id: &str,
   field_id: &str,
   editor: Arc<DatabaseEditor>,
   action: impl FnOnce(&mut MultiSelectTypeOption),
 ) -> FlowyResult<()> {
-  edit_field_type_option(view_id, field_id, editor, action).await
+  edit_field_type_option(field_id, editor, action).await
 }

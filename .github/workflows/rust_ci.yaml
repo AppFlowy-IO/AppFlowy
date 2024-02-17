@@ -8,7 +8,6 @@ on:
       - "release/*"
     paths:
       - "frontend/rust-lib/**"
-      - "shared-lib/**"
 
   pull_request:
     branches:
@@ -17,11 +16,10 @@ on:
       - "release/*"
     paths:
       - "frontend/rust-lib/**"
-      - "shared-lib/**"
 
 env:
   CARGO_TERM_COLOR: always
-  RUST_TOOLCHAIN: "1.70"
+  RUST_TOOLCHAIN: "1.75"
 
 jobs:
   test-on-ubuntu:
@@ -49,16 +47,44 @@ jobs:
         with:
           prefix-key: 'ubuntu-latest'
           workspaces: |
-            frontend/rust-lib 
+            frontend/rust-lib
+
+      - name: Checkout appflowy cloud code
+        uses: actions/checkout@v3
+        with:
+          repository: AppFlowy-IO/AppFlowy-Cloud
+          path: AppFlowy-Cloud
+          depth: 1
+
+      - name: Prepare appflowy cloud env
+        working-directory: AppFlowy-Cloud
+        run: |
+          # log level
+          cp deploy.env .env
+          sed -i 's|RUST_LOG=.*|RUST_LOG=trace|' .env
+          sed -i 's|API_EXTERNAL_URL=.*|API_EXTERNAL_URL=http://localhost|' .env
+
+      - name: Run Docker-Compose
+        working-directory: AppFlowy-Cloud
+        run: |
+          docker pull appflowyinc/appflowy_cloud:latest
+          docker compose up -d
 
       - name: Run rust-lib tests
         working-directory: frontend/rust-lib
-        run: RUST_LOG=info RUST_BACKTRACE=1 cargo test --no-default-features --features="rev-sqlite"
+        env:
+          RUST_LOG: info
+          RUST_BACKTRACE: 1
+          af_cloud_test_base_url: http://localhost
+          af_cloud_test_ws_url: ws://localhost/ws
+          af_cloud_test_gotrue_url: http://localhost/gotrue
+        run: cargo test --no-default-features --features="rev-sqlite,dart" -- --nocapture
+
 
       - name: rustfmt rust-lib
         run: cargo fmt --all -- --check
         working-directory: frontend/rust-lib/
 
       - name: clippy rust-lib
-        run: cargo clippy --features="rev-sqlite"
+        run: cargo clippy --all-targets -- -D warnings
         working-directory: frontend/rust-lib

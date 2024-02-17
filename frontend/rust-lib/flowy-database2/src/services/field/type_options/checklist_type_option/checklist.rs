@@ -87,7 +87,7 @@ impl CellDataChangeset for ChecklistTypeOption {
 #[inline]
 fn update_cell_data_with_changeset(
   cell_data: &mut ChecklistCellData,
-  mut changeset: ChecklistCellChangeset,
+  changeset: ChecklistCellChangeset,
 ) {
   // Delete the options
   cell_data
@@ -98,12 +98,6 @@ fn update_cell_data_with_changeset(
     .retain(|option_id| !changeset.delete_option_ids.contains(option_id));
 
   // Insert new options
-  changeset.insert_options.retain(|option_name| {
-    !cell_data
-      .options
-      .iter()
-      .any(|option| option.name == *option_name)
-  });
   changeset
     .insert_options
     .into_iter()
@@ -169,6 +163,11 @@ impl CellDataDecoder for ChecklistTypeOption {
   fn stringify_cell(&self, cell: &Cell) -> String {
     let cell_data = self.parse_cell(cell).unwrap_or_default();
     self.stringify_cell_data(cell_data)
+  }
+
+  fn numeric_cell(&self, _cell: &Cell) -> Option<f64> {
+    // return the percentage complete if needed
+    None
   }
 }
 

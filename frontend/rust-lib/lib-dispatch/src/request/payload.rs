@@ -1,9 +1,7 @@
-use bytes::Bytes;
 use std::{fmt, fmt::Formatter};
 
-pub enum PayloadError {}
+use bytes::Bytes;
 
-// TODO: support stream data
 #[derive(Clone)]
 #[cfg_attr(feature = "use_serde", derive(serde::Serialize))]
 pub enum Payload {
@@ -16,6 +14,15 @@ impl Payload {
     match self {
       Payload::None => vec![],
       Payload::Bytes(bytes) => bytes.to_vec(),
+    }
+  }
+}
+
+impl AsRef<[u8]> for Payload {
+  fn as_ref(&self) -> &[u8] {
+    match self {
+      Payload::None => &[],
+      Payload::Bytes(bytes) => bytes.as_ref(),
     }
   }
 }

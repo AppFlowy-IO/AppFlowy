@@ -11,12 +11,12 @@ import 'package:flutter/services.dart';
 
 class BlockAddButton extends StatelessWidget {
   const BlockAddButton({
-    Key? key,
+    super.key,
     required this.blockComponentContext,
     required this.blockComponentState,
     required this.editorState,
     required this.showSlashMenu,
-  }) : super(key: key);
+  });
 
   final BlockComponentContext blockComponentContext;
   final BlockComponentActionState blockComponentState;
@@ -58,9 +58,13 @@ class BlockAddButton extends StatelessWidget {
           final path = isAltPressed ? node.path : node.path.next;
 
           transaction.insertNode(path, paragraphNode());
-          transaction.afterSelection = Selection.collapse(path, 0);
+          transaction.afterSelection = Selection.collapsed(
+            Position(path: path),
+          );
         } else {
-          transaction.afterSelection = Selection.collapse(node.path, 0);
+          transaction.afterSelection = Selection.collapsed(
+            Position(path: node.path),
+          );
         }
 
         // show the slash menu.

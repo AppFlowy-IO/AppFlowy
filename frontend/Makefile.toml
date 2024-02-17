@@ -10,6 +10,7 @@ extend = [
   { path = "scripts/makefile/flutter.toml" },
   { path = "scripts/makefile/tool.toml" },
   { path = "scripts/makefile/tauri.toml" },
+  { path = "scripts/makefile/web.toml" },
 ]
 
 [config]
@@ -20,13 +21,15 @@ run_task = { name = ["restore-crate-type"] }
 
 [env]
 RUST_LOG = "info"
+CARGO_PROFILE = "dev"
 CARGO_MAKE_EXTEND_WORKSPACE_MAKEFILE = true
 CARGO_MAKE_CRATE_FS_NAME = "dart_ffi"
 CARGO_MAKE_CRATE_NAME = "dart-ffi"
 LIB_NAME = "dart_ffi"
-CURRENT_APP_VERSION = "0.2.9"
+APPFLOWY_VERSION = "0.4.8"
 FLUTTER_DESKTOP_FEATURES = "dart,rev-sqlite"
 PRODUCT_NAME = "AppFlowy"
+MACOSX_DEPLOYMENT_TARGET = "11.0"
 # CRATE_TYPE: https://doc.rust-lang.org/reference/linkage.html
 # If you update the macOS's CRATE_TYPE, don't forget to update the
 # appflowy_backend.podspec
@@ -46,6 +49,8 @@ LIB_EXT = "a"
 APP_ENVIRONMENT = "local"
 FLUTTER_FLOWY_SDK_PATH = "appflowy_flutter/packages/appflowy_backend"
 TAURI_BACKEND_SERVICE_PATH = "appflowy_tauri/src/services/backend"
+WEB_BACKEND_SERVICE_PATH = "appflowy_web/src/services/backend"
+WEB_LIB_PATH= "appflowy_web/wasm-libs/af-wasm"
 # Test default config
 TEST_CRATE_TYPE = "cdylib"
 TEST_LIB_EXT = "dylib"
@@ -75,6 +80,7 @@ BUILD_ACTIVE_ARCHS_ONLY = true
 CRATE_TYPE = "staticlib"
 
 [env.production-mac-arm64]
+CARGO_PROFILE = "release"
 BUILD_FLAG = "release"
 TARGET_OS = "macos"
 RUST_COMPILE_TARGET = "aarch64-apple-darwin"
@@ -86,6 +92,7 @@ BUILD_ACTIVE_ARCHS_ONLY = false
 CRATE_TYPE = "staticlib"
 
 [env.production-mac-x86_64]
+CARGO_PROFILE = "release"
 BUILD_FLAG = "release"
 TARGET_OS = "macos"
 RUST_COMPILE_TARGET = "x86_64-apple-darwin"
@@ -97,6 +104,7 @@ BUILD_ACTIVE_ARCHS_ONLY = false
 CRATE_TYPE = "staticlib"
 
 [env.production-mac-universal]
+CARGO_PROFILE = "release"
 BUILD_FLAG = "release"
 TARGET_OS = "macos"
 FLUTTER_OUTPUT_DIR = "Release"
@@ -114,6 +122,7 @@ CRATE_TYPE = "cdylib"
 LIB_EXT = "dll"
 
 [env.production-windows-x86]
+CARGO_PROFILE = "release"
 BUILD_FLAG = "release"
 TARGET_OS = "windows"
 RUST_COMPILE_TARGET = "x86_64-pc-windows-msvc"
@@ -121,6 +130,7 @@ FLUTTER_OUTPUT_DIR = "Release"
 PRODUCT_EXT = "exe"
 CRATE_TYPE = "cdylib"
 LIB_EXT = "dll"
+BUILD_ARCHS = "x64"
 APP_ENVIRONMENT = "production"
 
 [env.development-linux-x86_64]
@@ -133,6 +143,7 @@ LIB_EXT = "so"
 LINUX_ARCH = "x64"
 
 [env.production-linux-x86_64]
+CARGO_PROFILE = "release"
 BUILD_FLAG = "release"
 TARGET_OS = "linux"
 RUST_COMPILE_TARGET = "x86_64-unknown-linux-gnu"
@@ -153,6 +164,7 @@ LINUX_ARCH = "arm64"
 FLUTTER_DESKTOP_FEATURES = "dart,rev-sqlite,openssl_vendored"
 
 [env.production-linux-aarch64]
+CARGO_PROFILE = "release"
 BUILD_FLAG = "release"
 TARGET_OS = "linux"
 RUST_COMPILE_TARGET = "aarch64-unknown-linux-gnu"
@@ -179,6 +191,31 @@ RUST_COMPILE_TARGET = "aarch64-apple-ios"
 BUILD_ARCHS = "arm64"
 CRATE_TYPE = "staticlib"
 
+[env.production-ios-arm64]
+BUILD_FLAG = "release"
+TARGET_OS = "ios"
+FLUTTER_OUTPUT_DIR = "Release"
+RUST_COMPILE_TARGET = "aarch64-apple-ios"
+BUILD_ARCHS = "arm64"
+CRATE_TYPE = "staticlib"
+
+[env.development-android]
+BUILD_FLAG = "debug"
+TARGET_OS = "android"
+CRATE_TYPE = "cdylib"
+FLUTTER_OUTPUT_DIR = "Debug"
+LIB_EXT = "so"
+PRODUCT_EXT = "apk"
+FLUTTER_DESKTOP_FEATURES = "dart,rev-sqlite,openssl_vendored"
+
+[env.production-android]
+BUILD_FLAG = "release"
+TARGET_OS = "android"
+CRATE_TYPE = "cdylib"
+FLUTTER_OUTPUT_DIR = "Release"
+PRODUCT_EXT = "apk"
+LIB_EXT = "so"
+
 [tasks.echo_env]
 script = ['''
     echo "-------- Env Parameters --------"
@@ -191,22 +228,9 @@ script = ['''
     echo APP_ENVIRONMENT: ${APP_ENVIRONMENT}
     echo ${platforms}
     echo ${BUILD_ARCHS}
+    echo ${BUILD_VERSION}
     ''']
 script_runner = "@shell"
-
-[env.development-android]
-BUILD_FLAG = "debug"
-TARGET_OS = "android"
-CRATE_TYPE = "cdylib"
-FLUTTER_OUTPUT_DIR = "Debug"
-FLUTTER_DESKTOP_FEATURES = "dart,rev-sqlite,openssl_vendored"
-
-[env.production-android]
-BUILD_FLAG = "release"
-TARGET_OS = "android"
-CRATE_TYPE = "cdylib"
-FLUTTER_OUTPUT_DIR = "Release"
-FLUTTER_DESKTOP_FEATURES = "dart,rev-sqlite,openssl_vendored"
 
 [tasks.setup-crate-type]
 private = true

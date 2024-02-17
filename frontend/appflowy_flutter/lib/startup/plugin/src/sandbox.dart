@@ -7,15 +7,15 @@ import '../plugin.dart';
 import 'runner.dart';
 
 class PluginSandbox {
+  PluginSandbox() {
+    pluginRunner = PluginRunner();
+  }
+
   final LinkedHashMap<PluginType, PluginBuilder> _pluginBuilders =
       LinkedHashMap();
   final Map<PluginType, PluginConfig> _pluginConfigs =
       <PluginType, PluginConfig>{};
   late PluginRunner pluginRunner;
-
-  PluginSandbox() {
-    pluginRunner = PluginRunner();
-  }
 
   int indexOf(PluginType pluginType) {
     final index =
@@ -42,10 +42,7 @@ class PluginSandbox {
     PluginConfig? config,
   }) {
     if (_pluginBuilders.containsKey(pluginType)) {
-      throw PlatformException(
-        code: '-1',
-        message: "$pluginType was registered before",
-      );
+      return;
     }
     _pluginBuilders[pluginType] = builder;
 

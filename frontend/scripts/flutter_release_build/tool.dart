@@ -5,13 +5,13 @@ enum _ScanMode {
   target,
 }
 
-enum _ModifyMode {
+enum ModifyMode {
   include,
   exclude,
 }
 
-class _BuildTool {
-  const _BuildTool({
+class BuildTool {
+  const BuildTool({
     required this.repositoryRoot,
     required this.appVersion,
     this.arch,
@@ -38,7 +38,7 @@ class _BuildTool {
 
     // Determine the appropriate command based on the OS and architecture
     if (os == 'windows') {
-      return 'cargo make --env APP_VERSION=$appVersion --profile production-windows-x86 appflowy';
+      return 'cargo make --env APP_VERSION=$appVersion --profile production-windows-x86 appflowy --verbose';
     }
 
     if (os == 'linux') {
@@ -61,9 +61,9 @@ class _BuildTool {
   /// Scans a file for lines between # BEGIN: EXCLUDE_IN_RELEASE and
   /// END: EXCLUDE_IN_RELEASE. Will add a comment to remove those assets
   /// from the build.
-  Future<void> _process_directives(
+  Future<void> process_directives(
     File file, {
-    required _ModifyMode mode,
+    required ModifyMode mode,
   }) async {
     // Read the contents of the file into a list
     var lines = await file.readAsLines();
@@ -82,19 +82,19 @@ class _BuildTool {
     }
 
     // Write the modified contents back to the file
-    await file.writeAsString(lines.join('\n'));
+    await file.writeAsString(lines.join('\n'), flush: true);
   }
 
-  String _modify(String line, {required _ModifyMode mode}) {
+  String _modify(String line, {required ModifyMode mode}) {
     switch (mode) {
-      case _ModifyMode.include:
+      case ModifyMode.include:
         return line.split('#').where((element) => element != '#').join();
-      case _ModifyMode.exclude:
+      case ModifyMode.exclude:
         return '#$line';
     }
   }
 
-  Future<void> _build() async {
+  Future<void> build() async {
     final cwd = Directory.current;
     Directory.current = repositoryRoot;
 
@@ -108,11 +108,15 @@ class _BuildTool {
     Directory.current = cwd;
   }
 
+  Future<void> directives(ModifyMode mode) async {
+    await process_directives(pubspec, mode: mode);
+  }
+
   Future<void> run() async {
     final pubspec = this.pubspec;
 
-    await _process_directives(pubspec, mode: _ModifyMode.exclude);
-    await _build();
-    await _process_directives(pubspec, mode: _ModifyMode.include);
+    await process_directives(pubspec, mode: ModifyMode.exclude);
+    await build();
+    await process_directives(pubspec, mode: ModifyMode.include);
   }
 }

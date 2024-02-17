@@ -1,26 +1,27 @@
+import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 
-void showSnapBar(BuildContext context, String title, [Color? backgroundColor]) {
+void showSnapBar(BuildContext context, String title, {VoidCallback? onClosed}) {
   ScaffoldMessenger.of(context).clearSnackBars();
 
   ScaffoldMessenger.of(context)
       .showSnackBar(
         SnackBar(
-          content: WillPopScope(
-            onWillPop: () async {
+          duration: const Duration(milliseconds: 8000),
+          content: PopScope(
+            canPop: () {
               ScaffoldMessenger.of(context).removeCurrentSnackBar();
               return true;
-            },
-            child: Text(
+            }(),
+            child: FlowyText.medium(
               title,
-              style: const TextStyle(
-                color: Colors.black,
-              ),
+              fontSize: 12,
+              maxLines: 3,
             ),
           ),
-          backgroundColor: backgroundColor,
+          backgroundColor: Theme.of(context).colorScheme.background,
         ),
       )
       .closed
-      .then((value) => null);
+      .then((value) => onClosed?.call());
 }

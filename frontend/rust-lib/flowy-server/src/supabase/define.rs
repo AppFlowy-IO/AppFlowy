@@ -1,19 +1,23 @@
-pub use collab_plugins::cloud_storage::CollabType;
+use collab_entity::CollabType;
 
 pub const AF_COLLAB_UPDATE_TABLE: &str = "af_collab_update";
 pub const AF_COLLAB_KEY_COLUMN: &str = "key";
 pub const AF_COLLAB_SNAPSHOT_OID_COLUMN: &str = "oid";
 pub const AF_COLLAB_SNAPSHOT_ID_COLUMN: &str = "sid";
 pub const AF_COLLAB_SNAPSHOT_BLOB_COLUMN: &str = "blob";
+pub const AF_COLLAB_SNAPSHOT_ENCRYPT_COLUMN: &str = "encrypt";
 pub const AF_COLLAB_SNAPSHOT_BLOB_SIZE_COLUMN: &str = "blob_size";
 pub const AF_COLLAB_SNAPSHOT_CREATED_AT_COLUMN: &str = "created_at";
 pub const AF_COLLAB_SNAPSHOT_TABLE: &str = "af_collab_snapshot";
 
 pub const USER_UUID: &str = "uuid";
+pub const USER_SIGN_IN_URL: &str = "sign_in_url";
+pub const USER_EMAIL: &str = "email";
+pub const USER_DEVICE_ID: &str = "device_id";
+
+pub const USER_TABLE: &str = "af_user";
 pub const USER_UID: &str = "uid";
 pub const OWNER_USER_UID: &str = "owner_uid";
-pub const USER_EMAIL: &str = "email";
-pub const USER_TABLE: &str = "af_user";
 pub const WORKSPACE_TABLE: &str = "af_workspace";
 pub const USER_PROFILE_VIEW: &str = "af_user_profile_view";
 

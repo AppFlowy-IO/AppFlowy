@@ -1,9 +1,38 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import svgr from 'vite-plugin-svgr';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    svgr({
+      svgrOptions: {
+        prettier: false,
+        plugins: ['@svgr/plugin-svgo', '@svgr/plugin-jsx'],
+        icon: true,
+        svgoConfig: {
+          multipass: true,
+          plugins: [
+            {
+              name: 'preset-default',
+              params: {
+                overrides: {
+                  removeViewBox: false,
+                },
+              },
+            },
+          ],
+        },
+        svgProps: {
+          role: 'img',
+        },
+        replaceAttrValues: {
+          '#333': 'currentColor',
+        },
+      },
+    }),
+  ],
   publicDir: '../appflowy_flutter/assets',
   // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
   // prevent vite from obscuring rust errors
@@ -12,6 +41,9 @@ export default defineConfig({
   server: {
     port: 1420,
     strictPort: true,
+    watch: {
+      ignored: ['**/__tests__/**'],
+    },
   },
   // to make use of `TAURI_DEBUG` and other env variables
   // https://tauri.studio/v1/api/config#buildconfig.beforedevcommand
@@ -26,9 +58,13 @@ export default defineConfig({
   },
   resolve: {
     alias: [
+      { find: 'src/', replacement: `${__dirname}/src/` },
       { find: '@/', replacement: `${__dirname}/src/` },
       { find: '$app/', replacement: `${__dirname}/src/appflowy_app/` },
       { find: '$app_reducers/', replacement: `${__dirname}/src/appflowy_app/stores/reducers/` },
     ],
+  },
+  optimizeDeps: {
+    include: ['@mui/material/Tooltip'],
   },
 });

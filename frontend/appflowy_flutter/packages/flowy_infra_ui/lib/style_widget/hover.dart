@@ -44,10 +44,11 @@ class _FlowyHoverState extends State<FlowyHover> {
 
   @override
   void didUpdateWidget(covariant FlowyHover oldWidget) {
-    if (widget.resetHoverOnRebuild == true) {
+    if (widget.resetHoverOnRebuild) {
       // Reset the _onHover to false when the parent widget get rebuild.
       _onHover = false;
     }
+
     super.didUpdateWidget(oldWidget);
   }
 
@@ -58,30 +59,31 @@ class _FlowyHoverState extends State<FlowyHover> {
       opaque: false,
       onHover: (p) {
         if (_onHover) return;
-
-        if (widget.buildWhenOnHover?.call() ?? true) {
-          setState(() => _onHover = true);
-          if (widget.onHover != null) {
-            widget.onHover!(true);
-          }
-        }
+        _setOnHover(true);
+      },
+      onEnter: (p) {
+        if (_onHover) return;
+        _setOnHover(true);
       },
       onExit: (p) {
-        if (_onHover == false) return;
-
-        if (widget.buildWhenOnHover?.call() ?? true) {
-          setState(() => _onHover = false);
-          if (widget.onHover != null) {
-            widget.onHover!(false);
-          }
-        }
+        if (!_onHover) return;
+        _setOnHover(false);
       },
       child: renderWidget(),
     );
   }
 
+  void _setOnHover(bool isHovering) {
+    if (widget.buildWhenOnHover?.call() ?? true) {
+      setState(() => _onHover = isHovering);
+      if (widget.onHover != null) {
+        widget.onHover!(isHovering);
+      }
+    }
+  }
+
   Widget renderWidget() {
-    var showHover = _onHover;
+    bool showHover = _onHover;
     if (!showHover && widget.isSelected != null) {
       showHover = widget.isSelected!();
     }
@@ -118,6 +120,15 @@ class HoverStyle {
     this.hoverColor,
     this.foregroundColorOnHover,
   });
+
+  const HoverStyle.transparent({
+    this.borderColor = Colors.transparent,
+    this.borderWidth = 0,
+    this.borderRadius = const BorderRadius.all(Radius.circular(6)),
+    this.contentMargin = EdgeInsets.zero,
+    this.backgroundColor = Colors.transparent,
+    this.foregroundColorOnHover,
+  }) : hoverColor = Colors.transparent;
 }
 
 class FlowyHoverContainer extends StatelessWidget {

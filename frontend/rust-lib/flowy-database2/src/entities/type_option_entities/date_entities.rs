@@ -4,7 +4,7 @@ use strum_macros::EnumIter;
 
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 
-use crate::entities::{CellIdPB, FieldType};
+use crate::entities::CellIdPB;
 use crate::services::field::{DateFormat, DateTypeOption, TimeFormat};
 
 #[derive(Clone, Debug, Default, ProtoBuf)]
@@ -19,7 +19,22 @@ pub struct DateCellDataPB {
   pub timestamp: i64,
 
   #[pb(index = 4)]
+  pub end_date: String,
+
+  #[pb(index = 5)]
+  pub end_time: String,
+
+  #[pb(index = 6)]
+  pub end_timestamp: i64,
+
+  #[pb(index = 7)]
   pub include_time: bool,
+
+  #[pb(index = 8)]
+  pub is_range: bool,
+
+  #[pb(index = 9)]
+  pub reminder_id: String,
 }
 
 #[derive(Clone, Debug, Default, ProtoBuf)]
@@ -28,16 +43,28 @@ pub struct DateChangesetPB {
   pub cell_id: CellIdPB,
 
   #[pb(index = 2, one_of)]
-  pub date: Option<String>,
+  pub date: Option<i64>,
 
   #[pb(index = 3, one_of)]
   pub time: Option<String>,
 
   #[pb(index = 4, one_of)]
-  pub include_time: Option<bool>,
+  pub end_date: Option<i64>,
 
   #[pb(index = 5, one_of)]
+  pub end_time: Option<String>,
+
+  #[pb(index = 6, one_of)]
+  pub include_time: Option<bool>,
+
+  #[pb(index = 7, one_of)]
+  pub is_range: Option<bool>,
+
+  #[pb(index = 8, one_of)]
   pub clear_flag: Option<bool>,
+
+  #[pb(index = 9, one_of)]
+  pub reminder_id: Option<String>,
 }
 
 // Date
@@ -51,9 +78,6 @@ pub struct DateTypeOptionPB {
 
   #[pb(index = 3)]
   pub timezone_id: String,
-
-  #[pb(index = 4)]
-  pub field_type: FieldType,
 }
 
 impl From<DateTypeOption> for DateTypeOptionPB {
@@ -62,7 +86,6 @@ impl From<DateTypeOption> for DateTypeOptionPB {
       date_format: data.date_format.into(),
       time_format: data.time_format.into(),
       timezone_id: data.timezone_id,
-      field_type: data.field_type,
     }
   }
 }
@@ -73,12 +96,11 @@ impl From<DateTypeOptionPB> for DateTypeOption {
       date_format: data.date_format.into(),
       time_format: data.time_format.into(),
       timezone_id: data.timezone_id,
-      field_type: data.field_type,
     }
   }
 }
 
-#[derive(Clone, Debug, Copy, EnumIter, ProtoBuf_Enum, Default)]
+#[derive(Clone, Debug, Copy, ProtoBuf_Enum, Default)]
 pub enum DateFormatPB {
   Local = 0,
   US = 1,

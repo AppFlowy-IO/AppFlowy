@@ -2,21 +2,21 @@ use std::path::Path;
 
 use ::diesel::{query_dsl::*, ExpressionMethods};
 use anyhow::anyhow;
-use diesel::{Connection, SqliteConnection};
+use diesel::sql_query;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 
 use crate::kv::schema::{kv_table, kv_table::dsl, KV_SQL};
-use crate::sqlite::{Database, PoolConfig};
+use crate::sqlite_impl::{Database, PoolConfig};
 
 const DB_NAME: &str = "cache.db";
 
 /// [StorePreferences] uses a sqlite database to store key value pairs.
 /// Most of the time, it used to storage AppFlowy configuration.
+#[derive(Clone)]
 pub struct StorePreferences {
   database: Option<Database>,
 }
-
 impl StorePreferences {
   #[tracing::instrument(level = "trace", err)]
   pub fn new(root: &str) -> Result<Self, anyhow::Error> {
@@ -26,8 +26,8 @@ impl StorePreferences {
 
     let pool_config = PoolConfig::default();
     let database = Database::new(root, DB_NAME, pool_config).unwrap();
-    let conn = database.get_connection().unwrap();
-    SqliteConnection::execute(&*conn, KV_SQL).unwrap();
+    let mut conn = database.get_connection().unwrap();
+    sql_query(KV_SQL).execute(&mut conn).unwrap();
 
     tracing::trace!("Init StorePreferences with path: {}", root);
     Ok(Self {
@@ -86,15 +86,14 @@ impl StorePreferences {
       .and_then(|v| serde_json::from_str(&v).ok())
   }
 
-  #[allow(dead_code)]
   pub fn remove(&self, key: &str) {
-    if let Some(conn) = self
+    if let Some(mut conn) = self
       .database
       .as_ref()
       .and_then(|database| database.get_connection().ok())
     {
       let sql = dsl::kv_table.filter(kv_table::key.eq(key));
-      let _ = diesel::delete(sql).execute(&*conn);
+      let _ = diesel::delete(sql).execute(&mut *conn);
     }
   }
 
@@ -105,30 +104,30 @@ impl StorePreferences {
       .and_then(|database| database.get_connection().ok())
     {
       None => Err(anyhow!("StorePreferences is not initialized")),
-      Some(conn) => {
+      Some(mut conn) => {
         diesel::replace_into(kv_table::table)
           .values(KeyValue {
             key: key.to_string(),
             value,
           })
-          .execute(&*conn)?;
+          .execute(&mut *conn)?;
         Ok(())
       },
     }
   }
 
   fn get_key_value(&self, key: &str) -> Option<KeyValue> {
-    let conn = self.database.as_ref().unwrap().get_connection().ok()?;
+    let mut conn = self.database.as_ref().unwrap().get_connection().ok()?;
     dsl::kv_table
       .filter(kv_table::key.eq(key))
-      .first::<KeyValue>(&*conn)
+      .first::<KeyValue>(&mut *conn)
       .ok()
   }
 }
 
 #[derive(Clone, Debug, Default, Queryable, Identifiable, Insertable, AsChangeset)]
-#[table_name = "kv_table"]
-#[primary_key(key)]
+#[diesel(table_name = kv_table)]
+#[diesel(primary_key(key))]
 pub struct KeyValue {
   pub key: String,
   pub value: Option<String>,

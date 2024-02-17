@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -15,14 +14,23 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('toggle list in document', () {
+    Finder findToggleListIcon({
+      required bool isExpanded,
+    }) {
+      final turns = isExpanded ? 0.25 : 0.0;
+      return find.byWidgetPredicate(
+        (widget) => widget is AnimatedRotation && widget.turns == turns,
+      );
+    }
+
     void expectToggleListOpened() {
-      expect(find.byIcon(Icons.arrow_drop_down), findsOneWidget);
-      expect(find.byIcon(Icons.arrow_right), findsNothing);
+      expect(findToggleListIcon(isExpanded: true), findsOneWidget);
+      expect(findToggleListIcon(isExpanded: false), findsNothing);
     }
 
     void expectToggleListClosed() {
-      expect(find.byIcon(Icons.arrow_drop_down), findsNothing);
-      expect(find.byIcon(Icons.arrow_right), findsOneWidget);
+      expect(findToggleListIcon(isExpanded: false), findsOneWidget);
+      expect(findToggleListIcon(isExpanded: true), findsNothing);
     }
 
     testWidgets('convert > to toggle list, and click the icon to close it',
@@ -31,9 +39,7 @@ void main() {
       await tester.tapGoButton();
 
       // create a new document
-      await tester.createNewPageWithName(
-        layout: ViewLayoutPB.Document,
-      );
+      await tester.createNewPageWithNameUnderParent();
 
       // tap the first line of the document
       await tester.editor.tapLineOfEditorAt(0);
@@ -63,7 +69,7 @@ void main() {
       expect(find.text(text2, findRichText: true), findsOneWidget);
 
       // Click the toggle list icon to close it
-      final toggleListIcon = find.byIcon(Icons.arrow_drop_down);
+      final toggleListIcon = find.byIcon(Icons.arrow_right);
       await tester.tapButton(toggleListIcon);
 
       // expect the toggle list to be closed
@@ -77,9 +83,7 @@ void main() {
       await tester.tapGoButton();
 
       // create a new document
-      await tester.createNewPageWithName(
-        layout: ViewLayoutPB.Document,
-      );
+      await tester.createNewPageWithNameUnderParent();
 
       // tap the first line of the document
       await tester.editor.tapLineOfEditorAt(0);
@@ -88,14 +92,13 @@ void main() {
       await tester.ime.insertText('> $text');
 
       // Click the toggle list icon to close it
-      final toggleListIcon = find.byIcon(Icons.arrow_drop_down);
+      final toggleListIcon = find.byIcon(Icons.arrow_right);
       await tester.tapButton(toggleListIcon);
 
       // Press the enter key
       await tester.editor.updateSelection(
-        Selection.collapse(
-          [0],
-          'Hello '.length,
+        Selection.collapsed(
+          Position(path: [0], offset: 'Hello '.length),
         ),
       );
       await tester.ime.insertCharacter('\n');
@@ -117,9 +120,7 @@ void main() {
       await tester.tapGoButton();
 
       // create a new document
-      await tester.createNewPageWithName(
-        layout: ViewLayoutPB.Document,
-      );
+      await tester.createNewPageWithNameUnderParent();
 
       // tap the first line of the document
       await tester.editor.tapLineOfEditorAt(0);
@@ -129,9 +130,8 @@ void main() {
 
       // Press the enter key
       await tester.editor.updateSelection(
-        Selection.collapse(
-          [0],
-          'Hello '.length,
+        Selection.collapsed(
+          Position(path: [0], offset: 'Hello '.length),
         ),
       );
       await tester.ime.insertCharacter('\n');
@@ -155,9 +155,7 @@ void main() {
       await tester.tapGoButton();
 
       // create a new document
-      await tester.createNewPageWithName(
-        layout: ViewLayoutPB.Document,
-      );
+      await tester.createNewPageWithNameUnderParent();
 
       // tap the first line of the document
       await tester.editor.tapLineOfEditorAt(0);
@@ -166,15 +164,11 @@ void main() {
 
       // Press the enter key
       // Click the toggle list icon to close it
-      final toggleListIcon = find.byIcon(Icons.arrow_drop_down);
+      final toggleListIcon = find.byIcon(Icons.arrow_right);
       await tester.tapButton(toggleListIcon);
 
-      await tester.editor.updateSelection(
-        Selection.collapse(
-          [0],
-          0,
-        ),
-      );
+      await tester.editor
+          .updateSelection(Selection.collapsed(Position(path: [0])));
       await tester.ime.insertCharacter('\n');
 
       final editorState = tester.editor.getCurrentEditorState();
@@ -190,9 +184,7 @@ void main() {
       await tester.tapGoButton();
 
       // create a new document
-      await tester.createNewPageWithName(
-        layout: ViewLayoutPB.Document,
-      );
+      await tester.createNewPageWithNameUnderParent();
 
       // tap the first line of the document
       await tester.editor.tapLineOfEditorAt(0);
@@ -202,9 +194,8 @@ void main() {
       expectToggleListOpened();
 
       await tester.editor.updateSelection(
-        Selection.collapse(
-          [0],
-          0,
+        Selection.collapsed(
+          Position(path: [0]),
         ),
       );
       await tester.simulateKeyEvent(

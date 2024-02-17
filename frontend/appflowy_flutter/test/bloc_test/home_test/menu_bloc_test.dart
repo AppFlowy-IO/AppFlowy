@@ -12,7 +12,7 @@ void main() {
   test('assert initial apps is the build-in app', () async {
     final menuBloc = MenuBloc(
       user: testContext.userProfile,
-      workspace: testContext.currentWorkspace,
+      workspaceId: testContext.currentWorkspace.id,
     )..add(const MenuEvent.initial());
     await blocResponseFuture();
 
@@ -22,7 +22,7 @@ void main() {
   test('reorder apps', () async {
     final menuBloc = MenuBloc(
       user: testContext.userProfile,
-      workspace: testContext.currentWorkspace,
+      workspaceId: testContext.currentWorkspace.id,
     )..add(const MenuEvent.initial());
     await blocResponseFuture();
     menuBloc.add(const MenuEvent.createApp("App 1"));

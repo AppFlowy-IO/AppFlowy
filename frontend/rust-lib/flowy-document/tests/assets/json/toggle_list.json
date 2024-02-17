@@ -1,0 +1,25 @@
+{
+  "type": "page",
+  "children": [
+    {
+      "type": "toggle_list",
+      "data": {
+        "delta": [
+          { "insert": "Click " },
+          { "attributes": { "code": true }, "insert": "?" },
+          { "insert": " at the bottom right for help and support." }
+        ]
+      },
+      "children": [
+        {
+          "type": "paragraph",
+          "data": { "delta": [{ "insert": "This is a paragraph" }] }
+        },
+        {
+          "type": "toggle_list",
+          "data": { "delta": [{ "insert": "This is a toggle list" }] }
+        }
+      ]
+    }
+  ]
+}

@@ -1,7 +1,6 @@
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/folder/favorite_folder.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -31,17 +30,11 @@ void main() {
       ].map((e) => 'document_$e').toList();
       for (var i = 0; i < names.length; i++) {
         final parentName = i == 0 ? gettingStarted : names[i - 1];
-        await tester.createNewPageWithName(
+        await tester.createNewPageWithNameUnderParent(
           name: names[i],
           parentName: parentName,
-          layout: ViewLayoutPB.Document,
         );
-        tester.expectToSeePageName(
-          names[i],
-          parentName: parentName,
-          layout: ViewLayoutPB.Document,
-          parentLayout: ViewLayoutPB.Document,
-        );
+        tester.expectToSeePageName(names[i], parentName: parentName);
       }
 
       await tester.favoriteViewByName(gettingStarted);
@@ -87,7 +80,6 @@ void main() {
         await tester.favoriteViewByName(gettingStarted);
         await tester.hoverOnPageName(
           gettingStarted,
-          layout: ViewLayoutPB.Document,
           onHover: () async {
             await tester.renamePage(name);
             await tester.pumpAndSettle();
@@ -99,7 +91,7 @@ void main() {
         );
         expect(
           tester.findFavoritePageName(name),
-          findsNothing,
+          findsOneWidget,
         );
       },
     );
@@ -113,10 +105,9 @@ void main() {
         final names = [1, 2].map((e) => 'document_$e').toList();
         for (var i = 0; i < names.length; i++) {
           final parentName = i == 0 ? gettingStarted : names[i - 1];
-          await tester.createNewPageWithName(
+          await tester.createNewPageWithNameUnderParent(
             name: names[i],
             parentName: parentName,
-            layout: ViewLayoutPB.Document,
           );
           tester.expectToSeePageName(names[i], parentName: parentName);
         }
@@ -127,7 +118,7 @@ void main() {
         expect(
           find.byWidgetPredicate(
             (widget) =>
-                widget is ViewItem &&
+                widget is SingleInnerViewItem &&
                 widget.view.isFavorite &&
                 widget.categoryType == FolderCategoryType.favorite,
           ),
@@ -136,7 +127,6 @@ void main() {
 
         await tester.hoverOnPageName(
           names[1],
-          layout: ViewLayoutPB.Document,
           onHover: () async {
             await tester.tapDeletePageButton();
             await tester.pumpAndSettle();
@@ -144,18 +134,12 @@ void main() {
         );
 
         expect(
-          find.byWidgetPredicate(
-            (widget) =>
-                widget is ViewItem &&
-                widget.view.isFavorite &&
-                widget.categoryType == FolderCategoryType.favorite,
-          ),
+          tester.findAllFavoritePages(),
           findsNWidgets(3),
         );
 
         await tester.hoverOnPageName(
           gettingStarted,
-          layout: ViewLayoutPB.Document,
           onHover: () async {
             await tester.tapDeletePageButton();
             await tester.pumpAndSettle();
@@ -163,12 +147,7 @@ void main() {
         );
 
         expect(
-          find.byWidgetPredicate(
-            (widget) =>
-                widget is ViewItem &&
-                widget.view.isFavorite &&
-                widget.categoryType == FolderCategoryType.favorite,
-          ),
+          tester.findAllFavoritePages(),
           findsNothing,
         );
       },
@@ -180,7 +159,7 @@ void main() {
         await tester.initializeAppFlowy();
         await tester.tapGoButton();
 
-        await tester.createNewPageWithName();
+        await tester.createNewPageWithNameUnderParent();
         await tester.favoriteViewByName(gettingStarted);
         expect(
           find.byWidgetPredicate(
@@ -200,11 +179,10 @@ void main() {
         await tester.initializeAppFlowy();
         await tester.tapGoButton();
 
-        await tester.createNewPageWithName();
+        await tester.createNewPageWithNameUnderParent();
         await tester.favoriteViewByName(gettingStarted);
         await tester.hoverOnPageName(
           gettingStarted,
-          layout: ViewLayoutPB.Document,
           useLast: false,
           onHover: () async {
             await tester.tapPageOptionButton();

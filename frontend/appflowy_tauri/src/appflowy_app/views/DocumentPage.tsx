@@ -1,14 +1,20 @@
-import { useDocument } from './DocumentPage.hooks';
-import Root from '../components/document/Root';
-import { DocumentControllerContext } from '../stores/effects/document/document_controller';
+import React from 'react';
+import { useParams } from 'react-router-dom';
+import { Document } from '$app/components/document';
 
-export const DocumentPage = () => {
-  const { documentId, documentData, controller } = useDocument();
+function DocumentPage() {
+  const params = useParams();
 
-  if (!documentId || !documentData || !controller) return null;
+  const documentId = params.id;
+
+  if (!documentId) return null;
   return (
-    <DocumentControllerContext.Provider value={controller}>
-      <Root documentData={documentData} />
-    </DocumentControllerContext.Provider>
+    <div className={'flex w-full justify-center'}>
+      <div className={'max-w-screen w-[964px] min-w-0'}>
+        <Document id={documentId} />
+      </div>
+    </div>
   );
-};
+}
+
+export default DocumentPage;

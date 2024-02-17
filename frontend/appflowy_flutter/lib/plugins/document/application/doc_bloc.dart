@@ -1,58 +1,69 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
+
+import 'package:appflowy/plugins/document/application/doc_service.dart';
 import 'package:appflowy/plugins/document/application/document_data_pb_extension.dart';
 import 'package:appflowy/plugins/document/application/editor_transaction_adapter.dart';
 import 'package:appflowy/plugins/trash/application/trash_service.dart';
-import 'package:appflowy/user/application/user_service.dart';
-import 'package:appflowy/util/json_print.dart';
-import 'package:appflowy/workspace/application/view/view_listener.dart';
+import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/workspace/application/doc/doc_listener.dart';
-import 'package:appflowy/plugins/document/application/doc_service.dart';
-import 'package:appflowy_backend/protobuf/flowy-document2/protobuf.dart';
+import 'package:appflowy/workspace/application/doc/sync_state_listener.dart';
+import 'package:appflowy/workspace/application/view/view_listener.dart';
+import 'package:appflowy_backend/protobuf/flowy-document/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pbserver.dart';
 import 'package:appflowy_editor/appflowy_editor.dart'
-    show EditorState, LogLevel, TransactionTime, Selection, paragraphNode;
-import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
-import 'package:flutter/foundation.dart';
+    show
+        EditorState,
+        LogLevel,
+        TransactionTime,
+        Selection,
+        Position,
+        paragraphNode;
+import 'package:dartz/dartz.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:dartz/dartz.dart';
-import 'dart:async';
+
 part 'doc_bloc.freezed.dart';
 
 class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   DocumentBloc({
     required this.view,
   })  : _documentListener = DocumentListener(id: view.id),
+        _syncStateListener = DocumentSyncStateListener(id: view.id),
         _viewListener = ViewListener(viewId: view.id),
-        _documentService = DocumentService(),
-        _trashService = TrashService(),
         super(DocumentState.initial()) {
-    _transactionAdapter = TransactionAdapter(
-      documentId: view.id,
-      documentService: _documentService,
-    );
     on<DocumentEvent>(_onDocumentEvent);
   }
 
   final ViewPB view;
 
   final DocumentListener _documentListener;
+  final DocumentSyncStateListener _syncStateListener;
   final ViewListener _viewListener;
 
-  final DocumentService _documentService;
-  final TrashService _trashService;
+  final DocumentService _documentService = DocumentService();
+  final TrashService _trashService = TrashService();
 
-  late final TransactionAdapter _transactionAdapter;
+  late final TransactionAdapter _transactionAdapter = TransactionAdapter(
+    documentId: view.id,
+    documentService: _documentService,
+  );
 
-  EditorState? editorState;
   StreamSubscription? _subscription;
 
   @override
   Future<void> close() async {
+    await _documentListener.stop();
+    await _syncStateListener.stop();
     await _viewListener.stop();
     await _subscription?.cancel();
     await _documentService.closeDocument(view: view);
-    editorState?.cancelSubscription();
+    state.editorState?.service.keyboardService?.closeKeyboard();
+    state.editorState?.dispose();
     return super.close();
   }
 
@@ -60,40 +71,52 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     DocumentEvent event,
     Emitter<DocumentState> emit,
   ) async {
-    await event.map(
-      initial: (Initial value) async {
-        final state = await _fetchDocumentState();
-        await _subscribe(state);
-        emit(state);
+    await event.when(
+      initial: () async {
+        final editorState = await _fetchDocumentState();
+        _onViewChanged();
+        _onDocumentChanged();
+        await editorState.fold(
+          (l) async => emit(
+            state.copyWith(
+              error: l,
+              editorState: null,
+              isLoading: false,
+            ),
+          ),
+          (r) async {
+            final result = await getIt<AuthService>().getUser();
+            final userProfilePB = result.fold((l) => null, (r) => r);
+            emit(
+              state.copyWith(
+                error: null,
+                editorState: r,
+                isLoading: false,
+                userProfilePB: userProfilePB,
+              ),
+            );
+          },
+        );
       },
-      moveToTrash: (MoveToTrash value) async {
+      moveToTrash: () async {
         emit(state.copyWith(isDeleted: true));
       },
-      restore: (Restore value) async {
+      restore: () async {
         emit(state.copyWith(isDeleted: false));
       },
-      deletePermanently: (DeletePermanently value) async {
+      deletePermanently: () async {
         final result = await _trashService.deleteViews([view.id]);
         final forceClose = result.fold((l) => true, (r) => false);
         emit(state.copyWith(forceClose: forceClose));
       },
-      restorePage: (RestorePage value) async {
+      restorePage: () async {
         final result = await _trashService.putback(view.id);
         final isDeleted = result.fold((l) => false, (r) => true);
         emit(state.copyWith(isDeleted: isDeleted));
       },
-    );
-  }
-
-  Future<void> _subscribe(DocumentState state) async {
-    _onViewChanged();
-    _onDocumentChanged();
-
-    // create the editor state
-    await state.loadingState.whenOrNull(
-      finish: (data) async => data.map((r) {
-        _initAppFlowyEditorState(r);
-      }),
+      syncStateChanged: (isSyncing) {
+        emit(state.copyWith(isSyncing: isSyncing));
+      },
     );
   }
 
@@ -114,39 +137,35 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   /// subscribe to the document content change
   void _onDocumentChanged() {
     _documentListener.start(
-      didReceiveUpdate: (docEvent) {
-        // todo: integrate the document change to the editor
-        // prettyPrintJson(docEvent.toProto3Json());
+      didReceiveUpdate: syncDocumentDataPB,
+    );
+
+    _syncStateListener.start(
+      didReceiveSyncState: (syncState) {
+        if (!isClosed) {
+          add(DocumentEvent.syncStateChanged(syncState.isSyncing));
+        }
       },
     );
   }
 
   /// Fetch document
-  Future<DocumentState> _fetchDocumentState() async {
-    final result = await UserBackendService.getCurrentUserProfile().then(
-      (value) async => value.andThen(
-        // open the document
-        await _documentService.openDocument(view: view),
-      ),
-    );
-    return state.copyWith(
-      loadingState: DocumentLoadingState.finish(result),
+  Future<Either<FlowyError, EditorState?>> _fetchDocumentState() async {
+    final result = await _documentService.openDocument(viewId: view.id);
+    return result.fold(
+      (l) => left(l),
+      (r) async => right(await _initAppFlowyEditorState(r)),
     );
   }
 
-  Future<void> _initAppFlowyEditorState(DocumentDataPB data) async {
-    if (kDebugMode) {
-      prettyPrintJson(data.toProto3Json());
-    }
-
+  Future<EditorState?> _initAppFlowyEditorState(DocumentDataPB data) async {
     final document = data.toDocument();
     if (document == null) {
       assert(false, 'document is null');
-      return;
+      return null;
     }
 
     final editorState = EditorState(document: document);
-    this.editorState = editorState;
 
     // subscribe to the document change from the editor
     _subscription = editorState.transactionStream.listen((event) async {
@@ -157,7 +176,12 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
       await _transactionAdapter.apply(event.$2, editorState);
 
       // check if the document is empty.
-      applyRules();
+      await applyRules();
+
+      if (!isClosed) {
+        // ignore: invalid_use_of_visible_for_testing_member
+        emit(state.copyWith(isDocumentEmpty: editorState.document.isEmpty));
+      }
     });
 
     // output the log from the editor when debug mode
@@ -168,15 +192,19 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
           // Log.debug(log);
         };
     }
+
+    return editorState;
   }
 
   Future<void> applyRules() async {
-    ensureAtLeastOneParagraphExists();
-    ensureLastNodeIsEditable();
+    await Future.wait([
+      ensureAtLeastOneParagraphExists(),
+      ensureLastNodeIsEditable(),
+    ]);
   }
 
   Future<void> ensureLastNodeIsEditable() async {
-    final editorState = this.editorState;
+    final editorState = state.editorState;
     if (editorState == null) {
       return;
     }
@@ -185,12 +213,13 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     if (lastNode == null || lastNode.delta == null) {
       final transaction = editorState.transaction;
       transaction.insertNode([document.root.children.length], paragraphNode());
+      transaction.afterSelection = transaction.beforeSelection;
       await editorState.apply(transaction);
     }
   }
 
   Future<void> ensureAtLeastOneParagraphExists() async {
-    final editorState = this.editorState;
+    final editorState = state.editorState;
     if (editorState == null) {
       return;
     }
@@ -198,9 +227,29 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     if (document.root.children.isEmpty) {
       final transaction = editorState.transaction;
       transaction.insertNode([0], paragraphNode());
-      transaction.afterSelection = Selection.collapse([0], 0);
+      transaction.afterSelection = Selection.collapsed(
+        Position(path: [0]),
+      );
       await editorState.apply(transaction);
     }
+  }
+
+  void syncDocumentDataPB(DocEventPB docEvent) {
+    // prettyPrintJson(docEvent.toProto3Json());
+    // todo: integrate the document change to the editor
+    // for (final event in docEvent.events) {
+    //   for (final blockEvent in event.event) {
+    //     switch (blockEvent.command) {
+    //       case DeltaTypePB.Inserted:
+    //         break;
+    //       case DeltaTypePB.Updated:
+    //         break;
+    //       case DeltaTypePB.Removed:
+    //         break;
+    //       default:
+    //     }
+    //   }
+    // }
   }
 }
 
@@ -211,29 +260,27 @@ class DocumentEvent with _$DocumentEvent {
   const factory DocumentEvent.restore() = Restore;
   const factory DocumentEvent.restorePage() = RestorePage;
   const factory DocumentEvent.deletePermanently() = DeletePermanently;
+  const factory DocumentEvent.syncStateChanged(bool isSyncing) =
+      syncStateChanged;
 }
 
 @freezed
 class DocumentState with _$DocumentState {
   const factory DocumentState({
-    required DocumentLoadingState loadingState,
     required bool isDeleted,
     required bool forceClose,
+    required bool isLoading,
+    required bool isSyncing,
+    bool? isDocumentEmpty,
     UserProfilePB? userProfilePB,
+    EditorState? editorState,
+    FlowyError? error,
   }) = _DocumentState;
 
   factory DocumentState.initial() => const DocumentState(
-        loadingState: _Loading(),
         isDeleted: false,
         forceClose: false,
-        userProfilePB: null,
+        isLoading: true,
+        isSyncing: false,
       );
-}
-
-@freezed
-class DocumentLoadingState with _$DocumentLoadingState {
-  const factory DocumentLoadingState.loading() = _Loading;
-  const factory DocumentLoadingState.finish(
-    Either<FlowyError, DocumentDataPB> successOrFail,
-  ) = _Finish;
 }

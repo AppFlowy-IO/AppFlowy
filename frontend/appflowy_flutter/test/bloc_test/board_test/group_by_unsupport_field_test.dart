@@ -1,6 +1,6 @@
-import 'package:appflowy/plugins/database_view/application/database_controller.dart';
-import 'package:appflowy/plugins/database_view/application/field/field_editor_bloc.dart';
-import 'package:appflowy/plugins/database_view/board/application/board_bloc.dart';
+import 'package:appflowy/plugins/database/application/database_controller.dart';
+import 'package:appflowy/plugins/database/application/field/field_editor_bloc.dart';
+import 'package:appflowy/plugins/database/board/application/board_bloc.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -29,13 +29,10 @@ void main() {
       build: () => editorBloc,
       wait: boardResponseDuration(),
       act: (bloc) async {
-        bloc.add(const FieldEditorEvent.switchToField(FieldType.RichText));
+        bloc.add(const FieldEditorEvent.switchFieldType(FieldType.RichText));
       },
       verify: (bloc) {
-        bloc.state.field.fold(
-          () => throw Exception(),
-          (field) => field.fieldType == FieldType.RichText,
-        );
+        assert(bloc.state.field.fieldType == FieldType.RichText);
       },
     );
     blocTest<BoardBloc, BoardState>(

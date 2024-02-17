@@ -7,16 +7,21 @@ use std::time::Duration;
 
 use anyhow::Error;
 use chrono::{DateTime, Utc};
-use collab_plugins::cloud_storage::{CollabObject, CollabType, RemoteCollabSnapshot};
+use collab::core::collab::CollabDocState;
+use collab_entity::{CollabObject, CollabType};
+use collab_plugins::cloud_storage::RemoteCollabSnapshot;
 use serde_json::Value;
 use tokio_retry::strategy::FixedInterval;
 use tokio_retry::{Action, Condition, RetryIf};
+use yrs::merge_updates_v1;
 
-use flowy_database_deps::cloud::{CollabObjectUpdate, CollabObjectUpdateByOid};
+use flowy_database_pub::cloud::CollabDocStateByOid;
 use lib_infra::util::md5;
 
+use crate::response::ExtendedResponse;
 use crate::supabase::api::util::{
-  ExtendedResponse, InsertParamsBuilder, SupabaseBinaryColumnDecoder,
+  BinaryColumnDecoder, InsertParamsBuilder, SupabaseBinaryColumnDecoder,
+  SupabaseBinaryColumnEncoder,
 };
 use crate::supabase::api::PostgresWrapper;
 use crate::supabase::define::*;
@@ -55,7 +60,7 @@ impl FetchObjectUpdateAction {
 
 impl Action for FetchObjectUpdateAction {
   type Future = Pin<Box<dyn Future<Output = Result<Self::Item, Self::Error>> + Send>>;
-  type Item = CollabObjectUpdate;
+  type Item = CollabDocState;
   type Error = anyhow::Error;
 
   fn run(&mut self) -> Self::Future {
@@ -66,8 +71,25 @@ impl Action for FetchObjectUpdateAction {
       match weak_postgres.upgrade() {
         None => Ok(vec![]),
         Some(postgrest) => {
-          let items = get_updates_from_server(&object_id, &object_ty, postgrest).await?;
-          Ok(items.into_iter().map(|item| item.value).collect())
+          match get_updates_from_server(&object_id, &object_ty, &postgrest).await {
+            Ok(items) => {
+              if items.is_empty() {
+                return Ok(vec![]);
+              }
+
+              let updates = items
+                .iter()
+                .map(|update| update.value.as_ref())
+                .collect::<Vec<&[u8]>>();
+              let doc_state = merge_updates_v1(&updates)
+                .map_err(|err| anyhow::anyhow!("merge updates failed: {:?}", err))?;
+              Ok(doc_state)
+            },
+            Err(err) => {
+              tracing::error!("Get {} updates failed with error: {:?}", object_id, err);
+              Err(err)
+            },
+          }
         },
       }
     })
@@ -102,7 +124,7 @@ impl BatchFetchObjectUpdateAction {
 
 impl Action for BatchFetchObjectUpdateAction {
   type Future = Pin<Box<dyn Future<Output = Result<Self::Item, Self::Error>> + Send>>;
-  type Item = CollabObjectUpdateByOid;
+  type Item = CollabDocStateByOid;
   type Error = anyhow::Error;
 
   fn run(&mut self) -> Self::Future {
@@ -111,8 +133,20 @@ impl Action for BatchFetchObjectUpdateAction {
     let object_ty = self.object_ty.clone();
     Box::pin(async move {
       match weak_postgrest.upgrade() {
-        None => Ok(CollabObjectUpdateByOid::default()),
-        Some(server) => batch_get_updates_from_server(object_ids, &object_ty, server).await,
+        None => Ok(CollabDocStateByOid::default()),
+        Some(server) => {
+          match batch_get_updates_from_server(object_ids.clone(), &object_ty, server).await {
+            Ok(updates_by_oid) => Ok(updates_by_oid),
+            Err(err) => {
+              tracing::error!(
+                "Batch get object with given ids:{:?} failed with error: {:?}",
+                object_ids,
+                err
+              );
+              Err(err)
+            },
+          }
+        },
       }
     })
   }
@@ -124,79 +158,117 @@ pub async fn create_snapshot(
   snapshot: Vec<u8>,
 ) -> Result<i64, Error> {
   let value_size = snapshot.len() as i32;
-  let snapshot = format!("\\x{}", hex::encode(snapshot));
-  postgrest
+  let (snapshot, encrypt) = SupabaseBinaryColumnEncoder::encode(&snapshot, &postgrest.secret())?;
+  let ret: Value = postgrest
     .from(AF_COLLAB_SNAPSHOT_TABLE)
     .insert(
       InsertParamsBuilder::new()
         .insert(AF_COLLAB_SNAPSHOT_OID_COLUMN, object.object_id.clone())
-        .insert("name", object.ty.to_string())
+        .insert("name", object.collab_type.to_string())
+        .insert(AF_COLLAB_SNAPSHOT_ENCRYPT_COLUMN, encrypt)
         .insert(AF_COLLAB_SNAPSHOT_BLOB_COLUMN, snapshot)
         .insert(AF_COLLAB_SNAPSHOT_BLOB_SIZE_COLUMN, value_size)
         .build(),
     )
     .execute()
     .await?
-    .success()
+    .get_json()
     .await?;
 
-  Ok(1)
+  let snapshot_id = ret
+    .as_array()
+    .and_then(|array| array.first())
+    .and_then(|value| value.get("sid"))
+    .and_then(|value| value.as_i64())
+    .unwrap_or(0);
+  Ok(snapshot_id)
 }
 
-pub async fn get_latest_snapshot_from_server(
+pub async fn get_snapshots_from_server(
   object_id: &str,
   postgrest: Arc<PostgresWrapper>,
-) -> Result<Option<RemoteCollabSnapshot>, Error> {
-  let json = postgrest
+  limit: usize,
+) -> Result<Vec<RemoteCollabSnapshot>, Error> {
+  let json: Value = postgrest
     .from(AF_COLLAB_SNAPSHOT_TABLE)
     .select(format!(
-      "{},{},{}",
+      "{},{},{},{}",
       AF_COLLAB_SNAPSHOT_ID_COLUMN,
       AF_COLLAB_SNAPSHOT_BLOB_COLUMN,
-      AF_COLLAB_SNAPSHOT_CREATED_AT_COLUMN
+      AF_COLLAB_SNAPSHOT_CREATED_AT_COLUMN,
+      AF_COLLAB_SNAPSHOT_ENCRYPT_COLUMN
     ))
     .order(format!("{}.desc", AF_COLLAB_SNAPSHOT_ID_COLUMN))
-    .limit(1)
+    .limit(limit)
     .eq(AF_COLLAB_SNAPSHOT_OID_COLUMN, object_id)
     .execute()
     .await?
     .get_json()
     .await?;
 
-  let snapshot = json
-    .as_array()
-    .and_then(|array| array.first())
-    .and_then(|value| {
-      let blob = value
-        .get("blob")
-        .and_then(|blob| blob.as_str())
-        .and_then(SupabaseBinaryColumnDecoder::decode)?;
-      let sid = value.get("sid").and_then(|id| id.as_i64())?;
-      let created_at = value.get("created_at").and_then(|created_at| {
-        created_at
-          .as_str()
-          .map(|id| DateTime::<Utc>::from_str(id).ok())
-          .and_then(|date| date)
-      })?;
+  let mut snapshots = vec![];
+  let secret = postgrest.secret();
+  match json.as_array() {
+    None => {
+      if let Some(snapshot) = parser_snapshot(object_id, &json, &secret) {
+        snapshots.push(snapshot);
+      }
+    },
+    Some(snapshot_values) => {
+      for snapshot_value in snapshot_values {
+        if let Some(snapshot) = parser_snapshot(object_id, snapshot_value, &secret) {
+          snapshots.push(snapshot);
+        }
+      }
+    },
+  }
+  Ok(snapshots)
+}
 
-      Some(RemoteCollabSnapshot {
-        sid,
-        oid: object_id.to_string(),
-        blob,
-        created_at: created_at.timestamp(),
-      })
-    });
-  Ok(snapshot)
+fn parser_snapshot(
+  object_id: &str,
+  snapshot: &Value,
+  secret: &Option<String>,
+) -> Option<RemoteCollabSnapshot> {
+  let blob = match (
+    snapshot
+      .get(AF_COLLAB_SNAPSHOT_ENCRYPT_COLUMN)
+      .and_then(|encrypt| encrypt.as_i64()),
+    snapshot
+      .get(AF_COLLAB_SNAPSHOT_BLOB_COLUMN)
+      .and_then(|value| value.as_str()),
+  ) {
+    (Some(encrypt), Some(value)) => {
+      SupabaseBinaryColumnDecoder::decode::<_, BinaryColumnDecoder>(value, encrypt as i32, secret)
+        .ok()
+    },
+    _ => None,
+  }?;
+
+  let sid = snapshot.get("sid").and_then(|id| id.as_i64())?;
+  let created_at = snapshot.get("created_at").and_then(|created_at| {
+    created_at
+      .as_str()
+      .map(|id| DateTime::<Utc>::from_str(id).ok())
+      .and_then(|date| date)
+  })?;
+
+  Some(RemoteCollabSnapshot {
+    sid,
+    oid: object_id.to_string(),
+    blob,
+    created_at: created_at.timestamp(),
+  })
 }
 
 pub async fn batch_get_updates_from_server(
   object_ids: Vec<String>,
   object_ty: &CollabType,
   postgrest: Arc<PostgresWrapper>,
-) -> Result<CollabObjectUpdateByOid, Error> {
+) -> Result<CollabDocStateByOid, Error> {
   let json = postgrest
     .from(table_name(object_ty))
-    .select("oid, key, value, md5")
+    .select("oid, key, value, encrypt, md5")
     .order(format!("{}.asc", AF_COLLAB_KEY_COLUMN))
     .in_("oid", object_ids)
     .execute()
@@ -204,18 +276,29 @@ pub async fn batch_get_updates_from_server(
     .get_json()
     .await?;
 
-  let mut updates_by_oid = CollabObjectUpdateByOid::new();
+  let mut updates_by_oid = CollabDocStateByOid::new();
   if let Some(records) = json.as_array() {
     for record in records {
+      tracing::debug!("get updates from server: {:?}", record);
       if let Some(oid) = record.get("oid").and_then(|value| value.as_str()) {
-        if let Ok(updates) = parser_updates_form_json(record.clone()) {
-          let object_updates = updates_by_oid
-            .entry(oid.to_string())
-            .or_insert_with(Vec::new);
-          tracing::debug!("get updates from server: {:?}", record);
-          for update in updates {
-            object_updates.push(update.value);
-          }
+        match parser_updates_form_json(record.clone(), &postgrest.secret()) {
+          Ok(items) => {
+            if items.is_empty() {
+              updates_by_oid.insert(oid.to_string(), vec![]);
+            } else {
+              let updates = items
+                .iter()
+                .map(|update| update.value.as_ref())
+                .collect::<Vec<&[u8]>>();
+
+              let doc_state = merge_updates_v1(&updates)
+                .map_err(|err| anyhow::anyhow!("merge updates failed: {:?}", err))?;
+              updates_by_oid.insert(oid.to_string(), doc_state);
+            }
+          },
+          Err(e) => {
+            tracing::error!("parser_updates_form_json error: {:?}", e);
+          },
         }
       }
     }
@@ -226,18 +309,18 @@ pub async fn batch_get_updates_from_server(
 pub async fn get_updates_from_server(
   object_id: &str,
   object_ty: &CollabType,
-  postgrest: Arc<PostgresWrapper>,
+  postgrest: &Arc<PostgresWrapper>,
 ) -> Result<Vec<UpdateItem>, Error> {
   let json = postgrest
     .from(table_name(object_ty))
-    .select("key, value, md5")
+    .select("key, value, encrypt, md5")
     .order(format!("{}.asc", AF_COLLAB_KEY_COLUMN))
     .eq("oid", object_id)
     .execute()
     .await?
     .get_json()
     .await?;
-  parser_updates_form_json(json)
+  parser_updates_form_json(json, &postgrest.secret())
 }
 
 /// json format:
@@ -245,24 +328,35 @@ pub async fn get_updates_from_server(
 /// [
 ///  {
 ///   "value": "\\x...",
+///   "encrypt": 1,
 ///   "md5": "..."
 ///  },
 ///  {
 ///   "value": "\\x...",
+///   "encrypt": 1,
 ///   "md5": "..."
 ///  },
 /// ...
 /// ]
 /// ```
-fn parser_updates_form_json(json: Value) -> Result<Vec<UpdateItem>, Error> {
+fn parser_updates_form_json(
+  json: Value,
+  encryption_secret: &Option<String>,
+) -> Result<Vec<UpdateItem>, Error> {
   let mut updates = vec![];
   match json.as_array() {
     None => {
-      updates.push(parser_update_from_json(&json)?);
+      updates.push(parser_update_from_json(&json, encryption_secret)?);
     },
     Some(values) => {
+      let expected_update_len = values.len();
       for value in values {
-        updates.push(parser_update_from_json(value)?);
+        updates.push(parser_update_from_json(value, encryption_secret)?);
+      }
+      if updates.len() != expected_update_len {
+        return Err(anyhow::anyhow!(
+          "The length of the updates does not match the length of the expected updates, indicating that some updates failed to parse."
+        ));
       }
     },
   }
@@ -270,11 +364,46 @@ fn parser_updates_form_json(json: Value) -> Result<Vec<UpdateItem>, Error> {
   Ok(updates)
 }
 
-fn parser_update_from_json(json: &Value) -> Result<UpdateItem, Error> {
-  let some_record = json
-    .get("value")
-    .and_then(|value| value.as_str())
-    .and_then(SupabaseBinaryColumnDecoder::decode);
+/// Parses update from a JSON representation.
+///
+/// This function attempts to decode an encrypted value from a JSON object
+/// and verify its integrity against a provided MD5 hash.
+///
+/// # Parameters
+/// - `json`: The JSON value representing the update information.
+/// - `encryption_secret`: An optional encryption secret used for decrypting the value.
+///
+/// json format:
+/// ```json
+///  {
+///   "value": "\\x...",
+///   "encrypt": 1,
+///   "md5": "..."
+///  },
+/// ```
+fn parser_update_from_json(
+  json: &Value,
+  encryption_secret: &Option<String>,
+) -> Result<UpdateItem, Error> {
+  let some_record = match (
+    json.get("encrypt").and_then(|encrypt| encrypt.as_i64()),
+    json.get("value").and_then(|value| value.as_str()),
+  ) {
+    (Some(encrypt), Some(value)) => {
+      match SupabaseBinaryColumnDecoder::decode::<_, BinaryColumnDecoder>(
+        value,
+        encrypt as i32,
+        encryption_secret,
+      ) {
+        Ok(value) => Some(value),
+        Err(err) => {
+          tracing::error!("Decode value column failed: {:?}", err);
+          None
+        },
+      }
+    },
+    _ => None,
+  };
 
   let some_key = json.get("key").and_then(|value| value.as_i64());
   if let (Some(value), Some(key)) = (some_record, some_key) {
@@ -282,18 +411,23 @@ fn parser_update_from_json(json: &Value) -> Result<UpdateItem, Error> {
     // that we calculated locally.
     if let Some(expected_md5) = json.get("md5").and_then(|v| v.as_str()) {
       let value_md5 = md5(&value);
-      debug_assert!(
-        value_md5 == expected_md5,
-        "md5 not match: {} != {}",
-        value_md5,
-        expected_md5
-      );
+      if value_md5 != expected_md5 {
+        let msg = format!(
+          "md5 not match: key:{} {} != {}",
+          key, value_md5, expected_md5
+        );
+        tracing::error!("{}", msg);
+        return Err(anyhow::anyhow!(msg));
+      }
     }
     Ok(UpdateItem { key, value })
   } else {
+    let keys = json
+      .as_object()
+      .map(|map| map.iter().map(|(key, _)| key).collect::<Vec<&String>>());
     Err(anyhow::anyhow!(
-      "missing key or value column in json: {:?}",
-      json
+      "missing key or value column. Current keys:: {:?}",
+      keys
     ))
   }
 }
@@ -303,7 +437,7 @@ pub struct UpdateItem {
   pub value: Vec<u8>,
 }
 
-pub struct RetryCondition(Weak<PostgresWrapper>);
+pub struct RetryCondition(pub Weak<PostgresWrapper>);
 impl Condition<anyhow::Error> for RetryCondition {
   fn should_retry(&mut self, _error: &anyhow::Error) -> bool {
     self.0.upgrade().is_some()

@@ -1,5 +1,5 @@
-import 'package:appflowy/plugins/database_view/application/database_controller.dart';
-import 'package:appflowy/plugins/database_view/board/application/board_bloc.dart';
+import 'package:appflowy/plugins/database/application/database_controller.dart';
+import 'package:appflowy/plugins/database/board/application/board_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'util.dart';
@@ -20,16 +20,16 @@ void main() {
     )..add(const BoardEvent.initial());
     await boardResponseFuture();
 
-    final groupId = boardBloc.state.groupIds.first;
+    final groupId = boardBloc.state.groupIds.last;
 
-    // the group at index 0 is the 'No status' group;
+    // the group at index 3 is the 'No status' group;
     assert(boardBloc.groupControllers[groupId]!.group.rows.isEmpty);
     assert(
       boardBloc.state.groupIds.length == 4,
       'but receive ${boardBloc.state.groupIds.length}',
     );
 
-    boardBloc.add(BoardEvent.createBottomRow(boardBloc.state.groupIds[0]));
+    boardBloc.add(BoardEvent.createBottomRow(boardBloc.state.groupIds[3]));
     await boardResponseFuture();
 
     assert(

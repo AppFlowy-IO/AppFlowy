@@ -1,22 +1,27 @@
-use collab_database::views::DatabaseView;
+use collab_database::views::{DatabaseLayout, DatabaseView};
 
 use crate::entities::{
-  CalendarLayoutSettingPB, DatabaseLayoutPB, DatabaseLayoutSettingPB, DatabaseViewSettingPB,
-  FilterPB, GroupSettingPB, SortPB,
+  DatabaseLayoutPB, DatabaseLayoutSettingPB, DatabaseViewSettingPB, FieldSettingsPB, FilterPB,
+  GroupSettingPB, SortPB,
 };
+use crate::services::field_settings::FieldSettings;
 use crate::services::filter::Filter;
 use crate::services::group::GroupSetting;
-use crate::services::setting::CalendarLayoutSetting;
 use crate::services::sort::Sort;
 
 pub(crate) fn database_view_setting_pb_from_view(view: DatabaseView) -> DatabaseViewSettingPB {
   let layout_type: DatabaseLayoutPB = view.layout.into();
   let layout_setting = if let Some(layout_setting) = view.layout_settings.get(&view.layout) {
-    let calendar_setting =
-      CalendarLayoutSettingPB::from(CalendarLayoutSetting::from(layout_setting.clone()));
-    DatabaseLayoutSettingPB {
-      layout_type: layout_type.clone(),
-      calendar: Some(calendar_setting),
+    match view.layout {
+      DatabaseLayout::Board => {
+        let board_setting = layout_setting.clone().into();
+        DatabaseLayoutSettingPB::from_board(board_setting)
+      },
+      DatabaseLayout::Calendar => {
+        let calendar_setting = layout_setting.clone().into();
+        DatabaseLayoutSettingPB::from_calendar(calendar_setting)
+      },
+      _ => DatabaseLayoutSettingPB::default(),
     }
   } else {
     DatabaseLayoutSettingPB::default()
@@ -30,6 +35,7 @@ pub(crate) fn database_view_setting_pb_from_view(view: DatabaseView) -> Database
       Err(_) => None,
     })
     .collect::<Vec<FilterPB>>();
+
   let group_settings = view
     .group_settings
     .into_iter()
@@ -48,11 +54,22 @@ pub(crate) fn database_view_setting_pb_from_view(view: DatabaseView) -> Database
     })
     .collect::<Vec<SortPB>>();
 
+  let field_settings = view
+    .field_settings
+    .into_inner()
+    .into_iter()
+    .map(|(field_id, field_settings)| {
+      FieldSettings::from_any_map(&field_id, view.layout, &field_settings)
+    })
+    .map(FieldSettingsPB::from)
+    .collect::<Vec<FieldSettingsPB>>();
+
   DatabaseViewSettingPB {
     layout_type,
     filters: filters.into(),
     group_settings: group_settings.into(),
     sorts: sorts.into(),
+    field_settings: field_settings.into(),
     layout_setting,
   }
 }

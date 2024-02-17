@@ -184,7 +184,10 @@ impl CellDataDecoder for NumberTypeOption {
     decoded_field_type: &FieldType,
     _field: &Field,
   ) -> FlowyResult<<Self as TypeOption>::CellData> {
-    if decoded_field_type.is_date() {
+    if decoded_field_type.is_date()
+      || decoded_field_type.is_created_time()
+      || decoded_field_type.is_last_edited_time()
+    {
       return Ok(Default::default());
     }
 
@@ -204,6 +207,11 @@ impl CellDataDecoder for NumberTypeOption {
   fn stringify_cell(&self, cell: &Cell) -> String {
     let cell_data = Self::CellData::from(cell);
     self.stringify_cell_data(cell_data)
+  }
+
+  fn numeric_cell(&self, cell: &Cell) -> Option<f64> {
+    let num_cell_data = self.parse_cell(cell).ok()?;
+    num_cell_data.0.parse::<f64>().ok()
   }
 }
 

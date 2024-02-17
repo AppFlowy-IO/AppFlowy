@@ -7,4 +7,12 @@ class DefaultAppearanceSettings {
   static const kDefaultThemeMode = ThemeMode.system;
   static const kDefaultThemeName = "Default";
   static const kDefaultTheme = BuiltInTheme.defaultTheme;
+
+  static Color getDefaultDocumentCursorColor(BuildContext context) {
+    return Theme.of(context).colorScheme.primary;
+  }
+
+  static Color getDefaultDocumentSelectionColor(BuildContext context) {
+    return Theme.of(context).colorScheme.primary.withOpacity(0.2);
+  }
 }

@@ -31,6 +31,12 @@ class _KeyboardScreenState extends State<KeyboardScreen> {
       TextEditingController(text: 'Hello Flowy');
 
   @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(

@@ -1,10 +1,11 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/database_view/board/presentation/board_page.dart';
-import 'package:appflowy/plugins/database_view/calendar/presentation/calendar_page.dart';
-import 'package:appflowy/plugins/database_view/grid/presentation/grid_page.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/base/link_to_page_widget.dart';
+import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/text.dart';
+import 'package:appflowy/plugins/inline_actions/widgets/inline_actions_handler.dart';
+import 'package:appflowy/plugins/database/board/presentation/board_page.dart';
+import 'package:appflowy/plugins/database/calendar/presentation/calendar_page.dart';
+import 'package:appflowy/plugins/database/grid/presentation/grid_page.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/uuid.dart';
@@ -31,6 +32,18 @@ void main() {
         ),
         findsOneWidget,
       );
+
+      // https://github.com/AppFlowy-IO/AppFlowy/issues/3533
+      // test: the selection of editor should be clear when editing the grid
+      await tester.editor.updateSelection(
+        Selection.collapsed(
+          Position(path: [1]),
+        ),
+      );
+      final gridTextCell = find.byType(EditableTextCell).first;
+      await tester.tapButton(gridTextCell);
+
+      expect(tester.editor.getCurrentEditorState().selection, isNull);
     });
 
     testWidgets('insert a referenced board', (tester) async {
@@ -71,7 +84,7 @@ void main() {
 
       await createInlineDatabase(tester, ViewLayoutPB.Grid);
 
-      // validate the referenced grid is inserted
+      // validate the inline grid is created
       expect(
         find.descendant(
           of: find.byType(AppFlowyEditor),
@@ -87,7 +100,7 @@ void main() {
 
       await createInlineDatabase(tester, ViewLayoutPB.Board);
 
-      // validate the referenced grid is inserted
+      // validate the inline board is created
       expect(
         find.descendant(
           of: find.byType(AppFlowyEditor),
@@ -103,7 +116,7 @@ void main() {
 
       await createInlineDatabase(tester, ViewLayoutPB.Calendar);
 
-      // validate the referenced grid is inserted
+      // validate the inline calendar is created
       expect(
         find.descendant(
           of: find.byType(AppFlowyEditor),
@@ -123,16 +136,14 @@ Future<void> insertReferenceDatabase(
   // create a new grid
   final id = uuid();
   final name = '${layout.name}_$id';
-  await tester.createNewPageWithName(
+  await tester.createNewPageWithNameUnderParent(
     name: name,
     layout: layout,
     openAfterCreated: false,
   );
   // create a new document
-  await tester.createNewPageWithName(
+  await tester.createNewPageWithNameUnderParent(
     name: 'insert_a_reference_${layout.name}',
-    layout: ViewLayoutPB.Document,
-    openAfterCreated: true,
   );
   // tap the first line of the document
   await tester.editor.tapLineOfEditorAt(0);
@@ -142,7 +153,7 @@ Future<void> insertReferenceDatabase(
     layout.referencedMenuName,
   );
 
-  final linkToPageMenu = find.byType(LinkToPageMenu);
+  final linkToPageMenu = find.byType(InlineActionsHandler);
   expect(linkToPageMenu, findsOneWidget);
   final referencedDatabase = find.descendant(
     of: linkToPageMenu,
@@ -158,10 +169,8 @@ Future<void> createInlineDatabase(
 ) async {
   // create a new document
   final documentName = 'insert_a_inline_${layout.name}';
-  await tester.createNewPageWithName(
+  await tester.createNewPageWithNameUnderParent(
     name: documentName,
-    layout: ViewLayoutPB.Document,
-    openAfterCreated: true,
   );
   // tap the first line of the document
   await tester.editor.tapLineOfEditorAt(0);

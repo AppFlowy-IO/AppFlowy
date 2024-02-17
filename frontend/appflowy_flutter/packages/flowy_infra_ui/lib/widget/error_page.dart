@@ -1,4 +1,3 @@
-
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_svg/flowy_svg.dart';
 import 'package:flutter/material.dart';
@@ -71,6 +70,8 @@ class FlowyErrorPage extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(
+        // mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const FlowyText.medium(
             "AppFlowy Error",
@@ -81,12 +82,14 @@ class FlowyErrorPage extends StatelessWidget {
           ),
           FlowyText.semibold(
             message,
+            maxLines: 10,
           ),
           const SizedBox(
             height: _titleToMessagePadding,
           ),
           FlowyText.regular(
             howToFix,
+            maxLines: 10,
           ),
           const SizedBox(
             height: _titleToMessagePadding,

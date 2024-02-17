@@ -6,7 +6,6 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
-
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
@@ -20,10 +19,17 @@ const String kLocalImagesKey = 'local_images';
 
 List<String> get builtInAssetImages => [
       "assets/images/app_flowy_abstract_cover_1.jpg",
-      "assets/images/app_flowy_abstract_cover_2.jpg"
+      "assets/images/app_flowy_abstract_cover_2.jpg",
     ];
 
 class ChangeCoverPopover extends StatefulWidget {
+  const ChangeCoverPopover({
+    super.key,
+    required this.editorState,
+    required this.node,
+    required this.onCoverChanged,
+  });
+
   final EditorState editorState;
   final Node node;
   final Function(
@@ -31,45 +37,8 @@ class ChangeCoverPopover extends StatefulWidget {
     String selection,
   ) onCoverChanged;
 
-  const ChangeCoverPopover({
-    super.key,
-    required this.editorState,
-    required this.onCoverChanged,
-    required this.node,
-  });
-
   @override
   State<ChangeCoverPopover> createState() => _ChangeCoverPopoverState();
-}
-
-class ColorOption {
-  final String colorHex;
-
-  final String name;
-  const ColorOption({
-    required this.colorHex,
-    required this.name,
-  });
-}
-
-class CoverColorPicker extends StatefulWidget {
-  final String? selectedBackgroundColorHex;
-
-  final Color pickerBackgroundColor;
-  final Color pickerItemHoverColor;
-  final void Function(String color) onSubmittedBackgroundColorHex;
-  final List<ColorOption> backgroundColorOptions;
-  const CoverColorPicker({
-    super.key,
-    this.selectedBackgroundColorHex,
-    required this.pickerBackgroundColor,
-    required this.backgroundColorOptions,
-    required this.pickerItemHoverColor,
-    required this.onSubmittedBackgroundColorHex,
-  });
-
-  @override
-  State<CoverColorPicker> createState() => _CoverColorPickerState();
 }
 
 class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
@@ -82,7 +51,15 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
         editorState: widget.editorState,
         node: widget.node,
       )..add(const ChangeCoverPopoverEvent.fetchPickedImagePaths()),
-      child: BlocBuilder<ChangeCoverPopoverBloc, ChangeCoverPopoverState>(
+      child: BlocConsumer<ChangeCoverPopoverBloc, ChangeCoverPopoverState>(
+        listener: (context, state) {
+          if (state is Loaded && state.selectLatestImage) {
+            widget.onCoverChanged(
+              CoverType.file,
+              state.imageNames.last,
+            );
+          }
+        },
         builder: (context, state) {
           return Padding(
             padding: const EdgeInsets.all(12),
@@ -92,14 +69,15 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
                       onBackPressed: () => setState(() {
                         isAddingImage = false;
                       }),
-                      onFileSubmit: (List<String> path) {
+                      onFileSubmit: (_) {
                         context.read<ChangeCoverPopoverBloc>().add(
                               const ChangeCoverPopoverEvent
-                                  .fetchPickedImagePaths(),
+                                  .fetchPickedImagePaths(
+                                selectLatestImage: true,
+                              ),
                             );
-                        setState(() {
-                          isAddingImage = false;
-                        });
+
+                        setState(() => isAddingImage = false);
                       },
                     )
                   : _buildCoverSelection(),
@@ -202,7 +180,7 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
               builtInAssetImages[index],
             );
           },
-          child: Container(
+          child: DecoratedBox(
             decoration: BoxDecoration(
               image: DecorationImage(
                 image: AssetImage(builtInAssetImages[index]),
@@ -295,7 +273,8 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
             },
           );
         }
-        return Container();
+
+        return const SizedBox.shrink();
       },
     );
   }
@@ -305,7 +284,7 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
         .map(
           (t) => ColorOption(
             colorHex: t.color(context).toHex(),
-            name: t.tintName(AppFlowyEditorLocalizations.current),
+            name: t.tintName(AppFlowyEditorL10n.current),
           ),
         )
         .toList();
@@ -314,12 +293,13 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
 
 @visibleForTesting
 class NewCustomCoverButton extends StatelessWidget {
-  final VoidCallback onPressed;
   const NewCustomCoverButton({super.key, required this.onPressed});
+
+  final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
         border: Border.all(
           color: Theme.of(context).colorScheme.primary,
@@ -338,11 +318,91 @@ class NewCustomCoverButton extends StatelessWidget {
   }
 }
 
+class ColorOption {
+  const ColorOption({
+    required this.colorHex,
+    required this.name,
+  });
+
+  final String colorHex;
+  final String name;
+}
+
+class CoverColorPicker extends StatefulWidget {
+  const CoverColorPicker({
+    super.key,
+    this.selectedBackgroundColorHex,
+    required this.pickerBackgroundColor,
+    required this.backgroundColorOptions,
+    required this.pickerItemHoverColor,
+    required this.onSubmittedBackgroundColorHex,
+  });
+
+  final String? selectedBackgroundColorHex;
+  final Color pickerBackgroundColor;
+  final List<ColorOption> backgroundColorOptions;
+  final Color pickerItemHoverColor;
+  final void Function(String color) onSubmittedBackgroundColorHex;
+
+  @override
+  State<CoverColorPicker> createState() => _CoverColorPickerState();
+}
+
+class _CoverColorPickerState extends State<CoverColorPicker> {
+  final scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 30,
+      alignment: Alignment.center,
+      child: ScrollConfiguration(
+        behavior: ScrollConfiguration.of(context).copyWith(
+          dragDevices: {
+            PointerDeviceKind.touch,
+            PointerDeviceKind.mouse,
+          },
+          platform: TargetPlatform.windows,
+        ),
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: _buildColorItems(
+            widget.backgroundColorOptions,
+            widget.selectedBackgroundColorHex,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildColorItems(List<ColorOption> options, String? selectedColor) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: options
+          .map(
+            (e) => ColorItem(
+              option: e,
+              isChecked: e.colorHex == selectedColor,
+              hoverColor: widget.pickerItemHoverColor,
+              onTap: widget.onSubmittedBackgroundColorHex,
+            ),
+          )
+          .toList(),
+    );
+  }
+}
+
 class DeleteImageAlertDialog extends StatelessWidget {
   const DeleteImageAlertDialog({
-    Key? key,
+    super.key,
     required this.onSubmit,
-  }) : super(key: key);
+  });
 
   final Function() onSubmit;
 
@@ -379,11 +439,11 @@ class DeleteImageAlertDialog extends StatelessWidget {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text(LocaleKeys.button_Cancel).tr(),
+          child: const Text(LocaleKeys.button_cancel).tr(),
         ),
         TextButton(
           onPressed: onSubmit,
-          child: const Text(LocaleKeys.button_OK).tr(),
+          child: const Text(LocaleKeys.button_ok).tr(),
         ),
       ],
     );
@@ -392,11 +452,11 @@ class DeleteImageAlertDialog extends StatelessWidget {
 
 class ImageGridItem extends StatefulWidget {
   const ImageGridItem({
-    Key? key,
+    super.key,
     required this.onImageSelect,
     required this.onImageDelete,
     required this.imagePath,
-  }) : super(key: key);
+  });
 
   final Function() onImageSelect;
   final Function() onImageDelete;
@@ -425,14 +485,9 @@ class _ImageGridItemState extends State<ImageGridItem> {
         children: [
           InkWell(
             onTap: widget.onImageSelect,
-            child: Container(
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: FileImage(File(widget.imagePath)),
-                  fit: BoxFit.cover,
-                ),
-                borderRadius: Corners.s8Border,
-              ),
+            child: ClipRRect(
+              borderRadius: Corners.s8Border,
+              child: Image.file(File(widget.imagePath), fit: BoxFit.cover),
             ),
           ),
           if (showDeleteButton)
@@ -459,84 +514,34 @@ class _ImageGridItemState extends State<ImageGridItem> {
   }
 }
 
-class _CoverColorPickerState extends State<CoverColorPicker> {
-  final scrollController = ScrollController();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 30,
-      alignment: Alignment.center,
-      child: ScrollConfiguration(
-        behavior: ScrollConfiguration.of(context).copyWith(
-          dragDevices: {
-            PointerDeviceKind.touch,
-            PointerDeviceKind.mouse,
-          },
-          platform: TargetPlatform.windows,
-        ),
-        child: SingleChildScrollView(
-          child: _buildColorItems(
-            widget.backgroundColorOptions,
-            widget.selectedBackgroundColorHex,
-          ),
-        ),
-      ),
-    );
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    scrollController.dispose();
-  }
-
-  Widget _buildColorItems(List<ColorOption> options, String? selectedColor) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: options
-          .map(
-            (e) => ColorItem(
-              option: e,
-              isChecked: e.colorHex == selectedColor,
-              hoverColor: widget.pickerItemHoverColor,
-              onTap: widget.onSubmittedBackgroundColorHex,
-            ),
-          )
-          .toList(),
-    );
-  }
-}
-
 @visibleForTesting
 class ColorItem extends StatelessWidget {
-  final ColorOption option;
-  final bool isChecked;
-  final Color hoverColor;
-  final void Function(String) onTap;
   const ColorItem({
+    super.key,
     required this.option,
     required this.isChecked,
     required this.hoverColor,
     required this.onTap,
-    super.key,
   });
+
+  final ColorOption option;
+  final bool isChecked;
+  final Color hoverColor;
+  final void Function(String) onTap;
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      customBorder: const RoundedRectangleBorder(
-        borderRadius: Corners.s6Border,
-      ),
-      hoverColor: hoverColor,
-      onTap: () => onTap(option.colorHex),
-      child: Padding(
-        padding: const EdgeInsets.only(right: 10.0),
+    return Padding(
+      padding: const EdgeInsets.only(right: 10.0),
+      child: InkWell(
+        customBorder: const CircleBorder(),
+        hoverColor: hoverColor,
+        onTap: () => onTap(option.colorHex),
         child: SizedBox.square(
           dimension: 25,
-          child: Container(
+          child: DecoratedBox(
             decoration: BoxDecoration(
-              color: option.colorHex.toColor(),
+              color: option.colorHex.tryToColor(),
               shape: BoxShape.circle,
             ),
             child: isChecked
@@ -548,7 +553,7 @@ class ColorItem extends StatelessWidget {
                           color: Theme.of(context).cardColor,
                           width: 3.0,
                         ),
-                        color: option.colorHex.toColor(),
+                        color: option.colorHex.tryToColor(),
                         shape: BoxShape.circle,
                       ),
                     ),

@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:appflowy/core/notification/folder_notification.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/notification.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/notification.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-notification/subject.pb.dart';
 import 'package:appflowy_backend/rust_stream.dart';
 import 'package:dartz/dartz.dart';
@@ -60,6 +60,7 @@ class FavoriteListener {
   Future<void> stop() async {
     _parser = null;
     await _streamSubscription?.cancel();
+    _streamSubscription = null;
     _favoriteUpdated = null;
   }
 }

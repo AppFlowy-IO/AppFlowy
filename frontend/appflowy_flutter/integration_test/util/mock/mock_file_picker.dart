@@ -74,9 +74,7 @@ Future<String> mockSaveFilePath(
   return path;
 }
 
-Future<List<String>> mockPickFilePaths({
-  required List<String> paths,
-}) async {
+List<String> mockPickFilePaths({required List<String> paths}) {
   getIt.unregister<FilePickerService>();
   getIt.registerFactory<FilePickerService>(
     () => MockFilePicker(

@@ -93,7 +93,8 @@ class ShortcutsListView extends StatelessWidget {
               },
             ),
           ],
-        )
+        ),
+        const VSpace(10),
       ],
     );
   }
@@ -126,21 +127,21 @@ class ShortcutsListTile extends StatelessWidget {
               onPressed: () {
                 showKeyListenerDialog(context);
               },
-            )
+            ),
           ],
         ),
         Divider(
           color: Theme.of(context).dividerColor,
-        )
+        ),
       ],
     );
   }
 
   void showKeyListenerDialog(BuildContext widgetContext) {
+    final controller = TextEditingController(text: shortcutEvent.command);
     showDialog(
       context: widgetContext,
       builder: (builderContext) {
-        final controller = TextEditingController(text: shortcutEvent.command);
         final formKey = GlobalKey<FormState>();
         return AlertDialog(
           title: Text(LocaleKeys.settings_shortcuts_updateShortcutStep.tr()),
@@ -183,10 +184,10 @@ class ShortcutsListTile extends StatelessWidget {
           ),
         );
       },
-    );
+    ).then((_) => controller.dispose());
   }
 
-  _validateForConflicts(BuildContext context, String command) {
+  String? _validateForConflicts(BuildContext context, String command) {
     final conflict = BlocProvider.of<ShortcutsCubit>(context).getConflict(
       shortcutEvent,
       command,
@@ -198,12 +199,12 @@ class ShortcutsListTile extends StatelessWidget {
     );
   }
 
-  _updateKey(BuildContext context, String command) {
+  void _updateKey(BuildContext context, String command) {
     shortcutEvent.updateCommand(command: command);
     BlocProvider.of<ShortcutsCubit>(context).updateAllShortcuts();
   }
 
-  _dismiss(BuildContext context) => Navigator.of(context).pop();
+  void _dismiss(BuildContext context) => Navigator.of(context).pop();
 }
 
 extension on RawKeyEvent {
@@ -232,8 +233,9 @@ extension on RawKeyEvent {
 }
 
 class ShortcutsErrorView extends StatelessWidget {
-  final String errorMessage;
   const ShortcutsErrorView({super.key, required this.errorMessage});
+
+  final String errorMessage;
 
   @override
   Widget build(BuildContext context) {

@@ -1,50 +1,32 @@
 // lib/env/env.dart
-import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/env/cloud_env.dart';
 import 'package:envied/envied.dart';
 
 part 'env.g.dart';
 
-/// The environment variables are defined in `.env` file that is located in the
-/// appflowy_flutter.
-///   Run `dart run build_runner build --delete-conflicting-outputs`
-///   to generate the keys from the env file.
-///
-///   If you want to regenerate the keys, you need to run `dart run
-///   build_runner clean` before running `dart run build_runner build
-///    --delete-conflicting-outputs`.
-
-/// Follow the guide on https://supabase.com/docs/guides/auth/social-login/auth-google to setup the auth provider.
-///
 @Envied(path: '.env')
 abstract class Env {
-  @EnviedField(
-    obfuscate: true,
-    varName: 'SUPABASE_URL',
-    defaultValue: '',
-  )
-  static final String supabaseUrl = _Env.supabaseUrl;
-  @EnviedField(
-    obfuscate: true,
-    varName: 'SUPABASE_ANON_KEY',
-    defaultValue: '',
-  )
-  static final String supabaseAnonKey = _Env.supabaseAnonKey;
-
-  @EnviedField(
-    obfuscate: true,
-    varName: 'SUPABASE_JWT_SECRET',
-    defaultValue: '',
-  )
-  static final String supabaseJwtSecret = _Env.supabaseJwtSecret;
-}
-
-bool get isSupabaseEnabled {
-  // Only enable supabase in release and develop mode.
-  if (integrationEnv().isRelease || integrationEnv().isDevelop) {
-    return Env.supabaseUrl.isNotEmpty &&
-        Env.supabaseAnonKey.isNotEmpty &&
-        Env.supabaseJwtSecret.isNotEmpty;
-  } else {
-    return false;
+  // This flag is used to decide if users can dynamically configure cloud settings. It turns true when a .env file exists containing the APPFLOWY_CLOUD_URL variable. By default, this is set to false.
+  static bool get enableCustomCloud {
+    return Env.authenticatorType ==
+            AuthenticatorType.appflowyCloudSelfHost.value ||
+        Env.authenticatorType == AuthenticatorType.appflowyCloud.value ||
+        Env.authenticatorType == AuthenticatorType.appflowyCloudDevelop.value &&
+            _Env.afCloudUrl.isEmpty;
   }
+
+  @EnviedField(
+    obfuscate: false,
+    varName: 'AUTHENTICATOR_TYPE',
+    defaultValue: 2,
+  )
+  static const int authenticatorType = _Env.authenticatorType;
+
+  /// AppFlowy Cloud Configuration
+  @EnviedField(
+    obfuscate: false,
+    varName: 'APPFLOWY_CLOUD_URL',
+    defaultValue: '',
+  )
+  static const String afCloudUrl = _Env.afCloudUrl;
 }

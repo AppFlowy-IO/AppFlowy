@@ -2,9 +2,10 @@ use std::convert::TryInto;
 
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
+use validator::Validate;
 
 use crate::entities::parser::NotEmptyStr;
-use crate::entities::{FieldType, RowMetaPB};
+use crate::entities::RowMetaPB;
 use crate::services::group::{GroupChangeset, GroupData, GroupSetting};
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
@@ -94,11 +95,7 @@ impl std::convert::From<GroupData> for GroupPB {
       field_id: group_data.field_id,
       group_id: group_data.id,
       group_name: group_data.name,
-      rows: group_data
-        .rows
-        .into_iter()
-        .map(|row_detail| RowMetaPB::from(row_detail.meta))
-        .collect(),
+      rows: group_data.rows.into_iter().map(RowMetaPB::from).collect(),
       is_default: group_data.is_default,
       is_visible: group_data.is_visible,
     }
@@ -134,25 +131,24 @@ pub struct GroupByFieldParams {
   pub view_id: String,
 }
 
-pub struct DeleteGroupParams {
-  pub view_id: String,
-  pub field_id: String,
-  pub group_id: String,
-  pub field_type: FieldType,
-}
-
-#[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
+#[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone, Validate)]
 pub struct UpdateGroupPB {
   #[pb(index = 1)]
+  #[validate(custom = "lib_infra::validator_fn::required_not_empty_str")]
   pub view_id: String,
 
   #[pb(index = 2)]
+  #[validate(custom = "lib_infra::validator_fn::required_not_empty_str")]
   pub group_id: String,
 
-  #[pb(index = 3, one_of)]
-  pub name: Option<String>,
+  #[pb(index = 3)]
+  #[validate(custom = "lib_infra::validator_fn::required_not_empty_str")]
+  pub field_id: String,
 
   #[pb(index = 4, one_of)]
+  pub name: Option<String>,
+
+  #[pb(index = 5, one_of)]
   pub visible: Option<bool>,
 }
 
@@ -166,10 +162,14 @@ impl TryInto<UpdateGroupParams> for UpdateGroupPB {
     let group_id = NotEmptyStr::parse(self.group_id)
       .map_err(|_| ErrorCode::GroupIdIsEmpty)?
       .0;
+    let field_id = NotEmptyStr::parse(self.field_id)
+      .map_err(|_| ErrorCode::FieldIdIsEmpty)?
+      .0;
 
     Ok(UpdateGroupParams {
       view_id,
       group_id,
+      field_id,
       name: self.name,
       visible: self.visible,
     })
@@ -179,6 +179,7 @@ impl TryInto<UpdateGroupParams> for UpdateGroupPB {
 pub struct UpdateGroupParams {
   pub view_id: String,
   pub group_id: String,
+  pub field_id: String,
   pub name: Option<String>,
   pub visible: Option<bool>,
 }
@@ -187,8 +188,71 @@ impl From<UpdateGroupParams> for GroupChangeset {
   fn from(params: UpdateGroupParams) -> Self {
     Self {
       group_id: params.group_id,
+      field_id: params.field_id,
       name: params.name,
       visible: params.visible,
     }
+  }
+}
+
+#[derive(Debug, Default, ProtoBuf)]
+pub struct CreateGroupPayloadPB {
+  #[pb(index = 1)]
+  pub view_id: String,
+
+  #[pb(index = 2)]
+  pub group_config_id: String,
+
+  #[pb(index = 3)]
+  pub name: String,
+}
+
+#[derive(Debug, Clone)]
+pub struct CreateGroupParams {
+  pub view_id: String,
+  pub group_config_id: String,
+  pub name: String,
+}
+
+impl TryFrom<CreateGroupPayloadPB> for CreateGroupParams {
+  type Error = ErrorCode;
+
+  fn try_from(value: CreateGroupPayloadPB) -> Result<Self, Self::Error> {
+    let view_id = NotEmptyStr::parse(value.view_id).map_err(|_| ErrorCode::ViewIdIsInvalid)?;
+    let name = NotEmptyStr::parse(value.name).map_err(|_| ErrorCode::ViewIdIsInvalid)?;
+    Ok(CreateGroupParams {
+      view_id: view_id.0,
+      group_config_id: value.group_config_id,
+      name: name.0,
+    })
+  }
+}
+
+#[derive(Debug, Default, ProtoBuf)]
+pub struct DeleteGroupPayloadPB {
+  #[pb(index = 1)]
+  pub view_id: String,
+
+  #[pb(index = 2)]
+  pub group_id: String,
+}
+
+pub struct DeleteGroupParams {
+  pub view_id: String,
+  pub group_id: String,
+}
+
+impl TryFrom<DeleteGroupPayloadPB> for DeleteGroupParams {
+  type Error = ErrorCode;
+
+  fn try_from(value: DeleteGroupPayloadPB) -> Result<Self, Self::Error> {
+    let view_id = NotEmptyStr::parse(value.view_id)
+      .map_err(|_| ErrorCode::ViewIdIsInvalid)?
+      .0;
+    let group_id = NotEmptyStr::parse(value.group_id)
+      .map_err(|_| ErrorCode::GroupIdIsEmpty)?
+      .0;
+
+    Ok(Self { view_id, group_id })
   }
 }

@@ -47,7 +47,7 @@ async fn group_move_row_test() {
     AssertRow {
       group_index: 1,
       row_index: 1,
-      row: group.rows.get(0).unwrap().clone(),
+      row: group.rows.first().unwrap().clone(),
     },
   ];
   test.run_scripts(scripts).await;
@@ -75,7 +75,7 @@ async fn group_move_row_to_other_group_test() {
     AssertRow {
       group_index: 2,
       row_index: 1,
-      row: group.rows.get(0).unwrap().clone(),
+      row: group.rows.first().unwrap().clone(),
     },
   ];
   test.run_scripts(scripts).await;
@@ -104,7 +104,7 @@ async fn group_move_two_row_to_other_group_test() {
     AssertRow {
       group_index: 2,
       row_index: 1,
-      row: group_1.rows.get(0).unwrap().clone(),
+      row: group_1.rows.first().unwrap().clone(),
     },
   ];
   test.run_scripts(scripts).await;
@@ -129,7 +129,7 @@ async fn group_move_two_row_to_other_group_test() {
     AssertRow {
       group_index: 2,
       row_index: 1,
-      row: group_1.rows.get(0).unwrap().clone(),
+      row: group_1.rows.first().unwrap().clone(),
     },
   ];
   test.run_scripts(scripts).await;
@@ -150,7 +150,7 @@ async fn group_move_row_to_other_group_and_reorder_from_up_to_down_test() {
     AssertRow {
       group_index: 2,
       row_index: 1,
-      row: group_1.rows.get(0).unwrap().clone(),
+      row: group_1.rows.first().unwrap().clone(),
     },
   ];
   test.run_scripts(scripts).await;
@@ -165,7 +165,7 @@ async fn group_move_row_to_other_group_and_reorder_from_up_to_down_test() {
     AssertRow {
       group_index: 2,
       row_index: 2,
-      row: group_2.rows.get(0).unwrap().clone(),
+      row: group_2.rows.first().unwrap().clone(),
     },
   ];
   test.run_scripts(scripts).await;
@@ -462,7 +462,7 @@ async fn group_insert_single_select_option_test() {
     AssertGroupCount(5),
   ];
   test.run_scripts(scripts).await;
-  let new_group = test.group_at_index(1).await;
+  let new_group = test.group_at_index(4).await;
   assert_eq!(new_group.group_name, new_option_name);
 }
 
@@ -485,4 +485,20 @@ async fn group_group_by_other_field() {
     AssertGroupCount(4),
   ];
   test.run_scripts(scripts).await;
+}
+
+#[tokio::test]
+async fn group_manual_create_new_group() {
+  let mut test = DatabaseGroupTest::new().await;
+  let new_group_name = "Resumed";
+  let scripts = vec![
+    AssertGroupCount(4),
+    CreateGroup {
+      name: new_group_name.to_string(),
+    },
+    AssertGroupCount(5),
+  ];
+  test.run_scripts(scripts).await;
+  let new_group = test.group_at_index(4).await;
+  assert_eq!(new_group.group_name, new_group_name);
 }

@@ -31,7 +31,7 @@ async fn grid_create_field() {
   ];
   test.run_scripts(scripts).await;
 
-  let (params, field) = create_date_field(&test.view_id(), FieldType::CreatedTime);
+  let (params, field) = create_timestamp_field(&test.view_id(), FieldType::CreatedTime);
   let scripts = vec![
     CreateField { params },
     AssertFieldTypeOptionEqual {
@@ -195,7 +195,7 @@ async fn grid_switch_from_multi_select_to_text_test() {
     from_field_type: FieldType::MultiSelect,
     expected_content: format!(
       "{},{}",
-      multi_select_type_option.get(0).unwrap().name,
+      multi_select_type_option.first().unwrap().name,
       multi_select_type_option.get(1).unwrap().name
     ),
   }];

@@ -74,21 +74,21 @@ class FlowyDynamicPlugin {
   /// compilation error will be thrown during the construction of this object.
   Future<Directory> encode() async {
     final fs = MemoryFileSystem();
-    final result = fs.directory(_fsPluginName)..createSync();
+    final directory = fs.directory(_fsPluginName)..createSync();
 
-    final lightPath = p.join(_fsPluginName, '$name.$lightExtension');
-    result.childFile(lightPath).createSync();
-    result
-        .childFile(lightPath)
+    final lightThemeFileName = '$name.$lightExtension';
+    directory.childFile(lightThemeFileName).createSync();
+    directory
+        .childFile(lightThemeFileName)
         .writeAsStringSync(jsonEncode(theme!.lightTheme.toJson()));
 
-    final darkPath = p.join(_fsPluginName, '$name.$darkExtension');
-    result.childFile(darkPath).createSync();
-    result
-        .childFile(p.join(_fsPluginName, '$name.$darkExtension'))
+    final darkThemeFileName = '$name.$darkExtension';
+    directory.childFile(darkThemeFileName).createSync();
+    directory
+        .childFile(darkThemeFileName)
         .writeAsStringSync(jsonEncode(theme!.darkTheme.toJson()));
 
-    return result;
+    return directory;
   }
 
   /// Theme plugins should have the following format.
@@ -119,13 +119,32 @@ class FlowyDynamicPlugin {
             event is File && p.basename(event.path).contains(darkExtension))
         .first as File;
 
+    late final FlowyColorScheme lightTheme;
+    late final FlowyColorScheme darkTheme;
+
+    try {
+      lightTheme = FlowyColorScheme.fromJson(
+          await jsonDecode(await light.readAsString()));
+    } catch (e) {
+      throw PluginCompilationException(
+        'The light theme json file is not valid.',
+      );
+    }
+
+    try {
+      darkTheme = FlowyColorScheme.fromJson(
+          await jsonDecode(await dark.readAsString()));
+    } catch (e) {
+      throw PluginCompilationException(
+        'The dark theme json file is not valid.',
+      );
+    }
+
     final theme = AppTheme(
       themeName: name,
       builtIn: false,
-      lightTheme:
-          FlowyColorScheme.fromJson(jsonDecode(await light.readAsString())),
-      darkTheme:
-          FlowyColorScheme.fromJson(jsonDecode(await dark.readAsString())),
+      lightTheme: lightTheme,
+      darkTheme: darkTheme,
     );
 
     return FlowyDynamicPlugin._(

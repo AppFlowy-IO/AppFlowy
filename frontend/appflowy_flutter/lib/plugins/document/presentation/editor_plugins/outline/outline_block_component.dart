@@ -1,8 +1,10 @@
 import 'dart:async';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:easy_localization/easy_localization.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/mobile_block_action_buttons.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:easy_localization/easy_localization.dart' hide TextDirection;
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -16,7 +18,7 @@ class OutlineBlockKeys {
 
 // defining the callout block menu item for selection
 SelectionMenuItem outlineItem = SelectionMenuItem.node(
-  name: LocaleKeys.document_selectionMenu_outline.tr(),
+  getName: () => LocaleKeys.document_selectionMenu_outline.tr(),
   iconData: Icons.list_alt,
   keywords: ['outline', 'table of contents'],
   nodeBuilder: (editorState, _) => outlineBlockNode(),
@@ -31,11 +33,8 @@ Node outlineBlockNode() {
 
 class OutlineBlockComponentBuilder extends BlockComponentBuilder {
   OutlineBlockComponentBuilder({
-    this.configuration = const BlockComponentConfiguration(),
+    super.configuration,
   });
-
-  @override
-  final BlockComponentConfiguration configuration;
 
   @override
   BlockComponentWidget build(BlockComponentContext blockComponentContext) {
@@ -70,23 +69,17 @@ class OutlineBlockWidget extends BlockComponentStatefulWidget {
 }
 
 class _OutlineBlockWidgetState extends State<OutlineBlockWidget>
-    with BlockComponentConfigurable {
+    with
+        BlockComponentConfigurable,
+        BlockComponentTextDirectionMixin,
+        BlockComponentBackgroundColorMixin {
   @override
   BlockComponentConfiguration get configuration => widget.configuration;
 
   @override
   Node get node => widget.node;
 
-  // get the background color of the note block from the node's attributes
-  Color get backgroundColor {
-    final colorString =
-        node.attributes[OutlineBlockKeys.backgroundColor] as String?;
-    if (colorString == null) {
-      return Colors.transparent;
-    }
-    return colorString.toColor();
-  }
-
+  @override
   late EditorState editorState = context.read<EditorState>();
   late Stream<(TransactionTime, Transaction)> stream =
       editorState.transactionStream;
@@ -96,19 +89,34 @@ class _OutlineBlockWidgetState extends State<OutlineBlockWidget>
     return StreamBuilder(
       stream: stream,
       builder: (context, snapshot) {
-        if (widget.showActions && widget.actionBuilder != null) {
-          return BlockComponentActionWrapper(
-            node: widget.node,
-            actionBuilder: widget.actionBuilder!,
-            child: _buildOutlineBlock(),
+        Widget child = _buildOutlineBlock();
+
+        if (PlatformExtension.isDesktopOrWeb) {
+          if (widget.showActions && widget.actionBuilder != null) {
+            child = BlockComponentActionWrapper(
+              node: widget.node,
+              actionBuilder: widget.actionBuilder!,
+              child: child,
+            );
+          }
+        } else {
+          child = MobileBlockActionButtons(
+            node: node,
+            editorState: editorState,
+            child: child,
           );
         }
-        return _buildOutlineBlock();
+
+        return child;
       },
     );
   }
 
   Widget _buildOutlineBlock() {
+    final textDirection = calculateTextDirection(
+      layoutDirection: Directionality.maybeOf(context),
+    );
+
     final children = getHeadingNodes()
         .map(
           (e) => Container(
@@ -116,35 +124,53 @@ class _OutlineBlockWidgetState extends State<OutlineBlockWidget>
               bottom: 4.0,
             ),
             width: double.infinity,
-            child: OutlineItemWidget(node: e),
+            child: OutlineItemWidget(
+              node: e,
+              textDirection: textDirection,
+            ),
           ),
         )
         .toList();
-    if (children.isEmpty) {
-      return Align(
-        alignment: Alignment.centerLeft,
-        child: Text(
-          LocaleKeys.document_plugins_outline_addHeadingToCreateOutline.tr(),
-          style: configuration.placeholderTextStyle(node),
-        ),
-      );
-    }
+
+    final child = children.isEmpty
+        ? Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              LocaleKeys.document_plugins_outline_addHeadingToCreateOutline
+                  .tr(),
+              style: configuration.placeholderTextStyle(node),
+            ),
+          )
+        : DecoratedBox(
+            decoration: BoxDecoration(
+              borderRadius: const BorderRadius.all(Radius.circular(8.0)),
+              color: backgroundColor,
+            ),
+            child: Column(
+              key: ValueKey(children.hashCode),
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              textDirection: textDirection,
+              children: children,
+            ),
+          );
+
     return Container(
-      decoration: BoxDecoration(
-        borderRadius: const BorderRadius.all(Radius.circular(8.0)),
-        color: backgroundColor,
+      constraints: const BoxConstraints(
+        minHeight: 40.0,
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.max,
-        children: children,
-      ),
+      padding: padding,
+      child: child,
     );
   }
 
   Iterable<Node> getHeadingNodes() {
     final children = editorState.document.root.children;
-    return children.where((element) => element.type == HeadingBlockKeys.type);
+    return children.where(
+      (element) =>
+          element.type == HeadingBlockKeys.type &&
+          element.delta?.isNotEmpty == true,
+    );
   }
 }
 
@@ -152,11 +178,13 @@ class OutlineItemWidget extends StatelessWidget {
   OutlineItemWidget({
     super.key,
     required this.node,
+    required this.textDirection,
   }) {
     assert(node.type == HeadingBlockKeys.type);
   }
 
   final Node node;
+  final TextDirection textDirection;
 
   @override
   Widget build(BuildContext context) {
@@ -167,29 +195,40 @@ class OutlineItemWidget extends StatelessWidget {
       style: HoverStyle(
         hoverColor: Theme.of(context).hoverColor,
       ),
-      child: GestureDetector(
-        onTap: () => updateBlockSelection(context),
-        child: Container(
-          padding: EdgeInsets.only(left: node.leftIndent),
-          child: Text(
-            node.outlineItemText,
-            style: style,
+      builder: (context, onHover) {
+        return GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: () => scrollToBlock(context),
+          child: Row(
+            textDirection: textDirection,
+            children: [
+              HSpace(node.leftIndent),
+              Text(
+                node.outlineItemText,
+                textDirection: textDirection,
+                style: style.copyWith(
+                  color: onHover
+                      ? Theme.of(context).colorScheme.onSecondary
+                      : null,
+                ),
+              ),
+            ],
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
-  void updateBlockSelection(BuildContext context) async {
+  void scrollToBlock(BuildContext context) {
     final editorState = context.read<EditorState>();
-    editorState.selectionType = SelectionType.block;
-    editorState.selection = Selection.collapse(
-      node.path,
-      node.delta?.length ?? 0,
+    final editorScrollController = context.read<EditorScrollController>();
+    editorScrollController.itemScrollController.jumpTo(
+      index: node.path.first,
+      alignment: 0.5,
     );
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      editorState.selectionType = null;
-    });
+    editorState.selection = Selection.collapsed(
+      Position(path: node.path, offset: node.delta?.length ?? 0),
+    );
   }
 }
 

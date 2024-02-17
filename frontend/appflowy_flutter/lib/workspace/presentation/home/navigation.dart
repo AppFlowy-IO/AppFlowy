@@ -8,6 +8,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
@@ -16,8 +17,9 @@ import 'package:styled_widget/styled_widget.dart';
 typedef NaviAction = void Function();
 
 class NavigationNotifier with ChangeNotifier {
-  List<NavigationItem> navigationItems;
   NavigationNotifier({required this.navigationItems});
+
+  List<NavigationItem> navigationItems;
 
   void update(PageNotifier notifier) {
     if (navigationItems != notifier.plugin.widgetBuilder.navigationItems) {
@@ -28,7 +30,7 @@ class NavigationNotifier with ChangeNotifier {
 }
 
 class FlowyNavigation extends StatelessWidget {
-  const FlowyNavigation({Key? key}) : super(key: key);
+  const FlowyNavigation({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +67,7 @@ class FlowyNavigation extends StatelessWidget {
         if (state.isMenuCollapsed) {
           return RotationTransition(
             turns: const AlwaysStoppedAnimation(180 / 360),
-            child: Tooltip(
+            child: FlowyTooltip(
               richMessage: sidebarTooltipTextSpan(
                 context,
                 LocaleKeys.sideBar_openSidebar.tr(),
@@ -87,7 +89,7 @@ class FlowyNavigation extends StatelessWidget {
             ),
           );
         } else {
-          return Container();
+          return const SizedBox.shrink();
         }
       },
     );
@@ -132,8 +134,9 @@ class FlowyNavigation extends StatelessWidget {
 }
 
 class NaviItemWidget extends StatelessWidget {
+  const NaviItemWidget(this.item, {super.key});
+
   final NavigationItem item;
-  const NaviItemWidget(this.item, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -144,8 +147,9 @@ class NaviItemWidget extends StatelessWidget {
 }
 
 class NaviItemDivider extends StatelessWidget {
+  const NaviItemDivider({super.key, required this.child});
+
   final Widget child;
-  const NaviItemDivider({Key? key, required this.child}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -156,10 +160,9 @@ class NaviItemDivider extends StatelessWidget {
 }
 
 class EllipsisNaviItem extends NavigationItem {
+  EllipsisNaviItem({required this.items});
+
   final List<NavigationItem> items;
-  EllipsisNaviItem({
-    required this.items,
-  });
 
   @override
   Widget get leftBarItem => FlowyText.medium(
@@ -181,7 +184,7 @@ TextSpan sidebarTooltipTextSpan(BuildContext context, String hintText) =>
           text: "$hintText\n",
         ),
         TextSpan(
-          text: Platform.isMacOS ? "⌘+\\" : "Ctrl+\\",
+          text: Platform.isMacOS ? "⌘+." : "Ctrl+\\",
         ),
       ],
     );
