@@ -3,9 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/emoji_picker/emoji_picker.dart';
 
 final CommandShortcutEvent emojiShortcutEvent = CommandShortcutEvent(
-  key: 'show emoji picker',
+  key: 'Ctrl + Alt + E to show emoji picker',
   command: 'ctrl+alt+e',
   macOSCommand: 'cmd+alt+e',
+  getDescription: () => 'Show an emoji picker',
   handler: _emojiShortcutHandler,
 );
 
@@ -46,7 +47,7 @@ CommandShortcutEventHandler _emojiShortcutHandler = (editorState) {
   alignment = Alignment.topLeft;
   final bottomRight = rect.bottomRight;
   final topRight = rect.topRight;
-  var newOffset = bottomRight + menuOffset;
+  final newOffset = bottomRight + menuOffset;
   offset = Offset(
     newOffset.dx,
     newOffset.dy,
@@ -65,7 +66,7 @@ CommandShortcutEventHandler _emojiShortcutHandler = (editorState) {
 
   // show on left
   if (offset.dx - editorOffset.dx > editorWidth / 2) {
-    alignment = _alignment == Alignment.topLeft
+    alignment = alignment == Alignment.topLeft
         ? Alignment.topRight
         : Alignment.bottomRight;
 
