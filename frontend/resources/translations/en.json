@@ -73,6 +73,9 @@
     "copyLink": "Copy Link"
   },
   "moreAction": {
+    "small": "small",
+    "medium": "medium",
+    "large": "large",
     "fontSize": "Font size",
     "import": "Import",
     "moreOptions": "More options"
