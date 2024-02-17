@@ -267,21 +267,11 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
         return twelveHourFormat.parseStrict(timeStr);
       }
 
-      timeStr = _formatTimeStr(timeStr);
       return twentyFourHourFormat.parseStrict(timeStr);
     } on FormatException {
       Log.error("failed to parse time string ($timeStr)");
       return DateTime.now();
     }
-  }
-
-  String _formatTimeStr(String timeStr) {
-    // convert HHmm to HH:MM
-    if (!timeStr.contains(':') &&
-        (timeStr.length == 3 || timeStr.length == 4)) {
-      return '${timeStr.substring(0, timeStr.length - 2)}:${timeStr.substring(timeStr.length - 2)}';
-    }
-    return timeStr;
   }
 
   String _timeFromDate(DateTime date, UserTimeFormatPB timeFormat) {

@@ -31,6 +31,7 @@ class FlowyTextField extends StatefulWidget {
   final InputDecoration? decoration;
   final TextAlignVertical? textAlignVertical;
   final TextInputAction? textInputAction;
+  final List<TextInputFormatter>? inputFormatters;
 
   const FlowyTextField({
     super.key,
@@ -60,6 +61,7 @@ class FlowyTextField extends StatefulWidget {
     this.decoration,
     this.textAlignVertical,
     this.textInputAction,
+    this.inputFormatters,
   });
 
   @override
@@ -153,6 +155,7 @@ class FlowyTextFieldState extends State<FlowyTextField> {
       style: widget.textStyle ?? Theme.of(context).textTheme.bodySmall,
       textAlignVertical: widget.textAlignVertical ?? TextAlignVertical.center,
       keyboardType: TextInputType.multiline,
+      inputFormatters: widget.inputFormatters,
       decoration: widget.decoration ??
           InputDecoration(
             constraints: widget.hintTextConstraints ??
