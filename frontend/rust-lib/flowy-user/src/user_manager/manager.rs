@@ -227,8 +227,8 @@ impl UserManager {
                   {
                     error!("Sign out when token invalid failed: {:?}", err);
                   }
-                  // Force user to sign out when the token is invalid
                 },
+                UserTokenState::Init => {},
               }
             }
           });

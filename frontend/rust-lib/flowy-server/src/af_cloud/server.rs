@@ -110,7 +110,7 @@ impl AppFlowyServer for AppFlowyCloudServer {
 
   fn subscribe_token_state(&self) -> Option<WatchStream<UserTokenState>> {
     let mut token_state_rx = self.client.subscribe_token_state();
-    let (watch_tx, watch_rx) = watch::channel(UserTokenState::Invalid);
+    let (watch_tx, watch_rx) = watch::channel(UserTokenState::Init);
     let weak_client = Arc::downgrade(&self.client);
     af_spawn(async move {
       while let Ok(token_state) = token_state_rx.recv().await {
@@ -265,7 +265,7 @@ fn spawn_ws_conn(
                     event!(tracing::Level::INFO, "🟢reconnecting websocket");
                     let _ = ws_client.connect(ws_addr, &cloned_device_id).await;
                   },
-                  Err(err) => error!("Failed to get ws url: {}", err),
+                  Err(err) => error!("Failed to get ws url: {}, connect state:{:?}", err, state),
                 }
               }
             }
@@ -288,6 +288,7 @@ fn spawn_ws_conn(
   let weak_api_client = Arc::downgrade(api_client);
   af_spawn(async move {
     while let Ok(token_state) = token_state_rx.recv().await {
+      info!("🟢token state: {:?}", token_state);
       match token_state {
         TokenState::Refresh => {
           if let (Some(api_client), Some(ws_client)) =
@@ -295,7 +296,6 @@ fn spawn_ws_conn(
           {
             match api_client.ws_url(&device_id).await {
               Ok(ws_addr) => {
-                info!("🟢token state: {:?}, reconnecting websocket", token_state);
                 let _ = ws_client.connect(ws_addr, &device_id).await;
               },
               Err(err) => error!("Failed to get ws url: {}", err),
