@@ -1,5 +1,5 @@
 # Release Notes
-## Version 0.4.8.1 - 02/17/2024
+## Version 0.4.9 - 02/17/2024
 ### Bug Fixes
 - Resolved the issue that caused users to be redirected to the Sign In page
 - 
