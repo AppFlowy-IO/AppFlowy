@@ -1,4 +1,8 @@
 # Release Notes
+## Version 0.4.9 - 02/17/2024
+### Bug Fixes
+- Resolved the issue that caused users to be redirected to the Sign In page
+- 
 ## Version 0.4.8 - 02/13/2024
 ### Bug Fixes
 - Fixed a possible error when loading workspaces
