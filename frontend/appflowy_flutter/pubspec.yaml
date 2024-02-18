@@ -124,7 +124,7 @@ dependencies:
   image_picker: ^1.0.4
   image_gallery_saver: ^2.0.3
   cached_network_image: ^3.3.0
-  leak_tracker: ^9.0.6
+  leak_tracker: ^10.0.0
   keyboard_height_plugin: ^0.0.5
   scrollable_positioned_list: ^0.3.8
   flutter_cache_manager: ^3.3.1
