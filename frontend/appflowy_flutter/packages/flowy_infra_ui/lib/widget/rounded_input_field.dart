@@ -29,7 +29,7 @@ class RoundedInputField extends StatefulWidget {
   final Function(String)? onFieldSubmitted;
 
   const RoundedInputField({
-    Key? key,
+    super.key,
     this.hintText,
     this.errorText = "",
     this.initialValue,
@@ -52,7 +52,7 @@ class RoundedInputField extends StatefulWidget {
     this.autoFocus = false,
     this.maxLength,
     this.onFieldSubmitted,
-  }) : super(key: key);
+  });
 
   @override
   State<RoundedInputField> createState() => _RoundedInputFieldState();

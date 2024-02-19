@@ -34,9 +34,8 @@ class _GridChecklistCellState extends State<ChecklistCellEditor> {
   void initState() {
     super.initState();
     newTaskFocusNode = FocusNode(
-      onKey: (node, event) {
-        if (event is RawKeyDownEvent &&
-            event.logicalKey == LogicalKeyboardKey.escape) {
+      onKeyEvent: (node, event) {
+        if (event.logicalKey == LogicalKeyboardKey.escape) {
           node.unfocus();
           return KeyEventResult.handled;
         }
@@ -170,9 +169,8 @@ class _ChecklistItemState extends State<ChecklistItem> {
     super.initState();
     _textController = TextEditingController(text: widget.task.data.name);
     _focusNode = FocusNode(
-      onKey: (node, event) {
-        if (event is RawKeyDownEvent &&
-            event.logicalKey == LogicalKeyboardKey.escape) {
+      onKeyEvent: (node, event) {
+        if (event.logicalKey == LogicalKeyboardKey.escape) {
           node.unfocus();
           return KeyEventResult.handled;
         }

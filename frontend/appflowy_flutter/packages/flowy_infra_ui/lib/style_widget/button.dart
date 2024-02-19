@@ -31,7 +31,7 @@ class FlowyButton extends StatelessWidget {
   final bool expand;
 
   const FlowyButton({
-    Key? key,
+    super.key,
     required this.text,
     this.onTap,
     this.onSecondaryTap,
@@ -52,7 +52,7 @@ class FlowyButton extends StatelessWidget {
     this.showDefaultBoxDecorationOnMobile = false,
     this.iconPadding = 6,
     this.expand = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -168,7 +168,7 @@ class FlowyTextButton extends StatelessWidget {
   // final HoverDisplayConfig? hoverDisplay;
   const FlowyTextButton(
     this.text, {
-    Key? key,
+    super.key,
     this.onPressed,
     this.fontSize,
     this.fontColor,
@@ -184,7 +184,7 @@ class FlowyTextButton extends StatelessWidget {
     this.constraints = const BoxConstraints(minWidth: 0.0, minHeight: 0.0),
     this.decoration,
     this.fontFamily,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -260,7 +260,7 @@ class FlowyRichTextButton extends StatelessWidget {
   // final HoverDisplayConfig? hoverDisplay;
   const FlowyRichTextButton(
     this.text, {
-    Key? key,
+    super.key,
     this.onPressed,
     this.overflow = TextOverflow.ellipsis,
     this.padding = const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
@@ -272,7 +272,7 @@ class FlowyRichTextButton extends StatelessWidget {
     this.tooltip,
     this.constraints = const BoxConstraints(minWidth: 58.0, minHeight: 30.0),
     this.decoration,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

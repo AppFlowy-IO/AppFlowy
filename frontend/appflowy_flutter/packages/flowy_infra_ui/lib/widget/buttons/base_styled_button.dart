@@ -22,7 +22,7 @@ class BaseStyledButton extends StatefulWidget {
   final Color outlineColor;
 
   const BaseStyledButton({
-    Key? key,
+    super.key,
     required this.child,
     this.onPressed,
     this.onFocusChanged,
@@ -39,7 +39,7 @@ class BaseStyledButton extends StatefulWidget {
     this.useBtnText = true,
     this.autoFocus = false,
     this.outlineColor = Colors.transparent,
-  }) : super(key: key);
+  });
 
   @override
   State<BaseStyledButton> createState() => BaseStyledBtnState();

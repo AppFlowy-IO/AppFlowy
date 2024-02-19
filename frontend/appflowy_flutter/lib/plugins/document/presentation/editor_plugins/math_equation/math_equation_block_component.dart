@@ -196,12 +196,11 @@ class MathEquationBlockComponentWidgetState
           title: Text(
             LocaleKeys.document_plugins_mathEquation_editMathEquation.tr(),
           ),
-          content: RawKeyboardListener(
+          content: KeyboardListener(
             focusNode: FocusNode(),
-            onKey: (key) {
-              if (key is! RawKeyDownEvent) return;
+            onKeyEvent: (key) {
               if (key.logicalKey == LogicalKeyboardKey.enter &&
-                  !key.isShiftPressed) {
+                  !HardwareKeyboard.instance.isShiftPressed) {
                 updateMathEquation(controller.text, context);
               } else if (key.logicalKey == LogicalKeyboardKey.escape) {
                 dismiss(context);
