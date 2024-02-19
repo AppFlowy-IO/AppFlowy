@@ -15,8 +15,6 @@ class OutlineBlockKeys {
   static const String type = 'outline';
   static const String backgroundColor = blockComponentBackgroundColor;
   static const String depth = 'depth';
-  // Change the value if the heading block type supports heading levels greater than '3'
-  static const int finalHeadingLevel = 3;
 }
 
 // defining the callout block menu item for selection
@@ -76,6 +74,9 @@ class _OutlineBlockWidgetState extends State<OutlineBlockWidget>
         BlockComponentConfigurable,
         BlockComponentTextDirectionMixin,
         BlockComponentBackgroundColorMixin {
+  // Change the value if the heading block type supports heading levels greater than '3'
+  static const finalHeadingLevel = 3;
+
   @override
   BlockComponentConfiguration get configuration => widget.configuration;
 
@@ -185,8 +186,8 @@ class _OutlineBlockWidgetState extends State<OutlineBlockWidget>
 
   Iterable<Node> getHeadingNodes() {
     final children = editorState.document.root.children;
-    final int level = node.attributes[OutlineBlockKeys.depth] ??
-        OutlineBlockKeys.finalHeadingLevel;
+    final int level =
+        node.attributes[OutlineBlockKeys.depth] ?? finalHeadingLevel;
 
     return children.where(
       (element) =>
