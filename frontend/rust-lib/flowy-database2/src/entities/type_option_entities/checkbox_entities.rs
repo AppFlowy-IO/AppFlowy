@@ -1,24 +1,32 @@
 use crate::services::field::CheckboxTypeOption;
 use flowy_derive::ProtoBuf;
 
+#[derive(Default, Debug, Clone, ProtoBuf)]
+pub struct CheckboxCellDataPB {
+  #[pb(index = 1)]
+  pub is_check: bool,
+}
+
+impl CheckboxCellDataPB {
+  pub fn new(is_check: bool) -> Self {
+    Self { is_check }
+  }
+}
+
 #[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct CheckboxTypeOptionPB {
   #[pb(index = 1)]
-  pub is_selected: bool,
+  pub config: bool,
 }
 
 impl From<CheckboxTypeOption> for CheckboxTypeOptionPB {
-  fn from(data: CheckboxTypeOption) -> Self {
-    Self {
-      is_selected: data.is_selected,
-    }
+  fn from(_data: CheckboxTypeOption) -> Self {
+    Self { config: false }
   }
 }
 
 impl From<CheckboxTypeOptionPB> for CheckboxTypeOption {
-  fn from(data: CheckboxTypeOptionPB) -> Self {
-    Self {
-      is_selected: data.is_selected,
-    }
+  fn from(_data: CheckboxTypeOptionPB) -> Self {
+    Self()
   }
 }

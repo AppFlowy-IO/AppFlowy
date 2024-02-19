@@ -6,7 +6,7 @@ use collab_database::rows::{get_field_type_from_cell, Cell, Cells};
 
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 
-use crate::entities::FieldType;
+use crate::entities::{CheckboxCellDataPB, FieldType};
 use crate::services::cell::{CellCache, CellProtobufBlob};
 use crate::services::field::checklist_type_option::ChecklistCellChangeset;
 use crate::services::field::*;
@@ -343,8 +343,8 @@ impl<'a> CellBuilder<'a> {
             }
           },
           FieldType::Checkbox => {
-            if let Ok(value) = CheckboxCellData::from_cell_str(&cell_str) {
-              cells.insert(field_id, insert_checkbox_cell(value.into_inner(), field));
+            if let Ok(value) = CheckboxCellDataPB::from_cell_str(&cell_str) {
+              cells.insert(field_id, insert_checkbox_cell(value.is_check, field));
             }
           },
           FieldType::URL => {

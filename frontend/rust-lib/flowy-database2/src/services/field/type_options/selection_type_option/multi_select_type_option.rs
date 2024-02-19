@@ -190,7 +190,7 @@ mod tests {
 
   #[test]
   fn multi_select_transform_with_checkbox_type_option_test() {
-    let checkbox_type_option = CheckboxTypeOption { is_selected: false };
+    let checkbox_type_option = CheckboxTypeOption();
     let mut multi_select = MultiSelectTypeOption::default();
     multi_select.transform_type_option(FieldType::Checkbox, checkbox_type_option.clone().into());
     debug_assert_eq!(multi_select.options.len(), 2);

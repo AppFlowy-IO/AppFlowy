@@ -5,15 +5,15 @@ use serde::{Deserialize, Serialize};
 
 use flowy_error::{internal_error, ErrorCode, FlowyResult};
 
-use crate::entities::{FieldType, SelectOptionCellDataPB};
+use crate::entities::{CheckboxCellDataPB, FieldType, SelectOptionCellDataPB};
 use crate::services::cell::{
   CellDataDecoder, CellProtobufBlobParser, DecodedCellData, FromCellChangeset, ToCellChangeset,
 };
 use crate::services::field::selection_type_option::type_option_transform::SelectOptionTypeOptionTransformHelper;
 use crate::services::field::{
-  make_selected_options, CheckboxCellData, MultiSelectTypeOption, SelectOption,
-  SelectOptionCellData, SelectOptionColor, SelectOptionIds, SingleSelectTypeOption, TypeOption,
-  TypeOptionCellDataSerde, TypeOptionTransform, SELECTION_IDS_SEPARATOR,
+  make_selected_options, MultiSelectTypeOption, SelectOption, SelectOptionCellData,
+  SelectOptionColor, SelectOptionIds, SingleSelectTypeOption, TypeOption, TypeOptionCellDataSerde,
+  TypeOptionTransform, SELECTION_IDS_SEPARATOR,
 };
 
 /// Defines the shared actions used by SingleSelect or Multi-Select.
@@ -104,7 +104,7 @@ where
         None
       },
       FieldType::Checkbox => {
-        let cell_content = CheckboxCellData::from(cell).to_string();
+        let cell_content = CheckboxCellDataPB::from(cell).to_string();
         let mut transformed_ids = Vec::new();
         let options = self.options();
         if let Some(option) = options.iter().find(|option| option.name == cell_content) {

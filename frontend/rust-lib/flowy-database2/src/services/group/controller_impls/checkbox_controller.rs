@@ -47,7 +47,7 @@ impl GroupCustomize for CheckboxGroupController {
     content: &str,
     cell_data: &<Self::GroupTypeOption as TypeOption>::CellData,
   ) -> bool {
-    if cell_data.is_check() {
+    if cell_data.is_check {
       content == CHECK
     } else {
       content == UNCHECK
@@ -64,7 +64,7 @@ impl GroupCustomize for CheckboxGroupController {
       let mut changeset = GroupRowsNotificationPB::new(group.id.clone());
       let is_not_contained = !group.contains_row(&row_detail.row.id);
       if group.id == CHECK {
-        if cell_data.is_uncheck() {
+        if !cell_data.is_check {
           // Remove the row if the group.id is CHECK but the cell_data is UNCHECK
           changeset
             .deleted_rows
@@ -82,7 +82,7 @@ impl GroupCustomize for CheckboxGroupController {
       }
 
       if group.id == UNCHECK {
-        if cell_data.is_check() {
+        if cell_data.is_check {
           // Remove the row if the group.id is UNCHECK but the cell_data is CHECK
           changeset
             .deleted_rows
