@@ -102,6 +102,7 @@ class _ResizableImageState extends State<ResizableImage> {
         progressIndicatorBuilder: (context, url, progress) =>
             _buildLoading(context),
       );
+
       child = _cacheImage!;
     } else {
       // load local file
