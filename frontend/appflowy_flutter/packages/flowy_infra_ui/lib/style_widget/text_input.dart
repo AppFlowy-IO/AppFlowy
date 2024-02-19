@@ -270,12 +270,12 @@ class ThinUnderlineBorder extends InputBorder {
   /// and right corners have a circular radius of 4.0. The [borderRadius]
   /// parameter must not be null.
   const ThinUnderlineBorder({
-    BorderSide borderSide = const BorderSide(),
+    super.borderSide = const BorderSide(),
     this.borderRadius = const BorderRadius.only(
       topLeft: Radius.circular(4.0),
       topRight: Radius.circular(4.0),
     ),
-  }) : super(borderSide: borderSide);
+  });
 
   /// The radii of the border's rounded rectangle corners.
   ///

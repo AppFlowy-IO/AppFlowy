@@ -36,7 +36,7 @@ class StyledDialog extends StatelessWidget {
   final bool shrinkWrap;
 
   const StyledDialog({
-    Key? key,
+    super.key,
     required this.child,
     this.maxWidth,
     this.maxHeight,
@@ -45,7 +45,7 @@ class StyledDialog extends StatelessWidget {
     this.bgColor,
     this.borderRadius = const BorderRadius.all(Radius.circular(6)),
     this.shrinkWrap = true,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -126,11 +126,11 @@ class StyledDialogRoute<T> extends PopupRoute<T> {
     required this.barrier,
     Duration transitionDuration = const Duration(milliseconds: 300),
     RouteTransitionsBuilder? transitionBuilder,
-    RouteSettings? settings,
+    super.settings,
   })  : _pageBuilder = pageBuilder,
         _transitionDuration = transitionDuration,
         _transitionBuilder = transitionBuilder,
-        super(settings: settings, filter: barrier.filter);
+        super(filter: barrier.filter);
 
   @override
   bool get barrierDismissible {

@@ -15,7 +15,7 @@ class RoundedTextButton extends StatelessWidget {
   final double? fontSize;
 
   const RoundedTextButton({
-    Key? key,
+    super.key,
     this.onPressed,
     this.title,
     this.width,
@@ -26,7 +26,7 @@ class RoundedTextButton extends StatelessWidget {
     this.hoverColor,
     this.textColor,
     this.fontSize,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -63,14 +63,14 @@ class RoundedImageButton extends StatelessWidget {
   final Widget child;
 
   const RoundedImageButton({
-    Key? key,
+    super.key,
     this.press,
     required this.size,
     this.borderRadius = BorderRadius.zero,
     this.borderColor = Colors.transparent,
     this.color = Colors.transparent,
     required this.child,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
