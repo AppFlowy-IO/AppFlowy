@@ -74,12 +74,12 @@
     "copyLink": "Copier le lien"
   },
   "moreAction": {
-    "fontSize": "Taille de police",
-    "import": "Importer",
-    "moreOptions": "Plus d'options",
     "small": "petit",
     "medium": "moyen",
-    "large": "grand"
+    "large": "grand",
+    "fontSize": "Taille de police",
+    "import": "Importer",
+    "moreOptions": "Plus d'options"
   },
   "importPanel": {
     "textAndMarkdown": "Texte et Markdown",
@@ -726,7 +726,7 @@
       "discardResponse": "Voulez-vous supprimer les réponses de l'IA ?",
       "createInlineMathEquation": "Créer une équation",
       "fonts": "Polices",
-      "toggleList": "Basculer la liste",
+      "toggleList": "Liste pliable",
       "quoteList": "Liste de citations",
       "numberedList": "Liste numérotée",
       "bulletedList": "Liste à puces",
@@ -959,10 +959,10 @@
       "layoutDateField": "Calendrier de mise en page par",
       "changeLayoutDateField": "Modifier le champ de mise en page",
       "noDateTitle": "Pas de date",
-      "noDateHint": "Les événements non planifiés s'afficheront ici",
       "unscheduledEventsTitle": "Événements non planifiés",
       "clickToAdd": "Cliquez pour ajouter au calendrier",
-      "name": "Disposition du calendrier"
+      "name": "Disposition du calendrier",
+      "noDateHint": "Les événements non planifiés s'afficheront ici"
     },
     "referencedCalendarPrefix": "Vue",
     "quickJumpYear": "Sauter à"
@@ -1238,7 +1238,7 @@
     "rowClear": "Effacer le ontenu",
     "slashPlaceHolder": "Tapez '/' pour insérer un bloc ou commencez à écrire",
     "typeSomething": "Écrivez quelque chose...",
-    "toggleListShortForm": "Basculer",
+    "toggleListShortForm": "Plier / Déplier",
     "quoteListShortForm": "Citation",
     "mathEquationShortForm": "Formule",
     "codeBlockShortForm": "Code"
