@@ -99,9 +99,9 @@ async fn sort_after_new_row_test() {
       orders: vec!["No", "No", "No", "", "Yes", "Yes", "Yes"],
     },
     AddNewRow {},
-    AssertSortChanged {
-      old_row_orders: vec!["No", "No", "No", "", "Yes", "Yes", "Yes"],
-      new_row_orders: vec!["No", "No", "No", "", "", "Yes", "Yes", "Yes"],
+    AssertCellContentOrder {
+      field_id: checkbox_field.id,
+      orders: vec!["No", "No", "No", "", "", "Yes", "Yes", "Yes"],
     },
   ];
   test.run_scripts(scripts).await;

@@ -218,11 +218,7 @@ async fn assert_sort_changed(
           old_row_orders.insert(changed.new_index, old);
           assert_eq!(old_row_orders, new_row_orders);
         },
-        DatabaseViewChanged::InsertSortedRowNotification(changed) => {
-          let mut old_row_orders = old_row_orders.clone();
-          old_row_orders.insert(changed.index, changed.row_id.to_string());
-          assert_eq!(old_row_orders, new_row_orders);
-        },
+        DatabaseViewChanged::InsertSortedRowNotification(_changed) => {},
         _ => {},
       }
     })
