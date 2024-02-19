@@ -8,7 +8,6 @@ final CommandShortcutEvent emojiShortcutEvent = CommandShortcutEvent(
   macOSCommand: 'cmd+alt+e',
   getDescription: () => 'Show an emoji picker',
   handler: _emojiShortcutHandler,
-  getDescription: () => "",
 );
 
 CommandShortcutEventHandler _emojiShortcutHandler = (editorState) {

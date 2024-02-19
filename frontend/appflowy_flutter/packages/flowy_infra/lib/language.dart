@@ -72,9 +72,7 @@ String languageFromLocale(Locale locale) {
       return "اردو";
     case "hin":
       return "हिन्दी";
-
-    // If not found then the language code will be displayed
-    default:
-      return locale.languageCode;
   }
+  // If not found then the language code will be displayed
+  return locale.languageCode;
 }
