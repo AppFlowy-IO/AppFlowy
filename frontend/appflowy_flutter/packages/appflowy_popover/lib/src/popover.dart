@@ -264,7 +264,7 @@ class PopoverContainer extends StatefulWidget {
   final void Function() onCloseAll;
 
   const PopoverContainer({
-    Key? key,
+    super.key,
     required this.popupBuilder,
     required this.direction,
     required this.popoverLink,
@@ -272,7 +272,7 @@ class PopoverContainer extends StatefulWidget {
     required this.windowPadding,
     required this.onClose,
     required this.onCloseAll,
-  }) : super(key: key);
+  });
 
   @override
   State<StatefulWidget> createState() => PopoverContainerState();
