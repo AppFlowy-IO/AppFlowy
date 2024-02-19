@@ -44,6 +44,8 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
   final documentService = DocumentService();
   late final editorState = context.read<EditorState>();
 
+  bool showLoading = false;
+
   @override
   Widget build(BuildContext context) {
     final Widget child = DecoratedBox(
@@ -65,9 +67,19 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
                 size: Size.square(24),
               ),
               const HSpace(10),
-              FlowyText(
-                LocaleKeys.document_plugins_image_addAnImage.tr(),
-              ),
+              ...showLoading
+                  ? [
+                      FlowyText(
+                        LocaleKeys.document_imageBlock_imageIsUploading.tr(),
+                      ),
+                      const HSpace(8),
+                      const CircularProgressIndicator.adaptive(),
+                    ]
+                  : [
+                      FlowyText(
+                        LocaleKeys.document_plugins_image_addAnImage.tr(),
+                      ),
+                    ],
             ],
           ),
         ),
@@ -188,24 +200,30 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
     final transaction = editorState.transaction;
 
     String? path;
+    String? errorMessage;
     CustomImageType imageType = CustomImageType.local;
-    ImageUploadStatus status = ImageUploadStatus.uploading;
 
     // if the user is using local authenticator, we need to save the image to local storage
     if (_isLocalMode()) {
       path = await saveImageToLocalStorage(url);
-      status = ImageUploadStatus.success;
     } else {
       // else we should save the image to cloud storage
-      path = await saveImageToCloudStorage(url);
+      setState(() {
+        showLoading = true;
+      });
+      (path, errorMessage) = await saveImageToCloudStorage(url);
+      setState(() {
+        showLoading = false;
+      });
       imageType = CustomImageType.internal;
-      status = ImageUploadStatus.uploading;
     }
 
     if (mounted && path == null) {
       showSnackBarMessage(
         context,
-        LocaleKeys.document_imageBlock_error_invalidImage.tr(),
+        errorMessage == null
+            ? LocaleKeys.document_imageBlock_error_invalidImage.tr()
+            : ': $errorMessage',
       );
       return;
     }
@@ -213,8 +231,6 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
     transaction.updateNode(widget.node, {
       CustomImageBlockKeys.url: path,
       CustomImageBlockKeys.imageType: imageType.toIntValue(),
-      CustomImageBlockKeys.localImageUrl: url,
-      CustomImageBlockKeys.status: status.toIntValue(),
     });
 
     await editorState.apply(transaction);

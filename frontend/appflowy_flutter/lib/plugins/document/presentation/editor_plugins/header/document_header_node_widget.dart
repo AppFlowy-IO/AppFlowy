@@ -615,7 +615,7 @@ class DocumentCoverState extends State<DocumentCover> {
         details = await saveImageToLocalStorage(details);
       } else {
         // else we should save the image to cloud storage
-        details = await saveImageToCloudStorage(details);
+        (details, _) = await saveImageToCloudStorage(details);
       }
     }
     widget.onChangeCover(type, details);

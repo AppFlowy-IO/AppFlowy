@@ -3,19 +3,16 @@ import 'dart:io';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
-import 'package:appflowy/plugins/document/application/doc_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/mobile_block_action_buttons.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/image_placeholder.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/resizeable_image.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/unsupport_image_widget.dart';
-import 'package:appflowy/shared/cloud_image_checker.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/string_extension.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide ResizableImage;
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -53,36 +50,6 @@ enum CustomImageType {
   }
 }
 
-enum ImageUploadStatus {
-  success,
-  failed,
-  uploading;
-
-  static ImageUploadStatus fromIntValue(int value) {
-    switch (value) {
-      case 0:
-        return ImageUploadStatus.success;
-      case 1:
-        return ImageUploadStatus.failed;
-      case 2:
-        return ImageUploadStatus.uploading;
-      default:
-        throw UnimplementedError();
-    }
-  }
-
-  int toIntValue() {
-    switch (this) {
-      case ImageUploadStatus.success:
-        return 0;
-      case ImageUploadStatus.failed:
-        return 1;
-      case ImageUploadStatus.uploading:
-        return 2;
-    }
-  }
-}
-
 class CustomImageBlockKeys {
   const CustomImageBlockKeys._();
 
@@ -114,12 +81,6 @@ class CustomImageBlockKeys {
   ///
   /// The value is a CustomImageType enum.
   static const String imageType = 'image_type';
-
-  /// The image path that user select
-  static const String localImageUrl = 'local_image_url';
-
-  /// The image upload status
-  static const String status = 'status';
 }
 
 typedef CustomImageBlockComponentMenuBuilder = Widget Function(
@@ -198,8 +159,6 @@ class CustomImageBlockComponentState extends State<CustomImageBlockComponent>
   final showActionsNotifier = ValueNotifier<bool>(false);
 
   bool alwaysShowMenu = false;
-
-  bool showRetryButton = true;
 
   @override
   Widget build(BuildContext context) {
@@ -321,18 +280,6 @@ class CustomImageBlockComponentState extends State<CustomImageBlockComponent>
         editorState: editorState,
         extendActionWidgets: _buildExtendActionWidgets(context),
         child: child,
-      );
-    }
-
-    if (showRetryButton) {
-      child = Stack(
-        children: [
-          child,
-          Align(
-            alignment: Alignment.bottomRight,
-            child: _buildRetryButton(),
-          ),
-        ],
       );
     }
 
@@ -466,50 +413,5 @@ class CustomImageBlockComponentState extends State<CustomImageBlockComponent>
     }
 
     return true;
-  }
-
-  Future<void> _tryUploadImageIfNeeded() async {
-    final status = node.attributes[CustomImageBlockKeys.status];
-    if (status is! int) {
-      return;
-    }
-    final imageUploadStatus = ImageUploadStatus.fromIntValue(status);
-    if (imageUploadStatus == ImageUploadStatus.success) {
-      return;
-    }
-    final userProfilePB = context.read<DocumentBloc>().state.userProfilePB;
-    if (userProfilePB == null) {
-      return;
-    }
-    final remoteUrl = node.attributes[CustomImageBlockKeys.url];
-    final localUrl = node.attributes[CustomImageBlockKeys.localImageUrl];
-    if (!isURL(remoteUrl) || !isURL(localUrl) || !File(localUrl).existsSync()) {
-      return;
-    }
-    // try to get the image from remote url.
-    final result =
-        await isImageExistOnCloud(url: remoteUrl, userProfilePB: userProfilePB);
-    if (result == true) {
-      // upload status
-      final transaction = editorState.transaction;
-      transaction.updateNode(
-        node,
-        {CustomImageBlockKeys.status: ImageUploadStatus.success},
-      );
-      await editorState.apply(transaction);
-    } else {
-      //
-    }
-  }
-
-  Widget _buildRetryButton() {
-    return const Row(
-      children: [
-        FlowyText('the image may upload failed due to network status'),
-        FlowyTextButton(
-          'click here to retry uploading.',
-        ),
-      ],
-    );
   }
 }
