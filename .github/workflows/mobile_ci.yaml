@@ -18,7 +18,7 @@ on:
       - "!frontend/appflowy_tauri/**"
 
 env:
-  FLUTTER_VERSION: "3.18.0-0.2.pre"
+  FLUTTER_VERSION: "3.19.0"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -57,7 +57,7 @@ jobs:
         id: flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: "beta"
+          channel: "stable"
           flutter-version: ${{ env.FLUTTER_VERSION }}
           cache: true
 
