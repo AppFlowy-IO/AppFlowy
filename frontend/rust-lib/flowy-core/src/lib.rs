@@ -1,5 +1,7 @@
 #![allow(unused_doc_comments)]
 
+use flowy_search::folder::handler::FolderSearchHandler;
+use flowy_search::folder::indexer::FolderIndexManager;
 use flowy_search::services::manager::SearchManager;
 use flowy_storage::ObjectStorageService;
 use std::sync::Arc;
@@ -13,7 +15,6 @@ use flowy_database2::DatabaseManager;
 use flowy_document::manager::DocumentManager;
 use flowy_folder::manager::FolderManager;
 
-use flowy_search::SearchIndexer;
 use flowy_sqlite::kv::StorePreferences;
 use flowy_user::services::authenticate_user::AuthenticateUser;
 use flowy_user::services::entities::UserConfig;
@@ -52,7 +53,6 @@ pub struct AppFlowyCore {
   pub server_provider: Arc<ServerProvider>,
   pub task_dispatcher: Arc<RwLock<TaskDispatcher>>,
   pub store_preference: Arc<StorePreferences>,
-  pub search_indexer: Arc<SearchIndexer>,
   pub search_manager: Arc<SearchManager>,
 }
 
@@ -107,7 +107,6 @@ impl AppFlowyCore {
       database_manager,
       document_manager,
       collab_builder,
-      search_indexer,
       search_manager,
     ) = async {
       /// The shared collab builder is used to build the [Collab] instance. The plugins will be loaded
@@ -129,8 +128,6 @@ impl AppFlowyCore {
         store_preference.clone(),
       ));
 
-      let search_indexer = SearchDepsResolver::resolve(Arc::downgrade(&authenticate_user)).await;
-
       collab_builder
         .set_snapshot_persistence(Arc::new(SnapshotDBImpl(Arc::downgrade(&authenticate_user))));
 
@@ -150,13 +147,16 @@ impl AppFlowyCore {
         Arc::downgrade(&(server_provider.clone() as Arc<dyn ObjectStorageService>)),
       );
 
+      let sqlite_indexer = SearchDepsResolver::resolve(Arc::downgrade(&authenticate_user)).await;
+      let folder_index_manager =
+        FolderIndexManager::new(Arc::downgrade(&authenticate_user), sqlite_indexer);
       let folder_manager = FolderDepsResolver::resolve(
         Arc::downgrade(&authenticate_user),
         &document_manager,
         &database_manager,
         collab_builder.clone(),
         server_provider.clone(),
-        Arc::downgrade(&search_indexer),
+        folder_index_manager.clone(),
       )
       .await;
 
@@ -170,7 +170,10 @@ impl AppFlowyCore {
       )
       .await;
 
-      let search_manager = Arc::new(SearchManager::new());
+      // Init the search manager
+      // Setup Handlers + Indexers
+      let folder_handler = FolderSearchHandler::new(Box::new(folder_index_manager));
+      let search_manager = Arc::new(SearchManager::new(vec![Box::new(folder_handler)]));
 
       (
         user_manager,
@@ -179,7 +182,6 @@ impl AppFlowyCore {
         database_manager,
         document_manager,
         collab_builder,
-        search_indexer,
         search_manager,
       )
     }
@@ -229,7 +231,6 @@ impl AppFlowyCore {
       server_provider,
       task_dispatcher,
       store_preference,
-      search_indexer,
       search_manager,
     }
   }

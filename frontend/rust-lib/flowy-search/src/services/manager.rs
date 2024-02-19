@@ -1,12 +1,14 @@
 use lib_dispatch::prelude::af_spawn;
 use tokio::sync::broadcast;
 
-use crate::handlers::folder::FolderSearchHandler;
-
-use super::notifier::{SearchNotifier, SearchResultReceiverRunner};
+use super::{
+  indexer::IndexManager,
+  notifier::{SearchNotifier, SearchResultReceiverRunner},
+};
 
 pub trait ISearchHandler: Send + Sync + 'static {
   fn perform_search(&self, query: String);
+  fn get_index_manager(&self) -> Box<dyn IndexManager>;
 }
 
 /// The [SearchManager] is used to inject multiple [ISearchHandler]'s
@@ -19,15 +21,12 @@ pub struct SearchManager {
 }
 
 impl SearchManager {
-  pub fn new() -> Self {
+  pub fn new(handlers: Vec<Box<dyn ISearchHandler>>) -> Self {
     // Initialize Search Notifier
     let (notifier, _) = broadcast::channel(100);
     af_spawn(SearchResultReceiverRunner(Some(notifier.subscribe())).run());
 
-    Self {
-      handlers: vec![Box::new(FolderSearchHandler::new())],
-      notifier,
-    }
+    Self { handlers, notifier }
   }
 
   pub fn perform_search(&self, query: String) {
