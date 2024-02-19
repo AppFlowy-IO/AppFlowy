@@ -4,12 +4,12 @@ use flowy_derive::ProtoBuf;
 #[derive(Default, Debug, Clone, ProtoBuf)]
 pub struct CheckboxCellDataPB {
   #[pb(index = 1)]
-  pub is_check: bool,
+  pub is_checked: bool,
 }
 
 impl CheckboxCellDataPB {
-  pub fn new(is_check: bool) -> Self {
-    Self { is_check }
+  pub fn new(is_checked: bool) -> Self {
+    Self { is_checked }
   }
 }
 

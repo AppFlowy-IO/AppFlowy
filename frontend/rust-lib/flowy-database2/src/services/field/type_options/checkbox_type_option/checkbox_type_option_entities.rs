@@ -39,13 +39,13 @@ impl FromStr for CheckboxCellDataPB {
 
   fn from_str(s: &str) -> Result<Self, Self::Err> {
     let lower_case_str: &str = &s.to_lowercase();
-    let is_check = match lower_case_str {
+    let is_checked = match lower_case_str {
       "1" | "true" | "yes" => true,
       "0" | "false" | "no" => false,
       _ => false,
     };
 
-    Ok(Self::new(is_check))
+    Ok(Self::new(is_checked))
   }
 }
 
@@ -60,7 +60,7 @@ impl FromCellString for CheckboxCellDataPB {
 
 impl ToString for CheckboxCellDataPB {
   fn to_string(&self) -> String {
-    if self.is_check {
+    if self.is_checked {
       CHECK.to_string()
     } else {
       UNCHECK.to_string()

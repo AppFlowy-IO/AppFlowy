@@ -101,7 +101,7 @@ export type UndeterminedCell =
   | ChecklistCell;
 
 const pbToCheckboxCellData = (pb: CheckboxCellDataPB): boolean => (
-  pb.is_check
+  pb.is_checked
 );
 
 const pbToDateTimeCellData = (pb: DateCellDataPB): DateTimeCellData => ({

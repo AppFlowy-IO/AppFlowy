@@ -477,7 +477,7 @@ async fn update_checkbox_cell_event_test() {
 
     let cell = test.get_cell(&grid_view.id, &row_id, &field_id).await;
     let output = CheckboxCellDataPB::try_from(Bytes::from(cell.data)).unwrap();
-    assert!(output.is_check);
+    assert!(output.is_checked);
   }
 }
 

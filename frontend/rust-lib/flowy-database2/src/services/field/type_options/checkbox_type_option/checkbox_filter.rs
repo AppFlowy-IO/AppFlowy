@@ -3,8 +3,8 @@ use crate::entities::{CheckboxCellDataPB, CheckboxFilterConditionPB, CheckboxFil
 impl CheckboxFilterPB {
   pub fn is_visible(&self, cell_data: &CheckboxCellDataPB) -> bool {
     match self.condition {
-      CheckboxFilterConditionPB::IsChecked => cell_data.is_check,
-      CheckboxFilterConditionPB::IsUnChecked => !cell_data.is_check,
+      CheckboxFilterConditionPB::IsChecked => cell_data.is_checked,
+      CheckboxFilterConditionPB::IsUnChecked => !cell_data.is_checked,
     }
   }
 }

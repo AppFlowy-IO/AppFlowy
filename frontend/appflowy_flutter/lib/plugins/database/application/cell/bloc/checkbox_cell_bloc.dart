@@ -88,5 +88,5 @@ class CheckboxCellState with _$CheckboxCellState {
 }
 
 bool _isSelected(CheckboxCellDataPB? cellData) {
-  return cellData != null && cellData.isCheck;
+  return cellData != null && cellData.isChecked;
 }

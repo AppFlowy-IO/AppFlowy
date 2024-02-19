@@ -99,7 +99,7 @@ impl CellDataDecoder for CheckboxTypeOption {
 
   fn numeric_cell(&self, cell: &Cell) -> Option<f64> {
     let cell_data = self.parse_cell(cell).ok()?;
-    if cell_data.is_check {
+    if cell_data.is_checked {
       Some(1.0)
     } else {
       Some(0.0)
@@ -141,7 +141,7 @@ impl TypeOptionCellDataCompare for CheckboxTypeOption {
     other_cell_data: &<Self as TypeOption>::CellData,
     sort_condition: SortCondition,
   ) -> Ordering {
-    let order = cell_data.is_check.cmp(&other_cell_data.is_check);
+    let order = cell_data.is_checked.cmp(&other_cell_data.is_checked);
     sort_condition.evaluate_order(order)
   }
 
@@ -158,10 +158,10 @@ impl TypeOptionCellDataCompare for CheckboxTypeOption {
     sort_condition: SortCondition,
   ) -> Ordering {
     match (cell_data, other_cell_data) {
-      (None, Some(right_cell_data)) if right_cell_data.is_check => {
+      (None, Some(right_cell_data)) if right_cell_data.is_checked => {
         sort_condition.evaluate_order(Ordering::Less)
       },
-      (Some(left_cell_data), None) if left_cell_data.is_check => {
+      (Some(left_cell_data), None) if left_cell_data.is_checked => {
         sort_condition.evaluate_order(Ordering::Greater)
       },
       _ => Ordering::Equal,
