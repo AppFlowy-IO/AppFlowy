@@ -265,12 +265,8 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
 
       final response = await get(uri);
       await File(copyToPath).writeAsBytes(response.bodyBytes);
-
-      final transaction = editorState.transaction;
-      transaction.updateNode(widget.node, {
-        ImageBlockKeys.url: copyToPath,
-      });
-      await editorState.apply(transaction);
+      await insertLocalImage(copyToPath);
+      await File(copyToPath).delete();
     } catch (e) {
       Log.error('cannot save image file', e);
     }
