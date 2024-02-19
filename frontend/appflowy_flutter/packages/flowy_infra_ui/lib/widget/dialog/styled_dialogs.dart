@@ -10,10 +10,10 @@ extension IntoDialog on Widget {
   Future<dynamic> show(BuildContext context) async {
     FocusNode dialogFocusNode = FocusNode();
     await Dialogs.show(
-      child: RawKeyboardListener(
+      child: KeyboardListener(
         focusNode: dialogFocusNode,
-        onKey: (value) {
-          if (value.isKeyPressed(LogicalKeyboardKey.escape)) {
+        onKeyEvent: (event) {
+          if (event.logicalKey == LogicalKeyboardKey.escape) {
             Navigator.of(context).pop();
           }
         },

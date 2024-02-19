@@ -199,7 +199,7 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
       imageType = CustomImageType.internal;
     }
 
-    if (path == null && context.mounted) {
+    if (mounted && path == null) {
       showSnackBarMessage(
         context,
         LocaleKeys.document_imageBlock_error_invalidImage.tr(),

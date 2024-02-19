@@ -53,11 +53,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: e80edfc
-      resolved-ref: e80edfcaaa402c606a642bf9bd1abf523ed15c80
+      ref: f38328d
+      resolved-ref: f38328d9e52be89b8036ae0ad3460ce9d6cc5be7
       url: "https://github.com/AppFlowy-IO/appflowy-editor.git"
     source: git
-    version: "2.3.1"
+    version: "2.3.2"
   appflowy_editor_plugins:
     dependency: "direct main"
     description:
@@ -692,10 +692,10 @@ packages:
     dependency: "direct dev"
     description:
       name: freezed
-      sha256: "6c5031daae12c7072b3a87eff98983076434b4889ef2a44384d0cae3f82372ba"
+      sha256: "57247f692f35f068cae297549a46a9a097100685c6780fe67177503eea5ed4e5"
       url: "https://pub.dev"
     source: hosted
-    version: "2.4.6"
+    version: "2.4.7"
   freezed_annotation:
     dependency: "direct main"
     description:

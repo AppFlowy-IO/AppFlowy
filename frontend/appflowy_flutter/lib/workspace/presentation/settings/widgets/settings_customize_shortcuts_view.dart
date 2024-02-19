@@ -145,12 +145,11 @@ class ShortcutsListTile extends StatelessWidget {
         final formKey = GlobalKey<FormState>();
         return AlertDialog(
           title: Text(LocaleKeys.settings_shortcuts_updateShortcutStep.tr()),
-          content: RawKeyboardListener(
+          content: KeyboardListener(
             focusNode: FocusNode(),
-            onKey: (key) {
-              if (key is! RawKeyDownEvent) return;
+            onKeyEvent: (key) {
               if (key.logicalKey == LogicalKeyboardKey.enter &&
-                  !key.isShiftPressed) {
+                  !HardwareKeyboard.instance.isShiftPressed) {
                 if (controller.text == shortcutEvent.command) {
                   _dismiss(builderContext);
                 }
@@ -161,7 +160,7 @@ class ShortcutsListTile extends StatelessWidget {
               } else if (key.logicalKey == LogicalKeyboardKey.escape) {
                 _dismiss(builderContext);
               } else {
-                //extract the keybinding command from the rawkeyevent.
+                //extract the keybinding command from the key event.
                 controller.text = key.convertToCommand;
               }
             },
@@ -207,19 +206,19 @@ class ShortcutsListTile extends StatelessWidget {
   void _dismiss(BuildContext context) => Navigator.of(context).pop();
 }
 
-extension on RawKeyEvent {
+extension on KeyEvent {
   String get convertToCommand {
     String command = '';
-    if (isAltPressed) {
+    if (HardwareKeyboard.instance.isAltPressed) {
       command += 'alt+';
     }
-    if (isControlPressed) {
+    if (HardwareKeyboard.instance.isControlPressed) {
       command += 'ctrl+';
     }
-    if (isShiftPressed) {
+    if (HardwareKeyboard.instance.isShiftPressed) {
       command += 'shift+';
     }
-    if (isMetaPressed) {
+    if (HardwareKeyboard.instance.isMetaPressed) {
       command += 'meta+';
     }
 

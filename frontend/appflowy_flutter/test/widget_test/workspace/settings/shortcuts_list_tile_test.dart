@@ -66,7 +66,7 @@ void main() {
           await widgetTester.pumpAndSettle();
 
           expect(find.byType(AlertDialog), findsOneWidget);
-          expect(find.byType(RawKeyboardListener), findsOneWidget);
+          expect(find.byType(KeyboardListener), findsOneWidget);
         });
 
         testWidgets("updates the text with new key event",
@@ -83,7 +83,7 @@ void main() {
           await widgetTester.pumpAndSettle();
 
           expect(find.byType(AlertDialog), findsOneWidget);
-          expect(find.byType(RawKeyboardListener), findsOneWidget);
+          expect(find.byType(KeyboardListener), findsOneWidget);
 
           await widgetTester.sendKeyEvent(LogicalKeyboardKey.keyC);
 

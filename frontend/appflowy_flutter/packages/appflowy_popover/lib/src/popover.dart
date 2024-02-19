@@ -163,8 +163,7 @@ class PopoverState extends State<Popover> {
 
       return FocusScope(
         onKey: (node, event) {
-          if (event is RawKeyDownEvent &&
-              event.logicalKey == LogicalKeyboardKey.escape) {
+          if (event.logicalKey == LogicalKeyboardKey.escape) {
             _removeRootOverlay();
             return KeyEventResult.handled;
           }

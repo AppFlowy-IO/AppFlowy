@@ -166,14 +166,11 @@ class StyledSearchTextInputState extends State<StyledSearchTextInput> {
         widget.controller ?? TextEditingController(text: widget.initialValue);
     _focusNode = FocusNode(
       debugLabel: widget.label ?? '',
-      onKey: (FocusNode node, RawKeyEvent evt) {
-        if (evt is RawKeyDownEvent) {
-          if (evt.logicalKey == LogicalKeyboardKey.escape) {
-            widget.onEditingCancel?.call();
-            return KeyEventResult.handled;
-          }
+      onKeyEvent: (node, event) {
+        if (event.logicalKey == LogicalKeyboardKey.escape) {
+          widget.onEditingCancel?.call();
+          return KeyEventResult.handled;
         }
-
         return KeyEventResult.ignored;
       },
       canRequestFocus: true,
