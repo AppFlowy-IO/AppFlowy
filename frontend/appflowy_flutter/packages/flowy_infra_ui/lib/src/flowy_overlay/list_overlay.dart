@@ -17,13 +17,13 @@ class ListOverlayFooter {
 
 class ListOverlay extends StatelessWidget {
   const ListOverlay({
-    Key? key,
+    super.key,
     required this.itemBuilder,
     this.itemCount = 0,
     this.controller,
     this.constraints = const BoxConstraints(),
     this.footer,
-  }) : super(key: key);
+  });
 
   final IndexedWidgetBuilder itemBuilder;
   final int itemCount;
@@ -117,8 +117,8 @@ class OverlayContainer extends StatelessWidget {
     required this.child,
     this.constraints,
     this.padding = overlayContainerPadding,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

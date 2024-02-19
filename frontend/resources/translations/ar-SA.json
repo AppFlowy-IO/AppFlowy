@@ -70,12 +70,12 @@
     "copyLink": "نسخ الرابط"
   },
   "moreAction": {
-    "small": "صغير",
-    "medium": "متوسط",
-    "large": "كبير",
     "fontSize": "حجم الخط",
     "import": "استيراد",
-    "moreOptions": "المزيد من الخيارات"
+    "moreOptions": "المزيد من الخيارات",
+    "small": "صغير",
+    "medium": "متوسط",
+    "large": "كبير"
   },
   "importPanel": {
     "textAndMarkdown": "نص و Markdown",

@@ -23,6 +23,7 @@ import 'share_markdown_test.dart' as share_markdown_test;
 import 'sidebar/sidebar_test_runner.dart' as sidebar_test_runner;
 import 'switch_folder_test.dart' as switch_folder_test;
 import 'tabs_test.dart' as tabs_test;
+import 'emoji_shortcut_test.dart' as emoji_shortcut_test;
 // import 'auth/supabase_auth_test.dart' as supabase_auth_test_runner;
 
 /// The main task runner for all integration tests in AppFlowy.
@@ -69,6 +70,7 @@ Future<void> main() async {
 
   // Others
   hotkeys_test.main();
+  emoji_shortcut_test.main();
 
   // Appearance integration test
   appearance_test_runner.main();

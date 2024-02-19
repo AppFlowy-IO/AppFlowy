@@ -9,8 +9,7 @@ class PrimaryTextButton extends StatelessWidget {
   final TextButtonMode mode;
 
   const PrimaryTextButton(this.label,
-      {Key? key, this.onPressed, this.mode = TextButtonMode.big})
-      : super(key: key);
+      {super.key, this.onPressed, this.mode = TextButtonMode.big});
 
   @override
   Widget build(BuildContext context) {
@@ -31,11 +30,10 @@ class PrimaryButton extends StatelessWidget {
   final TextButtonMode mode;
 
   const PrimaryButton(
-      {Key? key,
+      {super.key,
       required this.child,
       this.onPressed,
-      this.mode = TextButtonMode.big})
-      : super(key: key);
+      this.mode = TextButtonMode.big});
 
   @override
   Widget build(BuildContext context) {

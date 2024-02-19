@@ -1,21 +1,18 @@
+use anyhow::Error;
+use collab::core::collab::CollabDocState;
+use collab_entity::{CollabObject, CollabType};
+use flowy_error::{ErrorCode, FlowyError};
+use lib_infra::box_any::BoxAny;
+use lib_infra::conditional_send_sync_trait;
+use lib_infra::future::FutureResult;
+use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use std::collections::HashMap;
 use std::fmt::{Display, Formatter};
 use std::str::FromStr;
 use std::sync::Arc;
-
-use anyhow::Error;
-use collab::core::collab::CollabDocState;
-use collab_entity::{CollabObject, CollabType};
-use serde::{Deserialize, Serialize};
-use serde_json::Value;
 use tokio_stream::wrappers::WatchStream;
 use uuid::Uuid;
-
-use flowy_error::{ErrorCode, FlowyError};
-
-use lib_infra::box_any::BoxAny;
-use lib_infra::conditional_send_sync_trait;
-use lib_infra::future::FutureResult;
 
 use crate::entities::{
   AuthResponse, Authenticator, Role, UpdateUserProfileParams, UserCredentials, UserProfile,

@@ -25,7 +25,7 @@ dev_dependencies:
     sdk: flutter
   build_runner:
   freezed:
-  flutter_lints: ^2.0.1
+  flutter_lints: ^3.0.1
   json_serializable: ^6.6.2
 
 # For information on the generic Dart part of this file, see the

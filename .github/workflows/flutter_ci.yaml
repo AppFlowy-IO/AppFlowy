@@ -9,6 +9,7 @@ on:
       - ".github/workflows/flutter_ci.yaml"
       - "frontend/rust-lib/**"
       - "frontend/appflowy_flutter/**"
+      - "frontend/resources/**"
 
   pull_request:
     branches:
@@ -18,10 +19,11 @@ on:
       - ".github/workflows/flutter_ci.yaml"
       - "frontend/rust-lib/**"
       - "frontend/appflowy_flutter/**"
+      - "frontend/resources/**"
 
 env:
   CARGO_TERM_COLOR: always
-  FLUTTER_VERSION: "3.18.0-0.2.pre"
+  FLUTTER_VERSION: "3.19.0"
   RUST_TOOLCHAIN: "1.75"
   CARGO_MAKE_VERSION: "0.36.6"
 
@@ -59,7 +61,7 @@ jobs:
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
 
       - name: Checkout source code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Install Rust toolchain
         id: rust_toolchain
@@ -74,7 +76,7 @@ jobs:
         id: flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: "beta"
+          channel: "stable"
           flutter-version: ${{ env.FLUTTER_VERSION }}
 
       - uses: Swatinem/rust-cache@v2
@@ -120,7 +122,7 @@ jobs:
         run: |
           tar -czf appflowy_flutter.tar.gz frontend/appflowy_flutter
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: ${{ github.run_id }}-${{ matrix.os }}
           path: appflowy_flutter.tar.gz
@@ -140,7 +142,7 @@ jobs:
 
     steps:
       - name: Checkout source code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Install Rust toolchain
         id: rust_toolchain
@@ -155,7 +157,7 @@ jobs:
         id: flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: "beta"
+          channel: "stable"
           flutter-version: ${{ env.FLUTTER_VERSION }}
 
       - uses: Swatinem/rust-cache@v2
@@ -192,7 +194,7 @@ jobs:
           fi
         shell: bash
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: ${{ github.run_id }}-${{ matrix.os }}
 
@@ -216,11 +218,11 @@ jobs:
         shell: bash
 
   cloud_integration_test:
-    needs: [ prepare ]
+    needs: [prepare]
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-latest ]
+        os: [ubuntu-latest]
         include:
           - os: ubuntu-latest
             flutter_profile: development-linux-x86_64
@@ -229,11 +231,10 @@ jobs:
 
     steps:
       - name: Checkout appflowy cloud code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: AppFlowy-IO/AppFlowy-Cloud
           path: AppFlowy-Cloud
-          depth: 1
 
       - name: Prepare appflowy cloud env
         working-directory: AppFlowy-Cloud
@@ -253,13 +254,13 @@ jobs:
           sleep 10
 
       - name: Checkout source code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Install flutter
         id: flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: "beta"
+          channel: "stable"
           flutter-version: ${{ env.FLUTTER_VERSION }}
 
       - uses: taiki-e/install-action@v2
@@ -280,7 +281,7 @@ jobs:
           flutter config --enable-linux-desktop
         shell: bash
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: ${{ github.run_id }}-${{ matrix.os }}
 
@@ -318,7 +319,7 @@ jobs:
 
     steps:
       - name: Checkout source code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Install Rust toolchain
         id: rust_toolchain
@@ -333,7 +334,7 @@ jobs:
         id: flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: "beta"
+          channel: "stable"
           flutter-version: ${{ env.FLUTTER_VERSION }}
 
       - uses: taiki-e/install-action@v2
@@ -363,7 +364,7 @@ jobs:
           fi
         shell: bash
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: ${{ github.run_id }}-${{ matrix.os }}
 
@@ -409,7 +410,7 @@ jobs:
 
     steps:
       - name: Checkout source code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Install Rust toolchain
         id: rust_toolchain
@@ -424,7 +425,7 @@ jobs:
         id: flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: "beta"
+          channel: "stable"
           flutter-version: ${{ env.FLUTTER_VERSION }}
 
       - uses: taiki-e/install-action@v2
@@ -454,7 +455,7 @@ jobs:
           fi
         shell: bash
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: ${{ github.run_id }}-${{ matrix.os }}
 

@@ -10,7 +10,7 @@ use flowy_error::ErrorCode;
 use flowy_folder_pub::cloud::gen_view_id;
 
 use crate::entities::icon::ViewIconPB;
-use crate::entities::parser::view::{ViewDesc, ViewIdentify, ViewName, ViewThumbnail};
+use crate::entities::parser::view::{ViewIdentify, ViewName, ViewThumbnail};
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct ChildViewUpdatePB {
@@ -336,11 +336,6 @@ impl TryInto<UpdateViewParams> for UpdateViewPayloadPB {
       Some(name) => Some(ViewName::parse(name)?.0),
     };
 
-    let desc = match self.desc {
-      None => None,
-      Some(desc) => Some(ViewDesc::parse(desc)?.0),
-    };
-
     let thumbnail = match self.thumbnail {
       None => None,
       Some(thumbnail) => Some(ViewThumbnail::parse(thumbnail)?.0),
@@ -351,7 +346,7 @@ impl TryInto<UpdateViewParams> for UpdateViewPayloadPB {
     Ok(UpdateViewParams {
       view_id,
       name,
-      desc,
+      desc: self.desc,
       thumbnail,
       is_favorite,
       layout: self.layout.map(|ty| ty.into()),

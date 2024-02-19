@@ -27,51 +27,37 @@ class SelectOptionFilterList extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) {
-        late SelectOptionFilterListBloc bloc;
-        if (filterInfo.fieldInfo.fieldType == FieldType.SingleSelect) {
-          bloc = SelectOptionFilterListBloc(
-            selectedOptionIds: selectedOptionIds,
-            delegate:
-                SingleSelectOptionFilterDelegateImpl(filterInfo: filterInfo),
-          );
-        } else {
-          bloc = SelectOptionFilterListBloc(
-            selectedOptionIds: selectedOptionIds,
-            delegate:
-                MultiSelectOptionFilterDelegateImpl(filterInfo: filterInfo),
-          );
-        }
-
-        bloc.add(const SelectOptionFilterListEvent.initial());
-        return bloc;
+        return SelectOptionFilterListBloc(
+          selectedOptionIds: selectedOptionIds,
+          delegate: filterInfo.fieldInfo.fieldType == FieldType.SingleSelect
+              ? SingleSelectOptionFilterDelegateImpl(filterInfo: filterInfo)
+              : MultiSelectOptionFilterDelegateImpl(filterInfo: filterInfo),
+        )..add(const SelectOptionFilterListEvent.initial());
       },
       child:
-          BlocListener<SelectOptionFilterListBloc, SelectOptionFilterListState>(
+          BlocConsumer<SelectOptionFilterListBloc, SelectOptionFilterListState>(
         listenWhen: (previous, current) =>
             previous.selectedOptionIds != current.selectedOptionIds,
         listener: (context, state) {
           onSelectedOptions(state.selectedOptionIds.toList());
         },
-        child: BlocBuilder<SelectOptionFilterListBloc,
-            SelectOptionFilterListState>(
-          builder: (context, state) {
-            return ListView.separated(
-              physics: const NeverScrollableScrollPhysics(),
-              shrinkWrap: true,
-              itemCount: state.visibleOptions.length,
-              separatorBuilder: (context, index) {
-                return VSpace(GridSize.typeOptionSeparatorHeight);
-              },
-              itemBuilder: (BuildContext context, int index) {
-                final option = state.visibleOptions[index];
-                return SelectOptionFilterCell(
-                  option: option.optionPB,
-                  isSelected: option.isSelected,
-                );
-              },
-            );
-          },
-        ),
+        builder: (context, state) {
+          return ListView.separated(
+            physics: const NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            itemCount: state.visibleOptions.length,
+            separatorBuilder: (context, index) {
+              return VSpace(GridSize.typeOptionSeparatorHeight);
+            },
+            itemBuilder: (BuildContext context, int index) {
+              final option = state.visibleOptions[index];
+              return SelectOptionFilterCell(
+                option: option.optionPB,
+                isSelected: option.isSelected,
+              );
+            },
+          );
+        },
       ),
     );
   }

@@ -166,14 +166,11 @@ class StyledSearchTextInputState extends State<StyledSearchTextInput> {
         widget.controller ?? TextEditingController(text: widget.initialValue);
     _focusNode = FocusNode(
       debugLabel: widget.label ?? '',
-      onKey: (FocusNode node, RawKeyEvent evt) {
-        if (evt is RawKeyDownEvent) {
-          if (evt.logicalKey == LogicalKeyboardKey.escape) {
-            widget.onEditingCancel?.call();
-            return KeyEventResult.handled;
-          }
+      onKeyEvent: (node, event) {
+        if (event.logicalKey == LogicalKeyboardKey.escape) {
+          widget.onEditingCancel?.call();
+          return KeyEventResult.handled;
         }
-
         return KeyEventResult.ignored;
       },
       canRequestFocus: true,
@@ -273,12 +270,12 @@ class ThinUnderlineBorder extends InputBorder {
   /// and right corners have a circular radius of 4.0. The [borderRadius]
   /// parameter must not be null.
   const ThinUnderlineBorder({
-    BorderSide borderSide = const BorderSide(),
+    super.borderSide = const BorderSide(),
     this.borderRadius = const BorderRadius.only(
       topLeft: Radius.circular(4.0),
       topRight: Radius.circular(4.0),
     ),
-  }) : super(borderSide: borderSide);
+  });
 
   /// The radii of the border's rounded rectangle corners.
   ///

@@ -163,8 +163,7 @@ class PopoverState extends State<Popover> {
 
       return FocusScope(
         onKey: (node, event) {
-          if (event is RawKeyDownEvent &&
-              event.logicalKey == LogicalKeyboardKey.escape) {
+          if (event.logicalKey == LogicalKeyboardKey.escape) {
             _removeRootOverlay();
             return KeyEventResult.handled;
           }
@@ -265,7 +264,7 @@ class PopoverContainer extends StatefulWidget {
   final void Function() onCloseAll;
 
   const PopoverContainer({
-    Key? key,
+    super.key,
     required this.popupBuilder,
     required this.direction,
     required this.popoverLink,
@@ -273,7 +272,7 @@ class PopoverContainer extends StatefulWidget {
     required this.windowPadding,
     required this.onClose,
     required this.onCloseAll,
-  }) : super(key: key);
+  });
 
   @override
   State<StatefulWidget> createState() => PopoverContainerState();

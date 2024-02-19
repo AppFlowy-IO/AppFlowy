@@ -55,12 +55,12 @@
     "copyLink": "کپی کردن لینک"
   },
   "moreAction": {
-    "small": "کوچک",
-    "medium": "متوسط",
-    "large": "بزرگ",
     "fontSize": "اندازه قلم",
     "import": "اضافه کردن",
-    "moreOptions": "گزینه های بیشتر"
+    "moreOptions": "گزینه های بیشتر",
+    "small": "کوچک",
+    "medium": "متوسط",
+    "large": "بزرگ"
   },
   "importPanel": {
     "textAndMarkdown": "Text & Markdown",

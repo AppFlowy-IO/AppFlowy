@@ -23,7 +23,7 @@ class StyledScrollbar extends StatefulWidget {
   final double? contentSize;
 
   const StyledScrollbar(
-      {Key? key,
+      {super.key,
       this.size,
       required this.axis,
       required this.controller,
@@ -32,8 +32,7 @@ class StyledScrollbar extends StatefulWidget {
       this.showTrack = false,
       this.autoHideScrollbar = true,
       this.handleColor,
-      this.trackColor})
-      : super(key: key);
+      this.trackColor});
 
   @override
   ScrollbarState createState() => ScrollbarState();

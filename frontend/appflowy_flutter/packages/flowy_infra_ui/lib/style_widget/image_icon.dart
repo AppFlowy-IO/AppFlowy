@@ -6,8 +6,7 @@ class FlowyImageIcon extends StatelessWidget {
   final Color? color;
   final double? size;
 
-  const FlowyImageIcon(this.image, {Key? key, this.color, this.size})
-      : super(key: key);
+  const FlowyImageIcon(this.image, {super.key, this.color, this.size});
 
   @override
   Widget build(BuildContext context) {

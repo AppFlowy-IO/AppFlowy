@@ -41,6 +41,7 @@ impl ServerProviderWASM {
           self.config.clone(),
           true,
           self.device_id.clone(),
+          "0.0.1"
         ));
         *self.server.write() = Some(server.clone());
         server
