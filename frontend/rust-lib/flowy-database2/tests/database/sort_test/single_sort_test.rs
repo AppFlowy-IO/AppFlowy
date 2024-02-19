@@ -98,7 +98,6 @@ async fn sort_after_new_row_test() {
       field_id: checkbox_field.id.clone(),
       orders: vec!["No", "No", "No", "", "Yes", "Yes", "Yes"],
     },
-    Wait { millis: 200 },
     AddNewRow {},
     AssertSortChanged {
       old_row_orders: vec!["No", "No", "No", "", "Yes", "Yes", "Yes"],

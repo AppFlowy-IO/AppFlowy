@@ -94,6 +94,17 @@ impl SortController {
     }
   }
 
+  pub async fn did_create_row(&self, row_id: RowId) {
+    if !self.sorts.is_empty() {
+      self
+        .gen_task(
+          SortEvent::NewRowInserted(row_id),
+          QualityOfService::Background,
+        )
+        .await;
+    }
+  }
+
   // #[tracing::instrument(name = "process_sort_task", level = "trace", skip_all, err)]
   pub async fn process(&mut self, predicate: &str) -> FlowyResult<()> {
     let event_type = SortEvent::from_str(predicate).unwrap();
