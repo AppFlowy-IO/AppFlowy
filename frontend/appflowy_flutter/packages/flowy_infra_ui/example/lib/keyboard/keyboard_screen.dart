@@ -19,7 +19,7 @@ class KeyboardItem extends DemoItem {
 }
 
 class KeyboardScreen extends StatefulWidget {
-  const KeyboardScreen({Key? key}) : super(key: key);
+  const KeyboardScreen({super.key});
 
   @override
   State<KeyboardScreen> createState() => _KeyboardScreenState();
