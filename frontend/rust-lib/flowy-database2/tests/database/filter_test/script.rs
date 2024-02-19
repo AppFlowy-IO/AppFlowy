@@ -3,14 +3,15 @@
 use std::time::Duration;
 
 use collab_database::rows::RowId;
-use flowy_database2::services::filter::FilterContext;
+use flowy_database2::services::filter::{FilterChangeset, FilterInner};
+use lib_infra::box_any::BoxAny;
 use tokio::sync::broadcast::Receiver;
 
 use flowy_database2::entities::{
   CheckboxFilterConditionPB, CheckboxFilterPB, ChecklistFilterConditionPB, ChecklistFilterPB,
-  DatabaseViewSettingPB, DateFilterConditionPB, DateFilterPB, DeleteFilterPayloadPB, FieldType,
-  FilterPB, NumberFilterConditionPB, NumberFilterPB, SelectOptionConditionPB, SelectOptionFilterPB,
-  TextFilterConditionPB, TextFilterPB, UpdateFilterParams, UpdateFilterPayloadPB,
+  DatabaseViewSettingPB, DateFilterConditionPB, DateFilterPB, FieldType, FilterPB,
+  NumberFilterConditionPB, NumberFilterPB, SelectOptionConditionPB, SelectOptionFilterPB,
+  TextFilterConditionPB, TextFilterPB,
 };
 use flowy_database2::services::database_view::DatabaseViewChanged;
 use lib_dispatch::prelude::af_spawn;
@@ -36,9 +37,6 @@ pub enum FilterScript {
     row_id: RowId,
     option_id: String,
     changed: Option<FilterRowChanged>,
-  },
-  InsertFilter {
-    payload: UpdateFilterPayloadPB,
   },
   CreateTextFilter {
     condition: TextFilterConditionPB,
@@ -81,16 +79,12 @@ pub enum FilterScript {
     changed: Option<FilterRowChanged>,
   },
   AssertFilterCount {
-    count: i32,
+    count: usize,
   },
   DeleteFilter {
-    filter_context: FilterContext,
-    changed: Option<FilterRowChanged>,
-  },
-  AssertFilterContent {
     filter_id: String,
-    condition: i64,
-    content: String,
+    field_id: String,
+    changed: Option<FilterRowChanged>,
   },
   AssertNumberOfVisibleRows {
     expected: usize,
@@ -142,7 +136,7 @@ impl DatabaseFilterTest {
         self.recv = Some(
           self
             .editor
-            .subscribe_view_changed(&self.view_id())
+            .subscribe_view_changed(&self.view_id)
             .await
             .unwrap(),
         );
@@ -166,7 +160,7 @@ impl DatabaseFilterTest {
         self.recv = Some(
           self
             .editor
-            .subscribe_view_changed(&self.view_id())
+            .subscribe_view_changed(&self.view_id)
             .await
             .unwrap(),
         );
@@ -176,16 +170,6 @@ impl DatabaseFilterTest {
           .await
           .unwrap();
       },
-      FilterScript::InsertFilter { payload } => {
-        self.recv = Some(
-          self
-            .editor
-            .subscribe_view_changed(&self.view_id())
-            .await
-            .unwrap(),
-        );
-        self.insert_filter(payload).await;
-      },
       FilterScript::CreateTextFilter {
         condition,
         content,
@@ -194,15 +178,16 @@ impl DatabaseFilterTest {
         self.recv = Some(
           self
             .editor
-            .subscribe_view_changed(&self.view_id())
+            .subscribe_view_changed(&self.view_id)
             .await
             .unwrap(),
         );
         self.assert_future_changed(changed).await;
         let field = self.get_first_field(FieldType::RichText);
-        let text_filter = TextFilterPB { condition, content };
-        let payload = UpdateFilterPayloadPB::new(&self.view_id(), &field, text_filter);
-        self.insert_filter(payload).await;
+        let text_filter = BoxAny::new(TextFilterPB { condition, content });
+        self
+          .insert_filter(field.id, field.field_type.into(), text_filter)
+          .await;
       },
       FilterScript::UpdateTextFilter {
         filter,
@@ -213,20 +198,25 @@ impl DatabaseFilterTest {
         self.recv = Some(
           self
             .editor
-            .subscribe_view_changed(&self.view_id())
+            .subscribe_view_changed(&self.view_id)
             .await
             .unwrap(),
         );
         self.assert_future_changed(changed).await;
-        let params = UpdateFilterParams {
-          view_id: self.view_id(),
-          field_id: filter.field_id,
-          filter_id: Some(filter.id),
-          field_type: filter.field_type,
-          condition: condition as i64,
-          content,
+        let current_filter = filter.data.unwrap();
+        let params = FilterChangeset::UpdateData {
+          filter_id: filter.id,
+          data: FilterInner::Data {
+            field_id: current_filter.field_id,
+            field_type: current_filter.field_type,
+            condition_and_content: BoxAny::new(TextFilterPB { condition, content }),
+          },
         };
-        self.editor.create_or_update_filter(params).await.unwrap();
+        self
+          .editor
+          .modify_view_filters(&self.view_id, params)
+          .await
+          .unwrap();
       },
       FilterScript::CreateNumberFilter {
         condition,
@@ -236,29 +226,31 @@ impl DatabaseFilterTest {
         self.recv = Some(
           self
             .editor
-            .subscribe_view_changed(&self.view_id())
+            .subscribe_view_changed(&self.view_id)
             .await
             .unwrap(),
         );
         self.assert_future_changed(changed).await;
         let field = self.get_first_field(FieldType::Number);
-        let number_filter = NumberFilterPB { condition, content };
-        let payload = UpdateFilterPayloadPB::new(&self.view_id(), &field, number_filter);
-        self.insert_filter(payload).await;
+        let number_filter = BoxAny::new(NumberFilterPB { condition, content });
+        self
+          .insert_filter(field.id, field.field_type.into(), number_filter)
+          .await;
       },
       FilterScript::CreateCheckboxFilter { condition, changed } => {
         self.recv = Some(
           self
             .editor
-            .subscribe_view_changed(&self.view_id())
+            .subscribe_view_changed(&self.view_id)
             .await
             .unwrap(),
         );
         self.assert_future_changed(changed).await;
         let field = self.get_first_field(FieldType::Checkbox);
-        let checkbox_filter = CheckboxFilterPB { condition };
-        let payload = UpdateFilterPayloadPB::new(&self.view_id(), &field, checkbox_filter);
-        self.insert_filter(payload).await;
+        let checkbox_filter = BoxAny::new(CheckboxFilterPB { condition });
+        self
+          .insert_filter(field.id, field.field_type.into(), checkbox_filter)
+          .await;
       },
       FilterScript::CreateDateFilter {
         condition,
@@ -270,21 +262,21 @@ impl DatabaseFilterTest {
         self.recv = Some(
           self
             .editor
-            .subscribe_view_changed(&self.view_id())
+            .subscribe_view_changed(&self.view_id)
             .await
             .unwrap(),
         );
         self.assert_future_changed(changed).await;
         let field = self.get_first_field(FieldType::DateTime);
-        let date_filter = DateFilterPB {
+        let date_filter = BoxAny::new(DateFilterPB {
           condition,
           start,
           end,
           timestamp,
-        };
-
-        let payload = UpdateFilterPayloadPB::new(&self.view_id(), &field, date_filter);
-        self.insert_filter(payload).await;
+        });
+        self
+          .insert_filter(field.id, field.field_type.into(), date_filter)
+          .await;
       },
       FilterScript::CreateMultiSelectFilter {
         condition,
@@ -293,17 +285,18 @@ impl DatabaseFilterTest {
         self.recv = Some(
           self
             .editor
-            .subscribe_view_changed(&self.view_id())
+            .subscribe_view_changed(&self.view_id)
             .await
             .unwrap(),
         );
         let field = self.get_first_field(FieldType::MultiSelect);
-        let filter = SelectOptionFilterPB {
+        let select_option_filter = BoxAny::new(SelectOptionFilterPB {
           condition,
           option_ids,
-        };
-        let payload = UpdateFilterPayloadPB::new(&self.view_id(), &field, filter);
-        self.insert_filter(payload).await;
+        });
+        self
+          .insert_filter(field.id, field.field_type.into(), select_option_filter)
+          .await;
       },
       FilterScript::CreateSingleSelectFilter {
         condition,
@@ -313,69 +306,61 @@ impl DatabaseFilterTest {
         self.recv = Some(
           self
             .editor
-            .subscribe_view_changed(&self.view_id())
+            .subscribe_view_changed(&self.view_id)
             .await
             .unwrap(),
         );
         self.assert_future_changed(changed).await;
         let field = self.get_first_field(FieldType::SingleSelect);
-        let filter = SelectOptionFilterPB {
+        let select_option_filter = BoxAny::new(SelectOptionFilterPB {
           condition,
           option_ids,
-        };
-        let payload = UpdateFilterPayloadPB::new(&self.view_id(), &field, filter);
-        self.insert_filter(payload).await;
+        });
+        self
+          .insert_filter(field.id, field.field_type.into(), select_option_filter)
+          .await;
       },
       FilterScript::CreateChecklistFilter { condition, changed } => {
         self.recv = Some(
           self
             .editor
-            .subscribe_view_changed(&self.view_id())
+            .subscribe_view_changed(&self.view_id)
             .await
             .unwrap(),
         );
         self.assert_future_changed(changed).await;
         let field = self.get_first_field(FieldType::Checklist);
-        let filter = ChecklistFilterPB { condition };
-        let payload = UpdateFilterPayloadPB::new(&self.view_id(), &field, filter);
-        self.insert_filter(payload).await;
+        let checklist_filter = BoxAny::new(ChecklistFilterPB { condition });
+        self
+          .insert_filter(field.id, field.field_type.into(), checklist_filter)
+          .await;
       },
       FilterScript::AssertFilterCount { count } => {
         let filters = self.editor.get_all_filters(&self.view_id).await.items;
-        assert_eq!(count as usize, filters.len());
-      },
-      FilterScript::AssertFilterContent {
-        filter_id,
-        condition,
-        content,
-      } => {
-        let filter = self
-          .editor
-          .get_filter(&self.view_id, &filter_id)
-          .await
-          .unwrap();
-        assert_eq!(&filter.content, &content);
-        assert_eq!(filter.condition, condition);
+        assert_eq!(count, filters.len());
       },
       FilterScript::DeleteFilter {
-        filter_context,
+        filter_id,
+        field_id,
         changed,
       } => {
         self.recv = Some(
           self
             .editor
-            .subscribe_view_changed(&self.view_id())
+            .subscribe_view_changed(&self.view_id)
             .await
             .unwrap(),
         );
         self.assert_future_changed(changed).await;
-        let params = DeleteFilterPayloadPB {
-          filter_id: filter_context.filter_id,
-          view_id: self.view_id(),
-          field_id: filter_context.field_id,
-          field_type: filter_context.field_type,
+        let params = FilterChangeset::Delete {
+          filter_id,
+          field_id,
         };
-        self.editor.delete_filter(params).await.unwrap();
+        self
+          .editor
+          .modify_view_filters(&self.view_id, params)
+          .await
+          .unwrap();
       },
       FilterScript::AssertGridSetting { expected_setting } => {
         let setting = self
@@ -424,9 +409,20 @@ impl DatabaseFilterTest {
     });
   }
 
-  async fn insert_filter(&self, payload: UpdateFilterPayloadPB) {
-    let params: UpdateFilterParams = payload.try_into().unwrap();
-    self.editor.create_or_update_filter(params).await.unwrap();
+  async fn insert_filter(&self, field_id: String, field_type: FieldType, payload: BoxAny) {
+    let params = FilterChangeset::Insert {
+      parent_filter_id: None,
+      data: FilterInner::Data {
+        field_id,
+        field_type,
+        condition_and_content: payload,
+      },
+    };
+    self
+      .editor
+      .modify_view_filters(&self.view_id, params)
+      .await
+      .unwrap();
   }
 }
 

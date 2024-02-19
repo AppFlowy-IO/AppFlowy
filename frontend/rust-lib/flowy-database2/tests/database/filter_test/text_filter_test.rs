@@ -1,7 +1,4 @@
-use flowy_database2::entities::{
-  FieldType, TextFilterConditionPB, TextFilterPB, UpdateFilterPayloadPB,
-};
-use flowy_database2::services::filter::FilterContext;
+use flowy_database2::entities::TextFilterConditionPB;
 
 use crate::database::filter_test::script::FilterScript::*;
 use crate::database::filter_test::script::*;
@@ -44,7 +41,8 @@ async fn grid_filter_text_is_not_empty_test() {
   test
     .run_scripts(vec![
       DeleteFilter {
-        filter_context: FilterContext::from(&filter),
+        filter_id: filter.id,
+        field_id: filter.data.unwrap().field_id,
         changed: Some(FilterRowChanged {
           showing_num_of_rows: 1,
           hiding_num_of_rows: 0,
@@ -190,14 +188,12 @@ async fn grid_update_text_filter_test() {
 #[tokio::test]
 async fn grid_filter_delete_test() {
   let mut test = DatabaseFilterTest::new().await;
-  let field = test.get_first_field(FieldType::RichText).clone();
-  let text_filter = TextFilterPB {
-    condition: TextFilterConditionPB::TextIsEmpty,
-    content: "".to_string(),
-  };
-  let payload = UpdateFilterPayloadPB::new(&test.view_id(), &field, text_filter);
   let scripts = vec![
-    InsertFilter { payload },
+    CreateTextFilter {
+      changed: None,
+      condition: TextFilterConditionPB::TextIsEmpty,
+      content: "".to_string(),
+    },
     AssertFilterCount { count: 1 },
     AssertNumberOfVisibleRows { expected: 1 },
   ];
@@ -207,7 +203,8 @@ async fn grid_filter_delete_test() {
   test
     .run_scripts(vec![
       DeleteFilter {
-        filter_context: FilterContext::from(&filter),
+        filter_id: filter.id,
+        field_id: filter.data.unwrap().field_id,
         changed: None,
       },
       AssertFilterCount { count: 0 },
