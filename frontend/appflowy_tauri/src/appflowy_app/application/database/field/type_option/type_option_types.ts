@@ -98,7 +98,7 @@ function pbToSelectTypeOption(pb: SingleSelectTypeOptionPB | MultiSelectTypeOpti
 
 function pbToCheckboxTypeOption(pb: CheckboxTypeOptionPB): CheckboxTypeOption {
   return {
-    isSelected: pb.config,
+    isSelected: pb.dummy_field,
   };
 }
 

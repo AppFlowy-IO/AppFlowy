@@ -15,18 +15,19 @@ impl CheckboxCellDataPB {
 
 #[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct CheckboxTypeOptionPB {
+  /// unused
   #[pb(index = 1)]
-  pub config: bool,
+  pub dummy_field: bool,
 }
 
 impl From<CheckboxTypeOption> for CheckboxTypeOptionPB {
-  fn from(_data: CheckboxTypeOption) -> Self {
-    Self { config: false }
+  fn from(_type_option: CheckboxTypeOption) -> Self {
+    Self { dummy_field: false }
   }
 }
 
 impl From<CheckboxTypeOptionPB> for CheckboxTypeOption {
-  fn from(_data: CheckboxTypeOptionPB) -> Self {
+  fn from(_type_option: CheckboxTypeOptionPB) -> Self {
     Self()
   }
 }
