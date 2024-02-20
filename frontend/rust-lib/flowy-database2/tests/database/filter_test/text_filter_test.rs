@@ -1,4 +1,5 @@
-use flowy_database2::entities::TextFilterConditionPB;
+use flowy_database2::entities::{FieldType, TextFilterConditionPB, TextFilterPB};
+use lib_infra::box_any::BoxAny;
 
 use crate::database::filter_test::script::FilterScript::*;
 use crate::database::filter_test::script::*;
@@ -7,9 +8,13 @@ use crate::database::filter_test::script::*;
 async fn grid_filter_text_is_empty_test() {
   let mut test = DatabaseFilterTest::new().await;
   let scripts = vec![
-    CreateTextFilter {
-      condition: TextFilterConditionPB::TextIsEmpty,
-      content: "".to_string(),
+    CreateDataFilter {
+      parent_filter_id: None,
+      field_type: FieldType::RichText,
+      data: BoxAny::new(TextFilterPB {
+        condition: TextFilterConditionPB::TextIsEmpty,
+        content: "".to_string(),
+      }),
       changed: Some(FilterRowChanged {
         showing_num_of_rows: 0,
         hiding_num_of_rows: 5,
@@ -25,9 +30,13 @@ async fn grid_filter_text_is_not_empty_test() {
   let mut test = DatabaseFilterTest::new().await;
   // Only one row's text of the initial rows is ""
   let scripts = vec![
-    CreateTextFilter {
-      condition: TextFilterConditionPB::TextIsNotEmpty,
-      content: "".to_string(),
+    CreateDataFilter {
+      parent_filter_id: None,
+      field_type: FieldType::RichText,
+      data: BoxAny::new(TextFilterPB {
+        condition: TextFilterConditionPB::TextIsNotEmpty,
+        content: "".to_string(),
+      }),
       changed: Some(FilterRowChanged {
         showing_num_of_rows: 0,
         hiding_num_of_rows: 1,
@@ -57,9 +66,13 @@ async fn grid_filter_text_is_not_empty_test() {
 async fn grid_filter_is_text_test() {
   let mut test = DatabaseFilterTest::new().await;
   // Only one row's text of the initial rows is "A"
-  let scripts = vec![CreateTextFilter {
-    condition: TextFilterConditionPB::Is,
-    content: "A".to_string(),
+  let scripts = vec![CreateDataFilter {
+    parent_filter_id: None,
+    field_type: FieldType::RichText,
+    data: BoxAny::new(TextFilterPB {
+      condition: TextFilterConditionPB::Is,
+      content: "A".to_string(),
+    }),
     changed: Some(FilterRowChanged {
       showing_num_of_rows: 0,
       hiding_num_of_rows: 5,
@@ -71,9 +84,13 @@ async fn grid_filter_is_text_test() {
 #[tokio::test]
 async fn grid_filter_contain_text_test() {
   let mut test = DatabaseFilterTest::new().await;
-  let scripts = vec![CreateTextFilter {
-    condition: TextFilterConditionPB::Contains,
-    content: "A".to_string(),
+  let scripts = vec![CreateDataFilter {
+    parent_filter_id: None,
+    field_type: FieldType::RichText,
+    data: BoxAny::new(TextFilterPB {
+      condition: TextFilterConditionPB::Contains,
+      content: "A".to_string(),
+    }),
     changed: Some(FilterRowChanged {
       showing_num_of_rows: 0,
       hiding_num_of_rows: 2,
@@ -88,9 +105,13 @@ async fn grid_filter_contain_text_test2() {
   let row_detail = test.row_details.clone();
 
   let scripts = vec![
-    CreateTextFilter {
-      condition: TextFilterConditionPB::Contains,
-      content: "A".to_string(),
+    CreateDataFilter {
+      parent_filter_id: None,
+      field_type: FieldType::RichText,
+      data: BoxAny::new(TextFilterPB {
+        condition: TextFilterConditionPB::Contains,
+        content: "A".to_string(),
+      }),
       changed: Some(FilterRowChanged {
         showing_num_of_rows: 0,
         hiding_num_of_rows: 2,
@@ -112,9 +133,13 @@ async fn grid_filter_contain_text_test2() {
 async fn grid_filter_does_not_contain_text_test() {
   let mut test = DatabaseFilterTest::new().await;
   // None of the initial rows contains the text "AB"
-  let scripts = vec![CreateTextFilter {
-    condition: TextFilterConditionPB::DoesNotContain,
-    content: "AB".to_string(),
+  let scripts = vec![CreateDataFilter {
+    parent_filter_id: None,
+    field_type: FieldType::RichText,
+    data: BoxAny::new(TextFilterPB {
+      condition: TextFilterConditionPB::DoesNotContain,
+      content: "AB".to_string(),
+    }),
     changed: Some(FilterRowChanged {
       showing_num_of_rows: 0,
       hiding_num_of_rows: 0,
@@ -126,9 +151,13 @@ async fn grid_filter_does_not_contain_text_test() {
 #[tokio::test]
 async fn grid_filter_start_with_text_test() {
   let mut test = DatabaseFilterTest::new().await;
-  let scripts = vec![CreateTextFilter {
-    condition: TextFilterConditionPB::StartsWith,
-    content: "A".to_string(),
+  let scripts = vec![CreateDataFilter {
+    parent_filter_id: None,
+    field_type: FieldType::RichText,
+    data: BoxAny::new(TextFilterPB {
+      condition: TextFilterConditionPB::StartsWith,
+      content: "A".to_string(),
+    }),
     changed: Some(FilterRowChanged {
       showing_num_of_rows: 0,
       hiding_num_of_rows: 3,
@@ -141,9 +170,13 @@ async fn grid_filter_start_with_text_test() {
 async fn grid_filter_ends_with_text_test() {
   let mut test = DatabaseFilterTest::new().await;
   let scripts = vec![
-    CreateTextFilter {
-      condition: TextFilterConditionPB::EndsWith,
-      content: "A".to_string(),
+    CreateDataFilter {
+      parent_filter_id: None,
+      field_type: FieldType::RichText,
+      data: BoxAny::new(TextFilterPB {
+        condition: TextFilterConditionPB::EndsWith,
+        content: "A".to_string(),
+      }),
       changed: None,
     },
     AssertNumberOfVisibleRows { expected: 2 },
@@ -155,9 +188,13 @@ async fn grid_filter_ends_with_text_test() {
 async fn grid_update_text_filter_test() {
   let mut test = DatabaseFilterTest::new().await;
   let scripts = vec![
-    CreateTextFilter {
-      condition: TextFilterConditionPB::EndsWith,
-      content: "A".to_string(),
+    CreateDataFilter {
+      parent_filter_id: None,
+      field_type: FieldType::RichText,
+      data: BoxAny::new(TextFilterPB {
+        condition: TextFilterConditionPB::EndsWith,
+        content: "A".to_string(),
+      }),
       changed: Some(FilterRowChanged {
         showing_num_of_rows: 0,
         hiding_num_of_rows: 4,
@@ -189,10 +226,14 @@ async fn grid_update_text_filter_test() {
 async fn grid_filter_delete_test() {
   let mut test = DatabaseFilterTest::new().await;
   let scripts = vec![
-    CreateTextFilter {
+    CreateDataFilter {
+      parent_filter_id: None,
+      field_type: FieldType::RichText,
       changed: None,
-      condition: TextFilterConditionPB::TextIsEmpty,
-      content: "".to_string(),
+      data: BoxAny::new(TextFilterPB {
+        condition: TextFilterConditionPB::TextIsEmpty,
+        content: "".to_string(),
+      }),
     },
     AssertFilterCount { count: 1 },
     AssertNumberOfVisibleRows { expected: 1 },
@@ -218,9 +259,13 @@ async fn grid_filter_update_empty_text_cell_test() {
   let mut test = DatabaseFilterTest::new().await;
   let row_details = test.row_details.clone();
   let scripts = vec![
-    CreateTextFilter {
-      condition: TextFilterConditionPB::TextIsEmpty,
-      content: "".to_string(),
+    CreateDataFilter {
+      parent_filter_id: None,
+      field_type: FieldType::RichText,
+      data: BoxAny::new(TextFilterPB {
+        condition: TextFilterConditionPB::TextIsEmpty,
+        content: "".to_string(),
+      }),
       changed: Some(FilterRowChanged {
         showing_num_of_rows: 0,
         hiding_num_of_rows: 5,

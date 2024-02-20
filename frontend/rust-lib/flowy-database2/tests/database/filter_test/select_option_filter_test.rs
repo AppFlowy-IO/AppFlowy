@@ -1,4 +1,5 @@
-use flowy_database2::entities::{FieldType, SelectOptionConditionPB};
+use flowy_database2::entities::{FieldType, SelectOptionConditionPB, SelectOptionFilterPB};
+use lib_infra::box_any::BoxAny;
 
 use crate::database::filter_test::script::FilterScript::*;
 use crate::database::filter_test::script::{DatabaseFilterTest, FilterRowChanged};
@@ -7,9 +8,14 @@ use crate::database::filter_test::script::{DatabaseFilterTest, FilterRowChanged}
 async fn grid_filter_multi_select_is_empty_test() {
   let mut test = DatabaseFilterTest::new().await;
   let scripts = vec![
-    CreateMultiSelectFilter {
-      condition: SelectOptionConditionPB::OptionIsEmpty,
-      option_ids: vec![],
+    CreateDataFilter {
+      parent_filter_id: None,
+      field_type: FieldType::MultiSelect,
+      data: BoxAny::new(SelectOptionFilterPB {
+        condition: SelectOptionConditionPB::OptionIsEmpty,
+        option_ids: vec![],
+      }),
+      changed: None,
     },
     AssertNumberOfVisibleRows { expected: 2 },
   ];
@@ -20,9 +26,14 @@ async fn grid_filter_multi_select_is_empty_test() {
 async fn grid_filter_multi_select_is_not_empty_test() {
   let mut test = DatabaseFilterTest::new().await;
   let scripts = vec![
-    CreateMultiSelectFilter {
-      condition: SelectOptionConditionPB::OptionIsNotEmpty,
-      option_ids: vec![],
+    CreateDataFilter {
+      parent_filter_id: None,
+      field_type: FieldType::MultiSelect,
+      data: BoxAny::new(SelectOptionFilterPB {
+        condition: SelectOptionConditionPB::OptionIsNotEmpty,
+        option_ids: vec![],
+      }),
+      changed: None,
     },
     AssertNumberOfVisibleRows { expected: 5 },
   ];
@@ -35,9 +46,14 @@ async fn grid_filter_multi_select_is_test() {
   let field = test.get_first_field(FieldType::MultiSelect);
   let mut options = test.get_multi_select_type_option(&field.id);
   let scripts = vec![
-    CreateMultiSelectFilter {
-      condition: SelectOptionConditionPB::OptionIs,
-      option_ids: vec![options.remove(0).id, options.remove(0).id],
+    CreateDataFilter {
+      parent_filter_id: None,
+      field_type: FieldType::MultiSelect,
+      data: BoxAny::new(SelectOptionFilterPB {
+        condition: SelectOptionConditionPB::OptionIs,
+        option_ids: vec![options.remove(0).id, options.remove(0).id],
+      }),
+      changed: None,
     },
     AssertNumberOfVisibleRows { expected: 5 },
   ];
@@ -50,9 +66,14 @@ async fn grid_filter_multi_select_is_test2() {
   let field = test.get_first_field(FieldType::MultiSelect);
   let mut options = test.get_multi_select_type_option(&field.id);
   let scripts = vec![
-    CreateMultiSelectFilter {
-      condition: SelectOptionConditionPB::OptionIs,
-      option_ids: vec![options.remove(1).id],
+    CreateDataFilter {
+      parent_filter_id: None,
+      field_type: FieldType::MultiSelect,
+      data: BoxAny::new(SelectOptionFilterPB {
+        condition: SelectOptionConditionPB::OptionIs,
+        option_ids: vec![options.remove(1).id],
+      }),
+      changed: None,
     },
     AssertNumberOfVisibleRows { expected: 4 },
   ];
@@ -65,9 +86,13 @@ async fn grid_filter_single_select_is_empty_test() {
   let expected = 3;
   let row_count = test.row_details.len();
   let scripts = vec![
-    CreateSingleSelectFilter {
-      condition: SelectOptionConditionPB::OptionIsEmpty,
-      option_ids: vec![],
+    CreateDataFilter {
+      parent_filter_id: None,
+      field_type: FieldType::SingleSelect,
+      data: BoxAny::new(SelectOptionFilterPB {
+        condition: SelectOptionConditionPB::OptionIsEmpty,
+        option_ids: vec![],
+      }),
       changed: Some(FilterRowChanged {
         showing_num_of_rows: 0,
         hiding_num_of_rows: row_count - expected,
@@ -86,9 +111,13 @@ async fn grid_filter_single_select_is_test() {
   let expected = 2;
   let row_count = test.row_details.len();
   let scripts = vec![
-    CreateSingleSelectFilter {
-      condition: SelectOptionConditionPB::OptionIs,
-      option_ids: vec![options.remove(0).id],
+    CreateDataFilter {
+      parent_filter_id: None,
+      field_type: FieldType::SingleSelect,
+      data: BoxAny::new(SelectOptionFilterPB {
+        condition: SelectOptionConditionPB::OptionIs,
+        option_ids: vec![options.remove(0).id],
+      }),
       changed: Some(FilterRowChanged {
         showing_num_of_rows: 0,
         hiding_num_of_rows: row_count - expected,
@@ -109,9 +138,13 @@ async fn grid_filter_single_select_is_test2() {
   let row_count = test.row_details.len();
 
   let scripts = vec![
-    CreateSingleSelectFilter {
-      condition: SelectOptionConditionPB::OptionIs,
-      option_ids: vec![option.id.clone()],
+    CreateDataFilter {
+      parent_filter_id: None,
+      field_type: FieldType::SingleSelect,
+      data: BoxAny::new(SelectOptionFilterPB {
+        condition: SelectOptionConditionPB::OptionIs,
+        option_ids: vec![option.id.clone()],
+      }),
       changed: Some(FilterRowChanged {
         showing_num_of_rows: 0,
         hiding_num_of_rows: row_count - 2,
