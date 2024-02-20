@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/menu/menu_bloc.dart';
@@ -12,13 +10,17 @@ import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_new_pa
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_top_menu.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_trash.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_user.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_workspace.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
     show UserProfilePB;
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+const bool _enableMultiWorkspace = true;
 
 /// Home Sidebar is the left side bar of the home page.
 ///
@@ -30,11 +32,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class HomeSideBar extends StatelessWidget {
   const HomeSideBar({
     super.key,
-    required this.user,
+    required this.userProfile,
     required this.workspaceSetting,
   });
 
-  final UserProfilePB user;
+  final UserProfilePB userProfile;
 
   final WorkspaceSettingPB workspaceSetting;
 
@@ -47,7 +49,7 @@ class HomeSideBar extends StatelessWidget {
         ),
         BlocProvider(
           create: (_) => MenuBloc(
-            user: user,
+            user: userProfile,
             workspaceId: workspaceSetting.workspaceId,
           )..add(const MenuEvent.initial()),
         ),
@@ -103,11 +105,14 @@ class HomeSideBar extends StatelessWidget {
             padding: menuHorizontalInset,
             child: SidebarTopMenu(),
           ),
-          // user, setting
+          // user or workspace, setting
           Padding(
             padding: menuHorizontalInset,
-            child: SidebarUser(user: user, views: views),
+            child: _enableMultiWorkspace
+                ? SidebarWorkspace(userProfile: userProfile, views: views)
+                : SidebarUser(userProfile: userProfile, views: views),
           ),
+
           const VSpace(20),
           // scrollable document list
           Expanded(

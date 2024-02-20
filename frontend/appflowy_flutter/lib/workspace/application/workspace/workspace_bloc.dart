@@ -46,7 +46,7 @@ class WorkspaceBloc extends Bloc<WorkspaceEvent, WorkspaceState> {
     emit(
       workspacesOrFailed.fold(
         (workspaces) => state.copyWith(
-          workspaces: workspaces,
+          workspaces: [],
           successOrFailure: left(unit),
         ),
         (error) {
