@@ -121,6 +121,13 @@ pub struct ReorderSingleRowResult {
   pub new_index: usize,
 }
 
+#[derive(Clone)]
+pub struct InsertSortedRowResult {
+  pub view_id: String,
+  pub row_id: RowId,
+  pub index: usize,
+}
+
 #[derive(Debug, Default)]
 pub struct SortChangeset {
   pub(crate) insert_sort: Option<Sort>,
