@@ -147,21 +147,17 @@ impl AppFlowyCore {
         Arc::downgrade(&(server_provider.clone() as Arc<dyn ObjectStorageService>)),
       );
 
-      let sqlite_indexer = SearchDepsResolver::resolve(Arc::downgrade(&authenticate_user)).await;
-      let folder_index_manager =
-        FolderIndexManager::new(Arc::downgrade(&authenticate_user), sqlite_indexer);
       let folder_manager = FolderDepsResolver::resolve(
         Arc::downgrade(&authenticate_user),
         &document_manager,
         &database_manager,
         collab_builder.clone(),
         server_provider.clone(),
-        folder_index_manager.clone(),
       )
       .await;
 
       let user_manager = UserDepsResolver::resolve(
-        authenticate_user,
+        authenticate_user.clone(),
         collab_builder.clone(),
         server_provider.clone(),
         store_preference.clone(),
@@ -172,8 +168,11 @@ impl AppFlowyCore {
 
       // Init the search manager
       // Setup Handlers + Indexers
+      let sqlite_indexer = SearchDepsResolver::resolve(Arc::downgrade(&authenticate_user)).await;
+      let folder_index_manager =
+        FolderIndexManager::new(Arc::downgrade(&authenticate_user), sqlite_indexer);
       let folder_handler = FolderSearchHandler::new(Box::new(folder_index_manager));
-      let search_manager = Arc::new(SearchManager::new(vec![Box::new(folder_handler)]));
+      let search_manager = Arc::new(SearchManager::new(vec![Arc::new(folder_handler)]));
 
       (
         user_manager,

@@ -1,6 +1,10 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
+
+import 'package:appflowy/workspace/application/command_palette/search_listener.dart';
 import 'package:appflowy/workspace/application/command_palette/search_service.dart';
+import 'package:appflowy_backend/protobuf/flowy-search/entities.pb.dart';
 import 'package:bloc/bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -9,9 +13,15 @@ part 'command_palette_bloc.freezed.dart';
 class CommandPaletteBloc
     extends Bloc<CommandPaletteEvent, CommandPaletteState> {
   Timer? _debounceOnChanged;
+  final SearchListener _searchListener = SearchListener();
 
   CommandPaletteBloc() : super(const _Initial()) {
     on<CommandPaletteEvent>((event, emit) async {
+      _searchListener.start(
+        onResultsChanged: _onResultsChanged,
+        onResultsClosed: _onResultsClosed,
+      );
+
       event.when(
         searchChanged: _debounceOnSearchChanged,
         performSearch: (search) async {
@@ -35,6 +45,12 @@ class CommandPaletteBloc
     });
   }
 
+  @override
+  Future<void> close() {
+    _searchListener.stop();
+    return super.close();
+  }
+
   void _debounceOnSearchChanged(String value) {
     _debounceOnChanged?.cancel();
     _debounceOnChanged = Timer(
@@ -45,6 +61,20 @@ class CommandPaletteBloc
 
   void _performSearch(String value) =>
       add(CommandPaletteEvent.performSearch(search: value));
+
+  void _onResultsChanged(RepeatedSearchResultPB results) {
+    debugPrint("REACHED OPEN");
+    for (final item in results.items) {
+      debugPrint("ITEM: ${item.data}");
+    }
+  }
+
+  void _onResultsClosed(RepeatedSearchResultPB results) {
+    debugPrint("REACHED CLOSED");
+    for (final item in results.items) {
+      debugPrint("ITEM: ${item.data}");
+    }
+  }
 }
 
 @freezed

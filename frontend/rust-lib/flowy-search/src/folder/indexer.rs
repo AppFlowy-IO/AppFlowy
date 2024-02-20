@@ -1,4 +1,7 @@
-use std::sync::{Arc, Weak};
+use std::{
+  any::Any,
+  sync::{Arc, Weak},
+};
 
 use collab::core::collab::{IndexContent, IndexContentReceiver};
 use collab_folder::ViewIndexContent;
@@ -7,6 +10,7 @@ use flowy_user::services::authenticate_user::AuthenticateUser;
 use lib_dispatch::prelude::af_spawn;
 
 use crate::{
+  entities::SearchResultPB,
   services::indexer::{IndexManager, IndexableData},
   SearchIndexer,
 };
@@ -32,6 +36,13 @@ impl FolderIndexManager {
       .ok_or(FlowyError::internal().with_context("The user is not available"))?
       .user_id()
   }
+
+  pub fn search(&self, query: String) -> Result<Vec<SearchResultPB>, FlowyError> {
+    let uid = self.get_uid()?;
+    let results = self.sqlite_indexer.search(uid, &query, Some(10))?;
+    let items = results.into_iter().map(|item| item.into()).collect();
+    Ok(items)
+  }
 }
 
 impl IndexManager for FolderIndexManager {
@@ -47,7 +58,7 @@ impl IndexManager for FolderIndexManager {
                 data: view.name,
               });
             },
-            Err(err) => tracing::error!("FolderIndexer error deserialize: {:?}", err),
+            Err(err) => tracing::error!("FolderIndexManager error deserialize: {:?}", err),
           },
           IndexContent::Update(value) => match serde_json::from_value::<ViewIndexContent>(value) {
             Ok(view) => {
@@ -56,11 +67,11 @@ impl IndexManager for FolderIndexManager {
                 data: view.name,
               });
             },
-            Err(err) => tracing::error!("FolderIndexer error deserialize: {:?}", err),
+            Err(err) => tracing::error!("FolderIndexManager error deserialize: {:?}", err),
           },
           IndexContent::Delete(ids) => {
             if let Err(e) = indexer.remove_indices(ids) {
-              tracing::error!("FolderIndexer error deserialize: {:?}", e);
+              tracing::error!("FolderIndexManager error deserialize: {:?}", e);
             }
           },
         }
@@ -87,5 +98,9 @@ impl IndexManager for FolderIndexManager {
       .sqlite_indexer
       .add_view_index(uid, &data.id, &data.data)?;
     Ok(())
+  }
+
+  fn as_any(&self) -> &dyn Any {
+    self
   }
 }

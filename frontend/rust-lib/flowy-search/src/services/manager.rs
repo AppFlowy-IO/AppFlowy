@@ -1,13 +1,18 @@
+use std::sync::Arc;
+
+use flowy_error::FlowyResult;
 use lib_dispatch::prelude::af_spawn;
 use tokio::sync::broadcast;
 
+use crate::entities::{SearchResultNotificationPB, SearchResultPB};
+
 use super::{
   indexer::IndexManager,
-  notifier::{SearchNotifier, SearchResultReceiverRunner},
+  notifier::{SearchNotifier, SearchResultChanged, SearchResultReceiverRunner},
 };
 
 pub trait ISearchHandler: Send + Sync + 'static {
-  fn perform_search(&self, query: String);
+  fn perform_search(&self, query: String) -> FlowyResult<Vec<SearchResultPB>>;
   fn get_index_manager(&self) -> Box<dyn IndexManager>;
 }
 
@@ -16,12 +21,12 @@ pub trait ISearchHandler: Send + Sync + 'static {
 /// to the client until the query has been fully completed.
 ///
 pub struct SearchManager {
-  pub handlers: Vec<Box<dyn ISearchHandler>>,
+  pub handlers: Vec<Arc<dyn ISearchHandler>>,
   notifier: SearchNotifier,
 }
 
 impl SearchManager {
-  pub fn new(handlers: Vec<Box<dyn ISearchHandler>>) -> Self {
+  pub fn new(handlers: Vec<Arc<dyn ISearchHandler>>) -> Self {
     // Initialize Search Notifier
     let (notifier, _) = broadcast::channel(100);
     af_spawn(SearchResultReceiverRunner(Some(notifier.subscribe())).run());
@@ -30,8 +35,42 @@ impl SearchManager {
   }
 
   pub fn perform_search(&self, query: String) {
-    for handler in &self.handlers {
-      handler.perform_search(query.clone());
+    let mut sends: usize = 0;
+    let max: usize = self.handlers.len();
+    let handlers = self.handlers.clone();
+
+    for handler in handlers {
+      let q = query.clone();
+      let notifier = self.notifier.clone();
+
+      tokio::spawn(async move {
+        let res = handler.perform_search(q);
+        sends += 1;
+
+        let close = sends == max;
+        let notification: Option<SearchResultNotificationPB> = match res {
+          Ok(results) => Some(SearchResultNotificationPB {
+            items: results,
+            closed: close,
+          }),
+          Err(_) => {
+            if close {
+              return Some(SearchResultNotificationPB {
+                items: vec![],
+                closed: true,
+              });
+            }
+
+            None
+          },
+        };
+
+        if let Some(notification) = notification {
+          let _ = notifier.send(SearchResultChanged::SearchResultUpdate(notification));
+        }
+
+        None
+      });
     }
   }
 }

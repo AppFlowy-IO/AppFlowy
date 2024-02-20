@@ -34,9 +34,15 @@ impl SearchResultReceiverRunner {
       .for_each(|changed| async {
         match changed {
           SearchResultChanged::SearchResultUpdate(notification) => {
-            send_notification(SEARCH_ID, SearchNotification::DidUpdateResults)
+            let ty = if notification.closed {
+              SearchNotification::DidCloseResults
+            } else {
+              SearchNotification::DidUpdateResults
+            };
+
+            send_notification(SEARCH_ID, ty)
               .payload(notification)
-              .send()
+              .send();
           },
         }
       })

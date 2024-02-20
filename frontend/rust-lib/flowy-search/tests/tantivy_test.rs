@@ -6,8 +6,8 @@ use tantivy::{doc, DocAddress, Index, Score};
 #[test]
 fn search_folder_test() {
   let mut schema_builder = Schema::builder();
+  let id = schema_builder.add_text_field("id", TEXT);
   let title = schema_builder.add_text_field("title", TEXT | STORED);
-  let body = schema_builder.add_text_field("body", TEXT);
   let schema = schema_builder.build();
 
   // Indexing documents
@@ -20,10 +20,8 @@ fn search_folder_test() {
   // Let's index one documents!
   index_writer
     .add_document(doc!(
-        title => "The Old Man and the Sea",
-        body => "He was an old man who fished alone in a skiff in \
-                the Gulf Stream and he had gone eighty-four days \
-                now without taking a fish."
+        id => "123456789",
+        title => "The Old Man and the Seawhale",
     ))
     .unwrap();
 
@@ -38,8 +36,9 @@ fn search_folder_test() {
 
   let searcher = reader.searcher();
 
-  let query_parser = QueryParser::for_index(&index, vec![title, body]);
-  let query = query_parser.parse_query("sea whale").unwrap();
+  let mut query_parser = QueryParser::for_index(&index, vec![title]);
+  query_parser.set_field_fuzzy(title, true, 2, true);
+  let query = query_parser.parse_query("sewhals").unwrap();
 
   // Perform search.
   // `topdocs` contains the 10 most relevant doc ids, sorted by decreasing scores...

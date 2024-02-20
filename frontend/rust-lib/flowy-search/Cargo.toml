@@ -4,21 +4,20 @@ version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-[lib]
-crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 collab = { version = "0.1.0" }
 collab-folder = { version = "0.1.0" }
 
 flowy-derive.workspace = true
-flowy-sqlite.workspace = true
-flowy-notification.workspace = true
-flowy-user.workspace = true
 flowy-error = { workspace = true, features = [
     "impl_from_sqlite",
     "impl_from_dispatch_error",
+    "impl_from_collab_document",
 ] }
+flowy-notification.workspace = true
+flowy-sqlite.workspace = true
+flowy-user.workspace = true
 
 protobuf.workspace = true
 bytes.workspace = true
@@ -26,8 +25,9 @@ tracing.workspace = true
 futures.workspace = true
 serde_json.workspace = true
 lib-dispatch.workspace = true
-tokio.workspace = true
+tokio = { workspace = true, features = ["full", "rt-multi-thread", "tracing"] }
 
+validator = { version = "0.16.0", features = ["derive"] }
 strum_macros = "0.26.1"
 async-stream = "0.3.4"
 tantivy = { version = "0.21.1" }
@@ -46,4 +46,3 @@ tempfile = "3.10.0"
 [features]
 dart = ["flowy-codegen/dart"]
 ts = ["flowy-codegen/ts"]
-wasm_build = ["lib-dispatch/single_thread", "flowy-codegen/ts"]

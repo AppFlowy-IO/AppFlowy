@@ -1,3 +1,6 @@
+use flowy_error::FlowyResult;
+
+use crate::entities::SearchResultPB;
 use crate::services::indexer::IndexManager;
 use crate::services::manager::ISearchHandler;
 
@@ -15,8 +18,13 @@ impl FolderSearchHandler {
 }
 
 impl ISearchHandler for FolderSearchHandler {
-  fn perform_search(&self, _query: String) {
-    tracing::error!("FOLDER SEARCH HANDLER");
+  fn perform_search(&self, query: String) -> FlowyResult<Vec<SearchResultPB>> {
+    let index_manager = self.get_index_manager();
+    let typed = index_manager
+      .as_any()
+      .downcast_ref::<FolderIndexManager>()
+      .unwrap();
+    typed.search(query)
   }
 
   fn get_index_manager(&self) -> Box<(dyn IndexManager)> {

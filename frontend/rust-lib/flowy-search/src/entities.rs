@@ -1,5 +1,7 @@
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 
+use crate::native::sqlite_search::SearchData;
+
 #[derive(Eq, PartialEq, ProtoBuf, Default, Debug, Clone)]
 pub struct SearchQueryPB {
   #[pb(index = 1)]
@@ -30,6 +32,17 @@ pub struct SearchResultPB {
   pub data: String,
 }
 
+impl From<SearchData> for SearchResultPB {
+  fn from(value: SearchData) -> Self {
+    Self {
+      index_type: value.index_type,
+      view_id: value.view_id,
+      id: value.id,
+      data: value.data,
+    }
+  }
+}
+
 #[derive(Eq, PartialEq, ProtoBuf, Default, Debug, Clone)]
 pub struct SearchResultNotificationPB {
   #[pb(index = 1)]
@@ -44,6 +57,7 @@ pub enum SearchNotification {
   #[default]
   Unknown = 0,
   DidUpdateResults = 1,
+  DidCloseResults = 2,
 }
 
 impl std::convert::From<SearchNotification> for i32 {
@@ -56,6 +70,7 @@ impl std::convert::From<i32> for SearchNotification {
   fn from(notification: i32) -> Self {
     match notification {
       1 => SearchNotification::DidUpdateResults,
+      2 => SearchNotification::DidCloseResults,
       _ => SearchNotification::Unknown,
     }
   }

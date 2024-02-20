@@ -1,3 +1,5 @@
+use std::any::Any;
+
 use collab::core::collab::IndexContentReceiver;
 use flowy_error::FlowyError;
 
@@ -11,4 +13,6 @@ pub trait IndexManager: Send + Sync {
   fn add_index(&self, data: IndexableData) -> Result<(), FlowyError>;
   fn update_index(&self, data: IndexableData) -> Result<(), FlowyError>;
   fn remove_indices(&self, ids: Vec<String>) -> Result<(), FlowyError>;
+
+  fn as_any(&self) -> &dyn Any;
 }

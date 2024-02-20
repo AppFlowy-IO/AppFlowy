@@ -20,7 +20,6 @@ use flowy_folder::share::ImportType;
 use flowy_folder::view_operation::{FolderOperationHandler, FolderOperationHandlers, View};
 use flowy_folder::ViewLayout;
 use flowy_folder_pub::entities::SearchData;
-use flowy_search::folder::indexer::FolderIndexManager;
 use std::collections::HashMap;
 use std::convert::TryFrom;
 use std::sync::{Arc, Weak};
@@ -43,7 +42,6 @@ impl FolderDepsResolver {
     database_manager: &Arc<DatabaseManager>,
     collab_builder: Arc<AppFlowyCollabBuilder>,
     server_provider: Arc<ServerProvider>,
-    folder_index_manager: FolderIndexManager,
   ) -> Arc<FolderManager> {
     let user: Arc<dyn FolderUser> = Arc::new(FolderUserImpl {
       authenticate_user: authenticate_user.clone(),
@@ -56,7 +54,6 @@ impl FolderDepsResolver {
         collab_builder,
         handlers,
         server_provider.clone(),
-        folder_index_manager,
       )
       .await
       .unwrap(),
