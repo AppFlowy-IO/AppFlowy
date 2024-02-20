@@ -27,7 +27,7 @@ script = [
   """
     cd rust-lib/
     rustup show
-    if [ "${BUILD_FLAG}" = "debug" ]; then
+    if [ "${BUILD_FLAG}" == "debug" ]; then
       echo "🚀 🚀 🚀  Building for debug"
       cargo lipo --targets ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}" --package=dart-ffi
     else
@@ -66,7 +66,7 @@ private = true
 script = [
   """
     cd rust-lib/
-    if [ "${BUILD_FLAG}" = "debug" ]; then
+    if [ "${BUILD_FLAG}" == "debug" ]; then
       echo "🚀 🚀 🚀  Building for debug"
       cargo ndk -t arm64-v8a -o ./jniLibs build --features "${FLUTTER_DESKTOP_FEATURES}" --package=dart-ffi
     else
@@ -85,7 +85,7 @@ private = true
 script = [
   """
     cd rust-lib/
-    cargo ndk -t x86_64 -o ./jniLibs build --features "${FLUTTER_DESKTOP_FEATURES}" --package=dart-ffi
+    cargo ndk -t arm64-v8a -o ./jniLibs build --features "${FLUTTER_DESKTOP_FEATURES}" --package=dart-ffi
     cd ../
   """,
 ]

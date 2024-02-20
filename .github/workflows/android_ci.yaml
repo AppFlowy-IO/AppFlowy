@@ -134,8 +134,8 @@ jobs:
         # https://github.com/ReactiveCircus/android-emulator-runner
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 30
-          arch: x86_64
+          api-level: 32
+          arch: arm64-v8a
           disk-size: 2048M
           working-directory: frontend/appflowy_flutter
           script: flutter test integration_test/runner.dart
