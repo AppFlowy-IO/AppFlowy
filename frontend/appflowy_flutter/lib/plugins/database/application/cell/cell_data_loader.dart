@@ -66,6 +66,16 @@ class StringCellDataParser implements CellDataParser<String> {
   }
 }
 
+class CheckboxCellDataParser implements CellDataParser<CheckboxCellDataPB> {
+  @override
+  CheckboxCellDataPB? parserData(List<int> data) {
+    if (data.isEmpty) {
+      return null;
+    }
+    return CheckboxCellDataPB.fromBuffer(data);
+  }
+}
+
 class NumberCellDataParser implements CellDataParser<String> {
   @override
   String? parserData(List<int> data) {

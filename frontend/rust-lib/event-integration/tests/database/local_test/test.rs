@@ -5,7 +5,7 @@ use bytes::Bytes;
 use event_integration::event_builder::EventBuilder;
 use event_integration::EventIntegrationTest;
 use flowy_database2::entities::{
-  CellChangesetPB, CellIdPB, ChecklistCellDataChangesetPB, DatabaseLayoutPB,
+  CellChangesetPB, CellIdPB, CheckboxCellDataPB, ChecklistCellDataChangesetPB, DatabaseLayoutPB,
   DatabaseSettingChangesetPB, DatabaseViewIdPB, DateChangesetPB, FieldType, OrderObjectPositionPB,
   SelectOptionCellDataPB, UpdateRowMetaChangesetPB,
 };
@@ -476,8 +476,8 @@ async fn update_checkbox_cell_event_test() {
     assert!(error.is_none());
 
     let cell = test.get_cell(&grid_view.id, &row_id, &field_id).await;
-    let output = String::from_utf8(cell.data).unwrap();
-    assert_eq!(output, "Yes");
+    let output = CheckboxCellDataPB::try_from(Bytes::from(cell.data)).unwrap();
+    assert!(output.is_checked);
   }
 }
 

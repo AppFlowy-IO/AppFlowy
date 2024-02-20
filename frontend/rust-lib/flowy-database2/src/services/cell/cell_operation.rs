@@ -6,7 +6,7 @@ use collab_database::rows::{get_field_type_from_cell, Cell, Cells};
 
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 
-use crate::entities::FieldType;
+use crate::entities::{CheckboxCellDataPB, FieldType};
 use crate::services::cell::{CellCache, CellProtobufBlob};
 use crate::services::field::checklist_type_option::ChecklistCellChangeset;
 use crate::services::field::*;
@@ -203,8 +203,8 @@ pub fn insert_url_cell(url: String, field: &Field) -> Cell {
   apply_cell_changeset(url, None, field, None).unwrap()
 }
 
-pub fn insert_checkbox_cell(is_check: bool, field: &Field) -> Cell {
-  let s = if is_check {
+pub fn insert_checkbox_cell(is_checked: bool, field: &Field) -> Cell {
+  let s = if is_checked {
     CHECK.to_string()
   } else {
     UNCHECK.to_string()
@@ -343,8 +343,8 @@ impl<'a> CellBuilder<'a> {
             }
           },
           FieldType::Checkbox => {
-            if let Ok(value) = CheckboxCellData::from_cell_str(&cell_str) {
-              cells.insert(field_id, insert_checkbox_cell(value.into_inner(), field));
+            if let Ok(value) = CheckboxCellDataPB::from_cell_str(&cell_str) {
+              cells.insert(field_id, insert_checkbox_cell(value.is_checked, field));
             }
           },
           FieldType::URL => {
@@ -399,13 +399,13 @@ impl<'a> CellBuilder<'a> {
     }
   }
 
-  pub fn insert_checkbox_cell(&mut self, field_id: &str, is_check: bool) {
+  pub fn insert_checkbox_cell(&mut self, field_id: &str, is_checked: bool) {
     match self.field_maps.get(&field_id.to_owned()) {
       None => tracing::warn!("Can't find the checkbox field with id: {}", field_id),
       Some(field) => {
         self
           .cells
-          .insert(field_id.to_owned(), insert_checkbox_cell(is_check, field));
+          .insert(field_id.to_owned(), insert_checkbox_cell(is_checked, field));
       },
     }
   }
