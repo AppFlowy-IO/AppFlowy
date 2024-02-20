@@ -14,7 +14,6 @@ import 'mobile_runner.dart';
 /// as the test target.
 Future<void> main() async {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-
   if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
     await runIntegrationOnDesktop();
   } else if (Platform.isIOS || Platform.isAndroid) {

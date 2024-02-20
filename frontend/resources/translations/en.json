@@ -779,7 +779,8 @@
         "left": "Left",
         "center": "Center",
         "right": "Right",
-        "defaultColor": "Default"
+        "defaultColor": "Default",
+        "depth": "Depth"
       },
       "image": {
         "copiedToPasteBoard": "The image link has been copied to the clipboard",
@@ -815,6 +816,9 @@
       },
       "date": "Date",
       "emoji": "Emoji"
+    },
+    "outlineBlock": {
+      "placeholder": "Table of Contents"
     },
     "textBlock": {
       "placeholder": "Type '/' for commands"
