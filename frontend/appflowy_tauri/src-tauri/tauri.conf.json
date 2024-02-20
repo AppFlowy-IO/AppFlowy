@@ -19,7 +19,10 @@
       },
       "fs": {
         "all": true,
-        "scope": ["$APPLOCALDATA/**", "$APPLOCALDATA/images/*"],
+        "scope": [
+          "$APPLOCALDATA/**",
+          "$APPLOCALDATA/images/*"
+        ],
         "readFile": true,
         "writeFile": true,
         "readDir": true,

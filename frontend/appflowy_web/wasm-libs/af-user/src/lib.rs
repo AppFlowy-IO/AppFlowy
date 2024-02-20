@@ -1,3 +1,4 @@
+pub mod authenticate_user;
 mod define;
 pub mod entities;
 mod event_handler;

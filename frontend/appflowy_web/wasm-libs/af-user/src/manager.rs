@@ -1,3 +1,4 @@
+use crate::authenticate_user::AuthenticateUser;
 use crate::define::{user_profile_key, user_workspace_key, AF_USER_SESSION_KEY};
 use af_persistence::store::{AppFlowyWASMStore, IndexddbStore};
 use anyhow::Context;
@@ -37,22 +38,26 @@ pub trait UserCallback {
   ) -> Fut<FlowyResult<()>>;
 }
 
-pub struct UserManagerWASM {
+pub struct UserManager {
   device_id: String,
+  pub(crate) store: Rc<AppFlowyWASMStore>,
   pub(crate) cloud_services: Rc<dyn UserCloudServiceProvider>,
   pub(crate) collab_builder: Weak<AppFlowyCollabBuilder>,
-  pub(crate) store: Rc<AppFlowyWASMStore>,
-  user_callbacks: Vec<Rc<dyn UserCallback>>,
+  pub(crate) authenticate_user: Rc<AuthenticateUser>,
 
   #[allow(dead_code)]
   pub(crate) user_awareness: Rc<Mutex<Option<MutexUserAwareness>>>,
   pub(crate) collab_db: Arc<CollabKVDB>,
+
+  user_callbacks: Vec<Rc<dyn UserCallback>>,
 }
 
-impl UserManagerWASM {
+impl UserManager {
   pub async fn new(
     device_id: &str,
+    store: Rc<AppFlowyWASMStore>,
     cloud_services: Rc<dyn UserCloudServiceProvider>,
+    authenticate_user: Rc<AuthenticateUser>,
     collab_builder: Weak<AppFlowyCollabBuilder>,
   ) -> Result<Self, FlowyError> {
     let device_id = device_id.to_string();
@@ -63,6 +68,7 @@ impl UserManagerWASM {
       cloud_services,
       collab_builder,
       store,
+      authenticate_user,
       user_callbacks: vec![],
       user_awareness: Rc::new(Default::default()),
       collab_db,

@@ -50,12 +50,12 @@
     "copyLink": "링크 복사"
   },
   "moreAction": {
-    "small": "작은",
-    "medium": "중간",
-    "large": "크기가 큰",
     "fontSize": "글꼴 크기",
     "import": "수입",
-    "moreOptions": "추가 옵션"
+    "moreOptions": "추가 옵션",
+    "small": "작은",
+    "medium": "중간",
+    "large": "크기가 큰"
   },
   "importPanel": {
     "textAndMarkdown": "텍스트 및 마크다운",

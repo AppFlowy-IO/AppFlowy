@@ -1,9 +1,5 @@
 [workspace]
-members = [
-  "af-wasm",
-  "af-user",
-  "af-persistence",
-]
+members = ["af-wasm", "af-user", "af-persistence"]
 resolver = "2"
 
 [workspace.dependencies]
@@ -15,7 +11,7 @@ parking_lot = { version = "0.12.1" }
 tracing = { version = "0.1.22" }
 serde = { version = "1.0.194", features = ["derive"] }
 serde_json = "1.0"
-collab-integrate = { path = "../../rust-lib/collab-integrate"}
+collab-integrate = { path = "../../rust-lib/collab-integrate" }
 flowy-notification = { path = "../../rust-lib/flowy-notification" }
 flowy-user-pub = { path = "../../rust-lib/flowy-user-pub" }
 flowy-server = { path = "../../rust-lib/flowy-server" }
@@ -24,6 +20,8 @@ flowy-error = { path = "../../rust-lib/flowy-error" }
 flowy-derive = { path = "../../rust-lib/build-tool/flowy-derive" }
 flowy-codegen = { path = "../../rust-lib/build-tool/flowy-codegen" }
 flowy-document = { path = "../../rust-lib/flowy-document" }
+flowy-folder = { path = "../../rust-lib/flowy-folder" }
+flowy-storage = { path = "../../rust-lib/flowy-storage" }
 lib-infra = { path = "../../rust-lib/lib-infra" }
 collab = { version = "0.1.0" }
 collab-entity = { version = "0.1.0" }
@@ -50,11 +48,6 @@ lto = true
 opt-level = 3
 codegen-units = 1
 
-[profile.profiling]
-inherits = "release"
-debug = true
-codegen-units = 16
-lto = false
 
 [patch.crates-io]
 # Please using the following command to update the revision id
@@ -62,7 +55,7 @@ lto = false
 # Run the script:
 # scripts/tool/update_client_api_rev.sh  new_rev_id
 # ⚠️⚠️⚠️️
-client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "0875329a4311eca5376804a0b8e39dedddbbaadc" }
+client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "29a0851f485957cc6410ccf9d261c781c1d2f757" }
 # Please use the following script to update collab.
 # Working directory: frontend
 #
@@ -72,10 +65,10 @@ client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "087
 # To switch to the local path, run:
 # scripts/tool/update_collab_source.sh
 # ⚠️⚠️⚠️️
-collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "d00b477a9b844d86b5caeff573ca395dc5bf7198" }
-collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "d00b477a9b844d86b5caeff573ca395dc5bf7198" }
-collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "d00b477a9b844d86b5caeff573ca395dc5bf7198" }
-collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "d00b477a9b844d86b5caeff573ca395dc5bf7198" }
-collab-plugins = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "d00b477a9b844d86b5caeff573ca395dc5bf7198" }
-collab-user = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "d00b477a9b844d86b5caeff573ca395dc5bf7198" }
-collab-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "d00b477a9b844d86b5caeff573ca395dc5bf7198" }
+collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "2de6d172f56fed29ee6f32b82040cca4867647ac" }
+collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "2de6d172f56fed29ee6f32b82040cca4867647ac" }
+collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "2de6d172f56fed29ee6f32b82040cca4867647ac" }
+collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "2de6d172f56fed29ee6f32b82040cca4867647ac" }
+collab-plugins = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "2de6d172f56fed29ee6f32b82040cca4867647ac" }
+collab-user = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "2de6d172f56fed29ee6f32b82040cca4867647ac" }
+collab-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "2de6d172f56fed29ee6f32b82040cca4867647ac" }

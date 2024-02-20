@@ -19,7 +19,7 @@ class KeyboardItem extends DemoItem {
 }
 
 class KeyboardScreen extends StatefulWidget {
-  const KeyboardScreen({Key? key}) : super(key: key);
+  const KeyboardScreen({super.key});
 
   @override
   State<KeyboardScreen> createState() => _KeyboardScreenState();
@@ -29,6 +29,12 @@ class _KeyboardScreenState extends State<KeyboardScreen> {
   bool _isKeyboardVisible = false;
   final TextEditingController _controller =
       TextEditingController(text: 'Hello Flowy');
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

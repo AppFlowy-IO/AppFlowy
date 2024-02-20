@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 
 class IgnoreParentGestureWidget extends StatelessWidget {
   const IgnoreParentGestureWidget({
-    Key? key,
+    super.key,
     required this.child,
     this.onPress,
-  }) : super(key: key);
+  });
 
   final Widget child;
   final VoidCallback? onPress;

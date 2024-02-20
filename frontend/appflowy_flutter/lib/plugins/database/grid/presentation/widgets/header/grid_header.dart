@@ -7,6 +7,7 @@ import 'package:appflowy/plugins/database/grid/application/grid_header_bloc.dart
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -151,6 +152,7 @@ class _CellTrailing extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: GridSize.trailHeaderPadding,
+      margin: EdgeInsets.only(right: GridSize.scrollBarSize + Insets.m),
       decoration: BoxDecoration(
         border: Border(
           bottom: BorderSide(color: Theme.of(context).dividerColor),

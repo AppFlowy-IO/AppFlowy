@@ -16,7 +16,9 @@ use crate::entities::{RepeatedUserWorkspacePB, ResetWorkspacePB};
 use crate::migrations::AnonUser;
 use crate::notification::{send_notification, UserNotification};
 use crate::services::data_import::{upload_collab_objects_data, ImportContext};
-use crate::services::sqlite_sql::workspace_sql::UserWorkspaceTable;
+use crate::services::sqlite_sql::workspace_sql::{
+  get_all_user_workspace_op, get_user_workspace_op, insert_new_workspaces_op, UserWorkspaceTable,
+};
 use crate::user_manager::UserManager;
 use flowy_user_pub::session::Session;
 
@@ -151,6 +153,29 @@ impl UserManager {
     Ok(())
   }
 
+  pub async fn add_workspace(&self, workspace_name: &str) -> FlowyResult<UserWorkspace> {
+    let new_workspace = self
+      .cloud_services
+      .get_user_service()?
+      .create_workspace(workspace_name)
+      .await?;
+
+    // save the workspace to sqlite db
+    let uid = self.user_id()?;
+    let mut conn = self.db_connection(uid)?;
+    insert_new_workspaces_op(uid, &[new_workspace.clone()], &mut conn)?;
+    Ok(new_workspace)
+  }
+
+  pub async fn delete_workspace(&self, workspace_id: &str) -> FlowyResult<()> {
+    self
+      .cloud_services
+      .get_user_service()?
+      .delete_workspace(workspace_id)
+      .await?;
+    Ok(())
+  }
+
   pub async fn add_workspace_member(
     &self,
     user_email: String,
@@ -204,19 +229,13 @@ impl UserManager {
   }
 
   pub fn get_user_workspace(&self, uid: i64, workspace_id: &str) -> Option<UserWorkspace> {
-    let mut conn = self.db_connection(uid).ok()?;
-    let row = user_workspace_table::dsl::user_workspace_table
-      .filter(user_workspace_table::id.eq(workspace_id))
-      .first::<UserWorkspaceTable>(&mut *conn)
-      .ok()?;
-    Some(UserWorkspace::from(row))
+    let conn = self.db_connection(uid).ok()?;
+    get_user_workspace_op(workspace_id, conn)
   }
 
-  pub fn get_all_user_workspaces(&self, uid: i64) -> FlowyResult<Vec<UserWorkspace>> {
-    let mut conn = self.db_connection(uid)?;
-    let rows = user_workspace_table::dsl::user_workspace_table
-      .filter(user_workspace_table::uid.eq(uid))
-      .load::<UserWorkspaceTable>(&mut *conn)?;
+  pub async fn get_all_user_workspaces(&self, uid: i64) -> FlowyResult<Vec<UserWorkspace>> {
+    let conn = self.db_connection(uid)?;
+    let workspaces = get_all_user_workspace_op(uid, conn)?;
 
     if let Ok(service) = self.cloud_services.get_user_service() {
       if let Ok(pool) = self.db_pool(uid) {
@@ -233,7 +252,7 @@ impl UserManager {
         });
       }
     }
-    Ok(rows.into_iter().map(UserWorkspace::from).collect())
+    Ok(workspaces)
   }
 
   /// Reset the remote workspace using local workspace data. This is useful when a user wishes to

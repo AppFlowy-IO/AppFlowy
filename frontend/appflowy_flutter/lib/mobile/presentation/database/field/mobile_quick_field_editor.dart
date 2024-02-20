@@ -113,7 +113,7 @@ class _QuickEditFieldState extends State<QuickEditField> {
                 controller.text = fieldOptionValues.name;
               });
             } else {
-              if (mounted) {
+              if (context.mounted) {
                 context.pop();
               }
             }

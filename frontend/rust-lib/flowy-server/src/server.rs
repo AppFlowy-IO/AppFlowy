@@ -1,9 +1,11 @@
+use client_api::ws::ConnectState;
+use client_api::ws::WSConnectStateReceiver;
+use client_api::ws::WebSocketChannel;
 use flowy_storage::ObjectStorageService;
 use std::sync::Arc;
 
 use anyhow::Error;
 use client_api::collab_sync::collab_msg::CollabMessage;
-use client_api::ws::{ConnectState, WSConnectStateReceiver, WebSocketChannel};
 use parking_lot::RwLock;
 use tokio_stream::wrappers::WatchStream;
 #[cfg(feature = "enable_supabase")]

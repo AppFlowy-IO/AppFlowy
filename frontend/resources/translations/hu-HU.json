@@ -50,12 +50,12 @@
     "copyLink": "Link másolása"
   },
   "moreAction": {
-    "small": "kicsi",
-    "medium": "közepes",
-    "large": "nagy",
     "fontSize": "Betűméret",
     "import": "Importálás",
-    "moreOptions": "Több lehetőség"
+    "moreOptions": "Több lehetőség",
+    "small": "kicsi",
+    "medium": "közepes",
+    "large": "nagy"
   },
   "importPanel": {
     "textAndMarkdown": "Szöveg & Markdown",

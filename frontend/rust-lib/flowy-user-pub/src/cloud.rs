@@ -1,21 +1,18 @@
+use anyhow::Error;
+use collab::core::collab::CollabDocState;
+use collab_entity::{CollabObject, CollabType};
+use flowy_error::{ErrorCode, FlowyError};
+use lib_infra::box_any::BoxAny;
+use lib_infra::conditional_send_sync_trait;
+use lib_infra::future::FutureResult;
+use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use std::collections::HashMap;
 use std::fmt::{Display, Formatter};
 use std::str::FromStr;
 use std::sync::Arc;
-
-use anyhow::Error;
-use collab::core::collab::CollabDocState;
-use collab_entity::{CollabObject, CollabType};
-use serde::{Deserialize, Serialize};
-use serde_json::Value;
 use tokio_stream::wrappers::WatchStream;
 use uuid::Uuid;
-
-use flowy_error::{ErrorCode, FlowyError};
-
-use lib_infra::box_any::BoxAny;
-use lib_infra::future::FutureResult;
-use lib_infra::{if_native, if_wasm};
 
 use crate::entities::{
   AuthResponse, Authenticator, Role, UpdateUserProfileParams, UserCredentials, UserProfile,
@@ -57,21 +54,12 @@ impl Display for UserCloudConfig {
   }
 }
 
-if_native! {
-pub trait UserCloudServiceProvider: UserCloudServiceProviderBase + Send + Sync + 'static {}
-}
+conditional_send_sync_trait! {
+  "This trait is intended for implementation by providers that offer cloud-based services for users.
+  It includes methods for handling authentication tokens, enabling/disabling synchronization,
+  setting network reachability, managing encryption secrets, and accessing user-specific cloud services.";
 
-if_wasm! {
-pub trait UserCloudServiceProvider: UserCloudServiceProviderBase + 'static {}
-}
-
-/// `UserCloudServiceProvider` defines a set of methods for managing user cloud services,
-/// including token management, synchronization settings, network reachability, and authentication.
-///
-/// This trait is intended for implementation by providers that offer cloud-based services for users.
-/// It includes methods for handling authentication tokens, enabling/disabling synchronization,
-/// setting network reachability, managing encryption secrets, and accessing user-specific cloud services.
-pub trait UserCloudServiceProviderBase {
+  UserCloudServiceProvider {
   /// Sets the authentication token for the cloud service.
   ///
   /// # Arguments
@@ -126,8 +114,8 @@ pub trait UserCloudServiceProviderBase {
   /// # Returns
   /// A `String` representing the service URL.
   fn service_url(&self) -> String;
+  }
 }
-
 /// Provide the generic interface for the user cloud service
 /// The user cloud service is responsible for the user authentication and user profile management
 #[allow(unused_variables)]
@@ -176,8 +164,15 @@ pub trait UserCloudService: Send + Sync + 'static {
 
   fn open_workspace(&self, workspace_id: &str) -> FutureResult<UserWorkspace, FlowyError>;
 
-  /// Return the all the workspaces of the user  
+  /// Return the all the workspaces of the user
   fn get_all_workspace(&self, uid: i64) -> FutureResult<Vec<UserWorkspace>, FlowyError>;
+
+  /// Creates a new workspace for the user.
+  /// Returns the new workspace if successful
+  fn create_workspace(&self, workspace_name: &str) -> FutureResult<UserWorkspace, FlowyError>;
+
+  /// Deletes a workspace owned by the user.
+  fn delete_workspace(&self, workspace_id: &str) -> FutureResult<(), FlowyError>;
 
   fn add_workspace_member(
     &self,

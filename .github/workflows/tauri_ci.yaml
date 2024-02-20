@@ -5,6 +5,7 @@ on:
       - ".github/workflows/tauri_ci.yaml"
       - "frontend/rust-lib/**"
       - "frontend/appflowy_tauri/**"
+      - "frontend/resources/**"
 
 env:
   NODE_VERSION: "18.16.0"
@@ -21,8 +22,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-#        platform: [macos-latest, ubuntu-latest, windows-latest]
-         platform: [ubuntu-latest]
+        platform: [ubuntu-latest]
 
     runs-on: ${{ matrix.platform }}
     steps:

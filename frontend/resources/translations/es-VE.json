@@ -72,12 +72,12 @@
     "copyLink": "Copiar enlace"
   },
   "moreAction": {
-    "small": "pequeño",
-    "medium": "medio",
-    "large": "grande",
     "fontSize": "Tamaño de fuente",
     "import": "Importar",
-    "moreOptions": "Mas opciones"
+    "moreOptions": "Mas opciones",
+    "small": "pequeño",
+    "medium": "medio",
+    "large": "grande"
   },
   "importPanel": {
     "textAndMarkdown": "Texto y descuento",
@@ -468,14 +468,14 @@
       "typeAValue": "Escriba un valor...",
       "layout": "Disposición",
       "databaseLayout": "Disposición",
-      "viewList": "Vistas de base de datos",
       "editView": "Editar vista",
       "boardSettings": "Configuración del tablero",
       "calendarSettings": "Configuración del calendario",
       "createView": "Nueva vista",
       "duplicateView": "Duplicar vista",
       "deleteView": "Eliminar vista",
-      "Properties": "Propiedades"
+      "Properties": "Propiedades",
+      "viewList": "Vistas de base de datos"
     },
     "textFilter": {
       "contains": "Contiene",

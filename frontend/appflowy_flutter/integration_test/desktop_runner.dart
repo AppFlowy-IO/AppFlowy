@@ -13,6 +13,7 @@ import 'desktop/database/database_share_test.dart' as database_share_test;
 import 'desktop/database/database_sort_test.dart' as database_sort_test;
 import 'desktop/database/database_view_test.dart' as database_view_test;
 import 'desktop/document/document_test_runner.dart' as document_test_runner;
+import 'desktop/emoji_shortcut_test.dart' as emoji_shortcut_test;
 import 'desktop/empty_test.dart' as first_test;
 import 'desktop/hotkeys_test.dart' as hotkeys_test;
 import 'desktop/import_files_test.dart' as import_files_test;
@@ -57,6 +58,7 @@ Future<void> runIntegrationOnDesktop() async {
 
   // Others
   hotkeys_test.main();
+  emoji_shortcut_test.main();
 
   // Appearance integration test
   appearance_test_runner.main();

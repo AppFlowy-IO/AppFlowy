@@ -164,6 +164,11 @@ impl CellDataDecoder for ChecklistTypeOption {
     let cell_data = self.parse_cell(cell).unwrap_or_default();
     self.stringify_cell_data(cell_data)
   }
+
+  fn numeric_cell(&self, _cell: &Cell) -> Option<f64> {
+    // return the percentage complete if needed
+    None
+  }
 }
 
 impl TypeOptionCellDataFilter for ChecklistTypeOption {

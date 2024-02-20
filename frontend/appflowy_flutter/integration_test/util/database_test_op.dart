@@ -1,5 +1,8 @@
 import 'dart:io';
 
+import 'package:appflowy/plugins/database/application/calculations/calculation_type_ext.dart';
+import 'package:appflowy/plugins/database/grid/presentation/widgets/calculations/calculate_cell.dart';
+import 'package:appflowy/plugins/database/grid/presentation/widgets/calculations/calculation_type_item.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/common/type_option_separator.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/header/type_option/number.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/checkbox.dart';
@@ -720,6 +723,31 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await pumpAndSettle();
   }
 
+  Future<void> changeFieldTypeOfFieldWithName(
+    String name,
+    FieldType type,
+  ) async {
+    await tapGridFieldWithName(name);
+    await tapEditFieldButton();
+
+    await tapSwitchFieldTypeButton();
+    await selectFieldType(type);
+    await dismissFieldEditor();
+  }
+
+  Future<void> changeCalculateAtIndex(int index, CalculationType type) async {
+    await tap(find.byType(CalculateCell).at(index));
+    await pumpAndSettle();
+
+    await tap(
+      find.descendant(
+        of: find.byType(CalculationTypeItem),
+        matching: find.text(type.label),
+      ),
+    );
+    await pumpAndSettle();
+  }
+
   /// Should call [tapGridFieldWithName] first.
   Future<void> tapEditFieldButton() async {
     await tapButtonWithName(LocaleKeys.grid_field_editProperty.tr());
@@ -1040,6 +1068,34 @@ extension AppFlowyDatabaseTest on WidgetTester {
           widget is DatabaseSortItem && widget.sortInfo.fieldInfo.name == name,
     );
     await tapButton(findSortItem);
+  }
+
+  /// Must call [tapSortMenuInSettingBar] first.
+  Future<void> reorderSort(
+    (FieldType, String) from,
+    (FieldType, String) to,
+  ) async {
+    final fromSortItem = find.byWidgetPredicate(
+      (widget) =>
+          widget is DatabaseSortItem &&
+          widget.sortInfo.fieldInfo.fieldType == from.$1 &&
+          widget.sortInfo.fieldInfo.name == from.$2,
+    );
+    final toSortItem = find.byWidgetPredicate(
+      (widget) =>
+          widget is DatabaseSortItem &&
+          widget.sortInfo.fieldInfo.fieldType == to.$1 &&
+          widget.sortInfo.fieldInfo.name == to.$2,
+    );
+    final dragElement = find.descendant(
+      of: fromSortItem,
+      matching: find.byType(ReorderableDragStartListener),
+    );
+    await drag(
+      dragElement,
+      getCenter(toSortItem) - getCenter(fromSortItem),
+    );
+    await pumpAndSettle(const Duration(milliseconds: 200));
   }
 
   /// Must call [tapSortButtonByName] first.

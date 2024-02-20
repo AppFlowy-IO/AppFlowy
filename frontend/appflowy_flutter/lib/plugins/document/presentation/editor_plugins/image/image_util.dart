@@ -34,19 +34,22 @@ Future<String?> saveImageToLocalStorage(String localImagePath) async {
   }
 }
 
-Future<String?> saveImageToCloudStorage(String localImagePath) async {
+Future<(String? path, String? errorMessage)> saveImageToCloudStorage(
+  String localImagePath,
+) async {
   final documentService = DocumentService();
   final result = await documentService.uploadFile(
     localFilePath: localImagePath,
+    isAsync: false,
   );
   return result.fold(
-    (l) => null,
+    (l) => (null, l.msg),
     (r) async {
       await CustomImageCacheManager().putFile(
         r.url,
         File(localImagePath).readAsBytesSync(),
       );
-      return r.url;
+      return (r.url, null);
     },
   );
 }

@@ -89,6 +89,7 @@ class _GridURLCellState extends GridEditableTextCell<EditableURLCell> {
 
   @override
   void dispose() {
+    widget._cellDataNotifier.dispose();
     _textEditingController.dispose();
     cellBloc.close();
     super.dispose();

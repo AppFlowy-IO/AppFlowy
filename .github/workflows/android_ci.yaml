@@ -18,8 +18,10 @@ on:
       - "!frontend/appflowy_tauri/**"
 
 env:
-  FLUTTER_VERSION: "3.18.0-0.2.pre"
+  CARGO_TERM_COLOR: always
+  FLUTTER_VERSION: "3.19.0"
   RUST_TOOLCHAIN: "1.75"
+  CARGO_MAKE_VERSION: "0.36.6"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -43,9 +45,13 @@ jobs:
           sudo rm -rf /opt/ghc
           sudo rm -rf "/usr/local/share/boost"
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+          sudo docker image prune --all --force
+          sudo rm -rf /opt/hostedtoolcache/codeQL
+          sudo rm -rf ${GITHUB_WORKSPACE}/.git
+          sudo rm -rf $ANDROID_HOME/ndk
 
       - name: Checkout source code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - uses: actions/setup-java@v4
         with:
@@ -64,17 +70,17 @@ jobs:
         id: flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: "beta"
+          channel: "stable"
           flutter-version: ${{ env.FLUTTER_VERSION }}
           cache: true
 
       - uses: nttld/setup-ndk@v1
         id: setup-ndk
         with:
-            ndk-version: "r24"
-            add-to-path: true
+          ndk-version: "r24"
+          add-to-path: true
 
-      - uses: gradle/gradle-build-action@v2
+      - uses: gradle/gradle-build-action@v3
         with:
           gradle-version: 7.4.2
 

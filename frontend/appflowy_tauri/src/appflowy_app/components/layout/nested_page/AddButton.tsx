@@ -1,63 +1,64 @@
-import React, { useMemo } from 'react';
-import ButtonPopoverList from '$app/components/_shared/button_menu/ButtonMenu';
-import { IconButton } from '@mui/material';
+import React, { useCallback, useMemo } from 'react';
 import { ReactComponent as AddSvg } from '$app/assets/add.svg';
 import { useTranslation } from 'react-i18next';
 import { ReactComponent as DocumentSvg } from '$app/assets/document.svg';
 import { ReactComponent as GridSvg } from '$app/assets/grid.svg';
 import { ViewLayoutPB } from '@/services/backend';
+import OperationMenu from '$app/components/layout/nested_page/OperationMenu';
 
-function AddButton({ isVisible, onAddPage }: { isVisible: boolean; onAddPage: (layout: ViewLayoutPB) => void }) {
+function AddButton({
+  isHovering,
+  setHovering,
+  onAddPage,
+}: {
+  isHovering: boolean;
+  setHovering: (hovering: boolean) => void;
+  onAddPage: (layout: ViewLayoutPB) => void;
+}) {
   const { t } = useTranslation();
+
+  const onConfirm = useCallback(
+    (key: string) => {
+      switch (key) {
+        case 'document':
+          onAddPage(ViewLayoutPB.Document);
+          break;
+        case 'grid':
+          onAddPage(ViewLayoutPB.Grid);
+          break;
+        default:
+          break;
+      }
+    },
+    [onAddPage]
+  );
+
   const options = useMemo(
     () => [
       {
-        key: 'add-document',
-        label: t('document.menuName'),
-        icon: (
-          <div className={'h-5 w-5'}>
-            <DocumentSvg />
-          </div>
-        ),
-        onClick: () => {
-          onAddPage(ViewLayoutPB.Document);
-        },
+        key: 'document',
+        title: t('document.menuName'),
+        icon: <DocumentSvg className={'h-4 w-4'} />,
       },
       {
-        key: 'add-grid',
-        label: t('grid.menuName'),
-        icon: (
-          <div className={'h-5 w-5'}>
-            <GridSvg />
-          </div>
-        ),
-        onClick: () => {
-          onAddPage(ViewLayoutPB.Grid);
-        },
+        key: 'grid',
+        title: t('grid.menuName'),
+        icon: <GridSvg className={'h-4 w-4'} />,
       },
     ],
-    [onAddPage, t]
+    [t]
   );
 
   return (
-    <ButtonPopoverList
-      popoverOrigin={{
-        anchorOrigin: {
-          vertical: 'bottom',
-          horizontal: 'left',
-        },
-        transformOrigin: {
-          vertical: 'top',
-          horizontal: 'left',
-        },
-      }}
-      popoverOptions={options}
-      isVisible={isVisible}
+    <OperationMenu
+      tooltip={t('menuAppHeader.addPageTooltip')}
+      isHovering={isHovering}
+      onConfirm={onConfirm}
+      setHovering={setHovering}
+      options={options}
     >
-      <IconButton size={'small'}>
-        <AddSvg />
-      </IconButton>
-    </ButtonPopoverList>
+      <AddSvg />
+    </OperationMenu>
   );
 }
 

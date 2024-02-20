@@ -15,6 +15,16 @@ class NumberCellBloc extends Bloc<NumberCellEvent, NumberCellState> {
   final NumberCellController cellController;
   void Function()? _onCellChangedFn;
 
+  @override
+  Future<void> close() async {
+    if (_onCellChangedFn != null) {
+      cellController.removeListener(_onCellChangedFn!);
+      _onCellChangedFn = null;
+    }
+    await cellController.dispose();
+    return super.close();
+  }
+
   void _dispatch() {
     on<NumberCellEvent>(
       (event, emit) async {
@@ -43,16 +53,6 @@ class NumberCellBloc extends Bloc<NumberCellEvent, NumberCellState> {
         );
       },
     );
-  }
-
-  @override
-  Future<void> close() async {
-    if (_onCellChangedFn != null) {
-      cellController.removeListener(_onCellChangedFn!);
-      _onCellChangedFn = null;
-    }
-    await cellController.dispose();
-    return super.close();
   }
 
   void _startListening() {

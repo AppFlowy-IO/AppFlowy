@@ -6,11 +6,10 @@ use flowy_error::FlowyError;
 use flowy_server::af_cloud::AppFlowyCloudServer;
 use flowy_server::AppFlowyServer;
 use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
-use flowy_user_pub::cloud::{
-  UserCloudService, UserCloudServiceProvider, UserCloudServiceProviderBase,
-};
+use flowy_storage::{ObjectIdentity, ObjectStorageService, ObjectValue};
+use flowy_user_pub::cloud::{UserCloudService, UserCloudServiceProvider};
 use flowy_user_pub::entities::{Authenticator, UserTokenState};
-use lib_infra::future::{to_fut, Fut};
+use lib_infra::future::{to_fut, Fut, FutureResult};
 use parking_lot::RwLock;
 use std::rc::Rc;
 use std::sync::Arc;
@@ -42,6 +41,7 @@ impl ServerProviderWASM {
           self.config.clone(),
           true,
           self.device_id.clone(),
+          "0.0.1"
         ));
         *self.server.write() = Some(server.clone());
         server
@@ -64,9 +64,7 @@ impl CollabCloudPluginProvider for ServerProviderWASM {
   }
 }
 
-impl UserCloudServiceProvider for ServerProviderWASM {}
-
-impl UserCloudServiceProviderBase for ServerProviderWASM {
+impl UserCloudServiceProvider for ServerProviderWASM {
   fn set_token(&self, token: &str) -> Result<(), FlowyError> {
     self.get_server().set_token(token)?;
     Ok(())
@@ -102,5 +100,23 @@ impl UserCloudServiceProviderBase for ServerProviderWASM {
 
   fn service_url(&self) -> String {
     self.config.base_url.clone()
+  }
+}
+
+impl ObjectStorageService for ServerProviderWASM {
+  fn get_object_url(&self, object_id: ObjectIdentity) -> FutureResult<String, FlowyError> {
+    todo!()
+  }
+
+  fn put_object(&self, url: String, object_value: ObjectValue) -> FutureResult<(), FlowyError> {
+    todo!()
+  }
+
+  fn delete_object(&self, url: String) -> FutureResult<(), FlowyError> {
+    todo!()
+  }
+
+  fn get_object(&self, url: String) -> FutureResult<ObjectValue, FlowyError> {
+    todo!()
   }
 }

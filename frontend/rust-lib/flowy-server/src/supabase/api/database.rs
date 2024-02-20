@@ -26,7 +26,7 @@ impl<T> DatabaseCloudService for SupabaseDatabaseServiceImpl<T>
 where
   T: SupabaseServerService,
 {
-  fn get_collab_doc_state_db(
+  fn get_database_object_doc_state(
     &self,
     object_id: &str,
     collab_type: CollabType,
@@ -50,7 +50,7 @@ where
     FutureResult::new(async { rx.await? })
   }
 
-  fn batch_get_collab_doc_state_db(
+  fn batch_get_database_object_doc_state(
     &self,
     object_ids: Vec<String>,
     object_ty: CollabType,
@@ -72,7 +72,7 @@ where
     FutureResult::new(async { rx.await? })
   }
 
-  fn get_collab_snapshots(
+  fn get_database_collab_object_snapshots(
     &self,
     object_id: &str,
     limit: usize,

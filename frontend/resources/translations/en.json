@@ -76,7 +76,7 @@
     "small": "small",
     "medium": "medium",
     "large": "large",
-    "fontSize": "Font Size",
+    "fontSize": "Font size",
     "import": "Import",
     "moreOptions": "More options"
   },
@@ -543,6 +543,16 @@
       "empty": "Is empty",
       "notEmpty": "Is not empty"
     },
+    "numberFilter": {
+      "equal": "Equals",
+      "notEqual": "Does not equal",
+      "lessThan": "Is less than",
+      "greaterThan": "Is greater than",
+      "lessThanOrEqualTo": "Is less than or equal to",
+      "greaterThanOrEqualTo": "Is greater than or equal to",
+      "isEmpty": "Is empty",
+      "isNotEmpty": "Is not empty"
+    },
     "field": {
       "hide": "Hide",
       "show": "Show",
@@ -644,7 +654,7 @@
       "panelTitle": "Select an option or create one",
       "searchOption": "Search for an option",
       "searchOrCreateOption": "Search or create an option...",
-      "createNew": "Create an new",
+      "createNew": "Create a new",
       "orSelectOne": "Or select an option",
       "typeANewOption": "Type a new option",
       "tagName": "Tag name"
@@ -657,7 +667,16 @@
       "showComplete": "Show all tasks"
     },
     "menuName": "Grid",
-    "referencedGridPrefix": "View of"
+    "referencedGridPrefix": "View of",
+    "calculate": "Calculate",
+    "calculationTypeLabel": {
+      "none": "None",
+      "average": "Average",
+      "max": "Max",
+      "median": "Median",
+      "min": "Min",
+      "sum": "Sum"
+    }
   },
   "document": {
     "menuName": "Document",
@@ -843,7 +862,8 @@
       "successToAddImageToGallery": "Image added to gallery successfully",
       "unableToLoadImage": "Unable to load image",
       "maximumImageSize": "Maximum supported upload image size is 10MB",
-      "uploadImageErrorImageSizeTooBig": "Image size must be less than 10MB"
+      "uploadImageErrorImageSizeTooBig": "Image size must be less than 10MB",
+      "imageIsUploading": "Image is uploading"
     },
     "codeBlock": {
       "language": {
@@ -870,7 +890,9 @@
       "page": {
         "label": "Link to page",
         "tooltip": "Click to open page"
-      }
+      },
+      "deleted": "Deleted",
+      "deletedContent": "This content does not exist or has been deleted"
     },
     "toolbar": {
       "resetToDefaultFont": "Reset to default"

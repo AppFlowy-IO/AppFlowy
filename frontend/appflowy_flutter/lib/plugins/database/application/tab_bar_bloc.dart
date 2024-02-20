@@ -131,6 +131,7 @@ class DatabaseTabBarBloc
   Future<void> close() async {
     for (final tabBar in state.tabBars) {
       await state.tabBarControllerByViewId[tabBar.viewId]?.dispose();
+      tabBar.dispose();
     }
     return super.close();
   }
@@ -261,6 +262,10 @@ class DatabaseTabBar extends Equatable {
 
   @override
   List<Object?> get props => [view.hashCode];
+
+  void dispose() {
+    _builder.dispose();
+  }
 }
 
 typedef OnViewUpdated = void Function(ViewPB newView);

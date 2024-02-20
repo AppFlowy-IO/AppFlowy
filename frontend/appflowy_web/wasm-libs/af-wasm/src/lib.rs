@@ -4,6 +4,7 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 pub mod core;
+mod deps_resolve;
 mod integrate;
 pub mod notification;
 
@@ -23,6 +24,10 @@ lazy_static! {
   static ref APPFLOWY_CORE: RefCellAppFlowyCore = RefCellAppFlowyCore::new();
 }
 
+#[cfg(feature = "wee_alloc")]
+#[global_allocator]
+static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
+
 #[wasm_bindgen]
 extern "C" {
   #[wasm_bindgen(js_namespace = console)]
@@ -37,6 +42,10 @@ pub fn init_tracing_log() {
 
 #[wasm_bindgen]
 pub fn init_wasm_core() -> js_sys::Promise {
+  // It's disabled in release mode so it doesn't bloat up the file size.
+  #[cfg(debug_assertions)]
+  console_error_panic_hook::set_once();
+
   #[cfg(feature = "localhost_dev")]
   let config = AFCloudConfiguration {
     base_url: "http://localhost".to_string(),

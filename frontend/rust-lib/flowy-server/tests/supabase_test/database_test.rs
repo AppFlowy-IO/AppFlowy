@@ -45,7 +45,7 @@ async fn supabase_create_database_test() {
   }
 
   let updates_by_oid = database_service
-    .batch_get_collab_doc_state_db(row_ids, CollabType::DatabaseRow, "fake_workspace_id")
+    .batch_get_database_object_doc_state(row_ids, CollabType::DatabaseRow, "fake_workspace_id")
     .await
     .unwrap();
 

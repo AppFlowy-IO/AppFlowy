@@ -64,7 +64,6 @@ class MobileAppearance extends BaseAppearance {
             brightness: brightness,
             primary: _primaryColor,
             onPrimary: Colors.black,
-            // TODO(yijing): add color later
             secondary: const Color(0xff2d2d2d), //temp
             onSecondary: Colors.white,
             tertiary: const Color(0xff858585), // temp

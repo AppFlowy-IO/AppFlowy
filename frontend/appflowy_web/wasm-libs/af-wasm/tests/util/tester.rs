@@ -7,6 +7,11 @@ use flowy_error::FlowyResult;
 use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
 use parking_lot::Once;
 
+use flowy_document::deps::DocumentData;
+use flowy_document::entities::{CreateDocumentPayloadPB, DocumentDataPB, OpenDocumentPayloadPB};
+use flowy_document::event_map::DocumentEvent;
+use flowy_folder::entities::{CreateViewPayloadPB, ViewLayoutPB, ViewPB};
+use flowy_folder::event_map::FolderEvent;
 use std::sync::Arc;
 use uuid::Uuid;
 
@@ -47,6 +52,44 @@ impl WASMEventTester {
       .await
       .parse::<UserProfilePB>();
     Ok(user_profile)
+  }
+
+  pub async fn create_and_open_document(&self, parent_id: &str) -> ViewPB {
+    let payload = CreateViewPayloadPB {
+      parent_view_id: parent_id.to_string(),
+      name,
+      desc: "".to_string(),
+      thumbnail: None,
+      layout: ViewLayoutPB::Document,
+      initial_data,
+      meta: Default::default(),
+      set_as_current: true,
+      index: None,
+    };
+    let view = self
+      .event_builder()
+      .event(FolderEvent::CreateView)
+      .payload(payload)
+      .async_send()
+      .await
+      .parse::<ViewPB>();
+
+    let payload = OpenDocumentPayloadPB {
+      document_id: view.id.clone(),
+    };
+
+    let _ = self
+      .event_builder()
+      .event(DocumentEvent::OpenDocument)
+      .payload(payload)
+      .async_send()
+      .await
+      .parse::<DocumentDataPB>();
+    view
+  }
+
+  fn event_builder(&self) -> EventBuilder {
+    EventBuilder::new(self.core.clone())
   }
 }
 

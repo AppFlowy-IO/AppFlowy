@@ -24,8 +24,12 @@ export function useDrag(props: Props) {
     setIsDraggingOver(false);
     setIsDragging(false);
     setDropPosition(undefined);
+    const currentTarget = e.currentTarget;
+
+    if (currentTarget.parentElement?.closest(`[data-drop-enabled="false"]`)) return;
+    if (currentTarget.closest(`[data-dragging="true"]`)) return;
     const dragId = e.dataTransfer.getData('dragId');
-    const targetRect = e.currentTarget.getBoundingClientRect();
+    const targetRect = currentTarget.getBoundingClientRect();
     const { clientY } = e;
 
     const position = calcPosition(targetRect, clientY);
@@ -37,8 +41,12 @@ export function useDrag(props: Props) {
     e.stopPropagation();
     e.preventDefault();
     if (isDragging) return;
+    const currentTarget = e.currentTarget;
+
+    if (currentTarget.parentElement?.closest(`[data-drop-enabled="false"]`)) return;
+    if (currentTarget.closest(`[data-dragging="true"]`)) return;
     setIsDraggingOver(true);
-    const targetRect = e.currentTarget.getBoundingClientRect();
+    const targetRect = currentTarget.getBoundingClientRect();
     const { clientY } = e;
     const position = calcPosition(targetRect, clientY);
 

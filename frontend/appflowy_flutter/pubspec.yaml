@@ -15,10 +15,10 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 0.4.5
+version: 0.4.9
 
 environment:
-  flutter: ">=3.18.0-0.2.pre"
+  flutter: ">=3.19.0"
   sdk: ">=3.1.5 <4.0.0"
 
 # Dependencies specify other packages that your package needs in order to work.
@@ -124,7 +124,7 @@ dependencies:
   image_picker: ^1.0.4
   image_gallery_saver: ^2.0.3
   cached_network_image: ^3.3.0
-  leak_tracker: ^9.0.6
+  leak_tracker: ^10.0.0
   keyboard_height_plugin: ^0.0.5
   scrollable_positioned_list: ^0.3.8
   flutter_cache_manager: ^3.3.1
@@ -139,7 +139,7 @@ dev_dependencies:
   integration_test:
     sdk: flutter
   build_runner: ^2.4.4
-  freezed: ^2.3.4
+  freezed: ^2.4.7
   bloc_test: ^9.1.2
   json_serializable: ^6.7.0
   envied_generator: ^0.5.2
@@ -165,7 +165,7 @@ dependency_overrides:
   appflowy_editor:
     git:
       url: https://github.com/AppFlowy-IO/appflowy-editor.git
-      ref: "e80edfc"
+      ref: "f38328d"
 
   uuid: ^4.1.0
 

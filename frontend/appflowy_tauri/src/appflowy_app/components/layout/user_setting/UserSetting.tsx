@@ -5,10 +5,9 @@ import DialogTitle from '@mui/material/DialogTitle';
 import Slide, { SlideProps } from '@mui/material/Slide';
 import UserSettingMenu, { MenuItem } from './Menu';
 import UserSettingPanel from './SettingPanel';
-import { Theme, UserSetting } from '$app/stores/reducers/current-user/slice';
+import { UserSetting } from '$app/stores/reducers/current-user/slice';
 import { useAppDispatch, useAppSelector } from '$app/stores/store';
 import { currentUserActions } from '$app_reducers/current-user/slice';
-import { ThemeModePB } from '@/services/backend';
 import { useTranslation } from 'react-i18next';
 import { UserService } from '$app/application/user/user.service';
 
@@ -29,8 +28,8 @@ function UserSettings({ open, onClose }: { open: boolean; onClose: () => void })
       const language = newSetting.language || 'en';
 
       void UserService.setAppearanceSetting({
-        theme: newSetting.theme || Theme.Default,
-        theme_mode: newSetting.themeMode || ThemeModePB.Light,
+        theme: newSetting.theme,
+        theme_mode: newSetting.themeMode,
         locale: {
           language_code: language.split('-')[0],
           country_code: language.split('-')[1],
@@ -48,7 +47,7 @@ function UserSettings({ open, onClose }: { open: boolean; onClose: () => void })
       keepMounted={false}
       onClose={onClose}
     >
-      <DialogTitle>{t('settings.title')}</DialogTitle>
+      <DialogTitle className={'text-sm'}>{t('settings.title')}</DialogTitle>
       <DialogContent className={'flex w-[540px]'}>
         <UserSettingMenu
           onSelect={(selected) => {

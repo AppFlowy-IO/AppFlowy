@@ -10,6 +10,7 @@
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "clean": "cargo make --cwd .. web_clean",
+    "test": "cargo test && wasm-pack test --headless",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -34,6 +35,7 @@
     "eslint-plugin-react-refresh": "^0.4.5",
     "typescript": "^5.2.2",
     "vite": "^5.0.8",
-    "vite-plugin-wasm": "^3.3.0"
+    "vite-plugin-wasm": "^3.3.0",
+    "rimraf": "^5.0.5"
   }
 }

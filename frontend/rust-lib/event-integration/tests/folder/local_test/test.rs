@@ -11,14 +11,14 @@ async fn create_workspace_event_test() {
     name: "my second workspace".to_owned(),
     desc: "".to_owned(),
   };
-  let resp = EventBuilder::new(test)
+  let view_pb = EventBuilder::new(test)
     .event(flowy_folder::event_map::FolderEvent::CreateWorkspace)
     .payload(request)
     .async_send()
     .await
-    .error()
-    .unwrap();
-  assert_eq!(resp.code, ErrorCode::NotSupportYet);
+    .parse::<flowy_folder::entities::ViewPB>();
+
+  assert_eq!(view_pb.parent_view_id, "my second workspace".to_owned());
 }
 
 // #[tokio::test]

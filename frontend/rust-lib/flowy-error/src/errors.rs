@@ -70,16 +70,10 @@ impl FlowyError {
 
   static_flowy_error!(internal, ErrorCode::Internal);
   static_flowy_error!(record_not_found, ErrorCode::RecordNotFound);
-  static_flowy_error!(workspace_name, ErrorCode::WorkspaceNameInvalid);
-  static_flowy_error!(workspace_id, ErrorCode::WorkspaceIdInvalid);
-  static_flowy_error!(color_style, ErrorCode::AppColorStyleInvalid);
-  static_flowy_error!(workspace_desc, ErrorCode::WorkspaceDescTooLong);
-  static_flowy_error!(app_name, ErrorCode::AppNameInvalid);
-  static_flowy_error!(invalid_app_id, ErrorCode::AppIdInvalid);
+  static_flowy_error!(workspace_initialize, ErrorCode::WorkspaceInitializeError);
   static_flowy_error!(view_name, ErrorCode::ViewNameInvalid);
   static_flowy_error!(view_thumbnail, ErrorCode::ViewThumbnailInvalid);
   static_flowy_error!(invalid_view_id, ErrorCode::ViewIdIsInvalid);
-  static_flowy_error!(view_desc, ErrorCode::ViewDescTooLong);
   static_flowy_error!(view_data, ErrorCode::ViewDataInvalid);
   static_flowy_error!(unauthorized, ErrorCode::UserUnauthorized);
   static_flowy_error!(email_empty, ErrorCode::EmailIsEmpty);

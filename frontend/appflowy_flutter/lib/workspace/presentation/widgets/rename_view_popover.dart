@@ -65,8 +65,10 @@ class _RenameViewPopoverState extends State<RenameViewPopover> {
           width: 220,
           child: FlowyTextField(
             controller: _controller,
+            maxLength: 256,
             onSubmitted: _updateViewName,
             onCanceled: () => _updateViewName(_controller.text),
+            showCounter: false,
           ),
         ),
       ],

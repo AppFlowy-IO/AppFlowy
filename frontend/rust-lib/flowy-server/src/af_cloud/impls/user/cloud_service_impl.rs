@@ -2,7 +2,9 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 use anyhow::{anyhow, Error};
-use client_api::entity::workspace_dto::{CreateWorkspaceMember, WorkspaceMemberChangeset};
+use client_api::entity::workspace_dto::{
+  CreateWorkspaceMember, CreateWorkspaceParam, WorkspaceMemberChangeset,
+};
 use client_api::entity::{AFRole, AFWorkspace, AuthProvider, CollabParams, CreateCollabParams};
 use client_api::{Client, ClientConfiguration};
 use collab::core::collab::CollabDocState;
@@ -294,6 +296,30 @@ where
       Ok(())
     })
   }
+
+  fn create_workspace(&self, workspace_name: &str) -> FutureResult<UserWorkspace, FlowyError> {
+    let try_get_client = self.server.try_get_client();
+    let workspace_name_owned = workspace_name.to_owned();
+    FutureResult::new(async move {
+      let client = try_get_client?;
+      let new_workspace = client
+        .create_workspace(CreateWorkspaceParam {
+          workspace_name: Some(workspace_name_owned),
+        })
+        .await?;
+      Ok(to_user_workspace(new_workspace))
+    })
+  }
+
+  fn delete_workspace(&self, workspace_id: &str) -> FutureResult<(), FlowyError> {
+    let try_get_client = self.server.try_get_client();
+    let workspace_id_owned = workspace_id.to_owned();
+    FutureResult::new(async move {
+      let client = try_get_client?;
+      client.delete_workspace(&workspace_id_owned).await?;
+      Ok(())
+    })
+  }
 }
 
 async fn get_admin_client(client: &Arc<AFCloudClient>) -> FlowyResult<Client> {
@@ -305,7 +331,9 @@ async fn get_admin_client(client: &Arc<AFCloudClient>) -> FlowyResult<Client> {
     client.base_url(),
     client.ws_addr(),
     client.gotrue_url(),
+    &client.device_id,
     ClientConfiguration::default(),
+    &client.client_id,
   );
   admin_client
     .sign_in_password(&admin_email, &admin_password)

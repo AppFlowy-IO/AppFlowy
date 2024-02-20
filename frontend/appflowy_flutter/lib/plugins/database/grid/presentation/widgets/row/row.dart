@@ -1,8 +1,8 @@
-import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import "package:appflowy/generated/locale_keys.g.dart";
+import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database/application/row/row_service.dart';
@@ -327,6 +327,12 @@ class _RowEnterRegionState extends State<_RowEnterRegion> {
   }
 
   @override
+  Future<void> dispose() async {
+    _rowStateNotifier.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(
       value: _rowStateNotifier,
@@ -337,11 +343,5 @@ class _RowEnterRegionState extends State<_RowEnterRegion> {
         child: widget.child,
       ),
     );
-  }
-
-  @override
-  Future<void> dispose() async {
-    _rowStateNotifier.dispose();
-    super.dispose();
   }
 }

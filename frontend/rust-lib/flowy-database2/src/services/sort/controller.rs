@@ -13,11 +13,13 @@ use flowy_error::FlowyResult;
 use lib_infra::future::Fut;
 use lib_infra::priority_task::{QualityOfService, Task, TaskContent, TaskDispatcher};
 
-use crate::entities::FieldType;
 use crate::entities::SortChangesetNotificationPB;
+use crate::entities::{FieldType, SortWithIndexPB};
 use crate::services::cell::CellCache;
 use crate::services::database_view::{DatabaseViewChanged, DatabaseViewChangedNotifier};
-use crate::services::field::{default_order, TypeOptionCellExt};
+use crate::services::field::{
+  default_order, TimestampCellData, TimestampCellDataWrapper, TypeOptionCellExt,
+};
 use crate::services::sort::{
   ReorderAllRowsResult, ReorderSingleRowResult, Sort, SortChangeset, SortCondition,
 };
@@ -81,9 +83,13 @@ impl SortController {
   }
 
   pub async fn did_receive_row_changed(&self, row_id: RowId) {
-    let task_type = SortEvent::RowDidChanged(row_id);
     if !self.sorts.is_empty() {
-      self.gen_task(task_type, QualityOfService::Background).await;
+      self
+        .gen_task(
+          SortEvent::RowDidChanged(row_id),
+          QualityOfService::Background,
+        )
+        .await;
     }
   }
 
@@ -179,39 +185,28 @@ impl SortController {
   }
 
   #[tracing::instrument(level = "trace", skip(self))]
-  pub async fn did_receive_changes(
-    &mut self,
-    changeset: SortChangeset,
-  ) -> SortChangesetNotificationPB {
+  pub async fn apply_changeset(&mut self, changeset: SortChangeset) -> SortChangesetNotificationPB {
     let mut notification = SortChangesetNotificationPB::new(self.view_id.clone());
+
     if let Some(insert_sort) = changeset.insert_sort {
-      if let Some(sort) = self
-        .delegate
-        .get_sort(&self.view_id, &insert_sort.sort_id)
-        .await
-      {
-        notification.insert_sorts.push(sort.as_ref().into());
+      if let Some(sort) = self.delegate.get_sort(&self.view_id, &insert_sort.id).await {
+        notification.insert_sorts.push(SortWithIndexPB {
+          index: self.sorts.len() as u32,
+          sort: sort.as_ref().into(),
+        });
         self.sorts.push(sort);
       }
     }
 
-    if let Some(delete_sort_type) = changeset.delete_sort {
-      if let Some(index) = self
-        .sorts
-        .iter()
-        .position(|sort| sort.id == delete_sort_type.sort_id)
-      {
+    if let Some(sort_id) = changeset.delete_sort {
+      if let Some(index) = self.sorts.iter().position(|sort| sort.id == sort_id) {
         let sort = self.sorts.remove(index);
         notification.delete_sorts.push(sort.as_ref().into());
       }
     }
 
     if let Some(update_sort) = changeset.update_sort {
-      if let Some(updated_sort) = self
-        .delegate
-        .get_sort(&self.view_id, &update_sort.sort_id)
-        .await
-      {
+      if let Some(updated_sort) = self.delegate.get_sort(&self.view_id, &update_sort.id).await {
         notification.update_sorts.push(updated_sort.as_ref().into());
         if let Some(index) = self
           .sorts
@@ -220,6 +215,23 @@ impl SortController {
         {
           self.sorts[index] = updated_sort;
         }
+      }
+    }
+
+    if let Some((from_id, to_id)) = changeset.reorder_sort {
+      let moved_sort = self.delegate.get_sort(&self.view_id, &from_id).await;
+      let from_index = self.sorts.iter().position(|sort| sort.id == from_id);
+      let to_index = self.sorts.iter().position(|sort| sort.id == to_id);
+
+      if let (Some(sort), Some(from_index), Some(to_index)) = (moved_sort, from_index, to_index) {
+        self.sorts.remove(from_index);
+        self.sorts.insert(to_index, sort.clone());
+
+        notification.delete_sorts.push(sort.as_ref().into());
+        notification.insert_sorts.push(SortWithIndexPB {
+          index: to_index as u32,
+          sort: sort.as_ref().into(),
+        });
       }
     }
 
@@ -246,14 +258,36 @@ fn cmp_row(
     .find(|field_rev| field_rev.id == sort.field_id)
   {
     None => default_order(),
-    Some(field_rev) => cmp_cell(
-      left.cells.get(&sort.field_id),
-      right.cells.get(&sort.field_id),
-      field_rev,
-      field_type,
-      cell_data_cache,
-      sort.condition,
-    ),
+    Some(field_rev) => {
+      let timestamp_cells = match field_type {
+        FieldType::LastEditedTime | FieldType::CreatedTime => {
+          let (left_cell, right_cell) = if field_type.is_created_time() {
+            (left.created_at, right.created_at)
+          } else {
+            (left.modified_at, right.modified_at)
+          };
+          let (left_cell, right_cell) = (
+            TimestampCellDataWrapper::from((field_type, TimestampCellData::new(left_cell))),
+            TimestampCellDataWrapper::from((field_type, TimestampCellData::new(right_cell))),
+          );
+          Some((Some(left_cell.into()), Some(right_cell.into())))
+        },
+        _ => None,
+      };
+
+      cmp_cell(
+        timestamp_cells
+          .as_ref()
+          .map_or_else(|| left.cells.get(&sort.field_id), |cell| cell.0.as_ref()),
+        timestamp_cells
+          .as_ref()
+          .map_or_else(|| right.cells.get(&sort.field_id), |cell| cell.1.as_ref()),
+        field_rev,
+        field_type,
+        cell_data_cache,
+        sort.condition,
+      )
+    },
   }
 }
 
@@ -270,13 +304,7 @@ fn cmp_cell(
   {
     None => default_order(),
     Some(handler) => {
-      let cal_order = || {
-        let order =
-          handler.handle_cell_compare(left_cell, right_cell, field.as_ref(), sort_condition);
-        Option::<Ordering>::Some(order)
-      };
-
-      cal_order().unwrap_or_else(default_order)
+      handler.handle_cell_compare(left_cell, right_cell, field.as_ref(), sort_condition)
     },
   }
 }

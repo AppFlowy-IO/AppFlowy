@@ -69,12 +69,12 @@
     "copyLink": "Copiar l'enllaç"
   },
   "moreAction": {
-    "small": "petit",
-    "medium": "mitjà",
-    "large": "gran",
     "fontSize": "Mida de la font",
     "import": "Importar",
-    "moreOptions": "Més opcions"
+    "moreOptions": "Més opcions",
+    "small": "petit",
+    "medium": "mitjà",
+    "large": "gran"
   },
   "importPanel": {
     "textAndMarkdown": "Text i rebaixa",
@@ -428,13 +428,13 @@
       "typeAValue": "Escriu un valor...",
       "layout": "Disseny",
       "databaseLayout": "Disseny",
-      "viewList": "Visualitzacions de la base de dades",
       "editView": "Edita la vista",
       "boardSettings": "Configuració del tauler",
       "calendarSettings": "Configuració del calendari",
       "createView": "Vista nova",
       "duplicateView": "Vista duplicada",
-      "deleteView": "Suprimeix la vista"
+      "deleteView": "Suprimeix la vista",
+      "viewList": "Visualitzacions de la base de dades"
     },
     "textFilter": {
       "contains": "Conté",

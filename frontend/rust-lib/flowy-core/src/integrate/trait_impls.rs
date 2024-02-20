@@ -24,9 +24,7 @@ use flowy_folder_pub::cloud::{
 use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
 use flowy_server_pub::supabase_config::SupabaseConfiguration;
 use flowy_storage::ObjectValue;
-use flowy_user_pub::cloud::{
-  UserCloudService, UserCloudServiceProvider, UserCloudServiceProviderBase,
-};
+use flowy_user_pub::cloud::{UserCloudService, UserCloudServiceProvider};
 use flowy_user_pub::entities::{Authenticator, UserTokenState};
 use lib_infra::future::{to_fut, Fut, FutureResult};
 
@@ -65,9 +63,8 @@ impl ObjectStorageService for ServerProvider {
     })
   }
 }
-impl UserCloudServiceProvider for ServerProvider {}
 
-impl UserCloudServiceProviderBase for ServerProvider {
+impl UserCloudServiceProvider for ServerProvider {
   fn set_token(&self, token: &str) -> Result<(), FlowyError> {
     let server = self.get_server()?;
     server.set_token(token)?;
@@ -181,7 +178,7 @@ impl FolderCloudService for ServerProvider {
     })
   }
 
-  fn get_collab_doc_state_f(
+  fn get_folder_doc_state(
     &self,
     workspace_id: &str,
     uid: i64,
@@ -194,12 +191,12 @@ impl FolderCloudService for ServerProvider {
     FutureResult::new(async move {
       server?
         .folder_service()
-        .get_collab_doc_state_f(&workspace_id, uid, collab_type, &object_id)
+        .get_folder_doc_state(&workspace_id, uid, collab_type, &object_id)
         .await
     })
   }
 
-  fn batch_create_collab_object_f(
+  fn batch_create_folder_collab_objects(
     &self,
     workspace_id: &str,
     objects: Vec<FolderCollabParams>,
@@ -209,7 +206,7 @@ impl FolderCloudService for ServerProvider {
     FutureResult::new(async move {
       server?
         .folder_service()
-        .batch_create_collab_object_f(&workspace_id, objects)
+        .batch_create_folder_collab_objects(&workspace_id, objects)
         .await
     })
   }
@@ -223,7 +220,7 @@ impl FolderCloudService for ServerProvider {
 }
 
 impl DatabaseCloudService for ServerProvider {
-  fn get_collab_doc_state_db(
+  fn get_database_object_doc_state(
     &self,
     object_id: &str,
     collab_type: CollabType,
@@ -235,12 +232,12 @@ impl DatabaseCloudService for ServerProvider {
     FutureResult::new(async move {
       server?
         .database_service()
-        .get_collab_doc_state_db(&database_id, collab_type, &workspace_id)
+        .get_database_object_doc_state(&database_id, collab_type, &workspace_id)
         .await
     })
   }
 
-  fn batch_get_collab_doc_state_db(
+  fn batch_get_database_object_doc_state(
     &self,
     object_ids: Vec<String>,
     object_ty: CollabType,
@@ -251,12 +248,12 @@ impl DatabaseCloudService for ServerProvider {
     FutureResult::new(async move {
       server?
         .database_service()
-        .batch_get_collab_doc_state_db(object_ids, object_ty, &workspace_id)
+        .batch_get_database_object_doc_state(object_ids, object_ty, &workspace_id)
         .await
     })
   }
 
-  fn get_collab_snapshots(
+  fn get_database_collab_object_snapshots(
     &self,
     object_id: &str,
     limit: usize,
@@ -266,7 +263,7 @@ impl DatabaseCloudService for ServerProvider {
     FutureResult::new(async move {
       server?
         .database_service()
-        .get_collab_snapshots(&database_id, limit)
+        .get_database_collab_object_snapshots(&database_id, limit)
         .await
     })
   }

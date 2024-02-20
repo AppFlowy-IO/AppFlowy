@@ -498,6 +498,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
                 title: LocaleKeys.disclosureAction_rename.tr(),
                 autoSelectAllText: true,
                 value: widget.view.name,
+                maxLength: 256,
                 confirm: (newValue) {
                   context.read<ViewBloc>().add(ViewEvent.rename(newValue));
                 },

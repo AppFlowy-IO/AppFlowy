@@ -1,11 +1,8 @@
-import { ThemeMode } from '$app/stores/reducers/current-user/slice';
 import { ThemeOptions } from '@mui/material';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-export const getDesignTokens = (mode: ThemeMode): ThemeOptions => {
-  const isDark = mode === ThemeMode.Dark;
-
+export const getDesignTokens = (isDark: boolean): ThemeOptions => {
   return {
     typography: {
       fontFamily: ['Poppins'].join(','),

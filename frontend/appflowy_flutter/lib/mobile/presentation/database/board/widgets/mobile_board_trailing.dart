@@ -20,6 +20,12 @@ class _MobileBoardTrailingState extends State<MobileBoardTrailing> {
   bool isEditing = false;
 
   @override
+  void dispose() {
+    _textController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
     final style = Theme.of(context);

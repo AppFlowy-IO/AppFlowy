@@ -139,7 +139,7 @@ class _ImportAppFlowyDataButtonState extends State<ImportAppFlowyDataButton> {
                 onTap: () async {
                   final path =
                       await getIt<FilePickerService>().getDirectoryPath();
-                  if (path == null || !mounted) {
+                  if (path == null || !context.mounted) {
                     return;
                   }
 

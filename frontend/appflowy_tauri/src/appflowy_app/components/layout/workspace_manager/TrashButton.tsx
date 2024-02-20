@@ -30,14 +30,14 @@ function TrashButton() {
       onDragLeave={onDragLeave}
       data-page-id={'trash'}
       onClick={navigateToTrash}
-      className={`mx-1 my-3 flex h-[32px] w-[100%] items-center rounded-lg p-2 hover:bg-fill-list-hover ${
+      className={`my-3 flex h-[32px] w-[100%] cursor-pointer items-center gap-2 rounded-lg p-3.5 text-xs font-medium hover:bg-fill-list-hover ${
         selected ? 'bg-fill-list-active' : ''
       } ${isDraggingOver ? 'bg-fill-list-hover' : ''}`}
     >
-      <div className='h-6 w-6'>
+      <div className='h-5 w-5'>
         <TrashSvg />
       </div>
-      <span className={'ml-2'}>{t('trash.text')}</span>
+      <span>{t('trash.text')}</span>
     </div>
   );
 }

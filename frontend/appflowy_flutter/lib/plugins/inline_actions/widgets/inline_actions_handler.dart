@@ -1,6 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_menu.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_result.dart';
@@ -10,6 +7,8 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 /// All heights are in physical pixels
 const double _groupTextHeight = 14; // 12 height + 2 bottom spacing
@@ -135,10 +134,17 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
   }
 
   @override
+  void dispose() {
+    _scrollController.dispose();
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Focus(
       focusNode: _focusNode,
-      onKey: onKey,
+      onKeyEvent: onKeyEvent,
       child: Container(
         constraints: BoxConstraints.loose(const Size(200, _menuHeight)),
         decoration: BoxDecoration(
@@ -201,11 +207,7 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
   InlineActionsMenuItem handlerOf(int groupIndex, int handlerIndex) =>
       results[groupIndex].results[handlerIndex];
 
-  KeyEventResult onKey(focus, event) {
-    if (event is! RawKeyDownEvent) {
-      return KeyEventResult.ignored;
-    }
-
+  KeyEventResult onKeyEvent(focus, KeyEvent event) {
     const moveKeys = [
       LogicalKeyboardKey.arrowUp,
       LogicalKeyboardKey.arrowDown,
@@ -341,7 +343,7 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
 
     if (key == LogicalKeyboardKey.arrowUp ||
         (key == LogicalKeyboardKey.tab &&
-            RawKeyboard.instance.isShiftPressed)) {
+            HardwareKeyboard.instance.isShiftPressed)) {
       if (_selectedIndex == 0 && _selectedGroup > 0) {
         _selectedGroup -= 1;
         _selectedIndex = lengthOfGroup(_selectedGroup) - 1;

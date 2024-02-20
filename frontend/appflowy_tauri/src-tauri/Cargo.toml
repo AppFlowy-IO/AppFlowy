@@ -34,18 +34,38 @@ lru = "0.12.0"
 [dependencies]
 serde_json.workspace = true
 serde.workspace = true
-tauri = { version = "1.5", features = ["clipboard-all", "fs-all", "shell-open"] }
+tauri = { version = "1.5", features = [
+    "clipboard-all",
+    "fs-all",
+    "shell-open",
+] }
 tauri-utils = "1.5.2"
 bytes.workspace = true
 tracing.workspace = true
-lib-dispatch = { path = "../../rust-lib/lib-dispatch", features = ["use_serde"] }
-flowy-core = { path = "../../rust-lib/flowy-core", features = ["rev-sqlite", "ts"] }
+lib-dispatch = { path = "../../rust-lib/lib-dispatch", features = [
+    "use_serde",
+] }
+flowy-core = { path = "../../rust-lib/flowy-core", features = [
+    "rev-sqlite",
+    "ts",
+] }
 flowy-user = { path = "../../rust-lib/flowy-user", features = ["tauri_ts"] }
 flowy-config = { path = "../../rust-lib/flowy-config", features = ["tauri_ts"] }
 flowy-date = { path = "../../rust-lib/flowy-date", features = ["tauri_ts"] }
-flowy-error = { path = "../../rust-lib/flowy-error", features = ["impl_from_sqlite", "impl_from_dispatch_error", "impl_from_appflowy_cloud", "impl_from_reqwest", "impl_from_serde", "tauri_ts"] }
-flowy-document = { path = "../../rust-lib/flowy-document", features = ["tauri_ts"] }
-flowy-notification = { path = "../../rust-lib/flowy-notification", features = ["tauri_ts"] }
+flowy-error = { path = "../../rust-lib/flowy-error", features = [
+    "impl_from_sqlite",
+    "impl_from_dispatch_error",
+    "impl_from_appflowy_cloud",
+    "impl_from_reqwest",
+    "impl_from_serde",
+    "tauri_ts",
+] }
+flowy-document = { path = "../../rust-lib/flowy-document", features = [
+    "tauri_ts",
+] }
+flowy-notification = { path = "../../rust-lib/flowy-notification", features = [
+    "tauri_ts",
+] }
 uuid = "1.5.0"
 
 [features]
@@ -62,7 +82,7 @@ custom-protocol = ["tauri/custom-protocol"]
 # Run the script:
 # scripts/tool/update_client_api_rev.sh  new_rev_id
 # ⚠️⚠️⚠️️
-client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "0875329a4311eca5376804a0b8e39dedddbbaadc" }
+client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "29a0851f485957cc6410ccf9d261c781c1d2f757" }
 # Please use the following script to update collab.
 # Working directory: frontend
 #
@@ -72,10 +92,10 @@ client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "087
 # To switch to the local path, run:
 # scripts/tool/update_collab_source.sh
 # ⚠️⚠️⚠️️
-collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "d00b477a9b844d86b5caeff573ca395dc5bf7198" }
-collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "d00b477a9b844d86b5caeff573ca395dc5bf7198" }
-collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "d00b477a9b844d86b5caeff573ca395dc5bf7198" }
-collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "d00b477a9b844d86b5caeff573ca395dc5bf7198" }
-collab-plugins = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "d00b477a9b844d86b5caeff573ca395dc5bf7198" }
-collab-user = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "d00b477a9b844d86b5caeff573ca395dc5bf7198" }
-collab-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "d00b477a9b844d86b5caeff573ca395dc5bf7198" }
+collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "2de6d172f56fed29ee6f32b82040cca4867647ac" }
+collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "2de6d172f56fed29ee6f32b82040cca4867647ac" }
+collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "2de6d172f56fed29ee6f32b82040cca4867647ac" }
+collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "2de6d172f56fed29ee6f32b82040cca4867647ac" }
+collab-plugins = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "2de6d172f56fed29ee6f32b82040cca4867647ac" }
+collab-user = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "2de6d172f56fed29ee6f32b82040cca4867647ac" }
+collab-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "2de6d172f56fed29ee6f32b82040cca4867647ac" }

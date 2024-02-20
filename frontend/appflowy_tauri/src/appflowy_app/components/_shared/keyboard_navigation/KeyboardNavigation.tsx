@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { MenuItem, Typography } from '@mui/material';
 import { scrollIntoView } from '$app/components/_shared/keyboard_navigation/utils';
-import { ReactEditor, useSlateStatic } from 'slate-react';
 import { useTranslation } from 'react-i18next';
 
 /**
@@ -35,7 +34,7 @@ export interface KeyboardNavigationOption<T = string> {
  *  - onBlur: called when the keyboard navigation is blurred
  */
 export interface KeyboardNavigationProps<T> {
-  scrollRef: React.RefObject<HTMLDivElement>;
+  scrollRef?: React.RefObject<HTMLDivElement>;
   focusRef?: React.RefObject<HTMLElement>;
   options: KeyboardNavigationOption<T>[];
   onSelected?: (optionKey: T) => void;
@@ -68,7 +67,6 @@ function KeyboardNavigation<T>({
   onFocus,
 }: KeyboardNavigationProps<T>) {
   const { t } = useTranslation();
-  const editor = useSlateStatic();
   const ref = useRef<HTMLDivElement>(null);
   const mouseY = useRef<number | null>(null);
   const defaultKeyRef = useRef<T | undefined>(defaultFocusedKey);
@@ -108,7 +106,7 @@ function KeyboardNavigation<T>({
     if (focusedKey === undefined) return;
     onSelected?.(focusedKey);
 
-    const scrollElement = scrollRef.current;
+    const scrollElement = scrollRef?.current;
 
     if (!scrollElement) return;
 
@@ -262,15 +260,15 @@ function KeyboardNavigation<T>({
       let element: HTMLElement | null | undefined = focusRef?.current;
 
       if (!element) {
-        element = ReactEditor.toDOMNode(editor, editor);
+        element = document.activeElement as HTMLElement;
       }
 
-      element.addEventListener('keydown', onKeyDown);
+      element?.addEventListener('keydown', onKeyDown);
       return () => {
         element?.removeEventListener('keydown', onKeyDown);
       };
     }
-  }, [disableFocus, editor, onKeyDown, focusRef]);
+  }, [disableFocus, onKeyDown, focusRef]);
 
   return (
     <div
