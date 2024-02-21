@@ -6,7 +6,7 @@ use collab_entity::reminder::Reminder;
 use collab_entity::CollabType;
 use collab_integrate::collab_builder::CollabBuilderConfig;
 use collab_user::core::{MutexUserAwareness, UserAwareness};
-use tracing::{error, trace};
+use tracing::{error, instrument, trace};
 
 use collab_integrate::CollabKVDB;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
@@ -123,6 +123,7 @@ impl UserManager {
   /// # Returns
   /// - Returns `Ok(())` if the user's awareness is successfully initialized.
   /// - May return errors of type `FlowyError` if any issues arise during the initialization.
+  #[instrument(level = "info", skip(self, session, source), err)]
   async fn try_initial_user_awareness(
     &self,
     session: &Session,
