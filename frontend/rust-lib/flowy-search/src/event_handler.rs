@@ -4,7 +4,7 @@ use flowy_error::{FlowyError, FlowyResult};
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
 
 use crate::{
-  entities::{RepeatedSearchResultPB, SearchQueryPB, SearchResultPB},
+  entities::{IndexTypePB, RepeatedSearchResultPB, SearchQueryPB, SearchResultPB},
   services::manager::SearchManager,
 };
 
@@ -35,13 +35,13 @@ pub(crate) async fn search_handler(
   let res = RepeatedSearchResultPB {
     items: vec![
       SearchResultPB {
-        index_type: "index_type".to_owned(),
+        index_type: IndexTypePB::View,
         view_id: "view_id".to_owned(),
         id: "id".to_owned(),
         data: "data".to_owned(),
       },
       SearchResultPB {
-        index_type: "index_type_2".to_owned(),
+        index_type: IndexTypePB::View,
         view_id: "view_id_2".to_owned(),
         id: "id_2".to_owned(),
         data: "data_2".to_owned(),

@@ -2042,6 +2042,7 @@ dependencies = [
  "futures",
  "lib-dispatch",
  "protobuf",
+ "serde",
  "serde_json",
  "strum_macros 0.26.1",
  "tantivy",

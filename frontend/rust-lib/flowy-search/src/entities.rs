@@ -15,10 +15,10 @@ pub struct RepeatedSearchResultPB {
   pub items: Vec<SearchResultPB>,
 }
 
-#[derive(Eq, PartialEq, ProtoBuf, Default, Debug, Clone)]
+#[derive(ProtoBuf, Default, Eq, PartialEq, Debug, Clone)]
 pub struct SearchResultPB {
   #[pb(index = 1)]
-  pub index_type: String,
+  pub index_type: IndexTypePB,
 
   #[pb(index = 2)]
   pub view_id: String,
@@ -28,6 +28,35 @@ pub struct SearchResultPB {
 
   #[pb(index = 4)]
   pub data: String,
+}
+
+#[derive(ProtoBuf_Enum, Eq, PartialEq, Debug, Clone)]
+pub enum IndexTypePB {
+  View = 0,
+  DocumentBlock = 1,
+  DatabaseRow = 2,
+}
+
+impl Default for IndexTypePB {
+  fn default() -> Self {
+    Self::View
+  }
+}
+
+impl std::convert::From<IndexTypePB> for i32 {
+  fn from(notification: IndexTypePB) -> Self {
+    notification as i32
+  }
+}
+
+impl std::convert::From<i32> for IndexTypePB {
+  fn from(notification: i32) -> Self {
+    match notification {
+      1 => IndexTypePB::View,
+      2 => IndexTypePB::DocumentBlock,
+      _ => IndexTypePB::DatabaseRow,
+    }
+  }
 }
 
 #[derive(Eq, PartialEq, ProtoBuf, Default, Debug, Clone)]

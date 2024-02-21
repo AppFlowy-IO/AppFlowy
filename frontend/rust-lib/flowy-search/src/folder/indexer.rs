@@ -1,4 +1,4 @@
-use std::{any::Any, fs, path::Path, sync::Weak};
+use std::{any::Any, collections::HashMap, fs, path::Path, sync::Weak};
 
 use crate::folder::schema::{FolderSchema, FOLDER_TITLE_FIELD_NAME};
 use collab::core::collab::{IndexContent, IndexContentReceiver};
@@ -16,7 +16,7 @@ use crate::{
   services::indexer::{IndexManager, IndexableData},
 };
 
-use super::schema::FOLDER_ID_FIELD_NAME;
+use super::{entities::FolderIndexData, schema::FOLDER_ID_FIELD_NAME};
 
 #[derive(Clone)]
 pub struct FolderIndexManager {
@@ -67,8 +67,19 @@ impl FolderIndexManager {
       .get_field(FOLDER_TITLE_FIELD_NAME)
       .unwrap();
 
+    let length = query.len();
+    let distance: u8 = if length > 4 {
+      2
+    } else if length > 2 {
+      1
+    } else {
+      0
+    };
+
+    tracing::warn!("Distance: {:?}", distance);
+
     let mut query_parser = QueryParser::for_index(&self.index.clone(), vec![title_field]);
-    query_parser.set_field_fuzzy(title_field, true, 2, true);
+    query_parser.set_field_fuzzy(title_field, true, distance, true);
     let built_query = query_parser.parse_query(&query.clone()).unwrap();
 
     let reader = self.index.reader().unwrap();
@@ -78,12 +89,26 @@ impl FolderIndexManager {
       .search(&built_query, &TopDocs::with_limit(10))
       .unwrap();
 
+    let mut search_results: Vec<SearchResultPB> = vec![];
     for (_score, doc_address) in top_docs {
       let retrieved_doc = searcher.doc(doc_address).unwrap();
-      println!("{}", self.folder_schema.schema.to_json(&retrieved_doc));
+
+      let mut content = HashMap::new();
+      let named_doc = self.folder_schema.schema.to_named_doc(&retrieved_doc);
+      for (k, v) in named_doc.0 {
+        content.insert(k, v[0].clone());
+      }
+
+      if content.len() == 0 {
+        continue;
+      }
+
+      let s = serde_json::to_string(&content)?;
+      let result: SearchResultPB = serde_json::from_str::<FolderIndexData>(&s).unwrap().into();
+      search_results.push(result);
     }
 
-    Ok(vec![])
+    Ok(search_results)
   }
 }
 
@@ -142,9 +167,11 @@ impl IndexManager for FolderIndexManager {
 
     // Add new index
     let _ = index_writer.add_document(doc![
-    id_field => data.id,
-    title_field => data.data,
+      id_field => data.id.clone(),
+      title_field => data.data,
     ]);
+
+    tracing::warn!("Updating index: {:?}", data.id.clone());
 
     index_writer.commit()?;
 

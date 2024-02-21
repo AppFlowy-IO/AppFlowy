@@ -24,6 +24,7 @@ protobuf.workspace = true
 bytes.workspace = true
 tracing.workspace = true
 futures.workspace = true
+serde.workspace = true
 serde_json.workspace = true
 lib-dispatch.workspace = true
 tokio = { workspace = true, features = ["full", "rt-multi-thread", "tracing"] }

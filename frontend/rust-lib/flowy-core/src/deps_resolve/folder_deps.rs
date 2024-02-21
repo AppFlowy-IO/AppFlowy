@@ -15,7 +15,6 @@ use flowy_document::parser::json::parser::JsonToDocumentParser;
 use flowy_error::FlowyError;
 use flowy_folder::entities::ViewLayoutPB;
 use flowy_folder::manager::{FolderManager, FolderUser};
-use flowy_folder::search::DocumentIndexContentGetter;
 use flowy_folder::share::ImportType;
 use flowy_folder::view_operation::{FolderOperationHandler, FolderOperationHandlers, View};
 use flowy_folder::ViewLayout;
@@ -437,19 +436,5 @@ pub fn layout_type_from_view_layout(layout: ViewLayoutPB) -> DatabaseLayoutPB {
     ViewLayoutPB::Board => DatabaseLayoutPB::Board,
     ViewLayoutPB::Calendar => DatabaseLayoutPB::Calendar,
     ViewLayoutPB::Document => DatabaseLayoutPB::Grid,
-  }
-}
-
-struct DocumentIndexContentGetterImpl(Arc<DocumentManager>);
-
-#[async_trait]
-impl DocumentIndexContentGetter for DocumentIndexContentGetterImpl {
-  async fn get_document_index_content(
-    &self,
-    doc_id: &str,
-  ) -> Result<DocumentIndexContent, FlowyError> {
-    let doc = self.0.get_document(doc_id).await?;
-    let index_data = DocumentIndexContent::from(&*doc);
-    Ok(index_data)
   }
 }
