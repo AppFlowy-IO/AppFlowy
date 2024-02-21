@@ -208,7 +208,13 @@ class _WorkspaceMenuItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FlowyButton(
-      onTap: () {},
+      onTap: () {
+        if (!isSelected) {
+          context.read<UserWorkspaceBloc>().add(
+                UserWorkspaceEvent.openWorkspace(workspace.workspaceId),
+              );
+        }
+      },
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
       rightIcon: isSelected
           ? const FlowySvg(

@@ -128,4 +128,9 @@ class UserBackendService {
       );
     });
   }
+
+  Future<Either<Unit, FlowyError>> deleteWorkspaceById(String workspaceId) {
+    final request = UserWorkspaceIdPB.create()..workspaceId = workspaceId;
+    return UserEventDeleteWorkspace(request).send();
+  }
 }

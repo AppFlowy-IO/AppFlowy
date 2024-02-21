@@ -35,6 +35,12 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
               ),
             );
           },
+          deleteWorkspace: (e) async {
+            await _deleteWorkspace(e.workspaceId, emit);
+          },
+          openWorkspace: (e) async {
+            await _openWorkspace(e.workspaceId, emit);
+          },
         );
       },
     );
@@ -93,6 +99,42 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
       ),
     );
   }
+
+  Future<void> _deleteWorkspace(
+    String workspaceId,
+    Emitter<UserWorkspaceState> emit,
+  ) async {
+    final result = await _userService.deleteWorkspaceById(workspaceId);
+    emit(
+      result.fold(
+        (workspace) {
+          return state.copyWith(successOrFailure: left(unit));
+        },
+        (error) {
+          Log.error(error);
+          return state.copyWith(successOrFailure: right(error));
+        },
+      ),
+    );
+  }
+
+  Future<void> _openWorkspace(
+    String workspaceId,
+    Emitter<UserWorkspaceState> emit,
+  ) async {
+    final result = await _userService.openWorkspace(workspaceId);
+    emit(
+      result.fold(
+        (workspace) {
+          return state.copyWith(successOrFailure: left(unit));
+        },
+        (error) {
+          Log.error(error);
+          return state.copyWith(successOrFailure: right(error));
+        },
+      ),
+    );
+  }
 }
 
 @freezed
@@ -100,6 +142,10 @@ class UserWorkspaceEvent with _$UserWorkspaceEvent {
   const factory UserWorkspaceEvent.initial() = Initial;
   const factory UserWorkspaceEvent.createWorkspace(String name, String desc) =
       CreateWorkspace;
+  const factory UserWorkspaceEvent.deleteWorkspace(String workspaceId) =
+      DeleteWorkspace;
+  const factory UserWorkspaceEvent.openWorkspace(String workspaceId) =
+      OpenWorkspace;
   const factory UserWorkspaceEvent.workspacesReceived(
     Either<List<UserWorkspacePB>, FlowyError> workspacesOrFail,
   ) = WorkspacesReceived;
