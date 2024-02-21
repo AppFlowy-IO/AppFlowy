@@ -791,10 +791,10 @@ impl DatabaseViewEditor {
       .await;
   }
 
-  pub async fn v_did_update_field_type(&self, field_id: &str, new_field_type: &FieldType) {
+  pub async fn v_did_update_field_type(&self, field_id: &str, new_field_type: FieldType) {
     self
       .calculations_controller
-      .did_receive_field_type_changed(field_id.to_owned(), new_field_type.to_owned())
+      .did_receive_field_type_changed(field_id.to_owned(), new_field_type)
       .await;
   }
 

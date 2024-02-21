@@ -82,7 +82,7 @@ where
     let field_type = FieldType::from(grouping_field.field_type);
     let type_option = grouping_field
       .get_type_option::<T>(&field_type)
-      .unwrap_or_else(|| T::from(default_type_option_data_from_type(&field_type)));
+      .unwrap_or_else(|| T::from(default_type_option_data_from_type(field_type)));
 
     // TODO(nathan): remove block_on
     let generated_groups = block_on(G::build(grouping_field, &configuration, &type_option));
