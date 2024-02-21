@@ -105,6 +105,14 @@ impl SortController {
     }
   }
 
+  pub async fn did_update_field_type(&self) {
+    if !self.sorts.is_empty() {
+      self
+        .gen_task(SortEvent::SortDidChanged, QualityOfService::Background)
+        .await;
+    }
+  }
+
   // #[tracing::instrument(name = "process_sort_task", level = "trace", skip_all, err)]
   pub async fn process(&mut self, predicate: &str) -> FlowyResult<()> {
     let event_type = SortEvent::from_str(predicate).unwrap();
