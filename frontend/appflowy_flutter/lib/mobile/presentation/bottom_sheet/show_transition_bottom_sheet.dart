@@ -12,9 +12,6 @@ Future<T?> showTransitionMobileBottomSheet<T>(
   BuildContext context, {
   required WidgetBuilder builder,
   bool useRootNavigator = false,
-  double? elevation,
-  BoxConstraints? constraints,
-  Color? barrierColor,
   EdgeInsets contentPadding = EdgeInsets.zero,
   Color? backgroundColor,
   // drag handle
@@ -65,7 +62,7 @@ Future<T?> showTransitionMobileBottomSheet<T>(
           children: [
             if (showDragHandle) const DragHandle(),
             if (showHeader) ...[
-              Header(
+              BottomSheetHeader(
                 showCloseButton: showCloseButton,
                 showBackButton: showBackButton,
                 showDoneButton: showDoneButton,
