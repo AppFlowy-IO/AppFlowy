@@ -6,14 +6,10 @@ use tokio::sync::broadcast;
 
 use crate::entities::{SearchResultNotificationPB, SearchResultPB};
 
-use super::{
-  indexer::IndexManager,
-  notifier::{SearchNotifier, SearchResultChanged, SearchResultReceiverRunner},
-};
+use super::notifier::{SearchNotifier, SearchResultChanged, SearchResultReceiverRunner};
 
 pub trait ISearchHandler: Send + Sync + 'static {
   fn perform_search(&self, query: String) -> FlowyResult<Vec<SearchResultPB>>;
-  fn get_index_manager(&self) -> Box<dyn IndexManager>;
 }
 
 /// The [SearchManager] is used to inject multiple [ISearchHandler]'s

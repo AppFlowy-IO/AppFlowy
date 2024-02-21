@@ -259,6 +259,9 @@ pub enum ErrorCode {
 
   #[error("Cloud request payload too large")]
   CloudRequestPayloadTooLarge = 90,
+
+  #[error("IndexWriter failed to commit")]
+  IndexWriterFailedCommit = 91,
 }
 
 impl ErrorCode {

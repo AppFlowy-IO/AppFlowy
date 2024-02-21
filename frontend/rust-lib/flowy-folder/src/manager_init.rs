@@ -1,6 +1,7 @@
 use collab_entity::CollabType;
 
 use collab_folder::{Folder, FolderNotify, UserId};
+use flowy_search::services::indexer::IndexManager;
 use tracing::{event, Level};
 
 use collab_integrate::CollabKVDB;
@@ -117,6 +118,10 @@ impl FolderManager {
     };
 
     let folder_state_rx = folder.subscribe_sync_state();
+    let index_content_rx = folder.subscribe_index_content();
+    self
+      .folder_indexer
+      .set_index_content_receiver(index_content_rx);
     *self.mutex_folder.lock() = Some(folder);
 
     let weak_mutex_folder = Arc::downgrade(&self.mutex_folder);

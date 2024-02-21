@@ -1953,6 +1953,7 @@ dependencies = [
  "serde",
  "serde_json",
  "serde_repr",
+ "tantivy",
  "thiserror",
  "tokio",
  "url",

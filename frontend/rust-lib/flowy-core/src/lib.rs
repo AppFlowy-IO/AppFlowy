@@ -1,7 +1,5 @@
 #![allow(unused_doc_comments)]
 
-use flowy_search::folder::handler::FolderSearchHandler;
-use flowy_search::folder::indexer::FolderIndexManager;
 use flowy_search::services::manager::SearchManager;
 use flowy_storage::ObjectStorageService;
 use std::sync::Arc;
@@ -166,13 +164,7 @@ impl AppFlowyCore {
       )
       .await;
 
-      // Init the search manager
-      // Setup Handlers + Indexers
-      let sqlite_indexer = SearchDepsResolver::resolve(Arc::downgrade(&authenticate_user)).await;
-      let folder_index_manager =
-        FolderIndexManager::new(Arc::downgrade(&authenticate_user), sqlite_indexer);
-      let folder_handler = FolderSearchHandler::new(Box::new(folder_index_manager));
-      let search_manager = Arc::new(SearchManager::new(vec![Arc::new(folder_handler)]));
+      let search_manager = SearchDepsResolver::resolve(Arc::downgrade(&authenticate_user)).await;
 
       (
         user_manager,

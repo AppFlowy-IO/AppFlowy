@@ -1,7 +1,5 @@
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 
-use crate::native::sqlite_search::SearchData;
-
 #[derive(Eq, PartialEq, ProtoBuf, Default, Debug, Clone)]
 pub struct SearchQueryPB {
   #[pb(index = 1)]
@@ -30,17 +28,6 @@ pub struct SearchResultPB {
 
   #[pb(index = 4)]
   pub data: String,
-}
-
-impl From<SearchData> for SearchResultPB {
-  fn from(value: SearchData) -> Self {
-    Self {
-      index_type: value.index_type,
-      view_id: value.view_id,
-      id: value.id,
-      data: value.data,
-    }
-  }
 }
 
 #[derive(Eq, PartialEq, ProtoBuf, Default, Debug, Clone)]
