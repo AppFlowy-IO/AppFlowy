@@ -163,7 +163,6 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
                   if (PlatformExtension.isMobile) {
                     showMobileBottomSheet(
                       context,
-                      resizeToAvoidBottomInset: false,
                       builder: (_) => DraggableScrollableSheet(
                         expand: false,
                         snap: true,
@@ -178,7 +177,7 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
                             children: [
                               ColoredBox(
                                 color: Theme.of(context).colorScheme.surface,
-                                child: const Center(child: DragHandler()),
+                                child: const Center(child: DragHandle()),
                               ),
                               const MobileDateHeader(),
                               MobileAppFlowyDatePicker(

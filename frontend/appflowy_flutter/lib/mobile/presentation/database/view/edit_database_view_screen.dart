@@ -231,7 +231,6 @@ class DatabaseViewSettingTile extends StatelessWidget {
       await showMobileBottomSheet(
         context,
         useSafeArea: false,
-        resizeToAvoidBottomInset: false,
         showDragHandle: true,
         showHeader: true,
         showBackButton: true,
@@ -257,7 +256,6 @@ class DatabaseViewSettingTile extends StatelessWidget {
     if (setting == DatabaseViewSettings.board) {
       await showMobileBottomSheet<DatabaseLayoutPB>(
         context,
-        resizeToAvoidBottomInset: false,
         builder: (context) {
           return Padding(
             padding: const EdgeInsets.only(top: 24, bottom: 46),

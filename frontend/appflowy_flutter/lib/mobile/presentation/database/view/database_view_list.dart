@@ -40,7 +40,7 @@ class MobileDatabaseViewList extends StatelessWidget {
 
             return Column(
               children: [
-                const DragHandler(),
+                const DragHandle(),
                 _Header(
                   title: LocaleKeys.grid_settings_viewList.plural(
                     context.watch<DatabaseTabBarBloc>().state.tabBars.length,

@@ -38,7 +38,6 @@ void showCreateFieldBottomSheet(
 }) {
   showMobileBottomSheet(
     context,
-    padding: EdgeInsets.zero,
     showHeader: true,
     showDragHandle: true,
     showCloseButton: true,
@@ -110,9 +109,7 @@ void showQuickEditField(
 ) {
   showMobileBottomSheet(
     context,
-    padding: EdgeInsets.zero,
     backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
-    resizeToAvoidBottomInset: true,
     showDragHandle: true,
     builder: (context) {
       return SingleChildScrollView(
