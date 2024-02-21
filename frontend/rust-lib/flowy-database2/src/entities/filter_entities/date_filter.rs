@@ -43,9 +43,8 @@ impl FromStr for DateFilterContentPB {
   }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum)]
+#[derive(Debug, Clone, Default, PartialEq, Eq, ProtoBuf_Enum)]
 #[repr(u8)]
-#[derive(Default)]
 pub enum DateFilterConditionPB {
   #[default]
   DateIs = 0,

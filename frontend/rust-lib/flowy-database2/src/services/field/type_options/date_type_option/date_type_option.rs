@@ -19,9 +19,6 @@ use crate::services::field::{
 };
 use crate::services::sort::SortCondition;
 
-/// The [DateTypeOption] is used by [FieldType::Date], [FieldType::LastEditedTime], and [FieldType::CreatedTime].
-/// So, storing the field type is necessary to distinguish the field type.
-/// Most of the cases, each [FieldType] has its own [TypeOption] implementation.
 #[derive(Clone, Debug, Serialize, Deserialize, Default)]
 pub struct DateTypeOption {
   pub date_format: DateFormat,
@@ -351,8 +348,7 @@ impl TypeOptionCellDataFilter for DateTypeOption {
     if !field_type.is_date() {
       return true;
     }
-
-    filter.is_visible(cell_data.timestamp)
+    filter.is_visible(cell_data).unwrap_or(true)
   }
 }
 
