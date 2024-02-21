@@ -105,6 +105,14 @@ impl SortController {
     }
   }
 
+  pub async fn did_update_field_type(&self) {
+    if !self.sorts.is_empty() {
+      self
+        .gen_task(SortEvent::SortDidChanged, QualityOfService::Background)
+        .await;
+    }
+  }
+
   // #[tracing::instrument(name = "process_sort_task", level = "trace", skip_all, err)]
   pub async fn process(&mut self, predicate: &str) -> FlowyResult<()> {
     let event_type = SortEvent::from_str(predicate).unwrap();
@@ -285,13 +293,13 @@ fn cmp_row(
   fields: &[Arc<Field>],
   cell_data_cache: &CellCache,
 ) -> Ordering {
-  let field_type = sort.field_type;
   match fields
     .iter()
     .find(|field_rev| field_rev.id == sort.field_id)
   {
     None => default_order(),
     Some(field_rev) => {
+      let field_type = field_rev.field_type.into();
       let timestamp_cells = match field_type {
         FieldType::LastEditedTime | FieldType::CreatedTime => {
           let (left_cell, right_cell) = if field_type.is_created_time() {

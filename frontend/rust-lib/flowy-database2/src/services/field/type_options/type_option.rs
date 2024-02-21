@@ -260,13 +260,13 @@ pub fn type_option_to_pb(type_option: TypeOptionData, field_type: &FieldType) ->
   }
 }
 
-pub fn default_type_option_data_from_type(field_type: &FieldType) -> TypeOptionData {
+pub fn default_type_option_data_from_type(field_type: FieldType) -> TypeOptionData {
   match field_type {
     FieldType::RichText => RichTextTypeOption::default().into(),
     FieldType::Number => NumberTypeOption::default().into(),
     FieldType::DateTime => DateTypeOption::default().into(),
     FieldType::LastEditedTime | FieldType::CreatedTime => TimestampTypeOption {
-      field_type: *field_type,
+      field_type,
       include_time: true,
       ..Default::default()
     }

@@ -374,7 +374,7 @@ impl DatabaseEditor {
   pub async fn switch_to_field_type(
     &self,
     field_id: &str,
-    new_field_type: &FieldType,
+    new_field_type: FieldType,
   ) -> FlowyResult<()> {
     let field = self.database.lock().fields.get_field(field_id);
     match field {
@@ -532,7 +532,7 @@ impl DatabaseEditor {
     let type_option_data = params
       .type_option_data
       .and_then(|data| type_option_data_from_pb(data, &params.field_type).ok())
-      .unwrap_or(default_type_option_data_from_type(&params.field_type));
+      .unwrap_or(default_type_option_data_from_type(params.field_type));
 
     let (index, field) = self.database.lock().create_field_with_mut(
       &params.view_id,

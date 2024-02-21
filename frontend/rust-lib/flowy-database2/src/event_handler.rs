@@ -254,7 +254,7 @@ pub(crate) async fn switch_to_field_handler(
   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
   let old_field = database_editor.get_field(&params.field_id);
   database_editor
-    .switch_to_field_type(&params.field_id, &params.field_type)
+    .switch_to_field_type(&params.field_id, params.field_type)
     .await?;
 
   if let Some(new_type_option) = database_editor

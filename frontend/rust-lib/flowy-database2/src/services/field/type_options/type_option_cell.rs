@@ -496,7 +496,7 @@ impl<'a> TypeOptionCellExt<'a> {
 
 pub fn transform_type_option(
   type_option_data: &TypeOptionData,
-  new_field_type: &FieldType,
+  new_field_type: FieldType,
   old_type_option_data: Option<TypeOptionData>,
   old_field_type: FieldType,
 ) -> TypeOptionData {
@@ -538,7 +538,7 @@ where
 }
 fn get_type_option_transform_handler(
   type_option_data: &TypeOptionData,
-  field_type: &FieldType,
+  field_type: FieldType,
 ) -> Box<dyn TypeOptionTransformHandler> {
   let type_option_data = type_option_data.clone();
   match field_type {

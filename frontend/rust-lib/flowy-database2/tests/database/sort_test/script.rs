@@ -79,7 +79,6 @@ impl DatabaseSortTest {
           view_id: self.view_id.clone(),
           field_id: field.id.clone(),
           sort_id: None,
-          field_type: FieldType::from(field.field_type),
           condition: condition.into(),
         };
         let _ = self.editor.create_or_update_sort(params).await.unwrap();

@@ -33,7 +33,7 @@ class _MobileChecklistCellEditScreenState
           return Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const DragHandler(),
+              const DragHandle(),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 child: _buildHeader(context),

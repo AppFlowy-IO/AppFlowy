@@ -60,7 +60,6 @@ class MobileDatabaseControls extends StatelessWidget {
               icon: FlowySvgs.m_field_hide_s,
               onTap: () => showMobileBottomSheet(
                 context,
-                resizeToAvoidBottomInset: false,
                 showDragHandle: true,
                 showHeader: true,
                 showBackButton: true,

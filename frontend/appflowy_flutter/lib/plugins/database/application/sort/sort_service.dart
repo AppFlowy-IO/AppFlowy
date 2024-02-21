@@ -31,7 +31,6 @@ class SortBackendService {
   }) {
     final insertSortPayload = UpdateSortPayloadPB.create()
       ..fieldId = fieldId
-      ..fieldType = fieldType
       ..viewId = viewId
       ..condition = condition
       ..sortId = sortId;
@@ -57,7 +56,6 @@ class SortBackendService {
   }) {
     final insertSortPayload = UpdateSortPayloadPB.create()
       ..fieldId = fieldId
-      ..fieldType = fieldType
       ..viewId = viewId
       ..condition = condition;
 
