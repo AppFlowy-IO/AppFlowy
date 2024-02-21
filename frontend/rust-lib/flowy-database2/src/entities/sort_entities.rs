@@ -1,7 +1,6 @@
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use validator::Validate;
 
-use crate::entities::FieldType;
 use crate::services::sort::{Sort, SortCondition};
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
@@ -13,9 +12,6 @@ pub struct SortPB {
   pub field_id: String,
 
   #[pb(index = 3)]
-  pub field_type: FieldType,
-
-  #[pb(index = 4)]
   pub condition: SortConditionPB,
 }
 
@@ -24,7 +20,6 @@ impl std::convert::From<&Sort> for SortPB {
     Self {
       id: sort.id.clone(),
       field_id: sort.field_id.clone(),
-      field_type: sort.field_type,
       condition: sort.condition.into(),
     }
   }
@@ -35,7 +30,6 @@ impl std::convert::From<Sort> for SortPB {
     Self {
       id: sort.id,
       field_id: sort.field_id,
-      field_type: sort.field_type,
       condition: sort.condition.into(),
     }
   }
@@ -109,15 +103,12 @@ pub struct UpdateSortPayloadPB {
   #[validate(custom = "lib_infra::validator_fn::required_not_empty_str")]
   pub field_id: String,
 
-  #[pb(index = 3)]
-  pub field_type: FieldType,
-
   /// Create a new sort if the sort_id is None
-  #[pb(index = 4, one_of)]
+  #[pb(index = 3, one_of)]
   #[validate(custom = "super::utils::validate_sort_id")]
   pub sort_id: Option<String>,
 
-  #[pb(index = 5)]
+  #[pb(index = 4)]
   pub condition: SortConditionPB,
 }
 

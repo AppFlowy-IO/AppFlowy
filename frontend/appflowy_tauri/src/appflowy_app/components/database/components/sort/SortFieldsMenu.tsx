@@ -18,7 +18,6 @@ const SortFieldsMenu: FC<
     async (event: MouseEvent, field: Field) => {
       await sortService.insertSort(viewId, {
         fieldId: field.id,
-        fieldType: field.type,
         condition: SortConditionPB.Ascending,
       });
       props.onClose?.({}, 'backdropClick');

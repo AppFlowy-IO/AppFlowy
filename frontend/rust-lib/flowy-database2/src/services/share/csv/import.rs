@@ -143,7 +143,7 @@ fn database_from_fields_and_rows(
 
 fn default_field(field_str: String, is_primary: bool) -> Field {
   let field_type = FieldType::RichText;
-  let type_option_data = default_type_option_data_from_type(&field_type);
+  let type_option_data = default_type_option_data_from_type(field_type);
   Field::new(gen_field_id(), field_str, field_type.into(), is_primary)
     .with_type_option_data(field_type, type_option_data)
 }

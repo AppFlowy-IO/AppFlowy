@@ -491,7 +491,6 @@ impl DatabaseViewEditor {
     let sort = Sort {
       id: sort_id,
       field_id: params.field_id.clone(),
-      field_type: params.field_type,
       condition: params.condition.into(),
     };
 
@@ -791,10 +790,16 @@ impl DatabaseViewEditor {
       .await;
   }
 
-  pub async fn v_did_update_field_type(&self, field_id: &str, new_field_type: &FieldType) {
+  pub async fn v_did_update_field_type(&self, field_id: &str, new_field_type: FieldType) {
+    self
+      .sort_controller
+      .read()
+      .await
+      .did_update_field_type()
+      .await;
     self
       .calculations_controller
-      .did_receive_field_type_changed(field_id.to_owned(), new_field_type.to_owned())
+      .did_receive_field_type_changed(field_id.to_owned(), new_field_type)
       .await;
   }
 
