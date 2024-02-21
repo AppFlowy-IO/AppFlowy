@@ -1,9 +1,7 @@
 use crate::entities::FieldType;
-use crate::services::cell::{FromCellChangeset, ToCellChangeset};
 use crate::services::field::{SelectOption, TypeOptionCellData, CELL_DATA};
 use collab::core::any_map::AnyMapExtension;
 use collab_database::rows::{new_cell_builder, Cell};
-use flowy_error::{internal_error, FlowyResult};
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 
@@ -76,28 +74,13 @@ impl From<ChecklistCellData> for Cell {
   }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Default)]
 pub struct ChecklistCellChangeset {
   /// List of option names that will be inserted
   pub insert_options: Vec<String>,
   pub selected_option_ids: Vec<String>,
   pub delete_option_ids: Vec<String>,
   pub update_options: Vec<SelectOption>,
-}
-
-impl FromCellChangeset for ChecklistCellChangeset {
-  fn from_changeset(changeset: String) -> FlowyResult<Self>
-  where
-    Self: Sized,
-  {
-    serde_json::from_str::<ChecklistCellChangeset>(&changeset).map_err(internal_error)
-  }
-}
-
-impl ToCellChangeset for ChecklistCellChangeset {
-  fn to_cell_changeset_str(&self) -> String {
-    serde_json::to_string(self).unwrap_or_default()
-  }
 }
 
 #[cfg(test)]

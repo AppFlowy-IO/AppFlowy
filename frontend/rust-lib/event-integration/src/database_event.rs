@@ -298,7 +298,7 @@ impl EventIntegrationTest {
       .error()
   }
 
-  pub async fn update_date_cell(&self, changeset: DateChangesetPB) -> Option<FlowyError> {
+  pub async fn update_date_cell(&self, changeset: DateCellChangesetPB) -> Option<FlowyError> {
     EventBuilder::new(self.clone())
       .event(DatabaseEvent::UpdateDateCell)
       .payload(changeset)

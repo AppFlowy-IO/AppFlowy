@@ -3,7 +3,7 @@ import {
   CellChangesetPB,
   SelectOptionCellChangesetPB,
   ChecklistCellDataChangesetPB,
-  DateChangesetPB,
+  DateCellChangesetPB,
   FieldType,
 } from '../../../../services/backend';
 import {
@@ -115,7 +115,7 @@ export async function updateDateCell(
     isRange?: boolean;
   }
 ): Promise<void> {
-  const payload = DateChangesetPB.fromObject({
+  const payload = DateCellChangesetPB.fromObject({
     cell_id: {
       view_id: viewId,
       row_id: rowId,

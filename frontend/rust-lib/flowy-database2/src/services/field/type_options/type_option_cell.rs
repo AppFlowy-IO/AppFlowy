@@ -11,7 +11,6 @@ use lib_infra::box_any::BoxAny;
 use crate::entities::FieldType;
 use crate::services::cell::{
   CellCache, CellDataChangeset, CellDataDecoder, CellFilterCache, CellProtobufBlob,
-  FromCellChangeset,
 };
 use crate::services::field::checklist_type_option::ChecklistTypeOption;
 use crate::services::field::{
@@ -26,9 +25,11 @@ pub const CELL_DATA: &str = "data";
 /// Each [FieldType] has its own [TypeOptionCellDataHandler].
 /// A helper trait that used to erase the `Self` of `TypeOption` trait to make it become a Object-safe trait
 /// Only object-safe traits can be made into trait objects.
-/// > Object-safe traits are traits with methods that follow these two rules:
-/// 1.the return type is not Self.
-/// 2.there are no generic types parameters.
+///
+/// Object-safe traits are traits with methods that follow these two rules:
+///
+/// 1. the return type is not Self.
+/// 2. there are no generic types parameters.
 ///
 pub trait TypeOptionCellDataHandler: Send + Sync + 'static {
   fn handle_cell_str(
@@ -38,10 +39,9 @@ pub trait TypeOptionCellDataHandler: Send + Sync + 'static {
     field_rev: &Field,
   ) -> FlowyResult<CellProtobufBlob>;
 
-  // TODO(nathan): replace cell_changeset with BoxAny to get rid of the serde process.
   fn handle_cell_changeset(
     &self,
-    cell_changeset: String,
+    cell_changeset: BoxAny,
     old_cell: Option<Cell>,
     field: &Field,
   ) -> FlowyResult<Cell>;
@@ -238,11 +238,11 @@ where
 
   fn handle_cell_changeset(
     &self,
-    cell_changeset: String,
+    cell_changeset: BoxAny,
     old_cell: Option<Cell>,
     field: &Field,
   ) -> FlowyResult<Cell> {
-    let changeset = <Self as TypeOption>::CellChangeset::from_changeset(cell_changeset)?;
+    let changeset = cell_changeset.unbox_or_error::<<Self as TypeOption>::CellChangeset>()?;
     let (cell, cell_data) = self.apply_changeset(changeset, old_cell)?;
     self.set_decoded_cell_data(&cell, cell_data, field);
     Ok(cell)
