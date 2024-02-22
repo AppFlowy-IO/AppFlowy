@@ -1,5 +1,5 @@
 import React, { FormEvent, useCallback } from 'react';
-import { ListSubheader, OutlinedInput } from '@mui/material';
+import { OutlinedInput } from '@mui/material';
 import { t } from 'i18next';
 
 function SearchInput({
@@ -23,27 +23,26 @@ function SearchInput({
   );
 
   return (
-    <ListSubheader className='flex'>
-      <OutlinedInput
-        size='small'
-        autoFocus={true}
-        value={newOptionName}
-        onInput={handleInput}
-        spellCheck={false}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter') {
-            onEnter();
-          }
+    <OutlinedInput
+      size='small'
+      className={'mx-4'}
+      autoFocus={true}
+      value={newOptionName}
+      onInput={handleInput}
+      spellCheck={false}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') {
+          onEnter();
+        }
 
-          if (e.key === 'Escape') {
-            e.stopPropagation();
-            e.preventDefault();
-            onEscape?.();
-          }
-        }}
-        placeholder={t('grid.selectOption.searchOrCreateOption')}
-      />
-    </ListSubheader>
+        if (e.key === 'Escape') {
+          e.stopPropagation();
+          e.preventDefault();
+          onEscape?.();
+        }
+      }}
+      placeholder={t('grid.selectOption.searchOrCreateOption')}
+    />
   );
 }
 

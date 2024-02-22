@@ -13,6 +13,7 @@ import DateTimeFormatSelect from '$app/components/database/components/field_type
 import DateTimeSet from '$app/components/database/components/field_types/date/DateTimeSet';
 import { useTypeOption } from '$app/components/database';
 import { getDateFormat, getTimeFormat } from '$app/components/database/components/field_types/date/utils';
+import { notify } from '$app/components/_shared/notify';
 
 function DateTimeCellActions({
   cell,
@@ -59,7 +60,7 @@ function DateTimeCellActions({
       try {
         const isRange = params.isRange ?? cell.data.isRange;
 
-        await updateDateCell(viewId, cell.rowId, cell.fieldId, {
+        const data = {
           date: params.date ?? timestamp,
           endDate: isRange ? params.endDate ?? endTimestamp : undefined,
           time: params.time ?? time,
@@ -67,9 +68,30 @@ function DateTimeCellActions({
           includeTime: params.includeTime ?? includeTime,
           isRange,
           clearFlag: params.clearFlag,
-        });
+        };
+
+        // if isRange and date is greater than endDate, swap date and endDate
+        if (
+          data.isRange &&
+          data.date &&
+          data.endDate &&
+          dayjs(dayjs.unix(data.date).format('YYYY/MM/DD ') + data.time).unix() >
+            dayjs(dayjs.unix(data.endDate).format('YYYY/MM/DD ') + data.endTime).unix()
+        ) {
+          if (params.date || params.time) {
+            data.endDate = data.date;
+            data.endTime = data.time;
+          }
+
+          if (params.endDate || params.endTime) {
+            data.date = data.endDate;
+            data.time = data.endTime;
+          }
+        }
+
+        await updateDateCell(viewId, cell.rowId, cell.fieldId, data);
       } catch (e) {
-        // TODO: handle error
+        notify.error(String(e));
       }
     },
     [cell, endTime, endTimestamp, includeTime, time, timestamp, viewId]

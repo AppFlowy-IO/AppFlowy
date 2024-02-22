@@ -1,4 +1,4 @@
-import { Divider, MenuList } from '@mui/material';
+import { Divider } from '@mui/material';
 import { FC, useCallback, useRef } from 'react';
 import { useViewId } from '$app/hooks';
 import { Field, fieldService } from '$app/application/database';
@@ -36,14 +36,6 @@ export const PropertyMenu: FC<GridFieldMenuProps> = ({ field, ...props }) => {
 
   return (
     <Popover
-      transformOrigin={{
-        vertical: -10,
-        horizontal: 'left',
-      }}
-      anchorOrigin={{
-        vertical: 'bottom',
-        horizontal: 'left',
-      }}
       keepMounted={false}
       onClick={(e) => e.stopPropagation()}
       onKeyDown={(e) => {
@@ -64,27 +56,25 @@ export const PropertyMenu: FC<GridFieldMenuProps> = ({ field, ...props }) => {
       {...props}
     >
       <PropertyNameInput ref={inputRef} id={field.id} name={field.name} />
-      <MenuList>
-        <div>
-          {!isPrimary && (
-            <>
-              <PropertyTypeSelect field={field} onUpdateFieldType={onUpdateFieldType} />
-              <Divider className={'my-2'} />
-            </>
-          )}
-          <PropertyTypeMenuExtension field={field} />
-          <PropertyActions
-            inputRef={inputRef}
-            onClose={() => props.onClose?.({}, 'backdropClick')}
-            isPrimary={isPrimary}
-            actions={actions}
-            onMenuItemClick={() => {
-              props.onClose?.({}, 'backdropClick');
-            }}
-            fieldId={field.id}
-          />
-        </div>
-      </MenuList>
+      <div className={'flex-1 overflow-y-auto overflow-x-hidden py-1'}>
+        {!isPrimary && (
+          <div className={'pt-2'}>
+            <PropertyTypeSelect field={field} onUpdateFieldType={onUpdateFieldType} />
+            <Divider className={'my-2'} />
+          </div>
+        )}
+        <PropertyTypeMenuExtension field={field} />
+        <PropertyActions
+          inputRef={inputRef}
+          onClose={() => props.onClose?.({}, 'backdropClick')}
+          isPrimary={isPrimary}
+          actions={actions}
+          onMenuItemClick={() => {
+            props.onClose?.({}, 'backdropClick');
+          }}
+          fieldId={field.id}
+        />
+      </div>
     </Popover>
   );
 };

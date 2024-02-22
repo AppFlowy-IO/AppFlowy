@@ -119,7 +119,7 @@ function SelectCellActions({
   }, [field.type, filteredOptions, handleNewTagClick, shouldCreateOption, updateCell]);
 
   return (
-    <div className={'text-base'}>
+    <div className={'flex h-full flex-col overflow-hidden'}>
       <SearchInput
         onEscape={onClose}
         setNewOptionName={setNewOptionName}
@@ -130,24 +130,26 @@ function SelectCellActions({
       <div className='mx-4 mb-2 mt-4 text-xs'>
         {shouldCreateOption ? t('grid.selectOption.createNew') : t('grid.selectOption.orSelectOne')}
       </div>
-      {shouldCreateOption ? (
-        <CreateOption label={newOptionName} onClick={handleNewTagClick} />
-      ) : (
-        <div className={'max-h-[300px] overflow-y-auto overflow-x-hidden px-2'}>
-          {filteredOptions.map((option) => (
-            <MenuItem className={'px-2'} key={option.id} value={option.id}>
-              <SelectOptionItem
-                onClick={() => {
-                  handleClickOption(option.id);
-                }}
-                isSelected={selectedOptionIds?.includes(option.id)}
-                fieldId={cell?.fieldId || ''}
-                option={option}
-              />
-            </MenuItem>
-          ))}
-        </div>
-      )}
+      <div className={'mx-1 flex-1 overflow-y-auto overflow-x-hidden'}>
+        {shouldCreateOption ? (
+          <CreateOption label={newOptionName} onClick={handleNewTagClick} />
+        ) : (
+          <div className={' px-2'}>
+            {filteredOptions.map((option) => (
+              <MenuItem className={'px-2'} key={option.id} value={option.id}>
+                <SelectOptionItem
+                  onClick={() => {
+                    handleClickOption(option.id);
+                  }}
+                  isSelected={selectedOptionIds?.includes(option.id)}
+                  fieldId={cell?.fieldId || ''}
+                  option={option}
+                />
+              </MenuItem>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

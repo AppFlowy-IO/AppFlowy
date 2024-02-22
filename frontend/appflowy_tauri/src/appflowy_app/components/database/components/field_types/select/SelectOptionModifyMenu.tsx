@@ -1,4 +1,4 @@
-import { FC, useRef, useState } from 'react';
+import { FC, useMemo, useRef, useState } from 'react';
 import { t } from 'i18next';
 import { Divider, ListSubheader, MenuItem, MenuList, MenuProps, OutlinedInput } from '@mui/material';
 import { SelectOptionColorPB } from '@/services/backend';
@@ -13,6 +13,7 @@ import {
 } from '$app/application/database/field/select_option/select_option_service';
 import { useViewId } from '$app/hooks';
 import Popover from '@mui/material/Popover';
+import debounce from 'lodash-es/debounce';
 
 interface SelectOptionMenuProps {
   fieldId: string;
@@ -45,15 +46,18 @@ export const SelectOptionModifyMenu: FC<SelectOptionMenuProps> = ({ fieldId, opt
     ]);
   };
 
-  const updateName = async () => {
-    if (tagName === option.name) return;
-    await insertOrUpdateSelectOption(viewId, fieldId, [
-      {
-        ...option,
-        name: tagName,
-      },
-    ]);
-  };
+  const updateName = useMemo(() => {
+    return debounce(async (tagName) => {
+      if (tagName === option.name) return;
+
+      await insertOrUpdateSelectOption(viewId, fieldId, [
+        {
+          ...option,
+          name: tagName,
+        },
+      ]);
+    }, 500);
+  }, [option, viewId, fieldId]);
 
   const onClose = () => {
     menuProps.onClose?.({}, 'backdropClick');
@@ -94,16 +98,13 @@ export const SelectOptionModifyMenu: FC<SelectOptionMenuProps> = ({ fieldId, opt
           value={tagName}
           onChange={(e) => {
             setTagName(e.target.value);
+            void updateName(e.target.value);
           }}
-          onBlur={updateName}
           onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              void updateName();
-            }
-
             if (e.key === 'Escape') {
               e.preventDefault();
               e.stopPropagation();
+              void updateName(tagName);
               onClose();
             }
           }}
