@@ -123,10 +123,7 @@ Future<T?> showMobileBottomSheet<T>(
       // make sure the keyboard won't cover the content
       children.add(
         Padding(
-          padding: EdgeInsets.only(
-            top: padding.top,
-            left: padding.left,
-            right: padding.right,
+          padding: padding.copyWith(
             bottom: padding.bottom + MediaQuery.of(context).viewInsets.bottom,
           ),
           child: child,
