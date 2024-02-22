@@ -165,7 +165,7 @@ class _MoreActionFooter extends StatelessWidget {
               color: Theme.of(context).hintColor,
               fontSize: 10,
             ),
-          ]
+          ],
         ],
       ),
     );
