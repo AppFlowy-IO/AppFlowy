@@ -3,7 +3,6 @@ import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/setting_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/sort_entities.pb.dart';
 
@@ -24,16 +23,15 @@ class SortBackendService {
   }
 
   Future<Either<Unit, FlowyError>> updateSort({
-    required String fieldId,
     required String sortId,
-    required FieldType fieldType,
+    required String fieldId,
     required SortConditionPB condition,
   }) {
     final insertSortPayload = UpdateSortPayloadPB.create()
-      ..fieldId = fieldId
       ..viewId = viewId
-      ..condition = condition
-      ..sortId = sortId;
+      ..sortId = sortId
+      ..fieldId = fieldId
+      ..condition = condition;
 
     final payload = DatabaseSettingChangesetPB.create()
       ..viewId = viewId
@@ -51,7 +49,6 @@ class SortBackendService {
 
   Future<Either<Unit, FlowyError>> insertSort({
     required String fieldId,
-    required FieldType fieldType,
     required SortConditionPB condition,
   }) {
     final insertSortPayload = UpdateSortPayloadPB.create()
@@ -90,7 +87,6 @@ class SortBackendService {
   Future<Either<Unit, FlowyError>> deleteSort({
     required String fieldId,
     required String sortId,
-    required FieldType fieldType,
   }) {
     final deleteSortPayload = DeleteSortPayloadPB.create()
       ..sortId = sortId
