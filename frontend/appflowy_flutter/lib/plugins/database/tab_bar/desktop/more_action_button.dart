@@ -8,8 +8,7 @@ import 'package:appflowy/workspace/application/settings/date_time/date_format_ex
 import 'package:appflowy/workspace/application/view_info/view_info_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/view_actions_top_bar/view_actions.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/date_time.pbenum.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -17,16 +16,16 @@ import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class DocumentMoreButton extends StatefulWidget {
-  const DocumentMoreButton({super.key, required this.view});
+class DatabaseMoreAction extends StatefulWidget {
+  const DatabaseMoreAction({super.key, required this.view});
 
   final ViewPB view;
 
   @override
-  State<DocumentMoreButton> createState() => _DocumentMoreButtonState();
+  State<DatabaseMoreAction> createState() => _DatabaseMoreActionState();
 }
 
-class _DocumentMoreButtonState extends State<DocumentMoreButton> {
+class _DatabaseMoreActionState extends State<DatabaseMoreAction> {
   late final UserDateFormatPB dateFormat;
   final popoverMutex = PopoverMutex();
 
@@ -54,13 +53,10 @@ class _DocumentMoreButtonState extends State<DocumentMoreButton> {
             offset: const Offset(0, 30),
             popupBuilder: (_) {
               final actions = [
-                const FontSizeAction(),
-                const Divider(height: 4),
                 DuplicateViewAction(view: widget.view, mutex: popoverMutex),
                 DeleteViewAction(view: widget.view, mutex: popoverMutex),
                 _MoreActionFooter(
                   dateFormat: dateFormat,
-                  documentCounters: state.documentCounters,
                   createdAt: state.createdAt,
                 ),
               ];
@@ -97,17 +93,15 @@ class _DocumentMoreButtonState extends State<DocumentMoreButton> {
 class _MoreActionFooter extends StatelessWidget {
   const _MoreActionFooter({
     required this.dateFormat,
-    this.documentCounters,
     this.createdAt,
   });
 
   final UserDateFormatPB dateFormat;
-  final Counters? documentCounters;
   final DateTime? createdAt;
 
   @override
   Widget build(BuildContext context) {
-    if (documentCounters == null && createdAt == null) {
+    if (createdAt == null) {
       return const SizedBox.shrink();
     }
 
@@ -116,33 +110,9 @@ class _MoreActionFooter extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Divider(height: 4),
-          const VSpace(2),
-          if (documentCounters != null) ...[
-            FlowyText(
-              LocaleKeys.moreAction_wordCount.tr(
-                args: [
-                  documentCounters!.wordCount.toString(),
-                ],
-              ),
-              color: Theme.of(context).hintColor,
-              fontSize: 10,
-            ),
-            const VSpace(2),
-            FlowyText(
-              LocaleKeys.moreAction_charCount.tr(
-                args: [
-                  documentCounters!.charCount.toString(),
-                ],
-              ),
-              color: Theme.of(context).hintColor,
-              fontSize: 10,
-            ),
-          ],
-          if (documentCounters != null && createdAt != null) ...[
-            const VSpace(2),
-          ],
           if (createdAt != null) ...[
+            const Divider(height: 2),
+            const VSpace(2),
             FlowyText(
               LocaleKeys.moreAction_createdAt.tr(
                 args: [

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/application/tab_bar_bloc.dart';
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
+import 'package:appflowy/plugins/database/tab_bar/desktop/more_action_button.dart';
 import 'package:appflowy/plugins/database/widgets/share_button.dart';
 import 'package:appflowy/plugins/util.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
@@ -11,7 +12,7 @@ import 'package:appflowy/workspace/presentation/widgets/tab_bar_item.dart';
 import 'package:appflowy/workspace/presentation/widgets/view_title_bar.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'desktop/tab_bar_header.dart';
@@ -240,9 +241,15 @@ class DatabasePluginWidgetBuilder extends PluginWidgetBuilder {
 
   @override
   Widget? get rightBarItem {
-    return DatabaseShareButton(
-      key: ValueKey(notifier.view.id),
-      view: notifier.view,
+    return Row(
+      children: [
+        DatabaseShareButton(
+          key: ValueKey(notifier.view.id),
+          view: notifier.view,
+        ),
+        const HSpace(4),
+        DatabaseMoreAction(view: notifier.view),
+      ],
     );
   }
 }
