@@ -3,6 +3,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_setting.dart';
+import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy/workspace/presentation/notifications/widgets/notification_button.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
@@ -104,6 +105,7 @@ class _WorkspaceWrapper extends StatelessWidget {
     if (PlatformExtension.isDesktopOrWeb) {
       return AppFlowyPopover(
         direction: PopoverDirection.bottomWithCenterAligned,
+        clickHandler: PopoverClickHandler.gestureDetector,
         popupBuilder: (_) {
           return BlocProvider<UserWorkspaceBloc>.value(
             value: context.read<UserWorkspaceBloc>(),
@@ -216,26 +218,36 @@ class _WorkspaceMenuItem extends StatelessWidget {
         }
       },
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-      rightIcon: isSelected
-          ? const FlowySvg(
-              FlowySvgs.check_s,
-              size: Size.square(16),
-            )
-          : null,
-      text: Row(
-        children: [
-          const EmojiText(
-            emoji: '🐻',
-            fontSize: 24,
-            textAlign: TextAlign.center,
-          ),
-          const HSpace(12.0),
-          FlowyText.medium(
-            workspace.name,
-            fontSize: 14.0,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
+      rightIcon: _buildRightIcon(context),
+      text: FlowyText.medium(
+        workspace.name,
+        fontSize: 14.0,
+        overflow: TextOverflow.ellipsis,
+        color: isSelected ? null : Theme.of(context).hintColor,
+      ),
+    );
+  }
+
+  Widget _buildRightIcon(BuildContext context) {
+    final shouldDisableDelete = workspace.name == 'My Workspace';
+    return GestureDetector(
+      onTap: () {
+        if (shouldDisableDelete) {
+          showSnackBarMessage(
+            context,
+            'You cannot delete the default workspace.',
+          );
+          return;
+        }
+
+        context.read<UserWorkspaceBloc>().add(
+              UserWorkspaceEvent.deleteWorkspace(workspace.workspaceId),
+            );
+      },
+      child: FlowySvg(
+        FlowySvgs.delete_s,
+        size: const Size.square(16.0),
+        color: isSelected ? null : Theme.of(context).hintColor,
       ),
     );
   }
