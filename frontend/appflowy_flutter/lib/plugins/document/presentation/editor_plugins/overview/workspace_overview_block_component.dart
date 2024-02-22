@@ -104,10 +104,57 @@ class _OverviewBlockWidgetState extends State<WorkspaceOverviewBlockWidget>
   late final Animation<double> _curvedAnimationExpansionController;
   static const _expansionAnimationDuration = Duration(milliseconds: 400);
 
+  late Future<Either<ViewPB, FlowyError>>? _future;
+
   @override
   void initState() {
     super.initState();
+    _future = ViewBackendService.getAllLevelOfViews(viewId);
     _prepareAnimations();
+  }
+
+  @override
+  void didUpdateWidget(WorkspaceOverviewBlockWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _runExpandCheck();
+  }
+
+  @override
+  void dispose() {
+    _expansionController.stop();
+    _expansionController.dispose();
+    _isExpandedNotifier.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<Either<ViewPB, FlowyError>>(
+      future: _future,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.done &&
+            snapshot.hasData &&
+            snapshot.data != null) {
+          final view = snapshot.data!.getLeftOrNull<ViewPB>();
+          if (view == null) return _buildErrorWidget(viewId);
+
+          return BlocProvider<WorkspaceOverviewBloc>(
+            create: (context) => WorkspaceOverviewBloc(view: view)
+              ..add(const WorkspaceOverviewEvent.initial()),
+            child: BlocBuilder<WorkspaceOverviewBloc, WorkspaceOverviewState>(
+              builder: (context, state) {
+                return _buildOverviewBlock(
+                  state.view,
+                );
+              },
+            ),
+          );
+        } else if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        return _buildErrorWidget(viewId);
+      },
+    );
   }
 
   void _prepareAnimations() {
@@ -131,47 +178,6 @@ class _OverviewBlockWidgetState extends State<WorkspaceOverviewBlockWidget>
     } else {
       _expansionController.reverse();
     }
-  }
-
-  @override
-  void didUpdateWidget(WorkspaceOverviewBlockWidget oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    _runExpandCheck();
-  }
-
-  @override
-  void dispose() {
-    _expansionController.stop();
-    _expansionController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder<Either<ViewPB, FlowyError>>(
-      future: ViewBackendService.getAllLevelOfViews(viewId),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.done &&
-            snapshot.hasData &&
-            snapshot.data != null) {
-          final view = snapshot.data!.getLeftOrNull<ViewPB>();
-          if (view == null) return _buildErrorWidget(viewId);
-
-          return BlocProvider<WorkspaceOverviewBloc>(
-            create: (context) => WorkspaceOverviewBloc(view: view)
-              ..add(const WorkspaceOverviewEvent.initial()),
-            child: BlocBuilder<WorkspaceOverviewBloc, WorkspaceOverviewState>(
-              builder: (context, state) {
-                return _buildOverviewBlock(
-                  state.view,
-                );
-              },
-            ),
-          );
-        } else if (snapshot.connectionState == ConnectionState.waiting) {/**/}
-        return _buildErrorWidget(viewId);
-      },
-    );
   }
 
   Widget _buildErrorWidget(String id) {
