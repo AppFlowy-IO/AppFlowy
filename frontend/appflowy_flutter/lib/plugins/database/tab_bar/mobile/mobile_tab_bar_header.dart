@@ -1,5 +1,5 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy/mobile/presentation/bottom_sheet/show_mobile_bottom_sheet.dart';
+import 'package:appflowy/mobile/presentation/bottom_sheet/show_transition_bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/database/view/database_view_list.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
 import 'package:appflowy/plugins/database/application/tab_bar_bloc.dart';
@@ -108,9 +108,10 @@ class _DatabaseViewSelectorButton extends StatelessWidget {
             ],
           ),
           onPressed: () {
-            showMobileBottomSheet(
+            showTransitionMobileBottomSheet(
               context,
               showDivider: false,
+              initialStop: 1.0,
               builder: (_) {
                 return MultiBlocProvider(
                   providers: [

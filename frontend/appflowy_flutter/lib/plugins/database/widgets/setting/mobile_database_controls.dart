@@ -58,9 +58,8 @@ class MobileDatabaseControls extends StatelessWidget {
 
             return _DatabaseControlButton(
               icon: FlowySvgs.m_field_hide_s,
-              onTap: () => showMobileBottomSheet(
+              onTap: () => showTransitionMobileBottomSheet(
                 context,
-                showDragHandle: true,
                 showHeader: true,
                 showBackButton: true,
                 title: LocaleKeys.grid_settings_properties.tr(),

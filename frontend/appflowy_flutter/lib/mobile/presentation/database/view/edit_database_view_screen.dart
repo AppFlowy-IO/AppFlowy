@@ -33,8 +33,7 @@ class MobileEditDatabaseViewScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<ViewBloc, ViewState>(
       builder: (context, state) {
-        return ListView(
-          shrinkWrap: true,
+        return Column(
           children: [
             _NameAndIcon(view: state.view),
             _divider(),
@@ -91,13 +90,15 @@ class _NameAndIconState extends State<_NameAndIcon> {
 
   @override
   Widget build(BuildContext context) {
-    return FlowyOptionTile.textField(
-      autofocus: true,
-      showTopBorder: false,
-      controller: textEditingController,
-      onTextChanged: (text) {
-        context.read<ViewBloc>().add(ViewEvent.rename(text));
-      },
+    return Material(
+      child: FlowyOptionTile.textField(
+        autofocus: true,
+        showTopBorder: false,
+        controller: textEditingController,
+        onTextChanged: (text) {
+          context.read<ViewBloc>().add(ViewEvent.rename(text));
+        },
+      ),
     );
   }
 }
@@ -228,18 +229,12 @@ class DatabaseViewSettingTile extends StatelessWidget {
     }
 
     if (setting == DatabaseViewSettings.fields) {
-      await showMobileBottomSheet(
+      await showTransitionMobileBottomSheet(
         context,
-        useSafeArea: false,
-        showDragHandle: true,
         showHeader: true,
         showBackButton: true,
         title: LocaleKeys.grid_settings_properties.tr(),
         showDivider: true,
-        enableDraggableScrollable: true,
-        initialChildSize: 0.98,
-        minChildSize: 0.98,
-        maxChildSize: 0.98,
         builder: (_) {
           return BlocProvider.value(
             value: context.read<ViewBloc>(),
