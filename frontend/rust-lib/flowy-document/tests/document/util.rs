@@ -197,7 +197,7 @@ impl CollabCloudPluginProvider for DefaultCollabStorageProvider {
     CollabPluginProviderType::Local
   }
 
-  fn get_plugins(&self, _context: CollabPluginProviderContext) -> Fut<Vec<Arc<dyn CollabPlugin>>> {
+  fn get_plugins(&self, _context: CollabPluginProviderContext) -> Fut<Vec<Box<dyn CollabPlugin>>> {
     to_fut(async move { vec![] })
   }
 

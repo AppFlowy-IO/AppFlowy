@@ -1528,7 +1528,9 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
     self
       .database
       .lock()
-      .get_filter_by_field_id::<Filter>(view_id, field_id)
+      .get_all_filters::<Filter>(view_id)
+      .into_iter()
+      .find(|filter| filter.field_id == field_id)
   }
 
   fn get_layout_setting(&self, view_id: &str, layout_ty: &DatabaseLayout) -> Option<LayoutSetting> {
