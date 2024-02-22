@@ -22,9 +22,11 @@ class ViewInfoBloc extends Bloc<ViewInfoEvent, ViewInfoState> {
           _wordCountService!.addListener(_onWordCountChanged);
           _wordCountService!.register();
 
-          emit(state.copyWith(
-            documentCounters: _wordCountService!.documentCounters,
-          ));
+          emit(
+            state.copyWith(
+              documentCounters: _wordCountService!.documentCounters,
+            ),
+          );
         },
         reset: () {
           _wordCountService?.removeListener(_onWordCountChanged);
