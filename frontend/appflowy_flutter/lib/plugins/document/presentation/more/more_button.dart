@@ -5,7 +5,10 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
 import 'package:appflowy/plugins/document/presentation/more/font_size_slider.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
+import 'package:appflowy/workspace/application/settings/date_time/date_format_ext.dart';
 import 'package:appflowy/workspace/application/view_info/view_info_bloc.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -20,6 +23,8 @@ class DocumentMoreButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final dateFormat = context.read<AppearanceSettingsCubit>().state.dateFormat;
+
     return BlocProvider.value(
       value: getIt<ViewInfoBloc>(),
       child: BlocBuilder<ViewInfoBloc, ViewInfoState>(
@@ -66,9 +71,11 @@ class DocumentMoreButton extends StatelessWidget {
                     hoverColor: AFThemeExtension.of(context).lightGreyHover,
                   ),
                 ),
-                if (state.documentCounters != null) ...[
-                  MoreActionFooter(documentCounters: state.documentCounters!),
-                ],
+                _MoreActionFooter(
+                  dateFormat: dateFormat,
+                  documentCounters: state.documentCounters,
+                  createdAt: state.createdAt,
+                ),
               ];
 
               return ListView.separated(
@@ -100,13 +107,23 @@ class DocumentMoreButton extends StatelessWidget {
   }
 }
 
-class MoreActionFooter extends StatelessWidget {
-  const MoreActionFooter({super.key, required this.documentCounters});
+class _MoreActionFooter extends StatelessWidget {
+  const _MoreActionFooter({
+    required this.dateFormat,
+    this.documentCounters,
+    this.createdAt,
+  });
 
-  final Counters documentCounters;
+  final UserDateFormatPB dateFormat;
+  final Counters? documentCounters;
+  final DateTime? createdAt;
 
   @override
   Widget build(BuildContext context) {
+    if (documentCounters == null && createdAt == null) {
+      return const SizedBox.shrink();
+    }
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 6),
       child: Column(
@@ -114,25 +131,41 @@ class MoreActionFooter extends StatelessWidget {
         children: [
           const Divider(height: 4),
           const VSpace(2),
-          FlowyText(
-            LocaleKeys.moreAction_wordCount.tr(
-              args: [
-                documentCounters.wordCount.toString(),
-              ],
+          if (documentCounters != null) ...[
+            FlowyText(
+              LocaleKeys.moreAction_wordCount.tr(
+                args: [
+                  documentCounters!.wordCount.toString(),
+                ],
+              ),
+              color: Theme.of(context).hintColor,
+              fontSize: 10,
             ),
-            color: Theme.of(context).hintColor,
-            fontSize: 10,
-          ),
-          const VSpace(2),
-          FlowyText(
-            LocaleKeys.moreAction_charCount.tr(
-              args: [
-                documentCounters.charCount.toString(),
-              ],
+            const VSpace(2),
+            FlowyText(
+              LocaleKeys.moreAction_charCount.tr(
+                args: [
+                  documentCounters!.charCount.toString(),
+                ],
+              ),
+              color: Theme.of(context).hintColor,
+              fontSize: 10,
             ),
-            color: Theme.of(context).hintColor,
-            fontSize: 10,
-          ),
+          ],
+          if (documentCounters != null && createdAt != null) ...[
+            const VSpace(2),
+          ],
+          if (createdAt != null) ...[
+            FlowyText(
+              LocaleKeys.moreAction_createdAt.tr(
+                args: [
+                  dateFormat.formatDate(createdAt!, false),
+                ],
+              ),
+              color: Theme.of(context).hintColor,
+              fontSize: 10,
+            ),
+          ]
         ],
       ),
     );

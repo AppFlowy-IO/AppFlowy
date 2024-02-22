@@ -80,7 +80,8 @@
     "import": "Import",
     "moreOptions": "More options",
     "wordCount": "Word count: {}",
-    "charCount": "Character count: {}"
+    "charCount": "Character count: {}",
+    "createdAt": "Created at: {}"
   },
   "importPanel": {
     "textAndMarkdown": "Text & Markdown",

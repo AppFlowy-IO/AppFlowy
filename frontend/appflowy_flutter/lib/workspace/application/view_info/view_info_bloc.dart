@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/util/int64_extension.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -28,10 +29,12 @@ class ViewInfoBloc extends Bloc<ViewInfoEvent, ViewInfoState> {
             ),
           );
         },
-        reset: () {
+        reset: (ViewPB? view) {
           _wordCountService?.removeListener(_onWordCountChanged);
           _wordCountService?.dispose();
-          emit(ViewInfoState.initial());
+
+          final createdAt = view?.createTime.toDateTime();
+          emit(ViewInfoState.initial().copyWith(createdAt: createdAt));
         },
         wordCountChanged: () {
           emit(
@@ -58,7 +61,7 @@ class ViewInfoBloc extends Bloc<ViewInfoEvent, ViewInfoState> {
   }
 
   void _onLatestViewChanged(ViewPB? view) {
-    add(const ViewInfoEvent.reset());
+    add(ViewInfoEvent.reset(view: view));
   }
 
   void _onWordCountChanged() {
@@ -74,7 +77,9 @@ class ViewInfoEvent with _$ViewInfoEvent {
     required EditorState editorState,
   }) = _RegisterEditorState;
 
-  const factory ViewInfoEvent.reset() = _Reset;
+  const factory ViewInfoEvent.reset({
+    required ViewPB? view,
+  }) = _Reset;
 
   const factory ViewInfoEvent.wordCountChanged() = _WordCountChanged;
 }
