@@ -167,6 +167,20 @@ impl UserManager {
     Ok(new_workspace)
   }
 
+  pub async fn rename_workspace(
+    &self,
+    workspace_id: String,
+    new_workspace_name: String,
+  ) -> FlowyResult<()> {
+    self
+      .cloud_services
+      .get_user_service()?
+      .rename_workspace(&workspace_id, &new_workspace_name)
+      .await?;
+
+    Ok(())
+  }
+
   pub async fn delete_workspace(&self, workspace_id: &str) -> FlowyResult<()> {
     self
       .cloud_services

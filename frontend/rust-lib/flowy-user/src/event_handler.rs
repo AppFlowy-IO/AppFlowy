@@ -683,3 +683,16 @@ pub async fn delete_workspace_handler(
   manager.delete_workspace(&workspace_id).await?;
   Ok(())
 }
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn rename_workspace_handler(
+  rename_workspace_param: AFPluginData<RenameWorkspacePB>,
+  manager: AFPluginState<Weak<UserManager>>,
+) -> Result<(), FlowyError> {
+  let params = rename_workspace_param.try_into_inner()?;
+  let manager = upgrade_manager(manager)?;
+  manager
+    .rename_workspace(params.workspace_id, params.new_name)
+    .await?;
+  Ok(())
+}

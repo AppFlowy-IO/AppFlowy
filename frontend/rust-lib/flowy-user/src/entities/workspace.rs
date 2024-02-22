@@ -116,3 +116,14 @@ pub struct CreateWorkspacePB {
   #[validate(custom = "required_not_empty_str")]
   pub name: String,
 }
+
+#[derive(ProtoBuf, Default, Clone, Validate)]
+pub struct RenameWorkspacePB {
+  #[pb(index = 1)]
+  #[validate(custom = "required_not_empty_str")]
+  pub workspace_id: String,
+
+  #[pb(index = 2)]
+  #[validate(custom = "required_not_empty_str")]
+  pub new_name: String,
+}

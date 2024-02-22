@@ -3,7 +3,7 @@ use std::sync::Arc;
 
 use anyhow::{anyhow, Error};
 use client_api::entity::workspace_dto::{
-  CreateWorkspaceMember, CreateWorkspaceParam, WorkspaceMemberChangeset,
+  CreateWorkspaceMember, CreateWorkspaceParam, PatchWorkspaceParam, WorkspaceMemberChangeset,
 };
 use client_api::entity::{AFRole, AFWorkspace, AuthProvider, CollabParams, CreateCollabParams};
 use client_api::{Client, ClientConfiguration};
@@ -16,6 +16,7 @@ use flowy_user_pub::cloud::{UserCloudService, UserCollabParams, UserUpdate, User
 use flowy_user_pub::entities::*;
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
+use uuid::Uuid;
 
 use crate::af_cloud::define::USER_SIGN_IN_URL;
 use crate::af_cloud::impls::user::dto::{
@@ -308,6 +309,26 @@ where
         })
         .await?;
       Ok(to_user_workspace(new_workspace))
+    })
+  }
+
+  fn rename_workspace(
+    &self,
+    workspace_id: &str,
+    workspace_name: &str,
+  ) -> FutureResult<(), FlowyError> {
+    let try_get_client = self.server.try_get_client();
+    let workspace_id: Uuid = workspace_id.parse().unwrap();
+    let new_workspace_name = Some(workspace_name.to_string());
+    FutureResult::new(async move {
+      let client = try_get_client?;
+      client
+        .patch_workspace(PatchWorkspaceParam {
+          workspace_id,
+          workspace_name: new_workspace_name,
+        })
+        .await?;
+      Ok(())
     })
   }
 

@@ -364,6 +364,19 @@ where
     })
   }
 
+  fn rename_workspace(
+    &self,
+    _workspace_id: &str,
+    _workspace_name: &str,
+  ) -> FutureResult<(), FlowyError> {
+    FutureResult::new(async {
+      Err(
+        FlowyError::local_version_not_support()
+          .with_context("supabase server doesn't support mulitple workspaces"),
+      )
+    })
+  }
+
   fn delete_workspace(&self, _workspace_id: &str) -> FutureResult<(), FlowyError> {
     FutureResult::new(async {
       Err(
