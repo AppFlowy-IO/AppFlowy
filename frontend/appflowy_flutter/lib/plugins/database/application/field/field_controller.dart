@@ -289,7 +289,7 @@ class FieldController {
           final fieldInfo = _findFieldInfo(
             fieldInfos: fieldInfos,
             fieldId: newSortPB.sort.fieldId,
-            fieldType: newSortPB.sort.fieldType,
+            fieldType: null,
           );
 
           if (fieldInfo != null) {
@@ -318,7 +318,7 @@ class FieldController {
         final fieldInfo = _findFieldInfo(
           fieldInfos: fieldInfos,
           fieldId: updatedSort.fieldId,
-          fieldType: updatedSort.fieldType,
+          fieldType: null,
         );
 
         if (fieldInfo != null) {
@@ -688,7 +688,7 @@ class FieldController {
       final fieldInfo = _findFieldInfo(
         fieldInfos: fieldInfos,
         fieldId: sortPB.fieldId,
-        fieldType: sortPB.fieldType,
+        fieldType: null,
       );
       return fieldInfo != null
           ? SortInfo(sortPB: sortPB, fieldInfo: fieldInfo)
@@ -847,9 +847,11 @@ class RowCacheDependenciesImpl extends RowFieldsDelegate with RowLifeCycle {
 FieldInfo? _findFieldInfo({
   required List<FieldInfo> fieldInfos,
   required String fieldId,
-  required FieldType fieldType,
+  required FieldType? fieldType,
 }) {
   return fieldInfos.firstWhereOrNull(
-    (element) => element.id == fieldId && element.fieldType == fieldType,
+    (element) =>
+        element.id == fieldId &&
+        (fieldType == null || element.fieldType == fieldType),
   );
 }

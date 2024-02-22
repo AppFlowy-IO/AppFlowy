@@ -26,7 +26,7 @@ final class DateCellBackendService {
     String? endTime,
     String? reminderId,
   }) {
-    final payload = DateChangesetPB.create()
+    final payload = DateCellChangesetPB.create()
       ..cellId = cellId
       ..includeTime = includeTime
       ..isRange = isRange;
@@ -53,7 +53,7 @@ final class DateCellBackendService {
   }
 
   Future<Either<Unit, FlowyError>> clear() {
-    final payload = DateChangesetPB.create()
+    final payload = DateCellChangesetPB.create()
       ..cellId = cellId
       ..clearFlag = true;
 

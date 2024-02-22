@@ -6,8 +6,8 @@ use event_integration::event_builder::EventBuilder;
 use event_integration::EventIntegrationTest;
 use flowy_database2::entities::{
   CellChangesetPB, CellIdPB, CheckboxCellDataPB, ChecklistCellDataChangesetPB, DatabaseLayoutPB,
-  DatabaseSettingChangesetPB, DatabaseViewIdPB, DateChangesetPB, FieldType, OrderObjectPositionPB,
-  SelectOptionCellDataPB, UpdateRowMetaChangesetPB,
+  DatabaseSettingChangesetPB, DatabaseViewIdPB, DateCellChangesetPB, FieldType,
+  OrderObjectPositionPB, SelectOptionCellDataPB, UpdateRowMetaChangesetPB,
 };
 use lib_infra::util::timestamp;
 
@@ -529,7 +529,7 @@ async fn update_date_cell_event_test() {
   // Insert data into the date cell of the first row.
   let timestamp = 1686300557;
   let error = test
-    .update_date_cell(DateChangesetPB {
+    .update_date_cell(DateCellChangesetPB {
       cell_id: cell_path,
       date: Some(timestamp),
       ..Default::default()
@@ -565,7 +565,7 @@ async fn update_date_cell_event_with_empty_time_str_test() {
 
   // Insert empty timestamp string
   let error = test
-    .update_date_cell(DateChangesetPB {
+    .update_date_cell(DateCellChangesetPB {
       cell_id: cell_path,
       date: None,
       ..Default::default()
@@ -763,7 +763,7 @@ async fn create_calendar_event_test() {
 
   // Insert data into the date cell of the first row.
   let error = test
-    .update_date_cell(DateChangesetPB {
+    .update_date_cell(DateCellChangesetPB {
       cell_id: CellIdPB {
         view_id: calendar_view.id.clone(),
         field_id: date_field.id.clone(),

@@ -61,7 +61,7 @@ class _MobileDateCellEditScreenState extends State<MobileDateCellEditScreen> {
           children: [
             ColoredBox(
               color: Theme.of(context).colorScheme.surface,
-              child: const Center(child: DragHandler()),
+              child: const Center(child: DragHandle()),
             ),
             const MobileDateHeader(),
             _buildDatePicker(),

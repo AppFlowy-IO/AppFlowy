@@ -234,7 +234,7 @@ impl FolderManager {
       match result {
         Ok(folder_updates) => {
           info!(
-            "Get folder updates via {}, number of updates: {}",
+            "Get folder updates via {}, doc state len: {}",
             self.cloud_service.service_name(),
             folder_updates.len()
           );

@@ -61,7 +61,7 @@ class _MobileSelectOptionEditorState extends State<MobileSelectOptionEditor> {
             return Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const DragHandler(),
+                const DragHandle(),
                 _buildHeader(context),
                 const Divider(height: 0.5),
                 Expanded(

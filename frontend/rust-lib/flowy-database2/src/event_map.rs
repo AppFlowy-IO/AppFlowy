@@ -256,10 +256,10 @@ pub enum DatabaseEvent {
   #[event(input = "ChecklistCellDataChangesetPB")]
   UpdateChecklistCell = 73,
 
-  /// [UpdateDateCell] event is used to update a date cell's data. [DateChangesetPB]
+  /// [UpdateDateCell] event is used to update a date cell's data. [DateCellChangesetPB]
   /// contains the date and the time string. It can be cast to [CellChangesetPB] that
   /// will be used by the `update_cell` function.
-  #[event(input = "DateChangesetPB")]
+  #[event(input = "DateCellChangesetPB")]
   UpdateDateCell = 80,
 
   /// [SetGroupByField] event is used to create a new grouping in a database

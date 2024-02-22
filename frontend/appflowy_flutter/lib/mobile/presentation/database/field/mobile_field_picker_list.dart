@@ -47,7 +47,7 @@ class _MobileFieldPickerListState extends State<MobileFieldPickerList> {
         return Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const DragHandler(),
+            const DragHandle(),
             _Header(
               title: widget.title,
               onDone: (context) => context.pop(newFieldId),

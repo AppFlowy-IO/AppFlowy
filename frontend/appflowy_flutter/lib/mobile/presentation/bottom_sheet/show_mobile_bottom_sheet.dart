@@ -1,6 +1,5 @@
 import 'package:appflowy/mobile/presentation/base/app_bar_actions.dart';
 import 'package:appflowy/plugins/base/drag_handler.dart';
-import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart' hide WidgetBuilder;
 import 'package:flutter/material.dart';
 
@@ -16,7 +15,6 @@ Future<T?> showMobileBottomSheet<T>(
   bool showCloseButton = false,
   // this field is only used if showHeader is true
   String title = '',
-  bool resizeToAvoidBottomInset = true,
   bool isScrollControlled = true,
   bool showDivider = true,
   bool useRootNavigator = false,
@@ -42,7 +40,7 @@ Future<T?> showMobileBottomSheet<T>(
 
   shape ??= const RoundedRectangleBorder(
     borderRadius: BorderRadius.vertical(
-      top: Corners.s12Radius,
+      top: Radius.circular(16),
     ),
   );
 
@@ -68,17 +66,14 @@ Future<T?> showMobileBottomSheet<T>(
       final Widget child = builder(context);
 
       // if the children is only one, we don't need to wrap it with a column
-      if (!showDragHandle &&
-          !showHeader &&
-          !showDivider &&
-          !resizeToAvoidBottomInset) {
+      if (!showDragHandle && !showHeader && !showDivider) {
         return child;
       }
 
       // ----- header area -----
       if (showDragHandle) {
         children.add(
-          const DragHandler(),
+          const DragHandle(),
         );
       }
 
@@ -125,21 +120,12 @@ Future<T?> showMobileBottomSheet<T>(
       }
 
       // ----- content area -----
-      if (resizeToAvoidBottomInset) {
-        children.add(
-          Padding(
-            padding: EdgeInsets.only(
-              top: padding.top,
-              left: padding.left,
-              right: padding.right,
-              bottom: padding.bottom + MediaQuery.of(context).viewInsets.bottom,
-            ),
-            child: child,
-          ),
-        );
-      } else {
-        children.add(child);
-      }
+      children.add(
+        Padding(
+          padding: padding,
+          child: child,
+        ),
+      );
       // ----- content area -----
 
       if (children.length == 1) {

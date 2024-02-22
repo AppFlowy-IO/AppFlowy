@@ -33,7 +33,6 @@ class MobileGridSelectOptionCellSkin extends IEditableSelectOptionCellSkin {
       onTap: () {
         showMobileBottomSheet(
           context,
-          padding: EdgeInsets.zero,
           builder: (context) {
             return MobileSelectOptionEditor(
               cellController: bloc.cellController,

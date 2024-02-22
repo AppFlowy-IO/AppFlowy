@@ -711,7 +711,7 @@ class _NumberFormatListState extends State<_NumberFormatList> {
       controller: widget.scrollController,
       children: [
         const Center(
-          child: DragHandler(),
+          child: DragHandle(),
         ),
         Container(
           margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
