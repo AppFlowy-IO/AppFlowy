@@ -318,9 +318,12 @@ where
     workspace_name: &str,
   ) -> FutureResult<(), FlowyError> {
     let try_get_client = self.server.try_get_client();
-    let workspace_id: Uuid = workspace_id.parse().unwrap();
     let new_workspace_name = Some(workspace_name.to_string());
+    let workspace_id_owned = workspace_id.to_owned();
     FutureResult::new(async move {
+      let workspace_id: Uuid = workspace_id_owned
+        .parse()
+        .map_err(|_| ErrorCode::InvalidParams)?;
       let client = try_get_client?;
       client
         .patch_workspace(PatchWorkspaceParam {
