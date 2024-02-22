@@ -85,8 +85,8 @@ class EditorStyleCustomizer {
         ),
       ),
       textSpanDecorator: customizeAttributeDecorator,
-      //textScaleFactor:
-      //    context.watch<AppearanceSettingsCubit>().state.textScaleFactor,
+      textScaleFactor:
+          context.watch<AppearanceSettingsCubit>().state.textScaleFactor,
     );
   }
 
@@ -135,8 +135,8 @@ class EditorStyleCustomizer {
       textSpanDecorator: customizeAttributeDecorator,
       mobileDragHandleBallSize: const Size.square(12.0),
       magnifierSize: const Size(144, 96),
-      //textScaleFactor: 1,
-          //context.watch<AppearanceSettingsCubit>().state.textScaleFactor,
+      textScaleFactor:
+          context.watch<AppearanceSettingsCubit>().state.textScaleFactor,
     );
   }
 
