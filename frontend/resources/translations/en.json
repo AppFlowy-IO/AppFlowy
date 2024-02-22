@@ -235,7 +235,10 @@
     "rename": "Rename",
     "helpCenter": "Help Center",
     "add": "Add",
-    "yes": "Yes"
+    "yes": "Yes",
+    "Done": "Done",
+    "Cancel": "Cancel",
+    "clear": "Clear"
   },
   "label": {
     "welcome": "Welcome!",
