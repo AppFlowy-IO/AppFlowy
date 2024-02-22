@@ -78,7 +78,9 @@
     "large": "large",
     "fontSize": "Font size",
     "import": "Import",
-    "moreOptions": "More options"
+    "moreOptions": "More options",
+    "wordCount": "Word count: {}",
+    "charCount": "Character count: {}"
   },
   "importPanel": {
     "textAndMarkdown": "Text & Markdown",

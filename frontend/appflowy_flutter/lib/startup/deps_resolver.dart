@@ -27,6 +27,7 @@ import 'package:appflowy/workspace/application/sidebar/rename_view/rename_view_b
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/user/prelude.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
+import 'package:appflowy/workspace/application/view_info/view_info_bloc.dart';
 import 'package:appflowy/workspace/application/workspace/prelude.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:appflowy_backend/log.dart';
@@ -191,6 +192,8 @@ void _resolveHomeDeps(GetIt getIt) {
   getIt.registerSingleton<ReminderBloc>(ReminderBloc());
 
   getIt.registerSingleton<RenameViewBloc>(RenameViewBloc(PopoverController()));
+
+  getIt.registerSingleton<ViewInfoBloc>(ViewInfoBloc());
 }
 
 void _resolveFolderDeps(GetIt getIt) {
