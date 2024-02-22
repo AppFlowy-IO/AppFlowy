@@ -333,6 +333,7 @@
         "dark": "Dark Mode",
         "system": "Adapt to System"
       },
+      "fontScaleFactor": "Font Scale Factor",
       "documentSettings": {
         "cursorColor": "Document cursor color",
         "selectionColor": "Document selection color",
