@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { SelectOption } from '$app/application/database';
 import { IconButton } from '@mui/material';
 import { updateChecklistCell } from '$app/application/database/cell/cell_service';
@@ -6,6 +6,11 @@ import { useViewId } from '$app/hooks';
 import { ReactComponent as DeleteIcon } from '$app/assets/delete.svg';
 import { ReactComponent as CheckboxCheckSvg } from '$app/assets/database/checkbox-check.svg';
 import { ReactComponent as CheckboxUncheckSvg } from '$app/assets/database/checkbox-uncheck.svg';
+import isHotkey from 'is-hotkey';
+import debounce from 'lodash-es/debounce';
+import { useTranslation } from 'react-i18next';
+
+const DELAY_CHANGE = 200;
 
 function ChecklistItem({
   checked,
@@ -24,6 +29,7 @@ function ChecklistItem({
   isHovered: boolean;
   onMouseEnter: () => void;
 }) {
+  const { t } = useTranslation();
   const [value, setValue] = useState(option.name);
   const viewId = useViewId();
   const updateText = useCallback(async () => {
@@ -37,10 +43,14 @@ function ChecklistItem({
     });
   }, [fieldId, option, rowId, value, viewId]);
 
-  const onCheckedChange = useCallback(async () => {
-    void updateChecklistCell(viewId, rowId, fieldId, {
-      selectedOptionIds: [option.id],
-    });
+  const onCheckedChange = useMemo(() => {
+    return debounce(
+      () =>
+        updateChecklistCell(viewId, rowId, fieldId, {
+          selectedOptionIds: [option.id],
+        }),
+      DELAY_CHANGE
+    );
   }, [fieldId, option.id, rowId, viewId]);
 
   const deleteOption = useCallback(async () => {
@@ -62,10 +72,12 @@ function ChecklistItem({
         className={'flex-1 truncate'}
         onBlur={updateText}
         value={value}
+        placeholder={t('grid.checklist.taskHint')}
         onKeyDown={(e) => {
           if (e.key === 'Escape') {
             e.stopPropagation();
             e.preventDefault();
+            void updateText();
             onClose();
             return;
           }
@@ -74,6 +86,10 @@ function ChecklistItem({
             e.stopPropagation();
             e.preventDefault();
             void updateText();
+            if (isHotkey('mod+enter', e)) {
+              void onCheckedChange();
+            }
+
             return;
           }
         }}

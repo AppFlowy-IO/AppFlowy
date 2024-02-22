@@ -96,7 +96,7 @@ function DateTimeCell({ field, cell, placeholder }: Props) {
     <>
       <div
         ref={ref}
-        className={`flex h-full w-full cursor-pointer items-center overflow-x-hidden truncate px-2 text-xs font-medium ${
+        className={`flex h-full min-h-[36px] w-full cursor-pointer items-center overflow-x-hidden truncate px-2 text-xs font-medium ${
           open ? 'bg-fill-list-active' : ''
         }`}
         onClick={handleClick}

@@ -22,7 +22,7 @@ import {
 } from '$app/components/editor/stores';
 import CommandPanel from '../tools/command_panel/CommandPanel';
 
-function Editor({ sharedType }: { sharedType: Y.XmlText; id: string }) {
+function Editor({ sharedType, disableFocus }: { sharedType: Y.XmlText; id: string; disableFocus?: boolean }) {
   const { editor, initialValue, handleOnClickEnd, ...props } = useEditor(sharedType);
   const decorateCodeHighlight = useDecorateCodeHighlight(editor);
   const { onDOMBeforeInput, onKeyDown: onShortcutsKeyDown } = useShortcuts(editor);
@@ -68,6 +68,7 @@ function Editor({ sharedType }: { sharedType: Y.XmlText; id: string }) {
 
               <CustomEditable
                 {...props}
+                disableFocus={disableFocus}
                 onDOMBeforeInput={onDOMBeforeInput}
                 onKeyDown={onKeyDown}
                 decorate={decorate}

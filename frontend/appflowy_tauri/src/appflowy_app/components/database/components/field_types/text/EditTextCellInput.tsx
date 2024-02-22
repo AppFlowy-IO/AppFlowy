@@ -24,6 +24,7 @@ function EditTextCellInput({ editing, anchorEl, onClose, text, onInput }: Props)
     <Popover
       open={editing}
       anchorEl={anchorEl}
+      disableRestoreFocus={true}
       PaperProps={{
         className: 'flex p-2 border border-blue-400',
         style: { width: anchorEl?.offsetWidth, minHeight: anchorEl?.offsetHeight, borderRadius: 0, boxShadow: 'none' },

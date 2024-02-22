@@ -22,7 +22,7 @@ interface Props extends PopoverProps {
   rowId: string;
 }
 
-export function GridRowMenu({ rowId, ...props }: Props) {
+export function GridRowMenu({ rowId, onClose, ...props }: Props) {
   const viewId = useViewId();
 
   const { t } = useTranslation();
@@ -76,8 +76,10 @@ export function GridRowMenu({ rowId, ...props }: Props) {
         default:
           break;
       }
+
+      onClose?.({}, 'backdropClick');
     },
-    [handleInsertRecordAbove, handleInsertRecordBelow, handleDuplicateRow, handleDelRow]
+    [onClose, handleInsertRecordAbove, handleInsertRecordBelow, handleDuplicateRow, handleDelRow]
   );
 
   const options: KeyboardNavigationOption<RowAction>[] = useMemo(
@@ -114,13 +116,14 @@ export function GridRowMenu({ rowId, ...props }: Props) {
       keepMounted={false}
       anchorReference={'anchorPosition'}
       transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+      onClose={onClose}
       {...props}
     >
       <KeyboardNavigation
         options={options}
         onConfirm={onConfirm}
         onEscape={() => {
-          props.onClose?.({}, 'escapeKeyDown');
+          onClose?.({}, 'escapeKeyDown');
         }}
       />
     </Popover>

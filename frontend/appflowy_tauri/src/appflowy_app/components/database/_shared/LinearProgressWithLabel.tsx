@@ -31,7 +31,7 @@ function LinearProgressWithLabel({
                 value < 1
                   ? option.checked
                     ? 'var(--content-blue-400)'
-                    : 'var(--text-placeholder)'
+                    : 'var(--content-blue-100)'
                   : 'var(--function-success)',
             }}
             className={`h-[4px] ${isSplit ? 'rounded-full' : ''} `}

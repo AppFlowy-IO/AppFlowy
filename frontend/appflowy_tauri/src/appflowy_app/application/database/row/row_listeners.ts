@@ -2,6 +2,7 @@ import { ReorderAllRowsPB, ReorderSingleRowPB, RowsChangePB, RowsVisibilityChang
 import { Database } from '../database';
 import { pbToRowMeta, RowMeta } from './row_types';
 import { didDeleteCells } from '$app/application/database/cell/cell_listeners';
+import { getDatabase } from '$app/application/database/database/database_service';
 
 const deleteRowsFromChangeset = (database: Database, changeset: RowsChangePB) => {
   changeset.deleted_rows.forEach((rowId) => {
@@ -56,18 +57,39 @@ export const didReorderSingleRow = (database: Database, changeset: ReorderSingle
   }
 };
 
-export const didUpdateViewRowsVisibility = (database: Database, changeset: RowsVisibilityChangePB) => {
+export const didUpdateViewRowsVisibility = async (
+  viewId: string,
+  database: Database,
+  changeset: RowsVisibilityChangePB
+) => {
   const { invisible_rows, visible_rows } = changeset;
 
-  database.rowMetas.forEach((rowMeta) => {
-    if (invisible_rows.includes(rowMeta.id)) {
+  let reFetchRows = false;
+
+  for (const rowId of invisible_rows) {
+    const rowMeta = database.rowMetas.find((rowMeta) => rowMeta.id === rowId);
+
+    if (rowMeta) {
       rowMeta.isHidden = true;
     }
+  }
 
-    const found = visible_rows.find((visibleRow) => visibleRow.row_meta.id === rowMeta.id);
+  for (const insertedRow of visible_rows) {
+    const rowMeta = database.rowMetas.find((rowMeta) => rowMeta.id === insertedRow.row_meta.id);
 
-    if (found) {
+    if (rowMeta) {
       rowMeta.isHidden = false;
+    } else {
+      reFetchRows = true;
+      break;
     }
-  });
+  }
+
+  if (reFetchRows) {
+    const { rowMetas } = await getDatabase(viewId);
+
+    database.rowMetas = rowMetas;
+
+    await didUpdateViewRowsVisibility(viewId, database, changeset);
+  }
 };

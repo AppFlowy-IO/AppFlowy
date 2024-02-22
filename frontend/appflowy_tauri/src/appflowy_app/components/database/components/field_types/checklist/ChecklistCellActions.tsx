@@ -24,6 +24,7 @@ function ChecklistCellActions({
   return (
     <Popover
       {...props}
+      disableRestoreFocus={true}
       onKeyDown={(e) => {
         if (e.key === 'Escape') {
           e.stopPropagation();

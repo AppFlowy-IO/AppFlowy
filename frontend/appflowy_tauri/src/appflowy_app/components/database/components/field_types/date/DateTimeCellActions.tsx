@@ -80,6 +80,7 @@ function DateTimeCellActions({
   return (
     <Popover
       keepMounted={false}
+      disableRestoreFocus={true}
       {...props}
       PaperProps={{
         ...props.PaperProps,

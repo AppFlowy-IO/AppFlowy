@@ -2,7 +2,7 @@ import { Menu, MenuProps } from '@mui/material';
 import { FC, MouseEventHandler, useCallback, useState } from 'react';
 import { useViewId } from '$app/hooks';
 import { sortService } from '$app/application/database';
-import { useDatabase } from '../../Database.hooks';
+import { useDatabaseSorts } from '../../Database.hooks';
 import { SortItem } from './SortItem';
 
 import { useTranslation } from 'react-i18next';
@@ -15,7 +15,7 @@ export const SortMenu: FC<MenuProps> = (props) => {
   const { onClose } = props;
   const { t } = useTranslation();
   const viewId = useViewId();
-  const { sorts } = useDatabase();
+  const sorts = useDatabaseSorts();
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const openFieldListMenu = Boolean(anchorEl);
   const handleClick = useCallback<MouseEventHandler<HTMLElement>>((event) => {

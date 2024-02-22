@@ -8,7 +8,7 @@ interface Props {
 
 export const DatabaseCollection = ({ open }: Props) => {
   return (
-    <div className={`flex items-center px-16 ${!open ? 'hidden' : 'py-3'}`}>
+    <div className={`flex items-center gap-2 px-16 ${!open ? 'hidden' : 'py-3'}`}>
       <Sorts />
       <Filters />
     </div>

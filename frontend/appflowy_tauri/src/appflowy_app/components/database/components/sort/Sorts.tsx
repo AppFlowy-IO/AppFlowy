@@ -36,10 +36,10 @@ export const Sorts = () => {
   if (!showSorts) return null;
 
   return (
-    <>
+    <div className={'text-text-title'}>
       <Chip clickable variant='outlined' label={label} onClick={handleClick} />
       <Divider className={'mx-2'} orientation='vertical' flexItem />
       <SortMenu open={menuOpen} anchorEl={anchorEl} onClose={() => setAnchorEl(null)} />
-    </>
+    </div>
   );
 };

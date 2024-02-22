@@ -8,6 +8,7 @@ import usePopoverAutoPosition from '$app/components/_shared/popover/Popover.hook
 interface Props {
   field: ChecklistField;
   cell: ChecklistCellType;
+  placeholder?: string;
 }
 
 const initialAnchorOrigin: PopoverOrigin = {
@@ -20,7 +21,7 @@ const initialTransformOrigin: PopoverOrigin = {
   horizontal: 'left',
 };
 
-function ChecklistCell({ cell }: Props) {
+function ChecklistCell({ cell, placeholder }: Props) {
   const value = cell?.data.percentage ?? 0;
   const options = useMemo(() => cell?.data.options ?? [], [cell?.data.options]);
   const selectedOptions = useMemo(() => cell?.data.selectedOptions ?? [], [cell?.data.selectedOptions]);
@@ -46,8 +47,10 @@ function ChecklistCell({ cell }: Props) {
   return (
     <>
       <div className='flex w-full cursor-pointer items-center px-2' onClick={handleClick}>
-        {options.length > 0 && (
+        {options.length > 0 ? (
           <LinearProgressWithLabel value={value} count={options.length} selectedCount={selectedOptions.length} />
+        ) : (
+          <div className={'text-sm text-text-placeholder'}>{placeholder}</div>
         )}
       </div>
       <Suspense>

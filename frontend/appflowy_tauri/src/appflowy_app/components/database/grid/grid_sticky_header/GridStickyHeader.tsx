@@ -88,7 +88,7 @@ const GridStickyHeader = React.forwardRef<
         {({ height, width }: { height: number; width: number }) => {
           return (
             <Grid
-              className={'grid-sticky-header w-full'}
+              className={'grid-sticky-header w-full text-text-title'}
               height={height}
               width={width}
               rowHeight={() => 36}

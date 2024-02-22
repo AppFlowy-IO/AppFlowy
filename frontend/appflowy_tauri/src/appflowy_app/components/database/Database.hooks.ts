@@ -52,8 +52,6 @@ export const DatabaseProvider = DatabaseContext.Provider;
 
 export const useDatabase = () => useSnapshot(useContext(DatabaseContext));
 
-export const useContextDatabase = () => useContext(DatabaseContext);
-
 export const useSelectorCell = (rowId: string, fieldId: string) => {
   const database = useContext(DatabaseContext);
   const cells = useSnapshot(database.cells);
@@ -86,10 +84,10 @@ export const useDispatchCell = () => {
   };
 };
 
-export const useTypeOptions = () => {
+export const useDatabaseSorts = () => {
   const context = useContext(DatabaseContext);
 
-  return useSnapshot(context.typeOptions);
+  return useSnapshot(context.sorts);
 };
 
 export const useFiltersCount = () => {
@@ -171,8 +169,8 @@ export const useConnectDatabase = (viewId: string) => {
         [DatabaseNotification.DidUpdateFilter]: (changeset) => {
           filterListeners.didUpdateFilter(database, changeset);
         },
-        [DatabaseNotification.DidUpdateViewRowsVisibility]: (changeset) => {
-          rowListeners.didUpdateViewRowsVisibility(database, changeset);
+        [DatabaseNotification.DidUpdateViewRowsVisibility]: async (changeset) => {
+          await rowListeners.didUpdateViewRowsVisibility(viewId, database, changeset);
         },
       },
       { id: viewId }

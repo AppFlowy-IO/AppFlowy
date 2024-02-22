@@ -5,7 +5,7 @@ import { ReactComponent as AddSvg } from '$app/assets/add.svg';
 import { GRID_ACTIONS_WIDTH } from '$app/components/database/grid/constants';
 import { rowService } from '$app/application/database';
 import { useViewId } from '$app/hooks';
-import { GridRowDragButton, GridRowMenu } from '$app/components/database/grid/grid_row_actions';
+import { GridRowDragButton, GridRowMenu, toggleProperty } from '$app/components/database/grid/grid_row_actions';
 import { OrderObjectPositionTypePB } from '@/services/backend';
 
 export function GridRowActions({
@@ -31,16 +31,32 @@ export function GridRowActions({
 
   const openMenu = Boolean(menuPosition);
 
+  const handleCloseMenu = useCallback(() => {
+    setMenuPosition(undefined);
+    setMenuRowId((prev) => {
+      if (containerRef.current && prev) {
+        toggleProperty(containerRef.current, prev, false);
+      }
+
+      return undefined;
+    });
+  }, [containerRef]);
+
   const handleInsertRecordBelow = useCallback(() => {
     void rowService.createRow(viewId, {
       position: OrderObjectPositionTypePB.After,
       rowId: rowId,
     });
-  }, [viewId, rowId]);
+    handleCloseMenu();
+  }, [viewId, rowId, handleCloseMenu]);
 
   const handleOpenMenu = (e: React.MouseEvent) => {
     const target = e.target as HTMLButtonElement;
     const rect = target.getBoundingClientRect();
+
+    if (containerRef.current && rowId) {
+      toggleProperty(containerRef.current, rowId, true);
+    }
 
     setMenuRowId(rowId);
     setMenuPosition({
@@ -48,11 +64,6 @@ export function GridRowActions({
       left: rect.left + rect.width,
     });
   };
-
-  const handleCloseMenu = useCallback(() => {
-    setMenuPosition(undefined);
-    setMenuRowId(undefined);
-  }, []);
 
   return (
     <>
