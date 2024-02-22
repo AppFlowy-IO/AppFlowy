@@ -566,7 +566,11 @@ pub(crate) async fn update_checklist_cell_handler(
   let params: ChecklistCellDataChangesetParams = data.into_inner().try_into()?;
   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
   let changeset = ChecklistCellChangeset {
-    insert_options: params.insert_options,
+    insert_options: params
+      .insert_options
+      .into_iter()
+      .map(|name| (name, false))
+      .collect(),
     selected_option_ids: params.selected_option_ids,
     delete_option_ids: params.delete_option_ids,
     update_options: params.update_options,

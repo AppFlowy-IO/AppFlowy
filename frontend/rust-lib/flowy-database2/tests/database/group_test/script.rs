@@ -239,7 +239,6 @@ impl DatabaseGroupTest {
           .move_group(&self.view_id, &from_group.group_id, &to_group.group_id)
           .await
           .unwrap();
-        //
       },
       GroupScript::AssertGroup {
         group_index,

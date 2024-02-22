@@ -383,11 +383,11 @@ impl<'a> TestRowBuilder<'a> {
     multi_select_field.id.clone()
   }
 
-  pub fn insert_checklist_cell(&mut self, option_names: Vec<String>) -> String {
+  pub fn insert_checklist_cell(&mut self, options: Vec<(String, bool)>) -> String {
     let checklist_field = self.field_with_type(&FieldType::Checklist);
     self
       .cell_build
-      .insert_checklist_cell(&checklist_field.id, option_names);
+      .insert_checklist_cell(&checklist_field.id, options);
     checklist_field.id.clone()
   }
 
