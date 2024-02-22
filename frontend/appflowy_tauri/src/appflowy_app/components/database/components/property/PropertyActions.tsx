@@ -2,6 +2,8 @@ import React, { RefObject, useCallback, useMemo, useState } from 'react';
 
 import { ReactComponent as EditSvg } from '$app/assets/edit.svg';
 import { ReactComponent as HideSvg } from '$app/assets/hide.svg';
+import { ReactComponent as ShowSvg } from '$app/assets/eye_open.svg';
+
 import { ReactComponent as CopySvg } from '$app/assets/copy.svg';
 import { ReactComponent as DeleteSvg } from '$app/assets/delete.svg';
 import { ReactComponent as LeftSvg } from '$app/assets/left.svg';
@@ -19,6 +21,7 @@ import { notify } from 'src/appflowy_app/components/_shared/notify';
 export enum FieldAction {
   EditProperty,
   Hide,
+  Show,
   Duplicate,
   Delete,
   InsertLeft,
@@ -28,6 +31,7 @@ export enum FieldAction {
 const FieldActionSvgMap = {
   [FieldAction.EditProperty]: EditSvg,
   [FieldAction.Hide]: HideSvg,
+  [FieldAction.Show]: ShowSvg,
   [FieldAction.Duplicate]: CopySvg,
   [FieldAction.Delete]: DeleteSvg,
   [FieldAction.InsertLeft]: LeftSvg,
@@ -71,6 +75,7 @@ function PropertyActions({
     () => ({
       [FieldAction.EditProperty]: t('grid.field.editProperty'),
       [FieldAction.Hide]: t('grid.field.hide'),
+      [FieldAction.Show]: t('grid.field.show'),
       [FieldAction.Duplicate]: t('grid.field.duplicate'),
       [FieldAction.Delete]: t('grid.field.delete'),
       [FieldAction.InsertLeft]: t('grid.field.insertLeft'),
@@ -111,6 +116,11 @@ function PropertyActions({
       case FieldAction.Hide:
         await fieldService.updateFieldSetting(viewId, fieldId, {
           visibility: FieldVisibility.AlwaysHidden,
+        });
+        break;
+      case FieldAction.Show:
+        await fieldService.updateFieldSetting(viewId, fieldId, {
+          visibility: FieldVisibility.AlwaysShown,
         });
         break;
       case FieldAction.Duplicate:
@@ -169,6 +179,13 @@ function PropertyActions({
             Icon: FieldActionSvgMap[FieldAction.Hide],
           }),
           disabled: isPrimary && primaryPreventDefaultActions.includes(FieldAction.Hide),
+        },
+        {
+          key: FieldAction.Show,
+          content: renderActionContent({
+            text: menuTextMap[FieldAction.Show],
+            Icon: FieldActionSvgMap[FieldAction.Show],
+          }),
         },
         {
           key: FieldAction.Duplicate,

@@ -1,16 +1,14 @@
 import { Divider } from '@mui/material';
-import { FC, useCallback, useRef } from 'react';
+import { FC, useCallback, useMemo, useRef } from 'react';
 import { useViewId } from '$app/hooks';
 import { Field, fieldService } from '$app/application/database';
 import PropertyTypeMenuExtension from '$app/components/database/components/property/property_type/PropertyTypeMenuExtension';
 import PropertyTypeSelect from '$app/components/database/components/property/property_type/PropertyTypeSelect';
-import { FieldType } from '@/services/backend';
+import { FieldType, FieldVisibility } from '@/services/backend';
 import { Log } from '$app/utils/log';
 import Popover, { PopoverProps } from '@mui/material/Popover';
 import PropertyNameInput from '$app/components/database/components/property/PropertyNameInput';
 import PropertyActions, { FieldAction } from '$app/components/database/components/property/PropertyActions';
-
-const actions = [FieldAction.Hide, FieldAction.Duplicate, FieldAction.Delete];
 
 export interface GridFieldMenuProps extends PopoverProps {
   field: Field;
@@ -21,6 +19,17 @@ export const PropertyMenu: FC<GridFieldMenuProps> = ({ field, ...props }) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const isPrimary = field.isPrimary;
+  const actions = useMemo(() => {
+    const keys = [FieldAction.Duplicate, FieldAction.Delete];
+
+    if (field.visibility === FieldVisibility.AlwaysHidden) {
+      keys.unshift(FieldAction.Show);
+    } else {
+      keys.unshift(FieldAction.Hide);
+    }
+
+    return keys;
+  }, [field.visibility]);
 
   const onUpdateFieldType = useCallback(
     async (type: FieldType) => {
