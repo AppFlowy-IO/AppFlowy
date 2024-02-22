@@ -7,6 +7,7 @@ import 'package:appflowy/plugins/document/presentation/more/cubit/document_appea
 import 'package:appflowy/plugins/inline_actions/inline_actions_menu.dart';
 import 'package:appflowy/util/google_font_family_extension.dart';
 import 'package:appflowy/workspace/application/appearance_defaults.dart';
+import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:collection/collection.dart';
@@ -83,6 +84,8 @@ class EditorStyleCustomizer {
         ),
       ),
       textSpanDecorator: customizeAttributeDecorator,
+      textScaleFactor:
+          context.watch<AppearanceSettingsCubit>().state.textScaleFactor,
     );
   }
 
@@ -131,6 +134,8 @@ class EditorStyleCustomizer {
       textSpanDecorator: customizeAttributeDecorator,
       mobileDragHandleBallSize: const Size.square(12.0),
       magnifierSize: const Size(144, 96),
+      textScaleFactor:
+          context.watch<AppearanceSettingsCubit>().state.textScaleFactor,
     );
   }
 

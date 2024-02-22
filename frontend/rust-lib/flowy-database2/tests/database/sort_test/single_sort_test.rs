@@ -407,3 +407,77 @@ async fn sort_multi_select_by_descending_test() {
   ];
   test.run_scripts(scripts).await;
 }
+
+#[tokio::test]
+async fn sort_checklist_by_ascending_test() {
+  let mut test = DatabaseSortTest::new().await;
+  let checklist_field = test.get_first_field(FieldType::Checklist);
+  let scripts = vec![
+    AssertCellContentOrder {
+      field_id: checklist_field.id.clone(),
+      orders: vec![
+        "First thing",
+        "Have breakfast,Have lunch,Take a nap,Have dinner,Shower and head to bed",
+        "",
+        "Task 1",
+        "",
+        "Sprint,Sprint some more,Rest",
+        "",
+      ],
+    },
+    InsertSort {
+      field: checklist_field.clone(),
+      condition: SortCondition::Ascending,
+    },
+    AssertCellContentOrder {
+      field_id: checklist_field.id.clone(),
+      orders: vec![
+        "First thing",
+        "Have breakfast,Have lunch,Take a nap,Have dinner,Shower and head to bed",
+        "Sprint,Sprint some more,Rest",
+        "Task 1",
+        "",
+        "",
+        "",
+      ],
+    },
+  ];
+  test.run_scripts(scripts).await;
+}
+
+#[tokio::test]
+async fn sort_checklist_by_descending_test() {
+  let mut test = DatabaseSortTest::new().await;
+  let checklist_field = test.get_first_field(FieldType::Checklist);
+  let scripts = vec![
+    AssertCellContentOrder {
+      field_id: checklist_field.id.clone(),
+      orders: vec![
+        "First thing",
+        "Have breakfast,Have lunch,Take a nap,Have dinner,Shower and head to bed",
+        "",
+        "Task 1",
+        "",
+        "Sprint,Sprint some more,Rest",
+        "",
+      ],
+    },
+    InsertSort {
+      field: checklist_field.clone(),
+      condition: SortCondition::Descending,
+    },
+    AssertCellContentOrder {
+      field_id: checklist_field.id.clone(),
+      orders: vec![
+        "Task 1",
+        "Sprint,Sprint some more,Rest",
+        "Have breakfast,Have lunch,Take a nap,Have dinner,Shower and head to bed",
+        "First thing",
+        "",
+        "",
+        "",
+      ],
+    },
+  ];
+  test.run_scripts(scripts).await;
+}

@@ -68,7 +68,7 @@ class _MobileDatabaseFieldListBody extends StatelessWidget {
             viewId: viewId,
             fieldController: databaseController.fieldController,
             fieldInfo: firstField,
-            showTopBorder: true,
+            showTopBorder: false,
           );
           final cells = fields
               .mapIndexed(
@@ -124,9 +124,10 @@ class _MobileDatabaseFieldListBody extends StatelessWidget {
                     children: [
                       _divider(),
                       _NewDatabaseFieldTile(viewId: viewId),
+                      const VSpace(24),
                     ],
                   )
-                : null,
+                : const VSpace(24),
             itemCount: cells.length,
             itemBuilder: (context, index) => cells[index],
           );

@@ -326,7 +326,7 @@ impl CollabCloudPluginProvider for ServerProvider {
   }
 
   #[instrument(level = "debug", skip(self, context), fields(server_type = %self.get_server_type()))]
-  fn get_plugins(&self, context: CollabPluginProviderContext) -> Fut<Vec<Arc<dyn CollabPlugin>>> {
+  fn get_plugins(&self, context: CollabPluginProviderContext) -> Fut<Vec<Box<dyn CollabPlugin>>> {
     // If the user is local, we don't need to create a sync plugin.
     if self.get_server_type().is_local() {
       debug!(
@@ -345,7 +345,7 @@ impl CollabCloudPluginProvider for ServerProvider {
       } => {
         if let Ok(server) = self.get_server() {
           to_fut(async move {
-            let mut plugins: Vec<Arc<dyn CollabPlugin>> = vec![];
+            let mut plugins: Vec<Box<dyn CollabPlugin>> = vec![];
 
             // If the user is local, we don't need to create a sync plugin.
 
@@ -372,7 +372,7 @@ impl CollabCloudPluginProvider for ServerProvider {
                   !is_connected,
                   ws_connect_state,
                 );
-                plugins.push(Arc::new(sync_plugin));
+                plugins.push(Box::new(sync_plugin));
               },
               Ok(None) => {
                 tracing::error!("🔴Failed to get collab ws channel: channel is none");
@@ -392,13 +392,13 @@ impl CollabCloudPluginProvider for ServerProvider {
         local_collab,
         local_collab_db,
       } => {
-        let mut plugins: Vec<Arc<dyn CollabPlugin>> = vec![];
+        let mut plugins: Vec<Box<dyn CollabPlugin>> = vec![];
         if let Some(remote_collab_storage) = self
           .get_server()
           .ok()
           .and_then(|provider| provider.collab_storage(&collab_object))
         {
-          plugins.push(Arc::new(SupabaseDBPlugin::new(
+          plugins.push(Box::new(SupabaseDBPlugin::new(
             uid,
             collab_object,
             local_collab,

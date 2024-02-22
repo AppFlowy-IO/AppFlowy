@@ -1,12 +1,15 @@
 use collab_database::rows::RowId;
 
-use flowy_database2::entities::CellChangesetPB;
+use lib_infra::box_any::BoxAny;
 
 use crate::database::database_editor::DatabaseEditorTest;
 
 pub enum CellScript {
   UpdateCell {
-    changeset: CellChangesetPB,
+    view_id: String,
+    field_id: String,
+    row_id: RowId,
+    changeset: BoxAny,
     is_err: bool,
   },
 }
@@ -35,25 +38,26 @@ impl DatabaseCellTest {
 
     match script {
       CellScript::UpdateCell {
+        view_id,
+        field_id,
+        row_id,
         changeset,
         is_err: _,
       } => {
         self
           .editor
-          .update_cell_with_changeset(
-            &self.view_id,
-            RowId::from(changeset.row_id),
-            &changeset.field_id,
-            changeset.cell_changeset,
-          )
+          .update_cell_with_changeset(&view_id, row_id, &field_id, changeset)
           .await
           .unwrap();
-      }, // CellScript::AssertGridRevisionPad => {
-         //     sleep(Duration::from_millis(2 * REVISION_WRITE_INTERVAL_IN_MILLIS)).await;
-         //     let mut grid_rev_manager = grid_manager.make_grid_rev_manager(&self.grid_id, pool.clone()).unwrap();
-         //     let grid_pad = grid_rev_manager.load::<GridPadBuilder>(None).await.unwrap();
-         //     println!("{}", grid_pad.delta_str());
-         // }
+      },
+      // CellScript::AssertGridRevisionPad => {
+      //   sleep(Duration::from_millis(2 * REVISION_WRITE_INTERVAL_IN_MILLIS)).await;
+      //   let mut grid_rev_manager = grid_manager
+      //     .make_grid_rev_manager(&self.grid_id, pool.clone())
+      //     .unwrap();
+      //   let grid_pad = grid_rev_manager.load::<GridPadBuilder>(None).await.unwrap();
+      //   println!("{}", grid_pad.delta_str());
+      // },
     }
   }
 }

@@ -6,6 +6,7 @@ use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{Cell, Cells, CreateRowParams, Row, RowCell, RowDetail, RowId};
 use collab_database::views::{DatabaseLayout, DatabaseView, LayoutSetting, OrderObjectPosition};
 use futures::StreamExt;
+use lib_infra::box_any::BoxAny;
 use tokio::sync::{broadcast, RwLock};
 use tracing::{event, warn};
 
@@ -17,17 +18,16 @@ use lib_infra::priority_task::TaskDispatcher;
 use crate::entities::*;
 use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::calculations::Calculation;
-use crate::services::cell::{apply_cell_changeset, get_cell_protobuf, CellCache, ToCellChangeset};
+use crate::services::cell::{apply_cell_changeset, get_cell_protobuf, CellCache};
 use crate::services::database::util::database_view_setting_pb_from_view;
 use crate::services::database::UpdatedRow;
 use crate::services::database_view::{
   DatabaseViewChanged, DatabaseViewEditor, DatabaseViewOperation, DatabaseViews, EditorByViewId,
 };
-use crate::services::field::checklist_type_option::ChecklistCellChangeset;
 use crate::services::field::{
   default_type_option_data_from_type, select_type_option_from_field, transform_type_option,
-  type_option_data_from_pb, SelectOptionCellChangeset, SelectOptionIds, TimestampCellData,
-  TypeOptionCellDataHandler, TypeOptionCellExt,
+  type_option_data_from_pb, ChecklistCellChangeset, SelectOptionCellChangeset, SelectOptionIds,
+  TimestampCellData, TypeOptionCellDataHandler, TypeOptionCellExt,
 };
 use crate::services::field_settings::{
   default_field_settings_by_layout_map, FieldSettings, FieldSettingsChangesetParams,
@@ -105,6 +105,7 @@ impl DatabaseEditor {
       )
       .await?,
     );
+
     Ok(Self {
       database,
       cell_cache,
@@ -730,16 +731,13 @@ impl DatabaseEditor {
     }
   }
 
-  pub async fn update_cell_with_changeset<T>(
+  pub async fn update_cell_with_changeset(
     &self,
     view_id: &str,
     row_id: RowId,
     field_id: &str,
-    cell_changeset: T,
-  ) -> FlowyResult<()>
-  where
-    T: ToCellChangeset,
-  {
+    cell_changeset: BoxAny,
+  ) -> FlowyResult<()> {
     let (field, cell) = {
       let database = self.database.lock();
       let field = match database.fields.get_field(field_id) {
@@ -872,7 +870,7 @@ impl DatabaseEditor {
 
     // Insert the options into the cell
     self
-      .update_cell_with_changeset(view_id, row_id, field_id, cell_changeset)
+      .update_cell_with_changeset(view_id, row_id, field_id, BoxAny::new(cell_changeset))
       .await?;
     Ok(())
   }
@@ -911,7 +909,7 @@ impl DatabaseEditor {
     .await?;
 
     self
-      .update_cell_with_changeset(view_id, row_id, field_id, cell_changeset)
+      .update_cell_with_changeset(view_id, row_id, field_id, BoxAny::new(cell_changeset))
       .await?;
     Ok(())
   }
@@ -953,7 +951,7 @@ impl DatabaseEditor {
     debug_assert!(FieldType::from(field.field_type).is_checklist());
 
     self
-      .update_cell_with_changeset(view_id, row_id, field_id, changeset)
+      .update_cell_with_changeset(view_id, row_id, field_id, BoxAny::new(changeset))
       .await?;
     Ok(())
   }
@@ -1530,7 +1528,9 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
     self
       .database
       .lock()
-      .get_filter_by_field_id::<Filter>(view_id, field_id)
+      .get_all_filters::<Filter>(view_id)
+      .into_iter()
+      .find(|filter| filter.field_id == field_id)
   }
 
   fn get_layout_setting(&self, view_id: &str, layout_ty: &DatabaseLayout) -> Option<LayoutSetting> {

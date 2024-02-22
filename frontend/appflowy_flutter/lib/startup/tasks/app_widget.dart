@@ -1,8 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
 import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -22,6 +19,8 @@ import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -191,7 +190,7 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
                 // use the 1.0 as the textScaleFactor to avoid the text size
                 //  affected by the system setting.
                 data: MediaQuery.of(context).copyWith(
-                  textScaler: const TextScaler.linear(1),
+                  textScaler: TextScaler.linear(state.textScaleFactor),
                 ),
                 child: overlayManagerBuilder(context, child),
               ),
@@ -244,23 +243,10 @@ class AppGlobals {
 
 class ApplicationBlocObserver extends BlocObserver {
   @override
-  void onTransition(Bloc bloc, Transition transition) {
-    // Log.debug("[current]: ${transition.currentState} \n\n[next]: ${transition.nextState}");
-    // Log.debug("${transition.nextState}");
-    super.onTransition(bloc, transition);
-  }
-
-  @override
   void onError(BlocBase bloc, Object error, StackTrace stackTrace) {
     Log.debug(error);
     super.onError(bloc, error, stackTrace);
   }
-
-  // @override
-  // void onEvent(Bloc bloc, Object? event) {
-  //   Log.debug("$event");
-  //   super.onEvent(bloc, event);
-  // }
 }
 
 Future<AppTheme> appTheme(String themeName) async {

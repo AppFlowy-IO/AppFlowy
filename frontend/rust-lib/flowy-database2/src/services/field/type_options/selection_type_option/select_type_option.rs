@@ -1,14 +1,11 @@
 use bytes::Bytes;
 use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::Cell;
-use serde::{Deserialize, Serialize};
 
 use flowy_error::{internal_error, ErrorCode, FlowyResult};
 
 use crate::entities::{CheckboxCellDataPB, FieldType, SelectOptionCellDataPB};
-use crate::services::cell::{
-  CellDataDecoder, CellProtobufBlobParser, DecodedCellData, FromCellChangeset, ToCellChangeset,
-};
+use crate::services::cell::{CellDataDecoder, CellProtobufBlobParser, DecodedCellData};
 use crate::services::field::selection_type_option::type_option_transform::SelectOptionTypeOptionTransformHelper;
 use crate::services::field::{
   make_selected_options, MultiSelectTypeOption, SelectOption, SelectOptionCellData,
@@ -231,25 +228,10 @@ impl CellProtobufBlobParser for SelectOptionCellDataParser {
   }
 }
 
-#[derive(Clone, Serialize, Deserialize, Default, Debug)]
+#[derive(Clone, Default, Debug)]
 pub struct SelectOptionCellChangeset {
   pub insert_option_ids: Vec<String>,
   pub delete_option_ids: Vec<String>,
-}
-
-impl FromCellChangeset for SelectOptionCellChangeset {
-  fn from_changeset(changeset: String) -> FlowyResult<Self>
-  where
-    Self: Sized,
-  {
-    serde_json::from_str::<SelectOptionCellChangeset>(&changeset).map_err(internal_error)
-  }
-}
-
-impl ToCellChangeset for SelectOptionCellChangeset {
-  fn to_cell_changeset_str(&self) -> String {
-    serde_json::to_string(self).unwrap_or_default()
-  }
 }
 
 impl SelectOptionCellChangeset {

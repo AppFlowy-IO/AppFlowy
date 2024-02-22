@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
 import 'package:appflowy/plugins/document/presentation/more/font_size_slider.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/view_info/view_info_bloc.dart';
@@ -33,7 +34,24 @@ class DocumentMoreButton extends StatelessWidget {
                   constraints:
                       const BoxConstraints(maxHeight: 40, maxWidth: 240),
                   offset: const Offset(-10, 0),
-                  popupBuilder: (context) => const FontSizeStepper(),
+                  popupBuilder: (context) {
+                    return BlocBuilder<DocumentAppearanceCubit,
+                        DocumentAppearance>(
+                      builder: (context, state) {
+                        return FontSizeStepper(
+                          minimumValue: 10,
+                          maximumValue: 24,
+                          value: state.fontSize,
+                          divisions: 8,
+                          onChanged: (newFontSize) {
+                            context
+                                .read<DocumentAppearanceCubit>()
+                                .syncFontSize(newFontSize);
+                          },
+                        );
+                      },
+                    );
+                  },
                   child: FlowyButton(
                     text: FlowyText.regular(
                       LocaleKeys.moreAction_fontSize.tr(),
