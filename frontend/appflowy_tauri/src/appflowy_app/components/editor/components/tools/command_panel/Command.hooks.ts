@@ -57,12 +57,14 @@ export function useCommandPanel() {
           offset: endPoint.current.offset,
         };
 
-        Transforms.delete(editor, {
-          at: {
-            anchor,
-            focus,
-          },
-        });
+        if (!Point.equals(anchor, focus)) {
+          Transforms.delete(editor, {
+            at: {
+              anchor,
+              focus,
+            },
+          });
+        }
       }
 
       setSlashOpen(false);
