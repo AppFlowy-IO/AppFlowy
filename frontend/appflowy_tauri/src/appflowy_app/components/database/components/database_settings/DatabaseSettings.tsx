@@ -15,7 +15,7 @@ function DatabaseSettings(props: Props) {
   const [settingAnchorEl, setSettingAnchorEl] = useState<null | HTMLElement>(null);
 
   return (
-    <div className='flex items-center gap-2'>
+    <div className='flex h-[39px] items-center gap-2 border-b border-line-divider'>
       <FilterSettings {...props} />
       <SortSettings {...props} />
       <TextButton color='inherit' onClick={(e) => setSettingAnchorEl(e.currentTarget)}>

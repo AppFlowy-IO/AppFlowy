@@ -58,7 +58,7 @@ export const DatabaseTabBar = forwardRef<HTMLDivElement, DatabaseTabBarProps>(
 
     if (childViews.length === 0) return null;
     return (
-      <div ref={ref} className='-mb-px flex w-full items-center gap-2 overflow-hidden px-16'>
+      <div ref={ref} className='-mb-px flex w-full items-center overflow-hidden  px-16'>
         <div
           style={{
             width: 'calc(100% - 120px)',
