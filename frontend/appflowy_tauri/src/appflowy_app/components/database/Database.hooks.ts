@@ -90,6 +90,12 @@ export const useDatabaseSorts = () => {
   return useSnapshot(context.sorts);
 };
 
+export const useSortsCount = () => {
+  const { sorts } = useDatabase();
+
+  return sorts?.length;
+};
+
 export const useFiltersCount = () => {
   const { filters, fields } = useDatabase();
 
@@ -152,8 +158,8 @@ export const useConnectDatabase = (viewId: string) => {
         [DatabaseNotification.DidUpdateFieldSettings]: (changeset) => {
           fieldListeners.didUpdateFieldSettings(database, changeset);
         },
-        [DatabaseNotification.DidUpdateViewRows]: (changeset) => {
-          rowListeners.didUpdateViewRows(database, changeset);
+        [DatabaseNotification.DidUpdateViewRows]: async (changeset) => {
+          await rowListeners.didUpdateViewRows(viewId, database, changeset);
         },
         [DatabaseNotification.DidReorderRows]: (changeset) => {
           rowListeners.didReorderRows(database, changeset);

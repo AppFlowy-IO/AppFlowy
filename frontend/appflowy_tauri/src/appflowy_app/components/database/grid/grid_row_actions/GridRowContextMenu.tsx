@@ -23,7 +23,7 @@ export function GridRowContextMenu({
 
     if (!container || !rowId) return;
     toggleProperty(container, rowId, false);
-    setRowId(undefined);
+    // setRowId(undefined);
   }, [rowId, containerRef]);
 
   const openContextMenu = useCallback(
@@ -56,7 +56,7 @@ export function GridRowContextMenu({
     };
   }, [containerRef, openContextMenu]);
 
-  return isContextMenuOpen && rowId ? (
+  return rowId ? (
     <GridRowMenu open={isContextMenuOpen} onClose={closeContextMenu} anchorPosition={position} rowId={rowId} />
   ) : null;
 }

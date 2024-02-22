@@ -16,12 +16,6 @@ const deleteRowsFromChangeset = (database: Database, changeset: RowsChangePB) =>
   });
 };
 
-const insertRowsFromChangeset = (database: Database, changeset: RowsChangePB) => {
-  changeset.inserted_rows.forEach(({ index, row_meta: rowMetaPB }) => {
-    database.rowMetas.splice(index, 0, pbToRowMeta(rowMetaPB));
-  });
-};
-
 const updateRowsFromChangeset = (database: Database, changeset: RowsChangePB) => {
   changeset.updated_rows.forEach(({ row_id: rowId, row_meta: rowMetaPB }) => {
     const found = database.rowMetas.find((rowMeta) => rowMeta.id === rowId);
@@ -32,9 +26,15 @@ const updateRowsFromChangeset = (database: Database, changeset: RowsChangePB) =>
   });
 };
 
-export const didUpdateViewRows = (database: Database, changeset: RowsChangePB) => {
+export const didUpdateViewRows = async (viewId: string, database: Database, changeset: RowsChangePB) => {
+  if (changeset.inserted_rows.length > 0) {
+    const { rowMetas } = await getDatabase(viewId);
+
+    database.rowMetas = rowMetas;
+    return;
+  }
+
   deleteRowsFromChangeset(database, changeset);
-  insertRowsFromChangeset(database, changeset);
   updateRowsFromChangeset(database, changeset);
 };
 

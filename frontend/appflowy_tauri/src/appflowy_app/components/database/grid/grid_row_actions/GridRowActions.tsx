@@ -1,12 +1,15 @@
 import React, { useCallback, useState } from 'react';
 import { IconButton, Tooltip } from '@mui/material';
-import { t } from 'i18next';
 import { ReactComponent as AddSvg } from '$app/assets/add.svg';
 import { GRID_ACTIONS_WIDTH } from '$app/components/database/grid/constants';
 import { rowService } from '$app/application/database';
 import { useViewId } from '$app/hooks';
 import { GridRowDragButton, GridRowMenu, toggleProperty } from '$app/components/database/grid/grid_row_actions';
 import { OrderObjectPositionTypePB } from '@/services/backend';
+import { useSortsCount } from '$app/components/database';
+import DeleteConfirmDialog from '$app/components/_shared/confirm_dialog/DeleteConfirmDialog';
+import { useTranslation } from 'react-i18next';
+import { deleteAllSorts } from '$app/application/database/sort/sort_service';
 
 export function GridRowActions({
   rowId,
@@ -19,7 +22,11 @@ export function GridRowActions({
   containerRef: React.MutableRefObject<HTMLDivElement | null>;
   getScrollElement: () => HTMLDivElement | null;
 }) {
+  const { t } = useTranslation();
   const viewId = useViewId();
+  const sortsCount = useSortsCount();
+  const [openConfirm, setOpenConfirm] = useState(false);
+  const [confirmRowId, setConfirmRowId] = useState<string | undefined>();
   const [menuRowId, setMenuRowId] = useState<string | undefined>(undefined);
   const [menuPosition, setMenuPosition] = useState<
     | {
@@ -33,22 +40,21 @@ export function GridRowActions({
 
   const handleCloseMenu = useCallback(() => {
     setMenuPosition(undefined);
-    setMenuRowId((prev) => {
-      if (containerRef.current && prev) {
-        toggleProperty(containerRef.current, prev, false);
-      }
+    if (containerRef.current && menuRowId) {
+      toggleProperty(containerRef.current, menuRowId, false);
+    }
+  }, [containerRef, menuRowId]);
 
-      return undefined;
-    });
-  }, [containerRef]);
-
-  const handleInsertRecordBelow = useCallback(() => {
-    void rowService.createRow(viewId, {
-      position: OrderObjectPositionTypePB.After,
-      rowId: rowId,
-    });
-    handleCloseMenu();
-  }, [viewId, rowId, handleCloseMenu]);
+  const handleInsertRecordBelow = useCallback(
+    async (rowId: string) => {
+      await rowService.createRow(viewId, {
+        position: OrderObjectPositionTypePB.After,
+        rowId: rowId,
+      });
+      handleCloseMenu();
+    },
+    [viewId, handleCloseMenu]
+  );
 
   const handleOpenMenu = (e: React.MouseEvent) => {
     const target = e.target as HTMLButtonElement;
@@ -78,7 +84,16 @@ export function GridRowActions({
           className={'z-10 flex w-full items-center justify-end'}
         >
           <Tooltip placement='top' title={t('grid.row.add')}>
-            <IconButton onClick={handleInsertRecordBelow}>
+            <IconButton
+              onClick={() => {
+                setConfirmRowId(rowId);
+                if (sortsCount > 0) {
+                  setOpenConfirm(true);
+                } else {
+                  void handleInsertRecordBelow(rowId);
+                }
+              }}
+            >
               <AddSvg />
             </IconButton>
           </Tooltip>
@@ -90,7 +105,7 @@ export function GridRowActions({
           />
         </div>
       )}
-      {openMenu && menuRowId && (
+      {menuRowId && (
         <GridRowMenu
           open={openMenu}
           onClose={handleCloseMenu}
@@ -101,6 +116,26 @@ export function GridRowActions({
           rowId={menuRowId}
           anchorReference={'anchorPosition'}
           anchorPosition={menuPosition}
+        />
+      )}
+      {openConfirm && (
+        <DeleteConfirmDialog
+          open={openConfirm}
+          title={t('grid.removeSorting')}
+          onOk={async () => {
+            if (!confirmRowId) return;
+            await deleteAllSorts(viewId);
+            await handleInsertRecordBelow(confirmRowId);
+          }}
+          onClose={() => {
+            setOpenConfirm(false);
+          }}
+          onCancel={() => {
+            if (!confirmRowId) return;
+            void handleInsertRecordBelow(confirmRowId);
+          }}
+          okText={t('button.remove')}
+          cancelText={t('button.dontRemove')}
         />
       )}
     </>
