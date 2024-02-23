@@ -10,6 +10,7 @@ class MobileQuickActionButton extends StatelessWidget {
     required this.text,
     this.textColor,
     this.iconColor,
+    this.enable = true,
   });
 
   final VoidCallback onTap;
@@ -17,6 +18,7 @@ class MobileQuickActionButton extends StatelessWidget {
   final String text;
   final Color? textColor;
   final Color? iconColor;
+  final bool enable;
 
   @override
   Widget build(BuildContext context) {
@@ -25,6 +27,8 @@ class MobileQuickActionButton extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
+        overlayColor:
+            enable ? null : const MaterialStatePropertyAll(Colors.transparent),
         splashColor: Colors.transparent,
         child: Container(
           height: 44,
@@ -34,14 +38,14 @@ class MobileQuickActionButton extends StatelessWidget {
               FlowySvg(
                 icon,
                 size: const Size.square(20),
-                color: iconColor,
+                color: enable ? iconColor : Theme.of(context).disabledColor,
               ),
               const HSpace(12),
               Expanded(
                 child: FlowyText(
                   text,
                   fontSize: 15,
-                  color: textColor,
+                  color: enable ? textColor : Theme.of(context).disabledColor,
                 ),
               ),
             ],
