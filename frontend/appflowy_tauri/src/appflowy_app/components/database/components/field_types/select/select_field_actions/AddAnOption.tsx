@@ -26,6 +26,7 @@ function AddAnOption({ fieldId, options }: { fieldId: string; options: SelectOpt
   }, [options, newOptionName]);
 
   const createOption = async () => {
+    if (!newOptionName) return;
     if (isOptionExist) {
       notify.error(t('grid.field.optionAlreadyExist'));
       return;

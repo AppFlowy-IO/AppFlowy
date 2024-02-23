@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { ReactComponent as UpSvg } from '$app/assets/up.svg';
 import { ReactComponent as AddSvg } from '$app/assets/add.svg';
 import { ReactComponent as DelSvg } from '$app/assets/delete.svg';
@@ -11,7 +11,6 @@ import { OrderObjectPositionTypePB } from '@/services/backend';
 import KeyboardNavigation, {
   KeyboardNavigationOption,
 } from '$app/components/_shared/keyboard_navigation/KeyboardNavigation';
-import DeleteConfirmDialog from '$app/components/_shared/confirm_dialog/DeleteConfirmDialog';
 import { useSortsCount } from '$app/components/database';
 import { deleteAllSorts } from '$app/application/database/sort/sort_service';
 
@@ -23,13 +22,13 @@ enum RowAction {
 }
 interface Props extends PopoverProps {
   rowId: string;
+  onOpenConfirm?: (onOk: () => Promise<void>, onCancel: () => void) => void;
 }
 
-export function GridRowMenu({ rowId, onClose, ...props }: Props) {
+export function GridRowMenu({ onOpenConfirm, rowId, onClose, ...props }: Props) {
   const viewId = useViewId();
   const sortsCount = useSortsCount();
-  const [openConfirm, setOpenConfirm] = useState(false);
-  const [confirmKey, setConfirmKey] = useState<RowAction | undefined>(undefined);
+
   const { t } = useTranslation();
 
   const handleInsertRecordBelow = useCallback(() => {
@@ -56,8 +55,8 @@ export function GridRowMenu({ rowId, onClose, ...props }: Props) {
 
   const renderContent = useCallback((title: string, Icon: React.FC<React.SVGProps<SVGSVGElement>>) => {
     return (
-      <div className={'flex w-full items-center gap-1 p-1'}>
-        <Icon className={'h-5 w-5'} />
+      <div className={'flex w-full items-center gap-1 px-1'}>
+        <Icon className={'h-4 w-4'} />
         <div className={'flex-1'}>{title}</div>
       </div>
     );
@@ -87,16 +86,23 @@ export function GridRowMenu({ rowId, onClose, ...props }: Props) {
 
   const onConfirm = useCallback(
     (key: RowAction) => {
-      setConfirmKey(key);
       if (sortsCount > 0) {
-        setOpenConfirm(true);
+        onOpenConfirm?.(
+          async () => {
+            await deleteAllSorts(viewId);
+            handleAction(key);
+          },
+          () => {
+            handleAction(key);
+          }
+        );
       } else {
         handleAction(key);
       }
 
       onClose?.({}, 'backdropClick');
     },
-    [handleAction, onClose, sortsCount]
+    [handleAction, onClose, onOpenConfirm, sortsCount, viewId]
   );
 
   const options: KeyboardNavigationOption<RowAction>[] = useMemo(
@@ -137,32 +143,16 @@ export function GridRowMenu({ rowId, onClose, ...props }: Props) {
         onClose={onClose}
         {...props}
       >
-        <KeyboardNavigation
-          options={options}
-          onConfirm={onConfirm}
-          onEscape={() => {
-            onClose?.({}, 'escapeKeyDown');
-          }}
-        />
+        <div className={'py-2'}>
+          <KeyboardNavigation
+            options={options}
+            onConfirm={onConfirm}
+            onEscape={() => {
+              onClose?.({}, 'escapeKeyDown');
+            }}
+          />
+        </div>
       </Popover>
-      {openConfirm && (
-        <DeleteConfirmDialog
-          open={openConfirm}
-          title={t('grid.removeSorting')}
-          onOk={async () => {
-            await deleteAllSorts(viewId);
-            handleAction(confirmKey);
-          }}
-          onClose={() => {
-            setOpenConfirm(false);
-          }}
-          onCancel={() => {
-            handleAction(confirmKey);
-          }}
-          okText={t('button.remove')}
-          cancelText={t('button.dontRemove')}
-        />
-      )}
     </>
   );
 }

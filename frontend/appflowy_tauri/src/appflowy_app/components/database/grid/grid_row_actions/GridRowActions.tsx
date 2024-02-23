@@ -7,7 +7,6 @@ import { useViewId } from '$app/hooks';
 import { GridRowDragButton, GridRowMenu, toggleProperty } from '$app/components/database/grid/grid_row_actions';
 import { OrderObjectPositionTypePB } from '@/services/backend';
 import { useSortsCount } from '$app/components/database';
-import DeleteConfirmDialog from '$app/components/_shared/confirm_dialog/DeleteConfirmDialog';
 import { useTranslation } from 'react-i18next';
 import { deleteAllSorts } from '$app/application/database/sort/sort_service';
 
@@ -16,7 +15,9 @@ export function GridRowActions({
   rowTop,
   containerRef,
   getScrollElement,
+  onOpenConfirm,
 }: {
+  onOpenConfirm: (onOk: () => Promise<void>, onCancel: () => void) => void;
   rowId?: string;
   rowTop?: string;
   containerRef: React.MutableRefObject<HTMLDivElement | null>;
@@ -25,8 +26,6 @@ export function GridRowActions({
   const { t } = useTranslation();
   const viewId = useViewId();
   const sortsCount = useSortsCount();
-  const [openConfirm, setOpenConfirm] = useState(false);
-  const [confirmRowId, setConfirmRowId] = useState<string | undefined>();
   const [menuRowId, setMenuRowId] = useState<string | undefined>(undefined);
   const [menuPosition, setMenuPosition] = useState<
     | {
@@ -81,14 +80,23 @@ export function GridRowActions({
             left: GRID_ACTIONS_WIDTH,
             transform: 'translateY(4px)',
           }}
-          className={'z-10 flex w-full items-center justify-end'}
+          className={'z-10 flex w-full items-center justify-end py-[3px]'}
         >
           <Tooltip placement='top' disableInteractive={true} title={t('grid.row.add')}>
             <IconButton
+              size={'small'}
+              className={'h-5 w-5'}
               onClick={() => {
-                setConfirmRowId(rowId);
                 if (sortsCount > 0) {
-                  setOpenConfirm(true);
+                  onOpenConfirm(
+                    async () => {
+                      await deleteAllSorts(viewId);
+                      void handleInsertRecordBelow(rowId);
+                    },
+                    () => {
+                      void handleInsertRecordBelow(rowId);
+                    }
+                  );
                 } else {
                   void handleInsertRecordBelow(rowId);
                 }
@@ -102,12 +110,14 @@ export function GridRowActions({
             rowId={rowId}
             containerRef={containerRef}
             onClick={handleOpenMenu}
+            onOpenConfirm={onOpenConfirm}
           />
         </div>
       )}
       {menuRowId && (
         <GridRowMenu
           open={openMenu}
+          onOpenConfirm={onOpenConfirm}
           onClose={handleCloseMenu}
           transformOrigin={{
             vertical: 'center',
@@ -116,26 +126,6 @@ export function GridRowActions({
           rowId={menuRowId}
           anchorReference={'anchorPosition'}
           anchorPosition={menuPosition}
-        />
-      )}
-      {openConfirm && (
-        <DeleteConfirmDialog
-          open={openConfirm}
-          title={t('grid.removeSorting')}
-          onOk={async () => {
-            if (!confirmRowId) return;
-            await deleteAllSorts(viewId);
-            await handleInsertRecordBelow(confirmRowId);
-          }}
-          onClose={() => {
-            setOpenConfirm(false);
-          }}
-          onCancel={() => {
-            if (!confirmRowId) return;
-            void handleInsertRecordBelow(confirmRowId);
-          }}
-          okText={t('button.remove')}
-          cancelText={t('button.dontRemove')}
         />
       )}
     </>

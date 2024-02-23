@@ -1,27 +1,28 @@
 import React, { useCallback } from 'react';
 import DialogContent from '@mui/material/DialogContent';
-import { Button } from '@mui/material';
+import { Button, DialogProps } from '@mui/material';
 import Dialog from '@mui/material/Dialog';
 import { useTranslation } from 'react-i18next';
 import { Log } from '$app/utils/log';
 
-interface Props {
+interface Props extends DialogProps {
   open: boolean;
   title: string;
   subtitle?: string;
-  onOk: () => Promise<void>;
+  onOk?: () => Promise<void>;
   onClose: () => void;
   onCancel?: () => void;
   okText?: string;
   cancelText?: string;
+  container?: HTMLElement | null;
 }
 
-function DeleteConfirmDialog({ open, title, onOk, onCancel, onClose, okText, cancelText }: Props) {
+function DeleteConfirmDialog({ open, title, onOk, onCancel, onClose, okText, cancelText, container, ...props }: Props) {
   const { t } = useTranslation();
 
   const onDone = useCallback(async () => {
     try {
-      await onOk();
+      await onOk?.();
       onClose();
     } catch (e) {
       Log.error(e);
@@ -30,6 +31,7 @@ function DeleteConfirmDialog({ open, title, onOk, onCancel, onClose, okText, can
 
   return (
     <Dialog
+      container={container}
       keepMounted={false}
       onKeyDown={(e) => {
         if (e.key === 'Escape') {
@@ -47,6 +49,7 @@ function DeleteConfirmDialog({ open, title, onOk, onCancel, onClose, okText, can
       onMouseDown={(e) => e.stopPropagation()}
       open={open}
       onClose={onClose}
+      {...props}
     >
       <DialogContent className={'w-[320px]'}>
         {title}
