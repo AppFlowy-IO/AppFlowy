@@ -19,6 +19,11 @@ class ViewInfoBloc extends Bloc<ViewInfoEvent, ViewInfoState> {
       event.when(
         started: () {},
         registerEditorState: (editorState) {
+          if (_wordCountService != null) {
+            _wordCountService!.removeListener(_onWordCountChanged);
+            _wordCountService!.dispose();
+          }
+
           _wordCountService = WordCountService(editorState: editorState);
           _wordCountService!.addListener(_onWordCountChanged);
           _wordCountService!.register();
@@ -32,6 +37,7 @@ class ViewInfoBloc extends Bloc<ViewInfoEvent, ViewInfoState> {
         reset: (ViewPB? view) {
           _wordCountService?.removeListener(_onWordCountChanged);
           _wordCountService?.dispose();
+          _wordCountService = null;
 
           final createdAt = view?.createTime.toDateTime();
           emit(ViewInfoState.initial().copyWith(createdAt: createdAt));
@@ -56,6 +62,7 @@ class ViewInfoBloc extends Bloc<ViewInfoEvent, ViewInfoState> {
   Future<void> close() async {
     _wordCountService?.removeListener(_onWordCountChanged);
     _wordCountService?.dispose();
+    _wordCountService = null;
     getIt<MenuSharedState>().removeLatestViewListener(_viewChangedCallback);
     await super.close();
   }
