@@ -76,7 +76,7 @@ class AppBarDoneButton extends StatelessWidget {
       isActionButton: true,
       onTap: onTap,
       child: FlowyText(
-        LocaleKeys.button_Done.tr(),
+        LocaleKeys.button_done.tr(),
         color: Theme.of(context).colorScheme.primary,
         fontWeight: FontWeight.w500,
         textAlign: TextAlign.right,
