@@ -18,10 +18,10 @@ export const Sorts = () => {
   }, []);
 
   const label = (
-    <div className={'flex items-center justify-center'}>
-      <SortSvg className={'mr-1.5 h-4 w-4'} />
+    <div className={'flex items-center justify-center gap-1'}>
+      <SortSvg className={'h-4 w-4'} />
       {t('grid.settings.sort')}
-      <DropDownSvg className={'ml-1.5 h-6 w-6'} />
+      <DropDownSvg className={'h-5 w-5'} />
     </div>
   );
 

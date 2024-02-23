@@ -111,9 +111,9 @@ function Filter({ filter, field }: Props) {
         clickable
         variant='outlined'
         label={
-          <div className={'flex items-center justify-center'}>
+          <div className={'flex items-center justify-center gap-1'}>
             <Property field={field} />
-            <DropDownSvg className={'ml-1.5 h-8 w-8'} />
+            <DropDownSvg className={'h-6 w-6'} />
           </div>
         }
         onClick={handleClick}
