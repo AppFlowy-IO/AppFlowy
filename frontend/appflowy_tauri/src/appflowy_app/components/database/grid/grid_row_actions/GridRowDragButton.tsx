@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDraggableGridRow } from './GridRowActions.hooks';
 import { IconButton, Tooltip } from '@mui/material';
 import { ReactComponent as DragSvg } from '$app/assets/drag.svg';
@@ -17,10 +17,27 @@ export function GridRowDragButton({
 }) {
   const { t } = useTranslation();
 
-  const { onDragStart } = useDraggableGridRow(rowId, containerRef, getScrollElement);
+  const [openTooltip, setOpenTooltip] = useState(false);
+  const { onDragStart, isDragging } = useDraggableGridRow(rowId, containerRef, getScrollElement);
 
+  useEffect(() => {
+    if (isDragging) {
+      setOpenTooltip(false);
+    }
+  }, [isDragging]);
   return (
-    <Tooltip placement='top' title={t('grid.row.dragAndClick')}>
+    <Tooltip
+      open={openTooltip}
+      onOpen={() => {
+        setOpenTooltip(true);
+      }}
+      onClose={() => {
+        setOpenTooltip(false);
+      }}
+      placement='top'
+      disableInteractive={true}
+      title={t('grid.row.dragAndClick')}
+    >
       <IconButton
         onClick={onClick}
         draggable={true}

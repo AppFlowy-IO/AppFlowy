@@ -83,7 +83,7 @@ export function GridRowActions({
           }}
           className={'z-10 flex w-full items-center justify-end'}
         >
-          <Tooltip placement='top' title={t('grid.row.add')}>
+          <Tooltip placement='top' disableInteractive={true} title={t('grid.row.add')}>
             <IconButton
               onClick={() => {
                 setConfirmRowId(rowId);

@@ -156,8 +156,10 @@ export function useDraggableGridRow(
       e.stopPropagation();
       const dropRowId = dropRowIdRef.current;
 
+      toggleProperty(container, rowId, false);
       if (dropRowId) {
         void rowService.moveRow(viewId, rowId, dropRowId);
+        toggleProperty(container, dropRowId, false);
       }
 
       setIsDragging(false);
