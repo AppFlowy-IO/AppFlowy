@@ -143,9 +143,7 @@ class _OverviewBlockWidgetState extends State<WorkspaceOverviewBlockWidget>
               ..add(const WorkspaceOverviewEvent.initial()),
             child: BlocBuilder<WorkspaceOverviewBloc, WorkspaceOverviewState>(
               builder: (context, state) {
-                return _buildOverviewBlock(
-                  state.view,
-                );
+                return _buildOverviewBlock(state.view);
               },
             ),
           );
