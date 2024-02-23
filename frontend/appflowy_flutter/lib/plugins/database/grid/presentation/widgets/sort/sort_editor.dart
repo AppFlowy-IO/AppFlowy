@@ -299,9 +299,13 @@ class _DatabaseSortItemOrderButtonState
       popupBuilder: (BuildContext popoverContext) {
         return OrderPanel(
           onCondition: (condition) {
-            context
-                .read<SortEditorBloc>()
-                .add(SortEditorEvent.setCondition(widget.sortInfo, condition));
+            context.read<SortEditorBloc>().add(
+                  SortEditorEvent.editSort(
+                    widget.sortInfo.sortId,
+                    null,
+                    condition,
+                  ),
+                );
             popoverController.close();
           },
         );
