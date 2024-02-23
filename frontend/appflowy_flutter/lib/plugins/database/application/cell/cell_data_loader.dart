@@ -137,9 +137,6 @@ class URLCellDataParser implements CellDataParser<URLCellDataPB> {
 class RelationCellDataParser implements CellDataParser<RelationCellDataPB> {
   @override
   RelationCellDataPB? parserData(List<int> data) {
-    if (data.isEmpty) {
-      return null;
-    }
-    return RelationCellDataPB.fromBuffer(data);
+    return data.isEmpty ? null : RelationCellDataPB.fromBuffer(data);
   }
 }

@@ -84,7 +84,7 @@ class _RelationCellState extends GridCellState<EditableRelationCell> {
   }
 
   @override
-  void requestBeginFocus() {
+  void onRequestFocus() {
     _popover.show();
     widget.cellContainerNotifier.isFocus = true;
   }

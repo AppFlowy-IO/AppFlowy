@@ -9,7 +9,7 @@ import '../../layout/sizes.dart';
 
 typedef SelectFieldCallback = void Function(FieldType);
 
-const _supportedFieldTypes = [
+const List<FieldType> _supportedFieldTypes = [
   FieldType.RichText,
   FieldType.Number,
   FieldType.SingleSelect,

@@ -107,7 +107,7 @@ class RelationCellBloc extends Bloc<RelationCellEvent, RelationCellState> {
         rowId: cellController.rowId,
       ),
     );
-    if (state.rows.map((row) => row.rowId).contains(rowId)) {
+    if (state.rows.any((row) => row.rowId == rowId)) {
       payload.removedRowIds.add(rowId);
     } else {
       payload.insertedRowIds.add(rowId);

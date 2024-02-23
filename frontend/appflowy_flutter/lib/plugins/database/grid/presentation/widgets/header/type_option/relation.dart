@@ -130,27 +130,26 @@ class _DatabaseListState extends State<_DatabaseList> {
 
         final databaseIds = data
             .fold<List<DatabaseDescriptionPB>>((l) => l.items, (r) => [])
-            .map((databaseDescription) => databaseDescription.databaseId)
-            .map(
-              (databaseId) => FlowyButton(
-                onTap: () => widget.onSelectDatabase(databaseId),
-                text: FlowyText.medium(
-                  databaseId,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                rightIcon: databaseId == widget.currentDatabaseId
-                    ? FlowySvg(
-                        FlowySvgs.check_s,
-                        color: Theme.of(context).colorScheme.primary,
-                      )
-                    : null,
-              ),
-            )
-            .toList();
+            .map((databaseDescription) {
+          final databaseId = databaseDescription.databaseId;
+          return FlowyButton(
+            onTap: () => widget.onSelectDatabase(databaseId),
+            text: FlowyText.medium(
+              databaseId,
+              overflow: TextOverflow.ellipsis,
+            ),
+            rightIcon: databaseId == widget.currentDatabaseId
+                ? FlowySvg(
+                    FlowySvgs.check_s,
+                    color: Theme.of(context).colorScheme.primary,
+                  )
+                : null,
+          );
+        }).toList();
 
         return ListView.separated(
           shrinkWrap: true,
-          separatorBuilder: (context, index) =>
+          separatorBuilder: (_, __) =>
               VSpace(GridSize.typeOptionSeparatorHeight),
           itemCount: databaseIds.length,
           itemBuilder: (context, index) => databaseIds[index],
