@@ -49,7 +49,7 @@ class BottomSheetHeader extends StatelessWidget {
                 color: Color(0xFF00BCF0),
               ),
               text: FlowyText.medium(
-                LocaleKeys.button_Done.tr(),
+                LocaleKeys.button_done.tr(),
                 color: Colors.white,
                 fontSize: 16.0,
               ),

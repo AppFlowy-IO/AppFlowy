@@ -193,9 +193,8 @@
     "editContact": "Редагувати контакт"
   },
   "button": {
-    "OK": "OK",
-    "Done": "Готово",
-    "Cancel": "Скасувати",
+    "ok": "OK",
+    "cancel": "Скасувати",
     "signIn": "Увійти",
     "signOut": "Вийти",
     "complete": "Завершити",
