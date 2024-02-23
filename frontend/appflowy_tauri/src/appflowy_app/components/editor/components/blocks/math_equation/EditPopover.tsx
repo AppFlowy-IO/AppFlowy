@@ -58,7 +58,7 @@ function EditPopover({
   }, [onClose, editor, node]);
 
   const handleDone = () => {
-    if (!node) return;
+    if (!node || error) return;
     if (value !== node.data.formula) {
       CustomEditor.setMathEquationBlockFormula(editor, node, value);
     }
