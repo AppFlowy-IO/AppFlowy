@@ -91,7 +91,6 @@ class CreateSortBloc extends Bloc<CreateSortEvent, CreateSortState> {
   Future<Either<Unit, FlowyError>> _createDefaultSort(FieldInfo field) async {
     final result = await _sortBackendSvc.insertSort(
       fieldId: field.id,
-      fieldType: field.fieldType,
       condition: SortConditionPB.Ascending,
     );
 
