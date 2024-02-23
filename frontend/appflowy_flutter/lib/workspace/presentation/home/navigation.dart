@@ -184,7 +184,7 @@ TextSpan sidebarTooltipTextSpan(BuildContext context, String hintText) =>
           text: "$hintText\n",
         ),
         TextSpan(
-          text: Platform.isMacOS ? "⌘+\\" : "Ctrl+\\",
+          text: Platform.isMacOS ? "⌘+." : "Ctrl+\\",
         ),
       ],
     );

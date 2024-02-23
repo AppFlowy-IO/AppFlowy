@@ -10,6 +10,7 @@ import 'package:appflowy/workspace/application/notifications/notification_action
 import 'package:appflowy/workspace/application/notifications/notification_service.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/notifications/notification_settings_cubit.dart';
+import 'package:appflowy/workspace/application/sidebar/rename_view/rename_view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
@@ -60,6 +61,7 @@ class InitAppWidgetTask extends LaunchTask {
           Locale('am', 'ET'),
           Locale('ar', 'SA'),
           Locale('ca', 'ES'),
+          Locale('ckb', 'KU'),
           Locale('de', 'DE'),
           Locale('en'),
           Locale('es', 'VE'),
@@ -145,6 +147,7 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
         BlocProvider<DocumentAppearanceCubit>(
           create: (_) => DocumentAppearanceCubit()..fetch(),
         ),
+        BlocProvider.value(value: getIt<RenameViewBloc>()),
         BlocProvider.value(value: getIt<NotificationActionBloc>()),
         BlocProvider.value(
           value: getIt<ReminderBloc>()..add(const ReminderEvent.started()),
@@ -182,7 +185,7 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
                 // use the 1.0 as the textScaleFactor to avoid the text size
                 //  affected by the system setting.
                 data: MediaQuery.of(context).copyWith(
-                  textScaler: const TextScaler.linear(1),
+                  textScaler: TextScaler.linear(state.textScaleFactor),
                 ),
                 child: overlayManagerBuilder(context, child),
               ),
@@ -235,23 +238,10 @@ class AppGlobals {
 
 class ApplicationBlocObserver extends BlocObserver {
   @override
-  void onTransition(Bloc bloc, Transition transition) {
-    // Log.debug("[current]: ${transition.currentState} \n\n[next]: ${transition.nextState}");
-    // Log.debug("${transition.nextState}");
-    super.onTransition(bloc, transition);
-  }
-
-  @override
   void onError(BlocBase bloc, Object error, StackTrace stackTrace) {
     Log.debug(error);
     super.onError(bloc, error, stackTrace);
   }
-
-  // @override
-  // void onEvent(Bloc bloc, Object? event) {
-  //   Log.debug("$event");
-  //   super.onEvent(bloc, event);
-  // }
 }
 
 Future<AppTheme> appTheme(String themeName) async {

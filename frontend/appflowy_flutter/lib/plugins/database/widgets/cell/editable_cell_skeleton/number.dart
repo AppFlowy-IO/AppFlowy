@@ -68,7 +68,7 @@ class _NumberCellState extends GridEditableTextCell<EditableNumberCell> {
   }
 
   @override
-  Future<void> dispose() async {
+  void dispose() {
     _textEditingController.dispose();
     cellBloc.close();
     super.dispose();
@@ -96,7 +96,7 @@ class _NumberCellState extends GridEditableTextCell<EditableNumberCell> {
   SingleListenerFocusNode focusNode = SingleListenerFocusNode();
 
   @override
-  void requestBeginFocus() {
+  void onRequestFocus() {
     focusNode.requestFocus();
   }
 

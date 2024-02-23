@@ -34,9 +34,8 @@ class _GridChecklistCellState extends State<ChecklistCellEditor> {
   void initState() {
     super.initState();
     newTaskFocusNode = FocusNode(
-      onKey: (node, event) {
-        if (event is RawKeyDownEvent &&
-            event.logicalKey == LogicalKeyboardKey.escape) {
+      onKeyEvent: (node, event) {
+        if (event.logicalKey == LogicalKeyboardKey.escape) {
           node.unfocus();
           return KeyEventResult.handled;
         }
@@ -170,9 +169,8 @@ class _ChecklistItemState extends State<ChecklistItem> {
     super.initState();
     _textController = TextEditingController(text: widget.task.data.name);
     _focusNode = FocusNode(
-      onKey: (node, event) {
-        if (event is RawKeyDownEvent &&
-            event.logicalKey == LogicalKeyboardKey.escape) {
+      onKeyEvent: (node, event) {
+        if (event.logicalKey == LogicalKeyboardKey.escape) {
           node.unfocus();
           return KeyEventResult.handled;
         }
@@ -182,6 +180,14 @@ class _ChecklistItemState extends State<ChecklistItem> {
     if (widget.autofocus) {
       _focusNode.requestFocus();
     }
+  }
+
+  @override
+  void dispose() {
+    _textController.dispose();
+    _focusNode.dispose();
+    _debounceOnChanged?.cancel();
+    super.dispose();
   }
 
   @override
@@ -298,6 +304,12 @@ class _NewTaskItemState extends State<NewTaskItem> {
     if (widget.focusNode.canRequestFocus) {
       widget.focusNode.requestFocus();
     }
+  }
+
+  @override
+  void dispose() {
+    _textEditingController.dispose();
+    super.dispose();
   }
 
   @override

@@ -9,7 +9,7 @@ import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_setting.pb.dart';
-import 'package:dartz/dartz.dart' show Either, Some;
+import 'package:dartz/dartz.dart' show Either;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -58,23 +58,30 @@ class AppFlowyCloudViewSetting extends StatelessWidget {
     return BlocProvider(
       create: (context) => AppFlowyCloudSettingBloc(setting)
         ..add(const AppFlowyCloudSettingEvent.initial()),
-      child: Column(
-        children: [
-          const AppFlowyCloudEnableSync(),
-          const VSpace(12),
-          RestartButton(
-            onClick: () async {
-              NavigatorAlertDialog(
-                title: LocaleKeys.settings_menu_restartAppTip.tr(),
-                confirm: () async {
-                  await setAppFlowyCloudUrl(Some(serverURL));
-                  await setAuthenticatorType(authenticatorType);
-                  restartAppFlowy();
+      child: BlocBuilder<AppFlowyCloudSettingBloc, AppFlowyCloudSettingState>(
+        builder: (context, state) {
+          return Column(
+            children: [
+              const AppFlowyCloudEnableSync(),
+              const VSpace(12),
+              RestartButton(
+                onClick: () {
+                  NavigatorAlertDialog(
+                    title: LocaleKeys.settings_menu_restartAppTip.tr(),
+                    confirm: () async {
+                      await useAppFlowyBetaCloudWithURL(
+                        serverURL,
+                        authenticatorType,
+                      );
+                      restartAppFlowy();
+                    },
+                  ).show(context);
                 },
-              ).show(context);
-            },
-          ),
-        ],
+                showRestartHint: state.showRestartHint,
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -153,7 +160,6 @@ class AppFlowyCloudURLs extends StatelessWidget {
       child: BlocListener<AppFlowyCloudURLsBloc, AppFlowyCloudURLsState>(
         listener: (context, state) async {
           if (state.restartApp) {
-            await setAuthenticatorType(AuthenticatorType.appflowyCloudSelfHost);
             restartAppFlowy();
           }
         },
@@ -176,7 +182,7 @@ class AppFlowyCloudURLs extends StatelessWidget {
                 ),
                 const VSpace(8),
                 RestartButton(
-                  onClick: () async {
+                  onClick: () {
                     NavigatorAlertDialog(
                       title: LocaleKeys.settings_menu_restartAppTip.tr(),
                       confirm: () {
@@ -186,6 +192,7 @@ class AppFlowyCloudURLs extends StatelessWidget {
                       },
                     ).show(context);
                   },
+                  showRestartHint: state.showRestartHint,
                 ),
               ],
             );
@@ -271,6 +278,12 @@ class CloudURLInputState extends State<CloudURLInput> {
   }
 
   @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return TextField(
       controller: _controller,
@@ -298,12 +311,6 @@ class CloudURLInputState extends State<CloudURLInput> {
       ),
       onChanged: widget.onChanged,
     );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
   }
 }
 

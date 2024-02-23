@@ -30,6 +30,7 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra/time/duration.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sheet/route.dart';
 
 GoRouter generateRouter(Widget child) {
   return GoRouter(
@@ -50,7 +51,6 @@ GoRouter generateRouter(Widget child) {
       if (PlatformExtension.isMobile) ...[
         // settings
         _mobileHomeSettingPageRoute(),
-        _mobileSettingUserAgreementPageRoute(),
         _mobileCloudSettingAppFlowyCloudPageRoute(),
         _mobileLaunchSettingsPageRoute(),
 
@@ -194,7 +194,7 @@ GoRoute _mobileHomeSettingPageRoute() {
     parentNavigatorKey: AppGlobals.rootNavKey,
     path: MobileHomeSettingPage.routeName,
     pageBuilder: (context, state) {
-      return const MaterialPage(child: MobileHomeSettingPage());
+      return const MaterialExtendedPage(child: MobileHomeSettingPage());
     },
   );
 }
@@ -204,17 +204,7 @@ GoRoute _mobileCloudSettingAppFlowyCloudPageRoute() {
     parentNavigatorKey: AppGlobals.rootNavKey,
     path: AppFlowyCloudPage.routeName,
     pageBuilder: (context, state) {
-      return const MaterialPage(child: AppFlowyCloudPage());
-    },
-  );
-}
-
-GoRoute _mobileSettingUserAgreementPageRoute() {
-  return GoRoute(
-    parentNavigatorKey: AppGlobals.rootNavKey,
-    path: UserAgreementPage.routeName,
-    pageBuilder: (context, state) {
-      return const MaterialPage(child: UserAgreementPage());
+      return const MaterialExtendedPage(child: AppFlowyCloudPage());
     },
   );
 }
@@ -224,7 +214,7 @@ GoRoute _mobileLaunchSettingsPageRoute() {
     parentNavigatorKey: AppGlobals.rootNavKey,
     path: MobileLaunchSettingsPage.routeName,
     pageBuilder: (context, state) {
-      return const MaterialPage(child: MobileLaunchSettingsPage());
+      return const MaterialExtendedPage(child: MobileLaunchSettingsPage());
     },
   );
 }
@@ -234,7 +224,7 @@ GoRoute _mobileHomeTrashPageRoute() {
     parentNavigatorKey: AppGlobals.rootNavKey,
     path: MobileHomeTrashPage.routeName,
     pageBuilder: (context, state) {
-      return const MaterialPage(child: MobileHomeTrashPage());
+      return const MaterialExtendedPage(child: MobileHomeTrashPage());
     },
   );
 }
@@ -250,7 +240,7 @@ GoRoute _mobileBlockSettingsPageRoute() {
           ?.split(',')
           .map(MobileBlockActionType.fromActionString)
           .toList();
-      return MaterialPage(
+      return MaterialExtendedPage(
         child: MobileBlockSettingsScreen(
           actions: actions ?? MobileBlockActionType.standard,
         ),
@@ -266,7 +256,7 @@ GoRoute _mobileEmojiPickerPageRoute() {
     pageBuilder: (context, state) {
       final title =
           state.uri.queryParameters[MobileEmojiPickerScreen.pageTitle];
-      return MaterialPage(
+      return MaterialExtendedPage(
         child: MobileEmojiPickerScreen(
           title: title,
         ),
@@ -282,7 +272,7 @@ GoRoute _mobileColorPickerPageRoute() {
     pageBuilder: (context, state) {
       final title =
           state.uri.queryParameters[MobileColorPickerScreen.pageTitle] ?? '';
-      return MaterialPage(
+      return MaterialExtendedPage(
         child: MobileColorPickerScreen(
           title: title,
         ),
@@ -296,7 +286,7 @@ GoRoute _mobileImagePickerPageRoute() {
     parentNavigatorKey: AppGlobals.rootNavKey,
     path: MobileImagePickerScreen.routeName,
     pageBuilder: (context, state) {
-      return const MaterialPage(
+      return const MaterialExtendedPage(
         child: MobileImagePickerScreen(),
       );
     },
@@ -308,7 +298,7 @@ GoRoute _mobileCodeLanguagePickerPageRoute() {
     parentNavigatorKey: AppGlobals.rootNavKey,
     path: MobileCodeLanguagePickerScreen.routeName,
     pageBuilder: (context, state) {
-      return const MaterialPage(
+      return const MaterialExtendedPage(
         child: MobileCodeLanguagePickerScreen(),
       );
     },
@@ -320,7 +310,7 @@ GoRoute _mobileLanguagePickerPageRoute() {
     parentNavigatorKey: AppGlobals.rootNavKey,
     path: LanguagePickerScreen.routeName,
     pageBuilder: (context, state) {
-      return const MaterialPage(
+      return const MaterialExtendedPage(
         child: LanguagePickerScreen(),
       );
     },
@@ -332,7 +322,7 @@ GoRoute _mobileFontPickerPageRoute() {
     parentNavigatorKey: AppGlobals.rootNavKey,
     path: FontPickerScreen.routeName,
     pageBuilder: (context, state) {
-      return const MaterialPage(
+      return const MaterialExtendedPage(
         child: FontPickerScreen(),
       );
     },
@@ -350,7 +340,7 @@ GoRoute _mobileNewPropertyPageRoute() {
           state.uri.queryParameters[MobileNewPropertyScreen.argFieldTypeId] ??
               FieldType.RichText.value.toString();
       final value = int.parse(fieldTypeId);
-      return MaterialPage(
+      return MaterialExtendedPage(
         fullscreenDialog: true,
         child: MobileNewPropertyScreen(
           viewId: viewId,
@@ -367,7 +357,7 @@ GoRoute _mobileEditPropertyPageRoute() {
     path: MobileEditPropertyScreen.routeName,
     pageBuilder: (context, state) {
       final args = state.extra as Map<String, dynamic>;
-      return MaterialPage(
+      return MaterialExtendedPage(
         fullscreenDialog: true,
         child: MobileEditPropertyScreen(
           viewId: args[MobileEditPropertyScreen.argViewId],
@@ -385,7 +375,7 @@ GoRoute _mobileCalendarEventsPageRoute() {
     pageBuilder: (context, state) {
       final args = state.extra as Map<String, dynamic>;
 
-      return MaterialPage(
+      return MaterialExtendedPage(
         child: MobileCalendarEventsScreen(
           calendarBloc: args[MobileCalendarEventsScreen.calendarBlocKey],
           date: args[MobileCalendarEventsScreen.calendarDateKey],
@@ -479,7 +469,9 @@ GoRoute _mobileEditorScreenRoute() {
       final id = state.uri.queryParameters[MobileEditorScreen.viewId]!;
       final title = state.uri.queryParameters[MobileEditorScreen.viewTitle];
 
-      return MaterialPage(child: MobileEditorScreen(id: id, title: title));
+      return MaterialExtendedPage(
+        child: MobileEditorScreen(id: id, title: title),
+      );
     },
   );
 }
@@ -493,7 +485,7 @@ GoRoute _mobileGridScreenRoute() {
       final title = state.uri.queryParameters[MobileGridScreen.viewTitle];
       final arguments = state.uri.queryParameters[MobileGridScreen.viewArgs];
 
-      return MaterialPage(
+      return MaterialExtendedPage(
         child: MobileGridScreen(
           id: id,
           title: title,
@@ -511,7 +503,7 @@ GoRoute _mobileBoardScreenRoute() {
     pageBuilder: (context, state) {
       final id = state.uri.queryParameters[MobileBoardScreen.viewId]!;
       final title = state.uri.queryParameters[MobileBoardScreen.viewTitle];
-      return MaterialPage(
+      return MaterialExtendedPage(
         child: MobileBoardScreen(
           id: id,
           title: title,
@@ -528,7 +520,7 @@ GoRoute _mobileCalendarScreenRoute() {
     pageBuilder: (context, state) {
       final id = state.uri.queryParameters[MobileCalendarScreen.viewId]!;
       final title = state.uri.queryParameters[MobileCalendarScreen.viewTitle]!;
-      return MaterialPage(
+      return MaterialExtendedPage(
         child: MobileCalendarScreen(
           id: id,
           title: title,
@@ -548,7 +540,7 @@ GoRoute _mobileCardDetailScreenRoute() {
           args[MobileRowDetailPage.argDatabaseController];
       final rowId = args[MobileRowDetailPage.argRowId]!;
 
-      return MaterialPage(
+      return MaterialExtendedPage(
         child: MobileRowDetailPage(
           databaseController: databaseController,
           rowId: rowId,
@@ -597,7 +589,7 @@ GoRoute _rootRoute(Widget child) {
     },
     // Root route is SplashScreen.
     // It needs LaunchConfiguration as a parameter, so we get it from ApplicationWidget's child.
-    pageBuilder: (context, state) => MaterialPage(
+    pageBuilder: (context, state) => MaterialExtendedPage(
       child: child,
     ),
   );

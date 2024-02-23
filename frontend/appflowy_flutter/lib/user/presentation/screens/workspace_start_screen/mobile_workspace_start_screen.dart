@@ -8,7 +8,7 @@ import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-// TODO(yijing): needs refactor when multiple workspaces are supported
+// TODO: needs refactor when multiple workspaces are supported
 class MobileWorkspaceStartScreen extends StatefulWidget {
   const MobileWorkspaceStartScreen({
     super.key,
@@ -24,13 +24,19 @@ class MobileWorkspaceStartScreen extends StatefulWidget {
 class _MobileWorkspaceStartScreenState
     extends State<MobileWorkspaceStartScreen> {
   WorkspacePB? selectedWorkspace;
+  final TextEditingController controller = TextEditingController();
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context);
     final size = MediaQuery.of(context).size;
     const double spacing = 16.0;
-    final TextEditingController controller = TextEditingController();
     final List<DropdownMenuEntry<WorkspacePB>> workspaceEntries =
         <DropdownMenuEntry<WorkspacePB>>[];
     for (final WorkspacePB workspace in widget.workspaceState.workspaces) {
@@ -64,7 +70,7 @@ class _MobileWorkspaceStartScreenState
               const VSpace(spacing * 4),
               DropdownMenu<WorkspacePB>(
                 width: size.width - 100,
-                // TODO(yijing): The following code cause the bad state error, need to fix it
+                // TODO: The following code cause the bad state error, need to fix it
                 // initialSelection: widget.workspaceState.workspaces.first,
                 label: const Text('Workspace'),
                 controller: controller,
@@ -76,7 +82,7 @@ class _MobileWorkspaceStartScreenState
                 },
               ),
               const Spacer(),
-              // TODO(yijing): needs to implement create workspace in the future
+              // TODO: needs to implement create workspace in the future
               // TextButton(
               //   child: Text(
               //     LocaleKeys.workspace_create.tr(),

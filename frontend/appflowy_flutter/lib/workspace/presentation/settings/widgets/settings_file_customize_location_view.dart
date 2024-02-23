@@ -202,12 +202,12 @@ class _ChangeStoragePathButtonState extends State<_ChangeStoragePathButton> {
           if (path == null || widget.usingPath == path) {
             return;
           }
-          if (!mounted) {
+          if (!context.mounted) {
             return;
           }
           await context.read<SettingsLocationCubit>().setCustomPath(path);
           await runAppFlowy(isAnon: true);
-          if (mounted) {
+          if (context.mounted) {
             Navigator.of(context).pop();
           }
         },
@@ -235,7 +235,7 @@ class _OpenStorageButton extends StatelessWidget {
       onPressed: () async {
         final uri = Directory(usingPath).uri;
         if (await canLaunchUrl(uri)) {
-          launchUrl(uri);
+          await launchUrl(uri);
         }
       },
     );
@@ -272,14 +272,14 @@ class _RecoverDefaultStorageButtonState
         if (widget.usingPath == path) {
           return;
         }
-        if (!mounted) {
+        if (!context.mounted) {
           return;
         }
         await context
             .read<SettingsLocationCubit>()
             .resetDataStoragePathToApplicationDefault();
         await runAppFlowy(isAnon: true);
-        if (mounted) {
+        if (context.mounted) {
           Navigator.of(context).pop();
         }
       },

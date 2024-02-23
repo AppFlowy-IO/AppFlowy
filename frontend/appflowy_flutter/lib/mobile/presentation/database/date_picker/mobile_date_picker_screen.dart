@@ -1,16 +1,15 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/base/app_bar.dart';
 import 'package:appflowy/plugins/base/drag_handler.dart';
-import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database/application/cell/bloc/date_cell_editor_bloc.dart';
+import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/mobile_appflowy_date_picker.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/mobile_date_header.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class MobileDateCellEditScreen extends StatefulWidget {
@@ -43,7 +42,7 @@ class _MobileDateCellEditScreenState extends State<MobileDateCellEditScreen> {
 
   Widget _buildFullScreen() {
     return Scaffold(
-      appBar: AppBar(title: FlowyText.medium(LocaleKeys.titleBar_date.tr())),
+      appBar: FlowyAppBar(titleText: LocaleKeys.titleBar_date.tr()),
       body: _buildDatePicker(),
     );
   }
@@ -62,7 +61,7 @@ class _MobileDateCellEditScreenState extends State<MobileDateCellEditScreen> {
           children: [
             ColoredBox(
               color: Theme.of(context).colorScheme.surface,
-              child: const Center(child: DragHandler()),
+              child: const Center(child: DragHandle()),
             ),
             const MobileDateHeader(),
             _buildDatePicker(),
@@ -96,6 +95,7 @@ class _MobileDateCellEditScreenState extends State<MobileDateCellEditScreen> {
               includeTime: state.includeTime,
               use24hFormat: state.dateTypeOptionPB.timeFormat ==
                   TimeFormatPB.TwentyFourHour,
+              timeFormat: state.dateTypeOptionPB.timeFormat,
               selectedReminderOption: state.reminderOption,
               onStartTimeChanged: (String? time) {
                 if (time != null) {
@@ -126,9 +126,14 @@ class _MobileDateCellEditScreenState extends State<MobileDateCellEditScreen> {
               onClearDate: () => context
                   .read<DateCellEditorBloc>()
                   .add(const DateCellEditorEvent.clearDate()),
-              onReminderSelected: (option) => context
-                  .read<DateCellEditorBloc>()
-                  .add(DateCellEditorEvent.setReminderOption(option: option)),
+              onReminderSelected: (option) =>
+                  context.read<DateCellEditorBloc>().add(
+                        DateCellEditorEvent.setReminderOption(
+                          option: option,
+                          selectedDay:
+                              state.dateTime == null ? DateTime.now() : null,
+                        ),
+                      ),
             );
           },
         ),

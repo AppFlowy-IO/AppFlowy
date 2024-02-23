@@ -1,22 +1,23 @@
-import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
-import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
-import 'package:appflowy/plugins/database/application/database_controller.dart';
-import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/relation.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+
+import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
+import 'package:appflowy/plugins/database/application/database_controller.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
+
+import '../row/accessory/cell_accessory.dart';
+import '../row/accessory/cell_shortcuts.dart';
+import '../row/cells/cell_container.dart';
 
 import 'editable_cell_skeleton/checkbox.dart';
 import 'editable_cell_skeleton/checklist.dart';
 import 'editable_cell_skeleton/date.dart';
 import 'editable_cell_skeleton/number.dart';
+import 'editable_cell_skeleton/relation.dart';
 import 'editable_cell_skeleton/select_option.dart';
 import 'editable_cell_skeleton/text.dart';
 import 'editable_cell_skeleton/timestamp.dart';
 import 'editable_cell_skeleton/url.dart';
-import '../row/accessory/cell_accessory.dart';
-import '../row/accessory/cell_shortcuts.dart';
-import '../row/cells/cell_container.dart';
 
 enum EditableCellStyle {
   desktopGrid,
@@ -120,11 +121,12 @@ class EditableCellBuilder {
     CellContext cellContext, {
     required EditableCellSkinMap skinMap,
   }) {
-    final cellController = makeCellController(databaseController, cellContext);
+    final DatabaseController(:fieldController) = databaseController;
+    final fieldType = fieldController.getField(cellContext.fieldId)!.fieldType;
+
     final key = ValueKey(
       "${databaseController.viewId}${cellContext.fieldId}${cellContext.rowId}",
     );
-    final fieldType = cellController.fieldType;
     assert(skinMap.has(fieldType));
     return switch (fieldType) {
       FieldType.Checkbox => EditableCheckboxCell(
@@ -203,11 +205,9 @@ class EditableCellBuilder {
 }
 
 abstract class CellEditable {
-  RequestFocusListener get requestFocus;
+  SingleListenerChangeNotifier get requestFocus;
 
   CellContainerNotifier get cellContainerNotifier;
-
-  // ValueNotifier<bool> get onCellEditing;
 }
 
 typedef AccessoryBuilder = List<GridCellAccessoryBuilder> Function(
@@ -216,9 +216,6 @@ typedef AccessoryBuilder = List<GridCellAccessoryBuilder> Function(
 
 abstract class CellAccessory extends Widget {
   const CellAccessory({super.key});
-
-  // The hover will show if the isHover's value is true
-  ValueNotifier<bool>? get onAccessoryHover;
 
   AccessoryBuilder? get accessoryBuilder;
 }
@@ -230,20 +227,11 @@ abstract class EditableCellWidget extends StatefulWidget
   @override
   final CellContainerNotifier cellContainerNotifier = CellContainerNotifier();
 
-  // When the cell is focused, we assume that the accessory also be hovered.
   @override
-  ValueNotifier<bool> get onAccessoryHover => ValueNotifier(false);
-
-  // @override
-  // final ValueNotifier<bool> onCellEditing = ValueNotifier<bool>(false);
+  AccessoryBuilder? get accessoryBuilder => null;
 
   @override
-  List<GridCellAccessoryBuilder> Function(
-    GridCellAccessoryBuildContext buildContext,
-  )? get accessoryBuilder => null;
-
-  @override
-  final RequestFocusListener requestFocus = RequestFocusListener();
+  final requestFocus = SingleListenerChangeNotifier();
 
   @override
   final Map<CellKeyboardKey, CellKeyboardAction> shortcutHandlers = {};
@@ -253,28 +241,26 @@ abstract class GridCellState<T extends EditableCellWidget> extends State<T> {
   @override
   void initState() {
     super.initState();
-
-    widget.requestFocus.setListener(requestBeginFocus);
+    widget.requestFocus.addListener(onRequestFocus);
   }
 
   @override
   void didUpdateWidget(covariant T oldWidget) {
     if (oldWidget != this) {
-      widget.requestFocus.setListener(requestBeginFocus);
+      widget.requestFocus.addListener(onRequestFocus);
     }
     super.didUpdateWidget(oldWidget);
   }
 
   @override
   void dispose() {
-    widget.onAccessoryHover.dispose();
-    widget.requestFocus.removeAllListener();
+    widget.requestFocus.removeListener(onRequestFocus);
     widget.requestFocus.dispose();
     super.dispose();
   }
 
   /// Subclass can override this method to request focus.
-  void requestBeginFocus();
+  void onRequestFocus();
 
   String? onCopy() => null;
 }
@@ -300,7 +286,7 @@ abstract class GridEditableTextCell<T extends EditableCellWidget>
   }
 
   @override
-  void requestBeginFocus() {
+  void onRequestFocus() {
     if (!focusNode.hasFocus && focusNode.canRequestFocus) {
       FocusScope.of(context).requestFocus(focusNode);
     }
@@ -317,28 +303,25 @@ abstract class GridEditableTextCell<T extends EditableCellWidget>
   Future<void> focusChanged() async {}
 }
 
-class RequestFocusListener extends ChangeNotifier {
+class SingleListenerChangeNotifier extends ChangeNotifier {
   VoidCallback? _listener;
 
-  void setListener(VoidCallback listener) {
+  @override
+  void addListener(VoidCallback listener) {
     if (_listener != null) {
       removeListener(_listener!);
     }
-
     _listener = listener;
-    addListener(listener);
+    super.addListener(listener);
   }
 
-  void removeAllListener() {
-    if (_listener != null) {
-      removeListener(_listener!);
-      _listener = null;
-    }
+  @override
+  void dispose() {
+    _listener = null;
+    super.dispose();
   }
 
-  void notify() {
-    notifyListeners();
-  }
+  void notify() => notifyListeners();
 }
 
 class SingleListenerFocusNode extends FocusNode {
@@ -389,7 +372,7 @@ class EditableCellSkinMap {
       FieldType.Checklist => checklistSkin != null,
       FieldType.CreatedTime ||
       FieldType.LastEditedTime =>
-        throw timestampSkin != null,
+        timestampSkin != null,
       FieldType.DateTime => dateSkin != null,
       FieldType.MultiSelect ||
       FieldType.SingleSelect =>

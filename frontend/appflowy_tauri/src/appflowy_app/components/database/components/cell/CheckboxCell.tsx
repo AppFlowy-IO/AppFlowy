@@ -9,7 +9,7 @@ export const CheckboxCell: FC<{
   cell: CheckboxCellType;
 }> = ({ field, cell }) => {
   const viewId = useViewId();
-  const checked = cell.data === 'Yes';
+  const checked = cell.data;
 
   const handleClick = useCallback(() => {
     void cellService.updateCell(viewId, cell.rowId, field.id, !checked ? 'Yes' : 'No');

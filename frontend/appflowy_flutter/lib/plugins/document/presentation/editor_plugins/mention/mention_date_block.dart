@@ -12,6 +12,7 @@ import 'package:appflowy/user/application/reminder/reminder_extension.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/date_time/date_format_ext.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/mobile_appflowy_date_picker.dart';
+import 'package:appflowy/workspace/presentation/widgets/date_picker/utils/user_time_format_ext.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/date_picker_dialog.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/mobile_date_header.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/reminder_selector.dart';
@@ -162,7 +163,6 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
                   if (PlatformExtension.isMobile) {
                     showMobileBottomSheet(
                       context,
-                      resizeToAvoidBottomInset: false,
                       builder: (_) => DraggableScrollableSheet(
                         expand: false,
                         snap: true,
@@ -177,7 +177,7 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
                             children: [
                               ColoredBox(
                                 color: Theme.of(context).colorScheme.surface,
-                                child: const Center(child: DragHandler()),
+                                child: const Center(child: DragHandle()),
                               ),
                               const MobileDateHeader(),
                               MobileAppFlowyDatePicker(
@@ -192,6 +192,7 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
                                     UserTimeFormatPB.TwentyFourHour,
                                 rebuildOnDaySelected: true,
                                 rebuildOnTimeChanged: true,
+                                timeFormat: options.timeFormat.simplified,
                                 selectedReminderOption: widget.reminderOption,
                                 onDaySelected: options.onDaySelected,
                                 onStartTimeChanged: (time) => options
@@ -262,10 +263,10 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
 
     try {
       if (timeFormat == TimeFormatPB.TwelveHour) {
-        return twelveHourFormat.parse(timeStr);
+        return twelveHourFormat.parseStrict(timeStr);
       }
 
-      return twentyFourHourFormat.parse(timeStr);
+      return twentyFourHourFormat.parseStrict(timeStr);
     } on FormatException {
       Log.error("failed to parse time string ($timeStr)");
       return DateTime.now();
@@ -342,7 +343,7 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
             ReminderEvent.update(
               ReminderUpdate(
                 id: widget.reminderId!,
-                scheduledAt: parsedDate!.subtract(reminderOption.time),
+                scheduledAt: reminderOption.fromDate(parsedDate!),
               ),
             ),
           );

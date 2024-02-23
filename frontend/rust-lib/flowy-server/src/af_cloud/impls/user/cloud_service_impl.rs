@@ -2,25 +2,27 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 use anyhow::{anyhow, Error};
-use client_api::entity::workspace_dto::{CreateWorkspaceMember, WorkspaceMemberChangeset};
+use client_api::entity::workspace_dto::{
+  CreateWorkspaceMember, CreateWorkspaceParam, WorkspaceMemberChangeset,
+};
 use client_api::entity::{AFRole, AFWorkspace, AuthProvider, CollabParams, CreateCollabParams};
-use client_api::ClientConfiguration;
+use client_api::{Client, ClientConfiguration};
 use collab::core::collab::CollabDocState;
 use collab_entity::CollabObject;
 use parking_lot::RwLock;
 
-use flowy_error::{ErrorCode, FlowyError};
+use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_user_pub::cloud::{UserCloudService, UserCollabParams, UserUpdate, UserUpdateReceiver};
 use flowy_user_pub::entities::*;
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 
+use crate::af_cloud::define::USER_SIGN_IN_URL;
 use crate::af_cloud::impls::user::dto::{
   af_update_from_update_params, from_af_workspace_member, to_af_role, user_profile_from_af_profile,
 };
 use crate::af_cloud::impls::user::util::encryption_type_from_profile;
 use crate::af_cloud::{AFCloudClient, AFServer};
-use crate::supabase::define::USER_SIGN_IN_URL;
 
 pub(crate) struct AFCloudUserAuthServiceImpl<T> {
   server: T,
@@ -71,29 +73,43 @@ where
     let try_get_client = self.server.try_get_client();
     FutureResult::new(async move {
       let client = try_get_client?;
-      let admin_email = std::env::var("GOTRUE_ADMIN_EMAIL").map_err(|_| {
-        anyhow!(
-          "GOTRUE_ADMIN_EMAIL is not set. Please set it to the admin email for the test server"
-        )
-      })?;
-      let admin_password = std::env::var("GOTRUE_ADMIN_PASSWORD").map_err(|_| {
-        anyhow!(
-          "GOTRUE_ADMIN_PASSWORD is not set. Please set it to the admin password for the test server"
-        )
-      })?;
-      let admin_client = client_api::Client::new(
-        client.base_url(),
-        client.ws_addr(),
-        client.gotrue_url(),
-        ClientConfiguration::default(),
-      );
-      admin_client
-        .sign_in_password(&admin_email, &admin_password)
-        .await?;
-
+      let admin_client = get_admin_client(&client).await?;
       let action_link = admin_client.generate_sign_in_action_link(&email).await?;
       let sign_in_url = client.extract_sign_in_url(&action_link).await?;
       Ok(sign_in_url)
+    })
+  }
+
+  fn create_user(&self, email: &str, password: &str) -> FutureResult<(), FlowyError> {
+    let password = password.to_string();
+    let email = email.to_string();
+    let try_get_client = self.server.try_get_client();
+    FutureResult::new(async move {
+      let client = try_get_client?;
+      let admin_client = get_admin_client(&client).await?;
+      admin_client
+        .create_email_verified_user(&email, &password)
+        .await?;
+
+      Ok(())
+    })
+  }
+
+  fn sign_in_with_password(
+    &self,
+    email: &str,
+    password: &str,
+  ) -> FutureResult<UserProfile, FlowyError> {
+    let password = password.to_string();
+    let email = email.to_string();
+    let try_get_client = self.server.try_get_client();
+    FutureResult::new(async move {
+      let client = try_get_client?;
+      client.sign_in_password(&email, &password).await?;
+      let profile = client.get_profile().await?;
+      let token = client.get_token()?;
+      let profile = user_profile_from_af_profile(token, profile)?;
+      Ok(profile)
     })
   }
 
@@ -280,6 +296,49 @@ where
       Ok(())
     })
   }
+
+  fn create_workspace(&self, workspace_name: &str) -> FutureResult<UserWorkspace, FlowyError> {
+    let try_get_client = self.server.try_get_client();
+    let workspace_name_owned = workspace_name.to_owned();
+    FutureResult::new(async move {
+      let client = try_get_client?;
+      let new_workspace = client
+        .create_workspace(CreateWorkspaceParam {
+          workspace_name: Some(workspace_name_owned),
+        })
+        .await?;
+      Ok(to_user_workspace(new_workspace))
+    })
+  }
+
+  fn delete_workspace(&self, workspace_id: &str) -> FutureResult<(), FlowyError> {
+    let try_get_client = self.server.try_get_client();
+    let workspace_id_owned = workspace_id.to_owned();
+    FutureResult::new(async move {
+      let client = try_get_client?;
+      client.delete_workspace(&workspace_id_owned).await?;
+      Ok(())
+    })
+  }
+}
+
+async fn get_admin_client(client: &Arc<AFCloudClient>) -> FlowyResult<Client> {
+  let admin_email =
+    std::env::var("GOTRUE_ADMIN_EMAIL").unwrap_or_else(|_| "admin@example.com".to_string());
+  let admin_password =
+    std::env::var("GOTRUE_ADMIN_PASSWORD").unwrap_or_else(|_| "password".to_string());
+  let admin_client = client_api::Client::new(
+    client.base_url(),
+    client.ws_addr(),
+    client.gotrue_url(),
+    &client.device_id,
+    ClientConfiguration::default(),
+    &client.client_id,
+  );
+  admin_client
+    .sign_in_password(&admin_email, &admin_password)
+    .await?;
+  Ok(admin_client)
 }
 
 pub async fn user_sign_up_request(
@@ -322,7 +381,7 @@ fn to_user_workspace(af_workspace: AFWorkspace) -> UserWorkspace {
     id: af_workspace.workspace_id.to_string(),
     name: af_workspace.workspace_name,
     created_at: af_workspace.created_at,
-    database_view_tracker_id: af_workspace.database_storage_id.to_string(),
+    workspace_database_object_id: af_workspace.database_storage_id.to_string(),
   }
 }
 

@@ -38,7 +38,7 @@ pub struct DateCellDataPB {
 }
 
 #[derive(Clone, Debug, Default, ProtoBuf)]
-pub struct DateChangesetPB {
+pub struct DateCellChangesetPB {
   #[pb(index = 1)]
   pub cell_id: CellIdPB,
 

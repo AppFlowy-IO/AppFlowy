@@ -34,6 +34,7 @@ thread-id = "3.3.0"
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 getrandom = { version = "0.2", features = ["js"]}
 wasm-bindgen = { version = "0.2.89" }
+wasm-bindgen-futures = "0.4"
 
 [dev-dependencies]
 tokio = { workspace = true, features = ["rt"] }
@@ -43,7 +44,6 @@ futures-util = "0.3.26"
 default = ["use_protobuf"]
 use_serde = ["bincode", "serde_json", "serde", "serde_repr"]
 use_protobuf= ["protobuf"]
-single_thread = []
-wasm_build = ["single_thread"]
+local_set = []
 
 

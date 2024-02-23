@@ -6,6 +6,9 @@ use collab_database::views::DatabaseLayout;
 use flowy_derive::ProtoBuf;
 use flowy_error::{ErrorCode, FlowyError};
 
+use lib_infra::validator_fn::required_not_empty_str;
+use validator::Validate;
+
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::{DatabaseLayoutPB, FieldIdPB, RowMetaPB};
 use crate::services::database::CreateDatabaseViewParams;
@@ -72,9 +75,10 @@ pub struct RepeatedDatabaseIdPB {
   pub value: Vec<DatabaseIdPB>,
 }
 
-#[derive(Clone, ProtoBuf, Default, Debug)]
+#[derive(Clone, ProtoBuf, Default, Debug, Validate)]
 pub struct DatabaseViewIdPB {
   #[pb(index = 1)]
+  #[validate(custom = "required_not_empty_str")]
   pub value: String,
 }
 

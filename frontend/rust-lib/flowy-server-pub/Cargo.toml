@@ -9,3 +9,4 @@ edition = "2021"
 flowy-error  = { workspace = true }
 serde.workspace = true
 serde_repr.workspace = true
+

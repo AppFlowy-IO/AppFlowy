@@ -9,6 +9,7 @@ interface DocumentHeaderProps {
 
 export function DocumentHeader({ page }: DocumentHeaderProps) {
   const pageId = page.id;
+
   const onUpdateIcon = useCallback(
     async (icon: PageIcon) => {
       await updatePageIcon(pageId, icon.value ? icon : undefined);
@@ -18,7 +19,7 @@ export function DocumentHeader({ page }: DocumentHeaderProps) {
 
   if (!page) return null;
   return (
-    <div className={'document-header px-16 py-4'}>
+    <div className={'document-header select-none px-16 pt-4'}>
       <ViewTitle showTitle={false} onUpdateIcon={onUpdateIcon} view={page} />
     </div>
   );

@@ -18,6 +18,13 @@ use crate::event_builder::EventBuilder;
 use crate::EventIntegrationTest;
 
 impl EventIntegrationTest {
+  pub async fn create_document(&self, name: &str) -> ViewPB {
+    let current_workspace = self.get_current_workspace().await;
+    self
+      .create_and_open_document(&current_workspace.id, name.to_string(), vec![])
+      .await
+  }
+
   pub async fn create_and_open_document(
     &self,
     parent_id: &str,

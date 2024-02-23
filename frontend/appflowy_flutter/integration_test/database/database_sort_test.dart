@@ -28,7 +28,7 @@ void main() {
         '',
       ];
       for (final (index, content) in textCells.indexed) {
-        await tester.assertCellContent(
+        tester.assertCellContent(
           rowIndex: index,
           fieldType: FieldType.RichText,
           content: content,
@@ -51,7 +51,7 @@ void main() {
         '',
         '',
       ].indexed) {
-        await tester.assertCellContent(
+        tester.assertCellContent(
           rowIndex: index,
           fieldType: FieldType.RichText,
           content: content,
@@ -75,7 +75,7 @@ void main() {
         '',
         '',
       ].indexed) {
-        await tester.assertCellContent(
+        tester.assertCellContent(
           rowIndex: index,
           fieldType: FieldType.RichText,
           content: content,
@@ -86,7 +86,7 @@ void main() {
 
     testWidgets('add checkbox sort', (tester) async {
       await tester.openV020database();
-      // create a filter
+      // create a sort
       await tester.tapDatabaseSortButton();
       await tester.tapCreateSortByFieldType(FieldType.Checkbox, 'Done');
 
@@ -136,7 +136,7 @@ void main() {
 
     testWidgets('add number sort', (tester) async {
       await tester.openV020database();
-      // create a filter
+      // create a sort
       await tester.tapDatabaseSortButton();
       await tester.tapCreateSortByFieldType(FieldType.Number, 'number');
 
@@ -153,7 +153,7 @@ void main() {
         '12',
         '',
       ].indexed) {
-        await tester.assertCellContent(
+        tester.assertCellContent(
           rowIndex: index,
           fieldType: FieldType.Number,
           content: content,
@@ -176,7 +176,7 @@ void main() {
         '-2',
         '',
       ].indexed) {
-        await tester.assertCellContent(
+        tester.assertCellContent(
           rowIndex: index,
           fieldType: FieldType.Number,
           content: content,
@@ -188,7 +188,7 @@ void main() {
 
     testWidgets('add checkbox and number sort', (tester) async {
       await tester.openV020database();
-      // create a filter
+      // create a sort
       await tester.tapDatabaseSortButton();
       await tester.tapCreateSortByFieldType(FieldType.Checkbox, 'Done');
 
@@ -255,7 +255,7 @@ void main() {
         '2',
         '',
       ].indexed) {
-        await tester.assertCellContent(
+        tester.assertCellContent(
           rowIndex: index,
           fieldType: FieldType.Number,
           content: content,
@@ -263,6 +263,112 @@ void main() {
       }
 
       await tester.pumpAndSettle();
+    });
+
+    testWidgets('reorder sort', (tester) async {
+      await tester.openV020database();
+      // create a sort
+      await tester.tapDatabaseSortButton();
+      await tester.tapCreateSortByFieldType(FieldType.Checkbox, 'Done');
+
+      // open the sort menu and sort checkbox by descending
+      await tester.tapSortMenuInSettingBar();
+      await tester.tapSortButtonByName('Done');
+      await tester.tapSortByDescending();
+
+      // add another sort, this time by number descending
+      await tester.tapSortMenuInSettingBar();
+      await tester.tapCreateSortByFieldTypeInSortMenu(
+        FieldType.Number,
+        'number',
+      );
+      await tester.tapSortButtonByName('number');
+      await tester.tapSortByDescending();
+
+      // check checkbox cell order
+      for (final (index, content) in <bool>[
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+      ].indexed) {
+        await tester.assertCheckboxCell(
+          rowIndex: index,
+          isSelected: content,
+        );
+      }
+
+      // check number cell order
+      for (final (index, content) in <String>[
+        '1',
+        '0.2',
+        '0.1',
+        '-1',
+        '-2',
+        '12',
+        '11',
+        '10',
+        '2',
+        '',
+      ].indexed) {
+        tester.assertCellContent(
+          rowIndex: index,
+          fieldType: FieldType.Number,
+          content: content,
+        );
+      }
+
+      // reorder sort
+      await tester.tapSortMenuInSettingBar();
+      await tester.reorderSort(
+        (FieldType.Number, 'number'),
+        (FieldType.Checkbox, 'Done'),
+      );
+
+      // check checkbox cell order
+      for (final (index, content) in <bool>[
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+      ].indexed) {
+        await tester.assertCheckboxCell(
+          rowIndex: index,
+          isSelected: content,
+        );
+      }
+
+      // check the number cell order
+      for (final (index, content) in <String>[
+        '12',
+        '11',
+        '10',
+        '2',
+        '1',
+        '0.2',
+        '0.1',
+        '-1',
+        '-2',
+        '',
+      ].indexed) {
+        tester.assertCellContent(
+          rowIndex: index,
+          fieldType: FieldType.Number,
+          content: content,
+        );
+      }
     });
   });
 }

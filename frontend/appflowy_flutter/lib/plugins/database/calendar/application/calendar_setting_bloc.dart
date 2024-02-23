@@ -26,6 +26,12 @@ class CalendarSettingBloc
   final DatabaseController _databaseController;
   final DatabaseLayoutSettingListener _listener;
 
+  @override
+  Future<void> close() async {
+    await _listener.stop();
+    return super.close();
+  }
+
   void _dispatch() {
     on<CalendarSettingEvent>((event, emit) {
       event.when(
@@ -107,12 +113,6 @@ class CalendarSettingBloc
         );
       },
     );
-  }
-
-  @override
-  Future<void> close() async {
-    await _listener.stop();
-    return super.close();
   }
 }
 

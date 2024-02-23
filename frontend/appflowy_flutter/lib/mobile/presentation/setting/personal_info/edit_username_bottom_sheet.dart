@@ -23,6 +23,7 @@ class _EditUsernameBottomSheetState extends State<EditUsernameBottomSheet> {
   late TextEditingController _textFieldController;
 
   final _formKey = GlobalKey<FormState>();
+
   @override
   void initState() {
     super.initState();

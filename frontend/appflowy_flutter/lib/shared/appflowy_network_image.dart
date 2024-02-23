@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:appflowy/shared/custom_image_cache_manager.dart';
+import 'package:appflowy/util/string_extension.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -33,7 +35,7 @@ class FlowyNetworkImage extends StatelessWidget {
   Widget build(BuildContext context) {
     assert(isURL(url));
 
-    if (url.contains('beta.appflowy')) {
+    if (url.isAppFlowyCloudUrl) {
       assert(userProfilePB != null && userProfilePB!.token.isNotEmpty);
     }
 
@@ -55,7 +57,12 @@ class FlowyNetworkImage extends StatelessWidget {
     final header = <String, String>{};
     final token = userProfilePB?.token;
     if (token != null) {
-      header['Authorization'] = 'Bearer ${jsonDecode(token)['access_token']}';
+      try {
+        final decodedToken = jsonDecode(token);
+        header['Authorization'] = 'Bearer ${decodedToken['access_token']}';
+      } catch (e) {
+        Log.error('unable to decode token: $e');
+      }
     }
     return header;
   }

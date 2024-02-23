@@ -247,6 +247,13 @@ class UserNameInputState extends State<UserNameInput> {
   }
 
   @override
+  void dispose() {
+    _controller.dispose();
+    _debounce?.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return TextField(
       controller: _controller,
@@ -276,13 +283,6 @@ class UserNameInputState extends State<UserNameInput> {
         });
       },
     );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    _debounce?.cancel();
-    super.dispose();
   }
 }
 
@@ -534,7 +534,7 @@ class SettingLogoutButton extends StatelessWidget {
             fontSize: 13,
             textAlign: TextAlign.center,
           ),
-          onTap: () async {
+          onTap: () {
             NavigatorAlertDialog(
               title: logoutPromptMessage(),
               confirm: () async {

@@ -189,8 +189,14 @@ class _PropertyCellState extends State<_PropertyCell> {
       margin: const EdgeInsets.only(bottom: 8),
       constraints: const BoxConstraints(minHeight: 30),
       child: MouseRegion(
-        onEnter: (event) => _isFieldHover.value = true,
-        onExit: (event) => _isFieldHover.value = false,
+        onEnter: (event) {
+          _isFieldHover.value = true;
+          cell.cellContainerNotifier.isHover = true;
+        },
+        onExit: (event) {
+          _isFieldHover.value = false;
+          cell.cellContainerNotifier.isHover = false;
+        },
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

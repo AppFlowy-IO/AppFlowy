@@ -1,11 +1,13 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component.dart';
+import 'package:appflowy/util/string_extension.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flowy_infra_ui/widget/ignore_parent_gesture.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -26,6 +28,8 @@ class ImageMenu extends StatefulWidget {
 }
 
 class _ImageMenuState extends State<ImageMenu> {
+  late final String? url = widget.node.attributes[ImageBlockKeys.url];
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -45,9 +49,12 @@ class _ImageMenuState extends State<ImageMenu> {
       child: Row(
         children: [
           const HSpace(4),
-          _ImageCopyLinkButton(
-            onTap: copyImageLink,
-          ),
+          // disable the copy link button if the image is hosted on appflowy cloud
+          // because the url needs the verification token to be accessible
+          if (!(url?.isAppFlowyCloudUrl ?? false))
+            _ImageCopyLinkButton(
+              onTap: copyImageLink,
+            ),
           const HSpace(4),
           _ImageAlignButton(
             node: widget.node,
@@ -64,9 +71,8 @@ class _ImageMenuState extends State<ImageMenu> {
   }
 
   void copyImageLink() {
-    final url = widget.node.attributes[ImageBlockKeys.url];
     if (url != null) {
-      Clipboard.setData(ClipboardData(text: url));
+      Clipboard.setData(ClipboardData(text: url!));
       showSnackBarMessage(
         context,
         LocaleKeys.document_plugins_image_copiedToPasteBoard.tr(),
@@ -93,11 +99,15 @@ class _ImageCopyLinkButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return FlowyButton(
+      useIntrinsicWidth: true,
       onTap: onTap,
-      child: const FlowySvg(
-        FlowySvgs.copy_s,
-        size: Size.square(16),
+      text: FlowyTooltip(
+        message: LocaleKeys.editor_copyLink.tr(),
+        child: const FlowySvg(
+          FlowySvgs.copy_s,
+          size: Size.square(16),
+        ),
       ),
     );
   }
@@ -202,9 +212,15 @@ class _ImageAlignButtonState extends State<_ImageAlignButton> {
   }
 
   Widget buildAlignIcon() {
-    return FlowySvg(
-      iconFor(align),
-      size: const Size.square(16),
+    return FlowyButton(
+      useIntrinsicWidth: true,
+      text: FlowyTooltip(
+        message: LocaleKeys.document_plugins_optionAction_align.tr(),
+        child: FlowySvg(
+          iconFor(align),
+          size: const Size.square(16),
+        ),
+      ),
     );
   }
 }
@@ -256,9 +272,10 @@ class _AlignButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return FlowyButton(
+      useIntrinsicWidth: true,
       onTap: onTap,
-      child: FlowySvg(
+      text: FlowySvg(
         icon,
         size: const Size.square(16),
       ),
@@ -275,11 +292,15 @@ class _ImageDeleteButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return FlowyButton(
+      useIntrinsicWidth: true,
       onTap: onTap,
-      child: const FlowySvg(
-        FlowySvgs.delete_s,
-        size: Size.square(16),
+      text: FlowyTooltip(
+        message: LocaleKeys.button_delete.tr(),
+        child: const FlowySvg(
+          FlowySvgs.delete_s,
+          size: Size.square(16),
+        ),
       ),
     );
   }

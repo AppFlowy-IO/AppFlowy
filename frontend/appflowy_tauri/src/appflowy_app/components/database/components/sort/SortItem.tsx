@@ -21,7 +21,6 @@ export const SortItem: FC<SortItemProps> = ({ className, sort }) => {
         void sortService.updateSort(viewId, {
           ...sort,
           fieldId: field.id,
-          fieldType: field.type,
         });
       }
     },

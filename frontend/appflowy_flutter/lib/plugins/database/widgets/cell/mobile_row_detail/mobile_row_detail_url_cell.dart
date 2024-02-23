@@ -78,13 +78,13 @@ class MobileRowDetailURLCellSkin extends IEditableURLCellSkin {
       const [];
 
   void _showURLEditor(BuildContext context, URLCellBloc bloc, String content) {
+    final controller = TextEditingController(text: content);
     showMobileBottomSheet(
       context,
       title: LocaleKeys.board_mobile_editURL.tr(),
       showHeader: true,
       showCloseButton: true,
       builder: (_) {
-        final controller = TextEditingController(text: content);
         return TextField(
           controller: controller,
           autofocus: true,
@@ -95,6 +95,6 @@ class MobileRowDetailURLCellSkin extends IEditableURLCellSkin {
           },
         );
       },
-    );
+    ).then((_) => controller.dispose());
   }
 }

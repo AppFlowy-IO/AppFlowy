@@ -2,7 +2,9 @@ use std::borrow::Cow;
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use collab_database::database::{gen_database_filter_id, gen_database_sort_id};
+use collab_database::database::{
+  gen_database_calculation_id, gen_database_filter_id, gen_database_sort_id,
+};
 use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{Cells, Row, RowDetail, RowId};
 use collab_database::views::{DatabaseLayout, DatabaseView};
@@ -13,12 +15,14 @@ use flowy_error::{FlowyError, FlowyResult};
 use lib_dispatch::prelude::af_spawn;
 
 use crate::entities::{
-  CalendarEventPB, DatabaseLayoutMetaPB, DatabaseLayoutSettingPB, DeleteFilterParams,
-  DeleteSortParams, FieldType, FieldVisibility, GroupChangesPB, GroupPB, InsertedRowPB,
-  LayoutSettingChangeset, LayoutSettingParams, RowMetaPB, RowsChangePB,
-  SortChangesetNotificationPB, SortPB, UpdateFilterParams, UpdateSortParams,
+  CalendarEventPB, DatabaseLayoutMetaPB, DatabaseLayoutSettingPB, DeleteFilterPayloadPB,
+  DeleteSortPayloadPB, FieldType, FieldVisibility, GroupChangesPB, GroupPB, InsertedRowPB,
+  LayoutSettingChangeset, LayoutSettingParams, RemoveCalculationChangesetPB, ReorderSortPayloadPB,
+  RowMetaPB, RowsChangePB, SortChangesetNotificationPB, SortPB, UpdateCalculationChangesetPB,
+  UpdateFilterParams, UpdateSortPayloadPB,
 };
 use crate::notification::{send_notification, DatabaseNotification};
+use crate::services::calculations::{Calculation, CalculationChangeset, CalculationsController};
 use crate::services::cell::CellCache;
 use crate::services::database::{database_view_setting_pb_from_view, DatabaseRowEvent, UpdatedRow};
 use crate::services::database_view::view_filter::make_filter_controller;
@@ -34,11 +38,14 @@ use crate::services::database_view::{
 };
 use crate::services::field_settings::FieldSettings;
 use crate::services::filter::{
-  Filter, FilterChangeset, FilterController, FilterType, UpdatedFilterType,
+  Filter, FilterChangeset, FilterContext, FilterController, UpdatedFilter,
 };
 use crate::services::group::{GroupChangesets, GroupController, MoveGroupRowContext, RowChangeset};
 use crate::services::setting::CalendarLayoutSetting;
-use crate::services::sort::{DeletedSortType, Sort, SortChangeset, SortController, SortType};
+use crate::services::sort::{Sort, SortChangeset, SortController};
+
+use super::notify_did_update_calculation;
+use super::view_calculations::make_calculations_controller;
 
 pub struct DatabaseViewEditor {
   pub view_id: String,
@@ -46,6 +53,7 @@ pub struct DatabaseViewEditor {
   group_controller: Arc<RwLock<Option<Box<dyn GroupController>>>>,
   filter_controller: Arc<FilterController>,
   sort_controller: Arc<RwLock<SortController>>,
+  calculations_controller: Arc<CalculationsController>,
   pub notifier: DatabaseViewChangedNotifier,
 }
 
@@ -87,12 +95,17 @@ impl DatabaseViewEditor {
     )
     .await;
 
+    // Calculations
+    let calculations_controller =
+      make_calculations_controller(&view_id, delegate.clone(), notifier.clone()).await;
+
     Ok(Self {
       view_id,
       delegate,
       group_controller,
       filter_controller,
       sort_controller,
+      calculations_controller,
       notifier,
     })
   }
@@ -100,6 +113,7 @@ impl DatabaseViewEditor {
   pub async fn close(&self) {
     self.sort_controller.write().await.close().await;
     self.filter_controller.close().await;
+    self.calculations_controller.close().await;
   }
 
   pub async fn v_get_view(&self) -> Option<DatabaseView> {
@@ -146,10 +160,22 @@ impl DatabaseViewEditor {
     send_notification(&self.view_id, DatabaseNotification::DidUpdateViewRows)
       .payload(changes)
       .send();
+    self
+      .gen_did_create_row_view_tasks(row_detail.row.id.clone())
+      .await;
+  }
+
+  pub async fn v_did_duplicate_row(&self, row_detail: &RowDetail) {
+    self
+      .calculations_controller
+      .did_receive_row_changed(row_detail.clone().row)
+      .await;
   }
 
   #[tracing::instrument(level = "trace", skip_all)]
   pub async fn v_did_delete_row(&self, row: &Row) {
+    let deleted_row = row.clone();
+
     // Send the group notification if the current view has groups;
     let result = self
       .mut_group_controller(|group_controller, _| group_controller.did_delete_row(row))
@@ -170,15 +196,32 @@ impl DatabaseViewEditor {
       }
     }
     let changes = RowsChangePB::from_delete(row.id.clone().into_inner());
+
     send_notification(&self.view_id, DatabaseNotification::DidUpdateViewRows)
       .payload(changes)
       .send();
+
+    // Updating calculations for each of the Rows cells is a tedious task
+    // Therefore we spawn a separate task for this
+    let weak_calculations_controller = Arc::downgrade(&self.calculations_controller);
+    af_spawn(async move {
+      if let Some(calculations_controller) = weak_calculations_controller.upgrade() {
+        calculations_controller
+          .did_receive_row_changed(deleted_row)
+          .await;
+      }
+    });
   }
 
   /// Notify the view that the row has been updated. If the view has groups,
   /// send the group notification with [GroupRowsNotificationPB]. Otherwise,
   /// send the view notification with [RowsChangePB]
-  pub async fn v_did_update_row(&self, old_row: &Option<RowDetail>, row_detail: &RowDetail) {
+  pub async fn v_did_update_row(
+    &self,
+    old_row: &Option<RowDetail>,
+    row_detail: &RowDetail,
+    field_id: String,
+  ) {
     let result = self
       .mut_group_controller(|group_controller, field| {
         Ok(group_controller.did_update_group_row(old_row, row_detail, &field))
@@ -211,25 +254,11 @@ impl DatabaseViewEditor {
       }
     }
 
-    // Each row update will trigger a filter and sort operation. We don't want
+    // Each row update will trigger a calculations, filter and sort operation. We don't want
     // to block the main thread, so we spawn a new task to do the work.
-    let row_id = row_detail.row.id.clone();
-    let weak_filter_controller = Arc::downgrade(&self.filter_controller);
-    let weak_sort_controller = Arc::downgrade(&self.sort_controller);
-    af_spawn(async move {
-      if let Some(filter_controller) = weak_filter_controller.upgrade() {
-        filter_controller
-          .did_receive_row_changed(row_id.clone())
-          .await;
-      }
-      if let Some(sort_controller) = weak_sort_controller.upgrade() {
-        sort_controller
-          .read()
-          .await
-          .did_receive_row_changed(row_id)
-          .await;
-      }
-    });
+    self
+      .gen_did_update_row_view_tasks(row_detail.row.id.clone(), field_id)
+      .await;
   }
 
   pub async fn v_filter_rows(&self, row_details: &mut Vec<Arc<RowDetail>>) {
@@ -452,7 +481,7 @@ impl DatabaseViewEditor {
   }
 
   #[tracing::instrument(level = "trace", skip(self), err)]
-  pub async fn v_insert_sort(&self, params: UpdateSortParams) -> FlowyResult<Sort> {
+  pub async fn v_create_or_update_sort(&self, params: UpdateSortPayloadPB) -> FlowyResult<Sort> {
     let is_exist = params.sort_id.is_some();
     let sort_id = match params.sort_id {
       None => gen_database_sort_id(),
@@ -462,38 +491,57 @@ impl DatabaseViewEditor {
     let sort = Sort {
       id: sort_id,
       field_id: params.field_id.clone(),
-      field_type: params.field_type,
-      condition: params.condition,
+      condition: params.condition.into(),
     };
-    let sort_type = SortType::from(&sort);
-    let mut sort_controller = self.sort_controller.write().await;
+
     self.delegate.insert_sort(&self.view_id, sort.clone());
-    let changeset = if is_exist {
+
+    let mut sort_controller = self.sort_controller.write().await;
+
+    let notification = if is_exist {
       sort_controller
-        .did_receive_changes(SortChangeset::from_update(sort_type))
+        .apply_changeset(SortChangeset::from_update(sort.clone()))
         .await
     } else {
       sort_controller
-        .did_receive_changes(SortChangeset::from_insert(sort_type))
+        .apply_changeset(SortChangeset::from_insert(sort.clone()))
         .await
     };
     drop(sort_controller);
-    notify_did_update_sort(changeset).await;
+    notify_did_update_sort(notification).await;
     Ok(sort)
   }
 
-  pub async fn v_delete_sort(&self, params: DeleteSortParams) -> FlowyResult<()> {
+  pub async fn v_reorder_sort(&self, params: ReorderSortPayloadPB) -> FlowyResult<()> {
+    self
+      .delegate
+      .move_sort(&self.view_id, &params.from_sort_id, &params.to_sort_id);
+
     let notification = self
       .sort_controller
       .write()
       .await
-      .did_receive_changes(SortChangeset::from_delete(DeletedSortType::from(
-        params.clone(),
-      )))
+      .apply_changeset(SortChangeset::from_reorder(
+        params.from_sort_id,
+        params.to_sort_id,
+      ))
+      .await;
+
+    notify_did_update_sort(notification).await;
+    Ok(())
+  }
+
+  pub async fn v_delete_sort(&self, params: DeleteSortPayloadPB) -> FlowyResult<()> {
+    let notification = self
+      .sort_controller
+      .write()
+      .await
+      .apply_changeset(SortChangeset::from_delete(params.sort_id.clone()))
       .await;
 
     self.delegate.remove_sort(&self.view_id, &params.sort_id);
     notify_did_update_sort(notification).await;
+
     Ok(())
   }
 
@@ -505,6 +553,68 @@ impl DatabaseViewEditor {
     let mut notification = SortChangesetNotificationPB::new(self.view_id.clone());
     notification.delete_sorts = all_sorts.into_iter().map(SortPB::from).collect();
     notify_did_update_sort(notification).await;
+    Ok(())
+  }
+
+  pub async fn v_get_all_calculations(&self) -> Vec<Arc<Calculation>> {
+    self.delegate.get_all_calculations(&self.view_id)
+  }
+
+  pub async fn v_update_calculations(
+    &self,
+    params: UpdateCalculationChangesetPB,
+  ) -> FlowyResult<()> {
+    let calculation_id = match params.calculation_id {
+      None => gen_database_calculation_id(),
+      Some(calculation_id) => calculation_id,
+    };
+
+    let calculation = Calculation::none(
+      calculation_id,
+      params.field_id,
+      Some(params.calculation_type.value()),
+    );
+
+    let changeset = self
+      .calculations_controller
+      .did_receive_changes(CalculationChangeset::from_insert(calculation.clone()))
+      .await;
+
+    if let Some(changeset) = changeset {
+      if !changeset.insert_calculations.is_empty() {
+        for insert in changeset.insert_calculations.clone() {
+          let calculation: Calculation = Calculation::from(&insert);
+          self
+            .delegate
+            .update_calculation(&params.view_id, calculation);
+        }
+      }
+
+      notify_did_update_calculation(changeset).await;
+    }
+
+    Ok(())
+  }
+
+  pub async fn v_remove_calculation(
+    &self,
+    params: RemoveCalculationChangesetPB,
+  ) -> FlowyResult<()> {
+    self
+      .delegate
+      .remove_calculation(&params.view_id, &params.calculation_id);
+
+    let calculation = Calculation::none(params.calculation_id, params.field_id, None);
+
+    let changeset = self
+      .calculations_controller
+      .did_receive_changes(CalculationChangeset::from_delete(calculation.clone()))
+      .await;
+
+    if let Some(changeset) = changeset {
+      notify_did_update_calculation(changeset).await;
+    }
+
     Ok(())
   }
 
@@ -526,25 +636,20 @@ impl DatabaseViewEditor {
       condition: params.condition,
       content: params.content,
     };
-    let filter_type = FilterType::from(&filter);
     let filter_controller = self.filter_controller.clone();
     let changeset = if is_exist {
-      let old_filter_type = self
-        .delegate
-        .get_filter(&self.view_id, &filter.id)
-        .map(|field| FilterType::from(&field));
+      let old_filter = self.delegate.get_filter(&self.view_id, &filter.id);
 
-      self.delegate.insert_filter(&self.view_id, filter);
+      self.delegate.insert_filter(&self.view_id, filter.clone());
       filter_controller
-        .did_receive_changes(FilterChangeset::from_update(UpdatedFilterType::new(
-          old_filter_type,
-          filter_type,
+        .did_receive_changes(FilterChangeset::from_update(UpdatedFilter::new(
+          old_filter, filter,
         )))
         .await
     } else {
-      self.delegate.insert_filter(&self.view_id, filter);
+      self.delegate.insert_filter(&self.view_id, filter.clone());
       filter_controller
-        .did_receive_changes(FilterChangeset::from_insert(filter_type))
+        .did_receive_changes(FilterChangeset::from_insert(filter))
         .await
     };
     drop(filter_controller);
@@ -556,16 +661,20 @@ impl DatabaseViewEditor {
   }
 
   #[tracing::instrument(level = "trace", skip(self), err)]
-  pub async fn v_delete_filter(&self, params: DeleteFilterParams) -> FlowyResult<()> {
-    let filter_type = params.filter_type;
+  pub async fn v_delete_filter(&self, params: DeleteFilterPayloadPB) -> FlowyResult<()> {
+    let filter_context = FilterContext {
+      filter_id: params.filter_id.clone(),
+      field_id: params.field_id.clone(),
+      field_type: params.field_type,
+    };
     let changeset = self
       .filter_controller
-      .did_receive_changes(FilterChangeset::from_delete(filter_type.clone()))
+      .did_receive_changes(FilterChangeset::from_delete(filter_context.clone()))
       .await;
 
     self
       .delegate
-      .delete_filter(&self.view_id, &filter_type.filter_id);
+      .delete_filter(&self.view_id, &params.filter_id);
     if changeset.is_some() {
       notify_did_update_filter(changeset.unwrap()).await;
     }
@@ -659,6 +768,41 @@ impl DatabaseViewEditor {
     Ok(())
   }
 
+  pub async fn v_did_delete_field(&self, deleted_field_id: &str) {
+    let sorts = self.delegate.get_all_sorts(&self.view_id);
+
+    if let Some(sort) = sorts.iter().find(|sort| sort.field_id == deleted_field_id) {
+      self.delegate.remove_sort(&self.view_id, &sort.id);
+      let notification = self
+        .sort_controller
+        .write()
+        .await
+        .apply_changeset(SortChangeset::from_delete(sort.id.clone()))
+        .await;
+      if !notification.is_empty() {
+        notify_did_update_sort(notification).await;
+      }
+    }
+
+    self
+      .calculations_controller
+      .did_receive_field_deleted(deleted_field_id.to_string())
+      .await;
+  }
+
+  pub async fn v_did_update_field_type(&self, field_id: &str, new_field_type: FieldType) {
+    self
+      .sort_controller
+      .read()
+      .await
+      .did_update_field_type()
+      .await;
+    self
+      .calculations_controller
+      .did_receive_field_type_changed(field_id.to_owned(), new_field_type)
+      .await;
+  }
+
   /// Notifies the view's field type-option data is changed
   /// For the moment, only the groups will be generated after the type-option data changed. A
   /// [Field] has a property named type_options contains a list of type-option data.
@@ -690,11 +834,12 @@ impl DatabaseViewEditor {
         .delegate
         .get_filter_by_field_id(&self.view_id, field_id)
       {
-        let mut old = FilterType::from(&filter);
-        old.field_type = FieldType::from(old_field.field_type);
-        let new = FilterType::from(&filter);
-        let filter_type = UpdatedFilterType::new(Some(old), new);
-        let filter_changeset = FilterChangeset::from_update(filter_type);
+        let old = Filter {
+          field_type: FieldType::from(old_field.field_type),
+          ..filter.clone()
+        };
+        let updated_filter = UpdatedFilter::new(Some(old), filter);
+        let filter_changeset = FilterChangeset::from_update(updated_filter);
         let filter_controller = self.filter_controller.clone();
         af_spawn(async move {
           if let Some(notification) = filter_controller
@@ -929,5 +1074,39 @@ impl DatabaseViewEditor {
     } else {
       None
     }
+  }
+
+  async fn gen_did_update_row_view_tasks(&self, row_id: RowId, field_id: String) {
+    let weak_filter_controller = Arc::downgrade(&self.filter_controller);
+    let weak_sort_controller = Arc::downgrade(&self.sort_controller);
+    let weak_calculations_controller = Arc::downgrade(&self.calculations_controller);
+    af_spawn(async move {
+      if let Some(filter_controller) = weak_filter_controller.upgrade() {
+        filter_controller
+          .did_receive_row_changed(row_id.clone())
+          .await;
+      }
+      if let Some(sort_controller) = weak_sort_controller.upgrade() {
+        sort_controller
+          .read()
+          .await
+          .did_receive_row_changed(row_id)
+          .await;
+      }
+      if let Some(calculations_controller) = weak_calculations_controller.upgrade() {
+        calculations_controller
+          .did_receive_cell_changed(field_id)
+          .await;
+      }
+    });
+  }
+
+  async fn gen_did_create_row_view_tasks(&self, row_id: RowId) {
+    let weak_sort_controller = Arc::downgrade(&self.sort_controller);
+    af_spawn(async move {
+      if let Some(sort_controller) = weak_sort_controller.upgrade() {
+        sort_controller.read().await.did_create_row(row_id).await;
+      }
+    });
   }
 }

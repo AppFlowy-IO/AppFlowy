@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database/application/database_controller.dart';
@@ -66,7 +68,7 @@ class _TextCellState extends GridEditableTextCell<EditableTextCell> {
   }
 
   @override
-  Future<void> dispose() async {
+  void dispose() {
     _textEditingController.dispose();
     cellBloc.close();
     super.dispose();
@@ -95,7 +97,7 @@ class _TextCellState extends GridEditableTextCell<EditableTextCell> {
   SingleListenerFocusNode focusNode = SingleListenerFocusNode();
 
   @override
-  void requestBeginFocus() {
+  void onRequestFocus() {
     focusNode.requestFocus();
   }
 

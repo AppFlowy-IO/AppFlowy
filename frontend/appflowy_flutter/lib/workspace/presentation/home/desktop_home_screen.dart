@@ -13,6 +13,7 @@ import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/errors/workspace_failed_screen.dart';
 import 'package:appflowy/workspace/presentation/home/hotkeys.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar.dart';
+import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/edit_panel/panel_animation.dart';
 import 'package:appflowy/workspace/presentation/widgets/float_bubble/question_bubble.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
@@ -84,6 +85,10 @@ class DesktopHomeScreen extends StatelessWidget {
                   context.widthPx,
                 )..add(const HomeSettingEvent.initial());
               },
+            ),
+            BlocProvider<FavoriteBloc>(
+              create: (context) =>
+                  FavoriteBloc()..add(const FavoriteEvent.initial()),
             ),
           ],
           child: HomeHotKeys(

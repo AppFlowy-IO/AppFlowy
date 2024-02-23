@@ -20,6 +20,7 @@ impl From<AppResponseError> for FlowyError {
       AppErrorCode::NotLoggedIn => ErrorCode::UserUnauthorized,
       AppErrorCode::NotEnoughPermissions => ErrorCode::NotEnoughPermissions,
       AppErrorCode::NetworkError => ErrorCode::HttpError,
+      AppErrorCode::PayloadTooLarge => ErrorCode::CloudRequestPayloadTooLarge,
       _ => ErrorCode::Internal,
     };
 

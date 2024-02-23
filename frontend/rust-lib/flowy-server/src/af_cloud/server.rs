@@ -5,14 +5,15 @@ use anyhow::Error;
 use client_api::collab_sync::collab_msg::CollabMessage;
 use client_api::entity::UserMessage;
 use client_api::notify::{TokenState, TokenStateReceiver};
-use client_api::{Client, ClientConfiguration};
-use client_api::{
+use client_api::ws::{
   ConnectState, WSClient, WSClientConfig, WSConnectStateReceiver, WebSocketChannel,
 };
+use client_api::{Client, ClientConfiguration};
 use flowy_storage::ObjectStorageService;
 use tokio::sync::watch;
 use tokio_stream::wrappers::WatchStream;
-use tracing::{error, event, info};
+use tracing::{error, event, info, warn};
+use uuid::Uuid;
 
 use flowy_database_pub::cloud::DatabaseCloudService;
 use flowy_document_pub::cloud::DocumentCloudService;
@@ -38,20 +39,32 @@ pub struct AppFlowyCloudServer {
   pub(crate) client: Arc<AFCloudClient>,
   enable_sync: Arc<AtomicBool>,
   network_reachable: Arc<AtomicBool>,
-  #[allow(dead_code)]
-  device_id: String,
+  pub device_id: String,
   ws_client: Arc<WSClient>,
 }
 
 impl AppFlowyCloudServer {
-  pub fn new(config: AFCloudConfiguration, enable_sync: bool, device_id: String) -> Self {
+  pub fn new(
+    config: AFCloudConfiguration,
+    enable_sync: bool,
+    mut device_id: String,
+    app_version: &str,
+  ) -> Self {
+    // The device id can't be empty, so we generate a new one if it is.
+    if device_id.is_empty() {
+      warn!("Device ID is empty, generating a new one");
+      device_id = Uuid::new_v4().to_string();
+    }
+
     let api_client = AFCloudClient::new(
       &config.base_url,
       &config.ws_base_url,
       &config.gotrue_url,
+      &device_id,
       ClientConfiguration::default()
         .with_compression_buffer_size(10240)
         .with_compression_quality(8),
+      app_version,
     );
     let token_state_rx = api_client.subscribe_token_state();
     let enable_sync = Arc::new(AtomicBool::new(enable_sync));
@@ -97,7 +110,7 @@ impl AppFlowyServer for AppFlowyCloudServer {
 
   fn subscribe_token_state(&self) -> Option<WatchStream<UserTokenState>> {
     let mut token_state_rx = self.client.subscribe_token_state();
-    let (watch_tx, watch_rx) = watch::channel(UserTokenState::Invalid);
+    let (watch_tx, watch_rx) = watch::channel(UserTokenState::Init);
     let weak_client = Arc::downgrade(&self.client);
     af_spawn(async move {
       while let Ok(token_state) = token_state_rx.recv().await {
@@ -137,7 +150,7 @@ impl AppFlowyServer for AppFlowyCloudServer {
     };
     let mut user_change = self.ws_client.subscribe_user_changed();
     let (tx, rx) = tokio::sync::mpsc::channel(1);
-    tokio::spawn(async move {
+    af_spawn(async move {
       while let Ok(user_message) = user_change.recv().await {
         if let UserMessage::ProfileChange(change) = user_message {
           let user_update = UserUpdate {
@@ -252,7 +265,7 @@ fn spawn_ws_conn(
                     event!(tracing::Level::INFO, "🟢reconnecting websocket");
                     let _ = ws_client.connect(ws_addr, &cloned_device_id).await;
                   },
-                  Err(err) => error!("Failed to get ws url: {}", err),
+                  Err(err) => error!("Failed to get ws url: {}, connect state:{:?}", err, state),
                 }
               }
             }
@@ -275,6 +288,7 @@ fn spawn_ws_conn(
   let weak_api_client = Arc::downgrade(api_client);
   af_spawn(async move {
     while let Ok(token_state) = token_state_rx.recv().await {
+      info!("🟢token state: {:?}", token_state);
       match token_state {
         TokenState::Refresh => {
           if let (Some(api_client), Some(ws_client)) =
@@ -282,7 +296,6 @@ fn spawn_ws_conn(
           {
             match api_client.ws_url(&device_id).await {
               Ok(ws_addr) => {
-                info!("🟢token state: {:?}, reconnecting websocket", token_state);
                 let _ = ws_client.connect(ws_addr, &device_id).await;
               },
               Err(err) => error!("Failed to get ws url: {}", err),

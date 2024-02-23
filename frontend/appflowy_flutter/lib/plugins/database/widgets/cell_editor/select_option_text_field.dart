@@ -163,7 +163,6 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
             },
           ),
           child: SingleChildScrollView(
-            controller: ScrollController(),
             scrollDirection: Axis.horizontal,
             child: Wrap(spacing: 4, children: children),
           ),

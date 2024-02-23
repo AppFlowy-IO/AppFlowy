@@ -78,7 +78,7 @@ abstract mixin class FlowyOverlayDelegate {
 }
 
 class FlowyOverlay extends StatefulWidget {
-  const FlowyOverlay({Key? key, required this.child}) : super(key: key);
+  const FlowyOverlay({super.key, required this.child});
 
   final Widget child;
 

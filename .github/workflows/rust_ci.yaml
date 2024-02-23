@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Install Rust toolchain
         id: rust_toolchain
@@ -45,16 +45,15 @@ jobs:
 
       - uses: Swatinem/rust-cache@v2
         with:
-          prefix-key: 'ubuntu-latest'
+          prefix-key: "ubuntu-latest"
           workspaces: |
             frontend/rust-lib
 
       - name: Checkout appflowy cloud code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: AppFlowy-IO/AppFlowy-Cloud
           path: AppFlowy-Cloud
-          depth: 1
 
       - name: Prepare appflowy cloud env
         working-directory: AppFlowy-Cloud
@@ -78,8 +77,7 @@ jobs:
           af_cloud_test_base_url: http://localhost
           af_cloud_test_ws_url: ws://localhost/ws
           af_cloud_test_gotrue_url: http://localhost/gotrue
-        run: cargo test --no-default-features --features="rev-sqlite" -- --nocapture
-
+        run: cargo test --no-default-features --features="rev-sqlite,dart" -- --nocapture
 
       - name: rustfmt rust-lib
         run: cargo fmt --all -- --check

@@ -12,9 +12,8 @@ pub struct NumberFilterPB {
   pub content: String,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum)]
+#[derive(Debug, Clone, Default, PartialEq, Eq, ProtoBuf_Enum)]
 #[repr(u8)]
-#[derive(Default)]
 pub enum NumberFilterConditionPB {
   #[default]
   Equal = 0,

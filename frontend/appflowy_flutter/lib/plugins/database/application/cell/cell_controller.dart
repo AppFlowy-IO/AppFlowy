@@ -155,7 +155,7 @@ class CellController<T, D> {
   /// and load from disk if it doesn't exist. You can set [loadIfNotExist] to
   /// false to disable this behavior.
   T? getCellData({bool loadIfNotExist = true}) {
-    final data = _cellCache.get(_cellContext);
+    final T? data = _cellCache.get(_cellContext);
     if (data == null && loadIfNotExist) {
       _loadData();
     }

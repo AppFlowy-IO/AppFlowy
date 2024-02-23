@@ -122,8 +122,17 @@ pub async fn get_user_profile_handler(
 
 #[tracing::instrument(level = "debug", skip(manager))]
 pub async fn sign_out_handler(manager: AFPluginState<Weak<UserManager>>) -> Result<(), FlowyError> {
-  let manager = upgrade_manager(manager)?;
-  manager.sign_out().await?;
+  let (tx, rx) = tokio::sync::oneshot::channel();
+  tokio::spawn(async move {
+    let result = async {
+      let manager = upgrade_manager(manager)?;
+      manager.sign_out().await?;
+      Ok::<(), FlowyError>(())
+    }
+    .await;
+    let _ = tx.send(result);
+  });
+  rx.await??;
   Ok(())
 }
 
@@ -466,7 +475,7 @@ pub async fn get_all_workspace_handler(
 ) -> DataResult<RepeatedUserWorkspacePB, FlowyError> {
   let manager = upgrade_manager(manager)?;
   let uid = manager.get_session()?.user_id;
-  let user_workspaces = manager.get_all_user_workspaces(uid)?;
+  let user_workspaces = manager.get_all_user_workspaces(uid).await?;
   data_result_ok(user_workspaces.into())
 }
 
@@ -497,7 +506,7 @@ pub async fn update_network_state_handler(
   Ok(())
 }
 
-#[tracing::instrument(level = "debug", skip_all, err)]
+#[tracing::instrument(level = "debug", skip_all)]
 pub async fn get_anon_user_handler(
   manager: AFPluginState<Weak<UserManager>>,
 ) -> DataResult<UserProfilePB, FlowyError> {
@@ -565,7 +574,7 @@ pub async fn reset_workspace_handler(
   let reset_pb = data.into_inner();
   if reset_pb.workspace_id.is_empty() {
     return Err(FlowyError::new(
-      ErrorCode::WorkspaceIdInvalid,
+      ErrorCode::WorkspaceInitializeError,
       "The workspace id is empty",
     ));
   }
@@ -650,5 +659,27 @@ pub async fn update_workspace_member_handler(
   manager
     .update_workspace_member(data.email, data.workspace_id, data.role.into())
     .await?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn create_workspace_handler(
+  data: AFPluginData<CreateWorkspacePB>,
+  manager: AFPluginState<Weak<UserManager>>,
+) -> DataResult<UserWorkspacePB, FlowyError> {
+  let data = data.try_into_inner()?;
+  let manager = upgrade_manager(manager)?;
+  let new_workspace = manager.add_workspace(&data.name).await?;
+  data_result_ok(new_workspace.into())
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn delete_workspace_handler(
+  delete_workspace_param: AFPluginData<UserWorkspaceIdPB>,
+  manager: AFPluginState<Weak<UserManager>>,
+) -> Result<(), FlowyError> {
+  let workspace_id = delete_workspace_param.try_into_inner()?.workspace_id;
+  let manager = upgrade_manager(manager)?;
+  manager.delete_workspace(&workspace_id).await?;
   Ok(())
 }

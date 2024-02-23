@@ -14,11 +14,12 @@ class OutlineBlockKeys {
 
   static const String type = 'outline';
   static const String backgroundColor = blockComponentBackgroundColor;
+  static const String depth = 'depth';
 }
 
 // defining the callout block menu item for selection
 SelectionMenuItem outlineItem = SelectionMenuItem.node(
-  name: LocaleKeys.document_selectionMenu_outline.tr(),
+  getName: () => LocaleKeys.document_selectionMenu_outline.tr(),
   iconData: Icons.list_alt,
   keywords: ['outline', 'table of contents'],
   nodeBuilder: (editorState, _) => outlineBlockNode(),
@@ -73,6 +74,9 @@ class _OutlineBlockWidgetState extends State<OutlineBlockWidget>
         BlockComponentConfigurable,
         BlockComponentTextDirectionMixin,
         BlockComponentBackgroundColorMixin {
+  // Change the value if the heading block type supports heading levels greater than '3'
+  static const finalHeadingLevel = 3;
+
   @override
   BlockComponentConfiguration get configuration => widget.configuration;
 
@@ -141,7 +145,11 @@ class _OutlineBlockWidgetState extends State<OutlineBlockWidget>
               style: configuration.placeholderTextStyle(node),
             ),
           )
-        : DecoratedBox(
+        : Container(
+            padding: const EdgeInsets.symmetric(
+              vertical: 2.0,
+              horizontal: 5.0,
+            ),
             decoration: BoxDecoration(
               borderRadius: const BorderRadius.all(Radius.circular(8.0)),
               color: backgroundColor,
@@ -151,7 +159,19 @@ class _OutlineBlockWidgetState extends State<OutlineBlockWidget>
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               textDirection: textDirection,
-              children: children,
+              children: [
+                Text(
+                  LocaleKeys.document_outlineBlock_placeholder.tr(),
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                const VSpace(8.0),
+                Padding(
+                  padding: const EdgeInsets.only(left: 15.0),
+                  child: Column(
+                    children: children,
+                  ),
+                ),
+              ],
             ),
           );
 
@@ -166,10 +186,14 @@ class _OutlineBlockWidgetState extends State<OutlineBlockWidget>
 
   Iterable<Node> getHeadingNodes() {
     final children = editorState.document.root.children;
+    final int level =
+        node.attributes[OutlineBlockKeys.depth] ?? finalHeadingLevel;
+
     return children.where(
       (element) =>
           element.type == HeadingBlockKeys.type &&
-          element.delta?.isNotEmpty == true,
+          element.delta?.isNotEmpty == true &&
+          element.attributes[HeadingBlockKeys.level] <= level,
     );
   }
 }

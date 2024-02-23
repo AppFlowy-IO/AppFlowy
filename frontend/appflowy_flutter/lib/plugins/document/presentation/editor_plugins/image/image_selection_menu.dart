@@ -4,7 +4,7 @@ import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:flutter/material.dart';
 
 final customImageMenuItem = SelectionMenuItem(
-  name: AppFlowyEditorL10n.current.image,
+  getName: () => AppFlowyEditorL10n.current.image,
   icon: (editorState, isSelected, style) => SelectionMenuIconWidget(
     name: 'image',
     isSelected: isSelected,

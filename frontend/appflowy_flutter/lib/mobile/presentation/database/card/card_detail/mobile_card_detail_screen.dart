@@ -1,7 +1,10 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/base/app_bar.dart';
+import 'package:appflowy/mobile/presentation/base/app_bar_actions.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_quick_action_button.dart';
+import 'package:appflowy/plugins/database/application/cell/bloc/text_cell_bloc.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
@@ -14,7 +17,6 @@ import 'package:appflowy/plugins/database/grid/application/row/row_detail_bloc.d
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_builder.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/text.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
-import 'package:appflowy/plugins/database/application/cell/bloc/text_cell_bloc.dart';
 import 'package:appflowy/plugins/database/widgets/row/row_property.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -77,7 +79,15 @@ class _MobileRowDetailPageState extends State<MobileRowDetailPage> {
     return BlocProvider.value(
       value: _bloc,
       child: Scaffold(
-        appBar: _buildAppBar(),
+        appBar: FlowyAppBar(
+          leadingType: FlowyAppBarLeadingType.close,
+          showDivider: false,
+          actions: [
+            AppBarMoreButton(
+              onTap: (_) => _showCardActions(context),
+            ),
+          ],
+        ),
         body: BlocBuilder<MobileRowDetailBloc, MobileRowDetailState>(
           buildWhen: (previous, current) =>
               previous.rowInfos.length != current.rowInfos.length,
@@ -118,82 +128,50 @@ class _MobileRowDetailPageState extends State<MobileRowDetailPage> {
     );
   }
 
-  AppBar _buildAppBar() {
-    return AppBar(
-      elevation: 0,
-      leading: IconButton(
-        onPressed: () => context.pop(),
-        icon: const Icon(Icons.close),
-      ),
-      actions: [
-        IconButton(
-          iconSize: 40,
-          icon: const FlowySvg(
-            FlowySvgs.details_horizontal_s,
-            size: Size.square(20),
-          ),
-          padding: EdgeInsets.zero,
-          onPressed: () => _showCardActions(context),
-        ),
-      ],
-    );
-  }
-
   void _showCardActions(BuildContext context) {
     showMobileBottomSheet(
       context,
       backgroundColor: Theme.of(context).colorScheme.background,
-      padding: const EdgeInsets.only(top: 8, bottom: 38),
+      showDragHandle: true,
       builder: (_) => Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: MobileQuickActionButton(
-              onTap: () {
-                final rowId = _bloc.state.currentRowId;
-                if (rowId == null) {
-                  return;
-                }
-                RowBackendService.duplicateRow(viewId, rowId);
-                context
-                  ..pop()
-                  ..pop();
-                Fluttertoast.showToast(
-                  msg: LocaleKeys.board_cardDuplicated.tr(),
-                  gravity: ToastGravity.BOTTOM,
-                );
-              },
-              icon: FlowySvgs.copy_s,
-              text: LocaleKeys.button_duplicate.tr(),
-            ),
+          MobileQuickActionButton(
+            onTap: () =>
+                _performAction(viewId, _bloc.state.currentRowId, false),
+            icon: FlowySvgs.copy_s,
+            text: LocaleKeys.button_duplicate.tr(),
           ),
-          const Divider(height: 9),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: MobileQuickActionButton(
-              onTap: () {
-                final rowId = _bloc.state.currentRowId;
-                if (rowId == null) {
-                  return;
-                }
-                RowBackendService.deleteRow(viewId, rowId);
-                context
-                  ..pop()
-                  ..pop();
-                Fluttertoast.showToast(
-                  msg: LocaleKeys.board_cardDeleted.tr(),
-                  gravity: ToastGravity.BOTTOM,
-                );
-              },
-              icon: FlowySvgs.m_delete_m,
-              text: LocaleKeys.button_delete.tr(),
-              color: Theme.of(context).colorScheme.error,
-            ),
+          const Divider(height: 8.5, thickness: 0.5),
+          MobileQuickActionButton(
+            onTap: () => _performAction(viewId, _bloc.state.currentRowId, true),
+            text: LocaleKeys.button_delete.tr(),
+            textColor: Theme.of(context).colorScheme.error,
+            icon: FlowySvgs.m_delete_m,
+            iconColor: Theme.of(context).colorScheme.error,
           ),
-          const Divider(height: 9),
         ],
       ),
+    );
+  }
+
+  void _performAction(String viewId, String? rowId, bool deleteRow) {
+    if (rowId == null) {
+      return;
+    }
+
+    deleteRow
+        ? RowBackendService.deleteRow(viewId, rowId)
+        : RowBackendService.duplicateRow(viewId, rowId);
+
+    context
+      ..pop()
+      ..pop();
+    Fluttertoast.showToast(
+      msg: deleteRow
+          ? LocaleKeys.board_cardDeleted.tr()
+          : LocaleKeys.board_cardDuplicated.tr(),
+      gravity: ToastGravity.BOTTOM,
     );
   }
 }
@@ -347,22 +325,22 @@ class MobileRowDetailPageContentState
                 )..add(const RowBannerEvent.initial()),
                 child: BlocBuilder<RowBannerBloc, RowBannerState>(
                   builder: (context, state) {
-                    if (state.primaryField != null) {
-                      final cellContext = CellContext(
-                        rowId: rowController.rowId,
-                        fieldId: state.primaryField!.id,
-                      );
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: cellBuilder.buildCustom(
-                          cellContext,
-                          skinMap: EditableCellSkinMap(
-                            textSkin: _TitleSkin(),
-                          ),
-                        ),
-                      );
+                    if (state.primaryField == null) {
+                      return const SizedBox.shrink();
                     }
-                    return const SizedBox.shrink();
+
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: cellBuilder.buildCustom(
+                        CellContext(
+                          rowId: rowController.rowId,
+                          fieldId: state.primaryField!.id,
+                        ),
+                        skinMap: EditableCellSkinMap(
+                          textSkin: _TitleSkin(),
+                        ),
+                      ),
+                    );
                   },
                 ),
               ),
@@ -432,6 +410,7 @@ class _TitleSkin extends IEditableTextCellSkin {
         isDense: true,
         isCollapsed: true,
       ),
+      onTapOutside: (event) => focusNode.unfocus(),
     );
   }
 }

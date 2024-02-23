@@ -16,24 +16,29 @@ class AppFlowyCloudURLsBloc
       await event.when(
         initial: () async {},
         updateServerUrl: (url) {
-          emit(state.copyWith(updatedServerUrl: url));
+          emit(
+            state.copyWith(
+              updatedServerUrl: url,
+              urlError: none(),
+              showRestartHint: url.isNotEmpty,
+            ),
+          );
         },
         confirmUpdate: () async {
           if (state.updatedServerUrl.isEmpty) {
             emit(
               state.copyWith(
                 updatedServerUrl: "",
-                urlError: none(),
-                restartApp: true,
+                urlError: Some(
+                  LocaleKeys.settings_menu_appFlowyCloudUrlCanNotBeEmpty.tr(),
+                ),
+                restartApp: false,
               ),
             );
-            await setAppFlowyCloudUrl(none());
           } else {
             validateUrl(state.updatedServerUrl).fold(
               (url) async {
-                if (state.config.base_url != url) {
-                  await setAppFlowyCloudUrl(Some(url));
-                }
+                await useSelfHostedAppFlowyCloudWithURL(url);
                 add(const AppFlowyCloudURLsEvent.didSaveConfig());
               },
               (err) => emit(state.copyWith(urlError: Some(err))),
@@ -69,6 +74,7 @@ class AppFlowyCloudURLsState with _$AppFlowyCloudURLsState {
     required String updatedServerUrl,
     required Option<String> urlError,
     required bool restartApp,
+    required bool showRestartHint,
   }) = _AppFlowyCloudURLsState;
 
   factory AppFlowyCloudURLsState.initial() => AppFlowyCloudURLsState(
@@ -76,6 +82,10 @@ class AppFlowyCloudURLsState with _$AppFlowyCloudURLsState {
         urlError: none(),
         updatedServerUrl:
             getIt<AppFlowyCloudSharedEnv>().appflowyCloudConfig.base_url,
+        showRestartHint: getIt<AppFlowyCloudSharedEnv>()
+            .appflowyCloudConfig
+            .base_url
+            .isNotEmpty,
         restartApp: false,
       );
 }

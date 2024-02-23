@@ -49,6 +49,7 @@ linter:
     - always_declare_return_types
 
     - sort_constructors_first
+    - unawaited_futures
 
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options

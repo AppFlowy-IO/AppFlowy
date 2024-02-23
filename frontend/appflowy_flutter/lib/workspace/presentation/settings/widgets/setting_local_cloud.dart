@@ -6,14 +6,15 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 class SettingLocalCloud extends StatelessWidget {
-  const SettingLocalCloud({super.key, required this.didResetServerUrl});
+  const SettingLocalCloud({super.key, required this.restartAppFlowy});
 
-  final VoidCallback didResetServerUrl;
+  final VoidCallback restartAppFlowy;
 
   @override
   Widget build(BuildContext context) {
     return RestartButton(
       onClick: () => onPressed(context),
+      showRestartHint: true,
     );
   }
 
@@ -21,10 +22,8 @@ class SettingLocalCloud extends StatelessWidget {
     NavigatorAlertDialog(
       title: LocaleKeys.settings_menu_restartAppTip.tr(),
       confirm: () async {
-        await setAuthenticatorType(
-          AuthenticatorType.local,
-        );
-        didResetServerUrl();
+        await useLocalServer();
+        restartAppFlowy();
       },
     ).show(context);
   }

@@ -8,14 +8,14 @@ use collab_folder::{
   Folder, FolderData, Section, SectionItem, TrashInfo, View, ViewLayout, ViewUpdate, Workspace,
 };
 use parking_lot::{Mutex, RwLock};
-use tracing::{error, event, info, instrument, Level};
+use tracing::{error, info, instrument};
 
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
 use collab_integrate::{CollabKVDB, CollabPersistenceConfig};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_folder_pub::cloud::{gen_view_id, FolderCloudService};
 use flowy_folder_pub::folder_builder::ParentChildViews;
-use lib_infra::async_trait::async_trait;
+use lib_infra::conditional_send_sync_trait;
 
 use crate::entities::icon::UpdateViewIconParams;
 use crate::entities::{
@@ -35,11 +35,12 @@ use crate::util::{
 };
 use crate::view_operation::{create_view, FolderOperationHandler, FolderOperationHandlers};
 
-/// [FolderUser] represents the user for folder.
-#[async_trait]
-pub trait FolderUser: Send + Sync {
-  fn user_id(&self) -> Result<i64, FlowyError>;
-  fn collab_db(&self, uid: i64) -> Result<Weak<CollabKVDB>, FlowyError>;
+conditional_send_sync_trait! {
+  "[crate::manager::FolderUser] represents the user for folder.";
+   FolderUser {
+     fn user_id(&self) -> Result<i64, FlowyError>;
+     fn collab_db(&self, uid: i64) -> Result<Weak<CollabKVDB>, FlowyError>;
+  }
 }
 
 pub struct FolderManager {
@@ -71,15 +72,39 @@ impl FolderManager {
     Ok(manager)
   }
 
+  pub async fn reload_workspace(&self) -> FlowyResult<()> {
+    let workspace_id = self
+      .workspace_id
+      .read()
+      .as_ref()
+      .ok_or_else(|| {
+        FlowyError::internal().with_context("workspace id is empty when trying to reload workspace")
+      })?
+      .clone();
+
+    let uid = self.user.user_id()?;
+    let doc_state = self
+      .cloud_service
+      .get_folder_doc_state(&workspace_id, uid, CollabType::Folder, &workspace_id)
+      .await?;
+
+    self
+      .initialize(uid, &workspace_id, FolderInitDataSource::Cloud(doc_state))
+      .await?;
+    Ok(())
+  }
+
   #[instrument(level = "debug", skip(self), err)]
   pub async fn get_current_workspace(&self) -> FlowyResult<WorkspacePB> {
     self.with_folder(
       || {
         let uid = self.user.user_id()?;
-        let workspace_id = self.workspace_id.read().as_ref().cloned().ok_or(
-          FlowyError::from(ErrorCode::WorkspaceIdInvalid)
-            .with_context("Unexpected empty workspace id"),
-        )?;
+        let workspace_id = self
+          .workspace_id
+          .read()
+          .as_ref()
+          .cloned()
+          .ok_or_else(|| FlowyError::from(ErrorCode::WorkspaceInitializeError))?;
         Err(workspace_data_not_sync_error(uid, &workspace_id))
       },
       |folder| {
@@ -156,16 +181,8 @@ impl FolderManager {
   ) -> FlowyResult<()> {
     let folder_doc_state = self
       .cloud_service
-      .get_collab_doc_state_f(workspace_id, user_id, CollabType::Folder, workspace_id)
+      .get_folder_doc_state(workspace_id, user_id, CollabType::Folder, workspace_id)
       .await?;
-
-    event!(
-      Level::INFO,
-      "Get folder updates via {}, number of updates: {}",
-      self.cloud_service.service_name(),
-      folder_doc_state.len()
-    );
-
     if let Err(err) = self
       .initialize(
         user_id,
@@ -176,10 +193,7 @@ impl FolderManager {
     {
       // If failed to open folder with remote data, open from local disk. After open from the local
       // disk. the data will be synced to the remote server.
-      error!(
-        "Failed to initialize folder with error {}, fallback to use local data",
-        err
-      );
+      error!("initialize folder with error {:?}, fallback local", err);
       self
         .initialize(
           user_id,
@@ -213,14 +227,14 @@ impl FolderManager {
       // when the user signs up for the first time.
       let result = self
         .cloud_service
-        .get_collab_doc_state_f(workspace_id, user_id, CollabType::Folder, workspace_id)
+        .get_folder_doc_state(workspace_id, user_id, CollabType::Folder, workspace_id)
         .await
         .map_err(FlowyError::from);
 
       match result {
         Ok(folder_updates) => {
           info!(
-            "Get folder updates via {}, number of updates: {}",
+            "Get folder updates via {}, doc state len: {}",
             self.cloud_service.service_name(),
             folder_updates.len()
           );
@@ -249,8 +263,13 @@ impl FolderManager {
   pub async fn clear(&self, _user_id: i64) {}
 
   #[tracing::instrument(level = "info", skip_all, err)]
-  pub async fn create_workspace(&self, _params: CreateWorkspaceParams) -> FlowyResult<Workspace> {
-    Err(FlowyError::not_support())
+  pub async fn create_workspace(&self, params: CreateWorkspaceParams) -> FlowyResult<Workspace> {
+    let uid = self.user.user_id()?;
+    let new_workspace = self
+      .cloud_service
+      .create_workspace(uid, &params.name)
+      .await?;
+    Ok(new_workspace)
   }
 
   #[tracing::instrument(level = "info", skip_all, err)]
@@ -436,7 +455,7 @@ impl FolderManager {
   /// Returns the view with the given view id.
   /// The child views of the view will only access the first. So if you want to get the child view's
   /// child view, you need to call this method again.
-  #[tracing::instrument(level = "debug", skip(self, view_id), err)]
+  #[tracing::instrument(level = "debug", skip(self))]
   pub async fn get_view_pb(&self, view_id: &str) -> FlowyResult<ViewPB> {
     let view_id = view_id.to_string();
     let folder = self.mutex_folder.lock();
@@ -448,11 +467,17 @@ impl FolderManager {
       .collect::<Vec<String>>();
 
     if trash_ids.contains(&view_id) {
-      return Err(FlowyError::record_not_found());
+      return Err(FlowyError::new(
+        ErrorCode::RecordNotFound,
+        format!("View:{} is in trash", view_id),
+      ));
     }
 
     match folder.views.get_view(&view_id) {
-      None => Err(FlowyError::record_not_found()),
+      None => {
+        error!("Can't find the view with id: {}", view_id);
+        Err(FlowyError::record_not_found())
+      },
       Some(view) => {
         let child_views = folder
           .views

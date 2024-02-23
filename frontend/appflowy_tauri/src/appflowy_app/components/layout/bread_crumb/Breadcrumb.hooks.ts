@@ -2,11 +2,9 @@ import { useAppSelector } from '$app/stores/store';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 import { Page } from '$app_reducers/pages/slice';
-import { useTranslation } from 'react-i18next';
 import { getPage } from '$app/application/folder/page.service';
 
 export function useLoadExpandedPages() {
-  const { t } = useTranslation();
   const params = useParams();
   const location = useLocation();
   const isTrash = useMemo(() => location.pathname.includes('trash'), [location.pathname]);
@@ -42,7 +40,10 @@ export function useLoadExpandedPages() {
       setPagePath((prev) => {
         return [page, ...prev];
       });
-      await loadPagePath(page.parentId);
+
+      if (page.parentId) {
+        await loadPagePath(page.parentId);
+      }
     },
     [pageMap]
   );
@@ -67,18 +68,9 @@ export function useLoadExpandedPages() {
     });
   }, [pageMap]);
 
-  useEffect(() => {
-    if (isTrash) {
-      setPagePath([
-        {
-          name: t('trash.text'),
-        },
-      ]);
-    }
-  }, [isTrash, t]);
-
   return {
     pagePath,
     currentPage,
+    isTrash,
   };
 }

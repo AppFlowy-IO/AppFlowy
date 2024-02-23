@@ -28,6 +28,13 @@ class EncryptSecretScreen extends StatefulWidget {
 
 class _EncryptSecretScreenState extends State<EncryptSecretScreen> {
   final TextEditingController _textEditingController = TextEditingController();
+
+  @override
+  void dispose() {
+    _textEditingController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

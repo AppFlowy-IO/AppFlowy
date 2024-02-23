@@ -27,29 +27,29 @@ void main() {
       // hide the field
       await tester.tapGridFieldWithName('New field 1');
       await tester.tapHidePropertyButton();
-      await tester.noFieldWithName('New field 1');
+      tester.noFieldWithName('New field 1');
 
       // go back to inline database view, expect field to be shown
       await tester.tapTabBarLinkedViewByViewName('Untitled');
-      await tester.findFieldWithName('New field 1');
+      tester.findFieldWithName('New field 1');
 
       // go back to linked database view, expect field to be hidden
       await tester.tapTabBarLinkedViewByViewName('Grid');
-      await tester.noFieldWithName('New field 1');
+      tester.noFieldWithName('New field 1');
 
       // use the settings button to show the field
       await tester.tapDatabaseSettingButton();
       await tester.tapViewPropertiesButton();
       await tester.tapViewTogglePropertyVisibilityButtonByName('New field 1');
       await tester.dismissFieldEditor();
-      await tester.findFieldWithName('New field 1');
+      tester.findFieldWithName('New field 1');
 
       // open first row in popup then hide the field
       await tester.openFirstRowDetailPage();
       await tester.tapGridFieldWithNameInRowDetailPage('New field 1');
       await tester.tapHidePropertyButtonInFieldEditor();
       await tester.dismissRowDetailPage();
-      await tester.noFieldWithName('New field 1');
+      tester.noFieldWithName('New field 1');
     });
   });
 }

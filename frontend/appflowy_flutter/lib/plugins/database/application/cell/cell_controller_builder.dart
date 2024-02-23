@@ -6,7 +6,7 @@ import 'cell_data_loader.dart';
 import 'cell_data_persistence.dart';
 
 typedef TextCellController = CellController<String, String>;
-typedef CheckboxCellController = CellController<String, String>;
+typedef CheckboxCellController = CellController<CheckboxCellDataPB, String>;
 typedef NumberCellController = CellController<String, String>;
 typedef SelectOptionCellController
     = CellController<SelectOptionCellDataPB, String>;
@@ -25,13 +25,13 @@ CellController makeCellController(
   final fieldType = fieldController.getField(cellContext.fieldId)!.fieldType;
   switch (fieldType) {
     case FieldType.Checkbox:
-      return TextCellController(
+      return CheckboxCellController(
         viewId: viewId,
         fieldController: fieldController,
         cellContext: cellContext,
         rowCache: rowCache,
         cellDataLoader: CellDataLoader(
-          parser: StringCellDataParser(),
+          parser: CheckboxCellDataParser(),
         ),
         cellDataPersistence: TextCellDataPersistence(),
       );

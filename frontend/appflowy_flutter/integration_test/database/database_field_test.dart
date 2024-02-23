@@ -39,12 +39,7 @@ void main() {
       await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
 
       // Invoke the field editor
-      await tester.tapGridFieldWithName('Type');
-      await tester.tapEditFieldButton();
-
-      await tester.tapSwitchFieldTypeButton();
-      await tester.selectFieldType(FieldType.Checkbox);
-      await tester.dismissFieldEditor();
+      await tester.changeFieldTypeOfFieldWithName('Type', FieldType.Checkbox);
 
       await tester.assertFieldTypeWithFieldName(
         'Type',
@@ -64,7 +59,7 @@ void main() {
       await tester.createField(FieldType.Checklist, 'checklist');
 
       // check the field is created successfully
-      await tester.findFieldWithName('checklist');
+      tester.findFieldWithName('checklist');
       await tester.pumpAndSettle();
     });
 
@@ -84,7 +79,7 @@ void main() {
       // confirm delete
       await tester.tapDialogOkButton();
 
-      await tester.noFieldWithName('New field 1');
+      tester.noFieldWithName('New field 1');
       await tester.pumpAndSettle();
     });
 
@@ -104,7 +99,7 @@ void main() {
       await tester.tapGridFieldWithName('New field 1');
       await tester.tapDuplicatePropertyButton();
 
-      await tester.findFieldWithName('New field 1 (copy)');
+      tester.findFieldWithName('New field 1 (copy)');
       await tester.pumpAndSettle();
     });
 
@@ -120,13 +115,13 @@ void main() {
       await tester.tapGridFieldWithName('Type');
       await tester.tapInsertFieldButton(left: false, name: 'Right');
       await tester.dismissFieldEditor();
-      await tester.findFieldWithName('Right');
+      tester.findFieldWithName('Right');
 
       // insert new field to the right
       await tester.tapGridFieldWithName('Type');
       await tester.tapInsertFieldButton(left: true, name: "Left");
       await tester.dismissFieldEditor();
-      await tester.findFieldWithName('Left');
+      tester.findFieldWithName('Left');
 
       await tester.pumpAndSettle();
     });

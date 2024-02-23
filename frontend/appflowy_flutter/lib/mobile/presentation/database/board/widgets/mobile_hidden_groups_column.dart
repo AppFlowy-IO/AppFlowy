@@ -215,8 +215,10 @@ class MobileHiddenGroup extends StatelessWidget {
                 ),
                 onTap: () => showFlowyMobileConfirmDialog(
                   context,
-                  title: LocaleKeys.board_mobile_unhideGroup.tr(),
-                  content: LocaleKeys.board_mobile_unhideGroupContent.tr(),
+                  title: FlowyText(LocaleKeys.board_mobile_unhideGroup.tr()),
+                  content: FlowyText(
+                    LocaleKeys.board_mobile_unhideGroupContent.tr(),
+                  ),
                   actionButtonTitle: LocaleKeys.button_yes.tr(),
                   actionButtonColor: Theme.of(context).colorScheme.primary,
                   onActionButtonPressed: () => context.read<BoardBloc>().add(

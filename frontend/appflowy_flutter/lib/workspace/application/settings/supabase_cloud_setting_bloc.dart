@@ -26,7 +26,7 @@ class SupabaseCloudSettingBloc
 
   @override
   Future<void> close() async {
-    _listener.stop();
+    await _listener.stop();
     return super.close();
   }
 
@@ -50,7 +50,7 @@ class SupabaseCloudSettingBloc
           },
           enableSync: (bool enable) async {
             final update = UpdateCloudConfigPB.create()..enableSync = enable;
-            updateCloudConfig(update);
+            await updateCloudConfig(update);
           },
           didReceiveSetting: (CloudSettingPB setting) {
             emit(

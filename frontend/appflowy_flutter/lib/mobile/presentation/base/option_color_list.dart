@@ -34,6 +34,7 @@ class OptionColorList extends StatelessWidget {
                 color: color,
                 borderRadius: Corners.s12Border,
                 border: Border.all(
+                  width: isSelected ? 2.0 : 1.0,
                   color: isSelected
                       ? const Color(0xff00C6F1)
                       : Theme.of(context).dividerColor,
@@ -42,7 +43,7 @@ class OptionColorList extends StatelessWidget {
               alignment: Alignment.center,
               child: isSelected
                   ? const FlowySvg(
-                      FlowySvgs.blue_check_s,
+                      FlowySvgs.m_blue_check_s,
                       size: Size.square(28.0),
                       blendMode: null,
                     )

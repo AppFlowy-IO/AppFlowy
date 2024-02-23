@@ -16,7 +16,7 @@ function Drawer({
   node,
 }: {
   open: boolean;
-  toggleDrawer: (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => void;
+  toggleDrawer: (open: boolean) => (e: React.MouseEvent | KeyboardEvent) => void;
   node: GridNode;
 }) {
   const editor = useSlateStatic();
@@ -46,7 +46,7 @@ function Drawer({
             <CloseSvg />
           </IconButton>
         </div>
-        <div className={'flex-1'}>{open && <DatabaseList node={node} />}</div>
+        <div className={'flex-1'}>{open && <DatabaseList toggleDrawer={toggleDrawer} node={node} />}</div>
 
         <div
           onClick={handleCreateGrid}

@@ -1,20 +1,18 @@
+use anyhow::Error;
+use collab::core::collab::CollabDocState;
+use collab_entity::{CollabObject, CollabType};
+use flowy_error::{ErrorCode, FlowyError};
+use lib_infra::box_any::BoxAny;
+use lib_infra::conditional_send_sync_trait;
+use lib_infra::future::FutureResult;
+use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use std::collections::HashMap;
 use std::fmt::{Display, Formatter};
 use std::str::FromStr;
 use std::sync::Arc;
-
-use anyhow::Error;
-use collab::core::collab::CollabDocState;
-use collab_entity::{CollabObject, CollabType};
-use serde::{Deserialize, Serialize};
-use serde_json::Value;
 use tokio_stream::wrappers::WatchStream;
 use uuid::Uuid;
-
-use flowy_error::{ErrorCode, FlowyError};
-
-use lib_infra::box_any::BoxAny;
-use lib_infra::future::FutureResult;
 
 use crate::entities::{
   AuthResponse, Authenticator, Role, UpdateUserProfileParams, UserCredentials, UserProfile,
@@ -56,13 +54,12 @@ impl Display for UserCloudConfig {
   }
 }
 
-/// `UserCloudServiceProvider` defines a set of methods for managing user cloud services,
-/// including token management, synchronization settings, network reachability, and authentication.
-///
-/// This trait is intended for implementation by providers that offer cloud-based services for users.
-/// It includes methods for handling authentication tokens, enabling/disabling synchronization,
-/// setting network reachability, managing encryption secrets, and accessing user-specific cloud services.
-pub trait UserCloudServiceProvider: Send + Sync + 'static {
+conditional_send_sync_trait! {
+  "This trait is intended for implementation by providers that offer cloud-based services for users.
+  It includes methods for handling authentication tokens, enabling/disabling synchronization,
+  setting network reachability, managing encryption secrets, and accessing user-specific cloud services.";
+
+  UserCloudServiceProvider {
   /// Sets the authentication token for the cloud service.
   ///
   /// # Arguments
@@ -94,7 +91,7 @@ pub trait UserCloudServiceProvider: Send + Sync + 'static {
 
   fn get_user_authenticator(&self) -> Authenticator;
 
-  /// Sets the network reachability statset_user_authenticatorus.
+  /// Sets the network reachability
   ///
   /// # Arguments
   /// * `reachable`: A boolean indicating whether the network is reachable.
@@ -117,8 +114,8 @@ pub trait UserCloudServiceProvider: Send + Sync + 'static {
   /// # Returns
   /// A `String` representing the service URL.
   fn service_url(&self) -> String;
+  }
 }
-
 /// Provide the generic interface for the user cloud service
 /// The user cloud service is responsible for the user authentication and user profile management
 #[allow(unused_variables)]
@@ -139,9 +136,17 @@ pub trait UserCloudService: Send + Sync + 'static {
   /// Currently, only use the admin client for testing
   fn generate_sign_in_url_with_email(&self, email: &str) -> FutureResult<String, FlowyError>;
 
+  fn create_user(&self, email: &str, password: &str) -> FutureResult<(), FlowyError>;
+
+  fn sign_in_with_password(
+    &self,
+    email: &str,
+    password: &str,
+  ) -> FutureResult<UserProfile, FlowyError>;
+
   /// When the user opens the OAuth URL, it redirects to the corresponding provider's OAuth web page.
   /// After the user is authenticated, the browser will open a deep link to the AppFlowy app (iOS, macOS, etc.),
-  /// which will call [Client::sign_in_with_url] to sign in.
+  /// which will call [Client::sign_in_with_url]generate_sign_in_url_with_email to sign in.
   ///
   /// For example, the OAuth URL on Google looks like `https://appflowy.io/authorize?provider=google`.
   fn generate_oauth_url_with_provider(&self, provider: &str) -> FutureResult<String, FlowyError>;
@@ -159,8 +164,15 @@ pub trait UserCloudService: Send + Sync + 'static {
 
   fn open_workspace(&self, workspace_id: &str) -> FutureResult<UserWorkspace, FlowyError>;
 
-  /// Return the all the workspaces of the user  
+  /// Return the all the workspaces of the user
   fn get_all_workspace(&self, uid: i64) -> FutureResult<Vec<UserWorkspace>, FlowyError>;
+
+  /// Creates a new workspace for the user.
+  /// Returns the new workspace if successful
+  fn create_workspace(&self, workspace_name: &str) -> FutureResult<UserWorkspace, FlowyError>;
+
+  /// Deletes a workspace owned by the user.
+  fn delete_workspace(&self, workspace_id: &str) -> FutureResult<(), FlowyError>;
 
   fn add_workspace_member(
     &self,

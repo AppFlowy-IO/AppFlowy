@@ -1,56 +1,46 @@
-import React, { forwardRef, memo, useCallback, MouseEvent, useRef, useEffect, useState } from 'react';
+import React, { forwardRef, memo, useCallback, MouseEvent, useRef } from 'react';
 import { ReactEditor, useSelected, useSlate } from 'slate-react';
-import { Transforms, Range, Editor } from 'slate';
+import { Transforms } from 'slate';
 import { EditorElementProps, FormulaNode } from '$app/application/document/document.types';
 import FormulaLeaf from '$app/components/editor/components/inline_nodes/inline_formula/FormulaLeaf';
 import FormulaEditPopover from '$app/components/editor/components/inline_nodes/inline_formula/FormulaEditPopover';
 import { getNodePath, moveCursorToNodeEnd } from '$app/components/editor/components/editor/utils';
 import { CustomEditor } from '$app/components/editor/command';
+import { useEditorInlineBlockState } from '$app/components/editor/stores';
+import { InlineChromiumBugfix } from '$app/components/editor/components/inline_nodes/InlineChromiumBugfix';
 
 export const InlineFormula = memo(
   forwardRef<HTMLSpanElement, EditorElementProps<FormulaNode>>(({ node, children, ...attributes }, ref) => {
     const editor = useSlate();
     const formula = node.data;
-    const selected = useSelected();
-
+    const { popoverOpen = false, setRange, openPopover, closePopover } = useEditorInlineBlockState('formula');
     const anchor = useRef<HTMLSpanElement | null>(null);
-    const [openEditPopover, setOpenEditPopover] = useState<boolean>(false);
+    const selected = useSelected();
+    const open = popoverOpen && selected;
 
     const handleClick = useCallback(
       (e: MouseEvent<HTMLSpanElement>) => {
         const target = e.currentTarget;
         const path = getNodePath(editor, target);
 
-        setOpenEditPopover(true);
         ReactEditor.focus(editor);
         Transforms.select(editor, path);
+        if (editor.selection) {
+          setRange(editor.selection);
+          openPopover();
+        }
       },
-      [editor]
+      [editor, openPopover, setRange]
     );
 
-    useEffect(() => {
-      const selection = editor.selection;
-
-      if (selected && selection) {
-        const path = ReactEditor.findPath(editor, node);
-        const nodeRange = Editor.range(editor, path);
-
-        if (Range.includes(nodeRange, selection.anchor) && Range.includes(nodeRange, selection.focus)) {
-          setOpenEditPopover(true);
-        }
-      } else {
-        setOpenEditPopover(false);
-      }
-    }, [editor, node, selected]);
-
     const handleEditPopoverClose = useCallback(() => {
-      setOpenEditPopover(false);
+      closePopover();
       if (anchor.current === null) {
         return;
       }
 
       moveCursorToNodeEnd(editor, anchor.current);
-    }, [editor]);
+    }, [closePopover, editor]);
 
     return (
       <>
@@ -69,16 +59,23 @@ export const InlineFormula = memo(
           contentEditable={false}
           onDoubleClick={handleClick}
           onClick={handleClick}
-          className={`relative rounded px-1 py-0.5 text-xs ${selected ? 'bg-fill-list-active' : ''}`}
-          data-playwright-selected={selected}
+          className={`${attributes.className ?? ''} formula-inline relative cursor-pointer rounded px-1 py-0.5 ${
+            selected ? 'selected' : ''
+          }`}
         >
+          <InlineChromiumBugfix />
           <FormulaLeaf formula={formula}>{children}</FormulaLeaf>
+          <InlineChromiumBugfix />
         </span>
-        {openEditPopover && (
+        {open && (
           <FormulaEditPopover
             defaultText={formula}
             onDone={(newFormula) => {
-              if (anchor.current === null || newFormula === formula) return;
+              if (anchor.current === null || newFormula === formula) {
+                handleEditPopoverClose();
+                return;
+              }
+
               const path = getNodePath(editor, anchor.current);
 
               // select the node before updating the formula
@@ -87,7 +84,7 @@ export const InlineFormula = memo(
                 const point = editor.before(path);
 
                 CustomEditor.deleteFormula(editor);
-                setOpenEditPopover(false);
+                closePopover();
                 if (point) {
                   ReactEditor.focus(editor);
                   editor.select(point);
@@ -100,7 +97,7 @@ export const InlineFormula = memo(
               }
             }}
             anchorEl={anchor.current}
-            open={openEditPopover}
+            open={open}
             onClose={handleEditPopoverClose}
           />
         )}

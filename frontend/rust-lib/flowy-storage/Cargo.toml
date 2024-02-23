@@ -21,7 +21,3 @@ mime = "0.3.17"
 tokio = { workspace = true, features = ["sync", "io-util"]}
 tracing.workspace = true
 fxhash = "0.2.1"
-
-
-[features]
-wasm_build = ["lib-infra/wasm_build", "flowy-error/wasm_build"]

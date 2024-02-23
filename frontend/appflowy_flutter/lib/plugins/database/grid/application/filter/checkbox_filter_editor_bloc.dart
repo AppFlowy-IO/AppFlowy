@@ -29,7 +29,7 @@ class CheckboxFilterEditorBloc
   void _dispatch() {
     on<CheckboxFilterEditorEvent>(
       (event, emit) async {
-        event.when(
+        await event.when(
           initial: () async {
             _startListening();
           },

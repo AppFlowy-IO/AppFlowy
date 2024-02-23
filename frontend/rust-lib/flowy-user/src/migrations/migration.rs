@@ -9,7 +9,7 @@ use flowy_sqlite::schema::user_data_migration_records;
 use flowy_sqlite::ConnectionPool;
 use flowy_user_pub::entities::Authenticator;
 
-use crate::services::entities::Session;
+use flowy_user_pub::session::Session;
 
 pub struct UserLocalDataMigration {
   session: Session,

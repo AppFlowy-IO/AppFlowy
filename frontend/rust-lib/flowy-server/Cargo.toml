@@ -4,6 +4,9 @@ version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+crate-type = ["cdylib", "rlib"]
+
 
 [dependencies]
 tracing.workspace = true
@@ -23,9 +26,10 @@ anyhow.workspace = true
 uuid.workspace = true
 chrono = { workspace = true,  default-features = false, features = ["clock", "serde"] }
 collab = { version = "0.1.0" }
-collab-plugins = { version = "0.1.0", features = ["postgres_plugin"] }
+collab-plugins = { version = "0.1.0"}
 collab-document = { version = "0.1.0" }
 collab-entity = { version = "0.1.0" }
+collab-folder = { version = "0.1.0" }
 hex = "0.4.3"
 postgrest = "1.0"
 lib-infra = { workspace = true }
@@ -53,3 +57,6 @@ yrs = "0.17.1"
 assert-json-diff = "2.0.2"
 serde_json.workspace = true
 client-api = { version = "0.1.0" }
+
+[features]
+enable_supabase = ["collab-plugins/postgres_plugin"]

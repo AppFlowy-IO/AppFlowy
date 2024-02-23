@@ -242,8 +242,10 @@ class DatabaseController {
     );
   }
 
-  Future<void> _loadLayoutSetting() async {
-    _databaseViewBackendSvc.getLayoutSetting(databaseLayout).then((result) {
+  Future<void> _loadLayoutSetting() {
+    return _databaseViewBackendSvc
+        .getLayoutSetting(databaseLayout)
+        .then((result) {
       result.fold(
         (newDatabaseLayoutSetting) {
           databaseLayoutSetting = newDatabaseLayoutSetting;

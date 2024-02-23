@@ -25,6 +25,7 @@ use collab_integrate::CollabPersistenceConfig;
 use flowy_document_pub::cloud::DocumentCloudService;
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_storage::ObjectStorageService;
+use lib_dispatch::prelude::af_spawn;
 
 use crate::document::MutexDocument;
 use crate::entities::{
@@ -253,18 +254,25 @@ impl DocumentManager {
     &self,
     workspace_id: String,
     local_file_path: &str,
+    is_async: bool,
   ) -> FlowyResult<String> {
     let (object_identity, object_value) = object_from_disk(&workspace_id, local_file_path).await?;
     let storage_service = self.storage_service_upgrade()?;
     let url = storage_service.get_object_url(object_identity).await?;
 
-    // let the upload happen in the background
     let clone_url = url.clone();
-    tokio::spawn(async move {
-      if let Err(e) = storage_service.put_object(clone_url, object_value).await {
-        error!("upload file failed: {}", e);
-      }
-    });
+
+    match is_async {
+      false => storage_service.put_object(clone_url, object_value).await?,
+      true => {
+        // let the upload happen in the background
+        af_spawn(async move {
+          if let Err(e) = storage_service.put_object(clone_url, object_value).await {
+            error!("upload file failed: {}", e);
+          }
+        });
+      },
+    }
     Ok(url)
   }
 
@@ -300,7 +308,7 @@ impl DocumentManager {
 
     // delete from cloud
     let storage_service = self.storage_service_upgrade()?;
-    tokio::spawn(async move {
+    af_spawn(async move {
       if let Err(e) = storage_service.delete_object(url).await {
         // TODO: add WAL to log the delete operation.
         // keep a list of files to be deleted, and retry later

@@ -253,6 +253,10 @@ class PageManager {
       ),
     );
   }
+
+  void dispose() {
+    _notifier.dispose();
+  }
 }
 
 class HomeTopBar extends StatelessWidget {

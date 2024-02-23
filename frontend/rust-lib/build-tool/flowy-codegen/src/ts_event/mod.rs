@@ -4,6 +4,7 @@ use crate::ast::EventASTContext;
 use crate::flowy_toml::{parse_crate_config_from, CrateConfig};
 use crate::ts_event::event_template::{EventRenderContext, EventTemplate};
 use crate::util::{is_crate_dir, is_hidden, path_string_with_component, read_file};
+use crate::Project;
 use flowy_ast::ASTResult;
 use std::collections::HashSet;
 use std::fs::File;
@@ -12,10 +13,9 @@ use std::path::PathBuf;
 use syn::Item;
 use walkdir::WalkDir;
 
-pub fn gen(crate_name: &str) {
-  let root = std::env::var("CARGO_MAKE_WORKING_DIRECTORY").unwrap_or("../../".to_string());
-  let tauri_backend_service_path = std::env::var("TAURI_BACKEND_SERVICE_PATH")
-    .unwrap_or("appflowy_tauri/src/services/backend".to_string());
+pub fn gen(dest_folder_name: &str, project: Project) {
+  let root = project.event_root();
+  let backend_service_path = project.dst();
 
   let crate_path = std::fs::canonicalize(".")
     .unwrap()
@@ -29,7 +29,8 @@ pub fn gen(crate_name: &str) {
     .collect::<Vec<_>>();
 
   let event_render_ctx = ast_to_event_render_ctx(event_ast.as_ref());
-  let mut render_result = TS_HEADER.to_string();
+  let mut render_result = project.event_imports();
+
   for (index, render_ctx) in event_render_ctx.into_iter().enumerate() {
     let mut event_template = EventTemplate::new();
 
@@ -39,7 +40,7 @@ pub fn gen(crate_name: &str) {
   }
   render_result.push_str(TS_FOOTER);
 
-  let ts_event_folder: PathBuf = [&root, &tauri_backend_service_path, "events", crate_name]
+  let ts_event_folder: PathBuf = [&root, &backend_service_path, "events", dest_folder_name]
     .iter()
     .collect();
   if !ts_event_folder.as_path().exists() {
@@ -81,7 +82,10 @@ pub fn gen(crate_name: &str) {
     Ok(ref mut file) => {
       let mut export = String::new();
       export.push_str("// Auto-generated, do not edit \n");
-      export.push_str(&format!("export * from '../../models/{}';\n", crate_name));
+      export.push_str(&format!(
+        "export * from '../../models/{}';\n",
+        dest_folder_name
+      ));
       export.push_str(&format!("export * from './{}';\n", event_file));
       file.write_all(export.as_bytes()).unwrap();
       File::flush(file).unwrap();
@@ -195,13 +199,6 @@ pub fn ast_to_event_render_ctx(ast: &[EventASTContext]) -> Vec<EventRenderContex
     })
     .collect::<Vec<EventRenderContext>>()
 }
-
-const TS_HEADER: &str = r#"
-/// Auto generate. Do not edit
-import { Ok, Err, Result } from "ts-results";
-import { invoke } from "@tauri-apps/api/tauri";
-import * as pb from "../..";
-"#;
 
 const TS_FOOTER: &str = r#"
 "#;

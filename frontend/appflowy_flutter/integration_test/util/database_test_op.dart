@@ -1,5 +1,8 @@
 import 'dart:io';
 
+import 'package:appflowy/plugins/database/application/calculations/calculation_type_ext.dart';
+import 'package:appflowy/plugins/database/grid/presentation/widgets/calculations/calculate_cell.dart';
+import 'package:appflowy/plugins/database/grid/presentation/widgets/calculations/calculation_type_item.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/common/type_option_separator.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/header/type_option/number.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/checkbox.dart';
@@ -10,6 +13,7 @@ import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/se
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/text.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/timestamp.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/url.dart';
+import 'package:appflowy/util/field_type_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -37,7 +41,6 @@ import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/filte
 import 'package:appflowy/plugins/database/grid/presentation/widgets/footer/grid_footer.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/header/desktop_field_cell.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/header/field_editor.dart';
-import 'package:appflowy/plugins/database/grid/presentation/widgets/header/field_type_extension.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/header/field_type_list.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/header/type_option/date/date_time_format.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/row/row.dart';
@@ -121,7 +124,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
       File(path).writeAsStringSync(str);
     }
     // mock get files
-    await mockPickFilePaths(
+    mockPickFilePaths(
       paths: paths,
     );
     await tapDatabaseRawDataButton();
@@ -209,12 +212,12 @@ extension AppFlowyDatabaseTest on WidgetTester {
   }
 
   /// The [fieldName] must be unique in the grid.
-  Future<void> assertCellContent({
+  void assertCellContent({
     required int rowIndex,
     required FieldType fieldType,
     required String content,
     int cellIndex = 0,
-  }) async {
+  }) {
     final findCell = cellFinder(rowIndex, fieldType, cellIndex: cellIndex);
     final findContent = find.descendant(
       of: findCell,
@@ -263,10 +266,10 @@ extension AppFlowyDatabaseTest on WidgetTester {
   }
 
   /// null percent means no progress bar should be found
-  Future<void> assertChecklistCellInGrid({
+  void assertChecklistCellInGrid({
     required int rowIndex,
     required double? percent,
-  }) async {
+  }) {
     final findCell = cellFinder(rowIndex, FieldType.Checklist);
 
     if (percent == null) {
@@ -322,20 +325,23 @@ extension AppFlowyDatabaseTest on WidgetTester {
   }
 
   Future<void> selectReminderOption(ReminderOption option) async {
-    await hoverOnWidget(find.byType(ReminderSelector));
+    await tapButton(find.byType(ReminderSelector));
 
     final finder = find.descendant(
       of: find.byType(FlowyButton),
-      matching: find.text(option.label),
+      matching: find.textContaining(option.label),
     );
 
     await tapButton(finder);
   }
 
-  Future<void> selectLastDateInPicker() async {
+  Future<bool> selectLastDateInPicker() async {
     final finder = find.byType(CellContent).last;
+    final w = widget(finder) as CellContent;
 
     await tapButton(finder);
+
+    return w.isToday;
   }
 
   Future<void> toggleDateRange() async {
@@ -717,6 +723,31 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await pumpAndSettle();
   }
 
+  Future<void> changeFieldTypeOfFieldWithName(
+    String name,
+    FieldType type,
+  ) async {
+    await tapGridFieldWithName(name);
+    await tapEditFieldButton();
+
+    await tapSwitchFieldTypeButton();
+    await selectFieldType(type);
+    await dismissFieldEditor();
+  }
+
+  Future<void> changeCalculateAtIndex(int index, CalculationType type) async {
+    await tap(find.byType(CalculateCell).at(index));
+    await pumpAndSettle();
+
+    await tap(
+      find.descendant(
+        of: find.byType(CalculationTypeItem),
+        matching: find.text(type.label),
+      ),
+    );
+    await pumpAndSettle();
+  }
+
   /// Should call [tapGridFieldWithName] first.
   Future<void> tapEditFieldButton() async {
     await tapButtonWithName(LocaleKeys.grid_field_editProperty.tr());
@@ -814,7 +845,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
     final fieldTypeButton = find.descendant(
       of: fieldTypeCell,
       matching: find.byWidgetPredicate(
-        (widget) => widget is FlowyText && widget.text == fieldType.title(),
+        (widget) => widget is FlowyText && widget.text == fieldType.i18n,
       ),
     );
     await tapButton(fieldTypeButton);
@@ -880,14 +911,14 @@ extension AppFlowyDatabaseTest on WidgetTester {
     expect(widget.field.fieldType, fieldType);
   }
 
-  Future<void> findFieldWithName(String name) async {
+  void findFieldWithName(String name) {
     final field = find.byWidgetPredicate(
       (widget) => widget is FieldCellButton && widget.field.name == name,
     );
     expect(field, findsOneWidget);
   }
 
-  Future<void> noFieldWithName(String name) async {
+  void noFieldWithName(String name) {
     final field = find.byWidgetPredicate(
       (widget) => widget is FieldCellButton && widget.field.name == name,
     );
@@ -1037,6 +1068,34 @@ extension AppFlowyDatabaseTest on WidgetTester {
           widget is DatabaseSortItem && widget.sortInfo.fieldInfo.name == name,
     );
     await tapButton(findSortItem);
+  }
+
+  /// Must call [tapSortMenuInSettingBar] first.
+  Future<void> reorderSort(
+    (FieldType, String) from,
+    (FieldType, String) to,
+  ) async {
+    final fromSortItem = find.byWidgetPredicate(
+      (widget) =>
+          widget is DatabaseSortItem &&
+          widget.sortInfo.fieldInfo.fieldType == from.$1 &&
+          widget.sortInfo.fieldInfo.name == from.$2,
+    );
+    final toSortItem = find.byWidgetPredicate(
+      (widget) =>
+          widget is DatabaseSortItem &&
+          widget.sortInfo.fieldInfo.fieldType == to.$1 &&
+          widget.sortInfo.fieldInfo.name == to.$2,
+    );
+    final dragElement = find.descendant(
+      of: fromSortItem,
+      matching: find.byType(ReorderableDragStartListener),
+    );
+    await drag(
+      dragElement,
+      getCenter(toSortItem) - getCenter(fromSortItem),
+    );
+    await pumpAndSettle(const Duration(milliseconds: 200));
   }
 
   /// Must call [tapSortButtonByName] first.
@@ -1559,7 +1618,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await tapButton(okButton);
   }
 
-  Future<void> assertCurrentDatabaseTagIs(DatabaseLayoutPB layout) async {
+  void assertCurrentDatabaseTagIs(DatabaseLayoutPB layout) {
     switch (layout) {
       case DatabaseLayoutPB.Board:
         expect(find.byType(BoardPage), findsOneWidget);

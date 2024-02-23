@@ -24,7 +24,6 @@ export async function insertSort(viewId: string, sort: Omit<Sort, 'id'>): Promis
     update_sort: {
       view_id: viewId,
       field_id: sort.fieldId,
-      field_type: sort.fieldType,
       condition: sort.condition,
     },
   });
@@ -41,7 +40,6 @@ export async function updateSort(viewId: string, sort: Sort): Promise<void> {
       view_id: viewId,
       sort_id: sort.id,
       field_id: sort.fieldId,
-      field_type: sort.fieldType,
       condition: sort.condition,
     },
   });
@@ -57,8 +55,6 @@ export async function deleteSort(viewId: string, sort: Sort): Promise<void> {
     delete_sort: {
       view_id: viewId,
       sort_id: sort.id,
-      field_id: sort.fieldId,
-      field_type: sort.fieldType,
     },
   });
 

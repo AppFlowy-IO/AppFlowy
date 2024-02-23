@@ -34,7 +34,7 @@ class GridCreateFilterBloc
     on<GridCreateFilterEvent>(
       (event, emit) async {
         event.when(
-          initial: () async {
+          initial: () {
             _startListening();
           },
           didReceiveFields: (List<FieldInfo> fields) {

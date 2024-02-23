@@ -1,25 +1,28 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { IconButton } from '@mui/material';
-import ButtonPopoverList from '$app/components/_shared/button_menu/ButtonMenu';
 
 import { ReactComponent as DetailsSvg } from '$app/assets/details.svg';
 import { ReactComponent as EditSvg } from '$app/assets/edit.svg';
 import { ReactComponent as CopySvg } from '$app/assets/copy.svg';
 import { ReactComponent as TrashSvg } from '$app/assets/delete.svg';
 
-import RenameDialog from './RenameDialog';
+import RenameDialog from '../../_shared/confirm_dialog/RenameDialog';
 import { Page } from '$app_reducers/pages/slice';
 import DeleteDialog from '$app/components/layout/nested_page/DeleteDialog';
+import OperationMenu from '$app/components/layout/nested_page/OperationMenu';
+import { getModifier } from '$app/utils/get_modifier';
+import isHotkey from 'is-hotkey';
 
 function MoreButton({
-  isVisible,
   onDelete,
   onDuplicate,
   onRename,
   page,
+  isHovering,
+  setHovering,
 }: {
-  isVisible: boolean;
+  isHovering: boolean;
+  setHovering: (hovering: boolean) => void;
   onDelete: () => Promise<void>;
   onDuplicate: () => Promise<void>;
   onRename: (newName: string) => Promise<void>;
@@ -29,84 +32,97 @@ function MoreButton({
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const { t } = useTranslation();
+
+  const onConfirm = useCallback(
+    (key: string) => {
+      switch (key) {
+        case 'rename':
+          setRenameDialogOpen(true);
+          break;
+        case 'delete':
+          setDeleteDialogOpen(true);
+          break;
+        case 'duplicate':
+          void onDuplicate();
+
+          break;
+        default:
+          break;
+      }
+    },
+    [onDuplicate]
+  );
+
   const options = useMemo(
     () => [
       {
-        label: t('disclosureAction.rename'),
+        title: t('button.rename'),
+        icon: <EditSvg className={'h-4 w-4'} />,
         key: 'rename',
-        icon: (
-          <div className={'h-5 w-5'}>
-            <EditSvg />
-          </div>
-        ),
-        onClick: () => {
-          setRenameDialogOpen(true);
-        },
       },
       {
-        label: t('button.delete'),
         key: 'delete',
-        onClick: () => {
-          setDeleteDialogOpen(true);
-        },
-        icon: (
-          <div className={'h-5 w-5'}>
-            <TrashSvg />
-          </div>
-        ),
+        title: t('button.delete'),
+        icon: <TrashSvg className={'h-4 w-4'} />,
+        caption: 'Del',
       },
       {
         key: 'duplicate',
-        label: t('button.duplicate'),
-        onClick: onDuplicate,
-        icon: (
-          <div className={'h-5 w-5'}>
-            <CopySvg />
-          </div>
-        ),
+        title: t('button.duplicate'),
+        icon: <CopySvg className={'h-4 w-4'} />,
+        caption: `${getModifier()}+D`,
       },
     ],
-    [onDuplicate, t]
+    [t]
+  );
+
+  const onKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (isHotkey('del', e) || isHotkey('backspace', e)) {
+        e.preventDefault();
+        e.stopPropagation();
+        onConfirm('delete');
+        return;
+      }
+
+      if (isHotkey('mod+d', e)) {
+        e.stopPropagation();
+        onConfirm('duplicate');
+        return;
+      }
+    },
+    [onConfirm]
   );
 
   return (
     <>
-      <ButtonPopoverList
-        isVisible={isVisible}
-        popoverOptions={options}
-        popoverOrigin={{
-          anchorOrigin: {
-            vertical: 'bottom',
-            horizontal: 'left',
-          },
-          transformOrigin: {
-            vertical: 'top',
-            horizontal: 'left',
-          },
-        }}
+      <OperationMenu
+        tooltip={t('menuAppHeader.moreButtonToolTip')}
+        isHovering={isHovering}
+        setHovering={setHovering}
+        onConfirm={onConfirm}
+        options={options}
+        onKeyDown={onKeyDown}
       >
-        <IconButton size={'small'}>
-          <DetailsSvg />
-        </IconButton>
-      </ButtonPopoverList>
-      <RenameDialog
-        defaultValue={page.name}
-        open={renameDialogOpen}
-        onClose={() => setRenameDialogOpen(false)}
-        onOk={async (newName: string) => {
-          await onRename(newName);
-          setRenameDialogOpen(false);
-        }}
-      />
+        <DetailsSvg />
+      </OperationMenu>
+
       <DeleteDialog
         layout={page.layout}
         open={deleteDialogOpen}
-        onClose={() => setDeleteDialogOpen(false)}
-        onOk={async () => {
-          await onDelete();
+        onClose={() => {
           setDeleteDialogOpen(false);
         }}
+        onOk={onDelete}
       />
+      {renameDialogOpen && (
+        <RenameDialog
+          defaultValue={page.name}
+          open={renameDialogOpen}
+          onClose={() => setRenameDialogOpen(false)}
+          onOk={onRename}
+        />
+      )}
     </>
   );
 }

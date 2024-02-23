@@ -79,7 +79,10 @@ Future<bool> inlinePageReferenceCommandHandler(
     }
   }
 
-  // ignore: use_build_context_synchronously
+  if (!context.mounted) {
+    return false;
+  }
+
   final service = InlineActionsService(
     context: context,
     handlers: [

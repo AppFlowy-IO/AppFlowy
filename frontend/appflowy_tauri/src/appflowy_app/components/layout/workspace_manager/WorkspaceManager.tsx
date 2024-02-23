@@ -8,18 +8,17 @@ function WorkspaceManager() {
   const { workspaces, currentWorkspace } = useLoadWorkspaces();
 
   return (
-    <div className={'flex h-full flex-col justify-between'}>
-      <div className={'flex w-full flex-1 flex-col overflow-y-auto overflow-x-hidden'}>
+    <div className={'workspaces flex h-full select-none flex-col justify-between'}>
+      <div className={'mt-4 flex  w-full flex-1 select-none flex-col overflow-y-auto overflow-x-hidden'}>
         <div className={'flex-1'}>
           {workspaces.map((workspace) => (
             <Workspace opened={currentWorkspace?.id === workspace.id} key={workspace.id} workspace={workspace} />
           ))}
         </div>
-        <div className={'flex w-[100%] items-center px-2'}>
-          <TrashButton />
-        </div>
       </div>
-
+      <div className={'flex w-[100%] items-center px-2'}>
+        <TrashButton />
+      </div>
       {currentWorkspace && <NewPageButton workspaceId={currentWorkspace.id} />}
     </div>
   );

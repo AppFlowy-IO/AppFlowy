@@ -72,12 +72,12 @@
     "copyLink": "Copiar link"
   },
   "moreAction": {
-    "small": "pequeno",
-    "medium": "médio",
-    "large": "grande",
     "fontSize": "Tamanho da fonte",
     "import": "Importar",
-    "moreOptions": "Mais opções"
+    "moreOptions": "Mais opções",
+    "small": "pequeno",
+    "medium": "médio",
+    "large": "grande"
   },
   "importPanel": {
     "textAndMarkdown": "Texto e Remarcação",
@@ -152,7 +152,7 @@
     "defaultNewPageName": "Sem título",
     "renameDialog": "Renomear"
   },
-  "noPagesInside": "Nenhuma página dentro",
+  "noPagesInside": "Sem páginas internas",
   "toolbar": {
     "undo": "Desfazer",
     "redo": "Refazer",
@@ -192,7 +192,7 @@
     "clickToHidePersonal": "Clique para ocultar a seção pessoal",
     "clickToHideFavorites": "Clique para ocultar a seção favorita",
     "addAPage": "Adicionar uma página",
-    "recent": "Recente"
+    "recent": "Recentes"
   },
   "notifications": {
     "export": {
@@ -221,7 +221,7 @@
     "discard": "Descartar",
     "replace": "substituir",
     "insertBelow": "Inserir Abaixo",
-    "insertAbove": "Inserir acima",
+    "insertAbove": "Insira acima",
     "upload": "Carregar",
     "edit": "Editar",
     "delete": "Excluir",
@@ -298,7 +298,7 @@
       "enableEncryptPrompt": "Ative a criptografia para proteger seus dados com este segredo. Armazene-o com segurança; uma vez ativado, não pode ser desativado. Se perdidos, seus dados se tornarão irrecuperáveis. Clique para copiar",
       "inputEncryptPrompt": "Por favor, insira seu segredo de criptografia para",
       "clickToCopySecret": "Clique para copiar o segredo",
-      "configServerSetting": "Defina as configurações do seu servidor",
+      "configServerSetting": "Configure seu servidor",
       "configServerGuide": "Após selecionar `Quick Start`, navegue até `Settings` e depois \"Cloud Settings\" para configurar seu servidor auto-hospedado.",
       "inputTextFieldHint": "Seu segredo",
       "historicalUserList": "Histórico de login do usuário",
@@ -315,7 +315,7 @@
     "notifications": {
       "enableNotifications": {
         "label": "Habilitar notificações",
-        "hint": "Desligue para impedir que notificações locais apareçam."
+        "hint": "Desligue para impedir notificações locais de aparecer"
       }
     },
     "appearance": {
@@ -478,7 +478,6 @@
       "typeAValue": "Digite um valor...",
       "layout": "Disposição",
       "databaseLayout": "Disposição",
-      "viewList": "Visualizações de banco de dados",
       "editView": "Editar visualização",
       "boardSettings": "Configurações do quadro",
       "calendarSettings": "Configurações do calendário",
@@ -486,7 +485,8 @@
       "duplicateView": "Visualização duplicada",
       "deleteView": "Excluir visualização",
       "numberOfVisibleFields": "{} mostrando",
-      "Properties": "Propriedades"
+      "Properties": "Propriedades",
+      "viewList": "Visualizações de banco de dados"
     },
     "textFilter": {
       "contains": "Contém",

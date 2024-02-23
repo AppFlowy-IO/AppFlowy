@@ -40,6 +40,6 @@ pub async fn invoke_request(
   let request: AFPluginRequest = request.into();
   let state: State<AppFlowyCore> = app_handler.state();
   let dispatcher = state.inner().dispatcher();
-  let response = AFPluginDispatcher::async_send(dispatcher, request).await;
+  let response = AFPluginDispatcher::async_send(dispatcher.as_ref(), request).await;
   response.into()
 }

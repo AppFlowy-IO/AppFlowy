@@ -28,6 +28,13 @@ class TrashPage extends StatefulWidget {
 
 class _TrashPageState extends State<TrashPage> {
   final ScrollController _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     const horizontalPadding = 80.0;

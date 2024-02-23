@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_color_list.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_toolbar_theme.dart';
@@ -22,13 +24,15 @@ class ColorItem extends StatelessWidget {
       size: const Size(82, 52),
       onTap: () async {
         service.closeKeyboard();
-        editorState.updateSelectionWithReason(
-          editorState.selection,
-          extraInfo: {
-            selectionExtraInfoDisableMobileToolbarKey: true,
-            selectionExtraInfoDisableFloatingToolbar: true,
-            selectionExtraInfoDoNotAttachTextService: true,
-          },
+        unawaited(
+          editorState.updateSelectionWithReason(
+            editorState.selection,
+            extraInfo: {
+              selectionExtraInfoDisableMobileToolbarKey: true,
+              selectionExtraInfoDisableFloatingToolbar: true,
+              selectionExtraInfoDoNotAttachTextService: true,
+            },
+          ),
         );
         keepEditorFocusNotifier.increase();
         await showTextColorAndBackgroundColorPicker(

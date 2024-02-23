@@ -2,6 +2,7 @@ use std::sync::{Arc, Weak};
 
 use collab_database::database::gen_row_id;
 use collab_database::rows::RowId;
+use lib_infra::box_any::BoxAny;
 use tokio::sync::oneshot;
 
 use flowy_error::{FlowyError, FlowyResult};
@@ -11,9 +12,9 @@ use lib_infra::util::timestamp;
 use crate::entities::*;
 use crate::manager::DatabaseManager;
 use crate::services::cell::CellBuilder;
-use crate::services::field::checklist_type_option::ChecklistCellChangeset;
 use crate::services::field::{
-  type_option_data_from_pb, DateCellChangeset, RelationCellChangeset, SelectOptionCellChangeset,
+  type_option_data_from_pb, ChecklistCellChangeset, DateCellChangeset, RelationCellChangeset,
+  SelectOptionCellChangeset,
 };
 use crate::services::field_settings::FieldSettingsChangesetParams;
 use crate::services::group::GroupChangeset;
@@ -87,27 +88,34 @@ pub(crate) async fn update_database_setting_handler(
   manager: AFPluginState<Weak<DatabaseManager>>,
 ) -> Result<(), FlowyError> {
   let manager = upgrade_manager(manager)?;
-  let params: DatabaseSettingChangesetParams = data.into_inner().try_into()?;
-  let editor = manager.get_database_with_view_id(&params.view_id).await?;
+  let params = data.try_into_inner()?;
+  let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
 
-  if let Some(update_filter) = params.insert_filter {
-    editor.create_or_update_filter(update_filter).await?;
+  if let Some(update_filter) = params.update_filter {
+    database_editor
+      .create_or_update_filter(update_filter.try_into()?)
+      .await?;
   }
 
   if let Some(delete_filter) = params.delete_filter {
-    editor.delete_filter(delete_filter).await?;
+    database_editor.delete_filter(delete_filter).await?;
   }
 
-  if let Some(update_sort) = params.alert_sort {
-    let _ = editor.create_or_update_sort(update_sort).await?;
+  if let Some(update_sort) = params.update_sort {
+    let _ = database_editor.create_or_update_sort(update_sort).await?;
   }
+
+  if let Some(reorder_sort) = params.reorder_sort {
+    database_editor.reorder_sort(reorder_sort).await?;
+  }
+
   if let Some(delete_sort) = params.delete_sort {
-    editor.delete_sort(delete_sort).await?;
+    database_editor.delete_sort(delete_sort).await?;
   }
 
   if let Some(layout_type) = params.layout_type {
-    editor
-      .update_view_layout(&params.view_id, layout_type)
+    database_editor
+      .update_view_layout(&params.view_id, layout_type.into())
       .await?;
   }
   Ok(())
@@ -247,7 +255,7 @@ pub(crate) async fn switch_to_field_handler(
   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
   let old_field = database_editor.get_field(&params.field_id);
   database_editor
-    .switch_to_field_type(&params.field_id, &params.field_type)
+    .switch_to_field_type(&params.field_id, params.field_type)
     .await?;
 
   if let Some(new_type_option) = database_editor
@@ -447,7 +455,7 @@ pub(crate) async fn update_cell_handler(
       &params.view_id,
       RowId::from(params.row_id),
       &params.field_id,
-      params.cell_changeset.clone(),
+      BoxAny::new(params.cell_changeset),
     )
     .await?;
   Ok(())
@@ -544,7 +552,7 @@ pub(crate) async fn update_select_option_cell_handler(
       &params.cell_identifier.view_id,
       params.cell_identifier.row_id,
       &params.cell_identifier.field_id,
-      changeset,
+      BoxAny::new(changeset),
     )
     .await?;
   Ok(())
@@ -559,20 +567,29 @@ pub(crate) async fn update_checklist_cell_handler(
   let params: ChecklistCellDataChangesetParams = data.into_inner().try_into()?;
   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
   let changeset = ChecklistCellChangeset {
-    insert_options: params.insert_options,
+    insert_options: params
+      .insert_options
+      .into_iter()
+      .map(|name| (name, false))
+      .collect(),
     selected_option_ids: params.selected_option_ids,
     delete_option_ids: params.delete_option_ids,
     update_options: params.update_options,
   };
   database_editor
-    .update_cell_with_changeset(&params.view_id, params.row_id, &params.field_id, changeset)
+    .update_cell_with_changeset(
+      &params.view_id,
+      params.row_id,
+      &params.field_id,
+      BoxAny::new(changeset),
+    )
     .await?;
   Ok(())
 }
 
 #[tracing::instrument(level = "trace", skip_all, err)]
 pub(crate) async fn update_date_cell_handler(
-  data: AFPluginData<DateChangesetPB>,
+  data: AFPluginData<DateCellChangesetPB>,
   manager: AFPluginState<Weak<DatabaseManager>>,
 ) -> Result<(), FlowyError> {
   let manager = upgrade_manager(manager)?;
@@ -595,7 +612,7 @@ pub(crate) async fn update_date_cell_handler(
       &cell_id.view_id,
       cell_id.row_id,
       &cell_id.field_id,
-      cell_changeset,
+      BoxAny::new(cell_changeset),
     )
     .await?;
   Ok(())
@@ -824,7 +841,7 @@ pub(crate) async fn move_calendar_event_handler(
       &cell_id.view_id,
       cell_id.row_id,
       &cell_id.field_id,
-      cell_changeset,
+      BoxAny::new(cell_changeset),
     )
     .await?;
   Ok(())
@@ -918,6 +935,48 @@ pub(crate) async fn update_field_settings_handler(
   database_editor
     .update_field_settings_with_changeset(params)
     .await?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn get_all_calculations_handler(
+  data: AFPluginData<DatabaseViewIdPB>,
+  manager: AFPluginState<Weak<DatabaseManager>>,
+) -> DataResult<RepeatedCalculationsPB, FlowyError> {
+  let manager = upgrade_manager(manager)?;
+  let view_id = data.into_inner();
+  let database_editor = manager.get_database_with_view_id(view_id.as_ref()).await?;
+
+  let calculations = database_editor.get_all_calculations(view_id.as_ref()).await;
+
+  data_result_ok(calculations)
+}
+
+#[tracing::instrument(level = "trace", skip(data, manager), err)]
+pub(crate) async fn update_calculation_handler(
+  data: AFPluginData<UpdateCalculationChangesetPB>,
+  manager: AFPluginState<Weak<DatabaseManager>>,
+) -> Result<(), FlowyError> {
+  let manager = upgrade_manager(manager)?;
+  let params: UpdateCalculationChangesetPB = data.into_inner();
+  let editor = manager.get_database_with_view_id(&params.view_id).await?;
+
+  editor.update_calculation(params).await?;
+
+  Ok(())
+}
+
+#[tracing::instrument(level = "trace", skip(data, manager), err)]
+pub(crate) async fn remove_calculation_handler(
+  data: AFPluginData<RemoveCalculationChangesetPB>,
+  manager: AFPluginState<Weak<DatabaseManager>>,
+) -> Result<(), FlowyError> {
+  let manager = upgrade_manager(manager)?;
+  let params: RemoveCalculationChangesetPB = data.into_inner();
+  let editor = manager.get_database_with_view_id(&params.view_id).await?;
+
+  editor.remove_calculation(params).await?;
+
   Ok(())
 }
 

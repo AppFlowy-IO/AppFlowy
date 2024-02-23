@@ -2,22 +2,19 @@ import 'dart:io';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
+import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/mobile_block_action_buttons.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/image_placeholder.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/resizeable_image.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/unsupport_image_widget.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/util/string_extension.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide ResizableImage;
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:http/http.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:provider/provider.dart';
 import 'package:string_validator/string_validator.dart';
 
@@ -359,70 +356,46 @@ class CustomImageBlockComponentState extends State<CustomImageBlockComponent>
 
   // only used on mobile platform
   List<Widget> _buildExtendActionWidgets(BuildContext context) {
-    final url = widget.node.attributes[CustomImageBlockKeys.url];
+    final String url = widget.node.attributes[CustomImageBlockKeys.url];
     if (!_checkIfURLIsValid(url)) {
       return [];
     }
 
     return [
-      Row(
-        children: [
-          Expanded(
-            child: BottomSheetActionWidget(
-              svg: FlowySvgs.copy_s,
-              text: LocaleKeys.editor_copyLink.tr(),
-              onTap: () async {
-                context.pop();
-                showSnackBarMessage(
-                  context,
-                  LocaleKeys.document_plugins_image_copiedToPasteBoard.tr(),
-                );
-                await getIt<ClipboardService>().setPlainText(url);
-              },
-            ),
+      // disable the copy link button if the image is hosted on appflowy cloud
+      // because the url needs the verification token to be accessible
+      if (!url.isAppFlowyCloudUrl)
+        FlowyOptionTile.text(
+          showTopBorder: false,
+          text: LocaleKeys.editor_copyLink.tr(),
+          leftIcon: const FlowySvg(
+            FlowySvgs.m_field_copy_s,
           ),
-          const HSpace(8.0),
-          Expanded(
-            child: BottomSheetActionWidget(
-              svg: FlowySvgs.image_placeholder_s,
-              text: LocaleKeys.document_imageBlock_saveImageToGallery.tr(),
-              onTap: () async {
-                context.pop();
-                Uint8List? bytes;
-                if (isURL(url)) {
-                  // network image
-                  final result = await get(Uri.parse(url));
-                  if (result.statusCode == 200) {
-                    bytes = result.bodyBytes;
-                  }
-                } else {
-                  final file = File(url);
-                  bytes = await file.readAsBytes();
-                }
-                if (bytes != null) {
-                  await ImageGallerySaver.saveImage(bytes);
-                  if (context.mounted) {
-                    showSnackBarMessage(
-                      context,
-                      LocaleKeys.document_imageBlock_successToAddImageToGallery
-                          .tr(),
-                    );
-                  }
-                } else {
-                  if (context.mounted) {
-                    showSnackBarMessage(
-                      context,
-                      LocaleKeys.document_imageBlock_failedToAddImageToGallery
-                          .tr(),
-                    );
-                  }
-                }
-              },
-            ),
-          ),
-        ],
+          onTap: () async {
+            context.pop();
+            showSnackBarMessage(
+              context,
+              LocaleKeys.document_plugins_image_copiedToPasteBoard.tr(),
+            );
+            await getIt<ClipboardService>().setPlainText(url);
+          },
+        ),
+      FlowyOptionTile.text(
+        showTopBorder: false,
+        text: LocaleKeys.document_imageBlock_saveImageToGallery.tr(),
+        leftIcon: const FlowySvg(
+          FlowySvgs.image_placeholder_s,
+          size: Size.square(20),
+        ),
+        onTap: () async {
+          context.pop();
+          showSnackBarMessage(
+            context,
+            LocaleKeys.document_plugins_image_copiedToPasteBoard.tr(),
+          );
+          await getIt<ClipboardService>().setPlainText(url);
+        },
       ),
-      const VSpace(8),
     ];
   }
 

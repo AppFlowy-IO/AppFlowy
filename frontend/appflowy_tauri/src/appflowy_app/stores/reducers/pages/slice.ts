@@ -89,10 +89,85 @@ export const pagesSlice = createSlice({
       }
     },
 
-    removeChildPages(state, action: PayloadAction<string>) {
-      const parentId = action.payload;
+    addPage(
+      state,
+      action: PayloadAction<{
+        page: Page;
+        isLast?: boolean;
+        prevId?: string;
+      }>
+    ) {
+      const { page, prevId, isLast } = action.payload;
 
-      delete state.relationMap[parentId];
+      state.pageMap[page.id] = page;
+      state.relationMap[page.id] = [];
+
+      const parentId = page.parentId;
+
+      if (isLast) {
+        state.relationMap[parentId]?.push(page.id);
+      } else {
+        const index = prevId ? state.relationMap[parentId]?.indexOf(prevId) ?? -1 : -1;
+
+        state.relationMap[parentId]?.splice(index + 1, 0, page.id);
+      }
+    },
+
+    deletePages(state, action: PayloadAction<string[]>) {
+      const ids = action.payload;
+
+      ids.forEach((id) => {
+        const parentId = state.pageMap[id].parentId;
+        const parentChildren = state.relationMap[parentId];
+
+        state.relationMap[parentId] = parentChildren && parentChildren.filter((childId) => childId !== id);
+        delete state.relationMap[id];
+        delete state.expandedIdMap[id];
+        delete state.pageMap[id];
+      });
+    },
+
+    duplicatePage(
+      state,
+      action: PayloadAction<{
+        id: string;
+        newId: string;
+      }>
+    ) {
+      const { id, newId } = action.payload;
+      const page = state.pageMap[id];
+      const newPage = { ...page, id: newId };
+
+      state.pageMap[newPage.id] = newPage;
+
+      const index = state.relationMap[page.parentId]?.indexOf(id);
+
+      state.relationMap[page.parentId]?.splice(index ?? 0, 0, newId);
+    },
+
+    movePage(
+      state,
+      action: PayloadAction<{
+        id: string;
+        newParentId: string;
+        prevId?: string;
+      }>
+    ) {
+      const { id, newParentId, prevId } = action.payload;
+      const parentId = state.pageMap[id].parentId;
+      const parentChildren = state.relationMap[parentId];
+
+      const index = parentChildren?.indexOf(id) ?? -1;
+
+      if (index > -1) {
+        state.relationMap[parentId]?.splice(index, 1);
+      }
+
+      state.pageMap[id].parentId = newParentId;
+      const newParentChildren = state.relationMap[newParentId] || [];
+      const prevIndex = prevId ? newParentChildren.indexOf(prevId) : -1;
+
+      state.relationMap[newParentId]?.splice(prevIndex + 1, 0, id);
     },
 
     expandPage(state, action: PayloadAction<string>) {

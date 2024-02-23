@@ -164,10 +164,10 @@ class _DocumentPageState extends State<DocumentPage> {
   //   }
   // }
 
-  Future<void> _onNotificationAction(
+  void _onNotificationAction(
     BuildContext context,
     NotificationActionState state,
-  ) async {
+  ) {
     if (state.action != null && state.action!.type == ActionType.jumpToBlock) {
       final path = state.action?.arguments?[ActionArgumentKeys.nodePath];
 

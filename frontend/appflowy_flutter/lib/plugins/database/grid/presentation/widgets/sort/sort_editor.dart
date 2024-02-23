@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
@@ -48,33 +50,58 @@ class _SortEditorState extends State<SortEditor> {
       )..add(const SortEditorEvent.initial()),
       child: BlocBuilder<SortEditorBloc, SortEditorState>(
         builder: (context, state) {
-          return Column(
-            children: [
-              ...state.sortInfos.map(
-                (info) => Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 6),
-                  child: DatabaseSortItem(
-                    sortInfo: info,
-                    popoverMutex: popoverMutex,
-                  ),
-                ),
+          final sortInfos = state.sortInfos;
+
+          return ReorderableListView.builder(
+            onReorder: (oldIndex, newIndex) => context
+                .read<SortEditorBloc>()
+                .add(SortEditorEvent.reorderSort(oldIndex, newIndex)),
+            itemCount: state.sortInfos.length,
+            itemBuilder: (context, index) => Padding(
+              key: ValueKey(sortInfos[index].sortId),
+              padding: const EdgeInsets.symmetric(vertical: 6),
+              child: DatabaseSortItem(
+                index: index,
+                sortInfo: sortInfos[index],
+                popoverMutex: popoverMutex,
               ),
-              Row(
+            ),
+            proxyDecorator: (child, index, animation) => Material(
+              color: Colors.transparent,
+              child: Stack(
                 children: [
-                  Flexible(
-                    child: DatabaseAddSortButton(
-                      viewId: widget.viewId,
-                      fieldController: widget.fieldController,
-                      popoverMutex: popoverMutex,
-                    ),
+                  BlocProvider.value(
+                    value: context.read<SortEditorBloc>(),
+                    child: child,
                   ),
-                  const HSpace(6),
-                  Flexible(
-                    child: DatabaseDeleteSortButton(popoverMutex: popoverMutex),
+                  MouseRegion(
+                    cursor: Platform.isWindows
+                        ? SystemMouseCursors.click
+                        : SystemMouseCursors.grabbing,
+                    child: const SizedBox.expand(),
                   ),
                 ],
               ),
-            ],
+            ),
+            shrinkWrap: true,
+            buildDefaultDragHandles: false,
+            footer: Row(
+              children: [
+                Flexible(
+                  child: DatabaseAddSortButton(
+                    viewId: widget.viewId,
+                    fieldController: widget.fieldController,
+                    popoverMutex: popoverMutex,
+                  ),
+                ),
+                const HSpace(6),
+                Flexible(
+                  child: DatabaseDeleteSortButton(
+                    popoverMutex: popoverMutex,
+                  ),
+                ),
+              ],
+            ),
           );
         },
       ),
@@ -85,10 +112,12 @@ class _SortEditorState extends State<SortEditor> {
 class DatabaseSortItem extends StatelessWidget {
   const DatabaseSortItem({
     super.key,
+    required this.index,
     required this.popoverMutex,
     required this.sortInfo,
   });
 
+  final int index;
   final PopoverMutex popoverMutex;
   final SortInfo sortInfo;
 
@@ -107,6 +136,23 @@ class DatabaseSortItem extends StatelessWidget {
 
     return Row(
       children: [
+        ReorderableDragStartListener(
+          index: index,
+          child: MouseRegion(
+            cursor: Platform.isWindows
+                ? SystemMouseCursors.click
+                : SystemMouseCursors.grab,
+            child: SizedBox(
+              width: 14,
+              height: 14,
+              child: FlowySvg(
+                FlowySvgs.drag_element_s,
+                color: Theme.of(context).iconTheme.color,
+              ),
+            ),
+          ),
+        ),
+        const HSpace(6),
         SizedBox(
           height: 26,
           child: SortChoiceButton(
@@ -122,8 +168,8 @@ class DatabaseSortItem extends StatelessWidget {
             popoverMutex: popoverMutex,
           ),
         ),
-        const HSpace(6),
         const Spacer(),
+        const HSpace(6),
         deleteButton,
       ],
     );
@@ -253,9 +299,13 @@ class _DatabaseSortItemOrderButtonState
       popupBuilder: (BuildContext popoverContext) {
         return OrderPanel(
           onCondition: (condition) {
-            context
-                .read<SortEditorBloc>()
-                .add(SortEditorEvent.setCondition(widget.sortInfo, condition));
+            context.read<SortEditorBloc>().add(
+                  SortEditorEvent.editSort(
+                    widget.sortInfo.sortId,
+                    null,
+                    condition,
+                  ),
+                );
             popoverController.close();
           },
         );

@@ -14,7 +14,7 @@ export const movePageThunk = createAsyncThunk(
     thunkAPI
   ) => {
     const { sourceId, targetId, insertType } = payload;
-    const { getState } = thunkAPI;
+    const { getState, dispatch } = thunkAPI;
     const { pageMap, relationMap } = (getState() as RootState).pages;
     const sourcePage = pageMap[sourceId];
     const targetPage = pageMap[targetId];
@@ -51,6 +51,8 @@ export const movePageThunk = createAsyncThunk(
       }
     }
 
+    dispatch(pagesActions.movePage({ id: sourceId, newParentId: parentId, prevId }));
+
     await movePage({
       view_id: sourceId,
       new_parent_id: parentId,
@@ -75,6 +77,7 @@ export const updatePageName = createAsyncThunk(
         name,
       })
     );
+
     await updatePage({
       id,
       name,
