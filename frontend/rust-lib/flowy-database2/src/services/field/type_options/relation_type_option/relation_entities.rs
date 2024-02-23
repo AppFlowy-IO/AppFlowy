@@ -2,16 +2,9 @@ use std::sync::Arc;
 
 use collab::preclude::Any;
 use collab_database::rows::{new_cell_builder, Cell, RowId};
-use flowy_error::{internal_error, FlowyResult};
-use serde::{Deserialize, Serialize};
 
-use crate::{
-  entities::FieldType,
-  services::{
-    cell::{FromCellChangeset, ToCellChangeset},
-    field::{TypeOptionCellData, CELL_DATA},
-  },
-};
+use crate::entities::FieldType;
+use crate::services::field::{TypeOptionCellData, CELL_DATA};
 
 #[derive(Debug, Clone, Default)]
 pub struct RelationCellData {
@@ -85,23 +78,8 @@ impl ToString for RelationCellData {
   }
 }
 
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default)]
 pub struct RelationCellChangeset {
   pub inserted_row_ids: Vec<RowId>,
   pub removed_row_ids: Vec<RowId>,
-}
-
-impl FromCellChangeset for RelationCellChangeset {
-  fn from_changeset(changeset: String) -> FlowyResult<Self>
-  where
-    Self: Sized,
-  {
-    serde_json::from_str::<RelationCellChangeset>(&changeset).map_err(internal_error)
-  }
-}
-
-impl ToCellChangeset for RelationCellChangeset {
-  fn to_cell_changeset_str(&self) -> String {
-    serde_json::to_string(self).unwrap_or_default()
-  }
 }

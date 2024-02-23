@@ -1022,7 +1022,12 @@ pub(crate) async fn update_relation_cell_handler(
 
   // update the cell in the database
   database_editor
-    .update_cell_with_changeset(&view_id, cell_id.row_id, &cell_id.field_id, params)
+    .update_cell_with_changeset(
+      &view_id,
+      cell_id.row_id,
+      &cell_id.field_id,
+      BoxAny::new(params),
+    )
     .await?;
   Ok(())
 }

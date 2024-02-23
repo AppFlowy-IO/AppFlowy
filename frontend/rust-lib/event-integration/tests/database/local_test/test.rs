@@ -7,7 +7,7 @@ use event_integration::EventIntegrationTest;
 use flowy_database2::entities::{
   CellChangesetPB, CellIdPB, CheckboxCellDataPB, ChecklistCellDataChangesetPB, DatabaseLayoutPB,
   DatabaseSettingChangesetPB, DatabaseViewIdPB, DateCellChangesetPB, FieldType,
-  OrderObjectPositionPB, SelectOptionCellDataPB, UpdateRowMetaChangesetPB,
+  OrderObjectPositionPB, RelationCellChangesetPB, SelectOptionCellDataPB, UpdateRowMetaChangesetPB,
 };
 use lib_infra::util::timestamp;
 
