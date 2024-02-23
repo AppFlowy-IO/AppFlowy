@@ -162,7 +162,10 @@ export const Database = forwardRef<HTMLDivElement, Props>(({ selectedViewId, set
   }
 
   return (
-    <div ref={databaseRef} className='appflowy-database relative flex w-full flex-1 flex-col overflow-y-hidden'>
+    <div
+      ref={databaseRef}
+      className='appflowy-database relative flex w-full flex-1 select-none flex-col overflow-y-hidden'
+    >
       <DatabaseTabBar
         pageId={viewId}
         setSelectedViewId={setSelectedViewId}

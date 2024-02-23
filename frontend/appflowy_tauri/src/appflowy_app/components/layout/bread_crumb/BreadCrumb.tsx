@@ -36,7 +36,7 @@ function Breadcrumb() {
       {parentPages?.map((page: Page) => (
         <Link
           key={page.id}
-          className={'flex cursor-pointer gap-1'}
+          className={'flex cursor-pointer select-none gap-1'}
           underline='hover'
           color='inherit'
           onClick={() => {
@@ -49,7 +49,7 @@ function Breadcrumb() {
         </Link>
       ))}
 
-      <div className={'flex select-auto gap-1 text-text-title'}>
+      <div className={'flex select-none gap-1 text-text-title'}>
         <div className={'select-none'}>{getPageIcon(currentPage)}</div>
         {currentPage.name || t('menuAppHeader.defaultNewPageName')}
       </div>
