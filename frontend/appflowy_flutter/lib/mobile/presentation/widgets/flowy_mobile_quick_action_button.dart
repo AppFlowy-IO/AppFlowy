@@ -25,7 +25,11 @@ class MobileQuickActionButton extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
       child: InkWell(
-        onTap: onTap,
+        onTap: () {
+          if (enable) {
+            onTap();
+          }
+        },
         borderRadius: BorderRadius.circular(12),
         overlayColor:
             enable ? null : const MaterialStatePropertyAll(Colors.transparent),
