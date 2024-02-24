@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/application/tab_bar_bloc.dart';
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
@@ -12,6 +10,7 @@ import 'package:appflowy/workspace/presentation/widgets/view_title_bar.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'desktop/tab_bar_header.dart';
@@ -221,11 +220,10 @@ class DatabasePluginWidgetBuilder extends PluginWidgetBuilder {
   @override
   Widget buildWidget({PluginContext? context, required bool shrinkWrap}) {
     notifier.isDeleted.addListener(() {
-      notifier.isDeleted.value.fold(() => null, (deletedView) {
-        if (deletedView.hasIndex()) {
-          context?.onDeleted(notifier.view, deletedView.index);
-        }
-      });
+      final deletedView = notifier.isDeleted.value;
+      if (deletedView != null && deletedView.hasIndex()) {
+        context?.onDeleted(notifier.view, deletedView.index);
+      }
     });
     return DatabaseTabBarView(
       key: ValueKey(notifier.view.id),

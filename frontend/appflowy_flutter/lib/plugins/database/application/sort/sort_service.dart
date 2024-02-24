@@ -1,28 +1,28 @@
-import 'package:appflowy_backend/protobuf/flowy-database2/database_entities.pb.dart';
-import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/database_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/setting_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/sort_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 
 class SortBackendService {
   SortBackendService({required this.viewId});
 
   final String viewId;
 
-  Future<Either<List<SortPB>, FlowyError>> getAllSorts() {
+  Future<FlowyResult<List<SortPB>, FlowyError>> getAllSorts() {
     final payload = DatabaseViewIdPB()..value = viewId;
 
     return DatabaseEventGetAllSorts(payload).send().then((result) {
       return result.fold(
-        (repeated) => left(repeated.items),
-        (r) => right(r),
+        (repeated) => FlowyResult.success(repeated.items),
+        (r) => FlowyResult.failure(r),
       );
     });
   }
 
-  Future<Either<Unit, FlowyError>> updateSort({
+  Future<FlowyResult<void, FlowyError>> updateSort({
     required String sortId,
     required String fieldId,
     required SortConditionPB condition,
@@ -38,16 +38,16 @@ class SortBackendService {
       ..updateSort = insertSortPayload;
     return DatabaseEventUpdateDatabaseSetting(payload).send().then((result) {
       return result.fold(
-        (l) => left(l),
+        (l) => FlowyResult.success(l),
         (err) {
           Log.error(err);
-          return right(err);
+          return FlowyResult.failure(err);
         },
       );
     });
   }
 
-  Future<Either<Unit, FlowyError>> insertSort({
+  Future<FlowyResult<void, FlowyError>> insertSort({
     required String fieldId,
     required SortConditionPB condition,
   }) {
@@ -61,16 +61,16 @@ class SortBackendService {
       ..updateSort = insertSortPayload;
     return DatabaseEventUpdateDatabaseSetting(payload).send().then((result) {
       return result.fold(
-        (l) => left(l),
+        (l) => FlowyResult.success(l),
         (err) {
           Log.error(err);
-          return right(err);
+          return FlowyResult.failure(err);
         },
       );
     });
   }
 
-  Future<Either<Unit, FlowyError>> reorderSort({
+  Future<FlowyResult<void, FlowyError>> reorderSort({
     required String fromSortId,
     required String toSortId,
   }) {
@@ -84,7 +84,7 @@ class SortBackendService {
     return DatabaseEventUpdateDatabaseSetting(payload).send();
   }
 
-  Future<Either<Unit, FlowyError>> deleteSort({
+  Future<FlowyResult<void, FlowyError>> deleteSort({
     required String fieldId,
     required String sortId,
   }) {
@@ -98,23 +98,23 @@ class SortBackendService {
 
     return DatabaseEventUpdateDatabaseSetting(payload).send().then((result) {
       return result.fold(
-        (l) => left(l),
+        (l) => FlowyResult.success(l),
         (err) {
           Log.error(err);
-          return right(err);
+          return FlowyResult.failure(err);
         },
       );
     });
   }
 
-  Future<Either<Unit, FlowyError>> deleteAllSorts() {
+  Future<FlowyResult<void, FlowyError>> deleteAllSorts() {
     final payload = DatabaseViewIdPB(value: viewId);
     return DatabaseEventDeleteAllSorts(payload).send().then((result) {
       return result.fold(
-        (l) => left(l),
+        (l) => FlowyResult.success(l),
         (err) {
           Log.error(err);
-          return right(err);
+          return FlowyResult.failure(err);
         },
       );
     });

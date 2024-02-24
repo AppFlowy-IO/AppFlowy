@@ -43,13 +43,13 @@ Future<(String? path, String? errorMessage)> saveImageToCloudStorage(
     isAsync: false,
   );
   return result.fold(
-    (l) => (null, l.msg),
-    (r) async {
+    (s) async {
       await CustomImageCacheManager().putFile(
-        r.url,
+        s.url,
         File(localImagePath).readAsBytesSync(),
       );
-      return (r.url, null);
+      return (s.url, null);
     },
+    (e) => (null, e.msg),
   );
 }

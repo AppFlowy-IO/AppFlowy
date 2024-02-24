@@ -5,7 +5,7 @@ import 'package:appflowy/core/notification/grid_notification.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:dartz/dartz.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flowy_infra/notifier.dart';
 
 typedef UpdateFieldNotifiedValue = FieldPB;
@@ -30,7 +30,7 @@ class SingleFieldListener {
 
   void _handler(
     DatabaseNotification ty,
-    Either<Uint8List, FlowyError> result,
+    FlowyResult<Uint8List, FlowyError> result,
   ) {
     switch (ty) {
       case DatabaseNotification.DidUpdateField:
@@ -51,7 +51,7 @@ class SingleFieldListener {
 }
 
 typedef UpdateFieldsNotifiedValue
-    = Either<DatabaseFieldChangesetPB, FlowyError>;
+    = FlowyResult<DatabaseFieldChangesetPB, FlowyError>;
 
 class FieldsListener {
   FieldsListener({required this.viewId});
@@ -72,13 +72,16 @@ class FieldsListener {
     );
   }
 
-  void _handler(DatabaseNotification ty, Either<Uint8List, FlowyError> result) {
+  void _handler(
+    DatabaseNotification ty,
+    FlowyResult<Uint8List, FlowyError> result,
+  ) {
     switch (ty) {
       case DatabaseNotification.DidUpdateFields:
         result.fold(
           (payload) => updateFieldsNotifier?.value =
-              left(DatabaseFieldChangesetPB.fromBuffer(payload)),
-          (error) => updateFieldsNotifier?.value = right(error),
+              FlowyResult.success(DatabaseFieldChangesetPB.fromBuffer(payload)),
+          (error) => updateFieldsNotifier?.value = FlowyResult.failure(error),
         );
         break;
       default:

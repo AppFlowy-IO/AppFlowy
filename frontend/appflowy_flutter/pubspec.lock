@@ -74,6 +74,13 @@ packages:
       relative: true
     source: path
     version: "0.0.1"
+  appflowy_result:
+    dependency: "direct main"
+    description:
+      path: "packages/appflowy_result"
+      relative: true
+    source: path
+    version: "0.0.1"
   archive:
     dependency: "direct main"
     description:
@@ -2187,5 +2194,5 @@ packages:
     source: hosted
     version: "2.0.0"
 sdks:
-  dart: ">=3.3.0-279.1.beta <4.0.0"
+  dart: ">=3.3.0 <4.0.0"
   flutter: ">=3.19.0"

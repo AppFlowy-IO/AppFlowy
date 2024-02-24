@@ -5,7 +5,6 @@ import 'package:appflowy/plugins/database/application/row/row_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
-import 'package:dartz/dartz.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -160,13 +159,13 @@ class UnscheduleEventsEvent with _$UnscheduleEventsEvent {
 @freezed
 class UnscheduleEventsState with _$UnscheduleEventsState {
   const factory UnscheduleEventsState({
-    required Option<DatabasePB> database,
+    required DatabasePB? database,
     required List<CalendarEventPB> allEvents,
     required List<CalendarEventPB> unscheduleEvents,
   }) = _UnscheduleEventsState;
 
-  factory UnscheduleEventsState.initial() => UnscheduleEventsState(
-        database: none(),
+  factory UnscheduleEventsState.initial() => const UnscheduleEventsState(
+        database: null,
         allEvents: [],
         unscheduleEvents: [],
       );

@@ -64,14 +64,14 @@ class ApplicationDataStorage {
     }
 
     final response = await getIt<KeyValueStorage>().get(KVKeys.pathLocation);
-    String path = await response.fold(
-      () async {
-        // return the default path if the path is not set
-        final directory = await appFlowyApplicationDataDirectory();
-        return directory.path;
-      },
-      (path) => path,
-    );
+
+    String path;
+    if (response == null) {
+      final directory = await appFlowyApplicationDataDirectory();
+      path = directory.path;
+    } else {
+      path = response;
+    }
     _cachePath = path;
 
     // if the path is not exists means the path is invalid, so we should clear the kv store

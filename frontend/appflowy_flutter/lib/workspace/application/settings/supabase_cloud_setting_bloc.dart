@@ -5,7 +5,7 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
-import 'package:dartz/dartz.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -56,7 +56,7 @@ class SupabaseCloudSettingBloc
             emit(
               state.copyWith(
                 setting: setting,
-                loadingState: LoadingState.finish(left(unit)),
+                loadingState: LoadingState.finish(FlowyResult.success(null)),
               ),
             );
           },
@@ -96,7 +96,7 @@ class SupabaseCloudSettingState with _$SupabaseCloudSettingState {
 
   factory SupabaseCloudSettingState.initial(CloudSettingPB setting) =>
       SupabaseCloudSettingState(
-        loadingState: LoadingState.finish(left(unit)),
+        loadingState: LoadingState.finish(FlowyResult.success(null)),
         setting: setting,
         config: getIt<AppFlowyCloudSharedEnv>().supabaseConfig,
       );

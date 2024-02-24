@@ -1,7 +1,7 @@
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:dartz/dartz.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 
 class CalculationsBackendService {
   const CalculationsBackendService({required this.viewId});
@@ -9,7 +9,9 @@ class CalculationsBackendService {
   final String viewId;
 
   // Get Calculations (initial fetch)
-  Future<Either<RepeatedCalculationsPB, FlowyError>> getCalculations() async {
+
+  Future<FlowyResult<RepeatedCalculationsPB, FlowyError>>
+      getCalculations() async {
     final payload = DatabaseViewIdPB()..value = viewId;
 
     return DatabaseEventGetAllCalculations(payload).send();

@@ -87,7 +87,7 @@ extension InsertDatabase on EditorState {
     // get the database id that the view is associated with
     final databaseId = await DatabaseViewBackendService(viewId: view.id)
         .getDatabaseId()
-        .then((value) => value.swap().toOption().toNullable());
+        .then((value) => value.toNullable());
 
     if (databaseId == null) {
       throw StateError(
@@ -101,7 +101,7 @@ extension InsertDatabase on EditorState {
       name: "$prefix ${view.name}",
       layoutType: view.layout,
       databaseId: databaseId,
-    ).then((value) => value.swap().toOption().toNullable());
+    ).then((value) => value.toNullable());
 
     if (ref == null) {
       throw FlowyError(

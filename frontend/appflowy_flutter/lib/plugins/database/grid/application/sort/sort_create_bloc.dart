@@ -4,13 +4,12 @@ import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/sort_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/sort_entities.pbserver.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pbserver.dart';
-import 'package:dartz/dartz.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../../application/field/field_controller.dart';
 import '../../../application/sort/sort_service.dart';
-
 import 'util.dart';
 
 part 'sort_create_bloc.freezed.dart';
@@ -88,7 +87,9 @@ class CreateSortBloc extends Bloc<CreateSortEvent, CreateSortState> {
     fieldController.addListener(onReceiveFields: _onFieldFn);
   }
 
-  Future<Either<Unit, FlowyError>> _createDefaultSort(FieldInfo field) async {
+  Future<FlowyResult<void, FlowyError>> _createDefaultSort(
+    FieldInfo field,
+  ) async {
     final result = await _sortBackendSvc.insertSort(
       fieldId: field.id,
       condition: SortConditionPB.Ascending,

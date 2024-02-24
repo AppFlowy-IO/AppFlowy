@@ -260,17 +260,15 @@ class _OptionList extends StatelessWidget {
         final List<Widget> cells = [];
 
         // create an option cell
-        state.createOption.fold(
-          () => null,
-          (createOption) {
-            cells.add(
-              _CreateOptionCell(
-                optionName: createOption,
-                onTap: () => onCreateOption(createOption),
-              ),
-            );
-          },
-        );
+        final createOption = state.createOption;
+        if (createOption != null) {
+          cells.add(
+            _CreateOptionCell(
+              optionName: createOption,
+              onTap: () => onCreateOption(createOption),
+            ),
+          );
+        }
 
         cells.addAll(
           state.options.map(

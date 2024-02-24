@@ -76,12 +76,12 @@ class _UploadImageMenuState extends State<UploadImageMenu> {
     UserBackendService.getCurrentUserProfile().then(
       (value) {
         final supportOpenAI = value.fold(
-          (l) => false,
-          (r) => r.openaiKey.isNotEmpty,
+          (s) => s.openaiKey.isNotEmpty,
+          (e) => false,
         );
         final supportStabilityAI = value.fold(
-          (l) => false,
-          (r) => r.stabilityAiKey.isNotEmpty,
+          (s) => s.stabilityAiKey.isNotEmpty,
+          (e) => false,
         );
         if (supportOpenAI != this.supportOpenAI ||
             supportStabilityAI != this.supportStabilityAI) {

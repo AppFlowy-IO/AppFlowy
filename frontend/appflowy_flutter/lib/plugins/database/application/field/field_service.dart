@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:dartz/dartz.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 
 /// FieldService provides many field-related interfaces event functions. Check out
 /// `rust-lib/flowy-database/event_map.rs` for a list of events and their
@@ -16,7 +16,7 @@ class FieldBackendService {
 
   /// Create a field in a database view. The position will only be applicable
   /// in this view; for other views it will be appended to the end
-  static Future<Either<FieldPB, FlowyError>> createField({
+  static Future<FlowyResult<FieldPB, FlowyError>> createField({
     required String viewId,
     FieldType fieldType = FieldType.RichText,
     String? fieldName,
@@ -35,7 +35,7 @@ class FieldBackendService {
   }
 
   /// Reorder a field within a database view
-  static Future<Either<Unit, FlowyError>> moveField({
+  static Future<FlowyResult<void, FlowyError>> moveField({
     required String viewId,
     required String fromFieldId,
     required String toFieldId,
@@ -50,7 +50,7 @@ class FieldBackendService {
   }
 
   /// Delete a field
-  static Future<Either<Unit, FlowyError>> deleteField({
+  static Future<FlowyResult<void, FlowyError>> deleteField({
     required String viewId,
     required String fieldId,
   }) {
@@ -63,7 +63,7 @@ class FieldBackendService {
   }
 
   /// Duplicate a field
-  static Future<Either<Unit, FlowyError>> duplicateField({
+  static Future<FlowyResult<void, FlowyError>> duplicateField({
     required String viewId,
     required String fieldId,
   }) {
@@ -76,7 +76,7 @@ class FieldBackendService {
   }
 
   /// Update a field's properties
-  Future<Either<Unit, FlowyError>> updateField({
+  Future<FlowyResult<void, FlowyError>> updateField({
     String? name,
     bool? frozen,
   }) {
@@ -96,7 +96,7 @@ class FieldBackendService {
   }
 
   /// Change a field's type
-  static Future<Either<Unit, FlowyError>> updateFieldType({
+  static Future<FlowyResult<void, FlowyError>> updateFieldType({
     required String viewId,
     required String fieldId,
     required FieldType fieldType,
@@ -110,7 +110,7 @@ class FieldBackendService {
   }
 
   /// Update a field's type option data
-  static Future<Either<Unit, FlowyError>> updateFieldTypeOption({
+  static Future<FlowyResult<void, FlowyError>> updateFieldTypeOption({
     required String viewId,
     required String fieldId,
     required List<int> typeOptionData,
@@ -124,14 +124,14 @@ class FieldBackendService {
   }
 
   /// Returns the primary field of the view.
-  static Future<Either<FieldPB, FlowyError>> getPrimaryField({
+  static Future<FlowyResult<FieldPB, FlowyError>> getPrimaryField({
     required String viewId,
   }) {
     final payload = DatabaseViewIdPB.create()..value = viewId;
     return DatabaseEventGetPrimaryField(payload).send();
   }
 
-  Future<Either<FieldPB, FlowyError>> createBefore({
+  Future<FlowyResult<FieldPB, FlowyError>> createBefore({
     FieldType fieldType = FieldType.RichText,
     String? fieldName,
     Uint8List? typeOptionData,
@@ -148,7 +148,7 @@ class FieldBackendService {
     );
   }
 
-  Future<Either<FieldPB, FlowyError>> createAfter({
+  Future<FlowyResult<FieldPB, FlowyError>> createAfter({
     FieldType fieldType = FieldType.RichText,
     String? fieldName,
     Uint8List? typeOptionData,
@@ -165,7 +165,7 @@ class FieldBackendService {
     );
   }
 
-  Future<Either<Unit, FlowyError>> updateType({
+  Future<FlowyResult<void, FlowyError>> updateType({
     required FieldType fieldType,
   }) =>
       updateFieldType(
@@ -174,9 +174,9 @@ class FieldBackendService {
         fieldType: fieldType,
       );
 
-  Future<Either<Unit, FlowyError>> delete() =>
+  Future<FlowyResult<void, FlowyError>> delete() =>
       deleteField(viewId: viewId, fieldId: fieldId);
 
-  Future<Either<Unit, FlowyError>> duplicate() =>
+  Future<FlowyResult<void, FlowyError>> duplicate() =>
       duplicateField(viewId: viewId, fieldId: fieldId);
 }

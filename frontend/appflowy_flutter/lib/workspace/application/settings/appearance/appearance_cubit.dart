@@ -83,13 +83,11 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
 
   Future<void> readTextScaleFactor() async {
     final textScaleFactor = await getIt<KeyValueStorage>().getWithFormat(
-      KVKeys.textScaleFactor,
-      (value) => double.parse(value),
-    );
-    textScaleFactor.fold(
-      () => emit(state.copyWith(textScaleFactor: 1.0)),
-      (value) => emit(state.copyWith(textScaleFactor: value.clamp(0.7, 1.0))),
-    );
+          KVKeys.textScaleFactor,
+          (value) => double.parse(value),
+        ) ??
+        1.0;
+    emit(state.copyWith(textScaleFactor: textScaleFactor.clamp(0.7, 1.0)));
   }
 
   /// Update selected theme in the user's settings and emit an updated state
@@ -267,8 +265,8 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
     final result = await UserSettingsBackendService()
         .setDateTimeSettings(_dateTimeSettings);
     result.fold(
-      (error) => Log.error(error),
       (_) => null,
+      (error) => Log.error(error),
     );
   }
 

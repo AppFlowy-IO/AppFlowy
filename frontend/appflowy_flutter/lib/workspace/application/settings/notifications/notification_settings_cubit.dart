@@ -47,8 +47,8 @@ class NotificationSettingsCubit extends Cubit<NotificationSettingsState> {
     final result = await UserSettingsBackendService()
         .setNotificationSettings(_notificationSettings);
     result.fold(
-      (error) => Log.error(error),
       (r) => null,
+      (error) => Log.error(error),
     );
   }
 }

@@ -10,7 +10,6 @@ import 'package:appflowy/plugins/database/application/row/row_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:dartz/dartz.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -173,7 +172,7 @@ class CellController<T, D> {
   Future<void> saveCellData(
     D data, {
     bool debounce = false,
-    void Function(Option<FlowyError>)? onFinish,
+    void Function(FlowyError?)? onFinish,
   }) async {
     _loadDataOperation?.cancel();
     if (debounce) {
