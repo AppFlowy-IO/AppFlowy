@@ -45,6 +45,7 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
   late final editorState = context.read<EditorState>();
 
   bool showLoading = false;
+  String? errorMessage;
 
   @override
   Widget build(BuildContext context) {
@@ -67,19 +68,7 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
                 size: Size.square(24),
               ),
               const HSpace(10),
-              ...showLoading
-                  ? [
-                      FlowyText(
-                        LocaleKeys.document_imageBlock_imageIsUploading.tr(),
-                      ),
-                      const HSpace(8),
-                      const CircularProgressIndicator.adaptive(),
-                    ]
-                  : [
-                      FlowyText(
-                        LocaleKeys.document_plugins_image_addAnImage.tr(),
-                      ),
-                    ],
+              ..._buildTrailing(context),
             ],
           ),
         ),
@@ -136,6 +125,30 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
     }
   }
 
+  List<Widget> _buildTrailing(BuildContext context) {
+    if (errorMessage != null) {
+      return [
+        FlowyText(
+          '${LocaleKeys.document_plugins_image_imageUploadFailed.tr()}: ${errorMessage!}',
+        ),
+      ];
+    } else if (showLoading) {
+      return [
+        FlowyText(
+          LocaleKeys.document_imageBlock_imageIsUploading.tr(),
+        ),
+        const HSpace(8),
+        const CircularProgressIndicator.adaptive(),
+      ];
+    } else {
+      return [
+        FlowyText(
+          LocaleKeys.document_plugins_image_addAnImage.tr(),
+        ),
+      ];
+    }
+  }
+
   void showUploadImageMenu() {
     if (PlatformExtension.isDesktopOrWeb) {
       controller.show();
@@ -188,8 +201,13 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
 
     final size = url.fileSize;
     if (size == null || size > 10 * 1024 * 1024) {
-      // show error
       controller.close();
+      setState(() {
+        showLoading = false;
+        this.errorMessage =
+            LocaleKeys.document_imageBlock_uploadImageErrorImageSizeTooBig.tr();
+      });
+      // show error
       showSnackBarMessage(
         context,
         LocaleKeys.document_imageBlock_uploadImageErrorImageSizeTooBig.tr(),
@@ -210,10 +228,12 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
       // else we should save the image to cloud storage
       setState(() {
         showLoading = true;
+        this.errorMessage = null;
       });
       (path, errorMessage) = await saveImageToCloudStorage(url);
       setState(() {
         showLoading = false;
+        this.errorMessage = errorMessage;
       });
       imageType = CustomImageType.internal;
     }
@@ -225,6 +245,9 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
             ? LocaleKeys.document_imageBlock_error_invalidImage.tr()
             : ': $errorMessage',
       );
+      setState(() {
+        this.errorMessage = errorMessage;
+      });
       return;
     }
 

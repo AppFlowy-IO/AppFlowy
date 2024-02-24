@@ -786,7 +786,8 @@
       },
       "image": {
         "copiedToPasteBoard": "The image link has been copied to the clipboard",
-        "addAnImage": "Add an image"
+        "addAnImage": "Add an image",
+        "imageUploadFailed": "Image upload failed"
       },
       "urlPreview": {
         "copiedToPasteBoard": "The link has been copied to the clipboard"
