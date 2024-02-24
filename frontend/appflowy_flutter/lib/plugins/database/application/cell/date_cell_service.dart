@@ -2,7 +2,7 @@ import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/cell_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:dartz/dartz.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:fixnum/fixnum.dart';
 
 final class DateCellBackendService {
@@ -17,7 +17,7 @@ final class DateCellBackendService {
 
   final CellIdPB cellId;
 
-  Future<Either<Unit, FlowyError>> update({
+  Future<FlowyResult<void, FlowyError>> update({
     required bool includeTime,
     required bool isRange,
     DateTime? date,
@@ -52,7 +52,7 @@ final class DateCellBackendService {
     return DatabaseEventUpdateDateCell(payload).send();
   }
 
-  Future<Either<Unit, FlowyError>> clear() {
+  Future<FlowyResult<void, FlowyError>> clear() {
     final payload = DateCellChangesetPB.create()
       ..cellId = cellId
       ..clearFlag = true;

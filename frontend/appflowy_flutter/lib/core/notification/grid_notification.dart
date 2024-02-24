@@ -1,17 +1,18 @@
 import 'dart:async';
 import 'dart:typed_data';
-import 'package:appflowy_backend/protobuf/flowy-notification/protobuf.dart';
-import 'package:dartz/dartz.dart';
-import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
+
 import 'package:appflowy_backend/protobuf/flowy-database2/notification.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-notification/protobuf.dart';
 import 'package:appflowy_backend/rust_stream.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 
 import 'notification_helper.dart';
 
 // DatabasePB
 typedef DatabaseNotificationCallback = void Function(
   DatabaseNotification,
-  Either<Uint8List, FlowyError>,
+  FlowyResult<Uint8List, FlowyError>,
 );
 
 class DatabaseNotificationParser
@@ -27,7 +28,7 @@ class DatabaseNotificationParser
 
 typedef DatabaseNotificationHandler = Function(
   DatabaseNotification ty,
-  Either<Uint8List, FlowyError> result,
+  FlowyResult<Uint8List, FlowyError> result,
 );
 
 class DatabaseNotificationListener {

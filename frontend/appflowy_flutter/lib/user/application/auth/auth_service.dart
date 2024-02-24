@@ -1,6 +1,6 @@
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pbserver.dart';
-import 'package:dartz/dartz.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 
 class AuthServiceMapKeys {
   const AuthServiceMapKeys._();
@@ -25,7 +25,7 @@ abstract class AuthService {
   ///
   /// Returns [UserProfilePB] if the user is authenticated, otherwise returns [FlowyError].
 
-  Future<Either<FlowyError, UserProfilePB>> signInWithEmailPassword({
+  Future<FlowyResult<UserProfilePB, FlowyError>> signInWithEmailPassword({
     required String email,
     required String password,
     Map<String, String> params,
@@ -39,7 +39,7 @@ abstract class AuthService {
   /// - `params`: Additional parameters for registration (optional).
   ///
   /// Returns [UserProfilePB] if the user is authenticated, otherwise returns [FlowyError].
-  Future<Either<FlowyError, UserProfilePB>> signUp({
+  Future<FlowyResult<UserProfilePB, FlowyError>> signUp({
     required String name,
     required String email,
     required String password,
@@ -52,7 +52,7 @@ abstract class AuthService {
   /// - `params`: Additional parameters for OAuth registration (optional).
   ///
   /// Returns [UserProfilePB] if the user is authenticated, otherwise returns [FlowyError].
-  Future<Either<FlowyError, UserProfilePB>> signUpWithOAuth({
+  Future<FlowyResult<UserProfilePB, FlowyError>> signUpWithOAuth({
     required String platform,
     Map<String, String> params,
   });
@@ -62,7 +62,7 @@ abstract class AuthService {
   /// - `params`: Additional parameters for guest registration (optional).
   ///
   /// Returns a default [UserProfilePB].
-  Future<Either<FlowyError, UserProfilePB>> signUpAsGuest({
+  Future<FlowyResult<UserProfilePB, FlowyError>> signUpAsGuest({
     Map<String, String> params,
   });
 
@@ -72,7 +72,7 @@ abstract class AuthService {
   /// - `params`: Additional parameters for authentication with magic link (optional).
   ///
   /// Returns [UserProfilePB] if the user is authenticated, otherwise returns [FlowyError].
-  Future<Either<FlowyError, UserProfilePB>> signInWithMagicLink({
+  Future<FlowyResult<UserProfilePB, FlowyError>> signInWithMagicLink({
     required String email,
     Map<String, String> params,
   });
@@ -83,5 +83,5 @@ abstract class AuthService {
   /// Retrieves the currently authenticated user's profile.
   ///
   /// Returns [UserProfilePB] if the user has signed in, otherwise returns [FlowyError].
-  Future<Either<FlowyError, UserProfilePB>> getUser();
+  Future<FlowyResult<UserProfilePB, FlowyError>> getUser();
 }

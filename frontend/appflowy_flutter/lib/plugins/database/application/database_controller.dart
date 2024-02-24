@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/view/view_cache.dart';
 import 'package:appflowy_backend/log.dart';
@@ -10,17 +12,16 @@ import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/setting_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:collection/collection.dart';
-import 'dart:async';
-import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 
 import 'database_view_service.dart';
 import 'defines.dart';
+import 'group/group_listener.dart';
 import 'layout/layout_service.dart';
 import 'layout/layout_setting_listener.dart';
 import 'row/row_cache.dart';
-import 'group/group_listener.dart';
 
 typedef OnGroupConfigurationChanged = void Function(List<GroupSettingPB>);
 typedef OnGroupByField = void Function(List<GroupPB>);
@@ -136,7 +137,7 @@ class DatabaseController {
     }
   }
 
-  Future<Either<Unit, FlowyError>> open() async {
+  Future<FlowyResult<void, FlowyError>> open() async {
     return _databaseViewBackendSvc.openDatabase().then((result) {
       return result.fold(
         (DatabasePB database) async {
@@ -157,21 +158,21 @@ class DatabaseController {
               return Future(() async {
                 await _loadGroups();
                 await _loadLayoutSetting();
-                return left(fields);
+                return FlowyResult.success(fields);
               });
             },
             (err) {
               Log.error(err);
-              return right(err);
+              return FlowyResult.failure(err);
             },
           );
         },
-        (err) => right(err),
+        (err) => FlowyResult.failure(err),
       );
     });
   }
 
-  Future<Either<Unit, FlowyError>> moveGroupRow({
+  Future<FlowyResult<void, FlowyError>> moveGroupRow({
     required RowMetaPB fromRow,
     required String fromGroupId,
     required String toGroupId,
@@ -185,7 +186,7 @@ class DatabaseController {
     );
   }
 
-  Future<Either<Unit, FlowyError>> moveRow({
+  Future<FlowyResult<void, FlowyError>> moveRow({
     required String fromRowId,
     required String toRowId,
   }) {
@@ -195,7 +196,7 @@ class DatabaseController {
     );
   }
 
-  Future<Either<Unit, FlowyError>> moveGroup({
+  Future<FlowyResult<void, FlowyError>> moveGroup({
     required String fromGroupId,
     required String toGroupId,
   }) {

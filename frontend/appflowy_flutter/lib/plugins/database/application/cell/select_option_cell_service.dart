@@ -1,9 +1,9 @@
 import 'package:appflowy/plugins/database/application/field/type_option/type_option_service.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/select_option_entities.pb.dart';
-import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
-import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/cell_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/select_option_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 
 class SelectOptionCellBackendService {
   SelectOptionCellBackendService({
@@ -16,7 +16,7 @@ class SelectOptionCellBackendService {
   final String fieldId;
   final String rowId;
 
-  Future<Either<Unit, FlowyError>> create({
+  Future<FlowyResult<void, FlowyError>> create({
     required String name,
     bool isSelected = true,
   }) {
@@ -34,13 +34,13 @@ class SelectOptionCellBackendService {
 
             return DatabaseEventInsertOrUpdateSelectOption(payload).send();
           },
-          (r) => right(r),
+          (r) => FlowyResult.failure(r),
         );
       },
     );
   }
 
-  Future<Either<Unit, FlowyError>> update({
+  Future<FlowyResult<void, FlowyError>> update({
     required SelectOptionPB option,
   }) {
     final payload = RepeatedSelectOptionPayload()
@@ -52,7 +52,7 @@ class SelectOptionCellBackendService {
     return DatabaseEventInsertOrUpdateSelectOption(payload).send();
   }
 
-  Future<Either<Unit, FlowyError>> delete({
+  Future<FlowyResult<void, FlowyError>> delete({
     required Iterable<SelectOptionPB> options,
   }) {
     final payload = RepeatedSelectOptionPayload()
@@ -64,7 +64,7 @@ class SelectOptionCellBackendService {
     return DatabaseEventDeleteSelectOption(payload).send();
   }
 
-  Future<Either<SelectOptionCellDataPB, FlowyError>> getCellData() {
+  Future<FlowyResult<SelectOptionCellDataPB, FlowyError>> getCellData() {
     final payload = CellIdPB()
       ..viewId = viewId
       ..fieldId = fieldId
@@ -73,7 +73,7 @@ class SelectOptionCellBackendService {
     return DatabaseEventGetSelectOptionCellData(payload).send();
   }
 
-  Future<Either<void, FlowyError>> select({
+  Future<FlowyResult<void, FlowyError>> select({
     required Iterable<String> optionIds,
   }) {
     final payload = SelectOptionCellChangesetPB()
@@ -83,7 +83,7 @@ class SelectOptionCellBackendService {
     return DatabaseEventUpdateSelectOptionCell(payload).send();
   }
 
-  Future<Either<void, FlowyError>> unSelect({
+  Future<FlowyResult<void, FlowyError>> unSelect({
     required Iterable<String> optionIds,
   }) {
     final payload = SelectOptionCellChangesetPB()

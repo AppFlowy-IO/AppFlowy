@@ -1,12 +1,14 @@
 import 'dart:io';
+
 import 'package:appflowy/workspace/application/settings/share/export_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-document/entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:dartz/dartz.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+
 part 'share_bloc.freezed.dart';
 
 class DatabaseShareBloc extends Bloc<DatabaseShareEvent, DatabaseShareState> {
@@ -35,9 +37,9 @@ class DatabaseShareBloc extends Bloc<DatabaseShareEvent, DatabaseShareState> {
         result.fold(
           (l) {
             _saveCSVToPath(l.data, event.path);
-            return left(unit);
+            return FlowyResult.success(null);
           },
-          (r) => right(r),
+          (r) => FlowyResult.failure(r),
         ),
       ),
     );
@@ -61,6 +63,6 @@ class DatabaseShareState with _$DatabaseShareState {
   const factory DatabaseShareState.initial() = _Initial;
   const factory DatabaseShareState.loading() = _Loading;
   const factory DatabaseShareState.finish(
-    Either<Unit, FlowyError> successOrFail,
+    FlowyResult<void, FlowyError> successOrFail,
   ) = _Finish;
 }
