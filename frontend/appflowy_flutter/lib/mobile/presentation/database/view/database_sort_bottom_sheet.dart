@@ -121,8 +121,8 @@ class _Header extends StatelessWidget {
     if (state.newSortFieldId != null && state.newSortCondition != null) {
       context.read<SortEditorBloc>().add(
             SortEditorEvent.createSort(
-              state.newSortFieldId!,
-              state.newSortCondition!,
+              fieldId: state.newSortFieldId!,
+              condition: state.newSortCondition!,
             ),
           );
     }
@@ -531,9 +531,8 @@ class _SortDetailContent extends StatelessWidget {
     } else {
       context.read<SortEditorBloc>().add(
             SortEditorEvent.editSort(
-              sortInfo!.sortId,
-              null,
-              newCondition,
+              sortId: sortInfo!.sortId,
+              condition: newCondition,
             ),
           );
     }
@@ -545,9 +544,8 @@ class _SortDetailContent extends StatelessWidget {
     } else {
       context.read<SortEditorBloc>().add(
             SortEditorEvent.editSort(
-              sortInfo!.sortId,
-              newFieldId,
-              null,
+              sortId: sortInfo!.sortId,
+              fieldId: newFieldId,
             ),
           );
     }
