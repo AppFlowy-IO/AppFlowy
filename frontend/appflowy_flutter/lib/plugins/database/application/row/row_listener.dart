@@ -2,9 +2,9 @@ import 'dart:typed_data';
 
 import 'package:appflowy/core/notification/grid_notification.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-error/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
-import 'package:dartz/dartz.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/protobuf.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 
 typedef DidFetchRowCallback = void Function(DidFetchRowPB);
 typedef RowMetaCallback = void Function(RowMetaPB);
@@ -34,7 +34,7 @@ class RowListener {
 
   void _handler(
     DatabaseNotification ty,
-    Either<Uint8List, FlowyError> result,
+    FlowyResult<Uint8List, FlowyError> result,
   ) {
     switch (ty) {
       case DatabaseNotification.DidUpdateRowMeta:

@@ -32,6 +32,12 @@ Node outlineBlockNode() {
   );
 }
 
+enum _OutlineBlockStatus {
+  noHeadings,
+  noMatchHeadings,
+  success;
+}
+
 class OutlineBlockComponentBuilder extends BlockComponentBuilder {
   OutlineBlockComponentBuilder({
     super.configuration,
@@ -75,7 +81,7 @@ class _OutlineBlockWidgetState extends State<OutlineBlockWidget>
         BlockComponentTextDirectionMixin,
         BlockComponentBackgroundColorMixin {
   // Change the value if the heading block type supports heading levels greater than '3'
-  static const finalHeadingLevel = 3;
+  static const maxVisibleDepth = 6;
 
   @override
   BlockComponentConfiguration get configuration => widget.configuration;
@@ -120,81 +126,97 @@ class _OutlineBlockWidgetState extends State<OutlineBlockWidget>
     final textDirection = calculateTextDirection(
       layoutDirection: Directionality.maybeOf(context),
     );
+    final (status, headings) = getHeadingNodes();
 
-    final children = getHeadingNodes()
-        .map(
-          (e) => Container(
-            padding: const EdgeInsets.only(
-              bottom: 4.0,
-            ),
-            width: double.infinity,
-            child: OutlineItemWidget(
-              node: e,
-              textDirection: textDirection,
-            ),
+    Widget child;
+
+    switch (status) {
+      case _OutlineBlockStatus.noHeadings:
+        child = Align(
+          alignment: Alignment.centerLeft,
+          child: Text(
+            LocaleKeys.document_plugins_outline_addHeadingToCreateOutline.tr(),
+            style: configuration.placeholderTextStyle(node),
           ),
-        )
-        .toList();
-
-    final child = children.isEmpty
-        ? Align(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              LocaleKeys.document_plugins_outline_addHeadingToCreateOutline
-                  .tr(),
-              style: configuration.placeholderTextStyle(node),
-            ),
-          )
-        : Container(
-            padding: const EdgeInsets.symmetric(
-              vertical: 2.0,
-              horizontal: 5.0,
-            ),
-            decoration: BoxDecoration(
-              borderRadius: const BorderRadius.all(Radius.circular(8.0)),
-              color: backgroundColor,
-            ),
-            child: Column(
-              key: ValueKey(children.hashCode),
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              textDirection: textDirection,
-              children: [
-                Text(
-                  LocaleKeys.document_outlineBlock_placeholder.tr(),
-                  style: Theme.of(context).textTheme.titleLarge,
+        );
+      case _OutlineBlockStatus.noMatchHeadings:
+        child = Align(
+          alignment: Alignment.centerLeft,
+          child: Text(
+            LocaleKeys.document_plugins_outline_noMatchHeadings.tr(),
+            style: configuration.placeholderTextStyle(node),
+          ),
+        );
+      case _OutlineBlockStatus.success:
+        final children = headings
+            .map(
+              (e) => Container(
+                padding: const EdgeInsets.only(
+                  bottom: 4.0,
                 ),
-                const VSpace(8.0),
-                Padding(
-                  padding: const EdgeInsets.only(left: 15.0),
-                  child: Column(
-                    children: children,
-                  ),
+                width: double.infinity,
+                child: OutlineItemWidget(
+                  node: e,
+                  textDirection: textDirection,
                 ),
-              ],
-            ),
-          );
+              ),
+            )
+            .toList();
+        child = Padding(
+          padding: const EdgeInsets.only(left: 15.0),
+          child: Column(
+            children: children,
+          ),
+        );
+    }
 
     return Container(
       constraints: const BoxConstraints(
         minHeight: 40.0,
       ),
       padding: padding,
-      child: child,
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+          vertical: 2.0,
+          horizontal: 5.0,
+        ),
+        decoration: BoxDecoration(
+          borderRadius: const BorderRadius.all(Radius.circular(8.0)),
+          color: backgroundColor,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          textDirection: textDirection,
+          children: [
+            Text(
+              LocaleKeys.document_outlineBlock_placeholder.tr(),
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const VSpace(8.0),
+            child,
+          ],
+        ),
+      ),
     );
   }
 
-  Iterable<Node> getHeadingNodes() {
+  (_OutlineBlockStatus, Iterable<Node>) getHeadingNodes() {
     final children = editorState.document.root.children;
     final int level =
-        node.attributes[OutlineBlockKeys.depth] ?? finalHeadingLevel;
-
-    return children.where(
-      (element) =>
-          element.type == HeadingBlockKeys.type &&
-          element.delta?.isNotEmpty == true &&
-          element.attributes[HeadingBlockKeys.level] <= level,
+        node.attributes[OutlineBlockKeys.depth] ?? maxVisibleDepth;
+    var headings = children.where(
+      (e) => e.type == HeadingBlockKeys.type && e.delta?.isNotEmpty == true,
     );
+    if (headings.isEmpty) {
+      return (_OutlineBlockStatus.noHeadings, []);
+    }
+    headings =
+        headings.where((e) => e.attributes[HeadingBlockKeys.level] <= level);
+    if (headings.isEmpty) {
+      return (_OutlineBlockStatus.noMatchHeadings, []);
+    }
+    return (_OutlineBlockStatus.success, headings);
   }
 }
 
@@ -263,12 +285,8 @@ extension on Node {
       return 0.0;
     }
     final level = attributes[HeadingBlockKeys.level];
-    if (level == 2) {
-      return 20;
-    } else if (level == 3) {
-      return 40;
-    }
-    return 0;
+    final indent = (level - 1) * 15.0 + 10.0;
+    return indent;
   }
 
   String get outlineItemText {

@@ -44,7 +44,6 @@ void showCreateFieldBottomSheet(
     elevation: 20,
     title: LocaleKeys.grid_field_newProperty.tr(),
     backgroundColor: Theme.of(context).colorScheme.surface,
-    barrierColor: Colors.transparent,
     enableDraggableScrollable: true,
     builder: (context) {
       final typeOptionMenuItemValue = mobileSupportedFieldTypes

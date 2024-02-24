@@ -11,7 +11,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// A service to manage realtime interactions with Supabase.
 ///
-/// `SupbaseRealtimeService` handles subscribing to table changes in Supabase
+/// `SupabaseRealtimeService` handles subscribing to table changes in Supabase
 /// based on the authentication state of a user. The service is initialized with
 /// a reference to a Supabase instance and sets up the necessary subscriptions
 /// accordingly.
@@ -54,25 +54,39 @@ class SupabaseRealtimeService {
 
   Future<void> _subscribeTablesChanges() async {
     final result = await UserBackendService.getCurrentUserProfile();
-    result.fold((l) => null, (userProfile) {
-      Log.info("Start listening supabase table changes");
+    result.fold(
+      (userProfile) {
+        Log.info("Start listening supabase table changes");
 
-      // https://supabase.com/docs/guides/realtime/postgres-changes
+        // https://supabase.com/docs/guides/realtime/postgres-changes
 
-      const ops = RealtimeChannelConfig(ack: true);
-      channel?.unsubscribe();
-      channel = supabase.client.channel("table-db-changes", opts: ops);
-      for (final name in [
-        "document",
-        "folder",
-        "database",
-        "database_row",
-        "w_database",
-      ]) {
+        const ops = RealtimeChannelConfig(ack: true);
+        channel?.unsubscribe();
+        channel = supabase.client.channel("table-db-changes", opts: ops);
+        for (final name in [
+          "document",
+          "folder",
+          "database",
+          "database_row",
+          "w_database",
+        ]) {
+          channel?.onPostgresChanges(
+            event: PostgresChangeEvent.insert,
+            schema: 'public',
+            table: 'af_collab_update_$name',
+            filter: PostgresChangeFilter(
+              type: PostgresChangeFilterType.eq,
+              column: 'uid',
+              value: userProfile.id,
+            ),
+            callback: _onPostgresChangesCallback,
+          );
+        }
+
         channel?.onPostgresChanges(
-          event: PostgresChangeEvent.insert,
+          event: PostgresChangeEvent.update,
           schema: 'public',
-          table: 'af_collab_update_$name',
+          table: 'af_user',
           filter: PostgresChangeFilter(
             type: PostgresChangeFilterType.eq,
             column: 'uid',
@@ -80,28 +94,17 @@ class SupabaseRealtimeService {
           ),
           callback: _onPostgresChangesCallback,
         );
-      }
 
-      channel?.onPostgresChanges(
-        event: PostgresChangeEvent.update,
-        schema: 'public',
-        table: 'af_user',
-        filter: PostgresChangeFilter(
-          type: PostgresChangeFilterType.eq,
-          column: 'uid',
-          value: userProfile.id,
-        ),
-        callback: _onPostgresChangesCallback,
-      );
-
-      channel?.subscribe(
-        (status, [err]) {
-          Log.info(
-            "subscribe channel statue: $status, err: $err",
-          );
-        },
-      );
-    });
+        channel?.subscribe(
+          (status, [err]) {
+            Log.info(
+              "subscribe channel statue: $status, err: $err",
+            );
+          },
+        );
+      },
+      (_) => null,
+    );
   }
 
   Future<void> dispose() async {

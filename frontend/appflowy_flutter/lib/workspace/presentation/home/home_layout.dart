@@ -12,7 +12,7 @@ import 'home_sizes.dart';
 class HomeLayout {
   HomeLayout(BuildContext context) {
     final homeSetting = context.read<HomeSettingBloc>().state;
-    showEditPanel = homeSetting.panelContext.isSome();
+    showEditPanel = homeSetting.panelContext != null;
     menuWidth = Sizes.sideBarWidth;
     menuWidth += homeSetting.resizeOffset;
 

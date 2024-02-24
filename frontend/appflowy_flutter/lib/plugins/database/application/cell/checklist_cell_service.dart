@@ -2,7 +2,7 @@ import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/checklist_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:dartz/dartz.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:protobuf/protobuf.dart';
 
 class ChecklistCellBackendService {
@@ -16,7 +16,7 @@ class ChecklistCellBackendService {
   final String fieldId;
   final String rowId;
 
-  Future<Either<Unit, FlowyError>> create({
+  Future<FlowyResult<void, FlowyError>> create({
     required String name,
   }) {
     final payload = ChecklistCellDataChangesetPB.create()
@@ -28,7 +28,7 @@ class ChecklistCellBackendService {
     return DatabaseEventUpdateChecklistCell(payload).send();
   }
 
-  Future<Either<Unit, FlowyError>> delete({
+  Future<FlowyResult<void, FlowyError>> delete({
     required List<String> optionIds,
   }) {
     final payload = ChecklistCellDataChangesetPB.create()
@@ -40,7 +40,7 @@ class ChecklistCellBackendService {
     return DatabaseEventUpdateChecklistCell(payload).send();
   }
 
-  Future<Either<Unit, FlowyError>> select({
+  Future<FlowyResult<void, FlowyError>> select({
     required String optionId,
   }) {
     final payload = ChecklistCellDataChangesetPB.create()
@@ -52,7 +52,7 @@ class ChecklistCellBackendService {
     return DatabaseEventUpdateChecklistCell(payload).send();
   }
 
-  Future<Either<Unit, FlowyError>> updateName({
+  Future<FlowyResult<void, FlowyError>> updateName({
     required SelectOptionPB option,
     required name,
   }) {

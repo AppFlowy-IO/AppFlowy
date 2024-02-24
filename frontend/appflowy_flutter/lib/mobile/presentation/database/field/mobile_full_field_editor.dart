@@ -447,14 +447,12 @@ class _PropertyType extends StatelessWidget {
       onTap: () {
         showMobileBottomSheet(
           context,
-          padding: EdgeInsets.zero,
           showHeader: true,
           showDragHandle: true,
           showCloseButton: true,
           elevation: 20,
           title: LocaleKeys.grid_field_editProperty.tr(),
           backgroundColor: Theme.of(context).colorScheme.surface,
-          barrierColor: Colors.transparent,
           enableDraggableScrollable: true,
           builder: (context) {
             final typeOptionMenuItemValue = mobileSupportedFieldTypes

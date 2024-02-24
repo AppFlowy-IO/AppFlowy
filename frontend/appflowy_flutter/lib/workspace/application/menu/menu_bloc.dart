@@ -6,7 +6,7 @@ import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
-import 'package:dartz/dartz.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -52,16 +52,23 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
               (app) => emit(state.copyWith(lastCreatedView: app)),
               (error) {
                 Log.error(error);
-                emit(state.copyWith(successOrFailure: right(error)));
+                emit(
+                  state.copyWith(
+                    successOrFailure: FlowyResult.failure(error),
+                  ),
+                );
               },
             );
           },
           didReceiveApps: (e) async {
             emit(
               e.appsOrFail.fold(
-                (views) =>
-                    state.copyWith(views: views, successOrFailure: left(unit)),
-                (err) => state.copyWith(successOrFailure: right(err)),
+                (views) => state.copyWith(
+                  views: views,
+                  successOrFailure: FlowyResult.success(null),
+                ),
+                (err) =>
+                    state.copyWith(successOrFailure: FlowyResult.failure(err)),
               ),
             );
           },
@@ -92,16 +99,16 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
         (views) => state.copyWith(views: views),
         (error) {
           Log.error(error);
-          return state.copyWith(successOrFailure: right(error));
+          return state.copyWith(successOrFailure: FlowyResult.failure(error));
         },
       ),
     );
   }
 
-  void _handleAppsOrFail(Either<List<ViewPB>, FlowyError> appsOrFail) {
+  void _handleAppsOrFail(FlowyResult<List<ViewPB>, FlowyError> appsOrFail) {
     appsOrFail.fold(
-      (apps) => add(MenuEvent.didReceiveApps(left(apps))),
-      (error) => add(MenuEvent.didReceiveApps(right(error))),
+      (apps) => add(MenuEvent.didReceiveApps(FlowyResult.success(apps))),
+      (error) => add(MenuEvent.didReceiveApps(FlowyResult.failure(error))),
     );
   }
 }
@@ -113,7 +120,7 @@ class MenuEvent with _$MenuEvent {
       _CreateApp;
   const factory MenuEvent.moveApp(int fromIndex, int toIndex) = _MoveApp;
   const factory MenuEvent.didReceiveApps(
-    Either<List<ViewPB>, FlowyError> appsOrFail,
+    FlowyResult<List<ViewPB>, FlowyError> appsOrFail,
   ) = _ReceiveApps;
 }
 
@@ -121,12 +128,12 @@ class MenuEvent with _$MenuEvent {
 class MenuState with _$MenuState {
   const factory MenuState({
     required List<ViewPB> views,
-    required Either<Unit, FlowyError> successOrFailure,
+    required FlowyResult<void, FlowyError> successOrFailure,
     ViewPB? lastCreatedView,
   }) = _MenuState;
 
   factory MenuState.initial() => MenuState(
         views: [],
-        successOrFailure: left(unit),
+        successOrFailure: FlowyResult.success(null),
       );
 }

@@ -4,11 +4,11 @@ import 'dart:typed_data';
 import 'package:appflowy/core/notification/grid_notification.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:dartz/dartz.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flowy_infra/notifier.dart';
 
 typedef UpdateCalculationValue
-    = Either<CalculationChangesetNotificationPB, FlowyError>;
+    = FlowyResult<CalculationChangesetNotificationPB, FlowyError>;
 
 class CalculationsListener {
   CalculationsListener({required this.viewId});
@@ -31,15 +31,15 @@ class CalculationsListener {
 
   void _handler(
     DatabaseNotification ty,
-    Either<Uint8List, FlowyError> result,
+    FlowyResult<Uint8List, FlowyError> result,
   ) {
     switch (ty) {
       case DatabaseNotification.DidUpdateCalculation:
         _calculationNotifier?.value = result.fold(
-          (payload) => left(
+          (payload) => FlowyResult.success(
             CalculationChangesetNotificationPB.fromBuffer(payload),
           ),
-          (err) => right(err),
+          (err) => FlowyResult.failure(err),
         );
       default:
         break;

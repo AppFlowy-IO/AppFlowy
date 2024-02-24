@@ -1116,7 +1116,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
 
   /// Must call [tapSortMenuInSettingBar] first.
   Future<void> tapAllSortButton() async {
-    await tapButton(find.byType(DatabaseDeleteSortButton));
+    await tapButton(find.byType(DeleteAllSortsButton));
   }
 
   Future<void> scrollOptionFilterListByOffset(Offset offset) async {

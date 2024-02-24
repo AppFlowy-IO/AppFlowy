@@ -7,6 +7,7 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flowy_infra_ui/widget/ignore_parent_gesture.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -98,11 +99,15 @@ class _ImageCopyLinkButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return FlowyButton(
+      useIntrinsicWidth: true,
       onTap: onTap,
-      child: const FlowySvg(
-        FlowySvgs.copy_s,
-        size: Size.square(16),
+      text: FlowyTooltip(
+        message: LocaleKeys.editor_copyLink.tr(),
+        child: const FlowySvg(
+          FlowySvgs.copy_s,
+          size: Size.square(16),
+        ),
       ),
     );
   }
@@ -207,9 +212,15 @@ class _ImageAlignButtonState extends State<_ImageAlignButton> {
   }
 
   Widget buildAlignIcon() {
-    return FlowySvg(
-      iconFor(align),
-      size: const Size.square(16),
+    return FlowyButton(
+      useIntrinsicWidth: true,
+      text: FlowyTooltip(
+        message: LocaleKeys.document_plugins_optionAction_align.tr(),
+        child: FlowySvg(
+          iconFor(align),
+          size: const Size.square(16),
+        ),
+      ),
     );
   }
 }
@@ -261,9 +272,10 @@ class _AlignButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return FlowyButton(
+      useIntrinsicWidth: true,
       onTap: onTap,
-      child: FlowySvg(
+      text: FlowySvg(
         icon,
         size: const Size.square(16),
       ),
@@ -280,11 +292,15 @@ class _ImageDeleteButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return FlowyButton(
+      useIntrinsicWidth: true,
       onTap: onTap,
-      child: const FlowySvg(
-        FlowySvgs.delete_s,
-        size: Size.square(16),
+      text: FlowyTooltip(
+        message: LocaleKeys.button_delete.tr(),
+        child: const FlowySvg(
+          FlowySvgs.delete_s,
+          size: Size.square(16),
+        ),
       ),
     );
   }

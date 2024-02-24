@@ -2,7 +2,7 @@ import 'package:appflowy/workspace/application/favorite/favorite_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
-import 'package:dartz/dartz.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -69,14 +69,14 @@ class FavoriteBloc extends Bloc<FavoriteEvent, FavoriteState> {
   }
 
   void _onFavoritesUpdated(
-    Either<FlowyError, RepeatedViewPB> favoriteOrFailed,
+    FlowyResult<RepeatedViewPB, FlowyError> favoriteOrFailed,
     bool didFavorite,
   ) {
     favoriteOrFailed.fold(
-      (error) => Log.error(error),
       (favorite) => didFavorite
           ? add(FavoriteEvent.didFavorite(favorite))
           : add(FavoriteEvent.didUnfavorite(favorite)),
+      (error) => Log.error(error),
     );
   }
 }

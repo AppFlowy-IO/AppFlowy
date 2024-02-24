@@ -49,6 +49,13 @@ class KVKeys {
 
   static const String kCloudType = 'kCloudType';
   static const String kAppflowyCloudBaseURL = 'kAppFlowyCloudBaseURL';
-  static const String kSupabaseURL = 'kSupbaseURL';
+  static const String kSupabaseURL = 'kSupabaseURL';
   static const String kSupabaseAnonKey = 'kSupabaseAnonKey';
+
+  /// The key for saving the text scale factor.
+  ///
+  /// The value is a double string.
+  /// The value range is from 0.8 to 1.0. If it's greater than 1.0, it will cause
+  ///   the text to be too large and not aligned with the icon
+  static const String textScaleFactor = 'textScaleFactor';
 }

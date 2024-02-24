@@ -12,7 +12,7 @@ class LinkPreviewDataCache implements LinkPreviewDataCacheInterface {
       url,
       (value) => LinkPreviewData.fromJson(jsonDecode(value)),
     );
-    return option.fold(() => null, (a) => a);
+    return option;
   }
 
   @override

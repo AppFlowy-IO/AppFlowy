@@ -79,7 +79,7 @@ Future<T?> showMobileBottomSheet<T>(
 
       if (showHeader) {
         children.add(
-          _Header(
+          BottomSheetHeader(
             showCloseButton: showCloseButton,
             showBackButton: showBackButton,
             showDoneButton: showDoneButton,
@@ -120,9 +120,12 @@ Future<T?> showMobileBottomSheet<T>(
       }
 
       // ----- content area -----
+      // make sure the keyboard won't cover the content
       children.add(
         Padding(
-          padding: padding,
+          padding: padding.copyWith(
+            bottom: padding.bottom + MediaQuery.of(context).viewInsets.bottom,
+          ),
           child: child,
         ),
       );
@@ -133,6 +136,8 @@ Future<T?> showMobileBottomSheet<T>(
       }
 
       // add default padding
+      // for full screen bottom sheet, the padding should be 16.0
+      // for non full screen bottom sheet, the padding should be 28.0
       children.add(
         VSpace(MediaQuery.of(context).padding.bottom == 0 ? 28.0 : 16.0),
       );
@@ -152,8 +157,9 @@ Future<T?> showMobileBottomSheet<T>(
   );
 }
 
-class _Header extends StatelessWidget {
-  const _Header({
+class BottomSheetHeader extends StatelessWidget {
+  const BottomSheetHeader({
+    super.key,
     required this.showBackButton,
     required this.showCloseButton,
     required this.title,
