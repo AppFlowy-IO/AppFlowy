@@ -67,7 +67,7 @@ class _SortEditorState extends State<SortEditor> {
             children: [
               Flexible(
                 child: DatabaseAddSortButton(
-                  enable: state.creatableFields.isEmpty,
+                  disable: state.creatableFields.isEmpty,
                   popoverMutex: popoverMutex,
                 ),
               ),
@@ -177,11 +177,11 @@ extension SortConditionExtension on SortConditionPB {
 class DatabaseAddSortButton extends StatefulWidget {
   const DatabaseAddSortButton({
     super.key,
-    required this.enable,
+    required this.disable,
     required this.popoverMutex,
   });
 
-  final bool enable;
+  final bool disable;
   final PopoverMutex popoverMutex;
 
   @override
@@ -216,7 +216,7 @@ class _DatabaseAddSortButtonState extends State<DatabaseAddSortButton> {
         height: GridSize.popoverItemHeight,
         child: FlowyButton(
           hoverColor: AFThemeExtension.of(context).greyHover,
-          disable: !widget.enable,
+          disable: widget.disable,
           text: FlowyText.medium(LocaleKeys.grid_sort_addSort.tr()),
           onTap: () => _popoverController.show(),
           leftIcon: const FlowySvg(FlowySvgs.add_s),
