@@ -8,12 +8,11 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/mo
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/image_util.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/upload_image_menu.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/shared/document_bloc_extension.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/util/file_extension.dart';
 import 'package:appflowy/workspace/application/settings/application_data_storage.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log, UploadImageMenu;
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -194,24 +193,9 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
   }
 
   Future<void> insertLocalImage(String? url) async {
-    if (url == null || url.isEmpty) {
-      controller.close();
-      return;
-    }
+    controller.close();
 
-    final size = url.fileSize;
-    if (size == null || size > 10 * 1024 * 1024) {
-      controller.close();
-      setState(() {
-        showLoading = false;
-        this.errorMessage =
-            LocaleKeys.document_imageBlock_uploadImageErrorImageSizeTooBig.tr();
-      });
-      // show error
-      showSnackBarMessage(
-        context,
-        LocaleKeys.document_imageBlock_uploadImageErrorImageSizeTooBig.tr(),
-      );
+    if (url == null || url.isEmpty) {
       return;
     }
 
@@ -223,6 +207,7 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
 
     // if the user is using local authenticator, we need to save the image to local storage
     if (_isLocalMode()) {
+      // don't limit the image size for local mode.
       path = await saveImageToLocalStorage(url);
     } else {
       // else we should save the image to cloud storage
@@ -313,8 +298,6 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
   }
 
   bool _isLocalMode() {
-    final userProfilePB = context.read<DocumentBloc>().state.userProfilePB;
-    final type = userProfilePB?.authenticator ?? AuthenticatorPB.Local;
-    return type == AuthenticatorPB.Local;
+    return context.read<DocumentBloc>().isLocalMode;
   }
 }
