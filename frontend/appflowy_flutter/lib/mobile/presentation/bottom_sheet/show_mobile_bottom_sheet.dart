@@ -9,14 +9,15 @@ extension BottomSheetPaddingExtension on BuildContext {
   double bottomSheetPadding({
     bool ignoreViewPadding = true,
   }) {
-    final mediaQuery = MediaQuery.of(this);
+    final viewPadding = MediaQuery.viewPaddingOf(this);
+    final viewInsets = MediaQuery.viewInsetsOf(this);
     double bottom = 0.0;
     if (!ignoreViewPadding) {
-      bottom += mediaQuery.viewPadding.bottom;
+      bottom += viewPadding.bottom;
     }
     // for screens with 0 view padding, add some even more space
-    bottom += mediaQuery.viewPadding.bottom == 0 ? 28.0 : 16.0;
-    bottom += mediaQuery.viewInsets.bottom;
+    bottom += viewPadding.bottom == 0 ? 28.0 : 16.0;
+    bottom += viewInsets.bottom;
     return bottom;
   }
 }
