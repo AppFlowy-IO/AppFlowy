@@ -61,6 +61,10 @@ class _MobileDatabaseFieldListBody extends StatelessWidget {
           if (state.fieldContexts.isEmpty) {
             return const SizedBox.shrink();
           }
+
+          final mediaQuery = MediaQuery.of(context);
+          final bottomPadding = mediaQuery.viewPadding.bottom +
+              (mediaQuery.padding.bottom == 0 ? 28.0 : 16.0);
           final fields = [...state.fieldContexts];
           final firstField = fields.removeAt(0);
           final firstCell = DatabaseFieldListTile(
@@ -124,10 +128,10 @@ class _MobileDatabaseFieldListBody extends StatelessWidget {
                     children: [
                       _divider(),
                       _NewDatabaseFieldTile(viewId: viewId),
-                      const VSpace(24),
+                      VSpace(bottomPadding),
                     ],
                   )
-                : const VSpace(24),
+                : VSpace(bottomPadding),
             itemCount: cells.length,
             itemBuilder: (context, index) => cells[index],
           );

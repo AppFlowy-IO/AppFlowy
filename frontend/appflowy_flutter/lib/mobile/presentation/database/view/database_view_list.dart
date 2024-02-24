@@ -28,6 +28,7 @@ class MobileDatabaseViewList extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<ViewBloc, ViewState>(
       builder: (context, state) {
+        final mediaQuery = MediaQuery.of(context);
         final views = [state.view, ...state.view.childViews];
 
         return Column(
@@ -55,6 +56,8 @@ class MobileDatabaseViewList extends StatelessWidget {
                   ),
                   const VSpace(20),
                   const MobileNewDatabaseViewButton(),
+                  VSpace(mediaQuery.viewPadding.bottom),
+                  VSpace(mediaQuery.padding.bottom == 0 ? 28.0 : 16.0),
                 ],
               ),
             ),
