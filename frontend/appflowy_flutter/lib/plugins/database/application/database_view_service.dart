@@ -3,7 +3,7 @@ import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
-import 'package:dartz/dartz.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 
 import 'layout/layout_service.dart';
 
@@ -12,15 +12,15 @@ class DatabaseViewBackendService {
 
   final String viewId;
 
-  /// Returns the datbaase id associated with the view.
-  Future<Either<String, FlowyError>> getDatabaseId() async {
+  /// Returns the database id associated with the view.
+  Future<FlowyResult<String, FlowyError>> getDatabaseId() async {
     final payload = DatabaseViewIdPB(value: viewId);
     return DatabaseEventGetDatabaseId(payload)
         .send()
-        .then((value) => value.leftMap((l) => l.value));
+        .then((value) => value.map((l) => l.value));
   }
 
-  static Future<Either<ViewPB, FlowyError>> updateLayout({
+  static Future<FlowyResult<ViewPB, FlowyError>> updateLayout({
     required String viewId,
     required DatabaseLayoutPB layout,
   }) {
@@ -31,12 +31,12 @@ class DatabaseViewBackendService {
     return FolderEventUpdateView(payload).send();
   }
 
-  Future<Either<DatabasePB, FlowyError>> openDatabase() async {
+  Future<FlowyResult<DatabasePB, FlowyError>> openDatabase() async {
     final payload = DatabaseViewIdPB(value: viewId);
     return DatabaseEventGetDatabase(payload).send();
   }
 
-  Future<Either<Unit, FlowyError>> moveGroupRow({
+  Future<FlowyResult<void, FlowyError>> moveGroupRow({
     required RowId fromRowId,
     required String fromGroupId,
     required String toGroupId,
@@ -55,7 +55,7 @@ class DatabaseViewBackendService {
     return DatabaseEventMoveGroupRow(payload).send();
   }
 
-  Future<Either<Unit, FlowyError>> moveRow({
+  Future<FlowyResult<void, FlowyError>> moveRow({
     required String fromRowId,
     required String toRowId,
   }) {
@@ -67,7 +67,7 @@ class DatabaseViewBackendService {
     return DatabaseEventMoveRow(payload).send();
   }
 
-  Future<Either<Unit, FlowyError>> moveGroup({
+  Future<FlowyResult<void, FlowyError>> moveGroup({
     required String fromGroupId,
     required String toGroupId,
   }) {
@@ -79,7 +79,7 @@ class DatabaseViewBackendService {
     return DatabaseEventMoveGroup(payload).send();
   }
 
-  Future<Either<List<FieldPB>, FlowyError>> getFields({
+  Future<FlowyResult<List<FieldPB>, FlowyError>> getFields({
     List<FieldIdPB>? fieldIds,
   }) {
     final payload = GetFieldPayloadPB.create()..viewId = viewId;
@@ -88,11 +88,14 @@ class DatabaseViewBackendService {
       payload.fieldIds = RepeatedFieldIdPB(items: fieldIds);
     }
     return DatabaseEventGetFields(payload).send().then((result) {
-      return result.fold((l) => left(l.items), (r) => right(r));
+      return result.fold(
+        (l) => FlowyResult.success(l.items),
+        (r) => FlowyResult.failure(r),
+      );
     });
   }
 
-  Future<Either<DatabaseLayoutSettingPB, FlowyError>> getLayoutSetting(
+  Future<FlowyResult<DatabaseLayoutSettingPB, FlowyError>> getLayoutSetting(
     DatabaseLayoutPB layoutType,
   ) {
     final payload = DatabaseLayoutMetaPB.create()
@@ -101,7 +104,7 @@ class DatabaseViewBackendService {
     return DatabaseEventGetLayoutSetting(payload).send();
   }
 
-  Future<Either<Unit, FlowyError>> updateLayoutSetting({
+  Future<FlowyResult<void, FlowyError>> updateLayoutSetting({
     required DatabaseLayoutPB layoutType,
     BoardLayoutSettingPB? boardLayoutSetting,
     CalendarLayoutSettingPB? calendarLayoutSetting,
@@ -121,12 +124,12 @@ class DatabaseViewBackendService {
     return DatabaseEventSetLayoutSetting(payload).send();
   }
 
-  Future<Either<Unit, FlowyError>> closeView() {
+  Future<FlowyResult<void, FlowyError>> closeView() {
     final request = ViewIdPB(value: viewId);
     return FolderEventCloseView(request).send();
   }
 
-  Future<Either<RepeatedGroupPB, FlowyError>> loadGroups() {
+  Future<FlowyResult<RepeatedGroupPB, FlowyError>> loadGroups() {
     final payload = DatabaseViewIdPB(value: viewId);
     return DatabaseEventGetGroups(payload).send();
   }

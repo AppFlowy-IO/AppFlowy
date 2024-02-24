@@ -1,15 +1,15 @@
 import 'dart:typed_data';
 
 import 'package:appflowy/core/notification/grid_notification.dart';
-import 'package:flowy_infra/notifier.dart';
-import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/notification.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/filter_changeset.pb.dart';
-import 'package:dartz/dartz.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/notification.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/util.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
+import 'package:appflowy_result/appflowy_result.dart';
+import 'package:flowy_infra/notifier.dart';
 
 typedef UpdateFilterNotifiedValue
-    = Either<FilterChangesetNotificationPB, FlowyError>;
+    = FlowyResult<FilterChangesetNotificationPB, FlowyError>;
 
 class FiltersListener {
   FiltersListener({required this.viewId});
@@ -32,14 +32,15 @@ class FiltersListener {
 
   void _handler(
     DatabaseNotification ty,
-    Either<Uint8List, FlowyError> result,
+    FlowyResult<Uint8List, FlowyError> result,
   ) {
     switch (ty) {
       case DatabaseNotification.DidUpdateFilter:
         result.fold(
-          (payload) => _filterNotifier?.value =
-              left(FilterChangesetNotificationPB.fromBuffer(payload)),
-          (error) => _filterNotifier?.value = right(error),
+          (payload) => _filterNotifier?.value = FlowyResult.success(
+            FilterChangesetNotificationPB.fromBuffer(payload),
+          ),
+          (error) => _filterNotifier?.value = FlowyResult.failure(error),
         );
         break;
       default:
@@ -103,7 +104,7 @@ class FilterListener {
 
   void _handler(
     DatabaseNotification ty,
-    Either<Uint8List, FlowyError> result,
+    FlowyResult<Uint8List, FlowyError> result,
   ) {
     switch (ty) {
       case DatabaseNotification.DidUpdateFilter:

@@ -4,7 +4,7 @@ import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
-import 'package:dartz/dartz.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -63,7 +63,9 @@ class MenuUserBloc extends Bloc<MenuUserEvent, MenuUserState> {
     result.fold((l) => null, (error) => Log.error(error));
   }
 
-  void _profileUpdated(Either<UserProfilePB, FlowyError> userProfileOrFailed) {
+  void _profileUpdated(
+    FlowyResult<UserProfilePB, FlowyError> userProfileOrFailed,
+  ) {
     if (isClosed) {
       return;
     }
@@ -90,13 +92,13 @@ class MenuUserEvent with _$MenuUserEvent {
 class MenuUserState with _$MenuUserState {
   const factory MenuUserState({
     required UserProfilePB userProfile,
-    required Option<List<WorkspacePB>> workspaces,
-    required Either<Unit, String> successOrFailure,
+    required List<WorkspacePB>? workspaces,
+    required FlowyResult<void, String> successOrFailure,
   }) = _MenuUserState;
 
   factory MenuUserState.initial(UserProfilePB userProfile) => MenuUserState(
         userProfile: userProfile,
-        workspaces: none(),
-        successOrFailure: left(unit),
+        workspaces: null,
+        successOrFailure: FlowyResult.success(null),
       );
 }

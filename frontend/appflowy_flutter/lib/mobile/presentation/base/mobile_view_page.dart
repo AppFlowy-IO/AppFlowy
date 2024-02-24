@@ -13,7 +13,7 @@ import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
-import 'package:dartz/dartz.dart' hide State;
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -40,7 +40,7 @@ class MobileViewPage extends StatefulWidget {
 }
 
 class _MobileViewPageState extends State<MobileViewPage> {
-  late final Future<Either<ViewPB, FlowyError>> future;
+  late final Future<FlowyResult<ViewPB, FlowyError>> future;
 
   @override
   void initState() {

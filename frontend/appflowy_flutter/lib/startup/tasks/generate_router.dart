@@ -580,8 +580,8 @@ GoRoute _rootRoute(Widget child) {
       // Every time before navigating to splash screen, we check if user is already logged in in desktop. It is used to skip showing splash screen when user just changes apperance settings like theme mode.
       final userResponse = await getIt<AuthService>().getUser();
       final routeName = userResponse.fold(
-        (error) => null,
         (user) => DesktopHomeScreen.routeName,
+        (error) => null,
       );
       if (routeName != null && !PlatformExtension.isMobile) return routeName;
 

@@ -6,7 +6,7 @@ import 'package:appflowy_backend/protobuf/flowy-error/code.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
     show UserProfilePB;
-import 'package:dartz/dartz.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -58,8 +58,8 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
             emit(
               state.copyWith(
                 email: value.email,
-                emailError: none(),
-                successOrFail: none(),
+                emailError: null,
+                successOrFail: null,
               ),
             );
           },
@@ -67,8 +67,8 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
             emit(
               state.copyWith(
                 password: value.password,
-                passwordError: none(),
-                successOrFail: none(),
+                passwordError: null,
+                successOrFail: null,
               ),
             );
           },
@@ -85,20 +85,20 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
                 emit(
                   state.copyWith(
                     isSubmitting: true,
-                    emailError: none(),
-                    passwordError: none(),
-                    successOrFail: none(),
+                    emailError: null,
+                    passwordError: null,
+                    successOrFail: null,
                   ),
                 );
               case DeepLinkState.finish:
                 if (value.result.result != null) {
                   emit(
                     value.result.result!.fold(
-                      (error) => stateFromCode(error),
                       (userProfile) => state.copyWith(
                         isSubmitting: false,
-                        successOrFail: some(left(userProfile)),
+                        successOrFail: FlowyResult.success(userProfile),
                       ),
+                      (error) => stateFromCode(error),
                     ),
                   );
                 }
@@ -108,9 +108,9 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
             emit(
               state.copyWith(
                 isSubmitting: false,
-                emailError: none(),
-                passwordError: none(),
-                successOrFail: none(),
+                emailError: null,
+                passwordError: null,
+                successOrFail: null,
               ),
             );
           },
@@ -129,11 +129,11 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
     );
     emit(
       result.fold(
-        (error) => stateFromCode(error),
         (userProfile) => state.copyWith(
           isSubmitting: false,
-          successOrFail: some(left(userProfile)),
+          successOrFail: FlowyResult.success(userProfile),
         ),
+        (error) => stateFromCode(error),
       ),
     );
   }
@@ -146,9 +146,9 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
     emit(
       state.copyWith(
         isSubmitting: true,
-        emailError: none(),
-        passwordError: none(),
-        successOrFail: none(),
+        emailError: null,
+        passwordError: null,
+        successOrFail: null,
       ),
     );
 
@@ -157,11 +157,11 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
     );
     emit(
       result.fold(
-        (error) => stateFromCode(error),
         (userProfile) => state.copyWith(
           isSubmitting: false,
-          successOrFail: some(left(userProfile)),
+          successOrFail: FlowyResult.success(userProfile),
         ),
+        (error) => stateFromCode(error),
       ),
     );
   }
@@ -174,22 +174,23 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
     emit(
       state.copyWith(
         isSubmitting: true,
-        emailError: none(),
-        passwordError: none(),
-        successOrFail: none(),
+        emailError: null,
+        passwordError: null,
+        successOrFail: null,
       ),
     );
 
     final result = await authService.signInWithMagicLink(
       email: email,
     );
+
     emit(
       result.fold(
-        (error) => stateFromCode(error),
         (userProfile) => state.copyWith(
           isSubmitting: false,
-          successOrFail: some(left(userProfile)),
+          successOrFail: FlowyResult.success(userProfile),
         ),
+        (error) => stateFromCode(error),
       ),
     );
   }
@@ -201,20 +202,20 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
     emit(
       state.copyWith(
         isSubmitting: true,
-        emailError: none(),
-        passwordError: none(),
-        successOrFail: none(),
+        emailError: null,
+        passwordError: null,
+        successOrFail: null,
       ),
     );
 
     final result = await authService.signUpAsGuest();
     emit(
       result.fold(
-        (error) => stateFromCode(error),
         (userProfile) => state.copyWith(
           isSubmitting: false,
-          successOrFail: some(left(userProfile)),
+          successOrFail: FlowyResult.success(userProfile),
         ),
+        (error) => stateFromCode(error),
       ),
     );
   }
@@ -224,19 +225,19 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
       case ErrorCode.EmailFormatInvalid:
         return state.copyWith(
           isSubmitting: false,
-          emailError: some(error.msg),
-          passwordError: none(),
+          emailError: error.msg,
+          passwordError: null,
         );
       case ErrorCode.PasswordFormatInvalid:
         return state.copyWith(
           isSubmitting: false,
-          passwordError: some(error.msg),
-          emailError: none(),
+          passwordError: error.msg,
+          emailError: null,
         );
       default:
         return state.copyWith(
           isSubmitting: false,
-          successOrFail: some(right(error)),
+          successOrFail: FlowyResult.failure(error),
         );
     }
   }
@@ -264,15 +265,15 @@ class SignInState with _$SignInState {
     String? email,
     String? password,
     required bool isSubmitting,
-    required Option<String> passwordError,
-    required Option<String> emailError,
-    required Option<Either<UserProfilePB, FlowyError>> successOrFail,
+    required String? passwordError,
+    required String? emailError,
+    required FlowyResult<UserProfilePB, FlowyError>? successOrFail,
   }) = _SignInState;
 
-  factory SignInState.initial() => SignInState(
+  factory SignInState.initial() => const SignInState(
         isSubmitting: false,
-        passwordError: none(),
-        emailError: none(),
-        successOrFail: none(),
+        passwordError: null,
+        emailError: null,
+        successOrFail: null,
       );
 }
