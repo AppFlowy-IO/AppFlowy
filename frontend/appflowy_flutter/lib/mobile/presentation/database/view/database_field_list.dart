@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_option_tile.dart';
 import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
@@ -62,9 +63,6 @@ class _MobileDatabaseFieldListBody extends StatelessWidget {
             return const SizedBox.shrink();
           }
 
-          final mediaQuery = MediaQuery.of(context);
-          final bottomPadding = mediaQuery.viewPadding.bottom +
-              (mediaQuery.padding.bottom == 0 ? 28.0 : 16.0);
           final fields = [...state.fieldContexts];
           final firstField = fields.removeAt(0);
           final firstCell = DatabaseFieldListTile(
@@ -128,10 +126,16 @@ class _MobileDatabaseFieldListBody extends StatelessWidget {
                     children: [
                       _divider(),
                       _NewDatabaseFieldTile(viewId: viewId),
-                      VSpace(bottomPadding),
+                      VSpace(
+                        context.bottomSheetPadding(
+                          ignoreViewPadding: false,
+                        ),
+                      ),
                     ],
                   )
-                : VSpace(bottomPadding),
+                : VSpace(
+                    context.bottomSheetPadding(ignoreViewPadding: false),
+                  ),
             itemCount: cells.length,
             itemBuilder: (context, index) => cells[index],
           );

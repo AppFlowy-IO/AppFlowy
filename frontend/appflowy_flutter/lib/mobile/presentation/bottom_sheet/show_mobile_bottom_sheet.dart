@@ -3,6 +3,24 @@ import 'package:appflowy/plugins/base/drag_handler.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart' hide WidgetBuilder;
 import 'package:flutter/material.dart';
 
+extension BottomSheetPaddingExtension on BuildContext {
+  /// Calculates the total amount of space that should be added to the bottom of
+  /// a bottom sheet
+  double bottomSheetPadding({
+    bool ignoreViewPadding = true,
+  }) {
+    final mediaQuery = MediaQuery.of(this);
+    double bottom = 0.0;
+    if (!ignoreViewPadding) {
+      bottom += mediaQuery.viewPadding.bottom;
+    }
+    // for screens with 0 view padding, add some even more space
+    bottom += mediaQuery.viewPadding.bottom == 0 ? 28.0 : 16.0;
+    bottom += mediaQuery.viewInsets.bottom;
+    return bottom;
+  }
+}
+
 Future<T?> showMobileBottomSheet<T>(
   BuildContext context, {
   required WidgetBuilder builder,
@@ -120,12 +138,11 @@ Future<T?> showMobileBottomSheet<T>(
       }
 
       // ----- content area -----
-      // make sure the keyboard won't cover the content
+      // add content padding and extra bottom padding
       children.add(
         Padding(
-          padding: padding.copyWith(
-            bottom: padding.bottom + MediaQuery.of(context).viewInsets.bottom,
-          ),
+          padding:
+              padding + EdgeInsets.only(bottom: context.bottomSheetPadding()),
           child: child,
         ),
       );
@@ -134,13 +151,6 @@ Future<T?> showMobileBottomSheet<T>(
       if (children.length == 1) {
         return children.first;
       }
-
-      // add default padding
-      // for full screen bottom sheet, the padding should be 16.0
-      // for non full screen bottom sheet, the padding should be 28.0
-      children.add(
-        VSpace(MediaQuery.of(context).padding.bottom == 0 ? 28.0 : 16.0),
-      );
 
       return useSafeArea
           ? SafeArea(
