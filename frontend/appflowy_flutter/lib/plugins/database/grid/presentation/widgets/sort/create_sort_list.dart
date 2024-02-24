@@ -4,7 +4,6 @@ import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/grid/application/sort/sort_editor_bloc.dart';
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/util/field_type_extension.dart';
-import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
@@ -27,10 +26,9 @@ class CreateDatabaseViewSortList extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<SortEditorBloc, SortEditorState>(
       builder: (context, state) {
+        final filter = state.filter.toLowerCase();
         final cells = state.creatableFields
-            .where(
-          (field) => equalsIgnoreAsciiCase(field.field.name, state.filter),
-        )
+            .where((field) => field.field.name.toLowerCase().contains(filter))
             .map((fieldInfo) {
           return GridSortPropertyCell(
             fieldInfo: fieldInfo,
