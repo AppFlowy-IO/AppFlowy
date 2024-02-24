@@ -480,7 +480,11 @@ class _MoreOptionsState extends State<_MoreOptions> {
   Widget _buildDeleteButton(BuildContext context) {
     return FlowyOptionTile.text(
       text: LocaleKeys.button_delete.tr(),
-      leftIcon: const FlowySvg(FlowySvgs.m_delete_s),
+      textColor: Theme.of(context).colorScheme.error,
+      leftIcon: FlowySvg(
+        FlowySvgs.m_delete_s,
+        color: Theme.of(context).colorScheme.error,
+      ),
       onTap: widget.onDelete,
     );
   }
