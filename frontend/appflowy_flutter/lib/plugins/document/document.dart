@@ -6,12 +6,12 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
 import 'package:appflowy/plugins/document/document_page.dart';
-import 'package:appflowy/plugins/document/presentation/favorite/favorite_button.dart';
 import 'package:appflowy/plugins/document/presentation/share/share_button.dart';
 import 'package:appflowy/plugins/util.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/workspace/application/view_info/view_info_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
+import 'package:appflowy/workspace/presentation/widgets/favorite_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/more_view_actions/more_view_actions.dart';
 import 'package:appflowy/workspace/presentation/widgets/tab_bar_item.dart';
 import 'package:appflowy/workspace/presentation/widgets/view_title_bar.dart';
@@ -140,7 +140,7 @@ class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
         children: [
           DocumentShareButton(key: ValueKey(view.id), view: view),
           const HSpace(4),
-          DocumentFavoriteButton(
+          ViewFavoriteButton(
             key: ValueKey('favorite_button_${view.id}'),
             view: view,
           ),
