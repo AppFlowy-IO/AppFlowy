@@ -1,7 +1,6 @@
 use std::str::FromStr;
 use std::sync::Arc;
 
-use collab::core::any_map::AnyMapExtension;
 use collab_database::fields::Field;
 use collab_database::rows::{Row, RowCell};
 use flowy_error::FlowyResult;
