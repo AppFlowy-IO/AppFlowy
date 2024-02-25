@@ -30,8 +30,7 @@ class CustomLinkPreviewWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fontSize = PlatformExtension.isDesktopOrWeb ? 16.0 : 14.0;
-    final width = PlatformExtension.isDesktopOrWeb ? 180.0 : 120.0;
+    final (fontSize, width) = PlatformExtension.isDesktopOrWeb ? (16.0, 180.0) : (14.0, 120.0);
     final Widget child = Container(
       clipBehavior: Clip.hardEdge,
       decoration: BoxDecoration(
