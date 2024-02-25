@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/block_menu/block_menu_button.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
@@ -43,17 +44,44 @@ class _LinkPreviewMenuState extends State<LinkPreviewMenu> {
       child: Row(
         children: [
           const HSpace(4),
-          _CopyLinkButton(
+          MenuBlockButton(
+            tooltip: LocaleKeys.document_plugins_urlPreview_convertToLink.tr(),
+            iconData: FlowySvgs.m_aa_link_s,
+            onTap: convertToLink,
+          ),
+          const HSpace(4),
+          MenuBlockButton(
+            tooltip: LocaleKeys.editor_copyLink.tr(),
+            iconData: FlowySvgs.copy_s,
             onTap: copyImageLink,
           ),
           const _Divider(),
-          _DeleteButton(
+          MenuBlockButton(
+            tooltip: LocaleKeys.button_delete.tr(),
+            iconData: FlowySvgs.delete_s,
             onTap: deleteLinkPreviewNode,
           ),
           const HSpace(4),
         ],
       ),
     );
+  }
+
+  void convertToLink() {
+    final node = widget.node;
+    final url = node.attributes[ImageBlockKeys.url];
+    final editorState = context.read<EditorState>();
+    final transaction = editorState.transaction;
+    transaction
+      ..insertNode(node.path, paragraphNode(text: url))
+      ..deleteNode(widget.node);
+    transaction.afterSelection = Selection.collapsed(
+      Position(
+        path: node.path,
+        offset: url.length,
+      ),
+    );
+    editorState.apply(transaction);
   }
 
   void copyImageLink() {
@@ -74,44 +102,6 @@ class _LinkPreviewMenuState extends State<LinkPreviewMenu> {
     transaction.deleteNode(node);
     transaction.afterSelection = null;
     await editorState.apply(transaction);
-  }
-}
-
-class _CopyLinkButton extends StatelessWidget {
-  const _CopyLinkButton({
-    required this.onTap,
-  });
-
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      child: const FlowySvg(
-        FlowySvgs.copy_s,
-        size: Size.square(16),
-      ),
-    );
-  }
-}
-
-class _DeleteButton extends StatelessWidget {
-  const _DeleteButton({
-    required this.onTap,
-  });
-
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      child: const FlowySvg(
-        FlowySvgs.delete_s,
-        size: Size.square(16),
-      ),
-    );
   }
 }
 

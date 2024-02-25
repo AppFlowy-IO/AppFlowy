@@ -790,7 +790,8 @@
         "imageUploadFailed": "Image upload failed"
       },
       "urlPreview": {
-        "copiedToPasteBoard": "The link has been copied to the clipboard"
+        "copiedToPasteBoard": "The link has been copied to the clipboard",
+        "convertToLink": "Convert to embed link"
       },
       "outline": {
         "addHeadingToCreateOutline": "Add headings to create a table of contents.",
