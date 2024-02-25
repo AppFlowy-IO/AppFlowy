@@ -2,11 +2,9 @@ import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/view_info/view_info_bloc.dart';
-import 'package:appflowy/workspace/presentation/widgets/more_view_actions/widgets/delete_view_action.dart';
-import 'package:appflowy/workspace/presentation/widgets/more_view_actions/widgets/duplicate_view_action.dart';
+import 'package:appflowy/workspace/presentation/widgets/more_view_actions/widgets/common_view_action.dart';
 import 'package:appflowy/workspace/presentation/widgets/more_view_actions/widgets/font_size_action.dart';
 import 'package:appflowy/workspace/presentation/widgets/more_view_actions/widgets/view_meta_info.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -36,6 +34,7 @@ class MoreViewActions extends StatefulWidget {
 }
 
 class _MoreViewActionsState extends State<MoreViewActions> {
+  late final List<Widget> viewActions;
   late final UserDateFormatPB dateFormat;
   final popoverMutex = PopoverMutex();
 
@@ -43,6 +42,15 @@ class _MoreViewActionsState extends State<MoreViewActions> {
   void initState() {
     super.initState();
     dateFormat = context.read<AppearanceSettingsCubit>().state.dateFormat;
+    viewActions = ViewActionType.values
+        .map(
+          (type) => ViewAction(
+            type: type,
+            view: widget.view,
+            mutex: popoverMutex,
+          ),
+        )
+        .toList();
   }
 
   @override
@@ -53,61 +61,59 @@ class _MoreViewActionsState extends State<MoreViewActions> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider.value(
-      value: getIt<ViewInfoBloc>(),
-      child: BlocBuilder<ViewInfoBloc, ViewInfoState>(
-        builder: (context, state) {
-          return AppFlowyPopover(
-            mutex: popoverMutex,
-            constraints: BoxConstraints.loose(const Size(200, 400)),
-            offset: const Offset(0, 30),
-            popupBuilder: (_) {
-              final actions = [
-                if (widget.isDocument) ...[
-                  const FontSizeAction(),
-                  const Divider(height: 4),
-                ],
-                DuplicateViewAction(view: widget.view, mutex: popoverMutex),
-                DeleteViewAction(view: widget.view, mutex: popoverMutex),
+    return BlocBuilder<ViewInfoBloc, ViewInfoState>(
+      builder: (context, state) {
+        return AppFlowyPopover(
+          mutex: popoverMutex,
+          constraints: BoxConstraints.loose(const Size(200, 400)),
+          offset: const Offset(0, 30),
+          popupBuilder: (_) {
+            final actions = [
+              if (widget.isDocument) ...[
+                const FontSizeAction(),
+                const Divider(height: 4),
+              ],
+              ...viewActions,
+              if (state.documentCounters != null ||
+                  state.createdAt != null) ...[
                 const Divider(height: 4),
                 ViewMetaInfo(
                   dateFormat: dateFormat,
                   documentCounters: state.documentCounters,
                   createdAt: state.createdAt,
                 ),
-              ];
+              ],
+            ];
 
-              return ListView.separated(
-                shrinkWrap: true,
-                padding: EdgeInsets.zero,
-                itemCount: actions.length,
-                separatorBuilder: (_, __) => const VSpace(4),
-                physics: StyledScrollPhysics(),
-                itemBuilder: (_, index) => actions[index],
-              );
-            },
-            child: FlowyTooltip(
-              message: LocaleKeys.moreAction_moreOptions.tr(),
-              child: FlowyHover(
-                style: HoverStyle(
-                  foregroundColorOnHover:
-                      Theme.of(context).colorScheme.onPrimary,
-                ),
-                builder: (context, isHovering) => Padding(
-                  padding: const EdgeInsets.all(6),
-                  child: FlowySvg(
-                    FlowySvgs.details_s,
-                    size: const Size(18, 18),
-                    color: isHovering
-                        ? Theme.of(context).colorScheme.onPrimary
-                        : Theme.of(context).iconTheme.color,
-                  ),
+            return ListView.separated(
+              shrinkWrap: true,
+              padding: EdgeInsets.zero,
+              itemCount: actions.length,
+              separatorBuilder: (_, __) => const VSpace(4),
+              physics: StyledScrollPhysics(),
+              itemBuilder: (_, index) => actions[index],
+            );
+          },
+          child: FlowyTooltip(
+            message: LocaleKeys.moreAction_moreOptions.tr(),
+            child: FlowyHover(
+              style: HoverStyle(
+                foregroundColorOnHover: Theme.of(context).colorScheme.onPrimary,
+              ),
+              builder: (context, isHovering) => Padding(
+                padding: const EdgeInsets.all(6),
+                child: FlowySvg(
+                  FlowySvgs.details_s,
+                  size: const Size(18, 18),
+                  color: isHovering
+                      ? Theme.of(context).colorScheme.onPrimary
+                      : Theme.of(context).iconTheme.color,
                 ),
               ),
             ),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 }

@@ -15,7 +15,6 @@ import 'package:appflowy/workspace/application/settings/appearance/appearance_cu
 import 'package:appflowy/workspace/application/settings/notifications/notification_settings_cubit.dart';
 import 'package:appflowy/workspace/application/sidebar/rename_view/rename_view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
-import 'package:appflowy/workspace/application/view_info/view_info_bloc.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
@@ -153,9 +152,6 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
         BlocProvider.value(value: getIt<NotificationActionBloc>()),
         BlocProvider.value(
           value: getIt<ReminderBloc>()..add(const ReminderEvent.started()),
-        ),
-        BlocProvider<ViewInfoBloc>(
-          create: (_) => getIt<ViewInfoBloc>(),
         ),
       ],
       child: BlocListener<NotificationActionBloc, NotificationActionState>(

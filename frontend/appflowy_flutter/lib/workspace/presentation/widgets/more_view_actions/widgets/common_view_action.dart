@@ -11,6 +11,60 @@ import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 
+enum ViewActionType {
+  delete,
+  duplicate;
+
+  String get label => switch (this) {
+        ViewActionType.delete => LocaleKeys.moreAction_deleteView.tr(),
+        ViewActionType.duplicate => LocaleKeys.moreAction_duplicateView.tr(),
+      };
+
+  FlowySvgData get icon => switch (this) {
+        ViewActionType.delete => FlowySvgs.delete_s,
+        ViewActionType.duplicate => FlowySvgs.m_duplicate_s,
+      };
+
+  ViewEvent get actionEvent => switch (this) {
+        ViewActionType.delete => const ViewEvent.delete(),
+        ViewActionType.duplicate => const ViewEvent.duplicate(),
+      };
+}
+
+class ViewAction extends StatelessWidget {
+  const ViewAction({
+    super.key,
+    required this.type,
+    required this.view,
+    this.mutex,
+  });
+
+  final ViewActionType type;
+  final ViewPB view;
+  final PopoverMutex? mutex;
+
+  @override
+  Widget build(BuildContext context) {
+    return FlowyButton(
+      onTap: () {
+        getIt<ViewBloc>(param1: view).add(type.actionEvent);
+        mutex?.close();
+      },
+      text: FlowyText.regular(
+        type.label,
+        color: AFThemeExtension.of(context).textColor,
+      ),
+      leftIcon: FlowySvg(
+        type.icon,
+        color: Theme.of(context).iconTheme.color,
+        size: const Size.square(18),
+      ),
+      leftIconSize: const Size(18, 18),
+      hoverColor: AFThemeExtension.of(context).lightGreyHover,
+    );
+  }
+}
+
 class DeleteViewAction extends StatelessWidget {
   const DeleteViewAction({super.key, required this.view, this.mutex});
 

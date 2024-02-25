@@ -15,7 +15,6 @@ import 'package:appflowy/plugins/inline_actions/handlers/inline_page_reference.d
 import 'package:appflowy/plugins/inline_actions/handlers/reminder_reference.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_command.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_service.dart';
-import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_service.dart';
 import 'package:appflowy/workspace/application/view_info/view_info_bloc.dart';
@@ -179,6 +178,8 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
 
   late final EditorScrollController editorScrollController;
 
+  late final ViewInfoBloc viewInfoBloc = context.read<ViewInfoBloc>();
+
   Future<bool> showSlashMenu(editorState) async => customSlashCommand(
         slashMenuItems,
         shouldInsertSlash: false,
@@ -189,8 +190,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   void initState() {
     super.initState();
 
-    // Register EditorState in ViewInfoBloc
-    getIt<ViewInfoBloc>().add(
+    viewInfoBloc.add(
       ViewInfoEvent.registerEditorState(
         editorState: widget.editorState,
       ),
@@ -234,7 +234,9 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
 
   @override
   void dispose() {
-    getIt<ViewInfoBloc>().add(const ViewInfoEvent.unregisterEditorState());
+    if (!viewInfoBloc.isClosed) {
+      viewInfoBloc.add(const ViewInfoEvent.unregisterEditorState());
+    }
 
     SystemChannels.textInput.invokeMethod('TextInput.hide');
 

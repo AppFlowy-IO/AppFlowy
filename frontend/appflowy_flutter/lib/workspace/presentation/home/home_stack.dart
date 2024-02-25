@@ -176,6 +176,7 @@ class PageNotifier extends ChangeNotifier {
   /// No need compare the old plugin with the new plugin. Just set it.
   set plugin(Plugin newPlugin) {
     _plugin.dispose();
+    newPlugin.init();
 
     /// Set the plugin view as the latest view.
     FolderEventSetLatestView(ViewIdPB(value: newPlugin.id)).send();
