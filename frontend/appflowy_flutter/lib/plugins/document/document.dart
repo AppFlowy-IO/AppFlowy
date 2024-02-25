@@ -4,14 +4,14 @@ import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
 import 'package:appflowy/plugins/document/document_page.dart';
 import 'package:appflowy/plugins/document/presentation/favorite/favorite_button.dart';
-import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
-import 'package:appflowy/plugins/document/presentation/more/more_button.dart';
 import 'package:appflowy/plugins/document/presentation/share/share_button.dart';
 import 'package:appflowy/plugins/util.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
+import 'package:appflowy/workspace/presentation/widgets/more_view_actions/more_view_actions.dart';
 import 'package:appflowy/workspace/presentation/widgets/tab_bar_item.dart';
 import 'package:appflowy/workspace/presentation/widgets/view_title_bar.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -127,7 +127,7 @@ class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
           view: view,
         ),
         const HSpace(4),
-        DocumentMoreButton(view: view),
+        MoreViewActions(view: view),
       ],
     );
   }

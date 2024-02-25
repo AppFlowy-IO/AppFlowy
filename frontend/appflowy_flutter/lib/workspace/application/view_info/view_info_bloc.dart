@@ -17,13 +17,12 @@ class ViewInfoBloc extends Bloc<ViewInfoEvent, ViewInfoState> {
 
     on<ViewInfoEvent>((event, emit) {
       event.when(
-        started: () {},
-        registerEditorState: (editorState) {
-          if (_wordCountService != null) {
-            _wordCountService!.removeListener(_onWordCountChanged);
-            _wordCountService!.dispose();
-          }
+        unregisterEditorState: () {
+          _clearWordCountService();
 
+          emit(state.copyWith(documentCounters: null));
+        },
+        registerEditorState: (editorState) {
           _wordCountService = WordCountService(editorState: editorState);
           _wordCountService!.addListener(_onWordCountChanged);
           _wordCountService!.register();
@@ -35,12 +34,10 @@ class ViewInfoBloc extends Bloc<ViewInfoEvent, ViewInfoState> {
           );
         },
         reset: (ViewPB? view) {
-          _wordCountService?.removeListener(_onWordCountChanged);
-          _wordCountService?.dispose();
-          _wordCountService = null;
+          _clearWordCountService();
 
           final createdAt = view?.createTime.toDateTime();
-          emit(ViewInfoState.initial().copyWith(createdAt: createdAt));
+          emit(ViewInfoState.withoutCounters(createdAt: createdAt));
         },
         wordCountChanged: () {
           emit(
@@ -74,11 +71,17 @@ class ViewInfoBloc extends Bloc<ViewInfoEvent, ViewInfoState> {
   void _onWordCountChanged() {
     add(const ViewInfoEvent.wordCountChanged());
   }
+
+  void _clearWordCountService() {
+    _wordCountService?.removeListener(_onWordCountChanged);
+    _wordCountService?.dispose();
+    _wordCountService = null;
+  }
 }
 
 @freezed
 class ViewInfoEvent with _$ViewInfoEvent {
-  const factory ViewInfoEvent.started() = _Started;
+  const factory ViewInfoEvent.unregisterEditorState() = _UnregisterEditorState;
 
   const factory ViewInfoEvent.registerEditorState({
     required EditorState editorState,
@@ -95,13 +98,12 @@ class ViewInfoEvent with _$ViewInfoEvent {
 class ViewInfoState with _$ViewInfoState {
   const factory ViewInfoState({
     required Counters? documentCounters,
-    required DateTime? lastModifiedAt,
     required DateTime? createdAt,
   }) = _ViewInfoState;
 
-  factory ViewInfoState.initial() => const ViewInfoState(
-        documentCounters: null,
-        lastModifiedAt: null,
-        createdAt: null,
-      );
+  factory ViewInfoState.initial() =>
+      const ViewInfoState(documentCounters: null, createdAt: null);
+
+  factory ViewInfoState.withoutCounters({DateTime? createdAt}) =>
+      ViewInfoState(documentCounters: null, createdAt: createdAt);
 }

@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/application/tab_bar_bloc.dart';
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
-import 'package:appflowy/plugins/database/tab_bar/desktop/more_action_button.dart';
 import 'package:appflowy/plugins/database/widgets/share_button.dart';
 import 'package:appflowy/plugins/util.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
+import 'package:appflowy/workspace/presentation/widgets/more_view_actions/more_view_actions.dart';
 import 'package:appflowy/workspace/presentation/widgets/tab_bar_item.dart';
 import 'package:appflowy/workspace/presentation/widgets/view_title_bar.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -248,7 +248,7 @@ class DatabasePluginWidgetBuilder extends PluginWidgetBuilder {
           view: notifier.view,
         ),
         const HSpace(4),
-        DatabaseMoreAction(view: notifier.view),
+        MoreViewActions(view: notifier.view),
       ],
     );
   }

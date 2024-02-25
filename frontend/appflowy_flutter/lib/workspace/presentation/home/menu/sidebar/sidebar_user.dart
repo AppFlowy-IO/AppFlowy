@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
+import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/workspace/application/menu/menu_user_bloc.dart';
