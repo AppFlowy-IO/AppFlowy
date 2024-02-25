@@ -225,23 +225,23 @@ impl CalculationsController {
   }
 
   async fn handle_row_changed(&self, row: Row) {
-    let cells = row.cells.iter();    
+    let cells = row.cells.iter();
     let mut updates = vec![];
-    
+
     // Iterate each cell in the row
     for cell in cells {
       let field_id = cell.0;
       let calculation = self.delegate.get_calculation(&self.view_id, field_id).await;
       if let Some(calculation) = calculation {
         let update = self.get_updated_calculation(calculation.clone()).await;
-        
+
         if let Some(update) = update {
           updates.push(CalculationPB::from(&update));
           self.delegate.update_calculation(&self.view_id, update);
         }
       }
     }
-    
+
     if !updates.is_empty() {
       let notification = CalculationChangesetNotificationPB::from_update(&self.view_id, updates);
 
@@ -264,10 +264,10 @@ impl CalculationsController {
       return Some(calculation.with_value(String::new()));
     } else {
       let value =
-      self
-      .calculations_service
-      .calculate(&field, calculation.calculation_type, field_cells);
-    
+        self
+          .calculations_service
+          .calculate(&field, calculation.calculation_type, field_cells);
+
       if value != calculation.value {
         return Some(calculation.with_value(value));
       }
