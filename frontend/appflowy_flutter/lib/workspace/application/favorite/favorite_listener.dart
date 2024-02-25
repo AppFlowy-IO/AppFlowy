@@ -6,11 +6,11 @@ import 'package:appflowy_backend/protobuf/flowy-folder/notification.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-notification/subject.pb.dart';
 import 'package:appflowy_backend/rust_stream.dart';
-import 'package:dartz/dartz.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flutter/foundation.dart';
 
 typedef FavoriteUpdated = void Function(
-  Either<FlowyError, RepeatedViewPB> result,
+  FlowyResult<RepeatedViewPB, FlowyError> result,
   bool isFavorite,
 );
 
@@ -35,7 +35,7 @@ class FavoriteListener {
 
   void _observableCallback(
     FolderNotification ty,
-    Either<Uint8List, FlowyError> result,
+    FlowyResult<Uint8List, FlowyError> result,
   ) {
     if (_favoriteUpdated == null) {
       return;
@@ -46,12 +46,12 @@ class FavoriteListener {
       (payload) {
         final view = RepeatedViewPB.fromBuffer(payload);
         _favoriteUpdated!(
-          right(view),
+          FlowyResult.success(view),
           isFavorite,
         );
       },
       (error) => _favoriteUpdated!(
-        left(error),
+        FlowyResult.failure(error),
         isFavorite,
       ),
     );

@@ -3,10 +3,10 @@ import 'dart:typed_data';
 import 'package:appflowy/core/notification/grid_notification.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:dartz/dartz.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flowy_infra/notifier.dart';
 
-typedef FieldSettingsValue = Either<FieldSettingsPB, FlowyError>;
+typedef FieldSettingsValue = FlowyResult<FieldSettingsPB, FlowyError>;
 
 class FieldSettingsListener {
   FieldSettingsListener({required this.viewId});
@@ -29,14 +29,14 @@ class FieldSettingsListener {
 
   void _handler(
     DatabaseNotification ty,
-    Either<Uint8List, FlowyError> result,
+    FlowyResult<Uint8List, FlowyError> result,
   ) {
     switch (ty) {
       case DatabaseNotification.DidUpdateFieldSettings:
         result.fold(
           (payload) => _fieldSettingsNotifier?.value =
-              left(FieldSettingsPB.fromBuffer(payload)),
-          (error) => _fieldSettingsNotifier?.value = right(error),
+              FlowyResult.success(FieldSettingsPB.fromBuffer(payload)),
+          (error) => _fieldSettingsNotifier?.value = FlowyResult.failure(error),
         );
         break;
       default:

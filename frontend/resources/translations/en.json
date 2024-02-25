@@ -786,13 +786,15 @@
       },
       "image": {
         "copiedToPasteBoard": "The image link has been copied to the clipboard",
-        "addAnImage": "Add an image"
+        "addAnImage": "Add an image",
+        "imageUploadFailed": "Image upload failed"
       },
       "urlPreview": {
         "copiedToPasteBoard": "The link has been copied to the clipboard"
       },
       "outline": {
-        "addHeadingToCreateOutline": "Add headings to create a table of contents."
+        "addHeadingToCreateOutline": "Add headings to create a table of contents.",
+        "noMatchHeadings": "No matching headings found."
       },
       "table": {
         "addAfter": "Add after",

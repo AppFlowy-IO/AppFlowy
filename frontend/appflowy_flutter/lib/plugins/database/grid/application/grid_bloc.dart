@@ -9,7 +9,7 @@ import 'package:appflowy/plugins/database/grid/presentation/widgets/sort/sort_in
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
-import 'package:dartz/dartz.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -65,7 +65,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
             databaseController.moveRow(fromRowId: fromRow, toRowId: toRow);
           },
           didReceiveGridUpdate: (grid) {
-            emit(state.copyWith(grid: Some(grid)));
+            emit(state.copyWith(grid: grid));
           },
           didReceiveFieldUpdate: (fields) {
             emit(
@@ -147,11 +147,15 @@ class GridBloc extends Bloc<GridEvent, GridState> {
       (grid) {
         databaseController.setIsLoading(false);
         emit(
-          state.copyWith(loadingState: LoadingState.finish(left(unit))),
+          state.copyWith(
+            loadingState: LoadingState.finish(FlowyResult.success(null)),
+          ),
         );
       },
       (err) => emit(
-        state.copyWith(loadingState: LoadingState.finish(right(err))),
+        state.copyWith(
+          loadingState: LoadingState.finish(FlowyResult.failure(err)),
+        ),
       ),
     );
   }
@@ -186,7 +190,7 @@ class GridEvent with _$GridEvent {
 class GridState with _$GridState {
   const factory GridState({
     required String viewId,
-    required Option<DatabasePB> grid,
+    required DatabasePB? grid,
     required List<FieldInfo> fields,
     required List<RowInfo> rowInfos,
     required int rowCount,
@@ -204,7 +208,7 @@ class GridState with _$GridState {
         rowInfos: [],
         rowCount: 0,
         createdRow: null,
-        grid: none(),
+        grid: null,
         viewId: viewId,
         reorderable: true,
         loadingState: const LoadingState.loading(),

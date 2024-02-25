@@ -15,8 +15,8 @@ import 'package:appflowy/plugins/database/grid/presentation/widgets/sort/sort_in
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:collection/collection.dart';
-import 'package:dartz/dartz.dart';
 import 'package:flutter/foundation.dart';
 
 import '../setting/setting_service.dart';
@@ -376,7 +376,7 @@ class FieldController {
     );
   }
 
-  /// Listen for databse setting changes in the backend.
+  /// Listen for database setting changes in the backend.
   void _listenOnSettingChanges() {
     _settingListener.start(
       onSettingUpdated: (result) {
@@ -575,7 +575,7 @@ class FieldController {
   }
 
   /// Load all of the fields. This is required when opening the database
-  Future<Either<Unit, FlowyError>> loadFields({
+  Future<FlowyResult<void, FlowyError>> loadFields({
     required List<FieldIdPB> fieldIds,
   }) async {
     final result = await _databaseViewBackendSvc.getFields(fieldIds: fieldIds);
@@ -583,7 +583,7 @@ class FieldController {
       () => result.fold(
         (newFields) async {
           if (_isDisposed) {
-            return left(unit);
+            return FlowyResult.success(null);
           }
 
           _fieldNotifier.fieldInfos =
@@ -596,54 +596,54 @@ class FieldController {
           ]);
           _updateFieldInfos();
 
-          return left(unit);
+          return FlowyResult.success(null);
         },
-        (err) => right(err),
+        (err) => FlowyResult.failure(err),
       ),
     );
   }
 
   /// Load all the filters from the backend. Required by `loadFields`
-  Future<Either<Unit, FlowyError>> _loadFilters() async {
+  Future<FlowyResult<void, FlowyError>> _loadFilters() async {
     return _filterBackendSvc.getAllFilters().then((result) {
       return result.fold(
         (filterPBs) {
           _filterNotifier?.filters = _filterInfoListFromPBs(filterPBs);
-          return left(unit);
+          return FlowyResult.success(null);
         },
-        (err) => right(err),
+        (err) => FlowyResult.failure(err),
       );
     });
   }
 
   /// Load all the sorts from the backend. Required by `loadFields`
-  Future<Either<Unit, FlowyError>> _loadSorts() async {
+  Future<FlowyResult<void, FlowyError>> _loadSorts() async {
     return _sortBackendSvc.getAllSorts().then((result) {
       return result.fold(
         (sortPBs) {
           _sortNotifier?.sorts = _sortInfoListFromPBs(sortPBs);
-          return left(unit);
+          return FlowyResult.success(null);
         },
-        (err) => right(err),
+        (err) => FlowyResult.failure(err),
       );
     });
   }
 
   /// Load all the field settings from the backend. Required by `loadFields`
-  Future<Either<Unit, FlowyError>> _loadAllFieldSettings() async {
+  Future<FlowyResult<void, FlowyError>> _loadAllFieldSettings() async {
     return _fieldSettingsBackendSvc.getAllFieldSettings().then((result) {
       return result.fold(
         (fieldSettingsList) {
           _fieldSettings.clear();
           _fieldSettings.addAll(fieldSettingsList);
-          return left(unit);
+          return FlowyResult.success(null);
         },
-        (err) => right(err),
+        (err) => FlowyResult.failure(err),
       );
     });
   }
 
-  Future<Either<Unit, FlowyError>> _loadSettings() async {
+  Future<FlowyResult<void, FlowyError>> _loadSettings() async {
     return SettingBackendService(viewId: viewId).getSetting().then(
           (result) => result.fold(
             (setting) {
@@ -652,9 +652,9 @@ class FieldController {
                 _groupConfigurationByFieldId[configuration.fieldId] =
                     configuration;
               }
-              return left(unit);
+              return FlowyResult.success(null);
             },
-            (err) => right(err),
+            (err) => FlowyResult.failure(err),
           ),
         );
   }

@@ -2,7 +2,7 @@ import 'package:appflowy/env/backend_env.dart';
 import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:dartz/dartz.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -19,7 +19,7 @@ class AppFlowyCloudURLsBloc
           emit(
             state.copyWith(
               updatedServerUrl: url,
-              urlError: none(),
+              urlError: null,
               showRestartHint: url.isNotEmpty,
             ),
           );
@@ -29,9 +29,8 @@ class AppFlowyCloudURLsBloc
             emit(
               state.copyWith(
                 updatedServerUrl: "",
-                urlError: Some(
-                  LocaleKeys.settings_menu_appFlowyCloudUrlCanNotBeEmpty.tr(),
-                ),
+                urlError:
+                    LocaleKeys.settings_menu_appFlowyCloudUrlCanNotBeEmpty.tr(),
                 restartApp: false,
               ),
             );
@@ -41,14 +40,14 @@ class AppFlowyCloudURLsBloc
                 await useSelfHostedAppFlowyCloudWithURL(url);
                 add(const AppFlowyCloudURLsEvent.didSaveConfig());
               },
-              (err) => emit(state.copyWith(urlError: Some(err))),
+              (err) => emit(state.copyWith(urlError: err)),
             );
           }
         },
         didSaveConfig: () {
           emit(
             state.copyWith(
-              urlError: none(),
+              urlError: null,
               restartApp: true,
             ),
           );
@@ -72,14 +71,14 @@ class AppFlowyCloudURLsState with _$AppFlowyCloudURLsState {
   const factory AppFlowyCloudURLsState({
     required AppFlowyCloudConfiguration config,
     required String updatedServerUrl,
-    required Option<String> urlError,
+    required String? urlError,
     required bool restartApp,
     required bool showRestartHint,
   }) = _AppFlowyCloudURLsState;
 
   factory AppFlowyCloudURLsState.initial() => AppFlowyCloudURLsState(
         config: getIt<AppFlowyCloudSharedEnv>().appflowyCloudConfig,
-        urlError: none(),
+        urlError: null,
         updatedServerUrl:
             getIt<AppFlowyCloudSharedEnv>().appflowyCloudConfig.base_url,
         showRestartHint: getIt<AppFlowyCloudSharedEnv>()
@@ -90,17 +89,19 @@ class AppFlowyCloudURLsState with _$AppFlowyCloudURLsState {
       );
 }
 
-Either<String, String> validateUrl(String url) {
+FlowyResult<String, String> validateUrl(String url) {
   try {
     // Use Uri.parse to validate the url.
     final uri = Uri.parse(removeTrailingSlash(url));
     if (uri.isScheme('HTTP') || uri.isScheme('HTTPS')) {
-      return left(uri.toString());
+      return FlowyResult.success(uri.toString());
     } else {
-      return right(LocaleKeys.settings_menu_invalidCloudURLScheme.tr());
+      return FlowyResult.failure(
+        LocaleKeys.settings_menu_invalidCloudURLScheme.tr(),
+      );
     }
   } catch (e) {
-    return right(e.toString());
+    return FlowyResult.failure(e.toString());
   }
 }
 

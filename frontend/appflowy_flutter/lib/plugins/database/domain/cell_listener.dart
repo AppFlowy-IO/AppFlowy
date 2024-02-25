@@ -4,12 +4,12 @@ import 'dart:typed_data';
 import 'package:appflowy/core/notification/grid_notification.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/notification.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:dartz/dartz.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flowy_infra/notifier.dart';
 
 import '../application/row/row_service.dart';
 
-typedef UpdateFieldNotifiedValue = Either<Unit, FlowyError>;
+typedef UpdateFieldNotifiedValue = FlowyResult<void, FlowyError>;
 
 class CellListener {
   CellListener({required this.rowId, required this.fieldId});
@@ -29,12 +29,15 @@ class CellListener {
     );
   }
 
-  void _handler(DatabaseNotification ty, Either<Uint8List, FlowyError> result) {
+  void _handler(
+    DatabaseNotification ty,
+    FlowyResult<Uint8List, FlowyError> result,
+  ) {
     switch (ty) {
       case DatabaseNotification.DidUpdateCell:
         result.fold(
-          (payload) => _updateCellNotifier?.value = left(unit),
-          (error) => _updateCellNotifier?.value = right(error),
+          (payload) => _updateCellNotifier?.value = FlowyResult.success(null),
+          (error) => _updateCellNotifier?.value = FlowyResult.failure(error),
         );
         break;
       default:

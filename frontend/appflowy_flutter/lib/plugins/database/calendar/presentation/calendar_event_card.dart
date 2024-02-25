@@ -145,10 +145,7 @@ class _EventCardState extends State<EventCard> {
       margin: EdgeInsets.zero,
       offset: const Offset(10.0, 0),
       popupBuilder: (BuildContext popoverContext) {
-        final settings = context.watch<CalendarBloc>().state.settings.fold(
-              () => null,
-              (layoutSettings) => layoutSettings,
-            );
+        final settings = context.watch<CalendarBloc>().state.settings;
         if (settings == null) {
           return const SizedBox.shrink();
         }

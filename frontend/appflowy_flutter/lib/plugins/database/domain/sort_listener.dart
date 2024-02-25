@@ -1,13 +1,14 @@
 import 'dart:typed_data';
 
 import 'package:appflowy/core/notification/grid_notification.dart';
-import 'package:flowy_infra/notifier.dart';
-import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/notification.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/sort_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
+import 'package:appflowy_result/appflowy_result.dart';
+import 'package:flowy_infra/notifier.dart';
 
-typedef SortNotifiedValue = Either<SortChangesetNotificationPB, FlowyError>;
+typedef SortNotifiedValue
+    = FlowyResult<SortChangesetNotificationPB, FlowyError>;
 
 class SortsListener {
   SortsListener({required this.viewId});
@@ -29,14 +30,15 @@ class SortsListener {
 
   void _handler(
     DatabaseNotification ty,
-    Either<Uint8List, FlowyError> result,
+    FlowyResult<Uint8List, FlowyError> result,
   ) {
     switch (ty) {
       case DatabaseNotification.DidUpdateSort:
         result.fold(
-          (payload) => _notifier?.value =
-              left(SortChangesetNotificationPB.fromBuffer(payload)),
-          (error) => _notifier?.value = right(error),
+          (payload) => _notifier?.value = FlowyResult.success(
+            SortChangesetNotificationPB.fromBuffer(payload),
+          ),
+          (error) => _notifier?.value = FlowyResult.failure(error),
         );
         break;
       default:

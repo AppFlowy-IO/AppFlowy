@@ -1,14 +1,14 @@
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:dartz/dartz.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 
 class FieldSettingsBackendService {
   FieldSettingsBackendService({required this.viewId});
 
   final String viewId;
 
-  Future<Either<FieldSettingsPB, FlowyError>> getFieldSettings(
+  Future<FlowyResult<FieldSettingsPB, FlowyError>> getFieldSettings(
     String fieldId,
   ) {
     final id = FieldIdPB(fieldId: fieldId);
@@ -25,14 +25,14 @@ class FieldSettingsBackendService {
             fieldSetting.visibility = FieldVisibility.AlwaysShown;
           }
 
-          return left(fieldSetting);
+          return FlowyResult.success(fieldSetting);
         },
-        (r) => right(r),
+        (r) => FlowyResult.failure(r),
       );
     });
   }
 
-  Future<Either<List<FieldSettingsPB>, FlowyError>> getAllFieldSettings() {
+  Future<FlowyResult<List<FieldSettingsPB>, FlowyError>> getAllFieldSettings() {
     final payload = DatabaseViewIdPB()..value = viewId;
 
     return DatabaseEventGetAllFieldSettings(payload).send().then((result) {
@@ -47,14 +47,14 @@ class FieldSettingsBackendService {
             fieldSettings.add(fieldSetting);
           }
 
-          return left(fieldSettings);
+          return FlowyResult.success(fieldSettings);
         },
-        (r) => right(r),
+        (r) => FlowyResult.failure(r),
       );
     });
   }
 
-  Future<Either<Unit, FlowyError>> updateFieldSettings({
+  Future<FlowyResult<void, FlowyError>> updateFieldSettings({
     required String fieldId,
     FieldVisibility? fieldVisibility,
     double? width,

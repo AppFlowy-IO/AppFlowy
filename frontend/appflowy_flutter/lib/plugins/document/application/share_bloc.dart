@@ -4,7 +4,7 @@ import 'package:appflowy/workspace/application/export/document_exporter.dart';
 import 'package:appflowy_backend/protobuf/flowy-document/entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
-import 'package:dartz/dartz.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -28,8 +28,9 @@ class DocShareBloc extends Bloc<DocShareEvent, DocShareState> {
     emit(
       DocShareState.finish(
         result.fold(
-          (error) => right(error),
-          (markdown) => left(_saveMarkdownToPath(markdown, event.path)),
+          (markdown) =>
+              FlowyResult.success(_saveMarkdownToPath(markdown, event.path)),
+          (error) => FlowyResult.failure(error),
         ),
       ),
     );
@@ -55,6 +56,6 @@ class DocShareState with _$DocShareState {
   const factory DocShareState.initial() = _Initial;
   const factory DocShareState.loading() = _Loading;
   const factory DocShareState.finish(
-    Either<ExportDataPB, FlowyError> successOrFail,
+    FlowyResult<ExportDataPB, FlowyError> successOrFail,
   ) = _Finish;
 }
