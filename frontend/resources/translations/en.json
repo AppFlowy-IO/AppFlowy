@@ -78,7 +78,12 @@
     "large": "large",
     "fontSize": "Font size",
     "import": "Import",
-    "moreOptions": "More options"
+    "moreOptions": "More options",
+    "wordCount": "Word count: {}",
+    "charCount": "Character count: {}",
+    "createdAt": "Created at: {}",
+    "deleteView": "Delete",
+    "duplicateView": "Duplicate"
   },
   "importPanel": {
     "textAndMarkdown": "Text & Markdown",

@@ -1,3 +1,6 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
 import 'package:appflowy/plugins/document/application/doc_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_configuration.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/align_toolbar_item/custom_text_align_command.dart';
@@ -14,13 +17,12 @@ import 'package:appflowy/plugins/inline_actions/inline_actions_command.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_service.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_service.dart';
+import 'package:appflowy/workspace/application/view_info/view_info_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/emoji_picker/emoji_picker.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 final List<CommandShortcutEvent> commandShortcutEvents = [
@@ -176,6 +178,8 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
 
   late final EditorScrollController editorScrollController;
 
+  late final ViewInfoBloc viewInfoBloc = context.read<ViewInfoBloc>();
+
   Future<bool> showSlashMenu(editorState) async => customSlashCommand(
         slashMenuItems,
         shouldInsertSlash: false,
@@ -185,6 +189,12 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   @override
   void initState() {
     super.initState();
+
+    viewInfoBloc.add(
+      ViewInfoEvent.registerEditorState(
+        editorState: widget.editorState,
+      ),
+    );
 
     _initEditorL10n();
     _initializeShortcuts();
@@ -224,6 +234,10 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
 
   @override
   void dispose() {
+    if (!viewInfoBloc.isClosed) {
+      viewInfoBloc.add(const ViewInfoEvent.unregisterEditorState());
+    }
+
     SystemChannels.textInput.invokeMethod('TextInput.hide');
 
     if (widget.scrollController == null) {

@@ -1,6 +1,7 @@
+import 'package:flutter/material.dart';
+
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flutter/material.dart';
 
 class FontSizeStepper extends StatefulWidget {
   const FontSizeStepper({
@@ -53,10 +54,7 @@ class _FontSizeStepperState extends State<FontSizeStepper> {
                 max: widget.maximumValue,
                 divisions: widget.divisions,
                 onChanged: (value) {
-                  setState(() {
-                    _value = value;
-                  });
-
+                  setState(() => _value = value);
                   widget.onChanged(value);
                 },
               ),
