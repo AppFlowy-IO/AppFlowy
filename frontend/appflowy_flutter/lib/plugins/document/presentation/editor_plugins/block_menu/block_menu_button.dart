@@ -8,10 +8,10 @@ class MenuBlockButton extends StatelessWidget {
     super.key,
     required this.tooltip,
     required this.iconData,
-    required this.onTap,
+    this.onTap,
   });
 
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
   final String tooltip;
   final FlowySvgData iconData;
 
