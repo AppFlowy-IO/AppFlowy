@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/block_menu/block_menu_button.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/link_preview/shared.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
@@ -47,7 +48,10 @@ class _LinkPreviewMenuState extends State<LinkPreviewMenu> {
           MenuBlockButton(
             tooltip: LocaleKeys.document_plugins_urlPreview_convertToLink.tr(),
             iconData: FlowySvgs.m_aa_link_s,
-            onTap: convertToLink,
+            onTap: () => convertUrlPreviewNodeToLink(
+              context.read<EditorState>(),
+              widget.node,
+            ),
           ),
           const HSpace(4),
           MenuBlockButton(
@@ -65,23 +69,6 @@ class _LinkPreviewMenuState extends State<LinkPreviewMenu> {
         ],
       ),
     );
-  }
-
-  void convertToLink() {
-    final node = widget.node;
-    final url = node.attributes[ImageBlockKeys.url];
-    final editorState = context.read<EditorState>();
-    final transaction = editorState.transaction;
-    transaction
-      ..insertNode(node.path, paragraphNode(text: url))
-      ..deleteNode(widget.node);
-    transaction.afterSelection = Selection.collapsed(
-      Position(
-        path: node.path,
-        offset: url.length,
-      ),
-    );
-    editorState.apply(transaction);
   }
 
   void copyImageLink() {

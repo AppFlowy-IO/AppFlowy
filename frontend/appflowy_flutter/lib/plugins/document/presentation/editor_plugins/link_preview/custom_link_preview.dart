@@ -2,10 +2,13 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/mobile_block_action_buttons.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/link_preview/shared.dart';
 import 'package:appflowy/shared/appflowy_network_image.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -27,6 +30,8 @@ class CustomLinkPreviewWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final fontSize = PlatformExtension.isDesktopOrWeb ? 16.0 : 14.0;
+    final width = PlatformExtension.isDesktopOrWeb ? 180.0 : 120.0;
     final Widget child = Container(
       clipBehavior: Clip.hardEdge,
       decoration: BoxDecoration(
@@ -37,57 +42,64 @@ class CustomLinkPreviewWidget extends StatelessWidget {
           6.0,
         ),
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (imageUrl != null)
-            ClipRRect(
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(6.0),
-                bottomLeft: Radius.circular(6.0),
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (imageUrl != null)
+              ClipRRect(
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(6.0),
+                  bottomLeft: Radius.circular(6.0),
+                ),
+                child: FlowyNetworkImage(
+                  url: imageUrl!,
+                  width: width,
+                ),
               ),
-              child: FlowyNetworkImage(
-                url: imageUrl!,
-                width: 180,
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    if (title != null)
+                      Padding(
+                        padding: const EdgeInsets.only(
+                          bottom: 4.0,
+                          right: 10.0,
+                        ),
+                        child: FlowyText.medium(
+                          title!,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          fontSize: fontSize,
+                        ),
+                      ),
+                    if (description != null)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 4.0),
+                        child: FlowyText(
+                          description!,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          fontSize: fontSize - 4,
+                        ),
+                      ),
+                    FlowyText(
+                      url.toString(),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 2,
+                      color: Theme.of(context).hintColor,
+                      fontSize: fontSize - 4,
+                    ),
+                  ],
+                ),
               ),
             ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  if (title != null)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 4.0),
-                      child: FlowyText.medium(
-                        title!,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        fontSize: 16.0,
-                      ),
-                    ),
-                  if (description != null)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 4.0),
-                      child: FlowyText(
-                        description!,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  FlowyText(
-                    url.toString(),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 2,
-                    color: Theme.of(context).hintColor,
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
 
@@ -111,12 +123,18 @@ class CustomLinkPreviewWidget extends StatelessWidget {
     return [
       FlowyOptionTile.text(
         showTopBorder: false,
-        text: LocaleKeys.document_plugins_urlPreview_convertToLink,
+        text: LocaleKeys.document_plugins_urlPreview_convertToLink.tr(),
         leftIcon: const FlowySvg(
           FlowySvgs.m_aa_link_s,
           size: Size.square(20),
         ),
-        onTap: () async {},
+        onTap: () {
+          context.pop();
+          convertUrlPreviewNodeToLink(
+            context.read<EditorState>(),
+            node,
+          );
+        },
       ),
     ];
   }
