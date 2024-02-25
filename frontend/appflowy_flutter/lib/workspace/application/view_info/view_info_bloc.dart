@@ -19,6 +19,10 @@ class ViewInfoBloc extends Bloc<ViewInfoEvent, ViewInfoState> {
         },
         registerEditorState: (editorState) {
           _clearWordCountService();
+          _wordCountService = WordCountService(editorState: editorState)
+            ..addListener(_onWordCountChanged)
+            ..register();
+
           emit(
             state.copyWith(
               documentCounters: _wordCountService!.documentCounters,
