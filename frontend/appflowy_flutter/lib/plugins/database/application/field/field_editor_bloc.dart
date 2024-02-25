@@ -1,6 +1,8 @@
 import 'dart:typed_data';
 
-import 'package:appflowy/plugins/database/application/field_settings/field_settings_service.dart';
+import 'package:appflowy/plugins/database/domain/field_listener.dart';
+import 'package:appflowy/plugins/database/domain/field_service.dart';
+import 'package:appflowy/plugins/database/domain/field_settings_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -10,8 +12,6 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'field_controller.dart';
 import 'field_info.dart';
-import 'field_listener.dart';
-import 'field_service.dart';
 
 part 'field_editor_bloc.freezed.dart';
 

@@ -1,9 +1,9 @@
-import 'package:appflowy/plugins/database/application/field/type_option/type_option_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/cell_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/select_option_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
+
+import 'type_option_service.dart';
 
 class SelectOptionCellBackendService {
   SelectOptionCellBackendService({

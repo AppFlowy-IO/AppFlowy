@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:appflowy/plugins/database/application/field_settings/field_settings_service.dart';
+import 'package:appflowy/plugins/database/domain/field_settings_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 

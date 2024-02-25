@@ -2,10 +2,11 @@ import 'dart:async';
 
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
-import 'package:appflowy/plugins/database/application/field/field_listener.dart';
+import 'package:appflowy/plugins/database/domain/cell_listener.dart';
+import 'package:appflowy/plugins/database/domain/field_listener.dart';
 import 'package:appflowy/plugins/database/application/field/type_option/type_option_data_parser.dart';
 import 'package:appflowy/plugins/database/application/row/row_cache.dart';
-import 'package:appflowy/plugins/database/application/row/row_meta_listener.dart';
+import 'package:appflowy/plugins/database/domain/row_meta_listener.dart';
 import 'package:appflowy/plugins/database/application/row/row_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
@@ -16,7 +17,6 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'cell_cache.dart';
 import 'cell_data_loader.dart';
 import 'cell_data_persistence.dart';
-import 'cell_listener.dart';
 
 part 'cell_controller.freezed.dart';
 
