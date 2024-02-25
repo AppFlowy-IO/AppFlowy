@@ -78,7 +78,8 @@ class DocumentAppearanceCubit extends Cubit<DocumentAppearance> {
         ? Color(int.parse(selectionColorString))
         : null;
 
-    final textScaleFactor = prefs.getDouble(KVKeys.textScaleFactor) ?? 1.0;
+    final textScaleFactor =
+        double.parse(prefs.getString(KVKeys.textScaleFactor) ?? '1.0');
 
     if (isClosed) {
       return;
