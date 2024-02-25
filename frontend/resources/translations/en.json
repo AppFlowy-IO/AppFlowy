@@ -240,9 +240,7 @@
     "rename": "Rename",
     "helpCenter": "Help Center",
     "add": "Add",
-    "yes": "Yes",
-    "Done": "Done",
-    "Cancel": "Cancel"
+    "yes": "Yes"
   },
   "label": {
     "welcome": "Welcome!",
@@ -626,8 +624,11 @@
     "sort": {
       "ascending": "Ascending",
       "descending": "Descending",
+      "by": "By",
+      "empty": "No active sorts",
+      "cannotFindCreatableField": "Cannot find a suitable field to sort by",
       "deleteAllSorts": "Delete all sorts",
-      "addSort": "Add sort"
+      "addSort": "Add new sort"
     },
     "row": {
       "duplicate": "Duplicate",
@@ -790,13 +791,15 @@
       },
       "image": {
         "copiedToPasteBoard": "The image link has been copied to the clipboard",
-        "addAnImage": "Add an image"
+        "addAnImage": "Add an image",
+        "imageUploadFailed": "Image upload failed"
       },
       "urlPreview": {
         "copiedToPasteBoard": "The link has been copied to the clipboard"
       },
       "outline": {
-        "addHeadingToCreateOutline": "Add headings to create a table of contents."
+        "addHeadingToCreateOutline": "Add headings to create a table of contents.",
+        "noMatchHeadings": "No matching headings found."
       },
       "table": {
         "addAfter": "Add after",

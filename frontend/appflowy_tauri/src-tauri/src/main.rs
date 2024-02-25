@@ -30,10 +30,10 @@ fn main() {
         on_event(app_handler.clone(), event);
       });
     })
-    .setup(|app| {
+    .setup(|_app| {
       #[cfg(debug_assertions)]
       {
-        let window = app.get_window("main").unwrap();
+        let window = _app.get_window("main").unwrap();
         window.open_devtools();
       }
       Ok(())

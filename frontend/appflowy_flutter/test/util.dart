@@ -47,12 +47,12 @@ class AppFlowyUnitTest {
       email: userEmail,
     );
     result.fold(
-      (error) {
-        assert(false, 'Error: $error');
-      },
       (user) {
         userProfile = user;
         userService = UserBackendService(userId: userProfile.id);
+      },
+      (error) {
+        assert(false, 'Error: $error');
       },
     );
   }

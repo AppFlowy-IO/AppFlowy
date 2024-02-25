@@ -218,7 +218,7 @@ class FlowyOptionTile extends StatelessWidget {
 
     final padding = EdgeInsets.symmetric(
       horizontal: leading == null ? 0.0 : 12.0,
-      vertical: 16.0,
+      vertical: 14.0,
     );
 
     return Expanded(

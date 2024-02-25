@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:appflowy/plugins/database/application/filter/filter_listener.dart';
-import 'package:appflowy/plugins/database/application/filter/filter_service.dart';
+import 'package:appflowy/plugins/database/domain/filter_listener.dart';
+import 'package:appflowy/plugins/database/domain/filter_service.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/select_option/select_option_loader.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/filter_info.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option_filter.pbserver.dart';

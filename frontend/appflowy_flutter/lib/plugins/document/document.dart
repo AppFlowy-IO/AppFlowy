@@ -107,14 +107,10 @@ class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
   @override
   Widget buildWidget({PluginContext? context, required bool shrinkWrap}) {
     notifier.isDeleted.addListener(() {
-      notifier.isDeleted.value.fold(
-        () => null,
-        (deletedView) {
-          if (deletedView.hasIndex()) {
-            deletedViewIndex = deletedView.index;
-          }
-        },
-      );
+      final deletedView = notifier.isDeleted.value;
+      if (deletedView != null && deletedView.hasIndex()) {
+        deletedViewIndex = deletedView.index;
+      }
     });
 
     return BlocProvider<ViewInfoBloc>.value(

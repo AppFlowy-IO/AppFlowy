@@ -9,7 +9,7 @@ import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_setting.pb.dart';
-import 'package:dartz/dartz.dart' show Either;
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -33,7 +33,7 @@ class AppFlowyCloudViewSetting extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<Either<CloudSettingPB, FlowyError>>(
+    return FutureBuilder<FlowyResult<CloudSettingPB, FlowyError>>(
       future: UserEventGetCloudConfig().send(),
       builder: (context, snapshot) {
         if (snapshot.data != null &&
@@ -94,7 +94,7 @@ class CustomAppFlowyCloudView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<Either<CloudSettingPB, FlowyError>>(
+    return FutureBuilder<FlowyResult<CloudSettingPB, FlowyError>>(
       future: UserEventGetCloudConfig().send(),
       builder: (context, snapshot) {
         if (snapshot.data != null &&
@@ -303,11 +303,7 @@ class CloudURLInputState extends State<CloudURLInput> {
           borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
         ),
         hintText: widget.hint,
-        errorText: context
-            .read<AppFlowyCloudURLsBloc>()
-            .state
-            .urlError
-            .fold(() => null, (error) => error),
+        errorText: context.read<AppFlowyCloudURLsBloc>().state.urlError,
       ),
       onChanged: widget.onChanged,
     );

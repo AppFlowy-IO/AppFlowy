@@ -10,7 +10,7 @@ import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/database/card/card_detail/widgets/widgets.dart';
 import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
 import 'package:appflowy/plugins/base/drag_handler.dart';
-import 'package:appflowy/plugins/database/application/field/field_service.dart';
+import 'package:appflowy/plugins/database/domain/field_service.dart';
 import 'package:appflowy/plugins/database/application/field/type_option/number_format_bloc.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/header/type_option/date/date_time_format.dart';
 import 'package:appflowy/plugins/database/widgets/cell_editor/extension.dart';

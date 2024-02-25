@@ -1,5 +1,5 @@
 import 'package:appflowy/plugins/database/application/database_controller.dart';
-import 'package:appflowy/plugins/database/application/layout/layout_setting_listener.dart';
+import 'package:appflowy/plugins/database/domain/layout_setting_listener.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:bloc/bloc.dart';
