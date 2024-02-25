@@ -71,8 +71,6 @@ abstract class PluginWidgetBuilder with NavigationItem {
       const EdgeInsets.symmetric(horizontal: 40, vertical: 28);
 
   Widget buildWidget({PluginContext? context, required bool shrinkWrap});
-
-  void init() {}
 }
 
 class PluginContext {

@@ -191,8 +191,6 @@ void _resolveHomeDeps(GetIt getIt) {
   getIt.registerSingleton<ReminderBloc>(ReminderBloc());
 
   getIt.registerSingleton<RenameViewBloc>(RenameViewBloc(PopoverController()));
-
-  // getIt.registerSingleton<ViewInfoBloc>(ViewInfoBloc());
 }
 
 void _resolveFolderDeps(GetIt getIt) {
