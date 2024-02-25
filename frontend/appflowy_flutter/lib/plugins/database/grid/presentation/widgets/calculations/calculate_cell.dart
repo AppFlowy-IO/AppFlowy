@@ -112,6 +112,7 @@ class _CalculateCellState extends State<CalculateCell> {
               child: FlowyText(
                 _withoutTrailingZeros(widget.calculation!.value),
                 color: AFThemeExtension.of(context).textColor,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],
