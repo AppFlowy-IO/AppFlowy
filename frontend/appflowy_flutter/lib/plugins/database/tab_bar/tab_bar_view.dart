@@ -248,7 +248,7 @@ class DatabasePluginWidgetBuilder extends PluginWidgetBuilder {
           view: notifier.view,
         ),
         const HSpace(4),
-        MoreViewActions(view: notifier.view),
+        MoreViewActions(view: notifier.view, isDocument: false),
       ],
     );
   }
