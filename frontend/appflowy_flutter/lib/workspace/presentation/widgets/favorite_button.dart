@@ -10,8 +10,8 @@ import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class DocumentFavoriteButton extends StatelessWidget {
-  const DocumentFavoriteButton({
+class ViewFavoriteButton extends StatelessWidget {
+  const ViewFavoriteButton({
     super.key,
     required this.view,
   });
