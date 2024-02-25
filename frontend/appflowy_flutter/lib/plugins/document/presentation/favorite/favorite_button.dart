@@ -23,15 +23,15 @@ class DocumentFavoriteButton extends StatelessWidget {
     return BlocBuilder<FavoriteBloc, FavoriteState>(
       builder: (context, state) {
         final isFavorite = state.views.any((v) => v.id == view.id);
-        return FlowyTooltip(
-          message: isFavorite
-              ? LocaleKeys.button_removeFromFavorites.tr()
-              : LocaleKeys.button_addToFavorites.tr(),
-          child: FlowyHover(
-            resetHoverOnRebuild: false,
-            child: Listener(
-              onPointerDown: (_) =>
-                  context.read<FavoriteBloc>().add(FavoriteEvent.toggle(view)),
+        return Listener(
+          onPointerDown: (_) =>
+              context.read<FavoriteBloc>().add(FavoriteEvent.toggle(view)),
+          child: FlowyTooltip(
+            message: isFavorite
+                ? LocaleKeys.button_removeFromFavorites.tr()
+                : LocaleKeys.button_addToFavorites.tr(),
+            child: FlowyHover(
+              resetHoverOnRebuild: false,
               child: Padding(
                 padding: const EdgeInsets.all(6),
                 child: FlowySvg(
