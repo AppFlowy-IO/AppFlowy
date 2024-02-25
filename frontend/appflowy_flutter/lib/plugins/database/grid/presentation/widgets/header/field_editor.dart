@@ -1,5 +1,7 @@
 import 'dart:typed_data';
 
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
@@ -14,7 +16,6 @@ import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:styled_widget/styled_widget.dart';
 
@@ -100,6 +101,8 @@ class _FieldEditorState extends State<FieldEditor> {
           _actionCell(FieldAction.insertRight),
           VSpace(GridSize.typeOptionSeparatorHeight),
           _actionCell(FieldAction.toggleVisibility),
+          VSpace(GridSize.typeOptionSeparatorHeight),
+          _actionCell(FieldAction.duplicateWithData),
           VSpace(GridSize.typeOptionSeparatorHeight),
           _actionCell(FieldAction.duplicate),
           VSpace(GridSize.typeOptionSeparatorHeight),
@@ -194,6 +197,7 @@ enum FieldAction {
   insertRight,
   toggleVisibility,
   duplicate,
+  duplicateWithData,
   delete;
 
   Widget icon(FieldInfo fieldInfo, Color? color) {
@@ -211,6 +215,7 @@ enum FieldAction {
           svgData = FlowySvgs.hide_s;
         }
       case FieldAction.duplicate:
+      case FieldAction.duplicateWithData:
         svgData = FlowySvgs.copy_s;
       case FieldAction.delete:
         svgData = FlowySvgs.delete_s;
@@ -240,6 +245,8 @@ enum FieldAction {
         }
       case FieldAction.duplicate:
         return LocaleKeys.grid_field_duplicate.tr();
+      case FieldAction.duplicateWithData:
+        return LocaleKeys.grid_field_duplicateWithData.tr();
       case FieldAction.delete:
         return LocaleKeys.grid_field_delete.tr();
     }
@@ -266,10 +273,12 @@ enum FieldAction {
             .add(const FieldEditorEvent.toggleFieldVisibility());
         break;
       case FieldAction.duplicate:
+      case FieldAction.duplicateWithData:
         PopoverContainer.of(context).close();
         FieldBackendService.duplicateField(
           viewId: viewId,
           fieldId: fieldInfo.id,
+          duplicateData: this == FieldAction.duplicateWithData,
         );
         break;
       case FieldAction.delete:

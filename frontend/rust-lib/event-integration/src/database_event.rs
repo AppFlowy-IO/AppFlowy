@@ -179,6 +179,7 @@ impl EventIntegrationTest {
       .payload(DuplicateFieldPayloadPB {
         view_id: view_id.to_string(),
         field_id: field_id.to_string(),
+        duplicate_data: false,
       })
       .async_send()
       .await

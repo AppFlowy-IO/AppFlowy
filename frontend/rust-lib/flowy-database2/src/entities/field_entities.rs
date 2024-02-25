@@ -590,6 +590,9 @@ pub struct DuplicateFieldPayloadPB {
 
   #[pb(index = 2)]
   pub view_id: String,
+
+  #[pb(index = 3)]
+  pub duplicate_data: bool,
 }
 
 // #[derive(Debug, Clone, Default, ProtoBuf)]
