@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database/application/calculations/calculation_type_ext.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
+import 'package:appflowy/plugins/database/application/field/type_option/number_format_bloc.dart';
 import 'package:appflowy/plugins/database/grid/application/calculations/calculations_bloc.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/calculations/calculation_selector.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/calculations/calculation_type_item.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/calculations/remove_calculation_button.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/calculation_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/number_entities.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -37,6 +39,8 @@ class _CalculateCellState extends State<CalculateCell> {
 
   @override
   Widget build(BuildContext context) {
+    final prefix = _prefixFromFieldType(widget.fieldInfo.fieldType);
+
     return SizedBox(
       height: 35,
       width: widget.width,
@@ -85,14 +89,16 @@ class _CalculateCellState extends State<CalculateCell> {
         },
         child: widget.fieldInfo.fieldType == FieldType.Number
             ? widget.calculation != null
-                ? _showCalculateValue(context)
+                ? _showCalculateValue(context, prefix)
                 : CalculationSelector(isSelected: isSelected)
             : const SizedBox.shrink(),
       ),
     );
   }
 
-  Widget _showCalculateValue(BuildContext context) {
+  Widget _showCalculateValue(BuildContext context, String? prefix) {
+    prefix = prefix != null ? '$prefix ' : '';
+
     return FlowyButton(
       radius: BorderRadius.zero,
       hoverColor: AFThemeExtension.of(context).lightGreyHover,
@@ -110,7 +116,7 @@ class _CalculateCellState extends State<CalculateCell> {
             const HSpace(8),
             Flexible(
               child: FlowyText(
-                _withoutTrailingZeros(widget.calculation!.value),
+                '$prefix${_withoutTrailingZeros(widget.calculation!.value)}',
                 color: AFThemeExtension.of(context).textColor,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -135,4 +141,12 @@ class _CalculateCellState extends State<CalculateCell> {
 
     return value;
   }
+
+  String? _prefixFromFieldType(FieldType fieldType) => switch (fieldType) {
+        FieldType.Number =>
+          NumberTypeOptionPB.fromBuffer(widget.fieldInfo.field.typeOptionData)
+              .format
+              .iconSymbol(),
+        _ => null,
+      };
 }
