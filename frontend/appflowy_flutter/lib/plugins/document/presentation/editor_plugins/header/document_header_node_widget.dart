@@ -9,7 +9,6 @@ import 'package:appflowy/plugins/document/application/doc_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/image_util.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/upload_image_menu.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/shared/document_bloc_extension.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/shared/appflowy_network_image.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';

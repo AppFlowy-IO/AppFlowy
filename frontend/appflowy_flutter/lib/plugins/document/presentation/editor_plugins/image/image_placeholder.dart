@@ -8,7 +8,6 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/mo
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/image_util.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/upload_image_menu.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/shared/document_bloc_extension.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/settings/application_data_storage.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
