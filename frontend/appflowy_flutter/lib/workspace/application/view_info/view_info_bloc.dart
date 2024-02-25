@@ -46,10 +46,7 @@ class ViewInfoBloc extends Bloc<ViewInfoEvent, ViewInfoState> {
 
   @override
   Future<void> close() async {
-    _wordCountService
-      ?..removeListener(_onWordCountChanged)
-      ..dispose();
-    _wordCountService = null;
+    _clearWordCountService();
     await super.close();
   }
 

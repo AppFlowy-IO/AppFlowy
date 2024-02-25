@@ -64,31 +64,3 @@ class ViewAction extends StatelessWidget {
     );
   }
 }
-
-class DeleteViewAction extends StatelessWidget {
-  const DeleteViewAction({super.key, required this.view, this.mutex});
-
-  final ViewPB view;
-  final PopoverMutex? mutex;
-
-  @override
-  Widget build(BuildContext context) {
-    return FlowyButton(
-      onTap: () {
-        getIt<ViewBloc>(param1: view).add(const ViewEvent.delete());
-        mutex?.close();
-      },
-      text: FlowyText.regular(
-        LocaleKeys.moreAction_deleteView.tr(),
-        color: AFThemeExtension.of(context).textColor,
-      ),
-      leftIcon: FlowySvg(
-        FlowySvgs.delete_s,
-        color: Theme.of(context).iconTheme.color,
-        size: const Size.square(18),
-      ),
-      leftIconSize: const Size(18, 18),
-      hoverColor: AFThemeExtension.of(context).lightGreyHover,
-    );
-  }
-}

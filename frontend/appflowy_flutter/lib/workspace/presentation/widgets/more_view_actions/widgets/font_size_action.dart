@@ -20,19 +20,15 @@ class FontSizeAction extends StatelessWidget {
       offset: const Offset(-10, 0),
       popupBuilder: (context) {
         return BlocBuilder<DocumentAppearanceCubit, DocumentAppearance>(
-          builder: (context, state) {
-            return FontSizeStepper(
-              minimumValue: 10,
-              maximumValue: 24,
-              value: state.fontSize,
-              divisions: 8,
-              onChanged: (newFontSize) {
-                context
-                    .read<DocumentAppearanceCubit>()
-                    .syncFontSize(newFontSize);
-              },
-            );
-          },
+          builder: (_, state) => FontSizeStepper(
+            minimumValue: 10,
+            maximumValue: 24,
+            value: state.fontSize,
+            divisions: 8,
+            onChanged: (newFontSize) => context
+                .read<DocumentAppearanceCubit>()
+                .syncFontSize(newFontSize),
+          ),
         );
       },
       child: FlowyButton(
