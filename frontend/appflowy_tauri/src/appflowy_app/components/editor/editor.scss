@@ -46,6 +46,7 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
 }
 
 
+
 [role="textbox"] {
   ::selection {
     @apply bg-content-blue-100;
@@ -81,6 +82,17 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
   }
 }
 
+
+.text-content {
+  &.empty-content {
+    @apply min-w-[1px];
+    span {
+      &::selection {
+        @apply bg-transparent;
+      }
+    }
+  }
+}
 
 .text-element:has(.text-placeholder), .divider-node {
   ::selection {

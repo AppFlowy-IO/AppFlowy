@@ -42,6 +42,46 @@ export const InlineFormula = memo(
       moveCursorToNodeEnd(editor, anchor.current);
     }, [closePopover, editor]);
 
+    const selectNode = useCallback(() => {
+      if (anchor.current === null) {
+        return;
+      }
+
+      const path = getNodePath(editor, anchor.current);
+
+      ReactEditor.focus(editor);
+      Transforms.select(editor, path);
+    }, [editor]);
+
+    const onClear = useCallback(() => {
+      selectNode();
+      CustomEditor.toggleFormula(editor);
+      closePopover();
+    }, [selectNode, closePopover, editor]);
+
+    const onDone = useCallback(
+      (newFormula: string) => {
+        selectNode();
+        if (newFormula === '' && anchor.current) {
+          const path = getNodePath(editor, anchor.current);
+          const point = editor.before(path);
+
+          CustomEditor.deleteFormula(editor);
+          closePopover();
+          if (point) {
+            ReactEditor.focus(editor);
+            editor.select(point);
+          }
+
+          return;
+        } else {
+          CustomEditor.updateFormula(editor, newFormula);
+          handleEditPopoverClose();
+        }
+      },
+      [closePopover, editor, handleEditPopoverClose, selectNode]
+    );
+
     return (
       <>
         <span
@@ -70,32 +110,8 @@ export const InlineFormula = memo(
         {open && (
           <FormulaEditPopover
             defaultText={formula}
-            onDone={(newFormula) => {
-              if (anchor.current === null || newFormula === formula) {
-                handleEditPopoverClose();
-                return;
-              }
-
-              const path = getNodePath(editor, anchor.current);
-
-              // select the node before updating the formula
-              Transforms.select(editor, path);
-              if (newFormula === '') {
-                const point = editor.before(path);
-
-                CustomEditor.deleteFormula(editor);
-                closePopover();
-                if (point) {
-                  ReactEditor.focus(editor);
-                  editor.select(point);
-                }
-
-                return;
-              } else {
-                CustomEditor.updateFormula(editor, newFormula);
-                handleEditPopoverClose();
-              }
-            }}
+            onClear={onClear}
+            onDone={onDone}
             anchorEl={anchor.current}
             open={open}
             onClose={handleEditPopoverClose}

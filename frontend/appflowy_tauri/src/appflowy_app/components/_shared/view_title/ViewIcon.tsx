@@ -44,6 +44,7 @@ function ViewIcon({ icon, onUpdateIcon }: { icon?: PageIcon; onUpdateIcon: (icon
           onClose={() => setAnchorPosition(undefined)}
         >
           <EmojiPicker
+            defaultEmoji={icon.value}
             onEscape={() => {
               setAnchorPosition(undefined);
             }}

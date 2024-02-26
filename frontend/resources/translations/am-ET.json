@@ -194,8 +194,7 @@
   },
   "button": {
     "OK": "እሺ",
-    "Done": "ተከናውኗል",
-    "Cancel": "ይቅር",
+    "cancel": "ይቅር",
     "signIn": "ይግቡ",
     "signOut": "ዘግተው ውጣ",
     "complete": "ተጠናቀቀ",

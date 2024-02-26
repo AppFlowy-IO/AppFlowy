@@ -10,13 +10,16 @@ import { UserService } from '$app/application/user/user.service';
 export function useUserSetting() {
   const dispatch = useAppDispatch();
   const { i18n } = useTranslation();
-  const {
-    themeMode = ThemeMode.System,
-    isDark = false,
-    theme: themeType = ThemeType.Default,
-  } = useAppSelector((state) => {
-    return state.currentUser.userSetting || {};
+  const { themeMode = ThemeMode.System, theme: themeType = ThemeType.Default } = useAppSelector((state) => {
+    return {
+      themeMode: state.currentUser.userSetting.themeMode,
+      theme: state.currentUser.userSetting.theme,
+    };
   });
+
+  const isDark =
+    themeMode === ThemeMode.Dark ||
+    (themeMode === ThemeMode.System && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
   useEffect(() => {
     void (async () => {

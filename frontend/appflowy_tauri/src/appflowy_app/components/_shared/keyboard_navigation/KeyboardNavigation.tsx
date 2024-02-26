@@ -48,6 +48,7 @@ export interface KeyboardNavigationProps<T> {
   defaultFocusedKey?: T;
   onFocus?: () => void;
   onBlur?: () => void;
+  itemClassName?: string;
 }
 
 function KeyboardNavigation<T>({
@@ -65,6 +66,7 @@ function KeyboardNavigation<T>({
   disableSelect = false,
   onBlur,
   onFocus,
+  itemClassName,
 }: KeyboardNavigationProps<T>) {
   const { t } = useTranslation();
   const ref = useRef<HTMLDivElement>(null);
@@ -197,7 +199,7 @@ function KeyboardNavigation<T>({
 
   const renderOption = useCallback(
     (option: KeyboardNavigationOption<T>, index: number) => {
-      const hasChildren = option.children && option.children.length > 0;
+      const hasChildren = option.children;
 
       const isFocused = focusedKey === option.key;
 
@@ -216,6 +218,7 @@ function KeyboardNavigation<T>({
                 mouseY.current = e.clientY;
               }}
               onMouseEnter={(e) => {
+                onFocus?.();
                 if (mouseY.current === null || mouseY.current !== e.clientY) {
                   setFocusedKey(option.key);
                 }
@@ -231,7 +234,7 @@ function KeyboardNavigation<T>({
               selected={isFocused}
               className={`ml-0 flex w-full items-center justify-start rounded-none px-2 py-1 text-xs ${
                 !isFocused ? 'hover:bg-transparent' : ''
-              }`}
+              } ${itemClassName ?? ''}`}
             >
               {option.content}
             </MenuItem>
@@ -243,7 +246,7 @@ function KeyboardNavigation<T>({
         </div>
       );
     },
-    [focusedKey, onConfirm]
+    [itemClassName, focusedKey, onConfirm, onFocus]
   );
 
   useEffect(() => {
@@ -290,7 +293,7 @@ function KeyboardNavigation<T>({
       {options.length > 0 ? (
         options.map(renderOption)
       ) : (
-        <Typography variant='body1' className={'p-3 text-text-caption'}>
+        <Typography variant='body1' className={'p-3 text-xs text-text-caption'}>
           {t('findAndReplace.noResult')}
         </Typography>
       )}

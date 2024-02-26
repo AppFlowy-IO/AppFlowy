@@ -30,10 +30,9 @@ class MobileDatabaseViewQuickActions extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _actionButton(context, _Action.edit, () {
+        _actionButton(context, _Action.edit, () async {
           final bloc = context.read<ViewBloc>();
-          context.pop();
-          showTransitionMobileBottomSheet(
+          await showTransitionMobileBottomSheet(
             context,
             showHeader: true,
             showDoneButton: true,
@@ -45,20 +44,31 @@ class MobileDatabaseViewQuickActions extends StatelessWidget {
               ),
             ),
           );
+          if (context.mounted) {
+            context.pop();
+          }
         }),
-        if (!isInline) ...[
-          _divider(),
-          _actionButton(context, _Action.duplicate, () {
+        _divider(),
+        _actionButton(
+          context,
+          _Action.duplicate,
+          () {
             context.read<ViewBloc>().add(const ViewEvent.duplicate());
             context.pop();
-          }),
-          _divider(),
-          _actionButton(context, _Action.delete, () {
+          },
+          !isInline,
+        ),
+        _divider(),
+        _actionButton(
+          context,
+          _Action.delete,
+          () {
             context.read<ViewBloc>().add(const ViewEvent.delete());
             context.pop();
-          }),
-          _divider(),
-        ],
+          },
+          !isInline,
+        ),
+        _divider(),
       ],
     );
   }
@@ -66,14 +76,16 @@ class MobileDatabaseViewQuickActions extends StatelessWidget {
   Widget _actionButton(
     BuildContext context,
     _Action action,
-    VoidCallback onTap,
-  ) {
+    VoidCallback onTap, [
+    bool enable = true,
+  ]) {
     return MobileQuickActionButton(
       icon: action.icon,
       text: action.label,
       textColor: action.color(context),
       iconColor: action.color(context),
       onTap: onTap,
+      enable: enable,
     );
   }
 

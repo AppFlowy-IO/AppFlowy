@@ -237,9 +237,6 @@
     "helpCenter": "Centre d'aide",
     "add": "Ajouter",
     "yes": "Oui",
-    "Done": "Fait",
-    "Cancel": "Annuler",
-    "OK": "OK",
     "tryAGain": "Réessayer"
   },
   "label": {
@@ -317,7 +314,7 @@
       "importSuccess": "Importation réussie du dossier de données AppFlowy",
       "importFailed": "L'importation du dossier de données AppFlowy a échoué",
       "importGuide": "Pour plus de détails, veuillez consulter le document référencé",
-      "supabaseSetting": "Paramètre Supbase"
+      "supabaseSetting": "Paramètre Supabase"
     },
     "notifications": {
       "enableNotifications": {

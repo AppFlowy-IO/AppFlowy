@@ -1,18 +1,17 @@
 import 'dart:async';
 import 'dart:collection';
 
-import 'package:flutter/foundation.dart';
-
 import 'package:appflowy/plugins/database/application/defines.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
-import 'package:appflowy/plugins/database/application/group/group_service.dart';
+import 'package:appflowy/plugins/database/domain/group_service.dart';
 import 'package:appflowy/plugins/database/application/row/row_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_board/appflowy_board.dart';
-import 'package:dartz/dartz.dart';
+import 'package:appflowy_result/appflowy_result.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:protobuf/protobuf.dart' hide FieldInfo;
@@ -20,7 +19,6 @@ import 'package:protobuf/protobuf.dart' hide FieldInfo;
 import '../../application/database_controller.dart';
 import '../../application/field/field_controller.dart';
 import '../../application/row/row_cache.dart';
-
 import 'group_controller.dart';
 
 part 'board_bloc.freezed.dart';
@@ -141,10 +139,10 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
             _groupItemStartEditing(group, row, true);
           },
           didReceiveGridUpdate: (DatabasePB grid) {
-            emit(state.copyWith(grid: Some(grid)));
+            emit(state.copyWith(grid: grid));
           },
           didReceiveError: (FlowyError error) {
-            emit(state.copyWith(noneOrError: some(error)));
+            emit(state.copyWith(noneOrError: error));
           },
           didReceiveGroups: (List<GroupPB> groups) {
             final hiddenGroups = _filterHiddenGroups(hideUngrouped, groups);
@@ -450,11 +448,15 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
       (grid) {
         databaseController.setIsLoading(false);
         emit(
-          state.copyWith(loadingState: LoadingState.finish(left(unit))),
+          state.copyWith(
+            loadingState: LoadingState.finish(FlowyResult.success(null)),
+          ),
         );
       },
       (err) => emit(
-        state.copyWith(loadingState: LoadingState.finish(right(err))),
+        state.copyWith(
+          loadingState: LoadingState.finish(FlowyResult.failure(err)),
+        ),
       ),
     );
   }
@@ -543,12 +545,12 @@ class BoardEvent with _$BoardEvent {
 class BoardState with _$BoardState {
   const factory BoardState({
     required String viewId,
-    required Option<DatabasePB> grid,
+    required DatabasePB? grid,
     required List<String> groupIds,
     required bool isEditingHeader,
     required bool isEditingRow,
     required LoadingState loadingState,
-    required Option<FlowyError> noneOrError,
+    required FlowyError? noneOrError,
     required BoardLayoutSettingPB? layoutSettings,
     String? editingHeaderId,
     BoardEditingRow? editingRow,
@@ -557,12 +559,12 @@ class BoardState with _$BoardState {
   }) = _BoardState;
 
   factory BoardState.initial(String viewId) => BoardState(
-        grid: none(),
+        grid: null,
         viewId: viewId,
         groupIds: [],
         isEditingHeader: false,
         isEditingRow: false,
-        noneOrError: none(),
+        noneOrError: null,
         loadingState: const LoadingState.loading(),
         layoutSettings: null,
         hiddenGroups: [],

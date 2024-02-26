@@ -222,6 +222,7 @@ class MathEquationBlockComponentWidgetState
           actions: [
             SecondaryTextButton(
               LocaleKeys.button_cancel.tr(),
+              mode: TextButtonMode.big,
               onPressed: () => dismiss(context),
             ),
             PrimaryTextButton(

@@ -1,5 +1,4 @@
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option_entities.pb.dart';
-import 'package:dartz/dartz.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -28,10 +27,10 @@ class SelectOptionTypeOptionBloc
             emit(state.copyWith(options: options));
           },
           addingOption: () {
-            emit(state.copyWith(isEditingOption: true, newOptionName: none()));
+            emit(state.copyWith(isEditingOption: true, newOptionName: null));
           },
           endAddingOption: () {
-            emit(state.copyWith(isEditingOption: false, newOptionName: none()));
+            emit(state.copyWith(isEditingOption: false, newOptionName: null));
           },
           updateOption: (option) {
             final List<SelectOptionPB> options =
@@ -69,13 +68,13 @@ class SelectOptionTypeOptionState with _$SelectOptionTypeOptionState {
   const factory SelectOptionTypeOptionState({
     required List<SelectOptionPB> options,
     required bool isEditingOption,
-    required Option<String> newOptionName,
+    required String? newOptionName,
   }) = _SelectOptionTypeOptionState;
 
   factory SelectOptionTypeOptionState.initial(List<SelectOptionPB> options) =>
       SelectOptionTypeOptionState(
         options: options,
         isEditingOption: false,
-        newOptionName: none(),
+        newOptionName: null,
       );
 }

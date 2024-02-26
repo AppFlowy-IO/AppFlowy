@@ -2,6 +2,8 @@ import { FC, useEffect, useRef, useState } from 'react';
 import { Field as FieldType } from '$app/application/database';
 import { ProppertyTypeSvg } from './property_type/ProppertyTypeSvg';
 import { PropertyMenu } from '$app/components/database/components/property/PropertyMenu';
+import usePopoverAutoPosition from '$app/components/_shared/popover/Popover.hooks';
+import { PopoverOrigin } from '@mui/material/Popover/Popover';
 
 export interface FieldProps {
   field: FieldType;
@@ -10,17 +12,28 @@ export interface FieldProps {
   onCloseMenu?: (id: string) => void;
 }
 
+const initialAnchorOrigin: PopoverOrigin = {
+  vertical: 'bottom',
+  horizontal: 'left',
+};
+
+const initialTransformOrigin: PopoverOrigin = {
+  vertical: 'top',
+  horizontal: 'left',
+};
+
 export const Property: FC<FieldProps> = ({ field, onCloseMenu, menuOpened }) => {
   const ref = useRef<HTMLDivElement | null>(null);
   const [anchorPosition, setAnchorPosition] = useState<
     | {
         top: number;
         left: number;
+        height: number;
       }
     | undefined
   >(undefined);
 
-  const open = Boolean(anchorPosition) && menuOpened;
+  const open = Boolean(anchorPosition && menuOpened);
 
   useEffect(() => {
     if (menuOpened) {
@@ -28,8 +41,9 @@ export const Property: FC<FieldProps> = ({ field, onCloseMenu, menuOpened }) => 
 
       if (rect) {
         setAnchorPosition({
-          top: rect.top + rect.height,
+          top: rect.top + 28,
           left: rect.left,
+          height: rect.height,
         });
         return;
       }
@@ -37,6 +51,15 @@ export const Property: FC<FieldProps> = ({ field, onCloseMenu, menuOpened }) => 
 
     setAnchorPosition(undefined);
   }, [menuOpened]);
+
+  const { paperHeight, paperWidth, transformOrigin, anchorOrigin, isEntered } = usePopoverAutoPosition({
+    initialPaperWidth: 369,
+    initialPaperHeight: 400,
+    anchorPosition,
+    initialAnchorOrigin,
+    initialTransformOrigin,
+    open,
+  });
 
   return (
     <>
@@ -48,9 +71,19 @@ export const Property: FC<FieldProps> = ({ field, onCloseMenu, menuOpened }) => 
       {open && (
         <PropertyMenu
           field={field}
-          open={open}
+          open={open && isEntered}
           onClose={() => {
             onCloseMenu?.(field.id);
+          }}
+          transformOrigin={transformOrigin}
+          anchorOrigin={anchorOrigin}
+          PaperProps={{
+            style: {
+              maxHeight: paperHeight,
+              maxWidth: paperWidth,
+              height: 'auto',
+            },
+            className: 'flex h-full flex-col overflow-hidden',
           }}
           anchorPosition={anchorPosition}
           anchorReference={'anchorPosition'}

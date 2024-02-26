@@ -35,10 +35,12 @@ class MobileFavoriteScreen extends StatelessWidget {
           },
           (error) => null,
         );
-        final userProfile =
-            snapshots.data?[1].fold((error) => null, (userProfilePB) {
-          return userProfilePB as UserProfilePB?;
-        });
+        final userProfile = snapshots.data?[1].fold(
+          (userProfilePB) {
+            return userProfilePB as UserProfilePB?;
+          },
+          (error) => null,
+        );
 
         // In the unlikely case either of the above is null, eg.
         // when a workspace is already open this can happen.

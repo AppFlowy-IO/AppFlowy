@@ -78,7 +78,12 @@
     "large": "large",
     "fontSize": "Font size",
     "import": "Import",
-    "moreOptions": "More options"
+    "moreOptions": "More options",
+    "wordCount": "Word count: {}",
+    "charCount": "Character count: {}",
+    "createdAt": "Created at: {}",
+    "deleteView": "Delete",
+    "duplicateView": "Duplicate"
   },
   "importPanel": {
     "textAndMarkdown": "Text & Markdown",
@@ -237,7 +242,10 @@
     "add": "Add",
     "yes": "Yes",
     "Done": "Done",
-    "Cancel": "Cancel"
+    "Cancel": "Cancel",
+    "clear": "Clear",
+    "remove": "Remove",
+    "dontRemove": "Don't remove"
   },
   "label": {
     "welcome": "Welcome!",
@@ -602,7 +610,8 @@
       "deleteFieldPromptMessage": "Are you sure? This property will be deleted",
       "newColumn": "New Column",
       "format": "Format",
-      "reminderOnDateTooltip": "This cell has a scheduled reminder"
+      "reminderOnDateTooltip": "This cell has a scheduled reminder",
+      "optionAlreadyExist": "Option already exists"
     },
     "rowPage": {
       "newField": "Add a new field",
@@ -621,8 +630,11 @@
     "sort": {
       "ascending": "Ascending",
       "descending": "Descending",
+      "by": "By",
+      "empty": "No active sorts",
+      "cannotFindCreatableField": "Cannot find a suitable field to sort by",
       "deleteAllSorts": "Delete all sorts",
-      "addSort": "Add sort"
+      "addSort": "Add new sort"
     },
     "row": {
       "duplicate": "Duplicate",
@@ -677,7 +689,8 @@
       "median": "Median",
       "min": "Min",
       "sum": "Sum"
-    }
+    },
+    "removeSorting": "Would you like to remove sorting?"
   },
   "document": {
     "menuName": "Document",
@@ -785,13 +798,16 @@
       },
       "image": {
         "copiedToPasteBoard": "The image link has been copied to the clipboard",
-        "addAnImage": "Add an image"
+        "addAnImage": "Add an image",
+        "imageUploadFailed": "Image upload failed"
       },
       "urlPreview": {
-        "copiedToPasteBoard": "The link has been copied to the clipboard"
+        "copiedToPasteBoard": "The link has been copied to the clipboard",
+        "convertToLink": "Convert to embed link"
       },
       "outline": {
-        "addHeadingToCreateOutline": "Add headings to create a table of contents."
+        "addHeadingToCreateOutline": "Add headings to create a table of contents.",
+        "noMatchHeadings": "No matching headings found."
       },
       "table": {
         "addAfter": "Add after",

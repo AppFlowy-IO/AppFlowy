@@ -151,6 +151,7 @@ export interface EditorProps {
   title?: string;
   onTitleChange?: (title: string) => void;
   showTitle?: boolean;
+  disableFocus?: boolean;
 }
 
 export enum EditorNodeType {

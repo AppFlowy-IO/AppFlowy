@@ -23,6 +23,7 @@ import {
   RepeatedTrashPB,
   ChildViewUpdatePB,
 } from '@/services/backend';
+import { AsyncQueue } from '$app/utils/async_queue';
 
 const Notification = {
   [DatabaseNotification.DidUpdateViewRowsVisibility]: RowsVisibilityChangePB,
@@ -56,7 +57,9 @@ type NullableInstanceType<K extends (abstract new (...args: any) => any) | null>
 any
   ? InstanceType<K>
   : void;
-export type NotificationHandler<K extends NotificationEnum> = (result: NullableInstanceType<NotificationMap[K]>) => void;
+export type NotificationHandler<K extends NotificationEnum> = (
+  result: NullableInstanceType<NotificationMap[K]>
+) => void | Promise<void>;
 
 /**
  * Subscribes to a set of notifications.
@@ -105,8 +108,7 @@ export function subscribeNotifications(
   },
   options?: { id?: string }
 ): Promise<() => void> {
-  return listen<ReturnType<typeof SubscribeObject.prototype.toObject>>('af-notification', (event) => {
-    const subject = SubscribeObject.fromObject(event.payload);
+  const handler = async (subject: SubscribeObject) => {
     const { id, ty } = subject;
 
     if (options?.id !== undefined && id !== options.id) {
@@ -127,8 +129,20 @@ export function subscribeNotifications(
     } else {
       const { payload } = subject;
 
-      pb ? callback(pb.deserialize(payload)) : callback();
+      if (pb) {
+        await callback(pb.deserialize(payload));
+      } else {
+        await callback();
+      }
     }
+  };
+
+  const queue = new AsyncQueue(handler);
+
+  return listen<ReturnType<typeof SubscribeObject.prototype.toObject>>('af-notification', (event) => {
+    const subject = SubscribeObject.fromObject(event.payload);
+
+    queue.enqueue(subject);
   });
 }
 

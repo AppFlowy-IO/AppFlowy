@@ -214,10 +214,7 @@
     "addToFavorites": "お気に入りへ追加",
     "rename": "名前を変更",
     "helpCenter": "ヘルプセンター",
-    "add": "追加",
-    "Done": "終わり",
-    "Cancel": "キャンセル",
-    "OK": "OK"
+    "add": "追加"
   },
   "label": {
     "welcome": "ようこそ！",

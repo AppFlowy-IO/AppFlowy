@@ -27,7 +27,12 @@ function NewProperty({ onInserted }: NewPropertyProps) {
   }, [onInserted, viewId]);
 
   return (
-    <Button onClick={handleClick} className={'h-full w-full justify-start'} startIcon={<AddSvg />} color={'inherit'}>
+    <Button
+      onClick={handleClick}
+      className={'h-full w-full justify-start rounded-none'}
+      startIcon={<AddSvg />}
+      color={'inherit'}
+    >
       {t('grid.field.newProperty')}
     </Button>
   );

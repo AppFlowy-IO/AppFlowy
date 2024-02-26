@@ -188,6 +188,7 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
       ),
       builder: (context, node, url, title, description, imageUrl) =>
           CustomLinkPreviewWidget(
+        node: node,
         url: url,
         title: title,
         description: description,
