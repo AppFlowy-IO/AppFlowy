@@ -102,8 +102,6 @@ class _FieldEditorState extends State<FieldEditor> {
           VSpace(GridSize.typeOptionSeparatorHeight),
           _actionCell(FieldAction.toggleVisibility),
           VSpace(GridSize.typeOptionSeparatorHeight),
-          _actionCell(FieldAction.duplicateWithData),
-          VSpace(GridSize.typeOptionSeparatorHeight),
           _actionCell(FieldAction.duplicate),
           VSpace(GridSize.typeOptionSeparatorHeight),
           _actionCell(FieldAction.delete),
@@ -197,7 +195,6 @@ enum FieldAction {
   insertRight,
   toggleVisibility,
   duplicate,
-  duplicateWithData,
   delete;
 
   Widget icon(FieldInfo fieldInfo, Color? color) {
@@ -215,7 +212,6 @@ enum FieldAction {
           svgData = FlowySvgs.hide_s;
         }
       case FieldAction.duplicate:
-      case FieldAction.duplicateWithData:
         svgData = FlowySvgs.copy_s;
       case FieldAction.delete:
         svgData = FlowySvgs.delete_s;
@@ -245,8 +241,6 @@ enum FieldAction {
         }
       case FieldAction.duplicate:
         return LocaleKeys.grid_field_duplicate.tr();
-      case FieldAction.duplicateWithData:
-        return LocaleKeys.grid_field_duplicateWithData.tr();
       case FieldAction.delete:
         return LocaleKeys.grid_field_delete.tr();
     }
@@ -273,12 +267,10 @@ enum FieldAction {
             .add(const FieldEditorEvent.toggleFieldVisibility());
         break;
       case FieldAction.duplicate:
-      case FieldAction.duplicateWithData:
         PopoverContainer.of(context).close();
         FieldBackendService.duplicateField(
           viewId: viewId,
           fieldId: fieldInfo.id,
-          duplicateData: this == FieldAction.duplicateWithData,
         );
         break;
       case FieldAction.delete:

@@ -66,13 +66,8 @@ class FieldBackendService {
   static Future<FlowyResult<void, FlowyError>> duplicateField({
     required String viewId,
     required String fieldId,
-    bool duplicateData = false,
   }) {
-    final payload = DuplicateFieldPayloadPB(
-      viewId: viewId,
-      fieldId: fieldId,
-      duplicateData: duplicateData,
-    );
+    final payload = DuplicateFieldPayloadPB(viewId: viewId, fieldId: fieldId);
 
     return DatabaseEventDuplicateField(payload).send();
   }

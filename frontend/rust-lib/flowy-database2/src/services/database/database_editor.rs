@@ -419,12 +419,7 @@ impl DatabaseEditor {
     Ok(())
   }
 
-  pub async fn duplicate_field(
-    &self,
-    view_id: &str,
-    field_id: &str,
-    duplicate_data: bool,
-  ) -> FlowyResult<()> {
+  pub async fn duplicate_field(&self, view_id: &str, field_id: &str) -> FlowyResult<()> {
     let is_primary = self
       .database
       .lock()
@@ -449,18 +444,13 @@ impl DatabaseEditor {
         .notify_did_insert_database_field(duplicated_field.clone(), index)
         .await;
 
-      if duplicate_data {
-        let cells = self.get_cells_for_field(view_id, field_id).await;
-        for cell in cells {
-          let new_cell = cell.cell.clone();
-          let new_field_id = duplicated_field.id.clone();
-          let new_row_id = cell.row_id;
-
-          if let Some(new_cell) = new_cell {
-            self
-              .update_cell(view_id, new_row_id, &new_field_id, new_cell)
-              .await?;
-          }
+      let new_field_id = duplicated_field.id.clone();
+      let cells = self.get_cells_for_field(view_id, field_id).await;
+      for cell in cells {
+        if let Some(new_cell) = cell.cell.clone() {
+          self
+            .update_cell(view_id, cell.row_id, &new_field_id, new_cell)
+            .await?;
         }
       }
     }
