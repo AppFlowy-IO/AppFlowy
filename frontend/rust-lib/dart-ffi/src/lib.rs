@@ -175,7 +175,8 @@ async fn post_to_flutter(response: AFPluginEventResponse, port: i64) {
 }
 
 #[no_mangle]
-pub extern "C" fn backend_log(level: i64, data: *const c_char) {
+pub extern "C" fn rust_log(level: i64, data: *const c_char) {
+  info!("backend_log");
   // Check if the data pointer is not null
   if data.is_null() {
     error!("[flutter error]: null pointer provided to backend_log");
@@ -211,14 +212,13 @@ pub extern "C" fn backend_log(level: i64, data: *const c_char) {
 
   // Log the message at the appropriate level
   match log_level {
-    "info" => info!("[flutter]: {}", log_str),
-    "debug" => debug!("[flutter]: {}", log_str),
-    "trace" => trace!("[flutter]: {}", log_str),
-    "warn" => warn!("[flutter]: {}", log_str),
-    "error" => error!("[flutter]: {}", log_str),
+    "info" => info!("[Flutter]: {}", log_str),
+    "debug" => debug!("[Flutter]: {}", log_str),
+    "trace" => trace!("[Flutter]: {}", log_str),
+    "warn" => warn!("[Flutter]: {}", log_str),
+    "error" => error!("[Flutter]: {}", log_str),
     _ => {
       warn!("[flutter error]: Unsupported log level: {}", log_level);
-      return;
     },
   }
 }
