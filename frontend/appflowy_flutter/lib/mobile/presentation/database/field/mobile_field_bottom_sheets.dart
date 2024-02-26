@@ -29,14 +29,8 @@ const mobileSupportedFieldTypes = [
   FieldType.Checklist,
 ];
 
-/// Shows the field type grid and upon selection, allow users to edit the
-/// field's properties and saving it when the user clicks save.
-void showCreateFieldBottomSheet(
-  BuildContext context,
-  String viewId, {
-  OrderObjectPositionPB? position,
-}) {
-  showMobileBottomSheet(
+Future<FieldType?> showFieldTypeGridBottomSheet(BuildContext context) {
+  return showMobileBottomSheet<FieldType>(
     context,
     showHeader: true,
     showDragHandle: true,
@@ -53,24 +47,8 @@ void showCreateFieldBottomSheet(
               backgroundColor: fieldType.mobileIconBackgroundColor,
               text: fieldType.i18n,
               icon: fieldType.svgData,
-              onTap: (_, fieldType) async {
-                final optionValues = await context.push<FieldOptionValues>(
-                  Uri(
-                    path: MobileNewPropertyScreen.routeName,
-                    queryParameters: {
-                      MobileNewPropertyScreen.argViewId: viewId,
-                      MobileNewPropertyScreen.argFieldTypeId:
-                          fieldType.value.toString(),
-                    },
-                  ).toString(),
-                );
-                if (optionValues != null) {
-                  await optionValues.create(viewId: viewId, position: position);
-                  if (context.mounted) {
-                    context.pop();
-                  }
-                }
-              },
+              onTap: (context, fieldType) =>
+                  Navigator.of(context).pop(fieldType),
             ),
           )
           .toList();
@@ -83,6 +61,34 @@ void showCreateFieldBottomSheet(
       );
     },
   );
+}
+
+/// Shows the field type grid and upon selection, allow users to edit the
+/// field's properties and saving it when the user clicks save.
+void mobileCreateFieldWorkflow(
+  BuildContext context,
+  String viewId, {
+  OrderObjectPositionPB? position,
+}) async {
+  final fieldType = await showFieldTypeGridBottomSheet(context);
+  if (fieldType == null || !context.mounted) {
+    return;
+  }
+  final optionValues = await context.push<FieldOptionValues>(
+    Uri(
+      path: MobileNewPropertyScreen.routeName,
+      queryParameters: {
+        MobileNewPropertyScreen.argViewId: viewId,
+        MobileNewPropertyScreen.argFieldTypeId: fieldType.value.toString(),
+      },
+    ).toString(),
+  );
+  if (optionValues != null) {
+    await optionValues.create(viewId: viewId, position: position);
+  }
+  if (context.mounted) {
+    context.pop();
+  }
 }
 
 /// Used to edit a field.

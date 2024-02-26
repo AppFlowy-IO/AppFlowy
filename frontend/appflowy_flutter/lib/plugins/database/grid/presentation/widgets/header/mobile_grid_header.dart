@@ -182,7 +182,7 @@ class _CreateFieldButtonState extends State<CreateFieldButton> {
           color: Theme.of(context).hintColor,
         ),
         hoverColor: AFThemeExtension.of(context).greyHover,
-        onTap: () => showCreateFieldBottomSheet(context, widget.viewId),
+        onTap: () => mobileCreateFieldWorkflow(context, widget.viewId),
         leftIconSize: const Size.square(18),
         leftIcon: FlowySvg(
           FlowySvgs.add_s,

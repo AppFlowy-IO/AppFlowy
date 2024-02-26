@@ -66,8 +66,11 @@ class _QuickEditFieldState extends State<QuickEditField> {
         OptionTextField(
           controller: controller,
           type: _fieldOptionValues.type,
-          onTextChanged: (text) async {
-            await service.updateName(text);
+          onTextChanged: (text) {
+            service.updateName(text);
+          },
+          onFieldTypeChanged: (fieldType) {
+            service.fieldBackendService.updateType(fieldType: fieldType);
           },
         ),
         const _Divider(),
@@ -142,7 +145,7 @@ class _QuickEditFieldState extends State<QuickEditField> {
             leftIcon: const FlowySvg(FlowySvgs.m_filed_insert_left_s),
             onTap: () async {
               context.pop();
-              showCreateFieldBottomSheet(
+              mobileCreateFieldWorkflow(
                 context,
                 widget.viewId,
                 position: OrderObjectPositionPB(
@@ -158,7 +161,7 @@ class _QuickEditFieldState extends State<QuickEditField> {
           leftIcon: const FlowySvg(FlowySvgs.m_filed_insert_right_s),
           onTap: () async {
             context.pop();
-            showCreateFieldBottomSheet(
+            mobileCreateFieldWorkflow(
               context,
               widget.viewId,
               position: OrderObjectPositionPB(
