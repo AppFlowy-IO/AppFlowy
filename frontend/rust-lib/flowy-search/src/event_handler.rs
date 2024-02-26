@@ -1,12 +1,9 @@
 use std::sync::{Arc, Weak};
 
 use flowy_error::{FlowyError, FlowyResult};
-use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
+use lib_dispatch::prelude::{AFPluginData, AFPluginState};
 
-use crate::{
-  entities::{IndexTypePB, RepeatedSearchResultPB, SearchQueryPB, SearchResultPB},
-  services::manager::SearchManager,
-};
+use crate::{entities::SearchQueryPB, services::manager::SearchManager};
 
 fn upgrade_manager(
   search_manager: AFPluginState<Weak<SearchManager>>,
@@ -21,32 +18,10 @@ fn upgrade_manager(
 pub(crate) async fn search_handler(
   data: AFPluginData<SearchQueryPB>,
   manager: AFPluginState<Weak<SearchManager>>,
-) -> DataResult<RepeatedSearchResultPB, FlowyError> {
+) -> Result<(), FlowyError> {
   let query = data.into_inner();
-  let manager = upgrade_manager(manager);
+  let manager = upgrade_manager(manager)?;
+  manager.perform_search(query.search);
 
-  match manager {
-    Ok(manager) => {
-      manager.perform_search(query.search);
-    },
-    Err(_) => {},
-  }
-
-  let res = RepeatedSearchResultPB {
-    items: vec![
-      SearchResultPB {
-        index_type: IndexTypePB::View,
-        view_id: "view_id".to_owned(),
-        id: "id".to_owned(),
-        data: "data".to_owned(),
-      },
-      SearchResultPB {
-        index_type: IndexTypePB::View,
-        view_id: "view_id_2".to_owned(),
-        id: "id_2".to_owned(),
-        data: "data_2".to_owned(),
-      },
-    ],
-  };
-  data_result_ok(res)
+  Ok(())
 }

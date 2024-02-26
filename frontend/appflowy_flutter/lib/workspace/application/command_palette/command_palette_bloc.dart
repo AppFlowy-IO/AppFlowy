@@ -12,34 +12,13 @@ part 'command_palette_bloc.freezed.dart';
 
 class CommandPaletteBloc
     extends Bloc<CommandPaletteEvent, CommandPaletteState> {
-  CommandPaletteBloc() : super(const _Initial()) {
-    on<CommandPaletteEvent>((event, emit) async {
-      _searchListener.start(
-        onResultsChanged: _onResultsChanged,
-        onResultsClosed: _onResultsClosed,
-      );
+  CommandPaletteBloc() : super(CommandPaletteState.initial()) {
+    _searchListener.start(
+      onResultsChanged: _onResultsChanged,
+      onResultsClosed: _onResultsClosed,
+    );
 
-      event.when(
-        searchChanged: _debounceOnSearchChanged,
-        performSearch: (search) async {
-          if (search.isEmpty) {
-            return;
-          }
-
-          final searchOrFailure =
-              await SearchBackendService.performSearch(search);
-
-          searchOrFailure.fold(
-            (results) {
-              // TODO: Emit results to Presentation layer
-            },
-            (r) {
-              // TODO: Emit no-results to Presentation layer
-            },
-          );
-        },
-      );
-    });
+    _dispatch();
   }
 
   Timer? _debounceOnChanged;
@@ -49,6 +28,19 @@ class CommandPaletteBloc
   Future<void> close() {
     _searchListener.stop();
     return super.close();
+  }
+
+  void _dispatch() {
+    on<CommandPaletteEvent>((event, emit) async {
+      event.when(
+        searchChanged: _debounceOnSearchChanged,
+        performSearch: (search) async {
+          if (search.isNotEmpty) {
+            await SearchBackendService.performSearch(search);
+          }
+        },
+      );
+    });
   }
 
   void _debounceOnSearchChanged(String value) {
@@ -62,19 +54,9 @@ class CommandPaletteBloc
   void _performSearch(String value) =>
       add(CommandPaletteEvent.performSearch(search: value));
 
-  void _onResultsChanged(RepeatedSearchResultPB results) {
-    debugPrint("REACHED OPEN");
-    for (final item in results.items) {
-      debugPrint("ITEM: ${item.data}");
-    }
-  }
+  void _onResultsChanged(RepeatedSearchResultPB results) {}
 
-  void _onResultsClosed(RepeatedSearchResultPB results) {
-    debugPrint("REACHED CLOSED");
-    for (final item in results.items) {
-      debugPrint("ITEM: ${item.data}");
-    }
-  }
+  void _onResultsClosed(RepeatedSearchResultPB results) {}
 }
 
 @freezed
@@ -88,5 +70,13 @@ class CommandPaletteEvent with _$CommandPaletteEvent {
 
 @freezed
 class CommandPaletteState with _$CommandPaletteState {
-  const factory CommandPaletteState.initial() = _Initial;
+  const CommandPaletteState._();
+
+  const factory CommandPaletteState({
+    required List<SearchResultPB> results,
+    required bool isLoading,
+  }) = _CommandPaletteState;
+
+  factory CommandPaletteState.initial() =>
+      const CommandPaletteState(results: [], isLoading: false);
 }

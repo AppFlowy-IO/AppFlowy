@@ -16,6 +16,6 @@ pub fn init(search_manager: Weak<SearchManager>) -> AFPlugin {
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
 #[event_err = "FlowyError"]
 pub enum SearchEvent {
-  #[event(input = "SearchQueryPB", output = "RepeatedSearchResultPB")]
+  #[event(input = "SearchQueryPB")]
   Search = 0,
 }

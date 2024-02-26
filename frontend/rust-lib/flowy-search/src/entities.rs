@@ -28,6 +28,9 @@ pub struct SearchResultPB {
 
   #[pb(index = 4)]
   pub data: String,
+
+  #[pb(index = 5)]
+  pub score: i64,
 }
 
 #[derive(ProtoBuf_Enum, Eq, PartialEq, Debug, Clone)]

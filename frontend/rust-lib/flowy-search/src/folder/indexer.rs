@@ -76,8 +76,6 @@ impl FolderIndexManager {
       0
     };
 
-    tracing::warn!("Distance: {:?}", distance);
-
     let mut query_parser = QueryParser::for_index(&self.index.clone(), vec![title_field]);
     query_parser.set_field_fuzzy(title_field, true, distance, true);
     let built_query = query_parser.parse_query(&query.clone()).unwrap();
@@ -170,8 +168,6 @@ impl IndexManager for FolderIndexManager {
       id_field => data.id.clone(),
       title_field => data.data,
     ]);
-
-    tracing::warn!("Updating index: {:?}", data.id.clone());
 
     index_writer.commit()?;
 

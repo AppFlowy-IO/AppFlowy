@@ -4,7 +4,7 @@ import 'package:appflowy_backend/protobuf/flowy-search/entities.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 
 class SearchBackendService {
-  static Future<FlowyResult<RepeatedSearchResultPB, FlowyError>> performSearch(
+  static Future<FlowyResult<void, FlowyError>> performSearch(
     String keyword,
   ) async {
     final request = SearchQueryPB(search: keyword);
