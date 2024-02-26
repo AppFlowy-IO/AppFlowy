@@ -455,7 +455,10 @@ class _PropertyType extends StatelessWidget {
         ],
       ),
       onTap: () async {
-        final fieldType = await showFieldTypeGridBottomSheet(context);
+        final fieldType = await showFieldTypeGridBottomSheet(
+          context,
+          title: LocaleKeys.grid_field_editProperty.tr(),
+        );
         if (fieldType != null) {
           onSelected(fieldType);
         }

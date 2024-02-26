@@ -29,14 +29,17 @@ const mobileSupportedFieldTypes = [
   FieldType.Checklist,
 ];
 
-Future<FieldType?> showFieldTypeGridBottomSheet(BuildContext context) {
+Future<FieldType?> showFieldTypeGridBottomSheet(
+  BuildContext context, {
+  required String title,
+}) {
   return showMobileBottomSheet<FieldType>(
     context,
     showHeader: true,
     showDragHandle: true,
     showCloseButton: true,
     elevation: 20,
-    title: LocaleKeys.grid_field_newProperty.tr(),
+    title: title,
     backgroundColor: Theme.of(context).colorScheme.surface,
     enableDraggableScrollable: true,
     builder: (context) {
@@ -70,7 +73,10 @@ void mobileCreateFieldWorkflow(
   String viewId, {
   OrderObjectPositionPB? position,
 }) async {
-  final fieldType = await showFieldTypeGridBottomSheet(context);
+  final fieldType = await showFieldTypeGridBottomSheet(
+    context,
+    title: LocaleKeys.grid_field_newProperty.tr(),
+  );
   if (fieldType == null || !context.mounted) {
     return;
   }
