@@ -102,11 +102,14 @@ function PlaceholderContent({ node, ...attributes }: { node: Element; className?
 
     const editorDom = ReactEditor.toDOMNode(editor, editor);
 
+    // placeholder should be hidden when composing
     editorDom.addEventListener('compositionstart', handleCompositionStart);
     editorDom.addEventListener('compositionend', handleCompositionEnd);
+    editorDom.addEventListener('compositionupdate', handleCompositionStart);
     return () => {
       editorDom.removeEventListener('compositionstart', handleCompositionStart);
       editorDom.removeEventListener('compositionend', handleCompositionEnd);
+      editorDom.removeEventListener('compositionupdate', handleCompositionStart);
     };
   }, [editor, selected]);
 

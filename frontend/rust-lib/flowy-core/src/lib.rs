@@ -3,6 +3,7 @@
 use flowy_storage::ObjectStorageService;
 use std::sync::Arc;
 use std::time::Duration;
+use sysinfo::System;
 use tokio::sync::RwLock;
 use tracing::{debug, error, event, info, instrument};
 
@@ -79,6 +80,8 @@ impl AppFlowyCore {
     // Init the key value database
     let store_preference = Arc::new(StorePreferences::new(&config.storage_path).unwrap());
     info!("🔥{:?}", &config);
+    info!("💡System info: {:?}", System::long_os_version());
+
     let task_scheduler = TaskDispatcher::new(Duration::from_secs(2));
     let task_dispatcher = Arc::new(RwLock::new(task_scheduler));
     runtime.spawn(TaskRunner::run(task_dispatcher.clone()));

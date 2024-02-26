@@ -2,6 +2,8 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useViewId } from '$app/hooks';
 import { rowService } from '$app/application/database';
 import { autoScrollOnEdge, ScrollDirection } from '$app/components/database/_shared/dnd/utils';
+import { useSortsCount } from '$app/components/database';
+import { deleteAllSorts } from '$app/application/database/sort/sort_service';
 
 export function getCellsWithRowId(rowId: string, container: HTMLDivElement) {
   return Array.from(container.querySelectorAll(`[data-key^="row:${rowId}"]`));
@@ -64,12 +66,16 @@ function createVirtualDragElement(rowId: string, container: HTMLDivElement) {
 export function useDraggableGridRow(
   rowId: string,
   containerRef: React.RefObject<HTMLDivElement>,
-  getScrollElement: () => HTMLDivElement | null
+  getScrollElement: () => HTMLDivElement | null,
+  onOpenConfirm: (onOk: () => Promise<void>, onCancel: () => void) => void
 ) {
+  const viewId = useViewId();
+  const sortsCount = useSortsCount();
+
   const [isDragging, setIsDragging] = useState(false);
   const dropRowIdRef = useRef<string | undefined>(undefined);
   const previewRef = useRef<HTMLDivElement | undefined>();
-  const viewId = useViewId();
+
   const onDragStart = useCallback(
     (e: React.DragEvent<HTMLButtonElement>) => {
       e.dataTransfer.effectAllowed = 'move';
@@ -98,6 +104,13 @@ export function useDraggableGridRow(
       setIsDragging(true);
     },
     [containerRef, rowId, getScrollElement]
+  );
+
+  const moveRowTo = useCallback(
+    async (toRowId: string) => {
+      return rowService.moveRow(viewId, rowId, toRowId);
+    },
+    [viewId, rowId]
   );
 
   useEffect(() => {
@@ -156,8 +169,23 @@ export function useDraggableGridRow(
       e.stopPropagation();
       const dropRowId = dropRowIdRef.current;
 
+      toggleProperty(container, rowId, false);
       if (dropRowId) {
-        void rowService.moveRow(viewId, rowId, dropRowId);
+        if (sortsCount > 0) {
+          onOpenConfirm(
+            async () => {
+              await deleteAllSorts(viewId);
+              await moveRowTo(dropRowId);
+            },
+            () => {
+              void moveRowTo(dropRowId);
+            }
+          );
+        } else {
+          void moveRowTo(dropRowId);
+        }
+
+        toggleProperty(container, dropRowId, false);
       }
 
       setIsDragging(false);
@@ -169,7 +197,7 @@ export function useDraggableGridRow(
     container.addEventListener('dragover', onDragOver);
     container.addEventListener('dragend', onDragEnd);
     container.addEventListener('drop', onDrop);
-  }, [containerRef, isDragging, rowId, viewId]);
+  }, [isDragging, containerRef, moveRowTo, onOpenConfirm, rowId, sortsCount, viewId]);
 
   return {
     isDragging,

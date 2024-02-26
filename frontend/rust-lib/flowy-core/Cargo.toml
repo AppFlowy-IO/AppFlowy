@@ -47,6 +47,7 @@ serde_json.workspace = true
 serde_repr.workspace = true
 futures.workspace = true
 walkdir = "2.4.0"
+sysinfo = "0.30.5"
 
 [features]
 default = ["rev-sqlite"]

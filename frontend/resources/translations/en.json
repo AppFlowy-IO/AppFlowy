@@ -240,7 +240,12 @@
     "rename": "Rename",
     "helpCenter": "Help Center",
     "add": "Add",
-    "yes": "Yes"
+    "yes": "Yes",
+    "Done": "Done",
+    "Cancel": "Cancel",
+    "clear": "Clear",
+    "remove": "Remove",
+    "dontRemove": "Don't remove"
   },
   "label": {
     "welcome": "Welcome!",
@@ -605,7 +610,8 @@
       "deleteFieldPromptMessage": "Are you sure? This property will be deleted",
       "newColumn": "New Column",
       "format": "Format",
-      "reminderOnDateTooltip": "This cell has a scheduled reminder"
+      "reminderOnDateTooltip": "This cell has a scheduled reminder",
+      "optionAlreadyExist": "Option already exists"
     },
     "rowPage": {
       "newField": "Add a new field",
@@ -683,7 +689,8 @@
       "median": "Median",
       "min": "Min",
       "sum": "Sum"
-    }
+    },
+    "removeSorting": "Would you like to remove sorting?"
   },
   "document": {
     "menuName": "Document",

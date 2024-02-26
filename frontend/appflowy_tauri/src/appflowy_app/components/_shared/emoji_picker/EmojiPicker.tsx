@@ -7,9 +7,10 @@ import EmojiPickerCategories from './EmojiPickerCategories';
 interface Props {
   onEmojiSelect: (emoji: string) => void;
   onEscape?: () => void;
+  defaultEmoji?: string;
 }
 
-function EmojiPicker({ onEscape, ...props }: Props) {
+function EmojiPicker({ defaultEmoji, onEscape, ...props }: Props) {
   const { skin, onSkinChange, emojiCategories, setSearchValue, searchValue, onSelect } = useLoadEmojiData(props);
 
   return (
@@ -21,7 +22,12 @@ function EmojiPicker({ onEscape, ...props }: Props) {
         searchValue={searchValue}
         onSearchChange={setSearchValue}
       />
-      <EmojiPickerCategories onEscape={onEscape} onEmojiSelect={onSelect} emojiCategories={emojiCategories} />
+      <EmojiPickerCategories
+        defaultEmoji={defaultEmoji}
+        onEscape={onEscape}
+        onEmojiSelect={onSelect}
+        emojiCategories={emojiCategories}
+      />
     </div>
   );
 }

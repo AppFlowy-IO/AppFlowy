@@ -22,14 +22,14 @@ class AboutSettingGroup extends StatelessWidget {
           trailing: const Icon(
             Icons.chevron_right,
           ),
-          onTap: () => safeLaunchUrl('https://appflowy.io/privacy/mobile'),
+          onTap: () => safeLaunchUrl('https://appflowy.io/privacy/app'),
         ),
         MobileSettingItem(
           name: LocaleKeys.settings_mobile_termsAndConditions.tr(),
           trailing: const Icon(
             Icons.chevron_right,
           ),
-          onTap: () => safeLaunchUrl('https://appflowy.io/terms'),
+          onTap: () => safeLaunchUrl('https://appflowy.io/terms/app'),
         ),
         MobileSettingItem(
           name: LocaleKeys.settings_mobile_version.tr(),

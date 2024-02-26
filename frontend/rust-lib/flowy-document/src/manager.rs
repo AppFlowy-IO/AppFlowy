@@ -132,7 +132,7 @@ impl DocumentManager {
   /// Returns Document for given object id
   /// If the document does not exist in local disk, try get the doc state from the cloud.
   /// If the document exists, open the document and cache it
-  #[tracing::instrument(level = "debug", skip(self), err)]
+  #[tracing::instrument(level = "info", skip(self), err)]
   pub async fn get_document(&self, doc_id: &str) -> FlowyResult<Arc<MutexDocument>> {
     if let Some(doc) = self.documents.lock().get(doc_id).cloned() {
       return Ok(doc);

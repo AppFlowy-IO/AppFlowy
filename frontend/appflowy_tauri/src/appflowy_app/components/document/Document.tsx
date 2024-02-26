@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { Editor } from 'src/appflowy_app/components/editor';
+import Editor from '$app/components/editor/Editor';
 import { DocumentHeader } from 'src/appflowy_app/components/document/document_header';
 import { useAppDispatch, useAppSelector } from '$app/stores/store';
 import { updatePageName } from '$app_reducers/pages/async_actions';
