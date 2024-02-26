@@ -110,6 +110,7 @@ Future<FieldOptionValues?> showEditFieldScreen(
 void showQuickEditField(
   BuildContext context,
   String viewId,
+  FieldController fieldController,
   FieldInfo fieldInfo,
 ) {
   showMobileBottomSheet(
@@ -120,6 +121,7 @@ void showQuickEditField(
       return SingleChildScrollView(
         child: QuickEditField(
           viewId: viewId,
+          fieldController: fieldController,
           fieldInfo: fieldInfo,
         ),
       );
