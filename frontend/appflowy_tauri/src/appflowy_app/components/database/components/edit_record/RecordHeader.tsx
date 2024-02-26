@@ -28,7 +28,7 @@ function RecordHeader({ page, row }: Props) {
   }, []);
 
   return (
-    <div ref={ref} className={'px-16 pb-4'}>
+    <div ref={ref} className={'px-16 py-4'}>
       <RecordTitle page={page} row={row} />
       <RecordProperties row={row} />
       <Divider />

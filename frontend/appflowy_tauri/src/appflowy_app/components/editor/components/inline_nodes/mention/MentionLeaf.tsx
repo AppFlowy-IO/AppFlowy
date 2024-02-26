@@ -7,7 +7,7 @@ import { pageTypeMap } from '$app_reducers/pages/slice';
 import { getPage } from '$app/application/folder/page.service';
 import { useSelected } from 'slate-react';
 import { ReactComponent as EyeClose } from '$app/assets/eye_close.svg';
-import { notify } from '$app/components/editor/components/tools/notify';
+import { notify } from 'src/appflowy_app/components/_shared/notify';
 import { subscribeNotifications } from '$app/application/notification';
 import { FolderNotification } from '@/services/backend';
 

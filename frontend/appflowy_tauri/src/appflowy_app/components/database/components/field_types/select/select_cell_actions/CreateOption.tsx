@@ -9,7 +9,7 @@ export interface CreateOptionProps {
 
 export const CreateOption: FC<CreateOptionProps> = ({ label, onClick }) => {
   return (
-    <MenuItem className='mt-2' onClick={onClick}>
+    <MenuItem className='px-2' onClick={onClick}>
       <Tag className='ml-2' size='small' label={label} />
     </MenuItem>
   );

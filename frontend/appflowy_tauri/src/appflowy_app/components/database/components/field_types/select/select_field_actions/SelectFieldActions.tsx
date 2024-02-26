@@ -15,7 +15,7 @@ function SelectFieldActions({ field }: { field: SelectField }) {
     <>
       <div className={'flex flex-col px-3 pt-1'}>
         <div className={'mb-2 px-2 text-sm text-text-caption'}>{t('grid.field.optionTitle')}</div>
-        <AddAnOption fieldId={field.id} />
+        <AddAnOption options={options} fieldId={field.id} />
         <Options fieldId={field.id} options={options} />
       </div>
       <Divider className={'my-2'} />

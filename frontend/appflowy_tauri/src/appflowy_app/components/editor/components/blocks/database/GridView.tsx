@@ -19,7 +19,7 @@ function GridView({ viewId }: { viewId: string }) {
 
     const gridScroller = element.querySelector('.grid-scroll-container') as HTMLDivElement;
 
-    const scrollLayout = gridScroller?.closest('.appflowy-layout') as HTMLDivElement;
+    const scrollLayout = gridScroller?.closest('.appflowy-scroll-container') as HTMLDivElement;
 
     if (!gridScroller || !scrollLayout) {
       return;

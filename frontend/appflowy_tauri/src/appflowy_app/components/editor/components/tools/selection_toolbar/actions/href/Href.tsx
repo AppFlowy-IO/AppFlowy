@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import ActionButton from '$app/components/editor/components/tools/selection_toolbar/actions/_shared/ActionButton';
 import { useTranslation } from 'react-i18next';
 import { ReactEditor, useSlateStatic } from 'slate-react';
@@ -8,6 +8,8 @@ import { Editor } from 'slate';
 import { EditorMarkFormat } from '$app/application/document/document.types';
 import { useDecorateDispatch, useDecorateState } from '$app/components/editor/stores';
 import { LinkEditPopover } from '$app/components/editor/components/inline_nodes/link';
+import isHotkey from 'is-hotkey';
+import { getModifier } from '$app/utils/get_modifier';
 
 export function Href() {
   const { t } = useTranslation();
@@ -63,9 +65,36 @@ export function Href() {
     }
   }, [clearDecorate, decorateState?.range, editor]);
 
+  useEffect(() => {
+    const editorDom = ReactEditor.toDOMNode(editor, editor);
+    const handleShortcut = (e: KeyboardEvent) => {
+      if (isHotkey('mod+k', e)) {
+        e.preventDefault();
+        e.stopPropagation();
+        onClick();
+      }
+    };
+
+    editorDom.addEventListener('keydown', handleShortcut);
+    return () => {
+      editorDom.removeEventListener('keydown', handleShortcut);
+    };
+  }, [editor, onClick]);
+
+  const tooltip = useMemo(() => {
+    const modifier = getModifier();
+
+    return (
+      <>
+        <div>{t('editor.link')}</div>
+        <div className={'text-xs text-text-caption'}>{`${modifier} + K`}</div>
+      </>
+    );
+  }, [t]);
+
   return (
     <>
-      <ActionButton disabled={isActivatedInline} onClick={onClick} active={isActivated} tooltip={t('editor.link')}>
+      <ActionButton disabled={isActivatedInline} onClick={onClick} active={isActivated} tooltip={tooltip}>
         <LinkSvg />
       </ActionButton>
       {openEditPopover && (

@@ -2,7 +2,7 @@ import { FC, MouseEventHandler, useCallback, useRef, useState } from 'react';
 import { IconButton } from '@mui/material';
 import { ReactComponent as DetailsSvg } from '$app/assets/details.svg';
 import { SelectOption } from '$app/application/database';
-import { SelectOptionMenu } from '../SelectOptionMenu';
+import { SelectOptionModifyMenu } from '../SelectOptionModifyMenu';
 import { Tag } from '../Tag';
 import { ReactComponent as SelectCheckSvg } from '$app/assets/select-check.svg';
 
@@ -42,7 +42,7 @@ export const SelectOptionItem: FC<SelectOptionItemProps> = ({ onClick, isSelecte
         )}
       </div>
       {open && (
-        <SelectOptionMenu
+        <SelectOptionModifyMenu
           fieldId={fieldId}
           option={option}
           MenuProps={{
