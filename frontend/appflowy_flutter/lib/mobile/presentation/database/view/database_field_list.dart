@@ -213,7 +213,7 @@ class _NewDatabaseFieldTile extends StatelessWidget {
         color: Theme.of(context).hintColor,
       ),
       textColor: Theme.of(context).hintColor,
-      onTap: () => showCreateFieldBottomSheet(context, viewId),
+      onTap: () => mobileCreateFieldWorkflow(context, viewId),
     );
   }
 }

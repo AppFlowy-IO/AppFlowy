@@ -61,7 +61,7 @@ class _MobileEditPropertyScreenState extends State<MobileEditPropertyScreen> {
         body: MobileFieldEditor(
           mode: FieldOptionMode.edit,
           isPrimary: widget.field.isPrimary,
-          defaultValues: _fieldOptionValues,
+          defaultValues: FieldOptionValues.fromField(field: widget.field.field),
           actions: [
             widget.field.fieldSettings?.visibility.isVisibleState() ?? true
                 ? FieldOptionAction.hide
@@ -69,9 +69,25 @@ class _MobileEditPropertyScreenState extends State<MobileEditPropertyScreen> {
             FieldOptionAction.duplicate,
             FieldOptionAction.delete,
           ],
-          onOptionValuesChanged: (newFieldOptionValues) {
+          onOptionValuesChanged: (fieldOptionValues) async {
+            await fieldService.updateField(name: fieldOptionValues.name);
+
+            await FieldBackendService.updateFieldType(
+              viewId: widget.viewId,
+              fieldId: widget.field.id,
+              fieldType: fieldOptionValues.type,
+            );
+
+            final data = fieldOptionValues.getTypeOptionData();
+            if (data != null) {
+              await FieldBackendService.updateFieldTypeOption(
+                viewId: widget.viewId,
+                fieldId: widget.field.id,
+                typeOptionData: data,
+              );
+            }
             setState(() {
-              _fieldOptionValues = newFieldOptionValues;
+              _fieldOptionValues = fieldOptionValues;
             });
           },
           onAction: (action) {
