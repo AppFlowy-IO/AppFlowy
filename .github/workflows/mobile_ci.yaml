@@ -30,9 +30,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
+        os: [windows-latest]
         include:
-          - os: ubuntu-latest
+          - os: windows-latest
             target: aarch64-linux-android
     runs-on: ${{ matrix.os }}
 
