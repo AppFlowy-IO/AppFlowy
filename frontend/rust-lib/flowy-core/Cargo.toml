@@ -67,7 +67,6 @@ ts = [
     "flowy-user/tauri_ts",
     "flowy-folder/tauri_ts",
     "flowy-search/ts",
-    "flowy-folder/ts",
     "flowy-database2/ts",
     "flowy-config/tauri_ts",
 ]

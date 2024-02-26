@@ -5,13 +5,13 @@ import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-notification/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-search/entities.pbenum.dart';
 import 'package:appflowy_backend/rust_stream.dart';
-import 'package:dartz/dartz.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 
 import 'notification_helper.dart';
 
 typedef SearchNotificationCallback = void Function(
   SearchNotification,
-  Either<Uint8List, FlowyError>,
+  FlowyResult<Uint8List, FlowyError>,
 );
 
 class SearchNotificationParser
@@ -27,13 +27,10 @@ class SearchNotificationParser
 
 typedef SearchNotificationHandler = Function(
   SearchNotification ty,
-  Either<Uint8List, FlowyError> result,
+  FlowyResult<Uint8List, FlowyError> result,
 );
 
 class SearchNotificationListener {
-  StreamSubscription<SubscribeObject>? _subscription;
-  SearchNotificationParser? _parser;
-
   SearchNotificationListener({
     required String objectId,
     required SearchNotificationHandler handler,
@@ -41,6 +38,9 @@ class SearchNotificationListener {
     _subscription =
         RustStreamReceiver.listen((observable) => _parser?.parse(observable));
   }
+
+  StreamSubscription<SubscribeObject>? _subscription;
+  SearchNotificationParser? _parser;
 
   Future<void> stop() async {
     _parser = null;

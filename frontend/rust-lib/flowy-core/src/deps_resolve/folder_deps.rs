@@ -1,6 +1,5 @@
 use bytes::Bytes;
 
-use flowy_document::DocumentIndexContent;
 use tokio::sync::RwLock;
 
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
@@ -22,7 +21,6 @@ use flowy_search::folder::indexer::FolderIndexManager;
 use std::collections::HashMap;
 use std::convert::TryFrom;
 use std::sync::{Arc, Weak};
-use tokio::sync::RwLock;
 
 use flowy_folder_pub::folder_builder::WorkspaceViewBuilder;
 use flowy_user::services::authenticate_user::AuthenticateUser;

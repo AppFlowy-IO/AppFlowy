@@ -49,7 +49,6 @@ impl_from_collab_folder = ["collab-folder"]
 impl_from_collab_database = ["collab-database"]
 impl_from_url = ["url"]
 impl_from_tantivy = ["tantivy"]
-wasm_build = ["lib-dispatch/wasm_build"]
 
 impl_from_sqlite = ["flowy-sqlite", "r2d2"]
 impl_from_appflowy_cloud = ["client-api"]

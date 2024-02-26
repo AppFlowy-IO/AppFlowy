@@ -9,7 +9,6 @@ use collab_integrate::CollabKVDB;
 use flowy_error::{FlowyError, FlowyResult};
 
 use std::sync::{Arc, Weak};
-use tracing::{event, Level};
 
 use crate::manager::{FolderInitDataSource, FolderManager};
 use crate::manager_observer::{
