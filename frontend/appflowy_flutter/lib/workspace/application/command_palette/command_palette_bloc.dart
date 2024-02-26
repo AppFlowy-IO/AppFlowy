@@ -36,8 +36,20 @@ class CommandPaletteBloc
         searchChanged: _debounceOnSearchChanged,
         performSearch: (search) async {
           if (search.isNotEmpty) {
+            emit(state.copyWith(isLoading: true));
             await SearchBackendService.performSearch(search);
           }
+        },
+        resultsChanged: (results, didClose) {
+          final searchResults = _filterDuplicates(results.items);
+          searchResults.sort((a, b) => a.score.compareTo(b.score));
+
+          emit(
+            state.copyWith(
+              results: searchResults,
+              isLoading: !didClose,
+            ),
+          );
         },
       );
     });
@@ -51,12 +63,40 @@ class CommandPaletteBloc
     );
   }
 
+  List<SearchResultPB> _filterDuplicates(List<SearchResultPB> results) {
+    final currentItems = [...state.results];
+    final res = [...results];
+
+    for (final item in results) {
+      final duplicateIndex = currentItems.indexWhere((a) => a.id == item.id);
+      if (duplicateIndex == -1) {
+        continue;
+      }
+
+      if (duplicateIndex != -1 && item.score >= 0) {
+        res.remove(item);
+        continue;
+      }
+
+      final duplicate = currentItems[duplicateIndex];
+      if (item.score < duplicate.score) {
+        res.remove(item);
+      } else {
+        currentItems.remove(duplicate);
+      }
+    }
+
+    return res..addAll(currentItems);
+  }
+
   void _performSearch(String value) =>
       add(CommandPaletteEvent.performSearch(search: value));
 
-  void _onResultsChanged(RepeatedSearchResultPB results) {}
+  void _onResultsChanged(RepeatedSearchResultPB results) =>
+      add(CommandPaletteEvent.resultsChanged(results: results));
 
-  void _onResultsClosed(RepeatedSearchResultPB results) {}
+  void _onResultsClosed(RepeatedSearchResultPB results) =>
+      add(CommandPaletteEvent.resultsChanged(results: results, didClose: true));
 }
 
 @freezed
@@ -66,6 +106,11 @@ class CommandPaletteEvent with _$CommandPaletteEvent {
 
   const factory CommandPaletteEvent.performSearch({required String search}) =
       _PerformSearch;
+
+  const factory CommandPaletteEvent.resultsChanged({
+    required RepeatedSearchResultPB results,
+    @Default(false) bool didClose,
+  }) = _ResultsChanged;
 }
 
 @freezed

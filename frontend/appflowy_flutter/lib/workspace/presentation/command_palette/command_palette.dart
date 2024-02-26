@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/workspace/application/command_palette/command_palette_bloc.dart';
+import 'package:appflowy/workspace/presentation/command_palette/widgets/search_field.dart';
 import 'package:appflowy/workspace/presentation/home/hotkeys.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -114,11 +115,7 @@ class _CommandPaletteControllerState extends State<_CommandPaletteController> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.child != null) {
-      return widget.child!;
-    }
-
-    return const SizedBox.shrink();
+    return widget.child ?? const SizedBox.shrink();
   }
 }
 
@@ -134,18 +131,25 @@ class CommandPaletteModal extends StatelessWidget {
           return FlowyDialog(
             alignment: Alignment.topCenter,
             insetPadding: const EdgeInsets.only(top: 100),
-            constraints: const BoxConstraints(maxHeight: 400, maxWidth: 510),
+            constraints: const BoxConstraints(maxHeight: 420, maxWidth: 510),
             expandHeight: false,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                FlowyTextField(
-                  controller: TextEditingController(),
-                  onChanged: (value) => context
-                      .read<CommandPaletteBloc>()
-                      .add(CommandPaletteEvent.searchChanged(search: value)),
-                ),
-                // TODO: Show results based on state of CommandPaletteBloc
+                SearchField(isLoading: state.isLoading),
+                if (state.results.isNotEmpty) ...[
+                  const Divider(height: 0),
+                  Flexible(
+                    child: ListView.separated(
+                      itemCount: state.results.length,
+                      itemBuilder: (_, index) => ListTile(
+                        title: Text(state.results[index].data),
+                        onTap: () {},
+                      ),
+                      separatorBuilder: (_, __) => const Divider(height: 0),
+                    ),
+                  ),
+                ],
               ],
             ),
           );
