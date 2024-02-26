@@ -70,17 +70,13 @@ class _MobileEditPropertyScreenState extends State<MobileEditPropertyScreen> {
             FieldOptionAction.delete,
           ],
           onOptionValuesChanged: (fieldOptionValues) async {
-            if (fieldOptionValues.name != _fieldOptionValues.name) {
-              await fieldService.updateField(name: fieldOptionValues.name);
-            }
+            await fieldService.updateField(name: fieldOptionValues.name);
 
-            if (fieldOptionValues.type != _fieldOptionValues.type) {
-              await FieldBackendService.updateFieldType(
-                viewId: widget.viewId,
-                fieldId: widget.field.id,
-                fieldType: fieldOptionValues.type,
-              );
-            }
+            await FieldBackendService.updateFieldType(
+              viewId: widget.viewId,
+              fieldId: widget.field.id,
+              fieldType: fieldOptionValues.type,
+            );
 
             final data = fieldOptionValues.getTypeOptionData();
             if (data != null) {
