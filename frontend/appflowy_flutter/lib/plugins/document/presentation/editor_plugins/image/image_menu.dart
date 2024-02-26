@@ -149,7 +149,6 @@ class _ImageAlignButtonState extends State<_ImageAlignButton> {
         child: MenuBlockButton(
           tooltip: LocaleKeys.document_plugins_optionAction_align.tr(),
           iconData: iconFor(align),
-          onTap: () {},
         ),
         popupBuilder: (_) {
           preventMenuClose();
