@@ -20,7 +20,6 @@ class OptionTextField extends StatelessWidget {
   Widget build(BuildContext context) {
     return FlowyOptionTile.textField(
       controller: controller,
-      autofocus: true,
       textFieldPadding: const EdgeInsets.symmetric(horizontal: 12.0),
       onTextChanged: onTextChanged,
       leftIcon: Container(
