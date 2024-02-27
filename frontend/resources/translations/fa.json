@@ -55,12 +55,12 @@
     "copyLink": "کپی کردن لینک"
   },
   "moreAction": {
-    "fontSize": "اندازه قلم",
-    "import": "اضافه کردن",
-    "moreOptions": "گزینه های بیشتر",
     "small": "کوچک",
     "medium": "متوسط",
-    "large": "بزرگ"
+    "large": "بزرگ",
+    "fontSize": "اندازه قلم",
+    "import": "اضافه کردن",
+    "moreOptions": "گزینه های بیشتر"
   },
   "importPanel": {
     "textAndMarkdown": "Text & Markdown",
@@ -175,7 +175,9 @@
     "editContact": "ویرایش مخاطب"
   },
   "button": {
+    "ok": "باشه",
     "done": "انجام شد",
+    "cancel": "لغو",
     "signIn": "ورود",
     "signOut": "خروج",
     "complete": "کامل شد",
@@ -191,9 +193,7 @@
     "edit": "ویرایش",
     "delete": "حذف کردن",
     "duplicate": "تکرار کردن",
-    "putback": "بازگشت",
-    "cancel": "لغو",
-    "ok": "باشه"
+    "putback": "بازگشت"
   },
   "label": {
     "welcome": "خوش آمدید!",

@@ -50,12 +50,12 @@
     "copyLink": "Esteka kopiatu"
   },
   "moreAction": {
-    "fontSize": "Letra tamaina",
-    "import": "Inportatu",
-    "moreOptions": "Aukera gehiago",
     "small": "txikia",
     "medium": "ertaina",
-    "large": "handia"
+    "large": "handia",
+    "fontSize": "Letra tamaina",
+    "import": "Inportatu",
+    "moreOptions": "Aukera gehiago"
   },
   "importPanel": {
     "textAndMarkdown": "Testua eta Markdown",
@@ -159,7 +159,9 @@
     "editContact": "Kontaktua editatu"
   },
   "button": {
+    "ok": "OK",
     "done": "Eginda",
+    "cancel": "Ezteztatu",
     "signIn": "Saioa hasi",
     "signOut": "Saioa itxi",
     "complete": "Burututa",
@@ -175,9 +177,7 @@
     "edit": "Editatu",
     "delete": "Ezabatu",
     "duplicate": "Bikoiztu",
-    "putback": "Jarri Atzera",
-    "cancel": "Ezteztatu",
-    "ok": "OK"
+    "putback": "Jarri Atzera"
   },
   "label": {
     "welcome": "Ongi etorri!",

@@ -63,12 +63,12 @@
     "copyLink": "リンクをコピー"
   },
   "moreAction": {
-    "fontSize": "フォントサイズ",
-    "import": "取り込む",
-    "moreOptions": "より多くのオプション",
     "small": "小さい",
     "medium": "中くらい",
-    "large": "大きい"
+    "large": "大きい",
+    "fontSize": "フォントサイズ",
+    "import": "取り込む",
+    "moreOptions": "より多くのオプション"
   },
   "importPanel": {
     "textAndMarkdown": "テキストとマークダウン",
