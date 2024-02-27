@@ -1,4 +1,5 @@
 fn main() {
+  #[cfg(any(feature = "dart", feature = "tauri_ts"))]
   let crate_name = env!("CARGO_PKG_NAME");
 
   #[cfg(feature = "dart")]

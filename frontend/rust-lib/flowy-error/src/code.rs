@@ -262,6 +262,9 @@ pub enum ErrorCode {
 
   #[error("IndexWriter failed to commit")]
   IndexWriterFailedCommit = 91,
+
+  #[error("Failed to open Index directory")]
+  FailedToOpenIndexDir = 92,
 }
 
 impl ErrorCode {

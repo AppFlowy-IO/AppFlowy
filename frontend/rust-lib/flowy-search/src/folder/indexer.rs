@@ -2,13 +2,13 @@ use std::{any::Any, collections::HashMap, fs, path::Path, sync::Weak};
 
 use crate::folder::schema::{FolderSchema, FOLDER_TITLE_FIELD_NAME};
 use collab::core::collab::{IndexContent, IndexContentReceiver};
-use collab_folder::ViewIndexContent;
-use flowy_error::FlowyError;
+use collab_folder::{timestamp, ViewIndexContent};
+use flowy_error::{FlowyError, FlowyResult};
 use flowy_user::services::authenticate_user::AuthenticateUser;
 use lib_dispatch::prelude::af_spawn;
 use tantivy::{
-  collector::TopDocs, directory::MmapDirectory, doc, query::QueryParser, DocAddress, Index, Score,
-  Term,
+  collector::TopDocs, directory::MmapDirectory, doc, query::QueryParser, Index, IndexReader,
+  IndexWriter, Term,
 };
 
 use crate::{
@@ -22,42 +22,42 @@ use super::{entities::FolderIndexData, schema::FOLDER_ID_FIELD_NAME};
 pub struct FolderIndexManager {
   folder_schema: FolderSchema,
   index: Index,
+  index_reader: IndexReader,
 }
 
 const FOLDER_INDEX_DIR: &str = "folder_index";
 
 impl FolderIndexManager {
-  pub fn new(auth_user: Weak<AuthenticateUser>) -> Self {
+  pub fn new(auth_user: Weak<AuthenticateUser>) -> FlowyResult<Self> {
     let authenticate_user = auth_user.upgrade();
     let storage_path = match authenticate_user {
-      Some(authenticate_user) => authenticate_user.get_index_path(),
+      Some(auth_user) => auth_user.get_index_path(),
       None => {
-        panic!("The user is not available");
+        return Err(FlowyError::internal().with_context("The AuthenticateUser is not available"))
       },
     };
 
     let index_path = storage_path.join(Path::new(FOLDER_INDEX_DIR));
-
     if !index_path.exists() {
-      let _ = fs::create_dir_all(&index_path);
+      fs::create_dir_all(&index_path)?;
     }
 
-    let dir = MmapDirectory::open(index_path);
+    let dir = MmapDirectory::open(index_path)?;
     let folder_schema = FolderSchema::new();
 
-    let dir = match dir {
-      Ok(dir) => dir,
-      Err(err) => {
-        panic!("Failed to open folder index directory: {:?}", err)
-      },
-    };
+    let index = Index::open_or_create(dir, folder_schema.clone().schema)?;
+    let index_reader = index.reader()?;
 
-    let index = Index::open_or_create(dir, folder_schema.clone().schema).unwrap();
-
-    Self {
+    Ok(Self {
       folder_schema,
       index,
-    }
+      index_reader,
+    })
+  }
+
+  fn get_index_writer(&self) -> FlowyResult<IndexWriter> {
+    // Creates an IndexWriter with a heap size of 50 MB (50.000.000 bytes)
+    Ok(self.index.writer(50_000_000)?)
   }
 
   pub fn search(&self, query: String) -> Result<Vec<SearchResultPB>, FlowyError> {
@@ -80,16 +80,12 @@ impl FolderIndexManager {
     query_parser.set_field_fuzzy(title_field, true, distance, true);
     let built_query = query_parser.parse_query(&query.clone()).unwrap();
 
-    let reader = self.index.reader().unwrap();
-    let searcher = reader.searcher();
+    let searcher = self.index_reader.searcher();
 
-    let top_docs: Vec<(Score, DocAddress)> = searcher
-      .search(&built_query, &TopDocs::with_limit(10))
-      .unwrap();
-
+    let top_docs = searcher.search(&built_query, &TopDocs::with_limit(10))?;
     let mut search_results: Vec<SearchResultPB> = vec![];
     for (_score, doc_address) in top_docs {
-      let retrieved_doc = searcher.doc(doc_address).unwrap();
+      let retrieved_doc = searcher.doc(doc_address)?;
 
       let mut content = HashMap::new();
       let named_doc = self.folder_schema.schema.to_named_doc(&retrieved_doc);
@@ -97,12 +93,12 @@ impl FolderIndexManager {
         content.insert(k, v[0].clone());
       }
 
-      if content.len() == 0 {
+      if content.is_empty() {
         continue;
       }
 
       let s = serde_json::to_string(&content)?;
-      let result: SearchResultPB = serde_json::from_str::<FolderIndexData>(&s).unwrap().into();
+      let result: SearchResultPB = serde_json::from_str::<FolderIndexData>(&s)?.into();
       search_results.push(result);
     }
 
@@ -145,7 +141,7 @@ impl IndexManager for FolderIndexManager {
   }
 
   fn update_index(&self, data: IndexableData) -> Result<(), FlowyError> {
-    let mut index_writer = self.index.writer(50000000).unwrap();
+    let mut index_writer = self.get_index_writer()?;
 
     let id_field = self
       .folder_schema
@@ -169,13 +165,15 @@ impl IndexManager for FolderIndexManager {
       title_field => data.data,
     ]);
 
+    tracing::warn!("Update Index: {:?} At({})", data.id.clone(), timestamp());
     index_writer.commit()?;
 
     Ok(())
   }
 
   fn remove_indices(&self, ids: Vec<String>) -> Result<(), FlowyError> {
-    let mut index_writer = self.index.writer(50000000).unwrap();
+    let mut index_writer = self.get_index_writer()?;
+
     let id_field = self
       .folder_schema
       .schema
@@ -193,7 +191,7 @@ impl IndexManager for FolderIndexManager {
   }
 
   fn add_index(&self, data: IndexableData) -> Result<(), FlowyError> {
-    let mut index_writer = self.index.writer(50000000).unwrap();
+    let mut index_writer = self.get_index_writer()?;
 
     let id_field = self
       .folder_schema

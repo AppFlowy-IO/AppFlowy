@@ -29,3 +29,9 @@ impl FolderSchema {
     Self { schema }
   }
 }
+
+impl Default for FolderSchema {
+  fn default() -> Self {
+    Self::new()
+  }
+}

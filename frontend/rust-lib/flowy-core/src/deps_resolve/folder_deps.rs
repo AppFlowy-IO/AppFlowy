@@ -38,12 +38,17 @@ impl FolderDepsResolver {
     database_manager: &Arc<DatabaseManager>,
     collab_builder: Arc<AppFlowyCollabBuilder>,
     server_provider: Arc<ServerProvider>,
+    folder_indexer: Weak<FolderIndexManager>,
   ) -> Arc<FolderManager> {
     let user: Arc<dyn FolderUser> = Arc::new(FolderUserImpl {
       authenticate_user: authenticate_user.clone(),
     });
 
-    let folder_indexer = FolderIndexManager::new(authenticate_user.clone());
+    let folder_indexer = folder_indexer
+      .upgrade()
+      .expect("FolderIndexer is not available")
+      .clone();
+
     let handlers = folder_operation_handlers(document_manager.clone(), database_manager.clone());
     Arc::new(
       FolderManager::new(
@@ -51,7 +56,7 @@ impl FolderDepsResolver {
         collab_builder,
         handlers,
         server_provider.clone(),
-        Arc::new(folder_indexer),
+        folder_indexer,
       )
       .await
       .unwrap(),

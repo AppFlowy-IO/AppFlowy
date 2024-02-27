@@ -8,21 +8,21 @@ use crate::entities::{SearchResultNotificationPB, SearchResultPB};
 
 use super::notifier::{SearchNotifier, SearchResultChanged, SearchResultReceiverRunner};
 
-pub trait ISearchHandler: Send + Sync + 'static {
+pub trait SearchHandler: Send + Sync + 'static {
   fn perform_search(&self, query: String) -> FlowyResult<Vec<SearchResultPB>>;
 }
 
-/// The [SearchManager] is used to inject multiple [ISearchHandler]'s
+/// The [SearchManager] is used to inject multiple [SearchHandler]'s
 /// to delegate a search to all relevant handlers, and stream the result
 /// to the client until the query has been fully completed.
 ///
 pub struct SearchManager {
-  pub handlers: Vec<Arc<dyn ISearchHandler>>,
+  pub handlers: Vec<Arc<dyn SearchHandler>>,
   notifier: SearchNotifier,
 }
 
 impl SearchManager {
-  pub fn new(handlers: Vec<Arc<dyn ISearchHandler>>) -> Self {
+  pub fn new(handlers: Vec<Arc<dyn SearchHandler>>) -> Self {
     // Initialize Search Notifier
     let (notifier, _) = broadcast::channel(100);
     af_spawn(SearchResultReceiverRunner(Some(notifier.subscribe())).run());

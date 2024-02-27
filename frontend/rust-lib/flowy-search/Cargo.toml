@@ -15,6 +15,7 @@ flowy-error = { workspace = true, features = [
     "impl_from_dispatch_error",
     "impl_from_collab_document",
     "impl_from_tantivy",
+    "impl_from_serde",
 ] }
 flowy-notification.workspace = true
 flowy-sqlite.workspace = true

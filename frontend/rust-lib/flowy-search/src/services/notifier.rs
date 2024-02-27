@@ -23,11 +23,8 @@ impl SearchResultReceiverRunner {
   pub(crate) async fn run(mut self) {
     let mut receiver = self.0.take().expect("Only take once");
     let stream = stream! {
-        loop {
-            match receiver.recv().await {
-                Ok(changed) => yield changed,
-                Err(_e) => break,
-            }
+        while let Ok(changed) = receiver.recv().await {
+            yield changed;
         }
     };
     stream
