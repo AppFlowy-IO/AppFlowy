@@ -104,6 +104,7 @@ impl From<UserWorkspaceTable> for UserWorkspace {
         .single()
         .unwrap_or_default(),
       workspace_database_object_id: value.database_storage_id,
+      icon: "".to_owned(),
     }
   }
 }
