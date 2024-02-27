@@ -30,10 +30,9 @@ class MobileDatabaseViewQuickActions extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _actionButton(context, _Action.edit, () {
+        _actionButton(context, _Action.edit, () async {
           final bloc = context.read<ViewBloc>();
-          context.pop();
-          showTransitionMobileBottomSheet(
+          await showTransitionMobileBottomSheet(
             context,
             showHeader: true,
             showDoneButton: true,
@@ -45,6 +44,9 @@ class MobileDatabaseViewQuickActions extends StatelessWidget {
               ),
             ),
           );
+          if (context.mounted) {
+            context.pop();
+          }
         }),
         _divider(),
         _actionButton(

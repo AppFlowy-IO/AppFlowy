@@ -5,7 +5,7 @@ use std::{ffi::CStr, os::raw::c_char};
 
 use lazy_static::lazy_static;
 use parking_lot::Mutex;
-use tracing::{error, trace};
+use tracing::{debug, error, info, trace, warn};
 
 use flowy_core::config::AppFlowyCoreConfig;
 use flowy_core::*;
@@ -175,18 +175,51 @@ async fn post_to_flutter(response: AFPluginEventResponse, port: i64) {
 }
 
 #[no_mangle]
-pub extern "C" fn backend_log(level: i64, data: *const c_char) {
-  let c_str = unsafe { CStr::from_ptr(data) };
-  let log_str = c_str.to_str().unwrap();
+pub extern "C" fn rust_log(level: i64, data: *const c_char) {
+  info!("backend_log");
+  // Check if the data pointer is not null
+  if data.is_null() {
+    error!("[flutter error]: null pointer provided to backend_log");
+    return;
+  }
 
-  // Don't change the mapping relation between number and level
-  match level {
-    0 => tracing::info!("{}", log_str),
-    1 => tracing::debug!("{}", log_str),
-    2 => tracing::trace!("{}", log_str),
-    3 => tracing::warn!("{}", log_str),
-    4 => tracing::error!("{}", log_str),
-    _ => (),
+  let log_result = unsafe { CStr::from_ptr(data) }.to_str();
+
+  // Handle potential UTF-8 conversion error
+  let log_str = match log_result {
+    Ok(str) => str,
+    Err(e) => {
+      error!(
+        "[flutter error]: Failed to convert C string to Rust string: {:?}",
+        e
+      );
+      return;
+    },
+  };
+
+  // Simplify logging by determining the log level outside of the match
+  let log_level = match level {
+    0 => "info",
+    1 => "debug",
+    2 => "trace",
+    3 => "warn",
+    4 => "error",
+    _ => {
+      warn!("[flutter error]: Unsupported log level: {}", level);
+      return;
+    },
+  };
+
+  // Log the message at the appropriate level
+  match log_level {
+    "info" => info!("[Flutter]: {}", log_str),
+    "debug" => debug!("[Flutter]: {}", log_str),
+    "trace" => trace!("[Flutter]: {}", log_str),
+    "warn" => warn!("[Flutter]: {}", log_str),
+    "error" => error!("[Flutter]: {}", log_str),
+    _ => {
+      warn!("[flutter error]: Unsupported log level: {}", log_level);
+    },
   }
 }
 
