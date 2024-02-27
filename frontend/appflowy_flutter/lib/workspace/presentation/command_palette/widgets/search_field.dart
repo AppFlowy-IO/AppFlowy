@@ -9,8 +9,9 @@ import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SearchField extends StatelessWidget {
-  const SearchField({super.key, this.isLoading = false});
+  const SearchField({super.key, this.query, this.isLoading = false});
 
+  final String? query;
   final bool isLoading;
 
   @override
@@ -24,7 +25,7 @@ class SearchField extends StatelessWidget {
         ),
         Expanded(
           child: FlowyTextField(
-            controller: TextEditingController(),
+            controller: TextEditingController(text: query),
             textStyle:
                 Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 14),
             decoration: InputDecoration(

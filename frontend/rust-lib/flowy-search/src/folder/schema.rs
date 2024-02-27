@@ -2,6 +2,8 @@ use tantivy::schema::Schema;
 
 pub const FOLDER_ID_FIELD_NAME: &str = "id";
 pub const FOLDER_TITLE_FIELD_NAME: &str = "title";
+pub const FOLDER_ICON_FIELD_NAME: &str = "icon";
+pub const FOLDER_ICON_TY_FIELD_NAME: &str = "icon_ty";
 
 #[derive(Clone)]
 pub struct FolderSchema {
@@ -23,6 +25,11 @@ impl FolderSchema {
       FOLDER_TITLE_FIELD_NAME,
       tantivy::schema::TEXT | tantivy::schema::STORED,
     );
+    schema_builder.add_text_field(
+      FOLDER_ICON_FIELD_NAME,
+      tantivy::schema::TEXT | tantivy::schema::STORED,
+    );
+    schema_builder.add_i64_field(FOLDER_ICON_TY_FIELD_NAME, tantivy::schema::STORED);
 
     let schema = schema_builder.build();
 

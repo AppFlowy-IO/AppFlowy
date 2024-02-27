@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'package:appflowy/workspace/application/command_palette/command_palette_bloc.dart';
 import 'package:appflowy/workspace/presentation/command_palette/widgets/search_field.dart';
+import 'package:appflowy/workspace/presentation/command_palette/widgets/search_result_tile.dart';
 import 'package:appflowy/workspace/presentation/home/hotkeys.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -64,6 +65,7 @@ class _CommandPaletteController extends StatefulWidget {
 }
 
 class _CommandPaletteControllerState extends State<_CommandPaletteController> {
+  late final CommandPaletteBloc _commandPaletteBloc;
   late ValueNotifier<bool> _toggleNotifier = widget.toggleNotifier;
   bool _isOpen = false;
 
@@ -88,12 +90,14 @@ class _CommandPaletteControllerState extends State<_CommandPaletteController> {
   void initState() {
     super.initState();
     _toggleNotifier.addListener(_onToggle);
+    _commandPaletteBloc = CommandPaletteBloc();
   }
 
   @override
   void dispose() {
     _toggleNotifier.removeListener(_onToggle);
     _toggleNotifier.dispose();
+    _commandPaletteBloc.close();
     super.dispose();
   }
 
@@ -102,7 +106,10 @@ class _CommandPaletteControllerState extends State<_CommandPaletteController> {
       _isOpen = true;
       FlowyOverlay.show(
         context: context,
-        builder: (BuildContext context) => const CommandPaletteModal(),
+        builder: (_) => BlocProvider.value(
+          value: _commandPaletteBloc,
+          child: const CommandPaletteModal(),
+        ),
       ).then((_) {
         _isOpen = false;
         widget.toggleNotifier.value = false;
@@ -124,37 +131,46 @@ class CommandPaletteModal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<CommandPaletteBloc>(
-      create: (_) => CommandPaletteBloc(),
-      child: BlocBuilder<CommandPaletteBloc, CommandPaletteState>(
-        builder: (context, state) {
-          return FlowyDialog(
-            alignment: Alignment.topCenter,
-            insetPadding: const EdgeInsets.only(top: 100),
-            constraints: const BoxConstraints(maxHeight: 420, maxWidth: 510),
-            expandHeight: false,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SearchField(isLoading: state.isLoading),
-                if (state.results.isNotEmpty) ...[
-                  const Divider(height: 0),
-                  Flexible(
-                    child: ListView.separated(
-                      itemCount: state.results.length,
-                      itemBuilder: (_, index) => ListTile(
-                        title: Text(state.results[index].data),
-                        onTap: () {},
-                      ),
-                      separatorBuilder: (_, __) => const Divider(height: 0),
-                    ),
+    return BlocBuilder<CommandPaletteBloc, CommandPaletteState>(
+      builder: (context, state) {
+        return FlowyDialog(
+          alignment: Alignment.topCenter,
+          insetPadding: const EdgeInsets.only(top: 100),
+          constraints: const BoxConstraints(maxHeight: 420, maxWidth: 510),
+          expandHeight: false,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SearchField(query: state.query, isLoading: state.isLoading),
+              if (state.results.isNotEmpty) ...[
+                const Divider(height: 0),
+                Flexible(
+                  child: ListView.separated(
+                    separatorBuilder: (_, __) => const Divider(height: 0),
+                    itemCount: state.results.length + 1,
+                    itemBuilder: (_, index) {
+                      if (index == 0) {
+                        return const Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
+                          child: FlowyText('Best matches'),
+                        );
+                      }
+
+                      return SearchResultTile(
+                        result: state.results[index - 1],
+                        onSelected: () => FlowyOverlay.pop(context),
+                      );
+                    },
                   ),
-                ],
+                ),
               ],
-            ),
-          );
-        },
-      ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

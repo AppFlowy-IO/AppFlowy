@@ -36,8 +36,10 @@ class CommandPaletteBloc
         searchChanged: _debounceOnSearchChanged,
         performSearch: (search) async {
           if (search.isNotEmpty) {
-            emit(state.copyWith(isLoading: true));
+            emit(state.copyWith(query: search, isLoading: true));
             await SearchBackendService.performSearch(search);
+          } else {
+            emit(state.copyWith(query: null, isLoading: false, results: []));
           }
         },
         resultsChanged: (results, didClose) {
@@ -70,11 +72,6 @@ class CommandPaletteBloc
     for (final item in results) {
       final duplicateIndex = currentItems.indexWhere((a) => a.id == item.id);
       if (duplicateIndex == -1) {
-        continue;
-      }
-
-      if (duplicateIndex != -1 && item.score >= 0) {
-        res.remove(item);
         continue;
       }
 
@@ -118,6 +115,7 @@ class CommandPaletteState with _$CommandPaletteState {
   const CommandPaletteState._();
 
   const factory CommandPaletteState({
+    @Default(null) String? query,
     required List<SearchResultPB> results,
     required bool isLoading,
   }) = _CommandPaletteState;

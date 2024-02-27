@@ -1,6 +1,9 @@
 use std::{any::Any, collections::HashMap, fs, path::Path, sync::Weak};
 
-use crate::folder::schema::{FolderSchema, FOLDER_TITLE_FIELD_NAME};
+use crate::{
+  entities::ResultIconTypePB,
+  folder::schema::{FolderSchema, FOLDER_ICON_FIELD_NAME, FOLDER_TITLE_FIELD_NAME},
+};
 use collab::core::collab::{IndexContent, IndexContentReceiver};
 use collab_folder::{timestamp, ViewIndexContent};
 use flowy_error::{FlowyError, FlowyResult};
@@ -16,7 +19,10 @@ use crate::{
   services::indexer::{IndexManager, IndexableData},
 };
 
-use super::{entities::FolderIndexData, schema::FOLDER_ID_FIELD_NAME};
+use super::{
+  entities::FolderIndexData,
+  schema::{FOLDER_ICON_TY_FIELD_NAME, FOLDER_ID_FIELD_NAME},
+};
 
 #[derive(Clone)]
 pub struct FolderIndexManager {
@@ -117,6 +123,7 @@ impl IndexManager for FolderIndexManager {
               let _ = indexer.add_index(IndexableData {
                 id: view.id,
                 data: view.name,
+                icon: view.icon,
               });
             },
             Err(err) => tracing::error!("FolderIndexManager error deserialize: {:?}", err),
@@ -126,6 +133,7 @@ impl IndexManager for FolderIndexManager {
               let _ = indexer.update_index(IndexableData {
                 id: view.id,
                 data: view.name,
+                icon: view.icon,
               });
             },
             Err(err) => tracing::error!("FolderIndexManager error deserialize: {:?}", err),
@@ -153,16 +161,39 @@ impl IndexManager for FolderIndexManager {
       .schema
       .get_field(FOLDER_TITLE_FIELD_NAME)
       .unwrap();
+    let icon_field = self
+      .folder_schema
+      .schema
+      .get_field(FOLDER_ICON_FIELD_NAME)
+      .unwrap();
+    let icon_ty_field = self
+      .folder_schema
+      .schema
+      .get_field(FOLDER_ICON_TY_FIELD_NAME)
+      .unwrap();
 
     let delete_term = Term::from_field_text(id_field, &data.id.clone());
 
     // Remove old index
     index_writer.delete_term(delete_term);
 
+    let mut icon_ty: Option<i64> = None;
+    let mut icon: Option<String> = None;
+    match data.icon {
+      Some(view_icon) => {
+        let result_icon_ty: ResultIconTypePB = view_icon.ty.into();
+        icon_ty = Some(result_icon_ty.into());
+        icon = Some(view_icon.value);
+      },
+      None => (),
+    };
+
     // Add new index
     let _ = index_writer.add_document(doc![
       id_field => data.id.clone(),
       title_field => data.data,
+      icon_field => icon.unwrap_or_default(),
+      icon_ty_field => icon_ty.unwrap_or_default(),
     ]);
 
     tracing::warn!("Update Index: {:?} At({})", data.id.clone(), timestamp());
@@ -203,11 +234,34 @@ impl IndexManager for FolderIndexManager {
       .schema
       .get_field(FOLDER_TITLE_FIELD_NAME)
       .unwrap();
+    let icon_field = self
+      .folder_schema
+      .schema
+      .get_field(FOLDER_ICON_FIELD_NAME)
+      .unwrap();
+    let icon_ty_field = self
+      .folder_schema
+      .schema
+      .get_field(FOLDER_ICON_TY_FIELD_NAME)
+      .unwrap();
+
+    let mut icon_ty: Option<i64> = None;
+    let mut icon: Option<String> = None;
+    match data.icon {
+      Some(view_icon) => {
+        let result_icon_ty: ResultIconTypePB = view_icon.ty.into();
+        icon_ty = Some(result_icon_ty.into());
+        icon = Some(view_icon.value);
+      },
+      None => (),
+    };
 
     // Add new index
     let _ = index_writer.add_document(doc![
       id_field => data.id,
       title_field => data.data,
+      icon_field => icon.unwrap_or_default(),
+      icon_ty_field => icon_ty.unwrap_or_default(),
     ]);
 
     index_writer.commit()?;
