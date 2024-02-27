@@ -69,7 +69,7 @@ where
     FutureResult::new(async move { Ok(()) })
   }
 
-  fn generate_sign_in_url_with_email(&self, email: &str) -> FutureResult<String, FlowyError> {
+  fn generate_sign_in_url_with_email(&self, email: String) -> FutureResult<String, FlowyError> {
     let email = email.to_string();
     let try_get_client = self.server.try_get_client();
     FutureResult::new(async move {
@@ -81,7 +81,7 @@ where
     })
   }
 
-  fn create_user(&self, email: &str, password: &str) -> FutureResult<(), FlowyError> {
+  fn create_user(&self, email: String, password: String) -> FutureResult<(), FlowyError> {
     let password = password.to_string();
     let email = email.to_string();
     let try_get_client = self.server.try_get_client();
@@ -98,8 +98,8 @@ where
 
   fn sign_in_with_password(
     &self,
-    email: &str,
-    password: &str,
+    email: String,
+    password: String,
   ) -> FutureResult<UserProfile, FlowyError> {
     let password = password.to_string();
     let email = email.to_string();
@@ -155,7 +155,7 @@ where
     })
   }
 
-  fn open_workspace(&self, workspace_id: &str) -> FutureResult<UserWorkspace, FlowyError> {
+  fn open_workspace(&self, workspace_id: String) -> FutureResult<UserWorkspace, FlowyError> {
     let try_get_client = self.server.try_get_client();
     let workspace_id = workspace_id.to_string();
     FutureResult::new(async move {
@@ -298,7 +298,7 @@ where
     })
   }
 
-  fn create_workspace(&self, workspace_name: &str) -> FutureResult<UserWorkspace, FlowyError> {
+  fn create_workspace(&self, workspace_name: String) -> FutureResult<UserWorkspace, FlowyError> {
     let try_get_client = self.server.try_get_client();
     let workspace_name_owned = workspace_name.to_owned();
     FutureResult::new(async move {
@@ -312,30 +312,28 @@ where
     })
   }
 
-  fn rename_workspace(
+  fn patch_workspace(
     &self,
-    workspace_id: &str,
-    workspace_name: &str,
+    workspace_id: String,
+    workspace_name: Option<String>,
+    workspace_icon: Option<String>,
   ) -> FutureResult<(), FlowyError> {
     let try_get_client = self.server.try_get_client();
-    let new_workspace_name = Some(workspace_name.to_string());
-    let workspace_id_owned = workspace_id.to_owned();
     FutureResult::new(async move {
-      let workspace_id: Uuid = workspace_id_owned
-        .parse()
-        .map_err(|_| ErrorCode::InvalidParams)?;
+      let workspace_id: Uuid = workspace_id.parse().map_err(|_| ErrorCode::InvalidParams)?;
       let client = try_get_client?;
       client
         .patch_workspace(PatchWorkspaceParam {
           workspace_id,
-          workspace_name: new_workspace_name,
+          workspace_name,
+          workspace_icon,
         })
         .await?;
       Ok(())
     })
   }
 
-  fn delete_workspace(&self, workspace_id: &str) -> FutureResult<(), FlowyError> {
+  fn delete_workspace(&self, workspace_id: String) -> FutureResult<(), FlowyError> {
     let try_get_client = self.server.try_get_client();
     let workspace_id_owned = workspace_id.to_owned();
     FutureResult::new(async move {

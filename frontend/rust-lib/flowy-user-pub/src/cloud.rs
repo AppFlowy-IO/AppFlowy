@@ -134,14 +134,14 @@ pub trait UserCloudService: Send + Sync + 'static {
 
   /// Generate a sign in url for the user with the given email
   /// Currently, only use the admin client for testing
-  fn generate_sign_in_url_with_email(&self, email: &str) -> FutureResult<String, FlowyError>;
+  fn generate_sign_in_url_with_email(&self, email: String) -> FutureResult<String, FlowyError>;
 
-  fn create_user(&self, email: &str, password: &str) -> FutureResult<(), FlowyError>;
+  fn create_user(&self, email: String, password: String) -> FutureResult<(), FlowyError>;
 
   fn sign_in_with_password(
     &self,
-    email: &str,
-    password: &str,
+    email: String,
+    password: String,
   ) -> FutureResult<UserProfile, FlowyError>;
 
   /// When the user opens the OAuth URL, it redirects to the corresponding provider's OAuth web page.
@@ -162,23 +162,24 @@ pub trait UserCloudService: Send + Sync + 'static {
   /// return None if the user is not found
   fn get_user_profile(&self, credential: UserCredentials) -> FutureResult<UserProfile, FlowyError>;
 
-  fn open_workspace(&self, workspace_id: &str) -> FutureResult<UserWorkspace, FlowyError>;
+  fn open_workspace(&self, workspace_id: String) -> FutureResult<UserWorkspace, FlowyError>;
 
   /// Return the all the workspaces of the user
   fn get_all_workspace(&self, uid: i64) -> FutureResult<Vec<UserWorkspace>, FlowyError>;
 
   /// Creates a new workspace for the user.
   /// Returns the new workspace if successful
-  fn create_workspace(&self, workspace_name: &str) -> FutureResult<UserWorkspace, FlowyError>;
+  fn create_workspace(&self, workspace_name: String) -> FutureResult<UserWorkspace, FlowyError>;
 
-  fn rename_workspace(
+  fn patch_workspace(
     &self,
-    workspace_id: &str,
-    workspace_name: &str,
+    workspace_id: String,
+    workspace_name: Option<String>,
+    workspace_icon: Option<String>,
   ) -> FutureResult<(), FlowyError>;
 
   /// Deletes a workspace owned by the user.
-  fn delete_workspace(&self, workspace_id: &str) -> FutureResult<(), FlowyError>;
+  fn delete_workspace(&self, workspace_id: String) -> FutureResult<(), FlowyError>;
 
   fn add_workspace_member(
     &self,

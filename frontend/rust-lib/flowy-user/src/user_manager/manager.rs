@@ -653,7 +653,7 @@ impl UserManager {
   pub(crate) async fn generate_sign_in_url_with_email(
     &self,
     authenticator: &Authenticator,
-    email: &str,
+    email: String,
   ) -> Result<String, FlowyError> {
     self.cloud_services.set_user_authenticator(authenticator);
 

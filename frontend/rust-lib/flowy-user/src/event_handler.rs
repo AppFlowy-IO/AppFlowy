@@ -311,7 +311,7 @@ pub async fn gen_sign_in_url_handler(
   let params = data.into_inner();
   let authenticator: Authenticator = params.authenticator.into();
   let sign_in_url = manager
-    .generate_sign_in_url_with_email(&authenticator, &params.email)
+    .generate_sign_in_url_with_email(&authenticator, params.email)
     .await?;
   data_result_ok(SignInUrlPB { sign_in_url })
 }
@@ -486,7 +486,7 @@ pub async fn open_workspace_handler(
 ) -> Result<(), FlowyError> {
   let manager = upgrade_manager(manager)?;
   let params = data.try_into_inner()?;
-  manager.open_workspace(&params.workspace_id).await?;
+  manager.open_workspace(params.workspace_id).await?;
   Ok(())
 }
 
@@ -669,7 +669,7 @@ pub async fn create_workspace_handler(
 ) -> DataResult<UserWorkspacePB, FlowyError> {
   let data = data.try_into_inner()?;
   let manager = upgrade_manager(manager)?;
-  let new_workspace = manager.add_workspace(&data.name).await?;
+  let new_workspace = manager.add_workspace(data.name).await?;
   data_result_ok(new_workspace.into())
 }
 
@@ -680,7 +680,7 @@ pub async fn delete_workspace_handler(
 ) -> Result<(), FlowyError> {
   let workspace_id = delete_workspace_param.try_into_inner()?.workspace_id;
   let manager = upgrade_manager(manager)?;
-  manager.delete_workspace(&workspace_id).await?;
+  manager.delete_workspace(workspace_id).await?;
   Ok(())
 }
 
@@ -692,7 +692,20 @@ pub async fn rename_workspace_handler(
   let params = rename_workspace_param.try_into_inner()?;
   let manager = upgrade_manager(manager)?;
   manager
-    .rename_workspace(params.workspace_id, params.new_name)
+    .patch_workspace(params.workspace_id, Some(params.new_name), None)
+    .await?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn change_workspace_icon_handler(
+  change_workspace_icon_param: AFPluginData<ChangeWorkspaceIconPB>,
+  manager: AFPluginState<Weak<UserManager>>,
+) -> Result<(), FlowyError> {
+  let params = change_workspace_icon_param.try_into_inner()?;
+  let manager = upgrade_manager(manager)?;
+  manager
+    .patch_workspace(params.workspace_id, None, Some(params.new_icon))
     .await?;
   Ok(())
 }

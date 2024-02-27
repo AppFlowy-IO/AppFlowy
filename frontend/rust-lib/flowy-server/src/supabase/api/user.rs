@@ -165,13 +165,13 @@ where
     FutureResult::new(async { Ok(()) })
   }
 
-  fn generate_sign_in_url_with_email(&self, _email: &str) -> FutureResult<String, FlowyError> {
+  fn generate_sign_in_url_with_email(&self, _email: String) -> FutureResult<String, FlowyError> {
     FutureResult::new(async {
       Err(FlowyError::internal().with_context("Can't generate callback url when using supabase"))
     })
   }
 
-  fn create_user(&self, _email: &str, _password: &str) -> FutureResult<(), FlowyError> {
+  fn create_user(&self, _email: String, _password: String) -> FutureResult<(), FlowyError> {
     FutureResult::new(async {
       Err(FlowyError::not_support().with_context("Can't create user when using supabase"))
     })
@@ -179,8 +179,8 @@ where
 
   fn sign_in_with_password(
     &self,
-    _email: &str,
-    _password: &str,
+    _email: String,
+    _password: String,
   ) -> FutureResult<UserProfile, FlowyError> {
     FutureResult::new(async {
       Err(FlowyError::not_support().with_context("Can't sign in with password when using supabase"))
@@ -234,7 +234,7 @@ where
     })
   }
 
-  fn open_workspace(&self, _workspace_id: &str) -> FutureResult<UserWorkspace, FlowyError> {
+  fn open_workspace(&self, _workspace_id: String) -> FutureResult<UserWorkspace, FlowyError> {
     FutureResult::new(async {
       Err(FlowyError::not_support().with_context("supabase server doesn't support open workspace"))
     })
@@ -355,7 +355,7 @@ where
     })
   }
 
-  fn create_workspace(&self, _workspace_name: &str) -> FutureResult<UserWorkspace, FlowyError> {
+  fn create_workspace(&self, _workspace_name: String) -> FutureResult<UserWorkspace, FlowyError> {
     FutureResult::new(async {
       Err(
         FlowyError::local_version_not_support()
@@ -364,10 +364,11 @@ where
     })
   }
 
-  fn rename_workspace(
+  fn patch_workspace(
     &self,
-    _workspace_id: &str,
-    _workspace_name: &str,
+    _workspace_id: String,
+    _workspace_name: Option<String>,
+    _workspace_icon: Option<String>,
   ) -> FutureResult<(), FlowyError> {
     FutureResult::new(async {
       Err(
@@ -377,7 +378,7 @@ where
     })
   }
 
-  fn delete_workspace(&self, _workspace_id: &str) -> FutureResult<(), FlowyError> {
+  fn delete_workspace(&self, _workspace_id: String) -> FutureResult<(), FlowyError> {
     FutureResult::new(async {
       Err(
         FlowyError::local_version_not_support()

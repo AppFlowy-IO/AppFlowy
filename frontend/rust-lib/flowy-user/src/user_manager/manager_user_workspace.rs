@@ -132,14 +132,14 @@ impl UserManager {
   }
 
   #[instrument(skip(self), err)]
-  pub async fn open_workspace(&self, workspace_id: &str) -> FlowyResult<()> {
+  pub async fn open_workspace(&self, workspace_id: String) -> FlowyResult<()> {
     let uid = self.user_id()?;
     let _ = self
       .cloud_services
       .get_user_service()?
-      .open_workspace(workspace_id)
+      .open_workspace(workspace_id.clone())
       .await;
-    if let Some(user_workspace) = self.get_user_workspace(uid, workspace_id) {
+    if let Some(user_workspace) = self.get_user_workspace(uid, &workspace_id) {
       if let Err(err) = self
         .user_status_callback
         .read()
@@ -153,7 +153,7 @@ impl UserManager {
     Ok(())
   }
 
-  pub async fn add_workspace(&self, workspace_name: &str) -> FlowyResult<UserWorkspace> {
+  pub async fn add_workspace(&self, workspace_name: String) -> FlowyResult<UserWorkspace> {
     let new_workspace = self
       .cloud_services
       .get_user_service()?
@@ -167,21 +167,22 @@ impl UserManager {
     Ok(new_workspace)
   }
 
-  pub async fn rename_workspace(
+  pub async fn patch_workspace(
     &self,
     workspace_id: String,
-    new_workspace_name: String,
+    new_workspace_name: Option<String>,
+    new_workspace_icon: Option<String>,
   ) -> FlowyResult<()> {
     self
       .cloud_services
       .get_user_service()?
-      .rename_workspace(&workspace_id, &new_workspace_name)
+      .patch_workspace(workspace_id, new_workspace_name, new_workspace_icon)
       .await?;
 
     Ok(())
   }
 
-  pub async fn delete_workspace(&self, workspace_id: &str) -> FlowyResult<()> {
+  pub async fn delete_workspace(&self, workspace_id: String) -> FlowyResult<()> {
     self
       .cloud_services
       .get_user_service()?
