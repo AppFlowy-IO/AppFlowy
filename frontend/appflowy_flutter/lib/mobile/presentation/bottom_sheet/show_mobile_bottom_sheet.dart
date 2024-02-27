@@ -1,8 +1,26 @@
 import 'package:appflowy/mobile/presentation/base/app_bar_actions.dart';
 import 'package:appflowy/plugins/base/drag_handler.dart';
-import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart' hide WidgetBuilder;
 import 'package:flutter/material.dart';
+
+extension BottomSheetPaddingExtension on BuildContext {
+  /// Calculates the total amount of space that should be added to the bottom of
+  /// a bottom sheet
+  double bottomSheetPadding({
+    bool ignoreViewPadding = true,
+  }) {
+    final viewPadding = MediaQuery.viewPaddingOf(this);
+    final viewInsets = MediaQuery.viewInsetsOf(this);
+    double bottom = 0.0;
+    if (!ignoreViewPadding) {
+      bottom += viewPadding.bottom;
+    }
+    // for screens with 0 view padding, add some even more space
+    bottom += viewPadding.bottom == 0 ? 28.0 : 16.0;
+    bottom += viewInsets.bottom;
+    return bottom;
+  }
+}
 
 Future<T?> showMobileBottomSheet<T>(
   BuildContext context, {
@@ -16,7 +34,6 @@ Future<T?> showMobileBottomSheet<T>(
   bool showCloseButton = false,
   // this field is only used if showHeader is true
   String title = '',
-  bool resizeToAvoidBottomInset = true,
   bool isScrollControlled = true,
   bool showDivider = true,
   bool useRootNavigator = false,
@@ -42,7 +59,7 @@ Future<T?> showMobileBottomSheet<T>(
 
   shape ??= const RoundedRectangleBorder(
     borderRadius: BorderRadius.vertical(
-      top: Corners.s12Radius,
+      top: Radius.circular(16),
     ),
   );
 
@@ -68,23 +85,20 @@ Future<T?> showMobileBottomSheet<T>(
       final Widget child = builder(context);
 
       // if the children is only one, we don't need to wrap it with a column
-      if (!showDragHandle &&
-          !showHeader &&
-          !showDivider &&
-          !resizeToAvoidBottomInset) {
+      if (!showDragHandle && !showHeader && !showDivider) {
         return child;
       }
 
       // ----- header area -----
       if (showDragHandle) {
         children.add(
-          const DragHandler(),
+          const DragHandle(),
         );
       }
 
       if (showHeader) {
         children.add(
-          _Header(
+          BottomSheetHeader(
             showCloseButton: showCloseButton,
             showBackButton: showBackButton,
             showDoneButton: showDoneButton,
@@ -125,31 +139,19 @@ Future<T?> showMobileBottomSheet<T>(
       }
 
       // ----- content area -----
-      if (resizeToAvoidBottomInset) {
-        children.add(
-          Padding(
-            padding: EdgeInsets.only(
-              top: padding.top,
-              left: padding.left,
-              right: padding.right,
-              bottom: padding.bottom + MediaQuery.of(context).viewInsets.bottom,
-            ),
-            child: child,
-          ),
-        );
-      } else {
-        children.add(child);
-      }
+      // add content padding and extra bottom padding
+      children.add(
+        Padding(
+          padding:
+              padding + EdgeInsets.only(bottom: context.bottomSheetPadding()),
+          child: child,
+        ),
+      );
       // ----- content area -----
 
       if (children.length == 1) {
         return children.first;
       }
-
-      // add default padding
-      children.add(
-        VSpace(MediaQuery.of(context).padding.bottom == 0 ? 28.0 : 16.0),
-      );
 
       return useSafeArea
           ? SafeArea(
@@ -166,8 +168,9 @@ Future<T?> showMobileBottomSheet<T>(
   );
 }
 
-class _Header extends StatelessWidget {
-  const _Header({
+class BottomSheetHeader extends StatelessWidget {
+  const BottomSheetHeader({
+    super.key,
     required this.showBackButton,
     required this.showCloseButton,
     required this.title,

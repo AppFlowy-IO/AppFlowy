@@ -1,18 +1,18 @@
 import 'dart:io';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/custom_cover_picker_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra_ui/style_widget/snap_bar.dart';
-import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
+import 'package:flowy_infra_ui/style_widget/snap_bar.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/style_widget/text_field.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
+import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class CoverImagePicker extends StatefulWidget {
   const CoverImagePicker({
@@ -37,12 +37,13 @@ class _CoverImagePickerState extends State<CoverImagePicker> {
       child: BlocListener<CoverImagePickerBloc, CoverImagePickerState>(
         listener: (context, state) {
           if (state is NetworkImagePicked) {
-            state.successOrFail.isRight()
-                ? showSnapBar(
-                    context,
-                    LocaleKeys.document_plugins_cover_invalidImageUrl.tr(),
-                  )
-                : null;
+            state.successOrFail.fold(
+              (s) {},
+              (e) => showSnapBar(
+                context,
+                LocaleKeys.document_plugins_cover_invalidImageUrl.tr(),
+              ),
+            );
           }
           if (state is Done) {
             state.successOrFail.fold(

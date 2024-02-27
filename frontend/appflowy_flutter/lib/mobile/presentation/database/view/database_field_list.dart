@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_option_tile.dart';
 import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
@@ -61,6 +62,7 @@ class _MobileDatabaseFieldListBody extends StatelessWidget {
           if (state.fieldContexts.isEmpty) {
             return const SizedBox.shrink();
           }
+
           final fields = [...state.fieldContexts];
           final firstField = fields.removeAt(0);
           final firstCell = DatabaseFieldListTile(
@@ -68,7 +70,7 @@ class _MobileDatabaseFieldListBody extends StatelessWidget {
             viewId: viewId,
             fieldController: databaseController.fieldController,
             fieldInfo: firstField,
-            showTopBorder: true,
+            showTopBorder: false,
           );
           final cells = fields
               .mapIndexed(
@@ -124,9 +126,16 @@ class _MobileDatabaseFieldListBody extends StatelessWidget {
                     children: [
                       _divider(),
                       _NewDatabaseFieldTile(viewId: viewId),
+                      VSpace(
+                        context.bottomSheetPadding(
+                          ignoreViewPadding: false,
+                        ),
+                      ),
                     ],
                   )
-                : null,
+                : VSpace(
+                    context.bottomSheetPadding(ignoreViewPadding: false),
+                  ),
             itemCount: cells.length,
             itemBuilder: (context, index) => cells[index],
           );
@@ -204,7 +213,7 @@ class _NewDatabaseFieldTile extends StatelessWidget {
         color: Theme.of(context).hintColor,
       ),
       textColor: Theme.of(context).hintColor,
-      onTap: () => showCreateFieldBottomSheet(context, viewId),
+      onTap: () => mobileCreateFieldWorkflow(context, viewId),
     );
   }
 }

@@ -32,7 +32,7 @@ class WindowSizeManager {
     final defaultWindowSize = jsonEncode({height: 600.0, width: 800.0});
     final windowSize = await getIt<KeyValueStorage>().get(KVKeys.windowSize);
     final size = json.decode(
-      windowSize.getOrElse(() => defaultWindowSize),
+      windowSize ?? defaultWindowSize,
     );
     return Size(size[width]!, size[height]!);
   }
@@ -49,12 +49,10 @@ class WindowSizeManager {
 
   Future<Offset?> getPosition() async {
     final position = await getIt<KeyValueStorage>().get(KVKeys.windowPosition);
-    return position.fold(
-      () => null,
-      (r) {
-        final offset = json.decode(r);
-        return Offset(offset[dx], offset[dy]);
-      },
-    );
+    if (position == null) {
+      return null;
+    }
+    final offset = json.decode(position);
+    return Offset(offset[dx], offset[dy]);
   }
 }

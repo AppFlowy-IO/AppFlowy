@@ -161,7 +161,7 @@ impl DatabaseViewEditor {
       .payload(changes)
       .send();
     self
-      .gen_view_tasks(row_detail.row.id.clone(), "".to_string())
+      .gen_did_create_row_view_tasks(row_detail.row.id.clone())
       .await;
   }
 
@@ -257,7 +257,7 @@ impl DatabaseViewEditor {
     // Each row update will trigger a calculations, filter and sort operation. We don't want
     // to block the main thread, so we spawn a new task to do the work.
     self
-      .gen_view_tasks(row_detail.row.id.clone(), field_id)
+      .gen_did_update_row_view_tasks(row_detail.row.id.clone(), field_id)
       .await;
   }
 
@@ -491,7 +491,6 @@ impl DatabaseViewEditor {
     let sort = Sort {
       id: sort_id,
       field_id: params.field_id.clone(),
-      field_type: params.field_type,
       condition: params.condition.into(),
     };
 
@@ -791,10 +790,16 @@ impl DatabaseViewEditor {
       .await;
   }
 
-  pub async fn v_did_update_field_type(&self, field_id: &str, new_field_type: &FieldType) {
+  pub async fn v_did_update_field_type(&self, field_id: &str, new_field_type: FieldType) {
+    self
+      .sort_controller
+      .read()
+      .await
+      .did_update_field_type()
+      .await;
     self
       .calculations_controller
-      .did_receive_field_type_changed(field_id.to_owned(), new_field_type.to_owned())
+      .did_receive_field_type_changed(field_id.to_owned(), new_field_type)
       .await;
   }
 
@@ -1071,7 +1076,7 @@ impl DatabaseViewEditor {
     }
   }
 
-  async fn gen_view_tasks(&self, row_id: RowId, field_id: String) {
+  async fn gen_did_update_row_view_tasks(&self, row_id: RowId, field_id: String) {
     let weak_filter_controller = Arc::downgrade(&self.filter_controller);
     let weak_sort_controller = Arc::downgrade(&self.sort_controller);
     let weak_calculations_controller = Arc::downgrade(&self.calculations_controller);
@@ -1092,6 +1097,15 @@ impl DatabaseViewEditor {
         calculations_controller
           .did_receive_cell_changed(field_id)
           .await;
+      }
+    });
+  }
+
+  async fn gen_did_create_row_view_tasks(&self, row_id: RowId) {
+    let weak_sort_controller = Arc::downgrade(&self.sort_controller);
+    af_spawn(async move {
+      if let Some(sort_controller) = weak_sort_controller.upgrade() {
+        sort_controller.read().await.did_create_row(row_id).await;
       }
     });
   }

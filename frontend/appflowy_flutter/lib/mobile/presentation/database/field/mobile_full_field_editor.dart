@@ -5,16 +5,14 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/base/flowy_search_text_field.dart';
 import 'package:appflowy/mobile/presentation/base/option_color_list.dart';
-import 'package:appflowy/mobile/presentation/base/type_option_menu_item.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/database/card/card_detail/widgets/widgets.dart';
 import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
 import 'package:appflowy/plugins/base/drag_handler.dart';
-import 'package:appflowy/plugins/database/application/field/field_service.dart';
+import 'package:appflowy/plugins/database/domain/field_service.dart';
 import 'package:appflowy/plugins/database/application/field/type_option/number_format_bloc.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/header/type_option/date/date_time_format.dart';
 import 'package:appflowy/plugins/database/widgets/cell_editor/extension.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/util/field_type_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:collection/collection.dart';
@@ -222,6 +220,18 @@ class _MobileFieldEditorState extends State<MobileFieldEditor> {
               onTextChanged: (value) {
                 isFieldNameChanged = true;
                 _updateOptionValues(name: value);
+              },
+              onFieldTypeChanged: (type) {
+                setState(
+                  () {
+                    if (widget.mode == FieldOptionMode.add &&
+                        !isFieldNameChanged) {
+                      controller.text = type.i18n;
+                      _updateOptionValues(name: type.i18n);
+                    }
+                    _updateOptionValues(type: type);
+                  },
+                );
               },
             ),
             const _Divider(),
@@ -444,42 +454,14 @@ class _PropertyType extends StatelessWidget {
           ),
         ],
       ),
-      onTap: () {
-        showMobileBottomSheet(
+      onTap: () async {
+        final fieldType = await showFieldTypeGridBottomSheet(
           context,
-          padding: EdgeInsets.zero,
-          showHeader: true,
-          showDragHandle: true,
-          showCloseButton: true,
-          elevation: 20,
           title: LocaleKeys.grid_field_editProperty.tr(),
-          backgroundColor: Theme.of(context).colorScheme.surface,
-          barrierColor: Colors.transparent,
-          enableDraggableScrollable: true,
-          builder: (context) {
-            final typeOptionMenuItemValue = mobileSupportedFieldTypes
-                .map(
-                  (fieldType) => TypeOptionMenuItemValue(
-                    value: fieldType,
-                    backgroundColor: fieldType.mobileIconBackgroundColor,
-                    text: fieldType.i18n,
-                    icon: fieldType.svgData,
-                    onTap: (_, fieldType) {
-                      onSelected(fieldType);
-                      context.pop();
-                    },
-                  ),
-                )
-                .toList();
-            return Padding(
-              padding: EdgeInsets.all(16 * context.scale),
-              child: TypeOptionMenu<FieldType>(
-                values: typeOptionMenuItemValue,
-                scaleFactor: context.scale,
-              ),
-            );
-          },
         );
+        if (fieldType != null) {
+          onSelected(fieldType);
+        }
       },
     );
   }
@@ -711,7 +693,7 @@ class _NumberFormatListState extends State<_NumberFormatList> {
       controller: widget.scrollController,
       children: [
         const Center(
-          child: DragHandler(),
+          child: DragHandle(),
         ),
         Container(
           margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),

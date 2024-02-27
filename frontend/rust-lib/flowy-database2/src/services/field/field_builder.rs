@@ -18,7 +18,7 @@ impl FieldBuilder {
   }
 
   pub fn from_field_type(field_type: FieldType) -> Self {
-    let type_option_data = default_type_option_data_from_type(&field_type);
+    let type_option_data = default_type_option_data_from_type(field_type);
     Self::new(field_type, type_option_data)
   }
 

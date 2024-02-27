@@ -18,12 +18,15 @@ export function GridCalculate({ field, index }: Props) {
     <div
       style={{
         width,
-        visibility: index === 1 ? 'visible' : 'hidden',
       }}
-      className={'flex justify-end py-2'}
+      className={'flex justify-end py-2 text-text-title'}
     >
-      <span className={'mr-2 text-text-caption'}>Count</span>
-      <span>{count}</span>
+      {field.isPrimary ? (
+        <>
+          <span className={'mr-2 text-text-caption'}>Count</span>
+          <span>{count}</span>
+        </>
+      ) : null}
     </div>
   );
 }

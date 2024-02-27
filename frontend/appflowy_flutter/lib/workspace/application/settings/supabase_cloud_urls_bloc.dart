@@ -4,7 +4,6 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
-import 'package:dartz/dartz.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -23,7 +22,7 @@ class SupabaseCloudURLsBloc
             state.copyWith(
               updatedUrl: url,
               showRestartHint: url.isNotEmpty && state.upatedAnonKey.isNotEmpty,
-              urlError: none(),
+              urlError: null,
             ),
           );
         },
@@ -33,7 +32,7 @@ class SupabaseCloudURLsBloc
               upatedAnonKey: anonKey,
               showRestartHint:
                   anonKey.isNotEmpty && state.updatedUrl.isNotEmpty,
-              anonKeyError: none(),
+              anonKeyError: null,
             ),
           );
         },
@@ -41,10 +40,9 @@ class SupabaseCloudURLsBloc
           if (state.updatedUrl.isEmpty) {
             emit(
               state.copyWith(
-                urlError: Some(
-                  LocaleKeys.settings_menu_cloudSupabaseUrlCanNotBeEmpty.tr(),
-                ),
-                anonKeyError: none(),
+                urlError:
+                    LocaleKeys.settings_menu_cloudSupabaseUrlCanNotBeEmpty.tr(),
+                anonKeyError: null,
                 restartApp: false,
               ),
             );
@@ -54,11 +52,10 @@ class SupabaseCloudURLsBloc
           if (state.upatedAnonKey.isEmpty) {
             emit(
               state.copyWith(
-                urlError: none(),
-                anonKeyError: Some(
-                  LocaleKeys.settings_menu_cloudSupabaseAnonKeyCanNotBeEmpty
-                      .tr(),
-                ),
+                urlError: null,
+                anonKeyError: LocaleKeys
+                    .settings_menu_cloudSupabaseAnonKeyCanNotBeEmpty
+                    .tr(),
                 restartApp: false,
               ),
             );
@@ -66,7 +63,6 @@ class SupabaseCloudURLsBloc
           }
 
           validateUrl(state.updatedUrl).fold(
-            (error) => emit(state.copyWith(urlError: Some(error))),
             (_) async {
               await useSupabaseCloud(
                 url: state.updatedUrl,
@@ -75,13 +71,14 @@ class SupabaseCloudURLsBloc
 
               add(const SupabaseCloudURLsEvent.didSaveConfig());
             },
+            (error) => emit(state.copyWith(urlError: error)),
           );
         },
         didSaveConfig: () {
           emit(
             state.copyWith(
-              urlError: none(),
-              anonKeyError: none(),
+              urlError: null,
+              anonKeyError: null,
               restartApp: true,
             ),
           );
@@ -110,8 +107,8 @@ class SupabaseCloudURLsState with _$SupabaseCloudURLsState {
     required SupabaseConfiguration config,
     required String updatedUrl,
     required String upatedAnonKey,
-    required Option<String> urlError,
-    required Option<String> anonKeyError,
+    required String? urlError,
+    required String? anonKeyError,
     required bool restartApp,
     required bool showRestartHint,
   }) = _SupabaseCloudURLsState;
@@ -121,8 +118,8 @@ class SupabaseCloudURLsState with _$SupabaseCloudURLsState {
     return SupabaseCloudURLsState(
       updatedUrl: config.url,
       upatedAnonKey: config.anon_key,
-      urlError: none(),
-      anonKeyError: none(),
+      urlError: null,
+      anonKeyError: null,
       restartApp: false,
       showRestartHint: config.url.isNotEmpty && config.anon_key.isNotEmpty,
       config: config,

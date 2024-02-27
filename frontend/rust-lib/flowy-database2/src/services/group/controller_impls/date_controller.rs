@@ -243,7 +243,7 @@ impl GroupController for DateGroupController {
       None => tracing::warn!("Can not find the group: {}", group_id),
       Some((_, _)) => {
         let date = DateTime::parse_from_str(group_id, GROUP_ID_DATE_FORMAT).unwrap();
-        let cell = insert_date_cell(date.timestamp(), None, field);
+        let cell = insert_date_cell(date.timestamp(), None, Some(false), field);
         cells.insert(field.id.clone(), cell);
       },
     }

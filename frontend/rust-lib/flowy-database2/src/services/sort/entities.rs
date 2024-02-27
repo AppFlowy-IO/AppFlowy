@@ -5,31 +5,23 @@ use collab::core::any_map::AnyMapExtension;
 use collab_database::rows::RowId;
 use collab_database::views::{SortMap, SortMapBuilder};
 
-use crate::entities::FieldType;
-
 #[derive(Debug, Clone)]
 pub struct Sort {
   pub id: String,
   pub field_id: String,
-  pub field_type: FieldType,
   pub condition: SortCondition,
 }
 
 const SORT_ID: &str = "id";
 const FIELD_ID: &str = "field_id";
-const FIELD_TYPE: &str = "ty";
 const SORT_CONDITION: &str = "condition";
 
 impl TryFrom<SortMap> for Sort {
   type Error = anyhow::Error;
 
   fn try_from(value: SortMap) -> Result<Self, Self::Error> {
-    match (
-      value.get_str_value(SORT_ID),
-      value.get_str_value(FIELD_ID),
-      value.get_i64_value(FIELD_TYPE).map(FieldType::from),
-    ) {
-      (Some(id), Some(field_id), Some(field_type)) => {
+    match (value.get_str_value(SORT_ID), value.get_str_value(FIELD_ID)) {
+      (Some(id), Some(field_id)) => {
         let condition = value
           .get_i64_value(SORT_CONDITION)
           .map(SortCondition::from)
@@ -37,7 +29,6 @@ impl TryFrom<SortMap> for Sort {
         Ok(Self {
           id,
           field_id,
-          field_type,
           condition,
         })
       },
@@ -53,15 +44,15 @@ impl From<Sort> for SortMap {
     SortMapBuilder::new()
       .insert_str_value(SORT_ID, data.id)
       .insert_str_value(FIELD_ID, data.field_id)
-      .insert_i64_value(FIELD_TYPE, data.field_type.into())
       .insert_i64_value(SORT_CONDITION, data.condition.value())
       .build()
   }
 }
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, Default)]
 #[repr(u8)]
 pub enum SortCondition {
+  #[default]
   Ascending = 0,
   Descending = 1,
 }
@@ -79,12 +70,6 @@ impl SortCondition {
       SortCondition::Ascending => order,
       SortCondition::Descending => order.reverse(),
     }
-  }
-}
-
-impl Default for SortCondition {
-  fn default() -> Self {
-    Self::Ascending
   }
 }
 
@@ -119,6 +104,13 @@ pub struct ReorderSingleRowResult {
   pub row_id: RowId,
   pub old_index: usize,
   pub new_index: usize,
+}
+
+#[derive(Clone)]
+pub struct InsertSortedRowResult {
+  pub view_id: String,
+  pub row_id: RowId,
+  pub index: usize,
 }
 
 #[derive(Debug, Default)]

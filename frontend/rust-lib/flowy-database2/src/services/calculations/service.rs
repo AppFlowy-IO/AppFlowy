@@ -49,7 +49,7 @@ impl CalculationsService {
     if len > 0.0 {
       format!("{:.5}", sum / len)
     } else {
-      "0".to_owned()
+      String::new()
     }
   }
 

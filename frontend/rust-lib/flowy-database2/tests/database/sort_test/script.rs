@@ -36,6 +36,7 @@ pub enum SortScript {
     row_id: RowId,
     text: String,
   },
+  AddNewRow,
   AssertSortChanged {
     old_row_orders: Vec<&'static str>,
     new_row_orders: Vec<&'static str>,
@@ -78,7 +79,6 @@ impl DatabaseSortTest {
           view_id: self.view_id.clone(),
           field_id: field.id.clone(),
           sort_id: None,
-          field_type: FieldType::from(field.field_type),
           condition: condition.into(),
         };
         let _ = self.editor.create_or_update_sort(params).await.unwrap();
@@ -145,6 +145,28 @@ impl DatabaseSortTest {
         );
         self.update_text_cell(row_id, &text).await.unwrap();
       },
+      SortScript::AddNewRow => {
+        self.recv = Some(
+          self
+            .editor
+            .subscribe_view_changed(&self.view_id)
+            .await
+            .unwrap(),
+        );
+        self
+          .editor
+          .create_row(
+            &self.view_id,
+            None,
+            collab_database::rows::CreateRowParams {
+              id: collab_database::database::gen_row_id(),
+              timestamp: collab_database::database::timestamp(),
+              ..Default::default()
+            },
+          )
+          .await
+          .unwrap();
+      },
       SortScript::AssertSortChanged {
         new_row_orders,
         old_row_orders,
@@ -195,6 +217,7 @@ async fn assert_sort_changed(
           old_row_orders.insert(changed.new_index, old);
           assert_eq!(old_row_orders, new_row_orders);
         },
+        DatabaseViewChanged::InsertSortedRowNotification(_changed) => {},
         _ => {},
       }
     })

@@ -61,7 +61,7 @@ class _MobileSelectOptionEditorState extends State<MobileSelectOptionEditor> {
             return Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const DragHandler(),
+                const DragHandle(),
                 _buildHeader(context),
                 const Divider(height: 0.5),
                 Expanded(
@@ -260,17 +260,15 @@ class _OptionList extends StatelessWidget {
         final List<Widget> cells = [];
 
         // create an option cell
-        state.createOption.fold(
-          () => null,
-          (createOption) {
-            cells.add(
-              _CreateOptionCell(
-                optionName: createOption,
-                onTap: () => onCreateOption(createOption),
-              ),
-            );
-          },
-        );
+        final createOption = state.createOption;
+        if (createOption != null) {
+          cells.add(
+            _CreateOptionCell(
+              optionName: createOption,
+              onTap: () => onCreateOption(createOption),
+            ),
+          );
+        }
 
         cells.addAll(
           state.options.map(
@@ -482,7 +480,11 @@ class _MoreOptionsState extends State<_MoreOptions> {
   Widget _buildDeleteButton(BuildContext context) {
     return FlowyOptionTile.text(
       text: LocaleKeys.button_delete.tr(),
-      leftIcon: const FlowySvg(FlowySvgs.m_delete_s),
+      textColor: Theme.of(context).colorScheme.error,
+      leftIcon: FlowySvg(
+        FlowySvgs.m_delete_s,
+        color: Theme.of(context).colorScheme.error,
+      ),
       onTap: widget.onDelete,
     );
   }

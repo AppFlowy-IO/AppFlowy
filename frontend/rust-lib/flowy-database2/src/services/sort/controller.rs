@@ -21,7 +21,8 @@ use crate::services::field::{
   default_order, TimestampCellData, TimestampCellDataWrapper, TypeOptionCellExt,
 };
 use crate::services::sort::{
-  ReorderAllRowsResult, ReorderSingleRowResult, Sort, SortChangeset, SortCondition,
+  InsertSortedRowResult, ReorderAllRowsResult, ReorderSingleRowResult, Sort, SortChangeset,
+  SortCondition,
 };
 
 pub trait SortDelegate: Send + Sync {
@@ -93,6 +94,25 @@ impl SortController {
     }
   }
 
+  pub async fn did_create_row(&self, row_id: RowId) {
+    if !self.sorts.is_empty() {
+      self
+        .gen_task(
+          SortEvent::NewRowInserted(row_id),
+          QualityOfService::Background,
+        )
+        .await;
+    }
+  }
+
+  pub async fn did_update_field_type(&self) {
+    if !self.sorts.is_empty() {
+      self
+        .gen_task(SortEvent::SortDidChanged, QualityOfService::Background)
+        .await;
+    }
+  }
+
   // #[tracing::instrument(name = "process_sort_task", level = "trace", skip_all, err)]
   pub async fn process(&mut self, predicate: &str) -> FlowyResult<()> {
     let event_type = SortEvent::from_str(predicate).unwrap();
@@ -118,6 +138,7 @@ impl SortController {
       },
       SortEvent::RowDidChanged(row_id) => {
         let old_row_index = self.row_index_cache.get(&row_id).cloned();
+
         self.sort_rows(&mut row_details).await;
         let new_row_index = self.row_index_cache.get(&row_id).cloned();
         match (old_row_index, new_row_index) {
@@ -134,6 +155,26 @@ impl SortController {
             let _ = self
               .notifier
               .send(DatabaseViewChanged::ReorderSingleRowNotification(
+                notification,
+              ));
+          },
+          _ => tracing::trace!("The row index cache is outdated"),
+        }
+      },
+      SortEvent::NewRowInserted(row_id) => {
+        self.sort_rows(&mut row_details).await;
+        let row_index = self.row_index_cache.get(&row_id).cloned();
+        match row_index {
+          Some(row_index) => {
+            let notification = InsertSortedRowResult {
+              row_id: row_id.clone(),
+              view_id: self.view_id.clone(),
+              index: row_index,
+            };
+            self.row_index_cache.insert(row_id, row_index);
+            let _ = self
+              .notifier
+              .send(DatabaseViewChanged::InsertSortedRowNotification(
                 notification,
               ));
           },
@@ -252,13 +293,13 @@ fn cmp_row(
   fields: &[Arc<Field>],
   cell_data_cache: &CellCache,
 ) -> Ordering {
-  let field_type = sort.field_type;
   match fields
     .iter()
     .find(|field_rev| field_rev.id == sort.field_id)
   {
     None => default_order(),
     Some(field_rev) => {
+      let field_type = field_rev.field_type.into();
       let timestamp_cells = match field_type {
         FieldType::LastEditedTime | FieldType::CreatedTime => {
           let (left_cell, right_cell) = if field_type.is_created_time() {
@@ -313,6 +354,7 @@ fn cmp_cell(
 enum SortEvent {
   SortDidChanged,
   RowDidChanged(RowId),
+  NewRowInserted(RowId),
   DeleteAllSorts,
 }
 

@@ -1,10 +1,10 @@
 import 'dart:convert';
 
+import 'package:appflowy/plugins/database/domain/cell_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 
 import 'cell_controller.dart';
-import 'cell_service.dart';
 
 abstract class IGridCellDataConfig {
   // The cell data will reload if it receives the field's change notification.
@@ -63,6 +63,16 @@ class StringCellDataParser implements CellDataParser<String> {
   String? parserData(List<int> data) {
     final s = utf8.decode(data);
     return s;
+  }
+}
+
+class CheckboxCellDataParser implements CellDataParser<CheckboxCellDataPB> {
+  @override
+  CheckboxCellDataPB? parserData(List<int> data) {
+    if (data.isEmpty) {
+      return null;
+    }
+    return CheckboxCellDataPB.fromBuffer(data);
   }
 }
 

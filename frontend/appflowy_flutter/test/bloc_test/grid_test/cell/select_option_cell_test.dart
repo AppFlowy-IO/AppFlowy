@@ -1,8 +1,8 @@
 import 'package:appflowy/plugins/database/application/cell/bloc/select_option_editor_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option_entities.pb.dart';
-import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
+
 import '../util.dart';
 
 void main() {
@@ -179,7 +179,7 @@ void main() {
 
       assert(bloc.state.selectedOptions.length == 1);
       expect(bloc.state.selectedOptions[0].name, "A");
-      expect(bloc.state.filter, const Some("x"));
+      expect(bloc.state.filter, "x");
     });
 
     test('filter options', () async {
@@ -231,8 +231,8 @@ void main() {
         3,
         reason: "Options: ${bloc.state.options}",
       );
-      expect(bloc.state.createOption, const Some("a"));
-      expect(bloc.state.filter, const Some("a"));
+      expect(bloc.state.createOption, "a");
+      expect(bloc.state.filter, "a");
     });
   });
 }

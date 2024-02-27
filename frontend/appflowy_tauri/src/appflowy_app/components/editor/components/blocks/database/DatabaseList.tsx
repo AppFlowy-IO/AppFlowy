@@ -17,7 +17,7 @@ function DatabaseList({
   toggleDrawer,
 }: {
   node: GridNode;
-  toggleDrawer: (open: boolean) => (e: React.MouseEvent | KeyboardEvent) => void;
+  toggleDrawer: (open: boolean) => (e: React.MouseEvent | KeyboardEvent | React.FocusEvent) => void;
 }) {
   const scrollRef = React.useRef<HTMLDivElement>(null);
 
@@ -70,10 +70,12 @@ function DatabaseList({
   );
 
   return (
-    <div className={'relative flex flex-col gap-1.5 p-2'}>
+    <div className={'relative flex h-full flex-col gap-1.5 p-2'}>
       <TextField
         variant={'standard'}
         autoFocus={true}
+        spellCheck={false}
+        onBlur={toggleDrawer(false)}
         inputRef={inputRef}
         className={'sticky top-0 z-10 px-2'}
         value={searchText}

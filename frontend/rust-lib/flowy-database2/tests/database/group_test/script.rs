@@ -214,7 +214,7 @@ impl DatabaseGroupTest {
         let cell = match field_type {
           FieldType::URL => insert_url_cell(cell_data, &field),
           FieldType::DateTime => {
-            insert_date_cell(cell_data.parse::<i64>().unwrap(), Some(true), &field)
+            insert_date_cell(cell_data.parse::<i64>().unwrap(), None, Some(true), &field)
           },
           _ => {
             panic!("Unsupported group field type");
@@ -239,7 +239,6 @@ impl DatabaseGroupTest {
           .move_group(&self.view_id, &from_group.group_id, &to_group.group_id)
           .await
           .unwrap();
-        //
       },
       GroupScript::AssertGroup {
         group_index,

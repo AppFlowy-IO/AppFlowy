@@ -64,6 +64,10 @@ impl FlowyError {
     self.code == ErrorCode::UserUnauthorized || self.code == ErrorCode::RecordNotFound
   }
 
+  pub fn is_invalid_data(&self) -> bool {
+    self.code == ErrorCode::InvalidParams
+  }
+
   pub fn is_local_version_not_support(&self) -> bool {
     self.code == ErrorCode::LocalVersionNotSupport
   }

@@ -9,7 +9,7 @@ use collab_plugins::local_storage::kv::KVTransactionDB;
 use tracing::{event, instrument};
 
 use collab_integrate::{CollabKVAction, CollabKVDB, PersistenceError};
-use flowy_error::{internal_error, FlowyError, FlowyResult};
+use flowy_error::{FlowyError, FlowyResult};
 use flowy_user_pub::entities::Authenticator;
 
 use crate::migrations::migration::UserDataMigration;
@@ -37,33 +37,32 @@ impl UserDataMigration for HistoricalEmptyDocumentMigration {
     if !matches!(authenticator, Authenticator::Local) {
       return Ok(());
     }
-    collab_db
-      .with_write_txn(|write_txn| {
-        let origin = CollabOrigin::Client(CollabClient::new(session.user_id, "phantom"));
-        let folder_collab =
-          match load_collab(session.user_id, write_txn, &session.user_workspace.id) {
-            Ok(fc) => fc,
-            Err(_) => return Ok(()),
-          };
+    collab_db.with_write_txn(|write_txn| {
+      let origin = CollabOrigin::Client(CollabClient::new(session.user_id, "phantom"));
+      let folder_collab = match load_collab(session.user_id, write_txn, &session.user_workspace.id)
+      {
+        Ok(fc) => fc,
+        Err(_) => return Ok(()),
+      };
 
-        let folder = Folder::open(session.user_id, folder_collab, None)?;
-        let migration_views = folder.get_workspace_views();
+      let folder = Folder::open(session.user_id, folder_collab, None)
+        .map_err(|err| PersistenceError::Internal(err.into()))?;
+      let migration_views = folder.get_workspace_views();
 
-        // For historical reasons, the first level documents are empty. So migrate them by inserting
-        // the default document data.
-        for view in migration_views {
-          if migrate_empty_document(write_txn, &origin, &view, session.user_id).is_err() {
-            event!(
-              tracing::Level::ERROR,
-              "Failed to migrate document {}",
-              view.id
-            );
-          }
+      // For historical reasons, the first level documents are empty. So migrate them by inserting
+      // the default document data.
+      for view in migration_views {
+        if migrate_empty_document(write_txn, &origin, &view, session.user_id).is_err() {
+          event!(
+            tracing::Level::ERROR,
+            "Failed to migrate document {}",
+            view.id
+          );
         }
+      }
 
-        Ok(())
-      })
-      .map_err(internal_error)?;
+      Ok(())
+    })?;
 
     Ok(())
   }

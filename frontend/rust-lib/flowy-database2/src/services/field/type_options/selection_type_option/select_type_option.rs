@@ -1,19 +1,16 @@
 use bytes::Bytes;
 use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::Cell;
-use serde::{Deserialize, Serialize};
 
 use flowy_error::{internal_error, ErrorCode, FlowyResult};
 
-use crate::entities::{FieldType, SelectOptionCellDataPB};
-use crate::services::cell::{
-  CellDataDecoder, CellProtobufBlobParser, DecodedCellData, FromCellChangeset, ToCellChangeset,
-};
+use crate::entities::{CheckboxCellDataPB, FieldType, SelectOptionCellDataPB};
+use crate::services::cell::{CellDataDecoder, CellProtobufBlobParser, DecodedCellData};
 use crate::services::field::selection_type_option::type_option_transform::SelectOptionTypeOptionTransformHelper;
 use crate::services::field::{
-  make_selected_options, CheckboxCellData, MultiSelectTypeOption, SelectOption,
-  SelectOptionCellData, SelectOptionColor, SelectOptionIds, SingleSelectTypeOption, TypeOption,
-  TypeOptionCellDataSerde, TypeOptionTransform, SELECTION_IDS_SEPARATOR,
+  make_selected_options, MultiSelectTypeOption, SelectOption, SelectOptionCellData,
+  SelectOptionColor, SelectOptionIds, SingleSelectTypeOption, TypeOption, TypeOptionCellDataSerde,
+  TypeOptionTransform, SELECTION_IDS_SEPARATOR,
 };
 
 /// Defines the shared actions used by SingleSelect or Multi-Select.
@@ -104,7 +101,7 @@ where
         None
       },
       FieldType::Checkbox => {
-        let cell_content = CheckboxCellData::from(cell).to_string();
+        let cell_content = CheckboxCellDataPB::from(cell).to_string();
         let mut transformed_ids = Vec::new();
         let options = self.options();
         if let Some(option) = options.iter().find(|option| option.name == cell_content) {
@@ -231,25 +228,10 @@ impl CellProtobufBlobParser for SelectOptionCellDataParser {
   }
 }
 
-#[derive(Clone, Serialize, Deserialize, Default, Debug)]
+#[derive(Clone, Default, Debug)]
 pub struct SelectOptionCellChangeset {
   pub insert_option_ids: Vec<String>,
   pub delete_option_ids: Vec<String>,
-}
-
-impl FromCellChangeset for SelectOptionCellChangeset {
-  fn from_changeset(changeset: String) -> FlowyResult<Self>
-  where
-    Self: Sized,
-  {
-    serde_json::from_str::<SelectOptionCellChangeset>(&changeset).map_err(internal_error)
-  }
-}
-
-impl ToCellChangeset for SelectOptionCellChangeset {
-  fn to_cell_changeset_str(&self) -> String {
-    serde_json::to_string(self).unwrap_or_default()
-  }
 }
 
 impl SelectOptionCellChangeset {

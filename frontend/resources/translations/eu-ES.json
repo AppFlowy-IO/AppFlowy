@@ -176,9 +176,8 @@
     "delete": "Ezabatu",
     "duplicate": "Bikoiztu",
     "putback": "Jarri Atzera",
-    "Done": "Eginda",
-    "Cancel": "Ezteztatu",
-    "OK": "OK"
+    "cancel": "Ezteztatu",
+    "ok": "OK"
   },
   "label": {
     "welcome": "Ongi etorri!",

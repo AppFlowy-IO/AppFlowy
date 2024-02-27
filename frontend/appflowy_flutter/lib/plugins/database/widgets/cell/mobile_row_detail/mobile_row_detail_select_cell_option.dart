@@ -27,7 +27,6 @@ class MobileRowDetailSelectOptionCellSkin
       borderRadius: const BorderRadius.all(Radius.circular(14)),
       onTap: () => showMobileBottomSheet(
         context,
-        padding: EdgeInsets.zero,
         builder: (context) {
           return MobileSelectOptionEditor(
             cellController: bloc.cellController,
