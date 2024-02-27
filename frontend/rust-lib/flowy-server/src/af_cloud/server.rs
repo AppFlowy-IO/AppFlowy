@@ -1,5 +1,6 @@
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
+use std::time::Duration;
 
 use anyhow::Error;
 use client_api::collab_sync::collab_msg::CollabMessage;
@@ -262,6 +263,9 @@ fn spawn_ws_conn(
               if enable_sync.load(Ordering::SeqCst) {
                 match api_client.ws_url(&cloned_device_id).await {
                   Ok(ws_addr) => {
+                    // sleep two seconds and then try to reconnect
+                    tokio::time::sleep(Duration::from_secs(2)).await;
+
                     event!(tracing::Level::INFO, "🟢reconnecting websocket");
                     let _ = ws_client.connect(ws_addr, &cloned_device_id).await;
                   },

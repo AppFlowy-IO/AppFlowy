@@ -58,7 +58,7 @@ function EditPopover({
   }, [onClose, editor, node]);
 
   const handleDone = () => {
-    if (!node) return;
+    if (!node || error) return;
     if (value !== node.data.formula) {
       CustomEditor.setMathEquationBlockFormula(editor, node, value);
     }
@@ -100,7 +100,7 @@ function EditPopover({
 
   const { transformOrigin, anchorOrigin, isEntered } = usePopoverAutoPosition({
     initialPaperWidth: 300,
-    initialPaperHeight: 200,
+    initialPaperHeight: 170,
     anchorEl,
     initialAnchorOrigin: initialOrigin.anchorOrigin,
     initialTransformOrigin: initialOrigin.transformOrigin,
@@ -128,7 +128,7 @@ function EditPopover({
           autoComplete={'off'}
           spellCheck={false}
           value={value}
-          minRows={3}
+          minRows={4}
           onInput={onInput}
           onKeyDown={onKeyDown}
           placeholder={`|x| = \\begin{cases}             
@@ -138,7 +138,7 @@ function EditPopover({
         />
 
         {error && (
-          <div className={'max-w-[270px] text-sm text-red-500'}>
+          <div className={'max-w-[270px] text-xs text-red-500'}>
             {error.name}: {error.message}
           </div>
         )}

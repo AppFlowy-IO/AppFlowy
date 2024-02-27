@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/date/date_service.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/doc_bloc.dart';
@@ -13,6 +11,7 @@ import 'package:appflowy_backend/protobuf/flowy-user/reminder.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fixnum/fixnum.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nanoid/nanoid.dart';
 
@@ -111,13 +110,13 @@ class ReminderReferenceService {
     final result = await DateService.queryDate(search);
 
     result.fold(
-      (l) {},
       (date) {
         // Only insert dates in the future
         if (DateTime.now().isBefore(date)) {
           options.insert(0, _itemFromDate(date));
         }
       },
+      (_) {},
     );
   }
 

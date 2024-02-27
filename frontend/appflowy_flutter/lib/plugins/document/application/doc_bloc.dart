@@ -1,7 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
-
 import 'package:appflowy/plugins/document/application/doc_service.dart';
 import 'package:appflowy/plugins/document/application/document_data_pb_extension.dart';
 import 'package:appflowy/plugins/document/application/editor_transaction_adapter.dart';
@@ -14,7 +12,7 @@ import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy_backend/protobuf/flowy-document/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pbserver.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart'
     show
         EditorState,
@@ -23,7 +21,8 @@ import 'package:appflowy_editor/appflowy_editor.dart'
         Selection,
         Position,
         paragraphNode;
-import 'package:dartz/dartz.dart';
+import 'package:appflowy_result/appflowy_result.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -55,6 +54,12 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
 
   StreamSubscription? _subscription;
 
+  bool get isLocalMode {
+    final userProfilePB = state.userProfilePB;
+    final type = userProfilePB?.authenticator ?? AuthenticatorPB.Local;
+    return type == AuthenticatorPB.Local;
+  }
+
   @override
   Future<void> close() async {
     await _documentListener.stop();
@@ -77,25 +82,28 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
         _onViewChanged();
         _onDocumentChanged();
         await editorState.fold(
-          (l) async => emit(
-            state.copyWith(
-              error: l,
-              editorState: null,
-              isLoading: false,
-            ),
-          ),
-          (r) async {
+          (s) async {
             final result = await getIt<AuthService>().getUser();
-            final userProfilePB = result.fold((l) => null, (r) => r);
+            final userProfilePB = result.fold(
+              (s) => s,
+              (e) => null,
+            );
             emit(
               state.copyWith(
                 error: null,
-                editorState: r,
+                editorState: s,
                 isLoading: false,
                 userProfilePB: userProfilePB,
               ),
             );
           },
+          (f) async => emit(
+            state.copyWith(
+              error: f,
+              editorState: null,
+              isLoading: false,
+            ),
+          ),
         );
       },
       moveToTrash: () async {
@@ -124,13 +132,12 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   void _onViewChanged() {
     _viewListener.start(
       onViewMoveToTrash: (r) {
-        r.swap().map((r) => add(const DocumentEvent.moveToTrash()));
+        r.map((r) => add(const DocumentEvent.moveToTrash()));
       },
       onViewDeleted: (r) {
-        r.swap().map((r) => add(const DocumentEvent.moveToTrash()));
+        r.map((r) => add(const DocumentEvent.moveToTrash()));
       },
-      onViewRestored: (r) =>
-          r.swap().map((r) => add(const DocumentEvent.restore())),
+      onViewRestored: (r) => r.map((r) => add(const DocumentEvent.restore())),
     );
   }
 
@@ -150,11 +157,11 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   }
 
   /// Fetch document
-  Future<Either<FlowyError, EditorState?>> _fetchDocumentState() async {
+  Future<FlowyResult<EditorState?, FlowyError>> _fetchDocumentState() async {
     final result = await _documentService.openDocument(viewId: view.id);
     return result.fold(
-      (l) => left(l),
-      (r) async => right(await _initAppFlowyEditorState(r)),
+      (s) async => FlowyResult.success(await _initAppFlowyEditorState(s)),
+      (e) => FlowyResult.failure(e),
     );
   }
 

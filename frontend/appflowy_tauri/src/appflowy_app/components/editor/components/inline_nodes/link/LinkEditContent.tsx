@@ -2,8 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Typography from '@mui/material/Typography';
 import { addMark, removeMark } from 'slate';
 import { EditorMarkFormat } from '$app/application/document/document.types';
-import { open as openWindow } from '@tauri-apps/api/shell';
-import { notify } from '$app/components/editor/components/tools/notify';
+import { notify } from 'src/appflowy_app/components/_shared/notify';
 import { CustomEditor } from '$app/components/editor/command';
 import { useTranslation } from 'react-i18next';
 import { useSlateStatic } from 'slate-react';
@@ -15,6 +14,7 @@ import KeyboardNavigation, {
 } from '$app/components/_shared/keyboard_navigation/KeyboardNavigation';
 import isHotkey from 'is-hotkey';
 import LinkEditInput, { pattern } from '$app/components/editor/components/inline_nodes/link/LinkEditInput';
+import { openUrl } from '$app/utils/open_url';
 
 function LinkEditContent({ onClose, defaultHref }: { onClose: () => void; defaultHref: string }) {
   const editor = useSlateStatic();
@@ -85,13 +85,7 @@ function LinkEditContent({ onClose, defaultHref }: { onClose: () => void; defaul
   const onConfirm = useCallback(
     (key: string) => {
       if (key === 'open') {
-        const linkPrefix = ['http://', 'https://', 'file://', 'ftp://', 'ftps://', 'mailto:'];
-
-        if (linkPrefix.some((prefix) => link.startsWith(prefix))) {
-          void openWindow(link);
-        } else {
-          void openWindow('https://' + link);
-        }
+        openUrl(link);
       } else if (key === 'copy') {
         void navigator.clipboard.writeText(link);
         notify.success(t('message.copy.success'));

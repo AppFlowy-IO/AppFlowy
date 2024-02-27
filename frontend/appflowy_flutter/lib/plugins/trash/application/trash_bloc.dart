@@ -3,7 +3,7 @@ import 'package:appflowy/plugins/trash/application/trash_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/trash.pb.dart';
-import 'package:dartz/dartz.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -26,13 +26,15 @@ class TrashBloc extends Bloc<TrashEvent, TrashState> {
         initial: (e) async {
           _listener.start(trashUpdated: _listenTrashUpdated);
           final result = await _service.readTrash();
+
           emit(
             result.fold(
               (object) => state.copyWith(
                 objects: object.items,
-                successOrFailure: left(unit),
+                successOrFailure: FlowyResult.success(null),
               ),
-              (error) => state.copyWith(successOrFailure: right(error)),
+              (error) =>
+                  state.copyWith(successOrFailure: FlowyResult.failure(error)),
             ),
           );
         },
@@ -60,18 +62,20 @@ class TrashBloc extends Bloc<TrashEvent, TrashState> {
   }
 
   Future<void> _handleResult(
-    Either<dynamic, FlowyError> result,
+    FlowyResult<dynamic, FlowyError> result,
     Emitter<TrashState> emit,
   ) async {
     emit(
       result.fold(
-        (l) => state.copyWith(successOrFailure: left(unit)),
-        (error) => state.copyWith(successOrFailure: right(error)),
+        (l) => state.copyWith(successOrFailure: FlowyResult.success(null)),
+        (error) => state.copyWith(successOrFailure: FlowyResult.failure(error)),
       ),
     );
   }
 
-  void _listenTrashUpdated(Either<List<TrashPB>, FlowyError> trashOrFailed) {
+  void _listenTrashUpdated(
+    FlowyResult<List<TrashPB>, FlowyError> trashOrFailed,
+  ) {
     trashOrFailed.fold(
       (trash) {
         add(TrashEvent.didReceiveTrash(trash));
@@ -103,11 +107,11 @@ class TrashEvent with _$TrashEvent {
 class TrashState with _$TrashState {
   const factory TrashState({
     required List<TrashPB> objects,
-    required Either<Unit, FlowyError> successOrFailure,
+    required FlowyResult<void, FlowyError> successOrFailure,
   }) = _TrashState;
 
   factory TrashState.init() => TrashState(
         objects: [],
-        successOrFailure: left(unit),
+        successOrFailure: FlowyResult.success(null),
       );
 }

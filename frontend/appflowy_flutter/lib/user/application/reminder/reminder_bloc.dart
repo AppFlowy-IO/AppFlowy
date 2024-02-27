@@ -59,8 +59,8 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
             final remindersOrFailure = await _reminderService.fetchReminders();
 
             remindersOrFailure.fold(
-              (error) => Log.error(error),
               (reminders) => emit(state.copyWith(reminders: reminders)),
+              (error) => Log.error(error),
             );
           },
           remove: (reminderId) async {
@@ -68,12 +68,12 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
                 await _reminderService.removeReminder(reminderId: reminderId);
 
             unitOrFailure.fold(
-              (error) => Log.error(error),
               (_) {
                 final reminders = [...state.reminders];
                 reminders.removeWhere((e) => e.id == reminderId);
                 emit(state.copyWith(reminders: reminders));
               },
+              (error) => Log.error(error),
             );
           },
           add: (reminder) async {
@@ -81,11 +81,11 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
                 await _reminderService.addReminder(reminder: reminder);
 
             return unitOrFailure.fold(
-              (error) => Log.error(error),
               (_) {
                 final reminders = [...state.reminders, reminder];
                 emit(state.copyWith(reminders: reminders));
               },
+              (error) => Log.error(error),
             );
           },
           addById: (reminderId, objectId, scheduledAt, meta) async => add(
@@ -115,7 +115,6 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
             );
 
             failureOrUnit.fold(
-              (error) => Log.error(error),
               (_) {
                 final index =
                     state.reminders.indexWhere((r) => r.id == reminder.id);
@@ -123,6 +122,7 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
                 reminders.replaceRange(index, index + 1, [newReminder]);
                 emit(state.copyWith(reminders: reminders));
               },
+              (error) => Log.error(error),
             );
           },
           pressReminder: (reminderId, path, view) {

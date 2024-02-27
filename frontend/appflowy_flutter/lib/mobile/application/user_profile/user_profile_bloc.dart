@@ -31,8 +31,8 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
     );
 
     final userProfile = userOrFailure.fold(
-      (error) => null,
       (userProfilePB) => userProfilePB,
+      (error) => null,
     );
 
     if (workspaceSetting == null || userProfile == null) {

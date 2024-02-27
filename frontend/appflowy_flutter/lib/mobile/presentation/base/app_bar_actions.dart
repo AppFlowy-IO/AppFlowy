@@ -79,7 +79,7 @@ class AppBarDoneButton extends StatelessWidget {
       onTap: onTap,
       padding: const EdgeInsets.fromLTRB(12, 12, 8, 12),
       child: FlowyText(
-        LocaleKeys.button_Done.tr(),
+        LocaleKeys.button_done.tr(),
         color: Theme.of(context).colorScheme.primary,
         fontWeight: FontWeight.w500,
         textAlign: TextAlign.right,

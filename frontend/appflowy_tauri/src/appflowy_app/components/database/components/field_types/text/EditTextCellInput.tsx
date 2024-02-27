@@ -22,9 +22,9 @@ function EditTextCellInput({ editing, anchorEl, onClose, text, onInput }: Props)
 
   return (
     <Popover
-      disableRestoreFocus={true}
       open={editing}
       anchorEl={anchorEl}
+      disableRestoreFocus={true}
       PaperProps={{
         className: 'flex p-2 border border-blue-400',
         style: { width: anchorEl?.offsetWidth, minHeight: anchorEl?.offsetHeight, borderRadius: 0, boxShadow: 'none' },
@@ -36,10 +36,18 @@ function EditTextCellInput({ editing, anchorEl, onClose, text, onInput }: Props)
       transitionDuration={0}
       onClose={onClose}
       keepMounted={false}
+      onKeyDown={(e) => {
+        if (e.key === 'Escape') {
+          e.stopPropagation();
+          e.preventDefault();
+          onClose();
+        }
+      }}
     >
       <TextareaAutosize
         className='w-full resize-none whitespace-break-spaces break-all text-sm'
         autoFocus
+        spellCheck={false}
         autoCorrect='off'
         value={text}
         onInput={onInput}

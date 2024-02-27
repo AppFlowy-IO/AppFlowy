@@ -42,8 +42,8 @@ function CollapseMenuButton() {
 
   return (
     <Tooltip title={title}>
-      <IconButton size={'small'} className={'font-bold text-text-title'} onClick={handleClick}>
-        {isCollapsed ? <ShowMenuIcon /> : <ShowMenuIcon className={'rotate-180 transform'} />}
+      <IconButton size={'small'} className={'h-[20px] w-[20px] font-bold text-text-title'} onClick={handleClick}>
+        <ShowMenuIcon className={`transform ${isCollapsed ? '' : 'rotate-180'}`} />
       </IconButton>
     </Tooltip>
   );

@@ -1,7 +1,6 @@
 use std::str::FromStr;
 use std::sync::Arc;
 
-use collab::core::any_map::AnyMapExtension;
 use collab_database::fields::Field;
 use collab_database::rows::{Row, RowCell};
 use flowy_error::FlowyResult;
@@ -227,25 +226,18 @@ impl CalculationsController {
 
   async fn handle_row_changed(&self, row: Row) {
     let cells = row.cells.iter();
-
     let mut updates = vec![];
 
     // Iterate each cell in the row
     for cell in cells {
       let field_id = cell.0;
-      let value = cell.1.value().get("data");
+      let calculation = self.delegate.get_calculation(&self.view_id, field_id).await;
+      if let Some(calculation) = calculation {
+        let update = self.get_updated_calculation(calculation.clone()).await;
 
-      // Only continue if there is a value in the cell
-      if let Some(_cell_value) = value {
-        let calculation = self.delegate.get_calculation(&self.view_id, field_id).await;
-
-        if let Some(calculation) = calculation {
-          let update = self.get_updated_calculation(calculation.clone()).await;
-
-          if let Some(update) = update {
-            updates.push(CalculationPB::from(&update));
-            self.delegate.update_calculation(&self.view_id, update);
-          }
+        if let Some(update) = update {
+          updates.push(CalculationPB::from(&update));
+          self.delegate.update_calculation(&self.view_id, update);
         }
       }
     }
@@ -262,17 +254,19 @@ impl CalculationsController {
   }
 
   async fn get_updated_calculation(&self, calculation: Arc<Calculation>) -> Option<Calculation> {
-    let row_cells = self
+    let field_cells = self
       .delegate
       .get_cells_for_field(&self.view_id, &calculation.field_id)
       .await;
     let field = self.delegate.get_field(&calculation.field_id)?;
 
-    if !row_cells.is_empty() {
+    if field_cells.is_empty() {
+      return Some(calculation.with_value(String::new()));
+    } else {
       let value =
         self
           .calculations_service
-          .calculate(&field, calculation.calculation_type, row_cells);
+          .calculate(&field, calculation.calculation_type, field_cells);
 
       if value != calculation.value {
         return Some(calculation.with_value(value));

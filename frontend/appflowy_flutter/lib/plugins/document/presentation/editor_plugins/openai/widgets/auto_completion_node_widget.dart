@@ -193,7 +193,7 @@ class _AutoCompletionBlockComponentState
     await _updateEditingText();
 
     final userProfile = await UserBackendService.getCurrentUserProfile()
-        .then((value) => value.toOption().toNullable());
+        .then((value) => value.toNullable());
     if (userProfile == null) {
       await loading.stop();
       if (mounted) {
@@ -290,7 +290,7 @@ class _AutoCompletionBlockComponentState
     }
     // generate new response
     final userProfile = await UserBackendService.getCurrentUserProfile()
-        .then((value) => value.toOption().toNullable());
+        .then((value) => value.toNullable());
     if (userProfile == null) {
       await loading.stop();
       if (mounted) {

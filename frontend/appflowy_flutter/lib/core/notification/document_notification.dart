@@ -3,11 +3,11 @@ import 'dart:typed_data';
 import 'package:appflowy/core/notification/notification_helper.dart';
 import 'package:appflowy_backend/protobuf/flowy-document/notification.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:dartz/dartz.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 
 typedef DocumentNotificationCallback = void Function(
   DocumentNotification,
-  Either<Uint8List, FlowyError>,
+  FlowyResult<Uint8List, FlowyError>,
 );
 
 class DocumentNotificationParser

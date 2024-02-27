@@ -216,12 +216,13 @@ class _ViewTitleState extends State<_ViewTitle> {
     );
 
     if (widget.behavior == _ViewTitleBehavior.uneditable) {
-      return FlowyButton(
-        useIntrinsicWidth: true,
-        onTap: () {
-          context.read<TabsBloc>().openPlugin(widget.view);
-        },
-        text: child,
+      return Listener(
+        onPointerDown: (_) => context.read<TabsBloc>().openPlugin(widget.view),
+        child: FlowyButton(
+          useIntrinsicWidth: true,
+          onTap: () {},
+          text: child,
+        ),
       );
     }
 

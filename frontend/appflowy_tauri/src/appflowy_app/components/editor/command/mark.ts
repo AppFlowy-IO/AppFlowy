@@ -1,6 +1,6 @@
 import { ReactEditor } from 'slate-react';
 import { Editor, Text, Range } from 'slate';
-import { EditorMarkFormat } from '$app/application/document/document.types';
+import { EditorInlineNodeType, EditorMarkFormat } from '$app/application/document/document.types';
 
 export function toggleMark(
   editor: ReactEditor,
@@ -25,7 +25,7 @@ export function toggleMark(
  * @param editor
  * @param format
  */
-export function isMarkActive(editor: ReactEditor, format: EditorMarkFormat) {
+export function isMarkActive(editor: ReactEditor, format: EditorMarkFormat | EditorInlineNodeType) {
   const selection = editor.selection;
 
   if (!selection) return false;

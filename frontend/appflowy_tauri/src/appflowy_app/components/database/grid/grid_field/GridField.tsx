@@ -1,4 +1,4 @@
-import { Button, Tooltip } from '@mui/material';
+import { Button } from '@mui/material';
 import { DragEventHandler, FC, HTMLAttributes, memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { useViewId } from '$app/hooks';
 import { DragItem, DropPosition, DragType, useDraggable, useDroppable, ScrollDirection } from '../../_shared';
@@ -21,17 +21,8 @@ export const GridField: FC<GridFieldProps> = memo(
   ({ getScrollElement, resizeColumnWidth, onOpenMenu, onCloseMenu, field, ...props }) => {
     const menuOpened = useOpenMenu(field.id);
     const viewId = useViewId();
-    const [openTooltip, setOpenTooltip] = useState(false);
     const [propertyMenuOpened, setPropertyMenuOpened] = useState(false);
     const [dropPosition, setDropPosition] = useState<DropPosition>(DropPosition.Before);
-
-    const handleTooltipOpen = useCallback(() => {
-      setOpenTooltip(true);
-    }, []);
-
-    const handleTooltipClose = useCallback(() => {
-      setOpenTooltip(false);
-    }, []);
 
     const draggingData = useMemo(
       () => ({
@@ -109,16 +100,21 @@ export const GridField: FC<GridFieldProps> = memo(
         return;
       }
 
-      const rect = previewRef.current?.getBoundingClientRect();
+      const anchorElement = previewRef.current;
 
-      if (rect) {
-        setMenuAnchorPosition({
-          top: rect.top + rect.height,
-          left: rect.left,
-        });
-      } else {
+      if (!anchorElement) {
         setMenuAnchorPosition(undefined);
+        return;
       }
+
+      anchorElement.scrollIntoView({ block: 'nearest' });
+
+      const rect = anchorElement.getBoundingClientRect();
+
+      setMenuAnchorPosition({
+        top: rect.top + rect.height,
+        left: rect.left,
+      });
     }, [menuOpened, previewRef]);
 
     const handlePropertyMenuOpen = useCallback(() => {
@@ -131,46 +127,36 @@ export const GridField: FC<GridFieldProps> = memo(
 
     return (
       <div className={'flex w-full border-r border-line-divider bg-bg-body'} {...props}>
-        <Tooltip
-          open={openTooltip && !isDragging}
-          title={field.name}
-          placement='right'
-          enterDelay={1000}
-          enterNextDelay={1000}
-          onOpen={handleTooltipOpen}
-          onClose={handleTooltipClose}
+        <Button
+          color={'inherit'}
+          ref={setPreviewRef}
+          className='relative flex h-full w-full items-center rounded-none px-0'
+          disableRipple
+          onContextMenu={(event) => {
+            event.stopPropagation();
+            event.preventDefault();
+            handleClick();
+          }}
+          onClick={handleClick}
+          {...attributes}
+          {...listeners}
+          {...dropListeners}
         >
-          <Button
-            color={'inherit'}
-            ref={setPreviewRef}
-            className='relative flex h-full w-full items-center px-0'
-            disableRipple
-            onContextMenu={(event) => {
-              event.stopPropagation();
-              event.preventDefault();
-              handleClick();
-            }}
-            onClick={handleClick}
-            {...attributes}
-            {...listeners}
-            {...dropListeners}
-          >
-            <Property
-              menuOpened={propertyMenuOpened}
-              onCloseMenu={handlePropertyMenuClose}
-              onOpenMenu={handlePropertyMenuOpen}
-              field={field}
+          <Property
+            menuOpened={propertyMenuOpened}
+            onCloseMenu={handlePropertyMenuClose}
+            onOpenMenu={handlePropertyMenuOpen}
+            field={field}
+          />
+          {isOver && (
+            <div
+              className={`absolute bottom-0 top-0 z-10 w-0.5 bg-blue-500 ${
+                dropPosition === DropPosition.Before ? 'left-[-1px]' : 'left-full'
+              }`}
             />
-            {isOver && (
-              <div
-                className={`absolute bottom-0 top-0 z-10 w-0.5 bg-blue-500 ${
-                  dropPosition === DropPosition.Before ? 'left-[-1px]' : 'left-full'
-                }`}
-              />
-            )}
-            <GridResizer field={field} onWidthChange={resizeColumnWidth} />
-          </Button>
-        </Tooltip>
+          )}
+          <GridResizer field={field} onWidthChange={resizeColumnWidth} />
+        </Button>
         {open && (
           <GridFieldMenu
             anchorPosition={menuAnchorPosition}

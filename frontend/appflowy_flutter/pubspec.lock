@@ -53,8 +53,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "1715ed4"
-      resolved-ref: "1715ed45490e0a432fa1bbfcb2f1693471632ff7"
+      ref: "9d90053"
+      resolved-ref: "9d9005366ba8383e93029c4f2f006f9ff8d1cb08"
       url: "https://github.com/AppFlowy-IO/appflowy-editor.git"
     source: git
     version: "2.3.2"
@@ -71,6 +71,13 @@ packages:
     dependency: "direct main"
     description:
       path: "packages/appflowy_popover"
+      relative: true
+    source: path
+    version: "0.0.1"
+  appflowy_result:
+    dependency: "direct main"
+    description:
+      path: "packages/appflowy_result"
       relative: true
     source: path
     version: "0.0.1"
@@ -339,14 +346,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.3.4"
-  dartz:
-    dependency: "direct main"
-    description:
-      name: dartz
-      sha256: e6acf34ad2e31b1eb00948692468c30ab48ac8250e0f0df661e29f12dd252168
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.10.1"
   dbus:
     dependency: transitive
     description:
@@ -2187,5 +2186,5 @@ packages:
     source: hosted
     version: "2.0.0"
 sdks:
-  dart: ">=3.3.0-279.1.beta <4.0.0"
+  dart: ">=3.3.0 <4.0.0"
   flutter: ">=3.19.0"
