@@ -52,11 +52,9 @@ packages:
   appflowy_editor:
     dependency: "direct main"
     description:
-      path: "."
-      ref: "9d90053"
-      resolved-ref: "9d9005366ba8383e93029c4f2f006f9ff8d1cb08"
-      url: "https://github.com/AppFlowy-IO/appflowy-editor.git"
-    source: git
+      path: "/Users/lucas.xu/Desktop/appflowy-editor"
+      relative: false
+    source: path
     version: "2.3.2"
   appflowy_editor_plugins:
     dependency: "direct main"
