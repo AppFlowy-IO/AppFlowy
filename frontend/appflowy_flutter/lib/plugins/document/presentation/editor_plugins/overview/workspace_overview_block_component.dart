@@ -15,8 +15,8 @@ import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/icon.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:collection/collection.dart';
-import 'package:dartz/dartz.dart' hide State;
 import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
@@ -104,7 +104,7 @@ class _OverviewBlockWidgetState extends State<WorkspaceOverviewBlockWidget>
   late final Animation<double> _curvedAnimationExpansionController;
   static const _expansionAnimationDuration = Duration(milliseconds: 400);
 
-  late Future<Either<ViewPB, FlowyError>>? _future;
+  late Future<FlowyResult<ViewPB, FlowyError>>? _future;
 
   @override
   void initState() {
@@ -129,13 +129,13 @@ class _OverviewBlockWidgetState extends State<WorkspaceOverviewBlockWidget>
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<Either<ViewPB, FlowyError>>(
+    return FutureBuilder<FlowyResult<ViewPB, FlowyError>>(
       future: _future,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done &&
             snapshot.hasData &&
             snapshot.data != null) {
-          final view = snapshot.data!.getLeftOrNull<ViewPB>();
+          final view = snapshot.data!.toNullable();
           if (view == null) return _buildErrorWidget(viewId);
 
           return BlocProvider<WorkspaceOverviewBloc>(
@@ -397,7 +397,7 @@ class OverviewItemWidget extends StatelessWidget {
 
   Future<ViewPB?> _fetchView(String id) async {
     final view = await ViewBackendService.getView(id).then(
-      (value) => value.swap().toOption().toNullable(),
+      (value) => value.toNullable(),
     );
 
     if (view == null) {

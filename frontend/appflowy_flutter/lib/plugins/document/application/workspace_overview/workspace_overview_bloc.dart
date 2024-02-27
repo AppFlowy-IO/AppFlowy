@@ -3,7 +3,6 @@ import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy/workspace/application/workspace/overview/overview_listener.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
-import 'package:dartz/dartz.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -69,18 +68,18 @@ class WorkspaceOverviewBloc
 
     if (update.deleteChildViews.isNotEmpty) {
       final res = update.parentViewId == state.view.id
-          ? Tuple2(state.view, 0)
+          ? (state.view, 0)
           : _getView(update.parentViewId, state.view);
 
       if (res != null) {
-        final ViewPB view = res.value1;
-        final int idx = res.value2;
+        final ViewPB view = res.$1;
+        final int idx = res.$2;
 
         ViewPB? parentView;
         if (view.id != state.view.id && view.hasParentViewId()) {
           parentView = view.parentViewId == state.view.id
               ? state.view
-              : _getView(view.parentViewId, state.view)?.value1;
+              : _getView(view.parentViewId, state.view)?.$1;
         }
 
         final childViews = [...view.childViews];
@@ -103,7 +102,7 @@ class WorkspaceOverviewBloc
     // Retrieve the view specified in `update.parentViewId` from the cached views
     // stored in this state to determine if a rebuild is necessary.
     if (update.updateChildViews.isNotEmpty) {
-      final view = _getView(update.parentViewId, state.view)?.value1;
+      final view = _getView(update.parentViewId, state.view)?.$1;
       final childViews = view != null ? view.childViews : <ViewPB>[];
 
       if (_isRebuildRequired(childViews, update.updateChildViews)) {
@@ -142,11 +141,11 @@ class WorkspaceOverviewBloc
     return false;
   }
 
-  Tuple2? _getView(String viewId, ViewPB view) {
+  (ViewPB, int)? _getView(String viewId, ViewPB view) {
     for (int i = 0; i < view.childViews.length; i++) {
       final child = view.childViews[i];
       if (child.id == viewId) {
-        return Tuple2(child, i);
+        return (child, i);
       }
 
       final result = _getView(viewId, child);

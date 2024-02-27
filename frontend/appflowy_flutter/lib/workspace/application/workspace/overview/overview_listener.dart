@@ -9,7 +9,7 @@ import 'package:appflowy_backend/protobuf/flowy-folder/notification.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-notification/subject.pb.dart';
 import 'package:appflowy_backend/rust_stream.dart';
-import 'package:dartz/dartz.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 
 // parent view of overview block updated
 typedef ParentViewUpdateNotifier = void Function(ViewPB);
@@ -55,7 +55,7 @@ class WorkspaceOverviewListener {
 
   void _handleObservableType(
     FolderNotification ty,
-    Either<Uint8List, FlowyError> result,
+    FlowyResult<Uint8List, FlowyError> result,
   ) {
     switch (ty) {
       case FolderNotification.DidUpdateWorkspaceOverviewParentView:
@@ -84,12 +84,12 @@ class WorkspaceOverviewListener {
   /// Registers an overview block listener Id in the backend, allowing us to receive
   /// notifications of [FolderNotification.DidUpdateWorkspaceOverviewChildViews] from
   /// all levels of child views to the specified parent view Id listener.
-  static Future<Either<Unit, FlowyError>> addListenerId(String viewId) {
+  static Future<FlowyResult<void, FlowyError>> addListenerId(String viewId) {
     final payload = ViewIdPB.create()..value = viewId;
     return FolderEventRegisterWorkspaceOverviewListenerId(payload).send();
   }
 
-  static Future<Either<Unit, FlowyError>> removeListener(String viewId) {
+  static Future<FlowyResult<void, FlowyError>> removeListener(String viewId) {
     final payload = ViewIdPB.create()..value = viewId;
     return FolderEventRemoveWorkspaceOverviewListenerId(payload).send();
   }

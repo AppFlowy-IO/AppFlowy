@@ -250,7 +250,7 @@ class ViewBackendService {
     return result;
   }
 
-  static Future<Either<ViewPB, FlowyError>> getAllLevelOfViews(
+  static Future<FlowyResult<ViewPB, FlowyError>> getAllLevelOfViews(
     String viewID,
   ) async {
     final payload = ViewIdPB.create()..value = viewID;
