@@ -3,10 +3,11 @@ use std::sync::RwLock;
 use chrono::Local;
 use lazy_static::lazy_static;
 use tracing::subscriber::set_global_default;
+use tracing_appender::rolling::Rotation;
 use tracing_appender::{non_blocking::WorkerGuard, rolling::RollingFileAppender};
 use tracing_bunyan_formatter::JsonStorageLayer;
 use tracing_subscriber::fmt::format::Writer;
-use tracing_subscriber::{layer::SubscriberExt, EnvFilter};
+use tracing_subscriber::{fmt, layer::SubscriberExt, EnvFilter};
 
 use crate::layer::FlowyFormattingLayer;
 
@@ -25,10 +26,17 @@ pub struct Builder {
 
 impl Builder {
   pub fn new(name: &str, directory: &str) -> Self {
+    let file_appender = RollingFileAppender::builder()
+      .rotation(Rotation::DAILY)
+      .filename_prefix(name)
+      .max_log_files(6)
+      .build(directory)
+      .unwrap_or(tracing_appender::rolling::daily(directory, name));
+
     Builder {
       name: name.to_owned(),
       env_filter: "Info".to_owned(),
-      file_appender: tracing_appender::rolling::daily(directory, name),
+      file_appender,
     }
   }
 
@@ -37,22 +45,24 @@ impl Builder {
     self
   }
 
-  pub fn build(self) -> std::result::Result<(), String> {
+  pub fn build(self) -> Result<(), String> {
     let env_filter = EnvFilter::new(self.env_filter);
 
+    let std_out_layer = fmt::layer().with_writer(std::io::stdout).pretty();
     let (non_blocking, guard) = tracing_appender::non_blocking(self.file_appender);
+    let file_layer = FlowyFormattingLayer::new(non_blocking);
+
     let subscriber = tracing_subscriber::fmt()
       .with_timer(CustomTime)
       .with_ansi(true)
-      .with_target(false)
       .with_max_level(tracing::Level::TRACE)
       .with_thread_ids(false)
-      .with_writer(std::io::stdout)
       .pretty()
       .with_env_filter(env_filter)
       .finish()
       .with(JsonStorageLayer)
-      .with(FlowyFormattingLayer::new(non_blocking));
+      .with(file_layer)
+      .with(std_out_layer);
 
     set_global_default(subscriber).map_err(|e| format!("{:?}", e))?;
 

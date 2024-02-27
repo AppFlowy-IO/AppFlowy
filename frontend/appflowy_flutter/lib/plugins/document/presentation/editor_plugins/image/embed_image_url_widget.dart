@@ -23,12 +23,11 @@ class _EmbedImageUrlWidgetState extends State<EmbedImageUrlWidget> {
     return Column(
       children: [
         FlowyTextField(
-          autoFocus: true,
           hintText: LocaleKeys.document_imageBlock_embedLink_placeholder.tr(),
           onChanged: (value) => inputText = value,
           onEditingComplete: () => widget.onSubmit(inputText),
         ),
-        const VSpace(5),
+        const VSpace(8),
         SizedBox(
           width: 160,
           child: FlowyButton(

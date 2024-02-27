@@ -1,9 +1,8 @@
-import 'package:appflowy/util/platform_extension.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/widgets/draggable_item/draggable_item.dart';
-import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -58,7 +57,7 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
     return DraggableItem<ViewPB>(
       data: widget.view,
       onDragging: widget.onDragging,
-      onWillAccept: (data) => true,
+      onWillAcceptWithDetails: (data) => true,
       onMove: (data) {
         final renderBox = context.findRenderObject() as RenderBox;
         final offset = renderBox.globalToLocal(data.offset);
@@ -66,15 +65,13 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
         if (!_shouldAccept(data.data, position)) {
           return;
         }
-        Log.debug(
-          'offset: $offset, position: $position, size: ${renderBox.size}',
-        );
         _updatePosition(position);
       },
       onLeave: (_) => _updatePosition(
         DraggableHoverPosition.none,
       ),
-      onAccept: (data) {
+      onAcceptWithDetails: (details) {
+        final data = details.data;
         _move(
           data,
           widget.view,
@@ -107,7 +104,7 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
                     Theme.of(context).colorScheme.secondary
                 : Colors.transparent,
           ),
-        Container(
+        DecoratedBox(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(6.0),
             color: position == DraggableHoverPosition.center
@@ -147,7 +144,7 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
                   : Colors.transparent,
             ),
           ),
-        Container(
+        DecoratedBox(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(4.0),
             color: position == DraggableHoverPosition.center

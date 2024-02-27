@@ -1,36 +1,26 @@
-import React, { useCallback, useMemo, useState } from 'react';
-import { Field, fieldService, TextCell } from '$app/components/database/application';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { Field, fieldService, RowMeta } from '$app/application/database';
 import { useDatabase } from '$app/components/database';
 import { FieldVisibility } from '@/services/backend';
 
-import Button from '@mui/material/Button';
-
-import { ReactComponent as EyeClosedSvg } from '$app/assets/eye_close.svg';
-import { ReactComponent as EyeOpenSvg } from '$app/assets/eye_open.svg';
 import PropertyList from '$app/components/database/components/edit_record/record_properties/PropertyList';
-import NewProperty from '$app/components/database/components/edit_record/record_properties/NewProperty';
+import NewProperty from '$app/components/database/components/property/NewProperty';
 import { useViewId } from '$app/hooks';
 import { DragDropContext, Droppable, DropResult, OnDragEndResponder } from 'react-beautiful-dnd';
+import SwitchPropertiesVisible from '$app/components/database/components/edit_record/record_properties/SwitchPropertiesVisible';
 
 interface Props {
-  documentId?: string;
-  cell: TextCell;
+  row: RowMeta;
 }
 
-// a little function to help us with reordering the result
-const reorder = (list: Field[], startIndex: number, endIndex: number) => {
-  const result = Array.from(list);
-  const [removed] = result.splice(startIndex, 1);
-
-  result.splice(endIndex, 0, removed);
-
-  return result;
-};
-
-function RecordProperties({ documentId, cell }: Props) {
+function RecordProperties({ row }: Props) {
   const viewId = useViewId();
-  const { fieldId, rowId } = cell;
   const { fields } = useDatabase();
+  const fieldId = useMemo(() => {
+    return fields.find((field) => field.isPrimary)?.id;
+  }, [fields]);
+  const rowId = row.id;
+  const [openMenuPropertyId, setOpenMenuPropertyId] = useState<string | undefined>(undefined);
   const [showHiddenFields, setShowHiddenFields] = useState(false);
 
   const properties = useMemo(() => {
@@ -41,24 +31,17 @@ function RecordProperties({ documentId, cell }: Props) {
     });
   }, [fieldId, fields, showHiddenFields]);
 
+  const hiddenFieldsCount = useMemo(() => {
+    return fields.filter((field) => {
+      return field.visibility === FieldVisibility.AlwaysHidden;
+    }).length;
+  }, [fields]);
+
   const [state, setState] = useState<Field[]>(properties);
 
-  // move the field in the database
-  const onMoveProperty = useCallback(
-    async (fieldId: string, prevId?: string) => {
-      const fromIndex = fields.findIndex((field) => field.id === fieldId);
-
-      const prevIndex = prevId ? fields.findIndex((field) => field.id === prevId) : 0;
-      const toIndex = prevIndex > fromIndex ? prevIndex : prevIndex + 1;
-
-      if (fromIndex === toIndex) {
-        return;
-      }
-
-      await fieldService.moveField(viewId, fieldId, fromIndex, toIndex);
-    },
-    [fields, viewId]
-  );
+  useEffect(() => {
+    setState(properties);
+  }, [properties]);
 
   // move the field in the state
   const handleOnDragEnd: OnDragEndResponder = useCallback(
@@ -71,20 +54,16 @@ function RecordProperties({ documentId, cell }: Props) {
         return;
       }
 
+      const newId = properties[newIndex ?? 0].id;
+
       // reorder the properties synchronously to avoid flickering
-      const newProperties = reorder(properties, oldIndex, newIndex ?? 0);
+      const newProperties = fieldService.reorderFields(properties, oldIndex, newIndex ?? 0);
 
       setState(newProperties);
 
-      // find the previous field id
-      const prevIndex = newProperties.findIndex((field) => field.id === draggableId) - 1;
-      const prevId = prevIndex >= 0 ? newProperties[prevIndex].id : undefined;
-
-      // update the order in the database.
-      // why not prevIndex? because the properties was filtered, we need to use the previous id to find the correct index
-      await onMoveProperty(draggableId, prevId);
+      await fieldService.moveField(viewId, draggableId, newId);
     },
-    [onMoveProperty, properties]
+    [properties, viewId]
   );
 
   return (
@@ -93,29 +72,26 @@ function RecordProperties({ documentId, cell }: Props) {
         <Droppable droppableId='droppable' type='droppableItem'>
           {(dropProvided) => (
             <PropertyList
-              documentId={documentId}
+              {...dropProvided.droppableProps}
               placeholderNode={dropProvided.placeholder}
               ref={dropProvided.innerRef}
-              {...dropProvided.droppableProps}
               rowId={rowId}
               properties={state}
+              openMenuPropertyId={openMenuPropertyId}
+              setOpenMenuPropertyId={setOpenMenuPropertyId}
             />
           )}
         </Droppable>
       </DragDropContext>
-      <Button
-        onClick={() => {
-          setShowHiddenFields((prev) => !prev);
-        }}
-        className={'w-full justify-start'}
-        startIcon={showHiddenFields ? <EyeClosedSvg /> : <EyeOpenSvg />}
-        color={'inherit'}
-      >
-        {showHiddenFields ? 'Hide hidden fields' : 'Show hidden fields'}
-      </Button>
-      <NewProperty />
+      <SwitchPropertiesVisible
+        hiddenFieldsCount={hiddenFieldsCount}
+        showHiddenFields={showHiddenFields}
+        setShowHiddenFields={setShowHiddenFields}
+      />
+
+      <NewProperty onInserted={setOpenMenuPropertyId} />
     </div>
   );
 }
 
-export default React.memo(RecordProperties);
+export default RecordProperties;

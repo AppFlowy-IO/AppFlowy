@@ -3,7 +3,7 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 use collab_database::fields::{Field, TypeOptionData};
-use collab_database::rows::{Cells, Row, RowDetail};
+use collab_database::rows::{Cells, Row, RowDetail, RowId};
 use futures::executor::block_on;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
@@ -82,7 +82,7 @@ where
     let field_type = FieldType::from(grouping_field.field_type);
     let type_option = grouping_field
       .get_type_option::<T>(&field_type)
-      .unwrap_or_else(|| T::from(default_type_option_data_from_type(&field_type)));
+      .unwrap_or_else(|| T::from(default_type_option_data_from_type(field_type)));
 
     // TODO(nathan): remove block_on
     let generated_groups = block_on(G::build(grouping_field, &configuration, &type_option));
@@ -115,14 +115,14 @@ where
     let no_status_group_rows = other_group_changesets
       .iter()
       .flat_map(|changeset| &changeset.deleted_rows)
-      .cloned()
-      .filter(|row_id| {
+      .filter(|&row_id| {
         // if the [other_group_inserted_row] contains the row_id of the row
         // which means the row should not move to the default group.
         !other_group_inserted_row
           .iter()
           .any(|inserted_row| &inserted_row.row_meta.id == row_id)
       })
+      .cloned()
       .collect::<Vec<String>>();
 
     let mut changeset = GroupRowsNotificationPB::new(no_status_group.id.clone());
@@ -394,6 +394,27 @@ where
 
   fn did_update_group_field(&mut self, _field: &Field) -> FlowyResult<Option<GroupChangesPB>> {
     Ok(None)
+  }
+
+  fn delete_group(&mut self, group_id: &str) -> FlowyResult<(Vec<RowId>, Option<TypeOptionData>)> {
+    let group = if group_id != self.field_id() {
+      self.get_group(group_id)
+    } else {
+      None
+    };
+
+    match group {
+      Some((_index, group_data)) => {
+        let row_ids = group_data
+          .rows
+          .iter()
+          .map(|row| row.row.id.clone())
+          .collect();
+        let type_option_data = self.delete_group_custom(group_id)?;
+        Ok((row_ids, type_option_data))
+      },
+      None => Ok((vec![], None)),
+    }
   }
 
   async fn apply_group_changeset(

@@ -1,0 +1,21 @@
+[package]
+name = "flowy-derive"
+version = "0.1.0"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+proc-macro = true
+name = "flowy_derive"
+
+[dependencies]
+syn = { version = "1.0.109", features = ["extra-traits", "visit"] }
+quote = "1.0"
+proc-macro2 = "1.0"
+flowy-ast.workspace = true
+lazy_static = {version = "1.4.0"}
+dashmap = "5"
+flowy-codegen.workspace = true
+serde_json.workspace = true
+walkdir = "2.3.2"

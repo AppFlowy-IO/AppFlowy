@@ -18,8 +18,7 @@ on:
       - "!frontend/appflowy_tauri/**"
 
 env:
-  FLUTTER_VERSION: "3.13.9"
-  RUST_TOOLCHAIN: "1.70"
+  FLUTTER_VERSION: "3.19.0"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -46,18 +45,13 @@ jobs:
           sudo rm -rf /opt/ghc
           sudo rm -rf "/usr/local/share/boost"
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+          sudo docker image prune --all --force
+          sudo rm -rf /opt/hostedtoolcache/codeQL
+          sudo rm -rf ${GITHUB_WORKSPACE}/.git
+          sudo rm -rf $ANDROID_HOME/ndk
 
       - name: Checkout source code
-        uses: actions/checkout@v2
-
-      - name: Install Rust toolchain
-        id: rust_toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: ${{ env.RUST_TOOLCHAIN }}
-          target: ${{ matrix.target }}
-          override: true
-          profile: minimal
+        uses: actions/checkout@v4
 
       - name: Install flutter
         id: flutter
@@ -70,8 +64,12 @@ jobs:
       - uses: nttld/setup-ndk@v1
         id: setup-ndk
         with:
-            ndk-version: "r24"
-            add-to-path: true
+          ndk-version: "r24"
+          add-to-path: true
+
+      - uses: gradle/gradle-build-action@v3
+        with:
+          gradle-version: 7.6.3
 
       - uses: Swatinem/rust-cache@v2
         with:
@@ -110,4 +108,4 @@ jobs:
         env:
           ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
         run: |
-          cargo make --profile development-android appflowy-android-dev
+          cargo make --profile development-android appflowy-android-dev-ci

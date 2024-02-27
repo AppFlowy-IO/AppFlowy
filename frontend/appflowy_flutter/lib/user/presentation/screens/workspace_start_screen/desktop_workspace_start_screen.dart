@@ -1,6 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/workspace/prelude.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -57,12 +57,13 @@ Widget _renderList(List<WorkspacePB> workspaces) {
 }
 
 class _WorkspaceItem extends StatelessWidget {
-  final WorkspacePB workspace;
-  final void Function(WorkspacePB workspace) onPressed;
   const _WorkspaceItem({
     required this.workspace,
     required this.onPressed,
   });
+
+  final WorkspacePB workspace;
+  final void Function(WorkspacePB workspace) onPressed;
 
   @override
   Widget build(BuildContext context) {

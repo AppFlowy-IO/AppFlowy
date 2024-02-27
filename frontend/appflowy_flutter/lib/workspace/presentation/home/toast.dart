@@ -7,8 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class FlowyMessageToast extends StatelessWidget {
+  const FlowyMessageToast({required this.message, super.key});
+
   final String message;
-  const FlowyMessageToast({required this.message, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -60,13 +61,14 @@ void showSnackBarMessage(
           ? null
           : SnackBarAction(
               label: LocaleKeys.button_cancel.tr(),
-              textColor: Theme.of(context).colorScheme.onSurface,
+              textColor: Colors.white,
               onPressed: () {
                 ScaffoldMessenger.of(context).hideCurrentSnackBar();
               },
             ),
       content: FlowyText(
         message,
+        color: Colors.white,
       ),
     ),
   );

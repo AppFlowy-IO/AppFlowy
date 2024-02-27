@@ -4,8 +4,9 @@ import 'package:appflowy/plugins/document/application/doc_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/string_extension.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_result.dart';
-import 'package:appflowy/user/application/reminder/reminder_extension.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
+import 'package:appflowy/user/application/reminder/reminder_extension.dart';
+import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/reminder_selector.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/reminder.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -109,13 +110,13 @@ class ReminderReferenceService {
     final result = await DateService.queryDate(search);
 
     result.fold(
-      (l) {},
       (date) {
         // Only insert dates in the future
         if (DateTime.now().isBefore(date)) {
           options.insert(0, _itemFromDate(date));
         }
       },
+      (_) {},
     );
   }
 
@@ -147,9 +148,10 @@ class ReminderReferenceService {
         '\$',
         attributes: {
           MentionBlockKeys.mention: {
-            MentionBlockKeys.type: MentionType.reminder.name,
+            MentionBlockKeys.type: MentionType.date.name,
             MentionBlockKeys.date: date.toIso8601String(),
-            MentionBlockKeys.uid: reminder.id,
+            MentionBlockKeys.reminderId: reminder.id,
+            MentionBlockKeys.reminderOption: ReminderOption.atTimeOfEvent.name,
           },
         },
       );
@@ -213,8 +215,8 @@ class ReminderReferenceService {
       title: LocaleKeys.reminderNotification_title.tr(),
       message: LocaleKeys.reminderNotification_message.tr(),
       meta: {
-        ReminderMetaKeys.includeTime.name: false.toString(),
-        ReminderMetaKeys.blockId.name: node.id,
+        ReminderMetaKeys.includeTime: false.toString(),
+        ReminderMetaKeys.blockId: node.id,
       },
       scheduledAt: Int64(date.millisecondsSinceEpoch ~/ 1000),
       isAck: date.isBefore(DateTime.now()),

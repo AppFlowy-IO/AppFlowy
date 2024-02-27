@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:appflowy/workspace/presentation/home/tabs/flowy_tab.dart';
 import 'package:appflowy/workspace/presentation/home/tabs/tabs_manager.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -32,15 +32,9 @@ void main() {
         findsNothing,
       );
 
-      await tester.createNewPageWithName(
-        name: _documentName,
-        layout: ViewLayoutPB.Document,
-      );
+      await tester.createNewPageWithNameUnderParent(name: _documentName);
 
-      await tester.createNewPageWithName(
-        name: _documentTwoName,
-        layout: ViewLayoutPB.Document,
-      );
+      await tester.createNewPageWithNameUnderParent(name: _documentTwoName);
 
       /// Open second menu item in a new tab
       await tester.openAppInNewTab(gettingStarted, ViewLayoutPB.Document);

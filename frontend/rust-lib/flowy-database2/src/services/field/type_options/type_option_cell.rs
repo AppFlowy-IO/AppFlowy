@@ -11,7 +11,6 @@ use lib_infra::box_any::BoxAny;
 use crate::entities::FieldType;
 use crate::services::cell::{
   CellCache, CellDataChangeset, CellDataDecoder, CellFilterCache, CellProtobufBlob,
-  FromCellChangeset,
 };
 use crate::services::field::checklist_type_option::ChecklistTypeOption;
 use crate::services::field::{
@@ -26,9 +25,11 @@ pub const CELL_DATA: &str = "data";
 /// Each [FieldType] has its own [TypeOptionCellDataHandler].
 /// A helper trait that used to erase the `Self` of `TypeOption` trait to make it become a Object-safe trait
 /// Only object-safe traits can be made into trait objects.
-/// > Object-safe traits are traits with methods that follow these two rules:
-/// 1.the return type is not Self.
-/// 2.there are no generic types parameters.
+///
+/// Object-safe traits are traits with methods that follow these two rules:
+///
+/// 1. the return type is not Self.
+/// 2. there are no generic types parameters.
 ///
 pub trait TypeOptionCellDataHandler: Send + Sync + 'static {
   fn handle_cell_str(
@@ -38,10 +39,9 @@ pub trait TypeOptionCellDataHandler: Send + Sync + 'static {
     field_rev: &Field,
   ) -> FlowyResult<CellProtobufBlob>;
 
-  // TODO(nathan): replace cell_changeset with BoxAny to get rid of the serde process.
   fn handle_cell_changeset(
     &self,
-    cell_changeset: String,
+    cell_changeset: BoxAny,
     old_cell: Option<Cell>,
     field: &Field,
   ) -> FlowyResult<Cell>;
@@ -62,7 +62,9 @@ pub trait TypeOptionCellDataHandler: Send + Sync + 'static {
   /// For example, the field type of the [TypeOptionCellDataHandler] is [FieldType::Date], and
   /// the if field_type is [FieldType::RichText], then the string would be something like "Mar 14, 2022".
   ///
-  fn stringify_cell_str(&self, cell: &Cell, field_type: &FieldType, field: &Field) -> String;
+  fn handle_stringify_cell(&self, cell: &Cell, field_type: &FieldType, field: &Field) -> String;
+
+  fn handle_numeric_cell(&self, cell: &Cell) -> Option<f64>;
 
   /// Format the cell to [BoxCellData] using the passed-in [FieldType] and [Field].
   /// The caller can get the cell data by calling [BoxCellData::unbox_or_none].
@@ -78,7 +80,7 @@ struct CellDataCacheKey(u64);
 impl CellDataCacheKey {
   pub fn new(field_rev: &Field, decoded_field_type: FieldType, cell: &Cell) -> Self {
     let mut hasher = DefaultHasher::new();
-    if let Some(type_option_data) = field_rev.get_any_type_option(&decoded_field_type) {
+    if let Some(type_option_data) = field_rev.get_any_type_option(decoded_field_type) {
       type_option_data.hash(&mut hasher);
     }
     hasher.write(field_rev.id.as_bytes());
@@ -141,7 +143,7 @@ where
     decoded_field_type: &FieldType,
     field: &Field,
   ) -> FlowyResult<<Self as TypeOption>::CellData> {
-    let key = CellDataCacheKey::new(field, decoded_field_type.clone(), cell);
+    let key = CellDataCacheKey::new(field, *decoded_field_type, cell);
     if let Some(cell_data_cache) = self.cell_data_cache.as_ref() {
       let read_guard = cell_data_cache.read();
       if let Some(cell_data) = read_guard.get(key.as_ref()).cloned() {
@@ -236,11 +238,11 @@ where
 
   fn handle_cell_changeset(
     &self,
-    cell_changeset: String,
+    cell_changeset: BoxAny,
     old_cell: Option<Cell>,
     field: &Field,
   ) -> FlowyResult<Cell> {
-    let changeset = <Self as TypeOption>::CellChangeset::from_changeset(cell_changeset)?;
+    let changeset = cell_changeset.unbox_or_error::<<Self as TypeOption>::CellChangeset>()?;
     let (cell, cell_data) = self.apply_changeset(changeset, old_cell)?;
     self.set_decoded_cell_data(&cell, cell_data, field);
     Ok(cell)
@@ -323,7 +325,7 @@ where
   /// is [FieldType::RichText], then the string will be transformed to a string that separated by comma with the
   /// option's name.
   ///
-  fn stringify_cell_str(&self, cell: &Cell, field_type: &FieldType, field: &Field) -> String {
+  fn handle_stringify_cell(&self, cell: &Cell, field_type: &FieldType, field: &Field) -> String {
     if self.transformable() {
       let cell_data = self.transform_type_option_cell(cell, field_type, field);
       if let Some(cell_data) = cell_data {
@@ -331,6 +333,10 @@ where
       }
     }
     self.stringify_cell(cell)
+  }
+
+  fn handle_numeric_cell(&self, cell: &Cell) -> Option<f64> {
+    self.numeric_cell(cell)
   }
 
   fn get_cell_data(
@@ -490,7 +496,7 @@ impl<'a> TypeOptionCellExt<'a> {
 
 pub fn transform_type_option(
   type_option_data: &TypeOptionData,
-  new_field_type: &FieldType,
+  new_field_type: FieldType,
   old_type_option_data: Option<TypeOptionData>,
   old_field_type: FieldType,
 ) -> TypeOptionData {
@@ -532,7 +538,7 @@ where
 }
 fn get_type_option_transform_handler(
   type_option_data: &TypeOptionData,
-  field_type: &FieldType,
+  field_type: FieldType,
 ) -> Box<dyn TypeOptionTransformHandler> {
   let type_option_data = type_option_data.clone();
   match field_type {

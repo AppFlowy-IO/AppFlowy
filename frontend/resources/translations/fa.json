@@ -55,12 +55,12 @@
     "copyLink": "کپی کردن لینک"
   },
   "moreAction": {
-    "small": "کوچک",
-    "medium": "متوسط",
-    "large": "بزرگ",
     "fontSize": "اندازه قلم",
     "import": "اضافه کردن",
-    "moreOptions": "گزینه های بیشتر"
+    "moreOptions": "گزینه های بیشتر",
+    "small": "کوچک",
+    "medium": "متوسط",
+    "large": "بزرگ"
   },
   "importPanel": {
     "textAndMarkdown": "Text & Markdown",
@@ -192,9 +192,8 @@
     "delete": "حذف کردن",
     "duplicate": "تکرار کردن",
     "putback": "بازگشت",
-    "OK": "باشه",
-    "Done": "انجام شد",
-    "Cancel": "لغو"
+    "cancel": "لغو",
+    "ok": "باشه"
   },
   "label": {
     "welcome": "خوش آمدید!",
@@ -247,12 +246,12 @@
       "themeUpload": {
         "button": "بارگذاری",
         "description": "تم قالب AppFlowy خود را با استفاده از دکمه زیر آپلود کنید.",
-        "failure": "تم قالب آپلود شده نامعتبر است.",
         "loading": "لطفاً منتظر بمانید تا تم قالب شما را اعتبارسنجی و آپلود کنیم...",
         "uploadSuccess": "تم قالب شما با موفقیت آپلود شد",
         "deletionFailure": "تم حذف نشد. سعی کنید آن را به صورت دستی حذف کنید.",
         "filePickerDialogTitle": "یک فایل .flowy_plugin را انتخاب کنید",
-        "urlUploadFailure": "نشانی اینترنتی باز نشد: {}"
+        "urlUploadFailure": "نشانی اینترنتی باز نشد: {}",
+        "failure": "تم قالب آپلود شده نامعتبر است."
       },
       "theme": "تم قالب",
       "builtInsLabel": "قالب‌های پیش‌ساخته",
@@ -593,11 +592,11 @@
     }
   },
   "board": {
-    "menuName": "بورد",
-    "referencedBoardPrefix": "نمای",
     "column": {
       "createNewCard": "ایجاد"
-    }
+    },
+    "menuName": "بورد",
+    "referencedBoardPrefix": "نمای"
   },
   "calendar": {
     "menuName": "تقویم",

@@ -13,7 +13,7 @@ class ThemeUploadWidget extends StatefulWidget {
 
   static const double borderRadius = 8;
   static const double buttonFontSize = 14;
-  static const Size buttonSize = Size(72, 28);
+  static const Size buttonSize = Size(100, 32);
   static const EdgeInsets padding = EdgeInsets.all(12.0);
   static const Size iconSize = Size.square(48);
   static const Widget elementSpacer = SizedBox(height: 12);
@@ -27,8 +27,7 @@ class ThemeUploadWidget extends StatefulWidget {
 class _ThemeUploadWidgetState extends State<ThemeUploadWidget> {
   void listen(BuildContext context, DynamicPluginState state) {
     setState(() {
-      state.when(
-        uninitialized: () => null,
+      state.whenOrNull(
         ready: (plugins) {
           child =
               const UploadNewThemeWidget(key: Key('upload_new_theme_widget'));
@@ -42,9 +41,10 @@ class _ThemeUploadWidgetState extends State<ThemeUploadWidget> {
             key: Key('upload_theme_loading_widget'),
           );
         },
-        compilationFailure: (path) {
-          child = const ThemeUploadFailureWidget(
-            key: Key('upload_theme_failure_widget'),
+        compilationFailure: (errorMessage) {
+          child = ThemeUploadFailureWidget(
+            key: const Key('upload_theme_failure_widget'),
+            errorMessage: errorMessage,
           );
         },
         compilationSuccess: () {
@@ -53,7 +53,6 @@ class _ThemeUploadWidgetState extends State<ThemeUploadWidget> {
                 .pop(const DynamicPluginState.compilationSuccess());
           }
         },
-        deletionFailure: (path) {},
       );
     });
   }

@@ -50,12 +50,12 @@
     "copyLink": "링크 복사"
   },
   "moreAction": {
-    "small": "작은",
-    "medium": "중간",
-    "large": "크기가 큰",
     "fontSize": "글꼴 크기",
     "import": "수입",
-    "moreOptions": "추가 옵션"
+    "moreOptions": "추가 옵션",
+    "small": "작은",
+    "medium": "중간",
+    "large": "크기가 큰"
   },
   "importPanel": {
     "textAndMarkdown": "텍스트 및 마크다운",
@@ -176,9 +176,8 @@
     "delete": "삭제",
     "duplicate": "복제하다",
     "putback": "다시 집어 넣어",
-    "OK": "확인",
-    "Done": "완료",
-    "Cancel": "취소"
+    "cancel": "취소",
+    "ok": "확인"
   },
   "label": {
     "welcome": "환영합니다!",
@@ -224,12 +223,12 @@
       "themeUpload": {
         "button": "업로드",
         "description": "아래 버튼을 사용하여 나만의 AppFlowy 테마를 업로드하세요.",
-        "failure": "업로드된 테마의 형식이 잘못되었습니다.",
         "loading": "테마를 확인하고 업로드하는 동안 잠시 기다려 주십시오...",
         "uploadSuccess": "테마가 성공적으로 업로드되었습니다.",
         "deletionFailure": "테마를 삭제하지 못했습니다. 수동으로 삭제해 보십시오.",
         "filePickerDialogTitle": ".flowy_plugin 파일 선택",
-        "urlUploadFailure": "URL을 열지 못했습니다: {}"
+        "urlUploadFailure": "URL을 열지 못했습니다: {}",
+        "failure": "업로드된 테마의 형식이 잘못되었습니다."
       },
       "theme": "주제",
       "builtInsLabel": "내장 테마",
@@ -549,11 +548,11 @@
     }
   },
   "board": {
-    "menuName": "판자",
-    "referencedBoardPrefix": "관점",
     "column": {
       "createNewCard": "추가"
-    }
+    },
+    "menuName": "판자",
+    "referencedBoardPrefix": "관점"
   },
   "calendar": {
     "menuName": "달력",

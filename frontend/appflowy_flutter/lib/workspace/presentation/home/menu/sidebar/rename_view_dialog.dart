@@ -21,9 +21,9 @@ Future<void> createViewAndShowRenameDialogIfNeeded(
     KVKeys.showRenameDialogWhenCreatingNewFile,
     (value) => bool.parse(value),
   );
-  final showRenameDialog = value.fold(() => false, (r) => r);
+  final showRenameDialog = value ?? false;
   if (context.mounted && showRenameDialog) {
-    NavigatorTextFieldDialog(
+    await NavigatorTextFieldDialog(
       title: dialogTitle,
       value: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
       autoSelectAllText: true,

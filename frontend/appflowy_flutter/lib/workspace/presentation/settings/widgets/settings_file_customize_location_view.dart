@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy/startup/entry_point.dart';
 import 'package:appflowy/workspace/application/settings/settings_location_cubit.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/file_picker/file_picker_service.dart';
@@ -16,7 +15,6 @@ import 'package:styled_widget/styled_widget.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../generated/locale_keys.g.dart';
-import '../../../../startup/launch_configuration.dart';
 import '../../../../startup/startup.dart';
 import '../../../../startup/tasks/prelude.dart';
 
@@ -204,18 +202,12 @@ class _ChangeStoragePathButtonState extends State<_ChangeStoragePathButton> {
           if (path == null || widget.usingPath == path) {
             return;
           }
-          if (!mounted) {
+          if (!context.mounted) {
             return;
           }
           await context.read<SettingsLocationCubit>().setCustomPath(path);
-          await FlowyRunner.run(
-            FlowyApp(),
-            integrationMode(),
-            config: const LaunchConfiguration(
-              autoRegistrationSupported: true,
-            ),
-          );
-          if (mounted) {
+          await runAppFlowy(isAnon: true);
+          if (context.mounted) {
             Navigator.of(context).pop();
           }
         },
@@ -243,7 +235,7 @@ class _OpenStorageButton extends StatelessWidget {
       onPressed: () async {
         final uri = Directory(usingPath).uri;
         if (await canLaunchUrl(uri)) {
-          launchUrl(uri);
+          await launchUrl(uri);
         }
       },
     );
@@ -280,20 +272,14 @@ class _RecoverDefaultStorageButtonState
         if (widget.usingPath == path) {
           return;
         }
-        if (!mounted) {
+        if (!context.mounted) {
           return;
         }
         await context
             .read<SettingsLocationCubit>()
             .resetDataStoragePathToApplicationDefault();
-        await FlowyRunner.run(
-          FlowyApp(),
-          integrationMode(),
-          config: const LaunchConfiguration(
-            autoRegistrationSupported: true,
-          ),
-        );
-        if (mounted) {
+        await runAppFlowy(isAnon: true);
+        if (context.mounted) {
           Navigator.of(context).pop();
         }
       },

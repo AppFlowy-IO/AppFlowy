@@ -45,7 +45,6 @@ class FlowyMobileStateContainer extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 32),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
               emoji ??
@@ -53,11 +52,13 @@ class FlowyMobileStateContainer extends StatelessWidget {
                       ? '🛸'
                       : ''),
               style: const TextStyle(fontSize: 40),
+              textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
             Text(
               title,
               style: theme.textTheme.labelLarge,
+              textAlign: TextAlign.center,
             ),
             const SizedBox(height: 4),
             Text(
@@ -65,6 +66,7 @@ class FlowyMobileStateContainer extends StatelessWidget {
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.hintColor,
               ),
+              textAlign: TextAlign.center,
             ),
             if (_stateType == _FlowyMobileStateContainerType.error) ...[
               const SizedBox(height: 8),

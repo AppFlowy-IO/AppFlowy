@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.10.0)
 
 project(AppFlowy)
 
+message(CONFIGURE_LOG "NDK PATH: ${ANDROID_NDK}")
+message(CONFIGURE_LOG "Copying libc++_shared.so")
+
 # arm64-v8a
 file(COPY
     ${ANDROID_NDK}/sources/cxx-stl/llvm-libc++/libs/arm64-v8a/libc++_shared.so

@@ -2,11 +2,9 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/image/flow
 import 'package:flutter/material.dart';
 
 class MobileImagePickerScreen extends StatelessWidget {
-  static const routeName = '/image_picker';
+  const MobileImagePickerScreen({super.key});
 
-  const MobileImagePickerScreen({
-    super.key,
-  });
+  static const routeName = '/image_picker';
 
   @override
   Widget build(BuildContext context) {

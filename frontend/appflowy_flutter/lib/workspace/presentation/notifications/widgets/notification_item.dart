@@ -4,6 +4,7 @@ import 'package:appflowy/plugins/document/presentation/editor_configuration.dart
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/date_time/date_format_ext.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -22,13 +23,13 @@ class NotificationItem extends StatefulWidget {
     required this.scheduled,
     required this.body,
     required this.isRead,
-    this.path,
     this.block,
     this.includeTime = false,
     this.readOnly = false,
     this.onAction,
     this.onDelete,
     this.onReadChanged,
+    this.view,
   });
 
   final String reminderId;
@@ -36,7 +37,7 @@ class NotificationItem extends StatefulWidget {
   final Int64 scheduled;
   final String body;
   final bool isRead;
-  final Future<int?>? path;
+  final ViewPB? view;
 
   /// If [block] is provided, then [body] will be shown only if
   /// [block] fails to fetch.
@@ -61,10 +62,24 @@ class _NotificationItemState extends State<NotificationItem> {
   bool _isHovering = false;
   int? path;
 
+  late final String infoString;
+
   @override
   void initState() {
     super.initState();
-    widget.path?.then((p) => path = p);
+    widget.block?.then((b) => path = b?.path.first);
+    infoString = _buildInfoString();
+  }
+
+  String _buildInfoString() {
+    String scheduledString =
+        _scheduledString(widget.scheduled, widget.includeTime);
+
+    if (widget.view != null) {
+      scheduledString = '$scheduledString - ${widget.view!.name}';
+    }
+
+    return scheduledString;
   }
 
   @override
@@ -80,117 +95,93 @@ class _NotificationItemState extends State<NotificationItem> {
           GestureDetector(
             onTap: () => widget.onAction?.call(path),
             child: AbsorbPointer(
-              child: Opacity(
-                opacity: widget.isRead && !widget.readOnly ? 0.5 : 1,
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: _isHovering && widget.onAction != null
-                        ? AFThemeExtension.of(context).lightGreyHover
-                        : Colors.transparent,
-                    border: widget.isRead || widget.readOnly
-                        ? null
-                        : Border(
-                            left: BorderSide(
-                              width: 2,
-                              color: Theme.of(context).colorScheme.primary,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  border: Border(
+                    bottom: PlatformExtension.isMobile
+                        ? BorderSide(
+                            color: AFThemeExtension.of(context).calloutBGColor,
+                          )
+                        : BorderSide.none,
+                  ),
+                ),
+                child: Opacity(
+                  opacity: widget.isRead && !widget.readOnly ? 0.5 : 1,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: _isHovering && widget.onAction != null
+                          ? AFThemeExtension.of(context).lightGreyHover
+                          : Colors.transparent,
+                      border: widget.isRead || widget.readOnly
+                          ? null
+                          : Border(
+                              left: BorderSide(
+                                width: PlatformExtension.isMobile ? 4 : 2,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                            ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 10,
+                        horizontal: 16,
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          FlowySvg(
+                            FlowySvgs.time_s,
+                            size: Size.square(
+                              PlatformExtension.isMobile ? 24 : 20,
+                            ),
+                            color: AFThemeExtension.of(context).textColor,
+                          ),
+                          const HSpace(16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                FlowyText.semibold(
+                                  widget.title,
+                                  fontSize:
+                                      PlatformExtension.isMobile ? 16 : 14,
+                                  color: AFThemeExtension.of(context).textColor,
+                                ),
+                                // TODO(Xazin): Relative time
+                                FlowyText.regular(
+                                  infoString,
+                                  fontSize:
+                                      PlatformExtension.isMobile ? 12 : 10,
+                                ),
+                                const VSpace(5),
+                                Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    borderRadius: Corners.s8Border,
+                                    color:
+                                        Theme.of(context).colorScheme.surface,
+                                  ),
+                                  child: _NotificationContent(
+                                    block: widget.block,
+                                    body: widget.body,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 10,
-                      horizontal: 16,
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        FlowySvg(
-                          FlowySvgs.time_s,
-                          size: const Size.square(20),
-                          color: Theme.of(context).colorScheme.tertiary,
-                        ),
-                        const HSpace(16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              FlowyText.semibold(
-                                widget.title,
-                                fontSize: 14,
-                                color: Theme.of(context).colorScheme.tertiary,
-                              ),
-                              // TODO(Xazin): Relative time + View Name
-                              FlowyText.regular(
-                                _scheduledString(
-                                  widget.scheduled,
-                                  widget.includeTime,
-                                ),
-                                fontSize: 10,
-                              ),
-                              const VSpace(5),
-                              Container(
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  borderRadius: Corners.s8Border,
-                                  color: Theme.of(context).colorScheme.surface,
-                                ),
-                                child: FutureBuilder<Node?>(
-                                  future: widget.block,
-                                  builder: (context, snapshot) {
-                                    if (snapshot.hasError ||
-                                        !snapshot.hasData ||
-                                        snapshot.data == null) {
-                                      return FlowyText.regular(
-                                        widget.body,
-                                        maxLines: 4,
-                                      );
-                                    }
-
-                                    final EditorState editorState = EditorState(
-                                      document: Document(root: snapshot.data!),
-                                    );
-
-                                    final EditorStyleCustomizer
-                                        styleCustomizer = EditorStyleCustomizer(
-                                      context: context,
-                                      padding: EdgeInsets.zero,
-                                    );
-
-                                    return Transform.scale(
-                                      scale: .9,
-                                      alignment: Alignment.centerLeft,
-                                      child: AppFlowyEditor(
-                                        editorState: editorState,
-                                        editorStyle: styleCustomizer.style(),
-                                        editable: false,
-                                        shrinkWrap: true,
-                                        blockComponentBuilders:
-                                            getEditorBuilderMap(
-                                          context: context,
-                                          editorState: editorState,
-                                          styleCustomizer: styleCustomizer,
-                                          editable: false,
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
           ),
-          if (_isHovering && !widget.readOnly)
+          if (PlatformExtension.isMobile && !widget.readOnly ||
+              _isHovering && !widget.readOnly)
             Positioned(
-              right: 4,
-              top: 4,
+              right: PlatformExtension.isMobile ? 8 : 4,
+              top: PlatformExtension.isMobile ? 8 : 4,
               child: NotificationItemActions(
                 isRead: widget.isRead,
                 onDelete: widget.onDelete,
@@ -214,6 +205,54 @@ class _NotificationItemState extends State<NotificationItem> {
   void _onHover(bool isHovering) => setState(() => _isHovering = isHovering);
 }
 
+class _NotificationContent extends StatelessWidget {
+  const _NotificationContent({
+    required this.body,
+    required this.block,
+  });
+
+  final String body;
+  final Future<Node?>? block;
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<Node?>(
+      future: block,
+      builder: (context, snapshot) {
+        if (snapshot.hasError || !snapshot.hasData || snapshot.data == null) {
+          return FlowyText.regular(body, maxLines: 4);
+        }
+
+        final editorState = EditorState(
+          document: Document(root: snapshot.data!),
+        );
+
+        final styleCustomizer = EditorStyleCustomizer(
+          context: context,
+          padding: EdgeInsets.zero,
+        );
+
+        return Transform.scale(
+          scale: .9,
+          alignment: Alignment.centerLeft,
+          child: AppFlowyEditor(
+            editorState: editorState,
+            editorStyle: styleCustomizer.style(),
+            editable: false,
+            shrinkWrap: true,
+            blockComponentBuilders: getEditorBuilderMap(
+              context: context,
+              editorState: editorState,
+              styleCustomizer: styleCustomizer,
+              editable: false,
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
 class NotificationItemActions extends StatelessWidget {
   const NotificationItemActions({
     super.key,
@@ -228,11 +267,15 @@ class NotificationItemActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final double size = PlatformExtension.isMobile ? 40.0 : 30.0;
+
     return Container(
-      height: 30,
+      height: size,
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
-        border: Border.all(color: Theme.of(context).dividerColor),
+        border: Border.all(
+          color: AFThemeExtension.of(context).lightGreyHover,
+        ),
         borderRadius: BorderRadius.circular(6),
       ),
       child: IntrinsicHeight(
@@ -240,7 +283,8 @@ class NotificationItemActions extends StatelessWidget {
           children: [
             if (isRead) ...[
               FlowyIconButton(
-                height: 28,
+                height: size,
+                width: size,
                 tooltipText:
                     LocaleKeys.reminderNotification_tooltipMarkUnread.tr(),
                 icon: const FlowySvg(FlowySvgs.restore_s),
@@ -249,7 +293,8 @@ class NotificationItemActions extends StatelessWidget {
               ),
             ] else ...[
               FlowyIconButton(
-                height: 28,
+                height: size,
+                width: size,
                 tooltipText:
                     LocaleKeys.reminderNotification_tooltipMarkRead.tr(),
                 iconColorOnHover: Theme.of(context).colorScheme.onSurface,
@@ -262,10 +307,13 @@ class NotificationItemActions extends StatelessWidget {
               thickness: 1,
               indent: 2,
               endIndent: 2,
-              color: Theme.of(context).dividerColor,
+              color: PlatformExtension.isMobile
+                  ? Theme.of(context).colorScheme.outline
+                  : Theme.of(context).dividerColor,
             ),
             FlowyIconButton(
-              height: 28,
+              height: size,
+              width: size,
               tooltipText: LocaleKeys.reminderNotification_tooltipDelete.tr(),
               icon: const FlowySvg(FlowySvgs.delete_s),
               iconColorOnHover: Theme.of(context).colorScheme.onSurface,

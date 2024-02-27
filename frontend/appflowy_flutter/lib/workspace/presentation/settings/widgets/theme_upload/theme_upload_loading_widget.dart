@@ -17,7 +17,6 @@ class ThemeUploadLoadingWidget extends StatelessWidget {
           .withOpacity(ThemeUploadWidget.fadeOpacity),
       constraints: const BoxConstraints.expand(),
       child: Column(
-        mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           CircularProgressIndicator(

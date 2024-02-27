@@ -1,4 +1,4 @@
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -18,7 +18,7 @@ void main() {
 
       // create document, board, grid and calendar views
       for (final value in ViewLayoutPB.values) {
-        await tester.createNewPageWithName(
+        await tester.createNewPageWithNameUnderParent(
           name: value.name,
           parentName: gettingStarted,
           layout: value,
@@ -46,7 +46,7 @@ void main() {
 
       // create document, board, grid and calendar views
       for (final value in ViewLayoutPB.values) {
-        await tester.createNewPageWithName(
+        await tester.createNewPageWithNameUnderParent(
           name: value.name,
           parentName: gettingStarted,
           layout: value,

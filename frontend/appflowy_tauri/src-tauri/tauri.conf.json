@@ -19,7 +19,10 @@
       },
       "fs": {
         "all": true,
-        "scope": ["$APPLOCALDATA/**", "$APPLOCALDATA/images/*"],
+        "scope": [
+          "$APPLOCALDATA/**",
+          "$APPLOCALDATA/images/*"
+        ],
         "readFile": true,
         "writeFile": true,
         "readDir": true,
@@ -29,6 +32,11 @@
         "removeFile": true,
         "renameFile": true,
         "exists": true
+      },
+      "clipboard": {
+        "all": true,
+        "writeText": true,
+        "readText": true
       }
     },
     "bundle": {
@@ -75,10 +83,12 @@
       {
         "fileDropEnabled": false,
         "fullscreen": false,
-        "height": 1200,
+        "height": 800,
         "resizable": true,
         "title": "AppFlowy",
-        "width": 1200
+        "width": 1200,
+        "minWidth": 800,
+        "minHeight": 600
       }
     ]
   }

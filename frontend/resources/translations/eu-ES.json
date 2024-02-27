@@ -50,12 +50,12 @@
     "copyLink": "Esteka kopiatu"
   },
   "moreAction": {
-    "small": "txikia",
-    "medium": "ertaina",
-    "large": "handia",
     "fontSize": "Letra tamaina",
     "import": "Inportatu",
-    "moreOptions": "Aukera gehiago"
+    "moreOptions": "Aukera gehiago",
+    "small": "txikia",
+    "medium": "ertaina",
+    "large": "handia"
   },
   "importPanel": {
     "textAndMarkdown": "Testua eta Markdown",
@@ -176,9 +176,8 @@
     "delete": "Ezabatu",
     "duplicate": "Bikoiztu",
     "putback": "Jarri Atzera",
-    "OK": "OK",
-    "Done": "Eginda",
-    "Cancel": "Ezteztatu"
+    "cancel": "Ezteztatu",
+    "ok": "OK"
   },
   "label": {
     "welcome": "Ongi etorri!",
@@ -224,12 +223,12 @@
       "themeUpload": {
         "button": "Kargatu",
         "description": "Kargatu zure AppFlowy gaia beheko botoia erabiliz.",
-        "failure": "Kargatu zen gaiak formatu baliogabea zuen.",
         "loading": "Mesedez, itxaron zure gaia balioztatzen eta kargatzen dugun bitartean...",
         "uploadSuccess": "Zure gaia behar bezala kargatu da",
         "deletionFailure": "Ezin izan da gaia ezabatu. Saiatu eskuz ezabatzen.",
         "filePickerDialogTitle": "Aukeratu .flowy_plugin fitxategi bat",
-        "urlUploadFailure": "Ezin izan da ireki URLa: {}"
+        "urlUploadFailure": "Ezin izan da ireki URLa: {}",
+        "failure": "Kargatu zen gaiak formatu baliogabea zuen."
       },
       "theme": "Itxura",
       "builtInsLabel": "Eraikitako gaiak",
@@ -552,11 +551,11 @@
     }
   },
   "board": {
-    "menuName": "Kontseilua",
-    "referencedBoardPrefix": "-ren ikuspegia",
     "column": {
       "createNewCard": "Berria"
-    }
+    },
+    "menuName": "Kontseilua",
+    "referencedBoardPrefix": "-ren ikuspegia"
   },
   "calendar": {
     "menuName": "Egutegia",

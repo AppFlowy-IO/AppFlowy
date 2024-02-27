@@ -1,14 +1,13 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
+import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
 import 'package:appflowy/plugins/trash/application/trash_service.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
-import 'package:appflowy_editor/appflowy_editor.dart'
-    show EditorState, SelectionUpdateReason;
+import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
+import 'package:appflowy_editor/appflowy_editor.dart' show EditorState;
 import 'package:collection/collection.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
@@ -22,9 +21,11 @@ class MentionPageBlock extends StatefulWidget {
   const MentionPageBlock({
     super.key,
     required this.pageId,
+    required this.textStyle,
   });
 
   final String pageId;
+  final TextStyle? textStyle;
 
   @override
   State<MentionPageBlock> createState() => _MentionPageBlockState();
@@ -32,8 +33,8 @@ class MentionPageBlock extends StatefulWidget {
 
 class _MentionPageBlockState extends State<MentionPageBlock> {
   late final EditorState editorState;
+  late final ViewListener viewListener = ViewListener(viewId: widget.pageId);
   late Future<ViewPB?> viewPBFuture;
-  ViewListener? viewListener;
 
   @override
   void initState() {
@@ -41,25 +42,23 @@ class _MentionPageBlockState extends State<MentionPageBlock> {
 
     editorState = context.read<EditorState>();
     viewPBFuture = fetchView(widget.pageId);
-    viewListener = ViewListener(viewId: widget.pageId)
-      ..start(
-        onViewUpdated: (p0) {
-          pageMemorizer[p0.id] = p0;
-          viewPBFuture = fetchView(widget.pageId);
-          editorState.reload();
-        },
-      );
+    viewListener.start(
+      onViewUpdated: (p0) {
+        pageMemorizer[p0.id] = p0;
+        viewPBFuture = fetchView(widget.pageId);
+        editorState.reload();
+      },
+    );
   }
 
   @override
   void dispose() {
-    viewListener?.stop();
+    viewListener.stop();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
     return FutureBuilder<ViewPB?>(
       initialData: pageMemorizer[widget.pageId],
       future: viewPBFuture,
@@ -70,7 +69,8 @@ class _MentionPageBlockState extends State<MentionPageBlock> {
         if (view == null) {
           return const SizedBox.shrink();
         }
-        updateSelection();
+        // updateSelection();
+        final iconSize = widget.textStyle?.fontSize ?? 16.0;
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 2),
           child: FlowyHover(
@@ -82,15 +82,23 @@ class _MentionPageBlockState extends State<MentionPageBlock> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   const HSpace(4),
-                  FlowySvg(
-                    view.layout.icon,
-                    size: const Size.square(18.0),
-                  ),
+                  view.icon.value.isNotEmpty
+                      ? EmojiText(
+                          emoji: view.icon.value,
+                          fontSize: 12,
+                          textAlign: TextAlign.center,
+                          lineHeight: 1.3,
+                        )
+                      : FlowySvg(
+                          view.layout.icon,
+                          size: Size.square(iconSize + 2.0),
+                        ),
                   const HSpace(2),
                   FlowyText(
                     view.name,
                     decoration: TextDecoration.underline,
-                    fontSize: fontSize,
+                    fontSize: widget.textStyle?.fontSize,
+                    fontWeight: widget.textStyle?.fontWeight,
                   ),
                   const HSpace(2),
                 ],
@@ -118,7 +126,7 @@ class _MentionPageBlockState extends State<MentionPageBlock> {
 
   Future<ViewPB?> fetchView(String pageId) async {
     final view = await ViewBackendService.getView(pageId).then(
-      (value) => value.swap().toOption().toNullable(),
+      (value) => value.toNullable(),
     );
 
     if (view == null) {
@@ -142,7 +150,6 @@ class _MentionPageBlockState extends State<MentionPageBlock> {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       editorState.updateSelectionWithReason(
         editorState.selection,
-        reason: SelectionUpdateReason.transaction,
       );
     });
   }

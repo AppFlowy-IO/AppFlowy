@@ -32,8 +32,8 @@ void main() {
   const service = TestWorkspaceService(TestWorkspace.board);
 
   group('board', () {
-    setUpAll(() async => await service.setUpAll());
-    setUp(() async => await service.setUp());
+    setUpAll(() async => service.setUpAll());
+    setUp(() async => service.setUp());
 
     testWidgets('open the board with data structure in v0.2.0', (tester) async {
       await tester.initializeAppFlowy();

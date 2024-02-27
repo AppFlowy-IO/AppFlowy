@@ -18,6 +18,15 @@ impl Payload {
   }
 }
 
+impl AsRef<[u8]> for Payload {
+  fn as_ref(&self) -> &[u8] {
+    match self {
+      Payload::None => &[],
+      Payload::Bytes(bytes) => bytes.as_ref(),
+    }
+  }
+}
+
 impl std::fmt::Debug for Payload {
   fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
     format_payload_print(self, f)

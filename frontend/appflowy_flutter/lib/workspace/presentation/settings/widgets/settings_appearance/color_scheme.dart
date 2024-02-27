@@ -27,7 +27,7 @@ class ColorSchemeSetting extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ThemeSettingEntryTemplateWidget(
+    return FlowySettingListTile(
       label: LocaleKeys.settings_appearance_theme.tr(),
       onResetRequested: context.read<AppearanceSettingsCubit>().resetTheme,
       trailing: [
@@ -105,11 +105,9 @@ class ColorSchemeUploadPopover extends StatelessWidget {
                 ready: (plugins) => Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    ...AppTheme.builtins
-                        .map(
-                          (theme) => _themeItemButton(context, theme.themeName),
-                        )
-                        .toList(),
+                    ...AppTheme.builtins.map(
+                      (theme) => _themeItemButton(context, theme.themeName),
+                    ),
                     if (plugins.isNotEmpty) ...[
                       const Divider(),
                       ...plugins
@@ -121,8 +119,7 @@ class ColorSchemeUploadPopover extends StatelessWidget {
                               theme.themeName,
                               false,
                             ),
-                          )
-                          .toList(),
+                          ),
                     ],
                   ],
                 ),
@@ -160,7 +157,8 @@ class ColorSchemeUploadPopover extends StatelessWidget {
               },
             ),
           ),
-          if (!isBuiltin)
+          // when the custom theme is not the current theme, show the remove button
+          if (!isBuiltin && currentTheme != theme)
             FlowyIconButton(
               icon: const FlowySvg(
                 FlowySvgs.close_s,

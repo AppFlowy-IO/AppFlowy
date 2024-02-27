@@ -1,11 +1,11 @@
-import 'package:appflowy/plugins/database_view/application/database_controller.dart';
+import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pbenum.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pbenum.dart';
 
 import '../util.dart';
 
 Future<GridTestContext> createTestFilterGrid(AppFlowyGridTest gridTest) async {
-  final app = await gridTest.unitTest.createTestApp();
+  final app = await gridTest.unitTest.createWorkspace();
   final context = await ViewBackendService.createView(
     parentViewId: app.id,
     name: "Filter Grid",
@@ -21,7 +21,6 @@ Future<GridTestContext> createTestFilterGrid(AppFlowyGridTest gridTest) async {
         final result = await context.gridController.open();
 
         await editCells(context);
-        await gridResponseFuture(milliseconds: 500);
         result.fold((l) => null, (r) => throw Exception(r));
         return context;
       },
@@ -33,10 +32,11 @@ Future<GridTestContext> createTestFilterGrid(AppFlowyGridTest gridTest) async {
 }
 
 Future<void> editCells(GridTestContext context) async {
-  final controller0 = await context.makeTextCellController(0);
-  final controller1 = await context.makeTextCellController(1);
+  final controller0 = context.makeTextCellController(0);
+  final controller1 = context.makeTextCellController(1);
 
-  controller0.saveCellData('A');
+  await controller0.saveCellData('A');
   await gridResponseFuture();
-  controller1.saveCellData('B');
+  await controller1.saveCellData('B');
+  await gridResponseFuture();
 }

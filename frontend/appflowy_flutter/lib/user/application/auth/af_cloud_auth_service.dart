@@ -1,31 +1,27 @@
 import 'dart:async';
 
-import 'package:app_links/app_links.dart';
-import 'package:appflowy/user/application/auth/backend_auth_service.dart';
+import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/startup/tasks/appflowy_cloud_task.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
+import 'package:appflowy/user/application/auth/backend_auth_service.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
-import 'package:dartz/dartz.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'auth_error.dart';
-import 'device_id.dart';
 
-class AFCloudAuthService implements AuthService {
-  final _appLinks = AppLinks();
-  StreamSubscription<Uri?>? _deeplinkSubscription;
-
-  AFCloudAuthService();
+class AppFlowyCloudAuthService implements AuthService {
+  AppFlowyCloudAuthService();
 
   final BackendAuthService _backendAuthService = BackendAuthService(
-    AuthTypePB.AFCloud,
+    AuthenticatorPB.AppFlowyCloud,
   );
 
   @override
-  Future<Either<FlowyError, UserProfilePB>> signUp({
+  Future<FlowyResult<UserProfilePB, FlowyError>> signUp({
     required String name,
     required String email,
     required String password,
@@ -35,7 +31,7 @@ class AFCloudAuthService implements AuthService {
   }
 
   @override
-  Future<Either<FlowyError, UserProfilePB>> signIn({
+  Future<FlowyResult<UserProfilePB, FlowyError>> signInWithEmailPassword({
     required String email,
     required String password,
     Map<String, String> params = const {},
@@ -44,7 +40,7 @@ class AFCloudAuthService implements AuthService {
   }
 
   @override
-  Future<Either<FlowyError, UserProfilePB>> signUpWithOAuth({
+  Future<FlowyResult<UserProfilePB, FlowyError>> signUpWithOAuth({
     required String platform,
     Map<String, String> params = const {},
   }) async {
@@ -65,59 +61,24 @@ class AFCloudAuthService implements AuthService {
           webOnlyWindowName: '_self',
         );
 
-        final completer = Completer<Either<FlowyError, UserProfilePB>>();
-        _deeplinkSubscription = _appLinks.uriLinkStream.listen(
-          (Uri? uri) async {
-            Log.info('onDeepLink: ${uri.toString()}');
-            await _handleUri(uri, completer);
-          },
-          onError: (Object err, StackTrace stackTrace) {
-            Log.error('onDeepLinkError: ${err.toString()}', stackTrace);
-            _deeplinkSubscription?.cancel();
-            completer.complete(left(AuthError.deeplinkError));
-          },
-        );
-
-        if (!isSuccess) {
-          _deeplinkSubscription?.cancel();
-          completer.complete(left(AuthError.signInWithOauthError));
+        final completer = Completer<FlowyResult<UserProfilePB, FlowyError>>();
+        if (isSuccess) {
+          // The [AppFlowyCloudDeepLink] must be registered before using the
+          // [AppFlowyCloudAuthService].
+          if (getIt.isRegistered<AppFlowyCloudDeepLink>()) {
+            getIt<AppFlowyCloudDeepLink>().registerCompleter(completer);
+          } else {
+            throw Exception('AppFlowyCloudDeepLink is not registered');
+          }
+        } else {
+          completer
+              .complete(FlowyResult.failure(AuthError.signInWithOauthError));
         }
 
         return completer.future;
       },
-      (r) => left(r),
+      (r) => FlowyResult.failure(r),
     );
-  }
-
-  Future<void> _handleUri(
-    Uri? uri,
-    Completer<Either<FlowyError, UserProfilePB>> completer,
-  ) async {
-    if (uri != null) {
-      if (_isAuthCallbackDeeplink(uri)) {
-        // Sign in with url
-        final deviceId = await getDeviceId();
-        final payload = OauthSignInPB(
-          authType: AuthTypePB.AFCloud,
-          map: {
-            AuthServiceMapKeys.signInURL: uri.toString(),
-            AuthServiceMapKeys.deviceId: deviceId,
-          },
-        );
-        final result = await UserEventOauthSignIn(payload)
-            .send()
-            .then((value) => value.swap());
-        _deeplinkSubscription?.cancel();
-        completer.complete(result);
-      } else {
-        Log.error('onDeepLinkError: Unexpect deep link: ${uri.toString()}');
-        completer.complete(left(AuthError.signInWithOauthError));
-      }
-    } else {
-      Log.error('onDeepLinkError: Unexpect empty deep link callback');
-      _deeplinkSubscription?.cancel();
-      completer.complete(left(AuthError.emptyDeeplink));
-    }
   }
 
   @override
@@ -126,14 +87,14 @@ class AFCloudAuthService implements AuthService {
   }
 
   @override
-  Future<Either<FlowyError, UserProfilePB>> signUpAsGuest({
+  Future<FlowyResult<UserProfilePB, FlowyError>> signUpAsGuest({
     Map<String, String> params = const {},
   }) async {
     return _backendAuthService.signUpAsGuest();
   }
 
   @override
-  Future<Either<FlowyError, UserProfilePB>> signInWithMagicLink({
+  Future<FlowyResult<UserProfilePB, FlowyError>> signInWithMagicLink({
     required String email,
     Map<String, String> params = const {},
   }) async {
@@ -141,7 +102,7 @@ class AFCloudAuthService implements AuthService {
   }
 
   @override
-  Future<Either<FlowyError, UserProfilePB>> getUser() async {
+  Future<FlowyResult<UserProfilePB, FlowyError>> getUser() async {
     return UserBackendService.getCurrentUserProfile();
   }
 }
@@ -159,8 +120,4 @@ extension ProviderTypePBExtension on ProviderTypePB {
         throw UnimplementedError();
     }
   }
-}
-
-bool _isAuthCallbackDeeplink(Uri uri) {
-  return (uri.fragment.contains('access_token'));
 }

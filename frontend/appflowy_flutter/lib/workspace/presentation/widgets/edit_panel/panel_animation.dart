@@ -1,22 +1,22 @@
 import 'package:flutter/material.dart';
 
 class AnimatedPanel extends StatefulWidget {
-  final bool isClosed;
-  final double closedX;
-  final double closedY;
-  final double duration;
-  final Curve? curve;
-  final Widget? child;
-
   const AnimatedPanel({
-    Key? key,
+    super.key,
     this.isClosed = false,
     this.closedX = 0.0,
     this.closedY = 0.0,
     this.duration = 0.0,
     this.curve,
     this.child,
-  }) : super(key: key);
+  });
+
+  final bool isClosed;
+  final double closedX;
+  final double closedY;
+  final double duration;
+  final Curve? curve;
+  final Widget? child;
 
   @override
   AnimatedPanelState createState() => AnimatedPanelState();
@@ -40,7 +40,7 @@ class AnimatedPanelState extends State<AnimatedPanel> {
         _isHidden =
             widget.isClosed && value == Offset(widget.closedX, widget.closedY);
         return _isHidden
-            ? Container()
+            ? const SizedBox.shrink()
             : Transform.translate(offset: value, child: c);
       },
       child: widget.child,

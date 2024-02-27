@@ -6,7 +6,7 @@ import 'package:appflowy/user/presentation/router.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/widgets.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
-import 'package:dartz/dartz.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/snap_bar.dart';
@@ -14,8 +14,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SettingThirdPartyLogin extends StatelessWidget {
-  final VoidCallback didLogin;
   const SettingThirdPartyLogin({required this.didLogin, super.key});
+
+  final VoidCallback didLogin;
 
   @override
   Widget build(BuildContext context) {
@@ -23,14 +24,14 @@ class SettingThirdPartyLogin extends StatelessWidget {
       create: (context) => getIt<SignInBloc>(),
       child: BlocConsumer<SignInBloc, SignInState>(
         listener: (context, state) {
-          state.successOrFail.fold(
-            () => null,
-            (result) => _handleSuccessOrFail(result, context),
-          );
+          final successOrFail = state.successOrFail;
+          if (successOrFail != null) {
+            _handleSuccessOrFail(successOrFail, context);
+          }
         },
         builder: (_, state) {
           final indicator = state.isSubmitting
-              ? const CircularProgressIndicator.adaptive()
+              ? const LinearProgressIndicator(minHeight: 1)
               : const SizedBox.shrink();
 
           final promptMessage = state.isSubmitting
@@ -50,11 +51,12 @@ class SettingThirdPartyLogin extends StatelessWidget {
                     fontSize: 16,
                   ),
                   const HSpace(6),
-                  indicator,
                 ],
               ),
               const VSpace(6),
               promptMessage,
+              const VSpace(6),
+              indicator,
               const VSpace(6),
               if (isAuthEnabled) const ThirdPartySignInButtons(),
               const VSpace(6),
@@ -66,7 +68,7 @@ class SettingThirdPartyLogin extends StatelessWidget {
   }
 
   Future<void> _handleSuccessOrFail(
-    Either<UserProfilePB, FlowyError> result,
+    FlowyResult<UserProfilePB, FlowyError> result,
     BuildContext context,
   ) async {
     result.fold(

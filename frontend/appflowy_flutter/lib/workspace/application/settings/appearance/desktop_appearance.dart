@@ -51,6 +51,7 @@ class DesktopAppearance extends BaseAppearance {
 
     // Due to Desktop version has multiple themes, it relies on the current theme to build the ThemeData
     return ThemeData(
+      useMaterial3: false,
       brightness: brightness,
       dialogBackgroundColor: theme.surface,
       textTheme: getTextTheme(

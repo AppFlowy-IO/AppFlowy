@@ -1,0 +1,139 @@
+
+.block-element {
+  @apply my-[4px];
+
+}
+
+.block-element .block-element {
+  @apply mb-0;
+  margin-left: 24px;
+}
+
+
+
+.block-element.block-align-left {
+  > div >  .text-element {
+    justify-content: flex-start;
+  }
+}
+.block-element.block-align-right {
+  > div >  .text-element {
+    justify-content: flex-end;
+
+  }
+}
+.block-element.block-align-center {
+  > div > .text-element {
+    justify-content: center;
+  }
+
+}
+
+
+.block-element[data-block-type="todo_list"] .checked > .text-element {
+  text-decoration: line-through;
+  color: var(--text-caption);
+}
+
+.block-element .collapsed .block-element {
+  display: none !important;
+}
+
+
+span[data-slate-placeholder="true"]:not(.inline-block-content) {
+  @apply text-text-placeholder;
+  opacity: 1 !important;
+}
+
+
+
+[role="textbox"] {
+  ::selection {
+    @apply bg-content-blue-100;
+  }
+  .text-content {
+    &::selection {
+      @apply bg-transparent;
+    }
+    span {
+      &::selection {
+        @apply bg-content-blue-100;
+      }
+    }
+  }
+}
+
+
+
+[data-dark-mode="true"] [role="textbox"]{
+  ::selection {
+    background-color: #1e79a2;
+  }
+
+  .text-content {
+    &::selection {
+      @apply bg-transparent;
+    }
+    span {
+      &::selection {
+        background-color: #1e79a2;
+      }
+    }
+  }
+}
+
+
+.text-content {
+  &.empty-content {
+    @apply min-w-[1px];
+    span {
+      &::selection {
+        @apply bg-transparent;
+      }
+    }
+  }
+}
+
+.text-element:has(.text-placeholder), .divider-node {
+  ::selection {
+    @apply bg-transparent;
+  }
+}
+
+.text-placeholder {
+
+  &:after {
+    @apply text-text-placeholder absolute left-1.5 top-1/2 transform -translate-y-1/2 pointer-events-none select-none whitespace-nowrap;
+    content: (attr(placeholder));
+  }
+}
+
+.has-start-icon > .text-placeholder {
+  &:after {
+    @apply left-[30px];
+  }
+}
+
+.formula-inline {
+  &.selected {
+    @apply rounded bg-content-blue-100;
+  }
+}
+
+.bulleted-icon {
+  &:after {
+    content: "•";
+  }
+}
+
+.numbered-icon {
+  &:after {
+    content: attr(data-number) ".";
+  }
+}
+
+
+.grid-block .grid-scroll-container::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}

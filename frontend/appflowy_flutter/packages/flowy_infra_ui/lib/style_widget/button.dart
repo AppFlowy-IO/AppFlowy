@@ -28,9 +28,10 @@ class FlowyButton extends StatelessWidget {
   final MainAxisAlignment mainAxisAlignment;
   final bool showDefaultBoxDecorationOnMobile;
   final double iconPadding;
+  final bool expand;
 
   const FlowyButton({
-    Key? key,
+    super.key,
     required this.text,
     this.onTap,
     this.onSecondaryTap,
@@ -50,7 +51,8 @@ class FlowyButton extends StatelessWidget {
     this.mainAxisAlignment = MainAxisAlignment.center,
     this.showDefaultBoxDecorationOnMobile = false,
     this.iconPadding = 6,
-  }) : super(key: key);
+    this.expand = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -62,6 +64,7 @@ class FlowyButton extends StatelessWidget {
       return InkWell(
         onTap: disable ? null : onTap,
         onSecondaryTap: disable ? null : onSecondaryTap,
+        borderRadius: radius ?? Corners.s6Border,
         child: _render(context),
       );
     }
@@ -112,6 +115,7 @@ class FlowyButton extends StatelessWidget {
     Widget child = Row(
       mainAxisAlignment: mainAxisAlignment,
       crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisSize: expand ? MainAxisSize.max : MainAxisSize.min,
       children: children,
     );
 
@@ -164,7 +168,7 @@ class FlowyTextButton extends StatelessWidget {
   // final HoverDisplayConfig? hoverDisplay;
   const FlowyTextButton(
     this.text, {
-    Key? key,
+    super.key,
     this.onPressed,
     this.fontSize,
     this.fontColor,
@@ -180,7 +184,7 @@ class FlowyTextButton extends StatelessWidget {
     this.constraints = const BoxConstraints(minWidth: 0.0, minHeight: 0.0),
     this.decoration,
     this.fontFamily,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -256,7 +260,7 @@ class FlowyRichTextButton extends StatelessWidget {
   // final HoverDisplayConfig? hoverDisplay;
   const FlowyRichTextButton(
     this.text, {
-    Key? key,
+    super.key,
     this.onPressed,
     this.overflow = TextOverflow.ellipsis,
     this.padding = const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
@@ -268,7 +272,7 @@ class FlowyRichTextButton extends StatelessWidget {
     this.tooltip,
     this.constraints = const BoxConstraints(minWidth: 58.0, minHeight: 30.0),
     this.decoration,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

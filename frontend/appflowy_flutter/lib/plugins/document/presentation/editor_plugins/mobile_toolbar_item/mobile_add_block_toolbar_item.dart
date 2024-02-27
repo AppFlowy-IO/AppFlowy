@@ -166,7 +166,6 @@ final _addBlockMenuItems = [
   // callout
   BlockMenuItem(
     blockType: CalloutBlockKeys.type,
-    // FIXME: update icon
     icon: const Icon(Icons.note_rounded),
     label: LocaleKeys.document_plugins_callout.tr(),
     isSelected: _unSelectable,
@@ -229,7 +228,7 @@ bool _unSelectable(
   return false;
 }
 
-extension on EditorState {
+extension EditorStateAddBlock on EditorState {
   Future<void> insertBlockOrReplaceCurrentBlock(
     Selection selection,
     Node insertedNode,
@@ -248,7 +247,7 @@ extension on EditorState {
       transaction
         ..insertNode(path, insertedNode)
         ..afterSelection = Selection.collapsed(
-          Position(path: path, offset: 0),
+          Position(path: path),
         );
     } else {
       final path = node.path;
@@ -257,10 +256,12 @@ extension on EditorState {
         ..insertNode(path, insertedNode)
         ..deleteNode(node)
         ..afterSelection = Selection.collapsed(
-          Position(path: path, offset: 0),
-        );
+          Position(path: path),
+        )
+        ..selectionExtraInfo = null;
     }
     await apply(transaction);
+    service.keyboardService?.enableKeyBoard(selection);
   }
 
   Future<void> insertMathEquation(
@@ -319,6 +320,7 @@ extension on EditorState {
         paragraphNode(),
       );
     }
+    transaction.selectionExtraInfo = {};
     transaction.afterSelection = Selection.collapsed(
       Position(path: insertedPath.next),
     );

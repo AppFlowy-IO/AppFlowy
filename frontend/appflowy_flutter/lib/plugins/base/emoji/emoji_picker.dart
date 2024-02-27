@@ -71,7 +71,6 @@ class _FlowyEmojiPickerState extends State<FlowyEmojiPicker> {
     return EmojiPicker(
       emojiData: emojiData!,
       configuration: EmojiPickerConfiguration(
-        showSectionHeader: true,
         showTabs: false,
         defaultSkinTone: lastSelectedEmojiSkinTone ?? EmojiSkinTone.none,
         perLine: widget.emojiPerLine,

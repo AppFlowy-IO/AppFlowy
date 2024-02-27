@@ -9,14 +9,14 @@ void main() {
 }
 
 class ExampleApp extends StatelessWidget {
-  const ExampleApp({Key? key}) : super(key: key);
+  const ExampleApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      builder: overlayManagerBuilder(),
+    return const MaterialApp(
+      builder: overlayManagerBuilder,
       title: "Flowy Infra Title",
-      home: const HomeScreen(),
+      home: HomeScreen(),
     );
   }
 }

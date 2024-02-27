@@ -47,25 +47,23 @@ run_task = { name = [
 
 #
 [tasks.sdk-dev-build]
+dependencies = ["set-app-version"]
 private = true
 script = [
   """
     cd rust-lib/
-    rustup show
-    echo cargo build --package=dart-ffi --target ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
-    cargo build --package=dart-ffi --target ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
+     RUSTFLAGS="--cfg tokio_unstable" cargo build --package=dart-ffi --target ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
     cd ../
   """,
 ]
 script_runner = "@shell"
 
 [tasks.sdk-dev-build.mac]
+dependencies = ["set-app-version"]
 private = true
 script = [
   """
     cd rust-lib/
-    rustup show
-    echo  RUSTFLAGS="-C target-cpu=native -C link-arg=-mmacosx-version-min=11.0" cargo build --package=dart-ffi --target ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
     RUSTFLAGS="--cfg tokio_unstable" cargo build --package=dart-ffi --target ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
     cd ../
   """,
@@ -73,6 +71,7 @@ script = [
 script_runner = "@shell"
 
 [tasks.sdk-dev-build.windows]
+dependencies = ["set-app-version"]
 private = true
 script = [
   """
@@ -97,6 +96,18 @@ run_task = { name = [
 
 #
 [tasks.sdk-release-build]
+dependencies = ["set-app-version"]
+script = [
+  """
+    cd rust-lib/
+    cargo build --profile ${CARGO_PROFILE} --${BUILD_FLAG} --package=dart-ffi --target ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
+    cd ../
+  """,
+]
+script_runner = "@shell"
+
+[tasks.sdk-release-build.mac]
+dependencies = ["set-app-version"]
 script = [
   """
     cd rust-lib/
@@ -165,4 +176,14 @@ script = [
     ${dart_ffi_dir}/binding.h
   """,
 ]
+script_runner = "@duckscript"
+
+[tasks.set-app-version]
+script = ["""
+  if is_empty ${APP_VERSION}
+    APP_VERSION = set ${APPFLOWY_VERSION}
+    set_env APP_VERSION ${APPFLOWY_VERSION}
+  end
+  echo APP_VERSION: ${APP_VERSION}
+  """]
 script_runner = "@duckscript"

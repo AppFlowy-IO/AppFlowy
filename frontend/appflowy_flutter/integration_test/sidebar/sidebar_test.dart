@@ -1,12 +1,12 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/database_view/board/presentation/board_page.dart';
-import 'package:appflowy/plugins/database_view/calendar/presentation/calendar_page.dart';
-import 'package:appflowy/plugins/database_view/grid/presentation/grid_page.dart';
+import 'package:appflowy/plugins/database/board/presentation/board_page.dart';
+import 'package:appflowy/plugins/database/calendar/presentation/calendar_page.dart';
+import 'package:appflowy/plugins/database/grid/presentation/grid_page.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/draggable_view_item.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_add_button.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_more_action_button.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -41,7 +41,7 @@ void main() {
       for (final layout in ViewLayoutPB.values) {
         // create a new page
         final name = 'AppFlowy_$layout';
-        await tester.createNewPageWithName(
+        await tester.createNewPageWithNameUnderParent(
           name: name,
           layout: layout,
         );
@@ -79,10 +79,9 @@ void main() {
       final names = [1, 2, 3, 4].map((e) => 'document_$e').toList();
       for (var i = 0; i < names.length; i++) {
         final parentName = i == 0 ? gettingStarted : names[i - 1];
-        await tester.createNewPageWithName(
+        await tester.createNewPageWithNameUnderParent(
           name: names[i],
           parentName: parentName,
-          layout: ViewLayoutPB.Document,
         );
         tester.expectToSeePageName(names[i], parentName: parentName);
       }
@@ -144,14 +143,14 @@ void main() {
       await tester.tapGoButton();
 
       const document = 'document';
-      await tester.createNewPageWithName(
+      await tester.createNewPageWithNameUnderParent(
         name: document,
         openAfterCreated: false,
       );
-      tester.expectToSeePageName(document, layout: ViewLayoutPB.Document);
+      tester.expectToSeePageName(document);
 
       const grid = 'grid';
-      await tester.createNewPageWithName(
+      await tester.createNewPageWithNameUnderParent(
         name: grid,
         layout: ViewLayoutPB.Grid,
         openAfterCreated: false,
@@ -187,10 +186,9 @@ void main() {
       await tester.tapGoButton();
 
       const grid = 'grid';
-      await tester.createNewPageWithName(
+      await tester.createNewPageWithNameUnderParent(
         name: grid,
         layout: ViewLayoutPB.Grid,
-        openAfterCreated: true,
       );
       tester.expectToSeePageName(grid, layout: ViewLayoutPB.Grid);
 

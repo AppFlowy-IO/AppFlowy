@@ -4,5 +4,6 @@ import 'startup/startup.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   await runAppFlowy();
 }

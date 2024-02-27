@@ -67,6 +67,10 @@ pub struct AppearanceSettingsPB {
 
   #[pb(index = 12)]
   #[serde(default)]
+  pub document_setting: DocumentSettingsPB,
+
+  #[pb(index = 13)]
+  #[serde(default)]
   pub enable_rtl_toolbar_items: bool,
 }
 
@@ -114,6 +118,15 @@ impl std::default::Default for LocaleSettingsPB {
   }
 }
 
+#[derive(ProtoBuf, Serialize, Deserialize, Debug, Clone, Default)]
+pub struct DocumentSettingsPB {
+  #[pb(index = 1, one_of)]
+  pub cursor_color: Option<String>,
+
+  #[pb(index = 2, one_of)]
+  pub selection_color: Option<String>,
+}
+
 pub const APPEARANCE_DEFAULT_THEME: &str = "Default";
 pub const APPEARANCE_DEFAULT_FONT: &str = "Poppins";
 pub const APPEARANCE_DEFAULT_MONOSPACE_FONT: &str = "SF Mono";
@@ -137,6 +150,7 @@ impl std::default::Default for AppearanceSettingsPB {
       layout_direction: LayoutDirectionPB::default(),
       text_direction: TextDirectionPB::default(),
       enable_rtl_toolbar_items: APPEARANCE_DEFAULT_ENABLE_RTL_TOOLBAR_ITEMS,
+      document_setting: DocumentSettingsPB::default(),
     }
   }
 }

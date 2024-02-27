@@ -64,10 +64,7 @@ impl DatabaseFieldTest {
     match script {
       FieldScript::CreateField { params } => {
         self.field_count += 1;
-        self
-          .editor
-          .create_field_with_type_option(&self.view_id, &params.field_type, params.type_option_data)
-          .await;
+        let _ = self.editor.create_field_with_type_option(params).await;
         let fields = self.editor.get_fields(&self.view_id, None);
         assert_eq!(self.field_count, fields.len());
       },
@@ -90,7 +87,7 @@ impl DatabaseFieldTest {
         //
         self
           .editor
-          .switch_to_field_type(&field_id, &new_field_type)
+          .switch_to_field_type(&field_id, new_field_type)
           .await
           .unwrap();
       },
@@ -102,7 +99,7 @@ impl DatabaseFieldTest {
         let old_field = self.editor.get_field(&field_id).unwrap();
         self
           .editor
-          .update_field_type_option(&self.view_id, &field_id, type_option, old_field)
+          .update_field_type_option(&field_id, type_option, old_field)
           .await
           .unwrap();
       },

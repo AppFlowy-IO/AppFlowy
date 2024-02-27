@@ -1,5 +1,6 @@
 #![allow(clippy::upper_case_acronyms)]
 
+use anyhow::anyhow;
 use std::{
   convert::{TryFrom, TryInto},
   fmt,
@@ -9,7 +10,7 @@ use std::{
 use diesel::{
   expression::SqlLiteral,
   query_dsl::load_dsl::LoadQuery,
-  sql_types::{Integer, Text},
+  sql_types::{Integer, SingleValue, Text},
   SqliteConnection,
 };
 
@@ -17,7 +18,12 @@ use crate::sqlite_impl::conn_ext::ConnectionExtension;
 use crate::sqlite_impl::errors::{Error, Result};
 
 pub trait PragmaExtension: ConnectionExtension {
-  fn pragma<D: std::fmt::Display>(&self, key: &str, val: D, schema: Option<&str>) -> Result<()> {
+  fn pragma<D: std::fmt::Display>(
+    &mut self,
+    key: &str,
+    val: D,
+    schema: Option<&str>,
+  ) -> Result<()> {
     let query = match schema {
       Some(schema) => format!("PRAGMA {}.{} = '{}'", schema, key, val),
       None => format!("PRAGMA {} = '{}'", key, val),
@@ -27,14 +33,15 @@ pub trait PragmaExtension: ConnectionExtension {
     Ok(())
   }
 
-  fn pragma_ret<ST, T, D: std::fmt::Display>(
-    &self,
+  fn pragma_ret<'query, ST, T, D: std::fmt::Display>(
+    &mut self,
     key: &str,
     val: D,
     schema: Option<&str>,
   ) -> Result<T>
   where
-    SqlLiteral<ST>: LoadQuery<SqliteConnection, T>,
+    SqlLiteral<ST>: LoadQuery<'query, SqliteConnection, T>,
+    ST: SingleValue,
   {
     let query = match schema {
       Some(schema) => format!("PRAGMA {}.{} = '{}'", schema, key, val),
@@ -44,9 +51,10 @@ pub trait PragmaExtension: ConnectionExtension {
     self.query::<ST, T>(&query)
   }
 
-  fn pragma_get<ST, T>(&self, key: &str, schema: Option<&str>) -> Result<T>
+  fn pragma_get<'query, ST, T>(&mut self, key: &str, schema: Option<&str>) -> Result<T>
   where
-    SqlLiteral<ST>: LoadQuery<SqliteConnection, T>,
+    SqlLiteral<ST>: LoadQuery<'query, SqliteConnection, T>,
+    ST: SingleValue,
   {
     let query = match schema {
       Some(schema) => format!("PRAGMA {}.{}", schema, key),
@@ -56,33 +64,37 @@ pub trait PragmaExtension: ConnectionExtension {
     self.query::<ST, T>(&query)
   }
 
-  fn pragma_set_busy_timeout(&self, timeout_ms: i32) -> Result<i32> {
+  fn pragma_set_busy_timeout(&mut self, timeout_ms: i32) -> Result<i32> {
     self.pragma_ret::<Integer, i32, i32>("busy_timeout", timeout_ms, None)
   }
 
-  fn pragma_get_busy_timeout(&self) -> Result<i32> {
+  fn pragma_get_busy_timeout(&mut self) -> Result<i32> {
     self.pragma_get::<Integer, i32>("busy_timeout", None)
   }
 
-  fn pragma_set_journal_mode(&self, mode: SQLiteJournalMode, schema: Option<&str>) -> Result<i32> {
+  fn pragma_set_journal_mode(
+    &mut self,
+    mode: SQLiteJournalMode,
+    schema: Option<&str>,
+  ) -> Result<i32> {
     self.pragma_ret::<Integer, i32, SQLiteJournalMode>("journal_mode", mode, schema)
   }
 
-  fn pragma_get_journal_mode(&self, schema: Option<&str>) -> Result<SQLiteJournalMode> {
+  fn pragma_get_journal_mode(&mut self, schema: Option<&str>) -> Result<SQLiteJournalMode> {
     self
       .pragma_get::<Text, String>("journal_mode", schema)?
       .parse()
   }
 
   fn pragma_set_synchronous(
-    &self,
+    &mut self,
     synchronous: SQLiteSynchronous,
     schema: Option<&str>,
   ) -> Result<()> {
     self.pragma("synchronous", synchronous as u8, schema)
   }
 
-  fn pragma_get_synchronous(&self, schema: Option<&str>) -> Result<SQLiteSynchronous> {
+  fn pragma_get_synchronous(&mut self, schema: Option<&str>) -> Result<SQLiteSynchronous> {
     self
       .pragma_get::<Integer, i32>("synchronous", schema)?
       .try_into()
@@ -128,7 +140,7 @@ impl FromStr for SQLiteJournalMode {
       "MEMORY" => Ok(Self::MEMORY),
       "WAL" => Ok(Self::WAL),
       "OFF" => Ok(Self::OFF),
-      _ => Err(format!("Unknown value {} for JournalMode", s).into()),
+      _ => Err(anyhow!("Unknown value {} for JournalMode", s).into()),
     }
   }
 }
@@ -165,7 +177,7 @@ impl TryFrom<i32> for SQLiteSynchronous {
       1 => Ok(Self::NORMAL),
       2 => Ok(Self::FULL),
       3 => Ok(Self::EXTRA),
-      _ => Err(format!("Unknown value {} for Synchronous", v).into()),
+      _ => Err(anyhow!("Unknown value {} for Synchronous", v).into()),
     }
   }
 }
@@ -179,7 +191,7 @@ impl FromStr for SQLiteSynchronous {
       "1" | "NORMAL" => Ok(Self::NORMAL),
       "2" | "FULL" => Ok(Self::FULL),
       "3" | "EXTRA" => Ok(Self::EXTRA),
-      _ => Err(format!("Unknown value {} for Synchronous", s).into()),
+      _ => Err(anyhow!("Unknown value {} for Synchronous", s).into()),
     }
   }
 }

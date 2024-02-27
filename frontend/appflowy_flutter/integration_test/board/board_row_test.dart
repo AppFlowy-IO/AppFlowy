@@ -1,6 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/database_view/widgets/card/card.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy/plugins/database/widgets/card/card.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_board/appflowy_board.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/services.dart';
@@ -18,31 +18,31 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.createNewPageWithName(layout: ViewLayoutPB.Board);
+      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Board);
       const name = 'Card 1';
-      final card1 = find.findTextInFlowyText(name);
+      final card1 = find.text(name);
       await tester.hoverOnWidget(
         card1,
         onHover: () async {
-          final moreOption = find.byType(CardMoreOption);
+          final moreOption = find.byType(MoreCardOptionsAccessory);
           await tester.tapButton(moreOption);
         },
       );
       await tester.tapButtonWithName(LocaleKeys.button_delete.tr());
-      expect(find.findTextInFlowyText(name), findsNothing);
+      expect(find.text(name), findsNothing);
     });
 
     testWidgets('duplicate item in ToDo card', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
 
-      await tester.createNewPageWithName(layout: ViewLayoutPB.Board);
+      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Board);
       const name = 'Card 1';
-      final card1 = find.findTextInFlowyText(name);
+      final card1 = find.text(name);
       await tester.hoverOnWidget(
         card1,
         onHover: () async {
-          final moreOption = find.byType(CardMoreOption);
+          final moreOption = find.byType(MoreCardOptionsAccessory);
           await tester.tapButton(moreOption);
         },
       );
@@ -53,7 +53,7 @@ void main() {
     testWidgets('add new group', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapGoButton();
-      await tester.createNewPageWithName(layout: ViewLayoutPB.Board);
+      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Board);
 
       // assert number of groups
       tester.assertNumberOfGroups(4);

@@ -3,15 +3,16 @@ use std::sync::Arc;
 
 use collab_database::database::MutexDatabase;
 use collab_database::fields::{Field, TypeOptionData};
-use collab_database::rows::{RowCell, RowDetail, RowId};
+use collab_database::rows::{Row, RowCell, RowDetail, RowId};
 use collab_database::views::{DatabaseLayout, DatabaseView, LayoutSetting};
 use tokio::sync::RwLock;
 
 use flowy_error::FlowyError;
-use flowy_task::TaskDispatcher;
 use lib_infra::future::{Fut, FutureResult};
+use lib_infra::priority_task::TaskDispatcher;
 
 use crate::entities::{FieldType, FieldVisibility};
+use crate::services::calculations::Calculation;
 use crate::services::field::TypeOptionCellDataHandler;
 use crate::services::field_settings::FieldSettings;
 use crate::services::filter::Filter;
@@ -41,7 +42,6 @@ pub trait DatabaseViewOperation: Send + Sync + 'static {
 
   fn update_field(
     &self,
-    view_id: &str,
     type_option_data: TypeOptionData,
     old_field: Field,
   ) -> FutureResult<(), FlowyError>;
@@ -56,6 +56,8 @@ pub trait DatabaseViewOperation: Send + Sync + 'static {
 
   /// Returns all the rows in the view
   fn get_rows(&self, view_id: &str) -> Fut<Vec<Arc<RowDetail>>>;
+
+  fn remove_row(&self, row_id: &RowId) -> Option<Row>;
 
   fn get_cells_for_field(&self, view_id: &str, field_id: &str) -> Fut<Vec<Arc<RowCell>>>;
 
@@ -73,11 +75,21 @@ pub trait DatabaseViewOperation: Send + Sync + 'static {
 
   fn insert_sort(&self, view_id: &str, sort: Sort);
 
+  fn move_sort(&self, view_id: &str, from_sort_id: &str, to_sort_id: &str);
+
   fn remove_sort(&self, view_id: &str, sort_id: &str);
 
   fn get_all_sorts(&self, view_id: &str) -> Vec<Sort>;
 
   fn remove_all_sorts(&self, view_id: &str);
+
+  fn get_all_calculations(&self, view_id: &str) -> Vec<Arc<Calculation>>;
+
+  fn get_calculation(&self, view_id: &str, field_id: &str) -> Option<Calculation>;
+
+  fn update_calculation(&self, view_id: &str, calculation: Calculation);
+
+  fn remove_calculation(&self, view_id: &str, calculation_id: &str);
 
   fn get_all_filters(&self, view_id: &str) -> Vec<Arc<Filter>>;
 

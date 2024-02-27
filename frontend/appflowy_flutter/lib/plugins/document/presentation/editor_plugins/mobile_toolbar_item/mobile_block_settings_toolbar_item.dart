@@ -2,7 +2,6 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet_block_action_widget.dart';
-import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
 import 'package:appflowy/plugins/base/color/color_picker_screen.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -43,13 +42,16 @@ Future<void> _showBlockActionSheet(
   Node node,
   Selection selection,
 ) async {
-  final result = await showFlowyMobileBottomSheet<bool>(
+  final result = await showMobileBottomSheet<bool>(
     context,
+    showDragHandle: true,
+    showCloseButton: true,
+    showHeader: true,
+    padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
     title: LocaleKeys.document_plugins_action.tr(),
     builder: (context) {
       return BlockActionBottomSheet(
         extendActionWidgets: [
-          const VSpace(8),
           Row(
             children: [
               Expanded(

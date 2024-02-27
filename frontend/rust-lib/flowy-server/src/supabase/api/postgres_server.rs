@@ -6,7 +6,7 @@ use parking_lot::RwLock;
 use postgrest::Postgrest;
 
 use flowy_error::{ErrorCode, FlowyError};
-use flowy_server_config::supabase_config::SupabaseConfiguration;
+use flowy_server_pub::supabase_config::SupabaseConfiguration;
 
 use crate::AppFlowyEncryption;
 

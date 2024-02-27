@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { TextButton } from '$app/components/database/components/tab_bar/TextButton';
 import { useTranslation } from 'react-i18next';
-import { useDatabase } from '$app/components/database';
+import { useFiltersCount } from '$app/components/database';
 import FilterFieldsMenu from '$app/components/database/components/filter/FilterFieldsMenu';
 
 function FilterSettings({ onToggleCollection }: { onToggleCollection: (forceOpen?: boolean) => void }) {
   const { t } = useTranslation();
-  const { filters } = useDatabase();
-  const highlight = filters && filters.length > 0;
+  const filtersCount = useFiltersCount();
+  const highlight = filtersCount > 0;
 
   const [filterAnchorEl, setFilterAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(filterAnchorEl);
@@ -31,6 +31,10 @@ function FilterSettings({ onToggleCollection }: { onToggleCollection: (forceOpen
         open={open}
         anchorEl={filterAnchorEl}
         onClose={() => setFilterAnchorEl(null)}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'right',
+        }}
       />
     </>
   );

@@ -7,7 +7,7 @@ use crate::database::filter_test::script::{DatabaseFilterTest, FilterRowChanged}
 #[tokio::test]
 async fn grid_filter_checklist_is_incomplete_test() {
   let mut test = DatabaseFilterTest::new().await;
-  let expected = 6;
+  let expected = 5;
   let row_count = test.row_details.len();
   let option_ids = get_checklist_cell_options(&test).await;
 
@@ -31,7 +31,7 @@ async fn grid_filter_checklist_is_incomplete_test() {
 #[tokio::test]
 async fn grid_filter_checklist_is_complete_test() {
   let mut test = DatabaseFilterTest::new().await;
-  let expected = 1;
+  let expected = 2;
   let row_count = test.row_details.len();
   let option_ids = get_checklist_cell_options(&test).await;
   let scripts = vec![

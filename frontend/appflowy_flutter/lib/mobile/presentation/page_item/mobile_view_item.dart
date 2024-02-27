@@ -1,20 +1,18 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/mobile_router.dart';
-import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet_add_new_page.dart';
+import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/page_item/mobile_view_item_add_button.dart';
-import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/draggable_view_item.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:go_router/go_router.dart';
 
 typedef ViewItemOnSelected = void Function(ViewPB);
 typedef ActionPaneBuilder = ActionPane Function(BuildContext context);
@@ -77,14 +75,10 @@ class MobileViewItem extends StatelessWidget {
             p.lastCreatedView?.id != c.lastCreatedView!.id,
         listener: (context, state) => context.pushView(state.lastCreatedView!),
         builder: (context, state) {
-          // don't remove this code. it's related to the backend service.
-          view.childViews
-            ..clear()
-            ..addAll(state.childViews);
           return InnerMobileViewItem(
             view: state.view,
             parentView: parentView,
-            childViews: state.childViews,
+            childViews: state.view.childViews,
             categoryType: categoryType,
             level: level,
             leftPadding: leftPadding,
@@ -304,11 +298,11 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
       _buildLeftIcon(),
       const HSpace(4),
       // icon
-      _buildViewIconButton(),
+      _buildViewIcon(),
       const HSpace(8),
       // title
       Expanded(
-        child: FlowyText.regular(
+        child: FlowyText.medium(
           widget.view.name,
           fontSize: 18.0,
           overflow: TextOverflow.ellipsis,
@@ -328,7 +322,6 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
 
     Widget child = InkWell(
       borderRadius: BorderRadius.circular(4.0),
-      enableFeedback: true,
       onTap: () => widget.onSelected(widget.view),
       child: SizedBox(
         height: _itemHeight,
@@ -344,7 +337,7 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
     if (widget.startActionPane != null || widget.endActionPane != null) {
       child = Slidable(
         // Specify a key if the Slidable is dismissible.
-        key: ValueKey(widget.view.id),
+        key: ValueKey(widget.view.hashCode),
         startActionPane: widget.startActionPane?.call(context),
         endActionPane: widget.endActionPane?.call(context),
         child: child,
@@ -354,7 +347,7 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
     return child;
   }
 
-  Widget _buildViewIconButton() {
+  Widget _buildViewIcon() {
     final icon = widget.view.icon.value.isNotEmpty
         ? EmojiText(
             emoji: widget.view.icon.value,
@@ -397,14 +390,18 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
     return MobileViewAddButton(
       onPressed: () {
         final title = widget.view.name;
-        showFlowyMobileBottomSheet(
+        showMobileBottomSheet(
           context,
+          showHeader: true,
           title: title,
-          builder: (_) {
+          showDragHandle: true,
+          showCloseButton: true,
+          useRootNavigator: true,
+          builder: (sheetContext) {
             return AddNewPageWidgetBottomSheet(
               view: widget.view,
               onAction: (layout) {
-                context.pop();
+                Navigator.of(sheetContext).pop();
                 context.read<ViewBloc>().add(
                       ViewEvent.createView(
                         LocaleKeys.menuAppHeader_defaultNewPageName.tr(),

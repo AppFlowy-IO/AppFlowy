@@ -107,12 +107,8 @@ impl DatabaseGroupTest {
         to_row_index,
       } => {
         let groups: Vec<GroupPB> = self.editor.load_groups(&self.view_id).await.unwrap().items;
-        let from_row = groups
-          .get(from_group_index)
-          .unwrap()
-          .rows
-          .get(from_row_index)
-          .unwrap();
+        let from_group = groups.get(from_group_index).unwrap();
+        let from_row = from_group.rows.get(from_row_index).unwrap();
         let to_group = groups.get(to_group_index).unwrap();
         let to_row = to_group.rows.get(to_row_index).unwrap();
         let from_row = RowId::from(from_row.id.clone());
@@ -120,7 +116,13 @@ impl DatabaseGroupTest {
 
         self
           .editor
-          .move_group_row(&self.view_id, &to_group.group_id, from_row, Some(to_row))
+          .move_group_row(
+            &self.view_id,
+            &from_group.group_id,
+            &to_group.group_id,
+            from_row,
+            Some(to_row),
+          )
           .await
           .unwrap();
       },
@@ -212,7 +214,7 @@ impl DatabaseGroupTest {
         let cell = match field_type {
           FieldType::URL => insert_url_cell(cell_data, &field),
           FieldType::DateTime => {
-            insert_date_cell(cell_data.parse::<i64>().unwrap(), Some(true), &field)
+            insert_date_cell(cell_data.parse::<i64>().unwrap(), None, Some(true), &field)
           },
           _ => {
             panic!("Unsupported group field type");
@@ -237,7 +239,6 @@ impl DatabaseGroupTest {
           .move_group(&self.view_id, &from_group.group_id, &to_group.group_id)
           .await
           .unwrap();
-        //
       },
       GroupScript::AssertGroup {
         group_index,
@@ -304,14 +305,9 @@ impl DatabaseGroupTest {
     action: impl FnOnce(&mut SingleSelectTypeOption),
   ) {
     let single_select = self.get_single_select_field().await;
-    edit_single_select_type_option(
-      &self.view_id,
-      &single_select.id,
-      self.editor.clone(),
-      action,
-    )
-    .await
-    .unwrap();
+    edit_single_select_type_option(&single_select.id, self.editor.clone(), action)
+      .await
+      .unwrap();
   }
 
   pub async fn get_url_field(&self) -> Field {

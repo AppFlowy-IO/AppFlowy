@@ -19,6 +19,9 @@ export const sidebarSlice = createSlice({
     toggleCollapse(state) {
       state.isCollapsed = !state.isCollapsed;
     },
+    setCollapse(state, action: PayloadAction<boolean>) {
+      state.isCollapsed = action.payload;
+    },
     changeWidth(state, action: PayloadAction<number>) {
       state.width = action.payload;
     },

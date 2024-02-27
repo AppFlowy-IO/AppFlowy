@@ -5,9 +5,9 @@ use bytes::Bytes;
 use event_integration::event_builder::EventBuilder;
 use event_integration::EventIntegrationTest;
 use flowy_database2::entities::{
-  CellChangesetPB, CellIdPB, ChecklistCellDataChangesetPB, DatabaseLayoutPB,
-  DatabaseSettingChangesetPB, DatabaseViewIdPB, DateChangesetPB, FieldType, SelectOptionCellDataPB,
-  UpdateRowMetaChangesetPB,
+  CellChangesetPB, CellIdPB, CheckboxCellDataPB, ChecklistCellDataChangesetPB, DatabaseLayoutPB,
+  DatabaseSettingChangesetPB, DatabaseViewIdPB, DateCellChangesetPB, FieldType,
+  OrderObjectPositionPB, SelectOptionCellDataPB, UpdateRowMetaChangesetPB,
 };
 use lib_infra::util::timestamp;
 
@@ -202,7 +202,9 @@ async fn create_row_event_test() {
     .create_grid(&current_workspace.id, "my grid view".to_owned(), vec![])
     .await;
 
-  let _ = test.create_row(&grid_view.id, None, None).await;
+  let _ = test
+    .create_row(&grid_view.id, OrderObjectPositionPB::default(), None)
+    .await;
   let database = test.get_database(&grid_view.id).await;
   assert_eq!(database.rows.len(), 4);
 }
@@ -474,8 +476,8 @@ async fn update_checkbox_cell_event_test() {
     assert!(error.is_none());
 
     let cell = test.get_cell(&grid_view.id, &row_id, &field_id).await;
-    let output = String::from_utf8(cell.data).unwrap();
-    assert_eq!(output, "Yes");
+    let output = CheckboxCellDataPB::try_from(Bytes::from(cell.data)).unwrap();
+    assert!(output.is_checked);
   }
 }
 
@@ -527,7 +529,7 @@ async fn update_date_cell_event_test() {
   // Insert data into the date cell of the first row.
   let timestamp = 1686300557;
   let error = test
-    .update_date_cell(DateChangesetPB {
+    .update_date_cell(DateCellChangesetPB {
       cell_id: cell_path,
       date: Some(timestamp),
       ..Default::default()
@@ -563,7 +565,7 @@ async fn update_date_cell_event_with_empty_time_str_test() {
 
   // Insert empty timestamp string
   let error = test
-    .update_date_cell(DateChangesetPB {
+    .update_date_cell(DateCellChangesetPB {
       cell_id: cell_path,
       date: None,
       ..Default::default()
@@ -654,140 +656,6 @@ async fn update_checklist_cell_test() {
   assert_eq!(cell.options.len(), 3);
   assert_eq!(cell.selected_options.len(), 2);
   assert_eq!(cell.percentage, 0.67);
-}
-
-// The number of groups should be 0 if there is no group by field in grid
-#[tokio::test]
-async fn get_groups_event_with_grid_test() {
-  let test = EventIntegrationTest::new_with_guest_user().await;
-  let current_workspace = test.get_current_workspace().await;
-  let grid_view = test
-    .create_grid(&current_workspace.id, "my board view".to_owned(), vec![])
-    .await;
-
-  let groups = test.get_groups(&grid_view.id).await;
-  assert_eq!(groups.len(), 0);
-}
-
-#[tokio::test]
-async fn get_groups_event_test() {
-  let test = EventIntegrationTest::new_with_guest_user().await;
-  let current_workspace = test.get_current_workspace().await;
-  let board_view = test
-    .create_board(&current_workspace.id, "my board view".to_owned(), vec![])
-    .await;
-
-  let groups = test.get_groups(&board_view.id).await;
-  assert_eq!(groups.len(), 4);
-}
-
-#[tokio::test]
-async fn move_group_event_test() {
-  let test = EventIntegrationTest::new_with_guest_user().await;
-  let current_workspace = test.get_current_workspace().await;
-  let board_view = test
-    .create_board(&current_workspace.id, "my board view".to_owned(), vec![])
-    .await;
-
-  let groups = test.get_groups(&board_view.id).await;
-  assert_eq!(groups.len(), 4);
-  let group_1 = groups[0].group_id.clone();
-  let group_2 = groups[1].group_id.clone();
-  let group_3 = groups[2].group_id.clone();
-  let group_4 = groups[3].group_id.clone();
-
-  let error = test.move_group(&board_view.id, &group_2, &group_3).await;
-  assert!(error.is_none());
-
-  let groups = test.get_groups(&board_view.id).await;
-  assert_eq!(groups[0].group_id, group_1);
-  assert_eq!(groups[1].group_id, group_3);
-  assert_eq!(groups[2].group_id, group_2);
-  assert_eq!(groups[3].group_id, group_4);
-
-  let error = test.move_group(&board_view.id, &group_1, &group_4).await;
-  assert!(error.is_none());
-
-  let groups = test.get_groups(&board_view.id).await;
-  assert_eq!(groups[0].group_id, group_3);
-  assert_eq!(groups[1].group_id, group_2);
-  assert_eq!(groups[2].group_id, group_4);
-  assert_eq!(groups[3].group_id, group_1);
-}
-
-#[tokio::test]
-async fn move_group_event_with_invalid_id_test() {
-  let test = EventIntegrationTest::new_with_guest_user().await;
-  let current_workspace = test.get_current_workspace().await;
-  let board_view = test
-    .create_board(&current_workspace.id, "my board view".to_owned(), vec![])
-    .await;
-
-  // Empty to group id
-  let groups = test.get_groups(&board_view.id).await;
-  let error = test
-    .move_group(&board_view.id, &groups[0].group_id, "")
-    .await;
-  assert!(error.is_some());
-
-  // empty from group id
-  let error = test
-    .move_group(&board_view.id, "", &groups[1].group_id)
-    .await;
-  assert!(error.is_some());
-}
-
-#[tokio::test]
-async fn rename_group_event_test() {
-  let test = EventIntegrationTest::new_with_guest_user().await;
-  let current_workspace = test.get_current_workspace().await;
-  let board_view = test
-    .create_board(&current_workspace.id, "my board view".to_owned(), vec![])
-    .await;
-
-  // Empty to group id
-  let groups = test.get_groups(&board_view.id).await;
-  let error = test
-    .update_group(
-      &board_view.id,
-      &groups[1].group_id,
-      &groups[1].field_id,
-      Some("new name".to_owned()),
-      None,
-    )
-    .await;
-  assert!(error.is_none());
-
-  let groups = test.get_groups(&board_view.id).await;
-  assert_eq!(groups[1].group_name, "new name".to_owned());
-}
-
-#[tokio::test]
-async fn hide_group_event_test() {
-  let test = EventIntegrationTest::new_with_guest_user().await;
-  let current_workspace = test.get_current_workspace().await;
-  let board_view = test
-    .create_board(&current_workspace.id, "my board view".to_owned(), vec![])
-    .await;
-
-  // Empty to group id
-  let groups = test.get_groups(&board_view.id).await;
-  assert_eq!(groups.len(), 4);
-
-  let error = test
-    .update_group(
-      &board_view.id,
-      &groups[0].group_id,
-      &groups[0].field_id,
-      None,
-      Some(false),
-    )
-    .await;
-  assert!(error.is_none());
-
-  let groups = test.get_groups(&board_view.id).await;
-  assert_eq!(groups.len(), 4);
-  assert!(!groups[0].is_visible);
 }
 
 // Update the database layout type from grid to board
@@ -889,11 +757,13 @@ async fn create_calendar_event_test() {
     .unwrap();
 
   // create a new row
-  let row = test.create_row(&calendar_view.id, None, None).await;
+  let row = test
+    .create_row(&calendar_view.id, OrderObjectPositionPB::default(), None)
+    .await;
 
   // Insert data into the date cell of the first row.
   let error = test
-    .update_date_cell(DateChangesetPB {
+    .update_date_cell(DateCellChangesetPB {
       cell_id: CellIdPB {
         view_id: calendar_view.id.clone(),
         field_id: date_field.id.clone(),

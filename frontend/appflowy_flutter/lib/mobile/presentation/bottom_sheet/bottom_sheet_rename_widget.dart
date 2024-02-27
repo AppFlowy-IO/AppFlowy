@@ -27,14 +27,16 @@ class _MobileBottomSheetRenameWidgetState
   @override
   void initState() {
     super.initState();
-
-    controller = TextEditingController(text: widget.name);
+    controller = TextEditingController(text: widget.name)
+      ..selection = TextSelection(
+        baseOffset: 0,
+        extentOffset: widget.name.length,
+      );
   }
 
   @override
   void dispose() {
     controller.dispose();
-
     super.dispose();
   }
 
@@ -50,6 +52,8 @@ class _MobileBottomSheetRenameWidgetState
               height: 42.0,
               child: FlowyTextField(
                 controller: controller,
+                textInputAction: TextInputAction.done,
+                onSubmitted: (text) => widget.onRename(text),
               ),
             ),
           ),

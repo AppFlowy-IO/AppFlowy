@@ -1,11 +1,12 @@
-import React, { MouseEvent, useCallback } from 'react';
-import { Menu, MenuProps } from '@mui/material';
-import FieldList from '$app/components/database/components/field/FieldList';
-import { Field } from '$app/components/database/application';
+import React, { useCallback } from 'react';
+import { MenuProps } from '@mui/material';
+import PropertiesList from '$app/components/database/components/property/PropertiesList';
+import { Field } from '$app/application/database';
 import { useViewId } from '$app/hooks';
 import { useTranslation } from 'react-i18next';
-import { insertFilter } from '$app/components/database/application/filter/filter_service';
-import { getDefaultFilter } from '$app/components/database/application/filter/filter_data';
+import { insertFilter } from '$app/application/database/filter/filter_service';
+import { getDefaultFilter } from '$app/application/database/filter/filter_data';
+import Popover from '@mui/material/Popover';
 
 function FilterFieldsMenu({
   onInserted,
@@ -17,12 +18,8 @@ function FilterFieldsMenu({
   const { t } = useTranslation();
 
   const addFilter = useCallback(
-    async (event: MouseEvent, field: Field) => {
+    async (field: Field) => {
       const filterData = getDefaultFilter(field.type);
-
-      if (!filterData) {
-        return;
-      }
 
       await insertFilter({
         viewId,
@@ -37,9 +34,25 @@ function FilterFieldsMenu({
   );
 
   return (
-    <Menu {...props}>
-      <FieldList showSearch searchPlaceholder={t('grid.settings.filterBy')} onItemClick={addFilter} />
-    </Menu>
+    <Popover
+      onKeyDown={(e) => {
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          e.stopPropagation();
+          props.onClose?.({}, 'escapeKeyDown');
+        }
+      }}
+      {...props}
+    >
+      <PropertiesList
+        onClose={() => {
+          props.onClose?.({}, 'escapeKeyDown');
+        }}
+        showSearch
+        searchPlaceholder={t('grid.settings.filterBy')}
+        onItemClick={addFilter}
+      />
+    </Popover>
   );
 }
 

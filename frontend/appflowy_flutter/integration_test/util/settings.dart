@@ -1,10 +1,11 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_user.dart';
 import 'package:appflowy/workspace/presentation/settings/settings_dialog.dart';
+import 'package:appflowy/workspace/presentation/settings/widgets/settings_appearance/direction_setting.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_menu_element.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_user_view.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'base.dart';
@@ -12,7 +13,7 @@ import 'base.dart';
 extension AppFlowySettings on WidgetTester {
   /// Open settings page
   Future<void> openSettings() async {
-    final settingsButton = find.byTooltip(LocaleKeys.settings_menu_open.tr());
+    final settingsButton = find.byType(UserSettingButton);
     expect(settingsButton, findsOneWidget);
     await tapButton(settingsButton);
     final settingsDialog = find.byType(SettingsDialog);
@@ -79,10 +80,11 @@ extension AppFlowySettings on WidgetTester {
     await openSettings();
     await openSettingsPage(SettingsPage.appearance);
 
-    final switchButton = find.byKey(const ValueKey('enable_rtl_toolbar_items_switch'));
+    final switchButton =
+        find.byKey(EnableRTLToolbarItemsSetting.enableRTLSwitchKey);
     expect(switchButton, findsOneWidget);
     await tapButton(switchButton);
-    
+
     // tap anywhere to close the settings page
     await tapAt(Offset.zero);
     await pumpAndSettle();

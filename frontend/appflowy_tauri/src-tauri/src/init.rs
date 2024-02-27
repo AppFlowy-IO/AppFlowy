@@ -1,5 +1,7 @@
 use flowy_core::config::AppFlowyCoreConfig;
 use flowy_core::{AppFlowyCore, DEFAULT_NAME};
+use lib_dispatch::runtime::AFPluginRuntime;
+use std::sync::Arc;
 
 pub fn init_flowy_core() -> AppFlowyCore {
   let config_json = include_str!("../tauri.conf.json");
@@ -17,12 +19,17 @@ pub fn init_flowy_core() -> AppFlowyCore {
   let device_id = uuid::Uuid::new_v4().to_string();
 
   std::env::set_var("RUST_LOG", "trace");
+  // TODO(nathan): pass the real version here
   let config = AppFlowyCoreConfig::new(
+    "1.0.0".to_string(),
     custom_application_path,
     application_path,
     device_id,
     DEFAULT_NAME.to_string(),
   )
   .log_filter("trace", vec!["appflowy_tauri".to_string()]);
-  AppFlowyCore::new(config)
+
+  let runtime = Arc::new(AFPluginRuntime::new().unwrap());
+  let cloned_runtime = runtime.clone();
+  runtime.block_on(async move { AppFlowyCore::new(config, cloned_runtime).await })
 }

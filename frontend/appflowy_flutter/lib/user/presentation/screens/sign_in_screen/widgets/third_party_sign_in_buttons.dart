@@ -2,8 +2,9 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/user/application/sign_in_bloc.dart';
 import 'package:appflowy/user/presentation/presentation.dart';
-import 'package:appflowy/util/platform_extension.dart';
+import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/sign_in_or_logout_button.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -20,9 +21,13 @@ class ThirdPartySignInButtons extends StatelessWidget {
   Widget build(BuildContext context) {
     // Get themeMode from AppearanceSettingsCubit
     // When user changes themeMode, it changes the state in AppearanceSettingsCubit, but the themeMode for the MaterialApp won't change, it only got updated(get value from AppearanceSettingsCubit) when user open the app again. Thus, we should get themeMode from AppearanceSettingsCubit rather than MediaQuery.
-    final isDarkMode =
-        context.read<AppearanceSettingsCubit>().state.themeMode ==
-            ThemeMode.dark;
+
+    final themeModeFromCubit =
+        context.watch<AppearanceSettingsCubit>().state.themeMode;
+
+    final isDarkMode = themeModeFromCubit == ThemeMode.system
+        ? MediaQuery.of(context).platformBrightness == Brightness.dark
+        : themeModeFromCubit == ThemeMode.dark;
 
     return Column(
       children: [
@@ -75,40 +80,37 @@ class _ThirdPartySignInButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context);
-    final isMobile = PlatformExtension.isMobile;
-    if (isMobile) {
-      // Use LayoutBuilder to get the maxWidth of parent widget(Column) and set the icon occupied area to 1/4 of maxWidth.
-      return LayoutBuilder(
-        builder: (context, constraints) {
-          return SizedBox(
-            height: 48,
-            child: OutlinedButton.icon(
-              icon: Container(
-                width: constraints.maxWidth / 4,
-                alignment: Alignment.centerRight,
-                child: SizedBox(
-                  width: 24,
-                  child: FlowySvg(
-                    icon,
-                    blendMode: null,
-                  ),
-                ),
-              ),
-              label: Container(
-                padding: const EdgeInsets.only(left: 4),
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  labelText,
-                  style: Theme.of(context).textTheme.titleSmall,
-                ),
-              ),
-              onPressed: onPressed,
-            ),
-          );
-        },
+    if (PlatformExtension.isMobile) {
+      return MobileSignInOrLogoutButton(
+        icon: icon,
+        labelText: labelText,
+        onPressed: onPressed,
+      );
+    } else {
+      return _DesktopSignInButton(
+        icon: icon,
+        labelText: labelText,
+        onPressed: onPressed,
       );
     }
+  }
+}
+
+class _DesktopSignInButton extends StatelessWidget {
+  const _DesktopSignInButton({
+    required this.icon,
+    required this.labelText,
+    required this.onPressed,
+  });
+
+  final FlowySvgData icon;
+  final String labelText;
+
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final style = Theme.of(context);
     // In desktop, the width of button is limited by [AuthFormContainer]
     return SizedBox(
       height: 48,

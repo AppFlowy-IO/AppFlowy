@@ -8,12 +8,12 @@ import 'package:flutter/material.dart';
 
 class OptionActionList extends StatelessWidget {
   const OptionActionList({
-    Key? key,
+    super.key,
     required this.blockComponentContext,
     required this.blockComponentState,
     required this.actions,
     required this.editorState,
-  }) : super(key: key);
+  });
 
   final BlockComponentContext blockComponentContext;
   final BlockComponentActionState blockComponentState;
@@ -29,12 +29,17 @@ class OptionActionList extends StatelessWidget {
         return ColorOptionAction(
           editorState: editorState,
         );
+      } else if (e == OptionAction.depth) {
+        return DepthOptionAction(
+          editorState: editorState,
+        );
       } else {
         return OptionActionWrapper(e);
       }
     }).toList();
 
     return PopoverActionList<PopoverAction>(
+      popoverMutex: PopoverMutex(),
       direction: PopoverDirection.leftWithCenterAligned,
       actions: popoverActions,
       onPopupBuilder: () => blockComponentState.alwaysShowActions = true,
@@ -67,7 +72,7 @@ class OptionActionList extends StatelessWidget {
       endNode = endNode.children.last;
     }
 
-    final start = Position(path: startNode.path, offset: 0);
+    final start = Position(path: startNode.path);
     final end = endNode.selectable?.end() ??
         Position(
           path: endNode.path,
@@ -105,6 +110,7 @@ class OptionActionList extends StatelessWidget {
       case OptionAction.align:
       case OptionAction.color:
       case OptionAction.divider:
+      case OptionAction.depth:
         throw UnimplementedError();
     }
     editorState.apply(transaction);
@@ -122,7 +128,6 @@ class OptionActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Align(
-      alignment: Alignment.center,
       child: MouseRegion(
         cursor: SystemMouseCursors.grab,
         child: IgnoreParentGestureWidget(

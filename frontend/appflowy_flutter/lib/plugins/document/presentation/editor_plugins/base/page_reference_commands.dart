@@ -79,12 +79,16 @@ Future<bool> inlinePageReferenceCommandHandler(
     }
   }
 
-  // ignore: use_build_context_synchronously
+  if (!context.mounted) {
+    return false;
+  }
+
   final service = InlineActionsService(
     context: context,
     handlers: [
       InlinePageReferenceService(
         currentViewId: currentViewId,
+        limitResults: 10,
       ).inlinePageReferenceDelegate,
     ],
   );
@@ -100,7 +104,7 @@ Future<bool> inlinePageReferenceCommandHandler(
     }
   }
 
-  if (service.context != null) {
+  if (context.mounted) {
     selectionMenuService = InlineActionsMenu(
       context: service.context!,
       editorState: editorState,

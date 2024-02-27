@@ -3,26 +3,28 @@ import { Icon, Menu, MenuProps } from '@mui/material';
 import { ReactComponent as DelSvg } from '$app/assets/delete.svg';
 import { ReactComponent as CopySvg } from '$app/assets/copy.svg';
 import { useTranslation } from 'react-i18next';
-import { Cell, rowService } from '$app/components/database/application';
+import { rowService } from '$app/application/database';
 import { useViewId } from '$app/hooks';
 import MenuItem from '@mui/material/MenuItem';
 
 interface Props extends MenuProps {
-  cell: Cell;
+  rowId: string;
+  onEscape?: () => void;
   onClose?: () => void;
 }
-function RecordActions({ anchorEl, open, onClose, cell }: Props) {
+function RecordActions({ anchorEl, open, onEscape, onClose, rowId }: Props) {
   const viewId = useViewId();
-  const rowId = cell.rowId;
   const { t } = useTranslation();
 
   const handleDelRow = useCallback(() => {
     void rowService.deleteRow(viewId, rowId);
-  }, [viewId, rowId]);
+    onEscape?.();
+  }, [viewId, rowId, onEscape]);
 
   const handleDuplicateRow = useCallback(() => {
     void rowService.duplicateRow(viewId, rowId);
-  }, [viewId, rowId]);
+    onEscape?.();
+  }, [viewId, rowId, onEscape]);
 
   const menuOptions = [
     {
@@ -40,13 +42,14 @@ function RecordActions({ anchorEl, open, onClose, cell }: Props) {
   ];
 
   return (
-    <Menu anchorEl={anchorEl} open={open} onClose={onClose}>
+    <Menu anchorEl={anchorEl} disableRestoreFocus={true} open={open} onClose={onClose}>
       {menuOptions.map((option) => (
         <MenuItem
           key={option.label}
           onClick={() => {
             option.onClick();
             onClose?.();
+            onEscape?.();
           }}
         >
           <Icon className='mr-2'>{option.icon}</Icon>

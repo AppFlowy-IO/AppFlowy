@@ -1,39 +1,56 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_date_block.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
+import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/reminder_selector.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:flutter/material.dart';
+import 'package:collection/collection.dart';
 import 'package:provider/provider.dart';
 
 enum MentionType {
   page,
-  date,
-  reminder;
+  reminder,
+  date;
 
-  static MentionType fromString(String value) {
-    switch (value) {
-      case 'page':
-        return page;
-      case 'date':
-        return date;
-      case 'reminder':
-        return reminder;
-      default:
-        throw UnimplementedError();
-    }
-  }
+  static MentionType fromString(String value) => switch (value) {
+        'page' => page,
+        'date' => date,
+        // Backwards compatibility
+        'reminder' => date,
+        _ => throw UnimplementedError(),
+      };
+}
+
+Node dateMentionNode() {
+  return paragraphNode(
+    delta: Delta(
+      operations: [
+        TextInsert(
+          '\$',
+          attributes: {
+            MentionBlockKeys.mention: {
+              MentionBlockKeys.type: MentionType.date.name,
+              MentionBlockKeys.date: DateTime.now().toIso8601String(),
+            },
+          },
+        ),
+      ],
+    ),
+  );
 }
 
 class MentionBlockKeys {
   const MentionBlockKeys._();
 
-  static const uid = 'uid'; // UniqueID
+  static const reminderId = 'reminder_id'; // ReminderID
   static const mention = 'mention';
   static const type = 'type'; // MentionType, String
   static const pageId = 'page_id';
 
   // Related to Reminder and Date blocks
-  static const date = 'date';
+  static const date = 'date'; // Start Date
   static const includeTime = 'include_time';
+  static const reminderOption = 'reminder_option';
 }
 
 class MentionBlock extends StatelessWidget {
@@ -42,11 +59,13 @@ class MentionBlock extends StatelessWidget {
     required this.mention,
     required this.node,
     required this.index,
+    required this.textStyle,
   });
 
   final Map<String, dynamic> mention;
   final Node node;
   final int index;
+  final TextStyle? textStyle;
 
   @override
   Widget build(BuildContext context) {
@@ -58,22 +77,23 @@ class MentionBlock extends StatelessWidget {
         return MentionPageBlock(
           key: ValueKey(pageId),
           pageId: pageId,
+          textStyle: textStyle,
         );
-      case MentionType.reminder:
       case MentionType.date:
         final String date = mention[MentionBlockKeys.date];
-        final BuildContext editorContext =
-            context.read<EditorState>().document.root.context!;
+        final editorState = context.read<EditorState>();
+        final reminderOption = ReminderOption.values.firstWhereOrNull(
+          (o) => o.name == mention[MentionBlockKeys.reminderOption],
+        );
+
         return MentionDateBlock(
           key: ValueKey(date),
-          editorContext: editorContext,
+          editorState: editorState,
           date: date,
           node: node,
           index: index,
-          isReminder: type == MentionType.reminder,
-          reminderId: type == MentionType.reminder
-              ? mention[MentionBlockKeys.uid]
-              : null,
+          reminderId: mention[MentionBlockKeys.reminderId],
+          reminderOption: reminderOption,
           includeTime: mention[MentionBlockKeys.includeTime] ?? false,
         );
       default:

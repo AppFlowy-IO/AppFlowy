@@ -1,10 +1,13 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/setting/font/font_picker_screen.dart';
-import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
+import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -38,7 +41,9 @@ class FontSetting extends StatelessWidget {
         if (newFont != null && newFont != selectedFont) {
           if (context.mounted) {
             context.read<AppearanceSettingsCubit>().setFontFamily(newFont);
-            context.read<DocumentAppearanceCubit>().syncFontFamily(newFont);
+            unawaited(
+              context.read<DocumentAppearanceCubit>().syncFontFamily(newFont),
+            );
           }
         }
       },

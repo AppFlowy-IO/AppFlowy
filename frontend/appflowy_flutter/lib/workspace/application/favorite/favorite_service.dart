@@ -1,14 +1,14 @@
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
-import 'package:dartz/dartz.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 
 class FavoriteService {
-  Future<Either<RepeatedViewPB, FlowyError>> readFavorites() {
+  Future<FlowyResult<RepeatedViewPB, FlowyError>> readFavorites() {
     return FolderEventReadFavorites().send();
   }
 
-  Future<Either<Unit, FlowyError>> toggleFavorite(
+  Future<FlowyResult<void, FlowyError>> toggleFavorite(
     String viewId,
     bool favoriteStatus,
   ) async {

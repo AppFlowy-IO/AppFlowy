@@ -1,20 +1,23 @@
+import 'package:flutter/services.dart';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/user/application/user_settings_service.dart';
 import 'package:appflowy/workspace/application/settings/date_time/date_format_ext.dart';
+import 'package:appflowy/workspace/presentation/notifications/widgets/notification_item.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/date_time.pbenum.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:calendar_view/calendar_view.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/text_field.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
 import '../util/base.dart';
 import '../util/common_operations.dart';
 import '../util/editor_test_operations.dart';
+import '../util/expectation.dart';
 import '../util/keyboard.dart';
 
 void main() {
@@ -35,7 +38,7 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      // Trigger iline action menu and type 'remind tomorrow'
+      // Trigger inline action menu and type 'remind tomorrow'
       final tomorrow = await _insertReminderTomorrow(tester);
 
       Node node = tester.editor.getCurrentEditorState().getNodeAtPath([1])!;
@@ -43,7 +46,7 @@ void main() {
           node.delta!.first.attributes![MentionBlockKeys.mention];
 
       expect(node.type, 'paragraph');
-      expect(mentionAttr['type'], MentionType.reminder.name);
+      expect(mentionAttr['type'], MentionType.date.name);
       expect(mentionAttr['date'], tomorrow.toIso8601String());
 
       await tester.tap(
@@ -67,8 +70,56 @@ void main() {
           _dateWithTime(dateTimeSettings.timeFormat, tomorrow, time);
 
       expect(node.type, 'paragraph');
-      expect(mentionAttr['type'], MentionType.reminder.name);
+      expect(mentionAttr['type'], MentionType.date.name);
       expect(mentionAttr['date'], tomorrowWithTime.toIso8601String());
+    });
+
+    testWidgets('Add reminder for tomorrow, and navigate to it',
+        (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapGoButton();
+
+      await tester.editor.tapLineOfEditorAt(0);
+      await tester.editor.getCurrentEditorState().insertNewLine();
+
+      await tester.pumpAndSettle();
+
+      // Trigger inline action menu and type 'remind tomorrow'
+      final tomorrow = await _insertReminderTomorrow(tester);
+
+      final Node node =
+          tester.editor.getCurrentEditorState().getNodeAtPath([1])!;
+      final Map<String, dynamic> mentionAttr =
+          node.delta!.first.attributes![MentionBlockKeys.mention];
+
+      expect(node.type, 'paragraph');
+      expect(mentionAttr['type'], MentionType.date.name);
+      expect(mentionAttr['date'], tomorrow.toIso8601String());
+
+      // Create and Navigate to a new document
+      await tester.createNewPageWithNameUnderParent();
+      await tester.pumpAndSettle();
+
+      // Open "Upcoming" in Notification hub
+      await tester.openNotificationHub(tabIndex: 1);
+
+      // Expect 1 notification
+      tester.expectNotificationItems(1);
+
+      // Tap on the notification
+      await tester.tap(find.byType(NotificationItem));
+      await tester.pumpAndSettle();
+
+      // Expect node at path 1 to be the date/reminder
+      expect(
+        tester.editor
+            .getCurrentEditorState()
+            .getNodeAtPath([1])
+            ?.delta
+            ?.first
+            .attributes?[MentionBlockKeys.mention]['type'],
+        MentionType.date.name,
+      );
     });
   });
 }

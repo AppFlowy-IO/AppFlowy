@@ -1,9 +1,8 @@
 import 'package:appflowy/mobile/application/mobile_router.dart';
-import 'package:appflowy/mobile/presentation/home/favorite_folder/mobile_home_favorite_folder.dart';
 import 'package:appflowy/mobile/presentation/home/personal_folder/mobile_home_personal_folder.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/menu/menu_bloc.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -48,17 +47,9 @@ class MobileFolders extends StatelessWidget {
         child: Builder(
           builder: (context) {
             final menuState = context.watch<MenuBloc>().state;
-            final favoriteState = context.watch<FavoriteBloc>().state;
             return SlidableAutoCloseBehavior(
               child: Column(
                 children: [
-                  // TODO: Uncomment this when we have favorite folder in home page
-                  if (showFavorite && favoriteState.views.isNotEmpty) ...[
-                    MobileFavoriteFolder(
-                      views: favoriteState.views,
-                    ),
-                    const VSpace(18.0),
-                  ],
                   MobilePersonalFolder(
                     views: menuState.views,
                   ),

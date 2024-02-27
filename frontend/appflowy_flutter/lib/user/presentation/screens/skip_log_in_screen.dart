@@ -1,32 +1,28 @@
 import 'package:appflowy/core/frameless_window.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/startup/entry_point.dart';
-import 'package:appflowy/startup/launch_configuration.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/user/application/anon_user_bloc.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
-import 'package:appflowy/user/application/historical_user_bloc.dart';
 import 'package:appflowy/user/presentation/router.dart';
 import 'package:appflowy/user/presentation/widgets/widgets.dart';
-import 'package:appflowy/util/platform_extension.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_language_view.dart';
+import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/language.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SkipLogInScreen extends StatefulWidget {
-  static const routeName = '/SkipLogInScreen';
+  const SkipLogInScreen({super.key});
 
-  const SkipLogInScreen({
-    super.key,
-  });
+  static const routeName = '/SkipLogInScreen';
 
   @override
   State<SkipLogInScreen> createState() => _SkipLogInScreenState();
@@ -49,7 +45,6 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
     final size = MediaQuery.of(context).size;
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         const Spacer(),
         FlowyLogoTitle(
@@ -66,6 +61,13 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
             }
           },
         ),
+        // if (Env.enableCustomCloud) ...[
+        //   const VSpace(10),
+        //   const SizedBox(
+        //     width: 340,
+        //     child: _SetupYourServer(),
+        //   ),
+        // ],
         const VSpace(32),
         SizedBox(
           width: size.width * 0.7,
@@ -85,23 +87,17 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
   Future<void> _autoRegister(BuildContext context) async {
     final result = await getIt<AuthService>().signUpAsGuest();
     result.fold(
-      (error) {
-        Log.error(error);
-      },
       (user) {
         getIt<AuthRouter>().goHomeScreen(context, user);
+      },
+      (error) {
+        Log.error(error);
       },
     );
   }
 
   Future<void> _relaunchAppAndAutoRegister() async {
-    await FlowyRunner.run(
-      FlowyApp(),
-      integrationMode(),
-      config: const LaunchConfiguration(
-        autoRegistrationSupported: true,
-      ),
-    );
+    await runAppFlowy(isAnon: true);
   }
 }
 
@@ -253,36 +249,56 @@ class LanguageSelectorOnWelcomePage extends StatelessWidget {
 }
 
 class GoButton extends StatelessWidget {
-  final VoidCallback onPressed;
+  const GoButton({super.key, required this.onPressed});
 
-  const GoButton({
-    super.key,
-    required this.onPressed,
-  });
+  final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => HistoricalUserBloc()
+      create: (context) => AnonUserBloc()
         ..add(
-          const HistoricalUserEvent.initial(),
+          const AnonUserEvent.initial(),
         ),
-      child: BlocListener<HistoricalUserBloc, HistoricalUserState>(
-        listenWhen: (previous, current) =>
-            previous.openedHistoricalUser != current.openedHistoricalUser,
+      child: BlocListener<AnonUserBloc, AnonUserState>(
         listener: (context, state) async {
-          await runAppFlowy();
+          if (state.openedAnonUser != null) {
+            await runAppFlowy();
+          }
         },
-        child: BlocBuilder<HistoricalUserBloc, HistoricalUserState>(
+        child: BlocBuilder<AnonUserBloc, AnonUserState>(
           builder: (context, state) {
-            final text = state.historicalUsers.isEmpty
+            final text = state.anonUsers.isEmpty
                 ? LocaleKeys.letsGoButtonText.tr()
                 : LocaleKeys.signIn_continueAnonymousUser.tr();
 
-            final textWidget = FlowyText.medium(
-              text,
-              textAlign: TextAlign.center,
-              fontSize: 14,
+            final textWidget = Row(
+              // mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: FlowyText.medium(
+                    text,
+                    textAlign: TextAlign.center,
+                    fontSize: 14,
+                  ),
+                ),
+                // Tooltip(
+                //   message: LocaleKeys.settings_menu_configServerGuide.tr(),
+                //   child: Container(
+                //     width: 30.0,
+                //     decoration: const BoxDecoration(
+                //       shape: BoxShape.circle,
+                //     ),
+                //     child: Center(
+                //       child: Icon(
+                //         Icons.help,
+                //         color: Colors.white,
+                //         weight: 2,
+                //       ),
+                //     ),
+                //   ),
+                // ),
+              ],
             );
 
             return SizedBox(
@@ -293,11 +309,11 @@ class GoButton extends StatelessWidget {
                 text: textWidget,
                 radius: Corners.s6Border,
                 onTap: () {
-                  if (state.historicalUsers.isNotEmpty) {
-                    final bloc = context.read<HistoricalUserBloc>();
-                    final historicalUser = state.historicalUsers.first;
+                  if (state.anonUsers.isNotEmpty) {
+                    final bloc = context.read<AnonUserBloc>();
+                    final historicalUser = state.anonUsers.first;
                     bloc.add(
-                      HistoricalUserEvent.openHistoricalUser(historicalUser),
+                      AnonUserEvent.openAnonUser(historicalUser),
                     );
                   } else {
                     onPressed();

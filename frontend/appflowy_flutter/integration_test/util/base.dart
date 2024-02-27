@@ -5,14 +5,15 @@ import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/env/cloud_env_test.dart';
 import 'package:appflowy/startup/entry_point.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/user/application/auth/af_cloud_mock_auth_service.dart';
+import 'package:appflowy/user/application/auth/auth_service.dart';
+import 'package:appflowy/user/application/auth/supabase_mock_auth_service.dart';
 import 'package:appflowy/user/presentation/presentation.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/widgets.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
-import 'package:dartz/dartz.dart';
 import 'package:flowy_infra/uuid.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
@@ -30,41 +31,76 @@ extension AppFlowyTestBase on WidgetTester {
   Future<FlowyTestContext> initializeAppFlowy({
     // use to append after the application data directory
     String? pathExtension,
-    Size windowsSize = const Size(1600, 1200),
-    CloudType? cloudType,
+    // use to specify the application data directory, if not specified, a temporary directory will be used.
+    String? dataDirectory,
+    Size windowSize = const Size(1600, 1200),
+    AuthenticatorType? cloudType,
+    String? email,
   }) async {
-    binding.setSurfaceSize(windowsSize);
+    // view.physicalSize = windowsSize;
+    await binding.setSurfaceSize(windowSize);
+    // addTearDown(() => binding.setSurfaceSize(null));
 
     mockHotKeyManagerHandlers();
-    final directory = await mockApplicationDataStorage(
-      pathExtension: pathExtension,
-    );
-
-    WidgetsFlutterBinding.ensureInitialized();
+    final applicationDataDirectory = dataDirectory ??
+        await mockApplicationDataStorage(
+          pathExtension: pathExtension,
+        );
 
     await FlowyRunner.run(
-      FlowyApp(),
+      AppFlowyApplication(),
       IntegrationMode.integrationTest,
-      didInitGetIt: Future(
-        () async {
-          if (cloudType != null) {
-            switch (cloudType) {
-              case CloudType.local:
-                break;
-              case CloudType.supabase:
-                await useSupabaseCloud();
-                break;
-              case CloudType.appflowyCloud:
-                await useAppFlowyCloud();
-                break;
-            }
+      rustEnvsBuilder: () {
+        final rustEnvs = <String, String>{};
+        if (cloudType != null) {
+          switch (cloudType) {
+            case AuthenticatorType.local:
+              break;
+            case AuthenticatorType.supabase:
+              break;
+            case AuthenticatorType.appflowyCloudSelfHost:
+              rustEnvs["GOTRUE_ADMIN_EMAIL"] = "admin@example.com";
+              rustEnvs["GOTRUE_ADMIN_PASSWORD"] = "password";
+              break;
+            default:
+              throw Exception("not supported");
           }
-        },
-      ),
+        }
+        return rustEnvs;
+      },
+      didInitGetItCallback: () {
+        return Future(
+          () async {
+            if (cloudType != null) {
+              switch (cloudType) {
+                case AuthenticatorType.local:
+                  await useLocal();
+                  break;
+                case AuthenticatorType.supabase:
+                  await useTestSupabaseCloud();
+                  getIt.unregister<AuthService>();
+                  getIt.registerFactory<AuthService>(
+                    () => SupabaseMockAuthService(),
+                  );
+                  break;
+                case AuthenticatorType.appflowyCloudSelfHost:
+                  await useTestSelfHostedAppFlowyCloud();
+                  getIt.unregister<AuthService>();
+                  getIt.registerFactory<AuthService>(
+                    () => AppFlowyCloudMockAuthService(email: email),
+                  );
+                default:
+                  throw Exception("not supported");
+              }
+            }
+          },
+        );
+      },
     );
+
     await waitUntilSignInPageShow();
     return FlowyTestContext(
-      applicationDataDirectory: directory,
+      applicationDataDirectory: applicationDataDirectory,
     );
   }
 
@@ -79,27 +115,6 @@ extension AppFlowyTestBase on WidgetTester {
     });
   }
 
-  Future<String> mockApplicationDataStorage({
-    // use to append after the application data directory
-    String? pathExtension,
-  }) async {
-    final dir = await getTemporaryDirectory();
-
-    // Use a random uuid to avoid conflict.
-    String path = p.join(dir.path, 'appflowy_integration_test', uuid());
-    if (pathExtension != null && pathExtension.isNotEmpty) {
-      path = '$path/$pathExtension';
-    }
-    final directory = Directory(path);
-    if (!directory.existsSync()) {
-      await directory.create(recursive: true);
-    }
-
-    MockApplicationDataStorage.initialPath = directory.path;
-
-    return directory.path;
-  }
-
   Future<void> waitUntilSignInPageShow() async {
     if (isAuthEnabled) {
       final finder = find.byType(SignInAnonymousButton);
@@ -112,16 +127,22 @@ extension AppFlowyTestBase on WidgetTester {
     }
   }
 
+  Future<void> waitForSeconds(int seconds) async {
+    await Future.delayed(Duration(seconds: seconds), () {});
+  }
+
   Future<void> pumpUntilFound(
     Finder finder, {
     Duration timeout = const Duration(seconds: 10),
+    Duration pumpInterval =
+        const Duration(milliseconds: 50), // Interval between pumps
   }) async {
     bool timerDone = false;
     final timer = Timer(timeout, () => timerDone = true);
-    while (timerDone != true) {
-      await pump();
+    while (!timerDone) {
+      await pump(pumpInterval); // Pump with an interval
       if (any(finder)) {
-        timerDone = true;
+        break;
       }
     }
     timer.cancel();
@@ -226,15 +247,38 @@ extension AppFlowyFinderTestBase on CommonFinders {
   }
 }
 
-Future<void> useSupabaseCloud() async {
-  await setCloudType(CloudType.supabase);
-  await setSupbaseServer(
-    Some(TestEnv.supabaseUrl),
-    Some(TestEnv.supabaseAnonKey),
+Future<void> useLocal() async {
+  await useLocalServer();
+}
+
+Future<void> useTestSupabaseCloud() async {
+  await useSupabaseCloud(
+    url: TestEnv.supabaseUrl,
+    anonKey: TestEnv.supabaseAnonKey,
   );
 }
 
-Future<void> useAppFlowyCloud() async {
-  await setCloudType(CloudType.appflowyCloud);
-  await setAppFlowyCloudUrl(Some(TestEnv.afCloudUrl));
+Future<void> useTestSelfHostedAppFlowyCloud() async {
+  await useSelfHostedAppFlowyCloudWithURL(TestEnv.afCloudUrl);
+}
+
+Future<String> mockApplicationDataStorage({
+  // use to append after the application data directory
+  String? pathExtension,
+}) async {
+  final dir = await getTemporaryDirectory();
+
+  // Use a random uuid to avoid conflict.
+  String path = p.join(dir.path, 'appflowy_integration_test', uuid());
+  if (pathExtension != null && pathExtension.isNotEmpty) {
+    path = '$path/$pathExtension';
+  }
+  final directory = Directory(path);
+  if (!directory.existsSync()) {
+    await directory.create(recursive: true);
+  }
+
+  MockApplicationDataStorage.initialPath = directory.path;
+
+  return directory.path;
 }

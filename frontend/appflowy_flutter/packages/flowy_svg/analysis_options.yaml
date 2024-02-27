@@ -1,3 +1,3 @@
-include: package:very_good_analysis/analysis_options.5.0.0.yaml
+include: package:very_good_analysis/analysis_options.yaml
 
 linter:

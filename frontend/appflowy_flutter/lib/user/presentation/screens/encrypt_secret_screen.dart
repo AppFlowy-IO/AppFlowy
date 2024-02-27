@@ -12,13 +12,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../application/encrypt_secret_bloc.dart';
 
 class EncryptSecretScreen extends StatefulWidget {
-  static const routeName = '/EncryptSecretScreen';
-  // arguments names to used in GoRouter
-  static const argUser = 'user';
-  static const argKey = 'key';
+  const EncryptSecretScreen({required this.user, super.key});
 
   final UserProfilePB user;
-  const EncryptSecretScreen({required this.user, super.key});
+
+  static const routeName = '/EncryptSecretScreen';
+
+  // arguments used in GoRouter
+  static const argUser = 'user';
+  static const argKey = 'key';
 
   @override
   State<EncryptSecretScreen> createState() => _EncryptSecretScreenState();
@@ -26,6 +28,13 @@ class EncryptSecretScreen extends StatefulWidget {
 
 class _EncryptSecretScreenState extends State<EncryptSecretScreen> {
   final TextEditingController _textEditingController = TextEditingController();
+
+  @override
+  void dispose() {
+    _textEditingController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -46,17 +55,12 @@ class _EncryptSecretScreenState extends State<EncryptSecretScreen> {
               listenWhen: (previous, current) =>
                   previous.successOrFail != current.successOrFail,
               listener: (context, state) async {
-                state.successOrFail.fold(
-                  () {},
-                  (result) {
-                    result.fold(
-                      (unit) async {
-                        await runAppFlowy();
-                      },
-                      (error) {
-                        handleOpenWorkspaceError(context, error);
-                      },
-                    );
+                await state.successOrFail?.fold(
+                  (unit) async {
+                    await runAppFlowy();
+                  },
+                  (error) {
+                    handleOpenWorkspaceError(context, error);
                   },
                 );
               },
@@ -69,6 +73,7 @@ class _EncryptSecretScreenState extends State<EncryptSecretScreen> {
                       child: CircularProgressIndicator.adaptive(),
                     ),
                     finish: (result) => const SizedBox.shrink(),
+                    idle: () => const SizedBox.shrink(),
                   ) ??
                   const SizedBox.shrink();
               return Center(

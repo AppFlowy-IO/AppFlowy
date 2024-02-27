@@ -57,7 +57,7 @@ class _FolderWidgetState extends State<FolderWidget> {
           onPressedCreate: widget.createFolderCallback,
         );
       case _FolderPage.open:
-        return Container();
+        return const SizedBox.shrink();
     }
   }
 
@@ -255,7 +255,6 @@ class _FolderCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Flexible(
                         child: FlowyText.regular(

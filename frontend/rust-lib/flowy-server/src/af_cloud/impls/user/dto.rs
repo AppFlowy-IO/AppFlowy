@@ -2,7 +2,7 @@ use anyhow::Error;
 use client_api::entity::auth_dto::{UpdateUserParams, UserMetaData};
 use client_api::entity::{AFRole, AFUserProfile, AFWorkspaceMember};
 
-use flowy_user_deps::entities::{
+use flowy_user_pub::entities::{
   Authenticator, Role, UpdateUserProfileParams, UserProfile, WorkspaceMember,
   USER_METADATA_ICON_URL, USER_METADATA_OPEN_AI_KEY, USER_METADATA_STABILITY_AI_KEY,
 };
@@ -41,9 +41,12 @@ pub fn user_profile_from_af_profile(
       .metadata
       .map(|m| {
         (
-          m.get(USER_METADATA_ICON_URL).map(|v| v.to_string()),
-          m.get(USER_METADATA_OPEN_AI_KEY).map(|v| v.to_string()),
-          m.get(USER_METADATA_STABILITY_AI_KEY).map(|v| v.to_string()),
+          m.get(USER_METADATA_ICON_URL)
+            .map(|v| v.as_str().map(|s| s.to_string()).unwrap_or_default()),
+          m.get(USER_METADATA_OPEN_AI_KEY)
+            .map(|v| v.as_str().map(|s| s.to_string()).unwrap_or_default()),
+          m.get(USER_METADATA_STABILITY_AI_KEY)
+            .map(|v| v.as_str().map(|s| s.to_string()).unwrap_or_default()),
         )
       })
       .unwrap_or_default()

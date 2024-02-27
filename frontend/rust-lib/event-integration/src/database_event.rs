@@ -1,17 +1,29 @@
 use std::convert::TryFrom;
 
 use bytes::Bytes;
-
 use flowy_database2::entities::*;
 use flowy_database2::event_map::DatabaseEvent;
-use flowy_folder2::entities::*;
-use flowy_folder2::event_map::FolderEvent;
+use flowy_database2::services::share::csv::CSVFormat;
+use flowy_folder::entities::*;
+use flowy_folder::event_map::FolderEvent;
 use flowy_user::errors::FlowyError;
 
 use crate::event_builder::EventBuilder;
 use crate::EventIntegrationTest;
 
 impl EventIntegrationTest {
+  pub async fn get_database_export_data(&self, database_view_id: &str) -> String {
+    self
+      .appflowy_core
+      .database_manager
+      .get_database_with_view_id(database_view_id)
+      .await
+      .unwrap()
+      .export_csv(CSVFormat::Original)
+      .await
+      .unwrap()
+  }
+
   pub async fn create_grid(&self, parent_id: &str, name: String, initial_data: Vec<u8>) -> ViewPB {
     let payload = CreateViewPayloadPB {
       parent_view_id: parent_id.to_string(),
@@ -112,16 +124,15 @@ impl EventIntegrationTest {
 
   pub async fn create_field(&self, view_id: &str, field_type: FieldType) -> FieldPB {
     EventBuilder::new(self.clone())
-      .event(DatabaseEvent::CreateTypeOption)
+      .event(DatabaseEvent::CreateField)
       .payload(CreateFieldPayloadPB {
         view_id: view_id.to_string(),
         field_type,
-        type_option_data: None,
+        ..Default::default()
       })
       .async_send()
       .await
-      .parse::<TypeOptionPB>()
-      .field
+      .parse::<FieldPB>()
   }
 
   pub async fn update_field(&self, changeset: FieldChangesetPB) {
@@ -188,14 +199,14 @@ impl EventIntegrationTest {
   pub async fn create_row(
     &self,
     view_id: &str,
-    start_row_id: Option<String>,
+    row_position: OrderObjectPositionPB,
     data: Option<RowDataPB>,
   ) -> RowMetaPB {
     EventBuilder::new(self.clone())
       .event(DatabaseEvent::CreateRow)
       .payload(CreateRowPayloadPB {
         view_id: view_id.to_string(),
-        start_row_id,
+        row_position,
         group_id: None,
         data,
       })
@@ -287,7 +298,7 @@ impl EventIntegrationTest {
       .error()
   }
 
-  pub async fn update_date_cell(&self, changeset: DateChangesetPB) -> Option<FlowyError> {
+  pub async fn update_date_cell(&self, changeset: DateCellChangesetPB) -> Option<FlowyError> {
     EventBuilder::new(self.clone())
       .event(DatabaseEvent::UpdateDateCell)
       .payload(changeset)
@@ -420,6 +431,18 @@ impl EventIntegrationTest {
         field_id: field_id.to_string(),
         name,
         visible,
+      })
+      .async_send()
+      .await
+      .error()
+  }
+
+  pub async fn delete_group(&self, view_id: &str, group_id: &str) -> Option<FlowyError> {
+    EventBuilder::new(self.clone())
+      .event(DatabaseEvent::DeleteGroup)
+      .payload(DeleteGroupPayloadPB {
+        view_id: view_id.to_string(),
+        group_id: group_id.to_string(),
       })
       .async_send()
       .await

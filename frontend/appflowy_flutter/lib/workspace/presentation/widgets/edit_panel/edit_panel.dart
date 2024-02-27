@@ -10,13 +10,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 
 class EditPanel extends StatelessWidget {
-  final EditPanelContext panelContext;
-  final VoidCallback onEndEdit;
   const EditPanel({
-    Key? key,
+    super.key,
     required this.panelContext,
     required this.onEndEdit,
-  }) : super(key: key);
+  });
+
+  final EditPanelContext panelContext;
+  final VoidCallback onEndEdit;
 
   @override
   Widget build(BuildContext context) {
@@ -43,8 +44,10 @@ class EditPanel extends StatelessWidget {
 }
 
 class EditPanelTopBar extends StatelessWidget {
+  const EditPanelTopBar({super.key, required this.onClose});
+
   final VoidCallback onClose;
-  const EditPanelTopBar({Key? key, required this.onClose}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return SizedBox(
