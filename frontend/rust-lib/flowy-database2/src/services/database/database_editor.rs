@@ -441,8 +441,18 @@ impl DatabaseEditor {
       .duplicate_field(view_id, field_id, |field| format!("{} (copy)", field.name));
     if let Some((index, duplicated_field)) = value {
       let _ = self
-        .notify_did_insert_database_field(duplicated_field, index)
+        .notify_did_insert_database_field(duplicated_field.clone(), index)
         .await;
+
+      let new_field_id = duplicated_field.id.clone();
+      let cells = self.get_cells_for_field(view_id, field_id).await;
+      for cell in cells {
+        if let Some(new_cell) = cell.cell.clone() {
+          self
+            .update_cell(view_id, cell.row_id, &new_field_id, new_cell)
+            .await?;
+        }
+      }
     }
     Ok(())
   }
