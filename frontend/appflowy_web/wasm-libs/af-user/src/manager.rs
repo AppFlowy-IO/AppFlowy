@@ -112,7 +112,7 @@ impl UserManager {
     Ok(new_user_profile)
   }
 
-  pub(crate) async fn add_user(&self, email: &str, password: &str) -> Result<(), FlowyError> {
+  pub(crate) async fn add_user(&self, email: String, password: String) -> Result<(), FlowyError> {
     let auth_service = self.cloud_services.get_user_service()?;
     auth_service.create_user(email, password).await?;
     Ok(())
@@ -120,8 +120,8 @@ impl UserManager {
 
   pub(crate) async fn sign_in_with_password(
     &self,
-    email: &str,
-    password: &str,
+    email: String,
+    password: String,
   ) -> Result<UserProfile, FlowyError> {
     let auth_service = self.cloud_services.get_user_service()?;
     let user_profile = auth_service.sign_in_with_password(email, password).await?;

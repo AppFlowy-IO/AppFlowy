@@ -23,7 +23,7 @@ pub async fn add_user_handler(
 ) -> Result<(), FlowyError> {
   let manager = upgrade_manager(manager)?;
   let params = data.into_inner();
-  manager.add_user(&params.email, &params.password).await?;
+  manager.add_user(params.email, params.password).await?;
   Ok(())
 }
 
@@ -35,7 +35,7 @@ pub async fn sign_in_with_password_handler(
   let manager = upgrade_manager(manager)?;
   let params = data.into_inner();
   let user_profile = manager
-    .sign_in_with_password(&params.email, &params.password)
+    .sign_in_with_password(params.email, params.password)
     .await?;
   data_result_ok(UserProfilePB::from(user_profile))
 }
