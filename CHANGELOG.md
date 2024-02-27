@@ -3,7 +3,7 @@
 ### New Features
 - Added support for scaling text on mobile platforms for better readability.
 - Introduced a toggle for favorites directly from the documents' top bar.
-- Optimized the image upload process and added error messaging for failed uploads。
+- Optimized the image upload process and added error messaging for failed uploads.
 - Implemented depth control for outline block components.
 - New checklist task creation is now more intuitive, with prompts appearing on hover over list items in the row detail page.
 - Enhanced sorting capabilities, allowing reordering and addition of multiple sorts.
