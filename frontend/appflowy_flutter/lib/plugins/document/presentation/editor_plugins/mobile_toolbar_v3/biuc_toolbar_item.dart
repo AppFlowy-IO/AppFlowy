@@ -6,9 +6,13 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 final boldToolbarItem = AppFlowyMobileToolbarItem(
   itemBuilder: (context, editorState, _, __, onAction) {
     return AppFlowyMobileToolbarIconItem(
-      isSelected: () => editorState.isTextDecorationSelected(
-        AppFlowyRichTextKeys.bold,
-      ),
+      editorState: editorState,
+      shouldListenToToggledStyle: true,
+      isSelected: () =>
+          editorState.isTextDecorationSelected(
+            AppFlowyRichTextKeys.bold,
+          ) &&
+          editorState.toggledStyle[AppFlowyRichTextKeys.bold] != false,
       icon: FlowySvgs.m_toolbar_bold_s,
       onTap: () async => editorState.toggleAttribute(
         AppFlowyRichTextKeys.bold,
@@ -23,7 +27,8 @@ final boldToolbarItem = AppFlowyMobileToolbarItem(
 final italicToolbarItem = AppFlowyMobileToolbarItem(
   itemBuilder: (context, editorState, _, __, onAction) {
     return AppFlowyMobileToolbarIconItem(
-      // keepSelectedStatus: true,
+      editorState: editorState,
+      shouldListenToToggledStyle: true,
       isSelected: () => editorState.isTextDecorationSelected(
         AppFlowyRichTextKeys.italic,
       ),
@@ -41,6 +46,8 @@ final italicToolbarItem = AppFlowyMobileToolbarItem(
 final underlineToolbarItem = AppFlowyMobileToolbarItem(
   itemBuilder: (context, editorState, _, __, onAction) {
     return AppFlowyMobileToolbarIconItem(
+      editorState: editorState,
+      shouldListenToToggledStyle: true,
       isSelected: () => editorState.isTextDecorationSelected(
         AppFlowyRichTextKeys.underline,
       ),
@@ -58,6 +65,8 @@ final underlineToolbarItem = AppFlowyMobileToolbarItem(
 final colorToolbarItem = AppFlowyMobileToolbarItem(
   itemBuilder: (context, editorState, service, __, onAction) {
     return AppFlowyMobileToolbarIconItem(
+      editorState: editorState,
+      shouldListenToToggledStyle: true,
       icon: FlowySvgs.m_toolbar_color_s,
       onTap: () {
         service.closeKeyboard();

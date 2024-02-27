@@ -18,6 +18,7 @@ import 'package:go_router/go_router.dart';
 final addBlockToolbarItem = AppFlowyMobileToolbarItem(
   itemBuilder: (context, editorState, service, __, onAction) {
     return AppFlowyMobileToolbarIconItem(
+      editorState: editorState,
       icon: FlowySvgs.m_toolbar_add_s,
       onTap: () {
         final selection = editorState.selection;
