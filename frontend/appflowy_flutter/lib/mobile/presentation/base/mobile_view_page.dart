@@ -71,10 +71,9 @@ class _MobileViewPageState extends State<MobileViewPage> {
           body = state.data!.fold((view) {
             viewPB = view;
             actions.add(_buildAppBarMoreButton(view));
-            return view
-                .plugin(arguments: widget.arguments ?? const {})
-                .widgetBuilder
-                .buildWidget(shrinkWrap: false);
+            final plugin = view.plugin(arguments: widget.arguments ?? const {})
+              ..init();
+            return plugin.widgetBuilder.buildWidget(shrinkWrap: false);
           }, (error) {
             return FlowyMobileStateContainer.error(
               emoji: '😔',
