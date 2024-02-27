@@ -15,6 +15,7 @@ import ExpandRecordModal from '$app/components/database/components/edit_record/E
 import { subscribeNotifications } from '$app/application/notification';
 import { Page } from '$app_reducers/pages/slice';
 import { getPage } from '$app/application/folder/page.service';
+import './database.scss';
 
 interface Props {
   selectedViewId?: string;
