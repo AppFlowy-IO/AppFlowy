@@ -146,6 +146,7 @@ class CommandPaletteModal extends StatelessWidget {
                 const Divider(height: 0),
                 Flexible(
                   child: ListView.separated(
+                    shrinkWrap: true,
                     separatorBuilder: (_, __) => const Divider(height: 0),
                     itemCount: state.results.length + 1,
                     itemBuilder: (_, index) {

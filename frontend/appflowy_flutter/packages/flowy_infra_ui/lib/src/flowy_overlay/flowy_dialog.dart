@@ -40,6 +40,7 @@ class FlowyDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final windowSize = MediaQuery.of(context).size;
     final size = windowSize * 0.7;
+
     return SimpleDialog(
       alignment: alignment,
       insetPadding: insetPadding ?? _defaultInsetPadding,
@@ -48,6 +49,7 @@ class FlowyDialog extends StatelessWidget {
       title: title,
       shape: shape ??
           RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      clipBehavior: Clip.hardEdge,
       children: [
         Material(
           type: MaterialType.transparency,
