@@ -8,7 +8,6 @@ import 'package:appflowy/workspace/presentation/widgets/more_view_actions/widget
 import 'package:appflowy/workspace/presentation/widgets/more_view_actions/widgets/font_size_action.dart';
 import 'package:appflowy/workspace/presentation/widgets/more_view_actions/widgets/view_meta_info.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/date_time.pbenum.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -35,13 +34,11 @@ class MoreViewActions extends StatefulWidget {
 
 class _MoreViewActionsState extends State<MoreViewActions> {
   late final List<Widget> viewActions;
-  late final UserDateFormatPB dateFormat;
   final popoverMutex = PopoverMutex();
 
   @override
   void initState() {
     super.initState();
-    dateFormat = context.read<AppearanceSettingsCubit>().state.dateFormat;
     viewActions = ViewActionType.values
         .map(
           (type) => ViewAction(
@@ -61,11 +58,15 @@ class _MoreViewActionsState extends State<MoreViewActions> {
 
   @override
   Widget build(BuildContext context) {
+    final appearanceSettings = context.watch<AppearanceSettingsCubit>().state;
+    final dateFormat = appearanceSettings.dateFormat;
+    final timeFormat = appearanceSettings.timeFormat;
+
     return BlocBuilder<ViewInfoBloc, ViewInfoState>(
       builder: (context, state) {
         return AppFlowyPopover(
           mutex: popoverMutex,
-          constraints: BoxConstraints.loose(const Size(200, 400)),
+          constraints: BoxConstraints.loose(const Size(210, 400)),
           offset: const Offset(0, 30),
           popupBuilder: (_) {
             final actions = [
@@ -79,6 +80,7 @@ class _MoreViewActionsState extends State<MoreViewActions> {
                 const Divider(height: 4),
                 ViewMetaInfo(
                   dateFormat: dateFormat,
+                  timeFormat: timeFormat,
                   documentCounters: state.documentCounters,
                   createdAt: state.createdAt,
                 ),
