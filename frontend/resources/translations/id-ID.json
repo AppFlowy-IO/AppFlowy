@@ -72,12 +72,12 @@
     "copyLink": "Salin tautan"
   },
   "moreAction": {
-    "fontSize": "Ukuran huruf",
-    "import": "Impor",
-    "moreOptions": "Lebih banyak pilihan",
     "small": "kecil",
     "medium": "sedang",
-    "large": "besar"
+    "large": "besar",
+    "fontSize": "Ukuran huruf",
+    "import": "Impor",
+    "moreOptions": "Lebih banyak pilihan"
   },
   "importPanel": {
     "textAndMarkdown": "Teks & Markdown",

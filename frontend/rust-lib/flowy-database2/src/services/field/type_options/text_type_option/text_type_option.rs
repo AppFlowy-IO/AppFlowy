@@ -73,6 +73,7 @@ impl TypeOptionTransform for RichTextTypeOption {
       || transformed_field_type.is_multi_select()
       || transformed_field_type.is_number()
       || transformed_field_type.is_url()
+      || transformed_field_type.is_checklist()
     {
       Some(StrCellData::from(stringify_cell_data(
         cell,

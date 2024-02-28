@@ -73,12 +73,12 @@
     "copyLink": "複製連結"
   },
   "moreAction": {
-    "fontSize": "字型大小",
-    "import": "匯入",
-    "moreOptions": "更多選項",
     "small": "小",
     "medium": "中",
-    "large": "大"
+    "large": "大",
+    "fontSize": "字型大小",
+    "import": "匯入",
+    "moreOptions": "更多選項"
   },
   "importPanel": {
     "textAndMarkdown": "文字 & Markdown",

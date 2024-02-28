@@ -119,12 +119,9 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
                         ),
                         child: const TabBarHeader(),
                       );
-                    } else {
-                      return const Padding(
-                        padding: EdgeInsets.only(right: 8),
-                        child: MobileTabBarHeader(),
-                      );
                     }
+
+                    return const MobileTabBarHeader();
                   },
                 );
               },

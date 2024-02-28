@@ -74,12 +74,12 @@
     "copyLink": "复制链接"
   },
   "moreAction": {
-    "fontSize": "字体大小",
-    "import": "导入",
-    "moreOptions": "更多选项",
     "small": "小",
     "medium": "中",
-    "large": "大"
+    "large": "大",
+    "fontSize": "字体大小",
+    "import": "导入",
+    "moreOptions": "更多选项"
   },
   "importPanel": {
     "textAndMarkdown": "文本和Markdown",

@@ -259,7 +259,9 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
             LayoutDirection.rtlLayout;
     final textDirection = isRTL ? TextDirection.rtl : TextDirection.ltr;
 
-    _setRTLToolbarItems(isRTL);
+    _setRTLToolbarItems(
+      context.read<AppearanceSettingsCubit>().state.enableRtlToolbarItems,
+    );
 
     final editor = Directionality(
       textDirection: textDirection,
@@ -412,12 +414,12 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     );
   }
 
-  void _setRTLToolbarItems(bool isRTL) {
+  void _setRTLToolbarItems(bool enableRtlToolbarItems) {
     final textDirectionItemIds = textDirectionItems.map((e) => e.id);
     // clear all the text direction items
     toolbarItems.removeWhere((item) => textDirectionItemIds.contains(item.id));
     // only show the rtl item when the layout direction is ltr.
-    if (isRTL) {
+    if (enableRtlToolbarItems) {
       toolbarItems.addAll(textDirectionItems);
     }
   }
