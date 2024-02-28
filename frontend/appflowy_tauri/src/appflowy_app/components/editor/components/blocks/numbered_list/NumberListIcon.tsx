@@ -36,7 +36,7 @@ function NumberListIcon({ block, className }: { block: NumberedListNode; classNa
       }}
       contentEditable={false}
       data-number={index}
-      className={`${className} numbered-icon flex w-[23px] justify-center pr-1 font-medium`}
+      className={`${className} numbered-icon flex w-[23px] min-w-[23px] justify-center pr-1 font-medium`}
     />
   );
 }

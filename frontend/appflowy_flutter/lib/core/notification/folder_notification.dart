@@ -1,17 +1,18 @@
 import 'dart:async';
 import 'dart:typed_data';
-import 'package:appflowy_backend/protobuf/flowy-notification/protobuf.dart';
-import 'package:dartz/dartz.dart';
+
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/notification.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-notification/protobuf.dart';
 import 'package:appflowy_backend/rust_stream.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 
 import 'notification_helper.dart';
 
 // Folder
 typedef FolderNotificationCallback = void Function(
   FolderNotification,
-  Either<Uint8List, FlowyError>,
+  FlowyResult<Uint8List, FlowyError>,
 );
 
 class FolderNotificationParser
@@ -27,7 +28,7 @@ class FolderNotificationParser
 
 typedef FolderNotificationHandler = Function(
   FolderNotification ty,
-  Either<Uint8List, FlowyError> result,
+  FlowyResult<Uint8List, FlowyError> result,
 );
 
 class FolderNotificationListener {

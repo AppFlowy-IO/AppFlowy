@@ -23,6 +23,7 @@ const updateFiltersFromChange = (database: Database, changeset: FilterChangesetN
       const newFilter = pbToFilter(pb.filter);
 
       Object.assign(found, newFilter);
+      database.filters = [...database.filters];
     }
   });
 };

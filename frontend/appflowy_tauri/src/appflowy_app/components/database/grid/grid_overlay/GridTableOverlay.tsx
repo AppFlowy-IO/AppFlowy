@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   GridRowContextMenu,
   GridRowActions,
   useGridTableHoverState,
 } from '$app/components/database/grid/grid_row_actions';
+import DeleteConfirmDialog from '$app/components/_shared/confirm_dialog/DeleteConfirmDialog';
+import { useTranslation } from 'react-i18next';
 
 function GridTableOverlay({
   containerRef,
@@ -14,7 +16,22 @@ function GridTableOverlay({
 }) {
   const [hoverRowTop, setHoverRowTop] = useState<string | undefined>();
 
+  const { t } = useTranslation();
+  const [openConfirm, setOpenConfirm] = useState(false);
+  const [confirmModalProps, setConfirmModalProps] = useState<
+    | {
+        onOk: () => Promise<void>;
+        onCancel: () => void;
+      }
+    | undefined
+  >(undefined);
+
   const { hoverRowId } = useGridTableHoverState(containerRef);
+
+  const handleOpenConfirm = useCallback((onOk: () => Promise<void>, onCancel: () => void) => {
+    setOpenConfirm(true);
+    setConfirmModalProps({ onOk, onCancel });
+  }, []);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -32,12 +49,25 @@ function GridTableOverlay({
   return (
     <div className={'absolute left-0 top-0'}>
       <GridRowActions
+        onOpenConfirm={handleOpenConfirm}
         getScrollElement={getScrollElement}
         containerRef={containerRef}
         rowId={hoverRowId}
         rowTop={hoverRowTop}
       />
-      <GridRowContextMenu containerRef={containerRef} hoverRowId={hoverRowId} />
+      <GridRowContextMenu onOpenConfirm={handleOpenConfirm} containerRef={containerRef} hoverRowId={hoverRowId} />
+      {openConfirm && (
+        <DeleteConfirmDialog
+          open={openConfirm}
+          title={t('grid.removeSorting')}
+          okText={t('button.remove')}
+          cancelText={t('button.dontRemove')}
+          onClose={() => {
+            setOpenConfirm(false);
+          }}
+          {...confirmModalProps}
+        />
+      )}
     </div>
   );
 }

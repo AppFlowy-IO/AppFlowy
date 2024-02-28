@@ -4,8 +4,10 @@ use std::sync::{Arc, Weak};
 
 use collab::core::collab::{CollabDocState, MutexCollab};
 use collab_entity::CollabType;
+use collab_folder::error::FolderError;
 use collab_folder::{
-  Folder, FolderData, Section, SectionItem, TrashInfo, View, ViewLayout, ViewUpdate, Workspace,
+  Folder, FolderData, FolderNotify, Section, SectionItem, TrashInfo, UserId, View, ViewLayout,
+  ViewUpdate, Workspace,
 };
 use parking_lot::{Mutex, RwLock};
 use tracing::{error, info, instrument};
@@ -15,6 +17,7 @@ use collab_integrate::{CollabKVDB, CollabPersistenceConfig};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_folder_pub::cloud::{gen_view_id, FolderCloudService};
 use flowy_folder_pub::folder_builder::ParentChildViews;
+
 use lib_infra::conditional_send_sync_trait;
 
 use crate::entities::icon::UpdateViewIconParams;
@@ -46,7 +49,7 @@ conditional_send_sync_trait! {
 pub struct FolderManager {
   pub(crate) workspace_id: RwLock<Option<String>>,
   pub(crate) mutex_folder: Arc<MutexFolder>,
-  collab_builder: Arc<AppFlowyCollabBuilder>,
+  pub(crate) collab_builder: Arc<AppFlowyCollabBuilder>,
   pub(crate) user: Arc<dyn FolderUser>,
   pub(crate) operation_handlers: FolderOperationHandlers,
   pub cloud_service: Arc<dyn FolderCloudService>,
@@ -147,13 +150,15 @@ impl FolderManager {
     Ok(views)
   }
 
-  pub(crate) async fn collab_for_folder(
+  pub(crate) async fn make_folder<T: Into<Option<FolderNotify>>>(
     &self,
     uid: i64,
     workspace_id: &str,
     collab_db: Weak<CollabKVDB>,
     collab_doc_state: CollabDocState,
-  ) -> Result<Arc<MutexCollab>, FlowyError> {
+    folder_notifier: T,
+  ) -> Result<Folder, FlowyError> {
+    let folder_notifier = folder_notifier.into();
     let collab = self
       .collab_builder
       .build_with_config(
@@ -162,6 +167,45 @@ impl FolderManager {
         CollabType::Folder,
         collab_db,
         collab_doc_state,
+        CollabPersistenceConfig::new()
+          .enable_snapshot(true)
+          .snapshot_per_update(50),
+        CollabBuilderConfig::default().sync_enable(true),
+      )
+      .await?;
+    let (should_clear, err) = match Folder::open(UserId::from(uid), collab, folder_notifier) {
+      Ok(folder) => {
+        return Ok(folder);
+      },
+      Err(err) => (matches!(err, FolderError::NoRequiredData(_)), err),
+    };
+
+    // If opening the folder fails due to missing required data (indicated by a `FolderError::NoRequiredData`),
+    // the function logs an informational message and attempts to clear the folder data by deleting its
+    // document from the collaborative database. It then returns the encountered error.
+    if should_clear {
+      info!("Clear the folder data and try to open the folder again");
+      if let Some(db) = self.user.collab_db(uid).ok().and_then(|a| a.upgrade()) {
+        let _ = db.delete_doc(uid, workspace_id).await;
+      }
+    }
+    Err(err.into())
+  }
+
+  pub(crate) async fn create_empty_collab(
+    &self,
+    uid: i64,
+    workspace_id: &str,
+    collab_db: Weak<CollabKVDB>,
+  ) -> Result<Arc<MutexCollab>, FlowyError> {
+    let collab = self
+      .collab_builder
+      .build_with_config(
+        uid,
+        workspace_id,
+        CollabType::Folder,
+        collab_db,
+        vec![],
         CollabPersistenceConfig::new()
           .enable_snapshot(true)
           .snapshot_per_update(50),

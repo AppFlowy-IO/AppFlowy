@@ -6,7 +6,7 @@ import { Provider } from '$app/components/editor/provider';
 import { YXmlText } from 'yjs/dist/src/types/YXmlText';
 import { getInsertTarget, getYTarget } from '$app/components/editor/provider/utils/relation';
 
-export const CollaborativeEditor = memo(({ id, title, showTitle = true, onTitleChange }: EditorProps) => {
+export const CollaborativeEditor = memo(({ id, title, showTitle = true, onTitleChange, disableFocus }: EditorProps) => {
   const [sharedType, setSharedType] = useState<YXmlText | null>(null);
   const provider = useMemo(() => {
     setSharedType(null);
@@ -62,5 +62,5 @@ export const CollaborativeEditor = memo(({ id, title, showTitle = true, onTitleC
     return null;
   }
 
-  return <Editor sharedType={sharedType} id={id} />;
+  return <Editor sharedType={sharedType} id={id} disableFocus={disableFocus} />;
 });

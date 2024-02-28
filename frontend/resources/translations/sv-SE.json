@@ -176,9 +176,8 @@
     "delete": "Radera",
     "duplicate": "Duplicera",
     "putback": "Ställ tillbaka",
-    "OK": "OK",
-    "Done": "Gjort",
-    "Cancel": "Avbryt"
+    "ok": "OK",
+    "cancel": "Avbryt"
   },
   "label": {
     "welcome": "Välkommen!",

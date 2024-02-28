@@ -4,7 +4,7 @@ import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
-import 'package:dartz/dartz.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:fixnum/fixnum.dart';
 
 class UserBackendService {
@@ -14,13 +14,13 @@ class UserBackendService {
 
   final Int64 userId;
 
-  static Future<Either<FlowyError, UserProfilePB>>
+  static Future<FlowyResult<UserProfilePB, FlowyError>>
       getCurrentUserProfile() async {
     final result = await UserEventGetUserProfile().send();
-    return result.swap();
+    return result;
   }
 
-  Future<Either<Unit, FlowyError>> updateUserProfile({
+  Future<FlowyResult<void, FlowyError>> updateUserProfile({
     String? name,
     String? password,
     String? email,
@@ -57,52 +57,52 @@ class UserBackendService {
     return UserEventUpdateUserProfile(payload).send();
   }
 
-  Future<Either<Unit, FlowyError>> deleteWorkspace({
+  Future<FlowyResult<void, FlowyError>> deleteWorkspace({
     required String workspaceId,
   }) {
     throw UnimplementedError();
   }
 
-  static Future<Either<Unit, FlowyError>> signOut() {
+  static Future<FlowyResult<void, FlowyError>> signOut() {
     return UserEventSignOut().send();
   }
 
-  Future<Either<Unit, FlowyError>> initUser() async {
+  Future<FlowyResult<void, FlowyError>> initUser() async {
     return UserEventInitUser().send();
   }
 
-  static Future<Either<UserProfilePB, FlowyError>> getAnonUser() async {
+  static Future<FlowyResult<UserProfilePB, FlowyError>> getAnonUser() async {
     return UserEventGetAnonUser().send();
   }
 
-  static Future<Either<Unit, FlowyError>> openAnonUser() async {
+  static Future<FlowyResult<void, FlowyError>> openAnonUser() async {
     return UserEventOpenAnonUser().send();
   }
 
-  Future<Either<List<UserWorkspacePB>, FlowyError>> getWorkspaces() {
+  Future<FlowyResult<List<UserWorkspacePB>, FlowyError>> getWorkspaces() {
     return UserEventGetAllWorkspace().send().then((value) {
       return value.fold(
-        (workspaces) => left(workspaces.items),
-        (error) => right(error),
+        (workspaces) => FlowyResult.success(workspaces.items),
+        (error) => FlowyResult.failure(error),
       );
     });
   }
 
-  Future<Either<Unit, FlowyError>> openWorkspace(String workspaceId) {
+  Future<FlowyResult<void, FlowyError>> openWorkspace(String workspaceId) {
     final payload = UserWorkspaceIdPB.create()..workspaceId = workspaceId;
     return UserEventOpenWorkspace(payload).send();
   }
 
-  Future<Either<WorkspacePB, FlowyError>> getCurrentWorkspace() {
+  Future<FlowyResult<WorkspacePB, FlowyError>> getCurrentWorkspace() {
     return FolderEventReadCurrentWorkspace().send().then((result) {
       return result.fold(
-        (workspace) => left(workspace),
-        (error) => right(error),
+        (workspace) => FlowyResult.success(workspace),
+        (error) => FlowyResult.failure(error),
       );
     });
   }
 
-  Future<Either<WorkspacePB, FlowyError>> createWorkspace(
+  Future<FlowyResult<WorkspacePB, FlowyError>> createWorkspace(
     String name,
     String desc,
   ) {
@@ -111,25 +111,22 @@ class UserBackendService {
       ..desc = desc;
     return FolderEventCreateWorkspace(request).send().then((result) {
       return result.fold(
-        (workspace) => left(workspace),
-        (error) => right(error),
+        (workspace) => FlowyResult.success(workspace),
+        (error) => FlowyResult.failure(error),
       );
     });
   }
 
-  Future<Either<UserWorkspacePB, FlowyError>> createUserWorkspace(
+  Future<FlowyResult<UserWorkspacePB, FlowyError>> createUserWorkspace(
     String name,
   ) {
     final request = CreateWorkspacePB.create()..name = name;
-    return UserEventCreateWorkspace(request).send().then((result) {
-      return result.fold(
-        (workspace) => left(workspace),
-        (error) => right(error),
-      );
-    });
+    return UserEventCreateWorkspace(request).send();
   }
 
-  Future<Either<Unit, FlowyError>> deleteWorkspaceById(String workspaceId) {
+  Future<FlowyResult<void, FlowyError>> deleteWorkspaceById(
+    String workspaceId,
+  ) {
     final request = UserWorkspaceIdPB.create()..workspaceId = workspaceId;
     return UserEventDeleteWorkspace(request).send();
   }

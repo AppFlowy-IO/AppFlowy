@@ -3,6 +3,25 @@ import 'package:appflowy/plugins/base/drag_handler.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart' hide WidgetBuilder;
 import 'package:flutter/material.dart';
 
+extension BottomSheetPaddingExtension on BuildContext {
+  /// Calculates the total amount of space that should be added to the bottom of
+  /// a bottom sheet
+  double bottomSheetPadding({
+    bool ignoreViewPadding = true,
+  }) {
+    final viewPadding = MediaQuery.viewPaddingOf(this);
+    final viewInsets = MediaQuery.viewInsetsOf(this);
+    double bottom = 0.0;
+    if (!ignoreViewPadding) {
+      bottom += viewPadding.bottom;
+    }
+    // for screens with 0 view padding, add some even more space
+    bottom += viewPadding.bottom == 0 ? 28.0 : 16.0;
+    bottom += viewInsets.bottom;
+    return bottom;
+  }
+}
+
 Future<T?> showMobileBottomSheet<T>(
   BuildContext context, {
   required WidgetBuilder builder,
@@ -79,7 +98,7 @@ Future<T?> showMobileBottomSheet<T>(
 
       if (showHeader) {
         children.add(
-          _Header(
+          BottomSheetHeader(
             showCloseButton: showCloseButton,
             showBackButton: showBackButton,
             showDoneButton: showDoneButton,
@@ -108,9 +127,11 @@ Future<T?> showMobileBottomSheet<T>(
               children: [
                 ...children,
                 Expanded(
-                  child: SingleChildScrollView(
-                    controller: scrollController,
-                    child: child,
+                  child: Scrollbar(
+                    child: SingleChildScrollView(
+                      controller: scrollController,
+                      child: child,
+                    ),
                   ),
                 ),
               ],
@@ -120,9 +141,11 @@ Future<T?> showMobileBottomSheet<T>(
       }
 
       // ----- content area -----
+      // add content padding and extra bottom padding
       children.add(
         Padding(
-          padding: padding,
+          padding:
+              padding + EdgeInsets.only(bottom: context.bottomSheetPadding()),
           child: child,
         ),
       );
@@ -131,11 +154,6 @@ Future<T?> showMobileBottomSheet<T>(
       if (children.length == 1) {
         return children.first;
       }
-
-      // add default padding
-      children.add(
-        VSpace(MediaQuery.of(context).padding.bottom == 0 ? 28.0 : 16.0),
-      );
 
       return useSafeArea
           ? SafeArea(
@@ -152,8 +170,9 @@ Future<T?> showMobileBottomSheet<T>(
   );
 }
 
-class _Header extends StatelessWidget {
-  const _Header({
+class BottomSheetHeader extends StatelessWidget {
+  const BottomSheetHeader({
+    super.key,
     required this.showBackButton,
     required this.showCloseButton,
     required this.title,

@@ -11,6 +11,9 @@ Future<T?> showEditLinkBottomSheet<T>(
   return showMobileBottomSheet(
     context,
     showHeader: false,
+    showCloseButton: false,
+    showDragHandle: true,
+    padding: const EdgeInsets.symmetric(horizontal: 16),
     builder: (context) {
       return MobileBottomSheetEditLinkWidget(
         text: text,

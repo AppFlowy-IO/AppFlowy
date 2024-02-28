@@ -90,14 +90,14 @@ void _resolveCommonService(
     () async {
       final result = await UserBackendService.getCurrentUserProfile();
       return result.fold(
-        (l) {
-          throw Exception('Failed to get user profile: ${l.msg}');
-        },
-        (r) {
+        (s) {
           return HttpOpenAIRepository(
             client: http.Client(),
-            apiKey: r.openaiKey,
+            apiKey: s.openaiKey,
           );
+        },
+        (e) {
+          throw Exception('Failed to get user profile: ${e.msg}');
         },
       );
     },
@@ -107,14 +107,14 @@ void _resolveCommonService(
     () async {
       final result = await UserBackendService.getCurrentUserProfile();
       return result.fold(
-        (l) {
-          throw Exception('Failed to get user profile: ${l.msg}');
-        },
-        (r) {
+        (s) {
           return HttpStabilityAIRepository(
             client: http.Client(),
-            apiKey: r.stabilityAiKey,
+            apiKey: s.stabilityAiKey,
           );
+        },
+        (e) {
+          throw Exception('Failed to get user profile: ${e.msg}');
         },
       );
     },

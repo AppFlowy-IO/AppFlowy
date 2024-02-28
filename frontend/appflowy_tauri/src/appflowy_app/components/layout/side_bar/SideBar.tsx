@@ -1,22 +1,50 @@
-import React from 'react';
-import { useAppSelector } from '$app/stores/store';
+import React, { useEffect, useRef } from 'react';
+import { useAppDispatch, useAppSelector } from '$app/stores/store';
 import { AppflowyLogoDark } from '$app/components/_shared/svg/AppflowyLogoDark';
 import { AppflowyLogoLight } from '$app/components/_shared/svg/AppflowyLogoLight';
 import CollapseMenuButton from '$app/components/layout/collapse_menu_button/CollapseMenuButton';
 import Resizer from '$app/components/layout/side_bar/Resizer';
 import UserInfo from '$app/components/layout/side_bar/UserInfo';
 import WorkspaceManager from '$app/components/layout/workspace_manager/WorkspaceManager';
+import { ThemeMode } from '$app_reducers/current-user/slice';
+import { sidebarActions } from '$app_reducers/sidebar/slice';
 
 function SideBar() {
   const { isCollapsed, width, isResizing } = useAppSelector((state) => state.sidebar);
-  const isDark = useAppSelector((state) => state.currentUser?.userSetting?.isDark);
+  const dispatch = useAppDispatch();
 
+  const themeMode = useAppSelector((state) => state.currentUser?.userSetting?.themeMode);
+  const isDark =
+    themeMode === ThemeMode.Dark ||
+    (themeMode === ThemeMode.System && window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+  const lastCollapsedRef = useRef(isCollapsed);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const width = window.innerWidth;
+
+      if (width <= 800 && !isCollapsed) {
+        lastCollapsedRef.current = false;
+        dispatch(sidebarActions.setCollapse(true));
+      } else if (width > 800 && !lastCollapsedRef.current) {
+        lastCollapsedRef.current = true;
+        dispatch(sidebarActions.setCollapse(false));
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [dispatch, isCollapsed]);
   return (
     <>
       <div
         style={{
           width: isCollapsed ? 0 : width,
-          transition: isResizing ? 'none' : 'width 250ms cubic-bezier(0.4, 0, 0.2, 1)',
+          transition: isResizing ? 'none' : 'width 350ms ease',
         }}
         className={'relative h-screen overflow-hidden'}
       >

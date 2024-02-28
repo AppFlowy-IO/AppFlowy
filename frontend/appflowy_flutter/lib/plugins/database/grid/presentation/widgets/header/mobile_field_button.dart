@@ -38,7 +38,8 @@ class MobileFieldButton extends StatelessWidget {
       width: 200,
       decoration: _getDecoration(context),
       child: FlowyButton(
-        onTap: () => showQuickEditField(context, viewId, fieldInfo),
+        onTap: () =>
+            showQuickEditField(context, viewId, fieldController, fieldInfo),
         radius: radius,
         margin: margin,
         leftIconSize: const Size.square(18),

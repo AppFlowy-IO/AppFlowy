@@ -33,17 +33,12 @@ class _ImportAppFlowyDataState extends State<ImportAppFlowyData> {
       create: (context) => SettingFileImportBloc(),
       child: BlocListener<SettingFileImportBloc, SettingFileImportState>(
         listener: (context, state) {
-          state.successOrFail.fold(
-            () {},
-            (either) {
-              either.fold(
-                (unit) {
-                  _showToast(LocaleKeys.settings_menu_importSuccess.tr());
-                },
-                (err) {
-                  _showToast(LocaleKeys.settings_menu_importFailed.tr());
-                },
-              );
+          state.successOrFail?.fold(
+            (_) {
+              _showToast(LocaleKeys.settings_menu_importSuccess.tr());
+            },
+            (_) {
+              _showToast(LocaleKeys.settings_menu_importFailed.tr());
             },
           );
         },

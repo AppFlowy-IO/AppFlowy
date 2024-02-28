@@ -126,7 +126,7 @@ class _MentionPageBlockState extends State<MentionPageBlock> {
 
   Future<ViewPB?> fetchView(String pageId) async {
     final view = await ViewBackendService.getView(pageId).then(
-      (value) => value.swap().toOption().toNullable(),
+      (value) => value.toNullable(),
     );
 
     if (view == null) {

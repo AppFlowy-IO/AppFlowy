@@ -5,7 +5,7 @@ import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/filte
 import 'package:appflowy/plugins/database/grid/presentation/widgets/sort/sort_info.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/database_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:dartz/dartz.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'field/field_info.dart';
@@ -38,7 +38,7 @@ class LoadingState with _$LoadingState {
   const factory LoadingState.idle() = _Idle;
   const factory LoadingState.loading() = _Loading;
   const factory LoadingState.finish(
-    Either<Unit, FlowyError> successOrFail,
+    FlowyResult<void, FlowyError> successOrFail,
   ) = _Finish;
 
   const LoadingState._();

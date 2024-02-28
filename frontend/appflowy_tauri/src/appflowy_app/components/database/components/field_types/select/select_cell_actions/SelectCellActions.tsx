@@ -17,10 +17,12 @@ function SelectCellActions({
   field,
   cell,
   onUpdated,
+  onClose,
 }: {
   field: SelectField;
   cell: SelectCellType;
   onUpdated?: () => void;
+  onClose?: () => void;
 }) {
   const rowId = cell?.rowId;
   const viewId = useViewId();
@@ -117,29 +119,37 @@ function SelectCellActions({
   }, [field.type, filteredOptions, handleNewTagClick, shouldCreateOption, updateCell]);
 
   return (
-    <div className={'text-base'}>
-      <SearchInput setNewOptionName={setNewOptionName} newOptionName={newOptionName} onEnter={handleEnter} />
+    <div className={'flex h-full flex-col overflow-hidden'}>
+      <SearchInput
+        onEscape={onClose}
+        setNewOptionName={setNewOptionName}
+        newOptionName={newOptionName}
+        onEnter={handleEnter}
+      />
+
       <div className='mx-4 mb-2 mt-4 text-xs'>
         {shouldCreateOption ? t('grid.selectOption.createNew') : t('grid.selectOption.orSelectOne')}
       </div>
-      {shouldCreateOption ? (
-        <CreateOption label={newOptionName} onClick={handleNewTagClick} />
-      ) : (
-        <div className={'max-h-[300px] overflow-y-auto overflow-x-hidden px-2'}>
-          {filteredOptions.map((option) => (
-            <MenuItem className={'px-2'} key={option.id} value={option.id}>
-              <SelectOptionItem
-                onClick={() => {
-                  handleClickOption(option.id);
-                }}
-                isSelected={selectedOptionIds?.includes(option.id)}
-                fieldId={cell?.fieldId || ''}
-                option={option}
-              />
-            </MenuItem>
-          ))}
-        </div>
-      )}
+      <div className={'mx-1 flex-1 overflow-y-auto overflow-x-hidden'}>
+        {shouldCreateOption ? (
+          <CreateOption label={newOptionName} onClick={handleNewTagClick} />
+        ) : (
+          <div className={' px-2'}>
+            {filteredOptions.map((option) => (
+              <MenuItem className={'px-2'} key={option.id} value={option.id}>
+                <SelectOptionItem
+                  onClick={() => {
+                    handleClickOption(option.id);
+                  }}
+                  isSelected={selectedOptionIds?.includes(option.id)}
+                  fieldId={cell?.fieldId || ''}
+                  option={option}
+                />
+              </MenuItem>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

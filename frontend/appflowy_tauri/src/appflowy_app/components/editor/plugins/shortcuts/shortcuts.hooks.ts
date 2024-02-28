@@ -30,64 +30,34 @@ import { getHotKeys } from '$app/components/editor/plugins/shortcuts/hotkey';
  * - toggle todo or toggle: Mod+Enter (toggle todo list or toggle list)
  */
 
-const inputTypeToFormat: Record<string, EditorMarkFormat> = {
-  formatBold: EditorMarkFormat.Bold,
-  formatItalic: EditorMarkFormat.Italic,
-  formatUnderline: EditorMarkFormat.Underline,
-  formatStrikethrough: EditorMarkFormat.StrikeThrough,
-  formatCode: EditorMarkFormat.Code,
-};
-
 export function useShortcuts(editor: ReactEditor) {
-  const onDOMBeforeInput = useCallback(
-    (e: InputEvent) => {
-      const inputType = e.inputType;
-
-      const format = inputTypeToFormat[inputType];
-
-      if (format) {
-        e.preventDefault();
-        if (CustomEditor.selectionIncludeRoot(editor)) return;
-        return CustomEditor.toggleMark(editor, {
-          key: format,
-          value: true,
-        });
-      }
-    },
-    [editor]
-  );
-
   const onKeyDown = useCallback(
     (e: KeyboardEvent<HTMLDivElement>) => {
-      const isAppleWebkit = navigator.userAgent.includes('AppleWebKit');
-
-      // Apple Webkit does not support the input event for formatting
-      if (isAppleWebkit) {
-        Object.entries(getHotKeys()).forEach(([_, item]) => {
-          if (isHotkey(item.hotkey, e)) {
-            e.stopPropagation();
-            e.preventDefault();
-            if (CustomEditor.selectionIncludeRoot(editor)) return;
-            if (item.markKey === EditorMarkFormat.Align) {
-              CustomEditor.toggleAlign(editor, item.markValue as string);
-              return;
-            }
-
-            CustomEditor.toggleMark(editor, {
-              key: item.markKey,
-              value: item.markValue,
-            });
+      Object.entries(getHotKeys()).forEach(([_, item]) => {
+        if (isHotkey(item.hotkey, e)) {
+          e.stopPropagation();
+          e.preventDefault();
+          if (CustomEditor.selectionIncludeRoot(editor)) return;
+          if (item.markKey === EditorMarkFormat.Align) {
+            CustomEditor.toggleAlign(editor, item.markValue as string);
             return;
           }
-        });
-      }
+
+          CustomEditor.toggleMark(editor, {
+            key: item.markKey,
+            value: item.markValue,
+          });
+          return;
+        }
+      });
 
       const node = getBlock(editor);
 
       if (isHotkey('Escape', e)) {
         e.preventDefault();
-        e.stopPropagation();
+
         editor.deselect();
+
         return;
       }
 
@@ -153,7 +123,6 @@ export function useShortcuts(editor: ReactEditor) {
   );
 
   return {
-    onDOMBeforeInput,
     onKeyDown,
   };
 }

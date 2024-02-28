@@ -84,7 +84,9 @@ const usePopoverAutoPosition = ({
   initialPaperHeight,
   marginThreshold = 16,
   open,
-}: UsePopoverAutoPositionProps): PopoverPosition => {
+}: UsePopoverAutoPositionProps): PopoverPosition & {
+  calculateAnchorSize: () => void;
+} => {
   const [position, setPosition] = useState<PopoverPosition>({
     anchorOrigin: initialAnchorOrigin,
     transformOrigin: initialTransformOrigin,
@@ -94,24 +96,21 @@ const usePopoverAutoPosition = ({
     isEntered: false,
   });
 
-  const getAnchorOffset = useCallback(() => {
-    if (anchorPosition) {
-      return {
-        ...anchorPosition,
-        width: 0,
-      };
-    }
-
-    return anchorEl ? anchorEl.getBoundingClientRect() : undefined;
-  }, [anchorEl, anchorPosition]);
-
-  useEffect(() => {
-    if (!open) {
-      return;
-    }
-
+  const calculateAnchorSize = useCallback(() => {
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
+
+    const getAnchorOffset = () => {
+      if (anchorPosition) {
+        return {
+          ...anchorPosition,
+          width: 0,
+        };
+      }
+
+      return anchorEl ? anchorEl.getBoundingClientRect() : undefined;
+    };
+
     const anchorRect = getAnchorOffset();
 
     if (!anchorRect) return;
@@ -190,17 +189,24 @@ const usePopoverAutoPosition = ({
     // Set new position and set isEntered to true
     setPosition({ ...newPosition, isEntered: true });
   }, [
-    anchorPosition,
-    open,
     initialAnchorOrigin,
     initialTransformOrigin,
     initialPaperWidth,
     initialPaperHeight,
     marginThreshold,
-    getAnchorOffset,
+    anchorEl,
+    anchorPosition,
   ]);
 
-  return position;
+  useEffect(() => {
+    if (!open) return;
+    calculateAnchorSize();
+  }, [open, calculateAnchorSize]);
+
+  return {
+    ...position,
+    calculateAnchorSize,
+  };
 };
 
 export default usePopoverAutoPosition;

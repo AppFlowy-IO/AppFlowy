@@ -31,6 +31,10 @@ export function tabForward(editor: ReactEditor) {
 
   const [node, path] = match as NodeEntry<Element>;
 
+  const hasPrevious = Path.hasPrevious(path);
+
+  if (!hasPrevious) return;
+
   const previousPath = Path.previous(path);
 
   const previous = editor.node(previousPath);
@@ -40,6 +44,7 @@ export function tabForward(editor: ReactEditor) {
 
   const type = previousNode.type as EditorNodeType;
 
+  if (type === EditorNodeType.Page) return;
   // the previous node is not a list
   if (!LIST_TYPES.includes(type)) return;
 

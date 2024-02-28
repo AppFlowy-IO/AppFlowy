@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
-import 'package:appflowy/plugins/database/application/cell/date_cell_service.dart';
-import 'package:appflowy/plugins/database/application/field/field_service.dart';
+import 'package:appflowy/plugins/database/domain/date_cell_service.dart';
+import 'package:appflowy/plugins/database/domain/field_service.dart';
 import 'package:appflowy/plugins/database/application/field/type_option/type_option_data_parser.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/user/application/reminder/reminder_extension.dart';

@@ -1,19 +1,29 @@
 import React, { useCallback, useState } from 'react';
-import { GridChildComponentProps, VariableSizeGrid as Grid } from 'react-window';
+import { GridChildComponentProps, GridOnScrollProps, VariableSizeGrid as Grid } from 'react-window';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { useGridColumn } from '$app/components/database/grid/grid_table';
 import { GridField } from 'src/appflowy_app/components/database/grid/grid_field';
 import NewProperty from '$app/components/database/components/property/NewProperty';
-import { GridColumn, GridColumnType } from '$app/components/database/grid/constants';
+import { GridColumn, GridColumnType, RenderRow } from '$app/components/database/grid/constants';
 import { OpenMenuContext } from '$app/components/database/grid/grid_sticky_header/GridStickyHeader.hooks';
 
 const GridStickyHeader = React.forwardRef<
-  Grid<HTMLDivElement> | null,
-  { columns: GridColumn[]; getScrollElement?: () => HTMLDivElement | null }
->(({ columns, getScrollElement }, ref) => {
+  Grid<GridColumn[]> | null,
+  {
+    columns: GridColumn[];
+    getScrollElement?: () => HTMLDivElement | null;
+    onScroll?: (props: GridOnScrollProps) => void;
+  }
+>(({ onScroll, columns, getScrollElement }, ref) => {
   const { columnWidth, resizeColumnWidth } = useGridColumn(
     columns,
-    ref as React.MutableRefObject<Grid<HTMLDivElement> | null>
+    ref as React.MutableRefObject<Grid<
+      | GridColumn[]
+      | {
+          columns: GridColumn[];
+          renderRows: RenderRow[];
+        }
+    > | null>
   );
 
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
@@ -33,9 +43,10 @@ const GridStickyHeader = React.forwardRef<
   }, []);
 
   const Cell = useCallback(
-    ({ columnIndex, style }: GridChildComponentProps) => {
-      const column = columns[columnIndex];
+    ({ columnIndex, style, data }: GridChildComponentProps) => {
+      const column = data[columnIndex];
 
+      if (!column || column.type === GridColumnType.Action) return <div style={style} />;
       if (column.type === GridColumnType.NewProperty) {
         const width = (style.width || 0) as number;
 
@@ -43,17 +54,13 @@ const GridStickyHeader = React.forwardRef<
           <div
             style={{
               ...style,
-              width: width + 8,
+              width,
             }}
             className={'border-b border-r border-t border-line-divider'}
           >
             <NewProperty onInserted={setOpenMenuId} />
           </div>
         );
-      }
-
-      if (column.type === GridColumnType.Action) {
-        return <div style={style} />;
       }
 
       const field = column.field;
@@ -72,7 +79,7 @@ const GridStickyHeader = React.forwardRef<
         />
       );
     },
-    [columns, handleCloseMenu, handleOpenMenu, resizeColumnWidth, getScrollElement]
+    [handleCloseMenu, handleOpenMenu, resizeColumnWidth, getScrollElement]
   );
 
   return (
@@ -81,6 +88,7 @@ const GridStickyHeader = React.forwardRef<
         {({ height, width }: { height: number; width: number }) => {
           return (
             <Grid
+              className={'grid-sticky-header w-full text-text-title'}
               height={height}
               width={width}
               rowHeight={() => 36}
@@ -88,7 +96,9 @@ const GridStickyHeader = React.forwardRef<
               columnCount={columns.length}
               columnWidth={columnWidth}
               ref={ref}
-              style={{ overflowX: 'hidden', overscrollBehavior: 'none' }}
+              onScroll={onScroll}
+              itemData={columns}
+              style={{ overscrollBehavior: 'none' }}
             >
               {Cell}
             </Grid>

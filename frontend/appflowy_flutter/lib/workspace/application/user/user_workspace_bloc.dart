@@ -3,7 +3,7 @@ import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
-import 'package:dartz/dartz.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -29,9 +29,10 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
               e.workspacesOrFail.fold(
                 (workspaces) => state.copyWith(
                   workspaces: workspaces,
-                  successOrFailure: left(unit),
+                  successOrFailure: FlowyResult.success(null),
                 ),
-                (error) => state.copyWith(successOrFailure: right(error)),
+                (error) => state.copyWith(
+                    successOrFailure: FlowyResult.failure(error)),
               ),
             );
           },
@@ -55,11 +56,11 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
       currentWorkspace.fold(
         (workspace) => state.copyWith(
           currentWorkspace: workspace,
-          successOrFailure: left(unit),
+          successOrFailure: FlowyResult.success(null),
         ),
         (error) {
           Log.error(error);
-          return state.copyWith(successOrFailure: right(error));
+          return state.copyWith(successOrFailure: FlowyResult.failure(error));
         },
       ),
     );
@@ -71,11 +72,11 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
       workspacesOrFailed.fold(
         (workspaces) => state.copyWith(
           workspaces: workspaces,
-          successOrFailure: left(unit),
+          successOrFailure: FlowyResult.success(null),
         ),
         (error) {
           Log.error(error);
-          return state.copyWith(successOrFailure: right(error));
+          return state.copyWith(successOrFailure: FlowyResult.failure(error));
         },
       ),
     );
@@ -90,11 +91,11 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
     emit(
       result.fold(
         (workspace) {
-          return state.copyWith(successOrFailure: left(unit));
+          return state.copyWith(successOrFailure: FlowyResult.success(null));
         },
         (error) {
           Log.error(error);
-          return state.copyWith(successOrFailure: right(error));
+          return state.copyWith(successOrFailure: FlowyResult.failure(error));
         },
       ),
     );
@@ -108,11 +109,11 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
     emit(
       result.fold(
         (workspace) {
-          return state.copyWith(successOrFailure: left(unit));
+          return state.copyWith(successOrFailure: FlowyResult.success(null));
         },
         (error) {
           Log.error(error);
-          return state.copyWith(successOrFailure: right(error));
+          return state.copyWith(successOrFailure: FlowyResult.failure(error));
         },
       ),
     );
@@ -126,11 +127,11 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
     emit(
       result.fold(
         (workspace) {
-          return state.copyWith(successOrFailure: left(unit));
+          return state.copyWith(successOrFailure: FlowyResult.success(null));
         },
         (error) {
           Log.error(error);
-          return state.copyWith(successOrFailure: right(error));
+          return state.copyWith(successOrFailure: FlowyResult.failure(error));
         },
       ),
     );
@@ -147,7 +148,7 @@ class UserWorkspaceEvent with _$UserWorkspaceEvent {
   const factory UserWorkspaceEvent.openWorkspace(String workspaceId) =
       OpenWorkspace;
   const factory UserWorkspaceEvent.workspacesReceived(
-    Either<List<UserWorkspacePB>, FlowyError> workspacesOrFail,
+    FlowyResult<List<UserWorkspacePB>, FlowyError> workspacesOrFail,
   ) = WorkspacesReceived;
 }
 
@@ -157,13 +158,13 @@ class UserWorkspaceState with _$UserWorkspaceState {
     required bool isLoading,
     required WorkspacePB? currentWorkspace,
     required List<UserWorkspacePB> workspaces,
-    required Either<Unit, FlowyError> successOrFailure,
+    required FlowyResult<void, FlowyError> successOrFailure,
   }) = _UserWorkspaceState;
 
   factory UserWorkspaceState.initial() => UserWorkspaceState(
         isLoading: false,
         currentWorkspace: null,
         workspaces: [],
-        successOrFailure: left(unit),
+        successOrFailure: FlowyResult.success(null),
       );
 }

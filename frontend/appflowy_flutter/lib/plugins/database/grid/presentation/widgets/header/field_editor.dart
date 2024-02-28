@@ -1,11 +1,13 @@
 import 'dart:typed_data';
 
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_editor_bloc.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
-import 'package:appflowy/plugins/database/application/field/field_service.dart';
+import 'package:appflowy/plugins/database/domain/field_service.dart';
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/common/type_option_separator.dart';
 import 'package:appflowy/util/field_type_extension.dart';
@@ -14,7 +16,6 @@ import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:styled_widget/styled_widget.dart';
 

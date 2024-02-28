@@ -37,7 +37,17 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      # the following step is required to avoid running out of space
+      - name: Check storage space
+        run: df -h
+
+      - name: Maximize build space
+        uses: easimon/maximize-build-space@master
+        with:
+          root-reserve-mb: 2048
+          swap-size-mb: 1024
+          remove-dotnet: 'true'
+
+          # the following step is required to avoid running out of space
       - name: Maximize build space
         if: matrix.os == 'ubuntu-latest'
         run: |
@@ -50,6 +60,9 @@ jobs:
           sudo rm -rf ${GITHUB_WORKSPACE}/.git
           sudo rm -rf $ANDROID_HOME/ndk
 
+      - name: Check storage space
+        run: df -h
+
       - name: Checkout source code
         uses: actions/checkout@v4
 
@@ -59,7 +72,6 @@ jobs:
         with:
           channel: "stable"
           flutter-version: ${{ env.FLUTTER_VERSION }}
-          cache: true
 
       - uses: nttld/setup-ndk@v1
         id: setup-ndk
@@ -70,12 +82,6 @@ jobs:
       - uses: gradle/gradle-build-action@v3
         with:
           gradle-version: 7.6.3
-
-      - uses: Swatinem/rust-cache@v2
-        with:
-          prefix-key: ${{ matrix.os }}
-          workspaces: |
-            frontend/rust-lib
 
       - uses: davidB/rust-cargo-make@v1
         with:

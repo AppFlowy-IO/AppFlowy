@@ -1,6 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
+import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/workspace/presentation/home/hotkeys.dart';
@@ -21,10 +21,6 @@ Future<HotKeyItem?> openSettingsHotKey(BuildContext context) async {
   final userProfileOrFailure = await getIt<AuthService>().getUser();
 
   return userProfileOrFailure.fold(
-    (e) {
-      Log.error('Failed to get user $e');
-      return null;
-    },
     (userProfile) => HotKeyItem(
       hotKey: HotKey(
         KeyCode.comma,
@@ -42,6 +38,10 @@ Future<HotKeyItem?> openSettingsHotKey(BuildContext context) async {
         }
       },
     ),
+    (e) {
+      Log.error('Failed to get user $e');
+      return null;
+    },
   );
 }
 

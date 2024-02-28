@@ -18,7 +18,7 @@ flowy-notification  = { workspace = true }
 parking_lot.workspace = true
 unicode-segmentation = "1.10"
 tracing.workspace = true
-flowy-error = { path = "../flowy-error", features = ["impl_from_dispatch_error"]}
+flowy-error = { path = "../flowy-error", features = ["impl_from_dispatch_error", "impl_from_collab_folder"]}
 lib-dispatch = { workspace = true }
 bytes.workspace = true
 lib-infra = { workspace = true }

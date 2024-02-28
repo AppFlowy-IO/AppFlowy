@@ -6,7 +6,7 @@ import 'package:appflowy_backend/protobuf/flowy-document/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-notification/subject.pb.dart';
 import 'package:appflowy_backend/rust_stream.dart';
-import 'package:dartz/dartz.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 
 class DocumentListener {
   DocumentListener({
@@ -36,13 +36,11 @@ class DocumentListener {
 
   void _callback(
     DocumentNotification ty,
-    Either<Uint8List, FlowyError> result,
+    FlowyResult<Uint8List, FlowyError> result,
   ) {
     switch (ty) {
       case DocumentNotification.DidReceiveUpdate:
-        result
-            .swap()
-            .map((r) => didReceiveUpdate?.call(DocEventPB.fromBuffer(r)));
+        result.map((r) => didReceiveUpdate?.call(DocEventPB.fromBuffer(r)));
         break;
       default:
         break;

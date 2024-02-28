@@ -29,9 +29,9 @@ function Filters() {
   };
 
   return (
-    <div className={'flex items-center justify-center gap-[10px]'}>
+    <div className={'flex flex-1 items-center gap-2 text-text-title'}>
       {options.map(({ filter, field }) => (field ? <Filter key={filter.id} filter={filter} field={field} /> : null))}
-      <Button onClick={handleClick} color={'inherit'} startIcon={<AddSvg />}>
+      <Button size={'small'} className={'min-w-[100px]'} onClick={handleClick} color={'inherit'} startIcon={<AddSvg />}>
         {t('grid.settings.addFilter')}
       </Button>
       <FilterFieldsMenu

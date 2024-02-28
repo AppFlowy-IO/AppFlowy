@@ -52,8 +52,6 @@ export const DatabaseProvider = DatabaseContext.Provider;
 
 export const useDatabase = () => useSnapshot(useContext(DatabaseContext));
 
-export const useContextDatabase = () => useContext(DatabaseContext);
-
 export const useSelectorCell = (rowId: string, fieldId: string) => {
   const database = useContext(DatabaseContext);
   const cells = useSnapshot(database.cells);
@@ -86,10 +84,16 @@ export const useDispatchCell = () => {
   };
 };
 
-export const useTypeOptions = () => {
+export const useDatabaseSorts = () => {
   const context = useContext(DatabaseContext);
 
-  return useSnapshot(context.typeOptions);
+  return useSnapshot(context.sorts);
+};
+
+export const useSortsCount = () => {
+  const { sorts } = useDatabase();
+
+  return sorts?.length;
 };
 
 export const useFiltersCount = () => {
@@ -101,6 +105,13 @@ export const useFiltersCount = () => {
     [filters, fields]
   );
 };
+
+export function useStaticTypeOption<T>(fieldId: string) {
+  const context = useContext(DatabaseContext);
+  const typeOptions = context.typeOptions;
+
+  return typeOptions[fieldId] as T;
+}
 
 export function useTypeOption<T>(fieldId: string) {
   const context = useContext(DatabaseContext);
@@ -154,8 +165,8 @@ export const useConnectDatabase = (viewId: string) => {
         [DatabaseNotification.DidUpdateFieldSettings]: (changeset) => {
           fieldListeners.didUpdateFieldSettings(database, changeset);
         },
-        [DatabaseNotification.DidUpdateViewRows]: (changeset) => {
-          rowListeners.didUpdateViewRows(database, changeset);
+        [DatabaseNotification.DidUpdateViewRows]: async (changeset) => {
+          await rowListeners.didUpdateViewRows(viewId, database, changeset);
         },
         [DatabaseNotification.DidReorderRows]: (changeset) => {
           rowListeners.didReorderRows(database, changeset);
@@ -171,8 +182,8 @@ export const useConnectDatabase = (viewId: string) => {
         [DatabaseNotification.DidUpdateFilter]: (changeset) => {
           filterListeners.didUpdateFilter(database, changeset);
         },
-        [DatabaseNotification.DidUpdateViewRowsVisibility]: (changeset) => {
-          rowListeners.didUpdateViewRowsVisibility(database, changeset);
+        [DatabaseNotification.DidUpdateViewRowsVisibility]: async (changeset) => {
+          await rowListeners.didUpdateViewRowsVisibility(viewId, database, changeset);
         },
       },
       { id: viewId }

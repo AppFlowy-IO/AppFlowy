@@ -129,26 +129,31 @@ impl DocumentManager {
     }
   }
 
-  /// Return the document
-  #[tracing::instrument(level = "debug", skip(self), err)]
+  /// Returns Document for given object id
+  /// If the document does not exist in local disk, try get the doc state from the cloud.
+  /// If the document exists, open the document and cache it
+  #[tracing::instrument(level = "info", skip(self), err)]
   pub async fn get_document(&self, doc_id: &str) -> FlowyResult<Arc<MutexDocument>> {
     if let Some(doc) = self.documents.lock().get(doc_id).cloned() {
       return Ok(doc);
     }
 
-    let mut doc_state = vec![];
+    let mut doc_state = CollabDocState::default();
+    // If the document does not exist in local disk, try get the doc state from the cloud. This happens
+    // When user_device_a create a document and user_device_b open the document.
     if !self.is_doc_exist(doc_id).await? {
-      // Try to get the document from the cloud service
       doc_state = self
         .cloud_service
         .get_document_doc_state(doc_id, &self.user_service.workspace_id()?)
         .await?;
-      event!(
-        tracing::Level::DEBUG,
-        "get document from cloud service: {}, size:{}",
-        doc_id,
-        doc_state.len()
-      );
+
+      // the doc_state should not be empty if remote return the doc state without error.
+      if doc_state.is_empty() {
+        return Err(FlowyError::new(
+          ErrorCode::RecordNotFound,
+          format!("document {} not found", doc_id),
+        ));
+      }
     }
 
     let uid = self.user_service.user_id()?;
@@ -156,15 +161,25 @@ impl DocumentManager {
     let collab = self
       .collab_for_document(uid, doc_id, doc_state, true)
       .await?;
-    let document = Arc::new(MutexDocument::open(doc_id, collab)?);
 
-    // save the document to the memory and read it from the memory if we open the same document again.
-    // and we don't want to subscribe to the document changes if we open the same document again.
-    self
-      .documents
-      .lock()
-      .put(doc_id.to_string(), document.clone());
-    Ok(document)
+    match MutexDocument::open(doc_id, collab) {
+      Ok(document) => {
+        let document = Arc::new(document);
+        self
+          .documents
+          .lock()
+          .put(doc_id.to_string(), document.clone());
+        Ok(document)
+      },
+      Err(err) => {
+        if err.is_invalid_data() {
+          if let Some(db) = self.user_service.collab_db(uid)?.upgrade() {
+            db.delete_doc(uid, doc_id).await?;
+          }
+        }
+        return Err(err);
+      },
+    }
   }
 
   pub async fn get_document_data(&self, doc_id: &str) -> FlowyResult<DocumentData> {
@@ -223,18 +238,6 @@ impl DocumentManager {
         created_at: meta.created_at,
       })
       .collect::<Vec<_>>();
-
-    // let snapshots = self
-    //   .cloud_service
-    //   .get_document_snapshots(document_id, limit, &workspace_id)
-    //   .await?
-    //   .into_iter()
-    //   .map(|snapshot| DocumentSnapshotPB {
-    //     snapshot_id: snapshot.snapshot_id,
-    //     snapshot_desc: "".to_string(),
-    //     created_at: snapshot.created_at,
-    //   })
-    //   .collect::<Vec<_>>();
 
     Ok(metas)
   }

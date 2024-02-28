@@ -10,7 +10,7 @@ import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pbserver.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
-import 'package:dartz/dartz.dart' as dartz;
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/file_picker/file_picker_service.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart' hide WidgetBuilder;
@@ -34,12 +34,12 @@ class _FileExporterWidgetState extends State<FileExporterWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<dartz.Either<WorkspacePB, FlowyError>>(
+    return FutureBuilder<FlowyResult<WorkspacePB, FlowyError>>(
       future: FolderEventReadCurrentWorkspace().send(),
       builder: (context, snapshot) {
         if (snapshot.hasData &&
             snapshot.connectionState == ConnectionState.done) {
-          final workspace = snapshot.data?.getLeftOrNull<WorkspacePB>();
+          final workspace = snapshot.data?.fold((s) => s, (e) => null);
           if (workspace != null) {
             final views = workspace.views;
             cubit ??= SettingsFileExporterCubit(views: views);
@@ -224,17 +224,6 @@ class _ExpandedListState extends State<_ExpandedList> {
   }
 }
 
-extension AppFlowy on dartz.Either {
-  T? getLeftOrNull<T>() {
-    if (isLeft()) {
-      final result = fold<T?>((l) => l, (r) => null);
-      return result;
-    }
-
-    return null;
-  }
-}
-
 class _AppFlowyFileExporter {
   static Future<(bool result, List<String> failedNames)> exportToPath(
     String path,
@@ -251,9 +240,12 @@ class _AppFlowyFileExporter {
           final result = await documentExporter.export(
             DocumentExportType.json,
           );
-          result.fold((l) => Log.error(l), (json) {
-            content = json;
-          });
+          result.fold(
+            (json) {
+              content = json;
+            },
+            (e) => Log.error(e),
+          );
           fileExtension = 'afdocument';
           break;
         default:

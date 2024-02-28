@@ -29,7 +29,9 @@ function Workspace({ workspace, opened }: { workspace: WorkspaceItem; opened: bo
           onClick={(e) => {
             e.stopPropagation();
             e.preventDefault();
-            setShowPages(!showPages);
+            setShowPages((prev) => {
+              return !prev;
+            });
           }}
           onMouseEnter={() => {
             setShowAdd(true);
@@ -59,7 +61,9 @@ function Workspace({ workspace, opened }: { workspace: WorkspaceItem; opened: bo
           )}
         </div>
 
-        {showPages && <NestedViews workspaceId={workspace.id} />}
+        <div className={`${showPages ? '' : 'hidden'}`}>
+          <NestedViews workspaceId={workspace.id} />
+        </div>
       </div>
     </>
   );

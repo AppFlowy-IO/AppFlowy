@@ -11,7 +11,7 @@ export const GridBlock = memo(
     const selected = useSelected();
 
     return (
-      <div {...attributes} className={`${className} grid-block relative w-full bg-bg-body py-2`}>
+      <div {...attributes} className={`${className} grid-block relative w-full bg-bg-body`}>
         <div ref={ref} className={'absolute left-0 top-0 h-full w-full caret-transparent'}>
           {children}
         </div>

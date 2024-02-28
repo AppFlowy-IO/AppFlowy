@@ -83,10 +83,12 @@
       {
         "fileDropEnabled": false,
         "fullscreen": false,
-        "height": 1200,
+        "height": 800,
         "resizable": true,
         "title": "AppFlowy",
-        "width": 1200
+        "width": 1200,
+        "minWidth": 800,
+        "minHeight": 600
       }
     ]
   }

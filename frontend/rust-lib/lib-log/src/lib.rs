@@ -55,7 +55,6 @@ impl Builder {
     let subscriber = tracing_subscriber::fmt()
       .with_timer(CustomTime)
       .with_ansi(true)
-      .with_target(false)
       .with_max_level(tracing::Level::TRACE)
       .with_thread_ids(false)
       .pretty()
