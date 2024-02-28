@@ -128,9 +128,9 @@ class _AppFlowyMobileToolbarIconItemState
 
   void _rebuild() {
     setState(() {
-        selected = (widget.keepSelectedStatus && widget.isSelected == null)
-          ? !selected
-          : widget.isSelected?.call() ?? false
+      isSelected = (widget.keepSelectedStatus && widget.isSelected == null)
+          ? !isSelected
+          : widget.isSelected?.call() ?? false;
     });
   }
 }
