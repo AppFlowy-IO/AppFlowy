@@ -22,13 +22,13 @@ class MobileGridHeader extends StatefulWidget {
   const MobileGridHeader({
     super.key,
     required this.viewId,
-    required this.scrollController1,
-    required this.scrollController2,
+    required this.contentScrollController,
+    required this.reorderableController,
   });
 
   final String viewId;
-  final ScrollController scrollController1;
-  final ScrollController scrollController2;
+  final ScrollController contentScrollController;
+  final ScrollController reorderableController;
 
   @override
   State<MobileGridHeader> createState() => _MobileGridHeaderState();
@@ -52,7 +52,7 @@ class _MobileGridHeaderState extends State<MobileGridHeader> {
             builder: (context, state) {
               return SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
-                controller: widget.scrollController1,
+                controller: widget.contentScrollController,
                 child: Stack(
                   children: [
                     Positioned(
@@ -81,7 +81,7 @@ class _MobileGridHeaderState extends State<MobileGridHeader> {
             child: _GridHeader(
               viewId: widget.viewId,
               fieldController: fieldController,
-              scrollController: widget.scrollController2,
+              scrollController: widget.reorderableController,
             ),
           ),
         ],

@@ -157,14 +157,14 @@ class _GridPageContentState extends State<GridPageContent> {
   final _scrollController = GridScrollController(
     scrollGroupController: LinkedScrollControllerGroup(),
   );
-  late final ScrollController headerScrollController1;
-  late final ScrollController headerScrollController2;
+  late final ScrollController contentScrollController;
+  late final ScrollController reorderableController;
 
   @override
   void initState() {
     super.initState();
-    headerScrollController1 = _scrollController.linkHorizontalController();
-    headerScrollController2 = _scrollController.linkHorizontalController();
+    contentScrollController = _scrollController.linkHorizontalController();
+    reorderableController = _scrollController.linkHorizontalController();
   }
 
   @override
@@ -198,8 +198,8 @@ class _GridPageContentState extends State<GridPageContent> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _GridHeader(
-                controller1: headerScrollController1,
-                controller2: headerScrollController2,
+                contentScrollController: contentScrollController,
+                reorderableController: reorderableController,
               ),
               _GridRows(
                 viewId: widget.view.id,
@@ -220,12 +220,12 @@ class _GridPageContentState extends State<GridPageContent> {
 
 class _GridHeader extends StatelessWidget {
   const _GridHeader({
-    required this.controller1,
-    required this.controller2,
+    required this.contentScrollController,
+    required this.reorderableController,
   });
 
-  final ScrollController controller1;
-  final ScrollController controller2;
+  final ScrollController contentScrollController;
+  final ScrollController reorderableController;
 
   @override
   Widget build(BuildContext context) {
@@ -233,8 +233,8 @@ class _GridHeader extends StatelessWidget {
       builder: (context, state) {
         return MobileGridHeader(
           viewId: state.viewId,
-          scrollController1: controller1,
-          scrollController2: controller2,
+          contentScrollController: contentScrollController,
+          reorderableController: reorderableController,
         );
       },
     );
