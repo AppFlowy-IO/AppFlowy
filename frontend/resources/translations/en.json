@@ -550,7 +550,15 @@
       "onOrAfter": "Is on or after",
       "between": "Is between",
       "empty": "Is empty",
-      "notEmpty": "Is not empty"
+      "notEmpty": "Is not empty",
+      "choicechipPrefix": {
+        "before": "Before",
+        "after": "After",
+        "onOrBefore": "On or before",
+        "onOrAfter": "On or after",
+        "isEmpty": "Is empty",
+        "isNotEmpty": "Is not empty"
+      }
     },
     "numberFilter": {
       "equal": "Equals",

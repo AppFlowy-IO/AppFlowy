@@ -106,6 +106,13 @@ export const useFiltersCount = () => {
   );
 };
 
+export function useStaticTypeOption<T>(fieldId: string) {
+  const context = useContext(DatabaseContext);
+  const typeOptions = context.typeOptions;
+
+  return typeOptions[fieldId] as T;
+}
+
 export function useTypeOption<T>(fieldId: string) {
   const context = useContext(DatabaseContext);
   const typeOptions = useSnapshot(context.typeOptions);

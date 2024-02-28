@@ -229,6 +229,16 @@ export const CustomEditor = {
     return !!match;
   },
 
+  formulaActiveNode(editor: ReactEditor) {
+    const [match] = editor.nodes({
+      match: (n) => {
+        return !Editor.isEditor(n) && Element.isElement(n) && n.type === EditorInlineNodeType.Formula;
+      },
+    });
+
+    return match ? (match as NodeEntry<FormulaNode>) : undefined;
+  },
+
   isMentionActive(editor: ReactEditor) {
     const [match] = editor.nodes({
       match: (n) => {
@@ -517,6 +527,14 @@ export const CustomEditor = {
     if (!hasTextNode) return false;
 
     return editor.isEmpty(textNode);
+  },
+
+  includeInlineBlocks: (editor: ReactEditor) => {
+    const [match] = Editor.nodes(editor, {
+      match: (n) => Element.isElement(n) && editor.isInline(n),
+    });
+
+    return Boolean(match);
   },
 
   getNodeTextContent(node: Node): string {

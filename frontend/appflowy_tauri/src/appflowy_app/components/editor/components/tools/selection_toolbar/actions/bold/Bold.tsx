@@ -11,6 +11,7 @@ export function Bold() {
   const { t } = useTranslation();
   const editor = useSlateStatic();
   const isActivated = CustomEditor.isMarkActive(editor, EditorMarkFormat.Bold);
+
   const modifier = useMemo(() => getHotKey(EditorMarkFormat.Bold).modifier, []);
   const onClick = useCallback(() => {
     CustomEditor.toggleMark(editor, {
