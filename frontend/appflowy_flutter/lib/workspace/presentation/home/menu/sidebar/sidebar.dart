@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
+import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/menu/menu_bloc.dart';
-import 'package:appflowy/workspace/application/notifications/notification_action.dart';
-import 'package:appflowy/workspace/application/notifications/notification_action_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_folder.dart';
@@ -43,7 +43,7 @@ class HomeSideBar extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (_) => getIt<NotificationActionBloc>(),
+          create: (_) => getIt<ActionNavigationBloc>(),
         ),
         BlocProvider(
           create: (_) => MenuBloc(
@@ -61,7 +61,7 @@ class HomeSideBar extends StatelessWidget {
                   TabsEvent.openPlugin(plugin: state.lastCreatedView!.plugin()),
                 ),
           ),
-          BlocListener<NotificationActionBloc, NotificationActionState>(
+          BlocListener<ActionNavigationBloc, ActionNavigationState>(
             listenWhen: (_, curr) => curr.action != null,
             listener: _onNotificationAction,
           ),
@@ -137,7 +137,7 @@ class HomeSideBar extends StatelessWidget {
 
   void _onNotificationAction(
     BuildContext context,
-    NotificationActionState state,
+    ActionNavigationState state,
   ) {
     final action = state.action;
     if (action != null) {

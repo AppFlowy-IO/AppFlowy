@@ -7,8 +7,8 @@ import 'package:appflowy/plugins/document/presentation/editor_page.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/workspace/application/notifications/notification_action.dart';
-import 'package:appflowy/workspace/application/notifications/notification_action_bloc.dart';
+import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
+import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -62,7 +62,7 @@ class _DocumentPageState extends State<DocumentPage> {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider.value(value: getIt<NotificationActionBloc>()),
+        BlocProvider.value(value: getIt<ActionNavigationBloc>()),
         BlocProvider(
           create: (_) => DocumentBloc(view: widget.view)
             ..add(const DocumentEvent.initial()),
@@ -89,7 +89,7 @@ class _DocumentPageState extends State<DocumentPage> {
             return const SizedBox.shrink();
           }
 
-          return BlocListener<NotificationActionBloc, NotificationActionState>(
+          return BlocListener<ActionNavigationBloc, ActionNavigationState>(
             listener: _onNotificationAction,
             listenWhen: (_, curr) => curr.action != null,
             child: _buildEditorPage(context, state),
@@ -166,7 +166,7 @@ class _DocumentPageState extends State<DocumentPage> {
 
   void _onNotificationAction(
     BuildContext context,
-    NotificationActionState state,
+    ActionNavigationState state,
   ) {
     if (state.action != null && state.action!.type == ActionType.jumpToBlock) {
       final path = state.action?.arguments?[ActionArgumentKeys.nodePath];

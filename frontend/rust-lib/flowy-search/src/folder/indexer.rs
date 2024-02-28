@@ -5,7 +5,7 @@ use crate::{
   folder::schema::{FolderSchema, FOLDER_ICON_FIELD_NAME, FOLDER_TITLE_FIELD_NAME},
 };
 use collab::core::collab::{IndexContent, IndexContentReceiver};
-use collab_folder::{timestamp, ViewIcon, ViewIndexContent, ViewLayout};
+use collab_folder::{ViewIcon, ViewIndexContent, ViewLayout};
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_user::services::authenticate_user::AuthenticateUser;
 use lib_dispatch::prelude::af_spawn;
@@ -111,6 +111,8 @@ impl FolderIndexManager {
 
     let top_docs = searcher.search(&built_query, &TopDocs::with_limit(10))?;
     let mut search_results: Vec<SearchResultPB> = vec![];
+
+    // TODO: Score results by distance
     for (_score, doc_address) in top_docs {
       let retrieved_doc = searcher.doc(doc_address)?;
 
@@ -210,7 +212,6 @@ impl IndexManager for FolderIndexManager {
       icon_ty_field => icon_ty,
     ]);
 
-    tracing::warn!("Update Index: {:?} At({})", data.id.clone(), timestamp());
     index_writer.commit()?;
 
     Ok(())

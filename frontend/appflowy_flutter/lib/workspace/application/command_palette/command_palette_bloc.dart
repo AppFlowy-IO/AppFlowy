@@ -23,6 +23,7 @@ class CommandPaletteBloc
 
   Timer? _debounceOnChanged;
   final SearchListener _searchListener = SearchListener();
+  String? _oldQuery;
 
   @override
   Future<void> close() {
@@ -36,6 +37,7 @@ class CommandPaletteBloc
         searchChanged: _debounceOnSearchChanged,
         performSearch: (search) async {
           if (search.isNotEmpty) {
+            _oldQuery = state.query;
             emit(state.copyWith(query: search, isLoading: true));
             await SearchBackendService.performSearch(search);
           } else {
@@ -43,6 +45,10 @@ class CommandPaletteBloc
           }
         },
         resultsChanged: (results, didClose) {
+          if (state.query != _oldQuery) {
+            emit(state.copyWith(results: []));
+          }
+
           final searchResults = _filterDuplicates(results.items);
           searchResults.sort((a, b) => a.score.compareTo(b.score));
 

@@ -22,7 +22,7 @@ impl FolderSchema {
     let mut schema_builder = Schema::builder();
     schema_builder.add_text_field(
       FOLDER_ID_FIELD_NAME,
-      tantivy::schema::TEXT | tantivy::schema::STORED,
+      tantivy::schema::STRING | tantivy::schema::STORED,
     );
     schema_builder.add_text_field(
       FOLDER_TITLE_FIELD_NAME,

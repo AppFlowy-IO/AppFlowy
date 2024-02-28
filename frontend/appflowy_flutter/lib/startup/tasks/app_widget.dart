@@ -8,9 +8,9 @@ import 'package:appflowy/plugins/document/application/document_appearance_cubit.
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/user/application/user_settings_service.dart';
-import 'package:appflowy/workspace/application/notifications/notification_action.dart';
-import 'package:appflowy/workspace/application/notifications/notification_action_bloc.dart';
-import 'package:appflowy/workspace/application/notifications/notification_service.dart';
+import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
+import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
+import 'package:appflowy/workspace/application/notification/notification_service.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/notifications/notification_settings_cubit.dart';
 import 'package:appflowy/workspace/application/sidebar/rename_view/rename_view_bloc.dart';
@@ -150,12 +150,12 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
           create: (_) => DocumentAppearanceCubit()..fetch(),
         ),
         BlocProvider.value(value: getIt<RenameViewBloc>()),
-        BlocProvider.value(value: getIt<NotificationActionBloc>()),
+        BlocProvider.value(value: getIt<ActionNavigationBloc>()),
         BlocProvider.value(
           value: getIt<ReminderBloc>()..add(const ReminderEvent.started()),
         ),
       ],
-      child: BlocListener<NotificationActionBloc, NotificationActionState>(
+      child: BlocListener<ActionNavigationBloc, ActionNavigationState>(
         listenWhen: (_, curr) => curr.action != null,
         listener: (context, state) {
           final action = state.action;

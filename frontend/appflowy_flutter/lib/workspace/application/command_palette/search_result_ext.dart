@@ -13,9 +13,7 @@ extension GetIcon on SearchResultPB {
             )
           : null;
     } else if (icon.ty == ResultIconTypePB.Icon) {
-      return FlowySvg(
-        icon.getViewSvg(),
-      );
+      return FlowySvg(icon.getViewSvg(), size: const Size.square(20));
     }
 
     return null;
