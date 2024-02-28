@@ -70,12 +70,12 @@
     "copyLink": "Скопировать ссылку"
   },
   "moreAction": {
-    "fontSize": "Размер шрифта",
-    "import": "Импорт",
-    "moreOptions": "Дополнительные опции",
     "small": "маленький",
     "medium": "средний",
-    "large": "большой"
+    "large": "большой",
+    "fontSize": "Размер шрифта",
+    "import": "Импорт",
+    "moreOptions": "Дополнительные опции"
   },
   "importPanel": {
     "textAndMarkdown": "Текст и Markdown",
