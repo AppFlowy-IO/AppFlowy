@@ -281,7 +281,7 @@ pub(crate) async fn duplicate_field_handler(
   manager: AFPluginState<Weak<DatabaseManager>>,
 ) -> Result<(), FlowyError> {
   let manager = upgrade_manager(manager)?;
-  let params: FieldIdParams = data.into_inner().try_into()?;
+  let params: DuplicateFieldPayloadPB = data.into_inner();
   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
   database_editor
     .duplicate_field(&params.view_id, &params.field_id)
