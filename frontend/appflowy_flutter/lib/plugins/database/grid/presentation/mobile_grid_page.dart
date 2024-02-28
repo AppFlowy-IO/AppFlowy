@@ -157,12 +157,14 @@ class _GridPageContentState extends State<GridPageContent> {
   final _scrollController = GridScrollController(
     scrollGroupController: LinkedScrollControllerGroup(),
   );
-  late final ScrollController headerScrollController;
+  late final ScrollController headerScrollController1;
+  late final ScrollController headerScrollController2;
 
   @override
   void initState() {
     super.initState();
-    headerScrollController = _scrollController.linkHorizontalController();
+    headerScrollController1 = _scrollController.linkHorizontalController();
+    headerScrollController2 = _scrollController.linkHorizontalController();
   }
 
   @override
@@ -196,7 +198,8 @@ class _GridPageContentState extends State<GridPageContent> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _GridHeader(
-                headerScrollController: headerScrollController,
+                controller1: headerScrollController1,
+                controller2: headerScrollController2,
               ),
               _GridRows(
                 viewId: widget.view.id,
@@ -216,9 +219,13 @@ class _GridPageContentState extends State<GridPageContent> {
 }
 
 class _GridHeader extends StatelessWidget {
-  const _GridHeader({required this.headerScrollController});
+  const _GridHeader({
+    required this.controller1,
+    required this.controller2,
+  });
 
-  final ScrollController headerScrollController;
+  final ScrollController controller1;
+  final ScrollController controller2;
 
   @override
   Widget build(BuildContext context) {
@@ -226,7 +233,8 @@ class _GridHeader extends StatelessWidget {
       builder: (context, state) {
         return MobileGridHeader(
           viewId: state.viewId,
-          anchorScrollController: headerScrollController,
+          scrollController1: controller1,
+          scrollController2: controller2,
         );
       },
     );
@@ -247,7 +255,7 @@ class _GridRows extends StatelessWidget {
     return BlocBuilder<GridBloc, GridState>(
       buildWhen: (previous, current) => previous.fields != current.fields,
       builder: (context, state) {
-        final double contentWidth = _getContentWidth(state.fields);
+        final double contentWidth = getMobileGridContentWidth(state.fields);
         return Expanded(
           child: _WrapScrollView(
             scrollController: scrollController,
@@ -275,14 +283,6 @@ class _GridRows extends StatelessWidget {
         );
       },
     );
-  }
-
-  double _getContentWidth(List<FieldInfo> fields) {
-    final visibleFields = fields.where(
-      (field) =>
-          field.fieldSettings?.visibility != FieldVisibility.AlwaysHidden,
-    );
-    return (visibleFields.length + 1) * 200 + GridSize.leadingHeaderPadding * 2;
   }
 
   Widget _renderList(
@@ -437,4 +437,11 @@ class _AddRowButton extends StatelessWidget {
       ),
     );
   }
+}
+
+double getMobileGridContentWidth(List<FieldInfo> fields) {
+  final visibleFields = fields.where(
+    (field) => field.fieldSettings?.visibility != FieldVisibility.AlwaysHidden,
+  );
+  return (visibleFields.length + 1) * 200 + GridSize.leadingHeaderPadding * 2;
 }

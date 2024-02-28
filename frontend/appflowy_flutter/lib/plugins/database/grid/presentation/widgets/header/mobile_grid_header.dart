@@ -13,17 +13,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../layout/sizes.dart';
+import '../../mobile_grid_page.dart';
 import 'mobile_field_button.dart';
+
+const double _kGridHeaderHeight = 50.0;
 
 class MobileGridHeader extends StatefulWidget {
   const MobileGridHeader({
     super.key,
     required this.viewId,
-    required this.anchorScrollController,
+    required this.scrollController1,
+    required this.scrollController2,
   });
 
   final String viewId;
-  final ScrollController anchorScrollController;
+  final ScrollController scrollController1;
+  final ScrollController scrollController2;
 
   @override
   State<MobileGridHeader> createState() => _MobileGridHeaderState();
@@ -41,25 +46,45 @@ class _MobileGridHeaderState extends State<MobileGridHeader> {
           fieldController: fieldController,
         )..add(const GridHeaderEvent.initial());
       },
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        controller: widget.anchorScrollController,
-        padding: EdgeInsets.symmetric(
-          horizontal: GridSize.leadingHeaderPadding,
-        ),
-        child: Stack(
-          children: [
-            Positioned(top: 0, left: 24, right: 24, child: _divider()),
-            Positioned(bottom: 0, left: 0, right: 0, child: _divider()),
-            SizedBox(
-              height: 50,
-              child: _GridHeader(
-                viewId: widget.viewId,
-                fieldController: fieldController,
-              ),
+      child: Stack(
+        children: [
+          BlocBuilder<GridHeaderBloc, GridHeaderState>(
+            builder: (context, state) {
+              return SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                controller: widget.scrollController1,
+                child: Stack(
+                  children: [
+                    Positioned(
+                      top: 0,
+                      left: GridSize.leadingHeaderPadding + 24,
+                      right: GridSize.leadingHeaderPadding + 24,
+                      child: _divider(),
+                    ),
+                    Positioned(
+                      bottom: 0,
+                      left: GridSize.leadingHeaderPadding,
+                      right: GridSize.leadingHeaderPadding,
+                      child: _divider(),
+                    ),
+                    SizedBox(
+                      height: _kGridHeaderHeight,
+                      width: getMobileGridContentWidth(state.fields),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+          SizedBox(
+            height: _kGridHeaderHeight,
+            child: _GridHeader(
+              viewId: widget.viewId,
+              fieldController: fieldController,
+              scrollController: widget.scrollController2,
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -77,10 +102,12 @@ class _GridHeader extends StatefulWidget {
   const _GridHeader({
     required this.viewId,
     required this.fieldController,
+    required this.scrollController,
   });
 
   final String viewId;
   final FieldController fieldController;
+  final ScrollController scrollController;
 
   @override
   State<_GridHeader> createState() => _GridHeaderState();
@@ -110,12 +137,15 @@ class _GridHeaderState extends State<_GridHeader> {
             .toList();
 
         return ReorderableListView.builder(
-          scrollController: ScrollController(),
+          scrollController: widget.scrollController,
           shrinkWrap: true,
           scrollDirection: Axis.horizontal,
           proxyDecorator: (child, index, anim) => Material(
             color: Colors.transparent,
             child: child,
+          ),
+          padding: EdgeInsets.symmetric(
+            horizontal: GridSize.leadingHeaderPadding,
           ),
           header: firstField != null
               ? MobileFieldButton.first(
