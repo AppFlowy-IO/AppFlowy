@@ -57,14 +57,14 @@ class _MobileGridHeaderState extends State<MobileGridHeader> {
                   children: [
                     Positioned(
                       top: 0,
-                      left: GridSize.leadingHeaderPadding + 24,
-                      right: GridSize.leadingHeaderPadding + 24,
+                      left: GridSize.horizontalHeaderPadding + 24,
+                      right: GridSize.horizontalHeaderPadding + 24,
                       child: _divider(),
                     ),
                     Positioned(
                       bottom: 0,
-                      left: GridSize.leadingHeaderPadding,
-                      right: GridSize.leadingHeaderPadding,
+                      left: GridSize.horizontalHeaderPadding,
+                      right: GridSize.horizontalHeaderPadding,
                       child: _divider(),
                     ),
                     SizedBox(
@@ -145,7 +145,7 @@ class _GridHeaderState extends State<_GridHeader> {
             child: child,
           ),
           padding: EdgeInsets.symmetric(
-            horizontal: GridSize.leadingHeaderPadding,
+            horizontal: GridSize.horizontalHeaderPadding,
           ),
           header: firstField != null
               ? MobileFieldButton.first(

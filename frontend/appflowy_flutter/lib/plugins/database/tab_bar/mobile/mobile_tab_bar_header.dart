@@ -28,9 +28,9 @@ class _MobileTabBarHeaderState extends State<MobileTabBarHeader> {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(
-        left: GridSize.leadingHeaderPadding,
+        left: GridSize.horizontalHeaderPadding,
         top: 14.0,
-        right: GridSize.leadingHeaderPadding - 5.0,
+        right: GridSize.horizontalHeaderPadding - 5.0,
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,

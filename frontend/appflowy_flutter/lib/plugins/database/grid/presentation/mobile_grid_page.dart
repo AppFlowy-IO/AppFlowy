@@ -443,5 +443,6 @@ double getMobileGridContentWidth(List<FieldInfo> fields) {
   final visibleFields = fields.where(
     (field) => field.fieldSettings?.visibility != FieldVisibility.AlwaysHidden,
   );
-  return (visibleFields.length + 1) * 200 + GridSize.leadingHeaderPadding * 2;
+  return (visibleFields.length + 1) * 200 +
+      GridSize.horizontalHeaderPadding * 2;
 }

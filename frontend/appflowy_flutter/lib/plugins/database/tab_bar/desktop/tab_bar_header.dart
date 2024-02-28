@@ -25,7 +25,7 @@ class TabBarHeader extends StatelessWidget {
     return Container(
       height: 30,
       padding: EdgeInsets.symmetric(
-        horizontal: GridSize.leadingHeaderPadding,
+        horizontal: GridSize.horizontalHeaderPadding,
       ),
       child: Stack(
         children: [
