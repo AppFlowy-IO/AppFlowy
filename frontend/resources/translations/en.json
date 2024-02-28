@@ -394,7 +394,8 @@
         "twelveHour": "Twelve hour",
         "twentyFourHour": "Twenty four hour"
       },
-      "showNamingDialogWhenCreatingPage": "Show naming dialog when creating a page"
+      "showNamingDialogWhenCreatingPage": "Show naming dialog when creating a page",
+      "enableRTLToolbarItems": "Enable RTL toolbar items"
     },
     "files": {
       "copy": "Copy",
