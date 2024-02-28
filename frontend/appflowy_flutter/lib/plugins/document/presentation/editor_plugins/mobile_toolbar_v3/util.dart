@@ -11,6 +11,7 @@ class MobileToolbarMenuItemWrapper extends StatelessWidget {
     this.icon,
     this.text,
     this.backgroundColor,
+    this.selectedBackgroundColor,
     this.enable,
     this.fontFamily,
     required this.isSelected,
@@ -40,6 +41,7 @@ class MobileToolbarMenuItemWrapper extends StatelessWidget {
   final bool showDownArrow;
   final bool showRightArrow;
   final Color? backgroundColor;
+  final Color? selectedBackgroundColor;
   final EdgeInsets textPadding;
 
   @override
@@ -90,7 +92,8 @@ class MobileToolbarMenuItemWrapper extends StatelessWidget {
             alignment: text != null ? Alignment.centerLeft : Alignment.center,
             decoration: BoxDecoration(
               color: isSelected
-                  ? theme.toolbarMenuItemSelectedBackgroundColor
+                  ? (selectedBackgroundColor ??
+                      theme.toolbarMenuItemSelectedBackgroundColor)
                   : backgroundColor,
               borderRadius: BorderRadius.only(
                 topLeft: enableTopLeftRadius ? radius : Radius.zero,
