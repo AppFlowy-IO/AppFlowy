@@ -205,8 +205,8 @@ class _GridPageContentState extends State<GridPageContent> {
             ],
           ),
           Positioned(
-            bottom: 20,
-            right: 20,
+            bottom: 16,
+            right: 16,
             child: getGridFabs(context),
           ),
         ],

@@ -44,24 +44,20 @@ class _MobileGridHeaderState extends State<MobileGridHeader> {
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         controller: widget.anchorScrollController,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
+        padding: EdgeInsets.symmetric(
+          horizontal: GridSize.leadingHeaderPadding,
+        ),
+        child: Stack(
           children: [
-            HSpace(GridSize.leadingHeaderPadding),
-            Stack(
-              children: [
-                Positioned(top: 0, left: 24, right: 24, child: _divider()),
-                Positioned(bottom: 0, left: 0, right: 0, child: _divider()),
-                SizedBox(
-                  height: 50,
-                  child: _GridHeader(
-                    viewId: widget.viewId,
-                    fieldController: fieldController,
-                  ),
-                ),
-              ],
+            Positioned(top: 0, left: 24, right: 24, child: _divider()),
+            Positioned(bottom: 0, left: 0, right: 0, child: _divider()),
+            SizedBox(
+              height: 50,
+              child: _GridHeader(
+                viewId: widget.viewId,
+                fieldController: fieldController,
+              ),
             ),
-            const HSpace(20),
           ],
         ),
       ),

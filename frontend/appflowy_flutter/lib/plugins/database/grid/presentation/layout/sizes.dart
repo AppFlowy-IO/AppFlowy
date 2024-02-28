@@ -8,7 +8,7 @@ class GridSize {
   static double get headerHeight => 40 * scale;
   static double get footerHeight => 40 * scale;
   static double get leadingHeaderPadding =>
-      PlatformExtension.isDesktop ? 40 * scale : 20 * scale;
+      PlatformExtension.isDesktop ? 40 * scale : 16 * scale;
   static double get trailHeaderPadding => 140 * scale;
   static double get headerContainerPadding => 0 * scale;
   static double get cellHPadding => 10 * scale;
