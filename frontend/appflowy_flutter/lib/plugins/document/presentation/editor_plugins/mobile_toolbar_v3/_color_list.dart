@@ -63,16 +63,9 @@ class _TextColorAndBackgroundColorState
     extends State<_TextColorAndBackgroundColor> {
   @override
   Widget build(BuildContext context) {
-    final String? selectedTextColor =
-        widget.editorState.getDeltaAttributeValueInSelection(
-      AppFlowyRichTextKeys.textColor,
-      widget.selection,
-    );
+    final String? selectedTextColor = _getColor(AppFlowyRichTextKeys.textColor);
     final String? selectedBackgroundColor =
-        widget.editorState.getDeltaAttributeValueInSelection(
-      AppFlowyRichTextKeys.backgroundColor,
-      widget.selection,
-    );
+        _getColor(AppFlowyRichTextKeys.backgroundColor);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -90,17 +83,25 @@ class _TextColorAndBackgroundColorState
           selectedColor: selectedTextColor?.tryToColor(),
           onSelectedColor: (textColor) async {
             final hex = textColor.alpha == 0 ? null : textColor.toHex();
-            await widget.editorState.formatDelta(
-              widget.selection,
-              {
-                AppFlowyRichTextKeys.textColor: hex,
-              },
-              selectionExtraInfo: {
-                selectionExtraInfoDisableFloatingToolbar: true,
-                selectionExtraInfoDisableMobileToolbarKey: true,
-                selectionExtraInfoDoNotAttachTextService: true,
-              },
-            );
+            final selection = widget.selection;
+            if (selection.isCollapsed) {
+              widget.editorState.updateToggledStyle(
+                AppFlowyRichTextKeys.textColor,
+                hex ?? '',
+              );
+            } else {
+              await widget.editorState.formatDelta(
+                widget.selection,
+                {
+                  AppFlowyRichTextKeys.textColor: hex,
+                },
+                selectionExtraInfo: {
+                  selectionExtraInfoDisableFloatingToolbar: true,
+                  selectionExtraInfoDisableMobileToolbarKey: true,
+                  selectionExtraInfoDoNotAttachTextService: true,
+                },
+              );
+            }
             setState(() {});
           },
         ),
@@ -119,22 +120,52 @@ class _TextColorAndBackgroundColorState
           onSelectedColor: (backgroundColor) async {
             final hex =
                 backgroundColor.alpha == 0 ? null : backgroundColor.toHex();
-            await widget.editorState.formatDelta(
-              widget.selection,
-              {
-                AppFlowyRichTextKeys.backgroundColor: hex,
-              },
-              selectionExtraInfo: {
-                selectionExtraInfoDisableFloatingToolbar: true,
-                selectionExtraInfoDisableMobileToolbarKey: true,
-                selectionExtraInfoDoNotAttachTextService: true,
-              },
-            );
+            final selection = widget.selection;
+            if (selection.isCollapsed) {
+              widget.editorState.updateToggledStyle(
+                AppFlowyRichTextKeys.backgroundColor,
+                hex ?? '',
+              );
+            } else {
+              await widget.editorState.formatDelta(
+                widget.selection,
+                {
+                  AppFlowyRichTextKeys.backgroundColor: hex,
+                },
+                selectionExtraInfo: {
+                  selectionExtraInfoDisableFloatingToolbar: true,
+                  selectionExtraInfoDisableMobileToolbarKey: true,
+                  selectionExtraInfoDoNotAttachTextService: true,
+                },
+              );
+            }
             setState(() {});
           },
         ),
       ],
     );
+  }
+
+  String? _getColor(String key) {
+    final selection = widget.selection;
+    String? color = widget.editorState.toggledStyle[key];
+    if (color == null) {
+      if (selection.isCollapsed && selection.startIndex != 0) {
+        color = widget.editorState.getDeltaAttributeValueInSelection<String>(
+          key,
+          selection.copyWith(
+            start: selection.start.copyWith(
+              offset: selection.startIndex - 1,
+            ),
+          ),
+        );
+      } else {
+        color = widget.editorState.getDeltaAttributeValueInSelection<String>(
+          key,
+        );
+      }
+    }
+    return color;
   }
 }
 

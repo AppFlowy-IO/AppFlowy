@@ -72,7 +72,7 @@ class BIUSItems extends StatelessWidget {
         },
         icon: icon,
         isSelected: editorState.isTextDecorationSelected(richTextKey) &&
-            editorState.toggledStyle[richTextKey] != true,
+            editorState.toggledStyle[richTextKey] != false,
         iconPadding: const EdgeInsets.symmetric(
           vertical: 14.0,
         ),
