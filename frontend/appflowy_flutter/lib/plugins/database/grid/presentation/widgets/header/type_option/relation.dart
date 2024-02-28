@@ -6,7 +6,7 @@ import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
-import 'package:dartz/dartz.dart' show Either;
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -108,7 +108,7 @@ class _DatabaseList extends StatefulWidget {
 }
 
 class _DatabaseListState extends State<_DatabaseList> {
-  late Future<Either<RepeatedDatabaseDescriptionPB, FlowyError>> future;
+  late Future<FlowyResult<RepeatedDatabaseDescriptionPB, FlowyError>> future;
 
   @override
   void initState() {
@@ -124,7 +124,7 @@ class _DatabaseListState extends State<_DatabaseList> {
         final data = snapshot.data;
         if (!snapshot.hasData ||
             snapshot.connectionState != ConnectionState.done ||
-            data!.isRight()) {
+            data!.isFailure()) {
           return const SizedBox.shrink();
         }
 

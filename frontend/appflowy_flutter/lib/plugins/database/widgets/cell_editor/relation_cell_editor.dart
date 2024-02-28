@@ -122,7 +122,7 @@ please select one first in the field editor.
                       padding: const EdgeInsets.all(6.0) +
                           GridSize.typeOptionContentInsets,
                       child: FlowyText.regular(
-                        "No records found",
+                        LocaleKeys.grid_relation_emptySearchResult.tr(),
                         color: Theme.of(context).hintColor,
                       ),
                     )

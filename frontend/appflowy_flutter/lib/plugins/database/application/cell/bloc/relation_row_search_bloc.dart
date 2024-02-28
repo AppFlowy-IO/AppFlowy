@@ -29,7 +29,6 @@ class RelationRowSearchBloc
             emit(state.copyWith(filteredRows: allRows));
           },
           updateFilter: (String filter) => _updateFilter(filter, emit),
-          selectRow: (String rowId) {},
         );
       },
     );
@@ -62,7 +61,6 @@ class RelationRowSearchEvent with _$RelationRowSearchEvent {
   ) = _DidUpdateRowList;
   const factory RelationRowSearchEvent.updateFilter(String filter) =
       _UpdateFilter;
-  const factory RelationRowSearchEvent.selectRow(String rowId) = _SelectRow;
 }
 
 @freezed
