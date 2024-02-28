@@ -70,7 +70,7 @@ class _TextColorAndBackgroundColorState
     );
     final String? selectedBackgroundColor =
         widget.editorState.getDeltaAttributeValueInSelection(
-      AppFlowyRichTextKeys.highlightColor,
+      AppFlowyRichTextKeys.backgroundColor,
       widget.selection,
     );
     return Column(
@@ -122,7 +122,7 @@ class _TextColorAndBackgroundColorState
             await widget.editorState.formatDelta(
               widget.selection,
               {
-                AppFlowyRichTextKeys.highlightColor: hex,
+                AppFlowyRichTextKeys.backgroundColor: hex,
               },
               selectionExtraInfo: {
                 selectionExtraInfoDisableFloatingToolbar: true,

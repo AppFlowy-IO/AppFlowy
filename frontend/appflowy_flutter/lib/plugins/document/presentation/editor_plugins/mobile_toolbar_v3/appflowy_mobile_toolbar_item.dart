@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_toolbar_theme.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/appflowy_mobile_toolbar.dart';
@@ -42,7 +44,9 @@ class AppFlowyMobileToolbarIconItem extends StatefulWidget {
     this.keepSelectedStatus = false,
     this.iconBuilder,
     this.isSelected,
+    this.shouldListenToToggledStyle = false,
     required this.onTap,
+    required this.editorState,
   });
 
   final FlowySvgData? icon;
@@ -50,6 +54,8 @@ class AppFlowyMobileToolbarIconItem extends StatefulWidget {
   final VoidCallback onTap;
   final WidgetBuilder? iconBuilder;
   final bool Function()? isSelected;
+  final bool shouldListenToToggledStyle;
+  final EditorState editorState;
 
   @override
   State<AppFlowyMobileToolbarIconItem> createState() =>
@@ -59,12 +65,28 @@ class AppFlowyMobileToolbarIconItem extends StatefulWidget {
 class _AppFlowyMobileToolbarIconItemState
     extends State<AppFlowyMobileToolbarIconItem> {
   bool isSelected = false;
+  StreamSubscription? _subscription;
 
   @override
   void initState() {
     super.initState();
 
     isSelected = widget.isSelected?.call() ?? false;
+    if (widget.shouldListenToToggledStyle) {
+      widget.editorState.toggledStyleNotifier.addListener(_rebuild);
+      _subscription = widget.editorState.transactionStream.listen((_) {
+        _rebuild();
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    if (widget.shouldListenToToggledStyle) {
+      widget.editorState.toggledStyleNotifier.removeListener(_rebuild);
+      _subscription?.cancel();
+    }
+    super.dispose();
   }
 
   @override
@@ -85,15 +107,7 @@ class _AppFlowyMobileToolbarIconItemState
         behavior: HitTestBehavior.opaque,
         onTap: () {
           widget.onTap();
-          if (widget.keepSelectedStatus && widget.isSelected == null) {
-            setState(() {
-              isSelected = !isSelected;
-            });
-          } else {
-            setState(() {
-              isSelected = widget.isSelected?.call() ?? false;
-            });
-          }
+          _rebuild();
         },
         child: Container(
           width: 48,
@@ -110,5 +124,13 @@ class _AppFlowyMobileToolbarIconItemState
         ),
       ),
     );
+  }
+
+  void _rebuild() {
+    setState(() {
+      isSelected = (widget.keepSelectedStatus && widget.isSelected == null)
+          ? !isSelected
+          : widget.isSelected?.call() ?? false;
+    });
   }
 }

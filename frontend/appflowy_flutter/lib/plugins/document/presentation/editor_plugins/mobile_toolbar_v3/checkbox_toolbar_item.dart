@@ -6,6 +6,8 @@ final todoListToolbarItem = AppFlowyMobileToolbarItem(
   itemBuilder: (context, editorState, _, __, onAction) {
     final isSelected = editorState.isBlockTypeSelected(TodoListBlockKeys.type);
     return AppFlowyMobileToolbarIconItem(
+      editorState: editorState,
+      shouldListenToToggledStyle: true,
       keepSelectedStatus: true,
       isSelected: () => isSelected,
       icon: FlowySvgs.m_toolbar_checkbox_s,
