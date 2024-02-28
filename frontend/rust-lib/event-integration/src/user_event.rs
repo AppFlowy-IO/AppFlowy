@@ -17,8 +17,9 @@ use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
 use flowy_server_pub::AuthenticatorType;
 use flowy_user::entities::{
   AuthenticatorPB, CloudSettingPB, CreateWorkspacePB, ImportAppFlowyDataPB, OauthSignInPB,
-  RepeatedUserWorkspacePB, SignInUrlPB, SignInUrlPayloadPB, SignUpPayloadPB, UpdateCloudConfigPB,
-  UpdateUserProfilePayloadPB, UserProfilePB, UserWorkspaceIdPB, UserWorkspacePB,
+  RenameWorkspacePB, RepeatedUserWorkspacePB, SignInUrlPB, SignInUrlPayloadPB, SignUpPayloadPB,
+  UpdateCloudConfigPB, UpdateUserProfilePayloadPB, UserProfilePB, UserWorkspaceIdPB,
+  UserWorkspacePB,
 };
 use flowy_user::errors::{FlowyError, FlowyResult};
 use flowy_user::event_map::UserEvent;
@@ -222,6 +223,27 @@ impl EventIntegrationTest {
       .async_send()
       .await
       .parse::<UserWorkspacePB>()
+  }
+
+  pub async fn rename_workspace(
+    &self,
+    workspace_id: &str,
+    new_name: &str,
+  ) -> Result<(), FlowyError> {
+    let payload = RenameWorkspacePB {
+      workspace_id: workspace_id.to_owned(),
+      new_name: new_name.to_owned(),
+    };
+    match EventBuilder::new(self.clone())
+      .event(RenameWorkspace)
+      .payload(payload)
+      .async_send()
+      .await
+      .error()
+    {
+      Some(err) => Err(err),
+      None => Ok(()),
+    }
   }
 
   pub async fn get_all_workspaces(&self) -> RepeatedUserWorkspacePB {

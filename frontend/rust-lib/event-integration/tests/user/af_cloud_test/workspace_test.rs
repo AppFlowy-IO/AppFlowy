@@ -2,10 +2,25 @@ use std::time::Duration;
 
 use event_integration::user_event::user_localhost_af_cloud;
 use event_integration::EventIntegrationTest;
-use flowy_user::entities::RepeatedUserWorkspacePB;
+use flowy_user::entities::{RepeatedUserWorkspacePB, UserWorkspacePB};
 use flowy_user::protobuf::UserNotification;
 
 use crate::util::receive_with_timeout;
+
+#[tokio::test]
+async fn af_cloud_workspace_name_change() {
+  user_localhost_af_cloud().await;
+  let test = EventIntegrationTest::new().await;
+  let user_profile_pb = test.af_cloud_sign_up().await;
+  let workspaces = test.get_all_workspaces().await;
+  let workspace_id = workspaces.items[0].workspace_id.as_str();
+  test
+    .rename_workspace(workspace_id, "new_workspace_name")
+    .await
+    .expect("failed to rename workspace");
+  let workspaces = get_synced_workspaces(test, user_profile_pb.id).await;
+  assert_eq!(workspaces[0].name, "new_workspace_name".to_string());
+}
 
 #[tokio::test]
 async fn af_cloud_create_workspace_test() {
@@ -16,18 +31,10 @@ async fn af_cloud_create_workspace_test() {
   let workspaces = test.get_all_workspaces().await.items;
   assert_eq!(workspaces.len(), 1);
 
-  test.create_workspace("my second workspace").await;
-  let _workspaces = test.get_all_workspaces().await.items;
+  let created_workspace = test.create_workspace("my second workspace").await;
+  assert_eq!(created_workspace.name, "my second workspace");
 
-  let a = user_profile_pb.id.to_string();
-  let rx = test
-    .notification_sender
-    .subscribe::<RepeatedUserWorkspacePB>(&a, UserNotification::DidUpdateUserWorkspaces as i32);
-  let workspaces = receive_with_timeout(rx, Duration::from_secs(30))
-    .await
-    .unwrap()
-    .items;
-
+  let workspaces = get_synced_workspaces(test, user_profile_pb.id).await;
   assert_eq!(workspaces.len(), 2);
   assert_eq!(workspaces[1].name, "my second workspace".to_string());
 }
@@ -49,4 +56,19 @@ async fn af_cloud_open_workspace_test() {
   // the first view is the default get started view
   assert_eq!(views[1].name, "my first document".to_string());
   assert_eq!(views[2].name, "my second document".to_string());
+}
+
+async fn get_synced_workspaces(test: EventIntegrationTest, user_id: i64) -> Vec<UserWorkspacePB> {
+  let _workspaces = test.get_all_workspaces().await.items;
+  let sub_id = user_id.to_string();
+  let rx = test
+    .notification_sender
+    .subscribe::<RepeatedUserWorkspacePB>(
+      &sub_id,
+      UserNotification::DidUpdateUserWorkspaces as i32,
+    );
+  receive_with_timeout(rx, Duration::from_secs(30))
+    .await
+    .unwrap()
+    .items
 }
