@@ -1,13 +1,14 @@
 use std::any::Any;
 
 use collab::core::collab::IndexContentReceiver;
-use collab_folder::ViewIcon;
+use collab_folder::{ViewIcon, ViewLayout};
 use flowy_error::FlowyError;
 
 pub struct IndexableData {
   pub id: String,
   pub data: String,
   pub icon: Option<ViewIcon>,
+  pub layout: ViewLayout,
 }
 
 pub trait IndexManager: Send + Sync {

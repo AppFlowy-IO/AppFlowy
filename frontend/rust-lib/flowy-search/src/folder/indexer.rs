@@ -5,7 +5,7 @@ use crate::{
   folder::schema::{FolderSchema, FOLDER_ICON_FIELD_NAME, FOLDER_TITLE_FIELD_NAME},
 };
 use collab::core::collab::{IndexContent, IndexContentReceiver};
-use collab_folder::{timestamp, ViewIndexContent};
+use collab_folder::{timestamp, ViewIcon, ViewIndexContent, ViewLayout};
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_user::services::authenticate_user::AuthenticateUser;
 use lib_dispatch::prelude::af_spawn;
@@ -66,6 +66,27 @@ impl FolderIndexManager {
     Ok(self.index.writer(50_000_000)?)
   }
 
+  fn extract_icon(
+    &self,
+    view_icon: Option<ViewIcon>,
+    view_layout: ViewLayout,
+  ) -> (Option<String>, i64) {
+    let icon_ty: i64;
+    let icon: Option<String>;
+
+    if let Some(view_icon) = view_icon {
+      let result_icon_ty: ResultIconTypePB = view_icon.ty.into();
+      icon_ty = result_icon_ty.into();
+      icon = Some(view_icon.value);
+    } else {
+      icon_ty = ResultIconTypePB::Icon.into();
+      let layout_ty: i64 = view_layout.into();
+      icon = Some(layout_ty.to_string());
+    }
+
+    return (icon, icon_ty);
+  }
+
   pub fn search(&self, query: String) -> Result<Vec<SearchResultPB>, FlowyError> {
     let title_field = self
       .folder_schema
@@ -124,6 +145,7 @@ impl IndexManager for FolderIndexManager {
                 id: view.id,
                 data: view.name,
                 icon: view.icon,
+                layout: view.layout,
               });
             },
             Err(err) => tracing::error!("FolderIndexManager error deserialize: {:?}", err),
@@ -134,6 +156,7 @@ impl IndexManager for FolderIndexManager {
                 id: view.id,
                 data: view.name,
                 icon: view.icon,
+                layout: view.layout,
               });
             },
             Err(err) => tracing::error!("FolderIndexManager error deserialize: {:?}", err),
@@ -177,23 +200,14 @@ impl IndexManager for FolderIndexManager {
     // Remove old index
     index_writer.delete_term(delete_term);
 
-    let mut icon_ty: Option<i64> = None;
-    let mut icon: Option<String> = None;
-    match data.icon {
-      Some(view_icon) => {
-        let result_icon_ty: ResultIconTypePB = view_icon.ty.into();
-        icon_ty = Some(result_icon_ty.into());
-        icon = Some(view_icon.value);
-      },
-      None => (),
-    };
+    let (icon, icon_ty) = self.extract_icon(data.icon, data.layout);
 
     // Add new index
     let _ = index_writer.add_document(doc![
       id_field => data.id.clone(),
       title_field => data.data,
       icon_field => icon.unwrap_or_default(),
-      icon_ty_field => icon_ty.unwrap_or_default(),
+      icon_ty_field => icon_ty,
     ]);
 
     tracing::warn!("Update Index: {:?} At({})", data.id.clone(), timestamp());
@@ -245,23 +259,14 @@ impl IndexManager for FolderIndexManager {
       .get_field(FOLDER_ICON_TY_FIELD_NAME)
       .unwrap();
 
-    let mut icon_ty: Option<i64> = None;
-    let mut icon: Option<String> = None;
-    match data.icon {
-      Some(view_icon) => {
-        let result_icon_ty: ResultIconTypePB = view_icon.ty.into();
-        icon_ty = Some(result_icon_ty.into());
-        icon = Some(view_icon.value);
-      },
-      None => (),
-    };
+    let (icon, icon_ty) = self.extract_icon(data.icon, data.layout);
 
     // Add new index
     let _ = index_writer.add_document(doc![
       id_field => data.id,
       title_field => data.data,
       icon_field => icon.unwrap_or_default(),
-      icon_ty_field => icon_ty.unwrap_or_default(),
+      icon_ty_field => icon_ty,
     ]);
 
     index_writer.commit()?;

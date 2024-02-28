@@ -12,7 +12,10 @@ pub struct FolderSchema {
 
 /// Do not change the schema after the index has been created.
 /// Changing field_options or fields, will result in the schema being different
-/// from previously created index, causing tantivy to panic.
+/// from previously created index, causing tantivy to panic and search to stop functioning.
+///
+/// If you need to change the schema, create a migration that removes the old index,
+/// and creates a new one with the new schema.
 ///
 impl FolderSchema {
   pub fn new() -> Self {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/application/command_palette/search_result_ext.dart';
 import 'package:appflowy/workspace/application/notifications/notification_action.dart';
 import 'package:appflowy/workspace/application/notifications/notification_action_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-search/entities.pb.dart';
@@ -20,18 +20,15 @@ class SearchResultTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final icon = result.icon.value.isNotEmpty
-        ? EmojiText(
-            emoji: result.icon.value,
-            fontSize: 18.0,
-          )
-        : const SizedBox.shrink();
+    final icon = result.getIcon();
 
     return ListTile(
       title: Row(
         children: [
-          icon,
-          const HSpace(2),
+          if (icon != null) ...[
+            icon,
+            const HSpace(2),
+          ],
           FlowyText(result.data),
         ],
       ),
