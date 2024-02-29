@@ -14,6 +14,7 @@ export function useSelectionToolbar(ref: MutableRefObject<HTMLDivElement | null>
   const [isAcrossBlocks, setIsAcrossBlocks] = useState(false);
   const [visible, setVisible] = useState(false);
   const isFocusedEditor = useFocused();
+  const isIncludeRoot = CustomEditor.selectionIncludeRoot(editor);
 
   // paint the selection when the editor is blurred
   const { add: addDecorate, clear: clearDecorate, getStaticState } = useDecorateDispatch();
@@ -58,12 +59,6 @@ export function useSelectionToolbar(ref: MutableRefObject<HTMLDivElement | null>
     const el = ref.current;
 
     if (!el) {
-      return;
-    }
-
-    // Close toolbar when selection include root
-    if (CustomEditor.selectionIncludeRoot(editor)) {
-      closeToolbar();
       return;
     }
 
@@ -123,7 +118,7 @@ export function useSelectionToolbar(ref: MutableRefObject<HTMLDivElement | null>
       closeToolbar();
     };
 
-    if (!isFocusedEditor || !selection || SlateRange.isCollapsed(selection)) {
+    if (isIncludeRoot || !isFocusedEditor || !selection || SlateRange.isCollapsed(selection)) {
       close();
       return;
     }
@@ -205,5 +200,6 @@ export function useSelectionToolbar(ref: MutableRefObject<HTMLDivElement | null>
     restoreSelection,
     storeSelection,
     isAcrossBlocks,
+    isIncludeRoot,
   };
 }

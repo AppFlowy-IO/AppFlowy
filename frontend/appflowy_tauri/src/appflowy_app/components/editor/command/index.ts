@@ -30,6 +30,7 @@ import {
   ToggleListNode,
   inlineNodeTypes,
   FormulaNode,
+  ImageNode,
 } from '$app/application/document/document.types';
 import cloneDeep from 'lodash-es/cloneDeep';
 import { generateId } from '$app/components/editor/provider/utils/convert';
@@ -39,6 +40,7 @@ export const EmbedTypes: string[] = [
   EditorNodeType.DividerBlock,
   EditorNodeType.EquationBlock,
   EditorNodeType.GridBlock,
+  EditorNodeType.ImageBlock,
 ];
 
 export const CustomEditor = {
@@ -120,7 +122,7 @@ export const CustomEditor = {
         at: path,
       });
       Transforms.insertNodes(editor, cloneNode, { at: path });
-      return;
+      return cloneNode;
     }
 
     const isListType = LIST_TYPES.includes(cloneNode.type as EditorNodeType);
@@ -148,6 +150,8 @@ export const CustomEditor = {
     if (selection) {
       editor.select(selection);
     }
+
+    return cloneNode;
   },
   tabForward,
   tabBackward,
@@ -340,6 +344,19 @@ export const CustomEditor = {
       data: {
         ...data,
         viewId: newViewId,
+      },
+    } as Partial<Element>;
+
+    Transforms.setNodes(editor, newProperties, { at: path });
+  },
+
+  setImageBlockData(editor: ReactEditor, node: Element, newData: ImageNode['data']) {
+    const path = ReactEditor.findPath(editor, node);
+    const data = node.data || {};
+    const newProperties = {
+      data: {
+        ...data,
+        ...newData,
       },
     } as Partial<Element>;
 

@@ -21,6 +21,8 @@ import { Callout } from '$app/components/editor/components/blocks/callout';
 import { Mention } from '$app/components/editor/components/inline_nodes/mention';
 import { GridBlock } from '$app/components/editor/components/blocks/database';
 import { MathEquation } from '$app/components/editor/components/blocks/math_equation';
+import { ImageBlock } from '$app/components/editor/components/blocks/image';
+
 import { Text as TextComponent } from '../blocks/text';
 import { Page } from '../blocks/page';
 import { useElementState } from '$app/components/editor/components/editor/Element.hooks';
@@ -68,6 +70,8 @@ function Element({ element, attributes, children }: RenderElementProps) {
         return GridBlock;
       case EditorNodeType.EquationBlock:
         return MathEquation;
+      case EditorNodeType.ImageBlock:
+        return ImageBlock;
       default:
         return UnSupportBlock;
     }

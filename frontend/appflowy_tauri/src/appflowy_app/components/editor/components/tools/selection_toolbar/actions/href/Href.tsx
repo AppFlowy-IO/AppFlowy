@@ -4,12 +4,12 @@ import { useTranslation } from 'react-i18next';
 import { ReactEditor, useSlateStatic } from 'slate-react';
 import { CustomEditor } from '$app/components/editor/command';
 import { ReactComponent as LinkSvg } from '$app/assets/link.svg';
-import { Editor } from 'slate';
+import { Editor, Range } from 'slate';
 import { EditorMarkFormat } from '$app/application/document/document.types';
 import { useDecorateDispatch, useDecorateState } from '$app/components/editor/stores';
 import { LinkEditPopover } from '$app/components/editor/components/inline_nodes/link';
 import isHotkey from 'is-hotkey';
-import { getModifier } from '$app/utils/get_modifier';
+import { getModifier } from '$app/utils/hotkeys';
 
 export function Href() {
   const { t } = useTranslation();
@@ -69,6 +69,7 @@ export function Href() {
     const editorDom = ReactEditor.toDOMNode(editor, editor);
     const handleShortcut = (e: KeyboardEvent) => {
       if (isHotkey('mod+k', e)) {
+        if (editor.selection && Range.isCollapsed(editor.selection)) return;
         e.preventDefault();
         e.stopPropagation();
         onClick();
