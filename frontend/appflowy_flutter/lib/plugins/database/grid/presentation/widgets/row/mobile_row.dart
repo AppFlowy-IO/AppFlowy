@@ -68,7 +68,7 @@ class _MobileGridRowState extends State<MobileGridRow> {
         builder: (context, state) {
           return Row(
             children: [
-              SizedBox(width: GridSize.leadingHeaderPadding),
+              SizedBox(width: GridSize.horizontalHeaderPadding),
               Expanded(
                 child: RowContent(
                   fieldController: widget.databaseController.fieldController,
@@ -163,7 +163,6 @@ class RowContent extends StatelessWidget {
   Widget _finalCellDecoration(BuildContext context) {
     return Container(
       width: 200,
-      padding: GridSize.headerContentInsets,
       constraints: const BoxConstraints(minHeight: 46),
       decoration: BoxDecoration(
         border: Border(
