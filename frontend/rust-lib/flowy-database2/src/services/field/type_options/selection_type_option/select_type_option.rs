@@ -5,7 +5,7 @@ use collab_database::rows::Cell;
 use flowy_error::{internal_error, ErrorCode, FlowyResult};
 
 use crate::entities::{CheckboxCellDataPB, FieldType, SelectOptionCellDataPB};
-use crate::services::cell::{CellDataDecoder, CellProtobufBlobParser, DecodedCellData};
+use crate::services::cell::{CellDataDecoder, CellProtobufBlobParser};
 use crate::services::field::selection_type_option::type_option_transform::SelectOptionTypeOptionTransformHelper;
 use crate::services::field::{
   make_selected_options, MultiSelectTypeOption, SelectOption, SelectOptionCellData,
@@ -208,14 +208,6 @@ impl CellProtobufBlobParser for SelectOptionIdsParser {
       Ok(s) => Ok(SelectOptionIds::from(s)),
       Err(_) => Ok(SelectOptionIds::from("".to_owned())),
     }
-  }
-}
-
-impl DecodedCellData for SelectOptionCellDataPB {
-  type Object = SelectOptionCellDataPB;
-
-  fn is_empty(&self) -> bool {
-    self.select_options.is_empty()
   }
 }
 

@@ -4,7 +4,7 @@ use collab_database::rows::{new_cell_builder, Cell};
 use flowy_error::FlowyResult;
 
 use crate::entities::FieldType;
-use crate::services::cell::{DecodedCellData, FromCellString};
+use crate::services::cell::FromCellString;
 use crate::services::field::{TypeOptionCellData, CELL_DATA};
 
 pub const SELECTION_IDS_SEPARATOR: &str = ",";
@@ -105,13 +105,5 @@ impl std::ops::Deref for SelectOptionIds {
 impl std::ops::DerefMut for SelectOptionIds {
   fn deref_mut(&mut self) -> &mut Self::Target {
     &mut self.0
-  }
-}
-
-impl DecodedCellData for SelectOptionIds {
-  type Object = SelectOptionIds;
-
-  fn is_empty(&self) -> bool {
-    self.0.is_empty()
   }
 }

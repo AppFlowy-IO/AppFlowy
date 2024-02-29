@@ -11,7 +11,7 @@ use strum_macros::EnumIter;
 use flowy_error::{internal_error, FlowyResult};
 
 use crate::entities::{DateCellDataPB, FieldType};
-use crate::services::cell::{CellProtobufBlobParser, DecodedCellData, FromCellString};
+use crate::services::cell::{CellProtobufBlobParser, FromCellString};
 use crate::services::field::{TypeOptionCellData, CELL_DATA};
 
 #[derive(Clone, Debug, Default)]
@@ -285,14 +285,6 @@ impl TimeFormat {
       TimeFormat::TwelveHour => "%I:%M %p",
       TimeFormat::TwentyFourHour => "%R",
     }
-  }
-}
-
-impl DecodedCellData for DateCellDataPB {
-  type Object = DateCellDataPB;
-
-  fn is_empty(&self) -> bool {
-    self.date.is_empty()
   }
 }
 

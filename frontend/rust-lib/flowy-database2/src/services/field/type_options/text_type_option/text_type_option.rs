@@ -10,8 +10,7 @@ use flowy_error::{FlowyError, FlowyResult};
 
 use crate::entities::{FieldType, TextFilterPB};
 use crate::services::cell::{
-  stringify_cell_data, CellDataChangeset, CellDataDecoder, CellProtobufBlobParser, DecodedCellData,
-  FromCellString,
+  stringify_cell_data, CellDataChangeset, CellDataDecoder, CellProtobufBlobParser, FromCellString,
 };
 use crate::services::field::type_options::util::ProtobufStr;
 use crate::services::field::{
@@ -203,14 +202,6 @@ impl FromCellString for TextCellData {
 impl ToString for TextCellData {
   fn to_string(&self) -> String {
     self.0.clone()
-  }
-}
-
-impl DecodedCellData for TextCellData {
-  type Object = TextCellData;
-
-  fn is_empty(&self) -> bool {
-    self.0.is_empty()
   }
 }
 
