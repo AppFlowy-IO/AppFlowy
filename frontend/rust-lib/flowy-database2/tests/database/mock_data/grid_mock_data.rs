@@ -3,10 +3,10 @@ use collab_database::views::{DatabaseLayout, DatabaseView};
 use strum::IntoEnumIterator;
 
 use flowy_database2::entities::FieldType;
-use flowy_database2::services::field::checklist_type_option::ChecklistTypeOption;
 use flowy_database2::services::field::{
-  DateFormat, DateTypeOption, FieldBuilder, MultiSelectTypeOption, NumberFormat, NumberTypeOption,
-  SelectOption, SelectOptionColor, SingleSelectTypeOption, TimeFormat, TimestampTypeOption,
+  ChecklistTypeOption, DateFormat, DateTypeOption, FieldBuilder, MultiSelectTypeOption,
+  NumberFormat, NumberTypeOption, RelationTypeOption, SelectOption, SelectOptionColor,
+  SingleSelectTypeOption, TimeFormat, TimestampTypeOption,
 };
 use flowy_database2::services::field_settings::default_field_settings_for_fields;
 
@@ -127,6 +127,16 @@ pub fn make_test_grid() -> DatabaseData {
           .visibility(true)
           .build();
         fields.push(checklist_field);
+      },
+      FieldType::Relation => {
+        let type_option = RelationTypeOption {
+          database_id: "".to_string(),
+        };
+        let relation_field = FieldBuilder::new(field_type, type_option)
+          .name("Related")
+          .visibility(true)
+          .build();
+        fields.push(relation_field);
       },
     }
   }

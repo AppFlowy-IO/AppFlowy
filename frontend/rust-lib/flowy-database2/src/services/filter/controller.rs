@@ -358,6 +358,12 @@ impl FilterController {
             .write()
             .insert(field_id, ChecklistFilterPB::from_filter(filter.as_ref()));
         },
+        FieldType::Relation => {
+          self
+            .cell_filter_cache
+            .write()
+            .insert(field_id, RelationFilterPB::from_filter(filter.as_ref()));
+        },
       }
     }
   }
