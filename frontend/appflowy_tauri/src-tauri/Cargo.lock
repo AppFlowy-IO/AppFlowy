@@ -839,7 +839,7 @@ dependencies = [
 [[package]]
 name = "collab"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=9f340e85e09af97a83d44b66069a93d63c6f2279#9f340e85e09af97a83d44b66069a93d63c6f2279"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=627f682baefa570ff133c81a45f879864ab1af42#627f682baefa570ff133c81a45f879864ab1af42"
 dependencies = [
  "anyhow",
  "async-trait",
