@@ -10,13 +10,13 @@ pub struct SearchQueryPB {
   pub limit: Option<i64>,
 }
 
-#[derive(Eq, PartialEq, Debug, Default, ProtoBuf, Clone)]
+#[derive(Debug, Default, ProtoBuf, Clone)]
 pub struct RepeatedSearchResultPB {
   #[pb(index = 1)]
   pub items: Vec<SearchResultPB>,
 }
 
-#[derive(ProtoBuf, Default, Eq, PartialEq, Debug, Clone)]
+#[derive(ProtoBuf, Default, Debug, Clone)]
 pub struct SearchResultPB {
   #[pb(index = 1)]
   pub index_type: IndexTypePB,
@@ -34,7 +34,20 @@ pub struct SearchResultPB {
   pub icon: Option<ResultIconPB>,
 
   #[pb(index = 6)]
-  pub score: i64,
+  pub score: f64,
+}
+
+impl SearchResultPB {
+  pub fn with_score(&self, score: f64) -> Self {
+    SearchResultPB {
+      index_type: self.index_type.clone(),
+      view_id: self.view_id.clone(),
+      id: self.id.clone(),
+      data: self.data.clone(),
+      icon: self.icon.clone(),
+      score,
+    }
+  }
 }
 
 #[derive(ProtoBuf_Enum, Clone, Debug, PartialEq, Eq, Default)]
@@ -142,7 +155,7 @@ impl std::convert::From<i32> for IndexTypePB {
   }
 }
 
-#[derive(Eq, PartialEq, ProtoBuf, Default, Debug, Clone)]
+#[derive(ProtoBuf, Default, Debug, Clone)]
 pub struct SearchResultNotificationPB {
   #[pb(index = 1)]
   pub items: Vec<SearchResultPB>,

@@ -26,7 +26,7 @@ impl From<FolderIndexData> for SearchResultPB {
       view_id: data.id.clone(),
       id: data.id,
       data: data.title,
-      score: 0,
+      score: 0.0,
       icon,
     }
   }

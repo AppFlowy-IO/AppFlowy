@@ -9,6 +9,7 @@ use collab_folder::{ViewIcon, ViewIndexContent, ViewLayout};
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_user::services::authenticate_user::AuthenticateUser;
 use lib_dispatch::prelude::af_spawn;
+use strsim::levenshtein;
 use tantivy::{
   collector::TopDocs, directory::MmapDirectory, doc, query::QueryParser, Index, IndexReader,
   IndexWriter, Term,
@@ -109,8 +110,9 @@ impl FolderIndexManager {
 
     let searcher = self.index_reader.searcher();
 
-    let top_docs = searcher.search(&built_query, &TopDocs::with_limit(10))?;
     let mut search_results: Vec<SearchResultPB> = vec![];
+
+    let top_docs = searcher.search(&built_query, &TopDocs::with_limit(10))?;
 
     // TODO: Score results by distance
     for (_score, doc_address) in top_docs {
@@ -128,10 +130,17 @@ impl FolderIndexManager {
 
       let s = serde_json::to_string(&content)?;
       let result: SearchResultPB = serde_json::from_str::<FolderIndexData>(&s)?.into();
-      search_results.push(result);
+      let score = self.score_result(&query, &result.data);
+      search_results.push(result.with_score(score));
     }
 
     Ok(search_results)
+  }
+
+  // Score result by distance
+  fn score_result(&self, query: &str, term: &str) -> f64 {
+    let distance = levenshtein(query, term) as f64;
+    1.0 / (distance + 1.0)
   }
 }
 

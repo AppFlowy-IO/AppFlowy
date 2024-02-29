@@ -50,7 +50,7 @@ class CommandPaletteBloc
           }
 
           final searchResults = _filterDuplicates(results.items);
-          searchResults.sort((a, b) => a.score.compareTo(b.score));
+          searchResults.sort((a, b) => b.score.compareTo(a.score));
 
           emit(
             state.copyWith(

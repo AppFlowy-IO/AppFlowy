@@ -31,6 +31,7 @@ tokio = { workspace = true, features = ["full", "rt-multi-thread", "tracing"] }
 tracing.workspace = true
 
 async-stream = "0.3.4"
+strsim = "0.11.0"
 strum_macros = "0.26.1"
 tantivy = { version = "0.21.1" }
 tempfile = "3.9.0"
