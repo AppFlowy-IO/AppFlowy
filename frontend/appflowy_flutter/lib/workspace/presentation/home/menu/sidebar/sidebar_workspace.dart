@@ -29,9 +29,8 @@ class SidebarWorkspace extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider<UserWorkspaceBloc>(
       create: (context) => UserWorkspaceBloc(userProfile: userProfile)
-        ..add(
-          const UserWorkspaceEvent.initial(),
-        ),
+        ..add(const UserWorkspaceEvent.initial())
+        ..add(const UserWorkspaceEvent.fetchWorkspaces()),
       child: BlocBuilder<UserWorkspaceBloc, UserWorkspaceState>(
         builder: (context, state) => Row(
           children: [
@@ -108,7 +107,8 @@ class _WorkspaceWrapper extends StatelessWidget {
         clickHandler: PopoverClickHandler.gestureDetector,
         popupBuilder: (_) {
           return BlocProvider<UserWorkspaceBloc>.value(
-            value: context.read<UserWorkspaceBloc>(),
+            value: context.read<UserWorkspaceBloc>()
+              ..add(const UserWorkspaceEvent.fetchWorkspaces()),
             child: BlocBuilder<UserWorkspaceBloc, UserWorkspaceState>(
               builder: (context, state) {
                 return _WorkspaceMenu(

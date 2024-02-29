@@ -18,6 +18,9 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
       (event, emit) async {
         await event.map(
           initial: (e) async {
+            // do nothing
+          },
+          fetchWorkspaces: (e) async {
             await _fetchCurrentWorkspace(emit);
             await _fetchWorkspaces(emit);
           },
@@ -32,7 +35,8 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
                   successOrFailure: FlowyResult.success(null),
                 ),
                 (error) => state.copyWith(
-                    successOrFailure: FlowyResult.failure(error)),
+                  successOrFailure: FlowyResult.failure(error),
+                ),
               ),
             );
           },
@@ -70,10 +74,13 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
     final workspacesOrFailed = await _userService.getWorkspaces();
     emit(
       workspacesOrFailed.fold(
-        (workspaces) => state.copyWith(
-          workspaces: workspaces,
-          successOrFailure: FlowyResult.success(null),
-        ),
+        (workspaces) {
+          Log.debug('fetching workspaces: $workspaces');
+          return state.copyWith(
+            workspaces: workspaces,
+            successOrFailure: FlowyResult.success(null),
+          );
+        },
         (error) {
           Log.error(error);
           return state.copyWith(successOrFailure: FlowyResult.failure(error));
@@ -143,6 +150,7 @@ class UserWorkspaceEvent with _$UserWorkspaceEvent {
   const factory UserWorkspaceEvent.initial() = Initial;
   const factory UserWorkspaceEvent.createWorkspace(String name, String desc) =
       CreateWorkspace;
+  const factory UserWorkspaceEvent.fetchWorkspaces() = FetchWorkspaces;
   const factory UserWorkspaceEvent.deleteWorkspace(String workspaceId) =
       DeleteWorkspace;
   const factory UserWorkspaceEvent.openWorkspace(String workspaceId) =
