@@ -134,7 +134,9 @@ class TimeInputFormatter extends TextInputFormatter {
       return _formatText(newText, spacePosition, ' ');
     }
 
-    return newValue;
+    return TextEditingValue(
+      text: newText.toUpperCase(),
+    );
   }
 
   TextEditingValue _formatText(String text, int index, String separator) {

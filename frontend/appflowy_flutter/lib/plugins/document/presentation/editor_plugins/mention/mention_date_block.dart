@@ -260,6 +260,7 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
   DateTime _parseTime(String timeStr, UserTimeFormatPB timeFormat) {
     final twelveHourFormat = DateFormat('hh:mm a');
     final twentyFourHourFormat = DateFormat('HH:mm');
+
     try {
       if (timeFormat == UserTimeFormatPB.TwelveHour) {
         return twelveHourFormat.parseStrict(timeStr);
