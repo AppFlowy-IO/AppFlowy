@@ -117,7 +117,7 @@ pub trait TypeOptionTransform: TypeOption {
   ///
   /// # Arguments
   ///
-  /// * `cell_str`: the cell string of the current field type
+  /// * `cell`: the cell in the current field type
   /// * `transformed_field_type`: the cell will be transformed to the is field type's cell data.
   /// current `TypeOption` field type.
   ///
@@ -135,7 +135,6 @@ pub trait TypeOptionCellDataFilter: TypeOption + CellDataDecoder {
   fn apply_filter(
     &self,
     filter: &<Self as TypeOption>::CellFilter,
-    field_type: &FieldType,
     cell_data: &<Self as TypeOption>::CellData,
   ) -> bool;
 }
