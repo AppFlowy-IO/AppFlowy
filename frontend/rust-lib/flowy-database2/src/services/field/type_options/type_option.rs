@@ -23,16 +23,15 @@ use crate::services::filter::FromFilterString;
 use crate::services::sort::SortCondition;
 
 pub trait TypeOption {
-  /// `CellData` represents as the decoded model for current type option. Each of them impl the
-  /// `FromCellString` and `Default` trait. If the cell string can not be decoded into the specified
-  /// cell data type then the default value will be returned.
-  /// For example:
+  /// `CellData` represents the decoded model for the current type option. Each of them must
+  /// implement the From<&Cell> trait. If the `Cell` cannot be decoded into this type, the default
+  /// value will be returned.
+  ///
+  /// Note: Use `StrCellData` for any `TypeOption` whose cell data is simply `String`.
   ///
   /// - FieldType::Checkbox => CheckboxCellData
   /// - FieldType::Date => DateCellData
   /// - FieldType::URL => URLCellData
-  ///
-  /// Uses `StrCellData` for any `TypeOption` if their cell data is pure `String`.
   ///
   type CellData: for<'a> From<&'a Cell>
     + TypeOptionCellData

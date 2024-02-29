@@ -216,8 +216,6 @@ mod tests {
     debug_assert_eq!(multi_select.options.len(), 2);
   }
 
-  // #[test]
-
   #[test]
   fn multi_select_insert_multi_option_test() {
     let google = SelectOption::new("Google");

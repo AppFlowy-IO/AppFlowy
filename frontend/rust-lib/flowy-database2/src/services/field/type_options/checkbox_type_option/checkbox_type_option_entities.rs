@@ -7,7 +7,7 @@ use collab_database::rows::{new_cell_builder, Cell};
 use flowy_error::{FlowyError, FlowyResult};
 
 use crate::entities::{CheckboxCellDataPB, FieldType};
-use crate::services::cell::{CellProtobufBlobParser, DecodedCellData, FromCellString};
+use crate::services::cell::CellProtobufBlobParser;
 use crate::services::field::{TypeOptionCellData, CELL_DATA};
 
 pub const CHECK: &str = "Yes";
@@ -22,7 +22,7 @@ impl TypeOptionCellData for CheckboxCellDataPB {
 impl From<&Cell> for CheckboxCellDataPB {
   fn from(cell: &Cell) -> Self {
     let value = cell.get_str_value(CELL_DATA).unwrap_or_default();
-    CheckboxCellDataPB::from_cell_str(&value).unwrap_or_default()
+    CheckboxCellDataPB::from_str(&value).unwrap_or_default()
   }
 }
 
@@ -49,15 +49,6 @@ impl FromStr for CheckboxCellDataPB {
   }
 }
 
-impl FromCellString for CheckboxCellDataPB {
-  fn from_cell_str(s: &str) -> FlowyResult<Self>
-  where
-    Self: Sized,
-  {
-    Self::from_str(s)
-  }
-}
-
 impl ToString for CheckboxCellDataPB {
   fn to_string(&self) -> String {
     if self.is_checked {
@@ -65,14 +56,6 @@ impl ToString for CheckboxCellDataPB {
     } else {
       UNCHECK.to_string()
     }
-  }
-}
-
-impl DecodedCellData for CheckboxCellDataPB {
-  type Object = CheckboxCellDataPB;
-
-  fn is_empty(&self) -> bool {
-    false
   }
 }
 
