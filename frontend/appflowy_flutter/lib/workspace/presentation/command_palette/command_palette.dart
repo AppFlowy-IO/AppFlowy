@@ -101,7 +101,9 @@ class _CommandPaletteControllerState extends State<_CommandPaletteController> {
         context: context,
         builder: (_) => BlocProvider.value(
           value: _commandPaletteBloc,
-          child: _buildShortcut(child: const CommandPaletteModal()),
+          child: CommandPaletteModal(
+            shortcutBuilder: (child) => _buildShortcut(child: child),
+          ),
         ),
       ).then((_) {
         _isOpen = false;
@@ -139,7 +141,9 @@ class _CommandPaletteControllerState extends State<_CommandPaletteController> {
 }
 
 class CommandPaletteModal extends StatelessWidget {
-  const CommandPaletteModal({super.key});
+  const CommandPaletteModal({super.key, required this.shortcutBuilder});
+
+  final Widget Function(Widget) shortcutBuilder;
 
   @override
   Widget build(BuildContext context) {
@@ -150,26 +154,28 @@ class CommandPaletteModal extends StatelessWidget {
           insetPadding: const EdgeInsets.only(top: 100),
           constraints: const BoxConstraints(maxHeight: 420, maxWidth: 510),
           expandHeight: false,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SearchField(query: state.query, isLoading: state.isLoading),
-              if ((state.query?.isEmpty ?? true) ||
-                  state.isLoading && state.results.isEmpty) ...[
-                const Divider(height: 0),
-                Flexible(
-                  child: RecentViewsList(
-                    onSelected: () => FlowyOverlay.pop(context),
+          child: shortcutBuilder(
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SearchField(query: state.query, isLoading: state.isLoading),
+                if ((state.query?.isEmpty ?? true) ||
+                    state.isLoading && state.results.isEmpty) ...[
+                  const Divider(height: 0),
+                  Flexible(
+                    child: RecentViewsList(
+                      onSelected: () => FlowyOverlay.pop(context),
+                    ),
                   ),
-                ),
+                ],
+                if (state.results.isNotEmpty) ...[
+                  const Divider(height: 0),
+                  Flexible(
+                    child: SearchResultsList(results: state.results),
+                  ),
+                ],
               ],
-              if (state.results.isNotEmpty) ...[
-                const Divider(height: 0),
-                Flexible(
-                  child: SearchResultsList(results: state.results),
-                ),
-              ],
-            ],
+            ),
           ),
         );
       },
