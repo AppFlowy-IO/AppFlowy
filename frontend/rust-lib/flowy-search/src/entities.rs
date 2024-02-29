@@ -89,9 +89,9 @@ impl std::convert::From<i64> for ResultIconTypePB {
   }
 }
 
-impl std::convert::Into<i64> for ResultIconTypePB {
-  fn into(self) -> i64 {
-    match self {
+impl std::convert::From<ResultIconTypePB> for i64 {
+  fn from(val: ResultIconTypePB) -> Self {
+    match val {
       ResultIconTypePB::Emoji => 0,
       ResultIconTypePB::Url => 1,
       ResultIconTypePB::Icon => 2,

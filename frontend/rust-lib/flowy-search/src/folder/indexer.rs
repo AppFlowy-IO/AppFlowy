@@ -85,7 +85,7 @@ impl FolderIndexManager {
       icon = Some(layout_ty.to_string());
     }
 
-    return (icon, icon_ty);
+    (icon, icon_ty)
   }
 
   pub fn search(&self, query: String) -> Result<Vec<SearchResultPB>, FlowyError> {
