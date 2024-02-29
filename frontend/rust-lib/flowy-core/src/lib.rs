@@ -146,8 +146,7 @@ impl AppFlowyCore {
         Arc::downgrade(&(server_provider.clone() as Arc<dyn ObjectStorageService>)),
       );
 
-      let folder_indexer =
-        Arc::new(FolderIndexManager::new(Arc::downgrade(&authenticate_user)).unwrap());
+      let folder_indexer = Arc::new(FolderIndexManager::new(Arc::downgrade(&authenticate_user)));
       let folder_manager = FolderDepsResolver::resolve(
         Arc::downgrade(&authenticate_user),
         &document_manager,

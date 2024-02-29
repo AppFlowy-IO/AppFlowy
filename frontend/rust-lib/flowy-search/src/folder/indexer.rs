@@ -27,44 +27,87 @@ use super::{
 
 #[derive(Clone)]
 pub struct FolderIndexManager {
-  folder_schema: FolderSchema,
-  index: Index,
-  index_reader: IndexReader,
+  folder_schema: Option<FolderSchema>,
+  index: Option<Index>,
+  index_reader: Option<IndexReader>,
 }
 
 const FOLDER_INDEX_DIR: &str = "folder_index";
 
 impl FolderIndexManager {
-  pub fn new(auth_user: Weak<AuthenticateUser>) -> FlowyResult<Self> {
+  pub fn new(auth_user: Weak<AuthenticateUser>) -> Self {
     let authenticate_user = auth_user.upgrade();
     let storage_path = match authenticate_user {
       Some(auth_user) => auth_user.get_index_path(),
       None => {
-        return Err(FlowyError::internal().with_context("The AuthenticateUser is not available"))
+        tracing::error!("FolderIndexManager: AuthenticateUser is not available");
+        return FolderIndexManager::empty();
       },
     };
 
     let index_path = storage_path.join(Path::new(FOLDER_INDEX_DIR));
     if !index_path.exists() {
-      fs::create_dir_all(&index_path)?;
+      let res = fs::create_dir_all(&index_path);
+      if let Err(e) = res {
+        tracing::error!(
+          "FolderIndexManager failed to create index directory: {:?}",
+          e
+        );
+        return FolderIndexManager::empty();
+      }
     }
 
-    let dir = MmapDirectory::open(index_path)?;
+    let dir = MmapDirectory::open(index_path);
+    if let Err(e) = dir {
+      tracing::error!("FolderIndexManager failed to open index directory: {:?}", e);
+      return FolderIndexManager::empty();
+    }
+
     let folder_schema = FolderSchema::new();
+    let index_res = Index::open_or_create(dir.unwrap(), folder_schema.clone().schema);
+    if let Err(e) = index_res {
+      tracing::error!("FolderIndexManager failed to open index: {:?}", e);
+      return FolderIndexManager::empty();
+    }
 
-    let index = Index::open_or_create(dir, folder_schema.clone().schema)?;
-    let index_reader = index.reader()?;
+    let index = index_res.unwrap();
+    let index_reader = index.reader();
+    if let Err(e) = index_reader {
+      tracing::error!(
+        "FolderIndexManager failed to instantiate index reader: {:?}",
+        e
+      );
+      return FolderIndexManager::empty();
+    }
 
-    Ok(Self {
-      folder_schema,
-      index,
-      index_reader,
-    })
+    Self {
+      folder_schema: Some(folder_schema),
+      index: Some(index),
+      index_reader: Some(index_reader.unwrap()),
+    }
+  }
+
+  fn empty() -> Self {
+    Self {
+      folder_schema: None,
+      index: None,
+      index_reader: None,
+    }
   }
 
   fn get_index_writer(&self) -> FlowyResult<IndexWriter> {
-    // Creates an IndexWriter with a heap size of 50 MB (50.000.000 bytes)
-    Ok(self.index.writer(50_000_000)?)
+    match &self.index {
+      // Creates an IndexWriter with a heap size of 50 MB (50.000.000 bytes)
+      Some(index) => Ok(index.writer(50_000_000)?),
+      None => Err(FlowyError::folder_index_manager_unavailable()),
+    }
+  }
+
+  fn get_folder_schema(&self) -> FlowyResult<FolderSchema> {
+    match &self.folder_schema {
+      Some(folder_schema) => Ok(folder_schema.clone()),
+      None => Err(FlowyError::folder_index_manager_unavailable()),
+    }
   }
 
   fn extract_icon(
@@ -89,37 +132,39 @@ impl FolderIndexManager {
   }
 
   pub fn search(&self, query: String) -> Result<Vec<SearchResultPB>, FlowyError> {
-    let title_field = self
-      .folder_schema
-      .schema
-      .get_field(FOLDER_TITLE_FIELD_NAME)
-      .unwrap();
+    let folder_schema = self.get_folder_schema()?;
 
-    let length = query.len();
-    let distance: u8 = if length > 4 {
-      2
-    } else if length > 2 {
-      1
-    } else {
-      0
+    let index = match &self.index {
+      Some(index) => index,
+      None => return Err(FlowyError::folder_index_manager_unavailable()),
     };
 
-    let mut query_parser = QueryParser::for_index(&self.index.clone(), vec![title_field]);
+    let index_reader = match &self.index_reader {
+      Some(index_reader) => index_reader,
+      None => return Err(FlowyError::folder_index_manager_unavailable()),
+    };
+
+    let title_field = folder_schema.schema.get_field(FOLDER_TITLE_FIELD_NAME)?;
+
+    let length = query.len();
+    let distance: u8 = match length {
+      _ if length > 4 => 2,
+      _ if length > 2 => 1,
+      _ => 0,
+    };
+
+    let mut query_parser = QueryParser::for_index(&index.clone(), vec![title_field]);
     query_parser.set_field_fuzzy(title_field, true, distance, true);
-    let built_query = query_parser.parse_query(&query.clone()).unwrap();
+    let built_query = query_parser.parse_query(&query.clone())?;
 
-    let searcher = self.index_reader.searcher();
-
+    let searcher = index_reader.searcher();
     let mut search_results: Vec<SearchResultPB> = vec![];
-
     let top_docs = searcher.search(&built_query, &TopDocs::with_limit(10))?;
-
-    // TODO: Score results by distance
     for (_score, doc_address) in top_docs {
       let retrieved_doc = searcher.doc(doc_address)?;
 
       let mut content = HashMap::new();
-      let named_doc = self.folder_schema.schema.to_named_doc(&retrieved_doc);
+      let named_doc = folder_schema.schema.to_named_doc(&retrieved_doc);
       for (k, v) in named_doc.0 {
         content.insert(k, v[0].clone());
       }
@@ -185,26 +230,11 @@ impl IndexManager for FolderIndexManager {
   fn update_index(&self, data: IndexableData) -> Result<(), FlowyError> {
     let mut index_writer = self.get_index_writer()?;
 
-    let id_field = self
-      .folder_schema
-      .schema
-      .get_field(FOLDER_ID_FIELD_NAME)
-      .unwrap();
-    let title_field = self
-      .folder_schema
-      .schema
-      .get_field(FOLDER_TITLE_FIELD_NAME)
-      .unwrap();
-    let icon_field = self
-      .folder_schema
-      .schema
-      .get_field(FOLDER_ICON_FIELD_NAME)
-      .unwrap();
-    let icon_ty_field = self
-      .folder_schema
-      .schema
-      .get_field(FOLDER_ICON_TY_FIELD_NAME)
-      .unwrap();
+    let folder_schema = self.get_folder_schema()?;
+    let id_field = folder_schema.schema.get_field(FOLDER_ID_FIELD_NAME)?;
+    let title_field = folder_schema.schema.get_field(FOLDER_TITLE_FIELD_NAME)?;
+    let icon_field = folder_schema.schema.get_field(FOLDER_ICON_FIELD_NAME)?;
+    let icon_ty_field = folder_schema.schema.get_field(FOLDER_ICON_TY_FIELD_NAME)?;
 
     let delete_term = Term::from_field_text(id_field, &data.id.clone());
 
@@ -228,13 +258,9 @@ impl IndexManager for FolderIndexManager {
 
   fn remove_indices(&self, ids: Vec<String>) -> Result<(), FlowyError> {
     let mut index_writer = self.get_index_writer()?;
+    let folder_schema = self.get_folder_schema()?;
 
-    let id_field = self
-      .folder_schema
-      .schema
-      .get_field(FOLDER_ID_FIELD_NAME)
-      .unwrap();
-
+    let id_field = folder_schema.schema.get_field(FOLDER_ID_FIELD_NAME)?;
     for id in ids {
       let delete_term = Term::from_field_text(id_field, &id);
       index_writer.delete_term(delete_term);
@@ -248,26 +274,12 @@ impl IndexManager for FolderIndexManager {
   fn add_index(&self, data: IndexableData) -> Result<(), FlowyError> {
     let mut index_writer = self.get_index_writer()?;
 
-    let id_field = self
-      .folder_schema
-      .schema
-      .get_field(FOLDER_ID_FIELD_NAME)
-      .unwrap();
-    let title_field = self
-      .folder_schema
-      .schema
-      .get_field(FOLDER_TITLE_FIELD_NAME)
-      .unwrap();
-    let icon_field = self
-      .folder_schema
-      .schema
-      .get_field(FOLDER_ICON_FIELD_NAME)
-      .unwrap();
-    let icon_ty_field = self
-      .folder_schema
-      .schema
-      .get_field(FOLDER_ICON_TY_FIELD_NAME)
-      .unwrap();
+    let folder_schema = self.get_folder_schema()?;
+
+    let id_field = folder_schema.schema.get_field(FOLDER_ID_FIELD_NAME)?;
+    let title_field = folder_schema.schema.get_field(FOLDER_TITLE_FIELD_NAME)?;
+    let icon_field = folder_schema.schema.get_field(FOLDER_ICON_FIELD_NAME)?;
+    let icon_ty_field = folder_schema.schema.get_field(FOLDER_ICON_TY_FIELD_NAME)?;
 
     let (icon, icon_ty) = self.extract_icon(data.icon, data.layout);
 

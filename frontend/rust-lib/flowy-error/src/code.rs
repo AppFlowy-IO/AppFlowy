@@ -265,6 +265,12 @@ pub enum ErrorCode {
 
   #[error("Failed to open Index directory")]
   FailedToOpenIndexDir = 92,
+
+  #[error("Failed to parse query")]
+  FailedToParseQuery = 93,
+
+  #[error("FolderIndexManager or its dependencies are unavailable")]
+  FolderIndexManagerUnavailable = 94,
 }
 
 impl ErrorCode {

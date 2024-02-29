@@ -39,7 +39,7 @@ impl SearchManager {
       let q = query.clone();
       let notifier = self.notifier.clone();
 
-      tokio::spawn(async move {
+      af_spawn(async move {
         let res = handler.perform_search(q);
         sends += 1;
 
