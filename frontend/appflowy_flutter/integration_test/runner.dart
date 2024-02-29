@@ -2,6 +2,8 @@ import 'package:integration_test/integration_test.dart';
 
 import 'appearance_settings_test.dart' as appearance_test_runner;
 import 'board/board_test_runner.dart' as board_test_runner;
+import 'command_palette/command_palette_test_runner.dart'
+    as command_palette_test_runner;
 import 'database/database_calendar_test.dart' as database_calendar_test;
 import 'database/database_cell_test.dart' as database_cell_test;
 import 'database/database_field_settings_test.dart'
@@ -15,6 +17,7 @@ import 'database/database_share_test.dart' as database_share_test;
 import 'database/database_sort_test.dart' as database_sort_test;
 import 'database/database_view_test.dart' as database_view_test;
 import 'document/document_test_runner.dart' as document_test_runner;
+import 'emoji_shortcut_test.dart' as emoji_shortcut_test;
 import 'empty_test.dart' as first_test;
 import 'hotkeys_test.dart' as hotkeys_test;
 import 'import_files_test.dart' as import_files_test;
@@ -23,8 +26,6 @@ import 'share_markdown_test.dart' as share_markdown_test;
 import 'sidebar/sidebar_test_runner.dart' as sidebar_test_runner;
 import 'switch_folder_test.dart' as switch_folder_test;
 import 'tabs_test.dart' as tabs_test;
-import 'emoji_shortcut_test.dart' as emoji_shortcut_test;
-// import 'auth/supabase_auth_test.dart' as supabase_auth_test_runner;
 
 /// The main task runner for all integration tests in AppFlowy.
 ///
@@ -77,6 +78,9 @@ Future<void> main() async {
 
   // User settings
   settings_test_runner.main();
+
+  // Command Palette integration tests
+  command_palette_test_runner.startTesting();
 
   // board_test.main();
   // empty_document_test.main();

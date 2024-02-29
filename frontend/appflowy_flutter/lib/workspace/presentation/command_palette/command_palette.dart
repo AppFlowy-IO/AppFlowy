@@ -1,25 +1,13 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'package:appflowy/workspace/application/command_palette/command_palette_bloc.dart';
 import 'package:appflowy/workspace/presentation/command_palette/widgets/recent_views_list.dart';
 import 'package:appflowy/workspace/presentation/command_palette/widgets/search_field.dart';
 import 'package:appflowy/workspace/presentation/command_palette/widgets/search_results_list.dart';
-import 'package:appflowy/workspace/presentation/home/hotkeys.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hotkey_manager/hotkey_manager.dart';
-
-HotKeyItem commandPaletteHotKey(BuildContext context) => HotKeyItem(
-      hotKey: HotKey(
-        KeyCode.keyP,
-        modifiers: [
-          Platform.isMacOS ? KeyModifier.meta : KeyModifier.control,
-        ],
-      ),
-      keyDownHandler: (_) => CommandPalette.of(context).toggle(),
-    );
 
 class CommandPalette extends InheritedWidget {
   CommandPalette({
@@ -49,6 +37,10 @@ class CommandPalette extends InheritedWidget {
 
   @override
   bool updateShouldNotify(covariant InheritedWidget oldWidget) => false;
+}
+
+class _ToggleCommandPaletteIntent extends Intent {
+  const _ToggleCommandPaletteIntent();
 }
 
 class _CommandPaletteController extends StatefulWidget {
@@ -109,7 +101,7 @@ class _CommandPaletteControllerState extends State<_CommandPaletteController> {
         context: context,
         builder: (_) => BlocProvider.value(
           value: _commandPaletteBloc,
-          child: const CommandPaletteModal(),
+          child: _buildShortcut(child: const CommandPaletteModal()),
         ),
       ).then((_) {
         _isOpen = false;
@@ -123,8 +115,27 @@ class _CommandPaletteControllerState extends State<_CommandPaletteController> {
 
   @override
   Widget build(BuildContext context) {
-    return widget.child ?? const SizedBox.shrink();
+    return _buildShortcut(child: widget.child ?? const SizedBox.shrink());
   }
+
+  Widget _buildShortcut({required Widget child}) => FocusableActionDetector(
+        actions: {
+          _ToggleCommandPaletteIntent:
+              CallbackAction<_ToggleCommandPaletteIntent>(
+            onInvoke: (intent) =>
+                _toggleNotifier.value = !_toggleNotifier.value,
+          ),
+        },
+        shortcuts: {
+          LogicalKeySet(
+            PlatformExtension.isMacOS
+                ? LogicalKeyboardKey.meta
+                : LogicalKeyboardKey.control,
+            LogicalKeyboardKey.keyP,
+          ): const _ToggleCommandPaletteIntent(),
+        },
+        child: child,
+      );
 }
 
 class CommandPaletteModal extends StatelessWidget {
