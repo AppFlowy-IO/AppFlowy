@@ -35,8 +35,6 @@ class SearchResultTile extends StatelessWidget {
       onTap: () {
         onSelected();
 
-        // NotificationActionBloc can be renamed and made into
-        // an overall ActionNavigationBloc or similar.
         getIt<ActionNavigationBloc>().add(
           ActionNavigationEvent.performAction(
             action: NavigationAction(objectId: result.viewId),

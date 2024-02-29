@@ -3,8 +3,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/workspace/application/command_palette/command_palette_bloc.dart';
+import 'package:appflowy/workspace/presentation/command_palette/widgets/recent_views_list.dart';
 import 'package:appflowy/workspace/presentation/command_palette/widgets/search_field.dart';
-import 'package:appflowy/workspace/presentation/command_palette/widgets/search_result_tile.dart';
+import 'package:appflowy/workspace/presentation/command_palette/widgets/search_results_list.dart';
 import 'package:appflowy/workspace/presentation/home/hotkeys.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -142,30 +143,19 @@ class CommandPaletteModal extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               SearchField(query: state.query, isLoading: state.isLoading),
+              if ((state.query?.isEmpty ?? true) ||
+                  state.isLoading && state.results.isEmpty) ...[
+                const Divider(height: 0),
+                Flexible(
+                  child: RecentViewsList(
+                    onSelected: () => FlowyOverlay.pop(context),
+                  ),
+                ),
+              ],
               if (state.results.isNotEmpty) ...[
                 const Divider(height: 0),
                 Flexible(
-                  child: ListView.separated(
-                    shrinkWrap: true,
-                    separatorBuilder: (_, __) => const Divider(height: 0),
-                    itemCount: state.results.length + 1,
-                    itemBuilder: (_, index) {
-                      if (index == 0) {
-                        return const Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
-                          ),
-                          child: FlowyText('Best matches'),
-                        );
-                      }
-
-                      return SearchResultTile(
-                        result: state.results[index - 1],
-                        onSelected: () => FlowyOverlay.pop(context),
-                      );
-                    },
-                  ),
+                  child: SearchResultsList(results: state.results),
                 ),
               ],
             ],
