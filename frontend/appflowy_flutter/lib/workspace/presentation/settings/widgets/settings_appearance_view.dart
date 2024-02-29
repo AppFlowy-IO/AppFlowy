@@ -53,6 +53,7 @@ class SettingsAppearanceView extends StatelessWidget {
                 TextDirectionSetting(
                   currentTextDirection: state.textDirection,
                 ),
+                const EnableRTLToolbarItemsSetting(),
                 const Divider(),
                 DateFormatSetting(
                   currentFormat: state.dateFormat,

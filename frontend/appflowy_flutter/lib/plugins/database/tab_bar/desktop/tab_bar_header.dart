@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
@@ -21,8 +22,11 @@ class TabBarHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return Container(
       height: 30,
+      padding: EdgeInsets.symmetric(
+        horizontal: GridSize.horizontalHeaderPadding,
+      ),
       child: Stack(
         children: [
           Positioned(

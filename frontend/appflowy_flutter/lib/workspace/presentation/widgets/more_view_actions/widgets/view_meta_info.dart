@@ -12,11 +12,13 @@ class ViewMetaInfo extends StatelessWidget {
   const ViewMetaInfo({
     super.key,
     required this.dateFormat,
+    required this.timeFormat,
     this.documentCounters,
     this.createdAt,
   });
 
   final UserDateFormatPB dateFormat;
+  final UserTimeFormatPB timeFormat;
   final Counters? documentCounters;
   final DateTime? createdAt;
 
@@ -47,8 +49,9 @@ class ViewMetaInfo extends StatelessWidget {
             if (documentCounters != null) const VSpace(2),
             FlowyText.regular(
               LocaleKeys.moreAction_createdAt.tr(
-                args: [dateFormat.formatDate(createdAt!, false)],
+                args: [dateFormat.formatDate(createdAt!, true, timeFormat)],
               ),
+              maxLines: 2,
               color: Theme.of(context).hintColor,
             ),
           ],

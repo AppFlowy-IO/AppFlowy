@@ -69,12 +69,12 @@
     "copyLink": "Copiar l'enllaç"
   },
   "moreAction": {
-    "fontSize": "Mida de la font",
-    "import": "Importar",
-    "moreOptions": "Més opcions",
     "small": "petit",
     "medium": "mitjà",
-    "large": "gran"
+    "large": "gran",
+    "fontSize": "Mida de la font",
+    "import": "Importar",
+    "moreOptions": "Més opcions"
   },
   "importPanel": {
     "textAndMarkdown": "Text i rebaixa",

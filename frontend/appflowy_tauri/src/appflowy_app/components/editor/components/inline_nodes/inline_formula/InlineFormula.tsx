@@ -16,7 +16,7 @@ export const InlineFormula = memo(
     const { popoverOpen = false, setRange, openPopover, closePopover } = useEditorInlineBlockState('formula');
     const anchor = useRef<HTMLSpanElement | null>(null);
     const selected = useSelected();
-    const open = popoverOpen && selected;
+    const open = Boolean(popoverOpen && selected);
 
     const handleClick = useCallback(
       (e: MouseEvent<HTMLSpanElement>) => {

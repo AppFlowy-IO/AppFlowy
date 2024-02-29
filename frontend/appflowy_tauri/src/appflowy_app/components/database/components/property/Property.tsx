@@ -10,6 +10,7 @@ export interface FieldProps {
   menuOpened?: boolean;
   onOpenMenu?: (id: string) => void;
   onCloseMenu?: (id: string) => void;
+  className?: string;
 }
 
 const initialAnchorOrigin: PopoverOrigin = {
@@ -22,7 +23,7 @@ const initialTransformOrigin: PopoverOrigin = {
   horizontal: 'left',
 };
 
-export const Property: FC<FieldProps> = ({ field, onCloseMenu, menuOpened }) => {
+export const Property: FC<FieldProps> = ({ field, onCloseMenu, className, menuOpened }) => {
   const ref = useRef<HTMLDivElement | null>(null);
   const [anchorPosition, setAnchorPosition] = useState<
     | {
@@ -63,7 +64,7 @@ export const Property: FC<FieldProps> = ({ field, onCloseMenu, menuOpened }) => 
 
   return (
     <>
-      <div ref={ref} className='flex w-full items-center px-2'>
+      <div ref={ref} className={className ? className : `flex w-full items-center px-2`}>
         <ProppertyTypeSvg className='mr-1 text-base' type={field.type} />
         <span className='flex-1 truncate text-left text-xs'>{field.name}</span>
       </div>

@@ -11,7 +11,7 @@ export function transformToInlineElement(op: Op): Element | null {
   const attributes = op.attributes;
 
   if (!attributes) return null;
-  const formula = attributes.formula as string;
+  const { formula, mention, ...attrs } = attributes;
 
   if (formula) {
     return {
@@ -20,23 +20,23 @@ export function transformToInlineElement(op: Op): Element | null {
       children: [
         {
           text: op.insert as string,
+          ...attrs,
         },
       ],
     };
   }
 
-  const matchMention = attributes.mention as Mention;
-
-  if (matchMention) {
+  if (mention) {
     return {
       type: EditorInlineNodeType.Mention,
       children: [
         {
           text: op.insert as string,
+          ...attrs,
         },
       ],
       data: {
-        ...matchMention,
+        ...(mention as Mention),
       },
     };
   }

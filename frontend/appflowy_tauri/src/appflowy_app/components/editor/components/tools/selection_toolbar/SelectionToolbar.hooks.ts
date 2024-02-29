@@ -3,7 +3,7 @@ import { MutableRefObject, useCallback, useEffect, useMemo, useRef, useState } f
 import { getSelectionPosition } from '$app/components/editor/components/tools/selection_toolbar/utils';
 import debounce from 'lodash-es/debounce';
 import { CustomEditor } from '$app/components/editor/command';
-import { BaseRange, Editor, Range as SlateRange } from 'slate';
+import { BaseRange, Range as SlateRange } from 'slate';
 import { useDecorateDispatch } from '$app/components/editor/stores/decorate';
 
 const DELAY = 300;
@@ -118,9 +118,21 @@ export function useSelectionToolbar(ref: MutableRefObject<HTMLDivElement | null>
 
     const { selection } = editor;
 
-    if (!isFocusedEditor || !selection || SlateRange.isCollapsed(selection) || Editor.string(editor, selection) === '') {
+    const close = () => {
       debounceRecalculatePosition.cancel();
       closeToolbar();
+    };
+
+    if (!isFocusedEditor || !selection || SlateRange.isCollapsed(selection)) {
+      close();
+      return;
+    }
+
+    // There has a bug which the text of selection is empty when the selection include inline blocks
+    const isEmptyText = !CustomEditor.includeInlineBlocks(editor) && editor.string(selection) === '';
+
+    if (isEmptyText) {
+      close();
       return;
     }
 
