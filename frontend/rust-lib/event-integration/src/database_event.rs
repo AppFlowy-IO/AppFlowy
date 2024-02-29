@@ -342,7 +342,7 @@ impl EventIntegrationTest {
     row_id: &str,
   ) -> RelationCellDataPB {
     let cell = self.get_cell(view_id, row_id, field_id).await;
-    RelationCellDataPB::try_from(Bytes::from(cell.data)).unwrap()
+    RelationCellDataPB::try_from(Bytes::from(cell.data)).unwrap_or_default()
   }
 
   pub async fn update_checklist_cell(
