@@ -7,7 +7,7 @@ use collab_database::rows::{new_cell_builder, Cell};
 use flowy_error::{FlowyError, FlowyResult};
 
 use crate::entities::{CheckboxCellDataPB, FieldType};
-use crate::services::cell::{CellProtobufBlobParser, FromCellString};
+use crate::services::cell::CellProtobufBlobParser;
 use crate::services::field::{TypeOptionCellData, CELL_DATA};
 
 pub const CHECK: &str = "Yes";
@@ -22,7 +22,7 @@ impl TypeOptionCellData for CheckboxCellDataPB {
 impl From<&Cell> for CheckboxCellDataPB {
   fn from(cell: &Cell) -> Self {
     let value = cell.get_str_value(CELL_DATA).unwrap_or_default();
-    CheckboxCellDataPB::from_cell_str(&value).unwrap_or_default()
+    CheckboxCellDataPB::from_str(&value).unwrap_or_default()
   }
 }
 
@@ -46,15 +46,6 @@ impl FromStr for CheckboxCellDataPB {
     };
 
     Ok(Self::new(is_checked))
-  }
-}
-
-impl FromCellString for CheckboxCellDataPB {
-  fn from_cell_str(s: &str) -> FlowyResult<Self>
-  where
-    Self: Sized,
-  {
-    Self::from_str(s)
   }
 }
 

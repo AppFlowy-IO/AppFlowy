@@ -11,7 +11,7 @@ use strum_macros::EnumIter;
 use flowy_error::{internal_error, FlowyResult};
 
 use crate::entities::{DateCellDataPB, FieldType};
-use crate::services::cell::{CellProtobufBlobParser, FromCellString};
+use crate::services::cell::CellProtobufBlobParser;
 use crate::services::field::{TypeOptionCellData, CELL_DATA};
 
 #[derive(Clone, Debug, Default)]
@@ -193,16 +193,6 @@ impl<'de> serde::Deserialize<'de> for DateCellData {
     }
 
     deserializer.deserialize_any(DateCellVisitor())
-  }
-}
-
-impl FromCellString for DateCellData {
-  fn from_cell_str(s: &str) -> FlowyResult<Self>
-  where
-    Self: Sized,
-  {
-    let result: DateCellData = serde_json::from_str(s).unwrap();
-    Ok(result)
   }
 }
 

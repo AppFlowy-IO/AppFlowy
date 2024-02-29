@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::str::FromStr;
 
 use collab_database::fields::Field;
 use collab_database::rows::{get_field_type_from_cell, Cell, Cells};
@@ -245,13 +246,6 @@ pub fn delete_select_option_cell(option_ids: Vec<String>, field: &Field) -> Cell
   apply_cell_changeset(BoxAny::new(changeset), None, field, None).unwrap()
 }
 
-/// Deserialize the String into cell specific data type.
-pub trait FromCellString {
-  fn from_cell_str(s: &str) -> FlowyResult<Self>
-  where
-    Self: Sized;
-}
-
 pub struct CellBuilder<'a> {
   cells: Cells,
   field_maps: HashMap<String, &'a Field>,
@@ -290,12 +284,12 @@ impl<'a> CellBuilder<'a> {
             tracing::warn!("Shouldn't insert cell data to cell whose field type is LastEditedTime or CreatedTime");
           },
           FieldType::SingleSelect | FieldType::MultiSelect => {
-            if let Ok(ids) = SelectOptionIds::from_cell_str(&cell_str) {
+            if let Ok(ids) = SelectOptionIds::from_str(&cell_str) {
               cells.insert(field_id, insert_select_option_cell(ids.into_inner(), field));
             }
           },
           FieldType::Checkbox => {
-            if let Ok(value) = CheckboxCellDataPB::from_cell_str(&cell_str) {
+            if let Ok(value) = CheckboxCellDataPB::from_str(&cell_str) {
               cells.insert(field_id, insert_checkbox_cell(value.is_checked, field));
             }
           },
@@ -303,7 +297,7 @@ impl<'a> CellBuilder<'a> {
             cells.insert(field_id, insert_url_cell(cell_str, field));
           },
           FieldType::Checklist => {
-            if let Ok(ids) = SelectOptionIds::from_cell_str(&cell_str) {
+            if let Ok(ids) = SelectOptionIds::from_str(&cell_str) {
               cells.insert(field_id, insert_select_option_cell(ids.into_inner(), field));
             }
           },

@@ -10,7 +10,7 @@ use flowy_error::{FlowyError, FlowyResult};
 
 use crate::entities::{FieldType, TextFilterPB};
 use crate::services::cell::{
-  stringify_cell_data, CellDataChangeset, CellDataDecoder, CellProtobufBlobParser, FromCellString,
+  stringify_cell_data, CellDataChangeset, CellDataDecoder, CellProtobufBlobParser,
 };
 use crate::services::field::type_options::util::ProtobufStr;
 use crate::services::field::{
@@ -190,15 +190,6 @@ impl std::ops::Deref for TextCellData {
   }
 }
 
-impl FromCellString for TextCellData {
-  fn from_cell_str(s: &str) -> FlowyResult<Self>
-  where
-    Self: Sized,
-  {
-    Ok(TextCellData(s.to_owned()))
-  }
-}
-
 impl ToString for TextCellData {
   fn to_string(&self) -> String {
     self.0.clone()
@@ -249,12 +240,6 @@ impl From<StrCellData> for Cell {
 impl std::ops::DerefMut for StrCellData {
   fn deref_mut(&mut self) -> &mut Self::Target {
     &mut self.0
-  }
-}
-
-impl FromCellString for StrCellData {
-  fn from_cell_str(s: &str) -> FlowyResult<Self> {
-    Ok(Self(s.to_owned()))
   }
 }
 

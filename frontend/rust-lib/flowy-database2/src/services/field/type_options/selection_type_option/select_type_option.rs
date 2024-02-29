@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 use bytes::Bytes;
 use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::Cell;
@@ -205,8 +207,8 @@ impl CellProtobufBlobParser for SelectOptionIdsParser {
   type Object = SelectOptionIds;
   fn parser(bytes: &Bytes) -> FlowyResult<Self::Object> {
     match String::from_utf8(bytes.to_vec()) {
-      Ok(s) => Ok(SelectOptionIds::from(s)),
-      Err(_) => Ok(SelectOptionIds::from("".to_owned())),
+      Ok(s) => SelectOptionIds::from_str(&s),
+      Err(_) => Ok(SelectOptionIds::default()),
     }
   }
 }
