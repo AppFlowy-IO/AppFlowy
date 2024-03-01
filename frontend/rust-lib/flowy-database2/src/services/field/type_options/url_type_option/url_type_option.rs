@@ -112,13 +112,8 @@ impl TypeOptionCellDataFilter for URLTypeOption {
   fn apply_filter(
     &self,
     filter: &<Self as TypeOption>::CellFilter,
-    field_type: &FieldType,
     cell_data: &<Self as TypeOption>::CellData,
   ) -> bool {
-    if !field_type.is_url() {
-      return true;
-    }
-
     filter.is_visible(cell_data)
   }
 }

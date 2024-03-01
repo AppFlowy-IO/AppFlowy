@@ -12,7 +12,7 @@ import KeyboardNavigation, {
   KeyboardNavigationOption,
 } from '$app/components/_shared/keyboard_navigation/KeyboardNavigation';
 import { Color } from '$app/components/editor/components/tools/block_actions/color';
-import { getModifier } from '$app/utils/get_modifier';
+import { getModifier } from '$app/utils/hotkeys';
 
 import isHotkey from 'is-hotkey';
 import { EditorNodeType } from '$app/application/document/document.types';

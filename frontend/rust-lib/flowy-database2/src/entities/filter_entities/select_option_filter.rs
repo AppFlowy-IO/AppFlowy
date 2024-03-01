@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 
@@ -48,7 +50,7 @@ impl FromFilterString for SelectOptionFilterPB {
   where
     Self: Sized,
   {
-    let ids = SelectOptionIds::from(filter.content.clone());
+    let ids = SelectOptionIds::from_str(&filter.content).unwrap_or_default();
     SelectOptionFilterPB {
       condition: SelectOptionConditionPB::try_from(filter.condition as u8)
         .unwrap_or(SelectOptionConditionPB::OptionIs),
@@ -59,7 +61,7 @@ impl FromFilterString for SelectOptionFilterPB {
 
 impl std::convert::From<&Filter> for SelectOptionFilterPB {
   fn from(filter: &Filter) -> Self {
-    let ids = SelectOptionIds::from(filter.content.clone());
+    let ids = SelectOptionIds::from_str(&filter.content).unwrap_or_default();
     SelectOptionFilterPB {
       condition: SelectOptionConditionPB::try_from(filter.condition as u8)
         .unwrap_or(SelectOptionConditionPB::OptionIs),

@@ -20,6 +20,7 @@ extension FieldTypeExtension on FieldType {
         FieldType.LastEditedTime =>
           LocaleKeys.grid_field_updatedAtFieldName.tr(),
         FieldType.CreatedTime => LocaleKeys.grid_field_createdAtFieldName.tr(),
+        FieldType.Relation => LocaleKeys.grid_field_relationFieldName.tr(),
         _ => throw UnimplementedError(),
       };
 
@@ -34,6 +35,7 @@ extension FieldTypeExtension on FieldType {
         FieldType.Checklist => FlowySvgs.checklist_s,
         FieldType.LastEditedTime => FlowySvgs.last_modified_s,
         FieldType.CreatedTime => FlowySvgs.created_at_s,
+        FieldType.Relation => FlowySvgs.relation_s,
         _ => throw UnimplementedError(),
       };
 
@@ -48,6 +50,7 @@ extension FieldTypeExtension on FieldType {
         FieldType.Checklist => const Color(0xFF98F4CD),
         FieldType.LastEditedTime => const Color(0xFFFDEDA7),
         FieldType.CreatedTime => const Color(0xFFFDEDA7),
+        FieldType.Relation => const Color(0xFFFDEDA7),
         _ => throw UnimplementedError(),
       };
 }

@@ -1,10 +1,11 @@
+use std::str::FromStr;
+
 use collab::core::any_map::AnyMapExtension;
 use collab_database::rows::{new_cell_builder, Cell};
 
-use flowy_error::FlowyResult;
+use flowy_error::FlowyError;
 
 use crate::entities::FieldType;
-use crate::services::cell::{DecodedCellData, FromCellString};
 use crate::services::field::{TypeOptionCellData, CELL_DATA};
 
 pub const SELECTION_IDS_SEPARATOR: &str = ",";
@@ -37,33 +38,25 @@ impl TypeOptionCellData for SelectOptionIds {
   }
 }
 
-impl FromCellString for SelectOptionIds {
-  fn from_cell_str(s: &str) -> FlowyResult<Self>
-  where
-    Self: Sized,
-  {
-    Ok(Self::from(s.to_owned()))
-  }
-}
-
 impl From<&Cell> for SelectOptionIds {
   fn from(cell: &Cell) -> Self {
     let value = cell.get_str_value(CELL_DATA).unwrap_or_default();
-    Self::from(value)
+    Self::from_str(&value).unwrap_or_default()
   }
 }
 
-impl std::convert::From<String> for SelectOptionIds {
-  fn from(s: String) -> Self {
-    if s.is_empty() {
-      return Self(vec![]);
-    }
+impl FromStr for SelectOptionIds {
+  type Err = FlowyError;
 
+  fn from_str(s: &str) -> Result<Self, Self::Err> {
+    if s.is_empty() {
+      return Ok(Self(vec![]));
+    }
     let ids = s
       .split(SELECTION_IDS_SEPARATOR)
       .map(|id| id.to_string())
       .collect::<Vec<String>>();
-    Self(ids)
+    Ok(Self(ids))
   }
 }
 
@@ -89,7 +82,7 @@ impl std::convert::From<Option<String>> for SelectOptionIds {
   fn from(s: Option<String>) -> Self {
     match s {
       None => Self(vec![]),
-      Some(s) => Self::from(s),
+      Some(s) => Self::from_str(&s).unwrap_or_default(),
     }
   }
 }
@@ -105,13 +98,5 @@ impl std::ops::Deref for SelectOptionIds {
 impl std::ops::DerefMut for SelectOptionIds {
   fn deref_mut(&mut self) -> &mut Self::Target {
     &mut self.0
-  }
-}
-
-impl DecodedCellData for SelectOptionIds {
-  type Object = SelectOptionIds;
-
-  fn is_empty(&self) -> bool {
-    self.0.is_empty()
   }
 }
