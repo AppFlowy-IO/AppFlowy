@@ -89,7 +89,7 @@ impl FolderIndexManager {
 
   /// Used to index all views in a workspace at the start of the application
   pub fn index_all(&self, indexes: Vec<IndexableData>) -> Result<(), FlowyError> {
-    if self.is_indexed() {
+    if self.is_indexed() || indexes.is_empty() {
       return Ok(());
     }
 
