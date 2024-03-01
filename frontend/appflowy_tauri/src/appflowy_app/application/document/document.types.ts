@@ -109,6 +109,22 @@ export interface MathEquationNode extends Element {
   } & BlockData;
 }
 
+export enum ImageType {
+  Internal = 1,
+  External = 2,
+}
+
+export interface ImageNode extends Element {
+  type: EditorNodeType.ImageBlock;
+  blockId: string;
+  data: {
+    url?: string;
+    width?: number;
+    image_type?: ImageType;
+    height?: number;
+  } & BlockData;
+}
+
 export interface FormulaNode extends Element {
   type: EditorInlineNodeType.Formula;
   data: string;

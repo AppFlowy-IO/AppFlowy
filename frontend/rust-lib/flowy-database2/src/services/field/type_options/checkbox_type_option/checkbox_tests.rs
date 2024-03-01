@@ -1,11 +1,12 @@
 #[cfg(test)]
 mod tests {
+  use std::str::FromStr;
+
   use collab_database::fields::Field;
 
   use crate::entities::CheckboxCellDataPB;
   use crate::entities::FieldType;
   use crate::services::cell::CellDataDecoder;
-  use crate::services::cell::FromCellString;
   use crate::services::field::type_options::checkbox_type_option::*;
   use crate::services::field::FieldBuilder;
 
@@ -43,7 +44,7 @@ mod tests {
     assert_eq!(
       type_option
         .decode_cell(
-          &CheckboxCellDataPB::from_cell_str(input_str).unwrap().into(),
+          &CheckboxCellDataPB::from_str(input_str).unwrap().into(),
           field_type,
           field
         )

@@ -473,6 +473,7 @@ pub enum FieldType {
   Checklist = 7,
   LastEditedTime = 8,
   CreatedTime = 9,
+  Relation = 10,
 }
 
 impl Display for FieldType {
@@ -509,8 +510,9 @@ impl FieldType {
       FieldType::Checkbox => "Checkbox",
       FieldType::URL => "URL",
       FieldType::Checklist => "Checklist",
-      FieldType::LastEditedTime => "Last edited time",
+      FieldType::LastEditedTime => "Last modified",
       FieldType::CreatedTime => "Created time",
+      FieldType::Relation => "Relation",
     };
     s.to_string()
   }
@@ -557,6 +559,10 @@ impl FieldType {
 
   pub fn is_checklist(&self) -> bool {
     matches!(self, FieldType::Checklist)
+  }
+
+  pub fn is_relation(&self) -> bool {
+    matches!(self, FieldType::Relation)
   }
 
   pub fn can_be_group(&self) -> bool {

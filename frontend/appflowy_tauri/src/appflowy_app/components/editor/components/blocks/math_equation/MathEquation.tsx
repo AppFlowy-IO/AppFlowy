@@ -1,10 +1,11 @@
-import { forwardRef, memo, useEffect, useRef, useState } from 'react';
-import { EditorElementProps, MathEquationNode } from '$app/application/document/document.types';
+import { forwardRef, memo, useEffect, useRef } from 'react';
+import { EditorElementProps, EditorNodeType, MathEquationNode } from '$app/application/document/document.types';
 import KatexMath from '$app/components/_shared/katex_math/KatexMath';
 import { useTranslation } from 'react-i18next';
 import { FunctionsOutlined } from '@mui/icons-material';
 import EditPopover from '$app/components/editor/components/blocks/math_equation/EditPopover';
 import { ReactEditor, useSelected, useSlateStatic } from 'slate-react';
+import { useEditorBlockDispatch, useEditorBlockState } from '$app/components/editor/stores/block';
 
 export const MathEquation = memo(
   forwardRef<HTMLDivElement, EditorElementProps<MathEquationNode>>(
@@ -12,7 +13,9 @@ export const MathEquation = memo(
       const formula = node.data.formula;
       const { t } = useTranslation();
       const containerRef = useRef<HTMLDivElement>(null);
-      const [open, setOpen] = useState(false);
+      const { openPopover, closePopover } = useEditorBlockDispatch();
+      const state = useEditorBlockState(EditorNodeType.EquationBlock);
+      const open = Boolean(state?.popoverOpen && state?.blockId === node.blockId && containerRef.current);
 
       const selected = useSelected();
 
@@ -26,7 +29,7 @@ export const MathEquation = memo(
           if (e.key === 'Enter') {
             e.preventDefault();
             e.stopPropagation();
-            setOpen(true);
+            openPopover(EditorNodeType.EquationBlock, node.blockId);
           }
         };
 
@@ -37,7 +40,7 @@ export const MathEquation = memo(
         return () => {
           slateDom.removeEventListener('keydown', handleKeyDown);
         };
-      }, [editor, selected]);
+      }, [editor, node.blockId, openPopover, selected]);
 
       return (
         <>
@@ -45,9 +48,9 @@ export const MathEquation = memo(
             {...attributes}
             ref={containerRef}
             onClick={() => {
-              setOpen(true);
+              openPopover(EditorNodeType.EquationBlock, node.blockId);
             }}
-            className={`${className} relative w-full cursor-pointer py-2`}
+            className={`${className} math-equation-block relative w-full cursor-pointer py-2`}
           >
             <div
               contentEditable={false}
@@ -71,7 +74,7 @@ export const MathEquation = memo(
           {open && (
             <EditPopover
               onClose={() => {
-                setOpen(false);
+                closePopover(EditorNodeType.EquationBlock);
               }}
               node={node}
               open={open}

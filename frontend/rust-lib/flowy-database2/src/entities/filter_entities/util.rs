@@ -11,7 +11,7 @@ use validator::Validate;
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::{
   CheckboxFilterPB, ChecklistFilterPB, DateFilterContentPB, DateFilterPB, FieldType,
-  NumberFilterPB, SelectOptionFilterPB, TextFilterPB,
+  NumberFilterPB, RelationFilterPB, SelectOptionFilterPB, TextFilterPB,
 };
 use crate::services::field::SelectOptionIds;
 use crate::services::filter::Filter;
@@ -44,6 +44,7 @@ impl std::convert::From<&Filter> for FilterPB {
       FieldType::Checklist => ChecklistFilterPB::from(filter).try_into().unwrap(),
       FieldType::Checkbox => CheckboxFilterPB::from(filter).try_into().unwrap(),
       FieldType::URL => TextFilterPB::from(filter).try_into().unwrap(),
+      FieldType::Relation => RelationFilterPB::from(filter).try_into().unwrap(),
     };
     Self {
       id: filter.id.clone(),
@@ -185,6 +186,10 @@ impl TryInto<UpdateFilterParams> for UpdateFilterPayloadPB {
         let filter = SelectOptionFilterPB::try_from(bytes).map_err(|_| ErrorCode::ProtobufSerde)?;
         condition = filter.condition as u8;
         content = SelectOptionIds::from(filter.option_ids).to_string();
+      },
+      FieldType::Relation => {
+        let filter = RelationFilterPB::try_from(bytes).map_err(|_| ErrorCode::ProtobufSerde)?;
+        condition = filter.condition as u8;
       },
     }
 

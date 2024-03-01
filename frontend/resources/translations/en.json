@@ -245,7 +245,9 @@
     "Cancel": "Cancel",
     "clear": "Clear",
     "remove": "Remove",
-    "dontRemove": "Don't remove"
+    "dontRemove": "Don't remove",
+    "copyLink": "Copy Link",
+    "align": "Align"
   },
   "label": {
     "welcome": "Welcome!",
@@ -605,6 +607,7 @@
       "multiSelectFieldName": "Multiselect",
       "urlFieldName": "URL",
       "checklistFieldName": "Checklist",
+      "relationFieldName": "Relation",
       "numberFormat": "Number format",
       "dateFormat": "Date format",
       "includeTime": "Include time",
@@ -704,6 +707,12 @@
       "submitNewTask": "Create",
       "hideComplete": "Hide completed tasks",
       "showComplete": "Show all tasks"
+    },
+    "relation": {
+      "relatedDatabasePlaceLabel": "Related Database",
+      "relatedDatabasePlaceholder": "None",
+      "inRelatedDatabase": "In",
+      "emptySearchResult": "No records found"
     },
     "menuName": "Grid",
     "referencedGridPrefix": "View of",
@@ -1171,7 +1180,8 @@
     "replace": "Replace",
     "replaceAll": "Replace all",
     "noResult": "No results",
-    "caseSensitive": "Case sensitive"
+    "caseSensitive": "Case sensitive",
+    "searchMore": "Search to find more results"
   },
   "error": {
     "weAreSorry": "We're sorry",

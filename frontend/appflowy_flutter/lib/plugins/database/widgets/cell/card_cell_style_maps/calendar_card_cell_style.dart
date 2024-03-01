@@ -6,6 +6,7 @@ import '../card_cell_skeleton/checkbox_card_cell.dart';
 import '../card_cell_skeleton/checklist_card_cell.dart';
 import '../card_cell_skeleton/date_card_cell.dart';
 import '../card_cell_skeleton/number_card_cell.dart';
+import '../card_cell_skeleton/relation_card_cell.dart';
 import '../card_cell_skeleton/select_option_card_cell.dart';
 import '../card_cell_skeleton/text_card_cell.dart';
 import '../card_cell_skeleton/timestamp_card_cell.dart';
@@ -72,6 +73,11 @@ CardCellStyleMap desktopCalendarCardCellStyleMap(BuildContext context) {
         color: Theme.of(context).colorScheme.primary,
         decoration: TextDecoration.underline,
       ),
+    ),
+    FieldType.Relation: RelationCardCellStyle(
+      padding: padding,
+      wrap: true,
+      textStyle: textStyle,
     ),
   };
 }

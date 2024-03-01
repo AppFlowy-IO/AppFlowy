@@ -5,7 +5,7 @@ import { useAppDispatch, useAppSelector } from '$app/stores/store';
 import { sidebarActions } from '$app_reducers/sidebar/slice';
 import { ReactComponent as ShowMenuIcon } from '$app/assets/show-menu.svg';
 import { useTranslation } from 'react-i18next';
-import { getModifier } from '$app/utils/get_modifier';
+import { getModifier } from '$app/utils/hotkeys';
 import isHotkey from 'is-hotkey';
 
 function CollapseMenuButton() {

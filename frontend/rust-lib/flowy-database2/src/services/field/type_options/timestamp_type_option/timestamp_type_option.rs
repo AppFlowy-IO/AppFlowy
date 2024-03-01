@@ -175,12 +175,8 @@ impl TypeOptionCellDataFilter for TimestampTypeOption {
   fn apply_filter(
     &self,
     _filter: &<Self as TypeOption>::CellFilter,
-    field_type: &FieldType,
     _cell_data: &<Self as TypeOption>::CellData,
   ) -> bool {
-    if !field_type.is_last_edited_time() && !field_type.is_created_time() {
-      return true;
-    }
     false
   }
 }

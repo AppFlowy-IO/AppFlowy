@@ -242,12 +242,8 @@ impl TypeOptionCellDataFilter for NumberTypeOption {
   fn apply_filter(
     &self,
     filter: &<Self as TypeOption>::CellFilter,
-    field_type: &FieldType,
     cell_data: &<Self as TypeOption>::CellData,
   ) -> bool {
-    if !field_type.is_number() {
-      return true;
-    }
     match self.format_cell_data(cell_data) {
       Ok(cell_data) => filter.is_visible(&cell_data).unwrap_or(true),
       Err(_) => true,

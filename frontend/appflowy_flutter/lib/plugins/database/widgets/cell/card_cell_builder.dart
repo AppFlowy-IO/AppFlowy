@@ -1,5 +1,6 @@
 import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/application/database_controller.dart';
+import 'package:appflowy/plugins/database/widgets/cell/card_cell_skeleton/relation_card_cell.dart';
 import 'package:appflowy/plugins/database/widgets/cell/card_cell_skeleton/timestamp_card_cell.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:flutter/widgets.dart';
@@ -79,6 +80,12 @@ class CardCellBuilder {
           showNotes: hasNotes,
         ),
       FieldType.URL => URLCardCell(
+          key: key,
+          style: isStyleOrNull(style),
+          databaseController: databaseController,
+          cellContext: cellContext,
+        ),
+      FieldType.Relation => RelationCardCell(
           key: key,
           style: isStyleOrNull(style),
           databaseController: databaseController,
