@@ -95,13 +95,8 @@ pub fn get_cell_protobuf(
 
   let from_field_type = from_field_type.unwrap();
   let to_field_type = FieldType::from(field.field_type);
-  match try_decode_cell_str_to_cell_protobuf(
-    cell,
-    &from_field_type,
-    &to_field_type,
-    field,
-    cell_cache,
-  ) {
+  match try_decode_cell_to_cell_protobuf(cell, &from_field_type, &to_field_type, field, cell_cache)
+  {
     Ok(cell_bytes) => cell_bytes,
     Err(e) => {
       tracing::error!("Decode cell data failed, {:?}", e);
@@ -126,7 +121,7 @@ pub fn get_cell_protobuf(
 ///
 /// returns: CellBytes
 ///
-pub fn try_decode_cell_str_to_cell_protobuf(
+pub fn try_decode_cell_to_cell_protobuf(
   cell: &Cell,
   from_field_type: &FieldType,
   to_field_type: &FieldType,
@@ -137,7 +132,7 @@ pub fn try_decode_cell_str_to_cell_protobuf(
     .get_type_option_cell_data_handler(to_field_type)
   {
     None => Ok(CellProtobufBlob::default()),
-    Some(handler) => handler.handle_cell_str(cell, from_field_type, field),
+    Some(handler) => handler.handle_cell_protobuf(cell, from_field_type, field),
   }
 }
 

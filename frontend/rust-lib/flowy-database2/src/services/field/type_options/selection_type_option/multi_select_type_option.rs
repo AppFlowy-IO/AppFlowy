@@ -125,12 +125,8 @@ impl TypeOptionCellDataFilter for MultiSelectTypeOption {
   fn apply_filter(
     &self,
     filter: &<Self as TypeOption>::CellFilter,
-    field_type: &FieldType,
     cell_data: &<Self as TypeOption>::CellData,
   ) -> bool {
-    if !field_type.is_multi_select() {
-      return true;
-    }
     let selected_options = self.get_selected_options(cell_data.clone()).select_options;
     filter.is_visible(&selected_options, FieldType::MultiSelect)
   }

@@ -116,12 +116,7 @@ impl TypeOptionCellDataCompare for RelationTypeOption {
 }
 
 impl TypeOptionCellDataFilter for RelationTypeOption {
-  fn apply_filter(
-    &self,
-    _filter: &RelationFilterPB,
-    _field_type: &FieldType,
-    _cell_data: &RelationCellData,
-  ) -> bool {
+  fn apply_filter(&self, _filter: &RelationFilterPB, _cell_data: &RelationCellData) -> bool {
     true
   }
 }

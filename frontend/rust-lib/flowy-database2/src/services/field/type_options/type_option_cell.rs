@@ -33,7 +33,7 @@ pub const CELL_DATA: &str = "data";
 /// 2. there are no generic types parameters.
 ///
 pub trait TypeOptionCellDataHandler: Send + Sync + 'static {
-  fn handle_cell_str(
+  fn handle_cell_protobuf(
     &self,
     cell: &Cell,
     decoded_field_type: &FieldType,
@@ -224,7 +224,7 @@ where
     + Sync
     + 'static,
 {
-  fn handle_cell_str(
+  fn handle_cell_protobuf(
     &self,
     cell: &Cell,
     decoded_field_type: &FieldType,
@@ -313,7 +313,7 @@ where
       let filter_cache = self.cell_filter_cache.as_ref()?.read();
       let cell_filter = filter_cache.get::<<Self as TypeOption>::CellFilter>(&field.id)?;
       let cell_data = self.get_decoded_cell_data(cell, field_type, field).ok()?;
-      Some(self.apply_filter(cell_filter, field_type, &cell_data))
+      Some(self.apply_filter(cell_filter, &cell_data))
     };
 
     perform_filter().unwrap_or(true)

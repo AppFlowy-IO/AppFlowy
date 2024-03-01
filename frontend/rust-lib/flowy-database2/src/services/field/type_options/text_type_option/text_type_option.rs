@@ -144,13 +144,8 @@ impl TypeOptionCellDataFilter for RichTextTypeOption {
   fn apply_filter(
     &self,
     filter: &<Self as TypeOption>::CellFilter,
-    field_type: &FieldType,
     cell_data: &<Self as TypeOption>::CellData,
   ) -> bool {
-    if !field_type.is_text() {
-      return false;
-    }
-
     filter.is_visible(cell_data)
   }
 }
