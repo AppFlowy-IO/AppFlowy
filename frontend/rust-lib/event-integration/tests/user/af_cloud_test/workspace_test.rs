@@ -18,7 +18,7 @@ async fn af_cloud_workspace_name_change() {
     .rename_workspace(workspace_id, "new_workspace_name")
     .await
     .expect("failed to rename workspace");
-  let workspaces = get_synced_workspaces(test, user_profile_pb.id).await;
+  let workspaces = get_synced_workspaces(&test, user_profile_pb.id).await;
   assert_eq!(workspaces[0].name, "new_workspace_name".to_string());
 }
 
@@ -29,14 +29,34 @@ async fn af_cloud_create_workspace_test() {
   let user_profile_pb = test.af_cloud_sign_up().await;
 
   let workspaces = test.get_all_workspaces().await.items;
+  let first_workspace_id = workspaces[0].workspace_id.as_str();
   assert_eq!(workspaces.len(), 1);
 
   let created_workspace = test.create_workspace("my second workspace").await;
   assert_eq!(created_workspace.name, "my second workspace");
 
-  let workspaces = get_synced_workspaces(test, user_profile_pb.id).await;
+  let workspaces = get_synced_workspaces(&test, user_profile_pb.id).await;
   assert_eq!(workspaces.len(), 2);
   assert_eq!(workspaces[1].name, "my second workspace".to_string());
+
+  {
+    // before opening new workspace
+    let folder_ws = test.folder_read_current_workspace().await;
+    assert_eq!(&folder_ws.id, first_workspace_id);
+    let views = test.folder_read_workspace_views().await;
+    assert_eq!(views.items[0].parent_view_id.as_str(), first_workspace_id);
+  }
+  {
+    // after opening new workspace
+    test.open_workspace(&created_workspace.workspace_id).await;
+    let folder_ws = test.folder_read_current_workspace().await;
+    assert_eq!(folder_ws.id, created_workspace.workspace_id);
+    let views = test.folder_read_workspace_views().await;
+    assert_eq!(
+      views.items[0].parent_view_id.as_str(),
+      created_workspace.workspace_id
+    );
+  }
 }
 
 #[tokio::test]
@@ -58,7 +78,7 @@ async fn af_cloud_open_workspace_test() {
   assert_eq!(views[2].name, "my second document".to_string());
 }
 
-async fn get_synced_workspaces(test: EventIntegrationTest, user_id: i64) -> Vec<UserWorkspacePB> {
+async fn get_synced_workspaces(test: &EventIntegrationTest, user_id: i64) -> Vec<UserWorkspacePB> {
   let _workspaces = test.get_all_workspaces().await.items;
   let sub_id = user_id.to_string();
   let rx = test
