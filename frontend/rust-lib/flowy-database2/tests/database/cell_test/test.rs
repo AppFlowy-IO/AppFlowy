@@ -3,7 +3,8 @@ use std::time::Duration;
 use flowy_database2::entities::FieldType;
 use flowy_database2::services::field::{
   ChecklistCellChangeset, DateCellChangeset, DateCellData, MultiSelectTypeOption,
-  SelectOptionCellChangeset, SingleSelectTypeOption, StrCellData, URLCellData,
+  RelationCellChangeset, SelectOptionCellChangeset, SingleSelectTypeOption, StrCellData,
+  URLCellData,
 };
 use lib_infra::box_any::BoxAny;
 
@@ -52,6 +53,10 @@ async fn grid_cell_update() {
         }),
         FieldType::Checkbox => BoxAny::new("1".to_string()),
         FieldType::URL => BoxAny::new("1".to_string()),
+        FieldType::Relation => BoxAny::new(RelationCellChangeset {
+          inserted_row_ids: vec!["abcdefabcdef".to_string().into()],
+          ..Default::default()
+        }),
         _ => BoxAny::new("".to_string()),
       };
 

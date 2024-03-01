@@ -21,6 +21,7 @@ import {
   EditorInlineBlockStateProvider,
 } from '$app/components/editor/stores';
 import CommandPanel from '../tools/command_panel/CommandPanel';
+import { EditorBlockStateProvider } from '$app/components/editor/stores/block';
 
 function Editor({ sharedType, disableFocus }: { sharedType: Y.XmlText; id: string; disableFocus?: boolean }) {
   const { editor, initialValue, handleOnClickEnd, ...props } = useEditor(sharedType);
@@ -33,6 +34,7 @@ function Editor({ sharedType, disableFocus }: { sharedType: Y.XmlText; id: strin
     decorateState,
     slashState,
     inlineBlockState,
+    blockState,
   } = useInitialEditorState(editor);
 
   const decorate = useCallback(
@@ -60,24 +62,26 @@ function Editor({ sharedType, disableFocus }: { sharedType: Y.XmlText; id: strin
   return (
     <EditorSelectedBlockProvider value={selectedBlocks}>
       <DecorateStateProvider value={decorateState}>
-        <EditorInlineBlockStateProvider value={inlineBlockState}>
-          <SlashStateProvider value={slashState}>
-            <Slate editor={editor} initialValue={initialValue}>
-              <BlockActionsToolbar />
-              <SelectionToolbar />
+        <EditorBlockStateProvider value={blockState}>
+          <EditorInlineBlockStateProvider value={inlineBlockState}>
+            <SlashStateProvider value={slashState}>
+              <Slate editor={editor} initialValue={initialValue}>
+                <BlockActionsToolbar />
+                <SelectionToolbar />
 
-              <CustomEditable
-                {...props}
-                disableFocus={disableFocus}
-                onKeyDown={onKeyDown}
-                decorate={decorate}
-                className={'px-16 caret-text-title outline-none focus:outline-none'}
-              />
-              <CommandPanel />
-              <div onClick={handleOnClickEnd} className={'relative bottom-0 left-0 h-10 w-full cursor-text'} />
-            </Slate>
-          </SlashStateProvider>
-        </EditorInlineBlockStateProvider>
+                <CustomEditable
+                  {...props}
+                  disableFocus={disableFocus}
+                  onKeyDown={onKeyDown}
+                  decorate={decorate}
+                  className={'px-16 caret-text-title outline-none focus:outline-none'}
+                />
+                <CommandPanel />
+                <div onClick={handleOnClickEnd} className={'relative bottom-0 left-0 h-10 w-full cursor-text'} />
+              </Slate>
+            </SlashStateProvider>
+          </EditorInlineBlockStateProvider>
+        </EditorBlockStateProvider>
       </DecorateStateProvider>
     </EditorSelectedBlockProvider>
   );

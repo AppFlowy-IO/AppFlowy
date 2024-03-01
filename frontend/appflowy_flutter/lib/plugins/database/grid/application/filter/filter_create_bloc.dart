@@ -144,9 +144,9 @@ class GridCreateFilterBloc
           fieldId: fieldId,
           condition: TextFilterConditionPB.Contains,
         );
+      default:
+        throw UnimplementedError();
     }
-
-    return FlowyResult.success(null);
   }
 
   @override

@@ -13,8 +13,8 @@ import KeyboardNavigation, {
   KeyboardNavigationOption,
 } from '$app/components/_shared/keyboard_navigation/KeyboardNavigation';
 import isHotkey from 'is-hotkey';
-import LinkEditInput, { pattern } from '$app/components/editor/components/inline_nodes/link/LinkEditInput';
-import { openUrl } from '$app/utils/open_url';
+import LinkEditInput from '$app/components/editor/components/inline_nodes/link/LinkEditInput';
+import { openUrl, pattern } from '$app/utils/open_url';
 
 function LinkEditContent({ onClose, defaultHref }: { onClose: () => void; defaultHref: string }) {
   const editor = useSlateStatic();
