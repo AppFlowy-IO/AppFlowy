@@ -150,6 +150,11 @@
       "success": "Copied debug info to clipboard!",
       "fail": "Unable to copy debug info to clipboard"
     },
+    "updateStatus": {
+      "upToDate": "AppFlowy is up to date 🎉",
+      "updateAvailable": "Version {} is available",
+      "checking": "Checking version..."
+    },
     "feedback": "Feedback"
   },
   "menuAppHeader": {

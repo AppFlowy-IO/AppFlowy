@@ -14,6 +14,7 @@ import 'package:appflowy/workspace/application/notifications/notification_servic
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/notifications/notification_settings_cubit.dart';
 import 'package:appflowy/workspace/application/sidebar/rename_view/rename_view_bloc.dart';
+import 'package:appflowy/workspace/application/update_checker/update_checker_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
@@ -135,6 +136,10 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
+        BlocProvider<VersionCheckerBloc>.value(
+          value: getIt<VersionCheckerBloc>()
+            ..add(const VersionCheckerEvent.checkLatestRelease()),
+        ),
         BlocProvider<AppearanceSettingsCubit>(
           create: (_) => AppearanceSettingsCubit(
             widget.appearanceSetting,

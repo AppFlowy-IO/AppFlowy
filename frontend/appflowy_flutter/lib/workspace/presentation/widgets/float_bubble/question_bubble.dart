@@ -1,6 +1,11 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/startup/tasks/rust_sdk.dart';
+import 'package:appflowy/workspace/application/update_checker/update_checker_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -10,8 +15,7 @@ import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:styled_widget/styled_widget.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -55,16 +59,21 @@ class _BubbleActionListState extends State<BubbleActionList> {
 
   @override
   Widget build(BuildContext context) {
-    final List<PopoverAction> actions = [];
-    actions.addAll(
-      BubbleAction.values.map((action) => BubbleActionWrapper(action)),
-    );
-    actions.add(FlowyVersionDescription());
+    final List<PopoverAction> actions = [
+      ...BubbleAction.values.map((action) => BubbleActionWrapper(action)),
+      FlowyVersionDescription(),
+      FlowyUpdateStatus(),
+    ];
 
     return PopoverActionList<PopoverAction>(
       direction: PopoverDirection.topWithRightAligned,
       actions: actions,
       offset: const Offset(0, -8),
+      constraints: const BoxConstraints(
+        minWidth: 170,
+        maxWidth: 225,
+        maxHeight: 300,
+      ),
       buildChild: (controller) {
         return FlowyTextButton(
           '?',
@@ -199,12 +208,48 @@ class FlowyVersionDescription extends CustomActionCell {
   }
 }
 
+class FlowyUpdateStatus extends CustomActionCell {
+  @override
+  Widget buildWithContext(BuildContext context) {
+    return BlocProvider.value(
+      value: getIt<VersionCheckerBloc>(),
+      child: BlocBuilder<VersionCheckerBloc, VersionCheckerState>(
+        builder: (context, state) {
+          return SizedBox(
+            height: 23,
+            child: Row(
+              children: [
+                FlowyText(
+                  state.maybeWhen(
+                    orElse: () =>
+                        LocaleKeys.questionBubble_updateStatus_checking.tr(),
+                    upToDate: () =>
+                        LocaleKeys.questionBubble_updateStatus_upToDate.tr(),
+                    updateAvailable: (v) => LocaleKeys
+                        .questionBubble_updateStatus_updateAvailable
+                        .tr(args: [v]),
+                  ),
+                  maxLines: 2,
+                  color: Theme.of(context).hintColor,
+                ),
+              ],
+            ).padding(
+              horizontal: ActionListSizes.itemHPadding,
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
 enum BubbleAction { whatsNews, help, debug, shortcuts, markdown, github }
 
 class BubbleActionWrapper extends ActionCell {
   BubbleActionWrapper(this.inner);
 
   final BubbleAction inner;
+
   @override
   Widget? leftIcon(Color iconColor) => inner.emoji;
 
