@@ -1,5 +1,7 @@
 import 'package:appflowy_backend/dispatch/dispatch.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -21,10 +23,17 @@ class WorkspaceMemberBloc
   WorkspaceMemberBloc({
     required this.userProfile,
   }) : super(WorkspaceMemberState.initial()) {
-    on<WorkspaceMemberEvent>((event, emit) {
-      event.map(
-        getWorkspaceMembers: (_) {
-          _getWorkspaceMembers(emit);
+    on<WorkspaceMemberEvent>((event, emit) async {
+      await event.map(
+        getWorkspaceMembers: (_) async {
+          final members = await _getWorkspaceMembers();
+          final myRole = _getMyRole(members);
+          emit(
+            state.copyWith(
+              members: members,
+              myRole: myRole,
+            ),
+          );
         },
         addWorkspaceMember: (e) {},
         removeWorkspaceMember: (e) {},
@@ -35,27 +44,34 @@ class WorkspaceMemberBloc
 
   final UserProfilePB userProfile;
 
-  Future<void> _getWorkspaceMembers(Emitter emit) async {
+  Future<List<WorkspaceMemberPB>> _getWorkspaceMembers() async {
     // will the current workspace be synced across the app?
     final currentWorkspace = await FolderEventReadCurrentWorkspace().send();
-    return currentWorkspace.onSuccess((s) async {
+    return currentWorkspace.fold((s) async {
       final result = await UserEventGetWorkspaceMember(
         QueryWorkspacePB()..workspaceId = s.id,
       ).send();
-      return result.onSuccess((s) {
-        emit(
-          WorkspaceMemberState(
-            members: s.items,
-            myRole: s.items
-                .firstWhere(
-                  (e) => e.email == userProfile.email,
-                  orElse: () => WorkspaceMemberPB()..role = AFRolePB.Guest,
-                )
-                .role,
-          ),
-        );
+      return result.fold((s) => s.items, (e) {
+        Log.error('Failed to read workspace members: $e');
+        return [];
       });
+    }, (e) {
+      Log.error('Failed to read current workspace: $e');
+      return [];
     });
+  }
+
+  AFRolePB _getMyRole(List<WorkspaceMemberPB> members) {
+    final role = members
+        .firstWhereOrNull(
+          (e) => e.email == userProfile.email,
+        )
+        ?.role;
+    if (role == null) {
+      Log.error('Failed to get my role');
+      return AFRolePB.Guest;
+    }
+    return role;
   }
 }
 

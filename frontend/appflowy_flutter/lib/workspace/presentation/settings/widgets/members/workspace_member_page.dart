@@ -22,6 +22,7 @@ class WorkspaceMembersPage extends StatelessWidget {
         ),
       child: BlocBuilder<WorkspaceMemberBloc, WorkspaceMemberState>(
         builder: (context, state) {
+          print('state.members: ${state.members}');
           return SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -29,8 +30,10 @@ class WorkspaceMembersPage extends StatelessWidget {
                 // title
                 const FlowyText('Members Settings'),
                 const _InviteMember(),
-                if (state.members.isNotEmpty)
-                  _MemberList(members: state.members),
+                if (state.members.isNotEmpty) ...[
+                  const FlowyText('Members'),
+                  _MemberList(members: state.members, userProfile: userProfile),
+                ],
               ],
             ),
           );
@@ -77,19 +80,40 @@ class _InviteMember extends StatelessWidget {
 class _MemberList extends StatelessWidget {
   const _MemberList({
     required this.members,
+    required this.userProfile,
   });
 
   final List<WorkspaceMemberPB> members;
+  final UserProfilePB userProfile;
 
   @override
   Widget build(BuildContext context) {
     return SeparatedColumn(
       separatorBuilder: () => const Divider(),
-      children: members
-          .map(
-            (member) => _MemberItem(member: member),
-          )
-          .toList(),
+      children: [
+        const _MemberListHeader(),
+        ...members.map(
+          (member) => _MemberItem(
+            member: member,
+            isCurrentUser: member.email == userProfile.email,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _MemberListHeader extends StatelessWidget {
+  const _MemberListHeader();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Row(
+      children: [
+        Expanded(child: FlowyText('User')),
+        Expanded(child: FlowyText('Role')),
+        HSpace(28.0),
+      ],
     );
   }
 }
@@ -97,20 +121,37 @@ class _MemberList extends StatelessWidget {
 class _MemberItem extends StatelessWidget {
   const _MemberItem({
     required this.member,
+    required this.isCurrentUser,
   });
 
   final WorkspaceMemberPB member;
+  final bool isCurrentUser;
 
   @override
   Widget build(BuildContext context) {
+    final textColor = isCurrentUser ? Theme.of(context).hintColor : null;
     return Row(
       children: [
-        Expanded(child: FlowyText(member.name)),
-        Expanded(child: FlowyText(member.role.toString())),
-        const FlowyButton(
-          useIntrinsicWidth: true,
-          text: FlowySvg(FlowySvgs.delete_s),
+        Expanded(
+          child: FlowyText(
+            member.name,
+            color: textColor,
+          ),
         ),
+        Expanded(
+          child: FlowyText(
+            member.role.toString(),
+            color: textColor,
+          ),
+        ),
+        isCurrentUser
+            ? const HSpace(28.0)
+            : const FlowyButton(
+                useIntrinsicWidth: true,
+                text: FlowySvg(
+                  FlowySvgs.delete_s,
+                ),
+              ),
       ],
     );
   }
