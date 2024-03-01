@@ -189,7 +189,7 @@ pub enum UserEvent {
   #[event(output = "UpdateWorkspaceMemberPB")]
   UpdateWorkspaceMember = 39,
 
-  #[event(output = "QueryWorkspacePB")]
+  #[event(input = "QueryWorkspacePB", output = "RepeatedWorkspaceMemberPB")]
   GetWorkspaceMember = 40,
 
   #[event(input = "ImportAppFlowyDataPB")]
