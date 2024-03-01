@@ -36,7 +36,7 @@ function Layout({ children }: { children: ReactNode }) {
           <TopBar />
           <div
             style={{
-              height: 'calc(100vh - 64px - 48px)',
+              height: 'calc(100vh - 64px)',
             }}
             className={'appflowy-layout appflowy-scroll-container select-none overflow-y-auto overflow-x-hidden'}
           >

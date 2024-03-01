@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { TextField } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-
-export const pattern = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w.-]*)*\/?$/;
+import { pattern } from '$app/utils/open_url';
 
 function LinkEditInput({
   link,

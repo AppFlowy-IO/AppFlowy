@@ -73,6 +73,7 @@
     "slate-history": "^0.100.0",
     "slate-react": "^0.101.3",
     "ts-results": "^3.3.0",
+    "unsplash-js": "^7.0.19",
     "utf8": "^3.0.0",
     "valtio": "^1.12.1",
     "yjs": "^13.5.51"

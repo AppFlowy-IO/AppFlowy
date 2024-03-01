@@ -6,7 +6,7 @@ import withErrorBoundary from '$app/components/_shared/error_boundary/withError'
 const Toolbar = memo(() => {
   const ref = useRef<HTMLDivElement | null>(null);
 
-  const { visible, restoreSelection, storeSelection, isAcrossBlocks } = useSelectionToolbar(ref);
+  const { visible, restoreSelection, storeSelection, isAcrossBlocks, isIncludeRoot } = useSelectionToolbar(ref);
 
   return (
     <div
@@ -20,6 +20,7 @@ const Toolbar = memo(() => {
       }}
     >
       <SelectionActions
+        isIncludeRoot={isIncludeRoot}
         isAcrossBlocks={isAcrossBlocks}
         storeSelection={storeSelection}
         restoreSelection={restoreSelection}

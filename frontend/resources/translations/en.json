@@ -245,7 +245,9 @@
     "Cancel": "Cancel",
     "clear": "Clear",
     "remove": "Remove",
-    "dontRemove": "Don't remove"
+    "dontRemove": "Don't remove",
+    "copyLink": "Copy Link",
+    "align": "Align"
   },
   "label": {
     "welcome": "Welcome!",
@@ -1161,7 +1163,8 @@
     "replace": "Replace",
     "replaceAll": "Replace all",
     "noResult": "No results",
-    "caseSensitive": "Case sensitive"
+    "caseSensitive": "Case sensitive",
+    "searchMore": "Search to find more results"
   },
   "error": {
     "weAreSorry": "We're sorry",
