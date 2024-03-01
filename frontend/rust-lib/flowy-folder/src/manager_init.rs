@@ -123,17 +123,19 @@ impl FolderManager {
       .set_index_content_receiver(index_content_rx);
 
     // Index all views in the folder if needed
-    let views = folder.get_all_views_recursively();
-    let indexable_data = views
-      .iter()
-      .map(|view| IndexableData {
-        id: view.id.clone(),
-        data: view.name.clone(),
-        icon: view.icon.clone(),
-        layout: view.layout.clone(),
-      })
-      .collect();
-    let _ = self.folder_indexer.index_all(indexable_data);
+    if !self.folder_indexer.is_indexed() {
+      let views = folder.get_all_views_recursively();
+      let indexable_data = views
+        .iter()
+        .map(|view| IndexableData {
+          id: view.id.clone(),
+          data: view.name.clone(),
+          icon: view.icon.clone(),
+          layout: view.layout.clone(),
+        })
+        .collect();
+      let _ = self.folder_indexer.index_all(indexable_data);
+    }
 
     *self.mutex_folder.lock() = Some(folder);
 

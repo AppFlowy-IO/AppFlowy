@@ -89,16 +89,8 @@ impl FolderIndexManager {
 
   /// Used to index all views in a workspace at the start of the application
   pub fn index_all(&self, indexes: Vec<IndexableData>) -> Result<(), FlowyError> {
-    // Check if indexes exist in index folder, otherwise index
-    if let Some(index) = &self.index {
-      let index_reader = index.reader();
-      if let Ok(index_reader) = index_reader {
-        let searcher = index_reader.searcher();
-        let num_docs = searcher.num_docs();
-        if num_docs > 0 {
-          return Ok(());
-        }
-      }
+    if self.is_indexed() {
+      return Ok(());
     }
 
     let mut index_writer = self.get_index_writer()?;
@@ -109,8 +101,6 @@ impl FolderIndexManager {
     let icon_field = folder_schema.schema.get_field(FOLDER_ICON_FIELD_NAME)?;
     let icon_ty_field = folder_schema.schema.get_field(FOLDER_ICON_TY_FIELD_NAME)?;
 
-    // All views contain child_views, we need to index them all
-    // Let's reduce all views and child_views into a single vector
     for data in indexes {
       let (icon, icon_ty) = self.extract_icon(data.icon.clone(), data.layout.clone());
 
@@ -125,6 +115,21 @@ impl FolderIndexManager {
     index_writer.commit()?;
 
     Ok(())
+  }
+
+  pub fn is_indexed(&self) -> bool {
+    if let Some(index) = &self.index {
+      let index_reader = index.reader();
+      if let Ok(index_reader) = index_reader {
+        let searcher = index_reader.searcher();
+        let num_docs = searcher.num_docs();
+        if num_docs > 0 {
+          return true;
+        }
+      }
+    }
+
+    false
   }
 
   fn empty() -> Self {
