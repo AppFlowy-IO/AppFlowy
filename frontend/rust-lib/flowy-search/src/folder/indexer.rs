@@ -5,7 +5,7 @@ use crate::{
   folder::schema::{FolderSchema, FOLDER_ICON_FIELD_NAME, FOLDER_TITLE_FIELD_NAME},
 };
 use collab::core::collab::{IndexContent, IndexContentReceiver};
-use collab_folder::{ViewIcon, ViewIndexContent, ViewLayout};
+use collab_folder::{View, ViewIcon, ViewIndexContent, ViewLayout};
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_user::services::authenticate_user::AuthenticateUser;
 use lib_dispatch::prelude::af_spawn;
@@ -87,8 +87,21 @@ impl FolderIndexManager {
     }
   }
 
-  /// Used to index all views in a workspace at the start of the application
-  pub fn index_all(&self, indexes: Vec<IndexableData>) -> Result<(), FlowyError> {
+  pub fn index_all_views(&self, views: Vec<View>) {
+    let indexable_data = views
+      .iter()
+      .map(|view| IndexableData {
+        id: view.id.clone(),
+        data: view.name.clone(),
+        icon: view.icon.clone(),
+        layout: view.layout.clone(),
+      })
+      .collect();
+
+    let _ = self.index_all(indexable_data);
+  }
+
+  fn index_all(&self, indexes: Vec<IndexableData>) -> Result<(), FlowyError> {
     if self.is_indexed() || indexes.is_empty() {
       return Ok(());
     }

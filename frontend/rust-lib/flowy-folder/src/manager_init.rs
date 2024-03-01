@@ -1,7 +1,7 @@
 use collab_entity::CollabType;
 
 use collab_folder::{Folder, FolderNotify, UserId};
-use flowy_search::services::indexer::{IndexManager, IndexableData};
+use flowy_search::services::indexer::IndexManager;
 use tracing::{event, Level};
 
 use collab_integrate::CollabKVDB;
@@ -125,16 +125,7 @@ impl FolderManager {
     // Index all views in the folder if needed
     if !self.folder_indexer.is_indexed() {
       let views = folder.get_all_views_recursively();
-      let indexable_data = views
-        .iter()
-        .map(|view| IndexableData {
-          id: view.id.clone(),
-          data: view.name.clone(),
-          icon: view.icon.clone(),
-          layout: view.layout.clone(),
-        })
-        .collect();
-      let _ = self.folder_indexer.index_all(indexable_data);
+      self.folder_indexer.index_all_views(views);
     }
 
     *self.mutex_folder.lock() = Some(folder);
