@@ -2,10 +2,13 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/members/workspace_member_bloc.dart';
+import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/buttons/primary_button.dart';
+import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -248,7 +251,7 @@ class _MemberItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textColor = myRole.isOwner ? Theme.of(context).hintColor : null;
+    final textColor = member.role.isOwner ? Theme.of(context).hintColor : null;
     return Row(
       children: [
         Expanded(
@@ -259,38 +262,207 @@ class _MemberItem extends StatelessWidget {
           ),
         ),
         Expanded(
-          child: FlowyText.medium(
-            member.role.description,
-            color: textColor,
-            fontSize: 14.0,
-          ),
+          child: member.role.isOwner || !myRole.canUpdate
+              ? FlowyText.medium(
+                  member.role.description,
+                  color: textColor,
+                  fontSize: 14.0,
+                )
+              : _MemberRoleActionList(
+                  member: member,
+                ),
         ),
         myRole.canDelete &&
                 member.email != userProfile.email // can't delete self
-            ? const FlowyButton(
-                useIntrinsicWidth: true,
-                text: FlowySvg(
-                  FlowySvgs.delete_s,
-                ),
-              )
+            ? _MemberMoreActionList(member: member)
             : const HSpace(28.0),
       ],
     );
   }
 }
 
+enum _MemberMoreAction {
+  delete,
+}
+
+class _MemberMoreActionList extends StatelessWidget {
+  const _MemberMoreActionList({
+    required this.member,
+  });
+
+  final WorkspaceMemberPB member;
+
+  @override
+  Widget build(BuildContext context) {
+    return PopoverActionList<_MemberMoreActionWrapper>(
+      asBarrier: true,
+      direction: PopoverDirection.bottomWithCenterAligned,
+      actions: _MemberMoreAction.values
+          .map((e) => _MemberMoreActionWrapper(e, member))
+          .toList(),
+      buildChild: (controller) {
+        return FlowyButton(
+          useIntrinsicWidth: true,
+          text: const FlowySvg(
+            FlowySvgs.three_dots_vertical_s,
+          ),
+          onTap: () {
+            controller.show();
+          },
+        );
+      },
+      onSelected: (action, controller) async {
+        switch (action.inner) {
+          case _MemberMoreAction.delete:
+            context.read<WorkspaceMemberBloc>().add(
+                  WorkspaceMemberEvent.removeWorkspaceMember(
+                    action.member.email,
+                  ),
+                );
+            break;
+        }
+        controller.close();
+      },
+    );
+  }
+}
+
+class _MemberMoreActionWrapper extends ActionCell {
+  _MemberMoreActionWrapper(this.inner, this.member);
+
+  final _MemberMoreAction inner;
+  final WorkspaceMemberPB member;
+
+  @override
+  String get name {
+    switch (inner) {
+      case _MemberMoreAction.delete:
+        return LocaleKeys.settings_appearance_members_removeFromWorkspace.tr();
+    }
+  }
+}
+
+class _MemberRoleActionList extends StatelessWidget {
+  const _MemberRoleActionList({
+    required this.member,
+  });
+
+  final WorkspaceMemberPB member;
+
+  @override
+  Widget build(BuildContext context) {
+    return PopoverActionList<_MemberRoleActionWrapper>(
+      asBarrier: true,
+      direction: PopoverDirection.bottomWithLeftAligned,
+      actions: [AFRolePB.Member, AFRolePB.Guest]
+          .map((e) => _MemberRoleActionWrapper(e, member))
+          .toList(),
+      offset: const Offset(0, 10),
+      buildChild: (controller) {
+        return MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () => controller.show(),
+            child: Row(
+              children: [
+                FlowyText.medium(
+                  member.role.description,
+                  fontSize: 14.0,
+                ),
+                const HSpace(8.0),
+                const FlowySvg(
+                  FlowySvgs.drop_menu_show_s,
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+      onSelected: (action, controller) async {
+        switch (action.inner) {
+          case AFRolePB.Member:
+          case AFRolePB.Guest:
+            context.read<WorkspaceMemberBloc>().add(
+                  WorkspaceMemberEvent.updateWorkspaceMember(
+                    action.member.email,
+                    action.inner,
+                  ),
+                );
+            break;
+          case AFRolePB.Owner:
+            break;
+        }
+        controller.close();
+      },
+    );
+  }
+}
+
+class _MemberRoleActionWrapper extends ActionCell {
+  _MemberRoleActionWrapper(this.inner, this.member);
+
+  final AFRolePB inner;
+  final WorkspaceMemberPB member;
+
+  @override
+  Widget? rightIcon(Color iconColor) {
+    return SizedBox(
+      width: 58.0,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FlowyTooltip(
+            message: tooltip,
+            child: const FlowySvg(
+              FlowySvgs.information_s,
+              // color: iconColor,
+            ),
+          ),
+          const Spacer(),
+          if (member.role == inner)
+            const FlowySvg(
+              FlowySvgs.checkmark_tiny_s,
+            ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  String get name {
+    switch (inner) {
+      case AFRolePB.Guest:
+        return LocaleKeys.settings_appearance_members_guest.tr();
+      case AFRolePB.Member:
+        return LocaleKeys.settings_appearance_members_member.tr();
+      case AFRolePB.Owner:
+        return LocaleKeys.settings_appearance_members_owner.tr();
+    }
+    throw UnimplementedError('Unknown role: $inner');
+  }
+
+  String get tooltip {
+    switch (inner) {
+      case AFRolePB.Guest:
+        return LocaleKeys.settings_appearance_members_guestHintText.tr();
+      case AFRolePB.Member:
+        return LocaleKeys.settings_appearance_members_memberHintText.tr();
+      case AFRolePB.Owner:
+        return '';
+    }
+    throw UnimplementedError('Unknown role: $inner');
+  }
+}
+
 extension on AFRolePB {
   bool get isOwner => this == AFRolePB.Owner;
 
-  bool get isMember => this == AFRolePB.Member;
-
-  // bool get isGuest => this == AFRolePB.Guest;
-
-  bool get canInvite => isOwner || isMember;
+  bool get canInvite => isOwner;
 
   bool get canDelete => isOwner;
 
-  // bool get canUpdate => isOwner;
+  bool get canUpdate => isOwner;
 
   String get description {
     switch (this) {

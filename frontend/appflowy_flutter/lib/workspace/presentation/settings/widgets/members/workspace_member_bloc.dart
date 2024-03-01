@@ -35,9 +35,16 @@ class WorkspaceMemberBloc
         },
         addWorkspaceMember: (e) async {
           await _addWorkspaceMember(e.email);
+          add(const WorkspaceMemberEvent.getWorkspaceMembers());
         },
-        removeWorkspaceMember: (e) {},
-        updateWorkspaceMember: (e) {},
+        removeWorkspaceMember: (e) async {
+          await _removeWorkspaceMember(e.email);
+          add(const WorkspaceMemberEvent.getWorkspaceMembers());
+        },
+        updateWorkspaceMember: (e) async {
+          await _updateWorkspaceMember(e.email, e.role);
+          add(const WorkspaceMemberEvent.getWorkspaceMembers());
+        },
       );
     });
   }
@@ -89,6 +96,41 @@ class WorkspaceMemberBloc
       Log.error('Failed to read current workspace: $e');
     });
   }
+
+  Future<void> _removeWorkspaceMember(String email) async {
+    final currentWorkspace = await FolderEventReadCurrentWorkspace().send();
+    return currentWorkspace.fold((s) async {
+      final data = RemoveWorkspaceMemberPB()
+        ..workspaceId = s.id
+        ..email = email;
+      final result = await UserEventRemoveWorkspaceMember(data).send();
+      result.fold((s) {
+        Log.info('Removed workspace member: $data');
+      }, (e) {
+        Log.error('Failed to remove workspace member: $e');
+      });
+    }, (e) {
+      Log.error('Failed to read current workspace: $e');
+    });
+  }
+
+  Future<void> _updateWorkspaceMember(String email, AFRolePB role) async {
+    final currentWorkspace = await FolderEventReadCurrentWorkspace().send();
+    return currentWorkspace.fold((s) async {
+      final data = UpdateWorkspaceMemberPB()
+        ..workspaceId = s.id
+        ..email = email
+        ..role = role;
+      final result = await UserEventUpdateWorkspaceMember(data).send();
+      result.fold((s) {
+        Log.info('Updated workspace member: $data');
+      }, (e) {
+        Log.error('Failed to update workspace member: $e');
+      });
+    }, (e) {
+      Log.error('Failed to read current workspace: $e');
+    });
+  }
 }
 
 @freezed
@@ -99,8 +141,10 @@ class WorkspaceMemberEvent with _$WorkspaceMemberEvent {
       AddWorkspaceMember;
   const factory WorkspaceMemberEvent.removeWorkspaceMember(String email) =
       RemoveWorkspaceMember;
-  const factory WorkspaceMemberEvent.updateWorkspaceMember(AFRolePB role) =
-      UpdateWorkspaceMember;
+  const factory WorkspaceMemberEvent.updateWorkspaceMember(
+    String email,
+    AFRolePB role,
+  ) = UpdateWorkspaceMember;
 }
 
 @freezed

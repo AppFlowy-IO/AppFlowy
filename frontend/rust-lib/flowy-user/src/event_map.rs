@@ -183,10 +183,10 @@ pub enum UserEvent {
   #[event(input = "AddWorkspaceMemberPB")]
   AddWorkspaceMember = 37,
 
-  #[event(output = "RemoveWorkspaceMemberPB")]
+  #[event(input = "RemoveWorkspaceMemberPB")]
   RemoveWorkspaceMember = 38,
 
-  #[event(output = "UpdateWorkspaceMemberPB")]
+  #[event(input = "UpdateWorkspaceMemberPB")]
   UpdateWorkspaceMember = 39,
 
   #[event(input = "QueryWorkspacePB", output = "RepeatedWorkspaceMemberPB")]
