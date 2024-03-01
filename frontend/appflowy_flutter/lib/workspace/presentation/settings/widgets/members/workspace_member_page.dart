@@ -9,6 +9,7 @@ import 'package:flowy_infra_ui/widget/buttons/primary_button.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:string_validator/string_validator.dart';
 
 class WorkspaceMembersPage extends StatelessWidget {
   const WorkspaceMembersPage({
@@ -52,8 +53,21 @@ class WorkspaceMembersPage extends StatelessWidget {
   }
 }
 
-class _InviteMember extends StatelessWidget {
+class _InviteMember extends StatefulWidget {
   const _InviteMember();
+
+  @override
+  State<_InviteMember> createState() => _InviteMemberState();
+}
+
+class _InviteMemberState extends State<_InviteMember> {
+  final _emailController = TextEditingController();
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -74,7 +88,10 @@ class _InviteMember extends StatelessWidget {
                 constraints: const BoxConstraints.tightFor(
                   height: 48.0,
                 ),
-                child: const FlowyTextField(),
+                child: FlowyTextField(
+                  controller: _emailController,
+                  onEditingComplete: _inviteMember,
+                ),
               ),
             ),
             const HSpace(10.0),
@@ -85,7 +102,7 @@ class _InviteMember extends StatelessWidget {
                   title: LocaleKeys.settings_appearance_members_sendInvite.tr(),
                   padding:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  onPressed: () {},
+                  onPressed: _inviteMember,
                 ),
               ),
             ),
@@ -126,6 +143,24 @@ class _InviteMember extends StatelessWidget {
           thickness: 1.0,
         ),
       ],
+    );
+  }
+
+  void _inviteMember() {
+    final email = _emailController.text;
+    if (!isEmail(email)) {
+      showSnackBarMessage(
+        context,
+        LocaleKeys.settings_appearance_members_emailInvalidError.tr(),
+      );
+      return;
+    }
+    context
+        .read<WorkspaceMemberBloc>()
+        .add(WorkspaceMemberEvent.addWorkspaceMember(email));
+    showSnackBarMessage(
+      context,
+      LocaleKeys.settings_appearance_members_emailSent.tr(),
     );
   }
 }

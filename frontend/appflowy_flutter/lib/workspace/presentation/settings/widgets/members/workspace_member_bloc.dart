@@ -14,8 +14,6 @@ part 'workspace_member_bloc.freezed.dart';
 //   - delete member button
 //   - member list
 //  Member:
-//   - invite member button
-//   - member list
 //  Guest:
 //   - member list
 class WorkspaceMemberBloc
@@ -35,7 +33,9 @@ class WorkspaceMemberBloc
             ),
           );
         },
-        addWorkspaceMember: (e) {},
+        addWorkspaceMember: (e) async {
+          await _addWorkspaceMember(e.email);
+        },
         removeWorkspaceMember: (e) {},
         updateWorkspaceMember: (e) {},
       );
@@ -48,9 +48,8 @@ class WorkspaceMemberBloc
     // will the current workspace be synced across the app?
     final currentWorkspace = await FolderEventReadCurrentWorkspace().send();
     return currentWorkspace.fold((s) async {
-      final result = await UserEventGetWorkspaceMember(
-        QueryWorkspacePB()..workspaceId = s.id,
-      ).send();
+      final data = QueryWorkspacePB()..workspaceId = s.id;
+      final result = await UserEventGetWorkspaceMember(data).send();
       return result.fold((s) => s.items, (e) {
         Log.error('Failed to read workspace members: $e');
         return [];
@@ -72,6 +71,23 @@ class WorkspaceMemberBloc
       return AFRolePB.Guest;
     }
     return role;
+  }
+
+  Future<void> _addWorkspaceMember(String email) async {
+    final currentWorkspace = await FolderEventReadCurrentWorkspace().send();
+    return currentWorkspace.fold((s) async {
+      final data = AddWorkspaceMemberPB()
+        ..workspaceId = s.id
+        ..email = email;
+      final result = await UserEventAddWorkspaceMember(data).send();
+      result.fold((s) {
+        Log.info('Added workspace member: $data');
+      }, (e) {
+        Log.error('Failed to add workspace member: $e');
+      });
+    }, (e) {
+      Log.error('Failed to read current workspace: $e');
+    });
   }
 }
 

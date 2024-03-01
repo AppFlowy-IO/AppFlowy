@@ -180,7 +180,7 @@ pub enum UserEvent {
   #[event(output = "NotificationSettingsPB")]
   GetNotificationSettings = 36,
 
-  #[event(output = "AddWorkspaceMemberPB")]
+  #[event(input = "AddWorkspaceMemberPB")]
   AddWorkspaceMember = 37,
 
   #[event(output = "RemoveWorkspaceMemberPB")]
