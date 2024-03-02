@@ -14,6 +14,10 @@ abstract class IGitHubService {
   ///
   /// Returns [GitHubReleaseInfo] if the request is successful, otherwise returns null.
   Future<GitHubReleaseInfo?> checkLatestGitHubRelease();
+
+  /// Disposes of any resources used by the service.
+  ///
+  void dispose();
 }
 
 @freezed
@@ -80,5 +84,10 @@ class GitHubService implements IGitHubService {
     }
 
     return null;
+  }
+
+  @override
+  void dispose() {
+    _client.close();
   }
 }

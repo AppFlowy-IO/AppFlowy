@@ -5,7 +5,7 @@ import 'package:bloc/bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
-part 'update_checker_bloc.freezed.dart';
+part 'version_checker_bloc.freezed.dart';
 
 class VersionCheckerBloc
     extends Bloc<VersionCheckerEvent, VersionCheckerState> {
@@ -39,6 +39,12 @@ class VersionCheckerBloc
   }
 
   late final IGitHubService _gitHubService;
+
+  @override
+  Future<void> close() async {
+    _gitHubService.dispose();
+    return super.close();
+  }
 }
 
 @freezed

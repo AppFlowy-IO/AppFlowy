@@ -5,7 +5,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/startup/tasks/rust_sdk.dart';
-import 'package:appflowy/workspace/application/update_checker/update_checker_bloc.dart';
+import 'package:appflowy/workspace/application/version_checker/version_checker_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';

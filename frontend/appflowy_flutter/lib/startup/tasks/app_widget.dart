@@ -14,7 +14,7 @@ import 'package:appflowy/workspace/application/notifications/notification_servic
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/notifications/notification_settings_cubit.dart';
 import 'package:appflowy/workspace/application/sidebar/rename_view/rename_view_bloc.dart';
-import 'package:appflowy/workspace/application/update_checker/update_checker_bloc.dart';
+import 'package:appflowy/workspace/application/version_checker/version_checker_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
