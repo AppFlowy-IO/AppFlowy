@@ -64,14 +64,17 @@ class _ChecklistItemsState extends State<ChecklistItems> {
     }
     final children = tasks
         .mapIndexed(
-          (index, task) => ChecklistItem(
-            task: task,
-            autofocus: widget.state.newTask && index == tasks.length - 1,
-            onSubmitted: () {
-              if (index == tasks.length - 1) {
-                widget.bloc.add(const ChecklistCellEvent.createNewTask(""));
-              }
-            },
+          (index, task) => Padding(
+            padding: const EdgeInsets.symmetric(vertical: 2.0),
+            child: ChecklistItem(
+              task: task,
+              autofocus: widget.state.newTask && index == tasks.length - 1,
+              onSubmitted: () {
+                if (index == tasks.length - 1) {
+                  widget.bloc.add(const ChecklistCellEvent.createNewTask(""));
+                }
+              },
+            ),
           ),
         )
         .toList();
@@ -111,7 +114,7 @@ class _ChecklistItemsState extends State<ChecklistItems> {
               ],
             ),
           ),
-          const VSpace(4),
+          const VSpace(2.0),
           ...children,
           ChecklistItemControl(cellNotifer: widget.cellContainerNotifier),
         ],
@@ -136,7 +139,7 @@ class ChecklistItemControl extends StatelessWidget {
               .read<ChecklistCellBloc>()
               .add(const ChecklistCellEvent.createNewTask("")),
           child: Container(
-            margin: const EdgeInsets.fromLTRB(8.0, 4.0, 8.0, 0),
+            margin: const EdgeInsets.fromLTRB(8.0, 2.0, 8.0, 0),
             height: 12,
             child: AnimatedSwitcher(
               duration: const Duration(milliseconds: 150),
