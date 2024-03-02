@@ -483,14 +483,14 @@
       "typeAValue": "Digita un valore...",
       "layout": "Disposizione",
       "databaseLayout": "Disposizione",
-      "viewList": "Viste del database",
       "editView": "Modifica vista",
       "boardSettings": "Impostazioni della bacheca",
       "calendarSettings": "Impostazioni del calendario",
       "createView": "Nuova vista",
       "duplicateView": "Duplica vista",
       "deleteView": "Elimina vista",
-      "numberOfVisibleFields": "{} mostrato"
+      "numberOfVisibleFields": "{} mostrato",
+      "viewList": "Viste del database"
     },
     "textFilter": {
       "contains": "Contiene",
@@ -964,10 +964,10 @@
       "layoutDateField": "Layout calendario per",
       "changeLayoutDateField": "Modifica del campo di layout",
       "noDateTitle": "Nessuna data",
-      "noDateHint": "Gli eventi non programmati verranno visualizzati qui",
       "unscheduledEventsTitle": "Eventi non programmati",
       "clickToAdd": "Fare clic per aggiungere al calendario",
-      "name": "Disposizione del calendario"
+      "name": "Disposizione del calendario",
+      "noDateHint": "Gli eventi non programmati verranno visualizzati qui"
     },
     "referencedCalendarPrefix": "Vista di",
     "quickJumpYear": "Salta a"

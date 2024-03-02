@@ -870,10 +870,10 @@
       "addToColumnBottomTooltip": "Add a new card at the bottom",
       "renameColumn": "Переименовать",
       "hideColumn": "Скрыть",
-      "groupActions": "Групповые действия",
       "newGroup": "Новая группа",
       "deleteColumn": "Удалить",
-      "deleteColumnConfirmation": "Это удалит колонку и все карточки в ней.\nТочно продолжить?"
+      "deleteColumnConfirmation": "Это удалит колонку и все карточки в ней.\nТочно продолжить?",
+      "groupActions": "Групповые действия"
     },
     "hiddenGroupSection": {
       "sectionTitle": "Скрытые группы",
