@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pbenum.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/style_widget/text_field.dart';
+import 'package:intl/intl.dart';
 
 const _maxLengthTwelveHour = 8;
 const _maxLengthTwentyFourHour = 5;
@@ -53,6 +54,13 @@ class _TimeTextFieldState extends State<TimeTextField> {
       text = widget.timeStr!;
     } else if (widget.endTimeStr != null) {
       text = widget.endTimeStr!;
+    }
+
+    if (widget.timeFormat == TimeFormatPB.TwelveHour) {
+      final twentyFourHourFormat = DateFormat('HH:mm');
+      final twelveHourFormat = DateFormat('hh:mm a');
+      final date = twentyFourHourFormat.parse(text);
+      text = twelveHourFormat.format(date);
     }
 
     _focusNode.addListener(_focusNodeListener);
