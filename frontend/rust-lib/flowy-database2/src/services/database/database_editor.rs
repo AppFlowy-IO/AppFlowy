@@ -594,13 +594,15 @@ impl DatabaseEditor {
         index: index as i32,
       };
       let notified_changeset = DatabaseFieldChangesetPB {
-        view_id: params.view_id,
+        view_id: params.view_id.clone(),
         inserted_fields: vec![insert_field],
         deleted_fields: vec![delete_field],
         updated_fields: vec![],
       };
 
-      self.notify_did_update_database(notified_changeset).await?;
+      send_notification(&params.view_id, DatabaseNotification::DidUpdateFields)
+        .payload(notified_changeset)
+        .send();
     }
 
     Ok(())
