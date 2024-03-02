@@ -868,10 +868,10 @@
       "addToColumnBottomTooltip": "Eine neue Karte am unteren Ende hinzufügen",
       "renameColumn": "Umbenennen",
       "hideColumn": "Verstecken",
-      "groupActions": "Gruppenaktion",
       "newGroup": "Neue Gruppe",
       "deleteColumn": "Löschen",
-      "deleteColumnConfirmation": "Das wird diese Gruppe und alle enthaltenen Karten löschen.\nSicher, dass Sie fortsetzen möchte?"
+      "deleteColumnConfirmation": "Das wird diese Gruppe und alle enthaltenen Karten löschen.\nSicher, dass Sie fortsetzen möchte?",
+      "groupActions": "Gruppenaktion"
     },
     "hiddenGroupSection": {
       "sectionTitle": "Versteckte Gruppen",
