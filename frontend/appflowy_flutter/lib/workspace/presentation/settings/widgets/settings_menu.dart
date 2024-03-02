@@ -1,4 +1,5 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/workspace/application/settings/settings_dialog_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_menu_element.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -70,13 +71,14 @@ class SettingsMenu extends StatelessWidget {
             icon: Icons.cut,
             changeSelectedPage: changeSelectedPage,
           ),
-          SettingsMenuElement(
-            page: SettingsPage.member,
-            selectedPage: currentPage,
-            label: 'Member',
-            icon: Icons.people,
-            changeSelectedPage: changeSelectedPage,
-          ),
+          if (FeatureFlag.membersSettings.isOn)
+            SettingsMenuElement(
+              page: SettingsPage.member,
+              selectedPage: currentPage,
+              label: LocaleKeys.settings_appearance_members_label.tr(),
+              icon: Icons.people,
+              changeSelectedPage: changeSelectedPage,
+            ),
         ],
       ),
     );
