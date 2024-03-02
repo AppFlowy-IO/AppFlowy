@@ -66,4 +66,9 @@ impl CalculationsDelegate for DatabaseViewCalculationsDelegateImpl {
   fn remove_calculation(&self, view_id: &str, calculation_id: &str) {
     self.0.remove_calculation(view_id, calculation_id)
   }
+
+  fn get_all_calculations(&self, view_id: &str) -> Fut<Arc<Vec<Arc<Calculation>>>> {
+    let calculations = Arc::new(self.0.get_all_calculations(view_id));
+    to_fut(async move { calculations })
+  }
 }

@@ -26,6 +26,9 @@ impl CalculationsService {
       CalculationType::Median => self.calculate_median(field, row_cells),
       CalculationType::Min => self.calculate_min(field, row_cells),
       CalculationType::Sum => self.calculate_sum(field, row_cells),
+      CalculationType::Count => self.calculate_count(row_cells),
+      CalculationType::CountEmpty => self.calculate_count_empty(row_cells),
+      CalculationType::CountNonEmpty => self.calculate_count_non_empty(row_cells),
     }
   }
 
@@ -62,7 +65,7 @@ impl CalculationsService {
     if !values.is_empty() {
       format!("{:.5}", Self::median(&values))
     } else {
-      "".to_owned()
+      String::new()
     }
   }
 
@@ -89,7 +92,7 @@ impl CalculationsService {
       }
     }
 
-    "".to_owned()
+    String::new()
   }
 
   fn calculate_max(&self, field: &Field, row_cells: Vec<Arc<RowCell>>) -> String {
@@ -105,7 +108,7 @@ impl CalculationsService {
       }
     }
 
-    "".to_owned()
+    String::new()
   }
 
   fn calculate_sum(&self, field: &Field, row_cells: Vec<Arc<RowCell>>) -> String {
@@ -114,7 +117,45 @@ impl CalculationsService {
     if !values.is_empty() {
       format!("{:.5}", values.iter().sum::<f64>())
     } else {
-      "".to_owned()
+      String::new()
+    }
+  }
+
+  fn calculate_count(&self, row_cells: Vec<Arc<RowCell>>) -> String {
+    if !row_cells.is_empty() {
+      format!("{}", row_cells.len())
+    } else {
+      String::new()
+    }
+  }
+
+  fn calculate_count_empty(&self, row_cells: Vec<Arc<RowCell>>) -> String {
+    if !row_cells.is_empty() {
+      format!(
+        "{}",
+        row_cells
+          .iter()
+          .filter(|c| c.is_none())
+          .collect::<Vec<_>>()
+          .len()
+      )
+    } else {
+      String::new()
+    }
+  }
+
+  fn calculate_count_non_empty(&self, row_cells: Vec<Arc<RowCell>>) -> String {
+    if !row_cells.is_empty() {
+      format!(
+        "{}",
+        row_cells
+          .iter()
+          .filter(|c| c.is_some())
+          .collect::<Vec<_>>()
+          .len()
+      )
+    } else {
+      String::new()
     }
   }
 

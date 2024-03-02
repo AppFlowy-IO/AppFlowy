@@ -23,6 +23,7 @@ pub trait CalculationsDelegate: Send + Sync + 'static {
   fn get_cells_for_field(&self, view_id: &str, field_id: &str) -> Fut<Vec<Arc<RowCell>>>;
   fn get_field(&self, field_id: &str) -> Option<Field>;
   fn get_calculation(&self, view_id: &str, field_id: &str) -> Fut<Option<Arc<Calculation>>>;
+  fn get_all_calculations(&self, view_id: &str) -> Fut<Arc<Vec<Arc<Calculation>>>>;
   fn update_calculation(&self, view_id: &str, calculation: Calculation);
   fn remove_calculation(&self, view_id: &str, calculation_id: &str);
 }
@@ -76,7 +77,7 @@ impl CalculationsController {
     }
   }
 
-  #[tracing::instrument(name = "schedule_filter_task", level = "trace", skip(self))]
+  #[tracing::instrument(name = "schedule_calculation_task", level = "trace", skip(self))]
   async fn gen_task(&self, task_type: CalculationEvent, qos: QualityOfService) {
     let task_id = self.task_scheduler.read().await.next_task_id();
     let task = Task::new(
@@ -89,16 +90,16 @@ impl CalculationsController {
   }
 
   #[tracing::instrument(
-    name = "process_filter_task",
+    name = "process_calculation_task",
     level = "trace",
     skip_all,
-    fields(filter_result),
+    fields(calculation_result),
     err
   )]
   pub async fn process(&self, predicate: &str) -> FlowyResult<()> {
     let event_type = CalculationEvent::from_str(predicate).unwrap();
     match event_type {
-      CalculationEvent::RowChanged(row) => self.handle_row_changed(row).await,
+      CalculationEvent::RowChanged(row, view_id) => self.handle_row_changed(row, view_id).await,
       CalculationEvent::CellUpdated(field_id) => self.handle_cell_changed(field_id).await,
       CalculationEvent::FieldDeleted(field_id) => self.handle_field_deleted(field_id).await,
       CalculationEvent::FieldTypeChanged(field_id, new_field_type) => {
@@ -160,7 +161,8 @@ impl CalculationsController {
       .await;
 
     if let Some(calculation) = calculation {
-      if new_field_type != FieldType::Number {
+      let calc_type: CalculationType = calculation.calculation_type.into();
+      if !calc_type.is_allowed(new_field_type) {
         self
           .delegate
           .remove_calculation(&self.view_id, &calculation.id);
@@ -215,18 +217,33 @@ impl CalculationsController {
     }
   }
 
-  pub async fn did_receive_row_changed(&self, row: Row) {
+  pub async fn did_receive_row_changed(&self, row: Row, view_id: Option<String>) {
     self
       .gen_task(
-        CalculationEvent::RowChanged(row),
+        CalculationEvent::RowChanged(row, view_id),
         QualityOfService::UserInteractive,
       )
       .await
   }
 
-  async fn handle_row_changed(&self, row: Row) {
+  async fn handle_row_changed(&self, row: Row, view_id: Option<String>) {
     let cells = row.cells.iter();
     let mut updates = vec![];
+
+    // In case there are calculations where empty cells are counted
+    // as a contribution to the value.
+    if cells.len() == 0 {
+      if let Some(view_id) = view_id {
+        let calculations = self.delegate.get_all_calculations(&view_id).await;
+        for calculation in calculations.iter() {
+          let update = self.get_updated_calculation(calculation.clone()).await;
+          if let Some(update) = update {
+            updates.push(CalculationPB::from(&update));
+            self.delegate.update_calculation(&view_id, update);
+          }
+        }
+      }
+    }
 
     // Iterate each cell in the row
     for cell in cells {
@@ -260,17 +277,13 @@ impl CalculationsController {
       .await;
     let field = self.delegate.get_field(&calculation.field_id)?;
 
-    if field_cells.is_empty() {
-      return Some(calculation.with_value(String::new()));
-    } else {
-      let value =
-        self
-          .calculations_service
-          .calculate(&field, calculation.calculation_type, field_cells);
+    let value =
+      self
+        .calculations_service
+        .calculate(&field, calculation.calculation_type, field_cells);
 
-      if value != calculation.value {
-        return Some(calculation.with_value(value));
-      }
+    if value != calculation.value {
+      return Some(calculation.with_value(value));
     }
 
     None
@@ -333,7 +346,7 @@ impl CalculationsController {
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 enum CalculationEvent {
-  RowChanged(Row),
+  RowChanged(Row, Option<String>),
   CellUpdated(String),
   FieldTypeChanged(String, FieldType),
   FieldDeleted(String),
