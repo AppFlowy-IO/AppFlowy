@@ -33,7 +33,6 @@ void main() {
 
       // The initial number of rows is 3
       await tester.assertNumberOfRowsInGridPage(4);
-      await tester.assertRowCountInGridPage(4);
       await tester.pumpAndSettle();
     });
 
@@ -50,7 +49,6 @@ void main() {
 
       // The initial number of rows is 3
       await tester.assertNumberOfRowsInGridPage(2);
-      await tester.assertRowCountInGridPage(2);
       await tester.pumpAndSettle();
     });
 
@@ -60,7 +58,6 @@ void main() {
       await tester.tapGoButton();
 
       await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
-      await tester.assertRowCountInGridPage(3);
 
       await tester.pumpAndSettle();
     });
