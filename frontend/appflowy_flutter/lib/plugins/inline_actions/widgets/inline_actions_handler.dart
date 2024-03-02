@@ -1,3 +1,6 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_menu.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_result.dart';
@@ -7,8 +10,6 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 /// All heights are in physical pixels
 const double _groupTextHeight = 14; // 12 height + 2 bottom spacing
@@ -91,7 +92,7 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
   Future<void> _doSearch() async {
     final List<InlineActionsResult> newResults = [];
     for (final handler in widget.service.handlers) {
-      final group = await handler.call(_search);
+      final group = await handler.search(_search);
 
       if (group.results.isNotEmpty) {
         newResults.add(group);
