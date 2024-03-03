@@ -129,11 +129,6 @@ class UserWorkspaceState with _$UserWorkspaceState {
     @Default(null) FlowyResult<void, FlowyError>? openWorkspaceResult,
   }) = _UserWorkspaceState;
 
-  factory UserWorkspaceState.initial() => const UserWorkspaceState(
-        currentWorkspace: null,
-        workspaces: [],
-        createWorkspaceResult: null,
-        deleteWorkspaceResult: null,
-        openWorkspaceResult: null,
-      );
+  factory UserWorkspaceState.initial() => 
+      const UserWorkspaceState(currentWorkspace: null, workspaces: []);
 }
