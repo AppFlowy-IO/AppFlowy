@@ -97,12 +97,12 @@ class _BubbleActionListState extends State<BubbleActionList> {
               break;
             case BubbleAction.shortcuts:
               afLaunchUrlString(
-                "https://appflowy.gitbook.io/docs/essential-documentation/shortcuts",
+                "https://docs.appflowy.io/docs/appflowy/product/shortcuts",
               );
               break;
             case BubbleAction.markdown:
               afLaunchUrlString(
-                "https://appflowy.gitbook.io/docs/essential-documentation/markdown",
+                "https://docs.appflowy.io/docs/appflowy/product/markdown",
               );
               break;
             case BubbleAction.github:

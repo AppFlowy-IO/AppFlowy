@@ -13,7 +13,7 @@ class ThemeUploadLearnMoreButton extends StatelessWidget {
   const ThemeUploadLearnMoreButton({super.key});
 
   static const learnMoreURL =
-      'https://appflowy.gitbook.io/docs/essential-documentation/themes';
+      'https://docs.appflowy.io/docs/appflowy/product/themes';
 
   @override
   Widget build(BuildContext context) {
