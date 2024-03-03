@@ -76,7 +76,7 @@ class _WorkspaceMoreActionWrapper extends CustomActionCell {
             ).show(context);
           case WorkspaceMoreAction.rename:
 
-          // todo: integrate with the backend
+          // TODO(Lucas): integrate with the backend
         }
 
         if (context.mounted) {
