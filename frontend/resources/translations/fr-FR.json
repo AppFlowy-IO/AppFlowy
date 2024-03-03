@@ -405,7 +405,14 @@
         "label": "Membres",
         "user": "Utilisateur",
         "role": "Rôle",
-        "removeFromWorkspace": "Retirer de l'espace de travail"
+        "removeFromWorkspace": "Retirer de l'espace de travail",
+        "owner": "Propriétaire",
+        "guest": "Invité",
+        "member": "Membre",
+        "memberHintText": "Un membre peut lire, commenter, et éditer des pages. Inviter des membres et des invités.",
+        "guestHintText": "Un invité peut lire, réagir, commenter, et peut éditer certaines pages avec une permission",
+        "emailInvalidError": "Email invalide, veuillez le vérifier et recommencer",
+        "emailSent": "Email envoyé, veuillez vérifier dans votre boîte mail."
       }
     },
     "files": {
@@ -501,6 +508,7 @@
       "typeAValue": "Tapez une valeur...",
       "layout": "Mise en page",
       "databaseLayout": "Mise en page",
+      "viewList": "Vues de base de données",
       "editView": "Modifier vue",
       "boardSettings": "Paramètres du tableau",
       "calendarSettings": "Paramètres du calendrier",
@@ -508,8 +516,7 @@
       "duplicateView": "Dupliquer la vue",
       "deleteView": "Supprimer la vue",
       "numberOfVisibleFields": "{} affiché(s)",
-      "Properties": "Propriétés",
-      "viewList": "Vues de base de données"
+      "Properties": "Propriétés"
     },
     "textFilter": {
       "contains": "Contient",
