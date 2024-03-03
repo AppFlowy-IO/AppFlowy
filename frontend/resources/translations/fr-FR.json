@@ -242,6 +242,11 @@
     "helpCenter": "Centre d'aide",
     "add": "Ajouter",
     "yes": "Oui",
+    "Done": "Fait",
+    "Cancel": "Annuler",
+    "remove": "Retirer",
+    "dontRemove": "Ne pas retirer",
+    "align": "Aligner",
     "tryAGain": "Réessayer"
   },
   "label": {
@@ -392,7 +397,16 @@
         "twelveHour": "Douze heures",
         "twentyFourHour": "Vingt-quatre heures"
       },
-      "showNamingDialogWhenCreatingPage": "Afficher la boîte de dialogue de nommage lors de la création d'une page"
+      "showNamingDialogWhenCreatingPage": "Afficher la boîte de dialogue de nommage lors de la création d'une page",
+      "members": {
+        "inviteMembers": "Inviter des membres",
+        "sendInvite": "Envoyer une invitation",
+        "copyInviteLink": "Copier le lien d'invitation",
+        "label": "Membres",
+        "user": "Utilisateur",
+        "role": "Rôle",
+        "removeFromWorkspace": "Retirer de l'espace de travail"
+      }
     },
     "files": {
       "copy": "Copie",
