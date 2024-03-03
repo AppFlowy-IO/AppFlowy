@@ -79,7 +79,12 @@
     "large": "grand",
     "fontSize": "Taille de police",
     "import": "Importer",
-    "moreOptions": "Plus d'options"
+    "moreOptions": "Plus d'options",
+    "wordCount": "Compteur de mot: {}",
+    "charCount": "Compteur de caractère: {}",
+    "createdAt": "Créé à: {}",
+    "deleteView": "Supprimer",
+    "duplicateView": "Duppliquer"
   },
   "importPanel": {
     "textAndMarkdown": "Texte et Markdown",
