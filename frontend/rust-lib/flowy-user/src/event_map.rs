@@ -180,16 +180,16 @@ pub enum UserEvent {
   #[event(output = "NotificationSettingsPB")]
   GetNotificationSettings = 36,
 
-  #[event(output = "AddWorkspaceMemberPB")]
+  #[event(input = "AddWorkspaceMemberPB")]
   AddWorkspaceMember = 37,
 
-  #[event(output = "RemoveWorkspaceMemberPB")]
+  #[event(input = "RemoveWorkspaceMemberPB")]
   RemoveWorkspaceMember = 38,
 
-  #[event(output = "UpdateWorkspaceMemberPB")]
+  #[event(input = "UpdateWorkspaceMemberPB")]
   UpdateWorkspaceMember = 39,
 
-  #[event(output = "QueryWorkspacePB")]
+  #[event(input = "QueryWorkspacePB", output = "RepeatedWorkspaceMemberPB")]
   GetWorkspaceMember = 40,
 
   #[event(input = "ImportAppFlowyDataPB")]

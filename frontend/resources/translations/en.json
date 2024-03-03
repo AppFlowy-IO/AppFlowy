@@ -397,7 +397,24 @@
         "twentyFourHour": "Twenty four hour"
       },
       "showNamingDialogWhenCreatingPage": "Show naming dialog when creating a page",
-      "enableRTLToolbarItems": "Enable RTL toolbar items"
+      "enableRTLToolbarItems": "Enable RTL toolbar items",
+      "members": {
+        "title": "Members Settings",
+        "inviteMembers": "Invite Members",
+        "sendInvite": "Send Invite",
+        "copyInviteLink": "Copy Invite Link",
+        "label": "Members",
+        "user": "User",
+        "role": "Role",
+        "removeFromWorkspace": "Remove from Workspace",
+        "owner": "Owner",
+        "guest": "Guest",
+        "member": "Member",
+        "memberHintText": "A member can read, comment, and edit pages. Invite members and guests.",
+        "guestHintText": "A Guest can read, react, comment, and can edit certain pages with permission.",
+        "emailInvalidError": "Invalid email, please check and try again",
+        "emailSent": "Email sent, please check the inbox"
+      }
     },
     "files": {
       "copy": "Copy",
