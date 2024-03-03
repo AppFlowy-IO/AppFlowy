@@ -9,15 +9,16 @@ use serde::{Deserialize, Serialize};
 use tokio::sync::RwLock;
 
 use flowy_error::FlowyResult;
-use flowy_task::{QualityOfService, Task, TaskContent, TaskDispatcher};
 use lib_infra::future::Fut;
+use lib_infra::priority_task::{QualityOfService, Task, TaskContent, TaskDispatcher};
 
 use crate::entities::filter_entities::*;
 use crate::entities::{FieldType, InsertedRowPB, RowMetaPB};
-use crate::services::cell::{AnyTypeCache, CellCache, CellFilterCache};
+use crate::services::cell::{CellCache, CellFilterCache};
 use crate::services::database_view::{DatabaseViewChanged, DatabaseViewChangedNotifier};
 use crate::services::field::*;
 use crate::services::filter::{Filter, FilterChangeset, FilterResult, FilterResultNotification};
+use crate::utils::cache::AnyTypeCache;
 
 pub trait FilterDelegate: Send + Sync + 'static {
   fn get_filter(&self, view_id: &str, filter_id: &str) -> Fut<Option<Arc<Filter>>>;
@@ -236,7 +237,7 @@ impl FilterController {
     let mut notification: Option<FilterChangesetNotificationPB> = None;
 
     if let Some(filter_type) = &changeset.insert_filter {
-      if let Some(filter) = self.filter_from_filter_id(&filter_type.filter_id).await {
+      if let Some(filter) = self.filter_from_filter_id(&filter_type.id).await {
         notification = Some(FilterChangesetNotificationPB::from_insert(
           &self.view_id,
           vec![filter],
@@ -244,7 +245,7 @@ impl FilterController {
       }
       if let Some(filter) = self
         .delegate
-        .get_filter(&self.view_id, &filter_type.filter_id)
+        .get_filter(&self.view_id, &filter_type.id)
         .await
       {
         self.refresh_filters(vec![filter]).await;
@@ -254,9 +255,9 @@ impl FilterController {
     if let Some(updated_filter_type) = changeset.update_filter {
       if let Some(old_filter_type) = updated_filter_type.old {
         let new_filter = self
-          .filter_from_filter_id(&updated_filter_type.new.filter_id)
+          .filter_from_filter_id(&updated_filter_type.new.id)
           .await;
-        let old_filter = self.filter_from_filter_id(&old_filter_type.filter_id).await;
+        let old_filter = self.filter_from_filter_id(&old_filter_type.id).await;
 
         // Get the filter id
         let mut filter_id = old_filter.map(|filter| filter.id);
@@ -281,14 +282,17 @@ impl FilterController {
       }
     }
 
-    if let Some(filter_type) = &changeset.delete_filter {
-      if let Some(filter) = self.filter_from_filter_id(&filter_type.filter_id).await {
+    if let Some(filter_context) = &changeset.delete_filter {
+      if let Some(filter) = self.filter_from_filter_id(&filter_context.filter_id).await {
         notification = Some(FilterChangesetNotificationPB::from_delete(
           &self.view_id,
           vec![filter],
         ));
       }
-      self.cell_filter_cache.write().remove(&filter_type.field_id);
+      self
+        .cell_filter_cache
+        .write()
+        .remove(&filter_context.field_id);
     }
 
     self
@@ -354,6 +358,12 @@ impl FilterController {
             .write()
             .insert(field_id, ChecklistFilterPB::from_filter(filter.as_ref()));
         },
+        FieldType::Relation => {
+          self
+            .cell_filter_cache
+            .write()
+            .insert(field_id, RelationFilterPB::from_filter(filter.as_ref()));
+        },
       }
     }
   }
@@ -369,9 +379,7 @@ fn filter_row(
   cell_filter_cache: &CellFilterCache,
 ) -> Option<(RowId, bool)> {
   // Create a filter result cache if it's not exist
-  let mut filter_result = result_by_row_id
-    .entry(row.id.clone())
-    .or_insert_with(FilterResult::default);
+  let mut filter_result = result_by_row_id.entry(row.id.clone()).or_default();
   let old_is_visible = filter_result.is_visible();
 
   // Iterate each cell of the row to check its visibility

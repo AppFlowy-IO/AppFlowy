@@ -1,17 +1,18 @@
-import { Sort } from '../../application';
-import { useDatabase } from '../../Database.hooks';
 import { Sorts } from '../sort';
+import Filters from '../filter/Filters';
+import React from 'react';
 
-export const DatabaseCollection = () => {
-  const { sorts } = useDatabase();
+interface Props {
+  open: boolean;
+}
 
-  const showSorts = sorts && sorts.length > 0;
-
-  const showCollection = showSorts;
-
+export const DatabaseCollection = ({ open }: Props) => {
   return (
-    <div className={`flex items-center ${!showCollection ? 'h-0' : 'border-b border-line-divider py-3'}`}>
-      {showSorts && <Sorts sorts={sorts as Sort[]} />}
+    <div className={`database-collection w-full px-[64px] ${!open ? 'hidden' : 'py-3'}`}>
+      <div className={'flex w-full items-center gap-2 overflow-x-auto overflow-y-hidden '}>
+        <Sorts />
+        <Filters />
+      </div>
     </div>
   );
 };

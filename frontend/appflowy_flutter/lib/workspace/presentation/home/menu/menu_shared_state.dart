@@ -1,14 +1,15 @@
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter/material.dart';
 
 class MenuSharedState {
   final ValueNotifier<ViewPB?> _latestOpenView = ValueNotifier<ViewPB?>(null);
-  final ValueNotifier<Map<String, int>> _openPlugins =
-      ValueNotifier<Map<String, int>>({});
+  final ValueNotifier<Map<String, int>> _openPlugins = ValueNotifier<Map<String, int>>({});
 
   MenuSharedState({ViewPB? view}) {
     _latestOpenView.value = view;
   }
+
+  final ValueNotifier<ViewPB?> _latestOpenView = ValueNotifier<ViewPB?>(null);
 
   ViewPB? get latestOpenView => _latestOpenView.value;
   ValueNotifier<ViewPB?> get notifier => _latestOpenView;
@@ -20,7 +21,7 @@ class MenuSharedState {
   }
 
   VoidCallback addLatestViewListener(void Function(ViewPB?) callback) {
-    listener() {
+    void listener() {
       callback(_latestOpenView.value);
     }
 
@@ -28,8 +29,7 @@ class MenuSharedState {
     return listener;
   }
 
-  void removeLatestViewListener(VoidCallback listener) =>
-      _latestOpenView.removeListener(listener);
+  void removeLatestViewListener(VoidCallback listener) => _latestOpenView.removeListener(listener);
 
   Map<String, int> get openPlugins => _openPlugins.value;
 

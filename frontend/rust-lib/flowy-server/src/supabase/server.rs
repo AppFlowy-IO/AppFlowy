@@ -1,3 +1,4 @@
+use flowy_storage::ObjectStorageService;
 use std::collections::HashMap;
 use std::sync::{Arc, Weak};
 
@@ -5,12 +6,11 @@ use collab_entity::CollabObject;
 use collab_plugins::cloud_storage::{RemoteCollabStorage, RemoteUpdateSender};
 use parking_lot::RwLock;
 
-use flowy_database_deps::cloud::DatabaseCloudService;
-use flowy_document_deps::cloud::DocumentCloudService;
-use flowy_folder_deps::cloud::FolderCloudService;
-use flowy_server_config::supabase_config::SupabaseConfiguration;
-use flowy_storage::FileStorageService;
-use flowy_user_deps::cloud::UserCloudService;
+use flowy_database_pub::cloud::DatabaseCloudService;
+use flowy_document_pub::cloud::DocumentCloudService;
+use flowy_folder_pub::cloud::FolderCloudService;
+use flowy_server_pub::supabase_config::SupabaseConfiguration;
+use flowy_user_pub::cloud::UserCloudService;
 
 use crate::supabase::api::{
   RESTfulPostgresServer, RealtimeCollabUpdateHandler, RealtimeEventHandler, RealtimeUserHandler,
@@ -61,8 +61,7 @@ pub type CollabUpdateSenderByOid = RwLock<HashMap<String, RemoteUpdateSender>>;
 pub struct SupabaseServer {
   #[allow(dead_code)]
   config: SupabaseConfiguration,
-  /// did represents as the device id is used to identify the device that is currently using the app.
-  device_id: Arc<RwLock<String>>,
+  device_id: String,
   uid: Arc<RwLock<Option<i64>>>,
   collab_update_sender: Arc<CollabUpdateSenderByOid>,
   restful_postgres: Arc<RwLock<Option<Arc<RESTfulPostgresServer>>>>,
@@ -75,7 +74,7 @@ impl SupabaseServer {
     uid: Arc<RwLock<Option<i64>>>,
     config: SupabaseConfiguration,
     enable_sync: bool,
-    device_id: Arc<RwLock<String>>,
+    device_id: String,
     encryption: Weak<dyn AppFlowyEncryption>,
   ) -> Self {
     let collab_update_sender = Default::default();
@@ -146,7 +145,7 @@ impl AppFlowyServer for SupabaseServer {
     ));
 
     // handle the realtime user event.
-    let user_handler = Box::new(RealtimeUserHandler(user_update_tx.clone()));
+    let user_handler = Box::new(RealtimeUserHandler(user_update_tx));
 
     let handlers: Vec<Box<dyn RealtimeEventHandler>> = vec![collab_update_handler, user_handler];
     Arc::new(SupabaseUserServiceImpl::new(
@@ -188,11 +187,11 @@ impl AppFlowyServer for SupabaseServer {
     )))
   }
 
-  fn file_storage(&self) -> Option<Arc<dyn FileStorageService>> {
+  fn file_storage(&self) -> Option<Arc<dyn ObjectStorageService>> {
     self
       .file_storage
       .read()
       .clone()
-      .map(|s| s as Arc<dyn FileStorageService>)
+      .map(|s| s as Arc<dyn ObjectStorageService>)
   }
 }

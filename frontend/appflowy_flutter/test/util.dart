@@ -3,25 +3,14 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy/workspace/application/workspace/workspace_service.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
-import 'package:flowy_infra/uuid.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
+import 'package:flowy_infra/uuid.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:integration_test/integration_test.dart';
-import 'package:appflowy/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-class AppFlowyIntegrateTest {
-  static Future<AppFlowyIntegrateTest> ensureInitialized() async {
-    IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-    SharedPreferences.setMockInitialValues({});
-    main();
-    return AppFlowyIntegrateTest();
-  }
-}
 
 class AppFlowyUnitTest {
   late UserProfilePB userProfile;
@@ -35,7 +24,7 @@ class AppFlowyUnitTest {
     _pathProviderInitialized();
 
     await FlowyRunner.run(
-      FlowyTestApp(),
+      AppFlowyApplicationUniTest(),
       IntegrationMode.unitTest,
     );
 
@@ -58,12 +47,12 @@ class AppFlowyUnitTest {
       email: userEmail,
     );
     result.fold(
-      (error) {
-        assert(false, 'Error: $error');
-      },
       (user) {
         userProfile = user;
         userService = UserBackendService(userId: userProfile.id);
+      },
+      (error) {
+        assert(false, 'Error: $error');
       },
     );
   }
@@ -84,7 +73,7 @@ class AppFlowyUnitTest {
     workspaceService = WorkspaceService(workspaceId: currentWorkspace.id);
   }
 
-  Future<ViewPB> createTestApp() async {
+  Future<ViewPB> createWorkspace() async {
     final result = await workspaceService.createApp(name: "Test App");
     return result.fold(
       (app) => app,
@@ -111,10 +100,10 @@ void _pathProviderInitialized() {
   });
 }
 
-class FlowyTestApp implements EntryPoint {
+class AppFlowyApplicationUniTest implements EntryPoint {
   @override
   Widget create(LaunchConfiguration config) {
-    return Container();
+    return const SizedBox.shrink();
   }
 }
 

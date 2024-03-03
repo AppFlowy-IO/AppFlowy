@@ -4,6 +4,7 @@ import 'package:appflowy/workspace/presentation/settings/widgets/settings_appear
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
+
 import 'util/util.dart';
 
 void main() {
@@ -15,7 +16,7 @@ void main() {
       await tester.initializeAppFlowy();
 
       await tester.tapGoButton();
-      tester.expectToSeeHomePage();
+      await tester.expectToSeeHomePageWithGetStartedPage();
       await tester.openSettings();
 
       await tester.openSettingsPage(SettingsPage.appearance);
@@ -47,7 +48,7 @@ void main() {
       await tester.initializeAppFlowy();
 
       await tester.tapGoButton();
-      tester.expectToSeeHomePage();
+      await tester.expectToSeeHomePageWithGetStartedPage();
       await tester.openSettings();
 
       await tester.openSettingsPage(SettingsPage.appearance);

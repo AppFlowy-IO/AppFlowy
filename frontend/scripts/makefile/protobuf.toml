@@ -1,17 +1,17 @@
 
-[tasks.install_tauri_protobuf.windows]
+[tasks.install_web_protobuf.windows]
 script = """
 npm install -g protoc-gen-ts typescript@4.9.5
 """
 script_runner = "@shell"
 
-[tasks.install_tauri_protobuf.mac]
+[tasks.install_web_protobuf.mac]
 script = """
 sudo npm install -g protoc-gen-ts typescript@4.9.5
 """
 script_runner = "@shell"
 
-[tasks.install_tauri_protobuf.linux]
+[tasks.install_web_protobuf.linux]
 script = """
 sudo npm install -g protoc-gen-ts typescript@4.9.5
 """
@@ -23,8 +23,7 @@ windows_alias = "install-protobuf-windows"
 linux_alias = "install-protobuf"
 
 [tasks.install-protobuf]
-condition_script = [
-    """
+condition_script = ["""
     if ! command -v protoc-gen-dart
     then
         exit 0
@@ -32,8 +31,7 @@ condition_script = [
 
     # installed
     exit 1
-    """,
-]
+    """]
 run_task = { name = ["install_flutter_protobuf_compiler"] }
 
 [tasks.install-protobuf-windows]
@@ -45,7 +43,7 @@ if is_empty ${ret}
 end
 ret = which protoc-gen-dart
 if is_empty ${ret}
-    exec cmd.exe /c dart pub global activate protoc_plugin 20.0.1
+    exec cmd.exe /c dart pub global activate protoc_plugin 21.1.2
 end
 ret = which protoc-gen-dart
 if is_empty ${ret}
@@ -60,18 +58,13 @@ script_runner = "@duckscript"
 [tasks.install_flutter_protobuf_compiler]
 script = """
 echo "Install protoc_plugin (Dart)"
-dart pub global activate protoc_plugin 20.0.1
+dart pub global activate protoc_plugin 21.1.2
 """
 script_runner = "@shell"
 
 [tasks.install_flutter_protobuf_compiler.linux]
 script = """
 echo "Install protoc_plugin (Dart)"
-dart pub global activate protoc_plugin 20.0.1
+dart pub global activate protoc_plugin 21.1.2
 """
 script_runner = "@shell"
-
-
-
-
-

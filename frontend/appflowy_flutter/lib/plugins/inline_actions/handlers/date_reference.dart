@@ -92,8 +92,8 @@ class DateReferenceService {
     final result = await DateService.queryDate(search);
 
     result.fold(
-      (l) {},
       (date) => options.insert(0, _itemFromDate(date)),
+      (_) {},
     );
   }
 

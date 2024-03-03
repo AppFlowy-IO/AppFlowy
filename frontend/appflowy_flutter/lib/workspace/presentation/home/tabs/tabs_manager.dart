@@ -25,8 +25,7 @@ class TabsManager extends StatefulWidget {
   State<TabsManager> createState() => _TabsManagerState();
 }
 
-class _TabsManagerState extends State<TabsManager>
-    with TickerProviderStateMixin {
+class _TabsManagerState extends State<TabsManager> with TickerProviderStateMixin {
   late TabController _controller;
 
   @override

@@ -64,14 +64,14 @@ class DefaultColorScheme extends FlowyColorScheme {
           onPrimary: _white,
           hoverBG1: _lightBg2,
           hoverBG2: _lightHover,
+          hoverBG3: _lightShader6,
           hoverFG: _lightShader1,
           questionBubbleBG: _lightSelector,
-          hoverBG3: _lightShader6,
           progressBarBGColor: _lightTint9,
           toolbarColor: _lightShader1,
           toggleButtonBGColor: _lightShader5,
           calendarWeekendBGColor: const Color(0xFFFBFBFC),
-          gridRowCountColor: const Color(0xff000000),
+          gridRowCountColor: _lightShader1,
         );
 
   const DefaultColorScheme.dark()
@@ -85,7 +85,7 @@ class DefaultColorScheme extends FlowyColorScheme {
           shader1: _darkShader1,
           shader2: _darkShader2,
           shader3: _darkShader3,
-          shader4: const Color(0xff7C8CA5),
+          shader4: const Color(0xff505469),
           shader5: _darkShader5,
           shader6: _darkShader6,
           shader7: _white,
@@ -122,7 +122,7 @@ class DefaultColorScheme extends FlowyColorScheme {
           progressBarBGColor: _darkShader3,
           toolbarColor: _darkInput,
           toggleButtonBGColor: _darkShader1,
-          calendarWeekendBGColor: const Color(0xff121212),
-          gridRowCountColor: _darkMain1,
+          calendarWeekendBGColor: _darkShader1,
+          gridRowCountColor: _darkShader5,
         );
 }

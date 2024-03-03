@@ -12,8 +12,11 @@
             "program": "./lib/main.dart",
             "type": "dart",
             "env": {
-                "RUST_LOG": "debug",
+                "RUST_LOG": "trace",
+                "RUST_BACKTRACE": "1"
             },
+            // uncomment the following line to testing performance.
+            // "flutterMode": "profile",
             "cwd": "${workspaceRoot}/appflowy_flutter"
         },
         {
@@ -25,7 +28,7 @@
             "preLaunchTask": "AF: Build Appflowy Core",
             "env": {
                 "RUST_LOG": "trace",
-                "RUST_BACKTRACE": 1
+                "RUST_BACKTRACE": "1"
             },
             "cwd": "${workspaceRoot}/appflowy_flutter"
         },
@@ -45,6 +48,17 @@
             "cwd": "${workspaceRoot}/appflowy_flutter"
         },
         {
+            "name": "AF-iOS: Build All",
+            "request": "launch",
+            "program": "./lib/main.dart",
+            "type": "dart",
+            "preLaunchTask": "AF: Build Appflowy Core For iOS",
+            "env": {
+                "RUST_LOG": "trace"
+            },
+            "cwd": "${workspaceRoot}/appflowy_flutter"
+        },
+        {
             "name": "AF-iOS: Clean + Rebuild All",
             "request": "launch",
             "program": "./lib/main.dart",
@@ -56,11 +70,33 @@
             "cwd": "${workspaceRoot}/appflowy_flutter"
         },
         {
+            "name": "AF-iOS-Simulator: Build All",
+            "request": "launch",
+            "program": "./lib/main.dart",
+            "type": "dart",
+            "preLaunchTask": "AF: Build Appflowy Core For iOS Simulator",
+            "env": {
+                "RUST_LOG": "trace"
+            },
+            "cwd": "${workspaceRoot}/appflowy_flutter"
+        },
+        {
             "name": "AF-iOS-Simulator: Clean + Rebuild All",
             "request": "launch",
             "program": "./lib/main.dart",
             "type": "dart",
             "preLaunchTask": "AF: Clean + Rebuild All (iOS Simulator)",
+            "env": {
+                "RUST_LOG": "trace"
+            },
+            "cwd": "${workspaceRoot}/appflowy_flutter"
+        },
+        {
+            "name": "AF-Android: Build All",
+            "request": "launch",
+            "program": "./lib/main.dart",
+            "type": "dart",
+            "preLaunchTask": "AF: Build Appflowy Core For Android",
             "env": {
                 "RUST_LOG": "trace"
             },

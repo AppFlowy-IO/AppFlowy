@@ -1,15 +1,19 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/base/app_bar.dart';
 import 'package:appflowy/mobile/presentation/base/app_bar_actions.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_state_container.dart';
+import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
 import 'package:appflowy/plugins/document/document_page.dart';
+import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
-import 'package:dartz/dartz.dart' hide State;
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -20,26 +24,27 @@ class MobileViewPage extends StatefulWidget {
   const MobileViewPage({
     super.key,
     required this.id,
-    this.title,
     required this.viewLayout,
+    this.title,
+    this.arguments,
   });
 
   /// view id
   final String id;
-  final String? title;
   final ViewLayoutPB viewLayout;
+  final String? title;
+  final Map<String, dynamic>? arguments;
 
   @override
   State<MobileViewPage> createState() => _MobileViewPageState();
 }
 
 class _MobileViewPageState extends State<MobileViewPage> {
-  late final Future<Either<ViewPB, FlowyError>> future;
+  late final Future<FlowyResult<ViewPB, FlowyError>> future;
 
   @override
   void initState() {
     super.initState();
-
     future = ViewBackendService.getView(widget.id);
   }
 
@@ -66,7 +71,9 @@ class _MobileViewPageState extends State<MobileViewPage> {
           body = state.data!.fold((view) {
             viewPB = view;
             actions.add(_buildAppBarMoreButton(view));
-            return view.plugin().widgetBuilder.buildWidget(shrinkWrap: false);
+            final plugin = view.plugin(arguments: widget.arguments ?? const {})
+              ..init();
+            return plugin.widgetBuilder.buildWidget(shrinkWrap: false);
           }, (error) {
             return FlowyMobileStateContainer.error(
               emoji: '😔',
@@ -88,24 +95,20 @@ class _MobileViewPageState extends State<MobileViewPage> {
                 create: (_) =>
                     ViewBloc(view: viewPB!)..add(const ViewEvent.initial()),
               ),
+              BlocProvider.value(
+                value: getIt<ReminderBloc>()
+                  ..add(const ReminderEvent.started()),
+              ),
             ],
             child: Builder(
               builder: (context) {
                 final view = context.watch<ViewBloc>().state.view;
-                return _buildApp(
-                  view,
-                  actions,
-                  body,
-                );
+                return _buildApp(view, actions, body);
               },
             ),
           );
         } else {
-          return _buildApp(
-            null,
-            [],
-            body,
-          );
+          return _buildApp(null, [], body);
         }
       },
     );
@@ -114,33 +117,27 @@ class _MobileViewPageState extends State<MobileViewPage> {
   Widget _buildApp(ViewPB? view, List<Widget> actions, Widget child) {
     final icon = view?.icon.value;
     return Scaffold(
-      appBar: AppBar(
-        titleSpacing: 0,
+      appBar: FlowyAppBar(
         title: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (icon != null)
-              FlowyText(
-                '$icon ',
+            if (icon != null && icon.isNotEmpty)
+              EmojiText(
+                emoji: '$icon ',
                 fontSize: 22.0,
               ),
             Expanded(
-              child: FlowyText.regular(
+              child: FlowyText.medium(
                 view?.name ?? widget.title ?? '',
-                fontSize: 14.0,
+                fontSize: 15.0,
                 overflow: TextOverflow.ellipsis,
               ),
             ),
           ],
         ),
-        leading: AppBarBackButton(
-          onTap: () => context.pop(),
-        ),
         actions: actions,
       ),
-      body: SafeArea(
-        child: child,
-      ),
+      body: SafeArea(child: child),
     );
   }
 
@@ -148,7 +145,10 @@ class _MobileViewPageState extends State<MobileViewPage> {
     return AppBarMoreButton(
       onTap: (context) {
         showMobileBottomSheet(
-          context: context,
+          context,
+          showDragHandle: true,
+          showDivider: false,
+          backgroundColor: Theme.of(context).colorScheme.surface,
           builder: (_) => _buildViewPageBottomSheet(context),
         );
       },

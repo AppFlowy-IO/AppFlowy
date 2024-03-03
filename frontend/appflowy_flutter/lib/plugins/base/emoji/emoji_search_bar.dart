@@ -33,6 +33,12 @@ class _FlowyEmojiSearchBarState extends State<FlowyEmojiSearchBar> {
   final TextEditingController controller = TextEditingController();
 
   @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(
@@ -105,10 +111,12 @@ class _SearchTextField extends StatefulWidget {
 
 class _SearchTextFieldState extends State<_SearchTextField> {
   final TextEditingController controller = TextEditingController();
+  final FocusNode focusNode = FocusNode();
 
   @override
   void dispose() {
     controller.dispose();
+    focusNode.dispose();
 
     super.dispose();
   }
@@ -120,7 +128,7 @@ class _SearchTextFieldState extends State<_SearchTextField> {
         maxHeight: 32.0,
       ),
       child: FlowyTextField(
-        autoFocus: true,
+        focusNode: focusNode,
         hintText: LocaleKeys.emoji_search.tr(),
         controller: controller,
         onChanged: widget.onKeywordChanged,
@@ -145,8 +153,12 @@ class _SearchTextFieldState extends State<_SearchTextField> {
             margin: EdgeInsets.zero,
             useIntrinsicWidth: true,
             onTap: () {
-              controller.clear();
-              widget.onKeywordChanged('');
+              if (controller.text.isNotEmpty) {
+                controller.clear();
+                widget.onKeywordChanged('');
+              } else {
+                focusNode.unfocus();
+              }
             },
           ),
         ),

@@ -24,23 +24,14 @@ pub enum ErrorCode {
   #[error("Workspace name can not be empty or whitespace")]
   WorkspaceNameInvalid = 5,
 
-  #[error("Workspace id can not be empty or whitespace")]
-  WorkspaceIdInvalid = 6,
-
-  #[error("Color style of the App is invalid")]
-  AppColorStyleInvalid = 7,
-
   #[error("Workspace desc is invalid")]
   WorkspaceDescTooLong = 8,
 
   #[error("Workspace description too long")]
   WorkspaceNameTooLong = 9,
 
-  #[error("App id can not be empty or whitespace")]
-  AppIdInvalid = 10,
-
-  #[error("App name can not be empty or whitespace")]
-  AppNameInvalid = 11,
+  #[error("Can't load the workspace data")]
+  WorkspaceInitializeError = 6,
 
   #[error("View name can not be empty or whitespace")]
   ViewNameInvalid = 12,
@@ -50,9 +41,6 @@ pub enum ErrorCode {
 
   #[error("View id can not be empty or whitespace")]
   ViewIdIsInvalid = 14,
-
-  #[error("View desc too long")]
-  ViewDescTooLong = 15,
 
   #[error("View data is invalid")]
   ViewDataInvalid = 16,
@@ -197,8 +185,8 @@ pub enum ErrorCode {
   #[error("Missing auth field")]
   MissingAuthField = 65,
 
-  #[error("Only one application can access the database")]
-  MultipleDBInstance = 66,
+  #[error("Rocksdb IO error")]
+  RocksdbIOError = 66,
 
   #[error("Document id is empty")]
   DocumentIdIsEmpty = 67,
@@ -256,6 +244,21 @@ pub enum ErrorCode {
 
   #[error("Not support yet")]
   NotSupportYet = 85,
+
+  #[error("rocksdb corruption")]
+  RocksdbCorruption = 86,
+
+  #[error("rocksdb internal error")]
+  RocksdbInternal = 87,
+
+  #[error("Local version not support")]
+  LocalVersionNotSupport = 88,
+
+  #[error("AppFlowy data folder import error")]
+  AppFlowyDataFolderImportError = 89,
+
+  #[error("Cloud request payload too large")]
+  CloudRequestPayloadTooLarge = 90,
 }
 
 impl ErrorCode {

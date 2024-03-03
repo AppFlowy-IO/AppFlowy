@@ -17,7 +17,7 @@ void main() {
       await tester.tapGoButton();
 
       // create a new document
-      await tester.createNewPageWithName();
+      await tester.createNewPageWithNameUnderParent();
 
       // expect to see a new document
       tester.expectToSeePageName(
@@ -35,7 +35,7 @@ void main() {
       // delete the readme page
       await tester.hoverOnPageName(
         gettingStarted,
-        onHover: () async => await tester.tapDeletePageButton(),
+        onHover: () async => tester.tapDeletePageButton(),
       );
 
       // the banner should show up and the readme page should be gone
@@ -59,7 +59,7 @@ void main() {
       // delete the readme page
       await tester.hoverOnPageName(
         gettingStarted,
-        onHover: () async => await tester.tapDeletePageButton(),
+        onHover: () async => tester.tapDeletePageButton(),
       );
 
       // the banner should show up and the readme page should be gone

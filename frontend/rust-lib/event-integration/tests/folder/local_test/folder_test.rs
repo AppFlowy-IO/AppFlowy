@@ -1,6 +1,6 @@
 use collab_folder::ViewLayout;
 
-use flowy_folder2::entities::icon::{ViewIconPB, ViewIconTypePB};
+use flowy_folder::entities::icon::{ViewIconPB, ViewIconTypePB};
 
 use crate::folder::local_test::script::FolderScript::*;
 use crate::folder::local_test::script::FolderTest;
@@ -68,7 +68,7 @@ async fn update_parent_view_test() {
 }
 
 #[tokio::test]
-async fn app_create_with_view() {
+async fn create_sub_views_test() {
   let mut test = FolderTest::new().await;
   let mut app = test.parent_view.clone();
   test

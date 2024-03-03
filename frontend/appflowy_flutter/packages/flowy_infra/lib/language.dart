@@ -22,6 +22,13 @@ String languageFromLocale(Locale locale) {
       return "العربية";
     case "ca":
       return "Català";
+    case "ckb":
+      switch (locale.countryCode) {
+        case "KU":
+          return "کوردی";
+        default:
+          return locale.languageCode;
+      }
     case "de":
       return "Deutsch";
     case "es":
@@ -55,6 +62,8 @@ String languageFromLocale(Locale locale) {
       return "русский";
     case "sv":
       return "Svenska";
+    case "th":
+      return "ไทย";
     case "tr":
       return "Türkçe";
     case "fa":
@@ -65,9 +74,7 @@ String languageFromLocale(Locale locale) {
       return "اردو";
     case "hin":
       return "हिन्दी";
-
-    // If not found then the language code will be displayed
-    default:
-      return locale.languageCode;
   }
+  // If not found then the language code will be displayed
+  return locale.languageCode;
 }

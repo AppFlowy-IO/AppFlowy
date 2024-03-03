@@ -1,9 +1,9 @@
 use std::ops::Deref;
 
 use event_integration::event_builder::EventBuilder;
-use flowy_document2::entities::{OpenDocumentPayloadPB, RepeatedDocumentSnapshotPB};
-use flowy_document2::event_map::DocumentEvent::GetDocumentSnapshots;
-use flowy_folder2::entities::ViewPB;
+use flowy_document::entities::{OpenDocumentPayloadPB, RepeatedDocumentSnapshotMetaPB};
+use flowy_document::event_map::DocumentEvent::GetDocumentSnapshotMeta;
+use flowy_folder::entities::ViewPB;
 
 use crate::util::FlowySupabaseTest;
 
@@ -23,20 +23,20 @@ impl FlowySupabaseDocumentTest {
     let current_workspace = self.inner.get_current_workspace().await;
     self
       .inner
-      .create_document(&current_workspace.id, "my document".to_string(), vec![])
+      .create_and_open_document(&current_workspace.id, "my document".to_string(), vec![])
       .await
   }
 
   #[allow(dead_code)]
-  pub async fn get_document_snapshots(&self, view_id: &str) -> RepeatedDocumentSnapshotPB {
+  pub async fn get_document_snapshots(&self, view_id: &str) -> RepeatedDocumentSnapshotMetaPB {
     EventBuilder::new(self.inner.deref().clone())
-      .event(GetDocumentSnapshots)
+      .event(GetDocumentSnapshotMeta)
       .payload(OpenDocumentPayloadPB {
         document_id: view_id.to_string(),
       })
       .async_send()
       .await
-      .parse::<RepeatedDocumentSnapshotPB>()
+      .parse::<RepeatedDocumentSnapshotMetaPB>()
   }
 }
 

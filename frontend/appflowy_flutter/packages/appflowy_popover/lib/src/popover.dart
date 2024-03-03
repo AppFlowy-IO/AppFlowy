@@ -161,16 +161,16 @@ class PopoverState extends State<Popover> {
         ),
       );
 
-      return FocusScope(
-        onKey: (node, event) {
-          if (event is RawKeyDownEvent &&
-              event.logicalKey == LogicalKeyboardKey.escape) {
-            _removeRootOverlay();
-            return KeyEventResult.handled;
-          }
-          return KeyEventResult.ignored;
+      return CallbackShortcuts(
+        bindings: {
+          const SingleActivator(LogicalKeyboardKey.escape): () =>
+              _removeRootOverlay(),
         },
-        child: Stack(children: children),
+        child: FocusScope(
+          child: Stack(
+            children: children,
+          ),
+        ),
       );
     });
     _rootEntry.addEntry(context, this, newEntry, widget.asBarrier);
@@ -235,14 +235,22 @@ class PopoverState extends State<Popover> {
     switch (widget.clickHandler) {
       case PopoverClickHandler.listener:
         return Listener(
-          onPointerDown: (_) => handler(),
+          onPointerDown: (_) => _callHandler(handler),
           child: child,
         );
       case PopoverClickHandler.gestureDetector:
         return GestureDetector(
-          onTap: handler,
+          onTap: () => _callHandler(handler),
           child: child,
         );
+    }
+  }
+
+  void _callHandler(VoidCallback handler) {
+    if (_rootEntry.contains(this)) {
+      close();
+    } else {
+      handler();
     }
   }
 }
@@ -257,7 +265,7 @@ class PopoverContainer extends StatefulWidget {
   final void Function() onCloseAll;
 
   const PopoverContainer({
-    Key? key,
+    super.key,
     required this.popupBuilder,
     required this.direction,
     required this.popoverLink,
@@ -265,7 +273,7 @@ class PopoverContainer extends StatefulWidget {
     required this.windowPadding,
     required this.onClose,
     required this.onCloseAll,
-  }) : super(key: key);
+  });
 
   @override
   State<StatefulWidget> createState() => PopoverContainerState();

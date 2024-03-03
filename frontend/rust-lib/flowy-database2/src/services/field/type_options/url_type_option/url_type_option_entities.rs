@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use flowy_error::{internal_error, FlowyResult};
 
 use crate::entities::{FieldType, URLCellDataPB};
-use crate::services::cell::{CellProtobufBlobParser, DecodedCellData, FromCellString};
+use crate::services::cell::CellProtobufBlobParser;
 use crate::services::field::{TypeOptionCellData, CELL_DATA};
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
@@ -60,14 +60,6 @@ impl From<URLCellData> for URLCellDataPB {
   }
 }
 
-impl DecodedCellData for URLCellDataPB {
-  type Object = URLCellDataPB;
-
-  fn is_empty(&self) -> bool {
-    self.content.is_empty()
-  }
-}
-
 impl From<URLCellDataPB> for URLCellData {
   fn from(data: URLCellDataPB) -> Self {
     Self {
@@ -83,26 +75,12 @@ impl AsRef<str> for URLCellData {
   }
 }
 
-impl DecodedCellData for URLCellData {
-  type Object = URLCellData;
-
-  fn is_empty(&self) -> bool {
-    self.data.is_empty()
-  }
-}
-
 pub struct URLCellDataParser();
 impl CellProtobufBlobParser for URLCellDataParser {
   type Object = URLCellDataPB;
 
   fn parser(bytes: &Bytes) -> FlowyResult<Self::Object> {
     URLCellDataPB::try_from(bytes.as_ref()).map_err(internal_error)
-  }
-}
-
-impl FromCellString for URLCellData {
-  fn from_cell_str(s: &str) -> FlowyResult<Self> {
-    serde_json::from_str::<URLCellData>(s).map_err(internal_error)
   }
 }
 

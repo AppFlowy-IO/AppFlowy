@@ -1,82 +1,59 @@
-import { Popover, TextareaAutosize } from '@mui/material';
-import { FC, FormEventHandler, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { useViewId } from '$app/hooks';
-import { cellService, Field, TextCell as TextCellType } from '../../application';
+import { FC, FormEventHandler, Suspense, lazy, useCallback, useRef, useMemo } from 'react';
+import { TextCell as TextCellType } from '$app/application/database';
 import { CellText } from '../../_shared';
-import { useGridUIStateDispatcher } from '$app/components/database/proxy/grid/ui_state/actions';
+import { useInputCell } from '$app/components/database/components/cell/Cell.hooks';
 
-export const TextCell: FC<{
-  field: Field;
-  cell?: TextCellType;
-}> = ({ field, cell }) => {
-  const viewId = useViewId();
+const EditTextCellInput = lazy(() => import('$app/components/database/components/field_types/text/EditTextCellInput'));
+
+interface TextCellProps {
+  cell: TextCellType;
+  placeholder?: string;
+}
+export const TextCell: FC<TextCellProps> = ({ placeholder, cell }) => {
   const cellRef = useRef<HTMLDivElement>(null);
-  const [editing, setEditing] = useState(false);
-  const [text, setText] = useState('');
-  const [width, setWidth] = useState<number | undefined>(undefined);
-  const { setRowHover } = useGridUIStateDispatcher();
+  const { value, editing, updateCell, setEditing, setValue } = useInputCell(cell);
   const handleClose = () => {
     if (!cell) return;
-    if (editing) {
-      if (text !== cell.data) {
-        void cellService.updateCell(viewId, cell.rowId, field.id, text);
-      }
-
-      setEditing(false);
-    }
+    updateCell();
   };
 
   const handleClick = useCallback(() => {
     if (!cell) return;
-    setText(cell.data);
+    setValue(cell.data);
     setEditing(true);
-  }, [cell]);
+  }, [cell, setEditing, setValue]);
 
-  const handleInput = useCallback<FormEventHandler<HTMLTextAreaElement>>((event) => {
-    setText((event.target as HTMLTextAreaElement).value);
-  }, []);
+  const handleInput = useCallback<FormEventHandler<HTMLTextAreaElement>>(
+    (event) => {
+      setValue((event.target as HTMLTextAreaElement).value);
+    },
+    [setValue]
+  );
 
-  useLayoutEffect(() => {
-    if (cellRef.current) {
-      setWidth(cellRef.current.clientWidth);
+  const content = useMemo(() => {
+    if (cell && typeof cell.data === 'string' && cell.data) {
+      return cell.data;
     }
-  }, [editing]);
 
-  useEffect(() => {
-    if (editing) {
-      setRowHover(null);
-    }
-  }, [editing, setRowHover]);
+    return <div className={'text-text-placeholder'}>{placeholder}</div>;
+  }, [cell, placeholder]);
 
   return (
     <>
-      <CellText ref={cellRef} className='w-full' onClick={handleClick}>
-        {cell?.data}
+      <CellText className={`min-h-[36px] w-full cursor-text`} ref={cellRef} onClick={handleClick}>
+        {content}
       </CellText>
-      {editing && (
-        <Popover
-          open={editing}
-          anchorEl={cellRef.current}
-          PaperProps={{
-            className: 'flex p-2 border border-blue-400',
-            style: { width, borderRadius: 0, boxShadow: 'none' },
-          }}
-          transformOrigin={{
-            vertical: 1,
-            horizontal: 'left',
-          }}
-          transitionDuration={0}
-          onClose={handleClose}
-        >
-          <TextareaAutosize
-            className='resize-none text-sm'
-            autoFocus
-            autoCorrect='off'
-            value={text}
+      <Suspense>
+        {editing && (
+          <EditTextCellInput
+            editing={editing}
+            anchorEl={cellRef.current}
+            onClose={handleClose}
+            text={value}
             onInput={handleInput}
           />
-        </Popover>
-      )}
+        )}
+      </Suspense>
     </>
   );
 };

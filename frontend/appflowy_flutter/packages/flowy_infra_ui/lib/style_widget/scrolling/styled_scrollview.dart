@@ -16,8 +16,8 @@ class StyledSingleChildScrollView extends StatefulWidget {
   final Widget? child;
 
   const StyledSingleChildScrollView({
-    Key? key,
-    @required this.child,
+    super.key,
+    required this.child,
     this.contentSize,
     this.axis = Axis.vertical,
     this.trackColor,
@@ -26,7 +26,7 @@ class StyledSingleChildScrollView extends StatefulWidget {
     this.scrollbarPadding,
     this.barSize = 8,
     this.autoHideScrollbar = true,
-  }) : super(key: key);
+  });
 
   @override
   State<StyledSingleChildScrollView> createState() =>
@@ -45,7 +45,9 @@ class StyledSingleChildScrollViewState
 
   @override
   void dispose() {
-    // scrollController.dispose();
+    if (widget.controller == null) {
+      scrollController.dispose();
+    }
     super.dispose();
   }
 
@@ -87,14 +89,14 @@ class StyledCustomScrollView extends StatefulWidget {
   final double barSize;
 
   const StyledCustomScrollView({
-    Key? key,
+    super.key,
     this.axis = Axis.vertical,
     this.trackColor,
     this.handleColor,
     this.verticalController,
     this.slivers = const <Widget>[],
     this.barSize = 8,
-  }) : super(key: key);
+  });
 
   @override
   StyledCustomScrollViewState createState() => StyledCustomScrollViewState();

@@ -2,15 +2,15 @@ import 'dart:async';
 
 import 'package:appflowy/core/notification/folder_notification.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/notification.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/notification.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-notification/subject.pb.dart';
 import 'package:appflowy_backend/rust_stream.dart';
-import 'package:dartz/dartz.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flutter/foundation.dart';
 
 typedef FavoriteUpdated = void Function(
-  Either<FlowyError, RepeatedViewPB> result,
+  FlowyResult<RepeatedViewPB, FlowyError> result,
   bool isFavorite,
 );
 
@@ -35,7 +35,7 @@ class FavoriteListener {
 
   void _observableCallback(
     FolderNotification ty,
-    Either<Uint8List, FlowyError> result,
+    FlowyResult<Uint8List, FlowyError> result,
   ) {
     if (_favoriteUpdated == null) {
       return;
@@ -46,12 +46,12 @@ class FavoriteListener {
       (payload) {
         final view = RepeatedViewPB.fromBuffer(payload);
         _favoriteUpdated!(
-          right(view),
+          FlowyResult.success(view),
           isFavorite,
         );
       },
       (error) => _favoriteUpdated!(
-        left(error),
+        FlowyResult.failure(error),
         isFavorite,
       ),
     );
@@ -60,6 +60,7 @@ class FavoriteListener {
   Future<void> stop() async {
     _parser = null;
     await _streamSubscription?.cancel();
+    _streamSubscription = null;
     _favoriteUpdated = null;
   }
 }

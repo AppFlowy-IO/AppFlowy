@@ -9,7 +9,7 @@ import 'package:flowy_infra/language.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SettingsLanguageView extends StatelessWidget {
-  const SettingsLanguageView({Key? key}) : super(key: key);
+  const SettingsLanguageView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -31,12 +31,9 @@ class SettingsLanguageView extends StatelessWidget {
 }
 
 class LanguageSelector extends StatelessWidget {
-  final Locale currentLocale;
+  const LanguageSelector({super.key, required this.currentLocale});
 
-  const LanguageSelector({
-    super.key,
-    required this.currentLocale,
-  });
+  final Locale currentLocale;
 
   @override
   Widget build(BuildContext context) {
@@ -85,14 +82,14 @@ class LanguageItemsListView extends StatelessWidget {
 }
 
 class LanguageItem extends StatelessWidget {
-  final Locale locale;
-  final Locale currentLocale;
-
   const LanguageItem({
     super.key,
     required this.locale,
     required this.currentLocale,
   });
+
+  final Locale locale;
+  final Locale currentLocale;
 
   @override
   Widget build(BuildContext context) {

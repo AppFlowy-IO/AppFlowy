@@ -195,7 +195,7 @@ async fn grid_switch_from_multi_select_to_text_test() {
     from_field_type: FieldType::MultiSelect,
     expected_content: format!(
       "{},{}",
-      multi_select_type_option.get(0).unwrap().name,
+      multi_select_type_option.first().unwrap().name,
       multi_select_type_option.get(1).unwrap().name
     ),
   }];
@@ -206,7 +206,7 @@ async fn grid_switch_from_multi_select_to_text_test() {
 // Test when switching the current field from Checkbox to Text test
 // input:
 //      check -> "Yes"
-//      unchecked -> ""
+//      unchecked -> "No"
 #[tokio::test]
 async fn grid_switch_from_checkbox_to_text_test() {
   let mut test = DatabaseFieldTest::new().await;
@@ -288,5 +288,26 @@ async fn grid_switch_from_number_to_text_test() {
     },
   ];
 
+  test.run_scripts(scripts).await;
+}
+
+/// Test when switching the current field from Checklist to Text test
+#[tokio::test]
+async fn grid_switch_from_checklist_to_text_test() {
+  let mut test = DatabaseFieldTest::new().await;
+  let field_rev = test.get_first_field(FieldType::Checklist);
+
+  let scripts = vec![
+    SwitchToField {
+      field_id: field_rev.id.clone(),
+      new_field_type: FieldType::RichText,
+    },
+    AssertCellContent {
+      field_id: field_rev.id.clone(),
+      row_index: 0,
+      from_field_type: FieldType::Checklist,
+      expected_content: "First thing".to_string(),
+    },
+  ];
   test.run_scripts(scripts).await;
 }

@@ -1,10 +1,12 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
 import 'package:appflowy/plugins/base/icon/icon_picker.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/panes/panes_bloc/panes_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
+import 'package:appflowy/workspace/application/sidebar/rename_view/rename_view_bloc.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
@@ -14,7 +16,8 @@ import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.
 import 'package:appflowy/workspace/presentation/home/menu/view/view_add_button.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_more_action_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy/workspace/presentation/widgets/rename_view_popover.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -77,22 +80,15 @@ class ViewItem extends StatelessWidget {
     return BlocProvider(
       create: (_) => ViewBloc(view: view)..add(const ViewEvent.initial()),
       child: BlocConsumer<ViewBloc, ViewState>(
-        listenWhen: (p, c) =>
-            c.lastCreatedView != null &&
-            p.lastCreatedView?.id != c.lastCreatedView!.id,
+        listenWhen: (p, c) => c.lastCreatedView != null && p.lastCreatedView?.id != c.lastCreatedView!.id,
         listener: (context, state) => context.read<PanesBloc>().add(
               OpenPluginInActivePane(plugin: state.lastCreatedView!.plugin()),
             ),
         builder: (context, state) {
-          // Don't remove this code. it's related to the backend service.
-          view.childViews
-            ..clear()
-            ..addAll(state.childViews);
-
           return InnerViewItem(
             view: state.view,
             parentView: parentView,
-            childViews: state.childViews,
+            childViews: state.view.childViews,
             categoryType: categoryType,
             level: level,
             leftPadding: leftPadding,
@@ -295,21 +291,20 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       return _buildViewItem(false);
     }
 
+    final isSelected = getIt<MenuSharedState>().latestOpenView?.id == widget.view.id;
+
     return FlowyHover(
       style: HoverStyle(
         hoverColor: Theme.of(context).colorScheme.secondary,
       ),
-      resetHoverOnRebuild: widget.showActions,
-      buildWhenOnHover: () =>
-          !widget.showActions && !_isDragging && !isIconPickerOpened,
-      builder: (_, onHover) => _buildViewItem(onHover),
-      isSelected: () =>
-          widget.showActions ||
-          getIt<MenuSharedState>().latestOpenView?.id == widget.view.id,
+      resetHoverOnRebuild: widget.showActions || !isIconPickerOpened,
+      buildWhenOnHover: () => !widget.showActions && !_isDragging && !isIconPickerOpened,
+      builder: (_, onHover) => _buildViewItem(onHover, isSelected),
+      isSelected: () => widget.showActions || isSelected,
     );
   }
 
-  Widget _buildViewItem(bool onHover) {
+  Widget _buildViewItem(bool onHover, [bool isSelected = false]) {
     final children = [
       // Expand icon
       _buildLeftIcon(),
@@ -336,7 +331,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       }
     }
 
-    return GestureDetector(
+    final child = GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () => widget.onSelected(widget.view),
       onTertiaryTapDown: (_) => widget.onTertiarySelected?.call(widget.view),
@@ -348,12 +343,32 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
         ),
       ),
     );
+
+    if (isSelected) {
+      final popoverController = getIt<RenameViewBloc>().state.controller;
+      return AppFlowyPopover(
+        controller: popoverController,
+        triggerActions: PopoverTriggerFlags.none,
+        offset: const Offset(0, 5),
+        direction: PopoverDirection.bottomWithLeftAligned,
+        popupBuilder: (_) => RenameViewPopover(
+          viewId: widget.view.id,
+          name: widget.view.name,
+          emoji: widget.view.icon.value,
+          popoverController: popoverController,
+          showIconChanger: false,
+        ),
+        child: child,
+      );
+    }
+
+    return child;
   }
 
   Widget _buildViewIconButton() {
     final icon = widget.view.icon.value.isNotEmpty
-        ? FlowyText(
-            widget.view.icon.value,
+        ? EmojiText(
+            emoji: widget.view.icon.value,
             fontSize: 18.0,
           )
         : SizedBox.square(
@@ -365,9 +380,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       controller: controller,
       direction: PopoverDirection.rightWithCenterAligned,
       constraints: BoxConstraints.loose(const Size(360, 380)),
-      onClose: () => setState(() {
-        isIconPickerOpened = false;
-      }),
+      onClose: () => setState(() => isIconPickerOpened = false),
       child: GestureDetector(
         // prevent the tap event from being passed to the parent widget
         onTap: () {},
@@ -400,13 +413,9 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
     }
 
     return GestureDetector(
-      onTap: () => context
-          .read<ViewBloc>()
-          .add(ViewEvent.setIsExpanded(!widget.isExpanded)),
+      onTap: () => context.read<ViewBloc>().add(ViewEvent.setIsExpanded(!widget.isExpanded)),
       child: FlowySvg(
-        widget.isExpanded
-            ? FlowySvgs.drop_menu_show_m
-            : FlowySvgs.drop_menu_hide_m,
+        widget.isExpanded ? FlowySvgs.drop_menu_show_m : FlowySvgs.drop_menu_hide_m,
         size: const Size.square(16.0),
       ),
     );
@@ -414,12 +423,12 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
 
   // + button
   Widget _buildViewAddButton(BuildContext context) {
+    final viewBloc = context.read<ViewBloc>();
     return FlowyTooltip(
       message: LocaleKeys.menuAppHeader_addPageTooltip.tr(),
       child: ViewAddButton(
         parentViewId: widget.view.id,
-        onEditing: (value) =>
-            context.read<ViewBloc>().add(ViewEvent.setIsEditing(value)),
+        onEditing: (value) => context.read<ViewBloc>().add(ViewEvent.setIsEditing(value)),
         onSelected: (
           pluginBuilder,
           name,
@@ -433,19 +442,20 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
               _convertLayoutToHintText(pluginBuilder.layoutType!),
               (viewName) {
                 if (viewName.isNotEmpty) {
-                  context.read<ViewBloc>().add(
-                        ViewEvent.createView(
-                          viewName,
-                          pluginBuilder.layoutType!,
-                          openAfterCreated: openAfterCreated,
-                        ),
-                      );
+                  viewBloc.add(
+                    ViewEvent.createView(
+                      viewName,
+                      pluginBuilder.layoutType!,
+                      openAfterCreated: openAfterCreated,
+                    ),
+                  );
                 }
               },
             );
           }
-
-          context.read<ViewBloc>().add(const ViewEvent.setIsExpanded(true));
+          viewBloc.add(
+            const ViewEvent.setIsExpanded(true),
+          );
         },
       ),
     );
@@ -457,23 +467,22 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       message: LocaleKeys.menuAppHeader_moreButtonToolTip.tr(),
       child: ViewMoreActionButton(
         view: widget.view,
-        onEditing: (value) =>
-            context.read<ViewBloc>().add(ViewEvent.setIsEditing(value)),
+        onEditing: (value) => context.read<ViewBloc>().add(ViewEvent.setIsEditing(value)),
         onAction: (action) {
           switch (action) {
             case ViewMoreActionType.favorite:
             case ViewMoreActionType.unFavorite:
-              context
-                  .read<FavoriteBloc>()
-                  .add(FavoriteEvent.toggle(widget.view));
+              context.read<FavoriteBloc>().add(FavoriteEvent.toggle(widget.view));
               break;
             case ViewMoreActionType.rename:
               NavigatorTextFieldDialog(
                 title: LocaleKeys.disclosureAction_rename.tr(),
                 autoSelectAllText: true,
                 value: widget.view.name,
-                confirm: (newValue) =>
-                    context.read<ViewBloc>().add(ViewEvent.rename(newValue)),
+                maxLength: 256,
+                confirm: (newValue) {
+                  context.read<ViewBloc>().add(ViewEvent.rename(newValue));
+                },
               ).show(context);
               break;
             case ViewMoreActionType.delete:
@@ -483,9 +492,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
               context.read<ViewBloc>().add(const ViewEvent.duplicate());
               break;
             case ViewMoreActionType.openInNewTab:
-              context
-                  .read<PanesBloc>()
-                  .add(OpenTabInActivePane(plugin: widget.view.plugin()));
+              context.read<PanesBloc>().add(OpenTabInActivePane(plugin: widget.view.plugin()));
               break;
             case ViewMoreActionType.splitDown:
               context.read<PanesBloc>().add(

@@ -26,7 +26,7 @@ class ApplicationDataStorage {
 
     if (Platform.isMacOS) {
       // remove the prefix `/Volumes/*`
-      path = path.replaceFirst(RegExp(r'^/Volumes/[^/]+'), '');
+      path = path.replaceFirst(RegExp('^/Volumes/[^/]+'), '');
     } else if (Platform.isWindows) {
       path = path.replaceAll('/', '\\');
     }
@@ -44,7 +44,7 @@ class ApplicationDataStorage {
       await directory.create(recursive: true);
     }
 
-    setPath(path);
+    await setPath(path);
   }
 
   Future<void> setPath(String path) async {
@@ -64,14 +64,14 @@ class ApplicationDataStorage {
     }
 
     final response = await getIt<KeyValueStorage>().get(KVKeys.pathLocation);
-    String path = await response.fold(
-      (error) async {
-        // return the default path if the path is not set
-        final directory = await appFlowyApplicationDataDirectory();
-        return directory.path;
-      },
-      (path) => path,
-    );
+
+    String path;
+    if (response == null) {
+      final directory = await appFlowyApplicationDataDirectory();
+      path = directory.path;
+    } else {
+      path = response;
+    }
     _cachePath = path;
 
     // if the path is not exists means the path is invalid, so we should clear the kv store

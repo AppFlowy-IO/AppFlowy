@@ -1,28 +1,22 @@
 import { Outlet } from 'react-router-dom';
 import { useAuth } from './auth.hooks';
 import Layout from '$app/components/layout/Layout';
-import { useEffect, useState } from 'react';
-import { GetStarted } from './GetStarted/GetStarted';
+import { useCallback, useEffect, useState } from 'react';
+import { GetStarted } from '$app/components/auth/get_started/GetStarted';
 import { AppflowyLogo } from '../_shared/svg/AppflowyLogo';
 
 export const ProtectedRoutes = () => {
   const { currentUser, checkUser } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    void checkUser().then(async (result) => {
-      await new Promise(() =>
-        setTimeout(() => {
-          setIsLoading(false);
-        }, 1200)
-      );
+  const checkUserStatus = useCallback(async () => {
+    await checkUser();
+    setIsLoading(false);
+  }, [checkUser]);
 
-      if (result.err) {
-        throw new Error(result.val.msg);
-      }
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  useEffect(() => {
+    void checkUserStatus();
+  }, [checkUserStatus]);
 
   if (isLoading) {
     // It's better to make a fading effect to disappear the loading page
@@ -50,6 +44,6 @@ const SplashScreen = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
       </Layout>
     );
   } else {
-    return <GetStarted></GetStarted>;
+    return <GetStarted />;
   }
 };

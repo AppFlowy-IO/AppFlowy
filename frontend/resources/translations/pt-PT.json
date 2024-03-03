@@ -194,7 +194,9 @@
     "editContact": "Editar um conctato"
   },
   "button": {
+    "ok": "OK",
     "done": "Feito",
+    "cancel": "Cancelar",
     "signIn": "Entrar",
     "signOut": "Sair",
     "complete": "Completar",
@@ -210,10 +212,7 @@
     "edit": "Editar",
     "delete": "Excluir",
     "duplicate": "Duplicado",
-    "putback": "Por de volta",
-    "OK": "OK",
-    "Done": "Feito",
-    "Cancel": "Cancelar"
+    "putback": "Por de volta"
   },
   "label": {
     "welcome": "Bem vindo!",
@@ -295,12 +294,12 @@
         "button": "Carregar",
         "uploadTheme": "Carregar tema",
         "description": "Carregue seu próprio tema AppFlowy usando o botão abaixo.",
-        "failure": "O tema que foi carregado tinha um formato inválido.",
         "loading": "Aguarde enquanto validamos e carregamos seu tema...",
         "uploadSuccess": "Seu tema foi carregado com sucesso",
         "deletionFailure": "Falha ao excluir o tema. Tente excluí-lo manualmente.",
         "filePickerDialogTitle": "Escolha um arquivo .flowy_plugin",
-        "urlUploadFailure": "Falha ao abrir url: {}"
+        "urlUploadFailure": "Falha ao abrir url: {}",
+        "failure": "O tema que foi carregado tinha um formato inválido."
       },
       "theme": "Tema",
       "builtInsLabel": "Temas integrados",
@@ -480,7 +479,7 @@
     },
     "rowPage": {
       "newField": "Adicionar um novo campo",
-      "fieldDragEelementTooltip": "Clique para abrir o menu",
+      "fieldDragElementTooltip": "Clique para abrir o menu",
       "showHiddenFields": {
         "one": "Mostrar campo oculto {}",
         "many": "Mostrar campos ocultos {}",
@@ -725,11 +724,11 @@
     }
   },
   "board": {
-    "menuName": "Quadro",
-    "referencedBoardPrefix": "Vista de",
     "column": {
-      "create_new_card": "Novo"
-    }
+      "createNewCard": "Novo"
+    },
+    "menuName": "Quadro",
+    "referencedBoardPrefix": "Vista de"
   },
   "calendar": {
     "menuName": "Calendário",

@@ -1,12 +1,13 @@
-import 'package:appflowy/plugins/document/presentation/editor_plugins/base/emoji_picker_button.dart';
+import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
 import 'package:appflowy/startup/tasks/app_window_size_manager.dart';
 import 'package:appflowy/workspace/application/panes/panes_bloc/panes_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
-import 'package:appflowy/workspace/application/view/view_service.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy/workspace/presentation/widgets/rename_view_popover.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -46,12 +47,12 @@ class _ViewTitleBarState extends State<ViewTitleBar> {
   Widget build(BuildContext context) {
     return FutureBuilder<List<ViewPB>>(
       future: ancestors,
-      builder: ((context, snapshot) {
+      builder: (context, snapshot) {
         final ancestors = snapshot.data;
         if (ancestors == null) {
           return const SizedBox.shrink();
         }
-        const maxWidth = WindowSizeManager.minWindowWidth - 100;
+        const maxWidth = WindowSizeManager.minWindowWidth - 200;
         final replacement = Row(
           // refresh the view title bar when the ancestors changed
           key: ValueKey(ancestors.hashCode),
@@ -64,15 +65,15 @@ class _ViewTitleBarState extends State<ViewTitleBar> {
               replacement: replacement,
               // if the width is too small, only show one view title bar without the ancestors
               child: _ViewTitle(
+                key: ValueKey(ancestors.last),
                 view: ancestors.last,
-                behavior: _ViewTitleBehavior.editable,
                 maxTitleWidth: constraints.maxWidth - 50.0,
                 onUpdated: () => setState(() => _reloadAncestors()),
               ),
             );
           },
         );
-      }),
+      },
     );
   }
 
@@ -93,12 +94,15 @@ class _ViewTitleBarState extends State<ViewTitleBar> {
         continue;
       }
       children.add(
-        _ViewTitle(
-          view: view,
-          behavior: i == views.length - 1
-              ? _ViewTitleBehavior.editable // only the last one is editable
-              : _ViewTitleBehavior.uneditable, // others are not editable
-          onUpdated: () => setState(() => _reloadAncestors()),
+        FlowyTooltip(
+          message: view.name,
+          child: _ViewTitle(
+            view: view,
+            behavior: i == views.length - 1
+                ? _ViewTitleBehavior.editable // only the last one is editable
+                : _ViewTitleBehavior.uneditable, // others are not editable
+            onUpdated: () => setState(() => _reloadAncestors()),
+          ),
         ),
       );
       if (i != views.length - 1) {
@@ -123,6 +127,7 @@ enum _ViewTitleBehavior {
 
 class _ViewTitle extends StatefulWidget {
   const _ViewTitle({
+    super.key,
     required this.view,
     this.behavior = _ViewTitleBehavior.editable,
     this.maxTitleWidth = 180,
@@ -145,6 +150,7 @@ class _ViewTitleState extends State<_ViewTitle> {
 
   String name = '';
   String icon = '';
+  String inputtingName = '';
 
   @override
   void initState() {
@@ -156,12 +162,14 @@ class _ViewTitleState extends State<_ViewTitle> {
     _resetTextEditingController();
     viewListener.start(
       onViewUpdated: (view) {
+        if (name != view.name || icon != view.icon.value) {
+          widget.onUpdated();
+        }
         setState(() {
           name = view.name;
           icon = view.icon.value;
           _resetTextEditingController();
         });
-        widget.onUpdated();
       },
     );
   }
@@ -189,8 +197,8 @@ class _ViewTitleState extends State<_ViewTitle> {
 
     final child = Row(
       children: [
-        FlowyText.regular(
-          icon,
+        EmojiText(
+          emoji: icon,
           fontSize: 18.0,
         ),
         const HSpace(2.0),
@@ -207,14 +215,13 @@ class _ViewTitleState extends State<_ViewTitle> {
     );
 
     if (widget.behavior == _ViewTitleBehavior.uneditable) {
-      return FlowyButton(
-        useIntrinsicWidth: true,
-        onTap: () {
-          context
-              .read<PanesBloc>()
-              .add(OpenPluginInActivePane(plugin: widget.view.plugin()));
-        },
-        text: child,
+      return Listener(
+        onPointerDown: (_) => context.read<TabsBloc>().openPlugin(widget.view),
+        child: FlowyButton(
+          useIntrinsicWidth: true,
+          onTap: () {},
+          text: child,
+        ),
       );
     }
 
@@ -224,46 +231,17 @@ class _ViewTitleState extends State<_ViewTitle> {
         maxHeight: 44,
       ),
       controller: popoverController,
-      direction: PopoverDirection.bottomWithCenterAligned,
+      direction: PopoverDirection.bottomWithLeftAligned,
       offset: const Offset(0, 18),
       popupBuilder: (context) {
         // icon + textfield
-        return Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            EmojiPickerButton(
-              emoji: icon,
-              defaultIcon: widget.view.defaultIcon(),
-              direction: PopoverDirection.bottomWithCenterAligned,
-              offset: const Offset(0, 18),
-              onSubmitted: (emoji, _) async {
-                await ViewBackendService.updateViewIcon(
-                  viewId: widget.view.id,
-                  viewIcon: emoji,
-                );
-                popoverController.close();
-              },
-            ),
-            const HSpace(4.0),
-            SizedBox(
-              height: 36.0,
-              width: 220,
-              child: FlowyTextField(
-                autoFocus: true,
-                controller: textEditingController,
-                onSubmitted: (text) async {
-                  if (text.isNotEmpty && text != name) {
-                    await ViewBackendService.updateView(
-                      viewId: widget.view.id,
-                      name: text,
-                    );
-                    popoverController.close();
-                  }
-                },
-              ),
-            ),
-            const HSpace(4.0),
-          ],
+        _resetTextEditingController();
+        return RenameViewPopover(
+          viewId: widget.view.id,
+          name: widget.view.name,
+          popoverController: popoverController,
+          icon: widget.view.defaultIcon(),
+          emoji: icon,
         );
       },
       child: FlowyButton(
@@ -274,6 +252,7 @@ class _ViewTitleState extends State<_ViewTitle> {
   }
 
   void _resetTextEditingController() {
+    inputtingName = name;
     textEditingController
       ..text = name
       ..selection = TextSelection(

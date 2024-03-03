@@ -24,7 +24,7 @@ class FlowyColorPicker extends StatelessWidget {
   final Border? border;
 
   const FlowyColorPicker({
-    Key? key,
+    super.key,
     required this.colors,
     this.selected,
     this.onTap,
@@ -32,13 +32,12 @@ class FlowyColorPicker extends StatelessWidget {
     this.iconSize = 16,
     this.itemHeight = 32,
     this.border,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     return ListView.separated(
       shrinkWrap: true,
-      controller: ScrollController(),
       separatorBuilder: (context, index) {
         return VSpace(separatorSize);
       },

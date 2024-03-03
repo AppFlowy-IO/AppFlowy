@@ -1,10 +1,13 @@
 use collab::core::collab_state::SyncState;
 use collab_database::rows::RowId;
-use collab_database::user::DatabaseWithViews;
+use collab_database::user::DatabaseViewTracker;
 use collab_database::views::DatabaseLayout;
 
 use flowy_derive::ProtoBuf;
 use flowy_error::{ErrorCode, FlowyError};
+
+use lib_infra::validator_fn::required_not_empty_str;
+use validator::Validate;
 
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::{DatabaseLayoutPB, FieldIdPB, RowMetaPB};
@@ -67,8 +70,15 @@ impl AsRef<str> for DatabaseIdPB {
 }
 
 #[derive(Clone, ProtoBuf, Default, Debug)]
+pub struct RepeatedDatabaseIdPB {
+  #[pb(index = 1)]
+  pub value: Vec<DatabaseIdPB>,
+}
+
+#[derive(Clone, ProtoBuf, Default, Debug, Validate)]
 pub struct DatabaseViewIdPB {
   #[pb(index = 1)]
+  #[validate(custom = "required_not_empty_str")]
   pub value: String,
 }
 
@@ -84,21 +94,17 @@ pub struct MoveFieldPayloadPB {
   pub view_id: String,
 
   #[pb(index = 2)]
-  pub field_id: String,
+  pub from_field_id: String,
 
   #[pb(index = 3)]
-  pub from_index: i32,
-
-  #[pb(index = 4)]
-  pub to_index: i32,
+  pub to_field_id: String,
 }
 
 #[derive(Clone)]
 pub struct MoveFieldParams {
   pub view_id: String,
-  pub field_id: String,
-  pub from_index: i32,
-  pub to_index: i32,
+  pub from_field_id: String,
+  pub to_field_id: String,
 }
 
 impl TryInto<MoveFieldParams> for MoveFieldPayloadPB {
@@ -106,12 +112,13 @@ impl TryInto<MoveFieldParams> for MoveFieldPayloadPB {
 
   fn try_into(self) -> Result<MoveFieldParams, Self::Error> {
     let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::DatabaseViewIdIsEmpty)?;
-    let item_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::InvalidParams)?;
+    let from_field_id =
+      NotEmptyStr::parse(self.from_field_id).map_err(|_| ErrorCode::InvalidParams)?;
+    let to_field_id = NotEmptyStr::parse(self.to_field_id).map_err(|_| ErrorCode::InvalidParams)?;
     Ok(MoveFieldParams {
       view_id: view_id.0,
-      field_id: item_id.0,
-      from_index: self.from_index,
-      to_index: self.to_index,
+      from_field_id: from_field_id.0,
+      to_field_id: to_field_id.0,
     })
   }
 }
@@ -162,11 +169,15 @@ pub struct MoveGroupRowPayloadPB {
 
   #[pb(index = 4, one_of)]
   pub to_row_id: Option<String>,
+
+  #[pb(index = 5)]
+  pub from_group_id: String,
 }
 
 pub struct MoveGroupRowParams {
   pub view_id: String,
   pub from_row_id: RowId,
+  pub from_group_id: String,
   pub to_group_id: String,
   pub to_row_id: Option<RowId>,
 }
@@ -176,12 +187,15 @@ impl TryInto<MoveGroupRowParams> for MoveGroupRowPayloadPB {
 
   fn try_into(self) -> Result<MoveGroupRowParams, Self::Error> {
     let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::DatabaseViewIdIsEmpty)?;
+    let from_group_id =
+      NotEmptyStr::parse(self.from_group_id).map_err(|_| ErrorCode::GroupIdIsEmpty)?;
     let to_group_id =
       NotEmptyStr::parse(self.to_group_id).map_err(|_| ErrorCode::GroupIdIsEmpty)?;
 
     Ok(MoveGroupRowParams {
       view_id: view_id.0,
       to_group_id: to_group_id.0,
+      from_group_id: from_group_id.0,
       from_row_id: RowId::from(self.from_row_id),
       to_row_id: self.to_row_id.map(RowId::from),
     })
@@ -191,16 +205,12 @@ impl TryInto<MoveGroupRowParams> for MoveGroupRowPayloadPB {
 #[derive(Debug, Default, ProtoBuf)]
 pub struct DatabaseDescriptionPB {
   #[pb(index = 1)]
-  pub name: String,
-
-  #[pb(index = 2)]
   pub database_id: String,
 }
 
-impl From<DatabaseWithViews> for DatabaseDescriptionPB {
-  fn from(data: DatabaseWithViews) -> Self {
+impl From<DatabaseViewTracker> for DatabaseDescriptionPB {
+  fn from(data: DatabaseViewTracker) -> Self {
     Self {
-      name: data.name,
       database_id: data.database_id,
     }
   }

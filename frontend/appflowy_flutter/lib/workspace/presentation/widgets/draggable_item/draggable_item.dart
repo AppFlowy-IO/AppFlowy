@@ -1,4 +1,4 @@
-import 'package:appflowy/util/platform_extension.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 
 class DraggableItem<T extends Object> extends StatefulWidget {
@@ -18,8 +18,7 @@ class DraggableItem<T extends Object> extends StatefulWidget {
   final T data;
   final Widget? feedback;
   final Widget? childWhenDragging;
-  final Offset Function(Draggable<Object>, BuildContext, Offset)?
-      dragAnchorStrategy;
+  final Offset Function(Draggable<Object>, BuildContext, Offset)? dragAnchorStrategy;
 
   /// Whether to enable auto scroll when dragging.
   ///
@@ -58,14 +57,17 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
           dragTarget = details.globalPosition & widget.hitTestSize;
           autoScroller?.startAutoScrollIfNecessary(dragTarget!);
         }
+        widget.onDragging?.call(true);
       },
       onDragEnd: (details) {
         autoScroller?.stopAutoScroll();
         dragTarget = null;
+        widget.onDragging?.call(false);
       },
       onDraggableCanceled: (_, __) {
         autoScroller?.stopAutoScroll();
         dragTarget = null;
+        widget.onDragging?.call(false);
       },
       dragAnchorStrategy: widget.dragAnchorStrategy,
       child: widget.child,
@@ -126,8 +128,7 @@ class _Draggable<T extends Object> extends StatelessWidget {
   final DraggableCanceledCallback? onDraggableCanceled;
   final DragEndCallback? onDragEnd;
   final VoidCallback? onDragCompleted;
-  final Offset Function(Draggable<Object>, BuildContext, Offset)?
-      dragAnchorStrategy;
+  final Offset Function(Draggable<Object>, BuildContext, Offset)? dragAnchorStrategy;
 
   @override
   Widget build(BuildContext context) {

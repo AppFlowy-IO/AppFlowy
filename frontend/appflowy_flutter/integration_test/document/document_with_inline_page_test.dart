@@ -1,5 +1,5 @@
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:flowy_infra/uuid.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -65,7 +65,7 @@ void main() {
       const newName = 'RenameToNewPageName';
       await tester.hoverOnPageName(
         pageName,
-        onHover: () async => await tester.renamePage(newName),
+        onHover: () async => tester.renamePage(newName),
       );
       final finder = find.descendant(
         of: find.byType(MentionPageBlock),
@@ -84,7 +84,7 @@ void main() {
       await tester.hoverOnPageName(
         pageName,
         layout: ViewLayoutPB.Grid,
-        onHover: () async => await tester.tapDeletePageButton(),
+        onHover: () async => tester.tapDeletePageButton(),
       );
       final finder = find.descendant(
         of: find.byType(MentionPageBlock),
@@ -105,16 +105,15 @@ Future<String> insertInlinePage(
   // create a new grid
   final id = uuid();
   final name = '${layout.name}_$id';
-  await tester.createNewPageWithName(
+  await tester.createNewPageWithNameUnderParent(
     name: name,
     layout: layout,
     openAfterCreated: false,
   );
 
   // create a new document
-  await tester.createNewPageWithName(
+  await tester.createNewPageWithNameUnderParent(
     name: 'insert_a_inline_page_${layout.name}',
-    layout: ViewLayoutPB.Document,
   );
 
   // tap the first line of the document

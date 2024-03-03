@@ -1,31 +1,28 @@
-use std::sync::{Arc, Weak};
+use std::sync::Weak;
 
-use collab_database::database::WatchStream;
-use collab_folder::FolderData;
 use strum_macros::Display;
 
 use flowy_derive::{Flowy_Event, ProtoBuf_Enum};
 use flowy_error::FlowyResult;
-use flowy_user_deps::cloud::{UserCloudConfig, UserCloudService};
-use flowy_user_deps::entities::*;
+use flowy_user_pub::cloud::UserCloudConfig;
+use flowy_user_pub::entities::*;
 use lib_dispatch::prelude::*;
 use lib_infra::future::{to_fut, Fut};
 
-use crate::errors::FlowyError;
 use crate::event_handler::*;
-use crate::manager::UserManager;
+use crate::user_manager::UserManager;
 
 #[rustfmt::skip]
-pub fn init(user_session: Weak<UserManager>) -> AFPlugin {
-  let store_preferences = user_session
+pub fn init(user_manager: Weak<UserManager>) -> AFPlugin {
+  let store_preferences = user_manager
     .upgrade()
     .map(|session| session.get_store_preferences())
     .unwrap();
   AFPlugin::new()
     .name("Flowy-User")
-    .state(user_session)
+    .state(user_manager)
     .state(store_preferences)
-    .event(UserEvent::SignIn, sign_in)
+    .event(UserEvent::SignInWithEmailPassword, sign_in_with_email_password_handler)
     .event(UserEvent::SignUp, sign_up)
     .event(UserEvent::InitUser, init_user_handler)
     .event(UserEvent::GetUserProfile, get_user_profile_handler)
@@ -38,14 +35,13 @@ pub fn init(user_session: Weak<UserManager>) -> AFPlugin {
     .event(UserEvent::GetCloudConfig, get_cloud_config_handler)
     .event(UserEvent::SetEncryptionSecret, set_encrypt_secret_handler)
     .event(UserEvent::CheckEncryptionSign, check_encrypt_secret_handler)
-    .event(UserEvent::OauthSignIn, oauth_handler)
-    .event(UserEvent::GetSignInURL, get_sign_in_url_handler)
+    .event(UserEvent::OauthSignIn, oauth_sign_in_handler)
+    .event(UserEvent::GenerateSignInURL, gen_sign_in_url_handler)
     .event(UserEvent::GetOauthURLWithProvider, sign_in_with_provider_handler)
-    .event(UserEvent::GetAllWorkspace, get_all_workspace_handler)
     .event(UserEvent::OpenWorkspace, open_workspace_handler)
     .event(UserEvent::UpdateNetworkState, update_network_state_handler)
-    .event(UserEvent::GetHistoricalUsers, get_historical_users_handler)
-    .event(UserEvent::OpenHistoricalUser, open_historical_users_handler)
+    .event(UserEvent::OpenAnonUser, open_anon_user_handler)
+    .event(UserEvent::GetAnonUser, get_anon_user_handler)
     .event(UserEvent::PushRealtimeEvent, push_realtime_event_handler)
     .event(UserEvent::CreateReminder, create_reminder_event_handler)
     .event(UserEvent::GetAllReminders, get_all_reminder_event_handler)
@@ -55,12 +51,17 @@ pub fn init(user_session: Weak<UserManager>) -> AFPlugin {
     .event(UserEvent::SetDateTimeSettings, set_date_time_settings)
     .event(UserEvent::GetDateTimeSettings, get_date_time_settings)
     .event(UserEvent::SetNotificationSettings, set_notification_settings)
-    .event(UserEvent::GetNotificationSettings, get_notification_settings) 
+    .event(UserEvent::GetNotificationSettings, get_notification_settings)
+    .event(UserEvent::ImportAppFlowyDataFolder, import_appflowy_data_folder_handler)
       // Workspace member
     .event(UserEvent::AddWorkspaceMember, add_workspace_member_handler)
     .event(UserEvent::RemoveWorkspaceMember, delete_workspace_member_handler)
     .event(UserEvent::GetWorkspaceMember, get_workspace_member_handler)
     .event(UserEvent::UpdateWorkspaceMember, update_workspace_member_handler)
+      // Workspace
+    .event(UserEvent::GetAllWorkspace, get_all_workspace_handler)
+    .event(UserEvent::CreateWorkspace, create_workspace_handler)
+    .event(UserEvent::DeleteWorkspace, delete_workspace_handler)
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
@@ -69,7 +70,7 @@ pub enum UserEvent {
   /// Only use when the [Authenticator] is Local or SelfHosted
   /// Logging into an account using a register email and password
   #[event(input = "SignInPayloadPB", output = "UserProfilePB")]
-  SignIn = 0,
+  SignInWithEmailPassword = 0,
 
   /// Only use when the [Authenticator] is Local or SelfHosted
   /// Creating a new account
@@ -111,7 +112,7 @@ pub enum UserEvent {
   /// Get the OAuth callback url
   /// Only use when the [Authenticator] is AFCloud
   #[event(input = "SignInUrlPayloadPB", output = "SignInUrlPB")]
-  GetSignInURL = 11,
+  GenerateSignInURL = 11,
 
   #[event(input = "OauthProviderPB", output = "OauthProviderDataPB")]
   GetOauthURLWithProvider = 12,
@@ -119,7 +120,7 @@ pub enum UserEvent {
   #[event(input = "UpdateCloudConfigPB")]
   SetCloudConfig = 13,
 
-  #[event(output = "UserCloudConfigPB")]
+  #[event(output = "CloudSettingPB")]
   GetCloudConfig = 14,
 
   #[event(input = "UserSecretPB")]
@@ -138,11 +139,11 @@ pub enum UserEvent {
   #[event(input = "NetworkStatePB")]
   UpdateNetworkState = 24,
 
-  #[event(output = "RepeatedHistoricalUserPB")]
-  GetHistoricalUsers = 25,
+  #[event(output = "UserProfilePB")]
+  GetAnonUser = 25,
 
-  #[event(input = "HistoricalUserPB")]
-  OpenHistoricalUser = 26,
+  #[event()]
+  OpenAnonUser = 26,
 
   /// Push a realtime event to the user. Currently, the realtime event
   /// is only used when the auth type is: [Authenticator::Supabase].
@@ -179,25 +180,26 @@ pub enum UserEvent {
   #[event(output = "NotificationSettingsPB")]
   GetNotificationSettings = 36,
 
-  #[event(output = "AddWorkspaceMemberPB")]
+  #[event(input = "AddWorkspaceMemberPB")]
   AddWorkspaceMember = 37,
 
-  #[event(output = "RemoveWorkspaceMemberPB")]
+  #[event(input = "RemoveWorkspaceMemberPB")]
   RemoveWorkspaceMember = 38,
 
-  #[event(output = "UpdateWorkspaceMemberPB")]
+  #[event(input = "UpdateWorkspaceMemberPB")]
   UpdateWorkspaceMember = 39,
 
-  #[event(output = "QueryWorkspacePB")]
+  #[event(input = "QueryWorkspacePB", output = "RepeatedWorkspaceMemberPB")]
   GetWorkspaceMember = 40,
-}
 
-pub struct SignUpContext {
-  /// Indicate whether the user is new or not.
-  pub is_new: bool,
-  /// If the user is sign in as guest, and the is_new is true, then the folder data will be not
-  /// None.
-  pub local_folder: Option<FolderData>,
+  #[event(input = "ImportAppFlowyDataPB")]
+  ImportAppFlowyDataFolder = 41,
+
+  #[event(output = "CreateWorkspacePB")]
+  CreateWorkspace = 42,
+
+  #[event(input = "UserWorkspaceIdPB")]
+  DeleteWorkspace = 43,
 }
 
 pub trait UserStatusCallback: Send + Sync + 'static {
@@ -209,6 +211,7 @@ pub trait UserStatusCallback: Send + Sync + 'static {
   fn did_init(
     &self,
     user_id: i64,
+    user_authenticator: &Authenticator,
     cloud_config: &Option<UserCloudConfig>,
     user_workspace: &UserWorkspace,
     device_id: &str,
@@ -234,66 +237,13 @@ pub trait UserStatusCallback: Send + Sync + 'static {
   fn did_update_network(&self, _reachable: bool) {}
 }
 
-/// The user cloud service provider.
-/// The provider can be supabase, firebase, aws, or any other cloud service.
-pub trait UserCloudServiceProvider: Send + Sync + 'static {
-  fn set_token(&self, token: &str) -> Result<(), FlowyError>;
-  fn subscribe_token_state(&self) -> Option<WatchStream<UserTokenState>> {
-    None
-  }
-
-  fn set_enable_sync(&self, uid: i64, enable_sync: bool);
-  fn set_encrypt_secret(&self, secret: String);
-  fn set_authenticator(&self, authenticator: Authenticator);
-  fn get_authenticator(&self) -> Authenticator;
-  fn set_device_id(&self, device_id: &str);
-  fn get_user_service(&self) -> Result<Arc<dyn UserCloudService>, FlowyError>;
-  fn service_name(&self) -> String;
-}
-
-impl<T> UserCloudServiceProvider for Arc<T>
-where
-  T: UserCloudServiceProvider,
-{
-  fn set_token(&self, token: &str) -> Result<(), FlowyError> {
-    (**self).set_token(token)
-  }
-
-  fn set_enable_sync(&self, uid: i64, enable_sync: bool) {
-    (**self).set_enable_sync(uid, enable_sync)
-  }
-
-  fn set_encrypt_secret(&self, secret: String) {
-    (**self).set_encrypt_secret(secret)
-  }
-
-  fn set_authenticator(&self, authenticator: Authenticator) {
-    (**self).set_authenticator(authenticator)
-  }
-
-  fn get_authenticator(&self) -> Authenticator {
-    (**self).get_authenticator()
-  }
-
-  fn set_device_id(&self, device_id: &str) {
-    (**self).set_device_id(device_id)
-  }
-
-  fn get_user_service(&self) -> Result<Arc<dyn UserCloudService>, FlowyError> {
-    (**self).get_user_service()
-  }
-
-  fn service_name(&self) -> String {
-    (**self).service_name()
-  }
-}
-
 /// Acts as a placeholder [UserStatusCallback] for the user session, but does not perform any function
 pub(crate) struct DefaultUserStatusCallback;
 impl UserStatusCallback for DefaultUserStatusCallback {
   fn did_init(
     &self,
     _user_id: i64,
+    _authenticator: &Authenticator,
     _cloud_config: &Option<UserCloudConfig>,
     _user_workspace: &UserWorkspace,
     _device_id: &str,

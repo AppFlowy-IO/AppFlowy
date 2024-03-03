@@ -57,6 +57,10 @@ impl RowsChangePB {
       ..Default::default()
     }
   }
+
+  pub fn is_empty(&self) -> bool {
+    self.deleted_rows.is_empty() && self.inserted_rows.is_empty() && self.updated_rows.is_empty()
+  }
 }
 
 #[derive(Debug, Default, ProtoBuf)]

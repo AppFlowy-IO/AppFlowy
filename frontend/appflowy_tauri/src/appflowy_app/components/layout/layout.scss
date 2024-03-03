@@ -1,0 +1,12 @@
+.workspaces {
+  ::-webkit-scrollbar {
+    width: 0px;
+  }
+}
+
+.MuiPopover-root, .MuiPaper-root {
+  ::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
+}

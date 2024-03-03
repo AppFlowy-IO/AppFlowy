@@ -1,6 +1,5 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
@@ -20,9 +19,8 @@ void main() {
       await tester.tapGoButton();
 
       // create a new document
-      await tester.createNewPageWithName(
-        name: LocaleKeys.document_plugins_createInlineMathEquation.tr(),
-        layout: ViewLayoutPB.Document,
+      await tester.createNewPageWithNameUnderParent(
+        name: 'math equation',
       );
 
       // tap the first line of the document
@@ -66,9 +64,8 @@ void main() {
       await tester.tapGoButton();
 
       // create a new document
-      await tester.createNewPageWithName(
-        name: LocaleKeys.document_plugins_createInlineMathEquation.tr(),
-        layout: ViewLayoutPB.Document,
+      await tester.createNewPageWithNameUnderParent(
+        name: 'math equation',
       );
 
       // tap the first line of the document

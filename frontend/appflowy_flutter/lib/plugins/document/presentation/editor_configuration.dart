@@ -1,10 +1,14 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/mobile_block_action_buttons.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
+import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 Map<String, BlockComponentBuilder> getEditorBuilderMap({
   required BuildContext context,
@@ -26,6 +30,7 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
   final calloutBGColor = AFThemeExtension.of(context).calloutBGColor;
 
   final configuration = BlockComponentConfiguration(
+    // use EdgeInsets.zero to remove the default padding.
     padding: (_) => const EdgeInsets.symmetric(vertical: 5.0),
     indentPadding: (node, textDirection) => textDirection == TextDirection.ltr
         ? const EdgeInsets.only(left: 26.0)
@@ -40,29 +45,35 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
     ),
     TodoListBlockKeys.type: TodoListBlockComponentBuilder(
       configuration: configuration.copyWith(
-        placeholderText: (_) => 'To-do',
+        placeholderText: (_) => LocaleKeys.blockPlaceholders_todoList.tr(),
       ),
+      toggleChildrenTriggers: [
+        LogicalKeyboardKey.shift,
+        LogicalKeyboardKey.shiftLeft,
+        LogicalKeyboardKey.shiftRight,
+      ],
     ),
     BulletedListBlockKeys.type: BulletedListBlockComponentBuilder(
       configuration: configuration.copyWith(
-        placeholderText: (_) => 'List',
+        placeholderText: (_) => LocaleKeys.blockPlaceholders_bulletList.tr(),
       ),
     ),
     NumberedListBlockKeys.type: NumberedListBlockComponentBuilder(
       configuration: configuration.copyWith(
-        placeholderText: (_) => 'List',
+        placeholderText: (_) => LocaleKeys.blockPlaceholders_numberList.tr(),
       ),
     ),
     QuoteBlockKeys.type: QuoteBlockComponentBuilder(
       configuration: configuration.copyWith(
-        placeholderText: (_) => 'Quote',
+        placeholderText: (_) => LocaleKeys.blockPlaceholders_quote.tr(),
       ),
     ),
     HeadingBlockKeys.type: HeadingBlockComponentBuilder(
       configuration: configuration.copyWith(
         padding: (_) => const EdgeInsets.only(top: 12.0, bottom: 4.0),
-        placeholderText: (node) =>
-            'Heading ${node.attributes[HeadingBlockKeys.level]}',
+        placeholderText: (node) => LocaleKeys.blockPlaceholders_heading.tr(
+          args: [node.attributes[HeadingBlockKeys.level].toString()],
+        ),
       ),
       textStyleBuilder: (level) => styleCustomizer.headingStyleBuilder(level),
     ),
@@ -155,6 +166,33 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
       configuration: configuration.copyWith(
         placeholderTextStyle: (_) =>
             styleCustomizer.outlineBlockPlaceholderStyleBuilder(),
+        padding: (_) => const EdgeInsets.only(
+          top: 12.0,
+          bottom: 4.0,
+        ),
+      ),
+    ),
+    LinkPreviewBlockKeys.type: LinkPreviewBlockComponentBuilder(
+      configuration: configuration.copyWith(
+        padding: (_) => const EdgeInsets.symmetric(vertical: 10),
+      ),
+      cache: LinkPreviewDataCache(),
+      showMenu: true,
+      menuBuilder: (context, node, state) => Positioned(
+        top: 10,
+        right: 0,
+        child: LinkPreviewMenu(
+          node: node,
+          state: state,
+        ),
+      ),
+      builder: (context, node, url, title, description, imageUrl) =>
+          CustomLinkPreviewWidget(
+        node: node,
+        url: url,
+        title: title,
+        description: description,
+        imageUrl: imageUrl,
       ),
     ),
     errorBlockComponentBuilderKey: ErrorBlockComponentBuilder(
@@ -192,6 +230,10 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
         ImageBlockKeys.type,
       ];
 
+      final supportDepthBuilderType = [
+        OutlineBlockKeys.type,
+      ];
+
       final colorAction = [
         OptionAction.divider,
         OptionAction.color,
@@ -202,10 +244,15 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
         OptionAction.align,
       ];
 
+      final depthAction = [
+        OptionAction.depth,
+      ];
+
       final List<OptionAction> actions = [
         ...standardActions,
         if (supportColorBuilderTypes.contains(entry.key)) ...colorAction,
         if (supportAlignBuilderType.contains(entry.key)) ...alignAction,
+        if (supportDepthBuilderType.contains(entry.key)) ...depthAction,
       ];
 
       if (PlatformExtension.isDesktop) {

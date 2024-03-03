@@ -29,7 +29,7 @@ enum UploadImageType {
       case UploadImageType.url:
         return LocaleKeys.document_imageBlock_embedLink_label.tr();
       case UploadImageType.unsplash:
-        return 'Unsplash';
+        return LocaleKeys.document_imageBlock_unsplash_label.tr();
       case UploadImageType.openAI:
         return LocaleKeys.document_imageBlock_ai_label.tr();
       case UploadImageType.stabilityAI:
@@ -48,6 +48,7 @@ class UploadImageMenu extends StatefulWidget {
     required this.onSelectedNetworkImage,
     this.onSelectedColor,
     this.supportTypes = UploadImageType.values,
+    this.limitMaximumImageSize = false,
   });
 
   final void Function(String? path) onSelectedLocalImage;
@@ -55,6 +56,7 @@ class UploadImageMenu extends StatefulWidget {
   final void Function(String url) onSelectedNetworkImage;
   final void Function(String color)? onSelectedColor;
   final List<UploadImageType> supportTypes;
+  final bool limitMaximumImageSize;
 
   @override
   State<UploadImageMenu> createState() => _UploadImageMenuState();
@@ -74,12 +76,12 @@ class _UploadImageMenuState extends State<UploadImageMenu> {
     UserBackendService.getCurrentUserProfile().then(
       (value) {
         final supportOpenAI = value.fold(
-          (l) => false,
-          (r) => r.openaiKey.isNotEmpty,
+          (s) => s.openaiKey.isNotEmpty,
+          (e) => false,
         );
         final supportStabilityAI = value.fold(
-          (l) => false,
-          (r) => r.stabilityAiKey.isNotEmpty,
+          (s) => s.stabilityAiKey.isNotEmpty,
+          (e) => false,
         );
         if (supportOpenAI != this.supportOpenAI ||
             supportStabilityAI != this.supportStabilityAI) {
@@ -106,25 +108,31 @@ class _UploadImageMenuState extends State<UploadImageMenu> {
             indicatorSize: TabBarIndicatorSize.label,
             isScrollable: true,
             overlayColor: MaterialStatePropertyAll(
-              Theme.of(context).colorScheme.secondary,
+              PlatformExtension.isDesktop
+                  ? Theme.of(context).colorScheme.secondary
+                  : Colors.transparent,
             ),
             padding: EdgeInsets.zero,
-            tabs: values
-                .map(
-                  (e) => FlowyHover(
-                    style: const HoverStyle(borderRadius: BorderRadius.zero),
-                    child: Padding(
-                      padding: EdgeInsets.only(
-                        left: 12.0,
-                        right: 12.0,
-                        bottom: 8.0,
-                        top: PlatformExtension.isMobile ? 0 : 8.0,
-                      ),
-                      child: FlowyText(e.description),
-                    ),
+            tabs: values.map(
+              (e) {
+                final child = Padding(
+                  padding: EdgeInsets.only(
+                    left: 12.0,
+                    right: 12.0,
+                    bottom: 8.0,
+                    top: PlatformExtension.isMobile ? 0 : 8.0,
                   ),
-                )
-                .toList(),
+                  child: FlowyText(e.description),
+                );
+                if (PlatformExtension.isDesktop) {
+                  return FlowyHover(
+                    style: const HoverStyle(borderRadius: BorderRadius.zero),
+                    child: child,
+                  );
+                }
+                return child;
+              },
+            ).toList(),
           ),
           const Divider(
             height: 2,
@@ -145,8 +153,20 @@ class _UploadImageMenuState extends State<UploadImageMenu> {
           padding: const EdgeInsets.all(8.0),
           alignment: Alignment.center,
           constraints: constraints,
-          child: UploadImageFileWidget(
-            onPickFile: widget.onSelectedLocalImage,
+          child: Column(
+            children: [
+              UploadImageFileWidget(
+                onPickFile: widget.onSelectedLocalImage,
+              ),
+              if (widget.limitMaximumImageSize) ...[
+                const VSpace(6.0),
+                FlowyText(
+                  LocaleKeys.document_imageBlock_maximumImageSize.tr(),
+                  fontSize: 12.0,
+                  color: Theme.of(context).hintColor,
+                ),
+              ],
+            ],
           ),
         );
       case UploadImageType.url:
@@ -202,9 +222,12 @@ class _UploadImageMenuState extends State<UploadImageMenu> {
               );
       case UploadImageType.color:
         final theme = Theme.of(context);
+        final padding = PlatformExtension.isMobile
+            ? const EdgeInsets.all(16.0)
+            : const EdgeInsets.all(8.0);
         return Container(
           constraints: constraints,
-          padding: const EdgeInsets.all(8.0),
+          padding: padding,
           alignment: Alignment.center,
           child: CoverColorPicker(
             pickerBackgroundColor: theme.cardColor,

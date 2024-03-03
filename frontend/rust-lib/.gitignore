@@ -18,3 +18,4 @@ AppFlowy-Collab/
 .env.**
 **/unit_test**
 jniLibs/
+**/pkg/

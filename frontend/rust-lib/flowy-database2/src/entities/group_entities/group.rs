@@ -2,9 +2,10 @@ use std::convert::TryInto;
 
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
+use validator::Validate;
 
 use crate::entities::parser::NotEmptyStr;
-use crate::entities::{FieldType, RowMetaPB};
+use crate::entities::RowMetaPB;
 use crate::services::group::{GroupChangeset, GroupData, GroupSetting};
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
@@ -130,22 +131,18 @@ pub struct GroupByFieldParams {
   pub view_id: String,
 }
 
-pub struct DeleteGroupParams {
-  pub view_id: String,
-  pub field_id: String,
-  pub group_id: String,
-  pub field_type: FieldType,
-}
-
-#[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
+#[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone, Validate)]
 pub struct UpdateGroupPB {
   #[pb(index = 1)]
+  #[validate(custom = "lib_infra::validator_fn::required_not_empty_str")]
   pub view_id: String,
 
   #[pb(index = 2)]
+  #[validate(custom = "lib_infra::validator_fn::required_not_empty_str")]
   pub group_id: String,
 
   #[pb(index = 3)]
+  #[validate(custom = "lib_infra::validator_fn::required_not_empty_str")]
   pub field_id: String,
 
   #[pb(index = 4, one_of)]
@@ -228,5 +225,34 @@ impl TryFrom<CreateGroupPayloadPB> for CreateGroupParams {
       group_config_id: value.group_config_id,
       name: name.0,
     })
+  }
+}
+
+#[derive(Debug, Default, ProtoBuf)]
+pub struct DeleteGroupPayloadPB {
+  #[pb(index = 1)]
+  pub view_id: String,
+
+  #[pb(index = 2)]
+  pub group_id: String,
+}
+
+pub struct DeleteGroupParams {
+  pub view_id: String,
+  pub group_id: String,
+}
+
+impl TryFrom<DeleteGroupPayloadPB> for DeleteGroupParams {
+  type Error = ErrorCode;
+
+  fn try_from(value: DeleteGroupPayloadPB) -> Result<Self, Self::Error> {
+    let view_id = NotEmptyStr::parse(value.view_id)
+      .map_err(|_| ErrorCode::ViewIdIsInvalid)?
+      .0;
+    let group_id = NotEmptyStr::parse(value.group_id)
+      .map_err(|_| ErrorCode::GroupIdIsEmpty)?
+      .0;
+
+    Ok(Self { view_id, group_id })
   }
 }

@@ -1,36 +1,34 @@
 #![allow(unused_doc_comments)]
 
-use std::path::Path;
-use std::sync::Weak;
+use flowy_storage::ObjectStorageService;
+use std::sync::Arc;
 use std::time::Duration;
-use std::{fmt, sync::Arc};
-
-use base64::Engine;
+use sysinfo::System;
 use tokio::sync::RwLock;
 use tracing::{debug, error, event, info, instrument};
 
-use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabSource};
+use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabPluginProviderType};
 use flowy_database2::DatabaseManager;
-use flowy_document2::manager::DocumentManager;
-use flowy_folder2::manager::FolderManager;
-use flowy_server_config::af_cloud_config::AFCloudConfiguration;
+use flowy_document::manager::DocumentManager;
+use flowy_folder::manager::FolderManager;
 use flowy_sqlite::kv::StorePreferences;
-use flowy_storage::FileStorageService;
-use flowy_task::{TaskDispatcher, TaskRunner};
-use flowy_user::event_map::UserCloudServiceProvider;
-use flowy_user::manager::{UserManager, UserSessionConfig, URL_SAFE_ENGINE};
+use flowy_user::services::authenticate_user::AuthenticateUser;
+use flowy_user::services::entities::UserConfig;
+use flowy_user::user_manager::UserManager;
+
 use lib_dispatch::prelude::*;
 use lib_dispatch::runtime::AFPluginRuntime;
+use lib_infra::priority_task::{TaskDispatcher, TaskRunner};
 use module::make_plugins;
-pub use module::*;
 
+use crate::config::AppFlowyCoreConfig;
 use crate::deps_resolve::*;
 use crate::integrate::collab_interact::CollabInteractImpl;
-use crate::integrate::log::{create_log_filter, init_log};
-use crate::integrate::server::{current_server_type, ServerProvider, ServerType};
+use crate::integrate::log::init_log;
+use crate::integrate::server::{current_server_type, Server, ServerProvider};
 use crate::integrate::user::UserStatusCallbackImpl;
-use crate::integrate::util::copy_dir_recursive;
 
+pub mod config;
 mod deps_resolve;
 mod integrate;
 pub mod module;
@@ -38,72 +36,6 @@ pub mod module;
 /// This name will be used as to identify the current [AppFlowyCore] instance.
 /// Don't change this.
 pub const DEFAULT_NAME: &str = "appflowy";
-
-#[derive(Clone)]
-pub struct AppFlowyCoreConfig {
-  /// Different `AppFlowyCoreConfig` instance should have different name
-  name: String,
-  /// Panics if the `root` path is not existing
-  pub storage_path: String,
-  log_filter: String,
-  cloud_config: Option<AFCloudConfiguration>,
-}
-
-impl fmt::Debug for AppFlowyCoreConfig {
-  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-    let mut debug = f.debug_struct("AppFlowy Configuration");
-    debug.field("storage_path", &self.storage_path);
-    if let Some(config) = &self.cloud_config {
-      debug.field("base_url", &config.base_url);
-      debug.field("ws_url", &config.ws_base_url);
-    }
-    debug.finish()
-  }
-}
-
-impl AppFlowyCoreConfig {
-  pub fn new(root: &str, name: String) -> Self {
-    let cloud_config = AFCloudConfiguration::from_env().ok();
-    let storage_path = match &cloud_config {
-      None => root.to_string(),
-      Some(config) => {
-        // Isolate the user data folder by the base url of AppFlowy cloud. This is to avoid
-        // the user data folder being shared by different AppFlowy cloud.
-        let server_base64 = URL_SAFE_ENGINE.encode(&config.base_url);
-        let storage_path = format!("{}_{}", root, server_base64);
-
-        // Copy the user data folder from the root path to the isolated path
-        // The root path only exists when using the local version of appflowy
-        if !Path::new(&storage_path).exists() && Path::new(root).exists() {
-          info!("Copy dir from {} to {}", root, storage_path);
-          let src = Path::new(root);
-          match copy_dir_recursive(&src, Path::new(&storage_path)) {
-            Ok(_) => storage_path,
-            Err(err) => {
-              // when the copy dir failed, use the root path as the storage path
-              error!("Copy dir failed: {}", err);
-              root.to_string()
-            },
-          }
-        } else {
-          storage_path
-        }
-      },
-    };
-
-    AppFlowyCoreConfig {
-      name,
-      storage_path,
-      log_filter: create_log_filter("info".to_owned(), vec![]),
-      cloud_config: AFCloudConfiguration::from_env().ok(),
-    }
-  }
-
-  pub fn log_filter(mut self, level: &str, with_crates: Vec<String>) -> Self {
-    self.log_filter = create_log_filter(level.to_owned(), with_crates);
-    self
-  }
-}
 
 #[derive(Clone)]
 pub struct AppFlowyCore {
@@ -120,17 +52,12 @@ pub struct AppFlowyCore {
 }
 
 impl AppFlowyCore {
-  #[cfg(feature = "single_thread")]
-  pub async fn new(config: AppFlowyCoreConfig) -> Self {
-    let runtime = Arc::new(AFPluginRuntime::new().unwrap());
+  pub async fn new(config: AppFlowyCoreConfig, runtime: Arc<AFPluginRuntime>) -> Self {
     Self::init(config, runtime).await
   }
 
-  #[cfg(not(feature = "single_thread"))]
-  pub fn new(config: AppFlowyCoreConfig) -> Self {
-    let runtime = Arc::new(AFPluginRuntime::new().unwrap());
-    let cloned_runtime = runtime.clone();
-    runtime.block_on(Self::init(config, cloned_runtime))
+  pub fn close_db(&self) {
+    self.user_manager.close_db();
   }
 
   #[instrument(skip(config, runtime))]
@@ -153,11 +80,13 @@ impl AppFlowyCore {
     // Init the key value database
     let store_preference = Arc::new(StorePreferences::new(&config.storage_path).unwrap());
     info!("🔥{:?}", &config);
+    info!("💡System info: {:?}", System::long_os_version());
+
     let task_scheduler = TaskDispatcher::new(Duration::from_secs(2));
     let task_dispatcher = Arc::new(RwLock::new(task_scheduler));
     runtime.spawn(TaskRunner::run(task_dispatcher.clone()));
 
-    let server_type = current_server_type(&store_preference);
+    let server_type = current_server_type();
     debug!("🔥runtime:{}, server:{}", runtime, server_type);
     let server_provider = Arc::new(ServerProvider::new(
       config.clone(),
@@ -176,19 +105,28 @@ impl AppFlowyCore {
     ) = async {
       /// The shared collab builder is used to build the [Collab] instance. The plugins will be loaded
       /// on demand based on the [CollabPluginConfig].
-      let collab_builder = Arc::new(AppFlowyCollabBuilder::new(server_provider.clone()));
-      let user_manager = init_user_manager(
-        &config,
-        &store_preference,
+      let collab_builder = Arc::new(AppFlowyCollabBuilder::new(
         server_provider.clone(),
-        Arc::downgrade(&collab_builder),
+        config.device_id.clone(),
+      ));
+
+      let user_config = UserConfig::new(
+        &config.name,
+        &config.storage_path,
+        &config.application_path,
+        &config.device_id,
       );
 
+      let authenticate_user = Arc::new(AuthenticateUser::new(
+        user_config.clone(),
+        store_preference.clone(),
+      ));
+
       collab_builder
-        .set_snapshot_persistence(Arc::new(SnapshotDBImpl(Arc::downgrade(&user_manager))));
+        .set_snapshot_persistence(Arc::new(SnapshotDBImpl(Arc::downgrade(&authenticate_user))));
 
       let database_manager = DatabaseDepsResolver::resolve(
-        Arc::downgrade(&user_manager),
+        Arc::downgrade(&authenticate_user),
         task_dispatcher.clone(),
         collab_builder.clone(),
         server_provider.clone(),
@@ -196,19 +134,29 @@ impl AppFlowyCore {
       .await;
 
       let document_manager = DocumentDepsResolver::resolve(
-        Arc::downgrade(&user_manager),
+        Arc::downgrade(&authenticate_user),
         &database_manager,
         collab_builder.clone(),
         server_provider.clone(),
-        Arc::downgrade(&(server_provider.clone() as Arc<dyn FileStorageService>)),
+        Arc::downgrade(&(server_provider.clone() as Arc<dyn ObjectStorageService>)),
       );
 
       let folder_manager = FolderDepsResolver::resolve(
-        Arc::downgrade(&user_manager),
+        Arc::downgrade(&authenticate_user),
         &document_manager,
         &database_manager,
         collab_builder.clone(),
         server_provider.clone(),
+      )
+      .await;
+
+      let user_manager = UserDepsResolver::resolve(
+        authenticate_user,
+        collab_builder.clone(),
+        server_provider.clone(),
+        store_preference.clone(),
+        database_manager.clone(),
+        folder_manager.clone(),
       )
       .await;
 
@@ -237,23 +185,24 @@ impl AppFlowyCore {
       document_manager: Arc::downgrade(&document_manager),
     };
 
-    let cloned_user_session = Arc::downgrade(&user_manager);
-    if let Some(user_session) = cloned_user_session.upgrade() {
-      if let Err(err) = user_session
-        .init(user_status_callback, collab_interact_impl)
+    let cloned_user_manager = Arc::downgrade(&user_manager);
+    if let Some(user_manager) = cloned_user_manager.upgrade() {
+      if let Err(err) = user_manager
+        .init_with_callback(user_status_callback, collab_interact_impl)
         .await
       {
         error!("Init user failed: {}", err)
       }
     }
-    let event_dispatcher = Arc::new(AFPluginDispatcher::construct(runtime, || {
+    let event_dispatcher = Arc::new(AFPluginDispatcher::new(
+      runtime,
       make_plugins(
         Arc::downgrade(&folder_manager),
         Arc::downgrade(&database_manager),
         Arc::downgrade(&user_manager),
         Arc::downgrade(&document_manager),
-      )
-    }));
+      ),
+    ));
 
     Self {
       config,
@@ -274,27 +223,12 @@ impl AppFlowyCore {
   }
 }
 
-fn init_user_manager(
-  config: &AppFlowyCoreConfig,
-  storage_preference: &Arc<StorePreferences>,
-  user_cloud_service_provider: Arc<dyn UserCloudServiceProvider>,
-  collab_builder: Weak<AppFlowyCollabBuilder>,
-) -> Arc<UserManager> {
-  let user_config = UserSessionConfig::new(&config.name, &config.storage_path);
-  UserManager::new(
-    user_config,
-    user_cloud_service_provider,
-    storage_preference.clone(),
-    collab_builder,
-  )
-}
-
-impl From<ServerType> for CollabSource {
-  fn from(server_type: ServerType) -> Self {
+impl From<Server> for CollabPluginProviderType {
+  fn from(server_type: Server) -> Self {
     match server_type {
-      ServerType::Local => CollabSource::Local,
-      ServerType::AFCloud => CollabSource::AFCloud,
-      ServerType::Supabase => CollabSource::Supabase,
+      Server::Local => CollabPluginProviderType::Local,
+      Server::AppFlowyCloud => CollabPluginProviderType::AppFlowyCloud,
+      Server::Supabase => CollabPluginProviderType::Supabase,
     }
   }
 }

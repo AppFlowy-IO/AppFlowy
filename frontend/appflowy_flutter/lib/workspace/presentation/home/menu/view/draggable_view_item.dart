@@ -1,9 +1,10 @@
-import 'package:appflowy/util/platform_extension.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/home_draggables.dart';
 import 'package:appflowy/workspace/presentation/widgets/draggable_item/combined_draggable_item.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy/workspace/presentation/widgets/draggable_item/draggable_item.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -46,14 +47,12 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
     // add top border if the draggable item is on the top of the list
     // highlight the draggable item if the draggable item is on the center
     // add bottom border if the draggable item is on the bottom of the list
-    final child = PlatformExtension.isMobile
-        ? _buildMobileDraggableItem()
-        : _buildDesktopDraggableItem();
+    final child = PlatformExtension.isMobile ? _buildMobileDraggableItem() : _buildDesktopDraggableItem();
 
     return CombinedDraggableItem<CrossDraggablesEntity>(
       data: widget.view,
       onDragging: widget.onDragging,
-      onWillAccept: (data) => true,
+      onWillAcceptWithDetails: (data) => true,
       onMove: (data) {
         if (data.data.crossDraggableType == CrossDraggableType.view) {
           final view = data.data.draggable as ViewPB;
@@ -66,12 +65,19 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
           setState(() => this.position = position);
         }
       },
-      onLeave: (_) => _updatePosition(DraggableHoverPosition.none),
-      onAccept: (data) {
+      onLeave: (_) => _updatePosition(
+        DraggableHoverPosition.none,
+      ),
+      onAcceptWithDetails: (data) {
         if (data.crossDraggableType == CrossDraggableType.view) {
           final from = data.draggable as ViewPB;
-          _move(from, widget.view.draggable as ViewPB);
-          setState(() => position = DraggableHoverPosition.none);
+          _move(
+            from,
+            widget.view.draggable as ViewPB,
+          );
+          setState(
+            () => position = DraggableHoverPosition.none,
+          );
         }
       },
       feedback: IntrinsicWidth(
@@ -94,16 +100,14 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
             height: _dividerHeight,
             thickness: _dividerHeight,
             color: position == DraggableHoverPosition.top
-                ? widget.topHighlightColor ??
-                    Theme.of(context).colorScheme.secondary
+                ? widget.topHighlightColor ?? Theme.of(context).colorScheme.secondary
                 : Colors.transparent,
           ),
         DecoratedBox(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(6.0),
             color: position == DraggableHoverPosition.center
-                ? widget.centerHighlightColor ??
-                    Theme.of(context).colorScheme.secondary.withOpacity(0.5)
+                ? widget.centerHighlightColor ?? Theme.of(context).colorScheme.secondary.withOpacity(0.5)
                 : Colors.transparent,
           ),
           child: widget.child,
@@ -112,8 +116,7 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
           height: _dividerHeight,
           thickness: _dividerHeight,
           color: position == DraggableHoverPosition.bottom
-              ? widget.bottomHighlightColor ??
-                  Theme.of(context).colorScheme.secondary
+              ? widget.bottomHighlightColor ?? Theme.of(context).colorScheme.secondary
               : Colors.transparent,
         ),
       ],
@@ -133,8 +136,7 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
               height: _dividerHeight,
               thickness: _dividerHeight,
               color: position == DraggableHoverPosition.top
-                  ? widget.topHighlightColor ??
-                      Theme.of(context).colorScheme.secondary
+                  ? widget.topHighlightColor ?? Theme.of(context).colorScheme.secondary
                   : Colors.transparent,
             ),
           ),
@@ -142,8 +144,7 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(4.0),
             color: position == DraggableHoverPosition.center
-                ? widget.centerHighlightColor ??
-                    Theme.of(context).colorScheme.secondary.withOpacity(0.5)
+                ? widget.centerHighlightColor ?? Theme.of(context).colorScheme.secondary.withOpacity(0.5)
                 : Colors.transparent,
           ),
           child: widget.child,
@@ -157,8 +158,7 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
             height: _dividerHeight,
             thickness: _dividerHeight,
             color: position == DraggableHoverPosition.bottom
-                ? widget.bottomHighlightColor ??
-                    Theme.of(context).colorScheme.secondary
+                ? widget.bottomHighlightColor ?? Theme.of(context).colorScheme.secondary
                 : Colors.transparent,
           ),
         ),
@@ -174,27 +174,20 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
   }
 
   void _move(ViewPB from, ViewPB to) {
-    if (position == DraggableHoverPosition.center &&
-        to.layout != ViewLayoutPB.Document) {
+    if (position == DraggableHoverPosition.center && to.layout != ViewLayoutPB.Document) {
       // not support moving into a database
       return;
     }
 
     switch (position) {
       case DraggableHoverPosition.top:
-        context
-            .read<ViewBloc>()
-            .add(ViewEvent.move(from, to.parentViewId, null));
+        context.read<ViewBloc>().add(ViewEvent.move(from, to.parentViewId, null));
         break;
       case DraggableHoverPosition.bottom:
-        context
-            .read<ViewBloc>()
-            .add(ViewEvent.move(from, to.parentViewId, to.id));
+        context.read<ViewBloc>().add(ViewEvent.move(from, to.parentViewId, to.id));
         break;
       case DraggableHoverPosition.center:
-        context
-            .read<ViewBloc>()
-            .add(ViewEvent.move(from, to.id, to.childViews.lastOrNull?.id));
+        context.read<ViewBloc>().add(ViewEvent.move(from, to.id, to.childViews.lastOrNull?.id));
         break;
       case DraggableHoverPosition.none:
         break;
@@ -217,8 +210,7 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
   bool _shouldAccept(ViewPB data, DraggableHoverPosition position) {
     final view = widget.view.draggable as ViewPB;
     // could not move the view to a database
-    if (view.layout.isDatabaseView &&
-        position == DraggableHoverPosition.center) {
+    if (view.layout.isDatabaseView && position == DraggableHoverPosition.center) {
       return false;
     }
 

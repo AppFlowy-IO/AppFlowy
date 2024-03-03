@@ -10,10 +10,10 @@ import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_new_pa
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_top_menu.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_trash.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_user.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
-    show UserProfilePB;
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart' show UserProfilePB;
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -49,15 +49,11 @@ class HomeSideBar extends StatelessWidget {
             workspaceId: workspaceSetting.workspaceId,
           )..add(const MenuEvent.initial()),
         ),
-        BlocProvider(
-          create: (_) => FavoriteBloc()..add(const FavoriteEvent.initial()),
-        ),
       ],
       child: MultiBlocListener(
         listeners: [
           BlocListener<MenuBloc, MenuState>(
-            listenWhen: (p, c) =>
-                p.lastCreatedView?.id != c.lastCreatedView?.id,
+            listenWhen: (p, c) => p.lastCreatedView?.id != c.lastCreatedView?.id,
             listener: (context, state) => context.read<PanesBloc>().add(
                   OpenPluginInActivePane(
                     plugin: state.lastCreatedView!.plugin(),
@@ -65,6 +61,7 @@ class HomeSideBar extends StatelessWidget {
                 ),
           ),
           BlocListener<NotificationActionBloc, NotificationActionState>(
+            listenWhen: (_, curr) => curr.action != null,
             listener: _onNotificationAction,
           ),
         ],
@@ -99,7 +96,6 @@ class HomeSideBar extends StatelessWidget {
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.start,
         children: [
           // top menu
           const Padding(
@@ -145,23 +141,32 @@ class HomeSideBar extends StatelessWidget {
     final action = state.action;
     if (action != null) {
       if (action.type == ActionType.openView) {
-        final view =
-            context.read<MenuBloc>().state.views.findView(action.objectId);
+        final view = context.read<MenuBloc>().state.views.findView(action.objectId);
 
         if (view != null) {
-          context
-              .read<PanesBloc>()
-              .add(OpenPluginInActivePane(plugin: view.plugin()));
+          final Map<String, dynamic> arguments = {};
 
-          final nodePath =
-              action.arguments?[ActionArgumentKeys.nodePath.name] as int?;
+          final nodePath = action.arguments?[ActionArgumentKeys.nodePath];
           if (nodePath != null) {
-            context.read<NotificationActionBloc>().add(
-                  NotificationActionEvent.performAction(
-                    action: action.copyWith(type: ActionType.jumpToBlock),
-                  ),
-                );
+            arguments[PluginArgumentKeys.selection] = Selection.collapsed(
+              Position(path: [nodePath]),
+            );
           }
+
+          final rowId = action.arguments?[ActionArgumentKeys.rowId];
+          if (rowId != null) {
+            arguments[PluginArgumentKeys.rowId] = rowId;
+          }
+
+          // context.read<TabsBloc>().openPlugin(view, arguments: arguments);
+
+          context.read<PanesBloc>().add(
+                OpenPluginInActivePane(
+                  plugin: view.plugin(
+                    arguments: arguments,
+                  ),
+                ),
+              );
         }
       }
     }

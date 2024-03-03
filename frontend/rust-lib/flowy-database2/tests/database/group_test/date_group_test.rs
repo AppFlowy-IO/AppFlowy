@@ -6,6 +6,7 @@ use chrono::{offset, Duration};
 use collab_database::database::gen_row_id;
 use collab_database::rows::CreateRowParams;
 
+use collab_database::views::OrderObjectPosition;
 use flowy_database2::entities::FieldType;
 use flowy_database2::services::cell::CellBuilder;
 use flowy_database2::services::field::DateCellData;
@@ -34,7 +35,7 @@ async fn group_by_date_test() {
       cells,
       height: 60,
       visibility: true,
-      prev_row_id: None,
+      row_position: OrderObjectPosition::default(),
       timestamp: 0,
     };
     let res = test.editor.create_row(&test.view_id, None, params).await;
@@ -195,7 +196,7 @@ async fn change_date_on_moving_row_to_another_group() {
 
   let group = test.group_at_index(2).await;
   let rows = group.clone().rows;
-  let row_id = &rows.get(0).unwrap().id;
+  let row_id = &rows.first().unwrap().id;
   let row_detail = test
     .get_rows()
     .await

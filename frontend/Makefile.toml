@@ -10,6 +10,7 @@ extend = [
   { path = "scripts/makefile/flutter.toml" },
   { path = "scripts/makefile/tool.toml" },
   { path = "scripts/makefile/tauri.toml" },
+  { path = "scripts/makefile/web.toml" },
 ]
 
 [config]
@@ -25,9 +26,10 @@ CARGO_MAKE_EXTEND_WORKSPACE_MAKEFILE = true
 CARGO_MAKE_CRATE_FS_NAME = "dart_ffi"
 CARGO_MAKE_CRATE_NAME = "dart-ffi"
 LIB_NAME = "dart_ffi"
-CURRENT_APP_VERSION = "0.3.8"
+APPFLOWY_VERSION = "0.5.0"
 FLUTTER_DESKTOP_FEATURES = "dart,rev-sqlite"
 PRODUCT_NAME = "AppFlowy"
+MACOSX_DEPLOYMENT_TARGET = "11.0"
 # CRATE_TYPE: https://doc.rust-lang.org/reference/linkage.html
 # If you update the macOS's CRATE_TYPE, don't forget to update the
 # appflowy_backend.podspec
@@ -47,6 +49,8 @@ LIB_EXT = "a"
 APP_ENVIRONMENT = "local"
 FLUTTER_FLOWY_SDK_PATH = "appflowy_flutter/packages/appflowy_backend"
 TAURI_BACKEND_SERVICE_PATH = "appflowy_tauri/src/services/backend"
+WEB_BACKEND_SERVICE_PATH = "appflowy_web/src/services/backend"
+WEB_LIB_PATH= "appflowy_web/wasm-libs/af-wasm"
 # Test default config
 TEST_CRATE_TYPE = "cdylib"
 TEST_LIB_EXT = "dylib"
@@ -126,6 +130,7 @@ FLUTTER_OUTPUT_DIR = "Release"
 PRODUCT_EXT = "exe"
 CRATE_TYPE = "cdylib"
 LIB_EXT = "dll"
+BUILD_ARCHS = "x64"
 APP_ENVIRONMENT = "production"
 
 [env.development-linux-x86_64]
@@ -200,6 +205,7 @@ TARGET_OS = "android"
 CRATE_TYPE = "cdylib"
 FLUTTER_OUTPUT_DIR = "Debug"
 LIB_EXT = "so"
+PRODUCT_EXT = "apk"
 FLUTTER_DESKTOP_FEATURES = "dart,rev-sqlite,openssl_vendored"
 
 [env.production-android]
@@ -207,6 +213,7 @@ BUILD_FLAG = "release"
 TARGET_OS = "android"
 CRATE_TYPE = "cdylib"
 FLUTTER_OUTPUT_DIR = "Release"
+PRODUCT_EXT = "apk"
 LIB_EXT = "so"
 
 [tasks.echo_env]
@@ -221,6 +228,7 @@ script = ['''
     echo APP_ENVIRONMENT: ${APP_ENVIRONMENT}
     echo ${platforms}
     echo ${BUILD_ARCHS}
+    echo ${BUILD_VERSION}
     ''']
 script_runner = "@shell"
 

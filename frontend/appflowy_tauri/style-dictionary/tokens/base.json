@@ -272,6 +272,10 @@
           "lime": {
             "value": "#394027",
             "type": "color"
+          },
+          "orange": {
+            "value": "#5E3C3C",
+            "type": "color"
           }
         }
       }

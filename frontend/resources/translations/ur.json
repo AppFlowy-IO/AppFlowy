@@ -188,9 +188,8 @@
         "editContact": "رابطہ ایڈیٹ کریں"
     },
     "button": {
-        "OK": "ٹھیک ہے",
-        "Done": "ہو گیا",
-        "Cancel": "منسوخ کریں",
+        "ok": "ٹھیک ہے",
+        "cancel": "منسوخ کریں",
         "signIn": "سائن ان کریں",
         "signOut": "سائن آؤٹ کریں",
         "complete": "مکمل",
@@ -649,7 +648,7 @@
     },
     "board": {
         "column": {
-            "create_new_card": "نواں"
+            "createNewCard": "نواں"
         },
         "menuName": "بورڈ",
         "referencedBoardPrefix": "کے نظارہ"

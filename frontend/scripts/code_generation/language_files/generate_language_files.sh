@@ -24,9 +24,8 @@ rm -rf assets/translations/
 mkdir -p assets/translations/
 cp -f ../resources/translations/*.json assets/translations/
 
-if [ "$no_pub_get" = false ]; then
-  flutter packages pub get
-fi
+flutter pub get
+flutter packages pub get
 
 echo "Specifying source directory for AppFlowy Localizations."
 dart run easy_localization:generate -S assets/translations/

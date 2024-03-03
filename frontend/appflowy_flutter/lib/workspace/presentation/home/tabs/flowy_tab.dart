@@ -44,8 +44,7 @@ class _FlowyTabState extends State<FlowyTab> {
             child: Row(
               children: [
                 Expanded(
-                  child: widget.pageManager.notifier
-                      .tabBarWidget(widget.pageManager.notifier.plugin.id),
+                  child: widget.pageManager.notifier.tabBarWidget(widget.pageManager.notifier.plugin.id),
                 ),
                 Visibility(
                   visible: _isHovering,
@@ -86,6 +85,5 @@ class _FlowyTabState extends State<FlowyTab> {
   }
 
   void _closeTab([TapUpDetails? details]) =>
-      Provider.of<TabsController>(context, listen: false)
-          .closeView(widget.pageManager.plugin.id);
+      Provider.of<TabsController>(context, listen: false).closeView(widget.pageManager.plugin.id);
 }

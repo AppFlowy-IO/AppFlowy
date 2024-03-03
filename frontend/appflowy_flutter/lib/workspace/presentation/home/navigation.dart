@@ -19,8 +19,9 @@ import 'package:styled_widget/styled_widget.dart';
 typedef NaviAction = void Function();
 
 class NavigationNotifier with ChangeNotifier {
-  List<NavigationItem> navigationItems;
   NavigationNotifier({required this.navigationItems});
+
+  List<NavigationItem> navigationItems;
 
   void update(PageNotifier notifier) {
     if (navigationItems != notifier.plugin.widgetBuilder.navigationItems) {
@@ -69,8 +70,7 @@ class FlowyNavigation extends StatelessWidget {
       buildWhen: (p, c) => p.isMenuCollapsed != c.isMenuCollapsed,
       builder: (context, state) {
         final currentActivePane = getIt<PanesBloc>().state.firstLeafNode;
-        if (state.isMenuCollapsed &&
-            currentPaneId == currentActivePane.paneId) {
+        if (state.isMenuCollapsed && currentPaneId == currentActivePane.paneId) {
           return RotationTransition(
             turns: const AlwaysStoppedAnimation(180 / 360),
             child: FlowyTooltip(
@@ -81,9 +81,7 @@ class FlowyNavigation extends StatelessWidget {
               child: FlowyIconButton(
                 width: 24,
                 hoverColor: Colors.transparent,
-                onPressed: () => context
-                    .read<HomeSettingBloc>()
-                    .add(const HomeSettingEvent.collapseMenu()),
+                onPressed: () => context.read<HomeSettingBloc>().add(const HomeSettingEvent.collapseMenu()),
                 iconPadding: const EdgeInsets.fromLTRB(2, 2, 2, 2),
                 icon: FlowySvg(
                   FlowySvgs.hide_menu_m,
@@ -143,8 +141,7 @@ class NaviItemWidget extends StatelessWidget {
   final NavigationItem item;
 
   @override
-  Widget build(BuildContext context) =>
-      Expanded(child: item.leftBarItem.padding(horizontal: 2, vertical: 2));
+  Widget build(BuildContext context) => Expanded(child: item.leftBarItem.padding(horizontal: 2, vertical: 2));
 }
 
 class NaviItemDivider extends StatelessWidget {
@@ -171,10 +168,13 @@ class EllipsisNaviItem extends NavigationItem {
   NavigationCallback get action => (id) {};
 }
 
-TextSpan sidebarTooltipTextSpan(BuildContext context, String hintText) =>
-    TextSpan(
+TextSpan sidebarTooltipTextSpan(BuildContext context, String hintText) => TextSpan(
       children: [
-        TextSpan(text: "$hintText\n"),
-        TextSpan(text: Platform.isMacOS ? "⌘+\\" : "Ctrl+\\"),
+        TextSpan(
+          text: "$hintText\n",
+        ),
+        TextSpan(
+          text: Platform.isMacOS ? "⌘+." : "Ctrl+\\",
+        ),
       ],
     );

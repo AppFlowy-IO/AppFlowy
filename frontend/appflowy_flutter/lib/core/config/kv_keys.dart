@@ -6,13 +6,6 @@ class KVKeys {
   /// The key for the path location of the local data for the whole app.
   static const String pathLocation = '$prefix.path_location';
 
-  /// The key for the last time login type.
-  ///
-  /// The value is one of the following:
-  /// - local
-  /// - supabase
-  static const String loginType = '$prefix.login_type';
-
   /// The key for saving the window size
   ///
   /// The value is a json string with the following format:
@@ -31,6 +24,10 @@ class KVKeys {
       'kDocumentAppearanceFontFamily';
   static const String kDocumentAppearanceDefaultTextDirection =
       'kDocumentAppearanceDefaultTextDirection';
+  static const String kDocumentAppearanceCursorColor =
+      'kDocumentAppearanceCursorColor';
+  static const String kDocumentAppearanceSelectionColor =
+      'kDocumentAppearanceSelectionColor';
 
   /// The key for saving the expanded views
   ///
@@ -49,4 +46,16 @@ class KVKeys {
   /// The value is a boolean string.
   static const String showRenameDialogWhenCreatingNewFile =
       'showRenameDialogWhenCreatingNewFile';
+
+  static const String kCloudType = 'kCloudType';
+  static const String kAppflowyCloudBaseURL = 'kAppFlowyCloudBaseURL';
+  static const String kSupabaseURL = 'kSupabaseURL';
+  static const String kSupabaseAnonKey = 'kSupabaseAnonKey';
+
+  /// The key for saving the text scale factor.
+  ///
+  /// The value is a double string.
+  /// The value range is from 0.8 to 1.0. If it's greater than 1.0, it will cause
+  ///   the text to be too large and not aligned with the icon
+  static const String textScaleFactor = 'textScaleFactor';
 }

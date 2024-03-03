@@ -1,17 +1,29 @@
 use std::convert::TryFrom;
 
 use bytes::Bytes;
-
 use flowy_database2::entities::*;
 use flowy_database2::event_map::DatabaseEvent;
-use flowy_folder2::entities::*;
-use flowy_folder2::event_map::FolderEvent;
+use flowy_database2::services::share::csv::CSVFormat;
+use flowy_folder::entities::*;
+use flowy_folder::event_map::FolderEvent;
 use flowy_user::errors::FlowyError;
 
 use crate::event_builder::EventBuilder;
 use crate::EventIntegrationTest;
 
 impl EventIntegrationTest {
+  pub async fn get_database_export_data(&self, database_view_id: &str) -> String {
+    self
+      .appflowy_core
+      .database_manager
+      .get_database_with_view_id(database_view_id)
+      .await
+      .unwrap()
+      .export_csv(CSVFormat::Original)
+      .await
+      .unwrap()
+  }
+
   pub async fn create_grid(&self, parent_id: &str, name: String, initial_data: Vec<u8>) -> ViewPB {
     let payload = CreateViewPayloadPB {
       parent_view_id: parent_id.to_string(),
@@ -112,16 +124,15 @@ impl EventIntegrationTest {
 
   pub async fn create_field(&self, view_id: &str, field_type: FieldType) -> FieldPB {
     EventBuilder::new(self.clone())
-      .event(DatabaseEvent::CreateTypeOption)
+      .event(DatabaseEvent::CreateField)
       .payload(CreateFieldPayloadPB {
         view_id: view_id.to_string(),
         field_type,
-        type_option_data: None,
+        ..Default::default()
       })
       .async_send()
       .await
-      .parse::<TypeOptionPB>()
-      .field
+      .parse::<FieldPB>()
   }
 
   pub async fn update_field(&self, changeset: FieldChangesetPB) {
@@ -188,14 +199,14 @@ impl EventIntegrationTest {
   pub async fn create_row(
     &self,
     view_id: &str,
-    start_row_id: Option<String>,
+    row_position: OrderObjectPositionPB,
     data: Option<RowDataPB>,
   ) -> RowMetaPB {
     EventBuilder::new(self.clone())
       .event(DatabaseEvent::CreateRow)
       .payload(CreateRowPayloadPB {
         view_id: view_id.to_string(),
-        start_row_id,
+        row_position,
         group_id: None,
         data,
       })
@@ -287,7 +298,7 @@ impl EventIntegrationTest {
       .error()
   }
 
-  pub async fn update_date_cell(&self, changeset: DateChangesetPB) -> Option<FlowyError> {
+  pub async fn update_date_cell(&self, changeset: DateCellChangesetPB) -> Option<FlowyError> {
     EventBuilder::new(self.clone())
       .event(DatabaseEvent::UpdateDateCell)
       .payload(changeset)
@@ -322,6 +333,16 @@ impl EventIntegrationTest {
   ) -> ChecklistCellDataPB {
     let cell = self.get_cell(view_id, row_id, field_id).await;
     ChecklistCellDataPB::try_from(Bytes::from(cell.data)).unwrap()
+  }
+
+  pub async fn get_relation_cell(
+    &self,
+    view_id: &str,
+    field_id: &str,
+    row_id: &str,
+  ) -> RelationCellDataPB {
+    let cell = self.get_cell(view_id, row_id, field_id).await;
+    RelationCellDataPB::try_from(Bytes::from(cell.data)).unwrap_or_default()
   }
 
   pub async fn update_checklist_cell(
@@ -426,6 +447,18 @@ impl EventIntegrationTest {
       .error()
   }
 
+  pub async fn delete_group(&self, view_id: &str, group_id: &str) -> Option<FlowyError> {
+    EventBuilder::new(self.clone())
+      .event(DatabaseEvent::DeleteGroup)
+      .payload(DeleteGroupPayloadPB {
+        view_id: view_id.to_string(),
+        group_id: group_id.to_string(),
+      })
+      .async_send()
+      .await
+      .error()
+  }
+
   pub async fn update_setting(&self, changeset: DatabaseSettingChangesetPB) -> Option<FlowyError> {
     EventBuilder::new(self.clone())
       .event(DatabaseEvent::UpdateDatabaseSetting)
@@ -445,5 +478,34 @@ impl EventIntegrationTest {
       .await
       .parse::<RepeatedCalendarEventPB>()
       .items
+  }
+
+  pub async fn update_relation_cell(
+    &self,
+    changeset: RelationCellChangesetPB,
+  ) -> Option<FlowyError> {
+    EventBuilder::new(self.clone())
+      .event(DatabaseEvent::UpdateRelationCell)
+      .payload(changeset)
+      .async_send()
+      .await
+      .error()
+  }
+
+  pub async fn get_related_row_data(
+    &self,
+    database_id: String,
+    row_ids: Vec<String>,
+  ) -> Vec<RelatedRowDataPB> {
+    EventBuilder::new(self.clone())
+      .event(DatabaseEvent::GetRelatedRowDatas)
+      .payload(RepeatedRowIdPB {
+        database_id,
+        row_ids,
+      })
+      .async_send()
+      .await
+      .parse::<RepeatedRelatedRowDataPB>()
+      .rows
   }
 }
