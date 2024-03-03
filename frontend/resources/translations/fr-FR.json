@@ -84,7 +84,7 @@
     "charCount": "Compteur de caractère: {}",
     "createdAt": "Créé à: {}",
     "deleteView": "Supprimer",
-    "duplicateView": "Duppliquer"
+    "duplicateView": "Dupliquer"
   },
   "importPanel": {
     "textAndMarkdown": "Texte et Markdown",
