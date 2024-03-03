@@ -1,6 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/presentation/home/panes/flowy_pane.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -57,7 +57,7 @@ void main() {
         findsNWidgets(2),
       );
 
-      await tester.createNewPageWithName(name: _documentName);
+      await tester.createNewPageWithNameUnderParent(name: _documentName);
       await tester.tap(find.byType(FlowyPane).first);
       await tester.openPage(_documentName);
 
@@ -97,7 +97,7 @@ void main() {
       );
 
       await tester.tap(find.byType(FlowyPane).first);
-      await tester.createNewPageWithName(name: _documentName);
+      await tester.createNewPageWithNameUnderParent(name: _documentName);
 
       expect(
         find.textContaining(LocaleKeys.readOnlyViewText.tr()),

@@ -3,8 +3,7 @@ import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_service.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy/workspace/presentation/home/tabs/draggable_tab_item.dart';
-
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:nanoid/nanoid.dart';
 
@@ -42,10 +41,17 @@ class TabsController extends ChangeNotifier {
     pageManagers = pageManagersCopy;
   }
 
-  void openView(Plugin plugin, {int? index}) {
+  void openView(
+    Plugin plugin, {
+    int? index,
+  }) {
     final selectExistingPlugin = _selectPluginIfOpen(plugin.id);
     if (!selectExistingPlugin) {
-      tabService.openViewHandler(this, plugin, index: index);
+      tabService.openViewHandler(
+        this,
+        plugin,
+        index: index,
+      );
       currentIndex = index ?? pageManagers.length - 1;
     }
 
@@ -69,9 +75,7 @@ class TabsController extends ChangeNotifier {
     /// And the current selected tab isn't the first (index 0)
     ///   as currentIndex cannot be -1
     /// Then decrease currentIndex by 1
-    currentIndex = currentIndex > pageManagers.length - 1 && currentIndex > 0
-        ? currentIndex - 1
-        : currentIndex;
+    currentIndex = currentIndex > pageManagers.length - 1 && currentIndex > 0 ? currentIndex - 1 : currentIndex;
 
     if (!closePaneSubRoutine) {
       setLatestOpenView();
@@ -130,12 +134,18 @@ class TabsController extends ChangeNotifier {
         break;
       case TabDraggableHoverPosition.left:
         final index = pageManagers.indexOf(to);
-        openView(from.plugin, index: index);
+        openView(
+          from.plugin,
+          index: index,
+        );
         currentIndex = index;
         break;
       case TabDraggableHoverPosition.right:
         final index = pageManagers.indexOf(to);
-        openView(from.plugin, index: index + 1);
+        openView(
+          from.plugin,
+          index: index + 1,
+        );
         currentIndex = index + 1;
         break;
     }

@@ -216,7 +216,11 @@ class _ViewTitleState extends State<_ViewTitle> {
 
     if (widget.behavior == _ViewTitleBehavior.uneditable) {
       return Listener(
-        onPointerDown: (_) => context.read<TabsBloc>().openPlugin(widget.view),
+        onPointerDown: (_) => context.read<PanesBloc>().add(
+              OpenPluginInActivePane(
+                plugin: widget.view.plugin(),
+              ),
+            ),
         child: FlowyButton(
           useIntrinsicWidth: true,
           onTap: () {},

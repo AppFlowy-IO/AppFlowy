@@ -102,7 +102,6 @@ class _DocumentPageState extends State<DocumentPage> {
   Widget _buildEditorPage(BuildContext context, DocumentState state) {
     final appflowyEditorPage = AppFlowyEditorPage(
       autoFocus: !widget.readOnlyStatus,
-      editorState: editorState!,
       editorState: state.editorState!,
       styleCustomizer: EditorStyleCustomizer(
         context: context,

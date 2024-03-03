@@ -2,7 +2,6 @@ import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/home_draggables.dart';
 import 'package:appflowy/workspace/presentation/widgets/draggable_item/combined_draggable_item.dart';
-import 'package:appflowy/workspace/presentation/widgets/draggable_item/draggable_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:flutter/material.dart';
@@ -62,15 +61,15 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
           if (!_shouldAccept(view, position)) {
             return;
           }
-          setState(() => this.position = position);
+          _updatePosition(position);
         }
       },
       onLeave: (_) => _updatePosition(
         DraggableHoverPosition.none,
       ),
       onAcceptWithDetails: (data) {
-        if (data.crossDraggableType == CrossDraggableType.view) {
-          final from = data.draggable as ViewPB;
+        if (data.data.crossDraggableType == CrossDraggableType.view) {
+          final from = data.data.draggable as ViewPB;
           _move(
             from,
             widget.view.draggable as ViewPB,

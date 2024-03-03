@@ -27,7 +27,11 @@ class TabService {
     return null;
   }
 
-  void openViewHandler(TabsController controller, Plugin plugin, {int? index}) {
+  void openViewHandler(
+    TabsController controller,
+    Plugin plugin, {
+    int? index,
+  }) {
     final openPlugins = menuSharedState.openPlugins;
 
     /// Determine placement of new pagemanager in list of pagemanagers

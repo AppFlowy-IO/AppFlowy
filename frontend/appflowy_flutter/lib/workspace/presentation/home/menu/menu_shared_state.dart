@@ -9,8 +9,6 @@ class MenuSharedState {
     _latestOpenView.value = view;
   }
 
-  final ValueNotifier<ViewPB?> _latestOpenView = ValueNotifier<ViewPB?>(null);
-
   ViewPB? get latestOpenView => _latestOpenView.value;
   ValueNotifier<ViewPB?> get notifier => _latestOpenView;
 

@@ -1,7 +1,5 @@
 library document_plugin;
 
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
@@ -19,6 +17,7 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class DocumentPluginBuilder extends PluginBuilder {
@@ -54,7 +53,7 @@ class DocumentPlugin extends Plugin<int> {
   }
 
   late PluginType _pluginType;
-  late final ViewInfoBloc _viewInfoBloc;
+  ViewInfoBloc? _viewInfoBloc;
 
   @override
   final ViewPluginNotifier notifier;
@@ -63,7 +62,7 @@ class DocumentPlugin extends Plugin<int> {
 
   @override
   PluginWidgetBuilder get widgetBuilder => DocumentPluginWidgetBuilder(
-        bloc: _viewInfoBloc,
+        bloc: _viewInfoBloc!,
         notifier: notifier,
         initialSelection: initialSelection,
       );
@@ -76,19 +75,17 @@ class DocumentPlugin extends Plugin<int> {
 
   @override
   void init() {
-    _viewInfoBloc = ViewInfoBloc(view: notifier.view)
-      ..add(const ViewInfoEvent.started());
+    _viewInfoBloc = ViewInfoBloc(view: notifier.view)..add(const ViewInfoEvent.started());
   }
 
   @override
   void dispose() {
-    _viewInfoBloc.close();
+    _viewInfoBloc?.close();
     notifier.dispose();
   }
 }
 
-class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
-    with NavigationItem {
+class DocumentPluginWidgetBuilder extends PluginWidgetBuilder with NavigationItem {
   DocumentPluginWidgetBuilder({
     required this.bloc,
     required this.notifier,

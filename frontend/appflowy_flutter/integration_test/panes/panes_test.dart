@@ -1,5 +1,5 @@
 import 'package:appflowy/workspace/presentation/home/panes/flowy_pane.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -19,12 +19,12 @@ void main() {
 
       expect(find.byType(FlowyPane), findsOneWidget);
 
-      await tester.createNewPageWithName(
+      await tester.createNewPageWithNameUnderParent(
         name: _documentName,
         layout: ViewLayoutPB.Document,
       );
 
-      await tester.createNewPageWithName(
+      await tester.createNewPageWithNameUnderParent(
         name: _documentTwoName,
         layout: ViewLayoutPB.Document,
       );

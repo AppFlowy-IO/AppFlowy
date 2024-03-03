@@ -49,7 +49,7 @@ class PersonalFolder extends StatelessWidget {
                     leftPadding: 16,
                     isFeedback: false,
                     onSelected: (view) {
-                      if (RawKeyboard.instance.isControlPressed) {
+                      if (HardwareKeyboard.instance.isControlPressed) {
                         context.read<PanesBloc>().add(OpenTabInActivePane(plugin: view.plugin()));
                       }
 

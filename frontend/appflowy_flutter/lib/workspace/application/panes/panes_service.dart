@@ -49,8 +49,14 @@ class PanesService {
 
       final ret = newHolderNode.copyWith(
         children: direction == Direction.front
-            ? [oldChildNode, newChildNode]
-            : [newChildNode, oldChildNode],
+            ? [
+                oldChildNode,
+                newChildNode,
+              ]
+            : [
+                newChildNode,
+                oldChildNode,
+              ],
       );
 
       return ret.copyWith(

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/panes/panes.dart';
 import 'package:appflowy/workspace/application/panes/panes_bloc/panes_bloc.dart';
@@ -5,10 +7,9 @@ import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/home_draggables.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/widgets/draggable_item/draggable_target.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
-import 'package:vector_math/vector_math.dart' as math;
-import 'dart:math';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter/material.dart';
+import 'package:vector_math/vector_math.dart' as math;
 
 enum FlowyDraggableHoverPosition { none, top, left, right, bottom, tab }
 
@@ -37,7 +38,7 @@ class _DraggablePaneTargetState extends State<DraggablePaneTarget> {
   @override
   Widget build(BuildContext context) {
     return DraggableItemTarget<CrossDraggablesEntity>(
-      onWillAccept: (data) => _shouldAccept(data!, position),
+      onWillAcceptWithDetails: (data) => _shouldAccept(data.data, position),
       onMove: (data) {
         final renderBox = widget.paneContext.findRenderObject() as RenderBox;
         final offset = renderBox.globalToLocal(data.offset);
@@ -56,8 +57,8 @@ class _DraggablePaneTargetState extends State<DraggablePaneTarget> {
       onLeave: (_) => setState(
         () => position = FlowyDraggableHoverPosition.none,
       ),
-      onAccept: (data) {
-        _move(data, widget.pane);
+      onAcceptWithDetails: (data) {
+        _move(data.data, widget.pane);
         setState(() => position = FlowyDraggableHoverPosition.none);
       },
       child: Stack(
@@ -98,10 +99,9 @@ class _DraggablePaneTargetState extends State<DraggablePaneTarget> {
   ) _getHoverWidgetPosition(FlowyDraggableHoverPosition position) {
     double? left, top, height, width;
 
-    final topOffset =
-        (widget.pane.draggable as PaneNode).tabsController.pages > 1
-            ? HomeSizes.tabBarHeight + HomeSizes.topBarHeight
-            : HomeSizes.topBarHeight;
+    final topOffset = (widget.pane.draggable as PaneNode).tabsController.pages > 1
+        ? HomeSizes.tabBarHeight + HomeSizes.topBarHeight
+        : HomeSizes.topBarHeight;
 
     switch (position) {
       case FlowyDraggableHoverPosition.top:
@@ -185,8 +185,7 @@ class _DraggablePaneTargetState extends State<DraggablePaneTarget> {
     FlowyDraggableHoverPosition position,
   ) {
     if (data.crossDraggableType == CrossDraggableType.pane &&
-        (data.draggable as PaneNode).paneId ==
-            (widget.pane.draggable as PaneNode).paneId) {
+        (data.draggable as PaneNode).paneId == (widget.pane.draggable as PaneNode).paneId) {
       return false;
     }
 
@@ -197,16 +196,13 @@ class _DraggablePaneTargetState extends State<DraggablePaneTarget> {
     if (position == FlowyDraggableHoverPosition.tab) {
       switch (from.crossDraggableType) {
         case CrossDraggableType.view:
-          (to.draggable as PaneNode)
-              .tabsController
-              .openView((from.draggable as ViewPB).plugin());
+          (to.draggable as PaneNode).tabsController.openView((from.draggable as ViewPB).plugin());
           return;
         case CrossDraggableType.tab:
           final fromTab = from.draggable as TabNode;
           final destinationPaneNode = to.draggable as PaneNode;
           bool contains = false;
-          for (final element
-              in destinationPaneNode.tabsController.pageManagers) {
+          for (final element in destinationPaneNode.tabsController.pageManagers) {
             if (element.plugin.id == fromTab.pageManager.plugin.id) {
               contains = true;
               break;
@@ -214,9 +210,10 @@ class _DraggablePaneTargetState extends State<DraggablePaneTarget> {
           }
 
           if (!contains) {
-            destinationPaneNode.tabsController
-                .openView(fromTab.pageManager.plugin);
             fromTab.tabs.closeView(fromTab.pageManager.plugin.id);
+            destinationPaneNode.tabsController.openView(
+              fromTab.pageManager.plugin,
+            );
           }
 
           return;

@@ -1,15 +1,14 @@
 import 'package:appflowy/startup/plugin/plugin.dart';
+import 'package:appflowy/workspace/application/panes/panes.dart';
 import 'package:appflowy/workspace/application/panes/panes_service.dart';
 import 'package:appflowy/workspace/presentation/home/panes/draggable_pane_target.dart';
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import 'package:appflowy/workspace/application/panes/panes.dart';
-
 part 'panes_bloc.freezed.dart';
-part 'panes_state.dart';
 part 'panes_event.dart';
+part 'panes_state.dart';
 
 enum SplitDirection { left, right, up, down, none }
 
@@ -29,13 +28,17 @@ class PanesBloc extends Bloc<PanesEvent, PanesState> {
               return;
             }
 
-            final direction = [SplitDirection.right, SplitDirection.down]
-                    .contains(e.splitDirection)
+            final direction = [
+              SplitDirection.right,
+              SplitDirection.down,
+            ].contains(e.splitDirection)
                 ? Direction.front
                 : Direction.back;
 
-            final axis = [SplitDirection.down, SplitDirection.up]
-                    .contains(e.splitDirection)
+            final axis = [
+              SplitDirection.down,
+              SplitDirection.up,
+            ].contains(e.splitDirection)
                 ? Axis.horizontal
                 : Axis.vertical;
 
@@ -82,10 +85,8 @@ class PanesBloc extends Bloc<PanesEvent, PanesState> {
               ),
             );
           },
-          openTabInActivePane: (e) =>
-              state.activePane.tabsController.openView(e.plugin),
-          opnePluginInActivePane: (e) =>
-              state.activePane.tabsController.openPlugin(plugin: e.plugin),
+          openTabInActivePane: (e) => state.activePane.tabsController.openView(e.plugin),
+          opnePluginInActivePane: (e) => state.activePane.tabsController.openPlugin(plugin: e.plugin),
           selectTab: (e) {
             if (e.pane != null) {
               emit(state.copyWith(activePane: e.pane!));

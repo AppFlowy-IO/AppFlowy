@@ -1,11 +1,10 @@
+import 'package:appflowy/workspace/application/tabs/tabs_controller.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/home_draggables.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy/workspace/presentation/widgets/draggable_item/combined_draggable_item.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter/material.dart';
-
-import 'package:appflowy/workspace/application/tabs/tabs_controller.dart';
 
 enum TabDraggableHoverPosition { none, left, right }
 
@@ -32,7 +31,7 @@ class _DraggabletabItemState extends State<DraggableTabItem> {
 
   @override
   Widget build(BuildContext context) {
-    final child = Container(
+    final child = DecoratedBox(
       decoration: BoxDecoration(
         border: Border(
           right: position == TabDraggableHoverPosition.right
@@ -56,7 +55,7 @@ class _DraggabletabItemState extends State<DraggableTabItem> {
       dragAnchorStrategy: pointerDragAnchorStrategy,
       enableAutoScroll: false,
       data: widget.tabs,
-      onWillAccept: (data) => true,
+      onWillAcceptWithDetails: (data) => true,
       onMove: (data) {
         final renderBox = context.findRenderObject() as RenderBox;
         final offset = renderBox.globalToLocal(data.offset);
@@ -69,8 +68,8 @@ class _DraggabletabItemState extends State<DraggableTabItem> {
         setState(() => this.position = position);
       },
       onLeave: (_) => setState(() => position = TabDraggableHoverPosition.none),
-      onAccept: (data) {
-        _move(data, widget.tabs, data.crossDraggableType);
+      onAcceptWithDetails: (data) {
+        _move(data.data, widget.tabs, data.data.crossDraggableType);
         setState(() => position = TabDraggableHoverPosition.none);
       },
       feedback: IntrinsicWidth(

@@ -50,7 +50,7 @@ class FavoriteFolder extends StatelessWidget {
                     view: view,
                     level: 0,
                     onSelected: (view) {
-                      if (RawKeyboard.instance.isControlPressed) {
+                      if (HardwareKeyboard.instance.isControlPressed) {
                         context.read<PanesBloc>().add(OpenTabInActivePane(plugin: view.plugin()));
                       }
 

@@ -9,8 +9,8 @@ class CombinedDraggableItem<T extends Object> extends StatefulWidget {
     required this.data,
     this.feedback,
     this.childWhenDragging,
-    this.onAccept,
-    this.onWillAccept,
+    this.onAcceptWithDetails,
+    this.onWillAcceptWithDetails,
     this.onMove,
     this.onLeave,
     this.onDragging,
@@ -23,13 +23,12 @@ class CombinedDraggableItem<T extends Object> extends StatefulWidget {
   final T data;
   final Widget? feedback;
   final Widget? childWhenDragging;
-  final DragTargetAccept<T>? onAccept;
-  final DragTargetWillAccept<T>? onWillAccept;
+  final DragTargetAcceptWithDetails<T>? onAcceptWithDetails;
+  final DragTargetWillAcceptWithDetails<T>? onWillAcceptWithDetails;
   final DragTargetMove<T>? onMove;
   final DragTargetLeave<T>? onLeave;
   final void Function(bool)? onDragging;
-  final Offset Function(Draggable<Object>, BuildContext, Offset)?
-      dragAnchorStrategy;
+  final Offset Function(Draggable<Object>, BuildContext, Offset)? dragAnchorStrategy;
 
   /// Whether to enable auto scroll when dragging.
   ///
@@ -39,17 +38,15 @@ class CombinedDraggableItem<T extends Object> extends StatefulWidget {
   final Size hitTestSize;
 
   @override
-  State<CombinedDraggableItem<T>> createState() =>
-      _CombinedDraggableItemState<T>();
+  State<CombinedDraggableItem<T>> createState() => _CombinedDraggableItemState<T>();
 }
 
-class _CombinedDraggableItemState<T extends Object>
-    extends State<CombinedDraggableItem<T>> {
+class _CombinedDraggableItemState<T extends Object> extends State<CombinedDraggableItem<T>> {
   @override
   Widget build(BuildContext context) {
     return DraggableItemTarget(
-      onAccept: widget.onAccept,
-      onWillAccept: widget.onWillAccept,
+      onAcceptWithDetails: widget.onAcceptWithDetails,
+      onWillAcceptWithDetails: widget.onWillAcceptWithDetails,
       onMove: widget.onMove,
       onLeave: widget.onLeave,
       child: DraggableItem(

@@ -16,13 +16,9 @@ import 'package:appflowy/workspace/presentation/home/panes/panes_layout.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flowy_infra_ui/style_widget/extension.dart';
 import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
@@ -181,16 +177,16 @@ abstract mixin class NavigationItem {
 }
 
 class PageNotifier extends ChangeNotifier {
+  PageNotifier({Plugin? plugin, bool? readOnly})
+      : _plugin = plugin ?? makePlugin(pluginType: PluginType.blank),
+        _readOnly = readOnly ?? false;
+
   Plugin _plugin;
   bool _readOnly;
 
   Widget get titleWidget => _plugin.widgetBuilder.leftBarItem;
 
   Widget tabBarWidget(String pluginId) => _plugin.widgetBuilder.tabBarItem(pluginId);
-
-  PageNotifier({Plugin? plugin, bool? readOnly})
-      : _plugin = plugin ?? makePlugin(pluginType: PluginType.blank),
-        _readOnly = readOnly ?? false;
 
   /// This is the only place where the plugin is set.
   /// No need compare the old plugin with the new plugin. Just set it.
@@ -340,7 +336,7 @@ class HomeTopBar extends StatelessWidget {
                 ),
               ],
             ),
-          ).bottomBorder(color: Theme.of(context).dividerColor),
+          ),
         ),
         if (notifier.readOnly) _buildReadOnlyBanner(context),
       ],
