@@ -9,6 +9,7 @@
   "title": "Title",
   "youCanAlso": "You can also",
   "and": "and",
+  "failedToOpenUrl": "Failed to open url: {}",
   "blockActions": {
     "addBelowTooltip": "Click to add below",
     "addAboveCmd": "Alt+click",

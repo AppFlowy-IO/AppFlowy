@@ -33,6 +33,7 @@ class ThemeUploadLearnMoreButton extends StatelessWidget {
             final uri = Uri.parse(learnMoreURL);
             await afLaunchUrl(
               uri,
+              context: context,
               onFailure: (_) async {
                 if (context.mounted) {
                   await Dialogs.show(

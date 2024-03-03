@@ -235,7 +235,7 @@ class _OpenStorageButton extends StatelessWidget {
       ),
       onPressed: () async {
         final uri = Directory(usingPath).uri;
-        await afLaunchUrl(uri);
+        await afLaunchUrl(uri, context: context);
       },
     );
   }
