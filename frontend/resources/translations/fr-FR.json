@@ -1169,7 +1169,8 @@
     "replace": "Remplacer",
     "replaceAll": "Tout remplacer",
     "noResult": "Aucun résultat",
-    "caseSensitive": "Sensible à la casse"
+    "caseSensitive": "Sensible à la casse",
+    "searchMore": "Chercher pour trouver plus de résultat"
   },
   "error": {
     "weAreSorry": "Nous sommes désolés",
