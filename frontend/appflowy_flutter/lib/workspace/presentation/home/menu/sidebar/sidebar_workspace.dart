@@ -64,8 +64,7 @@ class SidebarWorkspace extends StatelessWidget {
         (s) => LocaleKeys.workspace_createSuccess.tr(),
         (e) => '${LocaleKeys.workspace_createFailed.tr()}: ${e.msg}',
       );
-      showSnackBarMessage(context, message);
-      return;
+      return showSnackBarMessage(context, message);
     }
 
     result = state.deleteWorkspaceResult;
