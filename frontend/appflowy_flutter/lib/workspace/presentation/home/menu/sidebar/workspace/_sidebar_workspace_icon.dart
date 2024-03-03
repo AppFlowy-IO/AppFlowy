@@ -13,7 +13,7 @@ class WorkspaceIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: support icon later
+    // TODO(Lucas): support icon later
     return Container(
       alignment: Alignment.center,
       decoration: BoxDecoration(
