@@ -582,7 +582,9 @@
       "lessThan": "Est moins que",
       "greaterThan": "Est plus que",
       "lessThanOrEqualTo": "Est inférieur ou égal à",
-      "greaterThanOrEqualTo": "Est s"
+      "greaterThanOrEqualTo": "Est supérieur ou égal à ",
+      "isEmpty": "Est vide",
+      "isNotEmpty": "N'est pas vide"
     },
     "field": {
       "hide": "Cacher",
@@ -601,6 +603,7 @@
       "multiSelectFieldName": "Sélection multiple",
       "urlFieldName": "URL",
       "checklistFieldName": "Check-list",
+      "relationFieldName": "Relation",
       "numberFormat": "Format du nombre",
       "dateFormat": "Format de la date",
       "includeTime": "Inclure l'heure",
@@ -632,7 +635,8 @@
       "deleteFieldPromptMessage": "Vous voulez supprimer cette propriété ?",
       "newColumn": "Nouvelle colonne",
       "format": "Format",
-      "reminderOnDateTooltip": "Cette cellule a un rappel programmé"
+      "reminderOnDateTooltip": "Cette cellule a un rappel programmé",
+      "optionAlreadyExist": "L'option existe déjà"
     },
     "rowPage": {
       "newField": "Ajouter un nouveau champ",
@@ -651,6 +655,8 @@
     "sort": {
       "ascending": "Ascendant",
       "descending": "Descendant",
+      "by": "Par",
+      "empty": "Tri pas actif",
       "deleteAllSorts": "Supprimer tous les tris",
       "addSort": "Ajouter un tri",
       "deleteSort": "Supprimer le tri"
@@ -698,6 +704,10 @@
       "hideComplete": "Cacher les tâches terminées",
       "showComplete": "Afficher toutes les tâches"
     },
+    "relation": {
+      "inRelatedDatabase": "Dans",
+      "emptySearchResult": "Aucun enregistrement trouvé"
+    },
     "menuName": "Grille",
     "referencedGridPrefix": "Vue",
     "calculate": "Calculer",
@@ -708,7 +718,8 @@
       "median": "Médiane",
       "min": "Minimum",
       "sum": "Somme"
-    }
+    },
+    "removeSorting": "Voulez-vous supprimer le tri ?"
   },
   "document": {
     "menuName": "Document",
@@ -811,11 +822,13 @@
         "left": "Gauche",
         "center": "Centre",
         "right": "Droite",
-        "defaultColor": "Défaut"
+        "defaultColor": "Défaut",
+        "depth": "Profond"
       },
       "image": {
         "copiedToPasteBoard": "Le lien de l'image a été copié dans le presse-papiers",
-        "addAnImage": "Ajouter une image"
+        "addAnImage": "Ajouter une image",
+        "imageUploadFailed": "Téléchargement de l'image échoué"
       },
       "urlPreview": {
         "copiedToPasteBoard": "Le lien a été copié dans le presse-papier"
@@ -847,6 +860,9 @@
       },
       "date": "Date",
       "emoji": "Emoji"
+    },
+    "outlineBlock": {
+      "placeholder": "Table de contenu"
     },
     "textBlock": {
       "placeholder": "Tapez '/' pour les commandes"
@@ -894,7 +910,8 @@
       "successToAddImageToGallery": "Image ajoutée à la galerie avec succès",
       "unableToLoadImage": "Impossible de charger l'image",
       "maximumImageSize": "La taille d'image maximale est 10Mo",
-      "uploadImageErrorImageSizeTooBig": "L'image doit faire moins de 10Mo"
+      "uploadImageErrorImageSizeTooBig": "L'image doit faire moins de 10Mo",
+      "imageIsUploading": "L'image est en cours de téléchargement"
     },
     "codeBlock": {
       "language": {
@@ -995,10 +1012,10 @@
       "layoutDateField": "Calendrier de mise en page par",
       "changeLayoutDateField": "Modifier le champ de mise en page",
       "noDateTitle": "Pas de date",
+      "noDateHint": "Les événements non planifiés s'afficheront ici",
       "unscheduledEventsTitle": "Événements non planifiés",
       "clickToAdd": "Cliquez pour ajouter au calendrier",
-      "name": "Disposition du calendrier",
-      "noDateHint": "Les événements non planifiés s'afficheront ici"
+      "name": "Disposition du calendrier"
     },
     "referencedCalendarPrefix": "Vue",
     "quickJumpYear": "Sauter à"
