@@ -23,7 +23,7 @@ class SidebarNewPageButton extends StatelessWidget {
       onPressed: () async => createViewAndShowRenameDialogIfNeeded(
         context,
         LocaleKeys.newPageText.tr(),
-        (viewName) {
+        (viewName, _) {
           if (viewName.isNotEmpty) {
             context.read<MenuBloc>().add(MenuEvent.createApp(viewName));
           }

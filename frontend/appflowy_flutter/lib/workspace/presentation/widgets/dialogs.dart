@@ -18,17 +18,19 @@ class NavigatorTextFieldDialog extends StatefulWidget {
     required this.title,
     this.autoSelectAllText = false,
     required this.value,
-    required this.confirm,
-    this.cancel,
+    required this.onConfirm,
+    this.onCancel,
     this.maxLength,
+    this.hintText,
   });
 
   final String value;
   final String title;
-  final void Function()? cancel;
-  final void Function(String) confirm;
+  final VoidCallback? onCancel;
+  final void Function(String, BuildContext) onConfirm;
   final bool autoSelectAllText;
   final int? maxLength;
+  final String? hintText;
 
   @override
   State<NavigatorTextFieldDialog> createState() =>
@@ -70,7 +72,8 @@ class _NavigatorTextFieldDialogState extends State<NavigatorTextFieldDialog> {
           ),
           VSpace(Insets.m),
           FlowyFormTextInput(
-            hintText: LocaleKeys.dialogCreatePageNameHint.tr(),
+            hintText:
+                widget.hintText ?? LocaleKeys.dialogCreatePageNameHint.tr(),
             controller: controller,
             textStyle: Theme.of(context)
                 .textTheme
@@ -83,19 +86,19 @@ class _NavigatorTextFieldDialogState extends State<NavigatorTextFieldDialog> {
               newValue = text;
             },
             onEditingComplete: () {
-              widget.confirm(newValue);
+              widget.onConfirm(newValue, context);
               AppGlobals.nav.pop();
             },
           ),
           VSpace(Insets.xl),
           OkCancelButton(
             onOkPressed: () {
-              widget.confirm(newValue);
+              widget.onConfirm(newValue, context);
               Navigator.of(context).pop();
             },
             onCancelPressed: () {
-              if (widget.cancel != null) {
-                widget.cancel!();
+              if (widget.onCancel != null) {
+                widget.onCancel!();
               }
               Navigator.of(context).pop();
             },

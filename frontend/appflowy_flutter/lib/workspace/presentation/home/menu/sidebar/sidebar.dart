@@ -1,3 +1,4 @@
+import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/menu/menu_bloc.dart';
@@ -19,8 +20,6 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-const bool _enableMultiWorkspace = true;
 
 /// Home Sidebar is the left side bar of the home page.
 ///
@@ -108,7 +107,7 @@ class HomeSideBar extends StatelessWidget {
           // user or workspace, setting
           Padding(
             padding: menuHorizontalInset,
-            child: _enableMultiWorkspace
+            child: FeatureFlag.collaborativeWorkspace.isOn
                 ? SidebarWorkspace(userProfile: userProfile, views: views)
                 : SidebarUser(userProfile: userProfile, views: views),
           ),
