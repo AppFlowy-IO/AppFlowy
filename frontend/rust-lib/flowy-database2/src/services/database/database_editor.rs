@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use collab_database::database::MutexDatabase;
+use collab_database::database::{timestamp, MutexDatabase};
 use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{Cell, Cells, CreateRowParams, Row, RowCell, RowDetail, RowId};
 use collab_database::views::{DatabaseLayout, DatabaseView, LayoutSetting, OrderObjectPosition};
@@ -766,6 +766,25 @@ impl DatabaseEditor {
     self.update_cell(view_id, row_id, field_id, new_cell).await
   }
 
+  pub async fn update_last_modified_time(&self, row_id: &RowId, view_id: &str) {
+    self.database.lock().update_row(row_id, |row_update| {
+      row_update.set_last_modified(timestamp());
+    });
+
+    let option_row = self.get_row_detail(view_id, &row_id);
+    if let Some(row_detail) = option_row {
+      for view in self.database_views.editors().await {
+        view
+          .v_did_update_row(&Some(row_detail.clone()), &row_detail, None)
+          .await;
+      }
+    }
+
+    self
+      .notify_update_row(view_id, row_id.to_owned(), vec![])
+      .await;
+  }
+
   /// Update a cell in the database.
   /// This will notify all views that the cell has been updated.
   pub async fn update_cell(
@@ -788,7 +807,7 @@ impl DatabaseEditor {
     if let Some(new_row_detail) = option_row {
       for view in self.database_views.editors().await {
         view
-          .v_did_update_row(&old_row, &new_row_detail, field_id.to_owned())
+          .v_did_update_row(&old_row, &new_row_detail, Some(field_id.to_owned()))
           .await;
       }
     }
