@@ -1,3 +1,7 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
+import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/tasks/rust_sdk.dart';
@@ -10,11 +14,8 @@ import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:styled_widget/styled_widget.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class QuestionBubble extends StatelessWidget {
   const QuestionBubble({super.key});
@@ -86,26 +87,26 @@ class _BubbleActionListState extends State<BubbleActionList> {
         if (action is BubbleActionWrapper) {
           switch (action.inner) {
             case BubbleAction.whatsNews:
-              _launchURL("https://www.appflowy.io/what-is-new");
+              afLaunchUrlString("https://www.appflowy.io/what-is-new");
               break;
             case BubbleAction.help:
-              _launchURL("https://discord.gg/9Q2xaN37tV");
+              afLaunchUrlString("https://discord.gg/9Q2xaN37tV");
               break;
             case BubbleAction.debug:
               _DebugToast().show();
               break;
             case BubbleAction.shortcuts:
-              _launchURL(
+              afLaunchUrlString(
                 "https://appflowy.gitbook.io/docs/essential-documentation/shortcuts",
               );
               break;
             case BubbleAction.markdown:
-              _launchURL(
+              afLaunchUrlString(
                 "https://appflowy.gitbook.io/docs/essential-documentation/markdown",
               );
               break;
             case BubbleAction.github:
-              _launchURL(
+              afLaunchUrlString(
                 'https://github.com/AppFlowy-IO/AppFlowy/issues/new/choose',
               );
               break;
@@ -115,15 +116,6 @@ class _BubbleActionListState extends State<BubbleActionList> {
         controller.close();
       },
     );
-  }
-
-  void _launchURL(String url) async {
-    final uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri);
-    } else {
-      throw 'Could not launch $url';
-    }
   }
 }
 

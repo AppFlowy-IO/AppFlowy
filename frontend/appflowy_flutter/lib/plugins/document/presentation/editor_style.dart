@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
+import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_item/utils.dart';
@@ -293,7 +294,7 @@ class EditorStyleCustomizer {
           ..onTap = () {
             final editorState = context.read<EditorState>();
             if (editorState.selection == null) {
-              safeLaunchUrl(href);
+              afLaunchUrlString(href);
               return;
             }
 

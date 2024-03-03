@@ -1,3 +1,7 @@
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
+
+import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/env/env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -6,7 +10,6 @@ import 'package:appflowy/workspace/application/settings/appflowy_cloud_urls_bloc
 import 'package:appflowy/workspace/presentation/settings/widgets/_restart_app_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_setting.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
@@ -14,10 +17,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
-import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class AppFlowyCloudViewSetting extends StatelessWidget {
   const AppFlowyCloudViewSetting({
@@ -227,7 +227,8 @@ class AppFlowySelfhostTip extends StatelessWidget {
                     color: Theme.of(context).colorScheme.primary,
                     decoration: TextDecoration.underline,
                   ),
-              recognizer: TapGestureRecognizer()..onTap = () => _launchURL(),
+              recognizer: TapGestureRecognizer()
+                ..onTap = () => afLaunchUrlString(url),
             ),
             TextSpan(
               text: LocaleKeys.settings_menu_selfHostEnd.tr(),
@@ -237,15 +238,6 @@ class AppFlowySelfhostTip extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  Future<void> _launchURL() async {
-    final uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri);
-    } else {
-      Log.error("Could not launch $url");
-    }
   }
 }
 
