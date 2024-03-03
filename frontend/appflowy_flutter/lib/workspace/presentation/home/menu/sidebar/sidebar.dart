@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/startup/startup.dart';
@@ -27,7 +29,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 ///   - settings
 ///   - scrollable document list
 ///   - trash
-class HomeSideBar extends StatelessWidget {
+class HomeSideBar extends StatefulWidget {
   const HomeSideBar({
     super.key,
     required this.user,
@@ -39,6 +41,43 @@ class HomeSideBar extends StatelessWidget {
   final WorkspaceSettingPB workspaceSetting;
 
   @override
+  State<HomeSideBar> createState() => _HomeSideBarState();
+}
+
+class _HomeSideBarState extends State<HomeSideBar> {
+  final _scrollController = ScrollController();
+  Timer? _srollDebounce;
+  bool isScrolling = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScrollChanged);
+  }
+
+  void _onScrollChanged() {
+    setState(() => isScrolling = true);
+
+    _srollDebounce?.cancel();
+    _srollDebounce =
+        Timer(const Duration(milliseconds: 300), _setScrollStopped);
+  }
+
+  void _setScrollStopped() {
+    if (mounted) {
+      setState(() => isScrolling = false);
+    }
+  }
+
+  @override
+  void dispose() {
+    _srollDebounce?.cancel();
+    _scrollController.removeListener(_onScrollChanged);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
@@ -47,8 +86,8 @@ class HomeSideBar extends StatelessWidget {
         ),
         BlocProvider(
           create: (_) => MenuBloc(
-            user: user,
-            workspaceId: workspaceSetting.workspaceId,
+            user: widget.user,
+            workspaceId: widget.workspaceSetting.workspaceId,
           )..add(const MenuEvent.initial()),
         ),
       ],
@@ -106,7 +145,7 @@ class HomeSideBar extends StatelessWidget {
           // user, setting
           Padding(
             padding: menuHorizontalInset,
-            child: SidebarUser(user: user, views: views),
+            child: SidebarUser(user: widget.user, views: views),
           ),
           const VSpace(20),
           // scrollable document list
@@ -114,9 +153,12 @@ class HomeSideBar extends StatelessWidget {
             child: Padding(
               padding: menuHorizontalInset,
               child: SingleChildScrollView(
+                controller: _scrollController,
+                physics: const ClampingScrollPhysics(),
                 child: SidebarFolder(
                   views: views,
                   favoriteViews: favoriteViews,
+                  isHoverEnabled: !isScrolling,
                 ),
               ),
             ),
