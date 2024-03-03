@@ -19,6 +19,7 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
           initial: () async {
             // do nothing
           },
+          workspacesReceived: (workspaceId) async {},
           fetchWorkspaces: () async {
             final result = await _fetchWorkspaces();
             if (result != null) {
@@ -33,27 +34,44 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
           createWorkspace: (name, desc) async {
             final result = await _userService.createUserWorkspace(name);
             emit(
-              result.fold(
-                (workspace) {
-                  return state.copyWith(
-                    createWorkspaceResult: FlowyResult.success(null),
-                  );
-                },
-                (error) {
-                  Log.error(error);
-                  return state.copyWith(
-                    createWorkspaceResult: FlowyResult.failure(error),
-                  );
-                },
+              state.copyWith(
+                openWorkspaceResult: null,
+                deleteWorkspaceResult: null,
+                createWorkspaceResult:
+                    result.fold((s) => FlowyResult.success(null), (e) {
+                  Log.error(e);
+                  return FlowyResult.failure(e);
+                }),
               ),
             );
           },
-          workspacesReceived: (workspaceId) async {},
           deleteWorkspace: (workspaceId) async {
-            await _deleteWorkspace(workspaceId, emit);
+            final result = await _userService.deleteWorkspaceById(workspaceId);
+            emit(
+              state.copyWith(
+                openWorkspaceResult: null,
+                createWorkspaceResult: null,
+                deleteWorkspaceResult:
+                    result.fold((s) => FlowyResult.success(null), (e) {
+                  Log.error(e);
+                  return FlowyResult.failure(e);
+                }),
+              ),
+            );
           },
           openWorkspace: (workspaceId) async {
-            await _openWorkspace(workspaceId, emit);
+            final result = await _userService.openWorkspace(workspaceId);
+            emit(
+              state.copyWith(
+                createWorkspaceResult: null,
+                deleteWorkspaceResult: null,
+                openWorkspaceResult:
+                    result.fold((s) => FlowyResult.success(null), (e) {
+                  Log.error(e);
+                  return FlowyResult.failure(e);
+                }),
+              ),
+            );
           },
         );
       },
@@ -84,20 +102,6 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
       return null;
     });
   }
-
-  Future<void> _deleteWorkspace(
-    String workspaceId,
-    Emitter<UserWorkspaceState> emit,
-  ) async {
-    final result = await _userService.deleteWorkspaceById(workspaceId);
-  }
-
-  Future<void> _openWorkspace(
-    String workspaceId,
-    Emitter<UserWorkspaceState> emit,
-  ) async {
-    final result = await _userService.openWorkspace(workspaceId);
-  }
 }
 
 @freezed
@@ -121,11 +125,15 @@ class UserWorkspaceState with _$UserWorkspaceState {
     required UserWorkspacePB? currentWorkspace,
     required List<UserWorkspacePB> workspaces,
     required FlowyResult<void, FlowyError>? createWorkspaceResult,
+    required FlowyResult<void, FlowyError>? deleteWorkspaceResult,
+    required FlowyResult<void, FlowyError>? openWorkspaceResult,
   }) = _UserWorkspaceState;
 
   factory UserWorkspaceState.initial() => const UserWorkspaceState(
         currentWorkspace: null,
         workspaces: [],
         createWorkspaceResult: null,
+        deleteWorkspaceResult: null,
+        openWorkspaceResult: null,
       );
 }

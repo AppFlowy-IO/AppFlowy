@@ -63,11 +63,10 @@ class _WorkspaceMoreActionWrapper extends CustomActionCell {
             : null,
       ),
       margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
-      onTap: () {
-        PopoverContainer.of(context).closeAll();
+      onTap: () async {
         switch (inner) {
           case WorkspaceMoreAction.delete:
-            NavigatorAlertDialog(
+            await NavigatorAlertDialog(
               title: LocaleKeys.workspace_deleteWorkspaceHintText.tr(),
               confirm: () {
                 context.read<UserWorkspaceBloc>().add(
@@ -78,6 +77,10 @@ class _WorkspaceMoreActionWrapper extends CustomActionCell {
           case WorkspaceMoreAction.rename:
 
           // todo: integrate with the backend
+        }
+
+        if (context.mounted) {
+          PopoverContainer.of(context).closeAll();
         }
       },
     );
