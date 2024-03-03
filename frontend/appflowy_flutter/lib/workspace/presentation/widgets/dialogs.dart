@@ -97,9 +97,7 @@ class _NavigatorTextFieldDialogState extends State<NavigatorTextFieldDialog> {
               Navigator.of(context).pop();
             },
             onCancelPressed: () {
-              if (widget.onCancel != null) {
-                widget.onCancel!();
-              }
+              widget.onCancel?.call();
               Navigator.of(context).pop();
             },
           ),
