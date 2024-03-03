@@ -566,7 +566,23 @@
       "onOrAfter": "Est le ou après",
       "between": "Est entre",
       "empty": "Est vide",
-      "notEmpty": "N'est pas vide"
+      "notEmpty": "N'est pas vide",
+      "choicechipPrefix": {
+        "before": "Avant",
+        "after": "Après",
+        "onOrBefore": "Pendant ou avant",
+        "onOrAfter": "Pendant ou après",
+        "isEmpty": "Est vide",
+        "isNotEmpty": "N'est pas vide"
+      }
+    },
+    "numberFilter": {
+      "equal": "Égal",
+      "notEqual": "N'est pas égal",
+      "lessThan": "Est moins que",
+      "greaterThan": "Est plus que",
+      "lessThanOrEqualTo": "Est inférieur ou égal à",
+      "greaterThanOrEqualTo": "Est s"
     },
     "field": {
       "hide": "Cacher",
