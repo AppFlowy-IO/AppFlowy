@@ -79,6 +79,7 @@ class _WorkspaceWrapperState extends State<_WorkspaceWrapper> {
       return AppFlowyPopover(
         direction: PopoverDirection.bottomWithCenterAligned,
         offset: const Offset(0, 10),
+        constraints: const BoxConstraints(maxWidth: 260, maxHeight: 600),
         popupBuilder: (_) {
           return BlocProvider<UserWorkspaceBloc>.value(
             value: context.read<UserWorkspaceBloc>(),
@@ -218,37 +219,50 @@ class _WorkspaceMenuItem extends StatelessWidget {
       child: BlocBuilder<WorkspaceMemberBloc, WorkspaceMemberState>(
         builder: (context, state) {
           final members = state.members;
-          return FlowyButton(
-            onTap: () {
-              if (!isSelected) {
-                context.read<UserWorkspaceBloc>().add(
-                      UserWorkspaceEvent.openWorkspace(workspace.workspaceId),
-                    );
-              }
-            },
-            margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-            iconPadding: 10.0,
-            leftIconSize: const Size.square(32),
-            leftIcon: _WorkspaceIcon(
-              workspace: workspace,
-            ),
-            rightIcon: _buildRightIcon(context),
-            text: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                FlowyText.medium(
-                  workspace.name,
-                  fontSize: 14.0,
-                  overflow: TextOverflow.ellipsis,
+          // settings right icon inside the flowy button will
+          //  cause the popover dismiss intermediately when click the right icon.
+          // so using the stack to put the right icon on the flowy button.
+          return Stack(
+            alignment: Alignment.center,
+            children: [
+              FlowyButton(
+                onTap: () {
+                  if (!isSelected) {
+                    context.read<UserWorkspaceBloc>().add(
+                          UserWorkspaceEvent.openWorkspace(
+                            workspace.workspaceId,
+                          ),
+                        );
+                  }
+                },
+                margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                iconPadding: 10.0,
+                leftIconSize: const Size.square(32),
+                leftIcon: _WorkspaceIcon(
+                  workspace: workspace,
                 ),
-                if (members.length > 1)
-                  FlowyText(
-                    '${members.length} ${LocaleKeys.settings_appearance_members_members.tr()}',
-                    fontSize: 10.0,
-                    color: Theme.of(context).hintColor,
-                  ),
-              ],
-            ),
+                text: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    FlowyText.medium(
+                      workspace.name,
+                      fontSize: 14.0,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    if (members.length > 1)
+                      FlowyText(
+                        '${members.length} ${LocaleKeys.settings_appearance_members_members.tr()}',
+                        fontSize: 10.0,
+                        color: Theme.of(context).hintColor,
+                      ),
+                  ],
+                ),
+              ),
+              Positioned(
+                right: 12.0,
+                child: Align(child: _buildRightIcon(context)),
+              ),
+            ],
           );
         },
       ),
@@ -292,7 +306,7 @@ class _WorkspaceIcon extends StatelessWidget {
         borderRadius: BorderRadius.circular(4),
       ),
       child: FlowyText(
-        workspace.name.substring(0, 1).toUpperCase(),
+        workspace.name.isEmpty ? '' : workspace.name.substring(0, 1),
         fontSize: 16,
         color: Colors.black,
       ),

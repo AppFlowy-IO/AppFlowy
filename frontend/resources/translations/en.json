@@ -63,7 +63,8 @@
       "reportIssueOnGithub": "Report an issue on Github",
       "exportLogFiles": "Export log files",
       "reachOut": "Reach out on Discord"
-    }
+    },
+    "deleteWorkspaceHintText": "Are you sure you want to delete the workspace? This action cannot be undone."
   },
   "shareAction": {
     "buttonText": "Share",
