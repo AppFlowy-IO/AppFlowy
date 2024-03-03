@@ -22,8 +22,8 @@ class WorkspaceMemberBloc
     required this.userProfile,
   }) : super(WorkspaceMemberState.initial()) {
     on<WorkspaceMemberEvent>((event, emit) async {
-      await event.map(
-        getWorkspaceMembers: (_) async {
+      await event.when(
+        getWorkspaceMembers: () async {
           final members = await _getWorkspaceMembers();
           final myRole = _getMyRole(members);
           emit(
@@ -33,16 +33,16 @@ class WorkspaceMemberBloc
             ),
           );
         },
-        addWorkspaceMember: (e) async {
-          await _addWorkspaceMember(e.email);
+        addWorkspaceMember: (email) async {
+          await _addWorkspaceMember(email);
           add(const WorkspaceMemberEvent.getWorkspaceMembers());
         },
-        removeWorkspaceMember: (e) async {
-          await _removeWorkspaceMember(e.email);
+        removeWorkspaceMember: (email) async {
+          await _removeWorkspaceMember(email);
           add(const WorkspaceMemberEvent.getWorkspaceMembers());
         },
-        updateWorkspaceMember: (e) async {
-          await _updateWorkspaceMember(e.email, e.role);
+        updateWorkspaceMember: (email, role) async {
+          await _updateWorkspaceMember(email, role);
           add(const WorkspaceMemberEvent.getWorkspaceMembers());
         },
       );
