@@ -28,42 +28,30 @@ class SidebarWorkspace extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider<UserWorkspaceBloc>(
-          create: (_) => UserWorkspaceBloc(userProfile: userProfile)
-            ..add(const UserWorkspaceEvent.fetchWorkspaces()),
-        ),
-        BlocProvider<WorkspaceMemberBloc>(
-          create: (_) => WorkspaceMemberBloc(userProfile: userProfile)
-            ..add(const WorkspaceMemberEvent.getWorkspaceMembers()),
-        ),
-      ],
-      child: BlocBuilder<WorkspaceMemberBloc, WorkspaceMemberState>(
-        builder: (_, __) {
-          return BlocBuilder<UserWorkspaceBloc, UserWorkspaceState>(
-            builder: (context, state) {
-              final currentWorkspace = state.currentWorkspace;
-              // todo: show something if there is no workspace
-              if (currentWorkspace == null) {
-                return const SizedBox.shrink();
-              }
-              return Row(
-                children: [
-                  Expanded(
-                    child: _WorkspaceWrapper(
-                      userProfile: userProfile,
-                      child: _CurrentWorkspace(
-                        currentWorkspace: currentWorkspace,
-                      ),
-                    ),
+    return BlocProvider<UserWorkspaceBloc>(
+      create: (_) => UserWorkspaceBloc(userProfile: userProfile)
+        ..add(const UserWorkspaceEvent.fetchWorkspaces()),
+      child: BlocBuilder<UserWorkspaceBloc, UserWorkspaceState>(
+        builder: (context, state) {
+          final currentWorkspace = state.currentWorkspace;
+          // todo: show something if there is no workspace
+          if (currentWorkspace == null) {
+            return const SizedBox.shrink();
+          }
+          return Row(
+            children: [
+              Expanded(
+                child: _WorkspaceWrapper(
+                  userProfile: userProfile,
+                  child: _CurrentWorkspace(
+                    currentWorkspace: currentWorkspace,
                   ),
-                  UserSettingButton(userProfile: userProfile),
-                  const HSpace(4),
-                  NotificationButton(views: views),
-                ],
-              );
-            },
+                ),
+              ),
+              UserSettingButton(userProfile: userProfile),
+              const HSpace(4),
+              NotificationButton(views: views),
+            ],
           );
         },
       ),
@@ -117,15 +105,8 @@ class _WorkspaceWrapper extends StatelessWidget {
         offset: const Offset(0, 10),
         mutex: PopoverMutex(),
         popupBuilder: (_) {
-          return MultiBlocProvider(
-            providers: [
-              BlocProvider<UserWorkspaceBloc>.value(
-                value: context.read<UserWorkspaceBloc>(),
-              ),
-              BlocProvider<WorkspaceMemberBloc>.value(
-                value: context.read<WorkspaceMemberBloc>(),
-              ),
-            ],
+          return BlocProvider<UserWorkspaceBloc>.value(
+            value: context.read<UserWorkspaceBloc>(),
             child: BlocBuilder<UserWorkspaceBloc, UserWorkspaceState>(
               builder: (context, state) {
                 final currentWorkspace = state.currentWorkspace;
@@ -199,6 +180,7 @@ class _WorkspaceMenu extends StatelessWidget {
         for (final workspace in workspaces) ...[
           _WorkspaceMenuItem(
             workspace: workspace,
+            userProfile: userProfile,
             isSelected: workspace.workspaceId == currentWorkspace.workspaceId,
           ),
           const VSpace(4.0),
@@ -223,33 +205,59 @@ class _WorkspaceMenu extends StatelessWidget {
 class _WorkspaceMenuItem extends StatelessWidget {
   const _WorkspaceMenuItem({
     required this.workspace,
+    required this.userProfile,
     required this.isSelected,
   });
 
+  final UserProfilePB userProfile;
   final UserWorkspacePB workspace;
   final bool isSelected;
 
   @override
   Widget build(BuildContext context) {
-    return FlowyButton(
-      onTap: () {
-        if (!isSelected) {
-          context.read<UserWorkspaceBloc>().add(
-                UserWorkspaceEvent.openWorkspace(workspace.workspaceId),
-              );
-        }
-      },
-      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-      iconPadding: 8.0,
-      leftIconSize: const Size.square(28),
-      leftIcon: _WorkspaceIcon(
+    return BlocProvider(
+      create: (_) => WorkspaceMemberBloc(
+        userProfile: userProfile,
         workspace: workspace,
-      ),
-      rightIcon: _buildRightIcon(context),
-      text: FlowyText.medium(
-        workspace.name,
-        fontSize: 14.0,
-        overflow: TextOverflow.ellipsis,
+      )
+        ..add(const WorkspaceMemberEvent.initial())
+        ..add(const WorkspaceMemberEvent.getWorkspaceMembers()),
+      child: BlocBuilder<WorkspaceMemberBloc, WorkspaceMemberState>(
+        builder: (context, state) {
+          final members = state.members;
+          return FlowyButton(
+            onTap: () {
+              if (!isSelected) {
+                context.read<UserWorkspaceBloc>().add(
+                      UserWorkspaceEvent.openWorkspace(workspace.workspaceId),
+                    );
+              }
+            },
+            margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+            iconPadding: 10.0,
+            leftIconSize: const Size.square(32),
+            leftIcon: _WorkspaceIcon(
+              workspace: workspace,
+            ),
+            rightIcon: _buildRightIcon(context),
+            text: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                FlowyText.medium(
+                  workspace.name,
+                  fontSize: 14.0,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                if (members.length > 1)
+                  FlowyText(
+                    '${members.length} ${LocaleKeys.settings_appearance_members_members.tr()}',
+                    fontSize: 10.0,
+                    color: Theme.of(context).hintColor,
+                  ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }

@@ -15,11 +15,11 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
         super(UserWorkspaceState.initial()) {
     on<UserWorkspaceEvent>(
       (event, emit) async {
-        await event.map(
-          initial: (e) async {
+        await event.when(
+          initial: () async {
             // do nothing
           },
-          fetchWorkspaces: (e) async {
+          fetchWorkspaces: () async {
             final result = await _fetchWorkspaces();
             if (result != null) {
               emit(
@@ -41,27 +41,15 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
               );
             }
           },
-          createWorkspace: (e) async {
-            await _createWorkspace(e.name, e.desc, emit);
+          createWorkspace: (name, desc) async {
+            await _createWorkspace(name, desc, emit);
           },
-          workspacesReceived: (e) async {
-            emit(
-              e.workspacesOrFail.fold(
-                (workspaces) => state.copyWith(
-                  workspaces: workspaces,
-                  successOrFailure: FlowyResult.success(null),
-                ),
-                (error) => state.copyWith(
-                  successOrFailure: FlowyResult.failure(error),
-                ),
-              ),
-            );
+          workspacesReceived: (workspaceId) async {},
+          deleteWorkspace: (workspaceId) async {
+            await _deleteWorkspace(workspaceId, emit);
           },
-          deleteWorkspace: (e) async {
-            await _deleteWorkspace(e.workspaceId, emit);
-          },
-          openWorkspace: (e) async {
-            await _openWorkspace(e.workspaceId, emit);
+          openWorkspace: (workspaceId) async {
+            await _openWorkspace(workspaceId, emit);
           },
         );
       },

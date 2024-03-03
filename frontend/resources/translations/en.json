@@ -413,7 +413,8 @@
         "memberHintText": "A member can read, comment, and edit pages. Invite members and guests.",
         "guestHintText": "A Guest can read, react, comment, and can edit certain pages with permission.",
         "emailInvalidError": "Invalid email, please check and try again",
-        "emailSent": "Email sent, please check the inbox"
+        "emailSent": "Email sent, please check the inbox",
+        "members": "members"
       }
     },
     "files": {
