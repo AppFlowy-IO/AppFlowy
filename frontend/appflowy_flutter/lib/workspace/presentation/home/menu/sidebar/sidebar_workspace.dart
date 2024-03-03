@@ -43,9 +43,7 @@ class SidebarWorkspace extends StatelessWidget {
               Expanded(
                 child: _WorkspaceWrapper(
                   userProfile: userProfile,
-                  child: _CurrentWorkspace(
-                    currentWorkspace: currentWorkspace,
-                  ),
+                  currentWorkspace: currentWorkspace,
                 ),
               ),
               UserSettingButton(userProfile: userProfile),
@@ -59,51 +57,28 @@ class SidebarWorkspace extends StatelessWidget {
   }
 }
 
-class _CurrentWorkspace extends StatelessWidget {
-  const _CurrentWorkspace({
+class _WorkspaceWrapper extends StatefulWidget {
+  const _WorkspaceWrapper({
+    required this.userProfile,
     required this.currentWorkspace,
   });
 
   final UserWorkspacePB currentWorkspace;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        const HSpace(4.0),
-        SizedBox(
-          width: 24.0,
-          child: _WorkspaceIcon(workspace: currentWorkspace),
-        ),
-        const HSpace(8),
-        FlowyText.medium(
-          currentWorkspace.name,
-          overflow: TextOverflow.ellipsis,
-        ),
-        const FlowySvg(FlowySvgs.drop_menu_show_m),
-      ],
-    );
-  }
-}
-
-class _WorkspaceWrapper extends StatelessWidget {
-  const _WorkspaceWrapper({
-    required this.userProfile,
-    required this.child,
-  });
-
   final UserProfilePB userProfile;
 
-  final Widget child;
+  @override
+  State<_WorkspaceWrapper> createState() => _WorkspaceWrapperState();
+}
+
+class _WorkspaceWrapperState extends State<_WorkspaceWrapper> {
+  final controller = PopoverController();
 
   @override
   Widget build(BuildContext context) {
     if (PlatformExtension.isDesktopOrWeb) {
       return AppFlowyPopover(
         direction: PopoverDirection.bottomWithCenterAligned,
-        clickHandler: PopoverClickHandler.gestureDetector,
         offset: const Offset(0, 10),
-        mutex: PopoverMutex(),
         popupBuilder: (_) {
           return BlocProvider<UserWorkspaceBloc>.value(
             value: context.read<UserWorkspaceBloc>(),
@@ -115,7 +90,7 @@ class _WorkspaceWrapper extends StatelessWidget {
                   return const SizedBox.shrink();
                 }
                 return _WorkspaceMenu(
-                  userProfile: userProfile,
+                  userProfile: widget.userProfile,
                   currentWorkspace: currentWorkspace,
                   workspaces: workspaces,
                 );
@@ -123,7 +98,25 @@ class _WorkspaceWrapper extends StatelessWidget {
             ),
           );
         },
-        child: child,
+        child: FlowyButton(
+          onTap: () => controller.show(),
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          text: Row(
+            children: [
+              const HSpace(4.0),
+              SizedBox(
+                width: 24.0,
+                child: _WorkspaceIcon(workspace: widget.currentWorkspace),
+              ),
+              const HSpace(8),
+              FlowyText.medium(
+                widget.currentWorkspace.name,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const FlowySvg(FlowySvgs.drop_menu_show_m),
+            ],
+          ),
+        ),
       );
     } else {
       // TODO: Lucas.Xu. mobile workspace menu
