@@ -771,7 +771,7 @@ impl DatabaseEditor {
       row_update.set_last_modified(timestamp());
     });
 
-    let option_row = self.get_row_detail(view_id, &row_id);
+    let option_row = self.get_row_detail(view_id, row_id);
     if let Some(row_detail) = option_row {
       for view in self.database_views.editors().await {
         view
