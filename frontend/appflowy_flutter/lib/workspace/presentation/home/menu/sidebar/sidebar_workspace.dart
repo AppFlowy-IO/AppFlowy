@@ -103,57 +103,81 @@ class _WorkspaceWrapper extends StatefulWidget {
 }
 
 class _WorkspaceWrapperState extends State<_WorkspaceWrapper> {
+  @override
+  Widget build(BuildContext context) {
+    if (PlatformExtension.isDesktopOrWeb) {
+      return _DesktopWorkspaceWrapper(
+        userProfile: widget.userProfile,
+        currentWorkspace: widget.currentWorkspace,
+      );
+    } else {
+      // TODO(Lucas) mobile workspace menu
+      return const Placeholder();
+    }
+  }
+}
+
+class _DesktopWorkspaceWrapper extends StatefulWidget {
+  const _DesktopWorkspaceWrapper({
+    required this.userProfile,
+    required this.currentWorkspace,
+  });
+
+  final UserWorkspacePB currentWorkspace;
+  final UserProfilePB userProfile;
+
+  @override
+  State<_DesktopWorkspaceWrapper> createState() =>
+      _DesktopWorkspaceWrapperState();
+}
+
+class _DesktopWorkspaceWrapperState extends State<_DesktopWorkspaceWrapper> {
   final controller = PopoverController();
 
   @override
   Widget build(BuildContext context) {
-    if (PlatformExtension.isDesktopOrWeb) {
-      return AppFlowyPopover(
-        direction: PopoverDirection.bottomWithCenterAligned,
-        offset: const Offset(0, 10),
-        constraints: const BoxConstraints(maxWidth: 260, maxHeight: 600),
-        popupBuilder: (_) {
-          return BlocProvider<UserWorkspaceBloc>.value(
-            value: context.read<UserWorkspaceBloc>(),
-            child: BlocBuilder<UserWorkspaceBloc, UserWorkspaceState>(
-              builder: (context, state) {
-                final currentWorkspace = state.currentWorkspace;
-                final workspaces = state.workspaces;
-                if (currentWorkspace == null || workspaces.isEmpty) {
-                  return const SizedBox.shrink();
-                }
-                return WorkspacesMenu(
-                  userProfile: widget.userProfile,
-                  currentWorkspace: currentWorkspace,
-                  workspaces: workspaces,
-                );
-              },
-            ),
-          );
-        },
-        child: FlowyButton(
-          onTap: () => controller.show(),
-          margin: const EdgeInsets.symmetric(vertical: 8),
-          text: Row(
-            children: [
-              const HSpace(4.0),
-              SizedBox(
-                width: 24.0,
-                child: WorkspaceIcon(workspace: widget.currentWorkspace),
-              ),
-              const HSpace(8),
-              FlowyText.medium(
-                widget.currentWorkspace.name,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const FlowySvg(FlowySvgs.drop_menu_show_m),
-            ],
+    return AppFlowyPopover(
+      direction: PopoverDirection.bottomWithCenterAligned,
+      offset: const Offset(0, 10),
+      constraints: const BoxConstraints(maxWidth: 260, maxHeight: 600),
+      popupBuilder: (_) {
+        return BlocProvider<UserWorkspaceBloc>.value(
+          value: context.read<UserWorkspaceBloc>(),
+          child: BlocBuilder<UserWorkspaceBloc, UserWorkspaceState>(
+            builder: (context, state) {
+              final currentWorkspace = state.currentWorkspace;
+              final workspaces = state.workspaces;
+              if (currentWorkspace == null || workspaces.isEmpty) {
+                return const SizedBox.shrink();
+              }
+              return WorkspacesMenu(
+                userProfile: widget.userProfile,
+                currentWorkspace: currentWorkspace,
+                workspaces: workspaces,
+              );
+            },
           ),
+        );
+      },
+      child: FlowyButton(
+        onTap: () => controller.show(),
+        margin: const EdgeInsets.symmetric(vertical: 8),
+        text: Row(
+          children: [
+            const HSpace(4.0),
+            SizedBox(
+              width: 24.0,
+              child: WorkspaceIcon(workspace: widget.currentWorkspace),
+            ),
+            const HSpace(8),
+            FlowyText.medium(
+              widget.currentWorkspace.name,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const FlowySvg(FlowySvgs.drop_menu_show_m),
+          ],
         ),
-      );
-    } else {
-      // TODO: Lucas.Xu. mobile workspace menu
-      return const Placeholder();
-    }
+      ),
+    );
   }
 }

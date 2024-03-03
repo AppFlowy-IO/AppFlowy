@@ -29,54 +29,42 @@ class WorkspacesMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<UserWorkspaceBloc, UserWorkspaceState>(
-      listener: (context, state) {
-        final result = state.createWorkspaceResult;
-        if (result != null) {
-          final message = result.fold(
-            (s) => LocaleKeys.workspace_createSuccess.tr(),
-            (e) => '${LocaleKeys.workspace_createFailed.tr()}: $e',
-          );
-          showMessageToast(message);
-        }
-      },
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // user email
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-            child: Row(
-              children: [
-                FlowyText.medium(
-                  _getUserInfo(),
-                  fontSize: 12.0,
-                  overflow: TextOverflow.ellipsis,
-                  color: Theme.of(context).hintColor,
-                ),
-                const Spacer(),
-                FlowyButton(
-                  useIntrinsicWidth: true,
-                  text: const FlowySvg(FlowySvgs.add_m),
-                  onTap: () {
-                    _showCreateWorkspaceDialog(context);
-                    PopoverContainer.of(context).closeAll();
-                  },
-                ),
-              ],
-            ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // user email
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+          child: Row(
+            children: [
+              FlowyText.medium(
+                _getUserInfo(),
+                fontSize: 12.0,
+                overflow: TextOverflow.ellipsis,
+                color: Theme.of(context).hintColor,
+              ),
+              const Spacer(),
+              FlowyButton(
+                useIntrinsicWidth: true,
+                text: const FlowySvg(FlowySvgs.add_m),
+                onTap: () {
+                  _showCreateWorkspaceDialog(context);
+                  PopoverContainer.of(context).closeAll();
+                },
+              ),
+            ],
           ),
-          for (final workspace in workspaces) ...[
-            _WorkspaceMenuItem(
-              workspace: workspace,
-              userProfile: userProfile,
-              isSelected: workspace.workspaceId == currentWorkspace.workspaceId,
-            ),
-            const VSpace(4.0),
-          ],
+        ),
+        for (final workspace in workspaces) ...[
+          _WorkspaceMenuItem(
+            workspace: workspace,
+            userProfile: userProfile,
+            isSelected: workspace.workspaceId == currentWorkspace.workspaceId,
+          ),
+          const VSpace(4.0),
         ],
-      ),
+      ],
     );
   }
 
@@ -129,9 +117,10 @@ class _WorkspaceMenuItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => WorkspaceMemberBloc(userProfile: userProfile, workspace: workspace)
-        ..add(const WorkspaceMemberEvent.initial())
-        ..add(const WorkspaceMemberEvent.getWorkspaceMembers()),
+      create: (_) =>
+          WorkspaceMemberBloc(userProfile: userProfile, workspace: workspace)
+            ..add(const WorkspaceMemberEvent.initial())
+            ..add(const WorkspaceMemberEvent.getWorkspaceMembers()),
       child: BlocBuilder<WorkspaceMemberBloc, WorkspaceMemberState>(
         builder: (context, state) {
           final members = state.members;
