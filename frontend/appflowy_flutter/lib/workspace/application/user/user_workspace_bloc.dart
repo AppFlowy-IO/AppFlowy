@@ -124,9 +124,9 @@ class UserWorkspaceState with _$UserWorkspaceState {
   const factory UserWorkspaceState({
     required UserWorkspacePB? currentWorkspace,
     required List<UserWorkspacePB> workspaces,
-    required FlowyResult<void, FlowyError>? createWorkspaceResult,
-    required FlowyResult<void, FlowyError>? deleteWorkspaceResult,
-    required FlowyResult<void, FlowyError>? openWorkspaceResult,
+    @Default(null) FlowyResult<void, FlowyError>? createWorkspaceResult,
+    @Default(null) FlowyResult<void, FlowyError>? deleteWorkspaceResult,
+    @Default(null) FlowyResult<void, FlowyError>? openWorkspaceResult,
   }) = _UserWorkspaceState;
 
   factory UserWorkspaceState.initial() => const UserWorkspaceState(
