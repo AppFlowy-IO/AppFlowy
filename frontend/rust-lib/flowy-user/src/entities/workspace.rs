@@ -135,6 +135,5 @@ pub struct ChangeWorkspaceIconPB {
   pub workspace_id: String,
 
   #[pb(index = 2)]
-  #[validate(custom = "required_not_empty_str")]
   pub new_icon: String,
 }
