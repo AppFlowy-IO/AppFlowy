@@ -42,6 +42,7 @@ class ViewItem extends StatelessWidget {
     this.isDraggable = true,
     required this.isFeedback,
     this.height = 28.0,
+    this.isHoverEnabled = true,
   });
 
   final ViewPB view;
@@ -75,6 +76,8 @@ class ViewItem extends StatelessWidget {
 
   final double height;
 
+  final bool isHoverEnabled;
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -101,6 +104,7 @@ class ViewItem extends StatelessWidget {
             isDraggable: isDraggable,
             isFeedback: isFeedback,
             height: height,
+            isHoverEnabled: isHoverEnabled,
           );
         },
       ),
@@ -127,6 +131,7 @@ class InnerViewItem extends StatelessWidget {
     this.isFirstChild = false,
     required this.isFeedback,
     required this.height,
+    this.isHoverEnabled = true,
   });
 
   final ViewPB view;
@@ -147,6 +152,8 @@ class InnerViewItem extends StatelessWidget {
   final ViewItemOnSelected onSelected;
   final ViewItemOnSelected? onTertiarySelected;
   final double height;
+
+  final bool isHoverEnabled;
 
   @override
   Widget build(BuildContext context) {
@@ -264,6 +271,7 @@ class SingleInnerViewItem extends StatefulWidget {
     this.onTertiarySelected,
     required this.isFeedback,
     required this.height,
+    this.isHoverEnabled = true,
   });
 
   final ViewPB view;
@@ -282,6 +290,8 @@ class SingleInnerViewItem extends StatefulWidget {
   final FolderCategoryType categoryType;
   final double height;
 
+  final bool isHoverEnabled;
+
   @override
   State<SingleInnerViewItem> createState() => _SingleInnerViewItemState();
 }
@@ -292,12 +302,15 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.isFeedback) {
-      return _buildViewItem(false);
-    }
-
     final isSelected =
         getIt<MenuSharedState>().latestOpenView?.id == widget.view.id;
+
+    if (widget.isFeedback || !widget.isHoverEnabled) {
+      return _buildViewItem(
+        false,
+        !widget.isHoverEnabled ? isSelected : false,
+      );
+    }
 
     return FlowyHover(
       style: HoverStyle(
