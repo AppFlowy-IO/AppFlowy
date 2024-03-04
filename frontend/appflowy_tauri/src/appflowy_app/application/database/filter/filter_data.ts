@@ -3,6 +3,7 @@ import {
   ChecklistFilterConditionPB,
   FieldType,
   NumberFilterConditionPB,
+  SelectOptionConditionPB,
   TextFilterConditionPB,
 } from '@/services/backend';
 import { UndeterminedFilter } from '$app/application/database';
@@ -26,6 +27,14 @@ export function getDefaultFilter(fieldType: FieldType): UndeterminedFilter['data
     case FieldType.Checklist:
       return {
         condition: ChecklistFilterConditionPB.IsIncomplete,
+      };
+    case FieldType.SingleSelect:
+      return {
+        condition: SelectOptionConditionPB.OptionIs,
+      };
+    case FieldType.MultiSelect:
+      return {
+        condition: SelectOptionConditionPB.OptionContains,
       };
     default:
       return;

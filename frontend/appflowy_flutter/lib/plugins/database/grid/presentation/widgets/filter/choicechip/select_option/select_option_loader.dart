@@ -1,9 +1,15 @@
 import 'package:appflowy/plugins/database/application/field/type_option/type_option_data_parser.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/filter_info.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/select_option_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 
 abstract class SelectOptionFilterDelegate {
   List<SelectOptionPB> loadOptions();
+
+  Set<String> selectOption(
+    Set<String> currentOptionIds,
+    String optionId,
+    SelectOptionConditionPB condition,
+  );
 }
 
 class SingleSelectOptionFilterDelegateImpl
@@ -16,6 +22,22 @@ class SingleSelectOptionFilterDelegateImpl
   List<SelectOptionPB> loadOptions() {
     final parser = SingleSelectTypeOptionDataParser();
     return parser.fromBuffer(filterInfo.fieldInfo.field.typeOptionData).options;
+  }
+
+  @override
+  Set<String> selectOption(
+    Set<String> currentOptionIds,
+    String optionId,
+    SelectOptionConditionPB condition,
+  ) {
+    final selectOptionIds = Set<String>.from(currentOptionIds);
+
+    if (condition == SelectOptionConditionPB.OptionIsNot ||
+        selectOptionIds.isEmpty) {
+      selectOptionIds.add(optionId);
+    }
+
+    return selectOptionIds;
   }
 }
 
@@ -30,4 +52,12 @@ class MultiSelectOptionFilterDelegateImpl
     final parser = MultiSelectTypeOptionDataParser();
     return parser.fromBuffer(filterInfo.fieldInfo.field.typeOptionData).options;
   }
+
+  @override
+  Set<String> selectOption(
+    Set<String> currentOptionIds,
+    String optionId,
+    SelectOptionConditionPB condition,
+  ) =>
+      Set<String>.from(currentOptionIds)..add(optionId);
 }

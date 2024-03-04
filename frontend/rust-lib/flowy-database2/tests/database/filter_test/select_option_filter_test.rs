@@ -55,7 +55,7 @@ async fn grid_filter_multi_select_is_test() {
       }),
       changed: None,
     },
-    AssertNumberOfVisibleRows { expected: 5 },
+    AssertNumberOfVisibleRows { expected: 1 },
   ];
   test.run_scripts(scripts).await;
 }
@@ -75,7 +75,7 @@ async fn grid_filter_multi_select_is_test2() {
       }),
       changed: None,
     },
-    AssertNumberOfVisibleRows { expected: 4 },
+    AssertNumberOfVisibleRows { expected: 1 },
   ];
   test.run_scripts(scripts).await;
 }
@@ -166,6 +166,46 @@ async fn grid_filter_single_select_is_test2() {
       }),
     },
     AssertNumberOfVisibleRows { expected: 2 },
+  ];
+  test.run_scripts(scripts).await;
+}
+
+#[tokio::test]
+async fn grid_filter_multi_select_contains_test() {
+  let mut test = DatabaseFilterTest::new().await;
+  let field = test.get_first_field(FieldType::MultiSelect);
+  let mut options = test.get_multi_select_type_option(&field.id);
+  let scripts = vec![
+    CreateDataFilter {
+      parent_filter_id: None,
+      field_type: FieldType::MultiSelect,
+      data: BoxAny::new(SelectOptionFilterPB {
+        condition: SelectOptionConditionPB::OptionContains,
+        option_ids: vec![options.remove(0).id, options.remove(0).id],
+      }),
+      changed: None,
+    },
+    AssertNumberOfVisibleRows { expected: 5 },
+  ];
+  test.run_scripts(scripts).await;
+}
+
+#[tokio::test]
+async fn grid_filter_multi_select_contains_test2() {
+  let mut test = DatabaseFilterTest::new().await;
+  let field = test.get_first_field(FieldType::MultiSelect);
+  let mut options = test.get_multi_select_type_option(&field.id);
+  let scripts = vec![
+    CreateDataFilter {
+      parent_filter_id: None,
+      field_type: FieldType::MultiSelect,
+      data: BoxAny::new(SelectOptionFilterPB {
+        condition: SelectOptionConditionPB::OptionContains,
+        option_ids: vec![options.remove(1).id],
+      }),
+      changed: None,
+    },
+    AssertNumberOfVisibleRows { expected: 4 },
   ];
   test.run_scripts(scripts).await;
 }

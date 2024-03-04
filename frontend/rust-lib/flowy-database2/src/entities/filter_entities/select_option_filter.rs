@@ -14,32 +14,35 @@ pub struct SelectOptionFilterPB {
   pub option_ids: Vec<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum)]
+#[derive(Debug, Default, Clone, PartialEq, Eq, ProtoBuf_Enum)]
 #[repr(u8)]
-#[derive(Default)]
 pub enum SelectOptionConditionPB {
   #[default]
   OptionIs = 0,
   OptionIsNot = 1,
-  OptionIsEmpty = 2,
-  OptionIsNotEmpty = 3,
+  OptionContains = 2,
+  OptionDoesNotContain = 3,
+  OptionIsEmpty = 4,
+  OptionIsNotEmpty = 5,
 }
 
-impl std::convert::From<SelectOptionConditionPB> for u32 {
+impl From<SelectOptionConditionPB> for u32 {
   fn from(value: SelectOptionConditionPB) -> Self {
     value as u32
   }
 }
 
-impl std::convert::TryFrom<u8> for SelectOptionConditionPB {
+impl TryFrom<u8> for SelectOptionConditionPB {
   type Error = ErrorCode;
 
   fn try_from(value: u8) -> Result<Self, Self::Error> {
     match value {
       0 => Ok(SelectOptionConditionPB::OptionIs),
       1 => Ok(SelectOptionConditionPB::OptionIsNot),
-      2 => Ok(SelectOptionConditionPB::OptionIsEmpty),
-      3 => Ok(SelectOptionConditionPB::OptionIsNotEmpty),
+      2 => Ok(SelectOptionConditionPB::OptionContains),
+      3 => Ok(SelectOptionConditionPB::OptionDoesNotContain),
+      4 => Ok(SelectOptionConditionPB::OptionIsEmpty),
+      5 => Ok(SelectOptionConditionPB::OptionIsNotEmpty),
       _ => Err(ErrorCode::InvalidParams),
     }
   }

@@ -114,7 +114,7 @@ class GridCreateFilterBloc
       case FieldType.MultiSelect:
         return _filterBackendSvc.insertSelectOptionFilter(
           fieldId: fieldId,
-          condition: SelectOptionConditionPB.OptionIs,
+          condition: SelectOptionConditionPB.OptionContains,
           fieldType: FieldType.MultiSelect,
         );
       case FieldType.Checklist:

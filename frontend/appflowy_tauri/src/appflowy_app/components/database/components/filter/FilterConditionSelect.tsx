@@ -63,26 +63,51 @@ function FilterConditionSelect({
           },
         ];
       case FieldType.SingleSelect:
+        return [
+          {
+            value: SelectOptionConditionPB.OptionIs,
+            text: t('grid.selectOptionFilter.is'),
+          },
+          {
+            value: SelectOptionConditionPB.OptionIsNot,
+            text: t('grid.selectOptionFilter.isNot'),
+          },
+          {
+            value: SelectOptionConditionPB.OptionIsEmpty,
+            text: t('grid.selectOptionFilter.isEmpty'),
+          },
+          {
+            value: SelectOptionConditionPB.OptionIsNotEmpty,
+            text: t('grid.selectOptionFilter.isNotEmpty'),
+          },
+        ];
       case FieldType.MultiSelect:
         return [
           {
             value: SelectOptionConditionPB.OptionIs,
-            text: t('grid.singleSelectOptionFilter.is'),
+            text: t('grid.selectOptionFilter.is'),
           },
           {
             value: SelectOptionConditionPB.OptionIsNot,
-            text: t('grid.singleSelectOptionFilter.isNot'),
+            text: t('grid.selectOptionFilter.isNot'),
+          },
+          {
+            value: SelectOptionConditionPB.OptionContains,
+            text: t('grid.selectOptionFilter.contains'),
+          },
+          {
+            value: SelectOptionConditionPB.OptionDoesNotContain,
+            text: t('grid.selectOptionFilter.doesNotContain'),
           },
           {
             value: SelectOptionConditionPB.OptionIsEmpty,
-            text: t('grid.singleSelectOptionFilter.isEmpty'),
+            text: t('grid.selectOptionFilter.isEmpty'),
           },
           {
             value: SelectOptionConditionPB.OptionIsNotEmpty,
-            text: t('grid.singleSelectOptionFilter.isNotEmpty'),
+            text: t('grid.selectOptionFilter.isNotEmpty'),
           },
         ];
-
       case FieldType.Number:
         return [
           {

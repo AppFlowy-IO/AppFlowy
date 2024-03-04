@@ -412,13 +412,9 @@
       "isComplete": "完了",
       "isIncomplted": "未完了"
     },
-    "singleSelectOptionFilter": {
+    "selectOptionFilter": {
       "is": "等しい",
       "isNot": "等しくない",
-      "isEmpty": "空である",
-      "isNotEmpty": "空ではない"
-    },
-    "multiSelectOptionFilter": {
       "contains": "を含む",
       "doesNotContain": "を含まない",
       "isEmpty": "空である",
