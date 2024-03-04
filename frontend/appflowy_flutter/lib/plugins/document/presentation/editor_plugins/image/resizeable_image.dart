@@ -59,9 +59,7 @@ class _ResizableImageState extends State<ResizableImage> {
 
     imageWidth = widget.width;
 
-    if (widget.type == CustomImageType.internal) {
-      _userProfilePB = context.read<DocumentBloc>().state.userProfilePB;
-    }
+    _userProfilePB = context.read<DocumentBloc>().state.userProfilePB;
   }
 
   @override
