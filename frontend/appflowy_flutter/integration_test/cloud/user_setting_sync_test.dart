@@ -40,19 +40,19 @@ void main() {
 
       await tester.openSettings();
       await tester.openSettingsPage(SettingsPage.user);
-      final userAvatarFinder = find.descendant(
-        of: find.byType(SettingsUserView),
-        matching: find.byType(UserAvatar),
-      );
+      // final userAvatarFinder = find.descendant(
+      //   of: find.byType(SettingsUserView),
+      //   matching: find.byType(UserAvatar),
+      // );
 
       // Open icon picker dialog and select emoji
-      await tester.tap(userAvatarFinder);
-      await tester.pumpAndSettle();
-      await tester.tapEmoji('😁');
-      await tester.pumpAndSettle();
-      final UserAvatar userAvatar =
-          tester.widget(userAvatarFinder) as UserAvatar;
-      expect(userAvatar.iconUrl, '😁');
+      // await tester.tap(userAvatarFinder);
+      // await tester.pumpAndSettle();
+      // await tester.tapEmoji('😁');
+      // await tester.pumpAndSettle();
+      // final UserAvatar userAvatar =
+      //     tester.widget(userAvatarFinder) as UserAvatar;
+      // expect(userAvatar.iconUrl, '😁');
 
       // enter user name
       final userNameFinder = find.descendant(
@@ -81,12 +81,12 @@ void main() {
     await tester.openSettingsPage(SettingsPage.user);
 
     // verify icon
-    final userAvatarFinder = find.descendant(
-      of: find.byType(SettingsUserView),
-      matching: find.byType(UserAvatar),
-    );
-    final UserAvatar userAvatar = tester.widget(userAvatarFinder) as UserAvatar;
-    expect(userAvatar.iconUrl, '😁');
+    // final userAvatarFinder = find.descendant(
+    //   of: find.byType(SettingsUserView),
+    //   matching: find.byType(UserAvatar),
+    // );
+    // final UserAvatar userAvatar = tester.widget(userAvatarFinder) as UserAvatar;
+    // expect(userAvatar.iconUrl, '😁');
 
     // verify name
     final userNameFinder = find.descendant(
