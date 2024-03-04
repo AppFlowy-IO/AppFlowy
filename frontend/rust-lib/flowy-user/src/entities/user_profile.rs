@@ -225,6 +225,9 @@ pub struct UserWorkspacePB {
 
   #[pb(index = 2)]
   pub name: String,
+
+  #[pb(index = 3)]
+  pub created_at_timestamp: i64,
 }
 
 impl From<UserWorkspace> for UserWorkspacePB {
@@ -232,6 +235,7 @@ impl From<UserWorkspace> for UserWorkspacePB {
     Self {
       workspace_id: value.id,
       name: value.name,
+      created_at_timestamp: value.created_at.timestamp(),
     }
   }
 }
