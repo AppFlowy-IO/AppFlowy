@@ -238,8 +238,6 @@
     "helpCenter": "Centro assistenza",
     "add": "Aggiungi",
     "yes": "SÌ",
-    "Done": "Fatto",
-    "Cancel": "Annulla",
     "remove": "Rimuovi",
     "dontRemove": "Non rimuovere"
   },
@@ -621,7 +619,8 @@
       "cannotFindCreatableField": "Impossibile trovare un campo adatto per l'ordinamento",
       "deleteAllSorts": "Elimina tutti gli ordinamenti",
       "addSort": "Aggiungi ordinamento",
-      "deleteSort": "Elimina ordinamento"
+      "deleteSort": "Elimina ordinamento",
+      "removeSorting": "Si desidera rimuovere l'ordinamento?"
     },
     "row": {
       "duplicate": "Duplicare",
@@ -675,8 +674,7 @@
       "median": "Medio",
       "min": "Minimo",
       "sum": "Somma"
-    },
-    "removeSorting": "Si desidera rimuovere l'ordinamento?"
+    }
   },
   "document": {
     "menuName": "Documento",

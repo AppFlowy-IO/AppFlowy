@@ -249,8 +249,6 @@
     "helpCenter": "Help Center",
     "add": "Add",
     "yes": "Yes",
-    "Done": "Done",
-    "Cancel": "Cancel",
     "clear": "Clear",
     "remove": "Remove",
     "dontRemove": "Don't remove",
@@ -672,7 +670,8 @@
       "empty": "No active sorts",
       "cannotFindCreatableField": "Cannot find a suitable field to sort by",
       "deleteAllSorts": "Delete all sorts",
-      "addSort": "Add new sort"
+      "addSort": "Add new sort",
+      "removeSorting": "Would you like to remove sorting?"
     },
     "row": {
       "duplicate": "Duplicate",
@@ -733,8 +732,7 @@
       "median": "Median",
       "min": "Min",
       "sum": "Sum"
-    },
-    "removeSorting": "Would you like to remove sorting?"
+    }
   },
   "document": {
     "menuName": "Document",
