@@ -55,6 +55,8 @@ class FlowyNetworkImage extends StatelessWidget {
       errorListener: (value) {
         // try to clear the image cache.
         manager.removeFile(url);
+
+        Log.error(value.toString());
       },
     );
   }
