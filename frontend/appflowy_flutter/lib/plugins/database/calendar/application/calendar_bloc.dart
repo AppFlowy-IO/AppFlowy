@@ -64,6 +64,20 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
           createEvent: (DateTime date) async {
             await _createEvent(date);
           },
+          duplicateEvent: (String viewId, String rowId) async {
+            final result = await RowBackendService.duplicateRow(viewId, rowId);
+            result.fold(
+              (_) => null,
+              (e) => Log.error('Failed to duplicate event: $e', e),
+            );
+          },
+          deleteEvent: (String viewId, String rowId) async {
+            final result = await RowBackendService.deleteRow(viewId, rowId);
+            result.fold(
+              (_) => null,
+              (e) => Log.error('Failed to delete event: $e', e),
+            );
+          },
           newEventPopupDisplayed: () {
             emit(state.copyWith(editingEvent: null));
           },
@@ -407,6 +421,12 @@ class CalendarEvent with _$CalendarEvent {
 
   const factory CalendarEvent.didReceiveDatabaseUpdate(DatabasePB database) =
       _ReceiveDatabaseUpdate;
+
+  const factory CalendarEvent.duplicateEvent(String viewId, String rowId) =
+      _DuplicateEvent;
+
+  const factory CalendarEvent.deleteEvent(String viewId, String rowId) =
+      _DeleteEvent;
 }
 
 @freezed
