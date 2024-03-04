@@ -17,9 +17,9 @@ enum FeatureFlag {
   bool get isOn {
     switch (this) {
       case FeatureFlag.collaborativeWorkspace:
-        return false;
+        return true;
       case FeatureFlag.membersSettings:
-        return false;
+        return true;
     }
   }
 }

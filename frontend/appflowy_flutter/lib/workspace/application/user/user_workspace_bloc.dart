@@ -3,6 +3,7 @@ import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -61,6 +62,27 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
           },
           openWorkspace: (workspaceId) async {
             final result = await _userService.openWorkspace(workspaceId);
+            final currentWorkspace = await result.fold(
+              (s) async {
+                final openedWorkspace = state.workspaces.firstWhere(
+                  (e) => e.workspaceId == workspaceId,
+                );
+                if (kDebugMode) {
+                  // check the result on debug mode
+                  final currentWorkspace =
+                      await _userService.getCurrentWorkspace();
+                  assert(currentWorkspace.isSuccess(), true);
+                  currentWorkspace.onSuccess((s) {
+                    assert(s.id == openedWorkspace.workspaceId);
+                  });
+                }
+                return openedWorkspace;
+              },
+              (e) async {
+                Log.error(e);
+                return state.currentWorkspace;
+              },
+            );
             emit(
               state.copyWith(
                 createWorkspaceResult: null,
@@ -70,6 +92,7 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
                   Log.error(e);
                   return FlowyResult.failure(e);
                 }),
+                currentWorkspace: currentWorkspace,
               ),
             );
           },
@@ -129,6 +152,6 @@ class UserWorkspaceState with _$UserWorkspaceState {
     @Default(null) FlowyResult<void, FlowyError>? openWorkspaceResult,
   }) = _UserWorkspaceState;
 
-  factory UserWorkspaceState.initial() => 
+  factory UserWorkspaceState.initial() =>
       const UserWorkspaceState(currentWorkspace: null, workspaces: []);
 }
