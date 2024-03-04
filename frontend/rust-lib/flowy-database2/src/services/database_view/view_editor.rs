@@ -148,7 +148,8 @@ impl DatabaseViewEditor {
     }
 
     // fill in cells according to active filters
-    // TODO(RS)
+    let filter_controller = self.filter_controller.clone();
+    filter_controller.fill_cells(&mut cells).await;
 
     result.collab_params.cells = cells;
 

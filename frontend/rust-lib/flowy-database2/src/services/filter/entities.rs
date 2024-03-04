@@ -25,7 +25,8 @@ pub struct Filter {
 }
 
 impl Filter {
-  /// Recursively determine whether there are any data filters in the filter tree.
+  /// Recursively determine whether there are any data filters in the filter tree. A tree that has
+  /// multiple AND/OR filters but no Data filters is considered "empty".
   pub fn is_empty(&self) -> bool {
     match &self.inner {
       FilterInner::And { children } | FilterInner::Or { children } => children
@@ -36,6 +37,7 @@ impl Filter {
     }
   }
 
+  /// Recursively find a filter based on `filter_id`. Returns `None` if the filter cannot be found.
   pub fn find_filter(&mut self, filter_id: &str) -> Option<&mut Self> {
     if self.id == filter_id {
       return Some(self);
@@ -54,6 +56,8 @@ impl Filter {
     }
   }
 
+  /// Recursively find the parent of a filter whose id is `filter_id`. Returns `None` if the filter
+  /// cannot be found.
   pub fn find_parent_of_filter(&mut self, filter_id: &str) -> Option<&mut Self> {
     if self.id == filter_id {
       return None;
@@ -75,7 +79,7 @@ impl Filter {
     }
   }
 
-  /// converts a filter from And/Or/Data to And/Or. If the current type of the filter is Data,
+  /// Converts a filter from And/Or/Data to And/Or. If the current type of the filter is Data,
   /// return the FilterInner after the conversion.
   pub fn convert_to_and_or_filter_type(
     &mut self,
@@ -118,6 +122,10 @@ impl Filter {
     }
   }
 
+  /// Insert a filter into the current filter in the filter tree. If the current filter
+  /// is an AND/OR filter, then the filter is appended to its children. Otherwise, the current
+  /// filter is converted to an AND filter, after which the current data filter and the new filter
+  /// are added to the AND filter's children.
   pub fn insert_filter(&mut self, filter: Filter) -> FlowyResult<()> {
     match &mut self.inner {
       FilterInner::And { children } | FilterInner::Or { children } => {
@@ -141,6 +149,8 @@ impl Filter {
     Ok(())
   }
 
+  /// Update the criteria of a data filter. Return an error if the current filter is an AND/OR
+  /// filter.
   pub fn update_filter_data(&mut self, filter_data: FilterInner) -> FlowyResult<()> {
     match &self.inner {
       FilterInner::And { .. } | FilterInner::Or { .. } => Err(FlowyError::internal().with_context(
@@ -153,6 +163,9 @@ impl Filter {
     }
   }
 
+  /// Delete a filter based on `filter_id`. The current filter must be the parent of the filter
+  /// whose id is `filter_id`. Returns an error if the current filter is a Data filter (which
+  /// cannot have children), or the filter to be deleted cannot be found.
   pub fn delete_filter(&mut self, filter_id: &str) -> FlowyResult<()> {
     match &mut self.inner {
       FilterInner::And { children } | FilterInner::Or { children } => children
@@ -171,6 +184,8 @@ impl Filter {
     }
   }
 
+  /// Recursively finds any Data filter whose `field_id` is equal to `matching_field_id`. Any found
+  /// filters' id is appended to the `ids` vector.
   pub fn find_all_filters_with_field_id(&mut self, matching_field_id: &str, ids: &mut Vec<String>) {
     match &mut self.inner {
       FilterInner::And { children } | FilterInner::Or { children } => {
@@ -187,6 +202,30 @@ impl Filter {
           ids.push(self.id.clone());
         }
       },
+    }
+  }
+
+  /// Recursively determine the smallest set of filters that loosely represents the filter tree. The
+  /// filters are appended to the `min_effective_filters` vector. The following rules are followed
+  /// when determining if a filter should get included. If the current filter is:
+  ///
+  /// 1. a Data filter, then it should be included.
+  /// 2. an AND filter, then all of its effective children should be
+  /// included.
+  /// 3. an OR filter, then only the first child should be included.
+  pub fn get_min_effective_filters<'a>(&'a self, min_effective_filters: &mut Vec<&'a FilterInner>) {
+    match &self.inner {
+      FilterInner::And { children } => {
+        for filter in children.iter() {
+          filter.get_min_effective_filters(min_effective_filters);
+        }
+      },
+      FilterInner::Or { children } => {
+        if let Some(filter) = children.first() {
+          filter.get_min_effective_filters(min_effective_filters);
+        }
+      },
+      FilterInner::Data { .. } => min_effective_filters.push(&self.inner),
     }
   }
 }

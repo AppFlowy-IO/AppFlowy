@@ -4,7 +4,7 @@ use std::sync::Arc;
 
 use collab_database::database::gen_database_filter_id;
 use collab_database::fields::Field;
-use collab_database::rows::{Row, RowDetail, RowId};
+use collab_database::rows::{Cells, Row, RowDetail, RowId};
 use dashmap::DashMap;
 use serde::{Deserialize, Serialize};
 use tokio::sync::RwLock;
@@ -136,13 +136,13 @@ impl FilterController {
   pub async fn process(&self, predicate: &str) -> FlowyResult<()> {
     let event_type = FilterEvent::from_str(predicate).unwrap();
     match event_type {
-      FilterEvent::FilterDidChanged => self.filter_all_rows().await?,
-      FilterEvent::RowDidChanged(row_id) => self.filter_single_row(row_id).await?,
+      FilterEvent::FilterDidChanged => self.filter_all_rows_handler().await?,
+      FilterEvent::RowDidChanged(row_id) => self.filter_single_row_handler(row_id).await?,
     }
     Ok(())
   }
 
-  async fn filter_single_row(&self, row_id: RowId) -> FlowyResult<()> {
+  async fn filter_single_row_handler(&self, row_id: RowId) -> FlowyResult<()> {
     let filters = self.filters.read().await;
 
     if let Some((_, row_detail)) = self.delegate.get_row(&self.view_id, &row_id).await {
@@ -173,7 +173,7 @@ impl FilterController {
     Ok(())
   }
 
-  async fn filter_all_rows(&self) -> FlowyResult<()> {
+  async fn filter_all_rows_handler(&self) -> FlowyResult<()> {
     let filters = self.filters.read().await;
 
     let field_by_field_id = self.get_field_map().await;
@@ -324,6 +324,86 @@ impl FilterController {
       .await;
 
     FilterChangesetNotificationPB::from_filters(&self.view_id, &filters)
+  }
+
+  pub async fn fill_cells(&self, cells: &mut Cells) -> bool {
+    let filters = self.filters.read().await;
+
+    let mut open_after_create = false;
+
+    let mut min_required_filters: Vec<&FilterInner> = vec![];
+    for filter in filters.iter() {
+      filter.get_min_effective_filters(&mut min_required_filters);
+    }
+
+    let field_map = self.get_field_map().await;
+
+    while let Some(current_inner) = min_required_filters.pop() {
+      if let FilterInner::Data {
+        field_id,
+        field_type,
+        condition_and_content,
+      } = &current_inner
+      {
+        if min_required_filters.iter().any(
+          |inner| matches!(inner, FilterInner::Data { field_id: other_id, .. } if other_id == field_id),
+        ) {
+          min_required_filters.retain(
+            |inner| matches!(inner, FilterInner::Data { field_id: other_id, .. } if other_id != field_id),
+          );
+          open_after_create = true;
+          continue;
+        }
+
+        if let Some(field) = field_map.get(field_id) {
+          let (cell, flag) = match field_type {
+            FieldType::RichText | FieldType::URL => {
+              let filter = condition_and_content.cloned::<TextFilterPB>().unwrap();
+              filter.get_compliant_cell(field)
+            },
+            FieldType::Number => {
+              let filter = condition_and_content.cloned::<NumberFilterPB>().unwrap();
+              filter.get_compliant_cell(field)
+            },
+            FieldType::DateTime => {
+              let filter = condition_and_content.cloned::<DateFilterPB>().unwrap();
+              filter.get_compliant_cell(field)
+            },
+            FieldType::SingleSelect => {
+              let filter = condition_and_content
+                .cloned::<SelectOptionFilterPB>()
+                .unwrap();
+              filter.get_compliant_cell(field)
+            },
+            FieldType::MultiSelect => {
+              let filter = condition_and_content
+                .cloned::<SelectOptionFilterPB>()
+                .unwrap();
+              filter.get_compliant_cell(field)
+            },
+            FieldType::Checkbox => {
+              let filter = condition_and_content.cloned::<CheckboxFilterPB>().unwrap();
+              filter.get_compliant_cell(field)
+            },
+            FieldType::Checklist => {
+              let filter = condition_and_content.cloned::<ChecklistFilterPB>().unwrap();
+              filter.get_compliant_cell(field)
+            },
+            _ => (None, false),
+          };
+
+          if let Some(cell) = cell {
+            cells.insert(field_id.clone(), cell);
+          }
+
+          if flag {
+            open_after_create = flag;
+          }
+        }
+      }
+    }
+
+    open_after_create
   }
 }
 

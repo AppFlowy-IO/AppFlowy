@@ -1,4 +1,7 @@
+use collab_database::{fields::Field, rows::Cell};
+
 use crate::entities::{TextFilterConditionPB, TextFilterPB};
+use crate::services::cell::insert_text_cell;
 
 impl TextFilterPB {
   pub fn is_visible<T: AsRef<str>>(&self, cell_data: T) -> bool {
@@ -14,6 +17,24 @@ impl TextFilterPB {
       TextFilterConditionPB::TextIsEmpty => cell_data.is_empty(),
       TextFilterConditionPB::TextIsNotEmpty => !cell_data.is_empty(),
     }
+  }
+
+  pub fn get_compliant_cell(&self, field: &Field) -> (Option<Cell>, bool) {
+    let text = match self.condition {
+      TextFilterConditionPB::TextIs
+      | TextFilterConditionPB::TextContains
+      | TextFilterConditionPB::TextStartsWith
+      | TextFilterConditionPB::TextEndsWith
+        if !self.content.is_empty() =>
+      {
+        Some(self.content.clone())
+      },
+      _ => None,
+    };
+
+    let open_after_create = matches!(self.condition, TextFilterConditionPB::TextIsNotEmpty);
+
+    (text.map(|s| insert_text_cell(s, field)), open_after_create)
   }
 }
 

@@ -1,3 +1,6 @@
+use collab_database::fields::Field;
+use collab_database::rows::Cell;
+
 use crate::entities::{ChecklistFilterConditionPB, ChecklistFilterPB};
 use crate::services::field::SelectOption;
 
@@ -35,5 +38,9 @@ impl ChecklistFilterPB {
         !all_option_ids.is_empty()
       },
     }
+  }
+
+  pub fn get_compliant_cell(&self, _field: &Field) -> (Option<Cell>, bool) {
+    (None, true)
   }
 }
