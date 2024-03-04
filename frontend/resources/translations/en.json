@@ -451,7 +451,11 @@
       "recoverLocationTooltips": "Reset to AppFlowy's default data directory",
       "exportFileSuccess": "Export file successfully!",
       "exportFileFail": "Export file failed!",
-      "export": "Export"
+      "export": "Export",
+      "clearCache": "Clear cache",
+      "clearCacheDesc": "Clear the cache including the images, fonts, and other temporary files. This will not delete your data.",
+      "areYouSureToClearCache": "Are you sure to clear the cache?",
+      "clearCacheSuccess": "Cache cleared successfully!"
     },
     "user": {
       "name": "Name",
