@@ -92,7 +92,7 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
   Future<void> _doSearch() async {
     final List<InlineActionsResult> newResults = [];
     for (final handler in widget.service.handlers) {
-      final group = await handler.call(_search);
+      final group = await handler.search(_search);
 
       if (group.results.isNotEmpty) {
         newResults.add(group);
