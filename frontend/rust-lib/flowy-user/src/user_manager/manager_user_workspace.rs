@@ -167,6 +167,21 @@ impl UserManager {
     Ok(new_workspace)
   }
 
+  pub async fn patch_workspace(
+    &self,
+    workspace_id: &str,
+    new_workspace_name: Option<&str>,
+    new_workspace_icon: Option<&str>,
+  ) -> FlowyResult<()> {
+    self
+      .cloud_services
+      .get_user_service()?
+      .patch_workspace(workspace_id, new_workspace_name, new_workspace_icon)
+      .await?;
+
+    Ok(())
+  }
+
   pub async fn delete_workspace(&self, workspace_id: &str) -> FlowyResult<()> {
     self
       .cloud_services

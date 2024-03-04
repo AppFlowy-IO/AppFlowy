@@ -9,6 +9,7 @@
   "title": "Title",
   "youCanAlso": "You can also",
   "and": "and",
+  "failedToOpenUrl": "Failed to open url: {}",
   "blockActions": {
     "addBelowTooltip": "Click to add below",
     "addAboveCmd": "Alt+click",
@@ -63,7 +64,14 @@
       "reportIssueOnGithub": "Report an issue on Github",
       "exportLogFiles": "Export log files",
       "reachOut": "Reach out on Discord"
-    }
+    },
+    "deleteWorkspaceHintText": "Are you sure you want to delete the workspace? This action cannot be undone.",
+    "createSuccess": "Workspace created successfully",
+    "createFailed": "Failed to create workspace",
+    "deleteSuccess": "Workspace deleted successfully",
+    "deleteFailed": "Failed to delete workspace",
+    "openSuccess": "Open workspace successfully",
+    "openFailed": "Failed to open workspace"
   },
   "shareAction": {
     "buttonText": "Share",
@@ -241,8 +249,6 @@
     "helpCenter": "Help Center",
     "add": "Add",
     "yes": "Yes",
-    "Done": "Done",
-    "Cancel": "Cancel",
     "clear": "Clear",
     "remove": "Remove",
     "dontRemove": "Don't remove",
@@ -413,7 +419,8 @@
         "memberHintText": "A member can read, comment, and edit pages. Invite members and guests.",
         "guestHintText": "A Guest can read, react, comment, and can edit certain pages with permission.",
         "emailInvalidError": "Invalid email, please check and try again",
-        "emailSent": "Email sent, please check the inbox"
+        "emailSent": "Email sent, please check the inbox",
+        "members": "members"
       }
     },
     "files": {
@@ -450,7 +457,11 @@
       "recoverLocationTooltips": "Reset to AppFlowy's default data directory",
       "exportFileSuccess": "Export file successfully!",
       "exportFileFail": "Export file failed!",
-      "export": "Export"
+      "export": "Export",
+      "clearCache": "Clear cache",
+      "clearCacheDesc": "Clear the cache including the images, fonts, and other temporary files. This will not delete your data.",
+      "areYouSureToClearCache": "Are you sure to clear the cache?",
+      "clearCacheSuccess": "Cache cleared successfully!"
     },
     "user": {
       "name": "Name",
@@ -663,7 +674,8 @@
       "empty": "No active sorts",
       "cannotFindCreatableField": "Cannot find a suitable field to sort by",
       "deleteAllSorts": "Delete all sorts",
-      "addSort": "Add new sort"
+      "addSort": "Add new sort",
+      "removeSorting": "Would you like to remove sorting?"
     },
     "row": {
       "duplicate": "Duplicate",
@@ -724,8 +736,7 @@
       "median": "Median",
       "min": "Min",
       "sum": "Sum"
-    },
-    "removeSorting": "Would you like to remove sorting?"
+    }
   },
   "document": {
     "menuName": "Document",

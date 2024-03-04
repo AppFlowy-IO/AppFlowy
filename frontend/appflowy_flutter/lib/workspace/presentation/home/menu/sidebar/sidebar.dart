@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/menu/menu_bloc.dart';
@@ -14,6 +15,7 @@ import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_new_pa
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_top_menu.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_trash.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_user.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_workspace.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
@@ -32,11 +34,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class HomeSideBar extends StatefulWidget {
   const HomeSideBar({
     super.key,
-    required this.user,
+    required this.userProfile,
     required this.workspaceSetting,
   });
 
-  final UserProfilePB user;
+  final UserProfilePB userProfile;
 
   final WorkspaceSettingPB workspaceSetting;
 
@@ -86,7 +88,7 @@ class _HomeSideBarState extends State<HomeSideBar> {
         ),
         BlocProvider(
           create: (_) => MenuBloc(
-            user: widget.user,
+            user: widget.userProfile,
             workspaceId: widget.workspaceSetting.workspaceId,
           )..add(const MenuEvent.initial()),
         ),
@@ -142,11 +144,20 @@ class _HomeSideBarState extends State<HomeSideBar> {
             padding: menuHorizontalInset,
             child: SidebarTopMenu(),
           ),
-          // user, setting
+          // user or workspace, setting
           Padding(
             padding: menuHorizontalInset,
-            child: SidebarUser(user: widget.user, views: views),
+            child: FeatureFlag.collaborativeWorkspace.isOn
+                ? SidebarWorkspace(
+                    userProfile: widget.userProfile,
+                    views: views,
+                  )
+                : SidebarUser(
+                    userProfile: widget.userProfile,
+                    views: views,
+                  ),
           ),
+
           const VSpace(20),
           // scrollable document list
           Expanded(

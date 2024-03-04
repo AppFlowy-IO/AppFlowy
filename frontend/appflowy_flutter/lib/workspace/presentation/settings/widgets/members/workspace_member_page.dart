@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/shared/af_role_pb_extension.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/members/workspace_member_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
@@ -452,27 +453,5 @@ class _MemberRoleActionWrapper extends ActionCell {
         return '';
     }
     throw UnimplementedError('Unknown role: $inner');
-  }
-}
-
-extension on AFRolePB {
-  bool get isOwner => this == AFRolePB.Owner;
-
-  bool get canInvite => isOwner;
-
-  bool get canDelete => isOwner;
-
-  bool get canUpdate => isOwner;
-
-  String get description {
-    switch (this) {
-      case AFRolePB.Owner:
-        return LocaleKeys.settings_appearance_members_owner.tr();
-      case AFRolePB.Member:
-        return LocaleKeys.settings_appearance_members_member.tr();
-      case AFRolePB.Guest:
-        return LocaleKeys.settings_appearance_members_guest.tr();
-    }
-    throw UnimplementedError('Unknown role: $this');
   }
 }
