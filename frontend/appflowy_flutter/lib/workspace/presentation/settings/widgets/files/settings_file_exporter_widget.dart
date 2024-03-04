@@ -18,7 +18,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:path/path.dart' as p;
 
-import '../../../../generated/locale_keys.g.dart';
+import '../../../../../generated/locale_keys.g.dart';
 
 class FileExporterWidget extends StatefulWidget {
   const FileExporterWidget({super.key});

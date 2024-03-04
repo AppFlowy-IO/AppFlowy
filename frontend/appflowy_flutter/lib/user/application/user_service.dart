@@ -79,15 +79,13 @@ class UserBackendService {
     return UserEventOpenAnonUser().send();
   }
 
-  Future<FlowyResult<List<WorkspacePB>, FlowyError>> getWorkspaces() {
-    // final request = WorkspaceIdPB.create();
-    // return FolderEventReadAllWorkspaces(request).send().then((result) {
-    //   return result.fold(
-    //     (workspaces) => FlowyResult.success(workspaces.items),
-    //     (error) => FlowyResult.failure(error),
-    //   );
-    // });
-    return Future.value(FlowyResult.success([]));
+  Future<FlowyResult<List<UserWorkspacePB>, FlowyError>> getWorkspaces() {
+    return UserEventGetAllWorkspace().send().then((value) {
+      return value.fold(
+        (workspaces) => FlowyResult.success(workspaces.items),
+        (error) => FlowyResult.failure(error),
+      );
+    });
   }
 
   Future<FlowyResult<void, FlowyError>> openWorkspace(String workspaceId) {
@@ -117,5 +115,19 @@ class UserBackendService {
         (error) => FlowyResult.failure(error),
       );
     });
+  }
+
+  Future<FlowyResult<UserWorkspacePB, FlowyError>> createUserWorkspace(
+    String name,
+  ) {
+    final request = CreateWorkspacePB.create()..name = name;
+    return UserEventCreateWorkspace(request).send();
+  }
+
+  Future<FlowyResult<void, FlowyError>> deleteWorkspaceById(
+    String workspaceId,
+  ) {
+    final request = UserWorkspaceIdPB.create()..workspaceId = workspaceId;
+    return UserEventDeleteWorkspace(request).send();
   }
 }
