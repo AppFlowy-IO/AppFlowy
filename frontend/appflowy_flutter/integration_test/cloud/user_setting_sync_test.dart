@@ -40,10 +40,10 @@ void main() {
 
       await tester.openSettings();
       await tester.openSettingsPage(SettingsPage.user);
-      final userAvatarFinder = find.descendant(
-        of: find.byType(SettingsUserView),
-        matching: find.byType(UserAvatar),
-      );
+      // final userAvatarFinder = find.descendant(
+      //   of: find.byType(SettingsUserView),
+      //   matching: find.byType(UserAvatar),
+      // );
 
       // Open icon picker dialog and select emoji
       // await tester.tap(userAvatarFinder);
