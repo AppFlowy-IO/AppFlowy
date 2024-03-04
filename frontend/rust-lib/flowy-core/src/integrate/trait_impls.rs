@@ -2,7 +2,7 @@ use flowy_storage::{ObjectIdentity, ObjectStorageService};
 use std::sync::Arc;
 
 use anyhow::Error;
-use client_api::collab_sync::{SinkConfig, SinkStrategy, SyncObject, SyncPlugin};
+use client_api::collab_sync::{SinkConfig, SyncObject, SyncPlugin};
 use collab::core::collab::CollabDocState;
 use collab::core::origin::{CollabClient, CollabOrigin};
 use collab::preclude::CollabPlugin;
@@ -359,8 +359,7 @@ impl CollabCloudPluginProvider for ServerProvider {
                 let (sink, stream) = (channel.sink(), channel.stream());
                 let sink_config = SinkConfig::new()
                   .send_timeout(8)
-                  .with_max_payload_size(1024 * 10)
-                  .with_strategy(sink_strategy_from_object(&sync_object));
+                  .with_max_payload_size(1024 * 10);
                 let sync_plugin = SyncPlugin::new(
                   origin,
                   sync_object,
@@ -415,16 +414,5 @@ impl CollabCloudPluginProvider for ServerProvider {
 
   fn is_sync_enabled(&self) -> bool {
     *self.user_enable_sync.read()
-  }
-}
-
-fn sink_strategy_from_object(object: &SyncObject) -> SinkStrategy {
-  match object.collab_type {
-    CollabType::Document => SinkStrategy::FixInterval(std::time::Duration::from_millis(300)),
-    CollabType::Folder => SinkStrategy::ASAP,
-    CollabType::Database => SinkStrategy::ASAP,
-    CollabType::WorkspaceDatabase => SinkStrategy::ASAP,
-    CollabType::DatabaseRow => SinkStrategy::ASAP,
-    CollabType::UserAwareness => SinkStrategy::ASAP,
   }
 }

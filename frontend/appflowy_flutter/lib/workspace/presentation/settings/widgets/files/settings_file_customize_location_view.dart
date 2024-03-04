@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/workspace/application/settings/settings_location_cubit.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -12,11 +13,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:styled_widget/styled_widget.dart';
-import 'package:url_launcher/url_launcher.dart';
 
-import '../../../../generated/locale_keys.g.dart';
-import '../../../../startup/startup.dart';
-import '../../../../startup/tasks/prelude.dart';
+import '../../../../../generated/locale_keys.g.dart';
+import '../../../../../startup/startup.dart';
+import '../../../../../startup/tasks/prelude.dart';
 
 class SettingsFileLocationCustomizer extends StatefulWidget {
   const SettingsFileLocationCustomizer({
@@ -234,9 +234,7 @@ class _OpenStorageButton extends StatelessWidget {
       ),
       onPressed: () async {
         final uri = Directory(usingPath).uri;
-        if (await canLaunchUrl(uri)) {
-          await launchUrl(uri);
-        }
+        await afLaunchUrl(uri, context: context);
       },
     );
   }
@@ -263,7 +261,7 @@ class _RecoverDefaultStorageButtonState
       tooltipText: LocaleKeys.settings_files_recoverLocationTooltips.tr(),
       icon: const FlowySvg(
         FlowySvgs.restore_s,
-        size: Size.square(24),
+        size: Size.square(20),
       ),
       onPressed: () async {
         // reset to the default directory and reload app

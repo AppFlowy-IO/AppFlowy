@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
+import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/menu/menu_bloc.dart';
@@ -12,6 +15,7 @@ import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_new_pa
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_top_menu.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_trash.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_user.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_workspace.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
@@ -27,16 +31,53 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 ///   - settings
 ///   - scrollable document list
 ///   - trash
-class HomeSideBar extends StatelessWidget {
+class HomeSideBar extends StatefulWidget {
   const HomeSideBar({
     super.key,
-    required this.user,
+    required this.userProfile,
     required this.workspaceSetting,
   });
 
-  final UserProfilePB user;
+  final UserProfilePB userProfile;
 
   final WorkspaceSettingPB workspaceSetting;
+
+  @override
+  State<HomeSideBar> createState() => _HomeSideBarState();
+}
+
+class _HomeSideBarState extends State<HomeSideBar> {
+  final _scrollController = ScrollController();
+  Timer? _srollDebounce;
+  bool isScrolling = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScrollChanged);
+  }
+
+  void _onScrollChanged() {
+    setState(() => isScrolling = true);
+
+    _srollDebounce?.cancel();
+    _srollDebounce =
+        Timer(const Duration(milliseconds: 300), _setScrollStopped);
+  }
+
+  void _setScrollStopped() {
+    if (mounted) {
+      setState(() => isScrolling = false);
+    }
+  }
+
+  @override
+  void dispose() {
+    _srollDebounce?.cancel();
+    _scrollController.removeListener(_onScrollChanged);
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,8 +88,8 @@ class HomeSideBar extends StatelessWidget {
         ),
         BlocProvider(
           create: (_) => MenuBloc(
-            user: user,
-            workspaceId: workspaceSetting.workspaceId,
+            user: widget.userProfile,
+            workspaceId: widget.workspaceSetting.workspaceId,
           )..add(const MenuEvent.initial()),
         ),
       ],
@@ -103,20 +144,32 @@ class HomeSideBar extends StatelessWidget {
             padding: menuHorizontalInset,
             child: SidebarTopMenu(),
           ),
-          // user, setting
+          // user or workspace, setting
           Padding(
             padding: menuHorizontalInset,
-            child: SidebarUser(user: user, views: views),
+            child: FeatureFlag.collaborativeWorkspace.isOn
+                ? SidebarWorkspace(
+                    userProfile: widget.userProfile,
+                    views: views,
+                  )
+                : SidebarUser(
+                    userProfile: widget.userProfile,
+                    views: views,
+                  ),
           ),
+
           const VSpace(20),
           // scrollable document list
           Expanded(
             child: Padding(
               padding: menuHorizontalInset,
               child: SingleChildScrollView(
+                controller: _scrollController,
+                physics: const ClampingScrollPhysics(),
                 child: SidebarFolder(
                   views: views,
                   favoriteViews: favoriteViews,
+                  isHoverEnabled: !isScrolling,
                 ),
               ),
             ),

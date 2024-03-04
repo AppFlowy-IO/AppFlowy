@@ -1,5 +1,7 @@
+import 'package:appflowy/plugins/database/calendar/presentation/calendar_event_editor.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/setting_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pbenum.dart';
+import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -145,6 +147,49 @@ void main() {
       // Check that there is 0 event
       tester.assertNumberOfEventsInCalendar(0, title: 'hello world');
       tester.assertNumberOfEventsOnSpecificDay(1, DateTime.now());
+    });
+
+    testWidgets('create and duplicate calendar event', (tester) async {
+      const customTitle = "EventTitleCustom";
+
+      await tester.initializeAppFlowy();
+      await tester.tapGoButton();
+
+      // Create the calendar view
+      await tester.createNewPageWithNameUnderParent(
+        layout: ViewLayoutPB.Calendar,
+      );
+
+      // Scroll until today's date cell is visible
+      await tester.scrollToToday();
+
+      // Hover over today's calendar cell
+      await tester.hoverOnTodayCalendarCell(
+        // Tap on create new event button
+        onHover: () async => tester.tapAddCalendarEventButton(),
+      );
+
+      // Make sure that the event editor popup is shown
+      tester.assertEventEditorOpen();
+
+      tester.assertNumberOfEventsInCalendar(1);
+
+      // Change the title of the event
+      await tester.editEventTitle(customTitle);
+
+      // Duplicate event
+      final duplicateBtnFinder = find
+          .descendant(
+            of: find.byType(CalendarEventEditor),
+            matching: find.byType(
+              FlowyIconButton,
+            ),
+          )
+          .first;
+      await tester.tap(duplicateBtnFinder);
+      await tester.pumpAndSettle();
+
+      tester.assertNumberOfEventsInCalendar(2, title: customTitle);
     });
 
     testWidgets('rescheduling events', (tester) async {
