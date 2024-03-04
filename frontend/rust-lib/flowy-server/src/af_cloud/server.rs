@@ -49,7 +49,7 @@ impl AppFlowyCloudServer {
     config: AFCloudConfiguration,
     enable_sync: bool,
     mut device_id: String,
-    app_version: &str,
+    client_version: &str,
   ) -> Self {
     // The device id can't be empty, so we generate a new one if it is.
     if device_id.is_empty() {
@@ -65,7 +65,7 @@ impl AppFlowyCloudServer {
       ClientConfiguration::default()
         .with_compression_buffer_size(10240)
         .with_compression_quality(8),
-      app_version,
+      client_version,
     );
     let token_state_rx = api_client.subscribe_token_state();
     let enable_sync = Arc::new(AtomicBool::new(enable_sync));
@@ -75,13 +75,7 @@ impl AppFlowyCloudServer {
     let ws_client = Arc::new(ws_client);
     let api_client = Arc::new(api_client);
 
-    spawn_ws_conn(
-      &device_id,
-      token_state_rx,
-      &ws_client,
-      &api_client,
-      &enable_sync,
-    );
+    spawn_ws_conn(token_state_rx, &ws_client, &api_client, &enable_sync);
     Self {
       config,
       client: api_client,
@@ -240,13 +234,11 @@ impl AppFlowyServer for AppFlowyCloudServer {
 /// This function listens to the `token_state_rx` channel for token state updates. Depending on the
 /// received state, it either refreshes the WebSocket connection or disconnects from it.
 fn spawn_ws_conn(
-  device_id: &String,
   mut token_state_rx: TokenStateReceiver,
   ws_client: &Arc<WSClient>,
   api_client: &Arc<Client>,
   enable_sync: &Arc<AtomicBool>,
 ) {
-  let cloned_device_id = device_id.to_owned();
   let weak_ws_client = Arc::downgrade(ws_client);
   let weak_api_client = Arc::downgrade(api_client);
   let enable_sync = enable_sync.clone();
@@ -261,13 +253,13 @@ fn spawn_ws_conn(
             // Try to reconnect if the connection is timed out.
             if let Some(api_client) = weak_api_client.upgrade() {
               if enable_sync.load(Ordering::SeqCst) {
-                match api_client.ws_url(&cloned_device_id).await {
-                  Ok(ws_addr) => {
+                match api_client.ws_connect_info().await {
+                  Ok(conn_info) => {
                     // sleep two seconds and then try to reconnect
                     tokio::time::sleep(Duration::from_secs(2)).await;
 
                     event!(tracing::Level::INFO, "🟢reconnecting websocket");
-                    let _ = ws_client.connect(ws_addr, &cloned_device_id).await;
+                    let _ = ws_client.connect(&api_client.ws_addr(), conn_info).await;
                   },
                   Err(err) => error!("Failed to get ws url: {}, connect state:{:?}", err, state),
                 }
@@ -287,7 +279,6 @@ fn spawn_ws_conn(
     }
   });
 
-  let device_id = device_id.to_owned();
   let weak_ws_client = Arc::downgrade(ws_client);
   let weak_api_client = Arc::downgrade(api_client);
   af_spawn(async move {
@@ -298,9 +289,9 @@ fn spawn_ws_conn(
           if let (Some(api_client), Some(ws_client)) =
             (weak_api_client.upgrade(), weak_ws_client.upgrade())
           {
-            match api_client.ws_url(&device_id).await {
-              Ok(ws_addr) => {
-                let _ = ws_client.connect(ws_addr, &device_id).await;
+            match api_client.ws_connect_info().await {
+              Ok(conn_info) => {
+                let _ = ws_client.connect(&api_client.ws_addr(), conn_info).await;
               },
               Err(err) => error!("Failed to get ws url: {}", err),
             }

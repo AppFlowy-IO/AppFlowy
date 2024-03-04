@@ -30,7 +30,7 @@ pub fn af_cloud_server(config: AFCloudConfiguration) -> Arc<AppFlowyCloudServer>
     config,
     true,
     fake_device_id,
-    "flowy-server-test",
+    "0.5.1",
   ))
 }
 
