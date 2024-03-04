@@ -20,9 +20,9 @@ function GridTableOverlay({
   const [openConfirm, setOpenConfirm] = useState(false);
   const [confirmModalProps, setConfirmModalProps] = useState<
     | {
-        onOk: () => Promise<void>;
-        onCancel: () => void;
-      }
+      onOk: () => Promise<void>;
+      onCancel: () => void;
+    }
     | undefined
   >(undefined);
 
@@ -59,7 +59,7 @@ function GridTableOverlay({
       {openConfirm && (
         <DeleteConfirmDialog
           open={openConfirm}
-          title={t('grid.removeSorting')}
+          title={t('grid.sort.removeSorting')}
           okText={t('button.remove')}
           cancelText={t('button.dontRemove')}
           onClose={() => {
