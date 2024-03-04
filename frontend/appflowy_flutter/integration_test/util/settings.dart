@@ -1,6 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_user.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_setting.dart';
 import 'package:appflowy/workspace/presentation/settings/settings_dialog.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_appearance/direction_setting.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_menu_element.dart';

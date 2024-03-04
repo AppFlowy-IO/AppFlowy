@@ -195,7 +195,7 @@ pub enum UserEvent {
   #[event(input = "ImportAppFlowyDataPB")]
   ImportAppFlowyDataFolder = 41,
 
-  #[event(output = "CreateWorkspacePB")]
+  #[event(input = "CreateWorkspacePB", output = "UserWorkspacePB")]
   CreateWorkspace = 42,
 
   #[event(input = "UserWorkspaceIdPB")]
