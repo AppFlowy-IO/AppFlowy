@@ -848,10 +848,10 @@
       "addToColumnBottomTooltip": "أضف بطاقة جديدة في الأسفل",
       "renameColumn": "إعادة تسمية",
       "hideColumn": "اخفاء",
-      "groupActions": "إجراءات المجموعة",
       "newGroup": "مجموعة جديدة",
       "deleteColumn": "مسح",
-      "deleteColumnConfirmation": "سيؤدي هذا إلى حذف هذه المجموعة وجميع البطاقات الموجودة فيها. هل أنت متأكد من الاستمرار؟"
+      "deleteColumnConfirmation": "سيؤدي هذا إلى حذف هذه المجموعة وجميع البطاقات الموجودة فيها. هل أنت متأكد من الاستمرار؟",
+      "groupActions": "إجراءات المجموعة"
     },
     "hiddenGroupSection": {
       "sectionTitle": "المجموعات المخفية",

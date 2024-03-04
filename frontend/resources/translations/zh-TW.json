@@ -894,10 +894,10 @@
       "addToColumnBottomTooltip": "在底端新增卡片",
       "renameColumn": "重新命名",
       "hideColumn": "隱藏",
-      "groupActions": "群組操作",
       "newGroup": "新增群組",
       "deleteColumn": "刪除",
-      "deleteColumnConfirmation": "這將刪除此群組及其中所有卡片。\n您確定要繼續嗎？"
+      "deleteColumnConfirmation": "這將刪除此群組及其中所有卡片。\n您確定要繼續嗎？",
+      "groupActions": "群組操作"
     },
     "hiddenGroupSection": {
       "sectionTitle": "隱藏的群組",

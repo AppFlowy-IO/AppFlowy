@@ -161,15 +161,16 @@ class PopoverState extends State<Popover> {
         ),
       );
 
-      return FocusScope(
-        onKey: (node, event) {
-          if (event.logicalKey == LogicalKeyboardKey.escape) {
-            _removeRootOverlay();
-            return KeyEventResult.handled;
-          }
-          return KeyEventResult.ignored;
+      return CallbackShortcuts(
+        bindings: {
+          const SingleActivator(LogicalKeyboardKey.escape): () =>
+              _removeRootOverlay(),
         },
-        child: Stack(children: children),
+        child: FocusScope(
+          child: Stack(
+            children: children,
+          ),
+        ),
       );
     });
     _rootEntry.addEntry(context, this, newEntry, widget.asBarrier);

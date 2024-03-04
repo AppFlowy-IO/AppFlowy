@@ -42,7 +42,7 @@ class _ChecklistCellState extends State<ChecklistCardCell> {
             widget.databaseController,
             widget.cellContext,
           ).as(),
-        )..add(const ChecklistCellEvent.initial());
+        );
       },
       child: BlocBuilder<ChecklistCellBloc, ChecklistCellState>(
         builder: (context, state) {

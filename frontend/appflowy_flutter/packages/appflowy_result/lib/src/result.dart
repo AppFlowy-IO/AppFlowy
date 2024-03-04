@@ -14,6 +14,14 @@ abstract class FlowyResult<S, F> {
   bool isFailure();
 
   S? toNullable();
+
+  void onSuccess(
+    void Function(S s) onSuccess,
+  );
+
+  void onFailure(
+    void Function(F f) onFailure,
+  );
 }
 
 class FlowySuccess<S, F> implements FlowyResult<S, F> {
@@ -64,6 +72,14 @@ class FlowySuccess<S, F> implements FlowyResult<S, F> {
   S? toNullable() {
     return _value;
   }
+
+  @override
+  void onSuccess(void Function(S success) onSuccess) {
+    onSuccess(_value);
+  }
+
+  @override
+  void onFailure(void Function(F failure) onFailure) {}
 }
 
 class FlowyFailure<S, F> implements FlowyResult<S, F> {
@@ -113,5 +129,13 @@ class FlowyFailure<S, F> implements FlowyResult<S, F> {
   @override
   S? toNullable() {
     return null;
+  }
+
+  @override
+  void onSuccess(void Function(S success) onSuccess) {}
+
+  @override
+  void onFailure(void Function(F failure) onFailure) {
+    onFailure(_error);
   }
 }

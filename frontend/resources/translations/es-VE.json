@@ -834,9 +834,9 @@
       "createNewColumn": "Agregar un nuevo grupo",
       "renameColumn": "Renombrar",
       "hideColumn": "Ocultar",
-      "groupActions": "Acciones grupales",
       "newGroup": "Nuevo grupo",
-      "deleteColumn": "Borrar"
+      "deleteColumn": "Borrar",
+      "groupActions": "Acciones grupales"
     },
     "hiddenGroupSection": {
       "sectionTitle": "Grupos ocultos"
