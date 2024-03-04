@@ -27,32 +27,28 @@ class SidebarWorkspace extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<UserWorkspaceBloc>(
-      create: (_) => UserWorkspaceBloc(userProfile: userProfile)
-        ..add(const UserWorkspaceEvent.fetchWorkspaces()),
-      child: BlocConsumer<UserWorkspaceBloc, UserWorkspaceState>(
-        listener: _showResultDialog,
-        builder: (context, state) {
-          final currentWorkspace = state.currentWorkspace;
-          // todo: show something if there is no workspace
-          if (currentWorkspace == null) {
-            return const SizedBox.shrink();
-          }
-          return Row(
-            children: [
-              Expanded(
-                child: _WorkspaceWrapper(
-                  userProfile: userProfile,
-                  currentWorkspace: currentWorkspace,
-                ),
+    return BlocConsumer<UserWorkspaceBloc, UserWorkspaceState>(
+      listener: _showResultDialog,
+      builder: (context, state) {
+        final currentWorkspace = state.currentWorkspace;
+        // todo: show something if there is no workspace
+        if (currentWorkspace == null) {
+          return const SizedBox.shrink();
+        }
+        return Row(
+          children: [
+            Expanded(
+              child: _WorkspaceWrapper(
+                userProfile: userProfile,
+                currentWorkspace: currentWorkspace,
               ),
-              UserSettingButton(userProfile: userProfile),
-              const HSpace(4),
-              NotificationButton(views: views),
-            ],
-          );
-        },
-      ),
+            ),
+            UserSettingButton(userProfile: userProfile),
+            const HSpace(4),
+            NotificationButton(views: views),
+          ],
+        );
+      },
     );
   }
 

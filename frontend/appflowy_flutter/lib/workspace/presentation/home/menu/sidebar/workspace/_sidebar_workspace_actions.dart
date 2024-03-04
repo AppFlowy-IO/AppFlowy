@@ -64,23 +64,34 @@ class _WorkspaceMoreActionWrapper extends CustomActionCell {
       ),
       margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
       onTap: () async {
+        PopoverContainer.of(context).closeAll();
+
+        final workspaceBloc = context.read<UserWorkspaceBloc>();
         switch (inner) {
           case WorkspaceMoreAction.delete:
             await NavigatorAlertDialog(
               title: LocaleKeys.workspace_deleteWorkspaceHintText.tr(),
               confirm: () {
-                context.read<UserWorkspaceBloc>().add(
-                      UserWorkspaceEvent.deleteWorkspace(workspace.workspaceId),
-                    );
+                workspaceBloc.add(
+                  UserWorkspaceEvent.deleteWorkspace(workspace.workspaceId),
+                );
               },
             ).show(context);
           case WorkspaceMoreAction.rename:
-
-          // TODO(Lucas): integrate with the backend
-        }
-
-        if (context.mounted) {
-          PopoverContainer.of(context).closeAll();
+            await NavigatorTextFieldDialog(
+              title: LocaleKeys.workspace_create.tr(),
+              value: '',
+              hintText: '',
+              autoSelectAllText: true,
+              onConfirm: (name, context) async {
+                workspaceBloc.add(
+                  UserWorkspaceEvent.renameWorkspace(
+                    workspace.workspaceId,
+                    name,
+                  ),
+                );
+              },
+            ).show(context);
         }
       },
     );

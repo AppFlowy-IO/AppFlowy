@@ -5,6 +5,7 @@ import 'package:appflowy/workspace/application/menu/menu_bloc.dart';
 import 'package:appflowy/workspace/application/notifications/notification_action.dart';
 import 'package:appflowy/workspace/application/notifications/notification_action_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
+import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_folder.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_new_page_button.dart';
@@ -41,44 +42,59 @@ class HomeSideBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(
-          create: (_) => getIt<NotificationActionBloc>(),
-        ),
-        BlocProvider(
-          create: (_) => MenuBloc(
+    return BlocProvider<UserWorkspaceBloc>(
+      create: (_) => UserWorkspaceBloc(userProfile: userProfile)
+        ..add(const UserWorkspaceEvent.fetchWorkspaces()),
+      child: BlocBuilder<UserWorkspaceBloc, UserWorkspaceState>(
+        // buildWhen: (previous, current) =>
+        //     previous.currentWorkspace?.workspaceId !=
+        //     current.currentWorkspace?.workspaceId,
+        builder: (context, state) {
+          final menuBloc = MenuBloc(
             user: userProfile,
-            workspaceId: workspaceSetting.workspaceId,
-          )..add(const MenuEvent.initial()),
-        ),
-      ],
-      child: MultiBlocListener(
-        listeners: [
-          BlocListener<MenuBloc, MenuState>(
-            listenWhen: (p, c) =>
-                p.lastCreatedView?.id != c.lastCreatedView?.id,
-            listener: (context, state) => context.read<TabsBloc>().add(
-                  TabsEvent.openPlugin(plugin: state.lastCreatedView!.plugin()),
+            workspaceId: state.currentWorkspace?.workspaceId ??
+                workspaceSetting.workspaceId,
+          )..add(const MenuEvent.initial());
+          return MultiBlocProvider(
+            providers: [
+              BlocProvider(
+                create: (_) => getIt<NotificationActionBloc>(),
+              ),
+              BlocProvider<MenuBloc>.value(
+                value: menuBloc,
+              ),
+            ],
+            child: MultiBlocListener(
+              listeners: [
+                BlocListener<MenuBloc, MenuState>(
+                  listenWhen: (p, c) =>
+                      p.lastCreatedView?.id != c.lastCreatedView?.id,
+                  listener: (context, state) => context.read<TabsBloc>().add(
+                        TabsEvent.openPlugin(
+                          plugin: state.lastCreatedView!.plugin(),
+                        ),
+                      ),
                 ),
-          ),
-          BlocListener<NotificationActionBloc, NotificationActionState>(
-            listenWhen: (_, curr) => curr.action != null,
-            listener: _onNotificationAction,
-          ),
-        ],
-        child: Builder(
-          builder: (context) {
-            final menuState = context.watch<MenuBloc>().state;
-            final favoriteState = context.watch<FavoriteBloc>().state;
+                BlocListener<NotificationActionBloc, NotificationActionState>(
+                  listenWhen: (_, curr) => curr.action != null,
+                  listener: _onNotificationAction,
+                ),
+              ],
+              child: Builder(
+                builder: (context) {
+                  final menuState = context.watch<MenuBloc>().state;
+                  final favoriteState = context.watch<FavoriteBloc>().state;
 
-            return _buildSidebar(
-              context,
-              menuState.views,
-              favoriteState.views,
-            );
-          },
-        ),
+                  return _buildSidebar(
+                    context,
+                    menuState.views,
+                    favoriteState.views,
+                  );
+                },
+              ),
+            ),
+          );
+        },
       ),
     );
   }

@@ -1,11 +1,13 @@
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/code.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:protobuf/protobuf.dart';
 
 part 'user_workspace_bloc.freezed.dart';
 
@@ -38,61 +40,179 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
               state.copyWith(
                 openWorkspaceResult: null,
                 deleteWorkspaceResult: null,
-                createWorkspaceResult:
-                    result.fold((s) => FlowyResult.success(null), (e) {
-                  Log.error(e);
-                  return FlowyResult.failure(e);
-                }),
+                createWorkspaceResult: result.fold(
+                  (s) => FlowyResult.success(null),
+                  (e) {
+                    Log.error(e);
+                    return FlowyResult.failure(e);
+                  },
+                ),
               ),
             );
           },
           deleteWorkspace: (workspaceId) async {
+            if (state.workspaces.length <= 1) {
+              // do not allow to delete the last workspace
+              return emit(
+                state.copyWith(
+                  openWorkspaceResult: null,
+                  createWorkspaceResult: null,
+                  updateWorkspaceIconResult: null,
+                  renameWorkspaceResult: null,
+                  deleteWorkspaceResult: FlowyResult.failure(
+                    FlowyError(
+                      code: ErrorCode.Internal,
+                      msg: 'Cannot delete the last workspace',
+                    ),
+                  ),
+                ),
+              );
+            }
+
             final result = await _userService.deleteWorkspaceById(workspaceId);
+            final (workspaces, deleteWorkspaceResult) = result.fold(
+              (s) {
+                // if the current workspace is deleted, open the first workspace
+                if (state.currentWorkspace?.workspaceId == workspaceId) {
+                  add(OpenWorkspace(state.workspaces.first.workspaceId));
+                }
+                // remove the deleted workspace from the list instead of fetching
+                // the workspaces again
+                final workspaces = [...state.workspaces]..removeWhere(
+                    (e) => e.workspaceId == workspaceId,
+                  );
+                return (
+                  workspaces,
+                  FlowyResult<void, FlowyError>.success(null)
+                );
+              },
+              (e) {
+                Log.error(e);
+                return (state.workspaces, FlowyResult.failure(e));
+              },
+            );
+
             emit(
               state.copyWith(
                 openWorkspaceResult: null,
                 createWorkspaceResult: null,
-                deleteWorkspaceResult:
-                    result.fold((s) => FlowyResult.success(null), (e) {
-                  Log.error(e);
-                  return FlowyResult.failure(e);
-                }),
+                updateWorkspaceIconResult: null,
+                renameWorkspaceResult: null,
+                deleteWorkspaceResult: deleteWorkspaceResult,
+                workspaces: workspaces,
               ),
             );
           },
           openWorkspace: (workspaceId) async {
-            final result = await _userService.openWorkspace(workspaceId);
-            final currentWorkspace = await result.fold(
-              (s) async {
+            final (currentWorkspace, openWorkspaceResult) =
+                await _userService.openWorkspace(workspaceId).fold(
+              (s) {
                 final openedWorkspace = state.workspaces.firstWhere(
                   (e) => e.workspaceId == workspaceId,
                 );
-                if (kDebugMode) {
-                  // check the result on debug mode
-                  final currentWorkspace =
-                      await _userService.getCurrentWorkspace();
-                  assert(currentWorkspace.isSuccess(), true);
-                  currentWorkspace.onSuccess((s) {
-                    assert(s.id == openedWorkspace.workspaceId);
-                  });
-                }
-                return openedWorkspace;
+                return (
+                  openedWorkspace,
+                  FlowyResult<void, FlowyError>.success(null)
+                );
               },
-              (e) async {
+              (f) {
+                Log.error(f);
+                return (state.currentWorkspace, FlowyResult.failure(f));
+              },
+            );
+
+            if (kDebugMode) {
+              // check the result on debug mode
+              openWorkspaceResult.onSuccess((s) async {
+                await _userService.getCurrentWorkspace().fold(
+                  (s) {
+                    assert(s.id == currentWorkspace?.workspaceId);
+                  },
+                  (f) {
+                    assert(false, 'Unable to get current workspace');
+                  },
+                );
+              });
+            }
+
+            emit(
+              state.copyWith(
+                createWorkspaceResult: null,
+                deleteWorkspaceResult: null,
+                updateWorkspaceIconResult: null,
+                openWorkspaceResult: openWorkspaceResult,
+                currentWorkspace: currentWorkspace,
+              ),
+            );
+          },
+          renameWorkspace: (workspaceId, name) async {
+            final result = await _userService.renameWorkspace(
+              workspaceId,
+              name,
+            );
+            final (workspaces, currentWorkspace, renameWorkspaceResult) =
+                result.fold(
+              (s) {
+                final workspaces = state.workspaces.map((e) {
+                  if (e.workspaceId == workspaceId) {
+                    e.freeze();
+                    return e.deepCopy().rebuild((p0) {
+                      p0.name = name;
+                    });
+                  }
+                  return e;
+                }).toList();
+                final currentWorkspace =
+                    state.currentWorkspace?.workspaceId == workspaceId
+                        ? state.currentWorkspace?.rebuild((p0) {
+                            p0.name = name;
+                          })
+                        : state.currentWorkspace;
+                return (
+                  workspaces,
+                  currentWorkspace,
+                  FlowyResult<void, FlowyError>.success(null),
+                );
+              },
+              (e) {
                 Log.error(e);
-                return state.currentWorkspace;
+                return (
+                  state.workspaces,
+                  state.currentWorkspace,
+                  FlowyResult.failure(e),
+                );
               },
             );
             emit(
               state.copyWith(
                 createWorkspaceResult: null,
                 deleteWorkspaceResult: null,
-                openWorkspaceResult:
-                    result.fold((s) => FlowyResult.success(null), (e) {
-                  Log.error(e);
-                  return FlowyResult.failure(e);
-                }),
+                openWorkspaceResult: null,
+                updateWorkspaceIconResult: null,
+                workspaces: workspaces,
                 currentWorkspace: currentWorkspace,
+                renameWorkspaceResult: renameWorkspaceResult,
+              ),
+            );
+          },
+          updateWorkspaceIcon: (workspaceId, icon) async {
+            final result = await _userService.updateWorkspaceIcon(
+              workspaceId,
+              icon,
+            );
+            emit(
+              state.copyWith(
+                createWorkspaceResult: null,
+                deleteWorkspaceResult: null,
+                openWorkspaceResult: null,
+                renameWorkspaceResult: null,
+                updateWorkspaceIconResult: result.fold(
+                  (s) => FlowyResult.success(null),
+                  (e) {
+                    Log.error(e);
+                    return FlowyResult.failure(e);
+                  },
+                ),
               ),
             );
           },
@@ -106,24 +226,17 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
 
   Future<(UserWorkspacePB currentWorkspace, List<UserWorkspacePB> workspaces)?>
       _fetchWorkspaces() async {
-    final result = await _userService.getCurrentWorkspace();
-    return result.fold((currentWorkspace) async {
-      final result = await _userService.getWorkspaces();
-      return result.fold((workspaces) {
-        return (
-          workspaces.firstWhere(
-            (e) => e.workspaceId == currentWorkspace.id,
-          ),
-          workspaces
-        );
-      }, (e) {
-        Log.error(e);
-        return null;
-      });
-    }, (e) {
+    try {
+      final currentWorkspace =
+          await _userService.getCurrentWorkspace().getOrThrow();
+      final workspaces = await _userService.getWorkspaces().getOrThrow();
+      final currentWorkspaceInList =
+          workspaces.firstWhere((e) => e.workspaceId == currentWorkspace.id);
+      return (currentWorkspaceInList, workspaces);
+    } catch (e) {
       Log.error(e);
       return null;
-    });
+    }
   }
 }
 
@@ -137,6 +250,14 @@ class UserWorkspaceEvent with _$UserWorkspaceEvent {
       DeleteWorkspace;
   const factory UserWorkspaceEvent.openWorkspace(String workspaceId) =
       OpenWorkspace;
+  const factory UserWorkspaceEvent.renameWorkspace(
+    String workspaceId,
+    String name,
+  ) = _RenameWorkspace;
+  const factory UserWorkspaceEvent.updateWorkspaceIcon(
+    String workspaceId,
+    String icon,
+  ) = _UpdateWorkspaceIcon;
   const factory UserWorkspaceEvent.workspacesReceived(
     FlowyResult<List<UserWorkspacePB>, FlowyError> workspacesOrFail,
   ) = WorkspacesReceived;
@@ -150,6 +271,8 @@ class UserWorkspaceState with _$UserWorkspaceState {
     @Default(null) FlowyResult<void, FlowyError>? createWorkspaceResult,
     @Default(null) FlowyResult<void, FlowyError>? deleteWorkspaceResult,
     @Default(null) FlowyResult<void, FlowyError>? openWorkspaceResult,
+    @Default(null) FlowyResult<void, FlowyError>? renameWorkspaceResult,
+    @Default(null) FlowyResult<void, FlowyError>? updateWorkspaceIconResult,
   }) = _UserWorkspaceState;
 
   factory UserWorkspaceState.initial() =>

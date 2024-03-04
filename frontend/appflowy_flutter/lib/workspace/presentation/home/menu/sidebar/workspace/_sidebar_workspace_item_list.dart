@@ -187,7 +187,6 @@ class _WorkspaceMenuItem extends StatelessWidget {
         WorkspaceMoreActionList(workspace: workspace),
         const FlowySvg(
           FlowySvgs.blue_check_s,
-          blendMode: null,
         ),
       ],
     );
