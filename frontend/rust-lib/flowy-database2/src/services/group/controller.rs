@@ -1,5 +1,4 @@
 use std::marker::PhantomData;
-use std::sync::Arc;
 
 use async_trait::async_trait;
 use collab_database::fields::{Field, TypeOptionData};
@@ -75,7 +74,7 @@ where
   I: GroupOperationInterceptor<GroupTypeOption = T> + Send + Sync,
 {
   pub async fn new(
-    grouping_field: &Arc<Field>,
+    grouping_field: &Field,
     mut configuration: GroupContext<C>,
     operation_interceptor: I,
   ) -> FlowyResult<Self> {

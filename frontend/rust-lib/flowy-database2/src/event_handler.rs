@@ -1,17 +1,14 @@
 use std::sync::{Arc, Weak};
 
-use collab_database::database::gen_row_id;
 use collab_database::rows::RowId;
 use lib_infra::box_any::BoxAny;
 use tokio::sync::oneshot;
 
 use flowy_error::{FlowyError, FlowyResult};
 use lib_dispatch::prelude::{af_spawn, data_result_ok, AFPluginData, AFPluginState, DataResult};
-use lib_infra::util::timestamp;
 
 use crate::entities::*;
 use crate::manager::DatabaseManager;
-use crate::services::cell::CellBuilder;
 use crate::services::field::{
   type_option_data_from_pb, ChecklistCellChangeset, DateCellChangeset, RelationCellChangeset,
   SelectOptionCellChangeset,
@@ -393,7 +390,7 @@ pub(crate) async fn duplicate_row_handler(
   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
   database_editor
     .duplicate_row(&params.view_id, &params.row_id)
-    .await;
+    .await?;
   Ok(())
 }
 
@@ -417,27 +414,12 @@ pub(crate) async fn create_row_handler(
   manager: AFPluginState<Weak<DatabaseManager>>,
 ) -> DataResult<RowMetaPB, FlowyError> {
   let manager = upgrade_manager(manager)?;
-  let params: CreateRowParams = data.into_inner().try_into()?;
+  let params = data.try_into_inner()?;
   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
-  let fields = database_editor.get_fields(&params.view_id, None);
-  let cells =
-    CellBuilder::with_cells(params.cell_data_by_field_id.unwrap_or_default(), &fields).build();
-  let view_id = params.view_id;
-  let group_id = params.group_id;
-  let params = collab_database::rows::CreateRowParams {
-    id: gen_row_id(),
-    cells,
-    height: 60,
-    visibility: true,
-    row_position: params.row_position,
-    timestamp: timestamp(),
-  };
-  match database_editor
-    .create_row(&view_id, group_id, params)
-    .await?
-  {
-    None => Err(FlowyError::internal().with_context("Create row fail")),
+
+  match database_editor.create_row(params).await? {
     Some(row) => data_result_ok(RowMetaPB::from(row)),
+    None => Err(FlowyError::internal().with_context("Error creating row")),
   }
 }
 

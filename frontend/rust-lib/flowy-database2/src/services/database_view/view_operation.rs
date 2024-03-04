@@ -27,7 +27,7 @@ pub trait DatabaseViewOperation: Send + Sync + 'static {
   /// Get the view of the database with the view_id
   fn get_view(&self, view_id: &str) -> Fut<Option<DatabaseView>>;
   /// If the field_ids is None, then it will return all the field revisions
-  fn get_fields(&self, view_id: &str, field_ids: Option<Vec<String>>) -> Fut<Vec<Arc<Field>>>;
+  fn get_fields(&self, view_id: &str, field_ids: Option<Vec<String>>) -> Fut<Vec<Field>>;
 
   /// Returns the field with the field_id
   fn get_field(&self, field_id: &str) -> Option<Field>;

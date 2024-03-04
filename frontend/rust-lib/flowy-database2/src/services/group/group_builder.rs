@@ -96,7 +96,7 @@ impl RowChangeset {
 )]
 pub async fn make_group_controller<R, W, TW>(
   view_id: String,
-  grouping_field: Arc<Field>,
+  grouping_field: Field,
   row_details: Vec<Arc<RowDetail>>,
   setting_reader: R,
   setting_writer: W,
@@ -200,10 +200,7 @@ where
 }
 
 #[tracing::instrument(level = "debug", skip_all)]
-pub fn find_new_grouping_field(
-  fields: &[Arc<Field>],
-  _layout: &DatabaseLayout,
-) -> Option<Arc<Field>> {
+pub fn find_new_grouping_field(fields: &[Field], _layout: &DatabaseLayout) -> Option<Field> {
   let mut groupable_field_revs = fields
     .iter()
     .flat_map(|field_rev| {
@@ -213,7 +210,7 @@ pub fn find_new_grouping_field(
         false => None,
       }
     })
-    .collect::<Vec<Arc<Field>>>();
+    .collect::<Vec<Field>>();
 
   if groupable_field_revs.is_empty() {
     // If there is not groupable fields then we use the primary field.

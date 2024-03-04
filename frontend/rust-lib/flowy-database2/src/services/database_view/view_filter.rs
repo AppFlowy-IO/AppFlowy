@@ -50,7 +50,7 @@ impl FilterDelegate for DatabaseViewFilterDelegateImpl {
     self.0.get_field(field_id)
   }
 
-  fn get_fields(&self, view_id: &str, field_ids: Option<Vec<String>>) -> Fut<Vec<Arc<Field>>> {
+  fn get_fields(&self, view_id: &str, field_ids: Option<Vec<String>>) -> Fut<Vec<Field>> {
     self.0.get_fields(view_id, field_ids)
   }
 
