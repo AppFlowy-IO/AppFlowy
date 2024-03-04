@@ -119,7 +119,7 @@ class _PersonalFolderHeaderState extends State<PersonalFolderHeader> {
                 createViewAndShowRenameDialogIfNeeded(
                   context,
                   LocaleKeys.newPageText.tr(),
-                  (viewName) {
+                  (viewName, _) {
                     if (viewName.isNotEmpty) {
                       context.read<MenuBloc>().add(
                             MenuEvent.createApp(
