@@ -156,18 +156,21 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
                 final workspaces = state.workspaces.map((e) {
                   if (e.workspaceId == workspaceId) {
                     e.freeze();
-                    return e.deepCopy().rebuild((p0) {
+                    return e.rebuild((p0) {
                       p0.name = name;
                     });
                   }
                   return e;
                 }).toList();
-                final currentWorkspace =
-                    state.currentWorkspace?.workspaceId == workspaceId
-                        ? state.currentWorkspace?.rebuild((p0) {
-                            p0.name = name;
-                          })
-                        : state.currentWorkspace;
+
+                UserWorkspacePB? currentWorkspace = state.currentWorkspace;
+                if (state.currentWorkspace?.workspaceId == workspaceId) {
+                  currentWorkspace?.freeze();
+                  currentWorkspace = currentWorkspace?.rebuild((p0) {
+                    p0.name = name;
+                  });
+                }
+
                 return (
                   workspaces,
                   currentWorkspace,

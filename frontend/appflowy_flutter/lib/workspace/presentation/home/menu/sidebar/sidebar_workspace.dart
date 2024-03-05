@@ -13,6 +13,7 @@ import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SidebarWorkspace extends StatelessWidget {
@@ -157,6 +158,7 @@ class _DesktopWorkspaceWrapperState extends State<_DesktopWorkspaceWrapper> {
       },
       child: FlowyButton(
         onTap: () => controller.show(),
+        useIntrinsicWidth: true,
         margin: const EdgeInsets.symmetric(vertical: 8),
         text: Row(
           children: [
@@ -166,9 +168,11 @@ class _DesktopWorkspaceWrapperState extends State<_DesktopWorkspaceWrapper> {
               child: WorkspaceIcon(workspace: widget.currentWorkspace),
             ),
             const HSpace(8),
-            FlowyText.medium(
-              widget.currentWorkspace.name,
-              overflow: TextOverflow.ellipsis,
+            Expanded(
+              child: FlowyText.medium(
+                widget.currentWorkspace.name,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
             const FlowySvg(FlowySvgs.drop_menu_show_m),
           ],

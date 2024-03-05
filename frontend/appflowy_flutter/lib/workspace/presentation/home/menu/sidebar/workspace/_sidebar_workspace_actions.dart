@@ -80,7 +80,7 @@ class _WorkspaceMoreActionWrapper extends CustomActionCell {
           case WorkspaceMoreAction.rename:
             await NavigatorTextFieldDialog(
               title: LocaleKeys.workspace_create.tr(),
-              value: '',
+              value: workspace.name,
               hintText: '',
               autoSelectAllText: true,
               onConfirm: (name, context) async {
