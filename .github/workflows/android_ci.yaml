@@ -40,13 +40,6 @@ jobs:
       - name: Check storage space
         run: df -h
 
-      - name: Maximize build space
-        uses: easimon/maximize-build-space@master
-        with:
-          root-reserve-mb: 2048
-          swap-size-mb: 1024
-          remove-dotnet: 'true'
-
           # the following step is required to avoid running out of space
       - name: Maximize build space
         if: matrix.os == 'ubuntu-latest'
@@ -86,12 +79,6 @@ jobs:
           channel: "stable"
           flutter-version: ${{ env.FLUTTER_VERSION }}
 
-      - uses: nttld/setup-ndk@v1
-        id: setup-ndk
-        with:
-          ndk-version: "r24"
-          add-to-path: true
-
       - uses: gradle/gradle-build-action@v3
         with:
           gradle-version: 7.4.2
@@ -124,15 +111,11 @@ jobs:
 
       - name: Build AppFlowy
         working-directory: frontend
-        env:
-          ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
         run: |
           cargo make --profile development-android appflowy-android-dev-ci
 
       - name: Prebuild AppFlowy
         working-directory: frontend/appflowy_flutter
-        env:
-          ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
         run: |
           flutter build apk --debug --target=integration_test/runner.dart
 

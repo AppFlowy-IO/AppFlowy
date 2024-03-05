@@ -83,14 +83,14 @@ jobs:
       - uses: futureware-tech/simulator-action@v3
         id: simulator-action
         with:
-          model: 'iPhone 13'
+          model: 'iPhone 15'
           shutdown_after_job: false
 
-      - name: Prebuilt AppFlowy
-        working-directory: frontend/appflowy_flutter
-        run: |
-          flutter run -d ${{ steps.simulator-action.outputs.udid }}
-        shell: bash
+      # - name: Prebuilt AppFlowy
+      #   working-directory: frontend/appflowy_flutter
+      #   run: |
+      #     flutter run -d ${{ steps.simulator-action.outputs.udid }}
+      #   shell: bash
 
       - name: Run integration tests
         working-directory: frontend/appflowy_flutter
