@@ -1,6 +1,5 @@
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
-use std::time::Duration;
 
 use anyhow::Error;
 use client_api::collab_sync::collab_msg::ServerCollabMessage;
@@ -13,7 +12,7 @@ use client_api::{Client, ClientConfiguration};
 use flowy_storage::ObjectStorageService;
 use tokio::sync::watch;
 use tokio_stream::wrappers::WatchStream;
-use tracing::{error, event, info, warn};
+use tracing::{error, info, warn};
 use uuid::Uuid;
 
 use flowy_database_pub::cloud::DatabaseCloudService;
@@ -255,34 +254,35 @@ fn spawn_ws_conn(
     if let Some(ws_client) = weak_ws_client.upgrade() {
       let mut state_recv = ws_client.subscribe_connect_state();
       while let Ok(state) = state_recv.recv().await {
-        info!("[websocket] state: {:?}", state);
-        match state {
-          ConnectState::PingTimeout | ConnectState::Closed => {
-            // Try to reconnect if the connection is timed out.
-            if let Some(api_client) = weak_api_client.upgrade() {
-              if enable_sync.load(Ordering::SeqCst) {
-                match api_client.ws_url(&cloned_device_id).await {
-                  Ok(ws_addr) => {
-                    // sleep two seconds and then try to reconnect
-                    tokio::time::sleep(Duration::from_secs(2)).await;
+        todo!()
+        // info!("[websocket] state: {:?}", state);
+        // match state {
+        //   ConnectState::PingTimeout | ConnectState::Closed => {
+        //     // Try to reconnect if the connection is timed out.
+        //     if let Some(api_client) = weak_api_client.upgrade() {
+        //       if enable_sync.load(Ordering::SeqCst) {
+        //         match api_client.ws_url(&cloned_device_id).await {
+        //           Ok(ws_addr) => {
+        //             // sleep two seconds and then try to reconnect
+        //             tokio::time::sleep(Duration::from_secs(2)).await;
 
-                    event!(tracing::Level::INFO, "🟢reconnecting websocket");
-                    let _ = ws_client.connect(ws_addr, &cloned_device_id).await;
-                  },
-                  Err(err) => error!("Failed to get ws url: {}, connect state:{:?}", err, state),
-                }
-              }
-            }
-          },
-          ConnectState::Unauthorized => {
-            if let Some(api_client) = weak_api_client.upgrade() {
-              if let Err(err) = api_client.refresh_token().await {
-                error!("Failed to refresh token: {}", err);
-              }
-            }
-          },
-          _ => {},
-        }
+        //             event!(tracing::Level::INFO, "🟢reconnecting websocket");
+        //             let _ = ws_client.connect(ws_addr, &cloned_device_id).await;
+        //           },
+        //           Err(err) => error!("Failed to get ws url: {}, connect state:{:?}", err, state),
+        //         }
+        //       }
+        //     }
+        //   },
+        //   ConnectState::Unauthorized => {
+        //     if let Some(api_client) = weak_api_client.upgrade() {
+        //       if let Err(err) = api_client.refresh_token().await {
+        //         error!("Failed to refresh token: {}", err);
+        //       }
+        //     }
+        //   },
+        //   _ => {},
+        // }
       }
     }
   });
@@ -292,27 +292,28 @@ fn spawn_ws_conn(
   let weak_api_client = Arc::downgrade(api_client);
   af_spawn(async move {
     while let Ok(token_state) = token_state_rx.recv().await {
-      info!("🟢token state: {:?}", token_state);
-      match token_state {
-        TokenState::Refresh => {
-          if let (Some(api_client), Some(ws_client)) =
-            (weak_api_client.upgrade(), weak_ws_client.upgrade())
-          {
-            match api_client.ws_url(&device_id).await {
-              Ok(ws_addr) => {
-                let _ = ws_client.connect(ws_addr, &device_id).await;
-              },
-              Err(err) => error!("Failed to get ws url: {}", err),
-            }
-          }
-        },
-        TokenState::Invalid => {
-          if let Some(ws_client) = weak_ws_client.upgrade() {
-            info!("🟢token state: {:?}, disconnect websocket", token_state);
-            ws_client.disconnect().await;
-          }
-        },
-      }
+      todo!()
+      // info!("🟢token state: {:?}", token_state);
+      // match token_state {
+      //   TokenState::Refresh => {
+      //     if let (Some(api_client), Some(ws_client)) =
+      //       (weak_api_client.upgrade(), weak_ws_client.upgrade())
+      //     {
+      //       match api_client.ws_url(&device_id).await {
+      //         Ok(ws_addr) => {
+      //           let _ = ws_client.connect(ws_addr, &device_id).await;
+      //         },
+      //         Err(err) => error!("Failed to get ws url: {}", err),
+      //       }
+      //     }
+      //   },
+      //   TokenState::Invalid => {
+      //     if let Some(ws_client) = weak_ws_client.upgrade() {
+      //       info!("🟢token state: {:?}, disconnect websocket", token_state);
+      //       ws_client.disconnect().await;
+      //     }
+      //   },
+      // }
     }
   });
 }

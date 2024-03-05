@@ -51,7 +51,7 @@ pub async fn generate_sign_in_url(user_email: &str, config: &AFCloudConfiguratio
     client.gotrue_url(),
     "fake_device_id",
     ClientConfiguration::default(),
-    &client.client_id,
+    client.client_version.to_string().as_str(),
   );
   admin_client
     .sign_in_password(&admin_email, &admin_password)

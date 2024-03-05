@@ -396,3 +396,20 @@ pub struct WorkspaceMember {
 pub fn awareness_oid_from_user_uuid(user_uuid: &Uuid) -> Uuid {
   Uuid::new_v5(user_uuid, b"user_awareness")
 }
+
+#[derive(Clone, Debug)]
+pub enum WorkspaceInvitationStatus {
+  Pending,
+  Accepted,
+  Rejected,
+}
+
+pub struct WorkspaceInvitation {
+  pub invite_id: Uuid,
+  pub workspace_id: Uuid,
+  pub workspace_name: Option<String>,
+  pub inviter_email: Option<String>,
+  pub inviter_name: Option<String>,
+  pub status: WorkspaceInvitationStatus,
+  pub updated_at: DateTime<Utc>,
+}
