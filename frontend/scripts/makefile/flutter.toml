@@ -82,10 +82,10 @@ run_task = { name = [
 script_runner = "@shell"
 
 [tasks.appflowy-android-dev-ci]
-dependencies = ["appflowy-core-dev-android"]
+dependencies = ["appflowy-core-dev-android-ci"]
 run_task = { name = [
   "code_generation",
-  "flutter-build-android",
+  "flutter-build-android-ci",
 ] }
 script_runner = "@shell"
 

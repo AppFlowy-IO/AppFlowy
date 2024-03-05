@@ -1,13 +1,5 @@
 #!/bin/bash
 
-no_pub_get=false
-
-while getopts 's' flag; do
-  case "${flag}" in
-    s) no_pub_get=true ;;
-  esac
-done
-
 echo "Generating flowy icon files"
 
 # Store the current working directory
