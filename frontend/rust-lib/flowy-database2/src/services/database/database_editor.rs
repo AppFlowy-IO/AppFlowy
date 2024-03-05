@@ -673,6 +673,11 @@ impl DatabaseEditor {
         view.v_did_update_row_meta(row_id, &row_detail).await;
       }
 
+      // Update the last modified time of the row
+      self
+        .update_last_modified_time(row_detail.clone(), &changeset.view_id)
+        .await;
+
       // Notifies the client that the row meta has been updated.
       send_notification(row_id.as_str(), DatabaseNotification::DidUpdateRowMeta)
         .payload(RowMetaPB::from(&row_detail))
@@ -766,22 +771,23 @@ impl DatabaseEditor {
     self.update_cell(view_id, row_id, field_id, new_cell).await
   }
 
-  pub async fn update_last_modified_time(&self, row_id: &RowId, view_id: &str) {
-    self.database.lock().update_row(row_id, |row_update| {
-      row_update.set_last_modified(timestamp());
-    });
+  async fn update_last_modified_time(&self, row_detail: RowDetail, view_id: &str) {
+    self
+      .database
+      .lock()
+      .update_row(&row_detail.row.id, |row_update| {
+        row_update.set_last_modified(timestamp());
+      });
 
-    let option_row = self.get_row_detail(view_id, row_id);
-    if let Some(row_detail) = option_row {
-      for view in self.database_views.editors().await {
-        view
-          .v_did_update_row(&Some(row_detail.clone()), &row_detail, None)
-          .await;
-      }
+    let editor = self.database_views.get_view_editor(view_id).await;
+    if let Ok(editor) = editor {
+      editor
+        .v_did_update_row(&Some(row_detail.clone()), &row_detail, None)
+        .await;
     }
 
     self
-      .notify_update_row(view_id, row_id.to_owned(), vec![])
+      .notify_update_row(view_id, row_detail.row.id, vec![])
       .await;
   }
 

@@ -351,14 +351,10 @@ pub(crate) async fn update_row_meta_handler(
 ) -> FlowyResult<()> {
   let manager = upgrade_manager(manager)?;
   let params: UpdateRowMetaParams = data.into_inner().try_into()?;
-  let view_id = params.view_id.clone();
   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
   let row_id = RowId::from(params.id.clone());
   database_editor
     .update_row_meta(&row_id.clone(), params)
-    .await;
-  database_editor
-    .update_last_modified_time(&row_id, &view_id)
     .await;
   Ok(())
 }
