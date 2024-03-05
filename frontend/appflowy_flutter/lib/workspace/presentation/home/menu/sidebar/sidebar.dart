@@ -1,7 +1,7 @@
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
-import 'package:appflowy/workspace/application/menu/menu_bloc.dart';
+import 'package:appflowy/workspace/application/menu/sidebar_root_views_bloc.dart';
 import 'package:appflowy/workspace/application/notifications/notification_action.dart';
 import 'package:appflowy/workspace/application/notifications/notification_action_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
@@ -46,32 +46,34 @@ class HomeSideBar extends StatelessWidget {
       create: (_) => UserWorkspaceBloc(userProfile: userProfile)
         ..add(const UserWorkspaceEvent.fetchWorkspaces()),
       child: BlocBuilder<UserWorkspaceBloc, UserWorkspaceState>(
-        // buildWhen: (previous, current) =>
-        //     previous.currentWorkspace?.workspaceId !=
-        //     current.currentWorkspace?.workspaceId,
+        buildWhen: (previous, current) =>
+            previous.currentWorkspace?.workspaceId !=
+            current.currentWorkspace?.workspaceId,
         builder: (context, state) {
-          final menuBloc = MenuBloc(
-            user: userProfile,
-            workspaceId: state.currentWorkspace?.workspaceId ??
-                workspaceSetting.workspaceId,
-          )..add(const MenuEvent.initial());
           return MultiBlocProvider(
             providers: [
               BlocProvider(
                 create: (_) => getIt<NotificationActionBloc>(),
               ),
-              BlocProvider<MenuBloc>.value(
-                value: menuBloc,
+              BlocProvider(
+                create: (_) => SidebarRootViewsBloc()
+                  ..add(
+                    SidebarRootViewsEvent.initial(
+                      userProfile,
+                      state.currentWorkspace?.workspaceId ??
+                          workspaceSetting.workspaceId,
+                    ),
+                  ),
               ),
             ],
             child: MultiBlocListener(
               listeners: [
-                BlocListener<MenuBloc, MenuState>(
+                BlocListener<SidebarRootViewsBloc, SidebarRootViewState>(
                   listenWhen: (p, c) =>
-                      p.lastCreatedView?.id != c.lastCreatedView?.id,
+                      p.lastCreatedRootView?.id != c.lastCreatedRootView?.id,
                   listener: (context, state) => context.read<TabsBloc>().add(
                         TabsEvent.openPlugin(
-                          plugin: state.lastCreatedView!.plugin(),
+                          plugin: state.lastCreatedRootView!.plugin(),
                         ),
                       ),
                 ),
@@ -79,10 +81,21 @@ class HomeSideBar extends StatelessWidget {
                   listenWhen: (_, curr) => curr.action != null,
                   listener: _onNotificationAction,
                 ),
+                BlocListener<UserWorkspaceBloc, UserWorkspaceState>(
+                  listener: (context, state) {
+                    context.read<SidebarRootViewsBloc>().add(
+                          SidebarRootViewsEvent.reset(
+                            userProfile,
+                            state.currentWorkspace?.workspaceId ??
+                                workspaceSetting.workspaceId,
+                          ),
+                        );
+                  },
+                ),
               ],
               child: Builder(
                 builder: (context) {
-                  final menuState = context.watch<MenuBloc>().state;
+                  final menuState = context.watch<SidebarRootViewsBloc>().state;
                   final favoriteState = context.watch<FavoriteBloc>().state;
 
                   return _buildSidebar(
@@ -162,8 +175,11 @@ class HomeSideBar extends StatelessWidget {
     final action = state.action;
     if (action != null) {
       if (action.type == ActionType.openView) {
-        final view =
-            context.read<MenuBloc>().state.views.findView(action.objectId);
+        final view = context
+            .read<SidebarRootViewsBloc>()
+            .state
+            .views
+            .findView(action.objectId);
 
         if (view != null) {
           final Map<String, dynamic> arguments = {};

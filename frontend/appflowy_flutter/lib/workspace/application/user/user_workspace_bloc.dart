@@ -200,19 +200,48 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
               icon,
             );
 
+            final (workspaces, currentWorkspace, updateWorkspaceIconResult) =
+                result.fold(
+              (s) {
+                final workspaces = state.workspaces.map((e) {
+                  if (e.workspaceId == workspaceId) {
+                    e.freeze();
+                    return e.rebuild((p0) {
+                      // TODO(Lucas): the icon is not ready in the backend
+                    });
+                  }
+                  return e;
+                }).toList();
+
+                final currentWorkspace = workspaces.firstWhere(
+                  (e) => e.workspaceId == state.currentWorkspace?.workspaceId,
+                );
+
+                return (
+                  workspaces,
+                  currentWorkspace,
+                  FlowyResult<void, FlowyError>.success(null),
+                );
+              },
+              (e) {
+                Log.error(e);
+                return (
+                  state.workspaces,
+                  state.currentWorkspace,
+                  FlowyResult.failure(e),
+                );
+              },
+            );
+
             emit(
               state.copyWith(
                 createWorkspaceResult: null,
                 deleteWorkspaceResult: null,
                 openWorkspaceResult: null,
                 renameWorkspaceResult: null,
-                updateWorkspaceIconResult: result.fold(
-                  (s) => FlowyResult.success(null),
-                  (e) {
-                    Log.error(e);
-                    return FlowyResult.failure(e);
-                  },
-                ),
+                updateWorkspaceIconResult: updateWorkspaceIconResult,
+                workspaces: workspaces,
+                currentWorkspace: currentWorkspace,
               ),
             );
           },

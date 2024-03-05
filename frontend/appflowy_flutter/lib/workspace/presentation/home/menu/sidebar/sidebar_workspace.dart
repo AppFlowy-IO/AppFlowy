@@ -83,6 +83,26 @@ class SidebarWorkspace extends StatelessWidget {
       showSnackBarMessage(context, message);
       return;
     }
+
+    result = state.updateWorkspaceIconResult;
+    if (result != null) {
+      final message = result.fold(
+        (s) => LocaleKeys.workspace_updateIconSuccess.tr(),
+        (e) => '${LocaleKeys.workspace_updateIconFailed.tr()}: ${e.msg}',
+      );
+      showSnackBarMessage(context, message);
+      return;
+    }
+
+    result = state.renameWorkspaceResult;
+    if (result != null) {
+      final message = result.fold(
+        (s) => LocaleKeys.workspace_renameSuccess.tr(),
+        (e) => '${LocaleKeys.workspace_renameFailed.tr()}: ${e.msg}',
+      );
+      showSnackBarMessage(context, message);
+      return;
+    }
   }
 }
 

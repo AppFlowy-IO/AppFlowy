@@ -143,8 +143,8 @@ class _WorkspaceMenuItem extends StatelessWidget {
                 margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                 iconPadding: 10.0,
                 leftIconSize: const Size.square(32),
-                leftIcon: WorkspaceIcon(
-                  workspace: workspace,
+                leftIcon: const SizedBox.square(
+                  dimension: 32,
                 ),
                 rightIcon: const HSpace(42.0),
                 text: Column(
@@ -162,6 +162,15 @@ class _WorkspaceMenuItem extends StatelessWidget {
                         color: Theme.of(context).hintColor,
                       ),
                   ],
+                ),
+              ),
+              Positioned(
+                left: 12,
+                child: SizedBox.square(
+                  dimension: 32,
+                  child: WorkspaceIcon(
+                    workspace: workspace,
+                  ),
                 ),
               ),
               Positioned(

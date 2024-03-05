@@ -4,7 +4,7 @@ import 'package:appflowy/mobile/presentation/notifications/widgets/mobile_notifi
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/notification_filter/notification_filter_bloc.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
-import 'package:appflowy/workspace/application/menu/menu_bloc.dart';
+import 'package:appflowy/workspace/application/menu/sidebar_root_views_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/errors/workspace_failed_screen.dart';
 import 'package:appflowy/workspace/presentation/notifications/reminder_extension.dart';
 import 'package:appflowy/workspace/presentation/notifications/widgets/inbox_action_bar.dart';
@@ -80,11 +80,14 @@ class _NotificationScreenContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => MenuBloc(
-        workspaceId: workspaceSetting.workspaceId,
-        user: userProfile,
-      )..add(const MenuEvent.initial()),
-      child: BlocBuilder<MenuBloc, MenuState>(
+      create: (_) => SidebarRootViewsBloc()
+        ..add(
+          SidebarRootViewsEvent.initial(
+            userProfile,
+            workspaceSetting.workspaceId,
+          ),
+        ),
+      child: BlocBuilder<SidebarRootViewsBloc, SidebarRootViewState>(
         builder: (context, menuState) =>
             BlocBuilder<NotificationFilterBloc, NotificationFilterState>(
           builder: (context, filterState) =>

@@ -4,7 +4,7 @@ typedef FlowyAsyncResult<S, F extends Object> = Future<FlowyResult<S, F>>;
 
 extension FlowyAsyncResultExtension<S, F extends Object>
     on FlowyAsyncResult<S, F> {
-  Future<S> getOrElse(S Function(F) onFailure) {
+  Future<S> getOrElse(S Function(F f) onFailure) {
     return then((result) => result.getOrElse(onFailure));
   }
 

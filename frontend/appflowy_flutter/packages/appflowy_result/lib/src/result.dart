@@ -80,12 +80,12 @@ class FlowySuccess<S, F extends Object> implements FlowyResult<S, F> {
   void onFailure(void Function(F failure) onFailure) {}
 
   @override
-  getOrElse(S Function(F failure) onFailure) {
+  S getOrElse(S Function(F failure) onFailure) {
     return _value;
   }
 
   @override
-  getOrThrow() {
+  S getOrThrow() {
     return _value;
   }
 }
@@ -148,7 +148,7 @@ class FlowyFailure<S, F extends Object> implements FlowyResult<S, F> {
   }
 
   @override
-  getOrElse(S Function(F failure) onFailure) {
+  S getOrElse(S Function(F failure) onFailure) {
     return onFailure(_value);
   }
 
