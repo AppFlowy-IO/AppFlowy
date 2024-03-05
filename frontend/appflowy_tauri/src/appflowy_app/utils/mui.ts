@@ -39,10 +39,19 @@ export const getDesignTokens = (isDark: boolean): ThemeOptions => {
         styleOverrides: {
           contained: {
             color: 'var(--content-on-fill)',
+            boxShadow: 'var(--shadow)',
           },
           containedPrimary: {
             '&:hover': {
               backgroundColor: 'var(--fill-default)',
+            },
+          },
+          containedInherit: {
+            color: 'var(--text-title)',
+            backgroundColor: isDark ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.4)',
+            '&:hover': {
+              backgroundColor: 'var(--bg-body)',
+              boxShadow: 'var(--shadow)',
             },
           },
         },

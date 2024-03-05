@@ -83,7 +83,7 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
 }
 
 
-.text-content {
+.text-content, [data-dark-mode="true"] .text-content {
   &.empty-content {
     @apply min-w-[1px];
     span {
@@ -94,7 +94,7 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
   }
 }
 
-.text-element:has(.text-placeholder), .divider-node {
+.text-element:has(.text-placeholder), .divider-node, [data-dark-mode="true"] .text-element:has(.text-placeholder), [data-dark-mode="true"] .divider-node {
   ::selection {
     @apply bg-transparent;
   }
@@ -151,8 +151,14 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
   }
 }
 
-.image-block, .math-equation-block {
+.image-block, .math-equation-block, [data-dark-mode="true"] .image-block, [data-dark-mode="true"] .math-equation-block {
   ::selection {
     @apply bg-transparent;
+  }
+}
+
+.mention-inline {
+  &:hover {
+    @apply bg-fill-list-active rounded;
   }
 }

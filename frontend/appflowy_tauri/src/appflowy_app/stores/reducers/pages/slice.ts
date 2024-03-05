@@ -1,6 +1,8 @@
 import { ViewIconTypePB, ViewLayoutPB, ViewPB } from '@/services/backend';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import isEqual from 'lodash-es/isEqual';
+import { ImageType } from '$app/application/document/document.types';
+import { Nullable } from 'unsplash-js/dist/helpers/typescript';
 
 export const pageTypeMap = {
   [ViewLayoutPB.Document]: 'document',
@@ -14,12 +16,24 @@ export interface Page {
   name: string;
   layout: ViewLayoutPB;
   icon?: PageIcon;
+  cover?: PageCover;
 }
 
 export interface PageIcon {
   ty: ViewIconTypePB;
   value: string;
 }
+
+export enum CoverType {
+  Color = 'CoverType.color',
+  Image = 'CoverType.file',
+  Asset = 'CoverType.asset',
+}
+export type PageCover = Nullable<{
+  image_type?: ImageType;
+  cover_selection_type?: CoverType;
+  cover_selection?: string;
+}>;
 
 export function parserViewPBToPage(view: ViewPB): Page {
   const icon = view.icon;
