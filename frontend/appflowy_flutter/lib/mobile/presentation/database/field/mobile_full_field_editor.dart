@@ -351,7 +351,7 @@ class _MobileFieldEditorState extends State<MobileFieldEditor> {
     }
 
     return [
-      if (widget.actions.contains(FieldOptionAction.hide))
+      if (widget.actions.contains(FieldOptionAction.hide) && !widget.isPrimary)
         FlowyOptionTile.text(
           text: LocaleKeys.grid_field_hide.tr(),
           leftIcon: const FlowySvg(FlowySvgs.m_field_hide_s),
