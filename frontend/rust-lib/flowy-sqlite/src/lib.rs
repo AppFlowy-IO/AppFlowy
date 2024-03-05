@@ -17,7 +17,6 @@ pub mod kv;
 mod sqlite_impl;
 
 pub mod schema;
-pub mod search;
 
 #[macro_use]
 pub mod macros;

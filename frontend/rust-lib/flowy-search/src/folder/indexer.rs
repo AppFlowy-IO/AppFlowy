@@ -36,7 +36,11 @@ const FOLDER_INDEX_DIR: &str = "folder_index";
 
 impl FolderIndexManager {
   pub fn new(auth_user: Weak<AuthenticateUser>) -> Self {
+    // AuthenticateUser is required to get the index path
     let authenticate_user = auth_user.upgrade();
+
+    // Storage path is the users data path with an index directory
+    // Eg. /usr/flowy-data/indexes
     let storage_path = match authenticate_user {
       Some(auth_user) => auth_user.get_index_path(),
       None => {
@@ -45,6 +49,7 @@ impl FolderIndexManager {
       },
     };
 
+    // We check if the `folder_index` directory exists, if not we create it
     let index_path = storage_path.join(Path::new(FOLDER_INDEX_DIR));
     if !index_path.exists() {
       let res = fs::create_dir_all(&index_path);
@@ -57,13 +62,20 @@ impl FolderIndexManager {
       }
     }
 
+    // We open the existing or newly created folder_index directory
+    // This is required by the Tantivy Index, as it will use it to store
+    // and read index data
     let dir = MmapDirectory::open(index_path);
     if let Err(e) = dir {
       tracing::error!("FolderIndexManager failed to open index directory: {:?}", e);
       return FolderIndexManager::empty();
     }
 
+    // The folder schema is used to define the fields of the index along
+    // with how they are stored and if the field is indexed
     let folder_schema = FolderSchema::new();
+
+    // We open or create an index that takes the directory r/w and the schema.
     let index_res = Index::open_or_create(dir.unwrap(), folder_schema.clone().schema);
     if let Err(e) = index_res {
       tracing::error!("FolderIndexManager failed to open index: {:?}", e);
@@ -71,6 +83,8 @@ impl FolderIndexManager {
     }
 
     let index = index_res.unwrap();
+
+    // We read the index reader, we only need one IndexReader per index
     let index_reader = index.reader();
     if let Err(e) = index_reader {
       tracing::error!(
@@ -131,18 +145,12 @@ impl FolderIndexManager {
   }
 
   pub fn is_indexed(&self) -> bool {
-    if let Some(index) = &self.index {
-      let index_reader = index.reader();
-      if let Ok(index_reader) = index_reader {
-        let searcher = index_reader.searcher();
-        let num_docs = searcher.num_docs();
-        if num_docs > 0 {
-          return true;
-        }
-      }
-    }
-
-    false
+    self
+      .index
+      .as_ref()
+      .and_then(|index| index.reader().ok())
+      .map(|reader| reader.searcher().num_docs() > 0)
+      .unwrap_or(false)
   }
 
   fn empty() -> Self {

@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use flowy_error::FlowyResult;
 use lib_dispatch::prelude::af_spawn;
-use tokio::sync::broadcast;
+use tokio::{sync::broadcast, task::spawn_blocking};
 
 use crate::entities::{SearchResultNotificationPB, SearchResultPB};
 
@@ -39,33 +39,18 @@ impl SearchManager {
       let q = query.clone();
       let notifier = self.notifier.clone();
 
-      af_spawn(async move {
+      spawn_blocking(move || {
         let res = handler.perform_search(q);
         sends += 1;
 
         let close = sends == max;
-        let notification: Option<SearchResultNotificationPB> = match res {
-          Ok(results) => Some(SearchResultNotificationPB {
-            items: results,
-            closed: close,
-          }),
-          Err(_) => {
-            if close {
-              return Some(SearchResultNotificationPB {
-                items: vec![],
-                closed: true,
-              });
-            }
-
-            None
-          },
+        let items = res.unwrap_or_default();
+        let notification = SearchResultNotificationPB {
+          items,
+          closed: close,
         };
 
-        if let Some(notification) = notification {
-          let _ = notifier.send(SearchResultChanged::SearchResultUpdate(notification));
-        }
-
-        None
+        let _ = notifier.send(SearchResultChanged::SearchResultUpdate(notification));
       });
     }
   }

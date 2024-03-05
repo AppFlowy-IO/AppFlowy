@@ -167,7 +167,7 @@ impl AppFlowyCore {
       )
       .await;
 
-      let search_manager = SearchDepsResolver::resolve(Arc::downgrade(&folder_indexer)).await;
+      let search_manager = SearchDepsResolver::resolve(folder_indexer).await;
 
       (
         user_manager,

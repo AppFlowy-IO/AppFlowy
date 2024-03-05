@@ -2,6 +2,7 @@ use collab_entity::CollabType;
 
 use collab_folder::{Folder, FolderNotify, UserId};
 use flowy_search::services::indexer::IndexManager;
+use tokio::task::spawn_blocking;
 use tracing::{event, Level};
 
 use collab_integrate::CollabKVDB;
@@ -125,7 +126,12 @@ impl FolderManager {
     // Index all views in the folder if needed
     if !self.folder_indexer.is_indexed() {
       let views = folder.get_all_views_recursively();
-      self.folder_indexer.index_all_views(views);
+      let folder_indexer = self.folder_indexer.clone();
+
+      // We spawn a blocking task to index all views in the folder
+      spawn_blocking(move || {
+        folder_indexer.index_all_views(views);
+      });
     }
 
     *self.mutex_folder.lock() = Some(folder);
