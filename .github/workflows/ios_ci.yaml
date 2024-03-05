@@ -31,7 +31,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        os: [macos-latest]
+        os: [macos-14]
     runs-on: ${{ matrix.os }}
 
     steps:
