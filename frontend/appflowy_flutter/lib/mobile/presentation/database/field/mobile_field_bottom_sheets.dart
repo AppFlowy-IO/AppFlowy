@@ -123,7 +123,6 @@ void showQuickEditField(
 ) {
   showMobileBottomSheet(
     context,
-    backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
     showDragHandle: true,
     builder: (context) {
       return SingleChildScrollView(
