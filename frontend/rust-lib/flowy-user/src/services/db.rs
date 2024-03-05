@@ -1,7 +1,7 @@
 use std::path::{Path, PathBuf};
 use std::{collections::HashMap, fs, io, sync::Arc, time::Duration};
 
-use chrono::Local;
+use chrono::{DateTime, Days, Local};
 use collab_integrate::{CollabKVAction, CollabKVDB, PersistenceError};
 use collab_plugins::local_storage::kv::KVTransactionDB;
 use flowy_error::FlowyError;
@@ -323,40 +323,46 @@ impl CollabDBZipBackup {
 
   fn clean_old_backups(&self) -> io::Result<()> {
     let mut backups = Vec::new();
-    let threshold_date = Local::now() - chrono::Duration::days(10);
-
-    // Collect all backup files
-    for entry in fs::read_dir(&self.history_folder)? {
-      let entry = entry?;
-      let path = entry.path();
-      if path.is_file() && path.extension().and_then(|s| s.to_str()) == Some("zip") {
-        let filename = path
-          .file_stem()
-          .and_then(|s| s.to_str())
-          .unwrap_or_default();
-        let date_str = filename.split('_').last().unwrap_or("");
-        backups.push((date_str.to_string(), path));
-      }
-    }
-
-    // Sort backups by date (oldest first)
-    backups.sort_by(|a, b| a.0.cmp(&b.0));
-
-    // Remove backups older than 10 days
-    let threshold_str = threshold_date.format(zip_time_format()).to_string();
-
-    info!("Current backup: {:?}", backups.len());
-    // If there are more than 10 backups, remove the oldest ones
-    while backups.len() > 10 {
-      if let Some((date_str, path)) = backups.first() {
-        if date_str < &threshold_str {
-          info!("Remove old backup file: {:?}", path);
-          fs::remove_file(path)?;
-          backups.remove(0);
-        } else {
-          break;
+    let now = Local::now();
+    match now.checked_sub_days(Days::new(10)) {
+      None => {
+        error!("Failed to calculate threshold date");
+      },
+      Some(threshold_date) => {
+        // Collect all backup files
+        for entry in fs::read_dir(&self.history_folder)? {
+          let entry = entry?;
+          let path = entry.path();
+          if path.is_file() && path.extension().and_then(|s| s.to_str()) == Some("zip") {
+            let filename = path
+              .file_stem()
+              .and_then(|s| s.to_str())
+              .unwrap_or_default();
+            let date_str = filename.split('_').last().unwrap_or("");
+            backups.push((date_str.to_string(), path));
+          }
         }
-      }
+
+        // Sort backups by date (oldest first)
+        backups.sort_by(|a, b| a.0.cmp(&b.0));
+
+        // Remove backups older than 10 days
+        let threshold_str = threshold_date.format(zip_time_format()).to_string();
+
+        info!("Current backup: {:?}", backups.len());
+        // If there are more than 10 backups, remove the oldest ones
+        while backups.len() > 10 {
+          if let Some((date_str, path)) = backups.first() {
+            if date_str < &threshold_str {
+              info!("Remove old backup file: {:?}", path);
+              fs::remove_file(path)?;
+              backups.remove(0);
+            } else {
+              break;
+            }
+          }
+        }
+      },
     }
 
     Ok(())
