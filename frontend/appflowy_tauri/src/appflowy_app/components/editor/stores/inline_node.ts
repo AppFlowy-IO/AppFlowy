@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useMemo } from 'react';
-import { BaseRange } from 'slate';
+import { BaseRange, Path } from 'slate';
 import { proxy, useSnapshot } from 'valtio';
 
 export interface EditorInlineBlockState {
@@ -43,8 +43,10 @@ export function useEditorInlineBlockState(key: 'formula') {
   }, [context, key]);
 
   const setRange = useCallback(
-    (range: BaseRange) => {
-      context[key].range = range;
+    (at: BaseRange | Path) => {
+      const range = Path.isPath(at) ? { anchor: at, focus: at } : at;
+
+      context[key].range = range as BaseRange;
     },
     [context, key]
   );

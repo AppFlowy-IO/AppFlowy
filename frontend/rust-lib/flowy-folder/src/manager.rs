@@ -28,7 +28,8 @@ use crate::entities::{
   UpdateViewParams, ViewPB, WorkspacePB, WorkspaceSettingPB,
 };
 use crate::manager_observer::{
-  notify_child_views_changed, notify_parent_view_did_change, ChildViewChangeReason,
+  notify_child_views_changed, notify_did_update_workspace, notify_parent_view_did_change,
+  ChildViewChangeReason,
 };
 use crate::notification::{
   send_notification, send_workspace_setting_notification, FolderNotification,
@@ -998,7 +999,15 @@ impl FolderManager {
       send_notification(&view_pb.id, FolderNotification::DidUpdateView)
         .payload(view_pb)
         .send();
+
+      if let Ok(workspace_id) = self.get_current_workspace_id().await {
+        let folder = &self.mutex_folder.lock();
+        if let Some(folder) = folder.as_ref() {
+          notify_did_update_workspace(&workspace_id, folder);
+        }
+      }
     }
+
     Ok(())
   }
 

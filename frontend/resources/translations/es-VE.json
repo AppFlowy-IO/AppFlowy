@@ -72,12 +72,12 @@
     "copyLink": "Copiar enlace"
   },
   "moreAction": {
-    "fontSize": "Tamaño de fuente",
-    "import": "Importar",
-    "moreOptions": "Mas opciones",
     "small": "pequeño",
     "medium": "medio",
-    "large": "grande"
+    "large": "grande",
+    "fontSize": "Tamaño de fuente",
+    "import": "Importar",
+    "moreOptions": "Mas opciones"
   },
   "importPanel": {
     "textAndMarkdown": "Texto y descuento",
@@ -834,9 +834,9 @@
       "createNewColumn": "Agregar un nuevo grupo",
       "renameColumn": "Renombrar",
       "hideColumn": "Ocultar",
-      "groupActions": "Acciones grupales",
       "newGroup": "Nuevo grupo",
-      "deleteColumn": "Borrar"
+      "deleteColumn": "Borrar",
+      "groupActions": "Acciones grupales"
     },
     "hiddenGroupSection": {
       "sectionTitle": "Grupos ocultos"

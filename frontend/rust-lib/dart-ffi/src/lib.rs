@@ -174,7 +174,6 @@ async fn post_to_flutter(response: AFPluginEventResponse, port: i64) {
 
 #[no_mangle]
 pub extern "C" fn rust_log(level: i64, data: *const c_char) {
-  info!("backend_log");
   // Check if the data pointer is not null
   if data.is_null() {
     error!("[flutter error]: null pointer provided to backend_log");

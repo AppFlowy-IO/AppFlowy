@@ -72,3 +72,11 @@ class ChecklistTypeOptionDataParser
     return ChecklistTypeOptionPB.fromBuffer(buffer);
   }
 }
+
+class RelationTypeOptionDataParser
+    extends TypeOptionParser<RelationTypeOptionPB> {
+  @override
+  RelationTypeOptionPB fromBuffer(List<int> buffer) {
+    return RelationTypeOptionPB.fromBuffer(buffer);
+  }
+}

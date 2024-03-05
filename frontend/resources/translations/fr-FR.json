@@ -900,10 +900,10 @@
       "addToColumnBottomTooltip": "Ajouter une nouvelle carte en bas",
       "renameColumn": "Renommer",
       "hideColumn": "Cacher",
-      "groupActions": "Actions de groupe",
       "newGroup": "Nouveau groupe",
       "deleteColumn": "Supprimer",
-      "deleteColumnConfirmation": "Cela supprimera ce groupe et toutes les cartes qu'il contient. \nÊtes-vous sûr de vouloir continuer?"
+      "deleteColumnConfirmation": "Cela supprimera ce groupe et toutes les cartes qu'il contient. \nÊtes-vous sûr de vouloir continuer?",
+      "groupActions": "Actions de groupe"
     },
     "hiddenGroupSection": {
       "sectionTitle": "Groupes cachés",

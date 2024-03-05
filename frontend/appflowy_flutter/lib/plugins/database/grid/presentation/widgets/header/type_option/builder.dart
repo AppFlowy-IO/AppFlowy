@@ -9,6 +9,7 @@ import 'checklist.dart';
 import 'date.dart';
 import 'multi_select.dart';
 import 'number.dart';
+import 'relation.dart';
 import 'rich_text.dart';
 import 'single_select.dart';
 import 'timestamp.dart';
@@ -29,6 +30,7 @@ abstract class TypeOptionEditorFactory {
       FieldType.MultiSelect => const MultiSelectTypeOptionEditorFactory(),
       FieldType.Checkbox => const CheckboxTypeOptionEditorFactory(),
       FieldType.Checklist => const ChecklistTypeOptionEditorFactory(),
+      FieldType.Relation => const RelationTypeOptionEditorFactory(),
       _ => throw UnimplementedError(),
     };
   }

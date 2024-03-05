@@ -16,7 +16,7 @@ class GridLayout {
         .reduce((value, element) => value + element);
 
     return fieldsWidth +
-        GridSize.leadingHeaderPadding +
+        GridSize.horizontalHeaderPadding +
         GridSize.trailHeaderPadding;
   }
 }

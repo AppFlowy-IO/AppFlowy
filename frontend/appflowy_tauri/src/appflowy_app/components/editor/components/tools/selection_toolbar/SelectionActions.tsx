@@ -22,12 +22,15 @@ function SelectionActions({
   isAcrossBlocks,
   storeSelection,
   restoreSelection,
+  isIncludeRoot,
 }: {
   storeSelection: () => void;
   restoreSelection: () => void;
   isAcrossBlocks: boolean;
   visible: boolean;
+  isIncludeRoot: boolean;
 }) {
+  if (isIncludeRoot) return null;
   return (
     <div className={'flex w-fit flex-grow items-center gap-1'}>
       {!isAcrossBlocks && (

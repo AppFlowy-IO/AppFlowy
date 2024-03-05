@@ -184,7 +184,7 @@ class DesktopHomeScreen extends StatelessWidget {
     required WorkspaceSettingPB workspaceSetting,
   }) {
     final homeMenu = HomeSideBar(
-      user: userProfile,
+      userProfile: userProfile,
       workspaceSetting: workspaceSetting,
     );
     return FocusTraversalGroup(child: RepaintBoundary(child: homeMenu));

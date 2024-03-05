@@ -83,7 +83,7 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
 }
 
 
-.text-content {
+.text-content, [data-dark-mode="true"] .text-content {
   &.empty-content {
     @apply min-w-[1px];
     span {
@@ -94,7 +94,7 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
   }
 }
 
-.text-element:has(.text-placeholder), .divider-node {
+.text-element:has(.text-placeholder), .divider-node, [data-dark-mode="true"] .text-element:has(.text-placeholder), [data-dark-mode="true"] .divider-node {
   ::selection {
     @apply bg-transparent;
   }
@@ -136,4 +136,34 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
 .grid-block .grid-scroll-container::-webkit-scrollbar {
   width: 0;
   height: 0;
+}
+
+.image-resizer {
+  @apply absolute w-[10px] top-0 z-10 flex h-full cursor-col-resize items-center justify-end;
+  .resize-handle {
+    @apply h-1/4 w-1/2 transform transition-all duration-500 select-none rounded-full border border-white opacity-0;
+    background: var(--fill-toolbar);
+  }
+  &:hover {
+    .resize-handle {
+      @apply opacity-90;
+    }
+  }
+}
+
+.image-block, .math-equation-block, [data-dark-mode="true"] .image-block, [data-dark-mode="true"] .math-equation-block {
+  ::selection {
+    @apply bg-transparent;
+  }
+  &:hover {
+    .container-bg {
+      background: var(--content-blue-100) !important;
+    }
+  }
+}
+
+.mention-inline {
+  &:hover {
+    @apply bg-fill-list-active rounded;
+  }
 }

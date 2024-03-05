@@ -20,6 +20,7 @@ class OptionColorList extends StatelessWidget {
       crossAxisCount: 6,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
+      padding: EdgeInsets.zero,
       children: SelectOptionColorPB.values.map(
         (colorPB) {
           final color = colorPB.toColor(context);

@@ -39,8 +39,10 @@ class FlowyNetworkImage extends StatelessWidget {
       assert(userProfilePB != null && userProfilePB!.token.isNotEmpty);
     }
 
+    final manager = CustomImageCacheManager();
+
     return CachedNetworkImage(
-      cacheManager: CustomImageCacheManager(),
+      cacheManager: manager,
       httpHeaders: _header(),
       imageUrl: url,
       fit: fit,
@@ -50,6 +52,12 @@ class FlowyNetworkImage extends StatelessWidget {
       errorWidget: (context, url, error) =>
           errorWidgetBuilder?.call(context, url, error) ??
           const SizedBox.shrink(),
+      errorListener: (value) {
+        // try to clear the image cache.
+        manager.removeFile(url);
+
+        Log.error(value.toString());
+      },
     );
   }
 

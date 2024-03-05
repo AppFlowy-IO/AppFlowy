@@ -70,12 +70,12 @@
     "copyLink": "Copiar o link"
   },
   "moreAction": {
-    "fontSize": "Tamanho da fonte",
-    "import": "Importar",
-    "moreOptions": "Mais opções",
     "small": "pequeno",
     "medium": "médio",
-    "large": "grande"
+    "large": "grande",
+    "fontSize": "Tamanho da fonte",
+    "import": "Importar",
+    "moreOptions": "Mais opções"
   },
   "importPanel": {
     "textAndMarkdown": "Texto e Remarcação",
@@ -194,7 +194,9 @@
     "editContact": "Editar um conctato"
   },
   "button": {
+    "ok": "OK",
     "done": "Feito",
+    "cancel": "Cancelar",
     "signIn": "Entrar",
     "signOut": "Sair",
     "complete": "Completar",
@@ -210,9 +212,7 @@
     "edit": "Editar",
     "delete": "Excluir",
     "duplicate": "Duplicado",
-    "putback": "Por de volta",
-    "cancel": "Cancelar",
-    "ok": "OK"
+    "putback": "Por de volta"
   },
   "label": {
     "welcome": "Bem vindo!",

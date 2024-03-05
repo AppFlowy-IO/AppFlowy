@@ -3,7 +3,7 @@ import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/mobile/presentation/home/favorite_folder/mobile_home_favorite_folder.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_state_container.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
-import 'package:appflowy/workspace/application/menu/menu_bloc.dart';
+import 'package:appflowy/workspace/application/menu/sidebar_root_views_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -27,10 +27,13 @@ class MobileFavoritePageFolder extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (_) => MenuBloc(
-            user: userProfile,
-            workspaceId: workspaceSetting.workspaceId,
-          )..add(const MenuEvent.initial()),
+          create: (_) => SidebarRootViewsBloc()
+            ..add(
+              SidebarRootViewsEvent.initial(
+                userProfile,
+                workspaceSetting.workspaceId,
+              ),
+            ),
         ),
         BlocProvider(
           create: (_) => FavoriteBloc()..add(const FavoriteEvent.initial()),
@@ -38,11 +41,11 @@ class MobileFavoritePageFolder extends StatelessWidget {
       ],
       child: MultiBlocListener(
         listeners: [
-          BlocListener<MenuBloc, MenuState>(
+          BlocListener<SidebarRootViewsBloc, SidebarRootViewState>(
             listenWhen: (p, c) =>
-                p.lastCreatedView?.id != c.lastCreatedView?.id,
+                p.lastCreatedRootView?.id != c.lastCreatedRootView?.id,
             listener: (context, state) =>
-                context.pushView(state.lastCreatedView!),
+                context.pushView(state.lastCreatedRootView!),
           ),
         ],
         child: Builder(

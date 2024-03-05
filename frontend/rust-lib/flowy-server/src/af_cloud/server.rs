@@ -3,7 +3,7 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use anyhow::Error;
-use client_api::collab_sync::collab_msg::CollabMessage;
+use client_api::collab_sync::collab_msg::ServerCollabMessage;
 use client_api::entity::UserMessage;
 use client_api::notify::{TokenState, TokenStateReceiver};
 use client_api::ws::{
@@ -203,7 +203,7 @@ impl AppFlowyServer for AppFlowyCloudServer {
     _object_id: &str,
   ) -> FutureResult<
     Option<(
-      Arc<WebSocketChannel<CollabMessage>>,
+      Arc<WebSocketChannel<ServerCollabMessage>>,
       WSConnectStateReceiver,
       bool,
     )>,

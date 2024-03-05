@@ -9,6 +9,7 @@ import { ReactComponent as ChecklistSvg } from '$app/assets/database/field-type-
 import { ReactComponent as CheckboxSvg } from '$app/assets/database/field-type-checkbox.svg';
 import { ReactComponent as URLSvg } from '$app/assets/database/field-type-url.svg';
 import { ReactComponent as LastEditedTimeSvg } from '$app/assets/database/field-type-last-edited-time.svg';
+import { ReactComponent as RelationSvg } from '$app/assets/database/field-type-relation.svg';
 
 export const FieldTypeSvgMap: Record<FieldType, FC<React.SVGProps<SVGSVGElement>>> = {
   [FieldType.RichText]: TextSvg,
@@ -21,6 +22,7 @@ export const FieldTypeSvgMap: Record<FieldType, FC<React.SVGProps<SVGSVGElement>
   [FieldType.Checklist]: ChecklistSvg,
   [FieldType.LastEditedTime]: LastEditedTimeSvg,
   [FieldType.CreatedTime]: LastEditedTimeSvg,
+  [FieldType.Relation]: RelationSvg,
 };
 
 export const ProppertyTypeSvg: FC<{ type: FieldType; className?: string }> = memo(({ type, ...props }) => {

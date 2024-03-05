@@ -159,7 +159,7 @@ class _ChecklistItemState extends State<_ChecklistItem> {
             borderRadius: BorderRadius.circular(22),
             onTap: () => context
                 .read<ChecklistCellBloc>()
-                .add(ChecklistCellEvent.selectTask(widget.task.data)),
+                .add(ChecklistCellEvent.selectTask(widget.task.data.id)),
             child: SizedBox.square(
               dimension: 44,
               child: Center(
@@ -230,7 +230,7 @@ class _ChecklistItemState extends State<_ChecklistItem> {
   void _showDeleteTaskBottomSheet() {
     showMobileBottomSheet(
       context,
-      padding: const EdgeInsets.only(top: 8, bottom: 32),
+      showDragHandle: true,
       builder: (_) => Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -239,7 +239,7 @@ class _ChecklistItemState extends State<_ChecklistItem> {
             child: InkWell(
               onTap: () {
                 context.read<ChecklistCellBloc>().add(
-                      ChecklistCellEvent.deleteTask(widget.task.data),
+                      ChecklistCellEvent.deleteTask(widget.task.data.id),
                     );
                 context.pop();
               },

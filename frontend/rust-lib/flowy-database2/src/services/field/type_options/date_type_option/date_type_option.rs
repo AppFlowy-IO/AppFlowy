@@ -342,12 +342,8 @@ impl TypeOptionCellDataFilter for DateTypeOption {
   fn apply_filter(
     &self,
     filter: &<Self as TypeOption>::CellFilter,
-    field_type: &FieldType,
     cell_data: &<Self as TypeOption>::CellData,
   ) -> bool {
-    if !field_type.is_date() {
-      return true;
-    }
     filter.is_visible(cell_data).unwrap_or(true)
   }
 }

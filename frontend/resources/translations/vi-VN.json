@@ -72,12 +72,12 @@
     "copyLink": "Sao chép đường dẫn"
   },
   "moreAction": {
-    "fontSize": "Cỡ chữ",
-    "import": "Import",
-    "moreOptions": "Lựa chọn khác",
     "small": "nhỏ",
     "medium": "trung bình",
-    "large": "lớn"
+    "large": "lớn",
+    "fontSize": "Cỡ chữ",
+    "import": "Import",
+    "moreOptions": "Lựa chọn khác"
   },
   "importPanel": {
     "textAndMarkdown": "Văn bản &amp; Markdown",
