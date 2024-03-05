@@ -13,6 +13,7 @@ import 'editable_cell_skeleton/checkbox.dart';
 import 'editable_cell_skeleton/checklist.dart';
 import 'editable_cell_skeleton/date.dart';
 import 'editable_cell_skeleton/number.dart';
+import 'editable_cell_skeleton/relation.dart';
 import 'editable_cell_skeleton/select_option.dart';
 import 'editable_cell_skeleton/text.dart';
 import 'editable_cell_skeleton/timestamp.dart';
@@ -106,6 +107,12 @@ class EditableCellBuilder {
           skin: IEditableURLCellSkin.fromStyle(style),
           key: key,
         ),
+      FieldType.Relation => EditableRelationCell(
+          databaseController: databaseController,
+          cellContext: cellContext,
+          skin: IEditableRelationCellSkin.fromStyle(style),
+          key: key,
+        ),
       _ => throw UnimplementedError(),
     };
   }
@@ -184,6 +191,12 @@ class EditableCellBuilder {
           databaseController: databaseController,
           cellContext: cellContext,
           skin: skinMap.urlSkin!,
+          key: key,
+        ),
+      FieldType.Relation => EditableRelationCell(
+          databaseController: databaseController,
+          cellContext: cellContext,
+          skin: skinMap.relationSkin!,
           key: key,
         ),
       _ => throw UnimplementedError(),
@@ -340,6 +353,7 @@ class EditableCellSkinMap {
     this.numberSkin,
     this.textSkin,
     this.urlSkin,
+    this.relationSkin,
   });
 
   final IEditableCheckboxCellSkin? checkboxSkin;
@@ -350,6 +364,7 @@ class EditableCellSkinMap {
   final IEditableNumberCellSkin? numberSkin;
   final IEditableTextCellSkin? textSkin;
   final IEditableURLCellSkin? urlSkin;
+  final IEditableRelationCellSkin? relationSkin;
 
   bool has(FieldType fieldType) {
     return switch (fieldType) {

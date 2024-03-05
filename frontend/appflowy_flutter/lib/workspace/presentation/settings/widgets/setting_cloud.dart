@@ -217,7 +217,7 @@ class CloudTypeItem extends StatelessWidget {
               confirm: () async {
                 onSelected(cloudType);
               },
-              hideCancleButton: true,
+              hideCancelButton: true,
             ).show(context);
           }
           PopoverContainer.of(context).close();

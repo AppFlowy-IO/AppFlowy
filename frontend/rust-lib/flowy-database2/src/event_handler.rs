@@ -13,7 +13,8 @@ use crate::entities::*;
 use crate::manager::DatabaseManager;
 use crate::services::cell::CellBuilder;
 use crate::services::field::{
-  type_option_data_from_pb, ChecklistCellChangeset, DateCellChangeset, SelectOptionCellChangeset,
+  type_option_data_from_pb, ChecklistCellChangeset, DateCellChangeset, RelationCellChangeset,
+  SelectOptionCellChangeset,
 };
 use crate::services::field_settings::FieldSettingsChangesetParams;
 use crate::services::group::GroupChangeset;
@@ -281,7 +282,7 @@ pub(crate) async fn duplicate_field_handler(
   manager: AFPluginState<Weak<DatabaseManager>>,
 ) -> Result<(), FlowyError> {
   let manager = upgrade_manager(manager)?;
-  let params: FieldIdParams = data.into_inner().try_into()?;
+  let params: DuplicateFieldPayloadPB = data.into_inner();
   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
   database_editor
     .duplicate_field(&params.view_id, &params.field_id)
@@ -977,4 +978,82 @@ pub(crate) async fn remove_calculation_handler(
   editor.remove_calculation(params).await?;
 
   Ok(())
+}
+
+pub(crate) async fn get_related_database_ids_handler(
+  _data: AFPluginData<DatabaseViewIdPB>,
+  _manager: AFPluginState<Weak<DatabaseManager>>,
+) -> FlowyResult<()> {
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn update_relation_cell_handler(
+  data: AFPluginData<RelationCellChangesetPB>,
+  manager: AFPluginState<Weak<DatabaseManager>>,
+) -> FlowyResult<()> {
+  let manager = upgrade_manager(manager)?;
+  let params: RelationCellChangesetPB = data.into_inner();
+  let view_id = parser::NotEmptyStr::parse(params.view_id)
+    .map_err(|_| flowy_error::ErrorCode::DatabaseViewIdIsEmpty)?
+    .0;
+  let cell_id: CellIdParams = params.cell_id.try_into()?;
+  let params = RelationCellChangeset {
+    inserted_row_ids: params
+      .inserted_row_ids
+      .into_iter()
+      .map(Into::into)
+      .collect(),
+    removed_row_ids: params.removed_row_ids.into_iter().map(Into::into).collect(),
+  };
+
+  let database_editor = manager.get_database_with_view_id(&view_id).await?;
+
+  // // get the related database
+  // let related_database_id = database_editor
+  //   .get_related_database_id(&cell_id.field_id)
+  //   .await?;
+  // let related_database_editor = manager.get_database(&related_database_id).await?;
+
+  // // validate the changeset contents
+  // related_database_editor
+  //   .validate_row_ids_exist(&params)
+  //   .await?;
+
+  // update the cell in the database
+  database_editor
+    .update_cell_with_changeset(
+      &view_id,
+      cell_id.row_id,
+      &cell_id.field_id,
+      BoxAny::new(params),
+    )
+    .await?;
+  Ok(())
+}
+
+pub(crate) async fn get_related_row_datas_handler(
+  data: AFPluginData<RepeatedRowIdPB>,
+  manager: AFPluginState<Weak<DatabaseManager>>,
+) -> DataResult<RepeatedRelatedRowDataPB, FlowyError> {
+  let manager = upgrade_manager(manager)?;
+  let params: RepeatedRowIdPB = data.into_inner();
+  let database_editor = manager.get_database(&params.database_id).await?;
+  let row_datas = database_editor
+    .get_related_rows(Some(&params.row_ids))
+    .await?;
+
+  data_result_ok(RepeatedRelatedRowDataPB { rows: row_datas })
+}
+
+pub(crate) async fn get_related_database_rows_handler(
+  data: AFPluginData<DatabaseIdPB>,
+  manager: AFPluginState<Weak<DatabaseManager>>,
+) -> DataResult<RepeatedRelatedRowDataPB, FlowyError> {
+  let manager = upgrade_manager(manager)?;
+  let database_id = data.into_inner().value;
+  let database_editor = manager.get_database(&database_id).await?;
+  let row_datas = database_editor.get_related_rows(None).await?;
+
+  data_result_ok(RepeatedRelatedRowDataPB { rows: row_datas })
 }

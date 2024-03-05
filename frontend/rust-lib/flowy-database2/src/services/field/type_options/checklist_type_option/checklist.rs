@@ -178,12 +178,8 @@ impl TypeOptionCellDataFilter for ChecklistTypeOption {
   fn apply_filter(
     &self,
     filter: &<Self as TypeOption>::CellFilter,
-    field_type: &FieldType,
     cell_data: &<Self as TypeOption>::CellData,
   ) -> bool {
-    if !field_type.is_checklist() {
-      return true;
-    }
     let selected_options = cell_data.selected_options();
     filter.is_visible(&cell_data.options, &selected_options)
   }

@@ -67,10 +67,7 @@ class FieldBackendService {
     required String viewId,
     required String fieldId,
   }) {
-    final payload = DuplicateFieldPayloadPB(
-      viewId: viewId,
-      fieldId: fieldId,
-    );
+    final payload = DuplicateFieldPayloadPB(viewId: viewId, fieldId: fieldId);
 
     return DatabaseEventDuplicateField(payload).send();
   }

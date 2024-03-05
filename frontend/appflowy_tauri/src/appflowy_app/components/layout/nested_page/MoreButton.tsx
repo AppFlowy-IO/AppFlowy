@@ -10,7 +10,7 @@ import RenameDialog from '../../_shared/confirm_dialog/RenameDialog';
 import { Page } from '$app_reducers/pages/slice';
 import DeleteDialog from '$app/components/layout/nested_page/DeleteDialog';
 import OperationMenu from '$app/components/layout/nested_page/OperationMenu';
-import { getModifier } from '$app/utils/get_modifier';
+import { getModifier } from '$app/utils/hotkeys';
 import isHotkey from 'is-hotkey';
 
 function MoreButton({

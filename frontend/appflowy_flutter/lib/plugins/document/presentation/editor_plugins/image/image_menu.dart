@@ -118,7 +118,8 @@ class _ImageAlignButtonState extends State<_ImageAlignButton> {
     canTap: (details) => false,
   );
 
-  String get align => widget.node.attributes['align'] ?? 'center';
+  String get align =>
+      widget.node.attributes[ImageBlockKeys.align] ?? centerAlignmentKey;
   final popoverController = PopoverController();
   late final EditorState editorState;
 
@@ -188,11 +189,11 @@ class _ImageAlignButtonState extends State<_ImageAlignButton> {
 
   FlowySvgData iconFor(String alignment) {
     switch (alignment) {
-      case 'right':
+      case rightAlignmentKey:
         return FlowySvgs.align_right_s;
-      case 'center':
+      case centerAlignmentKey:
         return FlowySvgs.align_center_s;
-      case 'left':
+      case leftAlignmentKey:
       default:
         return FlowySvgs.align_left_s;
     }

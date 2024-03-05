@@ -1,28 +1,14 @@
 import { ReactEditor } from 'slate-react';
 import { useCallback, KeyboardEvent } from 'react';
-import {
-  EditorMarkFormat,
-  EditorNodeType,
-  TodoListNode,
-  ToggleListNode,
-} from '$app/application/document/document.types';
+import { EditorNodeType, TodoListNode, ToggleListNode } from '$app/application/document/document.types';
 import isHotkey from 'is-hotkey';
 import { getBlock } from '$app/components/editor/plugins/utils';
 import { SOFT_BREAK_TYPES } from '$app/components/editor/plugins/constants';
 import { CustomEditor } from '$app/components/editor/command';
-import { getHotKeys } from '$app/components/editor/plugins/shortcuts/hotkey';
 
 /**
  * Hotkeys shortcuts
  * @description [getHotKeys] is defined in [hotkey.ts]
- * - bold: Mod+b
- * - italic: Mod+i
- * - underline: Mod+u
- * - strikethrough: Mod+Shift+s
- * - code: Mod+Shift+c
- * - align left: Mod+Shift+l
- * - align center: Mod+Shift+e
- * - align right: Mod+Shift+r
  * - indent: Tab
  * - outdent: Shift+Tab
  * - split block: Enter
@@ -33,24 +19,6 @@ import { getHotKeys } from '$app/components/editor/plugins/shortcuts/hotkey';
 export function useShortcuts(editor: ReactEditor) {
   const onKeyDown = useCallback(
     (e: KeyboardEvent<HTMLDivElement>) => {
-      Object.entries(getHotKeys()).forEach(([_, item]) => {
-        if (isHotkey(item.hotkey, e)) {
-          e.stopPropagation();
-          e.preventDefault();
-          if (CustomEditor.selectionIncludeRoot(editor)) return;
-          if (item.markKey === EditorMarkFormat.Align) {
-            CustomEditor.toggleAlign(editor, item.markValue as string);
-            return;
-          }
-
-          CustomEditor.toggleMark(editor, {
-            key: item.markKey,
-            value: item.markValue,
-          });
-          return;
-        }
-      });
-
       const node = getBlock(editor);
 
       if (isHotkey('Escape', e)) {

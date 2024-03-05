@@ -139,7 +139,7 @@ class _GridHeaderState extends State<_GridHeader> {
   }
 
   Widget _cellLeading() {
-    return SizedBox(width: GridSize.leadingHeaderPadding);
+    return SizedBox(width: GridSize.horizontalHeaderPadding);
   }
 }
 
@@ -158,7 +158,6 @@ class _CellTrailing extends StatelessWidget {
           bottom: BorderSide(color: Theme.of(context).dividerColor),
         ),
       ),
-      padding: GridSize.headerContentInsets,
       child: CreateFieldButton(
         viewId: viewId,
         onFieldCreated: (fieldId) => context

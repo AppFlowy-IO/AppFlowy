@@ -50,12 +50,12 @@
     "copyLink": "링크 복사"
   },
   "moreAction": {
-    "fontSize": "글꼴 크기",
-    "import": "수입",
-    "moreOptions": "추가 옵션",
     "small": "작은",
     "medium": "중간",
-    "large": "크기가 큰"
+    "large": "크기가 큰",
+    "fontSize": "글꼴 크기",
+    "import": "수입",
+    "moreOptions": "추가 옵션"
   },
   "importPanel": {
     "textAndMarkdown": "텍스트 및 마크다운",
@@ -159,7 +159,9 @@
     "editContact": "연락처 편집"
   },
   "button": {
+    "ok": "확인",
     "done": "완료",
+    "cancel": "취소",
     "signIn": "로그인",
     "signOut": "로그아웃",
     "complete": "완료",
@@ -175,9 +177,7 @@
     "edit": "편집하다",
     "delete": "삭제",
     "duplicate": "복제하다",
-    "putback": "다시 집어 넣어",
-    "cancel": "취소",
-    "ok": "확인"
+    "putback": "다시 집어 넣어"
   },
   "label": {
     "welcome": "환영합니다!",

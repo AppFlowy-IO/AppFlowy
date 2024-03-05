@@ -69,12 +69,12 @@
     "copyLink": "Bağlantıyı kopyala"
   },
   "moreAction": {
-    "fontSize": "Yazı boyutu",
-    "import": "İçe aktar",
-    "moreOptions": "Diğer seçenekler",
     "small": "Küçük",
     "medium": "Orta",
-    "large": "Büyük"
+    "large": "Büyük",
+    "fontSize": "Yazı boyutu",
+    "import": "İçe aktar",
+    "moreOptions": "Diğer seçenekler"
   },
   "importPanel": {
     "textAndMarkdown": "Metin ve Markdown",

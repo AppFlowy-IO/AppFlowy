@@ -1,4 +1,7 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/core/frameless_window.dart';
+import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -15,9 +18,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/language.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class SkipLogInScreen extends StatefulWidget {
   const SkipLogInScreen({super.key});
@@ -158,9 +159,8 @@ class SubscribeButtons extends StatelessWidget {
               fontColor: Theme.of(context).colorScheme.primary,
               hoverColor: Colors.transparent,
               fillColor: Colors.transparent,
-              onPressed: () => _launchURL(
-                'https://github.com/AppFlowy-IO/appflowy',
-              ),
+              onPressed: () =>
+                  afLaunchUrlString('https://github.com/AppFlowy-IO/appflowy'),
             ),
           ],
         ),
@@ -179,21 +179,13 @@ class SubscribeButtons extends StatelessWidget {
               fontColor: Theme.of(context).colorScheme.primary,
               hoverColor: Colors.transparent,
               fillColor: Colors.transparent,
-              onPressed: () => _launchURL('https://www.appflowy.io/blog'),
+              onPressed: () =>
+                  afLaunchUrlString('https://www.appflowy.io/blog'),
             ),
           ],
         ),
       ],
     );
-  }
-
-  Future<void> _launchURL(String url) async {
-    final uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri);
-    } else {
-      throw 'Could not launch $url';
-    }
   }
 }
 

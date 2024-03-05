@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/application/tab_bar_bloc.dart';
-import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database/widgets/share_button.dart';
 import 'package:appflowy/plugins/util.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
@@ -112,19 +111,9 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
                       return const SizedBox.shrink();
                     }
 
-                    if (PlatformExtension.isDesktop) {
-                      return Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: GridSize.leadingHeaderPadding,
-                        ),
-                        child: const TabBarHeader(),
-                      );
-                    } else {
-                      return const Padding(
-                        padding: EdgeInsets.only(right: 8),
-                        child: MobileTabBarHeader(),
-                      );
-                    }
+                    return PlatformExtension.isDesktop
+                        ? const TabBarHeader()
+                        : const MobileTabBarHeader();
                   },
                 );
               },

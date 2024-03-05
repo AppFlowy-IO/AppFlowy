@@ -50,12 +50,12 @@
     "copyLink": "Link másolása"
   },
   "moreAction": {
-    "fontSize": "Betűméret",
-    "import": "Importálás",
-    "moreOptions": "Több lehetőség",
     "small": "kicsi",
     "medium": "közepes",
-    "large": "nagy"
+    "large": "nagy",
+    "fontSize": "Betűméret",
+    "import": "Importálás",
+    "moreOptions": "Több lehetőség"
   },
   "importPanel": {
     "textAndMarkdown": "Szöveg & Markdown",
@@ -163,7 +163,9 @@
     "editContact": "Kontakt Szerkesztése"
   },
   "button": {
+    "ok": "OK",
     "done": "Kész",
+    "cancel": "Mégse",
     "signIn": "Bejelentkezés",
     "signOut": "Kijelentkezés",
     "complete": "Kész",
@@ -179,9 +181,7 @@
     "edit": "Szerkesztés",
     "delete": "Töröl",
     "duplicate": "Másolat",
-    "putback": "Visszatesz",
-    "cancel": "Mégse",
-    "ok": "OK"
+    "putback": "Visszatesz"
   },
   "label": {
     "welcome": "Üdvözlünk!",

@@ -88,7 +88,7 @@ class FlowyButton extends StatelessWidget {
   }
 
   Widget _render(BuildContext context) {
-    List<Widget> children = List.empty(growable: true);
+    final List<Widget> children = [];
 
     if (leftIcon != null) {
       children.add(

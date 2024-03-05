@@ -70,12 +70,12 @@
     "copyLink": "نسخ الرابط"
   },
   "moreAction": {
-    "fontSize": "حجم الخط",
-    "import": "استيراد",
-    "moreOptions": "المزيد من الخيارات",
     "small": "صغير",
     "medium": "متوسط",
-    "large": "كبير"
+    "large": "كبير",
+    "fontSize": "حجم الخط",
+    "import": "استيراد",
+    "moreOptions": "المزيد من الخيارات"
   },
   "importPanel": {
     "textAndMarkdown": "نص و Markdown",
@@ -848,10 +848,10 @@
       "addToColumnBottomTooltip": "أضف بطاقة جديدة في الأسفل",
       "renameColumn": "إعادة تسمية",
       "hideColumn": "اخفاء",
-      "groupActions": "إجراءات المجموعة",
       "newGroup": "مجموعة جديدة",
       "deleteColumn": "مسح",
-      "deleteColumnConfirmation": "سيؤدي هذا إلى حذف هذه المجموعة وجميع البطاقات الموجودة فيها. هل أنت متأكد من الاستمرار؟"
+      "deleteColumnConfirmation": "سيؤدي هذا إلى حذف هذه المجموعة وجميع البطاقات الموجودة فيها. هل أنت متأكد من الاستمرار؟",
+      "groupActions": "إجراءات المجموعة"
     },
     "hiddenGroupSection": {
       "sectionTitle": "المجموعات المخفية",
