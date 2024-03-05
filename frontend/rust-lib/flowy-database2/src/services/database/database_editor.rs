@@ -673,15 +673,15 @@ impl DatabaseEditor {
         view.v_did_update_row_meta(row_id, &row_detail).await;
       }
 
-      // Update the last modified time of the row
-      self
-        .update_last_modified_time(row_detail.clone(), &changeset.view_id)
-        .await;
-
       // Notifies the client that the row meta has been updated.
       send_notification(row_id.as_str(), DatabaseNotification::DidUpdateRowMeta)
         .payload(RowMetaPB::from(&row_detail))
         .send();
+
+      // Update the last modified time of the row
+      self
+        .update_last_modified_time(row_detail.clone(), &changeset.view_id)
+        .await;
     }
   }
 
