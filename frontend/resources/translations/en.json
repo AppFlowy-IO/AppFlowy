@@ -739,7 +739,12 @@
       "max": "Max",
       "median": "Median",
       "min": "Min",
-      "sum": "Sum"
+      "sum": "Sum",
+      "count": "Count",
+      "countEmpty": "Count empty",
+      "countEmptyShort": "Empty",
+      "countNonEmpty": "Count non empty",
+      "countNonEmptyShort": "Not empty"
     }
   },
   "document": {

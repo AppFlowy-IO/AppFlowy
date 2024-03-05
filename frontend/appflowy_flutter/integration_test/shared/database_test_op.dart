@@ -1,26 +1,12 @@
 import 'dart:io';
 
-import 'package:appflowy/plugins/database/application/calculations/calculation_type_ext.dart';
-import 'package:appflowy/plugins/database/grid/presentation/widgets/calculations/calculate_cell.dart';
-import 'package:appflowy/plugins/database/grid/presentation/widgets/calculations/calculation_type_item.dart';
-import 'package:appflowy/plugins/database/grid/presentation/widgets/common/type_option_separator.dart';
-import 'package:appflowy/plugins/database/grid/presentation/widgets/header/type_option/number.dart';
-import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/checkbox.dart';
-import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/checklist.dart';
-import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/date.dart';
-import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/number.dart';
-import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/select_option.dart';
-import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/text.dart';
-import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/timestamp.dart';
-import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/url.dart';
-import 'package:appflowy/util/field_type_extension.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/database/application/calculations/calculation_type_ext.dart';
 import 'package:appflowy/plugins/database/board/presentation/board_page.dart';
 import 'package:appflowy/plugins/database/board/presentation/widgets/board_column_header.dart';
 import 'package:appflowy/plugins/database/calendar/application/calendar_bloc.dart';
@@ -30,6 +16,9 @@ import 'package:appflowy/plugins/database/calendar/presentation/calendar_event_e
 import 'package:appflowy/plugins/database/calendar/presentation/calendar_page.dart';
 import 'package:appflowy/plugins/database/calendar/presentation/toolbar/calendar_layout_setting.dart';
 import 'package:appflowy/plugins/database/grid/presentation/grid_page.dart';
+import 'package:appflowy/plugins/database/grid/presentation/widgets/calculations/calculate_cell.dart';
+import 'package:appflowy/plugins/database/grid/presentation/widgets/calculations/calculation_type_item.dart';
+import 'package:appflowy/plugins/database/grid/presentation/widgets/common/type_option_separator.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/checkbox.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/checklist/checklist.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/select_option/option_list.dart';
@@ -43,6 +32,7 @@ import 'package:appflowy/plugins/database/grid/presentation/widgets/header/deskt
 import 'package:appflowy/plugins/database/grid/presentation/widgets/header/field_editor.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/header/field_type_list.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/header/type_option/date/date_time_format.dart';
+import 'package:appflowy/plugins/database/grid/presentation/widgets/header/type_option/number.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/row/row.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/sort/create_sort_list.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/sort/order_panel.dart';
@@ -52,14 +42,22 @@ import 'package:appflowy/plugins/database/grid/presentation/widgets/toolbar/filt
 import 'package:appflowy/plugins/database/grid/presentation/widgets/toolbar/sort_button.dart';
 import 'package:appflowy/plugins/database/tab_bar/desktop/tab_bar_add_button.dart';
 import 'package:appflowy/plugins/database/tab_bar/desktop/tab_bar_header.dart';
-import 'package:appflowy/plugins/database/widgets/database_layout_ext.dart';
-import 'package:appflowy/plugins/database/widgets/row/accessory/cell_accessory.dart';
+import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/checkbox.dart';
+import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/checklist.dart';
+import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/date.dart';
+import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/number.dart';
+import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/select_option.dart';
+import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/text.dart';
+import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/timestamp.dart';
+import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/url.dart';
 import 'package:appflowy/plugins/database/widgets/cell_editor/checklist_cell_editor.dart';
 import 'package:appflowy/plugins/database/widgets/cell_editor/checklist_progress_bar.dart';
 import 'package:appflowy/plugins/database/widgets/cell_editor/date_editor.dart';
 import 'package:appflowy/plugins/database/widgets/cell_editor/extension.dart';
 import 'package:appflowy/plugins/database/widgets/cell_editor/select_option_editor.dart';
 import 'package:appflowy/plugins/database/widgets/cell_editor/select_option_text_field.dart';
+import 'package:appflowy/plugins/database/widgets/database_layout_ext.dart';
+import 'package:appflowy/plugins/database/widgets/row/accessory/cell_accessory.dart';
 import 'package:appflowy/plugins/database/widgets/row/row_action.dart';
 import 'package:appflowy/plugins/database/widgets/row/row_banner.dart';
 import 'package:appflowy/plugins/database/widgets/row/row_detail.dart';
@@ -70,6 +68,7 @@ import 'package:appflowy/plugins/database/widgets/setting/database_setting_actio
 import 'package:appflowy/plugins/database/widgets/setting/database_settings_list.dart';
 import 'package:appflowy/plugins/database/widgets/setting/setting_button.dart';
 import 'package:appflowy/plugins/database/widgets/setting/setting_property_list.dart';
+import 'package:appflowy/util/field_type_extension.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/clear_date_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/date_type_option_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/end_time_button.dart';
@@ -77,6 +76,7 @@ import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/remi
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_board/appflowy_board.dart';
 import 'package:calendar_view/calendar_view.dart';
@@ -86,10 +86,9 @@ import 'package:flowy_infra_ui/style_widget/text_input.dart';
 import 'package:flowy_infra_ui/widget/buttons/primary_button.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
-import 'package:table_calendar/table_calendar.dart';
-
 // Non-exported member of the table_calendar library
 import 'package:table_calendar/src/widgets/cell_content.dart';
+import 'package:table_calendar/table_calendar.dart';
 
 import 'base.dart';
 import 'common_operations.dart';
@@ -972,11 +971,6 @@ extension AppFlowyDatabaseTest on WidgetTester {
   /// Should call [tapRowMenuButtonInGrid] first.
   Future<void> tapDeleteOnRowMenu() async {
     await tapButtonWithName(LocaleKeys.grid_row_delete.tr());
-  }
-
-  Future<void> assertRowCountInGridPage(int num) async {
-    final text = find.text('${rowCountString()} $num', findRichText: true);
-    expect(text, findsOneWidget);
   }
 
   Future<void> createField(FieldType fieldType, String name) async {

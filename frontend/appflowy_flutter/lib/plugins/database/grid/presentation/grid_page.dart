@@ -12,7 +12,6 @@ import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scrollview.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
@@ -237,7 +236,6 @@ class _GridPageContentState extends State<GridPageContent> {
           viewId: widget.view.id,
           scrollController: _scrollController,
         ),
-        const _GridFooter(),
       ],
     );
   }
@@ -430,41 +428,4 @@ class _WrapScrollView extends StatelessWidget {
       ),
     );
   }
-}
-
-class _GridFooter extends StatelessWidget {
-  const _GridFooter();
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocSelector<GridBloc, GridState, int>(
-      selector: (state) => state.rowCount,
-      builder: (context, rowCount) {
-        return Padding(
-          padding: GridSize.contentInsets,
-          child: RichText(
-            text: TextSpan(
-              text: rowCountString(),
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyMedium!
-                  .copyWith(color: Theme.of(context).hintColor),
-              children: [
-                TextSpan(
-                  text: ' $rowCount',
-                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                        color: AFThemeExtension.of(context).gridRowCountColor,
-                      ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-}
-
-String rowCountString() {
-  return '${LocaleKeys.grid_row_count.tr()} :';
 }
