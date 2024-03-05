@@ -163,13 +163,9 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
                   return e;
                 }).toList();
 
-                UserWorkspacePB? currentWorkspace = state.currentWorkspace;
-                if (state.currentWorkspace?.workspaceId == workspaceId) {
-                  currentWorkspace?.freeze();
-                  currentWorkspace = currentWorkspace?.rebuild((p0) {
-                    p0.name = name;
-                  });
-                }
+                final currentWorkspace = workspaces.firstWhere(
+                  (e) => e.workspaceId == state.currentWorkspace?.workspaceId,
+                );
 
                 return (
                   workspaces,
@@ -203,6 +199,7 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
               workspaceId,
               icon,
             );
+
             emit(
               state.copyWith(
                 createWorkspaceResult: null,

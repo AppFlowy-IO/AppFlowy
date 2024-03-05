@@ -146,6 +146,7 @@ class _WorkspaceMenuItem extends StatelessWidget {
                 leftIcon: WorkspaceIcon(
                   workspace: workspace,
                 ),
+                rightIcon: const HSpace(42.0),
                 text: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
