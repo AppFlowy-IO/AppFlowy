@@ -47,7 +47,9 @@ Future<FieldType?> showFieldTypeGridBottomSheet(
           .map(
             (fieldType) => TypeOptionMenuItemValue(
               value: fieldType,
-              backgroundColor: fieldType.mobileIconBackgroundColor,
+              backgroundColor: Theme.of(context).brightness == Brightness.light
+                  ? fieldType.mobileIconBackgroundColor
+                  : fieldType.mobileIconBackgroundColorDark,
               text: fieldType.i18n,
               icon: fieldType.svgData,
               onTap: (context, fieldType) =>
