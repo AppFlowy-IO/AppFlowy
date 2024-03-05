@@ -12,17 +12,16 @@ pub struct TextFilterPB {
   pub content: String,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum)]
+#[derive(Debug, Clone, Default, PartialEq, Eq, ProtoBuf_Enum)]
 #[repr(u8)]
-#[derive(Default)]
 pub enum TextFilterConditionPB {
   #[default]
-  Is = 0,
-  IsNot = 1,
-  Contains = 2,
-  DoesNotContain = 3,
-  StartsWith = 4,
-  EndsWith = 5,
+  TextIs = 0,
+  TextIsNot = 1,
+  TextContains = 2,
+  TextDoesNotContain = 3,
+  TextStartsWith = 4,
+  TextEndsWith = 5,
   TextIsEmpty = 6,
   TextIsNotEmpty = 7,
 }
@@ -38,12 +37,12 @@ impl std::convert::TryFrom<u8> for TextFilterConditionPB {
 
   fn try_from(value: u8) -> Result<Self, Self::Error> {
     match value {
-      0 => Ok(TextFilterConditionPB::Is),
-      1 => Ok(TextFilterConditionPB::IsNot),
-      2 => Ok(TextFilterConditionPB::Contains),
-      3 => Ok(TextFilterConditionPB::DoesNotContain),
-      4 => Ok(TextFilterConditionPB::StartsWith),
-      5 => Ok(TextFilterConditionPB::EndsWith),
+      0 => Ok(TextFilterConditionPB::TextIs),
+      1 => Ok(TextFilterConditionPB::TextIsNot),
+      2 => Ok(TextFilterConditionPB::TextContains),
+      3 => Ok(TextFilterConditionPB::TextDoesNotContain),
+      4 => Ok(TextFilterConditionPB::TextStartsWith),
+      5 => Ok(TextFilterConditionPB::TextEndsWith),
       6 => Ok(TextFilterConditionPB::TextIsEmpty),
       7 => Ok(TextFilterConditionPB::TextIsNotEmpty),
       _ => Err(ErrorCode::InvalidParams),
@@ -54,7 +53,8 @@ impl std::convert::TryFrom<u8> for TextFilterConditionPB {
 impl ParseFilterData for TextFilterPB {
   fn parse(condition: u8, content: String) -> Self {
     Self {
-      condition: TextFilterConditionPB::try_from(condition).unwrap_or(TextFilterConditionPB::Is),
+      condition: TextFilterConditionPB::try_from(condition)
+        .unwrap_or(TextFilterConditionPB::TextIs),
       content,
     }
   }

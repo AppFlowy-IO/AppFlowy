@@ -1,4 +1,4 @@
-use flowy_database2::entities::{FieldType, SelectOptionConditionPB, SelectOptionFilterPB};
+use flowy_database2::entities::{FieldType, SelectOptionFilterConditionPB, SelectOptionFilterPB};
 use lib_infra::box_any::BoxAny;
 
 use crate::database::filter_test::script::FilterScript::*;
@@ -12,7 +12,7 @@ async fn grid_filter_multi_select_is_empty_test() {
       parent_filter_id: None,
       field_type: FieldType::MultiSelect,
       data: BoxAny::new(SelectOptionFilterPB {
-        condition: SelectOptionConditionPB::OptionIsEmpty,
+        condition: SelectOptionFilterConditionPB::OptionIsEmpty,
         option_ids: vec![],
       }),
       changed: None,
@@ -30,7 +30,7 @@ async fn grid_filter_multi_select_is_not_empty_test() {
       parent_filter_id: None,
       field_type: FieldType::MultiSelect,
       data: BoxAny::new(SelectOptionFilterPB {
-        condition: SelectOptionConditionPB::OptionIsNotEmpty,
+        condition: SelectOptionFilterConditionPB::OptionIsNotEmpty,
         option_ids: vec![],
       }),
       changed: None,
@@ -50,7 +50,7 @@ async fn grid_filter_multi_select_is_test() {
       parent_filter_id: None,
       field_type: FieldType::MultiSelect,
       data: BoxAny::new(SelectOptionFilterPB {
-        condition: SelectOptionConditionPB::OptionIs,
+        condition: SelectOptionFilterConditionPB::OptionIs,
         option_ids: vec![options.remove(0).id, options.remove(0).id],
       }),
       changed: None,
@@ -70,7 +70,7 @@ async fn grid_filter_multi_select_is_test2() {
       parent_filter_id: None,
       field_type: FieldType::MultiSelect,
       data: BoxAny::new(SelectOptionFilterPB {
-        condition: SelectOptionConditionPB::OptionIs,
+        condition: SelectOptionFilterConditionPB::OptionIs,
         option_ids: vec![options.remove(1).id],
       }),
       changed: None,
@@ -90,7 +90,7 @@ async fn grid_filter_single_select_is_empty_test() {
       parent_filter_id: None,
       field_type: FieldType::SingleSelect,
       data: BoxAny::new(SelectOptionFilterPB {
-        condition: SelectOptionConditionPB::OptionIsEmpty,
+        condition: SelectOptionFilterConditionPB::OptionIsEmpty,
         option_ids: vec![],
       }),
       changed: Some(FilterRowChanged {
@@ -115,7 +115,7 @@ async fn grid_filter_single_select_is_test() {
       parent_filter_id: None,
       field_type: FieldType::SingleSelect,
       data: BoxAny::new(SelectOptionFilterPB {
-        condition: SelectOptionConditionPB::OptionIs,
+        condition: SelectOptionFilterConditionPB::OptionIs,
         option_ids: vec![options.remove(0).id],
       }),
       changed: Some(FilterRowChanged {
@@ -142,7 +142,7 @@ async fn grid_filter_single_select_is_test2() {
       parent_filter_id: None,
       field_type: FieldType::SingleSelect,
       data: BoxAny::new(SelectOptionFilterPB {
-        condition: SelectOptionConditionPB::OptionIs,
+        condition: SelectOptionFilterConditionPB::OptionIs,
         option_ids: vec![option.id.clone()],
       }),
       changed: Some(FilterRowChanged {
@@ -180,7 +180,7 @@ async fn grid_filter_multi_select_contains_test() {
       parent_filter_id: None,
       field_type: FieldType::MultiSelect,
       data: BoxAny::new(SelectOptionFilterPB {
-        condition: SelectOptionConditionPB::OptionContains,
+        condition: SelectOptionFilterConditionPB::OptionContains,
         option_ids: vec![options.remove(0).id, options.remove(0).id],
       }),
       changed: None,
@@ -200,7 +200,7 @@ async fn grid_filter_multi_select_contains_test2() {
       parent_filter_id: None,
       field_type: FieldType::MultiSelect,
       data: BoxAny::new(SelectOptionFilterPB {
-        condition: SelectOptionConditionPB::OptionContains,
+        condition: SelectOptionFilterConditionPB::OptionContains,
         option_ids: vec![options.remove(1).id],
       }),
       changed: None,

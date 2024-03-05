@@ -6,7 +6,7 @@ import {
   DateFilterConditionPB,
   FieldType,
   NumberFilterConditionPB,
-  SelectOptionConditionPB,
+  SelectOptionFilterConditionPB,
   TextFilterConditionPB,
 } from '@/services/backend';
 
@@ -30,27 +30,27 @@ function FilterConditionSelect({
       case FieldType.URL:
         return [
           {
-            value: TextFilterConditionPB.Contains,
+            value: TextFilterConditionPB.TextContains,
             text: t('grid.textFilter.contains'),
           },
           {
-            value: TextFilterConditionPB.DoesNotContain,
+            value: TextFilterConditionPB.TextDoesNotContain,
             text: t('grid.textFilter.doesNotContain'),
           },
           {
-            value: TextFilterConditionPB.StartsWith,
+            value: TextFilterConditionPB.TextStartsWith,
             text: t('grid.textFilter.startWith'),
           },
           {
-            value: TextFilterConditionPB.EndsWith,
+            value: TextFilterConditionPB.TextEndsWith,
             text: t('grid.textFilter.endsWith'),
           },
           {
-            value: TextFilterConditionPB.Is,
+            value: TextFilterConditionPB.TextIs,
             text: t('grid.textFilter.is'),
           },
           {
-            value: TextFilterConditionPB.IsNot,
+            value: TextFilterConditionPB.TextIsNot,
             text: t('grid.textFilter.isNot'),
           },
           {
@@ -65,46 +65,46 @@ function FilterConditionSelect({
       case FieldType.SingleSelect:
         return [
           {
-            value: SelectOptionConditionPB.OptionIs,
+            value: SelectOptionFilterConditionPB.OptionIs,
             text: t('grid.selectOptionFilter.is'),
           },
           {
-            value: SelectOptionConditionPB.OptionIsNot,
+            value: SelectOptionFilterConditionPB.OptionIsNot,
             text: t('grid.selectOptionFilter.isNot'),
           },
           {
-            value: SelectOptionConditionPB.OptionIsEmpty,
+            value: SelectOptionFilterConditionPB.OptionIsEmpty,
             text: t('grid.selectOptionFilter.isEmpty'),
           },
           {
-            value: SelectOptionConditionPB.OptionIsNotEmpty,
+            value: SelectOptionFilterConditionPB.OptionIsNotEmpty,
             text: t('grid.selectOptionFilter.isNotEmpty'),
           },
         ];
       case FieldType.MultiSelect:
         return [
           {
-            value: SelectOptionConditionPB.OptionIs,
+            value: SelectOptionFilterConditionPB.OptionIs,
             text: t('grid.selectOptionFilter.is'),
           },
           {
-            value: SelectOptionConditionPB.OptionIsNot,
+            value: SelectOptionFilterConditionPB.OptionIsNot,
             text: t('grid.selectOptionFilter.isNot'),
           },
           {
-            value: SelectOptionConditionPB.OptionContains,
+            value: SelectOptionFilterConditionPB.OptionContains,
             text: t('grid.selectOptionFilter.contains'),
           },
           {
-            value: SelectOptionConditionPB.OptionDoesNotContain,
+            value: SelectOptionFilterConditionPB.OptionDoesNotContain,
             text: t('grid.selectOptionFilter.doesNotContain'),
           },
           {
-            value: SelectOptionConditionPB.OptionIsEmpty,
+            value: SelectOptionFilterConditionPB.OptionIsEmpty,
             text: t('grid.selectOptionFilter.isEmpty'),
           },
           {
-            value: SelectOptionConditionPB.OptionIsNotEmpty,
+            value: SelectOptionFilterConditionPB.OptionIsNotEmpty,
             text: t('grid.selectOptionFilter.isNotEmpty'),
           },
         ];

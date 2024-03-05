@@ -70,7 +70,7 @@ async fn grid_filter_is_text_test() {
     parent_filter_id: None,
     field_type: FieldType::RichText,
     data: BoxAny::new(TextFilterPB {
-      condition: TextFilterConditionPB::Is,
+      condition: TextFilterConditionPB::TextIs,
       content: "A".to_string(),
     }),
     changed: Some(FilterRowChanged {
@@ -88,7 +88,7 @@ async fn grid_filter_contain_text_test() {
     parent_filter_id: None,
     field_type: FieldType::RichText,
     data: BoxAny::new(TextFilterPB {
-      condition: TextFilterConditionPB::Contains,
+      condition: TextFilterConditionPB::TextContains,
       content: "A".to_string(),
     }),
     changed: Some(FilterRowChanged {
@@ -109,7 +109,7 @@ async fn grid_filter_contain_text_test2() {
       parent_filter_id: None,
       field_type: FieldType::RichText,
       data: BoxAny::new(TextFilterPB {
-        condition: TextFilterConditionPB::Contains,
+        condition: TextFilterConditionPB::TextContains,
         content: "A".to_string(),
       }),
       changed: Some(FilterRowChanged {
@@ -137,7 +137,7 @@ async fn grid_filter_does_not_contain_text_test() {
     parent_filter_id: None,
     field_type: FieldType::RichText,
     data: BoxAny::new(TextFilterPB {
-      condition: TextFilterConditionPB::DoesNotContain,
+      condition: TextFilterConditionPB::TextDoesNotContain,
       content: "AB".to_string(),
     }),
     changed: Some(FilterRowChanged {
@@ -155,7 +155,7 @@ async fn grid_filter_start_with_text_test() {
     parent_filter_id: None,
     field_type: FieldType::RichText,
     data: BoxAny::new(TextFilterPB {
-      condition: TextFilterConditionPB::StartsWith,
+      condition: TextFilterConditionPB::TextStartsWith,
       content: "A".to_string(),
     }),
     changed: Some(FilterRowChanged {
@@ -174,7 +174,7 @@ async fn grid_filter_ends_with_text_test() {
       parent_filter_id: None,
       field_type: FieldType::RichText,
       data: BoxAny::new(TextFilterPB {
-        condition: TextFilterConditionPB::EndsWith,
+        condition: TextFilterConditionPB::TextEndsWith,
         content: "A".to_string(),
       }),
       changed: None,
@@ -192,7 +192,7 @@ async fn grid_update_text_filter_test() {
       parent_filter_id: None,
       field_type: FieldType::RichText,
       data: BoxAny::new(TextFilterPB {
-        condition: TextFilterConditionPB::EndsWith,
+        condition: TextFilterConditionPB::TextEndsWith,
         content: "A".to_string(),
       }),
       changed: Some(FilterRowChanged {
@@ -210,7 +210,7 @@ async fn grid_update_text_filter_test() {
   let scripts = vec![
     UpdateTextFilter {
       filter,
-      condition: TextFilterConditionPB::Is,
+      condition: TextFilterConditionPB::TextIs,
       content: "A".to_string(),
       changed: Some(FilterRowChanged {
         showing_num_of_rows: 0,

@@ -171,7 +171,7 @@ class FilterBackendService {
   Future<FlowyResult<void, FlowyError>> insertSelectOptionFilter({
     required String fieldId,
     required FieldType fieldType,
-    required SelectOptionConditionPB condition,
+    required SelectOptionFilterConditionPB condition,
     String? filterId,
     List<String> optionIds = const [],
   }) {

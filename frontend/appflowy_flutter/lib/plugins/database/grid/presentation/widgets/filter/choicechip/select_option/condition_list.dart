@@ -18,7 +18,7 @@ class SelectOptionFilterConditionList extends StatelessWidget {
 
   final FilterInfo filterInfo;
   final PopoverMutex popoverMutex;
-  final Function(SelectOptionConditionPB) onCondition;
+  final Function(SelectOptionFilterConditionPB) onCondition;
 
   @override
   Widget build(BuildContext context) {
@@ -48,22 +48,24 @@ class SelectOptionFilterConditionList extends StatelessWidget {
     );
   }
 
-  List<SelectOptionConditionPB> _conditionsForFieldType(FieldType fieldType) {
-    // SelectOptionConditionPB.values is not in order
+  List<SelectOptionFilterConditionPB> _conditionsForFieldType(
+    FieldType fieldType,
+  ) {
+    // SelectOptionFilterConditionPB.values is not in order
     return switch (fieldType) {
       FieldType.SingleSelect => [
-          SelectOptionConditionPB.OptionIs,
-          SelectOptionConditionPB.OptionIsNot,
-          SelectOptionConditionPB.OptionIsEmpty,
-          SelectOptionConditionPB.OptionIsNotEmpty,
+          SelectOptionFilterConditionPB.OptionIs,
+          SelectOptionFilterConditionPB.OptionIsNot,
+          SelectOptionFilterConditionPB.OptionIsEmpty,
+          SelectOptionFilterConditionPB.OptionIsNotEmpty,
         ],
       FieldType.MultiSelect => [
-          SelectOptionConditionPB.OptionContains,
-          SelectOptionConditionPB.OptionDoesNotContain,
-          SelectOptionConditionPB.OptionIs,
-          SelectOptionConditionPB.OptionIsNot,
-          SelectOptionConditionPB.OptionIsEmpty,
-          SelectOptionConditionPB.OptionIsNotEmpty,
+          SelectOptionFilterConditionPB.OptionContains,
+          SelectOptionFilterConditionPB.OptionDoesNotContain,
+          SelectOptionFilterConditionPB.OptionIs,
+          SelectOptionFilterConditionPB.OptionIsNot,
+          SelectOptionFilterConditionPB.OptionIsEmpty,
+          SelectOptionFilterConditionPB.OptionIsNotEmpty,
         ],
       _ => [],
     };
@@ -73,7 +75,7 @@ class SelectOptionFilterConditionList extends StatelessWidget {
 class ConditionWrapper extends ActionCell {
   ConditionWrapper(this.inner, this.isSelected);
 
-  final SelectOptionConditionPB inner;
+  final SelectOptionFilterConditionPB inner;
   final bool isSelected;
 
   @override
@@ -85,20 +87,21 @@ class ConditionWrapper extends ActionCell {
   String get name => inner.i18n;
 }
 
-extension SelectOptionConditionPBExtension on SelectOptionConditionPB {
+extension SelectOptionFilterConditionPBExtension
+    on SelectOptionFilterConditionPB {
   String get i18n {
     return switch (this) {
-      SelectOptionConditionPB.OptionIs =>
+      SelectOptionFilterConditionPB.OptionIs =>
         LocaleKeys.grid_selectOptionFilter_is.tr(),
-      SelectOptionConditionPB.OptionIsNot =>
+      SelectOptionFilterConditionPB.OptionIsNot =>
         LocaleKeys.grid_selectOptionFilter_isNot.tr(),
-      SelectOptionConditionPB.OptionContains =>
+      SelectOptionFilterConditionPB.OptionContains =>
         LocaleKeys.grid_selectOptionFilter_isNot.tr(),
-      SelectOptionConditionPB.OptionDoesNotContain =>
+      SelectOptionFilterConditionPB.OptionDoesNotContain =>
         LocaleKeys.grid_selectOptionFilter_isNot.tr(),
-      SelectOptionConditionPB.OptionIsEmpty =>
+      SelectOptionFilterConditionPB.OptionIsEmpty =>
         LocaleKeys.grid_selectOptionFilter_isEmpty.tr(),
-      SelectOptionConditionPB.OptionIsNotEmpty =>
+      SelectOptionFilterConditionPB.OptionIsNotEmpty =>
         LocaleKeys.grid_selectOptionFilter_isNotEmpty.tr(),
       _ => "",
     };

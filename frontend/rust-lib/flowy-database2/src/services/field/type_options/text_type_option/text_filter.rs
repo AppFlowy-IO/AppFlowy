@@ -5,12 +5,12 @@ impl TextFilterPB {
     let cell_data = cell_data.as_ref().to_lowercase();
     let content = &self.content.to_lowercase();
     match self.condition {
-      TextFilterConditionPB::Is => &cell_data == content,
-      TextFilterConditionPB::IsNot => &cell_data != content,
-      TextFilterConditionPB::Contains => cell_data.contains(content),
-      TextFilterConditionPB::DoesNotContain => !cell_data.contains(content),
-      TextFilterConditionPB::StartsWith => cell_data.starts_with(content),
-      TextFilterConditionPB::EndsWith => cell_data.ends_with(content),
+      TextFilterConditionPB::TextIs => &cell_data == content,
+      TextFilterConditionPB::TextIsNot => &cell_data != content,
+      TextFilterConditionPB::TextContains => cell_data.contains(content),
+      TextFilterConditionPB::TextDoesNotContain => !cell_data.contains(content),
+      TextFilterConditionPB::TextStartsWith => cell_data.starts_with(content),
+      TextFilterConditionPB::TextEndsWith => cell_data.ends_with(content),
       TextFilterConditionPB::TextIsEmpty => cell_data.is_empty(),
       TextFilterConditionPB::TextIsNotEmpty => !cell_data.is_empty(),
     }
@@ -25,7 +25,7 @@ mod tests {
   #[test]
   fn text_filter_equal_test() {
     let text_filter = TextFilterPB {
-      condition: TextFilterConditionPB::Is,
+      condition: TextFilterConditionPB::TextIs,
       content: "appflowy".to_owned(),
     };
 
@@ -37,7 +37,7 @@ mod tests {
   #[test]
   fn text_filter_start_with_test() {
     let text_filter = TextFilterPB {
-      condition: TextFilterConditionPB::StartsWith,
+      condition: TextFilterConditionPB::TextStartsWith,
       content: "appflowy".to_owned(),
     };
 
@@ -49,7 +49,7 @@ mod tests {
   #[test]
   fn text_filter_end_with_test() {
     let text_filter = TextFilterPB {
-      condition: TextFilterConditionPB::EndsWith,
+      condition: TextFilterConditionPB::TextEndsWith,
       content: "appflowy".to_owned(),
     };
 
@@ -70,7 +70,7 @@ mod tests {
   #[test]
   fn text_filter_contain_test() {
     let text_filter = TextFilterPB {
-      condition: TextFilterConditionPB::Contains,
+      condition: TextFilterConditionPB::TextContains,
       content: "appflowy".to_owned(),
     };
 

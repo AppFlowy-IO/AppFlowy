@@ -119,7 +119,7 @@ class SelectOptionFilterListEvent with _$SelectOptionFilterListEvent {
   const factory SelectOptionFilterListEvent.initial() = _Initial;
   const factory SelectOptionFilterListEvent.selectOption(
     SelectOptionPB option,
-    SelectOptionConditionPB condition,
+    SelectOptionFilterConditionPB condition,
   ) = _SelectOption;
   const factory SelectOptionFilterListEvent.unselectOption(
     SelectOptionPB option,

@@ -1,4 +1,4 @@
-use crate::entities::{SelectOptionConditionPB, SelectOptionFilterPB};
+use crate::entities::{SelectOptionFilterConditionPB, SelectOptionFilterPB};
 use crate::services::field::SelectOption;
 
 impl SelectOptionFilterPB {
@@ -12,20 +12,20 @@ impl SelectOptionFilterPB {
       || (!self.option_ids.is_empty()).then(|| self.option_ids.clone());
 
     let strategy = match self.condition {
-      SelectOptionConditionPB::OptionIs => {
+      SelectOptionFilterConditionPB::OptionIs => {
         SelectOptionFilterStrategy::Is(get_non_empty_expected_options()?)
       },
-      SelectOptionConditionPB::OptionIsNot => {
+      SelectOptionFilterConditionPB::OptionIsNot => {
         SelectOptionFilterStrategy::IsNot(get_non_empty_expected_options()?)
       },
-      SelectOptionConditionPB::OptionContains => {
+      SelectOptionFilterConditionPB::OptionContains => {
         SelectOptionFilterStrategy::Contains(get_non_empty_expected_options()?)
       },
-      SelectOptionConditionPB::OptionDoesNotContain => {
+      SelectOptionFilterConditionPB::OptionDoesNotContain => {
         SelectOptionFilterStrategy::DoesNotContain(get_non_empty_expected_options()?)
       },
-      SelectOptionConditionPB::OptionIsEmpty => SelectOptionFilterStrategy::IsEmpty,
-      SelectOptionConditionPB::OptionIsNotEmpty => SelectOptionFilterStrategy::IsNotEmpty,
+      SelectOptionFilterConditionPB::OptionIsEmpty => SelectOptionFilterStrategy::IsEmpty,
+      SelectOptionFilterConditionPB::OptionIsNotEmpty => SelectOptionFilterStrategy::IsNotEmpty,
     };
 
     Some(strategy.filter(&selected_option_ids))
@@ -92,14 +92,14 @@ impl SelectOptionFilterStrategy {
 
 #[cfg(test)]
 mod tests {
-  use crate::entities::{SelectOptionConditionPB, SelectOptionFilterPB};
+  use crate::entities::{SelectOptionFilterConditionPB, SelectOptionFilterPB};
   use crate::services::field::SelectOption;
 
   #[test]
   fn select_option_filter_is_empty_test() {
     let option = SelectOption::new("A");
     let filter = SelectOptionFilterPB {
-      condition: SelectOptionConditionPB::OptionIsEmpty,
+      condition: SelectOptionFilterConditionPB::OptionIsEmpty,
       option_ids: vec![],
     };
 
@@ -112,7 +112,7 @@ mod tests {
     let option_1 = SelectOption::new("A");
     let option_2 = SelectOption::new("B");
     let filter = SelectOptionFilterPB {
-      condition: SelectOptionConditionPB::OptionIsNotEmpty,
+      condition: SelectOptionFilterConditionPB::OptionIsNotEmpty,
       option_ids: vec![option_1.id.clone(), option_2.id.clone()],
     };
 
@@ -128,7 +128,7 @@ mod tests {
 
     // no expected options
     let filter = SelectOptionFilterPB {
-      condition: SelectOptionConditionPB::OptionIs,
+      condition: SelectOptionFilterConditionPB::OptionIs,
       option_ids: vec![],
     };
     for (options, is_visible) in [
@@ -141,7 +141,7 @@ mod tests {
 
     // one expected option
     let filter = SelectOptionFilterPB {
-      condition: SelectOptionConditionPB::OptionIs,
+      condition: SelectOptionFilterConditionPB::OptionIs,
       option_ids: vec![option_1.id.clone()],
     };
     for (options, is_visible) in [
@@ -156,7 +156,7 @@ mod tests {
 
     // multiple expected options
     let filter = SelectOptionFilterPB {
-      condition: SelectOptionConditionPB::OptionIs,
+      condition: SelectOptionFilterConditionPB::OptionIs,
       option_ids: vec![option_1.id.clone(), option_2.id.clone()],
     };
     for (options, is_visible) in [
@@ -180,7 +180,7 @@ mod tests {
 
     // no expected options
     let filter = SelectOptionFilterPB {
-      condition: SelectOptionConditionPB::OptionIsNot,
+      condition: SelectOptionFilterConditionPB::OptionIsNot,
       option_ids: vec![],
     };
     for (options, is_visible) in [
@@ -193,7 +193,7 @@ mod tests {
 
     // one expected option
     let filter = SelectOptionFilterPB {
-      condition: SelectOptionConditionPB::OptionIsNot,
+      condition: SelectOptionFilterConditionPB::OptionIsNot,
       option_ids: vec![option_1.id.clone()],
     };
     for (options, is_visible) in [
@@ -208,7 +208,7 @@ mod tests {
 
     // multiple expected options
     let filter = SelectOptionFilterPB {
-      condition: SelectOptionConditionPB::OptionIsNot,
+      condition: SelectOptionFilterConditionPB::OptionIsNot,
       option_ids: vec![option_1.id.clone(), option_2.id.clone()],
     };
     for (options, is_visible) in [
@@ -233,7 +233,7 @@ mod tests {
 
     // no expected options
     let filter = SelectOptionFilterPB {
-      condition: SelectOptionConditionPB::OptionContains,
+      condition: SelectOptionFilterConditionPB::OptionContains,
       option_ids: vec![],
     };
     for (options, is_visible) in [
@@ -246,7 +246,7 @@ mod tests {
 
     // one expected option
     let filter = SelectOptionFilterPB {
-      condition: SelectOptionConditionPB::OptionContains,
+      condition: SelectOptionFilterConditionPB::OptionContains,
       option_ids: vec![option_1.id.clone()],
     };
     for (options, is_visible) in [
@@ -261,7 +261,7 @@ mod tests {
 
     // multiple expected options
     let filter = SelectOptionFilterPB {
-      condition: SelectOptionConditionPB::OptionContains,
+      condition: SelectOptionFilterConditionPB::OptionContains,
       option_ids: vec![option_1.id.clone(), option_2.id.clone()],
     };
     for (options, is_visible) in [
@@ -289,7 +289,7 @@ mod tests {
 
     // no expected options
     let filter = SelectOptionFilterPB {
-      condition: SelectOptionConditionPB::OptionDoesNotContain,
+      condition: SelectOptionFilterConditionPB::OptionDoesNotContain,
       option_ids: vec![],
     };
     for (options, is_visible) in [
@@ -302,7 +302,7 @@ mod tests {
 
     // one expected option
     let filter = SelectOptionFilterPB {
-      condition: SelectOptionConditionPB::OptionDoesNotContain,
+      condition: SelectOptionFilterConditionPB::OptionDoesNotContain,
       option_ids: vec![option_1.id.clone()],
     };
     for (options, is_visible) in [
@@ -317,7 +317,7 @@ mod tests {
 
     // multiple expected options
     let filter = SelectOptionFilterPB {
-      condition: SelectOptionConditionPB::OptionDoesNotContain,
+      condition: SelectOptionFilterConditionPB::OptionDoesNotContain,
       option_ids: vec![option_1.id.clone(), option_2.id.clone()],
     };
     for (options, is_visible) in [

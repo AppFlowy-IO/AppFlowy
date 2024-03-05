@@ -8,7 +8,7 @@ abstract class SelectOptionFilterDelegate {
   Set<String> selectOption(
     Set<String> currentOptionIds,
     String optionId,
-    SelectOptionConditionPB condition,
+    SelectOptionFilterConditionPB condition,
   );
 }
 
@@ -28,11 +28,11 @@ class SingleSelectOptionFilterDelegateImpl
   Set<String> selectOption(
     Set<String> currentOptionIds,
     String optionId,
-    SelectOptionConditionPB condition,
+    SelectOptionFilterConditionPB condition,
   ) {
     final selectOptionIds = Set<String>.from(currentOptionIds);
 
-    if (condition == SelectOptionConditionPB.OptionIsNot ||
+    if (condition == SelectOptionFilterConditionPB.OptionIsNot ||
         selectOptionIds.isEmpty) {
       selectOptionIds.add(optionId);
     }
@@ -57,7 +57,7 @@ class MultiSelectOptionFilterDelegateImpl
   Set<String> selectOption(
     Set<String> currentOptionIds,
     String optionId,
-    SelectOptionConditionPB condition,
+    SelectOptionFilterConditionPB condition,
   ) =>
       Set<String>.from(currentOptionIds)..add(optionId);
 }
