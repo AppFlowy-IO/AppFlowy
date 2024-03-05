@@ -10,6 +10,7 @@ import 'package:appflowy/user/application/auth/af_cloud_mock_auth_service.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_workspace.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_actions.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_menu.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/setting_appflowy_cloud.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_user_view.dart';
@@ -39,7 +40,9 @@ void main() {
       return;
     }
 
-    testWidgets('create a new workspace', (tester) async {
+    // combine the create and delete workspace test to reduce the time
+    testWidgets('create a new workspace, open it and then delete it',
+        (tester) async {
       await tester.initializeAppFlowy(
         cloudType: AuthenticatorType.appflowyCloudSelfHost,
         email: email,
@@ -51,16 +54,60 @@ void main() {
       await tester.createCollaborativeWorkspace(name);
 
       // see the success message
-      final success = find.text(LocaleKeys.workspace_createSuccess.tr());
+      var success = find.text(LocaleKeys.workspace_createSuccess.tr());
       expect(success, findsOneWidget);
       await tester.pumpUntilNotFound(success);
 
+      // check the create result
       await tester.openCollaborativeWorkspaceMenu();
-      final items = find.byType(WorkspaceMenuItem);
+      var items = find.byType(WorkspaceMenuItem);
       expect(items, findsNWidgets(2));
       expect(
-        (items.evaluate().last.widget as WorkspaceMenuItem).workspace.name,
+        tester.widget<WorkspaceMenuItem>(items.last).workspace.name,
         name,
+      );
+
+      // open the newly created workspace
+      await tester.tapButton(items.last);
+      success = find.text(LocaleKeys.workspace_openSuccess.tr());
+      expect(success, findsOneWidget);
+      await tester.pumpUntilNotFound(success);
+
+      await tester.closeCollaborativeWorkspaceMenu();
+
+      // delete the newly created workspace
+      await tester.openCollaborativeWorkspaceMenu();
+      final secondWorkspace = find.byType(WorkspaceMenuItem).last;
+      await tester.hoverOnWidget(
+        secondWorkspace,
+        onHover: () async {
+          // click the more button
+          final moreButton = find.byType(WorkspaceMoreActionList);
+          expect(moreButton, findsOneWidget);
+          await tester.tapButton(moreButton);
+          // click the delete button
+          final deleteButton = find.text(LocaleKeys.button_delete.tr());
+          expect(deleteButton, findsOneWidget);
+          await tester.tapButton(deleteButton);
+          // see the delete confirm dialog
+          final confirm =
+              find.text(LocaleKeys.workspace_deleteWorkspaceHintText.tr());
+          expect(confirm, findsOneWidget);
+          await tester.tapButton(find.text(LocaleKeys.button_ok.tr()));
+          // delete success
+          success = find.text(LocaleKeys.workspace_createSuccess.tr());
+          expect(success, findsOneWidget);
+          await tester.pumpUntilNotFound(success);
+        },
+      );
+
+      // check the result
+      await tester.openCollaborativeWorkspaceMenu();
+      items = find.byType(WorkspaceMenuItem);
+      expect(items, findsOneWidget);
+      expect(
+        tester.widget<WorkspaceMenuItem>(items.last).workspace.name != name,
+        true,
       );
       await tester.closeCollaborativeWorkspaceMenu();
     });
