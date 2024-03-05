@@ -130,20 +130,6 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
               },
             );
 
-            // if (kDebugMode) {
-            //   // check the result on debug mode
-            //   openWorkspaceResult.onSuccess((s) async {
-            //     await _userService.getCurrentWorkspace().fold(
-            //       (s) {
-            //         assert(s.id == currentWorkspace?.workspaceId);
-            //       },
-            //       (f) {
-            //         assert(false, 'Unable to get current workspace');
-            //       },
-            //     );
-            //   });
-            // }
-
             emit(
               state.copyWith(
                 createWorkspaceResult: null,
