@@ -71,7 +71,11 @@
     "deleteSuccess": "Workspace deleted successfully",
     "deleteFailed": "Failed to delete workspace",
     "openSuccess": "Open workspace successfully",
-    "openFailed": "Failed to open workspace"
+    "openFailed": "Failed to open workspace",
+    "renameSuccess": "Workspace renamed successfully",
+    "renameFailed": "Failed to rename workspace",
+    "updateIconSuccess": "Workspace reset successfully",
+    "updateIconFailed": "Failed to reset workspace"
   },
   "shareAction": {
     "buttonText": "Share",
@@ -917,8 +921,9 @@
       "error": {
         "invalidImage": "Invalid image",
         "invalidImageSize": "Image size must be less than 5MB",
-        "invalidImageFormat": "Image format is not supported. Supported formats: JPEG, PNG, GIF, SVG",
-        "invalidImageUrl": "Invalid image URL"
+        "invalidImageFormat": "Image format is not supported. Supported formats: JPEG, PNG, JPG",
+        "invalidImageUrl": "Invalid image URL",
+        "noImage": "No such file or directory"
       },
       "embedLink": {
         "label": "Embed link",
@@ -1245,6 +1250,8 @@
     "backgroundColorPurple": "Purple background",
     "backgroundColorPink": "Pink background",
     "backgroundColorRed": "Red background",
+    "backgroundColorLime": "Lime background",
+    "backgroundColorAqua": "Aqua background",
     "done": "Done",
     "cancel": "Cancel",
     "tint1": "Tint 1",

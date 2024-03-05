@@ -1,4 +1,5 @@
 export * from './Unsplash';
 export * from './UploadImage';
 export * from './EmbedLink';
-export * from './Colors';
+export * from './UploadTabs';
+export * from './LocalImage';

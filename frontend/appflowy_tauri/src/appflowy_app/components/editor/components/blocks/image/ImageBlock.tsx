@@ -24,9 +24,9 @@ export const ImageBlock = memo(
         onClick={() => {
           if (!selected) onFocusNode();
         }}
-        className={`${className} image-block relative w-full cursor-pointer py-1`}
+        className={`${className} image-block  relative w-full cursor-pointer py-1`}
       >
-        <div ref={ref} className={'absolute left-0 top-0 h-full w-full caret-transparent'}>
+        <div ref={ref} className={'absolute  left-0 top-0 h-full w-full select-none caret-transparent'}>
           {children}
         </div>
         <div

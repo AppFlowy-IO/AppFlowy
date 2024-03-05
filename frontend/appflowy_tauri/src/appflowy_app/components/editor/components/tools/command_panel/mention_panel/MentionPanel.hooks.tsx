@@ -52,7 +52,8 @@ export function useMentionPanel({
 
       closePanel(true);
       CustomEditor.insertMention(editor, {
-        page: id,
+        page_id: id,
+        type: MentionType.PageRef,
       });
     },
     [closePanel, editor]

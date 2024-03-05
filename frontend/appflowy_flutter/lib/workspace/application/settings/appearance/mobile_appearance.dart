@@ -74,10 +74,9 @@ class MobileAppearance extends BaseAppearance {
             outline: _hintColorInDarkMode,
             outlineVariant: Colors.black,
             //Snack bar
-            surface: const Color(0xff2F3030),
+            surface: const Color(0xFF171A1F),
             onSurface: const Color(0xffC5C6C7), // text/body color
           );
-
     final hintColor = brightness == Brightness.light
         ? const Color(0x991F2329)
         : _hintColorInDarkMode;

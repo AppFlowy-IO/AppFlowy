@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'package:appflowy_backend/protobuf/flowy-notification/protobuf.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 
-class NotificationParser<T, E> {
+class NotificationParser<T, E extends Object> {
   NotificationParser({
     this.id,
     required this.callback,

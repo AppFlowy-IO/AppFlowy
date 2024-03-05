@@ -27,6 +27,7 @@ import { Text as TextComponent } from '../blocks/text';
 import { Page } from '../blocks/page';
 import { useElementState } from '$app/components/editor/components/editor/Element.hooks';
 import UnSupportBlock from '$app/components/editor/components/blocks/_shared/unSupportBlock';
+import { renderColor } from '$app/utils/color';
 
 function Element({ element, attributes, children }: RenderElementProps) {
   const node = element;
@@ -98,8 +99,8 @@ function Element({ element, attributes, children }: RenderElementProps) {
     const data = (node.data as BlockData) || {};
 
     return {
-      backgroundColor: data.bg_color,
-      color: data.font_color,
+      backgroundColor: data.bg_color ? renderColor(data.bg_color) : undefined,
+      color: data.font_color ? renderColor(data.font_color) : undefined,
     };
   }, [node.data]);
 

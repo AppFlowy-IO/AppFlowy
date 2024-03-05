@@ -28,8 +28,11 @@ export class Provider extends EventEmitter {
     sharedType.applyDelta(delta);
 
     const rootId = this.dataClient.rootId as string;
+    const root = delta[0].insert as Y.XmlText;
+    const data = root.getAttribute('data');
 
     sharedType.setAttribute('blockId', rootId);
+    sharedType.setAttribute('data', data);
 
     this.sharedType = sharedType;
     this.sharedType?.observeDeep(this.onChange);
