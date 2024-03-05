@@ -130,4 +130,24 @@ class UserBackendService {
     final request = UserWorkspaceIdPB.create()..workspaceId = workspaceId;
     return UserEventDeleteWorkspace(request).send();
   }
+
+  Future<FlowyResult<void, FlowyError>> renameWorkspace(
+    String workspaceId,
+    String name,
+  ) {
+    final request = RenameWorkspacePB()
+      ..workspaceId = workspaceId
+      ..newName = name;
+    return UserEventRenameWorkspace(request).send();
+  }
+
+  Future<FlowyResult<void, FlowyError>> updateWorkspaceIcon(
+    String workspaceId,
+    String icon,
+  ) {
+    final request = ChangeWorkspaceIconPB()
+      ..workspaceId = workspaceId
+      ..newIcon = icon;
+    return UserEventChangeWorkspaceIcon(request).send();
+  }
 }

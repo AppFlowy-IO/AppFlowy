@@ -6,10 +6,13 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/emoji_picker_button.dart';
 import 'package:appflowy/plugins/document/presentation/share/share_button.dart';
+import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/presentation/screens/screens.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/widgets.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_new_page_button.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_workspace.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_menu.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/draggable_view_item.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_add_button.dart';
@@ -517,6 +520,51 @@ extension CommonOperations on WidgetTester {
       await tap(tabFinder);
       await pumpAndSettle();
     }
+  }
+
+  Future<void> openCollaborativeWorkspaceMenu() async {
+    if (!FeatureFlag.collaborativeWorkspace.isOn) {
+      throw UnsupportedError('Collaborative workspace is not enabled');
+    }
+
+    final workspace = find.byType(SidebarWorkspace);
+    expect(workspace, findsOneWidget);
+    // click it
+    await tapButton(workspace);
+  }
+
+  Future<void> closeCollaborativeWorkspaceMenu() async {
+    if (!FeatureFlag.collaborativeWorkspace.isOn) {
+      throw UnsupportedError('Collaborative workspace is not enabled');
+    }
+
+    await tapAt(Offset.zero);
+    await pumpAndSettle();
+  }
+
+  Future<void> createCollaborativeWorkspace(String name) async {
+    if (!FeatureFlag.collaborativeWorkspace.isOn) {
+      throw UnsupportedError('Collaborative workspace is not enabled');
+    }
+    await openCollaborativeWorkspaceMenu();
+    // expect to see the workspace list, and there should be only one workspace
+    final workspacesMenu = find.byType(WorkspacesMenu);
+    expect(workspacesMenu, findsOneWidget);
+
+    // click the create button
+    final createButton = find.byKey(createWorkspaceButtonKey);
+    expect(createButton, findsOneWidget);
+    await tapButton(createButton);
+
+    // see the create workspace dialog
+    final createWorkspaceDialog = find.byType(CreateWorkspaceDialog);
+    expect(createWorkspaceDialog, findsOneWidget);
+
+    // input the workspace name
+    await enterText(find.byType(TextField), name);
+    await pumpAndSettle();
+
+    await tapButtonWithName(LocaleKeys.button_ok.tr());
   }
 }
 

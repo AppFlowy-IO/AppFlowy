@@ -134,14 +134,33 @@ extension AppFlowyTestBase on WidgetTester {
   Future<void> pumpUntilFound(
     Finder finder, {
     Duration timeout = const Duration(seconds: 10),
-    Duration pumpInterval =
-        const Duration(milliseconds: 50), // Interval between pumps
+    Duration pumpInterval = const Duration(
+      milliseconds: 50,
+    ), // Interval between pumps
   }) async {
     bool timerDone = false;
     final timer = Timer(timeout, () => timerDone = true);
     while (!timerDone) {
       await pump(pumpInterval); // Pump with an interval
       if (any(finder)) {
+        break;
+      }
+    }
+    timer.cancel();
+  }
+
+  Future<void> pumpUntilNotFound(
+    Finder finder, {
+    Duration timeout = const Duration(seconds: 10),
+    Duration pumpInterval = const Duration(
+      milliseconds: 50,
+    ), // Interval between pumps
+  }) async {
+    bool timerDone = false;
+    final timer = Timer(timeout, () => timerDone = true);
+    while (!timerDone) {
+      await pump(pumpInterval); // Pump with an interval
+      if (!any(finder)) {
         break;
       }
     }

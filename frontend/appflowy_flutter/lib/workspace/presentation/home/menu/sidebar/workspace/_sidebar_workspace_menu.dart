@@ -4,16 +4,17 @@ import 'package:appflowy/shared/af_role_pb_extension.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_actions.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_icon.dart';
-import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/members/workspace_member_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
-import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+@visibleForTesting
+const createWorkspaceButtonKey = ValueKey('createWorkspaceButton');
 
 class WorkspacesMenu extends StatelessWidget {
   const WorkspacesMenu({
@@ -38,14 +39,17 @@ class WorkspacesMenu extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
           child: Row(
             children: [
-              FlowyText.medium(
-                _getUserInfo(),
-                fontSize: 12.0,
-                overflow: TextOverflow.ellipsis,
-                color: Theme.of(context).hintColor,
+              Expanded(
+                child: FlowyText.medium(
+                  _getUserInfo(),
+                  fontSize: 12.0,
+                  overflow: TextOverflow.ellipsis,
+                  color: Theme.of(context).hintColor,
+                ),
               ),
-              const Spacer(),
+              const HSpace(4.0),
               FlowyButton(
+                key: createWorkspaceButtonKey,
                 useIntrinsicWidth: true,
                 text: const FlowySvg(FlowySvgs.add_m),
                 onTap: () {
@@ -57,7 +61,7 @@ class WorkspacesMenu extends StatelessWidget {
           ),
         ),
         for (final workspace in workspaces) ...[
-          _WorkspaceMenuItem(
+          WorkspaceMenuItem(
             workspace: workspace,
             userProfile: userProfile,
             isSelected: workspace.workspaceId == currentWorkspace.workspaceId,
@@ -82,29 +86,19 @@ class WorkspacesMenu extends StatelessWidget {
 
   Future<void> _showCreateWorkspaceDialog(BuildContext context) async {
     if (context.mounted) {
-      await NavigatorTextFieldDialog(
-        title: LocaleKeys.workspace_create.tr(),
-        value: '',
-        hintText: '',
-        autoSelectAllText: true,
-        onConfirm: (name, context) async {
-          final request = CreateWorkspacePB.create()..name = name;
-          final result = await UserEventCreateWorkspace(request).send();
-          final message = result.fold(
-            (s) => LocaleKeys.workspace_createSuccess.tr(),
-            (e) => '${LocaleKeys.workspace_createFailed.tr()}: ${e.msg}',
-          );
-          if (context.mounted) {
-            showSnackBarMessage(context, message);
-          }
+      final workspaceBloc = context.read<UserWorkspaceBloc>();
+      await CreateWorkspaceDialog(
+        onConfirm: (name) {
+          workspaceBloc.add(UserWorkspaceEvent.createWorkspace(name, ''));
         },
       ).show(context);
     }
   }
 }
 
-class _WorkspaceMenuItem extends StatelessWidget {
-  const _WorkspaceMenuItem({
+class WorkspaceMenuItem extends StatelessWidget {
+  const WorkspaceMenuItem({
+    super.key,
     required this.workspace,
     required this.userProfile,
     required this.isSelected,
@@ -143,9 +137,10 @@ class _WorkspaceMenuItem extends StatelessWidget {
                 margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                 iconPadding: 10.0,
                 leftIconSize: const Size.square(32),
-                leftIcon: WorkspaceIcon(
-                  workspace: workspace,
+                leftIcon: const SizedBox.square(
+                  dimension: 32,
                 ),
+                rightIcon: const HSpace(42.0),
                 text: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -161,6 +156,15 @@ class _WorkspaceMenuItem extends StatelessWidget {
                         color: Theme.of(context).hintColor,
                       ),
                   ],
+                ),
+              ),
+              Positioned(
+                left: 12,
+                child: SizedBox.square(
+                  dimension: 32,
+                  child: WorkspaceIcon(
+                    workspace: workspace,
+                  ),
                 ),
               ),
               Positioned(
@@ -187,9 +191,28 @@ class _WorkspaceMenuItem extends StatelessWidget {
         WorkspaceMoreActionList(workspace: workspace),
         const FlowySvg(
           FlowySvgs.blue_check_s,
-          blendMode: null,
         ),
       ],
+    );
+  }
+}
+
+class CreateWorkspaceDialog extends StatelessWidget {
+  const CreateWorkspaceDialog({
+    super.key,
+    required this.onConfirm,
+  });
+
+  final void Function(String name) onConfirm;
+
+  @override
+  Widget build(BuildContext context) {
+    return NavigatorTextFieldDialog(
+      title: LocaleKeys.workspace_create.tr(),
+      value: '',
+      hintText: '',
+      autoSelectAllText: true,
+      onConfirm: (name, _) => onConfirm(name),
     );
   }
 }

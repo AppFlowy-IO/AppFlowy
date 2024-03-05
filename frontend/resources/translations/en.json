@@ -71,7 +71,11 @@
     "deleteSuccess": "Workspace deleted successfully",
     "deleteFailed": "Failed to delete workspace",
     "openSuccess": "Open workspace successfully",
-    "openFailed": "Failed to open workspace"
+    "openFailed": "Failed to open workspace",
+    "renameSuccess": "Workspace renamed successfully",
+    "renameFailed": "Failed to rename workspace",
+    "updateIconSuccess": "Workspace reset successfully",
+    "updateIconFailed": "Failed to reset workspace"
   },
   "shareAction": {
     "buttonText": "Share",

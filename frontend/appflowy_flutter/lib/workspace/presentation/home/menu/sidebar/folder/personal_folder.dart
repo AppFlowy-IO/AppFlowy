@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/workspace/application/menu/menu_bloc.dart';
+import 'package:appflowy/workspace/application/menu/sidebar_root_views_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/rename_view_dialog.dart';
@@ -125,8 +125,8 @@ class _PersonalFolderHeaderState extends State<PersonalFolderHeader> {
                   LocaleKeys.newPageText.tr(),
                   (viewName, _) {
                     if (viewName.isNotEmpty) {
-                      context.read<MenuBloc>().add(
-                            MenuEvent.createApp(
+                      context.read<SidebarRootViewsBloc>().add(
+                            SidebarRootViewsEvent.createRootView(
                               viewName,
                               index: 0,
                             ),
