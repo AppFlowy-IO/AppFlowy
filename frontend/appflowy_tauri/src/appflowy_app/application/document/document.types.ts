@@ -111,6 +111,7 @@ export interface MathEquationNode extends Element {
 }
 
 export enum ImageType {
+  Local = 0,
   Internal = 1,
   External = 2,
 }

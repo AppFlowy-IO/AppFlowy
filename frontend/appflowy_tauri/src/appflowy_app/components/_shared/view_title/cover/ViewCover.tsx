@@ -4,9 +4,15 @@ import { renderColor } from '$app/utils/color';
 import ViewCoverActions from '$app/components/_shared/view_title/cover/ViewCoverActions';
 import CoverPopover from '$app/components/_shared/view_title/cover/CoverPopover';
 import DefaultImage from '$app/assets/images/default_cover.jpg';
+import { ImageType } from '$app/application/document/document.types';
+import { LocalImage } from '$app/components/_shared/image_upload';
 
 export function ViewCover({ cover, onUpdateCover }: { cover: PageCover; onUpdateCover?: (cover?: PageCover) => void }) {
-  const { cover_selection_type: type, cover_selection: value = '' } = useMemo(() => cover || {}, [cover]);
+  const {
+    cover_selection_type: type,
+    cover_selection: value = '',
+    image_type: source,
+  } = useMemo(() => cover || {}, [cover]);
   const [showAction, setShowAction] = useState(false);
   const actionRef = useRef<HTMLDivElement>(null);
   const [showPopover, setShowPopover] = useState(false);
@@ -44,9 +50,16 @@ export function ViewCover({ cover, onUpdateCover }: { cover: PageCover; onUpdate
       }}
       className={'relative flex h-[255px] w-full'}
     >
-      {type === CoverType.Asset ? renderCoverImage(DefaultImage) : null}
-      {type === CoverType.Color ? renderCoverColor(value) : null}
-      {type === CoverType.Image ? renderCoverImage(value) : null}
+      {source === ImageType.Local ? (
+        <LocalImage src={value} className={'h-full w-full object-cover'} />
+      ) : (
+        <>
+          {type === CoverType.Asset ? renderCoverImage(DefaultImage) : null}
+          {type === CoverType.Color ? renderCoverColor(value) : null}
+          {type === CoverType.Image ? renderCoverImage(value) : null}
+        </>
+      )}
+
       <ViewCoverActions
         show={showAction}
         ref={actionRef}
@@ -59,6 +72,7 @@ export function ViewCover({ cover, onUpdateCover }: { cover: PageCover; onUpdate
           onClose={() => setShowPopover(false)}
           anchorEl={actionRef.current}
           onUpdateCover={onUpdateCover}
+          onRemoveCover={handleRemoveCover}
         />
       )}
     </div>

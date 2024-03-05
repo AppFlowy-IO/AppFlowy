@@ -25,10 +25,12 @@ export function UploadTabs({
   tabOptions,
   popoverProps,
   containerStyle,
+  extra,
 }: {
   containerStyle?: React.CSSProperties;
   tabOptions: TabOption[];
   popoverProps?: PopoverProps;
+  extra?: React.ReactNode;
 }) {
   const [tabValue, setTabValue] = useState<TAB_KEY>(() => {
     return tabOptions[0].key;
@@ -82,20 +84,23 @@ export function UploadTabs({
       }}
     >
       <div style={containerStyle} className={'flex flex-col gap-4 overflow-hidden'}>
-        <ViewTabs
-          value={tabValue}
-          onChange={handleTabChange}
-          scrollButtons={false}
-          variant='scrollable'
-          allowScrollButtonsMobile
-          className={'min-h-[38px] border-b border-line-divider px-2'}
-        >
-          {tabOptions.map((tab) => {
-            const { key, label } = tab;
+        <div className={'flex w-full items-center justify-between gap-2 border-b border-line-divider'}>
+          <ViewTabs
+            value={tabValue}
+            onChange={handleTabChange}
+            scrollButtons={false}
+            variant='scrollable'
+            allowScrollButtonsMobile
+            className={'min-h-[38px] px-2'}
+          >
+            {tabOptions.map((tab) => {
+              const { key, label } = tab;
 
-            return <ViewTab key={key} iconPosition='start' color='inherit' label={label} value={key} />;
-          })}
-        </ViewTabs>
+              return <ViewTab key={key} iconPosition='start' color='inherit' label={label} value={key} />;
+            })}
+          </ViewTabs>
+          {extra}
+        </div>
 
         <div className={'h-full w-full flex-1 overflow-y-auto overflow-x-hidden'}>
           <SwipeableViews

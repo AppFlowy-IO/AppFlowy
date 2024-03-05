@@ -3,7 +3,7 @@ import { PopoverOrigin } from '@mui/material/Popover/Popover';
 import usePopoverAutoPosition from '$app/components/_shared/popover/Popover.hooks';
 
 import { useTranslation } from 'react-i18next';
-import { EmbedLink, Unsplash, UploadTabs, TabOption, TAB_KEY } from '$app/components/_shared/image_upload';
+import { EmbedLink, Unsplash, UploadTabs, TabOption, TAB_KEY, UploadImage } from '$app/components/_shared/image_upload';
 import { CustomEditor } from '$app/components/editor/command';
 import { useSlateStatic } from 'slate-react';
 import { ImageNode, ImageType } from '$app/application/document/document.types';
@@ -48,11 +48,18 @@ function UploadPopover({
 
   const tabOptions: TabOption[] = useMemo(() => {
     return [
-      // {
-      //   label: t('button.upload'),
-      //   key: TAB_KEY.UPLOAD,
-      //   Component: UploadImage,
-      // },
+      {
+        label: t('button.upload'),
+        key: TAB_KEY.UPLOAD,
+        Component: UploadImage,
+        onDone: (link: string) => {
+          CustomEditor.setImageBlockData(editor, node, {
+            url: link,
+            image_type: ImageType.Local,
+          });
+          onClose();
+        },
+      },
       {
         label: t('document.imageBlock.embedLink.label'),
         key: TAB_KEY.EMBED_LINK,

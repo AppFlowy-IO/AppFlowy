@@ -1,10 +1,11 @@
 import React, { useMemo } from 'react';
 import { CoverType, PageCover } from '$app_reducers/pages/slice';
 import { PopoverOrigin } from '@mui/material/Popover';
-import { EmbedLink, Unsplash, UploadTabs, TabOption, TAB_KEY } from '$app/components/_shared/image_upload';
+import { EmbedLink, Unsplash, UploadTabs, TabOption, TAB_KEY, UploadImage } from '$app/components/_shared/image_upload';
 import { useTranslation } from 'react-i18next';
 import Colors from '$app/components/_shared/view_title/cover/Colors';
 import { ImageType } from '$app/application/document/document.types';
+import Button from '@mui/material/Button';
 
 const initialOrigin: {
   anchorOrigin: PopoverOrigin;
@@ -25,11 +26,13 @@ function CoverPopover({
   open,
   onClose,
   onUpdateCover,
+  onRemoveCover,
 }: {
   anchorEl: HTMLElement | null;
   open: boolean;
   onClose: () => void;
   onUpdateCover?: (cover?: PageCover) => void;
+  onRemoveCover?: () => void;
 }) {
   const { t } = useTranslation();
   const tabOptions: TabOption[] = useMemo(() => {
@@ -44,6 +47,19 @@ function CoverPopover({
             cover_selection: value,
             image_type: ImageType.Internal,
           });
+        },
+      },
+      {
+        label: t('button.upload'),
+        key: TAB_KEY.UPLOAD,
+        Component: UploadImage,
+        onDone: (value: string) => {
+          onUpdateCover?.({
+            cover_selection_type: CoverType.Image,
+            cover_selection: value,
+            image_type: ImageType.Local,
+          });
+          onClose();
         },
       },
       {
@@ -84,6 +100,11 @@ function CoverPopover({
       }}
       containerStyle={{ width: 433, maxHeight: 300 }}
       tabOptions={tabOptions}
+      extra={
+        <Button color={'inherit'} size={'small'} className={'mr-4'} variant={'text'} onClick={onRemoveCover}>
+          {t('button.remove')}
+        </Button>
+      }
     />
   );
 }
