@@ -101,9 +101,7 @@ class _CommandPaletteControllerState extends State<_CommandPaletteController> {
         context: context,
         builder: (_) => BlocProvider.value(
           value: _commandPaletteBloc,
-          child: CommandPaletteModal(
-            shortcutBuilder: (child) => _buildShortcut(child: child),
-          ),
+          child: CommandPaletteModal(shortcutBuilder: _buildShortcut),
         ),
       ).then((_) {
         _isOpen = false;
@@ -116,11 +114,10 @@ class _CommandPaletteControllerState extends State<_CommandPaletteController> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return _buildShortcut(child: widget.child ?? const SizedBox.shrink());
-  }
+  Widget build(BuildContext context) =>
+      _buildShortcut(widget.child ?? const SizedBox.shrink());
 
-  Widget _buildShortcut({required Widget child}) => FocusableActionDetector(
+  Widget _buildShortcut(Widget child) => FocusableActionDetector(
         actions: {
           _ToggleCommandPaletteIntent:
               CallbackAction<_ToggleCommandPaletteIntent>(
