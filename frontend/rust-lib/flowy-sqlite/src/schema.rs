@@ -43,6 +43,7 @@ diesel::table! {
         uid -> BigInt,
         created_at -> BigInt,
         database_storage_id -> Text,
+        icon -> Text,
     }
 }
 
