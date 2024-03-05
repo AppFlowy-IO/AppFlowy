@@ -23,7 +23,7 @@ export const LocalImage = forwardRef<
 
     try {
       const buffer = await readBinaryFile(src, { dir: BaseDirectory.AppLocalData });
-      const blob = new Blob([buffer], { type: 'image' });
+      const blob = new Blob([buffer]);
 
       setImageURL(URL.createObjectURL(blob));
     } catch (e) {

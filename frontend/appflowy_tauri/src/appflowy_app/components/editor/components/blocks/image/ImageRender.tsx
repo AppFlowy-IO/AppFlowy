@@ -65,7 +65,7 @@ function ImageRender({ selected, node }: { selected: boolean; node: ImageNode })
     );
   }, [t]);
 
-  if (!url) return;
+  if (!url) return null;
 
   return (
     <div

@@ -4,29 +4,17 @@ import { useTranslation } from 'react-i18next';
 import CloudUploadIcon from '@mui/icons-material/CloudUploadOutlined';
 import { notify } from '$app/components/_shared/notify';
 import { isTauri } from '$app/utils/env';
-
-const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
+import { getFileName, IMAGE_DIR, ALLOWED_IMAGE_EXTENSIONS, MAX_IMAGE_SIZE } from '$app/utils/upload_image';
 
 export function UploadImage({ onDone }: { onDone?: (url: string) => void }) {
   const { t } = useTranslation();
 
   const checkTauriFile = useCallback(
     async (url: string) => {
-      const filename = url.split('/').pop();
-
-      if (!filename) return false;
-
-      const filetype = filename.split('.').pop();
-
-      if (!filetype || ['jpg', 'jpeg', 'png'].indexOf(filetype) === -1) {
-        notify.error(t('document.imageBlock.error.invalidImageFormat'));
-        return false;
-      }
-
       const { readBinaryFile } = await import('@tauri-apps/api/fs');
 
       const buffer = await readBinaryFile(url);
-      const blob = new Blob([buffer], { type: filetype });
+      const blob = new Blob([buffer]);
 
       if (blob.size > MAX_IMAGE_SIZE) {
         notify.error(t('document.imageBlock.error.invalidImageSize'));
@@ -42,23 +30,21 @@ export function UploadImage({ onDone }: { onDone?: (url: string) => void }) {
     async (url: string) => {
       const { copyFile, BaseDirectory, exists, createDir } = await import('@tauri-apps/api/fs');
 
-      const filename = url.split('/').pop();
-
-      if (!filename) return;
-
       const checked = await checkTauriFile(url);
 
       if (!checked) return;
 
       try {
-        const existDir = await exists('images', { dir: BaseDirectory.AppLocalData });
+        const existDir = await exists(IMAGE_DIR, { dir: BaseDirectory.AppLocalData });
 
         if (!existDir) {
-          await createDir('images', { dir: BaseDirectory.AppLocalData });
+          await createDir(IMAGE_DIR, { dir: BaseDirectory.AppLocalData });
         }
 
-        await copyFile(url, `images/${filename}`, { dir: BaseDirectory.AppLocalData });
-        const newUrl = `images/${filename}`;
+        const filename = getFileName(url);
+
+        await copyFile(url, `${IMAGE_DIR}/${filename}`, { dir: BaseDirectory.AppLocalData });
+        const newUrl = `${IMAGE_DIR}/${filename}`;
 
         onDone?.(newUrl);
       } catch (e) {
@@ -78,7 +64,7 @@ export function UploadImage({ onDone }: { onDone?: (url: string) => void }) {
       filters: [
         {
           name: 'Image',
-          extensions: ['jpg', 'jpeg', 'png'],
+          extensions: ALLOWED_IMAGE_EXTENSIONS,
         },
       ],
     });
