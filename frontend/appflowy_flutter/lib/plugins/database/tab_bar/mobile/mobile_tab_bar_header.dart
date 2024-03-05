@@ -87,7 +87,11 @@ class _DatabaseViewSelectorButton extends StatelessWidget {
                 borderRadius: BorderRadius.all(Radius.circular(12)),
               ),
             ),
-            backgroundColor: const MaterialStatePropertyAll(Color(0x0F212729)),
+            backgroundColor: MaterialStatePropertyAll(
+              Theme.of(context).brightness == Brightness.light
+                  ? const Color(0x0F212729)
+                  : const Color(0x0FFFFFFF),
+            ),
             overlayColor: MaterialStatePropertyAll(
               Theme.of(context).colorScheme.secondary,
             ),
