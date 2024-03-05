@@ -29,18 +29,16 @@ function ImageResizer({ width, onWidthChange }: { width: number; onWidthChange: 
   const onResizeStart = useCallback(
     (e: React.MouseEvent) => {
       startX.current = e.clientX;
+      originalWidth.current = width;
       document.addEventListener('mousemove', onResize);
       document.addEventListener('mouseup', onResizeEnd);
     },
-    [onResize, onResizeEnd]
+    [onResize, onResizeEnd, width]
   );
 
   return (
     <div
       onMouseDown={onResizeStart}
-      onMouseUp={() => {
-        originalWidth.current = width;
-      }}
       style={{
         right: '2px',
       }}

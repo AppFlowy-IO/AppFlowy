@@ -155,6 +155,11 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
   ::selection {
     @apply bg-transparent;
   }
+  &:hover {
+    .container-bg {
+      background: var(--content-blue-100) !important;
+    }
+  }
 }
 
 .mention-inline {

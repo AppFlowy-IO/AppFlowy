@@ -54,6 +54,10 @@ export const getDesignTokens = (isDark: boolean): ThemeOptions => {
               boxShadow: 'var(--shadow)',
             },
           },
+          outlinedInherit: {
+            color: 'var(--text-title)',
+            borderColor: 'var(--line-divider)',
+          },
         },
       },
       MuiButtonBase: {

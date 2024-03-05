@@ -915,8 +915,9 @@
       "error": {
         "invalidImage": "Invalid image",
         "invalidImageSize": "Image size must be less than 5MB",
-        "invalidImageFormat": "Image format is not supported. Supported formats: JPEG, PNG, GIF, SVG",
-        "invalidImageUrl": "Invalid image URL"
+        "invalidImageFormat": "Image format is not supported. Supported formats: JPEG, PNG, JPG",
+        "invalidImageUrl": "Invalid image URL",
+        "noImage": "No such file or directory"
       },
       "embedLink": {
         "label": "Embed link",
