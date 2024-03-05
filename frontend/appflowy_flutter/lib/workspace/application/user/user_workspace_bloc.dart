@@ -36,17 +36,26 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
           },
           createWorkspace: (name, desc) async {
             final result = await _userService.createUserWorkspace(name);
+            final (workspaces, createWorkspaceResult) = result.fold(
+              (s) {
+                final workspaces = [...state.workspaces, s];
+                return (
+                  workspaces,
+                  FlowyResult<void, FlowyError>.success(null)
+                );
+              },
+              (e) {
+                Log.error(e);
+                return (state.workspaces, FlowyResult.failure(e));
+              },
+            );
             emit(
               state.copyWith(
                 openWorkspaceResult: null,
                 deleteWorkspaceResult: null,
-                createWorkspaceResult: result.fold(
-                  (s) => FlowyResult.success(null),
-                  (e) {
-                    Log.error(e);
-                    return FlowyResult.failure(e);
-                  },
-                ),
+                updateWorkspaceIconResult: null,
+                createWorkspaceResult: createWorkspaceResult,
+                workspaces: workspaces,
               ),
             );
           },

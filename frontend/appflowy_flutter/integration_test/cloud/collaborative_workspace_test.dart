@@ -10,7 +10,7 @@ import 'package:appflowy/user/application/auth/af_cloud_mock_auth_service.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_workspace.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_item_list.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_menu.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/setting_appflowy_cloud.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_user_view.dart';
 import 'package:appflowy/workspace/presentation/widgets/user_avatar.dart';
@@ -51,17 +51,18 @@ void main() {
       await tester.createCollaborativeWorkspace(name);
 
       // see the success message
-      expect(
-        find.text(LocaleKeys.workspace_createSuccess.tr()),
-        findsOneWidget,
-      );
+      final success = find.text(LocaleKeys.workspace_createSuccess.tr());
+      expect(success, findsOneWidget);
+      await tester.pumpUntilNotFound(success);
 
-      // create another one, it will fail because the max workspace limit is 2
-      await tester.createCollaborativeWorkspace(name);
+      await tester.openCollaborativeWorkspaceMenu();
+      final items = find.byType(WorkspaceMenuItem);
+      expect(items, findsNWidgets(2));
       expect(
-        find.text(LocaleKeys.workspace_createFailed.tr()),
-        findsOneWidget,
+        (items.evaluate().last.widget as WorkspaceMenuItem).workspace.name,
+        name,
       );
+      await tester.closeCollaborativeWorkspaceMenu();
     });
   });
 }
