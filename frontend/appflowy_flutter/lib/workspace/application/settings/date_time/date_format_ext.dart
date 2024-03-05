@@ -1,3 +1,4 @@
+import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/date_time.pbenum.dart';
 import 'package:easy_localization/easy_localization.dart';
 
@@ -6,6 +7,28 @@ const _usFmt = 'y/M/d';
 const _isoFmt = 'y-M-d';
 const _friendlyFmt = 'MMM d, y';
 const _dmyFmt = 'd/M/y';
+
+extension FormatDate on DateFormatPB {
+  String formatDate(
+    DateTime date,
+    bool includeTime, [
+    UserTimeFormatPB? timeFormat,
+  ]) {
+    final global = _toGlobalFormat();
+    return global.formatDate(date, includeTime, timeFormat);
+  }
+
+  UserDateFormatPB _toGlobalFormat() {
+    return switch (this) {
+      DateFormatPB.DayMonthYear => UserDateFormatPB.DayMonthYear,
+      DateFormatPB.Friendly => UserDateFormatPB.Friendly,
+      DateFormatPB.ISO => UserDateFormatPB.ISO,
+      DateFormatPB.Local => UserDateFormatPB.Locally,
+      DateFormatPB.US => UserDateFormatPB.US,
+      _ => UserDateFormatPB.Friendly,
+    };
+  }
+}
 
 extension DateFormatter on UserDateFormatPB {
   DateFormat get toFormat => DateFormat(_toFormat[this] ?? _friendlyFmt);

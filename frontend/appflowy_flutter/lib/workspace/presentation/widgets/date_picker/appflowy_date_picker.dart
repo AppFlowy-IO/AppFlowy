@@ -3,10 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/common/type_option_separator.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/header/type_option/date/date_time_format.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/date_picker.dart';
-import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/end_text_field.dart';
+import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/date_time_input.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/end_time_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/reminder_selector.dart';
-import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/start_text_field.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pbenum.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -179,24 +178,61 @@ class _AppFlowyDatePickerState extends State<AppFlowyDatePicker> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          StartTextField(
-            includeTime: widget.includeTime,
-            timeFormat: widget.timeFormat,
-            timeHintText: widget.timeHintText,
-            parseEndTimeError: widget.parseEndTimeError,
-            parseTimeError: widget.parseTimeError,
-            timeStr: widget.timeStr,
+          // Start Date and Time input
+          DateTimeInput(
             popoverMutex: widget.popoverMutex,
-            onSubmitted: widget.onStartTimeSubmitted,
+            isTimeEnabled: widget.includeTime,
+            dateOptions: DateOptions(
+              dateFormat: widget.dateFormat,
+              date: widget.startDay ?? widget.selectedDay,
+            ),
+            timeOptions: widget.includeTime
+                ? TimeOptions(
+                    timeFormat: widget.timeFormat,
+                    timeStr: widget.timeStr,
+                    parseTimeError: widget.parseTimeError,
+                    onSubmitted: widget.onStartTimeSubmitted,
+                  )
+                : null,
           ),
-          EndTextField(
-            includeTime: widget.includeTime,
-            timeFormat: widget.timeFormat,
-            isRange: widget.isRange,
-            endTimeStr: widget.endTimeStr,
-            popoverMutex: widget.popoverMutex,
-            onSubmitted: widget.onEndTimeSubmitted,
-          ),
+          // End Date and Time input
+          if (widget.isRange) ...[
+            const VSpace(6),
+            DateTimeInput(
+              popoverMutex: widget.popoverMutex,
+              isTimeEnabled: widget.includeTime,
+              dateOptions: DateOptions(
+                dateFormat: widget.dateFormat,
+                date: widget.endDay,
+              ),
+              timeOptions: widget.includeTime
+                  ? TimeOptions(
+                      timeFormat: widget.timeFormat,
+                      timeStr: widget.endTimeStr,
+                      parseTimeError: widget.parseEndTimeError,
+                      onSubmitted: widget.onEndTimeSubmitted,
+                    )
+                  : null,
+            ),
+          ],
+          // StartTextField(
+          //   includeTime: widget.includeTime,
+          //   timeFormat: widget.timeFormat,
+          //   timeHintText: widget.timeHintText,
+          //   parseEndTimeError: widget.parseEndTimeError,
+          //   parseTimeError: widget.parseTimeError,
+          //   timeStr: widget.timeStr,
+          //   popoverMutex: widget.popoverMutex,
+          //   onSubmitted: widget.onStartTimeSubmitted,
+          // ),
+          // EndTextField(
+          //   includeTime: widget.includeTime,
+          //   timeFormat: widget.timeFormat,
+          //   isRange: widget.isRange,
+          //   endTimeStr: widget.endTimeStr,
+          //   popoverMutex: widget.popoverMutex,
+          //   onSubmitted: widget.onEndTimeSubmitted,
+          // ),
           DatePicker(
             isRange: widget.isRange,
             onDaySelected: (selectedDay, focusedDay) {
