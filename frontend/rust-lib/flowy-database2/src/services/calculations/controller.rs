@@ -99,7 +99,7 @@ impl CalculationsController {
   pub async fn process(&self, predicate: &str) -> FlowyResult<()> {
     let event_type = CalculationEvent::from_str(predicate).unwrap();
     match event_type {
-      CalculationEvent::RowChanged(row, view_id) => self.handle_row_changed(row, view_id).await,
+      CalculationEvent::RowChanged(row) => self.handle_row_changed(row).await,
       CalculationEvent::CellUpdated(field_id) => self.handle_cell_changed(field_id).await,
       CalculationEvent::FieldDeleted(field_id) => self.handle_field_deleted(field_id).await,
       CalculationEvent::FieldTypeChanged(field_id, new_field_type) => {
@@ -217,30 +217,28 @@ impl CalculationsController {
     }
   }
 
-  pub async fn did_receive_row_changed(&self, row: Row, view_id: Option<String>) {
+  pub async fn did_receive_row_changed(&self, row: Row) {
     self
       .gen_task(
-        CalculationEvent::RowChanged(row, view_id),
+        CalculationEvent::RowChanged(row),
         QualityOfService::UserInteractive,
       )
       .await
   }
 
-  async fn handle_row_changed(&self, row: Row, view_id: Option<String>) {
+  async fn handle_row_changed(&self, row: Row) {
     let cells = row.cells.iter();
     let mut updates = vec![];
 
     // In case there are calculations where empty cells are counted
     // as a contribution to the value.
     if cells.len() == 0 {
-      if let Some(view_id) = view_id {
-        let calculations = self.delegate.get_all_calculations(&view_id).await;
-        for calculation in calculations.iter() {
-          let update = self.get_updated_calculation(calculation.clone()).await;
-          if let Some(update) = update {
-            updates.push(CalculationPB::from(&update));
-            self.delegate.update_calculation(&view_id, update);
-          }
+      let calculations = self.delegate.get_all_calculations(&self.view_id).await;
+      for calculation in calculations.iter() {
+        let update = self.get_updated_calculation(calculation.clone()).await;
+        if let Some(update) = update {
+          updates.push(CalculationPB::from(&update));
+          self.delegate.update_calculation(&self.view_id, update);
         }
       }
     }
@@ -346,7 +344,7 @@ impl CalculationsController {
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 enum CalculationEvent {
-  RowChanged(Row, Option<String>),
+  RowChanged(Row),
   CellUpdated(String),
   FieldTypeChanged(String, FieldType),
   FieldDeleted(String),

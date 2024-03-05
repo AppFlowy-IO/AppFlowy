@@ -168,7 +168,7 @@ impl DatabaseViewEditor {
   pub async fn v_did_duplicate_row(&self, row_detail: &RowDetail) {
     self
       .calculations_controller
-      .did_receive_row_changed(row_detail.clone().row, None)
+      .did_receive_row_changed(row_detail.row.clone())
       .await;
   }
 
@@ -207,7 +207,7 @@ impl DatabaseViewEditor {
     af_spawn(async move {
       if let Some(calculations_controller) = weak_calculations_controller.upgrade() {
         calculations_controller
-          .did_receive_row_changed(deleted_row, None)
+          .did_receive_row_changed(deleted_row)
           .await;
       }
     });
@@ -1090,7 +1090,7 @@ impl DatabaseViewEditor {
         sort_controller
           .read()
           .await
-          .did_receive_row_changed(row_id)
+          .did_receive_row_changed(row_id.clone())
           .await;
       }
       if let Some(calculations_controller) = weak_calculations_controller.upgrade() {
@@ -1102,7 +1102,6 @@ impl DatabaseViewEditor {
   }
 
   async fn gen_did_create_row_view_tasks(&self, row: Row) {
-    let view_id = self.view_id.clone();
     let weak_sort_controller = Arc::downgrade(&self.sort_controller);
     let weak_calculations_controller = Arc::downgrade(&self.calculations_controller);
     af_spawn(async move {
@@ -1110,14 +1109,12 @@ impl DatabaseViewEditor {
         sort_controller
           .read()
           .await
-          .did_create_row(row.clone().id)
+          .did_create_row(row.id.clone())
           .await;
       }
 
       if let Some(calculations_controller) = weak_calculations_controller.upgrade() {
-        calculations_controller
-          .did_receive_row_changed(row, Some(view_id))
-          .await;
+        calculations_controller.did_receive_row_changed(row).await;
       }
     });
   }

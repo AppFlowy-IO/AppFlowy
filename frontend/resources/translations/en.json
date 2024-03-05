@@ -745,8 +745,7 @@
       "countEmptyShort": "Empty",
       "countNonEmpty": "Count non empty",
       "countNonEmptyShort": "Not empty"
-    },
-    "removeSorting": "Would you like to remove sorting?"
+    }
   },
   "document": {
     "menuName": "Document",
