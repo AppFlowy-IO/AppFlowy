@@ -32,13 +32,13 @@ Future<void> showLinkToPageMenu(
         customTitle: titleFromPageType(pageType),
         insertPage: pageType != ViewLayoutPB.Document,
         limitResults: 15,
-      ).inlinePageReferenceDelegate,
+      ),
     ],
   );
 
   final List<InlineActionsResult> initialResults = [];
   for (final handler in service.handlers) {
-    final group = await handler();
+    final group = await handler.search(null);
 
     if (group.results.isNotEmpty) {
       initialResults.add(group);
