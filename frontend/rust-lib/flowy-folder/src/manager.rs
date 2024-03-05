@@ -30,11 +30,9 @@ use crate::entities::{
   UpdateViewParams, ViewPB, WorkspacePB, WorkspaceSettingPB,
 };
 use crate::manager_observer::{
-  notify_child_views_changed, notify_did_update_workspace, notify_parent_view_did_change,
-  ChildViewChangeReason,
-  generate_child_view_update_payload, notify_child_views_changed, notify_parent_view_did_change,
-  notify_workspace_overview_child_views_changed, notify_workspace_overview_parent_view_did_change,
-  ChildViewChangeReason,
+  generate_child_view_update_payload, notify_child_views_changed, notify_did_update_workspace,
+  notify_parent_view_did_change, notify_workspace_overview_child_views_changed,
+  notify_workspace_overview_parent_view_did_change, ChildViewChangeReason,
 };
 use crate::notification::{
   send_notification, send_workspace_setting_notification, FolderNotification,
