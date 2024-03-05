@@ -27,6 +27,8 @@ export function Formula() {
     }
 
     requestAnimationFrame(() => {
+      const selection = editor.selection;
+
       if (!selection) return;
 
       setRange(selection);

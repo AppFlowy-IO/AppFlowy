@@ -254,16 +254,22 @@ export const CustomEditor = {
   },
 
   insertMention(editor: ReactEditor, mention: Mention) {
-    const mentionElement = {
-      type: EditorInlineNodeType.Mention,
-      children: [{ text: '@' }],
-      data: {
-        ...mention,
+    const mentionElement = [
+      {
+        type: EditorInlineNodeType.Mention,
+        children: [{ text: '$' }],
+        data: {
+          ...mention,
+        },
       },
-    };
+    ];
 
     Transforms.insertNodes(editor, mentionElement, {
       select: true,
+    });
+
+    editor.collapse({
+      edge: 'end',
     });
   },
 

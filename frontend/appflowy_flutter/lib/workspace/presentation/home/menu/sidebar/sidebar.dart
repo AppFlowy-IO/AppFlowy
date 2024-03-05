@@ -1,14 +1,13 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
-import 'package:appflowy/workspace/application/menu/menu_bloc.dart';
+import 'package:appflowy/workspace/application/menu/sidebar_root_views_bloc.dart';
 import 'package:appflowy/workspace/application/notifications/notification_action.dart';
 import 'package:appflowy/workspace/application/notifications/notification_action_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
+import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_folder.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_new_page_button.dart';
@@ -22,6 +21,7 @@ import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
     show UserProfilePB;
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Home Sidebar is the left side bar of the home page.
@@ -81,44 +81,72 @@ class _HomeSideBarState extends State<HomeSideBar> {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(
-          create: (_) => getIt<NotificationActionBloc>(),
-        ),
-        BlocProvider(
-          create: (_) => MenuBloc(
-            user: widget.userProfile,
-            workspaceId: widget.workspaceSetting.workspaceId,
-          )..add(const MenuEvent.initial()),
-        ),
-      ],
-      child: MultiBlocListener(
-        listeners: [
-          BlocListener<MenuBloc, MenuState>(
-            listenWhen: (p, c) =>
-                p.lastCreatedView?.id != c.lastCreatedView?.id,
-            listener: (context, state) => context.read<TabsBloc>().add(
-                  TabsEvent.openPlugin(plugin: state.lastCreatedView!.plugin()),
+    return BlocProvider<UserWorkspaceBloc>(
+      create: (_) => UserWorkspaceBloc(userProfile: widget.userProfile)
+        ..add(const UserWorkspaceEvent.fetchWorkspaces()),
+      child: BlocBuilder<UserWorkspaceBloc, UserWorkspaceState>(
+        buildWhen: (previous, current) =>
+            previous.currentWorkspace?.workspaceId !=
+            current.currentWorkspace?.workspaceId,
+        builder: (context, state) {
+          return MultiBlocProvider(
+            providers: [
+              BlocProvider(
+                create: (_) => getIt<NotificationActionBloc>(),
+              ),
+              BlocProvider(
+                create: (_) => SidebarRootViewsBloc()
+                  ..add(
+                    SidebarRootViewsEvent.initial(
+                      widget.userProfile,
+                      state.currentWorkspace?.workspaceId ??
+                          widget.workspaceSetting.workspaceId,
+                    ),
+                  ),
+              ),
+            ],
+            child: MultiBlocListener(
+              listeners: [
+                BlocListener<SidebarRootViewsBloc, SidebarRootViewState>(
+                  listenWhen: (p, c) =>
+                      p.lastCreatedRootView?.id != c.lastCreatedRootView?.id,
+                  listener: (context, state) => context.read<TabsBloc>().add(
+                        TabsEvent.openPlugin(
+                          plugin: state.lastCreatedRootView!.plugin(),
+                        ),
+                      ),
                 ),
-          ),
-          BlocListener<NotificationActionBloc, NotificationActionState>(
-            listenWhen: (_, curr) => curr.action != null,
-            listener: _onNotificationAction,
-          ),
-        ],
-        child: Builder(
-          builder: (context) {
-            final menuState = context.watch<MenuBloc>().state;
-            final favoriteState = context.watch<FavoriteBloc>().state;
+                BlocListener<NotificationActionBloc, NotificationActionState>(
+                  listenWhen: (_, curr) => curr.action != null,
+                  listener: _onNotificationAction,
+                ),
+                BlocListener<UserWorkspaceBloc, UserWorkspaceState>(
+                  listener: (context, state) {
+                    context.read<SidebarRootViewsBloc>().add(
+                          SidebarRootViewsEvent.reset(
+                            widget.userProfile,
+                            state.currentWorkspace?.workspaceId ??
+                                widget.workspaceSetting.workspaceId,
+                          ),
+                        );
+                  },
+                ),
+              ],
+              child: Builder(
+                builder: (context) {
+                  final menuState = context.watch<SidebarRootViewsBloc>().state;
+                  final favoriteState = context.watch<FavoriteBloc>().state;
 
-            return _buildSidebar(
-              context,
-              menuState.views,
-              favoriteState.views,
-            );
-          },
-        ),
+                  return _buildSidebar(
+                    context,
+                    menuState.views,
+                    favoriteState.views,
+                  );
+                },
+              ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -195,8 +223,11 @@ class _HomeSideBarState extends State<HomeSideBar> {
     final action = state.action;
     if (action != null) {
       if (action.type == ActionType.openView) {
-        final view =
-            context.read<MenuBloc>().state.views.findView(action.objectId);
+        final view = context
+            .read<SidebarRootViewsBloc>()
+            .state
+            .views
+            .findView(action.objectId);
 
         if (view != null) {
           final Map<String, dynamic> arguments = {};

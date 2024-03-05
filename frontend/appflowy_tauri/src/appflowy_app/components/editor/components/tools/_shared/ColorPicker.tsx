@@ -6,6 +6,7 @@ import KeyboardNavigation, {
 import { useTranslation } from 'react-i18next';
 import { TitleOutlined } from '@mui/icons-material';
 import { EditorMarkFormat } from '$app/application/document/document.types';
+import { ColorEnum, renderColor } from '$app/utils/color';
 
 export interface ColorPickerProps {
   onChange?: (format: EditorMarkFormat.FontColor | EditorMarkFormat.BgColor, color: string) => void;
@@ -39,8 +40,8 @@ export function ColorPicker({ onEscape, onChange, disableFocus }: ColorPickerPro
         >
           <div
             style={{
-              backgroundColor: backgroundColor ?? 'transparent',
-              color: color === '' ? 'var(--text-title)' : color,
+              backgroundColor: backgroundColor ? renderColor(backgroundColor) : 'transparent',
+              color: color === '' ? 'var(--text-title)' : renderColor(color),
             }}
             className={'flex h-5 w-5 items-center justify-center rounded border border-line-divider'}
           >
@@ -118,40 +119,40 @@ export function ColorPicker({ onEscape, onChange, disableFocus }: ColorPickerPro
             content: renderColorItem(t('editor.backgroundColorDefault'), '', ''),
           },
           {
-            key: `bg-gray-rgba(161,161,159,0.61)`,
-            content: renderColorItem(t('editor.backgroundColorGray'), '', 'rgba(161,161,159,0.61)'),
+            key: `bg-lime-${ColorEnum.Lime}`,
+            content: renderColorItem(t('editor.backgroundColorLime'), '', ColorEnum.Lime),
           },
           {
-            key: `bg-brown-rgba(178,93,37,0.65)`,
-            content: renderColorItem(t('editor.backgroundColorBrown'), '', 'rgba(178,93,37,0.65)'),
+            key: `bg-aqua-${ColorEnum.Aqua}`,
+            content: renderColorItem(t('editor.backgroundColorAqua'), '', ColorEnum.Aqua),
           },
           {
-            key: `bg-orange-rgba(248,156,71,0.65)`,
-            content: renderColorItem(t('editor.backgroundColorOrange'), '', 'rgba(248,156,71,0.65)'),
+            key: `bg-orange-${ColorEnum.Orange}`,
+            content: renderColorItem(t('editor.backgroundColorOrange'), '', ColorEnum.Orange),
           },
           {
-            key: `bg-yellow-rgba(229,197,137,0.6)`,
-            content: renderColorItem(t('editor.backgroundColorYellow'), '', 'rgba(229,197,137,0.6)'),
+            key: `bg-yellow-${ColorEnum.Yellow}`,
+            content: renderColorItem(t('editor.backgroundColorYellow'), '', ColorEnum.Yellow),
           },
           {
-            key: `bg-green-rgba(124,189,111,0.65)`,
-            content: renderColorItem(t('editor.backgroundColorGreen'), '', 'rgba(124,189,111,0.65)'),
+            key: `bg-green-${ColorEnum.Green}`,
+            content: renderColorItem(t('editor.backgroundColorGreen'), '', ColorEnum.Green),
           },
           {
-            key: `bg-blue-rgba(100,174,199,0.71)`,
-            content: renderColorItem(t('editor.backgroundColorBlue'), '', 'rgba(100,174,199,0.71)'),
+            key: `bg-blue-${ColorEnum.Blue}`,
+            content: renderColorItem(t('editor.backgroundColorBlue'), '', ColorEnum.Blue),
           },
           {
-            key: `bg-purple-rgba(182,114,234,0.63)`,
-            content: renderColorItem(t('editor.backgroundColorPurple'), '', 'rgba(182,114,234,0.63)'),
+            key: `bg-purple-${ColorEnum.Purple}`,
+            content: renderColorItem(t('editor.backgroundColorPurple'), '', ColorEnum.Purple),
           },
           {
-            key: `bg-pink-rgba(238,142,179,0.6)`,
-            content: renderColorItem(t('editor.backgroundColorPink'), '', 'rgba(238,142,179,0.6)'),
+            key: `bg-pink-${ColorEnum.Pink}`,
+            content: renderColorItem(t('editor.backgroundColorPink'), '', ColorEnum.Pink),
           },
           {
-            key: `bg-red-rgba(238,88,98,0.64)`,
-            content: renderColorItem(t('editor.backgroundColorRed'), '', 'rgba(238,88,98,0.64)'),
+            key: `bg-red-${ColorEnum.LightPink}`,
+            content: renderColorItem(t('editor.backgroundColorRed'), '', ColorEnum.LightPink),
           },
         ],
       },

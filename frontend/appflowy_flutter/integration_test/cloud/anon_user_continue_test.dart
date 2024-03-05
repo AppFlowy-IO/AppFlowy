@@ -16,9 +16,9 @@ import 'package:flowy_infra/uuid.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
 import 'package:integration_test/integration_test.dart';
-import '../util/dir.dart';
-import '../util/mock/mock_file_picker.dart';
-import '../util/util.dart';
+import '../shared/dir.dart';
+import '../shared/mock/mock_file_picker.dart';
+import '../shared/util.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();

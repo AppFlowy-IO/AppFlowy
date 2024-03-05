@@ -47,7 +47,9 @@ Future<FieldType?> showFieldTypeGridBottomSheet(
           .map(
             (fieldType) => TypeOptionMenuItemValue(
               value: fieldType,
-              backgroundColor: fieldType.mobileIconBackgroundColor,
+              backgroundColor: Theme.of(context).brightness == Brightness.light
+                  ? fieldType.mobileIconBackgroundColor
+                  : fieldType.mobileIconBackgroundColorDark,
               text: fieldType.i18n,
               icon: fieldType.svgData,
               onTap: (context, fieldType) =>
@@ -121,7 +123,6 @@ void showQuickEditField(
 ) {
   showMobileBottomSheet(
     context,
-    backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
     showDragHandle: true,
     builder: (context) {
       return SingleChildScrollView(

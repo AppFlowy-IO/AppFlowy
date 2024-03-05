@@ -230,7 +230,7 @@ class _ChecklistItemState extends State<_ChecklistItem> {
   void _showDeleteTaskBottomSheet() {
     showMobileBottomSheet(
       context,
-      padding: const EdgeInsets.only(top: 8, bottom: 32),
+      showDragHandle: true,
       builder: (_) => Column(
         mainAxisSize: MainAxisSize.min,
         children: [

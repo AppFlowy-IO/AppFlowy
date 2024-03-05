@@ -54,7 +54,7 @@ export const MathEquation = memo(
           >
             <div
               contentEditable={false}
-              className={`w-full select-none rounded border border-line-divider ${
+              className={`container-bg w-full select-none rounded border border-line-divider ${
                 selected ? 'border-fill-hover' : ''
               } bg-content-blue-50 px-3`}
             >

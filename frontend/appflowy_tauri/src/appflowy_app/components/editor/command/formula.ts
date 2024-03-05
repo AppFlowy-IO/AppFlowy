@@ -49,6 +49,12 @@ export function wrapFormula(editor: ReactEditor, formula?: string) {
   Transforms.insertNodes(editor, formulaElement, {
     select: true,
   });
+
+  const path = editor.selection?.anchor.path;
+
+  if (path) {
+    editor.select(path);
+  }
 }
 
 export function unwrapFormula(editor: ReactEditor) {
