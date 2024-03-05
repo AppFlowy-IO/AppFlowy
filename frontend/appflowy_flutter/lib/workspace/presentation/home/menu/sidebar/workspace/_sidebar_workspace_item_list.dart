@@ -15,6 +15,9 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+@visibleForTesting
+const createWorkspaceButtonKey = ValueKey('createWorkspaceButton');
+
 class WorkspacesMenu extends StatelessWidget {
   const WorkspacesMenu({
     super.key,
@@ -46,6 +49,7 @@ class WorkspacesMenu extends StatelessWidget {
               ),
               const Spacer(),
               FlowyButton(
+                key: createWorkspaceButtonKey,
                 useIntrinsicWidth: true,
                 text: const FlowySvg(FlowySvgs.add_m),
                 onTap: () {
@@ -57,7 +61,7 @@ class WorkspacesMenu extends StatelessWidget {
           ),
         ),
         for (final workspace in workspaces) ...[
-          _WorkspaceMenuItem(
+          WorkspaceMenuItem(
             workspace: workspace,
             userProfile: userProfile,
             isSelected: workspace.workspaceId == currentWorkspace.workspaceId,
@@ -82,29 +86,14 @@ class WorkspacesMenu extends StatelessWidget {
 
   Future<void> _showCreateWorkspaceDialog(BuildContext context) async {
     if (context.mounted) {
-      await NavigatorTextFieldDialog(
-        title: LocaleKeys.workspace_create.tr(),
-        value: '',
-        hintText: '',
-        autoSelectAllText: true,
-        onConfirm: (name, context) async {
-          final request = CreateWorkspacePB.create()..name = name;
-          final result = await UserEventCreateWorkspace(request).send();
-          final message = result.fold(
-            (s) => LocaleKeys.workspace_createSuccess.tr(),
-            (e) => '${LocaleKeys.workspace_createFailed.tr()}: ${e.msg}',
-          );
-          if (context.mounted) {
-            showSnackBarMessage(context, message);
-          }
-        },
-      ).show(context);
+      await const CreateWorkspaceDialog().show(context);
     }
   }
 }
 
-class _WorkspaceMenuItem extends StatelessWidget {
-  const _WorkspaceMenuItem({
+class WorkspaceMenuItem extends StatelessWidget {
+  const WorkspaceMenuItem({
+    super.key,
     required this.workspace,
     required this.userProfile,
     required this.isSelected,
@@ -199,6 +188,31 @@ class _WorkspaceMenuItem extends StatelessWidget {
           FlowySvgs.blue_check_s,
         ),
       ],
+    );
+  }
+}
+
+class CreateWorkspaceDialog extends StatelessWidget {
+  const CreateWorkspaceDialog({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return NavigatorTextFieldDialog(
+      title: LocaleKeys.workspace_create.tr(),
+      value: '',
+      hintText: '',
+      autoSelectAllText: true,
+      onConfirm: (name, context) async {
+        final request = CreateWorkspacePB.create()..name = name;
+        final result = await UserEventCreateWorkspace(request).send();
+        final message = result.fold(
+          (s) => LocaleKeys.workspace_createSuccess.tr(),
+          (e) => '${LocaleKeys.workspace_createFailed.tr()}: ${e.msg}',
+        );
+        if (context.mounted) {
+          showSnackBarMessage(context, message);
+        }
+      },
     );
   }
 }
