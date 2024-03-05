@@ -839,7 +839,7 @@ dependencies = [
 [[package]]
 name = "collab"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=627f682baefa570ff133c81a45f879864ab1af42#627f682baefa570ff133c81a45f879864ab1af42"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=124096ae7b4de88edb059017d0c36c0d37e89868#124096ae7b4de88edb059017d0c36c0d37e89868"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -861,7 +861,7 @@ dependencies = [
 [[package]]
 name = "collab-database"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=9f340e85e09af97a83d44b66069a93d63c6f2279#9f340e85e09af97a83d44b66069a93d63c6f2279"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=124096ae7b4de88edb059017d0c36c0d37e89868#124096ae7b4de88edb059017d0c36c0d37e89868"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -890,7 +890,7 @@ dependencies = [
 [[package]]
 name = "collab-document"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=9f340e85e09af97a83d44b66069a93d63c6f2279#9f340e85e09af97a83d44b66069a93d63c6f2279"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=124096ae7b4de88edb059017d0c36c0d37e89868#124096ae7b4de88edb059017d0c36c0d37e89868"
 dependencies = [
  "anyhow",
  "collab",
@@ -909,7 +909,7 @@ dependencies = [
 [[package]]
 name = "collab-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=9f340e85e09af97a83d44b66069a93d63c6f2279#9f340e85e09af97a83d44b66069a93d63c6f2279"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=124096ae7b4de88edb059017d0c36c0d37e89868#124096ae7b4de88edb059017d0c36c0d37e89868"
 dependencies = [
  "anyhow",
  "bytes",
@@ -924,7 +924,7 @@ dependencies = [
 [[package]]
 name = "collab-folder"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=9f340e85e09af97a83d44b66069a93d63c6f2279#9f340e85e09af97a83d44b66069a93d63c6f2279"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=124096ae7b4de88edb059017d0c36c0d37e89868#124096ae7b4de88edb059017d0c36c0d37e89868"
 dependencies = [
  "anyhow",
  "chrono",
@@ -961,7 +961,7 @@ dependencies = [
 [[package]]
 name = "collab-plugins"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=9f340e85e09af97a83d44b66069a93d63c6f2279#9f340e85e09af97a83d44b66069a93d63c6f2279"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=124096ae7b4de88edb059017d0c36c0d37e89868#124096ae7b4de88edb059017d0c36c0d37e89868"
 dependencies = [
  "anyhow",
  "async-stream",
@@ -1000,7 +1000,7 @@ dependencies = [
 [[package]]
 name = "collab-user"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=9f340e85e09af97a83d44b66069a93d63c6f2279#9f340e85e09af97a83d44b66069a93d63c6f2279"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=124096ae7b4de88edb059017d0c36c0d37e89868#124096ae7b4de88edb059017d0c36c0d37e89868"
 dependencies = [
  "anyhow",
  "collab",
@@ -1303,7 +1303,7 @@ dependencies = [
  "ident_case",
  "proc-macro2",
  "quote",
- "strsim",
+ "strsim 0.10.0",
  "syn 2.0.47",
 ]
 
@@ -1953,6 +1953,7 @@ dependencies = [
  "serde",
  "serde_json",
  "serde_repr",
+ "tantivy",
  "thiserror",
  "tokio",
  "url",
@@ -1977,6 +1978,7 @@ dependencies = [
  "flowy-error",
  "flowy-folder-pub",
  "flowy-notification",
+ "flowy-search",
  "lazy_static",
  "lib-dispatch",
  "lib-infra",
@@ -2025,6 +2027,8 @@ version = "0.1.0"
 dependencies = [
  "async-stream",
  "bytes",
+ "collab",
+ "collab-folder",
  "diesel",
  "diesel_derives",
  "diesel_migrations",
@@ -2033,14 +2037,19 @@ dependencies = [
  "flowy-error",
  "flowy-notification",
  "flowy-sqlite",
+ "flowy-user",
  "futures",
  "lib-dispatch",
  "protobuf",
+ "serde",
+ "serde_json",
+ "strsim 0.11.0",
  "strum_macros 0.26.1",
  "tantivy",
  "tempfile",
  "tokio",
  "tracing",
+ "validator",
 ]
 
 [[package]]
@@ -5836,6 +5845,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "73473c0e59e6d5812c5dfe2a064a6444949f089e20eec9a2e5506596494e4623"
 
 [[package]]
+name = "strsim"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5ee073c9e4cd00e28217186dbe12796d692868f432bf2e97ee73bed0c56dfa01"
+
+[[package]]
 name = "strum"
 version = "0.25.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -6538,6 +6553,7 @@ dependencies = [
  "signal-hook-registry",
  "socket2 0.5.5",
  "tokio-macros",
+ "tracing",
  "windows-sys 0.48.0",
 ]
 
