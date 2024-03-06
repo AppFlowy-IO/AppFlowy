@@ -133,9 +133,9 @@ function LinkEditContent({ onClose, defaultHref }: { onClose: () => void; defaul
       <div ref={scrollRef} className={'mt-1 flex w-full flex-col items-start'}>
         {isActivated && (
           <KeyboardNavigation
+            options={editOptions}
             disableFocus={!focusMenu}
             scrollRef={scrollRef}
-            options={editOptions}
             onConfirm={onConfirm}
             onFocus={() => {
               setFocusMenu(true);
@@ -143,8 +143,8 @@ function LinkEditContent({ onClose, defaultHref }: { onClose: () => void; defaul
             onBlur={() => {
               setFocusMenu(false);
             }}
-            onEscape={onClose}
             disableSelect={!focusMenu}
+            onEscape={onClose}
             onKeyDown={(e) => {
               e.stopPropagation();
               if (isHotkey('Tab', e)) {

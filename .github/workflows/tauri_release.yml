@@ -39,6 +39,7 @@ jobs:
     runs-on: ${{ matrix.settings.platform }}
 
     env:
+      CI: true
       PACKAGE_PREFIX: AppFlowy_Tauri-${{ github.event.inputs.version }}-${{ matrix.settings.target }}
     steps:
       - uses: actions/checkout@v4
@@ -122,6 +123,7 @@ jobs:
           APPLE_ID: ${{ secrets.MACOS_NOTARY_USER }}
           APPLE_TEAM_ID: ${{ secrets.MACOS_TEAM_ID }}
           APPLE_PASSWORD: ${{ secrets.MACOS_NOTARY_PWD }}
+          CI: true
 
         with:
           args: ${{ matrix.settings.args }}
