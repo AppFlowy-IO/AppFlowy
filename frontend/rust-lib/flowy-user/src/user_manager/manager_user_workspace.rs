@@ -188,6 +188,9 @@ impl UserManager {
       .get_user_service()?
       .delete_workspace(workspace_id)
       .await?;
+    let uid = self.user_id()?;
+    let conn = self.db_connection(uid)?;
+    delete_user_workspaces(conn, workspace_id)?;
     Ok(())
   }
 
@@ -324,4 +327,15 @@ pub fn save_user_workspaces(
     }
     Ok::<(), FlowyError>(())
   })
+}
+
+pub fn delete_user_workspaces(mut conn: DBConnection, workspace_id: &str) -> FlowyResult<()> {
+  let n = conn.immediate_transaction(|conn| {
+    let rows_affected: usize =
+      diesel::delete(user_workspace_table::table.filter(user_workspace_table::id.eq(workspace_id)))
+        .execute(conn)?;
+    Ok::<usize, FlowyError>(rows_affected)
+  })?;
+  assert_eq!(n, 1);
+  Ok(())
 }
