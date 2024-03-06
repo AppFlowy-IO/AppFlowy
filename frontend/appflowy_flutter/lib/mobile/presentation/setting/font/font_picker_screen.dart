@@ -1,10 +1,12 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/base/app_bar.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_search_text_field.dart';
 import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
+import 'package:appflowy/util/google_font_family_extension.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -23,9 +25,7 @@ class FontPickerScreen extends StatelessWidget {
 }
 
 class LanguagePickerPage extends StatefulWidget {
-  const LanguagePickerPage({
-    super.key,
-  });
+  const LanguagePickerPage({super.key});
 
   @override
   State<LanguagePickerPage> createState() => _LanguagePickerPageState();
@@ -52,6 +52,7 @@ class _LanguagePickerPageState extends State<LanguagePickerPage> {
       body: SafeArea(
         child: Scrollbar(
           child: ListView.builder(
+            itemCount: availableFonts.length + 1, // with search bar
             itemBuilder: (context, index) {
               if (index == 0) {
                 // search bar
@@ -65,7 +66,8 @@ class _LanguagePickerPageState extends State<LanguagePickerPage> {
                       setState(() {
                         availableFonts = _availableFonts
                             .where(
-                              (element) => parseFontFamilyName(element)
+                              (font) => font
+                                  .parseFontFamilyName()
                                   .toLowerCase()
                                   .contains(keyword.toLowerCase()),
                             )
@@ -75,8 +77,9 @@ class _LanguagePickerPageState extends State<LanguagePickerPage> {
                   ),
                 );
               }
+
               final fontFamilyName = availableFonts[index - 1];
-              final displayName = parseFontFamilyName(fontFamilyName);
+              final displayName = fontFamilyName.parseFontFamilyName();
               return FlowyOptionTile.checkbox(
                 text: displayName,
                 isSelected: selectedFontFamilyName == fontFamilyName,
@@ -86,17 +89,9 @@ class _LanguagePickerPageState extends State<LanguagePickerPage> {
                 backgroundColor: Colors.transparent,
               );
             },
-            itemCount: availableFonts.length + 1, // with search bar
           ),
         ),
       ),
     );
-  }
-
-  String parseFontFamilyName(String fontFamilyName) {
-    final camelCase = RegExp('(?<=[a-z])[A-Z]');
-    return fontFamilyName
-        .replaceAll('_regular', '')
-        .replaceAllMapped(camelCase, (m) => ' ${m.group(0)}');
   }
 }

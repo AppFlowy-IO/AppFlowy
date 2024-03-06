@@ -1,15 +1,9 @@
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/shared/patterns/common_patterns.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-
-/// This pattern allows for both HTTP and HTTPS Scheme
-/// It allows for query parameters
-/// It only allows the following image extensions: .png, .jpg, .gif, .webm
-///
-const String _imgUrlPattern =
-    r'(https?:\/\/)([^\s(["<,>/]*)(\/)[^\s[",><]*(.png|.jpg|.gif|.webm)(\?[^\s[",><]*)?';
 
 class EmbedImageUrlWidget extends StatefulWidget {
   const EmbedImageUrlWidget({
@@ -68,8 +62,5 @@ class _EmbedImageUrlWidgetState extends State<EmbedImageUrlWidget> {
     setState(() => isUrlValid = false);
   }
 
-  bool checkUrlValidity(String url) {
-    final regex = RegExp(_imgUrlPattern);
-    return regex.hasMatch(url);
-  }
+  bool checkUrlValidity(String url) => imgUrlRegex.hasMatch(url);
 }
