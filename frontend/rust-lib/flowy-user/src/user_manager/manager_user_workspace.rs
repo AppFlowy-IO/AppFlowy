@@ -3,7 +3,7 @@ use std::sync::Arc;
 
 use collab_entity::{CollabObject, CollabType};
 use collab_integrate::CollabKVDB;
-use tracing::{error, info, instrument};
+use tracing::{error, info, instrument, warn};
 
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_folder_pub::entities::{AppFlowyData, ImportData};
@@ -336,6 +336,8 @@ pub fn delete_user_workspaces(mut conn: DBConnection, workspace_id: &str) -> Flo
         .execute(conn)?;
     Ok::<usize, FlowyError>(rows_affected)
   })?;
-  assert_eq!(n, 1);
+  if n != 1 {
+    warn!("expected to delete 1 row, but deleted {} rows", n);
+  }
   Ok(())
 }
