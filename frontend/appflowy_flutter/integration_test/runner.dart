@@ -1,8 +1,7 @@
 import 'dart:io';
 
-import 'package:integration_test/integration_test.dart';
-
-import 'desktop_runner.dart';
+import 'desktop_runner_1.dart';
+import 'desktop_runner_2.dart';
 import 'mobile_runner.dart';
 
 /// The main task runner for all integration tests in AppFlowy.
@@ -13,9 +12,9 @@ import 'mobile_runner.dart';
 /// Once removed, the integration_test.yaml must be updated to exclude this as
 /// as the test target.
 Future<void> main() async {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
-    await runIntegrationOnDesktop();
+    await runIntegration1OnDesktop();
+    await runIntegration2OnDesktop();
   } else if (Platform.isIOS || Platform.isAndroid) {
     await runIntegrationOnMobile();
   } else {
