@@ -9,6 +9,7 @@ import 'package:appflowy/plugins/database/grid/application/calculations/field_ty
 import 'package:appflowy/plugins/database/grid/presentation/widgets/calculations/calculation_selector.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/calculations/calculation_type_item.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/calculations/remove_calculation_button.dart';
+import 'package:appflowy/shared/patterns/common_patterns.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/calculation_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/number_entities.pb.dart';
@@ -132,9 +133,8 @@ class _CalculateCellState extends State<CalculateCell> {
   }
 
   String _withoutTrailingZeros(String value) {
-    final regex = RegExp(r'^(\d+(?:\.\d*?[1-9](?=0|\b))?)\.?0*$');
-    if (regex.hasMatch(value)) {
-      final match = regex.firstMatch(value)!;
+    if (trailingZerosRegex.hasMatch(value)) {
+      final match = trailingZerosRegex.firstMatch(value)!;
       return match.group(1)!;
     }
 
