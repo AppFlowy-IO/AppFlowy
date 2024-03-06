@@ -13,6 +13,7 @@ class RoundedTextButton extends StatelessWidget {
   final Color? hoverColor;
   final Color? textColor;
   final double? fontSize;
+  final EdgeInsets padding;
 
   const RoundedTextButton({
     super.key,
@@ -26,6 +27,7 @@ class RoundedTextButton extends StatelessWidget {
     this.hoverColor,
     this.textColor,
     this.fontSize,
+    this.padding = const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
   });
 
   @override
@@ -48,6 +50,7 @@ class RoundedTextButton extends StatelessWidget {
           fillColor: fillColor ?? Theme.of(context).colorScheme.primary,
           hoverColor:
               hoverColor ?? Theme.of(context).colorScheme.primaryContainer,
+          padding: padding,
         ),
       ),
     );

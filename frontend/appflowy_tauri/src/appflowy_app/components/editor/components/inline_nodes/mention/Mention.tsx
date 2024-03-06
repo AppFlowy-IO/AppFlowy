@@ -7,13 +7,12 @@ import { InlineChromiumBugfix } from '$app/components/editor/components/inline_n
 export const Mention = memo(
   forwardRef<HTMLSpanElement, EditorElementProps<MentionNode>>(({ node, children, ...attributes }, ref) => {
     return (
-      <>
-        <span {...attributes} contentEditable={false} ref={ref}>
-          <InlineChromiumBugfix />
-          <MentionLeaf mention={node.data}>{children}</MentionLeaf>
-          <InlineChromiumBugfix />
-        </span>
-      </>
+      <span {...attributes} contentEditable={false} className={`relative cursor-pointer`} ref={ref}>
+        <InlineChromiumBugfix className={'left-0'} />
+        <span className={'absolute right-0 top-0 h-full w-0 opacity-0'}>{children}</span>
+        <MentionLeaf mention={node.data} />
+        <InlineChromiumBugfix className={'right-0'} />
+      </span>
     );
   })
 );

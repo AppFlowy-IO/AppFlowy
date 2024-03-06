@@ -1,13 +1,15 @@
 import 'dart:collection';
 
+import 'package:flutter/foundation.dart';
+
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
-import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../cell/cell_cache.dart';
 import '../cell/cell_controller.dart';
+
 import 'row_list.dart';
 import 'row_service.dart';
 
@@ -25,7 +27,7 @@ abstract mixin class RowLifeCycle {
   void onRowDisposed();
 }
 
-/// Read https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/frontend/grid for more information.
+/// Read https://docs.appflowy.io/docs/documentation/software-contributions/architecture/frontend/frontend/grid for more information.
 
 class RowCache {
   RowCache({

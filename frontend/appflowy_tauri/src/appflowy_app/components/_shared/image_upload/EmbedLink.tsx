@@ -1,13 +1,22 @@
 import React, { useCallback, useState } from 'react';
 import TextField from '@mui/material/TextField';
 import { useTranslation } from 'react-i18next';
-import { pattern } from '$app/utils/open_url';
 import Button from '@mui/material/Button';
 
-export function EmbedLink({ onDone, onEscape }: { onDone?: (value: string) => void; onEscape?: () => void }) {
+const urlPattern = /^https?:\/\/.+/;
+
+export function EmbedLink({
+  onDone,
+  onEscape,
+  defaultLink,
+}: {
+  defaultLink?: string;
+  onDone?: (value: string) => void;
+  onEscape?: () => void;
+}) {
   const { t } = useTranslation();
 
-  const [value, setValue] = useState('');
+  const [value, setValue] = useState(defaultLink ?? '');
   const [error, setError] = useState(false);
 
   const handleChange = useCallback(
@@ -15,7 +24,7 @@ export function EmbedLink({ onDone, onEscape }: { onDone?: (value: string) => vo
       const value = e.target.value;
 
       setValue(value);
-      setError(!pattern.test(value));
+      setError(!urlPattern.test(value));
     },
     [setValue, setError]
   );

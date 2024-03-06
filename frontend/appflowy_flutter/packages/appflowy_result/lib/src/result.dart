@@ -1,22 +1,28 @@
-abstract class FlowyResult<S, F> {
+abstract class FlowyResult<S, F extends Object> {
   const FlowyResult();
 
   factory FlowyResult.success(S s) => FlowySuccess(s);
 
-  factory FlowyResult.failure(F e) => FlowyFailure(e);
+  factory FlowyResult.failure(F f) => FlowyFailure(f);
 
-  T fold<T>(T Function(S s) onSuccess, T Function(F e) onFailure);
+  T fold<T>(T Function(S s) onSuccess, T Function(F f) onFailure);
 
   FlowyResult<T, F> map<T>(T Function(S success) fn);
-  FlowyResult<S, T> mapError<T>(T Function(F error) fn);
+  FlowyResult<S, T> mapError<T extends Object>(T Function(F failure) fn);
 
   bool isSuccess();
   bool isFailure();
 
   S? toNullable();
+
+  void onSuccess(void Function(S s) onSuccess);
+  void onFailure(void Function(F f) onFailure);
+
+  S getOrElse(S Function(F failure) onFailure);
+  S getOrThrow();
 }
 
-class FlowySuccess<S, F> implements FlowyResult<S, F> {
+class FlowySuccess<S, F extends Object> implements FlowyResult<S, F> {
   final S _value;
 
   FlowySuccess(this._value);
@@ -46,7 +52,7 @@ class FlowySuccess<S, F> implements FlowyResult<S, F> {
   }
 
   @override
-  FlowyResult<S, T> mapError<T>(T Function(F error) fn) {
+  FlowyResult<S, T> mapError<T extends Object>(T Function(F error) fn) {
     return FlowySuccess(_value);
   }
 
@@ -64,40 +70,58 @@ class FlowySuccess<S, F> implements FlowyResult<S, F> {
   S? toNullable() {
     return _value;
   }
+
+  @override
+  void onSuccess(void Function(S success) onSuccess) {
+    onSuccess(_value);
+  }
+
+  @override
+  void onFailure(void Function(F failure) onFailure) {}
+
+  @override
+  S getOrElse(S Function(F failure) onFailure) {
+    return _value;
+  }
+
+  @override
+  S getOrThrow() {
+    return _value;
+  }
 }
 
-class FlowyFailure<S, F> implements FlowyResult<S, F> {
-  final F _error;
+class FlowyFailure<S, F extends Object> implements FlowyResult<S, F> {
+  final F _value;
 
-  FlowyFailure(this._error);
+  FlowyFailure(this._value);
 
-  F get error => _error;
+  F get error => _value;
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is FlowyFailure &&
           runtimeType == other.runtimeType &&
-          _error == other._error;
+          _value == other._value;
 
   @override
-  int get hashCode => _error.hashCode;
+  int get hashCode => _value.hashCode;
 
   @override
-  String toString() => 'Failure(error: $_error)';
+  String toString() => 'Failure(error: $_value)';
 
   @override
   T fold<T>(T Function(S s) onSuccess, T Function(F e) onFailure) =>
-      onFailure(_error);
+      onFailure(_value);
 
   @override
   map<T>(T Function(S success) fn) {
-    return FlowyFailure(_error);
+    return FlowyFailure(_value);
   }
 
   @override
-  FlowyResult<S, T> mapError<T>(T Function(F error) fn) {
-    return FlowyFailure(fn(_error));
+  FlowyResult<S, T> mapError<T extends Object>(T Function(F error) fn) {
+    return FlowyFailure(fn(_value));
   }
 
   @override
@@ -113,5 +137,23 @@ class FlowyFailure<S, F> implements FlowyResult<S, F> {
   @override
   S? toNullable() {
     return null;
+  }
+
+  @override
+  void onSuccess(void Function(S success) onSuccess) {}
+
+  @override
+  void onFailure(void Function(F failure) onFailure) {
+    onFailure(_value);
+  }
+
+  @override
+  S getOrElse(S Function(F failure) onFailure) {
+    return onFailure(_value);
+  }
+
+  @override
+  S getOrThrow() {
+    throw _value;
   }
 }

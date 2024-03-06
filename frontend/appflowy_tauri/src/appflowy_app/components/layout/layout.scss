@@ -1,12 +1,31 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+.appflowy-scroll-container {
+  &::-webkit-scrollbar {
+    width: 0px;
+  }
+}
+
 .workspaces {
   ::-webkit-scrollbar {
     width: 0px;
   }
 }
 
+
+
 .MuiPopover-root, .MuiPaper-root {
   ::-webkit-scrollbar {
     width: 0;
     height: 0;
+  }
+}
+
+.view-icon {
+  &:hover {
+    background-color: rgba(156, 156, 156, 0.20);
   }
 }

@@ -179,7 +179,7 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
     FutureResult::new(async {
       Err(
         FlowyError::local_version_not_support()
-          .with_context("local server doesn't support mulitple workspaces"),
+          .with_context("local server doesn't support multiple workspaces"),
       )
     })
   }
@@ -188,7 +188,21 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
     FutureResult::new(async {
       Err(
         FlowyError::local_version_not_support()
-          .with_context("local server doesn't support mulitple workspaces"),
+          .with_context("local server doesn't support multiple workspaces"),
+      )
+    })
+  }
+
+  fn patch_workspace(
+    &self,
+    _workspace_id: &str,
+    _new_workspace_name: Option<&str>,
+    _new_workspace_icon: Option<&str>,
+  ) -> FutureResult<(), FlowyError> {
+    FutureResult::new(async {
+      Err(
+        FlowyError::local_version_not_support()
+          .with_context("local server doesn't support multiple workspaces"),
       )
     })
   }

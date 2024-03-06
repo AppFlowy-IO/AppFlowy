@@ -84,12 +84,11 @@ class _MobileSelectOptionEditorState extends State<MobileSelectOptionEditor> {
     const height = 44.0;
     return Stack(
       children: [
-        Align(
-          alignment: Alignment.centerLeft,
-          child: showMoreOptions
-              ? AppBarBackButton(onTap: _popOrBack)
-              : AppBarCloseButton(onTap: _popOrBack),
-        ),
+        if (showMoreOptions)
+          Align(
+            alignment: Alignment.centerLeft,
+            child: AppBarBackButton(onTap: _popOrBack),
+          ),
         SizedBox(
           height: 44.0,
           child: Align(
@@ -421,7 +420,6 @@ class _MoreOptionsState extends State<_MoreOptions> {
 
   @override
   Widget build(BuildContext context) {
-    final color = Theme.of(context).colorScheme.secondaryContainer;
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -432,22 +430,18 @@ class _MoreOptionsState extends State<_MoreOptions> {
           const VSpace(16.0),
           Padding(
             padding: const EdgeInsets.only(left: 12.0),
-            child: ColoredBox(
-              color: color,
-              child: FlowyText(
-                LocaleKeys.grid_selectOption_colorPanelTitle.tr().toUpperCase(),
-                color: Theme.of(context).hintColor,
-                fontSize: 13,
-              ),
+            child: FlowyText(
+              LocaleKeys.grid_selectOption_colorPanelTitle.tr().toUpperCase(),
+              color: Theme.of(context).hintColor,
+              fontSize: 13,
             ),
           ),
           const VSpace(4.0),
           FlowyOptionDecorateBox(
             child: Padding(
-              padding: const EdgeInsets.only(
-                top: 12.0,
-                left: 6.0,
-                right: 6.0,
+              padding: const EdgeInsets.symmetric(
+                vertical: 12.0,
+                horizontal: 6.0,
               ),
               child: OptionColorList(
                 selectedColor: option.color,

@@ -360,9 +360,7 @@ class DepthOptionAction extends PopoverActionCell {
           (e) => HoverButton(
             onTap: () => onTap(e.inner),
             itemHeight: ActionListSizes.itemHeight,
-            leftIcon: null,
             name: e.name,
-            rightIcon: null,
           ),
         )
         .toList();

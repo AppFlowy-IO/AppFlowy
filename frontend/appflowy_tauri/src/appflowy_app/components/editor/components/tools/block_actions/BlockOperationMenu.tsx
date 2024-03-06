@@ -26,6 +26,7 @@ export const canSetColorBlocks: EditorNodeType[] = [
   EditorNodeType.NumberedListBlock,
   EditorNodeType.ToggleListBlock,
   EditorNodeType.QuoteBlock,
+  EditorNodeType.CalloutBlock,
 ];
 
 export function BlockOperationMenu({

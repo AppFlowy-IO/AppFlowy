@@ -147,7 +147,6 @@ void _showEditSortPanelFromToolbar(
 ) {
   showMobileBottomSheet(
     context,
-    backgroundColor: Theme.of(context).colorScheme.surface,
     showDragHandle: true,
     showDivider: false,
     useSafeArea: false,
