@@ -113,8 +113,7 @@ class WorkspaceMenuItem extends StatelessWidget {
     return BlocProvider(
       create: (_) =>
           WorkspaceMemberBloc(userProfile: userProfile, workspace: workspace)
-            ..add(const WorkspaceMemberEvent.initial())
-            ..add(const WorkspaceMemberEvent.getWorkspaceMembers()),
+            ..add(const WorkspaceMemberEvent.initial()),
       child: BlocBuilder<WorkspaceMemberBloc, WorkspaceMemberState>(
         builder: (context, state) {
           final members = state.members;
