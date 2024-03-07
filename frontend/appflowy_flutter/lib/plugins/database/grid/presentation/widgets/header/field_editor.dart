@@ -370,9 +370,6 @@ class _FieldDetailsEditorState extends State<FieldDetailsEditor> {
   Widget _addDeleteFieldButton() {
     return BlocBuilder<FieldEditorBloc, FieldEditorState>(
       builder: (context, state) {
-        if (state.field.isPrimary) {
-          return const SizedBox.shrink();
-        }
         return Padding(
           padding: const EdgeInsets.fromLTRB(8.0, 4.0, 8.0, 0),
           child: FieldActionCell(
@@ -389,9 +386,6 @@ class _FieldDetailsEditorState extends State<FieldDetailsEditor> {
   Widget _addDuplicateFieldButton() {
     return BlocBuilder<FieldEditorBloc, FieldEditorState>(
       builder: (context, state) {
-        if (state.field.isPrimary) {
-          return const SizedBox.shrink();
-        }
         return Padding(
           padding: const EdgeInsets.fromLTRB(8.0, 4.0, 8.0, 0),
           child: FieldActionCell(
@@ -533,41 +527,52 @@ class _SwitchFieldButtonState extends State<SwitchFieldButton> {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: GridSize.popoverItemHeight,
-      child: AppFlowyPopover(
-        constraints: BoxConstraints.loose(const Size(460, 540)),
-        triggerActions: PopoverTriggerFlags.hover,
-        mutex: widget.popoverMutex,
-        controller: _popoverController,
-        offset: const Offset(8, 0),
-        margin: const EdgeInsets.all(8),
-        popupBuilder: (BuildContext popoverContext) {
-          return FieldTypeList(
-            onSelectField: (newFieldType) {
-              context
-                  .read<FieldEditorBloc>()
-                  .add(FieldEditorEvent.switchFieldType(newFieldType));
+    return BlocBuilder<FieldEditorBloc, FieldEditorState>(
+      builder: (context, state) {
+        final bool isPrimary = state.field.isPrimary;
+        return SizedBox(
+          height: GridSize.popoverItemHeight,
+          child: AppFlowyPopover(
+            constraints: BoxConstraints.loose(const Size(460, 540)),
+            triggerActions: isPrimary ? 0 : PopoverTriggerFlags.hover,
+            mutex: widget.popoverMutex,
+            controller: _popoverController,
+            offset: const Offset(8, 0),
+            margin: const EdgeInsets.all(8),
+            popupBuilder: (BuildContext popoverContext) {
+              return FieldTypeList(
+                onSelectField: (newFieldType) {
+                  context
+                      .read<FieldEditorBloc>()
+                      .add(FieldEditorEvent.switchFieldType(newFieldType));
+                },
+              );
             },
-          );
-        },
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-          child: _buildMoreButton(context),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMoreButton(BuildContext context) {
-    final bloc = context.read<FieldEditorBloc>();
-    return FlowyButton(
-      onTap: () => _popoverController.show(),
-      text: FlowyText.medium(
-        bloc.state.field.fieldType.i18n,
-      ),
-      leftIcon: FlowySvg(bloc.state.field.fieldType.svgData),
-      rightIcon: const FlowySvg(FlowySvgs.more_s),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: FlowyButton(
+                onTap: () {
+                  if (!isPrimary) {
+                    _popoverController.show();
+                  }
+                },
+                text: FlowyText.medium(
+                  state.field.fieldType.i18n,
+                  color: isPrimary ? Theme.of(context).disabledColor : null,
+                ),
+                leftIcon: FlowySvg(
+                  state.field.fieldType.svgData,
+                  color: isPrimary ? Theme.of(context).disabledColor : null,
+                ),
+                rightIcon: FlowySvg(
+                  FlowySvgs.more_s,
+                  color: isPrimary ? Theme.of(context).disabledColor : null,
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

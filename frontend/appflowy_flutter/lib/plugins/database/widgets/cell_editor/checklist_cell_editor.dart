@@ -191,7 +191,9 @@ class _ChecklistItemState extends State<ChecklistItem> {
   void didUpdateWidget(ChecklistItem oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.task.data.name != oldWidget.task.data.name) {
+      final selection = _textController.selection;
       _textController.text = widget.task.data.name;
+      _textController.selection = selection;
     }
   }
 
@@ -236,6 +238,10 @@ class _ChecklistItemState extends State<ChecklistItem> {
         else
           const SingleActivator(LogicalKeyboardKey.enter, control: true):
               const _SelectTaskIntent(),
+        const SingleActivator(LogicalKeyboardKey.arrowUp):
+            const PreviousFocusIntent(),
+        const SingleActivator(LogicalKeyboardKey.arrowDown):
+            const NextFocusIntent(),
       },
       descendantsAreTraversable: false,
       child: Container(
@@ -263,15 +269,24 @@ class _ChecklistItemState extends State<ChecklistItem> {
             ),
             Expanded(
               child: Shortcuts(
-                shortcuts: const {
-                  SingleActivator(LogicalKeyboardKey.space):
-                      DoNothingAndStopPropagationIntent(),
-                  SingleActivator(LogicalKeyboardKey.delete):
-                      DoNothingAndStopPropagationIntent(),
-                  SingleActivator(LogicalKeyboardKey.enter):
-                      DoNothingAndStopPropagationIntent(),
-                  SingleActivator(LogicalKeyboardKey.escape):
-                      _EndEditingTaskIntent(),
+                shortcuts: {
+                  const SingleActivator(LogicalKeyboardKey.space):
+                      const DoNothingAndStopPropagationIntent(),
+                  const SingleActivator(LogicalKeyboardKey.delete):
+                      const DoNothingAndStopPropagationIntent(),
+                  if (Platform.isMacOS)
+                    LogicalKeySet(
+                      LogicalKeyboardKey.fn,
+                      LogicalKeyboardKey.backspace,
+                    ): const DoNothingAndStopPropagationIntent(),
+                  const SingleActivator(LogicalKeyboardKey.enter):
+                      const DoNothingAndStopPropagationIntent(),
+                  const SingleActivator(LogicalKeyboardKey.escape):
+                      const _EndEditingTaskIntent(),
+                  const SingleActivator(LogicalKeyboardKey.arrowUp):
+                      const DoNothingAndStopPropagationIntent(),
+                  const SingleActivator(LogicalKeyboardKey.arrowDown):
+                      const DoNothingAndStopPropagationIntent(),
                 },
                 child: TextField(
                   controller: _textController,
