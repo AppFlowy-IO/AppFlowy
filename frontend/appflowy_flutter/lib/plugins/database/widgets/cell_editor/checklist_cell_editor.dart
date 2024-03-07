@@ -392,12 +392,10 @@ class _NewTaskItemState extends State<NewTaskItem> {
                 hintText: LocaleKeys.grid_checklist_addNew.tr(),
               ),
               onSubmitted: (taskDescription) {
-                if (taskDescription.trim().isNotEmpty) {
-                  context.read<ChecklistCellBloc>().add(
-                        ChecklistCellEvent.createNewTask(
-                          taskDescription.trim(),
-                        ),
-                      );
+                if (taskDescription.isNotEmpty) {
+                  context
+                      .read<ChecklistCellBloc>()
+                      .add(ChecklistCellEvent.createNewTask(taskDescription));
                   _textEditingController.clear();
                 }
                 widget.focusNode.requestFocus();
@@ -408,15 +406,15 @@ class _NewTaskItemState extends State<NewTaskItem> {
           FlowyTextButton(
             LocaleKeys.grid_checklist_submitNewTask.tr(),
             fontSize: 11,
-            fillColor: text.trim().isEmpty
+            fillColor: text.isEmpty
                 ? Theme.of(context).disabledColor
                 : Theme.of(context).colorScheme.primary,
-            hoverColor: text.trim().isEmpty
+            hoverColor: text.isEmpty
                 ? Theme.of(context).disabledColor
                 : Theme.of(context).colorScheme.primaryContainer,
             fontColor: Theme.of(context).colorScheme.onPrimary,
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-            onPressed: text.trim().isEmpty
+            onPressed: text.isEmpty
                 ? null
                 : () {
                     context
