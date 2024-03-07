@@ -80,7 +80,6 @@ jobs:
         with:
           workspaces: "./frontend/appflowy_tauri/src-tauri -> target"
 
-
       - name: install dependencies (windows only)
         if: matrix.settings.platform == 'windows-latest'
         working-directory: frontend
@@ -119,7 +118,6 @@ jobs:
           APPLE_TEAM_ID: ${{ secrets.MACOS_TEAM_ID }}
           APPLE_PASSWORD: ${{ secrets.MACOS_NOTARY_PWD }}
           CI: true
-
         with:
           args: ${{ matrix.settings.args }}
           appVersion: ${{ github.event.inputs.version }}
