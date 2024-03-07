@@ -1,12 +1,10 @@
 const fs = require('fs');
 const path = require('path');
 
-// 检查命令行参数
 if (process.argv.length < 3) {
     console.error('Usage: node update-tauri-version.js <version>');
     process.exit(1);
 }
-
 
 const newVersion = process.argv[2];
 
@@ -18,12 +16,9 @@ fs.readFile(tauriConfigPath, 'utf8', (err, data) => {
         return;
     }
 
-
     const config = JSON.parse(data);
 
-
     config.package.version = newVersion;
-
 
     fs.writeFile(tauriConfigPath, JSON.stringify(config, null, 2), 'utf8', (err) => {
         if (err) {
