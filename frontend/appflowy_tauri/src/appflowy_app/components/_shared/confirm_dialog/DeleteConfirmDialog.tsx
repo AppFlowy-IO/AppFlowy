@@ -60,6 +60,7 @@ function DeleteConfirmDialog({ open, title, onOk, onCancel, onClose, okText, can
           <Button
             className={'w-full'}
             variant={'outlined'}
+            color={'inherit'}
             onClick={() => {
               onCancel?.();
               onClose();

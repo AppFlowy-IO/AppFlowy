@@ -31,7 +31,7 @@ function SortSettings({ onToggleCollection }: Props) {
 
   return (
     <>
-      <TextButton className={'p-1'} color={highlight ? 'primary' : 'inherit'} onClick={handleClick}>
+      <TextButton className={'min-w-fit p-1'} color={highlight ? 'primary' : 'inherit'} onClick={handleClick}>
         {t('grid.settings.sort')}
       </TextButton>
       <SortFieldsMenu

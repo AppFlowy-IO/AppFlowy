@@ -67,7 +67,7 @@ function RenameDialog({
       </DialogContent>
       <Divider className={'mb-1'} />
       <DialogActions className={'mb-1 px-4'}>
-        <Button variant={'outlined'} onClick={onClose}>
+        <Button color={'inherit'} variant={'outlined'} onClick={onClose}>
           {t('button.cancel')}
         </Button>
         <Button variant={'contained'} onClick={onDone}>

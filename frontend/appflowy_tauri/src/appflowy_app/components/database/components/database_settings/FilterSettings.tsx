@@ -23,7 +23,7 @@ function FilterSettings({ onToggleCollection }: { onToggleCollection: (forceOpen
 
   return (
     <>
-      <TextButton onClick={handleClick} color={highlight ? 'primary' : 'inherit'}>
+      <TextButton className={'min-w-fit'} onClick={handleClick} color={highlight ? 'primary' : 'inherit'}>
         {t('grid.settings.filter')}
       </TextButton>
       <FilterFieldsMenu
