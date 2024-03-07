@@ -189,7 +189,9 @@ class _ChecklistItemState extends State<ChecklistItem> {
   void didUpdateWidget(ChecklistItem oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.task.data.name != oldWidget.task.data.name) {
+      final selection = _textController.selection;
       _textController.text = widget.task.data.name;
+      _textController.selection = selection;
     }
   }
 
