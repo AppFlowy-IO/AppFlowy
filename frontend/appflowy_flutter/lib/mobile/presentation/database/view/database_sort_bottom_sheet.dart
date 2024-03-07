@@ -262,11 +262,9 @@ class _SortItem extends StatelessWidget {
                 children: [
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                    child: Expanded(
-                      child: FlowyText.medium(
-                        LocaleKeys.grid_sort_by.tr(),
-                        fontSize: 15,
-                      ),
+                    child: FlowyText.medium(
+                      LocaleKeys.grid_sort_by.tr(),
+                      fontSize: 15,
                     ),
                   ),
                   const VSpace(10),

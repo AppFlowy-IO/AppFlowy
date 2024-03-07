@@ -94,9 +94,6 @@ void mobileCreateFieldWorkflow(
   if (optionValues != null) {
     await optionValues.create(viewId: viewId, position: position);
   }
-  if (context.mounted) {
-    context.pop();
-  }
 }
 
 /// Used to edit a field.
