@@ -347,14 +347,11 @@ class NewTaskItem extends StatefulWidget {
 }
 
 class _NewTaskItemState extends State<NewTaskItem> {
-  late final TextEditingController _textEditingController;
-  String text = "";
+  late final _textEditingController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _textEditingController = TextEditingController();
-    _textEditingController.addListener(_onChange);
     if (widget.focusNode.canRequestFocus) {
       widget.focusNode.requestFocus();
     }
@@ -362,12 +359,9 @@ class _NewTaskItemState extends State<NewTaskItem> {
 
   @override
   void dispose() {
-    _textEditingController.removeListener(_onChange);
     _textEditingController.dispose();
     super.dispose();
   }
-
-  void _onChange() => setState(() => text = _textEditingController.text);
 
   @override
   Widget build(BuildContext context) {
@@ -406,20 +400,22 @@ class _NewTaskItemState extends State<NewTaskItem> {
           FlowyTextButton(
             LocaleKeys.grid_checklist_submitNewTask.tr(),
             fontSize: 11,
-            fillColor: text.isEmpty
+            fillColor: _textEditingController.text.isEmpty
                 ? Theme.of(context).disabledColor
                 : Theme.of(context).colorScheme.primary,
-            hoverColor: text.isEmpty
+            hoverColor: _textEditingController.text.isEmpty
                 ? Theme.of(context).disabledColor
                 : Theme.of(context).colorScheme.primaryContainer,
             fontColor: Theme.of(context).colorScheme.onPrimary,
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-            onPressed: text.isEmpty
+            onPressed: _textEditingController.text.isEmpty
                 ? null
                 : () {
-                    context
-                        .read<ChecklistCellBloc>()
-                        .add(ChecklistCellEvent.createNewTask(text));
+                    context.read<ChecklistCellBloc>().add(
+                          ChecklistCellEvent.createNewTask(
+                            _textEditingController.text,
+                          ),
+                        );
                     widget.focusNode.requestFocus();
                     _textEditingController.clear();
                   },
