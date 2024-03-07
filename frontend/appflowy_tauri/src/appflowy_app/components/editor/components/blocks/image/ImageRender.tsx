@@ -9,6 +9,8 @@ import { useSlateStatic } from 'slate-react';
 import ImageActions from '$app/components/editor/components/blocks/image/ImageActions';
 import { LocalImage } from '$app/components/_shared/image_upload';
 
+const MIN_WIDTH = 100;
+
 function ImageRender({ selected, node }: { selected: boolean; node: ImageNode }) {
   const [loading, setLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
@@ -75,6 +77,9 @@ function ImageRender({ selected, node }: { selected: boolean; node: ImageNode })
       onMouseLeave={() => {
         setShowActions(false);
       }}
+      style={{
+        minWidth: MIN_WIDTH,
+      }}
       className={`relative min-h-[48px] ${hasError || (loading && source !== ImageType.Local) ? 'w-full' : ''}`}
     >
       {source === ImageType.Local ? (
@@ -90,7 +95,9 @@ function ImageRender({ selected, node }: { selected: boolean; node: ImageNode })
         <img loading={'lazy'} {...imageProps} alt={`image-${blockId}`} />
       )}
 
-      {initialWidth && <ImageResizer width={imageWidth ?? initialWidth} onWidthChange={handleWidthChange} />}
+      {initialWidth && (
+        <ImageResizer minWidth={MIN_WIDTH} width={imageWidth ?? initialWidth} onWidthChange={handleWidthChange} />
+      )}
       {showActions && <ImageActions node={node} />}
       {hasError ? (
         renderErrorNode()

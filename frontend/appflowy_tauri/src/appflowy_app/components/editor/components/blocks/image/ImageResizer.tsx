@@ -1,8 +1,14 @@
 import React, { useCallback, useRef } from 'react';
 
-const MIN_WIDTH = 80;
-
-function ImageResizer({ width, onWidthChange }: { width: number; onWidthChange: (newWidth: number) => void }) {
+function ImageResizer({
+  minWidth,
+  width,
+  onWidthChange,
+}: {
+  minWidth: number;
+  width: number;
+  onWidthChange: (newWidth: number) => void;
+}) {
   const originalWidth = useRef(width);
   const startX = useRef(0);
 
@@ -12,13 +18,13 @@ function ImageResizer({ width, onWidthChange }: { width: number; onWidthChange: 
       const diff = e.clientX - startX.current;
       const newWidth = originalWidth.current + diff;
 
-      if (newWidth < MIN_WIDTH) {
+      if (newWidth < minWidth) {
         return;
       }
 
       onWidthChange(newWidth);
     },
-    [onWidthChange]
+    [minWidth, onWidthChange]
   );
 
   const onResizeEnd = useCallback(() => {
