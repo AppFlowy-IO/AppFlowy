@@ -8,8 +8,11 @@ import { CustomEditor } from '$app/components/editor/command';
 import { useSlateStatic } from 'slate-react';
 import ImageActions from '$app/components/editor/components/blocks/image/ImageActions';
 import { LocalImage } from '$app/components/_shared/image_upload';
+import debounce from 'lodash-es/debounce';
 
 const MIN_WIDTH = 100;
+
+const DELAY = 300;
 
 function ImageRender({ selected, node }: { selected: boolean; node: ImageNode }) {
   const [loading, setLoading] = useState(true);
@@ -23,14 +26,22 @@ function ImageRender({ selected, node }: { selected: boolean; node: ImageNode })
 
   const [showActions, setShowActions] = useState(false);
   const [initialWidth, setInitialWidth] = useState<number | null>(null);
+  const [newWidth, setNewWidth] = useState<number | null>(imageWidth ?? null);
 
-  const handleWidthChange = useCallback(
-    (newWidth: number) => {
+  const debounceSubmitWidth = useMemo(() => {
+    return debounce((newWidth: number) => {
       CustomEditor.setImageBlockData(editor, node, {
         width: newWidth,
       });
+    }, DELAY);
+  }, [editor, node]);
+
+  const handleWidthChange = useCallback(
+    (newWidth: number) => {
+      setNewWidth(newWidth);
+      debounceSubmitWidth(newWidth);
     },
-    [editor, node]
+    [debounceSubmitWidth]
   );
 
   useEffect(() => {
@@ -40,7 +51,7 @@ function ImageRender({ selected, node }: { selected: boolean; node: ImageNode })
   }, [hasError, initialWidth, loading]);
   const imageProps: React.ImgHTMLAttributes<HTMLImageElement> = useMemo(() => {
     return {
-      style: { width: loading || hasError ? '0' : imageWidth ?? '100%', opacity: selected ? 0.8 : 1 },
+      style: { width: loading || hasError ? '0' : newWidth ?? '100%', opacity: selected ? 0.8 : 1 },
       className: 'object-cover',
       ref: imgRef,
       src: url,
@@ -54,7 +65,7 @@ function ImageRender({ selected, node }: { selected: boolean; node: ImageNode })
         setLoading(false);
       },
     };
-  }, [url, imageWidth, loading, hasError, selected]);
+  }, [url, newWidth, loading, hasError, selected]);
 
   const renderErrorNode = useCallback(() => {
     return (
@@ -79,8 +90,11 @@ function ImageRender({ selected, node }: { selected: boolean; node: ImageNode })
       }}
       style={{
         minWidth: MIN_WIDTH,
+        width: 'fit-content',
       }}
-      className={`relative min-h-[48px] ${hasError || (loading && source !== ImageType.Local) ? 'w-full' : ''}`}
+      className={`image-render relative min-h-[48px] ${
+        hasError || (loading && source !== ImageType.Local) ? 'w-full' : ''
+      }`}
     >
       {source === ImageType.Local ? (
         <LocalImage
@@ -96,7 +110,15 @@ function ImageRender({ selected, node }: { selected: boolean; node: ImageNode })
       )}
 
       {initialWidth && (
-        <ImageResizer minWidth={MIN_WIDTH} width={imageWidth ?? initialWidth} onWidthChange={handleWidthChange} />
+        <>
+          <ImageResizer
+            isLeft
+            minWidth={MIN_WIDTH}
+            width={imageWidth ?? initialWidth}
+            onWidthChange={handleWidthChange}
+          />
+          <ImageResizer minWidth={MIN_WIDTH} width={imageWidth ?? initialWidth} onWidthChange={handleWidthChange} />
+        </>
       )}
       {showActions && <ImageActions node={node} />}
       {hasError ? (

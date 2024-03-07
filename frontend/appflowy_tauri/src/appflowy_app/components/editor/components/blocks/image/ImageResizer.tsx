@@ -4,7 +4,9 @@ function ImageResizer({
   minWidth,
   width,
   onWidthChange,
+  isLeft,
 }: {
+  isLeft?: boolean;
   minWidth: number;
   width: number;
   onWidthChange: (newWidth: number) => void;
@@ -15,7 +17,7 @@ function ImageResizer({
   const onResize = useCallback(
     (e: MouseEvent) => {
       e.preventDefault();
-      const diff = e.clientX - startX.current;
+      const diff = isLeft ? startX.current - e.clientX : e.clientX - startX.current;
       const newWidth = originalWidth.current + diff;
 
       if (newWidth < minWidth) {
@@ -24,7 +26,7 @@ function ImageResizer({
 
       onWidthChange(newWidth);
     },
-    [minWidth, onWidthChange]
+    [isLeft, minWidth, onWidthChange]
   );
 
   const onResizeEnd = useCallback(() => {
@@ -46,7 +48,8 @@ function ImageResizer({
     <div
       onMouseDown={onResizeStart}
       style={{
-        right: '2px',
+        right: isLeft ? 'auto' : '2px',
+        left: isLeft ? '2px' : 'auto',
       }}
       className={'image-resizer'}
     >
