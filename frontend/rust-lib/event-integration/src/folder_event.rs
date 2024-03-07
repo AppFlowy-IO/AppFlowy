@@ -13,9 +13,23 @@ use crate::event_builder::EventBuilder;
 use crate::EventIntegrationTest;
 
 impl EventIntegrationTest {
+
+  // Deprecated, use invite instead
   pub async fn add_workspace_member(&self, workspace_id: &str, email: &str) {
     EventBuilder::new(self.clone())
       .event(UserEvent::AddWorkspaceMember)
+      .payload(AddWorkspaceMemberPB {
+        workspace_id: workspace_id.to_string(),
+        email: email.to_string(),
+      })
+      .async_send()
+      .await;
+  }
+
+  // Deprecated, use invite instead
+  pub async fn invite_workspace_member(&self, workspace_id: &str, email: &str) {
+    EventBuilder::new(self.clone())
+      .event(UserEvent::InviteWorkspaceMembers)
       .payload(AddWorkspaceMemberPB {
         workspace_id: workspace_id.to_string(),
         email: email.to_string(),

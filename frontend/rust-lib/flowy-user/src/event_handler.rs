@@ -607,6 +607,7 @@ pub async fn update_reminder_event_handler(
   Ok(())
 }
 
+// Deprecated, use invite instead
 #[tracing::instrument(level = "debug", skip_all, err)]
 pub async fn add_workspace_member_handler(
   data: AFPluginData<AddWorkspaceMemberPB>,
@@ -711,14 +712,14 @@ pub async fn change_workspace_icon_handler(
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
-pub async fn invite_members_to_workspace_handler(
+pub async fn invite_workspace_members_handler(
   param: AFPluginData<WorkspaceMemberInvitationPB>,
   manager: AFPluginState<Weak<UserManager>>,
 ) -> Result<(), FlowyError> {
   let param = param.try_into_inner()?;
   let manager = upgrade_manager(manager)?;
   manager
-    .invite_member_to_workspace(param.workspace_id, param.invitee_email, param.role.into())
+    .invite_workspace_members(param.workspace_id, param.invitee_email, param.role.into())
     .await?;
 
   todo!()

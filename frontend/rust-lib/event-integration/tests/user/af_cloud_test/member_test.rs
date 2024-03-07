@@ -1,6 +1,7 @@
 use event_integration::user_event::user_localhost_af_cloud;
 use event_integration::EventIntegrationTest;
 
+// Deprecated, use invite instead
 #[tokio::test]
 async fn af_cloud_add_workspace_member_test() {
   user_localhost_af_cloud().await;
@@ -14,6 +15,8 @@ async fn af_cloud_add_workspace_member_test() {
   assert_eq!(members.len(), 1);
   assert_eq!(members[0].email, user_1.email);
 
+
+
   test_1
     .add_workspace_member(&user_1.workspace_id, &user_2.email)
     .await;
@@ -24,6 +27,7 @@ async fn af_cloud_add_workspace_member_test() {
   assert_eq!(members[1].email, user_2.email);
 }
 
+// Deprecated, use invite instead
 #[tokio::test]
 async fn af_cloud_delete_workspace_member_test() {
   user_localhost_af_cloud().await;

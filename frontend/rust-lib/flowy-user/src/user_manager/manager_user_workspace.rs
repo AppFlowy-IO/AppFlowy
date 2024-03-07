@@ -196,7 +196,7 @@ impl UserManager {
     Ok(())
   }
 
-  pub async fn invite_member_to_workspace(
+  pub async fn invite_workspace_members(
     &self,
     workspace_id: String,
     invitee_email: String,
@@ -229,7 +229,7 @@ impl UserManager {
     Ok(())
   }
 
-  // deprecated, use invite instead
+  // Deprecated, use invite instead
   pub async fn add_workspace_member(
     &self,
     user_email: String,

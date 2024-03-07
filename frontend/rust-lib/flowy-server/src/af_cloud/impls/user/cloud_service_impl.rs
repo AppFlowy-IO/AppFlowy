@@ -181,7 +181,7 @@ where
     })
   }
 
-  // Deprecated
+  // Deprecated, use invite instead
   fn add_workspace_member(
     &self,
     user_email: String,
