@@ -314,7 +314,7 @@ jobs:
           flutter test integration_test/cloud/cloud_runner.dart -d Linux --coverage
         shell: bash
 
-  # split the integration tests into two jobs to minimize the time
+  # split the integration tests into different machines to minimize the time
   integration_test_1:
     needs: [prepare]
     if: github.event.pull_request.draft != true
@@ -324,64 +324,20 @@ jobs:
         os: [ubuntu-latest]
         include:
           - os: ubuntu-latest
-            flutter_profile: development-linux-x86_64
-            target: x86_64-unknown-linux-gnu
+            target: 'x86_64-unknown-linux-gnu'
     runs-on: ${{ matrix.os }}
-
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
 
-      - name: Install Rust toolchain
-        id: rust_toolchain
-        uses: actions-rs/toolchain@v1
+      - name: Flutter Integration Test 1
+        uses: ./.github/actions/flutter_integration_test
         with:
-          toolchain: ${{ env.RUST_TOOLCHAIN }}
-          target: ${{ matrix.target }}
-          override: true
-          profile: minimal
-
-      - name: Install flutter
-        id: flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: "stable"
-          flutter-version: ${{ env.FLUTTER_VERSION }}
-          cache: true
-
-      - uses: taiki-e/install-action@v2
-        with:
-          tool: cargo-make@${{ env.CARGO_MAKE_VERSION }}
-
-      - name: Install prerequisites
-        working-directory: frontend
-        run: |
-          sudo wget -qO /etc/apt/trusted.gpg.d/dart_linux_signing_key.asc https://dl-ssl.google.com/linux/linux_signing_key.pub
-          sudo wget -qO /etc/apt/sources.list.d/dart_stable.list https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list
-          sudo apt-get update
-          sudo apt-get install -y dart curl build-essential libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev keybinder-3.0 libnotify-dev network-manager
-        shell: bash
-
-      - name: Enable Flutter Desktop
-        run: |
-          flutter config --enable-linux-desktop
-        shell: bash
-
-      - uses: actions/download-artifact@v4
-        with:
-          name: ${{ github.run_id }}-${{ matrix.os }}
-
-      - name: Uncompressed appflowy_flutter
-        run: tar -xf appflowy_flutter.tar.gz
-
-      - name: Run Flutter integration tests
-        working-directory: frontend/appflowy_flutter
-        run: |
-          export DISPLAY=:99
-          sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
-          sudo apt-get install network-manager
-          flutter test integration_test/desktop_runner_1.dart -d Linux --coverage
-        shell: bash
+          test_path: integration_test/desktop_runner_1.dart
+          flutter_version: ${{ env.FLUTTER_VERSION }}
+          rust_toolchain: ${{ env.RUST_TOOLCHAIN }}
+          cargo_make_version: ${{ env.CARGO_MAKE_VERSION }}
+          rust_target: ${{ matrix.target }}
 
   integration_test_2:
     needs: [prepare]
@@ -392,64 +348,44 @@ jobs:
         os: [ubuntu-latest]
         include:
           - os: ubuntu-latest
-            flutter_profile: development-linux-x86_64
-            target: x86_64-unknown-linux-gnu
+            target: 'x86_64-unknown-linux-gnu'
     runs-on: ${{ matrix.os }}
-
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
 
-      - name: Install Rust toolchain
-        id: rust_toolchain
-        uses: actions-rs/toolchain@v1
+      - name: Flutter Integration Test 2
+        uses: ./.github/actions/flutter_integration_test
         with:
-          toolchain: ${{ env.RUST_TOOLCHAIN }}
-          target: ${{ matrix.target }}
-          override: true
-          profile: minimal
+          test_path: integration_test/desktop_runner_2.dart
+          flutter_version: ${{ env.FLUTTER_VERSION }}
+          rust_toolchain: ${{ env.RUST_TOOLCHAIN }}
+          cargo_make_version: ${{ env.CARGO_MAKE_VERSION }}
+          rust_target: ${{ matrix.target }}
 
-      - name: Install flutter
-        id: flutter
-        uses: subosito/flutter-action@v2
+  integration_test_3:
+    needs: [prepare]
+    if: github.event.pull_request.draft != true
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        include:
+          - os: ubuntu-latest
+            target: 'x86_64-unknown-linux-gnu'
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Flutter Integration Test 3
+        uses: ./.github/actions/flutter_integration_test
         with:
-          channel: "stable"
-          flutter-version: ${{ env.FLUTTER_VERSION }}
-          cache: true
-
-      - uses: taiki-e/install-action@v2
-        with:
-          tool: cargo-make@${{ env.CARGO_MAKE_VERSION }}
-
-      - name: Install prerequisites
-        working-directory: frontend
-        run: |
-          sudo wget -qO /etc/apt/trusted.gpg.d/dart_linux_signing_key.asc https://dl-ssl.google.com/linux/linux_signing_key.pub
-          sudo wget -qO /etc/apt/sources.list.d/dart_stable.list https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list
-          sudo apt-get update
-          sudo apt-get install -y dart curl build-essential libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev keybinder-3.0 libnotify-dev network-manager
-        shell: bash
-
-      - name: Enable Flutter Desktop
-        run: |
-          flutter config --enable-linux-desktop
-        shell: bash
-
-      - uses: actions/download-artifact@v4
-        with:
-          name: ${{ github.run_id }}-${{ matrix.os }}
-
-      - name: Uncompressed appflowy_flutter
-        run: tar -xf appflowy_flutter.tar.gz
-
-      - name: Run Flutter integration tests
-        working-directory: frontend/appflowy_flutter
-        run: |
-          export DISPLAY=:99
-          sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
-          sudo apt-get install network-manager
-          flutter test integration_test/desktop_runner_2.dart -d Linux --coverage
-        shell: bash
+          test_path: integration_test/desktop_runner_3.dart
+          flutter_version: ${{ env.FLUTTER_VERSION }}
+          rust_toolchain: ${{ env.RUST_TOOLCHAIN }}
+          cargo_make_version: ${{ env.CARGO_MAKE_VERSION }}
+          rust_target: ${{ matrix.target }}
 
   build:
     needs: [prepare]

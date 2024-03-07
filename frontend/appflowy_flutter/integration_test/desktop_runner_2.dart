@@ -23,6 +23,7 @@ Future<void> runIntegration2OnDesktop() async {
 
   // This test must be run first, otherwise the CI will fail.
   first_test.main();
+
   database_cell_test.main();
   database_field_test.main();
   database_field_settings_test.main();
@@ -34,4 +35,6 @@ Future<void> runIntegration2OnDesktop() async {
   database_sort_test.main();
   database_view_test.main();
   database_calendar_test.main();
+
+  // DON'T add more tests here. This is the second test runner for desktop.
 }
