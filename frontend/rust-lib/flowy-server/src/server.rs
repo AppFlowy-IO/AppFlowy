@@ -116,7 +116,7 @@ pub trait AppFlowyServer: Send + Sync + 'static {
   }
 
   fn get_ws_state(&self) -> ConnectState {
-    ConnectState::Closed
+    ConnectState::Lost
   }
 
   #[allow(clippy::type_complexity)]

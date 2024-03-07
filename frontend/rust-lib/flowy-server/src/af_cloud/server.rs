@@ -249,7 +249,7 @@ fn spawn_ws_conn(
       while let Ok(state) = state_recv.recv().await {
         info!("[websocket] state: {:?}", state);
         match state {
-          ConnectState::PingTimeout | ConnectState::Closed => {
+          ConnectState::PingTimeout | ConnectState::Lost => {
             // Try to reconnect if the connection is timed out.
             if let Some(api_client) = weak_api_client.upgrade() {
               if enable_sync.load(Ordering::SeqCst) {
