@@ -463,7 +463,7 @@
       "exportFileFail": "Export file failed!",
       "export": "Export",
       "clearCache": "Clear cache",
-      "clearCacheDesc": "Clear the cache including the images, fonts, and other temporary files. This will not delete your data.",
+      "clearCacheDesc": "If you encounter issues with images not loading or fonts not displaying correctly, try clearing your cache. This action will not remove your user data.",
       "areYouSureToClearCache": "Are you sure to clear the cache?",
       "clearCacheSuccess": "Cache cleared successfully!"
     },
