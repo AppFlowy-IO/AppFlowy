@@ -347,7 +347,7 @@ class NewTaskItem extends StatefulWidget {
 }
 
 class _NewTaskItemState extends State<NewTaskItem> {
-  late final _textEditingController = TextEditingController();
+  final _textEditingController = TextEditingController();
 
   @override
   void initState() {
