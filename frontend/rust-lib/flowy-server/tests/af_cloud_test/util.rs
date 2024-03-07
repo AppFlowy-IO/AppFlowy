@@ -30,7 +30,7 @@ pub fn af_cloud_server(config: AFCloudConfiguration) -> Arc<AppFlowyCloudServer>
     config,
     true,
     fake_device_id,
-    "flowy-server-test",
+    "0.5.1",
   ))
 }
 
@@ -51,7 +51,7 @@ pub async fn generate_sign_in_url(user_email: &str, config: &AFCloudConfiguratio
     client.gotrue_url(),
     "fake_device_id",
     ClientConfiguration::default(),
-    client.client_version.to_string().as_str(),
+    &client.client_version.to_string(),
   );
   admin_client
     .sign_in_password(&admin_email, &admin_password)

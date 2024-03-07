@@ -1,10 +1,11 @@
-import { t } from 'i18next';
 import { AppflowyLogo } from '../../_shared/svg/AppflowyLogo';
 import Button from '@mui/material/Button';
 import { useLogin } from '$app/components/auth/get_started/useLogin';
+import { useTranslation } from 'react-i18next';
 
 export const GetStarted = () => {
   const { onAutoSignInClick } = useLogin();
+  const { t } = useTranslation();
 
   return (
     <>

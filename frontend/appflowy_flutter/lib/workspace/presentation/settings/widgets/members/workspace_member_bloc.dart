@@ -38,6 +38,8 @@ class WorkspaceMemberBloc
               workspaceId = '';
             });
           }
+
+          add(const WorkspaceMemberEvent.getWorkspaceMembers());
         },
         getWorkspaceMembers: () async {
           final members = await _getWorkspaceMembers();

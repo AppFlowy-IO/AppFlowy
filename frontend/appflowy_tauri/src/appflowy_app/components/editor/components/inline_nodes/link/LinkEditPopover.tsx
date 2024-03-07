@@ -40,7 +40,7 @@ export function LinkEditPopover({
     initialAnchorOrigin,
     initialTransformOrigin,
     initialPaperWidth: 340,
-    initialPaperHeight: 180,
+    initialPaperHeight: 200,
   });
 
   return (

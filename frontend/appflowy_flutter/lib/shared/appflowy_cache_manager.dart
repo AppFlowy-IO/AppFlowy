@@ -1,3 +1,4 @@
+import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -57,5 +58,17 @@ class TemporaryDirectoryCache implements ICache {
   Future<void> clearAll() async {
     final tmpDir = await getTemporaryDirectory();
     await tmpDir.delete(recursive: true);
+  }
+}
+
+class FeatureFlagCache implements ICache {
+  @override
+  Future<int> cacheSize() async {
+    return 0;
+  }
+
+  @override
+  Future<void> clearAll() async {
+    await FeatureFlag.clear();
   }
 }

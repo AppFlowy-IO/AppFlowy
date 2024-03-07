@@ -27,9 +27,7 @@ class WorkspaceMembersPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider<WorkspaceMemberBloc>(
       create: (context) => WorkspaceMemberBloc(userProfile: userProfile)
-        ..add(
-          const WorkspaceMemberEvent.getWorkspaceMembers(),
-        ),
+        ..add(const WorkspaceMemberEvent.initial()),
       child: BlocBuilder<WorkspaceMemberBloc, WorkspaceMemberState>(
         builder: (context, state) {
           return SingleChildScrollView(

@@ -160,7 +160,7 @@ export function ColorPicker({ onEscape, onChange, disableFocus }: ColorPickerPro
   }, [renderColorItem, t]);
 
   return (
-    <div ref={ref} className={'flex h-full max-h-[360px] w-full flex-col overflow-y-auto'}>
+    <div ref={ref} className={'flex h-full max-h-[420px] w-full flex-col overflow-y-auto'}>
       <KeyboardNavigation
         disableFocus={disableFocus}
         onPressLeft={onEscape}

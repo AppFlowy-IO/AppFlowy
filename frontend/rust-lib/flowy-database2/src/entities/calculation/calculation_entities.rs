@@ -6,7 +6,7 @@ use std::{
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use serde_repr::{Deserialize_repr, Serialize_repr};
 
-use crate::{impl_into_calculation_type, services::calculations::Calculation};
+use crate::{entities::FieldType, impl_into_calculation_type, services::calculations::Calculation};
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct CalculationPB {
@@ -56,10 +56,13 @@ impl std::convert::From<&Arc<Calculation>> for CalculationPB {
 pub enum CalculationType {
   #[default]
   Average = 0, // Number
-  Max = 1,    // Number
-  Median = 2, // Number
-  Min = 3,    // Number
-  Sum = 4,    // Number
+  Max = 1,           // Number
+  Median = 2,        // Number
+  Min = 3,           // Number
+  Sum = 4,           // Number
+  Count = 5,         // All
+  CountEmpty = 6,    // All
+  CountNonEmpty = 7, // All
 }
 
 impl Display for CalculationType {
@@ -99,6 +102,23 @@ impl From<CalculationType> for i64 {
 impl From<&CalculationType> for i64 {
   fn from(ty: &CalculationType) -> Self {
     i64::from(*ty)
+  }
+}
+
+impl CalculationType {
+  pub fn is_allowed(&self, field_type: FieldType) -> bool {
+    match self {
+      // Number fields only
+      CalculationType::Max
+      | CalculationType::Min
+      | CalculationType::Average
+      | CalculationType::Median
+      | CalculationType::Sum => {
+        matches!(field_type, FieldType::Number)
+      },
+      // All fields
+      CalculationType::Count | CalculationType::CountEmpty | CalculationType::CountNonEmpty => true,
+    }
   }
 }
 

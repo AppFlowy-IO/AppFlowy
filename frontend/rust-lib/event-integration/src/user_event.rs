@@ -410,7 +410,7 @@ pub async fn user_localhost_af_cloud() {
   let base_url =
     std::env::var("af_cloud_test_base_url").unwrap_or("http://localhost:8000".to_string());
   let ws_base_url =
-    std::env::var("af_cloud_test_ws_url").unwrap_or("ws://localhost:8000/ws".to_string());
+    std::env::var("af_cloud_test_ws_url").unwrap_or("ws://localhost:8000/ws/v1".to_string());
   let gotrue_url =
     std::env::var("af_cloud_test_gotrue_url").unwrap_or("http://localhost:9999".to_string());
   AFCloudConfiguration {
@@ -426,7 +426,7 @@ pub async fn user_localhost_af_cloud() {
 #[allow(dead_code)]
 pub async fn user_localhost_af_cloud_with_nginx() {
   std::env::set_var("af_cloud_test_base_url", "http://localhost");
-  std::env::set_var("af_cloud_test_ws_url", "ws://localhost/ws");
+  std::env::set_var("af_cloud_test_ws_url", "ws://localhost/ws/v1");
   std::env::set_var("af_cloud_test_gotrue_url", "http://localhost/gotrue");
   user_localhost_af_cloud().await
 }

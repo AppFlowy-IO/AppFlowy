@@ -7,17 +7,19 @@ function GridView({ viewId }: { viewId: string }) {
 
   const ref = useRef<HTMLDivElement>(null);
 
-  const [rendered, setRendered] = useState(false);
+  const [rendered, setRendered] = useState<{ viewId: string; rendered: boolean } | undefined>(undefined);
 
   // delegate wheel event to layout when grid is scrolled to top or bottom
   useEffect(() => {
     const element = ref.current;
 
-    if (!element) {
+    const viewId = rendered?.viewId;
+
+    if (!viewId || !element) {
       return;
     }
 
-    const gridScroller = element.querySelector('.grid-scroll-container') as HTMLDivElement;
+    const gridScroller = element.querySelector(`[data-view-id="${viewId}"] .grid-scroll-container`) as HTMLDivElement;
 
     const scrollLayout = gridScroller?.closest('.appflowy-scroll-container') as HTMLDivElement;
 
@@ -29,7 +31,7 @@ function GridView({ viewId }: { viewId: string }) {
       const deltaY = event.deltaY;
       const deltaX = event.deltaX;
 
-      if (deltaX > 10) {
+      if (Math.abs(deltaX) > 8) {
         return;
       }
 
@@ -50,8 +52,11 @@ function GridView({ viewId }: { viewId: string }) {
     };
   }, [rendered]);
 
-  const onRendered = useCallback(() => {
-    setRendered(true);
+  const onRendered = useCallback((viewId: string) => {
+    setRendered({
+      viewId,
+      rendered: true,
+    });
   }, []);
 
   return (

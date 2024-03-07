@@ -42,12 +42,13 @@ class OptionTextField extends StatelessWidget {
           width: 38,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
-            color: type.mobileIconBackgroundColor,
+            color: Theme.of(context).brightness == Brightness.light
+                ? type.mobileIconBackgroundColor
+                : type.mobileIconBackgroundColorDark,
           ),
           child: Center(
             child: FlowySvg(
               type.svgData,
-              blendMode: null,
               size: const Size.square(22),
             ),
           ),
