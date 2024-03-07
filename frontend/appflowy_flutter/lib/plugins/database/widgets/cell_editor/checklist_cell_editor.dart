@@ -236,6 +236,10 @@ class _ChecklistItemState extends State<ChecklistItem> {
         else
           const SingleActivator(LogicalKeyboardKey.enter, control: true):
               const _SelectTaskIntent(),
+        const SingleActivator(LogicalKeyboardKey.arrowUp):
+            const PreviousFocusIntent(),
+        const SingleActivator(LogicalKeyboardKey.arrowDown):
+            const NextFocusIntent(),
       },
       descendantsAreTraversable: false,
       child: Container(
@@ -277,6 +281,10 @@ class _ChecklistItemState extends State<ChecklistItem> {
                       const DoNothingAndStopPropagationIntent(),
                   const SingleActivator(LogicalKeyboardKey.escape):
                       const _EndEditingTaskIntent(),
+                  const SingleActivator(LogicalKeyboardKey.arrowUp):
+                      const DoNothingAndStopPropagationIntent(),
+                  const SingleActivator(LogicalKeyboardKey.arrowDown):
+                      const DoNothingAndStopPropagationIntent(),
                 },
                 child: TextField(
                   controller: _textController,
