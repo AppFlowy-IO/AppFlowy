@@ -263,15 +263,20 @@ class _ChecklistItemState extends State<ChecklistItem> {
             ),
             Expanded(
               child: Shortcuts(
-                shortcuts: const {
-                  SingleActivator(LogicalKeyboardKey.space):
-                      DoNothingAndStopPropagationIntent(),
-                  SingleActivator(LogicalKeyboardKey.delete):
-                      DoNothingAndStopPropagationIntent(),
-                  SingleActivator(LogicalKeyboardKey.enter):
-                      DoNothingAndStopPropagationIntent(),
-                  SingleActivator(LogicalKeyboardKey.escape):
-                      _EndEditingTaskIntent(),
+                shortcuts: {
+                  const SingleActivator(LogicalKeyboardKey.space):
+                      const DoNothingAndStopPropagationIntent(),
+                  const SingleActivator(LogicalKeyboardKey.delete):
+                      const DoNothingAndStopPropagationIntent(),
+                  if (Platform.isMacOS)
+                    LogicalKeySet(
+                      LogicalKeyboardKey.fn,
+                      LogicalKeyboardKey.backspace,
+                    ): const DoNothingAndStopPropagationIntent(),
+                  const SingleActivator(LogicalKeyboardKey.enter):
+                      const DoNothingAndStopPropagationIntent(),
+                  const SingleActivator(LogicalKeyboardKey.escape):
+                      const _EndEditingTaskIntent(),
                 },
                 child: TextField(
                   controller: _textController,
