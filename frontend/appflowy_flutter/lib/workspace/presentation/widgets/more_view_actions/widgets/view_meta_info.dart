@@ -36,7 +36,7 @@ class ViewMetaInfo extends StatelessWidget {
             FlowyText.regular(
               LocaleKeys.moreAction_wordCount.tr(
                 args: [
-                  numberFormat.format(documentCounters!.wordCount).toString()
+                  numberFormat.format(documentCounters!.wordCount).toString(),
                 ],
               ),
               fontSize: 11,
@@ -46,7 +46,7 @@ class ViewMetaInfo extends StatelessWidget {
             FlowyText.regular(
               LocaleKeys.moreAction_charCount.tr(
                 args: [
-                  numberFormat.format(documentCounters!.charCount).toString()
+                  numberFormat.format(documentCounters!.charCount).toString(),
                 ],
               ),
               fontSize: 11,
