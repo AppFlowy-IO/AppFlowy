@@ -4,7 +4,17 @@ import { useViewId } from '$app/hooks';
 import { Button } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
-function AddNewOption({ rowId, fieldId, onClose }: { rowId: string; fieldId: string; onClose: () => void }) {
+function AddNewOption({
+  rowId,
+  fieldId,
+  onClose,
+  onFocus,
+}: {
+  rowId: string;
+  fieldId: string;
+  onClose: () => void;
+  onFocus: () => void;
+}) {
   const { t } = useTranslation();
   const [value, setValue] = useState('');
   const viewId = useViewId();
@@ -18,6 +28,7 @@ function AddNewOption({ rowId, fieldId, onClose }: { rowId: string; fieldId: str
   return (
     <div className={'flex items-center justify-between p-2 px-2 text-sm'}>
       <input
+        onFocus={onFocus}
         placeholder={t('grid.checklist.addNew')}
         className={'flex-1 px-2'}
         autoFocus={true}

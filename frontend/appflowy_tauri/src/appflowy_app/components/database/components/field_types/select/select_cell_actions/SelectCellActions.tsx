@@ -54,7 +54,7 @@ function SelectCellActions({
         ),
       }));
 
-    if (result.length === 0) {
+    if (result.length === 0 && newOptionName) {
       result.push({
         key: CREATE_OPTION_KEY,
         content: <Tag size='small' label={newOptionName} />,
@@ -69,8 +69,7 @@ function SelectCellActions({
   const updateCell = useCallback(
     async (optionIds: string[]) => {
       if (!cell || !rowId) return;
-      const prev = selectedOptionIds;
-      const deleteOptionIds = prev?.filter((id) => optionIds.find((cur) => cur === id) === undefined);
+      const deleteOptionIds = selectedOptionIds?.filter((id) => optionIds.find((cur) => cur === id) === undefined);
 
       await cellService.updateSelectCell(viewId, rowId, field.id, {
         insertOptionIds: optionIds,
@@ -136,9 +135,12 @@ function SelectCellActions({
     <div className={'flex h-full flex-col overflow-hidden'}>
       <SearchInput inputRef={inputRef} setNewOptionName={setNewOptionName} newOptionName={newOptionName} />
 
-      <div className='mx-4 mb-2 mt-4 text-xs'>
-        {shouldCreateOption ? t('grid.selectOption.createNew') : t('grid.selectOption.orSelectOne')}
-      </div>
+      {filteredOptions.length > 0 && (
+        <div className='mx-4 mb-2 mt-4 text-xs'>
+          {shouldCreateOption ? t('grid.selectOption.createNew') : t('grid.selectOption.orSelectOne')}
+        </div>
+      )}
+
       <div ref={scrollRef} className={'mx-1 flex-1 overflow-y-auto overflow-x-hidden px-1'}>
         <KeyboardNavigation
           scrollRef={scrollRef}
@@ -150,6 +152,7 @@ function SelectCellActions({
           itemStyle={{
             borderRadius: '4px',
           }}
+          renderNoResult={() => null}
         />
       </div>
     </div>
