@@ -1050,7 +1050,8 @@
       "name": "Calendar settings"
     },
     "referencedCalendarPrefix": "View of",
-    "quickJumpYear": "Jump to"
+    "quickJumpYear": "Jump to",
+    "duplicateEvent": "Duplicate event"
   },
   "errorDialog": {
     "title": "AppFlowy Error",
