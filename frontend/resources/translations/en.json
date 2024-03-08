@@ -93,7 +93,7 @@
     "moreOptions": "More options",
     "wordCount": "Word count: {}",
     "charCount": "Character count: {}",
-    "createdAt": "Created at: {}",
+    "createdAt": "Created: {}",
     "deleteView": "Delete",
     "duplicateView": "Duplicate"
   },

@@ -35,6 +35,7 @@ class ViewMetaInfo extends StatelessWidget {
               LocaleKeys.moreAction_wordCount.tr(
                 args: [documentCounters!.wordCount.toString()],
               ),
+              fontSize: 11,
               color: Theme.of(context).hintColor,
             ),
             const VSpace(2),
@@ -42,6 +43,7 @@ class ViewMetaInfo extends StatelessWidget {
               LocaleKeys.moreAction_charCount.tr(
                 args: [documentCounters!.charCount.toString()],
               ),
+              fontSize: 11,
               color: Theme.of(context).hintColor,
             ),
           ],
@@ -51,6 +53,7 @@ class ViewMetaInfo extends StatelessWidget {
               LocaleKeys.moreAction_createdAt.tr(
                 args: [dateFormat.formatDate(createdAt!, true, timeFormat)],
               ),
+              fontSize: 11,
               maxLines: 2,
               color: Theme.of(context).hintColor,
             ),
