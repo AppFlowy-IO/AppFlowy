@@ -1,6 +1,9 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
@@ -11,11 +14,10 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../application/cell/bloc/checklist_cell_bloc.dart';
+
 import 'checklist_progress_bar.dart';
 
 class ChecklistCellEditor extends StatefulWidget {
@@ -189,7 +191,9 @@ class _ChecklistItemState extends State<ChecklistItem> {
   void didUpdateWidget(ChecklistItem oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.task.data.name != oldWidget.task.data.name) {
+      final selection = _textController.selection;
       _textController.text = widget.task.data.name;
+      _textController.selection = selection;
     }
   }
 
@@ -234,6 +238,10 @@ class _ChecklistItemState extends State<ChecklistItem> {
         else
           const SingleActivator(LogicalKeyboardKey.enter, control: true):
               const _SelectTaskIntent(),
+        const SingleActivator(LogicalKeyboardKey.arrowUp):
+            const PreviousFocusIntent(),
+        const SingleActivator(LogicalKeyboardKey.arrowDown):
+            const NextFocusIntent(),
       },
       descendantsAreTraversable: false,
       child: Container(
@@ -261,15 +269,24 @@ class _ChecklistItemState extends State<ChecklistItem> {
             ),
             Expanded(
               child: Shortcuts(
-                shortcuts: const {
-                  SingleActivator(LogicalKeyboardKey.space):
-                      DoNothingAndStopPropagationIntent(),
-                  SingleActivator(LogicalKeyboardKey.delete):
-                      DoNothingAndStopPropagationIntent(),
-                  SingleActivator(LogicalKeyboardKey.enter):
-                      DoNothingAndStopPropagationIntent(),
-                  SingleActivator(LogicalKeyboardKey.escape):
-                      _EndEditingTaskIntent(),
+                shortcuts: {
+                  const SingleActivator(LogicalKeyboardKey.space):
+                      const DoNothingAndStopPropagationIntent(),
+                  const SingleActivator(LogicalKeyboardKey.delete):
+                      const DoNothingAndStopPropagationIntent(),
+                  if (Platform.isMacOS)
+                    LogicalKeySet(
+                      LogicalKeyboardKey.fn,
+                      LogicalKeyboardKey.backspace,
+                    ): const DoNothingAndStopPropagationIntent(),
+                  const SingleActivator(LogicalKeyboardKey.enter):
+                      const DoNothingAndStopPropagationIntent(),
+                  const SingleActivator(LogicalKeyboardKey.escape):
+                      const _EndEditingTaskIntent(),
+                  const SingleActivator(LogicalKeyboardKey.arrowUp):
+                      const DoNothingAndStopPropagationIntent(),
+                  const SingleActivator(LogicalKeyboardKey.arrowDown):
+                      const DoNothingAndStopPropagationIntent(),
                 },
                 child: TextField(
                   controller: _textController,
@@ -345,12 +362,11 @@ class NewTaskItem extends StatefulWidget {
 }
 
 class _NewTaskItemState extends State<NewTaskItem> {
-  late final TextEditingController _textEditingController;
+  final _textEditingController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _textEditingController = TextEditingController();
     if (widget.focusNode.canRequestFocus) {
       widget.focusNode.requestFocus();
     }
@@ -385,15 +401,13 @@ class _NewTaskItemState extends State<NewTaskItem> {
                 hintText: LocaleKeys.grid_checklist_addNew.tr(),
               ),
               onSubmitted: (taskDescription) {
-                if (taskDescription.trim().isNotEmpty) {
-                  context.read<ChecklistCellBloc>().add(
-                        ChecklistCellEvent.createNewTask(
-                          taskDescription.trim(),
-                        ),
-                      );
+                if (taskDescription.isNotEmpty) {
+                  context
+                      .read<ChecklistCellBloc>()
+                      .add(ChecklistCellEvent.createNewTask(taskDescription));
+                  _textEditingController.clear();
                 }
                 widget.focusNode.requestFocus();
-                _textEditingController.clear();
               },
               onChanged: (value) => setState(() {}),
             ),
@@ -409,16 +423,17 @@ class _NewTaskItemState extends State<NewTaskItem> {
                 : Theme.of(context).colorScheme.primaryContainer,
             fontColor: Theme.of(context).colorScheme.onPrimary,
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-            onPressed: () {
-              final text = _textEditingController.text.trim();
-              if (text.isNotEmpty) {
-                context.read<ChecklistCellBloc>().add(
-                      ChecklistCellEvent.createNewTask(text),
-                    );
-              }
-              widget.focusNode.requestFocus();
-              _textEditingController.clear();
-            },
+            onPressed: _textEditingController.text.isEmpty
+                ? null
+                : () {
+                    context.read<ChecklistCellBloc>().add(
+                          ChecklistCellEvent.createNewTask(
+                            _textEditingController.text,
+                          ),
+                        );
+                    widget.focusNode.requestFocus();
+                    _textEditingController.clear();
+                  },
           ),
         ],
       ),
