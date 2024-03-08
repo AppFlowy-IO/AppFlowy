@@ -180,14 +180,14 @@ class WorkspaceMenuItem extends StatelessWidget {
   Widget _buildRightIcon(BuildContext context) {
     // only the owner can update or delete workspace.
     // only show the more action button when the workspace is selected.
-    if (!isSelected ||
-        !context.read<WorkspaceMemberBloc>().state.myRole.isOwner) {
+    if (!isSelected) {
       return const SizedBox.shrink();
     }
 
     return Row(
       children: [
-        WorkspaceMoreActionList(workspace: workspace),
+        if (context.read<WorkspaceMemberBloc>().state.myRole.isOwner)
+          WorkspaceMoreActionList(workspace: workspace),
         const FlowySvg(
           FlowySvgs.blue_check_s,
         ),
