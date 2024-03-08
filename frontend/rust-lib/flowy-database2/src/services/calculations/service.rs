@@ -27,7 +27,7 @@ impl CalculationsService {
       CalculationType::Min => self.calculate_min(field, row_cells),
       CalculationType::Sum => self.calculate_sum(field, row_cells),
       CalculationType::Count => self.calculate_count(row_cells),
-      CalculationType::CountEmpty => self.calculate_count_empty(row_cells),
+      CalculationType::CountEmpty => self.calculate_count_empty(field, row_cells),
       CalculationType::CountNonEmpty => self.calculate_count_non_empty(row_cells),
     }
   }
@@ -129,19 +129,27 @@ impl CalculationsService {
     }
   }
 
-  fn calculate_count_empty(&self, row_cells: Vec<Arc<RowCell>>) -> String {
-    if !row_cells.is_empty() {
-      format!(
-        "{}",
-        row_cells
-          .iter()
-          .filter(|c| c.is_none())
-          .collect::<Vec<_>>()
-          .len()
-      )
-    } else {
-      String::new()
+  fn calculate_count_empty(&self, field: &Field, row_cells: Vec<Arc<RowCell>>) -> String {
+    let field_type = FieldType::from(field.field_type);
+    if let Some(handler) = TypeOptionCellExt::new_with_cell_data_cache(field, None)
+      .get_type_option_cell_data_handler(&field_type)
+    {
+      if !row_cells.is_empty() {
+        return format!(
+          "{}",
+          row_cells
+            .iter()
+            .filter(|c| c.is_none()
+              || handler
+                .handle_stringify_cell(&c.cell.clone().unwrap_or_default(), &field_type, field)
+                .is_empty())
+            .collect::<Vec<_>>()
+            .len()
+        );
+      }
     }
+
+    String::new()
   }
 
   fn calculate_count_non_empty(&self, row_cells: Vec<Arc<RowCell>>) -> String {
