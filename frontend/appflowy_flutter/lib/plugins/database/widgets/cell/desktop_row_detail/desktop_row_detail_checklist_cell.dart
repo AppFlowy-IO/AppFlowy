@@ -67,13 +67,13 @@ class _ChecklistItemsState extends State<ChecklistItems> {
           (index, task) => Padding(
             padding: const EdgeInsets.symmetric(vertical: 2.0),
             child: ChecklistItem(
+              key: ValueKey(task.data.id),
               task: task,
               autofocus: widget.state.newTask && index == tasks.length - 1,
-              onSubmitted: () {
-                if (index == tasks.length - 1) {
-                  widget.bloc.add(const ChecklistCellEvent.createNewTask(""));
-                }
-              },
+              onSubmitted: index == tasks.length - 1
+                  ? () => widget.bloc
+                      .add(const ChecklistCellEvent.createNewTask(""))
+                  : null,
             ),
           ),
         )
