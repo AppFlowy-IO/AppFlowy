@@ -6,6 +6,7 @@ import 'package:appflowy/plugins/document/application/editor_transaction_adapter
 import 'package:appflowy/plugins/trash/application/trash_service.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
+import 'package:appflowy/util/json_print.dart';
 import 'package:appflowy/workspace/application/doc/doc_listener.dart';
 import 'package:appflowy/workspace/application/doc/sync_state_listener.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
@@ -81,30 +82,24 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
         final editorState = await _fetchDocumentState();
         _onViewChanged();
         _onDocumentChanged();
-        await editorState.fold(
+        final newState = await editorState.fold(
           (s) async {
-            final result = await getIt<AuthService>().getUser();
-            final userProfilePB = result.fold(
-              (s) => s,
-              (e) => null,
-            );
-            emit(
-              state.copyWith(
-                error: null,
-                editorState: s,
-                isLoading: false,
-                userProfilePB: userProfilePB,
-              ),
+            final userProfilePB =
+                await getIt<AuthService>().getUser().toNullable();
+            return state.copyWith(
+              error: null,
+              editorState: s,
+              isLoading: false,
+              userProfilePB: userProfilePB,
             );
           },
-          (f) async => emit(
-            state.copyWith(
-              error: f,
-              editorState: null,
-              isLoading: false,
-            ),
+          (f) async => state.copyWith(
+            error: f,
+            editorState: null,
+            isLoading: false,
           ),
         );
+        emit(newState);
       },
       moveToTrash: () async {
         emit(state.copyWith(isDeleted: true));
@@ -242,21 +237,20 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   }
 
   void syncDocumentDataPB(DocEventPB docEvent) {
-    // prettyPrintJson(docEvent.toProto3Json());
-    // todo: integrate the document change to the editor
-    // for (final event in docEvent.events) {
-    //   for (final blockEvent in event.event) {
-    //     switch (blockEvent.command) {
-    //       case DeltaTypePB.Inserted:
-    //         break;
-    //       case DeltaTypePB.Updated:
-    //         break;
-    //       case DeltaTypePB.Removed:
-    //         break;
-    //       default:
-    //     }
-    //   }
-    // }
+    prettyPrintJson(docEvent.toProto3Json());
+    for (final event in docEvent.events) {
+      for (final blockEvent in event.event) {
+        switch (blockEvent.command) {
+          case DeltaTypePB.Inserted:
+            break;
+          case DeltaTypePB.Updated:
+            break;
+          case DeltaTypePB.Removed:
+            break;
+          default:
+        }
+      }
+    }
   }
 }
 
