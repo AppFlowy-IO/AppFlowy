@@ -148,7 +148,7 @@ class _MobileViewPageState extends State<MobileViewPage> {
           context,
           showDragHandle: true,
           showDivider: false,
-          backgroundColor: Theme.of(context).colorScheme.surface,
+          backgroundColor: Theme.of(context).colorScheme.background,
           builder: (_) => _buildViewPageBottomSheet(context),
         );
       },

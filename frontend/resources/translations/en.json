@@ -679,7 +679,8 @@
       "cannotFindCreatableField": "Cannot find a suitable field to sort by",
       "deleteAllSorts": "Delete all sorts",
       "addSort": "Add new sort",
-      "removeSorting": "Would you like to remove sorting?"
+      "removeSorting": "Would you like to remove sorting?",
+      "fieldInUse": "You are already sorting by this field"
     },
     "row": {
       "duplicate": "Duplicate",
