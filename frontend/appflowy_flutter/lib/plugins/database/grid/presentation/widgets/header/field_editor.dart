@@ -104,6 +104,8 @@ class _FieldEditorState extends State<FieldEditor> {
           VSpace(GridSize.typeOptionSeparatorHeight),
           _actionCell(FieldAction.duplicate),
           VSpace(GridSize.typeOptionSeparatorHeight),
+          _actionCell(FieldAction.clearData),
+          VSpace(GridSize.typeOptionSeparatorHeight),
           _actionCell(FieldAction.delete),
         ],
       ).padding(all: 8.0),
@@ -195,6 +197,7 @@ enum FieldAction {
   insertRight,
   toggleVisibility,
   duplicate,
+  clearData,
   delete;
 
   Widget icon(FieldInfo fieldInfo, Color? color) {
@@ -213,6 +216,8 @@ enum FieldAction {
         }
       case FieldAction.duplicate:
         svgData = FlowySvgs.copy_s;
+      case FieldAction.clearData:
+        svgData = FlowySvgs.reload_s;
       case FieldAction.delete:
         svgData = FlowySvgs.delete_s;
     }
@@ -241,6 +246,8 @@ enum FieldAction {
         }
       case FieldAction.duplicate:
         return LocaleKeys.grid_field_duplicate.tr();
+      case FieldAction.clearData:
+        return LocaleKeys.grid_field_clear.tr();
       case FieldAction.delete:
         return LocaleKeys.grid_field_delete.tr();
     }
@@ -272,6 +279,18 @@ enum FieldAction {
           viewId: viewId,
           fieldId: fieldInfo.id,
         );
+        break;
+      case FieldAction.clearData:
+        NavigatorAlertDialog(
+          title: LocaleKeys.grid_field_clearFieldPromptMessage.tr(),
+          confirm: () {
+            FieldBackendService.clearField(
+              viewId: viewId,
+              fieldId: fieldInfo.id,
+            );
+          },
+        ).show(context);
+        PopoverContainer.of(context).close();
         break;
       case FieldAction.delete:
         NavigatorAlertDialog(

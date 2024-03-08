@@ -245,6 +245,20 @@ pub(crate) async fn delete_field_handler(
   Ok(())
 }
 
+#[tracing::instrument(level = "trace", skip(data, manager), err)]
+pub(crate) async fn clear_field_handler(
+  data: AFPluginData<ClearFieldPayloadPB>,
+  manager: AFPluginState<Weak<DatabaseManager>>,
+) -> Result<(), FlowyError> {
+  let manager = upgrade_manager(manager)?;
+  let params: FieldIdParams = data.into_inner().try_into()?;
+  let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
+  database_editor
+    .clear_field(&params.view_id, &params.field_id)
+    .await?;
+  Ok(())
+}
+
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub(crate) async fn switch_to_field_handler(
   data: AFPluginData<UpdateFieldTypePayloadPB>,
