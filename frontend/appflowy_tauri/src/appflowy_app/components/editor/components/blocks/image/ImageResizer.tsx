@@ -49,7 +49,7 @@ function ImageResizer({
       onMouseDown={onResizeStart}
       style={{
         right: isLeft ? 'auto' : '2px',
-        left: isLeft ? '2px' : 'auto',
+        left: isLeft ? '-2px' : 'auto',
       }}
       className={'image-resizer'}
     >

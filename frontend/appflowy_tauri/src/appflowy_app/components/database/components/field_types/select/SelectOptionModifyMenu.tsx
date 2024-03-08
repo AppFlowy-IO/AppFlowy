@@ -118,6 +118,9 @@ export const SelectOptionModifyMenu: FC<SelectOptionMenuProps> = ({ fieldId, opt
           onClick={(e) => {
             e.stopPropagation();
           }}
+          onMouseDown={(e) => {
+            e.stopPropagation();
+          }}
           autoFocus={true}
           placeholder={t('grid.selectOption.tagName')}
           size='small'

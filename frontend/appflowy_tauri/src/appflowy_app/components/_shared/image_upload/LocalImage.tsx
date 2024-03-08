@@ -2,7 +2,6 @@ import React, { forwardRef, useCallback, useEffect, useRef, useState } from 'rea
 import { CircularProgress } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { ErrorOutline } from '@mui/icons-material';
-import { width } from '@mui/system';
 
 export const LocalImage = forwardRef<
   HTMLImageElement,
