@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:appflowy/mobile/presentation/favorite/mobile_favorite_folder.dart';
 import 'package:appflowy/mobile/presentation/home/mobile_home_page_header.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -33,10 +35,12 @@ class MobileFavoriteScreen extends StatelessWidget {
           },
           (error) => null,
         );
-        final userProfile =
-            snapshots.data?[1].fold((error) => null, (userProfilePB) {
-          return userProfilePB as UserProfilePB?;
-        });
+        final userProfile = snapshots.data?[1].fold(
+          (userProfilePB) {
+            return userProfilePB as UserProfilePB?;
+          },
+          (error) => null,
+        );
 
         // In the unlikely case either of the above is null, eg.
         // when a workspace is already open this can happen.
@@ -73,7 +77,11 @@ class MobileFavoritePage extends StatelessWidget {
       children: [
         // Header
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: EdgeInsets.only(
+            left: 16,
+            right: 16,
+            top: Platform.isAndroid ? 8.0 : 0.0,
+          ),
           child: MobileHomePageHeader(
             userProfile: userProfile,
           ),

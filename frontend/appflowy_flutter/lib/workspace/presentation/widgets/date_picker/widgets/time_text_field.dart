@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pbenum.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -45,11 +46,8 @@ class _TimeTextFieldState extends State<TimeTextField> {
   void initState() {
     super.initState();
 
-    if (widget.isEndTime) {
-      _textController.text = widget.endTimeStr ?? "";
-    } else {
-      _textController.text = widget.timeStr ?? "";
-    }
+    _textController.text =
+        (widget.isEndTime ? widget.endTimeStr : widget.timeStr) ?? "";
 
     if (!widget.isEndTime && widget.timeStr != null) {
       text = widget.timeStr!;
@@ -89,6 +87,7 @@ class _TimeTextFieldState extends State<TimeTextField> {
       child: FlowyTextField(
         text: text,
         focusNode: _focusNode,
+        autoFocus: false,
         controller: _textController,
         submitOnLeave: true,
         hintText: widget.timeHintText,
@@ -98,8 +97,50 @@ class _TimeTextFieldState extends State<TimeTextField> {
             ? _maxLengthTwelveHour
             : _maxLengthTwentyFourHour,
         showCounter: false,
+        inputFormatters: [TimeInputFormatter(widget.timeFormat)],
         onSubmitted: widget.onSubmitted,
       ),
+    );
+  }
+}
+
+class TimeInputFormatter extends TextInputFormatter {
+  TimeInputFormatter(this.timeFormat);
+
+  final TimeFormatPB timeFormat;
+  static const int colonPosition = 2;
+  static const int spacePosition = 5;
+
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    final oldText = oldValue.text;
+    final newText = newValue.text;
+
+    // If the user has typed enough for a time separator(:) and hasn't already typed
+    if (newText.length == colonPosition + 1 &&
+        oldText.length == colonPosition &&
+        !newText.contains(":")) {
+      return _formatText(newText, colonPosition, ':');
+    }
+
+    // If the user has typed enough for an AM/PM separator and hasn't already typed
+    if (timeFormat == TimeFormatPB.TwelveHour &&
+        newText.length == spacePosition + 1 &&
+        oldText.length == spacePosition &&
+        newText[newText.length - 1] != ' ') {
+      return _formatText(newText, spacePosition, ' ');
+    }
+
+    return newValue;
+  }
+
+  TextEditingValue _formatText(String text, int index, String separator) {
+    return TextEditingValue(
+      text: '${text.substring(0, index)}$separator${text.substring(index)}',
+      selection: TextSelection.collapsed(offset: text.length + 1),
     );
   }
 }

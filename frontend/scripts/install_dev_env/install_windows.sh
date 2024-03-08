@@ -48,9 +48,9 @@ fi
 printMessage "Setting up Flutter"
 # Get the current Flutter version
 FLUTTER_VERSION=$(flutter --version | grep -oP 'Flutter \K\S+')
-# Check if the current version is 3.18.0-0.2.pre2
-if [ "$FLUTTER_VERSION" = "3.18.0-0.2.pre2" ]; then
-   echo "Flutter version is already 3.18.0-0.2.pre2"
+# Check if the current version is 3.19.0
+if [ "$FLUTTER_VERSION" = "3.19.0" ]; then
+   echo "Flutter version is already 3.19.0"
 else
    # Get the path to the Flutter SDK
    FLUTTER_PATH=$(which flutter)
@@ -59,12 +59,12 @@ else
    current_dir=$(pwd)
 
    cd $FLUTTER_PATH
-   # Use git to checkout version 3.18.0-0.2.pre2 of Flutter
-   git checkout 3.18.0-0.2.pre2
+   # Use git to checkout version 3.19.0 of Flutter
+   git checkout 3.19.0
    # Get back to current working directory
    cd "$current_dir"
 
-   echo "Switched to Flutter version 3.18.0-0.2.pre2"
+   echo "Switched to Flutter version 3.19.0"
 fi
 
 # Add pub cache and cargo to PATH

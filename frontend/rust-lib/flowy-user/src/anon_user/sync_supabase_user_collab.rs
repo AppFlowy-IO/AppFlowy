@@ -11,13 +11,13 @@ use collab_database::rows::database_row_document_id_from_row_id;
 use collab_database::user::{get_all_database_view_trackers, DatabaseViewTracker};
 use collab_entity::{CollabObject, CollabType};
 use collab_folder::{Folder, View, ViewLayout};
+use collab_plugins::local_storage::kv::KVTransactionDB;
 use parking_lot::Mutex;
 
 use collab_integrate::{CollabKVAction, CollabKVDB, PersistenceError};
 use flowy_error::FlowyResult;
 use flowy_user_pub::cloud::UserCloudService;
-
-use crate::services::entities::Session;
+use flowy_user_pub::session::Session;
 
 #[tracing::instrument(level = "info", skip_all, err)]
 pub async fn sync_supabase_user_data_to_cloud(
@@ -43,7 +43,7 @@ pub async fn sync_supabase_user_data_to_cloud(
     uid,
     &workspace_id,
     device_id,
-    &new_user_session.user_workspace.database_view_tracker_id,
+    &new_user_session.user_workspace.workspace_database_object_id,
     collab_db,
     user_service.clone(),
   )

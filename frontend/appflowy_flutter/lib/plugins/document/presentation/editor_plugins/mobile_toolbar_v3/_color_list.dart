@@ -18,9 +18,10 @@ Future<void> showTextColorAndBackgroundColorPicker(
   await showMobileBottomSheet(
     context,
     showHeader: true,
-    showCloseButton: true,
-    showDivider: false,
+    showCloseButton: false,
+    showDivider: true,
     showDragHandle: true,
+    showDoneButton: true,
     barrierColor: Colors.transparent,
     backgroundColor: theme.toolbarMenuBackgroundColor,
     elevation: 20,
@@ -62,16 +63,9 @@ class _TextColorAndBackgroundColorState
     extends State<_TextColorAndBackgroundColor> {
   @override
   Widget build(BuildContext context) {
-    final String? selectedTextColor =
-        widget.editorState.getDeltaAttributeValueInSelection(
-      AppFlowyRichTextKeys.textColor,
-      widget.selection,
-    );
+    final String? selectedTextColor = _getColor(AppFlowyRichTextKeys.textColor);
     final String? selectedBackgroundColor =
-        widget.editorState.getDeltaAttributeValueInSelection(
-      AppFlowyRichTextKeys.highlightColor,
-      widget.selection,
-    );
+        _getColor(AppFlowyRichTextKeys.backgroundColor);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -89,17 +83,25 @@ class _TextColorAndBackgroundColorState
           selectedColor: selectedTextColor?.tryToColor(),
           onSelectedColor: (textColor) async {
             final hex = textColor.alpha == 0 ? null : textColor.toHex();
-            await widget.editorState.formatDelta(
-              widget.selection,
-              {
-                AppFlowyRichTextKeys.textColor: hex,
-              },
-              selectionExtraInfo: {
-                selectionExtraInfoDisableFloatingToolbar: true,
-                selectionExtraInfoDisableMobileToolbarKey: true,
-                selectionExtraInfoDoNotAttachTextService: true,
-              },
-            );
+            final selection = widget.selection;
+            if (selection.isCollapsed) {
+              widget.editorState.updateToggledStyle(
+                AppFlowyRichTextKeys.textColor,
+                hex ?? '',
+              );
+            } else {
+              await widget.editorState.formatDelta(
+                widget.selection,
+                {
+                  AppFlowyRichTextKeys.textColor: hex,
+                },
+                selectionExtraInfo: {
+                  selectionExtraInfoDisableFloatingToolbar: true,
+                  selectionExtraInfoDisableMobileToolbarKey: true,
+                  selectionExtraInfoDoNotAttachTextService: true,
+                },
+              );
+            }
             setState(() {});
           },
         ),
@@ -118,22 +120,52 @@ class _TextColorAndBackgroundColorState
           onSelectedColor: (backgroundColor) async {
             final hex =
                 backgroundColor.alpha == 0 ? null : backgroundColor.toHex();
-            await widget.editorState.formatDelta(
-              widget.selection,
-              {
-                AppFlowyRichTextKeys.highlightColor: hex,
-              },
-              selectionExtraInfo: {
-                selectionExtraInfoDisableFloatingToolbar: true,
-                selectionExtraInfoDisableMobileToolbarKey: true,
-                selectionExtraInfoDoNotAttachTextService: true,
-              },
-            );
+            final selection = widget.selection;
+            if (selection.isCollapsed) {
+              widget.editorState.updateToggledStyle(
+                AppFlowyRichTextKeys.backgroundColor,
+                hex ?? '',
+              );
+            } else {
+              await widget.editorState.formatDelta(
+                widget.selection,
+                {
+                  AppFlowyRichTextKeys.backgroundColor: hex,
+                },
+                selectionExtraInfo: {
+                  selectionExtraInfoDisableFloatingToolbar: true,
+                  selectionExtraInfoDisableMobileToolbarKey: true,
+                  selectionExtraInfoDoNotAttachTextService: true,
+                },
+              );
+            }
             setState(() {});
           },
         ),
       ],
     );
+  }
+
+  String? _getColor(String key) {
+    final selection = widget.selection;
+    String? color = widget.editorState.toggledStyle[key];
+    if (color == null) {
+      if (selection.isCollapsed && selection.startIndex != 0) {
+        color = widget.editorState.getDeltaAttributeValueInSelection<String>(
+          key,
+          selection.copyWith(
+            start: selection.start.copyWith(
+              offset: selection.startIndex - 1,
+            ),
+          ),
+        );
+      } else {
+        color = widget.editorState.getDeltaAttributeValueInSelection<String>(
+          key,
+        );
+      }
+    }
+    return color;
   }
 }
 
@@ -211,6 +243,7 @@ class _BackgroundColorItem extends StatelessWidget {
           color: color,
           borderRadius: Corners.s12Border,
           border: Border.all(
+            width: isSelected ? 2.0 : 1.0,
             color: isSelected
                 ? theme.toolbarMenuItemSelectedBackgroundColor
                 : Theme.of(context).dividerColor,
@@ -219,7 +252,7 @@ class _BackgroundColorItem extends StatelessWidget {
         alignment: Alignment.center,
         child: isSelected
             ? const FlowySvg(
-                FlowySvgs.blue_check_s,
+                FlowySvgs.m_blue_check_s,
                 size: Size.square(28.0),
                 blendMode: null,
               )
@@ -290,6 +323,7 @@ class _TextColorItem extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: Corners.s12Border,
           border: Border.all(
+            width: isSelected ? 2.0 : 1.0,
             color: isSelected
                 ? const Color(0xff00C6F1)
                 : Theme.of(context).dividerColor,

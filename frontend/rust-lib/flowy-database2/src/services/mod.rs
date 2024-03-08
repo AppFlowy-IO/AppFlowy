@@ -1,3 +1,4 @@
+pub mod calculations;
 pub mod cell;
 pub mod database;
 pub mod database_view;

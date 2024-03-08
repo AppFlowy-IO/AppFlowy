@@ -62,10 +62,24 @@ class _NotificationItemState extends State<NotificationItem> {
   bool _isHovering = false;
   int? path;
 
+  late final String infoString;
+
   @override
   void initState() {
     super.initState();
     widget.block?.then((b) => path = b?.path.first);
+    infoString = _buildInfoString();
+  }
+
+  String _buildInfoString() {
+    String scheduledString =
+        _scheduledString(widget.scheduled, widget.includeTime);
+
+    if (widget.view != null) {
+      scheduledString = '$scheduledString - ${widget.view!.name}';
+    }
+
+    return scheduledString;
   }
 
   @override
@@ -126,7 +140,6 @@ class _NotificationItemState extends State<NotificationItem> {
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.start,
                               children: [
                                 FlowyText.semibold(
                                   widget.title,
@@ -136,10 +149,7 @@ class _NotificationItemState extends State<NotificationItem> {
                                 ),
                                 // TODO(Xazin): Relative time
                                 FlowyText.regular(
-                                  '${_scheduledString(
-                                    widget.scheduled,
-                                    widget.includeTime,
-                                  )}${widget.view != null ? " - ${widget.view!.name}" : ""}',
+                                  infoString,
                                   fontSize:
                                       PlatformExtension.isMobile ? 12 : 10,
                                 ),

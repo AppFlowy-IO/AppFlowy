@@ -1,13 +1,15 @@
+use client_api::ws::ConnectState;
+use client_api::ws::WSConnectStateReceiver;
+use client_api::ws::WebSocketChannel;
 use flowy_storage::ObjectStorageService;
 use std::sync::Arc;
 
 use anyhow::Error;
-use client_api::collab_sync::collab_msg::CollabMessage;
-use client_api::ws::{ConnectState, WSConnectStateReceiver, WebSocketChannel};
-use collab_entity::CollabObject;
-use collab_plugins::cloud_storage::RemoteCollabStorage;
+use client_api::collab_sync::collab_msg::ServerCollabMessage;
 use parking_lot::RwLock;
 use tokio_stream::wrappers::WatchStream;
+#[cfg(feature = "enable_supabase")]
+use {collab_entity::CollabObject, collab_plugins::cloud_storage::RemoteCollabStorage};
 
 use flowy_database_pub::cloud::DatabaseCloudService;
 use flowy_document_pub::cloud::DocumentCloudService;
@@ -104,6 +106,7 @@ pub trait AppFlowyServer: Send + Sync + 'static {
   /// # Returns
   ///
   /// An `Option` that might contain an `Arc` wrapping the `RemoteCollabStorage` interface.
+  #[cfg(feature = "enable_supabase")]
   fn collab_storage(&self, _collab_object: &CollabObject) -> Option<Arc<dyn RemoteCollabStorage>> {
     None
   }
@@ -113,7 +116,7 @@ pub trait AppFlowyServer: Send + Sync + 'static {
   }
 
   fn get_ws_state(&self) -> ConnectState {
-    ConnectState::Closed
+    ConnectState::Lost
   }
 
   #[allow(clippy::type_complexity)]
@@ -122,7 +125,7 @@ pub trait AppFlowyServer: Send + Sync + 'static {
     _object_id: &str,
   ) -> FutureResult<
     Option<(
-      Arc<WebSocketChannel<CollabMessage>>,
+      Arc<WebSocketChannel<ServerCollabMessage>>,
       WSConnectStateReceiver,
       bool,
     )>,

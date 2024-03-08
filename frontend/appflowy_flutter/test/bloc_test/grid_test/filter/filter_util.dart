@@ -21,7 +21,6 @@ Future<GridTestContext> createTestFilterGrid(AppFlowyGridTest gridTest) async {
         final result = await context.gridController.open();
 
         await editCells(context);
-        await gridResponseFuture(milliseconds: 500);
         result.fold((l) => null, (r) => throw Exception(r));
         return context;
       },
@@ -33,10 +32,11 @@ Future<GridTestContext> createTestFilterGrid(AppFlowyGridTest gridTest) async {
 }
 
 Future<void> editCells(GridTestContext context) async {
-  final controller0 = await context.makeTextCellController(0);
-  final controller1 = await context.makeTextCellController(1);
+  final controller0 = context.makeTextCellController(0);
+  final controller1 = context.makeTextCellController(1);
 
-  controller0.saveCellData('A');
+  await controller0.saveCellData('A');
   await gridResponseFuture();
-  controller1.saveCellData('B');
+  await controller1.saveCellData('B');
+  await gridResponseFuture();
 }

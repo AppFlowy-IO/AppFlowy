@@ -1,26 +1,21 @@
+import 'dart:async';
+
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/view/view_cache.dart';
+import 'package:appflowy/plugins/database/domain/database_view_service.dart';
+import 'package:appflowy/plugins/database/domain/group_listener.dart';
+import 'package:appflowy/plugins/database/domain/layout_service.dart';
+import 'package:appflowy/plugins/database/domain/layout_setting_listener.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/board_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/calendar_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/database_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/group.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/group_changeset.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/setting_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:collection/collection.dart';
-import 'dart:async';
-import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 
-import 'database_view_service.dart';
 import 'defines.dart';
-import 'layout/layout_service.dart';
-import 'layout/layout_setting_listener.dart';
 import 'row/row_cache.dart';
-import 'group/group_listener.dart';
 
 typedef OnGroupConfigurationChanged = void Function(List<GroupSettingPB>);
 typedef OnGroupByField = void Function(List<GroupPB>);
@@ -29,12 +24,6 @@ typedef OnDeleteGroup = void Function(List<String>);
 typedef OnInsertGroup = void Function(InsertedGroupPB);
 
 class GroupCallbacks {
-  final OnGroupConfigurationChanged? onGroupConfigurationChanged;
-  final OnGroupByField? onGroupByField;
-  final OnUpdateGroup? onUpdateGroup;
-  final OnDeleteGroup? onDeleteGroup;
-  final OnInsertGroup? onInsertGroup;
-
   GroupCallbacks({
     this.onGroupConfigurationChanged,
     this.onGroupByField,
@@ -42,26 +31,21 @@ class GroupCallbacks {
     this.onDeleteGroup,
     this.onInsertGroup,
   });
+
+  final OnGroupConfigurationChanged? onGroupConfigurationChanged;
+  final OnGroupByField? onGroupByField;
+  final OnUpdateGroup? onUpdateGroup;
+  final OnDeleteGroup? onDeleteGroup;
+  final OnInsertGroup? onInsertGroup;
 }
 
 class DatabaseLayoutSettingCallbacks {
-  final void Function(DatabaseLayoutSettingPB) onLayoutSettingsChanged;
+  DatabaseLayoutSettingCallbacks({required this.onLayoutSettingsChanged});
 
-  DatabaseLayoutSettingCallbacks({
-    required this.onLayoutSettingsChanged,
-  });
+  final void Function(DatabaseLayoutSettingPB) onLayoutSettingsChanged;
 }
 
 class DatabaseCallbacks {
-  OnDatabaseChanged? onDatabaseChanged;
-  OnFieldsChanged? onFieldsChanged;
-  OnFiltersChanged? onFiltersChanged;
-  OnSortsChanged? onSortsChanged;
-  OnNumOfRowsChanged? onNumOfRowsChanged;
-  OnRowsDeleted? onRowsDeleted;
-  OnRowsUpdated? onRowsUpdated;
-  OnRowsCreated? onRowsCreated;
-
   DatabaseCallbacks({
     this.onDatabaseChanged,
     this.onNumOfRowsChanged,
@@ -72,9 +56,36 @@ class DatabaseCallbacks {
     this.onRowsDeleted,
     this.onRowsCreated,
   });
+
+  OnDatabaseChanged? onDatabaseChanged;
+  OnFieldsChanged? onFieldsChanged;
+  OnFiltersChanged? onFiltersChanged;
+  OnSortsChanged? onSortsChanged;
+  OnNumOfRowsChanged? onNumOfRowsChanged;
+  OnRowsDeleted? onRowsDeleted;
+  OnRowsUpdated? onRowsUpdated;
+  OnRowsCreated? onRowsCreated;
 }
 
 class DatabaseController {
+  DatabaseController({required ViewPB view})
+      : viewId = view.id,
+        _databaseViewBackendSvc = DatabaseViewBackendService(viewId: view.id),
+        fieldController = FieldController(viewId: view.id),
+        _groupListener = DatabaseGroupListener(view.id),
+        databaseLayout = databaseLayoutFromViewLayout(view.layout),
+        _layoutListener = DatabaseLayoutSettingListener(view.id) {
+    _viewCache = DatabaseViewCache(
+      viewId: viewId,
+      fieldController: fieldController,
+    );
+
+    _listenOnRowsChanged();
+    _listenOnFieldsChanged();
+    _listenOnGroupChanged();
+    _listenOnLayoutChanged();
+  }
+
   final String viewId;
   final DatabaseViewBackendService _databaseViewBackendSvc;
   final FieldController fieldController;
@@ -95,23 +106,6 @@ class DatabaseController {
   final DatabaseLayoutSettingListener _layoutListener;
 
   final ValueNotifier<bool> _isLoading = ValueNotifier(true);
-
-  DatabaseController({required ViewPB view})
-      : viewId = view.id,
-        _databaseViewBackendSvc = DatabaseViewBackendService(viewId: view.id),
-        fieldController = FieldController(viewId: view.id),
-        _groupListener = DatabaseGroupListener(view.id),
-        databaseLayout = databaseLayoutFromViewLayout(view.layout),
-        _layoutListener = DatabaseLayoutSettingListener(view.id) {
-    _viewCache = DatabaseViewCache(
-      viewId: viewId,
-      fieldController: fieldController,
-    );
-    _listenOnRowsChanged();
-    _listenOnFieldsChanged();
-    _listenOnGroupChanged();
-    _listenOnLayoutChanged();
-  }
 
   void setIsLoading(bool isLoading) {
     _isLoading.value = isLoading;
@@ -137,7 +131,7 @@ class DatabaseController {
     }
   }
 
-  Future<Either<Unit, FlowyError>> open() async {
+  Future<FlowyResult<void, FlowyError>> open() async {
     return _databaseViewBackendSvc.openDatabase().then((result) {
       return result.fold(
         (DatabasePB database) async {
@@ -158,21 +152,21 @@ class DatabaseController {
               return Future(() async {
                 await _loadGroups();
                 await _loadLayoutSetting();
-                return left(fields);
+                return FlowyResult.success(fields);
               });
             },
             (err) {
               Log.error(err);
-              return right(err);
+              return FlowyResult.failure(err);
             },
           );
         },
-        (err) => right(err),
+        (err) => FlowyResult.failure(err),
       );
     });
   }
 
-  Future<Either<Unit, FlowyError>> moveGroupRow({
+  Future<FlowyResult<void, FlowyError>> moveGroupRow({
     required RowMetaPB fromRow,
     required String fromGroupId,
     required String toGroupId,
@@ -186,7 +180,7 @@ class DatabaseController {
     );
   }
 
-  Future<Either<Unit, FlowyError>> moveRow({
+  Future<FlowyResult<void, FlowyError>> moveRow({
     required String fromRowId,
     required String toRowId,
   }) {
@@ -196,7 +190,7 @@ class DatabaseController {
     );
   }
 
-  Future<Either<Unit, FlowyError>> moveGroup({
+  Future<FlowyResult<void, FlowyError>> moveGroup({
     required String fromGroupId,
     required String toGroupId,
   }) {
@@ -243,8 +237,10 @@ class DatabaseController {
     );
   }
 
-  Future<void> _loadLayoutSetting() async {
-    _databaseViewBackendSvc.getLayoutSetting(databaseLayout).then((result) {
+  Future<void> _loadLayoutSetting() {
+    return _databaseViewBackendSvc
+        .getLayoutSetting(databaseLayout)
+        .then((result) {
       result.fold(
         (newDatabaseLayoutSetting) {
           databaseLayoutSetting = newDatabaseLayoutSetting;

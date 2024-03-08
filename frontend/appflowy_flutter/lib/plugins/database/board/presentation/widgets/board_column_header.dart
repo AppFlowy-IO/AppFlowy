@@ -138,12 +138,11 @@ class _BoardColumnHeaderState extends State<BoardColumnHeader> {
 
   Widget _buildTextField(BuildContext context) {
     return Expanded(
-      child: RawKeyboardListener(
+      child: KeyboardListener(
         focusNode: FocusNode(),
-        onKey: (event) {
-          if (event is RawKeyDownEvent &&
-              [LogicalKeyboardKey.enter, LogicalKeyboardKey.escape]
-                  .contains(event.logicalKey)) {
+        onKeyEvent: (event) {
+          if ([LogicalKeyboardKey.enter, LogicalKeyboardKey.escape]
+              .contains(event.logicalKey)) {
             _saveEdit();
           }
         },
@@ -151,7 +150,6 @@ class _BoardColumnHeaderState extends State<BoardColumnHeader> {
           controller: _controller,
           focusNode: _focusNode,
           onEditingComplete: _saveEdit,
-          maxLines: 1,
           style: Theme.of(context).textTheme.bodyMedium!.copyWith(fontSize: 14),
           decoration: InputDecoration(
             filled: true,

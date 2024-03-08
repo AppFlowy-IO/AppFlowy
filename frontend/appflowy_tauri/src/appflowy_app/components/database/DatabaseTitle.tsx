@@ -1,11 +1,12 @@
 import { FormEventHandler, useCallback } from 'react';
-import { t } from 'i18next';
 import { useViewId } from '$app/hooks';
 import { useAppDispatch, useAppSelector } from '$app/stores/store';
 import { updatePageName } from '$app_reducers/pages/async_actions';
+import { useTranslation } from 'react-i18next';
 
 export const DatabaseTitle = () => {
   const viewId = useViewId();
+  const { t } = useTranslation();
   const pageName = useAppSelector((state) => state.pages.pageMap[viewId]?.name || '');
   const dispatch = useAppDispatch();
 

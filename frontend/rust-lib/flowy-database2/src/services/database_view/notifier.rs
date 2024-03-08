@@ -1,11 +1,12 @@
 #![allow(clippy::while_let_loop)]
 use crate::entities::{
-  DatabaseViewSettingPB, FilterChangesetNotificationPB, GroupChangesPB, GroupRowsNotificationPB,
-  ReorderAllRowsPB, ReorderSingleRowPB, RowsVisibilityChangePB, SortChangesetNotificationPB,
+  CalculationChangesetNotificationPB, DatabaseViewSettingPB, FilterChangesetNotificationPB,
+  GroupChangesPB, GroupRowsNotificationPB, ReorderAllRowsPB, ReorderSingleRowPB,
+  RowsVisibilityChangePB, SortChangesetNotificationPB,
 };
 use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::filter::FilterResultNotification;
-use crate::services::sort::{ReorderAllRowsResult, ReorderSingleRowResult};
+use crate::services::sort::{InsertSortedRowResult, ReorderAllRowsResult, ReorderSingleRowResult};
 use async_stream::stream;
 use futures::stream::StreamExt;
 use tokio::sync::broadcast;
@@ -15,6 +16,8 @@ pub enum DatabaseViewChanged {
   FilterNotification(FilterResultNotification),
   ReorderAllRowsNotification(ReorderAllRowsResult),
   ReorderSingleRowNotification(ReorderSingleRowResult),
+  InsertSortedRowNotification(InsertSortedRowResult),
+  CalculationValueNotification(CalculationChangesetNotificationPB),
 }
 
 pub type DatabaseViewChangedNotifier = broadcast::Sender<DatabaseViewChanged>;
@@ -76,6 +79,13 @@ impl DatabaseViewChangedReceiverRunner {
             .payload(reorder_row)
             .send()
           },
+          DatabaseViewChanged::InsertSortedRowNotification(_result) => {},
+          DatabaseViewChanged::CalculationValueNotification(notification) => send_notification(
+            &notification.view_id,
+            DatabaseNotification::DidUpdateCalculation,
+          )
+          .payload(notification)
+          .send(),
         }
       })
       .await;
@@ -92,6 +102,15 @@ pub async fn notify_did_update_filter(notification: FilterChangesetNotificationP
   send_notification(&notification.view_id, DatabaseNotification::DidUpdateFilter)
     .payload(notification)
     .send();
+}
+
+pub async fn notify_did_update_calculation(notification: CalculationChangesetNotificationPB) {
+  send_notification(
+    &notification.view_id,
+    DatabaseNotification::DidUpdateCalculation,
+  )
+  .payload(notification)
+  .send();
 }
 
 pub async fn notify_did_update_sort(notification: SortChangesetNotificationPB) {

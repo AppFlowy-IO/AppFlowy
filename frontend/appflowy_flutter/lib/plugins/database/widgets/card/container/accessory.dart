@@ -16,13 +16,14 @@ typedef CardAccessoryBuilder = List<CardAccessory> Function(
 );
 
 class CardAccessoryContainer extends StatelessWidget {
-  final void Function(AccessoryType) onTapAccessory;
-  final List<CardAccessory> accessories;
   const CardAccessoryContainer({
+    super.key,
     required this.accessories,
     required this.onTapAccessory,
-    super.key,
   });
+
+  final List<CardAccessory> accessories;
+  final void Function(AccessoryType) onTapAccessory;
 
   @override
   Widget build(BuildContext context) {
@@ -77,13 +78,11 @@ class CardAccessoryContainer extends StatelessWidget {
           color: Theme.of(context).brightness == Brightness.light
               ? const Color(0xFF1F2329).withOpacity(0.12)
               : const Color(0xff59647a),
-          width: 1.0,
         ),
       ),
       boxShadow: [
         BoxShadow(
           blurRadius: 4,
-          spreadRadius: 0,
           color: const Color(0xFF1F2329).withOpacity(0.02),
         ),
         BoxShadow(

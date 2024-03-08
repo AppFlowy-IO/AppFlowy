@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/doc_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/banner.dart';
@@ -13,7 +15,6 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 enum EditorNotificationType {
@@ -35,12 +36,14 @@ class EditorNotification extends Notification {
 class DocumentPage extends StatefulWidget {
   const DocumentPage({
     super.key,
-    required this.onDeleted,
     required this.view,
+    required this.onDeleted,
+    this.initialSelection,
   });
 
-  final VoidCallback onDeleted;
   final ViewPB view;
+  final VoidCallback onDeleted;
+  final Selection? initialSelection;
 
   @override
   State<DocumentPage> createState() => _DocumentPageState();
@@ -88,10 +91,8 @@ class _DocumentPageState extends State<DocumentPage> {
 
           return BlocListener<NotificationActionBloc, NotificationActionState>(
             listener: _onNotificationAction,
-            child: _buildEditorPage(
-              context,
-              state,
-            ),
+            listenWhen: (_, curr) => curr.action != null,
+            child: _buildEditorPage(context, state),
           );
         },
       ),
@@ -107,6 +108,7 @@ class _DocumentPageState extends State<DocumentPage> {
         padding: EditorStyleCustomizer.documentPadding,
       ),
       header: _buildCoverAndIcon(context, state.editorState!),
+      initialSelection: widget.initialSelection,
     );
 
     return Column(
@@ -162,20 +164,17 @@ class _DocumentPageState extends State<DocumentPage> {
   //   }
   // }
 
-  Future<void> _onNotificationAction(
+  void _onNotificationAction(
     BuildContext context,
     NotificationActionState state,
-  ) async {
+  ) {
     if (state.action != null && state.action!.type == ActionType.jumpToBlock) {
-      final path = state.action?.arguments?[ActionArgumentKeys.nodePath.name];
+      final path = state.action?.arguments?[ActionArgumentKeys.nodePath];
 
       final editorState = context.read<DocumentBloc>().state.editorState;
       if (editorState != null && widget.view.id == state.action?.objectId) {
         editorState.updateSelectionWithReason(
-          Selection.collapsed(
-            Position(path: [path]),
-          ),
-          reason: SelectionUpdateReason.transaction,
+          Selection.collapsed(Position(path: [path])),
         );
       }
     }

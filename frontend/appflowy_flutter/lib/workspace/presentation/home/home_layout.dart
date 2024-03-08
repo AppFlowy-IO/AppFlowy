@@ -10,23 +10,10 @@ import 'package:sized_context/sized_context.dart';
 import 'home_sizes.dart';
 
 class HomeLayout {
-  late double menuWidth;
-  late bool showMenu;
-  late bool menuIsDrawer;
-  late bool showEditPanel;
-  late double editPanelWidth;
-  late double homePageLOffset;
-  late double homePageROffset;
-  late double menuSpacing;
-  late Duration animDuration;
-
-  HomeLayout(BuildContext context, BoxConstraints homeScreenConstraint) {
+  HomeLayout(BuildContext context) {
     final homeSetting = context.read<HomeSettingBloc>().state;
-
-    showEditPanel = homeSetting.panelContext.isSome();
-
+    showEditPanel = homeSetting.panelContext != null;
     menuWidth = Sizes.sideBarWidth;
-
     menuWidth += homeSetting.resizeOffset;
 
     final screenWidthPx = context.widthPx;
@@ -34,10 +21,8 @@ class HomeLayout {
         .read<HomeSettingBloc>()
         .add(HomeSettingEvent.checkScreenSize(screenWidthPx));
 
-    if (homeSetting.isMenuCollapsed) {
-      showMenu = false;
-    } else {
-      showMenu = true;
+    showMenu = !homeSetting.isMenuCollapsed;
+    if (showMenu) {
       menuIsDrawer = context.widthPx <= PageBreaks.tabletPortrait;
     }
 
@@ -45,8 +30,17 @@ class HomeLayout {
 
     menuSpacing = !showMenu && Platform.isMacOS ? 80.0 : 0.0;
     animDuration = homeSetting.resizeType.duration();
-
     editPanelWidth = HomeSizes.editPanelWidth;
     homePageROffset = showEditPanel ? editPanelWidth : 0;
   }
+
+  late bool showEditPanel;
+  late double menuWidth;
+  late bool showMenu;
+  late bool menuIsDrawer;
+  late double homePageLOffset;
+  late double menuSpacing;
+  late Duration animDuration;
+  late double editPanelWidth;
+  late double homePageROffset;
 }

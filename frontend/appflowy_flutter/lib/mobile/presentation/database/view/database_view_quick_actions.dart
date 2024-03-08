@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/bottom_sheet/show_transition_bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_quick_action_button.dart';
 import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
@@ -13,7 +14,7 @@ import 'edit_database_view_screen.dart';
 
 /// [MobileDatabaseViewQuickActions] is gives users to quickly edit a database
 /// view from the [MobileDatabaseViewList]
-class MobileDatabaseViewQuickActions extends StatefulWidget {
+class MobileDatabaseViewQuickActions extends StatelessWidget {
   const MobileDatabaseViewQuickActions({
     super.key,
     required this.view,
@@ -24,68 +25,71 @@ class MobileDatabaseViewQuickActions extends StatefulWidget {
   final DatabaseController databaseController;
 
   @override
-  State<MobileDatabaseViewQuickActions> createState() =>
-      _MobileDatabaseViewQuickActionsState();
-}
-
-class _MobileDatabaseViewQuickActionsState
-    extends State<MobileDatabaseViewQuickActions> {
-  bool isEditing = false;
-
-  @override
   Widget build(BuildContext context) {
-    return isEditing
-        ? MobileEditDatabaseViewScreen(
-            databaseController: widget.databaseController,
-          )
-        : _quickActions(context, widget.view);
-  }
-
-  Widget _quickActions(BuildContext context, ViewPB view) {
     final isInline = view.childViews.isNotEmpty;
-    return Padding(
-      padding: const EdgeInsets.only(top: 8, bottom: 38),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _actionButton(context, _Action.edit, () {
-            setState(() => isEditing = true);
-          }),
-          if (!isInline) ...[
-            _divider(),
-            _actionButton(context, _Action.duplicate, () {
-              context.read<ViewBloc>().add(const ViewEvent.duplicate());
-              context.pop();
-            }),
-            _divider(),
-            _actionButton(context, _Action.delete, () {
-              context.read<ViewBloc>().add(const ViewEvent.delete());
-              context.pop();
-            }),
-            _divider(),
-          ],
-        ],
-      ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _actionButton(context, _Action.edit, () async {
+          final bloc = context.read<ViewBloc>();
+          await showTransitionMobileBottomSheet(
+            context,
+            showHeader: true,
+            showDoneButton: true,
+            title: LocaleKeys.grid_settings_editView.tr(),
+            builder: (_) => BlocProvider.value(
+              value: bloc,
+              child: MobileEditDatabaseViewScreen(
+                databaseController: databaseController,
+              ),
+            ),
+          );
+          if (context.mounted) {
+            context.pop();
+          }
+        }),
+        _divider(),
+        _actionButton(
+          context,
+          _Action.duplicate,
+          () {
+            context.read<ViewBloc>().add(const ViewEvent.duplicate());
+            context.pop();
+          },
+          !isInline,
+        ),
+        _divider(),
+        _actionButton(
+          context,
+          _Action.delete,
+          () {
+            context.read<ViewBloc>().add(const ViewEvent.delete());
+            context.pop();
+          },
+          !isInline,
+        ),
+        _divider(),
+      ],
     );
   }
 
   Widget _actionButton(
     BuildContext context,
     _Action action,
-    VoidCallback onTap,
-  ) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-      child: MobileQuickActionButton(
-        icon: action.icon,
-        text: action.label,
-        color: action.color(context),
-        onTap: onTap,
-      ),
+    VoidCallback onTap, [
+    bool enable = true,
+  ]) {
+    return MobileQuickActionButton(
+      icon: action.icon,
+      text: action.label,
+      textColor: action.color(context),
+      iconColor: action.color(context),
+      onTap: onTap,
+      enable: enable,
     );
   }
 
-  Widget _divider() => const Divider(height: 9);
+  Widget _divider() => const Divider(height: 8.5, thickness: 0.5);
 }
 
 enum _Action {

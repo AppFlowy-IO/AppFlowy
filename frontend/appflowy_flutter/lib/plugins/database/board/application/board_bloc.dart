@@ -3,50 +3,38 @@ import 'dart:collection';
 
 import 'package:appflowy/plugins/database/application/defines.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
-import 'package:appflowy/plugins/database/application/group/group_service.dart';
+import 'package:appflowy/plugins/database/domain/group_service.dart';
 import 'package:appflowy/plugins/database/application/row/row_service.dart';
-import 'package:appflowy_board/appflowy_board.dart';
-import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
+import 'package:appflowy_board/appflowy_board.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:protobuf/protobuf.dart' hide FieldInfo;
 
+import '../../application/database_controller.dart';
 import '../../application/field/field_controller.dart';
 import '../../application/row/row_cache.dart';
-import '../../application/database_controller.dart';
 import 'group_controller.dart';
 
 part 'board_bloc.freezed.dart';
 
 class BoardBloc extends Bloc<BoardEvent, BoardState> {
-  final DatabaseController databaseController;
-  final LinkedHashMap<String, GroupController> groupControllers =
-      LinkedHashMap();
-  final List<GroupPB> groupList = [];
-
-  late final GroupBackendService groupBackendSvc;
-  late final AppFlowyBoardController boardController;
-
-  FieldController get fieldController => databaseController.fieldController;
-  String get viewId => databaseController.viewId;
-
   BoardBloc({
     required ViewPB view,
     required this.databaseController,
   }) : super(BoardState.initial(view.id)) {
     groupBackendSvc = GroupBackendService(viewId);
     boardController = AppFlowyBoardController(
-      onMoveGroup: (fromGroupId, fromIndex, toGroupId, toIndex) {
-        databaseController.moveGroup(
-          fromGroupId: fromGroupId,
-          toGroupId: toGroupId,
-        );
-      },
+      onMoveGroup: (fromGroupId, fromIndex, toGroupId, toIndex) =>
+          databaseController.moveGroup(
+        fromGroupId: fromGroupId,
+        toGroupId: toGroupId,
+      ),
       onMoveGroupItem: (groupId, fromIndex, toIndex) {
         final fromRow = groupControllers[groupId]?.rowAtIndex(fromIndex);
         final toRow = groupControllers[groupId]?.rowAtIndex(toIndex);
@@ -73,6 +61,21 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
       },
     );
 
+    _dispatch();
+  }
+
+  final DatabaseController databaseController;
+  final LinkedHashMap<String, GroupController> groupControllers =
+      LinkedHashMap();
+  final List<GroupPB> groupList = [];
+
+  late final AppFlowyBoardController boardController;
+  late final GroupBackendService groupBackendSvc;
+
+  FieldController get fieldController => databaseController.fieldController;
+  String get viewId => databaseController.viewId;
+
+  void _dispatch() {
     on<BoardEvent>(
       (event, emit) async {
         await event.when(
@@ -93,9 +96,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
             );
 
             result.fold(
-              (rowMeta) {
-                emit(state.copyWith(recentAddedRowMeta: rowMeta));
-              },
+              (rowMeta) => emit(state.copyWith(recentAddedRowMeta: rowMeta)),
               (err) => Log.error(err),
             );
           },
@@ -112,9 +113,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
             );
 
             result.fold(
-              (rowMeta) {
-                emit(state.copyWith(recentAddedRowMeta: rowMeta));
-              },
+              (rowMeta) => emit(state.copyWith(recentAddedRowMeta: rowMeta)),
               (err) => Log.error(err),
             );
           },
@@ -140,10 +139,10 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
             _groupItemStartEditing(group, row, true);
           },
           didReceiveGridUpdate: (DatabasePB grid) {
-            emit(state.copyWith(grid: Some(grid)));
+            emit(state.copyWith(grid: grid));
           },
           didReceiveError: (FlowyError error) {
-            emit(state.copyWith(noneOrError: some(error)));
+            emit(state.copyWith(noneOrError: error));
           },
           didReceiveGroups: (List<GroupPB> groups) {
             final hiddenGroups = _filterHiddenGroups(hideUngrouped, groups);
@@ -254,7 +253,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     );
   }
 
-  Future<void> _reorderGroup(
+  void _reorderGroup(
     String fromGroupId,
     String toGroupId,
     Emitter<BoardState> emit,
@@ -274,7 +273,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   @override
   Future<void> close() async {
     for (final controller in groupControllers.values) {
-      controller.dispose();
+      await controller.dispose();
     }
     return super.close();
   }
@@ -302,12 +301,14 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
 
     boardController.addGroups(
       groups
-          .where(
-            (group) =>
-                fieldController.getField(group.fieldId) != null &&
-                ((!group.isDefault && group.isVisible) ||
-                    (group.isDefault && !hideUngrouped)),
-          )
+          .where((group) {
+            final field = fieldController.getField(group.fieldId);
+            return field != null &&
+                (!group.isDefault && group.isVisible ||
+                    group.isDefault &&
+                        !hideUngrouped &&
+                        field.fieldType != FieldType.Checkbox);
+          })
           .map((group) => _initializeGroupData(group))
           .toList(),
     );
@@ -447,11 +448,15 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
       (grid) {
         databaseController.setIsLoading(false);
         emit(
-          state.copyWith(loadingState: LoadingState.finish(left(unit))),
+          state.copyWith(
+            loadingState: LoadingState.finish(FlowyResult.success(null)),
+          ),
         );
       },
       (err) => emit(
-        state.copyWith(loadingState: LoadingState.finish(right(err))),
+        state.copyWith(
+          loadingState: LoadingState.finish(FlowyResult.failure(err)),
+        ),
       ),
     );
   }
@@ -465,7 +470,6 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     );
 
     final controller = GroupController(
-      viewId: state.viewId,
       group: group,
       delegate: delegate,
       onGroupChanged: (newGroup) {
@@ -541,12 +545,12 @@ class BoardEvent with _$BoardEvent {
 class BoardState with _$BoardState {
   const factory BoardState({
     required String viewId,
-    required Option<DatabasePB> grid,
+    required DatabasePB? grid,
     required List<String> groupIds,
     required bool isEditingHeader,
     required bool isEditingRow,
     required LoadingState loadingState,
-    required Option<FlowyError> noneOrError,
+    required FlowyError? noneOrError,
     required BoardLayoutSettingPB? layoutSettings,
     String? editingHeaderId,
     BoardEditingRow? editingRow,
@@ -555,12 +559,12 @@ class BoardState with _$BoardState {
   }) = _BoardState;
 
   factory BoardState.initial(String viewId) => BoardState(
-        grid: none(),
+        grid: null,
         viewId: viewId,
         groupIds: [],
         isEditingHeader: false,
         isEditingRow: false,
-        noneOrError: none(),
+        noneOrError: null,
         loadingState: const LoadingState.loading(),
         layoutSettings: null,
         hiddenGroups: [],
@@ -574,9 +578,6 @@ List<GroupPB> _filterHiddenGroups(bool hideUngrouped, List<GroupPB> groups) {
 }
 
 class GroupItem extends AppFlowyGroupItem {
-  final RowMetaPB row;
-  final FieldInfo fieldInfo;
-
   GroupItem({
     required this.row,
     required this.fieldInfo,
@@ -585,25 +586,26 @@ class GroupItem extends AppFlowyGroupItem {
     super.draggable = draggable;
   }
 
+  final RowMetaPB row;
+  final FieldInfo fieldInfo;
+
   @override
   String get id => row.id.toString();
 }
 
 class GroupControllerDelegateImpl extends GroupControllerDelegate {
-  final FieldController fieldController;
-  final AppFlowyBoardController controller;
-  final void Function(String, RowMetaPB, int?) onNewColumnItem;
-
   GroupControllerDelegateImpl({
     required this.controller,
     required this.fieldController,
     required this.onNewColumnItem,
   });
 
+  final FieldController fieldController;
+  final AppFlowyBoardController controller;
+  final void Function(String, RowMetaPB, int?) onNewColumnItem;
+
   @override
-  bool hasGroup(String groupId) {
-    return controller.groupIds.contains(groupId);
-  }
+  bool hasGroup(String groupId) => controller.groupIds.contains(groupId);
 
   @override
   void insertRow(GroupPB group, RowMetaPB row, int? index) {
@@ -667,15 +669,15 @@ class GroupControllerDelegateImpl extends GroupControllerDelegate {
 }
 
 class BoardEditingRow {
-  GroupPB group;
-  RowMetaPB row;
-  int? index;
-
   BoardEditingRow({
     required this.group,
     required this.row,
     required this.index,
   });
+
+  GroupPB group;
+  RowMetaPB row;
+  int? index;
 }
 
 class GroupData {

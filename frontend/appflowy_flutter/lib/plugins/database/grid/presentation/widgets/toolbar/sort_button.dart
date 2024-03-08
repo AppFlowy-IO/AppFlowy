@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/database/grid/application/sort/sort_menu_bloc.dart';
+import 'package:appflowy/plugins/database/grid/application/sort/sort_editor_bloc.dart';
+import 'package:appflowy/plugins/database/grid/presentation/grid_page.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
@@ -12,7 +13,9 @@ import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import '../sort/create_sort_list.dart';
 
 class SortButton extends StatefulWidget {
-  const SortButton({super.key});
+  const SortButton({super.key, required this.toggleExtension});
+
+  final ToggleExtensionNotifier toggleExtension;
 
   @override
   State<SortButton> createState() => _SortButtonState();
@@ -23,7 +26,7 @@ class _SortButtonState extends State<SortButton> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<SortMenuBloc, SortMenuState>(
+    return BlocBuilder<SortEditorBloc, SortEditorState>(
       builder: (context, state) {
         final textColor = state.sortInfos.isEmpty
             ? AFThemeExtension.of(context).textColor
@@ -41,11 +44,10 @@ class _SortButtonState extends State<SortButton> {
             padding: GridSize.toolbarSettingButtonInsets,
             radius: Corners.s4Border,
             onPressed: () {
-              final bloc = context.read<SortMenuBloc>();
-              if (bloc.state.sortInfos.isEmpty) {
+              if (state.sortInfos.isEmpty) {
                 _popoverController.show();
               } else {
-                bloc.add(const SortMenuEvent.toggleMenu());
+                widget.toggleExtension.toggle();
               }
             },
           ),
@@ -54,28 +56,30 @@ class _SortButtonState extends State<SortButton> {
     );
   }
 
-  Widget wrapPopover(BuildContext buildContext, Widget child) {
+  Widget wrapPopover(BuildContext context, Widget child) {
     return AppFlowyPopover(
       controller: _popoverController,
       direction: PopoverDirection.bottomWithLeftAligned,
       constraints: BoxConstraints.loose(const Size(200, 300)),
       offset: const Offset(0, 8),
-      margin: const EdgeInsets.all(6),
       triggerActions: PopoverTriggerFlags.none,
-      child: child,
-      popupBuilder: (BuildContext context) {
-        final bloc = buildContext.read<SortMenuBloc>();
-        return GridCreateSortList(
-          viewId: bloc.viewId,
-          fieldController: bloc.fieldController,
-          onClosed: () => _popoverController.close(),
-          onCreateSort: () {
-            if (!bloc.state.isVisible) {
-              bloc.add(const SortMenuEvent.toggleMenu());
-            }
-          },
+      popupBuilder: (popoverContext) {
+        return BlocProvider.value(
+          value: context.read<SortEditorBloc>(),
+          child: CreateDatabaseViewSortList(
+            onTap: () {
+              if (!widget.toggleExtension.isToggled) {
+                widget.toggleExtension.toggle();
+              }
+              _popoverController.close();
+            },
+          ),
         );
       },
+      onClose: () => context
+          .read<SortEditorBloc>()
+          .add(const SortEditorEvent.updateCreateSortFilter("")),
+      child: child,
     );
   }
 }

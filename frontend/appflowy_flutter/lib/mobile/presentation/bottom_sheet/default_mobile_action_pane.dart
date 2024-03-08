@@ -52,6 +52,10 @@ enum MobilePaneActionType {
             final favoriteBloc = context.read<FavoriteBloc>();
             showMobileBottomSheet(
               context,
+              showDragHandle: true,
+              showDivider: false,
+              backgroundColor: Theme.of(context).colorScheme.background,
+              useRootNavigator: true,
               builder: (context) {
                 return MultiBlocProvider(
                   providers: [

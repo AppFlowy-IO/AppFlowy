@@ -1,11 +1,10 @@
-import 'package:appflowy/plugins/database/application/cell/cell_service.dart';
+import 'package:appflowy/plugins/database/application/cell/cell_cache.dart';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/application/row/row_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
-import 'package:dartz/dartz.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -16,6 +15,11 @@ part 'unschedule_event_bloc.freezed.dart';
 
 class UnscheduleEventsBloc
     extends Bloc<UnscheduleEventsEvent, UnscheduleEventsState> {
+  UnscheduleEventsBloc({required this.databaseController})
+      : super(UnscheduleEventsState.initial()) {
+    _dispatch();
+  }
+
   final DatabaseController databaseController;
   Map<String, FieldInfo> fieldInfoByFieldId = {};
 
@@ -25,9 +29,7 @@ class UnscheduleEventsBloc
   CellMemCache get cellCache => databaseController.rowCache.cellCache;
   RowCache get rowCache => databaseController.rowCache;
 
-  UnscheduleEventsBloc({
-    required this.databaseController,
-  }) : super(UnscheduleEventsState.initial()) {
+  void _dispatch() {
     on<UnscheduleEventsEvent>(
       (event, emit) async {
         await event.when(
@@ -87,18 +89,17 @@ class UnscheduleEventsBloc
         );
   }
 
-  Future<void> _loadAllEvents() async {
+  void _loadAllEvents() async {
     final payload = CalendarEventRequestPB.create()..viewId = viewId;
-    DatabaseEventGetAllCalendarEvents(payload).send().then((result) {
-      result.fold(
-        (events) {
-          if (!isClosed) {
-            add(UnscheduleEventsEvent.didLoadAllEvents(events.items));
-          }
-        },
-        (r) => Log.error(r),
-      );
-    });
+    final result = await DatabaseEventGetAllCalendarEvents(payload).send();
+    result.fold(
+      (events) {
+        if (!isClosed) {
+          add(UnscheduleEventsEvent.didLoadAllEvents(events.items));
+        }
+      },
+      (r) => Log.error(r),
+    );
   }
 
   void _startListening() {
@@ -158,13 +159,13 @@ class UnscheduleEventsEvent with _$UnscheduleEventsEvent {
 @freezed
 class UnscheduleEventsState with _$UnscheduleEventsState {
   const factory UnscheduleEventsState({
-    required Option<DatabasePB> database,
+    required DatabasePB? database,
     required List<CalendarEventPB> allEvents,
     required List<CalendarEventPB> unscheduleEvents,
   }) = _UnscheduleEventsState;
 
-  factory UnscheduleEventsState.initial() => UnscheduleEventsState(
-        database: none(),
+  factory UnscheduleEventsState.initial() => const UnscheduleEventsState(
+        database: null,
         allEvents: [],
         unscheduleEvents: [],
       );

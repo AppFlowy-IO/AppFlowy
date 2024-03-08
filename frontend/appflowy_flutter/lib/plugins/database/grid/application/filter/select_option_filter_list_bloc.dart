@@ -1,6 +1,5 @@
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/select_option/select_option_loader.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/select_option_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -8,13 +7,16 @@ part 'select_option_filter_list_bloc.freezed.dart';
 
 class SelectOptionFilterListBloc<T>
     extends Bloc<SelectOptionFilterListEvent, SelectOptionFilterListState> {
-  final SelectOptionFilterDelegate delegate;
   SelectOptionFilterListBloc({
-    required String viewId,
-    required FieldPB fieldPB,
     required this.delegate,
     required List<String> selectedOptionIds,
   }) : super(SelectOptionFilterListState.initial(selectedOptionIds)) {
+    _dispatch();
+  }
+
+  final SelectOptionFilterDelegate delegate;
+
+  void _dispatch() {
     on<SelectOptionFilterListEvent>(
       (event, emit) async {
         await event.when(
@@ -145,8 +147,8 @@ class SelectOptionFilterListState with _$SelectOptionFilterListState {
 }
 
 class VisibleSelectOption {
+  VisibleSelectOption(this.optionPB, this.isSelected);
+
   final SelectOptionPB optionPB;
   final bool isSelected;
-
-  VisibleSelectOption(this.optionPB, this.isSelected);
 }

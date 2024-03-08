@@ -23,19 +23,19 @@ List<String> get builtInAssetImages => [
     ];
 
 class ChangeCoverPopover extends StatefulWidget {
+  const ChangeCoverPopover({
+    super.key,
+    required this.editorState,
+    required this.node,
+    required this.onCoverChanged,
+  });
+
   final EditorState editorState;
   final Node node;
   final Function(
     CoverType selectionType,
     String selection,
   ) onCoverChanged;
-
-  const ChangeCoverPopover({
-    super.key,
-    required this.editorState,
-    required this.onCoverChanged,
-    required this.node,
-  });
 
   @override
   State<ChangeCoverPopover> createState() => _ChangeCoverPopoverState();
@@ -293,9 +293,9 @@ class _ChangeCoverPopoverState extends State<ChangeCoverPopover> {
 
 @visibleForTesting
 class NewCustomCoverButton extends StatelessWidget {
-  final VoidCallback onPressed;
-
   const NewCustomCoverButton({super.key, required this.onPressed});
+
+  final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -319,22 +319,16 @@ class NewCustomCoverButton extends StatelessWidget {
 }
 
 class ColorOption {
-  final String colorHex;
-
-  final String name;
   const ColorOption({
     required this.colorHex,
     required this.name,
   });
+
+  final String colorHex;
+  final String name;
 }
 
 class CoverColorPicker extends StatefulWidget {
-  final String? selectedBackgroundColorHex;
-
-  final Color pickerBackgroundColor;
-  final Color pickerItemHoverColor;
-  final void Function(String color) onSubmittedBackgroundColorHex;
-  final List<ColorOption> backgroundColorOptions;
   const CoverColorPicker({
     super.key,
     this.selectedBackgroundColorHex,
@@ -344,12 +338,24 @@ class CoverColorPicker extends StatefulWidget {
     required this.onSubmittedBackgroundColorHex,
   });
 
+  final String? selectedBackgroundColorHex;
+  final Color pickerBackgroundColor;
+  final List<ColorOption> backgroundColorOptions;
+  final Color pickerItemHoverColor;
+  final void Function(String color) onSubmittedBackgroundColorHex;
+
   @override
   State<CoverColorPicker> createState() => _CoverColorPickerState();
 }
 
 class _CoverColorPickerState extends State<CoverColorPicker> {
   final scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -373,12 +379,6 @@ class _CoverColorPickerState extends State<CoverColorPicker> {
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    scrollController.dispose();
   }
 
   Widget _buildColorItems(List<ColorOption> options, String? selectedColor) {
@@ -516,17 +516,18 @@ class _ImageGridItemState extends State<ImageGridItem> {
 
 @visibleForTesting
 class ColorItem extends StatelessWidget {
-  final ColorOption option;
-  final bool isChecked;
-  final Color hoverColor;
-  final void Function(String) onTap;
   const ColorItem({
+    super.key,
     required this.option,
     required this.isChecked,
     required this.hoverColor,
     required this.onTap,
-    super.key,
   });
+
+  final ColorOption option;
+  final bool isChecked;
+  final Color hoverColor;
+  final void Function(String) onTap;
 
   @override
   Widget build(BuildContext context) {

@@ -9,11 +9,9 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
 class RowActionList extends StatelessWidget {
+  const RowActionList({super.key, required this.rowController});
+
   final RowController rowController;
-  const RowActionList({
-    required this.rowController,
-    super.key,
-  });
 
   @override
   Widget build(BuildContext context) {

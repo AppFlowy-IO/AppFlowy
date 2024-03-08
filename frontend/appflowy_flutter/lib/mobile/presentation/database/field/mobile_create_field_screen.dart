@@ -1,6 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/mobile/presentation/base/app_bar_actions.dart';
-import 'package:appflowy/mobile/presentation/database/field/mobile_field_type_option_editor.dart';
+import 'package:appflowy/mobile/presentation/base/app_bar.dart';
+import 'package:appflowy/mobile/presentation/database/field/mobile_full_field_editor.dart';
 import 'package:appflowy/util/field_type_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -9,10 +9,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 class MobileNewPropertyScreen extends StatefulWidget {
-  static const routeName = '/new_property';
-  static const argViewId = 'view_id';
-  static const argFieldTypeId = 'field_type_id';
-
   const MobileNewPropertyScreen({
     super.key,
     required this.viewId,
@@ -21,6 +17,10 @@ class MobileNewPropertyScreen extends StatefulWidget {
 
   final String viewId;
   final FieldType? fieldType;
+
+  static const routeName = '/new_property';
+  static const argViewId = 'view_id';
+  static const argFieldTypeId = 'field_type_id';
 
   @override
   State<MobileNewPropertyScreen> createState() =>
@@ -44,15 +44,10 @@ class _MobileNewPropertyScreenState extends State<MobileNewPropertyScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      appBar: FlowyAppBar(
         centerTitle: true,
-        title: FlowyText.medium(
-          LocaleKeys.grid_field_newProperty.tr(),
-        ),
-        leading: AppBarCancelButton(
-          onTap: () => context.pop(),
-        ),
-        leadingWidth: 120,
+        titleText: LocaleKeys.grid_field_newProperty.tr(),
+        leadingType: FlowyAppBarLeadingType.cancel,
         actions: [
           _SaveButton(
             onSave: () {
@@ -61,7 +56,7 @@ class _MobileNewPropertyScreenState extends State<MobileNewPropertyScreen> {
           ),
         ],
       ),
-      body: FieldOptionEditor(
+      body: MobileFieldEditor(
         mode: FieldOptionMode.add,
         defaultValues: optionValues,
         onOptionValuesChanged: (optionValues) {
@@ -84,7 +79,6 @@ class _SaveButton extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(right: 16.0),
       child: Align(
-        alignment: Alignment.center,
         child: GestureDetector(
           onTap: onSave,
           child: FlowyText.medium(

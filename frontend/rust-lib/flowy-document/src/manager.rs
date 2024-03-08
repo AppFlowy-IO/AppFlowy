@@ -10,8 +10,8 @@ use collab_document::blocks::DocumentData;
 use collab_document::document::Document;
 use collab_document::document_data::default_document_data;
 use collab_entity::CollabType;
-use flowy_storage::ObjectIdentity;
-use flowy_storage::ObjectValue;
+use collab_plugins::CollabKVDB;
+use flowy_storage::object_from_disk;
 use lru::LruCache;
 use parking_lot::Mutex;
 use tokio::io::AsyncWriteExt;
@@ -21,10 +21,11 @@ use tracing::warn;
 use tracing::{event, instrument};
 
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
-use collab_integrate::{CollabKVAction, CollabKVDB, CollabPersistenceConfig};
+use collab_integrate::CollabPersistenceConfig;
 use flowy_document_pub::cloud::DocumentCloudService;
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_storage::ObjectStorageService;
+use lib_dispatch::prelude::af_spawn;
 
 use crate::document::MutexDocument;
 use crate::entities::{
@@ -109,7 +110,7 @@ impl DocumentManager {
     doc_id: &str,
     data: Option<DocumentData>,
   ) -> FlowyResult<()> {
-    if self.is_doc_exist(doc_id).unwrap_or(false) {
+    if self.is_doc_exist(doc_id).await.unwrap_or(false) {
       Err(FlowyError::new(
         ErrorCode::RecordAlreadyExists,
         format!("document {} already exists", doc_id),
@@ -128,26 +129,31 @@ impl DocumentManager {
     }
   }
 
-  /// Return the document
-  #[tracing::instrument(level = "debug", skip(self), err)]
+  /// Returns Document for given object id
+  /// If the document does not exist in local disk, try get the doc state from the cloud.
+  /// If the document exists, open the document and cache it
+  #[tracing::instrument(level = "info", skip(self), err)]
   pub async fn get_document(&self, doc_id: &str) -> FlowyResult<Arc<MutexDocument>> {
     if let Some(doc) = self.documents.lock().get(doc_id).cloned() {
       return Ok(doc);
     }
 
-    let mut doc_state = vec![];
-    if !self.is_doc_exist(doc_id)? {
-      // Try to get the document from the cloud service
+    let mut doc_state = CollabDocState::default();
+    // If the document does not exist in local disk, try get the doc state from the cloud. This happens
+    // When user_device_a create a document and user_device_b open the document.
+    if !self.is_doc_exist(doc_id).await? {
       doc_state = self
         .cloud_service
         .get_document_doc_state(doc_id, &self.user_service.workspace_id()?)
         .await?;
-      event!(
-        tracing::Level::DEBUG,
-        "get document from cloud service: {}, size:{}",
-        doc_id,
-        doc_state.len()
-      );
+
+      // the doc_state should not be empty if remote return the doc state without error.
+      if doc_state.is_empty() {
+        return Err(FlowyError::new(
+          ErrorCode::RecordNotFound,
+          format!("document {} not found", doc_id),
+        ));
+      }
     }
 
     let uid = self.user_service.user_id()?;
@@ -155,20 +161,30 @@ impl DocumentManager {
     let collab = self
       .collab_for_document(uid, doc_id, doc_state, true)
       .await?;
-    let document = Arc::new(MutexDocument::open(doc_id, collab)?);
 
-    // save the document to the memory and read it from the memory if we open the same document again.
-    // and we don't want to subscribe to the document changes if we open the same document again.
-    self
-      .documents
-      .lock()
-      .put(doc_id.to_string(), document.clone());
-    Ok(document)
+    match MutexDocument::open(doc_id, collab) {
+      Ok(document) => {
+        let document = Arc::new(document);
+        self
+          .documents
+          .lock()
+          .put(doc_id.to_string(), document.clone());
+        Ok(document)
+      },
+      Err(err) => {
+        if err.is_invalid_data() {
+          if let Some(db) = self.user_service.collab_db(uid)?.upgrade() {
+            db.delete_doc(uid, doc_id).await?;
+          }
+        }
+        return Err(err);
+      },
+    }
   }
 
   pub async fn get_document_data(&self, doc_id: &str) -> FlowyResult<DocumentData> {
     let mut updates = vec![];
-    if !self.is_doc_exist(doc_id)? {
+    if !self.is_doc_exist(doc_id).await? {
       updates = self
         .cloud_service
         .get_document_doc_state(doc_id, &self.user_service.workspace_id()?)
@@ -195,13 +211,10 @@ impl DocumentManager {
     Ok(())
   }
 
-  pub fn delete_document(&self, doc_id: &str) -> FlowyResult<()> {
+  pub async fn delete_document(&self, doc_id: &str) -> FlowyResult<()> {
     let uid = self.user_service.user_id()?;
     if let Some(db) = self.user_service.collab_db(uid)?.upgrade() {
-      let _ = db.with_write_txn(|txn| {
-        txn.delete_doc(uid, &doc_id)?;
-        Ok(())
-      });
+      db.delete_doc(uid, doc_id).await?;
 
       // When deleting a document, we need to remove it from the cache.
       self.documents.lock().pop(doc_id);
@@ -226,18 +239,6 @@ impl DocumentManager {
       })
       .collect::<Vec<_>>();
 
-    // let snapshots = self
-    //   .cloud_service
-    //   .get_document_snapshots(document_id, limit, &workspace_id)
-    //   .await?
-    //   .into_iter()
-    //   .map(|snapshot| DocumentSnapshotPB {
-    //     snapshot_id: snapshot.snapshot_id,
-    //     snapshot_desc: "".to_string(),
-    //     created_at: snapshot.created_at,
-    //   })
-    //   .collect::<Vec<_>>();
-
     Ok(metas)
   }
 
@@ -256,59 +257,61 @@ impl DocumentManager {
     &self,
     workspace_id: String,
     local_file_path: &str,
+    is_async: bool,
   ) -> FlowyResult<String> {
-    let object_value = ObjectValue::from_file(local_file_path).await?;
-
+    let (object_identity, object_value) = object_from_disk(&workspace_id, local_file_path).await?;
     let storage_service = self.storage_service_upgrade()?;
-    let url = {
-      let hash = fxhash::hash(object_value.raw.as_ref());
-      storage_service
-        .get_object_url(ObjectIdentity {
-          workspace_id: workspace_id.to_owned(),
-          file_id: hash.to_string(),
-        })
-        .await?
-    };
+    let url = storage_service.get_object_url(object_identity).await?;
 
-    // let the upload happen in the background
     let clone_url = url.clone();
-    tokio::spawn(async move {
-      if let Err(e) = storage_service.put_object(clone_url, object_value).await {
-        error!("upload file failed: {}", e);
-      }
-    });
+
+    match is_async {
+      false => storage_service.put_object(clone_url, object_value).await?,
+      true => {
+        // let the upload happen in the background
+        af_spawn(async move {
+          if let Err(e) = storage_service.put_object(clone_url, object_value).await {
+            error!("upload file failed: {}", e);
+          }
+        });
+      },
+    }
     Ok(url)
   }
 
   pub async fn download_file(&self, local_file_path: String, url: String) -> FlowyResult<()> {
-    if tokio::fs::metadata(&local_file_path).await.is_ok() {
-      warn!("file already exist in user local disk: {}", local_file_path);
-      return Ok(());
+    // TODO(nathan): save file when the current target is wasm
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+      if tokio::fs::metadata(&local_file_path).await.is_ok() {
+        warn!("file already exist in user local disk: {}", local_file_path);
+        return Ok(());
+      }
+
+      let storage_service = self.storage_service_upgrade()?;
+      let object_value = storage_service.get_object(url).await?;
+      // create file if not exist
+      let mut file = tokio::fs::OpenOptions::new()
+        .create(true)
+        .write(true)
+        .open(&local_file_path)
+        .await?;
+
+      let n = file.write(&object_value.raw).await?;
+      info!("downloaded {} bytes to file: {}", n, local_file_path);
     }
-
-    let storage_service = self.storage_service_upgrade()?;
-    let object_value = storage_service.get_object(url).await?;
-
-    // create file if not exist
-    let mut file = tokio::fs::OpenOptions::new()
-      .create(true)
-      .write(true)
-      .open(&local_file_path)
-      .await?;
-
-    let n = file.write(&object_value.raw).await?;
-    info!("downloaded {} bytes to file: {}", n, local_file_path);
-
     Ok(())
   }
 
   pub async fn delete_file(&self, local_file_path: String, url: String) -> FlowyResult<()> {
+    // TODO(nathan): delete file when the current target is wasm
+    #[cfg(not(target_arch = "wasm32"))]
     // delete file from local
     tokio::fs::remove_file(local_file_path).await?;
 
     // delete from cloud
     let storage_service = self.storage_service_upgrade()?;
-    tokio::spawn(async move {
+    af_spawn(async move {
       if let Err(e) = storage_service.delete_object(url).await {
         // TODO: add WAL to log the delete operation.
         // keep a list of files to be deleted, and retry later
@@ -342,11 +345,11 @@ impl DocumentManager {
     Ok(collab)
   }
 
-  fn is_doc_exist(&self, doc_id: &str) -> FlowyResult<bool> {
+  async fn is_doc_exist(&self, doc_id: &str) -> FlowyResult<bool> {
     let uid = self.user_service.user_id()?;
     if let Some(collab_db) = self.user_service.collab_db(uid)?.upgrade() {
-      let read_txn = collab_db.read_txn();
-      Ok(read_txn.is_exist(uid, doc_id))
+      let is_exist = collab_db.is_exist(uid, doc_id).await?;
+      Ok(is_exist)
     } else {
       Ok(false)
     }

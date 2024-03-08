@@ -59,6 +59,7 @@ class SignInAnonymousButton extends StatelessWidget {
                       LocaleKeys.signIn_loginStartWithAnonymous.tr(),
                       fontSize: 14,
                       color: Theme.of(context).colorScheme.onPrimary,
+                      fontWeight: FontWeight.w500,
                     ),
                   );
                 }

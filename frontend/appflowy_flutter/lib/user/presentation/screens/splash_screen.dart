@@ -30,7 +30,7 @@ class SplashScreen extends StatelessWidget {
         future: _registerIfNeeded(),
         builder: (context, snapshot) {
           if (snapshot.connectionState != ConnectionState.done) {
-            return Container();
+            return const SizedBox.shrink();
           }
           return _buildChild(context);
         },
@@ -68,7 +68,7 @@ class SplashScreen extends StatelessWidget {
 
     /// After a user is authenticated, this function checks if encryption is required.
     final result = await UserEventCheckEncryptionSign().send();
-    result.fold(
+    await result.fold(
       (check) async {
         /// If encryption is needed, the user is navigated to the encryption screen.
         /// Otherwise, it fetches the current workspace for the user and navigates them
@@ -105,7 +105,7 @@ class SplashScreen extends StatelessWidget {
 
   Future<void> _registerIfNeeded() async {
     final result = await UserEventGetUserProfile().send();
-    if (!result.isLeft()) {
+    if (result.isFailure()) {
       await getIt<AuthService>().signUpAsGuest();
     }
   }

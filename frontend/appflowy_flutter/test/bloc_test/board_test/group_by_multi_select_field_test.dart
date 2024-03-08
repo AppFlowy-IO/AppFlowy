@@ -2,7 +2,7 @@ import 'package:appflowy/plugins/database/application/cell/cell_controller_build
 import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/application/setting/group_bloc.dart';
 import 'package:appflowy/plugins/database/board/application/board_bloc.dart';
-import 'package:appflowy/plugins/database/widgets/row/cells/select_option_cell/select_option_editor_bloc.dart';
+import 'package:appflowy/plugins/database/application/cell/bloc/select_option_editor_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -67,8 +67,9 @@ void main() {
     final multiSelectField = context.fieldContexts.last.field;
 
     // Create options
-    final cellController = await context.makeCellController(multiSelectField.id)
-        as SelectOptionCellController;
+    final cellController =
+        context.makeCellControllerFromFieldId(multiSelectField.id)
+            as SelectOptionCellController;
 
     final multiSelectOptionBloc =
         SelectOptionCellEditorBloc(cellController: cellController);

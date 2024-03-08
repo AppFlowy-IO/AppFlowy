@@ -1,12 +1,13 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
-import 'package:appflowy/plugins/database/application/field/field_service.dart';
+import 'package:appflowy/plugins/database/domain/field_service.dart';
 import 'package:appflowy/plugins/database/grid/application/grid_bloc.dart';
 import 'package:appflowy/plugins/database/grid/application/grid_header_bloc.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -17,14 +18,14 @@ import '../../layout/sizes.dart';
 import 'desktop_field_cell.dart';
 
 class GridHeaderSliverAdaptor extends StatefulWidget {
-  final String viewId;
-  final ScrollController anchorScrollController;
-
   const GridHeaderSliverAdaptor({
+    super.key,
     required this.viewId,
     required this.anchorScrollController,
-    super.key,
   });
+
+  final String viewId;
+  final ScrollController anchorScrollController;
 
   @override
   State<GridHeaderSliverAdaptor> createState() =>
@@ -56,9 +57,10 @@ class _GridHeaderSliverAdaptorState extends State<GridHeaderSliverAdaptor> {
 }
 
 class _GridHeader extends StatefulWidget {
+  const _GridHeader({required this.viewId, required this.fieldController});
+
   final String viewId;
   final FieldController fieldController;
-  const _GridHeader({required this.viewId, required this.fieldController});
 
   @override
   State<_GridHeader> createState() => _GridHeaderState();
@@ -137,7 +139,7 @@ class _GridHeaderState extends State<_GridHeader> {
   }
 
   Widget _cellLeading() {
-    return SizedBox(width: GridSize.leadingHeaderPadding);
+    return SizedBox(width: GridSize.horizontalHeaderPadding);
   }
 }
 
@@ -150,12 +152,12 @@ class _CellTrailing extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: GridSize.trailHeaderPadding,
+      margin: EdgeInsets.only(right: GridSize.scrollBarSize + Insets.m),
       decoration: BoxDecoration(
         border: Border(
-          bottom: BorderSide(color: Theme.of(context).dividerColor, width: 1.0),
+          bottom: BorderSide(color: Theme.of(context).dividerColor),
         ),
       ),
-      padding: GridSize.headerContentInsets,
       child: CreateFieldButton(
         viewId: viewId,
         onFieldCreated: (fieldId) => context

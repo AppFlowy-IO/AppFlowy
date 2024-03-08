@@ -20,7 +20,6 @@ class SettingsAppearanceView extends StatelessWidget {
         child: BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
           builder: (context, state) {
             return Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 ColorSchemeSetting(
                   currentTheme: state.appTheme.themeName,
@@ -54,6 +53,7 @@ class SettingsAppearanceView extends StatelessWidget {
                 TextDirectionSetting(
                   currentTextDirection: state.textDirection,
                 ),
+                const EnableRTLToolbarItemsSetting(),
                 const Divider(),
                 DateFormatSetting(
                   currentFormat: state.dateFormat,

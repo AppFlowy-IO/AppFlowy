@@ -1,22 +1,21 @@
 import 'dart:typed_data';
 
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_editor_bloc.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
-import 'package:appflowy/plugins/database/application/field/field_service.dart';
+import 'package:appflowy/plugins/database/domain/field_service.dart';
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/common/type_option_separator.dart';
-import 'package:appflowy/plugins/database/grid/presentation/widgets/header/field_type_extension.dart';
+import 'package:appflowy/util/field_type_extension.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/field_settings_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/field_settings_entities.pbenum.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:styled_widget/styled_widget.dart';
 
@@ -29,12 +28,6 @@ enum FieldEditorPage {
 }
 
 class FieldEditor extends StatefulWidget {
-  final String viewId;
-  final FieldController fieldController;
-  final FieldPB field;
-  final FieldEditorPage initialPage;
-  final void Function(String fieldId)? onFieldInserted;
-
   const FieldEditor({
     super.key,
     required this.viewId,
@@ -43,6 +36,12 @@ class FieldEditor extends StatefulWidget {
     this.initialPage = FieldEditorPage.details,
     this.onFieldInserted,
   });
+
+  final String viewId;
+  final FieldPB field;
+  final FieldController fieldController;
+  final FieldEditorPage initialPage;
+  final void Function(String fieldId)? onFieldInserted;
 
   @override
   State<StatefulWidget> createState() => _FieldEditorState();
@@ -133,8 +132,9 @@ class _FieldEditorState extends State<FieldEditor> {
 }
 
 class _EditFieldButton extends StatelessWidget {
-  final void Function()? onTap;
   const _EditFieldButton({this.onTap});
+
+  final void Function()? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -152,11 +152,6 @@ class _EditFieldButton extends StatelessWidget {
 }
 
 class FieldActionCell extends StatelessWidget {
-  final String viewId;
-  final FieldInfo fieldInfo;
-  final FieldAction action;
-  final PopoverMutex? popoverMutex;
-
   const FieldActionCell({
     super.key,
     required this.viewId,
@@ -164,6 +159,11 @@ class FieldActionCell extends StatelessWidget {
     required this.action,
     this.popoverMutex,
   });
+
+  final String viewId;
+  final FieldInfo fieldInfo;
+  final FieldAction action;
+  final PopoverMutex? popoverMutex;
 
   @override
   Widget build(BuildContext context) {
@@ -290,16 +290,16 @@ enum FieldAction {
 }
 
 class FieldDetailsEditor extends StatefulWidget {
-  final String viewId;
-  final TextEditingController textEditingController;
-  final Function()? onAction;
-
   const FieldDetailsEditor({
     super.key,
     required this.viewId,
     required this.textEditingController,
     this.onAction,
   });
+
+  final String viewId;
+  final TextEditingController textEditingController;
+  final Function()? onAction;
 
   @override
   State<StatefulWidget> createState() => _FieldDetailsEditorState();
@@ -370,9 +370,6 @@ class _FieldDetailsEditorState extends State<FieldDetailsEditor> {
   Widget _addDeleteFieldButton() {
     return BlocBuilder<FieldEditorBloc, FieldEditorState>(
       builder: (context, state) {
-        if (state.field.isPrimary) {
-          return const SizedBox.shrink();
-        }
         return Padding(
           padding: const EdgeInsets.fromLTRB(8.0, 4.0, 8.0, 0),
           child: FieldActionCell(
@@ -389,9 +386,6 @@ class _FieldDetailsEditorState extends State<FieldDetailsEditor> {
   Widget _addDuplicateFieldButton() {
     return BlocBuilder<FieldEditorBloc, FieldEditorState>(
       builder: (context, state) {
-        if (state.field.isPrimary) {
-          return const SizedBox.shrink();
-        }
         return Padding(
           padding: const EdgeInsets.fromLTRB(8.0, 4.0, 8.0, 0),
           child: FieldActionCell(
@@ -407,14 +401,14 @@ class _FieldDetailsEditorState extends State<FieldDetailsEditor> {
 }
 
 class FieldTypeOptionEditor extends StatelessWidget {
-  final String viewId;
-  final PopoverMutex popoverMutex;
-
   const FieldTypeOptionEditor({
     super.key,
     required this.viewId,
     required this.popoverMutex,
   });
+
+  final String viewId;
+  final PopoverMutex popoverMutex;
 
   @override
   Widget build(BuildContext context) {
@@ -452,15 +446,16 @@ class FieldTypeOptionEditor extends StatelessWidget {
 }
 
 class FieldNameTextField extends StatefulWidget {
-  final TextEditingController textEditingController;
-  final PopoverMutex? popoverMutex;
-  final EdgeInsets padding;
   const FieldNameTextField({
     super.key,
     required this.textEditingController,
     this.popoverMutex,
     this.padding = EdgeInsets.zero,
   });
+
+  final TextEditingController textEditingController;
+  final PopoverMutex? popoverMutex;
+  final EdgeInsets padding;
 
   @override
   State<FieldNameTextField> createState() => _FieldNameTextFieldState();
@@ -516,11 +511,12 @@ class _FieldNameTextFieldState extends State<FieldNameTextField> {
 }
 
 class SwitchFieldButton extends StatefulWidget {
-  final PopoverMutex popoverMutex;
   const SwitchFieldButton({
     super.key,
     required this.popoverMutex,
   });
+
+  final PopoverMutex popoverMutex;
 
   @override
   State<SwitchFieldButton> createState() => _SwitchFieldButtonState();
@@ -531,41 +527,52 @@ class _SwitchFieldButtonState extends State<SwitchFieldButton> {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: GridSize.popoverItemHeight,
-      child: AppFlowyPopover(
-        constraints: BoxConstraints.loose(const Size(460, 540)),
-        triggerActions: PopoverTriggerFlags.hover,
-        mutex: widget.popoverMutex,
-        controller: _popoverController,
-        offset: const Offset(8, 0),
-        margin: const EdgeInsets.all(8),
-        popupBuilder: (BuildContext popoverContext) {
-          return FieldTypeList(
-            onSelectField: (newFieldType) {
-              context
-                  .read<FieldEditorBloc>()
-                  .add(FieldEditorEvent.switchFieldType(newFieldType));
+    return BlocBuilder<FieldEditorBloc, FieldEditorState>(
+      builder: (context, state) {
+        final bool isPrimary = state.field.isPrimary;
+        return SizedBox(
+          height: GridSize.popoverItemHeight,
+          child: AppFlowyPopover(
+            constraints: BoxConstraints.loose(const Size(460, 540)),
+            triggerActions: isPrimary ? 0 : PopoverTriggerFlags.hover,
+            mutex: widget.popoverMutex,
+            controller: _popoverController,
+            offset: const Offset(8, 0),
+            margin: const EdgeInsets.all(8),
+            popupBuilder: (BuildContext popoverContext) {
+              return FieldTypeList(
+                onSelectField: (newFieldType) {
+                  context
+                      .read<FieldEditorBloc>()
+                      .add(FieldEditorEvent.switchFieldType(newFieldType));
+                },
+              );
             },
-          );
-        },
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-          child: _buildMoreButton(context),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMoreButton(BuildContext context) {
-    final bloc = context.read<FieldEditorBloc>();
-    return FlowyButton(
-      onTap: () => _popoverController.show(),
-      text: FlowyText.medium(
-        bloc.state.field.fieldType.title(),
-      ),
-      leftIcon: FlowySvg(bloc.state.field.fieldType.icon()),
-      rightIcon: const FlowySvg(FlowySvgs.more_s),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: FlowyButton(
+                onTap: () {
+                  if (!isPrimary) {
+                    _popoverController.show();
+                  }
+                },
+                text: FlowyText.medium(
+                  state.field.fieldType.i18n,
+                  color: isPrimary ? Theme.of(context).disabledColor : null,
+                ),
+                leftIcon: FlowySvg(
+                  state.field.fieldType.svgData,
+                  color: isPrimary ? Theme.of(context).disabledColor : null,
+                ),
+                rightIcon: FlowySvg(
+                  FlowySvgs.more_s,
+                  color: isPrimary ? Theme.of(context).disabledColor : null,
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

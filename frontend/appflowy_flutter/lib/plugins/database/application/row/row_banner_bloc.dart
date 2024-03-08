@@ -1,45 +1,52 @@
-import 'package:appflowy/plugins/database/application/field/field_listener.dart';
-import 'package:appflowy/plugins/database/application/field/field_service.dart';
+import 'package:appflowy/plugins/database/domain/field_listener.dart';
+import 'package:appflowy/plugins/database/domain/field_service.dart';
 import 'package:appflowy/plugins/database/application/row/row_service.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import 'row_meta_listener.dart';
+import '../../domain/row_meta_listener.dart';
 
 part 'row_banner_bloc.freezed.dart';
 
 class RowBannerBloc extends Bloc<RowBannerEvent, RowBannerState> {
-  final String viewId;
-  final RowBackendService _rowBackendSvc;
-  final RowMetaListener _metaListener;
-  SingleFieldListener? _fieldListener;
-
   RowBannerBloc({
     required this.viewId,
     required RowMetaPB rowMeta,
   })  : _rowBackendSvc = RowBackendService(viewId: viewId),
         _metaListener = RowMetaListener(rowMeta.id),
         super(RowBannerState.initial(rowMeta)) {
+    _dispatch();
+  }
+
+  final String viewId;
+  final RowBackendService _rowBackendSvc;
+  final RowMetaListener _metaListener;
+  SingleFieldListener? _fieldListener;
+
+  @override
+  Future<void> close() async {
+    await _metaListener.stop();
+    await _fieldListener?.stop();
+    _fieldListener = null;
+
+    return super.close();
+  }
+
+  void _dispatch() {
     on<RowBannerEvent>(
-      (event, emit) async {
+      (event, emit) {
         event.when(
-          initial: () async {
+          initial: () {
             _loadPrimaryField();
-            await _listenRowMeteChanged();
+            _listenRowMetaChanged();
           },
           didReceiveRowMeta: (RowMetaPB rowMeta) {
             emit(state.copyWith(rowMeta: rowMeta));
           },
-          setCover: (String coverURL) {
-            _updateMeta(coverURL: coverURL);
-          },
-          setIcon: (String iconURL) {
-            _updateMeta(iconURL: iconURL);
-          },
+          setCover: (String coverURL) => _updateMeta(coverURL: coverURL),
+          setIcon: (String iconURL) => _updateMeta(iconURL: iconURL),
           didReceiveFieldUpdate: (updatedField) {
             emit(
               state.copyWith(
@@ -51,15 +58,6 @@ class RowBannerBloc extends Bloc<RowBannerEvent, RowBannerState> {
         );
       },
     );
-  }
-
-  @override
-  Future<void> close() async {
-    await _metaListener.stop();
-    await _fieldListener?.stop();
-    _fieldListener = null;
-
-    return super.close();
   }
 
   Future<void> _loadPrimaryField() async {
@@ -84,32 +82,24 @@ class RowBannerBloc extends Bloc<RowBannerEvent, RowBannerState> {
   }
 
   /// Listen the changes of the row meta and then update the banner
-  Future<void> _listenRowMeteChanged() async {
+  void _listenRowMetaChanged() {
     _metaListener.start(
       callback: (rowMeta) {
-        add(RowBannerEvent.didReceiveRowMeta(rowMeta));
+        if (!isClosed) {
+          add(RowBannerEvent.didReceiveRowMeta(rowMeta));
+        }
       },
     );
   }
 
   /// Update the meta of the row and the view
-  Future<void> _updateMeta({
-    String? iconURL,
-    String? coverURL,
-  }) async {
-    // Most of the time, the result is success, so we don't need to handle it.
-    await _rowBackendSvc
-        .updateMeta(
+  Future<void> _updateMeta({String? iconURL, String? coverURL}) async {
+    final result = await _rowBackendSvc.updateMeta(
       iconURL: iconURL,
       coverURL: coverURL,
       rowId: state.rowMeta.id,
-    )
-        .then((result) {
-      result.fold(
-        (l) => null,
-        (err) => Log.error(err),
-      );
-    });
+    );
+    result.fold((l) => null, (err) => Log.error(err));
   }
 }
 
@@ -127,13 +117,13 @@ class RowBannerEvent with _$RowBannerEvent {
 @freezed
 class RowBannerState with _$RowBannerState {
   const factory RowBannerState({
-    ViewPB? view,
-    FieldPB? primaryField,
+    required FieldPB? primaryField,
     required RowMetaPB rowMeta,
     required LoadingState loadingState,
   }) = _RowBannerState;
 
   factory RowBannerState.initial(RowMetaPB rowMetaPB) => RowBannerState(
+        primaryField: null,
         rowMeta: rowMetaPB,
         loadingState: const LoadingState.loading(),
       );

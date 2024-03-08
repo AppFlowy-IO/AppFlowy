@@ -1,25 +1,21 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/field/type_option/select_option_type_option_bloc.dart';
+import 'package:appflowy/plugins/database/application/field/type_option/select_type_option_actions.dart';
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
-import 'package:appflowy/plugins/database/widgets/row/cells/select_option_cell/extension.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
+import 'package:appflowy/plugins/database/widgets/cell_editor/extension.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/select_option_entities.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:easy_localization/easy_localization.dart';
-import 'package:appflowy/generated/locale_keys.g.dart';
 
 import 'select_option_editor.dart';
 
 class SelectOptionTypeOptionWidget extends StatelessWidget {
-  final List<SelectOptionPB> options;
-  final VoidCallback beginEdit;
-  final ISelectOptionAction typeOptionAction;
-  final PopoverMutex? popoverMutex;
-
   const SelectOptionTypeOptionWidget({
     super.key,
     required this.options,
@@ -27,6 +23,11 @@ class SelectOptionTypeOptionWidget extends StatelessWidget {
     required this.typeOptionAction,
     this.popoverMutex,
   });
+
+  final List<SelectOptionPB> options;
+  final VoidCallback beginEdit;
+  final ISelectOptionAction typeOptionAction;
+  final PopoverMutex? popoverMutex;
 
   @override
   Widget build(BuildContext context) {
@@ -89,9 +90,10 @@ class _OptionTitle extends StatelessWidget {
 }
 
 class _OptionCell extends StatefulWidget {
+  const _OptionCell({required this.option, this.popoverMutex});
+
   final SelectOptionPB option;
   final PopoverMutex? popoverMutex;
-  const _OptionCell({required this.option, this.popoverMutex});
 
   @override
   State<_OptionCell> createState() => _OptionCellState();
@@ -185,12 +187,9 @@ class _AddOptionButton extends StatelessWidget {
 }
 
 class CreateOptionTextField extends StatefulWidget {
-  final PopoverMutex? popoverMutex;
+  const CreateOptionTextField({super.key, this.popoverMutex});
 
-  const CreateOptionTextField({
-    super.key,
-    this.popoverMutex,
-  });
+  final PopoverMutex? popoverMutex;
 
   @override
   State<CreateOptionTextField> createState() => _CreateOptionTextFieldState();
@@ -219,7 +218,7 @@ class _CreateOptionTextFieldState extends State<CreateOptionTextField> {
   Widget build(BuildContext context) {
     return BlocBuilder<SelectOptionTypeOptionBloc, SelectOptionTypeOptionState>(
       builder: (context, state) {
-        final text = state.newOptionName.foldRight("", (a, previous) => a);
+        final text = state.newOptionName ?? '';
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 14.0),
           child: FlowyTextField(

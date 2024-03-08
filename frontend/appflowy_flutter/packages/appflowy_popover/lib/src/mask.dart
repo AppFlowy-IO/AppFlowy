@@ -70,8 +70,7 @@ class PopoverMask extends StatelessWidget {
   final void Function() onTap;
   final Decoration? decoration;
 
-  const PopoverMask({Key? key, required this.onTap, this.decoration})
-      : super(key: key);
+  const PopoverMask({super.key, required this.onTap, this.decoration});
 
   @override
   Widget build(BuildContext context) {

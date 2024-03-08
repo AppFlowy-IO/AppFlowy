@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Stack } from '@mui/material';
 import { TextButton } from '$app/components/database/components/tab_bar/TextButton';
 import { useTranslation } from 'react-i18next';
 
@@ -16,10 +15,10 @@ function DatabaseSettings(props: Props) {
   const [settingAnchorEl, setSettingAnchorEl] = useState<null | HTMLElement>(null);
 
   return (
-    <Stack className='text-neutral-500' direction='row' spacing='2px'>
+    <div className='flex h-[39px] items-center gap-2 border-b border-line-divider'>
       <FilterSettings {...props} />
       <SortSettings {...props} />
-      <TextButton color='inherit' onClick={(e) => setSettingAnchorEl(e.currentTarget)}>
+      <TextButton className={'min-w-fit'} color='inherit' onClick={(e) => setSettingAnchorEl(e.currentTarget)}>
         {t('settings.title')}
       </TextButton>
       <SettingsMenu
@@ -27,7 +26,7 @@ function DatabaseSettings(props: Props) {
         anchorEl={settingAnchorEl}
         onClose={() => setSettingAnchorEl(null)}
       />
-    </Stack>
+    </div>
   );
 }
 

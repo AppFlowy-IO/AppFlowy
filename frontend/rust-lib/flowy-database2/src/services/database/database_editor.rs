@@ -6,6 +6,7 @@ use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{Cell, Cells, CreateRowParams, Row, RowCell, RowDetail, RowId};
 use collab_database::views::{DatabaseLayout, DatabaseView, LayoutSetting, OrderObjectPosition};
 use futures::StreamExt;
+use lib_infra::box_any::BoxAny;
 use tokio::sync::{broadcast, RwLock};
 use tracing::{event, warn};
 
@@ -16,19 +17,17 @@ use lib_infra::priority_task::TaskDispatcher;
 
 use crate::entities::*;
 use crate::notification::{send_notification, DatabaseNotification};
-use crate::services::cell::{
-  apply_cell_changeset, get_cell_protobuf, AnyTypeCache, CellCache, ToCellChangeset,
-};
+use crate::services::calculations::Calculation;
+use crate::services::cell::{apply_cell_changeset, get_cell_protobuf, CellCache};
 use crate::services::database::util::database_view_setting_pb_from_view;
 use crate::services::database::UpdatedRow;
 use crate::services::database_view::{
   DatabaseViewChanged, DatabaseViewEditor, DatabaseViewOperation, DatabaseViews, EditorByViewId,
 };
-use crate::services::field::checklist_type_option::ChecklistCellChangeset;
 use crate::services::field::{
   default_type_option_data_from_type, select_type_option_from_field, transform_type_option,
-  type_option_data_from_pb, SelectOptionCellChangeset, SelectOptionIds, TimestampCellData,
-  TypeOptionCellDataHandler, TypeOptionCellExt,
+  type_option_data_from_pb, ChecklistCellChangeset, RelationTypeOption, SelectOptionCellChangeset,
+  SelectOptionIds, StrCellData, TimestampCellData, TypeOptionCellDataHandler, TypeOptionCellExt,
 };
 use crate::services::field_settings::{
   default_field_settings_by_layout_map, FieldSettings, FieldSettingsChangesetParams,
@@ -37,6 +36,7 @@ use crate::services::filter::Filter;
 use crate::services::group::{default_group_setting, GroupChangesets, GroupSetting, RowChangeset};
 use crate::services::share::csv::{CSVExport, CSVFormat};
 use crate::services::sort::Sort;
+use crate::utils::cache::AnyTypeCache;
 
 #[derive(Clone)]
 pub struct DatabaseEditor {
@@ -105,6 +105,7 @@ impl DatabaseEditor {
       )
       .await?,
     );
+
     Ok(Self {
       database,
       cell_cache,
@@ -115,12 +116,24 @@ impl DatabaseEditor {
   /// Returns bool value indicating whether the database is empty.
   ///
   #[tracing::instrument(level = "debug", skip_all)]
-  pub async fn close_view_editor(&self, view_id: &str) -> bool {
+  pub async fn close_view(&self, view_id: &str) -> bool {
+    // If the database is empty, flush the database to the disk.
+    if self.database_views.editors().await.len() == 1 {
+      if let Some(database) = self.database.try_lock() {
+        let _ = database.flush();
+      }
+    }
+    self.database_views.close_view(view_id).await
+  }
+
+  #[tracing::instrument(level = "debug", skip_all)]
+  pub async fn close(&self) {
     if let Some(database) = self.database.try_lock() {
       let _ = database.flush();
     }
-
-    self.database_views.close_view(view_id).await
+    for view in self.database_views.editors().await {
+      view.close().await;
+    }
   }
 
   pub async fn get_layout_type(&self, view_id: &str) -> DatabaseLayout {
@@ -208,21 +221,47 @@ impl DatabaseEditor {
     Ok(())
   }
 
-  pub async fn delete_filter(&self, params: DeleteFilterParams) -> FlowyResult<()> {
+  pub async fn delete_filter(&self, params: DeleteFilterPayloadPB) -> FlowyResult<()> {
     let view_editor = self.database_views.get_view_editor(&params.view_id).await?;
     view_editor.v_delete_filter(params).await?;
     Ok(())
   }
 
-  pub async fn create_or_update_sort(&self, params: UpdateSortParams) -> FlowyResult<Sort> {
+  pub async fn create_or_update_sort(&self, params: UpdateSortPayloadPB) -> FlowyResult<Sort> {
     let view_editor = self.database_views.get_view_editor(&params.view_id).await?;
-    let sort = view_editor.v_insert_sort(params).await?;
+    let sort = view_editor.v_create_or_update_sort(params).await?;
     Ok(sort)
   }
 
-  pub async fn delete_sort(&self, params: DeleteSortParams) -> FlowyResult<()> {
+  pub async fn reorder_sort(&self, params: ReorderSortPayloadPB) -> FlowyResult<()> {
+    let view_editor = self.database_views.get_view_editor(&params.view_id).await?;
+    view_editor.v_reorder_sort(params).await?;
+    Ok(())
+  }
+
+  pub async fn delete_sort(&self, params: DeleteSortPayloadPB) -> FlowyResult<()> {
     let view_editor = self.database_views.get_view_editor(&params.view_id).await?;
     view_editor.v_delete_sort(params).await?;
+    Ok(())
+  }
+
+  pub async fn get_all_calculations(&self, view_id: &str) -> RepeatedCalculationsPB {
+    if let Ok(view_editor) = self.database_views.get_view_editor(view_id).await {
+      view_editor.v_get_all_calculations().await.into()
+    } else {
+      RepeatedCalculationsPB { items: vec![] }
+    }
+  }
+
+  pub async fn update_calculation(&self, update: UpdateCalculationChangesetPB) -> FlowyResult<()> {
+    let view_editor = self.database_views.get_view_editor(&update.view_id).await?;
+    view_editor.v_update_calculations(update).await?;
+    Ok(())
+  }
+
+  pub async fn remove_calculation(&self, remove: RemoveCalculationChangesetPB) -> FlowyResult<()> {
+    let view_editor = self.database_views.get_view_editor(&remove.view_id).await?;
+    view_editor.v_remove_calculation(remove).await?;
     Ok(())
   }
 
@@ -310,6 +349,11 @@ impl DatabaseEditor {
     let notified_changeset =
       DatabaseFieldChangesetPB::delete(&database_id, vec![FieldIdPB::from(field_id)]);
     self.notify_did_update_database(notified_changeset).await?;
+
+    for view in self.database_views.editors().await {
+      view.v_did_delete_field(field_id).await;
+    }
+
     Ok(())
   }
 
@@ -330,7 +374,7 @@ impl DatabaseEditor {
   pub async fn switch_to_field_type(
     &self,
     field_id: &str,
-    new_field_type: &FieldType,
+    new_field_type: FieldType,
   ) -> FlowyResult<()> {
     let field = self.database.lock().fields.get_field(field_id);
     match field {
@@ -364,6 +408,10 @@ impl DatabaseEditor {
               .set_field_type(new_field_type.into())
               .set_type_option(new_field_type.into(), Some(transformed_type_option));
           });
+
+        for view in self.database_views.editors().await {
+          view.v_did_update_field_type(field_id, new_field_type).await;
+        }
       },
     }
 
@@ -393,8 +441,18 @@ impl DatabaseEditor {
       .duplicate_field(view_id, field_id, |field| format!("{} (copy)", field.name));
     if let Some((index, duplicated_field)) = value {
       let _ = self
-        .notify_did_insert_database_field(duplicated_field, index)
+        .notify_did_insert_database_field(duplicated_field.clone(), index)
         .await;
+
+      let new_field_id = duplicated_field.id.clone();
+      let cells = self.get_cells_for_field(view_id, field_id).await;
+      for cell in cells {
+        if let Some(new_cell) = cell.cell.clone() {
+          self
+            .update_cell(view_id, cell.row_id, &new_field_id, new_cell)
+            .await?;
+        }
+      }
     }
     Ok(())
   }
@@ -405,7 +463,12 @@ impl DatabaseEditor {
     match params {
       None => warn!("Failed to duplicate row: {}", row_id),
       Some(params) => {
-        let _ = self.create_row(view_id, None, params).await;
+        let result = self.create_row(view_id, None, params).await;
+        if let Some(row_detail) = result.unwrap_or(None) {
+          for view in self.database_views.editors().await {
+            view.v_did_duplicate_row(&row_detail).await;
+          }
+        }
       },
     }
   }
@@ -479,7 +542,7 @@ impl DatabaseEditor {
     let type_option_data = params
       .type_option_data
       .and_then(|data| type_option_data_from_pb(data, &params.field_type).ok())
-      .unwrap_or(default_type_option_data_from_type(&params.field_type));
+      .unwrap_or(default_type_option_data_from_type(params.field_type));
 
     let (index, field) = self.database.lock().create_field_with_mut(
       &params.view_id,
@@ -531,13 +594,15 @@ impl DatabaseEditor {
         index: index as i32,
       };
       let notified_changeset = DatabaseFieldChangesetPB {
-        view_id: params.view_id,
+        view_id: params.view_id.clone(),
         inserted_fields: vec![insert_field],
         deleted_fields: vec![delete_field],
         updated_fields: vec![],
       };
 
-      self.notify_did_update_database(notified_changeset).await?;
+      send_notification(&params.view_id, DatabaseNotification::DidUpdateFields)
+        .payload(notified_changeset)
+        .send();
     }
 
     Ok(())
@@ -678,16 +743,13 @@ impl DatabaseEditor {
     }
   }
 
-  pub async fn update_cell_with_changeset<T>(
+  pub async fn update_cell_with_changeset(
     &self,
     view_id: &str,
     row_id: RowId,
     field_id: &str,
-    cell_changeset: T,
-  ) -> FlowyResult<()>
-  where
-    T: ToCellChangeset,
-  {
+    cell_changeset: BoxAny,
+  ) -> FlowyResult<()> {
     let (field, cell) = {
       let database = self.database.lock();
       let field = match database.fields.get_field(field_id) {
@@ -725,7 +787,9 @@ impl DatabaseEditor {
     let option_row = self.get_row_detail(view_id, &row_id);
     if let Some(new_row_detail) = option_row {
       for view in self.database_views.editors().await {
-        view.v_did_update_row(&old_row, &new_row_detail).await;
+        view
+          .v_did_update_row(&old_row, &new_row_detail, field_id.to_owned())
+          .await;
       }
     }
 
@@ -818,7 +882,7 @@ impl DatabaseEditor {
 
     // Insert the options into the cell
     self
-      .update_cell_with_changeset(view_id, row_id, field_id, cell_changeset)
+      .update_cell_with_changeset(view_id, row_id, field_id, BoxAny::new(cell_changeset))
       .await?;
     Ok(())
   }
@@ -857,7 +921,7 @@ impl DatabaseEditor {
     .await?;
 
     self
-      .update_cell_with_changeset(view_id, row_id, field_id, cell_changeset)
+      .update_cell_with_changeset(view_id, row_id, field_id, BoxAny::new(cell_changeset))
       .await?;
     Ok(())
   }
@@ -899,7 +963,7 @@ impl DatabaseEditor {
     debug_assert!(FieldType::from(field.field_type).is_checklist());
 
     self
-      .update_cell_with_changeset(view_id, row_id, field_id, changeset)
+      .update_cell_with_changeset(view_id, row_id, field_id, BoxAny::new(changeset))
       .await?;
     Ok(())
   }
@@ -1176,6 +1240,61 @@ impl DatabaseEditor {
     Ok(())
   }
 
+  pub async fn get_related_database_id(&self, field_id: &str) -> FlowyResult<String> {
+    let mut field = self
+      .database
+      .lock()
+      .get_fields(Some(vec![field_id.to_string()]));
+    let field = field.pop().ok_or(FlowyError::internal())?;
+
+    let type_option = field
+      .get_type_option::<RelationTypeOption>(FieldType::Relation)
+      .ok_or(FlowyError::record_not_found())?;
+
+    Ok(type_option.database_id)
+  }
+
+  pub async fn get_related_rows(
+    &self,
+    row_ids: Option<&Vec<String>>,
+  ) -> FlowyResult<Vec<RelatedRowDataPB>> {
+    let primary_field = self.database.lock().fields.get_primary_field().unwrap();
+    let handler =
+      TypeOptionCellExt::new_with_cell_data_cache(&primary_field, Some(self.cell_cache.clone()))
+        .get_type_option_cell_data_handler(&FieldType::RichText)
+        .ok_or(FlowyError::internal())?;
+
+    let row_data = {
+      let database = self.database.lock();
+      let mut rows = database.get_database_rows();
+      if let Some(row_ids) = row_ids {
+        rows.retain(|row| row_ids.contains(&row.id));
+      }
+      rows
+        .iter()
+        .map(|row| {
+          let title = database
+            .get_cell(&primary_field.id, &row.id)
+            .cell
+            .and_then(|cell| {
+              handler
+                .get_cell_data(&cell, &FieldType::RichText, &primary_field)
+                .ok()
+            })
+            .and_then(|cell_data| cell_data.unbox_or_none())
+            .unwrap_or_else(|| StrCellData("".to_string()));
+
+          RelatedRowDataPB {
+            row_id: row.id.to_string(),
+            name: title.0,
+          }
+        })
+        .collect::<Vec<_>>()
+    };
+
+    Ok(row_data)
+  }
+
   fn get_auto_updated_fields(&self, view_id: &str) -> Vec<Field> {
     self
       .database
@@ -1411,6 +1530,13 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
     self.database.lock().insert_sort(view_id, sort);
   }
 
+  fn move_sort(&self, view_id: &str, from_sort_id: &str, to_sort_id: &str) {
+    self
+      .database
+      .lock()
+      .move_sort(view_id, from_sort_id, to_sort_id);
+  }
+
   fn remove_sort(&self, view_id: &str, sort_id: &str) {
     self.database.lock().remove_sort(view_id, sort_id);
   }
@@ -1421,6 +1547,23 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
 
   fn remove_all_sorts(&self, view_id: &str) {
     self.database.lock().remove_all_sorts(view_id);
+  }
+
+  fn get_all_calculations(&self, view_id: &str) -> Vec<Arc<Calculation>> {
+    self
+      .database
+      .lock()
+      .get_all_calculations(view_id)
+      .into_iter()
+      .map(Arc::new)
+      .collect()
+  }
+
+  fn get_calculation(&self, view_id: &str, field_id: &str) -> Option<Calculation> {
+    self
+      .database
+      .lock()
+      .get_calculation::<Calculation>(view_id, field_id)
   }
 
   fn get_all_filters(&self, view_id: &str) -> Vec<Arc<Filter>> {
@@ -1452,7 +1595,9 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
     self
       .database
       .lock()
-      .get_filter_by_field_id::<Filter>(view_id, field_id)
+      .get_all_filters::<Filter>(view_id)
+      .into_iter()
+      .find(|filter| filter.field_id == field_id)
   }
 
   fn get_layout_setting(&self, view_id: &str, layout_ty: &DatabaseLayout) -> Option<LayoutSetting> {
@@ -1568,6 +1713,17 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
     send_notification(view_id, DatabaseNotification::DidUpdateFieldSettings)
       .payload(FieldSettingsPB::from(new_field_settings))
       .send()
+  }
+
+  fn update_calculation(&self, view_id: &str, calculation: Calculation) {
+    self
+      .database
+      .lock()
+      .update_calculation(view_id, calculation)
+  }
+
+  fn remove_calculation(&self, view_id: &str, field_id: &str) {
+    self.database.lock().remove_calculation(view_id, field_id)
   }
 }
 

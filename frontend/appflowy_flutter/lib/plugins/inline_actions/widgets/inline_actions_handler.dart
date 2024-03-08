@@ -92,7 +92,7 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
   Future<void> _doSearch() async {
     final List<InlineActionsResult> newResults = [];
     for (final handler in widget.service.handlers) {
-      final group = await handler.call(_search);
+      final group = await handler.search(_search);
 
       if (group.results.isNotEmpty) {
         newResults.add(group);
@@ -104,6 +104,9 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
         : 0;
 
     if (invalidCounter >= _invalidSearchesAmount) {
+      // Workaround to bring focus back to editor
+      await widget.editorState
+          .updateSelectionWithReason(widget.editorState.selection);
       return widget.onDismiss();
     }
 
@@ -132,10 +135,17 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
   }
 
   @override
+  void dispose() {
+    _scrollController.dispose();
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Focus(
       focusNode: _focusNode,
-      onKey: onKey,
+      onKeyEvent: onKeyEvent,
       child: Container(
         constraints: BoxConstraints.loose(const Size(200, _menuHeight)),
         decoration: BoxDecoration(
@@ -192,13 +202,14 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
 
   int get groupLength => results.length;
 
-  int lengthOfGroup(int index) => results[index].results.length;
+  int lengthOfGroup(int index) =>
+      results.length > index ? results[index].results.length : -1;
 
   InlineActionsMenuItem handlerOf(int groupIndex, int handlerIndex) =>
       results[groupIndex].results[handlerIndex];
 
-  KeyEventResult onKey(focus, event) {
-    if (event is! RawKeyDownEvent) {
+  KeyEventResult onKeyEvent(focus, KeyEvent event) {
+    if (event is! KeyDownEvent) {
       return KeyEventResult.ignored;
     }
 
@@ -224,7 +235,21 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
         widget.onDismiss();
         return KeyEventResult.handled;
       }
+
+      if (noResults) {
+        // Workaround to bring focus back to editor
+        widget.editorState
+            .updateSelectionWithReason(widget.editorState.selection);
+        widget.editorState.insertNewLine();
+
+        widget.onDismiss();
+        return KeyEventResult.handled;
+      }
     } else if (event.logicalKey == LogicalKeyboardKey.escape) {
+      // Workaround to bring focus back to editor
+      widget.editorState
+          .updateSelectionWithReason(widget.editorState.selection);
+
       widget.onDismiss();
     } else if (event.logicalKey == LogicalKeyboardKey.backspace) {
       if (_search.isEmpty) {
@@ -270,7 +295,7 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
       widget.onSelectionUpdate();
 
       event.logicalKey == LogicalKeyboardKey.arrowLeft
-          ? widget.editorState.moveCursorForward(SelectionMoveRange.character)
+          ? widget.editorState.moveCursorForward()
           : widget.editorState.moveCursorBackward(SelectionMoveRange.character);
 
       /// If cursor moves before @ then dismiss menu
@@ -323,7 +348,7 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
 
     if (key == LogicalKeyboardKey.arrowUp ||
         (key == LogicalKeyboardKey.tab &&
-            RawKeyboard.instance.isShiftPressed)) {
+            HardwareKeyboard.instance.isShiftPressed)) {
       if (_selectedIndex == 0 && _selectedGroup > 0) {
         _selectedGroup -= 1;
         _selectedIndex = lengthOfGroup(_selectedGroup) - 1;

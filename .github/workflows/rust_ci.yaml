@@ -23,11 +23,26 @@ env:
 
 jobs:
   test-on-ubuntu:
-#    environment: SUPABASE_CI
     runs-on: ubuntu-latest
     steps:
+#      - name: Maximize build space
+#        uses: easimon/maximize-build-space@master
+#        with:
+#          root-reserve-mb: 2048
+#          swap-size-mb: 1024
+#          remove-dotnet: 'true'
+#
+#          # the following step is required to avoid running out of space
+#      - name: Maximize build space
+#        run: |
+#          sudo rm -rf /usr/share/dotnet
+#          sudo rm -rf /opt/ghc
+#          sudo rm -rf "/usr/local/share/boost"
+#          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+#          sudo docker image prune --all --force
+
       - name: Checkout source code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Install Rust toolchain
         id: rust_toolchain
@@ -46,32 +61,15 @@ jobs:
 
       - uses: Swatinem/rust-cache@v2
         with:
-          prefix-key: 'ubuntu-latest'
+          prefix-key: "ubuntu-latest"
           workspaces: |
             frontend/rust-lib
 
-#      - name: Create .env file in flowy-server
-#        working-directory: frontend/rust-lib/flowy-server
-#        run: |
-#          touch .env.ci
-#          echo SUPABASE_URL=${{ secrets.SUPABASE_URL }} >> .env.ci
-#          echo SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }} >> .env.ci
-#          echo SUPABASE_JWT_SECRET=${{ secrets.SUPABASE_JWT_SECRET }} >> .env.ci
-#
-#      - name: Create .env file in event-integration
-#        working-directory: frontend/rust-lib/event-integration
-#        run: |
-#          touch .env.ci
-#          echo SUPABASE_URL=${{ secrets.SUPABASE_URL }} >> .env.ci
-#          echo SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }} >> .env.ci
-#          echo SUPABASE_JWT_SECRET=${{ secrets.SUPABASE_JWT_SECRET }} >> .env.ci
-
       - name: Checkout appflowy cloud code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: AppFlowy-IO/AppFlowy-Cloud
           path: AppFlowy-Cloud
-          depth: 1
 
       - name: Prepare appflowy cloud env
         working-directory: AppFlowy-Cloud
@@ -95,8 +93,7 @@ jobs:
           af_cloud_test_base_url: http://localhost
           af_cloud_test_ws_url: ws://localhost/ws
           af_cloud_test_gotrue_url: http://localhost/gotrue
-        run: cargo test --no-default-features --features="rev-sqlite" -- --nocapture
-
+        run: cargo test --no-default-features --features="rev-sqlite,dart" -- --nocapture
 
       - name: rustfmt rust-lib
         run: cargo fmt --all -- --check
@@ -105,3 +102,8 @@ jobs:
       - name: clippy rust-lib
         run: cargo clippy --all-targets -- -D warnings
         working-directory: frontend/rust-lib
+
+      - name: Clean up Docker images
+        run: |
+          docker image prune -af
+          docker volume prune -f

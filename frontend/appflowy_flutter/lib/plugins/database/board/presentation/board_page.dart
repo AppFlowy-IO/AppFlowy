@@ -1,16 +1,19 @@
 import 'dart:collection';
 
+import 'package:flutter/material.dart' hide Card;
+import 'package:flutter/services.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/database/board/mobile_board_content.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_state_container.dart';
 import 'package:appflowy/plugins/database/application/database_controller.dart';
-import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database/board/presentation/widgets/board_column_header.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/header/field_type_extension.dart';
 import 'package:appflowy/plugins/database/tab_bar/tab_bar_view.dart';
+import 'package:appflowy/plugins/database/widgets/cell/card_cell_style_maps/desktop_board_card_cell_style.dart';
 import 'package:appflowy/plugins/database/widgets/row/row_detail.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -21,25 +24,23 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
-import 'package:flutter/material.dart' hide Card;
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../widgets/card/card.dart';
-import '../../widgets/card/card_cell_builder.dart';
-import '../../widgets/card/cells/card_cell.dart';
-import '../../widgets/row/cell_builder.dart';
+import '../../widgets/cell/card_cell_builder.dart';
 import '../application/board_bloc.dart';
+
 import 'toolbar/board_setting_bar.dart';
 import 'widgets/board_hidden_groups.dart';
 
-class BoardPageTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
+class BoardPageTabBarBuilderImpl extends DatabaseTabBarItemBuilder {
   @override
   Widget content(
     BuildContext context,
     ViewPB view,
     DatabaseController controller,
     bool shrinkWrap,
+    String? initialRowId,
   ) =>
       BoardPage(view: view, databaseController: controller);
 
@@ -123,7 +124,6 @@ class DesktopBoardContent extends StatefulWidget {
 }
 
 class _DesktopBoardContentState extends State<DesktopBoardContent> {
-  final renderHook = RowCardRenderHook<String>();
   final ScrollController scrollController = ScrollController();
   final AppFlowyBoardScrollController scrollManager =
       AppFlowyBoardScrollController();
@@ -136,23 +136,6 @@ class _DesktopBoardContentState extends State<DesktopBoardContent> {
     cardMargin: EdgeInsets.symmetric(horizontal: 4, vertical: 3),
     stretchGroupHeight: false,
   );
-
-  @override
-  void initState() {
-    super.initState();
-
-    renderHook.addSelectOptionHook((options, groupId, _) {
-      // The cell should hide if the option id is equal to the groupId.
-      final isInGroup =
-          options.where((element) => element.id == groupId).isNotEmpty;
-
-      if (isInGroup || options.isEmpty) {
-        return const SizedBox.shrink();
-      }
-
-      return null;
-    });
-  }
 
   @override
   void dispose() {
@@ -254,11 +237,10 @@ class _DesktopBoardContentState extends State<DesktopBoardContent> {
       return SizedBox.shrink(key: ObjectKey(groupItem));
     }
 
-    final cellCache = rowCache.cellCache;
-    final fieldController = boardBloc.fieldController;
+    final databaseController = boardBloc.databaseController;
     final viewId = boardBloc.viewId;
 
-    final cellBuilder = CardCellBuilder<String>(cellCache);
+    final cellBuilder = CardCellBuilder(databaseController: databaseController);
     final isEditing = boardBloc.state.isEditingRow &&
         boardBloc.state.editingRow?.row.id == groupItem.row.id;
 
@@ -269,24 +251,22 @@ class _DesktopBoardContentState extends State<DesktopBoardContent> {
       key: ValueKey(groupItemId),
       margin: config.cardMargin,
       decoration: _makeBoxDecoration(context),
-      child: RowCard<String>(
+      child: RowCard(
+        fieldController: databaseController.fieldController,
         rowMeta: rowMeta,
         viewId: viewId,
         rowCache: rowCache,
-        cardData: groupData.group.groupId,
         groupingFieldId: groupItem.fieldInfo.id,
         isEditing: isEditing,
         cellBuilder: cellBuilder,
-        renderHook: renderHook,
         openCard: (context) => _openCard(
           context: context,
-          viewId: viewId,
+          databaseController: databaseController,
           groupId: groupData.group.groupId,
-          fieldController: fieldController,
           rowMeta: rowMeta,
-          rowCache: rowCache,
         ),
         styleConfiguration: RowCardStyleConfiguration(
+          cellStyleMap: desktopBoardCardCellStyleMap(context),
           hoverStyle: HoverStyle(
             hoverColor: Theme.of(context).brightness == Brightness.light
                 ? const Color(0x0F1F2329)
@@ -310,13 +290,11 @@ class _DesktopBoardContentState extends State<DesktopBoardContent> {
           color: Theme.of(context).brightness == Brightness.light
               ? const Color(0xFF1F2329).withOpacity(0.12)
               : const Color(0xFF59647A),
-          width: 1.0,
         ),
       ),
       boxShadow: [
         BoxShadow(
           blurRadius: 4,
-          spreadRadius: 0,
           color: const Color(0xFF1F2329).withOpacity(0.02),
         ),
         BoxShadow(
@@ -330,32 +308,30 @@ class _DesktopBoardContentState extends State<DesktopBoardContent> {
 
   void _openCard({
     required BuildContext context,
-    required String viewId,
+    required DatabaseController databaseController,
     required String groupId,
-    required FieldController fieldController,
     required RowMetaPB rowMeta,
-    required RowCache rowCache,
   }) {
     final rowInfo = RowInfo(
-      viewId: viewId,
-      fields: UnmodifiableListView(fieldController.fieldInfos),
+      viewId: databaseController.viewId,
+      fields:
+          UnmodifiableListView(databaseController.fieldController.fieldInfos),
       rowMeta: rowMeta,
       rowId: rowMeta.id,
     );
 
-    final dataController = RowController(
+    final rowController = RowController(
       rowMeta: rowInfo.rowMeta,
       viewId: rowInfo.viewId,
-      rowCache: rowCache,
+      rowCache: databaseController.rowCache,
       groupId: groupId,
     );
 
     FlowyOverlay.show(
       context: context,
       builder: (_) => RowDetailPage(
-        fieldController: fieldController,
-        cellBuilder: GridCellBuilder(cellCache: dataController.cellCache),
-        rowController: dataController,
+        databaseController: databaseController,
+        rowController: rowController,
       ),
     );
   }
@@ -446,7 +422,6 @@ class _BoardTrailingState extends State<BoardTrailing> {
                         isDense: true,
                       ),
                       style: Theme.of(context).textTheme.bodySmall,
-                      maxLines: 1,
                       onSubmitted: (groupName) => context
                           .read<BoardBloc>()
                           .add(BoardEvent.createGroup(groupName)),

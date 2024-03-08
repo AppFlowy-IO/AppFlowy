@@ -55,6 +55,7 @@ function EditNumberCellInput({
             padding: 0,
           },
         }}
+        spellCheck={false}
         autoFocus={true}
         value={value}
         onInput={handleInput}

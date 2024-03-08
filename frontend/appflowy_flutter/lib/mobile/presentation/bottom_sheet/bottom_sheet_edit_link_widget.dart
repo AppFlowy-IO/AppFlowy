@@ -44,7 +44,6 @@ class _MobileBottomSheetEditLinkWidgetState
   void dispose() {
     textController.dispose();
     hrefController.dispose();
-
     super.dispose();
   }
 

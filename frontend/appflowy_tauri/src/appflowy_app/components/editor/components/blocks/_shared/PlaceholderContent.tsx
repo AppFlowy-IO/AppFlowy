@@ -1,18 +1,20 @@
 import React, { CSSProperties, useEffect, useMemo, useState } from 'react';
-import { ReactEditor, useSelected, useSlateStatic } from 'slate-react';
+import { ReactEditor, useSelected, useSlate } from 'slate-react';
 import { Editor, Element, Range } from 'slate';
 import { EditorNodeType, HeadingNode } from '$app/application/document/document.types';
 import { useTranslation } from 'react-i18next';
 
 function PlaceholderContent({ node, ...attributes }: { node: Element; className?: string; style?: CSSProperties }) {
   const { t } = useTranslation();
-  const editor = useSlateStatic();
+  const editor = useSlate();
   const selected = useSelected() && !!editor.selection && Range.isCollapsed(editor.selection);
   const [isComposing, setIsComposing] = useState(false);
   const block = useMemo(() => {
     const path = ReactEditor.findPath(editor, node);
     const match = Editor.above(editor, {
-      match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.blockId !== undefined,
+      match: (n) => {
+        return !Editor.isEditor(n) && Element.isElement(n) && n.blockId !== undefined && n.type !== undefined;
+      },
       at: path,
     });
 
@@ -22,9 +24,7 @@ function PlaceholderContent({ node, ...attributes }: { node: Element; className?
   }, [editor, node]);
 
   const className = useMemo(() => {
-    return `pointer-events-none select-none mx-1 absolute left-0.5 min-h-[26px] top-0 whitespace-nowrap text-text-placeholder ${
-      attributes.className ?? ''
-    }`;
+    return `text-placeholder ${attributes.className ?? ''}`;
   }, [attributes.className]);
 
   const unSelectedPlaceholder = useMemo(() => {
@@ -81,6 +81,7 @@ function PlaceholderContent({ node, ...attributes }: { node: Element; className?
       case EditorNodeType.GridBlock:
       case EditorNodeType.EquationBlock:
       case EditorNodeType.CodeBlock:
+      case EditorNodeType.DividerBlock:
         return '';
 
       default:
@@ -101,11 +102,14 @@ function PlaceholderContent({ node, ...attributes }: { node: Element; className?
 
     const editorDom = ReactEditor.toDOMNode(editor, editor);
 
+    // placeholder should be hidden when composing
     editorDom.addEventListener('compositionstart', handleCompositionStart);
     editorDom.addEventListener('compositionend', handleCompositionEnd);
+    editorDom.addEventListener('compositionupdate', handleCompositionStart);
     return () => {
       editorDom.removeEventListener('compositionstart', handleCompositionStart);
       editorDom.removeEventListener('compositionend', handleCompositionEnd);
+      editorDom.removeEventListener('compositionupdate', handleCompositionStart);
     };
   }, [editor, selected]);
 
@@ -114,9 +118,12 @@ function PlaceholderContent({ node, ...attributes }: { node: Element; className?
   }
 
   return (
-    <span contentEditable={false} {...attributes} className={className}>
-      {selected ? selectedPlaceholder : unSelectedPlaceholder}
-    </span>
+    <span
+      placeholder={selected ? selectedPlaceholder : unSelectedPlaceholder}
+      contentEditable={false}
+      {...attributes}
+      className={className}
+    />
   );
 }
 

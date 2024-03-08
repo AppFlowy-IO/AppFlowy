@@ -2,6 +2,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database/application/field/field_cell_bloc.dart';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
+import 'package:appflowy/util/field_type_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -12,7 +13,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../layout/sizes.dart';
 import 'field_editor.dart';
-import 'field_type_extension.dart';
 
 class GridFieldCell extends StatefulWidget {
   const GridFieldCell({
@@ -119,25 +119,25 @@ class _GridFieldCellState extends State<GridFieldCell> {
   }
 
   @override
-  Future<void> dispose() async {
+  void dispose() {
+    _bloc.close();
     super.dispose();
-    await _bloc.close();
   }
 }
 
 class _GridHeaderCellContainer extends StatelessWidget {
-  final Widget child;
-  final double width;
   const _GridHeaderCellContainer({
     required this.child,
     required this.width,
   });
 
+  final Widget child;
+  final double width;
+
   @override
   Widget build(BuildContext context) {
     final borderSide = BorderSide(
       color: Theme.of(context).dividerColor,
-      width: 1.0,
     );
     final decoration = BoxDecoration(
       border: Border(
@@ -193,19 +193,20 @@ class _DragToExpandLine extends StatelessWidget {
 }
 
 class FieldCellButton extends StatelessWidget {
-  final VoidCallback onTap;
-  final FieldPB field;
-  final int? maxLines;
-  final BorderRadius? radius;
-  final EdgeInsets? margin;
   const FieldCellButton({
+    super.key,
     required this.field,
     required this.onTap,
     this.maxLines = 1,
     this.radius = BorderRadius.zero,
     this.margin,
-    super.key,
   });
+
+  final FieldPB field;
+  final VoidCallback onTap;
+  final int? maxLines;
+  final BorderRadius? radius;
+  final EdgeInsets? margin;
 
   @override
   Widget build(BuildContext context) {
@@ -213,7 +214,7 @@ class FieldCellButton extends StatelessWidget {
       hoverColor: AFThemeExtension.of(context).lightGreyHover,
       onTap: onTap,
       leftIcon: FlowySvg(
-        field.fieldType.icon(),
+        field.fieldType.svgData,
         color: Theme.of(context).iconTheme.color,
       ),
       radius: radius,

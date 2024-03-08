@@ -6,14 +6,15 @@ use collab_database::fields::Field;
 
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
+use validator::Validate;
 
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::{
   CheckboxFilterPB, ChecklistFilterPB, DateFilterContentPB, DateFilterPB, FieldType,
-  NumberFilterPB, SelectOptionFilterPB, TextFilterPB,
+  NumberFilterPB, RelationFilterPB, SelectOptionFilterPB, TextFilterPB,
 };
 use crate::services::field::SelectOptionIds;
-use crate::services::filter::{Filter, FilterType};
+use crate::services::filter::Filter;
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct FilterPB {
@@ -43,6 +44,7 @@ impl std::convert::From<&Filter> for FilterPB {
       FieldType::Checklist => ChecklistFilterPB::from(filter).try_into().unwrap(),
       FieldType::Checkbox => CheckboxFilterPB::from(filter).try_into().unwrap(),
       FieldType::URL => TextFilterPB::from(filter).try_into().unwrap(),
+      FieldType::Relation => RelationFilterPB::from(filter).try_into().unwrap(),
     };
     Self {
       id: filter.id.clone(),
@@ -73,60 +75,28 @@ impl std::convert::From<Vec<FilterPB>> for RepeatedFilterPB {
   }
 }
 
-#[derive(ProtoBuf, Debug, Default, Clone)]
+#[derive(ProtoBuf, Debug, Default, Clone, Validate)]
 pub struct DeleteFilterPayloadPB {
   #[pb(index = 1)]
+  #[validate(custom = "lib_infra::validator_fn::required_not_empty_str")]
   pub field_id: String,
 
   #[pb(index = 2)]
   pub field_type: FieldType,
 
   #[pb(index = 3)]
+  #[validate(custom = "crate::entities::utils::validate_filter_id")]
   pub filter_id: String,
 
   #[pb(index = 4)]
+  #[validate(custom = "lib_infra::validator_fn::required_not_empty_str")]
   pub view_id: String,
 }
 
-impl TryInto<DeleteFilterParams> for DeleteFilterPayloadPB {
-  type Error = ErrorCode;
-
-  fn try_into(self) -> Result<DeleteFilterParams, Self::Error> {
-    let view_id = NotEmptyStr::parse(self.view_id)
-      .map_err(|_| ErrorCode::DatabaseViewIdIsEmpty)?
-      .0;
-    let field_id = NotEmptyStr::parse(self.field_id)
-      .map_err(|_| ErrorCode::FieldIdIsEmpty)?
-      .0;
-
-    let filter_id = NotEmptyStr::parse(self.filter_id)
-      .map_err(|_| ErrorCode::UnexpectedEmpty)?
-      .0;
-
-    let filter_type = FilterType {
-      filter_id: filter_id.clone(),
-      field_id,
-      field_type: self.field_type,
-    };
-
-    Ok(DeleteFilterParams {
-      view_id,
-      filter_id,
-      filter_type,
-    })
-  }
-}
-
-#[derive(Debug)]
-pub struct DeleteFilterParams {
-  pub view_id: String,
-  pub filter_id: String,
-  pub filter_type: FilterType,
-}
-
-#[derive(ProtoBuf, Debug, Default, Clone)]
+#[derive(ProtoBuf, Debug, Default, Clone, Validate)]
 pub struct UpdateFilterPayloadPB {
   #[pb(index = 1)]
+  #[validate(custom = "lib_infra::validator_fn::required_not_empty_str")]
   pub field_id: String,
 
   #[pb(index = 2)]
@@ -134,12 +104,14 @@ pub struct UpdateFilterPayloadPB {
 
   /// Create a new filter if the filter_id is None
   #[pb(index = 3, one_of)]
+  #[validate(custom = "crate::entities::utils::validate_filter_id")]
   pub filter_id: Option<String>,
 
   #[pb(index = 4)]
   pub data: Vec<u8>,
 
   #[pb(index = 5)]
+  #[validate(custom = "lib_infra::validator_fn::required_not_empty_str")]
   pub view_id: String,
 }
 
@@ -214,6 +186,10 @@ impl TryInto<UpdateFilterParams> for UpdateFilterPayloadPB {
         let filter = SelectOptionFilterPB::try_from(bytes).map_err(|_| ErrorCode::ProtobufSerde)?;
         condition = filter.condition as u8;
         content = SelectOptionIds::from(filter.option_ids).to_string();
+      },
+      FieldType::Relation => {
+        let filter = RelationFilterPB::try_from(bytes).map_err(|_| ErrorCode::ProtobufSerde)?;
+        condition = filter.condition as u8;
       },
     }
 

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { DEFAULT_FIELD_WIDTH, GRID_ACTIONS_WIDTH, GridColumn } from '$app/components/database/grid/constants';
+import { DEFAULT_FIELD_WIDTH, GRID_ACTIONS_WIDTH, GridColumn, RenderRow } from '$app/components/database/grid/constants';
 import { VariableSizeGrid as Grid } from 'react-window';
 
 export function useGridRow() {
@@ -12,7 +12,16 @@ export function useGridRow() {
   };
 }
 
-export function useGridColumn(columns: GridColumn[], ref: React.RefObject<Grid<HTMLDivElement> | null>) {
+export function useGridColumn(
+  columns: GridColumn[],
+  ref: React.RefObject<Grid<
+    | GridColumn[]
+    | {
+        columns: GridColumn[];
+        renderRows: RenderRow[];
+      }
+  > | null>
+) {
   const [columnWidths, setColumnWidths] = useState<number[]>([]);
 
   useEffect(() => {

@@ -1,6 +1,10 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/align_toolbar_item/align_toolbar_item.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/block_menu/block_menu_button.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
+import 'package:appflowy/util/string_extension.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -26,6 +30,8 @@ class ImageMenu extends StatefulWidget {
 }
 
 class _ImageMenuState extends State<ImageMenu> {
+  late final String? url = widget.node.attributes[ImageBlockKeys.url];
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -45,17 +51,25 @@ class _ImageMenuState extends State<ImageMenu> {
       child: Row(
         children: [
           const HSpace(4),
-          _ImageCopyLinkButton(
-            onTap: copyImageLink,
-          ),
-          const HSpace(4),
+          // disable the copy link button if the image is hosted on appflowy cloud
+          // because the url needs the verification token to be accessible
+          if (!(url?.isAppFlowyCloudUrl ?? false)) ...[
+            MenuBlockButton(
+              tooltip: LocaleKeys.editor_copyLink.tr(),
+              iconData: FlowySvgs.copy_s,
+              onTap: copyImageLink,
+            ),
+            const HSpace(4),
+          ],
           _ImageAlignButton(
             node: widget.node,
             state: widget.state,
           ),
           const _Divider(),
-          _ImageDeleteButton(
-            onTap: () => deleteImage(),
+          MenuBlockButton(
+            tooltip: LocaleKeys.button_delete.tr(),
+            iconData: FlowySvgs.delete_s,
+            onTap: deleteImage,
           ),
           const HSpace(4),
         ],
@@ -64,9 +78,8 @@ class _ImageMenuState extends State<ImageMenu> {
   }
 
   void copyImageLink() {
-    final url = widget.node.attributes[ImageBlockKeys.url];
     if (url != null) {
-      Clipboard.setData(ClipboardData(text: url));
+      Clipboard.setData(ClipboardData(text: url!));
       showSnackBarMessage(
         context,
         LocaleKeys.document_plugins_image_copiedToPasteBoard.tr(),
@@ -81,25 +94,6 @@ class _ImageMenuState extends State<ImageMenu> {
     transaction.deleteNode(node);
     transaction.afterSelection = null;
     await editorState.apply(transaction);
-  }
-}
-
-class _ImageCopyLinkButton extends StatelessWidget {
-  const _ImageCopyLinkButton({
-    required this.onTap,
-  });
-
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: const FlowySvg(
-        FlowySvgs.copy_s,
-        size: Size.square(16),
-      ),
-    );
   }
 }
 
@@ -124,7 +118,8 @@ class _ImageAlignButtonState extends State<_ImageAlignButton> {
     canTap: (details) => false,
   );
 
-  String get align => widget.node.attributes['align'] ?? 'center';
+  String get align =>
+      widget.node.attributes[ImageBlockKeys.align] ?? centerAlignmentKey;
   final popoverController = PopoverController();
   late final EditorState editorState;
 
@@ -152,7 +147,10 @@ class _ImageAlignButtonState extends State<_ImageAlignButton> {
         margin: const EdgeInsets.all(0),
         direction: PopoverDirection.bottomWithCenterAligned,
         offset: const Offset(0, 10),
-        child: buildAlignIcon(),
+        child: MenuBlockButton(
+          tooltip: LocaleKeys.document_plugins_optionAction_align.tr(),
+          iconData: iconFor(align),
+        ),
         popupBuilder: (_) {
           preventMenuClose();
           return _AlignButtons(
@@ -191,21 +189,14 @@ class _ImageAlignButtonState extends State<_ImageAlignButton> {
 
   FlowySvgData iconFor(String alignment) {
     switch (alignment) {
-      case 'right':
+      case rightAlignmentKey:
         return FlowySvgs.align_right_s;
-      case 'center':
+      case centerAlignmentKey:
         return FlowySvgs.align_center_s;
-      case 'left':
+      case leftAlignmentKey:
       default:
         return FlowySvgs.align_left_s;
     }
-  }
-
-  Widget buildAlignIcon() {
-    return FlowySvg(
-      iconFor(align),
-      size: const Size.square(16),
-    );
   }
 }
 
@@ -224,62 +215,25 @@ class _AlignButtons extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           const HSpace(4),
-          _AlignButton(
-            icon: FlowySvgs.align_left_s,
-            onTap: () => onAlignChanged('left'),
+          MenuBlockButton(
+            tooltip: LocaleKeys.document_plugins_optionAction_left,
+            iconData: FlowySvgs.align_left_s,
+            onTap: () => onAlignChanged(leftAlignmentKey),
           ),
           const _Divider(),
-          _AlignButton(
-            icon: FlowySvgs.align_center_s,
-            onTap: () => onAlignChanged('center'),
+          MenuBlockButton(
+            tooltip: LocaleKeys.document_plugins_optionAction_center,
+            iconData: FlowySvgs.align_center_s,
+            onTap: () => onAlignChanged(centerAlignmentKey),
           ),
           const _Divider(),
-          _AlignButton(
-            icon: FlowySvgs.align_right_s,
-            onTap: () => onAlignChanged('right'),
+          MenuBlockButton(
+            tooltip: LocaleKeys.document_plugins_optionAction_right,
+            iconData: FlowySvgs.align_right_s,
+            onTap: () => onAlignChanged(rightAlignmentKey),
           ),
           const HSpace(4),
         ],
-      ),
-    );
-  }
-}
-
-class _AlignButton extends StatelessWidget {
-  const _AlignButton({
-    required this.icon,
-    required this.onTap,
-  });
-
-  final FlowySvgData icon;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: FlowySvg(
-        icon,
-        size: const Size.square(16),
-      ),
-    );
-  }
-}
-
-class _ImageDeleteButton extends StatelessWidget {
-  const _ImageDeleteButton({
-    required this.onTap,
-  });
-
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: const FlowySvg(
-        FlowySvgs.delete_s,
-        size: Size.square(16),
       ),
     );
   }

@@ -1,4 +1,4 @@
-import 'package:appflowy/plugins/database/application/field/type_option/single_select_type_option.dart';
+import 'package:appflowy/plugins/database/application/field/type_option/select_type_option_actions.dart';
 import 'package:appflowy/plugins/database/application/field/type_option/type_option_data_parser.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:flutter/material.dart';

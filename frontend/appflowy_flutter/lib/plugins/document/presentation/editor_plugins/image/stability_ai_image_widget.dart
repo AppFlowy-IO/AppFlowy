@@ -6,7 +6,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/stability_ai/stability_ai_client.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/stability_ai/stability_ai_error.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:dartz/dartz.dart' hide State;
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/uuid.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -27,7 +27,7 @@ class StabilityAIImageWidget extends StatefulWidget {
 }
 
 class _StabilityAIImageWidgetState extends State<StabilityAIImageWidget> {
-  Future<Either<StabilityAIRequestError, List<String>>>? future;
+  Future<FlowyResult<List<String>, StabilityAIRequestError>>? future;
   String query = '';
 
   @override
@@ -40,7 +40,6 @@ class _StabilityAIImageWidgetState extends State<StabilityAIImageWidget> {
           children: [
             Expanded(
               child: FlowyTextField(
-                autoFocus: true,
                 hintText: LocaleKeys
                     .document_imageBlock_stability_ai_placeholder
                     .tr(),
@@ -71,19 +70,12 @@ class _StabilityAIImageWidgetState extends State<StabilityAIImageWidget> {
                   return const CircularProgressIndicator.adaptive();
                 }
                 return data.fold(
-                  (l) => Center(
-                    child: FlowyText(
-                      l.message,
-                      maxLines: 3,
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  (r) => GridView.count(
+                  (s) => GridView.count(
                     crossAxisCount: 3,
                     mainAxisSpacing: 16.0,
                     crossAxisSpacing: 10.0,
                     childAspectRatio: 4 / 3,
-                    children: r.map(
+                    children: s.map(
                       (e) {
                         final base64Image = base64Decode(e);
                         return GestureDetector(
@@ -100,6 +92,13 @@ class _StabilityAIImageWidgetState extends State<StabilityAIImageWidget> {
                         );
                       },
                     ).toList(),
+                  ),
+                  (e) => Center(
+                    child: FlowyText(
+                      e.message,
+                      maxLines: 3,
+                      textAlign: TextAlign.center,
+                    ),
                   ),
                 );
               },

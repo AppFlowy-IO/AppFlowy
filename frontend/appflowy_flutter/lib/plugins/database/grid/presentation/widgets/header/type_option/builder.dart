@@ -9,6 +9,7 @@ import 'checklist.dart';
 import 'date.dart';
 import 'multi_select.dart';
 import 'number.dart';
+import 'relation.dart';
 import 'rich_text.dart';
 import 'single_select.dart';
 import 'timestamp.dart';
@@ -17,14 +18,6 @@ import 'url.dart';
 typedef TypeOptionDataCallback = void Function(Uint8List typeOptionData);
 
 abstract class TypeOptionEditorFactory {
-  Widget? build({
-    required BuildContext context,
-    required String viewId,
-    required FieldPB field,
-    required PopoverMutex popoverMutex,
-    required TypeOptionDataCallback onTypeOptionUpdated,
-  });
-
   factory TypeOptionEditorFactory.makeBuilder(FieldType fieldType) {
     return switch (fieldType) {
       FieldType.RichText => const RichTextTypeOptionEditorFactory(),
@@ -37,9 +30,18 @@ abstract class TypeOptionEditorFactory {
       FieldType.MultiSelect => const MultiSelectTypeOptionEditorFactory(),
       FieldType.Checkbox => const CheckboxTypeOptionEditorFactory(),
       FieldType.Checklist => const ChecklistTypeOptionEditorFactory(),
+      FieldType.Relation => const RelationTypeOptionEditorFactory(),
       _ => throw UnimplementedError(),
     };
   }
+
+  Widget? build({
+    required BuildContext context,
+    required String viewId,
+    required FieldPB field,
+    required PopoverMutex popoverMutex,
+    required TypeOptionDataCallback onTypeOptionUpdated,
+  });
 }
 
 Widget? makeTypeOptionEditor({

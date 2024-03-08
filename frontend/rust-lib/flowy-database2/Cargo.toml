@@ -9,14 +9,18 @@ edition = "2021"
 collab = { version = "0.1.0" }
 collab-database = { version = "0.1.0" }
 collab-entity = { version = "0.1.0" }
+collab-plugins = { version = "0.1.0" }
 collab-integrate = { workspace = true }
 flowy-database-pub = { workspace = true }
 
 flowy-derive.workspace = true
-flowy-notification  = { workspace = true }
+flowy-notification = { workspace = true }
 parking_lot.workspace = true
 protobuf.workspace = true
-flowy-error = { workspace = true, features = ["impl_from_dispatch_error", "impl_from_collab"]}
+flowy-error = { workspace = true, features = [
+    "impl_from_dispatch_error",
+    "impl_from_collab_database",
+] }
 lib-dispatch = { workspace = true }
 tokio = { workspace = true, features = ["sync"] }
 bytes.workspace = true
@@ -25,12 +29,12 @@ serde.workspace = true
 serde_json.workspace = true
 serde_repr.workspace = true
 lib-infra = { workspace = true }
-chrono = { workspace = true,  default-features = false, features = ["clock"] }
+chrono = { workspace = true, default-features = false, features = ["clock"] }
 rust_decimal = "1.28.1"
-rusty-money = {version = "0.4.1", features = ["iso"]}
+rusty-money = { version = "0.4.1", features = ["iso"] }
 lazy_static = "1.4.0"
-indexmap = {version = "2.1.0", features = ["serde"]}
-url = { version = "2"}
+indexmap = { version = "2.1.0", features = ["serde"] }
+url = { version = "2" }
 fancy-regex = "0.11.0"
 futures.workspace = true
 dashmap = "5"
@@ -44,6 +48,7 @@ csv = "1.1.6"
 strum = "0.25"
 strum_macros = "0.25"
 lru.workspace = true
+validator = { version = "0.16.0", features = ["derive"] }
 
 [dev-dependencies]
 event-integration = { path = "../event-integration", default-features = false }
@@ -54,4 +59,4 @@ flowy-codegen.workspace = true
 
 [features]
 dart = ["flowy-codegen/dart", "flowy-notification/dart"]
-ts = ["flowy-codegen/ts", "flowy-notification/ts"]
+ts = ["flowy-codegen/ts", "flowy-notification/tauri_ts"]

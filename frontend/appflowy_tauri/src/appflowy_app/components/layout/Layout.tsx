@@ -2,7 +2,7 @@ import React, { ReactNode, useEffect } from 'react';
 import SideBar from '$app/components/layout/side_bar/SideBar';
 import TopBar from '$app/components/layout/top_bar/TopBar';
 import { useAppSelector } from '$app/stores/store';
-import { FooterPanel } from '$app/components/layout/FooterPanel';
+import './layout.scss';
 
 function Layout({ children }: { children: ReactNode }) {
   const { isCollapsed, width } = useAppSelector((state) => state.sidebar);
@@ -10,6 +10,10 @@ function Layout({ children }: { children: ReactNode }) {
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Backspace' && e.target instanceof HTMLBodyElement) {
+        e.preventDefault();
+      }
+
+      if (e.key === 'Escape') {
         e.preventDefault();
       }
     };
@@ -21,25 +25,23 @@ function Layout({ children }: { children: ReactNode }) {
   }, []);
   return (
     <>
-      <div className='flex h-screen w-[100%] text-sm text-text-title'>
+      <div className='flex h-screen w-[100%] select-none text-sm text-text-title'>
         <SideBar />
         <div
-          className='flex flex-1 flex-col bg-bg-body'
+          className='flex flex-1 select-none flex-col bg-bg-body'
           style={{
-            width: isCollapsed ? 'auto' : `calc(100% - ${width}px)`,
+            width: isCollapsed ? '100%' : `calc(100% - ${width}px)`,
           }}
         >
           <TopBar />
           <div
             style={{
-              height: 'calc(100vh - 64px - 48px)',
+              height: 'calc(100vh - 64px)',
             }}
-            className={'overflow-y-auto overflow-x-hidden'}
+            className={'appflowy-layout appflowy-scroll-container select-none overflow-y-auto overflow-x-hidden'}
           >
             {children}
           </div>
-
-          <FooterPanel />
         </div>
       </div>
     </>

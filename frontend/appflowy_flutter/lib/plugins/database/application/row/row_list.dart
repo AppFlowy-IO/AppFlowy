@@ -1,5 +1,7 @@
 import 'dart:collection';
+
 import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
+
 import 'row_cache.dart';
 import 'row_service.dart';
 

@@ -1,19 +1,15 @@
+import 'dart:async';
+
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/filter_info.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'dart:async';
 
 part 'filter_menu_bloc.freezed.dart';
 
 class GridFilterMenuBloc
     extends Bloc<GridFilterMenuEvent, GridFilterMenuState> {
-  final String viewId;
-  final FieldController fieldController;
-  void Function(List<FilterInfo>)? _onFilterFn;
-  void Function(List<FieldInfo>)? _onFieldFn;
-
   GridFilterMenuBloc({required this.viewId, required this.fieldController})
       : super(
           GridFilterMenuState.initial(
@@ -22,6 +18,15 @@ class GridFilterMenuBloc
             fieldController.fieldInfos,
           ),
         ) {
+    _dispatch();
+  }
+
+  final String viewId;
+  final FieldController fieldController;
+  void Function(List<FilterInfo>)? _onFilterFn;
+  void Function(List<FieldInfo>)? _onFieldFn;
+
+  void _dispatch() {
     on<GridFilterMenuEvent>(
       (event, emit) async {
         event.when(
@@ -68,7 +73,7 @@ class GridFilterMenuBloc
   }
 
   @override
-  Future<void> close() {
+  Future<void> close() async {
     if (_onFilterFn != null) {
       fieldController.removeListener(onFiltersListener: _onFilterFn!);
       _onFilterFn = null;

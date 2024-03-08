@@ -41,8 +41,8 @@ class _SmartEditActionListState extends State<SmartEditActionList> {
     UserBackendService.getCurrentUserProfile().then((value) {
       setState(() {
         isOpenAIEnabled = value.fold(
-          (l) => false,
-          (r) => r.openaiKey.isNotEmpty,
+          (s) => s.openaiKey.isNotEmpty,
+          (_) => false,
         );
       });
     });
@@ -112,7 +112,6 @@ class _SmartEditActionListState extends State<SmartEditActionList> {
       transaction,
       options: const ApplyOptions(
         recordUndo: false,
-        recordRedo: false,
       ),
       withUpdateSelection: false,
     );

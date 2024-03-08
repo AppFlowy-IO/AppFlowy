@@ -1,30 +1,32 @@
 import 'dart:async';
+import 'dart:typed_data';
+
 import 'package:appflowy/core/notification/folder_notification.dart';
 import 'package:appflowy/core/notification/user_notification.dart';
-import 'package:dartz/dartz.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'dart:typed_data';
-import 'package:flowy_infra/notifier.dart';
-import 'package:appflowy_backend/protobuf/flowy-notification/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/notification.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-notification/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/notification.pb.dart'
     as user;
+import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:appflowy_backend/rust_stream.dart';
+import 'package:appflowy_result/appflowy_result.dart';
+import 'package:flowy_infra/notifier.dart';
 
-typedef UserProfileNotifyValue = Either<UserProfilePB, FlowyError>;
-typedef AuthNotifyValue = Either<Unit, FlowyError>;
+typedef UserProfileNotifyValue = FlowyResult<UserProfilePB, FlowyError>;
+typedef AuthNotifyValue = FlowyResult<void, FlowyError>;
 
 class UserListener {
-  StreamSubscription<SubscribeObject>? _subscription;
-  PublishNotifier<UserProfileNotifyValue>? _profileNotifier = PublishNotifier();
-
-  UserNotificationParser? _userParser;
-  final UserProfilePB _userProfile;
   UserListener({
     required UserProfilePB userProfile,
   }) : _userProfile = userProfile;
+
+  final UserProfilePB _userProfile;
+
+  UserNotificationParser? _userParser;
+  StreamSubscription<SubscribeObject>? _subscription;
+  PublishNotifier<UserProfileNotifyValue>? _profileNotifier = PublishNotifier();
 
   void start({
     void Function(UserProfileNotifyValue)? onProfileUpdated,
@@ -51,14 +53,14 @@ class UserListener {
 
   void _userNotificationCallback(
     user.UserNotification ty,
-    Either<Uint8List, FlowyError> result,
+    FlowyResult<Uint8List, FlowyError> result,
   ) {
     switch (ty) {
       case user.UserNotification.DidUpdateUserProfile:
         result.fold(
-          (payload) =>
-              _profileNotifier?.value = left(UserProfilePB.fromBuffer(payload)),
-          (error) => _profileNotifier?.value = right(error),
+          (payload) => _profileNotifier?.value =
+              FlowyResult.success(UserProfilePB.fromBuffer(payload)),
+          (error) => _profileNotifier?.value = FlowyResult.failure(error),
         );
         break;
       default:
@@ -67,17 +69,16 @@ class UserListener {
   }
 }
 
-typedef WorkspaceSettingNotifyValue = Either<WorkspaceSettingPB, FlowyError>;
+typedef WorkspaceSettingNotifyValue
+    = FlowyResult<WorkspaceSettingPB, FlowyError>;
 
 class UserWorkspaceListener {
+  UserWorkspaceListener();
+
   PublishNotifier<WorkspaceSettingNotifyValue>? _settingChangedNotifier =
       PublishNotifier();
 
   FolderNotificationListener? _listener;
-
-  UserWorkspaceListener({
-    required UserProfilePB userProfile,
-  });
 
   void start({
     void Function(WorkspaceSettingNotifyValue)? onSettingUpdated,
@@ -96,14 +97,15 @@ class UserWorkspaceListener {
 
   void _handleObservableType(
     FolderNotification ty,
-    Either<Uint8List, FlowyError> result,
+    FlowyResult<Uint8List, FlowyError> result,
   ) {
     switch (ty) {
       case FolderNotification.DidUpdateWorkspaceSetting:
         result.fold(
           (payload) => _settingChangedNotifier?.value =
-              left(WorkspaceSettingPB.fromBuffer(payload)),
-          (error) => _settingChangedNotifier?.value = right(error),
+              FlowyResult.success(WorkspaceSettingPB.fromBuffer(payload)),
+          (error) =>
+              _settingChangedNotifier?.value = FlowyResult.failure(error),
         );
         break;
       default:

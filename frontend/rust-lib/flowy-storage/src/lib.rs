@@ -1,14 +1,24 @@
+if_native! {
+  mod native;
+  pub use native::*;
+}
+
+if_wasm! {
+  mod wasm;
+  pub use wasm::*;
+}
+
 use bytes::Bytes;
 
 use flowy_error::FlowyError;
 use lib_infra::future::FutureResult;
+use lib_infra::{conditional_send_sync_trait, if_native, if_wasm};
 use mime::Mime;
-use tokio::io::AsyncReadExt;
-use tracing::info;
 
 pub struct ObjectIdentity {
   pub workspace_id: String,
   pub file_id: String,
+  pub ext: String,
 }
 
 #[derive(Clone)]
@@ -16,65 +26,49 @@ pub struct ObjectValue {
   pub raw: Bytes,
   pub mime: Mime,
 }
+conditional_send_sync_trait! {
+  "Provides a service for object storage. The trait includes methods for CRUD operations on storage objects.";
+  ObjectStorageService {
+    /// Creates a new storage object.
+    ///
+    /// # Parameters
+    /// - `url`: url of the object to be created.
+    ///
+    /// # Returns
+    /// - `Ok()`
+    /// - `Err(Error)`: An error occurred during the operation.
+    fn get_object_url(&self, object_id: ObjectIdentity) -> FutureResult<String, FlowyError>;
 
-impl ObjectValue {
-  pub async fn from_file(local_file_path: &str) -> Result<Self, FlowyError> {
-    let mut file = tokio::fs::File::open(local_file_path).await?;
-    let mut content = Vec::new();
-    let n = file.read_to_end(&mut content).await?;
-    info!("read {} bytes from file: {}", n, local_file_path);
-    let mime = mime_guess::from_path(local_file_path).first_or_octet_stream();
+    /// Creates a new storage object.
+    ///
+    /// # Parameters
+    /// - `url`: url of the object to be created.
+    ///
+    /// # Returns
+    /// - `Ok()`
+    /// - `Err(Error)`: An error occurred during the operation.
+    fn put_object(&self, url: String, object_value: ObjectValue) -> FutureResult<(), FlowyError>;
 
-    Ok(ObjectValue {
-      raw: content.into(),
-      mime,
-    })
+    /// Deletes a storage object by its URL.
+    ///
+    /// # Parameters
+    /// - `url`: url of the object to be deleted.
+    ///
+    /// # Returns
+    /// - `Ok()`
+    /// - `Err(Error)`: An error occurred during the operation.
+    fn delete_object(&self, url: String) -> FutureResult<(), FlowyError>;
+
+    /// Fetches a storage object by its URL.
+    ///
+    /// # Parameters
+    /// - `url`: url of the object
+    ///
+    /// # Returns
+    /// - `Ok(File)`: The returned file object.
+    /// - `Err(Error)`: An error occurred during the operation.
+    fn get_object(&self, url: String) -> FutureResult<ObjectValue, FlowyError>;
   }
-}
-
-/// Provides a service for object storage.
-///
-/// The trait includes methods for CRUD operations on storage objects.
-pub trait ObjectStorageService: Send + Sync + 'static {
-  /// Creates a new storage object.
-  ///
-  /// # Parameters
-  /// - `url`: url of the object to be created.
-  ///
-  /// # Returns
-  /// - `Ok()`
-  /// - `Err(Error)`: An error occurred during the operation.
-  fn get_object_url(&self, object_id: ObjectIdentity) -> FutureResult<String, FlowyError>;
-
-  /// Creates a new storage object.
-  ///
-  /// # Parameters
-  /// - `url`: url of the object to be created.
-  ///
-  /// # Returns
-  /// - `Ok()`
-  /// - `Err(Error)`: An error occurred during the operation.
-  fn put_object(&self, url: String, object_value: ObjectValue) -> FutureResult<(), FlowyError>;
-
-  /// Deletes a storage object by its URL.
-  ///
-  /// # Parameters
-  /// - `url`: url of the object to be deleted.
-  ///
-  /// # Returns
-  /// - `Ok()`
-  /// - `Err(Error)`: An error occurred during the operation.
-  fn delete_object(&self, url: String) -> FutureResult<(), FlowyError>;
-
-  /// Fetches a storage object by its URL.
-  ///
-  /// # Parameters
-  /// - `url`: url of the object
-  ///
-  /// # Returns
-  /// - `Ok(File)`: The returned file object.
-  /// - `Err(Error)`: An error occurred during the operation.
-  fn get_object(&self, url: String) -> FutureResult<ObjectValue, FlowyError>;
 }
 
 pub trait FileStoragePlan: Send + Sync + 'static {

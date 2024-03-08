@@ -10,6 +10,7 @@ function Resizer() {
   const startX = useRef(0);
   const onResize = useCallback(
     (e: MouseEvent) => {
+      e.preventDefault();
       const diff = e.clientX - startX.current;
       const newWidth = width + diff;
 

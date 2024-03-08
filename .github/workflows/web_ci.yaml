@@ -26,9 +26,9 @@ jobs:
 
     runs-on: ${{ matrix.platform }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: setup node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
 
@@ -40,14 +40,16 @@ jobs:
             frontend/rust-lib
             frontend/appflowy_web/appflowy_wasm
 
+      # TODO: Can combine caching deps and node_modules in one
+      # See Glob patterns: https://github.com/actions/toolkit/tree/main/packages/glob
       - name: Cache Node.js dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: ~/.npm
           key: npm-${{ runner.os }}
 
       - name: Cache node_modules
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: frontend/appflowy_web/node_modules
           key: node-modules-${{ runner.os }}
@@ -79,4 +81,4 @@ jobs:
         working-directory: frontend/appflowy_web
         run: |
           pnpm install
-          pnpm run wasm
+          pnpm run build_release_wasm

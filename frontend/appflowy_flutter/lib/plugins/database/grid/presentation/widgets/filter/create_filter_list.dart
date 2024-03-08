@@ -2,7 +2,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
-import 'package:appflowy/plugins/database/grid/presentation/widgets/header/field_type_extension.dart';
+import 'package:appflowy/util/field_type_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
@@ -17,18 +17,18 @@ import '../../../../application/field/field_controller.dart';
 import '../../../application/filter/filter_create_bloc.dart';
 
 class GridCreateFilterList extends StatefulWidget {
-  final String viewId;
-  final FieldController fieldController;
-  final VoidCallback onClosed;
-  final VoidCallback? onCreateFilter;
-
   const GridCreateFilterList({
+    super.key,
     required this.viewId,
     required this.fieldController,
     required this.onClosed,
     this.onCreateFilter,
-    super.key,
   });
+
+  final String viewId;
+  final FieldController fieldController;
+  final VoidCallback onClosed;
+  final VoidCallback? onCreateFilter;
 
   @override
   State<StatefulWidget> createState() => _GridCreateFilterListState();
@@ -98,7 +98,7 @@ class _GridCreateFilterListState extends State<GridCreateFilterList> {
   }
 
   @override
-  Future<void> dispose() async {
+  void dispose() {
     editBloc.close();
     super.dispose();
   }
@@ -148,13 +148,14 @@ class _FilterTextFieldDelegate extends SliverPersistentHeaderDelegate {
 }
 
 class GridFilterPropertyCell extends StatelessWidget {
-  final FieldInfo fieldInfo;
-  final Function(FieldInfo) onTap;
   const GridFilterPropertyCell({
+    super.key,
     required this.fieldInfo,
     required this.onTap,
-    super.key,
   });
+
+  final FieldInfo fieldInfo;
+  final Function(FieldInfo) onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -166,7 +167,7 @@ class GridFilterPropertyCell extends StatelessWidget {
       ),
       onTap: () => onTap(fieldInfo),
       leftIcon: FlowySvg(
-        fieldInfo.fieldType.icon(),
+        fieldInfo.fieldType.svgData,
         color: Theme.of(context).iconTheme.color,
       ),
     );

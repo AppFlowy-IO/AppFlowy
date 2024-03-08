@@ -25,7 +25,6 @@ class MobileRowDetailCreateFieldButton extends StatelessWidget {
               shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                 RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12.0),
-                  side: BorderSide.none,
                 ),
               ),
               overlayColor: MaterialStateProperty.all<Color>(
@@ -41,7 +40,7 @@ class MobileRowDetailCreateFieldButton extends StatelessWidget {
           LocaleKeys.grid_field_newProperty.tr(),
           fontSize: 15,
         ),
-        onPressed: () => showCreateFieldBottomSheet(context, viewId),
+        onPressed: () => mobileCreateFieldWorkflow(context, viewId),
         icon: const FlowySvg(FlowySvgs.add_m),
       ),
     );

@@ -50,7 +50,7 @@ impl EventBuilder {
 
   pub async fn async_send(mut self) -> Self {
     let request = self.get_request();
-    let resp = AFPluginDispatcher::async_send(self.dispatch(), request).await;
+    let resp = AFPluginDispatcher::async_send(self.dispatch().as_ref(), request).await;
     self.context.response = Some(resp);
     self
   }

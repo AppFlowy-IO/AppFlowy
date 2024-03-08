@@ -2,20 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../accessory/cell_shortcuts.dart';
-import '../cell_builder.dart';
+import '../../cell/editable_cell_builder.dart';
 import 'cell_container.dart';
 
 class MobileCellContainer extends StatelessWidget {
-  final GridCellWidget child;
-  final bool isPrimary;
-  final VoidCallback? onPrimaryFieldCellTap;
-
   const MobileCellContainer({
     super.key,
     required this.child,
     required this.isPrimary,
     this.onPrimaryFieldCellTap,
   });
+
+  final EditableCellWidget child;
+  final bool isPrimary;
+  final VoidCallback? onPrimaryFieldCellTap;
 
   @override
   Widget build(BuildContext context) {

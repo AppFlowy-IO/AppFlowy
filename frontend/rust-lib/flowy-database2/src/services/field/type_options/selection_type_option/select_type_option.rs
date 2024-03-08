@@ -1,19 +1,18 @@
+use std::str::FromStr;
+
 use bytes::Bytes;
 use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::Cell;
-use serde::{Deserialize, Serialize};
 
 use flowy_error::{internal_error, ErrorCode, FlowyResult};
 
-use crate::entities::{FieldType, SelectOptionCellDataPB};
-use crate::services::cell::{
-  CellDataDecoder, CellProtobufBlobParser, DecodedCellData, FromCellChangeset, ToCellChangeset,
-};
+use crate::entities::{CheckboxCellDataPB, FieldType, SelectOptionCellDataPB};
+use crate::services::cell::{CellDataDecoder, CellProtobufBlobParser};
 use crate::services::field::selection_type_option::type_option_transform::SelectOptionTypeOptionTransformHelper;
 use crate::services::field::{
-  make_selected_options, CheckboxCellData, MultiSelectTypeOption, SelectOption,
-  SelectOptionCellData, SelectOptionColor, SelectOptionIds, SingleSelectTypeOption, TypeOption,
-  TypeOptionCellDataSerde, TypeOptionTransform, SELECTION_IDS_SEPARATOR,
+  make_selected_options, MultiSelectTypeOption, SelectOption, SelectOptionCellData,
+  SelectOptionColor, SelectOptionIds, SingleSelectTypeOption, TypeOption, TypeOptionCellDataSerde,
+  TypeOptionTransform, SELECTION_IDS_SEPARATOR,
 };
 
 /// Defines the shared actions used by SingleSelect or Multi-Select.
@@ -104,7 +103,7 @@ where
         None
       },
       FieldType::Checkbox => {
-        let cell_content = CheckboxCellData::from(cell).to_string();
+        let cell_content = CheckboxCellDataPB::from(cell).to_string();
         let mut transformed_ids = Vec::new();
         let options = self.options();
         if let Some(option) = options.iter().find(|option| option.name == cell_content) {
@@ -118,10 +117,10 @@ where
   }
 }
 
-impl<T> CellDataDecoder for T
+impl<T, C> CellDataDecoder for T
 where
-  T:
-    SelectTypeOptionSharedAction + TypeOption<CellData = SelectOptionIds> + TypeOptionCellDataSerde,
+  C: Into<SelectOptionIds> + for<'a> From<&'a Cell>,
+  T: SelectTypeOptionSharedAction + TypeOption<CellData = C> + TypeOptionCellDataSerde,
 {
   fn decode_cell(
     &self,
@@ -132,9 +131,9 @@ where
     self.parse_cell(cell)
   }
 
-  fn stringify_cell_data(&self, cell_data: <Self as TypeOption>::CellData) -> String {
+  fn stringify_cell_data(&self, cell_data: C) -> String {
     self
-      .get_selected_options(cell_data)
+      .get_selected_options(cell_data.into())
       .select_options
       .into_iter()
       .map(|option| option.name)
@@ -143,8 +142,12 @@ where
   }
 
   fn stringify_cell(&self, cell: &Cell) -> String {
-    let cell_data = Self::CellData::from(cell);
+    let cell_data = C::from(cell);
     self.stringify_cell_data(cell_data)
+  }
+
+  fn numeric_cell(&self, _cell: &Cell) -> Option<f64> {
+    None
   }
 }
 
@@ -204,17 +207,9 @@ impl CellProtobufBlobParser for SelectOptionIdsParser {
   type Object = SelectOptionIds;
   fn parser(bytes: &Bytes) -> FlowyResult<Self::Object> {
     match String::from_utf8(bytes.to_vec()) {
-      Ok(s) => Ok(SelectOptionIds::from(s)),
-      Err(_) => Ok(SelectOptionIds::from("".to_owned())),
+      Ok(s) => SelectOptionIds::from_str(&s),
+      Err(_) => Ok(SelectOptionIds::default()),
     }
-  }
-}
-
-impl DecodedCellData for SelectOptionCellDataPB {
-  type Object = SelectOptionCellDataPB;
-
-  fn is_empty(&self) -> bool {
-    self.select_options.is_empty()
   }
 }
 
@@ -227,25 +222,10 @@ impl CellProtobufBlobParser for SelectOptionCellDataParser {
   }
 }
 
-#[derive(Clone, Serialize, Deserialize, Default, Debug)]
+#[derive(Clone, Default, Debug)]
 pub struct SelectOptionCellChangeset {
   pub insert_option_ids: Vec<String>,
   pub delete_option_ids: Vec<String>,
-}
-
-impl FromCellChangeset for SelectOptionCellChangeset {
-  fn from_changeset(changeset: String) -> FlowyResult<Self>
-  where
-    Self: Sized,
-  {
-    serde_json::from_str::<SelectOptionCellChangeset>(&changeset).map_err(internal_error)
-  }
-}
-
-impl ToCellChangeset for SelectOptionCellChangeset {
-  fn to_cell_changeset_str(&self) -> String {
-    serde_json::to_string(self).unwrap_or_default()
-  }
 }
 
 impl SelectOptionCellChangeset {

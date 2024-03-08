@@ -1,4 +1,3 @@
-mod checklist_filter;
 mod multi_select_type_option;
 mod select_filter;
 mod select_ids;

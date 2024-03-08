@@ -1,28 +1,28 @@
 import 'dart:async';
 
-import 'package:appflowy/user/application/auth/backend_auth_service.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
+import 'package:appflowy/user/application/auth/backend_auth_service.dart';
 import 'package:appflowy/user/application/auth/device_id.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
-import 'package:dartz/dartz.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flowy_infra/uuid.dart';
 
 /// Only used for testing.
 class AppFlowyCloudMockAuthService implements AuthService {
-  final String userEmail;
-
   AppFlowyCloudMockAuthService({String? email})
       : userEmail = email ?? "${uuid()}@appflowy.io";
+
+  final String userEmail;
 
   final BackendAuthService _appFlowyAuthService =
       BackendAuthService(AuthenticatorPB.Supabase);
 
   @override
-  Future<Either<FlowyError, UserProfilePB>> signUp({
+  Future<FlowyResult<UserProfilePB, FlowyError>> signUp({
     required String name,
     required String email,
     required String password,
@@ -32,7 +32,7 @@ class AppFlowyCloudMockAuthService implements AuthService {
   }
 
   @override
-  Future<Either<FlowyError, UserProfilePB>> signInWithEmailPassword({
+  Future<FlowyResult<UserProfilePB, FlowyError>> signInWithEmailPassword({
     required String email,
     required String password,
     Map<String, String> params = const {},
@@ -41,7 +41,7 @@ class AppFlowyCloudMockAuthService implements AuthService {
   }
 
   @override
-  Future<Either<FlowyError, UserProfilePB>> signUpWithOAuth({
+  Future<FlowyResult<UserProfilePB, FlowyError>> signUpWithOAuth({
     required String platform,
     Map<String, String> params = const {},
   }) async {
@@ -63,14 +63,14 @@ class AppFlowyCloudMockAuthService implements AuthService {
           },
         );
         Log.info("UserEventOauthSignIn with payload: $payload");
-        return await UserEventOauthSignIn(payload).send().then((value) {
+        return UserEventOauthSignIn(payload).send().then((value) {
           value.fold((l) => null, (err) => Log.error(err));
-          return value.swap();
+          return value;
         });
       },
       (r) {
         Log.error(r);
-        return left(r);
+        return FlowyResult.failure(r);
       },
     );
   }
@@ -81,14 +81,14 @@ class AppFlowyCloudMockAuthService implements AuthService {
   }
 
   @override
-  Future<Either<FlowyError, UserProfilePB>> signUpAsGuest({
+  Future<FlowyResult<UserProfilePB, FlowyError>> signUpAsGuest({
     Map<String, String> params = const {},
   }) async {
     return _appFlowyAuthService.signUpAsGuest();
   }
 
   @override
-  Future<Either<FlowyError, UserProfilePB>> signInWithMagicLink({
+  Future<FlowyResult<UserProfilePB, FlowyError>> signInWithMagicLink({
     required String email,
     Map<String, String> params = const {},
   }) async {
@@ -96,7 +96,7 @@ class AppFlowyCloudMockAuthService implements AuthService {
   }
 
   @override
-  Future<Either<FlowyError, UserProfilePB>> getUser() async {
+  Future<FlowyResult<UserProfilePB, FlowyError>> getUser() async {
     return UserBackendService.getCurrentUserProfile();
   }
 }

@@ -1,8 +1,8 @@
-import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/select_option_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:protobuf/protobuf.dart';
-import 'package:dartz/dartz.dart';
+
 part 'edit_select_option_bloc.freezed.dart';
 
 class EditSelectOptionBloc
@@ -11,15 +11,15 @@ class EditSelectOptionBloc
       : super(EditSelectOptionState.initial(option)) {
     on<EditSelectOptionEvent>(
       (event, emit) async {
-        event.map(
-          updateName: (_UpdateName value) {
-            emit(state.copyWith(option: _updateName(value.name)));
+        event.when(
+          updateName: (name) {
+            emit(state.copyWith(option: _updateName(name)));
           },
-          updateColor: (_UpdateColor value) {
-            emit(state.copyWith(option: _updateColor(value.color)));
+          updateColor: (color) {
+            emit(state.copyWith(option: _updateColor(color)));
           },
-          delete: (_Delete value) {
-            emit(state.copyWith(deleted: const Some(true)));
+          delete: () {
+            emit(state.copyWith(deleted: true));
           },
         );
       },
@@ -53,12 +53,12 @@ class EditSelectOptionEvent with _$EditSelectOptionEvent {
 class EditSelectOptionState with _$EditSelectOptionState {
   const factory EditSelectOptionState({
     required SelectOptionPB option,
-    required Option<bool> deleted,
+    required bool deleted,
   }) = _EditSelectOptionState;
 
   factory EditSelectOptionState.initial(SelectOptionPB option) =>
       EditSelectOptionState(
         option: option,
-        deleted: none(),
+        deleted: false,
       );
 }

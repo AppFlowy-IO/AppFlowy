@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/share_bloc.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -12,7 +14,6 @@ import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/file_picker/file_picker_service.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class DocumentShareButton extends StatelessWidget {
@@ -108,13 +109,14 @@ class ShareActionListState extends State<ShareActionList> {
       actions: ShareAction.values
           .map((action) => ShareActionWrapper(action))
           .toList(),
-      buildChild: (controller) {
-        return RoundedTextButton(
+      buildChild: (controller) => Listener(
+        onPointerDown: (_) => controller.show(),
+        child: RoundedTextButton(
           title: LocaleKeys.shareAction_buttonText.tr(),
-          onPressed: () => controller.show(),
+          onPressed: () {},
           textColor: Theme.of(context).colorScheme.onPrimary,
-        );
-      },
+        ),
+      ),
       onSelected: (action, controller) async {
         switch (action.inner) {
           case ShareAction.markdown:
@@ -148,9 +150,9 @@ enum ShareAction {
 }
 
 class ShareActionWrapper extends ActionCell {
-  final ShareAction inner;
-
   ShareActionWrapper(this.inner);
+
+  final ShareAction inner;
 
   Widget? icon(Color iconColor) => null;
 

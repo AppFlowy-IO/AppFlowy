@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_item/utils.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_menu_item.dart';
@@ -66,7 +68,7 @@ class BlockItems extends StatelessWidget {
       enableTopRightRadius: false,
       enableBottomRightRadius: false,
       onTap: () async {
-        await editorState.convertBlockType(blockType);
+        await _convert(blockType);
       },
       backgroundColor: theme.toolbarMenuItemBackgroundColor,
       icon: icon,
@@ -114,8 +116,6 @@ class BlockItems extends StatelessWidget {
         size: const Size(62, 54),
         enableTopLeftRadius: false,
         enableBottomLeftRadius: false,
-        enableTopRightRadius: true,
-        enableBottomRightRadius: true,
         showDownArrow: true,
         onTap: _onLinkItemTap,
         backgroundColor: theme.toolbarMenuItemBackgroundColor,
@@ -140,13 +140,15 @@ class BlockItems extends StatelessWidget {
       _closeKeyboard(selection);
 
       // keep the selection
-      editorState.updateSelectionWithReason(
-        selection,
-        extraInfo: {
-          selectionExtraInfoDisableMobileToolbarKey: true,
-          selectionExtraInfoDoNotAttachTextService: true,
-          selectionExtraInfoDisableFloatingToolbar: true,
-        },
+      unawaited(
+        editorState.updateSelectionWithReason(
+          selection,
+          extraInfo: {
+            selectionExtraInfoDisableMobileToolbarKey: true,
+            selectionExtraInfoDoNotAttachTextService: true,
+            selectionExtraInfoDisableFloatingToolbar: true,
+          },
+        ),
       );
       keepEditorFocusNotifier.increase();
 
@@ -154,7 +156,7 @@ class BlockItems extends StatelessWidget {
           .getTextInSelection(
             selection,
           )
-          .join('');
+          .join();
       final href = editorState.getDeltaAttributeValueInSelection<String>(
         AppFlowyRichTextKeys.href,
         selection,
@@ -175,9 +177,11 @@ class BlockItems extends StatelessWidget {
         },
       );
       // re-open the keyboard again
-      editorState.updateSelectionWithReason(
-        selection,
-        extraInfo: {},
+      unawaited(
+        editorState.updateSelectionWithReason(
+          selection,
+          extraInfo: {},
+        ),
       );
     }
   }
@@ -191,5 +195,24 @@ class BlockItems extends StatelessWidget {
       },
     );
     editorState.service.keyboardService?.closeKeyboard();
+  }
+
+  Future<void> _convert(String blockType) async {
+    await editorState.convertBlockType(
+      blockType,
+      selectionExtraInfo: {
+        selectionExtraInfoDoNotAttachTextService: true,
+        selectionExtraInfoDisableFloatingToolbar: true,
+      },
+    );
+    unawaited(
+      editorState.updateSelectionWithReason(
+        editorState.selection,
+        extraInfo: {
+          selectionExtraInfoDisableFloatingToolbar: true,
+          selectionExtraInfoDoNotAttachTextService: true,
+        },
+      ),
+    );
   }
 }

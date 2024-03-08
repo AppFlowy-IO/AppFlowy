@@ -1,34 +1,34 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
-
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
-import 'package:flutter/material.dart';
 import 'package:styled_widget/styled_widget.dart';
-import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:easy_localization/easy_localization.dart';
 
-import '../cell_builder.dart';
+import '../../cell/editable_cell_builder.dart';
 
 class GridCellAccessoryBuildContext {
-  final BuildContext anchorContext;
-  final bool isCellEditing;
-
   GridCellAccessoryBuildContext({
     required this.anchorContext,
     required this.isCellEditing,
   });
+
+  final BuildContext anchorContext;
+  final bool isCellEditing;
 }
 
 class GridCellAccessoryBuilder<T extends State<StatefulWidget>> {
+  GridCellAccessoryBuilder({required Widget Function(Key key) builder})
+      : _builder = builder;
+
   final GlobalKey<T> _key = GlobalKey();
 
   final Widget Function(Key key) _builder;
-
-  GridCellAccessoryBuilder({required Widget Function(Key key) builder})
-      : _builder = builder;
 
   Widget build() => _builder(_key);
 
@@ -52,13 +52,14 @@ abstract mixin class GridCellAccessoryState {
 }
 
 class PrimaryCellAccessory extends StatefulWidget {
-  final VoidCallback onTapCallback;
-  final bool isCellEditing;
   const PrimaryCellAccessory({
-    required this.onTapCallback,
-    required this.isCellEditing,
     super.key,
+    required this.onTap,
+    required this.isCellEditing,
   });
+
+  final VoidCallback onTap;
+  final bool isCellEditing;
 
   @override
   State<StatefulWidget> createState() => _PrimaryCellAccessoryState();
@@ -85,20 +86,21 @@ class _PrimaryCellAccessoryState extends State<PrimaryCellAccessory>
   }
 
   @override
-  void onTap() => widget.onTapCallback();
+  void onTap() => widget.onTap();
 
   @override
   bool enable() => !widget.isCellEditing;
 }
 
 class AccessoryHover extends StatefulWidget {
-  final CellAccessory child;
-  final FieldType fieldType;
   const AccessoryHover({
     super.key,
     required this.child,
     required this.fieldType,
   });
+
+  final CellAccessory child;
+  final FieldType fieldType;
 
   @override
   State<AccessoryHover> createState() => _AccessoryHoverState();
@@ -124,10 +126,10 @@ class _AccessoryHoverState extends State<AccessoryHover> {
     final accessoryBuilder = widget.child.accessoryBuilder;
     if (accessoryBuilder != null && _isHover) {
       final accessories = accessoryBuilder(
-        (GridCellAccessoryBuildContext(
+        GridCellAccessoryBuildContext(
           anchorContext: context,
           isCellEditing: false,
-        )),
+        ),
       );
       children.add(
         Padding(
@@ -143,7 +145,6 @@ class _AccessoryHoverState extends State<AccessoryHover> {
       onEnter: (p) => setState(() => _isHover = true),
       onExit: (p) => setState(() => _isHover = false),
       child: Stack(
-        fit: StackFit.loose,
         alignment: AlignmentDirectional.center,
         children: children,
       ),
@@ -152,8 +153,9 @@ class _AccessoryHoverState extends State<AccessoryHover> {
 }
 
 class CellAccessoryContainer extends StatelessWidget {
-  final List<GridCellAccessoryBuilder> accessories;
   const CellAccessoryContainer({required this.accessories, super.key});
+
+  final List<GridCellAccessoryBuilder> accessories;
 
   @override
   Widget build(BuildContext context) {

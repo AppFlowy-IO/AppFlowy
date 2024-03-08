@@ -1,5 +1,5 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy/plugins/database/grid/presentation/widgets/header/field_type_extension.dart';
+import 'package:appflowy/util/field_type_extension.dart';
 import 'package:flowy_infra/theme_extension.dart';
 
 import 'package:flowy_infra_ui/style_widget/button.dart';
@@ -10,10 +10,6 @@ import 'dart:math' as math;
 import '../filter_info.dart';
 
 class ChoiceChipButton extends StatelessWidget {
-  final FilterInfo filterInfo;
-  final VoidCallback? onTap;
-  final String filterDesc;
-
   const ChoiceChipButton({
     super.key,
     required this.filterInfo,
@@ -21,11 +17,14 @@ class ChoiceChipButton extends StatelessWidget {
     this.onTap,
   });
 
+  final FilterInfo filterInfo;
+  final String filterDesc;
+  final VoidCallback? onTap;
+
   @override
   Widget build(BuildContext context) {
     final borderSide = BorderSide(
       color: AFThemeExtension.of(context).toggleOffFill,
-      width: 1.0,
     );
 
     final decoration = BoxDecoration(
@@ -46,7 +45,7 @@ class ChoiceChipButton extends StatelessWidget {
         margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
         radius: const BorderRadius.all(Radius.circular(14)),
         leftIcon: FlowySvg(
-          filterInfo.fieldInfo.fieldType.icon(),
+          filterInfo.fieldInfo.fieldType.svgData,
           color: Theme.of(context).iconTheme.color,
         ),
         rightIcon: _ChoicechipFilterDesc(filterDesc: filterDesc),
@@ -58,8 +57,9 @@ class ChoiceChipButton extends StatelessWidget {
 }
 
 class _ChoicechipFilterDesc extends StatelessWidget {
-  final String filterDesc;
   const _ChoicechipFilterDesc({this.filterDesc = ''});
+
+  final String filterDesc;
 
   @override
   Widget build(BuildContext context) {

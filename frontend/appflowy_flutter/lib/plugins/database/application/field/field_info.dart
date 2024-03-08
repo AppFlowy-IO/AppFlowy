@@ -1,11 +1,19 @@
-import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/field_settings_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+
 part 'field_info.freezed.dart';
 
 @freezed
 class FieldInfo with _$FieldInfo {
   const FieldInfo._();
+
+  factory FieldInfo.initial(FieldPB field) => FieldInfo(
+        field: field,
+        fieldSettings: null,
+        hasFilter: false,
+        hasSort: false,
+        isGroupField: false,
+      );
 
   const factory FieldInfo({
     required FieldPB field,
@@ -25,14 +33,6 @@ class FieldInfo with _$FieldInfo {
 
   FieldVisibility? get visibility => fieldSettings?.visibility;
 
-  factory FieldInfo.initial(FieldPB field) => FieldInfo(
-        field: field,
-        fieldSettings: null,
-        hasFilter: false,
-        hasSort: false,
-        isGroupField: false,
-      );
-
   bool get canBeGroup {
     switch (field.fieldType) {
       case FieldType.URL:
@@ -47,9 +47,12 @@ class FieldInfo with _$FieldInfo {
   }
 
   bool get canCreateFilter {
-    if (hasFilter) return false;
+    if (hasFilter) {
+      return false;
+    }
 
     switch (field.fieldType) {
+      case FieldType.Number:
       case FieldType.Checkbox:
       case FieldType.MultiSelect:
       case FieldType.RichText:
@@ -62,7 +65,9 @@ class FieldInfo with _$FieldInfo {
   }
 
   bool get canCreateSort {
-    if (hasSort) return false;
+    if (hasSort) {
+      return false;
+    }
 
     switch (field.fieldType) {
       case FieldType.RichText:
@@ -71,6 +76,9 @@ class FieldInfo with _$FieldInfo {
       case FieldType.DateTime:
       case FieldType.SingleSelect:
       case FieldType.MultiSelect:
+      case FieldType.LastEditedTime:
+      case FieldType.CreatedTime:
+      case FieldType.Checklist:
         return true;
       default:
         return false;

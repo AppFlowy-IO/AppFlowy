@@ -4,6 +4,7 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/startup/tasks/memory_leak_detector.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
+import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/home/home_bloc.dart';
 import 'package:appflowy/workspace/application/home/home_service.dart';
 import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
@@ -32,9 +33,9 @@ import 'home_layout.dart';
 import 'home_stack.dart';
 
 class DesktopHomeScreen extends StatelessWidget {
-  static const routeName = '/DesktopHomeScreen';
-
   const DesktopHomeScreen({super.key});
+
+  static const routeName = '/DesktopHomeScreen';
 
   @override
   Widget build(BuildContext context) {
@@ -53,8 +54,8 @@ class DesktopHomeScreen extends StatelessWidget {
           (error) => null,
         );
         final userProfile = snapshots.data?[1].fold(
-          (error) => null,
           (userProfilePB) => userProfilePB as UserProfilePB,
+          (error) => null,
         );
 
         // In the unlikely case either of the above is null, eg.
@@ -72,19 +73,22 @@ class DesktopHomeScreen extends StatelessWidget {
             BlocProvider<TabsBloc>.value(value: getIt<TabsBloc>()),
             BlocProvider<HomeBloc>(
               create: (context) {
-                return HomeBloc(userProfile, workspaceSetting)
+                return HomeBloc(workspaceSetting)
                   ..add(const HomeEvent.initial());
               },
             ),
             BlocProvider<HomeSettingBloc>(
               create: (_) {
                 return HomeSettingBloc(
-                  userProfile,
                   workspaceSetting,
                   context.read<AppearanceSettingsCubit>(),
                   context.widthPx,
                 )..add(const HomeSettingEvent.initial());
               },
+            ),
+            BlocProvider<FavoriteBloc>(
+              create: (context) =>
+                  FavoriteBloc()..add(const FavoriteEvent.initial()),
             ),
           ],
           child: HomeHotKeys(
@@ -104,9 +108,7 @@ class DesktopHomeScreen extends StatelessWidget {
                         if (currentPageManager.plugin.pluginType ==
                             PluginType.blank) {
                           getIt<TabsBloc>().add(
-                            TabsEvent.openPlugin(
-                              plugin: view.plugin(listenOnViewChanged: true),
-                            ),
+                            TabsEvent.openPlugin(plugin: view.plugin()),
                           );
                         }
                       }
@@ -144,36 +146,32 @@ class DesktopHomeScreen extends StatelessWidget {
     UserProfilePB userProfile,
     WorkspaceSettingPB workspaceSetting,
   ) {
-    return LayoutBuilder(
-      builder: (BuildContext context, BoxConstraints constraints) {
-        final layout = HomeLayout(context, constraints);
-        final homeStack = HomeStack(
-          layout: layout,
-          delegate: DesktopHomeScreenStackAdaptor(
-            buildContext: context,
-          ),
-        );
-        final menu = _buildHomeSidebar(
-          layout: layout,
-          context: context,
-          userProfile: userProfile,
-          workspaceSetting: workspaceSetting,
-        );
-        final homeMenuResizer = _buildHomeMenuResizer(context: context);
-        final editPanel = _buildEditPanel(
-          layout: layout,
-          context: context,
-        );
-        const bubble = QuestionBubble();
-        return _layoutWidgets(
-          layout: layout,
-          homeStack: homeStack,
-          homeMenu: menu,
-          editPanel: editPanel,
-          bubble: bubble,
-          homeMenuResizer: homeMenuResizer,
-        );
-      },
+    final layout = HomeLayout(context);
+    final homeStack = HomeStack(
+      layout: layout,
+      delegate: DesktopHomeScreenStackAdaptor(
+        buildContext: context,
+      ),
+    );
+    final menu = _buildHomeSidebar(
+      layout: layout,
+      context: context,
+      userProfile: userProfile,
+      workspaceSetting: workspaceSetting,
+    );
+    final homeMenuResizer = _buildHomeMenuResizer(context: context);
+    final editPanel = _buildEditPanel(
+      layout: layout,
+      context: context,
+    );
+    const bubble = QuestionBubble();
+    return _layoutWidgets(
+      layout: layout,
+      homeStack: homeStack,
+      homeMenu: menu,
+      editPanel: editPanel,
+      bubble: bubble,
+      homeMenuResizer: homeMenuResizer,
     );
   }
 
@@ -184,7 +182,7 @@ class DesktopHomeScreen extends StatelessWidget {
     required WorkspaceSettingPB workspaceSetting,
   }) {
     final homeMenu = HomeSideBar(
-      user: userProfile,
+      userProfile: userProfile,
       workspaceSetting: workspaceSetting,
     );
     return FocusTraversalGroup(child: RepaintBoundary(child: homeMenu));
@@ -199,15 +197,16 @@ class DesktopHomeScreen extends StatelessWidget {
       buildWhen: (previous, current) =>
           previous.panelContext != current.panelContext,
       builder: (context, state) {
-        return state.panelContext.fold(
-          () => const SizedBox(),
-          (panelContext) => FocusTraversalGroup(
-            child: RepaintBoundary(
-              child: EditPanel(
-                panelContext: panelContext,
-                onEndEdit: () =>
-                    homeBloc.add(const HomeSettingEvent.dismissEditPanel()),
-              ),
+        final panelContext = state.panelContext;
+        if (panelContext == null) {
+          return const SizedBox.shrink();
+        }
+        return FocusTraversalGroup(
+          child: RepaintBoundary(
+            child: EditPanel(
+              panelContext: panelContext,
+              onEndEdit: () =>
+                  homeBloc.add(const HomeSettingEvent.dismissEditPanel()),
             ),
           ),
         );
@@ -305,11 +304,9 @@ class DesktopHomeScreen extends StatelessWidget {
 }
 
 class DesktopHomeScreenStackAdaptor extends HomeStackDelegate {
-  final BuildContext buildContext;
+  DesktopHomeScreenStackAdaptor({required this.buildContext});
 
-  DesktopHomeScreenStackAdaptor({
-    required this.buildContext,
-  });
+  final BuildContext buildContext;
 
   @override
   void didDeleteStackWidget(ViewPB view, int? index) {
@@ -325,9 +322,7 @@ class DesktopHomeScreenStackAdaptor extends HomeStackDelegate {
             }
 
             getIt<TabsBloc>().add(
-              TabsEvent.openPlugin(
-                plugin: lastView.plugin(listenOnViewChanged: true),
-              ),
+              TabsEvent.openPlugin(plugin: lastView.plugin()),
             );
           } else {
             getIt<TabsBloc>().add(

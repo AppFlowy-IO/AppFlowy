@@ -1,29 +1,21 @@
 import 'dart:typed_data';
 
-import 'package:appflowy/plugins/database/application/field_settings/field_settings_service.dart';
+import 'package:appflowy/plugins/database/domain/field_listener.dart';
+import 'package:appflowy/plugins/database/domain/field_service.dart';
+import 'package:appflowy/plugins/database/domain/field_settings_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:dartz/dartz.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'field_controller.dart';
 import 'field_info.dart';
-import 'field_listener.dart';
-import 'field_service.dart';
 
 part 'field_editor_bloc.freezed.dart';
 
 class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
-  final String viewId;
-  final String fieldId;
-  final FieldController fieldController;
-  final SingleFieldListener _singleFieldListener;
-  final FieldBackendService fieldService;
-  final FieldSettingsBackendService fieldSettingsService;
-  final void Function(String newFieldId)? onFieldInserted;
-
   FieldEditorBloc({
     required this.viewId,
     required this.fieldController,
@@ -37,6 +29,24 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
         ),
         fieldSettingsService = FieldSettingsBackendService(viewId: viewId),
         super(FieldEditorState(field: FieldInfo.initial(field))) {
+    _dispatch();
+  }
+
+  final String viewId;
+  final String fieldId;
+  final FieldController fieldController;
+  final SingleFieldListener _singleFieldListener;
+  final FieldBackendService fieldService;
+  final FieldSettingsBackendService fieldSettingsService;
+  final void Function(String newFieldId)? onFieldInserted;
+
+  @override
+  Future<void> close() {
+    _singleFieldListener.stop();
+    return super.close();
+  }
+
+  void _dispatch() {
     on<FieldEditorEvent>(
       (event, emit) async {
         await event.when(
@@ -55,7 +65,7 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
             emit(state.copyWith(field: fieldController.getField(fieldId)!));
           },
           switchFieldType: (fieldType) async {
-            await fieldService.updateFieldType(fieldType: fieldType);
+            await fieldService.updateType(fieldType: fieldType);
           },
           renameField: (newName) async {
             final result = await fieldService.updateField(name: newName);
@@ -70,14 +80,14 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
             _logIfError(result);
           },
           insertLeft: () async {
-            final result = await fieldService.insertBefore();
+            final result = await fieldService.createBefore();
             result.fold(
               (newField) => onFieldInserted?.call(newField.id),
               (err) => Log.error("Failed creating field $err"),
             );
           },
           insertRight: () async {
-            final result = await fieldService.insertAfter();
+            final result = await fieldService.createAfter();
             result.fold(
               (newField) => onFieldInserted?.call(newField.id),
               (err) => Log.error("Failed creating field $err"),
@@ -101,18 +111,11 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
     );
   }
 
-  void _logIfError(Either<Unit, FlowyError> result) {
+  void _logIfError(FlowyResult<void, FlowyError> result) {
     result.fold(
       (l) => null,
       (err) => Log.error(err),
     );
-  }
-
-  @override
-  Future<void> close() {
-    _singleFieldListener.stop();
-
-    return super.close();
   }
 }
 

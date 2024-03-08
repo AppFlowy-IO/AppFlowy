@@ -1,12 +1,12 @@
-import 'package:appflowy/plugins/database/application/row/row_service.dart';
-import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'dart:typed_data';
 
 import 'package:appflowy/core/notification/grid_notification.dart';
+import 'package:appflowy/plugins/database/application/row/row_service.dart';
+import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flowy_infra/notifier.dart';
-import 'package:dartz/dartz.dart';
 import 'package:protobuf/protobuf.dart';
 
 typedef OnGroupError = void Function(FlowyError);
@@ -20,17 +20,16 @@ abstract class GroupControllerDelegate {
 }
 
 class GroupController {
-  GroupPB group;
-  final SingleGroupListener _listener;
-  final GroupControllerDelegate delegate;
-  final void Function(GroupPB group) onGroupChanged;
-
   GroupController({
-    required String viewId,
     required this.group,
     required this.delegate,
     required this.onGroupChanged,
   }) : _listener = SingleGroupListener(group);
+
+  GroupPB group;
+  final SingleGroupListener _listener;
+  final GroupControllerDelegate delegate;
+  final void Function(GroupPB group) onGroupChanged;
 
   RowMetaPB? rowAtIndex(int index) {
     if (index < group.rows.length) {
@@ -108,18 +107,21 @@ class GroupController {
     );
   }
 
-  Future<void> dispose() async {
-    _listener.stop();
+  Future<void> dispose() {
+    return _listener.stop();
   }
 }
 
-typedef UpdateGroupNotifiedValue = Either<GroupRowsNotificationPB, FlowyError>;
+typedef UpdateGroupNotifiedValue
+    = FlowyResult<GroupRowsNotificationPB, FlowyError>;
 
 class SingleGroupListener {
+  SingleGroupListener(this.group);
+
   final GroupPB group;
+
   PublishNotifier<UpdateGroupNotifiedValue>? _groupNotifier = PublishNotifier();
   DatabaseNotificationListener? _listener;
-  SingleGroupListener(this.group);
 
   void start({
     required void Function(UpdateGroupNotifiedValue) onGroupChanged,
@@ -133,14 +135,14 @@ class SingleGroupListener {
 
   void _handler(
     DatabaseNotification ty,
-    Either<Uint8List, FlowyError> result,
+    FlowyResult<Uint8List, FlowyError> result,
   ) {
     switch (ty) {
       case DatabaseNotification.DidUpdateGroupRow:
         result.fold(
           (payload) => _groupNotifier?.value =
-              left(GroupRowsNotificationPB.fromBuffer(payload)),
-          (error) => _groupNotifier?.value = right(error),
+              FlowyResult.success(GroupRowsNotificationPB.fromBuffer(payload)),
+          (error) => _groupNotifier?.value = FlowyResult.failure(error),
         );
         break;
       default:

@@ -175,7 +175,9 @@
     "editContact": "ویرایش مخاطب"
   },
   "button": {
+    "ok": "باشه",
     "done": "انجام شد",
+    "cancel": "لغو",
     "signIn": "ورود",
     "signOut": "خروج",
     "complete": "کامل شد",
@@ -191,10 +193,7 @@
     "edit": "ویرایش",
     "delete": "حذف کردن",
     "duplicate": "تکرار کردن",
-    "putback": "بازگشت",
-    "Done": "انجام شد",
-    "Cancel": "لغو",
-    "OK": "باشه"
+    "putback": "بازگشت"
   },
   "label": {
     "welcome": "خوش آمدید!",

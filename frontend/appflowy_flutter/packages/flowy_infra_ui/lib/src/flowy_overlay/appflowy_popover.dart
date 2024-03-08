@@ -1,6 +1,7 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/style_widget/decoration.dart';
-import 'package:flutter/material.dart';
 
 class AppFlowyPopover extends StatelessWidget {
   final Widget child;
@@ -25,6 +26,10 @@ class AppFlowyPopover extends StatelessWidget {
   ///  the conflict won't be resolve by using Listener, we want these two gestures exclusive.
   final PopoverClickHandler clickHandler;
 
+  /// If true the popover will not participate in focus traversal.
+  ///
+  final bool skipTraversal;
+
   const AppFlowyPopover({
     super.key,
     required this.child,
@@ -42,6 +47,7 @@ class AppFlowyPopover extends StatelessWidget {
     this.windowPadding = const EdgeInsets.all(8.0),
     this.decoration,
     this.clickHandler = PopoverClickHandler.listener,
+    this.skipTraversal = false,
   });
 
   @override
@@ -57,13 +63,13 @@ class AppFlowyPopover extends StatelessWidget {
       windowPadding: windowPadding,
       offset: offset,
       clickHandler: clickHandler,
+      skipTraversal: skipTraversal,
       popupBuilder: (context) {
-        final child = popupBuilder(context);
         return _PopoverContainer(
           constraints: constraints,
           margin: margin,
           decoration: decoration,
-          child: child,
+          child: popupBuilder(context),
         );
       },
       child: child,
@@ -72,18 +78,17 @@ class AppFlowyPopover extends StatelessWidget {
 }
 
 class _PopoverContainer extends StatelessWidget {
-  final Widget child;
-  final BoxConstraints constraints;
-  final EdgeInsets margin;
-  final Decoration? decoration;
-
   const _PopoverContainer({
     required this.child,
     required this.margin,
     required this.constraints,
     required this.decoration,
-    Key? key,
-  }) : super(key: key);
+  });
+
+  final Widget child;
+  final BoxConstraints constraints;
+  final EdgeInsets margin;
+  final Decoration? decoration;
 
   @override
   Widget build(BuildContext context) {

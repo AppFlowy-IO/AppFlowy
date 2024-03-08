@@ -11,13 +11,13 @@ use lib_infra::box_any::BoxAny;
 use crate::entities::FieldType;
 use crate::services::cell::{
   CellCache, CellDataChangeset, CellDataDecoder, CellFilterCache, CellProtobufBlob,
-  FromCellChangeset,
 };
 use crate::services::field::checklist_type_option::ChecklistTypeOption;
 use crate::services::field::{
-  CheckboxTypeOption, DateTypeOption, MultiSelectTypeOption, NumberTypeOption, RichTextTypeOption,
-  SingleSelectTypeOption, TimestampTypeOption, TypeOption, TypeOptionCellDataCompare,
-  TypeOptionCellDataFilter, TypeOptionCellDataSerde, TypeOptionTransform, URLTypeOption,
+  CheckboxTypeOption, DateTypeOption, MultiSelectTypeOption, NumberTypeOption, RelationTypeOption,
+  RichTextTypeOption, SingleSelectTypeOption, TimestampTypeOption, TypeOption,
+  TypeOptionCellDataCompare, TypeOptionCellDataFilter, TypeOptionCellDataSerde,
+  TypeOptionTransform, URLTypeOption,
 };
 use crate::services::sort::SortCondition;
 
@@ -26,22 +26,23 @@ pub const CELL_DATA: &str = "data";
 /// Each [FieldType] has its own [TypeOptionCellDataHandler].
 /// A helper trait that used to erase the `Self` of `TypeOption` trait to make it become a Object-safe trait
 /// Only object-safe traits can be made into trait objects.
-/// > Object-safe traits are traits with methods that follow these two rules:
-/// 1.the return type is not Self.
-/// 2.there are no generic types parameters.
+///
+/// Object-safe traits are traits with methods that follow these two rules:
+///
+/// 1. the return type is not Self.
+/// 2. there are no generic types parameters.
 ///
 pub trait TypeOptionCellDataHandler: Send + Sync + 'static {
-  fn handle_cell_str(
+  fn handle_cell_protobuf(
     &self,
     cell: &Cell,
     decoded_field_type: &FieldType,
     field_rev: &Field,
   ) -> FlowyResult<CellProtobufBlob>;
 
-  // TODO(nathan): replace cell_changeset with BoxAny to get rid of the serde process.
   fn handle_cell_changeset(
     &self,
-    cell_changeset: String,
+    cell_changeset: BoxAny,
     old_cell: Option<Cell>,
     field: &Field,
   ) -> FlowyResult<Cell>;
@@ -62,7 +63,9 @@ pub trait TypeOptionCellDataHandler: Send + Sync + 'static {
   /// For example, the field type of the [TypeOptionCellDataHandler] is [FieldType::Date], and
   /// the if field_type is [FieldType::RichText], then the string would be something like "Mar 14, 2022".
   ///
-  fn stringify_cell_str(&self, cell: &Cell, field_type: &FieldType, field: &Field) -> String;
+  fn handle_stringify_cell(&self, cell: &Cell, field_type: &FieldType, field: &Field) -> String;
+
+  fn handle_numeric_cell(&self, cell: &Cell) -> Option<f64>;
 
   /// Format the cell to [BoxCellData] using the passed-in [FieldType] and [Field].
   /// The caller can get the cell data by calling [BoxCellData::unbox_or_none].
@@ -221,7 +224,7 @@ where
     + Sync
     + 'static,
 {
-  fn handle_cell_str(
+  fn handle_cell_protobuf(
     &self,
     cell: &Cell,
     decoded_field_type: &FieldType,
@@ -236,11 +239,11 @@ where
 
   fn handle_cell_changeset(
     &self,
-    cell_changeset: String,
+    cell_changeset: BoxAny,
     old_cell: Option<Cell>,
     field: &Field,
   ) -> FlowyResult<Cell> {
-    let changeset = <Self as TypeOption>::CellChangeset::from_changeset(cell_changeset)?;
+    let changeset = cell_changeset.unbox_or_error::<<Self as TypeOption>::CellChangeset>()?;
     let (cell, cell_data) = self.apply_changeset(changeset, old_cell)?;
     self.set_decoded_cell_data(&cell, cell_data, field);
     Ok(cell)
@@ -310,7 +313,7 @@ where
       let filter_cache = self.cell_filter_cache.as_ref()?.read();
       let cell_filter = filter_cache.get::<<Self as TypeOption>::CellFilter>(&field.id)?;
       let cell_data = self.get_decoded_cell_data(cell, field_type, field).ok()?;
-      Some(self.apply_filter(cell_filter, field_type, &cell_data))
+      Some(self.apply_filter(cell_filter, &cell_data))
     };
 
     perform_filter().unwrap_or(true)
@@ -323,7 +326,7 @@ where
   /// is [FieldType::RichText], then the string will be transformed to a string that separated by comma with the
   /// option's name.
   ///
-  fn stringify_cell_str(&self, cell: &Cell, field_type: &FieldType, field: &Field) -> String {
+  fn handle_stringify_cell(&self, cell: &Cell, field_type: &FieldType, field: &Field) -> String {
     if self.transformable() {
       let cell_data = self.transform_type_option_cell(cell, field_type, field);
       if let Some(cell_data) = cell_data {
@@ -331,6 +334,10 @@ where
       }
     }
     self.stringify_cell(cell)
+  }
+
+  fn handle_numeric_cell(&self, cell: &Cell) -> Option<f64> {
+    self.numeric_cell(cell)
   }
 
   fn get_cell_data(
@@ -484,13 +491,23 @@ impl<'a> TypeOptionCellExt<'a> {
             self.cell_data_cache.clone(),
           )
         }),
+      FieldType::Relation => self
+        .field
+        .get_type_option::<RelationTypeOption>(field_type)
+        .map(|type_option| {
+          TypeOptionCellDataHandlerImpl::new_with_boxed(
+            type_option,
+            self.cell_filter_cache.clone(),
+            self.cell_data_cache.clone(),
+          )
+        }),
     }
   }
 }
 
 pub fn transform_type_option(
   type_option_data: &TypeOptionData,
-  new_field_type: &FieldType,
+  new_field_type: FieldType,
   old_type_option_data: Option<TypeOptionData>,
   old_field_type: FieldType,
 ) -> TypeOptionData {
@@ -532,7 +549,7 @@ where
 }
 fn get_type_option_transform_handler(
   type_option_data: &TypeOptionData,
-  field_type: &FieldType,
+  field_type: FieldType,
 ) -> Box<dyn TypeOptionTransformHandler> {
   let type_option_data = type_option_data.clone();
   match field_type {
@@ -561,6 +578,9 @@ fn get_type_option_transform_handler(
     },
     FieldType::Checklist => {
       Box::new(ChecklistTypeOption::from(type_option_data)) as Box<dyn TypeOptionTransformHandler>
+    },
+    FieldType::Relation => {
+      Box::new(RelationTypeOption::from(type_option_data)) as Box<dyn TypeOptionTransformHandler>
     },
   }
 }

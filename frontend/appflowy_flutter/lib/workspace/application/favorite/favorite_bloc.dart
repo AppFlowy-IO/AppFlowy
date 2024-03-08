@@ -2,7 +2,7 @@ import 'package:appflowy/workspace/application/favorite/favorite_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
-import 'package:dartz/dartz.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -11,10 +11,20 @@ import 'favorite_listener.dart';
 part 'favorite_bloc.freezed.dart';
 
 class FavoriteBloc extends Bloc<FavoriteEvent, FavoriteState> {
+  FavoriteBloc() : super(FavoriteState.initial()) {
+    _dispatch();
+  }
+
   final _service = FavoriteService();
   final _listener = FavoriteListener();
 
-  FavoriteBloc() : super(FavoriteState.initial()) {
+  @override
+  Future<void> close() async {
+    await _listener.stop();
+    return super.close();
+  }
+
+  void _dispatch() {
     on<FavoriteEvent>(
       (event, emit) async {
         await event.map(
@@ -58,21 +68,15 @@ class FavoriteBloc extends Bloc<FavoriteEvent, FavoriteState> {
     );
   }
 
-  @override
-  Future<void> close() async {
-    await _listener.stop();
-    return super.close();
-  }
-
   void _onFavoritesUpdated(
-    Either<FlowyError, RepeatedViewPB> favoriteOrFailed,
+    FlowyResult<RepeatedViewPB, FlowyError> favoriteOrFailed,
     bool didFavorite,
   ) {
     favoriteOrFailed.fold(
-      (error) => Log.error(error),
       (favorite) => didFavorite
           ? add(FavoriteEvent.didFavorite(favorite))
           : add(FavoriteEvent.didUnfavorite(favorite)),
+      (error) => Log.error(error),
     );
   }
 }

@@ -1,19 +1,18 @@
 import 'dart:async';
 
-import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart'
     show CreateViewPayloadPB, MoveViewPayloadPB, ViewLayoutPB, ViewPB;
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 
 class WorkspaceService {
-  final String workspaceId;
-  WorkspaceService({
-    required this.workspaceId,
-  });
+  WorkspaceService({required this.workspaceId});
 
-  Future<Either<ViewPB, FlowyError>> createApp({
+  final String workspaceId;
+
+  Future<FlowyResult<ViewPB, FlowyError>> createApp({
     required String name,
     String? desc,
     int? index,
@@ -34,21 +33,21 @@ class WorkspaceService {
     return FolderEventCreateView(payload).send();
   }
 
-  Future<Either<WorkspacePB, FlowyError>> getWorkspace() {
+  Future<FlowyResult<WorkspacePB, FlowyError>> getWorkspace() {
     return FolderEventReadCurrentWorkspace().send();
   }
 
-  Future<Either<List<ViewPB>, FlowyError>> getViews() {
+  Future<FlowyResult<List<ViewPB>, FlowyError>> getViews() {
     final payload = WorkspaceIdPB.create()..value = workspaceId;
     return FolderEventReadWorkspaceViews(payload).send().then((result) {
       return result.fold(
-        (views) => left(views.items),
-        (error) => right(error),
+        (views) => FlowyResult.success(views.items),
+        (error) => FlowyResult.failure(error),
       );
     });
   }
 
-  Future<Either<Unit, FlowyError>> moveApp({
+  Future<FlowyResult<void, FlowyError>> moveApp({
     required String appId,
     required int fromIndex,
     required int toIndex,

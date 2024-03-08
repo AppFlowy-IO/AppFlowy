@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/home/home.dart';
@@ -14,6 +16,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 class MobileHomeScreen extends StatelessWidget {
   const MobileHomeScreen({super.key});
@@ -38,10 +41,12 @@ class MobileHomeScreen extends StatelessWidget {
           },
           (error) => null,
         );
-        final userProfile =
-            snapshots.data?[1].fold((error) => null, (userProfilePB) {
-          return userProfilePB as UserProfilePB?;
-        });
+        final userProfile = snapshots.data?[1].fold(
+          (userProfilePB) {
+            return userProfilePB as UserProfilePB?;
+          },
+          (error) => null,
+        );
 
         // In the unlikely case either of the above is null, eg.
         // when a workspace is already open this can happen.
@@ -51,9 +56,12 @@ class MobileHomeScreen extends StatelessWidget {
 
         return Scaffold(
           body: SafeArea(
-            child: MobileHomePage(
-              userProfile: userProfile,
-              workspaceSetting: workspaceSetting,
+            child: Provider.value(
+              value: userProfile,
+              child: MobileHomePage(
+                userProfile: userProfile,
+                workspaceSetting: workspaceSetting,
+              ),
             ),
           ),
         );
@@ -76,10 +84,13 @@ class MobileHomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // TODO: header + option icon button
         // Header
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: EdgeInsets.only(
+            left: 16,
+            right: 16,
+            top: Platform.isAndroid ? 8.0 : 0.0,
+          ),
           child: MobileHomePageHeader(
             userProfile: userProfile,
           ),

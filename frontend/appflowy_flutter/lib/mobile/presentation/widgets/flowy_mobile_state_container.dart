@@ -1,9 +1,10 @@
 import 'dart:io';
 
-import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+
+import 'package:appflowy/core/helpers/url_launcher.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 enum _FlowyMobileStateContainerType {
@@ -45,7 +46,6 @@ class FlowyMobileStateContainer extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 32),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
               emoji ??
@@ -81,7 +81,7 @@ class FlowyMobileStateContainer extends StatelessWidget {
                         onPressed: () {
                           final String? version = snapshot.data?.version;
                           final String os = Platform.operatingSystem;
-                          safeLaunchUrl(
+                          afLaunchUrlString(
                             'https://github.com/AppFlowy-IO/AppFlowy/issues/new?assignees=&labels=&projects=&template=bug_report.yaml&title=[Bug]%20Mobile:%20&version=$version&os=$os&context=Error%20log:%20$errorMsg',
                           );
                         },
@@ -91,7 +91,7 @@ class FlowyMobileStateContainer extends StatelessWidget {
                       ),
                       OutlinedButton(
                         onPressed: () =>
-                            safeLaunchUrl('https://discord.gg/JucBXeU2FE'),
+                            afLaunchUrlString('https://discord.gg/JucBXeU2FE'),
                         child: Text(
                           LocaleKeys.workspace_errorActions_reachOut.tr(),
                         ),

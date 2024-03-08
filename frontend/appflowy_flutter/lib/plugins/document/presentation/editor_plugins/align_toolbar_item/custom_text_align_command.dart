@@ -19,6 +19,7 @@ final List<CommandShortcutEvent> customTextAlignCommands = [
 final CommandShortcutEvent customTextLeftAlignCommand = CommandShortcutEvent(
   key: 'Align text to the left',
   command: 'ctrl+shift+l',
+  getDescription: () => 'Align text to the left',
   handler: (editorState) => _textAlignHandler(editorState, leftAlignmentKey),
 );
 
@@ -33,6 +34,7 @@ final CommandShortcutEvent customTextLeftAlignCommand = CommandShortcutEvent(
 final CommandShortcutEvent customTextCenterAlignCommand = CommandShortcutEvent(
   key: 'Align text to the center',
   command: 'ctrl+shift+e',
+  getDescription: () => 'Align text to the center',
   handler: (editorState) => _textAlignHandler(editorState, centerAlignmentKey),
 );
 
@@ -47,6 +49,7 @@ final CommandShortcutEvent customTextCenterAlignCommand = CommandShortcutEvent(
 final CommandShortcutEvent customTextRightAlignCommand = CommandShortcutEvent(
   key: 'Align text to the right',
   command: 'ctrl+shift+r',
+  getDescription: () => 'Align text to the right',
   handler: (editorState) => _textAlignHandler(editorState, rightAlignmentKey),
 );
 
@@ -56,7 +59,7 @@ KeyEventResult _textAlignHandler(EditorState editorState, String align) {
   if (selection == null) {
     return KeyEventResult.ignored;
   }
-  
+
   editorState.updateNode(
     selection,
     (node) => node.copyWith(

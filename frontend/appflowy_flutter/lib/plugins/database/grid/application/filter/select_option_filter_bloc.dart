@@ -1,22 +1,18 @@
-import 'package:appflowy/plugins/database/application/filter/filter_listener.dart';
-import 'package:appflowy/plugins/database/application/filter/filter_service.dart';
+import 'dart:async';
+
+import 'package:appflowy/plugins/database/domain/filter_listener.dart';
+import 'package:appflowy/plugins/database/domain/filter_service.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/select_option/select_option_loader.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/filter_info.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option_filter.pbserver.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/util.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'dart:async';
 
 part 'select_option_filter_bloc.freezed.dart';
 
 class SelectOptionFilterEditorBloc
     extends Bloc<SelectOptionFilterEditorEvent, SelectOptionFilterEditorState> {
-  final FilterInfo filterInfo;
-  final FilterBackendService _filterBackendSvc;
-  final FilterListener _listener;
-  final SelectOptionFilterDelegate delegate;
-
   SelectOptionFilterEditorBloc({
     required this.filterInfo,
     required this.delegate,
@@ -26,10 +22,19 @@ class SelectOptionFilterEditorBloc
           filterId: filterInfo.filter.id,
         ),
         super(SelectOptionFilterEditorState.initial(filterInfo)) {
+    _dispatch();
+  }
+
+  final FilterInfo filterInfo;
+  final FilterBackendService _filterBackendSvc;
+  final FilterListener _listener;
+  final SelectOptionFilterDelegate delegate;
+
+  void _dispatch() {
     on<SelectOptionFilterEditorEvent>(
       (event, emit) async {
         event.when(
-          initial: () async {
+          initial: () {
             _startListening();
             _loadOptions();
           },

@@ -11,15 +11,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
 class DatabaseViewSettingExtension extends StatelessWidget {
-  final String viewId;
-  final DatabaseController databaseController;
-  final ToggleExtensionNotifier toggleExtension;
   const DatabaseViewSettingExtension({
+    super.key,
     required this.viewId,
     required this.databaseController,
     required this.toggleExtension,
-    super.key,
   });
+
+  final String viewId;
+  final DatabaseController databaseController;
+  final ToggleExtensionNotifier toggleExtension;
 
   @override
   Widget build(BuildContext context) {
@@ -45,10 +46,9 @@ class DatabaseViewSettingExtension extends StatelessWidget {
 }
 
 class _DatabaseViewSettingContent extends StatelessWidget {
+  const _DatabaseViewSettingContent({required this.fieldController});
+
   final FieldController fieldController;
-  const _DatabaseViewSettingContent({
-    required this.fieldController,
-  });
 
   @override
   Widget build(BuildContext context) {
@@ -57,14 +57,13 @@ class _DatabaseViewSettingContent extends StatelessWidget {
       builder: (context, state) {
         return Padding(
           padding: EdgeInsets.symmetric(
-            horizontal: GridSize.leadingHeaderPadding,
+            horizontal: GridSize.horizontalHeaderPadding,
           ),
           child: DecoratedBox(
             decoration: BoxDecoration(
               border: Border(
                 bottom: BorderSide(
                   color: Theme.of(context).dividerColor,
-                  width: 1.0,
                 ),
               ),
             ),

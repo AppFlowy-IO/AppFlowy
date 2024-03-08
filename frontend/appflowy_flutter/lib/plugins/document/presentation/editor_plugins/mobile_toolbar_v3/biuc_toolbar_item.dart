@@ -6,11 +6,15 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 final boldToolbarItem = AppFlowyMobileToolbarItem(
   itemBuilder: (context, editorState, _, __, onAction) {
     return AppFlowyMobileToolbarIconItem(
-      isSelected: () => editorState.isTextDecorationSelected(
-        AppFlowyRichTextKeys.bold,
-      ),
+      editorState: editorState,
+      shouldListenToToggledStyle: true,
+      isSelected: () =>
+          editorState.isTextDecorationSelected(
+            AppFlowyRichTextKeys.bold,
+          ) &&
+          editorState.toggledStyle[AppFlowyRichTextKeys.bold] != false,
       icon: FlowySvgs.m_toolbar_bold_s,
-      onTap: () async => await editorState.toggleAttribute(
+      onTap: () async => editorState.toggleAttribute(
         AppFlowyRichTextKeys.bold,
         selectionExtraInfo: {
           selectionExtraInfoDisableFloatingToolbar: true,
@@ -23,12 +27,13 @@ final boldToolbarItem = AppFlowyMobileToolbarItem(
 final italicToolbarItem = AppFlowyMobileToolbarItem(
   itemBuilder: (context, editorState, _, __, onAction) {
     return AppFlowyMobileToolbarIconItem(
-      // keepSelectedStatus: true,
+      editorState: editorState,
+      shouldListenToToggledStyle: true,
       isSelected: () => editorState.isTextDecorationSelected(
         AppFlowyRichTextKeys.italic,
       ),
       icon: FlowySvgs.m_toolbar_italic_s,
-      onTap: () async => await editorState.toggleAttribute(
+      onTap: () async => editorState.toggleAttribute(
         AppFlowyRichTextKeys.italic,
         selectionExtraInfo: {
           selectionExtraInfoDisableFloatingToolbar: true,
@@ -41,11 +46,13 @@ final italicToolbarItem = AppFlowyMobileToolbarItem(
 final underlineToolbarItem = AppFlowyMobileToolbarItem(
   itemBuilder: (context, editorState, _, __, onAction) {
     return AppFlowyMobileToolbarIconItem(
+      editorState: editorState,
+      shouldListenToToggledStyle: true,
       isSelected: () => editorState.isTextDecorationSelected(
         AppFlowyRichTextKeys.underline,
       ),
       icon: FlowySvgs.m_toolbar_underline_s,
-      onTap: () async => await editorState.toggleAttribute(
+      onTap: () async => editorState.toggleAttribute(
         AppFlowyRichTextKeys.underline,
         selectionExtraInfo: {
           selectionExtraInfoDisableFloatingToolbar: true,
@@ -58,6 +65,8 @@ final underlineToolbarItem = AppFlowyMobileToolbarItem(
 final colorToolbarItem = AppFlowyMobileToolbarItem(
   itemBuilder: (context, editorState, service, __, onAction) {
     return AppFlowyMobileToolbarIconItem(
+      editorState: editorState,
+      shouldListenToToggledStyle: true,
       icon: FlowySvgs.m_toolbar_color_s,
       onTap: () {
         service.closeKeyboard();

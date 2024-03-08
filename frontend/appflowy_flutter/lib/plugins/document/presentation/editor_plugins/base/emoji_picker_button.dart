@@ -35,7 +35,6 @@ class EmojiPickerButton extends StatelessWidget {
     if (PlatformExtension.isDesktopOrWeb) {
       return AppFlowyPopover(
         controller: popoverController,
-        triggerActions: PopoverTriggerFlags.click,
         constraints: BoxConstraints.expand(
           width: emojiPickerSize.width,
           height: emojiPickerSize.height,

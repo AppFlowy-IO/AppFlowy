@@ -19,6 +19,7 @@ use flowy_notification::register_notification_sender;
 use flowy_server::AppFlowyServer;
 use flowy_user::entities::AuthenticatorPB;
 use flowy_user::errors::FlowyError;
+use lib_dispatch::runtime::AFPluginRuntime;
 
 use crate::user_event::TestNotificationSender;
 
@@ -53,14 +54,15 @@ impl EventIntegrationTest {
     let path = path_buf.to_str().unwrap().to_string();
     let device_id = uuid::Uuid::new_v4().to_string();
 
-    let config = AppFlowyCoreConfig::new(path.clone(), path, device_id, name).log_filter(
-      "trace",
-      vec![
-        "flowy_test".to_string(),
-        "tokio".to_string(),
-        // "lib_dispatch".to_string(),
-      ],
-    );
+    let config = AppFlowyCoreConfig::new("".to_string(), path.clone(), path, device_id, name)
+      .log_filter(
+        "trace",
+        vec![
+          "flowy_test".to_string(),
+          "tokio".to_string(),
+          // "lib_dispatch".to_string(),
+        ],
+      );
 
     let inner = init_core(config).await;
     let notification_sender = TestNotificationSender::new();
@@ -113,7 +115,7 @@ impl EventIntegrationTest {
     let uid = self.get_user_profile().await?.id;
     let doc_state = server
       .folder_service()
-      .get_collab_doc_state_f(&workspace_id, uid, collay_type, oid)
+      .get_folder_doc_state(&workspace_id, uid, collay_type, oid)
       .await?;
 
     Ok(doc_state)
@@ -133,19 +135,14 @@ pub fn document_from_document_doc_state(doc_id: &str, doc_state: CollabDocState)
   Document::from_doc_state(CollabOrigin::Empty, doc_state, doc_id, vec![]).unwrap()
 }
 
-#[cfg(feature = "single_thread")]
 async fn init_core(config: AppFlowyCoreConfig) -> AppFlowyCore {
-  // let runtime = tokio::runtime::Runtime::new().unwrap();
-  // let local_set = tokio::task::LocalSet::new();
-  // runtime.block_on(AppFlowyCore::new(config))
-  AppFlowyCore::new(config).await
-}
-
-#[cfg(not(feature = "single_thread"))]
-async fn init_core(config: AppFlowyCoreConfig) -> AppFlowyCore {
-  std::thread::spawn(|| AppFlowyCore::new(config))
-    .join()
-    .unwrap()
+  std::thread::spawn(|| {
+    let runtime = Arc::new(AFPluginRuntime::new().unwrap());
+    let cloned_runtime = runtime.clone();
+    runtime.block_on(async move { AppFlowyCore::new(config, cloned_runtime).await })
+  })
+  .join()
+  .unwrap()
 }
 
 impl std::ops::Deref for EventIntegrationTest {

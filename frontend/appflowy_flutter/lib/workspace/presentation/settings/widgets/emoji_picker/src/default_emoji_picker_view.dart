@@ -25,6 +25,7 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
   final FocusNode _emojiFocusNode = FocusNode();
   EmojiCategoryGroup searchEmojiList =
       EmojiCategoryGroup(EmojiCategory.SEARCH, <Emoji>[]);
+  final scrollController = ScrollController();
 
   @override
   void initState() {
@@ -70,6 +71,7 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
     _emojiFocusNode.dispose();
     _pageController?.dispose();
     _tabController?.dispose();
+    scrollController.dispose();
     super.dispose();
   }
 
@@ -89,7 +91,7 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
         ),
       );
     }
-    return Container();
+    return const SizedBox.shrink();
   }
 
   bool isEmojiSearching() {
@@ -224,8 +226,6 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
 
   Widget _buildPage(double emojiSize, EmojiCategoryGroup emojiCategoryGroup) {
     // Display notice if recent has no entries yet
-    final scrollController = ScrollController();
-
     if (emojiCategoryGroup.category == EmojiCategory.RECENT &&
         emojiCategoryGroup.emoji.isEmpty) {
       return _buildNoRecent();

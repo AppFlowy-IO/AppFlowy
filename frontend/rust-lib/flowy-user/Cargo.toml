@@ -9,7 +9,7 @@ edition = "2018"
 flowy-derive.workspace = true
 flowy-sqlite = { workspace = true, optional = true }
 flowy-encrypt = { workspace = true }
-flowy-error = { workspace = true, features = ["impl_from_sqlite", "impl_from_dispatch_error"] }
+flowy-error = { workspace = true, features = ["impl_from_dispatch_error", "impl_from_sqlite", "impl_from_collab_folder", "impl_from_collab_persistence"] }
 flowy-folder-pub = { workspace = true }
 lib-infra = { workspace = true }
 flowy-notification  = { workspace = true }
@@ -22,6 +22,7 @@ collab-document = { version = "0.1.0" }
 collab-database = { version = "0.1.0" }
 collab-user = { version = "0.1.0" }
 collab-entity = { version = "0.1.0" }
+collab-plugins = { version = "0.1.0" }
 flowy-user-pub = { workspace = true }
 anyhow.workspace = true
 tracing.workspace = true
@@ -58,7 +59,7 @@ quickcheck_macros = "1.0"
 default = ["rev-sqlite"]
 rev-sqlite = ["flowy-sqlite"]
 dart = ["flowy-codegen/dart", "flowy-notification/dart"]
-ts = ["flowy-codegen/ts", "flowy-notification/ts"]
+tauri_ts = ["flowy-codegen/ts", "flowy-notification/tauri_ts"]
 
 [build-dependencies]
 flowy-codegen.workspace = true

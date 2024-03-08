@@ -1,0 +1,28 @@
+name: Build Bot
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  dispatch_slash_command:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      # get build name from pubspec.yaml
+      - name: Get build version
+        working-directory: frontend/appflowy_flutter
+        id: get_build_name
+        run: |
+          echo "fetching version from pubspec.yaml..."
+          echo "build_name=$(grep 'version: ' pubspec.yaml | awk '{print $2}')" >> $GITHUB_OUTPUT
+
+      - uses: peter-evans/slash-command-dispatch@v4
+        with:
+          token: ${{ secrets.PAT }}
+          commands: build
+          static-args: |
+            ref=refs/pull/${{ github.event.issue.number }}/head
+            build_name=${{ steps.get_build_name.outputs.build_name }}

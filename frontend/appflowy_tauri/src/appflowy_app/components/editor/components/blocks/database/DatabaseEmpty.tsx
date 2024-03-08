@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useCallback, useRef } from 'react';
 import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
 
 import { GridNode } from '$app/application/document/document.types';
@@ -12,27 +12,18 @@ function DatabaseEmpty({ node }: { node: GridNode }) {
 
   const [open, setOpen] = React.useState(false);
 
-  const toggleDrawer = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
-    if (
-      event &&
-      event.type === 'keydown' &&
-      ((event as React.KeyboardEvent).key === 'Tab' || (event as React.KeyboardEvent).key === 'Shift')
-    ) {
-      return;
-    }
-
-    if (event?.type === 'click') {
-      event.stopPropagation();
-    }
-
-    setOpen(open);
-  };
+  const toggleDrawer = useCallback((open: boolean) => {
+    return (e: React.MouseEvent | KeyboardEvent | React.FocusEvent) => {
+      e.stopPropagation();
+      setOpen(open);
+    };
+  }, []);
 
   return (
     <div
       ref={ref}
       onClick={toggleDrawer(false)}
-      className='relative flex w-full flex-1 flex-col items-center justify-center text-text-caption'
+      className='relative flex w-full flex-1 flex-col items-center justify-center py-2 text-text-caption'
     >
       <CreateNewFolderIcon className={'h-10 w-10'} />
       <div className={'mb-2 text-base'}>{t('document.plugins.database.noDataSource')}</div>

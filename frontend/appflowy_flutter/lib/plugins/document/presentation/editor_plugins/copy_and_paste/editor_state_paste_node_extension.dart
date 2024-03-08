@@ -59,7 +59,6 @@ extension PasteNodes on EditorState {
 
       nodes.last.insertDelta(
         delta.slice(selection.endIndex),
-        insertAfter: true,
       );
     }
 
@@ -102,7 +101,7 @@ extension PasteNodes on EditorState {
 
     // delete the selection first.
     if (!selection.isCollapsed) {
-      deleteSelection(selection);
+      await deleteSelection(selection);
     }
 
     // fetch selection again.selection = editorState.selection;

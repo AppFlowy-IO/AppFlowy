@@ -188,6 +188,7 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
       ),
       builder: (context, node, url, title, description, imageUrl) =>
           CustomLinkPreviewWidget(
+        node: node,
         url: url,
         title: title,
         description: description,
@@ -229,6 +230,10 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
         ImageBlockKeys.type,
       ];
 
+      final supportDepthBuilderType = [
+        OutlineBlockKeys.type,
+      ];
+
       final colorAction = [
         OptionAction.divider,
         OptionAction.color,
@@ -239,10 +244,15 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
         OptionAction.align,
       ];
 
+      final depthAction = [
+        OptionAction.depth,
+      ];
+
       final List<OptionAction> actions = [
         ...standardActions,
         if (supportColorBuilderTypes.contains(entry.key)) ...colorAction,
         if (supportAlignBuilderType.contains(entry.key)) ...alignAction,
+        if (supportDepthBuilderType.contains(entry.key)) ...depthAction,
       ];
 
       if (PlatformExtension.isDesktop) {

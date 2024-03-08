@@ -4,7 +4,7 @@ class Space extends StatelessWidget {
   final double width;
   final double height;
 
-  const Space(this.width, this.height, {Key? key}) : super(key: key);
+  const Space(this.width, this.height, {super.key});
 
   @override
   Widget build(BuildContext context) => SizedBox(width: width, height: height);

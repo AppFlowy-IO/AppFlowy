@@ -12,6 +12,7 @@ use lib_infra::future::{Fut, FutureResult};
 use lib_infra::priority_task::TaskDispatcher;
 
 use crate::entities::{FieldType, FieldVisibility};
+use crate::services::calculations::Calculation;
 use crate::services::field::TypeOptionCellDataHandler;
 use crate::services::field_settings::FieldSettings;
 use crate::services::filter::Filter;
@@ -74,11 +75,21 @@ pub trait DatabaseViewOperation: Send + Sync + 'static {
 
   fn insert_sort(&self, view_id: &str, sort: Sort);
 
+  fn move_sort(&self, view_id: &str, from_sort_id: &str, to_sort_id: &str);
+
   fn remove_sort(&self, view_id: &str, sort_id: &str);
 
   fn get_all_sorts(&self, view_id: &str) -> Vec<Sort>;
 
   fn remove_all_sorts(&self, view_id: &str);
+
+  fn get_all_calculations(&self, view_id: &str) -> Vec<Arc<Calculation>>;
+
+  fn get_calculation(&self, view_id: &str, field_id: &str) -> Option<Calculation>;
+
+  fn update_calculation(&self, view_id: &str, calculation: Calculation);
+
+  fn remove_calculation(&self, view_id: &str, calculation_id: &str);
 
   fn get_all_filters(&self, view_id: &str) -> Vec<Arc<Filter>>;
 

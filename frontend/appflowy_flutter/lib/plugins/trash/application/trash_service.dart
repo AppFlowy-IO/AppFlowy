@@ -1,21 +1,22 @@
 import 'dart:async';
-import 'package:dartz/dartz.dart';
+
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/trash.pb.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 
 class TrashService {
-  Future<Either<RepeatedTrashPB, FlowyError>> readTrash() {
+  Future<FlowyResult<RepeatedTrashPB, FlowyError>> readTrash() {
     return FolderEventListTrashItems().send();
   }
 
-  Future<Either<Unit, FlowyError>> putback(String trashId) {
+  Future<FlowyResult<void, FlowyError>> putback(String trashId) {
     final id = TrashIdPB.create()..id = trashId;
 
     return FolderEventRestoreTrashItem(id).send();
   }
 
-  Future<Either<Unit, FlowyError>> deleteViews(List<String> trash) {
+  Future<FlowyResult<void, FlowyError>> deleteViews(List<String> trash) {
     final items = trash.map((trash) {
       return TrashIdPB.create()..id = trash;
     });
@@ -24,11 +25,11 @@ class TrashService {
     return FolderEventPermanentlyDeleteTrashItem(ids).send();
   }
 
-  Future<Either<Unit, FlowyError>> restoreAll() {
+  Future<FlowyResult<void, FlowyError>> restoreAll() {
     return FolderEventRecoverAllTrashItems().send();
   }
 
-  Future<Either<Unit, FlowyError>> deleteAll() {
+  Future<FlowyResult<void, FlowyError>> deleteAll() {
     return FolderEventPermanentlyDeleteAllTrashItem().send();
   }
 }

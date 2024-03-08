@@ -1,30 +1,29 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/core/frameless_window.dart';
+import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/anon_user_bloc.dart';
+import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/presentation/router.dart';
 import 'package:appflowy/user/presentation/widgets/widgets.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_language_view.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/language.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:appflowy_backend/log.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class SkipLogInScreen extends StatefulWidget {
-  static const routeName = '/SkipLogInScreen';
+  const SkipLogInScreen({super.key});
 
-  const SkipLogInScreen({
-    super.key,
-  });
+  static const routeName = '/SkipLogInScreen';
 
   @override
   State<SkipLogInScreen> createState() => _SkipLogInScreenState();
@@ -47,7 +46,6 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
     final size = MediaQuery.of(context).size;
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         const Spacer(),
         FlowyLogoTitle(
@@ -90,11 +88,11 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
   Future<void> _autoRegister(BuildContext context) async {
     final result = await getIt<AuthService>().signUpAsGuest();
     result.fold(
-      (error) {
-        Log.error(error);
-      },
       (user) {
         getIt<AuthRouter>().goHomeScreen(context, user);
+      },
+      (error) {
+        Log.error(error);
       },
     );
   }
@@ -161,9 +159,8 @@ class SubscribeButtons extends StatelessWidget {
               fontColor: Theme.of(context).colorScheme.primary,
               hoverColor: Colors.transparent,
               fillColor: Colors.transparent,
-              onPressed: () => _launchURL(
-                'https://github.com/AppFlowy-IO/appflowy',
-              ),
+              onPressed: () =>
+                  afLaunchUrlString('https://github.com/AppFlowy-IO/appflowy'),
             ),
           ],
         ),
@@ -182,21 +179,13 @@ class SubscribeButtons extends StatelessWidget {
               fontColor: Theme.of(context).colorScheme.primary,
               hoverColor: Colors.transparent,
               fillColor: Colors.transparent,
-              onPressed: () => _launchURL('https://www.appflowy.io/blog'),
+              onPressed: () =>
+                  afLaunchUrlString('https://www.appflowy.io/blog'),
             ),
           ],
         ),
       ],
     );
-  }
-
-  Future<void> _launchURL(String url) async {
-    final uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri);
-    } else {
-      throw 'Could not launch $url';
-    }
   }
 }
 
@@ -252,12 +241,9 @@ class LanguageSelectorOnWelcomePage extends StatelessWidget {
 }
 
 class GoButton extends StatelessWidget {
-  final VoidCallback onPressed;
+  const GoButton({super.key, required this.onPressed});
 
-  const GoButton({
-    super.key,
-    required this.onPressed,
-  });
+  final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {

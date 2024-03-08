@@ -8,6 +8,7 @@ final undoToolbarItem = AppFlowyMobileToolbarItem(
   itemBuilder: (context, editorState, _, __, onAction) {
     final theme = ToolbarColorExtension.of(context);
     return AppFlowyMobileToolbarIconItem(
+      editorState: editorState,
       iconBuilder: (context) {
         final canUndo = editorState.undoManager.undoStack.isNonEmpty;
         return FlowySvg(
@@ -26,6 +27,7 @@ final redoToolbarItem = AppFlowyMobileToolbarItem(
   itemBuilder: (context, editorState, _, __, onAction) {
     final theme = ToolbarColorExtension.of(context);
     return AppFlowyMobileToolbarIconItem(
+      editorState: editorState,
       iconBuilder: (context) {
         final canRedo = editorState.undoManager.redoStack.isNonEmpty;
         return FlowySvg(

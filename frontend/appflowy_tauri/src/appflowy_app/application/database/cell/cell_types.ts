@@ -1,5 +1,6 @@
 import {
   CellPB,
+  CheckboxCellDataPB,
   ChecklistCellDataPB,
   DateCellDataPB,
   FieldType,
@@ -28,7 +29,7 @@ export interface NumberCell extends Cell {
 
 export interface CheckboxCell extends Cell {
   fieldType: FieldType.Checkbox;
-  data: 'Yes' | 'No';
+  data: boolean;
 }
 
 export interface UrlCell extends Cell {
@@ -99,6 +100,10 @@ export type UndeterminedCell =
   | UrlCell
   | ChecklistCell;
 
+const pbToCheckboxCellData = (pb: CheckboxCellDataPB): boolean => (
+  pb.is_checked
+);
+
 const pbToDateTimeCellData = (pb: DateCellDataPB): DateTimeCellData => ({
   date: pb.date,
   time: pb.time,
@@ -136,8 +141,9 @@ function bytesToCellData(bytes: Uint8Array, fieldType: FieldType) {
   switch (fieldType) {
     case FieldType.RichText:
     case FieldType.Number:
-    case FieldType.Checkbox:
       return new TextDecoder().decode(bytes);
+    case FieldType.Checkbox:
+      return pbToCheckboxCellData(CheckboxCellDataPB.deserialize(bytes));
     case FieldType.DateTime:
       return pbToDateTimeCellData(DateCellDataPB.deserialize(bytes));
     case FieldType.LastEditedTime:

@@ -1,9 +1,6 @@
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/editor_state_paste_node_extension.dart';
+import 'package:appflowy/shared/patterns/common_patterns.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-
-RegExp _hrefRegex = RegExp(
-  r'https?://(?:www\.)?[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,}(?:/[^\s]*)?',
-);
 
 extension PasteFromPlainText on EditorState {
   Future<void> pastePlainText(String plainText) async {
@@ -23,7 +20,7 @@ extension PasteFromPlainText on EditorState {
         .map((e) {
           // parse the url content
           final Attributes attributes = {};
-          if (_hrefRegex.hasMatch(e)) {
+          if (hrefRegex.hasMatch(e)) {
             attributes[AppFlowyRichTextKeys.href] = e;
           }
           return Delta()..insert(e, attributes: attributes);
@@ -45,7 +42,7 @@ extension PasteFromPlainText on EditorState {
     if (selection == null ||
         !selection.isSingle ||
         selection.isCollapsed ||
-        !_hrefRegex.hasMatch(plainText)) {
+        !hrefRegex.hasMatch(plainText)) {
       return false;
     }
 

@@ -1,20 +1,24 @@
+import 'dart:async';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/base/type_option_menu_item.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/image_placeholder.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_item/mobile_add_block_toolbar_item.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_toolbar_theme.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/startup/tasks/app_widget.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 final addBlockToolbarItem = AppFlowyMobileToolbarItem(
   itemBuilder: (context, editorState, service, __, onAction) {
     return AppFlowyMobileToolbarIconItem(
+      editorState: editorState,
       icon: FlowySvgs.m_toolbar_add_s,
       onTap: () {
         final selection = editorState.selection;
@@ -22,13 +26,15 @@ final addBlockToolbarItem = AppFlowyMobileToolbarItem(
 
         // delay to wait the keyboard closed.
         Future.delayed(const Duration(milliseconds: 100), () async {
-          editorState.updateSelectionWithReason(
-            selection,
-            extraInfo: {
-              selectionExtraInfoDisableMobileToolbarKey: true,
-              selectionExtraInfoDisableFloatingToolbar: true,
-              selectionExtraInfoDoNotAttachTextService: true,
-            },
+          unawaited(
+            editorState.updateSelectionWithReason(
+              selection,
+              extraInfo: {
+                selectionExtraInfoDisableMobileToolbarKey: true,
+                selectionExtraInfoDisableFloatingToolbar: true,
+                selectionExtraInfoDoNotAttachTextService: true,
+              },
+            ),
           );
           keepEditorFocusNotifier.increase();
           final didAddBlock = await showAddBlockMenu(
@@ -37,8 +43,10 @@ final addBlockToolbarItem = AppFlowyMobileToolbarItem(
             selection: selection!,
           );
           if (didAddBlock != true) {
-            editorState.updateSelectionWithReason(
-              selection,
+            unawaited(
+              editorState.updateSelectionWithReason(
+                selection,
+              ),
             );
           }
         });
@@ -56,17 +64,16 @@ Future<bool?> showAddBlockMenu(
   return showMobileBottomSheet<bool>(
     context,
     showHeader: true,
-    showCloseButton: true,
-    showDivider: false,
     showDragHandle: true,
+    showCloseButton: true,
+    title: LocaleKeys.button_add.tr(),
     barrierColor: Colors.transparent,
     backgroundColor: theme.toolbarMenuBackgroundColor,
     elevation: 20,
-    title: LocaleKeys.button_add.tr(),
-    padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+    enableDraggableScrollable: true,
     builder: (context) {
       return Padding(
-        padding: const EdgeInsets.only(top: 12.0, bottom: 16),
+        padding: EdgeInsets.all(16 * context.scale),
         child: _AddBlockMenu(
           selection: selection,
           editorState: editorState,
@@ -77,7 +84,7 @@ Future<bool?> showAddBlockMenu(
 }
 
 class _AddBlockMenu extends StatelessWidget {
-  _AddBlockMenu({
+  const _AddBlockMenu({
     required this.selection,
     required this.editorState,
   });
@@ -85,143 +92,11 @@ class _AddBlockMenu extends StatelessWidget {
   final Selection selection;
   final EditorState editorState;
 
-  late final _menuItemData = [
-    // paragraph
-    _AddBlockMenuItemData(
-      blockType: ParagraphBlockKeys.type,
-      backgroundColor: const Color(0xFFBAC9FF),
-      text: LocaleKeys.editor_text.tr(),
-      icon: FlowySvgs.m_add_block_paragraph_s,
-      onTap: () => _insertBlock(paragraphNode()),
-    ),
-
-    // heading 1 - 3
-    _AddBlockMenuItemData(
-      blockType: HeadingBlockKeys.type,
-      backgroundColor: const Color(0xFFBAC9FF),
-      text: LocaleKeys.editor_heading1.tr(),
-      icon: FlowySvgs.m_add_block_h1_s,
-      onTap: () => _insertBlock(headingNode(level: 1)),
-    ),
-    _AddBlockMenuItemData(
-      blockType: HeadingBlockKeys.type,
-      backgroundColor: const Color(0xFFBAC9FF),
-      text: LocaleKeys.editor_heading2.tr(),
-      icon: FlowySvgs.m_add_block_h2_s,
-      onTap: () => _insertBlock(headingNode(level: 2)),
-    ),
-    _AddBlockMenuItemData(
-      blockType: HeadingBlockKeys.type,
-      backgroundColor: const Color(0xFFBAC9FF),
-      text: LocaleKeys.editor_heading3.tr(),
-      icon: FlowySvgs.m_add_block_h3_s,
-      onTap: () => _insertBlock(headingNode(level: 3)),
-    ),
-
-    // checkbox
-    _AddBlockMenuItemData(
-      blockType: TodoListBlockKeys.type,
-      backgroundColor: const Color(0xFF91EAF5),
-      text: LocaleKeys.editor_checkbox.tr(),
-      icon: FlowySvgs.m_add_block_checkbox_s,
-      onTap: () => _insertBlock(todoListNode(checked: false)),
-    ),
-
-    // list: bulleted, numbered, toggle
-    _AddBlockMenuItemData(
-      blockType: BulletedListBlockKeys.type,
-      backgroundColor: const Color(0xFFFFB9EF),
-      text: LocaleKeys.editor_bulletedList.tr(),
-      icon: FlowySvgs.m_add_block_bulleted_list_s,
-      onTap: () => _insertBlock(bulletedListNode()),
-    ),
-    _AddBlockMenuItemData(
-      blockType: NumberedListBlockKeys.type,
-      backgroundColor: const Color(0xFFFFB9EF),
-      text: LocaleKeys.editor_numberedList.tr(),
-      icon: FlowySvgs.m_add_block_numbered_list_s,
-      onTap: () => _insertBlock(numberedListNode()),
-    ),
-    _AddBlockMenuItemData(
-      blockType: ToggleListBlockKeys.type,
-      backgroundColor: const Color(0xFFFFB9EF),
-      text: LocaleKeys.document_plugins_toggleList.tr(),
-      icon: FlowySvgs.m_add_block_toggle_s,
-      onTap: () => _insertBlock(toggleListBlockNode()),
-    ),
-
-    // callout, code, math equation, quote
-    _AddBlockMenuItemData(
-      blockType: CalloutBlockKeys.type,
-      backgroundColor: const Color(0xFFCABDFF),
-      text: LocaleKeys.document_plugins_callout.tr(),
-      icon: FlowySvgs.m_add_block_callout_s,
-      onTap: () => _insertBlock(calloutNode()),
-    ),
-    _AddBlockMenuItemData(
-      blockType: CodeBlockKeys.type,
-      backgroundColor: const Color(0xFFCABDFF),
-      text: LocaleKeys.document_selectionMenu_codeBlock.tr(),
-      icon: FlowySvgs.m_add_block_code_s,
-      onTap: () => _insertBlock(codeBlockNode()),
-    ),
-    _AddBlockMenuItemData(
-      blockType: MathEquationBlockKeys.type,
-      backgroundColor: const Color(0xFFCABDFF),
-      text: LocaleKeys.document_plugins_mathEquation_name.tr(),
-      icon: FlowySvgs.m_add_block_formula_s,
-      onTap: () {
-        AppGlobals.rootNavKey.currentContext?.pop(true);
-        Future.delayed(const Duration(milliseconds: 100), () {
-          editorState.insertMathEquation(selection);
-        });
-      },
-    ),
-    _AddBlockMenuItemData(
-      blockType: QuoteBlockKeys.type,
-      backgroundColor: const Color(0xFFFDEDA7),
-      text: LocaleKeys.editor_quote.tr(),
-      icon: FlowySvgs.m_add_block_quote_s,
-      onTap: () => _insertBlock(quoteNode()),
-    ),
-
-    // divider
-    _AddBlockMenuItemData(
-      blockType: DividerBlockKeys.type,
-      backgroundColor: const Color(0xFF98F4CD),
-      text: LocaleKeys.editor_divider.tr(),
-      icon: FlowySvgs.m_add_block_divider_s,
-      onTap: () {
-        AppGlobals.rootNavKey.currentContext?.pop(true);
-        Future.delayed(const Duration(milliseconds: 100), () {
-          editorState.insertDivider(selection);
-        });
-      },
-    ),
-
-    // image
-    _AddBlockMenuItemData(
-      blockType: DividerBlockKeys.type,
-      backgroundColor: const Color(0xFF98F4CD),
-      text: LocaleKeys.editor_image.tr(),
-      icon: FlowySvgs.m_toolbar_imae_lg,
-      onTap: () async {
-        AppGlobals.rootNavKey.currentContext?.pop(true);
-        Future.delayed(const Duration(milliseconds: 400), () async {
-          final imagePlaceholderKey = GlobalKey<ImagePlaceholderState>();
-          await editorState.insertEmptyImageBlock(imagePlaceholderKey);
-        });
-      },
-    ),
-  ];
-
   @override
   Widget build(BuildContext context) {
-    return _GridView(
-      mainAxisSpacing: 20 * context.scale,
-      itemWidth: 68.0 * context.scale,
-      crossAxisCount: 4,
-      children: _menuItemData.map((e) => _AddBlockMenuItem(data: e)).toList(),
+    return TypeOptionMenu<String>(
+      values: buildTypeOptionMenuItemValues(context),
+      scaleFactor: context.scale,
     );
   }
 
@@ -234,93 +109,187 @@ class _AddBlockMenu extends StatelessWidget {
       );
     });
   }
-}
 
-class _AddBlockMenuItemData {
-  const _AddBlockMenuItemData({
-    required this.blockType,
-    required this.backgroundColor,
-    required this.text,
-    required this.icon,
-    required this.onTap,
-  });
-
-  final String blockType;
-  final Color backgroundColor;
-  final String text;
-  final FlowySvgData icon;
-  final VoidCallback onTap;
-}
-
-class _AddBlockMenuItem extends StatelessWidget {
-  const _AddBlockMenuItem({
-    required this.data,
-  });
-
-  final _AddBlockMenuItemData data;
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: data.onTap,
-      child: Column(
-        children: [
-          Container(
-            height: 68.0 * context.scale,
-            width: 68.0 * context.scale,
-            decoration: ShapeDecoration(
-              color: data.backgroundColor,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-            ),
-            padding: EdgeInsets.all(20 * context.scale),
-            child: FlowySvg(
-              data.icon,
-              color: Colors.black,
-            ),
-          ),
-          const VSpace(4),
-          FlowyText(
-            data.text,
-            fontSize: 12.0,
-          ),
-        ],
+  List<TypeOptionMenuItemValue<String>> buildTypeOptionMenuItemValues(
+    BuildContext context,
+  ) {
+    final colorMap = _colorMap(context);
+    return [
+      // heading 1 - 3
+      TypeOptionMenuItemValue(
+        value: HeadingBlockKeys.type,
+        backgroundColor: colorMap[HeadingBlockKeys.type]!,
+        text: LocaleKeys.editor_heading1.tr(),
+        icon: FlowySvgs.m_add_block_h1_s,
+        onTap: (_, __) => _insertBlock(headingNode(level: 1)),
       ),
-    );
+      TypeOptionMenuItemValue(
+        value: HeadingBlockKeys.type,
+        backgroundColor: colorMap[HeadingBlockKeys.type]!,
+        text: LocaleKeys.editor_heading2.tr(),
+        icon: FlowySvgs.m_add_block_h2_s,
+        onTap: (_, __) => _insertBlock(headingNode(level: 2)),
+      ),
+      TypeOptionMenuItemValue(
+        value: HeadingBlockKeys.type,
+        backgroundColor: colorMap[HeadingBlockKeys.type]!,
+        text: LocaleKeys.editor_heading3.tr(),
+        icon: FlowySvgs.m_add_block_h3_s,
+        onTap: (_, __) => _insertBlock(headingNode(level: 3)),
+      ),
+
+      // paragraph
+      TypeOptionMenuItemValue(
+        value: ParagraphBlockKeys.type,
+        backgroundColor: colorMap[ParagraphBlockKeys.type]!,
+        text: LocaleKeys.editor_text.tr(),
+        icon: FlowySvgs.m_add_block_paragraph_s,
+        onTap: (_, __) => _insertBlock(paragraphNode()),
+      ),
+
+      // checkbox
+      TypeOptionMenuItemValue(
+        value: TodoListBlockKeys.type,
+        backgroundColor: colorMap[TodoListBlockKeys.type]!,
+        text: LocaleKeys.editor_checkbox.tr(),
+        icon: FlowySvgs.m_add_block_checkbox_s,
+        onTap: (_, __) => _insertBlock(todoListNode(checked: false)),
+      ),
+
+      // quote
+      TypeOptionMenuItemValue(
+        value: QuoteBlockKeys.type,
+        backgroundColor: colorMap[QuoteBlockKeys.type]!,
+        text: LocaleKeys.editor_quote.tr(),
+        icon: FlowySvgs.m_add_block_quote_s,
+        onTap: (_, __) => _insertBlock(quoteNode()),
+      ),
+
+      // bulleted list, numbered list, toggle list
+      TypeOptionMenuItemValue(
+        value: BulletedListBlockKeys.type,
+        backgroundColor: colorMap[BulletedListBlockKeys.type]!,
+        text: LocaleKeys.editor_bulletedListShortForm.tr(),
+        icon: FlowySvgs.m_add_block_bulleted_list_s,
+        onTap: (_, __) => _insertBlock(bulletedListNode()),
+      ),
+      TypeOptionMenuItemValue(
+        value: NumberedListBlockKeys.type,
+        backgroundColor: colorMap[NumberedListBlockKeys.type]!,
+        text: LocaleKeys.editor_numberedListShortForm.tr(),
+        icon: FlowySvgs.m_add_block_numbered_list_s,
+        onTap: (_, __) => _insertBlock(numberedListNode()),
+      ),
+      TypeOptionMenuItemValue(
+        value: ToggleListBlockKeys.type,
+        backgroundColor: colorMap[ToggleListBlockKeys.type]!,
+        text: LocaleKeys.editor_toggleListShortForm.tr(),
+        icon: FlowySvgs.m_add_block_toggle_s,
+        onTap: (_, __) => _insertBlock(toggleListBlockNode()),
+      ),
+
+      // image
+      TypeOptionMenuItemValue(
+        value: ImageBlockKeys.type,
+        backgroundColor: colorMap[ImageBlockKeys.type]!,
+        text: LocaleKeys.editor_image.tr(),
+        icon: FlowySvgs.m_add_block_image_s,
+        onTap: (_, __) async {
+          AppGlobals.rootNavKey.currentContext?.pop(true);
+          Future.delayed(const Duration(milliseconds: 400), () async {
+            final imagePlaceholderKey = GlobalKey<ImagePlaceholderState>();
+            await editorState.insertEmptyImageBlock(imagePlaceholderKey);
+          });
+        },
+      ),
+
+      // date
+      TypeOptionMenuItemValue(
+        value: ParagraphBlockKeys.type,
+        backgroundColor: colorMap['date']!,
+        text: LocaleKeys.editor_date.tr(),
+        icon: FlowySvgs.m_add_block_date_s,
+        onTap: (_, __) => _insertBlock(dateMentionNode()),
+      ),
+
+      // divider
+      TypeOptionMenuItemValue(
+        value: DividerBlockKeys.type,
+        backgroundColor: colorMap[DividerBlockKeys.type]!,
+        text: LocaleKeys.editor_divider.tr(),
+        icon: FlowySvgs.m_add_block_divider_s,
+        onTap: (_, __) {
+          AppGlobals.rootNavKey.currentContext?.pop(true);
+          Future.delayed(const Duration(milliseconds: 100), () {
+            editorState.insertDivider(selection);
+          });
+        },
+      ),
+
+      // callout, code, math equation
+      TypeOptionMenuItemValue(
+        value: CalloutBlockKeys.type,
+        backgroundColor: colorMap[CalloutBlockKeys.type]!,
+        text: LocaleKeys.document_plugins_callout.tr(),
+        icon: FlowySvgs.m_add_block_callout_s,
+        onTap: (_, __) => _insertBlock(calloutNode()),
+      ),
+      TypeOptionMenuItemValue(
+        value: CodeBlockKeys.type,
+        backgroundColor: colorMap[CodeBlockKeys.type]!,
+        text: LocaleKeys.editor_codeBlockShortForm.tr(),
+        icon: FlowySvgs.m_add_block_code_s,
+        onTap: (_, __) => _insertBlock(codeBlockNode()),
+      ),
+      TypeOptionMenuItemValue(
+        value: MathEquationBlockKeys.type,
+        backgroundColor: colorMap[MathEquationBlockKeys.type]!,
+        text: LocaleKeys.editor_mathEquationShortForm.tr(),
+        icon: FlowySvgs.m_add_block_formula_s,
+        onTap: (_, __) {
+          AppGlobals.rootNavKey.currentContext?.pop(true);
+          Future.delayed(const Duration(milliseconds: 100), () {
+            editorState.insertMathEquation(selection);
+          });
+        },
+      ),
+    ];
   }
-}
 
-class _GridView extends StatelessWidget {
-  const _GridView({
-    required this.children,
-    required this.crossAxisCount,
-    required this.mainAxisSpacing,
-    required this.itemWidth,
-  });
-
-  final List<Widget> children;
-  final int crossAxisCount;
-  final double mainAxisSpacing;
-  final double itemWidth;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        for (var i = 0; i < children.length; i += crossAxisCount)
-          Padding(
-            padding: EdgeInsets.only(bottom: mainAxisSpacing),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                for (var j = 0; j < crossAxisCount; j++)
-                  i + j < children.length ? children[i + j] : HSpace(itemWidth),
-              ],
-            ),
-          ),
-      ],
-    );
+  Map<String, Color> _colorMap(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    if (isDarkMode) {
+      return {
+        HeadingBlockKeys.type: const Color(0xFF5465A1),
+        ParagraphBlockKeys.type: const Color(0xFF5465A1),
+        TodoListBlockKeys.type: const Color(0xFF4BB299),
+        QuoteBlockKeys.type: const Color(0xFFBAAC74),
+        BulletedListBlockKeys.type: const Color(0xFFA35F94),
+        NumberedListBlockKeys.type: const Color(0xFFA35F94),
+        ToggleListBlockKeys.type: const Color(0xFFA35F94),
+        ImageBlockKeys.type: const Color(0xFFBAAC74),
+        'date': const Color(0xFF40AAB8),
+        DividerBlockKeys.type: const Color(0xFF4BB299),
+        CalloutBlockKeys.type: const Color(0xFF66599B),
+        CodeBlockKeys.type: const Color(0xFF66599B),
+        MathEquationBlockKeys.type: const Color(0xFF66599B),
+      };
+    }
+    return {
+      HeadingBlockKeys.type: const Color(0xFFBECCFF),
+      ParagraphBlockKeys.type: const Color(0xFFBECCFF),
+      TodoListBlockKeys.type: const Color(0xFF98F4CD),
+      QuoteBlockKeys.type: const Color(0xFFFDEDA7),
+      BulletedListBlockKeys.type: const Color(0xFFFFB9EF),
+      NumberedListBlockKeys.type: const Color(0xFFFFB9EF),
+      ToggleListBlockKeys.type: const Color(0xFFFFB9EF),
+      ImageBlockKeys.type: const Color(0xFFFDEDA7),
+      'date': const Color(0xFF91EAF5),
+      DividerBlockKeys.type: const Color(0xFF98F4CD),
+      CalloutBlockKeys.type: const Color(0xFFCABDFF),
+      CodeBlockKeys.type: const Color(0xFFCABDFF),
+      MathEquationBlockKeys.type: const Color(0xFFCABDFF),
+    };
   }
 }
 
@@ -336,7 +305,7 @@ extension on EditorState {
       node,
     );
     transaction.afterSelection = Selection.collapsed(
-      Position(path: path, offset: 0),
+      Position(path: path),
     );
     transaction.selectionExtraInfo = {};
     await apply(transaction);

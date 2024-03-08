@@ -1,0 +1,58 @@
+
+
+.sketch-picker {
+  background-color: var(--bg-body) !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+.sketch-picker .flexbox-fix {
+  border-color: var(--line-divider) !important;
+}
+.sketch-picker [id^='rc-editable-input'] {
+  background-color: var(--bg-body) !important;
+  border-color: var(--line-divider) !important;
+  color: var(--text-title) !important;
+  box-shadow: var(--line-border) 0px 0px 0px 1px inset !important;
+}
+
+.appflowy-date-picker-calendar {
+  width: 100%;
+
+}
+
+.grid-sticky-header::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+.grid-scroll-container::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+
+.appflowy-scroll-container {
+  &::-webkit-scrollbar {
+    width: 0px;
+  }
+}
+
+.workspaces {
+  ::-webkit-scrollbar {
+    width: 0px;
+  }
+}
+
+
+
+.MuiPopover-root, .MuiPaper-root {
+  ::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
+}
+
+.view-icon {
+  &:hover {
+    background-color: rgba(156, 156, 156, 0.20);
+  }
+}

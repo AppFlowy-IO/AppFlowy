@@ -14,11 +14,12 @@ import 'create_filter_list.dart';
 import 'filter_menu_item.dart';
 
 class FilterMenu extends StatelessWidget {
-  final FieldController fieldController;
   const FilterMenu({
-    required this.fieldController,
     super.key,
+    required this.fieldController,
   });
+
+  final FieldController fieldController;
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +35,12 @@ class FilterMenu extends StatelessWidget {
           final List<Widget> children = [];
           children.addAll(
             state.filters
-                .map((filterInfo) => FilterMenuItem(filterInfo: filterInfo))
+                .map(
+                  (filterInfo) => FilterMenuItem(
+                    key: ValueKey(filterInfo.filter.id),
+                    filterInfo: filterInfo,
+                  ),
+                )
                 .toList(),
           );
 
@@ -62,8 +68,9 @@ class FilterMenu extends StatelessWidget {
 }
 
 class AddFilterButton extends StatefulWidget {
-  final String viewId;
   const AddFilterButton({required this.viewId, super.key});
+
+  final String viewId;
 
   @override
   State<AddFilterButton> createState() => _AddFilterButtonState();

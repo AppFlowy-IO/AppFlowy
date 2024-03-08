@@ -1,17 +1,20 @@
 import 'dart:math';
 
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
+
+import 'package:appflowy/core/helpers/url_launcher.dart';
+import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_item/utils.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
-import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_menu.dart';
 import 'package:appflowy/util/google_font_family_extension.dart';
 import 'package:appflowy/workspace/application/appearance_defaults.dart';
+import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:collection/collection.dart';
-import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -83,6 +86,8 @@ class EditorStyleCustomizer {
         ),
       ),
       textSpanDecorator: customizeAttributeDecorator,
+      textScaleFactor:
+          context.watch<AppearanceSettingsCubit>().state.textScaleFactor,
     );
   }
 
@@ -130,8 +135,9 @@ class EditorStyleCustomizer {
       ),
       textSpanDecorator: customizeAttributeDecorator,
       mobileDragHandleBallSize: const Size.square(12.0),
-      mobileDragHandleWidth: 2.0,
       magnifierSize: const Size(144, 96),
+      textScaleFactor:
+          context.watch<AppearanceSettingsCubit>().state.textScaleFactor,
     );
   }
 
@@ -252,9 +258,7 @@ class EditorStyleCustomizer {
           key: ValueKey(
             switch (type) {
               MentionType.page => mention[MentionBlockKeys.pageId],
-              MentionType.date ||
-              MentionType.reminder =>
-                mention[MentionBlockKeys.date],
+              MentionType.date => mention[MentionBlockKeys.date],
               _ => MentionBlockKeys.mention,
             },
           ),
@@ -290,7 +294,7 @@ class EditorStyleCustomizer {
           ..onTap = () {
             final editorState = context.read<EditorState>();
             if (editorState.selection == null) {
-              safeLaunchUrl(href);
+              afLaunchUrlString(href);
               return;
             }
 

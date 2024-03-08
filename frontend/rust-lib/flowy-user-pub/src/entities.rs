@@ -100,7 +100,7 @@ impl UserAuthResponse for AuthResponse {
 
 #[derive(Clone, Debug)]
 pub struct UserCredentials {
-  /// Currently, the token is only used when the [Authenticator] is AFCloud
+  /// Currently, the token is only used when the [Authenticator] is AppFlowyCloud
   pub token: Option<String>,
 
   /// The user id
@@ -139,7 +139,7 @@ pub struct UserWorkspace {
   pub created_at: DateTime<Utc>,
   /// The database storage id is used indexing all the database views in current workspace.
   #[serde(rename = "database_storage_id")]
-  pub database_view_tracker_id: String,
+  pub workspace_database_object_id: String,
 }
 
 impl UserWorkspace {
@@ -148,7 +148,7 @@ impl UserWorkspace {
       id: workspace_id.to_string(),
       name: "".to_string(),
       created_at: Utc::now(),
-      database_view_tracker_id: Uuid::new_v4().to_string(),
+      workspace_database_object_id: Uuid::new_v4().to_string(),
     }
   }
 }
@@ -375,6 +375,7 @@ pub struct AFCloudOAuthParams {
 
 #[derive(Clone, Debug)]
 pub enum UserTokenState {
+  Init,
   Refresh { token: String },
   Invalid,
 }
@@ -390,4 +391,8 @@ pub struct WorkspaceMember {
   pub email: String,
   pub role: Role,
   pub name: String,
+}
+
+pub fn awareness_oid_from_user_uuid(user_uuid: &Uuid) -> Uuid {
+  Uuid::new_v5(user_uuid, b"user_awareness")
 }

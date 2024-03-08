@@ -1,8 +1,8 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/field/type_option/edit_select_option_bloc.dart';
-import 'package:appflowy/plugins/database/widgets/row/cells/select_option_cell/extension.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
+import 'package:appflowy/plugins/database/widgets/cell_editor/extension.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/select_option_entities.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
@@ -17,19 +17,20 @@ import '../../../../layout/sizes.dart';
 import '../../../common/type_option_separator.dart';
 
 class SelectOptionTypeOptionEditor extends StatelessWidget {
-  final SelectOptionPB option;
-  final VoidCallback onDeleted;
-  final Function(SelectOptionPB) onUpdated;
-  final bool showOptions;
-  final bool autoFocus;
   const SelectOptionTypeOptionEditor({
+    super.key,
     required this.option,
     required this.onDeleted,
     required this.onUpdated,
     this.showOptions = true,
     this.autoFocus = true,
-    super.key,
   });
+
+  final SelectOptionPB option;
+  final VoidCallback onDeleted;
+  final Function(SelectOptionPB) onUpdated;
+  final bool showOptions;
+  final bool autoFocus;
 
   static String get identifier => (SelectOptionTypeOptionEditor).toString();
 
@@ -42,7 +43,9 @@ class SelectOptionTypeOptionEditor extends StatelessWidget {
           BlocListener<EditSelectOptionBloc, EditSelectOptionState>(
             listenWhen: (p, c) => p.deleted != c.deleted,
             listener: (context, state) {
-              state.deleted.fold(() => null, (_) => onDeleted());
+              if (state.deleted) {
+                onDeleted();
+              }
             },
           ),
           BlocListener<EditSelectOptionBloc, EditSelectOptionState>(
@@ -118,12 +121,13 @@ class _DeleteTag extends StatelessWidget {
 }
 
 class _OptionNameTextField extends StatelessWidget {
-  final String name;
-  final bool autoFocus;
   const _OptionNameTextField({
     required this.name,
     required this.autoFocus,
   });
+
+  final String name;
+  final bool autoFocus;
 
   @override
   Widget build(BuildContext context) {

@@ -29,8 +29,16 @@ class FlowySDK {
   Future<void> init(String configuration) async {
     final port = RustStreamReceiver.shared.port;
     ffi.set_stream_port(port);
-
     ffi.store_dart_post_cobject(NativeApi.postCObject);
-    ffi.init_sdk(configuration.toNativeUtf8());
+
+    // final completer = Completer<Uint8List>();
+    // // Create a SendPort that accepts only one message.
+    // final sendPort = singleCompletePort(completer);
+
+    final code = ffi.init_sdk(0, configuration.toNativeUtf8());
+    if (code != 0) {
+      throw Exception('Failed to initialize the SDK');
+    }
+    // return completer.future;
   }
 }

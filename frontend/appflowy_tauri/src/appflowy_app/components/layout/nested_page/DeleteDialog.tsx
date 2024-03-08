@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { ViewLayoutPB } from '@/services/backend';
-import DeleteConfirmDialog from '$app/components/_shared/delete_confirm_dialog/DeleteConfirmDialog';
+import DeleteConfirmDialog from '$app/components/_shared/confirm_dialog/DeleteConfirmDialog';
 
 function DeleteDialog({
   layout,

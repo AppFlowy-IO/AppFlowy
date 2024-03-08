@@ -27,14 +27,12 @@ class BottomSheetHeader extends StatelessWidget {
             child: Align(
               alignment: Alignment.centerLeft,
               child: AppBarCloseButton(
-                margin: EdgeInsets.zero,
                 onTap: onClose,
               ),
             ),
           ),
         if (title != null)
           Align(
-            alignment: Alignment.center,
             child: FlowyText.medium(
               title!,
               fontSize: 16,
@@ -51,7 +49,7 @@ class BottomSheetHeader extends StatelessWidget {
                 color: Color(0xFF00BCF0),
               ),
               text: FlowyText.medium(
-                LocaleKeys.button_Done.tr(),
+                LocaleKeys.button_done.tr(),
                 color: Colors.white,
                 fontSize: 16.0,
               ),

@@ -1,8 +1,8 @@
+import 'dart:io';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/grid/application/sort/sort_editor_bloc.dart';
-import 'package:appflowy/plugins/database/grid/application/sort/util.dart';
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/sort_entities.pbenum.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -12,7 +12,6 @@ import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'dart:math' as math;
 
 import 'create_sort_list.dart';
 import 'order_panel.dart';
@@ -20,16 +19,7 @@ import 'sort_choice_button.dart';
 import 'sort_info.dart';
 
 class SortEditor extends StatefulWidget {
-  final String viewId;
-  final List<SortInfo> sortInfos;
-  final FieldController fieldController;
-
-  const SortEditor({
-    super.key,
-    required this.viewId,
-    required this.fieldController,
-    required this.sortInfos,
-  });
+  const SortEditor({super.key});
 
   @override
   State<SortEditor> createState() => _SortEditorState();
@@ -40,118 +30,159 @@ class _SortEditorState extends State<SortEditor> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => SortEditorBloc(
-        viewId: widget.viewId,
-        fieldController: widget.fieldController,
-        sortInfos: widget.sortInfos,
-      )..add(const SortEditorEvent.initial()),
-      child: BlocBuilder<SortEditorBloc, SortEditorState>(
-        builder: (context, state) {
-          return Column(
+    return BlocBuilder<SortEditorBloc, SortEditorState>(
+      builder: (context, state) {
+        final sortInfos = state.sortInfos;
+        return ReorderableListView.builder(
+          onReorder: (oldIndex, newIndex) => context
+              .read<SortEditorBloc>()
+              .add(SortEditorEvent.reorderSort(oldIndex, newIndex)),
+          itemCount: state.sortInfos.length,
+          itemBuilder: (context, index) => DatabaseSortItem(
+            key: ValueKey(sortInfos[index].sortId),
+            index: index,
+            sortInfo: sortInfos[index],
+            popoverMutex: popoverMutex,
+          ),
+          proxyDecorator: (child, index, animation) => Material(
+            color: Colors.transparent,
+            child: Stack(
+              children: [
+                BlocProvider.value(
+                  value: context.read<SortEditorBloc>(),
+                  child: child,
+                ),
+                MouseRegion(
+                  cursor: Platform.isWindows
+                      ? SystemMouseCursors.click
+                      : SystemMouseCursors.grabbing,
+                  child: const SizedBox.expand(),
+                ),
+              ],
+            ),
+          ),
+          shrinkWrap: true,
+          buildDefaultDragHandles: false,
+          footer: Row(
             children: [
-              ...state.sortInfos.map(
-                (info) => Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 6),
-                  child: DatabaseSortItem(
-                    sortInfo: info,
-                    popoverMutex: popoverMutex,
-                  ),
+              Flexible(
+                child: DatabaseAddSortButton(
+                  disable: state.creatableFields.isEmpty,
+                  popoverMutex: popoverMutex,
                 ),
               ),
-              Row(
-                children: [
-                  Flexible(
-                    child: DatabaseAddSortButton(
-                      viewId: widget.viewId,
-                      fieldController: widget.fieldController,
-                      popoverMutex: popoverMutex,
-                    ),
-                  ),
-                  const HSpace(6),
-                  Flexible(
-                    child: DatabaseDeleteSortButton(popoverMutex: popoverMutex),
-                  ),
-                ],
+              const HSpace(6),
+              Flexible(
+                child: DeleteAllSortsButton(
+                  popoverMutex: popoverMutex,
+                ),
               ),
             ],
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 }
 
 class DatabaseSortItem extends StatelessWidget {
-  final SortInfo sortInfo;
-  final PopoverMutex popoverMutex;
-
   const DatabaseSortItem({
     super.key,
+    required this.index,
     required this.popoverMutex,
     required this.sortInfo,
   });
 
+  final int index;
+  final PopoverMutex popoverMutex;
+  final SortInfo sortInfo;
+
   @override
   Widget build(BuildContext context) {
-    final deleteButton = FlowyIconButton(
-      width: 26,
-      onPressed: () => context
-          .read<SortEditorBloc>()
-          .add(SortEditorEvent.deleteSort(sortInfo)),
-      iconPadding: const EdgeInsets.all(5),
-      hoverColor: AFThemeExtension.of(context).lightGreyHover,
-      icon:
-          FlowySvg(FlowySvgs.close_s, color: Theme.of(context).iconTheme.color),
-    );
-
-    return Row(
-      children: [
-        SizedBox(
-          height: 26,
-          child: SortChoiceButton(
-            text: sortInfo.fieldInfo.name,
-            editable: false,
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      color: Theme.of(context).cardColor,
+      child: Row(
+        children: [
+          ReorderableDragStartListener(
+            index: index,
+            child: MouseRegion(
+              cursor: Platform.isWindows
+                  ? SystemMouseCursors.click
+                  : SystemMouseCursors.grab,
+              child: SizedBox(
+                width: 14 + 12,
+                height: 14,
+                child: FlowySvg(
+                  FlowySvgs.drag_element_s,
+                  size: const Size.square(14),
+                  color: Theme.of(context).iconTheme.color,
+                ),
+              ),
+            ),
           ),
-        ),
-        const HSpace(6),
-        SizedBox(
-          height: 26,
-          child: DatabaseSortItemOrderButton(
-            sortInfo: sortInfo,
-            popoverMutex: popoverMutex,
+          Flexible(
+            fit: FlexFit.tight,
+            child: SizedBox(
+              height: 26,
+              child: SortChoiceButton(
+                text: sortInfo.fieldInfo.name,
+                editable: false,
+              ),
+            ),
           ),
-        ),
-        const HSpace(6),
-        const Spacer(),
-        deleteButton,
-      ],
+          const HSpace(6),
+          Flexible(
+            fit: FlexFit.tight,
+            child: SizedBox(
+              height: 26,
+              child: SortConditionButton(
+                sortInfo: sortInfo,
+                popoverMutex: popoverMutex,
+              ),
+            ),
+          ),
+          const HSpace(6),
+          FlowyIconButton(
+            width: 26,
+            onPressed: () {
+              context
+                  .read<SortEditorBloc>()
+                  .add(SortEditorEvent.deleteSort(sortInfo));
+              PopoverContainer.of(context).close();
+            },
+            hoverColor: AFThemeExtension.of(context).lightGreyHover,
+            icon: FlowySvg(
+              FlowySvgs.trash_m,
+              color: Theme.of(context).iconTheme.color,
+              size: const Size.square(16),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
 
 extension SortConditionExtension on SortConditionPB {
   String get title {
-    switch (this) {
-      case SortConditionPB.Descending:
-        return LocaleKeys.grid_sort_descending.tr();
-      default:
-        return LocaleKeys.grid_sort_ascending.tr();
-    }
+    return switch (this) {
+      SortConditionPB.Ascending => LocaleKeys.grid_sort_ascending.tr(),
+      SortConditionPB.Descending => LocaleKeys.grid_sort_descending.tr(),
+      _ => throw UnimplementedError(),
+    };
   }
 }
 
 class DatabaseAddSortButton extends StatefulWidget {
-  final String viewId;
-  final FieldController fieldController;
-  final PopoverMutex popoverMutex;
-
   const DatabaseAddSortButton({
     super.key,
-    required this.viewId,
-    required this.fieldController,
+    required this.disable,
     required this.popoverMutex,
   });
+
+  final bool disable;
+  final PopoverMutex popoverMutex;
 
   @override
   State<DatabaseAddSortButton> createState() => _DatabaseAddSortButtonState();
@@ -167,36 +198,38 @@ class _DatabaseAddSortButtonState extends State<DatabaseAddSortButton> {
       mutex: widget.popoverMutex,
       direction: PopoverDirection.bottomWithLeftAligned,
       constraints: BoxConstraints.loose(const Size(200, 300)),
-      offset: const Offset(0, 8),
+      offset: const Offset(-6, 8),
       triggerActions: PopoverTriggerFlags.none,
       asBarrier: true,
+      popupBuilder: (popoverContext) {
+        return BlocProvider.value(
+          value: context.read<SortEditorBloc>(),
+          child: CreateDatabaseViewSortList(
+            onTap: () => _popoverController.close(),
+          ),
+        );
+      },
+      onClose: () => context
+          .read<SortEditorBloc>()
+          .add(const SortEditorEvent.updateCreateSortFilter("")),
       child: SizedBox(
         height: GridSize.popoverItemHeight,
         child: FlowyButton(
           hoverColor: AFThemeExtension.of(context).greyHover,
-          disable: getCreatableSorts(widget.fieldController.fieldInfos).isEmpty,
+          disable: widget.disable,
           text: FlowyText.medium(LocaleKeys.grid_sort_addSort.tr()),
           onTap: () => _popoverController.show(),
           leftIcon: const FlowySvg(FlowySvgs.add_s),
         ),
       ),
-      popupBuilder: (BuildContext context) {
-        return GridCreateSortList(
-          viewId: widget.viewId,
-          fieldController: widget.fieldController,
-          onClosed: () => _popoverController.close(),
-        );
-      },
     );
   }
 }
 
-class DatabaseDeleteSortButton extends StatelessWidget {
+class DeleteAllSortsButton extends StatelessWidget {
+  const DeleteAllSortsButton({super.key, required this.popoverMutex});
+
   final PopoverMutex popoverMutex;
-  const DatabaseDeleteSortButton({
-    super.key,
-    required this.popoverMutex,
-  });
 
   @override
   Widget build(BuildContext context) {
@@ -220,31 +253,25 @@ class DatabaseDeleteSortButton extends StatelessWidget {
   }
 }
 
-class DatabaseSortItemOrderButton extends StatefulWidget {
-  final SortInfo sortInfo;
-  final PopoverMutex popoverMutex;
-  const DatabaseSortItemOrderButton({
+class SortConditionButton extends StatefulWidget {
+  const SortConditionButton({
     super.key,
     required this.popoverMutex,
     required this.sortInfo,
   });
 
+  final PopoverMutex popoverMutex;
+  final SortInfo sortInfo;
+
   @override
-  State<DatabaseSortItemOrderButton> createState() =>
-      _DatabaseSortItemOrderButtonState();
+  State<SortConditionButton> createState() => _SortConditionButtonState();
 }
 
-class _DatabaseSortItemOrderButtonState
-    extends State<DatabaseSortItemOrderButton> {
+class _SortConditionButtonState extends State<SortConditionButton> {
   final PopoverController popoverController = PopoverController();
 
   @override
   Widget build(BuildContext context) {
-    final arrow = Transform.rotate(
-      angle: -math.pi / 2,
-      child: const FlowySvg(FlowySvgs.arrow_left_s),
-    );
-
     return AppFlowyPopover(
       controller: popoverController,
       mutex: widget.popoverMutex,
@@ -254,16 +281,22 @@ class _DatabaseSortItemOrderButtonState
       popupBuilder: (BuildContext popoverContext) {
         return OrderPanel(
           onCondition: (condition) {
-            context
-                .read<SortEditorBloc>()
-                .add(SortEditorEvent.setCondition(widget.sortInfo, condition));
+            context.read<SortEditorBloc>().add(
+                  SortEditorEvent.editSort(
+                    sortId: widget.sortInfo.sortId,
+                    condition: condition,
+                  ),
+                );
             popoverController.close();
           },
         );
       },
       child: SortChoiceButton(
         text: widget.sortInfo.sortPB.condition.title,
-        rightIcon: arrow,
+        rightIcon: FlowySvg(
+          FlowySvgs.arrow_down_s,
+          color: Theme.of(context).iconTheme.color,
+        ),
         onTap: () => popoverController.show(),
       ),
     );

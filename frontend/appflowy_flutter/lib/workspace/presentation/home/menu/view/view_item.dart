@@ -5,6 +5,7 @@ import 'package:appflowy/plugins/base/icon/icon_picker.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
+import 'package:appflowy/workspace/application/sidebar/rename_view/rename_view_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
@@ -15,6 +16,7 @@ import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.
 import 'package:appflowy/workspace/presentation/home/menu/view/view_add_button.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_more_action_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
+import 'package:appflowy/workspace/presentation/widgets/rename_view_popover.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -40,6 +42,7 @@ class ViewItem extends StatelessWidget {
     this.isDraggable = true,
     required this.isFeedback,
     this.height = 28.0,
+    this.isHoverEnabled = true,
   });
 
   final ViewPB view;
@@ -73,6 +76,8 @@ class ViewItem extends StatelessWidget {
 
   final double height;
 
+  final bool isHoverEnabled;
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -99,6 +104,7 @@ class ViewItem extends StatelessWidget {
             isDraggable: isDraggable,
             isFeedback: isFeedback,
             height: height,
+            isHoverEnabled: isHoverEnabled,
           );
         },
       ),
@@ -125,6 +131,7 @@ class InnerViewItem extends StatelessWidget {
     this.isFirstChild = false,
     required this.isFeedback,
     required this.height,
+    this.isHoverEnabled = true,
   });
 
   final ViewPB view;
@@ -145,6 +152,8 @@ class InnerViewItem extends StatelessWidget {
   final ViewItemOnSelected onSelected;
   final ViewItemOnSelected? onTertiarySelected;
   final double height;
+
+  final bool isHoverEnabled;
 
   @override
   Widget build(BuildContext context) {
@@ -262,6 +271,7 @@ class SingleInnerViewItem extends StatefulWidget {
     this.onTertiarySelected,
     required this.isFeedback,
     required this.height,
+    this.isHoverEnabled = true,
   });
 
   final ViewPB view;
@@ -280,6 +290,8 @@ class SingleInnerViewItem extends StatefulWidget {
   final FolderCategoryType categoryType;
   final double height;
 
+  final bool isHoverEnabled;
+
   @override
   State<SingleInnerViewItem> createState() => _SingleInnerViewItemState();
 }
@@ -290,8 +302,14 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.isFeedback) {
-      return _buildViewItem(false);
+    final isSelected =
+        getIt<MenuSharedState>().latestOpenView?.id == widget.view.id;
+
+    if (widget.isFeedback || !widget.isHoverEnabled) {
+      return _buildViewItem(
+        false,
+        !widget.isHoverEnabled ? isSelected : false,
+      );
     }
 
     return FlowyHover(
@@ -301,14 +319,12 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       resetHoverOnRebuild: widget.showActions || !isIconPickerOpened,
       buildWhenOnHover: () =>
           !widget.showActions && !_isDragging && !isIconPickerOpened,
-      builder: (_, onHover) => _buildViewItem(onHover),
-      isSelected: () =>
-          widget.showActions ||
-          getIt<MenuSharedState>().latestOpenView?.id == widget.view.id,
+      builder: (_, onHover) => _buildViewItem(onHover, isSelected),
+      isSelected: () => widget.showActions || isSelected,
     );
   }
 
-  Widget _buildViewItem(bool onHover) {
+  Widget _buildViewItem(bool onHover, [bool isSelected = false]) {
     final children = [
       // expand icon
       _buildLeftIcon(),
@@ -335,7 +351,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       }
     }
 
-    return GestureDetector(
+    final child = GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () => widget.onSelected(widget.view),
       onTertiaryTapDown: (_) => widget.onTertiarySelected?.call(widget.view),
@@ -349,6 +365,26 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
         ),
       ),
     );
+
+    if (isSelected) {
+      final popoverController = getIt<RenameViewBloc>().state.controller;
+      return AppFlowyPopover(
+        controller: popoverController,
+        triggerActions: PopoverTriggerFlags.none,
+        offset: const Offset(0, 5),
+        direction: PopoverDirection.bottomWithLeftAligned,
+        popupBuilder: (_) => RenameViewPopover(
+          viewId: widget.view.id,
+          name: widget.view.name,
+          emoji: widget.view.icon.value,
+          popoverController: popoverController,
+          showIconChanger: false,
+        ),
+        child: child,
+      );
+    }
+
+    return child;
   }
 
   Widget _buildViewIconButton() {
@@ -432,7 +468,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
             createViewAndShowRenameDialogIfNeeded(
               context,
               _convertLayoutToHintText(pluginBuilder.layoutType!),
-              (viewName) {
+              (viewName, _) {
                 if (viewName.isNotEmpty) {
                   viewBloc.add(
                     ViewEvent.createView(
@@ -474,7 +510,8 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
                 title: LocaleKeys.disclosureAction_rename.tr(),
                 autoSelectAllText: true,
                 value: widget.view.name,
-                confirm: (newValue) {
+                maxLength: 256,
+                onConfirm: (newValue, _) {
                   context.read<ViewBloc>().add(ViewEvent.rename(newValue));
                 },
               ).show(context);

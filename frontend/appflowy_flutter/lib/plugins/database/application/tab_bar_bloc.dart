@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/database/domain/database_view_service.dart';
 import 'package:appflowy/plugins/database/tab_bar/tab_bar_view.dart';
 import 'package:appflowy/plugins/database/widgets/database_layout_ext.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
@@ -11,19 +12,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'database_controller.dart';
-import 'database_view_service.dart';
 
 part 'tab_bar_bloc.freezed.dart';
 
 class DatabaseTabBarBloc
     extends Bloc<DatabaseTabBarEvent, DatabaseTabBarState> {
-  DatabaseTabBarBloc({
-    bool isInlineView = false,
-    required ViewPB view,
-  }) : super(DatabaseTabBarState.initial(view)) {
+  DatabaseTabBarBloc({required ViewPB view})
+      : super(DatabaseTabBarState.initial(view)) {
     on<DatabaseTabBarEvent>(
       (event, emit) async {
-        event.when(
+        await event.when(
           initial: () {
             _listenInlineViewChanged();
             _loadChildView();
@@ -95,7 +93,7 @@ class DatabaseTabBarBloc
                   // Dispose the controller when the tab is removed.
                   final controller =
                       tabBarControllerByViewId.remove(tabBar.viewId);
-                  controller?.dispose();
+                  await controller?.dispose();
                 }
 
                 if (index == state.selectedIndex) {
@@ -133,6 +131,7 @@ class DatabaseTabBarBloc
   Future<void> close() async {
     for (final tabBar in state.tabBars) {
       await state.tabBarControllerByViewId[tabBar.viewId]?.dispose();
+      tabBar.dispose();
     }
     return super.close();
   }
@@ -188,17 +187,18 @@ class DatabaseTabBarBloc
     );
   }
 
-  Future<void> _loadChildView() async {
-    ViewBackendService.getChildViews(viewId: state.parentView.id)
-        .then((viewsOrFail) {
-      if (isClosed) {
-        return;
-      }
-      viewsOrFail.fold(
-        (views) => add(DatabaseTabBarEvent.didLoadChildViews(views)),
-        (err) => Log.error(err),
-      );
-    });
+  void _loadChildView() async {
+    final viewsOrFail =
+        await ViewBackendService.getChildViews(viewId: state.parentView.id);
+
+    viewsOrFail.fold(
+      (views) {
+        if (!isClosed) {
+          add(DatabaseTabBarEvent.didLoadChildViews(views));
+        }
+      },
+      (err) => Log.error(err),
+    );
   }
 }
 
@@ -247,6 +247,12 @@ class DatabaseTabBarState with _$DatabaseTabBarState {
 }
 
 class DatabaseTabBar extends Equatable {
+  DatabaseTabBar({
+    required this.view,
+  }) : _builder = PlatformExtension.isMobile
+            ? view.mobileTabBarItem()
+            : view.tabBarItem();
+
   final ViewPB view;
   final DatabaseTabBarItemBuilder _builder;
 
@@ -254,14 +260,12 @@ class DatabaseTabBar extends Equatable {
   DatabaseTabBarItemBuilder get builder => _builder;
   ViewLayoutPB get layout => view.layout;
 
-  DatabaseTabBar({
-    required this.view,
-  }) : _builder = PlatformExtension.isMobile
-            ? view.mobileTabBarItem()
-            : view.tabBarItem();
-
   @override
   List<Object?> get props => [view.hashCode];
+
+  void dispose() {
+    _builder.dispose();
+  }
 }
 
 typedef OnViewUpdated = void Function(ViewPB newView);
@@ -270,26 +274,23 @@ typedef OnViewChildViewChanged = void Function(
 );
 
 class DatabaseTabBarController {
-  ViewPB view;
-  final DatabaseController controller;
-  final ViewListener viewListener;
-  OnViewUpdated? onViewUpdated;
-  OnViewChildViewChanged? onViewChildViewChanged;
-
-  DatabaseTabBarController({
-    required this.view,
-  })  : controller = DatabaseController(view: view),
+  DatabaseTabBarController({required this.view})
+      : controller = DatabaseController(view: view),
         viewListener = ViewListener(viewId: view.id) {
     viewListener.start(
-      onViewChildViewsUpdated: (update) {
-        onViewChildViewChanged?.call(update);
-      },
+      onViewChildViewsUpdated: (update) => onViewChildViewChanged?.call(update),
       onViewUpdated: (newView) {
         view = newView;
         onViewUpdated?.call(newView);
       },
     );
   }
+
+  ViewPB view;
+  final DatabaseController controller;
+  final ViewListener viewListener;
+  OnViewUpdated? onViewUpdated;
+  OnViewChildViewChanged? onViewChildViewChanged;
 
   Future<void> dispose() async {
     await viewListener.stop();

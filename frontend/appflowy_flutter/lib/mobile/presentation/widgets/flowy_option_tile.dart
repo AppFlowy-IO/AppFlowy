@@ -13,6 +13,7 @@ enum FlowyOptionTileType {
 
 class FlowyOptionTile extends StatelessWidget {
   const FlowyOptionTile._({
+    super.key,
     required this.type,
     this.showTopBorder = true,
     this.showBottomBorder = true,
@@ -32,6 +33,9 @@ class FlowyOptionTile extends StatelessWidget {
     this.onTextChanged,
     this.onTextSubmitted,
     this.autofocus,
+    this.content,
+    this.backgroundColor,
+    this.fontFamily,
   });
 
   factory FlowyOptionTile.text({
@@ -47,7 +51,6 @@ class FlowyOptionTile extends StatelessWidget {
       type: FlowyOptionTileType.text,
       text: text,
       textColor: textColor,
-      controller: null,
       onTap: onTap,
       showTopBorder: showTopBorder,
       showBottomBorder: showBottomBorder,
@@ -61,7 +64,6 @@ class FlowyOptionTile extends StatelessWidget {
     void Function(String value)? onTextChanged,
     void Function(String value)? onTextSubmitted,
     EdgeInsets textFieldPadding = const EdgeInsets.symmetric(
-      horizontal: 0.0,
       vertical: 16.0,
     ),
     bool showTopBorder = true,
@@ -75,8 +77,6 @@ class FlowyOptionTile extends StatelessWidget {
       type: FlowyOptionTileType.textField,
       controller: controller,
       textFieldPadding: textFieldPadding,
-      text: null,
-      onTap: null,
       showTopBorder: showTopBorder,
       showBottomBorder: showBottomBorder,
       leading: leftIcon,
@@ -89,25 +89,34 @@ class FlowyOptionTile extends StatelessWidget {
   }
 
   factory FlowyOptionTile.checkbox({
+    Key? key,
     required String text,
     required bool isSelected,
     required VoidCallback? onTap,
+    Color? textColor,
     Widget? leftIcon,
+    Widget? content,
     bool showTopBorder = true,
     bool showBottomBorder = true,
+    String? fontFamily,
+    Color? backgroundColor,
   }) {
     return FlowyOptionTile._(
+      key: key,
       type: FlowyOptionTileType.checkbox,
       isSelected: isSelected,
       text: text,
+      textColor: textColor,
+      content: content,
       onTap: onTap,
+      fontFamily: fontFamily,
+      backgroundColor: backgroundColor,
       showTopBorder: showTopBorder,
       showBottomBorder: showBottomBorder,
       leading: leftIcon,
       trailing: isSelected
           ? const FlowySvg(
-              FlowySvgs.blue_check_s,
-              size: Size.square(24.0),
+              FlowySvgs.m_blue_check_s,
               blendMode: null,
             )
           : null,
@@ -126,7 +135,6 @@ class FlowyOptionTile extends StatelessWidget {
     return FlowyOptionTile._(
       type: FlowyOptionTileType.toggle,
       text: text,
-      controller: null,
       onTap: onTap ?? () => onValueChanged(!isSelected),
       onValueChanged: onValueChanged,
       showTopBorder: showTopBorder,
@@ -146,6 +154,9 @@ class FlowyOptionTile extends StatelessWidget {
   final Widget? leading;
   final Widget? trailing;
 
+  // customize the content widget
+  final Widget? content;
+
   // only used in checkbox or switcher
   final bool isSelected;
 
@@ -160,26 +171,27 @@ class FlowyOptionTile extends StatelessWidget {
 
   final FlowyOptionTileType type;
 
+  final Color? backgroundColor;
+  final String? fontFamily;
+
   @override
   Widget build(BuildContext context) {
     final leadingWidget = _buildLeading();
 
-    final child = ColoredBox(
-      color: Theme.of(context).colorScheme.surface,
-      child: FlowyOptionDecorateBox(
-        showTopBorder: showTopBorder,
-        showBottomBorder: showBottomBorder,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              if (leadingWidget != null) leadingWidget,
-              _buildText(),
-              _buildTextField(),
-              if (trailing != null) trailing!,
-            ],
-          ),
+    final child = FlowyOptionDecorateBox(
+      color: backgroundColor,
+      showTopBorder: showTopBorder,
+      showBottomBorder: showBottomBorder,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: Row(
+          children: [
+            if (leadingWidget != null) leadingWidget,
+            if (content != null) content!,
+            if (content == null) _buildText(),
+            if (content == null) _buildTextField(),
+            if (trailing != null) trailing!,
+          ],
         ),
       ),
     );
@@ -210,8 +222,8 @@ class FlowyOptionTile extends StatelessWidget {
     }
 
     final padding = EdgeInsets.symmetric(
-      horizontal: leading == null ? 0.0 : 8.0,
-      vertical: 16.0,
+      horizontal: leading == null ? 0.0 : 12.0,
+      vertical: 14.0,
     );
 
     return Expanded(
@@ -219,8 +231,9 @@ class FlowyOptionTile extends StatelessWidget {
         padding: padding,
         child: FlowyText(
           text!,
-          fontSize: 15,
+          fontSize: 16,
           color: textColor,
+          fontFamily: fontFamily,
         ),
       ),
     );

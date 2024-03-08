@@ -1,19 +1,27 @@
 use std::fmt::{Debug, Display};
 use std::sync::{Arc, Weak};
 
+use crate::CollabKVDB;
 use anyhow::Error;
 use collab::core::collab::{CollabDocState, MutexCollab};
-use collab::preclude::{CollabBuilder, CollabPlugin};
+use collab::preclude::CollabBuilder;
 use collab_entity::{CollabObject, CollabType};
 use collab_plugins::connect_state::{CollabConnectReachability, CollabConnectState};
 use collab_plugins::local_storage::kv::snapshot::SnapshotPersistence;
+if_native! {
 use collab_plugins::local_storage::rocksdb::rocksdb_plugin::{RocksdbBackup, RocksdbDiskPlugin};
+}
+
+if_wasm! {
+use collab_plugins::local_storage::indexeddb::IndexeddbDiskPlugin;
+}
+
+pub use crate::plugin_provider::CollabCloudPluginProvider;
 use collab_plugins::local_storage::CollabPersistenceConfig;
+
+use lib_infra::{if_native, if_wasm};
 use parking_lot::{Mutex, RwLock};
 use tracing::trace;
-
-use crate::CollabKVDB;
-use lib_infra::future::Fut;
 
 #[derive(Clone, Debug)]
 pub enum CollabPluginProviderType {
@@ -57,36 +65,12 @@ impl Display for CollabPluginProviderContext {
   }
 }
 
-pub trait CollabCloudPluginProvider: Send + Sync + 'static {
-  fn provider_type(&self) -> CollabPluginProviderType;
-
-  fn get_plugins(&self, context: CollabPluginProviderContext) -> Fut<Vec<Arc<dyn CollabPlugin>>>;
-
-  fn is_sync_enabled(&self) -> bool;
-}
-
-impl<T> CollabCloudPluginProvider for Arc<T>
-where
-  T: CollabCloudPluginProvider,
-{
-  fn provider_type(&self) -> CollabPluginProviderType {
-    (**self).provider_type()
-  }
-
-  fn get_plugins(&self, context: CollabPluginProviderContext) -> Fut<Vec<Arc<dyn CollabPlugin>>> {
-    (**self).get_plugins(context)
-  }
-
-  fn is_sync_enabled(&self) -> bool {
-    (**self).is_sync_enabled()
-  }
-}
-
 pub struct AppFlowyCollabBuilder {
   network_reachability: CollabConnectReachability,
   workspace_id: RwLock<Option<String>>,
   plugin_provider: tokio::sync::RwLock<Arc<dyn CollabCloudPluginProvider>>,
   snapshot_persistence: Mutex<Option<Arc<dyn SnapshotPersistence>>>,
+  #[cfg(not(target_arch = "wasm32"))]
   rocksdb_backup: Mutex<Option<Arc<dyn RocksdbBackup>>>,
   device_id: String,
 }
@@ -115,6 +99,7 @@ impl AppFlowyCollabBuilder {
       workspace_id: Default::default(),
       plugin_provider: tokio::sync::RwLock::new(Arc::new(storage_provider)),
       snapshot_persistence: Default::default(),
+      #[cfg(not(target_arch = "wasm32"))]
       rocksdb_backup: Default::default(),
       device_id,
     }
@@ -124,6 +109,7 @@ impl AppFlowyCollabBuilder {
     *self.snapshot_persistence.lock() = Some(snapshot_persistence);
   }
 
+  #[cfg(not(target_arch = "wasm32"))]
   pub fn set_rocksdb_backup(&self, rocksdb_backup: Arc<dyn RocksdbBackup>) {
     *self.rocksdb_backup.lock() = Some(rocksdb_backup);
   }
@@ -221,23 +207,36 @@ impl AppFlowyCollabBuilder {
     object_type: CollabType,
     collab_db: Weak<CollabKVDB>,
     collab_doc_state: CollabDocState,
-    persistence_config: CollabPersistenceConfig,
+    #[allow(unused_variables)] persistence_config: CollabPersistenceConfig,
     build_config: CollabBuilderConfig,
   ) -> Result<Arc<MutexCollab>, Error> {
-    let collab = Arc::new(
-      CollabBuilder::new(uid, object_id)
-        .with_doc_state(collab_doc_state)
-        .with_plugin(RocksdbDiskPlugin::new_with_config(
-          uid,
-          object_id.to_string(),
-          object_type.clone(),
-          collab_db.clone(),
-          persistence_config.clone(),
-          None,
-        ))
-        .with_device_id(self.device_id.clone())
-        .build()?,
-    );
+    let mut builder = CollabBuilder::new(uid, object_id)
+      .with_doc_state(collab_doc_state)
+      .with_device_id(self.device_id.clone());
+
+    #[cfg(target_arch = "wasm32")]
+    {
+      builder = builder.with_plugin(IndexeddbDiskPlugin::new(
+        uid,
+        object_id.to_string(),
+        object_type.clone(),
+        collab_db.clone(),
+      ));
+    }
+
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+      builder = builder.with_plugin(RocksdbDiskPlugin::new_with_config(
+        uid,
+        object_id.to_string(),
+        object_type.clone(),
+        collab_db.clone(),
+        persistence_config.clone(),
+        None,
+      ));
+    }
+
+    let collab = Arc::new(builder.build()?);
     {
       let collab_object = self.collab_object(uid, object_id, object_type)?;
       if build_config.sync_enable {
@@ -265,22 +264,25 @@ impl AppFlowyCollabBuilder {
             }
           },
           CollabPluginProviderType::Supabase => {
-            trace!("init supabase collab plugins");
-            let local_collab = Arc::downgrade(&collab);
-            let local_collab_db = collab_db.clone();
-            let plugins = self
-              .plugin_provider
-              .read()
-              .await
-              .get_plugins(CollabPluginProviderContext::Supabase {
-                uid,
-                collab_object,
-                local_collab,
-                local_collab_db,
-              })
-              .await;
-            for plugin in plugins {
-              collab.lock().add_plugin(plugin);
+            #[cfg(not(target_arch = "wasm32"))]
+            {
+              trace!("init supabase collab plugins");
+              let local_collab = Arc::downgrade(&collab);
+              let local_collab_db = collab_db.clone();
+              let plugins = self
+                .plugin_provider
+                .read()
+                .await
+                .get_plugins(CollabPluginProviderContext::Supabase {
+                  uid,
+                  collab_object,
+                  local_collab,
+                  local_collab_db,
+                })
+                .await;
+              for plugin in plugins {
+                collab.lock().add_plugin(plugin);
+              }
             }
           },
           CollabPluginProviderType::Local => {},
@@ -288,7 +290,12 @@ impl AppFlowyCollabBuilder {
       }
     }
 
+    #[cfg(target_arch = "wasm32")]
+    collab.lock().initialize().await;
+
+    #[cfg(not(target_arch = "wasm32"))]
     collab.lock().initialize();
+
     trace!("collab initialized: {}", object_id);
     Ok(collab)
   }

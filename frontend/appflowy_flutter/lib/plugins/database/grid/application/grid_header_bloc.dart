@@ -7,18 +7,20 @@ import 'package:appflowy_backend/protobuf/flowy-database2/field_settings_entitie
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import '../../application/field/field_service.dart';
+import '../../domain/field_service.dart';
 
 part 'grid_header_bloc.freezed.dart';
 
 class GridHeaderBloc extends Bloc<GridHeaderEvent, GridHeaderState> {
-  final FieldController fieldController;
-  final String viewId;
+  GridHeaderBloc({required this.viewId, required this.fieldController})
+      : super(GridHeaderState.initial()) {
+    _dispatch();
+  }
 
-  GridHeaderBloc({
-    required this.viewId,
-    required this.fieldController,
-  }) : super(GridHeaderState.initial()) {
+  final String viewId;
+  final FieldController fieldController;
+
+  void _dispatch() {
     on<GridHeaderEvent>(
       (event, emit) async {
         await event.when(

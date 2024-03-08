@@ -1,10 +1,12 @@
 #[cfg(test)]
 mod tests {
+  use std::str::FromStr;
+
   use collab_database::fields::Field;
 
+  use crate::entities::CheckboxCellDataPB;
   use crate::entities::FieldType;
   use crate::services::cell::CellDataDecoder;
-  use crate::services::cell::FromCellString;
   use crate::services::field::type_options::checkbox_type_option::*;
   use crate::services::field::FieldBuilder;
 
@@ -27,9 +29,9 @@ mod tests {
     assert_checkbox(&type_option, "NO", UNCHECK, &field_type, &field_rev);
     assert_checkbox(&type_option, "0", UNCHECK, &field_type, &field_rev);
 
-    // the checkout value will be empty if the value is letters or empty string
-    assert_checkbox(&type_option, "abc", "", &field_type, &field_rev);
-    assert_checkbox(&type_option, "", "", &field_type, &field_rev);
+    // the checkout value will be uncheck as well if the value is letters or empty string
+    assert_checkbox(&type_option, "abc", UNCHECK, &field_type, &field_rev);
+    assert_checkbox(&type_option, "", UNCHECK, &field_type, &field_rev);
   }
 
   fn assert_checkbox(
@@ -42,7 +44,7 @@ mod tests {
     assert_eq!(
       type_option
         .decode_cell(
-          &CheckboxCellData::from_cell_str(input_str).unwrap().into(),
+          &CheckboxCellDataPB::from_str(input_str).unwrap().into(),
           field_type,
           field
         )

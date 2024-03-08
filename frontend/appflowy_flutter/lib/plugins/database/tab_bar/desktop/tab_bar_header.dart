@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/tab_bar_bloc.dart';
+import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
@@ -20,8 +21,11 @@ class TabBarHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return Container(
       height: 30,
+      padding: EdgeInsets.symmetric(
+        horizontal: GridSize.horizontalHeaderPadding,
+      ),
       child: Stack(
         children: [
           Positioned(
@@ -37,9 +41,7 @@ class TabBarHeader extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Flexible(
-                child: DatabaseTabBar(),
-              ),
+              const Flexible(child: DatabaseTabBar()),
               BlocBuilder<DatabaseTabBarBloc, DatabaseTabBarState>(
                 builder: (context, state) {
                   return SizedBox(
@@ -135,15 +137,16 @@ class _DatabaseTabBarState extends State<DatabaseTabBar> {
 }
 
 class DatabaseTabBarItem extends StatelessWidget {
-  final bool isSelected;
-  final ViewPB view;
-  final Function(ViewPB) onTap;
   const DatabaseTabBarItem({
+    super.key,
     required this.view,
     required this.isSelected,
     required this.onTap,
-    super.key,
   });
+
+  final ViewPB view;
+  final bool isSelected;
+  final Function(ViewPB) onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -177,15 +180,16 @@ class DatabaseTabBarItem extends StatelessWidget {
 }
 
 class TabBarItemButton extends StatelessWidget {
+  const TabBarItemButton({
+    super.key,
+    required this.view,
+    required this.isSelected,
+    required this.onTap,
+  });
+
   final ViewPB view;
   final bool isSelected;
   final VoidCallback onTap;
-  const TabBarItemButton({
-    required this.view,
-    required this.onTap,
-    super.key,
-    required this.isSelected,
-  });
 
   @override
   Widget build(BuildContext context) {
@@ -230,7 +234,7 @@ class TabBarItemButton extends StatelessWidget {
             NavigatorTextFieldDialog(
               title: LocaleKeys.menuAppHeader_renameDialog.tr(),
               value: view.name,
-              confirm: (newValue) {
+              onConfirm: (newValue, _) {
                 context.read<DatabaseTabBarBloc>().add(
                       DatabaseTabBarEvent.renameView(view.id, newValue),
                     );

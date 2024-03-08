@@ -9,12 +9,18 @@ import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
-import 'package:dartz/dartz.dart' hide id;
+import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flutter/material.dart';
 
 enum FlowyPlugin {
   editor,
   kanban,
+}
+
+class PluginArgumentKeys {
+  static String selection = "selection";
+  static String rowId = "row_id";
 }
 
 extension ViewExtension on ViewPB {
@@ -36,17 +42,28 @@ extension ViewExtension on ViewPB {
         _ => throw UnimplementedError(),
       };
 
-  Plugin plugin({bool listenOnViewChanged = false}) {
+  Plugin plugin({
+    Map<String, dynamic> arguments = const {},
+  }) {
     switch (layout) {
       case ViewLayoutPB.Board:
       case ViewLayoutPB.Calendar:
       case ViewLayoutPB.Grid:
-        return DatabaseTabBarViewPlugin(view: this, pluginType: pluginType);
+        final String? rowId = arguments[PluginArgumentKeys.rowId];
+
+        return DatabaseTabBarViewPlugin(
+          view: this,
+          pluginType: pluginType,
+          initialRowId: rowId,
+        );
       case ViewLayoutPB.Document:
+        final Selection? initialSelection =
+            arguments[PluginArgumentKeys.selection];
+
         return DocumentPlugin(
           view: this,
           pluginType: pluginType,
-          listenOnViewChanged: listenOnViewChanged,
+          initialSelection: initialSelection,
         );
     }
     throw UnimplementedError;
@@ -75,13 +92,13 @@ extension ViewExtension on ViewPB {
     final ancestors = <ViewPB>[];
     if (includeSelf) {
       final self = await ViewBackendService.getView(id);
-      ancestors.add(self.getLeftOrNull<ViewPB>() ?? this);
+      ancestors.add(self.fold((s) => s, (e) => this));
     }
-    Either<ViewPB, FlowyError> parent =
+    FlowyResult<ViewPB, FlowyError> parent =
         await ViewBackendService.getView(parentViewId);
-    while (parent.isLeft()) {
+    while (parent.isSuccess()) {
       // parent is not null
-      final view = parent.getLeftOrNull<ViewPB>();
+      final view = parent.fold((s) => s, (e) => null);
       if (view == null || (!includeRoot && view.parentViewId.isEmpty)) {
         break;
       }

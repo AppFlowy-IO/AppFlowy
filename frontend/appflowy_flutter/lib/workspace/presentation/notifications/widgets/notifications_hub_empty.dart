@@ -24,6 +24,7 @@ class NotificationsHubEmpty extends StatelessWidget {
             FlowyText.regular(
               LocaleKeys.notificationHub_emptyBody.tr(),
               textAlign: TextAlign.center,
+              maxLines: 2,
             ),
           ],
         ),

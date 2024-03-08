@@ -1,21 +1,35 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/util/field_type_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
 import '../../layout/sizes.dart';
-import 'field_type_extension.dart';
 
 typedef SelectFieldCallback = void Function(FieldType);
 
+const List<FieldType> _supportedFieldTypes = [
+  FieldType.RichText,
+  FieldType.Number,
+  FieldType.SingleSelect,
+  FieldType.MultiSelect,
+  FieldType.DateTime,
+  FieldType.Checkbox,
+  FieldType.Checklist,
+  FieldType.URL,
+  FieldType.LastEditedTime,
+  FieldType.CreatedTime,
+];
+
 class FieldTypeList extends StatelessWidget with FlowyOverlayDelegate {
-  final SelectFieldCallback onSelectField;
   const FieldTypeList({required this.onSelectField, super.key});
+
+  final SelectFieldCallback onSelectField;
 
   @override
   Widget build(BuildContext context) {
-    final cells = FieldType.values.map((fieldType) {
+    final cells = _supportedFieldTypes.map((fieldType) {
       return FieldTypeCell(
         fieldType: fieldType,
         onSelectField: (fieldType) {
@@ -43,13 +57,14 @@ class FieldTypeList extends StatelessWidget with FlowyOverlayDelegate {
 }
 
 class FieldTypeCell extends StatelessWidget {
-  final FieldType fieldType;
-  final SelectFieldCallback onSelectField;
   const FieldTypeCell({
+    super.key,
     required this.fieldType,
     required this.onSelectField,
-    super.key,
   });
+
+  final FieldType fieldType;
+  final SelectFieldCallback onSelectField;
 
   @override
   Widget build(BuildContext context) {
@@ -57,11 +72,11 @@ class FieldTypeCell extends StatelessWidget {
       height: GridSize.popoverItemHeight,
       child: FlowyButton(
         text: FlowyText.medium(
-          fieldType.title(),
+          fieldType.i18n,
         ),
         onTap: () => onSelectField(fieldType),
         leftIcon: FlowySvg(
-          fieldType.icon(),
+          fieldType.svgData,
         ),
       ),
     );

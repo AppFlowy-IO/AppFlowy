@@ -32,10 +32,13 @@ pub struct DateCellDataPB {
 
   #[pb(index = 8)]
   pub is_range: bool,
+
+  #[pb(index = 9)]
+  pub reminder_id: String,
 }
 
 #[derive(Clone, Debug, Default, ProtoBuf)]
-pub struct DateChangesetPB {
+pub struct DateCellChangesetPB {
   #[pb(index = 1)]
   pub cell_id: CellIdPB,
 
@@ -59,6 +62,9 @@ pub struct DateChangesetPB {
 
   #[pb(index = 8, one_of)]
   pub clear_flag: Option<bool>,
+
+  #[pb(index = 9, one_of)]
+  pub reminder_id: Option<String>,
 }
 
 // Date
@@ -94,7 +100,7 @@ impl From<DateTypeOptionPB> for DateTypeOption {
   }
 }
 
-#[derive(Clone, Debug, Copy, EnumIter, ProtoBuf_Enum, Default)]
+#[derive(Clone, Debug, Copy, ProtoBuf_Enum, Default)]
 pub enum DateFormatPB {
   Local = 0,
   US = 1,

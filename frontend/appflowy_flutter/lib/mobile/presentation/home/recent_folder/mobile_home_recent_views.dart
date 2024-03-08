@@ -25,10 +25,12 @@ class _MobileRecentFolderState extends State<MobileRecentFolder> {
       child: BlocBuilder<RecentViewsBloc, RecentViewsState>(
         builder: (context, state) {
           final ids = <String>{};
+
           List<ViewPB> recentViews = state.views.reversed.toList();
           recentViews.retainWhere((element) => ids.add(element.id));
-          // only keep the first 10 items.
-          recentViews = recentViews.take(10).toList();
+
+          // only keep the first 20 items.
+          recentViews = recentViews.take(20).toList();
 
           if (recentViews.isEmpty) {
             return const SizedBox.shrink();
@@ -72,6 +74,7 @@ class _RecentViews extends StatelessWidget {
           ),
         ),
         SingleChildScrollView(
+          key: const PageStorageKey('recent_views_page_storage_key'),
           scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
           child: IntrinsicHeight(

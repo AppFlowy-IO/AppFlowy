@@ -5,32 +5,62 @@ use rust_decimal::Decimal;
 use std::str::FromStr;
 
 impl NumberFilterPB {
-  pub fn is_visible(&self, num_cell_data: &NumberCellFormat) -> bool {
-    if self.content.is_empty() {
-      match self.condition {
-        NumberFilterConditionPB::NumberIsEmpty => {
-          return num_cell_data.is_empty();
-        },
-        NumberFilterConditionPB::NumberIsNotEmpty => {
-          return !num_cell_data.is_empty();
-        },
-        _ => {},
-      }
-    }
-    match num_cell_data.decimal().as_ref() {
-      None => false,
-      Some(cell_decimal) => {
-        let decimal = Decimal::from_str(&self.content).unwrap_or_else(|_| Decimal::zero());
-        match self.condition {
-          NumberFilterConditionPB::Equal => cell_decimal == &decimal,
-          NumberFilterConditionPB::NotEqual => cell_decimal != &decimal,
-          NumberFilterConditionPB::GreaterThan => cell_decimal > &decimal,
-          NumberFilterConditionPB::LessThan => cell_decimal < &decimal,
-          NumberFilterConditionPB::GreaterThanOrEqualTo => cell_decimal >= &decimal,
-          NumberFilterConditionPB::LessThanOrEqualTo => cell_decimal <= &decimal,
-          _ => true,
-        }
+  pub fn is_visible(&self, cell_data: &NumberCellFormat) -> Option<bool> {
+    let expected_decimal = Decimal::from_str(&self.content).unwrap_or_else(|_| Decimal::zero());
+
+    let strategy = match self.condition {
+      NumberFilterConditionPB::Equal => NumberFilterStrategy::Equal(expected_decimal),
+      NumberFilterConditionPB::NotEqual => NumberFilterStrategy::NotEqual(expected_decimal),
+      NumberFilterConditionPB::GreaterThan => NumberFilterStrategy::GreaterThan(expected_decimal),
+      NumberFilterConditionPB::LessThan => NumberFilterStrategy::LessThan(expected_decimal),
+      NumberFilterConditionPB::GreaterThanOrEqualTo => {
+        NumberFilterStrategy::GreaterThanOrEqualTo(expected_decimal)
       },
+      NumberFilterConditionPB::LessThanOrEqualTo => {
+        NumberFilterStrategy::LessThanOrEqualTo(expected_decimal)
+      },
+      NumberFilterConditionPB::NumberIsEmpty => NumberFilterStrategy::Empty,
+      NumberFilterConditionPB::NumberIsNotEmpty => NumberFilterStrategy::NotEmpty,
+    };
+
+    Some(strategy.filter(cell_data))
+  }
+}
+
+enum NumberFilterStrategy {
+  Equal(Decimal),
+  NotEqual(Decimal),
+  GreaterThan(Decimal),
+  LessThan(Decimal),
+  GreaterThanOrEqualTo(Decimal),
+  LessThanOrEqualTo(Decimal),
+  Empty,
+  NotEmpty,
+}
+
+impl NumberFilterStrategy {
+  fn filter(self, cell_data: &NumberCellFormat) -> bool {
+    match self {
+      NumberFilterStrategy::Equal(expected_value) => cell_data
+        .decimal()
+        .is_some_and(|decimal| decimal == expected_value),
+      NumberFilterStrategy::NotEqual(expected_value) => cell_data
+        .decimal()
+        .is_some_and(|decimal| decimal != expected_value),
+      NumberFilterStrategy::GreaterThan(expected_value) => cell_data
+        .decimal()
+        .is_some_and(|decimal| decimal > expected_value),
+      NumberFilterStrategy::LessThan(expected_value) => cell_data
+        .decimal()
+        .is_some_and(|decimal| decimal < expected_value),
+      NumberFilterStrategy::GreaterThanOrEqualTo(expected_value) => cell_data
+        .decimal()
+        .is_some_and(|decimal| decimal >= expected_value),
+      NumberFilterStrategy::LessThanOrEqualTo(expected_value) => cell_data
+        .decimal()
+        .is_some_and(|decimal| decimal <= expected_value),
+      NumberFilterStrategy::Empty => cell_data.is_empty(),
+      NumberFilterStrategy::NotEmpty => !cell_data.is_empty(),
     }
   }
 }
@@ -39,6 +69,7 @@ impl NumberFilterPB {
 mod tests {
   use crate::entities::{NumberFilterConditionPB, NumberFilterPB};
   use crate::services::field::{NumberCellFormat, NumberFormat};
+
   #[test]
   fn number_filter_equal_test() {
     let number_filter = NumberFilterPB {
@@ -48,15 +79,16 @@ mod tests {
 
     for (num_str, visible) in [("123", true), ("1234", false), ("", false)] {
       let data = NumberCellFormat::from_format_str(num_str, &NumberFormat::Num).unwrap_or_default();
-      assert_eq!(number_filter.is_visible(&data), visible);
+      assert_eq!(number_filter.is_visible(&data), Some(visible));
     }
 
     let format = NumberFormat::USD;
     for (num_str, visible) in [("$123", true), ("1234", false), ("", false)] {
       let data = NumberCellFormat::from_format_str(num_str, &format).unwrap();
-      assert_eq!(number_filter.is_visible(&data), visible);
+      assert_eq!(number_filter.is_visible(&data), Some(visible));
     }
   }
+
   #[test]
   fn number_filter_greater_than_test() {
     let number_filter = NumberFilterPB {
@@ -65,7 +97,7 @@ mod tests {
     };
     for (num_str, visible) in [("123", true), ("10", false), ("30", true), ("", false)] {
       let data = NumberCellFormat::from_format_str(num_str, &NumberFormat::Num).unwrap_or_default();
-      assert_eq!(number_filter.is_visible(&data), visible);
+      assert_eq!(number_filter.is_visible(&data), Some(visible));
     }
   }
 
@@ -77,7 +109,7 @@ mod tests {
     };
     for (num_str, visible) in [("12", true), ("1234", false), ("30", true), ("", false)] {
       let data = NumberCellFormat::from_format_str(num_str, &NumberFormat::Num).unwrap_or_default();
-      assert_eq!(number_filter.is_visible(&data), visible);
+      assert_eq!(number_filter.is_visible(&data), Some(visible));
     }
   }
 }

@@ -1,30 +1,62 @@
-import { forwardRef, memo, useState } from 'react';
-import { EditorElementProps, MathEquationNode } from '$app/application/document/document.types';
+import { forwardRef, memo, useEffect, useRef } from 'react';
+import { EditorElementProps, EditorNodeType, MathEquationNode } from '$app/application/document/document.types';
 import KatexMath from '$app/components/_shared/katex_math/KatexMath';
 import { useTranslation } from 'react-i18next';
 import { FunctionsOutlined } from '@mui/icons-material';
 import EditPopover from '$app/components/editor/components/blocks/math_equation/EditPopover';
+import { ReactEditor, useSelected, useSlateStatic } from 'slate-react';
+import { useEditorBlockDispatch, useEditorBlockState } from '$app/components/editor/stores/block';
 
 export const MathEquation = memo(
   forwardRef<HTMLDivElement, EditorElementProps<MathEquationNode>>(
     ({ node, children, className, ...attributes }, ref) => {
       const formula = node.data.formula;
       const { t } = useTranslation();
-      const [anchorEl, setAnchorEl] = useState<HTMLDivElement | null>(null);
-      const open = Boolean(anchorEl);
+      const containerRef = useRef<HTMLDivElement>(null);
+      const { openPopover, closePopover } = useEditorBlockDispatch();
+      const state = useEditorBlockState(EditorNodeType.EquationBlock);
+      const open = Boolean(state?.popoverOpen && state?.blockId === node.blockId && containerRef.current);
+
+      const selected = useSelected();
+
+      const editor = useSlateStatic();
+
+      useEffect(() => {
+        const slateDom = ReactEditor.toDOMNode(editor, editor);
+
+        if (!slateDom) return;
+        const handleKeyDown = (e: KeyboardEvent) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            e.stopPropagation();
+            openPopover(EditorNodeType.EquationBlock, node.blockId);
+          }
+        };
+
+        if (selected) {
+          slateDom.addEventListener('keydown', handleKeyDown);
+        }
+
+        return () => {
+          slateDom.removeEventListener('keydown', handleKeyDown);
+        };
+      }, [editor, node.blockId, openPopover, selected]);
 
       return (
         <>
           <div
             {...attributes}
-            onClick={(e) => {
-              setAnchorEl(e.currentTarget);
+            ref={containerRef}
+            onClick={() => {
+              openPopover(EditorNodeType.EquationBlock, node.blockId);
             }}
-            className={`${className} relative my-2 w-full cursor-pointer`}
+            className={`${className} math-equation-block relative w-full cursor-pointer py-2`}
           >
             <div
               contentEditable={false}
-              className={`w-full select-none rounded border border-line-divider bg-content-blue-50 px-3`}
+              className={`container-bg w-full select-none rounded border border-line-divider ${
+                selected ? 'border-fill-hover' : ''
+              } bg-content-blue-50 px-3`}
             >
               {formula ? (
                 <KatexMath latex={formula} />
@@ -42,11 +74,11 @@ export const MathEquation = memo(
           {open && (
             <EditPopover
               onClose={() => {
-                setAnchorEl(null);
+                closePopover(EditorNodeType.EquationBlock);
               }}
               node={node}
               open={open}
-              anchorEl={anchorEl}
+              anchorEl={containerRef.current}
             />
           )}
         </>
