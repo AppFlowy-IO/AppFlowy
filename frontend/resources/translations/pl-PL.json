@@ -2,12 +2,14 @@
   "appName": "AppFlowy",
   "defaultUsername": "Ja",
   "welcomeText": "Witaj w @:appName",
+  "welcomeTo": "Witamy w",
   "githubStarText": "Gwiazdka na GitHub-ie",
   "subscribeNewsletterText": "Zapisz się do naszego Newslettera",
   "letsGoButtonText": "Start!",
   "title": "Tytuł",
   "youCanAlso": "Możesz również",
   "and": "i",
+  "failedToOpenUrl": "Nie udało się otworzyć adresu URL: {}",
   "blockActions": {
     "addBelowTooltip": "Kliknij, aby dodać poniżej",
     "addAboveCmd": "Alt+kliknięcie",
@@ -35,6 +37,7 @@
     "loginStartWithAnonymous": "Rozpocznij sesję anonimową",
     "continueAnonymousUser": "Kontynuuj sesję anonimową",
     "buttonText": "Zaloguj",
+    "signingInText": "Dołączanie do...",
     "forgotPassword": "Zapomniałeś hasła?",
     "emailHint": "Email",
     "passwordHint": "Hasło",
@@ -59,8 +62,13 @@
     "failedToLoad": "Coś poszło nie tak! Wczytywanie przestrzeni roboczej nie powiodło się. Spróbuj wyłączyć wszystkie otwarte instancje AppFlowy i spróbuj ponownie.",
     "errorActions": {
       "reportIssue": "Zgłoś problem",
+      "reportIssueOnGithub": "Zgłoś problem na Githubie",
+      "exportLogFiles": "Eksportuj pliki dziennika",
       "reachOut": "Skontaktuj się na Discord"
-    }
+    },
+    "deleteWorkspaceHintText": "Czy na pewno chcesz usunąć obszar roboczy? Tej akcji nie można cofnąć.",
+    "createSuccess": "Obszar roboczy został utworzony pomyślnie",
+    "createFailed": "Nie udało się utworzyć obszaru roboczego"
   },
   "shareAction": {
     "buttonText": "Udostępnij",

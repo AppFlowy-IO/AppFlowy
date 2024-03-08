@@ -9,6 +9,7 @@
   "title": "标题",
   "youCanAlso": "您还可以",
   "and": "和",
+  "failedToOpenUrl": "无法打开网址：{}",
   "blockActions": {
     "addBelowTooltip": "点击下方添加",
     "addAboveCmd": "Alt+单击",
@@ -64,7 +65,10 @@
       "reportIssueOnGithub": "在 Github 上提出 issue",
       "exportLogFiles": "导出日志文件",
       "reachOut": "Discord 联系我们"
-    }
+    },
+    "deleteWorkspaceHintText": "您确定要删除工作区吗？此操作无法撤消。",
+    "createSuccess": "工作区创建成功",
+    "createFailed": "创建工作区失败"
   },
   "shareAction": {
     "buttonText": "分享",
@@ -644,8 +648,8 @@
       "descending": "降序",
       "deleteAllSorts": "删除所有排序",
       "addSort": "添加排序",
-      "deleteSort": "取消排序",
-      "removeSorting": "你确定要移除排序吗？"
+      "removeSorting": "你确定要移除排序吗？",
+      "deleteSort": "取消排序"
     },
     "row": {
       "duplicate": "复制",

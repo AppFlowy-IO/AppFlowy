@@ -2,17 +2,21 @@
   "appName": "AppFlowy",
   "defaultUsername": "Ni",
   "welcomeText": "Ongietorri @:appName -ra",
+  "welcomeTo": "Ongi etorria",
   "githubStarText": "Izarra GitHub-en",
   "subscribeNewsletterText": "Harpidetu buletinera",
   "letsGoButtonText": "Hasi",
   "title": "Izenburua",
   "youCanAlso": "Zuk ere egin dezakezu",
   "and": "eta",
+  "failedToOpenUrl": "Ezin izan da ireki URLa: {}",
   "blockActions": {
     "addBelowTooltip": "Egin klik behean gehitzeko",
     "addAboveCmd": "Alt+klik",
     "addAboveMacCmd": "Aukera+klik",
-    "addAboveTooltip": "goian gehitzeko"
+    "addAboveTooltip": "goian gehitzeko",
+    "dragTooltip": "Arrastatu mugitzeko",
+    "openMenuTooltip": "Egin klik menua irekitzeko"
   },
   "signUp": {
     "buttonText": "Izena eman",
@@ -24,24 +28,47 @@
     "alreadyHaveAnAccount": "Kontu bat duzu jada?",
     "emailHint": "Emaila",
     "passwordHint": "Pasahitza",
-    "repeatPasswordHint": "Pasahitza errepikatu"
+    "repeatPasswordHint": "Pasahitza errepikatu",
+    "signUpWith": "Izena eman honekin:"
   },
   "signIn": {
     "loginTitle": "Hasi saioa @:appName -n",
     "loginButtonText": "Hasi saioa",
+    "loginStartWithAnonymous": "Hasi saio anonimo batekin",
+    "continueAnonymousUser": "Jarraitu saio anonimo batekin",
     "buttonText": "Sartu",
+    "signingInText": "Saioa hasten...",
     "forgotPassword": "Pasahitza ahaztu duzu?",
     "emailHint": "Emaila",
     "passwordHint": "Pasahitza",
     "dontHaveAnAccount": "Ez daukazu konturik?",
     "repeatPasswordEmptyError": "Pasahitz errepikapenak ezin du hutsik egon",
     "unmatchedPasswordError": "Pasahitz errepikapena ez da berdina",
+    "syncPromptMessage": "Baliteke datuak sinkronizatzeak pixka bat behar izatea. Mesedez, ez itxi orri hau",
+    "or": "EDO",
+    "LogInWithGoogle": "Hasi saioa Google-rekin",
+    "LogInWithGithub": "Hasi saioa Github-ekin",
+    "LogInWithDiscord": "Hasi saioa Discord-ekin",
+    "signInWith": "Hasi saioa honekin:",
     "loginAsGuestButtonText": "Hasi"
   },
   "workspace": {
+    "chooseWorkspace": "Aukeratu zure lan-eremua",
     "create": "Lan-eremua",
+    "reset": "Berrezarri laneko eremua",
+    "resetWorkspacePrompt": "Laneko eremua berrezartzeak bertako orrialde eta datu guztiak ezabatuko ditu. Ziur laneko eremua berrezarri nahi duzula? Bestela, laguntza-taldearekin jar zaitezke harremanetan lan-eremua leheneratzeko",
     "hint": "lan-eremua",
-    "notFoundError": "Lan-eremurik ez da aurkitu"
+    "notFoundError": "Lan-eremurik ez da aurkitu",
+    "failedToLoad": "Zerbait gaizki joan da! Ezin izan da laneko eremua kargatu. Saiatu AppFlowy-ren irekita dagoen edozein instantzia ixten eta saiatu berriro.",
+    "errorActions": {
+      "reportIssue": "Arazo baten berri eman",
+      "reportIssueOnGithub": "Eman arazo bat Github-en",
+      "exportLogFiles": "Esportatu erregistro-fitxategiak",
+      "reachOut": "Jarri harremanetan Discord-en"
+    },
+    "deleteWorkspaceHintText": "Ziur laneko eremua ezabatu nahi duzula? Ekintza hau ezin da desegin.",
+    "createSuccess": "Lan-eremua behar bezala sortu da",
+    "createFailed": "Ezin izan da sortu lan-eremua"
   },
   "shareAction": {
     "buttonText": "Konpartitu",

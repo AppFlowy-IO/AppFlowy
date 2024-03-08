@@ -9,6 +9,7 @@
   "title": "Títol",
   "youCanAlso": "Tu pots també",
   "and": "i",
+  "failedToOpenUrl": "No s'ha pogut obrir l'URL: {}",
   "blockActions": {
     "addBelowTooltip": "Feu clic per afegir a continuació",
     "addAboveCmd": "Alt+clic",
@@ -43,6 +44,7 @@
     "dontHaveAnAccount": "No tens un compte?",
     "repeatPasswordEmptyError": "La contrasenya repetida no pot ser buida",
     "unmatchedPasswordError": "Les contrasenyes no concorden",
+    "syncPromptMessage": "La sincronització de les dades pot trigar una estona. Si us plau, no tanqueu aquesta pàgina",
     "or": "O",
     "LogInWithGoogle": "Inicieu sessió amb Google",
     "LogInWithGithub": "Inicieu sessió amb Github",
@@ -54,12 +56,19 @@
     "chooseWorkspace": "Tria el teu espai de treball",
     "create": "Crear un espai de treball",
     "reset": "Restableix l'espai de treball",
+    "resetWorkspacePrompt": "En restablir l'espai de treball, se suprimiran totes les pàgines i les dades que hi hagi. Esteu segur que voleu restablir l'espai de treball? Alternativament, podeu contactar amb l'equip d'assistència per restaurar l'espai de treball",
     "hint": "espai de treball",
     "notFoundError": "No s'ha trobat l'espai de treball",
+    "failedToLoad": "Alguna cosa ha anat malament! No s'ha pogut carregar l'espai de treball. Intenta tancar qualsevol instància oberta d'AppFlowy i torna-ho a provar.",
     "errorActions": {
       "reportIssue": "Informar d'un problema",
+      "reportIssueOnGithub": "Informa d'un problema a Github",
+      "exportLogFiles": "Exporta fitxers de registre",
       "reachOut": "Posa't en contacte amb Discord"
-    }
+    },
+    "deleteWorkspaceHintText": "Esteu segur que voleu suprimir l'espai de treball? Aquesta acció no es pot desfer.",
+    "createSuccess": "Espai de treball creat correctament",
+    "createFailed": "No s'ha pogut crear l'espai de treball"
   },
   "shareAction": {
     "buttonText": "Compartir",

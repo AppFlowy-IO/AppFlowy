@@ -2,17 +2,21 @@
   "appName": "AppFlowy",
   "defaultUsername": "Me",
   "welcomeText": "@:appName 에 오신것을 환영합니다",
+  "welcomeTo": "에 오신 것을 환영합니다",
   "githubStarText": "Star on GitHub",
   "subscribeNewsletterText": "뉴스레터 구독",
   "letsGoButtonText": "Let's Go",
   "title": "제목",
   "youCanAlso": "당신은 또한 수",
   "and": "그리고",
+  "failedToOpenUrl": "URL을 열지 못했습니다: {}",
   "blockActions": {
     "addBelowTooltip": "아래에 추가하려면 클릭",
     "addAboveCmd": "Alt+클릭",
     "addAboveMacCmd": "Option+클릭",
-    "addAboveTooltip": "위에 추가"
+    "addAboveTooltip": "위에 추가",
+    "dragTooltip": "드래그하여 이동",
+    "openMenuTooltip": "메뉴를 열려면 클릭하세요."
   },
   "signUp": {
     "buttonText": "회원가입",
@@ -24,24 +28,47 @@
     "alreadyHaveAnAccount": "이미 계정이 있으신가요?",
     "emailHint": "이메일",
     "passwordHint": "비밀번호",
-    "repeatPasswordHint": "비밀번호 재입력"
+    "repeatPasswordHint": "비밀번호 재입력",
+    "signUpWith": "다음으로 가입하세요:"
   },
   "signIn": {
     "loginTitle": "@:appName 에 로그인",
     "loginButtonText": "로그인",
+    "loginStartWithAnonymous": "익명 세션으로 시작",
+    "continueAnonymousUser": "익명 세션으로 계속",
     "buttonText": "로그인",
+    "signingInText": "로그인...",
     "forgotPassword": "비밀번호를 잊으셨나요?",
     "emailHint": "이메일",
     "passwordHint": "비밀번호",
     "dontHaveAnAccount": "계정이 없으신가요?",
     "repeatPasswordEmptyError": "비밀번호 재입력란은 공백일 수 없습니다",
     "unmatchedPasswordError": "재입력 하신 비밀번호가 같지 않습니다",
+    "syncPromptMessage": "데이터를 동기화하는 데 시간이 걸릴 수 있습니다. 이 페이지를 닫지 마세요",
+    "or": "또는",
+    "LogInWithGoogle": "Google로 로그인",
+    "LogInWithGithub": "Github로 로그인",
+    "LogInWithDiscord": "디스코드로 로그인하세요",
+    "signInWith": "으로 로그인:",
     "loginAsGuestButtonText": "시작하다"
   },
   "workspace": {
+    "chooseWorkspace": "작업 공간을 선택하세요",
     "create": "워크스페이스 생성",
+    "reset": "작업공간 재설정",
+    "resetWorkspacePrompt": "작업 영역을 재설정하면 그 안의 모든 페이지와 데이터가 삭제됩니다. 작업공간을 재설정하시겠습니까? 또는 지원팀에 문의하여 작업공간을 복원할 수 있습니다.",
     "hint": "워크스페이스",
-    "notFoundError": "워크스페이스를 찾을 수 없습니다"
+    "notFoundError": "워크스페이스를 찾을 수 없습니다",
+    "failedToLoad": "문제가 발생했습니다. 작업공간을 로드하지 못했습니다. 열려 있는 AppFlowy 인스턴스를 모두 닫고 다시 시도해 보세요.",
+    "errorActions": {
+      "reportIssue": "문제 신고",
+      "reportIssueOnGithub": "Github에 문제 보고",
+      "exportLogFiles": "로그 파일 내보내기",
+      "reachOut": "Discord에 문의하세요"
+    },
+    "deleteWorkspaceHintText": "작업공간을 삭제하시겠습니까? 이 작업은 취소할 수 없습니다.",
+    "createSuccess": "작업공간이 성공적으로 생성되었습니다.",
+    "createFailed": "작업공간을 생성하지 못했습니다."
   },
   "shareAction": {
     "buttonText": "공유",

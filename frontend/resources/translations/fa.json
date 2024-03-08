@@ -2,12 +2,14 @@
   "appName": "AppFlowy",
   "defaultUsername": "من",
   "welcomeText": "به @:appName خوش آمدید",
+  "welcomeTo": "خوش آمدید به",
   "githubStarText": "به گیت‌هاب ما ستاره دهید",
   "subscribeNewsletterText": "اشتراک در خبرنامه",
   "letsGoButtonText": "شروع کنید",
   "title": "عنوان",
   "youCanAlso": "همچنین می‌توانید",
   "and": "و",
+  "failedToOpenUrl": "آدرس اینترنتی باز نشد: {}",
   "blockActions": {
     "addBelowTooltip": "برای افزودن در زیر کلیک کنید",
     "addAboveCmd": "Alt+click",
@@ -32,21 +34,41 @@
   "signIn": {
     "loginTitle": "ورود به @:appName",
     "loginButtonText": "ورود",
+    "loginStartWithAnonymous": "با یک جلسه ناشناس شروع کنید",
     "continueAnonymousUser": "ادامه دادن به صورت کاربر مهمان",
     "buttonText": "ورود",
+    "signingInText": "وارد شدن...",
     "forgotPassword": "رمز عبور را فراموش کرده اید؟",
     "emailHint": "ایمیل",
     "passwordHint": "رمز عبور",
     "dontHaveAnAccount": "آیا حساب کاربری ندارید؟",
     "repeatPasswordEmptyError": "تکرار رمز عبور نمی‌تواند خالی باشد",
     "unmatchedPasswordError": "تکرار رمز عبور مشابه رمز عبور نیست",
+    "syncPromptMessage": "همگام سازی داده ها ممکن است کمی طول بکشد. لطفا این صفحه را نبندید",
+    "or": "یا",
+    "LogInWithGoogle": "با گوگل وارد شوید",
+    "LogInWithGithub": "با Github وارد شوید",
+    "LogInWithDiscord": "با Discord وارد شوید",
     "signInWith": "ثبت نام با:",
     "loginAsGuestButtonText": "شروع کنید"
   },
   "workspace": {
+    "chooseWorkspace": "فضای کاری خود را انتخاب کنید",
     "create": "ایجاد فضای کار",
+    "reset": "بازنشانی فضای کاری",
+    "resetWorkspacePrompt": "با تنظیم مجدد فضای کاری، تمام صفحات و داده های موجود در آن حذف می شود. آیا مطمئن هستید که می خواهید فضای کاری را بازنشانی کنید؟ همچنین می‌توانید برای بازیابی فضای کاری با تیم پشتیبانی تماس بگیرید",
     "hint": "فضای کار",
-    "notFoundError": "فضای کاری پیدا نشد"
+    "notFoundError": "فضای کاری پیدا نشد",
+    "failedToLoad": "مشکلی پیش آمد! فضای کاری بارگیری نشد. سعی کنید هر نمونه باز AppFlowy را ببندید و دوباره امتحان کنید.",
+    "errorActions": {
+      "reportIssue": "یک مشکل را گزارش کنید",
+      "reportIssueOnGithub": "گزارش یک مشکل در Github",
+      "exportLogFiles": "فایل های گزارش را صادر کنید",
+      "reachOut": "با Discord تماس بگیرید"
+    },
+    "deleteWorkspaceHintText": "آیا مطمئن هستید که می خواهید فضای کاری را حذف کنید؟ این عمل قابل لغو نیست.",
+    "createSuccess": "فضای کاری با موفقیت ایجاد شد",
+    "createFailed": "ایجاد فضای کاری ناموفق بود"
   },
   "shareAction": {
     "buttonText": "اشتراک گذاری",

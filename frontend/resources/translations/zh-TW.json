@@ -9,6 +9,7 @@
   "title": "標題",
   "youCanAlso": "你也可以",
   "and": "和",
+  "failedToOpenUrl": "無法開啟網址：{}",
   "blockActions": {
     "addBelowTooltip": "點選以在下方新增",
     "addAboveCmd": "Alt+點選",
@@ -63,7 +64,10 @@
       "reportIssueOnGithub": "在 Github 提交 issue",
       "exportLogFiles": "匯出日誌記錄檔案",
       "reachOut": "在 Discord 上聯絡我們"
-    }
+    },
+    "deleteWorkspaceHintText": "您確定要刪除工作區嗎？此操作無法撤銷。",
+    "createSuccess": "工作區創建成功",
+    "createFailed": "建立工作區失敗"
   },
   "shareAction": {
     "buttonText": "分享",

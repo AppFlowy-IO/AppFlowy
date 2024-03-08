@@ -1,0 +1,72 @@
+{
+  "appName": "AppFlowy",
+  "defaultUsername": "Mig",
+  "welcomeText": "Välkommen till @:appName",
+  "welcomeTo": "Välkommen till",
+  "githubStarText": "Stjärna på GitHub",
+  "subscribeNewsletterText": "Prenumerera på nyhetsbrev",
+  "letsGoButtonText": "Snabbstart",
+  "title": "Titel",
+  "youCanAlso": "Du kan också",
+  "and": "och",
+  "failedToOpenUrl": "Det gick inte att öppna webbadressen: {}",
+  "blockActions": {
+    "addBelowTooltip": "Klicka för att lägga till nedan",
+    "addAboveCmd": "Alt+klicka",
+    "addAboveMacCmd": "Alternativ+klick",
+    "addAboveTooltip": "att lägga till ovan",
+    "dragTooltip": "Dra för att flytta",
+    "openMenuTooltip": "Klicka för att öppna menyn"
+  },
+  "signUp": {
+    "buttonText": "Bli Medlem",
+    "title": "Registrera dig för @:appName",
+    "getStartedText": "Komma igång",
+    "emptyPasswordError": "Lösenordet får inte vara tomt",
+    "repeatPasswordEmptyError": "Upprepa lösenordet får inte vara tomt",
+    "unmatchedPasswordError": "Upprepa lösenord är inte detsamma som lösenord",
+    "alreadyHaveAnAccount": "Har du redan ett konto?",
+    "emailHint": "E-post",
+    "passwordHint": "Lösenord",
+    "repeatPasswordHint": "repetera lösenord",
+    "signUpWith": "Registrera med:"
+  },
+  "signIn": {
+    "loginTitle": "Logga in på @:appName",
+    "loginButtonText": "Logga in",
+    "loginStartWithAnonymous": "Börja med en anonym session",
+    "continueAnonymousUser": "Fortsätt med en anonym session",
+    "buttonText": "Logga in",
+    "signingInText": "Loggar in...",
+    "forgotPassword": "Glömt ditt lösenord?",
+    "emailHint": "E-post",
+    "passwordHint": "Lösenord",
+    "dontHaveAnAccount": "Har du inget konto?",
+    "repeatPasswordEmptyError": "Upprepa lösenordet får inte vara tomt",
+    "unmatchedPasswordError": "Upprepa lösenord är inte detsamma som lösenord",
+    "syncPromptMessage": "Att synkronisera data kan ta en stund. Vänligen stäng inte den här sidan",
+    "or": "ELLER",
+    "LogInWithGoogle": "Logga in med Google",
+    "LogInWithGithub": "Logga in med Github",
+    "LogInWithDiscord": "Logga in med Discord",
+    "signInWith": "Logga in med:"
+  },
+  "workspace": {
+    "chooseWorkspace": "Välj din arbetsyta",
+    "create": "Skapa arbetsyta",
+    "reset": "Återställ arbetsytan",
+    "resetWorkspacePrompt": "Om du återställer arbetsytan raderas alla sidor och data i den. Är du säker på att du vill återställa arbetsytan? Alternativt kan du kontakta supportteamet för att återställa arbetsytan",
+    "hint": "arbetsyta",
+    "notFoundError": "Det gick inte att hitta arbetsytan",
+    "failedToLoad": "Något gick fel! Det gick inte att läsa in arbetsytan. Försök att stänga en öppen instans av AppFlowy och försök igen.",
+    "errorActions": {
+      "reportIssue": "Rapportera ett problem",
+      "reportIssueOnGithub": "Rapportera ett problem på Github",
+      "exportLogFiles": "Exportera loggfiler",
+      "reachOut": "Nå ut på Discord"
+    },
+    "deleteWorkspaceHintText": "Är du säker på att du vill ta bort arbetsytan? Denna åtgärd kan inte ångras.",
+    "createSuccess": "Arbetsytan har skapats",
+    "createFailed": "Det gick inte att skapa arbetsyta"
+  }
+}

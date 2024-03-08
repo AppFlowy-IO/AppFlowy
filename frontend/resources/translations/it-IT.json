@@ -2,12 +2,14 @@
   "appName": "AppFlowy",
   "defaultUsername": "Me",
   "welcomeText": "Benvenuto in @:appName",
+  "welcomeTo": "Benvenuto a",
   "githubStarText": "Vota su GitHub",
   "subscribeNewsletterText": "Sottoscrivi la Newsletter",
   "letsGoButtonText": "Andiamo",
   "title": "Titolo",
   "youCanAlso": "Puoi anche",
   "and": "E",
+  "failedToOpenUrl": "Impossibile aprire l'URL: {}",
   "blockActions": {
     "addBelowTooltip": "Fare clic per aggiungere di seguito",
     "addAboveCmd": "Alt+clic",
@@ -35,6 +37,7 @@
     "loginStartWithAnonymous": "Inizia con una sessione anonima",
     "continueAnonymousUser": "Continua con una sessione anonima",
     "buttonText": "Accedi",
+    "signingInText": "Registrarsi...",
     "forgotPassword": "Password Dimentica?",
     "emailHint": "Email",
     "passwordHint": "Password",
@@ -62,7 +65,10 @@
       "reportIssueOnGithub": "Segnalate un problema su Github",
       "exportLogFiles": "Esporta i file di log",
       "reachOut": "Contattaci su Discord"
-    }
+    },
+    "deleteWorkspaceHintText": "Sei sicuro di voler eliminare l'area di lavoro? Questa azione non può essere annullata.",
+    "createSuccess": "Area di lavoro creata correttamente",
+    "createFailed": "Impossibile creare l'area di lavoro"
   },
   "shareAction": {
     "buttonText": "Condividi",
@@ -619,8 +625,8 @@
       "cannotFindCreatableField": "Impossibile trovare un campo adatto per l'ordinamento",
       "deleteAllSorts": "Elimina tutti gli ordinamenti",
       "addSort": "Aggiungi ordinamento",
-      "deleteSort": "Elimina ordinamento",
-      "removeSorting": "Si desidera rimuovere l'ordinamento?"
+      "removeSorting": "Si desidera rimuovere l'ordinamento?",
+      "deleteSort": "Elimina ordinamento"
     },
     "row": {
       "duplicate": "Duplicare",

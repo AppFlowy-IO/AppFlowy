@@ -9,6 +9,7 @@
   "title": "Judul",
   "youCanAlso": "Anda juga bisa",
   "and": "Dan",
+  "failedToOpenUrl": "Gagal membuka url: {}",
   "blockActions": {
     "addBelowTooltip": "Klik untuk menambahkan di bawah",
     "addAboveCmd": "Alt+klik",
@@ -61,8 +62,13 @@
     "failedToLoad": "Ada yang tidak beres! Gagal memuat area kerja. Coba tutup AppFlowy yang terbuka dan coba lagi.",
     "errorActions": {
       "reportIssue": "Melaporkan isu",
+      "reportIssueOnGithub": "Laporkan masalah di Github",
+      "exportLogFiles": "Ekspor file log",
       "reachOut": "Hubungi di Discord"
-    }
+    },
+    "deleteWorkspaceHintText": "Apakah Anda yakin ingin menghapus ruang kerja? Tindakan ini tidak bisa dibatalkan.",
+    "createSuccess": "Ruang kerja berhasil dibuat",
+    "createFailed": "Gagal membuat ruang kerja"
   },
   "shareAction": {
     "buttonText": "Bagikan",

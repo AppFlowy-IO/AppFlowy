@@ -9,6 +9,7 @@
   "title": "Tiêu đề",
   "youCanAlso": "Bạn cũng có thể",
   "and": "và",
+  "failedToOpenUrl": "Không mở được url: {}",
   "blockActions": {
     "addBelowTooltip": "Nhấn để thêm vào bên dưới",
     "addAboveCmd": "Alt+nhấp chuột",
@@ -61,8 +62,13 @@
     "failedToLoad": "Đã xảy ra lỗi! Không tải được không gian làm việc. Hãy thử đóng mọi phiên bản đang mở của AppFlowy và thử lại.",
     "errorActions": {
       "reportIssue": "Báo cáo một vấn đề",
+      "reportIssueOnGithub": "Báo cáo sự cố trên Github",
+      "exportLogFiles": "Xuất tệp nhật ký",
       "reachOut": "Báo cáo trên Discord"
-    }
+    },
+    "deleteWorkspaceHintText": "Bạn có chắc chắn muốn xóa không gian làm việc không? Hành động này không thể được hoàn tác.",
+    "createSuccess": "Không gian làm việc được tạo thành công",
+    "createFailed": "Không tạo được không gian làm việc"
   },
   "shareAction": {
     "buttonText": "Chia sẻ",

@@ -2,12 +2,14 @@
   "appName": "AppFlowy",
   "defaultUsername": "Ben",
   "welcomeText": "@:appName uygulamasına hoş geldiniz",
+  "welcomeTo": "Hoşgeldiniz",
   "githubStarText": "GitHub yıldızı",
   "subscribeNewsletterText": "Bültene abone ol",
   "letsGoButtonText": "Başlayalım",
   "title": "Başlık",
   "youCanAlso": "Şunları da yapabilirsiniz",
   "and": "ve",
+  "failedToOpenUrl": "URL açılamadı: {}",
   "blockActions": {
     "addBelowTooltip": "Aşağıya eklemek için tıklayın",
     "addAboveCmd": "Alt+tıklama",
@@ -35,6 +37,7 @@
     "loginStartWithAnonymous": "Anonim bir oturum başlat",
     "continueAnonymousUser": "Anonim bir oturumu sürdür",
     "buttonText": "Oturum aç",
+    "signingInText": "Giriş yapılıyor...",
     "forgotPassword": "Parolamı unuttum",
     "emailHint": "E-posta",
     "passwordHint": "Parola",
@@ -58,8 +61,13 @@
     "failedToLoad": "Bir sorun çıktı. Çalışma alanı yüklenemedi. Açık olabilecek tüm AppFlowy kopyalarını kapatıp yeniden deneyin.",
     "errorActions": {
       "reportIssue": "Sorun bildirin",
+      "reportIssueOnGithub": "Github'da bir sorun bildirin",
+      "exportLogFiles": "Günlük dosyalarını dışa aktar",
       "reachOut": "Discord üzerinden yazın"
-    }
+    },
+    "deleteWorkspaceHintText": "Çalışma alanını silmek istediğinizden emin misiniz? Bu eylem geri alınamaz.",
+    "createSuccess": "Çalışma alanı başarıyla oluşturuldu",
+    "createFailed": "Çalışma alanı oluşturulamadı"
   },
   "shareAction": {
     "buttonText": "Paylaş",

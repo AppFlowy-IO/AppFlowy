@@ -2,17 +2,21 @@
   "appName": "AppFlowy",
   "defaultUsername": "Én",
   "welcomeText": "Üdvözöl az @:appName",
+  "welcomeTo": "Isten hozott a",
   "githubStarText": "GitHub csillagozás",
   "subscribeNewsletterText": "Iratkozzon fel a hírlevelünkre",
   "letsGoButtonText": "Vágjunk bele",
   "title": "Cím",
   "youCanAlso": "Te is",
   "and": "és",
+  "failedToOpenUrl": "Nem sikerült megnyitni az URL-t: {}",
   "blockActions": {
     "addBelowTooltip": "Kattintson a hozzáadáshoz lent",
     "addAboveCmd": "Alt+kattintás",
     "addAboveMacCmd": "Option+kattintás",
-    "addAboveTooltip": "a fentiek hozzáadásához"
+    "addAboveTooltip": "a fentiek hozzáadásához",
+    "dragTooltip": "Ragadja meg a mozgatáshoz",
+    "openMenuTooltip": "Kattintson a menü megnyitásához"
   },
   "signUp": {
     "buttonText": "Regisztráció",
@@ -24,24 +28,47 @@
     "alreadyHaveAnAccount": "Rendelkezik már fiókkal?",
     "emailHint": "Email",
     "passwordHint": "Jelszó",
-    "repeatPasswordHint": "Jelszó megerősítése"
+    "repeatPasswordHint": "Jelszó megerősítése",
+    "signUpWith": "Regisztráljon a következővel:"
   },
   "signIn": {
     "loginTitle": "Bejelentkezés az @:appName -ba",
     "loginButtonText": "Belépés",
+    "loginStartWithAnonymous": "Kezdje egy névtelen munkamenettel",
+    "continueAnonymousUser": "Folytatás egy névtelen munkamenettel",
     "buttonText": "Bejelentkezés",
+    "signingInText": "Bejelentkezés...",
     "forgotPassword": "Elfelejtett jelszó?",
     "emailHint": "Email",
     "passwordHint": "Jelszó",
     "dontHaveAnAccount": "Még nincs fiókod?",
     "repeatPasswordEmptyError": "A jelszó megerősítése nem lehet üres",
     "unmatchedPasswordError": "A jelszavak nem egyeznek",
+    "syncPromptMessage": "Az adatok szinkronizálása eltarthat egy ideig. Kérem, ne zárja be ezt az oldalt",
+    "or": "VAGY",
+    "LogInWithGoogle": "Jelentkezzen be a Google-lal",
+    "LogInWithGithub": "Jelentkezzen be a Github segítségével",
+    "LogInWithDiscord": "Jelentkezzen be a Discord segítségével",
+    "signInWith": "Jelentkezz be vele:",
     "loginAsGuestButtonText": "Fogj neki"
   },
   "workspace": {
+    "chooseWorkspace": "Válassza ki a munkaterületet",
     "create": "Új munkaterület létrehozása",
+    "reset": "Állítsa vissza a munkaterületet",
+    "resetWorkspacePrompt": "A munkaterület visszaállítása törli az összes oldalt és adatot. Biztosan visszaállítja a munkaterületet? Alternatív megoldásként felveheti a kapcsolatot a támogatási csapattal a munkaterület visszaállítása érdekében",
     "hint": "munkaterület",
-    "notFoundError": "munkaterület nem található"
+    "notFoundError": "munkaterület nem található",
+    "failedToLoad": "Valami elromlott! Nem sikerült betölteni a munkaterületet. Próbálja meg bezárni az AppFlowy bármely nyitott példányát, és próbálja újra.",
+    "errorActions": {
+      "reportIssue": "Probléma bejelentése",
+      "reportIssueOnGithub": "Hiba bejelentése a Githubon",
+      "exportLogFiles": "Naplófájlok exportálása",
+      "reachOut": "Forduljon a Discordhoz"
+    },
+    "deleteWorkspaceHintText": "Biztosan törli a munkaterületet? Ez a művelet nem visszavonható.",
+    "createSuccess": "Munkaterület sikeresen létrehozva",
+    "createFailed": "Nem sikerült létrehozni a munkaterületet"
   },
   "shareAction": {
     "buttonText": "Megosztás",

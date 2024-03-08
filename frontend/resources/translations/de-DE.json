@@ -2,12 +2,14 @@
   "appName": "AppFlowy",
   "defaultUsername": "Ich",
   "welcomeText": "Willkommen bei @:appName",
+  "welcomeTo": "Willkommen zu",
   "githubStarText": "Mit einem Stern auf GitHub markieren",
   "subscribeNewsletterText": "Abonniere den Newsletter",
   "letsGoButtonText": "Los geht's",
   "title": "Titel",
   "youCanAlso": "Du kannst auch",
   "and": "und",
+  "failedToOpenUrl": "URL konnte nicht geöffnet werden: {}",
   "blockActions": {
     "addBelowTooltip": "Klicken, um etwas unten hinzuzufügen",
     "addAboveCmd": "Alt+Klick",
@@ -35,6 +37,7 @@
     "loginStartWithAnonymous": "Anonyme Sitzung starten",
     "continueAnonymousUser": "in anonymer Sitzung fortfahren",
     "buttonText": "Anmelden",
+    "signingInText": "Anmelden...",
     "forgotPassword": "Passwort vergessen?",
     "emailHint": "E-Mail",
     "passwordHint": "Passwort",
@@ -58,8 +61,13 @@
     "failedToLoad": "Etwas ist schief gelaufen! Der Arbeitsbereich konnte nicht geladen werden. Versuchen Sie, alle AppFlowy Instanzen zu schließen, und versuchen Sie es erneut.",
     "errorActions": {
       "reportIssue": "Problem melden",
+      "reportIssueOnGithub": "Melden Sie ein Problem auf Github",
+      "exportLogFiles": "Protokolldateien exportieren",
       "reachOut": "Kontaktieren Sie uns auf Discord"
-    }
+    },
+    "deleteWorkspaceHintText": "Sind Sie sicher, dass Sie den Arbeitsbereich löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+    "createSuccess": "Arbeitsbereich erfolgreich erstellt",
+    "createFailed": "Der Arbeitsbereich konnte nicht erstellt werden"
   },
   "shareAction": {
     "buttonText": "Teilen",

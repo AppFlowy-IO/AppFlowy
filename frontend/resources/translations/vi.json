@@ -1,0 +1,72 @@
+{
+  "appName": "AppFlowy",
+  "defaultUsername": "Tôi",
+  "welcomeText": "Chào mừng bạn đến với @:appName",
+  "welcomeTo": "Chào mừng bạn đến",
+  "githubStarText": "Sao trên GitHub",
+  "subscribeNewsletterText": "Đăng ký tin",
+  "letsGoButtonText": "Bắt đầu nhanh",
+  "title": "Tiêu đề",
+  "youCanAlso": "Bạn cũng có thể",
+  "and": "Và",
+  "failedToOpenUrl": "Không mở được url: {}",
+  "blockActions": {
+    "addBelowTooltip": "Nhấn vào đây để thêm vào bên dưới",
+    "addAboveCmd": "Alt+nhấp chuột",
+    "addAboveMacCmd": "Tùy chọn+nhấp chuột",
+    "addAboveTooltip": "để thêm ở trên",
+    "dragTooltip": "Kéo để di chuyển",
+    "openMenuTooltip": "Bấm để mở menu"
+  },
+  "signUp": {
+    "buttonText": "Đăng ký",
+    "title": "Đăng ký @:appName",
+    "getStartedText": "Bắt đầu",
+    "emptyPasswordError": "Mật khẩu không thể trống",
+    "repeatPasswordEmptyError": "Lặp lại mật khẩu không được để trống",
+    "unmatchedPasswordError": "Lặp lại mật khẩu không giống như mật khẩu",
+    "alreadyHaveAnAccount": "Bạn co săn san để tạo một tai khoản?",
+    "emailHint": "E-mail",
+    "passwordHint": "Mật khẩu",
+    "repeatPasswordHint": "lặp lại mật khẩu",
+    "signUpWith": "Đăng ký với:"
+  },
+  "signIn": {
+    "loginTitle": "Đăng nhập vào @:appName",
+    "loginButtonText": "Đăng nhập",
+    "loginStartWithAnonymous": "Bắt đầu với một phiên ẩn danh",
+    "continueAnonymousUser": "Tiếp tục với một phiên ẩn danh",
+    "buttonText": "Đăng nhập",
+    "signingInText": "Đang đăng nhập...",
+    "forgotPassword": "Quên mật khẩu?",
+    "emailHint": "E-mail",
+    "passwordHint": "Mật khẩu",
+    "dontHaveAnAccount": "Bạn chưa có tài khoản?",
+    "repeatPasswordEmptyError": "Lặp lại mật khẩu không được để trống",
+    "unmatchedPasswordError": "Lặp lại mật khẩu không giống như mật khẩu",
+    "syncPromptMessage": "Việc đồng bộ hóa dữ liệu có thể mất một lúc. Xin đừng đóng trang này",
+    "or": "HOẶC",
+    "LogInWithGoogle": "Đăng nhập bằng Google",
+    "LogInWithGithub": "Đăng nhập bằng Github",
+    "LogInWithDiscord": "Đăng nhập bằng Discord",
+    "signInWith": "Đăng nhập với:"
+  },
+  "workspace": {
+    "chooseWorkspace": "Chọn không gian làm việc của bạn",
+    "create": "Tạo không gian làm việc",
+    "reset": "Đặt lại không gian làm việc",
+    "resetWorkspacePrompt": "Đặt lại không gian làm việc sẽ xóa tất cả các trang và dữ liệu trong đó. Bạn có chắc chắn muốn đặt lại không gian làm việc không? Ngoài ra, bạn có thể liên hệ với nhóm hỗ trợ để khôi phục không gian làm việc",
+    "hint": "không gian làm việc",
+    "notFoundError": "Không tìm thấy không gian làm việc",
+    "failedToLoad": "Đã xảy ra lỗi! Không tải được không gian làm việc. Hãy thử đóng mọi phiên bản đang mở của AppFlowy và thử lại.",
+    "errorActions": {
+      "reportIssue": "Báo cáo một vấn đề",
+      "reportIssueOnGithub": "Báo cáo sự cố trên Github",
+      "exportLogFiles": "Xuất tệp nhật ký",
+      "reachOut": "Tiếp cận trên Discord"
+    },
+    "deleteWorkspaceHintText": "Bạn có chắc chắn muốn xóa không gian làm việc không? Hành động này không thể được hoàn tác.",
+    "createSuccess": "Không gian làm việc được tạo thành công",
+    "createFailed": "Không tạo được không gian làm việc"
+  }
+}

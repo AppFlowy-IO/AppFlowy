@@ -9,6 +9,7 @@
   "title": "Заголовок",
   "youCanAlso": "Вы также можете",
   "and": "и",
+  "failedToOpenUrl": "Не удалось открыть URL: {}",
   "blockActions": {
     "addBelowTooltip": "Нажмите, чтобы добавить ниже",
     "addAboveCmd": "Alt+клик",
@@ -64,7 +65,10 @@
       "reportIssueOnGithub": "Сообщить о проблеме на Github",
       "exportLogFiles": "Экспорт логов",
       "reachOut": "Написать в Discord"
-    }
+    },
+    "deleteWorkspaceHintText": "Вы уверены, что хотите удалить рабочую область? Это действие не может быть отменено.",
+    "createSuccess": "Рабочая область успешно создана",
+    "createFailed": "Не удалось создать рабочую область."
   },
   "shareAction": {
     "buttonText": "Поделиться",
@@ -493,14 +497,14 @@
       "typeAValue": "Введите значение...",
       "layout": "Вид",
       "databaseLayout": "Вид базы данных",
-      "viewList": "Представление базы данных",
       "editView": "Редактировать представление",
       "boardSettings": "Настройки доски",
       "calendarSettings": "Настройки календаря",
       "createView": "Новое представление",
       "duplicateView": "Дублировать представление",
       "deleteView": "Удалить представление",
-      "numberOfVisibleFields": "{} показано"
+      "numberOfVisibleFields": "{} показано",
+      "viewList": "Представление базы данных"
     },
     "textFilter": {
       "contains": "Содержит",

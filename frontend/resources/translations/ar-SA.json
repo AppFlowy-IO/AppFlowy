@@ -2,12 +2,14 @@
   "appName": "AppFlowy",
   "defaultUsername": "أنا",
   "welcomeText": "مرحبًا بك في @: appName",
+  "welcomeTo": "مرحبا بك في",
   "githubStarText": "نجمة على GitHub",
   "subscribeNewsletterText": "اشترك في النشرة الإخبارية",
   "letsGoButtonText": "بداية سريعة",
   "title": "عنوان",
   "youCanAlso": "بامكانك ايضا",
   "and": "و",
+  "failedToOpenUrl": "فشل في فتح عنوان URL: {}",
   "blockActions": {
     "addBelowTooltip": "انقر للإضافة أدناه",
     "addAboveCmd": "Alt + انقر",
@@ -35,6 +37,7 @@
     "loginStartWithAnonymous": "ابدأ بجلسة خفية",
     "continueAnonymousUser": "استمر بجلسة خفية",
     "buttonText": "تسجيل الدخول",
+    "signingInText": "تسجيل الدخول...",
     "forgotPassword": "هل نسيت كلمة السر؟",
     "emailHint": "بريد إلكتروني",
     "passwordHint": "كلمة المرور",
@@ -59,8 +62,13 @@
     "failedToLoad": "هناك خطأ ما! فشل تحميل مساحة العمل. حاول إغلاق أي مثيل مفتوح لـ AppFlowy وحاول مرة أخرى.",
     "errorActions": {
       "reportIssue": "بلغ عن خطأ",
+      "reportIssueOnGithub": "الإبلاغ عن مشكلة على جيثب",
+      "exportLogFiles": "تصدير ملفات السجل",
       "reachOut": "تواصل مع ديسكورد"
-    }
+    },
+    "deleteWorkspaceHintText": "هل أنت متأكد أنك تريد حذف مساحة العمل؟ لا يمكن التراجع عن هذا الإجراء.",
+    "createSuccess": "تم إنشاء مساحة العمل بنجاح",
+    "createFailed": "فشل في إنشاء مساحة العمل"
   },
   "shareAction": {
     "buttonText": "مشاركه",

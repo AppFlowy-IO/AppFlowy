@@ -9,6 +9,7 @@
   "title": "Título",
   "youCanAlso": "Tú también puedes",
   "and": "y",
+  "failedToOpenUrl": "No se pudo abrir la URL: {}",
   "blockActions": {
     "addBelowTooltip": "Haga clic para agregar a continuación",
     "addAboveCmd": "Alt+clic",
@@ -61,8 +62,13 @@
     "failedToLoad": "¡Algo salió mal! No se pudo cargar el espacio de trabajo. Intente cerrar cualquier instancia abierta de AppFlowy y vuelva a intentarlo.",
     "errorActions": {
       "reportIssue": "Reportar un problema",
+      "reportIssueOnGithub": "Informar un problema en Github",
+      "exportLogFiles": "Exportar archivos de registro",
       "reachOut": "Comuníquese con Discord"
-    }
+    },
+    "deleteWorkspaceHintText": "¿Está seguro de que desea eliminar el espacio de trabajo? Esta acción no se puede deshacer.",
+    "createSuccess": "Espacio de trabajo creado exitosamente",
+    "createFailed": "No se pudo crear el espacio de trabajo"
   },
   "shareAction": {
     "buttonText": "Compartir",

@@ -2,12 +2,14 @@
   "appName": "AppFlowy",
   "defaultUsername": "ユーザー",
   "welcomeText": "Welcome to @:appName",
+  "welcomeTo": "へようこそ",
   "githubStarText": "Star on GitHub",
   "subscribeNewsletterText": "新着情報を受け取る",
   "letsGoButtonText": "Let's Go",
   "title": "タイトル",
   "youCanAlso": "他にもこんなことができます",
   "and": "と",
+  "failedToOpenUrl": "URLを開けませんでした: {}",
   "blockActions": {
     "addBelowTooltip": "クリックして下に追加してください",
     "addAboveCmd": "Alt+クリック",
@@ -26,11 +28,14 @@
     "alreadyHaveAnAccount": "すでにアカウントを登録済ですか？",
     "emailHint": "メールアドレス",
     "passwordHint": "パスワード",
-    "repeatPasswordHint": "パスワード（確認用）"
+    "repeatPasswordHint": "パスワード（確認用）",
+    "signUpWith": "に登録する："
   },
   "signIn": {
     "loginTitle": "@:appName にログイン",
     "loginButtonText": "ログイン",
+    "loginStartWithAnonymous": "匿名セッションから始める",
+    "continueAnonymousUser": "匿名セッションを続行する",
     "buttonText": "サインイン",
     "signingInText": "サインイン中...",
     "forgotPassword": "パスワードをお忘れですか？",
@@ -39,21 +44,31 @@
     "dontHaveAnAccount": "まだアカウントをお持ちではないですか？",
     "repeatPasswordEmptyError": "パスワード（確認用）を空にはできません",
     "unmatchedPasswordError": "パスワード（確認用）が一致しません",
+    "syncPromptMessage": "データの同期には時間がかかる場合があります。このページを閉じないでください",
+    "or": "または",
     "LogInWithGoogle": "Googleでログイン",
     "LogInWithGithub": "GitHubでログイン",
     "LogInWithDiscord": "Discordでログイン",
+    "signInWith": "サインインするには:",
     "loginAsGuestButtonText": "始めましょう"
   },
   "workspace": {
     "chooseWorkspace": "ワークスベースを選択",
     "create": "ワークスペースを作成する",
+    "reset": "ワークスペースをリセットする",
+    "resetWorkspacePrompt": "ワークスペースをリセットすると、ワークスペース内のすべてのページとデータが削除されます。ワークスペースをリセットしてもよろしいですか?または、サポート チームに連絡してワークスペースを復元することもできます。",
     "hint": "ワークスペース",
     "notFoundError": "ワークスペースがみつかりません",
+    "failedToLoad": "何か問題が発生しました!ワークスペースのロードに失敗しました。開いているAppFlowyのインスタンスを閉じて、再試行してください。",
     "errorActions": {
       "reportIssue": "問題を報告",
       "reportIssueOnGithub": "GitHubで問題を報告",
-      "exportLogFiles": "ログファイルを出力"
-    }
+      "exportLogFiles": "ログファイルを出力",
+      "reachOut": "Discord で連絡を取る"
+    },
+    "deleteWorkspaceHintText": "ワークスペースを削除してもよろしいですか?この操作は元に戻すことができません。",
+    "createSuccess": "ワークスペースが正常に作成されました",
+    "createFailed": "ワークスペースの作成に失敗しました"
   },
   "shareAction": {
     "buttonText": "共有する",

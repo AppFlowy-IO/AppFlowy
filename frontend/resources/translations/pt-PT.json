@@ -2,12 +2,14 @@
   "appName": "AppFlowy",
   "defaultUsername": "Eu",
   "welcomeText": "Bem vindo ao @:appName",
+  "welcomeTo": "Bem-vindo ao",
   "githubStarText": "Dar uma estrela no Github",
   "subscribeNewsletterText": "Inscreve-te no Newsletter",
   "letsGoButtonText": "Bora",
   "title": "Título",
   "youCanAlso": "Você também pode",
   "and": "e",
+  "failedToOpenUrl": "Falha ao abrir o URL: {}",
   "blockActions": {
     "addBelowTooltip": "Clique para adicionar abaixo",
     "addAboveCmd": "Alt+clique",
@@ -35,6 +37,7 @@
     "loginStartWithAnonymous": "Começar com uma sessão anónima",
     "continueAnonymousUser": "Continuar com uma sessão anónima",
     "buttonText": "Entre",
+    "signingInText": "Entrando...",
     "forgotPassword": "Esqueceste-te da tua palavra-passe?",
     "emailHint": "Email",
     "passwordHint": "Palavra-passe",
@@ -59,8 +62,13 @@
     "failedToLoad": "Algo correu mal! Falha ao carregar o espaço de trabalho. Tente fechar qualquer instância aberta do AppFlowy e tente novamente.",
     "errorActions": {
       "reportIssue": "Relatar problema",
+      "reportIssueOnGithub": "Relate um problema no Github",
+      "exportLogFiles": "Exportar arquivos de log",
       "reachOut": "Entre em contacto no Discord"
-    }
+    },
+    "deleteWorkspaceHintText": "Tem certeza de que deseja excluir o espaço de trabalho? Essa ação não pode ser desfeita.",
+    "createSuccess": "Espaço de trabalho criado com sucesso",
+    "createFailed": "Falha ao criar espaço de trabalho"
   },
   "shareAction": {
     "buttonText": "Partilhar",

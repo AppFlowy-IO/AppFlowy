@@ -9,6 +9,7 @@
   "title": "Titre",
   "youCanAlso": "Vous pouvez aussi",
   "and": "et",
+  "failedToOpenUrl": "Échec de l'ouverture de l'URL : {}",
   "blockActions": {
     "addBelowTooltip": "Cliquez pour ajouter ci-dessous",
     "addAboveCmd": "Alt+clic",
@@ -64,7 +65,10 @@
       "reportIssueOnGithub": "Signaler un bug sur Github",
       "exportLogFiles": "Exporter les logs",
       "reachOut": "Contactez-nous sur Discord"
-    }
+    },
+    "deleteWorkspaceHintText": "Êtes-vous sûr de vouloir supprimer l'espace de travail ? Cette action ne peut pas être annulée.",
+    "createSuccess": "Espace de travail créé avec succès",
+    "createFailed": "Échec de la création de l'espace de travail"
   },
   "shareAction": {
     "buttonText": "Partager",
