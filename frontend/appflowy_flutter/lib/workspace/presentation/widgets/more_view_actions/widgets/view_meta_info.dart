@@ -24,6 +24,8 @@ class ViewMetaInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final numberFormat = NumberFormat();
+
     // If more info is added to this Widget, use a separated ListView
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 6),
@@ -33,7 +35,9 @@ class ViewMetaInfo extends StatelessWidget {
           if (documentCounters != null) ...[
             FlowyText.regular(
               LocaleKeys.moreAction_wordCount.tr(
-                args: [documentCounters!.wordCount.toString()],
+                args: [
+                  numberFormat.format(documentCounters!.wordCount).toString()
+                ],
               ),
               fontSize: 11,
               color: Theme.of(context).hintColor,
@@ -41,7 +45,9 @@ class ViewMetaInfo extends StatelessWidget {
             const VSpace(2),
             FlowyText.regular(
               LocaleKeys.moreAction_charCount.tr(
-                args: [documentCounters!.charCount.toString()],
+                args: [
+                  numberFormat.format(documentCounters!.charCount).toString()
+                ],
               ),
               fontSize: 11,
               color: Theme.of(context).hintColor,
