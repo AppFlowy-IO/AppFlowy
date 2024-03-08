@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database/application/calculations/calculation_type_ext.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/application/field/type_option/number_format_bloc.dart';
@@ -180,11 +179,6 @@ class _CalculateCellState extends State<CalculateCell> {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ],
-                    const HSpace(8),
-                    FlowySvg(
-                      FlowySvgs.arrow_down_s,
-                      color: Theme.of(context).hintColor,
-                    ),
                   ],
                 ),
               ),

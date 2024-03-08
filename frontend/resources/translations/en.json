@@ -742,9 +742,9 @@
       "sum": "Sum",
       "count": "Count",
       "countEmpty": "Count empty",
-      "countEmptyShort": "Empty",
+      "countEmptyShort": "EMPTY",
       "countNonEmpty": "Count not empty",
-      "countNonEmptyShort": "Filled"
+      "countNonEmptyShort": "FILLED"
     }
   },
   "document": {
