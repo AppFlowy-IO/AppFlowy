@@ -116,8 +116,13 @@ impl CalculationType {
       | CalculationType::Sum => {
         matches!(field_type, FieldType::Number)
       },
+      // Exclude some fields from CountNotEmpty & CountEmpty
+      CalculationType::CountEmpty | CalculationType::CountNonEmpty => !matches!(
+        field_type,
+        FieldType::URL | FieldType::Checkbox | FieldType::CreatedTime | FieldType::LastEditedTime
+      ),
       // All fields
-      CalculationType::Count | CalculationType::CountEmpty | CalculationType::CountNonEmpty => true,
+      CalculationType::Count => true,
     }
   }
 }
