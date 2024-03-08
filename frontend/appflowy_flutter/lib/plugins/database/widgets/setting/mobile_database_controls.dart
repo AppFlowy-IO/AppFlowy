@@ -150,6 +150,7 @@ void _showEditSortPanelFromToolbar(
     showDragHandle: true,
     showDivider: false,
     useSafeArea: false,
+    backgroundColor: Theme.of(context).colorScheme.background,
     builder: (_) {
       return BlocProvider.value(
         value: context.read<SortEditorBloc>(),

@@ -13,6 +13,7 @@ enum FlowyOptionTileType {
 
 class FlowyOptionTile extends StatelessWidget {
   const FlowyOptionTile._({
+    super.key,
     required this.type,
     this.showTopBorder = true,
     this.showBottomBorder = true,
@@ -88,9 +89,11 @@ class FlowyOptionTile extends StatelessWidget {
   }
 
   factory FlowyOptionTile.checkbox({
+    Key? key,
     required String text,
     required bool isSelected,
     required VoidCallback? onTap,
+    Color? textColor,
     Widget? leftIcon,
     Widget? content,
     bool showTopBorder = true,
@@ -99,9 +102,11 @@ class FlowyOptionTile extends StatelessWidget {
     Color? backgroundColor,
   }) {
     return FlowyOptionTile._(
+      key: key,
       type: FlowyOptionTileType.checkbox,
       isSelected: isSelected,
       text: text,
+      textColor: textColor,
       content: content,
       onTap: onTap,
       fontFamily: fontFamily,
