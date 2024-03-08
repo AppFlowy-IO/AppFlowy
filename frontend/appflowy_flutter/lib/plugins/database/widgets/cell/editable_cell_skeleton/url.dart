@@ -147,7 +147,7 @@ void openUrlCellLink(String content) {
     ];
     final shouldAddScheme =
         !linkPrefix.any((pattern) => content.startsWith(pattern));
-    final url = shouldAddScheme ? 'http://$content' : content;
+    final url = shouldAddScheme ? 'https://$content' : content;
     afLaunchUrlString(url);
   } else {
     afLaunchUrlString(
