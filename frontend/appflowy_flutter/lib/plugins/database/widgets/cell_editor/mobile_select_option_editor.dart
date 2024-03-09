@@ -84,12 +84,11 @@ class _MobileSelectOptionEditorState extends State<MobileSelectOptionEditor> {
     const height = 44.0;
     return Stack(
       children: [
-        Align(
-          alignment: Alignment.centerLeft,
-          child: showMoreOptions
-              ? AppBarBackButton(onTap: _popOrBack)
-              : AppBarCloseButton(onTap: _popOrBack),
-        ),
+        if (showMoreOptions)
+          Align(
+            alignment: Alignment.centerLeft,
+            child: AppBarBackButton(onTap: _popOrBack),
+          ),
         SizedBox(
           height: 44.0,
           child: Align(

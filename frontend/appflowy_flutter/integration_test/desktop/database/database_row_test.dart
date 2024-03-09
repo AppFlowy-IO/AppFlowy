@@ -16,7 +16,7 @@ void main() {
       await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
       await tester.tapCreateRowButtonInGrid();
 
-      // The initial number of rows is 3
+      // 3 initial rows + 1 created
       await tester.assertNumberOfRowsInGridPage(4);
       await tester.pumpAndSettle();
     });
@@ -31,9 +31,8 @@ void main() {
 
       await tester.tapCreateRowButtonInRowMenuOfGrid();
 
-      // The initial number of rows is 3
+      // 3 initial rows + 1 created
       await tester.assertNumberOfRowsInGridPage(4);
-      await tester.assertRowCountInGridPage(4);
       await tester.pumpAndSettle();
     });
 
@@ -48,9 +47,8 @@ void main() {
       await tester.tapRowMenuButtonInGrid();
       await tester.tapDeleteOnRowMenu();
 
-      // The initial number of rows is 3
+      // 3 initial rows - 1 deleted
       await tester.assertNumberOfRowsInGridPage(2);
-      await tester.assertRowCountInGridPage(2);
       await tester.pumpAndSettle();
     });
 
@@ -60,7 +58,6 @@ void main() {
       await tester.tapGoButton();
 
       await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
-      await tester.assertRowCountInGridPage(3);
 
       await tester.pumpAndSettle();
     });

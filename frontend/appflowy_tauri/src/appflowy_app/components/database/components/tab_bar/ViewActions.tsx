@@ -84,6 +84,7 @@ function ViewActions({ view, pageId, ...props }: { pageId: string; view: Page } 
                 updatePageName({
                   id: viewId,
                   name: val,
+                  immediate: true,
                 })
               );
               setOpenRenameDialog(false);

@@ -55,6 +55,9 @@ macro_rules! impl_into_calculation_type {
           2 => CalculationType::Median,
           3 => CalculationType::Min,
           4 => CalculationType::Sum,
+          5 => CalculationType::Count,
+          6 => CalculationType::CountEmpty,
+          7 => CalculationType::CountNonEmpty,
           _ => {
             tracing::error!("🔴 Can't parse CalculationType from value: {}", ty);
             CalculationType::Average

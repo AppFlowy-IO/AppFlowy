@@ -5,6 +5,7 @@ import dayjs from 'dayjs';
 import { ReactComponent as LeftSvg } from '$app/assets/arrow-left.svg';
 import { ReactComponent as RightSvg } from '$app/assets/arrow-right.svg';
 import { IconButton } from '@mui/material';
+import './calendar.scss';
 
 function CustomCalendar({
   handleChange,

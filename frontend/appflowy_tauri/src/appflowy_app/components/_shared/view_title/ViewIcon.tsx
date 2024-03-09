@@ -22,6 +22,9 @@ function ViewIcon({ icon, onUpdateIcon }: { icon?: PageIcon; onUpdateIcon: (icon
   const onEmojiSelect = useCallback(
     (emoji: string) => {
       onUpdateIcon(emoji);
+      if (!emoji) {
+        setAnchorPosition(undefined);
+      }
     },
     [onUpdateIcon]
   );

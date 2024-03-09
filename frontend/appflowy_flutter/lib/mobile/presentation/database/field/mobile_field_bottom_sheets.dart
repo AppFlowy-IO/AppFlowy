@@ -40,7 +40,7 @@ Future<FieldType?> showFieldTypeGridBottomSheet(
     showCloseButton: true,
     elevation: 20,
     title: title,
-    backgroundColor: Theme.of(context).colorScheme.surface,
+    backgroundColor: Theme.of(context).colorScheme.background,
     enableDraggableScrollable: true,
     builder: (context) {
       final typeOptionMenuItemValue = mobileSupportedFieldTypes
@@ -93,9 +93,6 @@ void mobileCreateFieldWorkflow(
   );
   if (optionValues != null) {
     await optionValues.create(viewId: viewId, position: position);
-  }
-  if (context.mounted) {
-    context.pop();
   }
 }
 
