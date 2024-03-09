@@ -131,11 +131,12 @@ class _DatabaseListState extends State<_DatabaseList> {
         final databaseIds = data
             .fold<List<DatabaseDescriptionPB>>((l) => l.items, (r) => [])
             .map((databaseDescription) {
-          final databaseId = databaseDescription.databaseId;
+          final DatabaseDescriptionPB(:databaseId, :name) = databaseDescription;
+
           return FlowyButton(
             onTap: () => widget.onSelectDatabase(databaseId),
             text: FlowyText.medium(
-              databaseId,
+              name,
               overflow: TextOverflow.ellipsis,
             ),
             rightIcon: databaseId == widget.currentDatabaseId

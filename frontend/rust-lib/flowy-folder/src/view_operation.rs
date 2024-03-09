@@ -43,6 +43,11 @@ pub trait FolderOperationHandler {
   /// Returns the [ViewData] that can be used to create the same view.
   fn duplicate_view(&self, view_id: &str) -> FutureResult<ViewData, FlowyError>;
 
+  /// Rename a view
+  fn rename_view(&self, _view_id: &str, _name: String) -> FutureResult<(), FlowyError> {
+    FutureResult::new(async move { Ok(()) })
+  }
+
   /// Create a view with the data.
   ///
   /// # Arguments

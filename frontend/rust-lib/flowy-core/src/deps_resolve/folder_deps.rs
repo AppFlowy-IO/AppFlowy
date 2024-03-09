@@ -266,6 +266,18 @@ impl FolderOperationHandler for DatabaseFolderOperation {
     })
   }
 
+  fn rename_view(&self, view_id: &str, name: String) -> FutureResult<(), FlowyError> {
+    tracing::trace!("stage 1");
+    let database_manager = self.0.clone();
+    let view_id = view_id.to_owned();
+    FutureResult::new(async move {
+      tracing::trace!("stage 2");
+      let database = database_manager.get_database_with_view_id(&view_id).await?;
+      tracing::trace!("stage 3");
+      database.update_view_name(&view_id, name).await
+    })
+  }
+
   /// Create a database view with duplicated data.
   /// If the ext contains the {"database_id": "xx"}, then it will link
   /// to the existing database.

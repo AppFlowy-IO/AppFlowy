@@ -164,15 +164,53 @@ impl DatabaseManager {
     Ok(())
   }
 
+  pub async fn get_database_description(&self, database_id: &str) -> Option<DatabaseDescriptionPB> {
+    if let Ok(wdb) = self.get_workspace_database().await {
+      let view_trackers = wdb.clone().get_all_databases();
+      let tracker = view_trackers
+        .into_iter()
+        .find(|tracker| tracker.database_id == database_id)?;
+
+      let inline_view_id = tracker.linked_views.first()?;
+      let database = wdb
+        .clone()
+        .get_database_with_view_id(inline_view_id)
+        .await?;
+
+      let inline_view = database.lock().get_view(inline_view_id)?;
+
+      Some(DatabaseDescriptionPB {
+        database_id: tracker.database_id,
+        name: inline_view.name.clone(),
+      })
+    } else {
+      None
+    }
+  }
+
   pub async fn get_all_databases_description(&self) -> RepeatedDatabaseDescriptionPB {
     let mut items = vec![];
     if let Ok(wdb) = self.get_workspace_database().await {
-      items = wdb
-        .get_all_databases()
-        .into_iter()
-        .map(DatabaseDescriptionPB::from)
-        .collect();
+      let view_trackers = wdb.clone().get_all_databases();
+
+      tokio::join!(async {
+        for tracker in view_trackers {
+          if let Some(view_id) = tracker.linked_views.first() {
+            let database = wdb.clone().get_database_with_view_id(view_id).await;
+
+            if let Some(database) = database {
+              if let Some(inline_view) = database.lock().get_view(view_id) {
+                items.push(DatabaseDescriptionPB {
+                  database_id: tracker.database_id,
+                  name: inline_view.name.clone(),
+                });
+              }
+            }
+          }
+        }
+      });
     }
+
     RepeatedDatabaseDescriptionPB { items }
   }
 

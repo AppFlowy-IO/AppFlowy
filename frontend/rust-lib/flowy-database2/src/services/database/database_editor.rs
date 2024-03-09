@@ -156,6 +156,19 @@ impl DatabaseEditor {
     Ok(())
   }
 
+  #[tracing::instrument(level = "trace", skip_all)]
+  pub async fn update_view_name(&self, view_id: &str, name: String) -> FlowyResult<()> {
+    self
+      .database
+      .lock()
+      .views
+      .update_database_view(view_id, |view_update| {
+        view_update.set_name(name);
+      });
+
+    Ok(())
+  }
+
   pub async fn subscribe_view_changed(
     &self,
     view_id: &str,

@@ -741,6 +741,23 @@ pub(crate) async fn delete_group_handler(
 }
 
 #[tracing::instrument(level = "debug", skip(manager), err)]
+pub(crate) async fn get_database_name_handler(
+  data: AFPluginData<DatabaseIdPB>,
+  manager: AFPluginState<Weak<DatabaseManager>>,
+) -> DataResult<DatabaseDescriptionPB, FlowyError> {
+  let manager = upgrade_manager(manager)?;
+  let params = data.try_into_inner()?;
+  let data = manager
+    .get_database_description(&params.value)
+    .await
+    .ok_or(FlowyError::internal().with_context(format!(
+      "database not found in database view tracker: {:?}",
+      params.value
+    )))?;
+  data_result_ok(data)
+}
+
+#[tracing::instrument(level = "debug", skip(manager), err)]
 pub(crate) async fn get_databases_handler(
   manager: AFPluginState<Weak<DatabaseManager>>,
 ) -> DataResult<RepeatedDatabaseDescriptionPB, FlowyError> {

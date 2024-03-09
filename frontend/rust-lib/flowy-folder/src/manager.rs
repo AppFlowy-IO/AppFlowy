@@ -691,6 +691,7 @@ impl FolderManager {
   /// Update the view with the given params.
   #[tracing::instrument(level = "trace", skip(self), err)]
   pub async fn update_view_with_params(&self, params: UpdateViewParams) -> FlowyResult<()> {
+    let name = params.name.clone();
     self
       .update_view(&params.view_id, |update| {
         update
@@ -700,7 +701,17 @@ impl FolderManager {
           .set_favorite_if_not_none(params.is_favorite)
           .done()
       })
-      .await
+      .await?;
+    if let Some(name) = name {
+      let view = self
+        .with_folder(|| None, |folder| folder.views.get_view(&params.view_id))
+        .ok_or_else(|| FlowyError::record_not_found().with_context("Can't find view to rename"))?;
+
+      let handler = self.get_handler(&view.layout)?;
+      handler.rename_view(&params.view_id, name).await?;
+    }
+
+    Ok(())
   }
 
   /// Update the icon of the view with the given params.
