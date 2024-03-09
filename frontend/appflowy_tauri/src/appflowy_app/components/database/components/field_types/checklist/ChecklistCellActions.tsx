@@ -19,26 +19,15 @@ function ChecklistCellActions({
   const { fieldId, rowId } = cell;
   const { percentage, selectedOptions = [], options = [] } = cell.data;
 
-  const [hoverId, setHoverId] = useState<string | null>(null);
+  const [focusedId, setFocusedId] = useState<string | null>(null);
 
   return (
-    <Popover
-      {...props}
-      disableRestoreFocus={true}
-      onKeyDown={(e) => {
-        if (e.key === 'Escape') {
-          e.stopPropagation();
-          e.preventDefault();
-          props.onClose?.({}, 'escapeKeyDown');
-        }
-      }}
-    >
+    <Popover {...props} disableRestoreFocus={true}>
       <div
         style={{
           maxHeight: maxHeight,
           maxWidth: maxWidth,
         }}
-        onMouseLeave={() => setHoverId(null)}
         className={'flex h-full w-full flex-col overflow-hidden'}
       >
         {options.length > 0 && (
@@ -56,10 +45,10 @@ function ChecklistCellActions({
                   <ChecklistItem
                     fieldId={fieldId}
                     rowId={rowId}
-                    isHovered={hoverId === option.id}
-                    onMouseEnter={() => setHoverId(option.id)}
+                    isSelected={focusedId === option.id}
                     key={option.id}
                     option={option}
+                    onFocus={() => setFocusedId(option.id)}
                     onClose={() => props.onClose?.({}, 'escapeKeyDown')}
                     checked={selectedOptions?.includes(option.id) || false}
                   />
@@ -71,7 +60,14 @@ function ChecklistCellActions({
           </>
         )}
 
-        <AddNewOption onClose={() => props.onClose?.({}, 'escapeKeyDown')} fieldId={fieldId} rowId={rowId} />
+        <AddNewOption
+          onFocus={() => {
+            setFocusedId(null);
+          }}
+          onClose={() => props.onClose?.({}, 'escapeKeyDown')}
+          fieldId={fieldId}
+          rowId={rowId}
+        />
       </div>
     </Popover>
   );
