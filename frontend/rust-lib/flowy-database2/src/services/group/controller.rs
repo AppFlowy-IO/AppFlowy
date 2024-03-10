@@ -15,7 +15,7 @@ use crate::entities::{
 use crate::services::cell::{get_cell_protobuf, CellProtobufBlobParser};
 use crate::services::field::{default_type_option_data_from_type, TypeOption, TypeOptionCellData};
 use crate::services::group::action::{
-  DidMoveGroupRowResult, DidUpdateGroupRowResult, GroupControllerOperation, GroupCustomize,
+  DidMoveGroupRowResult, DidUpdateGroupRowResult, GroupController, GroupCustomize,
 };
 use crate::services::group::configuration::GroupContext;
 use crate::services::group::entities::GroupData;
@@ -152,7 +152,7 @@ where
   }
 }
 
-impl<C, T, G, P, I> GroupControllerOperation for BaseGroupController<C, T, G, P, I>
+impl<C, T, G, P, I> GroupController for BaseGroupController<C, T, G, P, I>
 where
   P: CellProtobufBlobParser<Object = <T as TypeOption>::CellProtobufType>,
   C: Serialize + DeserializeOwned + Sync + Send,

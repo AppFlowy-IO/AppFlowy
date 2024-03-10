@@ -84,7 +84,7 @@ pub trait GroupCustomize: Send + Sync {
 }
 
 /// Defines the shared actions any group controller can perform.
-pub trait GroupControllerOperation: Send + Sync {
+pub trait GroupController: Send + Sync {
   /// Returns the id of field that is being used to group the rows
   fn field_id(&self) -> &str;
 

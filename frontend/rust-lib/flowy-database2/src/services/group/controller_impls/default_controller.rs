@@ -8,7 +8,7 @@ use crate::entities::{
   GroupChangesPB, GroupPB, GroupRowsNotificationPB, InsertedGroupPB, InsertedRowPB,
 };
 use crate::services::group::action::{
-  DidMoveGroupRowResult, DidUpdateGroupRowResult, GroupControllerOperation,
+  DidMoveGroupRowResult, DidUpdateGroupRowResult, GroupController,
 };
 use crate::services::group::{GroupChangesets, GroupData, MoveGroupRowContext};
 
@@ -40,7 +40,7 @@ impl DefaultGroupController {
 }
 
 #[async_trait]
-impl GroupControllerOperation for DefaultGroupController {
+impl GroupController for DefaultGroupController {
   fn field_id(&self) -> &str {
     &self.field_id
   }

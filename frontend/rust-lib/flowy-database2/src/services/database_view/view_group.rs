@@ -11,7 +11,7 @@ use crate::entities::FieldType;
 use crate::services::database_view::DatabaseViewOperation;
 use crate::services::field::RowSingleCellData;
 use crate::services::group::{
-  find_new_grouping_field, make_group_controller, GroupControllerOperation, GroupSetting,
+  find_new_grouping_field, make_group_controller, GroupController, GroupSetting,
   GroupSettingReader, GroupSettingWriter, GroupTypeOptionCellOperation,
 };
 
@@ -19,7 +19,7 @@ pub async fn new_group_controller_with_field(
   view_id: String,
   delegate: Arc<dyn DatabaseViewOperation>,
   grouping_field: Field,
-) -> FlowyResult<Box<dyn GroupControllerOperation>> {
+) -> FlowyResult<Box<dyn GroupController>> {
   let setting_reader = GroupSettingReaderImpl(delegate.clone());
   let rows = delegate.get_rows(&view_id).await;
   let setting_writer = GroupSettingWriterImpl(delegate.clone());
@@ -38,7 +38,7 @@ pub async fn new_group_controller_with_field(
 pub async fn new_group_controller(
   view_id: String,
   delegate: Arc<dyn DatabaseViewOperation>,
-) -> FlowyResult<Option<Box<dyn GroupControllerOperation>>> {
+) -> FlowyResult<Option<Box<dyn GroupController>>> {
   let fields = delegate.get_fields(&view_id, None).await;
   let setting_reader = GroupSettingReaderImpl(delegate.clone());
 

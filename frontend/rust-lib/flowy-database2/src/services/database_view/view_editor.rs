@@ -37,9 +37,7 @@ use crate::services::database_view::{
 };
 use crate::services::field_settings::FieldSettings;
 use crate::services::filter::{Filter, FilterChangeset, FilterController};
-use crate::services::group::{
-  GroupChangesets, GroupControllerOperation, MoveGroupRowContext, RowChangeset,
-};
+use crate::services::group::{GroupChangesets, GroupController, MoveGroupRowContext, RowChangeset};
 use crate::services::setting::CalendarLayoutSetting;
 use crate::services::sort::{Sort, SortChangeset, SortController};
 
@@ -49,7 +47,7 @@ use super::view_calculations::make_calculations_controller;
 pub struct DatabaseViewEditor {
   pub view_id: String,
   delegate: Arc<dyn DatabaseViewOperation>,
-  group_controller: Arc<RwLock<Option<Box<dyn GroupControllerOperation>>>>,
+  group_controller: Arc<RwLock<Option<Box<dyn GroupController>>>>,
   filter_controller: Arc<FilterController>,
   sort_controller: Arc<RwLock<SortController>>,
   calculations_controller: Arc<CalculationsController>,
@@ -1007,7 +1005,7 @@ impl DatabaseViewEditor {
 
   async fn mut_group_controller<F, T>(&self, f: F) -> Option<T>
   where
-    F: FnOnce(&mut Box<dyn GroupControllerOperation>, Field) -> FlowyResult<T>,
+    F: FnOnce(&mut Box<dyn GroupController>, Field) -> FlowyResult<T>,
   {
     let group_field_id = self
       .group_controller
