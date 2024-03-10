@@ -357,9 +357,7 @@ impl CollabCloudPluginProvider for ServerProvider {
                 ));
                 let sync_object = SyncObject::from(collab_object);
                 let (sink, stream) = (channel.sink(), channel.stream());
-                let sink_config = SinkConfig::new()
-                  .send_timeout(8)
-                  .with_max_payload_size(1024 * 10);
+                let sink_config = SinkConfig::new().send_timeout(8);
                 let sync_plugin = SyncPlugin::new(
                   origin,
                   sync_object,
