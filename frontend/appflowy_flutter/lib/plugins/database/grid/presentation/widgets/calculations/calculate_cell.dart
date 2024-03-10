@@ -5,9 +5,11 @@ import 'package:appflowy/plugins/database/application/calculations/calculation_t
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/application/field/type_option/number_format_bloc.dart';
 import 'package:appflowy/plugins/database/grid/application/calculations/calculations_bloc.dart';
+import 'package:appflowy/plugins/database/grid/application/calculations/field_type_calc_ext.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/calculations/calculation_selector.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/calculations/calculation_type_item.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/calculations/remove_calculation_button.dart';
+import 'package:appflowy/shared/patterns/common_patterns.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/calculation_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/number_entities.pb.dart';
@@ -67,31 +69,29 @@ class _CalculateCellState extends State<CalculateCell> {
                           ),
                         ),
                   ),
-                ...CalculationType.values.map(
-                  (type) => CalculationTypeItem(
-                    type: type,
-                    onTap: () {
-                      if (type != widget.calculation?.calculationType) {
-                        context.read<CalculationsBloc>().add(
-                              CalculationsEvent.updateCalculationType(
-                                widget.fieldInfo.id,
-                                type,
-                                calculationId: widget.calculation?.id,
-                              ),
-                            );
-                      }
-                    },
-                  ),
-                ),
+                ...widget.fieldInfo.fieldType.calculationsForFieldType().map(
+                      (type) => CalculationTypeItem(
+                        type: type,
+                        onTap: () {
+                          if (type != widget.calculation?.calculationType) {
+                            context.read<CalculationsBloc>().add(
+                                  CalculationsEvent.updateCalculationType(
+                                    widget.fieldInfo.id,
+                                    type,
+                                    calculationId: widget.calculation?.id,
+                                  ),
+                                );
+                          }
+                        },
+                      ),
+                    ),
               ],
             ),
           );
         },
-        child: widget.fieldInfo.fieldType == FieldType.Number
-            ? widget.calculation != null
-                ? _showCalculateValue(context, prefix)
-                : CalculationSelector(isSelected: isSelected)
-            : const SizedBox.shrink(),
+        child: widget.calculation != null
+            ? _showCalculateValue(context, prefix)
+            : CalculationSelector(isSelected: isSelected),
       ),
     );
   }
@@ -107,7 +107,7 @@ class _CalculateCellState extends State<CalculateCell> {
         children: [
           Flexible(
             child: FlowyText(
-              widget.calculation!.calculationType.label,
+              widget.calculation!.calculationType.shortLabel,
               color: Theme.of(context).hintColor,
               overflow: TextOverflow.ellipsis,
             ),
@@ -133,9 +133,8 @@ class _CalculateCellState extends State<CalculateCell> {
   }
 
   String _withoutTrailingZeros(String value) {
-    final regex = RegExp(r'^(\d+(?:\.\d*?[1-9](?=0|\b))?)\.?0*$');
-    if (regex.hasMatch(value)) {
-      final match = regex.firstMatch(value)!;
+    if (trailingZerosRegex.hasMatch(value)) {
+      final match = trailingZerosRegex.firstMatch(value)!;
       return match.group(1)!;
     }
 
@@ -146,7 +145,7 @@ class _CalculateCellState extends State<CalculateCell> {
         FieldType.Number =>
           NumberTypeOptionPB.fromBuffer(widget.fieldInfo.field.typeOptionData)
               .format
-              .iconSymbol(),
+              .iconSymbol(false),
         _ => null,
       };
 }

@@ -22,7 +22,7 @@ function ViewBanner({
     <div className={'view-banner flex w-full flex-col'}>
       {showCover && cover && <ViewCover cover={cover} onUpdateCover={onUpdateCover} />}
 
-      <div className={'relative min-h-[65px] px-16 pt-4'}>
+      <div className={`relative min-h-[65px] ${showCover ? 'px-16' : ''} pt-4`}>
         <div
           style={{
             display: icon ? 'flex' : 'none',

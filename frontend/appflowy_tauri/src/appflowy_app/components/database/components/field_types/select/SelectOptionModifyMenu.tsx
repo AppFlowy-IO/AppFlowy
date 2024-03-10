@@ -1,5 +1,4 @@
 import { FC, useMemo, useRef, useState } from 'react';
-import { t } from 'i18next';
 import { Divider, ListSubheader, MenuItem, MenuList, MenuProps, OutlinedInput } from '@mui/material';
 import { SelectOptionColorPB } from '@/services/backend';
 import { ReactComponent as DeleteSvg } from '$app/assets/delete.svg';
@@ -14,6 +13,7 @@ import {
 import { useViewId } from '$app/hooks';
 import Popover from '@mui/material/Popover';
 import debounce from 'lodash-es/debounce';
+import { useTranslation } from 'react-i18next';
 
 interface SelectOptionMenuProps {
   fieldId: string;
@@ -34,6 +34,7 @@ const Colors = [
 ];
 
 export const SelectOptionModifyMenu: FC<SelectOptionMenuProps> = ({ fieldId, option, MenuProps: menuProps }) => {
+  const { t } = useTranslation();
   const [tagName, setTagName] = useState(option.name);
   const viewId = useViewId();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -83,6 +84,9 @@ export const SelectOptionModifyMenu: FC<SelectOptionMenuProps> = ({ fieldId, opt
         horizontal: -32,
       }}
       {...menuProps}
+      onClick={(e) => {
+        e.stopPropagation();
+      }}
       onClose={onClose}
       onMouseDown={(e) => {
         const isInput = inputRef.current?.contains(e.target as Node);
@@ -95,6 +99,9 @@ export const SelectOptionModifyMenu: FC<SelectOptionMenuProps> = ({ fieldId, opt
       <ListSubheader className='my-2 leading-tight'>
         <OutlinedInput
           inputRef={inputRef}
+          spellCheck={false}
+          autoCorrect={'off'}
+          autoCapitalize={'off'}
           value={tagName}
           onChange={(e) => {
             setTagName(e.target.value);
@@ -107,6 +114,12 @@ export const SelectOptionModifyMenu: FC<SelectOptionMenuProps> = ({ fieldId, opt
               void updateName(tagName);
               onClose();
             }
+          }}
+          onClick={(e) => {
+            e.stopPropagation();
+          }}
+          onMouseDown={(e) => {
+            e.stopPropagation();
           }}
           autoFocus={true}
           placeholder={t('grid.selectOption.tagName')}
@@ -139,6 +152,7 @@ export const SelectOptionModifyMenu: FC<SelectOptionMenuProps> = ({ fieldId, opt
             }}
             key={color}
             value={color}
+            className={'px-1.5'}
           >
             <span className={`mr-2 inline-flex h-4 w-4 rounded-full ${SelectOptionColorMap[color]}`} />
             <span className='flex-1'>{t(`grid.selectOption.${SelectOptionColorTextMap[color]}`)}</span>

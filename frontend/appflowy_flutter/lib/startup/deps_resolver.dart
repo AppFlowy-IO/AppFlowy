@@ -134,7 +134,8 @@ void _resolveCommonService(
   getIt.registerFactory<FlowyCacheManager>(
     () => FlowyCacheManager()
       ..registerCache(TemporaryDirectoryCache())
-      ..registerCache(CustomImageCacheManager()),
+      ..registerCache(CustomImageCacheManager())
+      ..registerCache(FeatureFlagCache()),
   );
 }
 

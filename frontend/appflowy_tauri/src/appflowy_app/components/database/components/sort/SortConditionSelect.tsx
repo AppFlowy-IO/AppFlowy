@@ -1,4 +1,3 @@
-import { t } from 'i18next';
 import { FC, useMemo, useRef, useState } from 'react';
 import { SortConditionPB } from '@/services/backend';
 import KeyboardNavigation, {
@@ -6,11 +5,13 @@ import KeyboardNavigation, {
 } from '$app/components/_shared/keyboard_navigation/KeyboardNavigation';
 import { Popover } from '@mui/material';
 import { ReactComponent as DropDownSvg } from '$app/assets/more.svg';
+import { useTranslation } from 'react-i18next';
 
 export const SortConditionSelect: FC<{
   onChange?: (value: SortConditionPB) => void;
   value?: SortConditionPB;
 }> = ({ onChange, value }) => {
+  const { t } = useTranslation();
   const ref = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   const handleClose = () => {
@@ -28,7 +29,7 @@ export const SortConditionSelect: FC<{
         content: t('grid.sort.descending'),
       },
     ];
-  }, []);
+  }, [t]);
 
   const onConfirm = (optionKey: SortConditionPB) => {
     onChange?.(optionKey);

@@ -2,6 +2,7 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import { RootState } from '$app/stores/store';
 import { pagesActions } from '$app_reducers/pages/slice';
 import { movePage, updatePage } from '$app/application/folder/page.service';
+import debounce from 'lodash-es/debounce';
 
 export const movePageThunk = createAsyncThunk(
   'pages/movePage',
@@ -61,12 +62,14 @@ export const movePageThunk = createAsyncThunk(
   }
 );
 
+const debounceUpdateName = debounce(updatePage, 1000);
+
 export const updatePageName = createAsyncThunk(
   'pages/updateName',
-  async (payload: { id: string; name: string }, thunkAPI) => {
+  async (payload: { id: string; name: string; immediate?: boolean }, thunkAPI) => {
     const { dispatch, getState } = thunkAPI;
     const { pageMap } = (getState() as RootState).pages;
-    const { id, name } = payload;
+    const { id, name, immediate } = payload;
     const page = pageMap[id];
 
     if (name === page.name) return;
@@ -78,9 +81,13 @@ export const updatePageName = createAsyncThunk(
       })
     );
 
-    await updatePage({
-      id,
-      name,
-    });
+    if (immediate) {
+      await updatePage({ id, name });
+    } else {
+      await debounceUpdateName({
+        id,
+        name,
+      });
+    }
   }
 );

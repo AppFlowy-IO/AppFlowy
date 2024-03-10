@@ -11,8 +11,22 @@ extension CalcTypeLabel on CalculationType {
           LocaleKeys.grid_calculationTypeLabel_median.tr(),
         CalculationType.Min => LocaleKeys.grid_calculationTypeLabel_min.tr(),
         CalculationType.Sum => LocaleKeys.grid_calculationTypeLabel_sum.tr(),
+        CalculationType.Count =>
+          LocaleKeys.grid_calculationTypeLabel_count.tr(),
+        CalculationType.CountEmpty =>
+          LocaleKeys.grid_calculationTypeLabel_countEmpty.tr(),
+        CalculationType.CountNonEmpty =>
+          LocaleKeys.grid_calculationTypeLabel_countNonEmpty.tr(),
         _ => throw UnimplementedError(
             'Label for $this has not been implemented',
           ),
+      };
+
+  String get shortLabel => switch (this) {
+        CalculationType.CountEmpty =>
+          LocaleKeys.grid_calculationTypeLabel_countEmptyShort.tr(),
+        CalculationType.CountNonEmpty =>
+          LocaleKeys.grid_calculationTypeLabel_countNonEmptyShort.tr(),
+        _ => label,
       };
 }

@@ -10,10 +10,9 @@ export interface SelectOptionItemProps {
   option: SelectOption;
   fieldId: string;
   isSelected?: boolean;
-  onClick?: () => void;
 }
 
-export const SelectOptionItem: FC<SelectOptionItemProps> = ({ onClick, isSelected, fieldId, option }) => {
+export const SelectOptionItem: FC<SelectOptionItemProps> = ({ isSelected, fieldId, option }) => {
   const [open, setOpen] = useState(false);
   const anchorEl = useRef<HTMLDivElement | null>(null);
   const [hovered, setHovered] = useState(false);
@@ -25,7 +24,6 @@ export const SelectOptionItem: FC<SelectOptionItemProps> = ({ onClick, isSelecte
   return (
     <>
       <div
-        onClick={onClick}
         ref={anchorEl}
         className={'flex w-full items-center justify-between'}
         onMouseEnter={() => setHovered(true)}

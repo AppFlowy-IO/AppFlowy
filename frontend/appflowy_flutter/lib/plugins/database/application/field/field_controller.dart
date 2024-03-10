@@ -337,6 +337,7 @@ class FieldController {
         ...changeset.insertSorts.map((sort) => sort.sort.fieldId),
         ...changeset.updateSorts.map((sort) => sort.fieldId),
         ...changeset.deleteSorts.map((sort) => sort.fieldId),
+        ...?_sortNotifier?.sorts.map((sort) => sort.fieldId),
       ]);
 
       final newFieldInfos = [...fieldInfos];
@@ -367,8 +368,8 @@ class FieldController {
             insertSortFromChangeset(newSortInfos, changeset);
             updateSortFromChangeset(newSortInfos, changeset);
 
-            _sortNotifier?.sorts = newSortInfos;
             updateFieldInfos(newSortInfos, changeset);
+            _sortNotifier?.sorts = newSortInfos;
           },
           (err) => Log.error(err),
         );
