@@ -11,7 +11,7 @@ use crate::services::field::{
   TypeOption,
 };
 use crate::services::group::action::GroupCustomize;
-use crate::services::group::controller::{BaseGroupController, GroupController};
+use crate::services::group::controller::BaseGroupController;
 use crate::services::group::{
   add_or_remove_select_option_row, generate_select_option_groups, make_no_status_group,
   move_group_row, remove_select_option_row, GeneratedGroups, Group, GroupChangeset, GroupContext,
@@ -94,7 +94,7 @@ impl GroupCustomize for MultiSelectGroupController {
     group_changeset
   }
 
-  fn generate_new_group(
+  fn create_group(
     &mut self,
     name: String,
   ) -> FlowyResult<(Option<TypeOptionData>, Option<InsertedGroupPB>)> {
@@ -123,10 +123,6 @@ impl GroupCustomize for MultiSelectGroupController {
       Ok(None)
     }
   }
-}
-
-impl GroupController for MultiSelectGroupController {
-  fn did_update_field_type_option(&mut self, _field: &Field) {}
 
   fn will_create_row(&mut self, cells: &mut Cells, field: &Field, group_id: &str) {
     match self.context.get_group(group_id) {

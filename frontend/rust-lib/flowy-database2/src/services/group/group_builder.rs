@@ -13,7 +13,7 @@ use crate::services::field::TypeOption;
 use crate::services::group::{
   CheckboxGroupContext, CheckboxGroupController, CheckboxGroupOperationInterceptorImpl,
   DateGroupContext, DateGroupController, DateGroupOperationInterceptorImpl, DefaultGroupController,
-  Group, GroupController, GroupSetting, GroupSettingReader, GroupSettingWriter,
+  Group, GroupControllerOperation, GroupSetting, GroupSettingReader, GroupSettingWriter,
   GroupTypeOptionCellOperation, MultiSelectGroupController,
   MultiSelectGroupOperationInterceptorImpl, MultiSelectOptionGroupContext,
   SingleSelectGroupController, SingleSelectGroupOperationInterceptorImpl,
@@ -101,7 +101,7 @@ pub async fn make_group_controller<R, W, TW>(
   setting_reader: R,
   setting_writer: W,
   type_option_cell_writer: TW,
-) -> FlowyResult<Box<dyn GroupController>>
+) -> FlowyResult<Box<dyn GroupControllerOperation>>
 where
   R: GroupSettingReader,
   W: GroupSettingWriter,
@@ -110,7 +110,7 @@ where
   let grouping_field_type = FieldType::from(grouping_field.field_type);
   tracing::Span::current().record("grouping_field", &grouping_field_type.default_name());
 
-  let mut group_controller: Box<dyn GroupController>;
+  let mut group_controller: Box<dyn GroupControllerOperation>;
   let configuration_reader = Arc::new(setting_reader);
   let configuration_writer = Arc::new(setting_writer);
   let type_option_cell_writer = Arc::new(type_option_cell_writer);

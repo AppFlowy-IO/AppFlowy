@@ -11,7 +11,7 @@ use crate::services::field::{
 };
 use crate::services::group::action::GroupCustomize;
 use crate::services::group::configuration::GroupContext;
-use crate::services::group::controller::{BaseGroupController, GroupController};
+use crate::services::group::controller::BaseGroupController;
 use crate::services::group::{
   move_group_row, GeneratedGroupConfig, GeneratedGroups, Group, GroupOperationInterceptor,
   GroupsBuilder, MoveGroupRowContext,
@@ -142,12 +142,6 @@ impl GroupCustomize for CheckboxGroupController {
 
   fn delete_group_custom(&mut self, _group_id: &str) -> FlowyResult<Option<TypeOptionData>> {
     Ok(None)
-  }
-}
-
-impl GroupController for CheckboxGroupController {
-  fn did_update_field_type_option(&mut self, _field: &Field) {
-    // Do nothing
   }
 
   fn will_create_row(&mut self, cells: &mut Cells, field: &Field, group_id: &str) {

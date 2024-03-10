@@ -17,7 +17,7 @@ use crate::services::cell::insert_date_cell;
 use crate::services::field::{DateCellData, DateCellDataParser, DateTypeOption, TypeOption};
 use crate::services::group::action::GroupCustomize;
 use crate::services::group::configuration::GroupContext;
-use crate::services::group::controller::{BaseGroupController, GroupController};
+use crate::services::group::controller::BaseGroupController;
 use crate::services::group::{
   make_no_status_group, move_group_row, GeneratedGroupConfig, GeneratedGroups, Group,
   GroupOperationInterceptor, GroupsBuilder, MoveGroupRowContext,
@@ -233,10 +233,6 @@ impl GroupCustomize for DateGroupController {
     self.context.delete_group(group_id)?;
     Ok(None)
   }
-}
-
-impl GroupController for DateGroupController {
-  fn did_update_field_type_option(&mut self, _field: &Field) {}
 
   fn will_create_row(&mut self, cells: &mut Cells, field: &Field, group_id: &str) {
     match self.context.get_group(group_id) {

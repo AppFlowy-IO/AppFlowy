@@ -1,5 +1,5 @@
 use collab_database::fields::{Field, TypeOptionData};
-use collab_database::rows::{Cell, Row, RowDetail, RowId};
+use collab_database::rows::{Cell, Cells, Row, RowDetail, RowId};
 
 use flowy_error::FlowyResult;
 
@@ -71,7 +71,7 @@ pub trait GroupCustomize: Send + Sync {
     None
   }
 
-  fn generate_new_group(
+  fn create_group(
     &mut self,
     _name: String,
   ) -> FlowyResult<(Option<TypeOptionData>, Option<InsertedGroupPB>)> {
@@ -79,6 +79,8 @@ pub trait GroupCustomize: Send + Sync {
   }
 
   fn delete_group_custom(&mut self, group_id: &str) -> FlowyResult<Option<TypeOptionData>>;
+
+  fn will_create_row(&mut self, cells: &mut Cells, field: &Field, group_id: &str);
 }
 
 /// Defines the shared actions any group controller can perform.
@@ -177,6 +179,9 @@ pub trait GroupControllerOperation: Send + Sync {
     &mut self,
     changesets: &GroupChangesets,
   ) -> FlowyResult<(Vec<GroupPB>, TypeOptionData)>;
+
+  /// Called before the row was created.
+  fn will_create_row(&mut self, cells: &mut Cells, field: &Field, group_id: &str);
 }
 
 #[derive(Debug)]

@@ -11,7 +11,7 @@ use crate::services::field::{
   TypeOption,
 };
 use crate::services::group::action::GroupCustomize;
-use crate::services::group::controller::{BaseGroupController, GroupController};
+use crate::services::group::controller::BaseGroupController;
 use crate::services::group::controller_impls::select_option_controller::util::*;
 use crate::services::group::entities::GroupData;
 use crate::services::group::{
@@ -95,7 +95,7 @@ impl GroupCustomize for SingleSelectGroupController {
     group_changeset
   }
 
-  fn generate_new_group(
+  fn create_group(
     &mut self,
     name: String,
   ) -> FlowyResult<(Option<TypeOptionData>, Option<InsertedGroupPB>)> {
@@ -125,10 +125,6 @@ impl GroupCustomize for SingleSelectGroupController {
       Ok(None)
     }
   }
-}
-
-impl GroupController for SingleSelectGroupController {
-  fn did_update_field_type_option(&mut self, _field: &Field) {}
 
   fn will_create_row(&mut self, cells: &mut Cells, field: &Field, group_id: &str) {
     let group: Option<&mut GroupData> = self.context.get_mut_group(group_id);

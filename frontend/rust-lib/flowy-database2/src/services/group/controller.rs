@@ -23,22 +23,6 @@ use crate::services::group::{GroupChangeset, GroupChangesets, GroupsBuilder, Mov
 
 // use collab_database::views::Group;
 
-/// The [GroupController] trait defines the group actions, including create/delete/move items
-/// For example, the group will insert a item if the one of the new [RowRevision]'s [CellRevision]s
-/// content match the group filter.
-///  
-/// Different [FieldType] has a different controller that implements the [GroupController] trait.
-/// If the [FieldType] doesn't implement its group controller, then the [DefaultGroupController] will
-/// be used.
-///
-pub trait GroupController: GroupControllerOperation + Send + Sync {
-  /// Called when the type option of the [Field] was updated.
-  fn did_update_field_type_option(&mut self, field: &Field);
-
-  /// Called before the row was created.
-  fn will_create_row(&mut self, cells: &mut Cells, field: &Field, group_id: &str);
-}
-
 pub trait GroupOperationInterceptor {
   type GroupTypeOption: TypeOption;
 
@@ -234,7 +218,7 @@ where
     &mut self,
     name: String,
   ) -> FlowyResult<(Option<TypeOptionData>, Option<InsertedGroupPB>)> {
-    self.generate_new_group(name)
+    <Self as GroupCustomize>::create_group(self, name)
   }
 
   fn move_group(&mut self, from_group_id: &str, to_group_id: &str) -> FlowyResult<()> {
@@ -440,6 +424,10 @@ where
       })
       .collect::<Vec<_>>();
     Ok((updated_groups, type_option_data))
+  }
+
+  fn will_create_row(&mut self, cells: &mut Cells, field: &Field, group_id: &str) {
+    <Self as GroupCustomize>::will_create_row(self, cells, field, group_id);
   }
 }
 
