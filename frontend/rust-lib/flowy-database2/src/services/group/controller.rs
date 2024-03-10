@@ -41,6 +41,7 @@ pub trait GroupController: GroupControllerOperation + Send + Sync {
 
 pub trait GroupOperationInterceptor {
   type GroupTypeOption: TypeOption;
+
   fn type_option_from_group_changeset(
     &self,
     _changeset: &GroupChangeset,
@@ -67,7 +68,7 @@ pub struct BaseGroupController<C, T, G, P, I> {
 impl<C, T, G, P, I> BaseGroupController<C, T, G, P, I>
 where
   C: Serialize + DeserializeOwned,
-  T: TypeOption + From<TypeOptionData> + Send + Sync,
+  T: TypeOption + Send + Sync,
   G: GroupsBuilder<Context = GroupContext<C>, GroupTypeOption = T>,
   I: GroupOperationInterceptor<GroupTypeOption = T> + Send + Sync,
 {
