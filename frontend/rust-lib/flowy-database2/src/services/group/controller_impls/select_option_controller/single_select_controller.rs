@@ -163,12 +163,11 @@ impl GroupsBuilder for SingleSelectGroupBuilder {
 
 pub struct SingleSelectGroupOperationInterceptorImpl;
 
-#[async_trait]
 impl GroupOperationInterceptor for SingleSelectGroupOperationInterceptorImpl {
   type GroupTypeOption = SingleSelectTypeOption;
 
   #[tracing::instrument(level = "trace", skip_all)]
-  async fn type_option_from_group_changeset(
+  fn type_option_from_group_changeset(
     &self,
     changeset: &GroupChangeset,
     type_option: &Self::GroupTypeOption,

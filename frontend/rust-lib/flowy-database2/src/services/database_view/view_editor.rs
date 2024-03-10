@@ -461,17 +461,16 @@ impl DatabaseViewEditor {
 
   pub async fn v_update_group(&self, changeset: GroupChangesets) -> FlowyResult<()> {
     let mut type_option_data = TypeOptionData::new();
-    let (old_field, updated_groups) = if let Some(controller) =
-      self.group_controller.write().await.as_mut()
-    {
-      let old_field = self.delegate.get_field(controller.field_id());
-      let (updated_groups, new_type_option) = controller.apply_group_changeset(&changeset).await?;
-      type_option_data.extend(new_type_option);
+    let (old_field, updated_groups) =
+      if let Some(controller) = self.group_controller.write().await.as_mut() {
+        let old_field = self.delegate.get_field(controller.field_id());
+        let (updated_groups, new_type_option) = controller.apply_group_changeset(&changeset)?;
+        type_option_data.extend(new_type_option);
 
-      (old_field, updated_groups)
-    } else {
-      (None, vec![])
-    };
+        (old_field, updated_groups)
+      } else {
+        (None, vec![])
+      };
 
     if let Some(old_field) = old_field {
       if !type_option_data.is_empty() {

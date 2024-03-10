@@ -1,6 +1,5 @@
 use std::marker::PhantomData;
 
-use async_trait::async_trait;
 use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{Cells, Row, RowDetail, RowId};
 use futures::executor::block_on;
@@ -40,10 +39,9 @@ pub trait GroupController: GroupControllerOperation + Send + Sync {
   fn will_create_row(&mut self, cells: &mut Cells, field: &Field, group_id: &str);
 }
 
-#[async_trait]
 pub trait GroupOperationInterceptor {
   type GroupTypeOption: TypeOption;
-  async fn type_option_from_group_changeset(
+  fn type_option_from_group_changeset(
     &self,
     _changeset: &GroupChangeset,
     _type_option: &Self::GroupTypeOption,
@@ -169,7 +167,6 @@ where
   }
 }
 
-#[async_trait]
 impl<C, T, G, P, I> GroupControllerOperation for BaseGroupController<C, T, G, P, I>
 where
   P: CellProtobufBlobParser<Object = <T as TypeOption>::CellProtobufType>,
@@ -416,7 +413,7 @@ where
     }
   }
 
-  async fn apply_group_changeset(
+  fn apply_group_changeset(
     &mut self,
     changeset: &GroupChangesets,
   ) -> FlowyResult<(Vec<GroupPB>, TypeOptionData)> {
@@ -428,7 +425,6 @@ where
       if let Some(new_type_option_data) = self
         .operation_interceptor
         .type_option_from_group_changeset(group_changeset, &self.type_option, &self.context.view_id)
-        .await
       {
         type_option_data.extend(new_type_option_data);
       }

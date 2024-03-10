@@ -131,7 +131,7 @@ impl GroupControllerOperation for DefaultGroupController {
     Ok((vec![], None))
   }
 
-  async fn apply_group_changeset(
+  fn apply_group_changeset(
     &mut self,
     _changeset: &GroupChangesets,
   ) -> FlowyResult<(Vec<GroupPB>, TypeOptionData)> {

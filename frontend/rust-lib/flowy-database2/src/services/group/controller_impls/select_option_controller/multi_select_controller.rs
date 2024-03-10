@@ -160,12 +160,11 @@ impl GroupsBuilder for MultiSelectGroupBuilder {
 
 pub struct MultiSelectGroupOperationInterceptorImpl;
 
-#[async_trait]
 impl GroupOperationInterceptor for MultiSelectGroupOperationInterceptorImpl {
   type GroupTypeOption = MultiSelectTypeOption;
 
   #[tracing::instrument(level = "trace", skip_all)]
-  async fn type_option_from_group_changeset(
+  fn type_option_from_group_changeset(
     &self,
     changeset: &GroupChangeset,
     type_option: &Self::GroupTypeOption,

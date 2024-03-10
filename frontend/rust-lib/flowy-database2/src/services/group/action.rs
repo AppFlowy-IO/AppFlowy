@@ -1,4 +1,3 @@
-use async_trait::async_trait;
 use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{Cell, Row, RowDetail, RowId};
 
@@ -83,7 +82,6 @@ pub trait GroupCustomize: Send + Sync {
 }
 
 /// Defines the shared actions any group controller can perform.
-#[async_trait]
 pub trait GroupControllerOperation: Send + Sync {
   /// Returns the id of field that is being used to group the rows
   fn field_id(&self) -> &str;
@@ -175,7 +173,7 @@ pub trait GroupControllerOperation: Send + Sync {
   /// in the field type option data.
   ///
   /// * `changesets`: list of changesets to be made to one or more groups
-  async fn apply_group_changeset(
+  fn apply_group_changeset(
     &mut self,
     changesets: &GroupChangesets,
   ) -> FlowyResult<(Vec<GroupPB>, TypeOptionData)>;
