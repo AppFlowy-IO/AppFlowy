@@ -159,7 +159,8 @@ impl FolderIndexManagerImpl {
     let icon_ty: i64;
     let icon: Option<String>;
 
-    if let Some(view_icon) = view_icon {
+    if view_icon.clone().is_some_and(|v| !v.value.is_empty()) {
+      let view_icon = view_icon.unwrap();
       let result_icon_ty: ResultIconTypePB = view_icon.ty.into();
       icon_ty = result_icon_ty.into();
       icon = Some(view_icon.value);

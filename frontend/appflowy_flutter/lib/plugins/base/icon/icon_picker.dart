@@ -29,6 +29,12 @@ enum FlowyIconType {
 }
 
 class EmojiPickerResult {
+  factory EmojiPickerResult.none() =>
+      const EmojiPickerResult(FlowyIconType.icon, '');
+
+  factory EmojiPickerResult.emoji(String emoji) =>
+      EmojiPickerResult(FlowyIconType.emoji, emoji);
+
   const EmojiPickerResult(
     this.type,
     this.emoji,
@@ -38,24 +44,13 @@ class EmojiPickerResult {
   final String emoji;
 }
 
-class FlowyIconPicker extends StatefulWidget {
+class FlowyIconPicker extends StatelessWidget {
   const FlowyIconPicker({
     super.key,
     required this.onSelected,
   });
 
   final void Function(EmojiPickerResult result) onSelected;
-
-  @override
-  State<FlowyIconPicker> createState() => _FlowyIconPickerState();
-}
-
-class _FlowyIconPickerState extends State<FlowyIconPicker>
-    with SingleTickerProviderStateMixin {
-  @override
-  void initState() {
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,33 +65,18 @@ class _FlowyIconPickerState extends State<FlowyIconPicker>
               _buildTabs(context),
               const Spacer(),
               _RemoveIconButton(
-                onTap: () {
-                  widget.onSelected(
-                    const EmojiPickerResult(
-                      FlowyIconType.icon,
-                      '',
-                    ),
-                  );
-                },
+                onTap: () => onSelected(EmojiPickerResult.none()),
               ),
             ],
           ),
-          const Divider(
-            height: 2,
-          ),
+          const Divider(height: 2),
           Expanded(
             child: TabBarView(
               children: [
                 FlowyEmojiPicker(
-                  emojiPerLine: _getEmojiPerLine(),
-                  onEmojiSelected: (_, emoji) {
-                    widget.onSelected(
-                      EmojiPickerResult(
-                        FlowyIconType.emoji,
-                        emoji,
-                      ),
-                    );
-                  },
+                  emojiPerLine: _getEmojiPerLine(context),
+                  onEmojiSelected: (_, emoji) =>
+                      onSelected(EmojiPickerResult.emoji(emoji)),
                 ),
               ],
             ),
@@ -124,9 +104,7 @@ class _FlowyIconPickerState extends State<FlowyIconPicker>
                 horizontal: 12.0,
                 vertical: 8.0,
               ),
-              child: FlowyText(
-                LocaleKeys.emoji_emojiTab.tr(),
-              ),
+              child: FlowyText(LocaleKeys.emoji_emojiTab.tr()),
             ),
           ),
         ],
@@ -134,7 +112,7 @@ class _FlowyIconPickerState extends State<FlowyIconPicker>
     );
   }
 
-  int _getEmojiPerLine() {
+  int _getEmojiPerLine(BuildContext context) {
     if (PlatformExtension.isDesktopOrWeb) {
       return 9;
     }
@@ -144,11 +122,10 @@ class _FlowyIconPickerState extends State<FlowyIconPicker>
 }
 
 class _RemoveIconButton extends StatelessWidget {
-  const _RemoveIconButton({
-    required this.onTap,
-  });
+  const _RemoveIconButton({required this.onTap});
 
   final VoidCallback onTap;
+
   @override
   Widget build(BuildContext context) {
     return SizedBox(
