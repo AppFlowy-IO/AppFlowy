@@ -259,7 +259,7 @@ fn spawn_ws_conn(
                     tokio::time::sleep(Duration::from_secs(2)).await;
 
                     event!(tracing::Level::INFO, "🟢reconnecting websocket");
-                    let _ = ws_client.connect(&api_client.ws_addr(), conn_info).await;
+                    let _ = ws_client.connect(api_client.ws_addr(), conn_info).await;
                   },
                   Err(err) => error!("Failed to get ws url: {}, connect state:{:?}", err, state),
                 }
@@ -291,7 +291,7 @@ fn spawn_ws_conn(
           {
             match api_client.ws_connect_info().await {
               Ok(conn_info) => {
-                let _ = ws_client.connect(&api_client.ws_addr(), conn_info).await;
+                let _ = ws_client.connect(api_client.ws_addr(), conn_info).await;
               },
               Err(err) => error!("Failed to get ws url: {}", err),
             }
