@@ -13,8 +13,8 @@ collab-entity = { version = "0.1.0" }
 collab-plugins = { version = "0.1.0" }
 collab-integrate = { workspace = true }
 flowy-folder-pub = { workspace = true }
+flowy-search-pub = { workspace = true }
 
-flowy-search.workspace = true
 flowy-derive.workspace = true
 flowy-notification = { workspace = true }
 parking_lot.workspace = true

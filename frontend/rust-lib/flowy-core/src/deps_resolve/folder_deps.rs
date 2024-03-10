@@ -17,7 +17,7 @@ use flowy_folder::manager::{FolderManager, FolderUser};
 use flowy_folder::share::ImportType;
 use flowy_folder::view_operation::{FolderOperationHandler, FolderOperationHandlers, View};
 use flowy_folder::ViewLayout;
-use flowy_search::folder::indexer::FolderIndexManager;
+use flowy_search::folder::indexer::FolderIndexManagerImpl;
 use std::collections::HashMap;
 use std::convert::TryFrom;
 use std::sync::{Arc, Weak};
@@ -38,16 +38,11 @@ impl FolderDepsResolver {
     database_manager: &Arc<DatabaseManager>,
     collab_builder: Arc<AppFlowyCollabBuilder>,
     server_provider: Arc<ServerProvider>,
-    folder_indexer: Weak<FolderIndexManager>,
+    folder_indexer: Arc<FolderIndexManagerImpl>,
   ) -> Arc<FolderManager> {
     let user: Arc<dyn FolderUser> = Arc::new(FolderUserImpl {
       authenticate_user: authenticate_user.clone(),
     });
-
-    let folder_indexer = folder_indexer
-      .upgrade()
-      .expect("FolderIndexer is not available")
-      .clone();
 
     let handlers = folder_operation_handlers(document_manager.clone(), database_manager.clone());
     Arc::new(

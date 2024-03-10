@@ -7,6 +7,7 @@ use crate::{
 use collab::core::collab::{IndexContent, IndexContentReceiver};
 use collab_folder::{View, ViewIcon, ViewIndexContent, ViewLayout};
 use flowy_error::{FlowyError, FlowyResult};
+use flowy_search_pub::entities::{FolderIndexManager, IndexManager, IndexableData};
 use flowy_user::services::authenticate_user::AuthenticateUser;
 use lib_dispatch::prelude::af_spawn;
 use strsim::levenshtein;
@@ -15,10 +16,7 @@ use tantivy::{
   IndexWriter, Term,
 };
 
-use crate::{
-  entities::SearchResultPB,
-  services::indexer::{IndexManager, IndexableData},
-};
+use crate::entities::SearchResultPB;
 
 use super::{
   entities::FolderIndexData,
@@ -26,7 +24,7 @@ use super::{
 };
 
 #[derive(Clone)]
-pub struct FolderIndexManager {
+pub struct FolderIndexManagerImpl {
   folder_schema: Option<FolderSchema>,
   index: Option<Index>,
   index_reader: Option<IndexReader>,
@@ -34,7 +32,7 @@ pub struct FolderIndexManager {
 
 const FOLDER_INDEX_DIR: &str = "folder_index";
 
-impl FolderIndexManager {
+impl FolderIndexManagerImpl {
   pub fn new(auth_user: Weak<AuthenticateUser>) -> Self {
     // AuthenticateUser is required to get the index path
     let authenticate_user = auth_user.upgrade();
@@ -45,7 +43,7 @@ impl FolderIndexManager {
       Some(auth_user) => auth_user.get_index_path(),
       None => {
         tracing::error!("FolderIndexManager: AuthenticateUser is not available");
-        return FolderIndexManager::empty();
+        return FolderIndexManagerImpl::empty();
       },
     };
 
@@ -58,7 +56,7 @@ impl FolderIndexManager {
           "FolderIndexManager failed to create index directory: {:?}",
           e
         );
-        return FolderIndexManager::empty();
+        return FolderIndexManagerImpl::empty();
       }
     }
 
@@ -68,7 +66,7 @@ impl FolderIndexManager {
     let dir = MmapDirectory::open(index_path);
     if let Err(e) = dir {
       tracing::error!("FolderIndexManager failed to open index directory: {:?}", e);
-      return FolderIndexManager::empty();
+      return FolderIndexManagerImpl::empty();
     }
 
     // The folder schema is used to define the fields of the index along
@@ -76,10 +74,10 @@ impl FolderIndexManager {
     let folder_schema = FolderSchema::new();
 
     // We open or create an index that takes the directory r/w and the schema.
-    let index_res = Index::open_or_create(dir.unwrap(), folder_schema.clone().schema);
+    let index_res = Index::open_or_create(dir.unwrap(), folder_schema.schema.clone());
     if let Err(e) = index_res {
       tracing::error!("FolderIndexManager failed to open index: {:?}", e);
-      return FolderIndexManager::empty();
+      return FolderIndexManagerImpl::empty();
     }
 
     let index = index_res.unwrap();
@@ -91,7 +89,7 @@ impl FolderIndexManager {
         "FolderIndexManager failed to instantiate index reader: {:?}",
         e
       );
-      return FolderIndexManager::empty();
+      return FolderIndexManagerImpl::empty();
     }
 
     Self {
@@ -99,20 +97,6 @@ impl FolderIndexManager {
       index: Some(index),
       index_reader: Some(index_reader.unwrap()),
     }
-  }
-
-  pub fn index_all_views(&self, views: Vec<View>) {
-    let indexable_data = views
-      .iter()
-      .map(|view| IndexableData {
-        id: view.id.clone(),
-        data: view.name.clone(),
-        icon: view.icon.clone(),
-        layout: view.layout.clone(),
-      })
-      .collect();
-
-    let _ = self.index_all(indexable_data);
   }
 
   fn index_all(&self, indexes: Vec<IndexableData>) -> Result<(), FlowyError> {
@@ -129,7 +113,7 @@ impl FolderIndexManager {
     let icon_ty_field = folder_schema.schema.get_field(FOLDER_ICON_TY_FIELD_NAME)?;
 
     for data in indexes {
-      let (icon, icon_ty) = self.extract_icon(data.icon.clone(), data.layout.clone());
+      let (icon, icon_ty) = self.extract_icon(data.icon, data.layout);
 
       let _ = index_writer.add_document(doc![
       id_field => data.id.clone(),
@@ -142,15 +126,6 @@ impl FolderIndexManager {
     index_writer.commit()?;
 
     Ok(())
-  }
-
-  pub fn is_indexed(&self) -> bool {
-    self
-      .index
-      .as_ref()
-      .and_then(|index| index.reader().ok())
-      .map(|reader| reader.searcher().num_docs() > 0)
-      .unwrap_or(false)
   }
 
   fn empty() -> Self {
@@ -255,7 +230,16 @@ impl FolderIndexManager {
   }
 }
 
-impl IndexManager for FolderIndexManager {
+impl IndexManager for FolderIndexManagerImpl {
+  fn is_indexed(&self) -> bool {
+    self
+      .index
+      .as_ref()
+      .and_then(|index| index.reader().ok())
+      .map(|reader| reader.searcher().num_docs() > 0)
+      .unwrap_or(false)
+  }
+
   fn set_index_content_receiver(&self, mut rx: IndexContentReceiver) {
     let indexer = self.clone();
     af_spawn(async move {
@@ -364,5 +348,21 @@ impl IndexManager for FolderIndexManager {
 
   fn as_any(&self) -> &dyn Any {
     self
+  }
+}
+
+impl FolderIndexManager for FolderIndexManagerImpl {
+  fn index_all_views(&self, views: Vec<View>) {
+    let indexable_data = views
+      .into_iter()
+      .map(|view| IndexableData {
+        id: view.id,
+        data: view.name,
+        icon: view.icon,
+        layout: view.layout,
+      })
+      .collect();
+
+    let _ = self.index_all(indexable_data);
   }
 }

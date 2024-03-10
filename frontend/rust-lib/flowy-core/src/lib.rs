@@ -1,6 +1,6 @@
 #![allow(unused_doc_comments)]
 
-use flowy_search::folder::indexer::FolderIndexManager;
+use flowy_search::folder::indexer::FolderIndexManagerImpl;
 use flowy_search::services::manager::SearchManager;
 use flowy_storage::ObjectStorageService;
 use std::sync::Arc;
@@ -146,14 +146,16 @@ impl AppFlowyCore {
         Arc::downgrade(&(server_provider.clone() as Arc<dyn ObjectStorageService>)),
       );
 
-      let folder_indexer = Arc::new(FolderIndexManager::new(Arc::downgrade(&authenticate_user)));
+      let folder_indexer = Arc::new(FolderIndexManagerImpl::new(Arc::downgrade(
+        &authenticate_user,
+      )));
       let folder_manager = FolderDepsResolver::resolve(
         Arc::downgrade(&authenticate_user),
         &document_manager,
         &database_manager,
         collab_builder.clone(),
         server_provider.clone(),
-        Arc::downgrade(&folder_indexer),
+        folder_indexer.clone(),
       )
       .await;
 
