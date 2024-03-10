@@ -36,10 +36,17 @@ pub trait GroupOperationInterceptor {
   }
 }
 
-/// C: represents the group configuration that impl [GroupConfigurationSerde]
-/// T: the type-option data deserializer that impl [TypeOptionDataDeserializer]
-/// G: the group generator, [GroupsBuilder]
-/// P: the parser that impl [CellProtobufBlobParser] for the CellBytes
+/// [BaseGroupController] is a generic group controller that provides customized implementations
+/// of the `GroupController` trait.
+///
+/// - `C`: represents the group configuration that impl [GroupConfigurationSerde]
+/// - `T`: type-option data deserializer that impl [TypeOptionDataDeserializer]
+/// - `G`: group generator, [GroupsBuilder]
+/// - `P`: parser that impl [CellProtobufBlobParser] for the CellBytes
+/// - `I`: an interceptor
+///
+/// See also: [DefaultGroupController] which contains the most basic implementation of
+/// `GroupController` that only has one group.
 pub struct BaseGroupController<C, T, G, P, I> {
   pub grouping_field_id: String,
   pub type_option: T,

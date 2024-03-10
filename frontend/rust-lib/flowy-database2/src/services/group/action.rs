@@ -83,7 +83,15 @@ pub trait GroupCustomize: Send + Sync {
   fn will_create_row(&mut self, cells: &mut Cells, field: &Field, group_id: &str);
 }
 
-/// Defines the shared actions any group controller can perform.
+/// The `GroupController` trait defines the behavior of the group controller when performing any
+/// group-related tasks, such as managing rows within a group, transferring rows between groups,
+/// manipulating groups themselves, and even pre-filling a row's cells before it is created.
+///
+/// Depending on the type of the field that is being grouped, a parameterized `BaseGroupController`
+/// or a `DefaultGroupController` may be the actual object that provides the functionality of
+/// this trait. For example, a `Single-Select` group controller will be a `BaseGroupController`,
+/// while a `URL` group controller will be a `DefaultGroupController`.
+///
 pub trait GroupController: Send + Sync {
   /// Returns the id of field that is being used to group the rows
   fn field_id(&self) -> &str;
