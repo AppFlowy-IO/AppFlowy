@@ -17,8 +17,8 @@ use parking_lot::RwLock;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_user_pub::cloud::{UserCloudService, UserCollabParams, UserUpdate, UserUpdateReceiver};
 use flowy_user_pub::entities::{
-  AFCloudOAuthParams, AuthResponse, Role, UpdateUserProfileParams, UserCredentials, UserProfile,
-  UserWorkspace, WorkspaceInvitation, WorkspaceInvitationStatus, WorkspaceMember,
+  AFCloudOAuthParams, AuthResponse, UpdateUserProfileParams, UserCredentials, UserProfile,
+  UserWorkspace, WorkspaceInvitation, WorkspaceInvitationStatus, WorkspaceMember, WorkspaceRole,
 };
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
@@ -206,7 +206,7 @@ where
     &self,
     invitee_email: String,
     workspace_id: String,
-    role: Role,
+    role: WorkspaceRole,
   ) -> FutureResult<(), Error> {
     let try_get_client = self.server.try_get_client();
     FutureResult::new(async move {
@@ -269,7 +269,7 @@ where
     &self,
     user_email: String,
     workspace_id: String,
-    role: Role,
+    role: WorkspaceRole,
   ) -> FutureResult<(), Error> {
     let try_get_client = self.server.try_get_client();
     FutureResult::new(async move {

@@ -3,11 +3,13 @@ use flowy_folder::entities::*;
 use flowy_folder::event_map::FolderEvent;
 use flowy_folder::event_map::FolderEvent::*;
 use flowy_user::entities::{
-  AddWorkspaceMemberPB, QueryWorkspacePB, RemoveWorkspaceMemberPB, RepeatedWorkspaceMemberPB,
+  AcceptWorkspaceInvitationPB, AddWorkspaceMemberPB, QueryWorkspacePB, RemoveWorkspaceMemberPB,
+  RepeatedWorkspaceInvitationPB, RepeatedWorkspaceMemberPB, WorkspaceMemberInvitationPB,
   WorkspaceMemberPB,
 };
 use flowy_user::errors::FlowyError;
 use flowy_user::event_map::UserEvent;
+use flowy_user_pub::entities::WorkspaceRole;
 
 use crate::event_builder::EventBuilder;
 use crate::EventIntegrationTest;
@@ -19,6 +21,41 @@ impl EventIntegrationTest {
       .payload(AddWorkspaceMemberPB {
         workspace_id: workspace_id.to_string(),
         email: email.to_string(),
+      })
+      .async_send()
+      .await;
+  }
+
+  pub async fn invite_workspace_member(
+    &self,
+    workspace_id: &str,
+    email: &str,
+    role: WorkspaceRole,
+  ) {
+    EventBuilder::new(self.clone())
+      .event(UserEvent::InviteWorkspaceMember)
+      .payload(WorkspaceMemberInvitationPB {
+        workspace_id: workspace_id.to_string(),
+        invitee_email: email.to_string(),
+        role: role.into(),
+      })
+      .async_send()
+      .await;
+  }
+
+  pub async fn list_workspace_invitations(&self) -> RepeatedWorkspaceInvitationPB {
+    EventBuilder::new(self.clone())
+      .event(UserEvent::ListWorkspaceInvitations)
+      .async_send()
+      .await
+      .parse()
+  }
+
+  pub async fn accept_workspace_invitation(&self, invitation_id: &str) {
+    EventBuilder::new(self.clone())
+      .event(UserEvent::AcceptWorkspaceInvitation)
+      .payload(AcceptWorkspaceInvitationPB {
+        invite_id: invitation_id.to_string(),
       })
       .async_send()
       .await;

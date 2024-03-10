@@ -381,7 +381,7 @@ pub enum UserTokenState {
 }
 
 #[derive(Clone, Debug)]
-pub enum Role {
+pub enum WorkspaceRole {
   Owner,
   Member,
   Guest,
@@ -389,7 +389,7 @@ pub enum Role {
 
 pub struct WorkspaceMember {
   pub email: String,
-  pub role: Role,
+  pub role: WorkspaceRole,
   pub name: String,
 }
 

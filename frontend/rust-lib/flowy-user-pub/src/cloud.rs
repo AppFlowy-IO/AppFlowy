@@ -15,8 +15,9 @@ use tokio_stream::wrappers::WatchStream;
 use uuid::Uuid;
 
 use crate::entities::{
-  AuthResponse, Authenticator, Role, UpdateUserProfileParams, UserCredentials, UserProfile,
+  AuthResponse, Authenticator, UpdateUserProfileParams, UserCredentials, UserProfile,
   UserTokenState, UserWorkspace, WorkspaceInvitation, WorkspaceInvitationStatus, WorkspaceMember,
+  WorkspaceRole,
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -195,7 +196,7 @@ pub trait UserCloudService: Send + Sync + 'static {
     &self,
     invitee_email: String,
     workspace_id: String,
-    role: Role,
+    role: WorkspaceRole,
   ) -> FutureResult<(), Error> {
     FutureResult::new(async { Ok(()) })
   }
@@ -223,7 +224,7 @@ pub trait UserCloudService: Send + Sync + 'static {
     &self,
     user_email: String,
     workspace_id: String,
-    role: Role,
+    role: WorkspaceRole,
   ) -> FutureResult<(), Error> {
     FutureResult::new(async { Ok(()) })
   }

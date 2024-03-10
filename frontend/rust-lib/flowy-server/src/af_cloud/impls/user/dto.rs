@@ -3,9 +3,8 @@ use client_api::entity::auth_dto::{UpdateUserParams, UserMetaData};
 use client_api::entity::{AFRole, AFUserProfile, AFWorkspaceInvitationStatus, AFWorkspaceMember};
 
 use flowy_user_pub::entities::{
-  Authenticator, Role, UpdateUserProfileParams, UserProfile, WorkspaceInvitationStatus,
-  WorkspaceMember, USER_METADATA_ICON_URL, USER_METADATA_OPEN_AI_KEY,
-  USER_METADATA_STABILITY_AI_KEY,
+  Authenticator, UpdateUserProfileParams, UserProfile, WorkspaceInvitationStatus, WorkspaceMember,
+  WorkspaceRole, USER_METADATA_ICON_URL, USER_METADATA_OPEN_AI_KEY, USER_METADATA_STABILITY_AI_KEY,
 };
 
 use crate::af_cloud::impls::user::util::encryption_type_from_profile;
@@ -68,19 +67,19 @@ pub fn user_profile_from_af_profile(
   })
 }
 
-pub fn to_af_role(role: Role) -> AFRole {
+pub fn to_af_role(role: WorkspaceRole) -> AFRole {
   match role {
-    Role::Owner => AFRole::Owner,
-    Role::Member => AFRole::Member,
-    Role::Guest => AFRole::Guest,
+    WorkspaceRole::Owner => AFRole::Owner,
+    WorkspaceRole::Member => AFRole::Member,
+    WorkspaceRole::Guest => AFRole::Guest,
   }
 }
 
-pub fn from_af_role(role: AFRole) -> Role {
+pub fn from_af_role(role: AFRole) -> WorkspaceRole {
   match role {
-    AFRole::Owner => Role::Owner,
-    AFRole::Member => Role::Member,
-    AFRole::Guest => Role::Guest,
+    AFRole::Owner => WorkspaceRole::Owner,
+    AFRole::Member => WorkspaceRole::Member,
+    AFRole::Guest => WorkspaceRole::Guest,
   }
 }
 

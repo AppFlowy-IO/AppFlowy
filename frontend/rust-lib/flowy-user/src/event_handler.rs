@@ -711,7 +711,7 @@ pub async fn change_workspace_icon_handler(
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
-pub async fn invite_members_to_workspace_handler(
+pub async fn invite_workspace_member_handler(
   param: AFPluginData<WorkspaceMemberInvitationPB>,
   manager: AFPluginState<Weak<UserManager>>,
 ) -> Result<(), FlowyError> {
@@ -720,8 +720,7 @@ pub async fn invite_members_to_workspace_handler(
   manager
     .invite_member_to_workspace(param.workspace_id, param.invitee_email, param.role.into())
     .await?;
-
-  todo!()
+  Ok(())
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
