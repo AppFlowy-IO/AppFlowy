@@ -61,7 +61,7 @@ pub enum FolderEvent {
 
   /// Return a list of views of the current workspace.
   /// Only the first level of child views are included.
-  #[event(input = "WorkspaceIdPB", output = "RepeatedViewPB")]
+  #[event(input = "GetWorkspaceViewPB", output = "RepeatedViewPB")]
   ReadWorkspaceViews = 5,
 
   /// Create a new view in the corresponding app

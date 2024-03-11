@@ -12,7 +12,7 @@ use flowy_folder_pub::folder_builder::WorkspaceViewBuilder;
 use lib_infra::future::FutureResult;
 use lib_infra::util::timestamp;
 
-use crate::entities::{CreateViewParams, ViewLayoutPB};
+use crate::entities::{CreateViewParams, ViewLayoutPB, ViewSection};
 use crate::share::ImportType;
 
 pub type ViewData = Bytes;
@@ -129,5 +129,6 @@ pub(crate) fn create_view(uid: i64, params: CreateViewParams, layout: ViewLayout
     created_by: Some(uid),
     last_edited_time: 0,
     last_edited_by: Some(uid),
+    is_private: params.section == ViewSection::Private,
   }
 }

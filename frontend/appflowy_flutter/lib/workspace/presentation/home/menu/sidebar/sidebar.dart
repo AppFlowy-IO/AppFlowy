@@ -139,7 +139,7 @@ class _HomeSideBarState extends State<HomeSideBar> {
 
                   return _buildSidebar(
                     context,
-                    menuState.views,
+                    menuState.publicViews,
                     favoriteState.views,
                   );
                 },
@@ -226,7 +226,7 @@ class _HomeSideBarState extends State<HomeSideBar> {
         final view = context
             .read<SidebarRootViewsBloc>()
             .state
-            .views
+            .publicViews
             .findView(action.objectId);
 
         if (view != null) {

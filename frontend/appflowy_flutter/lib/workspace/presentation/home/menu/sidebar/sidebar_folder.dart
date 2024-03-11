@@ -1,11 +1,13 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
+import 'package:appflowy/workspace/application/menu/sidebar_root_views_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/folder/favorite_folder.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/folder/personal_folder.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/folder/private_folder.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/folder/public_folder.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SidebarFolder extends StatelessWidget {
   const SidebarFolder({
@@ -33,15 +35,44 @@ class SidebarFolder extends StatelessWidget {
         return Column(
           children: [
             // favorite
-            if (favoriteViews.isNotEmpty) ...[
-              FavoriteFolder(
-                // remove the duplicate views
-                views: favoriteViews,
-              ),
-              const VSpace(10),
-            ],
+            BlocBuilder<FavoriteBloc, FavoriteState>(
+              builder: (context, state) {
+                if (state.views.isEmpty) {
+                  return const SizedBox.shrink();
+                }
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: FavoriteFolder(
+                    // remove the duplicate views
+                    views: state.views,
+                  ),
+                );
+              },
+            ),
             // personal
-            PersonalFolder(views: views, isHoverEnabled: isHoverEnabled),
+            BlocBuilder<SidebarRootViewsBloc, SidebarRootViewState>(
+              builder: (context, state) {
+                return Column(
+                  children: [
+                    // public
+                    if (state.publicViews.isNotEmpty) ...[
+                      const SizedBox(height: 10),
+                      PublicFolder(
+                        views: state.publicViews,
+                      ),
+                    ],
+
+                    // private
+                    if (state.privateViews.isNotEmpty) ...[
+                      const SizedBox(height: 10),
+                      PrivateFolder(
+                        views: state.privateViews,
+                      ),
+                    ],
+                  ],
+                );
+              },
+            ),
           ],
         );
       },

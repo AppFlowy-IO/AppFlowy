@@ -181,6 +181,20 @@ pub struct CreateViewPayloadPB {
   // If the index is None or the index is out of range, the view will be appended to the end of the parent view.
   #[pb(index = 9, one_of)]
   pub index: Option<u32>,
+
+  // The section of the view.
+  // Only the view in public section will be shown in the shared workspace view list.
+  // The view in private section will only be shown in the user's private view list.
+  #[pb(index = 10)]
+  pub section: ViewSection,
+}
+
+#[derive(Eq, PartialEq, Hash, Debug, ProtoBuf_Enum, Clone, Default)]
+pub enum ViewSection {
+  #[default]
+  All = 0,
+  Private = 1,
+  Public = 2,
 }
 
 /// The orphan view is meant to be a view that is not attached to any parent view. By default, this
@@ -218,6 +232,8 @@ pub struct CreateViewParams {
   // The index of the view in the parent view.
   // If the index is None or the index is out of range, the view will be appended to the end of the parent view.
   pub index: Option<u32>,
+  // The section of the view.
+  pub section: ViewSection,
 }
 
 impl TryInto<CreateViewParams> for CreateViewPayloadPB {
@@ -238,6 +254,7 @@ impl TryInto<CreateViewParams> for CreateViewPayloadPB {
       meta: self.meta,
       set_as_current: self.set_as_current,
       index: self.index,
+      section: self.section,
     })
   }
 }
@@ -259,6 +276,8 @@ impl TryInto<CreateViewParams> for CreateOrphanViewPayloadPB {
       meta: Default::default(),
       set_as_current: false,
       index: None,
+      // TODO: lucas.xu add section to CreateOrphanViewPayloadPB
+      section: ViewSection::Private,
     })
   }
 }

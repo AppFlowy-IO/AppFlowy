@@ -11,6 +11,8 @@ use crate::{
   entities::view::ViewPB,
 };
 
+use super::ViewSection;
+
 #[derive(Eq, PartialEq, ProtoBuf, Default, Debug, Clone)]
 pub struct WorkspacePB {
   #[pb(index = 1)]
@@ -95,6 +97,47 @@ impl TryInto<CreateWorkspaceParams> for CreateWorkspacePayloadPB {
 pub struct WorkspaceIdPB {
   #[pb(index = 1)]
   pub value: String,
+}
+
+#[derive(Clone, Debug)]
+pub struct WorkspaceIdParams {
+  pub value: String,
+}
+
+impl TryInto<WorkspaceIdParams> for WorkspaceIdPB {
+  type Error = ErrorCode;
+
+  fn try_into(self) -> Result<WorkspaceIdParams, Self::Error> {
+    Ok(WorkspaceIdParams {
+      value: WorkspaceIdentify::parse(self.value)?.0,
+    })
+  }
+}
+
+#[derive(Clone, ProtoBuf, Default, Debug)]
+pub struct GetWorkspaceViewPB {
+  #[pb(index = 1)]
+  pub value: String,
+
+  #[pb(index = 2)]
+  pub view_section: ViewSection,
+}
+
+#[derive(Clone, Debug)]
+pub struct GetWorkspaceViewParams {
+  pub value: String,
+  pub view_section: ViewSection,
+}
+
+impl TryInto<GetWorkspaceViewParams> for GetWorkspaceViewPB {
+  type Error = ErrorCode;
+
+  fn try_into(self) -> Result<GetWorkspaceViewParams, Self::Error> {
+    Ok(GetWorkspaceViewParams {
+      value: WorkspaceIdentify::parse(self.value)?.0,
+      view_section: self.view_section,
+    })
+  }
 }
 
 #[derive(Default, ProtoBuf, Debug, Clone)]

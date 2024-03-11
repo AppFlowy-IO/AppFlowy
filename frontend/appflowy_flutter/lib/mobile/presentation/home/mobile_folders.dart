@@ -54,7 +54,7 @@ class MobileFolders extends StatelessWidget {
               child: Column(
                 children: [
                   MobilePersonalFolder(
-                    views: menuState.views,
+                    views: menuState.publicViews,
                   ),
                   const VSpace(8.0),
                 ],

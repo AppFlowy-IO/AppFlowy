@@ -48,10 +48,14 @@ pub(crate) async fn get_all_workspace_handler(
 
 #[tracing::instrument(level = "debug", skip(folder), err)]
 pub(crate) async fn get_workspace_views_handler(
+  data: AFPluginData<GetWorkspaceViewPB>,
   folder: AFPluginState<Weak<FolderManager>>,
 ) -> DataResult<RepeatedViewPB, FlowyError> {
   let folder = upgrade_folder(folder)?;
-  let child_views = folder.get_current_workspace_views().await?;
+  let params: GetWorkspaceViewParams = data.into_inner().try_into()?;
+  let child_views = folder
+    .get_workspace_views(&params.value, Some(params.view_section))
+    .await?;
   let repeated_view: RepeatedViewPB = child_views.into();
   data_result_ok(repeated_view)
 }

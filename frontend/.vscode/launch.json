@@ -115,9 +115,10 @@
         },
         {
             "name": "AF-desktop: Debug Rust",
-            "request": "attach",
+            "request": "launch",
             "type": "lldb",
-            "pid": "${command:pickMyProcess}"
+            // "pid": "${command:pickMyProcess}"
+            "program": "${workspaceRoot}/appflowy_flutter/build/macos/Build/Products/Debug/AppFlowy.app",
         },
         {
             // https://tauri.app/v1/guides/debugging/vs-code

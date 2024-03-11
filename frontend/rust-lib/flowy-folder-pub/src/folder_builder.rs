@@ -46,6 +46,7 @@ pub struct ViewBuilder {
   child_views: Vec<ParentChildViews>,
   is_favorite: bool,
   icon: Option<ViewIcon>,
+  is_private: bool,
 }
 
 impl ViewBuilder {
@@ -59,6 +60,7 @@ impl ViewBuilder {
       layout: ViewLayout::Document,
       child_views: vec![],
       is_favorite: false,
+      is_private: false,
       icon: None,
     }
   }
@@ -139,6 +141,7 @@ impl ViewBuilder {
           .collect(),
       ),
       last_edited_by: Some(self.uid),
+      is_private: self.is_private,
     };
     ParentChildViews {
       parent_view: view,

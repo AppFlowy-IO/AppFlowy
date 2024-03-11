@@ -24,7 +24,7 @@ use crate::entities::icon::UpdateViewIconParams;
 use crate::entities::{
   view_pb_with_child_views, view_pb_without_child_views, CreateViewParams, CreateWorkspaceParams,
   DeletedViewPB, FolderSnapshotPB, RepeatedTrashPB, RepeatedViewIdPB, RepeatedViewPB,
-  UpdateViewParams, ViewPB, WorkspacePB, WorkspaceSettingPB,
+  UpdateViewParams, ViewPB, ViewSection, WorkspacePB, WorkspaceSettingPB,
 };
 use crate::manager_observer::{
   notify_child_views_changed, notify_did_update_workspace, notify_parent_view_did_change,
@@ -113,7 +113,7 @@ impl FolderManager {
       },
       |folder| {
         let workspace_pb_from_workspace = |workspace: Workspace, folder: &Folder| {
-          let views = get_workspace_view_pbs(&workspace.id, folder);
+          let views = get_workspace_view_pbs(&workspace.id, folder, None);
           let workspace: WorkspacePB = (workspace, views).into();
           Ok::<WorkspacePB, FlowyError>(workspace)
         };
@@ -136,16 +136,20 @@ impl FolderManager {
       .map(|folder| folder.get_workspace_id());
 
     if let Some(workspace_id) = workspace_id {
-      self.get_workspace_views(&workspace_id).await
+      self.get_workspace_views(&workspace_id, None).await
     } else {
       tracing::warn!("Can't get current workspace views");
       Ok(vec![])
     }
   }
 
-  pub async fn get_workspace_views(&self, workspace_id: &str) -> FlowyResult<Vec<ViewPB>> {
+  pub async fn get_workspace_views(
+    &self,
+    workspace_id: &str,
+    section: Option<ViewSection>,
+  ) -> FlowyResult<Vec<ViewPB>> {
     let views = self.with_folder(Vec::new, |folder| {
-      get_workspace_view_pbs(workspace_id, folder)
+      get_workspace_view_pbs(workspace_id, folder, section)
     });
 
     Ok(views)
@@ -743,6 +747,8 @@ impl FolderManager {
       meta: Default::default(),
       set_as_current: true,
       index,
+      // TODO: lucas.xu fetch the section from the view
+      section: ViewSection::Private,
     };
 
     self.create_view_with_params(duplicate_params).await?;
@@ -954,6 +960,8 @@ impl FolderManager {
       meta: Default::default(),
       set_as_current: false,
       index: None,
+      // TODO: Lucas.xu fetch the section from the view
+      section: ViewSection::Private,
     };
 
     let view = create_view(self.user.user_id()?, params, import_data.view_layout);
@@ -1111,7 +1119,11 @@ impl FolderManager {
 }
 
 /// Return the views that belong to the workspace. The views are filtered by the trash.
-pub(crate) fn get_workspace_view_pbs(_workspace_id: &str, folder: &Folder) -> Vec<ViewPB> {
+pub(crate) fn get_workspace_view_pbs(
+  _workspace_id: &str,
+  folder: &Folder,
+  section: Option<ViewSection>,
+) -> Vec<ViewPB> {
   let items = folder.get_all_trash();
   let trash_ids = items
     .into_iter()
@@ -1120,6 +1132,19 @@ pub(crate) fn get_workspace_view_pbs(_workspace_id: &str, folder: &Folder) -> Ve
 
   let mut views = folder.get_workspace_views();
   views.retain(|view| !trash_ids.contains(&view.id));
+
+  // filter the views by the section
+  if let Some(section) = &section {
+    views.retain(|view| {
+      if section == &ViewSection::Private {
+        folder.is_view_in_section(Section::Private, &view.id)
+      } else if section == &ViewSection::Public {
+        !folder.is_view_in_section(Section::Private, &view.id)
+      } else {
+        true
+      }
+    });
+  }
 
   views
     .into_iter()

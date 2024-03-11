@@ -11,6 +11,7 @@ part 'folder_bloc.freezed.dart';
 enum FolderCategoryType {
   favorite,
   personal,
+  public,
 }
 
 class FolderBloc extends Bloc<FolderEvent, FolderState> {

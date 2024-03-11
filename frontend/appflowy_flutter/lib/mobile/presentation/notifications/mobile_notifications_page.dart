@@ -122,7 +122,7 @@ class _NotificationScreenContent extends StatelessWidget {
                             NotificationsView(
                               shownReminders: pastReminders,
                               reminderBloc: reminderBloc,
-                              views: menuState.views,
+                              views: menuState.publicViews,
                               onAction: _onAction,
                               onDelete: _onDelete,
                               onReadChanged: _onReadChanged,
@@ -134,7 +134,7 @@ class _NotificationScreenContent extends StatelessWidget {
                             NotificationsView(
                               shownReminders: upcomingReminders,
                               reminderBloc: reminderBloc,
-                              views: menuState.views,
+                              views: menuState.publicViews,
                               isUpcoming: true,
                               onAction: _onAction,
                             ),
