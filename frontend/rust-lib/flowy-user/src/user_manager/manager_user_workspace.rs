@@ -10,7 +10,7 @@ use flowy_folder_pub::entities::{AppFlowyData, ImportData};
 use flowy_sqlite::schema::user_workspace_table;
 use flowy_sqlite::{query_dsl::*, DBConnection, ExpressionMethods};
 use flowy_user_pub::entities::{
-  UserWorkspace, WorkspaceInvitation, WorkspaceInvitationStatus, WorkspaceMember, WorkspaceRole,
+  Role, UserWorkspace, WorkspaceInvitation, WorkspaceInvitationStatus, WorkspaceMember,
 };
 use lib_dispatch::prelude::af_spawn;
 
@@ -200,7 +200,7 @@ impl UserManager {
     &self,
     workspace_id: String,
     invitee_email: String,
-    role: WorkspaceRole,
+    role: Role,
   ) -> FlowyResult<()> {
     self
       .cloud_services
@@ -272,7 +272,7 @@ impl UserManager {
     &self,
     user_email: String,
     workspace_id: String,
-    role: WorkspaceRole,
+    role: Role,
   ) -> FlowyResult<()> {
     self
       .cloud_services

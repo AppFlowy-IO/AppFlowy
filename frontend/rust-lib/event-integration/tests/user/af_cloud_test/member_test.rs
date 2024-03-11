@@ -1,6 +1,6 @@
 use event_integration::user_event::user_localhost_af_cloud;
 use event_integration::EventIntegrationTest;
-use flowy_user_pub::entities::WorkspaceRole;
+use flowy_user_pub::entities::Role;
 
 use crate::user::af_cloud_test::workspace_test::get_synced_workspaces;
 
@@ -14,7 +14,7 @@ async fn af_cloud_invite_workspace_member() {
   let user_2 = test_2.af_cloud_sign_up().await;
 
   test_1
-    .invite_workspace_member(&user_1.workspace_id, &user_2.email, WorkspaceRole::Member)
+    .invite_workspace_member(&user_1.workspace_id, &user_2.email, Role::Member)
     .await;
 
   let invitations = test_2.list_workspace_invitations().await;

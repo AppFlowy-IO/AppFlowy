@@ -9,7 +9,7 @@ use flowy_user::entities::{
 };
 use flowy_user::errors::FlowyError;
 use flowy_user::event_map::UserEvent;
-use flowy_user_pub::entities::WorkspaceRole;
+use flowy_user_pub::entities::Role;
 
 use crate::event_builder::EventBuilder;
 use crate::EventIntegrationTest;
@@ -26,12 +26,7 @@ impl EventIntegrationTest {
       .await;
   }
 
-  pub async fn invite_workspace_member(
-    &self,
-    workspace_id: &str,
-    email: &str,
-    role: WorkspaceRole,
-  ) {
+  pub async fn invite_workspace_member(&self, workspace_id: &str, email: &str, role: Role) {
     EventBuilder::new(self.clone())
       .event(UserEvent::InviteWorkspaceMember)
       .payload(WorkspaceMemberInvitationPB {

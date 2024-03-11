@@ -1,7 +1,7 @@
 use validator::Validate;
 
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use flowy_user_pub::entities::{WorkspaceInvitation, WorkspaceMember, WorkspaceRole};
+use flowy_user_pub::entities::{Role, WorkspaceInvitation, WorkspaceMember};
 use lib_infra::validator_fn::required_not_empty_str;
 
 #[derive(ProtoBuf, Default, Clone)]
@@ -13,7 +13,7 @@ pub struct WorkspaceMemberPB {
   pub name: String,
 
   #[pb(index = 3)]
-  pub role: WorkspaceRolePB,
+  pub role: AFRolePB,
 }
 
 impl From<WorkspaceMember> for WorkspaceMemberPB {
@@ -43,7 +43,7 @@ pub struct WorkspaceMemberInvitationPB {
   pub invitee_email: String,
 
   #[pb(index = 3)]
-  pub role: WorkspaceRolePB,
+  pub role: AFRolePB,
 }
 
 #[derive(Debug, ProtoBuf, Default, Clone)]
@@ -131,33 +131,34 @@ pub struct UpdateWorkspaceMemberPB {
   pub email: String,
 
   #[pb(index = 3)]
-  pub role: WorkspaceRolePB,
+  pub role: AFRolePB,
 }
 
+// Workspace Role
 #[derive(ProtoBuf_Enum, Clone, Default)]
-pub enum WorkspaceRolePB {
+pub enum AFRolePB {
   Owner = 0,
   Member = 1,
   #[default]
   Guest = 2,
 }
 
-impl From<WorkspaceRolePB> for WorkspaceRole {
-  fn from(value: WorkspaceRolePB) -> Self {
+impl From<AFRolePB> for Role {
+  fn from(value: AFRolePB) -> Self {
     match value {
-      WorkspaceRolePB::Owner => WorkspaceRole::Owner,
-      WorkspaceRolePB::Member => WorkspaceRole::Member,
-      WorkspaceRolePB::Guest => WorkspaceRole::Guest,
+      AFRolePB::Owner => Role::Owner,
+      AFRolePB::Member => Role::Member,
+      AFRolePB::Guest => Role::Guest,
     }
   }
 }
 
-impl From<WorkspaceRole> for WorkspaceRolePB {
-  fn from(value: WorkspaceRole) -> Self {
+impl From<Role> for AFRolePB {
+  fn from(value: Role) -> Self {
     match value {
-      WorkspaceRole::Owner => WorkspaceRolePB::Owner,
-      WorkspaceRole::Member => WorkspaceRolePB::Member,
-      WorkspaceRole::Guest => WorkspaceRolePB::Guest,
+      Role::Owner => AFRolePB::Owner,
+      Role::Member => AFRolePB::Member,
+      Role::Guest => AFRolePB::Guest,
     }
   }
 }
