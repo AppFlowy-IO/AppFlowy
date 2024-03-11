@@ -337,63 +337,6 @@ fn group_id(cell_data: &DateCellData, setting_content: &str) -> String {
   date.to_string()
 }
 
-// fn group_name_from_id(group_id: &str, setting_content: &str) -> String {
-//   let config = DateGroupConfiguration::from_json(setting_content).unwrap_or_default();
-//   let date = NaiveDate::parse_from_str(group_id, GROUP_ID_DATE_FORMAT).unwrap();
-
-//   let tmp;
-//   match config.condition {
-//     DateCondition::Day => {
-//       tmp = format!("{} {}, {}", date.format("%b"), date.day(), date.year(),);
-//       tmp
-//     },
-//     DateCondition::Week => {
-//       let begin_of_week = date
-//         .checked_sub_days(Days::new(date.weekday().num_days_from_monday() as u64))
-//         .unwrap()
-//         .format("%d");
-//       let end_of_week = date
-//         .checked_add_days(Days::new(6 - date.weekday().num_days_from_monday() as u64))
-//         .unwrap()
-//         .format("%d");
-
-//       tmp = format!(
-//         "Week of {} {}-{} {}",
-//         date.format("%b"),
-//         begin_of_week,
-//         end_of_week,
-//         date.year()
-//       );
-//       tmp
-//     },
-//     DateCondition::Month => {
-//       tmp = format!("{} {}", date.format("%b"), date.year(),);
-//       tmp
-//     },
-//     DateCondition::Year => date.year().to_string(),
-//     DateCondition::Relative => {
-//       let now = date_time_from_timestamp(Some(timestamp()));
-
-//       let diff = date.signed_duration_since(now.date_naive());
-//       let result = match diff.num_days() {
-//         0 => "Today",
-//         -1 => "Yesterday",
-//         1 => "Tomorrow",
-//         -7 => "Last 7 days",
-//         2 => "Next 7 days",
-//         -30 => "Last 30 days",
-//         8 => "Next 30 days",
-//         _ => {
-//           tmp = format!("{} {}", date.format("%b"), date.year(),);
-//           &tmp
-//         },
-//       };
-
-//       result.to_string()
-//     },
-//   }
-// }
-
 fn date_time_from_timestamp(timestamp: Option<i64>) -> DateTime<Local> {
   match timestamp {
     Some(timestamp) => {

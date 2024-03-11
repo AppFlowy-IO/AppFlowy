@@ -33,7 +33,6 @@ pub trait GroupControllerDelegate: Send + Sync + 'static {
 /// - `T`: type-option data deserializer that impl [TypeOptionDataDeserializer]
 /// - `G`: group generator, [GroupsBuilder]
 /// - `P`: parser that impl [CellProtobufBlobParser] for the CellBytes
-/// - `I`: an interceptor
 ///
 /// See also: [DefaultGroupController] which contains the most basic implementation of
 /// `GroupController` that only has one group.
