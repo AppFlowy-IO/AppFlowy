@@ -17,7 +17,7 @@ pub fn init(folder: Weak<FolderManager>) -> AFPlugin {
     .event(FolderEvent::ReadWorkspaceViews, get_workspace_views_handler)
     .event(FolderEvent::CreateView, create_view_handler)
     .event(FolderEvent::CreateOrphanView, create_orphan_view_handler)
-    .event(FolderEvent::GetView, read_view_handler)
+    .event(FolderEvent::GetView, get_view_handler)
     .event(FolderEvent::UpdateView, update_view_handler)
     .event(FolderEvent::DeleteView, delete_view_handler)
     .event(FolderEvent::DuplicateView, duplicate_view_handler)

@@ -44,12 +44,16 @@ pub struct RelationCellChangesetPB {
 pub struct RelationTypeOptionPB {
   #[pb(index = 1)]
   pub database_id: String,
+
+  #[pb(index = 2)]
+  pub database_view_id: String,
 }
 
 impl From<RelationTypeOption> for RelationTypeOptionPB {
   fn from(value: RelationTypeOption) -> Self {
     RelationTypeOptionPB {
       database_id: value.database_id,
+      database_view_id: value.database_view_id,
     }
   }
 }
@@ -58,6 +62,7 @@ impl From<RelationTypeOptionPB> for RelationTypeOption {
   fn from(value: RelationTypeOptionPB) -> Self {
     RelationTypeOption {
       database_id: value.database_id,
+      database_view_id: value.database_view_id,
     }
   }
 }

@@ -25,7 +25,8 @@ class RelationTypeOptionEditorFactory implements TypeOptionEditorFactory {
     required PopoverMutex popoverMutex,
     required TypeOptionDataCallback onTypeOptionUpdated,
   }) {
-    final typeOption = _parseTypeOptionData(field.typeOptionData);
+    final RelationTypeOptionPB typeOption =
+        _parseTypeOptionData(field.typeOptionData);
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -49,6 +50,7 @@ class RelationTypeOptionEditorFactory implements TypeOptionEditorFactory {
             height: GridSize.popoverItemHeight,
             child: FlowyButton(
               text: FlowyText(
+                // TODO(Richard): using the view id to get the view information from the folder
                 typeOption.databaseId.isEmpty
                     ? LocaleKeys.grid_relation_relatedDatabasePlaceholder.tr()
                     : typeOption.databaseId,
@@ -128,17 +130,17 @@ class _DatabaseListState extends State<_DatabaseList> {
           return const SizedBox.shrink();
         }
 
-        final databaseIds = data
-            .fold<List<DatabaseDescriptionPB>>((l) => l.items, (r) => [])
-            .map((databaseDescription) {
-          final databaseId = databaseDescription.databaseId;
+        final metas = data
+            .fold<List<DatabaseMetaPB>>((l) => l.items, (r) => [])
+            .map((meta) {
           return FlowyButton(
-            onTap: () => widget.onSelectDatabase(databaseId),
+            onTap: () => widget.onSelectDatabase(meta.databaseId),
             text: FlowyText.medium(
-              databaseId,
+              // TODO(Richard): using the view id to get the view information from the folder
+              meta.inlineViewId,
               overflow: TextOverflow.ellipsis,
             ),
-            rightIcon: databaseId == widget.currentDatabaseId
+            rightIcon: meta.databaseId == widget.currentDatabaseId
                 ? FlowySvg(
                     FlowySvgs.check_s,
                     color: Theme.of(context).colorScheme.primary,
@@ -151,8 +153,8 @@ class _DatabaseListState extends State<_DatabaseList> {
           shrinkWrap: true,
           separatorBuilder: (_, __) =>
               VSpace(GridSize.typeOptionSeparatorHeight),
-          itemCount: databaseIds.length,
-          itemBuilder: (context, index) => databaseIds[index],
+          itemCount: metas.length,
+          itemBuilder: (context, index) => metas[index],
         );
       },
     );

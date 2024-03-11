@@ -19,12 +19,17 @@ use super::{RelationCellChangeset, RelationCellData};
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct RelationTypeOption {
   pub database_id: String,
+  pub database_view_id: String,
 }
 
 impl From<TypeOptionData> for RelationTypeOption {
   fn from(value: TypeOptionData) -> Self {
     let database_id = value.get_str_value("database_id").unwrap_or_default();
-    Self { database_id }
+    let view_id = value.get_str_value("view_id").unwrap_or_default();
+    Self {
+      database_id,
+      database_view_id: view_id,
+    }
   }
 }
 
@@ -32,6 +37,7 @@ impl From<RelationTypeOption> for TypeOptionData {
   fn from(value: RelationTypeOption) -> Self {
     TypeOptionDataBuilder::new()
       .insert_str_value("database_id", value.database_id)
+      .insert_str_value("view_id", value.database_view_id)
       .build()
   }
 }
