@@ -21,21 +21,18 @@ use crate::services::group::{
   GroupsBuilder, MoveGroupRowContext,
 };
 
-pub trait GroupConfigurationContentSerde: Sized + Send + Sync {
-  fn from_json(s: &str) -> Result<Self, serde_json::Error>;
-  fn to_json(&self) -> Result<String, serde_json::Error>;
-}
-
 #[derive(Default, Serialize, Deserialize)]
 pub struct DateGroupConfiguration {
   pub hide_empty: bool,
   pub condition: DateCondition,
 }
 
-impl GroupConfigurationContentSerde for DateGroupConfiguration {
+impl DateGroupConfiguration {
   fn from_json(s: &str) -> Result<Self, serde_json::Error> {
     serde_json::from_str(s)
   }
+
+  #[allow(dead_code)]
   fn to_json(&self) -> Result<String, serde_json::Error> {
     serde_json::to_string(self)
   }
@@ -411,16 +408,11 @@ fn date_time_from_timestamp(timestamp: Option<i64>) -> DateTime<Local> {
 
 #[cfg(test)]
 mod tests {
-  use std::vec;
-
   use chrono::{offset, Days, Duration, NaiveDateTime};
 
-  use crate::services::{
-    field::{date_type_option::DateTypeOption, DateCellData},
-    group::controller_impls::date_controller::{
-      group_id, group_name_from_id, GROUP_ID_DATE_FORMAT,
-    },
-  };
+  use crate::services::field::date_type_option::DateTypeOption;
+  use crate::services::field::DateCellData;
+  use crate::services::group::controller_impls::date_controller::{group_id, GROUP_ID_DATE_FORMAT};
 
   #[test]
   fn group_id_name_test() {
@@ -428,7 +420,6 @@ mod tests {
       cell_data: DateCellData,
       setting_content: String,
       exp_group_id: String,
-      exp_group_name: String,
     }
 
     let mar_14_2022 = NaiveDateTime::from_timestamp_opt(1647251762, 0).unwrap();
@@ -450,7 +441,6 @@ mod tests {
         cell_data: mar_14_2022_cd.clone(),
         setting_content: r#"{"condition": 0, "hide_empty": false}"#.to_string(),
         exp_group_id: "2022/03/01".to_string(),
-        exp_group_name: "Mar 2022".to_string(),
       },
       GroupIDTest {
         cell_data: DateCellData {
@@ -460,7 +450,6 @@ mod tests {
         },
         setting_content: r#"{"condition": 0, "hide_empty": false}"#.to_string(),
         exp_group_id: today.format(GROUP_ID_DATE_FORMAT).to_string(),
-        exp_group_name: "Today".to_string(),
       },
       GroupIDTest {
         cell_data: DateCellData {
@@ -474,13 +463,11 @@ mod tests {
           .unwrap()
           .format(GROUP_ID_DATE_FORMAT)
           .to_string(),
-        exp_group_name: "Last 7 days".to_string(),
       },
       GroupIDTest {
         cell_data: mar_14_2022_cd.clone(),
         setting_content: r#"{"condition": 1, "hide_empty": false}"#.to_string(),
         exp_group_id: "2022/03/14".to_string(),
-        exp_group_name: "Mar 14, 2022".to_string(),
       },
       GroupIDTest {
         cell_data: DateCellData {
@@ -495,19 +482,16 @@ mod tests {
         },
         setting_content: r#"{"condition": 2, "hide_empty": false}"#.to_string(),
         exp_group_id: "2022/03/14".to_string(),
-        exp_group_name: "Week of Mar 14-20 2022".to_string(),
       },
       GroupIDTest {
         cell_data: mar_14_2022_cd.clone(),
         setting_content: r#"{"condition": 3, "hide_empty": false}"#.to_string(),
         exp_group_id: "2022/03/01".to_string(),
-        exp_group_name: "Mar 2022".to_string(),
       },
       GroupIDTest {
         cell_data: mar_14_2022_cd,
         setting_content: r#"{"condition": 4, "hide_empty": false}"#.to_string(),
         exp_group_id: "2022/01/01".to_string(),
-        exp_group_name: "2022".to_string(),
       },
       GroupIDTest {
         cell_data: DateCellData {
@@ -517,7 +501,6 @@ mod tests {
         },
         setting_content: r#"{"condition": 1, "hide_empty": false}"#.to_string(),
         exp_group_id: "2023/06/02".to_string(),
-        exp_group_name: "".to_string(),
       },
       GroupIDTest {
         cell_data: DateCellData {
@@ -527,18 +510,12 @@ mod tests {
         },
         setting_content: r#"{"condition": 1, "hide_empty": false}"#.to_string(),
         exp_group_id: "2023/06/03".to_string(),
-        exp_group_name: "".to_string(),
       },
     ];
 
     for (i, test) in tests.iter().enumerate() {
       let group_id = group_id(&test.cell_data, &test.setting_content);
       assert_eq!(test.exp_group_id, group_id, "test {}", i);
-
-      if !test.exp_group_name.is_empty() {
-        let group_name = group_name_from_id(&group_id, &test.setting_content);
-        assert_eq!(test.exp_group_name, group_name, "test {}", i);
-      }
     }
   }
 }

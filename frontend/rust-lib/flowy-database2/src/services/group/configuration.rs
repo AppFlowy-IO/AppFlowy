@@ -512,7 +512,7 @@ mod tests {
     let group_stringify = |groups: Vec<Group>| {
       groups
         .iter()
-        .map(|group| group.name.clone())
+        .map(|group| group.id.clone())
         .collect::<Vec<String>>()
         .join(",")
     };
