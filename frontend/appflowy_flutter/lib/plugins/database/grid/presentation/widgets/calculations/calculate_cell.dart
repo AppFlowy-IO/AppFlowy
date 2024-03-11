@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database/application/calculations/calculation_type_ext.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/application/field/type_option/number_format_bloc.dart';
@@ -16,6 +15,7 @@ import 'package:appflowy_backend/protobuf/flowy-database2/number_entities.pb.dar
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class CalculateCell extends StatefulWidget {
@@ -35,7 +35,38 @@ class CalculateCell extends StatefulWidget {
 }
 
 class _CalculateCellState extends State<CalculateCell> {
+  final _cellScrollController = ScrollController();
   bool isSelected = false;
+  bool isScrollable = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkScrollable();
+  }
+
+  @override
+  void didUpdateWidget(covariant CalculateCell oldWidget) {
+    _checkScrollable();
+    super.didUpdateWidget(oldWidget);
+  }
+
+  void _checkScrollable() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_cellScrollController.hasClients) {
+        setState(
+          () =>
+              isScrollable = _cellScrollController.position.maxScrollExtent > 0,
+        );
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _cellScrollController.dispose();
+    super.dispose();
+  }
 
   void setIsSelected(bool selected) => setState(() => isSelected = selected);
 
@@ -98,36 +129,62 @@ class _CalculateCellState extends State<CalculateCell> {
 
   Widget _showCalculateValue(BuildContext context, String? prefix) {
     prefix = prefix != null ? '$prefix ' : '';
+    final calculateValue =
+        '$prefix${_withoutTrailingZeros(widget.calculation!.value)}';
 
-    return FlowyButton(
-      radius: BorderRadius.zero,
-      hoverColor: AFThemeExtension.of(context).lightGreyHover,
-      text: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          Flexible(
-            child: FlowyText(
-              widget.calculation!.calculationType.shortLabel,
-              color: Theme.of(context).hintColor,
-              overflow: TextOverflow.ellipsis,
+    return FlowyTooltip(
+      message: !isScrollable ? "" : null,
+      richMessage: !isScrollable
+          ? null
+          : TextSpan(
+              children: [
+                TextSpan(
+                  text: widget.calculation!.calculationType.shortLabel
+                      .toUpperCase(),
+                ),
+                const TextSpan(text: ' '),
+                TextSpan(
+                  text: calculateValue,
+                  style: const TextStyle(fontWeight: FontWeight.w500),
+                ),
+              ],
             ),
-          ),
-          if (widget.calculation!.value.isNotEmpty) ...[
-            const HSpace(8),
-            Flexible(
-              child: FlowyText(
-                '$prefix${_withoutTrailingZeros(widget.calculation!.value)}',
-                color: AFThemeExtension.of(context).textColor,
-                overflow: TextOverflow.ellipsis,
+      child: FlowyButton(
+        radius: BorderRadius.zero,
+        hoverColor: AFThemeExtension.of(context).lightGreyHover,
+        text: Row(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                controller: _cellScrollController,
+                key: ValueKey(widget.calculation!.id),
+                reverse: true,
+                physics: const NeverScrollableScrollPhysics(),
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    FlowyText(
+                      widget.calculation!.calculationType.shortLabel
+                          .toUpperCase(),
+                      color: Theme.of(context).hintColor,
+                      fontSize: 10,
+                    ),
+                    if (widget.calculation!.value.isNotEmpty) ...[
+                      const HSpace(8),
+                      FlowyText(
+                        calculateValue,
+                        color: AFThemeExtension.of(context).textColor,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ],
+                ),
               ),
             ),
           ],
-          const HSpace(8),
-          FlowySvg(
-            FlowySvgs.arrow_down_s,
-            color: Theme.of(context).hintColor,
-          ),
-        ],
+        ),
       ),
     );
   }
