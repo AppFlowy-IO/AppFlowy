@@ -136,14 +136,6 @@ class _SelectTaskIntent extends Intent {
   const _SelectTaskIntent();
 }
 
-class _DeleteTaskIntent extends Intent {
-  const _DeleteTaskIntent();
-}
-
-class _StartEditingTaskIntent extends Intent {
-  const _StartEditingTaskIntent();
-}
-
 class _EndEditingTaskIntent extends Intent {
   const _EndEditingTaskIntent();
 }
@@ -168,7 +160,9 @@ class ChecklistItem extends StatefulWidget {
 
 class _ChecklistItemState extends State<ChecklistItem> {
   late final TextEditingController _textController;
-  final FocusNode _focusNode = FocusNode();
+  final FocusNode _focusNode = FocusNode(skipTraversal: true);
+  final FocusNode _textFieldFocusNode = FocusNode();
+
   bool _isHovered = false;
   bool _isFocused = false;
   Timer? _debounceOnChanged;
@@ -184,6 +178,7 @@ class _ChecklistItemState extends State<ChecklistItem> {
     _debounceOnChanged?.cancel();
     _textController.dispose();
     _focusNode.dispose();
+    _textFieldFocusNode.dispose();
     super.dispose();
   }
 
@@ -200,6 +195,7 @@ class _ChecklistItemState extends State<ChecklistItem> {
   @override
   Widget build(BuildContext context) {
     return FocusableActionDetector(
+      focusNode: _focusNode,
       onShowHoverHighlight: (isHovered) {
         setState(() => _isHovered = isHovered);
       },
@@ -212,116 +208,90 @@ class _ChecklistItemState extends State<ChecklistItem> {
               .read<ChecklistCellBloc>()
               .add(ChecklistCellEvent.selectTask(widget.task.data.id)),
         ),
-        _DeleteTaskIntent: CallbackAction<_DeleteTaskIntent>(
-          onInvoke: (_DeleteTaskIntent intent) => context
-              .read<ChecklistCellBloc>()
-              .add(ChecklistCellEvent.deleteTask(widget.task.data.id)),
-        ),
-        _StartEditingTaskIntent: CallbackAction<_StartEditingTaskIntent>(
-          onInvoke: (_StartEditingTaskIntent intent) =>
-              _focusNode.requestFocus(),
-        ),
         _EndEditingTaskIntent: CallbackAction<_EndEditingTaskIntent>(
-          onInvoke: (_EndEditingTaskIntent intent) => _focusNode.unfocus(),
+          onInvoke: (_EndEditingTaskIntent intent) =>
+              _textFieldFocusNode.unfocus(),
         ),
       },
       shortcuts: {
-        const SingleActivator(LogicalKeyboardKey.space):
-            const _SelectTaskIntent(),
-        const SingleActivator(LogicalKeyboardKey.delete):
-            const _DeleteTaskIntent(),
-        const SingleActivator(LogicalKeyboardKey.enter):
-            const _StartEditingTaskIntent(),
-        if (Platform.isMacOS)
-          const SingleActivator(LogicalKeyboardKey.enter, meta: true):
-              const _SelectTaskIntent()
-        else
-          const SingleActivator(LogicalKeyboardKey.enter, control: true):
-              const _SelectTaskIntent(),
-        const SingleActivator(LogicalKeyboardKey.arrowUp):
-            const PreviousFocusIntent(),
-        const SingleActivator(LogicalKeyboardKey.arrowDown):
-            const NextFocusIntent(),
+        SingleActivator(
+          LogicalKeyboardKey.enter,
+          meta: Platform.isMacOS,
+          control: !Platform.isMacOS,
+        ): const _SelectTaskIntent(),
       },
-      descendantsAreTraversable: false,
       child: Container(
         constraints: BoxConstraints(minHeight: GridSize.popoverItemHeight),
         decoration: BoxDecoration(
-          color: _isHovered || _isFocused || _focusNode.hasFocus
+          color: _isHovered || _isFocused || _textFieldFocusNode.hasFocus
               ? AFThemeExtension.of(context).lightGreyHover
               : Colors.transparent,
           borderRadius: Corners.s6Border,
         ),
         child: Row(
           children: [
-            FlowyIconButton(
-              width: 32,
-              icon: FlowySvg(
-                widget.task.isSelected
-                    ? FlowySvgs.check_filled_s
-                    : FlowySvgs.uncheck_s,
-                blendMode: BlendMode.dst,
+            ExcludeFocus(
+              child: FlowyIconButton(
+                width: 32,
+                icon: FlowySvg(
+                  widget.task.isSelected
+                      ? FlowySvgs.check_filled_s
+                      : FlowySvgs.uncheck_s,
+                  blendMode: BlendMode.dst,
+                ),
+                hoverColor: Colors.transparent,
+                onPressed: () => context.read<ChecklistCellBloc>().add(
+                      ChecklistCellEvent.selectTask(widget.task.data.id),
+                    ),
               ),
-              hoverColor: Colors.transparent,
-              onPressed: () => context.read<ChecklistCellBloc>().add(
-                    ChecklistCellEvent.selectTask(widget.task.data.id),
-                  ),
             ),
             Expanded(
               child: Shortcuts(
-                shortcuts: {
-                  const SingleActivator(LogicalKeyboardKey.space):
-                      const DoNothingAndStopPropagationIntent(),
-                  const SingleActivator(LogicalKeyboardKey.delete):
-                      const DoNothingAndStopPropagationIntent(),
-                  if (Platform.isMacOS)
-                    LogicalKeySet(
-                      LogicalKeyboardKey.fn,
-                      LogicalKeyboardKey.backspace,
-                    ): const DoNothingAndStopPropagationIntent(),
-                  const SingleActivator(LogicalKeyboardKey.enter):
-                      const DoNothingAndStopPropagationIntent(),
-                  const SingleActivator(LogicalKeyboardKey.escape):
-                      const _EndEditingTaskIntent(),
-                  const SingleActivator(LogicalKeyboardKey.arrowUp):
-                      const DoNothingAndStopPropagationIntent(),
-                  const SingleActivator(LogicalKeyboardKey.arrowDown):
-                      const DoNothingAndStopPropagationIntent(),
+                shortcuts: const {
+                  SingleActivator(LogicalKeyboardKey.escape):
+                      _EndEditingTaskIntent(),
                 },
-                child: TextField(
-                  controller: _textController,
-                  focusNode: _focusNode,
-                  autofocus: widget.autofocus,
-                  style: Theme.of(context).textTheme.bodyMedium,
-                  decoration: InputDecoration(
-                    border: InputBorder.none,
-                    isCollapsed: true,
-                    contentPadding: EdgeInsets.only(
-                      top: 8.0,
-                      bottom: 8.0,
-                      left: 2.0,
-                      right: _isHovered ? 2.0 : 8.0,
-                    ),
-                    hintText: LocaleKeys.grid_checklist_taskHint.tr(),
-                  ),
-                  onChanged: (text) {
-                    if (_textController.value.composing.isCollapsed) {
-                      _debounceOnChangedText(text);
-                    }
-                  },
-                  onSubmitted: (description) {
-                    _submitUpdateTaskDescription(description);
-                    widget.onSubmitted?.call();
+                child: Builder(
+                  builder: (context) {
+                    return TextField(
+                      controller: _textController,
+                      focusNode: _textFieldFocusNode,
+                      autofocus: widget.autofocus,
+                      style: Theme.of(context).textTheme.bodyMedium,
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        isCollapsed: true,
+                        contentPadding: EdgeInsets.only(
+                          top: 8.0,
+                          bottom: 8.0,
+                          left: 2.0,
+                          right: _isHovered ? 2.0 : 8.0,
+                        ),
+                        hintText: LocaleKeys.grid_checklist_taskHint.tr(),
+                      ),
+                      textInputAction: widget.onSubmitted == null
+                          ? TextInputAction.next
+                          : null,
+                      onChanged: (text) {
+                        if (_textController.value.composing.isCollapsed) {
+                          _debounceOnChangedText(text);
+                        }
+                      },
+                      onSubmitted: (description) {
+                        _submitUpdateTaskDescription(description);
+                        if (widget.onSubmitted != null) {
+                          widget.onSubmitted?.call();
+                        } else {
+                          Actions.invoke(context, const NextFocusIntent());
+                        }
+                      },
+                    );
                   },
                 ),
               ),
             ),
-            if (_isHovered || _isFocused || _focusNode.hasFocus)
-              FlowyIconButton(
-                width: 32,
-                icon: const FlowySvg(FlowySvgs.delete_s),
-                hoverColor: Colors.transparent,
-                iconColorOnHover: Theme.of(context).colorScheme.error,
+            if (_isHovered || _isFocused || _textFieldFocusNode.hasFocus)
+              _DeleteTaskButton(
                 onPressed: () => context.read<ChecklistCellBloc>().add(
                       ChecklistCellEvent.deleteTask(widget.task.data.id),
                     ),
@@ -436,6 +406,59 @@ class _NewTaskItemState extends State<NewTaskItem> {
                   },
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _DeleteTaskButton extends StatefulWidget {
+  const _DeleteTaskButton({
+    required this.onPressed,
+  });
+
+  final VoidCallback onPressed;
+
+  @override
+  State<_DeleteTaskButton> createState() => _DeleteTaskButtonState();
+}
+
+class _DeleteTaskButtonState extends State<_DeleteTaskButton> {
+  final _materialStatesController = MaterialStatesController();
+
+  @override
+  void dispose() {
+    _materialStatesController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return TextButton(
+      onPressed: widget.onPressed,
+      onHover: (_) => setState(() {}),
+      onFocusChange: (_) => setState(() {}),
+      style: ButtonStyle(
+        fixedSize: const MaterialStatePropertyAll(Size.square(32)),
+        minimumSize: const MaterialStatePropertyAll(Size.square(32)),
+        maximumSize: const MaterialStatePropertyAll(Size.square(32)),
+        overlayColor: MaterialStateProperty.resolveWith((state) {
+          if (state.contains(MaterialState.focused)) {
+            return AFThemeExtension.of(context).greyHover;
+          }
+          return Colors.transparent;
+        }),
+        shape: const MaterialStatePropertyAll(
+          RoundedRectangleBorder(borderRadius: Corners.s6Border),
+        ),
+      ),
+      statesController: _materialStatesController,
+      child: FlowySvg(
+        FlowySvgs.delete_s,
+        color: _materialStatesController.value
+                    .contains(MaterialState.hovered) ||
+                _materialStatesController.value.contains(MaterialState.focused)
+            ? Theme.of(context).colorScheme.error
+            : null,
       ),
     );
   }
