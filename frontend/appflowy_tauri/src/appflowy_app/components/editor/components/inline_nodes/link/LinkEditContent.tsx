@@ -44,6 +44,16 @@ function LinkEditContent({ onClose, defaultHref }: { onClose: () => void; defaul
 
     if (!input) return;
 
+    let isComposing = false;
+
+    const handleCompositionUpdate = () => {
+      isComposing = true;
+    };
+
+    const handleCompositionEnd = () => {
+      isComposing = false;
+    };
+
     const handleKeyDown = (e: KeyboardEvent) => {
       e.stopPropagation();
 
@@ -69,16 +79,22 @@ function LinkEditContent({ onClose, defaultHref }: { onClose: () => void; defaul
         return;
       }
 
-      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      if (!isComposing && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
         notify.clear();
         notify.info(`Press Tab to focus on the menu`);
         return;
       }
     };
 
+    input.addEventListener('compositionstart', handleCompositionUpdate);
+    input.addEventListener('compositionend', handleCompositionEnd);
+    input.addEventListener('compositionupdate', handleCompositionUpdate);
     input.addEventListener('keydown', handleKeyDown);
     return () => {
       input.removeEventListener('keydown', handleKeyDown);
+      input.removeEventListener('compositionstart', handleCompositionUpdate);
+      input.removeEventListener('compositionend', handleCompositionEnd);
+      input.removeEventListener('compositionupdate', handleCompositionUpdate);
     };
   }, [link, onClose, setNodeMark]);
 

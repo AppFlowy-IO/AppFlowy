@@ -50,6 +50,7 @@ export interface KeyboardNavigationProps<T> {
   onBlur?: () => void;
   itemClassName?: string;
   itemStyle?: React.CSSProperties;
+  renderNoResult?: () => React.ReactNode;
 }
 
 function KeyboardNavigation<T>({
@@ -69,6 +70,7 @@ function KeyboardNavigation<T>({
   onFocus,
   itemClassName,
   itemStyle,
+  renderNoResult,
 }: KeyboardNavigationProps<T>) {
   const { t } = useTranslation();
   const ref = useRef<HTMLDivElement>(null);
@@ -301,6 +303,8 @@ function KeyboardNavigation<T>({
     >
       {options.length > 0 ? (
         options.map(renderOption)
+      ) : renderNoResult ? (
+        renderNoResult()
       ) : (
         <Typography variant='body1' className={'p-3 text-xs text-text-caption'}>
           {t('findAndReplace.noResult')}
