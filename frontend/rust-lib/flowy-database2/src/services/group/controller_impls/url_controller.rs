@@ -27,7 +27,6 @@ pub struct URLGroupConfiguration {
 
 pub type URLGroupController = BaseGroupController<
   URLGroupConfiguration,
-  URLTypeOption,
   URLGroupGenerator,
   URLCellDataParser,
   URLGroupOperationInterceptorImpl,

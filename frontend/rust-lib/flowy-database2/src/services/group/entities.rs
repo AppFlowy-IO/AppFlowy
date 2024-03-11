@@ -14,16 +14,6 @@ pub struct GroupSetting {
   pub content: String,
 }
 
-pub struct GroupChangesets {
-  pub changesets: Vec<GroupChangeset>,
-}
-
-impl From<Vec<GroupChangeset>> for GroupChangesets {
-  fn from(changesets: Vec<GroupChangeset>) -> Self {
-    Self { changesets }
-  }
-}
-
 #[derive(Clone, Default, Debug)]
 pub struct GroupChangeset {
   pub group_id: String,

@@ -56,7 +56,6 @@ pub enum DateCondition {
 
 pub type DateGroupController = BaseGroupController<
   DateGroupConfiguration,
-  DateTypeOption,
   DateGroupBuilder,
   DateCellDataParser,
   DateGroupOperationInterceptorImpl,

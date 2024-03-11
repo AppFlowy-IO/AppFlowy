@@ -10,7 +10,7 @@ use crate::entities::{
 use crate::services::group::action::{
   DidMoveGroupRowResult, DidUpdateGroupRowResult, GroupController,
 };
-use crate::services::group::{GroupChangesets, GroupData, MoveGroupRowContext};
+use crate::services::group::{GroupChangeset, GroupData, MoveGroupRowContext};
 
 /// A [DefaultGroupController] is used to handle the group actions for the [FieldType] that doesn't
 /// implement its own group controller. The default group controller only contains one group, which
@@ -133,7 +133,7 @@ impl GroupController for DefaultGroupController {
 
   fn apply_group_changeset(
     &mut self,
-    _changeset: &GroupChangesets,
+    _changeset: &Vec<GroupChangeset>,
   ) -> FlowyResult<(Vec<GroupPB>, TypeOptionData)> {
     Ok((Vec::new(), TypeOptionData::default()))
   }

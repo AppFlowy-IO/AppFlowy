@@ -24,7 +24,6 @@ pub struct CheckboxGroupConfiguration {
 
 pub type CheckboxGroupController = BaseGroupController<
   CheckboxGroupConfiguration,
-  CheckboxTypeOption,
   CheckboxGroupBuilder,
   CheckboxCellDataParser,
   CheckboxGroupOperationInterceptorImpl,

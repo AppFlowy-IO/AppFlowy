@@ -19,7 +19,7 @@ use crate::services::group::action::{
 };
 use crate::services::group::configuration::GroupContext;
 use crate::services::group::entities::GroupData;
-use crate::services::group::{GroupChangeset, GroupChangesets, GroupsBuilder, MoveGroupRowContext};
+use crate::services::group::{GroupChangeset, GroupsBuilder, MoveGroupRowContext};
 
 // use collab_database::views::Group;
 
@@ -47,16 +47,15 @@ pub trait GroupOperationInterceptor {
 ///
 /// See also: [DefaultGroupController] which contains the most basic implementation of
 /// `GroupController` that only has one group.
-pub struct BaseGroupController<C, T, G, P, I> {
+pub struct BaseGroupController<C, G, P, I> {
   pub grouping_field_id: String,
-  pub type_option: T,
   pub context: GroupContext<C>,
   group_builder_phantom: PhantomData<G>,
   cell_parser_phantom: PhantomData<P>,
   pub operation_interceptor: I,
 }
 
-impl<C, T, G, P, I> BaseGroupController<C, T, G, P, I>
+impl<C, T, G, P, I> BaseGroupController<C, G, P, I>
 where
   C: Serialize + DeserializeOwned,
   T: TypeOption + Send + Sync,
@@ -79,7 +78,6 @@ where
 
     Ok(Self {
       grouping_field_id: grouping_field.id.clone(),
-      type_option,
       context: configuration,
       group_builder_phantom: PhantomData,
       cell_parser_phantom: PhantomData,
@@ -159,7 +157,7 @@ where
   }
 }
 
-impl<C, T, G, P, I> GroupController for BaseGroupController<C, T, G, P, I>
+impl<C, T, G, P, I> GroupController for BaseGroupController<C, G, P, I>
 where
   P: CellProtobufBlobParser<Object = <T as TypeOption>::CellProtobufType>,
   C: Serialize + DeserializeOwned + Sync + Send,
@@ -407,7 +405,7 @@ where
 
   fn apply_group_changeset(
     &mut self,
-    changeset: &GroupChangesets,
+    changeset: &Vec<GroupChangeset>,
   ) -> FlowyResult<(Vec<GroupPB>, TypeOptionData)> {
     for group_changeset in changeset.changesets.iter() {
       self.context.update_group(group_changeset)?;

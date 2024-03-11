@@ -5,7 +5,7 @@ use flowy_error::FlowyResult;
 
 use crate::entities::{GroupChangesPB, GroupPB, GroupRowsNotificationPB, InsertedGroupPB};
 use crate::services::field::TypeOption;
-use crate::services::group::{GroupChangesets, GroupData, MoveGroupRowContext};
+use crate::services::group::{GroupChangeset, GroupData, MoveGroupRowContext};
 
 /// Using polymorphism to provides the customs action for different group controller.
 ///
@@ -185,7 +185,7 @@ pub trait GroupController: Send + Sync {
   /// * `changesets`: list of changesets to be made to one or more groups
   fn apply_group_changeset(
     &mut self,
-    changesets: &GroupChangesets,
+    changesets: &Vec<GroupChangeset>,
   ) -> FlowyResult<(Vec<GroupPB>, TypeOptionData)>;
 
   /// Called before the row was created.

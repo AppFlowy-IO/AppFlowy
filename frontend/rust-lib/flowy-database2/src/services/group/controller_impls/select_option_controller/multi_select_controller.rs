@@ -27,7 +27,6 @@ pub type MultiSelectOptionGroupContext = GroupContext<MultiSelectGroupConfigurat
 // MultiSelect
 pub type MultiSelectGroupController = BaseGroupController<
   MultiSelectGroupConfiguration,
-  MultiSelectTypeOption,
   MultiSelectGroupBuilder,
   SelectOptionCellDataParser,
   MultiSelectGroupOperationInterceptorImpl,

@@ -29,7 +29,6 @@ pub type SingleSelectOptionGroupContext = GroupContext<SingleSelectGroupConfigur
 // SingleSelect
 pub type SingleSelectGroupController = BaseGroupController<
   SingleSelectGroupConfiguration,
-  SingleSelectTypeOption,
   SingleSelectGroupBuilder,
   SelectOptionCellDataParser,
   SingleSelectGroupOperationInterceptorImpl,
