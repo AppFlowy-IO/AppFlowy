@@ -232,9 +232,7 @@ impl GroupsBuilder for URLGroupGenerator {
 }
 
 fn make_group_from_url_cell(cell: &URLCellData) -> Group {
-  let group_id = cell.data.clone();
-  let group_name = cell.data.clone();
-  Group::new(group_id, group_name)
+  Group::new(cell.data.clone())
 }
 
 pub struct URLGroupOperationInterceptorImpl {}

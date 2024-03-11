@@ -193,7 +193,7 @@ pub fn generate_select_option_groups(
   let groups = options
     .iter()
     .map(|option| GeneratedGroupConfig {
-      group: Group::new(option.id.clone(), option.name.clone()),
+      group: Group::new(option.id.clone()),
       filter_content: option.id.clone(),
     })
     .collect();

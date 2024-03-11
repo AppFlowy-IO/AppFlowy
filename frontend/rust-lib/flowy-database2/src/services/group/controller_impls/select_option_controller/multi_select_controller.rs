@@ -101,7 +101,7 @@ impl GroupCustomize for MultiSelectGroupController {
     let new_select_option = self.type_option.create_option(&name);
     new_type_option.insert_option(new_select_option.clone());
 
-    let new_group = Group::new(new_select_option.id, new_select_option.name);
+    let new_group = Group::new(new_select_option.id);
     let inserted_group_pb = self.context.add_new_group(new_group)?;
 
     Ok((Some(new_type_option.into()), Some(inserted_group_pb)))

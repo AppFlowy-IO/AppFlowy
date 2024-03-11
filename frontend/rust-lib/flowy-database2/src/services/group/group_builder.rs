@@ -231,7 +231,6 @@ pub fn default_group_setting(field: &Field) -> GroupSetting {
 pub fn make_no_status_group(field: &Field) -> Group {
   Group {
     id: field.id.clone(),
-    name: format!("No {}", field.name),
     visible: true,
   }
 }

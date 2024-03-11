@@ -29,7 +29,6 @@ impl DefaultGroupController {
       DEFAULT_GROUP_CONTROLLER.to_owned(),
       field.id.clone(),
       "".to_owned(),
-      "".to_owned(),
       true,
     );
     Self {

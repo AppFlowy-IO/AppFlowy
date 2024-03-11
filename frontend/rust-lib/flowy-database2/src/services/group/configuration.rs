@@ -157,7 +157,6 @@ where
     let group_data = GroupData::new(
       group.id.clone(),
       self.field.id.clone(),
-      group.name.clone(),
       group.id.clone(),
       group.visible,
     );
@@ -218,7 +217,7 @@ where
             configuration
               .groups
               .iter()
-              .map(|group| group.name.clone())
+              .map(|group| group.id.clone())
               .collect::<Vec<String>>()
               .join(",")
           );
@@ -307,12 +306,10 @@ where
           Some(pos) => {
             let old_group = configuration.groups.get_mut(pos).unwrap();
             // Take the old group setting
-            group.visible = old_group.visible;
-            if !is_changed {
-              is_changed = is_group_changed(group, old_group);
+            if group.visible != old_group.visible {
+              is_changed = true;
             }
-            // Consider the the name of the `group_rev` as the newest.
-            old_group.name = group.name.clone();
+            group.visible = old_group.visible;
           },
         }
       }
@@ -328,7 +325,6 @@ where
       let group = GroupData::new(
         group.id,
         self.field.id.clone(),
-        group.name,
         filter_content,
         group.visible,
       );
@@ -342,7 +338,6 @@ where
         let group = GroupData::new(
           group_rev.id,
           self.field.id.clone(),
-          group_rev.name,
           filter_content.clone(),
           group_rev.visible,
         );
@@ -371,14 +366,10 @@ where
       if let Some(visible) = group_changeset.visible {
         group.visible = visible;
       }
-      if let Some(name) = &group_changeset.name {
-        group.name = name.clone();
-      }
     })?;
 
     if let Some(group) = update_group {
       if let Some(group_data) = self.group_by_id.get_mut(&group.id) {
-        group_data.name = group.name.clone();
         group_data.is_visible = group.visible;
       };
     }
@@ -490,13 +481,6 @@ fn merge_groups(
   merge_result
 }
 
-fn is_group_changed(new: &Group, old: &Group) -> bool {
-  if new.name != old.name {
-    return true;
-  }
-  false
-}
-
 struct MergeGroupResult {
   // Contains the new groups and the updated groups
   all_groups: Vec<Group>,
@@ -531,7 +515,7 @@ mod tests {
       exp_deleted_groups: Vec<&'a str>,
     }
 
-    let new_group = |name: &str| Group::new(name.to_string(), name.to_string());
+    let new_group = |name: &str| Group::new(name.to_string());
     let groups_from_strings =
       |strings: Vec<&str>| strings.iter().map(|s| new_group(s)).collect::<Vec<Group>>();
     let group_stringify = |groups: Vec<Group>| {

@@ -166,12 +166,12 @@ impl GroupsBuilder for CheckboxGroupBuilder {
     _type_option: &Self::GroupTypeOption,
   ) -> GeneratedGroups {
     let check_group = GeneratedGroupConfig {
-      group: Group::new(CHECK.to_string(), "".to_string()),
+      group: Group::new(CHECK.to_string()),
       filter_content: CHECK.to_string(),
     };
 
     let uncheck_group = GeneratedGroupConfig {
-      group: Group::new(UNCHECK.to_string(), "".to_string()),
+      group: Group::new(UNCHECK.to_string()),
       filter_content: UNCHECK.to_string(),
     };
 
