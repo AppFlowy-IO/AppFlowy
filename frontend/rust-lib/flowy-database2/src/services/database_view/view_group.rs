@@ -10,8 +10,8 @@ use crate::entities::FieldType;
 use crate::services::database_view::DatabaseViewOperation;
 use crate::services::field::RowSingleCellData;
 use crate::services::group::{
-  find_new_grouping_field, make_group_controller, GroupController, GroupSetting,
-  GroupSettingReader, GroupSettingWriter,
+  find_new_grouping_field, make_group_controller, GroupContextDelegate, GroupController,
+  GroupControllerDelegate, GroupSetting,
 };
 
 pub async fn new_group_controller_with_field(
@@ -19,17 +19,9 @@ pub async fn new_group_controller_with_field(
   delegate: Arc<dyn DatabaseViewOperation>,
   grouping_field: Field,
 ) -> FlowyResult<Box<dyn GroupController>> {
-  let setting_reader = GroupSettingReaderImpl(delegate.clone());
+  let configuration_delegate = GroupControllerDelegateImpl(delegate.clone());
   let rows = delegate.get_rows(&view_id).await;
-  let setting_writer = GroupSettingWriterImpl(delegate.clone());
-  make_group_controller(
-    view_id,
-    grouping_field,
-    rows,
-    setting_reader,
-    setting_writer,
-  )
-  .await
+  make_group_controller(view_id, grouping_field, rows, configuration_delegate).await
 }
 
 pub async fn new_group_controller(
@@ -37,10 +29,10 @@ pub async fn new_group_controller(
   delegate: Arc<dyn DatabaseViewOperation>,
 ) -> FlowyResult<Option<Box<dyn GroupController>>> {
   let fields = delegate.get_fields(&view_id, None).await;
-  let setting_reader = GroupSettingReaderImpl(delegate.clone());
+  let controller_delegate = GroupControllerDelegateImpl(delegate.clone());
 
   // Read the grouping field or find a new grouping field
-  let mut grouping_field = setting_reader
+  let mut grouping_field = controller_delegate
     .get_group_setting(&view_id)
     .await
     .and_then(|setting| {
@@ -58,25 +50,17 @@ pub async fn new_group_controller(
 
   if let Some(grouping_field) = grouping_field {
     let rows = delegate.get_rows(&view_id).await;
-    let setting_writer = GroupSettingWriterImpl(delegate.clone());
     Ok(Some(
-      make_group_controller(
-        view_id,
-        grouping_field,
-        rows,
-        setting_reader,
-        setting_writer,
-      )
-      .await?,
+      make_group_controller(view_id, grouping_field, rows, controller_delegate).await?,
     ))
   } else {
     Ok(None)
   }
 }
 
-pub(crate) struct GroupSettingReaderImpl(pub Arc<dyn DatabaseViewOperation>);
+pub(crate) struct GroupControllerDelegateImpl(pub Arc<dyn DatabaseViewOperation>);
 
-impl GroupSettingReader for GroupSettingReaderImpl {
+impl GroupContextDelegate for GroupControllerDelegateImpl {
   fn get_group_setting(&self, view_id: &str) -> Fut<Option<Arc<GroupSetting>>> {
     let mut settings = self.0.get_group_setting(view_id);
     to_fut(async move {
@@ -93,6 +77,17 @@ impl GroupSettingReader for GroupSettingReaderImpl {
     let view_id = view_id.to_owned();
     let delegate = self.0.clone();
     to_fut(async move { get_cells_for_field(delegate, &view_id, &field_id).await })
+  }
+
+  fn save_configuration(&self, view_id: &str, group_setting: GroupSetting) -> Fut<FlowyResult<()>> {
+    self.0.insert_group_setting(view_id, group_setting);
+    to_fut(async move { Ok(()) })
+  }
+}
+
+impl GroupControllerDelegate for GroupControllerDelegateImpl {
+  fn get_field(&self, field_id: &str) -> Option<Field> {
+    self.0.get_field(field_id)
   }
 }
 
@@ -147,12 +142,4 @@ pub(crate) async fn get_cells_for_field(
   }
 
   vec![]
-}
-
-struct GroupSettingWriterImpl(Arc<dyn DatabaseViewOperation>);
-impl GroupSettingWriter for GroupSettingWriterImpl {
-  fn save_configuration(&self, view_id: &str, group_setting: GroupSetting) -> Fut<FlowyResult<()>> {
-    self.0.insert_group_setting(view_id, group_setting);
-    to_fut(async move { Ok(()) })
-  }
 }

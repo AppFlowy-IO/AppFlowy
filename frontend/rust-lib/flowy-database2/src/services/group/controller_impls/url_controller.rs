@@ -15,7 +15,7 @@ use crate::services::group::configuration::GroupControllerContext;
 use crate::services::group::controller::BaseGroupController;
 use crate::services::group::{
   make_no_status_group, move_group_row, GeneratedGroupConfig, GeneratedGroups, Group,
-  GroupOperationInterceptor, GroupsBuilder, MoveGroupRowContext,
+  GroupsBuilder, MoveGroupRowContext,
 };
 
 #[derive(Default, Serialize, Deserialize)]
@@ -23,12 +23,8 @@ pub struct URLGroupConfiguration {
   pub hide_empty: bool,
 }
 
-pub type URLGroupController = BaseGroupController<
-  URLGroupConfiguration,
-  URLGroupGenerator,
-  URLCellDataParser,
-  URLGroupOperationInterceptorImpl,
->;
+pub type URLGroupController =
+  BaseGroupController<URLGroupConfiguration, URLGroupGenerator, URLCellDataParser>;
 
 pub type URLGroupControllerContext = GroupControllerContext<URLGroupConfiguration>;
 
@@ -233,11 +229,4 @@ impl GroupsBuilder for URLGroupGenerator {
 
 fn make_group_from_url_cell(cell: &URLCellData) -> Group {
   Group::new(cell.data.clone())
-}
-
-pub struct URLGroupOperationInterceptorImpl {}
-
-#[async_trait::async_trait]
-impl GroupOperationInterceptor for URLGroupOperationInterceptorImpl {
-  type GroupTypeOption = URLTypeOption;
 }

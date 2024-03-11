@@ -80,6 +80,13 @@ pub trait GroupCustomize: Send + Sync {
 
   fn delete_group(&mut self, group_id: &str) -> FlowyResult<Option<TypeOptionData>>;
 
+  fn update_type_option_when_update_group(
+    &mut self,
+    _changeset: &GroupChangeset,
+    _type_option: &mut Self::GroupTypeOption,
+  ) {
+  }
+
   fn will_create_row(&self, cells: &mut Cells, field: &Field, group_id: &str);
 }
 

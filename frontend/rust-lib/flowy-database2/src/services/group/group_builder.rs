@@ -11,13 +11,11 @@ use flowy_error::FlowyResult;
 use crate::entities::FieldType;
 use crate::services::field::TypeOption;
 use crate::services::group::{
-  CheckboxGroupController, CheckboxGroupControllerContext, CheckboxGroupOperationInterceptorImpl,
-  DateGroupController, DateGroupControllerContext, DateGroupOperationInterceptorImpl,
-  DefaultGroupController, Group, GroupController, GroupSetting, GroupSettingReader,
-  GroupSettingWriter, MultiSelectGroupController, MultiSelectGroupControllerContext,
-  MultiSelectGroupOperationInterceptorImpl, SingleSelectGroupController,
-  SingleSelectGroupControllerContext, SingleSelectGroupOperationInterceptorImpl,
-  URLGroupController, URLGroupControllerContext, URLGroupOperationInterceptorImpl,
+  CheckboxGroupController, CheckboxGroupControllerContext, DateGroupController,
+  DateGroupControllerContext, DefaultGroupController, Group, GroupContextDelegate, GroupController,
+  GroupControllerDelegate, GroupSetting, MultiSelectGroupController,
+  MultiSelectGroupControllerContext, SingleSelectGroupController,
+  SingleSelectGroupControllerContext, URLGroupController, URLGroupControllerContext,
 };
 
 /// The [GroupsBuilder] trait is used to generate the groups for different [FieldType]
@@ -93,90 +91,56 @@ impl RowChangeset {
   fields(grouping_field_id=%grouping_field.id, grouping_field_type)
   err
 )]
-pub async fn make_group_controller<R, W>(
+pub async fn make_group_controller<D>(
   view_id: String,
   grouping_field: Field,
   row_details: Vec<Arc<RowDetail>>,
-  setting_reader: R,
-  setting_writer: W,
+  delegate: D,
 ) -> FlowyResult<Box<dyn GroupController>>
 where
-  R: GroupSettingReader,
-  W: GroupSettingWriter,
+  D: GroupContextDelegate + GroupControllerDelegate,
 {
   let grouping_field_type = FieldType::from(grouping_field.field_type);
   tracing::Span::current().record("grouping_field", &grouping_field_type.default_name());
 
   let mut group_controller: Box<dyn GroupController>;
-  let configuration_reader = Arc::new(setting_reader);
-  let configuration_writer = Arc::new(setting_writer);
+  let delegate = Arc::new(delegate);
 
   match grouping_field_type {
     FieldType::SingleSelect => {
-      let configuration = SingleSelectGroupControllerContext::new(
-        view_id,
-        grouping_field.clone(),
-        configuration_reader,
-        configuration_writer,
-      )
-      .await?;
-      let operation_interceptor = SingleSelectGroupOperationInterceptorImpl;
-      let controller =
-        SingleSelectGroupController::new(&grouping_field, configuration, operation_interceptor)
+      let configuration =
+        SingleSelectGroupControllerContext::new(view_id, grouping_field.clone(), delegate.clone())
           .await?;
+      let controller =
+        SingleSelectGroupController::new(&grouping_field, configuration, delegate).await?;
       group_controller = Box::new(controller);
     },
     FieldType::MultiSelect => {
-      let configuration = MultiSelectGroupControllerContext::new(
-        view_id,
-        grouping_field.clone(),
-        configuration_reader,
-        configuration_writer,
-      )
-      .await?;
-      let operation_interceptor = MultiSelectGroupOperationInterceptorImpl;
-      let controller =
-        MultiSelectGroupController::new(&grouping_field, configuration, operation_interceptor)
+      let configuration =
+        MultiSelectGroupControllerContext::new(view_id, grouping_field.clone(), delegate.clone())
           .await?;
+      let controller =
+        MultiSelectGroupController::new(&grouping_field, configuration, delegate).await?;
       group_controller = Box::new(controller);
     },
     FieldType::Checkbox => {
-      let configuration = CheckboxGroupControllerContext::new(
-        view_id,
-        grouping_field.clone(),
-        configuration_reader,
-        configuration_writer,
-      )
-      .await?;
-      let operation_interceptor = CheckboxGroupOperationInterceptorImpl {};
+      let configuration =
+        CheckboxGroupControllerContext::new(view_id, grouping_field.clone(), delegate.clone())
+          .await?;
       let controller =
-        CheckboxGroupController::new(&grouping_field, configuration, operation_interceptor).await?;
+        CheckboxGroupController::new(&grouping_field, configuration, delegate).await?;
       group_controller = Box::new(controller);
     },
     FieldType::URL => {
-      let configuration = URLGroupControllerContext::new(
-        view_id,
-        grouping_field.clone(),
-        configuration_reader,
-        configuration_writer,
-      )
-      .await?;
-      let operation_interceptor = URLGroupOperationInterceptorImpl {};
-      let controller =
-        URLGroupController::new(&grouping_field, configuration, operation_interceptor).await?;
+      let configuration =
+        URLGroupControllerContext::new(view_id, grouping_field.clone(), delegate.clone()).await?;
+      let controller = URLGroupController::new(&grouping_field, configuration, delegate).await?;
       group_controller = Box::new(controller);
     },
     FieldType::DateTime => {
-      let configuration = DateGroupControllerContext::new(
-        view_id,
-        grouping_field.clone(),
-        configuration_reader,
-        configuration_writer,
-      )
-      .await?;
-      let operation_interceptor = DateGroupOperationInterceptorImpl {};
-      let controller =
-        DateGroupController::new(&grouping_field, configuration, operation_interceptor).await?;
+      let configuration =
+        DateGroupControllerContext::new(view_id, grouping_field.clone(), delegate.clone()).await?;
+      let controller = DateGroupController::new(&grouping_field, configuration, delegate).await?;
       group_controller = Box::new(controller);
     },
     _ => {

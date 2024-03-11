@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{new_cell_builder, Cell, Cells, Row, RowDetail};
-use flowy_error::FlowyResult;
+use flowy_error::{FlowyError, FlowyResult};
 use serde::{Deserialize, Serialize};
 
 use crate::entities::{FieldType, GroupPB, GroupRowsNotificationPB, InsertedGroupPB};
@@ -13,10 +13,9 @@ use crate::services::field::{
 use crate::services::group::action::GroupCustomize;
 use crate::services::group::controller::BaseGroupController;
 use crate::services::group::controller_impls::select_option_controller::util::*;
-use crate::services::group::entities::GroupData;
 use crate::services::group::{
   make_no_status_group, GeneratedGroups, Group, GroupChangeset, GroupControllerContext,
-  GroupOperationInterceptor, GroupsBuilder, MoveGroupRowContext,
+  GroupsBuilder, MoveGroupRowContext,
 };
 
 #[derive(Default, Serialize, Deserialize)]
@@ -32,11 +31,11 @@ pub type SingleSelectGroupController = BaseGroupController<
   SingleSelectGroupConfiguration,
   SingleSelectGroupBuilder,
   SelectOptionCellDataParser,
-  SingleSelectGroupOperationInterceptorImpl,
 >;
 
 impl GroupCustomize for SingleSelectGroupController {
   type GroupTypeOption = SingleSelectTypeOption;
+
   fn can_group(
     &self,
     content: &str,
@@ -99,8 +98,10 @@ impl GroupCustomize for SingleSelectGroupController {
     &mut self,
     name: String,
   ) -> FlowyResult<(Option<TypeOptionData>, Option<InsertedGroupPB>)> {
-    let mut new_type_option = self.type_option.clone();
-    let new_select_option = self.type_option.create_option(&name);
+    let mut new_type_option = self.get_grouping_field_type_option().ok_or_else(|| {
+      FlowyError::internal().with_context("Failed to get grouping field type option")
+    })?;
+    let new_select_option = new_type_option.create_option(&name);
     new_type_option.insert_option(new_select_option.clone());
 
     let new_group = Group::new(new_select_option.id);
@@ -110,27 +111,47 @@ impl GroupCustomize for SingleSelectGroupController {
   }
 
   fn delete_group(&mut self, group_id: &str) -> FlowyResult<Option<TypeOptionData>> {
-    if let Some(option_index) = self
-      .type_option
+    let mut new_type_option = self.get_grouping_field_type_option().ok_or_else(|| {
+      FlowyError::internal().with_context("Failed to get grouping field type option")
+    })?;
+    if let Some(option_index) = new_type_option
       .options
       .iter()
       .position(|option| option.id == group_id)
     {
       // Remove the option if the group is found
-      let mut new_type_option = self.type_option.clone();
       new_type_option.options.remove(option_index);
       Ok(Some(new_type_option.into()))
     } else {
-      // Return None if no matching group is found
       Ok(None)
     }
   }
 
+  fn update_type_option_when_update_group(
+    &mut self,
+    changeset: &GroupChangeset,
+    type_option: &mut Self::GroupTypeOption,
+  ) {
+    if let Some(name) = &changeset.name {
+      let mut new_type_option = type_option.clone();
+      let select_option = type_option
+        .options
+        .iter()
+        .find(|option| option.id == changeset.group_id)
+        .unwrap();
+
+      let new_select_option = SelectOption {
+        name: name.to_owned(),
+        ..select_option.to_owned()
+      };
+      new_type_option.insert_option(new_select_option);
+    }
+  }
+
   fn will_create_row(&self, cells: &mut Cells, field: &Field, group_id: &str) {
-    let group: Option<(usize, &GroupData)> = self.context.get_group(group_id);
-    match group {
-      None => {},
-      Some((index, group)) => {
+    match self.context.get_group(group_id) {
+      None => tracing::warn!("Can not find the group: {}", group_id),
+      Some((_index, group)) => {
         let cell = insert_select_option_cell(vec![group.id.clone()], field);
         cells.insert(field.id.clone(), cell);
       },
@@ -154,37 +175,5 @@ impl GroupsBuilder for SingleSelectGroupBuilder {
       no_status_group: Some(make_no_status_group(field)),
       group_configs,
     }
-  }
-}
-
-pub struct SingleSelectGroupOperationInterceptorImpl;
-
-impl GroupOperationInterceptor for SingleSelectGroupOperationInterceptorImpl {
-  type GroupTypeOption = SingleSelectTypeOption;
-
-  #[tracing::instrument(level = "trace", skip_all)]
-  fn type_option_from_group_changeset(
-    &self,
-    changeset: &GroupChangeset,
-    type_option: &Self::GroupTypeOption,
-    _view_id: &str,
-  ) -> Option<TypeOptionData> {
-    if let Some(name) = &changeset.name {
-      let mut new_type_option = type_option.clone();
-      let select_option = type_option
-        .options
-        .iter()
-        .find(|option| option.id == changeset.group_id)
-        .unwrap();
-
-      let new_select_option = SelectOption {
-        name: name.to_owned(),
-        ..select_option.to_owned()
-      };
-      new_type_option.insert_option(new_select_option);
-      return Some(new_type_option.into());
-    }
-
-    None
   }
 }

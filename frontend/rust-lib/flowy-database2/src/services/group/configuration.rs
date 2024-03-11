@@ -19,12 +19,11 @@ use crate::services::group::{
   default_group_setting, GeneratedGroups, Group, GroupChangeset, GroupData, GroupSetting,
 };
 
-pub trait GroupSettingReader: Send + Sync + 'static {
+pub trait GroupContextDelegate: Send + Sync + 'static {
   fn get_group_setting(&self, view_id: &str) -> Fut<Option<Arc<GroupSetting>>>;
-  fn get_configuration_cells(&self, view_id: &str, field_id: &str) -> Fut<Vec<RowSingleCellData>>;
-}
 
-pub trait GroupSettingWriter: Send + Sync + 'static {
+  fn get_configuration_cells(&self, view_id: &str, field_id: &str) -> Fut<Vec<RowSingleCellData>>;
+
   fn save_configuration(&self, view_id: &str, group_setting: GroupSetting) -> Fut<FlowyResult<()>>;
 }
 
@@ -63,14 +62,8 @@ pub struct GroupControllerContext<C> {
   /// We use the id of the [Field] as the [No Status] group id.
   group_by_id: IndexMap<String, GroupData>,
 
-  /// A reader that implement the [GroupSettingReader] trait
-  ///
-  reader: Arc<dyn GroupSettingReader>,
-
-  /// A writer that implement the [GroupSettingWriter] trait is used to save the
-  /// configuration to disk
-  ///
-  writer: Arc<dyn GroupSettingWriter>,
+  /// delegate that reads and writes data to and from disk
+  delegate: Arc<dyn GroupContextDelegate>,
 }
 
 impl<C> GroupControllerContext<C>
@@ -81,14 +74,13 @@ where
   pub async fn new(
     view_id: String,
     field: Field,
-    reader: Arc<dyn GroupSettingReader>,
-    writer: Arc<dyn GroupSettingWriter>,
+    delegate: Arc<dyn GroupContextDelegate>,
   ) -> FlowyResult<Self> {
     event!(tracing::Level::TRACE, "GroupControllerContext::new");
-    let setting = match reader.get_group_setting(&view_id).await {
+    let setting = match delegate.get_group_setting(&view_id).await {
       None => {
         let default_configuration = default_group_setting(&field);
-        writer
+        delegate
           .save_configuration(&view_id, default_configuration.clone())
           .await?;
         Arc::new(default_configuration)
@@ -100,8 +92,7 @@ where
       view_id,
       field,
       group_by_id: IndexMap::new(),
-      reader,
-      writer,
+      delegate,
       setting,
       configuration_phantom: PhantomData,
     })
@@ -378,7 +369,7 @@ where
 
   pub(crate) async fn get_all_cells(&self) -> Vec<RowSingleCellData> {
     self
-      .reader
+      .delegate
       .get_configuration_cells(&self.view_id, &self.field.id)
       .await
   }
@@ -400,10 +391,10 @@ where
     let is_changed = mut_configuration_fn(configuration);
     if is_changed {
       let configuration = (*self.setting).clone();
-      let writer = self.writer.clone();
+      let delegate = self.delegate.clone();
       let view_id = self.view_id.clone();
       af_spawn(async move {
-        match writer.save_configuration(&view_id, configuration).await {
+        match delegate.save_configuration(&view_id, configuration).await {
           Ok(_) => {},
           Err(e) => {
             tracing::error!("Save group configuration failed: {}", e);

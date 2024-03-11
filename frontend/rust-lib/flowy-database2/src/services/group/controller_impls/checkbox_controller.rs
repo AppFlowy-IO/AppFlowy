@@ -13,8 +13,7 @@ use crate::services::group::action::GroupCustomize;
 use crate::services::group::configuration::GroupControllerContext;
 use crate::services::group::controller::BaseGroupController;
 use crate::services::group::{
-  move_group_row, GeneratedGroupConfig, GeneratedGroups, Group, GroupOperationInterceptor,
-  GroupsBuilder, MoveGroupRowContext,
+  move_group_row, GeneratedGroupConfig, GeneratedGroups, Group, GroupsBuilder, MoveGroupRowContext,
 };
 
 #[derive(Default, Serialize, Deserialize)]
@@ -22,12 +21,8 @@ pub struct CheckboxGroupConfiguration {
   pub hide_empty: bool,
 }
 
-pub type CheckboxGroupController = BaseGroupController<
-  CheckboxGroupConfiguration,
-  CheckboxGroupBuilder,
-  CheckboxCellDataParser,
-  CheckboxGroupOperationInterceptorImpl,
->;
+pub type CheckboxGroupController =
+  BaseGroupController<CheckboxGroupConfiguration, CheckboxGroupBuilder, CheckboxCellDataParser>;
 
 pub type CheckboxGroupControllerContext = GroupControllerContext<CheckboxGroupConfiguration>;
 impl GroupCustomize for CheckboxGroupController {
@@ -180,11 +175,4 @@ impl GroupsBuilder for CheckboxGroupBuilder {
       group_configs: vec![check_group, uncheck_group],
     }
   }
-}
-
-pub struct CheckboxGroupOperationInterceptorImpl {}
-
-#[async_trait]
-impl GroupOperationInterceptor for CheckboxGroupOperationInterceptorImpl {
-  type GroupTypeOption = CheckboxTypeOption;
 }

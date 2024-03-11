@@ -1,4 +1,5 @@
 use std::marker::PhantomData;
+use std::sync::Arc;
 
 use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{Cells, Row, RowDetail, RowId};
@@ -6,7 +7,7 @@ use futures::executor::block_on;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 
-use flowy_error::FlowyResult;
+use flowy_error::{FlowyError, FlowyResult};
 
 use crate::entities::{
   FieldType, GroupChangesPB, GroupPB, GroupRowsNotificationPB, InsertedGroupPB, InsertedRowPB,
@@ -21,19 +22,8 @@ use crate::services::group::configuration::GroupControllerContext;
 use crate::services::group::entities::GroupData;
 use crate::services::group::{GroupChangeset, GroupsBuilder, MoveGroupRowContext};
 
-// use collab_database::views::Group;
-
-pub trait GroupOperationInterceptor {
-  type GroupTypeOption: TypeOption;
-
-  fn type_option_from_group_changeset(
-    &self,
-    _changeset: &GroupChangeset,
-    _type_option: &Self::GroupTypeOption,
-    _view_id: &str,
-  ) -> Option<TypeOptionData> {
-    None
-  }
+pub trait GroupControllerDelegate: Send + Sync + 'static {
+  fn get_field(&self, field_id: &str) -> Option<Field>;
 }
 
 /// [BaseGroupController] is a generic group controller that provides customized implementations
@@ -47,25 +37,24 @@ pub trait GroupOperationInterceptor {
 ///
 /// See also: [DefaultGroupController] which contains the most basic implementation of
 /// `GroupController` that only has one group.
-pub struct BaseGroupController<C, G, P, I> {
+pub struct BaseGroupController<C, G, P> {
   pub grouping_field_id: String,
   pub context: GroupControllerContext<C>,
   group_builder_phantom: PhantomData<G>,
   cell_parser_phantom: PhantomData<P>,
-  pub operation_interceptor: I,
+  pub delegate: Arc<dyn GroupControllerDelegate>,
 }
 
-impl<C, T, G, P, I> BaseGroupController<C, G, P, I>
+impl<C, T, G, P> BaseGroupController<C, G, P>
 where
   C: Serialize + DeserializeOwned,
   T: TypeOption + Send + Sync,
   G: GroupsBuilder<Context = GroupControllerContext<C>, GroupTypeOption = T>,
-  I: GroupOperationInterceptor<GroupTypeOption = T> + Send + Sync,
 {
   pub async fn new(
     grouping_field: &Field,
     mut configuration: GroupControllerContext<C>,
-    operation_interceptor: I,
+    delegate: Arc<dyn GroupControllerDelegate>,
   ) -> FlowyResult<Self> {
     let field_type = FieldType::from(grouping_field.field_type);
     let type_option = grouping_field
@@ -81,8 +70,15 @@ where
       context: configuration,
       group_builder_phantom: PhantomData,
       cell_parser_phantom: PhantomData,
-      operation_interceptor,
+      delegate,
     })
+  }
+
+  pub fn get_grouping_field_type_option(&self) -> Option<T> {
+    self
+      .delegate
+      .get_field(&self.grouping_field_id)
+      .and_then(|field| field.get_type_option::<T>(FieldType::from(field.field_type)))
   }
 
   fn update_no_status_group(
@@ -157,13 +153,12 @@ where
   }
 }
 
-impl<C, T, G, P, I> GroupController for BaseGroupController<C, G, P, I>
+impl<C, T, G, P> GroupController for BaseGroupController<C, G, P>
 where
   P: CellProtobufBlobParser<Object = <T as TypeOption>::CellProtobufType>,
   C: Serialize + DeserializeOwned + Sync + Send,
-  T: TypeOption + From<TypeOptionData> + Send + Sync,
+  T: TypeOption + Send + Sync,
   G: GroupsBuilder<Context = GroupControllerContext<C>, GroupTypeOption = T>,
-  I: GroupOperationInterceptor<GroupTypeOption = T> + Send + Sync,
   Self: GroupCustomize<GroupTypeOption = T>,
 {
   fn field_id(&self) -> &str {
@@ -410,15 +405,15 @@ where
     for group_changeset in changeset.iter() {
       self.context.update_group(group_changeset)?;
     }
-    let mut type_option_data = TypeOptionData::new();
+
+    let mut type_option = self.get_grouping_field_type_option().ok_or_else(|| {
+      FlowyError::internal().with_context("Failed to get grouping field type option")
+    })?;
+
     for group_changeset in changeset.iter() {
-      if let Some(new_type_option_data) = self
-        .operation_interceptor
-        .type_option_from_group_changeset(group_changeset, &self.type_option, &self.context.view_id)
-      {
-        type_option_data.extend(new_type_option_data);
-      }
+      self.update_type_option_when_update_group(group_changeset, &mut type_option);
     }
+
     let updated_groups = changeset
       .iter()
       .filter_map(|changeset| {
@@ -427,7 +422,8 @@ where
           .map(|(_, group)| GroupPB::from(group))
       })
       .collect::<Vec<_>>();
-    Ok((updated_groups, type_option_data))
+
+    Ok((updated_groups, type_option.into()))
   }
 
   fn will_create_row(&self, cells: &mut Cells, field: &Field, group_id: &str) {

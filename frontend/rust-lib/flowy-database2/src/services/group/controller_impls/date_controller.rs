@@ -18,7 +18,7 @@ use crate::services::group::configuration::GroupControllerContext;
 use crate::services::group::controller::BaseGroupController;
 use crate::services::group::{
   make_no_status_group, move_group_row, GeneratedGroupConfig, GeneratedGroups, Group,
-  GroupOperationInterceptor, GroupsBuilder, MoveGroupRowContext,
+  GroupsBuilder, MoveGroupRowContext,
 };
 
 pub trait GroupConfigurationContentSerde: Sized + Send + Sync {
@@ -52,12 +52,8 @@ pub enum DateCondition {
   Year = 4,
 }
 
-pub type DateGroupController = BaseGroupController<
-  DateGroupConfiguration,
-  DateGroupBuilder,
-  DateCellDataParser,
-  DateGroupOperationInterceptorImpl,
->;
+pub type DateGroupController =
+  BaseGroupController<DateGroupConfiguration, DateGroupBuilder, DateCellDataParser>;
 
 pub type DateGroupControllerContext = GroupControllerContext<DateGroupConfiguration>;
 
@@ -411,13 +407,6 @@ fn date_time_from_timestamp(timestamp: Option<i64>) -> DateTime<Local> {
     },
     None => DateTime::default(),
   }
-}
-
-pub struct DateGroupOperationInterceptorImpl {}
-
-#[async_trait]
-impl GroupOperationInterceptor for DateGroupOperationInterceptorImpl {
-  type GroupTypeOption = DateTypeOption;
 }
 
 #[cfg(test)]
