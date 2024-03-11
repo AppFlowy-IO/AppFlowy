@@ -6,9 +6,15 @@ extension AvailableCalculations on FieldType {
       CalculationType.Count,
     ];
 
-    // These FieldTypes cannot be empty, no need to count empty/non-empty
-    if (![FieldType.Checkbox, FieldType.LastEditedTime, FieldType.CreatedTime]
-        .contains(this)) {
+    // These FieldTypes cannot be empty, or might hold secondary
+    // data causing them to be seen as not empty when in fact they
+    // are empty.
+    if (![
+      FieldType.URL,
+      FieldType.Checkbox,
+      FieldType.LastEditedTime,
+      FieldType.CreatedTime,
+    ].contains(this)) {
       calculationTypes.addAll([
         CalculationType.CountEmpty,
         CalculationType.CountNonEmpty,
