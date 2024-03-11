@@ -33,12 +33,12 @@ class SidebarRootViewsBloc
         await event.when(
           initial: (userProfile, workspaceId) async {
             _initial(userProfile, workspaceId);
-            await _fetchApps(emit);
+            await _fetchRootViews(emit);
           },
           reset: (userProfile, workspaceId) async {
             await _listener?.stop();
             _initial(userProfile, workspaceId);
-            await _fetchApps(emit);
+            await _fetchRootViews(emit);
           },
           createRootView: (name, desc, index) async {
             final result = await _workspaceService.createApp(
@@ -90,7 +90,7 @@ class SidebarRootViewsBloc
     );
   }
 
-  Future<void> _fetchApps(Emitter<SidebarRootViewState> emit) async {
+  Future<void> _fetchRootViews(Emitter<SidebarRootViewState> emit) async {
     final viewsOrError = await _workspaceService.getViews();
     emit(
       viewsOrError.fold(

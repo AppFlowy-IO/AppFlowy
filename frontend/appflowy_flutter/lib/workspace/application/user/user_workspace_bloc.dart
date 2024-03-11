@@ -258,7 +258,7 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
           workspaces.firstWhere((e) => e.workspaceId == currentWorkspace.id);
       return (currentWorkspaceInList, workspaces);
     } catch (e) {
-      Log.error(e);
+      Log.error('fetch workspace error: $e');
       return null;
     }
   }
