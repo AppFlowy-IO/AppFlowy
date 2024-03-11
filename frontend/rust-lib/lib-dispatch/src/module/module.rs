@@ -44,7 +44,7 @@ pub struct AFPluginEvent(pub String);
 
 impl<T: Display + Eq + Hash + Debug + Clone> std::convert::From<T> for AFPluginEvent {
   fn from(t: T) -> Self {
-    AFPluginEvent(format!("{}", t))
+    AFPluginEvent(format!("{}{}", std::any::type_name::<T>(), t))
   }
 }
 
