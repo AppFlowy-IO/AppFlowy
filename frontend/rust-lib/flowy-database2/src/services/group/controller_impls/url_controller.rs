@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use async_trait::async_trait;
 use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{new_cell_builder, Cell, Cells, Row, RowDetail};
@@ -17,7 +15,7 @@ use crate::services::group::configuration::GroupContext;
 use crate::services::group::controller::BaseGroupController;
 use crate::services::group::{
   make_no_status_group, move_group_row, GeneratedGroupConfig, GeneratedGroups, Group,
-  GroupOperationInterceptor, GroupTypeOptionCellOperation, GroupsBuilder, MoveGroupRowContext,
+  GroupOperationInterceptor, GroupsBuilder, MoveGroupRowContext,
 };
 
 #[derive(Default, Serialize, Deserialize)]
@@ -239,10 +237,7 @@ fn make_group_from_url_cell(cell: &URLCellData) -> Group {
   Group::new(group_id, group_name)
 }
 
-pub struct URLGroupOperationInterceptorImpl {
-  #[allow(dead_code)]
-  pub(crate) cell_writer: Arc<dyn GroupTypeOptionCellOperation>,
-}
+pub struct URLGroupOperationInterceptorImpl {}
 
 #[async_trait::async_trait]
 impl GroupOperationInterceptor for URLGroupOperationInterceptorImpl {
