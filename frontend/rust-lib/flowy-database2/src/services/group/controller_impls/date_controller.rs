@@ -228,7 +228,7 @@ impl GroupCustomize for DateGroupController {
     deleted_group
   }
 
-  fn delete_group_custom(&mut self, group_id: &str) -> FlowyResult<Option<TypeOptionData>> {
+  fn delete_group(&mut self, group_id: &str) -> FlowyResult<Option<TypeOptionData>> {
     self.context.delete_group(group_id)?;
     Ok(None)
   }

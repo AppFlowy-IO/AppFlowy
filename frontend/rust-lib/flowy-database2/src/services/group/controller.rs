@@ -396,7 +396,7 @@ where
           .iter()
           .map(|row| row.row.id.clone())
           .collect();
-        let type_option_data = self.delete_group_custom(group_id)?;
+        let type_option_data = <Self as GroupCustomize>::delete_group(self, group_id)?;
         Ok((row_ids, type_option_data))
       },
       None => Ok((vec![], None)),
@@ -407,11 +407,11 @@ where
     &mut self,
     changeset: &Vec<GroupChangeset>,
   ) -> FlowyResult<(Vec<GroupPB>, TypeOptionData)> {
-    for group_changeset in changeset.changesets.iter() {
+    for group_changeset in changeset.iter() {
       self.context.update_group(group_changeset)?;
     }
     let mut type_option_data = TypeOptionData::new();
-    for group_changeset in changeset.changesets.iter() {
+    for group_changeset in changeset.iter() {
       if let Some(new_type_option_data) = self
         .operation_interceptor
         .type_option_from_group_changeset(group_changeset, &self.type_option, &self.context.view_id)
@@ -420,7 +420,6 @@ where
       }
     }
     let updated_groups = changeset
-      .changesets
       .iter()
       .filter_map(|changeset| {
         self

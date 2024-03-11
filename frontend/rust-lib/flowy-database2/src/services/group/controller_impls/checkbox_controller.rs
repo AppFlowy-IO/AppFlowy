@@ -139,7 +139,7 @@ impl GroupCustomize for CheckboxGroupController {
     group_changeset
   }
 
-  fn delete_group_custom(&mut self, _group_id: &str) -> FlowyResult<Option<TypeOptionData>> {
+  fn delete_group(&mut self, _group_id: &str) -> FlowyResult<Option<TypeOptionData>> {
     Ok(None)
   }
 

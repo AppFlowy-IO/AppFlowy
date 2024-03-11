@@ -7,9 +7,9 @@ use crate::entities::{GroupChangesPB, GroupPB, GroupRowsNotificationPB, Inserted
 use crate::services::field::TypeOption;
 use crate::services::group::{GroupChangeset, GroupData, MoveGroupRowContext};
 
-/// Using polymorphism to provides the customs action for different group controller.
-///
-/// For example, the `CheckboxGroupController` implements this trait to provide custom behavior.
+/// [GroupCustomize] is implemented by parameterized `BaseGroupController`s to provide different
+/// behaviors. This allows the BaseGroupController to call these actions indescriminantly using
+/// polymorphism.
 ///
 pub trait GroupCustomize: Send + Sync {
   type GroupTypeOption: TypeOption;
@@ -78,7 +78,7 @@ pub trait GroupCustomize: Send + Sync {
     Ok((None, None))
   }
 
-  fn delete_group_custom(&mut self, group_id: &str) -> FlowyResult<Option<TypeOptionData>>;
+  fn delete_group(&mut self, group_id: &str) -> FlowyResult<Option<TypeOptionData>>;
 
   fn will_create_row(&self, cells: &mut Cells, field: &Field, group_id: &str);
 }

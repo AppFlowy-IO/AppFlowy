@@ -107,7 +107,7 @@ impl GroupCustomize for MultiSelectGroupController {
     Ok((Some(new_type_option.into()), Some(inserted_group_pb)))
   }
 
-  fn delete_group_custom(&mut self, group_id: &str) -> FlowyResult<Option<TypeOptionData>> {
+  fn delete_group(&mut self, group_id: &str) -> FlowyResult<Option<TypeOptionData>> {
     if let Some(option_index) = self
       .type_option
       .options
