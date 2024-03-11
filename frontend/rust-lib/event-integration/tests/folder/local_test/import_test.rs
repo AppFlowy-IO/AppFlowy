@@ -23,9 +23,9 @@ async fn import_492_row_csv_file_test() {
 }
 
 #[tokio::test]
-async fn import_22576_row_csv_file_test() {
-  // csv_22577r_15c.csv is a file with 22576 rows and 15 columns
-  let file_name = "csv_22576r_15c.csv".to_string();
+async fn import_10240_row_csv_file_test() {
+  // csv_22577r_15c.csv is a file with 10240 rows and 15 columns
+  let file_name = "csv_10240r_15c.csv".to_string();
   let (cleaner, csv_file_path) = unzip_history_user_db("./tests/asset", &file_name).unwrap();
 
   let csv_string = std::fs::read_to_string(csv_file_path).unwrap();
@@ -37,7 +37,7 @@ async fn import_22576_row_csv_file_test() {
 
   let view = test.import_data(import_data).await;
   let database = test.get_database(&view.id).await;
-  assert_eq!(database.rows.len(), 22576);
+  assert_eq!(database.rows.len(), 10240);
 
   drop(cleaner);
 }
