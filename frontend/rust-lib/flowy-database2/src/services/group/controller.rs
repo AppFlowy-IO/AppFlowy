@@ -17,7 +17,7 @@ use crate::services::field::{default_type_option_data_from_type, TypeOption, Typ
 use crate::services::group::action::{
   DidMoveGroupRowResult, DidUpdateGroupRowResult, GroupController, GroupCustomize,
 };
-use crate::services::group::configuration::GroupContext;
+use crate::services::group::configuration::GroupControllerContext;
 use crate::services::group::entities::GroupData;
 use crate::services::group::{GroupChangeset, GroupsBuilder, MoveGroupRowContext};
 
@@ -49,7 +49,7 @@ pub trait GroupOperationInterceptor {
 /// `GroupController` that only has one group.
 pub struct BaseGroupController<C, G, P, I> {
   pub grouping_field_id: String,
-  pub context: GroupContext<C>,
+  pub context: GroupControllerContext<C>,
   group_builder_phantom: PhantomData<G>,
   cell_parser_phantom: PhantomData<P>,
   pub operation_interceptor: I,
@@ -59,12 +59,12 @@ impl<C, T, G, P, I> BaseGroupController<C, G, P, I>
 where
   C: Serialize + DeserializeOwned,
   T: TypeOption + Send + Sync,
-  G: GroupsBuilder<Context = GroupContext<C>, GroupTypeOption = T>,
+  G: GroupsBuilder<Context = GroupControllerContext<C>, GroupTypeOption = T>,
   I: GroupOperationInterceptor<GroupTypeOption = T> + Send + Sync,
 {
   pub async fn new(
     grouping_field: &Field,
-    mut configuration: GroupContext<C>,
+    mut configuration: GroupControllerContext<C>,
     operation_interceptor: I,
   ) -> FlowyResult<Self> {
     let field_type = FieldType::from(grouping_field.field_type);
@@ -162,7 +162,7 @@ where
   P: CellProtobufBlobParser<Object = <T as TypeOption>::CellProtobufType>,
   C: Serialize + DeserializeOwned + Sync + Send,
   T: TypeOption + From<TypeOptionData> + Send + Sync,
-  G: GroupsBuilder<Context = GroupContext<C>, GroupTypeOption = T>,
+  G: GroupsBuilder<Context = GroupControllerContext<C>, GroupTypeOption = T>,
   I: GroupOperationInterceptor<GroupTypeOption = T> + Send + Sync,
   Self: GroupCustomize<GroupTypeOption = T>,
 {

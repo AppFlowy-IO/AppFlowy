@@ -11,13 +11,13 @@ use flowy_error::FlowyResult;
 use crate::entities::FieldType;
 use crate::services::field::TypeOption;
 use crate::services::group::{
-  CheckboxGroupContext, CheckboxGroupController, CheckboxGroupOperationInterceptorImpl,
-  DateGroupContext, DateGroupController, DateGroupOperationInterceptorImpl, DefaultGroupController,
-  Group, GroupController, GroupSetting, GroupSettingReader, GroupSettingWriter,
-  MultiSelectGroupController, MultiSelectGroupOperationInterceptorImpl,
-  MultiSelectOptionGroupContext, SingleSelectGroupController,
-  SingleSelectGroupOperationInterceptorImpl, SingleSelectOptionGroupContext, URLGroupContext,
-  URLGroupController, URLGroupOperationInterceptorImpl,
+  CheckboxGroupController, CheckboxGroupControllerContext, CheckboxGroupOperationInterceptorImpl,
+  DateGroupController, DateGroupControllerContext, DateGroupOperationInterceptorImpl,
+  DefaultGroupController, Group, GroupController, GroupSetting, GroupSettingReader,
+  GroupSettingWriter, MultiSelectGroupController, MultiSelectGroupControllerContext,
+  MultiSelectGroupOperationInterceptorImpl, SingleSelectGroupController,
+  SingleSelectGroupControllerContext, SingleSelectGroupOperationInterceptorImpl,
+  URLGroupController, URLGroupControllerContext, URLGroupOperationInterceptorImpl,
 };
 
 /// The [GroupsBuilder] trait is used to generate the groups for different [FieldType]
@@ -113,7 +113,7 @@ where
 
   match grouping_field_type {
     FieldType::SingleSelect => {
-      let configuration = SingleSelectOptionGroupContext::new(
+      let configuration = SingleSelectGroupControllerContext::new(
         view_id,
         grouping_field.clone(),
         configuration_reader,
@@ -127,7 +127,7 @@ where
       group_controller = Box::new(controller);
     },
     FieldType::MultiSelect => {
-      let configuration = MultiSelectOptionGroupContext::new(
+      let configuration = MultiSelectGroupControllerContext::new(
         view_id,
         grouping_field.clone(),
         configuration_reader,
@@ -141,7 +141,7 @@ where
       group_controller = Box::new(controller);
     },
     FieldType::Checkbox => {
-      let configuration = CheckboxGroupContext::new(
+      let configuration = CheckboxGroupControllerContext::new(
         view_id,
         grouping_field.clone(),
         configuration_reader,
@@ -154,7 +154,7 @@ where
       group_controller = Box::new(controller);
     },
     FieldType::URL => {
-      let configuration = URLGroupContext::new(
+      let configuration = URLGroupControllerContext::new(
         view_id,
         grouping_field.clone(),
         configuration_reader,
@@ -167,7 +167,7 @@ where
       group_controller = Box::new(controller);
     },
     FieldType::DateTime => {
-      let configuration = DateGroupContext::new(
+      let configuration = DateGroupControllerContext::new(
         view_id,
         grouping_field.clone(),
         configuration_reader,

@@ -16,7 +16,7 @@ use crate::entities::{
 use crate::services::cell::insert_date_cell;
 use crate::services::field::{DateCellData, DateCellDataParser, DateTypeOption, TypeOption};
 use crate::services::group::action::GroupCustomize;
-use crate::services::group::configuration::GroupContext;
+use crate::services::group::configuration::GroupControllerContext;
 use crate::services::group::controller::BaseGroupController;
 use crate::services::group::{
   make_no_status_group, move_group_row, GeneratedGroupConfig, GeneratedGroups, Group,
@@ -61,7 +61,7 @@ pub type DateGroupController = BaseGroupController<
   DateGroupOperationInterceptorImpl,
 >;
 
-pub type DateGroupContext = GroupContext<DateGroupConfiguration>;
+pub type DateGroupControllerContext = GroupControllerContext<DateGroupConfiguration>;
 
 impl GroupCustomize for DateGroupController {
   type GroupTypeOption = DateTypeOption;
@@ -248,7 +248,7 @@ impl GroupCustomize for DateGroupController {
 pub struct DateGroupBuilder();
 #[async_trait]
 impl GroupsBuilder for DateGroupBuilder {
-  type Context = DateGroupContext;
+  type Context = DateGroupControllerContext;
   type GroupTypeOption = DateTypeOption;
 
   async fn build(

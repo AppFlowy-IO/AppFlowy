@@ -15,7 +15,7 @@ use crate::services::group::controller::BaseGroupController;
 use crate::services::group::controller_impls::select_option_controller::util::*;
 use crate::services::group::entities::GroupData;
 use crate::services::group::{
-  make_no_status_group, GeneratedGroups, Group, GroupChangeset, GroupContext,
+  make_no_status_group, GeneratedGroups, Group, GroupChangeset, GroupControllerContext,
   GroupOperationInterceptor, GroupsBuilder, MoveGroupRowContext,
 };
 
@@ -24,7 +24,8 @@ pub struct SingleSelectGroupConfiguration {
   pub hide_empty: bool,
 }
 
-pub type SingleSelectOptionGroupContext = GroupContext<SingleSelectGroupConfiguration>;
+pub type SingleSelectGroupControllerContext =
+  GroupControllerContext<SingleSelectGroupConfiguration>;
 
 // SingleSelect
 pub type SingleSelectGroupController = BaseGroupController<
@@ -140,7 +141,7 @@ impl GroupCustomize for SingleSelectGroupController {
 pub struct SingleSelectGroupBuilder();
 #[async_trait]
 impl GroupsBuilder for SingleSelectGroupBuilder {
-  type Context = SingleSelectOptionGroupContext;
+  type Context = SingleSelectGroupControllerContext;
   type GroupTypeOption = SingleSelectTypeOption;
   async fn build(
     field: &Field,

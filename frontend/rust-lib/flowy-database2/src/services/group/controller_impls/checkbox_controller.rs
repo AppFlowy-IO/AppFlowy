@@ -10,7 +10,7 @@ use crate::services::field::{
   CheckboxCellDataParser, CheckboxTypeOption, TypeOption, CHECK, UNCHECK,
 };
 use crate::services::group::action::GroupCustomize;
-use crate::services::group::configuration::GroupContext;
+use crate::services::group::configuration::GroupControllerContext;
 use crate::services::group::controller::BaseGroupController;
 use crate::services::group::{
   move_group_row, GeneratedGroupConfig, GeneratedGroups, Group, GroupOperationInterceptor,
@@ -29,8 +29,7 @@ pub type CheckboxGroupController = BaseGroupController<
   CheckboxGroupOperationInterceptorImpl,
 >;
 
-pub type CheckboxGroupContext = GroupContext<CheckboxGroupConfiguration>;
-
+pub type CheckboxGroupControllerContext = GroupControllerContext<CheckboxGroupConfiguration>;
 impl GroupCustomize for CheckboxGroupController {
   type GroupTypeOption = CheckboxTypeOption;
   fn placeholder_cell(&self) -> Option<Cell> {
@@ -158,7 +157,7 @@ impl GroupCustomize for CheckboxGroupController {
 pub struct CheckboxGroupBuilder();
 #[async_trait]
 impl GroupsBuilder for CheckboxGroupBuilder {
-  type Context = CheckboxGroupContext;
+  type Context = CheckboxGroupControllerContext;
   type GroupTypeOption = CheckboxTypeOption;
 
   async fn build(

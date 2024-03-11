@@ -28,7 +28,7 @@ pub trait GroupSettingWriter: Send + Sync + 'static {
   fn save_configuration(&self, view_id: &str, group_setting: GroupSetting) -> Fut<FlowyResult<()>>;
 }
 
-impl<T> std::fmt::Display for GroupContext<T> {
+impl<T> std::fmt::Display for GroupControllerContext<T> {
   fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
     self.group_by_id.iter().for_each(|(_, group)| {
       let _ = f.write_fmt(format_args!(
@@ -42,12 +42,12 @@ impl<T> std::fmt::Display for GroupContext<T> {
   }
 }
 
-/// A [GroupContext] represents as the groups memory cache
-/// Each [GenericGroupController] has its own [GroupContext], the `context` has its own configuration
+/// A [GroupControllerContext] represents as the groups memory cache
+/// Each [GenericGroupController] has its own [GroupControllerContext], the `context` has its own configuration
 /// that is restored from the disk.
 ///
 /// The `context` contains a list of [GroupData]s and the grouping [Field]
-pub struct GroupContext<C> {
+pub struct GroupControllerContext<C> {
   pub view_id: String,
   /// The group configuration restored from the disk.
   ///
@@ -73,7 +73,7 @@ pub struct GroupContext<C> {
   writer: Arc<dyn GroupSettingWriter>,
 }
 
-impl<C> GroupContext<C>
+impl<C> GroupControllerContext<C>
 where
   C: Serialize + DeserializeOwned,
 {
@@ -84,7 +84,7 @@ where
     reader: Arc<dyn GroupSettingReader>,
     writer: Arc<dyn GroupSettingWriter>,
   ) -> FlowyResult<Self> {
-    event!(tracing::Level::TRACE, "GroupContext::new");
+    event!(tracing::Level::TRACE, "GroupControllerContext::new");
     let setting = match reader.get_group_setting(&view_id).await {
       None => {
         let default_configuration = default_group_setting(&field);

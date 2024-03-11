@@ -14,8 +14,8 @@ use crate::services::group::action::GroupCustomize;
 use crate::services::group::controller::BaseGroupController;
 use crate::services::group::{
   add_or_remove_select_option_row, generate_select_option_groups, make_no_status_group,
-  move_group_row, remove_select_option_row, GeneratedGroups, Group, GroupChangeset, GroupContext,
-  GroupOperationInterceptor, GroupsBuilder, MoveGroupRowContext,
+  move_group_row, remove_select_option_row, GeneratedGroups, Group, GroupChangeset,
+  GroupControllerContext, GroupOperationInterceptor, GroupsBuilder, MoveGroupRowContext,
 };
 
 #[derive(Default, Serialize, Deserialize)]
@@ -23,7 +23,7 @@ pub struct MultiSelectGroupConfiguration {
   pub hide_empty: bool,
 }
 
-pub type MultiSelectOptionGroupContext = GroupContext<MultiSelectGroupConfiguration>;
+pub type MultiSelectGroupControllerContext = GroupControllerContext<MultiSelectGroupConfiguration>;
 // MultiSelect
 pub type MultiSelectGroupController = BaseGroupController<
   MultiSelectGroupConfiguration,
@@ -137,7 +137,7 @@ impl GroupCustomize for MultiSelectGroupController {
 pub struct MultiSelectGroupBuilder;
 #[async_trait]
 impl GroupsBuilder for MultiSelectGroupBuilder {
-  type Context = MultiSelectOptionGroupContext;
+  type Context = MultiSelectGroupControllerContext;
   type GroupTypeOption = MultiSelectTypeOption;
 
   async fn build(

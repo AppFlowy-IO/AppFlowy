@@ -11,7 +11,7 @@ use crate::entities::{
 use crate::services::cell::insert_url_cell;
 use crate::services::field::{TypeOption, URLCellData, URLCellDataParser, URLTypeOption};
 use crate::services::group::action::GroupCustomize;
-use crate::services::group::configuration::GroupContext;
+use crate::services::group::configuration::GroupControllerContext;
 use crate::services::group::controller::BaseGroupController;
 use crate::services::group::{
   make_no_status_group, move_group_row, GeneratedGroupConfig, GeneratedGroups, Group,
@@ -30,7 +30,7 @@ pub type URLGroupController = BaseGroupController<
   URLGroupOperationInterceptorImpl,
 >;
 
-pub type URLGroupContext = GroupContext<URLGroupConfiguration>;
+pub type URLGroupControllerContext = GroupControllerContext<URLGroupConfiguration>;
 
 impl GroupCustomize for URLGroupController {
   type GroupTypeOption = URLTypeOption;
@@ -201,7 +201,7 @@ impl GroupCustomize for URLGroupController {
 pub struct URLGroupGenerator();
 #[async_trait]
 impl GroupsBuilder for URLGroupGenerator {
-  type Context = URLGroupContext;
+  type Context = URLGroupControllerContext;
   type GroupTypeOption = URLTypeOption;
 
   async fn build(
