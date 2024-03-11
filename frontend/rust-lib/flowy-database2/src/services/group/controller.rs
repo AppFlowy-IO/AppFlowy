@@ -431,7 +431,7 @@ where
     Ok((updated_groups, type_option_data))
   }
 
-  fn will_create_row(&mut self, cells: &mut Cells, field: &Field, group_id: &str) {
+  fn will_create_row(&self, cells: &mut Cells, field: &Field, group_id: &str) {
     <Self as GroupCustomize>::will_create_row(self, cells, field, group_id);
   }
 }

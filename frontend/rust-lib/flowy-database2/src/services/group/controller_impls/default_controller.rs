@@ -138,5 +138,5 @@ impl GroupController for DefaultGroupController {
     Ok((Vec::new(), TypeOptionData::default()))
   }
 
-  fn will_create_row(&mut self, _cells: &mut Cells, _field: &Field, _group_id: &str) {}
+  fn will_create_row(&self, _cells: &mut Cells, _field: &Field, _group_id: &str) {}
 }

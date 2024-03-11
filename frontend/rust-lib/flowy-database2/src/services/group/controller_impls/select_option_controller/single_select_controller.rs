@@ -125,11 +125,11 @@ impl GroupCustomize for SingleSelectGroupController {
     }
   }
 
-  fn will_create_row(&mut self, cells: &mut Cells, field: &Field, group_id: &str) {
-    let group: Option<&mut GroupData> = self.context.get_mut_group(group_id);
+  fn will_create_row(&self, cells: &mut Cells, field: &Field, group_id: &str) {
+    let group: Option<(usize, &GroupData)> = self.context.get_group(group_id);
     match group {
       None => {},
-      Some(group) => {
+      Some((index, group)) => {
         let cell = insert_select_option_cell(vec![group.id.clone()], field);
         cells.insert(field.id.clone(), cell);
       },

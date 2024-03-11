@@ -140,6 +140,10 @@ impl DatabaseViewEditor {
     // fill in cells according to group_id if supplied
     if let Some(group_id) = params.group_id {
       if let Some(controller) = self.group_controller.read().await.as_ref() {
+        let field = self
+          .delegate
+          .get_field(controller.field_id())
+          .ok_or_else(|| FlowyError::internal().with_context("Failed to get grouping field"))?;
         controller.will_create_row(&mut cells, &field, &group_id);
       }
     }
