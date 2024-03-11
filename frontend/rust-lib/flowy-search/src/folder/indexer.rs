@@ -128,6 +128,15 @@ impl FolderIndexManagerImpl {
     Ok(())
   }
 
+  pub fn num_docs(&self) -> u64 {
+    self
+      .index
+      .as_ref()
+      .and_then(|index| index.reader().ok())
+      .map(|reader| reader.searcher().num_docs())
+      .unwrap_or(0)
+  }
+
   fn empty() -> Self {
     Self {
       folder_schema: None,

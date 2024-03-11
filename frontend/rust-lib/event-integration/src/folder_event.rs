@@ -1,7 +1,7 @@
 use flowy_folder::entities::icon::UpdateViewIconPayloadPB;
-use flowy_folder::entities::*;
 use flowy_folder::event_map::FolderEvent;
 use flowy_folder::event_map::FolderEvent::*;
+use flowy_folder::{entities::*, ViewLayout};
 use flowy_search::entities::{RepeatedSearchResultPB, SearchQueryPB};
 use flowy_search::event_map::SearchEvent;
 use flowy_user::entities::{
@@ -157,7 +157,7 @@ pub struct ViewTest {
 }
 impl ViewTest {
   #[allow(dead_code)]
-  pub async fn new(sdk: &EventIntegrationTest, layout: ViewLayoutPB, data: Vec<u8>) -> Self {
+  pub async fn new(sdk: &EventIntegrationTest, layout: ViewLayout, data: Vec<u8>) -> Self {
     let workspace = sdk.folder_manager.get_current_workspace().await.unwrap();
 
     let payload = CreateViewPayloadPB {
@@ -165,7 +165,7 @@ impl ViewTest {
       name: "View A".to_string(),
       desc: "".to_string(),
       thumbnail: Some("http://1.png".to_string()),
-      layout,
+      layout: layout.into(),
       initial_data: data,
       meta: Default::default(),
       set_as_current: true,
@@ -186,15 +186,15 @@ impl ViewTest {
   }
 
   pub async fn new_grid_view(sdk: &EventIntegrationTest, data: Vec<u8>) -> Self {
-    Self::new(sdk, ViewLayoutPB::Grid, data).await
+    Self::new(sdk, ViewLayout::Grid, data).await
   }
 
   pub async fn new_board_view(sdk: &EventIntegrationTest, data: Vec<u8>) -> Self {
-    Self::new(sdk, ViewLayoutPB::Board, data).await
+    Self::new(sdk, ViewLayout::Board, data).await
   }
 
   pub async fn new_calendar_view(sdk: &EventIntegrationTest, data: Vec<u8>) -> Self {
-    Self::new(sdk, ViewLayoutPB::Calendar, data).await
+    Self::new(sdk, ViewLayout::Calendar, data).await
   }
 }
 

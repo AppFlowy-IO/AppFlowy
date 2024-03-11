@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{any::Any, sync::Arc};
 
 use flowy_error::FlowyResult;
 use lib_dispatch::prelude::af_spawn;
@@ -10,6 +10,7 @@ use super::notifier::{SearchNotifier, SearchResultChanged, SearchResultReceiverR
 
 pub trait SearchHandler: Send + Sync + 'static {
   fn perform_search(&self, query: String) -> FlowyResult<Vec<SearchResultPB>>;
+  fn as_any(&self) -> &dyn Any;
 }
 
 /// The [SearchManager] is used to inject multiple [SearchHandler]'s

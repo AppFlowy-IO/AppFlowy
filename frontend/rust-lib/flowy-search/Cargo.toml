@@ -46,6 +46,8 @@ diesel_migrations = { version = "2.1.0", features = ["sqlite"] }
 flowy-codegen.workspace = true
 
 [dev-dependencies]
+event-integration = { path = "../event-integration", default-features = false }
+flowy-folder.workspace = true
 tempfile = "3.10.0"
 
 [features]

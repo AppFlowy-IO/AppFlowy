@@ -1,3 +1,4 @@
+use std::any::Any;
 use std::sync::Arc;
 
 use flowy_error::FlowyResult;
@@ -8,7 +9,7 @@ use crate::services::manager::SearchHandler;
 use super::indexer::FolderIndexManagerImpl;
 
 pub struct FolderSearchHandler {
-  index_manager: Arc<FolderIndexManagerImpl>,
+  pub index_manager: Arc<FolderIndexManagerImpl>,
 }
 
 impl FolderSearchHandler {
@@ -20,5 +21,9 @@ impl FolderSearchHandler {
 impl SearchHandler for FolderSearchHandler {
   fn perform_search(&self, query: String) -> FlowyResult<Vec<SearchResultPB>> {
     self.index_manager.search(query)
+  }
+
+  fn as_any(&self) -> &dyn Any {
+    self
   }
 }
