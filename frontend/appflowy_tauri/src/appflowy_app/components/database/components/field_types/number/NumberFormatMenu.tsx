@@ -29,7 +29,7 @@ function NumberFormatMenu({
       return (
         <>
           <span className={'flex-1'}>{formatText(format)}</span>
-          {value === format && <SelectCheckSvg />}
+          {value === format && <SelectCheckSvg className={'text-content-blue-400'} />}
         </>
       );
     },

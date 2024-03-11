@@ -28,6 +28,14 @@ export const workspaceSlice = createSlice({
     ) => {
       return action.payload;
     },
+
+    updateCurrentWorkspace: (state, action: PayloadAction<Partial<WorkspaceItem>>) => {
+      if (!state.currentWorkspace) return;
+      state.currentWorkspace = {
+        ...state.currentWorkspace,
+        ...action.payload,
+      };
+    },
   },
 });
 

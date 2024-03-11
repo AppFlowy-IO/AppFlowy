@@ -6,7 +6,7 @@ import { GetStarted } from '$app/components/auth/get_started/GetStarted';
 import { AppflowyLogo } from '../_shared/svg/AppflowyLogo';
 
 export const ProtectedRoutes = () => {
-  const { currentUser, checkUser } = useAuth();
+  const { currentUser, checkUser, subscribeToUser } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
 
   const checkUserStatus = useCallback(async () => {
@@ -17,6 +17,12 @@ export const ProtectedRoutes = () => {
   useEffect(() => {
     void checkUserStatus();
   }, [checkUserStatus]);
+
+  useEffect(() => {
+    if (currentUser.isAuthenticated) {
+      return subscribeToUser();
+    }
+  }, [currentUser.isAuthenticated, subscribeToUser]);
 
   if (isLoading) {
     // It's better to make a fading effect to disappear the loading page

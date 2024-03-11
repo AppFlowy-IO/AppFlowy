@@ -56,7 +56,10 @@ export const getDesignTokens = (isDark: boolean): ThemeOptions => {
           },
           outlinedInherit: {
             color: 'var(--text-title)',
-            borderColor: 'var(--line-divider)',
+            borderColor: 'var(--line-border)',
+            '&:hover': {
+              boxShadow: 'var(--shadow)',
+            },
           },
         },
       },
