@@ -66,6 +66,7 @@ class RelationCellBloc extends Bloc<RelationCellEvent, RelationCellState> {
             }
             final meta = await _loadDatabaseMeta(typeOption.databaseId);
             emit(state.copyWith(relatedDatabaseMeta: meta));
+            _loadCellData();
           },
           selectDatabaseId: (databaseId) async {
             await _updateTypeOption(databaseId);
@@ -103,9 +104,13 @@ class RelationCellBloc extends Bloc<RelationCellEvent, RelationCellState> {
     final typeOption =
         cellController.getTypeOption(RelationTypeOptionDataParser());
     add(RelationCellEvent.didUpdateRelationTypeOption(typeOption));
+  }
 
+  void _loadCellData() {
     final cellData = cellController.getCellData();
-    add(RelationCellEvent.didUpdateCell(cellData));
+    if (!isClosed) {
+      add(RelationCellEvent.didUpdateCell(cellData));
+    }
   }
 
   Future<void> _handleSelectRow(String rowId) async {
@@ -159,7 +164,7 @@ class RelationCellBloc extends Bloc<RelationCellEvent, RelationCellState> {
       fieldId: cellController.fieldInfo.id,
       typeOptionData: newDateTypeOption.writeToBuffer(),
     );
-    result.fold((s) => _init(), (err) => Log.error(err));
+    result.fold((s) => null, (err) => Log.error(err));
   }
 }
 
