@@ -6,11 +6,13 @@ import { useAppSelector, useAppDispatch } from '$app/stores/store';
 import { getCurrentWorkspaceSetting } from '$app/application/folder/workspace.service';
 import { useCallback } from 'react';
 import { subscribeNotifications } from '$app/application/notification';
+import { nanoid } from 'nanoid';
 
 export const useAuth = () => {
   const dispatch = useAppDispatch();
   const currentUser = useAppSelector((state) => state.currentUser);
 
+  // Subscribe to user update events
   const subscribeToUser = useCallback(() => {
     const unsubscribePromise = subscribeNotifications({
       [UserNotification.DidUpdateUserProfile]: async (changeset) => {
@@ -29,6 +31,7 @@ export const useAuth = () => {
     };
   }, [dispatch]);
 
+  // Check if the user is authenticated
   const checkUser = useCallback(async () => {
     const userProfile = await UserService.getUserProfile();
 
@@ -61,18 +64,16 @@ export const useAuth = () => {
       // contains the latest visiting page and the current workspace data.
       const workspaceSetting = await getCurrentWorkspaceSetting();
 
-      if (workspaceSetting) {
-        dispatch(
-          currentUserActions.updateUser({
-            id: userProfile.id,
-            token: userProfile.token,
-            email: userProfile.email,
-            displayName: userProfile.name,
-            isAuthenticated: true,
-            workspaceSetting: workspaceSetting,
-          })
-        );
-      }
+      dispatch(
+        currentUserActions.updateUser({
+          id: userProfile.id,
+          token: userProfile.token,
+          email: userProfile.email,
+          displayName: userProfile.name,
+          isAuthenticated: true,
+          workspaceSetting,
+        })
+      );
 
       return userProfile;
     },
@@ -103,5 +104,13 @@ export const useAuth = () => {
     dispatch(currentUserActions.logout());
   }, [dispatch]);
 
-  return { currentUser, checkUser, register, login, logout, subscribeToUser };
+  const signInAsAnonymous = useCallback(async () => {
+    const fakeEmail = nanoid(8) + '@appflowy.io';
+    const fakePassword = 'AppFlowy123@';
+    const fakeName = 'Me';
+
+    await register(fakeEmail, fakePassword, fakeName);
+  }, [register]);
+
+  return { currentUser, checkUser, register, login, logout, subscribeToUser, signInAsAnonymous };
 };

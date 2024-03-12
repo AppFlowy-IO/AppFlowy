@@ -24,6 +24,7 @@ export const ProfileAvatar = ({
         width,
         height,
         fontSize: iconUrl ? undefined : width ? width / 2.5 : 20,
+        color: iconUrl ? undefined : 'white',
       }}
     >
       {iconUrl ? iconUrl : stringToShortName(displayName)}

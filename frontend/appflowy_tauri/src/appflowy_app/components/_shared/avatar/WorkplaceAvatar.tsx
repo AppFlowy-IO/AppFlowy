@@ -25,6 +25,7 @@ export const WorkplaceAvatar = ({
         bgcolor: icon ? 'transparent' : stringToColor(workplaceName),
         width,
         height,
+        color: icon ? undefined : 'white',
       }}
     >
       {icon ? icon : stringToShortName(workplaceName)}
