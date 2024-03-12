@@ -55,8 +55,8 @@ pub struct GroupControllerContext<C> {
 
   configuration_phantom: PhantomData<C>,
 
-  /// The grouping field
-  field: Field,
+  /// The grouping field id
+  field_id: String,
 
   /// Cache all the groups. Cache the group by its id.
   /// We use the id of the [Field] as the [No Status] group id.
@@ -90,7 +90,7 @@ where
 
     Ok(Self {
       view_id,
-      field,
+      field_id: field.id,
       group_by_id: IndexMap::new(),
       delegate,
       setting,
@@ -103,11 +103,11 @@ where
   /// We take the `id` of the `field` as the no status group id
   #[allow(dead_code)]
   pub(crate) fn get_no_status_group(&self) -> Option<&GroupData> {
-    self.group_by_id.get(&self.field.id)
+    self.group_by_id.get(&self.field_id)
   }
 
   pub(crate) fn get_mut_no_status_group(&mut self) -> Option<&mut GroupData> {
-    self.group_by_id.get_mut(&self.field.id)
+    self.group_by_id.get_mut(&self.field_id)
   }
 
   pub(crate) fn groups(&self) -> Vec<&GroupData> {
@@ -132,7 +132,7 @@ where
   /// Iterate mut the groups without `No status` group
   pub(crate) fn iter_mut_status_groups(&mut self, mut each: impl FnMut(&mut GroupData)) {
     self.group_by_id.iter_mut().for_each(|(_, group)| {
-      if group.id != self.field.id {
+      if group.id != self.field_id {
         each(group);
       }
     });
@@ -147,7 +147,7 @@ where
   pub(crate) fn add_new_group(&mut self, group: Group) -> FlowyResult<InsertedGroupPB> {
     let group_data = GroupData::new(
       group.id.clone(),
-      self.field.id.clone(),
+      self.field_id.clone(),
       group.id.clone(),
       group.visible,
     );
@@ -259,7 +259,7 @@ where
 
     let mut old_groups = self.setting.groups.clone();
     // clear all the groups if grouping by a new field
-    if self.setting.field_id != self.field.id {
+    if self.setting.field_id != self.field_id {
       old_groups.clear();
     }
 
@@ -315,7 +315,7 @@ where
         .unwrap_or_else(|| "".to_owned());
       let group = GroupData::new(
         group.id,
-        self.field.id.clone(),
+        self.field_id.clone(),
         filter_content,
         group.visible,
       );
@@ -328,7 +328,7 @@ where
         let filter_content = filter_content_map.get(&group_rev.id)?;
         let group = GroupData::new(
           group_rev.id,
-          self.field.id.clone(),
+          self.field_id.clone(),
           filter_content.clone(),
           group_rev.visible,
         );
@@ -370,7 +370,7 @@ where
   pub(crate) async fn get_all_cells(&self) -> Vec<RowSingleCellData> {
     self
       .delegate
-      .get_configuration_cells(&self.view_id, &self.field.id)
+      .get_configuration_cells(&self.view_id, &self.field_id)
       .await
   }
 
