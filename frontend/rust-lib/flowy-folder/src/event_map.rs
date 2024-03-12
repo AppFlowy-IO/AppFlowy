@@ -124,7 +124,7 @@ pub enum FolderEvent {
   #[event()]
   PermanentlyDeleteAllTrashItem = 27,
 
-  #[event(input = "ImportPB")]
+  #[event(input = "ImportPB", output = "ViewPB")]
   ImportData = 30,
 
   #[event(input = "WorkspaceIdPB", output = "RepeatedFolderSnapshotPB")]
