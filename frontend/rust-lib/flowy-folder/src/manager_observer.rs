@@ -14,9 +14,9 @@ use lib_dispatch::prelude::af_spawn;
 
 use crate::entities::{
   view_pb_with_child_views, view_pb_without_child_views, ChildViewUpdatePB, FolderSnapshotStatePB,
-  FolderSyncStatePB, RepeatedTrashPB, RepeatedViewPB, ViewPB, ViewSection,
+  FolderSyncStatePB, RepeatedTrashPB, RepeatedViewPB, ViewPB, ViewSectionPB,
 };
-use crate::manager::{get_workspace_view_pbs, MutexFolder};
+use crate::manager::{get_workspace_public_view_pbs, MutexFolder};
 use crate::notification::{send_notification, FolderNotification};
 
 /// Listen on the [ViewChange] after create/delete/update events happened
@@ -182,8 +182,7 @@ pub(crate) fn notify_parent_view_did_change<T: AsRef<str>>(
 }
 
 pub(crate) fn notify_did_update_workspace(workspace_id: &str, folder: &Folder) {
-  let repeated_view: RepeatedViewPB =
-    get_workspace_view_pbs(workspace_id, folder, Some(ViewSection::Private)).into();
+  let repeated_view: RepeatedViewPB = get_workspace_public_view_pbs(workspace_id, folder).into();
   tracing::trace!("Did update workspace views: {:?}", repeated_view);
   send_notification(workspace_id, FolderNotification::DidUpdateWorkspaceViews)
     .payload(repeated_view)

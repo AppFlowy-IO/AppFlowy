@@ -40,12 +40,12 @@ class SidebarRootViewsBloc
             _initial(userProfile, workspaceId);
             await _fetchRootViews(emit);
           },
-          createRootView: (name, desc, index) async {
-            final result = await _workspaceService.createApp(
+          createRootView: (name, desc, index, section) async {
+            final result = await _workspaceService.createView(
               name: name,
               desc: desc,
               index: index,
-              viewSection: ViewSection.Private,
+              viewSection: section,
             );
             result.fold(
               (view) => emit(state.copyWith(lastCreatedRootView: view)),
@@ -95,10 +95,9 @@ class SidebarRootViewsBloc
     Emitter<SidebarRootViewState> emit,
   ) async {
     try {
-      final publicViews =
-          await _workspaceService.getViews(ViewSection.Public).getOrThrow();
+      final publicViews = await _workspaceService.getPublicViews().getOrThrow();
       final privateViews =
-          await _workspaceService.getViews(ViewSection.Private).getOrThrow();
+          await _workspaceService.getPrivateViews().getOrThrow();
       emit(
         state.copyWith(
           publicViews: publicViews,
@@ -150,6 +149,7 @@ class SidebarRootViewsEvent with _$SidebarRootViewsEvent {
     String name, {
     String? desc,
     int? index,
+    required ViewSectionPB viewSection,
   }) = _createRootView;
   const factory SidebarRootViewsEvent.moveRootView(
     int fromIndex,

@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::convert::TryInto;
+use std::default;
 use std::ops::{Deref, DerefMut};
 use std::sync::Arc;
 
@@ -186,15 +187,14 @@ pub struct CreateViewPayloadPB {
   // Only the view in public section will be shown in the shared workspace view list.
   // The view in private section will only be shown in the user's private view list.
   #[pb(index = 10)]
-  pub section: ViewSection,
+  pub section: ViewSectionPB,
 }
 
 #[derive(Eq, PartialEq, Hash, Debug, ProtoBuf_Enum, Clone, Default)]
-pub enum ViewSection {
+pub enum ViewSectionPB {
   #[default]
-  All = 0,
-  Private = 1,
-  Public = 2,
+  Private = 0,
+  Public = 1,
 }
 
 /// The orphan view is meant to be a view that is not attached to any parent view. By default, this
@@ -233,7 +233,7 @@ pub struct CreateViewParams {
   // If the index is None or the index is out of range, the view will be appended to the end of the parent view.
   pub index: Option<u32>,
   // The section of the view.
-  pub section: ViewSection,
+  pub section: ViewSectionPB,
 }
 
 impl TryInto<CreateViewParams> for CreateViewPayloadPB {
@@ -277,7 +277,7 @@ impl TryInto<CreateViewParams> for CreateOrphanViewPayloadPB {
       set_as_current: false,
       index: None,
       // TODO: lucas.xu add section to CreateOrphanViewPayloadPB
-      section: ViewSection::Private,
+      section: ViewSectionPB::Private,
     })
   }
 }

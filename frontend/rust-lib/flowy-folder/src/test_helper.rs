@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use flowy_folder_pub::cloud::gen_view_id;
 
-use crate::entities::{CreateViewParams, ViewLayoutPB, ViewSection};
+use crate::entities::{CreateViewParams, ViewLayoutPB, ViewSectionPB};
 use crate::manager::FolderManager;
 
 #[cfg(feature = "test_helper")]
@@ -47,7 +47,7 @@ impl FolderManager {
       meta: ext,
       set_as_current: true,
       index: None,
-      section: ViewSection::Public,
+      section: ViewSectionPB::Public,
     };
     self.create_view_with_params(params).await.unwrap();
     view_id

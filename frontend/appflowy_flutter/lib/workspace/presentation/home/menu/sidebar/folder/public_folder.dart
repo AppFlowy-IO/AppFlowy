@@ -48,6 +48,7 @@ class PublicFolder extends StatelessWidget {
                               SidebarRootViewsEvent.createRootView(
                                 viewName,
                                 index: 0,
+                                viewSection: ViewSectionPB.Public,
                               ),
                             );
 

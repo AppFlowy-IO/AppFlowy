@@ -43,11 +43,11 @@ class PrivateFolder extends StatelessWidget {
                     LocaleKeys.newPageText.tr(),
                     (viewName, _) {
                       if (viewName.isNotEmpty) {
-                        // TODO: lucas.xu insert view into private
                         context.read<SidebarRootViewsBloc>().add(
                               SidebarRootViewsEvent.createRootView(
                                 viewName,
                                 index: 0,
+                                viewSection: ViewSectionPB.Private,
                               ),
                             );
 

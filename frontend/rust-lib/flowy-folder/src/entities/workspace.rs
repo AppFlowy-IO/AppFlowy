@@ -11,7 +11,7 @@ use crate::{
   entities::view::ViewPB,
 };
 
-use super::ViewSection;
+use super::ViewSectionPB;
 
 #[derive(Eq, PartialEq, ProtoBuf, Default, Debug, Clone)]
 pub struct WorkspacePB {
@@ -118,15 +118,11 @@ impl TryInto<WorkspaceIdParams> for WorkspaceIdPB {
 pub struct GetWorkspaceViewPB {
   #[pb(index = 1)]
   pub value: String,
-
-  #[pb(index = 2)]
-  pub view_section: ViewSection,
 }
 
 #[derive(Clone, Debug)]
 pub struct GetWorkspaceViewParams {
   pub value: String,
-  pub view_section: ViewSection,
 }
 
 impl TryInto<GetWorkspaceViewParams> for GetWorkspaceViewPB {
@@ -135,7 +131,6 @@ impl TryInto<GetWorkspaceViewParams> for GetWorkspaceViewPB {
   fn try_into(self) -> Result<GetWorkspaceViewParams, Self::Error> {
     Ok(GetWorkspaceViewParams {
       value: WorkspaceIdentify::parse(self.value)?.0,
-      view_section: self.view_section,
     })
   }
 }

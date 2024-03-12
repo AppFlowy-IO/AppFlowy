@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/menu/sidebar_root_views_bloc.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -71,6 +72,7 @@ class _MobilePersonalFolderHeaderState
                   SidebarRootViewsEvent.createRootView(
                     LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
                     index: 0,
+                    viewSection: ViewSectionPB.Private,
                   ),
                 );
           },

@@ -10,15 +10,16 @@ class WorkspaceService {
 
   final String workspaceId;
 
-  Future<FlowyResult<ViewPB, FlowyError>> createApp({
+  Future<FlowyResult<ViewPB, FlowyError>> createView({
     required String name,
     String? desc,
     int? index,
-    required ViewSection viewSection,
+    required ViewSectionPB viewSection,
   }) {
     final payload = CreateViewPayloadPB.create()
       ..parentViewId = workspaceId
       ..name = name
+      // only allow document layout for the top-level views
       ..layout = ViewLayoutPB.Document
       ..section = viewSection;
 
@@ -37,13 +38,18 @@ class WorkspaceService {
     return FolderEventReadCurrentWorkspace().send();
   }
 
-  Future<FlowyResult<List<ViewPB>, FlowyError>> getViews(
-    ViewSection viewSection,
-  ) {
-    final payload = GetWorkspaceViewPB.create()
-      ..value = workspaceId
-      ..viewSection = viewSection;
+  Future<FlowyResult<List<ViewPB>, FlowyError>> getPublicViews() {
+    final payload = GetWorkspaceViewPB.create()..value = workspaceId;
     return FolderEventReadWorkspaceViews(payload).send().then((result) {
+      return result.fold(
+        (views) => FlowyResult.success(views.items),
+        (error) => FlowyResult.failure(error),
+      );
+    });
+  }
+
+  Future<FlowyResult<List<ViewPB>, FlowyError>> getPrivateViews() {
+    return FolderEventReadPrivateViews().send().then((result) {
       return result.fold(
         (views) => FlowyResult.success(views.items),
         (error) => FlowyResult.failure(error),

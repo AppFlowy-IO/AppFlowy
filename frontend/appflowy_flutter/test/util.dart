@@ -74,7 +74,7 @@ class AppFlowyUnitTest {
   }
 
   Future<ViewPB> createWorkspace() async {
-    final result = await workspaceService.createApp(name: "Test App");
+    final result = await workspaceService.createView(name: "Test App");
     return result.fold(
       (app) => app,
       (error) => throw Exception(error),
@@ -82,7 +82,7 @@ class AppFlowyUnitTest {
   }
 
   Future<List<ViewPB>> loadApps() async {
-    final result = await workspaceService.getViews();
+    final result = await workspaceService.getPublicViews();
 
     return result.fold(
       (apps) => apps,
