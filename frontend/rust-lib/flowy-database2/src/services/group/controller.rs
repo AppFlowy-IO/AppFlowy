@@ -399,7 +399,7 @@ where
 
   fn apply_group_changeset(
     &mut self,
-    changeset: &Vec<GroupChangeset>,
+    changeset: &[GroupChangeset],
   ) -> FlowyResult<(Vec<GroupPB>, TypeOptionData)> {
     for group_changeset in changeset.iter() {
       self.context.update_group(group_changeset)?;

@@ -668,7 +668,7 @@ pub(crate) async fn update_group_handler(
   let (tx, rx) = oneshot::channel();
   af_spawn(async move {
     let result = database_editor
-      .update_group(&view_id, vec![group_changeset].into())
+      .update_group(&view_id, vec![group_changeset])
       .await;
     let _ = tx.send(result);
   });

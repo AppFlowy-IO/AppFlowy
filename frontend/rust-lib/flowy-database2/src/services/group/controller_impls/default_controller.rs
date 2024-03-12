@@ -132,7 +132,7 @@ impl GroupController for DefaultGroupController {
 
   fn apply_group_changeset(
     &mut self,
-    _changeset: &Vec<GroupChangeset>,
+    _changeset: &[GroupChangeset],
   ) -> FlowyResult<(Vec<GroupPB>, TypeOptionData)> {
     Ok((Vec::new(), TypeOptionData::default()))
   }

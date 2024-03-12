@@ -192,7 +192,7 @@ pub trait GroupController: Send + Sync {
   /// * `changesets`: list of changesets to be made to one or more groups
   fn apply_group_changeset(
     &mut self,
-    changesets: &Vec<GroupChangeset>,
+    changesets: &[GroupChangeset],
   ) -> FlowyResult<(Vec<GroupPB>, TypeOptionData)>;
 
   /// Called before the row was created.
