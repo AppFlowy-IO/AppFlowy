@@ -257,7 +257,14 @@
     "remove": "Remove",
     "dontRemove": "Don't remove",
     "copyLink": "Copy Link",
-    "align": "Align"
+    "align": "Align",
+    "login": "Login",
+    "logout": "Log out",
+    "deleteAccount": "Delete account",
+    "back": "Back",
+    "signInGoogle": "Sign in with Google",
+    "signInGithub": "Sign in with Github",
+    "signInDiscord": "Sign in with Discord"
   },
   "label": {
     "welcome": "Welcome!",
@@ -1356,5 +1363,47 @@
     "addField": "Add field",
     "userIcon": "User icon"
   },
-  "noLogFiles": "There're no log files"
+  "noLogFiles": "There're no log files",
+  "newSettings": {
+    "myAccount": {
+      "title": "My account",
+      "subtitle": "Customize your profile, manage account security, open AI keys, or login into your account.",
+      "profileLabel": "Account name & Profile image",
+      "profileNamePlaceholder": "Enter your name",
+      "accountSecurity": "Account security",
+      "2FA": "2-Step Authentication",
+      "aiKeys": "AI keys",
+      "accountLogin": "Account Login",
+      "updateNameError": "Failed to update name",
+      "updateIconError": "Failed to update icon",
+      "deleteAccount": {
+        "title": "Delete Account",
+        "subtitle": "Permanently delete your account and all of your data.",
+        "deleteMyAccount": "Delete my account",
+        "dialogTitle": "Delete account",
+        "dialogContent1": "Are you sure you want to permanently delete your account?",
+        "dialogContent2": "This action cannot be undone, and will remove access from all teamspaces, erasing your entire account, including private workspaces, and removing you from all shared workspaces."
+      }
+    },
+    "workplace": {
+      "name": "Workplace",
+      "title": "Workplace Settings",
+      "subtitle": "Customize your workspace appearance, theme, font, text layout, date, time, and language.",
+      "workplaceName": "Workplace name",
+      "workplaceNamePlaceholder": "Enter workplace name",
+      "workplaceIcon": "Workplace icon",
+      "workplaceIconSubtitle": "Upload an image or use an emoji for your workspace. Icon will show in your sidebar and notifications",
+      "renameError": "Failed to rename workplace",
+      "updateIconError": "Failed to update icon",
+      "appearance": {
+        "name": "Appearance",
+        "themeMode": {
+          "auto": "Auto",
+          "light": "Light",
+          "dark": "Dark"
+        },
+        "language": "Language"
+      }
+    }
+  }
 }
