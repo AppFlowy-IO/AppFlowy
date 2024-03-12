@@ -1,20 +1,44 @@
 import { currentUserActions } from '$app_reducers/current-user/slice';
-import { UserProfilePB } from '@/services/backend/events/flowy-user';
+import { AuthenticatorPB, UserNotification, UserProfilePB } from '@/services/backend/events/flowy-user';
 import { UserService } from '$app/application/user/user.service';
 import { AuthService } from '$app/application/user/auth.service';
 import { useAppSelector, useAppDispatch } from '$app/stores/store';
 import { getCurrentWorkspaceSetting } from '$app/application/folder/workspace.service';
 import { useCallback } from 'react';
+import { subscribeNotifications } from '$app/application/notification';
+import { nanoid } from 'nanoid';
 
 export const useAuth = () => {
   const dispatch = useAppDispatch();
   const currentUser = useAppSelector((state) => state.currentUser);
 
+  // Subscribe to user update events
+  const subscribeToUser = useCallback(() => {
+    const unsubscribePromise = subscribeNotifications({
+      [UserNotification.DidUpdateUserProfile]: async (changeset) => {
+        dispatch(
+          currentUserActions.updateUser({
+            email: changeset.email,
+            displayName: changeset.name,
+            iconUrl: changeset.icon_url,
+          })
+        );
+      },
+    });
+
+    return () => {
+      void unsubscribePromise.then((fn) => fn());
+    };
+  }, [dispatch]);
+
+  // Check if the user is authenticated
   const checkUser = useCallback(async () => {
     const userProfile = await UserService.getUserProfile();
 
     if (!userProfile) return;
     const workspaceSetting = await getCurrentWorkspaceSetting();
+
+    const isLocal = userProfile.authenticator === AuthenticatorPB.Local;
 
     dispatch(
       currentUserActions.checkUser({
@@ -22,8 +46,10 @@ export const useAuth = () => {
         token: userProfile.token,
         email: userProfile.email,
         displayName: userProfile.name,
+        iconUrl: userProfile.icon_url,
         isAuthenticated: true,
         workspaceSetting: workspaceSetting,
+        isLocal,
       })
     );
 
@@ -38,18 +64,16 @@ export const useAuth = () => {
       // contains the latest visiting page and the current workspace data.
       const workspaceSetting = await getCurrentWorkspaceSetting();
 
-      if (workspaceSetting) {
-        dispatch(
-          currentUserActions.updateUser({
-            id: userProfile.id,
-            token: userProfile.token,
-            email: userProfile.email,
-            displayName: userProfile.name,
-            isAuthenticated: true,
-            workspaceSetting: workspaceSetting,
-          })
-        );
-      }
+      dispatch(
+        currentUserActions.updateUser({
+          id: userProfile.id,
+          token: userProfile.token,
+          email: userProfile.email,
+          displayName: userProfile.name,
+          isAuthenticated: true,
+          workspaceSetting,
+        })
+      );
 
       return userProfile;
     },
@@ -80,5 +104,13 @@ export const useAuth = () => {
     dispatch(currentUserActions.logout());
   }, [dispatch]);
 
-  return { currentUser, checkUser, register, login, logout };
+  const signInAsAnonymous = useCallback(async () => {
+    const fakeEmail = nanoid(8) + '@appflowy.io';
+    const fakePassword = 'AppFlowy123@';
+    const fakeName = 'Me';
+
+    await register(fakeEmail, fakePassword, fakeName);
+  }, [register]);
+
+  return { currentUser, checkUser, register, login, logout, subscribeToUser, signInAsAnonymous };
 };

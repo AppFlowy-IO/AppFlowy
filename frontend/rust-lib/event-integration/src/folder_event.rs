@@ -2,14 +2,13 @@ use flowy_folder::entities::icon::UpdateViewIconPayloadPB;
 use flowy_folder::event_map::FolderEvent;
 use flowy_folder::event_map::FolderEvent::*;
 use flowy_folder::{entities::*, ViewLayout};
-use flowy_search::entities::{RepeatedSearchResultPB, SearchQueryPB};
-use flowy_search::event_map::SearchEvent;
 use flowy_user::entities::{
   AddWorkspaceMemberPB, QueryWorkspacePB, RemoveWorkspaceMemberPB, RepeatedWorkspaceMemberPB,
   WorkspaceMemberPB,
 };
 use flowy_user::errors::FlowyError;
 use flowy_user::event_map::UserEvent;
+use tokio::time::sleep;
 
 use crate::event_builder::EventBuilder;
 use crate::EventIntegrationTest;
@@ -137,16 +136,13 @@ impl EventIntegrationTest {
       .parse::<ViewPB>()
   }
 
-  pub async fn search2(&self, query: &str, limit: Option<i64>) -> RepeatedSearchResultPB {
+  pub async fn import_data(&self, data: ImportPB) -> ViewPB {
     EventBuilder::new(self.clone())
-      .event(SearchEvent::Search)
-      .payload(SearchQueryPB {
-        search: query.to_string(),
-        limit,
-      })
+      .event(FolderEvent::ImportData)
+      .payload(data)
       .async_send()
       .await
-      .parse::<RepeatedSearchResultPB>()
+      .parse::<ViewPB>()
   }
 }
 
@@ -186,15 +182,23 @@ impl ViewTest {
   }
 
   pub async fn new_grid_view(sdk: &EventIntegrationTest, data: Vec<u8>) -> Self {
-    Self::new(sdk, ViewLayout::Grid, data).await
+    // TODO(nathan): remove this sleep
+    // workaround for the rows that are created asynchronously
+    let this = Self::new(sdk, ViewLayout::Grid, data).await;
+    sleep(tokio::time::Duration::from_secs(2)).await;
+    this
   }
 
   pub async fn new_board_view(sdk: &EventIntegrationTest, data: Vec<u8>) -> Self {
-    Self::new(sdk, ViewLayout::Board, data).await
+    let this = Self::new(sdk, ViewLayout::Board, data).await;
+    sleep(tokio::time::Duration::from_secs(2)).await;
+    this
   }
 
   pub async fn new_calendar_view(sdk: &EventIntegrationTest, data: Vec<u8>) -> Self {
-    Self::new(sdk, ViewLayout::Calendar, data).await
+    let this = Self::new(sdk, ViewLayout::Calendar, data).await;
+    sleep(tokio::time::Duration::from_secs(2)).await;
+    this
   }
 }
 

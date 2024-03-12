@@ -32,7 +32,7 @@ export const SelectOptionItem: FC<SelectOptionItemProps> = ({ isSelected, fieldI
         <div className='flex-1'>
           <Tag key={option.id} size='small' color={option.color} label={option.name} />
         </div>
-        {isSelected && !hovered && <SelectCheckSvg />}
+        {isSelected && !hovered && <SelectCheckSvg className={'text-content-blue-400'} />}
         {hovered && (
           <IconButton onClick={handleClick}>
             <DetailsSvg className='text-base' />

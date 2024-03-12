@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { TrashSvg } from '$app/components/_shared/svg/TrashSvg';
+import { ReactComponent as TrashSvg } from '$app/assets/delete.svg';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useDrag } from 'src/appflowy_app/components/_shared/drag_block';
@@ -34,9 +34,7 @@ function TrashButton() {
         selected ? 'bg-fill-list-active' : ''
       } ${isDraggingOver ? 'bg-fill-list-hover' : ''}`}
     >
-      <div className='h-5 w-5'>
-        <TrashSvg />
-      </div>
+      <TrashSvg className='h-5 w-5' />
       <span>{t('trash.text')}</span>
     </div>
   );

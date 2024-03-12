@@ -381,7 +381,7 @@ impl FolderManager {
         .views
         .get_views_belong_to(&workspace.id)
         .into_iter()
-        .map(view_pb_without_child_views)
+        .map(|view| view_pb_without_child_views(view.as_ref().clone()))
         .collect::<Vec<ViewPB>>();
 
       WorkspacePB {
@@ -563,7 +563,7 @@ impl FolderManager {
             .send();
 
           notify_child_views_changed(
-            view_pb_without_child_views(view),
+            view_pb_without_child_views(view.as_ref().clone()),
             ChildViewChangeReason::Delete,
           );
         }
@@ -580,7 +580,7 @@ impl FolderManager {
     let favorite_descendant_views: Vec<ViewPB> = all_descendant_views
       .iter()
       .filter(|view| view.is_favorite)
-      .map(|view| view_pb_without_child_views(view.clone()))
+      .map(|view| view_pb_without_child_views(view.as_ref().clone()))
       .collect();
 
     if !favorite_descendant_views.is_empty() {
