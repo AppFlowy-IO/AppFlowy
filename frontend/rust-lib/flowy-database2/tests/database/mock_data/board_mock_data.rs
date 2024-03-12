@@ -130,7 +130,6 @@ pub fn make_test_board() -> DatabaseData {
         // TODO(Richard): add relation test
         let type_option = RelationTypeOption {
           database_id: "".to_string(),
-          database_view_id: "".to_string(),
         };
         let relation_field = FieldBuilder::new(field_type, type_option)
           .name("Related")

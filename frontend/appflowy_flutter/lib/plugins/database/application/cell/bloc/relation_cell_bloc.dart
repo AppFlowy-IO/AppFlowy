@@ -64,16 +64,8 @@ class RelationCellBloc extends Bloc<RelationCellEvent, RelationCellState> {
             if (typeOption.databaseId.isEmpty) {
               return;
             }
-            final name = await _loadDatabaseName(typeOption.databaseId);
-            emit(
-              state.copyWith(
-                relatedDatabaseMeta: DatabaseMeta(
-                  databaseId: typeOption.databaseId,
-                  inlineViewId: typeOption.databaseViewId,
-                  databaseName: name,
-                ),
-              ),
-            );
+            final meta = await _loadDatabaseMeta(typeOption.databaseId);
+            emit(state.copyWith(relatedDatabaseMeta: meta));
           },
           selectDatabaseId: (databaseId) async {
             await _updateTypeOption(databaseId);
@@ -134,7 +126,7 @@ class RelationCellBloc extends Bloc<RelationCellEvent, RelationCellState> {
     result.fold((l) => null, (err) => Log.error(err));
   }
 
-  Future<String> _loadDatabaseName(String databaseId) async {
+  Future<DatabaseMeta?> _loadDatabaseMeta(String databaseId) async {
     final getDatabaseResult = await DatabaseEventGetDatabases().send();
     final databaseMeta = getDatabaseResult.fold<DatabaseMetaPB?>(
       (s) => s.items.firstWhereOrNull(
@@ -146,11 +138,15 @@ class RelationCellBloc extends Bloc<RelationCellEvent, RelationCellState> {
       final result =
           await ViewBackendService.getView(databaseMeta.inlineViewId);
       return result.fold(
-        (s) => s.name,
-        (f) => "",
+        (s) => DatabaseMeta(
+          databaseId: databaseId,
+          inlineViewId: databaseMeta.inlineViewId,
+          databaseName: s.name,
+        ),
+        (f) => null,
       );
     }
-    return "";
+    return null;
   }
 
   Future<void> _updateTypeOption(String databaseId) async {
