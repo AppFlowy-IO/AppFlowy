@@ -115,10 +115,12 @@
         },
         {
             "name": "AF-desktop: Debug Rust",
-            "request": "launch",
             "type": "lldb",
-            // "pid": "${command:pickMyProcess}"
-            "program": "${workspaceRoot}/appflowy_flutter/build/macos/Build/Products/Debug/AppFlowy.app",
+            "request": "attach",
+            "pid": "${command:pickMyProcess}"
+            // To launch the application directly, use the following configuration:
+            // "request": "launch",
+            // "program": "[YOUR_APPLICATION_PATH]",
         },
         {
             // https://tauri.app/v1/guides/debugging/vs-code
