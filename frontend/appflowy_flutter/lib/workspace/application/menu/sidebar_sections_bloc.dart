@@ -12,6 +12,34 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'sidebar_sections_bloc.freezed.dart';
 
+class SidebarSection {
+  const SidebarSection({
+    required this.publicViews,
+    required this.privateViews,
+  });
+
+  const SidebarSection.empty()
+      : publicViews = const [],
+        privateViews = const [];
+
+  final List<ViewPB> publicViews;
+  final List<ViewPB> privateViews;
+
+  List<ViewPB> get views => publicViews + privateViews;
+
+  SidebarSection copyWith({
+    List<ViewPB>? publicViews,
+    List<ViewPB>? privateViews,
+  }) {
+    return SidebarSection(
+      publicViews: publicViews ?? this.publicViews,
+      privateViews: privateViews ?? this.privateViews,
+    );
+  }
+}
+
+/// The [SidebarSectionsBloc] is responsible for
+///   managing the root views in different sections of the workspace.
 class SidebarSectionsBloc
     extends Bloc<SidebarSectionsEvent, SidebarSectionsState> {
   SidebarSectionsBloc() : super(SidebarSectionsState.initial()) {
@@ -20,13 +48,25 @@ class SidebarSectionsBloc
         await event.when(
           initial: (userProfile, workspaceId) async {
             _initial(userProfile, workspaceId);
-            final (publicViews, privateViews) = await _getRootViews();
-            emit(
-              state.copyWith(
-                publicViews: publicViews,
-                privateViews: privateViews,
-              ),
-            );
+            final sectionViews = await _getSectionViews();
+            if (sectionViews != null) {
+              emit(
+                state.copyWith(
+                  section: sectionViews,
+                ),
+              );
+            }
+          },
+          reset: (userProfile, workspaceId) async {
+            _reset(userProfile, workspaceId);
+            final sectionViews = await _getSectionViews();
+            if (sectionViews != null) {
+              emit(
+                state.copyWith(
+                  section: sectionViews,
+                ),
+              );
+            }
           },
           createRootViewInSection: (name, section, desc, index) async {
             final result = await _workspaceService.createView(
@@ -43,7 +83,7 @@ class SidebarSectionsBloc
                 ),
               ),
               (error) {
-                Log.error(error);
+                Log.error('Failed to create root view: $error');
                 emit(
                   state.copyWith(
                     createRootViewResult: FlowyResult.failure(error),
@@ -56,9 +96,21 @@ class SidebarSectionsBloc
             final section = sectionViews.section;
             switch (section) {
               case ViewSectionPB.Public:
-                emit(state.copyWith(publicViews: sectionViews.views));
+                emit(
+                  state.copyWith(
+                    section: state.section.copyWith(
+                      publicViews: sectionViews.views,
+                    ),
+                  ),
+                );
               case ViewSectionPB.Private:
-                emit(state.copyWith(privateViews: sectionViews.views));
+                emit(
+                  state.copyWith(
+                    section: state.section.copyWith(
+                      privateViews: sectionViews.views,
+                    ),
+                  ),
+                );
                 break;
               default:
                 break;
@@ -66,8 +118,8 @@ class SidebarSectionsBloc
           },
           moveRootView: (fromIndex, toIndex, fromSection, toSection) async {
             final views = fromSection == ViewSectionPB.Public
-                ? List<ViewPB>.from(state.publicViews)
-                : List<ViewPB>.from(state.privateViews);
+                ? List<ViewPB>.from(state.section.publicViews)
+                : List<ViewPB>.from(state.section.privateViews);
             if (fromIndex < 0 || fromIndex >= views.length) {
               Log.error(
                 'Invalid fromIndex: $fromIndex, maxIndex: ${views.length - 1}',
@@ -83,18 +135,21 @@ class SidebarSectionsBloc
             result.fold(
               (value) {
                 views.insert(toIndex, views.removeAt(fromIndex));
-                emit(
-                  state.copyWith(
-                    publicViews: fromSection == ViewSectionPB.Public
-                        ? views
-                        : state.publicViews,
-                    privateViews: fromSection == ViewSectionPB.Private
-                        ? views
-                        : state.privateViews,
-                  ),
-                );
+                var newState = state;
+                if (fromSection == ViewSectionPB.Public) {
+                  newState = newState.copyWith(
+                    section: newState.section.copyWith(publicViews: views),
+                  );
+                } else if (fromSection == ViewSectionPB.Private) {
+                  newState = newState.copyWith(
+                    section: newState.section.copyWith(privateViews: views),
+                  );
+                }
+                emit(newState);
               },
-              (error) => Log.error(error),
+              (error) {
+                Log.error('Failed to move root view: $error');
+              },
             );
           },
         );
@@ -111,23 +166,24 @@ class SidebarSectionsBloc
     return super.close();
   }
 
-  Future<(List<ViewPB>, List<ViewPB>)> _getRootViews() async {
+  Future<SidebarSection?> _getSectionViews() async {
     try {
       final publicViews = await _workspaceService.getPublicViews().getOrThrow();
       final privateViews =
           await _workspaceService.getPrivateViews().getOrThrow();
-      return (publicViews, privateViews);
+      return SidebarSection(
+        publicViews: publicViews,
+        privateViews: privateViews,
+      );
     } catch (e) {
-      Log.error(e);
-      return (<ViewPB>[], <ViewPB>[]);
+      Log.error('Failed to get section views: $e');
+      return null;
     }
   }
 
   void _initial(UserProfilePB userProfile, String workspaceId) {
     _workspaceService = WorkspaceService(workspaceId: workspaceId);
 
-    _listener?.stop();
-    _listener = null;
     _listener = WorkspaceSectionsListener(
       user: userProfile,
       workspaceId: workspaceId,
@@ -140,6 +196,13 @@ class SidebarSectionsBloc
         },
       );
   }
+
+  void _reset(UserProfilePB userProfile, String workspaceId) {
+    _listener?.stop();
+    _listener = null;
+
+    _initial(userProfile, workspaceId);
+  }
 }
 
 @freezed
@@ -148,6 +211,10 @@ class SidebarSectionsEvent with _$SidebarSectionsEvent {
     UserProfilePB userProfile,
     String workspaceId,
   ) = _Initial;
+  const factory SidebarSectionsEvent.reset(
+    UserProfilePB userProfile,
+    String workspaceId,
+  ) = _Reset;
   const factory SidebarSectionsEvent.createRootViewInSection({
     required String name,
     required ViewSectionPB viewSection,
@@ -168,11 +235,12 @@ class SidebarSectionsEvent with _$SidebarSectionsEvent {
 @freezed
 class SidebarSectionsState with _$SidebarSectionsState {
   const factory SidebarSectionsState({
-    @Default([]) List<ViewPB> privateViews,
-    @Default([]) List<ViewPB> publicViews,
+    required SidebarSection section,
     @Default(null) ViewPB? lastCreatedRootView,
     FlowyResult<void, FlowyError>? createRootViewResult,
   }) = _SidebarSectionsState;
 
-  factory SidebarSectionsState.initial() => const SidebarSectionsState();
+  factory SidebarSectionsState.initial() => const SidebarSectionsState(
+        section: SidebarSection.empty(),
+      );
 }

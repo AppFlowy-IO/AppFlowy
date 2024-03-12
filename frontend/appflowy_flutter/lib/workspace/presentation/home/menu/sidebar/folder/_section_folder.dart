@@ -11,20 +11,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class PrivateFolder extends StatelessWidget {
-  const PrivateFolder({
+class SectionFolder extends StatelessWidget {
+  const SectionFolder({
     super.key,
+    required this.title,
+    required this.categoryType,
     required this.views,
     this.isHoverEnabled = true,
   });
 
+  final String title;
+  final FolderCategoryType categoryType;
   final List<ViewPB> views;
   final bool isHoverEnabled;
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider<FolderBloc>(
-      create: (context) => FolderBloc(type: FolderCategoryType.personal)
+      create: (context) => FolderBloc(type: categoryType)
         ..add(
           const FolderEvent.initial(),
         ),
@@ -33,11 +37,13 @@ class PrivateFolder extends StatelessWidget {
           return Column(
             children: [
               FolderHeader(
-                title: 'Private',
+                title: title,
+                expandButtonTooltip: expandButtonTooltip,
+                addButtonTooltip: addButtonTooltip,
                 onPressed: () => context
                     .read<FolderBloc>()
                     .add(const FolderEvent.expandOrUnExpand()),
-                onAdded: (_) {
+                onAdded: () {
                   createViewAndShowRenameDialogIfNeeded(
                     context,
                     LocaleKeys.newPageText.tr(),
@@ -47,7 +53,7 @@ class PrivateFolder extends StatelessWidget {
                               SidebarSectionsEvent.createRootViewInSection(
                                 name: viewName,
                                 index: 0,
-                                viewSection: ViewSectionPB.Private,
+                                viewSection: categoryType.toViewSectionPB,
                               ),
                             );
 
@@ -65,9 +71,9 @@ class PrivateFolder extends StatelessWidget {
                 ...views.map(
                   (view) => ViewItem(
                     key: ValueKey(
-                      '${FolderCategoryType.personal.name} ${view.id}',
+                      '${categoryType.name} ${view.id}',
                     ),
-                    categoryType: FolderCategoryType.personal,
+                    categoryType: categoryType,
                     isFirstChild: view.id == views.first.id,
                     view: view,
                     level: 0,
@@ -90,5 +96,21 @@ class PrivateFolder extends StatelessWidget {
         },
       ),
     );
+  }
+
+  String get expandButtonTooltip {
+    return switch (categoryType) {
+      FolderCategoryType.public => LocaleKeys.sideBar_clickToHidePublic.tr(),
+      FolderCategoryType.private => LocaleKeys.sideBar_clickToHidePrivate.tr(),
+      _ => '',
+    };
+  }
+
+  String get addButtonTooltip {
+    return switch (categoryType) {
+      FolderCategoryType.public => LocaleKeys.sideBar_addAPageToPublic.tr(),
+      FolderCategoryType.private => LocaleKeys.sideBar_addAPageToPrivate.tr(),
+      _ => '',
+    };
   }
 }

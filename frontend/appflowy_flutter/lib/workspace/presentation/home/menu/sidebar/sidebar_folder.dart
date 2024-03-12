@@ -1,35 +1,27 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
+import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/folder/_section_folder.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/folder/favorite_folder.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/folder/private_folder.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/folder/public_folder.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SidebarFolder extends StatelessWidget {
   const SidebarFolder({
     super.key,
-    required this.views,
-    required this.favoriteViews,
     this.isHoverEnabled = true,
   });
 
-  final List<ViewPB> views;
-  final List<ViewPB> favoriteViews;
   final bool isHoverEnabled;
 
   @override
   Widget build(BuildContext context) {
-    // check if there is any duplicate views
-    final views = this.views.toSet().toList();
-    final favoriteViews = this.favoriteViews.toSet().toList();
-    assert(views.length == this.views.length);
-    assert(favoriteViews.length == favoriteViews.length);
-
     return ValueListenableBuilder(
       valueListenable: getIt<MenuSharedState>().notifier,
       builder: (context, value, child) {
@@ -61,16 +53,20 @@ class SidebarFolder extends StatelessWidget {
                         .state
                         .isCollaborativeWorkspace) ...[
                       // public
-                      const SizedBox(height: 10),
-                      PublicFolder(
-                        views: state.publicViews,
+                      const VSpace(10),
+                      SectionFolder(
+                        title: LocaleKeys.sideBar_public.tr(),
+                        categoryType: FolderCategoryType.public,
+                        views: state.section.publicViews,
                       ),
                     ],
 
                     // private
-                    const SizedBox(height: 10),
-                    PrivateFolder(
-                      views: state.privateViews,
+                    const VSpace(10),
+                    SectionFolder(
+                      title: LocaleKeys.sideBar_private.tr(),
+                      categoryType: FolderCategoryType.private,
+                      views: state.section.privateViews,
                     ),
                   ],
                 );

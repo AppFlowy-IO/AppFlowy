@@ -20,7 +20,7 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
       (event, emit) async {
         await event.when(
           initial: () async {
-            // do nothing
+            add(const FetchWorkspaces());
           },
           workspacesReceived: (workspaceId) async {},
           fetchWorkspaces: () async {

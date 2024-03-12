@@ -1,6 +1,4 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
@@ -8,13 +6,17 @@ class FolderHeader extends StatefulWidget {
   const FolderHeader({
     super.key,
     required this.title,
+    required this.expandButtonTooltip,
+    required this.addButtonTooltip,
     required this.onPressed,
     required this.onAdded,
   });
 
   final String title;
+  final String expandButtonTooltip;
+  final String addButtonTooltip;
   final VoidCallback onPressed;
-  final void Function(String name) onAdded;
+  final VoidCallback onAdded;
 
   @override
   State<FolderHeader> createState() => _FolderHeaderState();
@@ -34,7 +36,7 @@ class _FolderHeaderState extends State<FolderHeader> {
         children: [
           FlowyTextButton(
             widget.title,
-            tooltip: LocaleKeys.sideBar_clickToHidePersonal.tr(),
+            tooltip: widget.expandButtonTooltip,
             constraints: const BoxConstraints(
               minHeight: iconSize + textPadding * 2,
             ),
@@ -45,15 +47,13 @@ class _FolderHeaderState extends State<FolderHeader> {
           if (onHover) ...[
             const Spacer(),
             FlowyIconButton(
-              tooltipText: LocaleKeys.sideBar_addAPage.tr(),
+              tooltipText: widget.addButtonTooltip,
               hoverColor: Theme.of(context).colorScheme.secondaryContainer,
               iconPadding: const EdgeInsets.all(2),
               height: iconSize,
               width: iconSize,
               icon: const FlowySvg(FlowySvgs.add_s),
-              onPressed: () {
-                widget.onAdded('');
-              },
+              onPressed: widget.onAdded,
             ),
           ],
         ],

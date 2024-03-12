@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
 import 'package:appflowy/workspace/application/notifications/notification_action.dart';
 import 'package:appflowy/workspace/application/notifications/notification_action_bloc.dart';
@@ -15,7 +14,6 @@ import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_top_me
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_trash.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_user.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_workspace.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
     show UserProfilePB;
@@ -31,7 +29,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 ///   - settings
 ///   - scrollable document list
 ///   - trash
-class HomeSideBar extends StatefulWidget {
+class HomeSideBar extends StatelessWidget {
   const HomeSideBar({
     super.key,
     required this.userProfile,
@@ -43,48 +41,29 @@ class HomeSideBar extends StatefulWidget {
   final WorkspaceSettingPB workspaceSetting;
 
   @override
-  State<HomeSideBar> createState() => _HomeSideBarState();
-}
-
-class _HomeSideBarState extends State<HomeSideBar> {
-  final _scrollController = ScrollController();
-  Timer? _srollDebounce;
-  bool isScrolling = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _scrollController.addListener(_onScrollChanged);
-  }
-
-  void _onScrollChanged() {
-    setState(() => isScrolling = true);
-
-    _srollDebounce?.cancel();
-    _srollDebounce =
-        Timer(const Duration(milliseconds: 300), _setScrollStopped);
-  }
-
-  void _setScrollStopped() {
-    if (mounted) {
-      setState(() => isScrolling = false);
-    }
-  }
-
-  @override
-  void dispose() {
-    _srollDebounce?.cancel();
-    _scrollController.removeListener(_onScrollChanged);
-    _scrollController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    // Workspace Bloc: control the current workspace
+    //   |
+    //   +-- Workspace Menu
+    //   |    |
+    //   |    +-- Workspace List: control to switch workspace
+    //   |    |
+    //   |    +-- Workspace Settings
+    //   |    |
+    //   |    +-- Notification Center
+    //   |
+    //   +-- Favorite Section
+    //   |
+    //   +-- Public Or Private Section: control the sections of the workspace
+    //   |
+    //   +-- Trash Section
     return BlocProvider<UserWorkspaceBloc>(
-      create: (_) => UserWorkspaceBloc(userProfile: widget.userProfile)
-        ..add(const UserWorkspaceEvent.fetchWorkspaces()),
+      create: (_) => UserWorkspaceBloc(userProfile: userProfile)
+        ..add(
+          const UserWorkspaceEvent.initial(),
+        ),
       child: BlocBuilder<UserWorkspaceBloc, UserWorkspaceState>(
+        // Rebuild the whole sidebar when the current workspace changes
         buildWhen: (previous, current) =>
             previous.currentWorkspace?.workspaceId !=
             current.currentWorkspace?.workspaceId,
@@ -98,9 +77,9 @@ class _HomeSideBarState extends State<HomeSideBar> {
                 create: (_) => SidebarSectionsBloc()
                   ..add(
                     SidebarSectionsEvent.initial(
-                      widget.userProfile,
+                      userProfile,
                       state.currentWorkspace?.workspaceId ??
-                          widget.workspaceSetting.workspaceId,
+                          workspaceSetting.workspaceId,
                     ),
                   ),
               ),
@@ -124,26 +103,15 @@ class _HomeSideBarState extends State<HomeSideBar> {
                   listener: (context, state) {
                     context.read<SidebarSectionsBloc>().add(
                           SidebarSectionsEvent.initial(
-                            widget.userProfile,
+                            userProfile,
                             state.currentWorkspace?.workspaceId ??
-                                widget.workspaceSetting.workspaceId,
+                                workspaceSetting.workspaceId,
                           ),
                         );
                   },
                 ),
               ],
-              child: Builder(
-                builder: (context) {
-                  final menuState = context.watch<SidebarSectionsBloc>().state;
-                  final favoriteState = context.watch<FavoriteBloc>().state;
-
-                  return _buildSidebar(
-                    context,
-                    menuState.publicViews,
-                    favoriteState.views,
-                  );
-                },
-              ),
+              child: _Sidebar(userProfile: userProfile),
             ),
           );
         },
@@ -151,11 +119,74 @@ class _HomeSideBarState extends State<HomeSideBar> {
     );
   }
 
-  Widget _buildSidebar(
+  void _onNotificationAction(
     BuildContext context,
-    List<ViewPB> views,
-    List<ViewPB> favoriteViews,
+    NotificationActionState state,
   ) {
+    final action = state.action;
+    if (action != null) {
+      if (action.type == ActionType.openView) {
+        final view = context
+            .read<SidebarSectionsBloc>()
+            .state
+            .section
+            .publicViews
+            .findView(action.objectId);
+
+        if (view != null) {
+          final Map<String, dynamic> arguments = {};
+
+          final nodePath = action.arguments?[ActionArgumentKeys.nodePath];
+          if (nodePath != null) {
+            arguments[PluginArgumentKeys.selection] = Selection.collapsed(
+              Position(path: [nodePath]),
+            );
+          }
+
+          final rowId = action.arguments?[ActionArgumentKeys.rowId];
+          if (rowId != null) {
+            arguments[PluginArgumentKeys.rowId] = rowId;
+          }
+
+          context.read<TabsBloc>().openPlugin(view, arguments: arguments);
+        }
+      }
+    }
+  }
+}
+
+class _Sidebar extends StatefulWidget {
+  const _Sidebar({
+    required this.userProfile,
+  });
+
+  final UserProfilePB userProfile;
+
+  @override
+  State<_Sidebar> createState() => _SidebarState();
+}
+
+class _SidebarState extends State<_Sidebar> {
+  final _scrollController = ScrollController();
+  Timer? _scrollDebounce;
+  bool isScrolling = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScrollChanged);
+  }
+
+  @override
+  void dispose() {
+    _scrollDebounce?.cancel();
+    _scrollController.removeListener(_onScrollChanged);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     const menuHorizontalInset = EdgeInsets.symmetric(horizontal: 12);
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -178,11 +209,9 @@ class _HomeSideBarState extends State<HomeSideBar> {
             child: FeatureFlag.collaborativeWorkspace.isOn
                 ? SidebarWorkspace(
                     userProfile: widget.userProfile,
-                    views: views,
                   )
                 : SidebarUser(
                     userProfile: widget.userProfile,
-                    views: views,
                   ),
           ),
 
@@ -195,8 +224,6 @@ class _HomeSideBarState extends State<HomeSideBar> {
                 controller: _scrollController,
                 physics: const ClampingScrollPhysics(),
                 child: SidebarFolder(
-                  views: views,
-                  favoriteViews: favoriteViews,
                   isHoverEnabled: !isScrolling,
                 ),
               ),
@@ -216,37 +243,17 @@ class _HomeSideBarState extends State<HomeSideBar> {
     );
   }
 
-  void _onNotificationAction(
-    BuildContext context,
-    NotificationActionState state,
-  ) {
-    final action = state.action;
-    if (action != null) {
-      if (action.type == ActionType.openView) {
-        final view = context
-            .read<SidebarSectionsBloc>()
-            .state
-            .publicViews
-            .findView(action.objectId);
+  void _onScrollChanged() {
+    setState(() => isScrolling = true);
 
-        if (view != null) {
-          final Map<String, dynamic> arguments = {};
+    _scrollDebounce?.cancel();
+    _scrollDebounce =
+        Timer(const Duration(milliseconds: 300), _setScrollStopped);
+  }
 
-          final nodePath = action.arguments?[ActionArgumentKeys.nodePath];
-          if (nodePath != null) {
-            arguments[PluginArgumentKeys.selection] = Selection.collapsed(
-              Position(path: [nodePath]),
-            );
-          }
-
-          final rowId = action.arguments?[ActionArgumentKeys.rowId];
-          if (rowId != null) {
-            arguments[PluginArgumentKeys.rowId] = rowId;
-          }
-
-          context.read<TabsBloc>().openPlugin(view, arguments: arguments);
-        }
-      }
+  void _setScrollStopped() {
+    if (mounted) {
+      setState(() => isScrolling = false);
     }
   }
 }

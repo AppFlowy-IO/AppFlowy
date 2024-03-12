@@ -13,7 +13,7 @@ void main() {
 
   group('sidebar expand test', () {
     bool isExpanded({required FolderCategoryType type}) {
-      if (type == FolderCategoryType.personal) {
+      if (type == FolderCategoryType.private) {
         return find
             .descendant(
               of: find.byType(PrivateFolder),
@@ -30,19 +30,19 @@ void main() {
       await tester.tapGoButton();
 
       // first time is expanded
-      expect(isExpanded(type: FolderCategoryType.personal), true);
+      expect(isExpanded(type: FolderCategoryType.private), true);
 
       // collapse the personal folder
       await tester.tapButton(
-        find.byTooltip(LocaleKeys.sideBar_clickToHidePersonal.tr()),
+        find.byTooltip(LocaleKeys.sideBar_clickToHidePrivate.tr()),
       );
-      expect(isExpanded(type: FolderCategoryType.personal), false);
+      expect(isExpanded(type: FolderCategoryType.private), false);
 
       // expand the personal folder
       await tester.tapButton(
-        find.byTooltip(LocaleKeys.sideBar_clickToHidePersonal.tr()),
+        find.byTooltip(LocaleKeys.sideBar_clickToHidePrivate.tr()),
       );
-      expect(isExpanded(type: FolderCategoryType.personal), true);
+      expect(isExpanded(type: FolderCategoryType.private), true);
     });
   });
 }

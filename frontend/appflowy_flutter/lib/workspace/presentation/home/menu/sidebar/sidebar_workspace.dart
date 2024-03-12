@@ -20,11 +20,9 @@ class SidebarWorkspace extends StatelessWidget {
   const SidebarWorkspace({
     super.key,
     required this.userProfile,
-    required this.views,
   });
 
   final UserProfilePB userProfile;
-  final List<ViewPB> views;
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +44,7 @@ class SidebarWorkspace extends StatelessWidget {
             ),
             UserSettingButton(userProfile: userProfile),
             const HSpace(4),
-            NotificationButton(views: views),
+            const NotificationButton(),
           ],
         );
       },
