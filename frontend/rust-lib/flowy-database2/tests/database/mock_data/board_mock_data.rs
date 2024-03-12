@@ -127,7 +127,6 @@ pub fn make_test_board() -> DatabaseData {
         fields.push(checklist_field);
       },
       FieldType::Relation => {
-        // TODO(Richard): add relation test
         let type_option = RelationTypeOption {
           database_id: "".to_string(),
         };
