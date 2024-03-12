@@ -1,6 +1,7 @@
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
-import 'package:appflowy/workspace/application/menu/sidebar_root_views_bloc.dart';
+import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
+import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/folder/favorite_folder.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/folder/private_folder.dart';
@@ -49,13 +50,17 @@ class SidebarFolder extends StatelessWidget {
                 );
               },
             ),
-            // personal
-            BlocBuilder<SidebarRootViewsBloc, SidebarRootViewState>(
+            // public or private
+            BlocBuilder<SidebarSectionsBloc, SidebarSectionsState>(
               builder: (context, state) {
                 return Column(
                   children: [
-                    // public
-                    if (state.publicViews.isNotEmpty) ...[
+                    // only show public section if the workspace is collaborative
+                    if (context
+                        .read<UserWorkspaceBloc>()
+                        .state
+                        .isCollaborativeWorkspace) ...[
+                      // public
                       const SizedBox(height: 10),
                       PublicFolder(
                         views: state.publicViews,
@@ -63,12 +68,10 @@ class SidebarFolder extends StatelessWidget {
                     ],
 
                     // private
-                    if (state.privateViews.isNotEmpty) ...[
-                      const SizedBox(height: 10),
-                      PrivateFolder(
-                        views: state.privateViews,
-                      ),
-                    ],
+                    const SizedBox(height: 10),
+                    PrivateFolder(
+                      views: state.privateViews,
+                    ),
                   ],
                 );
               },

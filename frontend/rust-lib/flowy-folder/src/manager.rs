@@ -151,8 +151,10 @@ impl FolderManager {
     Ok(views)
   }
 
-  pub async fn get_workspace_private_views(&self) -> FlowyResult<Vec<ViewPB>> {
-    let views = self.with_folder(Vec::new, |folder| get_workspace_private_view_pbs(folder));
+  pub async fn get_workspace_private_views(&self, workspace_id: &str) -> FlowyResult<Vec<ViewPB>> {
+    let views = self.with_folder(Vec::new, |folder| {
+      get_workspace_private_view_pbs(workspace_id, folder)
+    });
 
     Ok(views)
   }
@@ -1160,7 +1162,7 @@ pub(crate) fn get_workspace_public_view_pbs(_workspace_id: &str, folder: &Folder
 }
 
 /// Get the current private views of the user.
-pub(crate) fn get_workspace_private_view_pbs(folder: &Folder) -> Vec<ViewPB> {
+pub(crate) fn get_workspace_private_view_pbs(_workspace_id: &str, folder: &Folder) -> Vec<ViewPB> {
   // get the trash ids
   let trash_ids = folder
     .get_all_trash()
@@ -1170,7 +1172,7 @@ pub(crate) fn get_workspace_private_view_pbs(folder: &Folder) -> Vec<ViewPB> {
 
   // get the private view ids
   let private_view_ids = folder
-    .get_all_private_views()
+    .get_my_private_views()
     .into_iter()
     .map(|view| view.id)
     .collect::<Vec<String>>();

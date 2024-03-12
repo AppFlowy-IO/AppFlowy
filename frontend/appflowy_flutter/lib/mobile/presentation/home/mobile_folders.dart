@@ -1,7 +1,7 @@
 import 'package:appflowy/mobile/application/mobile_router.dart';
-import 'package:appflowy/mobile/presentation/home/personal_folder/mobile_home_personal_folder.dart';
+import 'package:appflowy/mobile/presentation/home/section_folder/mobile_home_section_folder.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
-import 'package:appflowy/workspace/application/menu/sidebar_root_views_bloc.dart';
+import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -26,9 +26,9 @@ class MobileFolders extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (_) => SidebarRootViewsBloc()
+          create: (_) => SidebarSectionsBloc()
             ..add(
-              SidebarRootViewsEvent.initial(
+              SidebarSectionsEvent.initial(
                 user,
                 workspaceSetting.workspaceId,
               ),
@@ -40,7 +40,7 @@ class MobileFolders extends StatelessWidget {
       ],
       child: MultiBlocListener(
         listeners: [
-          BlocListener<SidebarRootViewsBloc, SidebarRootViewState>(
+          BlocListener<SidebarSectionsBloc, SidebarSectionsState>(
             listenWhen: (p, c) =>
                 p.lastCreatedRootView?.id != c.lastCreatedRootView?.id,
             listener: (context, state) =>
@@ -49,12 +49,18 @@ class MobileFolders extends StatelessWidget {
         ],
         child: Builder(
           builder: (context) {
-            final menuState = context.watch<SidebarRootViewsBloc>().state;
+            final menuState = context.watch<SidebarSectionsBloc>().state;
             return SlidableAutoCloseBehavior(
               child: Column(
                 children: [
-                  MobilePersonalFolder(
+                  MobileSectionFolder(
+                    title: 'Public',
                     views: menuState.publicViews,
+                  ),
+                  const VSpace(8.0),
+                  MobileSectionFolder(
+                    title: 'Private',
+                    views: menuState.privateViews,
                   ),
                   const VSpace(8.0),
                 ],

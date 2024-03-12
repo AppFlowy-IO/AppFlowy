@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
-import 'package:appflowy/workspace/application/menu/sidebar_root_views_bloc.dart';
+import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
 import 'package:appflowy/workspace/application/notifications/notification_action.dart';
 import 'package:appflowy/workspace/application/notifications/notification_action_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
@@ -95,9 +95,9 @@ class _HomeSideBarState extends State<HomeSideBar> {
                 create: (_) => getIt<NotificationActionBloc>(),
               ),
               BlocProvider(
-                create: (_) => SidebarRootViewsBloc()
+                create: (_) => SidebarSectionsBloc()
                   ..add(
-                    SidebarRootViewsEvent.initial(
+                    SidebarSectionsEvent.initial(
                       widget.userProfile,
                       state.currentWorkspace?.workspaceId ??
                           widget.workspaceSetting.workspaceId,
@@ -107,7 +107,7 @@ class _HomeSideBarState extends State<HomeSideBar> {
             ],
             child: MultiBlocListener(
               listeners: [
-                BlocListener<SidebarRootViewsBloc, SidebarRootViewState>(
+                BlocListener<SidebarSectionsBloc, SidebarSectionsState>(
                   listenWhen: (p, c) =>
                       p.lastCreatedRootView?.id != c.lastCreatedRootView?.id,
                   listener: (context, state) => context.read<TabsBloc>().add(
@@ -122,8 +122,8 @@ class _HomeSideBarState extends State<HomeSideBar> {
                 ),
                 BlocListener<UserWorkspaceBloc, UserWorkspaceState>(
                   listener: (context, state) {
-                    context.read<SidebarRootViewsBloc>().add(
-                          SidebarRootViewsEvent.reset(
+                    context.read<SidebarSectionsBloc>().add(
+                          SidebarSectionsEvent.initial(
                             widget.userProfile,
                             state.currentWorkspace?.workspaceId ??
                                 widget.workspaceSetting.workspaceId,
@@ -134,7 +134,7 @@ class _HomeSideBarState extends State<HomeSideBar> {
               ],
               child: Builder(
                 builder: (context) {
-                  final menuState = context.watch<SidebarRootViewsBloc>().state;
+                  final menuState = context.watch<SidebarSectionsBloc>().state;
                   final favoriteState = context.watch<FavoriteBloc>().state;
 
                   return _buildSidebar(
@@ -224,7 +224,7 @@ class _HomeSideBarState extends State<HomeSideBar> {
     if (action != null) {
       if (action.type == ActionType.openView) {
         final view = context
-            .read<SidebarRootViewsBloc>()
+            .read<SidebarSectionsBloc>()
             .state
             .publicViews
             .findView(action.objectId);

@@ -12,9 +12,9 @@ class WorkspaceService {
 
   Future<FlowyResult<ViewPB, FlowyError>> createView({
     required String name,
+    required ViewSectionPB viewSection,
     String? desc,
     int? index,
-    required ViewSectionPB viewSection,
   }) {
     final payload = CreateViewPayloadPB.create()
       ..parentViewId = workspaceId
@@ -49,7 +49,8 @@ class WorkspaceService {
   }
 
   Future<FlowyResult<List<ViewPB>, FlowyError>> getPrivateViews() {
-    return FolderEventReadPrivateViews().send().then((result) {
+    final payload = GetWorkspaceViewPB.create()..value = workspaceId;
+    return FolderEventReadPrivateViews(payload).send().then((result) {
       return result.fold(
         (views) => FlowyResult.success(views.items),
         (error) => FlowyResult.failure(error),
@@ -57,13 +58,13 @@ class WorkspaceService {
     });
   }
 
-  Future<FlowyResult<void, FlowyError>> moveApp({
-    required String appId,
+  Future<FlowyResult<void, FlowyError>> moveView({
+    required String viewId,
     required int fromIndex,
     required int toIndex,
   }) {
     final payload = MoveViewPayloadPB.create()
-      ..viewId = appId
+      ..viewId = viewId
       ..from = fromIndex
       ..to = toIndex;
 

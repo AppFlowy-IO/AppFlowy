@@ -60,17 +60,14 @@ pub(crate) async fn get_workspace_views_handler(
 
 #[tracing::instrument(level = "debug", skip(folder), err)]
 pub(crate) async fn read_private_views_handler(
+  data: AFPluginData<GetWorkspaceViewPB>,
   folder: AFPluginState<Weak<FolderManager>>,
 ) -> DataResult<RepeatedViewPB, FlowyError> {
   let folder = upgrade_folder(folder)?;
-  let private_items = folder.get_workspace_private_views().await?;
-  let mut views = vec![];
-  for item in private_items {
-    if let Ok(view) = folder.get_view_pb(&item.id).await {
-      views.push(view);
-    }
-  }
-  data_result_ok(RepeatedViewPB { items: views })
+  let params: GetWorkspaceViewParams = data.into_inner().try_into()?;
+  let child_views = folder.get_workspace_private_views(&params.value).await?;
+  let repeated_view: RepeatedViewPB = child_views.into();
+  data_result_ok(repeated_view)
 }
 
 #[tracing::instrument(level = "debug", skip(folder), err)]

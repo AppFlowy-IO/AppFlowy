@@ -120,6 +120,15 @@ impl std::convert::From<ViewLayout> for ViewLayoutPB {
 }
 
 #[derive(Eq, PartialEq, Debug, Default, ProtoBuf, Clone)]
+pub struct SectionViewsPB {
+  #[pb(index = 1)]
+  pub section: ViewSectionPB,
+
+  #[pb(index = 2)]
+  pub views: Vec<ViewPB>,
+}
+
+#[derive(Eq, PartialEq, Debug, Default, ProtoBuf, Clone)]
 pub struct RepeatedViewPB {
   #[pb(index = 1)]
   pub items: Vec<ViewPB>,
@@ -193,6 +202,7 @@ pub struct CreateViewPayloadPB {
 #[derive(Eq, PartialEq, Hash, Debug, ProtoBuf_Enum, Clone, Default)]
 pub enum ViewSectionPB {
   #[default]
+  // only support public and private section now.
   Private = 0,
   Public = 1,
 }

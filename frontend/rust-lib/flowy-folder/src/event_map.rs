@@ -158,6 +158,6 @@ pub enum FolderEvent {
   #[event()]
   ReloadWorkspace = 38,
 
-  #[event(output = "RepeatedViewPB")]
+  #[event(input = "GetWorkspaceViewPB", output = "RepeatedViewPB")]
   ReadPrivateViews = 39,
 }

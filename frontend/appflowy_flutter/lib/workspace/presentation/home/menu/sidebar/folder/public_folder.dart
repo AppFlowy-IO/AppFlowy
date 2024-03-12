@@ -1,5 +1,5 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/workspace/application/menu/sidebar_root_views_bloc.dart';
+import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/folder/_folder_header.dart';
@@ -38,15 +38,14 @@ class PublicFolder extends StatelessWidget {
                     .read<FolderBloc>()
                     .add(const FolderEvent.expandOrUnExpand()),
                 onAdded: (_) {
-                  // TODO: lucas.xu insert view into public
                   createViewAndShowRenameDialogIfNeeded(
                     context,
                     LocaleKeys.newPageText.tr(),
                     (viewName, _) {
                       if (viewName.isNotEmpty) {
-                        context.read<SidebarRootViewsBloc>().add(
-                              SidebarRootViewsEvent.createRootView(
-                                viewName,
+                        context.read<SidebarSectionsBloc>().add(
+                              SidebarSectionsEvent.createRootViewInSection(
+                                name: viewName,
                                 index: 0,
                                 viewSection: ViewSectionPB.Public,
                               ),

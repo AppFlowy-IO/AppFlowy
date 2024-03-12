@@ -7,25 +7,26 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class MobilePersonalFolderHeader extends StatefulWidget {
-  const MobilePersonalFolderHeader({
+class MobileSectionFolderHeader extends StatefulWidget {
+  const MobileSectionFolderHeader({
     super.key,
+    required this.title,
     required this.onPressed,
     required this.onAdded,
     required this.isExpanded,
   });
 
+  final String title;
   final VoidCallback onPressed;
   final VoidCallback onAdded;
   final bool isExpanded;
 
   @override
-  State<MobilePersonalFolderHeader> createState() =>
-      _MobilePersonalFolderHeaderState();
+  State<MobileSectionFolderHeader> createState() =>
+      _MobileSectionFolderHeaderState();
 }
 
-class _MobilePersonalFolderHeaderState
-    extends State<MobilePersonalFolderHeader> {
+class _MobileSectionFolderHeaderState extends State<MobileSectionFolderHeader> {
   double _turns = 0;
 
   @override
@@ -36,7 +37,7 @@ class _MobilePersonalFolderHeaderState
         Expanded(
           child: FlowyButton(
             text: FlowyText.semibold(
-              LocaleKeys.sideBar_personal.tr(),
+              widget.title,
               fontSize: 20.0,
             ),
             margin: const EdgeInsets.symmetric(vertical: 8),
