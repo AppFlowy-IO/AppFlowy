@@ -99,7 +99,10 @@ async fn af_cloud_open_workspace_test() {
   assert_eq!(views[2].name, "my second document".to_string());
 }
 
-async fn get_synced_workspaces(test: &EventIntegrationTest, user_id: i64) -> Vec<UserWorkspacePB> {
+pub async fn get_synced_workspaces(
+  test: &EventIntegrationTest,
+  user_id: i64,
+) -> Vec<UserWorkspacePB> {
   let _workspaces = test.get_all_workspaces().await.items;
   let sub_id = user_id.to_string();
   let rx = test
