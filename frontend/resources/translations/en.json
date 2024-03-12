@@ -93,7 +93,7 @@
     "moreOptions": "More options",
     "wordCount": "Word count: {}",
     "charCount": "Character count: {}",
-    "createdAt": "Created at: {}",
+    "createdAt": "Created: {}",
     "deleteView": "Delete",
     "duplicateView": "Duplicate"
   },
@@ -743,9 +743,9 @@
       "sum": "Sum",
       "count": "Count",
       "countEmpty": "Count empty",
-      "countEmptyShort": "Empty",
-      "countNonEmpty": "Count non empty",
-      "countNonEmptyShort": "Not empty"
+      "countEmptyShort": "EMPTY",
+      "countNonEmpty": "Count not empty",
+      "countNonEmptyShort": "FILLED"
     }
   },
   "document": {
@@ -1051,7 +1051,8 @@
       "name": "Calendar settings"
     },
     "referencedCalendarPrefix": "View of",
-    "quickJumpYear": "Jump to"
+    "quickJumpYear": "Jump to",
+    "duplicateEvent": "Duplicate event"
   },
   "errorDialog": {
     "title": "AppFlowy Error",

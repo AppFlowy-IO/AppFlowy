@@ -162,9 +162,7 @@ extension CommonOperations on WidgetTester {
   }) async {
     try {
       final gesture = await createGesture(kind: PointerDeviceKind.mouse);
-      await gesture.addPointer(location: Offset.zero);
-      await pump();
-      await gesture.moveTo(offset ?? getCenter(finder));
+      await gesture.addPointer(location: offset ?? getCenter(finder));
       await pumpAndSettle();
       await onHover?.call();
       await gesture.removePointer();

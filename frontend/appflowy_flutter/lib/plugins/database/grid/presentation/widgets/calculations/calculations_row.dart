@@ -7,9 +7,14 @@ import 'package:appflowy/plugins/database/grid/presentation/widgets/calculations
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class GridCalculationsRow extends StatelessWidget {
-  const GridCalculationsRow({super.key, required this.viewId});
+  const GridCalculationsRow({
+    super.key,
+    required this.viewId,
+    this.includeDefaultInsets = true,
+  });
 
   final String viewId;
+  final bool includeDefaultInsets;
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +28,8 @@ class GridCalculationsRow extends StatelessWidget {
       child: BlocBuilder<CalculationsBloc, CalculationsState>(
         builder: (context, state) {
           return Padding(
-            padding: GridSize.contentInsets,
+            padding:
+                includeDefaultInsets ? GridSize.contentInsets : EdgeInsets.zero,
             child: Row(
               children: [
                 ...state.fields.map(

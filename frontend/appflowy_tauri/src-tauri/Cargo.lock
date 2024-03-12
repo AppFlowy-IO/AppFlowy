@@ -818,7 +818,7 @@ dependencies = [
 [[package]]
 name = "collab"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=1695312456306df63fd8c2dd232100d9de06a7b0#1695312456306df63fd8c2dd232100d9de06a7b0"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=3079e1cef184bf5ddfecbc6999a450ae9ac070a7#3079e1cef184bf5ddfecbc6999a450ae9ac070a7"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -841,7 +841,7 @@ dependencies = [
 [[package]]
 name = "collab-database"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=1695312456306df63fd8c2dd232100d9de06a7b0#1695312456306df63fd8c2dd232100d9de06a7b0"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=3079e1cef184bf5ddfecbc6999a450ae9ac070a7#3079e1cef184bf5ddfecbc6999a450ae9ac070a7"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -855,6 +855,7 @@ dependencies = [
  "lru",
  "nanoid",
  "parking_lot 0.12.1",
+ "rayon",
  "serde",
  "serde_json",
  "serde_repr",
@@ -870,7 +871,7 @@ dependencies = [
 [[package]]
 name = "collab-document"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=1695312456306df63fd8c2dd232100d9de06a7b0#1695312456306df63fd8c2dd232100d9de06a7b0"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=3079e1cef184bf5ddfecbc6999a450ae9ac070a7#3079e1cef184bf5ddfecbc6999a450ae9ac070a7"
 dependencies = [
  "anyhow",
  "collab",
@@ -889,7 +890,7 @@ dependencies = [
 [[package]]
 name = "collab-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=1695312456306df63fd8c2dd232100d9de06a7b0#1695312456306df63fd8c2dd232100d9de06a7b0"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=3079e1cef184bf5ddfecbc6999a450ae9ac070a7#3079e1cef184bf5ddfecbc6999a450ae9ac070a7"
 dependencies = [
  "anyhow",
  "bytes",
@@ -904,7 +905,7 @@ dependencies = [
 [[package]]
 name = "collab-folder"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=1695312456306df63fd8c2dd232100d9de06a7b0#1695312456306df63fd8c2dd232100d9de06a7b0"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=3079e1cef184bf5ddfecbc6999a450ae9ac070a7#3079e1cef184bf5ddfecbc6999a450ae9ac070a7"
 dependencies = [
  "anyhow",
  "chrono",
@@ -941,7 +942,7 @@ dependencies = [
 [[package]]
 name = "collab-plugins"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=1695312456306df63fd8c2dd232100d9de06a7b0#1695312456306df63fd8c2dd232100d9de06a7b0"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=3079e1cef184bf5ddfecbc6999a450ae9ac070a7#3079e1cef184bf5ddfecbc6999a450ae9ac070a7"
 dependencies = [
  "anyhow",
  "async-stream",
@@ -980,7 +981,7 @@ dependencies = [
 [[package]]
 name = "collab-user"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=1695312456306df63fd8c2dd232100d9de06a7b0#1695312456306df63fd8c2dd232100d9de06a7b0"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=3079e1cef184bf5ddfecbc6999a450ae9ac070a7#3079e1cef184bf5ddfecbc6999a450ae9ac070a7"
 dependencies = [
  "anyhow",
  "collab",
@@ -1203,7 +1204,7 @@ dependencies = [
  "cssparser-macros",
  "dtoa-short",
  "itoa 1.0.6",
- "phf 0.8.0",
+ "phf 0.11.2",
  "smallvec",
 ]
 
@@ -4781,9 +4782,9 @@ checksum = "f2ff9a1f06a88b01621b7ae906ef0211290d1c8a168a15542486a8f61c0833b9"
 
 [[package]]
 name = "rayon"
-version = "1.8.1"
+version = "1.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fa7237101a77a10773db45d62004a272517633fbcc3df19d96455ede1122e051"
+checksum = "e4963ed1bc86e4f3ee217022bd855b297cef07fb9eac5dfa1f788b220b49b3bd"
 dependencies = [
  "either",
  "rayon-core",

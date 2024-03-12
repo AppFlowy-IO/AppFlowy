@@ -346,10 +346,13 @@ void main() {
       await tester.tapNewPropertyButton();
       await tester.renameField(FieldType.LastEditedTime.i18n);
       await tester.tapSwitchFieldTypeButton();
+
+      // get time just before modifying
+      final modified = DateTime.now();
+
+      // create a last modified field (cont'd)
       await tester.selectFieldType(FieldType.LastEditedTime);
       await tester.dismissFieldEditor();
-
-      final modified = DateTime.now();
 
       tester.assertCellContent(
         rowIndex: 0,

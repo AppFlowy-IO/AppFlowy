@@ -28,7 +28,7 @@ pub(crate) async fn create_workspace_handler(
     .get_views_belong_to(&workspace.id)
     .await?
     .into_iter()
-    .map(view_pb_without_child_views)
+    .map(|view| view_pb_without_child_views(view.as_ref().clone()))
     .collect::<Vec<ViewPB>>();
   data_result_ok(WorkspacePB {
     id: workspace.id,
@@ -85,7 +85,7 @@ pub(crate) async fn create_view_handler(
   if set_as_current {
     let _ = folder.set_current_view(&view.id).await;
   }
-  data_result_ok(view_pb_without_child_views(Arc::new(view)))
+  data_result_ok(view_pb_without_child_views(view))
 }
 
 pub(crate) async fn create_orphan_view_handler(
@@ -99,7 +99,7 @@ pub(crate) async fn create_orphan_view_handler(
   if set_as_current {
     let _ = folder.set_current_view(&view.id).await;
   }
-  data_result_ok(view_pb_without_child_views(Arc::new(view)))
+  data_result_ok(view_pb_without_child_views(view))
 }
 
 #[tracing::instrument(level = "debug", skip(data, folder), err)]
@@ -313,11 +313,12 @@ pub(crate) async fn delete_all_trash_handler(
 pub(crate) async fn import_data_handler(
   data: AFPluginData<ImportPB>,
   folder: AFPluginState<Weak<FolderManager>>,
-) -> Result<(), FlowyError> {
+) -> DataResult<ViewPB, FlowyError> {
   let folder = upgrade_folder(folder)?;
   let params: ImportParams = data.into_inner().try_into()?;
-  folder.import(params).await?;
-  Ok(())
+  let view = folder.import(params).await?;
+  let view_pb = view_pb_without_child_views(view);
+  data_result_ok(view_pb)
 }
 
 #[tracing::instrument(level = "debug", skip(folder), err)]
