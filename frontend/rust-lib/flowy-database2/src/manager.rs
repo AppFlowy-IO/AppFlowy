@@ -168,7 +168,7 @@ impl DatabaseManager {
     let mut items = vec![];
     if let Ok(wdb) = self.get_workspace_database().await {
       items = wdb
-        .get_all_databases()
+        .get_all_database_meta()
         .into_iter()
         .map(DatabaseDescriptionPB::from)
         .collect();
