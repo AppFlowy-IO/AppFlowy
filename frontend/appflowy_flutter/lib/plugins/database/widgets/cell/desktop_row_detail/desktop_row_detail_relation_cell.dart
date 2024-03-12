@@ -26,16 +26,8 @@ class DesktopRowDetailRelationCellSkin extends IEditableRelationCellSkin {
       popupBuilder: (context) {
         return BlocProvider.value(
           value: bloc,
-          child: BlocBuilder<RelationCellBloc, RelationCellState>(
-            builder: (context, state) => RelationCellEditor(
-              selectedRowIds: state.rows.map((row) => row.rowId).toList(),
-              databaseId: state.relatedDatabaseId,
-              onSelectRow: (rowId) {
-                context
-                    .read<RelationCellBloc>()
-                    .add(RelationCellEvent.selectRow(rowId));
-              },
-            ),
+          child: RelationCellEditor(
+            selectedRowIds: state.rows.map((row) => row.rowId).toList(),
           ),
         );
       },

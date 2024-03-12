@@ -29,10 +29,6 @@ class DesktopGridRelationCellSkin extends IEditableRelationCellSkin {
           value: bloc,
           child: RelationCellEditor(
             selectedRowIds: state.rows.map((row) => row.rowId).toList(),
-            databaseId: state.relatedDatabaseId,
-            onSelectRow: (rowId) {
-              bloc.add(RelationCellEvent.selectRow(rowId));
-            },
           ),
         );
       },

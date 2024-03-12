@@ -1,10 +1,14 @@
 import 'dart:async';
 
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
+import 'package:appflowy/plugins/database/application/field/type_option/relation_type_option_cubit.dart';
 import 'package:appflowy/plugins/database/application/field/type_option/type_option_data_parser.dart';
+import 'package:appflowy/plugins/database/domain/field_service.dart';
+import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -35,12 +39,14 @@ class RelationCellBloc extends Bloc<RelationCellEvent, RelationCellState> {
       (event, emit) async {
         await event.when(
           didUpdateCell: (RelationCellDataPB? cellData) async {
-            if (cellData == null || cellData.rowIds.isEmpty) {
+            if (cellData == null ||
+                cellData.rowIds.isEmpty ||
+                state.relatedDatabaseMeta == null) {
               emit(state.copyWith(rows: const []));
               return;
             }
             final payload = RepeatedRowIdPB(
-              databaseId: state.relatedDatabaseId,
+              databaseId: state.relatedDatabaseMeta!.databaseId,
               rowIds: cellData.rowIds,
             );
             final result =
@@ -54,8 +60,23 @@ class RelationCellBloc extends Bloc<RelationCellEvent, RelationCellState> {
             );
             emit(state.copyWith(rows: rows));
           },
-          didUpdateRelationDatabaseId: (databaseId) {
-            emit(state.copyWith(relatedDatabaseId: databaseId));
+          didUpdateRelationTypeOption: (typeOption) async {
+            if (typeOption.databaseId.isEmpty) {
+              return;
+            }
+            final name = await _loadDatabaseName(typeOption.databaseId);
+            emit(
+              state.copyWith(
+                relatedDatabaseMeta: DatabaseMeta(
+                  databaseId: typeOption.databaseId,
+                  inlineViewId: typeOption.databaseViewId,
+                  databaseName: name,
+                ),
+              ),
+            );
+          },
+          selectDatabaseId: (databaseId) async {
+            await _updateTypeOption(databaseId);
           },
           selectRow: (rowId) async {
             await _handleSelectRow(rowId);
@@ -79,11 +100,7 @@ class RelationCellBloc extends Bloc<RelationCellEvent, RelationCellState> {
           Future.delayed(const Duration(milliseconds: 50), () {
             final RelationTypeOptionPB typeOption =
                 cellController.getTypeOption(RelationTypeOptionDataParser());
-            add(
-              RelationCellEvent.didUpdateRelationDatabaseId(
-                typeOption.databaseId,
-              ),
-            );
+            add(RelationCellEvent.didUpdateRelationTypeOption(typeOption));
           });
         }
       },
@@ -91,9 +108,10 @@ class RelationCellBloc extends Bloc<RelationCellEvent, RelationCellState> {
   }
 
   void _init() {
-    final RelationTypeOptionPB typeOption =
+    final typeOption =
         cellController.getTypeOption(RelationTypeOptionDataParser());
-    add(RelationCellEvent.didUpdateRelationDatabaseId(typeOption.databaseId));
+    add(RelationCellEvent.didUpdateRelationTypeOption(typeOption));
+
     final cellData = cellController.getCellData();
     add(RelationCellEvent.didUpdateCell(cellData));
   }
@@ -115,25 +133,62 @@ class RelationCellBloc extends Bloc<RelationCellEvent, RelationCellState> {
     final result = await DatabaseEventUpdateRelationCell(payload).send();
     result.fold((l) => null, (err) => Log.error(err));
   }
+
+  Future<String> _loadDatabaseName(String databaseId) async {
+    final getDatabaseResult = await DatabaseEventGetDatabases().send();
+    final databaseMeta = getDatabaseResult.fold<DatabaseMetaPB?>(
+      (s) => s.items.firstWhereOrNull(
+        (metaPB) => metaPB.databaseId == databaseId,
+      ),
+      (f) => null,
+    );
+    if (databaseMeta != null) {
+      final result =
+          await ViewBackendService.getView(databaseMeta.inlineViewId);
+      return result.fold(
+        (s) => s.name,
+        (f) => "",
+      );
+    }
+    return "";
+  }
+
+  Future<void> _updateTypeOption(String databaseId) async {
+    final newDateTypeOption = RelationTypeOptionPB(
+      databaseId: databaseId,
+    );
+
+    final result = await FieldBackendService.updateFieldTypeOption(
+      viewId: cellController.viewId,
+      fieldId: cellController.fieldInfo.id,
+      typeOptionData: newDateTypeOption.writeToBuffer(),
+    );
+    result.fold((s) => _init(), (err) => Log.error(err));
+  }
 }
 
 @freezed
 class RelationCellEvent with _$RelationCellEvent {
-  const factory RelationCellEvent.didUpdateRelationDatabaseId(
-    String databaseId,
-  ) = _DidUpdateRelationDatabaseId;
+  const factory RelationCellEvent.didUpdateRelationTypeOption(
+    RelationTypeOptionPB typeOption,
+  ) = _DidUpdateRelationTypeOption;
   const factory RelationCellEvent.didUpdateCell(RelationCellDataPB? data) =
       _DidUpdateCell;
+  const factory RelationCellEvent.selectDatabaseId(
+    String databaseId,
+  ) = _SelectDatabaseId;
   const factory RelationCellEvent.selectRow(String rowId) = _SelectRowId;
 }
 
 @freezed
 class RelationCellState with _$RelationCellState {
   const factory RelationCellState({
-    required String relatedDatabaseId,
+    required DatabaseMeta? relatedDatabaseMeta,
     required List<RelatedRowDataPB> rows,
   }) = _RelationCellState;
 
-  factory RelationCellState.initial() =>
-      const RelationCellState(relatedDatabaseId: "", rows: []);
+  factory RelationCellState.initial() => const RelationCellState(
+        relatedDatabaseMeta: null,
+        rows: [],
+      );
 }
