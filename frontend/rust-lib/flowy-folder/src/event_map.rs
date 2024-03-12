@@ -11,7 +11,6 @@ use crate::manager::FolderManager;
 pub fn init(folder: Weak<FolderManager>) -> AFPlugin {
   AFPlugin::new().name("Flowy-Folder").state(folder)
     // Workspace
-    .event(FolderEvent::CreateWorkspace, create_workspace_handler)
     .event(FolderEvent::GetCurrentWorkspaceSetting, read_current_workspace_setting_handler)
     .event(FolderEvent::ReadCurrentWorkspace, read_current_workspace_handler)
     .event(FolderEvent::ReadWorkspaceViews, get_workspace_views_handler)
@@ -43,13 +42,9 @@ pub fn init(folder: Weak<FolderManager>) -> AFPlugin {
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
 #[event_err = "FlowyError"]
 pub enum FolderEvent {
-  /// Create a new workspace
-  #[event(input = "CreateWorkspacePayloadPB", output = "WorkspacePB")]
-  CreateWorkspace = 0,
-
   /// Read the current opening workspace. Currently, we only support one workspace
   #[event(output = "WorkspaceSettingPB")]
-  GetCurrentWorkspaceSetting = 1,
+  GetCurrentWorkspaceSetting = 0,
 
   /// Return a list of workspaces that the current user can access.
   #[event(output = "WorkspacePB")]
