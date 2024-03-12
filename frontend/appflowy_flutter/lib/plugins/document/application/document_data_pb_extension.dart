@@ -62,8 +62,8 @@ extension DocumentDataPBFromTo on DocumentDataPB {
     blocks.forEach((key, value) {
       final parentId = value.parentId;
       if (parentId.isNotEmpty) {
-        childrenMap[parentId] ??= ChildrenPB.create();
-        childrenMap[parentId]!.children.add(value.id);
+        childrenMap[blocks[parentId]!.childrenId] ??= ChildrenPB.create();
+        childrenMap[blocks[parentId]!.childrenId]!.children.add(value.id);
       }
     });
     final meta = MetaPB(childrenMap: childrenMap);
