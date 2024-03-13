@@ -8,7 +8,6 @@ use flowy_user::entities::{
 };
 use flowy_user::errors::FlowyError;
 use flowy_user::event_map::UserEvent;
-use tokio::time::sleep;
 
 use crate::event_builder::EventBuilder;
 use crate::EventIntegrationTest;
@@ -182,23 +181,15 @@ impl ViewTest {
   }
 
   pub async fn new_grid_view(sdk: &EventIntegrationTest, data: Vec<u8>) -> Self {
-    // TODO(nathan): remove this sleep
-    // workaround for the rows that are created asynchronously
-    let this = Self::new(sdk, ViewLayoutPB::Grid, data).await;
-    sleep(tokio::time::Duration::from_secs(2)).await;
-    this
+    Self::new(sdk, ViewLayoutPB::Grid, data).await
   }
 
   pub async fn new_board_view(sdk: &EventIntegrationTest, data: Vec<u8>) -> Self {
-    let this = Self::new(sdk, ViewLayoutPB::Board, data).await;
-    sleep(tokio::time::Duration::from_secs(2)).await;
-    this
+    Self::new(sdk, ViewLayoutPB::Board, data).await
   }
 
   pub async fn new_calendar_view(sdk: &EventIntegrationTest, data: Vec<u8>) -> Self {
-    let this = Self::new(sdk, ViewLayoutPB::Calendar, data).await;
-    sleep(tokio::time::Duration::from_secs(2)).await;
-    this
+    Self::new(sdk, ViewLayoutPB::Calendar, data).await
   }
 }
 
