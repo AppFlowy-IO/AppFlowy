@@ -11,7 +11,7 @@ use crate::module::AFPluginStateMap;
 use crate::runtime::AFPluginRuntime;
 use crate::{
   errors::{DispatchError, Error, InternalError},
-  module::{as_plugin_map, AFPlugin, AFPluginMap, AFPluginRequest},
+  module::{plugin_map_or_crash, AFPlugin, AFPluginMap, AFPluginRequest},
   response::AFPluginEventResponse,
   service::{AFPluginServiceFactory, Service},
 };
@@ -87,7 +87,7 @@ impl AFPluginDispatcher {
   pub fn new(runtime: Arc<AFPluginRuntime>, plugins: Vec<AFPlugin>) -> AFPluginDispatcher {
     tracing::trace!("{}", plugin_info(&plugins));
     AFPluginDispatcher {
-      plugins: as_plugin_map(plugins),
+      plugins: plugin_map_or_crash(plugins),
       runtime,
     }
   }

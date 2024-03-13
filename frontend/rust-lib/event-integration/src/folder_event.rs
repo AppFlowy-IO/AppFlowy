@@ -210,7 +210,7 @@ async fn create_workspace(sdk: &EventIntegrationTest, name: &str, desc: &str) ->
   };
 
   EventBuilder::new(sdk.clone())
-    .event(CreateWorkspace)
+    .event(CreateFolderWorkspace)
     .payload(request)
     .async_send()
     .await
