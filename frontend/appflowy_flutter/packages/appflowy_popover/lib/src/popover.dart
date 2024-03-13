@@ -1,6 +1,7 @@
-import 'package:appflowy_popover/src/layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
+import 'package:appflowy_popover/src/layout.dart';
 
 import 'mask.dart';
 import 'mutex.dart';
@@ -90,6 +91,8 @@ class Popover extends StatefulWidget {
   ///  the conflict won't be resolve by using Listener, we want these two gestures exclusive.
   final PopoverClickHandler clickHandler;
 
+  final bool skipTraversal;
+
   /// The content area of the popover.
   final Widget child;
 
@@ -110,6 +113,7 @@ class Popover extends StatefulWidget {
     this.canClose,
     this.asBarrier = false,
     this.clickHandler = PopoverClickHandler.listener,
+    this.skipTraversal = false,
   });
 
   @override
@@ -158,6 +162,7 @@ class PopoverState extends State<Popover> {
           popupBuilder: widget.popupBuilder,
           onClose: () => close(),
           onCloseAll: () => _removeRootOverlay(),
+          skipTraversal: widget.skipTraversal,
         ),
       );
 
@@ -263,6 +268,7 @@ class PopoverContainer extends StatefulWidget {
   final EdgeInsets windowPadding;
   final void Function() onClose;
   final void Function() onCloseAll;
+  final bool skipTraversal;
 
   const PopoverContainer({
     super.key,
@@ -273,6 +279,7 @@ class PopoverContainer extends StatefulWidget {
     required this.windowPadding,
     required this.onClose,
     required this.onCloseAll,
+    required this.skipTraversal,
   });
 
   @override
@@ -293,6 +300,7 @@ class PopoverContainerState extends State<PopoverContainer> {
   Widget build(BuildContext context) {
     return Focus(
       autofocus: true,
+      skipTraversal: widget.skipTraversal,
       child: CustomSingleChildLayout(
         delegate: PopoverLayoutDelegate(
           direction: widget.direction,

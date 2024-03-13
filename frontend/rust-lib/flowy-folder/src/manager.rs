@@ -27,7 +27,8 @@ use crate::entities::{
   UpdateViewParams, ViewPB, WorkspacePB, WorkspaceSettingPB,
 };
 use crate::manager_observer::{
-  notify_child_views_changed, notify_parent_view_did_change, ChildViewChangeReason,
+  notify_child_views_changed, notify_did_update_workspace, notify_parent_view_did_change,
+  ChildViewChangeReason,
 };
 use crate::notification::{
   send_notification, send_workspace_setting_notification, FolderNotification,
@@ -373,7 +374,7 @@ impl FolderManager {
         .views
         .get_views_belong_to(&workspace.id)
         .into_iter()
-        .map(view_pb_without_child_views)
+        .map(|view| view_pb_without_child_views(view.as_ref().clone()))
         .collect::<Vec<ViewPB>>();
 
       WorkspacePB {
@@ -555,7 +556,7 @@ impl FolderManager {
             .send();
 
           notify_child_views_changed(
-            view_pb_without_child_views(view),
+            view_pb_without_child_views(view.as_ref().clone()),
             ChildViewChangeReason::Delete,
           );
         }
@@ -572,7 +573,7 @@ impl FolderManager {
     let favorite_descendant_views: Vec<ViewPB> = all_descendant_views
       .iter()
       .filter(|view| view.is_favorite)
-      .map(|view| view_pb_without_child_views(view.clone()))
+      .map(|view| view_pb_without_child_views(view.as_ref().clone()))
       .collect();
 
     if !favorite_descendant_views.is_empty() {
@@ -991,7 +992,15 @@ impl FolderManager {
       send_notification(&view_pb.id, FolderNotification::DidUpdateView)
         .payload(view_pb)
         .send();
+
+      if let Ok(workspace_id) = self.get_current_workspace_id().await {
+        let folder = &self.mutex_folder.lock();
+        if let Some(folder) = folder.as_ref() {
+          notify_did_update_workspace(&workspace_id, folder);
+        }
+      }
     }
+
     Ok(())
   }
 

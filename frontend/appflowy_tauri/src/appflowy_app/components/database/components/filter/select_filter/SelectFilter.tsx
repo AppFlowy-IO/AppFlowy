@@ -32,7 +32,7 @@ function SelectFilter({ onClose, filter, field, onChange }: Props) {
           content: (
             <div className={'flex w-full items-center justify-between px-2'}>
               <Tag size='small' color={option.color} label={option.name} />
-              {filter.data.optionIds?.includes(option.id) && <SelectCheckSvg />}
+              {filter.data.optionIds?.includes(option.id) && <SelectCheckSvg className={'text-content-blue-400'} />}
             </div>
           ),
         };

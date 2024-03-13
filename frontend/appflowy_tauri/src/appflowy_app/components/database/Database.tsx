@@ -58,65 +58,43 @@ export const Database = forwardRef<HTMLDivElement, Props>(({ selectedViewId, set
     }
   }, [viewId]);
 
+  const parentId = page?.parentId;
+
   useEffect(() => {
     void handleGetPage();
     void handleResetDatabaseViews(viewId);
-    const unsubscribePromise = subscribeNotifications(
-      {
-        [FolderNotification.DidUpdateView]: (changeset) => {
-          setChildViews((prev) => {
-            const index = prev.findIndex((view) => view.id === changeset.id);
+    const unsubscribePromise = subscribeNotifications({
+      [FolderNotification.DidUpdateView]: (changeset) => {
+        if (changeset.parent_view_id !== viewId && changeset.id !== viewId) return;
+        setChildViews((prev) => {
+          const index = prev.findIndex((view) => view.id === changeset.id);
 
-            if (index === -1) {
-              return prev;
-            }
-
-            const newViews = [...prev];
-
-            newViews[index] = {
-              ...newViews[index],
-              name: changeset.name,
-            };
-
-            return newViews;
-          });
-        },
-        [FolderNotification.DidUpdateChildViews]: (changeset) => {
-          if (changeset.create_child_views.length === 0 && changeset.delete_child_views.length === 0) {
-            return;
+          if (index === -1) {
+            return prev;
           }
 
-          void handleResetDatabaseViews(viewId);
-        },
+          const newViews = [...prev];
+
+          newViews[index] = {
+            ...newViews[index],
+            name: changeset.name,
+          };
+
+          return newViews;
+        });
       },
-      {
-        id: viewId,
-      }
-    );
+      [FolderNotification.DidUpdateChildViews]: (changeset) => {
+        if (changeset.parent_view_id !== viewId && changeset.parent_view_id !== parentId) return;
+        if (changeset.create_child_views.length === 0 && changeset.delete_child_views.length === 0) {
+          return;
+        }
+
+        void handleResetDatabaseViews(viewId);
+      },
+    });
 
     return () => void unsubscribePromise.then((unsubscribe) => unsubscribe());
-  }, [handleGetPage, handleResetDatabaseViews, viewId]);
-
-  useEffect(() => {
-    const parentId = page?.parentId;
-
-    if (!parentId) return;
-
-    const unsubscribePromise = subscribeNotifications(
-      {
-        [FolderNotification.DidUpdateChildViews]: (changeset) => {
-          if (changeset.delete_child_views.includes(viewId)) {
-            setNotFound(true);
-          }
-        },
-      },
-      {
-        id: parentId,
-      }
-    );
-
-    return () => void unsubscribePromise.then((unsubscribe) => unsubscribe());
-  }, [page, viewId]);
+  }, [handleGetPage, handleResetDatabaseViews, viewId, parentId]);
 
   const value = useMemo(() => {
     return Math.max(
@@ -183,7 +161,13 @@ export const Database = forwardRef<HTMLDivElement, Props>(({ selectedViewId, set
         index={value}
       >
         {childViews.map((view, index) => (
-          <TabPanel className={'flex h-full w-full flex-col'} key={view.id} index={index} value={value}>
+          <TabPanel
+            data-view-id={view.id}
+            className={'flex h-full w-full flex-col'}
+            key={view.id}
+            index={index}
+            value={value}
+          >
             <DatabaseLoader viewId={view.id}>
               {selectedViewId === view.id && (
                 <>

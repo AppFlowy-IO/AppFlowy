@@ -20,10 +20,28 @@ class WorkspaceMemberBloc
     extends Bloc<WorkspaceMemberEvent, WorkspaceMemberState> {
   WorkspaceMemberBloc({
     required this.userProfile,
+    this.workspace,
   }) : super(WorkspaceMemberState.initial()) {
     on<WorkspaceMemberEvent>((event, emit) async {
-      await event.map(
-        getWorkspaceMembers: (_) async {
+      await event.when(
+        initial: () async {
+          if (workspace != null) {
+            workspaceId = workspace!.workspaceId;
+          } else {
+            final currentWorkspace =
+                await FolderEventReadCurrentWorkspace().send();
+            currentWorkspace.fold((s) {
+              workspaceId = s.id;
+            }, (e) {
+              assert(false, 'Failed to read current workspace: $e');
+              Log.error('Failed to read current workspace: $e');
+              workspaceId = '';
+            });
+          }
+
+          add(const WorkspaceMemberEvent.getWorkspaceMembers());
+        },
+        getWorkspaceMembers: () async {
           final members = await _getWorkspaceMembers();
           final myRole = _getMyRole(members);
           emit(
@@ -33,16 +51,16 @@ class WorkspaceMemberBloc
             ),
           );
         },
-        addWorkspaceMember: (e) async {
-          await _addWorkspaceMember(e.email);
+        addWorkspaceMember: (email) async {
+          await _addWorkspaceMember(email);
           add(const WorkspaceMemberEvent.getWorkspaceMembers());
         },
-        removeWorkspaceMember: (e) async {
-          await _removeWorkspaceMember(e.email);
+        removeWorkspaceMember: (email) async {
+          await _removeWorkspaceMember(email);
           add(const WorkspaceMemberEvent.getWorkspaceMembers());
         },
-        updateWorkspaceMember: (e) async {
-          await _updateWorkspaceMember(e.email, e.role);
+        updateWorkspaceMember: (email, role) async {
+          await _updateWorkspaceMember(email, role);
           add(const WorkspaceMemberEvent.getWorkspaceMembers());
         },
       );
@@ -51,18 +69,16 @@ class WorkspaceMemberBloc
 
   final UserProfilePB userProfile;
 
+  // if the workspace is null, use the current workspace
+  final UserWorkspacePB? workspace;
+
+  late final String workspaceId;
+
   Future<List<WorkspaceMemberPB>> _getWorkspaceMembers() async {
-    // will the current workspace be synced across the app?
-    final currentWorkspace = await FolderEventReadCurrentWorkspace().send();
-    return currentWorkspace.fold((s) async {
-      final data = QueryWorkspacePB()..workspaceId = s.id;
-      final result = await UserEventGetWorkspaceMember(data).send();
-      return result.fold((s) => s.items, (e) {
-        Log.error('Failed to read workspace members: $e');
-        return [];
-      });
-    }, (e) {
-      Log.error('Failed to read current workspace: $e');
+    final data = QueryWorkspacePB()..workspaceId = workspaceId;
+    final result = await UserEventGetWorkspaceMember(data).send();
+    return result.fold((s) => s.items, (e) {
+      Log.error('Failed to read workspace members: $e');
       return [];
     });
   }
@@ -81,60 +97,46 @@ class WorkspaceMemberBloc
   }
 
   Future<void> _addWorkspaceMember(String email) async {
-    final currentWorkspace = await FolderEventReadCurrentWorkspace().send();
-    return currentWorkspace.fold((s) async {
-      final data = AddWorkspaceMemberPB()
-        ..workspaceId = s.id
-        ..email = email;
-      final result = await UserEventAddWorkspaceMember(data).send();
-      result.fold((s) {
-        Log.info('Added workspace member: $data');
-      }, (e) {
-        Log.error('Failed to add workspace member: $e');
-      });
+    final data = AddWorkspaceMemberPB()
+      ..workspaceId = workspaceId
+      ..email = email;
+    final result = await UserEventAddWorkspaceMember(data).send();
+    result.fold((s) {
+      Log.info('Added workspace member: $data');
     }, (e) {
-      Log.error('Failed to read current workspace: $e');
+      Log.error('Failed to add workspace member: $e');
     });
   }
 
   Future<void> _removeWorkspaceMember(String email) async {
-    final currentWorkspace = await FolderEventReadCurrentWorkspace().send();
-    return currentWorkspace.fold((s) async {
-      final data = RemoveWorkspaceMemberPB()
-        ..workspaceId = s.id
-        ..email = email;
-      final result = await UserEventRemoveWorkspaceMember(data).send();
-      result.fold((s) {
-        Log.info('Removed workspace member: $data');
-      }, (e) {
-        Log.error('Failed to remove workspace member: $e');
-      });
+    final data = RemoveWorkspaceMemberPB()
+      ..workspaceId = workspaceId
+      ..email = email;
+    final result = await UserEventRemoveWorkspaceMember(data).send();
+    result.fold((s) {
+      Log.info('Removed workspace member: $data');
     }, (e) {
-      Log.error('Failed to read current workspace: $e');
+      Log.error('Failed to remove workspace member: $e');
     });
   }
 
   Future<void> _updateWorkspaceMember(String email, AFRolePB role) async {
-    final currentWorkspace = await FolderEventReadCurrentWorkspace().send();
-    return currentWorkspace.fold((s) async {
-      final data = UpdateWorkspaceMemberPB()
-        ..workspaceId = s.id
-        ..email = email
-        ..role = role;
-      final result = await UserEventUpdateWorkspaceMember(data).send();
-      result.fold((s) {
-        Log.info('Updated workspace member: $data');
-      }, (e) {
-        Log.error('Failed to update workspace member: $e');
-      });
+    final data = UpdateWorkspaceMemberPB()
+      ..workspaceId = workspaceId
+      ..email = email
+      ..role = role;
+    final result = await UserEventUpdateWorkspaceMember(data).send();
+    result.fold((s) {
+      Log.info('Updated workspace member: $data');
     }, (e) {
-      Log.error('Failed to read current workspace: $e');
+      Log.error('Failed to update workspace member: $e');
     });
   }
 }
 
 @freezed
 class WorkspaceMemberEvent with _$WorkspaceMemberEvent {
+  const factory WorkspaceMemberEvent.initial() = Initial;
   const factory WorkspaceMemberEvent.getWorkspaceMembers() =
       GetWorkspaceMembers;
   const factory WorkspaceMemberEvent.addWorkspaceMember(String email) =

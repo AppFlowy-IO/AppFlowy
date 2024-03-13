@@ -2,7 +2,6 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_quick_action_button.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra_ui/widget/separated_flex.dart';
 import 'package:flutter/material.dart';
 
 enum MobileViewItemBottomSheetBodyAction {
@@ -26,12 +25,8 @@ class MobileViewItemBottomSheetBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SeparatedColumn(
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      separatorBuilder: () => const Divider(
-        height: 8.5,
-        thickness: 0.5,
-      ),
       children: [
         MobileQuickActionButton(
           text: LocaleKeys.button_rename.tr(),
@@ -40,6 +35,7 @@ class MobileViewItemBottomSheetBody extends StatelessWidget {
             MobileViewItemBottomSheetBodyAction.rename,
           ),
         ),
+        _divider(),
         MobileQuickActionButton(
           text: isFavorite
               ? LocaleKeys.button_removeFromFavorites.tr()
@@ -54,6 +50,7 @@ class MobileViewItemBottomSheetBody extends StatelessWidget {
                 : MobileViewItemBottomSheetBodyAction.addToFavorites,
           ),
         ),
+        _divider(),
         MobileQuickActionButton(
           text: LocaleKeys.button_duplicate.tr(),
           icon: FlowySvgs.m_duplicate_s,
@@ -61,6 +58,7 @@ class MobileViewItemBottomSheetBody extends StatelessWidget {
             MobileViewItemBottomSheetBodyAction.duplicate,
           ),
         ),
+        _divider(),
         MobileQuickActionButton(
           text: LocaleKeys.button_delete.tr(),
           textColor: Theme.of(context).colorScheme.error,
@@ -70,7 +68,13 @@ class MobileViewItemBottomSheetBody extends StatelessWidget {
             MobileViewItemBottomSheetBodyAction.delete,
           ),
         ),
+        _divider(),
       ],
     );
   }
+
+  Widget _divider() => const Divider(
+        height: 8.5,
+        thickness: 0.5,
+      );
 }

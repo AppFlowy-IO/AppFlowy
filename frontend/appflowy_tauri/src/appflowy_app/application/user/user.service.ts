@@ -1,9 +1,10 @@
 import { Theme, ThemeMode, UserSetting } from '$app_reducers/current-user/slice';
-import { AppearanceSettingsPB } from '@/services/backend';
+import { AppearanceSettingsPB, UpdateUserProfilePayloadPB } from '@/services/backend';
 import {
   UserEventGetAppearanceSetting,
   UserEventGetUserProfile,
   UserEventSetAppearanceSetting,
+  UserEventUpdateUserProfile,
 } from '@/services/backend/events/flowy-user';
 
 export const UserService = {
@@ -51,5 +52,17 @@ export const UserService = {
     }
 
     return;
+  },
+
+  updateUserProfile: async (params: ReturnType<typeof UpdateUserProfilePayloadPB.prototype.toObject>) => {
+    const payload = UpdateUserProfilePayloadPB.fromObject(params);
+
+    const res = await UserEventUpdateUserProfile(payload);
+
+    if (res.ok) {
+      return res.val;
+    }
+
+    return Promise.reject(res.err);
   },
 };

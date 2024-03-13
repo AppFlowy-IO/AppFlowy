@@ -20,8 +20,7 @@
       "fs": {
         "all": true,
         "scope": [
-          "$APPLOCALDATA/**",
-          "$APPLOCALDATA/images/*"
+          "$APPLOCALDATA/**"
         ],
         "readFile": true,
         "writeFile": true,
@@ -37,6 +36,14 @@
         "all": true,
         "writeText": true,
         "readText": true
+      },
+      "dialog": {
+        "all": true,
+        "ask": true,
+        "confirm": true,
+        "message": true,
+        "open": true,
+        "save": true
       }
     },
     "bundle": {
@@ -88,7 +95,18 @@
         "title": "AppFlowy",
         "width": 1200,
         "minWidth": 800,
-        "minHeight": 600
+        "minHeight": 600,
+        "visible": false,
+        "label": "main"
+      },
+      {
+        "height": 300,
+        "width": 549,
+        "decorations": false,
+        "url": "launch_splash.jpg",
+        "label": "splashscreen",
+        "center": true,
+        "visible": true
       }
     ]
   }

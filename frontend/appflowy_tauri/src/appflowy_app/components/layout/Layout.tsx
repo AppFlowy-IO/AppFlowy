@@ -12,10 +12,6 @@ function Layout({ children }: { children: ReactNode }) {
       if (e.key === 'Backspace' && e.target instanceof HTMLBodyElement) {
         e.preventDefault();
       }
-
-      if (e.key === 'Escape') {
-        e.preventDefault();
-      }
     };
 
     window.addEventListener('keydown', onKeyDown);

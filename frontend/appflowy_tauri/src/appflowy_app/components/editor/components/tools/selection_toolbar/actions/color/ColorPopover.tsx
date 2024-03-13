@@ -47,7 +47,7 @@ function ColorPopover({
 
   const { paperHeight, transformOrigin, anchorOrigin, isEntered } = usePopoverAutoPosition({
     initialPaperWidth: 200,
-    initialPaperHeight: 360,
+    initialPaperHeight: 420,
     anchorEl,
     initialAnchorOrigin: initialOrigin.anchorOrigin,
     initialTransformOrigin: initialOrigin.transformOrigin,

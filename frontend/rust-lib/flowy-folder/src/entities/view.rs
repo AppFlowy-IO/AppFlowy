@@ -59,14 +59,14 @@ pub struct ViewPB {
   pub is_favorite: bool,
 }
 
-pub fn view_pb_without_child_views(view: Arc<View>) -> ViewPB {
+pub fn view_pb_without_child_views(view: View) -> ViewPB {
   ViewPB {
-    id: view.id.clone(),
-    parent_view_id: view.parent_view_id.clone(),
-    name: view.name.clone(),
+    id: view.id,
+    parent_view_id: view.parent_view_id,
+    name: view.name,
     create_time: view.created_at,
     child_views: Default::default(),
-    layout: view.layout.clone().into(),
+    layout: view.layout.into(),
     icon: view.icon.clone().map(|icon| icon.into()),
     is_favorite: view.is_favorite,
   }
@@ -81,7 +81,7 @@ pub fn view_pb_with_child_views(view: Arc<View>, child_views: Vec<Arc<View>>) ->
     create_time: view.created_at,
     child_views: child_views
       .into_iter()
-      .map(view_pb_without_child_views)
+      .map(|view| view_pb_without_child_views(view.as_ref().clone()))
       .collect(),
     layout: view.layout.clone().into(),
     icon: view.icon.clone().map(|icon| icon.into()),

@@ -1,18 +1,17 @@
 import React, { FormEvent, useCallback } from 'react';
 import { OutlinedInput } from '@mui/material';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 function SearchInput({
   setNewOptionName,
   newOptionName,
-  onEnter,
-  onEscape,
+  inputRef,
 }: {
   newOptionName: string;
   setNewOptionName: (value: string) => void;
-  onEnter: () => void;
-  onEscape?: () => void;
+  inputRef?: React.RefObject<HTMLInputElement>;
 }) {
+  const { t } = useTranslation();
   const handleInput = useCallback(
     (event: FormEvent) => {
       const value = (event.target as HTMLInputElement).value;
@@ -27,20 +26,10 @@ function SearchInput({
       size='small'
       className={'mx-4'}
       autoFocus={true}
+      inputRef={inputRef}
       value={newOptionName}
       onInput={handleInput}
       spellCheck={false}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter') {
-          onEnter();
-        }
-
-        if (e.key === 'Escape') {
-          e.stopPropagation();
-          e.preventDefault();
-          onEscape?.();
-        }
-      }}
       placeholder={t('grid.selectOption.searchOrCreateOption')}
     />
   );

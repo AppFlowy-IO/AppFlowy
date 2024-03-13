@@ -9,6 +9,7 @@
   "title": "Title",
   "youCanAlso": "You can also",
   "and": "and",
+  "failedToOpenUrl": "Failed to open url: {}",
   "blockActions": {
     "addBelowTooltip": "Click to add below",
     "addAboveCmd": "Alt+click",
@@ -63,7 +64,18 @@
       "reportIssueOnGithub": "Report an issue on Github",
       "exportLogFiles": "Export log files",
       "reachOut": "Reach out on Discord"
-    }
+    },
+    "deleteWorkspaceHintText": "Are you sure you want to delete the workspace? This action cannot be undone.",
+    "createSuccess": "Workspace created successfully",
+    "createFailed": "Failed to create workspace",
+    "deleteSuccess": "Workspace deleted successfully",
+    "deleteFailed": "Failed to delete workspace",
+    "openSuccess": "Open workspace successfully",
+    "openFailed": "Failed to open workspace",
+    "renameSuccess": "Workspace renamed successfully",
+    "renameFailed": "Failed to rename workspace",
+    "updateIconSuccess": "Workspace reset successfully",
+    "updateIconFailed": "Failed to reset workspace"
   },
   "shareAction": {
     "buttonText": "Share",
@@ -81,7 +93,7 @@
     "moreOptions": "More options",
     "wordCount": "Word count: {}",
     "charCount": "Character count: {}",
-    "createdAt": "Created at: {}",
+    "createdAt": "Created: {}",
     "deleteView": "Delete",
     "duplicateView": "Duplicate"
   },
@@ -241,13 +253,18 @@
     "helpCenter": "Help Center",
     "add": "Add",
     "yes": "Yes",
-    "Done": "Done",
-    "Cancel": "Cancel",
     "clear": "Clear",
     "remove": "Remove",
     "dontRemove": "Don't remove",
     "copyLink": "Copy Link",
-    "align": "Align"
+    "align": "Align",
+    "login": "Login",
+    "logout": "Log out",
+    "deleteAccount": "Delete account",
+    "back": "Back",
+    "signInGoogle": "Sign in with Google",
+    "signInGithub": "Sign in with Github",
+    "signInDiscord": "Sign in with Discord"
   },
   "label": {
     "welcome": "Welcome!",
@@ -413,7 +430,8 @@
         "memberHintText": "A member can read, comment, and edit pages. Invite members and guests.",
         "guestHintText": "A Guest can read, react, comment, and can edit certain pages with permission.",
         "emailInvalidError": "Invalid email, please check and try again",
-        "emailSent": "Email sent, please check the inbox"
+        "emailSent": "Email sent, please check the inbox",
+        "members": "members"
       }
     },
     "files": {
@@ -450,7 +468,11 @@
       "recoverLocationTooltips": "Reset to AppFlowy's default data directory",
       "exportFileSuccess": "Export file successfully!",
       "exportFileFail": "Export file failed!",
-      "export": "Export"
+      "export": "Export",
+      "clearCache": "Clear cache",
+      "clearCacheDesc": "If you encounter issues with images not loading or fonts not displaying correctly, try clearing your cache. This action will not remove your user data.",
+      "areYouSureToClearCache": "Are you sure to clear the cache?",
+      "clearCacheSuccess": "Cache cleared successfully!"
     },
     "user": {
       "name": "Name",
@@ -663,7 +685,9 @@
       "empty": "No active sorts",
       "cannotFindCreatableField": "Cannot find a suitable field to sort by",
       "deleteAllSorts": "Delete all sorts",
-      "addSort": "Add new sort"
+      "addSort": "Add new sort",
+      "removeSorting": "Would you like to remove sorting?",
+      "fieldInUse": "You are already sorting by this field"
     },
     "row": {
       "duplicate": "Duplicate",
@@ -723,9 +747,13 @@
       "max": "Max",
       "median": "Median",
       "min": "Min",
-      "sum": "Sum"
-    },
-    "removeSorting": "Would you like to remove sorting?"
+      "sum": "Sum",
+      "count": "Count",
+      "countEmpty": "Count empty",
+      "countEmptyShort": "EMPTY",
+      "countNonEmpty": "Count not empty",
+      "countNonEmptyShort": "FILLED"
+    }
   },
   "document": {
     "menuName": "Document",
@@ -900,8 +928,9 @@
       "error": {
         "invalidImage": "Invalid image",
         "invalidImageSize": "Image size must be less than 5MB",
-        "invalidImageFormat": "Image format is not supported. Supported formats: JPEG, PNG, GIF, SVG",
-        "invalidImageUrl": "Invalid image URL"
+        "invalidImageFormat": "Image format is not supported. Supported formats: JPEG, PNG, JPG, GIF, SVG, WEBP",
+        "invalidImageUrl": "Invalid image URL",
+        "noImage": "No such file or directory"
       },
       "embedLink": {
         "label": "Embed link",
@@ -1029,7 +1058,8 @@
       "name": "Calendar settings"
     },
     "referencedCalendarPrefix": "View of",
-    "quickJumpYear": "Jump to"
+    "quickJumpYear": "Jump to",
+    "duplicateEvent": "Duplicate event"
   },
   "errorDialog": {
     "title": "AppFlowy Error",
@@ -1228,6 +1258,8 @@
     "backgroundColorPurple": "Purple background",
     "backgroundColorPink": "Pink background",
     "backgroundColorRed": "Red background",
+    "backgroundColorLime": "Lime background",
+    "backgroundColorAqua": "Aqua background",
     "done": "Done",
     "cancel": "Cancel",
     "tint1": "Tint 1",
@@ -1331,5 +1363,47 @@
     "addField": "Add field",
     "userIcon": "User icon"
   },
-  "noLogFiles": "There're no log files"
+  "noLogFiles": "There're no log files",
+  "newSettings": {
+    "myAccount": {
+      "title": "My account",
+      "subtitle": "Customize your profile, manage account security, open AI keys, or login into your account.",
+      "profileLabel": "Account name & Profile image",
+      "profileNamePlaceholder": "Enter your name",
+      "accountSecurity": "Account security",
+      "2FA": "2-Step Authentication",
+      "aiKeys": "AI keys",
+      "accountLogin": "Account Login",
+      "updateNameError": "Failed to update name",
+      "updateIconError": "Failed to update icon",
+      "deleteAccount": {
+        "title": "Delete Account",
+        "subtitle": "Permanently delete your account and all of your data.",
+        "deleteMyAccount": "Delete my account",
+        "dialogTitle": "Delete account",
+        "dialogContent1": "Are you sure you want to permanently delete your account?",
+        "dialogContent2": "This action cannot be undone, and will remove access from all teamspaces, erasing your entire account, including private workspaces, and removing you from all shared workspaces."
+      }
+    },
+    "workplace": {
+      "name": "Workplace",
+      "title": "Workplace Settings",
+      "subtitle": "Customize your workspace appearance, theme, font, text layout, date, time, and language.",
+      "workplaceName": "Workplace name",
+      "workplaceNamePlaceholder": "Enter workplace name",
+      "workplaceIcon": "Workplace icon",
+      "workplaceIconSubtitle": "Upload an image or use an emoji for your workspace. Icon will show in your sidebar and notifications",
+      "renameError": "Failed to rename workplace",
+      "updateIconError": "Failed to update icon",
+      "appearance": {
+        "name": "Appearance",
+        "themeMode": {
+          "auto": "Auto",
+          "light": "Light",
+          "dark": "Dark"
+        },
+        "language": "Language"
+      }
+    }
+  }
 }

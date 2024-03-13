@@ -9,12 +9,12 @@ import Popover from '@mui/material/Popover';
 
 const initialAnchorOrigin: PopoverOrigin = {
   vertical: 'bottom',
-  horizontal: 'left',
+  horizontal: 'center',
 };
 
 const initialTransformOrigin: PopoverOrigin = {
   vertical: 'top',
-  horizontal: 'left',
+  horizontal: 'center',
 };
 const SelectCellActions = lazy(
   () => import('$app/components/database/components/field_types/select/select_cell_actions/SelectCellActions')

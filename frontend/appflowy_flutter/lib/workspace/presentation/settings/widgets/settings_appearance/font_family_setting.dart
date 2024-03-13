@@ -95,7 +95,7 @@ class _FontFamilyDropDownState extends State<FontFamilyDropDown> {
     return FlowySettingValueDropDown(
       popoverKey: ThemeFontFamilySetting.popoverKey,
       popoverController: widget.popoverController,
-      currentValue: parseFontFamilyName(widget.currentFontFamily),
+      currentValue: widget.currentFontFamily.parseFontFamilyName(),
       onClose: () {
         query.value = '';
         widget.onClose?.call();
@@ -162,18 +162,11 @@ class _FontFamilyDropDownState extends State<FontFamilyDropDown> {
     );
   }
 
-  String parseFontFamilyName(String fontFamilyName) {
-    final camelCase = RegExp('(?<=[a-z])[A-Z]');
-    return fontFamilyName
-        .replaceAll('_regular', '')
-        .replaceAllMapped(camelCase, (m) => ' ${m.group(0)}');
-  }
-
   Widget _fontFamilyItemButton(
     BuildContext context,
     TextStyle style,
   ) {
-    final buttonFontFamily = parseFontFamilyName(style.fontFamily!);
+    final buttonFontFamily = style.fontFamily!.parseFontFamilyName();
 
     return Tooltip(
       message: buttonFontFamily,
@@ -184,21 +177,19 @@ class _FontFamilyDropDownState extends State<FontFamilyDropDown> {
         child: FlowyButton(
           onHover: (_) => FocusScope.of(context).unfocus(),
           text: FlowyText.medium(
-            parseFontFamilyName(style.fontFamily!),
+            buttonFontFamily,
             fontFamily: style.fontFamily!,
           ),
           rightIcon:
-              buttonFontFamily == parseFontFamilyName(widget.currentFontFamily)
-                  ? const FlowySvg(
-                      FlowySvgs.check_s,
-                    )
+              buttonFontFamily == widget.currentFontFamily.parseFontFamilyName()
+                  ? const FlowySvg(FlowySvgs.check_s)
                   : null,
           onTap: () {
             if (widget.onFontFamilyChanged != null) {
               widget.onFontFamilyChanged!(style.fontFamily!);
             } else {
               final fontFamily = style.fontFamily!.parseFontFamilyName();
-              if (parseFontFamilyName(widget.currentFontFamily) !=
+              if (widget.currentFontFamily.parseFontFamilyName() !=
                   buttonFontFamily) {
                 context
                     .read<AppearanceSettingsCubit>()

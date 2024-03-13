@@ -80,6 +80,13 @@ export function useLoadWorkspace(workspace: WorkspaceItem) {
   useEffect(() => {
     const unsubscribePromise = subscribeNotifications(
       {
+        [FolderNotification.DidUpdateWorkspace]: async (changeset) => {
+          dispatch(
+            workspaceActions.updateCurrentWorkspace({
+              name: changeset.name,
+            })
+          );
+        },
         [FolderNotification.DidUpdateWorkspaceViews]: async (changeset) => {
           const res = changeset.items;
 
@@ -90,7 +97,7 @@ export function useLoadWorkspace(workspace: WorkspaceItem) {
     );
 
     return () => void unsubscribePromise.then((unsubscribe) => unsubscribe());
-  }, [id, onChildPagesChanged]);
+  }, [dispatch, id, onChildPagesChanged]);
 
   return {
     openWorkspace,
