@@ -35,6 +35,8 @@ final _listToolbarItems = [
   underlineToolbarItem,
   strikethroughToolbarItem,
   colorToolbarItem,
+  undoToolbarItem,
+  redoToolbarItem,
 ];
 
 final _textToolbarItems = [
@@ -64,6 +66,10 @@ List<AppFlowyMobileToolbarItem> buildMobileToolbarItems(
     return [];
   }
 
+  if (!selection.isCollapsed) {
+    return _textToolbarItems;
+  }
+
   final allSelectedAreListType = editorState
       .getSelectedNodes(selection: selection)
       .every((node) => _listBlockTypes.contains(node.type));
@@ -71,9 +77,5 @@ List<AppFlowyMobileToolbarItem> buildMobileToolbarItems(
     return _listToolbarItems;
   }
 
-  if (selection.isCollapsed) {
-    return _defaultToolbarItems;
-  }
-
-  return _textToolbarItems;
+  return _defaultToolbarItems;
 }
