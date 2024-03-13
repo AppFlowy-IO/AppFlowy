@@ -493,14 +493,14 @@
       "typeAValue": "Введите значение...",
       "layout": "Вид",
       "databaseLayout": "Вид базы данных",
-      "viewList": "Представление базы данных",
       "editView": "Редактировать представление",
       "boardSettings": "Настройки доски",
       "calendarSettings": "Настройки календаря",
       "createView": "Новое представление",
       "duplicateView": "Дублировать представление",
       "deleteView": "Удалить представление",
-      "numberOfVisibleFields": "{} показано"
+      "numberOfVisibleFields": "{} показано",
+      "viewList": "Представление базы данных"
     },
     "textFilter": {
       "contains": "Содержит",
