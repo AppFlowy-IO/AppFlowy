@@ -2,6 +2,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/aa_menu/_color_list.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:flutter/widgets.dart';
 
 final boldToolbarItem = AppFlowyMobileToolbarItem(
   itemBuilder: (context, editorState, _, __, onAction) {
@@ -87,6 +88,48 @@ final colorToolbarItem = AppFlowyMobileToolbarItem(
       editorState: editorState,
       shouldListenToToggledStyle: true,
       icon: FlowySvgs.m_aa_font_color_m,
+      iconBuilder: (context) {
+        String? getColor(String key) {
+          final selection = editorState.selection;
+          if (selection == null) {
+            return null;
+          }
+          String? color = editorState.toggledStyle[key];
+          if (color == null) {
+            if (selection.isCollapsed && selection.startIndex != 0) {
+              color = editorState.getDeltaAttributeValueInSelection<String>(
+                key,
+                selection.copyWith(
+                  start: selection.start.copyWith(
+                    offset: selection.startIndex - 1,
+                  ),
+                ),
+              );
+            } else {
+              color = editorState.getDeltaAttributeValueInSelection<String>(
+                key,
+              );
+            }
+          }
+          return color;
+        }
+
+        final textColor = getColor(AppFlowyRichTextKeys.textColor);
+        final backgroundColor = getColor(AppFlowyRichTextKeys.backgroundColor);
+
+        return Container(
+          width: 40,
+          padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(9),
+            color: backgroundColor?.tryToColor(),
+          ),
+          child: FlowySvg(
+            FlowySvgs.m_aa_font_color_m,
+            color: textColor?.tryToColor(),
+          ),
+        );
+      },
       onTap: () {
         service.closeKeyboard();
         editorState.updateSelectionWithReason(

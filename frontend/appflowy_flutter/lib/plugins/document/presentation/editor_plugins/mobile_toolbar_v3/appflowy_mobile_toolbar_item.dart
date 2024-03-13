@@ -112,26 +112,31 @@ class _AppFlowyMobileToolbarIconItemState
           widget.onTap();
           _rebuild();
         },
-        child: Container(
-          width: 40,
-          padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(9),
-            color: isSelected ? theme.toolbarItemSelectedBackgroundColor : null,
-          ),
-          child: widget.iconBuilder?.call(context) ??
-              FlowySvg(
+        child: widget.iconBuilder?.call(context) ??
+            Container(
+              width: 40,
+              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(9),
+                color: isSelected
+                    ? theme.toolbarItemSelectedBackgroundColor
+                    : null,
+              ),
+              child: FlowySvg(
                 widget.icon!,
                 color: enable
                     ? theme.toolbarItemIconColor
                     : theme.toolbarItemIconDisabledColor,
               ),
-        ),
+            ),
       ),
     );
   }
 
   void _rebuild() {
+    if (!context.mounted) {
+      return;
+    }
     setState(() {
       isSelected = (widget.keepSelectedStatus && widget.isSelected == null)
           ? !isSelected

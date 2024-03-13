@@ -24,6 +24,7 @@ class MobileToolbarMenuItemWrapper extends StatelessWidget {
     this.showRightArrow = false,
     this.textPadding = EdgeInsets.zero,
     required this.onTap,
+    this.iconColor,
   });
 
   final Size size;
@@ -43,17 +44,20 @@ class MobileToolbarMenuItemWrapper extends StatelessWidget {
   final Color? backgroundColor;
   final Color? selectedBackgroundColor;
   final EdgeInsets textPadding;
+  final Color? iconColor;
 
   @override
   Widget build(BuildContext context) {
     final theme = ToolbarColorExtension.of(context);
-    Color? iconColor;
-    if (enable != null) {
-      iconColor = enable! ? null : theme.toolbarMenuIconDisabledColor;
-    } else {
-      iconColor = isSelected
-          ? theme.toolbarMenuIconSelectedColor
-          : theme.toolbarMenuIconColor;
+    Color? iconColor = this.iconColor;
+    if (iconColor == null) {
+      if (enable != null) {
+        iconColor = enable! ? null : theme.toolbarMenuIconDisabledColor;
+      } else {
+        iconColor = isSelected
+            ? theme.toolbarMenuIconSelectedColor
+            : theme.toolbarMenuIconColor;
+      }
     }
     final textColor =
         enable == false ? theme.toolbarMenuIconDisabledColor : null;
