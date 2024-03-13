@@ -644,8 +644,8 @@
       "descending": "降序",
       "deleteAllSorts": "删除所有排序",
       "addSort": "添加排序",
-      "deleteSort": "取消排序",
-      "removeSorting": "你确定要移除排序吗？"
+      "removeSorting": "你确定要移除排序吗？",
+      "deleteSort": "取消排序"
     },
     "row": {
       "duplicate": "复制",

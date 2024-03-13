@@ -619,8 +619,8 @@
       "cannotFindCreatableField": "Impossibile trovare un campo adatto per l'ordinamento",
       "deleteAllSorts": "Elimina tutti gli ordinamenti",
       "addSort": "Aggiungi ordinamento",
-      "deleteSort": "Elimina ordinamento",
-      "removeSorting": "Si desidera rimuovere l'ordinamento?"
+      "removeSorting": "Si desidera rimuovere l'ordinamento?",
+      "deleteSort": "Elimina ordinamento"
     },
     "row": {
       "duplicate": "Duplicare",
