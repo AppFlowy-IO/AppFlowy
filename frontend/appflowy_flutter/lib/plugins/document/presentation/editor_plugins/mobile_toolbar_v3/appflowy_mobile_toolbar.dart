@@ -353,34 +353,20 @@ class _MobileToolbarState extends State<_MobileToolbar>
             ),
           ),
           // close menu or close keyboard button
-          ValueListenableBuilder(
-            valueListenable: showMenuNotifier,
-            builder: (_, showingMenu, __) {
-              return CloseKeyboardOrMenuButton(
-                showingMenu: showingMenu,
-                onPressed: () {
-                  if (showingMenu) {
-                    // close the menu and show the keyboard
-                    closeItemMenu();
-                    _showKeyboard();
-                  } else {
-                    closeKeyboardInitiative = true;
-                    // close the keyboard and clear the selection
-                    // if the selection is null, the keyboard and the toolbar will be hidden automatically
-                    widget.editorState.selection = null;
+          CloseKeyboardOrMenuButton(
+            onPressed: () {
+              closeKeyboardInitiative = true;
+              // close the keyboard and clear the selection
+              // if the selection is null, the keyboard and the toolbar will be hidden automatically
+              widget.editorState.selection = null;
 
-                    // sometimes, the keyboard is not closed after the selection is cleared
-                    if (Platform.isAndroid) {
-                      SystemChannels.textInput.invokeMethod('TextInput.hide');
-                    }
-                  }
-                },
-              );
+              // sometimes, the keyboard is not closed after the selection is cleared
+              if (Platform.isAndroid) {
+                SystemChannels.textInput.invokeMethod('TextInput.hide');
+              }
             },
           ),
-          const SizedBox(
-            width: 4.0,
-          ),
+          const HSpace(4.0),
         ],
       ),
     );
