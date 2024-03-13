@@ -1,5 +1,5 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_color_list.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/aa_menu/_color_list.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 
@@ -13,7 +13,7 @@ final boldToolbarItem = AppFlowyMobileToolbarItem(
             AppFlowyRichTextKeys.bold,
           ) &&
           editorState.toggledStyle[AppFlowyRichTextKeys.bold] != false,
-      icon: FlowySvgs.m_toolbar_bold_s,
+      icon: FlowySvgs.m_toolbar_bold_m,
       onTap: () async => editorState.toggleAttribute(
         AppFlowyRichTextKeys.bold,
         selectionExtraInfo: {
@@ -32,7 +32,7 @@ final italicToolbarItem = AppFlowyMobileToolbarItem(
       isSelected: () => editorState.isTextDecorationSelected(
         AppFlowyRichTextKeys.italic,
       ),
-      icon: FlowySvgs.m_toolbar_italic_s,
+      icon: FlowySvgs.m_toolbar_italic_m,
       onTap: () async => editorState.toggleAttribute(
         AppFlowyRichTextKeys.italic,
         selectionExtraInfo: {
@@ -51,9 +51,28 @@ final underlineToolbarItem = AppFlowyMobileToolbarItem(
       isSelected: () => editorState.isTextDecorationSelected(
         AppFlowyRichTextKeys.underline,
       ),
-      icon: FlowySvgs.m_toolbar_underline_s,
+      icon: FlowySvgs.m_toolbar_underline_m,
       onTap: () async => editorState.toggleAttribute(
         AppFlowyRichTextKeys.underline,
+        selectionExtraInfo: {
+          selectionExtraInfoDisableFloatingToolbar: true,
+        },
+      ),
+    );
+  },
+);
+
+final strikethroughToolbarItem = AppFlowyMobileToolbarItem(
+  itemBuilder: (context, editorState, _, __, onAction) {
+    return AppFlowyMobileToolbarIconItem(
+      editorState: editorState,
+      shouldListenToToggledStyle: true,
+      isSelected: () => editorState.isTextDecorationSelected(
+        AppFlowyRichTextKeys.strikethrough,
+      ),
+      icon: FlowySvgs.m_toolbar_strike_m,
+      onTap: () async => editorState.toggleAttribute(
+        AppFlowyRichTextKeys.strikethrough,
         selectionExtraInfo: {
           selectionExtraInfoDisableFloatingToolbar: true,
         },
@@ -67,7 +86,7 @@ final colorToolbarItem = AppFlowyMobileToolbarItem(
     return AppFlowyMobileToolbarIconItem(
       editorState: editorState,
       shouldListenToToggledStyle: true,
-      icon: FlowySvgs.m_toolbar_color_s,
+      icon: FlowySvgs.m_aa_font_color_m,
       onTap: () {
         service.closeKeyboard();
         editorState.updateSelectionWithReason(

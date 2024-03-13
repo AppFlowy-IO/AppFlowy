@@ -2,9 +2,9 @@ import 'dart:async';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_item/utils.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_menu_item.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_popup_menu.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_toolbar_theme.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/aa_menu/_menu_item.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/aa_menu/_popup_menu.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/aa_menu/_toolbar_theme.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
@@ -23,9 +23,9 @@ class BlockItems extends StatelessWidget {
   final AppFlowyMobileToolbarWidgetService service;
 
   final List<(FlowySvgData, String)> _blockItems = [
-    (FlowySvgs.m_aa_bulleted_list_s, BulletedListBlockKeys.type),
-    (FlowySvgs.m_aa_numbered_list_s, NumberedListBlockKeys.type),
-    (FlowySvgs.m_aa_quote_s, QuoteBlockKeys.type),
+    (FlowySvgs.m_toolbar_bulleted_list_m, BulletedListBlockKeys.type),
+    (FlowySvgs.m_toolbar_numbered_list_m, NumberedListBlockKeys.type),
+    (FlowySvgs.m_aa_quote_m, QuoteBlockKeys.type),
   ];
 
   @override
@@ -82,7 +82,7 @@ class BlockItems extends StatelessWidget {
   Widget _buildLinkItem(BuildContext context) {
     final theme = ToolbarColorExtension.of(context);
     final items = [
-      (AppFlowyRichTextKeys.code, FlowySvgs.m_aa_code_s),
+      (AppFlowyRichTextKeys.code, FlowySvgs.m_aa_code_m),
       // (InlineMathEquationKeys.formula, FlowySvgs.m_aa_math_s),
     ];
     return PopupMenu(
@@ -119,7 +119,7 @@ class BlockItems extends StatelessWidget {
         showDownArrow: true,
         onTap: _onLinkItemTap,
         backgroundColor: theme.toolbarMenuItemBackgroundColor,
-        icon: FlowySvgs.m_aa_link_s,
+        icon: FlowySvgs.m_toolbar_link_m,
         isSelected: false,
         iconPadding: const EdgeInsets.symmetric(
           vertical: 14.0,

@@ -1,7 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_menu_item.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_popup_menu.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_toolbar_theme.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/aa_menu/_menu_item.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/aa_menu/_popup_menu.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/aa_menu/_toolbar_theme.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/util.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
@@ -20,9 +20,9 @@ class AlignItems extends StatelessWidget {
 
   final EditorState editorState;
   final List<(String, FlowySvgData)> _alignMenuItems = [
-    (_left, FlowySvgs.m_aa_align_left_s),
-    (_center, FlowySvgs.m_aa_align_center_s),
-    (_right, FlowySvgs.m_aa_align_right_s),
+    (_left, FlowySvgs.m_aa_align_left_m),
+    (_center, FlowySvgs.m_aa_align_center_m),
+    (_right, FlowySvgs.m_aa_align_right_m),
   ];
 
   @override
