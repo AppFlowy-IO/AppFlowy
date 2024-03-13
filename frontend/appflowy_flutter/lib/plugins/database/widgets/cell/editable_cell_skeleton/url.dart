@@ -185,6 +185,7 @@ class MobileURLEditor extends StatelessWidget {
           8.0,
         ),
         MobileQuickActionButton(
+          enable: textEditingController.text.isNotEmpty,
           onTap: () {
             openUrlCellLink(textEditingController.text);
             context.pop();
@@ -197,12 +198,11 @@ class MobileURLEditor extends StatelessWidget {
           thickness: 0.5,
         ),
         MobileQuickActionButton(
+          enable: textEditingController.text.isNotEmpty,
           onTap: () {
-            if (textEditingController.text.isNotEmpty) {
-              Clipboard.setData(
-                ClipboardData(text: textEditingController.text),
-              );
-            }
+            Clipboard.setData(
+              ClipboardData(text: textEditingController.text),
+            );
             Fluttertoast.showToast(
               msg: LocaleKeys.grid_url_copiedNotification.tr(),
               gravity: ToastGravity.BOTTOM,
