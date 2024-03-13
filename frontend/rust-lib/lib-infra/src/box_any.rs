@@ -13,7 +13,7 @@ impl BoxAny {
     Self(Box::new(value))
   }
 
-  pub fn clone_content<T>(&self) -> Option<T>
+  pub fn cloned<T>(&self) -> Option<T>
   where
     T: Clone + 'static,
   {

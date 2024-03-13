@@ -306,9 +306,9 @@ where
   fn handle_cell_filter(&self, field: &Field, cell: &Cell, filter: &BoxAny) -> bool {
     let perform_filter = || {
       let field_type = FieldType::from(field.field_type);
-      let cell_filter = filter.clone_content::<<Self as TypeOption>::CellFilter>()?;
+      let cell_filter = filter.downcast_ref::<<Self as TypeOption>::CellFilter>()?;
       let cell_data = self.get_decoded_cell_data(cell, &field_type, field).ok()?;
-      Some(self.apply_filter(&cell_filter, &cell_data))
+      Some(self.apply_filter(cell_filter, &cell_data))
     };
 
     perform_filter().unwrap_or(true)

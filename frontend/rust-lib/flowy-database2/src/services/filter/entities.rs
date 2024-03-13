@@ -14,6 +14,10 @@ use crate::entities::{
 };
 use crate::services::field::SelectOptionIds;
 
+pub trait ParseFilterData {
+  fn parse(condition: u8, content: String) -> Self;
+}
+
 #[derive(Debug)]
 pub struct Filter {
   pub id: String,
@@ -211,18 +215,18 @@ impl FilterInner {
   ) -> Self {
     let condition_and_content = match field_type {
       FieldType::RichText | FieldType::URL => {
-        BoxAny::new(TextFilterPB::from((condition as u8, content)))
+        BoxAny::new(TextFilterPB::parse(condition as u8, content))
       },
-      FieldType::Number => BoxAny::new(NumberFilterPB::from((condition as u8, content))),
+      FieldType::Number => BoxAny::new(NumberFilterPB::parse(condition as u8, content)),
       FieldType::DateTime | FieldType::CreatedTime | FieldType::LastEditedTime => {
-        BoxAny::new(DateFilterPB::from((condition as u8, content)))
+        BoxAny::new(DateFilterPB::parse(condition as u8, content))
       },
       FieldType::SingleSelect | FieldType::MultiSelect => {
-        BoxAny::new(SelectOptionFilterPB::from((condition as u8, content)))
+        BoxAny::new(SelectOptionFilterPB::parse(condition as u8, content))
       },
-      FieldType::Checklist => BoxAny::new(ChecklistFilterPB::from((condition as u8, content))),
-      FieldType::Checkbox => BoxAny::new(CheckboxFilterPB::from((condition as u8, content))),
-      FieldType::Relation => BoxAny::new(RelationFilterPB::from((condition as u8, content))),
+      FieldType::Checklist => BoxAny::new(ChecklistFilterPB::parse(condition as u8, content)),
+      FieldType::Checkbox => BoxAny::new(CheckboxFilterPB::parse(condition as u8, content)),
+      FieldType::Relation => BoxAny::new(RelationFilterPB::parse(condition as u8, content)),
     };
 
     FilterInner::Data {
@@ -271,15 +275,15 @@ impl<'a> From<&'a Filter> for FilterMap {
         let get_raw_condition_and_content = || -> Option<(u8, String)> {
           let (condition, content) = match field_type {
             FieldType::RichText | FieldType::URL => {
-              let filter = condition_and_content.clone_content::<TextFilterPB>()?;
+              let filter = condition_and_content.cloned::<TextFilterPB>()?;
               (filter.condition as u8, filter.content)
             },
             FieldType::Number => {
-              let filter = condition_and_content.clone_content::<NumberFilterPB>()?;
+              let filter = condition_and_content.cloned::<NumberFilterPB>()?;
               (filter.condition as u8, filter.content)
             },
             FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => {
-              let filter = condition_and_content.clone_content::<DateFilterPB>()?;
+              let filter = condition_and_content.cloned::<DateFilterPB>()?;
               let content = DateFilterContentPB {
                 start: filter.start,
                 end: filter.end,
@@ -289,20 +293,20 @@ impl<'a> From<&'a Filter> for FilterMap {
               (filter.condition as u8, content)
             },
             FieldType::SingleSelect | FieldType::MultiSelect => {
-              let filter = condition_and_content.clone_content::<SelectOptionFilterPB>()?;
+              let filter = condition_and_content.cloned::<SelectOptionFilterPB>()?;
               let content = SelectOptionIds::from(filter.option_ids).to_string();
               (filter.condition as u8, content)
             },
             FieldType::Checkbox => {
-              let filter = condition_and_content.clone_content::<CheckboxFilterPB>()?;
+              let filter = condition_and_content.cloned::<CheckboxFilterPB>()?;
               (filter.condition as u8, "".to_string())
             },
             FieldType::Checklist => {
-              let filter = condition_and_content.clone_content::<ChecklistFilterPB>()?;
+              let filter = condition_and_content.cloned::<ChecklistFilterPB>()?;
               (filter.condition as u8, "".to_string())
             },
             FieldType::Relation => {
-              let filter = condition_and_content.clone_content::<RelationFilterPB>()?;
+              let filter = condition_and_content.cloned::<RelationFilterPB>()?;
               (filter.condition as u8, "".to_string())
             },
           };

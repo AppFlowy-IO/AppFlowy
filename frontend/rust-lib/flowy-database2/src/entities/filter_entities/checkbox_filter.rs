@@ -1,6 +1,8 @@
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 
+use crate::services::filter::ParseFilterData;
+
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct CheckboxFilterPB {
   #[pb(index = 1)]
@@ -33,10 +35,10 @@ impl TryFrom<u8> for CheckboxFilterConditionPB {
   }
 }
 
-impl From<(u8, String)> for CheckboxFilterPB {
-  fn from(value: (u8, String)) -> Self {
+impl ParseFilterData for CheckboxFilterPB {
+  fn parse(condition: u8, _content: String) -> Self {
     CheckboxFilterPB {
-      condition: CheckboxFilterConditionPB::try_from(value.0)
+      condition: CheckboxFilterConditionPB::try_from(condition)
         .unwrap_or(CheckboxFilterConditionPB::IsChecked),
     }
   }

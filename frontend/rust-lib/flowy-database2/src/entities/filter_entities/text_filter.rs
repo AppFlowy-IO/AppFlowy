@@ -1,6 +1,8 @@
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 
+use crate::services::filter::ParseFilterData;
+
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct TextFilterPB {
   #[pb(index = 1)]
@@ -49,11 +51,11 @@ impl std::convert::TryFrom<u8> for TextFilterConditionPB {
   }
 }
 
-impl From<(u8, String)> for TextFilterPB {
-  fn from(value: (u8, String)) -> Self {
+impl ParseFilterData for TextFilterPB {
+  fn parse(condition: u8, content: String) -> Self {
     Self {
-      condition: TextFilterConditionPB::try_from(value.0).unwrap_or(TextFilterConditionPB::Is),
-      content: value.1,
+      condition: TextFilterConditionPB::try_from(condition).unwrap_or(TextFilterConditionPB::Is),
+      content,
     }
   }
 }

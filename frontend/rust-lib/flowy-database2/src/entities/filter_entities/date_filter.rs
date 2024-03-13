@@ -5,6 +5,8 @@ use serde::{Deserialize, Serialize};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 
+use crate::services::filter::ParseFilterData;
+
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct DateFilterPB {
   #[pb(index = 1)]
@@ -78,16 +80,16 @@ impl std::convert::TryFrom<u8> for DateFilterConditionPB {
   }
 }
 
-impl From<(u8, String)> for DateFilterPB {
-  fn from(value: (u8, String)) -> Self {
+impl ParseFilterData for DateFilterPB {
+  fn parse(condition: u8, content: String) -> Self {
     let condition =
-      DateFilterConditionPB::try_from(value.0).unwrap_or(DateFilterConditionPB::DateIs);
+      DateFilterConditionPB::try_from(condition).unwrap_or(DateFilterConditionPB::DateIs);
     let mut date_filter = Self {
       condition,
       ..Default::default()
     };
 
-    if let Ok(content) = DateFilterContentPB::from_str(&value.1) {
+    if let Ok(content) = DateFilterContentPB::from_str(&content) {
       date_filter.start = content.start;
       date_filter.end = content.end;
       date_filter.timestamp = content.timestamp;

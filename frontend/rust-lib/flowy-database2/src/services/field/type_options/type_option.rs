@@ -19,6 +19,7 @@ use crate::services::field::{
   CheckboxTypeOption, DateTypeOption, MultiSelectTypeOption, NumberTypeOption, RelationTypeOption,
   RichTextTypeOption, SingleSelectTypeOption, TimestampTypeOption, URLTypeOption,
 };
+use crate::services::filter::ParseFilterData;
 use crate::services::sort::SortCondition;
 
 pub trait TypeOption {
@@ -57,7 +58,7 @@ pub trait TypeOption {
   type CellProtobufType: TryInto<Bytes, Error = ProtobufError> + Debug;
 
   /// Represents the filter configuration for this type option.
-  type CellFilter: From<(u8, String)> + Clone + Send + Sync + 'static;
+  type CellFilter: ParseFilterData + Clone + Send + Sync + 'static;
 }
 /// This trait providing serialization and deserialization methods for cell data.
 ///

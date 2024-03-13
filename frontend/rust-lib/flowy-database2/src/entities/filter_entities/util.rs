@@ -76,34 +76,34 @@ impl From<&Filter> for FilterPB {
       } => {
         let bytes: Result<Bytes, ProtobufError> = match field_type {
           FieldType::RichText | FieldType::URL => condition_and_content
-            .clone_content::<TextFilterPB>()
+            .cloned::<TextFilterPB>()
             .unwrap()
             .try_into(),
           FieldType::Number => condition_and_content
-            .clone_content::<NumberFilterPB>()
+            .cloned::<NumberFilterPB>()
             .unwrap()
             .try_into(),
           FieldType::DateTime | FieldType::CreatedTime | FieldType::LastEditedTime => {
             condition_and_content
-              .clone_content::<DateFilterPB>()
+              .cloned::<DateFilterPB>()
               .unwrap()
               .try_into()
           },
           FieldType::SingleSelect | FieldType::MultiSelect => condition_and_content
-            .clone_content::<SelectOptionFilterPB>()
+            .cloned::<SelectOptionFilterPB>()
             .unwrap()
             .try_into(),
           FieldType::Checklist => condition_and_content
-            .clone_content::<ChecklistFilterPB>()
+            .cloned::<ChecklistFilterPB>()
             .unwrap()
             .try_into(),
           FieldType::Checkbox => condition_and_content
-            .clone_content::<CheckboxFilterPB>()
+            .cloned::<CheckboxFilterPB>()
             .unwrap()
             .try_into(),
 
           FieldType::Relation => condition_and_content
-            .clone_content::<RelationFilterPB>()
+            .cloned::<RelationFilterPB>()
             .unwrap()
             .try_into(),
         };

@@ -1,6 +1,8 @@
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 
+use crate::services::filter::ParseFilterData;
+
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct ChecklistFilterPB {
   #[pb(index = 1)]
@@ -34,10 +36,10 @@ impl std::convert::TryFrom<u8> for ChecklistFilterConditionPB {
   }
 }
 
-impl From<(u8, String)> for ChecklistFilterPB {
-  fn from(value: (u8, String)) -> Self {
+impl ParseFilterData for ChecklistFilterPB {
+  fn parse(condition: u8, _content: String) -> Self {
     Self {
-      condition: ChecklistFilterConditionPB::try_from(value.0)
+      condition: ChecklistFilterConditionPB::try_from(condition)
         .unwrap_or(ChecklistFilterConditionPB::IsIncomplete),
     }
   }
