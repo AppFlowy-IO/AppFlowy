@@ -325,7 +325,7 @@ where
             if !is_changed {
               is_changed = is_group_changed(group, old_group);
             }
-            // Consider the the name of the `group_rev` as the newest.
+            // Consider the name of the `group_rev` as the newest.
             old_group.name = group.name.clone();
           },
         }
