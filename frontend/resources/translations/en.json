@@ -733,7 +733,8 @@
     "url": {
       "launch": "Open link in browser",
       "copy": "Copy link to clipboard",
-      "textFieldHint": "Enter a URL"
+      "textFieldHint": "Enter a URL",
+      "copiedNotification": "Copied to clipboard!"
     },
     "relation": {
       "relatedDatabasePlaceLabel": "Related Database",

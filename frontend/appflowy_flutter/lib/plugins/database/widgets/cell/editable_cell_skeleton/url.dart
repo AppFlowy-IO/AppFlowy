@@ -16,6 +16,7 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 
 import '../desktop_grid/desktop_grid_url_cell.dart';
@@ -196,6 +197,10 @@ class MobileURLEditor extends StatelessWidget {
                 ClipboardData(text: textEditingController.text),
               );
             }
+            Fluttertoast.showToast(
+              msg: LocaleKeys.grid_url_copiedNotification.tr(),
+              gravity: ToastGravity.BOTTOM,
+            );
             context.pop();
           },
           icon: FlowySvgs.copy_s,
