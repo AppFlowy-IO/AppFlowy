@@ -409,6 +409,7 @@ fn to_user_workspace(af_workspace: AFWorkspace) -> UserWorkspace {
     name: af_workspace.workspace_name,
     created_at: af_workspace.created_at,
     workspace_database_object_id: af_workspace.database_storage_id.to_string(),
+    icon: af_workspace.icon,
   }
 }
 

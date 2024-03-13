@@ -140,6 +140,8 @@ pub struct UserWorkspace {
   /// The database storage id is used indexing all the database views in current workspace.
   #[serde(rename = "database_storage_id")]
   pub workspace_database_object_id: String,
+  #[serde(default)]
+  pub icon: String,
 }
 
 impl UserWorkspace {
@@ -149,6 +151,7 @@ impl UserWorkspace {
       name: "".to_string(),
       created_at: Utc::now(),
       workspace_database_object_id: Uuid::new_v4().to_string(),
+      icon: "".to_string(),
     }
   }
 }
