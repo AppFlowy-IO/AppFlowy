@@ -158,9 +158,7 @@ class MobileURLEditor extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        const VSpace(
-          4.0,
-        ),
+        const VSpace(4.0),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: FlowyTextField(
@@ -181,9 +179,7 @@ class MobileURLEditor extends StatelessWidget {
             onSubmitted: (text) => bloc.add(URLCellEvent.updateURL(text)),
           ),
         ),
-        const VSpace(
-          8.0,
-        ),
+        const VSpace(8.0),
         MobileQuickActionButton(
           enable: textEditingController.text.isNotEmpty,
           onTap: () {
@@ -193,10 +189,7 @@ class MobileURLEditor extends StatelessWidget {
           icon: FlowySvgs.url_s,
           text: LocaleKeys.grid_url_launch.tr(),
         ),
-        const Divider(
-          height: 8.5,
-          thickness: 0.5,
-        ),
+        const Divider(height: 8.5, thickness: 0.5),
         MobileQuickActionButton(
           enable: textEditingController.text.isNotEmpty,
           onTap: () {
@@ -212,10 +205,7 @@ class MobileURLEditor extends StatelessWidget {
           icon: FlowySvgs.copy_s,
           text: LocaleKeys.grid_url_copy.tr(),
         ),
-        const Divider(
-          height: 8.5,
-          thickness: 0.5,
-        ),
+        const Divider(height: 8.5, thickness: 0.5),
       ],
     );
   }
