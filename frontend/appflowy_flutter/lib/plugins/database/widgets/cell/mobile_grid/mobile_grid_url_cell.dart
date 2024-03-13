@@ -51,9 +51,11 @@ class MobileGridURLCellSkin extends IEditableURLCellSkin {
     showMobileBottomSheet(
       context,
       showDragHandle: true,
-      builder: (context) => MobileURLEditor(
-        bloc: bloc,
-        textEditingController: textEditingController,
+      builder: (context) => BlocProvider.value(
+        value: bloc,
+        child: MobileURLEditor(
+          textEditingController: textEditingController,
+        ),
       ),
     );
   }

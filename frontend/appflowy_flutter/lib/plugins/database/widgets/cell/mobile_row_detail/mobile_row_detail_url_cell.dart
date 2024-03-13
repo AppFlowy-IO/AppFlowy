@@ -29,9 +29,11 @@ class MobileRowDetailURLCellSkin extends IEditableURLCellSkin {
             context,
             showDragHandle: true,
             builder: (_) {
-              return MobileURLEditor(
-                bloc: bloc,
-                textEditingController: textEditingController,
+              return BlocProvider.value(
+                value: bloc,
+                child: MobileURLEditor(
+                  textEditingController: textEditingController,
+                ),
               );
             },
           ),

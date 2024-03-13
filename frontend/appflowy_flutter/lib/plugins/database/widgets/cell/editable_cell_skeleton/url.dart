@@ -147,11 +147,9 @@ class _GridURLCellState extends GridEditableTextCell<EditableURLCell> {
 class MobileURLEditor extends StatelessWidget {
   const MobileURLEditor({
     super.key,
-    required this.bloc,
     required this.textEditingController,
   });
 
-  final URLCellBloc bloc;
   final TextEditingController textEditingController;
 
   @override
@@ -173,15 +171,18 @@ class MobileURLEditor extends StatelessWidget {
             hintTextConstraints: const BoxConstraints(maxHeight: 52),
             onChanged: (_) {
               if (textEditingController.value.composing.isCollapsed) {
-                bloc.add(URLCellEvent.updateURL(textEditingController.text));
+                context
+                    .read<URLCellBloc>()
+                    .add(URLCellEvent.updateURL(textEditingController.text));
               }
             },
-            onSubmitted: (text) => bloc.add(URLCellEvent.updateURL(text)),
+            onSubmitted: (text) =>
+                context.read<URLCellBloc>().add(URLCellEvent.updateURL(text)),
           ),
         ),
         const VSpace(8.0),
         MobileQuickActionButton(
-          enable: textEditingController.text.isNotEmpty,
+          enable: context.watch<URLCellBloc>().state.content.isNotEmpty,
           onTap: () {
             openUrlCellLink(textEditingController.text);
             context.pop();
@@ -191,7 +192,7 @@ class MobileURLEditor extends StatelessWidget {
         ),
         const Divider(height: 8.5, thickness: 0.5),
         MobileQuickActionButton(
-          enable: textEditingController.text.isNotEmpty,
+          enable: context.watch<URLCellBloc>().state.content.isNotEmpty,
           onTap: () {
             Clipboard.setData(
               ClipboardData(text: textEditingController.text),
