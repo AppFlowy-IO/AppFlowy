@@ -1,9 +1,9 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
-import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/folder/_favorite_folder.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/folder/_section_folder.dart';
@@ -45,30 +45,38 @@ class SidebarFolder extends StatelessWidget {
             // public or private
             BlocBuilder<SidebarSectionsBloc, SidebarSectionsState>(
               builder: (context, state) {
-                return Column(
-                  children: [
-                    // only show public section if the workspace is collaborative
-                    if (context
-                        .read<UserWorkspaceBloc>()
-                        .state
-                        .isCollaborativeWorkspace) ...[
-                      // public
-                      const VSpace(10),
-                      SectionFolder(
-                        title: LocaleKeys.sideBar_public.tr(),
-                        categoryType: FolderCategoryType.public,
-                        views: state.section.publicViews,
-                      ),
-                    ],
+                final isCollaborativeWorkspace =
+                    FeatureFlag.collaborativeWorkspace.isOn;
 
-                    // private
-                    const VSpace(10),
-                    SectionFolder(
-                      title: LocaleKeys.sideBar_private.tr(),
-                      categoryType: FolderCategoryType.private,
-                      views: state.section.privateViews,
-                    ),
-                  ],
+                return Column(
+                  children:
+                      // only show public and private section if the workspace is collaborative
+                      isCollaborativeWorkspace
+                          ? [
+                              // public
+                              const VSpace(10),
+                              SectionFolder(
+                                title: LocaleKeys.sideBar_public.tr(),
+                                categoryType: FolderCategoryType.public,
+                                views: state.section.publicViews,
+                              ),
+
+                              // private
+                              const VSpace(10),
+                              SectionFolder(
+                                title: LocaleKeys.sideBar_private.tr(),
+                                categoryType: FolderCategoryType.private,
+                                views: state.section.privateViews,
+                              ),
+                            ]
+                          : [
+                              const VSpace(10),
+                              SectionFolder(
+                                title: LocaleKeys.sideBar_personal.tr(),
+                                categoryType: FolderCategoryType.public,
+                                views: state.section.publicViews,
+                              ),
+                            ],
                 );
               },
             ),
