@@ -1,7 +1,7 @@
-import { styled, Tab, TabProps, Tabs } from '@mui/material';
+import { styled, Tab, TabProps, Tabs, TabsProps } from '@mui/material';
 import { HTMLAttributes } from 'react';
 
-export const ViewTabs = styled(Tabs)({
+export const ViewTabs = styled((props: TabsProps) => <Tabs {...props} />)({
   minHeight: '28px',
 
   '& .MuiTabs-scroller': {

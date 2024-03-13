@@ -8,7 +8,7 @@ function WorkspaceNestedPages({ workspaceId }: { workspaceId: string }) {
   });
 
   return (
-    <div className={'h-full'}>
+    <div className={'h-full w-full overflow-x-hidden p-4 text-xs'}>
       {pageIds?.map((pageId) => (
         <NestedPage key={pageId} pageId={pageId} />
       ))}

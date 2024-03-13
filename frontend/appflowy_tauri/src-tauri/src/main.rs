@@ -30,12 +30,21 @@ fn main() {
         on_event(app_handler.clone(), event);
       });
     })
-    .setup(|app| {
-      #[cfg(debug_assertions)]
-      {
-        let window = app.get_window("main").unwrap();
-        window.open_devtools();
-      }
+    .setup(|_app| {
+      let splashscreen_window = _app.get_window("splashscreen").unwrap();
+      let window = _app.get_window("main").unwrap();
+
+      // we perform the initialization code on a new task so the app doesn't freeze
+      tauri::async_runtime::spawn(async move {
+        // initialize your app here instead of sleeping :)
+        println!("Initializing...");
+        std::thread::sleep(std::time::Duration::from_secs(2));
+        println!("Done initializing.");
+
+        // After it's done, close the splashscreen and display the main window
+        splashscreen_window.close().unwrap();
+        window.show().unwrap();
+      });
       Ok(())
     })
     .run(tauri::generate_context!())

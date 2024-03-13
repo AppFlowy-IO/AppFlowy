@@ -1,12 +1,10 @@
 import 'dart:async';
 
-import 'package:flutter/widgets.dart';
-
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
-import 'package:appflowy/plugins/database/application/cell/select_option_cell_service.dart';
+import 'package:appflowy/plugins/database/domain/select_option_cell_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option_entities.pb.dart';
-import 'package:dartz/dartz.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -52,7 +50,7 @@ class SelectOptionCellEditorBloc
             await _createOption(optionName);
             emit(
               state.copyWith(
-                filter: none(),
+                filter: null,
               ),
             );
           },
@@ -164,7 +162,7 @@ class SelectOptionCellEditorBloc
     }
 
     // clear the filter
-    emit(state.copyWith(filter: none()));
+    emit(state.copyWith(filter: null));
   }
 
   void _selectMultipleOptions(List<String> optionNames) {
@@ -186,12 +184,12 @@ class SelectOptionCellEditorBloc
 
   void _filterOption(String optionName, Emitter<SelectOptionEditorState> emit) {
     final _MakeOptionResult result = _makeOptions(
-      Some(optionName),
+      optionName,
       state.allOptions,
     );
     emit(
       state.copyWith(
-        filter: Some(optionName),
+        filter: optionName,
         options: result.options,
         createOption: result.createOption,
       ),
@@ -201,7 +199,7 @@ class SelectOptionCellEditorBloc
   Future<void> _loadOptions() async {
     final result = await _selectOptionService.getCellData();
     if (isClosed) {
-      Log.warn("Unexpected closing the bloc");
+      Log.warn("Unexpecteded closing the bloc");
       return;
     }
 
@@ -220,28 +218,26 @@ class SelectOptionCellEditorBloc
   }
 
   _MakeOptionResult _makeOptions(
-    Option<String> filter,
+    String? filter,
     List<SelectOptionPB> allOptions,
   ) {
     final List<SelectOptionPB> options = List.from(allOptions);
-    Option<String> createOption = filter;
+    String? createOption = filter;
 
-    filter.foldRight(null, (filter, previous) {
-      if (filter.isNotEmpty) {
-        options.retainWhere((option) {
-          final name = option.name.toLowerCase();
-          final lFilter = filter.toLowerCase();
+    if (filter != null && filter.isNotEmpty) {
+      options.retainWhere((option) {
+        final name = option.name.toLowerCase();
+        final lFilter = filter.toLowerCase();
 
-          if (name == lFilter) {
-            createOption = none();
-          }
+        if (name == lFilter) {
+          createOption = null;
+        }
 
-          return name.contains(lFilter);
-        });
-      } else {
-        createOption = none();
-      }
-    });
+        return name.contains(lFilter);
+      });
+    } else {
+      createOption = null;
+    }
 
     return _MakeOptionResult(
       options: options,
@@ -295,8 +291,8 @@ class SelectOptionEditorState with _$SelectOptionEditorState {
     required List<SelectOptionPB> options,
     required List<SelectOptionPB> allOptions,
     required List<SelectOptionPB> selectedOptions,
-    required Option<String> createOption,
-    required Option<String> filter,
+    required String? createOption,
+    required String? filter,
   }) = _SelectOptionEditorState;
 
   factory SelectOptionEditorState.initial(SelectOptionCellController context) {
@@ -305,8 +301,8 @@ class SelectOptionEditorState with _$SelectOptionEditorState {
       options: data?.options ?? [],
       allOptions: data?.options ?? [],
       selectedOptions: data?.selectOptions ?? [],
-      createOption: none(),
-      filter: none(),
+      createOption: null,
+      filter: null,
     );
   }
 }
@@ -318,5 +314,5 @@ class _MakeOptionResult {
   });
 
   List<SelectOptionPB> options;
-  Option<String> createOption;
+  String? createOption;
 }

@@ -228,10 +228,7 @@
     "rename": "Renombrar",
     "helpCenter": "Centre d'ajuda",
     "add": "Afegir",
-    "yes": "Sí",
-    "Done": "Fet",
-    "Cancel": "Cancel·lar",
-    "OK": "OK"
+    "yes": "Sí"
   },
   "label": {
     "welcome": "Benvingut!",
@@ -426,13 +423,13 @@
       "typeAValue": "Escriu un valor...",
       "layout": "Disseny",
       "databaseLayout": "Disseny",
-      "viewList": "Visualitzacions de la base de dades",
       "editView": "Edita la vista",
       "boardSettings": "Configuració del tauler",
       "calendarSettings": "Configuració del calendari",
       "createView": "Vista nova",
       "duplicateView": "Vista duplicada",
-      "deleteView": "Suprimeix la vista"
+      "deleteView": "Suprimeix la vista",
+      "viewList": "Visualitzacions de la base de dades"
     },
     "textFilter": {
       "contains": "Conté",

@@ -231,9 +231,6 @@
     "helpCenter": "مركز المساعدة",
     "add": "اضافة",
     "yes": "نعم",
-    "Done": "منتهي",
-    "Cancel": "إلغاء",
-    "OK": "نعم",
     "tryAGain": "حاول ثانية"
   },
   "label": {
@@ -853,10 +850,10 @@
       "addToColumnBottomTooltip": "أضف بطاقة جديدة في الأسفل",
       "renameColumn": "إعادة تسمية",
       "hideColumn": "اخفاء",
-      "groupActions": "إجراءات المجموعة",
       "newGroup": "مجموعة جديدة",
       "deleteColumn": "مسح",
-      "deleteColumnConfirmation": "سيؤدي هذا إلى حذف هذه المجموعة وجميع البطاقات الموجودة فيها. هل أنت متأكد من الاستمرار؟"
+      "deleteColumnConfirmation": "سيؤدي هذا إلى حذف هذه المجموعة وجميع البطاقات الموجودة فيها. هل أنت متأكد من الاستمرار؟",
+      "groupActions": "إجراءات المجموعة"
     },
     "hiddenGroupSection": {
       "sectionTitle": "المجموعات المخفية",

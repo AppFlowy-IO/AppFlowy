@@ -13,7 +13,6 @@ dependencies:
     sdk: flutter
 
   # Thirdparty packages
-  dartz:
   provider: ^6.0.5
   styled_widget: ^0.4.1
   equatable: ^2.0.5
@@ -37,7 +36,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^2.0.1
+  flutter_lints: ^3.0.1
 
 flutter:
   plugin:

@@ -7,10 +7,12 @@ use collab_database::rows::RowId;
 use futures::stream::StreamExt;
 use tokio::sync::broadcast::Receiver;
 
-use flowy_database2::entities::{DeleteSortPayloadPB, FieldType, UpdateSortPayloadPB};
+use flowy_database2::entities::{
+  DeleteSortPayloadPB, FieldType, ReorderSortPayloadPB, UpdateSortPayloadPB,
+};
 use flowy_database2::services::cell::stringify_cell_data;
 use flowy_database2::services::database_view::DatabaseViewChanged;
-use flowy_database2::services::sort::{Sort, SortCondition};
+use flowy_database2::services::sort::SortCondition;
 
 use crate::database::database_editor::DatabaseEditorTest;
 
@@ -18,6 +20,10 @@ pub enum SortScript {
   InsertSort {
     field: Field,
     condition: SortCondition,
+  },
+  ReorderSort {
+    from_sort_id: String,
+    to_sort_id: String,
   },
   DeleteSort {
     sort_id: String,
@@ -30,6 +36,7 @@ pub enum SortScript {
     row_id: RowId,
     text: String,
   },
+  AddNewRow,
   AssertSortChanged {
     old_row_orders: Vec<&'static str>,
     new_row_orders: Vec<&'static str>,
@@ -41,7 +48,6 @@ pub enum SortScript {
 
 pub struct DatabaseSortTest {
   inner: DatabaseEditorTest,
-  pub current_sort_rev: Option<Sort>,
   recv: Option<Receiver<DatabaseViewChanged>>,
 }
 
@@ -50,7 +56,6 @@ impl DatabaseSortTest {
     let editor_test = DatabaseEditorTest::new_grid().await;
     Self {
       inner: editor_test,
-      current_sort_rev: None,
       recv: None,
     }
   }
@@ -74,11 +79,27 @@ impl DatabaseSortTest {
           view_id: self.view_id.clone(),
           field_id: field.id.clone(),
           sort_id: None,
-          field_type: FieldType::from(field.field_type),
           condition: condition.into(),
         };
-        let sort_rev = self.editor.create_or_update_sort(params).await.unwrap();
-        self.current_sort_rev = Some(sort_rev);
+        let _ = self.editor.create_or_update_sort(params).await.unwrap();
+      },
+      SortScript::ReorderSort {
+        from_sort_id,
+        to_sort_id,
+      } => {
+        self.recv = Some(
+          self
+            .editor
+            .subscribe_view_changed(&self.view_id)
+            .await
+            .unwrap(),
+        );
+        let params = ReorderSortPayloadPB {
+          view_id: self.view_id.clone(),
+          from_sort_id,
+          to_sort_id,
+        };
+        self.editor.reorder_sort(params).await.unwrap();
       },
       SortScript::DeleteSort { sort_id } => {
         self.recv = Some(
@@ -93,7 +114,6 @@ impl DatabaseSortTest {
           sort_id,
         };
         self.editor.delete_sort(params).await.unwrap();
-        self.current_sort_rev = None;
       },
       SortScript::AssertCellContentOrder { field_id, orders } => {
         let mut cells = vec![];
@@ -124,6 +144,28 @@ impl DatabaseSortTest {
             .unwrap(),
         );
         self.update_text_cell(row_id, &text).await.unwrap();
+      },
+      SortScript::AddNewRow => {
+        self.recv = Some(
+          self
+            .editor
+            .subscribe_view_changed(&self.view_id)
+            .await
+            .unwrap(),
+        );
+        self
+          .editor
+          .create_row(
+            &self.view_id,
+            None,
+            collab_database::rows::CreateRowParams {
+              id: collab_database::database::gen_row_id(),
+              timestamp: collab_database::database::timestamp(),
+              ..Default::default()
+            },
+          )
+          .await
+          .unwrap();
       },
       SortScript::AssertSortChanged {
         new_row_orders,
@@ -175,6 +217,7 @@ async fn assert_sort_changed(
           old_row_orders.insert(changed.new_index, old);
           assert_eq!(old_row_orders, new_row_orders);
         },
+        DatabaseViewChanged::InsertSortedRowNotification(_changed) => {},
         _ => {},
       }
     })

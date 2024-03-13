@@ -183,14 +183,12 @@ function FilterConditionSelect({
   }, [fieldType, t]);
 
   return (
-    <div className={'flex justify-between gap-[20px] px-4'}>
+    <div className={'flex items-center justify-between gap-[20px] px-4'}>
       <div className={'flex-1 text-sm text-text-caption'}>{name}</div>
       <ConditionSelect
         conditions={conditions}
         onChange={(e) => {
-          const value = Number(e.target.value);
-
-          onChange(value);
+          onChange(e);
         }}
         value={condition}
       />

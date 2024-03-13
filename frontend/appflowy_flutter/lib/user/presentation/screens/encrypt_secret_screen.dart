@@ -28,6 +28,13 @@ class EncryptSecretScreen extends StatefulWidget {
 
 class _EncryptSecretScreenState extends State<EncryptSecretScreen> {
   final TextEditingController _textEditingController = TextEditingController();
+
+  @override
+  void dispose() {
+    _textEditingController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -48,17 +55,12 @@ class _EncryptSecretScreenState extends State<EncryptSecretScreen> {
               listenWhen: (previous, current) =>
                   previous.successOrFail != current.successOrFail,
               listener: (context, state) async {
-                state.successOrFail.fold(
-                  () {},
-                  (result) {
-                    result.fold(
-                      (unit) async {
-                        await runAppFlowy();
-                      },
-                      (error) {
-                        handleOpenWorkspaceError(context, error);
-                      },
-                    );
+                await state.successOrFail?.fold(
+                  (unit) async {
+                    await runAppFlowy();
+                  },
+                  (error) {
+                    handleOpenWorkspaceError(context, error);
                   },
                 );
               },

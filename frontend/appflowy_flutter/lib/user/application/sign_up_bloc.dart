@@ -1,10 +1,10 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/code.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
     show UserProfilePB;
-import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:dartz/dartz.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -29,8 +29,8 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
             emit(
               state.copyWith(
                 email: value.email,
-                emailError: none(),
-                successOrFail: none(),
+                emailError: null,
+                successOrFail: null,
               ),
             );
           },
@@ -38,8 +38,8 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
             emit(
               state.copyWith(
                 password: value.password,
-                passwordError: none(),
-                successOrFail: none(),
+                passwordError: null,
+                successOrFail: null,
               ),
             );
           },
@@ -47,8 +47,8 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
             emit(
               state.copyWith(
                 repeatedPassword: value.password,
-                repeatPasswordError: none(),
-                successOrFail: none(),
+                repeatPasswordError: null,
+                successOrFail: null,
               ),
             );
           },
@@ -61,7 +61,7 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
     emit(
       state.copyWith(
         isSubmitting: true,
-        successOrFail: none(),
+        successOrFail: null,
       ),
     );
 
@@ -71,7 +71,7 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
       emit(
         state.copyWith(
           isSubmitting: false,
-          passwordError: some(LocaleKeys.signUp_emptyPasswordError.tr()),
+          passwordError: LocaleKeys.signUp_emptyPasswordError.tr(),
         ),
       );
       return;
@@ -81,8 +81,7 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
       emit(
         state.copyWith(
           isSubmitting: false,
-          repeatPasswordError:
-              some(LocaleKeys.signUp_repeatPasswordEmptyError.tr()),
+          repeatPasswordError: LocaleKeys.signUp_repeatPasswordEmptyError.tr(),
         ),
       );
       return;
@@ -92,8 +91,7 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
       emit(
         state.copyWith(
           isSubmitting: false,
-          repeatPasswordError:
-              some(LocaleKeys.signUp_unmatchedPasswordError.tr()),
+          repeatPasswordError: LocaleKeys.signUp_unmatchedPasswordError.tr(),
         ),
       );
       return;
@@ -101,8 +99,8 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
 
     emit(
       state.copyWith(
-        passwordError: none(),
-        repeatPasswordError: none(),
+        passwordError: null,
+        repeatPasswordError: null,
       ),
     );
 
@@ -113,14 +111,14 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
     );
     emit(
       result.fold(
-        (error) => stateFromCode(error),
         (profile) => state.copyWith(
           isSubmitting: false,
-          successOrFail: some(left(profile)),
-          emailError: none(),
-          passwordError: none(),
-          repeatPasswordError: none(),
+          successOrFail: FlowyResult.success(profile),
+          emailError: null,
+          passwordError: null,
+          repeatPasswordError: null,
         ),
+        (error) => stateFromCode(error),
       ),
     );
   }
@@ -130,21 +128,21 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
       case ErrorCode.EmailFormatInvalid:
         return state.copyWith(
           isSubmitting: false,
-          emailError: some(error.msg),
-          passwordError: none(),
-          successOrFail: none(),
+          emailError: error.msg,
+          passwordError: null,
+          successOrFail: null,
         );
       case ErrorCode.PasswordFormatInvalid:
         return state.copyWith(
           isSubmitting: false,
-          passwordError: some(error.msg),
-          emailError: none(),
-          successOrFail: none(),
+          passwordError: error.msg,
+          emailError: null,
+          successOrFail: null,
         );
       default:
         return state.copyWith(
           isSubmitting: false,
-          successOrFail: some(right(error)),
+          successOrFail: FlowyResult.failure(error),
         );
     }
   }
@@ -167,17 +165,17 @@ class SignUpState with _$SignUpState {
     String? password,
     String? repeatedPassword,
     required bool isSubmitting,
-    required Option<String> passwordError,
-    required Option<String> repeatPasswordError,
-    required Option<String> emailError,
-    required Option<Either<UserProfilePB, FlowyError>> successOrFail,
+    required String? passwordError,
+    required String? repeatPasswordError,
+    required String? emailError,
+    required FlowyResult<UserProfilePB, FlowyError>? successOrFail,
   }) = _SignUpState;
 
-  factory SignUpState.initial() => SignUpState(
+  factory SignUpState.initial() => const SignUpState(
         isSubmitting: false,
-        passwordError: none(),
-        repeatPasswordError: none(),
-        emailError: none(),
-        successOrFail: none(),
+        passwordError: null,
+        repeatPasswordError: null,
+        emailError: null,
+        successOrFail: null,
       );
 }

@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
-import 'package:appflowy/plugins/database/application/filter/filter_service.dart';
+import 'package:appflowy/plugins/database/domain/filter_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/checkbox_filter.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/checklist_filter.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/date_filter.pbenum.dart';
@@ -11,7 +11,7 @@ import 'package:appflowy_backend/protobuf/flowy-database2/number_filter.pb.dart'
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option_filter.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/text_filter.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pbserver.dart';
-import 'package:dartz/dartz.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -91,7 +91,9 @@ class GridCreateFilterBloc
     fieldController.addListener(onReceiveFields: _onFieldFn);
   }
 
-  Future<Either<Unit, FlowyError>> _createDefaultFilter(FieldInfo field) async {
+  Future<FlowyResult<void, FlowyError>> _createDefaultFilter(
+    FieldInfo field,
+  ) async {
     final fieldId = field.id;
     switch (field.fieldType) {
       case FieldType.Checkbox:
@@ -142,9 +144,9 @@ class GridCreateFilterBloc
           fieldId: fieldId,
           condition: TextFilterConditionPB.Contains,
         );
+      default:
+        throw UnimplementedError();
     }
-
-    return left(unit);
   }
 
   @override

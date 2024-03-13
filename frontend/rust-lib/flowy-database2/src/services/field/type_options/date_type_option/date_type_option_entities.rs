@@ -11,12 +11,10 @@ use strum_macros::EnumIter;
 use flowy_error::{internal_error, FlowyResult};
 
 use crate::entities::{DateCellDataPB, FieldType};
-use crate::services::cell::{
-  CellProtobufBlobParser, DecodedCellData, FromCellChangeset, FromCellString, ToCellChangeset,
-};
+use crate::services::cell::CellProtobufBlobParser;
 use crate::services::field::{TypeOptionCellData, CELL_DATA};
 
-#[derive(Clone, Debug, Default, Serialize, Deserialize)]
+#[derive(Clone, Debug, Default)]
 pub struct DateCellChangeset {
   pub date: Option<i64>,
   pub time: Option<String>,
@@ -26,21 +24,6 @@ pub struct DateCellChangeset {
   pub is_range: Option<bool>,
   pub clear_flag: Option<bool>,
   pub reminder_id: Option<String>,
-}
-
-impl FromCellChangeset for DateCellChangeset {
-  fn from_changeset(changeset: String) -> FlowyResult<Self>
-  where
-    Self: Sized,
-  {
-    serde_json::from_str::<DateCellChangeset>(&changeset).map_err(internal_error)
-  }
-}
-
-impl ToCellChangeset for DateCellChangeset {
-  fn to_cell_changeset_str(&self) -> String {
-    serde_json::to_string(self).unwrap_or_default()
-  }
 }
 
 #[derive(Default, Clone, Debug, Serialize)]
@@ -213,16 +196,6 @@ impl<'de> serde::Deserialize<'de> for DateCellData {
   }
 }
 
-impl FromCellString for DateCellData {
-  fn from_cell_str(s: &str) -> FlowyResult<Self>
-  where
-    Self: Sized,
-  {
-    let result: DateCellData = serde_json::from_str(s).unwrap();
-    Ok(result)
-  }
-}
-
 impl ToString for DateCellData {
   fn to_string(&self) -> String {
     serde_json::to_string(self).unwrap()
@@ -302,14 +275,6 @@ impl TimeFormat {
       TimeFormat::TwelveHour => "%I:%M %p",
       TimeFormat::TwentyFourHour => "%R",
     }
-  }
-}
-
-impl DecodedCellData for DateCellDataPB {
-  type Object = DateCellDataPB;
-
-  fn is_empty(&self) -> bool {
-    self.date.is_empty()
   }
 }
 

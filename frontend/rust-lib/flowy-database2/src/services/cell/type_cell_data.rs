@@ -1,109 +1,6 @@
 use bytes::Bytes;
-use serde::{Deserialize, Serialize};
 
-use flowy_error::{internal_error, FlowyError, FlowyResult};
-
-use crate::entities::FieldType;
-
-/// TypeCellData is a generic CellData, you can parse the type_cell_data according to the field_type.
-/// The `data` is encoded by JSON format. You can use `IntoCellData` to decode the opaque data to
-/// concrete cell type.
-/// TypeCellData -> IntoCellData<T> -> T
-///
-/// The `TypeCellData` is the same as the cell data that was saved to disk except it carries the
-/// field_type. The field_type indicates the cell data original `FieldType`. The field_type will
-/// be changed if the current Field's type switch from one to another.  
-///
-#[derive(Debug, Serialize, Deserialize)]
-pub struct TypeCellData {
-  #[serde(rename = "data")]
-  pub cell_str: String,
-  pub field_type: FieldType,
-}
-
-impl TypeCellData {
-  pub fn from_field_type(field_type: &FieldType) -> TypeCellData {
-    Self {
-      cell_str: "".to_string(),
-      field_type: *field_type,
-    }
-  }
-
-  pub fn from_json_str(s: &str) -> FlowyResult<Self> {
-    let type_cell_data: TypeCellData = serde_json::from_str(s).map_err(|err| {
-      let msg = format!("Deserialize {} to type cell data failed.{}", s, err);
-      FlowyError::internal().with_context(msg)
-    })?;
-    Ok(type_cell_data)
-  }
-
-  pub fn into_inner(self) -> String {
-    self.cell_str
-  }
-}
-
-impl std::convert::TryFrom<String> for TypeCellData {
-  type Error = FlowyError;
-
-  fn try_from(value: String) -> Result<Self, Self::Error> {
-    TypeCellData::from_json_str(&value)
-  }
-}
-
-impl ToString for TypeCellData {
-  fn to_string(&self) -> String {
-    self.cell_str.clone()
-  }
-}
-
-impl TypeCellData {
-  pub fn new(cell_str: String, field_type: FieldType) -> Self {
-    TypeCellData {
-      cell_str,
-      field_type,
-    }
-  }
-
-  pub fn to_json(&self) -> String {
-    serde_json::to_string(self).unwrap_or_else(|_| "".to_owned())
-  }
-
-  pub fn is_number(&self) -> bool {
-    self.field_type == FieldType::Number
-  }
-
-  pub fn is_text(&self) -> bool {
-    self.field_type == FieldType::RichText
-  }
-
-  pub fn is_checkbox(&self) -> bool {
-    self.field_type == FieldType::Checkbox
-  }
-
-  pub fn is_date(&self) -> bool {
-    self.field_type == FieldType::DateTime
-  }
-
-  pub fn is_single_select(&self) -> bool {
-    self.field_type == FieldType::SingleSelect
-  }
-
-  pub fn is_multi_select(&self) -> bool {
-    self.field_type == FieldType::MultiSelect
-  }
-
-  pub fn is_checklist(&self) -> bool {
-    self.field_type == FieldType::Checklist
-  }
-
-  pub fn is_url(&self) -> bool {
-    self.field_type == FieldType::URL
-  }
-
-  pub fn is_select_option(&self) -> bool {
-    self.field_type == FieldType::MultiSelect || self.field_type == FieldType::SingleSelect
-  }
-}
+use flowy_error::{internal_error, FlowyResult};
 
 /// The data is encoded by protobuf or utf8. You should choose the corresponding decode struct to parse it.
 ///
@@ -116,13 +13,8 @@ impl TypeCellData {
 #[derive(Default, Debug)]
 pub struct CellProtobufBlob(pub Bytes);
 
-pub trait DecodedCellData {
-  type Object;
-  fn is_empty(&self) -> bool;
-}
-
 pub trait CellProtobufBlobParser {
-  type Object: DecodedCellData;
+  type Object;
   fn parser(bytes: &Bytes) -> FlowyResult<Self::Object>;
 }
 

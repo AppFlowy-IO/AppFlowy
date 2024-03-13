@@ -75,6 +75,7 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
   @override
   void dispose() {
     widget.textController.removeListener(_onChanged);
+    focusNode.dispose();
     super.dispose();
   }
 
@@ -162,7 +163,6 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
             },
           ),
           child: SingleChildScrollView(
-            controller: ScrollController(),
             scrollDirection: Axis.horizontal,
             child: Wrap(spacing: 4, children: children),
           ),

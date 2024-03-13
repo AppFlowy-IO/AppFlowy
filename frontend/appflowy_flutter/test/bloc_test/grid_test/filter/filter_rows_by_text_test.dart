@@ -1,4 +1,4 @@
-import 'package:appflowy/plugins/database/application/filter/filter_service.dart';
+import 'package:appflowy/plugins/database/domain/filter_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/text_filter.pb.dart';
 import 'package:flutter_test/flutter_test.dart';
 

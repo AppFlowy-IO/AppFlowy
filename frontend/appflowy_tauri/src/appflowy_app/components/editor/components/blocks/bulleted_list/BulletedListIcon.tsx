@@ -8,7 +8,7 @@ function BulletedListIcon({ block: _, className }: { block: BulletedListNode; cl
         e.preventDefault();
       }}
       contentEditable={false}
-      className={`${className} bulleted-icon flex w-[23px] justify-center pr-1 font-medium`}
+      className={`${className} bulleted-icon flex min-w-[23px] justify-center pr-1 font-medium`}
     />
   );
 }

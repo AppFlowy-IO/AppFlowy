@@ -22,7 +22,9 @@ import {
   ViewPB,
   RepeatedTrashPB,
   ChildViewUpdatePB,
+  WorkspacePB,
 } from '@/services/backend';
+import { AsyncQueue } from '$app/utils/async_queue';
 
 const Notification = {
   [DatabaseNotification.DidUpdateViewRowsVisibility]: RowsVisibilityChangePB,
@@ -39,11 +41,12 @@ const Notification = {
   [DatabaseNotification.DidUpdateFieldSettings]: FieldSettingsPB,
   [DatabaseNotification.DidUpdateFilter]: FilterChangesetNotificationPB,
   [DocumentNotification.DidReceiveUpdate]: DocEventPB,
-  [UserNotification.DidUpdateUserProfile]: UserProfilePB,
+  [FolderNotification.DidUpdateWorkspace]: WorkspacePB,
   [FolderNotification.DidUpdateWorkspaceViews]: RepeatedViewPB,
   [FolderNotification.DidUpdateView]: ViewPB,
   [FolderNotification.DidUpdateChildViews]: ChildViewUpdatePB,
   [FolderNotification.DidUpdateTrash]: RepeatedTrashPB,
+  [UserNotification.DidUpdateUserProfile]: UserProfilePB,
 };
 
 type NotificationMap = typeof Notification;
@@ -56,7 +59,9 @@ type NullableInstanceType<K extends (abstract new (...args: any) => any) | null>
 any
   ? InstanceType<K>
   : void;
-export type NotificationHandler<K extends NotificationEnum> = (result: NullableInstanceType<NotificationMap[K]>) => void;
+export type NotificationHandler<K extends NotificationEnum> = (
+  result: NullableInstanceType<NotificationMap[K]>
+) => void | Promise<void>;
 
 /**
  * Subscribes to a set of notifications.
@@ -103,10 +108,9 @@ export function subscribeNotifications(
   callbacks: {
     [K in NotificationEnum]?: NotificationHandler<K>;
   },
-  options?: { id?: string }
+  options?: { id?: string | number }
 ): Promise<() => void> {
-  return listen<ReturnType<typeof SubscribeObject.prototype.toObject>>('af-notification', (event) => {
-    const subject = SubscribeObject.fromObject(event.payload);
+  const handler = async (subject: SubscribeObject) => {
     const { id, ty } = subject;
 
     if (options?.id !== undefined && id !== options.id) {
@@ -127,8 +131,20 @@ export function subscribeNotifications(
     } else {
       const { payload } = subject;
 
-      pb ? callback(pb.deserialize(payload)) : callback();
+      if (pb) {
+        await callback(pb.deserialize(payload));
+      } else {
+        await callback();
+      }
     }
+  };
+
+  const queue = new AsyncQueue(handler);
+
+  return listen<ReturnType<typeof SubscribeObject.prototype.toObject>>('af-notification', (event) => {
+    const subject = SubscribeObject.fromObject(event.payload);
+
+    queue.enqueue(subject);
   });
 }
 

@@ -32,7 +32,7 @@ impl EventTemplate {
       .tera_context
       .insert("has_input", &ctx.input_deserializer.is_some());
     match ctx.input_deserializer {
-      None => self.tera_context.insert("input_deserializer", "Unit"),
+      None => self.tera_context.insert("input_deserializer", "void"),
       Some(ref input) => self.tera_context.insert("input_deserializer", input),
     }
 
@@ -45,7 +45,7 @@ impl EventTemplate {
     self.tera_context.insert("has_output", &has_output);
 
     match ctx.output_deserializer {
-      None => self.tera_context.insert("output_deserializer", "Unit"),
+      None => self.tera_context.insert("output_deserializer", "void"),
       Some(ref output) => self.tera_context.insert("output_deserializer", output),
     }
 

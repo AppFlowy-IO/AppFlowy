@@ -3,7 +3,7 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
-import 'package:dartz/dartz.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -39,7 +39,7 @@ class EncryptSecretBloc extends Bloc<EncryptSecretEvent, EncryptSecretState> {
           emit(
             state.copyWith(
               loadingState: const LoadingState.loading(),
-              successOrFail: none(),
+              successOrFail: null,
             ),
           );
         },
@@ -47,26 +47,26 @@ class EncryptSecretBloc extends Bloc<EncryptSecretEvent, EncryptSecretState> {
           await getIt<AuthService>().signOut();
           emit(
             state.copyWith(
-              successOrFail: none(),
+              successOrFail: null,
               isSignOut: true,
             ),
           );
         },
-        didFinishCheck: (Either<Unit, FlowyError> result) {
+        didFinishCheck: (result) {
           result.fold(
             (unit) {
               emit(
                 state.copyWith(
                   loadingState: const LoadingState.loading(),
-                  successOrFail: Some(result),
+                  successOrFail: result,
                 ),
               );
             },
             (err) {
               emit(
                 state.copyWith(
-                  loadingState: LoadingState.finish(right(err)),
-                  successOrFail: Some(result),
+                  loadingState: LoadingState.finish(FlowyResult.failure(err)),
+                  successOrFail: result,
                 ),
               );
             },
@@ -94,7 +94,7 @@ class EncryptSecretEvent with _$EncryptSecretEvent {
   const factory EncryptSecretEvent.setEncryptSecret(String secret) =
       _SetEncryptSecret;
   const factory EncryptSecretEvent.didFinishCheck(
-    Either<Unit, FlowyError> result,
+    FlowyResult<void, FlowyError> result,
   ) = _DidFinishCheck;
   const factory EncryptSecretEvent.cancelInputSecret() = _CancelInputSecret;
 }
@@ -102,13 +102,13 @@ class EncryptSecretEvent with _$EncryptSecretEvent {
 @freezed
 class EncryptSecretState with _$EncryptSecretState {
   const factory EncryptSecretState({
-    required Option<Either<Unit, FlowyError>> successOrFail,
+    required FlowyResult<void, FlowyError>? successOrFail,
     required bool isSignOut,
     LoadingState? loadingState,
   }) = _EncryptSecretState;
 
-  factory EncryptSecretState.initial() => EncryptSecretState(
-        successOrFail: none(),
+  factory EncryptSecretState.initial() => const EncryptSecretState(
+        successOrFail: null,
         isSignOut: false,
       );
 }

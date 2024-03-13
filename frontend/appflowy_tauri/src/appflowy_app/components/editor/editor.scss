@@ -25,9 +25,7 @@
 .block-element.block-align-center {
   > div > .text-element {
     justify-content: center;
-
   }
-
 
 }
 
@@ -48,20 +46,55 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
 }
 
 
+
 [role="textbox"] {
   ::selection {
     @apply bg-content-blue-100;
   }
+  .text-content {
+    &::selection {
+      @apply bg-transparent;
+    }
+    span {
+      &::selection {
+        @apply bg-content-blue-100;
+      }
+    }
+  }
 }
+
+
 
 [data-dark-mode="true"] [role="textbox"]{
   ::selection {
     background-color: #1e79a2;
   }
+
+  .text-content {
+    &::selection {
+      @apply bg-transparent;
+    }
+    span {
+      &::selection {
+        background-color: #1e79a2;
+      }
+    }
+  }
 }
 
 
-.text-element:has(.text-placeholder), .divider-node {
+.text-content, [data-dark-mode="true"] .text-content {
+  &.empty-content {
+    @apply min-w-[1px];
+    span {
+      &::selection {
+        @apply bg-transparent;
+      }
+    }
+  }
+}
+
+.text-element:has(.text-placeholder), .divider-node, [data-dark-mode="true"] .text-element:has(.text-placeholder), [data-dark-mode="true"] .divider-node {
   ::selection {
     @apply bg-transparent;
   }
@@ -103,4 +136,39 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
 .grid-block .grid-scroll-container::-webkit-scrollbar {
   width: 0;
   height: 0;
+}
+
+.image-render {
+  .image-resizer {
+    @apply absolute w-[10px] top-0 z-10 flex h-full cursor-col-resize items-center justify-end;
+    .resize-handle {
+      @apply h-1/4 w-1/2 transform transition-all duration-500 select-none rounded-full border border-white opacity-0;
+      background: var(--fill-toolbar);
+    }
+  }
+  &:hover {
+    .image-resizer{
+      .resize-handle {
+        @apply opacity-90;
+      }
+    }
+  }
+}
+
+
+.image-block, .math-equation-block, [data-dark-mode="true"] .image-block, [data-dark-mode="true"] .math-equation-block {
+  ::selection {
+    @apply bg-transparent;
+  }
+  &:hover {
+    .container-bg {
+      background: var(--content-blue-100) !important;
+    }
+  }
+}
+
+.mention-inline {
+  &:hover {
+    @apply bg-fill-list-active rounded;
+  }
 }

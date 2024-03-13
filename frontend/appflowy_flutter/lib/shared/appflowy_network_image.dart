@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:appflowy/shared/custom_image_cache_manager.dart';
 import 'package:appflowy/util/string_extension.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -38,8 +39,10 @@ class FlowyNetworkImage extends StatelessWidget {
       assert(userProfilePB != null && userProfilePB!.token.isNotEmpty);
     }
 
+    final manager = CustomImageCacheManager();
+
     return CachedNetworkImage(
-      cacheManager: CustomImageCacheManager(),
+      cacheManager: manager,
       httpHeaders: _header(),
       imageUrl: url,
       fit: fit,
@@ -49,6 +52,12 @@ class FlowyNetworkImage extends StatelessWidget {
       errorWidget: (context, url, error) =>
           errorWidgetBuilder?.call(context, url, error) ??
           const SizedBox.shrink(),
+      errorListener: (value) {
+        // try to clear the image cache.
+        manager.removeFile(url);
+
+        Log.error(value.toString());
+      },
     );
   }
 
@@ -56,7 +65,12 @@ class FlowyNetworkImage extends StatelessWidget {
     final header = <String, String>{};
     final token = userProfilePB?.token;
     if (token != null) {
-      header['Authorization'] = 'Bearer ${jsonDecode(token)['access_token']}';
+      try {
+        final decodedToken = jsonDecode(token);
+        header['Authorization'] = 'Bearer ${decodedToken['access_token']}';
+      } catch (e) {
+        Log.error('unable to decode token: $e');
+      }
     }
     return header;
   }

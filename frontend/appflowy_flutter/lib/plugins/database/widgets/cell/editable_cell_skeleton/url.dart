@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_quick_action_button.dart';
+import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database/application/database_controller.dart';
@@ -22,6 +23,9 @@ import '../desktop_grid/desktop_grid_url_cell.dart';
 import '../desktop_row_detail/desktop_row_detail_url_cell.dart';
 import '../mobile_grid/mobile_grid_url_cell.dart';
 import '../mobile_row_detail/mobile_row_detail_url_cell.dart';
+
+const regexUrl =
+    r"[(http(s)?):\/\/(www\.)?a-zA-Z0-9@:._\+-~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:_\+.~#?&\/\/=]*)";
 
 abstract class IEditableURLCellSkin {
   const IEditableURLCellSkin();
@@ -97,6 +101,7 @@ class _GridURLCellState extends GridEditableTextCell<EditableURLCell> {
 
   @override
   void dispose() {
+    widget._cellDataNotifier.dispose();
     _textEditingController.dispose();
     cellBloc.close();
     super.dispose();
@@ -206,6 +211,27 @@ class MobileURLEditor extends StatelessWidget {
           thickness: 0.5,
         ),
       ],
+    );
+  }
+}
+
+void openUrlCellLink(String content) {
+  if (RegExp(regexUrl).hasMatch(content)) {
+    const linkPrefix = [
+      'http://',
+      'https://',
+      'file://',
+      'ftp://',
+      'ftps://',
+      'mailto:',
+    ];
+    final shouldAddScheme =
+        !linkPrefix.any((pattern) => content.startsWith(pattern));
+    final url = shouldAddScheme ? 'https://$content' : content;
+    afLaunchUrlString(url);
+  } else {
+    afLaunchUrlString(
+      "https://www.google.com/search?q=${Uri.encodeComponent(content)}",
     );
   }
 }

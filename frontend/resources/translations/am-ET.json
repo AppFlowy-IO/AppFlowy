@@ -193,9 +193,8 @@
     "editContact": "እውቂያ ያርትዑ"
   },
   "button": {
-    "OK": "እሺ",
-    "Done": "ተከናውኗል",
-    "Cancel": "ይቅር",
+    "ok": "እሺ",
+    "cancel": "ይቅር",
     "signIn": "ይግቡ",
     "signOut": "ዘግተው ውጣ",
     "complete": "ተጠናቀቀ",

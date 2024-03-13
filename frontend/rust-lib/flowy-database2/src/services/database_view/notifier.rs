@@ -6,7 +6,7 @@ use crate::entities::{
 };
 use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::filter::FilterResultNotification;
-use crate::services::sort::{ReorderAllRowsResult, ReorderSingleRowResult};
+use crate::services::sort::{InsertSortedRowResult, ReorderAllRowsResult, ReorderSingleRowResult};
 use async_stream::stream;
 use futures::stream::StreamExt;
 use tokio::sync::broadcast;
@@ -16,6 +16,7 @@ pub enum DatabaseViewChanged {
   FilterNotification(FilterResultNotification),
   ReorderAllRowsNotification(ReorderAllRowsResult),
   ReorderSingleRowNotification(ReorderSingleRowResult),
+  InsertSortedRowNotification(InsertSortedRowResult),
   CalculationValueNotification(CalculationChangesetNotificationPB),
 }
 
@@ -78,6 +79,7 @@ impl DatabaseViewChangedReceiverRunner {
             .payload(reorder_row)
             .send()
           },
+          DatabaseViewChanged::InsertSortedRowNotification(_result) => {},
           DatabaseViewChanged::CalculationValueNotification(notification) => send_notification(
             &notification.view_id,
             DatabaseNotification::DidUpdateCalculation,

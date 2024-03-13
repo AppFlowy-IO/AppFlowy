@@ -17,6 +17,16 @@ class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
   final DateCellController cellController;
   void Function()? _onCellChangedFn;
 
+  @override
+  Future<void> close() async {
+    if (_onCellChangedFn != null) {
+      cellController.removeListener(_onCellChangedFn!);
+      _onCellChangedFn = null;
+    }
+    await cellController.dispose();
+    return super.close();
+  }
+
   void _dispatch() {
     on<DateCellEvent>(
       (event, emit) async {
@@ -33,15 +43,6 @@ class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
         );
       },
     );
-  }
-
-  @override
-  Future<void> close() async {
-    if (_onCellChangedFn != null) {
-      cellController.removeListener(_onCellChangedFn!);
-      _onCellChangedFn = null;
-    }
-    return super.close();
   }
 
   void _startListening() {

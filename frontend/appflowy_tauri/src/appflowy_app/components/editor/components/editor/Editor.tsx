@@ -11,7 +11,6 @@ import { useShortcuts } from 'src/appflowy_app/components/editor/plugins/shortcu
 import { BlockActionsToolbar } from '$app/components/editor/components/tools/block_actions';
 
 import { CircularProgress } from '@mui/material';
-import * as Y from 'yjs';
 import { NodeEntry } from 'slate';
 import {
   DecorateStateProvider,
@@ -21,11 +20,13 @@ import {
   EditorInlineBlockStateProvider,
 } from '$app/components/editor/stores';
 import CommandPanel from '../tools/command_panel/CommandPanel';
+import { EditorBlockStateProvider } from '$app/components/editor/stores/block';
+import { LocalEditorProps } from '$app/application/document/document.types';
 
-function Editor({ sharedType }: { sharedType: Y.XmlText; id: string }) {
+function Editor({ sharedType, disableFocus, caretColor = 'var(--text-title)' }: LocalEditorProps) {
   const { editor, initialValue, handleOnClickEnd, ...props } = useEditor(sharedType);
   const decorateCodeHighlight = useDecorateCodeHighlight(editor);
-  const { onDOMBeforeInput, onKeyDown: onShortcutsKeyDown } = useShortcuts(editor);
+  const { onKeyDown: onShortcutsKeyDown } = useShortcuts(editor);
   const withInlineKeyDown = useInlineKeyDown(editor);
   const {
     selectedBlocks,
@@ -33,6 +34,7 @@ function Editor({ sharedType }: { sharedType: Y.XmlText; id: string }) {
     decorateState,
     slashState,
     inlineBlockState,
+    blockState,
   } = useInitialEditorState(editor);
 
   const decorate = useCallback(
@@ -60,24 +62,29 @@ function Editor({ sharedType }: { sharedType: Y.XmlText; id: string }) {
   return (
     <EditorSelectedBlockProvider value={selectedBlocks}>
       <DecorateStateProvider value={decorateState}>
-        <EditorInlineBlockStateProvider value={inlineBlockState}>
-          <SlashStateProvider value={slashState}>
-            <Slate editor={editor} initialValue={initialValue}>
-              <BlockActionsToolbar />
-              <SelectionToolbar />
+        <EditorBlockStateProvider value={blockState}>
+          <EditorInlineBlockStateProvider value={inlineBlockState}>
+            <SlashStateProvider value={slashState}>
+              <Slate editor={editor} initialValue={initialValue}>
+                <BlockActionsToolbar />
+                <SelectionToolbar />
 
-              <CustomEditable
-                {...props}
-                onDOMBeforeInput={onDOMBeforeInput}
-                onKeyDown={onKeyDown}
-                decorate={decorate}
-                className={'px-16 caret-text-title outline-none focus:outline-none'}
-              />
-              <CommandPanel />
-              <div onClick={handleOnClickEnd} className={'relative bottom-0 left-0 h-10 w-full cursor-text'} />
-            </Slate>
-          </SlashStateProvider>
-        </EditorInlineBlockStateProvider>
+                <CustomEditable
+                  {...props}
+                  disableFocus={disableFocus}
+                  onKeyDown={onKeyDown}
+                  decorate={decorate}
+                  style={{
+                    caretColor,
+                  }}
+                  className={`px-16 outline-none focus:outline-none`}
+                />
+                <CommandPanel />
+                <div onClick={handleOnClickEnd} className={'relative bottom-0 left-0 h-10 w-full cursor-text'} />
+              </Slate>
+            </SlashStateProvider>
+          </EditorInlineBlockStateProvider>
+        </EditorBlockStateProvider>
       </DecorateStateProvider>
     </EditorSelectedBlockProvider>
   );

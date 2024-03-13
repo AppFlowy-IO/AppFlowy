@@ -34,7 +34,7 @@ class MemoryLeakDetectorTask extends LaunchTask {
       ),
     );
 
-    MemoryAllocations.instance.addListener((p0) {
+    FlutterMemoryAllocations.instance.addListener((p0) {
       LeakTracking.dispatchObjectEvent(p0.toMap());
     });
 

@@ -5,6 +5,7 @@ import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/sign_in_bloc.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/sign_in_or_logout_button.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/widgets.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -27,12 +28,9 @@ class UserSessionSettingGroup extends StatelessWidget {
             create: (context) => getIt<SignInBloc>(),
             child: BlocConsumer<SignInBloc, SignInState>(
               listener: (context, state) {
-                state.successOrFail.fold(
-                  () => null,
-                  (result) => result.fold(
-                    (l) {},
-                    (r) async => runAppFlowy(),
-                  ),
+                state.successOrFail?.fold(
+                  (result) => runAppFlowy(),
+                  (e) => Log.error(e),
                 );
               },
               builder: (context, state) {

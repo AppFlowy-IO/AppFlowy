@@ -7,16 +7,16 @@ class CalendarSize {
   static double get headerContainerPadding => 12 * scale;
 
   static EdgeInsets get contentInsets => EdgeInsets.fromLTRB(
-        GridSize.leadingHeaderPadding,
+        GridSize.horizontalHeaderPadding,
         CalendarSize.headerContainerPadding,
-        GridSize.leadingHeaderPadding,
+        GridSize.horizontalHeaderPadding,
         CalendarSize.headerContainerPadding,
       );
 
   static EdgeInsets get contentInsetsMobile => EdgeInsets.fromLTRB(
-        GridSize.leadingHeaderPadding / 2,
+        GridSize.horizontalHeaderPadding / 2,
         0,
-        GridSize.leadingHeaderPadding / 2,
+        GridSize.horizontalHeaderPadding / 2,
         0,
       );
 

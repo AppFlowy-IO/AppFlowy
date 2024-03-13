@@ -232,10 +232,7 @@
     "rename": "Renombrar",
     "helpCenter": "Centro de ayuda",
     "add": "Añadir",
-    "yes": "Si",
-    "Done": "Hecho",
-    "Cancel": "Cancelar",
-    "OK": "OK"
+    "yes": "Si"
   },
   "label": {
     "welcome": "¡Bienvenido!",
@@ -466,14 +463,14 @@
       "typeAValue": "Escriba un valor...",
       "layout": "Disposición",
       "databaseLayout": "Disposición",
-      "viewList": "Vistas de base de datos",
       "editView": "Editar vista",
       "boardSettings": "Configuración del tablero",
       "calendarSettings": "Configuración del calendario",
       "createView": "Nueva vista",
       "duplicateView": "Duplicar vista",
       "deleteView": "Eliminar vista",
-      "Properties": "Propiedades"
+      "Properties": "Propiedades",
+      "viewList": "Vistas de base de datos"
     },
     "textFilter": {
       "contains": "Contiene",
@@ -839,9 +836,9 @@
       "createNewColumn": "Agregar un nuevo grupo",
       "renameColumn": "Renombrar",
       "hideColumn": "Ocultar",
-      "groupActions": "Acciones grupales",
       "newGroup": "Nuevo grupo",
-      "deleteColumn": "Borrar"
+      "deleteColumn": "Borrar",
+      "groupActions": "Acciones grupales"
     },
     "hiddenGroupSection": {
       "sectionTitle": "Grupos ocultos"

@@ -1,36 +1,32 @@
-import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
-import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/menu/menu_user_bloc.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_setting.dart';
 import 'package:appflowy/workspace/presentation/notifications/widgets/notification_button.dart';
-import 'package:appflowy/workspace/presentation/settings/settings_dialog.dart';
 import 'package:appflowy/workspace/presentation/widgets/user_avatar.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
     show UserProfilePB;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
-import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+// keep this widget in case we need to roll back (lucas.xu)
 class SidebarUser extends StatelessWidget {
   const SidebarUser({
     super.key,
-    required this.user,
+    required this.userProfile,
     required this.views,
   });
 
-  final UserProfilePB user;
+  final UserProfilePB userProfile;
   final List<ViewPB> views;
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider<MenuUserBloc>(
-      create: (context) => MenuUserBloc(user)
+      create: (context) => MenuUserBloc(userProfile)
         ..add(
           const MenuUserEvent.initial(),
         ),
@@ -70,57 +66,5 @@ class SidebarUser extends StatelessWidget {
       name = LocaleKeys.defaultUsername.tr();
     }
     return name;
-  }
-}
-
-class UserSettingButton extends StatelessWidget {
-  const UserSettingButton({required this.userProfile, super.key});
-
-  final UserProfilePB userProfile;
-
-  @override
-  Widget build(BuildContext context) {
-    return FlowyTooltip(
-      message: LocaleKeys.settings_menu_open.tr(),
-      child: IconButton(
-        onPressed: () {
-          showDialog(
-            context: context,
-            builder: (dialogContext) {
-              return BlocProvider<DocumentAppearanceCubit>.value(
-                value: BlocProvider.of<DocumentAppearanceCubit>(dialogContext),
-                child: SettingsDialog(
-                  userProfile,
-                  didLogout: () async {
-                    // Pop the dialog using the dialog context
-                    Navigator.of(dialogContext).pop();
-                    await runAppFlowy();
-                  },
-                  dismissDialog: () {
-                    if (Navigator.of(dialogContext).canPop()) {
-                      Navigator.of(dialogContext).pop();
-                    } else {
-                      Log.warn("Can't pop dialog context");
-                    }
-                  },
-                  restartApp: () async {
-                    // Pop the dialog using the dialog context
-                    Navigator.of(dialogContext).pop();
-                    await runAppFlowy();
-                  },
-                ),
-              );
-            },
-          );
-        },
-        icon: SizedBox.square(
-          dimension: 20,
-          child: FlowySvg(
-            FlowySvgs.settings_m,
-            color: Theme.of(context).colorScheme.tertiary,
-          ),
-        ),
-      ),
-    );
   }
 }

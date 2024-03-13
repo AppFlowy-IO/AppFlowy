@@ -3,7 +3,7 @@ import { MutableRefObject, useCallback, useEffect, useMemo, useRef, useState } f
 import { getSelectionPosition } from '$app/components/editor/components/tools/selection_toolbar/utils';
 import debounce from 'lodash-es/debounce';
 import { CustomEditor } from '$app/components/editor/command';
-import { BaseRange, Editor, Range as SlateRange } from 'slate';
+import { BaseRange, Range as SlateRange } from 'slate';
 import { useDecorateDispatch } from '$app/components/editor/stores/decorate';
 
 const DELAY = 300;
@@ -14,6 +14,7 @@ export function useSelectionToolbar(ref: MutableRefObject<HTMLDivElement | null>
   const [isAcrossBlocks, setIsAcrossBlocks] = useState(false);
   const [visible, setVisible] = useState(false);
   const isFocusedEditor = useFocused();
+  const isIncludeRoot = CustomEditor.selectionIncludeRoot(editor);
 
   // paint the selection when the editor is blurred
   const { add: addDecorate, clear: clearDecorate, getStaticState } = useDecorateDispatch();
@@ -58,12 +59,6 @@ export function useSelectionToolbar(ref: MutableRefObject<HTMLDivElement | null>
     const el = ref.current;
 
     if (!el) {
-      return;
-    }
-
-    // Close toolbar when selection include root
-    if (CustomEditor.selectionIncludeRoot(editor)) {
-      closeToolbar();
       return;
     }
 
@@ -118,9 +113,21 @@ export function useSelectionToolbar(ref: MutableRefObject<HTMLDivElement | null>
 
     const { selection } = editor;
 
-    if (!isFocusedEditor || !selection || SlateRange.isCollapsed(selection) || Editor.string(editor, selection) === '') {
+    const close = () => {
       debounceRecalculatePosition.cancel();
       closeToolbar();
+    };
+
+    if (isIncludeRoot || !isFocusedEditor || !selection || SlateRange.isCollapsed(selection)) {
+      close();
+      return;
+    }
+
+    // There has a bug which the text of selection is empty when the selection include inline blocks
+    const isEmptyText = !CustomEditor.includeInlineBlocks(editor) && editor.string(selection) === '';
+
+    if (isEmptyText) {
+      close();
       return;
     }
 
@@ -193,5 +200,6 @@ export function useSelectionToolbar(ref: MutableRefObject<HTMLDivElement | null>
     restoreSelection,
     storeSelection,
     isAcrossBlocks,
+    isIncludeRoot,
   };
 }

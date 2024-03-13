@@ -41,6 +41,7 @@ impl ServerProviderWASM {
           self.config.clone(),
           true,
           self.device_id.clone(),
+          "0.0.1"
         ));
         *self.server.write() = Some(server.clone());
         server
@@ -54,7 +55,7 @@ impl CollabCloudPluginProvider for ServerProviderWASM {
     CollabPluginProviderType::AppFlowyCloud
   }
 
-  fn get_plugins(&self, _context: CollabPluginProviderContext) -> Fut<Vec<Arc<dyn CollabPlugin>>> {
+  fn get_plugins(&self, _context: CollabPluginProviderContext) -> Fut<Vec<Box<dyn CollabPlugin>>> {
     to_fut(async move { vec![] })
   }
 

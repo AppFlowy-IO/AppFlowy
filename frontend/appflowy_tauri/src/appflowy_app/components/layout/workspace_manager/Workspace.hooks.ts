@@ -3,8 +3,10 @@ import { useAppDispatch, useAppSelector } from '$app/stores/store';
 import { workspaceActions, WorkspaceItem } from '$app_reducers/workspace/slice';
 import { Page, pagesActions, parserViewPBToPage } from '$app_reducers/pages/slice';
 import { subscribeNotifications } from '$app/application/notification';
-import { FolderNotification } from '@/services/backend';
+import { FolderNotification, ViewLayoutPB } from '@/services/backend';
 import * as workspaceService from '$app/application/folder/workspace.service';
+import { createCurrentWorkspaceChildView } from '$app/application/folder/workspace.service';
+import { useNavigate } from 'react-router-dom';
 
 export function useLoadWorkspaces() {
   const dispatch = useAppDispatch();
@@ -78,6 +80,13 @@ export function useLoadWorkspace(workspace: WorkspaceItem) {
   useEffect(() => {
     const unsubscribePromise = subscribeNotifications(
       {
+        [FolderNotification.DidUpdateWorkspace]: async (changeset) => {
+          dispatch(
+            workspaceActions.updateCurrentWorkspace({
+              name: changeset.name,
+            })
+          );
+        },
         [FolderNotification.DidUpdateWorkspaceViews]: async (changeset) => {
           const res = changeset.items;
 
@@ -88,10 +97,28 @@ export function useLoadWorkspace(workspace: WorkspaceItem) {
     );
 
     return () => void unsubscribePromise.then((unsubscribe) => unsubscribe());
-  }, [id, onChildPagesChanged]);
+  }, [dispatch, id, onChildPagesChanged]);
 
   return {
     openWorkspace,
     deleteWorkspace,
+  };
+}
+
+export function useWorkspaceActions(workspaceId: string) {
+  const navigate = useNavigate();
+
+  const newPage = useCallback(async () => {
+    const { id } = await createCurrentWorkspaceChildView({
+      name: '',
+      layout: ViewLayoutPB.Document,
+      parent_view_id: workspaceId,
+    });
+
+    navigate(`/page/document/${id}`);
+  }, [navigate, workspaceId]);
+
+  return {
+    newPage,
   };
 }

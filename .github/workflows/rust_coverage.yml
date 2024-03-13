@@ -10,7 +10,7 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
-  FLUTTER_VERSION: "3.18.0-0.2.pre"
+  FLUTTER_VERSION: "3.19.0"
   RUST_TOOLCHAIN: "1.75"
 
 jobs:
@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Install Rust toolchain
         id: rust_toolchain
@@ -33,7 +33,7 @@ jobs:
         id: flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: "beta"
+          channel: "stable"
           flutter-version: ${{ env.FLUTTER_VERSION }}
           cache: true
 

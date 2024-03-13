@@ -27,16 +27,15 @@ class SortChoiceButton extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.transparent,
         border: Border.fromBorderSide(
-          BorderSide(
-            color: AFThemeExtension.of(context).toggleOffFill,
-          ),
+          BorderSide(color: Theme.of(context).dividerColor),
         ),
-        borderRadius: const BorderRadius.all(Radius.circular(14)),
+        borderRadius: BorderRadius.all(radius),
       ),
       useIntrinsicWidth: true,
       text: FlowyText(
         text,
         color: AFThemeExtension.of(context).textColor,
+        overflow: TextOverflow.ellipsis,
       ),
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       radius: BorderRadius.all(radius),

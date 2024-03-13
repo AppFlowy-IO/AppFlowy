@@ -16,6 +16,16 @@ class URLCellBloc extends Bloc<URLCellEvent, URLCellState> {
   final URLCellController cellController;
   void Function()? _onCellChangedFn;
 
+  @override
+  Future<void> close() async {
+    if (_onCellChangedFn != null) {
+      cellController.removeListener(_onCellChangedFn!);
+      _onCellChangedFn = null;
+    }
+    await cellController.dispose();
+    return super.close();
+  }
+
   void _dispatch() {
     on<URLCellEvent>(
       (event, emit) async {
@@ -37,16 +47,6 @@ class URLCellBloc extends Bloc<URLCellEvent, URLCellState> {
         );
       },
     );
-  }
-
-  @override
-  Future<void> close() async {
-    if (_onCellChangedFn != null) {
-      cellController.removeListener(_onCellChangedFn!);
-      _onCellChangedFn = null;
-    }
-    await cellController.dispose();
-    return super.close();
   }
 
   void _startListening() {

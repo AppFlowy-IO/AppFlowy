@@ -2,6 +2,8 @@ use flowy_database2::entities::FieldType;
 use flowy_database2::services::cell::stringify_cell_data;
 use flowy_database2::services::field::CHECK;
 use flowy_database2::services::share::csv::CSVFormat;
+use std::time::Duration;
+use tokio::time::sleep;
 
 use crate::database::database_editor::DatabaseEditorTest;
 
@@ -27,14 +29,14 @@ async fn export_csv_test() {
   let test = DatabaseEditorTest::new_grid().await;
   let database = test.editor.clone();
   let s = database.export_csv(CSVFormat::Original).await.unwrap();
-  let expected = r#"Name,Price,Time,Status,Platform,is urgent,link,TODO,Last Modified,Created At
-A,$1,2022/03/14,,"Google,Facebook",Yes,AppFlowy website - https://www.appflowy.io,,,
-,$2,2022/03/14,,"Google,Twitter",Yes,,,,
-C,$3,2022/03/14,Completed,"Facebook,Google,Twitter",No,,,,
-DA,$14,2022/11/17,Completed,,No,,,,
-AE,,2022/11/13,Planned,"Facebook,Twitter",No,,,,
-AE,$5,2022/12/25,Planned,Facebook,Yes,,,,
-CB,,,,,,,,,
+  let expected = r#"Name,Price,Time,Status,Platform,is urgent,link,TODO,Last Modified,Created At,Related
+A,$1,2022/03/14,,"Google,Facebook",Yes,AppFlowy website - https://www.appflowy.io,First thing,,,
+,$2,2022/03/14,,"Google,Twitter",Yes,,"Have breakfast,Have lunch,Take a nap,Have dinner,Shower and head to bed",,,
+C,$3,2022/03/14,Completed,"Facebook,Google,Twitter",No,,,,,
+DA,$14,2022/11/17,Completed,,No,,Task 1,,,
+AE,,2022/11/13,Planned,"Facebook,Twitter",No,,,,,
+AE,$5,2022/12/25,Planned,Facebook,Yes,,"Sprint,Sprint some more,Rest",,,
+CB,,,,,,,,,,
 "#;
   println!("{}", s);
   assert_eq!(s, expected);
@@ -48,6 +50,9 @@ async fn export_and_then_import_meta_csv_test() {
   let csv_1 = database.export_csv(format).await.unwrap();
 
   let result = test.import(csv_1.clone(), format).await;
+  // TODO(nathan): remove this sleep
+  // workaround for the rows that are created asynchronously
+  sleep(Duration::from_secs(2)).await;
   let database = test.get_database(&result.database_id).await.unwrap();
 
   let fields = database.get_fields(&result.view_id, None);
@@ -99,6 +104,7 @@ async fn export_and_then_import_meta_csv_test() {
           FieldType::Checklist => {},
           FieldType::LastEditedTime => {},
           FieldType::CreatedTime => {},
+          FieldType::Relation => {},
         }
       } else {
         panic!(
@@ -123,6 +129,9 @@ async fn history_database_import_test() {
 "{""data"":""AE"",""field_type"":0}","{""data"":""5"",""field_type"":1}","{""data"":""1671938394"",""field_type"":2}","{""data"":""wQpG"",""field_type"":3}","{""data"":"""",""field_type"":4}","{""data"":""Yes"",""field_type"":5}","{""data"":"""",""field_type"":6}","{""data"":"""",""field_type"":7}"
 "#;
   let result = test.import(csv.to_string(), format).await;
+  // TODO(nathan): remove this sleep
+  // workaround for the rows that are created asynchronously
+  tokio::time::sleep(tokio::time::Duration::from_secs(2)).await;
   let database = test.get_database(&result.database_id).await.unwrap();
 
   let fields = database.get_fields(&result.view_id, None);
@@ -180,6 +189,7 @@ async fn history_database_import_test() {
           FieldType::Checklist => {},
           FieldType::LastEditedTime => {},
           FieldType::CreatedTime => {},
+          FieldType::Relation => {},
         }
       } else {
         panic!(

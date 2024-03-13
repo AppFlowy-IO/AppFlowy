@@ -352,6 +352,12 @@ class _CoverColorPickerState extends State<CoverColorPicker> {
   final scrollController = ScrollController();
 
   @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
       height: 30,
@@ -373,12 +379,6 @@ class _CoverColorPickerState extends State<CoverColorPicker> {
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    scrollController.dispose();
   }
 
   Widget _buildColorItems(List<ColorOption> options, String? selectedColor) {

@@ -1,4 +1,3 @@
-import 'package:appflowy/core/raw_keyboard_extension.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
@@ -54,7 +53,7 @@ class FavoriteFolder extends StatelessWidget {
                     view: view,
                     level: 0,
                     onSelected: (view) {
-                      if (RawKeyboard.instance.isControlPressed) {
+                      if (HardwareKeyboard.instance.isControlPressed) {
                         context.read<TabsBloc>().openTab(view);
                       }
 

@@ -7,7 +7,7 @@ use tracing::event;
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use flowy_database2::DatabaseManager;
 use flowy_document::manager::DocumentManager;
-use flowy_error::FlowyResult;
+use flowy_error::{FlowyError, FlowyResult};
 use flowy_folder::manager::{FolderInitDataSource, FolderManager};
 use flowy_user::event_map::UserStatusCallback;
 use flowy_user_pub::cloud::{UserCloudConfig, UserCloudServiceProvider};
@@ -177,8 +177,13 @@ impl UserStatusCallback for UserStatusCallbackImpl {
             }
           },
         },
-        Err(_) => FolderInitDataSource::LocalDisk {
-          create_if_not_exist: true,
+        Err(err) => match server_type {
+          Server::Local => FolderInitDataSource::LocalDisk {
+            create_if_not_exist: true,
+          },
+          Server::AppFlowyCloud | Server::Supabase => {
+            return Err(FlowyError::from(err));
+          },
         },
       };
 

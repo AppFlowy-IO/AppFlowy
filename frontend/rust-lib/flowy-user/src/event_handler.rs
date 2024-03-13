@@ -122,8 +122,17 @@ pub async fn get_user_profile_handler(
 
 #[tracing::instrument(level = "debug", skip(manager))]
 pub async fn sign_out_handler(manager: AFPluginState<Weak<UserManager>>) -> Result<(), FlowyError> {
-  let manager = upgrade_manager(manager)?;
-  manager.sign_out().await?;
+  let (tx, rx) = tokio::sync::oneshot::channel();
+  tokio::spawn(async move {
+    let result = async {
+      let manager = upgrade_manager(manager)?;
+      manager.sign_out().await?;
+      Ok::<(), FlowyError>(())
+    }
+    .await;
+    let _ = tx.send(result);
+  });
+  rx.await??;
   Ok(())
 }
 
@@ -565,7 +574,7 @@ pub async fn reset_workspace_handler(
   let reset_pb = data.into_inner();
   if reset_pb.workspace_id.is_empty() {
     return Err(FlowyError::new(
-      ErrorCode::WorkspaceIdInvalid,
+      ErrorCode::WorkspaceInitializeError,
       "The workspace id is empty",
     ));
   }
@@ -672,5 +681,31 @@ pub async fn delete_workspace_handler(
   let workspace_id = delete_workspace_param.try_into_inner()?.workspace_id;
   let manager = upgrade_manager(manager)?;
   manager.delete_workspace(&workspace_id).await?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn rename_workspace_handler(
+  rename_workspace_param: AFPluginData<RenameWorkspacePB>,
+  manager: AFPluginState<Weak<UserManager>>,
+) -> Result<(), FlowyError> {
+  let params = rename_workspace_param.try_into_inner()?;
+  let manager = upgrade_manager(manager)?;
+  manager
+    .patch_workspace(&params.workspace_id, Some(&params.new_name), None)
+    .await?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn change_workspace_icon_handler(
+  change_workspace_icon_param: AFPluginData<ChangeWorkspaceIconPB>,
+  manager: AFPluginState<Weak<UserManager>>,
+) -> Result<(), FlowyError> {
+  let params = change_workspace_icon_param.try_into_inner()?;
+  let manager = upgrade_manager(manager)?;
+  manager
+    .patch_workspace(&params.workspace_id, None, Some(&params.new_icon))
+    .await?;
   Ok(())
 }

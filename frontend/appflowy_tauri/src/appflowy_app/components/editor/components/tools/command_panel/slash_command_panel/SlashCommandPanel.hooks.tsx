@@ -14,14 +14,17 @@ import { ReactComponent as NumberedListIcon } from '$app/assets/numbers.svg';
 import { ReactComponent as QuoteIcon } from '$app/assets/quote.svg';
 import { ReactComponent as ToggleListIcon } from '$app/assets/show-menu.svg';
 import { ReactComponent as GridIcon } from '$app/assets/grid.svg';
+import { ReactComponent as ImageIcon } from '$app/assets/image.svg';
 import { DataObjectOutlined, FunctionsOutlined, HorizontalRuleOutlined, MenuBookOutlined } from '@mui/icons-material';
 import { CustomEditor } from '$app/components/editor/command';
-import { randomEmoji } from '$app/utils/emoji';
 import { KeyboardNavigationOption } from '$app/components/_shared/keyboard_navigation/KeyboardNavigation';
 import { YjsEditor } from '@slate-yjs/core';
+import { useEditorBlockDispatch } from '$app/components/editor/stores/block';
 
 enum SlashCommandPanelTab {
   BASIC = 'basic',
+  MEDIA = 'media',
+  DATABASE = 'database',
   ADVANCED = 'advanced',
 }
 
@@ -40,6 +43,7 @@ export enum SlashOptionType {
   Code,
   Grid,
   MathEquation,
+  Image,
 }
 const slashOptionGroup = [
   {
@@ -55,11 +59,20 @@ const slashOptionGroup = [
       SlashOptionType.Quote,
       SlashOptionType.ToggleList,
       SlashOptionType.Divider,
+      SlashOptionType.Callout,
     ],
   },
   {
+    key: SlashCommandPanelTab.MEDIA,
+    options: [SlashOptionType.Code, SlashOptionType.Image],
+  },
+  {
+    key: SlashCommandPanelTab.DATABASE,
+    options: [SlashOptionType.Grid],
+  },
+  {
     key: SlashCommandPanelTab.ADVANCED,
-    options: [SlashOptionType.Callout, SlashOptionType.Code, SlashOptionType.Grid, SlashOptionType.MathEquation],
+    options: [SlashOptionType.MathEquation],
   },
 ];
 
@@ -78,6 +91,7 @@ const slashOptionMapToEditorNodeType = {
   [SlashOptionType.Code]: EditorNodeType.CodeBlock,
   [SlashOptionType.Grid]: EditorNodeType.GridBlock,
   [SlashOptionType.MathEquation]: EditorNodeType.EquationBlock,
+  [SlashOptionType.Image]: EditorNodeType.ImageBlock,
 };
 
 const headingTypeToLevelMap: Record<string, number> = {
@@ -95,6 +109,7 @@ export function useSlashCommandPanel({
   searchText: string;
   closePanel: (deleteText?: boolean) => void;
 }) {
+  const { openPopover } = useEditorBlockDispatch();
   const { t } = useTranslation();
   const editor = useSlate();
   const onConfirm = useCallback(
@@ -117,13 +132,19 @@ export function useSlashCommandPanel({
 
       if (nodeType === EditorNodeType.CalloutBlock) {
         Object.assign(data, {
-          icon: randomEmoji(),
+          icon: '📌',
         });
       }
 
       if (nodeType === EditorNodeType.CodeBlock) {
         Object.assign(data, {
           language: 'json',
+        });
+      }
+
+      if (nodeType === EditorNodeType.ImageBlock) {
+        Object.assign(data, {
+          url: '',
         });
       }
 
@@ -136,7 +157,7 @@ export function useSlashCommandPanel({
 
       if (!newNode || !path) return;
 
-      const isEmpty = CustomEditor.isEmptyText(editor, newNode) && newNode.type === EditorNodeType.Paragraph;
+      const isEmpty = CustomEditor.isEmptyText(editor, newNode) && node.type === EditorNodeType.Paragraph;
 
       if (!isEmpty) {
         const nextPath = Path.next(path);
@@ -145,12 +166,20 @@ export function useSlashCommandPanel({
         editor.select(nextPath);
       }
 
-      CustomEditor.turnToBlock(editor, {
+      const turnIntoBlock = CustomEditor.turnToBlock(editor, {
         type: nodeType,
         data,
       });
+
+      setTimeout(() => {
+        if (turnIntoBlock && turnIntoBlock.blockId) {
+          if (turnIntoBlock.type === EditorNodeType.ImageBlock || turnIntoBlock.type === EditorNodeType.EquationBlock) {
+            openPopover(turnIntoBlock.type, turnIntoBlock.blockId);
+          }
+        }
+      }, 0);
     },
-    [editor, closePanel]
+    [editor, closePanel, openPopover]
   );
 
   const typeToLabelIconMap = useMemo(() => {
@@ -212,6 +241,10 @@ export function useSlashCommandPanel({
         label: t('document.plugins.mathEquation.name'),
         Icon: FunctionsOutlined,
       },
+      [SlashOptionType.Image]: {
+        label: t('editor.image'),
+        Icon: ImageIcon,
+      },
     };
   }, [t]);
 
@@ -219,6 +252,8 @@ export function useSlashCommandPanel({
     return {
       [SlashCommandPanelTab.BASIC]: 'Basic',
       [SlashCommandPanelTab.ADVANCED]: 'Advanced',
+      [SlashCommandPanelTab.MEDIA]: 'Media',
+      [SlashCommandPanelTab.DATABASE]: 'Database',
     };
   }, []);
 

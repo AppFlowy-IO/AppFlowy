@@ -1,4 +1,3 @@
-import 'package:dartz/dartz.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -11,7 +10,7 @@ class BoardSettingBloc extends Bloc<BoardSettingEvent, BoardSettingState> {
       (event, emit) async {
         event.when(
           performAction: (action) {
-            emit(state.copyWith(selectedAction: Some(action)));
+            emit(state.copyWith(selectedAction: action));
           },
         );
       },
@@ -30,11 +29,11 @@ class BoardSettingEvent with _$BoardSettingEvent {
 @freezed
 class BoardSettingState with _$BoardSettingState {
   const factory BoardSettingState({
-    required Option<BoardSettingAction> selectedAction,
+    required BoardSettingAction? selectedAction,
   }) = _BoardSettingState;
 
-  factory BoardSettingState.initial() => BoardSettingState(
-        selectedAction: none(),
+  factory BoardSettingState.initial() => const BoardSettingState(
+        selectedAction: null,
       );
 }
 

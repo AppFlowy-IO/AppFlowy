@@ -1,21 +1,18 @@
+use anyhow::Error;
+use collab::core::collab::CollabDocState;
+use collab_entity::{CollabObject, CollabType};
+use flowy_error::{ErrorCode, FlowyError};
+use lib_infra::box_any::BoxAny;
+use lib_infra::conditional_send_sync_trait;
+use lib_infra::future::FutureResult;
+use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use std::collections::HashMap;
 use std::fmt::{Display, Formatter};
 use std::str::FromStr;
 use std::sync::Arc;
-
-use anyhow::Error;
-use collab::core::collab::CollabDocState;
-use collab_entity::{CollabObject, CollabType};
-use serde::{Deserialize, Serialize};
-use serde_json::Value;
 use tokio_stream::wrappers::WatchStream;
 use uuid::Uuid;
-
-use flowy_error::{ErrorCode, FlowyError};
-
-use lib_infra::box_any::BoxAny;
-use lib_infra::conditional_send_sync_trait;
-use lib_infra::future::FutureResult;
 
 use crate::entities::{
   AuthResponse, Authenticator, Role, UpdateUserProfileParams, UserCredentials, UserProfile,
@@ -173,6 +170,14 @@ pub trait UserCloudService: Send + Sync + 'static {
   /// Creates a new workspace for the user.
   /// Returns the new workspace if successful
   fn create_workspace(&self, workspace_name: &str) -> FutureResult<UserWorkspace, FlowyError>;
+
+  // Updates the workspace name and icon
+  fn patch_workspace(
+    &self,
+    workspace_id: &str,
+    new_workspace_name: Option<&str>,
+    new_workspace_icon: Option<&str>,
+  ) -> FutureResult<(), FlowyError>;
 
   /// Deletes a workspace owned by the user.
   fn delete_workspace(&self, workspace_id: &str) -> FutureResult<(), FlowyError>;

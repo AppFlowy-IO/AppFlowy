@@ -128,6 +128,7 @@ impl ServerProvider {
           config,
           *self.user_enable_sync.read(),
           self.config.device_id.clone(),
+          &self.config.app_version,
         ));
 
         Ok::<Arc<dyn AppFlowyServer>, FlowyError>(server)

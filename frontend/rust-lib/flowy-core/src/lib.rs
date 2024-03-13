@@ -3,6 +3,7 @@
 use flowy_storage::ObjectStorageService;
 use std::sync::Arc;
 use std::time::Duration;
+use sysinfo::System;
 use tokio::sync::RwLock;
 use tracing::{debug, error, event, info, instrument};
 
@@ -79,6 +80,8 @@ impl AppFlowyCore {
     // Init the key value database
     let store_preference = Arc::new(StorePreferences::new(&config.storage_path).unwrap());
     info!("🔥{:?}", &config);
+    info!("💡System info: {:?}", System::long_os_version());
+
     let task_scheduler = TaskDispatcher::new(Duration::from_secs(2));
     let task_dispatcher = Arc::new(RwLock::new(task_scheduler));
     runtime.spawn(TaskRunner::run(task_dispatcher.clone()));
@@ -185,7 +188,7 @@ impl AppFlowyCore {
     let cloned_user_manager = Arc::downgrade(&user_manager);
     if let Some(user_manager) = cloned_user_manager.upgrade() {
       if let Err(err) = user_manager
-        .init(user_status_callback, collab_interact_impl)
+        .init_with_callback(user_status_callback, collab_interact_impl)
         .await
       {
         error!("Init user failed: {}", err)

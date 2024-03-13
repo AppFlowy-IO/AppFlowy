@@ -15,6 +15,16 @@ class TextCellBloc extends Bloc<TextCellEvent, TextCellState> {
   final TextCellController cellController;
   void Function()? _onCellChangedFn;
 
+  @override
+  Future<void> close() async {
+    if (_onCellChangedFn != null) {
+      cellController.removeListener(_onCellChangedFn!);
+      _onCellChangedFn = null;
+    }
+    await cellController.dispose();
+    return super.close();
+  }
+
   void _dispatch() {
     on<TextCellEvent>(
       (event, emit) {
@@ -39,16 +49,6 @@ class TextCellBloc extends Bloc<TextCellEvent, TextCellState> {
         );
       },
     );
-  }
-
-  @override
-  Future<void> close() async {
-    if (_onCellChangedFn != null) {
-      cellController.removeListener(_onCellChangedFn!);
-      _onCellChangedFn = null;
-    }
-    await cellController.dispose();
-    return super.close();
   }
 
   void _startListening() {

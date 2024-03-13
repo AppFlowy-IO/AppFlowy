@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 
 typedef SeparatorBuilder = Widget Function();
 
+Widget _defaultColumnSeparatorBuilder() => const Divider();
+Widget _defaultRowSeparatorBuilder() => const VerticalDivider();
+
 class SeparatedColumn extends Column {
   SeparatedColumn({
     super.key,
@@ -11,7 +14,7 @@ class SeparatedColumn extends Column {
     super.textBaseline,
     super.textDirection,
     super.verticalDirection,
-    required SeparatorBuilder separatorBuilder,
+    SeparatorBuilder separatorBuilder = _defaultColumnSeparatorBuilder,
     required List<Widget> children,
   }) : super(children: _insertSeparators(children, separatorBuilder));
 }
@@ -25,7 +28,7 @@ class SeparatedRow extends Row {
     super.textBaseline,
     super.textDirection,
     super.verticalDirection,
-    required SeparatorBuilder separatorBuilder,
+    SeparatorBuilder separatorBuilder = _defaultRowSeparatorBuilder,
     required List<Widget> children,
   }) : super(children: _insertSeparators(children, separatorBuilder));
 }

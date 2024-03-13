@@ -14,7 +14,7 @@ use collab_database::database::{
   is_database_collab, mut_database_views_with_collab, reset_inline_view_id,
 };
 use collab_database::rows::{database_row_document_id_from_row_id, mut_row_with_collab, RowId};
-use collab_database::user::DatabaseViewTrackerList;
+use collab_database::user::DatabaseMetaList;
 use collab_document::document_data::default_document_collab_data;
 use collab_entity::CollabType;
 use collab_folder::{Folder, UserId, View, ViewIdentifier, ViewLayout};
@@ -280,11 +280,11 @@ where
     )
   })?;
 
-  let array = DatabaseViewTrackerList::from_collab(&database_view_tracker_collab);
-  for database_view_tracker in array.get_all_database_tracker() {
+  let array = DatabaseMetaList::from_collab(&database_view_tracker_collab);
+  for database_metas in array.get_all_database_meta() {
     database_view_ids_by_database_id.insert(
-      old_to_new_id_map.renew_id(&database_view_tracker.database_id),
-      database_view_tracker
+      old_to_new_id_map.renew_id(&database_metas.database_id),
+      database_metas
         .linked_views
         .into_iter()
         .map(|view_id| old_to_new_id_map.renew_id(&view_id))

@@ -2,7 +2,6 @@ import 'package:appflowy/plugins/database/application/calculations/calculations_
 import 'package:appflowy/plugins/database/application/calculations/calculations_service.dart';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
-import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/calculation_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_settings_entities.pbenum.dart';
 import 'package:bloc/bloc.dart';
@@ -29,6 +28,7 @@ class CalculationsBloc extends Bloc<CalculationsEvent, CalculationsState> {
   @override
   Future<void> close() async {
     _fieldController.removeListener(onFieldsListener: _onReceiveFields);
+    await _calculationsListener.stop();
     await super.close();
   }
 
@@ -132,7 +132,7 @@ class CalculationsBloc extends Bloc<CalculationsEvent, CalculationsState> {
     final calculationsOrFailure = await _calculationsService.getCalculations();
 
     final RepeatedCalculationsPB? calculations =
-        calculationsOrFailure.getLeftOrNull();
+        calculationsOrFailure.fold((s) => s, (e) => null);
     if (calculations != null) {
       final calculationMap = <String, CalculationPB>{};
       for (final calculation in calculations.items) {

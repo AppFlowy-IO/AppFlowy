@@ -68,7 +68,7 @@ class BlockItems extends StatelessWidget {
       enableTopRightRadius: false,
       enableBottomRightRadius: false,
       onTap: () async {
-        await editorState.convertBlockType(blockType);
+        await _convert(blockType);
       },
       backgroundColor: theme.toolbarMenuItemBackgroundColor,
       icon: icon,
@@ -195,5 +195,24 @@ class BlockItems extends StatelessWidget {
       },
     );
     editorState.service.keyboardService?.closeKeyboard();
+  }
+
+  Future<void> _convert(String blockType) async {
+    await editorState.convertBlockType(
+      blockType,
+      selectionExtraInfo: {
+        selectionExtraInfoDoNotAttachTextService: true,
+        selectionExtraInfoDisableFloatingToolbar: true,
+      },
+    );
+    unawaited(
+      editorState.updateSelectionWithReason(
+        editorState.selection,
+        extraInfo: {
+          selectionExtraInfoDisableFloatingToolbar: true,
+          selectionExtraInfoDoNotAttachTextService: true,
+        },
+      ),
+    );
   }
 }

@@ -83,6 +83,11 @@ pub fn init(database_manager: Weak<DatabaseManager>) -> AFPlugin {
         .event(DatabaseEvent::GetAllCalculations, get_all_calculations_handler)
         .event(DatabaseEvent::UpdateCalculation, update_calculation_handler)
         .event(DatabaseEvent::RemoveCalculation, remove_calculation_handler)
+         // Relation
+         .event(DatabaseEvent::GetRelatedDatabaseIds, get_related_database_ids_handler)
+         .event(DatabaseEvent::UpdateRelationCell, update_relation_cell_handler)
+         .event(DatabaseEvent::GetRelatedRowDatas, get_related_row_datas_handler)
+         .event(DatabaseEvent::GetRelatedDatabaseRows, get_related_database_rows_handler)
 }
 
 /// [DatabaseEvent] defines events that are used to interact with the Grid. You could check [this](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/backend/protobuf)
@@ -256,10 +261,10 @@ pub enum DatabaseEvent {
   #[event(input = "ChecklistCellDataChangesetPB")]
   UpdateChecklistCell = 73,
 
-  /// [UpdateDateCell] event is used to update a date cell's data. [DateChangesetPB]
+  /// [UpdateDateCell] event is used to update a date cell's data. [DateCellChangesetPB]
   /// contains the date and the time string. It can be cast to [CellChangesetPB] that
   /// will be used by the `update_cell` function.
-  #[event(input = "DateChangesetPB")]
+  #[event(input = "DateCellChangesetPB")]
   UpdateDateCell = 80,
 
   /// [SetGroupByField] event is used to create a new grouping in a database
@@ -342,4 +347,22 @@ pub enum DatabaseEvent {
 
   #[event(input = "RemoveCalculationChangesetPB")]
   RemoveCalculation = 165,
+
+  /// Currently unused. Get a list of database ids that this database relates
+  /// to.
+  #[event(input = "DatabaseViewIdPB", output = "RepeatedDatabaseIdPB")]
+  GetRelatedDatabaseIds = 170,
+
+  /// Updates a relation cell, adding or removing links to rows in another
+  /// database
+  #[event(input = "RelationCellChangesetPB")]
+  UpdateRelationCell = 171,
+
+  /// Get the names of the linked rows in a relation cell.
+  #[event(input = "RepeatedRowIdPB", output = "RepeatedRelatedRowDataPB")]
+  GetRelatedRowDatas = 172,
+
+  /// Get the names of all the rows in a related database.
+  #[event(input = "DatabaseIdPB", output = "RepeatedRelatedRowDataPB")]
+  GetRelatedDatabaseRows = 173,
 }

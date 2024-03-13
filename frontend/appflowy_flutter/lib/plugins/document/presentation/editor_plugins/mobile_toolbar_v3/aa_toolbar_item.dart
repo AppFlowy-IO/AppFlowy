@@ -15,6 +15,7 @@ final aaToolbarItem = AppFlowyMobileToolbarItem(
   pilotAtExpandedSelection: true,
   itemBuilder: (context, editorState, service, onMenu, _) {
     return AppFlowyMobileToolbarIconItem(
+      editorState: editorState,
       isSelected: () => service.showMenuNotifier.value,
       keepSelectedStatus: true,
       icon: FlowySvgs.m_toolbar_aa_s,

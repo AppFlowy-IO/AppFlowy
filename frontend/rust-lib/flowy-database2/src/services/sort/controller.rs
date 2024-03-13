@@ -13,13 +13,16 @@ use flowy_error::FlowyResult;
 use lib_infra::future::Fut;
 use lib_infra::priority_task::{QualityOfService, Task, TaskContent, TaskDispatcher};
 
-use crate::entities::FieldType;
 use crate::entities::SortChangesetNotificationPB;
+use crate::entities::{FieldType, SortWithIndexPB};
 use crate::services::cell::CellCache;
 use crate::services::database_view::{DatabaseViewChanged, DatabaseViewChangedNotifier};
-use crate::services::field::{default_order, TypeOptionCellExt};
+use crate::services::field::{
+  default_order, TimestampCellData, TimestampCellDataWrapper, TypeOptionCellExt,
+};
 use crate::services::sort::{
-  ReorderAllRowsResult, ReorderSingleRowResult, Sort, SortChangeset, SortCondition,
+  InsertSortedRowResult, ReorderAllRowsResult, ReorderSingleRowResult, Sort, SortChangeset,
+  SortCondition,
 };
 
 pub trait SortDelegate: Send + Sync {
@@ -81,9 +84,32 @@ impl SortController {
   }
 
   pub async fn did_receive_row_changed(&self, row_id: RowId) {
-    let task_type = SortEvent::RowDidChanged(row_id);
     if !self.sorts.is_empty() {
-      self.gen_task(task_type, QualityOfService::Background).await;
+      self
+        .gen_task(
+          SortEvent::RowDidChanged(row_id),
+          QualityOfService::Background,
+        )
+        .await;
+    }
+  }
+
+  pub async fn did_create_row(&self, row_id: RowId) {
+    if !self.sorts.is_empty() {
+      self
+        .gen_task(
+          SortEvent::NewRowInserted(row_id),
+          QualityOfService::Background,
+        )
+        .await;
+    }
+  }
+
+  pub async fn did_update_field_type(&self) {
+    if !self.sorts.is_empty() {
+      self
+        .gen_task(SortEvent::SortDidChanged, QualityOfService::Background)
+        .await;
     }
   }
 
@@ -112,6 +138,7 @@ impl SortController {
       },
       SortEvent::RowDidChanged(row_id) => {
         let old_row_index = self.row_index_cache.get(&row_id).cloned();
+
         self.sort_rows(&mut row_details).await;
         let new_row_index = self.row_index_cache.get(&row_id).cloned();
         match (old_row_index, new_row_index) {
@@ -128,6 +155,26 @@ impl SortController {
             let _ = self
               .notifier
               .send(DatabaseViewChanged::ReorderSingleRowNotification(
+                notification,
+              ));
+          },
+          _ => tracing::trace!("The row index cache is outdated"),
+        }
+      },
+      SortEvent::NewRowInserted(row_id) => {
+        self.sort_rows(&mut row_details).await;
+        let row_index = self.row_index_cache.get(&row_id).cloned();
+        match row_index {
+          Some(row_index) => {
+            let notification = InsertSortedRowResult {
+              row_id: row_id.clone(),
+              view_id: self.view_id.clone(),
+              index: row_index,
+            };
+            self.row_index_cache.insert(row_id, row_index);
+            let _ = self
+              .notifier
+              .send(DatabaseViewChanged::InsertSortedRowNotification(
                 notification,
               ));
           },
@@ -184,7 +231,10 @@ impl SortController {
 
     if let Some(insert_sort) = changeset.insert_sort {
       if let Some(sort) = self.delegate.get_sort(&self.view_id, &insert_sort.id).await {
-        notification.insert_sorts.push(sort.as_ref().into());
+        notification.insert_sorts.push(SortWithIndexPB {
+          index: self.sorts.len() as u32,
+          sort: sort.as_ref().into(),
+        });
         self.sorts.push(sort);
       }
     }
@@ -209,6 +259,23 @@ impl SortController {
       }
     }
 
+    if let Some((from_id, to_id)) = changeset.reorder_sort {
+      let moved_sort = self.delegate.get_sort(&self.view_id, &from_id).await;
+      let from_index = self.sorts.iter().position(|sort| sort.id == from_id);
+      let to_index = self.sorts.iter().position(|sort| sort.id == to_id);
+
+      if let (Some(sort), Some(from_index), Some(to_index)) = (moved_sort, from_index, to_index) {
+        self.sorts.remove(from_index);
+        self.sorts.insert(to_index, sort.clone());
+
+        notification.delete_sorts.push(sort.as_ref().into());
+        notification.insert_sorts.push(SortWithIndexPB {
+          index: to_index as u32,
+          sort: sort.as_ref().into(),
+        });
+      }
+    }
+
     if !notification.is_empty() {
       self
         .gen_task(SortEvent::SortDidChanged, QualityOfService::UserInteractive)
@@ -226,20 +293,42 @@ fn cmp_row(
   fields: &[Arc<Field>],
   cell_data_cache: &CellCache,
 ) -> Ordering {
-  let field_type = sort.field_type;
   match fields
     .iter()
     .find(|field_rev| field_rev.id == sort.field_id)
   {
     None => default_order(),
-    Some(field_rev) => cmp_cell(
-      left.cells.get(&sort.field_id),
-      right.cells.get(&sort.field_id),
-      field_rev,
-      field_type,
-      cell_data_cache,
-      sort.condition,
-    ),
+    Some(field_rev) => {
+      let field_type = field_rev.field_type.into();
+      let timestamp_cells = match field_type {
+        FieldType::LastEditedTime | FieldType::CreatedTime => {
+          let (left_cell, right_cell) = if field_type.is_created_time() {
+            (left.created_at, right.created_at)
+          } else {
+            (left.modified_at, right.modified_at)
+          };
+          let (left_cell, right_cell) = (
+            TimestampCellDataWrapper::from((field_type, TimestampCellData::new(left_cell))),
+            TimestampCellDataWrapper::from((field_type, TimestampCellData::new(right_cell))),
+          );
+          Some((Some(left_cell.into()), Some(right_cell.into())))
+        },
+        _ => None,
+      };
+
+      cmp_cell(
+        timestamp_cells
+          .as_ref()
+          .map_or_else(|| left.cells.get(&sort.field_id), |cell| cell.0.as_ref()),
+        timestamp_cells
+          .as_ref()
+          .map_or_else(|| right.cells.get(&sort.field_id), |cell| cell.1.as_ref()),
+        field_rev,
+        field_type,
+        cell_data_cache,
+        sort.condition,
+      )
+    },
   }
 }
 
@@ -256,13 +345,7 @@ fn cmp_cell(
   {
     None => default_order(),
     Some(handler) => {
-      let cal_order = || {
-        let order =
-          handler.handle_cell_compare(left_cell, right_cell, field.as_ref(), sort_condition);
-        Option::<Ordering>::Some(order)
-      };
-
-      cal_order().unwrap_or_else(default_order)
+      handler.handle_cell_compare(left_cell, right_cell, field.as_ref(), sort_condition)
     },
   }
 }
@@ -271,6 +354,7 @@ fn cmp_cell(
 enum SortEvent {
   SortDidChanged,
   RowDidChanged(RowId),
+  NewRowInserted(RowId),
   DeleteAllSorts,
 }
 

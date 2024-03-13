@@ -12,7 +12,8 @@ import KeyboardNavigation, {
   KeyboardNavigationOption,
 } from '$app/components/_shared/keyboard_navigation/KeyboardNavigation';
 import { Color } from '$app/components/editor/components/tools/block_actions/color';
-import { getModifier } from '$app/components/editor/plugins/shortcuts';
+import { getModifier } from '$app/utils/hotkeys';
+
 import isHotkey from 'is-hotkey';
 import { EditorNodeType } from '$app/application/document/document.types';
 import { EditorSelectedBlockContext } from '$app/components/editor/stores/selected';
@@ -25,6 +26,7 @@ export const canSetColorBlocks: EditorNodeType[] = [
   EditorNodeType.NumberedListBlock,
   EditorNodeType.ToggleListBlock,
   EditorNodeType.QuoteBlock,
+  EditorNodeType.CalloutBlock,
 ];
 
 export function BlockOperationMenu({

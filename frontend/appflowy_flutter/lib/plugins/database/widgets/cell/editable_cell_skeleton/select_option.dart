@@ -92,5 +92,5 @@ class _SelectOptionCellState extends GridCellState<EditableSelectOptionCell> {
   }
 
   @override
-  void requestBeginFocus() => _popover.show();
+  void onRequestFocus() => _popover.show();
 }

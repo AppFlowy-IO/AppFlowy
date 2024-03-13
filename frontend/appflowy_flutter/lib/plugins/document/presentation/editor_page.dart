@@ -17,6 +17,7 @@ import 'package:appflowy/plugins/inline_actions/inline_actions_command.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_service.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_service.dart';
+import 'package:appflowy/workspace/application/view_info/view_info_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/emoji_picker/emoji_picker.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
@@ -32,6 +33,7 @@ final List<CommandShortcutEvent> commandShortcutEvents = [
   customCutCommand,
   ...customTextAlignCommands,
   ...standardCommandShortcutEvents,
+  emojiShortcutEvent,
 ];
 
 final List<CommandShortcutEvent> defaultCommandShortcutEvents = [
@@ -79,9 +81,9 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       InlinePageReferenceService(
         currentViewId: documentBloc.view.id,
         limitResults: 5,
-      ).inlinePageReferenceDelegate,
-      DateReferenceService(context).dateReferenceDelegate,
-      ReminderReferenceService(context).reminderReferenceDelegate,
+      ),
+      DateReferenceService(context),
+      ReminderReferenceService(context),
     ],
   );
 
@@ -93,6 +95,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     customCutCommand,
     ...customTextAlignCommands,
     ...standardCommandShortcutEvents,
+    emojiShortcutEvent,
     ..._buildFindAndReplaceCommands(),
   ];
 
@@ -175,6 +178,8 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
 
   late final EditorScrollController editorScrollController;
 
+  late final ViewInfoBloc viewInfoBloc = context.read<ViewInfoBloc>();
+
   Future<bool> showSlashMenu(editorState) async => customSlashCommand(
         slashMenuItems,
         shouldInsertSlash: false,
@@ -184,6 +189,12 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   @override
   void initState() {
     super.initState();
+
+    viewInfoBloc.add(
+      ViewInfoEvent.registerEditorState(
+        editorState: widget.editorState,
+      ),
+    );
 
     _initEditorL10n();
     _initializeShortcuts();
@@ -223,6 +234,10 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
 
   @override
   void dispose() {
+    if (!viewInfoBloc.isClosed) {
+      viewInfoBloc.add(const ViewInfoEvent.unregisterEditorState());
+    }
+
     SystemChannels.textInput.invokeMethod('TextInput.hide');
 
     if (widget.scrollController == null) {
@@ -244,7 +259,9 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
             LayoutDirection.rtlLayout;
     final textDirection = isRTL ? TextDirection.rtl : TextDirection.ltr;
 
-    _setRTLToolbarItems(isRTL);
+    _setRTLToolbarItems(
+      context.read<AppearanceSettingsCubit>().state.enableRtlToolbarItems,
+    );
 
     final editor = Directionality(
       textDirection: textDirection,
@@ -397,12 +414,12 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     );
   }
 
-  void _setRTLToolbarItems(bool isRTL) {
+  void _setRTLToolbarItems(bool enableRtlToolbarItems) {
     final textDirectionItemIds = textDirectionItems.map((e) => e.id);
     // clear all the text direction items
     toolbarItems.removeWhere((item) => textDirectionItemIds.contains(item.id));
     // only show the rtl item when the layout direction is ltr.
-    if (isRTL) {
+    if (enableRtlToolbarItems) {
       toolbarItems.addAll(textDirectionItems);
     }
   }

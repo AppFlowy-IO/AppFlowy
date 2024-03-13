@@ -1,12 +1,12 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/sidebar/rename_view/rename_view_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_setting.dart';
+import 'package:flutter/material.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:provider/provider.dart';
 
@@ -42,7 +42,7 @@ class HomeHotKeys extends StatelessWidget {
     // Collapse sidebar menu
     HotKeyItem(
       hotKey: HotKey(
-        KeyCode.backslash,
+        Platform.isMacOS ? KeyCode.period : KeyCode.backslash,
         modifiers: [Platform.isMacOS ? KeyModifier.meta : KeyModifier.control],
         // Set hotkey scope (default is HotKeyScope.system)
         scope: HotKeyScope.inapp, // Set as inapp-wide hotkey.
@@ -107,7 +107,13 @@ class HomeHotKeys extends StatelessWidget {
           getIt<RenameViewBloc>().add(const RenameViewEvent.open()),
     ).register();
 
+    _asyncRegistration(context);
+
     return child;
+  }
+
+  Future<void> _asyncRegistration(BuildContext context) async {
+    (await openSettingsHotKey(context))?.register();
   }
 
   void _selectTab(BuildContext context, int change) {

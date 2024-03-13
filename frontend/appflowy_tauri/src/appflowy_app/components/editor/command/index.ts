@@ -30,6 +30,7 @@ import {
   ToggleListNode,
   inlineNodeTypes,
   FormulaNode,
+  ImageNode,
 } from '$app/application/document/document.types';
 import cloneDeep from 'lodash-es/cloneDeep';
 import { generateId } from '$app/components/editor/provider/utils/convert';
@@ -39,6 +40,7 @@ export const EmbedTypes: string[] = [
   EditorNodeType.DividerBlock,
   EditorNodeType.EquationBlock,
   EditorNodeType.GridBlock,
+  EditorNodeType.ImageBlock,
 ];
 
 export const CustomEditor = {
@@ -120,7 +122,7 @@ export const CustomEditor = {
         at: path,
       });
       Transforms.insertNodes(editor, cloneNode, { at: path });
-      return;
+      return cloneNode;
     }
 
     const isListType = LIST_TYPES.includes(cloneNode.type as EditorNodeType);
@@ -148,6 +150,8 @@ export const CustomEditor = {
     if (selection) {
       editor.select(selection);
     }
+
+    return cloneNode;
   },
   tabForward,
   tabBackward,
@@ -229,6 +233,16 @@ export const CustomEditor = {
     return !!match;
   },
 
+  formulaActiveNode(editor: ReactEditor) {
+    const [match] = editor.nodes({
+      match: (n) => {
+        return !Editor.isEditor(n) && Element.isElement(n) && n.type === EditorInlineNodeType.Formula;
+      },
+    });
+
+    return match ? (match as NodeEntry<FormulaNode>) : undefined;
+  },
+
   isMentionActive(editor: ReactEditor) {
     const [match] = editor.nodes({
       match: (n) => {
@@ -240,16 +254,22 @@ export const CustomEditor = {
   },
 
   insertMention(editor: ReactEditor, mention: Mention) {
-    const mentionElement = {
-      type: EditorInlineNodeType.Mention,
-      children: [{ text: '@' }],
-      data: {
-        ...mention,
+    const mentionElement = [
+      {
+        type: EditorInlineNodeType.Mention,
+        children: [{ text: '$' }],
+        data: {
+          ...mention,
+        },
       },
-    };
+    ];
 
     Transforms.insertNodes(editor, mentionElement, {
       select: true,
+    });
+
+    editor.collapse({
+      edge: 'end',
     });
   },
 
@@ -330,6 +350,19 @@ export const CustomEditor = {
       data: {
         ...data,
         viewId: newViewId,
+      },
+    } as Partial<Element>;
+
+    Transforms.setNodes(editor, newProperties, { at: path });
+  },
+
+  setImageBlockData(editor: ReactEditor, node: Element, newData: ImageNode['data']) {
+    const path = ReactEditor.findPath(editor, node);
+    const data = node.data || {};
+    const newProperties = {
+      data: {
+        ...data,
+        ...newData,
       },
     } as Partial<Element>;
 
@@ -517,6 +550,14 @@ export const CustomEditor = {
     if (!hasTextNode) return false;
 
     return editor.isEmpty(textNode);
+  },
+
+  includeInlineBlocks: (editor: ReactEditor) => {
+    const [match] = Editor.nodes(editor, {
+      match: (n) => Element.isElement(n) && editor.isInline(n),
+    });
+
+    return Boolean(match);
   },
 
   getNodeTextContent(node: Node): string {

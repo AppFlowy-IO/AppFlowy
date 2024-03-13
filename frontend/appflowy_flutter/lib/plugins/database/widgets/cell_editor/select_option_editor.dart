@@ -12,11 +12,11 @@ import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../application/cell/bloc/select_option_editor_bloc.dart';
 import '../../grid/presentation/layout/sizes.dart';
 import '../../grid/presentation/widgets/common/type_option_separator.dart';
 import '../../grid/presentation/widgets/header/type_option/select/select_option_editor.dart';
 import 'extension.dart';
-import '../../application/cell/bloc/select_option_editor_bloc.dart';
 import 'select_option_text_field.dart';
 
 const double _editorPanelWidth = 300;
@@ -37,6 +37,7 @@ class _SelectOptionCellEditorState extends State<SelectOptionCellEditor> {
   @override
   void dispose() {
     popoverMutex.dispose();
+    textEditingController.dispose();
     super.dispose();
   }
 
@@ -94,12 +95,10 @@ class _OptionList extends StatelessWidget {
           ),
         ];
 
-        state.createOption.fold(
-          () => null,
-          (createOption) {
-            cells.add(_CreateOptionCell(name: createOption));
-          },
-        );
+        final createOption = state.createOption;
+        if (createOption != null) {
+          cells.add(_CreateOptionCell(name: createOption));
+        }
 
         return ListView.separated(
           shrinkWrap: true,
