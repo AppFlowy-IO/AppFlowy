@@ -1,7 +1,9 @@
+use chrono::Duration;
 use flowy_database2::entities::FieldType;
 use flowy_database2::services::cell::stringify_cell_data;
 use flowy_database2::services::field::CHECK;
 use flowy_database2::services::share::csv::CSVFormat;
+use tokio::time::sleep;
 
 use crate::database::database_editor::DatabaseEditorTest;
 
@@ -48,6 +50,9 @@ async fn export_and_then_import_meta_csv_test() {
   let csv_1 = database.export_csv(format).await.unwrap();
 
   let result = test.import(csv_1.clone(), format).await;
+  // TODO(nathan): remove this sleep
+  // workaround for the rows that are created asynchronously
+  sleep(Duration::from_secs(2)).await;
   let database = test.get_database(&result.database_id).await.unwrap();
 
   let fields = database.get_fields(&result.view_id, None);
