@@ -55,10 +55,10 @@
     "chooseWorkspace": "Choisissez votre espace de travail",
     "create": "Créer un espace de travail",
     "reset": "Réinitialiser l'espace de travail",
-    "resetWorkspacePrompt": "La réinitialisation de l'espace de travail supprimera toutes les pages et données qu'elles contiennent. Êtes-vous sûr de vouloir réinitialiser l'espace de travail ? Alternativement, vous pouvez contacter l'équipe d'assistance pour restaurer l'espace de travail",
+    "resetWorkspacePrompt": "La réinitialisation de l'espace de travail supprimera toutes les pages et données qu'elles contiennent. Êtes-vous sûr de vouloir réinitialiser l'espace de travail ? Alternativement, vous pouvez contacter l'équipe d'assistance pour restaurer l'espace de travail",
     "hint": "Espace de travail",
     "notFoundError": "Espace de travail introuvable",
-    "failedToLoad": "Quelque chose s'est mal passé ! Échec du chargement de l'espace de travail. Essayez de fermer toute instance ouverte d'AppFlowy et réessayez.",
+    "failedToLoad": "Quelque chose s'est mal passé ! Échec du chargement de l'espace de travail. Essayez de fermer toute instance ouverte d'AppFlowy et réessayez.",
     "errorActions": {
       "reportIssue": "Signaler un problème",
       "reportIssueOnGithub": "Signaler un bug sur Github",
@@ -120,11 +120,11 @@
       "created": "Créé"
     },
     "confirmDeleteAll": {
-      "title": "Voulez-vous vraiment supprimer toutes les pages de la corbeille ?",
+      "title": "Voulez-vous vraiment supprimer toutes les pages de la corbeille ?",
       "caption": "Cette action ne peut pas être annulée."
     },
     "confirmRestoreAll": {
-      "title": "Êtes-vous sûr de vouloir restaurer toutes les pages dans la corbeille ?",
+      "title": "Êtes-vous sûr de vouloir restaurer toutes les pages dans la corbeille ?",
       "caption": "Cette action ne peut pas être annulée."
     },
     "mobile": {
@@ -242,8 +242,6 @@
     "helpCenter": "Centre d'aide",
     "add": "Ajouter",
     "yes": "Oui",
-    "Done": "Fait",
-    "Cancel": "Annuler",
     "remove": "Retirer",
     "dontRemove": "Ne pas retirer",
     "align": "Aligner",
@@ -279,7 +277,7 @@
       "notifications": "Notifications",
       "open": "Ouvrir les paramètres",
       "logout": "Se déconnecter",
-      "logoutPrompt": "Êtes-vous sûr de vouloir vous déconnecter ?",
+      "logoutPrompt": "Êtes-vous sûr de vouloir vous déconnecter ?",
       "selfEncryptionLogoutPrompt": "Êtes-vous sûr de vouloir vous déconnecter ? Veuillez vous assurer d'avoir copié la clé de chiffrement.",
       "syncSetting": "Paramètres de synchronisation",
       "cloudSettings": "Paramètres cloud",
@@ -308,14 +306,14 @@
       "restartApp": "Redémarer",
       "restartAppTip": "Redémarrez l'application pour que les modifications prennent effet. Veuillez noter que cela pourrait déconnecter votre compte actuel.",
       "changeServerTip": "Après avoir changé de serveur, vous devez cliquer sur le bouton de redémarrer pour que les modifications prennent effet",
-      "enableEncryptPrompt": "Activez le chiffrement pour sécuriser vos données avec cette clé. Rangez-la en toute sécurité ; une fois activé, il ne peut pas être désactivé. En cas de perte, vos données deviennent irrécupérables. Cliquez pour copier",
+      "enableEncryptPrompt": "Activez le chiffrement pour sécuriser vos données avec cette clé. Rangez-la en toute sécurité ; une fois activé, il ne peut pas être désactivé. En cas de perte, vos données deviennent irrécupérables. Cliquez pour copier",
       "inputEncryptPrompt": "Veuillez saisir votre mot ou phrase de passe pour",
       "clickToCopySecret": "Cliquez pour copier le mot ou la phrase de passe",
       "configServerSetting": "Configurez les paramètres de votre serveur",
       "configServerGuide": "Après avoir sélectionné « Démarrage rapide », accédez à « Paramètres » puis « Paramètres Cloud » pour configurer votre serveur auto-hébergé.",
       "inputTextFieldHint": "Votre mot ou phrase de passe",
       "historicalUserList": "Historique de connexion d'utilisateurs",
-      "historicalUserListTooltip": "Cette liste affiche vos comptes anonymes. Vous pouvez cliquer sur un compte pour afficher ses détails. Les comptes anonymes sont créés en cliquant sur le bouton « Commencer »",
+      "historicalUserListTooltip": "Cette liste affiche vos comptes anonymes. Vous pouvez cliquer sur un compte pour afficher ses détails. Les comptes anonymes sont créés en cliquant sur le bouton « Commencer »",
       "openHistoricalUser": "Cliquez pour ouvrir le compte anonyme",
       "customPathPrompt": "Le stockage du dossier de données AppFlowy dans un dossier synchronisé avec le cloud tel que Google Drive peut présenter des risques. Si la base de données de ce dossier est consultée ou modifiée à partir de plusieurs emplacements en même temps, cela peut entraîner des conflits de synchronisation et une corruption potentielle des données.",
       "importAppFlowyData": "Importer des données à partir du dossier AppFlowy externe",
@@ -348,7 +346,7 @@
         "cursorColor": "Couleur du curseur du document",
         "selectionColor": "Couleur de sélection du document",
         "hexEmptyError": "La couleur hexadécimale ne peut pas être vide",
-        "hexLengthError": "La valeur hexadécimale doit comporter 6 chiffres",
+        "hexLengthError": "La valeur hexadécimale doit comporter 6 chiffres",
         "hexInvalidError": "Valeur hexadécimale invalide",
         "opacityEmptyError": "L'opacité ne peut pas être vide",
         "opacityRangeError": "L'opacité doit être comprise entre 1 et 100",
@@ -378,7 +376,7 @@
         "uploadSuccess": "Votre thème a été téléversé avec succès",
         "deletionFailure": "Échec de la suppression du thème. Essayez de le supprimer manuellement.",
         "filePickerDialogTitle": "Choisissez un fichier .flowy_plugin",
-        "urlUploadFailure": "Échec de l'ouverture de l'URL : {}",
+        "urlUploadFailure": "Échec de l'ouverture de l'URL : {}",
         "failure": "Le thème qui a été téléchargé avait un format non valide."
       },
       "theme": "Thème",
@@ -441,14 +439,14 @@
       "set": "Définir",
       "folderPath": "Chemin pour stocker votre dossier",
       "locationCannotBeEmpty": "Le chemin ne peut pas être vide",
-      "pathCopiedSnackbar": "Chemin de stockage des fichiers copié dans le presse-papier !",
+      "pathCopiedSnackbar": "Chemin de stockage des fichiers copié dans le presse-papier !",
       "changeLocationTooltips": "Changer le répertoire de données",
       "change": "Changer",
       "openLocationTooltips": "Ouvrir un autre répertoire de données",
       "openCurrentDataFolder": "Ouvrir le répertoire de données actuel",
       "recoverLocationTooltips": "Réinitialiser au répertoire de données par défaut d'AppFlowy",
-      "exportFileSuccess": "Exporter le fichier avec succès !",
-      "exportFileFail": "Échec de l'export  du fichier !",
+      "exportFileSuccess": "Exporter le fichier avec succès !",
+      "exportFileFail": "Échec de l'export  du fichier !",
       "export": "Exporter"
     },
     "user": {
@@ -466,7 +464,7 @@
       "keyBinding": "Racourcis clavier",
       "addNewCommand": "Ajouter une Nouvelle Commande",
       "updateShortcutStep": "Appuyez sur la combinaison de touches souhaitée et appuyez sur ENTER",
-      "shortcutIsAlreadyUsed": "Ce raccourci est déjà utilisé pour : {conflict}",
+      "shortcutIsAlreadyUsed": "Ce raccourci est déjà utilisé pour : {conflict}",
       "resetToDefault": "Réinitialiser les raccourcis clavier par défaut",
       "couldNotLoadErrorMsg": "Impossible de charger les raccourcis, réessayez",
       "couldNotSaveErrorMsg": "Impossible d'enregistrer les raccourcis. Réessayez"
@@ -490,7 +488,7 @@
     }
   },
   "grid": {
-    "deleteView": "Voulez-vous vraiment supprimer cette vue ?",
+    "deleteView": "Voulez-vous vraiment supprimer cette vue ?",
     "createView": "Nouveau",
     "title": {
       "placeholder": "Sans titre"
@@ -642,14 +640,14 @@
       "newField": "Ajouter un nouveau champ",
       "fieldDragElementTooltip": "Cliquez pour ouvrir le menu",
       "showHiddenFields": {
-        "one": "Afficher {count} champ masqué",
-        "many": "Afficher {count} champs masqués",
-        "other": "Afficher {count} champs masqués"
+        "one": "Afficher {count} champ masqué",
+        "many": "Afficher {count} champs masqués",
+        "other": "Afficher {count} champs masqués"
       },
       "hideHiddenFields": {
-        "one": "Cacher {count} champ caché",
-        "many": "Cacher {count} champs masqués",
-        "other": "Cacher {count} champs masqués"
+        "one": "Cacher {count} champ caché",
+        "many": "Cacher {count} champs masqués",
+        "other": "Cacher {count} champs masqués"
       }
     },
     "sort": {
@@ -659,7 +657,8 @@
       "empty": "Tri pas actif",
       "deleteAllSorts": "Supprimer tous les tris",
       "addSort": "Ajouter un tri",
-      "deleteSort": "Supprimer le tri"
+      "deleteSort": "Supprimer le tri",
+      "removeSorting": "Voulez-vous supprimer le tri ?"
     },
     "row": {
       "duplicate": "Dupliquer",
@@ -718,8 +717,7 @@
       "median": "Médiane",
       "min": "Minimum",
       "sum": "Somme"
-    },
-    "removeSorting": "Voulez-vous supprimer le tri ?"
+    }
   },
   "document": {
     "menuName": "Document",
@@ -754,7 +752,7 @@
       "referencedCalendar": "Calendrier référencé",
       "referencedDocument": "Document référencé",
       "autoGeneratorMenuItemName": "Rédacteur OpenAI",
-      "autoGeneratorTitleName": "OpenAI : Demandez à l'IA d'écrire quelque chose...",
+      "autoGeneratorTitleName": "OpenAI : Demandez à l'IA d'écrire quelque chose...",
       "autoGeneratorLearnMore": "Apprendre encore plus",
       "autoGeneratorGenerate": "Générer",
       "autoGeneratorHintText": "Demandez à OpenAI...",
@@ -770,7 +768,7 @@
       "smartEditCouldNotFetchResult": "Impossible de récupérer le résultat d'OpenAI",
       "smartEditCouldNotFetchKey": "Impossible de récupérer la clé OpenAI",
       "smartEditDisabled": "Connectez OpenAI dans les paramètres",
-      "discardResponse": "Voulez-vous supprimer les réponses de l'IA ?",
+      "discardResponse": "Voulez-vous supprimer les réponses de l'IA ?",
       "createInlineMathEquation": "Créer une équation",
       "fonts": "Polices",
       "toggleList": "Liste pliable",
@@ -886,7 +884,7 @@
       },
       "stability_ai": {
         "label": "Générer une image à partir de Stability AI",
-        "placeholder": "Veuillez saisir l'invite permettant à Stability AI de générer une image."
+        "placeholder": "Veuillez saisir l'invite permettant à Stability AI de générer une image."
       },
       "support": "La limite de taille d'image est de 5 Mo. Formats pris en charge : JPEG, PNG, GIF, SVG",
       "error": {
@@ -987,7 +985,7 @@
     "mobile": {
       "editURL": "Modifier l'URL",
       "unhideGroup": "Afficher le groupe",
-      "unhideGroupContent": "Êtes-vous sûr de vouloir afficher ce groupe sur le tableau ?",
+      "unhideGroupContent": "Êtes-vous sûr de vouloir afficher ce groupe sur le tableau ?",
       "faildToLoad": "Échec du chargement de la vue du tableau"
     }
   },
@@ -1033,13 +1031,13 @@
   },
   "message": {
     "copy": {
-      "success": "Copié !",
+      "success": "Copié !",
       "fail": "Impossible de copier"
     }
   },
   "unSupportBlock": "La version actuelle ne prend pas en charge ce bloc.",
   "views": {
-    "deleteContentTitle": "Voulez-vous vraiment supprimer le {pageType} ?",
+    "deleteContentTitle": "Voulez-vous vraiment supprimer le {pageType}?",
     "deleteContentCaption": "si vous supprimez ce {pageType}, vous pouvez le restaurer à partir de la corbeille."
   },
   "colors": {
