@@ -257,7 +257,6 @@ fn spawn_ws_conn(
                   Ok(conn_info) => {
                     // sleep two seconds and then try to reconnect
                     tokio::time::sleep(Duration::from_secs(2)).await;
-
                     event!(tracing::Level::INFO, "🟢reconnecting websocket");
                     let _ = ws_client.connect(api_client.ws_addr(), conn_info).await;
                   },
