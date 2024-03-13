@@ -1980,7 +1980,7 @@ dependencies = [
  "flowy-error",
  "flowy-folder-pub",
  "flowy-notification",
- "flowy-search",
+ "flowy-search-pub",
  "lazy_static",
  "lib-dispatch",
  "lib-infra",
@@ -2038,6 +2038,7 @@ dependencies = [
  "flowy-derive",
  "flowy-error",
  "flowy-notification",
+ "flowy-search-pub",
  "flowy-sqlite",
  "flowy-user",
  "futures",
@@ -2052,6 +2053,15 @@ dependencies = [
  "tokio",
  "tracing",
  "validator",
+]
+
+[[package]]
+name = "flowy-search-pub"
+version = "0.1.0"
+dependencies = [
+ "collab",
+ "collab-folder",
+ "flowy-error",
 ]
 
 [[package]]

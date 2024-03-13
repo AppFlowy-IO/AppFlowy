@@ -6,6 +6,47 @@ use flowy_search::{folder::handler::FolderSearchHandler, services::manager::Sear
 use tokio::time::sleep;
 
 #[tokio::test]
+async fn test_folder_index_all_startup() {
+  // TODO(Mathias): Large folder test with 1000 views
+}
+
+#[tokio::test]
+async fn test_folder_index_create_100_views() {
+  let test = search_manager::SearchManagerTest::new_folder_test().await;
+
+  let folder_search_manager = test
+    .sdk
+    .search_manager
+    .handlers
+    .first()
+    .unwrap()
+    .as_any()
+    .downcast_ref::<FolderSearchHandler>()
+    .unwrap();
+
+  // Wait for the index to be created/updated
+  sleep(Duration::from_secs(1)).await;
+
+  for i in 0..99 {
+    let view = test
+      .sdk
+      .create_view(&test.view_id, format!("View {}", i))
+      .await;
+    sleep(Duration::from_millis(500)).await;
+
+    assert_eq!(view.name, format!("View {}", i));
+  }
+
+  // Wait for the index update to finish
+  sleep(Duration::from_millis(1000)).await;
+
+  let num_docs = folder_search_manager.index_manager.num_docs();
+
+  // Workspace + The Parent View + 100 Views
+  assert_eq!(num_docs, 102);
+}
+
+#[tokio::test]
 async fn test_folder_index_create_view() {
   let test = search_manager::SearchManagerTest::new_folder_test().await;
 

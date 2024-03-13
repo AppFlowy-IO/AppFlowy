@@ -130,9 +130,8 @@ impl FolderIndexManagerImpl {
 
   pub fn num_docs(&self) -> u64 {
     self
-      .index
-      .as_ref()
-      .and_then(|index| index.reader().ok())
+      .index_reader
+      .clone()
       .map(|reader| reader.searcher().num_docs())
       .unwrap_or(0)
   }
@@ -243,9 +242,8 @@ impl FolderIndexManagerImpl {
 impl IndexManager for FolderIndexManagerImpl {
   fn is_indexed(&self) -> bool {
     self
-      .index
-      .as_ref()
-      .and_then(|index| index.reader().ok())
+      .index_reader
+      .clone()
       .map(|reader| reader.searcher().num_docs() > 0)
       .unwrap_or(false)
   }

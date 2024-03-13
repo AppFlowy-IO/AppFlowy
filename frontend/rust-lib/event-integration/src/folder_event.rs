@@ -174,6 +174,7 @@ impl ViewTest {
       .async_send()
       .await
       .parse::<ViewPB>();
+
     Self {
       sdk: sdk.clone(),
       workspace,
