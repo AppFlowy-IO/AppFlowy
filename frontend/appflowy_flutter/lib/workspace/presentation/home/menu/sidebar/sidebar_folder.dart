@@ -55,25 +55,20 @@ class SidebarFolder extends StatelessWidget {
                           ? [
                               // public
                               const VSpace(10),
-                              SectionFolder(
-                                title: LocaleKeys.sideBar_public.tr(),
-                                categoryType: FolderCategoryType.public,
+                              PublicSectionFolder(
                                 views: state.section.publicViews,
                               ),
 
                               // private
                               const VSpace(10),
-                              SectionFolder(
-                                title: LocaleKeys.sideBar_private.tr(),
-                                categoryType: FolderCategoryType.private,
+                              PrivateSectionFolder(
                                 views: state.section.privateViews,
                               ),
                             ]
                           : [
+                              // personal
                               const VSpace(10),
-                              SectionFolder(
-                                title: LocaleKeys.sideBar_personal.tr(),
-                                categoryType: FolderCategoryType.public,
+                              PersonalSectionFolder(
                                 views: state.section.publicViews,
                               ),
                             ],
@@ -85,4 +80,34 @@ class SidebarFolder extends StatelessWidget {
       },
     );
   }
+}
+
+class PrivateSectionFolder extends SectionFolder {
+  PrivateSectionFolder({
+    super.key,
+    required super.views,
+  }) : super(
+          title: LocaleKeys.sideBar_private.tr(),
+          categoryType: FolderCategoryType.private,
+        );
+}
+
+class PublicSectionFolder extends SectionFolder {
+  PublicSectionFolder({
+    super.key,
+    required super.views,
+  }) : super(
+          title: LocaleKeys.sideBar_public.tr(),
+          categoryType: FolderCategoryType.public,
+        );
+}
+
+class PersonalSectionFolder extends SectionFolder {
+  PersonalSectionFolder({
+    super.key,
+    required super.views,
+  }) : super(
+          title: LocaleKeys.sideBar_personal.tr(),
+          categoryType: FolderCategoryType.public,
+        );
 }

@@ -74,7 +74,10 @@ class AppFlowyUnitTest {
   }
 
   Future<ViewPB> createWorkspace() async {
-    final result = await workspaceService.createView(name: "Test App");
+    final result = await workspaceService.createView(
+      name: "Test App",
+      viewSection: ViewSectionPB.Public,
+    );
     return result.fold(
       (app) => app,
       (error) => throw Exception(error),
