@@ -52,7 +52,7 @@ class _MobileBottomSheetRenameWidgetState
               height: 42.0,
               child: FlowyTextField(
                 controller: controller,
-                keyboardType: null,
+                keyboardType: TextInputType.text,
                 onSubmitted: (text) => widget.onRename(text),
               ),
             ),

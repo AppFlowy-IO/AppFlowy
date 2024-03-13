@@ -171,7 +171,7 @@ class MobileURLEditor extends StatelessWidget {
                 ?.copyWith(color: Theme.of(context).hintColor),
             hintText: LocaleKeys.grid_url_textFieldHint.tr(),
             textStyle: Theme.of(context).textTheme.bodyMedium,
-            keyboardType: null,
+            keyboardType: TextInputType.url,
             hintTextConstraints: const BoxConstraints(maxHeight: 52),
             onChanged: (_) {
               if (textEditingController.value.composing.isCollapsed) {
