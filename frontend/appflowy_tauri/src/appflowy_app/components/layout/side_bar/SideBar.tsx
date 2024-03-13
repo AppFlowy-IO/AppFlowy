@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { useAppDispatch, useAppSelector } from '$app/stores/store';
-import { AppflowyLogoDark } from '$app/components/_shared/svg/AppflowyLogoDark';
-import { AppflowyLogoLight } from '$app/components/_shared/svg/AppflowyLogoLight';
+import { ReactComponent as AppflowyLogoDark } from '$app/assets/dark-logo.svg';
+import { ReactComponent as AppflowyLogoLight } from '$app/assets/light-logo.svg';
 import CollapseMenuButton from '$app/components/layout/collapse_menu_button/CollapseMenuButton';
 import Resizer from '$app/components/layout/side_bar/Resizer';
 import UserInfo from '$app/components/layout/side_bar/UserInfo';
@@ -50,7 +50,11 @@ function SideBar() {
       >
         <div className={'flex h-[100vh] flex-col overflow-hidden border-r border-line-divider bg-bg-base'}>
           <div className={'flex h-[64px] justify-between px-4 py-5'}>
-            {isDark ? <AppflowyLogoDark /> : <AppflowyLogoLight />}
+            {isDark ? (
+              <AppflowyLogoDark className={'h-6 w-[103px]'} />
+            ) : (
+              <AppflowyLogoLight className={'h-6 w-[103px]'} />
+            )}
             <CollapseMenuButton />
           </div>
           <div className={'flex h-[36px] items-center'}>
