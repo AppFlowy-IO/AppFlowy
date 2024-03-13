@@ -171,8 +171,8 @@ dependency_overrides:
 
   sheet:
     git:
-      url: https://github.com/richardshiue/modal_bottom_sheet
-      ref: 8ee20bd
+      url: https://github.com/jamesblasco/modal_bottom_sheet
+      ref: e44458d
       path: sheet
 
   uuid: ^4.1.0
