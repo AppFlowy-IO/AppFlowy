@@ -17,7 +17,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:url_launcher/url_launcher_string.dart';
 
 import '../desktop_grid/desktop_grid_url_cell.dart';
 import '../desktop_row_detail/desktop_row_detail_url_cell.dart';
@@ -180,11 +179,7 @@ class MobileURLEditor extends StatelessWidget {
         ),
         MobileQuickActionButton(
           onTap: () {
-            final content = textEditingController.text;
-            final shouldAddScheme = !['http', 'https']
-                .any((pattern) => content.startsWith(pattern));
-            final url = shouldAddScheme ? 'http://$content' : content;
-            canLaunchUrlString(url).then((value) => launchUrlString(url));
+            openUrlCellLink(textEditingController.text);
             context.pop();
           },
           icon: FlowySvgs.url_s,
