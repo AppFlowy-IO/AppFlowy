@@ -114,7 +114,8 @@ class _GridURLCellState extends GridEditableTextCell<EditableURLCell> {
       child: BlocListener<URLCellBloc, URLCellState>(
         listenWhen: (previous, current) => previous.content != current.content,
         listener: (context, state) {
-          _textEditingController.text = state.content;
+          _textEditingController.value =
+              _textEditingController.value.copyWith(text: state.content);
           widget._cellDataNotifier.value = state.content;
         },
         child: widget.skin.build(
@@ -172,6 +173,11 @@ class MobileURLEditor extends StatelessWidget {
             textStyle: Theme.of(context).textTheme.bodyMedium,
             keyboardType: null,
             hintTextConstraints: const BoxConstraints(maxHeight: 52),
+            onChanged: (_) {
+              if (textEditingController.value.composing.isCollapsed) {
+                bloc.add(URLCellEvent.updateURL(textEditingController.text));
+              }
+            },
             onSubmitted: (text) => bloc.add(URLCellEvent.updateURL(text)),
           ),
         ),
