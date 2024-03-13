@@ -1,5 +1,15 @@
-import { CreateViewPayloadPB, UserWorkspaceIdPB, WorkspaceIdPB } from '@/services/backend';
-import { UserEventOpenWorkspace } from '@/services/backend/events/flowy-user';
+import {
+  CreateViewPayloadPB,
+  UserWorkspaceIdPB,
+  WorkspaceIdPB,
+  RenameWorkspacePB,
+  ChangeWorkspaceIconPB,
+} from '@/services/backend';
+import {
+  UserEventOpenWorkspace,
+  UserEventRenameWorkspace,
+  UserEventChangeWorkspaceIcon,
+} from '@/services/backend/events/flowy-user';
 import {
   FolderEventCreateView,
   FolderEventDeleteWorkspace,
@@ -104,6 +114,36 @@ export async function createCurrentWorkspaceChildView(
     const view = result.val;
 
     return view;
+  }
+
+  return Promise.reject(result.err);
+}
+
+export async function renameWorkspace(id: string, name: string) {
+  const payload = new RenameWorkspacePB({
+    workspace_id: id,
+    new_name: name,
+  });
+
+  const result = await UserEventRenameWorkspace(payload);
+
+  if (result.ok) {
+    return result.val;
+  }
+
+  return Promise.reject(result.err);
+}
+
+export async function changeWorkspaceIcon(id: string, icon: string) {
+  const payload = new ChangeWorkspaceIconPB({
+    workspace_id: id,
+    new_icon: icon,
+  });
+
+  const result = await UserEventChangeWorkspaceIcon(payload);
+
+  if (result.ok) {
+    return result.val;
   }
 
   return Promise.reject(result.err);
