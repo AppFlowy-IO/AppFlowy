@@ -8,7 +8,7 @@ use flowy_user::entities::{
 };
 use flowy_user::errors::FlowyError;
 use flowy_user::event_map::UserEvent;
-use tokio::time::sleep;
+
 
 use crate::event_builder::EventBuilder;
 use crate::EventIntegrationTest;

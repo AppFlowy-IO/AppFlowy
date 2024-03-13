@@ -48,6 +48,7 @@ tokio-stream = { workspace = true, features = ["sync"] }
 client-api = { version = "0.1.0", features = ["collab-sync", "test_util"] }
 lib-dispatch = { workspace = true }
 yrs = "0.17.1"
+rand = "0.8.5"
 
 [dev-dependencies]
 uuid.workspace = true
