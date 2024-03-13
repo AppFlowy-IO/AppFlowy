@@ -52,4 +52,4 @@ tempfile = "3.10.0"
 
 [features]
 dart = ["flowy-codegen/dart"]
-ts = ["flowy-codegen/ts"]
+tauri_ts = ["flowy-codegen/ts"]

@@ -188,6 +188,7 @@ dependencies = [
  "flowy-document",
  "flowy-error",
  "flowy-notification",
+ "flowy-search",
  "flowy-user",
  "lib-dispatch",
  "serde",
