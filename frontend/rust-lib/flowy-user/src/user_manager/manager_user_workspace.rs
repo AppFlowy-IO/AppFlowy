@@ -179,6 +179,24 @@ impl UserManager {
       .patch_workspace(workspace_id, new_workspace_name, new_workspace_icon)
       .await?;
 
+    // save the icon and name to sqlite db
+    let uid = self.user_id()?;
+    let conn = self.db_connection(uid)?;
+    let user_workspace = self
+      .get_user_workspace(uid, workspace_id)
+      .map(|mut user_workspace| {
+        if let Some(new_workspace_name) = new_workspace_name {
+          user_workspace.name = new_workspace_name.to_string();
+        }
+        if let Some(new_workspace_icon) = new_workspace_icon {
+          user_workspace.icon = new_workspace_icon.to_string();
+        }
+        user_workspace
+      });
+    if let Some(user_workspace) = user_workspace {
+      let _ = save_user_workspaces(uid, conn, &[user_workspace]);
+    }
+
     Ok(())
   }
 
@@ -312,6 +330,7 @@ pub fn save_user_workspaces(
         user_workspace_table::name.eq(&user_workspace.name),
         user_workspace_table::created_at.eq(&user_workspace.created_at),
         user_workspace_table::database_storage_id.eq(&user_workspace.database_storage_id),
+        user_workspace_table::icon.eq(&user_workspace.icon),
       ))
       .execute(conn)
       .and_then(|rows| {

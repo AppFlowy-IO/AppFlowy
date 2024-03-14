@@ -202,7 +202,7 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
                   if (e.workspaceId == workspaceId) {
                     e.freeze();
                     return e.rebuild((p0) {
-                      // TODO(Lucas): the icon is not ready in the backend
+                      p0.icon = icon;
                     });
                   }
                   return e;

@@ -158,11 +158,13 @@ class WorkspaceMenuItem extends StatelessWidget {
                 ),
               ),
               Positioned(
-                left: 12,
+                left: 8,
                 child: SizedBox.square(
                   dimension: 32,
                   child: WorkspaceIcon(
                     workspace: workspace,
+                    iconSize: 26,
+                    enableEdit: true,
                   ),
                 ),
               ),
