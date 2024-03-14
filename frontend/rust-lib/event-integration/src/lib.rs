@@ -73,6 +73,14 @@ impl EventIntegrationTest {
     }
   }
 
+  pub fn instance_name(&self) -> String {
+    self.appflowy_core.config.name.clone()
+  }
+
+  pub fn user_data_path(&self) -> String {
+    self.appflowy_core.config.application_path.clone()
+  }
+
   pub fn get_server(&self) -> Arc<dyn AppFlowyServer> {
     self.appflowy_core.server_provider.get_server().unwrap()
   }
@@ -102,14 +110,14 @@ impl EventIntegrationTest {
   pub async fn get_collab_doc_state(
     &self,
     oid: &str,
-    collay_type: CollabType,
+    collab_type: CollabType,
   ) -> Result<CollabDocState, FlowyError> {
     let server = self.server_provider.get_server().unwrap();
     let workspace_id = self.get_current_workspace().await.id;
     let uid = self.get_user_profile().await?.id;
     let doc_state = server
       .folder_service()
-      .get_folder_doc_state(&workspace_id, uid, collay_type, oid)
+      .get_folder_doc_state(&workspace_id, uid, collab_type, oid)
       .await?;
 
     Ok(doc_state)

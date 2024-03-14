@@ -38,7 +38,7 @@ parking_lot.workspace = true
 uuid.workspace = true
 collab = { version = "0.1.0" }
 collab-document = { version = "0.1.0" }
-collab-folder = { version = "0.1.0" }
+collab-folder = { version = "0.1.0", features = ["test_utils"] }
 collab-database = { version = "0.1.0" }
 collab-plugins = { version = "0.1.0" }
 collab-entity = { version = "0.1.0" }

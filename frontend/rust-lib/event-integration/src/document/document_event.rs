@@ -29,7 +29,7 @@ pub struct OpenDocumentData {
 
 impl DocumentEventTest {
   pub async fn new() -> Self {
-    let sdk = EventIntegrationTest::new_with_guest_user().await;
+    let sdk = EventIntegrationTest::new_anon().await;
     Self { event_test: sdk }
   }
 

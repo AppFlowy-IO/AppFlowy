@@ -1,21 +1,29 @@
-use std::time::Duration;
-
-use crate::search::search_manager;
+use collab_folder::View;
+use event_integration::EventIntegrationTest;
 use flowy_folder::entities::UpdateViewPayloadPB;
-use flowy_search::{folder::handler::FolderSearchHandler, services::manager::SearchHandler};
+use flowy_folder_pub::folder_builder::{FlattedViews, WorkspaceViewBuilder};
+use flowy_search::folder::handler::FolderSearchHandler;
+use flowy_search::services::manager::SearchHandler;
+use std::time::Duration;
 use tokio::time::sleep;
 
 #[tokio::test]
 async fn test_folder_index_all_startup() {
-  // TODO(Mathias): Large folder test with 1000 views
-}
+  let test = EventIntegrationTest::new_anon().await;
+  let workspace_id = test.get_current_workspace().await.id;
+  let views = create_1000_views(workspace_id.clone()).await;
+  test.create_views(views);
 
+  let folder_data = test.get_folder_data();
+  // Workspace + Get started + 1000 Views
+  assert_eq!(folder_data.views.len(), 1002);
+}
 #[tokio::test]
 async fn test_folder_index_create_100_views() {
-  let test = search_manager::SearchManagerTest::new_folder_test().await;
+  let test = EventIntegrationTest::new_anon().await;
 
   let folder_search_manager = test
-    .sdk
+    .appflowy_core
     .search_manager
     .handlers
     .first()
@@ -26,14 +34,11 @@ async fn test_folder_index_create_100_views() {
 
   // Wait for the index to be created/updated
   sleep(Duration::from_secs(1)).await;
+  let workspace_id = test.get_current_workspace().await.id;
 
   for i in 0..99 {
-    let view = test
-      .sdk
-      .create_view(&test.view_id, format!("View {}", i))
-      .await;
+    let view = test.create_view(&workspace_id, format!("View {}", i)).await;
     sleep(Duration::from_millis(500)).await;
-
     assert_eq!(view.name, format!("View {}", i));
   }
 
@@ -42,16 +47,16 @@ async fn test_folder_index_create_100_views() {
 
   let num_docs = folder_search_manager.index_manager.num_docs();
 
-  // Workspace + The Parent View + 100 Views
-  assert_eq!(num_docs, 102);
+  // Workspace + 100 Views
+  assert_eq!(num_docs, 101);
 }
 
 #[tokio::test]
 async fn test_folder_index_create_view() {
-  let test = search_manager::SearchManagerTest::new_folder_test().await;
+  let test = EventIntegrationTest::new_anon().await;
 
   let folder_search_manager = test
-    .sdk
+    .appflowy_core
     .search_manager
     .handlers
     .first()
@@ -63,10 +68,8 @@ async fn test_folder_index_create_view() {
   // Wait for the index to be created/updated
   sleep(Duration::from_secs(1)).await;
 
-  let view = test
-    .sdk
-    .create_view(&test.view_id, "Flowers".to_owned())
-    .await;
+  let workspace_id = test.get_current_workspace().await.id;
+  let view = test.create_view(&workspace_id, "Flowers".to_owned()).await;
 
   // Wait for the index to be updated
   sleep(Duration::from_millis(500)).await;
@@ -84,10 +87,10 @@ async fn test_folder_index_create_view() {
 
 #[tokio::test]
 async fn test_folder_index_rename_view() {
-  let test = search_manager::SearchManagerTest::new_folder_test().await;
+  let test = EventIntegrationTest::new_anon().await;
 
   let folder_search_manager = test
-    .sdk
+    .appflowy_core
     .search_manager
     .handlers
     .first()
@@ -99,10 +102,8 @@ async fn test_folder_index_rename_view() {
   // Wait for the index to be created/updated
   sleep(Duration::from_secs(1)).await;
 
-  let view = test
-    .sdk
-    .create_view(&test.view_id, "Flowers".to_owned())
-    .await;
+  let workspace_id = test.get_current_workspace().await.id;
+  let view = test.create_view(&workspace_id, "Flowers".to_owned()).await;
 
   // Wait for the index to be updated
   sleep(Duration::from_millis(500)).await;
@@ -113,7 +114,7 @@ async fn test_folder_index_rename_view() {
     name: Some(new_view_name.clone()),
     ..Default::default()
   };
-  test.sdk.update_view(update_payload).await;
+  test.update_view(update_payload).await;
 
   // Wait for the index to be updated
   sleep(Duration::from_millis(500)).await;
@@ -134,4 +135,31 @@ async fn test_folder_index_rename_view() {
   let second = second.unwrap();
   assert_eq!(second.len(), 1);
   assert_eq!(second[0].data, new_view_name);
+}
+
+async fn create_1000_views(workspace_id: String) -> Vec<View> {
+  let mut builder = WorkspaceViewBuilder::new(workspace_id.clone(), 1);
+  builder
+    .with_view_builder(|view_builder| async {
+      let mut builder = view_builder.with_name("1");
+      for i in 0..500 {
+        builder = builder
+          .with_child_view_builder(|child_view_builder| async {
+            child_view_builder.with_name(format!("1_1_{}", i)).build()
+          })
+          .await;
+      }
+
+      for i in 0..500 {
+        builder = builder
+          .with_child_view_builder(|child_view_builder| async {
+            child_view_builder.with_name(format!("1_2_{}", i)).build()
+          })
+          .await;
+      }
+      builder.build()
+    })
+    .await;
+  let views = builder.build();
+  FlattedViews::flatten_views(views)
 }

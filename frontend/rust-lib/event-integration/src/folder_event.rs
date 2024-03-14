@@ -1,3 +1,4 @@
+use collab_folder::{FolderData, View};
 use flowy_folder::entities::icon::UpdateViewIconPayloadPB;
 use flowy_folder::event_map::FolderEvent;
 use flowy_folder::event_map::FolderEvent::*;
@@ -53,6 +54,22 @@ impl EventIntegrationTest {
       .async_send()
       .await
       .parse::<WorkspacePB>()
+  }
+
+  pub fn create_views(&self, views: Vec<View>) {
+    let mutex_folder = self.appflowy_core.folder_manager.get_mutex_folder().clone();
+    let folder_lock_guard = mutex_folder.lock();
+    let folder = folder_lock_guard.as_ref().unwrap();
+    for view in views {
+      folder.insert_view(view, None);
+    }
+  }
+
+  pub fn get_folder_data(&self) -> FolderData {
+    let mutex_folder = self.appflowy_core.folder_manager.get_mutex_folder().clone();
+    let folder_lock_guard = mutex_folder.lock();
+    let folder = folder_lock_guard.as_ref().unwrap();
+    folder.get_folder_data().clone().unwrap()
   }
 
   pub async fn get_all_workspace_views(&self) -> Vec<ViewPB> {
@@ -182,15 +199,15 @@ impl ViewTest {
   }
 
   pub async fn new_grid_view(sdk: &EventIntegrationTest, data: Vec<u8>) -> Self {
-    Self::new(sdk, ViewLayoutPB::Grid, data).await
+    Self::new(sdk, ViewLayout::Grid, data).await
   }
 
   pub async fn new_board_view(sdk: &EventIntegrationTest, data: Vec<u8>) -> Self {
-    Self::new(sdk, ViewLayoutPB::Board, data).await
+    Self::new(sdk, ViewLayout::Board, data).await
   }
 
   pub async fn new_calendar_view(sdk: &EventIntegrationTest, data: Vec<u8>) -> Self {
-    Self::new(sdk, ViewLayoutPB::Calendar, data).await
+    Self::new(sdk, ViewLayout::Calendar, data).await
   }
 }
 

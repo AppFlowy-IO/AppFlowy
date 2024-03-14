@@ -11,7 +11,7 @@ async fn import_492_row_csv_file_test() {
 
   let csv_string = std::fs::read_to_string(csv_file_path).unwrap();
   let test = EventIntegrationTest::new_with_name(DEFAULT_NAME).await;
-  test.sign_up_as_guest().await;
+  test.sign_up_as_anon().await;
 
   let workspace_id = test.get_current_workspace().await.id;
   let import_data = gen_import_data(file_name, csv_string, workspace_id);
@@ -30,7 +30,7 @@ async fn import_10240_row_csv_file_test() {
 
   let csv_string = std::fs::read_to_string(csv_file_path).unwrap();
   let test = EventIntegrationTest::new_with_name(DEFAULT_NAME).await;
-  test.sign_up_as_guest().await;
+  test.sign_up_as_anon().await;
 
   let workspace_id = test.get_current_workspace().await.id;
   let import_data = gen_import_data(file_name, csv_string, workspace_id);
