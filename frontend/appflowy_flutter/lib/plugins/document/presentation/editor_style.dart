@@ -179,6 +179,17 @@ class EditorStyleCustomizer {
     );
   }
 
+  TextStyle workspaceOverviewBlockPlaceholderStyleBuilder() {
+    final theme = Theme.of(context);
+    final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
+    return TextStyle(
+      fontFamily: builtInFontFamily,
+      fontSize: fontSize,
+      height: 1.5,
+      color: theme.colorScheme.onBackground.withOpacity(0.6),
+    );
+  }
+
   SelectionMenuStyle selectionMenuStyleBuilder() {
     final theme = Theme.of(context);
     return SelectionMenuStyle(

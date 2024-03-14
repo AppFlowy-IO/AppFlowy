@@ -37,6 +37,9 @@ pub fn init(folder: Weak<FolderManager>) -> AFPlugin {
     .event(FolderEvent::ReadRecentViews, read_recent_views_handler)
     .event(FolderEvent::ToggleFavorite, toggle_favorites_handler)
     .event(FolderEvent::UpdateRecentViews, update_recent_views_handler)
+    .event(FolderEvent::GetAllLevelOfViews, read_all_level_of_views_handler)
+    .event(FolderEvent::RegisterWorkspaceOverviewListenerId, register_workspace_overview_listerner_id_handler)
+    .event(FolderEvent::RemoveWorkspaceOverviewListenerId, remove_workspace_overview_listerner_id_handler)
     .event(FolderEvent::ReloadWorkspace, reload_workspace_handler)
 }
 
@@ -129,6 +132,7 @@ pub enum FolderEvent {
 
   #[event(input = "WorkspaceIdPB", output = "RepeatedFolderSnapshotPB")]
   GetFolderSnapshots = 31,
+
   /// Moves a nested view to a new location in the hierarchy.
   ///
   /// This function takes the `view_id` of the view to be moved,
@@ -154,6 +158,19 @@ pub enum FolderEvent {
   #[event(input = "UpdateRecentViewPayloadPB")]
   UpdateRecentViews = 37,
 
+  /// Returns information about the view and its entire hierarchy of child views.
+  #[event(input = "ViewIdPB", output = "ViewPB")]
+  GetAllLevelOfViews = 38,
+
+  /// Registers an overview block listener ID, allowing us to receive
+  /// notifications of `DidUpdateWorkspaceOverviewChildViews` from all levels of child views
+  /// to the specified parent view ID listener.
+  #[event(input = "ViewIdPB")]
+  RegisterWorkspaceOverviewListenerId = 39,
+
+  #[event(input = "ViewIdPB")]
+  RemoveWorkspaceOverviewListenerId = 40,
+
   #[event()]
-  ReloadWorkspace = 38,
+  ReloadWorkspace = 41,
 }

@@ -250,6 +250,13 @@ class ViewBackendService {
     return result;
   }
 
+  static Future<FlowyResult<ViewPB, FlowyError>> getAllLevelOfViews(
+    String viewID,
+  ) async {
+    final payload = ViewIdPB.create()..value = viewID;
+    return FolderEventGetAllLevelOfViews(payload).send();
+  }
+
   static Future<FlowyResult<ViewPB, FlowyError>> getView(
     String viewID,
   ) async {

@@ -114,6 +114,17 @@ pub(crate) async fn read_view_handler(
 }
 
 #[tracing::instrument(level = "debug", skip(data, folder), err)]
+pub(crate) async fn read_all_level_of_views_handler(
+  data: AFPluginData<ViewIdPB>,
+  folder: AFPluginState<Weak<FolderManager>>,
+) -> DataResult<ViewPB, FlowyError> {
+  let folder = upgrade_folder(folder)?;
+  let view_id: ViewIdPB = data.into_inner();
+  let view_pb = folder.get_all_level_of_views_pb(&view_id.value).await?;
+  data_result_ok(view_pb)
+}
+
+#[tracing::instrument(level = "debug", skip(data, folder), err)]
 pub(crate) async fn update_view_handler(
   data: AFPluginData<UpdateViewPayloadPB>,
   folder: AFPluginState<Weak<FolderManager>>,
@@ -141,8 +152,12 @@ pub(crate) async fn delete_view_handler(
 ) -> Result<(), FlowyError> {
   let folder = upgrade_folder(folder)?;
   let params: RepeatedViewIdPB = data.into_inner();
+  let weak_workspace_overview_manager =
+    Arc::downgrade(&folder.workspace_overview_listener_id_manager);
   for view_id in &params.items {
-    let _ = folder.move_view_to_trash(view_id).await;
+    folder
+      .move_view_to_trash(view_id, &weak_workspace_overview_manager)
+      .await?;
   }
   Ok(())
 }
@@ -200,8 +215,15 @@ pub(crate) async fn move_view_handler(
 ) -> Result<(), FlowyError> {
   let folder = upgrade_folder(folder)?;
   let params: MoveViewParams = data.into_inner().try_into()?;
+  let weak_workspace_overview_manager =
+    Arc::downgrade(&folder.workspace_overview_listener_id_manager);
   folder
-    .move_view(&params.view_id, params.from, params.to)
+    .move_view(
+      &params.view_id,
+      &weak_workspace_overview_manager,
+      params.from,
+      params.to,
+    )
     .await?;
   Ok(())
 }
@@ -212,8 +234,15 @@ pub(crate) async fn move_nested_view_handler(
 ) -> Result<(), FlowyError> {
   let folder = upgrade_folder(folder)?;
   let params: MoveNestedViewParams = data.into_inner().try_into()?;
+  let weak_workspace_overview_manager =
+    Arc::downgrade(&folder.workspace_overview_listener_id_manager);
   folder
-    .move_nested_view(params.view_id, params.new_parent_id, params.prev_view_id)
+    .move_nested_view(
+      params.view_id,
+      &weak_workspace_overview_manager,
+      params.new_parent_id,
+      params.prev_view_id,
+    )
     .await?;
   Ok(())
 }
@@ -316,6 +345,12 @@ pub(crate) async fn import_data_handler(
 ) -> DataResult<ViewPB, FlowyError> {
   let folder = upgrade_folder(folder)?;
   let params: ImportParams = data.into_inner().try_into()?;
+  let weak_workspace_overview_manager =
+    Arc::downgrade(&folder.workspace_overview_listener_id_manager);
+  folder
+    .import(params, &weak_workspace_overview_manager)
+    .await?;
+  Ok(())
   let view = folder.import(params).await?;
   let view_pb = view_pb_without_child_views(view);
   data_result_ok(view_pb)
@@ -330,6 +365,26 @@ pub(crate) async fn get_folder_snapshots_handler(
   let data = data.into_inner();
   let snapshots = folder.get_folder_snapshots(&data.value, 10).await?;
   data_result_ok(RepeatedFolderSnapshotPB { items: snapshots })
+}
+
+#[tracing::instrument(level = "debug", skip(data, folder), err)]
+pub(crate) async fn register_workspace_overview_listerner_id_handler(
+  data: AFPluginData<ViewIdPB>,
+  folder: AFPluginState<Weak<FolderManager>>,
+) -> Result<(), FlowyError> {
+  let folder = upgrade_folder(folder)?;
+  let view_id: ViewIdPB = data.into_inner();
+  folder.register_workspace_overview_listerner(view_id.value)
+}
+
+#[tracing::instrument(level = "debug", skip(data, folder), err)]
+pub(crate) async fn remove_workspace_overview_listerner_id_handler(
+  data: AFPluginData<ViewIdPB>,
+  folder: AFPluginState<Weak<FolderManager>>,
+) -> Result<(), FlowyError> {
+  let folder = upgrade_folder(folder)?;
+  let view_id: ViewIdPB = data.into_inner();
+  folder.remove_workspace_overview_listerner(&view_id.value)
 }
 
 pub(crate) async fn reload_workspace_handler(

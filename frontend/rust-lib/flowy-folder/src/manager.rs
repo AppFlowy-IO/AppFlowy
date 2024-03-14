@@ -1,5 +1,8 @@
+use std::collections::HashSet;
 use std::fmt::{Display, Formatter};
+use std::future::Future;
 use std::ops::Deref;
+use std::pin::Pin;
 use std::sync::{Arc, Weak};
 
 use collab::core::collab::{CollabDocState, MutexCollab};
@@ -27,8 +30,9 @@ use crate::entities::{
   UpdateViewParams, ViewPB, WorkspacePB, WorkspaceSettingPB,
 };
 use crate::manager_observer::{
-  notify_child_views_changed, notify_did_update_workspace, notify_parent_view_did_change,
-  ChildViewChangeReason,
+  generate_child_view_update_payload, notify_child_views_changed, notify_did_update_workspace,
+  notify_parent_view_did_change, notify_workspace_overview_child_views_changed,
+  notify_workspace_overview_parent_view_did_change, ChildViewChangeReason,
 };
 use crate::notification::{
   send_notification, send_workspace_setting_notification, FolderNotification,
@@ -38,6 +42,12 @@ use crate::util::{
   folder_not_init_error, insert_parent_child_views, workspace_data_not_sync_error,
 };
 use crate::view_operation::{create_view, FolderOperationHandler, FolderOperationHandlers};
+
+#[cfg(target_arch = "wasm32")]
+pub type BoxFuture<'a, T> = Pin<Box<dyn Future<Output = T> + 'a>>;
+
+#[cfg(not(target_arch = "wasm32"))]
+pub type BoxFuture<'a, T> = Pin<Box<dyn Future<Output = T> + 'a + Send + Sync>>;
 
 conditional_send_sync_trait! {
   "[crate::manager::FolderUser] represents the user for folder.";
@@ -54,6 +64,7 @@ pub struct FolderManager {
   pub(crate) user: Arc<dyn FolderUser>,
   pub(crate) operation_handlers: FolderOperationHandlers,
   pub cloud_service: Arc<dyn FolderCloudService>,
+  pub(crate) workspace_overview_listener_id_manager: Arc<WorkspaceOverviewListenerIdManager>,
 }
 
 impl FolderManager {
@@ -64,6 +75,8 @@ impl FolderManager {
     cloud_service: Arc<dyn FolderCloudService>,
   ) -> FlowyResult<Self> {
     let mutex_folder = Arc::new(MutexFolder::default());
+    let workspace_overview_listener_id_manager =
+      Arc::new(WorkspaceOverviewListenerIdManager::new());
     let manager = Self {
       user,
       mutex_folder,
@@ -71,6 +84,7 @@ impl FolderManager {
       operation_handlers,
       cloud_service,
       workspace_id: Default::default(),
+      workspace_overview_listener_id_manager,
     };
 
     Ok(manager)
@@ -536,11 +550,31 @@ impl FolderManager {
     }
   }
 
+  /// Returns information about the view and its entire hierarchy of child views
+  #[tracing::instrument(level = "debug", skip(self))]
+  pub fn get_all_level_of_views_pb(&self, view_id: &str) -> BoxFuture<'_, FlowyResult<ViewPB>> {
+    let view_id = view_id.to_string();
+    let res = async move {
+      let mut view_pb = self.get_view_pb(&view_id).await?;
+      for child in &mut view_pb.child_views {
+        let view = self.get_all_level_of_views_pb(&child.id).await?;
+        child.child_views.extend(view.child_views);
+      }
+      Ok(view_pb)
+    };
+
+    Box::pin(res)
+  }
+
   /// Move the view to trash. If the view is the current view, then set the current view to empty.
   /// When the view is moved to trash, all the child views will be moved to trash as well.
   /// All the favorite views being trashed will be unfavorited first to remove it from favorites list as well. The process of unfavoriting concerned view is handled by `unfavorite_view_and_decendants()`
   #[tracing::instrument(level = "debug", skip(self), err)]
-  pub async fn move_view_to_trash(&self, view_id: &str) -> FlowyResult<()> {
+  pub async fn move_view_to_trash(
+    &self,
+    view_id: &str,
+    weak_workspace_overview_manager: &Weak<WorkspaceOverviewListenerIdManager>,
+  ) -> FlowyResult<()> {
     self.with_folder(
       || (),
       |folder| {
@@ -555,10 +589,19 @@ impl FolderManager {
             })
             .send();
 
-          notify_child_views_changed(
-            view_pb_without_child_views(view.as_ref().clone()),
-            ChildViewChangeReason::Delete,
-          );
+          let view = view_pb_without_child_views(view);
+          let payload =
+            generate_child_view_update_payload(view.clone(), ChildViewChangeReason::Delete);
+
+          notify_child_views_changed(payload.clone());
+          if let Some(overview_manager) = weak_workspace_overview_manager.clone().upgrade() {
+            notify_workspace_overview_child_views_changed(
+              view,
+              payload,
+              overview_manager.as_ref(),
+              folder,
+            );
+          }
         }
       },
     );
@@ -612,6 +655,7 @@ impl FolderManager {
   pub async fn move_nested_view(
     &self,
     view_id: String,
+    weak_workspace_overview_manager: &Weak<WorkspaceOverviewListenerIdManager>,
     new_parent_id: String,
     prev_view_id: Option<String>,
   ) -> FlowyResult<()> {
@@ -621,11 +665,19 @@ impl FolderManager {
       || (),
       |folder| {
         folder.move_nested_view(&view_id, &new_parent_id, prev_view_id);
+
+        let mut view_ids = vec![new_parent_id.clone()];
+        if new_parent_id != old_parent_id {
+          view_ids.push(old_parent_id);
+        }
+
+        notify_parent_view_did_change(folder, view_ids.clone());
+        notify_workspace_overview_parent_view_did_change(
+          folder,
+          weak_workspace_overview_manager,
+          view_ids,
+        );
       },
-    );
-    notify_parent_view_did_change(
-      self.mutex_folder.clone(),
-      vec![new_parent_id, old_parent_id],
     );
     Ok(())
   }
@@ -635,7 +687,13 @@ impl FolderManager {
   /// The passed in index is the index of the view that displayed in the UI.
   /// We need to convert the index to the real index of the view in the parent view.
   #[tracing::instrument(level = "trace", skip(self), err)]
-  pub async fn move_view(&self, view_id: &str, from: usize, to: usize) -> FlowyResult<()> {
+  pub async fn move_view(
+    &self,
+    view_id: &str,
+    weak_workspace_overview_manager: &Weak<WorkspaceOverviewListenerIdManager>,
+    from: usize,
+    to: usize,
+  ) -> FlowyResult<()> {
     if let Some((is_workspace, parent_view_id, child_views)) = self.get_view_relation(view_id).await
     {
       // The display parent view is the view that is displayed in the UI
@@ -670,9 +728,15 @@ impl FolderManager {
             || (),
             |folder| {
               folder.move_view(view_id, actual_from_index as u32, actual_to_index as u32);
+              let view_ids = vec![parent_view_id];
+              notify_parent_view_did_change(folder, view_ids.clone());
+              notify_workspace_overview_parent_view_did_change(
+                folder,
+                weak_workspace_overview_manager,
+                view_ids,
+              );
             },
           );
-          notify_parent_view_did_change(self.mutex_folder.clone(), vec![parent_view_id]);
         }
       }
     }
@@ -915,7 +979,11 @@ impl FolderManager {
     Ok(())
   }
 
-  pub(crate) async fn import(&self, import_data: ImportParams) -> FlowyResult<View> {
+  pub(crate) async fn import(
+    &self,
+    import_data: ImportParams,
+    weak_workspace_overview_manager: &Weak<WorkspaceOverviewListenerIdManager>,
+  ) -> FlowyResult<View> {
     if import_data.data.is_none() && import_data.file_path.is_none() {
       return Err(FlowyError::new(
         ErrorCode::InvalidParams,
@@ -961,9 +1029,16 @@ impl FolderManager {
       || (),
       |folder| {
         folder.insert_view(view.clone(), None);
+        let view_ids = vec![view.parent_view_id.clone()];
+        notify_parent_view_did_change(folder, view_ids.clone());
+        notify_workspace_overview_parent_view_did_change(
+          folder,
+          weak_workspace_overview_manager,
+          view_ids,
+        );
       },
     );
-    notify_parent_view_did_change(self.mutex_folder.clone(), vec![view.parent_view_id.clone()]);
+
     Ok(view)
   }
 
@@ -1108,6 +1183,22 @@ impl FolderManager {
       views
     })
   }
+
+  pub fn register_workspace_overview_listerner(&self, view_id: String) -> FlowyResult<()> {
+    self
+      .workspace_overview_listener_id_manager
+      .add_listerner_view_id(view_id)?;
+
+    Ok(())
+  }
+
+  pub fn remove_workspace_overview_listerner(&self, view_id: &str) -> FlowyResult<()> {
+    self
+      .workspace_overview_listener_id_manager
+      .remove_listener_view_id(view_id)?;
+
+    Ok(())
+  }
 }
 
 /// Return the views that belong to the workspace. The views are filtered by the trash.
@@ -1163,5 +1254,88 @@ impl Display for FolderInitDataSource {
       FolderInitDataSource::Cloud(_) => f.write_fmt(format_args!("Cloud")),
       FolderInitDataSource::FolderData(_) => f.write_fmt(format_args!("Custom FolderData")),
     }
+  }
+}
+
+/// Maintains a collection of view IDs associated with the workspace overview block,
+/// enabling notifications to be sent regarding updates in its child views across all levels.
+pub struct WorkspaceOverviewListenerIdManager {
+  pub(crate) listener_view_ids: RwLock<Option<HashSet<String>>>,
+}
+
+impl Default for WorkspaceOverviewListenerIdManager {
+  fn default() -> Self {
+    Self::new()
+  }
+}
+
+impl WorkspaceOverviewListenerIdManager {
+  pub fn new() -> WorkspaceOverviewListenerIdManager {
+    Self {
+      listener_view_ids: RwLock::new(Some(HashSet::new())),
+    }
+  }
+
+  pub fn get_view_ids(&self) -> Option<HashSet<String>> {
+    self.listener_view_ids.read().clone()
+  }
+
+  pub fn add_listerner_view_id(&self, view_id: String) -> FlowyResult<bool> {
+    if let Some(view_ids) = self.listener_view_ids.write().as_mut() {
+      return Ok(view_ids.insert(view_id));
+    }
+
+    Err(FlowyError::new(
+      ErrorCode::Internal,
+      "workspace overview listener id manager is already dropped",
+    ))
+  }
+
+  pub fn contains(&self, view_id: &String) -> FlowyResult<bool> {
+    match self.listener_view_ids.read().as_ref() {
+      None => Err(FlowyError::new(
+        ErrorCode::Internal,
+        "workspace overview listener id manager is already dropped",
+      )),
+      Some(view_ids) => Ok(view_ids.contains(view_id)),
+    }
+  }
+
+  pub fn remove_listener_view_id(&self, view_id: &str) -> FlowyResult<bool> {
+    if let Some(view_ids) = self.listener_view_ids.write().as_mut() {
+      return Ok(view_ids.remove(view_id));
+    }
+
+    Err(FlowyError::new(
+      ErrorCode::Internal,
+      "workspace overview listener id manager is already dropped",
+    ))
+  }
+}
+
+impl Deref for WorkspaceOverviewListenerIdManager {
+  type Target = RwLock<Option<HashSet<String>>>;
+
+  /// **returns:** RwLock<Option<HashSet<String>>>
+  fn deref(&self) -> &Self::Target {
+    &self.listener_view_ids
+  }
+}
+
+impl Clone for WorkspaceOverviewListenerIdManager {
+  fn clone(&self) -> Self {
+    Self {
+      listener_view_ids: RwLock::new(self.listener_view_ids.read().clone()),
+    }
+  }
+}
+
+impl Drop for WorkspaceOverviewListenerIdManager {
+  fn drop(&mut self) {
+    let mut lock = self.listener_view_ids.write();
+    if let Some(mut view_ids) = lock.take() {
+      view_ids.clear();
+    }
+    *lock = None;
   }
 }
