@@ -38,7 +38,7 @@ class SelectOptionFilterEditorBloc
             _startListening();
             _loadOptions();
           },
-          updateCondition: (SelectOptionConditionPB condition) {
+          updateCondition: (SelectOptionFilterConditionPB condition) {
             _filterBackendSvc.insertSelectOptionFilter(
               filterId: filterInfo.filter.id,
               fieldId: filterInfo.fieldInfo.id,
@@ -117,7 +117,7 @@ class SelectOptionFilterEditorEvent with _$SelectOptionFilterEditorEvent {
     FilterPB filter,
   ) = _DidReceiveFilter;
   const factory SelectOptionFilterEditorEvent.updateCondition(
-    SelectOptionConditionPB condition,
+    SelectOptionFilterConditionPB condition,
   ) = _UpdateCondition;
   const factory SelectOptionFilterEditorEvent.updateContent(
     List<String> optionIds,

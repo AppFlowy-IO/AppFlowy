@@ -478,13 +478,9 @@
       "isComplete": "เสร็จสมบูรณ์",
       "isIncomplted": "ไม่เสร็จสมบูรณ์"
     },
-    "singleSelectOptionFilter": {
+    "selectOptionFilter": {
       "is": "เป็น",
       "isNot": "ไม่เป็น",
-      "isEmpty": "ว่างเปล่า",
-      "isNotEmpty": "ไม่ว่างเปล่า"
-    },
-    "multiSelectOptionFilter": {
       "contains": "ประกอบด้วย",
       "doesNotContain": "ไม่ประกอบด้วย",
       "isEmpty": "ว่างเปล่า",

@@ -356,13 +356,9 @@
       "isComplete": "کامل است",
       "isIncomplted": "کامل نیست"
     },
-    "singleSelectOptionFilter": {
+    "selectOptionFilter": {
       "is": "است",
       "isNot": "نیست",
-      "isEmpty": "خالی است",
-      "isNotEmpty": "خالی نیست"
-    },
-    "multiSelectOptionFilter": {
       "contains": "شامل",
       "doesNotContain": "شامل نیست",
       "isEmpty": "خالی است",

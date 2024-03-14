@@ -1,23 +1,26 @@
+use std::str::FromStr;
+
+use rust_decimal::Decimal;
+
 use crate::entities::{NumberFilterConditionPB, NumberFilterPB};
 use crate::services::field::NumberCellFormat;
-use rust_decimal::prelude::Zero;
-use rust_decimal::Decimal;
-use std::str::FromStr;
 
 impl NumberFilterPB {
   pub fn is_visible(&self, cell_data: &NumberCellFormat) -> Option<bool> {
-    let expected_decimal = Decimal::from_str(&self.content).unwrap_or_else(|_| Decimal::zero());
+    let expected_decimal = || Decimal::from_str(&self.content).ok();
 
     let strategy = match self.condition {
-      NumberFilterConditionPB::Equal => NumberFilterStrategy::Equal(expected_decimal),
-      NumberFilterConditionPB::NotEqual => NumberFilterStrategy::NotEqual(expected_decimal),
-      NumberFilterConditionPB::GreaterThan => NumberFilterStrategy::GreaterThan(expected_decimal),
-      NumberFilterConditionPB::LessThan => NumberFilterStrategy::LessThan(expected_decimal),
+      NumberFilterConditionPB::Equal => NumberFilterStrategy::Equal(expected_decimal()?),
+      NumberFilterConditionPB::NotEqual => NumberFilterStrategy::NotEqual(expected_decimal()?),
+      NumberFilterConditionPB::GreaterThan => {
+        NumberFilterStrategy::GreaterThan(expected_decimal()?)
+      },
+      NumberFilterConditionPB::LessThan => NumberFilterStrategy::LessThan(expected_decimal()?),
       NumberFilterConditionPB::GreaterThanOrEqualTo => {
-        NumberFilterStrategy::GreaterThanOrEqualTo(expected_decimal)
+        NumberFilterStrategy::GreaterThanOrEqualTo(expected_decimal()?)
       },
       NumberFilterConditionPB::LessThanOrEqualTo => {
-        NumberFilterStrategy::LessThanOrEqualTo(expected_decimal)
+        NumberFilterStrategy::LessThanOrEqualTo(expected_decimal()?)
       },
       NumberFilterConditionPB::NumberIsEmpty => NumberFilterStrategy::Empty,
       NumberFilterConditionPB::NumberIsNotEmpty => NumberFilterStrategy::NotEmpty,

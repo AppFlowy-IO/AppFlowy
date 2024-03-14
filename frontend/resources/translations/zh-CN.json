@@ -531,13 +531,9 @@
       "isComplete": "已完成",
       "isIncomplted": "未完成"
     },
-    "singleSelectOptionFilter": {
+    "selectOptionFilter": {
       "is": "是",
       "isNot": "不是",
-      "isEmpty": "为空",
-      "isNotEmpty": "不为空"
-    },
-    "multiSelectOptionFilter": {
       "contains": "包含",
       "doesNotContain": "不包含",
       "isEmpty": "为空",

@@ -5,7 +5,7 @@ import {
   FilterPB,
   NumberFilterConditionPB,
   NumberFilterPB,
-  SelectOptionConditionPB,
+  SelectOptionFilterConditionPB,
   SelectOptionFilterPB,
   TextFilterConditionPB,
   TextFilterPB,
@@ -66,7 +66,7 @@ export interface ChecklistFilterData {
 }
 
 export interface SelectFilterData {
-  condition?: SelectOptionConditionPB;
+  condition?: SelectOptionFilterConditionPB;
   optionIds?: string[];
 }
 

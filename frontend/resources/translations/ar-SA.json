@@ -486,13 +486,9 @@
       "isComplete": "كاملة",
       "isIncomplted": "غير مكتمل"
     },
-    "singleSelectOptionFilter": {
+    "selectOptionFilter": {
       "is": "يكون",
       "isNot": "ليس",
-      "isEmpty": "فارغ",
-      "isNotEmpty": "ليس فارغا"
-    },
-    "multiSelectOptionFilter": {
       "contains": "يتضمن",
       "doesNotContain": "لا يحتوي",
       "isEmpty": "فارغ",

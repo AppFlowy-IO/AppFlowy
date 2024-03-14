@@ -570,13 +570,9 @@
       "isComplete": "is complete",
       "isIncomplted": "is incomplete"
     },
-    "singleSelectOptionFilter": {
+    "selectOptionFilter": {
       "is": "Is",
       "isNot": "Is not",
-      "isEmpty": "Is empty",
-      "isNotEmpty": "Is not empty"
-    },
-    "multiSelectOptionFilter": {
       "contains": "Contains",
       "doesNotContain": "Does not contain",
       "isEmpty": "Is empty",

@@ -491,13 +491,9 @@
       "isComplete": "hoàn tất",
       "isIncomplted": "chưa hoàn tất"
     },
-    "singleSelectOptionFilter": {
+    "selectOptionFilter": {
       "is": "Là",
       "isNot": "Không phải",
-      "isEmpty": "Rỗng",
-      "isNotEmpty": "Không rỗng"
-    },
-    "multiSelectOptionFilter": {
       "contains": "Chứa",
       "doesNotContain": "Không chứa",
       "isEmpty": "Rỗng",

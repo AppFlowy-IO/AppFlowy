@@ -118,7 +118,7 @@ void main() {
     // create a new filter
     await service.insertTextFilter(
       fieldId: textField.id,
-      condition: TextFilterConditionPB.Is,
+      condition: TextFilterConditionPB.TextIs,
       content: "A",
     );
     await gridResponseFuture();
@@ -132,7 +132,7 @@ void main() {
     await service.insertTextFilter(
       fieldId: textField.id,
       filterId: textFilter.filter.id,
-      condition: TextFilterConditionPB.Is,
+      condition: TextFilterConditionPB.TextIs,
       content: "B",
     );
     await gridResponseFuture();
@@ -142,7 +142,7 @@ void main() {
     await service.insertTextFilter(
       fieldId: textField.id,
       filterId: textFilter.filter.id,
-      condition: TextFilterConditionPB.Is,
+      condition: TextFilterConditionPB.TextIs,
       content: "b",
     );
     await gridResponseFuture();
@@ -152,7 +152,7 @@ void main() {
     await service.insertTextFilter(
       fieldId: textField.id,
       filterId: textFilter.filter.id,
-      condition: TextFilterConditionPB.Is,
+      condition: TextFilterConditionPB.TextIs,
       content: "C",
     );
     await gridResponseFuture();

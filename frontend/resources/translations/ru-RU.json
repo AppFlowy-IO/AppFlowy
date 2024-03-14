@@ -528,13 +528,9 @@
       "isComplete": "завершено",
       "isIncomplted": "не завершено"
     },
-    "singleSelectOptionFilter": {
+    "selectOptionFilter": {
       "is": "Является",
       "isNot": "Не является",
-      "isEmpty": "Пусто",
-      "isNotEmpty": "Не пусто"
-    },
-    "multiSelectOptionFilter": {
       "contains": "Содержит",
       "doesNotContain": "Не содержит",
       "isEmpty": "Пусто",
