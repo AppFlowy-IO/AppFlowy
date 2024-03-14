@@ -183,9 +183,7 @@
     "dragRow": "Premere a lungo per riordinare la riga",
     "viewDataBase": "Visualizza banca dati",
     "referencePage": "Questo {nome} è referenziato",
-    "addBlockBelow": "Aggiungi un blocco qui sotto",
-    "urlLaunchAccessory": "Apri nel browser",
-    "urlCopyAccessory": "Copia l'URL"
+    "addBlockBelow": "Aggiungi un blocco qui sotto"
   },
   "sideBar": {
     "closeSidebar": "Close sidebar",
@@ -664,6 +662,10 @@
       "submitNewTask": "Crea",
       "hideComplete": "Nascondi le attività completate",
       "showComplete": "Mostra tutte le attività"
+    },
+    "url": {
+      "launch": "Apri nel browser",
+      "copy": "Copia l'URL"
     },
     "menuName": "Griglia",
     "referencedGridPrefix": "Vista di",

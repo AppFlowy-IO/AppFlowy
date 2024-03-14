@@ -178,9 +178,7 @@
     "dragRow": "اضغط مطولاً لإعادة ترتيب الصف",
     "viewDataBase": "عرض قاعدة البيانات",
     "referencePage": "تمت الإشارة إلى هذا {name}",
-    "addBlockBelow": "إضافة كتلة أدناه",
-    "urlLaunchAccessory": "فتح في المتصفح",
-    "urlCopyAccessory": "إنسخ الرابط"
+    "addBlockBelow": "إضافة كتلة أدناه"
   },
   "sideBar": {
     "closeSidebar": "إغلاق الشريط الجانبي",
@@ -624,6 +622,10 @@
       "submitNewTask": "انشئ",
       "hideComplete": "إخفاء المهام المكتملة",
       "showComplete": "إظهار كافة المهام"
+    },
+    "url": {
+      "launch": "فتح في المتصفح",
+      "copy": "إنسخ الرابط"
     },
     "menuName": "شبكة",
     "referencedGridPrefix": "نظرا ل"

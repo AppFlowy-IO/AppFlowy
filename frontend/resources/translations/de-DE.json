@@ -177,9 +177,7 @@
     "dragRow": "Gedrückt halten, um die Zeile neu anzuordnen",
     "viewDataBase": "Datenbank ansehen",
     "referencePage": "Auf diesen {Name} wird verwiesen",
-    "addBlockBelow": "Einen Block unten hinzufügen",
-    "urlLaunchAccessory": "Im Browser öffnen",
-    "urlCopyAccessory": "Webadresse kopieren."
+    "addBlockBelow": "Einen Block unten hinzufügen"
   },
   "sideBar": {
     "closeSidebar": "Seitenleiste schließen",
@@ -638,6 +636,10 @@
       "submitNewTask": "Erstellen",
       "hideComplete": "Blende abgeschlossene Aufgaben aus",
       "showComplete": "Zeige alle Aufgaben"
+    },
+    "url": {
+      "launch": "Im Browser öffnen",
+      "copy": "Webadresse kopieren"
     },
     "menuName": "Raster",
     "referencedGridPrefix": "Sicht von"

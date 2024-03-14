@@ -180,9 +180,7 @@
     "dragRow": "Pressione e segure para reordenar a linha",
     "viewDataBase": "Visualizar banco de dados",
     "referencePage": "Esta {name} é uma referência",
-    "addBlockBelow": "Adicione um bloco abaixo",
-    "urlLaunchAccessory": "Abrir com o navegador",
-    "urlCopyAccessory": "Copiar URL"
+    "addBlockBelow": "Adicione um bloco abaixo"
   },
   "sideBar": {
     "closeSidebar": "Fechar barra lateral",
@@ -647,6 +645,10 @@
       "submitNewTask": "Criar",
       "hideComplete": "Ocultar tarefas concluídas",
       "showComplete": "Mostrar todas as tarefas"
+    },
+    "url": {
+      "launch": "Abrir com o navegador",
+      "copy": "Copiar URL"
     },
     "menuName": "Grade",
     "referencedGridPrefix": "Vista de"

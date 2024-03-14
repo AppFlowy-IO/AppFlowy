@@ -181,9 +181,7 @@
     "dragRow": "長按以重新排序列",
     "viewDataBase": "檢視資料庫",
     "referencePage": "這個 {name} 已被引用",
-    "addBlockBelow": "在下方新增一個區塊",
-    "urlLaunchAccessory": "在瀏覽器中開啟",
-    "urlCopyAccessory": "複製網址"
+    "addBlockBelow": "在下方新增一個區塊"
   },
   "sideBar": {
     "closeSidebar": "關閉側欄",
@@ -649,6 +647,10 @@
       "submitNewTask": "建立",
       "hideComplete": "隱藏已完成任務",
       "showComplete": "顯示所有任務"
+    },
+    "url": {
+      "launch": "在瀏覽器中開啟",
+      "copy": "複製網址"
     },
     "menuName": "網格",
     "referencedGridPrefix": "檢視",

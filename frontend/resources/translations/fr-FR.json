@@ -187,9 +187,7 @@
     "dragRow": "Appuyez longuement pour réorganiser la ligne",
     "viewDataBase": "Voir la base de données",
     "referencePage": "Ce {nom} est référencé",
-    "addBlockBelow": "Ajouter un bloc ci-dessous",
-    "urlLaunchAccessory": "Ouvrir dans le navigateur",
-    "urlCopyAccessory": "Copier l'URL"
+    "addBlockBelow": "Ajouter un bloc ci-dessous"
   },
   "sideBar": {
     "closeSidebar": "Fermer le menu latéral",
@@ -702,6 +700,10 @@
       "submitNewTask": "Créer",
       "hideComplete": "Cacher les tâches terminées",
       "showComplete": "Afficher toutes les tâches"
+    },
+    "url": {
+      "launch": "Ouvrir dans le navigateur",
+      "copy": "Copier l'URL"
     },
     "relation": {
       "inRelatedDatabase": "Dans",
