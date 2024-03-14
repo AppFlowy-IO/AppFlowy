@@ -2,10 +2,11 @@ use std::borrow::Cow;
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use collab_database::database::{gen_database_calculation_id, gen_database_sort_id};
+use collab_database::database::{gen_database_calculation_id, gen_database_sort_id, gen_row_id};
 use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{Cells, Row, RowDetail, RowId};
 use collab_database::views::{DatabaseLayout, DatabaseView};
+use lib_infra::util::timestamp;
 use tokio::sync::{broadcast, RwLock};
 use tracing::instrument;
 
@@ -13,14 +14,15 @@ use flowy_error::{FlowyError, FlowyResult};
 use lib_dispatch::prelude::af_spawn;
 
 use crate::entities::{
-  CalendarEventPB, DatabaseLayoutMetaPB, DatabaseLayoutSettingPB, DeleteSortPayloadPB, FieldType,
-  FieldVisibility, GroupChangesPB, GroupPB, InsertedRowPB, LayoutSettingChangeset,
-  LayoutSettingParams, RemoveCalculationChangesetPB, ReorderSortPayloadPB, RowMetaPB, RowsChangePB,
+  CalendarEventPB, CreateRowParams, CreateRowPayloadPB, DatabaseLayoutMetaPB,
+  DatabaseLayoutSettingPB, DeleteSortPayloadPB, FieldType, FieldVisibility, GroupChangesPB,
+  GroupPB, InsertedRowPB, LayoutSettingChangeset, LayoutSettingParams,
+  RemoveCalculationChangesetPB, ReorderSortPayloadPB, RowMetaPB, RowsChangePB,
   SortChangesetNotificationPB, SortPB, UpdateCalculationChangesetPB, UpdateSortPayloadPB,
 };
 use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::calculations::{Calculation, CalculationChangeset, CalculationsController};
-use crate::services::cell::CellCache;
+use crate::services::cell::{CellBuilder, CellCache};
 use crate::services::database::{database_view_setting_pb_from_view, DatabaseRowEvent, UpdatedRow};
 use crate::services::database_view::view_filter::make_filter_controller;
 use crate::services::database_view::view_group::{
@@ -115,17 +117,42 @@ impl DatabaseViewEditor {
     self.delegate.get_view(&self.view_id).await
   }
 
-  pub async fn v_will_create_row(&self, cells: &mut Cells, group_id: &Option<String>) {
-    if group_id.is_none() {
-      return;
+  pub async fn v_will_create_row(
+    &self,
+    params: CreateRowPayloadPB,
+  ) -> FlowyResult<CreateRowParams> {
+    let mut result = CreateRowParams {
+      collab_params: collab_database::rows::CreateRowParams {
+        id: gen_row_id(),
+        cells: Cells::new(),
+        height: 60,
+        visibility: true,
+        row_position: params.row_position.try_into()?,
+        timestamp: timestamp(),
+      },
+      open_after_create: false,
+    };
+
+    // fill in cells from the frontend
+    let fields = self.delegate.get_fields(&params.view_id, None).await;
+    let mut cells = CellBuilder::with_cells(params.data, &fields).build();
+
+    // fill in cells according to group_id if supplied
+    if let Some(group_id) = params.group_id {
+      let _ = self
+        .mut_group_controller(|group_controller, field| {
+          group_controller.will_create_row(&mut cells, &field, &group_id);
+          Ok(())
+        })
+        .await;
     }
-    let group_id = group_id.as_ref().unwrap();
-    let _ = self
-      .mut_group_controller(|group_controller, field| {
-        group_controller.will_create_row(cells, &field, group_id);
-        Ok(())
-      })
-      .await;
+
+    // fill in cells according to active filters
+    // TODO(RS)
+
+    result.collab_params.cells = cells;
+
+    Ok(result)
   }
 
   pub async fn v_did_update_row_meta(&self, row_id: &RowId, row_detail: &RowDetail) {
@@ -157,13 +184,6 @@ impl DatabaseViewEditor {
       .send();
     self
       .gen_did_create_row_view_tasks(row_detail.row.clone())
-      .await;
-  }
-
-  pub async fn v_did_duplicate_row(&self, row_detail: &RowDetail) {
-    self
-      .calculations_controller
-      .did_receive_row_changed(row_detail.row.clone())
       .await;
   }
 
@@ -796,12 +816,8 @@ impl DatabaseViewEditor {
   #[tracing::instrument(level = "debug", skip_all, err)]
   pub async fn v_grouping_by_field(&self, field_id: &str) -> FlowyResult<()> {
     if let Some(field) = self.delegate.get_field(field_id) {
-      let new_group_controller = new_group_controller_with_field(
-        self.view_id.clone(),
-        self.delegate.clone(),
-        Arc::new(field),
-      )
-      .await?;
+      let new_group_controller =
+        new_group_controller_with_field(self.view_id.clone(), self.delegate.clone(), field).await?;
 
       let new_groups = new_group_controller
         .get_all_groups()

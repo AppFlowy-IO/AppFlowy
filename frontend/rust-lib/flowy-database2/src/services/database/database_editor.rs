@@ -3,7 +3,7 @@ use std::sync::Arc;
 
 use collab_database::database::MutexDatabase;
 use collab_database::fields::{Field, TypeOptionData};
-use collab_database::rows::{Cell, Cells, CreateRowParams, Row, RowCell, RowDetail, RowId};
+use collab_database::rows::{Cell, Cells, Row, RowCell, RowDetail, RowId};
 use collab_database::views::{
   DatabaseLayout, DatabaseView, FilterMap, LayoutSetting, OrderObjectPosition,
 };
@@ -457,20 +457,33 @@ impl DatabaseEditor {
     Ok(())
   }
 
-  // consider returning a result. But most of the time, it should be fine to just ignore the error.
-  pub async fn duplicate_row(&self, view_id: &str, row_id: &RowId) {
-    let params = self.database.lock().duplicate_row(row_id);
-    match params {
-      None => warn!("Failed to duplicate row: {}", row_id),
-      Some(params) => {
-        let result = self.create_row(view_id, None, params).await;
-        if let Some(row_detail) = result.unwrap_or(None) {
-          for view in self.database_views.editors().await {
-            view.v_did_duplicate_row(&row_detail).await;
-          }
-        }
-      },
+  pub async fn duplicate_row(&self, view_id: &str, row_id: &RowId) -> FlowyResult<()> {
+    let (row_detail, index) = {
+      let database = self.database.lock();
+
+      let params = database
+        .duplicate_row(row_id)
+        .ok_or_else(|| FlowyError::internal().with_context("error while copying row"))?;
+
+      let (index, row_order) = database
+        .create_row_in_view(view_id, params)
+        .ok_or_else(|| {
+          FlowyError::internal().with_context("error while inserting duplicated row")
+        })?;
+
+      tracing::trace!("duplicated row: {:?} at {}", row_order, index);
+      let row_detail = database.get_row_detail(&row_order.id);
+
+      (row_detail, index)
+    };
+
+    if let Some(row_detail) = row_detail {
+      for view in self.database_views.editors().await {
+        view.v_did_create_row(&row_detail, index).await;
+      }
     }
+
+    Ok(())
   }
 
   pub async fn move_row(
@@ -506,18 +519,21 @@ impl DatabaseEditor {
     Ok(())
   }
 
-  pub async fn create_row(
-    &self,
-    view_id: &str,
-    group_id: Option<String>,
-    mut params: CreateRowParams,
-  ) -> FlowyResult<Option<RowDetail>> {
-    for view in self.database_views.editors().await {
-      view.v_will_create_row(&mut params.cells, &group_id).await;
-    }
-    let result = self.database.lock().create_row_in_view(view_id, params);
+  pub async fn create_row(&self, params: CreateRowPayloadPB) -> FlowyResult<Option<RowDetail>> {
+    let view_editor = self.database_views.get_view_editor(&params.view_id).await?;
+
+    let CreateRowParams {
+      collab_params,
+      open_after_create: _,
+    } = view_editor.v_will_create_row(params).await?;
+
+    let result = self
+      .database
+      .lock()
+      .create_row_in_view(&view_editor.view_id, collab_params);
+
     if let Some((index, row_order)) = result {
-      tracing::trace!("create row: {:?} at {}", row_order, index);
+      tracing::trace!("created row: {:?} at {}", row_order, index);
       let row_detail = self.database.lock().get_row_detail(&row_order.id);
       if let Some(row_detail) = row_detail {
         for view in self.database_views.editors().await {
@@ -1380,9 +1396,9 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
     to_fut(async move { view })
   }
 
-  fn get_fields(&self, view_id: &str, field_ids: Option<Vec<String>>) -> Fut<Vec<Arc<Field>>> {
+  fn get_fields(&self, view_id: &str, field_ids: Option<Vec<String>>) -> Fut<Vec<Field>> {
     let fields = self.database.lock().get_fields_in_view(view_id, field_ids);
-    to_fut(async move { fields.into_iter().map(Arc::new).collect() })
+    to_fut(async move { fields })
   }
 
   fn get_field(&self, field_id: &str) -> Option<Field> {

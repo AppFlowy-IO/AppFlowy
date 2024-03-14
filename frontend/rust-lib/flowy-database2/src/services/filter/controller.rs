@@ -22,7 +22,7 @@ use crate::services::filter::{Filter, FilterChangeset, FilterInner, FilterResult
 
 pub trait FilterDelegate: Send + Sync + 'static {
   fn get_field(&self, field_id: &str) -> Option<Field>;
-  fn get_fields(&self, view_id: &str, field_ids: Option<Vec<String>>) -> Fut<Vec<Arc<Field>>>;
+  fn get_fields(&self, view_id: &str, field_ids: Option<Vec<String>>) -> Fut<Vec<Field>>;
   fn get_rows(&self, view_id: &str) -> Fut<Vec<Arc<RowDetail>>>;
   fn get_row(&self, view_id: &str, rows_id: &RowId) -> Fut<Option<(usize, Arc<RowDetail>)>>;
   fn save_filters(&self, view_id: &str, filters: &[Filter]);
@@ -116,14 +116,14 @@ impl FilterController {
     });
   }
 
-  async fn get_field_map(&self) -> HashMap<String, Arc<Field>> {
+  async fn get_field_map(&self) -> HashMap<String, Field> {
     self
       .delegate
       .get_fields(&self.view_id, None)
       .await
       .into_iter()
       .map(|field| (field.id.clone(), field))
-      .collect::<HashMap<String, Arc<Field>>>()
+      .collect::<HashMap<String, Field>>()
   }
 
   #[tracing::instrument(
@@ -333,7 +333,7 @@ impl FilterController {
 fn filter_row(
   row: &Row,
   result_by_row_id: &DashMap<RowId, bool>,
-  field_by_field_id: &HashMap<String, Arc<Field>>,
+  field_by_field_id: &HashMap<String, Field>,
   cell_data_cache: &CellCache,
   filters: &Vec<Filter>,
 ) -> Option<(RowId, bool)> {
@@ -360,7 +360,7 @@ fn filter_row(
 /// Recursively applies a `Filter` to a `Row`'s cells.
 fn apply_filter(
   row: &Row,
-  field_by_field_id: &HashMap<String, Arc<Field>>,
+  field_by_field_id: &HashMap<String, Field>,
   cell_data_cache: &CellCache,
   filter: &Filter,
 ) -> Option<bool> {
@@ -405,14 +405,10 @@ fn apply_filter(
       }
       let cell = row.cells.get(field_id).cloned();
       let field_type = FieldType::from(field.field_type);
-      if let Some(handler) = TypeOptionCellExt::new(field.as_ref(), Some(cell_data_cache.clone()))
+      if let Some(handler) = TypeOptionCellExt::new(field, Some(cell_data_cache.clone()))
         .get_type_option_cell_data_handler(&field_type)
       {
-        Some(handler.handle_cell_filter(
-          field.as_ref(),
-          &cell.unwrap_or_default(),
-          condition_and_content,
-        ))
+        Some(handler.handle_cell_filter(field, &cell.unwrap_or_default(), condition_and_content))
       } else {
         Some(true)
       }
