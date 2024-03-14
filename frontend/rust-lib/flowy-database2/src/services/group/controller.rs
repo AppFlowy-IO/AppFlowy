@@ -27,10 +27,9 @@ pub trait GroupControllerDelegate: Send + Sync + 'static {
 }
 
 /// [BaseGroupController] is a generic group controller that provides customized implementations
-/// of the `GroupController` trait.
+/// of the `GroupController` trait for different field types.
 ///
 /// - `C`: represents the group configuration that impl [GroupConfigurationSerde]
-/// - `T`: type-option data deserializer that impl [TypeOptionDataDeserializer]
 /// - `G`: group generator, [GroupsBuilder]
 /// - `P`: parser that impl [CellProtobufBlobParser] for the CellBytes
 ///

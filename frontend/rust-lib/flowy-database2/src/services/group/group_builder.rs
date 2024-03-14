@@ -4,7 +4,6 @@ use std::sync::Arc;
 use async_trait::async_trait;
 use collab_database::fields::Field;
 use collab_database::rows::{Cell, RowDetail, RowId};
-use collab_database::views::DatabaseLayout;
 
 use flowy_error::FlowyResult;
 
@@ -152,32 +151,21 @@ where
   let rows = row_details
     .iter()
     .map(|row| row.as_ref())
-    .collect::<Vec<&RowDetail>>();
+    .collect::<Vec<_>>();
   group_controller.fill_groups(rows.as_slice(), &grouping_field)?;
   Ok(group_controller)
 }
 
 #[tracing::instrument(level = "debug", skip_all)]
-pub fn find_new_grouping_field(fields: &[Field], _layout: &DatabaseLayout) -> Option<Field> {
-  let mut groupable_field_revs = fields
+pub fn find_suitable_grouping_field(fields: &[Field]) -> Option<Field> {
+  let groupable_field = fields
     .iter()
-    .flat_map(|field_rev| {
-      let field_type = FieldType::from(field_rev.field_type);
-      match field_type.can_be_group() {
-        true => Some(field_rev.clone()),
-        false => None,
-      }
-    })
-    .collect::<Vec<Field>>();
+    .find(|field| FieldType::from(field.field_type).can_be_group());
 
-  if groupable_field_revs.is_empty() {
-    // If there is not groupable fields then we use the primary field.
-    fields
-      .iter()
-      .find(|field_rev| field_rev.is_primary)
-      .cloned()
+  if let Some(field) = groupable_field {
+    Some(field.clone())
   } else {
-    Some(groupable_field_revs.remove(0))
+    fields.iter().find(|field| field.is_primary).cloned()
   }
 }
 
