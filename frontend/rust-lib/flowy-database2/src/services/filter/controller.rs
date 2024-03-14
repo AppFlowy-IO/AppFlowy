@@ -422,9 +422,15 @@ fn filter_row(
   let old_is_visible = *filter_result;
 
   let mut new_is_visible = true;
+
   for filter in filters {
     if let Some(is_visible) = apply_filter(row, field_by_field_id, cell_data_cache, filter) {
       new_is_visible = new_is_visible && is_visible;
+
+      // short-circuit as soon as one filter tree returns false
+      if !new_is_visible {
+        break;
+      }
     }
   }
 
