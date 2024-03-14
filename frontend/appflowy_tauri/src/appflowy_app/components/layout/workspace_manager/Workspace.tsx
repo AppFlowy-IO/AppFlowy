@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { WorkspaceItem } from '$app_reducers/workspace/slice';
 import NestedViews from '$app/components/layout/workspace_manager/NestedPages';
 import { useLoadWorkspace, useWorkspaceActions } from '$app/components/layout/workspace_manager/Workspace.hooks';
