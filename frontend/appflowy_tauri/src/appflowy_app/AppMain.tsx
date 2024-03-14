@@ -8,6 +8,7 @@ import { useUserSetting } from '$app/AppMain.hooks';
 import TrashPage from '$app/views/TrashPage';
 import DocumentPage from '$app/views/DocumentPage';
 import { Toaster } from 'react-hot-toast';
+import AppFlowyDevTool from '$app/components/_shared/devtool/AppFlowyDevTool';
 
 function AppMain() {
   const { muiTheme } = useUserSetting();
@@ -22,6 +23,7 @@ function AppMain() {
         </Route>
       </Routes>
       <Toaster />
+      {process.env.NODE_ENV === 'development' && <AppFlowyDevTool />}
     </ThemeProvider>
   );
 }
