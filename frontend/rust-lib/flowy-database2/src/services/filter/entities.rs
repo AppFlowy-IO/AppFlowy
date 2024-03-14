@@ -186,18 +186,14 @@ impl Filter {
 
   /// Recursively finds any Data filter whose `field_id` is equal to `matching_field_id`. Any found
   /// filters' id is appended to the `ids` vector.
-  pub fn find_all_filters_with_field_id(&mut self, matching_field_id: &str, ids: &mut Vec<String>) {
-    match &mut self.inner {
+  pub fn find_all_filters_with_field_id(&self, matching_field_id: &str, ids: &mut Vec<String>) {
+    match &self.inner {
       FilterInner::And { children } | FilterInner::Or { children } => {
-        for child_filter in children.iter_mut() {
+        for child_filter in children.iter() {
           child_filter.find_all_filters_with_field_id(matching_field_id, ids);
         }
       },
-      FilterInner::Data {
-        field_id,
-        field_type: _,
-        condition_and_content: _,
-      } => {
+      FilterInner::Data { field_id, .. } => {
         if field_id == matching_field_id {
           ids.push(self.id.clone());
         }

@@ -7,7 +7,7 @@ use collab_database::fields::Field;
 use collab_database::rows::{Cells, Row, RowDetail, RowId};
 use dashmap::DashMap;
 use serde::{Deserialize, Serialize};
-use tokio::sync::RwLock;
+use tokio::sync::{RwLock, RwLockWriteGuard};
 
 use flowy_error::FlowyResult;
 use lib_infra::future::Fut;
@@ -116,14 +116,170 @@ impl FilterController {
     });
   }
 
-  async fn get_field_map(&self) -> HashMap<String, Field> {
+  pub async fn did_receive_row_changed(&self, row_id: RowId) {
+    if !self.filters.read().await.is_empty() {
+      self
+        .gen_task(
+          FilterEvent::RowDidChanged(row_id),
+          QualityOfService::UserInteractive,
+        )
+        .await
+    }
+  }
+
+  #[tracing::instrument(level = "trace", skip(self))]
+  pub async fn apply_changeset(&self, changeset: FilterChangeset) -> FilterChangesetNotificationPB {
+    let mut filters = self.filters.write().await;
+
+    match changeset {
+      FilterChangeset::Insert {
+        parent_filter_id,
+        data,
+      } => {
+        let new_filter = Filter {
+          id: gen_database_filter_id(),
+          inner: data,
+        };
+        match parent_filter_id {
+          Some(parent_filter_id) => {
+            if let Some(parent_filter) = filters
+              .iter_mut()
+              .find_map(|filter| filter.find_filter(&parent_filter_id))
+            {
+              // TODO(RS): error handling for inserting filters
+              let _result = parent_filter.insert_filter(new_filter);
+            }
+          },
+          None => {
+            filters.push(new_filter);
+          },
+        }
+      },
+      FilterChangeset::UpdateType {
+        filter_id,
+        filter_type,
+      } => {
+        for filter in filters.iter_mut() {
+          let filter = filter.find_filter(&filter_id);
+          if let Some(filter) = filter {
+            let result = filter.convert_to_and_or_filter_type(filter_type);
+            if result.is_ok() {
+              break;
+            }
+          }
+        }
+      },
+      FilterChangeset::UpdateData { filter_id, data } => {
+        if let Some(filter) = filters
+          .iter_mut()
+          .find_map(|filter| filter.find_filter(&filter_id))
+        {
+          // TODO(RS): error handling for updating filter data
+          let _result = filter.update_filter_data(data);
+        }
+      },
+      FilterChangeset::Delete {
+        filter_id,
+        field_id: _,
+      } => Self::delete_filter(&mut filters, &filter_id),
+      FilterChangeset::DeleteAllWithFieldId { field_id } => {
+        let mut filter_ids = vec![];
+        for filter in filters.iter() {
+          filter.find_all_filters_with_field_id(&field_id, &mut filter_ids);
+        }
+        for filter_id in filter_ids {
+          Self::delete_filter(&mut filters, &filter_id)
+        }
+      },
+    }
+
+    self.delegate.save_filters(&self.view_id, &filters);
+
     self
-      .delegate
-      .get_fields(&self.view_id, None)
-      .await
-      .into_iter()
-      .map(|field| (field.id.clone(), field))
-      .collect::<HashMap<String, Field>>()
+      .gen_task(FilterEvent::FilterDidChanged, QualityOfService::Background)
+      .await;
+
+    FilterChangesetNotificationPB::from_filters(&self.view_id, &filters)
+  }
+
+  pub async fn fill_cells(&self, cells: &mut Cells) -> bool {
+    let filters = self.filters.read().await;
+
+    let mut open_after_create = false;
+
+    let mut min_required_filters: Vec<&FilterInner> = vec![];
+    for filter in filters.iter() {
+      filter.get_min_effective_filters(&mut min_required_filters);
+    }
+
+    let field_map = self.get_field_map().await;
+
+    while let Some(current_inner) = min_required_filters.pop() {
+      if let FilterInner::Data {
+        field_id,
+        field_type,
+        condition_and_content,
+      } = &current_inner
+      {
+        if min_required_filters.iter().any(
+          |inner| matches!(inner, FilterInner::Data { field_id: other_id, .. } if other_id == field_id),
+        ) {
+          min_required_filters.retain(
+            |inner| matches!(inner, FilterInner::Data { field_id: other_id, .. } if other_id != field_id),
+          );
+          open_after_create = true;
+          continue;
+        }
+
+        if let Some(field) = field_map.get(field_id) {
+          let (cell, flag) = match field_type {
+            FieldType::RichText | FieldType::URL => {
+              let filter = condition_and_content.cloned::<TextFilterPB>().unwrap();
+              filter.get_compliant_cell(field)
+            },
+            FieldType::Number => {
+              let filter = condition_and_content.cloned::<NumberFilterPB>().unwrap();
+              filter.get_compliant_cell(field)
+            },
+            FieldType::DateTime => {
+              let filter = condition_and_content.cloned::<DateFilterPB>().unwrap();
+              filter.get_compliant_cell(field)
+            },
+            FieldType::SingleSelect => {
+              let filter = condition_and_content
+                .cloned::<SelectOptionFilterPB>()
+                .unwrap();
+              filter.get_compliant_cell(field)
+            },
+            FieldType::MultiSelect => {
+              let filter = condition_and_content
+                .cloned::<SelectOptionFilterPB>()
+                .unwrap();
+              filter.get_compliant_cell(field)
+            },
+            FieldType::Checkbox => {
+              let filter = condition_and_content.cloned::<CheckboxFilterPB>().unwrap();
+              filter.get_compliant_cell(field)
+            },
+            FieldType::Checklist => {
+              let filter = condition_and_content.cloned::<ChecklistFilterPB>().unwrap();
+              filter.get_compliant_cell(field)
+            },
+            _ => (None, false),
+          };
+
+          if let Some(cell) = cell {
+            cells.insert(field_id.clone(), cell);
+          }
+
+          if flag {
+            open_after_create = flag;
+          }
+        }
+      }
+    }
+
+    open_after_create
   }
 
   #[tracing::instrument(
@@ -216,194 +372,38 @@ impl FilterController {
     Ok(())
   }
 
-  pub async fn did_receive_row_changed(&self, row_id: RowId) {
-    if !self.filters.read().await.is_empty() {
-      self
-        .gen_task(
-          FilterEvent::RowDidChanged(row_id),
-          QualityOfService::UserInteractive,
-        )
-        .await
-    }
-  }
-
-  #[tracing::instrument(level = "trace", skip(self))]
-  pub async fn apply_changeset(&self, changeset: FilterChangeset) -> FilterChangesetNotificationPB {
-    let mut filters = self.filters.write().await;
-
-    match changeset {
-      FilterChangeset::Insert {
-        parent_filter_id,
-        data,
-      } => {
-        let new_filter = Filter {
-          id: gen_database_filter_id(),
-          inner: data,
-        };
-        match parent_filter_id {
-          Some(parent_filter_id) => {
-            if let Some(parent_filter) = filters
-              .iter_mut()
-              .find_map(|filter| filter.find_filter(&parent_filter_id))
-            {
-              // TODO(RS): error handling for inserting filters
-              let _result = parent_filter.insert_filter(new_filter);
-            }
-          },
-          None => {
-            filters.push(new_filter);
-          },
-        }
-      },
-      FilterChangeset::UpdateType {
-        filter_id,
-        filter_type,
-      } => {
-        for filter in filters.iter_mut() {
-          let filter = filter.find_filter(&filter_id);
-          if let Some(filter) = filter {
-            let result = filter.convert_to_and_or_filter_type(filter_type);
-            if result.is_ok() {
-              break;
-            }
-          }
-        }
-      },
-      FilterChangeset::UpdateData { filter_id, data } => {
-        if let Some(filter) = filters
-          .iter_mut()
-          .find_map(|filter| filter.find_filter(&filter_id))
-        {
-          // TODO(RS): error handling for updating filter data
-          let _result = filter.update_filter_data(data);
-        }
-      },
-      FilterChangeset::Delete {
-        filter_id,
-        field_id: _,
-      } => {
-        for (position, filter) in filters.iter_mut().enumerate() {
-          if filter.id == filter_id {
-            filters.remove(position);
-            break;
-          }
-          let parent_filter = filter.find_parent_of_filter(&filter_id);
-          if let Some(filter) = parent_filter {
-            let result = filter.delete_filter(&filter_id);
-            if result.is_ok() {
-              break;
-            }
-          }
-        }
-      },
-      FilterChangeset::DeleteAllWithFieldId { field_id } => {
-        let mut filter_ids: Vec<String> = vec![];
-        for filter in filters.iter_mut() {
-          filter.find_all_filters_with_field_id(&field_id, &mut filter_ids);
-        }
-
-        for filter_id in filter_ids {
-          for (position, filter) in filters.iter_mut().enumerate() {
-            if filter.id == filter_id {
-              filters.remove(position);
-              break;
-            }
-            let parent_filter = filter.find_parent_of_filter(&filter_id);
-            if let Some(filter) = parent_filter {
-              let _ = filter.delete_filter(&filter_id);
-            }
-          }
-        }
-      },
-    }
-
-    self.delegate.save_filters(&self.view_id, &filters);
-
+  async fn get_field_map(&self) -> HashMap<String, Field> {
     self
-      .gen_task(FilterEvent::FilterDidChanged, QualityOfService::Background)
-      .await;
-
-    FilterChangesetNotificationPB::from_filters(&self.view_id, &filters)
+      .delegate
+      .get_fields(&self.view_id, None)
+      .await
+      .into_iter()
+      .map(|field| (field.id.clone(), field))
+      .collect::<HashMap<String, Field>>()
   }
 
-  pub async fn fill_cells(&self, cells: &mut Cells) -> bool {
-    let filters = self.filters.read().await;
+  fn delete_filter(filters: &mut RwLockWriteGuard<'_, Vec<Filter>>, filter_id: &str) {
+    let mut find_root_filter: Option<usize> = None;
+    let mut find_parent_of_non_root_filter: Option<&mut Filter> = None;
 
-    let mut open_after_create = false;
-
-    let mut min_required_filters: Vec<&FilterInner> = vec![];
-    for filter in filters.iter() {
-      filter.get_min_effective_filters(&mut min_required_filters);
-    }
-
-    let field_map = self.get_field_map().await;
-
-    while let Some(current_inner) = min_required_filters.pop() {
-      if let FilterInner::Data {
-        field_id,
-        field_type,
-        condition_and_content,
-      } = &current_inner
-      {
-        if min_required_filters.iter().any(
-          |inner| matches!(inner, FilterInner::Data { field_id: other_id, .. } if other_id == field_id),
-        ) {
-          min_required_filters.retain(
-            |inner| matches!(inner, FilterInner::Data { field_id: other_id, .. } if other_id != field_id),
-          );
-          open_after_create = true;
-          continue;
-        }
-
-        if let Some(field) = field_map.get(field_id) {
-          let (cell, flag) = match field_type {
-            FieldType::RichText | FieldType::URL => {
-              let filter = condition_and_content.cloned::<TextFilterPB>().unwrap();
-              filter.get_compliant_cell(field)
-            },
-            FieldType::Number => {
-              let filter = condition_and_content.cloned::<NumberFilterPB>().unwrap();
-              filter.get_compliant_cell(field)
-            },
-            FieldType::DateTime => {
-              let filter = condition_and_content.cloned::<DateFilterPB>().unwrap();
-              filter.get_compliant_cell(field)
-            },
-            FieldType::SingleSelect => {
-              let filter = condition_and_content
-                .cloned::<SelectOptionFilterPB>()
-                .unwrap();
-              filter.get_compliant_cell(field)
-            },
-            FieldType::MultiSelect => {
-              let filter = condition_and_content
-                .cloned::<SelectOptionFilterPB>()
-                .unwrap();
-              filter.get_compliant_cell(field)
-            },
-            FieldType::Checkbox => {
-              let filter = condition_and_content.cloned::<CheckboxFilterPB>().unwrap();
-              filter.get_compliant_cell(field)
-            },
-            FieldType::Checklist => {
-              let filter = condition_and_content.cloned::<ChecklistFilterPB>().unwrap();
-              filter.get_compliant_cell(field)
-            },
-            _ => (None, false),
-          };
-
-          if let Some(cell) = cell {
-            cells.insert(field_id.clone(), cell);
-          }
-
-          if flag {
-            open_after_create = flag;
-          }
-        }
+    for (position, filter) in filters.iter_mut().enumerate() {
+      if filter.id == filter_id {
+        find_root_filter = Some(position);
+        break;
+      }
+      if let Some(filter) = filter.find_parent_of_filter(filter_id) {
+        find_parent_of_non_root_filter = Some(filter);
+        break;
       }
     }
 
-    open_after_create
+    if let Some(pos) = find_root_filter {
+      filters.remove(pos);
+    } else if let Some(filter) = find_parent_of_non_root_filter {
+      if let Err(err) = filter.delete_filter(filter_id) {
+        tracing::error!("error while deleting filter: {}", err);
+      }
+    }
   }
 }
 
