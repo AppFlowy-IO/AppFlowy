@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::mem;
 
 use anyhow::bail;
@@ -222,6 +223,23 @@ impl Filter {
         }
       },
       FilterInner::Data { .. } => min_effective_filters.push(&self.inner),
+    }
+  }
+
+  /// Recursively get all of the filtering field ids and the associated filter_ids
+  pub fn get_all_filtering_field_ids(&self, field_ids: &mut HashMap<String, Vec<String>>) {
+    match &self.inner {
+      FilterInner::And { children } | FilterInner::Or { children } => {
+        for child in children.iter() {
+          child.get_all_filtering_field_ids(field_ids);
+        }
+      },
+      FilterInner::Data { field_id, .. } => {
+        field_ids
+          .entry(field_id.clone())
+          .and_modify(|filter_ids| filter_ids.push(self.id.clone()))
+          .or_insert_with(|| vec![self.id.clone()]);
+      },
     }
   }
 }

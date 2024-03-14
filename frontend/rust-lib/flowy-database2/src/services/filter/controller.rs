@@ -7,7 +7,7 @@ use collab_database::fields::Field;
 use collab_database::rows::{Cells, Row, RowDetail, RowId};
 use dashmap::DashMap;
 use serde::{Deserialize, Serialize};
-use tokio::sync::{RwLock, RwLockWriteGuard};
+use tokio::sync::RwLock;
 
 use flowy_error::FlowyResult;
 use lib_infra::future::Fut;
@@ -25,6 +25,7 @@ pub trait FilterDelegate: Send + Sync + 'static {
   fn get_fields(&self, view_id: &str, field_ids: Option<Vec<String>>) -> Fut<Vec<Field>>;
   fn get_rows(&self, view_id: &str) -> Fut<Vec<Arc<RowDetail>>>;
   fn get_row(&self, view_id: &str, rows_id: &RowId) -> Fut<Option<(usize, Arc<RowDetail>)>>;
+  fn get_all_filters(&self, view_id: &str) -> Vec<Filter>;
   fn save_filters(&self, view_id: &str, filters: &[Filter]);
 }
 
@@ -51,13 +52,46 @@ impl FilterController {
     handler_id: &str,
     delegate: T,
     task_scheduler: Arc<RwLock<TaskDispatcher>>,
-    filters: Vec<Filter>,
     cell_cache: CellCache,
     notifier: DatabaseViewChangedNotifier,
   ) -> Self
   where
     T: FilterDelegate + 'static,
   {
+    // ensure every filter is valid
+    let field_ids = delegate
+      .get_fields(view_id, None)
+      .await
+      .into_iter()
+      .map(|field| field.id)
+      .collect::<Vec<_>>();
+
+    let mut need_save = false;
+
+    let mut filters = delegate.get_all_filters(view_id);
+    let mut filtering_field_ids: HashMap<String, Vec<String>> = HashMap::new();
+
+    for filter in filters.iter() {
+      filter.get_all_filtering_field_ids(&mut filtering_field_ids);
+    }
+
+    let mut delete_filter_ids = vec![];
+
+    for (field_id, filter_ids) in &filtering_field_ids {
+      if !field_ids.contains(field_id) {
+        need_save = true;
+        delete_filter_ids.extend(filter_ids);
+      }
+    }
+
+    for filter_id in delete_filter_ids {
+      Self::delete_filter(&mut filters, filter_id);
+    }
+
+    if need_save {
+      delegate.save_filters(view_id, &filters);
+    }
+
     Self {
       view_id: view_id.to_string(),
       handler_id: handler_id.to_string(),
@@ -382,7 +416,7 @@ impl FilterController {
       .collect::<HashMap<String, Field>>()
   }
 
-  fn delete_filter(filters: &mut RwLockWriteGuard<'_, Vec<Filter>>, filter_id: &str) {
+  fn delete_filter(filters: &mut Vec<Filter>, filter_id: &str) {
     let mut find_root_filter: Option<usize> = None;
     let mut find_parent_of_non_root_filter: Option<&mut Filter> = None;
 
