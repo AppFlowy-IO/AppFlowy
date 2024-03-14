@@ -4,7 +4,7 @@ use std::sync::Arc;
 use flowy_error::FlowyResult;
 
 use crate::entities::SearchResultPB;
-use crate::services::manager::SearchHandler;
+use crate::services::manager::{SearchHandler, SearchType};
 
 use super::indexer::FolderIndexManagerImpl;
 
@@ -19,11 +19,15 @@ impl FolderSearchHandler {
 }
 
 impl SearchHandler for FolderSearchHandler {
+  fn search_type(&self) -> SearchType {
+    SearchType::Folder
+  }
+
   fn perform_search(&self, query: String) -> FlowyResult<Vec<SearchResultPB>> {
     self.index_manager.search(query)
   }
 
-  fn as_any(&self) -> &dyn Any {
-    self
+  fn index_count(&self) -> u64 {
+    self.index_manager.num_docs()
   }
 }

@@ -3,12 +3,15 @@ use flowy_folder::entities::icon::UpdateViewIconPayloadPB;
 use flowy_folder::event_map::FolderEvent;
 use flowy_folder::event_map::FolderEvent::*;
 use flowy_folder::{entities::*, ViewLayout};
+use flowy_search::folder::handler::FolderSearchHandler;
+use flowy_search::services::manager::{SearchHandler, SearchType};
 use flowy_user::entities::{
   AddWorkspaceMemberPB, QueryWorkspacePB, RemoveWorkspaceMemberPB, RepeatedWorkspaceMemberPB,
   WorkspaceMemberPB,
 };
 use flowy_user::errors::FlowyError;
 use flowy_user::event_map::UserEvent;
+use std::sync::Arc;
 
 use crate::event_builder::EventBuilder;
 use crate::EventIntegrationTest;
@@ -56,12 +59,38 @@ impl EventIntegrationTest {
       .parse::<WorkspacePB>()
   }
 
-  pub fn create_views(&self, views: Vec<View>) {
-    let mutex_folder = self.appflowy_core.folder_manager.get_mutex_folder().clone();
-    let folder_lock_guard = mutex_folder.lock();
-    let folder = folder_lock_guard.as_ref().unwrap();
-    for view in views {
-      folder.insert_view(view, None);
+  pub fn get_folder_search_handler(&self) -> &Arc<dyn SearchHandler> {
+    self
+      .appflowy_core
+      .search_manager
+      .get_handler(SearchType::Folder)
+      .unwrap()
+  }
+
+  /// create views in the folder.
+  pub async fn create_views(&self, views: Vec<View>) {
+    let create_view_params = views
+      .into_iter()
+      .map(|view| CreateViewParams {
+        parent_view_id: view.parent_view_id,
+        name: view.name,
+        desc: "".to_string(),
+        layout: view.layout.into(),
+        view_id: view.id,
+        initial_data: vec![],
+        meta: Default::default(),
+        set_as_current: false,
+        index: None,
+      })
+      .collect::<Vec<_>>();
+
+    for params in create_view_params {
+      self
+        .appflowy_core
+        .folder_manager
+        .create_view_with_params(params)
+        .await
+        .unwrap();
     }
   }
 

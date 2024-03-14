@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::convert::TryFrom;
+use std::path::PathBuf;
 use std::sync::Arc;
 
 use bytes::Bytes;
@@ -51,6 +52,7 @@ impl EventIntegrationTest {
     config.encrypt_secret
   }
 
+  /// Create a anonymous user for given test.
   pub async fn new_anon() -> Self {
     let test = Self::new().await;
     test.sign_up_as_anon().await;
