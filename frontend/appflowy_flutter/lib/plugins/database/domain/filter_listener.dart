@@ -61,19 +61,11 @@ class FilterListener {
   final String viewId;
   final String filterId;
 
-  PublishNotifier<FilterPB>? _onDeleteNotifier = PublishNotifier();
   PublishNotifier<FilterPB>? _onUpdateNotifier = PublishNotifier();
 
   DatabaseNotificationListener? _listener;
 
-  void start({
-    void Function()? onDeleted,
-    void Function(FilterPB)? onUpdated,
-  }) {
-    _onDeleteNotifier?.addPublishListener((_) {
-      onDeleted?.call();
-    });
-
+  void start({void Function(FilterPB)? onUpdated}) {
     _onUpdateNotifier?.addPublishListener((filter) {
       onUpdated?.call(filter);
     });
@@ -85,20 +77,12 @@ class FilterListener {
   }
 
   void handleChangeset(FilterChangesetNotificationPB changeset) {
-    // check the delete filter
-    final deletedIndex = changeset.deleteFilters.indexWhere(
-      (element) => element.id == filterId,
-    );
-    if (deletedIndex != -1) {
-      _onDeleteNotifier?.value = changeset.deleteFilters[deletedIndex];
-    }
-
-    // check the updated filter
-    final updatedIndex = changeset.updateFilters.indexWhere(
-      (element) => element.filter.id == filterId,
+    final filters = changeset.filters.items;
+    final updatedIndex = filters.indexWhere(
+      (filter) => filter.id == filterId,
     );
     if (updatedIndex != -1) {
-      _onUpdateNotifier?.value = changeset.updateFilters[updatedIndex].filter;
+      _onUpdateNotifier?.value = filters[updatedIndex];
     }
   }
 
@@ -122,9 +106,6 @@ class FilterListener {
 
   Future<void> stop() async {
     await _listener?.stop();
-    _onDeleteNotifier?.dispose();
-    _onDeleteNotifier = null;
-
     _onUpdateNotifier?.dispose();
     _onUpdateNotifier = null;
   }

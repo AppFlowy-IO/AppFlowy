@@ -37,7 +37,6 @@ void main() {
     await service.deleteFilter(
       fieldId: textField.id,
       filterId: textFilter.filter.id,
-      fieldType: textField.fieldType,
     );
     await gridResponseFuture();
     assert(context.rowInfos.length == 3);
@@ -65,7 +64,6 @@ void main() {
     await service.deleteFilter(
       fieldId: textField.id,
       filterId: textFilter.filter.id,
-      fieldType: textField.fieldType,
     );
     await gridResponseFuture();
     assert(context.rowInfos.length == 3);
@@ -107,7 +105,6 @@ void main() {
     await service.deleteFilter(
       fieldId: textField.id,
       filterId: textFilter.filter.id,
-      fieldType: textField.fieldType,
     );
     await gridResponseFuture();
     assert(context.rowInfos.length == 3);
@@ -165,7 +162,6 @@ void main() {
     await service.deleteFilter(
       fieldId: textField.id,
       filterId: textFilter.filter.id,
-      fieldType: textField.fieldType,
     );
     await gridResponseFuture();
     assert(context.rowInfos.length == 3);

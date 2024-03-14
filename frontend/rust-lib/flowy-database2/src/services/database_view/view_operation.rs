@@ -91,15 +91,15 @@ pub trait DatabaseViewOperation: Send + Sync + 'static {
 
   fn remove_calculation(&self, view_id: &str, calculation_id: &str);
 
-  fn get_all_filters(&self, view_id: &str) -> Vec<Arc<Filter>>;
+  fn get_all_filters(&self, view_id: &str) -> Vec<Filter>;
+
+  fn get_filter(&self, view_id: &str, filter_id: &str) -> Option<Filter>;
 
   fn delete_filter(&self, view_id: &str, filter_id: &str);
 
   fn insert_filter(&self, view_id: &str, filter: Filter);
 
-  fn get_filter(&self, view_id: &str, filter_id: &str) -> Option<Filter>;
-
-  fn get_filter_by_field_id(&self, view_id: &str, field_id: &str) -> Option<Filter>;
+  fn save_filters(&self, view_id: &str, filters: &[Filter]);
 
   fn get_layout_setting(&self, view_id: &str, layout_ty: &DatabaseLayout) -> Option<LayoutSetting>;
 

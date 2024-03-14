@@ -340,7 +340,7 @@ fn cmp_cell(
   cell_data_cache: &CellCache,
   sort_condition: SortCondition,
 ) -> Ordering {
-  match TypeOptionCellExt::new_with_cell_data_cache(field.as_ref(), Some(cell_data_cache.clone()))
+  match TypeOptionCellExt::new(field.as_ref(), Some(cell_data_cache.clone()))
     .get_type_option_cell_data_handler(&field_type)
   {
     None => default_order(),

@@ -60,7 +60,6 @@ class SelectOptionFilterEditorBloc
             _filterBackendSvc.deleteFilter(
               fieldId: filterInfo.fieldInfo.id,
               filterId: filterInfo.filter.id,
-              fieldType: filterInfo.fieldInfo.fieldType,
             );
           },
           didReceiveFilter: (FilterPB filter) {
@@ -83,9 +82,6 @@ class SelectOptionFilterEditorBloc
 
   void _startListening() {
     _listener.start(
-      onDeleted: () {
-        if (!isClosed) add(const SelectOptionFilterEditorEvent.delete());
-      },
       onUpdated: (filter) {
         if (!isClosed) {
           add(SelectOptionFilterEditorEvent.didReceiveFilter(filter));

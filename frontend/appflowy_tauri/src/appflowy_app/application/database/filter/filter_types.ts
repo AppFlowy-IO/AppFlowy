@@ -195,8 +195,8 @@ export function bytesToFilterData(bytes: Uint8Array, fieldType: FieldType) {
 export function pbToFilter(pb: FilterPB): Filter {
   return {
     id: pb.id,
-    fieldId: pb.field_id,
-    fieldType: pb.field_type,
-    data: bytesToFilterData(pb.data, pb.field_type),
+    fieldId: pb.data.field_id,
+    fieldType: pb.data.field_type,
+    data: bytesToFilterData(pb.data.data, pb.data.field_type),
   };
 }
