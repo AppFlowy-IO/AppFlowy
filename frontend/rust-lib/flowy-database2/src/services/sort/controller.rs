@@ -117,6 +117,7 @@ impl SortController {
   pub async fn process(&mut self, predicate: &str) -> FlowyResult<()> {
     let event_type = SortEvent::from_str(predicate).unwrap();
     let mut row_details = self.delegate.get_rows(&self.view_id).await;
+
     match event_type {
       SortEvent::SortDidChanged | SortEvent::DeleteAllSorts => {
         self.sort_rows(&mut row_details).await;

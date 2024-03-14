@@ -338,7 +338,7 @@ impl FilterController {
     if let Some((_, row_detail)) = self.delegate.get_row(&self.view_id, &row_id).await {
       let field_by_field_id = self.get_field_map().await;
       let mut notification = FilterResultNotification::new(self.view_id.clone());
-      if let Some((row_id, is_visible)) = filter_row(
+      if let Some(is_visible) = filter_row(
         &row_detail.row,
         &self.result_by_row_id,
         &field_by_field_id,
@@ -377,7 +377,7 @@ impl FilterController {
       .into_iter()
       .enumerate()
     {
-      if let Some((row_id, is_visible)) = filter_row(
+      if let Some(is_visible) = filter_row(
         &row_detail.row,
         &self.result_by_row_id,
         &field_by_field_id,
@@ -388,7 +388,7 @@ impl FilterController {
           let row_meta = RowMetaPB::from(row_detail.as_ref());
           visible_rows.push(InsertedRowPB::new(row_meta).with_index(index as i32))
         } else {
-          invisible_rows.push(row_id);
+          invisible_rows.push(row_detail.row.id.clone());
         }
       }
     }
@@ -450,7 +450,7 @@ fn filter_row(
   field_by_field_id: &HashMap<String, Field>,
   cell_data_cache: &CellCache,
   filters: &Vec<Filter>,
-) -> Option<(RowId, bool)> {
+) -> Option<bool> {
   // Create a filter result cache if it doesn't exist
   let mut filter_result = result_by_row_id.entry(row.id.clone()).or_insert(true);
   let old_is_visible = *filter_result;
@@ -471,7 +471,7 @@ fn filter_row(
   *filter_result = new_is_visible;
 
   if old_is_visible != new_is_visible {
-    Some((row.id.clone(), new_is_visible))
+    Some(new_is_visible)
   } else {
     None
   }
