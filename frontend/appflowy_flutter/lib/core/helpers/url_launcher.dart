@@ -27,8 +27,7 @@ Future<bool> afLaunchUrl(
     );
   } on PlatformException catch (e) {
     Log.error('Failed to open uri: $e');
-  } finally {
-    result = false;
+    return false;
   }
 
   // if the uri is not a valid url, try to launch it with http scheme

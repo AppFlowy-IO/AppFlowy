@@ -34,7 +34,7 @@ pub(crate) fn plugin_map_or_crash(plugins: Vec<AFPlugin>) -> AFPluginMap {
     let plugins = Arc::new(m);
     events.into_iter().for_each(|e| {
       if plugin_map.contains_key(&e) {
-        let plugin_name = plugin_map.get(&e).and_then(|p| Some(&p.name));
+        let plugin_name = plugin_map.get(&e).map(|p| &p.name);
         panic!("⚠️⚠️⚠️Error: {:?} is already defined in {:?}", &e, plugin_name,);
       }
       plugin_map.insert(e, plugins.clone());

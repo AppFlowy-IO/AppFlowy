@@ -74,7 +74,7 @@ impl SortDelegate for DatabaseViewSortDelegateImpl {
     self.delegate.get_field(field_id)
   }
 
-  fn get_fields(&self, view_id: &str, field_ids: Option<Vec<String>>) -> Fut<Vec<Arc<Field>>> {
+  fn get_fields(&self, view_id: &str, field_ids: Option<Vec<String>>) -> Fut<Vec<Field>> {
     self.delegate.get_fields(view_id, field_ids)
   }
 }

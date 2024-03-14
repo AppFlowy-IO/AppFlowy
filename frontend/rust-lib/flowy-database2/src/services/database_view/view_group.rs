@@ -18,7 +18,7 @@ use crate::services::group::{
 pub async fn new_group_controller_with_field(
   view_id: String,
   delegate: Arc<dyn DatabaseViewOperation>,
-  grouping_field: Arc<Field>,
+  grouping_field: Field,
 ) -> FlowyResult<Box<dyn GroupController>> {
   let setting_reader = GroupSettingReaderImpl(delegate.clone());
   let rows = delegate.get_rows(&view_id).await;

@@ -3,8 +3,10 @@ use std::sync::Arc;
 
 use collab_database::database::MutexDatabase;
 use collab_database::fields::{Field, TypeOptionData};
-use collab_database::rows::{Cell, Cells, CreateRowParams, Row, RowCell, RowDetail, RowId};
-use collab_database::views::{DatabaseLayout, DatabaseView, LayoutSetting, OrderObjectPosition};
+use collab_database::rows::{Cell, Cells, Row, RowCell, RowDetail, RowId};
+use collab_database::views::{
+  DatabaseLayout, DatabaseView, FilterMap, LayoutSetting, OrderObjectPosition,
+};
 use futures::StreamExt;
 use lib_infra::box_any::BoxAny;
 use tokio::sync::{broadcast, RwLock};
@@ -32,7 +34,7 @@ use crate::services::field::{
 use crate::services::field_settings::{
   default_field_settings_by_layout_map, FieldSettings, FieldSettingsChangesetParams,
 };
-use crate::services::filter::Filter;
+use crate::services::filter::{Filter, FilterChangeset};
 use crate::services::group::{default_group_setting, GroupChangesets, GroupSetting, RowChangeset};
 use crate::services::share::csv::{CSVExport, CSVFormat};
 use crate::services::sort::Sort;
@@ -214,16 +216,13 @@ impl DatabaseEditor {
     Ok(())
   }
 
-  #[tracing::instrument(level = "trace", skip_all, err)]
-  pub async fn create_or_update_filter(&self, params: UpdateFilterParams) -> FlowyResult<()> {
-    let view_editor = self.database_views.get_view_editor(&params.view_id).await?;
-    view_editor.v_insert_filter(params).await?;
-    Ok(())
-  }
-
-  pub async fn delete_filter(&self, params: DeleteFilterPayloadPB) -> FlowyResult<()> {
-    let view_editor = self.database_views.get_view_editor(&params.view_id).await?;
-    view_editor.v_delete_filter(params).await?;
+  pub async fn modify_view_filters(
+    &self,
+    view_id: &str,
+    changeset: FilterChangeset,
+  ) -> FlowyResult<()> {
+    let view_editor = self.database_views.get_view_editor(view_id).await?;
+    view_editor.v_modify_filters(changeset).await?;
     Ok(())
   }
 
@@ -267,7 +266,8 @@ impl DatabaseEditor {
 
   pub async fn get_all_filters(&self, view_id: &str) -> RepeatedFilterPB {
     if let Ok(view_editor) = self.database_views.get_view_editor(view_id).await {
-      view_editor.v_get_all_filters().await.into()
+      let filters = view_editor.v_get_all_filters().await;
+      RepeatedFilterPB::from(&filters)
     } else {
       RepeatedFilterPB { items: vec![] }
     }
@@ -457,20 +457,33 @@ impl DatabaseEditor {
     Ok(())
   }
 
-  // consider returning a result. But most of the time, it should be fine to just ignore the error.
-  pub async fn duplicate_row(&self, view_id: &str, row_id: &RowId) {
-    let params = self.database.lock().duplicate_row(row_id);
-    match params {
-      None => warn!("Failed to duplicate row: {}", row_id),
-      Some(params) => {
-        let result = self.create_row(view_id, None, params).await;
-        if let Some(row_detail) = result.unwrap_or(None) {
-          for view in self.database_views.editors().await {
-            view.v_did_duplicate_row(&row_detail).await;
-          }
-        }
-      },
+  pub async fn duplicate_row(&self, view_id: &str, row_id: &RowId) -> FlowyResult<()> {
+    let (row_detail, index) = {
+      let database = self.database.lock();
+
+      let params = database
+        .duplicate_row(row_id)
+        .ok_or_else(|| FlowyError::internal().with_context("error while copying row"))?;
+
+      let (index, row_order) = database
+        .create_row_in_view(view_id, params)
+        .ok_or_else(|| {
+          FlowyError::internal().with_context("error while inserting duplicated row")
+        })?;
+
+      tracing::trace!("duplicated row: {:?} at {}", row_order, index);
+      let row_detail = database.get_row_detail(&row_order.id);
+
+      (row_detail, index)
+    };
+
+    if let Some(row_detail) = row_detail {
+      for view in self.database_views.editors().await {
+        view.v_did_create_row(&row_detail, index).await;
+      }
     }
+
+    Ok(())
   }
 
   pub async fn move_row(
@@ -506,18 +519,21 @@ impl DatabaseEditor {
     Ok(())
   }
 
-  pub async fn create_row(
-    &self,
-    view_id: &str,
-    group_id: Option<String>,
-    mut params: CreateRowParams,
-  ) -> FlowyResult<Option<RowDetail>> {
-    for view in self.database_views.editors().await {
-      view.v_will_create_row(&mut params.cells, &group_id).await;
-    }
-    let result = self.database.lock().create_row_in_view(view_id, params);
+  pub async fn create_row(&self, params: CreateRowPayloadPB) -> FlowyResult<Option<RowDetail>> {
+    let view_editor = self.database_views.get_view_editor(&params.view_id).await?;
+
+    let CreateRowParams {
+      collab_params,
+      open_after_create: _,
+    } = view_editor.v_will_create_row(params).await?;
+
+    let result = self
+      .database
+      .lock()
+      .create_row_in_view(&view_editor.view_id, collab_params);
+
     if let Some((index, row_order)) = result {
-      tracing::trace!("create row: {:?} at {}", row_order, index);
+      tracing::trace!("created row: {:?} at {}", row_order, index);
       let row_detail = self.database.lock().get_row_detail(&row_order.id);
       if let Some(row_detail) = row_detail {
         for view in self.database_views.editors().await {
@@ -1259,10 +1275,9 @@ impl DatabaseEditor {
     row_ids: Option<&Vec<String>>,
   ) -> FlowyResult<Vec<RelatedRowDataPB>> {
     let primary_field = self.database.lock().fields.get_primary_field().unwrap();
-    let handler =
-      TypeOptionCellExt::new_with_cell_data_cache(&primary_field, Some(self.cell_cache.clone()))
-        .get_type_option_cell_data_handler(&FieldType::RichText)
-        .ok_or(FlowyError::internal())?;
+    let handler = TypeOptionCellExt::new(&primary_field, Some(self.cell_cache.clone()))
+      .get_type_option_cell_data_handler(&FieldType::RichText)
+      .ok_or(FlowyError::internal())?;
 
     let row_data = {
       let database = self.database.lock();
@@ -1381,9 +1396,9 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
     to_fut(async move { view })
   }
 
-  fn get_fields(&self, view_id: &str, field_ids: Option<Vec<String>>) -> Fut<Vec<Arc<Field>>> {
+  fn get_fields(&self, view_id: &str, field_ids: Option<Vec<String>>) -> Fut<Vec<Field>> {
     let fields = self.database.lock().get_fields_in_view(view_id, field_ids);
-    to_fut(async move { fields.into_iter().map(Arc::new).collect() })
+    to_fut(async move { fields })
   }
 
   fn get_field(&self, field_id: &str) -> Option<Field> {
@@ -1566,13 +1581,12 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
       .get_calculation::<Calculation>(view_id, field_id)
   }
 
-  fn get_all_filters(&self, view_id: &str) -> Vec<Arc<Filter>> {
+  fn get_all_filters(&self, view_id: &str) -> Vec<Filter> {
     self
       .database
       .lock()
       .get_all_filters(view_id)
       .into_iter()
-      .map(Arc::new)
       .collect()
   }
 
@@ -1581,7 +1595,14 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
   }
 
   fn insert_filter(&self, view_id: &str, filter: Filter) {
-    self.database.lock().insert_filter(view_id, filter);
+    self.database.lock().insert_filter(view_id, &filter);
+  }
+
+  fn save_filters(&self, view_id: &str, filters: &[Filter]) {
+    self
+      .database
+      .lock()
+      .save_filters::<Filter, FilterMap>(view_id, filters);
   }
 
   fn get_filter(&self, view_id: &str, filter_id: &str) -> Option<Filter> {
@@ -1589,15 +1610,6 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
       .database
       .lock()
       .get_filter::<Filter>(view_id, filter_id)
-  }
-
-  fn get_filter_by_field_id(&self, view_id: &str, field_id: &str) -> Option<Filter> {
-    self
-      .database
-      .lock()
-      .get_all_filters::<Filter>(view_id)
-      .into_iter()
-      .find(|filter| filter.field_id == field_id)
   }
 
   fn get_layout_setting(&self, view_id: &str, layout_ty: &DatabaseLayout) -> Option<LayoutSetting> {
@@ -1632,7 +1644,7 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
     field: &Field,
     field_type: &FieldType,
   ) -> Option<Box<dyn TypeOptionCellDataHandler>> {
-    TypeOptionCellExt::new_with_cell_data_cache(field, Some(self.cell_cache.clone()))
+    TypeOptionCellExt::new(field, Some(self.cell_cache.clone()))
       .get_type_option_cell_data_handler(field_type)
   }
 

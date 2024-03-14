@@ -1,4 +1,25 @@
 # Release Notes
+## Version 0.5.2 - 03/13/2024
+### Bug Fixes
+- Import csv file.
+
+## Version 0.5.1 - 03/11/2024
+### New Features
+- Introduced support for performing generic calculations on databases.
+- Implemented functionality for easily duplicating calendar events.
+- Added the ability to duplicate fields with cell data, facilitating smoother data management.
+- Now supports customizing font styles and colors prior to typing.
+- Enhanced the checklist user experience with the integration of keyboard shortcuts.
+- Improved the dark mode experience on mobile devices.
+### Bug Fixes
+- Fixed an issue with some pages failing to sync properly.
+- Fixed an issue where links without the http(s) scheme could not be opened, ensuring consistent link functionality.
+- Fixed an issue that prevented numbers from being inserted before heading blocks.
+- Fixed the inline page reference update mechanism to accurately reflect workspace changes.
+- Fixed an issue that made it difficult to resize images in certain cases.
+- Enhanced image loading reliability by clearing the image cache when images fail to load.
+- Resolved a problem preventing the launching of URLs on some Linux distributions.
+
 ## Version 0.5.0 - 02/26/2024
 ### New Features
 - Added support for scaling text on mobile platforms for better readability.

@@ -180,9 +180,7 @@
     "dragRow": "Pulsación larga para reordenar la fila",
     "viewDataBase": "Ver base de datos",
     "referencePage": "Se hace referencia a este {nombre}",
-    "addBlockBelow": "Añadir un bloque a continuación",
-    "urlLaunchAccessory": "Abrir en el navegador",
-    "urlCopyAccessory": "Copiar URL"
+    "addBlockBelow": "Añadir un bloque a continuación"
   },
   "sideBar": {
     "closeSidebar": "Cerrar panel lateral",
@@ -502,13 +500,9 @@
       "isComplete": "Esta completo",
       "isIncomplted": "esta incompleto"
     },
-    "singleSelectOptionFilter": {
+    "selectOptionFilter": {
       "is": "Es",
       "isNot": "No es",
-      "isEmpty": "Esta vacio",
-      "isNotEmpty": "No está vacío"
-    },
-    "multiSelectOptionFilter": {
       "contains": "Contiene",
       "doesNotContain": "No contiene",
       "isEmpty": "Esta vacio",
@@ -626,6 +620,10 @@
       "submitNewTask": "Crear",
       "hideComplete": "Ocultar tareas completadas",
       "showComplete": "Mostrar todas las tareas"
+    },
+    "url": {
+      "launch": "Abrir en el navegador",
+      "copy": "Copiar URL"
     },
     "menuName": "Cuadrícula",
     "referencedGridPrefix": "Vista de"

@@ -356,13 +356,9 @@
       "isComplete": "تەواوە",
       "isIncomplted": "ناتەواوە"
     },
-    "singleSelectOptionFilter": {
+    "selectOptionFilter": {
       "is": "هەیە",
       "isNot": "نییە",
-      "isEmpty": "به‌تاڵه‌",
-      "isNotEmpty": "بەتاڵ نییە"
-    },
-    "multiSelectOptionFilter": {
       "contains": "لەخۆ دەگرێت",
       "doesNotContain": "لەخۆناگرێت",
       "isEmpty": "به‌تاڵه‌",

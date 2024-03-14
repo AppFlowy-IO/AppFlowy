@@ -40,12 +40,18 @@ class FilterBackendService {
       ..condition = condition
       ..content = content;
 
-    return insertFilter(
-      fieldId: fieldId,
-      filterId: filterId,
-      fieldType: FieldType.RichText,
-      data: filter.writeToBuffer(),
-    );
+    return filterId == null
+        ? insertFilter(
+            fieldId: fieldId,
+            fieldType: FieldType.RichText,
+            data: filter.writeToBuffer(),
+          )
+        : updateFilter(
+            filterId: filterId,
+            fieldId: fieldId,
+            fieldType: FieldType.RichText,
+            data: filter.writeToBuffer(),
+          );
   }
 
   Future<FlowyResult<void, FlowyError>> insertCheckboxFilter({
@@ -55,12 +61,18 @@ class FilterBackendService {
   }) {
     final filter = CheckboxFilterPB()..condition = condition;
 
-    return insertFilter(
-      fieldId: fieldId,
-      filterId: filterId,
-      fieldType: FieldType.Checkbox,
-      data: filter.writeToBuffer(),
-    );
+    return filterId == null
+        ? insertFilter(
+            fieldId: fieldId,
+            fieldType: FieldType.Checkbox,
+            data: filter.writeToBuffer(),
+          )
+        : updateFilter(
+            filterId: filterId,
+            fieldId: fieldId,
+            fieldType: FieldType.Checkbox,
+            data: filter.writeToBuffer(),
+          );
   }
 
   Future<FlowyResult<void, FlowyError>> insertNumberFilter({
@@ -73,12 +85,18 @@ class FilterBackendService {
       ..condition = condition
       ..content = content;
 
-    return insertFilter(
-      fieldId: fieldId,
-      filterId: filterId,
-      fieldType: FieldType.Number,
-      data: filter.writeToBuffer(),
-    );
+    return filterId == null
+        ? insertFilter(
+            fieldId: fieldId,
+            fieldType: FieldType.Number,
+            data: filter.writeToBuffer(),
+          )
+        : updateFilter(
+            filterId: filterId,
+            fieldId: fieldId,
+            fieldType: FieldType.Number,
+            data: filter.writeToBuffer(),
+          );
   }
 
   Future<FlowyResult<void, FlowyError>> insertDateFilter({
@@ -112,12 +130,18 @@ class FilterBackendService {
       }
     }
 
-    return insertFilter(
-      fieldId: fieldId,
-      filterId: filterId,
-      fieldType: fieldType,
-      data: filter.writeToBuffer(),
-    );
+    return filterId == null
+        ? insertFilter(
+            fieldId: fieldId,
+            fieldType: FieldType.DateTime,
+            data: filter.writeToBuffer(),
+          )
+        : updateFilter(
+            filterId: filterId,
+            fieldId: fieldId,
+            fieldType: FieldType.DateTime,
+            data: filter.writeToBuffer(),
+          );
   }
 
   Future<FlowyResult<void, FlowyError>> insertURLFilter({
@@ -130,18 +154,24 @@ class FilterBackendService {
       ..condition = condition
       ..content = content;
 
-    return insertFilter(
-      fieldId: fieldId,
-      filterId: filterId,
-      fieldType: FieldType.URL,
-      data: filter.writeToBuffer(),
-    );
+    return filterId == null
+        ? insertFilter(
+            fieldId: fieldId,
+            fieldType: FieldType.URL,
+            data: filter.writeToBuffer(),
+          )
+        : updateFilter(
+            filterId: filterId,
+            fieldId: fieldId,
+            fieldType: FieldType.URL,
+            data: filter.writeToBuffer(),
+          );
   }
 
   Future<FlowyResult<void, FlowyError>> insertSelectOptionFilter({
     required String fieldId,
     required FieldType fieldType,
-    required SelectOptionConditionPB condition,
+    required SelectOptionFilterConditionPB condition,
     String? filterId,
     List<String> optionIds = const [],
   }) {
@@ -149,12 +179,18 @@ class FilterBackendService {
       ..condition = condition
       ..optionIds.addAll(optionIds);
 
-    return insertFilter(
-      fieldId: fieldId,
-      filterId: filterId,
-      fieldType: fieldType,
-      data: filter.writeToBuffer(),
-    );
+    return filterId == null
+        ? insertFilter(
+            fieldId: fieldId,
+            fieldType: fieldType,
+            data: filter.writeToBuffer(),
+          )
+        : updateFilter(
+            filterId: filterId,
+            fieldId: fieldId,
+            fieldType: fieldType,
+            data: filter.writeToBuffer(),
+          );
   }
 
   Future<FlowyResult<void, FlowyError>> insertChecklistFilter({
@@ -165,67 +201,94 @@ class FilterBackendService {
   }) {
     final filter = ChecklistFilterPB()..condition = condition;
 
-    return insertFilter(
-      fieldId: fieldId,
-      filterId: filterId,
-      fieldType: FieldType.Checklist,
-      data: filter.writeToBuffer(),
-    );
+    return filterId == null
+        ? insertFilter(
+            fieldId: fieldId,
+            fieldType: FieldType.Checklist,
+            data: filter.writeToBuffer(),
+          )
+        : updateFilter(
+            filterId: filterId,
+            fieldId: fieldId,
+            fieldType: FieldType.Checklist,
+            data: filter.writeToBuffer(),
+          );
   }
 
   Future<FlowyResult<void, FlowyError>> insertFilter({
     required String fieldId,
-    String? filterId,
     required FieldType fieldType,
     required List<int> data,
-  }) {
-    final insertFilterPayload = UpdateFilterPayloadPB.create()
+  }) async {
+    final filterData = FilterDataPB()
       ..fieldId = fieldId
       ..fieldType = fieldType
-      ..viewId = viewId
       ..data = data;
 
-    if (filterId != null) {
-      insertFilterPayload.filterId = filterId;
-    }
+    final insertFilterPayload = InsertFilterPB()..data = filterData;
 
-    final payload = DatabaseSettingChangesetPB.create()
+    final payload = DatabaseSettingChangesetPB()
       ..viewId = viewId
-      ..updateFilter = insertFilterPayload;
-    return DatabaseEventUpdateDatabaseSetting(payload).send().then((result) {
-      return result.fold(
-        (l) => FlowyResult.success(l),
-        (err) {
-          Log.error(err);
-          return FlowyResult.failure(err);
-        },
-      );
-    });
+      ..insertFilter = insertFilterPayload;
+
+    final result = await DatabaseEventUpdateDatabaseSetting(payload).send();
+    return result.fold(
+      (l) => FlowyResult.success(l),
+      (err) {
+        Log.error(err);
+        return FlowyResult.failure(err);
+      },
+    );
+  }
+
+  Future<FlowyResult<void, FlowyError>> updateFilter({
+    required String filterId,
+    required String fieldId,
+    required FieldType fieldType,
+    required List<int> data,
+  }) async {
+    final filterData = FilterDataPB()
+      ..fieldId = fieldId
+      ..fieldType = fieldType
+      ..data = data;
+
+    final updateFilterPayload = UpdateFilterDataPB()
+      ..filterId = filterId
+      ..data = filterData;
+
+    final payload = DatabaseSettingChangesetPB()
+      ..viewId = viewId
+      ..updateFilterData = updateFilterPayload;
+
+    final result = await DatabaseEventUpdateDatabaseSetting(payload).send();
+    return result.fold(
+      (l) => FlowyResult.success(l),
+      (err) {
+        Log.error(err);
+        return FlowyResult.failure(err);
+      },
+    );
   }
 
   Future<FlowyResult<void, FlowyError>> deleteFilter({
     required String fieldId,
     required String filterId,
-    required FieldType fieldType,
-  }) {
-    final deleteFilterPayload = DeleteFilterPayloadPB.create()
+  }) async {
+    final deleteFilterPayload = DeleteFilterPB()
       ..fieldId = fieldId
-      ..filterId = filterId
-      ..viewId = viewId
-      ..fieldType = fieldType;
+      ..filterId = filterId;
 
-    final payload = DatabaseSettingChangesetPB.create()
+    final payload = DatabaseSettingChangesetPB()
       ..viewId = viewId
       ..deleteFilter = deleteFilterPayload;
 
-    return DatabaseEventUpdateDatabaseSetting(payload).send().then((result) {
-      return result.fold(
-        (l) => FlowyResult.success(l),
-        (err) {
-          Log.error(err);
-          return FlowyResult.failure(err);
-        },
-      );
-    });
+    final result = await DatabaseEventUpdateDatabaseSetting(payload).send();
+    return result.fold(
+      (l) => FlowyResult.success(l),
+      (err) {
+        Log.error(err);
+        return FlowyResult.failure(err);
+      },
+    );
   }
 }

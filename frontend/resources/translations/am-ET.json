@@ -422,13 +422,9 @@
       "isComplete": "አይደለም",
       "isIncomplted": "ባዶ ነው"
     },
-    "singleSelectOptionFilter": {
+    "selectOptionFilter": {
       "is": "ነው",
       "isNot": "አይደለም",
-      "isEmpty": "ባዶ ነው",
-      "isNotEmpty": "ባዶ አይደለም"
-    },
-    "multiSelectOptionFilter": {
       "contains": "ይይዛል",
       "doesNotContain": "አይይዝም",
       "isEmpty": "ባዶ ነው",

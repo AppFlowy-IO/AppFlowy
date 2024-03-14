@@ -198,9 +198,7 @@
     "dragRow": "Long press to reorder the row",
     "viewDataBase": "View database",
     "referencePage": "This {name} is referenced",
-    "addBlockBelow": "Add a block below",
-    "urlLaunchAccessory": "Open in browser",
-    "urlCopyAccessory": "Copy URL"
+    "addBlockBelow": "Add a block below"
   },
   "sideBar": {
     "closeSidebar": "Close side bar",
@@ -572,13 +570,9 @@
       "isComplete": "is complete",
       "isIncomplted": "is incomplete"
     },
-    "singleSelectOptionFilter": {
+    "selectOptionFilter": {
       "is": "Is",
       "isNot": "Is not",
-      "isEmpty": "Is empty",
-      "isNotEmpty": "Is not empty"
-    },
-    "multiSelectOptionFilter": {
       "contains": "Contains",
       "doesNotContain": "Does not contain",
       "isEmpty": "Is empty",
@@ -731,6 +725,12 @@
       "submitNewTask": "Create",
       "hideComplete": "Hide completed tasks",
       "showComplete": "Show all tasks"
+    },
+    "url": {
+      "launch": "Open link in browser",
+      "copy": "Copy link to clipboard",
+      "textFieldHint": "Enter a URL",
+      "copiedNotification": "Copied to clipboard!"
     },
     "relation": {
       "relatedDatabasePlaceLabel": "Related Database",

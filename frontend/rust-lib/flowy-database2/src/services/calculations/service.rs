@@ -36,8 +36,8 @@ impl CalculationsService {
     let mut sum = 0.0;
     let mut len = 0.0;
     let field_type = FieldType::from(field.field_type);
-    if let Some(handler) = TypeOptionCellExt::new_with_cell_data_cache(field, None)
-      .get_type_option_cell_data_handler(&field_type)
+    if let Some(handler) =
+      TypeOptionCellExt::new(field, None).get_type_option_cell_data_handler(&field_type)
     {
       for row_cell in row_cells {
         if let Some(cell) = &row_cell.cell {
@@ -131,8 +131,8 @@ impl CalculationsService {
 
   fn calculate_count_empty(&self, field: &Field, row_cells: Vec<Arc<RowCell>>) -> String {
     let field_type = FieldType::from(field.field_type);
-    if let Some(handler) = TypeOptionCellExt::new_with_cell_data_cache(field, None)
-      .get_type_option_cell_data_handler(&field_type)
+    if let Some(handler) =
+      TypeOptionCellExt::new(field, None).get_type_option_cell_data_handler(&field_type)
     {
       if !row_cells.is_empty() {
         return format!(
@@ -154,8 +154,8 @@ impl CalculationsService {
 
   fn calculate_count_non_empty(&self, field: &Field, row_cells: Vec<Arc<RowCell>>) -> String {
     let field_type = FieldType::from(field.field_type);
-    if let Some(handler) = TypeOptionCellExt::new_with_cell_data_cache(field, None)
-      .get_type_option_cell_data_handler(&field_type)
+    if let Some(handler) =
+      TypeOptionCellExt::new(field, None).get_type_option_cell_data_handler(&field_type)
     {
       if !row_cells.is_empty() {
         return format!(
@@ -183,8 +183,8 @@ impl CalculationsService {
     let mut values = vec![];
 
     let field_type = FieldType::from(field.field_type);
-    if let Some(handler) = TypeOptionCellExt::new_with_cell_data_cache(field, None)
-      .get_type_option_cell_data_handler(&field_type)
+    if let Some(handler) =
+      TypeOptionCellExt::new(field, None).get_type_option_cell_data_handler(&field_type)
     {
       for row_cell in row_cells {
         if let Some(cell) = &row_cell.cell {

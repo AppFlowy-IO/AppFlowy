@@ -7,7 +7,7 @@ import {
 } from '$app/application/database';
 import { Tag } from '$app/components/database/components/field_types/select/Tag';
 import { ReactComponent as SelectCheckSvg } from '$app/assets/select-check.svg';
-import { SelectOptionConditionPB } from '@/services/backend';
+import { SelectOptionFilterConditionPB } from '@/services/backend';
 import { useTypeOption } from '$app/components/database';
 import KeyboardNavigation, {
   KeyboardNavigationOption,
@@ -42,8 +42,8 @@ function SelectFilter({ onClose, filter, field, onChange }: Props) {
 
   const showOptions =
     options.length > 0 &&
-    condition !== SelectOptionConditionPB.OptionIsEmpty &&
-    condition !== SelectOptionConditionPB.OptionIsNotEmpty;
+    condition !== SelectOptionFilterConditionPB.OptionIsEmpty &&
+    condition !== SelectOptionFilterConditionPB.OptionIsNotEmpty;
 
   const handleChange = ({
     condition,

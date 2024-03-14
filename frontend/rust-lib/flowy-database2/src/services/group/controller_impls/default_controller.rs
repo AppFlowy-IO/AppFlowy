@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use async_trait::async_trait;
 use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{Cells, Row, RowDetail, RowId};
@@ -26,7 +24,7 @@ pub struct DefaultGroupController {
 const DEFAULT_GROUP_CONTROLLER: &str = "DefaultGroupController";
 
 impl DefaultGroupController {
-  pub fn new(field: &Arc<Field>) -> Self {
+  pub fn new(field: &Field) -> Self {
     let group = GroupData::new(
       DEFAULT_GROUP_CONTROLLER.to_owned(),
       field.id.clone(),
