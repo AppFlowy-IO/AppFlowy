@@ -58,7 +58,10 @@ async fn af_cloud_create_workspace_test() {
 
   let workspaces = get_synced_workspaces(&test, user_profile_pb.id).await;
   assert_eq!(workspaces.len(), 2);
-  assert_eq!(workspaces[1].name, "my second workspace".to_string());
+  let _second_workspace = workspaces
+    .iter()
+    .find(|w| w.name == "my second workspace")
+    .expect("created workspace not found");
 
   {
     // before opening new workspace

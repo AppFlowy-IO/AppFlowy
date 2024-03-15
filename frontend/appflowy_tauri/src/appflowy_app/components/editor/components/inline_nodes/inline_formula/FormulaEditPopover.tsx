@@ -71,7 +71,7 @@ function FormulaEditPopover({
         />
         <Tooltip placement={'top'} title={t('button.done')}>
           <IconButton className={'h-[20px] w-[20px]'} size={'small'} onClick={() => onDone(text)}>
-            <SelectCheck />
+            <SelectCheck className={'text-content-blue-400'} />
           </IconButton>
         </Tooltip>
         <Tooltip placement={'top'} title={t('button.clear')}>

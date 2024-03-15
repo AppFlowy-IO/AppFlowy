@@ -55,13 +55,13 @@ void main() {
     await service.insertTextFilter(
       fieldId: textField.id,
       filterId: textFilter.filter.id,
-      condition: TextFilterConditionPB.Is,
+      condition: TextFilterConditionPB.TextIs,
       content: "ABC",
     );
     await gridResponseFuture();
     assert(
       menuBloc.state.filters.first.textFilter()!.condition ==
-          TextFilterConditionPB.Is,
+          TextFilterConditionPB.TextIs,
     );
     assert(menuBloc.state.filters.first.textFilter()!.content == "ABC");
   });

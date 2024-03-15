@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::convert::TryFrom;
 
 use bytes::Bytes;
@@ -200,7 +201,7 @@ impl EventIntegrationTest {
     &self,
     view_id: &str,
     row_position: OrderObjectPositionPB,
-    data: Option<RowDataPB>,
+    data: Option<HashMap<String, String>>,
   ) -> RowMetaPB {
     EventBuilder::new(self.clone())
       .event(DatabaseEvent::CreateRow)
@@ -208,7 +209,7 @@ impl EventIntegrationTest {
         view_id: view_id.to_string(),
         row_position,
         group_id: None,
-        data,
+        data: data.unwrap_or_default(),
       })
       .async_send()
       .await

@@ -15,7 +15,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 0.5.1
+version: 0.5.2
 
 environment:
   flutter: ">=3.19.0"
@@ -167,12 +167,12 @@ dependency_overrides:
   appflowy_editor:
     git:
       url: https://github.com/AppFlowy-IO/appflowy-editor.git
-      ref: "ce391a8"
+      ref: "2493d9b"
 
   sheet:
     git:
-      url: https://github.com/richardshiue/modal_bottom_sheet
-      ref: 8ee20bd
+      url: https://github.com/jamesblasco/modal_bottom_sheet
+      ref: e44458d
       path: sheet
 
   uuid: ^4.1.0

@@ -22,14 +22,17 @@ export interface ICurrentUser {
   displayName?: string;
   email?: string;
   token?: string;
+  iconUrl?: string;
   isAuthenticated: boolean;
   workspaceSetting?: WorkspaceSettingPB;
   userSetting: UserSetting;
+  isLocal: boolean;
 }
 
 const initialState: ICurrentUser | null = {
   isAuthenticated: false,
   userSetting: {},
+  isLocal: true,
 };
 
 export const currentUserSlice = createSlice({
@@ -42,6 +45,7 @@ export const currentUserSlice = createSlice({
         ...action.payload,
       };
     },
+
     updateUser: (state, action: PayloadAction<Partial<ICurrentUser>>) => {
       return {
         ...state,

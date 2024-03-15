@@ -30,7 +30,7 @@ pub trait SortDelegate: Send + Sync {
   /// Returns all the rows after applying grid's filter
   fn get_rows(&self, view_id: &str) -> Fut<Vec<Arc<RowDetail>>>;
   fn get_field(&self, field_id: &str) -> Option<Field>;
-  fn get_fields(&self, view_id: &str, field_ids: Option<Vec<String>>) -> Fut<Vec<Arc<Field>>>;
+  fn get_fields(&self, view_id: &str, field_ids: Option<Vec<String>>) -> Fut<Vec<Field>>;
 }
 
 pub struct SortController {
@@ -290,7 +290,7 @@ fn cmp_row(
   left: &Row,
   right: &Row,
   sort: &Arc<Sort>,
-  fields: &[Arc<Field>],
+  fields: &[Field],
   cell_data_cache: &CellCache,
 ) -> Ordering {
   match fields
@@ -335,18 +335,16 @@ fn cmp_row(
 fn cmp_cell(
   left_cell: Option<&Cell>,
   right_cell: Option<&Cell>,
-  field: &Arc<Field>,
+  field: &Field,
   field_type: FieldType,
   cell_data_cache: &CellCache,
   sort_condition: SortCondition,
 ) -> Ordering {
-  match TypeOptionCellExt::new_with_cell_data_cache(field.as_ref(), Some(cell_data_cache.clone()))
+  match TypeOptionCellExt::new(field, Some(cell_data_cache.clone()))
     .get_type_option_cell_data_handler(&field_type)
   {
     None => default_order(),
-    Some(handler) => {
-      handler.handle_cell_compare(left_cell, right_cell, field.as_ref(), sort_condition)
-    },
+    Some(handler) => handler.handle_cell_compare(left_cell, right_cell, field, sort_condition),
   }
 }
 

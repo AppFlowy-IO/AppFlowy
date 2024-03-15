@@ -82,7 +82,7 @@ void main() {
       // Hover over today's calendar cell
       await tester.hoverOnTodayCalendarCell(
         // Tap on create new event button
-        onHover: () async => tester.tapAddCalendarEventButton(),
+        onHover: tester.tapAddCalendarEventButton,
       );
 
       // Make sure that the event editor popup is shown
