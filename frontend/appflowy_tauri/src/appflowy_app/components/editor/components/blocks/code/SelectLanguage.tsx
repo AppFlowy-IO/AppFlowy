@@ -100,6 +100,11 @@ function SelectLanguage({
         ref={ref}
         size={'small'}
         variant={'standard'}
+        sx={{
+          '& .MuiInputBase-root, & .MuiInputBase-input': {
+            userSelect: 'none',
+          },
+        }}
         className={'w-[150px]'}
         value={language}
         onClick={() => {
@@ -115,6 +120,7 @@ function SelectLanguage({
       {open && (
         <Popover
           disableAutoFocus={true}
+          disableRestoreFocus={true}
           anchorOrigin={anchorOrigin}
           transformOrigin={transformOrigin}
           anchorEl={ref.current}

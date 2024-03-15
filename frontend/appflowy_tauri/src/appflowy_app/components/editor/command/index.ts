@@ -75,16 +75,45 @@ export const CustomEditor = {
     if (!afterPoint) return false;
     return CustomEditor.isInlineNode(editor, afterPoint);
   },
-  blockEqual: (editor: ReactEditor, point: Point, anotherPoint: Point) => {
-    const match = CustomEditor.getBlock(editor, point);
-    const anotherMatch = CustomEditor.getBlock(editor, anotherPoint);
 
-    if (!match || !anotherMatch) return false;
+  isMultipleBlockSelected: (editor: ReactEditor, filterEmpty = false) => {
+    const { selection } = editor;
 
-    const [node] = match;
-    const [anotherNode] = anotherMatch;
+    if (!selection) return false;
 
-    return node === anotherNode;
+    const start = selection.anchor;
+    const end = selection.focus;
+    const startBlock = CustomEditor.getBlock(editor, start);
+    const endBlock = CustomEditor.getBlock(editor, end);
+
+    if (!startBlock || !endBlock) return false;
+
+    const [, startPath] = startBlock;
+    const [, endPath] = endBlock;
+    const pathIsEqual = Path.equals(startPath, endPath);
+
+    if (pathIsEqual) {
+      return false;
+    }
+
+    if (!filterEmpty) {
+      return true;
+    }
+
+    const notEmptyBlocks = Array.from(
+      editor.nodes({
+        match: (n) => {
+          return (
+            !Editor.isEditor(n) &&
+            Element.isElement(n) &&
+            n.blockId !== undefined &&
+            !CustomEditor.isEmptyText(editor, n)
+          );
+        },
+      })
+    );
+
+    return notEmptyBlocks.length > 1;
   },
 
   /**
@@ -109,6 +138,10 @@ export const CustomEditor = {
     const cloneNode = CustomEditor.cloneBlock(editor, node);
 
     Object.assign(cloneNode, newProperties);
+    cloneNode.data = {
+      ...(node.data || {}),
+      ...(newProperties.data || {}),
+    };
 
     const isEmbed = editor.isEmbed(cloneNode);
 
@@ -273,18 +306,35 @@ export const CustomEditor = {
     });
   },
 
-  toggleTodo(editor: ReactEditor, node: TodoListNode) {
-    const checked = node.data.checked;
-    const path = ReactEditor.findPath(editor, node);
-    const data = node.data || {};
-    const newProperties = {
-      data: {
-        ...data,
-        checked: !checked,
-      },
-    } as Partial<Element>;
+  toggleTodo(editor: ReactEditor, at?: Location) {
+    const selection = at || editor.selection;
 
-    Transforms.setNodes(editor, newProperties, { at: path });
+    if (!selection) return;
+
+    const nodes = Array.from(
+      editor.nodes({
+        at: selection,
+        match: (n) => Element.isElement(n) && n.type === EditorNodeType.TodoListBlock,
+      })
+    );
+
+    const matchUnChecked = nodes.some(([node]) => {
+      return !(node as TodoListNode).data.checked;
+    });
+
+    const checked = Boolean(matchUnChecked);
+
+    nodes.forEach(([node, path]) => {
+      const data = (node as TodoListNode).data || {};
+      const newProperties = {
+        data: {
+          ...data,
+          checked: checked,
+        },
+      } as Partial<Element>;
+
+      Transforms.setNodes(editor, newProperties, { at: path });
+    });
   },
 
   toggleToggleList(editor: ReactEditor, node: ToggleListNode) {
