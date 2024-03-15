@@ -3,6 +3,7 @@ use std::sync::{Arc, Weak};
 use collab_database::rows::RowId;
 use lib_infra::box_any::BoxAny;
 use tokio::sync::oneshot;
+use tracing::error;
 
 use flowy_error::{FlowyError, FlowyResult};
 use lib_dispatch::prelude::{af_spawn, data_result_ok, AFPluginData, AFPluginState, DataResult};
@@ -741,7 +742,22 @@ pub(crate) async fn get_databases_handler(
   manager: AFPluginState<Weak<DatabaseManager>>,
 ) -> DataResult<RepeatedDatabaseDescriptionPB, FlowyError> {
   let manager = upgrade_manager(manager)?;
-  let data = manager.get_all_databases_description().await;
+  let metas = manager.get_all_databases_meta().await;
+
+  let mut items = Vec::with_capacity(metas.len());
+  for meta in metas {
+    match manager.get_database_inline_view_id(&meta.database_id).await {
+      Ok(view_id) => items.push(DatabaseMetaPB {
+        database_id: meta.database_id,
+        inline_view_id: view_id,
+      }),
+      Err(err) => {
+        error!(?err);
+      },
+    }
+  }
+
+  let data = RepeatedDatabaseDescriptionPB { items };
   data_result_ok(data)
 }
 

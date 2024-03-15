@@ -736,6 +736,8 @@
       "relatedDatabasePlaceLabel": "Related Database",
       "relatedDatabasePlaceholder": "None",
       "inRelatedDatabase": "In",
+      "rowSearchTextFieldPlaceholder": "Search",
+      "noDatabaseSelected": "No database selected, please select one first from the list below:",
       "emptySearchResult": "No records found"
     },
     "menuName": "Grid",
