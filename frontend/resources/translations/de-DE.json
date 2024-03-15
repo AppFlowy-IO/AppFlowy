@@ -177,9 +177,7 @@
     "dragRow": "Gedrückt halten, um die Zeile neu anzuordnen",
     "viewDataBase": "Datenbank ansehen",
     "referencePage": "Auf diesen {Name} wird verwiesen",
-    "addBlockBelow": "Einen Block unten hinzufügen",
-    "urlLaunchAccessory": "Im Browser öffnen",
-    "urlCopyAccessory": "Webadresse kopieren."
+    "addBlockBelow": "Einen Block unten hinzufügen"
   },
   "sideBar": {
     "closeSidebar": "Seitenleiste schließen",
@@ -505,13 +503,9 @@
       "isComplete": "ist komplett",
       "isIncomplted": "ist unvollständig"
     },
-    "singleSelectOptionFilter": {
+    "selectOptionFilter": {
       "is": "Ist",
       "isNot": "Ist nicht",
-      "isEmpty": "Ist leer",
-      "isNotEmpty": "Ist nicht leer"
-    },
-    "multiSelectOptionFilter": {
       "contains": "Enthält",
       "doesNotContain": "Beinhaltet nicht",
       "isEmpty": "Ist leer",
@@ -638,6 +632,10 @@
       "submitNewTask": "Erstellen",
       "hideComplete": "Blende abgeschlossene Aufgaben aus",
       "showComplete": "Zeige alle Aufgaben"
+    },
+    "url": {
+      "launch": "Im Browser öffnen",
+      "copy": "Webadresse kopieren"
     },
     "menuName": "Raster",
     "referencedGridPrefix": "Sicht von"

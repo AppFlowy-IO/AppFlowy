@@ -262,10 +262,9 @@
       "logoutPrompt": "Opravdu se chcete odhlásit?",
       "selfEncryptionLogoutPrompt": "Opravdu se chcete odhlásit? Ujistěte se prosím, že jste si zkopírovali šifrovací klíč",
       "syncSetting": "Synchronizovat nastavení",
-      "cloudSetting": "Nastavení cloudu",
-      "cloudURL": "URL adresa serveru",
       "enableSync": "Zapnout synchronizaci",
       "enableEncrypt": "Šifrovat data",
+      "cloudURL": "URL adresa serveru",
       "enableEncryptPrompt": "Zapněte šifrování a zabezpečte svá ",
       "inputEncryptPrompt": "Vložte prosím Váš šifrovací klíč k",
       "clickToCopySecret": "Kliknutím zkopírujete šifrovací klíč",
@@ -273,7 +272,8 @@
       "historicalUserList": "Historie přihlášení uživatele",
       "historicalUserListTooltip": "V tomto seznamu vidíte anonymní účty. Kliknutím na účet zobrazíte jeho detaily. Anonymní účty vznikají kliknutím na tlačítko \"Začínáme\"",
       "openHistoricalUser": "Kliknutím založíte anonymní účet",
-      "customPathPrompt": "Uložením složky s daty AppFlowy ve složce synchronizovanéí jako např. Google Drive může nést rizika. Pokud se databáze v  složce navštíví nebo změní "
+      "customPathPrompt": "Uložením složky s daty AppFlowy ve složce synchronizovanéí jako např. Google Drive může nést rizika. Pokud se databáze v  složce navštíví nebo změní ",
+      "cloudSetting": "Nastavení cloudu"
     },
     "notifications": {
       "enableNotifications": {
@@ -311,12 +311,12 @@
         "button": "Nahrát",
         "uploadTheme": "Nahrát motiv vzhledu",
         "description": "Nahrajte vlastní motiv vzhledu pro AppFlowy stisknutím tlačítka níže.",
-        "failure": "Nahrané téma vzhledu má neplatný formát.",
         "loading": "Prosím počkejte dokud nedokončíme kontrolu a nahrávání vašeho motivu vzhledu...",
         "uploadSuccess": "Váš motiv vzhledu byl úspěšně nahrán",
         "deletionFailure": "Nepodařilo se smazat motiv vzhledu. Zkuste ho smazat ručně.",
         "filePickerDialogTitle": "Vyberte soubor typu .flowy_plugin",
-        "urlUploadFailure": "Nepodařilo se otevřít URL adresu: {}"
+        "urlUploadFailure": "Nepodařilo se otevřít URL adresu: {}",
+        "failure": "Nahrané téma vzhledu má neplatný formát."
       },
       "theme": "Motiv vzhledu",
       "builtInsLabel": "Vestavěné motivy vzhledu",

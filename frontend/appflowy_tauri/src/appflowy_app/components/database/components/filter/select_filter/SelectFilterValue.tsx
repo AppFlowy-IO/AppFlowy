@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { SelectFilterData, SelectTypeOption } from '$app/application/database';
 import { useStaticTypeOption } from '$app/components/database';
 import { useTranslation } from 'react-i18next';
-import { SelectOptionConditionPB } from '@/services/backend';
+import { SelectOptionFilterConditionPB } from '@/services/backend';
 
 function SelectFilterValue({ data, fieldId }: { data: SelectFilterData; fieldId: string }) {
   const typeOption = useStaticTypeOption<SelectTypeOption>(fieldId);
@@ -19,13 +19,13 @@ function SelectFilterValue({ data, fieldId }: { data: SelectFilterData; fieldId:
       .join(', ');
 
     switch (data.condition) {
-      case SelectOptionConditionPB.OptionIs:
+      case SelectOptionFilterConditionPB.OptionIs:
         return `: ${options}`;
-      case SelectOptionConditionPB.OptionIsNot:
+      case SelectOptionFilterConditionPB.OptionIsNot:
         return `: ${t('grid.textFilter.choicechipPrefix.isNot')} ${options}`;
-      case SelectOptionConditionPB.OptionIsEmpty:
+      case SelectOptionFilterConditionPB.OptionIsEmpty:
         return `: ${t('grid.textFilter.choicechipPrefix.isEmpty')}`;
-      case SelectOptionConditionPB.OptionIsNotEmpty:
+      case SelectOptionFilterConditionPB.OptionIsNotEmpty:
         return `: ${t('grid.textFilter.choicechipPrefix.isNotEmpty')}`;
       default:
         return '';

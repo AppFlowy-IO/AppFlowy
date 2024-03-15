@@ -236,17 +236,17 @@ class ConditionWrapper extends ActionCell {
 extension TextFilterConditionPBExtension on TextFilterConditionPB {
   String get filterName {
     switch (this) {
-      case TextFilterConditionPB.Contains:
+      case TextFilterConditionPB.TextContains:
         return LocaleKeys.grid_textFilter_contains.tr();
-      case TextFilterConditionPB.DoesNotContain:
+      case TextFilterConditionPB.TextDoesNotContain:
         return LocaleKeys.grid_textFilter_doesNotContain.tr();
-      case TextFilterConditionPB.EndsWith:
+      case TextFilterConditionPB.TextEndsWith:
         return LocaleKeys.grid_textFilter_endsWith.tr();
-      case TextFilterConditionPB.Is:
+      case TextFilterConditionPB.TextIs:
         return LocaleKeys.grid_textFilter_is.tr();
-      case TextFilterConditionPB.IsNot:
+      case TextFilterConditionPB.TextIsNot:
         return LocaleKeys.grid_textFilter_isNot.tr();
-      case TextFilterConditionPB.StartsWith:
+      case TextFilterConditionPB.TextStartsWith:
         return LocaleKeys.grid_textFilter_startWith.tr();
       case TextFilterConditionPB.TextIsEmpty:
         return LocaleKeys.grid_textFilter_isEmpty.tr();
@@ -259,13 +259,13 @@ extension TextFilterConditionPBExtension on TextFilterConditionPB {
 
   String get choicechipPrefix {
     switch (this) {
-      case TextFilterConditionPB.DoesNotContain:
+      case TextFilterConditionPB.TextDoesNotContain:
         return LocaleKeys.grid_textFilter_choicechipPrefix_isNot.tr();
-      case TextFilterConditionPB.EndsWith:
+      case TextFilterConditionPB.TextEndsWith:
         return LocaleKeys.grid_textFilter_choicechipPrefix_endWith.tr();
-      case TextFilterConditionPB.IsNot:
+      case TextFilterConditionPB.TextIsNot:
         return LocaleKeys.grid_textFilter_choicechipPrefix_isNot.tr();
-      case TextFilterConditionPB.StartsWith:
+      case TextFilterConditionPB.TextStartsWith:
         return LocaleKeys.grid_textFilter_choicechipPrefix_startWith.tr();
       case TextFilterConditionPB.TextIsEmpty:
         return LocaleKeys.grid_textFilter_choicechipPrefix_isEmpty.tr();

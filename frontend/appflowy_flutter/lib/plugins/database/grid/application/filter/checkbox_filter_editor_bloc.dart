@@ -44,7 +44,6 @@ class CheckboxFilterEditorBloc
             _filterBackendSvc.deleteFilter(
               fieldId: filterInfo.fieldInfo.id,
               filterId: filterInfo.filter.id,
-              fieldType: filterInfo.fieldInfo.fieldType,
             );
           },
           didReceiveFilter: (FilterPB filter) {
@@ -64,11 +63,10 @@ class CheckboxFilterEditorBloc
 
   void _startListening() {
     _listener.start(
-      onDeleted: () {
-        if (!isClosed) add(const CheckboxFilterEditorEvent.delete());
-      },
       onUpdated: (filter) {
-        if (!isClosed) add(CheckboxFilterEditorEvent.didReceiveFilter(filter));
+        if (!isClosed) {
+          add(CheckboxFilterEditorEvent.didReceiveFilter(filter));
+        }
       },
     );
   }

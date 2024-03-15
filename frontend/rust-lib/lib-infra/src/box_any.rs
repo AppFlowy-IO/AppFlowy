@@ -2,6 +2,7 @@ use std::any::Any;
 
 use anyhow::Result;
 
+#[derive(Debug)]
 pub struct BoxAny(Box<dyn Any + Send + Sync + 'static>);
 
 impl BoxAny {
@@ -10,6 +11,13 @@ impl BoxAny {
     T: Send + Sync + 'static,
   {
     Self(Box::new(value))
+  }
+
+  pub fn cloned<T>(&self) -> Option<T>
+  where
+    T: Clone + 'static,
+  {
+    self.0.downcast_ref::<T>().cloned()
   }
 
   pub fn unbox_or_default<T>(self) -> T

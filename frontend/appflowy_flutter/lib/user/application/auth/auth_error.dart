@@ -29,4 +29,8 @@ class AuthError {
   static final deepLinkError = FlowyError()
     ..msg = 'DeepLink error'
     ..code = ErrorCode.Internal;
+
+  static final unableToGetDeepLink = FlowyError()
+    ..msg = 'Unable to get the deep link'
+    ..code = ErrorCode.Internal;
 }

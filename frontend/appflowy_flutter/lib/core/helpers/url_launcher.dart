@@ -15,23 +15,33 @@ Future<bool> afLaunchUrl(
   OnFailureCallback? onFailure,
   launcher.LaunchMode mode = launcher.LaunchMode.platformDefault,
   String? webOnlyWindowName,
+  bool addingHttpSchemeWhenFailed = false,
 }) async {
   // try to launch the uri directly
   bool result;
   try {
-    result = await launcher.launchUrl(uri);
+    result = await launcher.launchUrl(
+      uri,
+      mode: mode,
+      webOnlyWindowName: webOnlyWindowName,
+    );
   } on PlatformException catch (e) {
     Log.error('Failed to open uri: $e');
-  } finally {
-    result = false;
+    return false;
   }
 
-  // if the uri is not a valid url, try to launch it with https scheme
+  // if the uri is not a valid url, try to launch it with http scheme
   final url = uri.toString();
-  if (!result && !isURL(url, {'require_protocol': true})) {
+  if (addingHttpSchemeWhenFailed &&
+      !result &&
+      !isURL(url, {'require_protocol': true})) {
     try {
-      final uriWithScheme = Uri.parse('https://$url');
-      result = await launcher.launchUrl(uriWithScheme);
+      final uriWithScheme = Uri.parse('http://$url');
+      result = await launcher.launchUrl(
+        uriWithScheme,
+        mode: mode,
+        webOnlyWindowName: webOnlyWindowName,
+      );
     } on PlatformException catch (e) {
       Log.error('Failed to open uri: $e');
       if (context != null && context.mounted) {
@@ -43,7 +53,10 @@ Future<bool> afLaunchUrl(
   return result;
 }
 
-Future<bool> afLaunchUrlString(String url) async {
+Future<bool> afLaunchUrlString(
+  String url, {
+  bool addingHttpSchemeWhenFailed = false,
+}) async {
   final Uri uri;
   try {
     uri = Uri.parse(url);
@@ -53,7 +66,10 @@ Future<bool> afLaunchUrlString(String url) async {
   }
 
   // try to launch the uri directly
-  return afLaunchUrl(uri);
+  return afLaunchUrl(
+    uri,
+    addingHttpSchemeWhenFailed: addingHttpSchemeWhenFailed,
+  );
 }
 
 void _errorHandler(
