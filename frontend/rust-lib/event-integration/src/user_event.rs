@@ -18,10 +18,10 @@ use flowy_server::af_cloud::define::{USER_DEVICE_ID, USER_EMAIL, USER_SIGN_IN_UR
 use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
 use flowy_server_pub::AuthenticatorType;
 use flowy_user::entities::{
-  AuthenticatorPB, CloudSettingPB, CreateWorkspacePB, ImportAppFlowyDataPB, OauthSignInPB,
-  RenameWorkspacePB, RepeatedUserWorkspacePB, SignInUrlPB, SignInUrlPayloadPB, SignUpPayloadPB,
-  UpdateCloudConfigPB, UpdateUserProfilePayloadPB, UserProfilePB, UserWorkspaceIdPB,
-  UserWorkspacePB,
+  AuthenticatorPB, ChangeWorkspaceIconPB, CloudSettingPB, CreateWorkspacePB, ImportAppFlowyDataPB,
+  OauthSignInPB, RenameWorkspacePB, RepeatedUserWorkspacePB, SignInUrlPB, SignInUrlPayloadPB,
+  SignUpPayloadPB, UpdateCloudConfigPB, UpdateUserProfilePayloadPB, UserProfilePB,
+  UserWorkspaceIdPB, UserWorkspacePB,
 };
 use flowy_user::errors::{FlowyError, FlowyResult};
 use flowy_user::event_map::UserEvent;
@@ -237,6 +237,27 @@ impl EventIntegrationTest {
     };
     match EventBuilder::new(self.clone())
       .event(UserEvent::RenameWorkspace)
+      .payload(payload)
+      .async_send()
+      .await
+      .error()
+    {
+      Some(err) => Err(err),
+      None => Ok(()),
+    }
+  }
+
+  pub async fn change_workspace_icon(
+    &self,
+    workspace_id: &str,
+    new_icon: &str,
+  ) -> Result<(), FlowyError> {
+    let payload = ChangeWorkspaceIconPB {
+      workspace_id: workspace_id.to_owned(),
+      new_icon: new_icon.to_owned(),
+    };
+    match EventBuilder::new(self.clone())
+      .event(UserEvent::ChangeWorkspaceIcon)
       .payload(payload)
       .async_send()
       .await
