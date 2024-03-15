@@ -14,6 +14,7 @@ extension PasteNodes on EditorState {
     final transaction = this.transaction;
     final insertedDelta = insertedNode.delta;
     // if the node is empty, replace it with the inserted node.
+    // fix: apply formatting to pasted text only when the block is a paragraph
     if (delta.isEmpty && node.type == ParagraphBlockKeys.type) {
       transaction.insertNode(
         selection.end.path.next,
