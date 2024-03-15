@@ -70,7 +70,7 @@ impl GroupCustomize for DateGroupController {
     content: &str,
     cell_data: &<Self::GroupTypeOption as TypeOption>::CellData,
   ) -> bool {
-    content == group_id(cell_data, &self.context.get_setting_content())
+    content == get_date_group_id(cell_data, &self.context.get_setting_content())
   }
 
   fn create_or_delete_group_when_cell_changed(
@@ -83,7 +83,7 @@ impl GroupCustomize for DateGroupController {
     let mut inserted_group = None;
     if self
       .context
-      .get_group(&group_id(&_cell_data.into(), &setting_content))
+      .get_group(&get_date_group_id(&_cell_data.into(), &setting_content))
       .is_none()
     {
       let group = make_group_from_date_cell(&_cell_data.into(), &setting_content);
@@ -96,7 +96,7 @@ impl GroupCustomize for DateGroupController {
     let deleted_group = match _old_cell_data.and_then(|old_cell_data| {
       self
         .context
-        .get_group(&group_id(&old_cell_data.into(), &setting_content))
+        .get_group(&get_date_group_id(&old_cell_data.into(), &setting_content))
     }) {
       None => None,
       Some((_, group)) => {
@@ -128,7 +128,7 @@ impl GroupCustomize for DateGroupController {
     let setting_content = self.context.get_setting_content();
     self.context.iter_mut_status_groups(|group| {
       let mut changeset = GroupRowsNotificationPB::new(group.id.clone());
-      if group.id == group_id(&cell_data.into(), &setting_content) {
+      if group.id == get_date_group_id(&cell_data.into(), &setting_content) {
         if !group.contains_row(&row_detail.row.id) {
           changeset
             .inserted_rows
@@ -170,7 +170,7 @@ impl GroupCustomize for DateGroupController {
     let setting_content = self.context.get_setting_content();
     let deleted_group = match self
       .context
-      .get_group(&group_id(cell_data, &setting_content))
+      .get_group(&get_date_group_id(cell_data, &setting_content))
     {
       Some((_, group)) if group.rows.len() == 1 => Some(group.clone()),
       _ => None,
@@ -197,13 +197,13 @@ impl GroupCustomize for DateGroupController {
   fn delete_group_when_move_row(
     &mut self,
     _row: &Row,
-    _cell_data: &<Self::GroupTypeOption as TypeOption>::CellProtobufType,
+    cell_data: &<Self::GroupTypeOption as TypeOption>::CellProtobufType,
   ) -> Option<GroupPB> {
     let mut deleted_group = None;
     let setting_content = self.context.get_setting_content();
     if let Some((_, group)) = self
       .context
-      .get_group(&group_id(&_cell_data.into(), &setting_content))
+      .get_group(&get_date_group_id(&cell_data.into(), &setting_content))
     {
       if group.rows.len() == 1 {
         deleted_group = Some(GroupPB::from(group.clone()));
@@ -270,13 +270,13 @@ impl GroupsBuilder for DateGroupBuilder {
 }
 
 fn make_group_from_date_cell(cell_data: &DateCellData, setting_content: &str) -> Group {
-  let group_id = group_id(cell_data, setting_content);
-  Group::new(group_id.clone())
+  let group_id = get_date_group_id(cell_data, setting_content);
+  Group::new(group_id)
 }
 
 const GROUP_ID_DATE_FORMAT: &str = "%Y/%m/%d";
 
-fn group_id(cell_data: &DateCellData, setting_content: &str) -> String {
+fn get_date_group_id(cell_data: &DateCellData, setting_content: &str) -> String {
   let config = DateGroupConfiguration::from_json(setting_content).unwrap_or_default();
   let date_time = date_time_from_timestamp(cell_data.timestamp);
 
@@ -351,7 +351,9 @@ mod tests {
 
   use crate::services::field::date_type_option::DateTypeOption;
   use crate::services::field::DateCellData;
-  use crate::services::group::controller_impls::date_controller::{group_id, GROUP_ID_DATE_FORMAT};
+  use crate::services::group::controller_impls::date_controller::{
+    get_date_group_id, GROUP_ID_DATE_FORMAT,
+  };
 
   #[test]
   fn group_id_name_test() {
@@ -453,7 +455,7 @@ mod tests {
     ];
 
     for (i, test) in tests.iter().enumerate() {
-      let group_id = group_id(&test.cell_data, &test.setting_content);
+      let group_id = get_date_group_id(&test.cell_data, &test.setting_content);
       assert_eq!(test.exp_group_id, group_id, "test {}", i);
     }
   }

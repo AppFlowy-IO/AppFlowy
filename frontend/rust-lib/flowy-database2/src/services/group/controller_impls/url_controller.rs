@@ -57,7 +57,7 @@ impl GroupCustomize for URLGroupController {
     let mut inserted_group = None;
     if self.context.get_group(&_cell_data.url).is_none() {
       let cell_data: URLCellData = _cell_data.clone().into();
-      let group = make_group_from_url_cell(&cell_data);
+      let group = Group::new(cell_data.data);
       let mut new_group = self.context.add_new_group(group)?;
       new_group.group.rows.push(RowMetaPB::from(_row_detail));
       inserted_group = Some(new_group);
@@ -157,13 +157,14 @@ impl GroupCustomize for URLGroupController {
     });
     group_changeset
   }
+
   fn delete_group_when_move_row(
     &mut self,
     _row: &Row,
-    _cell_data: &<Self::GroupTypeOption as TypeOption>::CellProtobufType,
+    cell_data: &<Self::GroupTypeOption as TypeOption>::CellProtobufType,
   ) -> Option<GroupPB> {
     let mut deleted_group = None;
-    if let Some((_, group)) = self.context.get_group(&_cell_data.content) {
+    if let Some((_index, group)) = self.context.get_group(&cell_data.content) {
       if group.rows.len() == 1 {
         deleted_group = Some(GroupPB::from(group.clone()));
       }
@@ -210,7 +211,7 @@ impl GroupsBuilder for URLGroupGenerator {
       .flat_map(|value| value.into_url_field_cell_data())
       .filter(|cell| !cell.data.is_empty())
       .map(|cell| GeneratedGroupConfig {
-        group: make_group_from_url_cell(&cell),
+        group: Group::new(cell.data.clone()),
         filter_content: cell.data,
       })
       .collect();
@@ -221,8 +222,4 @@ impl GroupsBuilder for URLGroupGenerator {
       group_configs,
     }
   }
-}
-
-fn make_group_from_url_cell(cell: &URLCellData) -> Group {
-  Group::new(cell.data.clone())
 }
