@@ -16,7 +16,7 @@ use tokio::time::timeout;
 use uuid::Uuid;
 use walkdir::WalkDir;
 use zip::write::FileOptions;
-use zip::{ZipArchive, ZipWriter};
+use zip::{CompressionMethod, ZipArchive, ZipWriter};
 
 use event_integration::event_builder::EventBuilder;
 use event_integration::Cleaner;
@@ -175,9 +175,9 @@ pub fn appflowy_server(
 ///
 /// # Errors
 /// Returns `io::Result<()>` indicating the operation's success or failure.
-pub fn zip(src_dir: PathBuf, output_file: PathBuf) -> io::Result<()> {
+pub fn zip(src_dir: PathBuf, output_file_path: PathBuf) -> io::Result<()> {
   // Ensure the output directory exists
-  if let Some(parent) = output_file.parent() {
+  if let Some(parent) = output_file_path.parent() {
     if !parent.exists() {
       fs::create_dir_all(parent)?;
     }
@@ -188,27 +188,46 @@ pub fn zip(src_dir: PathBuf, output_file: PathBuf) -> io::Result<()> {
     .create(true)
     .write(true)
     .truncate(true)
-    .open(output_file)?;
+    .open(&output_file_path)?;
 
-  let walkdir = WalkDir::new(src_dir.clone());
-  let options = FileOptions::default().compression_method(zip::CompressionMethod::Deflated);
+  let options = FileOptions::default().compression_method(CompressionMethod::Deflated);
 
   let mut zip = ZipWriter::new(file);
-  let src_dir = src_dir.to_str().expect("Invalid source directory path");
 
-  for entry in walkdir.into_iter().filter_map(|e| e.ok()) {
+  // Calculate the name of the new folder within the ZIP file based on the last component of the output path
+  let new_folder_name = output_file_path
+    .file_stem()
+    .and_then(|name| name.to_str())
+    .ok_or_else(|| io::Error::new(io::ErrorKind::Other, "Invalid output file name"))?;
+
+  let src_dir_str = src_dir.to_str().expect("Invalid source directory path");
+
+  for entry in WalkDir::new(&src_dir).into_iter().filter_map(|e| e.ok()) {
     let path = entry.path();
-    let name = path.strip_prefix(Path::new(src_dir)).unwrap();
+    let relative_path = path
+      .strip_prefix(src_dir_str)
+      .map_err(|_| io::Error::new(io::ErrorKind::Other, "Error calculating relative path"))?;
 
-    // If the entry is a directory, add it as a directory in the zip
-    if path.is_dir() {
-      zip.add_directory(name.to_str().unwrap(), options)?;
-    } else {
-      // Else, add it as a file
-      zip.start_file(name.to_str().unwrap(), options)?;
+    // Construct the path within the ZIP, prefixing with the new folder's name
+    let zip_path = Path::new(new_folder_name).join(relative_path);
+
+    if path.is_file() {
+      zip.start_file(
+        zip_path
+          .to_str()
+          .ok_or_else(|| io::Error::new(io::ErrorKind::Other, "Invalid file name"))?,
+        options,
+      )?;
+
       let mut f = File::open(path)?;
-
       io::copy(&mut f, &mut zip)?;
+    } else if entry.file_type().is_dir() && !relative_path.as_os_str().is_empty() {
+      zip.add_directory(
+        zip_path
+          .to_str()
+          .ok_or_else(|| io::Error::new(io::ErrorKind::Other, "Invalid directory name"))?,
+        options,
+      )?;
     }
   }
   zip.finish()?;

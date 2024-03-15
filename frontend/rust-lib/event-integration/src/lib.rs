@@ -163,8 +163,7 @@ impl Cleaner {
   }
 
   fn cleanup(dir: &PathBuf) {
-
-    // let _ = std::fs::remove_dir_all(dir);
+    let _ = std::fs::remove_dir_all(dir);
   }
 }
 
