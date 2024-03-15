@@ -198,10 +198,8 @@ impl UserManager {
     if let Some(new_workspace_icon) = new_workspace_icon {
       user_workspace.icon = new_workspace_icon.to_string();
     }
-    save_user_workspaces(uid, conn, &[user_workspace])
-    }
 
-    Ok(())
+    save_user_workspaces(uid, conn, &[user_workspace])
   }
 
   pub async fn delete_workspace(&self, workspace_id: &str) -> FlowyResult<()> {
