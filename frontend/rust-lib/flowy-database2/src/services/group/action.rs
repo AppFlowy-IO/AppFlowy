@@ -56,11 +56,7 @@ pub trait GroupCustomize: Send + Sync {
   ) -> (Option<GroupPB>, Vec<GroupRowsNotificationPB>);
 
   /// Move row from one group to another
-  fn move_row(
-    &mut self,
-    cell_data: &<Self::GroupTypeOption as TypeOption>::CellProtobufType,
-    context: MoveGroupRowContext,
-  ) -> Vec<GroupRowsNotificationPB>;
+  fn move_row(&mut self, context: MoveGroupRowContext) -> Vec<GroupRowsNotificationPB>;
 
   /// Returns None if there is no need to delete the group when corresponding row get removed
   fn delete_group_when_move_row(

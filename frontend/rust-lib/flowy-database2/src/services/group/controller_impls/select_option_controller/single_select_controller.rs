@@ -80,11 +80,7 @@ impl GroupCustomize for SingleSelectGroupController {
     (None, changesets)
   }
 
-  fn move_row(
-    &mut self,
-    _cell_data: &<Self::GroupTypeOption as TypeOption>::CellProtobufType,
-    mut context: MoveGroupRowContext,
-  ) -> Vec<GroupRowsNotificationPB> {
+  fn move_row(&mut self, mut context: MoveGroupRowContext) -> Vec<GroupRowsNotificationPB> {
     let mut group_changeset = vec![];
     self.context.iter_mut_groups(|group| {
       if let Some(changeset) = move_group_row(group, &mut context) {

@@ -364,7 +364,7 @@ where
       let cell_bytes = get_cell_protobuf(&cell, context.field, None);
       let cell_data = cell_bytes.parser::<P>()?;
       result.deleted_group = self.delete_group_when_move_row(&context.row_detail.row, &cell_data);
-      result.row_changesets = self.move_row(&cell_data, context);
+      result.row_changesets = self.move_row(context);
     } else {
       tracing::warn!("Unexpected moving group row, changes should not be empty");
     }
