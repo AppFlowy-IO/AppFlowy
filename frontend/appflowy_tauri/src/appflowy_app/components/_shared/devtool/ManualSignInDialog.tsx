@@ -18,6 +18,7 @@ function ManualSignInDialog(props: DialogProps) {
     setLoading(true);
     try {
       if (tab === 1) {
+        if (!email || !password) return;
         await signInWithEmailPassword(email, password, domain);
       } else {
         await signInWithOAuth(uri);
@@ -42,7 +43,7 @@ function ManualSignInDialog(props: DialogProps) {
         }
       }}
     >
-      <DialogContent>
+      <DialogContent className={'pt-3'}>
         <Tabs
           className={'mb-4'}
           defaultValue={0}
@@ -55,18 +56,28 @@ function ManualSignInDialog(props: DialogProps) {
           <Tab value={1} label={'Email & Password'} />
         </Tabs>
         {tab === 1 ? (
-          <div className={'flex flex-col gap-2'}>
+          <div className={'flex flex-col gap-3'}>
             <TextField
+              label={'Email'}
               size={'small'}
-              placeholder={'Domain(Optional - Leave empty for test.appflowy.cloud)'}
-              onChange={(e) => setDomain(e.target.value)}
+              required={true}
+              placeholder={'name@gmail.com'}
+              type={'email'}
+              onChange={(e) => setEmail(e.target.value)}
             />
-            <TextField size={'small'} placeholder={'Email'} type={'email'} onChange={(e) => setEmail(e.target.value)} />
             <TextField
               size={'small'}
+              required={true}
+              label={'Password'}
               placeholder={'Password'}
               type={'password'}
               onChange={(e) => setPassword(e.target.value)}
+            />
+            <TextField
+              size={'small'}
+              label={'Domain(Optional)'}
+              placeholder={'test.appflowy.cloud'}
+              onChange={(e) => setDomain(e.target.value)}
             />
           </div>
         ) : (
