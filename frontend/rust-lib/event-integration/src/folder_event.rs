@@ -3,7 +3,6 @@ use flowy_folder::entities::icon::UpdateViewIconPayloadPB;
 use flowy_folder::event_map::FolderEvent;
 use flowy_folder::event_map::FolderEvent::*;
 use flowy_folder::{entities::*, ViewLayout};
-use flowy_search::folder::handler::FolderSearchHandler;
 use flowy_search::services::manager::{SearchHandler, SearchType};
 use flowy_user::entities::{
   AddWorkspaceMemberPB, QueryWorkspacePB, RemoveWorkspaceMemberPB, RepeatedWorkspaceMemberPB,

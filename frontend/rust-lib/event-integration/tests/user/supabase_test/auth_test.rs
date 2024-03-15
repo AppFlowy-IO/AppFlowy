@@ -292,7 +292,7 @@ async fn migrate_anon_document_on_cloud_signup() {
 #[tokio::test]
 async fn migrate_anon_data_on_cloud_signup() {
   if get_supabase_config().is_some() {
-    let (cleaner, user_db_path) = unzip_history_user_db(
+    let (cleaner, user_db_path) = unzip(
       "./tests/user/supabase_test/history_user_db",
       "workspace_sync",
     )

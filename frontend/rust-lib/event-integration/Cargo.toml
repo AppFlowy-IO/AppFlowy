@@ -38,7 +38,7 @@ parking_lot.workspace = true
 uuid.workspace = true
 collab = { version = "0.1.0" }
 collab-document = { version = "0.1.0" }
-collab-folder = { version = "0.1.0", features = ["test_utils"] }
+collab-folder = { version = "0.1.0" }
 collab-database = { version = "0.1.0" }
 collab-plugins = { version = "0.1.0" }
 collab-entity = { version = "0.1.0" }
@@ -52,6 +52,7 @@ assert-json-diff = "2.0.2"
 tokio-postgres = { version = "0.7.8" }
 chrono = "0.4.31"
 zip = "0.6.6"
+walkdir = "2.5.0"
 
 [features]
 default = ["supabase_cloud_test"]

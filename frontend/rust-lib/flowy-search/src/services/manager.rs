@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use std::{any::Any, sync::Arc};
+use std::sync::Arc;
 
 use flowy_error::FlowyResult;
 use lib_dispatch::prelude::af_spawn;

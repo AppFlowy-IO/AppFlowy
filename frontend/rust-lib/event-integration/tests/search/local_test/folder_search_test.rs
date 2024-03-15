@@ -1,18 +1,23 @@
+use crate::util::{unzip_test_asset, zip};
 use collab_folder::View;
 use event_integration::EventIntegrationTest;
+use flowy_core::DEFAULT_NAME;
 use flowy_folder::entities::UpdateViewPayloadPB;
 use flowy_folder_pub::folder_builder::{FlattedViews, WorkspaceViewBuilder};
-use flowy_search::services::manager::SearchHandler;
 use std::time::Duration;
 use tokio::time::sleep;
 
 #[tokio::test]
 async fn test_folder_index_all_startup() {
-  let test = EventIntegrationTest::new_anon().await;
-  let uid = test.get_user_profile().await.unwrap().id;
-  let workspace_id = test.get_current_workspace().await.id;
-  let views = create_1002_views(uid, workspace_id.clone()).await;
-  test.create_views(views).await;
+  let folder_name = "folder_1000_view";
+  // comment out the following line to create a test asset if you modify the test data
+  // don't forget to delete unnecessary test assets
+  // create_folder_test_data(folder_name).await;
+
+  let (cleaner, user_db_path) = unzip_test_asset(folder_name).unwrap();
+  let test =
+    EventIntegrationTest::new_with_user_data_path(user_db_path.clone(), DEFAULT_NAME.to_string())
+      .await;
 
   let first_level_views = test.get_all_workspace_views().await;
   assert_eq!(first_level_views.len(), 3);
@@ -25,7 +30,9 @@ async fn test_folder_index_all_startup() {
   let folder_data = test.get_folder_data();
   // Get started + 1002 Views
   assert_eq!(folder_data.views.len(), 1003);
+  drop(cleaner);
 }
+
 #[tokio::test]
 async fn test_folder_index_create_100_views() {
   let test = EventIntegrationTest::new_anon().await;
@@ -115,6 +122,40 @@ async fn test_folder_index_rename_view() {
   let second = second.unwrap();
   assert_eq!(second.len(), 1);
   assert_eq!(second[0].data, new_view_name);
+}
+
+/// Using this method to create a folder test asset. Only use when you want to create a new asset.
+/// The file will be created at tests/asset/{file_name}.zip and it will be committed to the repo.
+///
+#[allow(dead_code)]
+async fn create_folder_test_data(file_name: &str) {
+  let test = EventIntegrationTest::new_with_name(DEFAULT_NAME).await;
+  test.sign_up_as_anon().await;
+
+  let uid = test.get_user_profile().await.unwrap().id;
+  let workspace_id = test.get_current_workspace().await.id;
+  let views = create_1002_views(uid, workspace_id.clone()).await;
+  test.create_views(views).await;
+
+  let first_level_views = test.get_all_workspace_views().await;
+  assert_eq!(first_level_views.len(), 3);
+  assert_eq!(first_level_views[1].name, "1");
+  assert_eq!(first_level_views[2].name, "2");
+
+  let view_1 = test.get_view(&first_level_views[1].id).await;
+  assert_eq!(view_1.child_views.len(), 500);
+
+  let folder_data = test.get_folder_data();
+  // Get started + 1002 Views
+  assert_eq!(folder_data.views.len(), 1003);
+
+  let data_path = test.config.application_path.clone();
+  zip(
+    data_path.into(),
+    format!("tests/asset/{}.zip", file_name).into(),
+  )
+  .unwrap();
+  sleep(Duration::from_secs(2)).await;
 }
 
 /// Create view without create the view's content(document/database).

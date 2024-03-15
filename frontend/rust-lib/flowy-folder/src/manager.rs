@@ -145,7 +145,7 @@ impl FolderManager {
     if let Some(workspace_id) = workspace_id {
       self.get_workspace_views(&workspace_id).await
     } else {
-      tracing::warn!("Can't get current workspace views");
+      tracing::warn!("Can't get the workspace id from the folder. Return empty list.");
       Ok(vec![])
     }
   }

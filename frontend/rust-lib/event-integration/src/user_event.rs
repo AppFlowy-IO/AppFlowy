@@ -1,6 +1,5 @@
 use std::collections::HashMap;
 use std::convert::TryFrom;
-use std::path::PathBuf;
 use std::sync::Arc;
 
 use bytes::Bytes;

@@ -1,10 +1,7 @@
-use std::any::Any;
-use std::sync::Arc;
-
-use flowy_error::FlowyResult;
-
 use crate::entities::SearchResultPB;
 use crate::services::manager::{SearchHandler, SearchType};
+use flowy_error::FlowyResult;
+use std::sync::Arc;
 
 use super::indexer::FolderIndexManagerImpl;
 
