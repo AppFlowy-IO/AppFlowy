@@ -1,6 +1,6 @@
 import { useAppDispatch, useAppSelector } from '$app/stores/store';
 import { useEffect, useMemo } from 'react';
-import { currentUserActions } from '$app_reducers/current-user/slice';
+import { currentUserActions, LoginState } from '$app_reducers/current-user/slice';
 import { Theme as ThemeType, ThemeMode } from '$app/stores/reducers/current-user/slice';
 import { createTheme } from '@mui/material/styles';
 import { getDesignTokens } from '$app/utils/mui';
@@ -10,6 +10,8 @@ import { UserService } from '$app/application/user/user.service';
 export function useUserSetting() {
   const dispatch = useAppDispatch();
   const { i18n } = useTranslation();
+  const loginState = useAppSelector((state) => state.currentUser.loginState);
+
   const { themeMode = ThemeMode.System, theme: themeType = ThemeType.Default } = useAppSelector((state) => {
     return {
       themeMode: state.currentUser.userSetting.themeMode,
@@ -22,6 +24,7 @@ export function useUserSetting() {
     (themeMode === ThemeMode.System && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
   useEffect(() => {
+    if (loginState !== LoginState.Success && loginState !== undefined) return;
     void (async () => {
       const settings = await UserService.getAppearanceSetting();
 
@@ -29,7 +32,7 @@ export function useUserSetting() {
       dispatch(currentUserActions.setUserSetting(settings));
       await i18n.changeLanguage(settings.language);
     })();
-  }, [dispatch, i18n]);
+  }, [dispatch, i18n, loginState]);
 
   useEffect(() => {
     const html = document.documentElement;

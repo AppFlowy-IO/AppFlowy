@@ -1,39 +1,65 @@
 import { useTranslation } from 'react-i18next';
 import Typography from '@mui/material/Typography';
 import { Divider, OutlinedInput } from '@mui/material';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import Button from '@mui/material/Button';
-import { useAppSelector } from '$app/stores/store';
+import { useAppDispatch, useAppSelector } from '$app/stores/store';
 import { changeWorkspaceIcon, renameWorkspace } from '$app/application/folder/workspace.service';
 import { notify } from '$app/components/_shared/notify';
 import { WorkplaceAvatar } from '$app/components/_shared/avatar';
 import Popover from '@mui/material/Popover';
 import { PopoverCommonProps } from '$app/components/editor/components/tools/popover';
 import EmojiPicker from '$app/components/_shared/emoji_picker/EmojiPicker';
+import { workspaceActions } from '$app_reducers/workspace/slice';
+import debounce from 'lodash-es/debounce';
 
 export const WorkplaceDisplay = () => {
   const { t } = useTranslation();
   const isLocal = useAppSelector((state) => state.currentUser.isLocal);
-  const workspace = useAppSelector((state) => state.workspace.currentWorkspace);
+  const { workspaces, currentWorkspaceId } = useAppSelector((state) => state.workspace);
+  const workspace = useMemo(
+    () => workspaces.find((workspace) => workspace.id === currentWorkspaceId),
+    [workspaces, currentWorkspaceId]
+  );
   const [name, setName] = useState(workspace?.name ?? '');
   const [emojiPickerAnchor, setEmojiPickerAnchor] = useState<HTMLElement | null>(null);
   const openEmojiPicker = Boolean(emojiPickerAnchor);
+  const dispatch = useAppDispatch();
+
+  const debounceUpdateWorkspace = useMemo(() => {
+    return debounce(async ({ id, name, icon }: { id: string; name?: string; icon?: string }) => {
+      if (!id || !name) return;
+
+      if (icon) {
+        try {
+          await changeWorkspaceIcon(id, icon);
+        } catch {
+          notify.error(t('newSettings.workplace.updateIconError'));
+        }
+      }
+
+      if (name) {
+        try {
+          await renameWorkspace(id, name);
+        } catch {
+          notify.error(t('newSettings.workplace.renameError'));
+        }
+      }
+    }, 500);
+  }, [t]);
+
   const handleSave = async () => {
     if (!workspace || !name) return;
-    try {
-      await renameWorkspace(workspace.id, name);
-    } catch {
-      notify.error(t('newSettings.workplace.renameError'));
-    }
+    dispatch(workspaceActions.updateWorkspace({ id: workspace.id, name }));
+
+    await debounceUpdateWorkspace({ id: workspace.id, name });
   };
 
   const handleEmojiSelect = async (icon: string) => {
     if (!workspace) return;
-    try {
-      await changeWorkspaceIcon(workspace.id, icon);
-    } catch {
-      notify.error(t('newSettings.workplace.updateIconError'));
-    }
+    dispatch(workspaceActions.updateWorkspace({ id: workspace.id, icon }));
+
+    await debounceUpdateWorkspace({ id: workspace.id, icon });
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -93,6 +119,7 @@ export const WorkplaceDisplay = () => {
           workplaceName={name}
           width={62}
           height={62}
+          icon={workspace?.icon}
           className={'rounded-lg border border-bg-body p-[2px] hover:opacity-90'}
         />
       </Button>
