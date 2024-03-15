@@ -4,7 +4,7 @@ use std::sync::Arc;
 
 use collab_database::database::gen_database_filter_id;
 use collab_database::fields::Field;
-use collab_database::rows::{Cells, Row, RowDetail, RowId};
+use collab_database::rows::{Cell, Cells, Row, RowDetail, RowId};
 use dashmap::DashMap;
 use serde::{Deserialize, Serialize};
 use tokio::sync::RwLock;
@@ -27,6 +27,10 @@ pub trait FilterDelegate: Send + Sync + 'static {
   fn get_row(&self, view_id: &str, rows_id: &RowId) -> Fut<Option<(usize, Arc<RowDetail>)>>;
   fn get_all_filters(&self, view_id: &str) -> Vec<Filter>;
   fn save_filters(&self, view_id: &str, filters: &[Filter]);
+}
+
+pub trait PreFillCellsWithFilter {
+  fn get_compliant_cell(&self, field: &Field) -> (Option<Cell>, bool);
 }
 
 pub struct FilterController {

@@ -2,6 +2,7 @@ use collab_database::{fields::Field, rows::Cell};
 
 use crate::entities::{TextFilterConditionPB, TextFilterPB};
 use crate::services::cell::insert_text_cell;
+use crate::services::filter::PreFillCellsWithFilter;
 
 impl TextFilterPB {
   pub fn is_visible<T: AsRef<str>>(&self, cell_data: T) -> bool {
@@ -18,8 +19,10 @@ impl TextFilterPB {
       TextFilterConditionPB::TextIsNotEmpty => !cell_data.is_empty(),
     }
   }
+}
 
-  pub fn get_compliant_cell(&self, field: &Field) -> (Option<Cell>, bool) {
+impl PreFillCellsWithFilter for TextFilterPB {
+  fn get_compliant_cell(&self, field: &Field) -> (Option<Cell>, bool) {
     let text = match self.condition {
       TextFilterConditionPB::TextIs
       | TextFilterConditionPB::TextContains

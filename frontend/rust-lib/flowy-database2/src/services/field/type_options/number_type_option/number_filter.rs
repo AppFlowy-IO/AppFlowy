@@ -7,6 +7,7 @@ use rust_decimal::Decimal;
 use crate::entities::{NumberFilterConditionPB, NumberFilterPB};
 use crate::services::cell::insert_text_cell;
 use crate::services::field::NumberCellFormat;
+use crate::services::filter::PreFillCellsWithFilter;
 
 impl NumberFilterPB {
   pub fn is_visible(&self, cell_data: &NumberCellFormat) -> Option<bool> {
@@ -31,8 +32,10 @@ impl NumberFilterPB {
 
     Some(strategy.filter(cell_data))
   }
+}
 
-  pub fn get_compliant_cell(&self, field: &Field) -> (Option<Cell>, bool) {
+impl PreFillCellsWithFilter for NumberFilterPB {
+  fn get_compliant_cell(&self, field: &Field) -> (Option<Cell>, bool) {
     let expected_decimal = || Decimal::from_str(&self.content).ok();
 
     let text = match self.condition {
@@ -64,7 +67,6 @@ impl NumberFilterPB {
     (text.map(|s| insert_text_cell(s, field)), open_after_create)
   }
 }
-
 enum NumberFilterStrategy {
   Equal(Decimal),
   NotEqual(Decimal),
