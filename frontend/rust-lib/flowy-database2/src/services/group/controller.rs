@@ -184,7 +184,7 @@ where
         let mut grouped_rows: Vec<GroupedRow> = vec![];
         let cell_data = <T as TypeOption>::CellData::from(&cell);
         for group in self.context.groups() {
-          if self.can_group(&group.filter_content, &cell_data) {
+          if self.can_group(&group.id, &cell_data) {
             grouped_rows.push(GroupedRow {
               row_detail: (*row_detail).clone(),
               group_id: group.id.clone(),
@@ -240,7 +240,7 @@ where
       let mut suitable_group_ids = vec![];
 
       for group in self.get_all_groups() {
-        if self.can_group(&group.filter_content, &cell_data) {
+        if self.can_group(&group.id, &cell_data) {
           suitable_group_ids.push(group.id.clone());
           let changeset = GroupRowsNotificationPB::insert(
             group.id.clone(),

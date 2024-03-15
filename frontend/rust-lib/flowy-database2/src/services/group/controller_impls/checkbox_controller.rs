@@ -13,7 +13,7 @@ use crate::services::group::action::GroupCustomize;
 use crate::services::group::configuration::GroupControllerContext;
 use crate::services::group::controller::BaseGroupController;
 use crate::services::group::{
-  move_group_row, GeneratedGroupConfig, GeneratedGroups, Group, GroupsBuilder, MoveGroupRowContext,
+  move_group_row, GeneratedGroups, Group, GroupsBuilder, MoveGroupRowContext,
 };
 
 #[derive(Default, Serialize, Deserialize)]
@@ -156,19 +156,12 @@ impl GroupsBuilder for CheckboxGroupBuilder {
     _context: &Self::Context,
     _type_option: &Self::GroupTypeOption,
   ) -> GeneratedGroups {
-    let check_group = GeneratedGroupConfig {
-      group: Group::new(CHECK.to_string()),
-      filter_content: CHECK.to_string(),
-    };
-
-    let uncheck_group = GeneratedGroupConfig {
-      group: Group::new(UNCHECK.to_string()),
-      filter_content: UNCHECK.to_string(),
-    };
+    let check_group = Group::new(CHECK.to_string());
+    let uncheck_group = Group::new(UNCHECK.to_string());
 
     GeneratedGroups {
       no_status_group: None,
-      group_configs: vec![check_group, uncheck_group],
+      groups: vec![check_group, uncheck_group],
     }
   }
 }

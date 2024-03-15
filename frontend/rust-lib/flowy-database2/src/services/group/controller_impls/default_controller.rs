@@ -25,12 +25,7 @@ const DEFAULT_GROUP_CONTROLLER: &str = "DefaultGroupController";
 
 impl DefaultGroupController {
   pub fn new(field: &Field) -> Self {
-    let group = GroupData::new(
-      DEFAULT_GROUP_CONTROLLER.to_owned(),
-      field.id.clone(),
-      "".to_owned(),
-      true,
-    );
+    let group = GroupData::new(DEFAULT_GROUP_CONTROLLER.to_owned(), field.id.clone(), true);
     Self {
       field_id: field.id.clone(),
       group,

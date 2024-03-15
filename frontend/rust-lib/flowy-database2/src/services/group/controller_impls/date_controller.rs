@@ -17,8 +17,7 @@ use crate::services::group::action::GroupCustomize;
 use crate::services::group::configuration::GroupControllerContext;
 use crate::services::group::controller::BaseGroupController;
 use crate::services::group::{
-  make_no_status_group, move_group_row, GeneratedGroupConfig, GeneratedGroups, Group,
-  GroupsBuilder, MoveGroupRowContext,
+  make_no_status_group, move_group_row, GeneratedGroups, Group, GroupsBuilder, MoveGroupRowContext,
 };
 
 #[derive(Default, Serialize, Deserialize)]
@@ -247,24 +246,19 @@ impl GroupsBuilder for DateGroupBuilder {
     let cells = context.get_all_cells().await;
 
     // Generate the groups
-    let mut group_configs: Vec<GeneratedGroupConfig> = cells
+    let mut groups: Vec<Group> = cells
       .into_iter()
       .flat_map(|value| value.into_date_field_cell_data())
       .filter(|cell| cell.timestamp.is_some())
-      .map(|cell| {
-        let group = make_group_from_date_cell(&cell, &context.get_setting_content());
-        GeneratedGroupConfig {
-          filter_content: group.id.clone(),
-          group,
-        }
-      })
+      .map(|cell| make_group_from_date_cell(&cell, &context.get_setting_content()))
       .collect();
-    group_configs.sort_by(|a, b| a.filter_content.cmp(&b.filter_content));
+    groups.sort_by(|a, b| a.id.cmp(&b.id));
 
     let no_status_group = Some(make_no_status_group(field));
+
     GeneratedGroups {
       no_status_group,
-      group_configs,
+      groups,
     }
   }
 }

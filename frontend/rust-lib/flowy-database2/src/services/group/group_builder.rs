@@ -32,12 +32,7 @@ pub trait GroupsBuilder: Send + Sync + 'static {
 
 pub struct GeneratedGroups {
   pub no_status_group: Option<Group>,
-  pub group_configs: Vec<GeneratedGroupConfig>,
-}
-
-pub struct GeneratedGroupConfig {
-  pub group: Group,
-  pub filter_content: String,
+  pub groups: Vec<Group>,
 }
 
 pub struct MoveGroupRowContext<'a> {

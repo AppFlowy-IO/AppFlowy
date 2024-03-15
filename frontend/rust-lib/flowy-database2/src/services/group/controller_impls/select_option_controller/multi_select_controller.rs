@@ -164,10 +164,11 @@ impl GroupsBuilder for MultiSelectGroupBuilder {
     _context: &Self::Context,
     type_option: &Self::GroupTypeOption,
   ) -> GeneratedGroups {
-    let group_configs = generate_select_option_groups(&field.id, &type_option.options);
+    let groups = generate_select_option_groups(&field.id, &type_option.options);
+
     GeneratedGroups {
       no_status_group: Some(make_no_status_group(field)),
-      group_configs,
+      groups,
     }
   }
 }

@@ -124,13 +124,10 @@ pub struct GroupData {
   pub is_default: bool,
   pub is_visible: bool,
   pub(crate) rows: Vec<RowDetail>,
-
-  /// [filter_content] is used to determine which group the cell belongs to.
-  pub filter_content: String,
 }
 
 impl GroupData {
-  pub fn new(id: String, field_id: String, filter_content: String, is_visible: bool) -> Self {
+  pub fn new(id: String, field_id: String, is_visible: bool) -> Self {
     let is_default = id == field_id;
     Self {
       id,
@@ -138,7 +135,6 @@ impl GroupData {
       is_default,
       is_visible,
       rows: vec![],
-      filter_content,
     }
   }
 

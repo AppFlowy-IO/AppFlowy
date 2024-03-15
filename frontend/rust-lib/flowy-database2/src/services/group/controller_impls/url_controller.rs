@@ -14,8 +14,7 @@ use crate::services::group::action::GroupCustomize;
 use crate::services::group::configuration::GroupControllerContext;
 use crate::services::group::controller::BaseGroupController;
 use crate::services::group::{
-  make_no_status_group, move_group_row, GeneratedGroupConfig, GeneratedGroups, Group,
-  GroupsBuilder, MoveGroupRowContext,
+  make_no_status_group, move_group_row, GeneratedGroups, Group, GroupsBuilder, MoveGroupRowContext,
 };
 
 #[derive(Default, Serialize, Deserialize)]
@@ -206,20 +205,18 @@ impl GroupsBuilder for URLGroupGenerator {
     let cells = context.get_all_cells().await;
 
     // Generate the groups
-    let group_configs = cells
+    let groups = cells
       .into_iter()
       .flat_map(|value| value.into_url_field_cell_data())
       .filter(|cell| !cell.data.is_empty())
-      .map(|cell| GeneratedGroupConfig {
-        group: Group::new(cell.data.clone()),
-        filter_content: cell.data,
-      })
+      .map(|cell| Group::new(cell.data.clone()))
       .collect();
 
     let no_status_group = Some(make_no_status_group(field));
+
     GeneratedGroups {
       no_status_group,
-      group_configs,
+      groups,
     }
   }
 }

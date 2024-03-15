@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 use std::fmt::Formatter;
 use std::marker::PhantomData;
 use std::sync::Arc;
@@ -145,12 +144,7 @@ where
   }
   #[tracing::instrument(level = "trace", skip(self), err)]
   pub(crate) fn add_new_group(&mut self, group: Group) -> FlowyResult<InsertedGroupPB> {
-    let group_data = GroupData::new(
-      group.id.clone(),
-      self.field_id.clone(),
-      group.id.clone(),
-      group.visible,
-    );
+    let group_data = GroupData::new(group.id.clone(), self.field_id.clone(), group.visible);
     self.group_by_id.insert(group.id.clone(), group_data);
     let (index, group_data) = self.get_group(&group.id).unwrap();
     let insert_group = InsertedGroupPB {
@@ -244,18 +238,8 @@ where
   ) -> FlowyResult<Option<GroupChangesPB>> {
     let GeneratedGroups {
       no_status_group,
-      group_configs,
+      groups,
     } = generated_groups;
-
-    let mut new_groups = vec![];
-    let mut filter_content_map = HashMap::new();
-    group_configs.into_iter().for_each(|generate_group| {
-      filter_content_map.insert(
-        generate_group.group.id.clone(),
-        generate_group.filter_content,
-      );
-      new_groups.push(generate_group.group);
-    });
 
     let mut old_groups = self.setting.groups.clone();
     // clear all the groups if grouping by a new field
@@ -268,7 +252,7 @@ where
       mut all_groups,
       new_groups,
       deleted_groups,
-    } = merge_groups(no_status_group, old_groups, new_groups);
+    } = merge_groups(no_status_group, old_groups, groups);
 
     let deleted_group_ids = deleted_groups
       .into_iter()
@@ -309,29 +293,14 @@ where
 
     // Update the memory cache of the groups
     all_groups.into_iter().for_each(|group| {
-      let filter_content = filter_content_map
-        .get(&group.id)
-        .cloned()
-        .unwrap_or_else(|| "".to_owned());
-      let group = GroupData::new(
-        group.id,
-        self.field_id.clone(),
-        filter_content,
-        group.visible,
-      );
+      let group = GroupData::new(group.id, self.field_id.clone(), group.visible);
       self.group_by_id.insert(group.id.clone(), group);
     });
 
     let initial_groups = new_groups
       .into_iter()
       .flat_map(|group_rev| {
-        let filter_content = filter_content_map.get(&group_rev.id)?;
-        let group = GroupData::new(
-          group_rev.id,
-          self.field_id.clone(),
-          filter_content.clone(),
-          group_rev.visible,
-        );
+        let group = GroupData::new(group_rev.id, self.field_id.clone(), group_rev.visible);
         Some(GroupPB::from(group))
       })
       .collect();
