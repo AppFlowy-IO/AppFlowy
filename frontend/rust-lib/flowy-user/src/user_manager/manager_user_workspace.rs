@@ -182,19 +182,23 @@ impl UserManager {
     // save the icon and name to sqlite db
     let uid = self.user_id()?;
     let conn = self.db_connection(uid)?;
-    let user_workspace = self
-      .get_user_workspace(uid, workspace_id)
-      .map(|mut user_workspace| {
-        if let Some(new_workspace_name) = new_workspace_name {
-          user_workspace.name = new_workspace_name.to_string();
-        }
-        if let Some(new_workspace_icon) = new_workspace_icon {
-          user_workspace.icon = new_workspace_icon.to_string();
-        }
-        user_workspace
-      });
-    if let Some(user_workspace) = user_workspace {
-      let _ = save_user_workspaces(uid, conn, &[user_workspace]);
+    let mut user_workspace = match self.get_user_workspace(uid, workspace_id) {
+      Some(user_workspace) => user_workspace,
+      None => {
+        return Err(FlowyError::record_not_found().with_context(format!(
+          "Expected to find user workspace with id: {}, but not found",
+          workspace_id
+        )));
+      },
+    };
+
+    if let Some(new_workspace_name) = new_workspace_name {
+      user_workspace.name = new_workspace_name.to_string();
+    }
+    if let Some(new_workspace_icon) = new_workspace_icon {
+      user_workspace.icon = new_workspace_icon.to_string();
+    }
+    save_user_workspaces(uid, conn, &[user_workspace])
     }
 
     Ok(())
