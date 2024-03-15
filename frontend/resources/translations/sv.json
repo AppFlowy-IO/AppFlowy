@@ -1,0 +1,43 @@
+{
+  "welcomeText": "Välkommen till @:appName",
+  "welcomeTo": "Välkommen till",
+  "githubStarText": "Stjärna på GitHub",
+  "subscribeNewsletterText": "Prenumerera på nyhetsbrev",
+  "letsGoButtonText": "Snabbstart",
+  "title": "Titel",
+  "youCanAlso": "Du kan också",
+  "and": "och",
+  "failedToOpenUrl": "Det gick inte att öppna webbadressen: {}",
+  "blockActions": {
+    "addBelowTooltip": "Klicka för att lägga till nedan",
+    "addAboveCmd": "Alt+klicka",
+    "addAboveMacCmd": "Alternativ+klicka",
+    "addAboveTooltip": "att lägga till ovan",
+    "dragTooltip": "Dra för att flytta",
+    "openMenuTooltip": "Klicka för att öppna menyn"
+  },
+  "signUp": {
+    "buttonText": "Registera",
+    "title": "Registrera dig för @:appName",
+    "getStartedText": "Kom igång",
+    "emptyPasswordError": "Lösenordet får inte vara tomt",
+    "repeatPasswordEmptyError": "Upprepa lösenordet får inte vara tomt",
+    "unmatchedPasswordError": "Upprepa lösenord är inte detsamma som lösenord",
+    "alreadyHaveAnAccount": "Har du redan ett konto?",
+    "emailHint": "Epost",
+    "passwordHint": "Lösenord",
+    "repeatPasswordHint": "Upprepa lösenord",
+    "signUpWith": "Registrera med"
+  },
+  "signIn": {
+    "loginTitle": "Logga in till @:appName",
+    "loginButtonText": "Logga in",
+    "loginStartWithAnonymous": "Börja med en anonym session",
+    "continueAnonymousUser": "Fortsätt med en anonym session",
+    "buttonText": "Registrera",
+    "signingInText": "Loggar in...",
+    "forgotPassword": "Glömt ditt lösenord?",
+    "emailHint": "Epost",
+    "passwordHint": "Lösenord"
+  }
+}
