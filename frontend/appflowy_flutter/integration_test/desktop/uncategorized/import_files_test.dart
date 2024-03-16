@@ -39,7 +39,7 @@ void main() {
             .map((e) => p.join(context.applicationDataDirectory, e))
             .toList(),
       );
-     
+
       await tester.tapTextAndMarkdownButton();
 
       tester.expectToSeePageName('test1');
@@ -59,8 +59,8 @@ void main() {
       const testFileName = 'markdown_with_table.md';
       final paths = <String>[];
       final str = await rootBundle.loadString(
-          'assets/test/workspaces/markdowns/$testFileName',
-        );
+        'assets/test/workspaces/markdowns/$testFileName',
+      );
       final path = p.join(context.applicationDataDirectory, testFileName);
       paths.add(path);
       File(path).writeAsStringSync(str);
@@ -75,13 +75,14 @@ void main() {
 
       // expect to see all content of markdown file along with table
       await tester.openPage('markdown_with_table');
-      
+
       final importedPageEditorState = tester.editor.getCurrentEditorState();
-      expect(importedPageEditorState.getNodeAtPath([0])!.type, HeadingBlockKeys.type);
-      expect(importedPageEditorState.getNodeAtPath([2])!.type, HeadingBlockKeys.type);
-      expect(importedPageEditorState.getNodeAtPath([4])!.type, TableBlockKeys.type);
-
-
+      expect(importedPageEditorState.getNodeAtPath([0])!.type,
+          HeadingBlockKeys.type,);
+      expect(importedPageEditorState.getNodeAtPath([2])!.type,
+          HeadingBlockKeys.type,);
+      expect(importedPageEditorState.getNodeAtPath([4])!.type,
+          TableBlockKeys.type,);
     });
   });
 }

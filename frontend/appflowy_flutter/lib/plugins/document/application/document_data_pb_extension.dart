@@ -61,7 +61,7 @@ extension DocumentDataPBFromTo on DocumentDataPB {
     final childrenMap = <String, ChildrenPB>{};
     blocks.forEach((key, value) {
       final parentId = value.parentId;
-      if (parentId.isNotEmpty) {
+      if (parentId.isNotEmpty && blocks[parentId] != null) {
         childrenMap[blocks[parentId]!.childrenId] ??= ChildrenPB.create();
         childrenMap[blocks[parentId]!.childrenId]!.children.add(value.id);
       }
