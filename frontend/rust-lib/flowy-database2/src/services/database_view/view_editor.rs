@@ -148,7 +148,8 @@ impl DatabaseViewEditor {
     }
 
     // fill in cells according to active filters
-    // TODO(RS)
+    let filter_controller = self.filter_controller.clone();
+    filter_controller.fill_cells(&mut cells).await;
 
     result.collab_params.cells = cells;
 
@@ -739,6 +740,12 @@ impl DatabaseViewEditor {
   }
 
   pub async fn v_did_delete_field(&self, deleted_field_id: &str) {
+    let changeset = FilterChangeset::DeleteAllWithFieldId {
+      field_id: deleted_field_id.to_string(),
+    };
+    let notification = self.filter_controller.apply_changeset(changeset).await;
+    notify_did_update_filter(notification).await;
+
     let sorts = self.delegate.get_all_sorts(&self.view_id);
 
     if let Some(sort) = sorts.iter().find(|sort| sort.field_id == deleted_field_id) {
@@ -801,11 +808,10 @@ impl DatabaseViewEditor {
         .await;
 
       if old_field.field_type != field.field_type {
-        let filter_controller = self.filter_controller.clone();
         let changeset = FilterChangeset::DeleteAllWithFieldId {
           field_id: field.id.clone(),
         };
-        let notification = filter_controller.apply_changeset(changeset).await;
+        let notification = self.filter_controller.apply_changeset(changeset).await;
         notify_did_update_filter(notification).await;
       }
     }

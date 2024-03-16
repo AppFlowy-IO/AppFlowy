@@ -9,12 +9,11 @@ pub struct ChecklistFilterPB {
   pub condition: ChecklistFilterConditionPB,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum)]
+#[derive(Debug, Clone, Default, PartialEq, Eq, ProtoBuf_Enum)]
 #[repr(u8)]
-#[derive(Default)]
 pub enum ChecklistFilterConditionPB {
-  IsComplete = 0,
   #[default]
+  IsComplete = 0,
   IsIncomplete = 1,
 }
 

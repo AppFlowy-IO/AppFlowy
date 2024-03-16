@@ -107,7 +107,7 @@ async fn grid_filter_single_select_is_empty_test() {
 async fn grid_filter_single_select_is_test() {
   let mut test = DatabaseFilterTest::new().await;
   let field = test.get_first_field(FieldType::SingleSelect);
-  let mut options = test.get_single_select_type_option(&field.id).options;
+  let mut options = test.get_single_select_type_option(&field.id);
   let expected = 2;
   let row_count = test.row_details.len();
   let scripts = vec![
@@ -133,7 +133,7 @@ async fn grid_filter_single_select_is_test2() {
   let mut test = DatabaseFilterTest::new().await;
   let field = test.get_first_field(FieldType::SingleSelect);
   let row_details = test.get_rows().await;
-  let mut options = test.get_single_select_type_option(&field.id).options;
+  let mut options = test.get_single_select_type_option(&field.id);
   let option = options.remove(0);
   let row_count = test.row_details.len();
 

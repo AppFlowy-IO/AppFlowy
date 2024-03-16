@@ -155,12 +155,13 @@ impl DatabaseEditorTest {
     type_option.options
   }
 
-  pub fn get_single_select_type_option(&self, field_id: &str) -> SingleSelectTypeOption {
+  pub fn get_single_select_type_option(&self, field_id: &str) -> Vec<SelectOption> {
     let field_type = FieldType::SingleSelect;
     let field = self.get_field(field_id, field_type);
-    field
+    let type_option = field
       .get_type_option::<SingleSelectTypeOption>(field_type)
-      .unwrap()
+      .unwrap();
+    type_option.options
   }
 
   #[allow(dead_code)]
