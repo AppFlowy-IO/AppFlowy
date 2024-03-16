@@ -6,6 +6,7 @@ use collab_database::views::RowOrder;
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
 use lib_infra::validator_fn::required_not_empty_str;
+use serde::{Deserialize, Serialize};
 use validator::Validate;
 
 use crate::entities::parser::NotEmptyStr;
@@ -49,7 +50,7 @@ impl From<RowOrder> for RowPB {
   }
 }
 
-#[derive(Debug, Default, Clone, ProtoBuf)]
+#[derive(Debug, Default, Clone, ProtoBuf, Serialize, Deserialize)]
 pub struct RowMetaPB {
   #[pb(index = 1)]
   pub id: String,

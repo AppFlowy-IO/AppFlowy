@@ -124,10 +124,11 @@ impl GroupCustomize for MultiSelectGroupController {
   fn update_type_option_when_update_group(
     &mut self,
     changeset: &GroupChangeset,
-    type_option: &mut Self::GroupTypeOption,
-  ) {
+    type_option: &Self::GroupTypeOption,
+  ) -> Option<Self::GroupTypeOption> {
     if let Some(name) = &changeset.name {
       let mut new_type_option = type_option.clone();
+
       let select_option = type_option
         .options
         .iter()
@@ -139,6 +140,10 @@ impl GroupCustomize for MultiSelectGroupController {
         ..select_option.to_owned()
       };
       new_type_option.insert_option(new_select_option);
+
+      Some(new_type_option)
+    } else {
+      None
     }
   }
 

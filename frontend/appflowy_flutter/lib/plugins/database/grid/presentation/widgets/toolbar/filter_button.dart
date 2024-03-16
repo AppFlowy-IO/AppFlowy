@@ -23,7 +23,7 @@ class _FilterButtonState extends State<FilterButton> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<GridFilterMenuBloc, GridFilterMenuState>(
+    return BlocBuilder<DatabaseFilterMenuBloc, DatabaseFilterMenuState>(
       builder: (context, state) {
         final textColor = state.filters.isEmpty
             ? AFThemeExtension.of(context).textColor
@@ -41,11 +41,11 @@ class _FilterButtonState extends State<FilterButton> {
             padding: GridSize.toolbarSettingButtonInsets,
             radius: Corners.s4Border,
             onPressed: () {
-              final bloc = context.read<GridFilterMenuBloc>();
+              final bloc = context.read<DatabaseFilterMenuBloc>();
               if (bloc.state.filters.isEmpty) {
                 _popoverController.show();
               } else {
-                bloc.add(const GridFilterMenuEvent.toggleMenu());
+                bloc.add(const DatabaseFilterMenuEvent.toggleMenu());
               }
             },
           ),
@@ -63,14 +63,14 @@ class _FilterButtonState extends State<FilterButton> {
       triggerActions: PopoverTriggerFlags.none,
       child: child,
       popupBuilder: (BuildContext context) {
-        final bloc = buildContext.read<GridFilterMenuBloc>();
+        final bloc = buildContext.read<DatabaseFilterMenuBloc>();
         return GridCreateFilterList(
           viewId: bloc.viewId,
           fieldController: bloc.fieldController,
           onClosed: () => _popoverController.close(),
           onCreateFilter: () {
             if (!bloc.state.isVisible) {
-              bloc.add(const GridFilterMenuEvent.toggleMenu());
+              bloc.add(const DatabaseFilterMenuEvent.toggleMenu());
             }
           },
         );

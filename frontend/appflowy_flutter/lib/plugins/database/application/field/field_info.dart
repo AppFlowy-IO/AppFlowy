@@ -47,7 +47,7 @@ class FieldInfo with _$FieldInfo {
   }
 
   bool get canCreateFilter {
-    if (hasFilter) {
+    if (hasFilter || isGroupField) {
       return false;
     }
 

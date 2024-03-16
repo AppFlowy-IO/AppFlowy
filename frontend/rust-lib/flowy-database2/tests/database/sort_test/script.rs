@@ -212,7 +212,7 @@ async fn assert_sort_changed(
           old_row_orders.insert(changed.new_index, old);
           assert_eq!(old_row_orders, new_row_orders);
         },
-        DatabaseViewChanged::InsertSortedRowNotification(_changed) => {},
+        DatabaseViewChanged::InsertRowNotification(_changed) => {},
         _ => {},
       }
     })

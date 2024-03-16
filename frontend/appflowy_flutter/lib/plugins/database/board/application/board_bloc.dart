@@ -385,16 +385,23 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
         groupList.insert(insertGroups.index, group);
         add(BoardEvent.didReceiveGroups(groupList));
       },
-      onUpdateGroup: (updatedGroups) {
+      onUpdateGroup: (updatedGroups) async {
         if (isClosed) {
           return;
         }
 
+        // workaround: update group most of the time gets called before fields in
+        // field controller are updated. For single and multi-select group
+        // renames, this is required before generating the new group name.
+        await Future.delayed(const Duration(milliseconds: 50));
+
         for (final group in updatedGroups) {
           // see if the column is already in the board
-
           final index = groupList.indexWhere((g) => g.groupId == group.groupId);
-          if (index == -1) continue;
+          if (index == -1) {
+            continue;
+          }
+
           final columnController =
               boardController.getGroupController(group.groupId);
           if (columnController != null) {

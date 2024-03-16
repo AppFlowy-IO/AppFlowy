@@ -79,8 +79,9 @@ pub trait GroupCustomize: Send + Sync {
   fn update_type_option_when_update_group(
     &mut self,
     _changeset: &GroupChangeset,
-    _type_option: &mut Self::GroupTypeOption,
-  ) {
+    _type_option: &Self::GroupTypeOption,
+  ) -> Option<Self::GroupTypeOption> {
+    None
   }
 
   fn will_create_row(&self, cells: &mut Cells, field: &Field, group_id: &str);
@@ -97,7 +98,7 @@ pub trait GroupCustomize: Send + Sync {
 ///
 pub trait GroupController: Send + Sync {
   /// Returns the id of field that is being used to group the rows
-  fn field_id(&self) -> &str;
+  fn get_grouping_field_id(&self) -> &str;
 
   /// Returns all of the groups currently managed by the controller
   fn get_all_groups(&self) -> Vec<&GroupData>;
@@ -189,7 +190,7 @@ pub trait GroupController: Send + Sync {
   fn apply_group_changeset(
     &mut self,
     changesets: &[GroupChangeset],
-  ) -> FlowyResult<(Vec<GroupPB>, TypeOptionData)>;
+  ) -> FlowyResult<(Vec<GroupPB>, Option<TypeOptionData>)>;
 
   /// Called before the row was created.
   fn will_create_row(&self, cells: &mut Cells, field: &Field, group_id: &str);
