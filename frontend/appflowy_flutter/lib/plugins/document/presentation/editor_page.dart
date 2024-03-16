@@ -317,19 +317,12 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
                 editorState: editorState,
                 editorScrollController: editorScrollController,
                 toolbarBuilder: (context, anchor, closeToolbar) {
-                  return AdaptiveTextSelectionToolbar.editable(
-                    clipboardStatus: ClipboardStatus.pasteable,
-                    onCopy: () {
-                      customCopyCommand.execute(editorState);
-                      closeToolbar();
-                    },
-                    onCut: () => customCutCommand.execute(editorState),
-                    onPaste: () => customPasteCommand.execute(editorState),
-                    onSelectAll: () => selectAllCommand.execute(editorState),
-                    onLiveTextInput: null,
-                    onLookUp: null,
-                    onSearchWeb: null,
-                    onShare: null,
+                  return AdaptiveTextSelectionToolbar.buttonItems(
+                    buttonItems: buildMobileFloatingToolbarItems(
+                      editorState,
+                      anchor,
+                      closeToolbar,
+                    ),
                     anchors: TextSelectionToolbarAnchors(
                       primaryAnchor: anchor,
                     ),

@@ -1309,6 +1309,8 @@
     "copy": "Copy",
     "paste": "Paste",
     "find": "Find",
+    "select": "Select",
+    "selectAll": "Select all",
     "previousMatch": "Previous match",
     "nextMatch": "Next match",
     "closeFind": "Close",
