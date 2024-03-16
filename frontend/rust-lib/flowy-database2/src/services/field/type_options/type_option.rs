@@ -22,7 +22,7 @@ use crate::services::field::{
 use crate::services::filter::{ParseFilterData, PreFillCellsWithFilter};
 use crate::services::sort::SortCondition;
 
-pub trait TypeOption {
+pub trait TypeOption: From<TypeOptionData> + Into<TypeOptionData> {
   /// `CellData` represents the decoded model for the current type option. Each of them must
   /// implement the From<&Cell> trait. If the `Cell` cannot be decoded into this type, the default
   /// value will be returned.

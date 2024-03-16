@@ -37,7 +37,7 @@ use crate::services::database_view::{
 };
 use crate::services::field_settings::FieldSettings;
 use crate::services::filter::{Filter, FilterChangeset, FilterController};
-use crate::services::group::{GroupChangesets, GroupController, MoveGroupRowContext, RowChangeset};
+use crate::services::group::{GroupChangeset, GroupController, MoveGroupRowContext, RowChangeset};
 use crate::services::setting::CalendarLayoutSetting;
 use crate::services::sort::{Sort, SortChangeset, SortController};
 
@@ -139,12 +139,13 @@ impl DatabaseViewEditor {
 
     // fill in cells according to group_id if supplied
     if let Some(group_id) = params.group_id {
-      let _ = self
-        .mut_group_controller(|group_controller, field| {
-          group_controller.will_create_row(&mut cells, &field, &group_id);
-          Ok(())
-        })
-        .await;
+      if let Some(controller) = self.group_controller.read().await.as_ref() {
+        let field = self
+          .delegate
+          .get_field(controller.field_id())
+          .ok_or_else(|| FlowyError::internal().with_context("Failed to get grouping field"))?;
+        controller.will_create_row(&mut cells, &field, &group_id);
+      }
     }
 
     // fill in cells according to active filters
@@ -460,19 +461,18 @@ impl DatabaseViewEditor {
     Ok(changes)
   }
 
-  pub async fn v_update_group(&self, changeset: GroupChangesets) -> FlowyResult<()> {
+  pub async fn v_update_group(&self, changeset: Vec<GroupChangeset>) -> FlowyResult<()> {
     let mut type_option_data = TypeOptionData::new();
-    let (old_field, updated_groups) = if let Some(controller) =
-      self.group_controller.write().await.as_mut()
-    {
-      let old_field = self.delegate.get_field(controller.field_id());
-      let (updated_groups, new_type_option) = controller.apply_group_changeset(&changeset).await?;
-      type_option_data.extend(new_type_option);
+    let (old_field, updated_groups) =
+      if let Some(controller) = self.group_controller.write().await.as_mut() {
+        let old_field = self.delegate.get_field(controller.field_id());
+        let (updated_groups, new_type_option) = controller.apply_group_changeset(&changeset)?;
+        type_option_data.extend(new_type_option);
 
-      (old_field, updated_groups)
-    } else {
-      (None, vec![])
-    };
+        (old_field, updated_groups)
+      } else {
+        (None, vec![])
+      };
 
     if let Some(old_field) = old_field {
       if !type_option_data.is_empty() {
@@ -798,13 +798,6 @@ impl DatabaseViewEditor {
         .read()
         .await
         .did_update_field_type_option(&field)
-        .await;
-
-      self
-        .mut_group_controller(|group_controller, _| {
-          group_controller.did_update_field_type_option(&field);
-          Ok(())
-        })
         .await;
 
       if old_field.field_type != field.field_type {
