@@ -21,8 +21,10 @@ import get from 'lodash-es/get';
 import { EditorData, EditorNodeType } from '$app/application/document/document.types';
 import { Log } from '$app/utils/log';
 import { Op } from 'quill-delta';
-import { Element } from 'slate';
-import { getInlinesWithDelta } from '$app/components/editor/provider/utils/convert';
+import { Element, Text } from 'slate';
+import { generateId, getInlinesWithDelta } from '$app/components/editor/provider/utils/convert';
+import { CustomEditor } from '$app/components/editor/command';
+import { LIST_TYPES } from '$app/components/editor/command/tab';
 
 export function blockPB2Node(block: BlockPB) {
   let data = {};
@@ -237,24 +239,38 @@ function flattenBlockJson(block: BlockJSON) {
       type: block.type,
       data: data,
       children: [],
+      blockId: generateId(),
     };
+    const isEmbed = CustomEditor.isEmbedNode(slateNode);
 
-    const textNode: Element | null = delta
+    const textNode: {
+      type: EditorNodeType.Text;
+      children: (Text | Element)[];
+      textId: string;
+    } | null = !isEmbed
       ? {
-          type: 'text',
-          children: [],
+          type: EditorNodeType.Text,
+          children: [{ text: '' }],
+          textId: generateId(),
         }
       : null;
 
-    const inlinesNodes = getInlinesWithDelta(delta);
+    if (delta && textNode) {
+      textNode.children = getInlinesWithDelta(delta);
+    }
 
-    textNode?.children.push(...inlinesNodes);
+    slateNode.children = block.children.map((child) => traverse(child));
 
-    const children = block.children;
-
-    slateNode.children = children.map((child) => traverse(child));
     if (textNode) {
-      slateNode.children.unshift(textNode);
+      if (!LIST_TYPES.includes(block.type as EditorNodeType) && slateNode.type !== EditorNodeType.Page) {
+        slateNode.children.unshift(textNode);
+      } else {
+        slateNode.children.unshift({
+          type: EditorNodeType.Paragraph,
+          children: [textNode],
+          blockId: generateId(),
+        });
+      }
     }
 
     return slateNode;

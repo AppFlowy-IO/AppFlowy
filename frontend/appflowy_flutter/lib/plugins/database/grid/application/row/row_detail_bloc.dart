@@ -1,8 +1,8 @@
 import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
-import 'package:appflowy/plugins/database/application/field/field_service.dart';
-import 'package:appflowy/plugins/database/application/field_settings/field_settings_service.dart';
+import 'package:appflowy/plugins/database/domain/field_service.dart';
+import 'package:appflowy/plugins/database/domain/field_settings_service.dart';
 import 'package:appflowy/plugins/database/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database/widgets/setting/field_visibility_extension.dart';
 import 'package:appflowy_backend/log.dart';

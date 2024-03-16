@@ -81,6 +81,7 @@ class _MobileRowDetailPageState extends State<MobileRowDetailPage> {
       child: Scaffold(
         appBar: FlowyAppBar(
           leadingType: FlowyAppBarLeadingType.close,
+          showDivider: false,
           actions: [
             AppBarMoreButton(
               onTap: (_) => _showCardActions(context),
@@ -135,52 +136,43 @@ class _MobileRowDetailPageState extends State<MobileRowDetailPage> {
       builder: (_) => Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: MobileQuickActionButton(
-              onTap: () {
-                final rowId = _bloc.state.currentRowId;
-                if (rowId == null) {
-                  return;
-                }
-                RowBackendService.duplicateRow(viewId, rowId);
-                context
-                  ..pop()
-                  ..pop();
-                Fluttertoast.showToast(
-                  msg: LocaleKeys.board_cardDuplicated.tr(),
-                  gravity: ToastGravity.BOTTOM,
-                );
-              },
-              icon: FlowySvgs.copy_s,
-              text: LocaleKeys.button_duplicate.tr(),
-            ),
+          MobileQuickActionButton(
+            onTap: () =>
+                _performAction(viewId, _bloc.state.currentRowId, false),
+            icon: FlowySvgs.copy_s,
+            text: LocaleKeys.button_duplicate.tr(),
           ),
-          const Divider(height: 9),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: MobileQuickActionButton(
-              onTap: () {
-                final rowId = _bloc.state.currentRowId;
-                if (rowId == null) {
-                  return;
-                }
-                RowBackendService.deleteRow(viewId, rowId);
-                context
-                  ..pop()
-                  ..pop();
-                Fluttertoast.showToast(
-                  msg: LocaleKeys.board_cardDeleted.tr(),
-                  gravity: ToastGravity.BOTTOM,
-                );
-              },
-              icon: FlowySvgs.m_delete_m,
-              text: LocaleKeys.button_delete.tr(),
-              color: Theme.of(context).colorScheme.error,
-            ),
+          const Divider(height: 8.5, thickness: 0.5),
+          MobileQuickActionButton(
+            onTap: () => _performAction(viewId, _bloc.state.currentRowId, true),
+            text: LocaleKeys.button_delete.tr(),
+            textColor: Theme.of(context).colorScheme.error,
+            icon: FlowySvgs.m_delete_m,
+            iconColor: Theme.of(context).colorScheme.error,
           ),
+          const Divider(height: 8.5, thickness: 0.5),
         ],
       ),
+    );
+  }
+
+  void _performAction(String viewId, String? rowId, bool deleteRow) {
+    if (rowId == null) {
+      return;
+    }
+
+    deleteRow
+        ? RowBackendService.deleteRow(viewId, rowId)
+        : RowBackendService.duplicateRow(viewId, rowId);
+
+    context
+      ..pop()
+      ..pop();
+    Fluttertoast.showToast(
+      msg: deleteRow
+          ? LocaleKeys.board_cardDeleted.tr()
+          : LocaleKeys.board_cardDuplicated.tr(),
+      gravity: ToastGravity.BOTTOM,
     );
   }
 }

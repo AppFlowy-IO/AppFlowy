@@ -7,63 +7,90 @@ export function generateId() {
   return nanoid(10);
 }
 
-export function transformToInlineElement(op: Op): Element | null {
+export function transformToInlineElement(op: Op): Element[] {
   const attributes = op.attributes;
 
-  if (!attributes) return null;
-  const formula = attributes.formula as string;
+  if (!attributes) return [];
+  const { formula, mention, ...attrs } = attributes;
 
   if (formula) {
-    return {
-      type: EditorInlineNodeType.Formula,
-      data: formula,
-      children: [
-        {
-          text: op.insert as string,
-          ...attributes,
-        },
-      ],
-    };
+    const texts = (op.insert as string).split('');
+
+    return texts.map((text) => {
+      return {
+        type: EditorInlineNodeType.Formula,
+        data: formula,
+        children: [
+          {
+            text,
+            ...attrs,
+          },
+        ],
+      };
+    });
   }
 
-  const matchMention = attributes.mention as Mention;
+  if (mention) {
+    const texts = (op.insert as string).split('');
 
-  if (matchMention) {
-    return {
-      type: EditorInlineNodeType.Mention,
-      children: [
-        {
-          text: op.insert as string,
+    return texts.map((text) => {
+      return {
+        type: EditorInlineNodeType.Mention,
+        children: [
+          {
+            text,
+            ...attrs,
+          },
+        ],
+        data: {
+          ...(mention as Mention),
         },
-      ],
-      data: {
-        ...matchMention,
-      },
-    };
+      };
+    });
   }
 
-  return null;
+  return [];
 }
 
 export function getInlinesWithDelta(delta?: Op[]): (Text | Element)[] {
-  return delta && delta.length > 0
-    ? delta.map((op) => {
-        const matchInline = transformToInlineElement(op);
+  const newDelta: (Text | Element)[] = [];
 
-        if (matchInline) {
-          return matchInline;
-        }
+  if (!delta || !delta.length)
+    return [
+      {
+        text: '',
+      },
+    ];
 
-        return {
-          text: op.insert as string,
-          ...op.attributes,
-        };
-      })
-    : [
-        {
-          text: '',
-        },
-      ];
+  delta.forEach((op) => {
+    const matchInlines = transformToInlineElement(op);
+
+    if (matchInlines.length > 0) {
+      newDelta.push(...matchInlines);
+      return;
+    }
+
+    if (op.attributes) {
+      if ('font_color' in op.attributes && op.attributes['font_color'] === '') {
+        delete op.attributes['font_color'];
+      }
+
+      if ('bg_color' in op.attributes && op.attributes['bg_color'] === '') {
+        delete op.attributes['bg_color'];
+      }
+
+      if ('code' in op.attributes && !op.attributes['code']) {
+        delete op.attributes['code'];
+      }
+    }
+
+    newDelta.push({
+      text: op.insert as string,
+      ...op.attributes,
+    });
+  });
+
+  return newDelta;
 }
 
 export function convertToSlateValue(data: EditorData, includeRoot: boolean): Element[] {

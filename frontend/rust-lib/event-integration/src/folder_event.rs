@@ -134,6 +134,15 @@ impl EventIntegrationTest {
       .await
       .parse::<ViewPB>()
   }
+
+  pub async fn import_data(&self, data: ImportPB) -> ViewPB {
+    EventBuilder::new(self.clone())
+      .event(FolderEvent::ImportData)
+      .payload(data)
+      .async_send()
+      .await
+      .parse::<ViewPB>()
+  }
 }
 
 pub struct ViewTest {
@@ -192,7 +201,7 @@ async fn create_workspace(sdk: &EventIntegrationTest, name: &str, desc: &str) ->
   };
 
   EventBuilder::new(sdk.clone())
-    .event(CreateWorkspace)
+    .event(CreateFolderWorkspace)
     .payload(request)
     .async_send()
     .await

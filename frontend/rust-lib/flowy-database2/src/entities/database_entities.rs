@@ -1,10 +1,12 @@
 use collab::core::collab_state::SyncState;
 use collab_database::rows::RowId;
-use collab_database::user::DatabaseViewTracker;
 use collab_database::views::DatabaseLayout;
 
 use flowy_derive::ProtoBuf;
 use flowy_error::{ErrorCode, FlowyError};
+
+use lib_infra::validator_fn::required_not_empty_str;
+use validator::Validate;
 
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::{DatabaseLayoutPB, FieldIdPB, RowMetaPB};
@@ -67,8 +69,15 @@ impl AsRef<str> for DatabaseIdPB {
 }
 
 #[derive(Clone, ProtoBuf, Default, Debug)]
+pub struct RepeatedDatabaseIdPB {
+  #[pb(index = 1)]
+  pub value: Vec<DatabaseIdPB>,
+}
+
+#[derive(Clone, ProtoBuf, Default, Debug, Validate)]
 pub struct DatabaseViewIdPB {
   #[pb(index = 1)]
+  #[validate(custom = "required_not_empty_str")]
   pub value: String,
 }
 
@@ -193,23 +202,18 @@ impl TryInto<MoveGroupRowParams> for MoveGroupRowPayloadPB {
 }
 
 #[derive(Debug, Default, ProtoBuf)]
-pub struct DatabaseDescriptionPB {
+pub struct DatabaseMetaPB {
   #[pb(index = 1)]
   pub database_id: String,
-}
 
-impl From<DatabaseViewTracker> for DatabaseDescriptionPB {
-  fn from(data: DatabaseViewTracker) -> Self {
-    Self {
-      database_id: data.database_id,
-    }
-  }
+  #[pb(index = 2)]
+  pub inline_view_id: String,
 }
 
 #[derive(Debug, Default, ProtoBuf)]
 pub struct RepeatedDatabaseDescriptionPB {
   #[pb(index = 1)]
-  pub items: Vec<DatabaseDescriptionPB>,
+  pub items: Vec<DatabaseMetaPB>,
 }
 
 #[derive(Debug, Clone, Default, ProtoBuf)]

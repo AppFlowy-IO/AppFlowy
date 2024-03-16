@@ -1,24 +1,24 @@
 import { useAppSelector } from '$app/stores/store';
-import { useEffect, useState } from 'react';
-import { Page } from '$app_reducers/pages/slice';
 import { ViewLayoutPB } from '@/services/backend';
 
 export function useLoadDatabaseList({ searchText, layout }: { searchText: string; layout: ViewLayoutPB }) {
-  const [list, setList] = useState<Page[]>([]);
-  const pages = useAppSelector((state) => state.pages.pageMap);
+  const list = useAppSelector((state) => {
+    const workspaces = state.workspace.workspaces.map((item) => item.id) ?? [];
 
-  useEffect(() => {
-    const list = Object.values(pages)
-      .map((page) => {
-        return page;
-      })
-      .filter((page) => {
-        if (page.layout !== layout) return false;
-        return page.name.toLowerCase().includes(searchText.toLowerCase());
-      });
+    return Object.values(state.pages.pageMap).filter((page) => {
+      if (page.layout !== layout) return false;
+      const parentId = page.parentId;
 
-    setList(list);
-  }, [layout, pages, searchText]);
+      if (!parentId) return false;
+
+      const parent = state.pages.pageMap[parentId];
+      const parentLayout = parent?.layout;
+
+      if (!workspaces.includes(parentId) && parentLayout !== ViewLayoutPB.Document) return false;
+
+      return page.name.toLowerCase().includes(searchText.toLowerCase());
+    });
+  });
 
   return {
     list,

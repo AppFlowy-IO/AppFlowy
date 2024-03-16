@@ -29,6 +29,7 @@ collab = { version = "0.1.0" }
 collab-plugins = { version = "0.1.0"}
 collab-document = { version = "0.1.0" }
 collab-entity = { version = "0.1.0" }
+collab-folder = { version = "0.1.0" }
 hex = "0.4.3"
 postgrest = "1.0"
 lib-infra = { workspace = true }
@@ -47,6 +48,7 @@ tokio-stream = { workspace = true, features = ["sync"] }
 client-api = { version = "0.1.0", features = ["collab-sync", "test_util"] }
 lib-dispatch = { workspace = true }
 yrs = "0.17.1"
+rand = "0.8.5"
 
 [dev-dependencies]
 uuid.workspace = true

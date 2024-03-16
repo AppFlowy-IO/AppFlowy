@@ -64,7 +64,6 @@ class MobileAppearance extends BaseAppearance {
             brightness: brightness,
             primary: _primaryColor,
             onPrimary: Colors.black,
-            // TODO(yijing): add color later
             secondary: const Color(0xff2d2d2d), //temp
             onSecondary: Colors.white,
             tertiary: const Color(0xff858585), // temp
@@ -75,10 +74,9 @@ class MobileAppearance extends BaseAppearance {
             outline: _hintColorInDarkMode,
             outlineVariant: Colors.black,
             //Snack bar
-            surface: const Color(0xff2F3030),
+            surface: const Color(0xFF171A1F),
             onSurface: const Color(0xffC5C6C7), // text/body color
           );
-
     final hintColor = brightness == Brightness.light
         ? const Color(0x991F2329)
         : _hintColorInDarkMode;

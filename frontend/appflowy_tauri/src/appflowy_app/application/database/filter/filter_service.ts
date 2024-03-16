@@ -21,22 +21,20 @@ export async function insertFilter({
   fieldId,
   fieldType,
   data,
-  filterId,
 }: {
   viewId: string;
   fieldId: string;
   fieldType: FieldType;
   data?: UndeterminedFilter['data'];
-  filterId?: string;
 }): Promise<void> {
   const payload = DatabaseSettingChangesetPB.fromObject({
     view_id: viewId,
-    update_filter: {
-      view_id: viewId,
-      field_id: fieldId,
-      field_type: fieldType,
-      filter_id: filterId,
-      data: data ? filterDataToPB(data, fieldType)?.serialize() : undefined,
+    insert_filter: {
+      data: {
+        field_id: fieldId,
+        field_type: fieldType,
+        data: data ? filterDataToPB(data, fieldType)?.serialize() : undefined,
+      },
     },
   });
 
@@ -52,12 +50,13 @@ export async function insertFilter({
 export async function updateFilter(viewId: string, filter: UndeterminedFilter): Promise<void> {
   const payload = DatabaseSettingChangesetPB.fromObject({
     view_id: viewId,
-    update_filter: {
-      view_id: viewId,
+    update_filter_data: {
       filter_id: filter.id,
-      field_id: filter.fieldId,
-      field_type: filter.fieldType,
-      data: filterDataToPB(filter.data, filter.fieldType)?.serialize(),
+      data: {
+        field_id: filter.fieldId,
+        field_type: filter.fieldType,
+        data: filterDataToPB(filter.data, filter.fieldType)?.serialize(),
+      },
     },
   });
 
@@ -74,10 +73,8 @@ export async function deleteFilter(viewId: string, filter: Omit<Filter, 'data'>)
   const payload = DatabaseSettingChangesetPB.fromObject({
     view_id: viewId,
     delete_filter: {
-      view_id: viewId,
       filter_id: filter.id,
       field_id: filter.fieldId,
-      field_type: filter.fieldType,
     },
   });
 

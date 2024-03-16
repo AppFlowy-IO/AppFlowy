@@ -71,7 +71,7 @@ pub struct GroupContext<C> {
   configuration_phantom: PhantomData<C>,
 
   /// The grouping field
-  field: Arc<Field>,
+  field: Field,
 
   /// Cache all the groups. Cache the group by its id.
   /// We use the id of the [Field] as the [No Status] group id.
@@ -94,7 +94,7 @@ where
   #[tracing::instrument(level = "trace", skip_all, err)]
   pub async fn new(
     view_id: String,
-    field: Arc<Field>,
+    field: Field,
     reader: Arc<dyn GroupSettingReader>,
     writer: Arc<dyn GroupSettingWriter>,
   ) -> FlowyResult<Self> {

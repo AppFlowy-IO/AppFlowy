@@ -131,7 +131,7 @@ where
     })
   }
 
-  fn get_collab_doc_state_f(
+  fn get_folder_doc_state(
     &self,
     _workspace_id: &str,
     _uid: i64,
@@ -154,7 +154,7 @@ where
     FutureResult::new(async { rx.await? })
   }
 
-  fn batch_create_collab_object_f(
+  fn batch_create_folder_collab_objects(
     &self,
     _workspace_id: &str,
     _objects: Vec<FolderCollabParams>,

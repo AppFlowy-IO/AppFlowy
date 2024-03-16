@@ -228,10 +228,7 @@
     "removeFromFavorites": "Hapus dari favorit",
     "addToFavorites": "Tambahkan ke Favorit",
     "rename": "Ganti nama",
-    "helpCenter": "Pusat Bantuan",
-    "Done": "Selesai",
-    "Cancel": "Batal",
-    "OK": "Ya"
+    "helpCenter": "Pusat Bantuan"
   },
   "label": {
     "welcome": "Selamat datang!",
@@ -455,13 +452,9 @@
       "isComplete": "selesai",
       "isIncomplted": "tidak lengkap"
     },
-    "singleSelectOptionFilter": {
+    "selectOptionFilter": {
       "is": "Adalah",
       "isNot": "Tidak",
-      "isEmpty": "Kosong",
-      "isNotEmpty": "Tidak kosong"
-    },
-    "multiSelectOptionFilter": {
       "contains": "Mengandung",
       "doesNotContain": "Tidak mengandung",
       "isEmpty": "Kosong",

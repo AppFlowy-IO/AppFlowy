@@ -1,8 +1,7 @@
-use collab_database::database::gen_row_id;
 use collab_database::fields::Field;
-use collab_database::rows::{CreateRowParams, RowId};
+use collab_database::rows::RowId;
 
-use flowy_database2::entities::{FieldType, GroupPB, RowMetaPB};
+use flowy_database2::entities::{CreateRowPayloadPB, FieldType, GroupPB, RowMetaPB};
 use flowy_database2::services::cell::{
   delete_select_option_cell, insert_date_cell, insert_select_option_cell, insert_url_cell,
 };
@@ -10,7 +9,6 @@ use flowy_database2::services::field::{
   edit_single_select_type_option, SelectOption, SelectTypeOptionSharedAction,
   SingleSelectTypeOption,
 };
-use lib_infra::util::timestamp;
 
 use crate::database::database_editor::DatabaseEditorTest;
 
@@ -138,16 +136,13 @@ impl DatabaseGroupTest {
       },
       GroupScript::CreateRow { group_index } => {
         let group = self.group_at_index(group_index).await;
-        let params = CreateRowParams {
-          id: gen_row_id(),
-          timestamp: timestamp(),
-          ..Default::default()
+        let params = CreateRowPayloadPB {
+          view_id: self.view_id.clone(),
+          row_position: Default::default(),
+          group_id: Some(group.group_id),
+          data: Default::default(),
         };
-        let _ = self
-          .editor
-          .create_row(&self.view_id, Some(group.group_id.clone()), params)
-          .await
-          .unwrap();
+        let _ = self.editor.create_row(params).await.unwrap();
       },
       GroupScript::DeleteRow {
         group_index,
@@ -214,7 +209,7 @@ impl DatabaseGroupTest {
         let cell = match field_type {
           FieldType::URL => insert_url_cell(cell_data, &field),
           FieldType::DateTime => {
-            insert_date_cell(cell_data.parse::<i64>().unwrap(), Some(true), &field)
+            insert_date_cell(cell_data.parse::<i64>().unwrap(), None, Some(true), &field)
           },
           _ => {
             panic!("Unsupported group field type");
@@ -239,7 +234,6 @@ impl DatabaseGroupTest {
           .move_group(&self.view_id, &from_group.group_id, &to_group.group_id)
           .await
           .unwrap();
-        //
       },
       GroupScript::AssertGroup {
         group_index,

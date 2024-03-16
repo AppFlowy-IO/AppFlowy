@@ -1,9 +1,11 @@
+use client_api::ws::ConnectState;
+use client_api::ws::WSConnectStateReceiver;
+use client_api::ws::WebSocketChannel;
 use flowy_storage::ObjectStorageService;
 use std::sync::Arc;
 
 use anyhow::Error;
-use client_api::collab_sync::collab_msg::CollabMessage;
-use client_api::ws::{ConnectState, WSConnectStateReceiver, WebSocketChannel};
+use client_api::collab_sync::collab_msg::ServerCollabMessage;
 use parking_lot::RwLock;
 use tokio_stream::wrappers::WatchStream;
 #[cfg(feature = "enable_supabase")]
@@ -114,7 +116,7 @@ pub trait AppFlowyServer: Send + Sync + 'static {
   }
 
   fn get_ws_state(&self) -> ConnectState {
-    ConnectState::Closed
+    ConnectState::Lost
   }
 
   #[allow(clippy::type_complexity)]
@@ -123,7 +125,7 @@ pub trait AppFlowyServer: Send + Sync + 'static {
     _object_id: &str,
   ) -> FutureResult<
     Option<(
-      Arc<WebSocketChannel<CollabMessage>>,
+      Arc<WebSocketChannel<ServerCollabMessage>>,
       WSConnectStateReceiver,
       bool,
     )>,

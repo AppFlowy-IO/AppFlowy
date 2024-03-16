@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:appflowy/plugins/database/application/filter/filter_listener.dart';
-import 'package:appflowy/plugins/database/application/filter/filter_service.dart';
+import 'package:appflowy/plugins/database/domain/filter_listener.dart';
+import 'package:appflowy/plugins/database/domain/filter_service.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/filter_info.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/text_filter.pbserver.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/util.pb.dart';
@@ -53,7 +53,6 @@ class TextFilterEditorBloc
             _filterBackendSvc.deleteFilter(
               fieldId: filterInfo.fieldInfo.id,
               filterId: filterInfo.filter.id,
-              fieldType: filterInfo.fieldInfo.fieldType,
             );
           },
           didReceiveFilter: (FilterPB filter) {
@@ -73,11 +72,10 @@ class TextFilterEditorBloc
 
   void _startListening() {
     _listener.start(
-      onDeleted: () {
-        if (!isClosed) add(const TextFilterEditorEvent.delete());
-      },
       onUpdated: (filter) {
-        if (!isClosed) add(TextFilterEditorEvent.didReceiveFilter(filter));
+        if (!isClosed) {
+          add(TextFilterEditorEvent.didReceiveFilter(filter));
+        }
       },
     );
   }

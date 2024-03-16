@@ -176,9 +176,8 @@
     "delete": "Radera",
     "duplicate": "Duplicera",
     "putback": "Ställ tillbaka",
-    "OK": "OK",
-    "Done": "Gjort",
-    "Cancel": "Avbryt"
+    "ok": "OK",
+    "cancel": "Avbryt"
   },
   "label": {
     "welcome": "Välkommen!",
@@ -323,13 +322,9 @@
       "isComplete": "är komplett",
       "isIncomplted": "är ofullständig"
     },
-    "singleSelectOptionFilter": {
+    "selectOptionFilter": {
       "is": "Är",
       "isNot": "Är inte",
-      "isEmpty": "Är tom",
-      "isNotEmpty": "Är inte tom"
-    },
-    "multiSelectOptionFilter": {
       "contains": "Innehåller",
       "doesNotContain": "Innehåller inte",
       "isEmpty": "Är tom",

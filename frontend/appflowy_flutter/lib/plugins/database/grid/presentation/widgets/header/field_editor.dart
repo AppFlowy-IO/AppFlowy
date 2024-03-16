@@ -1,11 +1,13 @@
 import 'dart:typed_data';
 
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_editor_bloc.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
-import 'package:appflowy/plugins/database/application/field/field_service.dart';
+import 'package:appflowy/plugins/database/domain/field_service.dart';
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/common/type_option_separator.dart';
 import 'package:appflowy/util/field_type_extension.dart';
@@ -14,7 +16,6 @@ import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:styled_widget/styled_widget.dart';
 
@@ -369,9 +370,6 @@ class _FieldDetailsEditorState extends State<FieldDetailsEditor> {
   Widget _addDeleteFieldButton() {
     return BlocBuilder<FieldEditorBloc, FieldEditorState>(
       builder: (context, state) {
-        if (state.field.isPrimary) {
-          return const SizedBox.shrink();
-        }
         return Padding(
           padding: const EdgeInsets.fromLTRB(8.0, 4.0, 8.0, 0),
           child: FieldActionCell(
@@ -388,9 +386,6 @@ class _FieldDetailsEditorState extends State<FieldDetailsEditor> {
   Widget _addDuplicateFieldButton() {
     return BlocBuilder<FieldEditorBloc, FieldEditorState>(
       builder: (context, state) {
-        if (state.field.isPrimary) {
-          return const SizedBox.shrink();
-        }
         return Padding(
           padding: const EdgeInsets.fromLTRB(8.0, 4.0, 8.0, 0),
           child: FieldActionCell(
@@ -532,41 +527,52 @@ class _SwitchFieldButtonState extends State<SwitchFieldButton> {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: GridSize.popoverItemHeight,
-      child: AppFlowyPopover(
-        constraints: BoxConstraints.loose(const Size(460, 540)),
-        triggerActions: PopoverTriggerFlags.hover,
-        mutex: widget.popoverMutex,
-        controller: _popoverController,
-        offset: const Offset(8, 0),
-        margin: const EdgeInsets.all(8),
-        popupBuilder: (BuildContext popoverContext) {
-          return FieldTypeList(
-            onSelectField: (newFieldType) {
-              context
-                  .read<FieldEditorBloc>()
-                  .add(FieldEditorEvent.switchFieldType(newFieldType));
+    return BlocBuilder<FieldEditorBloc, FieldEditorState>(
+      builder: (context, state) {
+        final bool isPrimary = state.field.isPrimary;
+        return SizedBox(
+          height: GridSize.popoverItemHeight,
+          child: AppFlowyPopover(
+            constraints: BoxConstraints.loose(const Size(460, 540)),
+            triggerActions: isPrimary ? 0 : PopoverTriggerFlags.hover,
+            mutex: widget.popoverMutex,
+            controller: _popoverController,
+            offset: const Offset(8, 0),
+            margin: const EdgeInsets.all(8),
+            popupBuilder: (BuildContext popoverContext) {
+              return FieldTypeList(
+                onSelectField: (newFieldType) {
+                  context
+                      .read<FieldEditorBloc>()
+                      .add(FieldEditorEvent.switchFieldType(newFieldType));
+                },
+              );
             },
-          );
-        },
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-          child: _buildMoreButton(context),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMoreButton(BuildContext context) {
-    final bloc = context.read<FieldEditorBloc>();
-    return FlowyButton(
-      onTap: () => _popoverController.show(),
-      text: FlowyText.medium(
-        bloc.state.field.fieldType.i18n,
-      ),
-      leftIcon: FlowySvg(bloc.state.field.fieldType.svgData),
-      rightIcon: const FlowySvg(FlowySvgs.more_s),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: FlowyButton(
+                onTap: () {
+                  if (!isPrimary) {
+                    _popoverController.show();
+                  }
+                },
+                text: FlowyText.medium(
+                  state.field.fieldType.i18n,
+                  color: isPrimary ? Theme.of(context).disabledColor : null,
+                ),
+                leftIcon: FlowySvg(
+                  state.field.fieldType.svgData,
+                  color: isPrimary ? Theme.of(context).disabledColor : null,
+                ),
+                rightIcon: FlowySvg(
+                  FlowySvgs.more_s,
+                  color: isPrimary ? Theme.of(context).disabledColor : null,
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

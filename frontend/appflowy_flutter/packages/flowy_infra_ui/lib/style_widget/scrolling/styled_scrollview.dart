@@ -4,19 +4,8 @@ import 'styled_list.dart';
 import 'styled_scroll_bar.dart';
 
 class StyledSingleChildScrollView extends StatefulWidget {
-  final double? contentSize;
-  final Axis axis;
-  final Color? trackColor;
-  final Color? handleColor;
-  final ScrollController? controller;
-  final EdgeInsets? scrollbarPadding;
-  final double barSize;
-  final bool autoHideScrollbar;
-
-  final Widget? child;
-
   const StyledSingleChildScrollView({
-    Key? key,
+    super.key,
     required this.child,
     this.contentSize,
     this.axis = Axis.vertical,
@@ -26,7 +15,19 @@ class StyledSingleChildScrollView extends StatefulWidget {
     this.scrollbarPadding,
     this.barSize = 8,
     this.autoHideScrollbar = true,
-  }) : super(key: key);
+    this.includeInsets = true,
+  });
+
+  final Widget? child;
+  final double? contentSize;
+  final Axis axis;
+  final Color? trackColor;
+  final Color? handleColor;
+  final ScrollController? controller;
+  final EdgeInsets? scrollbarPadding;
+  final double barSize;
+  final bool autoHideScrollbar;
+  final bool includeInsets;
 
   @override
   State<StyledSingleChildScrollView> createState() =>
@@ -35,26 +36,15 @@ class StyledSingleChildScrollView extends StatefulWidget {
 
 class StyledSingleChildScrollViewState
     extends State<StyledSingleChildScrollView> {
-  late ScrollController scrollController;
-
-  @override
-  void initState() {
-    scrollController = widget.controller ?? ScrollController();
-    super.initState();
-  }
+  late final ScrollController scrollController =
+      widget.controller ?? ScrollController();
 
   @override
   void dispose() {
-    // scrollController.dispose();
-    super.dispose();
-  }
-
-  @override
-  void didUpdateWidget(StyledSingleChildScrollView oldWidget) {
-    if (oldWidget.child != widget.child) {
-      setState(() {});
+    if (widget.controller == null) {
+      scrollController.dispose();
     }
-    super.didUpdateWidget(oldWidget);
+    super.dispose();
   }
 
   @override
@@ -68,6 +58,7 @@ class StyledSingleChildScrollViewState
       barSize: widget.barSize,
       trackColor: widget.trackColor,
       handleColor: widget.handleColor,
+      includeInsets: widget.includeInsets,
       child: SingleChildScrollView(
         scrollDirection: widget.axis,
         physics: StyledScrollPhysics(),
@@ -79,6 +70,16 @@ class StyledSingleChildScrollViewState
 }
 
 class StyledCustomScrollView extends StatefulWidget {
+  const StyledCustomScrollView({
+    super.key,
+    this.axis = Axis.vertical,
+    this.trackColor,
+    this.handleColor,
+    this.verticalController,
+    this.slivers = const <Widget>[],
+    this.barSize = 8,
+  });
+
   final Axis axis;
   final Color? trackColor;
   final Color? handleColor;
@@ -86,42 +87,13 @@ class StyledCustomScrollView extends StatefulWidget {
   final List<Widget> slivers;
   final double barSize;
 
-  const StyledCustomScrollView({
-    Key? key,
-    this.axis = Axis.vertical,
-    this.trackColor,
-    this.handleColor,
-    this.verticalController,
-    this.slivers = const <Widget>[],
-    this.barSize = 8,
-  }) : super(key: key);
-
   @override
   StyledCustomScrollViewState createState() => StyledCustomScrollViewState();
 }
 
 class StyledCustomScrollViewState extends State<StyledCustomScrollView> {
-  late ScrollController controller;
-
-  @override
-  void initState() {
-    controller = widget.verticalController ?? ScrollController();
-
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-  @override
-  void didUpdateWidget(StyledCustomScrollView oldWidget) {
-    if (oldWidget.slivers != widget.slivers) {
-      setState(() {});
-    }
-    super.didUpdateWidget(oldWidget);
-  }
+  late final ScrollController controller =
+      widget.verticalController ?? ScrollController();
 
   @override
   Widget build(BuildContext context) {

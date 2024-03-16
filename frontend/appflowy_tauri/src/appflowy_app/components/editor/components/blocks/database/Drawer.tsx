@@ -16,7 +16,7 @@ function Drawer({
   node,
 }: {
   open: boolean;
-  toggleDrawer: (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => void;
+  toggleDrawer: (open: boolean) => (e: React.MouseEvent | KeyboardEvent | React.FocusEvent) => void;
   node: GridNode;
 }) {
   const editor = useSlateStatic();
@@ -38,6 +38,13 @@ function Drawer({
         width: open ? '250px' : '0px',
         transition: 'width 0.3s ease-in-out',
       }}
+      onMouseDown={(e) => {
+        const isInput = (e.target as HTMLElement).closest('input');
+
+        if (isInput) return;
+        e.stopPropagation();
+        e.preventDefault();
+      }}
     >
       <div className={'flex h-full w-[250px] flex-col border-l border-line-divider'}>
         <div className={'flex h-[48px] w-full items-center justify-between p-2'}>
@@ -46,7 +53,9 @@ function Drawer({
             <CloseSvg />
           </IconButton>
         </div>
-        <div className={'flex-1'}>{open && <DatabaseList node={node} />}</div>
+        <div className={'flex-1 overflow-hidden'}>
+          {open && <DatabaseList toggleDrawer={toggleDrawer} node={node} />}
+        </div>
 
         <div
           onClick={handleCreateGrid}

@@ -1,36 +1,38 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { useAppDispatch, useAppSelector } from '$app/stores/store';
 import { workspaceActions, WorkspaceItem } from '$app_reducers/workspace/slice';
 import { Page, pagesActions, parserViewPBToPage } from '$app_reducers/pages/slice';
 import { subscribeNotifications } from '$app/application/notification';
-import { FolderNotification } from '@/services/backend';
+import { FolderNotification, ViewLayoutPB } from '@/services/backend';
 import * as workspaceService from '$app/application/folder/workspace.service';
+import { createCurrentWorkspaceChildView } from '$app/application/folder/workspace.service';
+import { useNavigate } from 'react-router-dom';
 
 export function useLoadWorkspaces() {
   const dispatch = useAppDispatch();
-  const { workspaces, currentWorkspace } = useAppSelector((state) => state.workspace);
+  const { workspaces, currentWorkspaceId } = useAppSelector((state) => state.workspace);
+
+  const currentWorkspace = useMemo(() => {
+    return workspaces.find((workspace) => workspace.id === currentWorkspaceId);
+  }, [workspaces, currentWorkspaceId]);
 
   const initializeWorkspaces = useCallback(async () => {
     const workspaces = await workspaceService.getWorkspaces();
-    const currentWorkspace = await workspaceService.getCurrentWorkspace();
+
+    const currentWorkspaceId = await workspaceService.getCurrentWorkspace();
 
     dispatch(
       workspaceActions.initWorkspaces({
         workspaces,
-        currentWorkspace,
+        currentWorkspaceId,
       })
     );
   }, [dispatch]);
 
-  useEffect(() => {
-    void (async () => {
-      await initializeWorkspaces();
-    })();
-  }, [initializeWorkspaces]);
-
   return {
     workspaces,
     currentWorkspace,
+    initializeWorkspaces,
   };
 }
 
@@ -78,6 +80,15 @@ export function useLoadWorkspace(workspace: WorkspaceItem) {
   useEffect(() => {
     const unsubscribePromise = subscribeNotifications(
       {
+        [FolderNotification.DidUpdateWorkspace]: async (changeset) => {
+          dispatch(
+            workspaceActions.updateWorkspace({
+              id: String(changeset.id),
+              name: changeset.name,
+              icon: changeset.icon_url,
+            })
+          );
+        },
         [FolderNotification.DidUpdateWorkspaceViews]: async (changeset) => {
           const res = changeset.items;
 
@@ -88,10 +99,28 @@ export function useLoadWorkspace(workspace: WorkspaceItem) {
     );
 
     return () => void unsubscribePromise.then((unsubscribe) => unsubscribe());
-  }, [id, onChildPagesChanged]);
+  }, [dispatch, id, onChildPagesChanged]);
 
   return {
     openWorkspace,
     deleteWorkspace,
+  };
+}
+
+export function useWorkspaceActions(workspaceId: string) {
+  const navigate = useNavigate();
+
+  const newPage = useCallback(async () => {
+    const { id } = await createCurrentWorkspaceChildView({
+      name: '',
+      layout: ViewLayoutPB.Document,
+      parent_view_id: workspaceId,
+    });
+
+    navigate(`/page/document/${id}`);
+  }, [navigate, workspaceId]);
+
+  return {
+    newPage,
   };
 }

@@ -17,6 +17,16 @@ class SelectOptionCellBloc
   final SelectOptionCellController cellController;
   void Function()? _onCellChangedFn;
 
+  @override
+  Future<void> close() async {
+    if (_onCellChangedFn != null) {
+      cellController.removeListener(_onCellChangedFn!);
+      _onCellChangedFn = null;
+    }
+    await cellController.dispose();
+    return super.close();
+  }
+
   void _dispatch() {
     on<SelectOptionCellEvent>(
       (event, emit) async {
@@ -34,16 +44,6 @@ class SelectOptionCellBloc
         );
       },
     );
-  }
-
-  @override
-  Future<void> close() async {
-    if (_onCellChangedFn != null) {
-      cellController.removeListener(_onCellChangedFn!);
-      _onCellChangedFn = null;
-    }
-    await cellController.dispose();
-    return super.close();
   }
 
   void _startListening() {

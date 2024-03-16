@@ -2,6 +2,7 @@ import React from 'react';
 import { useDatabaseVisibilityRows } from '$app/components/database';
 import { Field } from '$app/application/database';
 import { DEFAULT_FIELD_WIDTH, GRID_ACTIONS_WIDTH } from '$app/components/database/grid/constants';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   field: Field;
@@ -13,17 +14,21 @@ export function GridCalculate({ field, index }: Props) {
   const rowMetas = useDatabaseVisibilityRows();
   const count = rowMetas.length;
   const width = index === 0 ? GRID_ACTIONS_WIDTH : field.width ?? DEFAULT_FIELD_WIDTH;
+  const { t } = useTranslation();
 
   return (
     <div
       style={{
         width,
-        visibility: index === 1 ? 'visible' : 'hidden',
       }}
-      className={'flex justify-end py-2'}
+      className={'flex justify-end py-2 text-text-title'}
     >
-      <span className={'mr-2 text-text-caption'}>Count</span>
-      <span>{count}</span>
+      {field.isPrimary ? (
+        <>
+          <span className={'mr-2 text-text-caption'}>{t('grid.calculationTypeLabel.count')}</span>
+          <span>{count}</span>
+        </>
+      ) : null}
     </div>
   );
 }

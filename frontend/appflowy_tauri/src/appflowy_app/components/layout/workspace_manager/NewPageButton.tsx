@@ -1,35 +1,29 @@
 import React from 'react';
-import AddSvg from '$app/components/_shared/svg/AddSvg';
 import { useTranslation } from 'react-i18next';
-import { ViewLayoutPB } from '@/services/backend';
-import { useNavigate } from 'react-router-dom';
-import { createCurrentWorkspaceChildView } from '$app/application/folder/workspace.service';
+import { useWorkspaceActions } from '$app/components/layout/workspace_manager/Workspace.hooks';
+import Button from '@mui/material/Button';
+import { ReactComponent as AddSvg } from '$app/assets/add.svg';
 
 function NewPageButton({ workspaceId }: { workspaceId: string }) {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const { newPage } = useWorkspaceActions(workspaceId);
 
   return (
-    <div className={'flex h-[60px] w-full items-center border-t border-line-divider px-6 py-5'}>
-      <button
-        onClick={async () => {
-          const { id } = await createCurrentWorkspaceChildView({
-            name: '',
-            layout: ViewLayoutPB.Document,
-            parent_view_id: workspaceId,
-          });
-
-          navigate(`/page/document/${id}`);
-        }}
-        className={'flex items-center hover:text-fill-default'}
-      >
-        <div className={'mr-2 rounded-full bg-fill-default'}>
-          <div className={'h-[24px] w-[24px] text-content-on-fill'}>
-            <AddSvg />
+    <div className={'flex h-[60px] w-full items-center border-t border-line-divider px-5 py-5'}>
+      <Button
+        color={'inherit'}
+        onClick={newPage}
+        startIcon={
+          <div className={'rounded-full bg-fill-default'}>
+            <div className={'flex h-[18px] w-[18px] items-center justify-center px-0 text-lg text-content-on-fill'}>
+              <AddSvg />
+            </div>
           </div>
-        </div>
+        }
+        className={'flex w-full items-center justify-start text-xs hover:bg-transparent hover:text-fill-default'}
+      >
         {t('newPageText')}
-      </button>
+      </Button>
     </div>
   );
 }

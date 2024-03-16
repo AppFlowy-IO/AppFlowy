@@ -201,6 +201,9 @@ class _MobileToolbarState extends State<_MobileToolbar>
     if (currentSelection != widget.editorState.selection) {
       currentSelection = widget.editorState.selection;
       closeItemMenu();
+      if (currentSelection != null) {
+        _showKeyboard();
+      }
     }
   }
 
@@ -265,6 +268,11 @@ class _MobileToolbarState extends State<_MobileToolbar>
         cachedKeyboardHeight.value != 0 &&
         height == 0) {
       widget.editorState.selection = null;
+    }
+
+    // if the menu is shown and the height is not 0, we need to close the menu
+    if (showMenuNotifier.value && height != 0) {
+      closeItemMenu();
     }
 
     if (canUpdateCachedKeyboardHeight) {
@@ -475,7 +483,6 @@ class _ToolbarItemListViewState extends State<_ToolbarItemListView> {
   void dispose() {
     widget.editorState.selectionNotifier
         .removeListener(_debounceUpdatePilotPosition);
-
     super.dispose();
   }
 

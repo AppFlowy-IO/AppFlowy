@@ -1,30 +1,27 @@
 use std::cmp::Ordering;
 use std::str::FromStr;
 
-use collab::core::any_map::AnyMapExtension;
 use collab_database::fields::{Field, TypeOptionData, TypeOptionDataBuilder};
 use collab_database::rows::Cell;
 use serde::{Deserialize, Serialize};
 
 use flowy_error::FlowyResult;
 
-use crate::entities::{CheckboxFilterPB, FieldType};
+use crate::entities::{CheckboxCellDataPB, CheckboxFilterPB, FieldType};
 use crate::services::cell::{CellDataChangeset, CellDataDecoder};
 use crate::services::field::{
-  CheckboxCellData, TypeOption, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
-  TypeOptionCellDataSerde, TypeOptionTransform,
+  TypeOption, TypeOptionCellDataCompare, TypeOptionCellDataFilter, TypeOptionCellDataSerde,
+  TypeOptionTransform,
 };
 use crate::services::sort::SortCondition;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
-pub struct CheckboxTypeOption {
-  pub is_selected: bool,
-}
+pub struct CheckboxTypeOption();
 
 impl TypeOption for CheckboxTypeOption {
-  type CellData = CheckboxCellData;
+  type CellData = CheckboxCellDataPB;
   type CellChangeset = CheckboxCellChangeset;
-  type CellProtobufType = CheckboxCellData;
+  type CellProtobufType = CheckboxCellDataPB;
   type CellFilter = CheckboxFilterPB;
 }
 
@@ -47,7 +44,7 @@ impl TypeOptionTransform for CheckboxTypeOption {
     _field: &Field,
   ) -> Option<<Self as TypeOption>::CellData> {
     if transformed_field_type.is_text() {
-      Some(CheckboxCellData::from(cell))
+      Some(CheckboxCellDataPB::from(cell))
     } else {
       None
     }
@@ -55,17 +52,14 @@ impl TypeOptionTransform for CheckboxTypeOption {
 }
 
 impl From<TypeOptionData> for CheckboxTypeOption {
-  fn from(data: TypeOptionData) -> Self {
-    let is_selected = data.get_bool_value("is_selected").unwrap_or(false);
-    CheckboxTypeOption { is_selected }
+  fn from(_data: TypeOptionData) -> Self {
+    Self()
   }
 }
 
 impl From<CheckboxTypeOption> for TypeOptionData {
-  fn from(data: CheckboxTypeOption) -> Self {
-    TypeOptionDataBuilder::new()
-      .insert_bool_value("is_selected", data.is_selected)
-      .build()
+  fn from(_data: CheckboxTypeOption) -> Self {
+    TypeOptionDataBuilder::new().build()
   }
 }
 
@@ -78,7 +72,7 @@ impl TypeOptionCellDataSerde for CheckboxTypeOption {
   }
 
   fn parse_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
-    Ok(CheckboxCellData::from(cell))
+    Ok(CheckboxCellDataPB::from(cell))
   }
 }
 
@@ -102,6 +96,15 @@ impl CellDataDecoder for CheckboxTypeOption {
   fn stringify_cell(&self, cell: &Cell) -> String {
     Self::CellData::from(cell).to_string()
   }
+
+  fn numeric_cell(&self, cell: &Cell) -> Option<f64> {
+    let cell_data = self.parse_cell(cell).ok()?;
+    if cell_data.is_checked {
+      Some(1.0)
+    } else {
+      Some(0.0)
+    }
+  }
 }
 
 pub type CheckboxCellChangeset = String;
@@ -112,7 +115,7 @@ impl CellDataChangeset for CheckboxTypeOption {
     changeset: <Self as TypeOption>::CellChangeset,
     _cell: Option<Cell>,
   ) -> FlowyResult<(Cell, <Self as TypeOption>::CellData)> {
-    let checkbox_cell_data = CheckboxCellData::from_str(&changeset)?;
+    let checkbox_cell_data = CheckboxCellDataPB::from_str(&changeset)?;
     Ok((checkbox_cell_data.clone().into(), checkbox_cell_data))
   }
 }
@@ -121,12 +124,8 @@ impl TypeOptionCellDataFilter for CheckboxTypeOption {
   fn apply_filter(
     &self,
     filter: &<Self as TypeOption>::CellFilter,
-    field_type: &FieldType,
     cell_data: &<Self as TypeOption>::CellData,
   ) -> bool {
-    if !field_type.is_checkbox() {
-      return true;
-    }
     filter.is_visible(cell_data)
   }
 }
@@ -138,7 +137,7 @@ impl TypeOptionCellDataCompare for CheckboxTypeOption {
     other_cell_data: &<Self as TypeOption>::CellData,
     sort_condition: SortCondition,
   ) -> Ordering {
-    let order = cell_data.is_check().cmp(&other_cell_data.is_check());
+    let order = cell_data.is_checked.cmp(&other_cell_data.is_checked);
     sort_condition.evaluate_order(order)
   }
 
@@ -155,10 +154,10 @@ impl TypeOptionCellDataCompare for CheckboxTypeOption {
     sort_condition: SortCondition,
   ) -> Ordering {
     match (cell_data, other_cell_data) {
-      (None, Some(right_cell_data)) if right_cell_data.is_check() => {
+      (None, Some(right_cell_data)) if right_cell_data.is_checked => {
         sort_condition.evaluate_order(Ordering::Less)
       },
-      (Some(left_cell_data), None) if left_cell_data.is_check() => {
+      (Some(left_cell_data), None) if left_cell_data.is_checked => {
         sort_condition.evaluate_order(Ordering::Greater)
       },
       _ => Ordering::Equal,

@@ -354,6 +354,38 @@ where
       ))
     })
   }
+
+  fn create_workspace(&self, _workspace_name: &str) -> FutureResult<UserWorkspace, FlowyError> {
+    FutureResult::new(async {
+      Err(
+        FlowyError::local_version_not_support()
+          .with_context("supabase server doesn't support mulitple workspaces"),
+      )
+    })
+  }
+
+  fn delete_workspace(&self, _workspace_id: &str) -> FutureResult<(), FlowyError> {
+    FutureResult::new(async {
+      Err(
+        FlowyError::local_version_not_support()
+          .with_context("supabase server doesn't support mulitple workspaces"),
+      )
+    })
+  }
+
+  fn patch_workspace(
+    &self,
+    _workspace_id: &str,
+    _new_workspace_name: Option<&str>,
+    _new_workspace_icon: Option<&str>,
+  ) -> FutureResult<(), FlowyError> {
+    FutureResult::new(async {
+      Err(
+        FlowyError::local_version_not_support()
+          .with_context("supabase server doesn't support mulitple workspaces"),
+      )
+    })
+  }
 }
 
 pub struct CreateCollabAction {

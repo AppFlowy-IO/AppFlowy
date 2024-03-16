@@ -55,13 +55,13 @@ class _MobileDateCellEditScreenState extends State<MobileDateCellEditScreen> {
       minChildSize: 0.4,
       snapSizes: const [0.4, 0.7, 1.0],
       builder: (_, controller) => Material(
-        color: Theme.of(context).colorScheme.secondaryContainer,
+        color: Colors.transparent,
         child: ListView(
           controller: controller,
           children: [
             ColoredBox(
               color: Theme.of(context).colorScheme.surface,
-              child: const Center(child: DragHandler()),
+              child: const Center(child: DragHandle()),
             ),
             const MobileDateHeader(),
             _buildDatePicker(),

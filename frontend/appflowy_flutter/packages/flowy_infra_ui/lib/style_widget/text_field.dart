@@ -30,7 +30,8 @@ class FlowyTextField extends StatefulWidget {
   final TextStyle? hintStyle;
   final InputDecoration? decoration;
   final TextAlignVertical? textAlignVertical;
-  final TextInputAction? textInputAction;
+  final TextInputType? keyboardType;
+  final List<TextInputFormatter>? inputFormatters;
 
   const FlowyTextField({
     super.key,
@@ -59,7 +60,8 @@ class FlowyTextField extends StatefulWidget {
     this.hintStyle,
     this.decoration,
     this.textAlignVertical,
-    this.textInputAction,
+    this.keyboardType = TextInputType.multiline,
+    this.inputFormatters,
   });
 
   @override
@@ -79,6 +81,7 @@ class FlowyTextFieldState extends State<FlowyTextField> {
     focusNode.addListener(notifyDidEndEditing);
 
     controller = widget.controller ?? TextEditingController();
+
     if (widget.text != null) {
       controller.text = widget.text!;
     }
@@ -93,6 +96,19 @@ class FlowyTextFieldState extends State<FlowyTextField> {
         }
       });
     }
+  }
+
+  @override
+  void dispose() {
+    focusNode.removeListener(notifyDidEndEditing);
+    if (widget.focusNode == null) {
+      focusNode.dispose();
+    }
+    if (widget.controller == null) {
+      controller.dispose();
+    }
+    _debounceOnChanged?.cancel();
+    super.dispose();
   }
 
   void _debounceOnChangedText(Duration duration, String text) {
@@ -129,7 +145,6 @@ class FlowyTextFieldState extends State<FlowyTextField> {
           _onChanged(text);
         }
       },
-      textInputAction: widget.textInputAction,
       onSubmitted: (text) => _onSubmitted(text),
       onEditingComplete: widget.onEditingComplete,
       minLines: 1,
@@ -138,7 +153,8 @@ class FlowyTextFieldState extends State<FlowyTextField> {
       maxLengthEnforcement: MaxLengthEnforcement.truncateAfterCompositionEnds,
       style: widget.textStyle ?? Theme.of(context).textTheme.bodySmall,
       textAlignVertical: widget.textAlignVertical ?? TextAlignVertical.center,
-      keyboardType: TextInputType.multiline,
+      keyboardType: widget.keyboardType,
+      inputFormatters: widget.inputFormatters,
       decoration: widget.decoration ??
           InputDecoration(
             constraints: widget.hintTextConstraints ??
@@ -200,15 +216,6 @@ class FlowyTextFieldState extends State<FlowyTextField> {
     );
   }
 
-  @override
-  void dispose() {
-    focusNode.removeListener(notifyDidEndEditing);
-    if (widget.focusNode == null) {
-      focusNode.dispose();
-    }
-    super.dispose();
-  }
-
   void notifyDidEndEditing() {
     if (!focusNode.hasFocus) {
       if (controller.text.isNotEmpty && widget.submitOnLeave) {
@@ -222,8 +229,7 @@ class FlowyTextFieldState extends State<FlowyTextField> {
   String? _suffixText() {
     if (widget.maxLength != null) {
       return ' ${controller.text.length}/${widget.maxLength}';
-    } else {
-      return null;
     }
+    return null;
   }
 }

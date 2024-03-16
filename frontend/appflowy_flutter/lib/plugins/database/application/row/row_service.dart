@@ -1,7 +1,7 @@
-import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
-import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 
 import '../field/field_info.dart';
 
@@ -12,7 +12,7 @@ class RowBackendService {
 
   final String viewId;
 
-  static Future<Either<RowMetaPB, FlowyError>> createRow({
+  static Future<FlowyResult<RowMetaPB, FlowyError>> createRow({
     required String viewId,
     String? groupId,
     void Function(RowDataBuilder builder)? withCells,
@@ -28,22 +28,16 @@ class RowBackendService {
       ),
     );
 
-    Map<String, String>? cellDataByFieldId;
-
     if (withCells != null) {
       final rowBuilder = RowDataBuilder();
       withCells(rowBuilder);
-      cellDataByFieldId = rowBuilder.build();
-    }
-
-    if (cellDataByFieldId != null) {
-      payload.data = RowDataPB(cellDataByFieldId: cellDataByFieldId);
+      payload.data.addAll(rowBuilder.build());
     }
 
     return DatabaseEventCreateRow(payload).send();
   }
 
-  Future<Either<RowMetaPB, FlowyError>> createRowBefore(RowId rowId) {
+  Future<FlowyResult<RowMetaPB, FlowyError>> createRowBefore(RowId rowId) {
     return createRow(
       viewId: viewId,
       position: OrderObjectPositionTypePB.Before,
@@ -51,7 +45,7 @@ class RowBackendService {
     );
   }
 
-  Future<Either<RowMetaPB, FlowyError>> createRowAfter(RowId rowId) {
+  Future<FlowyResult<RowMetaPB, FlowyError>> createRowAfter(RowId rowId) {
     return createRow(
       viewId: viewId,
       position: OrderObjectPositionTypePB.After,
@@ -59,7 +53,7 @@ class RowBackendService {
     );
   }
 
-  static Future<Either<RowMetaPB, FlowyError>> getRow({
+  static Future<FlowyResult<RowMetaPB, FlowyError>> getRow({
     required String viewId,
     required String rowId,
   }) {
@@ -70,7 +64,7 @@ class RowBackendService {
     return DatabaseEventGetRowMeta(payload).send();
   }
 
-  Future<Either<RowMetaPB, FlowyError>> getRowMeta(RowId rowId) {
+  Future<FlowyResult<RowMetaPB, FlowyError>> getRowMeta(RowId rowId) {
     final payload = RowIdPB.create()
       ..viewId = viewId
       ..rowId = rowId;
@@ -78,7 +72,7 @@ class RowBackendService {
     return DatabaseEventGetRowMeta(payload).send();
   }
 
-  Future<Either<Unit, FlowyError>> updateMeta({
+  Future<FlowyResult<void, FlowyError>> updateMeta({
     required String rowId,
     String? iconURL,
     String? coverURL,
@@ -102,7 +96,7 @@ class RowBackendService {
     return DatabaseEventUpdateRowMeta(payload).send();
   }
 
-  static Future<Either<Unit, FlowyError>> deleteRow(
+  static Future<FlowyResult<void, FlowyError>> deleteRow(
     String viewId,
     RowId rowId,
   ) {
@@ -113,7 +107,7 @@ class RowBackendService {
     return DatabaseEventDeleteRow(payload).send();
   }
 
-  static Future<Either<Unit, FlowyError>> duplicateRow(
+  static Future<FlowyResult<void, FlowyError>> duplicateRow(
     String viewId,
     RowId rowId,
   ) {

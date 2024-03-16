@@ -125,14 +125,10 @@ impl TypeOptionCellDataFilter for MultiSelectTypeOption {
   fn apply_filter(
     &self,
     filter: &<Self as TypeOption>::CellFilter,
-    field_type: &FieldType,
     cell_data: &<Self as TypeOption>::CellData,
   ) -> bool {
-    if !field_type.is_multi_select() {
-      return true;
-    }
     let selected_options = self.get_selected_options(cell_data.clone()).select_options;
-    filter.is_visible(&selected_options, FieldType::MultiSelect)
+    filter.is_visible(&selected_options).unwrap_or(true)
   }
 }
 
@@ -190,7 +186,7 @@ mod tests {
 
   #[test]
   fn multi_select_transform_with_checkbox_type_option_test() {
-    let checkbox_type_option = CheckboxTypeOption { is_selected: false };
+    let checkbox_type_option = CheckboxTypeOption();
     let mut multi_select = MultiSelectTypeOption::default();
     multi_select.transform_type_option(FieldType::Checkbox, checkbox_type_option.clone().into());
     debug_assert_eq!(multi_select.options.len(), 2);
@@ -215,8 +211,6 @@ mod tests {
     multi_select.transform_type_option(FieldType::MultiSelect, single_select.into());
     debug_assert_eq!(multi_select.options.len(), 2);
   }
-
-  // #[test]
 
   #[test]
   fn multi_select_insert_multi_option_test() {

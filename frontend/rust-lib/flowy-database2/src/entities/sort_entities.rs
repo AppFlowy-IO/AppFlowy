@@ -1,9 +1,7 @@
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use flowy_error::ErrorCode;
+use validator::Validate;
 
-use crate::entities::parser::NotEmptyStr;
-use crate::entities::FieldType;
-use crate::services::sort::{Sort, SortCondition, SortType};
+use crate::services::sort::{Sort, SortCondition};
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct SortPB {
@@ -14,9 +12,6 @@ pub struct SortPB {
   pub field_id: String,
 
   #[pb(index = 3)]
-  pub field_type: FieldType,
-
-  #[pb(index = 4)]
   pub condition: SortConditionPB,
 }
 
@@ -25,7 +20,6 @@ impl std::convert::From<&Sort> for SortPB {
     Self {
       id: sort.id.clone(),
       field_id: sort.field_id.clone(),
-      field_type: sort.field_type,
       condition: sort.condition.into(),
     }
   }
@@ -36,10 +30,18 @@ impl std::convert::From<Sort> for SortPB {
     Self {
       id: sort.id,
       field_id: sort.field_id,
-      field_type: sort.field_type,
       condition: sort.condition.into(),
     }
   }
+}
+
+#[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
+pub struct SortWithIndexPB {
+  #[pb(index = 1)]
+  pub index: u32,
+
+  #[pb(index = 2)]
+  pub sort: SortPB,
 }
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
@@ -91,114 +93,48 @@ impl std::convert::From<SortConditionPB> for SortCondition {
   }
 }
 
-#[derive(ProtoBuf, Debug, Default, Clone)]
+#[derive(ProtoBuf, Debug, Default, Clone, Validate)]
 pub struct UpdateSortPayloadPB {
   #[pb(index = 1)]
+  #[validate(custom = "lib_infra::validator_fn::required_not_empty_str")]
   pub view_id: String,
 
   #[pb(index = 2)]
+  #[validate(custom = "lib_infra::validator_fn::required_not_empty_str")]
   pub field_id: String,
 
-  #[pb(index = 3)]
-  pub field_type: FieldType,
-
   /// Create a new sort if the sort_id is None
-  #[pb(index = 4, one_of)]
+  #[pb(index = 3, one_of)]
+  #[validate(custom = "super::utils::validate_sort_id")]
   pub sort_id: Option<String>,
 
-  #[pb(index = 5)]
+  #[pb(index = 4)]
   pub condition: SortConditionPB,
 }
 
-impl TryInto<UpdateSortParams> for UpdateSortPayloadPB {
-  type Error = ErrorCode;
-
-  fn try_into(self) -> Result<UpdateSortParams, Self::Error> {
-    let view_id = NotEmptyStr::parse(self.view_id)
-      .map_err(|_| ErrorCode::DatabaseViewIdIsEmpty)?
-      .0;
-
-    let field_id = NotEmptyStr::parse(self.field_id)
-      .map_err(|_| ErrorCode::FieldIdIsEmpty)?
-      .0;
-
-    let sort_id = match self.sort_id {
-      None => None,
-      Some(sort_id) => Some(
-        NotEmptyStr::parse(sort_id)
-          .map_err(|_| ErrorCode::SortIdIsEmpty)?
-          .0,
-      ),
-    };
-
-    Ok(UpdateSortParams {
-      view_id,
-      field_id,
-      sort_id,
-      field_type: self.field_type,
-      condition: self.condition.into(),
-    })
-  }
-}
-
-#[derive(Debug)]
-pub struct UpdateSortParams {
-  pub view_id: String,
-  pub field_id: String,
-  /// Create a new sort if the sort is None
-  pub sort_id: Option<String>,
-  pub field_type: FieldType,
-  pub condition: SortCondition,
-}
-
-#[derive(ProtoBuf, Debug, Default, Clone)]
-pub struct DeleteSortPayloadPB {
+#[derive(Debug, Default, Clone, Validate, ProtoBuf)]
+pub struct ReorderSortPayloadPB {
   #[pb(index = 1)]
+  #[validate(custom = "lib_infra::validator_fn::required_not_empty_str")]
   pub view_id: String,
 
   #[pb(index = 2)]
-  pub field_id: String,
+  #[validate(custom = "super::utils::validate_sort_id")]
+  pub from_sort_id: String,
 
   #[pb(index = 3)]
-  pub field_type: FieldType,
-
-  #[pb(index = 4)]
-  pub sort_id: String,
+  #[validate(custom = "super::utils::validate_sort_id")]
+  pub to_sort_id: String,
 }
 
-impl TryInto<DeleteSortParams> for DeleteSortPayloadPB {
-  type Error = ErrorCode;
-
-  fn try_into(self) -> Result<DeleteSortParams, Self::Error> {
-    let view_id = NotEmptyStr::parse(self.view_id)
-      .map_err(|_| ErrorCode::DatabaseViewIdIsEmpty)?
-      .0;
-    let field_id = NotEmptyStr::parse(self.field_id)
-      .map_err(|_| ErrorCode::FieldIdIsEmpty)?
-      .0;
-
-    let sort_id = NotEmptyStr::parse(self.sort_id)
-      .map_err(|_| ErrorCode::UnexpectedEmpty)?
-      .0;
-
-    let sort_type = SortType {
-      sort_id: sort_id.clone(),
-      field_id,
-      field_type: self.field_type,
-    };
-
-    Ok(DeleteSortParams {
-      view_id,
-      sort_type,
-      sort_id,
-    })
-  }
-}
-
-#[derive(Debug, Clone)]
-pub struct DeleteSortParams {
+#[derive(ProtoBuf, Debug, Default, Clone, Validate)]
+pub struct DeleteSortPayloadPB {
+  #[pb(index = 1)]
+  #[validate(custom = "lib_infra::validator_fn::required_not_empty_str")]
   pub view_id: String,
-  pub sort_type: SortType,
+
+  #[pb(index = 2)]
+  #[validate(custom = "super::utils::validate_sort_id")]
   pub sort_id: String,
 }
 
@@ -208,7 +144,7 @@ pub struct SortChangesetNotificationPB {
   pub view_id: String,
 
   #[pb(index = 2)]
-  pub insert_sorts: Vec<SortPB>,
+  pub insert_sorts: Vec<SortWithIndexPB>,
 
   #[pb(index = 3)]
   pub delete_sorts: Vec<SortPB>,

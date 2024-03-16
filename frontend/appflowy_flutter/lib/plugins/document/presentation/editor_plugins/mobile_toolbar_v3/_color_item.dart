@@ -20,6 +20,8 @@ class ColorItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = ToolbarColorExtension.of(context);
+    final selectedBackgroundColor = _getBackgroundColor(context);
+
     return MobileToolbarMenuItemWrapper(
       size: const Size(82, 52),
       onTap: () async {
@@ -42,15 +44,45 @@ class ColorItem extends StatelessWidget {
         );
       },
       icon: FlowySvgs.m_aa_color_s,
-      backgroundColor: theme.toolbarMenuItemBackgroundColor,
-      isSelected: false,
+      backgroundColor:
+          selectedBackgroundColor ?? theme.toolbarMenuItemBackgroundColor,
+      selectedBackgroundColor: selectedBackgroundColor,
+      isSelected: selectedBackgroundColor != null,
       showRightArrow: true,
-      enable: editorState.selection?.isCollapsed == false,
       iconPadding: const EdgeInsets.only(
         top: 14.0,
         bottom: 14.0,
         right: 28.0,
       ),
     );
+  }
+
+  Color? _getBackgroundColor(BuildContext context) {
+    final selection = editorState.selection;
+    if (selection == null) {
+      return null;
+    }
+    String? backgroundColor =
+        editorState.toggledStyle[AppFlowyRichTextKeys.backgroundColor];
+    if (backgroundColor == null) {
+      if (selection.isCollapsed && selection.startIndex != 0) {
+        backgroundColor = editorState.getDeltaAttributeValueInSelection<String>(
+          AppFlowyRichTextKeys.backgroundColor,
+          selection.copyWith(
+            start: selection.start.copyWith(
+              offset: selection.startIndex - 1,
+            ),
+          ),
+        );
+      } else {
+        backgroundColor = editorState.getDeltaAttributeValueInSelection<String>(
+          AppFlowyRichTextKeys.backgroundColor,
+        );
+      }
+    }
+    if (backgroundColor != null && int.tryParse(backgroundColor) != null) {
+      return Color(int.parse(backgroundColor));
+    }
+    return null;
   }
 }

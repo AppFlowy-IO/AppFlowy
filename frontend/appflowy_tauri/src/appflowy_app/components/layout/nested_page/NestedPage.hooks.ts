@@ -1,5 +1,5 @@
 import { useCallback, useEffect } from 'react';
-import { Page, pagesActions, pageTypeMap, parserViewPBToPage } from '$app_reducers/pages/slice';
+import { pagesActions, pageTypeMap, parserViewPBToPage } from '$app_reducers/pages/slice';
 import { useAppDispatch, useAppSelector } from '$app/stores/store';
 import { FolderNotification, ViewLayoutPB } from '@/services/backend';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -18,13 +18,6 @@ export function useLoadChildPages(pageId: string) {
       dispatch(pagesActions.collapsePage(pageId));
     }
   }, [dispatch, pageId, collapsed]);
-
-  const onPageChanged = useCallback(
-    (page: Page) => {
-      dispatch(pagesActions.onPageChanged(page));
-    },
-    [dispatch]
-  );
 
   const loadPageChildren = useCallback(
     async (pageId: string) => {
@@ -48,11 +41,24 @@ export function useLoadChildPages(pageId: string) {
     const unsubscribePromise = subscribeNotifications(
       {
         [FolderNotification.DidUpdateView]: async (payload) => {
-          const page = parserViewPBToPage(payload);
+          const childViews = payload.child_views;
 
-          onPageChanged(page);
+          if (childViews.length === 0) {
+            return;
+          }
+
+          dispatch(
+            pagesActions.addChildPages({
+              id: pageId,
+              childPages: childViews.map(parserViewPBToPage),
+            })
+          );
         },
-        [FolderNotification.DidUpdateChildViews]: async () => {
+        [FolderNotification.DidUpdateChildViews]: async (payload) => {
+          if (payload.delete_child_views.length === 0 && payload.create_child_views.length === 0) {
+            return;
+          }
+
           void loadPageChildren(pageId);
         },
       },
@@ -62,7 +68,7 @@ export function useLoadChildPages(pageId: string) {
     );
 
     return () => void unsubscribePromise.then((unsubscribe) => unsubscribe());
-  }, [pageId, onPageChanged, loadPageChildren]);
+  }, [pageId, loadPageChildren, dispatch]);
 
   return {
     toggleCollapsed,
@@ -74,13 +80,16 @@ export function useLoadChildPages(pageId: string) {
 export function usePageActions(pageId: string) {
   const page = useAppSelector((state) => state.pages.pageMap[pageId]);
   const dispatch = useAppDispatch();
+  const params = useParams();
+  const currentPageId = params.id;
   const navigate = useNavigate();
 
   const onPageClick = useCallback(() => {
+    if (!page) return;
     const pageType = pageTypeMap[page.layout];
 
     navigate(`/page/${pageType}/${pageId}`);
-  }, [navigate, page.layout, pageId]);
+  }, [navigate, page, pageId]);
 
   const onAddPage = useCallback(
     async (layout: ViewLayoutPB) => {
@@ -89,6 +98,18 @@ export function usePageActions(pageId: string) {
         name: '',
         parent_view_id: pageId,
       });
+
+      dispatch(
+        pagesActions.addPage({
+          page: {
+            id: newViewId,
+            parentId: pageId,
+            layout,
+            name: '',
+          },
+          isLast: true,
+        })
+      );
 
       dispatch(pagesActions.expandPage(pageId));
       const pageType = pageTypeMap[layout];
@@ -99,12 +120,17 @@ export function usePageActions(pageId: string) {
   );
 
   const onDeletePage = useCallback(async () => {
+    if (currentPageId === pageId) {
+      navigate(`/`);
+    }
+
     await deletePage(pageId);
-  }, [pageId]);
+    dispatch(pagesActions.deletePages([pageId]));
+  }, [dispatch, currentPageId, navigate, pageId]);
 
   const onDuplicatePage = useCallback(async () => {
-    await duplicatePage(pageId);
-  }, [pageId]);
+    await duplicatePage(page);
+  }, [page]);
 
   const onRenamePage = useCallback(
     async (name: string) => {

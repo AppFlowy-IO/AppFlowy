@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import ViewBanner from '$app/components/_shared/view_title/ViewBanner';
-import { Page, PageIcon } from '$app_reducers/pages/slice';
+import { Page, PageCover, PageIcon } from '$app_reducers/pages/slice';
 import { ViewIconTypePB } from '@/services/backend';
 import ViewTitleInput from '$app/components/_shared/view_title/ViewTitleInput';
 
@@ -9,9 +9,20 @@ interface Props {
   showTitle?: boolean;
   onTitleChange?: (title: string) => void;
   onUpdateIcon?: (icon: PageIcon) => void;
+  forceHover?: boolean;
+  showCover?: boolean;
+  onUpdateCover?: (cover?: PageCover) => void;
 }
 
-function ViewTitle({ view, onTitleChange, showTitle = true, onUpdateIcon: onUpdateIconProp }: Props) {
+function ViewTitle({
+  view,
+  forceHover = false,
+  onTitleChange,
+  showTitle = true,
+  onUpdateIcon: onUpdateIconProp,
+  showCover = false,
+  onUpdateCover,
+}: Props) {
   const [hover, setHover] = useState(false);
   const [icon, setIcon] = useState<PageIcon | undefined>(view.icon);
 
@@ -38,7 +49,14 @@ function ViewTitle({ view, onTitleChange, showTitle = true, onUpdateIcon: onUpda
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
     >
-      <ViewBanner icon={icon} hover={hover} onUpdateIcon={onUpdateIcon} />
+      <ViewBanner
+        showCover={showCover}
+        cover={view.cover}
+        icon={icon}
+        hover={hover || forceHover}
+        onUpdateIcon={onUpdateIcon}
+        onUpdateCover={onUpdateCover}
+      />
       {showTitle && (
         <div className='relative'>
           <ViewTitleInput value={view.name} onChange={onTitleChange} />

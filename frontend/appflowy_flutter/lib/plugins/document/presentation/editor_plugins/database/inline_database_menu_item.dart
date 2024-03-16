@@ -25,7 +25,7 @@ SelectionMenuItem inlineGridMenuItem(DocumentBloc documentBloc) =>
           name: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
           layoutType: ViewLayoutPB.Grid,
         );
-        value.swap().map((r) => editorState.insertInlinePage(parentViewId, r));
+        value.map((r) => editorState.insertInlinePage(parentViewId, r));
       },
     );
 
@@ -46,7 +46,7 @@ SelectionMenuItem inlineBoardMenuItem(DocumentBloc documentBloc) =>
           name: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
           layoutType: ViewLayoutPB.Board,
         );
-        value.swap().map((r) => editorState.insertInlinePage(parentViewId, r));
+        value.map((r) => editorState.insertInlinePage(parentViewId, r));
       },
     );
 
@@ -67,6 +67,6 @@ SelectionMenuItem inlineCalendarMenuItem(DocumentBloc documentBloc) =>
           name: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
           layoutType: ViewLayoutPB.Calendar,
         );
-        value.swap().map((r) => editorState.insertInlinePage(parentViewId, r));
+        value.map((r) => editorState.insertInlinePage(parentViewId, r));
       },
     );

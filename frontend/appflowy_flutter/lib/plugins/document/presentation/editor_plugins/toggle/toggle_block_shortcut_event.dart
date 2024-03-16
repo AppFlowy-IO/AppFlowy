@@ -18,9 +18,11 @@ CharacterShortcutEvent formatGreaterToToggleList = CharacterShortcutEvent(
     editorState,
     (node) => node.type != ToggleListBlockKeys.type,
     (_, text, __) => text == _greater,
-    (_, node, delta) => toggleListBlockNode(
-      delta: delta.compose(Delta()..delete(_greater.length)),
-    ),
+    (_, node, delta) => [
+      toggleListBlockNode(
+        delta: delta.compose(Delta()..delete(_greater.length)),
+      ),
+    ],
   ),
 );
 

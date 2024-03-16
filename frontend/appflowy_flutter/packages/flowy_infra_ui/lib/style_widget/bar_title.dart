@@ -4,9 +4,9 @@ class FlowyBarTitle extends StatelessWidget {
   final String title;
 
   const FlowyBarTitle({
-    Key? key,
+    super.key,
     required this.title,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

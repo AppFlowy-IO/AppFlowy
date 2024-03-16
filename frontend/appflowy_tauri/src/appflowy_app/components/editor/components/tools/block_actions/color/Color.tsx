@@ -1,17 +1,33 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useRef } from 'react';
 import { Element } from 'slate';
-import { Button, Popover } from '@mui/material';
+import { Popover } from '@mui/material';
 import ColorLensOutlinedIcon from '@mui/icons-material/ColorLensOutlined';
 import { useTranslation } from 'react-i18next';
-import { BgColorPicker, FontColorPicker } from '$app/components/editor/components/tools/_shared';
+import { ColorPicker } from '$app/components/editor/components/tools/_shared';
 import { CustomEditor } from '$app/components/editor/command';
 import { ReactComponent as MoreSvg } from '$app/assets/more.svg';
 import { useSlateStatic } from 'slate-react';
-import { PopoverNoBackdropProps } from '$app/components/editor/components/tools/popover';
+import { PopoverOrigin } from '@mui/material/Popover/Popover';
+
+const initialOrigin: {
+  transformOrigin?: PopoverOrigin;
+  anchorOrigin?: PopoverOrigin;
+} = {
+  anchorOrigin: {
+    vertical: 'center',
+    horizontal: 'right',
+  },
+  transformOrigin: {
+    vertical: 'center',
+    horizontal: 'left',
+  },
+};
 
 export function Color({
   node,
-  onClose,
+  openPicker,
+  onOpenPicker,
+  onClosePicker,
 }: {
   node: Element & {
     data?: {
@@ -19,82 +35,56 @@ export function Color({
       bg_color?: string;
     };
   };
-  onClose?: () => void;
+  openPicker?: boolean;
+  onOpenPicker?: () => void;
+  onClosePicker?: () => void;
 }) {
   const { t } = useTranslation();
 
   const editor = useSlateStatic();
 
-  const ref = useRef<HTMLButtonElement>(null);
-  const [open, setOpen] = useState(false);
-
-  const fontColor = useMemo(() => {
-    return node.data?.font_color;
-  }, [node]);
-
-  const bgColor = useMemo(() => {
-    return node.data?.bg_color;
-  }, [node]);
+  const ref = useRef<HTMLDivElement>(null);
 
   const onColorChange = useCallback(
     (format: 'font_color' | 'bg_color', color: string) => {
       CustomEditor.setBlockColor(editor, node, {
         [format]: color,
       });
-      onClose?.();
+      onClosePicker?.();
     },
-    [editor, node, onClose]
+    [editor, node, onClosePicker]
   );
 
   return (
-    <Button
-      ref={ref}
-      color={'inherit'}
-      onMouseEnter={() => {
-        setOpen(true);
-      }}
-      onMouseLeave={() => {
-        setOpen(false);
-      }}
-      endIcon={<MoreSvg />}
-      startIcon={<ColorLensOutlinedIcon />}
-      size={'small'}
-      className={'mx-2 my-1 justify-start'}
-    >
-      {t('editor.color')}
-      {open && (
+    <>
+      <div ref={ref} onClick={onOpenPicker} className={'flex w-full items-center justify-between gap-2'}>
+        <ColorLensOutlinedIcon className={'h-5 w-5'} />
+        <div className={'flex-1'}>{t('editor.color')}</div>
+        <MoreSvg className={'h-5 w-5'} />
+      </div>
+      {openPicker && (
         <Popover
-          {...PopoverNoBackdropProps}
-          anchorOrigin={{
-            vertical: 'center',
-            horizontal: 'right',
+          anchorOrigin={initialOrigin.anchorOrigin}
+          transformOrigin={initialOrigin.transformOrigin}
+          autoFocus={true}
+          open={openPicker}
+          onKeyDown={(e) => {
+            e.stopPropagation();
+            e.nativeEvent.stopImmediatePropagation();
+            if (e.key === 'Escape' || e.key === 'ArrowLeft') {
+              e.preventDefault();
+              onClosePicker?.();
+            }
           }}
-          PaperProps={{
-            ...PopoverNoBackdropProps.PaperProps,
-            className: 'w-[200px] max-h-[360px] overflow-x-hidden overflow-y-auto',
-          }}
-          open={open}
+          onClick={(e) => e.stopPropagation()}
           anchorEl={ref.current}
-          onClose={() => {
-            setOpen(false);
-          }}
+          onClose={onClosePicker}
         >
           <div className={'flex flex-col'}>
-            <FontColorPicker
-              onChange={(color) => {
-                onColorChange('font_color', color);
-              }}
-              color={fontColor}
-            />
-            <BgColorPicker
-              onChange={(color) => {
-                onColorChange('bg_color', color);
-              }}
-              color={bgColor}
-            />
+            <ColorPicker onEscape={onClosePicker} onChange={onColorChange} />
           </div>
         </Popover>
       )}
-    </Button>
+    </>
   );
 }

@@ -120,10 +120,7 @@ impl NumberTypeOption {
     Self::default()
   }
 
-  pub(crate) fn format_cell_data(
-    &self,
-    num_cell_data: &NumberCellData,
-  ) -> FlowyResult<NumberCellFormat> {
+  fn format_cell_data(&self, num_cell_data: &NumberCellData) -> FlowyResult<NumberCellFormat> {
     match self.format {
       NumberFormat::Num => {
         if SCIENTIFIC_NOTATION_REGEX
@@ -208,6 +205,11 @@ impl CellDataDecoder for NumberTypeOption {
     let cell_data = Self::CellData::from(cell);
     self.stringify_cell_data(cell_data)
   }
+
+  fn numeric_cell(&self, cell: &Cell) -> Option<f64> {
+    let num_cell_data = self.parse_cell(cell).ok()?;
+    num_cell_data.0.parse::<f64>().ok()
+  }
 }
 
 pub type NumberCellChangeset = String;
@@ -240,14 +242,10 @@ impl TypeOptionCellDataFilter for NumberTypeOption {
   fn apply_filter(
     &self,
     filter: &<Self as TypeOption>::CellFilter,
-    field_type: &FieldType,
     cell_data: &<Self as TypeOption>::CellData,
   ) -> bool {
-    if !field_type.is_number() {
-      return true;
-    }
     match self.format_cell_data(cell_data) {
-      Ok(cell_data) => filter.is_visible(&cell_data),
+      Ok(cell_data) => filter.is_visible(&cell_data).unwrap_or(true),
       Err(_) => true,
     }
   }

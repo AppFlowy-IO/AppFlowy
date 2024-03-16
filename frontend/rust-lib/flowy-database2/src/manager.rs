@@ -4,10 +4,10 @@ use std::sync::{Arc, Weak};
 
 use collab::core::collab::{CollabDocState, MutexCollab};
 use collab_database::blocks::BlockEvent;
-use collab_database::database::{DatabaseData, MutexDatabase};
+use collab_database::database::{get_inline_view_id, DatabaseData, MutexDatabase};
 use collab_database::error::DatabaseError;
 use collab_database::user::{
-  CollabDocStateByOid, CollabFuture, DatabaseCollabService, WorkspaceDatabase,
+  CollabDocStateByOid, CollabFuture, DatabaseCollabService, DatabaseMeta, WorkspaceDatabase,
 };
 use collab_database::views::{CreateDatabaseParams, CreateViewParams, DatabaseLayout};
 use collab_entity::CollabType;
@@ -24,10 +24,7 @@ use flowy_error::{internal_error, FlowyError, FlowyResult};
 use lib_dispatch::prelude::af_spawn;
 use lib_infra::priority_task::TaskDispatcher;
 
-use crate::entities::{
-  DatabaseDescriptionPB, DatabaseLayoutPB, DatabaseSnapshotPB, DidFetchRowPB,
-  RepeatedDatabaseDescriptionPB,
-};
+use crate::entities::{DatabaseLayoutPB, DatabaseSnapshotPB, DidFetchRowPB};
 use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::database::DatabaseEditor;
 use crate::services::database_view::DatabaseLayoutDepsResolver;
@@ -76,16 +73,21 @@ impl DatabaseManager {
     }
   }
 
+  /// When initialize with new workspace, all the resources will be cleared.
   pub async fn initialize(
     &self,
     uid: i64,
     workspace_id: String,
     workspace_database_object_id: String,
   ) -> FlowyResult<()> {
-    // Clear all existing tasks
+    // 1. Clear all existing tasks
     self.task_scheduler.write().await.clear_task();
-    // Release all existing editors
+    // 2. Release all existing editors
+    for (_, editor) in self.editors.lock().await.iter() {
+      editor.close().await;
+    }
     self.editors.lock().await.clear();
+    // 3. Clear the workspace database
     *self.workspace_database.write().await = None;
 
     let collab_db = self.user.collab_db(uid)?;
@@ -95,22 +97,22 @@ impl DatabaseManager {
       cloud_service: self.cloud_service.clone(),
     };
     let config = CollabPersistenceConfig::new().snapshot_per_update(100);
-    let mut collab_raw_data = CollabDocState::default();
 
+    let mut workspace_database_doc_state = CollabDocState::default();
     // If the workspace database not exist in disk, try to fetch from remote.
     if !self.is_collab_exist(uid, &collab_db, &workspace_database_object_id) {
       trace!("workspace database not exist, try to fetch from remote");
       match self
         .cloud_service
-        .get_collab_doc_state_db(
+        .get_database_object_doc_state(
           &workspace_database_object_id,
           CollabType::WorkspaceDatabase,
           &workspace_id,
         )
         .await
       {
-        Ok(updates) => {
-          collab_raw_data = updates;
+        Ok(remote_doc_state) => {
+          workspace_database_doc_state = remote_doc_state;
         },
         Err(err) => {
           return Err(FlowyError::record_not_found().with_context(format!(
@@ -132,13 +134,12 @@ impl DatabaseManager {
       &workspace_database_object_id,
       CollabType::WorkspaceDatabase,
       collab_db.clone(),
-      collab_raw_data,
+      workspace_database_doc_state,
       config.clone(),
     );
     let workspace_database =
       WorkspaceDatabase::open(uid, collab, collab_db, config, collab_builder);
     *self.workspace_database.write().await = Some(Arc::new(workspace_database));
-
     Ok(())
   }
 
@@ -160,16 +161,27 @@ impl DatabaseManager {
     Ok(())
   }
 
-  pub async fn get_all_databases_description(&self) -> RepeatedDatabaseDescriptionPB {
+  pub async fn get_database_inline_view_id(&self, database_id: &str) -> FlowyResult<String> {
+    let wdb = self.get_workspace_database().await?;
+    let database_collab = wdb.get_database_collab(database_id).await.ok_or_else(|| {
+      FlowyError::record_not_found().with_context(format!("The database:{} not found", database_id))
+    })?;
+
+    let inline_view_id = get_inline_view_id(&database_collab.lock()).ok_or_else(|| {
+      FlowyError::record_not_found().with_context(format!(
+        "Can't find the inline view for database:{}",
+        database_id
+      ))
+    })?;
+    Ok(inline_view_id)
+  }
+
+  pub async fn get_all_databases_meta(&self) -> Vec<DatabaseMeta> {
     let mut items = vec![];
     if let Ok(wdb) = self.get_workspace_database().await {
-      items = wdb
-        .get_all_databases()
-        .into_iter()
-        .map(DatabaseDescriptionPB::from)
-        .collect();
+      items = wdb.get_all_database_meta()
     }
-    RepeatedDatabaseDescriptionPB { items }
+    items
   }
 
   pub async fn track_database(
@@ -234,7 +246,7 @@ impl DatabaseManager {
     if let Some(database_id) = database_id {
       let mut editors = self.editors.lock().await;
       if let Some(editor) = editors.get(&database_id) {
-        editor.close_view_editor(view_id).await;
+        editor.close_view(view_id).await;
       }
     }
 
@@ -350,7 +362,7 @@ impl DatabaseManager {
     let database_id = self.get_database_id_with_view_id(view_id).await?;
     let snapshots = self
       .cloud_service
-      .get_collab_snapshots(&database_id, limit)
+      .get_database_collab_object_snapshots(&database_id, limit)
       .await?
       .into_iter()
       .map(|snapshot| DatabaseSnapshotPB {
@@ -423,7 +435,7 @@ impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
         },
         Some(cloud_service) => {
           let updates = cloud_service
-            .get_collab_doc_state_db(&object_id, object_ty, &workspace_id)
+            .get_database_object_doc_state(&object_id, object_ty, &workspace_id)
             .await?;
           Ok(updates)
         },
@@ -446,7 +458,7 @@ impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
         },
         Some(cloud_service) => {
           let updates = cloud_service
-            .batch_get_collab_doc_state_db(object_ids, object_ty, &workspace_id)
+            .batch_get_database_object_doc_state(object_ids, object_ty, &workspace_id)
             .await?;
           Ok(updates)
         },

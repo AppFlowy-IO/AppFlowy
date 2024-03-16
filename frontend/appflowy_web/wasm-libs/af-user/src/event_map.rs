@@ -1,12 +1,12 @@
 use crate::event_handler::*;
-use crate::manager::UserManagerWASM;
+use crate::manager::UserManager;
 use flowy_derive::{Flowy_Event, ProtoBuf_Enum};
 use lib_dispatch::prelude::AFPlugin;
 use std::rc::Weak;
 use strum_macros::Display;
 
 #[rustfmt::skip]
-pub fn init(user_manager: Weak<UserManagerWASM>) -> AFPlugin {
+pub fn init(user_manager: Weak<UserManager>) -> AFPlugin {
     AFPlugin::new()
         .name("Flowy-User")
         .state(user_manager)

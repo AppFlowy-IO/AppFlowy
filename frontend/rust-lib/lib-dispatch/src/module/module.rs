@@ -27,12 +27,16 @@ use crate::{
 };
 
 pub type AFPluginMap = Arc<HashMap<AFPluginEvent, Arc<AFPlugin>>>;
-pub(crate) fn as_plugin_map(plugins: Vec<AFPlugin>) -> AFPluginMap {
-  let mut plugin_map = HashMap::new();
+pub(crate) fn plugin_map_or_crash(plugins: Vec<AFPlugin>) -> AFPluginMap {
+  let mut plugin_map: HashMap<AFPluginEvent, Arc<AFPlugin>> = HashMap::new();
   plugins.into_iter().for_each(|m| {
     let events = m.events();
     let plugins = Arc::new(m);
     events.into_iter().for_each(|e| {
+      if plugin_map.contains_key(&e) {
+        let plugin_name = plugin_map.get(&e).map(|p| &p.name);
+        panic!("⚠️⚠️⚠️Error: {:?} is already defined in {:?}", &e, plugin_name,);
+      }
       plugin_map.insert(e, plugins.clone());
     });
   });
@@ -40,7 +44,7 @@ pub(crate) fn as_plugin_map(plugins: Vec<AFPlugin>) -> AFPluginMap {
 }
 
 #[derive(PartialEq, Eq, Hash, Debug, Clone)]
-pub struct AFPluginEvent(pub String);
+pub struct AFPluginEvent(String);
 
 impl<T: Display + Eq + Hash + Debug + Clone> std::convert::From<T> for AFPluginEvent {
   fn from(t: T) -> Self {

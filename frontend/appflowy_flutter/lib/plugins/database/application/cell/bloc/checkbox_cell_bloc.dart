@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -15,6 +16,16 @@ class CheckboxCellBloc extends Bloc<CheckboxCellEvent, CheckboxCellState> {
 
   final CheckboxCellController cellController;
   void Function()? _onCellChangedFn;
+
+  @override
+  Future<void> close() async {
+    if (_onCellChangedFn != null) {
+      cellController.removeListener(_onCellChangedFn!);
+      _onCellChangedFn = null;
+    }
+    await cellController.dispose();
+    return super.close();
+  }
 
   void _dispatch() {
     on<CheckboxCellEvent>(
@@ -33,17 +44,6 @@ class CheckboxCellBloc extends Bloc<CheckboxCellEvent, CheckboxCellState> {
         );
       },
     );
-  }
-
-  @override
-  Future<void> close() async {
-    if (_onCellChangedFn != null) {
-      cellController.removeListener(_onCellChangedFn!);
-      _onCellChangedFn = null;
-    }
-
-    await cellController.dispose();
-    return super.close();
   }
 
   void _startListening() {
@@ -87,7 +87,6 @@ class CheckboxCellState with _$CheckboxCellState {
   }
 }
 
-bool _isSelected(String? cellData) {
-  // The backend use "Yes" and "No" to represent the checkbox cell data.
-  return cellData == "Yes";
+bool _isSelected(CheckboxCellDataPB? cellData) {
+  return cellData != null && cellData.isChecked;
 }

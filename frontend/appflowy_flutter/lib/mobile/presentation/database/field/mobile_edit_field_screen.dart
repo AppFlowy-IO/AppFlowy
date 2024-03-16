@@ -1,9 +1,9 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/base/app_bar.dart';
-import 'package:appflowy/mobile/presentation/database/field/mobile_field_type_option_editor.dart';
-import 'package:appflowy/plugins/database/application/field/field_backend_service.dart';
+import 'package:appflowy/mobile/presentation/database/field/mobile_full_field_editor.dart';
+import 'package:appflowy/plugins/database/domain/field_backend_service.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
-import 'package:appflowy/plugins/database/application/field/field_service.dart';
+import 'package:appflowy/plugins/database/domain/field_service.dart';
 import 'package:appflowy/plugins/database/widgets/setting/field_visibility_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -56,11 +56,12 @@ class _MobileEditPropertyScreenState extends State<MobileEditPropertyScreen> {
       child: Scaffold(
         appBar: FlowyAppBar(
           titleText: LocaleKeys.grid_field_editProperty.tr(),
+          onTapLeading: () => context.pop(_fieldOptionValues),
         ),
         body: MobileFieldEditor(
           mode: FieldOptionMode.edit,
           isPrimary: widget.field.isPrimary,
-          defaultValues: _fieldOptionValues,
+          defaultValues: FieldOptionValues.fromField(field: widget.field.field),
           actions: [
             widget.field.fieldSettings?.visibility.isVisibleState() ?? true
                 ? FieldOptionAction.hide
@@ -68,9 +69,25 @@ class _MobileEditPropertyScreenState extends State<MobileEditPropertyScreen> {
             FieldOptionAction.duplicate,
             FieldOptionAction.delete,
           ],
-          onOptionValuesChanged: (newFieldOptionValues) {
+          onOptionValuesChanged: (fieldOptionValues) async {
+            await fieldService.updateField(name: fieldOptionValues.name);
+
+            await FieldBackendService.updateFieldType(
+              viewId: widget.viewId,
+              fieldId: widget.field.id,
+              fieldType: fieldOptionValues.type,
+            );
+
+            final data = fieldOptionValues.getTypeOptionData();
+            if (data != null) {
+              await FieldBackendService.updateFieldTypeOption(
+                viewId: widget.viewId,
+                fieldId: widget.field.id,
+                typeOptionData: data,
+              );
+            }
             setState(() {
-              _fieldOptionValues = newFieldOptionValues;
+              _fieldOptionValues = fieldOptionValues;
             });
           },
           onAction: (action) {

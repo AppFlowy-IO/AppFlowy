@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/row/row_cache.dart';
-import 'package:appflowy/plugins/database/application/row/row_listener.dart';
+import 'package:appflowy/plugins/database/domain/row_listener.dart';
 import 'package:appflowy/plugins/database/widgets/setting/field_visibility_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -47,6 +47,16 @@ class CardBloc extends Bloc<CardEvent, CardState> {
 
   VoidCallback? _rowCallback;
 
+  @override
+  Future<void> close() async {
+    if (_rowCallback != null) {
+      _rowCache.removeRowListener(_rowCallback!);
+      _rowCallback = null;
+    }
+    await _rowListener.stop();
+    return super.close();
+  }
+
   void _dispatch() {
     on<CardEvent>(
       (event, emit) async {
@@ -71,16 +81,6 @@ class CardBloc extends Bloc<CardEvent, CardState> {
         );
       },
     );
-  }
-
-  @override
-  Future<void> close() async {
-    if (_rowCallback != null) {
-      _rowCache.removeRowListener(_rowCallback!);
-      _rowCallback = null;
-    }
-    await _rowListener.stop();
-    return super.close();
   }
 
   Future<void> _startListening() async {
@@ -113,7 +113,7 @@ List<CellContext> _makeCells(
   cellContexts.removeWhere((cellContext) {
     final fieldInfo = fieldController.getField(cellContext.fieldId);
     return fieldInfo == null ||
-        !fieldInfo.fieldSettings!.visibility.isVisibleState() ||
+        !(fieldInfo.fieldSettings?.visibility.isVisibleState() ?? false) ||
         (groupFieldId != null && cellContext.fieldId == groupFieldId);
   });
   return cellContexts.toList();

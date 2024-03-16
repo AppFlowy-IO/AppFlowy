@@ -1,13 +1,5 @@
 #!/bin/bash
 
-no_pub_get=false
-
-while getopts 's' flag; do
-  case "${flag}" in
-    s) no_pub_get=true ;;
-  esac
-done
-
 echo "Generating language files"
 
 # Store the current working directory
@@ -24,9 +16,11 @@ rm -rf assets/translations/
 mkdir -p assets/translations/
 cp -f ../resources/translations/*.json assets/translations/
 
-if [ "$no_pub_get" = false ]; then
-  flutter packages pub get
-fi
+# the ci alwayas return a 'null check operator used on a null value' error.
+# so we force to exec the below command to avoid the error.
+# https://github.com/dart-lang/pub/issues/3314
+flutter pub get
+flutter packages pub get
 
 echo "Specifying source directory for AppFlowy Localizations."
 dart run easy_localization:generate -S assets/translations/

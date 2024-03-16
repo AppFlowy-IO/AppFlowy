@@ -1,14 +1,14 @@
 use std::collections::HashMap;
-use std::fmt::Debug;
+use std::str::FromStr;
 
 use collab_database::fields::Field;
 use collab_database::rows::{get_field_type_from_cell, Cell, Cells};
 
-use flowy_error::{ErrorCode, FlowyError, FlowyResult};
+use flowy_error::{FlowyError, FlowyResult};
+use lib_infra::box_any::BoxAny;
 
-use crate::entities::FieldType;
+use crate::entities::{CheckboxCellDataPB, FieldType};
 use crate::services::cell::{CellCache, CellProtobufBlob};
-use crate::services::field::checklist_type_option::ChecklistCellChangeset;
 use crate::services::field::*;
 use crate::services::group::make_no_status_group;
 
@@ -39,12 +39,18 @@ pub trait CellDataDecoder: TypeOption {
 
   /// Same as [CellDataDecoder::stringify_cell_data] but the input parameter is the [Cell]
   fn stringify_cell(&self, cell: &Cell) -> String;
+
+  /// Decode the cell into f64
+  /// Different field type has different way to decode the cell data into f64
+  /// If the field type doesn't support to decode the cell data into f64, it will return None
+  fn numeric_cell(&self, cell: &Cell) -> Option<f64>;
 }
 
 pub trait CellDataChangeset: TypeOption {
   /// The changeset is able to parse into the concrete data struct if `TypeOption::CellChangeset`
-  /// implements the `FromCellChangesetString` trait.
-  /// For example,the SelectOptionCellChangeset,DateCellChangeset. etc.
+  /// implements the `FromCellChangesetString` trait e.g.
+  /// SelectOptionCellChangeset, DateCellChangeset
+  ///
   /// # Arguments
   ///
   /// * `changeset`: the cell changeset that represents the changes of the cell.
@@ -62,15 +68,14 @@ pub trait CellDataChangeset: TypeOption {
 ///         FieldType::SingleSelect => SelectOptionChangeset
 ///
 /// cell_rev: It will be None if the cell does not contain any data.
-pub fn apply_cell_changeset<C: ToCellChangeset>(
-  changeset: C,
+pub fn apply_cell_changeset(
+  changeset: BoxAny,
   cell: Option<Cell>,
   field: &Field,
   cell_data_cache: Option<CellCache>,
 ) -> Result<Cell, FlowyError> {
-  let changeset = changeset.to_cell_changeset_str();
   let field_type = FieldType::from(field.field_type);
-  match TypeOptionCellExt::new_with_cell_data_cache(field, cell_data_cache)
+  match TypeOptionCellExt::new(field, cell_data_cache)
     .get_type_option_cell_data_handler(&field_type)
   {
     None => Ok(Cell::default()),
@@ -90,13 +95,8 @@ pub fn get_cell_protobuf(
 
   let from_field_type = from_field_type.unwrap();
   let to_field_type = FieldType::from(field.field_type);
-  match try_decode_cell_str_to_cell_protobuf(
-    cell,
-    &from_field_type,
-    &to_field_type,
-    field,
-    cell_cache,
-  ) {
+  match try_decode_cell_to_cell_protobuf(cell, &from_field_type, &to_field_type, field, cell_cache)
+  {
     Ok(cell_bytes) => cell_bytes,
     Err(e) => {
       tracing::error!("Decode cell data failed, {:?}", e);
@@ -121,18 +121,18 @@ pub fn get_cell_protobuf(
 ///
 /// returns: CellBytes
 ///
-pub fn try_decode_cell_str_to_cell_protobuf(
+pub fn try_decode_cell_to_cell_protobuf(
   cell: &Cell,
   from_field_type: &FieldType,
   to_field_type: &FieldType,
   field: &Field,
   cell_data_cache: Option<CellCache>,
 ) -> FlowyResult<CellProtobufBlob> {
-  match TypeOptionCellExt::new_with_cell_data_cache(field, cell_data_cache)
+  match TypeOptionCellExt::new(field, cell_data_cache)
     .get_type_option_cell_data_handler(to_field_type)
   {
     None => Ok(CellProtobufBlob::default()),
-    Some(handler) => handler.handle_cell_str(cell, from_field_type, field),
+    Some(handler) => handler.handle_cell_protobuf(cell, from_field_type, field),
   }
 }
 
@@ -143,16 +143,17 @@ pub fn try_decode_cell_to_cell_data<T: Default + 'static>(
   field: &Field,
   cell_data_cache: Option<CellCache>,
 ) -> Option<T> {
-  let handler = TypeOptionCellExt::new_with_cell_data_cache(field, cell_data_cache)
+  let handler = TypeOptionCellExt::new(field, cell_data_cache)
     .get_type_option_cell_data_handler(to_field_type)?;
   handler
     .get_cell_data(cell, from_field_type, field)
     .ok()?
     .unbox_or_none::<T>()
 }
+
 /// Returns a string that represents the current field_type's cell data.
-/// For example, The string of the Multi-Select cell will be a list of the option's name
-/// separated by a comma.
+/// For example, a Multi-Select cell will be represented by a list of the options' names
+/// separated by commas.
 ///
 /// # Arguments
 ///
@@ -161,27 +162,24 @@ pub fn try_decode_cell_to_cell_data<T: Default + 'static>(
 /// * `from_field_type`: the original field type of the passed-in cell data.
 /// * `field`: used to get the corresponding TypeOption for the specified field type.
 ///
-/// returns: String
 pub fn stringify_cell_data(
   cell: &Cell,
   to_field_type: &FieldType,
   from_field_type: &FieldType,
   field: &Field,
 ) -> String {
-  match TypeOptionCellExt::new_with_cell_data_cache(field, None)
-    .get_type_option_cell_data_handler(from_field_type)
-  {
+  match TypeOptionCellExt::new(field, None).get_type_option_cell_data_handler(from_field_type) {
     None => "".to_string(),
-    Some(handler) => handler.stringify_cell_str(cell, to_field_type, field),
+    Some(handler) => handler.handle_stringify_cell(cell, to_field_type, field),
   }
 }
 
 pub fn insert_text_cell(s: String, field: &Field) -> Cell {
-  apply_cell_changeset(s, None, field, None).unwrap()
+  apply_cell_changeset(BoxAny::new(s), None, field, None).unwrap()
 }
 
 pub fn insert_number_cell(num: i64, field: &Field) -> Cell {
-  apply_cell_changeset(num.to_string(), None, field, None).unwrap()
+  apply_cell_changeset(BoxAny::new(num.to_string()), None, field, None).unwrap()
 }
 
 pub fn insert_url_cell(url: String, field: &Field) -> Cell {
@@ -195,107 +193,49 @@ pub fn insert_url_cell(url: String, field: &Field) -> Cell {
     _ => url,
   };
 
-  apply_cell_changeset(url, None, field, None).unwrap()
+  apply_cell_changeset(BoxAny::new(url), None, field, None).unwrap()
 }
 
-pub fn insert_checkbox_cell(is_check: bool, field: &Field) -> Cell {
-  let s = if is_check {
+pub fn insert_checkbox_cell(is_checked: bool, field: &Field) -> Cell {
+  let s = if is_checked {
     CHECK.to_string()
   } else {
     UNCHECK.to_string()
   };
-  apply_cell_changeset(s, None, field, None).unwrap()
+  apply_cell_changeset(BoxAny::new(s), None, field, None).unwrap()
 }
 
-pub fn insert_date_cell(timestamp: i64, include_time: Option<bool>, field: &Field) -> Cell {
-  let cell_data = serde_json::to_string(&DateCellChangeset {
+pub fn insert_date_cell(
+  timestamp: i64,
+  time: Option<String>,
+  include_time: Option<bool>,
+  field: &Field,
+) -> Cell {
+  let cell_data = DateCellChangeset {
     date: Some(timestamp),
+    time,
     include_time,
     ..Default::default()
-  })
-  .unwrap();
-  apply_cell_changeset(cell_data, None, field, None).unwrap()
+  };
+  apply_cell_changeset(BoxAny::new(cell_data), None, field, None).unwrap()
 }
 
 pub fn insert_select_option_cell(option_ids: Vec<String>, field: &Field) -> Cell {
-  let changeset =
-    SelectOptionCellChangeset::from_insert_options(option_ids).to_cell_changeset_str();
-  apply_cell_changeset(changeset, None, field, None).unwrap()
+  let changeset = SelectOptionCellChangeset::from_insert_options(option_ids);
+  apply_cell_changeset(BoxAny::new(changeset), None, field, None).unwrap()
 }
 
-pub fn insert_checklist_cell(insert_options: Vec<String>, field: &Field) -> Cell {
+pub fn insert_checklist_cell(insert_options: Vec<(String, bool)>, field: &Field) -> Cell {
   let changeset = ChecklistCellChangeset {
     insert_options,
     ..Default::default()
-  }
-  .to_cell_changeset_str();
-  apply_cell_changeset(changeset, None, field, None).unwrap()
+  };
+  apply_cell_changeset(BoxAny::new(changeset), None, field, None).unwrap()
 }
 
 pub fn delete_select_option_cell(option_ids: Vec<String>, field: &Field) -> Cell {
-  let changeset =
-    SelectOptionCellChangeset::from_delete_options(option_ids).to_cell_changeset_str();
-  apply_cell_changeset(changeset, None, field, None).unwrap()
-}
-
-/// Deserialize the String into cell specific data type.
-pub trait FromCellString {
-  fn from_cell_str(s: &str) -> FlowyResult<Self>
-  where
-    Self: Sized;
-}
-
-/// If the changeset applying to the cell is not String type, it should impl this trait.
-/// Deserialize the string into cell specific changeset.
-pub trait FromCellChangeset {
-  fn from_changeset(changeset: String) -> FlowyResult<Self>
-  where
-    Self: Sized;
-}
-
-impl FromCellChangeset for String {
-  fn from_changeset(changeset: String) -> FlowyResult<Self>
-  where
-    Self: Sized,
-  {
-    Ok(changeset)
-  }
-}
-
-pub trait ToCellChangeset: Debug {
-  fn to_cell_changeset_str(&self) -> String;
-}
-
-impl ToCellChangeset for String {
-  fn to_cell_changeset_str(&self) -> String {
-    self.clone()
-  }
-}
-
-pub struct AnyCellChangeset<T>(pub Option<T>);
-
-impl<T> AnyCellChangeset<T> {
-  pub fn try_into_inner(self) -> FlowyResult<T> {
-    match self.0 {
-      None => Err(ErrorCode::InvalidParams.into()),
-      Some(data) => Ok(data),
-    }
-  }
-}
-
-impl<T, C: ToString> std::convert::From<C> for AnyCellChangeset<T>
-where
-  T: FromCellChangeset,
-{
-  fn from(changeset: C) -> Self {
-    match T::from_changeset(changeset.to_string()) {
-      Ok(data) => AnyCellChangeset(Some(data)),
-      Err(e) => {
-        tracing::error!("Deserialize CellDataChangeset failed: {}", e);
-        AnyCellChangeset(None)
-      },
-    }
-  }
+  let changeset = SelectOptionCellChangeset::from_delete_options(option_ids);
+  apply_cell_changeset(BoxAny::new(changeset), None, field, None).unwrap()
 }
 
 pub struct CellBuilder<'a> {
@@ -326,29 +266,35 @@ impl<'a> CellBuilder<'a> {
           },
           FieldType::DateTime => {
             if let Ok(timestamp) = cell_str.parse::<i64>() {
-              cells.insert(field_id, insert_date_cell(timestamp, Some(false), field));
+              cells.insert(
+                field_id,
+                insert_date_cell(timestamp, None, Some(false), field),
+              );
             }
           },
           FieldType::LastEditedTime | FieldType::CreatedTime => {
             tracing::warn!("Shouldn't insert cell data to cell whose field type is LastEditedTime or CreatedTime");
           },
           FieldType::SingleSelect | FieldType::MultiSelect => {
-            if let Ok(ids) = SelectOptionIds::from_cell_str(&cell_str) {
+            if let Ok(ids) = SelectOptionIds::from_str(&cell_str) {
               cells.insert(field_id, insert_select_option_cell(ids.into_inner(), field));
             }
           },
           FieldType::Checkbox => {
-            if let Ok(value) = CheckboxCellData::from_cell_str(&cell_str) {
-              cells.insert(field_id, insert_checkbox_cell(value.into_inner(), field));
+            if let Ok(value) = CheckboxCellDataPB::from_str(&cell_str) {
+              cells.insert(field_id, insert_checkbox_cell(value.is_checked, field));
             }
           },
           FieldType::URL => {
             cells.insert(field_id, insert_url_cell(cell_str, field));
           },
           FieldType::Checklist => {
-            if let Ok(ids) = SelectOptionIds::from_cell_str(&cell_str) {
+            if let Ok(ids) = SelectOptionIds::from_str(&cell_str) {
               cells.insert(field_id, insert_select_option_cell(ids.into_inner(), field));
             }
+          },
+          FieldType::Relation => {
+            cells.insert(field_id, (&RelationCellData::from(cell_str)).into());
           },
         }
       }
@@ -394,24 +340,30 @@ impl<'a> CellBuilder<'a> {
     }
   }
 
-  pub fn insert_checkbox_cell(&mut self, field_id: &str, is_check: bool) {
+  pub fn insert_checkbox_cell(&mut self, field_id: &str, is_checked: bool) {
     match self.field_maps.get(&field_id.to_owned()) {
       None => tracing::warn!("Can't find the checkbox field with id: {}", field_id),
       Some(field) => {
         self
           .cells
-          .insert(field_id.to_owned(), insert_checkbox_cell(is_check, field));
+          .insert(field_id.to_owned(), insert_checkbox_cell(is_checked, field));
       },
     }
   }
 
-  pub fn insert_date_cell(&mut self, field_id: &str, timestamp: i64) {
+  pub fn insert_date_cell(
+    &mut self,
+    field_id: &str,
+    timestamp: i64,
+    time: Option<String>,
+    include_time: Option<bool>,
+  ) {
     match self.field_maps.get(&field_id.to_owned()) {
       None => tracing::warn!("Can't find the date field with id: {}", field_id),
       Some(field) => {
         self.cells.insert(
           field_id.to_owned(),
-          insert_date_cell(timestamp, Some(false), field),
+          insert_date_cell(timestamp, time, include_time, field),
         );
       },
     }
@@ -428,14 +380,13 @@ impl<'a> CellBuilder<'a> {
       },
     }
   }
-  pub fn insert_checklist_cell(&mut self, field_id: &str, option_names: Vec<String>) {
+  pub fn insert_checklist_cell(&mut self, field_id: &str, options: Vec<(String, bool)>) {
     match self.field_maps.get(&field_id.to_owned()) {
       None => tracing::warn!("Can't find the field with id: {}", field_id),
       Some(field) => {
-        self.cells.insert(
-          field_id.to_owned(),
-          insert_checklist_cell(option_names, field),
-        );
+        self
+          .cells
+          .insert(field_id.to_owned(), insert_checklist_cell(options, field));
       },
     }
   }

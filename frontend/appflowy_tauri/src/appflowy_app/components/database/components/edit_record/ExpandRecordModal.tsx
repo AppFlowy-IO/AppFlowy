@@ -25,6 +25,9 @@ function ExpandRecordModal({ open, onClose, rowId }: Props) {
           className: 'h-[calc(100%-144px)] w-[80%] max-w-[960px] overflow-visible',
         }}
       >
+        <DialogContent className={'appflowy-scroll-container relative p-0'}>
+          <EditRecord rowId={rowId} />
+        </DialogContent>
         <IconButton
           aria-label='close'
           className={'absolute right-[8px] top-[8px] text-text-caption'}
@@ -34,14 +37,14 @@ function ExpandRecordModal({ open, onClose, rowId }: Props) {
         >
           <DetailsIcon />
         </IconButton>
-        <DialogContent className={'relative p-0'}>
-          <EditRecord rowId={rowId} />
-        </DialogContent>
       </Dialog>
       <RecordActions
         anchorEl={detailAnchorEl}
         rowId={rowId}
         open={!!detailAnchorEl}
+        onEscape={() => {
+          onClose?.({}, 'escapeKeyDown');
+        }}
         onClose={() => setDetailAnchorEl(null)}
       />
     </Portal>

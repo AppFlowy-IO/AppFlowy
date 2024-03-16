@@ -1,4 +1,60 @@
 # Release Notes
+## Version 0.5.2 - 03/13/2024
+### Bug Fixes
+- Import csv file.
+
+## Version 0.5.1 - 03/11/2024
+### New Features
+- Introduced support for performing generic calculations on databases.
+- Implemented functionality for easily duplicating calendar events.
+- Added the ability to duplicate fields with cell data, facilitating smoother data management.
+- Now supports customizing font styles and colors prior to typing.
+- Enhanced the checklist user experience with the integration of keyboard shortcuts.
+- Improved the dark mode experience on mobile devices.
+### Bug Fixes
+- Fixed an issue with some pages failing to sync properly.
+- Fixed an issue where links without the http(s) scheme could not be opened, ensuring consistent link functionality.
+- Fixed an issue that prevented numbers from being inserted before heading blocks.
+- Fixed the inline page reference update mechanism to accurately reflect workspace changes.
+- Fixed an issue that made it difficult to resize images in certain cases.
+- Enhanced image loading reliability by clearing the image cache when images fail to load.
+- Resolved a problem preventing the launching of URLs on some Linux distributions.
+
+## Version 0.5.0 - 02/26/2024
+### New Features
+- Added support for scaling text on mobile platforms for better readability.
+- Introduced a toggle for favorites directly from the documents' top bar.
+- Optimized the image upload process and added error messaging for failed uploads.
+- Implemented depth control for outline block components.
+- New checklist task creation is now more intuitive, with prompts appearing on hover over list items in the row detail page.
+- Enhanced sorting capabilities, allowing reordering and addition of multiple sorts.
+- Expanded sorting and filtering options to include more field types like checklist, creation time, and modification time.
+- Added support for field calculations within databases.
+### Bug Fixes
+- Fixed an issue where inserting an image from Unsplash in local mode was not possible.
+- Fixed undo/redo functionality in lists.
+- Fixed data loss issues when converting between block types.
+- Fixed a bug where newly created rows were not being automatically sorted.
+- Fixed issues related to deleting a sorting field or sort not removing existing sorts properly.
+### Notes
+- Windows 7, Windows 8, and iOS 11 are not yet supported due to the upgrade to Flutter 3.19.0.
+
+## Version 0.4.9 - 02/17/2024
+### Bug Fixes
+- Resolved the issue that caused users to be redirected to the Sign In page
+
+## Version 0.4.8 - 02/13/2024
+### Bug Fixes
+- Fixed a possible error when loading workspaces
+
+## Version 0.4.6 - 02/03/2024
+### Bug Fixes
+- Fixed refresh token bug
+
+## Version 0.4.5 - 02/01/2024
+### Bug Fixes
+- Fixed WebSocket connection issue
+
 ## Version 0.4.4 - 01/31/2024
 ### New Features
 - Added functionality for uploading images to cloud storage.

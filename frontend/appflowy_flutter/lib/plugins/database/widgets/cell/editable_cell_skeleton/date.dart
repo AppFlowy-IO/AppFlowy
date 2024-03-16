@@ -84,7 +84,7 @@ class _DateCellState extends GridCellState<EditableDateCell> {
   }
 
   @override
-  void requestBeginFocus() {
+  void onRequestFocus() {
     _popover.show();
     widget.cellContainerNotifier.isFocus = true;
   }

@@ -11,56 +11,56 @@ use crate::module::AFPluginStateMap;
 use crate::runtime::AFPluginRuntime;
 use crate::{
   errors::{DispatchError, Error, InternalError},
-  module::{as_plugin_map, AFPlugin, AFPluginMap, AFPluginRequest},
+  module::{plugin_map_or_crash, AFPlugin, AFPluginMap, AFPluginRequest},
   response::AFPluginEventResponse,
   service::{AFPluginServiceFactory, Service},
 };
 
-#[cfg(target_arch = "wasm32")]
+#[cfg(any(target_arch = "wasm32", feature = "local_set"))]
 pub trait AFConcurrent {}
 
-#[cfg(target_arch = "wasm32")]
+#[cfg(any(target_arch = "wasm32", feature = "local_set"))]
 impl<T> AFConcurrent for T where T: ?Sized {}
 
-#[cfg(not(target_arch = "wasm32"))]
+#[cfg(all(not(target_arch = "wasm32"), not(feature = "local_set")))]
 pub trait AFConcurrent: Send + Sync {}
 
-#[cfg(not(target_arch = "wasm32"))]
+#[cfg(all(not(target_arch = "wasm32"), not(feature = "local_set")))]
 impl<T> AFConcurrent for T where T: Send + Sync {}
 
-#[cfg(target_arch = "wasm32")]
+#[cfg(any(target_arch = "wasm32", feature = "local_set"))]
 pub type AFBoxFuture<'a, T> = futures_core::future::LocalBoxFuture<'a, T>;
 
-#[cfg(not(target_arch = "wasm32"))]
+#[cfg(all(not(target_arch = "wasm32"), not(feature = "local_set")))]
 pub type AFBoxFuture<'a, T> = futures_core::future::BoxFuture<'a, T>;
 
 pub type AFStateMap = std::sync::Arc<AFPluginStateMap>;
 
-#[cfg(target_arch = "wasm32")]
+#[cfg(any(target_arch = "wasm32", feature = "local_set"))]
 pub(crate) fn downcast_owned<T: 'static>(boxed: AFBox) -> Option<T> {
   boxed.downcast().ok().map(|boxed| *boxed)
 }
 
-#[cfg(not(target_arch = "wasm32"))]
+#[cfg(all(not(target_arch = "wasm32"), not(feature = "local_set")))]
 pub(crate) fn downcast_owned<T: 'static + Send + Sync>(boxed: AFBox) -> Option<T> {
   boxed.downcast().ok().map(|boxed| *boxed)
 }
 
-#[cfg(target_arch = "wasm32")]
+#[cfg(any(target_arch = "wasm32", feature = "local_set"))]
 pub(crate) type AFBox = Box<dyn Any>;
 
-#[cfg(not(target_arch = "wasm32"))]
+#[cfg(all(not(target_arch = "wasm32"), not(feature = "local_set")))]
 pub(crate) type AFBox = Box<dyn Any + Send + Sync>;
 
-#[cfg(target_arch = "wasm32")]
+#[cfg(any(target_arch = "wasm32", feature = "local_set"))]
 pub type BoxFutureCallback =
   Box<dyn FnOnce(AFPluginEventResponse) -> AFBoxFuture<'static, ()> + 'static>;
 
-#[cfg(not(target_arch = "wasm32"))]
+#[cfg(all(not(target_arch = "wasm32"), not(feature = "local_set")))]
 pub type BoxFutureCallback =
   Box<dyn FnOnce(AFPluginEventResponse) -> AFBoxFuture<'static, ()> + Send + Sync + 'static>;
 
-#[cfg(target_arch = "wasm32")]
+#[cfg(any(target_arch = "wasm32", feature = "local_set"))]
 pub fn af_spawn<T>(future: T) -> tokio::task::JoinHandle<T::Output>
 where
   T: Future + 'static,
@@ -69,7 +69,7 @@ where
   tokio::task::spawn_local(future)
 }
 
-#[cfg(not(target_arch = "wasm32"))]
+#[cfg(all(not(target_arch = "wasm32"), not(feature = "local_set")))]
 pub fn af_spawn<T>(future: T) -> tokio::task::JoinHandle<T::Output>
 where
   T: Future + Send + 'static,
@@ -87,7 +87,7 @@ impl AFPluginDispatcher {
   pub fn new(runtime: Arc<AFPluginRuntime>, plugins: Vec<AFPlugin>) -> AFPluginDispatcher {
     tracing::trace!("{}", plugin_info(&plugins));
     AFPluginDispatcher {
-      plugins: as_plugin_map(plugins),
+      plugins: plugin_map_or_crash(plugins),
       runtime,
     }
   }
@@ -170,15 +170,6 @@ impl AFPluginDispatcher {
       callback: Some(Box::new(callback)),
     };
 
-    // Spawns a future onto the runtime.
-    //
-    // This spawns the given future onto the runtime's executor, usually a
-    // thread pool. The thread pool is then responsible for polling the future
-    // until it completes.
-    //
-    // The provided future will start running in the background immediately
-    // when `spawn` is called, even if you don't await the returned
-    // `JoinHandle`.
     let handle = dispatch.runtime.spawn(async move {
       service.call(service_ctx).await.unwrap_or_else(|e| {
         tracing::error!("Dispatch runtime error: {:?}", e);
@@ -186,17 +177,35 @@ impl AFPluginDispatcher {
       })
     });
 
-    let runtime = dispatch.runtime.clone();
-    DispatchFuture {
-      fut: Box::pin(async move {
-        let result = runtime.run_until(handle).await;
-        result.unwrap_or_else(|e| {
-          let msg = format!("EVENT_DISPATCH join error: {:?}", e);
-          tracing::error!("{}", msg);
-          let error = InternalError::JoinError(msg);
-          error.as_response()
-        })
-      }),
+    #[cfg(any(target_arch = "wasm32", feature = "local_set"))]
+    {
+      let result = dispatch.runtime.block_on(handle);
+      DispatchFuture {
+        fut: Box::pin(async move {
+          result.unwrap_or_else(|e| {
+            let msg = format!("EVENT_DISPATCH join error: {:?}", e);
+            tracing::error!("{}", msg);
+            let error = InternalError::JoinError(msg);
+            error.as_response()
+          })
+        }),
+      }
+    }
+
+    #[cfg(all(not(target_arch = "wasm32"), not(feature = "local_set")))]
+    {
+      let runtime = dispatch.runtime.clone();
+      DispatchFuture {
+        fut: Box::pin(async move {
+          let result = runtime.run_until(handle).await;
+          result.unwrap_or_else(|e| {
+            let msg = format!("EVENT_DISPATCH join error: {:?}", e);
+            tracing::error!("{}", msg);
+            let error = InternalError::JoinError(msg);
+            error.as_response()
+          })
+        }),
+      }
     }
   }
 
@@ -212,7 +221,7 @@ impl AFPluginDispatcher {
     ))
   }
 
-  #[cfg(target_arch = "wasm32")]
+  #[cfg(any(target_arch = "wasm32", feature = "local_set"))]
   #[track_caller]
   pub fn spawn<F>(&self, future: F) -> tokio::task::JoinHandle<F::Output>
   where
@@ -221,7 +230,7 @@ impl AFPluginDispatcher {
     self.runtime.spawn(future)
   }
 
-  #[cfg(not(target_arch = "wasm32"))]
+  #[cfg(all(not(target_arch = "wasm32"), not(feature = "local_set")))]
   #[track_caller]
   pub fn spawn<F>(&self, future: F) -> tokio::task::JoinHandle<F::Output>
   where
@@ -231,7 +240,7 @@ impl AFPluginDispatcher {
     self.runtime.spawn(future)
   }
 
-  #[cfg(target_arch = "wasm32")]
+  #[cfg(any(target_arch = "wasm32", feature = "local_set"))]
   pub async fn run_until<F>(&self, future: F) -> F::Output
   where
     F: Future + 'static,
@@ -240,7 +249,7 @@ impl AFPluginDispatcher {
     self.runtime.run_until(handle).await.unwrap()
   }
 
-  #[cfg(not(target_arch = "wasm32"))]
+  #[cfg(all(not(target_arch = "wasm32"), not(feature = "local_set")))]
   pub async fn run_until<'a, F>(&self, future: F) -> F::Output
   where
     F: Future + Send + 'a,

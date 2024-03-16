@@ -175,7 +175,9 @@
     "editContact": "ویرایش مخاطب"
   },
   "button": {
+    "ok": "باشه",
     "done": "انجام شد",
+    "cancel": "لغو",
     "signIn": "ورود",
     "signOut": "خروج",
     "complete": "کامل شد",
@@ -191,10 +193,7 @@
     "edit": "ویرایش",
     "delete": "حذف کردن",
     "duplicate": "تکرار کردن",
-    "putback": "بازگشت",
-    "Done": "انجام شد",
-    "Cancel": "لغو",
-    "OK": "باشه"
+    "putback": "بازگشت"
   },
   "label": {
     "welcome": "خوش آمدید!",
@@ -357,13 +356,9 @@
       "isComplete": "کامل است",
       "isIncomplted": "کامل نیست"
     },
-    "singleSelectOptionFilter": {
+    "selectOptionFilter": {
       "is": "است",
       "isNot": "نیست",
-      "isEmpty": "خالی است",
-      "isNotEmpty": "خالی نیست"
-    },
-    "multiSelectOptionFilter": {
       "contains": "شامل",
       "doesNotContain": "شامل نیست",
       "isEmpty": "خالی است",

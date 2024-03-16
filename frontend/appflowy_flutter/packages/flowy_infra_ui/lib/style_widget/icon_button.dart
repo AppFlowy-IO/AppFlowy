@@ -23,7 +23,7 @@ class FlowyIconButton extends StatelessWidget {
   final bool? isSelected;
 
   const FlowyIconButton({
-    Key? key,
+    super.key,
     this.width = 30,
     this.height,
     this.onPressed,
@@ -38,10 +38,9 @@ class FlowyIconButton extends StatelessWidget {
     this.preferBelow = true,
     this.isSelected,
     required this.icon,
-  })  : assert((richTooltipText != null && tooltipText == null) ||
+  }) : assert((richTooltipText != null && tooltipText == null) ||
             (richTooltipText == null && tooltipText != null) ||
-            (richTooltipText == null && tooltipText == null)),
-        super(key: key);
+            (richTooltipText == null && tooltipText == null));
 
   @override
   Widget build(BuildContext context) {

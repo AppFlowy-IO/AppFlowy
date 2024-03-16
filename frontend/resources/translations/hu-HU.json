@@ -163,7 +163,9 @@
     "editContact": "Kontakt Szerkesztése"
   },
   "button": {
+    "ok": "OK",
     "done": "Kész",
+    "cancel": "Mégse",
     "signIn": "Bejelentkezés",
     "signOut": "Kijelentkezés",
     "complete": "Kész",
@@ -179,10 +181,7 @@
     "edit": "Szerkesztés",
     "delete": "Töröl",
     "duplicate": "Másolat",
-    "putback": "Visszatesz",
-    "Done": "Kész",
-    "Cancel": "Mégse",
-    "OK": "OK"
+    "putback": "Visszatesz"
   },
   "label": {
     "welcome": "Üdvözlünk!",
@@ -326,13 +325,9 @@
       "isComplete": "teljes",
       "isIncomplted": "hiányos"
     },
-    "singleSelectOptionFilter": {
+    "selectOptionFilter": {
       "is": "Is",
       "isNot": "Nem",
-      "isEmpty": "Üres",
-      "isNotEmpty": "Nem üres"
-    },
-    "multiSelectOptionFilter": {
       "contains": "Tartalmaz",
       "doesNotContain": "Nem tartalmaz",
       "isEmpty": "Üres",

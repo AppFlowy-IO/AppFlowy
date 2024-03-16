@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/row/row_service.dart';
+import 'package:appflowy/plugins/database/grid/presentation/widgets/calculations/calculations_row.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/toolbar/grid_setting_bar.dart';
 import 'package:appflowy/plugins/database/tab_bar/desktop/setting_menu.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_builder.dart';
@@ -11,16 +12,13 @@ import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/theme_extension.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui_web.dart';
-import 'package:flowy_infra_ui/style_widget/scrolling/styled_scroll_bar.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scrollview.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:linked_scroll_controller/linked_scroll_controller.dart';
 
 import '../../application/database_controller.dart';
-import '../../application/row/row_cache.dart';
 import '../../application/row/row_controller.dart';
 import '../../tab_bar/tab_bar_view.dart';
 import '../../widgets/row/row_detail.dart';
@@ -45,7 +43,7 @@ class ToggleExtensionNotifier extends ChangeNotifier {
   }
 }
 
-class DesktopGridTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
+class DesktopGridTabBarBuilderImpl extends DatabaseTabBarItemBuilder {
   final _toggleExtension = ToggleExtensionNotifier();
 
   @override
@@ -84,6 +82,12 @@ class DesktopGridTabBarBuilderImpl implements DatabaseTabBarItemBuilder {
       databaseController: controller,
       toggleExtension: _toggleExtension,
     );
+  }
+
+  @override
+  void dispose() {
+    _toggleExtension.dispose();
+    super.dispose();
   }
 
   ValueKey _makeValueKey(DatabaseController controller) {
@@ -231,7 +235,6 @@ class _GridPageContentState extends State<GridPageContent> {
           viewId: widget.view.id,
           scrollController: _scrollController,
         ),
-        const _GridFooter(),
       ],
     );
   }
@@ -255,7 +258,7 @@ class _GridHeader extends StatelessWidget {
   }
 }
 
-class _GridRows extends StatelessWidget {
+class _GridRows extends StatefulWidget {
   const _GridRows({
     required this.viewId,
     required this.scrollController,
@@ -265,30 +268,48 @@ class _GridRows extends StatelessWidget {
   final GridScrollController scrollController;
 
   @override
+  State<_GridRows> createState() => _GridRowsState();
+}
+
+class _GridRowsState extends State<_GridRows> {
+  bool showFloatingCalculations = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _evaluateFloatingCalculations();
+  }
+
+  void _evaluateFloatingCalculations() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      setState(() {
+        // maxScrollExtent is 0.0 if scrolling is not possible
+        showFloatingCalculations = widget
+                .scrollController.verticalController.position.maxScrollExtent >
+            0;
+      });
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocBuilder<GridBloc, GridState>(
       buildWhen: (previous, current) => previous.fields != current.fields,
       builder: (context, state) {
         return Flexible(
           child: _WrapScrollView(
-            scrollController: scrollController,
+            scrollController: widget.scrollController,
             contentWidth: GridLayout.headerWidth(state.fields),
-            child: BlocBuilder<GridBloc, GridState>(
-              buildWhen: (previous, current) => current.reason.maybeWhen(
-                reorderRows: () => true,
-                reorderSingleRow: (reorderRow, rowInfo) => true,
-                delete: (item) => true,
-                insert: (item) => true,
-                orElse: () => true,
-              ),
+            child: BlocConsumer<GridBloc, GridState>(
+              listenWhen: (previous, current) =>
+                  previous.rowCount != current.rowCount,
+              listener: (context, state) => _evaluateFloatingCalculations(),
               builder: (context, state) {
-                final rowInfos = state.rowInfos;
-                final behavior = ScrollConfiguration.of(context).copyWith(
-                  scrollbars: false,
-                );
                 return ScrollConfiguration(
-                  behavior: behavior,
-                  child: _renderList(context, state, rowInfos),
+                  behavior: ScrollConfiguration.of(context).copyWith(
+                    scrollbars: false,
+                  ),
+                  child: _renderList(context, state),
                 );
               },
             ),
@@ -301,37 +322,65 @@ class _GridRows extends StatelessWidget {
   Widget _renderList(
     BuildContext context,
     GridState state,
-    List<RowInfo> rowInfos,
   ) {
-    final children = [
-      ...rowInfos.mapIndexed((index, rowInfo) {
-        return _renderRow(
-          context,
-          rowInfo.rowId,
-          isDraggable: state.reorderable,
-          index: index,
-        );
-      }),
-      const GridRowBottomBar(key: Key('gridFooter')),
-    ];
-    return ReorderableListView.builder(
-      ///  This is a workaround related to
-      ///  https://github.com/flutter/flutter/issues/25652
-      cacheExtent: 5000,
-      scrollController: scrollController.verticalController,
-      buildDefaultDragHandles: false,
-      proxyDecorator: (child, index, animation) => Material(
-        color: Colors.white.withOpacity(.1),
-        child: Opacity(opacity: .5, child: child),
-      ),
-      onReorder: (fromIndex, newIndex) {
-        final toIndex = newIndex > fromIndex ? newIndex - 1 : newIndex;
-        if (fromIndex != toIndex) {
-          context.read<GridBloc>().add(GridEvent.moveRow(fromIndex, toIndex));
-        }
-      },
-      itemCount: children.length,
-      itemBuilder: (context, index) => children[index],
+    final children = state.rowInfos.mapIndexed((index, rowInfo) {
+      return _renderRow(
+        context,
+        rowInfo.rowId,
+        isDraggable: state.reorderable,
+        index: index,
+      );
+    }).toList()
+      ..add(const GridRowBottomBar(key: Key('grid_footer')));
+
+    if (showFloatingCalculations) {
+      children.add(
+        const SizedBox(
+          key: Key('calculations_bottom_padding'),
+          height: 36,
+        ),
+      );
+    } else {
+      children.add(
+        GridCalculationsRow(
+          key: const Key('grid_calculations'),
+          viewId: widget.viewId,
+        ),
+      );
+    }
+
+    children.add(const SizedBox(key: Key('footer_padding'), height: 10));
+
+    return Stack(
+      children: [
+        Positioned.fill(
+          child: ReorderableListView.builder(
+            ///  This is a workaround related to
+            ///  https://github.com/flutter/flutter/issues/25652
+            cacheExtent: 5000,
+            scrollController: widget.scrollController.verticalController,
+            physics: const ClampingScrollPhysics(),
+            buildDefaultDragHandles: false,
+            proxyDecorator: (child, index, animation) => Material(
+              color: Colors.white.withOpacity(.1),
+              child: Opacity(opacity: .5, child: child),
+            ),
+            onReorder: (fromIndex, newIndex) {
+              final toIndex = newIndex > fromIndex ? newIndex - 1 : newIndex;
+              if (fromIndex != toIndex) {
+                context
+                    .read<GridBloc>()
+                    .add(GridEvent.moveRow(fromIndex, toIndex));
+              }
+            },
+            itemCount: children.length,
+            itemBuilder: (context, index) => children[index],
+          ),
+        ),
+        if (showFloatingCalculations) ...[
+          _PositionedCalculationsRow(viewId: widget.viewId),
+        ],
+      ],
     );
   }
 
@@ -369,21 +418,16 @@ class _GridRows extends StatelessWidget {
       openDetailPage: (context, cellBuilder) {
         FlowyOverlay.show(
           context: context,
-          builder: (BuildContext context) {
-            return RowDetailPage(
-              rowController: rowController,
-              databaseController: databaseController,
-            );
-          },
+          builder: (_) => RowDetailPage(
+            rowController: rowController,
+            databaseController: databaseController,
+          ),
         );
       },
     );
 
     if (animation != null) {
-      return SizeTransition(
-        sizeFactor: animation,
-        child: child,
-      );
+      return SizeTransition(sizeFactor: animation, child: child);
     }
 
     return child;
@@ -404,12 +448,14 @@ class _WrapScrollView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ScrollbarListStack(
+      includeInsets: false,
       axis: Axis.vertical,
       controller: scrollController.verticalController,
       barSize: GridSize.scrollBarSize,
       autoHideScrollbar: false,
       child: StyledSingleChildScrollView(
         autoHideScrollbar: false,
+        includeInsets: false,
         controller: scrollController.horizontalController,
         axis: Axis.horizontal,
         child: SizedBox(
@@ -421,38 +467,48 @@ class _WrapScrollView extends StatelessWidget {
   }
 }
 
-class _GridFooter extends StatelessWidget {
-  const _GridFooter();
+/// This Widget is used to show the Calculations Row at the bottom of the Grids ScrollView
+/// when the ScrollView is scrollable.
+///
+class _PositionedCalculationsRow extends StatefulWidget {
+  const _PositionedCalculationsRow({
+    required this.viewId,
+  });
+
+  final String viewId;
 
   @override
-  Widget build(BuildContext context) {
-    return BlocSelector<GridBloc, GridState, int>(
-      selector: (state) => state.rowCount,
-      builder: (context, rowCount) {
-        return Padding(
-          padding: GridSize.contentInsets,
-          child: RichText(
-            text: TextSpan(
-              text: rowCountString(),
-              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                    color: Theme.of(context).hintColor,
-                  ),
-              children: [
-                TextSpan(
-                  text: ' $rowCount',
-                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                        color: AFThemeExtension.of(context).gridRowCountColor,
-                      ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
+  State<_PositionedCalculationsRow> createState() =>
+      _PositionedCalculationsRowState();
 }
 
-String rowCountString() {
-  return '${LocaleKeys.grid_row_count.tr()} :';
+class _PositionedCalculationsRowState
+    extends State<_PositionedCalculationsRow> {
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      bottom: 0,
+      left: 0,
+      right: 0,
+      child: Container(
+        margin: EdgeInsets.only(left: GridSize.horizontalHeaderPadding),
+        padding: const EdgeInsets.only(bottom: 10),
+        decoration: BoxDecoration(
+          color: Theme.of(context).canvasColor,
+          border: Border(
+            top: BorderSide(color: Theme.of(context).dividerColor),
+          ),
+        ),
+        child: SizedBox(
+          height: 36,
+          width: double.infinity,
+          child: GridCalculationsRow(
+            key: const Key('floating_grid_calculations'),
+            viewId: widget.viewId,
+            includeDefaultInsets: false,
+          ),
+        ),
+      ),
+    );
+  }
 }

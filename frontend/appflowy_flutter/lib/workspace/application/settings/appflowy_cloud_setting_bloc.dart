@@ -3,7 +3,7 @@ import 'package:appflowy/workspace/application/settings/cloud_setting_listener.d
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_setting.pb.dart';
-import 'package:dartz/dartz.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -86,16 +86,18 @@ class AppFlowyCloudSettingState with _$AppFlowyCloudSettingState {
       );
 }
 
-Either<String, ()> validateUrl(String url) {
+FlowyResult<void, String> validateUrl(String url) {
   try {
     // Use Uri.parse to validate the url.
     final uri = Uri.parse(url);
     if (uri.isScheme('HTTP') || uri.isScheme('HTTPS')) {
-      return right(());
+      return FlowyResult.success(null);
     } else {
-      return left(LocaleKeys.settings_menu_invalidCloudURLScheme.tr());
+      return FlowyResult.failure(
+        LocaleKeys.settings_menu_invalidCloudURLScheme.tr(),
+      );
     }
   } catch (e) {
-    return left(e.toString());
+    return FlowyResult.failure(e.toString());
   }
 }

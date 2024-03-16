@@ -5,23 +5,26 @@ import { Tooltip } from '@mui/material';
 const ActionButton = forwardRef<
   HTMLButtonElement,
   {
-    tooltip: string;
+    tooltip: string | React.ReactNode;
     onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
     children: React.ReactNode;
     active?: boolean;
   } & IconButtonProps
->(({ tooltip, onClick, children, active, className, ...props }, ref) => {
+>(({ tooltip, onClick, disabled, children, active, className, ...props }, ref) => {
   return (
-    <Tooltip placement={'top'} title={tooltip}>
+    <Tooltip disableInteractive={true} placement={'top'} title={tooltip}>
       <IconButton
         ref={ref}
         onClick={onClick}
         size={'small'}
         style={{
-          color: active ? 'var(--fill-default)' : undefined,
+          color: active ? 'var(--fill-default)' : disabled ? 'var(--line-on-toolbar)' : undefined,
         }}
+        disabled={disabled}
         {...props}
-        className={`${className ?? ''} bg-transparent px-1 py-2 text-bg-body hover:bg-transparent hover:text-fill-hover`}
+        className={`${
+          className ?? ''
+        } bg-transparent px-1 py-1 text-icon-on-toolbar hover:bg-transparent hover:text-fill-hover`}
       >
         {children}
       </IconButton>

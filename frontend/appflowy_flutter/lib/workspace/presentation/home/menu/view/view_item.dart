@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
@@ -25,6 +23,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 typedef ViewItemOnSelected = void Function(ViewPB);
@@ -43,6 +42,7 @@ class ViewItem extends StatelessWidget {
     this.isDraggable = true,
     required this.isFeedback,
     this.height = 28.0,
+    this.isHoverEnabled = true,
   });
 
   final ViewPB view;
@@ -76,6 +76,8 @@ class ViewItem extends StatelessWidget {
 
   final double height;
 
+  final bool isHoverEnabled;
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -102,6 +104,7 @@ class ViewItem extends StatelessWidget {
             isDraggable: isDraggable,
             isFeedback: isFeedback,
             height: height,
+            isHoverEnabled: isHoverEnabled,
           );
         },
       ),
@@ -128,6 +131,7 @@ class InnerViewItem extends StatelessWidget {
     this.isFirstChild = false,
     required this.isFeedback,
     required this.height,
+    this.isHoverEnabled = true,
   });
 
   final ViewPB view;
@@ -148,6 +152,8 @@ class InnerViewItem extends StatelessWidget {
   final ViewItemOnSelected onSelected;
   final ViewItemOnSelected? onTertiarySelected;
   final double height;
+
+  final bool isHoverEnabled;
 
   @override
   Widget build(BuildContext context) {
@@ -265,6 +271,7 @@ class SingleInnerViewItem extends StatefulWidget {
     this.onTertiarySelected,
     required this.isFeedback,
     required this.height,
+    this.isHoverEnabled = true,
   });
 
   final ViewPB view;
@@ -283,6 +290,8 @@ class SingleInnerViewItem extends StatefulWidget {
   final FolderCategoryType categoryType;
   final double height;
 
+  final bool isHoverEnabled;
+
   @override
   State<SingleInnerViewItem> createState() => _SingleInnerViewItemState();
 }
@@ -293,12 +302,15 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.isFeedback) {
-      return _buildViewItem(false);
-    }
-
     final isSelected =
         getIt<MenuSharedState>().latestOpenView?.id == widget.view.id;
+
+    if (widget.isFeedback || !widget.isHoverEnabled) {
+      return _buildViewItem(
+        false,
+        !widget.isHoverEnabled ? isSelected : false,
+      );
+    }
 
     return FlowyHover(
       style: HoverStyle(
@@ -456,7 +468,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
             createViewAndShowRenameDialogIfNeeded(
               context,
               _convertLayoutToHintText(pluginBuilder.layoutType!),
-              (viewName) {
+              (viewName, _) {
                 if (viewName.isNotEmpty) {
                   viewBloc.add(
                     ViewEvent.createView(
@@ -498,7 +510,8 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
                 title: LocaleKeys.disclosureAction_rename.tr(),
                 autoSelectAllText: true,
                 value: widget.view.name,
-                confirm: (newValue) {
+                maxLength: 256,
+                onConfirm: (newValue, _) {
                   context.read<ViewBloc>().add(ViewEvent.rename(newValue));
                 },
               ).show(context);

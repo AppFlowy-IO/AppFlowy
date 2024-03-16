@@ -73,7 +73,7 @@ class GridFilterMenuBloc
   }
 
   @override
-  Future<void> close() {
+  Future<void> close() async {
     if (_onFilterFn != null) {
       fieldController.removeListener(onFiltersListener: _onFilterFn!);
       _onFilterFn = null;

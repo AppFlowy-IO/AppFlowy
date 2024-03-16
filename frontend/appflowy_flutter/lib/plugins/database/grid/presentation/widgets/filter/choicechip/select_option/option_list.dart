@@ -1,4 +1,5 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/plugins/database/grid/application/filter/select_option_filter_bloc.dart';
 import 'package:appflowy/plugins/database/grid/application/filter/select_option_filter_list_bloc.dart';
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/filter_info.dart';
@@ -27,51 +28,37 @@ class SelectOptionFilterList extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) {
-        late SelectOptionFilterListBloc bloc;
-        if (filterInfo.fieldInfo.fieldType == FieldType.SingleSelect) {
-          bloc = SelectOptionFilterListBloc(
-            selectedOptionIds: selectedOptionIds,
-            delegate:
-                SingleSelectOptionFilterDelegateImpl(filterInfo: filterInfo),
-          );
-        } else {
-          bloc = SelectOptionFilterListBloc(
-            selectedOptionIds: selectedOptionIds,
-            delegate:
-                MultiSelectOptionFilterDelegateImpl(filterInfo: filterInfo),
-          );
-        }
-
-        bloc.add(const SelectOptionFilterListEvent.initial());
-        return bloc;
+        return SelectOptionFilterListBloc(
+          selectedOptionIds: selectedOptionIds,
+          delegate: filterInfo.fieldInfo.fieldType == FieldType.SingleSelect
+              ? SingleSelectOptionFilterDelegateImpl(filterInfo: filterInfo)
+              : MultiSelectOptionFilterDelegateImpl(filterInfo: filterInfo),
+        )..add(const SelectOptionFilterListEvent.initial());
       },
       child:
-          BlocListener<SelectOptionFilterListBloc, SelectOptionFilterListState>(
+          BlocConsumer<SelectOptionFilterListBloc, SelectOptionFilterListState>(
         listenWhen: (previous, current) =>
             previous.selectedOptionIds != current.selectedOptionIds,
         listener: (context, state) {
           onSelectedOptions(state.selectedOptionIds.toList());
         },
-        child: BlocBuilder<SelectOptionFilterListBloc,
-            SelectOptionFilterListState>(
-          builder: (context, state) {
-            return ListView.separated(
-              physics: const NeverScrollableScrollPhysics(),
-              shrinkWrap: true,
-              itemCount: state.visibleOptions.length,
-              separatorBuilder: (context, index) {
-                return VSpace(GridSize.typeOptionSeparatorHeight);
-              },
-              itemBuilder: (BuildContext context, int index) {
-                final option = state.visibleOptions[index];
-                return SelectOptionFilterCell(
-                  option: option.optionPB,
-                  isSelected: option.isSelected,
-                );
-              },
-            );
-          },
-        ),
+        builder: (context, state) {
+          return ListView.separated(
+            physics: const NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            itemCount: state.visibleOptions.length,
+            separatorBuilder: (context, index) {
+              return VSpace(GridSize.typeOptionSeparatorHeight);
+            },
+            itemBuilder: (BuildContext context, int index) {
+              final option = state.visibleOptions[index];
+              return SelectOptionFilterCell(
+                option: option.optionPB,
+                isSelected: option.isSelected,
+              );
+            },
+          );
+        },
       ),
     );
   }
@@ -104,9 +91,16 @@ class _SelectOptionFilterCellState extends State<SelectOptionFilterCell> {
                 .read<SelectOptionFilterListBloc>()
                 .add(SelectOptionFilterListEvent.unselectOption(widget.option));
           } else {
-            context
-                .read<SelectOptionFilterListBloc>()
-                .add(SelectOptionFilterListEvent.selectOption(widget.option));
+            context.read<SelectOptionFilterListBloc>().add(
+                  SelectOptionFilterListEvent.selectOption(
+                    widget.option,
+                    context
+                        .read<SelectOptionFilterEditorBloc>()
+                        .state
+                        .filter
+                        .condition,
+                  ),
+                );
           }
         },
         children: [

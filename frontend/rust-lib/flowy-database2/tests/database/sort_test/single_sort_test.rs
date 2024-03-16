@@ -82,20 +82,50 @@ async fn sort_change_notification_by_update_text_test() {
 }
 
 #[tokio::test]
+async fn sort_after_new_row_test() {
+  let mut test = DatabaseSortTest::new().await;
+  let checkbox_field = test.get_first_field(FieldType::Checkbox);
+  let scripts = vec![
+    AssertCellContentOrder {
+      field_id: checkbox_field.id.clone(),
+      orders: vec!["Yes", "Yes", "No", "No", "No", "Yes", ""],
+    },
+    InsertSort {
+      field: checkbox_field.clone(),
+      condition: SortCondition::Ascending,
+    },
+    AssertCellContentOrder {
+      field_id: checkbox_field.id.clone(),
+      orders: vec!["No", "No", "No", "", "Yes", "Yes", "Yes"],
+    },
+    AddNewRow {},
+    AssertCellContentOrder {
+      field_id: checkbox_field.id,
+      orders: vec!["No", "No", "No", "", "", "Yes", "Yes", "Yes"],
+    },
+  ];
+  test.run_scripts(scripts).await;
+}
+
+#[tokio::test]
 async fn sort_text_by_ascending_and_delete_sort_test() {
   let mut test = DatabaseSortTest::new().await;
-  let text_field = test.get_first_field(FieldType::RichText).clone();
-  let scripts = vec![InsertSort {
-    field: text_field.clone(),
-    condition: SortCondition::Ascending,
-  }];
-  test.run_scripts(scripts).await;
-  let sort = test.current_sort_rev.as_ref().unwrap();
+  let text_field = test.get_first_field(FieldType::RichText);
   let scripts = vec![
-    DeleteSort {
-      sort: sort.clone(),
-      sort_id: sort.id.clone(),
+    InsertSort {
+      field: text_field.clone(),
+      condition: SortCondition::Ascending,
     },
+    AssertCellContentOrder {
+      field_id: text_field.id.clone(),
+      orders: vec!["A", "AE", "AE", "C", "CB", "DA", ""],
+    },
+  ];
+  test.run_scripts(scripts).await;
+
+  let sort = test.editor.get_all_sorts(&test.view_id).await.items[0].clone();
+  let scripts = vec![
+    DeleteSort { sort_id: sort.id },
     AssertCellContentOrder {
       field_id: text_field.id.clone(),
       orders: vec!["A", "", "C", "DA", "AE", "AE", "CB"],
@@ -370,6 +400,80 @@ async fn sort_multi_select_by_descending_test() {
         "Google,Facebook",
         "Facebook,Twitter",
         "Facebook",
+        "",
+        "",
+      ],
+    },
+  ];
+  test.run_scripts(scripts).await;
+}
+
+#[tokio::test]
+async fn sort_checklist_by_ascending_test() {
+  let mut test = DatabaseSortTest::new().await;
+  let checklist_field = test.get_first_field(FieldType::Checklist);
+  let scripts = vec![
+    AssertCellContentOrder {
+      field_id: checklist_field.id.clone(),
+      orders: vec![
+        "First thing",
+        "Have breakfast,Have lunch,Take a nap,Have dinner,Shower and head to bed",
+        "",
+        "Task 1",
+        "",
+        "Sprint,Sprint some more,Rest",
+        "",
+      ],
+    },
+    InsertSort {
+      field: checklist_field.clone(),
+      condition: SortCondition::Ascending,
+    },
+    AssertCellContentOrder {
+      field_id: checklist_field.id.clone(),
+      orders: vec![
+        "First thing",
+        "Have breakfast,Have lunch,Take a nap,Have dinner,Shower and head to bed",
+        "Sprint,Sprint some more,Rest",
+        "Task 1",
+        "",
+        "",
+        "",
+      ],
+    },
+  ];
+  test.run_scripts(scripts).await;
+}
+
+#[tokio::test]
+async fn sort_checklist_by_descending_test() {
+  let mut test = DatabaseSortTest::new().await;
+  let checklist_field = test.get_first_field(FieldType::Checklist);
+  let scripts = vec![
+    AssertCellContentOrder {
+      field_id: checklist_field.id.clone(),
+      orders: vec![
+        "First thing",
+        "Have breakfast,Have lunch,Take a nap,Have dinner,Shower and head to bed",
+        "",
+        "Task 1",
+        "",
+        "Sprint,Sprint some more,Rest",
+        "",
+      ],
+    },
+    InsertSort {
+      field: checklist_field.clone(),
+      condition: SortCondition::Descending,
+    },
+    AssertCellContentOrder {
+      field_id: checklist_field.id.clone(),
+      orders: vec![
+        "Task 1",
+        "Sprint,Sprint some more,Rest",
+        "Have breakfast,Have lunch,Take a nap,Have dinner,Shower and head to bed",
+        "First thing",
+        "",
         "",
         "",
       ],

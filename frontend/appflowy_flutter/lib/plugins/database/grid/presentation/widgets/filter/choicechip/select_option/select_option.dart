@@ -101,9 +101,10 @@ class _SelectOptionFilterEditorState extends State<SelectOptionFilterEditor> {
             SliverToBoxAdapter(child: _buildFilterPanel(context, state)),
           ];
 
-          if (state.filter.condition != SelectOptionConditionPB.OptionIsEmpty &&
+          if (state.filter.condition !=
+                  SelectOptionFilterConditionPB.OptionIsEmpty &&
               state.filter.condition !=
-                  SelectOptionConditionPB.OptionIsNotEmpty) {
+                  SelectOptionFilterConditionPB.OptionIsNotEmpty) {
             slivers.add(const SliverToBoxAdapter(child: VSpace(4)));
             slivers.add(
               SliverToBoxAdapter(

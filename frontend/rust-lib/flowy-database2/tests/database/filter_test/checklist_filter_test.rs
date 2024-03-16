@@ -1,5 +1,6 @@
-use flowy_database2::entities::{ChecklistFilterConditionPB, FieldType};
+use flowy_database2::entities::{ChecklistFilterConditionPB, ChecklistFilterPB, FieldType};
 use flowy_database2::services::field::checklist_type_option::ChecklistCellData;
+use lib_infra::box_any::BoxAny;
 
 use crate::database::filter_test::script::FilterScript::*;
 use crate::database::filter_test::script::{DatabaseFilterTest, FilterRowChanged};
@@ -7,7 +8,7 @@ use crate::database::filter_test::script::{DatabaseFilterTest, FilterRowChanged}
 #[tokio::test]
 async fn grid_filter_checklist_is_incomplete_test() {
   let mut test = DatabaseFilterTest::new().await;
-  let expected = 6;
+  let expected = 5;
   let row_count = test.row_details.len();
   let option_ids = get_checklist_cell_options(&test).await;
 
@@ -16,8 +17,12 @@ async fn grid_filter_checklist_is_incomplete_test() {
       row_id: test.row_details[0].row.id.clone(),
       selected_option_ids: option_ids,
     },
-    CreateChecklistFilter {
-      condition: ChecklistFilterConditionPB::IsIncomplete,
+    CreateDataFilter {
+      parent_filter_id: None,
+      field_type: FieldType::Checklist,
+      data: BoxAny::new(ChecklistFilterPB {
+        condition: ChecklistFilterConditionPB::IsIncomplete,
+      }),
       changed: Some(FilterRowChanged {
         showing_num_of_rows: 0,
         hiding_num_of_rows: row_count - expected,
@@ -31,7 +36,7 @@ async fn grid_filter_checklist_is_incomplete_test() {
 #[tokio::test]
 async fn grid_filter_checklist_is_complete_test() {
   let mut test = DatabaseFilterTest::new().await;
-  let expected = 1;
+  let expected = 2;
   let row_count = test.row_details.len();
   let option_ids = get_checklist_cell_options(&test).await;
   let scripts = vec![
@@ -39,8 +44,12 @@ async fn grid_filter_checklist_is_complete_test() {
       row_id: test.row_details[0].row.id.clone(),
       selected_option_ids: option_ids,
     },
-    CreateChecklistFilter {
-      condition: ChecklistFilterConditionPB::IsComplete,
+    CreateDataFilter {
+      parent_filter_id: None,
+      field_type: FieldType::Checklist,
+      data: BoxAny::new(ChecklistFilterPB {
+        condition: ChecklistFilterConditionPB::IsComplete,
+      }),
       changed: Some(FilterRowChanged {
         showing_num_of_rows: 0,
         hiding_num_of_rows: row_count - expected,

@@ -1,4 +1,4 @@
-import 'package:appflowy/plugins/database/application/filter/filter_service.dart';
+import 'package:appflowy/plugins/database/domain/filter_service.dart';
 import 'package:appflowy/plugins/database/grid/application/filter/filter_menu_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/text_filter.pb.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -55,13 +55,13 @@ void main() {
     await service.insertTextFilter(
       fieldId: textField.id,
       filterId: textFilter.filter.id,
-      condition: TextFilterConditionPB.Is,
+      condition: TextFilterConditionPB.TextIs,
       content: "ABC",
     );
     await gridResponseFuture();
     assert(
       menuBloc.state.filters.first.textFilter()!.condition ==
-          TextFilterConditionPB.Is,
+          TextFilterConditionPB.TextIs,
     );
     assert(menuBloc.state.filters.first.textFilter()!.content == "ABC");
   });

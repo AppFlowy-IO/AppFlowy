@@ -22,6 +22,12 @@ class TabsBloc extends Bloc<TabsEvent, TabsState> {
 
   late final MenuSharedState menuSharedState;
 
+  @override
+  Future<void> close() {
+    state.dispose();
+    return super.close();
+  }
+
   void _dispatch() {
     on<TabsEvent>(
       (event, emit) async {

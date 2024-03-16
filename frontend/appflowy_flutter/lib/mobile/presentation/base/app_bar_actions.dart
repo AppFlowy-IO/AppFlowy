@@ -8,14 +8,17 @@ class AppBarBackButton extends StatelessWidget {
   const AppBarBackButton({
     super.key,
     this.onTap,
+    this.padding,
   });
 
   final VoidCallback? onTap;
+  final EdgeInsetsGeometry? padding;
 
   @override
   Widget build(BuildContext context) {
     return AppBarButton(
       onTap: onTap ?? () => Navigator.pop(context),
+      padding: padding,
       child: const FlowySvg(
         FlowySvgs.m_app_bar_back_s,
       ),
@@ -73,13 +76,79 @@ class AppBarDoneButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppBarButton(
-      isActionButton: true,
       onTap: onTap,
+      padding: const EdgeInsets.fromLTRB(12, 12, 8, 12),
       child: FlowyText(
-        LocaleKeys.button_Done.tr(),
+        LocaleKeys.button_done.tr(),
         color: Theme.of(context).colorScheme.primary,
         fontWeight: FontWeight.w500,
         textAlign: TextAlign.right,
+      ),
+    );
+  }
+}
+
+class AppBarSaveButton extends StatelessWidget {
+  const AppBarSaveButton({
+    super.key,
+    required this.onTap,
+    this.enable = true,
+    this.padding = const EdgeInsets.fromLTRB(12, 12, 8, 12),
+  });
+
+  final VoidCallback onTap;
+  final bool enable;
+  final EdgeInsetsGeometry padding;
+
+  @override
+  Widget build(BuildContext context) {
+    return AppBarButton(
+      onTap: () {
+        if (enable) {
+          onTap();
+        }
+      },
+      padding: padding,
+      child: FlowyText(
+        LocaleKeys.button_save.tr(),
+        color: enable
+            ? Theme.of(context).colorScheme.primary
+            : Theme.of(context).disabledColor,
+        fontWeight: FontWeight.w500,
+        textAlign: TextAlign.right,
+      ),
+    );
+  }
+}
+
+class AppBarFilledDoneButton extends StatelessWidget {
+  const AppBarFilledDoneButton({super.key, required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8, 4, 8, 8),
+      child: TextButton(
+        style: TextButton.styleFrom(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          elevation: 0,
+          visualDensity: VisualDensity.compact,
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          enableFeedback: true,
+          backgroundColor: Theme.of(context).primaryColor,
+        ),
+        onPressed: onTap,
+        child: FlowyText.medium(
+          LocaleKeys.button_done.tr(),
+          fontSize: 16,
+          color: Theme.of(context).colorScheme.onPrimary,
+          overflow: TextOverflow.ellipsis,
+        ),
       ),
     );
   }
@@ -96,7 +165,7 @@ class AppBarMoreButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppBarButton(
-      isActionButton: true,
+      padding: const EdgeInsets.fromLTRB(12, 12, 8, 12),
       onTap: () => onTap(context),
       child: const FlowySvg(FlowySvgs.three_dots_s),
     );
@@ -106,28 +175,22 @@ class AppBarMoreButton extends StatelessWidget {
 class AppBarButton extends StatelessWidget {
   const AppBarButton({
     super.key,
-    this.isActionButton = false,
     required this.onTap,
     required this.child,
+    this.padding,
   });
-
-  static const defaultWidth = 40.0;
 
   final VoidCallback onTap;
   final Widget child;
-  final bool isActionButton;
+  final EdgeInsetsGeometry? padding;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: onTap,
       child: Padding(
-        padding: EdgeInsets.only(
-          top: 12.0,
-          bottom: 12.0,
-          left: 12.0,
-          right: isActionButton ? 12.0 : 8.0,
-        ),
+        padding: padding ?? const EdgeInsets.all(12),
         child: child,
       ),
     );

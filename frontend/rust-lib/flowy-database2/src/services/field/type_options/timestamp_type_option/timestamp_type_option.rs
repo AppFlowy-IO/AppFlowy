@@ -152,6 +152,10 @@ impl CellDataDecoder for TimestampTypeOption {
     let cell_data = Self::CellData::from(cell);
     self.stringify_cell_data(cell_data)
   }
+
+  fn numeric_cell(&self, _cell: &Cell) -> Option<f64> {
+    None
+  }
 }
 
 impl CellDataChangeset for TimestampTypeOption {
@@ -170,15 +174,10 @@ impl CellDataChangeset for TimestampTypeOption {
 impl TypeOptionCellDataFilter for TimestampTypeOption {
   fn apply_filter(
     &self,
-    filter: &<Self as TypeOption>::CellFilter,
-    field_type: &FieldType,
-    cell_data: &<Self as TypeOption>::CellData,
+    _filter: &<Self as TypeOption>::CellFilter,
+    _cell_data: &<Self as TypeOption>::CellData,
   ) -> bool {
-    if !field_type.is_last_edited_time() && !field_type.is_created_time() {
-      return true;
-    }
-
-    filter.is_visible(cell_data.timestamp)
+    true
   }
 }
 

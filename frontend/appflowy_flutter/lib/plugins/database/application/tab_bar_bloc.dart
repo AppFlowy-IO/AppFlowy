@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/database/domain/database_view_service.dart';
 import 'package:appflowy/plugins/database/tab_bar/tab_bar_view.dart';
 import 'package:appflowy/plugins/database/widgets/database_layout_ext.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
@@ -11,7 +12,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'database_controller.dart';
-import 'database_view_service.dart';
 
 part 'tab_bar_bloc.freezed.dart';
 
@@ -131,6 +131,7 @@ class DatabaseTabBarBloc
   Future<void> close() async {
     for (final tabBar in state.tabBars) {
       await state.tabBarControllerByViewId[tabBar.viewId]?.dispose();
+      tabBar.dispose();
     }
     return super.close();
   }
@@ -261,6 +262,10 @@ class DatabaseTabBar extends Equatable {
 
   @override
   List<Object?> get props => [view.hashCode];
+
+  void dispose() {
+    _builder.dispose();
+  }
 }
 
 typedef OnViewUpdated = void Function(ViewPB newView);

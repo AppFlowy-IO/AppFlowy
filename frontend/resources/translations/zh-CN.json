@@ -33,8 +33,8 @@
   "signIn": {
     "loginTitle": "登录 @:appName",
     "loginButtonText": "登录",
-    "loginStartWithAnonymous": "从匿名会话开始",
-    "continueAnonymousUser": "继续匿名会话",
+    "loginStartWithAnonymous": "用离线模式开始",
+    "continueAnonymousUser": "继续离线模式",
     "buttonText": "登录",
     "signingInText": "登录中...",
     "forgotPassword": "忘记密码?",
@@ -58,9 +58,11 @@
     "resetWorkspacePrompt": "重置工作区将删除其中的所有页面和数据。您确定要重置工作区吗？或者，您可以联系支持团队来恢复工作区",
     "hint": "工作区",
     "notFoundError": "找不到工作区",
-    "failedToLoad": "出了些问题！无法加载工作区。请尝试重启AppFlowy。",
+    "failedToLoad": "出了些问题！无法加载工作区。请尝试重启 AppFlowy。",
     "errorActions": {
       "reportIssue": "上报问题",
+      "reportIssueOnGithub": "在 Github 上提出 issue",
+      "exportLogFiles": "导出日志文件",
       "reachOut": "Discord 联系我们"
     }
   },
@@ -77,7 +79,12 @@
     "large": "大",
     "fontSize": "字体大小",
     "import": "导入",
-    "moreOptions": "更多选项"
+    "moreOptions": "更多选项",
+    "wordCount": "字数： {}",
+    "charCount": "字符数：{}",
+    "createdAt": "创建于：{}",
+    "deleteView": "删除",
+    "duplicateView": "复制"
   },
   "importPanel": {
     "textAndMarkdown": "文本和Markdown",
@@ -172,17 +179,15 @@
     "link": "关联"
   },
   "tooltip": {
-    "lightMode": "切换到亮色模式",
-    "darkMode": "切换到暗色模式",
+    "lightMode": "切换到浅色",
+    "darkMode": "切换到深色",
     "openAsPage": "作为页面打开",
     "addNewRow": "添加一行",
     "openMenu": "点击打开菜单",
     "dragRow": "长按重新排序该行",
     "viewDataBase": "查看数据库",
     "referencePage": "这个 {name} 已被引用",
-    "addBlockBelow": "在下面添加一个块",
-    "urlLaunchAccessory": "在浏览器中打开",
-    "urlCopyAccessory": "复制链接"
+    "addBlockBelow": "在下面添加一个块"
   },
   "sideBar": {
     "closeSidebar": "关闭侧边栏",
@@ -235,9 +240,11 @@
     "helpCenter": "帮助中心",
     "add": "添加",
     "yes": "是",
-    "Done": "完成",
-    "Cancel": "取消",
-    "OK": "确定"
+    "clear": "清空",
+    "remove": "删除",
+    "dontRemove": "请勿删除",
+    "copyLink": "复制链接",
+    "align": "对齐"
   },
   "label": {
     "welcome": "欢迎！",
@@ -282,10 +289,12 @@
       "cloudLocal": "本地",
       "cloudSupabase": "Supabase",
       "cloudSupabaseUrl": "Supabase URL",
+      "cloudSupabaseUrlCanNotBeEmpty": "SUPABASE 地址不能为空",
       "cloudSupabaseAnonKey": "Supabase anon key",
       "cloudSupabaseAnonKeyCanNotBeEmpty": "如果 Supabase url 不为空，则 Anon key 不能为空",
       "cloudAppFlowy": "AppFlowy云",
       "cloudAppFlowySelfHost": "AppFlowy 云自行托管",
+      "appFlowyCloudUrlCanNotBeEmpty": "云地址不能为空",
       "clickToCopy": "点击复制",
       "selfHostStart": "如果您没有服务器，请参阅",
       "selfHostContent": "文档",
@@ -295,6 +304,7 @@
       "cloudWSURLHint": "输入您的服务器的 Websocket 地址",
       "restartApp": "重启",
       "restartAppTip": "重新启动应用程序以使更改生效。请注意，这可能会注销您当前的帐户",
+      "changeServerTip": "更改同步服务器后，你必须单击“重启”按钮才能使更改生效",
       "enableEncryptPrompt": "启用加密以使用此密钥保护您的数据。安全存放；一旦启用，就无法关闭。如果丢失，您的数据将无法恢复。点击复制",
       "inputEncryptPrompt": "请输入您的加密密钥",
       "clickToCopySecret": "点击复制密钥",
@@ -302,14 +312,14 @@
       "configServerGuide": "选择“快速启动”后，导航至“设置”，然后选择“云设置”以配置您的自托管服务器。",
       "inputTextFieldHint": "你的秘密",
       "historicalUserList": "用户登录历史记录",
-      "historicalUserListTooltip": "此列表显示您的游客帐户。您可以单击某个帐户来查看其详细信息。单击“开始”按钮即可创建游客帐户",
+      "historicalUserListTooltip": "此列表显示您的离线模式帐户。您可以单击某个帐户来查看其详细信息。单击“开始”按钮即可创建离线模式帐户",
       "openHistoricalUser": "暂不登录",
       "customPathPrompt": "将 AppFlowy 数据文件夹存储在云同步文件夹（例如 Google Drive）中可能会带来风险。如果同时从多个位置访问或修改此文件夹中的数据库，可能会导致同步冲突和潜在的数据损坏",
       "importAppFlowyData": "由外部 AppFlowy 文件夹导入数据",
       "importingAppFlowyDataTip": "数据导入正在进行中。请不要关闭此程序",
       "importAppFlowyDataDescription": "从外部 AppFlowy 数据文件夹复制数据并将其导入到当前 AppFlowy 数据文件夹中",
-      "importSuccess": "成功导入AppFlowy数据文件夹",
-      "importFailed": "导入AppFlowy",
+      "importSuccess": "成功导入 AppFlowy 数据文件夹",
+      "importFailed": "导入 AppFlowy",
       "importGuide": "欲了解更多详情，请查看参考文档",
       "supabaseSetting": "Supabase 设置",
       "cloudSetting": "云设置"
@@ -327,11 +337,12 @@
         "search": "搜索"
       },
       "themeMode": {
-        "label": "主题",
-        "light": "浅色模式",
-        "dark": "深色模式",
+        "label": "色彩模式",
+        "light": "浅色",
+        "dark": "深色",
         "system": "跟随系统"
       },
+      "fontScaleFactor": "字体缩放比例",
       "documentSettings": {
         "cursorColor": "光标颜色",
         "selectionColor": "文本选择颜色",
@@ -482,7 +493,6 @@
       "typeAValue": "输入一个值...",
       "layout": "布局",
       "databaseLayout": "布局",
-      "viewList": "数据库视图",
       "editView": "编辑视图",
       "boardSettings": "看板设置",
       "calendarSettings": "日历设置",
@@ -490,7 +500,8 @@
       "duplicateView": "复制视图",
       "deleteView": "删除视图",
       "numberOfVisibleFields": "显示 {}",
-      "Properties": "属性"
+      "Properties": "属性",
+      "viewList": "数据库视图"
     },
     "textFilter": {
       "contains": "包含",
@@ -520,13 +531,9 @@
       "isComplete": "已完成",
       "isIncomplted": "未完成"
     },
-    "singleSelectOptionFilter": {
+    "selectOptionFilter": {
       "is": "是",
       "isNot": "不是",
-      "isEmpty": "为空",
-      "isNotEmpty": "不为空"
-    },
-    "multiSelectOptionFilter": {
       "contains": "包含",
       "doesNotContain": "不包含",
       "isEmpty": "为空",
@@ -540,7 +547,25 @@
       "onOrAfter": "在或之后",
       "between": "之间",
       "empty": "为空",
-      "notEmpty": "不为空"
+      "notEmpty": "不为空",
+      "choicechipPrefix": {
+        "before": "之前",
+        "after": "之后",
+        "onOrBefore": "当天或之前",
+        "onOrAfter": "当天或之后",
+        "isEmpty": "为空",
+        "isNotEmpty": "不为空"
+      }
+    },
+    "numberFilter": {
+      "equal": "等于",
+      "notEqual": "不等于",
+      "lessThan": "小于",
+      "greaterThan": "大于",
+      "lessThanOrEqualTo": "小于等于",
+      "greaterThanOrEqualTo": "大于等于",
+      "isEmpty": "为空",
+      "isNotEmpty": "不为空"
     },
     "field": {
       "hide": "隐藏",
@@ -559,6 +584,7 @@
       "multiSelectFieldName": "多选",
       "urlFieldName": "网址",
       "checklistFieldName": "清单",
+      "relationFieldName": "关系",
       "numberFormat": "数字格式",
       "dateFormat": "日期格式",
       "includeTime": "包含时/分",
@@ -590,7 +616,8 @@
       "deleteFieldPromptMessage": "确定要删除这个属性吗? ",
       "newColumn": "新建列",
       "format": "格式",
-      "reminderOnDateTooltip": "这个单元格设置了一个预定的提醒"
+      "reminderOnDateTooltip": "这个单元格设置了一个预定的提醒",
+      "optionAlreadyExist": "选项已存在"
     },
     "rowPage": {
       "newField": "添加新字段",
@@ -611,6 +638,7 @@
       "descending": "降序",
       "deleteAllSorts": "删除所有排序",
       "addSort": "添加排序",
+      "removeSorting": "你确定要移除排序吗？",
       "deleteSort": "取消排序"
     },
     "row": {
@@ -657,8 +685,24 @@
       "hideComplete": "隐藏已完成的任务",
       "showComplete": "显示所有任务"
     },
+    "url": {
+      "launch": "在浏览器中打开",
+      "copy": "复制链接"
+    },
+    "relation": {
+      "emptySearchResult": "无结果"
+    },
     "menuName": "网格",
-    "referencedGridPrefix": "视图"
+    "referencedGridPrefix": "视图",
+    "calculate": "计算",
+    "calculationTypeLabel": {
+      "none": "无",
+      "average": "均值",
+      "max": "最大值",
+      "median": "中位数",
+      "min": "最小值",
+      "sum": "求和"
+    }
   },
   "document": {
     "menuName": "文档",
@@ -840,7 +884,9 @@
       "saveImageToGallery": "保存图片",
       "failedToAddImageToGallery": "无法将片像添加到图库",
       "successToAddImageToGallery": "图片已成功添加到图库",
-      "unableToLoadImage": "无法加载图片"
+      "unableToLoadImage": "无法加载图片",
+      "maximumImageSize": "支持上传的最大图片大小为 10MB",
+      "uploadImageErrorImageSizeTooBig": "图片大小必须小于 10MB"
     },
     "codeBlock": {
       "language": {
@@ -886,10 +932,10 @@
       "addToColumnBottomTooltip": "在底部添加一张新卡片",
       "renameColumn": "改名",
       "hideColumn": "隐藏",
-      "groupActions": "组操作",
       "newGroup": "新建组",
       "deleteColumn": "删除",
-      "deleteColumnConfirmation": "这将删除该组及其中的所有卡片。你确定你要继续吗？"
+      "deleteColumnConfirmation": "这将删除该组及其中的所有卡片。你确定你要继续吗？",
+      "groupActions": "组操作"
     },
     "hiddenGroupSection": {
       "sectionTitle": "私密组",
@@ -1049,6 +1095,7 @@
       "twoHoursBefore": "2小时前",
       "oneDayBefore": "1天前",
       "twoDaysBefore": "2天前",
+      "oneWeekBefore": "1周以前",
       "custom": "自定义"
     }
   },
@@ -1063,7 +1110,7 @@
     "mobile": {
       "title": "更新"
     },
-    "emptyTitle": "都处理了！",
+    "emptyTitle": "空空如也",
     "emptyBody": "都处理完成了，享受这份平静吧。",
     "tabs": {
       "inbox": "收件箱",
@@ -1215,7 +1262,7 @@
     "rowDuplicate": "复制行",
     "colClear": "清空本列内容",
     "rowClear": "清空本行内容",
-    "slashPlaceHolder": "输入 '/' 以插入块，或开始键入",
+    "slashPlaceHolder": "输入 '/' 以插入块，或开始输入",
     "typeSomething": "输入点东西..."
   },
   "favorite": {
@@ -1240,5 +1287,6 @@
     "date": "日期",
     "addField": "添加字段",
     "userIcon": "用户图标"
-  }
+  },
+  "noLogFiles": "没有日志文件"
 }

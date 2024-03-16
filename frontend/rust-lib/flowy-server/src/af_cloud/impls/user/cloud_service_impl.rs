@@ -2,7 +2,9 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 use anyhow::{anyhow, Error};
-use client_api::entity::workspace_dto::{CreateWorkspaceMember, WorkspaceMemberChangeset};
+use client_api::entity::workspace_dto::{
+  CreateWorkspaceMember, CreateWorkspaceParam, PatchWorkspaceParam, WorkspaceMemberChangeset,
+};
 use client_api::entity::{AFRole, AFWorkspace, AuthProvider, CollabParams, CreateCollabParams};
 use client_api::{Client, ClientConfiguration};
 use collab::core::collab::CollabDocState;
@@ -14,6 +16,7 @@ use flowy_user_pub::cloud::{UserCloudService, UserCollabParams, UserUpdate, User
 use flowy_user_pub::entities::*;
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
+use uuid::Uuid;
 
 use crate::af_cloud::define::USER_SIGN_IN_URL;
 use crate::af_cloud::impls::user::dto::{
@@ -294,6 +297,56 @@ where
       Ok(())
     })
   }
+
+  fn create_workspace(&self, workspace_name: &str) -> FutureResult<UserWorkspace, FlowyError> {
+    let try_get_client = self.server.try_get_client();
+    let workspace_name_owned = workspace_name.to_owned();
+    FutureResult::new(async move {
+      let client = try_get_client?;
+      let new_workspace = client
+        .create_workspace(CreateWorkspaceParam {
+          workspace_name: Some(workspace_name_owned),
+        })
+        .await?;
+      Ok(to_user_workspace(new_workspace))
+    })
+  }
+
+  fn delete_workspace(&self, workspace_id: &str) -> FutureResult<(), FlowyError> {
+    let try_get_client = self.server.try_get_client();
+    let workspace_id_owned = workspace_id.to_owned();
+    FutureResult::new(async move {
+      let client = try_get_client?;
+      client.delete_workspace(&workspace_id_owned).await?;
+      Ok(())
+    })
+  }
+
+  fn patch_workspace(
+    &self,
+    workspace_id: &str,
+    new_workspace_name: Option<&str>,
+    new_workspace_icon: Option<&str>,
+  ) -> FutureResult<(), FlowyError> {
+    let try_get_client = self.server.try_get_client();
+    let owned_workspace_id = workspace_id.to_owned();
+    let owned_workspace_name = new_workspace_name.map(|s| s.to_owned());
+    let owned_workspace_icon = new_workspace_icon.map(|s| s.to_owned());
+    FutureResult::new(async move {
+      let workspace_id: Uuid = owned_workspace_id
+        .parse()
+        .map_err(|_| ErrorCode::InvalidParams)?;
+      let client = try_get_client?;
+      client
+        .patch_workspace(PatchWorkspaceParam {
+          workspace_id,
+          workspace_name: owned_workspace_name,
+          workspace_icon: owned_workspace_icon,
+        })
+        .await?;
+      Ok(())
+    })
+  }
 }
 
 async fn get_admin_client(client: &Arc<AFCloudClient>) -> FlowyResult<Client> {
@@ -305,7 +358,9 @@ async fn get_admin_client(client: &Arc<AFCloudClient>) -> FlowyResult<Client> {
     client.base_url(),
     client.ws_addr(),
     client.gotrue_url(),
+    &client.device_id,
     ClientConfiguration::default(),
+    &client.client_version.to_string(),
   );
   admin_client
     .sign_in_password(&admin_email, &admin_password)
@@ -354,6 +409,7 @@ fn to_user_workspace(af_workspace: AFWorkspace) -> UserWorkspace {
     name: af_workspace.workspace_name,
     created_at: af_workspace.created_at,
     workspace_database_object_id: af_workspace.database_storage_id.to_string(),
+    icon: af_workspace.icon,
   }
 }
 

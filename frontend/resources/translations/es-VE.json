@@ -9,6 +9,7 @@
   "title": "Título",
   "youCanAlso": "Tú también puedes",
   "and": "y",
+  "failedToOpenUrl": "No se pudo abrir la URL: {}",
   "blockActions": {
     "addBelowTooltip": "Haga clic para agregar a continuación",
     "addAboveCmd": "Alt+clic",
@@ -61,8 +62,18 @@
     "failedToLoad": "¡Algo salió mal! No se pudo cargar el espacio de trabajo. Intente cerrar cualquier instancia abierta de AppFlowy y vuelva a intentarlo.",
     "errorActions": {
       "reportIssue": "Reportar un problema",
+      "reportIssueOnGithub": "Informar un problema en Github",
+      "exportLogFiles": "Exportar archivos de registro (logs)",
       "reachOut": "Comuníquese con Discord"
-    }
+    },
+    "deleteWorkspaceHintText": "¿Está seguro de que desea eliminar el espacio de trabajo? Esta acción no se puede deshacer.",
+    "createSuccess": "Espacio de trabajo creado exitosamente",
+    "createFailed": "No se pudo crear el espacio de trabajo",
+    "deleteSuccess": "Espacio de trabajo eliminado correctamente",
+    "deleteFailed": "No se pudo eliminar el espacio de trabajo",
+    "openFailed": "No se pudo abrir el espacio de trabajo",
+    "renameSuccess": "Espacio de trabajo renombrado exitosamente",
+    "renameFailed": "No se pudo cambiar el nombre del espacio de trabajo"
   },
   "shareAction": {
     "buttonText": "Compartir",
@@ -77,7 +88,11 @@
     "large": "grande",
     "fontSize": "Tamaño de fuente",
     "import": "Importar",
-    "moreOptions": "Mas opciones"
+    "moreOptions": "Mas opciones",
+    "wordCount": "El recuento de palabras: {}",
+    "charCount": "Número de caracteres : {}",
+    "deleteView": "Borrar",
+    "duplicateView": "Duplicar"
   },
   "importPanel": {
     "textAndMarkdown": "Texto y descuento",
@@ -180,9 +195,7 @@
     "dragRow": "Pulsación larga para reordenar la fila",
     "viewDataBase": "Ver base de datos",
     "referencePage": "Se hace referencia a este {nombre}",
-    "addBlockBelow": "Añadir un bloque a continuación",
-    "urlLaunchAccessory": "Abrir en el navegador",
-    "urlCopyAccessory": "Copiar URL"
+    "addBlockBelow": "Añadir un bloque a continuación"
   },
   "sideBar": {
     "closeSidebar": "Cerrar panel lateral",
@@ -235,9 +248,17 @@
     "helpCenter": "Centro de ayuda",
     "add": "Añadir",
     "yes": "Si",
-    "Done": "Hecho",
-    "Cancel": "Cancelar",
-    "OK": "OK"
+    "remove": "Eliminar",
+    "dontRemove": "no quitar",
+    "copyLink": "Copiar enlace",
+    "align": "Alinear",
+    "login": "Inciar sessión",
+    "logout": "Cerrar sesión",
+    "deleteAccount": "Borrar cuenta",
+    "back": "Atrás",
+    "signInGoogle": "Inicia sesión con Google",
+    "signInGithub": "Iniciar sesión con Github",
+    "signInDiscord": "Iniciar sesión con discordia"
   },
   "label": {
     "welcome": "¡Bienvenido!",
@@ -468,14 +489,14 @@
       "typeAValue": "Escriba un valor...",
       "layout": "Disposición",
       "databaseLayout": "Disposición",
-      "viewList": "Vistas de base de datos",
       "editView": "Editar vista",
       "boardSettings": "Configuración del tablero",
       "calendarSettings": "Configuración del calendario",
       "createView": "Nueva vista",
       "duplicateView": "Duplicar vista",
       "deleteView": "Eliminar vista",
-      "Properties": "Propiedades"
+      "Properties": "Propiedades",
+      "viewList": "Vistas de base de datos"
     },
     "textFilter": {
       "contains": "Contiene",
@@ -505,13 +526,9 @@
       "isComplete": "Esta completo",
       "isIncomplted": "esta incompleto"
     },
-    "singleSelectOptionFilter": {
+    "selectOptionFilter": {
       "is": "Es",
       "isNot": "No es",
-      "isEmpty": "Esta vacio",
-      "isNotEmpty": "No está vacío"
-    },
-    "multiSelectOptionFilter": {
       "contains": "Contiene",
       "doesNotContain": "No contiene",
       "isEmpty": "Esta vacio",
@@ -629,6 +646,10 @@
       "submitNewTask": "Crear",
       "hideComplete": "Ocultar tareas completadas",
       "showComplete": "Mostrar todas las tareas"
+    },
+    "url": {
+      "launch": "Abrir en el navegador",
+      "copy": "Copiar URL"
     },
     "menuName": "Cuadrícula",
     "referencedGridPrefix": "Vista de"
@@ -837,9 +858,9 @@
       "createNewColumn": "Agregar un nuevo grupo",
       "renameColumn": "Renombrar",
       "hideColumn": "Ocultar",
-      "groupActions": "Acciones grupales",
       "newGroup": "Nuevo grupo",
-      "deleteColumn": "Borrar"
+      "deleteColumn": "Borrar",
+      "groupActions": "Acciones grupales"
     },
     "hiddenGroupSection": {
       "sectionTitle": "Grupos ocultos"

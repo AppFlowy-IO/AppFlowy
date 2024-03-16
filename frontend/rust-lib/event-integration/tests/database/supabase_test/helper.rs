@@ -70,7 +70,7 @@ impl FlowySupabaseDatabaseTest {
     let workspace_id = self.user_manager.workspace_id().unwrap();
     let cloud_service = self.database_manager.get_cloud_service().clone();
     cloud_service
-      .get_collab_doc_state_db(database_id, CollabType::Database, &workspace_id)
+      .get_database_object_doc_state(database_id, CollabType::Database, &workspace_id)
       .await
       .unwrap()
   }

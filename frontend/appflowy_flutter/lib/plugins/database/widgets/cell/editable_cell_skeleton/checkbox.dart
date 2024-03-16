@@ -80,9 +80,7 @@ class _CheckboxCellState extends GridCellState<EditableCheckboxCell> {
   }
 
   @override
-  void requestBeginFocus() {
-    cellBloc.add(const CheckboxCellEvent.select());
-  }
+  void onRequestFocus() => cellBloc.add(const CheckboxCellEvent.select());
 
   @override
   String? onCopy() {

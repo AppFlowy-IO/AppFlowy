@@ -4,6 +4,7 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/startup/tasks/memory_leak_detector.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
+import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/home/home_bloc.dart';
 import 'package:appflowy/workspace/application/home/home_service.dart';
 import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
@@ -53,8 +54,8 @@ class DesktopHomeScreen extends StatelessWidget {
           (error) => null,
         );
         final userProfile = snapshots.data?[1].fold(
-          (error) => null,
           (userProfilePB) => userProfilePB as UserProfilePB,
+          (error) => null,
         );
 
         // In the unlikely case either of the above is null, eg.
@@ -84,6 +85,10 @@ class DesktopHomeScreen extends StatelessWidget {
                   context.widthPx,
                 )..add(const HomeSettingEvent.initial());
               },
+            ),
+            BlocProvider<FavoriteBloc>(
+              create: (context) =>
+                  FavoriteBloc()..add(const FavoriteEvent.initial()),
             ),
           ],
           child: HomeHotKeys(
@@ -177,7 +182,7 @@ class DesktopHomeScreen extends StatelessWidget {
     required WorkspaceSettingPB workspaceSetting,
   }) {
     final homeMenu = HomeSideBar(
-      user: userProfile,
+      userProfile: userProfile,
       workspaceSetting: workspaceSetting,
     );
     return FocusTraversalGroup(child: RepaintBoundary(child: homeMenu));
@@ -192,15 +197,16 @@ class DesktopHomeScreen extends StatelessWidget {
       buildWhen: (previous, current) =>
           previous.panelContext != current.panelContext,
       builder: (context, state) {
-        return state.panelContext.fold(
-          () => const SizedBox(),
-          (panelContext) => FocusTraversalGroup(
-            child: RepaintBoundary(
-              child: EditPanel(
-                panelContext: panelContext,
-                onEndEdit: () =>
-                    homeBloc.add(const HomeSettingEvent.dismissEditPanel()),
-              ),
+        final panelContext = state.panelContext;
+        if (panelContext == null) {
+          return const SizedBox.shrink();
+        }
+        return FocusTraversalGroup(
+          child: RepaintBoundary(
+            child: EditPanel(
+              panelContext: panelContext,
+              onEndEdit: () =>
+                  homeBloc.add(const HomeSettingEvent.dismissEditPanel()),
             ),
           ),
         );

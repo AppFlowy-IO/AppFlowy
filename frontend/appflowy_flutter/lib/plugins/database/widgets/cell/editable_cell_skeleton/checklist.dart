@@ -58,7 +58,7 @@ class GridChecklistCellState extends GridCellState<EditableChecklistCell> {
       widget.databaseController,
       widget.cellContext,
     ).as(),
-  )..add(const ChecklistCellEvent.initial());
+  );
 
   @override
   void dispose() {
@@ -85,7 +85,7 @@ class GridChecklistCellState extends GridCellState<EditableChecklistCell> {
   }
 
   @override
-  void requestBeginFocus() {
+  void onRequestFocus() {
     if (widget.skin is DesktopGridChecklistCellSkin) {
       _popover.show();
     }

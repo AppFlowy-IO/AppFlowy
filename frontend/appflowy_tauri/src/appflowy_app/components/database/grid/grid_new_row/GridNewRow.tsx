@@ -1,8 +1,8 @@
 import React, { useCallback } from 'react';
 import { rowService } from '$app/application/database';
 import { useViewId } from '$app/hooks';
-import { t } from 'i18next';
 import { ReactComponent as AddSvg } from '$app/assets/add.svg';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   index: number;
@@ -15,6 +15,7 @@ const CSS_HIGHLIGHT_PROPERTY = 'bg-content-blue-50';
 function GridNewRow({ index, groupId, getContainerRef }: Props) {
   const viewId = useViewId();
 
+  const { t } = useTranslation();
   const handleClick = useCallback(() => {
     void rowService.createRow(viewId, {
       groupId,
@@ -49,7 +50,7 @@ function GridNewRow({ index, groupId, getContainerRef }: Props) {
         toggleCssProperty(false);
       }}
       onClick={handleClick}
-      className={'grid-new-row flex grow cursor-pointer'}
+      className={'grid-new-row flex grow cursor-pointer text-text-title'}
     >
       <span
         style={{

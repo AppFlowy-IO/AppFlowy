@@ -1,16 +1,7 @@
 import { ReactEditor } from 'slate-react';
-import { Editor, Range } from 'slate';
 import { getEditorDomNode } from '$app/components/editor/plugins/utils';
 
 export function getSelectionPosition(editor: ReactEditor) {
-  const { selection } = editor;
-
-  const isFocused = ReactEditor.isFocused(editor);
-
-  if (!selection || !isFocused || Range.isCollapsed(selection) || Editor.string(editor, selection) === '') {
-    return null;
-  }
-
   const domSelection = window.getSelection();
   const rangeCount = domSelection?.rangeCount;
 
@@ -26,7 +17,7 @@ export function getSelectionPosition(editor: ReactEditor) {
   const domNodeRect = domNode.getBoundingClientRect();
 
   // the default height of the toolbar is 30px
-  const gap = 36;
+  const gap = 106;
 
   if (rect) {
     let relativeDomTop = rect.top - domNodeRect.top;
@@ -34,7 +25,7 @@ export function getSelectionPosition(editor: ReactEditor) {
 
     // if the range is above the window, move the toolbar to the bottom of range
     if (rect.top < gap) {
-      relativeDomTop = rect.bottom - gap - domNodeRect.top;
+      relativeDomTop = -domNodeRect.top + gap;
     }
 
     newRect = {

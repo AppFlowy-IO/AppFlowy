@@ -10,8 +10,7 @@ use flowy_error::{FlowyError, FlowyResult};
 
 use crate::entities::{FieldType, TextFilterPB};
 use crate::services::cell::{
-  stringify_cell_data, CellDataChangeset, CellDataDecoder, CellProtobufBlobParser, DecodedCellData,
-  FromCellString,
+  stringify_cell_data, CellDataChangeset, CellDataDecoder, CellProtobufBlobParser,
 };
 use crate::services::field::type_options::util::ProtobufStr;
 use crate::services::field::{
@@ -73,6 +72,7 @@ impl TypeOptionTransform for RichTextTypeOption {
       || transformed_field_type.is_multi_select()
       || transformed_field_type.is_number()
       || transformed_field_type.is_url()
+      || transformed_field_type.is_checklist()
     {
       Some(StrCellData::from(stringify_cell_data(
         cell,
@@ -116,6 +116,10 @@ impl CellDataDecoder for RichTextTypeOption {
   fn stringify_cell(&self, cell: &Cell) -> String {
     Self::CellData::from(cell).to_string()
   }
+
+  fn numeric_cell(&self, cell: &Cell) -> Option<f64> {
+    StrCellData::from(cell).0.parse::<f64>().ok()
+  }
 }
 
 impl CellDataChangeset for RichTextTypeOption {
@@ -140,13 +144,8 @@ impl TypeOptionCellDataFilter for RichTextTypeOption {
   fn apply_filter(
     &self,
     filter: &<Self as TypeOption>::CellFilter,
-    field_type: &FieldType,
     cell_data: &<Self as TypeOption>::CellData,
   ) -> bool {
-    if !field_type.is_text() {
-      return false;
-    }
-
     filter.is_visible(cell_data)
   }
 }
@@ -186,26 +185,9 @@ impl std::ops::Deref for TextCellData {
   }
 }
 
-impl FromCellString for TextCellData {
-  fn from_cell_str(s: &str) -> FlowyResult<Self>
-  where
-    Self: Sized,
-  {
-    Ok(TextCellData(s.to_owned()))
-  }
-}
-
 impl ToString for TextCellData {
   fn to_string(&self) -> String {
     self.0.clone()
-  }
-}
-
-impl DecodedCellData for TextCellData {
-  type Object = TextCellData;
-
-  fn is_empty(&self) -> bool {
-    self.0.is_empty()
   }
 }
 
@@ -253,12 +235,6 @@ impl From<StrCellData> for Cell {
 impl std::ops::DerefMut for StrCellData {
   fn deref_mut(&mut self) -> &mut Self::Target {
     &mut self.0
-  }
-}
-
-impl FromCellString for StrCellData {
-  fn from_cell_str(s: &str) -> FlowyResult<Self> {
-    Ok(Self(s.to_owned()))
   }
 }
 

@@ -22,7 +22,9 @@ function ViewIcon({ icon, onUpdateIcon }: { icon?: PageIcon; onUpdateIcon: (icon
   const onEmojiSelect = useCallback(
     (emoji: string) => {
       onUpdateIcon(emoji);
-      setAnchorPosition(undefined);
+      if (!emoji) {
+        setAnchorPosition(undefined);
+      }
     },
     [onUpdateIcon]
   );
@@ -30,7 +32,7 @@ function ViewIcon({ icon, onUpdateIcon }: { icon?: PageIcon; onUpdateIcon: (icon
   if (!icon) return null;
   return (
     <>
-      <div className={`-ml-2 flex rounded p-2 hover:bg-content-blue-50`}>
+      <div className={`view-icon -ml-2 flex rounded p-2`}>
         <div onClick={onOpen} className={'h-full w-full cursor-pointer rounded text-6xl'}>
           {icon.value}
         </div>
@@ -38,13 +40,19 @@ function ViewIcon({ icon, onUpdateIcon }: { icon?: PageIcon; onUpdateIcon: (icon
       {open && (
         <Popover
           open={open}
+          autoFocus={true}
+          disableRestoreFocus={false}
           anchorReference='anchorPosition'
           anchorPosition={anchorPosition}
-          disableAutoFocus
-          disableRestoreFocus
           onClose={() => setAnchorPosition(undefined)}
         >
-          <EmojiPicker onEmojiSelect={onEmojiSelect} />
+          <EmojiPicker
+            defaultEmoji={icon.value}
+            onEscape={() => {
+              setAnchorPosition(undefined);
+            }}
+            onEmojiSelect={onEmojiSelect}
+          />
         </Popover>
       )}
     </>

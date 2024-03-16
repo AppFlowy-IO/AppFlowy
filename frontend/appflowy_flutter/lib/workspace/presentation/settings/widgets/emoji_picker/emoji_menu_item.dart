@@ -17,10 +17,12 @@ SelectionMenuItem emojiMenuItem = SelectionMenuItem(
   keywords: ['emoji'],
   handler: (editorState, menuService, context) {
     final container = Overlay.of(context);
+    menuService.dismiss();
     showEmojiPickerMenu(
       container,
       editorState,
-      menuService,
+      menuService.alignment,
+      menuService.offset,
     );
   },
 );
@@ -28,12 +30,9 @@ SelectionMenuItem emojiMenuItem = SelectionMenuItem(
 void showEmojiPickerMenu(
   OverlayState container,
   EditorState editorState,
-  SelectionMenuService menuService,
+  Alignment alignment,
+  Offset offset,
 ) {
-  menuService.dismiss();
-
-  final alignment = menuService.alignment;
-  final offset = menuService.offset;
   final top = alignment == Alignment.topLeft ? offset.dy : null;
   final bottom = alignment == Alignment.bottomLeft ? offset.dy : null;
 

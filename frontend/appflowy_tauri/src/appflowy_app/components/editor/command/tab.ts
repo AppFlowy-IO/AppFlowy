@@ -12,16 +12,6 @@ export const LIST_TYPES = [
   EditorNodeType.Paragraph,
 ];
 
-const LIST_ITEM_TYPES = [
-  EditorNodeType.NumberedListBlock,
-  EditorNodeType.BulletedListBlock,
-  EditorNodeType.TodoListBlock,
-  EditorNodeType.ToggleListBlock,
-  EditorNodeType.QuoteBlock,
-  EditorNodeType.Paragraph,
-  EditorNodeType.HeadingBlock,
-];
-
 /**
  * Indent the current list item
  * Conditions:
@@ -41,10 +31,9 @@ export function tabForward(editor: ReactEditor) {
 
   const [node, path] = match as NodeEntry<Element>;
 
-  // the node is not a list item
-  if (!LIST_ITEM_TYPES.includes(node.type as EditorNodeType)) {
-    return;
-  }
+  const hasPrevious = Path.hasPrevious(path);
+
+  if (!hasPrevious) return;
 
   const previousPath = Path.previous(path);
 
@@ -55,6 +44,7 @@ export function tabForward(editor: ReactEditor) {
 
   const type = previousNode.type as EditorNodeType;
 
+  if (type === EditorNodeType.Page) return;
   // the previous node is not a list
   if (!LIST_TYPES.includes(type)) return;
 
@@ -84,12 +74,6 @@ export function tabBackward(editor: ReactEditor) {
   const depth = path.length;
 
   if (node.type === EditorNodeType.Page) return;
-  if (node.type !== EditorNodeType.Paragraph) {
-    CustomEditor.turnToBlock(editor, {
-      type: EditorNodeType.Paragraph,
-    });
-    return;
-  }
 
   if (depth === 1) return;
   editor.liftNodes({

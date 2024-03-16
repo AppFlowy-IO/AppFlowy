@@ -98,7 +98,7 @@ class _GridCellEnterRegion extends StatelessWidget {
     return Selector2<RegionStateNotifier, CellContainerNotifier, bool>(
       selector: (context, regionNotifier, cellNotifier) =>
           !cellNotifier.isFocus &&
-          (cellNotifier.onEnter || regionNotifier.onEnter && isPrimary),
+          (cellNotifier.isHover || regionNotifier.onEnter && isPrimary),
       builder: (context, showAccessory, _) {
         final List<Widget> children = [child];
 
@@ -113,9 +113,9 @@ class _GridCellEnterRegion extends StatelessWidget {
         return MouseRegion(
           cursor: SystemMouseCursors.click,
           onEnter: (p) =>
-              CellContainerNotifier.of(context, listen: false).onEnter = true,
+              CellContainerNotifier.of(context, listen: false).isHover = true,
           onExit: (p) =>
-              CellContainerNotifier.of(context, listen: false).onEnter = false,
+              CellContainerNotifier.of(context, listen: false).isHover = false,
           child: Stack(
             alignment: AlignmentDirectional.center,
             fit: StackFit.expand,
@@ -138,7 +138,7 @@ class CellContainerNotifier extends ChangeNotifier {
     }
   }
 
-  set onEnter(bool value) {
+  set isHover(bool value) {
     if (_onEnter != value) {
       _onEnter = value;
       notifyListeners();
@@ -147,7 +147,7 @@ class CellContainerNotifier extends ChangeNotifier {
 
   bool get isFocus => _isFocus;
 
-  bool get onEnter => _onEnter;
+  bool get isHover => _onEnter;
 
   static CellContainerNotifier of(BuildContext context, {bool listen = true}) {
     return Provider.of<CellContainerNotifier>(context, listen: listen);

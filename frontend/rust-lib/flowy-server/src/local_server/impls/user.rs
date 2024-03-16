@@ -174,6 +174,38 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
   ) -> FutureResult<(), Error> {
     FutureResult::new(async { Err(anyhow!("local server doesn't support create collab object")) })
   }
+
+  fn create_workspace(&self, _workspace_name: &str) -> FutureResult<UserWorkspace, FlowyError> {
+    FutureResult::new(async {
+      Err(
+        FlowyError::local_version_not_support()
+          .with_context("local server doesn't support multiple workspaces"),
+      )
+    })
+  }
+
+  fn delete_workspace(&self, _workspace_id: &str) -> FutureResult<(), FlowyError> {
+    FutureResult::new(async {
+      Err(
+        FlowyError::local_version_not_support()
+          .with_context("local server doesn't support multiple workspaces"),
+      )
+    })
+  }
+
+  fn patch_workspace(
+    &self,
+    _workspace_id: &str,
+    _new_workspace_name: Option<&str>,
+    _new_workspace_icon: Option<&str>,
+  ) -> FutureResult<(), FlowyError> {
+    FutureResult::new(async {
+      Err(
+        FlowyError::local_version_not_support()
+          .with_context("local server doesn't support multiple workspaces"),
+      )
+    })
+  }
 }
 
 fn make_user_workspace() -> UserWorkspace {
@@ -182,5 +214,6 @@ fn make_user_workspace() -> UserWorkspace {
     name: "My Workspace".to_string(),
     created_at: Default::default(),
     workspace_database_object_id: uuid::Uuid::new_v4().to_string(),
+    icon: "".to_string(),
   }
 }

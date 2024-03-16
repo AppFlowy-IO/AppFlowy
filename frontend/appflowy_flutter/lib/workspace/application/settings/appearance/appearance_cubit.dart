@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:appflowy/core/config/kv.dart';
+import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/user_settings_service.dart';
 import 'package:appflowy/util/color_to_hex_string.dart';
@@ -42,6 +44,7 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
             appearanceSettings.monospaceFont,
             appearanceSettings.layoutDirection,
             appearanceSettings.textDirection,
+            appearanceSettings.enableRtlToolbarItems,
             appearanceSettings.locale,
             appearanceSettings.isMenuCollapsed,
             appearanceSettings.menuOffset,
@@ -60,11 +63,35 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
                       appearanceSettings.documentSetting.selectionColor,
                     ),
                   ),
+            1.0,
           ),
-        );
+        ) {
+    readTextScaleFactor();
+  }
 
   final AppearanceSettingsPB _appearanceSettings;
   final DateTimeSettingsPB _dateTimeSettings;
+
+  Future<void> setTextScaleFactor(double textScaleFactor) async {
+    // only saved in local storage, this value is not synced across devices
+    await getIt<KeyValueStorage>().set(
+      KVKeys.textScaleFactor,
+      textScaleFactor.toString(),
+    );
+
+    // don't allow the text scale factor to be greater than 1.0, it will cause
+    // ui issues
+    emit(state.copyWith(textScaleFactor: textScaleFactor.clamp(0.7, 1.0)));
+  }
+
+  Future<void> readTextScaleFactor() async {
+    final textScaleFactor = await getIt<KeyValueStorage>().getWithFormat(
+          KVKeys.textScaleFactor,
+          (value) => double.parse(value),
+        ) ??
+        1.0;
+    emit(state.copyWith(textScaleFactor: textScaleFactor.clamp(0.7, 1.0)));
+  }
 
   /// Update selected theme in the user's settings and emit an updated state
   /// with the AppTheme named [themeName].
@@ -108,6 +135,12 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
         textDirection?.toTextDirectionPB() ?? TextDirectionPB.FALLBACK;
     _saveAppearanceSettings();
     emit(state.copyWith(textDirection: textDirection));
+  }
+
+  void setEnableRTLToolbarItems(bool value) {
+    _appearanceSettings.enableRtlToolbarItems = value;
+    _saveAppearanceSettings();
+    emit(state.copyWith(enableRtlToolbarItems: value));
   }
 
   /// Update selected font in the user's settings and emit an updated state
@@ -244,8 +277,8 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
     final result = await UserSettingsBackendService()
         .setDateTimeSettings(_dateTimeSettings);
     result.fold(
-      (error) => Log.error(error),
       (_) => null,
+      (error) => Log.error(error),
     );
   }
 
@@ -344,6 +377,7 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
     required String monospaceFont,
     required LayoutDirection layoutDirection,
     required AppFlowyTextDirection? textDirection,
+    required bool enableRtlToolbarItems,
     required Locale locale,
     required bool isMenuCollapsed,
     required double menuOffset,
@@ -352,6 +386,7 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
     required String timezoneId,
     required Color? documentCursorColor,
     required Color? documentSelectionColor,
+    required double textScaleFactor,
   }) = _AppearanceSettingsState;
 
   factory AppearanceSettingsState.initial(
@@ -361,6 +396,7 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
     String monospaceFont,
     LayoutDirectionPB layoutDirectionPB,
     TextDirectionPB? textDirectionPB,
+    bool enableRtlToolbarItems,
     LocaleSettingsPB localePB,
     bool isMenuCollapsed,
     double menuOffset,
@@ -369,6 +405,7 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
     String timezoneId,
     Color? documentCursorColor,
     Color? documentSelectionColor,
+    double textScaleFactor,
   ) {
     return AppearanceSettingsState(
       appTheme: appTheme,
@@ -376,6 +413,7 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
       monospaceFont: monospaceFont,
       layoutDirection: LayoutDirection.fromLayoutDirectionPB(layoutDirectionPB),
       textDirection: AppFlowyTextDirection.fromTextDirectionPB(textDirectionPB),
+      enableRtlToolbarItems: enableRtlToolbarItems,
       themeMode: _themeModeFromPB(themeModePB),
       locale: Locale(localePB.languageCode, localePB.countryCode),
       isMenuCollapsed: isMenuCollapsed,
@@ -385,6 +423,7 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
       timezoneId: timezoneId,
       documentCursorColor: documentCursorColor,
       documentSelectionColor: documentSelectionColor,
+      textScaleFactor: textScaleFactor,
     );
   }
 

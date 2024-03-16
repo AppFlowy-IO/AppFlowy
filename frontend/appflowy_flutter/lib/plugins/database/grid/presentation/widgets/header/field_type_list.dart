@@ -9,6 +9,20 @@ import '../../layout/sizes.dart';
 
 typedef SelectFieldCallback = void Function(FieldType);
 
+const List<FieldType> _supportedFieldTypes = [
+  FieldType.RichText,
+  FieldType.Number,
+  FieldType.SingleSelect,
+  FieldType.MultiSelect,
+  FieldType.DateTime,
+  FieldType.Checkbox,
+  FieldType.Checklist,
+  FieldType.URL,
+  FieldType.LastEditedTime,
+  FieldType.CreatedTime,
+  FieldType.Relation,
+];
+
 class FieldTypeList extends StatelessWidget with FlowyOverlayDelegate {
   const FieldTypeList({required this.onSelectField, super.key});
 
@@ -16,7 +30,7 @@ class FieldTypeList extends StatelessWidget with FlowyOverlayDelegate {
 
   @override
   Widget build(BuildContext context) {
-    final cells = FieldType.values.map((fieldType) {
+    final cells = _supportedFieldTypes.map((fieldType) {
       return FieldTypeCell(
         fieldType: fieldType,
         onSelectField: (fieldType) {

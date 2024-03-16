@@ -26,6 +26,8 @@ export async function getDatabase(viewId: string) {
 
   const result = await DatabaseEventGetDatabase(payload);
 
+  if (!result.ok) return Promise.reject('Failed to get database');
+
   return result
     .map((value) => {
       return {

@@ -1,8 +1,11 @@
-use anyhow::{anyhow, Error};
-use client_api::entity::{CollabParams, QueryCollab, QueryCollabParams};
+use anyhow::Error;
+use client_api::entity::{
+  workspace_dto::CreateWorkspaceParam, CollabParams, QueryCollab, QueryCollabParams,
+};
 use collab::core::collab::CollabDocState;
 use collab::core::origin::CollabOrigin;
 use collab_entity::CollabType;
+use collab_folder::RepeatedViewIdentifier;
 
 use flowy_error::FlowyError;
 use flowy_folder_pub::cloud::{
@@ -19,8 +22,27 @@ impl<T> FolderCloudService for AFCloudFolderCloudServiceImpl<T>
 where
   T: AFServer,
 {
-  fn create_workspace(&self, _uid: i64, _name: &str) -> FutureResult<Workspace, Error> {
-    FutureResult::new(async move { Err(anyhow!("Not support yet")) })
+  fn create_workspace(&self, _uid: i64, name: &str) -> FutureResult<Workspace, Error> {
+    let try_get_client = self.0.try_get_client();
+    let cloned_name = name.to_string();
+    FutureResult::new(async move {
+      let client = try_get_client?;
+      let new_workspace = client
+        .create_workspace(CreateWorkspaceParam {
+          workspace_name: Some(cloned_name),
+        })
+        .await?;
+
+      Ok(Workspace {
+        id: new_workspace.workspace_id.to_string(),
+        name: new_workspace.workspace_name,
+        created_at: new_workspace.created_at.timestamp(),
+        child_views: RepeatedViewIdentifier::new(vec![]),
+        created_by: Some(new_workspace.owner_uid),
+        last_edited_time: new_workspace.created_at.timestamp(),
+        last_edited_by: Some(new_workspace.owner_uid),
+      })
+    })
   }
 
   fn open_workspace(&self, workspace_id: &str) -> FutureResult<(), Error> {
@@ -88,7 +110,7 @@ where
     FutureResult::new(async move { Ok(vec![]) })
   }
 
-  fn get_collab_doc_state_f(
+  fn get_folder_doc_state(
     &self,
     workspace_id: &str,
     _uid: i64,
@@ -116,7 +138,7 @@ where
     })
   }
 
-  fn batch_create_collab_object_f(
+  fn batch_create_folder_collab_objects(
     &self,
     workspace_id: &str,
     objects: Vec<FolderCollabParams>,

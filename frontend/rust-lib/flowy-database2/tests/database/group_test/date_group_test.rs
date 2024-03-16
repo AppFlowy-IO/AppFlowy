@@ -3,12 +3,8 @@ use std::vec;
 
 use chrono::NaiveDateTime;
 use chrono::{offset, Duration};
-use collab_database::database::gen_row_id;
-use collab_database::rows::CreateRowParams;
 
-use collab_database::views::OrderObjectPosition;
-use flowy_database2::entities::FieldType;
-use flowy_database2::services::cell::CellBuilder;
+use flowy_database2::entities::{CreateRowPayloadPB, FieldType};
 use flowy_database2::services::field::DateCellData;
 
 use crate::database::group_test::script::DatabaseGroupTest;
@@ -26,19 +22,17 @@ async fn group_by_date_test() {
       .unwrap()
       .timestamp()
       .to_string();
+
     let mut cells = HashMap::new();
     cells.insert(date_field.id.clone(), timestamp);
-    let cells = CellBuilder::with_cells(cells, &[date_field.clone()]).build();
 
-    let params = CreateRowParams {
-      id: gen_row_id(),
-      cells,
-      height: 60,
-      visibility: true,
-      row_position: OrderObjectPosition::default(),
-      timestamp: 0,
+    let params = CreateRowPayloadPB {
+      view_id: test.view_id.clone(),
+      data: cells,
+      ..Default::default()
     };
-    let res = test.editor.create_row(&test.view_id, None, params).await;
+
+    let res = test.editor.create_row(params).await;
     assert!(res.is_ok());
   }
 

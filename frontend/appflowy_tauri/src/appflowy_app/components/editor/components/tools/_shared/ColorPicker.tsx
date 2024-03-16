@@ -1,155 +1,174 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { CustomColorPicker } from '$app/components/editor/components/tools/_shared/CustomColorPicker';
+import React, { useCallback, useRef, useMemo } from 'react';
 import Typography from '@mui/material/Typography';
-import { IconButton, MenuItem, MenuList } from '@mui/material';
-import { ReactComponent as DeleteSvg } from '$app/assets/delete.svg';
-import { ReactComponent as MoreSvg } from '$app/assets/more.svg';
-import { PopoverNoBackdropProps } from '$app/components/editor/components/tools/popover';
-import Tooltip from '@mui/material/Tooltip';
-import { useAppSelector } from '$app/stores/store';
-import { ThemeMode } from '$app_reducers/current-user/slice';
+import KeyboardNavigation, {
+  KeyboardNavigationOption,
+} from '$app/components/_shared/keyboard_navigation/KeyboardNavigation';
+import { useTranslation } from 'react-i18next';
+import { TitleOutlined } from '@mui/icons-material';
+import { EditorMarkFormat } from '$app/application/document/document.types';
+import { ColorEnum, renderColor } from '$app/utils/color';
 
 export interface ColorPickerProps {
-  onFocus?: () => void;
-  onBlur?: () => void;
-  label?: string;
-  color?: string;
-  onChange?: (color: string) => void;
+  onChange?: (format: EditorMarkFormat.FontColor | EditorMarkFormat.BgColor, color: string) => void;
+  onEscape?: () => void;
+  disableFocus?: boolean;
 }
-export function ColorPicker({ onFocus, onBlur, label, color = '', onChange }: ColorPickerProps) {
+export function ColorPicker({ onEscape, onChange, disableFocus }: ColorPickerProps) {
   const { t } = useTranslation();
-  const isDark = useAppSelector((state) => state.currentUser?.userSetting?.themeMode === ThemeMode.Dark);
-  const [selectedColor, setSelectedColor] = useState(color);
 
-  useEffect(() => {
-    setSelectedColor(color);
-  }, [color]);
+  const ref = useRef<HTMLDivElement>(null);
 
-  const handleColorChange = (color: string) => {
-    setSelectedColor(color);
-    onChange?.(color);
-  };
+  const handleColorChange = useCallback(
+    (key: string) => {
+      const [format, , color = ''] = key.split('-');
+      const formatKey = format === 'font' ? EditorMarkFormat.FontColor : EditorMarkFormat.BgColor;
 
-  const colors = useMemo(() => {
-    return !isDark
-      ? [
-          '#e8e0ff',
-          '#ffd6e8',
-          '#f5d0ff',
-          '#e1fbff',
-          '#ffebcc',
-          '#fff7cc',
-          '#e8ffcc',
-          '#e8f4ff',
-          '#fff2cd',
-          '#d9d9d9',
-          '#f0f0f0',
-        ]
-      : [
-          '#4D4078',
-          '#7B2CBF',
-          '#FFB800',
-          '#00B800',
-          '#00B8FF',
-          '#007BFF',
-          '#B800FF',
-          '#FF00B8',
-          '#FF0000',
-          '#FF6C00',
-          '#FFD800',
-        ];
-  }, [isDark]);
+      onChange?.(formatKey, color);
+    },
+    [onChange]
+  );
 
-  const [openCustomColorPicker, setOpenCustomColorPicker] = useState(false);
+  const renderColorItem = useCallback(
+    (name: string, color: string, backgroundColor?: string) => {
+      return (
+        <div
+          key={name}
+          onClick={() => {
+            handleColorChange(backgroundColor ? backgroundColor : color);
+          }}
+          className={'flex w-full cursor-pointer items-center justify-center gap-2'}
+        >
+          <div
+            style={{
+              backgroundColor: backgroundColor ? renderColor(backgroundColor) : 'transparent',
+              color: color === '' ? 'var(--text-title)' : renderColor(color),
+            }}
+            className={'flex h-5 w-5 items-center justify-center rounded border border-line-divider'}
+          >
+            <TitleOutlined className={'h-4 w-4'} />
+          </div>
+          <div className={'flex-1 text-xs text-text-title'}>{name}</div>
+        </div>
+      );
+    },
+    [handleColorChange]
+  );
 
-  const customItemRef = useRef<HTMLLIElement | null>(null);
-
-  useEffect(() => {
-    if (openCustomColorPicker) {
-      onFocus?.();
-    } else {
-      onBlur?.();
-    }
-  }, [openCustomColorPicker, onFocus, onBlur]);
+  const colors: KeyboardNavigationOption[] = useMemo(() => {
+    return [
+      {
+        key: 'font_color',
+        content: (
+          <Typography className={'px-3 pb-1 pt-3 text-text-caption'} variant='subtitle2'>
+            {t('editor.textColor')}
+          </Typography>
+        ),
+        children: [
+          {
+            key: 'font-default',
+            content: renderColorItem(t('editor.fontColorDefault'), ''),
+          },
+          {
+            key: `font-gray-rgb(120, 119, 116)`,
+            content: renderColorItem(t('editor.fontColorGray'), 'rgb(120, 119, 116)'),
+          },
+          {
+            key: 'font-brown-rgb(159, 107, 83)',
+            content: renderColorItem(t('editor.fontColorBrown'), 'rgb(159, 107, 83)'),
+          },
+          {
+            key: 'font-orange-rgb(217, 115, 13)',
+            content: renderColorItem(t('editor.fontColorOrange'), 'rgb(217, 115, 13)'),
+          },
+          {
+            key: 'font-yellow-rgb(203, 145, 47)',
+            content: renderColorItem(t('editor.fontColorYellow'), 'rgb(203, 145, 47)'),
+          },
+          {
+            key: 'font-green-rgb(68, 131, 97)',
+            content: renderColorItem(t('editor.fontColorGreen'), 'rgb(68, 131, 97)'),
+          },
+          {
+            key: 'font-blue-rgb(51, 126, 169)',
+            content: renderColorItem(t('editor.fontColorBlue'), 'rgb(51, 126, 169)'),
+          },
+          {
+            key: 'font-purple-rgb(144, 101, 176)',
+            content: renderColorItem(t('editor.fontColorPurple'), 'rgb(144, 101, 176)'),
+          },
+          {
+            key: 'font-pink-rgb(193, 76, 138)',
+            content: renderColorItem(t('editor.fontColorPink'), 'rgb(193, 76, 138)'),
+          },
+          {
+            key: 'font-red-rgb(212, 76, 71)',
+            content: renderColorItem(t('editor.fontColorRed'), 'rgb(212, 76, 71)'),
+          },
+        ],
+      },
+      {
+        key: 'bg_color',
+        content: (
+          <Typography className={'px-3 pb-1 pt-3 text-text-caption'} variant='subtitle2'>
+            {t('editor.backgroundColor')}
+          </Typography>
+        ),
+        children: [
+          {
+            key: 'bg-default',
+            content: renderColorItem(t('editor.backgroundColorDefault'), '', ''),
+          },
+          {
+            key: `bg-lime-${ColorEnum.Lime}`,
+            content: renderColorItem(t('editor.backgroundColorLime'), '', ColorEnum.Lime),
+          },
+          {
+            key: `bg-aqua-${ColorEnum.Aqua}`,
+            content: renderColorItem(t('editor.backgroundColorAqua'), '', ColorEnum.Aqua),
+          },
+          {
+            key: `bg-orange-${ColorEnum.Orange}`,
+            content: renderColorItem(t('editor.backgroundColorOrange'), '', ColorEnum.Orange),
+          },
+          {
+            key: `bg-yellow-${ColorEnum.Yellow}`,
+            content: renderColorItem(t('editor.backgroundColorYellow'), '', ColorEnum.Yellow),
+          },
+          {
+            key: `bg-green-${ColorEnum.Green}`,
+            content: renderColorItem(t('editor.backgroundColorGreen'), '', ColorEnum.Green),
+          },
+          {
+            key: `bg-blue-${ColorEnum.Blue}`,
+            content: renderColorItem(t('editor.backgroundColorBlue'), '', ColorEnum.Blue),
+          },
+          {
+            key: `bg-purple-${ColorEnum.Purple}`,
+            content: renderColorItem(t('editor.backgroundColorPurple'), '', ColorEnum.Purple),
+          },
+          {
+            key: `bg-pink-${ColorEnum.Pink}`,
+            content: renderColorItem(t('editor.backgroundColorPink'), '', ColorEnum.Pink),
+          },
+          {
+            key: `bg-red-${ColorEnum.LightPink}`,
+            content: renderColorItem(t('editor.backgroundColorRed'), '', ColorEnum.LightPink),
+          },
+        ],
+      },
+    ];
+  }, [renderColorItem, t]);
 
   return (
-    <div className={'flex min-w-[150px] flex-col'}>
-      <Typography className={'px-3 pt-3 text-text-caption'} variant='subtitle2'>
-        {label}
-      </Typography>
-      <MenuList disabledItemsFocusable={true}>
-        <MenuItem
-          onMouseEnter={() => {
-            setOpenCustomColorPicker(true);
-          }}
-          onMouseLeave={() => {
-            setOpenCustomColorPicker(false);
-          }}
-          className={'mx-2 mb-2 flex px-2.5 py-1'}
-          ref={customItemRef}
-        >
-          <div className={'flex-1 text-xs'}>{t('colors.custom')}</div>
-          <MoreSvg className={'h-4 w-4'} />
-          {openCustomColorPicker && (
-            <CustomColorPicker
-              anchorEl={customItemRef.current}
-              open={openCustomColorPicker}
-              onColorChange={handleColorChange}
-              onMouseDown={(e) => e.stopPropagation()}
-              {...PopoverNoBackdropProps}
-              onClose={() => {
-                setOpenCustomColorPicker(false);
-              }}
-              onMouseUp={(e) => {
-                // prevent editor blur
-                e.stopPropagation();
-              }}
-              anchorOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'left',
-              }}
-            />
-          )}
-        </MenuItem>
-        <div className={'flex flex-grow flex-wrap items-center gap-1 px-3 py-0'}>
-          <Tooltip title={t('colors.default')}>
-            <IconButton
-              className={'rounded-full'}
-              onClick={() => {
-                handleColorChange('');
-              }}
-            >
-              <DeleteSvg />
-            </IconButton>
-          </Tooltip>
-          {colors.map((c) => {
-            return (
-              <IconButton
-                key={c}
-                onClick={() => {
-                  handleColorChange(c);
-                }}
-                className={'flex h-6 w-6 cursor-pointer items-center justify-center rounded-full p-1'}
-                style={{
-                  backgroundColor: c === selectedColor ? 'var(--content-blue-100)' : undefined,
-                }}
-              >
-                <div
-                  className={'h-full w-full rounded-full'}
-                  style={{
-                    backgroundColor: c,
-                  }}
-                />
-              </IconButton>
-            );
-          })}
-        </div>
-      </MenuList>
+    <div ref={ref} className={'flex h-full max-h-[420px] w-full flex-col overflow-y-auto'}>
+      <KeyboardNavigation
+        disableFocus={disableFocus}
+        onPressLeft={onEscape}
+        scrollRef={ref}
+        options={colors}
+        onConfirm={handleColorChange}
+        onEscape={onEscape}
+      />
     </div>
   );
 }

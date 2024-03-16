@@ -39,6 +39,12 @@ class _MobileBoardContentState extends State<MobileBoardContent> {
   }
 
   @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final config = AppFlowyBoardConfig(

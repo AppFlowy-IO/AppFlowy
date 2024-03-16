@@ -2,22 +2,21 @@ import 'dart:async';
 
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
-import 'package:appflowy/plugins/database/application/field/field_listener.dart';
+import 'package:appflowy/plugins/database/domain/cell_listener.dart';
+import 'package:appflowy/plugins/database/domain/field_listener.dart';
 import 'package:appflowy/plugins/database/application/field/type_option/type_option_data_parser.dart';
 import 'package:appflowy/plugins/database/application/row/row_cache.dart';
-import 'package:appflowy/plugins/database/application/row/row_meta_listener.dart';
+import 'package:appflowy/plugins/database/domain/row_meta_listener.dart';
 import 'package:appflowy/plugins/database/application/row/row_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:dartz/dartz.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'cell_cache.dart';
 import 'cell_data_loader.dart';
 import 'cell_data_persistence.dart';
-import 'cell_listener.dart';
 
 part 'cell_controller.freezed.dart';
 
@@ -155,7 +154,7 @@ class CellController<T, D> {
   /// and load from disk if it doesn't exist. You can set [loadIfNotExist] to
   /// false to disable this behavior.
   T? getCellData({bool loadIfNotExist = true}) {
-    final data = _cellCache.get(_cellContext);
+    final T? data = _cellCache.get(_cellContext);
     if (data == null && loadIfNotExist) {
       _loadData();
     }
@@ -173,7 +172,7 @@ class CellController<T, D> {
   Future<void> saveCellData(
     D data, {
     bool debounce = false,
-    void Function(Option<FlowyError>)? onFinish,
+    void Function(FlowyError?)? onFinish,
   }) async {
     _loadDataOperation?.cancel();
     if (debounce) {

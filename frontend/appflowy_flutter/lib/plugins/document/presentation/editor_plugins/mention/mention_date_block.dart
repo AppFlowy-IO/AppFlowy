@@ -5,8 +5,8 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/show_mobile_bottom_sheet.dart';
 import 'package:appflowy/plugins/base/drag_handler.dart';
 import 'package:appflowy/plugins/document/application/doc_bloc.dart';
+import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
-import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/user/application/reminder/reminder_extension.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
@@ -163,7 +163,6 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
                   if (PlatformExtension.isMobile) {
                     showMobileBottomSheet(
                       context,
-                      resizeToAvoidBottomInset: false,
                       builder: (_) => DraggableScrollableSheet(
                         expand: false,
                         snap: true,
@@ -178,7 +177,7 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
                             children: [
                               ColoredBox(
                                 color: Theme.of(context).colorScheme.surface,
-                                child: const Center(child: DragHandler()),
+                                child: const Center(child: DragHandle()),
                               ),
                               const MobileDateHeader(),
                               MobileAppFlowyDatePicker(
@@ -264,10 +263,10 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
 
     try {
       if (timeFormat == TimeFormatPB.TwelveHour) {
-        return twelveHourFormat.parse(timeStr);
+        return twelveHourFormat.parseStrict(timeStr);
       }
 
-      return twentyFourHourFormat.parse(timeStr);
+      return twentyFourHourFormat.parseStrict(timeStr);
     } on FormatException {
       Log.error("failed to parse time string ($timeStr)");
       return DateTime.now();
