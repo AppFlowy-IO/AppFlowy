@@ -151,6 +151,7 @@ where
     &old_user.session.user_workspace.workspace_database_object_id,
     "phantom",
     vec![],
+    false,
   );
   database_with_views_collab.with_origin_transact_mut(|txn| {
     old_collab_r_txn.load_doc_with_txn(
@@ -214,7 +215,7 @@ where
   let new_uid = new_user_session.user_id;
   let new_workspace_id = &new_user_session.user_workspace.id;
 
-  let old_folder_collab = Collab::new(old_uid, old_workspace_id, "phantom", vec![]);
+  let old_folder_collab = Collab::new(old_uid, old_workspace_id, "phantom", vec![], false);
   old_folder_collab.with_origin_transact_mut(|txn| {
     old_collab_r_txn.load_doc_with_txn(old_uid, old_workspace_id, txn)
   })?;
@@ -304,8 +305,9 @@ where
   }
 
   let origin = CollabOrigin::Client(CollabClient::new(new_uid, "phantom"));
-  let new_folder_collab = Collab::new_with_doc_state(origin, new_workspace_id, vec![], vec![])
-    .map_err(|err| PersistenceError::Internal(err.into()))?;
+  let new_folder_collab =
+    Collab::new_with_doc_state(origin, new_workspace_id, vec![], vec![], false)
+      .map_err(|err| PersistenceError::Internal(err.into()))?;
   let mutex_collab = Arc::new(MutexCollab::from_collab(new_folder_collab));
   let new_user_id = UserId::from(new_uid);
   info!("migrated folder: {:?}", folder_data);
@@ -450,7 +452,13 @@ where
 {
   let mut collab_by_oid = HashMap::new();
   for object_id in object_ids {
-    let collab = Collab::new(old_user.session.user_id, object_id, "phantom", vec![]);
+    let collab = Collab::new(
+      old_user.session.user_id,
+      object_id,
+      "phantom",
+      vec![],
+      false,
+    );
     match collab.with_origin_transact_mut(|txn| {
       old_collab_r_txn.load_doc_with_txn(old_user.session.user_id, &object_id, txn)
     }) {

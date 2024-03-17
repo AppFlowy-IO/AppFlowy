@@ -80,7 +80,7 @@ where
 {
   // If the document is not exist, we don't need to migrate it.
   if load_collab(user_id, write_txn, &view.id).is_err() {
-    let collab = Arc::new(MutexCollab::new(origin.clone(), &view.id, vec![]));
+    let collab = Arc::new(MutexCollab::new(origin.clone(), &view.id, vec![], false));
     let document = Document::create_with_data(collab, default_document_data())?;
     let encode = document.get_collab().encode_collab_v1();
     write_txn.flush_doc_with(user_id, &view.id, &encode.doc_state, &encode.state_vector)?;

@@ -271,6 +271,7 @@ where
     &other_session.user_workspace.workspace_database_object_id,
     "phantom",
     vec![],
+    false,
   );
   database_view_tracker_collab.with_origin_transact_mut(|txn| {
     other_collab_read_txn.load_doc_with_txn(
@@ -455,7 +456,8 @@ where
   W: CollabKVAction<'a>,
   PersistenceError: From<W::Error>,
 {
-  let collab = Collab::new_with_doc_state(CollabOrigin::Empty, new_object_id, doc_state, vec![])?;
+  let collab =
+    Collab::new_with_doc_state(CollabOrigin::Empty, new_object_id, doc_state, vec![], false)?;
   write_collab_object(&collab, new_uid, new_object_id, w_txn);
   Ok(())
 }
@@ -475,6 +477,7 @@ where
     &other_session.user_workspace.id,
     "phantom",
     vec![],
+    false,
   );
   other_folder_collab.with_origin_transact_mut(|txn| {
     other_collab_read_txn.load_doc_with_txn(

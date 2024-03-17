@@ -385,6 +385,7 @@ async fn doc_state_from_document_data(
       CollabOrigin::Empty,
       doc_id,
       vec![],
+      false,
     )));
     let _ = Document::create_with_data(collab.clone(), data).map_err(internal_error)?;
     Ok::<_, FlowyError>(collab.encode_collab_v1())
