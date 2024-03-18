@@ -14,7 +14,7 @@ import KeyboardNavigation, {
 } from '$app/components/_shared/keyboard_navigation/KeyboardNavigation';
 import isHotkey from 'is-hotkey';
 import LinkEditInput from '$app/components/editor/components/inline_nodes/link/LinkEditInput';
-import { openUrl, pattern } from '$app/utils/open_url';
+import { openUrl, isUrl } from '$app/utils/open_url';
 
 function LinkEditContent({ onClose, defaultHref }: { onClose: () => void; defaultHref: string }) {
   const editor = useSlateStatic();
@@ -59,7 +59,7 @@ function LinkEditContent({ onClose, defaultHref }: { onClose: () => void; defaul
 
       if (e.key === 'Enter') {
         e.preventDefault();
-        if (pattern.test(link)) {
+        if (isUrl(link)) {
           onClose();
           setNodeMark();
         }
@@ -125,7 +125,7 @@ function LinkEditContent({ onClose, defaultHref }: { onClose: () => void; defaul
     return [
       {
         key: 'open',
-        disabled: !pattern.test(link),
+        disabled: !isUrl(link),
         content: renderOption(<LinkSvg className={'h-4 w-4'} />, t('editor.openLink')),
       },
       {

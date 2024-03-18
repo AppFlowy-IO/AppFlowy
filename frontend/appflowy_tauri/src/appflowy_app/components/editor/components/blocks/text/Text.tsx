@@ -14,9 +14,9 @@ export const Text = memo(
       <span
         ref={ref}
         {...attributes}
-        className={`text-element relative my-1 flex w-full px-1 ${isEmpty ? 'select-none' : ''} ${className ?? ''} ${
-          hasStartIcon ? 'has-start-icon' : ''
-        }`}
+        className={`text-element relative my-1 flex w-full whitespace-pre-wrap px-1 ${isEmpty ? 'select-none' : ''} ${
+          className ?? ''
+        } ${hasStartIcon ? 'has-start-icon' : ''}`}
       >
         {renderIcon()}
         <Placeholder isEmpty={isEmpty} node={node} />

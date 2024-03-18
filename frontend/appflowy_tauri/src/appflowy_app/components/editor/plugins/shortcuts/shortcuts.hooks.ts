@@ -1,10 +1,11 @@
 import { ReactEditor } from 'slate-react';
 import { useCallback, KeyboardEvent } from 'react';
-import { EditorNodeType, TodoListNode, ToggleListNode } from '$app/application/document/document.types';
+import { EditorNodeType, ToggleListNode } from '$app/application/document/document.types';
 import isHotkey from 'is-hotkey';
 import { getBlock } from '$app/components/editor/plugins/utils';
 import { SOFT_BREAK_TYPES } from '$app/components/editor/plugins/constants';
 import { CustomEditor } from '$app/components/editor/command';
+import { createHotkey, HOT_KEY_NAME } from '$app/utils/hotkeys';
 
 /**
  * Hotkeys shortcuts
@@ -65,18 +66,18 @@ export function useShortcuts(editor: ReactEditor) {
         return;
       }
 
-      if (isHotkey('mod+Enter', e) && node) {
-        if (node.type === EditorNodeType.TodoListBlock) {
-          e.preventDefault();
-          CustomEditor.toggleTodo(editor, node as TodoListNode);
-          return;
-        }
+      if (createHotkey(HOT_KEY_NAME.TOGGLE_TODO)(e.nativeEvent)) {
+        e.preventDefault();
+        CustomEditor.toggleTodo(editor);
+      }
 
-        if (node.type === EditorNodeType.ToggleListBlock) {
-          e.preventDefault();
-          CustomEditor.toggleToggleList(editor, node as ToggleListNode);
-          return;
-        }
+      if (
+        createHotkey(HOT_KEY_NAME.TOGGLE_COLLAPSE)(e.nativeEvent) &&
+        node &&
+        node.type === EditorNodeType.ToggleListBlock
+      ) {
+        e.preventDefault();
+        CustomEditor.toggleToggleList(editor, node as ToggleListNode);
       }
 
       if (isHotkey('shift+backspace', e)) {

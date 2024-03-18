@@ -12,10 +12,16 @@ export function Quote() {
   const isActivated = CustomEditor.isBlockActive(editor, EditorNodeType.QuoteBlock);
 
   const onClick = useCallback(() => {
+    let type = EditorNodeType.QuoteBlock;
+
+    if (isActivated) {
+      type = EditorNodeType.Paragraph;
+    }
+
     CustomEditor.turnToBlock(editor, {
-      type: EditorNodeType.QuoteBlock,
+      type,
     });
-  }, [editor]);
+  }, [editor, isActivated]);
 
   return (
     <ActionButton active={isActivated} onClick={onClick} tooltip={t('editor.quote')}>

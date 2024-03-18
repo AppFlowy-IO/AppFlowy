@@ -35,9 +35,9 @@ function Breadcrumb() {
       {pagePath?.map((page: Page, index) => {
         if (index === pagePath.length - 1) {
           return (
-            <div key={page.id} className={'flex select-none gap-1 text-text-title'}>
-              <div className={'select-none'}>{getPageIcon(page)}</div>
-              {page.name || t('menuAppHeader.defaultNewPageName')}
+            <div key={page.id} className={'flex cursor-default select-none gap-1 text-text-title'}>
+              <div>{getPageIcon(page)}</div>
+              {page.name.trim() || t('menuAppHeader.defaultNewPageName')}
             </div>
           );
         }
@@ -54,7 +54,7 @@ function Breadcrumb() {
           >
             <div>{getPageIcon(page)}</div>
 
-            {page.name || t('document.title.placeholder')}
+            {page.name.trim() || t('menuAppHeader.defaultNewPageName')}
           </Link>
         );
       })}
