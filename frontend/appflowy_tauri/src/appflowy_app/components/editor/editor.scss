@@ -48,9 +48,7 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
 
 
 
-.text-content {
-  @apply min-w-[4px];
-}
+
 
 [role="textbox"] {
   ::selection {
@@ -78,7 +76,6 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
   }
 
   .text-content {
-
     &::selection {
       @apply bg-transparent;
     }
@@ -93,7 +90,16 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
   }
 }
 
-
+.text-content, [data-dark-mode="true"] .text-content {
+  @apply min-w-[1px];
+  &.empty-text {
+    span {
+      &::selection {
+        @apply bg-transparent;
+      }
+    }
+  }
+}
 
 .text-element:has(.text-placeholder), .divider-node, [data-dark-mode="true"] .text-element:has(.text-placeholder), [data-dark-mode="true"] .divider-node {
   ::selection {

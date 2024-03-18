@@ -134,7 +134,7 @@ export function useSelectionToolbar(ref: MutableRefObject<HTMLDivElement | null>
       return;
     }
 
-    setIsAcrossBlocks(CustomEditor.isMultipleBlockSelected(editor));
+    setIsAcrossBlocks(CustomEditor.isMultipleBlockSelected(editor, true));
     debounceRecalculatePosition();
   });
 

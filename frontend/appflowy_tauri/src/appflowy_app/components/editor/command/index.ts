@@ -76,13 +76,20 @@ export const CustomEditor = {
     return CustomEditor.isInlineNode(editor, afterPoint);
   },
 
-  isMultipleBlockSelected: (editor: ReactEditor) => {
+  /**
+   * judge if the selection is multiple block
+   * @param editor
+   * @param filterEmptyEndSelection if the filterEmptyEndSelection is true, the function will filter the empty end selection
+   */
+  isMultipleBlockSelected: (editor: ReactEditor, filterEmptyEndSelection?: boolean): boolean => {
     const { selection } = editor;
 
     if (!selection) return false;
 
+    if (Range.isCollapsed(selection)) return false;
     const start = Range.start(selection);
     const end = Range.end(selection);
+    const isBackward = Range.isBackward(selection);
     const startBlock = CustomEditor.getBlock(editor, start);
     const endBlock = CustomEditor.getBlock(editor, end);
 
@@ -91,7 +98,43 @@ export const CustomEditor = {
     const [, startPath] = startBlock;
     const [, endPath] = endBlock;
 
-    return !Path.equals(startPath, endPath);
+    const isSomePath = Path.equals(startPath, endPath);
+
+    // if the start and end path is the same, return false
+    if (isSomePath) {
+      return false;
+    }
+
+    if (!filterEmptyEndSelection) {
+      return true;
+    }
+
+    // The end point is at the start of the end block
+    const focusEndStart = Point.equals(end, editor.start(endPath));
+
+    if (!focusEndStart) {
+      return true;
+    }
+
+    // find the previous block
+    const previous = editor.previous({
+      at: endPath,
+      match: (n) => Element.isElement(n) && n.blockId !== undefined,
+    });
+
+    if (!previous) {
+      return true;
+    }
+
+    // backward selection
+    const newEnd = editor.end(editor.range(previous[1]));
+
+    editor.select({
+      anchor: isBackward ? newEnd : start,
+      focus: isBackward ? start : newEnd,
+    });
+
+    return false;
   },
 
   /**
