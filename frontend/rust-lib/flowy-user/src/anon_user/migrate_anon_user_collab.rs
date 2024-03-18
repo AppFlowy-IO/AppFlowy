@@ -164,8 +164,8 @@ where
   let new_object_id = &new_user_session.user_workspace.workspace_database_object_id;
 
   let array = DatabaseMetaList::from_collab(&database_with_views_collab);
-  for database_metas in array.get_all_database_meta() {
-    array.update_database(&database_metas.database_id, |update| {
+  for database_meta in array.get_all_database_meta() {
+    array.update_database(&database_meta.database_id, |update| {
       let new_linked_views = update
         .linked_views
         .iter()

@@ -4,10 +4,10 @@ use std::sync::{Arc, Weak};
 
 use collab::core::collab::{CollabDocState, MutexCollab};
 use collab_database::blocks::BlockEvent;
-use collab_database::database::{DatabaseData, MutexDatabase};
+use collab_database::database::{get_inline_view_id, DatabaseData, MutexDatabase};
 use collab_database::error::DatabaseError;
 use collab_database::user::{
-  CollabDocStateByOid, CollabFuture, DatabaseCollabService, WorkspaceDatabase,
+  CollabDocStateByOid, CollabFuture, DatabaseCollabService, DatabaseMeta, WorkspaceDatabase,
 };
 use collab_database::views::{CreateDatabaseParams, CreateViewParams, DatabaseLayout};
 use collab_entity::CollabType;
@@ -24,10 +24,7 @@ use flowy_error::{internal_error, FlowyError, FlowyResult};
 use lib_dispatch::prelude::af_spawn;
 use lib_infra::priority_task::TaskDispatcher;
 
-use crate::entities::{
-  DatabaseDescriptionPB, DatabaseLayoutPB, DatabaseSnapshotPB, DidFetchRowPB,
-  RepeatedDatabaseDescriptionPB,
-};
+use crate::entities::{DatabaseLayoutPB, DatabaseSnapshotPB, DidFetchRowPB};
 use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::database::DatabaseEditor;
 use crate::services::database_view::DatabaseLayoutDepsResolver;
@@ -164,16 +161,27 @@ impl DatabaseManager {
     Ok(())
   }
 
-  pub async fn get_all_databases_description(&self) -> RepeatedDatabaseDescriptionPB {
+  pub async fn get_database_inline_view_id(&self, database_id: &str) -> FlowyResult<String> {
+    let wdb = self.get_workspace_database().await?;
+    let database_collab = wdb.get_database_collab(database_id).await.ok_or_else(|| {
+      FlowyError::record_not_found().with_context(format!("The database:{} not found", database_id))
+    })?;
+
+    let inline_view_id = get_inline_view_id(&database_collab.lock()).ok_or_else(|| {
+      FlowyError::record_not_found().with_context(format!(
+        "Can't find the inline view for database:{}",
+        database_id
+      ))
+    })?;
+    Ok(inline_view_id)
+  }
+
+  pub async fn get_all_databases_meta(&self) -> Vec<DatabaseMeta> {
     let mut items = vec![];
     if let Ok(wdb) = self.get_workspace_database().await {
-      items = wdb
-        .get_all_database_meta()
-        .into_iter()
-        .map(DatabaseDescriptionPB::from)
-        .collect();
+      items = wdb.get_all_database_meta()
     }
-    RepeatedDatabaseDescriptionPB { items }
+    items
   }
 
   pub async fn track_database(

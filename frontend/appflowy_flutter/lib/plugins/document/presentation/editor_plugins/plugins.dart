@@ -29,6 +29,7 @@ export 'link_preview/link_preview_cache.dart';
 export 'link_preview/link_preview_menu.dart';
 export 'math_equation/math_equation_block_component.dart';
 export 'math_equation/mobile_math_equation_toolbar_item.dart';
+export 'mobile_floating_toolbar/custom_mobile_floating_toolbar.dart';
 export 'mobile_toolbar_v3/aa_toolbar_item.dart';
 export 'mobile_toolbar_v3/add_block_toolbar_item.dart';
 export 'mobile_toolbar_v3/appflowy_mobile_toolbar.dart';

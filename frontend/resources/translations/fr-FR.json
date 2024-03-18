@@ -187,9 +187,7 @@
     "dragRow": "Appuyez longuement pour réorganiser la ligne",
     "viewDataBase": "Voir la base de données",
     "referencePage": "Ce {nom} est référencé",
-    "addBlockBelow": "Ajouter un bloc ci-dessous",
-    "urlLaunchAccessory": "Ouvrir dans le navigateur",
-    "urlCopyAccessory": "Copier l'URL"
+    "addBlockBelow": "Ajouter un bloc ci-dessous"
   },
   "sideBar": {
     "closeSidebar": "Fermer le menu latéral",
@@ -506,7 +504,6 @@
       "typeAValue": "Tapez une valeur...",
       "layout": "Mise en page",
       "databaseLayout": "Mise en page",
-      "viewList": "Vues de base de données",
       "editView": "Modifier vue",
       "boardSettings": "Paramètres du tableau",
       "calendarSettings": "Paramètres du calendrier",
@@ -514,7 +511,8 @@
       "duplicateView": "Dupliquer la vue",
       "deleteView": "Supprimer la vue",
       "numberOfVisibleFields": "{} affiché(s)",
-      "Properties": "Propriétés"
+      "Properties": "Propriétés",
+      "viewList": "Vues de base de données"
     },
     "textFilter": {
       "contains": "Contient",
@@ -544,13 +542,9 @@
       "isComplete": "fait",
       "isIncomplted": "pas fait"
     },
-    "singleSelectOptionFilter": {
+    "selectOptionFilter": {
       "is": "Est",
       "isNot": "N'est pas",
-      "isEmpty": "Est vide",
-      "isNotEmpty": "N'est pas vide"
-    },
-    "multiSelectOptionFilter": {
       "contains": "Contient",
       "doesNotContain": "Ne contient pas",
       "isEmpty": "Est vide",
@@ -657,8 +651,8 @@
       "empty": "Tri pas actif",
       "deleteAllSorts": "Supprimer tous les tris",
       "addSort": "Ajouter un tri",
-      "deleteSort": "Supprimer le tri",
-      "removeSorting": "Voulez-vous supprimer le tri ?"
+      "removeSorting": "Voulez-vous supprimer le tri ?",
+      "deleteSort": "Supprimer le tri"
     },
     "row": {
       "duplicate": "Dupliquer",
@@ -702,6 +696,10 @@
       "submitNewTask": "Créer",
       "hideComplete": "Cacher les tâches terminées",
       "showComplete": "Afficher toutes les tâches"
+    },
+    "url": {
+      "launch": "Ouvrir dans le navigateur",
+      "copy": "Copier l'URL"
     },
     "relation": {
       "inRelatedDatabase": "Dans",
@@ -1010,10 +1008,10 @@
       "layoutDateField": "Calendrier de mise en page par",
       "changeLayoutDateField": "Modifier le champ de mise en page",
       "noDateTitle": "Pas de date",
-      "noDateHint": "Les événements non planifiés s'afficheront ici",
       "unscheduledEventsTitle": "Événements non planifiés",
       "clickToAdd": "Cliquez pour ajouter au calendrier",
-      "name": "Disposition du calendrier"
+      "name": "Disposition du calendrier",
+      "noDateHint": "Les événements non planifiés s'afficheront ici"
     },
     "referencedCalendarPrefix": "Vue",
     "quickJumpYear": "Sauter à"

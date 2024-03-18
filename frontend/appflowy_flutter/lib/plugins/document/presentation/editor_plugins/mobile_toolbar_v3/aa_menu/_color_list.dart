@@ -10,6 +10,8 @@ import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
+const _count = 6;
+
 Future<void> showTextColorAndBackgroundColorPicker(
   BuildContext context, {
   required EditorState editorState,
@@ -27,7 +29,7 @@ Future<void> showTextColorAndBackgroundColorPicker(
     backgroundColor: theme.toolbarMenuBackgroundColor,
     elevation: 20,
     title: LocaleKeys.grid_selectOption_colorPanelTitle.tr(),
-    padding: const EdgeInsets.fromLTRB(18, 4, 18, 8),
+    padding: const EdgeInsets.fromLTRB(10, 4, 10, 8),
     builder: (context) {
       return _TextColorAndBackgroundColor(
         editorState: editorState,
@@ -81,6 +83,7 @@ class _TextColorAndBackgroundColorState
             fontSize: 14.0,
           ),
         ),
+        const VSpace(6.0),
         _TextColors(
           selectedColor: selectedTextColor?.tryToColor(),
           onSelectedColor: (textColor) async {
@@ -117,6 +120,7 @@ class _TextColorAndBackgroundColorState
             fontSize: 14.0,
           ),
         ),
+        const VSpace(6.0),
         _BackgroundColors(
           selectedColor: selectedBackgroundColor?.tryToColor(),
           onSelectedColor: (backgroundColor) async {
@@ -182,7 +186,7 @@ class _BackgroundColors extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GridView.count(
-      crossAxisCount: 6,
+      crossAxisCount: _count,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       children: colors.mapIndexed(
@@ -216,9 +220,7 @@ class _BackgroundColorItem extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        margin: const EdgeInsets.all(
-          6.0,
-        ),
+        margin: const EdgeInsets.all(6.0),
         decoration: BoxDecoration(
           color: color,
           borderRadius: Corners.s12Border,
@@ -263,7 +265,7 @@ class _TextColors extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GridView.count(
-      crossAxisCount: 6,
+      crossAxisCount: _count,
       shrinkWrap: true,
       padding: EdgeInsets.zero,
       physics: const NeverScrollableScrollPhysics(),
@@ -297,9 +299,7 @@ class _TextColorItem extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        margin: const EdgeInsets.all(
-          6.0,
-        ),
+        margin: const EdgeInsets.all(6.0),
         decoration: BoxDecoration(
           borderRadius: Corners.s12Border,
           border: Border.all(

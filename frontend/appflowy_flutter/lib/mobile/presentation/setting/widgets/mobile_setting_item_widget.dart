@@ -43,6 +43,7 @@ class MobileSettingItem extends StatelessWidget {
         trailing: trailing,
         onTap: onTap,
         visualDensity: VisualDensity.compact,
+        contentPadding: const EdgeInsets.only(left: 8.0),
       ),
     );
   }

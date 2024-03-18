@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { useAppDispatch, useAppSelector } from '$app/stores/store';
 import { workspaceActions, WorkspaceItem } from '$app_reducers/workspace/slice';
 import { Page, pagesActions, parserViewPBToPage } from '$app_reducers/pages/slice';
@@ -10,29 +10,29 @@ import { useNavigate } from 'react-router-dom';
 
 export function useLoadWorkspaces() {
   const dispatch = useAppDispatch();
-  const { workspaces, currentWorkspace } = useAppSelector((state) => state.workspace);
+  const { workspaces, currentWorkspaceId } = useAppSelector((state) => state.workspace);
+
+  const currentWorkspace = useMemo(() => {
+    return workspaces.find((workspace) => workspace.id === currentWorkspaceId);
+  }, [workspaces, currentWorkspaceId]);
 
   const initializeWorkspaces = useCallback(async () => {
     const workspaces = await workspaceService.getWorkspaces();
-    const currentWorkspace = await workspaceService.getCurrentWorkspace();
+
+    const currentWorkspaceId = await workspaceService.getCurrentWorkspace();
 
     dispatch(
       workspaceActions.initWorkspaces({
         workspaces,
-        currentWorkspace,
+        currentWorkspaceId,
       })
     );
   }, [dispatch]);
 
-  useEffect(() => {
-    void (async () => {
-      await initializeWorkspaces();
-    })();
-  }, [initializeWorkspaces]);
-
   return {
     workspaces,
     currentWorkspace,
+    initializeWorkspaces,
   };
 }
 
@@ -82,8 +82,10 @@ export function useLoadWorkspace(workspace: WorkspaceItem) {
       {
         [FolderNotification.DidUpdateWorkspace]: async (changeset) => {
           dispatch(
-            workspaceActions.updateCurrentWorkspace({
+            workspaceActions.updateWorkspace({
+              id: String(changeset.id),
               name: changeset.name,
+              icon: changeset.icon_url,
             })
           );
         },

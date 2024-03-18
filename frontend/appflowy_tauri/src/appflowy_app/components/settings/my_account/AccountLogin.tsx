@@ -4,9 +4,13 @@ import Button from '@mui/material/Button';
 import { Divider } from '@mui/material';
 import { DeleteAccount } from '$app/components/settings/my_account/DeleteAccount';
 import { SettingsRoutes } from '$app/components/settings/workplace/const';
+import { useAuth } from '$app/components/auth/auth.hooks';
 
 export const AccountLogin = ({ onForward }: { onForward?: (route: SettingsRoutes) => void }) => {
   const { t } = useTranslation();
+  const { currentUser, logout } = useAuth();
+
+  const isLocal = currentUser.isLocal;
 
   return (
     <>
@@ -15,12 +19,17 @@ export const AccountLogin = ({ onForward }: { onForward?: (route: SettingsRoutes
           {t('newSettings.myAccount.accountLogin')}
         </Typography>
         <Button
-          onClick={() => {
-            onForward?.(SettingsRoutes.LOGIN);
+          onClick={async () => {
+            if (isLocal) {
+              onForward?.(SettingsRoutes.LOGIN);
+              return;
+            }
+
+            await logout();
           }}
           variant={'contained'}
         >
-          {t('button.login')}
+          {!isLocal ? t('button.logout') : t('button.login')}
         </Button>
         <Divider className={'my-4'} />
         <DeleteAccount />

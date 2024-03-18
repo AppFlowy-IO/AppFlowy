@@ -119,7 +119,7 @@ impl TypeOptionCellDataFilter for SingleSelectTypeOption {
     cell_data: &<Self as TypeOption>::CellData,
   ) -> bool {
     let selected_options = self.get_selected_options(cell_data.clone()).select_options;
-    filter.is_visible(&selected_options, FieldType::SingleSelect)
+    filter.is_visible(&selected_options).unwrap_or(true)
   }
 }
 

@@ -30,7 +30,7 @@ class FlowyTextField extends StatefulWidget {
   final TextStyle? hintStyle;
   final InputDecoration? decoration;
   final TextAlignVertical? textAlignVertical;
-  final TextInputAction? textInputAction;
+  final TextInputType? keyboardType;
   final List<TextInputFormatter>? inputFormatters;
 
   const FlowyTextField({
@@ -60,7 +60,7 @@ class FlowyTextField extends StatefulWidget {
     this.hintStyle,
     this.decoration,
     this.textAlignVertical,
-    this.textInputAction,
+    this.keyboardType = TextInputType.multiline,
     this.inputFormatters,
   });
 
@@ -145,7 +145,6 @@ class FlowyTextFieldState extends State<FlowyTextField> {
           _onChanged(text);
         }
       },
-      textInputAction: widget.textInputAction,
       onSubmitted: (text) => _onSubmitted(text),
       onEditingComplete: widget.onEditingComplete,
       minLines: 1,
@@ -154,7 +153,7 @@ class FlowyTextFieldState extends State<FlowyTextField> {
       maxLengthEnforcement: MaxLengthEnforcement.truncateAfterCompositionEnds,
       style: widget.textStyle ?? Theme.of(context).textTheme.bodySmall,
       textAlignVertical: widget.textAlignVertical ?? TextAlignVertical.center,
-      keyboardType: TextInputType.multiline,
+      keyboardType: widget.keyboardType,
       inputFormatters: widget.inputFormatters,
       decoration: widget.decoration ??
           InputDecoration(

@@ -49,12 +49,6 @@ void main() {
       boardBloc.groupControllers.values.length == 1,
       "Expected 1, but receive ${boardBloc.groupControllers.values.length}",
     );
-    final expectedGroupName = "No ${multiSelectField.name}";
-    assert(
-      boardBloc.groupControllers.values.first.group.groupName ==
-          expectedGroupName,
-      "Expected $expectedGroupName, but receive ${boardBloc.groupControllers.values.first.group.groupName}",
-    );
   });
 
   test('group by multi select with no options test', () async {
@@ -105,11 +99,5 @@ void main() {
       boardBloc.groupControllers.values.length == 3,
       "Expected 3, but receive ${boardBloc.groupControllers.values.length}",
     );
-
-    final groups =
-        boardBloc.groupControllers.values.map((e) => e.group).toList();
-    assert(groups[0].groupName == "No ${multiSelectField.name}");
-    assert(groups[1].groupName == "B");
-    assert(groups[2].groupName == "A");
   });
 }

@@ -29,3 +29,5 @@ dist-ssr
 
 coverage
 **/AppFlowy-Collab
+
+.env

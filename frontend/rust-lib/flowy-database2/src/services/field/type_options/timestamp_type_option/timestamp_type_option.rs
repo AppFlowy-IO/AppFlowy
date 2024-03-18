@@ -177,7 +177,7 @@ impl TypeOptionCellDataFilter for TimestampTypeOption {
     _filter: &<Self as TypeOption>::CellFilter,
     _cell_data: &<Self as TypeOption>::CellData,
   ) -> bool {
-    false
+    true
   }
 }
 

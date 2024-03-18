@@ -281,10 +281,10 @@ where
   })?;
 
   let array = DatabaseMetaList::from_collab(&database_view_tracker_collab);
-  for database_metas in array.get_all_database_meta() {
+  for database_meta in array.get_all_database_meta() {
     database_view_ids_by_database_id.insert(
-      old_to_new_id_map.renew_id(&database_metas.database_id),
-      database_metas
+      old_to_new_id_map.renew_id(&database_meta.database_id),
+      database_meta
         .linked_views
         .into_iter()
         .map(|view_id| old_to_new_id_map.renew_id(&view_id))
