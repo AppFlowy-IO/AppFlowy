@@ -76,13 +76,13 @@ export const CustomEditor = {
     return CustomEditor.isInlineNode(editor, afterPoint);
   },
 
-  isMultipleBlockSelected: (editor: ReactEditor, filterEmpty = false) => {
+  isMultipleBlockSelected: (editor: ReactEditor) => {
     const { selection } = editor;
 
     if (!selection) return false;
 
-    const start = selection.anchor;
-    const end = selection.focus;
+    const start = Range.start(selection);
+    const end = Range.end(selection);
     const startBlock = CustomEditor.getBlock(editor, start);
     const endBlock = CustomEditor.getBlock(editor, end);
 
@@ -90,30 +90,8 @@ export const CustomEditor = {
 
     const [, startPath] = startBlock;
     const [, endPath] = endBlock;
-    const pathIsEqual = Path.equals(startPath, endPath);
 
-    if (pathIsEqual) {
-      return false;
-    }
-
-    if (!filterEmpty) {
-      return true;
-    }
-
-    const notEmptyBlocks = Array.from(
-      editor.nodes({
-        match: (n) => {
-          return (
-            !Editor.isEditor(n) &&
-            Element.isElement(n) &&
-            n.blockId !== undefined &&
-            !CustomEditor.isEmptyText(editor, n)
-          );
-        },
-      })
-    );
-
-    return notEmptyBlocks.length > 1;
+    return !Path.equals(startPath, endPath);
   },
 
   /**
@@ -624,5 +602,29 @@ export const CustomEditor = {
 
   isEmbedNode(node: Element): boolean {
     return EmbedTypes.includes(node.type);
+  },
+
+  getListLevel(editor: ReactEditor, type: EditorNodeType, path: Path) {
+    let level = 0;
+    let currentPath = path;
+
+    while (currentPath.length > 0) {
+      const parent = editor.parent(currentPath);
+
+      if (!parent) {
+        break;
+      }
+
+      const [parentNode, parentPath] = parent as NodeEntry<Element>;
+
+      if (parentNode.type !== type) {
+        break;
+      }
+
+      level += 1;
+      currentPath = parentPath;
+    }
+
+    return level;
   },
 };
