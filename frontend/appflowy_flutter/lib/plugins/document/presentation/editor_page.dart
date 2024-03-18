@@ -197,7 +197,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
 
     _initEditorL10n();
     _initializeShortcuts();
-    appFlowyEditorAutoScrollEdgeOffset = 250;
+    appFlowyEditorAutoScrollEdgeOffset = 220;
     indentableBlockTypes.add(ToggleListBlockKeys.type);
     convertibleBlockTypes.add(ToggleListBlockKeys.type);
     slashMenuItems = _customSlashMenuItems();
