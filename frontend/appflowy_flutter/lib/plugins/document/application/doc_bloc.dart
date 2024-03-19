@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:appflowy/plugins/document/application/collab_document_adapter.dart';
 import 'package:appflowy/plugins/document/application/doc_service.dart';
 import 'package:appflowy/plugins/document/application/document_data_pb_extension.dart';
 import 'package:appflowy/plugins/document/application/editor_transaction_adapter.dart';
@@ -47,6 +48,8 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   final DocumentService _documentService = DocumentService();
   final TrashService _trashService = TrashService();
 
+  late CollabDocumentAdapter _collabDocumentAdapter;
+
   late final TransactionAdapter _transactionAdapter = TransactionAdapter(
     documentId: view.id,
     documentService: _documentService,
@@ -78,10 +81,10 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   ) async {
     await event.when(
       initial: () async {
-        final editorState = await _fetchDocumentState();
+        final result = await _fetchDocumentState();
         _onViewChanged();
         _onDocumentChanged();
-        await editorState.fold(
+        await result.fold(
           (s) async {
             final result = await getIt<AuthService>().getUser();
             final userProfilePB = result.fold(
@@ -174,6 +177,8 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
 
     final editorState = EditorState(document: document);
 
+    _collabDocumentAdapter = CollabDocumentAdapter(editorState, view.id);
+
     // subscribe to the document change from the editor
     _subscription = editorState.transactionStream.listen((event) async {
       final time = event.$1;
@@ -241,22 +246,12 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     }
   }
 
-  void syncDocumentDataPB(DocEventPB docEvent) {
-    // prettyPrintJson(docEvent.toProto3Json());
-    // todo: integrate the document change to the editor
-    // for (final event in docEvent.events) {
-    //   for (final blockEvent in event.event) {
-    //     switch (blockEvent.command) {
-    //       case DeltaTypePB.Inserted:
-    //         break;
-    //       case DeltaTypePB.Updated:
-    //         break;
-    //       case DeltaTypePB.Removed:
-    //         break;
-    //       default:
-    //     }
-    //   }
-    // }
+  void syncDocumentDataPB(DocEventPB docEvent) async {
+    if (!docEvent.isRemote) {
+      return;
+    }
+
+    await _collabDocumentAdapter.syncV3();
   }
 }
 
