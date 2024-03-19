@@ -1,11 +1,10 @@
 library document_plugin;
 
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
 import 'package:appflowy/plugins/document/document_page.dart';
+import 'package:appflowy/plugins/document/presentation/document_sync_indicator.dart';
 import 'package:appflowy/plugins/document/presentation/share/share_button.dart';
 import 'package:appflowy/plugins/util.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
@@ -19,6 +18,7 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class DocumentPluginBuilder extends PluginBuilder {
@@ -137,9 +137,18 @@ class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
     return BlocProvider<ViewInfoBloc>.value(
       value: bloc,
       child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          DocumentShareButton(key: ValueKey(view.id), view: view),
-          const HSpace(4),
+          DocumentShareButton(
+            key: ValueKey('share_button_${view.id}'),
+            view: view,
+          ),
+          const HSpace(20),
+          DocumentSyncIndicator(
+            key: ValueKey('sync_state_${view.id}'),
+            view: view,
+          ),
+          const HSpace(12),
           ViewFavoriteButton(
             key: ValueKey('favorite_button_${view.id}'),
             view: view,

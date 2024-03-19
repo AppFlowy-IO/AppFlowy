@@ -4,6 +4,7 @@ import 'package:appflowy/mobile/presentation/base/app_bar_actions.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_state_container.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
+import 'package:appflowy/plugins/document/presentation/document_sync_indicator.dart';
 import 'package:appflowy/plugins/document/presentation/editor_notification.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
@@ -70,7 +71,11 @@ class _MobileViewPageState extends State<MobileViewPage> {
         } else {
           body = state.data!.fold((view) {
             viewPB = view;
-            actions.add(_buildAppBarMoreButton(view));
+            actions.addAll([
+              DocumentSyncIndicator(view: view),
+              const HSpace(8.0),
+              _buildAppBarMoreButton(view),
+            ]);
             final plugin = view.plugin(arguments: widget.arguments ?? const {})
               ..init();
             return plugin.widgetBuilder.buildWidget(shrinkWrap: false);

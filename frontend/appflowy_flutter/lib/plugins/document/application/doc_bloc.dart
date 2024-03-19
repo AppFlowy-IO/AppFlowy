@@ -10,6 +10,7 @@ import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/workspace/application/doc/doc_listener.dart';
 import 'package:appflowy/workspace/application/doc/sync_state_listener.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
+import 'package:appflowy_backend/protobuf/flowy-document/entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-document/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -125,8 +126,8 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
         final isDeleted = result.fold((l) => false, (r) => true);
         emit(state.copyWith(isDeleted: isDeleted));
       },
-      syncStateChanged: (isSyncing) {
-        emit(state.copyWith(isSyncing: isSyncing));
+      syncStateChanged: (syncState) {
+        emit(state.copyWith(syncState: syncState.value));
       },
     );
   }
@@ -153,7 +154,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     _syncStateListener.start(
       didReceiveSyncState: (syncState) {
         if (!isClosed) {
-          add(DocumentEvent.syncStateChanged(syncState.isSyncing));
+          add(DocumentEvent.syncStateChanged(syncState));
         }
       },
     );
@@ -262,7 +263,7 @@ class DocumentEvent with _$DocumentEvent {
   const factory DocumentEvent.restore() = Restore;
   const factory DocumentEvent.restorePage() = RestorePage;
   const factory DocumentEvent.deletePermanently() = DeletePermanently;
-  const factory DocumentEvent.syncStateChanged(bool isSyncing) =
+  const factory DocumentEvent.syncStateChanged(DocumentSyncStatePB syncState) =
       syncStateChanged;
 }
 
@@ -272,7 +273,7 @@ class DocumentState with _$DocumentState {
     required bool isDeleted,
     required bool forceClose,
     required bool isLoading,
-    required bool isSyncing,
+    required DocumentSyncState syncState,
     bool? isDocumentEmpty,
     UserProfilePB? userProfilePB,
     EditorState? editorState,
@@ -283,6 +284,6 @@ class DocumentState with _$DocumentState {
         isDeleted: false,
         forceClose: false,
         isLoading: true,
-        isSyncing: false,
+        syncState: DocumentSyncState.Syncing,
       );
 }
