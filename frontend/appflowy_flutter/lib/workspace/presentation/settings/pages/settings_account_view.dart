@@ -50,6 +50,15 @@ class SettingsAccountView extends StatefulWidget {
 
 class _SettingsAccountViewState extends State<SettingsAccountView> {
   late String userName = widget.userProfile.name;
+  late final TextEditingController _emailController = TextEditingController(
+    text: widget.userProfile.email,
+  );
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +66,11 @@ class _SettingsAccountViewState extends State<SettingsAccountView> {
       create: (context) =>
           getIt<SettingsUserViewBloc>(param1: widget.userProfile)
             ..add(const SettingsUserEvent.initial()),
-      child: BlocBuilder<SettingsUserViewBloc, SettingsUserState>(
+      child: BlocConsumer<SettingsUserViewBloc, SettingsUserState>(
+        listenWhen: (previous, current) =>
+            previous.userProfile.email != current.userProfile.email,
+        listener: (context, state) =>
+            _emailController.text = state.userProfile.email,
         builder: (context, state) {
           return SingleChildScrollView(
             physics: const ClampingScrollPhysics(),
@@ -100,7 +113,29 @@ class _SettingsAccountViewState extends State<SettingsAccountView> {
                         buttonLabel: LocaleKeys
                             .settings_account_email_actions_change
                             .tr(),
-                        onPressed: () {},
+                        onPressed: () => SettingsAlertDialog(
+                          title: LocaleKeys
+                              .settings_account_email_actions_change
+                              .tr(),
+                          confirmLabel: LocaleKeys.button_save.tr(),
+                          confirm: () {
+                            context.read<SettingsUserViewBloc>().add(
+                                  SettingsUserEvent.updateUserEmail(
+                                    _emailController.text,
+                                  ),
+                                );
+                            Navigator.of(context).pop();
+                          },
+                          children: [
+                            SettingsInputField(
+                              label:
+                                  LocaleKeys.settings_account_email_title.tr(),
+                              value: state.userProfile.email,
+                              hideActions: true,
+                              textController: _emailController,
+                            ),
+                          ],
+                        ).show(context),
                       ),
                     ],
                   ),
@@ -131,6 +166,8 @@ class _SettingsAccountViewState extends State<SettingsAccountView> {
                       label: LocaleKeys.settings_account_keys_openAILabel.tr(),
                       tooltip:
                           LocaleKeys.settings_account_keys_openAITooltip.tr(),
+                      placeholder:
+                          LocaleKeys.settings_account_keys_openAIHint.tr(),
                       value: state.userProfile.openaiKey,
                       obscureText: true,
                       onSave: (key) => context
@@ -210,16 +247,11 @@ class _SignInButton extends StatelessWidget {
             fillColor: Theme.of(context).colorScheme.primary,
             hoverColor: const Color(0xFF005483),
             fontHoverColor: Colors.white,
-            onPressed: () {
-              SettingsAlertDialog(
-                title: LocaleKeys.settings_account_login_loginLabel.tr(),
-                children: [
-                  SettingThirdPartyLogin(
-                    didLogin: didLogin,
-                  ),
-                ],
-              ).show(context);
-            },
+            onPressed: () => SettingsAlertDialog(
+              title: LocaleKeys.settings_account_login_loginLabel.tr(),
+              implyLeading: true,
+              children: [SettingThirdPartyLogin(didLogin: didLogin)],
+            ).show(context),
           ),
         ),
       ],
@@ -254,20 +286,18 @@ class _SignOutButton extends StatelessWidget {
             fillColor: Theme.of(context).colorScheme.primary,
             hoverColor: const Color(0xFF005483),
             fontHoverColor: Colors.white,
-            onPressed: () {
-              SettingsAlertDialog(
-                title: LocaleKeys.settings_account_login_logoutLabel,
-                subtitle: switch (userProfile.encryptionType) {
-                  EncryptionTypePB.Symmetric =>
-                    LocaleKeys.settings_menu_selfEncryptionLogoutPrompt.tr(),
-                  _ => LocaleKeys.settings_menu_logoutPrompt.tr(),
-                },
-                confirm: () async {
-                  await getIt<AuthService>().signOut();
-                  didLogout();
-                },
-              ).show(context);
-            },
+            onPressed: () => SettingsAlertDialog(
+              title: LocaleKeys.settings_account_login_logoutLabel.tr(),
+              subtitle: switch (userProfile.encryptionType) {
+                EncryptionTypePB.Symmetric =>
+                  LocaleKeys.settings_menu_selfEncryptionLogoutPrompt.tr(),
+                _ => LocaleKeys.settings_menu_logoutPrompt.tr(),
+              },
+              confirm: () async {
+                await getIt<AuthService>().signOut();
+                didLogout();
+              },
+            ).show(context),
           ),
         ),
       ],

@@ -304,12 +304,13 @@
       "keys": {
         "title": "AI Keys",
         "openAILabel": "OpenAI key",
-        "openAITooltip": "The OpenAPI API key to use for the AI models"
+        "openAITooltip": "The OpenAPI API key to use for the AI models",
+        "openAIHint": "Input your OpenAI API Key"
       },
       "login": {
         "title": "Account login",
-        "loginLabel": "Log in",
-        "logoutLabel": "Log out"
+        "loginLabel": "Login",
+        "logoutLabel": "Logout"
       }
     },
     "menu": {

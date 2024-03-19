@@ -18,6 +18,7 @@ class SettingsInputField extends StatefulWidget {
   const SettingsInputField({
     super.key,
     this.label,
+    this.textController,
     this.focusNode,
     this.obscureText = false,
     this.value,
@@ -25,9 +26,12 @@ class SettingsInputField extends StatefulWidget {
     this.tooltip,
     this.onSave,
     this.onCancel,
+    this.hideActions = false,
   });
 
   final String? label;
+
+  final TextEditingController? textController;
 
   final FocusNode? focusNode;
 
@@ -39,6 +43,11 @@ class SettingsInputField extends StatefulWidget {
   final String? value;
   final String? placeholder;
   final String? tooltip;
+
+  /// If true the save and cancel options will not show below the
+  /// input field.
+  ///
+  final bool hideActions;
 
   final Function(String)? onSave;
 
@@ -54,16 +63,19 @@ class SettingsInputField extends StatefulWidget {
 }
 
 class _SettingsInputFieldState extends State<SettingsInputField> {
-  late final controller = TextEditingController(text: widget.value);
-  late bool obscureText = widget.obscureText;
+  late final controller =
+      widget.textController ?? TextEditingController(text: widget.value);
   late final FocusNode focusNode = widget.focusNode ?? FocusNode();
+  late bool obscureText = widget.obscureText;
 
   @override
   void dispose() {
     if (widget.focusNode == null) {
       focusNode.dispose();
     }
-    controller.dispose();
+    if (widget.textController == null) {
+      controller.dispose();
+    }
     super.dispose();
   }
 
@@ -95,6 +107,7 @@ class _SettingsInputFieldState extends State<SettingsInputField> {
           height: 48,
           child: FlowyTextField(
             focusNode: focusNode,
+            hintText: widget.placeholder,
             controller: controller,
             autoFocus: false,
             obscureText: obscureText,
@@ -120,8 +133,9 @@ class _SettingsInputFieldState extends State<SettingsInputField> {
             onChanged: (_) => setState(() {}),
           ),
         ),
-        if ((widget.value == null && controller.text.isNotEmpty) ||
-            widget.value != null && widget.value != controller.text) ...[
+        if (!widget.hideActions &&
+            ((widget.value == null && controller.text.isNotEmpty) ||
+                widget.value != null && widget.value != controller.text)) ...[
           const VSpace(8),
           Row(
             children: [
