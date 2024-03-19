@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -11,18 +13,15 @@ import 'package:appflowy/workspace/application/user/settings_user_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/user_avatar.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
-import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'setting_third_party_login.dart';
 
-const defaultUserAvatar = '1F600';
 const _iconSize = Size(60, 60);
 
 class SettingsUserView extends StatelessWidget {
@@ -440,41 +439,6 @@ final builtInSVGIcons = [
   '1F600',
   '1F984',
 ];
-
-// REMOVE this widget in next version 0.3.10
-class IconGallery extends StatelessWidget {
-  const IconGallery({
-    super.key,
-    required this.selectedIcon,
-    required this.onSelectIcon,
-    this.defaultOption,
-  });
-
-  final String selectedIcon;
-  final SelectIconCallback onSelectIcon;
-  final Widget? defaultOption;
-
-  @override
-  Widget build(BuildContext context) {
-    return GridView.count(
-      padding: const EdgeInsets.all(20),
-      crossAxisCount: 5,
-      mainAxisSpacing: 4,
-      crossAxisSpacing: 4,
-      children: [
-        if (defaultOption != null) defaultOption!,
-        ...builtInSVGIcons.mapIndexed(
-          (int index, String iconUrl) => IconOption(
-            emoji: FlowySvgData('emoji/$iconUrl'),
-            iconUrl: iconUrl,
-            onSelectIcon: onSelectIcon,
-            isSelected: iconUrl == selectedIcon,
-          ),
-        ),
-      ],
-    );
-  }
-}
 
 class IconOption extends StatelessWidget {
   IconOption({

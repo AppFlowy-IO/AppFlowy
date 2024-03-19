@@ -9,8 +9,6 @@ import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flowy_infra/notifier.dart';
 import 'package:protobuf/protobuf.dart';
 
-typedef OnGroupError = void Function(FlowyError);
-
 abstract class GroupControllerDelegate {
   bool hasGroup(String groupId);
   void removeRow(GroupPB group, RowId rowId);

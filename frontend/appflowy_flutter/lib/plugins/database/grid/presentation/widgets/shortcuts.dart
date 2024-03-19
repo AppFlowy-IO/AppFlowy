@@ -23,12 +23,6 @@ Map<ShortcutActivator, Intent> bindKeys(List<LogicalKeyboardKey> keys) {
   return {for (final key in keys) LogicalKeySet(key): KeyboardKeyIdent(key)};
 }
 
-Map<Type, Action<Intent>> bindActions() {
-  return {
-    KeyboardKeyIdent: KeyboardBindingAction(),
-  };
-}
-
 class KeyboardKeyIdent extends Intent {
   const KeyboardKeyIdent(this.key);
 

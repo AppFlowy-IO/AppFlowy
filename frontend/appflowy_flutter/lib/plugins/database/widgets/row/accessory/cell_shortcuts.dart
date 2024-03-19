@@ -96,21 +96,3 @@ class GridCellCopyAction extends Action<GridCellCopyIntent> {
     }
   }
 }
-
-class GridCellPasteIntent extends Intent {
-  const GridCellPasteIntent();
-}
-
-class GridCellPasteAction extends Action<GridCellPasteIntent> {
-  GridCellPasteAction({required this.child});
-
-  final CellShortcuts child;
-
-  @override
-  void invoke(covariant GridCellPasteIntent intent) {
-    final callback = child.shortcutHandlers[CellKeyboardKey.onInsert];
-    if (callback != null) {
-      callback();
-    }
-  }
-}

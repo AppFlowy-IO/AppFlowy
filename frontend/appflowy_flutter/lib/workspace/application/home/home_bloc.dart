@@ -4,8 +4,8 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart'
     show WorkspaceSettingPB;
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flowy_infra/time/duration.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+
 part 'home_bloc.freezed.dart';
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
@@ -68,17 +68,6 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 enum MenuResizeType {
   slide,
   drag,
-}
-
-extension MenuResizeTypeExtension on MenuResizeType {
-  Duration duration() {
-    switch (this) {
-      case MenuResizeType.drag:
-        return 30.milliseconds;
-      case MenuResizeType.slide:
-        return 350.milliseconds;
-    }
-  }
 }
 
 @freezed

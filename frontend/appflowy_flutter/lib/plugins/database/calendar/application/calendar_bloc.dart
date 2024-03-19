@@ -456,16 +456,6 @@ class CalendarState with _$CalendarState {
       );
 }
 
-class CalendarEditingRow {
-  CalendarEditingRow({
-    required this.row,
-    required this.index,
-  });
-
-  RowPB row;
-  int? index;
-}
-
 @freezed
 class CalendarDayEvent with _$CalendarDayEvent {
   const factory CalendarDayEvent({
