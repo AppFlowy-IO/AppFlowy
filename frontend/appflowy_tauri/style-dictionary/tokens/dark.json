@@ -80,7 +80,7 @@
     },
     "list": {
       "active": {
-        "value": "{Base.black.neutral.100}",
+        "value": "{Base.black.neutral.300}",
         "type": "color"
       },
       "hover": {
@@ -207,5 +207,15 @@
       "type": "innerShadow"
     },
     "type": "boxShadow"
+  },
+  "scrollbar": {
+    "track": {
+      "value": "{Base.black.neutral.100}",
+      "type": "color"
+    },
+    "thumb": {
+      "value": "{Base.black.neutral.300}",
+      "type": "color"
+    }
   }
 }

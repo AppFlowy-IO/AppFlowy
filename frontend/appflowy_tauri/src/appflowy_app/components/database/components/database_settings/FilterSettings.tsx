@@ -8,7 +8,6 @@ function FilterSettings({ onToggleCollection }: { onToggleCollection: (forceOpen
   const { t } = useTranslation();
   const filtersCount = useFiltersCount();
   const highlight = filtersCount > 0;
-
   const [filterAnchorEl, setFilterAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(filterAnchorEl);
 

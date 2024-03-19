@@ -1,10 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 import KeyboardNavigation from '$app/components/_shared/keyboard_navigation/KeyboardNavigation';
-import {
-  SlashOptionType,
-  useSlashCommandPanel,
-} from '$app/components/editor/components/tools/command_panel/slash_command_panel/SlashCommandPanel.hooks';
+import { useSlashCommandPanel } from '$app/components/editor/components/tools/command_panel/slash_command_panel/SlashCommandPanel.hooks';
 import { useSlateStatic } from 'slate-react';
+import { SlashOptionType } from '$app/components/editor/components/tools/command_panel/slash_command_panel/const';
 
 const noResultBuffer = 2;
 

@@ -47,6 +47,20 @@ export function useEditor(sharedType: Y.XmlText) {
   }, [editor]);
 
   const handleOnClickEnd = useCallback(() => {
+    const path = [editor.children.length - 1];
+    const node = Editor.node(editor, path) as NodeEntry<Element>;
+    const latestNodeIsEmpty = CustomEditor.isEmptyText(editor, node[0]);
+
+    if (latestNodeIsEmpty) {
+      ReactEditor.focus(editor);
+      editor.select(path);
+      editor.collapse({
+        edge: 'end',
+      });
+
+      return;
+    }
+
     CustomEditor.insertEmptyLineAtEnd(editor);
   }, [editor]);
 

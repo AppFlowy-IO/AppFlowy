@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { WorkspaceSettingPB } from '@/services/backend/models/flowy-folder/workspace';
 import { ThemeModePB as ThemeMode } from '@/services/backend';
+import { Page, parserViewPBToPage } from '$app_reducers/pages/slice';
 
 export { ThemeMode };
 
@@ -23,6 +24,20 @@ export enum LoginState {
   Error = 'error',
 }
 
+export interface UserWorkspaceSetting {
+  workspaceId: string;
+  latestView?: Page;
+  hasLatestView: boolean;
+}
+
+export function parseWorkspaceSettingPBToSetting(workspaceSetting: WorkspaceSettingPB): UserWorkspaceSetting {
+  return {
+    workspaceId: workspaceSetting.workspace_id,
+    latestView: workspaceSetting.latest_view ? parserViewPBToPage(workspaceSetting.latest_view) : undefined,
+    hasLatestView: !!workspaceSetting.latest_view,
+  };
+}
+
 export interface ICurrentUser {
   id?: number;
   deviceId?: string;
@@ -31,7 +46,7 @@ export interface ICurrentUser {
   token?: string;
   iconUrl?: string;
   isAuthenticated: boolean;
-  workspaceSetting?: WorkspaceSettingPB;
+  workspaceSetting?: UserWorkspaceSetting;
   userSetting: UserSetting;
   isLocal: boolean;
   loginState?: LoginState;
@@ -70,6 +85,13 @@ export const currentUserSlice = createSlice({
 
     resetLoginState: (state) => {
       state.loginState = undefined;
+    },
+
+    setLatestView: (state, action: PayloadAction<Page>) => {
+      if (state.workspaceSetting) {
+        state.workspaceSetting.latestView = action.payload;
+        state.workspaceSetting.hasLatestView = true;
+      }
     },
   },
 });

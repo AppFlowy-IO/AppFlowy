@@ -3,23 +3,22 @@ import { useLoadExpandedPages } from '$app/components/layout/bread_crumb/Breadcr
 import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Link from '@mui/material/Link';
 import Typography from '@mui/material/Typography';
-import { Page, pageTypeMap } from '$app_reducers/pages/slice';
-import { useNavigate } from 'react-router-dom';
+import { Page } from '$app_reducers/pages/slice';
 import { useTranslation } from 'react-i18next';
 import { getPageIcon } from '$app/hooks/page.hooks';
+import { useAppDispatch } from '$app/stores/store';
+import { openPage } from '$app_reducers/pages/async_actions';
 
 function Breadcrumb() {
   const { t } = useTranslation();
   const { isTrash, pagePath, currentPage } = useLoadExpandedPages();
-  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
 
   const navigateToPage = useCallback(
     (page: Page) => {
-      const pageType = pageTypeMap[page.layout];
-
-      navigate(`/page/${pageType}/${page.id}`);
+      void dispatch(openPage(page.id));
     },
-    [navigate]
+    [dispatch]
   );
 
   if (!currentPage) {

@@ -6,7 +6,7 @@ import { subscribeNotifications } from '$app/application/notification';
 import { FolderNotification, ViewLayoutPB } from '@/services/backend';
 import * as workspaceService from '$app/application/folder/workspace.service';
 import { createCurrentWorkspaceChildView } from '$app/application/folder/workspace.service';
-import { useNavigate } from 'react-router-dom';
+import { openPage } from '$app_reducers/pages/async_actions';
 
 export function useLoadWorkspaces() {
   const dispatch = useAppDispatch();
@@ -108,8 +108,7 @@ export function useLoadWorkspace(workspace: WorkspaceItem) {
 }
 
 export function useWorkspaceActions(workspaceId: string) {
-  const navigate = useNavigate();
-
+  const dispatch = useAppDispatch();
   const newPage = useCallback(async () => {
     const { id } = await createCurrentWorkspaceChildView({
       name: '',
@@ -117,8 +116,19 @@ export function useWorkspaceActions(workspaceId: string) {
       parent_view_id: workspaceId,
     });
 
-    navigate(`/page/document/${id}`);
-  }, [navigate, workspaceId]);
+    dispatch(
+      pagesActions.addPage({
+        page: {
+          id: id,
+          parentId: workspaceId,
+          layout: ViewLayoutPB.Document,
+          name: '',
+        },
+        isLast: true,
+      })
+    );
+    void dispatch(openPage(id));
+  }, [dispatch, workspaceId]);
 
   return {
     newPage,
