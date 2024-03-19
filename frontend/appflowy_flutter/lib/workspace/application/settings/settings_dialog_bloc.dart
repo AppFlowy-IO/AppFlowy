@@ -9,6 +9,8 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'settings_dialog_bloc.freezed.dart';
 
 enum SettingsPage {
+  account,
+  // OLD
   appearance,
   language,
   files,
@@ -88,6 +90,6 @@ class SettingsDialogState with _$SettingsDialogState {
       SettingsDialogState(
         userProfile: userProfile,
         successOrFailure: FlowyResult.success(null),
-        page: SettingsPage.appearance,
+        page: SettingsPage.account,
       );
 }

@@ -223,7 +223,8 @@
     "editContact": "Edit Contact"
   },
   "button": {
-    "ok": "OK",
+    "ok": "Ok",
+    "confirm": "Confirm",
     "done": "Done",
     "cancel": "Cancel",
     "signIn": "Sign In",
@@ -286,6 +287,31 @@
   },
   "settings": {
     "title": "Settings",
+    "account": {
+      "menuLabel": "My account",
+      "title": "My account",
+      "description": "Customize your profile, manage account security, open AI keys, or login into your account.",
+      "general": {
+        "title": "Account name & profile image",
+        "changeProfilePicture": "Change"
+      },
+      "email": {
+        "title": "Email",
+        "actions": {
+          "change": "Change email"
+        }
+      },
+      "keys": {
+        "title": "AI Keys",
+        "openAILabel": "OpenAI key",
+        "openAITooltip": "The OpenAPI API key to use for the AI models"
+      },
+      "login": {
+        "title": "Account login",
+        "loginLabel": "Log in",
+        "logoutLabel": "Log out"
+      }
+    },
     "menu": {
       "appearance": "Appearance",
       "language": "Language",
@@ -294,7 +320,7 @@
       "notifications": "Notifications",
       "open": "Open Settings",
       "logout": "Logout",
-      "logoutPrompt": "Are you sure to logout?",
+      "logoutPrompt": "Are you sure you want to log out?",
       "selfEncryptionLogoutPrompt": "Are you sure you want to log out? Please ensure you have copied the encryption secret",
       "syncSetting": "Sync Setting",
       "cloudSettings": "Cloud Settings",

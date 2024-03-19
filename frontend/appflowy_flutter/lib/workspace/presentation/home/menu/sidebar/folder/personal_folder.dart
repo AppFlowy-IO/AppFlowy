@@ -10,6 +10,7 @@ import 'package:appflowy/workspace/presentation/home/menu/sidebar/rename_view_di
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -108,6 +109,8 @@ class _PersonalFolderHeaderState extends State<PersonalFolderHeader> {
             ),
             padding: const EdgeInsets.all(textPadding),
             fillColor: Colors.transparent,
+            fontColor: AFThemeExtension.of(context).textColor,
+            fontHoverColor: Theme.of(context).colorScheme.onPrimary,
             onPressed: widget.onPressed,
           ),
           if (onHover) ...[
