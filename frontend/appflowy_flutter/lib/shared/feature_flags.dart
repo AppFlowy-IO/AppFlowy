@@ -19,7 +19,11 @@ enum FeatureFlag {
 
   // used to control the visibility of the members settings
   // if it's on, you can see the members settings in the settings page
-  membersSettings;
+  membersSettings,
+
+  // used to control the sync feature of the document
+  // if it's on, the document will be synced the events from server in real-time
+  syncDocument;
 
   static Future<void> initialize() async {
     final values = await getIt<KeyValueStorage>().getWithFormat<FeatureFlagMap>(
@@ -76,6 +80,8 @@ enum FeatureFlag {
         return false;
       case FeatureFlag.membersSettings:
         return false;
+      case FeatureFlag.syncDocument:
+        return false;
     }
   }
 
@@ -85,6 +91,8 @@ enum FeatureFlag {
         return 'if it\'s on, you can see the workspace list and the workspace settings in the top-left corner of the app';
       case FeatureFlag.membersSettings:
         return 'if it\'s on, you can see the members settings in the settings page';
+      case FeatureFlag.syncDocument:
+        return 'if it\'s on, the document will be synced the events from server in real-time';
     }
   }
 

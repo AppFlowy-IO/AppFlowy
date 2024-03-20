@@ -7,6 +7,7 @@ import 'package:appflowy/plugins/document/document_page.dart';
 import 'package:appflowy/plugins/document/presentation/document_sync_indicator.dart';
 import 'package:appflowy/plugins/document/presentation/share/share_button.dart';
 import 'package:appflowy/plugins/util.dart';
+import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/workspace/application/view_info/view_info_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
@@ -143,11 +144,13 @@ class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
             key: ValueKey('share_button_${view.id}'),
             view: view,
           ),
-          const HSpace(20),
-          DocumentSyncIndicator(
-            key: ValueKey('sync_state_${view.id}'),
-            view: view,
-          ),
+          if (FeatureFlag.syncDocument.isOn) ...[
+            const HSpace(20),
+            DocumentSyncIndicator(
+              key: ValueKey('sync_state_${view.id}'),
+              view: view,
+            ),
+          ],
           const HSpace(12),
           ViewFavoriteButton(
             key: ValueKey('favorite_button_${view.id}'),

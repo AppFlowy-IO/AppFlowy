@@ -5,6 +5,7 @@ import 'package:appflowy/plugins/document/application/doc_service.dart';
 import 'package:appflowy/plugins/document/application/document_data_pb_extension.dart';
 import 'package:appflowy/plugins/document/application/editor_transaction_adapter.dart';
 import 'package:appflowy/plugins/trash/application/trash_service.dart';
+import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/workspace/application/doc/doc_listener.dart';
@@ -248,7 +249,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   }
 
   void syncDocumentDataPB(DocEventPB docEvent) async {
-    if (!docEvent.isRemote) {
+    if (!docEvent.isRemote || !FeatureFlag.syncDocument.isOn) {
       return;
     }
 
