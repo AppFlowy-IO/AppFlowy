@@ -28,7 +28,7 @@ void main() {
       content: "",
     );
     await gridResponseFuture();
-    assert(menuBloc.state.creatableFields.length == 2);
+    assert(menuBloc.state.creatableFields.length == 3);
   });
 
   test('test filter menu after update existing text filter)', () async {
