@@ -60,7 +60,7 @@ export function LinkEditPopover({
         style={{
           maxHeight: paperHeight,
         }}
-        className='flex flex-col p-4'
+        className='flex select-none flex-col p-4'
       >
         <LinkEditContent defaultHref={defaultHref} onClose={onClose} />
       </div>

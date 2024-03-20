@@ -39,6 +39,9 @@ export function useLoadTrash() {
 export function useTrashActions() {
   const [restoreAllDialogOpen, setRestoreAllDialogOpen] = useState(false);
   const [deleteAllDialogOpen, setDeleteAllDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+
+  const [deleteId, setDeleteId] = useState('');
 
   const onClickRestoreAll = () => {
     setRestoreAllDialogOpen(true);
@@ -51,9 +54,18 @@ export function useTrashActions() {
   const closeDialog = () => {
     setRestoreAllDialogOpen(false);
     setDeleteAllDialogOpen(false);
+    setDeleteDialogOpen(false);
+  };
+
+  const onClickDelete = (id: string) => {
+    setDeleteId(id);
+    setDeleteDialogOpen(true);
   };
 
   return {
+    onClickDelete,
+    deleteDialogOpen,
+    deleteId,
     onPutback: putback,
     onDelete: deleteTrashItem,
     onDeleteAll: deleteAll,

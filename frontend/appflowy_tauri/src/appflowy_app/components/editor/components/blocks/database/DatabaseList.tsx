@@ -35,7 +35,7 @@ function DatabaseList({
       return (
         <div className={'flex items-center text-text-title'}>
           <GridSvg className={'mr-2 h-4 w-4'} />
-          <div className={'truncate'}>{item.name || t('document.title.placeholder')}</div>
+          <div className={'truncate'}>{item.name.trim() || t('menuAppHeader.defaultNewPageName')}</div>
         </div>
       );
     },
