@@ -19,25 +19,25 @@ class HeadingsAndTextItems extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         _HeadingOrTextItem(
-          icon: FlowySvgs.m_aa_h1_s,
+          icon: FlowySvgs.m_aa_h1_m,
           blockType: HeadingBlockKeys.type,
           editorState: editorState,
           level: 1,
         ),
         _HeadingOrTextItem(
-          icon: FlowySvgs.m_aa_h2_s,
+          icon: FlowySvgs.m_aa_h2_m,
           blockType: HeadingBlockKeys.type,
           editorState: editorState,
           level: 2,
         ),
         _HeadingOrTextItem(
-          icon: FlowySvgs.m_aa_h3_s,
+          icon: FlowySvgs.m_aa_h3_m,
           blockType: HeadingBlockKeys.type,
           editorState: editorState,
           level: 3,
         ),
         _HeadingOrTextItem(
-          icon: FlowySvgs.m_aa_text_s,
+          icon: FlowySvgs.m_aa_paragraph_m,
           blockType: ParagraphBlockKeys.type,
           editorState: editorState,
         ),

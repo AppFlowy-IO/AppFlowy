@@ -297,19 +297,12 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
 
     if (PlatformExtension.isMobile) {
       return AppFlowyMobileToolbar(
-        toolbarHeight: 46.0,
+        toolbarHeight: 42.0,
         editorState: editorState,
-        toolbarItems: [
-          undoToolbarItem,
-          redoToolbarItem,
-          addBlockToolbarItem,
-          todoListToolbarItem,
-          aaToolbarItem,
-          boldToolbarItem,
-          italicToolbarItem,
-          underlineToolbarItem,
-          colorToolbarItem,
-        ],
+        toolbarItemsBuilder: (selection) => buildMobileToolbarItems(
+          editorState,
+          selection,
+        ),
         child: Column(
           children: [
             Expanded(
