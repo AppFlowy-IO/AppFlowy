@@ -157,7 +157,7 @@ export function useSlashCommandPanel({
 
       if (!newNode || !path) return;
 
-      const isEmpty = CustomEditor.isEmptyText(editor, newNode) && node.type === EditorNodeType.Paragraph;
+      const isEmpty = CustomEditor.isEmptyText(editor, newNode);
 
       if (!isEmpty) {
         const nextPath = Path.next(path);

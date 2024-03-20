@@ -1,5 +1,5 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_toolbar_theme.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/aa_menu/_toolbar_theme.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/util.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
@@ -14,10 +14,10 @@ class BIUSItems extends StatelessWidget {
   final EditorState editorState;
 
   final List<(FlowySvgData, String)> _bius = [
-    (FlowySvgs.m_aa_bold_s, AppFlowyRichTextKeys.bold),
-    (FlowySvgs.m_aa_italic_s, AppFlowyRichTextKeys.italic),
-    (FlowySvgs.m_aa_underline_s, AppFlowyRichTextKeys.underline),
-    (FlowySvgs.m_aa_strike_s, AppFlowyRichTextKeys.strikethrough),
+    (FlowySvgs.m_toolbar_bold_m, AppFlowyRichTextKeys.bold),
+    (FlowySvgs.m_toolbar_italic_m, AppFlowyRichTextKeys.italic),
+    (FlowySvgs.m_toolbar_underline_m, AppFlowyRichTextKeys.underline),
+    (FlowySvgs.m_toolbar_strike_m, AppFlowyRichTextKeys.strikethrough),
   ];
 
   @override
