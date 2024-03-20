@@ -2,15 +2,16 @@ import React, { useRef } from 'react';
 import { useMentionPanel } from '$app/components/editor/components/tools/command_panel/mention_panel/MentionPanel.hooks';
 
 import KeyboardNavigation from '$app/components/_shared/keyboard_navigation/KeyboardNavigation';
+import { MentionPage } from '$app/application/document/document.types';
 
 function MentionPanelContent({
   closePanel,
-  searchText,
+  pages,
   maxHeight,
   width,
 }: {
   closePanel: (deleteText?: boolean) => void;
-  searchText: string;
+  pages: MentionPage[];
   maxHeight: number;
   width: number;
 }) {
@@ -18,7 +19,7 @@ function MentionPanelContent({
 
   const { options, onConfirm } = useMentionPanel({
     closePanel,
-    searchText,
+    pages,
   });
 
   return (
