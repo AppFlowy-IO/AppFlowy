@@ -11,8 +11,6 @@ use crate::{
   entities::view::ViewPB,
 };
 
-use super::ViewSectionPB;
-
 #[derive(Eq, PartialEq, ProtoBuf, Default, Debug, Clone)]
 pub struct WorkspacePB {
   #[pb(index = 1)]

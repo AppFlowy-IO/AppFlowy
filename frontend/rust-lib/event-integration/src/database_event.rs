@@ -36,6 +36,7 @@ impl EventIntegrationTest {
       meta: Default::default(),
       set_as_current: true,
       index: None,
+      section: None,
     };
     EventBuilder::new(self.clone())
       .event(FolderEvent::CreateView)
@@ -66,6 +67,7 @@ impl EventIntegrationTest {
       meta: Default::default(),
       set_as_current: true,
       index: None,
+      section: None,
     };
     EventBuilder::new(self.clone())
       .event(FolderEvent::CreateView)
@@ -91,6 +93,7 @@ impl EventIntegrationTest {
       meta: Default::default(),
       set_as_current: true,
       index: None,
+      section: None,
     };
     EventBuilder::new(self.clone())
       .event(FolderEvent::CreateView)

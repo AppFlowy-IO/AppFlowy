@@ -12,7 +12,7 @@ use flowy_folder_pub::folder_builder::WorkspaceViewBuilder;
 use lib_infra::future::FutureResult;
 use lib_infra::util::timestamp;
 
-use crate::entities::{CreateViewParams, ViewLayoutPB, ViewSectionPB};
+use crate::entities::{CreateViewParams, ViewLayoutPB};
 use crate::share::ImportType;
 
 pub type ViewData = Bytes;
