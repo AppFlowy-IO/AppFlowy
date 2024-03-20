@@ -103,7 +103,7 @@ impl EventIntegrationTest {
 }
 
 pub fn assert_document_data_equal(doc_state: &[u8], doc_id: &str, expected: DocumentData) {
-  let collab = MutexCollab::new(CollabOrigin::Server, doc_id, vec![]);
+  let collab = MutexCollab::new(CollabOrigin::Server, doc_id, vec![], false);
   collab.lock().with_origin_transact_mut(|txn| {
     let update = Update::decode_v1(doc_state).unwrap();
     txn.apply_update(update);
