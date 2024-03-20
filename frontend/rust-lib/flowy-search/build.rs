@@ -13,18 +13,7 @@ fn main() {
 
   #[cfg(feature = "tauri_ts")]
   {
-    flowy_codegen::protobuf_file::ts_gen(
-      crate_name,
-      "search",
-      Project::Web {
-        relative_path: "../../../".to_string(),
-      },
-    );
-    flowy_codegen::ts_event::gen(
-      crate_name,
-      Project::Web {
-        relative_path: "../../../".to_string(),
-      },
-    );
+    flowy_codegen::protobuf_file::ts_gen(crate_name, crate_name, Project::Tauri);
+    flowy_codegen::ts_event::gen(crate_name, Project::Tauri);
   }
 }
