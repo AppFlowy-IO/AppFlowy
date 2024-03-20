@@ -5,7 +5,7 @@ use std::pin::Pin;
 use std::sync::{Arc, Weak};
 use std::time::Duration;
 
-use anyhow::{anyhow, Error};
+use anyhow::Error;
 use collab::core::collab::{CollabDocState, MutexCollab};
 use collab::core::origin::CollabOrigin;
 use collab_entity::{CollabObject, CollabType};
@@ -16,7 +16,7 @@ use tokio_retry::strategy::FixedInterval;
 use tokio_retry::{Action, RetryIf};
 use uuid::Uuid;
 
-use flowy_error::FlowyError;
+use flowy_error::{internal_error, FlowyError};
 use flowy_folder_pub::cloud::{Folder, FolderData, Workspace};
 use flowy_user_pub::cloud::*;
 use flowy_user_pub::entities::*;
@@ -248,7 +248,8 @@ where
       Ok(user_workspaces)
     })
   }
-  fn get_user_awareness_doc_state(&self, uid: i64) -> FutureResult<CollabDocState, Error> {
+
+  fn get_user_awareness_doc_state(&self, uid: i64) -> FutureResult<CollabDocState, FlowyError> {
     let try_get_postgrest = self.server.try_get_weak_postgrest();
     let awareness_id = uid.to_string();
     let (tx, rx) = channel();
@@ -263,7 +264,10 @@ where
         .await,
       )
     });
-    FutureResult::new(async { rx.await? })
+    FutureResult::new(async {
+      let doc_state = rx.await.map_err(internal_error)?;
+      doc_state.map_err(internal_error)
+    })
   }
 
   fn receive_realtime_event(&self, json: Value) {
@@ -286,7 +290,7 @@ where
     self.user_update_rx.write().take()
   }
 
-  fn reset_workspace(&self, collab_object: CollabObject) -> FutureResult<(), Error> {
+  fn reset_workspace(&self, collab_object: CollabObject) -> FutureResult<(), FlowyError> {
     let try_get_postgrest = self.server.try_get_weak_postgrest();
     let (tx, rx) = channel();
     let init_update = default_workspace_doc_state(&collab_object);
@@ -347,11 +351,12 @@ where
     &self,
     _workspace_id: &str,
     _objects: Vec<UserCollabParams>,
-  ) -> FutureResult<(), Error> {
+  ) -> FutureResult<(), FlowyError> {
     FutureResult::new(async {
-      Err(anyhow!(
-        "supabase server doesn't support batch create collab"
-      ))
+      Err(
+        FlowyError::local_version_not_support()
+          .with_context("supabase server doesn't support batch create collab"),
+      )
     })
   }
 
