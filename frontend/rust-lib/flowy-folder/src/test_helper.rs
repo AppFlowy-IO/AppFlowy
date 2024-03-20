@@ -47,7 +47,7 @@ impl FolderManager {
       meta: ext,
       set_as_current: true,
       index: None,
-      section: ViewSectionPB::Public,
+      section: Some(ViewSectionPB::Public),
     };
     self.create_view_with_params(params).await.unwrap();
     view_id
