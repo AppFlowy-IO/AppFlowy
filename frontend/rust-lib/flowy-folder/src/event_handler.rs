@@ -226,9 +226,7 @@ pub(crate) async fn move_nested_view_handler(
 ) -> Result<(), FlowyError> {
   let folder = upgrade_folder(folder)?;
   let params: MoveNestedViewParams = data.into_inner().try_into()?;
-  folder
-    .move_nested_view(params.view_id, params.new_parent_id, params.prev_view_id)
-    .await?;
+  folder.move_nested_view(params).await?;
   Ok(())
 }
 

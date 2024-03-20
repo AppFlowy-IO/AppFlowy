@@ -23,8 +23,8 @@ use lib_infra::conditional_send_sync_trait;
 use crate::entities::icon::UpdateViewIconParams;
 use crate::entities::{
   view_pb_with_child_views, view_pb_without_child_views, CreateViewParams, CreateWorkspaceParams,
-  DeletedViewPB, FolderSnapshotPB, RepeatedTrashPB, RepeatedViewIdPB, RepeatedViewPB,
-  UpdateViewParams, ViewPB, ViewSectionPB, WorkspacePB, WorkspaceSettingPB,
+  DeletedViewPB, FolderSnapshotPB, MoveNestedViewParams, RepeatedTrashPB, RepeatedViewIdPB,
+  RepeatedViewPB, UpdateViewParams, ViewPB, ViewSectionPB, WorkspacePB, WorkspaceSettingPB,
 };
 use crate::manager_observer::{
   notify_child_views_changed, notify_did_update_workspace, notify_parent_view_did_change,
@@ -622,18 +622,26 @@ impl FolderManager {
   /// * `prev_view_id` - An `Option<String>` that holds the id of the view after which the `view_id` should be positioned.
   ///
   #[tracing::instrument(level = "trace", skip(self), err)]
-  pub async fn move_nested_view(
-    &self,
-    view_id: String,
-    new_parent_id: String,
-    prev_view_id: Option<String>,
-  ) -> FlowyResult<()> {
+  pub async fn move_nested_view(&self, params: MoveNestedViewParams) -> FlowyResult<()> {
+    let view_id = params.view_id;
+    let new_parent_id = params.new_parent_id;
+    let prev_view_id = params.prev_view_id;
+    let from_section = params.from_section;
+    let to_section = params.to_section;
     let view = self.get_view_pb(&view_id).await?;
     let old_parent_id = view.parent_view_id;
     self.with_folder(
       || (),
       |folder| {
         folder.move_nested_view(&view_id, &new_parent_id, prev_view_id);
+
+        if from_section != to_section {
+          if to_section == Some(ViewSectionPB::Private) {
+            folder.add_private_view_ids(vec![view_id.clone()]);
+          } else {
+            folder.delete_private_view_ids(vec![view_id.clone()]);
+          }
+        }
       },
     );
     notify_parent_view_did_change(

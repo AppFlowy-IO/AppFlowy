@@ -195,11 +195,15 @@ class ViewBackendService {
     required String viewId,
     required String newParentId,
     required String? prevViewId,
+    required ViewSectionPB fromSection,
+    required ViewSectionPB toSection,
   }) {
     final payload = MoveNestedViewPayloadPB(
       viewId: viewId,
       newParentId: newParentId,
       prevViewId: prevViewId,
+      fromSection: fromSection,
+      toSection: toSection,
     );
 
     return FolderEventMoveNestedView(payload).send();

@@ -115,6 +115,7 @@ impl EventIntegrationTest {
       meta: Default::default(),
       set_as_current: false,
       index: None,
+      section: None,
     };
     EventBuilder::new(self.clone())
       .event(FolderEvent::CreateView)
@@ -165,6 +166,7 @@ impl ViewTest {
       meta: Default::default(),
       set_as_current: true,
       index: None,
+      section: None,
     };
 
     let view = EventBuilder::new(sdk.clone())

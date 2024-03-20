@@ -412,6 +412,12 @@ pub struct MoveNestedViewPayloadPB {
 
   #[pb(index = 3, one_of)]
   pub prev_view_id: Option<String>,
+
+  #[pb(index = 4, one_of)]
+  pub from_section: Option<ViewSectionPB>,
+
+  #[pb(index = 5, one_of)]
+  pub to_section: Option<ViewSectionPB>,
 }
 
 pub struct MoveViewParams {
@@ -433,10 +439,13 @@ impl TryInto<MoveViewParams> for MoveViewPayloadPB {
   }
 }
 
+#[derive(Debug)]
 pub struct MoveNestedViewParams {
   pub view_id: String,
   pub new_parent_id: String,
   pub prev_view_id: Option<String>,
+  pub from_section: Option<ViewSectionPB>,
+  pub to_section: Option<ViewSectionPB>,
 }
 
 impl TryInto<MoveNestedViewParams> for MoveNestedViewPayloadPB {
@@ -450,6 +459,8 @@ impl TryInto<MoveNestedViewParams> for MoveNestedViewPayloadPB {
       view_id,
       new_parent_id,
       prev_view_id,
+      from_section: self.from_section,
+      to_section: self.to_section,
     })
   }
 }

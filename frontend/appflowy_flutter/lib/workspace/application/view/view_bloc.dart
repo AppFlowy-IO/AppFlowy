@@ -165,6 +165,8 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
               viewId: value.from.id,
               newParentId: value.newParentId,
               prevViewId: value.prevId,
+              fromSection: value.fromSection,
+              toSection: value.toSection,
             );
             emit(
               result.fold(
@@ -353,6 +355,8 @@ class ViewEvent with _$ViewEvent {
     ViewPB from,
     String newParentId,
     String? prevId,
+    ViewSectionPB fromSection,
+    ViewSectionPB toSection,
   ) = Move;
   const factory ViewEvent.createView(
     String name,
