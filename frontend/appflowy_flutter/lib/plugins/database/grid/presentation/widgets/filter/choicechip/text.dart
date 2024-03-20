@@ -1,59 +1,44 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/database/grid/application/filter/text_filter_editor_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
-
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/text_filter.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../application/filter/text_filter_editor_bloc.dart';
+
 import '../condition_button.dart';
 import '../disclosure_button.dart';
 import '../filter_info.dart';
 import 'choicechip.dart';
 
-class TextFilterChoicechip extends StatefulWidget {
+class TextFilterChoicechip extends StatelessWidget {
   const TextFilterChoicechip({required this.filterInfo, super.key});
 
   final FilterInfo filterInfo;
 
   @override
-  State<TextFilterChoicechip> createState() => _TextFilterChoicechipState();
-}
-
-class _TextFilterChoicechipState extends State<TextFilterChoicechip> {
-  late TextFilterEditorBloc bloc;
-
-  @override
-  void initState() {
-    bloc = TextFilterEditorBloc(filterInfo: widget.filterInfo)
-      ..add(const TextFilterEditorEvent.initial());
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    bloc.close();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return BlocProvider.value(
-      value: bloc,
+    return BlocProvider(
+      create: (_) => TextFilterEditorBloc(
+        filterInfo: filterInfo,
+        fieldType: FieldType.RichText,
+      )..add(const TextFilterEditorEvent.initial()),
       child: BlocBuilder<TextFilterEditorBloc, TextFilterEditorState>(
-        builder: (blocContext, state) {
+        builder: (context, state) {
           return AppFlowyPopover(
-            controller: PopoverController(),
             constraints: BoxConstraints.loose(const Size(200, 76)),
             direction: PopoverDirection.bottomWithCenterAligned,
-            popupBuilder: (BuildContext context) {
-              return TextFilterEditor(bloc: bloc);
+            popupBuilder: (popoverContext) {
+              return BlocProvider.value(
+                value: context.read<TextFilterEditorBloc>(),
+                child: const TextFilterEditor(),
+              );
             },
             child: ChoiceChipButton(
-              filterInfo: widget.filterInfo,
+              filterInfo: filterInfo,
               filterDesc: _makeFilterDesc(state),
             ),
           );
@@ -78,9 +63,7 @@ class _TextFilterChoicechipState extends State<TextFilterChoicechip> {
 }
 
 class TextFilterEditor extends StatefulWidget {
-  const TextFilterEditor({required this.bloc, super.key});
-
-  final TextFilterEditorBloc bloc;
+  const TextFilterEditor({super.key});
 
   @override
   State<TextFilterEditor> createState() => _TextFilterEditorState();
@@ -91,26 +74,23 @@ class _TextFilterEditorState extends State<TextFilterEditor> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider.value(
-      value: widget.bloc,
-      child: BlocBuilder<TextFilterEditorBloc, TextFilterEditorState>(
-        builder: (context, state) {
-          final List<Widget> children = [
-            _buildFilterPanel(context, state),
-          ];
+    return BlocBuilder<TextFilterEditorBloc, TextFilterEditorState>(
+      builder: (context, state) {
+        final List<Widget> children = [
+          _buildFilterPanel(context, state),
+        ];
 
-          if (state.filter.condition != TextFilterConditionPB.TextIsEmpty &&
-              state.filter.condition != TextFilterConditionPB.TextIsNotEmpty) {
-            children.add(const VSpace(4));
-            children.add(_buildFilterTextField(context, state));
-          }
+        if (state.filter.condition != TextFilterConditionPB.TextIsEmpty &&
+            state.filter.condition != TextFilterConditionPB.TextIsNotEmpty) {
+          children.add(const VSpace(4));
+          children.add(_buildFilterTextField(context, state));
+        }
 
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-            child: IntrinsicHeight(child: Column(children: children)),
-          );
-        },
-      ),
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+          child: IntrinsicHeight(child: Column(children: children)),
+        );
+      },
     );
   }
 

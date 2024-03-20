@@ -47,7 +47,7 @@ class FieldInfo with _$FieldInfo {
   }
 
   bool get canCreateFilter {
-    if (hasFilter || isGroupField) {
+    if (isGroupField) {
       return false;
     }
 
@@ -58,6 +58,7 @@ class FieldInfo with _$FieldInfo {
       case FieldType.RichText:
       case FieldType.SingleSelect:
       case FieldType.Checklist:
+      case FieldType.URL:
         return true;
       default:
         return false;
