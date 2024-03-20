@@ -224,6 +224,7 @@ class _SidebarState extends State<_Sidebar> {
                 controller: _scrollController,
                 physics: const ClampingScrollPhysics(),
                 child: SidebarFolder(
+                  userProfile: widget.userProfile,
                   isHoverEnabled: !isScrolling,
                 ),
               ),

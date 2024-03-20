@@ -29,7 +29,7 @@ class SidebarNewPageButton extends StatelessWidget {
             context.read<SidebarSectionsBloc>().add(
                   SidebarSectionsEvent.createRootViewInSection(
                     name: viewName,
-                    viewSection: ViewSectionPB.Private,
+                    viewSection: ViewSectionPB.Public,
                   ),
                 );
           }

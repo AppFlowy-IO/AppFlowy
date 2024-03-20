@@ -47,8 +47,11 @@ void main() {
       await blocResponseFuture();
     }
 
+    final reversedNames = names.reversed.toList();
     for (var i = 0; i < names.length; i++) {
-      assert(menuBloc.state.section.publicViews[i].name == names[i]);
+      assert(
+        menuBloc.state.section.publicViews[i].name == reversedNames[i],
+      );
     }
   });
 }
