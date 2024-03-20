@@ -10,11 +10,10 @@ use crate::services::field::{
   CheckboxCellDataParser, CheckboxTypeOption, TypeOption, CHECK, UNCHECK,
 };
 use crate::services::group::action::GroupCustomize;
-use crate::services::group::configuration::GroupContext;
-use crate::services::group::controller::{BaseGroupController, GroupController};
+use crate::services::group::configuration::GroupControllerContext;
+use crate::services::group::controller::BaseGroupController;
 use crate::services::group::{
-  move_group_row, GeneratedGroupConfig, GeneratedGroups, Group, GroupOperationInterceptor,
-  GroupsBuilder, MoveGroupRowContext,
+  move_group_row, GeneratedGroups, Group, GroupsBuilder, MoveGroupRowContext,
 };
 
 #[derive(Default, Serialize, Deserialize)]
@@ -22,16 +21,10 @@ pub struct CheckboxGroupConfiguration {
   pub hide_empty: bool,
 }
 
-pub type CheckboxGroupController = BaseGroupController<
-  CheckboxGroupConfiguration,
-  CheckboxTypeOption,
-  CheckboxGroupBuilder,
-  CheckboxCellDataParser,
-  CheckboxGroupOperationInterceptorImpl,
->;
+pub type CheckboxGroupController =
+  BaseGroupController<CheckboxGroupConfiguration, CheckboxGroupBuilder, CheckboxCellDataParser>;
 
-pub type CheckboxGroupContext = GroupContext<CheckboxGroupConfiguration>;
-
+pub type CheckboxGroupControllerContext = GroupControllerContext<CheckboxGroupConfiguration>;
 impl GroupCustomize for CheckboxGroupController {
   type GroupTypeOption = CheckboxTypeOption;
   fn placeholder_cell(&self) -> Option<Cell> {
@@ -126,11 +119,7 @@ impl GroupCustomize for CheckboxGroupController {
     (None, changesets)
   }
 
-  fn move_row(
-    &mut self,
-    _cell_data: &<Self::GroupTypeOption as TypeOption>::CellProtobufType,
-    mut context: MoveGroupRowContext,
-  ) -> Vec<GroupRowsNotificationPB> {
+  fn move_row(&mut self, mut context: MoveGroupRowContext) -> Vec<GroupRowsNotificationPB> {
     let mut group_changeset = vec![];
     self.context.iter_mut_groups(|group| {
       if let Some(changeset) = move_group_row(group, &mut context) {
@@ -140,17 +129,11 @@ impl GroupCustomize for CheckboxGroupController {
     group_changeset
   }
 
-  fn delete_group_custom(&mut self, _group_id: &str) -> FlowyResult<Option<TypeOptionData>> {
+  fn delete_group(&mut self, _group_id: &str) -> FlowyResult<Option<TypeOptionData>> {
     Ok(None)
   }
-}
 
-impl GroupController for CheckboxGroupController {
-  fn did_update_field_type_option(&mut self, _field: &Field) {
-    // Do nothing
-  }
-
-  fn will_create_row(&mut self, cells: &mut Cells, field: &Field, group_id: &str) {
+  fn will_create_row(&self, cells: &mut Cells, field: &Field, group_id: &str) {
     match self.context.get_group(group_id) {
       None => tracing::warn!("Can not find the group: {}", group_id),
       Some((_, group)) => {
@@ -165,7 +148,7 @@ impl GroupController for CheckboxGroupController {
 pub struct CheckboxGroupBuilder();
 #[async_trait]
 impl GroupsBuilder for CheckboxGroupBuilder {
-  type Context = CheckboxGroupContext;
+  type Context = CheckboxGroupControllerContext;
   type GroupTypeOption = CheckboxTypeOption;
 
   async fn build(
@@ -173,26 +156,12 @@ impl GroupsBuilder for CheckboxGroupBuilder {
     _context: &Self::Context,
     _type_option: &Self::GroupTypeOption,
   ) -> GeneratedGroups {
-    let check_group = GeneratedGroupConfig {
-      group: Group::new(CHECK.to_string(), "".to_string()),
-      filter_content: CHECK.to_string(),
-    };
-
-    let uncheck_group = GeneratedGroupConfig {
-      group: Group::new(UNCHECK.to_string(), "".to_string()),
-      filter_content: UNCHECK.to_string(),
-    };
+    let check_group = Group::new(CHECK.to_string());
+    let uncheck_group = Group::new(UNCHECK.to_string());
 
     GeneratedGroups {
       no_status_group: None,
-      group_configs: vec![check_group, uncheck_group],
+      groups: vec![check_group, uncheck_group],
     }
   }
-}
-
-pub struct CheckboxGroupOperationInterceptorImpl {}
-
-#[async_trait]
-impl GroupOperationInterceptor for CheckboxGroupOperationInterceptorImpl {
-  type GroupTypeOption = CheckboxTypeOption;
 }

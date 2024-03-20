@@ -1,8 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
 import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -22,6 +19,8 @@ import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -69,6 +68,7 @@ class InitAppWidgetTask extends LaunchTask {
           Locale('en'),
           Locale('es', 'VE'),
           Locale('eu', 'ES'),
+          Locale('el', 'GR'),
           Locale('fr', 'FR'),
           Locale('fr', 'CA'),
           Locale('hu', 'HU'),

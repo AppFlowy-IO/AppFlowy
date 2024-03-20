@@ -43,8 +43,20 @@ function Workspace({ workspace, opened }: { workspace: WorkspaceItem; opened: bo
         >
           <Tooltip disableInteractive={true} placement={'top-start'} title={t('sideBar.clickToHidePersonal')}>
             <div className={'flex items-center gap-2 rounded px-2 py-1 text-xs font-medium hover:bg-fill-list-active'}>
-              <WorkplaceAvatar workplaceName={workspace.name} width={18} height={18} className={'text-[70%]'} />
-              {workspace.name}
+              {!workspace.name ? (
+                t('sideBar.personal')
+              ) : (
+                <>
+                  <WorkplaceAvatar
+                    icon={workspace.icon}
+                    workplaceName={workspace.name}
+                    width={18}
+                    height={18}
+                    className={'text-[70%]'}
+                  />
+                  {workspace.name}
+                </>
+              )}
             </div>
           </Tooltip>
           {showAdd && (

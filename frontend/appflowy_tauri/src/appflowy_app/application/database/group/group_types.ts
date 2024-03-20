@@ -8,7 +8,6 @@ export interface GroupSetting {
 
 export interface Group {
   id: string;
-  name: string;
   isDefault: boolean;
   isVisible: boolean;
   fieldId: string;
@@ -18,7 +17,6 @@ export interface Group {
 export function pbToGroup(pb: GroupPB): Group {
   return {
     id: pb.group_id,
-    name: pb.group_name,
     isDefault: pb.is_default,
     isVisible: pb.is_visible,
     fieldId: pb.field_id,

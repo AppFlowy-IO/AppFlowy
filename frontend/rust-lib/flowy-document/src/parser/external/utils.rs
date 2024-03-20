@@ -428,10 +428,6 @@ fn get_attributes_with_style(style: &str) -> HashMap<String, Value> {
         attributes.insert(BG_COLOR.to_string(), Value::String(value.to_string()));
       },
       COLOR => {
-        if value.eq(DEFAULT_FONT_COLOR) {
-          continue;
-        }
-
         attributes.insert(FONT_COLOR.to_string(), Value::String(value.to_string()));
       },
       _ => {},

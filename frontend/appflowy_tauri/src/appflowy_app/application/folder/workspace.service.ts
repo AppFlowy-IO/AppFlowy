@@ -9,6 +9,7 @@ import {
   UserEventOpenWorkspace,
   UserEventRenameWorkspace,
   UserEventChangeWorkspaceIcon,
+  UserEventGetAllWorkspace,
 } from '@/services/backend/events/flowy-user';
 import {
   FolderEventCreateView,
@@ -62,17 +63,13 @@ export async function getWorkspaceChildViews(id: string) {
 }
 
 export async function getWorkspaces() {
-  const result = await FolderEventReadCurrentWorkspace();
+  const result = await UserEventGetAllWorkspace();
 
   if (result.ok) {
-    const item = result.val;
-
-    return [
-      {
-        id: item.id,
-        name: item.name,
-      },
-    ];
+    return result.val.items.map((workspace) => ({
+      id: workspace.workspace_id,
+      name: workspace.name,
+    }));
   }
 
   return [];
@@ -92,12 +89,7 @@ export async function getCurrentWorkspace() {
   const result = await FolderEventReadCurrentWorkspace();
 
   if (result.ok) {
-    const workspace = result.val;
-
-    return {
-      id: workspace.id,
-      name: workspace.name,
-    };
+    return result.val.id;
   }
 
   return null;
@@ -111,9 +103,7 @@ export async function createCurrentWorkspaceChildView(
   const result = await FolderEventCreateView(payload);
 
   if (result.ok) {
-    const view = result.val;
-
-    return view;
+    return result.val;
   }
 
   return Promise.reject(result.err);

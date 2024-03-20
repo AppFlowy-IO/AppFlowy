@@ -22,7 +22,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [ubuntu-latest]
+        platform: [ubuntu-20.04]
 
     runs-on: ${{ matrix.platform }}
 
@@ -32,7 +32,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Maximize build space (ubuntu only)
-        if: matrix.platform == 'ubuntu-latest'
+        if: matrix.platform == 'ubuntu-20.04'
         run: |
           sudo rm -rf /usr/share/dotnet
           sudo rm -rf /opt/ghc
@@ -80,7 +80,7 @@ jobs:
           vcpkg integrate install
 
       - name: install dependencies (ubuntu only)
-        if: matrix.platform == 'ubuntu-latest'
+        if: matrix.platform == 'ubuntu-20.04'
         working-directory: frontend
         run: |
           sudo apt-get update
@@ -111,3 +111,4 @@ jobs:
         with:
           tauriScript: pnpm tauri
           projectPath: frontend/appflowy_tauri
+          args: "--debug"

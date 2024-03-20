@@ -812,6 +812,30 @@ async fn update_relation_cell_test() {
     .await;
 
   assert_eq!(cell.row_ids.len(), 3);
+
+  // update the relation cell
+  let changeset = RelationCellChangesetPB {
+    view_id: grid_view.id.clone(),
+    cell_id: CellIdPB {
+      view_id: grid_view.id.clone(),
+      field_id: relation_field.id.clone(),
+      row_id: database.rows[0].id.clone(),
+    },
+    removed_row_ids: vec![
+      "row1rowid".to_string(),
+      "row3rowid".to_string(),
+      "row4rowid".to_string(),
+    ],
+    ..Default::default()
+  };
+  test.update_relation_cell(changeset).await;
+
+  // get the cell
+  let cell = test
+    .get_relation_cell(&grid_view.id, &relation_field.id, &database.rows[0].id)
+    .await;
+
+  assert_eq!(cell.row_ids.len(), 1);
 }
 
 #[tokio::test]

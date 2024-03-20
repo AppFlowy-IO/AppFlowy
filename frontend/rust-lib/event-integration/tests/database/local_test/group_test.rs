@@ -89,7 +89,6 @@ async fn rename_group_event_test() {
     .create_board(&current_workspace.id, "my board view".to_owned(), vec![])
     .await;
 
-  // Empty to group id
   let groups = test.get_groups(&board_view.id).await;
   let error = test
     .update_group(
@@ -101,9 +100,6 @@ async fn rename_group_event_test() {
     )
     .await;
   assert!(error.is_none());
-
-  let groups = test.get_groups(&board_view.id).await;
-  assert_eq!(groups[1].group_name, "new name".to_owned());
 }
 
 #[tokio::test]
@@ -144,9 +140,6 @@ async fn update_group_name_test() {
 
   let groups = test.get_groups(&board_view.id).await;
   assert_eq!(groups.len(), 4);
-  assert_eq!(groups[1].group_name, "To Do");
-  assert_eq!(groups[2].group_name, "Doing");
-  assert_eq!(groups[3].group_name, "Done");
 
   test
     .update_group(
@@ -160,8 +153,6 @@ async fn update_group_name_test() {
 
   let groups = test.get_groups(&board_view.id).await;
   assert_eq!(groups.len(), 4);
-  assert_eq!(groups[1].group_name, "To Do?");
-  assert_eq!(groups[2].group_name, "Doing");
 }
 
 #[tokio::test]
@@ -174,14 +165,9 @@ async fn delete_group_test() {
 
   let groups = test.get_groups(&board_view.id).await;
   assert_eq!(groups.len(), 4);
-  assert_eq!(groups[1].group_name, "To Do");
-  assert_eq!(groups[2].group_name, "Doing");
-  assert_eq!(groups[3].group_name, "Done");
 
   test.delete_group(&board_view.id, &groups[1].group_id).await;
 
   let groups = test.get_groups(&board_view.id).await;
   assert_eq!(groups.len(), 3);
-  assert_eq!(groups[1].group_name, "Doing");
-  assert_eq!(groups[2].group_name, "Done");
 }

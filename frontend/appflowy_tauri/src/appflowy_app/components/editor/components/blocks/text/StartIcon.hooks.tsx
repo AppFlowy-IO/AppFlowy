@@ -36,7 +36,7 @@ export function useStartIcon(node: TextNode) {
       return null;
     }
 
-    return <Component className={`text-block-icon relative select-all`} block={block} />;
+    return <Component className={`text-block-icon relative`} block={block} />;
   }, [Component, block]);
 
   return {

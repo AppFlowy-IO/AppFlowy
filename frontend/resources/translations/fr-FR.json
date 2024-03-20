@@ -504,7 +504,6 @@
       "typeAValue": "Tapez une valeur...",
       "layout": "Mise en page",
       "databaseLayout": "Mise en page",
-      "viewList": "Vues de base de données",
       "editView": "Modifier vue",
       "boardSettings": "Paramètres du tableau",
       "calendarSettings": "Paramètres du calendrier",
@@ -512,7 +511,8 @@
       "duplicateView": "Dupliquer la vue",
       "deleteView": "Supprimer la vue",
       "numberOfVisibleFields": "{} affiché(s)",
-      "Properties": "Propriétés"
+      "Properties": "Propriétés",
+      "viewList": "Vues de base de données"
     },
     "textFilter": {
       "contains": "Contient",
@@ -651,8 +651,8 @@
       "empty": "Tri pas actif",
       "deleteAllSorts": "Supprimer tous les tris",
       "addSort": "Ajouter un tri",
-      "deleteSort": "Supprimer le tri",
-      "removeSorting": "Voulez-vous supprimer le tri ?"
+      "removeSorting": "Voulez-vous supprimer le tri ?",
+      "deleteSort": "Supprimer le tri"
     },
     "row": {
       "duplicate": "Dupliquer",
@@ -1008,10 +1008,10 @@
       "layoutDateField": "Calendrier de mise en page par",
       "changeLayoutDateField": "Modifier le champ de mise en page",
       "noDateTitle": "Pas de date",
-      "noDateHint": "Les événements non planifiés s'afficheront ici",
       "unscheduledEventsTitle": "Événements non planifiés",
       "clickToAdd": "Cliquez pour ajouter au calendrier",
-      "name": "Disposition du calendrier"
+      "name": "Disposition du calendrier",
+      "noDateHint": "Les événements non planifiés s'afficheront ici"
     },
     "referencedCalendarPrefix": "Vue",
     "quickJumpYear": "Sauter à"

@@ -75,7 +75,7 @@ pub async fn sync_supabase_user_data_to_cloud(
 fn sync_view(
   uid: i64,
   folder: Arc<MutexFolder>,
-  database_records: Vec<Arc<DatabaseMeta>>,
+  database_metas: Vec<Arc<DatabaseMeta>>,
   workspace_id: String,
   device_id: String,
   view: Arc<View>,
@@ -84,7 +84,7 @@ fn sync_view(
 ) -> Pin<Box<dyn Future<Output = Result<(), Error>> + Send + Sync>> {
   Box::pin(async move {
     let collab_type = collab_type_from_view_layout(&view.layout);
-    let object_id = object_id_from_view(&view, &database_records)?;
+    let object_id = object_id_from_view(&view, &database_metas)?;
     tracing::debug!(
       "sync view: {:?}:{} with object_id: {}",
       view.layout,
@@ -180,7 +180,7 @@ fn sync_view(
       if let Err(err) = Box::pin(sync_view(
         uid,
         folder.clone(),
-        database_records.clone(),
+        database_metas.clone(),
         workspace_id.clone(),
         device_id.to_string(),
         child_view,
