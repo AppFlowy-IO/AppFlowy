@@ -1,5 +1,5 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_toolbar_theme.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/aa_menu/_toolbar_theme.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
@@ -22,7 +22,7 @@ class IndentAndOutdentItems extends StatelessWidget {
         children: [
           MobileToolbarMenuItemWrapper(
             size: const Size(95, 52),
-            icon: FlowySvgs.m_aa_outdent_s,
+            icon: FlowySvgs.m_aa_outdent_m,
             enable: isOutdentable(editorState),
             isSelected: false,
             enableTopRightRadius: false,
@@ -37,7 +37,7 @@ class IndentAndOutdentItems extends StatelessWidget {
           const ScaledVerticalDivider(),
           MobileToolbarMenuItemWrapper(
             size: const Size(95, 52),
-            icon: FlowySvgs.m_aa_indent_s,
+            icon: FlowySvgs.m_aa_indent_m,
             enable: isIndentable(editorState),
             isSelected: false,
             enableTopLeftRadius: false,
