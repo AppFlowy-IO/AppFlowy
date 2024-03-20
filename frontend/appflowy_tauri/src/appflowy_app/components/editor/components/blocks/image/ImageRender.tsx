@@ -20,7 +20,7 @@ function ImageRender({ selected, node }: { selected: boolean; node: ImageNode })
 
   const imgRef = useRef<HTMLImageElement>(null);
   const editor = useSlateStatic();
-  const { url = '', width: imageWidth, image_type: source } = node.data;
+  const { url = '', width: imageWidth, image_type: source } = useMemo(() => node.data || {}, [node.data]);
   const { t } = useTranslation();
   const blockId = node.blockId;
 

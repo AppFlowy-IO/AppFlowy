@@ -20,6 +20,9 @@ function Trash() {
     onRestoreAll,
     onDeleteAll,
     closeDialog,
+    deleteDialogOpen,
+    deleteId,
+    onClickDelete,
   } = useTrashActions();
   const [hoverId, setHoverId] = useState('');
 
@@ -50,7 +53,7 @@ function Trash() {
             item={item}
             key={item.id}
             onPutback={onPutback}
-            onDelete={onDelete}
+            onDelete={onClickDelete}
             hoverId={hoverId}
             setHoverId={setHoverId}
           />
@@ -62,12 +65,19 @@ function Trash() {
         subtitle={t('trash.confirmRestoreAll.caption')}
         onOk={onRestoreAll}
         onClose={closeDialog}
+        okText={t('trash.restoreAll')}
       />
       <DeleteConfirmDialog
         open={deleteAllDialogOpen}
         title={t('trash.confirmDeleteAll.title')}
         subtitle={t('trash.confirmDeleteAll.caption')}
         onOk={onDeleteAll}
+        onClose={closeDialog}
+      />
+      <DeleteConfirmDialog
+        open={deleteDialogOpen}
+        title={t('trash.confirmDeleteTitle')}
+        onOk={() => onDelete([deleteId])}
         onClose={closeDialog}
       />
     </div>

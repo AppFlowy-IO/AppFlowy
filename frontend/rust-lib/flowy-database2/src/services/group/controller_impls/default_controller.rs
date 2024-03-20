@@ -8,9 +8,9 @@ use crate::entities::{
   GroupChangesPB, GroupPB, GroupRowsNotificationPB, InsertedGroupPB, InsertedRowPB,
 };
 use crate::services::group::action::{
-  DidMoveGroupRowResult, DidUpdateGroupRowResult, GroupControllerOperation,
+  DidMoveGroupRowResult, DidUpdateGroupRowResult, GroupController,
 };
-use crate::services::group::{GroupChangesets, GroupController, GroupData, MoveGroupRowContext};
+use crate::services::group::{GroupChangeset, GroupData, MoveGroupRowContext};
 
 /// A [DefaultGroupController] is used to handle the group actions for the [FieldType] that doesn't
 /// implement its own group controller. The default group controller only contains one group, which
@@ -25,13 +25,7 @@ const DEFAULT_GROUP_CONTROLLER: &str = "DefaultGroupController";
 
 impl DefaultGroupController {
   pub fn new(field: &Field) -> Self {
-    let group = GroupData::new(
-      DEFAULT_GROUP_CONTROLLER.to_owned(),
-      field.id.clone(),
-      "".to_owned(),
-      "".to_owned(),
-      true,
-    );
+    let group = GroupData::new(DEFAULT_GROUP_CONTROLLER.to_owned(), field.id.clone(), true);
     Self {
       field_id: field.id.clone(),
       group,
@@ -40,7 +34,7 @@ impl DefaultGroupController {
 }
 
 #[async_trait]
-impl GroupControllerOperation for DefaultGroupController {
+impl GroupController for DefaultGroupController {
   fn field_id(&self) -> &str {
     &self.field_id
   }
@@ -131,18 +125,12 @@ impl GroupControllerOperation for DefaultGroupController {
     Ok((vec![], None))
   }
 
-  async fn apply_group_changeset(
+  fn apply_group_changeset(
     &mut self,
-    _changeset: &GroupChangesets,
+    _changeset: &[GroupChangeset],
   ) -> FlowyResult<(Vec<GroupPB>, TypeOptionData)> {
     Ok((Vec::new(), TypeOptionData::default()))
   }
-}
 
-impl GroupController for DefaultGroupController {
-  fn did_update_field_type_option(&mut self, _field: &Field) {
-    // Do nothing
-  }
-
-  fn will_create_row(&mut self, _cells: &mut Cells, _field: &Field, _group_id: &str) {}
+  fn will_create_row(&self, _cells: &mut Cells, _field: &Field, _group_id: &str) {}
 }

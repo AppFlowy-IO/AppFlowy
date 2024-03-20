@@ -74,8 +74,8 @@
     "openFailed": "Failed to open workspace",
     "renameSuccess": "Workspace renamed successfully",
     "renameFailed": "Failed to rename workspace",
-    "updateIconSuccess": "Workspace reset successfully",
-    "updateIconFailed": "Failed to reset workspace"
+    "updateIconSuccess": "Updated workspace icon successfully",
+    "updateIconFailed": "Updated workspace icon failed"
   },
   "shareAction": {
     "buttonText": "Share",
@@ -144,7 +144,8 @@
       "emptyDescription": "You don't have any deleted file",
       "isDeleted": "is deleted",
       "isRestored": "is restored"
-    }
+    },
+    "confirmDeleteTitle": "Are you sure you want to delete this page permanently?"
   },
   "deletePagePrompt": {
     "text": "This page is in Trash",
@@ -736,6 +737,8 @@
       "relatedDatabasePlaceLabel": "Related Database",
       "relatedDatabasePlaceholder": "None",
       "inRelatedDatabase": "In",
+      "rowSearchTextFieldPlaceholder": "Search",
+      "noDatabaseSelected": "No database selected, please select one first from the list below:",
       "emptySearchResult": "No records found"
     },
     "menuName": "Grid",
@@ -1307,6 +1310,8 @@
     "copy": "Copy",
     "paste": "Paste",
     "find": "Find",
+    "select": "Select",
+    "selectAll": "Select all",
     "previousMatch": "Previous match",
     "nextMatch": "Next match",
     "closeFind": "Close",
