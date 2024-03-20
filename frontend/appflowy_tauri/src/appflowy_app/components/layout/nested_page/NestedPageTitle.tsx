@@ -76,7 +76,7 @@ function NestedPageTitle({
           {pageIcon}
 
           <div className={'flex-1 overflow-hidden text-ellipsis whitespace-nowrap'}>
-            {page?.name || t('menuAppHeader.defaultNewPageName')}
+            {page?.name.trim() || t('menuAppHeader.defaultNewPageName')}
           </div>
         </div>
         <div onClick={(e) => e.stopPropagation()} className={'min:w-14 flex items-center justify-end px-2'}>

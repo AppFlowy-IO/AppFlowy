@@ -138,7 +138,7 @@ where
     cell: &Cell,
     decoded_field_type: &FieldType,
     field: &Field,
-  ) -> FlowyResult<<Self as TypeOption>::CellData> {
+  ) -> FlowyResult<T::CellData> {
     let key = CellDataCacheKey::new(field, *decoded_field_type, cell);
     if let Some(cell_data_cache) = self.cell_data_cache.as_ref() {
       let read_guard = cell_data_cache.read();
@@ -168,12 +168,7 @@ where
     Ok(cell_data)
   }
 
-  fn set_decoded_cell_data(
-    &self,
-    cell: &Cell,
-    cell_data: <Self as TypeOption>::CellData,
-    field: &Field,
-  ) {
+  fn set_decoded_cell_data(&self, cell: &Cell, cell_data: T::CellData, field: &Field) {
     if let Some(cell_data_cache) = self.cell_data_cache.as_ref() {
       let field_type = FieldType::from(field.field_type);
       let key = CellDataCacheKey::new(field, field_type, cell);
@@ -194,16 +189,6 @@ impl<T> std::ops::Deref for TypeOptionCellDataHandlerImpl<T> {
   fn deref(&self) -> &Self::Target {
     &self.inner
   }
-}
-
-impl<T> TypeOption for TypeOptionCellDataHandlerImpl<T>
-where
-  T: TypeOption + Send + Sync,
-{
-  type CellData = T::CellData;
-  type CellChangeset = T::CellChangeset;
-  type CellProtobufType = T::CellProtobufType;
-  type CellFilter = T::CellFilter;
 }
 
 impl<T> TypeOptionCellDataHandler for TypeOptionCellDataHandlerImpl<T>
@@ -227,7 +212,7 @@ where
   ) -> FlowyResult<CellProtobufBlob> {
     let cell_data = self
       .get_cell_data(cell, decoded_field_type, field_rev)?
-      .unbox_or_default::<<Self as TypeOption>::CellData>();
+      .unbox_or_default::<T::CellData>();
 
     CellProtobufBlob::from(self.protobuf_encode(cell_data))
   }
@@ -238,7 +223,7 @@ where
     old_cell: Option<Cell>,
     field: &Field,
   ) -> FlowyResult<Cell> {
-    let changeset = cell_changeset.unbox_or_error::<<Self as TypeOption>::CellChangeset>()?;
+    let changeset = cell_changeset.unbox_or_error::<T::CellChangeset>()?;
     let (cell, cell_data) = self.apply_changeset(changeset, old_cell)?;
     self.set_decoded_cell_data(&cell, cell_data, field);
     Ok(cell)
@@ -306,7 +291,7 @@ where
   fn handle_cell_filter(&self, field: &Field, cell: &Cell, filter: &BoxAny) -> bool {
     let perform_filter = || {
       let field_type = FieldType::from(field.field_type);
-      let cell_filter = filter.downcast_ref::<<Self as TypeOption>::CellFilter>()?;
+      let cell_filter = filter.downcast_ref::<T::CellFilter>()?;
       let cell_data = self.get_decoded_cell_data(cell, &field_type, field).ok()?;
       Some(self.apply_filter(cell_filter, &cell_data))
     };

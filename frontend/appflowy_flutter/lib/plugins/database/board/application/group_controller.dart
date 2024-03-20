@@ -31,23 +31,11 @@ class GroupController {
   final GroupControllerDelegate delegate;
   final void Function(GroupPB group) onGroupChanged;
 
-  RowMetaPB? rowAtIndex(int index) {
-    if (index < group.rows.length) {
-      return group.rows[index];
-    } else {
-      return null;
-    }
-  }
+  RowMetaPB? rowAtIndex(int index) => group.rows.elementAtOrNull(index);
 
-  RowMetaPB? firstRow() {
-    if (group.rows.isEmpty) return null;
-    return group.rows.first;
-  }
+  RowMetaPB? firstRow() => group.rows.firstOrNull;
 
-  RowMetaPB? lastRow() {
-    if (group.rows.isEmpty) return null;
-    return group.rows.last;
-  }
+  RowMetaPB? lastRow() => group.rows.lastOrNull;
 
   void startListening() {
     _listener.start(

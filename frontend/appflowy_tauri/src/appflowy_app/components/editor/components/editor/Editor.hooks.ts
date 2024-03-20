@@ -3,7 +3,6 @@ import { KeyboardEvent, useCallback, useEffect, useMemo } from 'react';
 import { BaseRange, createEditor, Editor, NodeEntry, Range, Transforms, Element } from 'slate';
 import { ReactEditor, withReact } from 'slate-react';
 import { withBlockPlugins } from '$app/components/editor/plugins/withBlockPlugins';
-import { withShortcuts } from 'src/appflowy_app/components/editor/plugins/shortcuts';
 import { withInlines } from '$app/components/editor/components/inline_nodes';
 import { withYHistory, withYjs, YjsEditor } from '@slate-yjs/core';
 import * as Y from 'yjs';
@@ -11,11 +10,12 @@ import { CustomEditor } from '$app/components/editor/command';
 import { CodeNode, EditorNodeType } from '$app/application/document/document.types';
 import { decorateCode } from '$app/components/editor/components/blocks/code/utils';
 import isHotkey from 'is-hotkey';
+import { withMarkdown } from '$app/components/editor/plugins/shortcuts';
 
 export function useEditor(sharedType: Y.XmlText) {
   const editor = useMemo(() => {
     if (!sharedType) return null;
-    const e = withShortcuts(withBlockPlugins(withInlines(withReact(withYHistory(withYjs(createEditor(), sharedType))))));
+    const e = withMarkdown(withBlockPlugins(withInlines(withReact(withYHistory(withYjs(createEditor(), sharedType))))));
 
     // Ensure editor always has at least 1 valid child
     const { normalizeNode } = e;

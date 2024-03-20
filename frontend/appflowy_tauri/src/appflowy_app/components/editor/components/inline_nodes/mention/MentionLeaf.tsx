@@ -132,7 +132,7 @@ export function MentionLeaf({ mention }: { mention: Mention }) {
         page && (
           <>
             {page.icon?.value || <DocumentSvg />}
-            <span className={'mr-1 underline'}>{page.name || t('document.title.placeholder')}</span>
+            <span className={'mr-1 underline'}>{page.name.trim() || t('menuAppHeader.defaultNewPageName')}</span>
           </>
         )
       )}

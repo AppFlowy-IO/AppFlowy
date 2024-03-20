@@ -67,7 +67,7 @@ export function useMentionPanel({
           <div className={'flex items-center gap-2'}>
             <div className={'flex h-5 w-5 items-center justify-center'}>{page.icon?.value || <DocumentSvg />}</div>
 
-            <div className={'flex-1'}>{page.name || t('document.title.placeholder')}</div>
+            <div className={'flex-1'}>{page.name.trim() || t('menuAppHeader.defaultNewPageName')}</div>
           </div>
         ),
       };

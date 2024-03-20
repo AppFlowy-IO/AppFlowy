@@ -1,7 +1,8 @@
 import React, { useCallback } from 'react';
 import { TodoListNode } from '$app/application/document/document.types';
 import { CustomEditor } from '$app/components/editor/command';
-import { useSlateStatic } from 'slate-react';
+import { ReactEditor, useSlateStatic } from 'slate-react';
+import { Location } from 'slate';
 import { ReactComponent as CheckboxCheckSvg } from '$app/assets/database/checkbox-check.svg';
 import { ReactComponent as CheckboxUncheckSvg } from '$app/assets/database/checkbox-uncheck.svg';
 
@@ -9,9 +10,25 @@ function CheckboxIcon({ block, className }: { block: TodoListNode; className: st
   const editor = useSlateStatic();
   const { checked } = block.data;
 
-  const toggleTodo = useCallback(() => {
-    CustomEditor.toggleTodo(editor, block);
-  }, [editor, block]);
+  const toggleTodo = useCallback(
+    (e: React.MouseEvent) => {
+      const path = ReactEditor.findPath(editor, block);
+      const start = editor.start(path);
+      let at: Location = start;
+
+      if (e.shiftKey) {
+        const end = editor.end(path);
+
+        at = {
+          anchor: start,
+          focus: end,
+        };
+      }
+
+      CustomEditor.toggleTodo(editor, at);
+    },
+    [editor, block]
+  );
 
   return (
     <span

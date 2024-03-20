@@ -63,56 +63,50 @@ async fn group_by_date_test() {
       row_count: 0,
     },
     // Added via `make_test_board`
-    AssertGroupIDName {
+    AssertGroupId {
       group_index: 1,
       group_id: "2022/03/01".to_string(),
-      group_name: "Mar 2022".to_string(),
     },
     AssertGroupRowCount {
       group_index: 1,
       row_count: 3,
     },
     // Added via `make_test_board`
-    AssertGroupIDName {
+    AssertGroupId {
       group_index: 2,
       group_id: "2022/11/01".to_string(),
-      group_name: "Nov 2022".to_string(),
     },
     AssertGroupRowCount {
       group_index: 2,
       row_count: 2,
     },
-    AssertGroupIDName {
+    AssertGroupId {
       group_index: 3,
       group_id: last_30_days,
-      group_name: "Last 30 days".to_string(),
     },
     AssertGroupRowCount {
       group_index: 3,
       row_count: 1,
     },
-    AssertGroupIDName {
+    AssertGroupId {
       group_index: 4,
       group_id: last_day,
-      group_name: "Yesterday".to_string(),
     },
     AssertGroupRowCount {
       group_index: 4,
       row_count: 2,
     },
-    AssertGroupIDName {
+    AssertGroupId {
       group_index: 5,
       group_id: today.format("%Y/%m/%d").to_string(),
-      group_name: "Today".to_string(),
     },
     AssertGroupRowCount {
       group_index: 5,
       row_count: 1,
     },
-    AssertGroupIDName {
+    AssertGroupId {
       group_index: 6,
       group_id: next_7_days,
-      group_name: "Next 7 days".to_string(),
     },
     AssertGroupRowCount {
       group_index: 6,
@@ -180,10 +174,9 @@ async fn change_date_on_moving_row_to_another_group() {
       group_index: 2,
       row_count: 3,
     },
-    AssertGroupIDName {
+    AssertGroupId {
       group_index: 2,
       group_id: "2022/11/01".to_string(),
-      group_name: "Nov 2022".to_string(),
     },
   ];
   test.run_scripts(scripts).await;

@@ -49,10 +49,19 @@ export function useBlockActionsToolbar(ref: RefObject<HTMLDivElement>, contextMe
       try {
         range = ReactEditor.findEventRange(editor, e);
       } catch {
-        range = findEventRange(editor, e);
+        const editorDom = ReactEditor.toDOMNode(editor, editor);
+
+        range = findEventRange(editor, {
+          ...e,
+          clientX: e.clientX + editorDom.offsetWidth / 2,
+          clientY: e.clientY,
+        });
       }
 
-      if (!range) return;
+      if (!range) {
+        return;
+      }
+
       const match = editor.above({
         match: (n) => {
           return !Editor.isEditor(n) && Element.isElement(n) && n.blockId !== undefined;

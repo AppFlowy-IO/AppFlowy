@@ -35,7 +35,7 @@ use crate::services::field_settings::{
   default_field_settings_by_layout_map, FieldSettings, FieldSettingsChangesetParams,
 };
 use crate::services::filter::{Filter, FilterChangeset};
-use crate::services::group::{default_group_setting, GroupChangesets, GroupSetting, RowChangeset};
+use crate::services::group::{default_group_setting, GroupChangeset, GroupSetting, RowChangeset};
 use crate::services::share::csv::{CSVExport, CSVFormat};
 use crate::services::sort::Sort;
 use crate::utils::cache::AnyTypeCache;
@@ -210,7 +210,11 @@ impl DatabaseEditor {
     Ok(self.database.lock().delete_view(view_id))
   }
 
-  pub async fn update_group(&self, view_id: &str, changesets: GroupChangesets) -> FlowyResult<()> {
+  pub async fn update_group(
+    &self,
+    view_id: &str,
+    changesets: Vec<GroupChangeset>,
+  ) -> FlowyResult<()> {
     let view_editor = self.database_views.get_view_editor(view_id).await?;
     view_editor.v_update_group(changesets).await?;
     Ok(())

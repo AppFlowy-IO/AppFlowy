@@ -199,7 +199,7 @@ class MobileHiddenGroup extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  group.groupName,
+                  context.read<BoardBloc>().generateGroupNameFromGroup(group),
                   style: Theme.of(context).textTheme.bodyMedium,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,

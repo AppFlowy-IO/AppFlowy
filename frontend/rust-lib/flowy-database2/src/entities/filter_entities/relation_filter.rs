@@ -1,6 +1,7 @@
+use collab_database::{fields::Field, rows::Cell};
 use flowy_derive::ProtoBuf;
 
-use crate::services::filter::ParseFilterData;
+use crate::services::filter::{ParseFilterData, PreFillCellsWithFilter};
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct RelationFilterPB {
@@ -11,5 +12,11 @@ pub struct RelationFilterPB {
 impl ParseFilterData for RelationFilterPB {
   fn parse(_condition: u8, _content: String) -> Self {
     RelationFilterPB { condition: 0 }
+  }
+}
+
+impl PreFillCellsWithFilter for RelationFilterPB {
+  fn get_compliant_cell(&self, _field: &Field) -> (Option<Cell>, bool) {
+    (None, false)
   }
 }
