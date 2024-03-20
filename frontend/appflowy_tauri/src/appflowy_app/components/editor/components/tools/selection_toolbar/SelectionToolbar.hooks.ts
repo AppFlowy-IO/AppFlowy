@@ -109,7 +109,10 @@ export function useSelectionToolbar(ref: MutableRefObject<HTMLDivElement | null>
   useEffect(() => {
     const decorateState = getStaticState();
 
-    if (decorateState) return;
+    if (decorateState) {
+      setIsAcrossBlocks(false);
+      return;
+    }
 
     const { selection } = editor;
 
@@ -131,10 +134,7 @@ export function useSelectionToolbar(ref: MutableRefObject<HTMLDivElement | null>
       return;
     }
 
-    const start = selection.anchor;
-    const end = selection.focus;
-
-    setIsAcrossBlocks(!CustomEditor.blockEqual(editor, start, end));
+    setIsAcrossBlocks(CustomEditor.isMultipleBlockSelected(editor, true));
     debounceRecalculatePosition();
   });
 

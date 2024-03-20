@@ -12,10 +12,16 @@ export function NumberedList() {
   const isActivated = CustomEditor.isBlockActive(editor, EditorNodeType.NumberedListBlock);
 
   const onClick = useCallback(() => {
+    let type = EditorNodeType.NumberedListBlock;
+
+    if (isActivated) {
+      type = EditorNodeType.Paragraph;
+    }
+
     CustomEditor.turnToBlock(editor, {
-      type: EditorNodeType.NumberedListBlock,
+      type,
     });
-  }, [editor]);
+  }, [editor, isActivated]);
 
   return (
     <ActionButton active={isActivated} onClick={onClick} tooltip={t('document.plugins.numberedList')}>
