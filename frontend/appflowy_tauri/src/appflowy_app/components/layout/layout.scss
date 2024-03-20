@@ -73,3 +73,9 @@
     background: linear-gradient(150.74deg, rgba(128, 125, 125, 0) 17.95%, #4d4d4d 95.51%);
   }
 }
+
+.document-header {
+  .view-banner {
+    @apply items-center;
+  }
+}

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import Tooltip from '@mui/material/Tooltip';
 import { ReactComponent as AlignLeftSvg } from '$app/assets/align-left.svg';
 import { ReactComponent as AlignCenterSvg } from '$app/assets/align-center.svg';
@@ -6,10 +6,9 @@ import { ReactComponent as AlignRightSvg } from '$app/assets/align-right.svg';
 import ActionButton from '$app/components/editor/components/tools/selection_toolbar/actions/_shared/ActionButton';
 import { useTranslation } from 'react-i18next';
 import { CustomEditor } from '$app/components/editor/command';
-import { ReactEditor, useSlateStatic } from 'slate-react';
+import { useSlateStatic } from 'slate-react';
 import { IconButton } from '@mui/material';
 import { ReactComponent as MoreSvg } from '$app/assets/more.svg';
-import { createHotkey, HOT_KEY_NAME } from '$app/utils/hotkeys';
 
 export function Align() {
   const { t } = useTranslation();
@@ -61,36 +60,6 @@ export function Align() {
     }
   }, []);
 
-  useEffect(() => {
-    const editorDom = ReactEditor.toDOMNode(editor, editor);
-    const handleShortcut = (e: KeyboardEvent) => {
-      if (createHotkey(HOT_KEY_NAME.ALIGN_LEFT)(e)) {
-        e.preventDefault();
-        e.stopPropagation();
-        CustomEditor.toggleAlign(editor, 'left');
-        return;
-      }
-
-      if (createHotkey(HOT_KEY_NAME.ALIGN_CENTER)(e)) {
-        e.preventDefault();
-        e.stopPropagation();
-        CustomEditor.toggleAlign(editor, 'center');
-        return;
-      }
-
-      if (createHotkey(HOT_KEY_NAME.ALIGN_RIGHT)(e)) {
-        e.preventDefault();
-        e.stopPropagation();
-        CustomEditor.toggleAlign(editor, 'right');
-        return;
-      }
-    };
-
-    editorDom.addEventListener('keydown', handleShortcut);
-    return () => {
-      editorDom.removeEventListener('keydown', handleShortcut);
-    };
-  }, [editor]);
   return (
     <Tooltip
       placement={'bottom'}

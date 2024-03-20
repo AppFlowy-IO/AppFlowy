@@ -14,6 +14,10 @@ export const getModifier = () => {
 };
 
 export enum HOT_KEY_NAME {
+  LEFT = 'left',
+  RIGHT = 'right',
+  SELECT_ALL = 'select-all',
+  ESCAPE = 'escape',
   ALIGN_LEFT = 'align-left',
   ALIGN_CENTER = 'align-center',
   ALIGN_RIGHT = 'align-right',
@@ -24,6 +28,29 @@ export enum HOT_KEY_NAME {
   CODE = 'code',
   TOGGLE_TODO = 'toggle-todo',
   TOGGLE_COLLAPSE = 'toggle-collapse',
+  INDENT_BLOCK = 'indent-block',
+  OUTDENT_BLOCK = 'outdent-block',
+  INSERT_SOFT_BREAK = 'insert-soft-break',
+  SPLIT_BLOCK = 'split-block',
+  BACKSPACE = 'backspace',
+  OPEN_LINK = 'open-link',
+  OPEN_LINKS = 'open-links',
+  EXTEND_LINE_BACKWARD = 'extend-line-backward',
+  EXTEND_LINE_FORWARD = 'extend-line-forward',
+  PASTE = 'paste',
+  PASTE_PLAIN_TEXT = 'paste-plain-text',
+  HIGH_LIGHT = 'high-light',
+  EXTEND_DOCUMENT_BACKWARD = 'extend-document-backward',
+  EXTEND_DOCUMENT_FORWARD = 'extend-document-forward',
+  SCROLL_TO_TOP = 'scroll-to-top',
+  SCROLL_TO_BOTTOM = 'scroll-to-bottom',
+  FORMAT_LINK = 'format-link',
+  FIND_REPLACE = 'find-replace',
+  /**
+   * Navigation
+   */
+  TOGGLE_THEME = 'toggle-theme',
+  TOGGLE_SIDEBAR = 'toggle-sidebar',
 }
 
 const defaultHotKeys = {
@@ -37,6 +64,30 @@ const defaultHotKeys = {
   [HOT_KEY_NAME.CODE]: ['mod+e'],
   [HOT_KEY_NAME.TOGGLE_TODO]: ['mod+enter'],
   [HOT_KEY_NAME.TOGGLE_COLLAPSE]: ['mod+enter'],
+  [HOT_KEY_NAME.SELECT_ALL]: ['mod+a'],
+  [HOT_KEY_NAME.ESCAPE]: ['esc'],
+  [HOT_KEY_NAME.INDENT_BLOCK]: ['tab'],
+  [HOT_KEY_NAME.OUTDENT_BLOCK]: ['shift+tab'],
+  [HOT_KEY_NAME.SPLIT_BLOCK]: ['enter'],
+  [HOT_KEY_NAME.INSERT_SOFT_BREAK]: ['shift+enter'],
+  [HOT_KEY_NAME.BACKSPACE]: ['backspace', 'shift+backspace'],
+  [HOT_KEY_NAME.OPEN_LINK]: ['opt+enter'],
+  [HOT_KEY_NAME.OPEN_LINKS]: ['opt+shift+enter'],
+  [HOT_KEY_NAME.EXTEND_LINE_BACKWARD]: ['opt+shift+left'],
+  [HOT_KEY_NAME.EXTEND_LINE_FORWARD]: ['opt+shift+right'],
+  [HOT_KEY_NAME.PASTE]: ['mod+v'],
+  [HOT_KEY_NAME.PASTE_PLAIN_TEXT]: ['mod+shift+v'],
+  [HOT_KEY_NAME.HIGH_LIGHT]: ['mod+shift+h'],
+  [HOT_KEY_NAME.EXTEND_DOCUMENT_BACKWARD]: ['mod+shift+up'],
+  [HOT_KEY_NAME.EXTEND_DOCUMENT_FORWARD]: ['mod+shift+down'],
+  [HOT_KEY_NAME.SCROLL_TO_TOP]: ['home'],
+  [HOT_KEY_NAME.SCROLL_TO_BOTTOM]: ['end'],
+  [HOT_KEY_NAME.TOGGLE_THEME]: ['mod+shift+l'],
+  [HOT_KEY_NAME.TOGGLE_SIDEBAR]: ['mod+.'],
+  [HOT_KEY_NAME.FORMAT_LINK]: ['mod+k'],
+  [HOT_KEY_NAME.LEFT]: ['left'],
+  [HOT_KEY_NAME.RIGHT]: ['right'],
+  [HOT_KEY_NAME.FIND_REPLACE]: ['mod+f'],
 };
 
 const replaceModifier = (hotkey: string) => {

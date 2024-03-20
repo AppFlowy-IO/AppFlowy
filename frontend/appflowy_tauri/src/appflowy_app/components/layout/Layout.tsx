@@ -6,6 +6,7 @@ import './layout.scss';
 import { AFScroller } from '../_shared/scroller';
 import { useNavigate } from 'react-router-dom';
 import { pageTypeMap } from '$app_reducers/pages/slice';
+import { useShortcuts } from '$app/components/layout/Layout.hooks';
 
 function Layout({ children }: { children: ReactNode }) {
   const { isCollapsed, width } = useAppSelector((state) => state.sidebar);
@@ -20,18 +21,14 @@ function Layout({ children }: { children: ReactNode }) {
     [currentUser?.workspaceSetting?.latestView]
   );
 
-  useEffect(() => {
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Backspace' && e.target instanceof HTMLBodyElement) {
-        e.preventDefault();
-      }
-    };
+  const onKeyDown = useShortcuts();
 
+  useEffect(() => {
     window.addEventListener('keydown', onKeyDown);
     return () => {
       window.removeEventListener('keydown', onKeyDown);
     };
-  }, []);
+  }, [onKeyDown]);
 
   useEffect(() => {
     if (latestOpenViewId) {

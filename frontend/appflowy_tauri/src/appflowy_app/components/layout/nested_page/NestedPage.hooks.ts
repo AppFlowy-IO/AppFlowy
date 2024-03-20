@@ -143,7 +143,5 @@ export function usePageActions(pageId: string) {
 }
 
 export function useSelectedPage(pageId: string) {
-  const id = useParams().id;
-
-  return id === pageId;
+  return useParams().id === pageId;
 }
