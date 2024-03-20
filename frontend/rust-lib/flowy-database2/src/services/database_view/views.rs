@@ -2,17 +2,14 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 use collab_database::database::MutexDatabase;
-use collab_database::rows::{RowDetail, RowId};
 use nanoid::nanoid;
 use tokio::sync::{broadcast, RwLock};
 
 use flowy_error::{FlowyError, FlowyResult};
-use lib_infra::future::Fut;
 
 use crate::services::cell::CellCache;
 use crate::services::database::DatabaseRowEvent;
 use crate::services::database_view::{DatabaseViewEditor, DatabaseViewOperation};
-use crate::services::group::RowChangeset;
 
 pub type RowEventSender = broadcast::Sender<DatabaseRowEvent>;
 pub type RowEventReceiver = broadcast::Receiver<DatabaseRowEvent>;
@@ -57,30 +54,6 @@ impl DatabaseViews {
       .values()
       .cloned()
       .collect()
-  }
-
-  /// It may generate a RowChangeset when the Row was moved from one group to another.
-  /// The return value, [RowChangeset], contains the changes made by the groups.
-  ///
-  pub async fn move_group_row(
-    &self,
-    view_id: &str,
-    row_detail: Arc<RowDetail>,
-    to_group_id: String,
-    to_row_id: Option<RowId>,
-    recv_row_changeset: impl FnOnce(RowChangeset) -> Fut<()>,
-  ) -> FlowyResult<()> {
-    let view_editor = self.get_view_editor(view_id).await?;
-    let mut row_changeset = RowChangeset::new(row_detail.row.id.clone());
-    view_editor
-      .v_move_group_row(&row_detail, &mut row_changeset, &to_group_id, to_row_id)
-      .await;
-
-    if !row_changeset.is_empty() {
-      recv_row_changeset(row_changeset).await;
-    }
-
-    Ok(())
   }
 
   pub async fn get_view_editor(&self, view_id: &str) -> FlowyResult<Arc<DatabaseViewEditor>> {

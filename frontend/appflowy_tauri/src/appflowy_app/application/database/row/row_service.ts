@@ -30,7 +30,7 @@ export async function createRow(viewId: string, params?: {
       object_id: params?.rowId,
     },
     group_id: params?.groupId,
-    data: params?.data ? { cell_data_by_field_id: params.data } : undefined,
+    data: params?.data,
   });
 
   const result = await DatabaseEventCreateRow(payload);

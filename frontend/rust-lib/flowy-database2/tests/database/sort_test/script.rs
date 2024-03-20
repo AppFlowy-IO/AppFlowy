@@ -8,7 +8,7 @@ use futures::stream::StreamExt;
 use tokio::sync::broadcast::Receiver;
 
 use flowy_database2::entities::{
-  DeleteSortPayloadPB, FieldType, ReorderSortPayloadPB, UpdateSortPayloadPB,
+  CreateRowPayloadPB, DeleteSortPayloadPB, FieldType, ReorderSortPayloadPB, UpdateSortPayloadPB,
 };
 use flowy_database2::services::cell::stringify_cell_data;
 use flowy_database2::services::database_view::DatabaseViewChanged;
@@ -155,15 +155,10 @@ impl DatabaseSortTest {
         );
         self
           .editor
-          .create_row(
-            &self.view_id,
-            None,
-            collab_database::rows::CreateRowParams {
-              id: collab_database::database::gen_row_id(),
-              timestamp: collab_database::database::timestamp(),
-              ..Default::default()
-            },
-          )
+          .create_row(CreateRowPayloadPB {
+            view_id: self.view_id.clone(),
+            ..Default::default()
+          })
           .await
           .unwrap();
       },

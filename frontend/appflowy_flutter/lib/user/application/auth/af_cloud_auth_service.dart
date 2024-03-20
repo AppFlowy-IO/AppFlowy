@@ -72,8 +72,9 @@ class AppFlowyCloudAuthService implements AuthService {
             throw Exception('AppFlowyCloudDeepLink is not registered');
           }
         } else {
-          completer
-              .complete(FlowyResult.failure(AuthError.signInWithOauthError));
+          completer.complete(
+            FlowyResult.failure(AuthError.unableToGetDeepLink),
+          );
         }
 
         return completer.future;

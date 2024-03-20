@@ -109,7 +109,7 @@ class UserBackendService {
     final request = CreateWorkspacePayloadPB.create()
       ..name = name
       ..desc = desc;
-    return FolderEventCreateWorkspace(request).send().then((result) {
+    return FolderEventCreateFolderWorkspace(request).send().then((result) {
       return result.fold(
         (workspace) => FlowyResult.success(workspace),
         (error) => FlowyResult.failure(error),

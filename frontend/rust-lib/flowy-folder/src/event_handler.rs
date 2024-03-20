@@ -117,7 +117,7 @@ pub(crate) async fn create_orphan_view_handler(
 }
 
 #[tracing::instrument(level = "debug", skip(data, folder), err)]
-pub(crate) async fn read_view_handler(
+pub(crate) async fn get_view_handler(
   data: AFPluginData<ViewIdPB>,
   folder: AFPluginState<Weak<FolderManager>>,
 ) -> DataResult<ViewPB, FlowyError> {

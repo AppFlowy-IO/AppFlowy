@@ -1,17 +1,15 @@
 use std::sync::{Arc, Weak};
 
-use collab_database::database::gen_row_id;
 use collab_database::rows::RowId;
 use lib_infra::box_any::BoxAny;
 use tokio::sync::oneshot;
+use tracing::error;
 
 use flowy_error::{FlowyError, FlowyResult};
 use lib_dispatch::prelude::{af_spawn, data_result_ok, AFPluginData, AFPluginState, DataResult};
-use lib_infra::util::timestamp;
 
 use crate::entities::*;
 use crate::manager::DatabaseManager;
-use crate::services::cell::CellBuilder;
 use crate::services::field::{
   type_option_data_from_pb, ChecklistCellChangeset, DateCellChangeset, RelationCellChangeset,
   SelectOptionCellChangeset,
@@ -91,14 +89,28 @@ pub(crate) async fn update_database_setting_handler(
   let params = data.try_into_inner()?;
   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
 
-  if let Some(update_filter) = params.update_filter {
+  if let Some(payload) = params.insert_filter {
     database_editor
-      .create_or_update_filter(update_filter.try_into()?)
+      .modify_view_filters(&params.view_id, payload.try_into()?)
       .await?;
   }
 
-  if let Some(delete_filter) = params.delete_filter {
-    database_editor.delete_filter(delete_filter).await?;
+  if let Some(payload) = params.update_filter_type {
+    database_editor
+      .modify_view_filters(&params.view_id, payload.try_into()?)
+      .await?;
+  }
+
+  if let Some(payload) = params.update_filter_data {
+    database_editor
+      .modify_view_filters(&params.view_id, payload.try_into()?)
+      .await?;
+  }
+
+  if let Some(payload) = params.delete_filter {
+    database_editor
+      .modify_view_filters(&params.view_id, payload.into())
+      .await?;
   }
 
   if let Some(update_sort) = params.update_sort {
@@ -379,7 +391,7 @@ pub(crate) async fn duplicate_row_handler(
   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
   database_editor
     .duplicate_row(&params.view_id, &params.row_id)
-    .await;
+    .await?;
   Ok(())
 }
 
@@ -403,27 +415,12 @@ pub(crate) async fn create_row_handler(
   manager: AFPluginState<Weak<DatabaseManager>>,
 ) -> DataResult<RowMetaPB, FlowyError> {
   let manager = upgrade_manager(manager)?;
-  let params: CreateRowParams = data.into_inner().try_into()?;
+  let params = data.try_into_inner()?;
   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
-  let fields = database_editor.get_fields(&params.view_id, None);
-  let cells =
-    CellBuilder::with_cells(params.cell_data_by_field_id.unwrap_or_default(), &fields).build();
-  let view_id = params.view_id;
-  let group_id = params.group_id;
-  let params = collab_database::rows::CreateRowParams {
-    id: gen_row_id(),
-    cells,
-    height: 60,
-    visibility: true,
-    row_position: params.row_position,
-    timestamp: timestamp(),
-  };
-  match database_editor
-    .create_row(&view_id, group_id, params)
-    .await?
-  {
-    None => Err(FlowyError::internal().with_context("Create row fail")),
+
+  match database_editor.create_row(params).await? {
     Some(row) => data_result_ok(RowMetaPB::from(row)),
+    None => Err(FlowyError::internal().with_context("Error creating row")),
   }
 }
 
@@ -671,7 +668,7 @@ pub(crate) async fn update_group_handler(
   let (tx, rx) = oneshot::channel();
   af_spawn(async move {
     let result = database_editor
-      .update_group(&view_id, vec![group_changeset].into())
+      .update_group(&view_id, vec![group_changeset])
       .await;
     let _ = tx.send(result);
   });
@@ -745,7 +742,22 @@ pub(crate) async fn get_databases_handler(
   manager: AFPluginState<Weak<DatabaseManager>>,
 ) -> DataResult<RepeatedDatabaseDescriptionPB, FlowyError> {
   let manager = upgrade_manager(manager)?;
-  let data = manager.get_all_databases_description().await;
+  let metas = manager.get_all_databases_meta().await;
+
+  let mut items = Vec::with_capacity(metas.len());
+  for meta in metas {
+    match manager.get_database_inline_view_id(&meta.database_id).await {
+      Ok(view_id) => items.push(DatabaseMetaPB {
+        database_id: meta.database_id,
+        inline_view_id: view_id,
+      }),
+      Err(err) => {
+        error!(?err);
+      },
+    }
+  }
+
+  let data = RepeatedDatabaseDescriptionPB { items };
   data_result_ok(data)
 }
 

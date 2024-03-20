@@ -4,7 +4,7 @@
 
 import Dialog, { DialogProps } from '@mui/material/Dialog';
 import { Settings } from '$app/components/settings/Settings';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import DialogTitle from '@mui/material/DialogTitle';
 import { IconButton } from '@mui/material';
 import { ReactComponent as CloseIcon } from '$app/assets/close.svg';
@@ -14,10 +14,15 @@ import { SettingsRoutes } from '$app/components/settings/workplace/const';
 import DialogContent from '@mui/material/DialogContent';
 import { Login } from '$app/components/settings/Login';
 import SwipeableViews from 'react-swipeable-views';
+import { useAppDispatch, useAppSelector } from '$app/stores/store';
+import { currentUserActions, LoginState } from '$app_reducers/current-user/slice';
+import { useNavigate } from 'react-router-dom';
 
 export const SettingsDialog = (props: DialogProps) => {
+  const dispatch = useAppDispatch();
   const [routes, setRoutes] = useState<SettingsRoutes[]>([]);
-
+  const loginState = useAppSelector((state) => state.currentUser.loginState);
+  const lastLoginStateRef = useRef(loginState);
   const { t } = useTranslation();
   const handleForward = useCallback((route: SettingsRoutes) => {
     setRoutes((prev) => {
@@ -29,13 +34,27 @@ export const SettingsDialog = (props: DialogProps) => {
     setRoutes((prevState) => {
       return prevState.slice(0, -1);
     });
-  }, []);
+    dispatch(currentUserActions.resetLoginState());
+  }, [dispatch]);
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
+    dispatch(currentUserActions.resetLoginState());
     props?.onClose?.({}, 'backdropClick');
-  };
+  }, [dispatch, props]);
 
   const currentRoute = routes[routes.length - 1];
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (lastLoginStateRef.current === LoginState.Loading && loginState === LoginState.Success) {
+      navigate('/');
+      handleClose();
+      return;
+    }
+
+    lastLoginStateRef.current = loginState;
+  }, [loginState, handleClose, navigate]);
 
   return (
     <Dialog

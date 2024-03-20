@@ -2,6 +2,7 @@ import { ReactEditor } from 'slate-react';
 import { getEditorDomNode, getHeadingCssProperty } from '$app/components/editor/plugins/utils';
 import { Element } from 'slate';
 import { EditorNodeType, HeadingNode } from '$app/application/document/document.types';
+import { Log } from '$app/utils/log';
 
 export function getBlockActionsPosition(editor: ReactEditor, blockElement: HTMLElement) {
   const editorDom = getEditorDomNode(editor);
@@ -58,30 +59,8 @@ export function findEventRange(editor: ReactEditor, e: MouseEvent) {
     }
   }
 
-  if (domRange && domRange.startContainer) {
-    const startContainer = domRange.startContainer;
-
-    let element: HTMLElement | null = startContainer as HTMLElement;
-    const nodeType = element.nodeType;
-
-    if (nodeType === 3 || typeof element === 'string') {
-      const parent = element.parentElement?.closest('.text-block-icon') as HTMLElement;
-
-      element = parent;
-    }
-
-    if (element && element.nodeType < 3) {
-      if (element.classList?.contains('text-block-icon')) {
-        const sibling = domRange.startContainer.parentElement;
-
-        if (sibling) {
-          domRange.selectNode(sibling);
-        }
-      }
-    }
-  }
-
   if (!domRange) {
+    Log.warn('Could not find a range from the caret position.');
     return null;
   }
 

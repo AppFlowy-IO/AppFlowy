@@ -1,7 +1,7 @@
 import { ReactComponent as AppflowyLogo } from '$app/assets/logo.svg';
 import Button from '@mui/material/Button';
 import { useTranslation } from 'react-i18next';
-import { LoginButtonGroup } from '$app/components/_shared/login';
+import { LoginButtonGroup } from '$app/components/auth/LoginButtonGroup';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '$app/components/auth/auth.hooks';
 

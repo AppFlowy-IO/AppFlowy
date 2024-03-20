@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { TextField } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { pattern } from '$app/utils/open_url';
+import { isUrl } from '$app/utils/open_url';
 
 function LinkEditInput({
   link,
@@ -16,7 +16,7 @@ function LinkEditInput({
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (pattern.test(link)) {
+    if (isUrl(link)) {
       setError(null);
       return;
     }

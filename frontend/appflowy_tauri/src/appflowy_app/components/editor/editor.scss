@@ -13,17 +13,20 @@
 
 .block-element.block-align-left {
   > div >  .text-element {
+    text-align: left;
     justify-content: flex-start;
   }
 }
 .block-element.block-align-right {
   > div >  .text-element {
+    text-align: right;
     justify-content: flex-end;
 
   }
 }
 .block-element.block-align-center {
   > div > .text-element {
+    text-align: center;
     justify-content: center;
   }
 
@@ -84,8 +87,8 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
 
 
 .text-content, [data-dark-mode="true"] .text-content {
+  @apply min-w-[1px];
   &.empty-content {
-    @apply min-w-[1px];
     span {
       &::selection {
         @apply bg-transparent;
@@ -103,7 +106,7 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
 .text-placeholder {
 
   &:after {
-    @apply text-text-placeholder absolute left-1.5 top-1/2 transform -translate-y-1/2 pointer-events-none select-none whitespace-nowrap;
+    @apply text-text-placeholder absolute left-[5px] top-1/2 transform -translate-y-1/2 pointer-events-none select-none whitespace-nowrap;
     content: (attr(placeholder));
   }
 }
