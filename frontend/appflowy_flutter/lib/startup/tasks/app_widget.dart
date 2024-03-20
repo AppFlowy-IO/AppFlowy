@@ -1,5 +1,8 @@
 import 'dart:io';
 
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
 import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -19,8 +22,6 @@ import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -151,7 +152,10 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
           create: (_) => DocumentAppearanceCubit()..fetch(),
         ),
         BlocProvider.value(value: getIt<RenameViewBloc>()),
-        BlocProvider.value(value: getIt<ActionNavigationBloc>()),
+        BlocProvider.value(
+          value: getIt<ActionNavigationBloc>()
+            ..add(const ActionNavigationEvent.initialize()),
+        ),
         BlocProvider.value(
           value: getIt<ReminderBloc>()..add(const ReminderEvent.started()),
         ),

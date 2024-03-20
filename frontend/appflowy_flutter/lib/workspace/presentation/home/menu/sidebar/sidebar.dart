@@ -220,31 +220,25 @@ class _HomeSideBarState extends State<HomeSideBar> {
     ActionNavigationState state,
   ) {
     final action = state.action;
-    if (action != null) {
-      if (action.type == ActionType.openView) {
-        final view = context
-            .read<SidebarRootViewsBloc>()
-            .state
-            .views
-            .findView(action.objectId);
+    if (action?.type == ActionType.openView) {
+      final view = state.views.findView(action!.objectId);
 
-        if (view != null) {
-          final Map<String, dynamic> arguments = {};
+      if (view != null) {
+        final Map<String, dynamic> arguments = {};
 
-          final nodePath = action.arguments?[ActionArgumentKeys.nodePath];
-          if (nodePath != null) {
-            arguments[PluginArgumentKeys.selection] = Selection.collapsed(
-              Position(path: [nodePath]),
-            );
-          }
-
-          final rowId = action.arguments?[ActionArgumentKeys.rowId];
-          if (rowId != null) {
-            arguments[PluginArgumentKeys.rowId] = rowId;
-          }
-
-          context.read<TabsBloc>().openPlugin(view, arguments: arguments);
+        final nodePath = action.arguments?[ActionArgumentKeys.nodePath];
+        if (nodePath != null) {
+          arguments[PluginArgumentKeys.selection] = Selection.collapsed(
+            Position(path: [nodePath]),
+          );
         }
+
+        final rowId = action.arguments?[ActionArgumentKeys.rowId];
+        if (rowId != null) {
+          arguments[PluginArgumentKeys.rowId] = rowId;
+        }
+
+        context.read<TabsBloc>().openPlugin(view, arguments: arguments);
       }
     }
   }

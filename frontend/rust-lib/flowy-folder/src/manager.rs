@@ -467,6 +467,13 @@ impl FolderManager {
       },
     );
 
+    if let Ok(workspace_id) = self.get_current_workspace_id().await {
+      let folder = &self.mutex_folder.lock();
+      if let Some(folder) = folder.as_ref() {
+        notify_did_update_workspace(&workspace_id, folder);
+      }
+    }
+
     Ok(view)
   }
 
