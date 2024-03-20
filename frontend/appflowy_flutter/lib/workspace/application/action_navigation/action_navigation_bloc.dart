@@ -42,7 +42,7 @@ class ActionNavigationBloc
     });
   }
 
-  late final WorkspaceListener? _workspaceListener;
+  WorkspaceListener? _workspaceListener;
 
   @override
   Future<void> close() async {
