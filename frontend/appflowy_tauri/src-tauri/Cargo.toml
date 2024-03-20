@@ -96,10 +96,10 @@ client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "c51
 # To switch to the local path, run:
 # scripts/tool/update_collab_source.sh
 # ⚠️⚠️⚠️️
-collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "9391181" }
-collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "9391181" }
-collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "9391181" }
-collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "9391181" }
-collab-plugins = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "9391181" }
-collab-user = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "9391181" }
-collab-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "9391181" }
+collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "160a365" }
+collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "160a365" }
+collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "160a365" }
+collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "160a365" }
+collab-plugins = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "160a365" }
+collab-user = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "160a365" }
+collab-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "160a365" }
