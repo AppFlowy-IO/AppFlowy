@@ -51,6 +51,10 @@ class ActionNavigationBloc
   }
 
   Future<void> initializeListeners() async {
+    if (_workspaceListener != null) {
+      return;
+    }
+
     final userOrFailure = await getIt<AuthService>().getUser();
     final user = userOrFailure.fold((s) => s, (f) => null);
     if (user == null) {
