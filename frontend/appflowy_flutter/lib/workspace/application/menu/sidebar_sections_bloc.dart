@@ -163,6 +163,7 @@ class SidebarSectionsBloc
   @override
   Future<void> close() async {
     await _listener?.stop();
+    _listener = null;
     return super.close();
   }
 
@@ -189,10 +190,12 @@ class SidebarSectionsBloc
       workspaceId: workspaceId,
     )..start(
         sectionChanged: (result) {
-          result.fold(
-            (s) => add(SidebarSectionsEvent.receiveSectionViewsUpdate(s)),
-            (f) => Log.error('Failed to receive section views: $f'),
-          );
+          if (!isClosed) {
+            result.fold(
+              (s) => add(SidebarSectionsEvent.receiveSectionViewsUpdate(s)),
+              (f) => Log.error('Failed to receive section views: $f'),
+            );
+          }
         },
       );
   }
