@@ -9,8 +9,6 @@
   margin-left: 24px;
 }
 
-
-
 .block-element.block-align-left {
   > div >  .text-element {
     text-align: left;
@@ -50,6 +48,8 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
 
 
 
+
+
 [role="textbox"] {
   ::selection {
     @apply bg-content-blue-100;
@@ -58,6 +58,9 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
     &::selection {
       @apply bg-transparent;
     }
+    &.selected {
+      @apply bg-content-blue-100;
+    }
     span {
       &::selection {
         @apply bg-content-blue-100;
@@ -65,7 +68,6 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
     }
   }
 }
-
 
 
 [data-dark-mode="true"] [role="textbox"]{
@@ -77,6 +79,9 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
     &::selection {
       @apply bg-transparent;
     }
+    &.selected {
+      background-color: #1e79a2;
+    }
     span {
       &::selection {
         background-color: #1e79a2;
@@ -85,10 +90,9 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
   }
 }
 
-
 .text-content, [data-dark-mode="true"] .text-content {
   @apply min-w-[1px];
-  &.empty-content {
+  &.empty-text {
     span {
       &::selection {
         @apply bg-transparent;
@@ -113,7 +117,7 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
 
 .has-start-icon > .text-placeholder {
   &:after {
-    @apply left-[30px];
+    @apply left-[29px];
   }
 }
 
@@ -125,7 +129,7 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
 
 .bulleted-icon {
   &:after {
-    content: "•";
+    content: attr(data-letter);
   }
 }
 

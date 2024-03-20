@@ -1,7 +1,8 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_toolbar_theme.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_get_selection_color.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/aa_menu/_toolbar_theme.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -65,9 +66,10 @@ class _TextColorAndBackgroundColorState
     extends State<_TextColorAndBackgroundColor> {
   @override
   Widget build(BuildContext context) {
-    final String? selectedTextColor = _getColor(AppFlowyRichTextKeys.textColor);
-    final String? selectedBackgroundColor =
-        _getColor(AppFlowyRichTextKeys.backgroundColor);
+    final String? selectedTextColor =
+        widget.editorState.getSelectionColor(AppFlowyRichTextKeys.textColor);
+    final String? selectedBackgroundColor = widget.editorState
+        .getSelectionColor(AppFlowyRichTextKeys.backgroundColor);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -148,28 +150,6 @@ class _TextColorAndBackgroundColorState
         ),
       ],
     );
-  }
-
-  String? _getColor(String key) {
-    final selection = widget.selection;
-    String? color = widget.editorState.toggledStyle[key];
-    if (color == null) {
-      if (selection.isCollapsed && selection.startIndex != 0) {
-        color = widget.editorState.getDeltaAttributeValueInSelection<String>(
-          key,
-          selection.copyWith(
-            start: selection.start.copyWith(
-              offset: selection.startIndex - 1,
-            ),
-          ),
-        );
-      } else {
-        color = widget.editorState.getDeltaAttributeValueInSelection<String>(
-          key,
-        );
-      }
-    }
-    return color;
   }
 }
 

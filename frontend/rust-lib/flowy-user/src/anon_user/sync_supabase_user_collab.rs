@@ -207,7 +207,7 @@ fn get_collab_doc_state(
   collab_object: &CollabObject,
   collab_db: &Arc<CollabKVDB>,
 ) -> Result<Vec<u8>, PersistenceError> {
-  let collab = Collab::new(uid, &collab_object.object_id, "phantom", vec![]);
+  let collab = Collab::new(uid, &collab_object.object_id, "phantom", vec![], false);
   let _ = collab.with_origin_transact_mut(|txn| {
     collab_db
       .read_txn()
@@ -226,7 +226,7 @@ fn get_database_doc_state(
   collab_object: &CollabObject,
   collab_db: &Arc<CollabKVDB>,
 ) -> Result<(Vec<u8>, Vec<String>), PersistenceError> {
-  let collab = Collab::new(uid, &collab_object.object_id, "phantom", vec![]);
+  let collab = Collab::new(uid, &collab_object.object_id, "phantom", vec![], false);
   let _ = collab.with_origin_transact_mut(|txn| {
     collab_db
       .read_txn()
@@ -250,7 +250,7 @@ async fn sync_folder(
   user_service: Arc<dyn UserCloudService>,
 ) -> Result<MutexFolder, Error> {
   let (folder, update) = {
-    let collab = Collab::new(uid, workspace_id, "phantom", vec![]);
+    let collab = Collab::new(uid, workspace_id, "phantom", vec![], false);
     // Use the temporary result to short the lifetime of the TransactionMut
     collab.with_origin_transact_mut(|txn| {
       collab_db
@@ -308,7 +308,7 @@ async fn sync_database_views(
 
   // Use the temporary result to short the lifetime of the TransactionMut
   let result = {
-    let collab = Collab::new(uid, database_views_aggregate_id, "phantom", vec![]);
+    let collab = Collab::new(uid, database_views_aggregate_id, "phantom", vec![], false);
     collab
       .with_origin_transact_mut(|txn| {
         collab_db

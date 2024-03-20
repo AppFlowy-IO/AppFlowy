@@ -1,4 +1,4 @@
-import { Range, Element, Editor, NodeEntry } from 'slate';
+import { Range, Element, Editor, NodeEntry, Path } from 'slate';
 import { ReactEditor } from 'slate-react';
 import {
   getRegex,
@@ -29,6 +29,10 @@ export const withMarkdown = (editor: ReactEditor) => {
 
     const match = CustomEditor.getBlock(editor);
     const [node, path] = match as NodeEntry<Element>;
+    const prevPath = Path.previous(path);
+    const prev = editor.node(prevPath) as NodeEntry<Element>;
+    const prevIsNumberedList = prev && prev[0].type === EditorNodeType.NumberedListBlock;
+
     const start = Editor.start(editor, path);
     const beforeRange = { anchor: start, focus: selection.anchor };
     const beforeText = Editor.string(editor, beforeRange);
@@ -56,6 +60,11 @@ export const withMarkdown = (editor: ReactEditor) => {
 
         // 2. If the block is the same type, and data is the same
         if (block.type === node.type && isEqual(block.data || {}, node.data || {})) {
+          return;
+        }
+
+        // 3. If the block is number list, and the previous block is also number list
+        if (block.type === EditorNodeType.NumberedListBlock && prevIsNumberedList) {
           return;
         }
 
@@ -145,7 +154,9 @@ function whichBlock(shortcut: MarkdownShortcuts, beforeText: string) {
     case MarkdownShortcuts.NumberedList:
       return {
         type: EditorNodeType.NumberedListBlock,
-        data: {},
+        data: {
+          number: Number(beforeText.split('.')[0]) ?? 1,
+        },
       };
     case MarkdownShortcuts.TodoList:
       return {

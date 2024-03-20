@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 
 class ToolbarColorExtension extends ThemeExtension<ToolbarColorExtension> {
   factory ToolbarColorExtension.light() => const ToolbarColorExtension(
-        toolbarBackgroundColor: Color(0xFFF3F3F8),
+        toolbarBackgroundColor: Color(0xFFFFFFFF),
         toolbarItemIconColor: Color(0xFF1F2329),
         toolbarItemIconDisabledColor: Color(0xFF999BA0),
         toolbarItemIconSelectedColor: Color(0x1F232914),
-        toolbarItemSelectedBackgroundColor: Color(0x1F232914),
+        toolbarItemSelectedBackgroundColor: Color(0xFFF2F2F2),
         toolbarMenuBackgroundColor: Color(0xFFFFFFFF),
         toolbarMenuItemBackgroundColor: Color(0xFFF2F2F7),
         toolbarMenuItemSelectedBackgroundColor: Color(0xFF00BCF0),
