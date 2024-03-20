@@ -460,7 +460,7 @@ impl FolderManager {
     }
 
     let index = params.index;
-    let section = params.section.clone().unwrap_or(ViewSectionPB::Private);
+    let section = params.section.clone().unwrap_or(ViewSectionPB::Public);
     let is_private = section == ViewSectionPB::Private;
     let view = create_view(self.user.user_id()?, params, view_layout);
     self.with_folder(
@@ -765,7 +765,7 @@ impl FolderManager {
       set_as_current: true,
       index,
       // TODO: lucas.xu fetch the section from the view
-      section: Some(ViewSectionPB::Private),
+      section: Some(ViewSectionPB::Public),
     };
 
     self.create_view_with_params(duplicate_params).await?;
@@ -978,7 +978,7 @@ impl FolderManager {
       set_as_current: false,
       index: None,
       // TODO: Lucas.xu fetch the section from the view
-      section: Some(ViewSectionPB::Private),
+      section: Some(ViewSectionPB::Public),
     };
 
     let view = create_view(self.user.user_id()?, params, import_data.view_layout);

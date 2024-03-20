@@ -286,7 +286,7 @@ impl TryInto<CreateViewParams> for CreateOrphanViewPayloadPB {
       set_as_current: false,
       index: None,
       // TODO: lucas.xu add section to CreateOrphanViewPayloadPB
-      section: Some(ViewSectionPB::Private),
+      section: Some(ViewSectionPB::Public),
     })
   }
 }
