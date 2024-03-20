@@ -448,7 +448,7 @@ pub struct DocumentSyncStatePB {
   pub value: DocumentSyncState,
 }
 
-#[derive(Debug, Default, ProtoBuf_Enum)]
+#[derive(Debug, Default, ProtoBuf_Enum, PartialEq, Eq, Clone, Copy)]
 pub enum DocumentSyncState {
   #[default]
   InitSyncBegin = 0,
