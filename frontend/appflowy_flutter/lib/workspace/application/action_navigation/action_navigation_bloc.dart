@@ -59,6 +59,7 @@ class ActionNavigationBloc
     final user = userOrFailure.fold((s) => s, (f) => null);
     if (user == null) {
       _workspaceListener = null;
+      return;
     }
 
     final workspaceSettingsOrFailure =
@@ -69,11 +70,12 @@ class ActionNavigationBloc
     );
     if (workspaceId == null) {
       _workspaceListener = null;
+      return;
     }
 
     _workspaceListener = WorkspaceListener(
-      user: user!,
-      workspaceId: workspaceId!,
+      user: user,
+      workspaceId: workspaceId,
     );
 
     _workspaceListener?.start(
