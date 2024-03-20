@@ -110,10 +110,7 @@ pub extern "C" fn async_event(port: i64, input: *const u8, len: usize) {
   AFPluginDispatcher::boxed_async_send_with_callback(
     dispatcher.as_ref(),
     request,
-    move |resp: AFPluginEventResponse| {
-      trace!("[FFI]: Post data to dart through {} port", port);
-      Box::pin(post_to_flutter(resp, port))
-    },
+    move |resp: AFPluginEventResponse| Box::pin(post_to_flutter(resp, port)),
   );
 }
 
@@ -159,9 +156,7 @@ async fn post_to_flutter(response: AFPluginEventResponse, port: i64) {
     })
     .await
   {
-    Ok(_success) => {
-      trace!("[FFI]: Post data to dart success");
-    },
+    Ok(_success) => {},
     Err(e) => {
       if let Some(msg) = e.downcast_ref::<&str>() {
         error!("[FFI]: {:?}", msg);

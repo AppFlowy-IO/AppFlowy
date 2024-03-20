@@ -33,9 +33,12 @@ pub fn create_log_filter(level: String, with_crates: Vec<String>) -> String {
   filters.push(format!("flowy_notification={}", "info"));
   filters.push(format!("lib_infra={}", level));
   filters.push(format!("flowy_search={}", level));
-  // filters.push(format!("lib_dispatch={}", level));
 
-  filters.push(format!("dart_ffi={}", level));
+  // Most of the time, we don't need to see the logs from the following crates
+  // unless we are debugging the ffi or event dispatching
+  // filters.push(format!("lib_dispatch={}", level));
+  // filters.push(format!("dart_ffi={}", level));
+
   filters.push(format!("flowy_sqlite={}", "info"));
   filters.push(format!("client_api={}", level));
   #[cfg(feature = "profiling")]
