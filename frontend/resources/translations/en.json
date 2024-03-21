@@ -1319,5 +1319,13 @@
     "addField": "Add field",
     "userIcon": "User icon"
   },
-  "noLogFiles": "There're no log files"
+  "noLogFiles": "There're no log files",
+  "updateDialog": {
+    "updateAvailable": "Version {} is available",
+    "upToDate": "You are up-to-date",
+    "updateAvailableContent": "It seems you are on an older version of AppFlowy, check the release notes below to see what you are missing out on.",
+    "upToDateContent": "You are on the latest version of AppFlowy! If you want to see what was included in this version, check out the release notes below.",
+    "downloadLabel": "Download",
+    "allReleaseNotes": "See all release notes"
+  }
 }

@@ -27,6 +27,7 @@ class GitHubReleaseInfo with _$GitHubReleaseInfo {
   const factory GitHubReleaseInfo({
     @JsonKey(name: 'tag_name') required String tagName,
     required String name,
+    @JsonKey(name: 'body') required String changelog,
     @JsonKey(name: 'html_url') required String htmlUrl,
     @JsonKey(name: 'created_at') required String createdAt,
     @JsonKey(name: 'published_at') required String publishedAt,

@@ -9,7 +9,7 @@ part 'version_checker_bloc.freezed.dart';
 
 class VersionCheckerBloc
     extends Bloc<VersionCheckerEvent, VersionCheckerState> {
-  VersionCheckerBloc() : super(const VersionCheckerState.initial()) {
+  VersionCheckerBloc() : super(const VersionCheckerState()) {
     _gitHubService = GitHubService();
 
     on<VersionCheckerEvent>((event, emit) async {
@@ -19,19 +19,27 @@ class VersionCheckerBloc
           final currentInfo = await PackageInfo.fromPlatform();
 
           if (releaseInfo == null) {
-            // Fail silently
-            return emit(const VersionCheckerState.upToDate());
+            // We "fail" silently here because we don't want to bother users without network connection
+            return emit(
+              state.copyWith(
+                appName: currentInfo.appName,
+                currentVersion: currentInfo.version,
+                isLoading: false,
+                isUpdateAvailable: false,
+              ),
+            );
           } else {
-            final currentVersion = currentInfo.version;
-            if (currentVersion != releaseInfo.tagName) {
-              emit(
-                VersionCheckerState.updateAvailable(
-                  version: releaseInfo.tagName,
-                ),
-              );
-            } else {
-              emit(const VersionCheckerState.upToDate());
-            }
+            emit(
+              state.copyWith(
+                appName: currentInfo.appName,
+                currentVersion: currentInfo.version,
+                latestVersion: releaseInfo.tagName,
+                isUpdateAvailable: currentInfo.version != releaseInfo.tagName,
+                isLoading: false,
+                changelog: releaseInfo.changelog,
+                downloadLink: releaseInfo.htmlUrl,
+              ),
+            );
           }
         },
       );
@@ -54,9 +62,13 @@ class VersionCheckerEvent with _$VersionCheckerEvent {
 
 @freezed
 class VersionCheckerState with _$VersionCheckerState {
-  const factory VersionCheckerState.initial() = _Initial;
-  const factory VersionCheckerState.fetchingVersions() = _FetchingVersions;
-  const factory VersionCheckerState.upToDate() = _UpToDate;
-  const factory VersionCheckerState.updateAvailable({required String version}) =
-      _UpdateAvailable;
+  const factory VersionCheckerState({
+    @Default(null) String? appName,
+    @Default(null) String? currentVersion,
+    @Default(null) String? latestVersion,
+    @Default(false) bool isUpdateAvailable,
+    @Default(true) bool isLoading,
+    @Default(null) String? changelog,
+    @Default(null) String? downloadLink,
+  }) = _VersionCheckerState;
 }
