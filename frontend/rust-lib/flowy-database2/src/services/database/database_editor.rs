@@ -363,7 +363,7 @@ impl DatabaseEditor {
 
   pub async fn clear_field(&self, view_id: &str, field_id: &str) -> FlowyResult<()> {
     let field_type: FieldType = self
-      .get_field(&field_id)
+      .get_field(field_id)
       .map(|field| field.field_type.into())
       .unwrap_or_default();
 
