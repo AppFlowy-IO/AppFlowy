@@ -9,6 +9,7 @@ use collab_folder::{
   Folder, FolderData, FolderNotify, Section, SectionItem, TrashInfo, UserId, View, ViewLayout,
   ViewUpdate, Workspace,
 };
+use flowy_search_pub::entities::FolderIndexManager;
 use parking_lot::{Mutex, RwLock};
 use tracing::{error, info, instrument};
 
@@ -48,12 +49,16 @@ conditional_send_sync_trait! {
 }
 
 pub struct FolderManager {
+  /// workspace_id represents as the id of the Folder.
   pub(crate) workspace_id: RwLock<Option<String>>,
+
+  /// MutexFolder is the folder that is used to store the data.
   pub(crate) mutex_folder: Arc<MutexFolder>,
   pub(crate) collab_builder: Arc<AppFlowyCollabBuilder>,
   pub(crate) user: Arc<dyn FolderUser>,
   pub(crate) operation_handlers: FolderOperationHandlers,
   pub cloud_service: Arc<dyn FolderCloudService>,
+  pub(crate) folder_indexer: Arc<dyn FolderIndexManager>,
 }
 
 impl FolderManager {
@@ -62,6 +67,7 @@ impl FolderManager {
     collab_builder: Arc<AppFlowyCollabBuilder>,
     operation_handlers: FolderOperationHandlers,
     cloud_service: Arc<dyn FolderCloudService>,
+    folder_indexer: Arc<dyn FolderIndexManager>,
   ) -> FlowyResult<Self> {
     let mutex_folder = Arc::new(MutexFolder::default());
     let manager = Self {
@@ -71,6 +77,7 @@ impl FolderManager {
       operation_handlers,
       cloud_service,
       workspace_id: Default::default(),
+      folder_indexer,
     };
 
     Ok(manager)
@@ -138,7 +145,7 @@ impl FolderManager {
     if let Some(workspace_id) = workspace_id {
       self.get_workspace_views(&workspace_id).await
     } else {
-      tracing::warn!("Can't get current workspace views");
+      tracing::warn!("Can't get the workspace id from the folder. Return empty list.");
       Ok(vec![])
     }
   }
@@ -472,6 +479,13 @@ impl FolderManager {
         }
       },
     );
+
+    if let Ok(workspace_id) = self.get_current_workspace_id().await {
+      let folder = &self.mutex_folder.lock();
+      if let Some(folder) = folder.as_ref() {
+        notify_did_update_workspace(&workspace_id, folder);
+      }
+    }
 
     Ok(view)
   }
@@ -1205,6 +1219,8 @@ pub(crate) fn get_workspace_private_view_pbs(_workspace_id: &str, folder: &Folde
     .collect()
 }
 
+/// The MutexFolder is a wrapper of the [Folder] that is used to share the folder between different
+/// threads.  
 #[derive(Clone, Default)]
 pub struct MutexFolder(Arc<Mutex<Option<Folder>>>);
 impl Deref for MutexFolder {

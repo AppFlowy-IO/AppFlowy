@@ -1,0 +1,53 @@
+[package]
+name = "flowy-search"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+collab = { version = "0.1.0" }
+collab-folder = { version = "0.1.0" }
+
+flowy-derive.workspace = true
+flowy-error = { workspace = true, features = [
+    "impl_from_sqlite",
+    "impl_from_dispatch_error",
+    "impl_from_collab_document",
+    "impl_from_tantivy",
+    "impl_from_serde",
+] }
+flowy-notification.workspace = true
+flowy-sqlite.workspace = true
+flowy-user.workspace = true
+flowy-search-pub.workspace = true
+
+bytes.workspace = true
+futures.workspace = true
+lib-dispatch.workspace = true
+protobuf.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tokio = { workspace = true, features = ["full", "rt-multi-thread", "tracing"] }
+tracing.workspace = true
+
+async-stream = "0.3.4"
+strsim = "0.11.0"
+strum_macros = "0.26.1"
+tantivy = { version = "0.21.1" }
+tempfile = "3.9.0"
+validator = { version = "0.16.0", features = ["derive"] }
+
+diesel.workspace = true
+diesel_derives = { version = "2.1.0", features = ["sqlite", "r2d2"] }
+diesel_migrations = { version = "2.1.0", features = ["sqlite"] }
+
+[build-dependencies]
+flowy-codegen.workspace = true
+
+[dev-dependencies]
+tempfile = "3.10.0"
+
+[features]
+dart = ["flowy-codegen/dart"]
+tauri_ts = ["flowy-codegen/ts"]

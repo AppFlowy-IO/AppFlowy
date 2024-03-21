@@ -1,4 +1,4 @@
-use crate::util::unzip_history_user_db;
+use crate::util::unzip;
 use event_integration::user_event::user_localhost_af_cloud;
 use event_integration::EventIntegrationTest;
 use flowy_core::DEFAULT_NAME;
@@ -7,10 +7,9 @@ use std::time::Duration;
 #[tokio::test]
 async fn import_appflowy_data_folder_into_new_view_test() {
   let import_container_name = "040_local".to_string();
-  let (cleaner, user_db_path) =
-    unzip_history_user_db("./tests/asset", &import_container_name).unwrap();
+  let (cleaner, user_db_path) = unzip("./tests/asset", &import_container_name).unwrap();
   let (imported_af_folder_cleaner, imported_af_data_path) =
-    unzip_history_user_db("./tests/asset", &import_container_name).unwrap();
+    unzip("./tests/asset", &import_container_name).unwrap();
 
   user_localhost_af_cloud().await;
   let test =

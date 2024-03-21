@@ -3,11 +3,11 @@ use flowy_core::DEFAULT_NAME;
 use flowy_folder::entities::ViewLayoutPB;
 use std::time::Duration;
 
-use crate::util::unzip_history_user_db;
+use crate::util::unzip;
 
 #[tokio::test]
 async fn migrate_020_historical_empty_document_test() {
-  let (cleaner, user_db_path) = unzip_history_user_db(
+  let (cleaner, user_db_path) = unzip(
     "./tests/user/migration_test/history_user_db",
     "020_historical_user_data",
   )
@@ -43,7 +43,7 @@ async fn migrate_020_historical_empty_document_test() {
 #[tokio::test]
 async fn migrate_036_fav_v1_workspace_array_test() {
   // Used to test migration: FavoriteV1AndWorkspaceArrayMigration
-  let (cleaner, user_db_path) = unzip_history_user_db(
+  let (cleaner, user_db_path) = unzip(
     "./tests/user/migration_test/history_user_db",
     "036_fav_v1_workspace_array",
   )
@@ -65,7 +65,7 @@ async fn migrate_036_fav_v1_workspace_array_test() {
 #[tokio::test]
 async fn migrate_038_trash_test() {
   // Used to test migration: WorkspaceTrashMapToSectionMigration
-  let (cleaner, user_db_path) = unzip_history_user_db("./tests/asset", "038_local").unwrap();
+  let (cleaner, user_db_path) = unzip("./tests/asset", "038_local").unwrap();
   // Getting started
   //  Document1
   //  Document2(deleted)
@@ -102,8 +102,7 @@ async fn migrate_038_trash_test() {
 #[tokio::test]
 async fn migrate_038_trash_test2() {
   // Used to test migration: WorkspaceTrashMapToSectionMigration
-  let (cleaner, user_db_path) =
-    unzip_history_user_db("./tests/asset", "038_document_with_grid").unwrap();
+  let (cleaner, user_db_path) = unzip("./tests/asset", "038_document_with_grid").unwrap();
   // Getting started
   //  document
   //    grid
@@ -131,7 +130,7 @@ async fn migrate_038_trash_test2() {
 #[tokio::test]
 async fn collab_db_backup_test() {
   // Used to test migration: WorkspaceTrashMapToSectionMigration
-  let (cleaner, user_db_path) = unzip_history_user_db("./tests/asset", "038_local").unwrap();
+  let (cleaner, user_db_path) = unzip("./tests/asset", "038_local").unwrap();
   let test =
     EventIntegrationTest::new_with_user_data_path(user_db_path, DEFAULT_NAME.to_string()).await;
 
@@ -149,8 +148,7 @@ async fn collab_db_backup_test() {
 #[tokio::test]
 async fn delete_outdated_collab_db_backup_test() {
   // Used to test migration: WorkspaceTrashMapToSectionMigration
-  let (cleaner, user_db_path) =
-    unzip_history_user_db("./tests/asset", "040_collab_backups").unwrap();
+  let (cleaner, user_db_path) = unzip("./tests/asset", "040_collab_backups").unwrap();
   let test =
     EventIntegrationTest::new_with_user_data_path(user_db_path, DEFAULT_NAME.to_string()).await;
 

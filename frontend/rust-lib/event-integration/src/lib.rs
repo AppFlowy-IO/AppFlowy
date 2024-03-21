@@ -14,6 +14,7 @@ use tokio::select;
 use tokio::time::sleep;
 
 use flowy_core::config::AppFlowyCoreConfig;
+use flowy_core::integrate::log::create_log_filter;
 use flowy_core::AppFlowyCore;
 use flowy_notification::register_notification_sender;
 use flowy_server::AppFlowyServer;
@@ -54,15 +55,8 @@ impl EventIntegrationTest {
     let path = path_buf.to_str().unwrap().to_string();
     let device_id = uuid::Uuid::new_v4().to_string();
 
-    let config = AppFlowyCoreConfig::new("".to_string(), path.clone(), path, device_id, name)
-      .log_filter(
-        "trace",
-        vec![
-          "flowy_test".to_string(),
-          "tokio".to_string(),
-          // "lib_dispatch".to_string(),
-        ],
-      );
+    let config = AppFlowyCoreConfig::new(String::new(), path.clone(), path, device_id, name)
+      .log_filter(create_log_filter("trace".to_owned(), vec![]));
 
     let inner = init_core(config).await;
     let notification_sender = TestNotificationSender::new();
@@ -77,6 +71,14 @@ impl EventIntegrationTest {
       notification_sender,
       cleaner: Arc::new(Cleaner(path_buf)),
     }
+  }
+
+  pub fn instance_name(&self) -> String {
+    self.appflowy_core.config.name.clone()
+  }
+
+  pub fn user_data_path(&self) -> String {
+    self.appflowy_core.config.application_path.clone()
   }
 
   pub fn get_server(&self) -> Arc<dyn AppFlowyServer> {
@@ -108,14 +110,14 @@ impl EventIntegrationTest {
   pub async fn get_collab_doc_state(
     &self,
     oid: &str,
-    collay_type: CollabType,
+    collab_type: CollabType,
   ) -> Result<CollabDocState, FlowyError> {
     let server = self.server_provider.get_server().unwrap();
     let workspace_id = self.get_current_workspace().await.id;
     let uid = self.get_user_profile().await?.id;
     let doc_state = server
       .folder_service()
-      .get_folder_doc_state(&workspace_id, uid, collay_type, oid)
+      .get_folder_doc_state(&workspace_id, uid, collab_type, oid)
       .await?;
 
     Ok(doc_state)

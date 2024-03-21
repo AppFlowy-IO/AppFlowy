@@ -1,9 +1,10 @@
-use std::fs::{create_dir_all, File};
+use std::fs::{create_dir_all, File, OpenOptions};
 use std::io::copy;
 use std::ops::Deref;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::time::Duration;
+use std::{fs, io};
 
 use anyhow::Error;
 use collab_folder::FolderData;
@@ -13,7 +14,9 @@ use tokio::sync::mpsc::Receiver;
 
 use tokio::time::timeout;
 use uuid::Uuid;
-use zip::ZipArchive;
+use walkdir::WalkDir;
+use zip::write::FileOptions;
+use zip::{CompressionMethod, ZipArchive, ZipWriter};
 
 use event_integration::event_builder::EventBuilder;
 use event_integration::Cleaner;
@@ -163,7 +166,78 @@ pub fn appflowy_server(
   (SupabaseServerServiceImpl::new(server), encryption_impl)
 }
 
-pub fn unzip_history_user_db(root: &str, folder_name: &str) -> std::io::Result<(Cleaner, PathBuf)> {
+/// zip the asset to the destination
+/// Zips the specified directory into a zip file.
+///
+/// # Arguments
+/// - `src_dir`: Path to the directory to zip.
+/// - `output_file`: Path to the output zip file.
+///
+/// # Errors
+/// Returns `io::Result<()>` indicating the operation's success or failure.
+pub fn zip(src_dir: PathBuf, output_file_path: PathBuf) -> io::Result<()> {
+  // Ensure the output directory exists
+  if let Some(parent) = output_file_path.parent() {
+    if !parent.exists() {
+      fs::create_dir_all(parent)?;
+    }
+  }
+
+  // Open or create the output file, truncating it if it exists
+  let file = OpenOptions::new()
+    .create(true)
+    .write(true)
+    .truncate(true)
+    .open(&output_file_path)?;
+
+  let options = FileOptions::default().compression_method(CompressionMethod::Deflated);
+
+  let mut zip = ZipWriter::new(file);
+
+  // Calculate the name of the new folder within the ZIP file based on the last component of the output path
+  let new_folder_name = output_file_path
+    .file_stem()
+    .and_then(|name| name.to_str())
+    .ok_or_else(|| io::Error::new(io::ErrorKind::Other, "Invalid output file name"))?;
+
+  let src_dir_str = src_dir.to_str().expect("Invalid source directory path");
+
+  for entry in WalkDir::new(&src_dir).into_iter().filter_map(|e| e.ok()) {
+    let path = entry.path();
+    let relative_path = path
+      .strip_prefix(src_dir_str)
+      .map_err(|_| io::Error::new(io::ErrorKind::Other, "Error calculating relative path"))?;
+
+    // Construct the path within the ZIP, prefixing with the new folder's name
+    let zip_path = Path::new(new_folder_name).join(relative_path);
+
+    if path.is_file() {
+      zip.start_file(
+        zip_path
+          .to_str()
+          .ok_or_else(|| io::Error::new(io::ErrorKind::Other, "Invalid file name"))?,
+        options,
+      )?;
+
+      let mut f = File::open(path)?;
+      io::copy(&mut f, &mut zip)?;
+    } else if entry.file_type().is_dir() && !relative_path.as_os_str().is_empty() {
+      zip.add_directory(
+        zip_path
+          .to_str()
+          .ok_or_else(|| io::Error::new(io::ErrorKind::Other, "Invalid directory name"))?,
+        options,
+      )?;
+    }
+  }
+  zip.finish()?;
+  Ok(())
+}
+pub fn unzip_test_asset(folder_name: &str) -> io::Result<(Cleaner, PathBuf)> {
+  unzip("./tests/asset", folder_name)
+}
+
+pub fn unzip(root: &str, folder_name: &str) -> io::Result<(Cleaner, PathBuf)> {
   // Open the zip file
   let zip_file_path = format!("{}/{}.zip", root, folder_name);
   let reader = File::open(zip_file_path)?;

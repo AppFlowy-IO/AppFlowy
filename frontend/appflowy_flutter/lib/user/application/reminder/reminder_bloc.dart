@@ -6,9 +6,9 @@ import 'package:appflowy/user/application/reminder/reminder_extension.dart';
 import 'package:appflowy/user/application/reminder/reminder_service.dart';
 import 'package:appflowy/user/application/user_settings_service.dart';
 import 'package:appflowy/util/int64_extension.dart';
-import 'package:appflowy/workspace/application/notifications/notification_action.dart';
-import 'package:appflowy/workspace/application/notifications/notification_action_bloc.dart';
-import 'package:appflowy/workspace/application/notifications/notification_service.dart';
+import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
+import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
+import 'package:appflowy/workspace/application/notification/notification_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
@@ -22,14 +22,14 @@ part 'reminder_bloc.freezed.dart';
 
 class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
   ReminderBloc() : super(ReminderState()) {
-    _actionBloc = getIt<NotificationActionBloc>();
+    _actionBloc = getIt<ActionNavigationBloc>();
     _reminderService = const ReminderService();
     timer = _periodicCheck();
 
     _dispatch();
   }
 
-  late final NotificationActionBloc _actionBloc;
+  late final ActionNavigationBloc _actionBloc;
   late final ReminderService _reminderService;
   late final Timer timer;
 
@@ -147,7 +147,7 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
               rowId = reminder.meta[ReminderMetaKeys.rowId];
             }
 
-            final action = NotificationAction(
+            final action = NavigationAction(
               objectId: reminder.objectId,
               arguments: {
                 ActionArgumentKeys.view: view,
@@ -158,7 +158,7 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
 
             if (!isClosed) {
               _actionBloc.add(
-                NotificationActionEvent.performAction(
+                ActionNavigationEvent.performAction(
                   action: action,
                   nextActions: [
                     action.copyWith(
@@ -198,8 +198,8 @@ class ReminderBloc extends Bloc<ReminderEvent, ReminderState> {
                 title: LocaleKeys.reminderNotification_title.tr(),
                 body: LocaleKeys.reminderNotification_message.tr(),
                 onClick: () => _actionBloc.add(
-                  NotificationActionEvent.performAction(
-                    action: NotificationAction(objectId: reminder.objectId),
+                  ActionNavigationEvent.performAction(
+                    action: NavigationAction(objectId: reminder.objectId),
                   ),
                 ),
               );

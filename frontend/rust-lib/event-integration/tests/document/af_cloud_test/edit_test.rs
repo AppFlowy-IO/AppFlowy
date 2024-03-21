@@ -8,7 +8,7 @@ use event_integration::EventIntegrationTest;
 use flowy_core::DEFAULT_NAME;
 use flowy_document::entities::{DocumentSyncState, DocumentSyncStatePB};
 
-use crate::util::{receive_with_timeout, unzip_history_user_db};
+use crate::util::{receive_with_timeout, unzip};
 
 #[tokio::test]
 async fn af_cloud_edit_document_test() {
@@ -43,8 +43,7 @@ async fn af_cloud_edit_document_test() {
 
 #[tokio::test]
 async fn af_cloud_sync_anon_user_document_test() {
-  let (cleaner, user_db_path) =
-    unzip_history_user_db("./tests/asset", "040_sync_local_document").unwrap();
+  let (cleaner, user_db_path) = unzip("./tests/asset", "040_sync_local_document").unwrap();
   user_localhost_af_cloud().await;
   let test =
     EventIntegrationTest::new_with_user_data_path(user_db_path.clone(), DEFAULT_NAME.to_string())
