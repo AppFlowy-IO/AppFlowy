@@ -36,6 +36,8 @@ class ActionNavigationBloc
                 nextActions: newActions,
               ),
             );
+          } else {
+            emit(state.setNoAction());
           }
         },
       );
@@ -126,4 +128,7 @@ class ActionNavigationState {
         nextActions: nextActions ?? this.nextActions,
         views: views ?? this.views,
       );
+
+  ActionNavigationState setNoAction() =>
+      ActionNavigationState(action: null, nextActions: [], views: views);
 }

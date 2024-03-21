@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/presentation/command_palette/widgets/search_result_tile.dart';
 import 'package:appflowy_backend/protobuf/flowy-search/entities.pb.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 
 class SearchResultsList extends StatelessWidget {
@@ -21,12 +23,12 @@ class SearchResultsList extends StatelessWidget {
       itemCount: results.length + 1,
       itemBuilder: (_, index) {
         if (index == 0) {
-          return const Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 8,
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8) +
+                const EdgeInsets.only(left: 16),
+            child: FlowyText(
+              LocaleKeys.commandPalette_bestMatches.tr(),
             ),
-            child: FlowyText('Best matches'),
           );
         }
 
