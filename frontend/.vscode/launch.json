@@ -115,9 +115,12 @@
         },
         {
             "name": "AF-desktop: Debug Rust",
-            "request": "attach",
             "type": "lldb",
+            "request": "attach",
             "pid": "${command:pickMyProcess}"
+            // To launch the application directly, use the following configuration:
+            // "request": "launch",
+            // "program": "[YOUR_APPLICATION_PATH]",
         },
         {
             // https://tauri.app/v1/guides/debugging/vs-code

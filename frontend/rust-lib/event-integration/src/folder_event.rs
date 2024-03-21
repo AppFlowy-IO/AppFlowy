@@ -57,7 +57,7 @@ impl EventIntegrationTest {
 
   pub async fn get_all_workspace_views(&self) -> Vec<ViewPB> {
     EventBuilder::new(self.clone())
-      .event(FolderEvent::ReadWorkspaceViews)
+      .event(FolderEvent::ReadCurrentWorkspaceViews)
       .async_send()
       .await
       .parse::<RepeatedViewPB>()
@@ -115,6 +115,7 @@ impl EventIntegrationTest {
       meta: Default::default(),
       set_as_current: false,
       index: None,
+      section: None,
     };
     EventBuilder::new(self.clone())
       .event(FolderEvent::CreateView)
@@ -165,6 +166,7 @@ impl ViewTest {
       meta: Default::default(),
       set_as_current: true,
       index: None,
+      section: None,
     };
 
     let view = EventBuilder::new(sdk.clone())

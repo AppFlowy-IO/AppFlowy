@@ -1,6 +1,8 @@
+import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -21,7 +23,8 @@ class WorkspaceMemberBloc
   WorkspaceMemberBloc({
     required this.userProfile,
     this.workspace,
-  }) : super(WorkspaceMemberState.initial()) {
+  })  : _userBackendService = UserBackendService(userId: userProfile.id),
+        super(WorkspaceMemberState.initial()) {
     on<WorkspaceMemberEvent>((event, emit) async {
       await event.when(
         initial: () async {
@@ -73,14 +76,16 @@ class WorkspaceMemberBloc
   final UserWorkspacePB? workspace;
 
   late final String workspaceId;
+  late final UserBackendService _userBackendService;
 
   Future<List<WorkspaceMemberPB>> _getWorkspaceMembers() async {
-    final data = QueryWorkspacePB()..workspaceId = workspaceId;
-    final result = await UserEventGetWorkspaceMember(data).send();
-    return result.fold((s) => s.items, (e) {
-      Log.error('Failed to read workspace members: $e');
-      return [];
-    });
+    return _userBackendService.getWorkspaceMembers(workspaceId).fold(
+      (s) => s.items,
+      (e) {
+        Log.error('Failed to read workspace members: $e');
+        return [];
+      },
+    );
   }
 
   AFRolePB _getMyRole(List<WorkspaceMemberPB> members) {
@@ -97,40 +102,26 @@ class WorkspaceMemberBloc
   }
 
   Future<void> _addWorkspaceMember(String email) async {
-    final data = AddWorkspaceMemberPB()
-      ..workspaceId = workspaceId
-      ..email = email;
-    final result = await UserEventAddWorkspaceMember(data).send();
-    result.fold((s) {
-      Log.info('Added workspace member: $data');
-    }, (e) {
-      Log.error('Failed to add workspace member: $e');
-    });
+    return _userBackendService.addWorkspaceMember(workspaceId, email).fold(
+          (s) => Log.debug('Added workspace member: $email'),
+          (e) => Log.error('Failed to add workspace member: $e'),
+        );
   }
 
   Future<void> _removeWorkspaceMember(String email) async {
-    final data = RemoveWorkspaceMemberPB()
-      ..workspaceId = workspaceId
-      ..email = email;
-    final result = await UserEventRemoveWorkspaceMember(data).send();
-    result.fold((s) {
-      Log.info('Removed workspace member: $data');
-    }, (e) {
-      Log.error('Failed to remove workspace member: $e');
-    });
+    return _userBackendService.removeWorkspaceMember(workspaceId, email).fold(
+          (s) => Log.debug('Removed workspace member: $email'),
+          (e) => Log.error('Failed to remove workspace member: $e'),
+        );
   }
 
   Future<void> _updateWorkspaceMember(String email, AFRolePB role) async {
-    final data = UpdateWorkspaceMemberPB()
-      ..workspaceId = workspaceId
-      ..email = email
-      ..role = role;
-    final result = await UserEventUpdateWorkspaceMember(data).send();
-    result.fold((s) {
-      Log.info('Updated workspace member: $data');
-    }, (e) {
-      Log.error('Failed to update workspace member: $e');
-    });
+    return _userBackendService
+        .updateWorkspaceMember(workspaceId, email, role)
+        .fold(
+          (s) => Log.debug('Updated workspace member: $email'),
+          (e) => Log.error('Failed to update workspace member: $e'),
+        );
   }
 }
 
