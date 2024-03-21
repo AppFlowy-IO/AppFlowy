@@ -8,7 +8,6 @@ import 'package:appflowy/plugins/trash/application/trash_service.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
-import 'package:appflowy/util/json_print.dart';
 import 'package:appflowy/workspace/application/doc/doc_listener.dart';
 import 'package:appflowy/workspace/application/doc/sync_state_listener.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
