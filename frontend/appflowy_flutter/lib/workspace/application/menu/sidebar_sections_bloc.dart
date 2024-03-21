@@ -167,7 +167,7 @@ class SidebarSectionsBloc
     return super.close();
   }
 
-  ViewSectionPB getViewSection(ViewPB view) {
+  ViewSectionPB? getViewSection(ViewPB view) {
     final publicViews = state.section.publicViews.map((e) => e.id);
     final privateViews = state.section.privateViews.map((e) => e.id);
     if (publicViews.contains(view.id)) {
@@ -175,8 +175,7 @@ class SidebarSectionsBloc
     } else if (privateViews.contains(view.id)) {
       return ViewSectionPB.Private;
     } else {
-      assert(false, 'Invalid to section');
-      return ViewSectionPB.Public;
+      return null;
     }
   }
 

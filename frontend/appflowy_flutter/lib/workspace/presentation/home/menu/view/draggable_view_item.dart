@@ -262,7 +262,7 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
     return true;
   }
 
-  ViewSectionPB getViewSection(ViewPB view) {
+  ViewSectionPB? getViewSection(ViewPB view) {
     return context.read<SidebarSectionsBloc>().getViewSection(view);
   }
 }

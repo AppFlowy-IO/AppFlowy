@@ -355,8 +355,8 @@ class ViewEvent with _$ViewEvent {
     ViewPB from,
     String newParentId,
     String? prevId,
-    ViewSectionPB fromSection,
-    ViewSectionPB toSection,
+    ViewSectionPB? fromSection,
+    ViewSectionPB? toSection,
   ) = Move;
   const factory ViewEvent.createView(
     String name,

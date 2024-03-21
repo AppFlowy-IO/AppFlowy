@@ -200,8 +200,8 @@ class ViewBackendService {
     required String viewId,
     required String newParentId,
     required String? prevViewId,
-    required ViewSectionPB fromSection,
-    required ViewSectionPB toSection,
+    ViewSectionPB? fromSection,
+    ViewSectionPB? toSection,
   }) {
     final payload = MoveNestedViewPayloadPB(
       viewId: viewId,

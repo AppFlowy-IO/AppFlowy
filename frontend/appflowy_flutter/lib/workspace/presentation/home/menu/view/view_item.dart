@@ -4,7 +4,6 @@ import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
 import 'package:appflowy/plugins/base/icon/icon_picker.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
-import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/rename_view/rename_view_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
@@ -471,15 +470,12 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
               _convertLayoutToHintText(pluginBuilder.layoutType!),
               (viewName, _) {
                 if (viewName.isNotEmpty) {
-                  final section = context
-                      .read<SidebarSectionsBloc>()
-                      .getViewSection(widget.view);
                   viewBloc.add(
                     ViewEvent.createView(
                       viewName,
                       pluginBuilder.layoutType!,
                       openAfterCreated: openAfterCreated,
-                      section: section,
+                      section: widget.categoryType.toViewSectionPB,
                     ),
                   );
                 }
