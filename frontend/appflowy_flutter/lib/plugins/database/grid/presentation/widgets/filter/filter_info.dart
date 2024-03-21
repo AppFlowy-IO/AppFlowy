@@ -21,13 +21,17 @@ class FilterInfo {
   String get fieldId => filter.data.fieldId;
 
   DateFilterPB? dateFilter() {
-    return filter.data.fieldType == FieldType.DateTime
+    final fieldType = filter.data.fieldType;
+    return fieldType == FieldType.DateTime ||
+            fieldType == FieldType.CreatedTime ||
+            fieldType == FieldType.LastEditedTime
         ? DateFilterPB.fromBuffer(filter.data.data)
         : null;
   }
 
   TextFilterPB? textFilter() {
-    return filter.data.fieldType == FieldType.RichText
+    return filter.data.fieldType == FieldType.RichText ||
+            filter.data.fieldType == FieldType.URL
         ? TextFilterPB.fromBuffer(filter.data.data)
         : null;
   }

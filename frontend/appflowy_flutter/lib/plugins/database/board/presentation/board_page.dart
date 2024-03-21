@@ -1,5 +1,7 @@
 import 'dart:collection';
 
+import 'package:appflowy/plugins/database/grid/presentation/grid_page.dart';
+import 'package:appflowy/plugins/database/tab_bar/desktop/setting_menu.dart';
 import 'package:flutter/material.dart' hide Card;
 import 'package:flutter/services.dart';
 
@@ -34,6 +36,8 @@ import 'toolbar/board_setting_bar.dart';
 import 'widgets/board_hidden_groups.dart';
 
 class BoardPageTabBarBuilderImpl extends DatabaseTabBarItemBuilder {
+  final _toggleExtension = ToggleExtensionNotifier();
+
   @override
   Widget content(
     BuildContext context,
@@ -49,14 +53,27 @@ class BoardPageTabBarBuilderImpl extends DatabaseTabBarItemBuilder {
       BoardSettingBar(
         key: _makeValueKey(controller),
         databaseController: controller,
+        toggleExtension: _toggleExtension,
       );
 
   @override
   Widget settingBarExtension(
     BuildContext context,
     DatabaseController controller,
-  ) =>
-      const SizedBox.shrink();
+  ) {
+    return DatabaseViewSettingExtension(
+      key: _makeValueKey(controller),
+      viewId: controller.viewId,
+      databaseController: controller,
+      toggleExtension: _toggleExtension,
+    );
+  }
+
+  @override
+  void dispose() {
+    _toggleExtension.dispose();
+    super.dispose();
+  }
 
   ValueKey _makeValueKey(DatabaseController controller) =>
       ValueKey(controller.viewId);

@@ -27,11 +27,11 @@ class MobileDatabaseControls extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider<GridFilterMenuBloc>(
-          create: (context) => GridFilterMenuBloc(
+        BlocProvider<DatabaseFilterMenuBloc>(
+          create: (context) => DatabaseFilterMenuBloc(
             viewId: controller.viewId,
             fieldController: controller.fieldController,
-          )..add(const GridFilterMenuEvent.initial()),
+          )..add(const DatabaseFilterMenuEvent.initial()),
         ),
         BlocProvider<SortEditorBloc>(
           create: (context) => SortEditorBloc(
@@ -40,7 +40,7 @@ class MobileDatabaseControls extends StatelessWidget {
           ),
         ),
       ],
-      child: BlocListener<GridFilterMenuBloc, GridFilterMenuState>(
+      child: BlocListener<DatabaseFilterMenuBloc, DatabaseFilterMenuState>(
         listenWhen: (p, c) => p.isVisible != c.isVisible,
         listener: (context, state) => toggleExtension.toggle(),
         child: ValueListenableBuilder<bool>(

@@ -86,9 +86,8 @@ impl RowChangeset {
   err
 )]
 pub async fn make_group_controller<D>(
-  view_id: String,
+  view_id: &str,
   grouping_field: Field,
-  row_details: Vec<Arc<RowDetail>>,
   delegate: D,
 ) -> FlowyResult<Box<dyn GroupController>>
 where
@@ -102,66 +101,79 @@ where
 
   match grouping_field_type {
     FieldType::SingleSelect => {
-      let configuration =
-        SingleSelectGroupControllerContext::new(view_id, grouping_field.clone(), delegate.clone())
-          .await?;
+      let configuration = SingleSelectGroupControllerContext::new(
+        view_id.to_string(),
+        grouping_field.clone(),
+        delegate.clone(),
+      )
+      .await?;
       let controller =
-        SingleSelectGroupController::new(&grouping_field, configuration, delegate).await?;
+        SingleSelectGroupController::new(&grouping_field, configuration, delegate.clone()).await?;
       group_controller = Box::new(controller);
     },
     FieldType::MultiSelect => {
-      let configuration =
-        MultiSelectGroupControllerContext::new(view_id, grouping_field.clone(), delegate.clone())
-          .await?;
+      let configuration = MultiSelectGroupControllerContext::new(
+        view_id.to_string(),
+        grouping_field.clone(),
+        delegate.clone(),
+      )
+      .await?;
       let controller =
-        MultiSelectGroupController::new(&grouping_field, configuration, delegate).await?;
+        MultiSelectGroupController::new(&grouping_field, configuration, delegate.clone()).await?;
       group_controller = Box::new(controller);
     },
     FieldType::Checkbox => {
-      let configuration =
-        CheckboxGroupControllerContext::new(view_id, grouping_field.clone(), delegate.clone())
-          .await?;
+      let configuration = CheckboxGroupControllerContext::new(
+        view_id.to_string(),
+        grouping_field.clone(),
+        delegate.clone(),
+      )
+      .await?;
       let controller =
-        CheckboxGroupController::new(&grouping_field, configuration, delegate).await?;
+        CheckboxGroupController::new(&grouping_field, configuration, delegate.clone()).await?;
       group_controller = Box::new(controller);
     },
     FieldType::URL => {
-      let configuration =
-        URLGroupControllerContext::new(view_id, grouping_field.clone(), delegate.clone()).await?;
-      let controller = URLGroupController::new(&grouping_field, configuration, delegate).await?;
+      let configuration = URLGroupControllerContext::new(
+        view_id.to_string(),
+        grouping_field.clone(),
+        delegate.clone(),
+      )
+      .await?;
+      let controller =
+        URLGroupController::new(&grouping_field, configuration, delegate.clone()).await?;
       group_controller = Box::new(controller);
     },
     FieldType::DateTime => {
-      let configuration =
-        DateGroupControllerContext::new(view_id, grouping_field.clone(), delegate.clone()).await?;
-      let controller = DateGroupController::new(&grouping_field, configuration, delegate).await?;
+      let configuration = DateGroupControllerContext::new(
+        view_id.to_string(),
+        grouping_field.clone(),
+        delegate.clone(),
+      )
+      .await?;
+      let controller =
+        DateGroupController::new(&grouping_field, configuration, delegate.clone()).await?;
       group_controller = Box::new(controller);
     },
     _ => {
-      group_controller = Box::new(DefaultGroupController::new(&grouping_field));
+      group_controller = Box::new(DefaultGroupController::new(
+        &grouping_field,
+        delegate.clone(),
+      ));
     },
   }
 
   // Separates the rows into different groups
+  let row_details = delegate.get_all_rows(view_id).await;
+
   let rows = row_details
     .iter()
     .map(|row| row.as_ref())
     .collect::<Vec<_>>();
+
   group_controller.fill_groups(rows.as_slice(), &grouping_field)?;
+
   Ok(group_controller)
-}
-
-#[tracing::instrument(level = "debug", skip_all)]
-pub fn find_suitable_grouping_field(fields: &[Field]) -> Option<Field> {
-  let groupable_field = fields
-    .iter()
-    .find(|field| FieldType::from(field.field_type).can_be_group());
-
-  if let Some(field) = groupable_field {
-    Some(field.clone())
-  } else {
-    fields.iter().find(|field| field.is_primary).cloned()
-  }
 }
 
 /// Returns a `default` group configuration for the [Field]

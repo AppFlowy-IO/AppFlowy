@@ -10,7 +10,7 @@ use flowy_error::{FlowyError, FlowyResult};
 use lib_infra::box_any::BoxAny;
 
 use crate::entities::{
-  CheckboxFilterPB, ChecklistFilterPB, DateFilterContentPB, DateFilterPB, FieldType, FilterType,
+  CheckboxFilterPB, ChecklistFilterPB, DateFilterContent, DateFilterPB, FieldType, FilterType,
   InsertedRowPB, NumberFilterPB, RelationFilterPB, SelectOptionFilterPB, TextFilterPB,
 };
 use crate::services::field::SelectOptionIds;
@@ -337,7 +337,7 @@ impl<'a> From<&'a Filter> for FilterMap {
             },
             FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => {
               let filter = condition_and_content.cloned::<DateFilterPB>()?;
-              let content = DateFilterContentPB {
+              let content = DateFilterContent {
                 start: filter.start,
                 end: filter.end,
                 timestamp: filter.timestamp,
