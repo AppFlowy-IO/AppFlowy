@@ -19,6 +19,8 @@ import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+const _whatIsNewUrl = "https://www.appflowy.io/what-is-new";
+
 class QuestionBubble extends StatelessWidget {
   const QuestionBubble({super.key});
 
@@ -95,7 +97,7 @@ class _BubbleActionListState extends State<BubbleActionList> {
         if (action is BubbleActionWrapper) {
           switch (action.inner) {
             case BubbleAction.whatsNews:
-              afLaunchUrlString("https://www.appflowy.io/what-is-new");
+              afLaunchUrlString(_whatIsNewUrl);
               break;
             case BubbleAction.help:
               afLaunchUrlString("https://discord.gg/9Q2xaN37tV");
@@ -161,7 +163,7 @@ class FlowyVersionDescription extends CustomActionCell {
   final PopoverMutex popoverMutex;
 
   @override
-  Widget buildWithContext(BuildContext context, PopoverController controller) {
+  Widget buildWithContext(BuildContext context) {
     return BlocProvider.value(
       value: getIt<VersionCheckerBloc>(),
       child: BlocBuilder<VersionCheckerBloc, VersionCheckerState>(
@@ -183,7 +185,7 @@ class FlowyVersionDescription extends CustomActionCell {
               itemHeight: 20,
               name: '${state.appName} ${state.currentVersion}',
               onTap: () {
-                controller.close();
+                PopoverContainer.of(context).close();
                 showUpdateDialog(context, state);
               },
             ),
@@ -255,14 +257,16 @@ class FlowyVersionDescription extends CustomActionCell {
                   const VSpace(8),
                   Row(
                     children: [
-                      if (state.isUpdateAvailable) ...[
+                      if (state.isUpdateAvailable &&
+                          state.downloadLink != null) ...[
                         FlowyTextButton(
                           LocaleKeys.updateDialog_downloadLabel.tr(),
                           fillColor: Theme.of(context).colorScheme.primary,
                           hoverColor:
                               Theme.of(context).colorScheme.primaryContainer,
                           fontColor: Theme.of(context).colorScheme.onPrimary,
-                          onPressed: () {},
+                          onPressed: () =>
+                              afLaunchUrlString(state.downloadLink!),
                         ),
                         const HSpace(8),
                       ],
@@ -272,7 +276,7 @@ class FlowyVersionDescription extends CustomActionCell {
                         hoverColor:
                             Theme.of(context).colorScheme.primaryContainer,
                         fontColor: Theme.of(context).colorScheme.onPrimary,
-                        onPressed: () {},
+                        onPressed: () => afLaunchUrlString(_whatIsNewUrl),
                       ),
                     ],
                   ),
