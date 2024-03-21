@@ -37,6 +37,7 @@ class ViewBackendService {
     /// The [index] is the index of the view in the parent view.
     /// If the index is null, the view will be added to the end of the list.
     int? index,
+    ViewSectionPB? section,
   }) {
     final payload = CreateViewPayloadPB.create()
       ..parentViewId = parentViewId
@@ -56,6 +57,10 @@ class ViewBackendService {
 
     if (index != null) {
       payload.index = index;
+    }
+
+    if (section != null) {
+      payload.section = section;
     }
 
     return FolderEventCreateView(payload).send();

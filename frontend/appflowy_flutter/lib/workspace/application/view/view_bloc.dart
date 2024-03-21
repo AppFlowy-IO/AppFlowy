@@ -186,8 +186,8 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
               layoutType: e.layoutType,
               ext: {},
               openAfterCreate: e.openAfterCreated,
+              section: e.section,
             );
-
             emit(
               result.fold(
                 (view) => state.copyWith(
@@ -363,6 +363,7 @@ class ViewEvent with _$ViewEvent {
     ViewLayoutPB layoutType, {
     /// open the view after created
     @Default(true) bool openAfterCreated,
+    required ViewSectionPB section,
   }) = CreateView;
   const factory ViewEvent.viewDidUpdate(
     FlowyResult<ViewPB, FlowyError> result,

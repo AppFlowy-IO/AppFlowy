@@ -3,6 +3,7 @@ import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/page_item/mobile_view_item_add_button.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
+import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
@@ -402,10 +403,14 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
               view: widget.view,
               onAction: (layout) {
                 Navigator.of(sheetContext).pop();
+                final section = context
+                    .read<SidebarSectionsBloc>()
+                    .getViewSection(widget.view);
                 context.read<ViewBloc>().add(
                       ViewEvent.createView(
                         LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
                         layout,
+                        section: section,
                       ),
                     );
               },

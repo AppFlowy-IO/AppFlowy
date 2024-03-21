@@ -15,6 +15,7 @@ import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_trash.
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_user.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_workspace.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/auth.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
     show UserProfilePB;
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -206,7 +207,8 @@ class _SidebarState extends State<_Sidebar> {
           // user or workspace, setting
           Padding(
             padding: menuHorizontalInset,
-            child: FeatureFlag.collaborativeWorkspace.isOn
+            child: widget.userProfile.authenticator != AuthenticatorPB.Local &&
+                    FeatureFlag.collaborativeWorkspace.isOn
                 ? SidebarWorkspace(
                     userProfile: widget.userProfile,
                   )

@@ -34,7 +34,7 @@ class SidebarUser extends StatelessWidget {
               iconUrl: state.userProfile.iconUrl,
               name: state.userProfile.name,
             ),
-            const HSpace(4),
+            const HSpace(8),
             Expanded(
               child: _buildUserName(context, state),
             ),

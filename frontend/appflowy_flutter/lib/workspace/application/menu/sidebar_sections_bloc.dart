@@ -167,6 +167,19 @@ class SidebarSectionsBloc
     return super.close();
   }
 
+  ViewSectionPB getViewSection(ViewPB view) {
+    final publicViews = state.section.publicViews.map((e) => e.id);
+    final privateViews = state.section.privateViews.map((e) => e.id);
+    if (publicViews.contains(view.id)) {
+      return ViewSectionPB.Public;
+    } else if (privateViews.contains(view.id)) {
+      return ViewSectionPB.Private;
+    } else {
+      assert(false, 'Invalid to section');
+      return ViewSectionPB.Public;
+    }
+  }
+
   Future<SidebarSection?> _getSectionViews() async {
     try {
       final publicViews = await _workspaceService.getPublicViews().getOrThrow();

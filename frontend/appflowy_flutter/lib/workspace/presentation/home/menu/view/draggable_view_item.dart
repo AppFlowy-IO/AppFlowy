@@ -263,26 +263,7 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
   }
 
   ViewSectionPB getViewSection(ViewPB view) {
-    final publicViews = context
-        .read<SidebarSectionsBloc>()
-        .state
-        .section
-        .publicViews
-        .map((e) => e.id);
-    final privateViews = context
-        .read<SidebarSectionsBloc>()
-        .state
-        .section
-        .privateViews
-        .map((e) => e.id);
-    if (publicViews.contains(view.id)) {
-      return ViewSectionPB.Public;
-    } else if (privateViews.contains(view.id)) {
-      return ViewSectionPB.Private;
-    } else {
-      assert(false, 'Invalid to section');
-      return ViewSectionPB.Public;
-    }
+    return context.read<SidebarSectionsBloc>().getViewSection(view);
   }
 }
 
