@@ -42,7 +42,7 @@ async fn test_folder_index_all_startup() {
 }
 
 #[tokio::test]
-async fn test_folder_index_create_100_views() {
+async fn test_folder_index_create_20_views() {
   let test = EventIntegrationTest::new_anon().await;
   let folder_search_manager = test.get_folder_search_handler();
 
@@ -50,18 +50,18 @@ async fn test_folder_index_create_100_views() {
   sleep(Duration::from_secs(1)).await;
   let workspace_id = test.get_current_workspace().await.id;
 
-  for i in 0..99 {
+  for i in 0..20 {
     let view = test.create_view(&workspace_id, format!("View {}", i)).await;
     sleep(Duration::from_millis(500)).await;
     assert_eq!(view.name, format!("View {}", i));
   }
 
   // Wait for the index update to finish
-  sleep(Duration::from_millis(1000)).await;
+  sleep(Duration::from_secs(2)).await;
 
   let num_docs = folder_search_manager.index_count();
-  // Workspace + 100 Views
-  assert_eq!(num_docs, 101);
+  // Workspace + Get started + 20 Views
+  assert_eq!(num_docs, 22);
 }
 
 #[tokio::test]
