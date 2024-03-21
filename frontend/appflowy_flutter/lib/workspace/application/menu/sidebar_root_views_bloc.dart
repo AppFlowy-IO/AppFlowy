@@ -33,18 +33,19 @@ class SidebarRootViewsBloc
         await event.when(
           initial: (userProfile, workspaceId) async {
             _initial(userProfile, workspaceId);
-            await _fetchApps(emit);
+            await _fetchRootViews(emit);
           },
           reset: (userProfile, workspaceId) async {
             await _listener?.stop();
             _initial(userProfile, workspaceId);
-            await _fetchApps(emit);
+            await _fetchRootViews(emit);
           },
-          createRootView: (name, desc, index) async {
-            final result = await _workspaceService.createApp(
+          createRootView: (name, desc, index, section) async {
+            final result = await _workspaceService.createView(
               name: name,
               desc: desc,
               index: index,
+              viewSection: section,
             );
             result.fold(
               (view) => emit(state.copyWith(lastCreatedRootView: view)),
@@ -59,48 +60,59 @@ class SidebarRootViewsBloc
             );
           },
           didReceiveViews: (viewsOrFailure) async {
-            emit(
-              viewsOrFailure.fold(
-                (views) => state.copyWith(
-                  views: views,
-                  successOrFailure: FlowyResult.success(null),
-                ),
-                (err) =>
-                    state.copyWith(successOrFailure: FlowyResult.failure(err)),
-              ),
-            );
+            // emit(
+            //   viewsOrFailure.fold(
+            //     (views) => state.copyWith(
+            //       views: views,
+            //       successOrFailure: FlowyResult.success(null),
+            //     ),
+            //     (err) =>
+            //         state.copyWith(successOrFailure: FlowyResult.failure(err)),
+            //   ),
+            // );
           },
           moveRootView: (int fromIndex, int toIndex) {
-            if (state.views.length > fromIndex) {
-              final view = state.views[fromIndex];
+            // if (state.views.length > fromIndex) {
+            //   final view = state.views[fromIndex];
 
-              _workspaceService.moveApp(
-                appId: view.id,
-                fromIndex: fromIndex,
-                toIndex: toIndex,
-              );
+            //   _workspaceService.moveApp(
+            //     appId: view.id,
+            //     fromIndex: fromIndex,
+            //     toIndex: toIndex,
+            //   );
 
-              final views = List<ViewPB>.from(state.views);
-              views.insert(toIndex, views.removeAt(fromIndex));
-              emit(state.copyWith(views: views));
-            }
+            //   final views = List<ViewPB>.from(state.views);
+            //   views.insert(toIndex, views.removeAt(fromIndex));
+            //   emit(state.copyWith(views: views));
+            // }
           },
         );
       },
     );
   }
 
-  Future<void> _fetchApps(Emitter<SidebarRootViewState> emit) async {
-    final viewsOrError = await _workspaceService.getViews();
-    emit(
-      viewsOrError.fold(
-        (views) => state.copyWith(views: views),
-        (error) {
-          Log.error(error);
-          return state.copyWith(successOrFailure: FlowyResult.failure(error));
-        },
-      ),
-    );
+  Future<void> _fetchRootViews(
+    Emitter<SidebarRootViewState> emit,
+  ) async {
+    try {
+      final publicViews = await _workspaceService.getPublicViews().getOrThrow();
+      final privateViews =
+          await _workspaceService.getPrivateViews().getOrThrow();
+      emit(
+        state.copyWith(
+          publicViews: publicViews,
+          privateViews: privateViews,
+        ),
+      );
+    } catch (e) {
+      Log.error(e);
+      // TODO: handle error
+      // emit(
+      //   state.copyWith(
+      //     successOrFailure: FlowyResult.failure(e),
+      //   ),
+      // );
+    }
   }
 
   void _handleAppsOrFail(FlowyResult<List<ViewPB>, FlowyError> viewsOrFail) {
@@ -137,9 +149,12 @@ class SidebarRootViewsEvent with _$SidebarRootViewsEvent {
     String name, {
     String? desc,
     int? index,
+    required ViewSectionPB viewSection,
   }) = _createRootView;
-  const factory SidebarRootViewsEvent.moveRootView(int fromIndex, int toIndex) =
-      _MoveRootView;
+  const factory SidebarRootViewsEvent.moveRootView(
+    int fromIndex,
+    int toIndex,
+  ) = _MoveRootView;
   const factory SidebarRootViewsEvent.didReceiveViews(
     FlowyResult<List<ViewPB>, FlowyError> appsOrFail,
   ) = _ReceiveApps;
@@ -148,13 +163,13 @@ class SidebarRootViewsEvent with _$SidebarRootViewsEvent {
 @freezed
 class SidebarRootViewState with _$SidebarRootViewState {
   const factory SidebarRootViewState({
-    required List<ViewPB> views,
+    @Default([]) List<ViewPB> privateViews,
+    @Default([]) List<ViewPB> publicViews,
     required FlowyResult<void, FlowyError> successOrFailure,
     @Default(null) ViewPB? lastCreatedRootView,
   }) = _SidebarRootViewState;
 
   factory SidebarRootViewState.initial() => SidebarRootViewState(
-        views: [],
         successOrFailure: FlowyResult.success(null),
       );
 }

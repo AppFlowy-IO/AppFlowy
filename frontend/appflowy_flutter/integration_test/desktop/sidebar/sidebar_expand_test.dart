@@ -1,6 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/folder/personal_folder.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_folder.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -13,10 +13,10 @@ void main() {
 
   group('sidebar expand test', () {
     bool isExpanded({required FolderCategoryType type}) {
-      if (type == FolderCategoryType.personal) {
+      if (type == FolderCategoryType.private) {
         return find
             .descendant(
-              of: find.byType(PersonalFolder),
+              of: find.byType(PrivateSectionFolder),
               matching: find.byType(ViewItem),
             )
             .evaluate()
@@ -30,19 +30,19 @@ void main() {
       await tester.tapGoButton();
 
       // first time is expanded
-      expect(isExpanded(type: FolderCategoryType.personal), true);
+      expect(isExpanded(type: FolderCategoryType.private), true);
 
       // collapse the personal folder
       await tester.tapButton(
-        find.byTooltip(LocaleKeys.sideBar_clickToHidePersonal.tr()),
+        find.byTooltip(LocaleKeys.sideBar_clickToHidePrivate.tr()),
       );
-      expect(isExpanded(type: FolderCategoryType.personal), false);
+      expect(isExpanded(type: FolderCategoryType.private), false);
 
       // expand the personal folder
       await tester.tapButton(
-        find.byTooltip(LocaleKeys.sideBar_clickToHidePersonal.tr()),
+        find.byTooltip(LocaleKeys.sideBar_clickToHidePrivate.tr()),
       );
-      expect(isExpanded(type: FolderCategoryType.personal), true);
+      expect(isExpanded(type: FolderCategoryType.private), true);
     });
   });
 }
