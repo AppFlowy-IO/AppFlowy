@@ -8,6 +8,7 @@ import 'package:appflowy/plugins/trash/application/trash_service.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
+import 'package:appflowy/util/json_print.dart';
 import 'package:appflowy/workspace/application/doc/doc_listener.dart';
 import 'package:appflowy/workspace/application/doc/sync_state_listener.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
@@ -86,30 +87,24 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
         final result = await _fetchDocumentState();
         _onViewChanged();
         _onDocumentChanged();
-        await result.fold(
+        final newState = await result.fold(
           (s) async {
-            final result = await getIt<AuthService>().getUser();
-            final userProfilePB = result.fold(
-              (s) => s,
-              (e) => null,
-            );
-            emit(
-              state.copyWith(
-                error: null,
-                editorState: s,
-                isLoading: false,
-                userProfilePB: userProfilePB,
-              ),
+            final userProfilePB =
+                await getIt<AuthService>().getUser().toNullable();
+            return state.copyWith(
+              error: null,
+              editorState: s,
+              isLoading: false,
+              userProfilePB: userProfilePB,
             );
           },
-          (f) async => emit(
-            state.copyWith(
-              error: f,
-              editorState: null,
-              isLoading: false,
-            ),
+          (f) async => state.copyWith(
+            error: f,
+            editorState: null,
+            isLoading: false,
           ),
         );
+        emit(newState);
       },
       moveToTrash: () async {
         emit(state.copyWith(isDeleted: true));
@@ -248,7 +243,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     }
   }
 
-  void syncDocumentDataPB(DocEventPB docEvent) async {
+  Future<void> syncDocumentDataPB(DocEventPB docEvent) async {
     if (!docEvent.isRemote || !FeatureFlag.syncDocument.isOn) {
       return;
     }
@@ -264,17 +259,18 @@ class DocumentEvent with _$DocumentEvent {
   const factory DocumentEvent.restore() = Restore;
   const factory DocumentEvent.restorePage() = RestorePage;
   const factory DocumentEvent.deletePermanently() = DeletePermanently;
-  const factory DocumentEvent.syncStateChanged(DocumentSyncStatePB syncState) =
-      syncStateChanged;
+  const factory DocumentEvent.syncStateChanged(
+    final DocumentSyncStatePB syncState,
+  ) = syncStateChanged;
 }
 
 @freezed
 class DocumentState with _$DocumentState {
   const factory DocumentState({
-    required bool isDeleted,
-    required bool forceClose,
-    required bool isLoading,
-    required DocumentSyncState syncState,
+    required final bool isDeleted,
+    required final bool forceClose,
+    required final bool isLoading,
+    required final DocumentSyncState syncState,
     bool? isDocumentEmpty,
     UserProfilePB? userProfilePB,
     EditorState? editorState,

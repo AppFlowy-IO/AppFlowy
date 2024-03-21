@@ -246,6 +246,7 @@ pub async fn create_view(
     meta: Default::default(),
     set_as_current: true,
     index: None,
+    section: None,
   };
   EventBuilder::new(sdk.clone())
     .event(CreateView)
@@ -275,6 +276,8 @@ pub async fn move_view(
     view_id,
     new_parent_id: parent_id,
     prev_view_id,
+    from_section: None,
+    to_section: None,
   };
   let error = EventBuilder::new(sdk.clone())
     .event(MoveNestedView)

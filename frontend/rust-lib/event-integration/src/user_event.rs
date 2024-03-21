@@ -276,9 +276,9 @@ impl EventIntegrationTest {
       .parse()
   }
 
-  pub async fn folder_read_workspace_views(&self) -> RepeatedViewPB {
+  pub async fn folder_read_current_workspace_views(&self) -> RepeatedViewPB {
     EventBuilder::new(self.clone())
-      .event(FolderEvent::ReadWorkspaceViews)
+      .event(FolderEvent::ReadCurrentWorkspaceViews)
       .async_send()
       .await
       .parse()

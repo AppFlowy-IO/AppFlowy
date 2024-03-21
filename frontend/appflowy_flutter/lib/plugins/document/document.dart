@@ -144,14 +144,16 @@ class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
             key: ValueKey('share_button_${view.id}'),
             view: view,
           ),
-          if (FeatureFlag.syncDocument.isOn) ...[
-            const HSpace(20),
-            DocumentSyncIndicator(
-              key: ValueKey('sync_state_${view.id}'),
-              view: view,
-            ),
-          ],
-          const HSpace(12),
+          ...FeatureFlag.syncDocument.isOn
+              ? [
+                  const HSpace(20),
+                  DocumentSyncIndicator(
+                    key: ValueKey('sync_state_${view.id}'),
+                    view: view,
+                  ),
+                  const HSpace(12),
+                ]
+              : [const HSpace(8)],
           ViewFavoriteButton(
             key: ValueKey('favorite_button_${view.id}'),
             view: view,
