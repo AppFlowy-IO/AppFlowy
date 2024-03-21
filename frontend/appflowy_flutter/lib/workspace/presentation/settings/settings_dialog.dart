@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/settings/settings_dialog_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/settings_account_view.dart';
+import 'package:appflowy/workspace/presentation/settings/pages/settings_workspace_view.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_menu.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -66,6 +67,8 @@ class SettingsDialog extends StatelessWidget {
           didLogout: didLogout,
           didLogin: dismissDialog,
         );
+      case SettingsPage.workspace:
+        return SettingsWorkspaceView(userProfile: user);
       // case SettingsPage.language:
       //   return const SettingsLanguageView();
       // case SettingsPage.files:

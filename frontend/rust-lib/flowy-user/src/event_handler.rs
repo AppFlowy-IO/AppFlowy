@@ -480,6 +480,21 @@ pub async fn get_all_workspace_handler(
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
+pub async fn get_workspace_handler(
+  data: AFPluginData<UserWorkspaceIdPB>,
+  manager: AFPluginState<Weak<UserManager>>,
+) -> DataResult<UserWorkspacePB, FlowyError> {
+  let manager = upgrade_manager(manager)?;
+  let workspace_id = data.into_inner().workspace_id;
+  let uid = manager.get_session()?.user_id;
+  let workspace = manager.get_user_workspace(uid, &workspace_id).ok_or(
+    FlowyError::internal()
+      .with_context("Failed to find a Workspace with id: ".to_owned() + &workspace_id),
+  )?;
+  data_result_ok(workspace.into())
+}
+
+#[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub async fn open_workspace_handler(
   data: AFPluginData<UserWorkspaceIdPB>,
   manager: AFPluginState<Weak<UserManager>>,

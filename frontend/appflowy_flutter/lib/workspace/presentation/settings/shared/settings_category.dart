@@ -9,10 +9,12 @@ class SettingsCategory extends StatelessWidget {
   const SettingsCategory({
     super.key,
     required this.title,
+    this.description,
     required this.children,
   });
 
   final String title;
+  final String? description;
 
   final List<Widget> children;
 
@@ -28,6 +30,15 @@ class SettingsCategory extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
         ),
         const VSpace(8),
+        if (description?.isNotEmpty ?? false) ...[
+          FlowyText.regular(
+            description!,
+            maxLines: 4,
+            fontSize: 12,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const VSpace(8),
+        ],
         SeparatedColumn(
           mainAxisSize: MainAxisSize.min,
           separatorBuilder: () =>

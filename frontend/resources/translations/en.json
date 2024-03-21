@@ -313,6 +313,9 @@
         "logoutLabel": "Logout"
       }
     },
+    "workspace": {
+      "menuLabel": "Workspace"
+    },
     "menu": {
       "appearance": "Appearance",
       "language": "Language",

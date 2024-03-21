@@ -9,6 +9,7 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/workspace/application/user/settings_user_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_alert_dialog.dart';
+import 'package:appflowy/workspace/presentation/settings/shared/settings_body.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_category.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_category_spacer.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_header.dart';
@@ -72,147 +73,138 @@ class _SettingsAccountViewState extends State<SettingsAccountView> {
         listener: (context, state) =>
             _emailController.text = state.userProfile.email,
         builder: (context, state) {
-          return SingleChildScrollView(
-            physics: const ClampingScrollPhysics(),
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SettingsHeader(
-                  title: LocaleKeys.settings_account_title.tr(),
-                  description: LocaleKeys.settings_account_description.tr(),
-                ),
-                SettingsCategory(
-                  title: LocaleKeys.settings_account_general_title.tr(),
-                  children: [
-                    _UserProfileSetting(
-                      name: userName,
-                      iconUrl: state.userProfile.iconUrl,
-                      onSave: (newName) {
-                        // Pseudo change the name to update the UI before the backend
-                        // processes the request. This is to give the user a sense of
-                        // immediate feedback, and avoid UI flickering.
-                        setState(() => userName = newName);
-                        context
-                            .read<SettingsUserViewBloc>()
-                            .add(SettingsUserEvent.updateUserName(newName));
-                      },
-                    ),
-                  ],
-                ),
-                // Only show change email if the user is authenticated and not using local auth
-                if (isAuthEnabled &&
-                    state.userProfile.authenticator !=
-                        AuthenticatorPB.Local) ...[
-                  const SettingsCategorySpacer(),
-                  SettingsCategory(
-                    title: LocaleKeys.settings_account_email_title.tr(),
-                    children: [
-                      SingleSettingAction(
-                        label: state.userProfile.email,
-                        buttonLabel: LocaleKeys
-                            .settings_account_email_actions_change
-                            .tr(),
-                        onPressed: () => SettingsAlertDialog(
-                          title: LocaleKeys
-                              .settings_account_email_actions_change
-                              .tr(),
-                          confirmLabel: LocaleKeys.button_save.tr(),
-                          confirm: () {
-                            context.read<SettingsUserViewBloc>().add(
-                                  SettingsUserEvent.updateUserEmail(
-                                    _emailController.text,
-                                  ),
-                                );
-                            Navigator.of(context).pop();
-                          },
-                          children: [
-                            SettingsInputField(
-                              label:
-                                  LocaleKeys.settings_account_email_title.tr(),
-                              value: state.userProfile.email,
-                              hideActions: true,
-                              textController: _emailController,
-                            ),
-                          ],
-                        ).show(context),
-                      ),
-                    ],
+          return SettingsBody(
+            children: [
+              SettingsHeader(
+                title: LocaleKeys.settings_account_title.tr(),
+                description: LocaleKeys.settings_account_description.tr(),
+              ),
+              SettingsCategory(
+                title: LocaleKeys.settings_account_general_title.tr(),
+                children: [
+                  _UserProfileSetting(
+                    name: userName,
+                    iconUrl: state.userProfile.iconUrl,
+                    onSave: (newName) {
+                      // Pseudo change the name to update the UI before the backend
+                      // processes the request. This is to give the user a sense of
+                      // immediate feedback, and avoid UI flickering.
+                      setState(() => userName = newName);
+                      context
+                          .read<SettingsUserViewBloc>()
+                          .add(SettingsUserEvent.updateUserName(newName));
+                    },
                   ),
                 ],
-
-                /// TODO: Uncomment and finish implementation when we have the feature
-                // const SettingsCategorySpacer(),
-                // SettingsCategory(
-                //   title: 'Account & security',
-                //   children: [
-                //     SingleSettingAction(
-                //       label: '**********',
-                //       buttonLabel: 'Change password',
-                //       onPressed: () {},
-                //     ),
-                //     SingleSettingAction(
-                //       label: '2-step authentication',
-                //       buttonLabel: 'Enable 2FA',
-                //       onPressed: () {},
-                //     ),
-                //   ],
-                // ),
+              ),
+              // Only show change email if the user is authenticated and not using local auth
+              if (isAuthEnabled &&
+                  state.userProfile.authenticator != AuthenticatorPB.Local) ...[
                 const SettingsCategorySpacer(),
                 SettingsCategory(
-                  title: LocaleKeys.settings_account_keys_title.tr(),
+                  title: LocaleKeys.settings_account_email_title.tr(),
                   children: [
-                    SettingsInputField(
-                      label: LocaleKeys.settings_account_keys_openAILabel.tr(),
-                      tooltip:
-                          LocaleKeys.settings_account_keys_openAITooltip.tr(),
-                      placeholder:
-                          LocaleKeys.settings_account_keys_openAIHint.tr(),
-                      value: state.userProfile.openaiKey,
-                      obscureText: true,
-                      onSave: (key) => context
-                          .read<SettingsUserViewBloc>()
-                          .add(SettingsUserEvent.updateUserOpenAIKey(key)),
+                    SingleSettingAction(
+                      label: state.userProfile.email,
+                      buttonLabel:
+                          LocaleKeys.settings_account_email_actions_change.tr(),
+                      onPressed: () => SettingsAlertDialog(
+                        title: LocaleKeys.settings_account_email_actions_change
+                            .tr(),
+                        confirmLabel: LocaleKeys.button_save.tr(),
+                        confirm: () {
+                          context.read<SettingsUserViewBloc>().add(
+                                SettingsUserEvent.updateUserEmail(
+                                  _emailController.text,
+                                ),
+                              );
+                          Navigator.of(context).pop();
+                        },
+                        children: [
+                          SettingsInputField(
+                            label: LocaleKeys.settings_account_email_title.tr(),
+                            value: state.userProfile.email,
+                            hideActions: true,
+                            textController: _emailController,
+                          ),
+                        ],
+                      ).show(context),
                     ),
                   ],
                 ),
-                const SettingsCategorySpacer(),
-                SettingsCategory(
-                  title: LocaleKeys.settings_account_login_title.tr(),
-                  children: [
-                    if (state.userProfile.authenticator ==
-                        AuthenticatorPB.Local) ...[
-                      _SignInButton(
-                        userProfile: state.userProfile,
-                        didLogin: widget.didLogin,
-                      ),
-                    ] else ...[
-                      _SignOutButton(
-                        userProfile: state.userProfile,
-                        didLogout: widget.didLogout,
-                      ),
-                    ],
-                  ],
-                ),
-
-                /// TODO: Uncomment and finish implementation when we have the feature
-                // const SettingsCategorySpacer(),
-                // SettingsSubcategory(
-                //   title: 'Delete account',
-                //   children: [
-                //     SingleSettingAction(
-                //       label:
-                //           'Permanently delete your account and remove access from all teamspaces.',
-                //       labelMaxLines: 4,
-                //       onPressed: () {},
-                //       buttonLabel: 'Delete my account',
-                //       isDangerous: true,
-                //       fontSize: 12,
-                //     ),
-                //   ],
-                // ),
               ],
-            ),
+
+              /// TODO: Uncomment and finish implementation when we have the feature
+              // const SettingsCategorySpacer(),
+              // SettingsCategory(
+              //   title: 'Account & security',
+              //   children: [
+              //     SingleSettingAction(
+              //       label: '**********',
+              //       buttonLabel: 'Change password',
+              //       onPressed: () {},
+              //     ),
+              //     SingleSettingAction(
+              //       label: '2-step authentication',
+              //       buttonLabel: 'Enable 2FA',
+              //       onPressed: () {},
+              //     ),
+              //   ],
+              // ),
+              const SettingsCategorySpacer(),
+              SettingsCategory(
+                title: LocaleKeys.settings_account_keys_title.tr(),
+                children: [
+                  SettingsInputField(
+                    label: LocaleKeys.settings_account_keys_openAILabel.tr(),
+                    tooltip:
+                        LocaleKeys.settings_account_keys_openAITooltip.tr(),
+                    placeholder:
+                        LocaleKeys.settings_account_keys_openAIHint.tr(),
+                    value: state.userProfile.openaiKey,
+                    obscureText: true,
+                    onSave: (key) => context
+                        .read<SettingsUserViewBloc>()
+                        .add(SettingsUserEvent.updateUserOpenAIKey(key)),
+                  ),
+                ],
+              ),
+              const SettingsCategorySpacer(),
+              SettingsCategory(
+                title: LocaleKeys.settings_account_login_title.tr(),
+                children: [
+                  if (state.userProfile.authenticator ==
+                      AuthenticatorPB.Local) ...[
+                    _SignInButton(
+                      userProfile: state.userProfile,
+                      didLogin: widget.didLogin,
+                    ),
+                  ] else ...[
+                    _SignOutButton(
+                      userProfile: state.userProfile,
+                      didLogout: widget.didLogout,
+                    ),
+                  ],
+                ],
+              ),
+
+              /// TODO: Uncomment and finish implementation when we have the feature
+              // const SettingsCategorySpacer(),
+              // SettingsSubcategory(
+              //   title: 'Delete account',
+              //   children: [
+              //     SingleSettingAction(
+              //       label:
+              //           'Permanently delete your account and remove access from all teamspaces.',
+              //       labelMaxLines: 4,
+              //       onPressed: () {},
+              //       buttonLabel: 'Delete my account',
+              //       isDangerous: true,
+              //       fontSize: 12,
+              //     ),
+              //   ],
+              // ),
+            ],
           );
         },
       ),

@@ -48,6 +48,13 @@ class SettingsMenu extends StatelessWidget {
                     icon: FlowySvgs.settings_account_m,
                     changeSelectedPage: changeSelectedPage,
                   ),
+                  SettingsMenuElement(
+                    page: SettingsPage.workspace,
+                    selectedPage: currentPage,
+                    label: LocaleKeys.settings_workspace_menuLabel.tr(),
+                    icon: FlowySvgs.settings_workplace_m,
+                    changeSelectedPage: changeSelectedPage,
+                  ),
                   // SettingsMenuElement(
                   //   page: SettingsPage.appearance,
                   //   selectedPage: currentPage,
