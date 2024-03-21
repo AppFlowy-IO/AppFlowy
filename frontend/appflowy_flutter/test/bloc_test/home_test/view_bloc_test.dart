@@ -126,11 +126,13 @@ void main() {
     final viewBloc = await createTestViewBloc();
     expect(viewBloc.state.lastCreatedView, isNull);
 
-    viewBloc.add(const ViewEvent.createView(
-      '1',
-      ViewLayoutPB.Document,
-      section: ViewSectionPB.Public,
-    ));
+    viewBloc.add(
+      const ViewEvent.createView(
+        '1',
+        ViewLayoutPB.Document,
+        section: ViewSectionPB.Public,
+      ),
+    );
     await blocResponseFuture();
     expect(
       viewBloc.state.lastCreatedView!.id,
@@ -141,11 +143,13 @@ void main() {
       '1',
     );
 
-    viewBloc.add(const ViewEvent.createView(
-      '2',
-      ViewLayoutPB.Document,
-      section: ViewSectionPB.Public,
-    ));
+    viewBloc.add(
+      const ViewEvent.createView(
+        '2',
+        ViewLayoutPB.Document,
+        section: ViewSectionPB.Public,
+      ),
+    );
     await blocResponseFuture();
     expect(
       viewBloc.state.lastCreatedView!.name,
@@ -156,21 +160,25 @@ void main() {
   test('open latest document test', () async {
     const name1 = 'document';
     final viewBloc = await createTestViewBloc();
-    viewBloc.add(const ViewEvent.createView(
-      name1,
-      ViewLayoutPB.Document,
-      section: ViewSectionPB.Public,
-    ));
+    viewBloc.add(
+      const ViewEvent.createView(
+        name1,
+        ViewLayoutPB.Document,
+        section: ViewSectionPB.Public,
+      ),
+    );
     await blocResponseFuture();
     final document = viewBloc.state.lastCreatedView!;
     assert(document.name == name1);
 
     const gird = 'grid';
-    viewBloc.add(const ViewEvent.createView(
-      gird,
-      ViewLayoutPB.Document,
-      section: ViewSectionPB.Public,
-    ));
+    viewBloc.add(
+      const ViewEvent.createView(
+        gird,
+        ViewLayoutPB.Document,
+        section: ViewSectionPB.Public,
+      ),
+    );
     await blocResponseFuture();
     assert(viewBloc.state.lastCreatedView!.name == gird);
 
