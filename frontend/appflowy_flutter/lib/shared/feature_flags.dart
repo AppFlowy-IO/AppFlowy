@@ -79,9 +79,9 @@ enum FeatureFlag {
 
     switch (this) {
       case FeatureFlag.collaborativeWorkspace:
-        return true;
+        return false;
       case FeatureFlag.membersSettings:
-        return true;
+        return false;
       case FeatureFlag.unknown:
         return false;
     }
