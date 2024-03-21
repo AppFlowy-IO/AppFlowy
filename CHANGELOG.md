@@ -4,11 +4,9 @@
 - Added build support for 32-bit Android devices
 - Introduced filters for KanBan boards for enhanced organization
 - Introduced the new "Relations" column type in Grids
-- A
-Expanded language support with the addition of Greek
+- Expanded language support with the addition of Greek
 - Enhanced toolbar design for Mobile devices
 - Introduced a command palette feature with initial support for page search
-
 ### Bug Fixes
 - Rectified the issue of incomplete row data in Grids when adding new rows with active filters
 - Enhanced the logic governing the filtering of number and select/multi-select fields for improved accuracy
