@@ -4,6 +4,7 @@ import 'package:appflowy/shared/af_role_pb_extension.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/members/workspace_member_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/code.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -28,7 +29,8 @@ class WorkspaceMembersPage extends StatelessWidget {
     return BlocProvider<WorkspaceMemberBloc>(
       create: (context) => WorkspaceMemberBloc(userProfile: userProfile)
         ..add(const WorkspaceMemberEvent.initial()),
-      child: BlocBuilder<WorkspaceMemberBloc, WorkspaceMemberState>(
+      child: BlocConsumer<WorkspaceMemberBloc, WorkspaceMemberState>(
+        listener: _showResultDialog,
         builder: (context, state) {
           return SingleChildScrollView(
             child: Column(
@@ -52,6 +54,20 @@ class WorkspaceMembersPage extends StatelessWidget {
         },
       ),
     );
+  }
+
+  void _showResultDialog(BuildContext context, WorkspaceMemberState state) {
+    final result = state.addMemberResult;
+
+    if (result != null) {
+      final message = result.fold(
+        (s) => LocaleKeys.settings_appearance_members_emailSent.tr(),
+        (e) => e.code == ErrorCode.WorkspaceMemberLimitExeceeded
+            ? LocaleKeys.settings_appearance_members_memberLimitExceeded.tr()
+            : LocaleKeys.settings_appearance_members_failedToAddMember.tr(),
+      );
+      return showSnackBarMessage(context, message);
+    }
   }
 }
 
@@ -160,10 +176,6 @@ class _InviteMemberState extends State<_InviteMember> {
     context
         .read<WorkspaceMemberBloc>()
         .add(WorkspaceMemberEvent.addWorkspaceMember(email));
-    showSnackBarMessage(
-      context,
-      LocaleKeys.settings_appearance_members_emailSent.tr(),
-    );
   }
 }
 

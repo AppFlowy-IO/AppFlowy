@@ -60,6 +60,7 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
                 openWorkspaceResult: null,
                 deleteWorkspaceResult: null,
                 updateWorkspaceIconResult: null,
+                renameWorkspaceResult: null,
                 createWorkspaceResult: createWorkspaceResult,
                 workspaces: workspaces,
               ),
@@ -295,6 +296,8 @@ class UserWorkspaceEvent with _$UserWorkspaceEvent {
 
 @freezed
 class UserWorkspaceState with _$UserWorkspaceState {
+  const UserWorkspaceState._();
+
   const factory UserWorkspaceState({
     required UserWorkspacePB? currentWorkspace,
     required List<UserWorkspacePB> workspaces,
@@ -308,4 +311,22 @@ class UserWorkspaceState with _$UserWorkspaceState {
 
   factory UserWorkspaceState.initial() =>
       const UserWorkspaceState(currentWorkspace: null, workspaces: []);
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is UserWorkspaceState &&
+        other.currentWorkspace == currentWorkspace &&
+        other.workspaces == workspaces &&
+        other.isCollaborativeWorkspace == isCollaborativeWorkspace &&
+        identical(other.createWorkspaceResult, createWorkspaceResult) &&
+        identical(other.deleteWorkspaceResult, deleteWorkspaceResult) &&
+        identical(other.openWorkspaceResult, openWorkspaceResult) &&
+        identical(other.renameWorkspaceResult, renameWorkspaceResult) &&
+        identical(other.updateWorkspaceIconResult, updateWorkspaceIconResult);
+  }
 }

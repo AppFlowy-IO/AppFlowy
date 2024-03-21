@@ -6,6 +6,7 @@ import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sid
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_menu.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy/workspace/presentation/notifications/widgets/notification_button.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/code.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -27,6 +28,7 @@ class SidebarWorkspace extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocConsumer<UserWorkspaceBloc, UserWorkspaceState>(
       listener: _showResultDialog,
+      listenWhen: (previous, current) => true,
       builder: (context, state) {
         final currentWorkspace = state.currentWorkspace;
         // todo: show something if there is no workspace
@@ -56,7 +58,9 @@ class SidebarWorkspace extends StatelessWidget {
     if (result != null) {
       final message = result.fold(
         (s) => LocaleKeys.workspace_createSuccess.tr(),
-        (e) => '${LocaleKeys.workspace_createFailed.tr()}: ${e.msg}',
+        (e) => e.code == ErrorCode.WorkspaceLimitExeceeded
+            ? LocaleKeys.workspace_createLimitExceeded.tr()
+            : '${LocaleKeys.workspace_createFailed.tr()}: ${e.msg}',
       );
       return showSnackBarMessage(context, message);
     }

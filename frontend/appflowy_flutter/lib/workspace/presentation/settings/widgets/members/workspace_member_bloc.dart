@@ -1,6 +1,7 @@
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:collection/collection.dart';
@@ -55,7 +56,11 @@ class WorkspaceMemberBloc
           );
         },
         addWorkspaceMember: (email) async {
-          await _addWorkspaceMember(email);
+          final result = await _userBackendService.addWorkspaceMember(
+            workspaceId,
+            email,
+          );
+          emit(state.copyWith(addMemberResult: result));
           add(const WorkspaceMemberEvent.getWorkspaceMembers());
         },
         removeWorkspaceMember: (email) async {
@@ -101,13 +106,6 @@ class WorkspaceMemberBloc
     return role;
   }
 
-  Future<void> _addWorkspaceMember(String email) async {
-    return _userBackendService.addWorkspaceMember(workspaceId, email).fold(
-          (s) => Log.debug('Added workspace member: $email'),
-          (e) => Log.error('Failed to add workspace member: $e'),
-        );
-  }
-
   Future<void> _removeWorkspaceMember(String email) async {
     return _userBackendService.removeWorkspaceMember(workspaceId, email).fold(
           (s) => Log.debug('Removed workspace member: $email'),
@@ -142,10 +140,26 @@ class WorkspaceMemberEvent with _$WorkspaceMemberEvent {
 
 @freezed
 class WorkspaceMemberState with _$WorkspaceMemberState {
+  const WorkspaceMemberState._();
+
   const factory WorkspaceMemberState({
     @Default([]) List<WorkspaceMemberPB> members,
     @Default(AFRolePB.Guest) AFRolePB myRole,
+    @Default(null) FlowyResult<void, FlowyError>? addMemberResult,
   }) = _WorkspaceMemberState;
 
   factory WorkspaceMemberState.initial() => const WorkspaceMemberState();
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is WorkspaceMemberState &&
+        other.members == members &&
+        other.myRole == myRole &&
+        identical(other.addMemberResult, addMemberResult);
+  }
 }
