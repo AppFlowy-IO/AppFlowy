@@ -1,6 +1,6 @@
 /**
 * Do not edit directly
-* Generated on Mon, 29 Jan 2024 03:52:24 GMT
+* Generated on Tue, 19 Mar 2024 03:48:58 GMT
 * Generated from $pnpm css:variables 
 */
 
@@ -36,7 +36,7 @@
   --base-light-color-light-green: #ddffd6;
   --base-light-color-light-aqua: #defff1;
   --base-light-color-light-blue: #e1fbff;
-  --base-light-color-light-red: #ffe7ee;
+  --base-light-color-light-red: #ffdddd;
   --base-black-neutral-100: #252F41;
   --base-black-neutral-200: #313c51;
   --base-black-neutral-300: #3c4557;
@@ -92,7 +92,7 @@
   --fill-active: #e0f8ff;
   --fill-list-hover: #e0f8ff;
   --fill-list-active: #edeef2;
-  --content-blue-400: rgb(0, 188, 240);
+  --content-blue-400: #00bcf0;
   --content-blue-300: #52d1f4;
   --content-blue-600: #009fd1;
   --content-blue-100: #e0f8ff;
@@ -119,4 +119,6 @@
   --tint-orange: #ffefe3;
   --tint-yellow: #fff2cd;
   --shadow: 0px 0px 10px 0px rgba(0,0,0,0.1);
+  --scrollbar-thumb: #bdbdbd;
+  --scrollbar-track: #edeef2;
 }

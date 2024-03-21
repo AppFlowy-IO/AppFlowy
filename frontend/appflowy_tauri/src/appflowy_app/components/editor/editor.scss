@@ -108,18 +108,60 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
 }
 
 .text-placeholder {
-
+  @apply absolute left-[5px] w-full transform -translate-y-1/2 pointer-events-none select-none whitespace-nowrap;
   &:after {
-    @apply text-text-placeholder absolute left-[5px] top-1/2 transform -translate-y-1/2 pointer-events-none select-none whitespace-nowrap;
+    @apply text-text-placeholder absolute top-0;
     content: (attr(placeholder));
   }
 }
 
-.has-start-icon > .text-placeholder {
-  &:after {
-    @apply left-[29px];
+.block-align-center {
+  .text-placeholder {
+    &:after {
+      @apply left-[calc(50%-5px)]
+    }
+  }
+  .has-start-icon .text-placeholder {
+    &:after {
+      @apply left-[calc(50%+7px)];
+    }
+  }
+
+}
+
+.block-align-left {
+  .text-placeholder {
+    &:after {
+      @apply left-0;
+    }
+  }
+  .has-start-icon .text-placeholder {
+    &:after {
+      @apply left-[24px];
+    }
   }
 }
+
+.block-align-right {
+
+  .text-placeholder {
+
+    @apply relative w-fit order-2;
+    &:after {
+      @apply relative top-1/2 left-[-6px];
+    }
+  }
+  .text-content {
+    @apply order-1;
+  }
+
+  .has-start-icon .text-placeholder {
+    &:after {
+      @apply left-[-6px];
+    }
+  }
+}
+
 
 .formula-inline {
   &.selected {

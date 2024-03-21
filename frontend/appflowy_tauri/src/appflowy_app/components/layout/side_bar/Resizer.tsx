@@ -43,7 +43,7 @@ function Resizer() {
     <div
       onMouseDown={onResizeStart}
       style={{
-        left: `${width - 8}px`,
+        left: `${width - 4}px`,
       }}
       className={'fixed top-0 z-10 h-screen cursor-col-resize'}
     >

@@ -32,8 +32,14 @@
 
 .appflowy-scroll-container {
   &::-webkit-scrollbar {
-    width: 0px;
+    width: 0;
   }
+}
+
+.appflowy-scrollbar-thumb-horizontal, .appflowy-scrollbar-thumb-vertical {
+  background-color: var(--scrollbar-thumb);
+  border-radius: 4px;
+  opacity: 60%;
 }
 
 .workspaces {

@@ -1,4 +1,4 @@
-import React, { memo, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import {
   useDecorateCodeHighlight,
   useEditor,
@@ -90,4 +90,4 @@ function Editor({ sharedType, disableFocus, caretColor = 'var(--text-title)' }: 
   );
 }
 
-export default memo(Editor);
+export default Editor;

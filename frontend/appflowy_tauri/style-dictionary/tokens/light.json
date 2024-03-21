@@ -219,5 +219,15 @@
       "type": "dropShadow"
     },
     "type": "boxShadow"
+  },
+  "scrollbar": {
+    "thumb": {
+      "value": "{Base.Light.neutral.500}",
+      "type": "color"
+    },
+    "track": {
+      "value": "{Base.Light.neutral.100}",
+      "type": "color"
+    }
   }
 }

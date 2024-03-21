@@ -11,6 +11,7 @@ describe('Provider connected', () => {
 
   beforeEach(() => {
     provider = new Provider(generateId());
+    provider.initialDocument(true);
     provider.connect();
     applyActions.mockClear();
   });

@@ -16,7 +16,6 @@ import { Login } from '$app/components/settings/Login';
 import SwipeableViews from 'react-swipeable-views';
 import { useAppDispatch, useAppSelector } from '$app/stores/store';
 import { currentUserActions, LoginState } from '$app_reducers/current-user/slice';
-import { useNavigate } from 'react-router-dom';
 
 export const SettingsDialog = (props: DialogProps) => {
   const dispatch = useAppDispatch();
@@ -44,17 +43,14 @@ export const SettingsDialog = (props: DialogProps) => {
 
   const currentRoute = routes[routes.length - 1];
 
-  const navigate = useNavigate();
-
   useEffect(() => {
     if (lastLoginStateRef.current === LoginState.Loading && loginState === LoginState.Success) {
-      navigate('/');
       handleClose();
       return;
     }
 
     lastLoginStateRef.current = loginState;
-  }, [loginState, handleClose, navigate]);
+  }, [loginState, handleClose]);
 
   return (
     <Dialog

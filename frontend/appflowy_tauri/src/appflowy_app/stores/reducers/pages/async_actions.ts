@@ -1,8 +1,9 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { RootState } from '$app/stores/store';
 import { pagesActions } from '$app_reducers/pages/slice';
-import { movePage, updatePage } from '$app/application/folder/page.service';
+import { movePage, setLatestOpenedPage, updatePage } from '$app/application/folder/page.service';
 import debounce from 'lodash-es/debounce';
+import { currentUserActions } from '$app_reducers/current-user/slice';
 
 export const movePageThunk = createAsyncThunk(
   'pages/movePage',
@@ -91,3 +92,15 @@ export const updatePageName = createAsyncThunk(
     }
   }
 );
+
+export const openPage = createAsyncThunk('pages/openPage', async (id: string, thunkAPI) => {
+  const { dispatch, getState } = thunkAPI;
+  const { pageMap } = (getState() as RootState).pages;
+
+  const page = pageMap[id];
+
+  if (!page) return;
+
+  dispatch(currentUserActions.setLatestView(page));
+  await setLatestOpenedPage(id);
+});

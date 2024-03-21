@@ -1,4 +1,4 @@
-import { currentUserActions, LoginState } from '$app_reducers/current-user/slice';
+import { currentUserActions, LoginState, parseWorkspaceSettingPBToSetting } from '$app_reducers/current-user/slice';
 import { AuthenticatorPB, ProviderTypePB, UserNotification, UserProfilePB } from '@/services/backend/events/flowy-user';
 import { UserService } from '$app/application/user/user.service';
 import { AuthService } from '$app/application/user/auth.service';
@@ -48,7 +48,7 @@ export const useAuth = () => {
           displayName: userProfile.name,
           iconUrl: userProfile.icon_url,
           isAuthenticated: true,
-          workspaceSetting: workspaceSetting,
+          workspaceSetting: workspaceSetting ? parseWorkspaceSettingPBToSetting(workspaceSetting) : undefined,
           isLocal,
         })
       );
