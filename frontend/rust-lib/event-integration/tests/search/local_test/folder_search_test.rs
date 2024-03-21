@@ -30,6 +30,14 @@ async fn test_folder_index_all_startup() {
   let folder_data = test.get_folder_data();
   // Get started + 1002 Views
   assert_eq!(folder_data.views.len(), 1003);
+
+  // Wait for the index to be created/updated
+  sleep(Duration::from_secs(1)).await;
+
+  let folder_search_manager = test.get_folder_search_handler();
+  let num_docs = folder_search_manager.index_count();
+  assert_eq!(num_docs, 1004);
+
   drop(cleaner);
 }
 
