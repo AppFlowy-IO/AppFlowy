@@ -282,6 +282,10 @@ enum FieldAction {
         break;
       case FieldAction.clearData:
         NavigatorAlertDialog(
+          constraints: const BoxConstraints(
+            maxWidth: 250,
+            maxHeight: 260,
+          ),
           title: LocaleKeys.grid_field_clearFieldPromptMessage.tr(),
           confirm: () {
             FieldBackendService.clearField(
