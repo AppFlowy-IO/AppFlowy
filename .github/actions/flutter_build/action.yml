@@ -37,13 +37,6 @@ runs:
         override: true
         profile: minimal
 
-    - name: Export pub environment variables and add to PATH
-      run: |
-        if [ "$RUNNER_OS" == "Windows" ]; then
-          echo "PUB_CACHE=$LOCALAPPDATA\\Pub\\Cache" >> $GITHUB_ENV
-        fi
-      shell: bash
-
     - name: Install flutter
       id: flutter
       uses: subosito/flutter-action@v2
