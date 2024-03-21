@@ -73,7 +73,6 @@ function DeletePageSnackbar() {
         horizontal: 'center',
       }}
       open={showTrashSnackbar}
-      onClose={() => handleClose()}
       TransitionComponent={SlideTransition}
     >
       <Alert

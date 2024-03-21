@@ -30,6 +30,10 @@ function FilterSettings({ onToggleCollection }: { onToggleCollection: (forceOpen
         open={open}
         anchorEl={filterAnchorEl}
         onClose={() => setFilterAnchorEl(null)}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'right',
+        }}
         anchorOrigin={{
           vertical: 'bottom',
           horizontal: 'right',

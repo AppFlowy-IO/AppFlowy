@@ -1,12 +1,11 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { IconButton, Tooltip } from '@mui/material';
 
 import { useAppDispatch, useAppSelector } from '$app/stores/store';
 import { sidebarActions } from '$app_reducers/sidebar/slice';
 import { ReactComponent as ShowMenuIcon } from '$app/assets/show-menu.svg';
 import { useTranslation } from 'react-i18next';
-import { getModifier } from '$app/utils/hotkeys';
-import isHotkey from 'is-hotkey';
+import { createHotKeyLabel, HOT_KEY_NAME } from '$app/utils/hotkeys';
 
 function CollapseMenuButton() {
   const isCollapsed = useAppSelector((state) => state.sidebar.isCollapsed);
@@ -21,24 +20,10 @@ function CollapseMenuButton() {
     return (
       <div className={'flex flex-col gap-1 text-xs'}>
         <div>{isCollapsed ? t('sideBar.openSidebar') : t('sideBar.closeSidebar')}</div>
-        <div>{`${getModifier()} + \\`}</div>
+        <div>{createHotKeyLabel(HOT_KEY_NAME.TOGGLE_SIDEBAR)}</div>
       </div>
     );
   }, [isCollapsed, t]);
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (isHotkey('mod+\\', e)) {
-        e.preventDefault();
-        handleClick();
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [handleClick]);
 
   return (
     <Tooltip title={title}>

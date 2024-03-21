@@ -30,14 +30,14 @@ export function withSplitNodes(editor: ReactEditor) {
   const { splitNodes } = editor;
 
   editor.splitNodes = (...args) => {
-    const selection = editor.selection;
-
     const isInsertBreak = args.length === 1 && JSON.stringify(args[0]) === JSON.stringify({ always: true });
 
     if (!isInsertBreak) {
       splitNodes(...args);
       return;
     }
+
+    const selection = editor.selection;
 
     const isCollapsed = selection && Range.isCollapsed(selection);
 
@@ -106,10 +106,14 @@ export function withSplitNodes(editor: ReactEditor) {
 
       Transforms.insertNodes(editor, newNode, {
         at: newNodePath,
-        select: true,
       });
 
+      editor.select(newNodePath);
+
       CustomEditor.removeMarks(editor);
+      editor.collapse({
+        edge: 'start',
+      });
       return;
     }
 
