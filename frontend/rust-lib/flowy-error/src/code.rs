@@ -271,6 +271,12 @@ pub enum ErrorCode {
 
   #[error("FolderIndexManager or its dependencies are unavailable")]
   FolderIndexManagerUnavailable = 94,
+
+  #[error("Workspace limit exceeded")]
+  WorkspaceLimitExeceeded = 95,
+
+  #[error("Workspace member limit exceeded")]
+  WorkspaceMemberLimitExeceeded = 96,
 }
 
 impl ErrorCode {

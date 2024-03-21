@@ -176,20 +176,3 @@ class _DocumentPageState extends State<DocumentPage> {
     }
   }
 }
-
-class DocumentSyncIndicator extends StatelessWidget {
-  const DocumentSyncIndicator({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<DocumentBloc, DocumentState>(
-      builder: (context, state) {
-        if (state.isSyncing) {
-          return const SizedBox(height: 1, child: LinearProgressIndicator());
-        } else {
-          return const SizedBox(height: 1);
-        }
-      },
-    );
-  }
-}

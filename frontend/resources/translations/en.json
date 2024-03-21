@@ -1415,6 +1415,11 @@
         },
         "language": "Language"
       }
+    },
+    "syncState": {
+      "syncing": "Syncing",
+      "synced": "Everything is up to date",
+      "noNetworkConnected": "No network connected"
     }
   },
   "commandPalette": {
