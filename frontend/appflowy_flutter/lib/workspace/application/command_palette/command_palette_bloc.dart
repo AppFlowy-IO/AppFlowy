@@ -2,8 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
+import 'package:appflowy/plugins/trash/application/trash_listener.dart';
+import 'package:appflowy/plugins/trash/application/trash_service.dart';
 import 'package:appflowy/workspace/application/command_palette/search_listener.dart';
 import 'package:appflowy/workspace/application/command_palette/search_service.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/trash.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-search/entities.pb.dart';
 import 'package:bloc/bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -18,15 +21,20 @@ class CommandPaletteBloc
       onResultsClosed: _onResultsClosed,
     );
 
+    _initTrash();
+
     _dispatch();
   }
 
   Timer? _debounceOnChanged;
+  final TrashService _trashService = TrashService();
   final SearchListener _searchListener = SearchListener();
+  final TrashListener _trashListener = TrashListener();
   String? _oldQuery;
 
   @override
   Future<void> close() {
+    _trashListener.close();
     _searchListener.stop();
     return super.close();
   }
@@ -35,6 +43,22 @@ class CommandPaletteBloc
     on<CommandPaletteEvent>((event, emit) async {
       event.when(
         searchChanged: _debounceOnSearchChanged,
+        trashChanged: (trash) async {
+          if (trash != null) {
+            emit(state.copyWith(trash: trash));
+            return;
+          }
+
+          final trashOrFailure = await _trashService.readTrash();
+          final trashRes = trashOrFailure.fold(
+            (trash) => trash,
+            (error) => null,
+          );
+
+          if (trashRes != null) {
+            emit(state.copyWith(trash: trashRes.items));
+          }
+        },
         performSearch: (search) async {
           if (search.isNotEmpty) {
             _oldQuery = state.query;
@@ -61,6 +85,27 @@ class CommandPaletteBloc
         },
       );
     });
+  }
+
+  Future<void> _initTrash() async {
+    _trashListener.start(
+      trashUpdated: (trashOrFailed) {
+        final trash = trashOrFailed.fold(
+          (trash) => trash,
+          (error) => null,
+        );
+
+        add(CommandPaletteEvent.trashChanged(trash: trash));
+      },
+    );
+
+    final trashOrFailure = await _trashService.readTrash();
+    final trashRes = trashOrFailure.fold(
+      (trash) => trash,
+      (error) => null,
+    );
+
+    add(CommandPaletteEvent.trashChanged(trash: trashRes?.items));
   }
 
   void _debounceOnSearchChanged(String value) {
@@ -114,6 +159,10 @@ class CommandPaletteEvent with _$CommandPaletteEvent {
     required RepeatedSearchResultPB results,
     @Default(false) bool didClose,
   }) = _ResultsChanged;
+
+  const factory CommandPaletteEvent.trashChanged({
+    @Default(null) List<TrashPB>? trash,
+  }) = _TrashChanged;
 }
 
 @freezed
@@ -124,6 +173,7 @@ class CommandPaletteState with _$CommandPaletteState {
     @Default(null) String? query,
     required List<SearchResultPB> results,
     required bool isLoading,
+    @Default([]) List<TrashPB> trash,
   }) = _CommandPaletteState;
 
   factory CommandPaletteState.initial() =>

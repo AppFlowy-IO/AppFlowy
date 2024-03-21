@@ -1424,6 +1424,7 @@
     "navigateHint": "to navigate",
     "loadingTooltip": "We are looking for results...",
     "betaLabel": "BETA",
-    "betaTooltip": "We currently only support searching for pages"
+    "betaTooltip": "We currently only support searching for pages",
+    "fromTrashHint": "From trash"
   }
 }

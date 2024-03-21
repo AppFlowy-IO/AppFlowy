@@ -171,7 +171,10 @@ class CommandPaletteModal extends StatelessWidget {
                 if (state.results.isNotEmpty) ...[
                   const Divider(height: 0),
                   Flexible(
-                    child: SearchResultsList(results: state.results),
+                    child: SearchResultsList(
+                      trash: state.trash,
+                      results: state.results,
+                    ),
                   ),
                 ],
                 _CommandPaletteFooter(
