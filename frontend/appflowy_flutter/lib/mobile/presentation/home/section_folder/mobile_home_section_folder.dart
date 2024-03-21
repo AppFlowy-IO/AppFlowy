@@ -1,6 +1,6 @@
 import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/default_mobile_action_pane.dart';
-import 'package:appflowy/mobile/presentation/home/personal_folder/mobile_home_personal_folder_header.dart';
+import 'package:appflowy/mobile/presentation/home/section_folder/mobile_home_section_folder_header.dart';
 import 'package:appflowy/mobile/presentation/page_item/mobile_view_item.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
@@ -9,18 +9,20 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class MobilePersonalFolder extends StatelessWidget {
-  const MobilePersonalFolder({
+class MobileSectionFolder extends StatelessWidget {
+  const MobileSectionFolder({
     super.key,
+    required this.title,
     required this.views,
   });
 
+  final String title;
   final List<ViewPB> views;
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider<FolderBloc>(
-      create: (context) => FolderBloc(type: FolderCategoryType.personal)
+      create: (context) => FolderBloc(type: FolderCategoryType.private)
         ..add(
           const FolderEvent.initial(),
         ),
@@ -28,7 +30,8 @@ class MobilePersonalFolder extends StatelessWidget {
         builder: (context, state) {
           return Column(
             children: [
-              MobilePersonalFolderHeader(
+              MobileSectionFolderHeader(
+                title: title,
                 isExpanded: context.read<FolderBloc>().state.isExpanded,
                 onPressed: () => context
                     .read<FolderBloc>()
@@ -45,9 +48,9 @@ class MobilePersonalFolder extends StatelessWidget {
                 ...views.map(
                   (view) => MobileViewItem(
                     key: ValueKey(
-                      '${FolderCategoryType.personal.name} ${view.id}',
+                      '${FolderCategoryType.private.name} ${view.id}',
                     ),
-                    categoryType: FolderCategoryType.personal,
+                    categoryType: FolderCategoryType.private,
                     isFirstChild: view.id == views.first.id,
                     view: view,
                     level: 0,

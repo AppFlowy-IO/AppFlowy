@@ -549,6 +549,8 @@ async fn move_folder_nested_view(
     view_id,
     new_parent_id,
     prev_view_id,
+    from_section: None,
+    to_section: None,
   };
   EventBuilder::new(sdk)
     .event(flowy_folder::event_map::FolderEvent::MoveNestedView)

@@ -478,6 +478,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
                       viewName,
                       pluginBuilder.layoutType!,
                       openAfterCreated: openAfterCreated,
+                      section: widget.categoryType.toViewSectionPB,
                     ),
                   );
                 }

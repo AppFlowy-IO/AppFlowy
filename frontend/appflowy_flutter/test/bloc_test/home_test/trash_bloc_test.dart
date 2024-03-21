@@ -22,6 +22,7 @@ class TrashTestContext {
       const ViewEvent.createView(
         "Document 1",
         ViewLayoutPB.Document,
+        section: ViewSectionPB.Public,
       ),
     );
     await blocResponseFuture();
@@ -30,6 +31,7 @@ class TrashTestContext {
       const ViewEvent.createView(
         "Document 2",
         ViewLayoutPB.Document,
+        section: ViewSectionPB.Public,
       ),
     );
     await blocResponseFuture();
@@ -38,6 +40,7 @@ class TrashTestContext {
       const ViewEvent.createView(
         "Document 3",
         ViewLayoutPB.Document,
+        section: ViewSectionPB.Public,
       ),
     );
     await blocResponseFuture();

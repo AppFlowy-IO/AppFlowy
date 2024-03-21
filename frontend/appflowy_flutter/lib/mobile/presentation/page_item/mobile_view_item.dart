@@ -406,6 +406,7 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
                       ViewEvent.createView(
                         LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
                         layout,
+                        section: widget.categoryType.toViewSectionPB,
                       ),
                     );
               },
