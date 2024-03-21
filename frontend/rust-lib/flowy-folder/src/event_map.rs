@@ -17,7 +17,7 @@ pub fn init(folder: Weak<FolderManager>) -> AFPlugin {
     .event(FolderEvent::ReadWorkspaceViews, get_workspace_views_handler)
     .event(FolderEvent::CreateView, create_view_handler)
     .event(FolderEvent::CreateOrphanView, create_orphan_view_handler)
-    .event(FolderEvent::GetView, read_view_handler)
+    .event(FolderEvent::GetView, get_view_handler)
     .event(FolderEvent::UpdateView, update_view_handler)
     .event(FolderEvent::DeleteView, delete_view_handler)
     .event(FolderEvent::DuplicateView, duplicate_view_handler)
@@ -38,6 +38,8 @@ pub fn init(folder: Weak<FolderManager>) -> AFPlugin {
     .event(FolderEvent::ToggleFavorite, toggle_favorites_handler)
     .event(FolderEvent::UpdateRecentViews, update_recent_views_handler)
     .event(FolderEvent::ReloadWorkspace, reload_workspace_handler)
+    .event(FolderEvent::ReadPrivateViews, read_private_views_handler)
+    .event(FolderEvent::ReadCurrentWorkspaceViews, get_current_workspace_views_handler)
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
@@ -59,9 +61,9 @@ pub enum FolderEvent {
   #[event(input = "WorkspaceIdPB")]
   DeleteWorkspace = 3,
 
-  /// Return a list of views of the current workspace.
+  /// Return a list of views of the specified workspace.
   /// Only the first level of child views are included.
-  #[event(input = "WorkspaceIdPB", output = "RepeatedViewPB")]
+  #[event(input = "GetWorkspaceViewPB", output = "RepeatedViewPB")]
   ReadWorkspaceViews = 5,
 
   /// Create a new view in the corresponding app
@@ -156,4 +158,12 @@ pub enum FolderEvent {
 
   #[event()]
   ReloadWorkspace = 38,
+
+  #[event(input = "GetWorkspaceViewPB", output = "RepeatedViewPB")]
+  ReadPrivateViews = 39,
+
+  /// Return a list of views of the current workspace.
+  /// Only the first level of child views are included.
+  #[event(output = "RepeatedViewPB")]
+  ReadCurrentWorkspaceViews = 40,
 }

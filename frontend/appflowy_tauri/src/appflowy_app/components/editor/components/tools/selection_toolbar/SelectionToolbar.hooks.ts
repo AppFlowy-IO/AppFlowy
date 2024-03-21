@@ -109,7 +109,10 @@ export function useSelectionToolbar(ref: MutableRefObject<HTMLDivElement | null>
   useEffect(() => {
     const decorateState = getStaticState();
 
-    if (decorateState) return;
+    if (decorateState) {
+      setIsAcrossBlocks(false);
+      return;
+    }
 
     const { selection } = editor;
 
@@ -131,10 +134,7 @@ export function useSelectionToolbar(ref: MutableRefObject<HTMLDivElement | null>
       return;
     }
 
-    const start = selection.anchor;
-    const end = selection.focus;
-
-    setIsAcrossBlocks(!CustomEditor.blockEqual(editor, start, end));
+    setIsAcrossBlocks(CustomEditor.isMultipleBlockSelected(editor, true));
     debounceRecalculatePosition();
   });
 
@@ -169,6 +169,7 @@ export function useSelectionToolbar(ref: MutableRefObject<HTMLDivElement | null>
     };
   }, [visible, editor, ref]);
 
+  // Close toolbar when press ESC
   useEffect(() => {
     const slateEditorDom = ReactEditor.toDOMNode(editor, editor);
     const onKeyDown = (e: KeyboardEvent) => {
@@ -194,6 +195,39 @@ export function useSelectionToolbar(ref: MutableRefObject<HTMLDivElement | null>
       slateEditorDom.removeEventListener('keydown', onKeyDown);
     };
   }, [closeToolbar, debounceRecalculatePosition, editor, visible]);
+
+  // Recalculate position when the scroll container is scrolled
+  useEffect(() => {
+    const slateEditorDom = ReactEditor.toDOMNode(editor, editor);
+    const scrollContainer = slateEditorDom.closest('.appflowy-scroll-container');
+
+    if (!visible) return;
+    if (!scrollContainer) return;
+    const handleScroll = () => {
+      if (isDraggingRef.current) return;
+
+      const domSelection = window.getSelection();
+      const rangeCount = domSelection?.rangeCount;
+
+      if (!rangeCount) return null;
+
+      const domRange = rangeCount > 0 ? domSelection.getRangeAt(0) : undefined;
+
+      const rangeRect = domRange?.getBoundingClientRect();
+
+      // Stop calculating when the range is out of the window
+      if (!rangeRect?.bottom || rangeRect.bottom < 0) {
+        return;
+      }
+
+      recalculatePosition();
+    };
+
+    scrollContainer.addEventListener('scroll', handleScroll);
+    return () => {
+      scrollContainer.removeEventListener('scroll', handleScroll);
+    };
+  }, [visible, editor, recalculatePosition]);
 
   return {
     visible,

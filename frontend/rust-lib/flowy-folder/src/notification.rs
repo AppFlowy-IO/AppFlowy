@@ -35,6 +35,9 @@ pub enum FolderNotification {
   DidUnfavoriteView = 37,
 
   DidUpdateRecentViews = 38,
+
+  /// Trigger when the ROOT views (the first level) in section are updated
+  DidUpdateSectionViews = 39,
 }
 
 impl std::convert::From<FolderNotification> for i32 {
@@ -60,6 +63,8 @@ impl std::convert::From<i32> for FolderNotification {
       17 => FolderNotification::DidUpdateFolderSyncUpdate,
       36 => FolderNotification::DidFavoriteView,
       37 => FolderNotification::DidUnfavoriteView,
+      38 => FolderNotification::DidUpdateRecentViews,
+      39 => FolderNotification::DidUpdateSectionViews,
       _ => FolderNotification::Unknown,
     }
   }

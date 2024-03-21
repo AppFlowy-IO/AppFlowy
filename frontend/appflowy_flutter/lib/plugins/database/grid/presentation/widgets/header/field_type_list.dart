@@ -20,6 +20,7 @@ const List<FieldType> _supportedFieldTypes = [
   FieldType.URL,
   FieldType.LastEditedTime,
   FieldType.CreatedTime,
+  FieldType.Relation,
 ];
 
 class FieldTypeList extends StatelessWidget with FlowyOverlayDelegate {

@@ -6,7 +6,6 @@ import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sid
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_menu.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy/workspace/presentation/notifications/widgets/notification_button.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -20,11 +19,9 @@ class SidebarWorkspace extends StatelessWidget {
   const SidebarWorkspace({
     super.key,
     required this.userProfile,
-    required this.views,
   });
 
   final UserProfilePB userProfile;
-  final List<ViewPB> views;
 
   @override
   Widget build(BuildContext context) {
@@ -39,14 +36,14 @@ class SidebarWorkspace extends StatelessWidget {
         return Row(
           children: [
             Expanded(
-              child: _WorkspaceWrapper(
+              child: SidebarWorkspaceWrapper(
                 userProfile: userProfile,
                 currentWorkspace: currentWorkspace,
               ),
             ),
             UserSettingButton(userProfile: userProfile),
             const HSpace(4),
-            NotificationButton(views: views),
+            const NotificationButton(),
           ],
         );
       },
@@ -106,8 +103,9 @@ class SidebarWorkspace extends StatelessWidget {
   }
 }
 
-class _WorkspaceWrapper extends StatefulWidget {
-  const _WorkspaceWrapper({
+class SidebarWorkspaceWrapper extends StatefulWidget {
+  const SidebarWorkspaceWrapper({
+    super.key,
     required this.userProfile,
     required this.currentWorkspace,
   });
@@ -116,10 +114,11 @@ class _WorkspaceWrapper extends StatefulWidget {
   final UserProfilePB userProfile;
 
   @override
-  State<_WorkspaceWrapper> createState() => _WorkspaceWrapperState();
+  State<SidebarWorkspaceWrapper> createState() =>
+      _SidebarWorkspaceWrapperState();
 }
 
-class _WorkspaceWrapperState extends State<_WorkspaceWrapper> {
+class _SidebarWorkspaceWrapperState extends State<SidebarWorkspaceWrapper> {
   @override
   Widget build(BuildContext context) {
     if (PlatformExtension.isDesktopOrWeb) {
@@ -182,12 +181,16 @@ class _DesktopWorkspaceWrapperState extends State<_DesktopWorkspaceWrapper> {
         margin: const EdgeInsets.symmetric(vertical: 8),
         text: Row(
           children: [
-            const HSpace(4.0),
-            SizedBox(
-              width: 24.0,
-              child: WorkspaceIcon(workspace: widget.currentWorkspace),
+            const HSpace(2.0),
+            SizedBox.square(
+              dimension: 28.0,
+              child: WorkspaceIcon(
+                workspace: widget.currentWorkspace,
+                iconSize: 18,
+                enableEdit: false,
+              ),
             ),
-            const HSpace(8),
+            const HSpace(4),
             Expanded(
               child: FlowyText.medium(
                 widget.currentWorkspace.name,

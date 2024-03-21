@@ -1,9 +1,9 @@
 import { useCallback, useEffect } from 'react';
-import { pagesActions, pageTypeMap, parserViewPBToPage } from '$app_reducers/pages/slice';
+import { pagesActions, parserViewPBToPage } from '$app_reducers/pages/slice';
 import { useAppDispatch, useAppSelector } from '$app/stores/store';
 import { FolderNotification, ViewLayoutPB } from '@/services/backend';
-import { useNavigate, useParams } from 'react-router-dom';
-import { updatePageName } from '$app_reducers/pages/async_actions';
+import { useParams } from 'react-router-dom';
+import { openPage, updatePageName } from '$app_reducers/pages/async_actions';
 import { createPage, deletePage, duplicatePage, getChildPages } from '$app/application/folder/page.service';
 import { subscribeNotifications } from '$app/application/notification';
 
@@ -82,14 +82,10 @@ export function usePageActions(pageId: string) {
   const dispatch = useAppDispatch();
   const params = useParams();
   const currentPageId = params.id;
-  const navigate = useNavigate();
 
   const onPageClick = useCallback(() => {
-    if (!page) return;
-    const pageType = pageTypeMap[page.layout];
-
-    navigate(`/page/${pageType}/${pageId}`);
-  }, [navigate, page, pageId]);
+    void dispatch(openPage(pageId));
+  }, [dispatch, pageId]);
 
   const onAddPage = useCallback(
     async (layout: ViewLayoutPB) => {
@@ -112,21 +108,19 @@ export function usePageActions(pageId: string) {
       );
 
       dispatch(pagesActions.expandPage(pageId));
-      const pageType = pageTypeMap[layout];
-
-      navigate(`/page/${pageType}/${newViewId}`);
+      await dispatch(openPage(newViewId));
     },
-    [dispatch, navigate, pageId]
+    [dispatch, pageId]
   );
 
   const onDeletePage = useCallback(async () => {
     if (currentPageId === pageId) {
-      navigate(`/`);
+      dispatch(pagesActions.setTrashSnackbar(true));
     }
 
     await deletePage(pageId);
     dispatch(pagesActions.deletePages([pageId]));
-  }, [dispatch, currentPageId, navigate, pageId]);
+  }, [dispatch, pageId, currentPageId]);
 
   const onDuplicatePage = useCallback(async () => {
     await duplicatePage(page);
@@ -149,7 +143,5 @@ export function usePageActions(pageId: string) {
 }
 
 export function useSelectedPage(pageId: string) {
-  const id = useParams().id;
-
-  return id === pageId;
+  return useParams().id === pageId;
 }

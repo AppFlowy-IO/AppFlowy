@@ -34,63 +34,25 @@ export function getBlockCssProperty(node: Element) {
 }
 
 /**
- * Resolve can not find the range when the drop occurs on the icon.
  * @param editor
  * @param e
  */
-export function findEventRange(editor: ReactEditor, e: MouseEvent) {
-  const { clientX: x, clientY: y } = e;
+export function findEventNode(
+  editor: ReactEditor,
+  {
+    x,
+    y,
+  }: {
+    x: number;
+    y: number;
+  }
+) {
+  const element = document.elementFromPoint(x, y);
+  const nodeDom = element?.closest('[data-block-type]');
 
-  // Else resolve a range from the caret position where the drop occured.
-  let domRange;
-  const { document } = ReactEditor.getWindow(editor);
-
-  // COMPAT: In Firefox, `caretRangeFromPoint` doesn't exist. (2016/07/25)
-  if (document.caretRangeFromPoint) {
-    domRange = document.caretRangeFromPoint(x, y);
-  } else if ('caretPositionFromPoint' in document && typeof document.caretPositionFromPoint === 'function') {
-    const position = document.caretPositionFromPoint(x, y);
-
-    if (position) {
-      domRange = document.createRange();
-      domRange.setStart(position.offsetNode, position.offset);
-      domRange.setEnd(position.offsetNode, position.offset);
-    }
+  if (nodeDom) {
+    return ReactEditor.toSlateNode(editor, nodeDom) as Element;
   }
 
-  if (domRange && domRange.startContainer) {
-    const startContainer = domRange.startContainer;
-
-    let element: HTMLElement | null = startContainer as HTMLElement;
-    const nodeType = element.nodeType;
-
-    if (nodeType === 3 || typeof element === 'string') {
-      const parent = element.parentElement?.closest('.text-block-icon') as HTMLElement;
-
-      element = parent;
-    }
-
-    if (element && element.nodeType < 3) {
-      if (element.classList?.contains('text-block-icon')) {
-        const sibling = domRange.startContainer.parentElement;
-
-        if (sibling) {
-          domRange.selectNode(sibling);
-        }
-      }
-    }
-  }
-
-  if (!domRange) {
-    return null;
-  }
-
-  try {
-    return ReactEditor.toSlateRange(editor, domRange, {
-      exactMatch: false,
-      suppressThrow: false,
-    });
-  } catch {
-    return null;
-  }
+  return null;
 }

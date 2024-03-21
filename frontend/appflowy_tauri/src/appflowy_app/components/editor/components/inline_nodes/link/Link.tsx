@@ -39,7 +39,7 @@ export const Link = memo(({ children }: { leaf: Text; children: React.ReactNode 
       <span
         ref={ref}
         onMouseDown={handleClick}
-        className={`cursor-pointer rounded px-1 py-0.5 text-fill-default underline`}
+        className={`cursor-pointer select-auto px-1 py-0.5 text-fill-default underline`}
       >
         {children}
       </span>

@@ -1,4 +1,4 @@
-import 'package:appflowy/mobile/presentation/base/app_bar_actions.dart';
+import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet_buttons.dart';
 import 'package:appflowy/plugins/base/drag_handler.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart' hide WidgetBuilder;
 import 'package:flutter/material.dart';
@@ -195,12 +195,12 @@ class BottomSheetHeader extends StatelessWidget {
             if (showBackButton)
               const Align(
                 alignment: Alignment.centerLeft,
-                child: AppBarBackButton(),
+                child: BottomSheetBackButton(),
               ),
             if (showCloseButton)
               const Align(
                 alignment: Alignment.centerLeft,
-                child: AppBarCloseButton(),
+                child: BottomSheetCloseButton(),
               ),
             Align(
               child: FlowyText(
@@ -212,8 +212,8 @@ class BottomSheetHeader extends StatelessWidget {
             if (showDoneButton)
               Align(
                 alignment: Alignment.centerRight,
-                child: AppBarDoneButton(
-                  onTap: () => Navigator.pop(context),
+                child: BottomSheetDoneButton(
+                  onDone: () => Navigator.pop(context),
                 ),
               ),
           ],

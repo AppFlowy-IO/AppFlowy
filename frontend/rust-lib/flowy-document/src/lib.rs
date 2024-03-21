@@ -11,3 +11,4 @@ pub mod deps;
 pub mod notification;
 mod parse;
 pub mod reminder;
+pub use collab_document::document::DocumentIndexContent;

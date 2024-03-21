@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   initialAnchorOrigin,
   initialTransformOrigin,
@@ -9,10 +9,39 @@ import Popover from '@mui/material/Popover';
 
 import MentionPanelContent from '$app/components/editor/components/tools/command_panel/mention_panel/MentionPanelContent';
 import usePopoverAutoPosition from '$app/components/_shared/popover/Popover.hooks';
+import { useAppSelector } from '$app/stores/store';
+import { MentionPage } from '$app/application/document/document.types';
 
 export function MentionPanel({ anchorPosition, closePanel, searchText }: PanelProps) {
   const ref = useRef<HTMLDivElement>(null);
+  const pagesMap = useAppSelector((state) => state.pages.pageMap);
 
+  const pagesRef = useRef<MentionPage[]>([]);
+  const [recentPages, setPages] = useState<MentionPage[]>([]);
+
+  const loadPages = useCallback(async () => {
+    const pages = Object.values(pagesMap);
+
+    pagesRef.current = pages;
+    setPages(pages);
+  }, [pagesMap]);
+
+  useEffect(() => {
+    void loadPages();
+  }, [loadPages]);
+
+  useEffect(() => {
+    if (!searchText) {
+      setPages(pagesRef.current);
+      return;
+    }
+
+    const filteredPages = pagesRef.current.filter((page) => {
+      return page.name.toLowerCase().includes(searchText.toLowerCase());
+    });
+
+    setPages(filteredPages);
+  }, [searchText]);
   const open = Boolean(anchorPosition);
 
   const {
@@ -42,12 +71,7 @@ export function MentionPanel({ anchorPosition, closePanel, searchText }: PanelPr
           transformOrigin={transformOrigin}
           onClose={() => closePanel(false)}
         >
-          <MentionPanelContent
-            width={paperWidth}
-            maxHeight={paperHeight}
-            closePanel={closePanel}
-            searchText={searchText}
-          />
+          <MentionPanelContent width={paperWidth} maxHeight={paperHeight} closePanel={closePanel} pages={recentPages} />
         </Popover>
       )}
     </div>

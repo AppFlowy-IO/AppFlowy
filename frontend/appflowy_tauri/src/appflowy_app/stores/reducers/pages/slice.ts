@@ -56,6 +56,7 @@ export interface PageState {
   pageMap: Record<string, Page>;
   relationMap: Record<string, string[] | undefined>;
   expandedIdMap: Record<string, boolean>;
+  showTrashSnackbar: boolean;
 }
 
 export const initialState: PageState = {
@@ -65,6 +66,7 @@ export const initialState: PageState = {
     acc[id] = true;
     return acc;
   }, {} as Record<string, boolean>),
+  showTrashSnackbar: false,
 };
 
 export const pagesSlice = createSlice({
@@ -200,6 +202,10 @@ export const pagesSlice = createSlice({
       const ids = Object.keys(state.expandedIdMap).filter((id) => state.expandedIdMap[id]);
 
       storeExpandedPageIds(ids);
+    },
+
+    setTrashSnackbar(state, action: PayloadAction<boolean>) {
+      state.showTrashSnackbar = action.payload;
     },
   },
 });

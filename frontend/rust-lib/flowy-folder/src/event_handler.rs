@@ -48,10 +48,34 @@ pub(crate) async fn get_all_workspace_handler(
 
 #[tracing::instrument(level = "debug", skip(folder), err)]
 pub(crate) async fn get_workspace_views_handler(
+  data: AFPluginData<GetWorkspaceViewPB>,
+  folder: AFPluginState<Weak<FolderManager>>,
+) -> DataResult<RepeatedViewPB, FlowyError> {
+  let folder = upgrade_folder(folder)?;
+  let params: GetWorkspaceViewParams = data.into_inner().try_into()?;
+  let child_views = folder.get_workspace_views(&params.value).await?;
+  let repeated_view: RepeatedViewPB = child_views.into();
+  data_result_ok(repeated_view)
+}
+
+#[tracing::instrument(level = "debug", skip(folder), err)]
+pub(crate) async fn get_current_workspace_views_handler(
   folder: AFPluginState<Weak<FolderManager>>,
 ) -> DataResult<RepeatedViewPB, FlowyError> {
   let folder = upgrade_folder(folder)?;
   let child_views = folder.get_current_workspace_views().await?;
+  let repeated_view: RepeatedViewPB = child_views.into();
+  data_result_ok(repeated_view)
+}
+
+#[tracing::instrument(level = "debug", skip(folder), err)]
+pub(crate) async fn read_private_views_handler(
+  data: AFPluginData<GetWorkspaceViewPB>,
+  folder: AFPluginState<Weak<FolderManager>>,
+) -> DataResult<RepeatedViewPB, FlowyError> {
+  let folder = upgrade_folder(folder)?;
+  let params: GetWorkspaceViewParams = data.into_inner().try_into()?;
+  let child_views = folder.get_workspace_private_views(&params.value).await?;
   let repeated_view: RepeatedViewPB = child_views.into();
   data_result_ok(repeated_view)
 }
@@ -103,7 +127,7 @@ pub(crate) async fn create_orphan_view_handler(
 }
 
 #[tracing::instrument(level = "debug", skip(data, folder), err)]
-pub(crate) async fn read_view_handler(
+pub(crate) async fn get_view_handler(
   data: AFPluginData<ViewIdPB>,
   folder: AFPluginState<Weak<FolderManager>>,
 ) -> DataResult<ViewPB, FlowyError> {
@@ -212,9 +236,7 @@ pub(crate) async fn move_nested_view_handler(
 ) -> Result<(), FlowyError> {
   let folder = upgrade_folder(folder)?;
   let params: MoveNestedViewParams = data.into_inner().try_into()?;
-  folder
-    .move_nested_view(params.view_id, params.new_parent_id, params.prev_view_id)
-    .await?;
+  folder.move_nested_view(params).await?;
   Ok(())
 }
 

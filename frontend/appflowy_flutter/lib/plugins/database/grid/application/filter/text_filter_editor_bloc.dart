@@ -3,8 +3,7 @@ import 'dart:async';
 import 'package:appflowy/plugins/database/domain/filter_listener.dart';
 import 'package:appflowy/plugins/database/domain/filter_service.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/filter_info.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/text_filter.pbserver.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/util.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -12,7 +11,7 @@ part 'text_filter_editor_bloc.freezed.dart';
 
 class TextFilterEditorBloc
     extends Bloc<TextFilterEditorEvent, TextFilterEditorState> {
-  TextFilterEditorBloc({required this.filterInfo})
+  TextFilterEditorBloc({required this.filterInfo, required this.fieldType})
       : _filterBackendSvc = FilterBackendService(viewId: filterInfo.viewId),
         _listener = FilterListener(
           viewId: filterInfo.viewId,
@@ -23,6 +22,7 @@ class TextFilterEditorBloc
   }
 
   final FilterInfo filterInfo;
+  final FieldType fieldType;
   final FilterBackendService _filterBackendSvc;
   final FilterListener _listener;
 
@@ -34,20 +34,34 @@ class TextFilterEditorBloc
             _startListening();
           },
           updateCondition: (TextFilterConditionPB condition) {
-            _filterBackendSvc.insertTextFilter(
-              filterId: filterInfo.filter.id,
-              fieldId: filterInfo.fieldInfo.id,
-              condition: condition,
-              content: state.filter.content,
-            );
+            fieldType == FieldType.RichText
+                ? _filterBackendSvc.insertTextFilter(
+                    filterId: filterInfo.filter.id,
+                    fieldId: filterInfo.fieldInfo.id,
+                    condition: condition,
+                    content: state.filter.content,
+                  )
+                : _filterBackendSvc.insertURLFilter(
+                    filterId: filterInfo.filter.id,
+                    fieldId: filterInfo.fieldInfo.id,
+                    condition: condition,
+                    content: state.filter.content,
+                  );
           },
-          updateContent: (content) {
-            _filterBackendSvc.insertTextFilter(
-              filterId: filterInfo.filter.id,
-              fieldId: filterInfo.fieldInfo.id,
-              condition: state.filter.condition,
-              content: content,
-            );
+          updateContent: (String content) {
+            fieldType == FieldType.RichText
+                ? _filterBackendSvc.insertTextFilter(
+                    filterId: filterInfo.filter.id,
+                    fieldId: filterInfo.fieldInfo.id,
+                    condition: state.filter.condition,
+                    content: content,
+                  )
+                : _filterBackendSvc.insertURLFilter(
+                    filterId: filterInfo.filter.id,
+                    fieldId: filterInfo.fieldInfo.id,
+                    condition: state.filter.condition,
+                    content: content,
+                  );
           },
           delete: () {
             _filterBackendSvc.deleteFilter(

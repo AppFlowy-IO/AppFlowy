@@ -3,12 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/doc_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/banner.dart';
+import 'package:appflowy/plugins/document/presentation/editor_notification.dart';
 import 'package:appflowy/plugins/document/presentation/editor_page.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/workspace/application/notifications/notification_action.dart';
-import 'package:appflowy/workspace/application/notifications/notification_action_bloc.dart';
+import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
+import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -16,22 +17,6 @@ import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-enum EditorNotificationType {
-  undo,
-  redo,
-}
-
-class EditorNotification extends Notification {
-  const EditorNotification({
-    required this.type,
-  });
-
-  EditorNotification.undo() : type = EditorNotificationType.undo;
-  EditorNotification.redo() : type = EditorNotificationType.redo;
-
-  final EditorNotificationType type;
-}
 
 class DocumentPage extends StatefulWidget {
   const DocumentPage({
@@ -50,19 +35,30 @@ class DocumentPage extends StatefulWidget {
 }
 
 class _DocumentPageState extends State<DocumentPage> {
+  EditorState? editorState;
+
   @override
   void initState() {
     super.initState();
 
     // The appflowy editor use Intl as localization, set the default language as fallback.
     Intl.defaultLocale = 'en_US';
+
+    EditorNotification.addListener(_onEditorNotification);
+  }
+
+  @override
+  void dispose() {
+    EditorNotification.removeListener(_onEditorNotification);
+
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider.value(value: getIt<NotificationActionBloc>()),
+        BlocProvider.value(value: getIt<ActionNavigationBloc>()),
         BlocProvider(
           create: (_) => DocumentBloc(view: widget.view)
             ..add(const DocumentEvent.initial()),
@@ -75,6 +71,7 @@ class _DocumentPageState extends State<DocumentPage> {
           }
 
           final editorState = state.editorState;
+          this.editorState = editorState;
           final error = state.error;
           if (error != null || editorState == null) {
             Log.error(error);
@@ -89,9 +86,9 @@ class _DocumentPageState extends State<DocumentPage> {
             return const SizedBox.shrink();
           }
 
-          return BlocListener<NotificationActionBloc, NotificationActionState>(
-            listener: _onNotificationAction,
+          return BlocListener<ActionNavigationBloc, ActionNavigationState>(
             listenWhen: (_, curr) => curr.action != null,
+            listener: _onNotificationAction,
             child: _buildEditorPage(context, state),
           );
         },
@@ -149,24 +146,23 @@ class _DocumentPageState extends State<DocumentPage> {
     );
   }
 
-  // Future<void> _exportPage(DocumentDataPB data) async {
-  //   final picker = getIt<FilePickerService>();
-  //   final dir = await picker.getDirectoryPath();
-  //   if (dir == null) {
-  //     return;
-  //   }
-  //   final path = p.join(dir, '${documentBloc.view.name}.json');
-  //   const encoder = JsonEncoder.withIndent('  ');
-  //   final json = encoder.convert(data.toProto3Json());
-  //   await File(path).writeAsString(json.base64.base64);
-  //   if (mounted) {
-  //     showSnackBarMessage(context, 'Export success to $path');
-  //   }
-  // }
+  void _onEditorNotification(EditorNotificationType type) {
+    final editorState = this.editorState;
+    if (editorState == null) {
+      return;
+    }
+    if (type == EditorNotificationType.undo) {
+      undoCommand.execute(editorState);
+    } else if (type == EditorNotificationType.redo) {
+      redoCommand.execute(editorState);
+    } else if (type == EditorNotificationType.exitEditing) {
+      editorState.selection = null;
+    }
+  }
 
   void _onNotificationAction(
     BuildContext context,
-    NotificationActionState state,
+    ActionNavigationState state,
   ) {
     if (state.action != null && state.action!.type == ActionType.jumpToBlock) {
       final path = state.action?.arguments?[ActionArgumentKeys.nodePath];

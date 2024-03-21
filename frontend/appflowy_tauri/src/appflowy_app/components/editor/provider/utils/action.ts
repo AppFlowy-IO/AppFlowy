@@ -161,6 +161,8 @@ function blockOps2BlockActions(
                 ids: [deletedId],
               })
             );
+          } else {
+            Log.error('blockOps2BlockActions', 'deletedId is not exist');
           }
         }
       }

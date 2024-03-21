@@ -23,3 +23,19 @@ pub struct ImportViews {
   /// Used to update the [DatabaseViewTrackerList] when importing the database.
   pub database_view_ids_by_database_id: HashMap<String, Vec<String>>,
 }
+
+pub struct SearchData {
+  /// The type of data that is stored in the search index row.
+  pub index_type: String,
+
+  /// The `View` that the row references.
+  pub view_id: String,
+
+  /// The ID that corresponds to the type that is stored.
+  /// View: view_id
+  /// Document: page_id
+  pub id: String,
+
+  /// The data that is stored in the search index row.
+  pub data: String,
+}

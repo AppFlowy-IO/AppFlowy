@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_close_keyboard_or_menu_button.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_toolbar_theme.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/aa_menu/_close_keyboard_or_menu_button.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/aa_menu/_toolbar_theme.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/appflowy_mobile_toolbar_item.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/keyboard_height_observer.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -26,13 +26,15 @@ class AppFlowyMobileToolbar extends StatefulWidget {
     super.key,
     this.toolbarHeight = 50.0,
     required this.editorState,
-    required this.toolbarItems,
+    required this.toolbarItemsBuilder,
     required this.child,
   });
 
   final EditorState editorState;
   final double toolbarHeight;
-  final List<AppFlowyMobileToolbarItem> toolbarItems;
+  final List<AppFlowyMobileToolbarItem> Function(
+    Selection? selection,
+  ) toolbarItemsBuilder;
   final Widget child;
 
   @override
@@ -108,7 +110,7 @@ class _AppFlowyMobileToolbarState extends State<AppFlowyMobileToolbar> {
         return RepaintBoundary(
           child: _MobileToolbar(
             editorState: widget.editorState,
-            toolbarItems: widget.toolbarItems,
+            toolbarItems: widget.toolbarItemsBuilder(selection),
             toolbarHeight: widget.toolbarHeight,
           ),
         );
@@ -234,14 +236,14 @@ class _MobileToolbarState extends State<_MobileToolbar>
     //  - otherwise, add a spacer to push the toolbar up when the keyboard is shown
     return Column(
       children: [
-        Divider(
+        const Divider(
           height: 0.5,
-          color: Colors.grey.withOpacity(0.5),
+          color: Color(0xFFEDEDED),
         ),
         _buildToolbar(context),
-        Divider(
+        const Divider(
           height: 0.5,
-          color: Colors.grey.withOpacity(0.5),
+          color: Color(0xFFEDEDED),
         ),
         _buildMenuOrSpacer(context),
       ],
@@ -342,62 +344,29 @@ class _MobileToolbarState extends State<_MobileToolbar>
               },
             ),
           ),
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 13.0),
+            child: VerticalDivider(
+              width: 1.0,
+              thickness: 1.0,
+              color: Color(0xFFD9D9D9),
+            ),
+          ),
           // close menu or close keyboard button
-          ClipRect(
-            clipper: const _MyClipper(
-              offset: -20,
-            ),
-            child: ValueListenableBuilder(
-              valueListenable: showMenuNotifier,
-              builder: (_, showingMenu, __) {
-                return ValueListenableBuilder(
-                  valueListenable: toolbarOffset,
-                  builder: (_, offset, __) {
-                    final showShadow = offset > 0;
-                    return DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: theme.toolbarBackgroundColor,
-                        boxShadow: showShadow
-                            ? [
-                                BoxShadow(
-                                  color: theme.toolbarShadowColor,
-                                  blurRadius: 20,
-                                  offset: const Offset(-2, 0),
-                                  spreadRadius: -10,
-                                ),
-                              ]
-                            : null,
-                      ),
-                      child: CloseKeyboardOrMenuButton(
-                        showingMenu: showingMenu,
-                        onPressed: () {
-                          if (showingMenu) {
-                            // close the menu and show the keyboard
-                            closeItemMenu();
-                            _showKeyboard();
-                          } else {
-                            closeKeyboardInitiative = true;
-                            // close the keyboard and clear the selection
-                            // if the selection is null, the keyboard and the toolbar will be hidden automatically
-                            widget.editorState.selection = null;
+          CloseKeyboardOrMenuButton(
+            onPressed: () {
+              closeKeyboardInitiative = true;
+              // close the keyboard and clear the selection
+              // if the selection is null, the keyboard and the toolbar will be hidden automatically
+              widget.editorState.selection = null;
 
-                            // sometimes, the keyboard is not closed after the selection is cleared
-                            if (Platform.isAndroid) {
-                              SystemChannels.textInput
-                                  .invokeMethod('TextInput.hide');
-                            }
-                          }
-                        },
-                      ),
-                    );
-                  },
-                );
-              },
-            ),
+              // sometimes, the keyboard is not closed after the selection is cleared
+              if (Platform.isAndroid) {
+                SystemChannels.textInput.invokeMethod('TextInput.hide');
+              }
+            },
           ),
-          const SizedBox(
-            width: 4.0,
-          ),
+          const HSpace(4.0),
         ],
       ),
     );
@@ -489,7 +458,7 @@ class _ToolbarItemListViewState extends State<_ToolbarItemListView> {
   @override
   Widget build(BuildContext context) {
     final children = [
-      const HSpace(16),
+      const HSpace(8),
       ...widget.toolbarItems
           .mapIndexed(
             (index, element) => element.itemBuilder.call(
@@ -567,16 +536,16 @@ class _ToolbarItemListViewState extends State<_ToolbarItemListView> {
   }
 }
 
-class _MyClipper extends CustomClipper<Rect> {
-  const _MyClipper({
-    this.offset = 0,
-  });
+// class _MyClipper extends CustomClipper<Rect> {
+//   const _MyClipper({
+//     this.offset = 0,
+//   });
 
-  final double offset;
+//   final double offset;
 
-  @override
-  Rect getClip(Size size) => Rect.fromLTWH(offset, 0, 64.0, 46.0);
+//   @override
+//   Rect getClip(Size size) => Rect.fromLTWH(offset, 0, 64.0, 46.0);
 
-  @override
-  bool shouldReclip(CustomClipper<Rect> oldClipper) => false;
-}
+//   @override
+//   bool shouldReclip(CustomClipper<Rect> oldClipper) => false;
+// }

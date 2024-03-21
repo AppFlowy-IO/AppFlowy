@@ -39,14 +39,14 @@ function ViewIconGroup({ icon, onUpdateIcon, showCover, cover, onUpdateCover }: 
   }, [onUpdateCover]);
 
   return (
-    <div className={'flex items-center py-2'}>
+    <div className={'flex items-center py-1'}>
       {showAddIcon && (
-        <Button onClick={onAddIcon} color={'inherit'} startIcon={<EmojiEmotionsOutlined />}>
+        <Button size={'small'} onClick={onAddIcon} color={'inherit'} startIcon={<EmojiEmotionsOutlined />}>
           {t('document.plugins.cover.addIcon')}
         </Button>
       )}
       {showAddCover && (
-        <Button onClick={onAddCover} color={'inherit'} startIcon={<ImageIcon />}>
+        <Button size={'small'} onClick={onAddCover} color={'inherit'} startIcon={<ImageIcon />}>
           {t('document.plugins.cover.addCover')}
         </Button>
       )}

@@ -23,19 +23,19 @@ pub struct DateFilterPB {
 }
 
 #[derive(Deserialize, Serialize, Default, Clone, Debug)]
-pub struct DateFilterContentPB {
+pub struct DateFilterContent {
   pub start: Option<i64>,
   pub end: Option<i64>,
   pub timestamp: Option<i64>,
 }
 
-impl ToString for DateFilterContentPB {
+impl ToString for DateFilterContent {
   fn to_string(&self) -> String {
     serde_json::to_string(self).unwrap()
   }
 }
 
-impl FromStr for DateFilterContentPB {
+impl FromStr for DateFilterContent {
   type Err = serde_json::Error;
 
   fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -89,7 +89,7 @@ impl ParseFilterData for DateFilterPB {
       ..Default::default()
     };
 
-    if let Ok(content) = DateFilterContentPB::from_str(&content) {
+    if let Ok(content) = DateFilterContent::from_str(&content) {
       date_filter.start = content.start;
       date_filter.end = content.end;
       date_filter.timestamp = content.timestamp;

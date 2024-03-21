@@ -77,7 +77,7 @@ class AppBarDoneButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return AppBarButton(
       onTap: onTap,
-      padding: const EdgeInsets.fromLTRB(12, 12, 8, 12),
+      padding: const EdgeInsets.all(12),
       child: FlowyText(
         LocaleKeys.button_done.tr(),
         color: Theme.of(context).colorScheme.primary,
@@ -93,7 +93,7 @@ class AppBarSaveButton extends StatelessWidget {
     super.key,
     required this.onTap,
     this.enable = true,
-    this.padding = const EdgeInsets.fromLTRB(12, 12, 8, 12),
+    this.padding = const EdgeInsets.all(12),
   });
 
   final VoidCallback onTap;
@@ -165,7 +165,7 @@ class AppBarMoreButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppBarButton(
-      padding: const EdgeInsets.fromLTRB(12, 12, 8, 12),
+      padding: const EdgeInsets.all(12),
       onTap: () => onTap(context),
       child: const FlowySvg(FlowySvgs.three_dots_s),
     );

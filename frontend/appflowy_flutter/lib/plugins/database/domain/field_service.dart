@@ -62,6 +62,19 @@ class FieldBackendService {
     return DatabaseEventDeleteField(payload).send();
   }
 
+  // Clear all data of all cells in a Field
+  static Future<FlowyResult<void, FlowyError>> clearField({
+    required String viewId,
+    required String fieldId,
+  }) {
+    final payload = ClearFieldPayloadPB(
+      viewId: viewId,
+      fieldId: fieldId,
+    );
+
+    return DatabaseEventClearField(payload).send();
+  }
+
   /// Duplicate a field
   static Future<FlowyResult<void, FlowyError>> duplicateField({
     required String viewId,

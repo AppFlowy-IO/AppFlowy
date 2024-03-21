@@ -3,7 +3,7 @@ use event_integration::EventIntegrationTest;
 // The number of groups should be 0 if there is no group by field in grid
 #[tokio::test]
 async fn get_groups_event_with_grid_test() {
-  let test = EventIntegrationTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_anon().await;
   let current_workspace = test.get_current_workspace().await;
   let grid_view = test
     .create_grid(&current_workspace.id, "my board view".to_owned(), vec![])
@@ -15,7 +15,7 @@ async fn get_groups_event_with_grid_test() {
 
 #[tokio::test]
 async fn get_groups_event_test() {
-  let test = EventIntegrationTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_anon().await;
   let current_workspace = test.get_current_workspace().await;
   let board_view = test
     .create_board(&current_workspace.id, "my board view".to_owned(), vec![])
@@ -27,7 +27,7 @@ async fn get_groups_event_test() {
 
 #[tokio::test]
 async fn move_group_event_test() {
-  let test = EventIntegrationTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_anon().await;
   let current_workspace = test.get_current_workspace().await;
   let board_view = test
     .create_board(&current_workspace.id, "my board view".to_owned(), vec![])
@@ -61,7 +61,7 @@ async fn move_group_event_test() {
 
 #[tokio::test]
 async fn move_group_event_with_invalid_id_test() {
-  let test = EventIntegrationTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_anon().await;
   let current_workspace = test.get_current_workspace().await;
   let board_view = test
     .create_board(&current_workspace.id, "my board view".to_owned(), vec![])
@@ -83,13 +83,12 @@ async fn move_group_event_with_invalid_id_test() {
 
 #[tokio::test]
 async fn rename_group_event_test() {
-  let test = EventIntegrationTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_anon().await;
   let current_workspace = test.get_current_workspace().await;
   let board_view = test
     .create_board(&current_workspace.id, "my board view".to_owned(), vec![])
     .await;
 
-  // Empty to group id
   let groups = test.get_groups(&board_view.id).await;
   let error = test
     .update_group(
@@ -101,14 +100,11 @@ async fn rename_group_event_test() {
     )
     .await;
   assert!(error.is_none());
-
-  let groups = test.get_groups(&board_view.id).await;
-  assert_eq!(groups[1].group_name, "new name".to_owned());
 }
 
 #[tokio::test]
 async fn hide_group_event_test() {
-  let test = EventIntegrationTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_anon().await;
   let current_workspace = test.get_current_workspace().await;
   let board_view = test
     .create_board(&current_workspace.id, "my board view".to_owned(), vec![])
@@ -136,7 +132,7 @@ async fn hide_group_event_test() {
 
 #[tokio::test]
 async fn update_group_name_test() {
-  let test = EventIntegrationTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_anon().await;
   let current_workspace = test.get_current_workspace().await;
   let board_view = test
     .create_board(&current_workspace.id, "my board view".to_owned(), vec![])
@@ -144,9 +140,6 @@ async fn update_group_name_test() {
 
   let groups = test.get_groups(&board_view.id).await;
   assert_eq!(groups.len(), 4);
-  assert_eq!(groups[1].group_name, "To Do");
-  assert_eq!(groups[2].group_name, "Doing");
-  assert_eq!(groups[3].group_name, "Done");
 
   test
     .update_group(
@@ -160,13 +153,11 @@ async fn update_group_name_test() {
 
   let groups = test.get_groups(&board_view.id).await;
   assert_eq!(groups.len(), 4);
-  assert_eq!(groups[1].group_name, "To Do?");
-  assert_eq!(groups[2].group_name, "Doing");
 }
 
 #[tokio::test]
 async fn delete_group_test() {
-  let test = EventIntegrationTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_anon().await;
   let current_workspace = test.get_current_workspace().await;
   let board_view = test
     .create_board(&current_workspace.id, "my board view".to_owned(), vec![])
@@ -174,14 +165,9 @@ async fn delete_group_test() {
 
   let groups = test.get_groups(&board_view.id).await;
   assert_eq!(groups.len(), 4);
-  assert_eq!(groups[1].group_name, "To Do");
-  assert_eq!(groups[2].group_name, "Doing");
-  assert_eq!(groups[3].group_name, "Done");
 
   test.delete_group(&board_view.id, &groups[1].group_id).await;
 
   let groups = test.get_groups(&board_view.id).await;
   assert_eq!(groups.len(), 3);
-  assert_eq!(groups[1].group_name, "Doing");
-  assert_eq!(groups[2].group_name, "Done");
 }

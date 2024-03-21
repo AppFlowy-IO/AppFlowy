@@ -17,7 +17,6 @@ pub async fn make_filter_controller(
   notifier: DatabaseViewChangedNotifier,
   cell_cache: CellCache,
 ) -> Arc<FilterController> {
-  let filters = delegate.get_all_filters(view_id);
   let task_scheduler = delegate.get_task_scheduler();
   let filter_delegate = DatabaseViewFilterDelegateImpl(delegate.clone());
 
@@ -27,7 +26,6 @@ pub async fn make_filter_controller(
     &handler_id,
     filter_delegate,
     task_scheduler.clone(),
-    filters,
     cell_cache,
     notifier,
   )
@@ -60,6 +58,10 @@ impl FilterDelegate for DatabaseViewFilterDelegateImpl {
 
   fn get_row(&self, view_id: &str, rows_id: &RowId) -> Fut<Option<(usize, Arc<RowDetail>)>> {
     self.0.get_row(view_id, rows_id)
+  }
+
+  fn get_all_filters(&self, view_id: &str) -> Vec<Filter> {
+    self.0.get_all_filters(view_id)
   }
 
   fn save_filters(&self, view_id: &str, filters: &[Filter]) {

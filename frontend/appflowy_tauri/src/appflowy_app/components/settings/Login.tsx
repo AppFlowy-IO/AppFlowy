@@ -1,7 +1,7 @@
 import Typography from '@mui/material/Typography';
 import { useTranslation } from 'react-i18next';
 import Button from '@mui/material/Button';
-import { LoginButtonGroup } from '$app/components/_shared/login';
+import { LoginButtonGroup } from '$app/components/auth/LoginButtonGroup';
 
 export const Login = ({ onBack }: { onBack?: () => void }) => {
   const { t } = useTranslation();
