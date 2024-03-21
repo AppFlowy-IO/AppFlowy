@@ -59,6 +59,16 @@ pub(crate) async fn get_workspace_views_handler(
 }
 
 #[tracing::instrument(level = "debug", skip(folder), err)]
+pub(crate) async fn get_current_workspace_views_handler(
+  folder: AFPluginState<Weak<FolderManager>>,
+) -> DataResult<RepeatedViewPB, FlowyError> {
+  let folder = upgrade_folder(folder)?;
+  let child_views = folder.get_current_workspace_views().await?;
+  let repeated_view: RepeatedViewPB = child_views.into();
+  data_result_ok(repeated_view)
+}
+
+#[tracing::instrument(level = "debug", skip(folder), err)]
 pub(crate) async fn read_private_views_handler(
   data: AFPluginData<GetWorkspaceViewPB>,
   folder: AFPluginState<Weak<FolderManager>>,
