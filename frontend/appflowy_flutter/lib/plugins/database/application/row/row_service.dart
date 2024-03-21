@@ -28,16 +28,10 @@ class RowBackendService {
       ),
     );
 
-    Map<String, String>? cellDataByFieldId;
-
     if (withCells != null) {
       final rowBuilder = RowDataBuilder();
       withCells(rowBuilder);
-      cellDataByFieldId = rowBuilder.build();
-    }
-
-    if (cellDataByFieldId != null) {
-      payload.data = RowDataPB(cellDataByFieldId: cellDataByFieldId);
+      payload.data.addAll(rowBuilder.build());
     }
 
     return DatabaseEventCreateRow(payload).send();

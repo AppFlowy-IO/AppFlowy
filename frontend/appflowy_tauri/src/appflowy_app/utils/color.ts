@@ -22,10 +22,29 @@ export const colorMap = {
   [ColorEnum.Blue]: 'var(--tint-blue)',
 };
 
+// Convert ARGB to RGBA
+// Flutter uses ARGB, but CSS uses RGBA
+function argbToRgba(color: string): string {
+  const hex = color.replace(/^#|0x/, '');
+
+  const hasAlpha = hex.length === 8;
+
+  if (!hasAlpha) {
+    return color.replace('0x', '#');
+  }
+
+  const r = parseInt(hex.slice(2, 4), 16);
+  const g = parseInt(hex.slice(4, 6), 16);
+  const b = parseInt(hex.slice(6, 8), 16);
+  const a = hasAlpha ? parseInt(hex.slice(0, 2), 16) / 255 : 1;
+
+  return `rgba(${r}, ${g}, ${b}, ${a})`;
+}
+
 export function renderColor(color: string) {
   if (colorMap[color as ColorEnum]) {
     return colorMap[color as ColorEnum];
   }
 
-  return color.replace('0x', '#');
+  return argbToRgba(color);
 }

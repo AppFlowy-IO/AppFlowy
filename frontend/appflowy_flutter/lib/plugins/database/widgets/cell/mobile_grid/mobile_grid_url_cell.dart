@@ -1,14 +1,9 @@
-import 'package:flutter/material.dart';
-
-import 'package:appflowy/core/helpers/url_launcher.dart';
-import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/show_mobile_bottom_sheet.dart';
 import 'package:appflowy/plugins/database/application/cell/bloc/url_cell_bloc.dart';
 import 'package:appflowy/plugins/database/widgets/row/accessory/cell_accessory.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
-import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 
 import '../editable_cell_skeleton/url.dart';
 
@@ -25,53 +20,9 @@ class MobileGridURLCellSkin extends IEditableURLCellSkin {
     return BlocSelector<URLCellBloc, URLCellState, String>(
       selector: (state) => state.content,
       builder: (context, content) {
-        if (content.isEmpty) {
-          return TextField(
-            focusNode: focusNode,
-            keyboardType: TextInputType.url,
-            decoration: const InputDecoration(
-              enabledBorder: InputBorder.none,
-              focusedBorder: InputBorder.none,
-              contentPadding: EdgeInsets.symmetric(
-                horizontal: 14,
-                vertical: 12,
-              ),
-              isCollapsed: true,
-            ),
-            onTapOutside: (event) =>
-                FocusManager.instance.primaryFocus?.unfocus(),
-            onSubmitted: (value) => bloc.add(URLCellEvent.updateURL(value)),
-          );
-        }
-
         return GestureDetector(
-          onTap: () {
-            if (content.isEmpty) {
-              return;
-            }
-            final shouldAddScheme = !['http', 'https']
-                .any((pattern) => content.startsWith(pattern));
-            final url = shouldAddScheme ? 'http://$content' : content;
-            afLaunchUrlString(url);
-          },
-          onLongPress: () => showMobileBottomSheet(
-            context,
-            title: LocaleKeys.board_mobile_editURL.tr(),
-            showHeader: true,
-            showCloseButton: true,
-            builder: (_) {
-              final controller = TextEditingController(text: content);
-              return TextField(
-                controller: controller,
-                autofocus: true,
-                keyboardType: TextInputType.url,
-                onEditingComplete: () {
-                  bloc.add(URLCellEvent.updateURL(controller.text));
-                  context.pop();
-                },
-              );
-            },
-          ),
+          onTap: () => _showURLEditor(context, bloc, textEditingController),
+          behavior: HitTestBehavior.opaque,
           child: Container(
             alignment: AlignmentDirectional.centerStart,
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -89,6 +40,24 @@ class MobileGridURLCellSkin extends IEditableURLCellSkin {
           ),
         );
       },
+    );
+  }
+
+  void _showURLEditor(
+    BuildContext context,
+    URLCellBloc bloc,
+    TextEditingController textEditingController,
+  ) {
+    showMobileBottomSheet(
+      context,
+      showDragHandle: true,
+      backgroundColor: Theme.of(context).colorScheme.background,
+      builder: (context) => BlocProvider.value(
+        value: bloc,
+        child: MobileURLEditor(
+          textEditingController: textEditingController,
+        ),
+      ),
     );
   }
 

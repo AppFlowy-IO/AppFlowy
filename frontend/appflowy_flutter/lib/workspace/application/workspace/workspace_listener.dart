@@ -11,23 +11,28 @@ import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flowy_infra/notifier.dart';
 
-typedef AppListNotifyValue = FlowyResult<List<ViewPB>, FlowyError>;
+typedef RootViewsNotifyValue = FlowyResult<List<ViewPB>, FlowyError>;
 typedef WorkspaceNotifyValue = FlowyResult<WorkspacePB, FlowyError>;
 
+/// The [WorkspaceListener] listens to the changes including the below:
+///
+/// - The root views of the workspace. (Not including the views are inside the root views)
+/// - The workspace itself.
 class WorkspaceListener {
   WorkspaceListener({required this.user, required this.workspaceId});
 
   final UserProfilePB user;
   final String workspaceId;
 
-  PublishNotifier<AppListNotifyValue>? _appsChangedNotifier = PublishNotifier();
+  PublishNotifier<RootViewsNotifyValue>? _appsChangedNotifier =
+      PublishNotifier();
   PublishNotifier<WorkspaceNotifyValue>? _workspaceUpdatedNotifier =
       PublishNotifier();
 
   FolderNotificationListener? _listener;
 
   void start({
-    void Function(AppListNotifyValue)? appsChanged,
+    void Function(RootViewsNotifyValue)? appsChanged,
     void Function(WorkspaceNotifyValue)? onWorkspaceUpdated,
   }) {
     if (appsChanged != null) {

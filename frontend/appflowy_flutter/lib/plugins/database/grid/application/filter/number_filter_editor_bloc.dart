@@ -59,7 +59,6 @@ class NumberFilterEditorBloc
             _filterBackendSvc.deleteFilter(
               fieldId: filterInfo.fieldInfo.id,
               filterId: filterInfo.filter.id,
-              fieldType: filterInfo.fieldInfo.fieldType,
             );
           },
         );
@@ -69,11 +68,6 @@ class NumberFilterEditorBloc
 
   void _startListening() {
     _listener.start(
-      onDeleted: () {
-        if (!isClosed) {
-          add(const NumberFilterEditorEvent.delete());
-        }
-      },
       onUpdated: (filter) {
         if (!isClosed) {
           add(NumberFilterEditorEvent.didReceiveFilter(filter));

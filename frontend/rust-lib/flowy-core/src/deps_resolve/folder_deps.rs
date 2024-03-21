@@ -360,8 +360,11 @@ impl FolderOperationHandler for DatabaseFolderOperation {
       _ => CSVFormat::Original,
     };
     FutureResult::new(async move {
-      let content =
-        String::from_utf8(bytes).map_err(|err| FlowyError::internal().with_context(err))?;
+      let content = tokio::task::spawn_blocking(move || {
+        String::from_utf8(bytes).map_err(|err| FlowyError::internal().with_context(err))
+      })
+      .await??;
+
       database_manager
         .import_csv(view_id, content, format)
         .await?;

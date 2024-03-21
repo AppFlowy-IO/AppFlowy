@@ -1,6 +1,5 @@
 use std::sync::Arc;
 
-use anyhow::{anyhow, Error};
 use collab::core::collab::CollabDocState;
 use collab_entity::CollabObject;
 use lazy_static::lazy_static;
@@ -150,11 +149,11 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
     FutureResult::new(async { Ok(vec![]) })
   }
 
-  fn get_user_awareness_doc_state(&self, _uid: i64) -> FutureResult<CollabDocState, Error> {
+  fn get_user_awareness_doc_state(&self, _uid: i64) -> FutureResult<CollabDocState, FlowyError> {
     FutureResult::new(async { Ok(vec![]) })
   }
 
-  fn reset_workspace(&self, _collab_object: CollabObject) -> FutureResult<(), Error> {
+  fn reset_workspace(&self, _collab_object: CollabObject) -> FutureResult<(), FlowyError> {
     FutureResult::new(async { Ok(()) })
   }
 
@@ -171,8 +170,13 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
     &self,
     _workspace_id: &str,
     _objects: Vec<UserCollabParams>,
-  ) -> FutureResult<(), Error> {
-    FutureResult::new(async { Err(anyhow!("local server doesn't support create collab object")) })
+  ) -> FutureResult<(), FlowyError> {
+    FutureResult::new(async {
+      Err(
+        FlowyError::local_version_not_support()
+          .with_context("local server doesn't support batch create collab object"),
+      )
+    })
   }
 
   fn create_workspace(&self, _workspace_name: &str) -> FutureResult<UserWorkspace, FlowyError> {
@@ -214,5 +218,6 @@ fn make_user_workspace() -> UserWorkspace {
     name: "My Workspace".to_string(),
     created_at: Default::default(),
     workspace_database_object_id: uuid::Uuid::new_v4().to_string(),
+    icon: "".to_string(),
   }
 }

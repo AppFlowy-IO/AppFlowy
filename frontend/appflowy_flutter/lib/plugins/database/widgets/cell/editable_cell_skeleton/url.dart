@@ -1,5 +1,9 @@
 import 'dart:async';
 
+import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_quick_action_button.dart';
+import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database/application/database_controller.dart';
@@ -7,13 +11,21 @@ import 'package:appflowy/plugins/database/widgets/row/accessory/cell_accessory.d
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
 import 'package:appflowy/plugins/database/application/cell/bloc/url_cell_bloc.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_builder.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:go_router/go_router.dart';
 
 import '../desktop_grid/desktop_grid_url_cell.dart';
 import '../desktop_row_detail/desktop_row_detail_url_cell.dart';
 import '../mobile_grid/mobile_grid_url_cell.dart';
 import '../mobile_row_detail/mobile_row_detail_url_cell.dart';
+
+const regexUrl =
+    r"[(http(s)?):\/\/(www\.)?a-zA-Z0-9@:._\+-~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:_\+.~#?&\/\/=]*)";
 
 abstract class IEditableURLCellSkin {
   const IEditableURLCellSkin();
@@ -102,7 +114,8 @@ class _GridURLCellState extends GridEditableTextCell<EditableURLCell> {
       child: BlocListener<URLCellBloc, URLCellState>(
         listenWhen: (previous, current) => previous.content != current.content,
         listener: (context, state) {
-          _textEditingController.text = state.content;
+          _textEditingController.value =
+              _textEditingController.value.copyWith(text: state.content);
           widget._cellDataNotifier.value = state.content;
         },
         child: widget.skin.build(
@@ -129,4 +142,93 @@ class _GridURLCellState extends GridEditableTextCell<EditableURLCell> {
 
   @override
   String? onCopy() => cellBloc.state.content;
+}
+
+class MobileURLEditor extends StatelessWidget {
+  const MobileURLEditor({
+    super.key,
+    required this.textEditingController,
+  });
+
+  final TextEditingController textEditingController;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const VSpace(4.0),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: FlowyTextField(
+            controller: textEditingController,
+            hintStyle: Theme.of(context)
+                .textTheme
+                .bodyMedium
+                ?.copyWith(color: Theme.of(context).hintColor),
+            hintText: LocaleKeys.grid_url_textFieldHint.tr(),
+            textStyle: Theme.of(context).textTheme.bodyMedium,
+            keyboardType: TextInputType.url,
+            hintTextConstraints: const BoxConstraints(maxHeight: 52),
+            onChanged: (_) {
+              if (textEditingController.value.composing.isCollapsed) {
+                context
+                    .read<URLCellBloc>()
+                    .add(URLCellEvent.updateURL(textEditingController.text));
+              }
+            },
+            onSubmitted: (text) =>
+                context.read<URLCellBloc>().add(URLCellEvent.updateURL(text)),
+          ),
+        ),
+        const VSpace(8.0),
+        MobileQuickActionButton(
+          enable: context.watch<URLCellBloc>().state.content.isNotEmpty,
+          onTap: () {
+            openUrlCellLink(textEditingController.text);
+            context.pop();
+          },
+          icon: FlowySvgs.url_s,
+          text: LocaleKeys.grid_url_launch.tr(),
+        ),
+        const Divider(height: 8.5, thickness: 0.5),
+        MobileQuickActionButton(
+          enable: context.watch<URLCellBloc>().state.content.isNotEmpty,
+          onTap: () {
+            Clipboard.setData(
+              ClipboardData(text: textEditingController.text),
+            );
+            Fluttertoast.showToast(
+              msg: LocaleKeys.grid_url_copiedNotification.tr(),
+              gravity: ToastGravity.BOTTOM,
+            );
+            context.pop();
+          },
+          icon: FlowySvgs.copy_s,
+          text: LocaleKeys.grid_url_copy.tr(),
+        ),
+        const Divider(height: 8.5, thickness: 0.5),
+      ],
+    );
+  }
+}
+
+void openUrlCellLink(String content) {
+  if (RegExp(regexUrl).hasMatch(content)) {
+    const linkPrefix = [
+      'http://',
+      'https://',
+      'file://',
+      'ftp://',
+      'ftps://',
+      'mailto:',
+    ];
+    final shouldAddScheme =
+        !linkPrefix.any((pattern) => content.startsWith(pattern));
+    final url = shouldAddScheme ? 'https://$content' : content;
+    afLaunchUrlString(url);
+  } else {
+    afLaunchUrlString(
+      "https://www.google.com/search?q=${Uri.encodeComponent(content)}",
+    );
+  }
 }

@@ -11,9 +11,10 @@ import {
   Path,
   EditorBeforeOptions,
   Text,
+  addMark,
 } from 'slate';
 import { LIST_TYPES, tabBackward, tabForward } from '$app/components/editor/command/tab';
-import { isMarkActive, removeMarks, toggleMark } from '$app/components/editor/command/mark';
+import { getAllMarks, isMarkActive, removeMarks, toggleMark } from '$app/components/editor/command/mark';
 import {
   deleteFormula,
   insertFormula,
@@ -31,6 +32,7 @@ import {
   inlineNodeTypes,
   FormulaNode,
   ImageNode,
+  EditorMarkFormat,
 } from '$app/application/document/document.types';
 import cloneDeep from 'lodash-es/cloneDeep';
 import { generateId } from '$app/components/editor/provider/utils/convert';
@@ -75,16 +77,66 @@ export const CustomEditor = {
     if (!afterPoint) return false;
     return CustomEditor.isInlineNode(editor, afterPoint);
   },
-  blockEqual: (editor: ReactEditor, point: Point, anotherPoint: Point) => {
-    const match = CustomEditor.getBlock(editor, point);
-    const anotherMatch = CustomEditor.getBlock(editor, anotherPoint);
 
-    if (!match || !anotherMatch) return false;
+  /**
+   * judge if the selection is multiple block
+   * @param editor
+   * @param filterEmptyEndSelection if the filterEmptyEndSelection is true, the function will filter the empty end selection
+   */
+  isMultipleBlockSelected: (editor: ReactEditor, filterEmptyEndSelection?: boolean): boolean => {
+    const { selection } = editor;
 
-    const [node] = match;
-    const [anotherNode] = anotherMatch;
+    if (!selection) return false;
 
-    return node === anotherNode;
+    if (Range.isCollapsed(selection)) return false;
+    const start = Range.start(selection);
+    const end = Range.end(selection);
+    const isBackward = Range.isBackward(selection);
+    const startBlock = CustomEditor.getBlock(editor, start);
+    const endBlock = CustomEditor.getBlock(editor, end);
+
+    if (!startBlock || !endBlock) return false;
+
+    const [, startPath] = startBlock;
+    const [, endPath] = endBlock;
+
+    const isSomePath = Path.equals(startPath, endPath);
+
+    // if the start and end path is the same, return false
+    if (isSomePath) {
+      return false;
+    }
+
+    if (!filterEmptyEndSelection) {
+      return true;
+    }
+
+    // The end point is at the start of the end block
+    const focusEndStart = Point.equals(end, editor.start(endPath));
+
+    if (!focusEndStart) {
+      return true;
+    }
+
+    // find the previous block
+    const previous = editor.previous({
+      at: endPath,
+      match: (n) => Element.isElement(n) && n.blockId !== undefined,
+    });
+
+    if (!previous) {
+      return true;
+    }
+
+    // backward selection
+    const newEnd = editor.end(editor.range(previous[1]));
+
+    editor.select({
+      anchor: isBackward ? newEnd : start,
+      focus: isBackward ? start : newEnd,
+    });
+
+    return false;
   },
 
   /**
@@ -109,6 +161,10 @@ export const CustomEditor = {
     const cloneNode = CustomEditor.cloneBlock(editor, node);
 
     Object.assign(cloneNode, newProperties);
+    cloneNode.data = {
+      ...(node.data || {}),
+      ...(newProperties.data || {}),
+    };
 
     const isEmbed = editor.isEmbed(cloneNode);
 
@@ -181,6 +237,10 @@ export const CustomEditor = {
   },
 
   toggleAlign(editor: ReactEditor, format: string) {
+    const isIncludeRoot = CustomEditor.selectionIncludeRoot(editor);
+
+    if (isIncludeRoot) return;
+
     const matchNodes = Array.from(
       Editor.nodes(editor, {
         // Note: we need to select the text node instead of the element node, otherwise the parent node will be selected
@@ -273,18 +333,35 @@ export const CustomEditor = {
     });
   },
 
-  toggleTodo(editor: ReactEditor, node: TodoListNode) {
-    const checked = node.data.checked;
-    const path = ReactEditor.findPath(editor, node);
-    const data = node.data || {};
-    const newProperties = {
-      data: {
-        ...data,
-        checked: !checked,
-      },
-    } as Partial<Element>;
+  toggleTodo(editor: ReactEditor, at?: Location) {
+    const selection = at || editor.selection;
 
-    Transforms.setNodes(editor, newProperties, { at: path });
+    if (!selection) return;
+
+    const nodes = Array.from(
+      editor.nodes({
+        at: selection,
+        match: (n) => Element.isElement(n) && n.type === EditorNodeType.TodoListBlock,
+      })
+    );
+
+    const matchUnChecked = nodes.some(([node]) => {
+      return !(node as TodoListNode).data.checked;
+    });
+
+    const checked = Boolean(matchUnChecked);
+
+    nodes.forEach(([node, path]) => {
+      const data = (node as TodoListNode).data || {};
+      const newProperties = {
+        data: {
+          ...data,
+          checked: checked,
+        },
+      } as Partial<Element>;
+
+      Transforms.setNodes(editor, newProperties, { at: path });
+    });
   },
 
   toggleToggleList(editor: ReactEditor, node: ToggleListNode) {
@@ -574,5 +651,65 @@ export const CustomEditor = {
 
   isEmbedNode(node: Element): boolean {
     return EmbedTypes.includes(node.type);
+  },
+
+  getListLevel(editor: ReactEditor, type: EditorNodeType, path: Path) {
+    let level = 0;
+    let currentPath = path;
+
+    while (currentPath.length > 0) {
+      const parent = editor.parent(currentPath);
+
+      if (!parent) {
+        break;
+      }
+
+      const [parentNode, parentPath] = parent as NodeEntry<Element>;
+
+      if (parentNode.type !== type) {
+        break;
+      }
+
+      level += 1;
+      currentPath = parentPath;
+    }
+
+    return level;
+  },
+
+  getLinks(editor: ReactEditor): string[] {
+    const marks = getAllMarks(editor);
+
+    if (!marks) return [];
+
+    return Object.entries(marks)
+      .filter(([key]) => key === 'href')
+      .map(([_, val]) => val as string);
+  },
+
+  extendLineBackward(editor: ReactEditor) {
+    Transforms.move(editor, {
+      unit: 'line',
+      edge: 'focus',
+      reverse: true,
+    });
+  },
+
+  extendLineForward(editor: ReactEditor) {
+    Transforms.move(editor, { unit: 'line', edge: 'focus' });
+  },
+
+  insertPlainText(editor: ReactEditor, text: string) {
+    const [appendText, ...lines] = text.split('\n');
+
+    editor.insertText(appendText);
+    lines.forEach((line) => {
+      editor.insertBreak();
+      editor.insertText(line);
+    });
+  },
+
+  highlight(editor: ReactEditor) {
+    addMark(editor, EditorMarkFormat.BgColor, 'appflowy_them_color_tint5');
   },
 };

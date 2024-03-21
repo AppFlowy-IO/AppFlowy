@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/cell/bloc/url_cell_bloc.dart';
@@ -116,7 +115,7 @@ class _CopyURLAccessoryState extends State<_CopyURLAccessory>
   Widget build(BuildContext context) {
     if (widget.cellDataNotifier.value.isNotEmpty) {
       return FlowyTooltip(
-        message: LocaleKeys.tooltip_urlCopyAccessory.tr(),
+        message: LocaleKeys.grid_url_copy.tr(),
         preferBelow: false,
         child: _URLAccessoryIconContainer(
           child: FlowySvg(
@@ -162,7 +161,7 @@ class _VisitURLAccessoryState extends State<_VisitURLAccessory>
   Widget build(BuildContext context) {
     if (widget.cellDataNotifier.value.isNotEmpty) {
       return FlowyTooltip(
-        message: LocaleKeys.tooltip_urlLaunchAccessory.tr(),
+        message: LocaleKeys.grid_url_launch.tr(),
         preferBelow: false,
         child: _URLAccessoryIconContainer(
           child: FlowySvg(
@@ -177,21 +176,11 @@ class _VisitURLAccessoryState extends State<_VisitURLAccessory>
   }
 
   @override
-  bool enable() {
-    return widget.cellDataNotifier.value.isNotEmpty;
-  }
+  bool enable() => widget.cellDataNotifier.value.isNotEmpty;
 
   @override
-  void onTap() {
-    final content = widget.cellDataNotifier.value;
-    if (content.isEmpty) {
-      return;
-    }
-    final shouldAddScheme =
-        !['http', 'https'].any((pattern) => content.startsWith(pattern));
-    final url = shouldAddScheme ? 'http://$content' : content;
-    afLaunchUrlString(url);
-  }
+  void onTap() => 
+    openUrlCellLink(widget.cellDataNotifier.value);
 }
 
 class _URLAccessoryIconContainer extends StatelessWidget {

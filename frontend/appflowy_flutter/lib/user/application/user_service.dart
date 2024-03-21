@@ -109,7 +109,7 @@ class UserBackendService {
     final request = CreateWorkspacePayloadPB.create()
       ..name = name
       ..desc = desc;
-    return FolderEventCreateWorkspace(request).send().then((result) {
+    return FolderEventCreateFolderWorkspace(request).send().then((result) {
       return result.fold(
         (workspace) => FlowyResult.success(workspace),
         (error) => FlowyResult.failure(error),
@@ -149,5 +149,45 @@ class UserBackendService {
       ..workspaceId = workspaceId
       ..newIcon = icon;
     return UserEventChangeWorkspaceIcon(request).send();
+  }
+
+  Future<FlowyResult<RepeatedWorkspaceMemberPB, FlowyError>>
+      getWorkspaceMembers(
+    String workspaceId,
+  ) async {
+    final data = QueryWorkspacePB()..workspaceId = workspaceId;
+    return UserEventGetWorkspaceMember(data).send();
+  }
+
+  Future<FlowyResult<void, FlowyError>> addWorkspaceMember(
+    String workspaceId,
+    String email,
+  ) async {
+    final data = AddWorkspaceMemberPB()
+      ..workspaceId = workspaceId
+      ..email = email;
+    return UserEventAddWorkspaceMember(data).send();
+  }
+
+  Future<FlowyResult<void, FlowyError>> removeWorkspaceMember(
+    String workspaceId,
+    String email,
+  ) async {
+    final data = RemoveWorkspaceMemberPB()
+      ..workspaceId = workspaceId
+      ..email = email;
+    return UserEventRemoveWorkspaceMember(data).send();
+  }
+
+  Future<FlowyResult<void, FlowyError>> updateWorkspaceMember(
+    String workspaceId,
+    String email,
+    AFRolePB role,
+  ) async {
+    final data = UpdateWorkspaceMemberPB()
+      ..workspaceId = workspaceId
+      ..email = email
+      ..role = role;
+    return UserEventUpdateWorkspaceMember(data).send();
   }
 }

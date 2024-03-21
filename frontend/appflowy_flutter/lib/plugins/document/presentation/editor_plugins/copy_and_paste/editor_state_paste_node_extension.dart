@@ -13,8 +13,8 @@ extension PasteNodes on EditorState {
     }
     final transaction = this.transaction;
     final insertedDelta = insertedNode.delta;
-    // if the node is empty, replace it with the inserted node.
-    if (delta.isEmpty) {
+    // if the node is empty and its type is paragprah, replace it with the inserted node.
+    if (delta.isEmpty && node.type == ParagraphBlockKeys.type) {
       transaction.insertNode(
         selection.end.path.next,
         insertedNode,

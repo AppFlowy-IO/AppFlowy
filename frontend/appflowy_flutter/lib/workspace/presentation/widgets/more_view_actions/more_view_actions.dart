@@ -66,7 +66,7 @@ class _MoreViewActionsState extends State<MoreViewActions> {
       builder: (context, state) {
         return AppFlowyPopover(
           mutex: popoverMutex,
-          constraints: BoxConstraints.loose(const Size(210, 400)),
+          constraints: BoxConstraints.loose(const Size(215, 400)),
           offset: const Offset(0, 30),
           popupBuilder: (_) {
             final actions = [

@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Drawer, IconButton } from '@mui/material';
-import { Details2Svg } from '$app/components/_shared/svg/Details2Svg';
+import { ReactComponent as Details2Svg } from '$app/assets/details.svg';
 import Tooltip from '@mui/material/Tooltip';
 import MoreOptions from '$app/components/layout/top_bar/MoreOptions';
 import { useMoreOptionsConfig } from '$app/components/layout/top_bar/MoreOptions.hooks';
@@ -18,8 +18,8 @@ function MoreButton() {
   return (
     <>
       <Tooltip placement={'bottom-end'} title={t('moreAction.moreOptions')}>
-        <IconButton onClick={() => toggleDrawer(true)} className={'h-8 w-8 text-icon-primary'}>
-          <Details2Svg />
+        <IconButton onClick={() => toggleDrawer(true)} className={'text-icon-primary'}>
+          <Details2Svg className={'h-8 w-8'} />
         </IconButton>
       </Tooltip>
       <Drawer anchor={'right'} open={open} onClose={() => toggleDrawer(false)}>

@@ -118,6 +118,9 @@ export const SelectOptionModifyMenu: FC<SelectOptionMenuProps> = ({ fieldId, opt
           onClick={(e) => {
             e.stopPropagation();
           }}
+          onMouseDown={(e) => {
+            e.stopPropagation();
+          }}
           autoFocus={true}
           placeholder={t('grid.selectOption.tagName')}
           size='small'
@@ -153,7 +156,7 @@ export const SelectOptionModifyMenu: FC<SelectOptionMenuProps> = ({ fieldId, opt
           >
             <span className={`mr-2 inline-flex h-4 w-4 rounded-full ${SelectOptionColorMap[color]}`} />
             <span className='flex-1'>{t(`grid.selectOption.${SelectOptionColorTextMap[color]}`)}</span>
-            {option.color === color && <SelectCheckSvg />}
+            {option.color === color && <SelectCheckSvg className={'text-content-blue-400'} />}
           </MenuItem>
         ))}
       </MenuList>

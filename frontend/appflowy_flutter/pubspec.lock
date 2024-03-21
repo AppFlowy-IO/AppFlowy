@@ -53,8 +53,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: ce391a8
-      resolved-ref: ce391a8c0f492f7b5fdd8f44bbc89fc68882ff23
+      ref: a571f2b
+      resolved-ref: a571f2bc9df764d90569951f40364c8c59787f30
       url: "https://github.com/AppFlowy-IO/appflowy-editor.git"
     source: git
     version: "2.3.3"
@@ -1605,11 +1605,11 @@ packages:
     dependency: "direct main"
     description:
       path: sheet
-      ref: "8ee20bd"
-      resolved-ref: "8ee20bd36acaeb36996a09ba9d0f9e7059bb49df"
-      url: "https://github.com/richardshiue/modal_bottom_sheet"
+      ref: e44458d
+      resolved-ref: e44458d2359565324e117bb3d41da04f5e60362e
+      url: "https://github.com/jamesblasco/modal_bottom_sheet"
     source: git
-    version: "1.0.0-pre"
+    version: "1.0.0"
   shelf:
     dependency: transitive
     description:

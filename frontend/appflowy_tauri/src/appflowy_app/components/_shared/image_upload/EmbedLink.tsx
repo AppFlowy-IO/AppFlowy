@@ -3,7 +3,7 @@ import TextField from '@mui/material/TextField';
 import { useTranslation } from 'react-i18next';
 import Button from '@mui/material/Button';
 
-const urlPattern = /^https?:\/\/.+/;
+const urlPattern = /^(https?:\/\/)([^\s(["<,>/]*)(\/)[^\s[",><]*(.png|.jpg|.gif|.webm|.webp|.svg)(\?[^\s[",><]*)?$/;
 
 export function EmbedLink({
   onDone,

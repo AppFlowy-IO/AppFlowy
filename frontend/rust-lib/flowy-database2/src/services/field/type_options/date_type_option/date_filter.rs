@@ -1,8 +1,11 @@
 use crate::entities::{DateFilterConditionPB, DateFilterPB};
+use crate::services::cell::insert_date_cell;
+use crate::services::field::DateCellData;
+use crate::services::filter::PreFillCellsWithFilter;
 
-use chrono::{NaiveDate, NaiveDateTime};
-
-use super::DateCellData;
+use chrono::{Duration, NaiveDate, NaiveDateTime};
+use collab_database::fields::Field;
+use collab_database::rows::Cell;
 
 impl DateFilterPB {
   /// Returns `None` if the DateFilterPB doesn't have the necessary data for
@@ -92,6 +95,39 @@ impl DateFilterStrategy {
       },
       DateFilterStrategy::NotEmpty => cell_data.timestamp.is_some(),
     }
+  }
+}
+
+impl PreFillCellsWithFilter for DateFilterPB {
+  fn get_compliant_cell(&self, field: &Field) -> (Option<Cell>, bool) {
+    let timestamp = match self.condition {
+      DateFilterConditionPB::DateIs
+      | DateFilterConditionPB::DateOnOrBefore
+      | DateFilterConditionPB::DateOnOrAfter => self.timestamp,
+      DateFilterConditionPB::DateBefore => self
+        .timestamp
+        .and_then(|timestamp| NaiveDateTime::from_timestamp_opt(timestamp, 0))
+        .map(|date_time| {
+          let answer = date_time - Duration::days(1);
+          answer.timestamp()
+        }),
+      DateFilterConditionPB::DateAfter => self
+        .timestamp
+        .and_then(|timestamp| NaiveDateTime::from_timestamp_opt(timestamp, 0))
+        .map(|date_time| {
+          let answer = date_time + Duration::days(1);
+          answer.timestamp()
+        }),
+      DateFilterConditionPB::DateWithIn => self.start,
+      _ => None,
+    };
+
+    let open_after_create = matches!(self.condition, DateFilterConditionPB::DateIsNotEmpty);
+
+    (
+      timestamp.map(|timestamp| insert_date_cell(timestamp, None, None, field)),
+      open_after_create,
+    )
   }
 }
 

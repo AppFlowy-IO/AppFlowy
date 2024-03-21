@@ -13,10 +13,10 @@ void main() {
 
   test('test filter menu after create a text filter)', () async {
     final context = await gridTest.createTestGrid();
-    final menuBloc = GridFilterMenuBloc(
+    final menuBloc = DatabaseFilterMenuBloc(
       viewId: context.gridView.id,
       fieldController: context.fieldController,
-    )..add(const GridFilterMenuEvent.initial());
+    )..add(const DatabaseFilterMenuEvent.initial());
     await gridResponseFuture();
     assert(menuBloc.state.creatableFields.length == 3);
 
@@ -28,15 +28,15 @@ void main() {
       content: "",
     );
     await gridResponseFuture();
-    assert(menuBloc.state.creatableFields.length == 2);
+    assert(menuBloc.state.creatableFields.length == 3);
   });
 
   test('test filter menu after update existing text filter)', () async {
     final context = await gridTest.createTestGrid();
-    final menuBloc = GridFilterMenuBloc(
+    final menuBloc = DatabaseFilterMenuBloc(
       viewId: context.gridView.id,
       fieldController: context.fieldController,
-    )..add(const GridFilterMenuEvent.initial());
+    )..add(const DatabaseFilterMenuEvent.initial());
     await gridResponseFuture();
 
     final service = FilterBackendService(viewId: context.gridView.id);
@@ -55,13 +55,13 @@ void main() {
     await service.insertTextFilter(
       fieldId: textField.id,
       filterId: textFilter.filter.id,
-      condition: TextFilterConditionPB.Is,
+      condition: TextFilterConditionPB.TextIs,
       content: "ABC",
     );
     await gridResponseFuture();
     assert(
       menuBloc.state.filters.first.textFilter()!.condition ==
-          TextFilterConditionPB.Is,
+          TextFilterConditionPB.TextIs,
     );
     assert(menuBloc.state.filters.first.textFilter()!.content == "ABC");
   });

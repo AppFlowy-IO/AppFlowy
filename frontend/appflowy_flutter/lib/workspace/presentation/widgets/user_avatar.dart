@@ -50,7 +50,7 @@ class UserAvatar extends StatelessWidget {
         ),
         child: FlowyText.semibold(
           nameInitials,
-          color: Colors.white,
+          color: Colors.black,
           fontSize: isLarge
               ? nameInitials.length == initialsCount
                   ? 20

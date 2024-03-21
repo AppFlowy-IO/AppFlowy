@@ -18,42 +18,46 @@ class FilterInfo {
 
   String get filterId => filter.id;
 
-  String get fieldId => filter.fieldId;
+  String get fieldId => filter.data.fieldId;
 
   DateFilterPB? dateFilter() {
-    return filter.fieldType == FieldType.DateTime
-        ? DateFilterPB.fromBuffer(filter.data)
+    final fieldType = filter.data.fieldType;
+    return fieldType == FieldType.DateTime ||
+            fieldType == FieldType.CreatedTime ||
+            fieldType == FieldType.LastEditedTime
+        ? DateFilterPB.fromBuffer(filter.data.data)
         : null;
   }
 
   TextFilterPB? textFilter() {
-    return filter.fieldType == FieldType.RichText
-        ? TextFilterPB.fromBuffer(filter.data)
+    return filter.data.fieldType == FieldType.RichText ||
+            filter.data.fieldType == FieldType.URL
+        ? TextFilterPB.fromBuffer(filter.data.data)
         : null;
   }
 
   CheckboxFilterPB? checkboxFilter() {
-    return filter.fieldType == FieldType.Checkbox
-        ? CheckboxFilterPB.fromBuffer(filter.data)
+    return filter.data.fieldType == FieldType.Checkbox
+        ? CheckboxFilterPB.fromBuffer(filter.data.data)
         : null;
   }
 
   SelectOptionFilterPB? selectOptionFilter() {
-    return filter.fieldType == FieldType.SingleSelect ||
-            filter.fieldType == FieldType.MultiSelect
-        ? SelectOptionFilterPB.fromBuffer(filter.data)
+    return filter.data.fieldType == FieldType.SingleSelect ||
+            filter.data.fieldType == FieldType.MultiSelect
+        ? SelectOptionFilterPB.fromBuffer(filter.data.data)
         : null;
   }
 
   ChecklistFilterPB? checklistFilter() {
-    return filter.fieldType == FieldType.Checklist
-        ? ChecklistFilterPB.fromBuffer(filter.data)
+    return filter.data.fieldType == FieldType.Checklist
+        ? ChecklistFilterPB.fromBuffer(filter.data.data)
         : null;
   }
 
   NumberFilterPB? numberFilter() {
-    return filter.fieldType == FieldType.Number
-        ? NumberFilterPB.fromBuffer(filter.data)
+    return filter.data.fieldType == FieldType.Number
+        ? NumberFilterPB.fromBuffer(filter.data.data)
         : null;
   }
 }

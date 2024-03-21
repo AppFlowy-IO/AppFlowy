@@ -74,8 +74,8 @@
     "openFailed": "Failed to open workspace",
     "renameSuccess": "Workspace renamed successfully",
     "renameFailed": "Failed to rename workspace",
-    "updateIconSuccess": "Workspace reset successfully",
-    "updateIconFailed": "Failed to reset workspace"
+    "updateIconSuccess": "Updated workspace icon successfully",
+    "updateIconFailed": "Updated workspace icon failed"
   },
   "shareAction": {
     "buttonText": "Share",
@@ -93,7 +93,7 @@
     "moreOptions": "More options",
     "wordCount": "Word count: {}",
     "charCount": "Character count: {}",
-    "createdAt": "Created at: {}",
+    "createdAt": "Created: {}",
     "deleteView": "Delete",
     "duplicateView": "Duplicate"
   },
@@ -144,7 +144,8 @@
       "emptyDescription": "You don't have any deleted file",
       "isDeleted": "is deleted",
       "isRestored": "is restored"
-    }
+    },
+    "confirmDeleteTitle": "Are you sure you want to delete this page permanently?"
   },
   "deletePagePrompt": {
     "text": "This page is in Trash",
@@ -198,18 +199,22 @@
     "dragRow": "Long press to reorder the row",
     "viewDataBase": "View database",
     "referencePage": "This {name} is referenced",
-    "addBlockBelow": "Add a block below",
-    "urlLaunchAccessory": "Open in browser",
-    "urlCopyAccessory": "Copy URL"
+    "addBlockBelow": "Add a block below"
   },
   "sideBar": {
     "closeSidebar": "Close side bar",
     "openSidebar": "Open side bar",
     "personal": "Personal",
+    "private": "Private",
+    "public": "Public",
     "favorites": "Favorites",
+    "clickToHidePrivate": "Click to hide private section\nPages you created here are only visible to you",
+    "clickToHidePublic": "Click to hide public section\nPages you created here are visible to every member",
     "clickToHidePersonal": "Click to hide personal section",
     "clickToHideFavorites": "Click to hide favorite section",
     "addAPage": "Add a page",
+    "addAPageToPrivate": "Add a page to private section",
+    "addAPageToPublic": "Add a page to public section",
     "recent": "Recent"
   },
   "notifications": {
@@ -257,7 +262,14 @@
     "remove": "Remove",
     "dontRemove": "Don't remove",
     "copyLink": "Copy Link",
-    "align": "Align"
+    "align": "Align",
+    "login": "Login",
+    "logout": "Log out",
+    "deleteAccount": "Delete account",
+    "back": "Back",
+    "signInGoogle": "Sign in with Google",
+    "signInGithub": "Sign in with Github",
+    "signInDiscord": "Sign in with Discord"
   },
   "label": {
     "welcome": "Welcome!",
@@ -565,13 +577,9 @@
       "isComplete": "is complete",
       "isIncomplted": "is incomplete"
     },
-    "singleSelectOptionFilter": {
+    "selectOptionFilter": {
       "is": "Is",
       "isNot": "Is not",
-      "isEmpty": "Is empty",
-      "isNotEmpty": "Is not empty"
-    },
-    "multiSelectOptionFilter": {
       "contains": "Contains",
       "doesNotContain": "Does not contain",
       "isEmpty": "Is empty",
@@ -681,7 +689,8 @@
       "cannotFindCreatableField": "Cannot find a suitable field to sort by",
       "deleteAllSorts": "Delete all sorts",
       "addSort": "Add new sort",
-      "removeSorting": "Would you like to remove sorting?"
+      "removeSorting": "Would you like to remove sorting?",
+      "fieldInUse": "You are already sorting by this field"
     },
     "row": {
       "duplicate": "Duplicate",
@@ -726,10 +735,18 @@
       "hideComplete": "Hide completed tasks",
       "showComplete": "Show all tasks"
     },
+    "url": {
+      "launch": "Open link in browser",
+      "copy": "Copy link to clipboard",
+      "textFieldHint": "Enter a URL",
+      "copiedNotification": "Copied to clipboard!"
+    },
     "relation": {
       "relatedDatabasePlaceLabel": "Related Database",
       "relatedDatabasePlaceholder": "None",
       "inRelatedDatabase": "In",
+      "rowSearchTextFieldPlaceholder": "Search",
+      "noDatabaseSelected": "No database selected, please select one first from the list below:",
       "emptySearchResult": "No records found"
     },
     "menuName": "Grid",
@@ -744,9 +761,9 @@
       "sum": "Sum",
       "count": "Count",
       "countEmpty": "Count empty",
-      "countEmptyShort": "Empty",
-      "countNonEmpty": "Count non empty",
-      "countNonEmptyShort": "Not empty"
+      "countEmptyShort": "EMPTY",
+      "countNonEmpty": "Count not empty",
+      "countNonEmptyShort": "FILLED"
     }
   },
   "document": {
@@ -922,7 +939,7 @@
       "error": {
         "invalidImage": "Invalid image",
         "invalidImageSize": "Image size must be less than 5MB",
-        "invalidImageFormat": "Image format is not supported. Supported formats: JPEG, PNG, JPG",
+        "invalidImageFormat": "Image format is not supported. Supported formats: JPEG, PNG, JPG, GIF, SVG, WEBP",
         "invalidImageUrl": "Invalid image URL",
         "noImage": "No such file or directory"
       },
@@ -1052,7 +1069,8 @@
       "name": "Calendar settings"
     },
     "referencedCalendarPrefix": "View of",
-    "quickJumpYear": "Jump to"
+    "quickJumpYear": "Jump to",
+    "duplicateEvent": "Duplicate event"
   },
   "errorDialog": {
     "title": "AppFlowy Error",
@@ -1300,6 +1318,8 @@
     "copy": "Copy",
     "paste": "Paste",
     "find": "Find",
+    "select": "Select",
+    "selectAll": "Select all",
     "previousMatch": "Previous match",
     "nextMatch": "Next match",
     "closeFind": "Close",
@@ -1356,5 +1376,52 @@
     "addField": "Add field",
     "userIcon": "User icon"
   },
-  "noLogFiles": "There're no log files"
+  "noLogFiles": "There're no log files",
+  "newSettings": {
+    "myAccount": {
+      "title": "My account",
+      "subtitle": "Customize your profile, manage account security, open AI keys, or login into your account.",
+      "profileLabel": "Account name & Profile image",
+      "profileNamePlaceholder": "Enter your name",
+      "accountSecurity": "Account security",
+      "2FA": "2-Step Authentication",
+      "aiKeys": "AI keys",
+      "accountLogin": "Account Login",
+      "updateNameError": "Failed to update name",
+      "updateIconError": "Failed to update icon",
+      "deleteAccount": {
+        "title": "Delete Account",
+        "subtitle": "Permanently delete your account and all of your data.",
+        "deleteMyAccount": "Delete my account",
+        "dialogTitle": "Delete account",
+        "dialogContent1": "Are you sure you want to permanently delete your account?",
+        "dialogContent2": "This action cannot be undone, and will remove access from all teamspaces, erasing your entire account, including private workspaces, and removing you from all shared workspaces."
+      }
+    },
+    "workplace": {
+      "name": "Workplace",
+      "title": "Workplace Settings",
+      "subtitle": "Customize your workspace appearance, theme, font, text layout, date, time, and language.",
+      "workplaceName": "Workplace name",
+      "workplaceNamePlaceholder": "Enter workplace name",
+      "workplaceIcon": "Workplace icon",
+      "workplaceIconSubtitle": "Upload an image or use an emoji for your workspace. Icon will show in your sidebar and notifications",
+      "renameError": "Failed to rename workplace",
+      "updateIconError": "Failed to update icon",
+      "appearance": {
+        "name": "Appearance",
+        "themeMode": {
+          "auto": "Auto",
+          "light": "Light",
+          "dark": "Dark"
+        },
+        "language": "Language"
+      }
+    },
+    "syncState": {
+      "syncing": "Syncing",
+      "synced": "Everything is up to date",
+      "noNetworkConnected": "No network connected"
+    }
+  }
 }

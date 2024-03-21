@@ -60,4 +60,4 @@ function EditRecord({ rowId }: Props) {
   );
 }
 
-export default React.memo(EditRecord);
+export default EditRecord;

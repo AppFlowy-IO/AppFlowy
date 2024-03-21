@@ -8,7 +8,6 @@ function FilterSettings({ onToggleCollection }: { onToggleCollection: (forceOpen
   const { t } = useTranslation();
   const filtersCount = useFiltersCount();
   const highlight = filtersCount > 0;
-
   const [filterAnchorEl, setFilterAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(filterAnchorEl);
 
@@ -31,6 +30,10 @@ function FilterSettings({ onToggleCollection }: { onToggleCollection: (forceOpen
         open={open}
         anchorEl={filterAnchorEl}
         onClose={() => setFilterAnchorEl(null)}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'right',
+        }}
         anchorOrigin={{
           vertical: 'bottom',
           horizontal: 'right',

@@ -26,6 +26,14 @@ class DocumentService {
     return result;
   }
 
+  Future<FlowyResult<DocumentDataPB, FlowyError>> getDocument({
+    required String viewId,
+  }) async {
+    final payload = OpenDocumentPayloadPB()..documentId = viewId;
+    final result = await DocumentEventGetDocumentData(payload).send();
+    return result;
+  }
+
   Future<FlowyResult<BlockPB, FlowyError>> getBlockFromDocument({
     required DocumentDataPB document,
     required String blockId,

@@ -8,6 +8,10 @@ extension FlowyAsyncResultExtension<S, F extends Object>
     return then((result) => result.getOrElse(onFailure));
   }
 
+  Future<S?> toNullable() {
+    return then((result) => result.toNullable());
+  }
+
   Future<S> getOrThrow() {
     return then((result) => result.getOrThrow());
   }

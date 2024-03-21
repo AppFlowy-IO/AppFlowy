@@ -22,8 +22,10 @@ export const LocalImage = forwardRef<
     const { readBinaryFile, BaseDirectory } = await import('@tauri-apps/api/fs');
 
     try {
+      const svg = src.endsWith('.svg');
+
       const buffer = await readBinaryFile(src, { dir: BaseDirectory.AppLocalData });
-      const blob = new Blob([buffer]);
+      const blob = new Blob([buffer], { type: svg ? 'image/svg+xml' : 'image' });
 
       setImageURL(URL.createObjectURL(blob));
     } catch (e) {

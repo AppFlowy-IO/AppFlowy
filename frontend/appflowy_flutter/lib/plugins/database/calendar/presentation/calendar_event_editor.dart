@@ -20,6 +20,7 @@ import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class CalendarEventEditor extends StatelessWidget {
@@ -86,16 +87,22 @@ class EventEditorControls extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          FlowyIconButton(
-            width: 20,
-            icon: const FlowySvg(FlowySvgs.m_duplicate_s),
-            iconColorOnHover: Theme.of(context).colorScheme.onSecondary,
-            onPressed: () => context.read<CalendarBloc>().add(
-                  CalendarEvent.duplicateEvent(
-                    rowController.viewId,
-                    rowController.rowId,
+          FlowyTooltip(
+            message: LocaleKeys.calendar_duplicateEvent.tr(),
+            child: FlowyIconButton(
+              width: 20,
+              icon: const FlowySvg(
+                FlowySvgs.m_duplicate_s,
+                size: Size.square(17),
+              ),
+              iconColorOnHover: Theme.of(context).colorScheme.onSecondary,
+              onPressed: () => context.read<CalendarBloc>().add(
+                    CalendarEvent.duplicateEvent(
+                      rowController.viewId,
+                      rowController.rowId,
+                    ),
                   ),
-                ),
+            ),
           ),
           const HSpace(8.0),
           FlowyIconButton(

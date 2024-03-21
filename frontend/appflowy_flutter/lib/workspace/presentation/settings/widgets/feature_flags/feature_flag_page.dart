@@ -13,9 +13,11 @@ class FeatureFlagsPage extends StatelessWidget {
     return SingleChildScrollView(
       child: SeparatedColumn(
         children: [
-          ...FeatureFlag.data.entries.map(
-            (e) => _FeatureFlagItem(featureFlag: e.key),
-          ),
+          ...FeatureFlag.data.entries
+              .where((e) => e.key != FeatureFlag.unknown)
+              .map(
+                (e) => _FeatureFlagItem(featureFlag: e.key),
+              ),
           FlowyTextButton(
             'Restart the app to apply changes',
             fontSize: 16.0,

@@ -39,7 +39,7 @@ export const PropertyTypeMenu: FC<
           <span className='flex-1 font-medium'>
             <PropertyTypeText type={type} />
           </span>
-          {type === field.type && <SelectCheckSvg />}
+          {type === field.type && <SelectCheckSvg className={'text-content-blue-400'} />}
         </>
       );
     },
