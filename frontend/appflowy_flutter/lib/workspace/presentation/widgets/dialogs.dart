@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/tasks/app_widget.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -8,7 +10,6 @@ import 'package:flowy_infra_ui/widget/buttons/primary_button.dart';
 import 'package:flowy_infra_ui/widget/buttons/secondary_button.dart';
 import 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flutter/material.dart';
 
 export 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
 
@@ -114,12 +115,14 @@ class NavigatorAlertDialog extends StatefulWidget {
     this.cancel,
     this.confirm,
     this.hideCancelButton = false,
+    this.constraints,
   });
 
   final String title;
   final void Function()? cancel;
   final void Function()? confirm;
   final bool hideCancelButton;
+  final BoxConstraints? constraints;
 
   @override
   State<NavigatorAlertDialog> createState() => _CreateFlowyAlertDialog();
@@ -140,10 +143,11 @@ class _CreateFlowyAlertDialog extends State<NavigatorAlertDialog> {
         children: <Widget>[
           ...[
             ConstrainedBox(
-              constraints: const BoxConstraints(
-                maxWidth: 400,
-                maxHeight: 260,
-              ),
+              constraints: widget.constraints ??
+                  const BoxConstraints(
+                    maxWidth: 400,
+                    maxHeight: 260,
+                  ),
               child: FlowyText.medium(
                 widget.title,
                 fontSize: FontSizes.s16,

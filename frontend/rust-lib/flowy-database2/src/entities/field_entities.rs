@@ -10,6 +10,7 @@ use strum_macros::{EnumCount as EnumCountMacro, EnumIter};
 
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
+use validator::Validate;
 
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::position_entities::OrderObjectPositionPB;
@@ -608,6 +609,30 @@ pub struct DuplicateFieldPayloadPB {
 // }
 
 impl TryInto<FieldIdParams> for DuplicateFieldPayloadPB {
+  type Error = ErrorCode;
+
+  fn try_into(self) -> Result<FieldIdParams, Self::Error> {
+    let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::DatabaseIdIsEmpty)?;
+    let field_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
+    Ok(FieldIdParams {
+      view_id: view_id.0,
+      field_id: field_id.0,
+    })
+  }
+}
+
+#[derive(Debug, Clone, Default, ProtoBuf, Validate)]
+pub struct ClearFieldPayloadPB {
+  #[pb(index = 1)]
+  #[validate(custom = "lib_infra::validator_fn::required_not_empty_str")]
+  pub field_id: String,
+
+  #[pb(index = 2)]
+  #[validate(custom = "lib_infra::validator_fn::required_not_empty_str")]
+  pub view_id: String,
+}
+
+impl TryInto<FieldIdParams> for ClearFieldPayloadPB {
   type Error = ErrorCode;
 
   fn try_into(self) -> Result<FieldIdParams, Self::Error> {
