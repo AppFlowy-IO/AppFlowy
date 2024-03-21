@@ -80,6 +80,7 @@ impl EventIntegrationTest {
         meta: Default::default(),
         set_as_current: false,
         index: None,
+        section: None,
       })
       .collect::<Vec<_>>();
 
