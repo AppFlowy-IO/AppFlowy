@@ -1,4 +1,19 @@
 # Release Notes
+## Version 0.5.3 - 03/21/2024
+### New Features
+- Added build support for 32-bit Android devices
+- Introduced filters for KanBan boards for enhanced organization
+- Introduced the new "Relations" column type in Grids
+- A
+Expanded language support with the addition of Greek
+- Enhanced toolbar design for Mobile devices
+- Introduced a command palette feature with initial support for page search
+
+### Bug Fixes
+- Rectified the issue of incomplete row data in Grids when adding new rows with active filters
+- Enhanced the logic governing the filtering of number and select/multi-select fields for improved accuracy
+- Implemented UI refinements on both Desktop and Mobile platforms, enriching the overall user experience of AppFlowy
+
 ## Version 0.5.2 - 03/13/2024
 ### Bug Fixes
 - Import csv file.
