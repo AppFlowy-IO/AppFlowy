@@ -39,7 +39,7 @@ function ImageEmpty({
     <>
       <div
         className={
-          'flex h-[48px] w-full cursor-pointer items-center gap-[10px] bg-content-blue-50 px-4 text-text-caption'
+          'container-bg flex h-[48px] w-full cursor-pointer select-none items-center gap-[10px] bg-content-blue-50 px-4 text-text-caption'
         }
       >
         <ImageIcon />

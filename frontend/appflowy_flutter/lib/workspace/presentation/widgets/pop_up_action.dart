@@ -220,9 +220,9 @@ class HoverButton extends StatelessWidget {
     super.key,
     required this.onTap,
     required this.itemHeight,
-    required this.leftIcon,
+    this.leftIcon,
     required this.name,
-    required this.rightIcon,
+    this.rightIcon,
   });
 
   final VoidCallback onTap;

@@ -32,7 +32,7 @@ pub(crate) fn subscribe_folder_view_changed(
         match value {
           ViewChange::DidCreateView { view } => {
             notify_child_views_changed(
-              view_pb_without_child_views(Arc::new(view.clone())),
+              view_pb_without_child_views(view.clone()),
               ChildViewChangeReason::Create,
             );
             notify_parent_view_did_change(folder.clone(), vec![view.parent_view_id]);
@@ -40,7 +40,7 @@ pub(crate) fn subscribe_folder_view_changed(
           ViewChange::DidDeleteView { views } => {
             for view in views {
               notify_child_views_changed(
-                view_pb_without_child_views(view),
+                view_pb_without_child_views(view.as_ref().clone()),
                 ChildViewChangeReason::Delete,
               );
             }
@@ -48,7 +48,7 @@ pub(crate) fn subscribe_folder_view_changed(
           ViewChange::DidUpdate { view } => {
             notify_view_did_change(view.clone());
             notify_child_views_changed(
-              view_pb_without_child_views(Arc::new(view.clone())),
+              view_pb_without_child_views(view.clone()),
               ChildViewChangeReason::Update,
             );
             notify_parent_view_did_change(folder.clone(), vec![view.parent_view_id.clone()]);
@@ -190,8 +190,9 @@ pub(crate) fn notify_did_update_workspace(workspace_id: &str, folder: &Folder) {
 }
 
 fn notify_view_did_change(view: View) -> Option<()> {
-  let view_pb = view_pb_without_child_views(Arc::new(view.clone()));
-  send_notification(&view.id, FolderNotification::DidUpdateView)
+  let view_id = view.id.clone();
+  let view_pb = view_pb_without_child_views(view);
+  send_notification(&view_id, FolderNotification::DidUpdateView)
     .payload(view_pb)
     .send();
   None

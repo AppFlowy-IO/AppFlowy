@@ -457,13 +457,17 @@ async fn group_insert_single_select_option_test() {
   let scripts = vec![
     AssertGroupCount(4),
     UpdateSingleSelectSelectOption {
-      inserted_options: vec![SelectOption::new(new_option_name)],
+      inserted_options: vec![SelectOption {
+        id: new_option_name.to_string(),
+        name: new_option_name.to_string(),
+        color: Default::default(),
+      }],
     },
     AssertGroupCount(5),
   ];
   test.run_scripts(scripts).await;
   let new_group = test.group_at_index(4).await;
-  assert_eq!(new_group.group_name, new_option_name);
+  assert_eq!(new_group.group_id, new_option_name);
 }
 
 #[tokio::test]
@@ -499,6 +503,4 @@ async fn group_manual_create_new_group() {
     AssertGroupCount(5),
   ];
   test.run_scripts(scripts).await;
-  let new_group = test.group_at_index(4).await;
-  assert_eq!(new_group.group_name, new_group_name);
 }

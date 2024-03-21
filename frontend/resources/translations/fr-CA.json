@@ -182,9 +182,7 @@
     "dragRow": "Appuyez longuement pour réorganiser la ligne",
     "viewDataBase": "Voir la base de données",
     "referencePage": "Ce {nom} est référencé",
-    "addBlockBelow": "Ajouter un bloc ci-dessous",
-    "urlLaunchAccessory": "Ouvrir dans le navigateur",
-    "urlCopyAccessory": "Copier l'URL"
+    "addBlockBelow": "Ajouter un bloc ci-dessous"
   },
   "sideBar": {
     "closeSidebar": "Fermer le menu latéral",
@@ -523,13 +521,9 @@
       "isComplete": "fait",
       "isIncomplted": "pas fait"
     },
-    "singleSelectOptionFilter": {
+    "selectOptionFilter": {
       "is": "Est",
       "isNot": "N'est pas",
-      "isEmpty": "Est vide",
-      "isNotEmpty": "N'est pas vide"
-    },
-    "multiSelectOptionFilter": {
       "contains": "Contient",
       "doesNotContain": "Ne contient pas",
       "isEmpty": "Est vide",
@@ -658,6 +652,10 @@
       "submitNewTask": "Créer",
       "hideComplete": "Cacher les tâches terminées",
       "showComplete": "Afficher toutes les tâches"
+    },
+    "url": {
+      "launch": "Ouvrir dans le navigateur",
+      "copy": "Copier l'URL"
     },
     "menuName": "Grille",
     "referencedGridPrefix": "Vue",
@@ -903,10 +901,10 @@
       "addToColumnBottomTooltip": "Ajouter une nouvelle carte en bas",
       "renameColumn": "Renommer",
       "hideColumn": "Cacher",
-      "groupActions": "Actions de groupe",
       "newGroup": "Nouveau groupe",
       "deleteColumn": "Supprimer",
-      "deleteColumnConfirmation": "Cela supprimera ce groupe et toutes les cartes qu'il contient. \nÊtes-vous sûr de vouloir continuer?"
+      "deleteColumnConfirmation": "Cela supprimera ce groupe et toutes les cartes qu'il contient. \nÊtes-vous sûr de vouloir continuer?",
+      "groupActions": "Actions de groupe"
     },
     "hiddenGroupSection": {
       "sectionTitle": "Groupes cachés",

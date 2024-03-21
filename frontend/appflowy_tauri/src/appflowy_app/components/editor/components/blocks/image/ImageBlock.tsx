@@ -1,4 +1,4 @@
-import React, { forwardRef, memo, useCallback, useRef } from 'react';
+import React, { forwardRef, memo, useCallback, useMemo, useRef } from 'react';
 import { EditorElementProps, ImageNode } from '$app/application/document/document.types';
 import { ReactEditor, useSelected, useSlateStatic } from 'slate-react';
 import ImageRender from '$app/components/editor/components/blocks/image/ImageRender';
@@ -7,7 +7,7 @@ import ImageEmpty from '$app/components/editor/components/blocks/image/ImageEmpt
 export const ImageBlock = memo(
   forwardRef<HTMLDivElement, EditorElementProps<ImageNode>>(({ node, children, className, ...attributes }, ref) => {
     const selected = useSelected();
-    const { url, align } = node.data;
+    const { url, align } = useMemo(() => node.data || {}, [node.data]);
     const containerRef = useRef<HTMLDivElement>(null);
     const editor = useSlateStatic();
     const onFocusNode = useCallback(() => {
@@ -24,9 +24,9 @@ export const ImageBlock = memo(
         onClick={() => {
           if (!selected) onFocusNode();
         }}
-        className={`${className} image-block relative w-full cursor-pointer py-1`}
+        className={`${className} image-block  relative w-full cursor-pointer py-1`}
       >
-        <div ref={ref} className={'absolute left-0 top-0 h-full w-full caret-transparent'}>
+        <div ref={ref} className={'absolute  left-0 top-0 h-full w-full select-none caret-transparent'}>
           {children}
         </div>
         <div

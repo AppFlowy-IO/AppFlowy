@@ -1,25 +1,26 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/database/application/cell/bloc/text_cell_bloc.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/row/row_controller.dart';
-import 'package:appflowy/plugins/database/application/row/row_service.dart';
+import 'package:appflowy/plugins/database/calendar/application/calendar_bloc.dart';
 import 'package:appflowy/plugins/database/calendar/application/calendar_event_editor_bloc.dart';
+import 'package:appflowy/plugins/database/widgets/cell/editable_cell_builder.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/text.dart';
 import 'package:appflowy/plugins/database/widgets/row/accessory/cell_accessory.dart';
-import 'package:appflowy/plugins/database/widgets/cell/editable_cell_builder.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
-import 'package:appflowy/plugins/database/application/cell/bloc/text_cell_bloc.dart';
 import 'package:appflowy/plugins/database/widgets/row/row_detail.dart';
 import 'package:appflowy/util/field_type_extension.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
+import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class CalendarEventEditor extends StatelessWidget {
@@ -86,17 +87,34 @@ class EventEditorControls extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
+          FlowyTooltip(
+            message: LocaleKeys.calendar_duplicateEvent.tr(),
+            child: FlowyIconButton(
+              width: 20,
+              icon: const FlowySvg(
+                FlowySvgs.m_duplicate_s,
+                size: Size.square(17),
+              ),
+              iconColorOnHover: Theme.of(context).colorScheme.onSecondary,
+              onPressed: () => context.read<CalendarBloc>().add(
+                    CalendarEvent.duplicateEvent(
+                      rowController.viewId,
+                      rowController.rowId,
+                    ),
+                  ),
+            ),
+          ),
+          const HSpace(8.0),
           FlowyIconButton(
             width: 20,
             icon: const FlowySvg(FlowySvgs.delete_s),
             iconColorOnHover: Theme.of(context).colorScheme.onSecondary,
-            onPressed: () async {
-              final result = await RowBackendService.deleteRow(
-                rowController.viewId,
-                rowController.rowId,
-              );
-              result.fold((l) => null, (err) => Log.error(err));
-            },
+            onPressed: () => context.read<CalendarBloc>().add(
+                  CalendarEvent.deleteEvent(
+                    rowController.viewId,
+                    rowController.rowId,
+                  ),
+                ),
           ),
           const HSpace(8.0),
           FlowyIconButton(
@@ -107,12 +125,10 @@ class EventEditorControls extends StatelessWidget {
               PopoverContainer.of(context).close();
               FlowyOverlay.show(
                 context: context,
-                builder: (BuildContext context) {
-                  return RowDetailPage(
-                    databaseController: databaseController,
-                    rowController: rowController,
-                  );
-                },
+                builder: (_) => RowDetailPage(
+                  databaseController: databaseController,
+                  rowController: rowController,
+                ),
               );
             },
           ),

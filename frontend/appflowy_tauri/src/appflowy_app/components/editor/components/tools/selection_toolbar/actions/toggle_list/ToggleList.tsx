@@ -12,10 +12,19 @@ export function ToggleList() {
   const isActivated = CustomEditor.isBlockActive(editor, EditorNodeType.ToggleListBlock);
 
   const onClick = useCallback(() => {
+    let type = EditorNodeType.ToggleListBlock;
+
+    if (isActivated) {
+      type = EditorNodeType.Paragraph;
+    }
+
     CustomEditor.turnToBlock(editor, {
-      type: EditorNodeType.ToggleListBlock,
+      type,
+      data: {
+        collapsed: false,
+      },
     });
-  }, [editor]);
+  }, [editor, isActivated]);
 
   return (
     <ActionButton active={isActivated} onClick={onClick} tooltip={t('document.plugins.toggleList')}>

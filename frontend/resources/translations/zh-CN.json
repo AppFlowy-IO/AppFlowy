@@ -79,7 +79,12 @@
     "large": "大",
     "fontSize": "字体大小",
     "import": "导入",
-    "moreOptions": "更多选项"
+    "moreOptions": "更多选项",
+    "wordCount": "字数： {}",
+    "charCount": "字符数：{}",
+    "createdAt": "创建于：{}",
+    "deleteView": "删除",
+    "duplicateView": "复制"
   },
   "importPanel": {
     "textAndMarkdown": "文本和Markdown",
@@ -182,9 +187,7 @@
     "dragRow": "长按重新排序该行",
     "viewDataBase": "查看数据库",
     "referencePage": "这个 {name} 已被引用",
-    "addBlockBelow": "在下面添加一个块",
-    "urlLaunchAccessory": "在浏览器中打开",
-    "urlCopyAccessory": "复制链接"
+    "addBlockBelow": "在下面添加一个块"
   },
   "sideBar": {
     "closeSidebar": "关闭侧边栏",
@@ -236,7 +239,12 @@
     "rename": "重命名",
     "helpCenter": "帮助中心",
     "add": "添加",
-    "yes": "是"
+    "yes": "是",
+    "clear": "清空",
+    "remove": "删除",
+    "dontRemove": "请勿删除",
+    "copyLink": "复制链接",
+    "align": "对齐"
   },
   "label": {
     "welcome": "欢迎！",
@@ -281,10 +289,12 @@
       "cloudLocal": "本地",
       "cloudSupabase": "Supabase",
       "cloudSupabaseUrl": "Supabase URL",
+      "cloudSupabaseUrlCanNotBeEmpty": "SUPABASE 地址不能为空",
       "cloudSupabaseAnonKey": "Supabase anon key",
       "cloudSupabaseAnonKeyCanNotBeEmpty": "如果 Supabase url 不为空，则 Anon key 不能为空",
       "cloudAppFlowy": "AppFlowy云",
       "cloudAppFlowySelfHost": "AppFlowy 云自行托管",
+      "appFlowyCloudUrlCanNotBeEmpty": "云地址不能为空",
       "clickToCopy": "点击复制",
       "selfHostStart": "如果您没有服务器，请参阅",
       "selfHostContent": "文档",
@@ -332,6 +342,7 @@
         "dark": "深色",
         "system": "跟随系统"
       },
+      "fontScaleFactor": "字体缩放比例",
       "documentSettings": {
         "cursorColor": "光标颜色",
         "selectionColor": "文本选择颜色",
@@ -520,13 +531,9 @@
       "isComplete": "已完成",
       "isIncomplted": "未完成"
     },
-    "singleSelectOptionFilter": {
+    "selectOptionFilter": {
       "is": "是",
       "isNot": "不是",
-      "isEmpty": "为空",
-      "isNotEmpty": "不为空"
-    },
-    "multiSelectOptionFilter": {
       "contains": "包含",
       "doesNotContain": "不包含",
       "isEmpty": "为空",
@@ -540,7 +547,25 @@
       "onOrAfter": "在或之后",
       "between": "之间",
       "empty": "为空",
-      "notEmpty": "不为空"
+      "notEmpty": "不为空",
+      "choicechipPrefix": {
+        "before": "之前",
+        "after": "之后",
+        "onOrBefore": "当天或之前",
+        "onOrAfter": "当天或之后",
+        "isEmpty": "为空",
+        "isNotEmpty": "不为空"
+      }
+    },
+    "numberFilter": {
+      "equal": "等于",
+      "notEqual": "不等于",
+      "lessThan": "小于",
+      "greaterThan": "大于",
+      "lessThanOrEqualTo": "小于等于",
+      "greaterThanOrEqualTo": "大于等于",
+      "isEmpty": "为空",
+      "isNotEmpty": "不为空"
     },
     "field": {
       "hide": "隐藏",
@@ -559,6 +584,7 @@
       "multiSelectFieldName": "多选",
       "urlFieldName": "网址",
       "checklistFieldName": "清单",
+      "relationFieldName": "关系",
       "numberFormat": "数字格式",
       "dateFormat": "日期格式",
       "includeTime": "包含时/分",
@@ -590,7 +616,8 @@
       "deleteFieldPromptMessage": "确定要删除这个属性吗? ",
       "newColumn": "新建列",
       "format": "格式",
-      "reminderOnDateTooltip": "这个单元格设置了一个预定的提醒"
+      "reminderOnDateTooltip": "这个单元格设置了一个预定的提醒",
+      "optionAlreadyExist": "选项已存在"
     },
     "rowPage": {
       "newField": "添加新字段",
@@ -611,6 +638,7 @@
       "descending": "降序",
       "deleteAllSorts": "删除所有排序",
       "addSort": "添加排序",
+      "removeSorting": "你确定要移除排序吗？",
       "deleteSort": "取消排序"
     },
     "row": {
@@ -657,8 +685,24 @@
       "hideComplete": "隐藏已完成的任务",
       "showComplete": "显示所有任务"
     },
+    "url": {
+      "launch": "在浏览器中打开",
+      "copy": "复制链接"
+    },
+    "relation": {
+      "emptySearchResult": "无结果"
+    },
     "menuName": "网格",
-    "referencedGridPrefix": "视图"
+    "referencedGridPrefix": "视图",
+    "calculate": "计算",
+    "calculationTypeLabel": {
+      "none": "无",
+      "average": "均值",
+      "max": "最大值",
+      "median": "中位数",
+      "min": "最小值",
+      "sum": "求和"
+    }
   },
   "document": {
     "menuName": "文档",
@@ -888,10 +932,10 @@
       "addToColumnBottomTooltip": "在底部添加一张新卡片",
       "renameColumn": "改名",
       "hideColumn": "隐藏",
-      "groupActions": "组操作",
       "newGroup": "新建组",
       "deleteColumn": "删除",
-      "deleteColumnConfirmation": "这将删除该组及其中的所有卡片。你确定你要继续吗？"
+      "deleteColumnConfirmation": "这将删除该组及其中的所有卡片。你确定你要继续吗？",
+      "groupActions": "组操作"
     },
     "hiddenGroupSection": {
       "sectionTitle": "私密组",

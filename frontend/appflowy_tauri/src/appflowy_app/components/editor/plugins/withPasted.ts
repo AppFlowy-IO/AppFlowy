@@ -112,13 +112,14 @@ export function withPasted(editor: ReactEditor) {
       if (isText && parent) {
         const [parentNode, parentPath] = parent as NodeEntry<Element>;
         const pastedNodeIsPage = parentNode.type === EditorNodeType.Page;
+        const pastedNodeIsNotList = !LIST_TYPES.includes(parentNode.type as EditorNodeType);
         const clonedFragment = transFragment(editor, fragment);
 
         const [firstNode, ...otherNodes] = clonedFragment;
         const lastNode = getLastNode(otherNodes[otherNodes.length - 1]);
         const firstIsEmbed = editor.isEmbed(firstNode);
         const insertNodes: Element[] = [...otherNodes];
-        const needMoveChildren = parentNode.children.length > 1 && !pastedNodeIsPage;
+        const needMoveChildren = parentNode.children.length > 1 && !pastedNodeIsPage && !pastedNodeIsNotList;
         let moveStartIndex = 0;
 
         if (firstIsEmbed) {
@@ -138,7 +139,7 @@ export function withPasted(editor: ReactEditor) {
           });
 
           if (children.length > 0) {
-            if (pastedNodeIsPage) {
+            if (pastedNodeIsPage || pastedNodeIsNotList) {
               // lift the children of the first fragment node to current node
               insertNodes.unshift(...children);
             } else {

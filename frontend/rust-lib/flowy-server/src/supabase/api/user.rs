@@ -372,6 +372,20 @@ where
       )
     })
   }
+
+  fn patch_workspace(
+    &self,
+    _workspace_id: &str,
+    _new_workspace_name: Option<&str>,
+    _new_workspace_icon: Option<&str>,
+  ) -> FutureResult<(), FlowyError> {
+    FutureResult::new(async {
+      Err(
+        FlowyError::local_version_not_support()
+          .with_context("supabase server doesn't support mulitple workspaces"),
+      )
+    })
+  }
 }
 
 pub struct CreateCollabAction {
@@ -655,6 +669,7 @@ fn default_workspace_doc_state(collab_object: &CollabObject) -> Vec<u8> {
     CollabOrigin::Empty,
     &collab_object.object_id,
     vec![],
+    false,
   ));
   let workspace = Workspace::new(workspace_id, "My workspace".to_string(), collab_object.uid);
   let folder = Folder::create(collab_object.uid, collab, None, FolderData::new(workspace));

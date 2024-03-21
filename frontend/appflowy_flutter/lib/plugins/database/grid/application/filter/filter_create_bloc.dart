@@ -114,7 +114,7 @@ class GridCreateFilterBloc
       case FieldType.MultiSelect:
         return _filterBackendSvc.insertSelectOptionFilter(
           fieldId: fieldId,
-          condition: SelectOptionConditionPB.OptionIs,
+          condition: SelectOptionFilterConditionPB.OptionContains,
           fieldType: FieldType.MultiSelect,
         );
       case FieldType.Checklist:
@@ -130,19 +130,19 @@ class GridCreateFilterBloc
       case FieldType.RichText:
         return _filterBackendSvc.insertTextFilter(
           fieldId: fieldId,
-          condition: TextFilterConditionPB.Contains,
+          condition: TextFilterConditionPB.TextContains,
           content: '',
         );
       case FieldType.SingleSelect:
         return _filterBackendSvc.insertSelectOptionFilter(
           fieldId: fieldId,
-          condition: SelectOptionConditionPB.OptionIs,
+          condition: SelectOptionFilterConditionPB.OptionIs,
           fieldType: FieldType.SingleSelect,
         );
       case FieldType.URL:
         return _filterBackendSvc.insertURLFilter(
           fieldId: fieldId,
-          condition: TextFilterConditionPB.Contains,
+          condition: TextFilterConditionPB.TextContains,
         );
       default:
         throw UnimplementedError();

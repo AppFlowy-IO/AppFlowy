@@ -147,10 +147,10 @@ void _showEditSortPanelFromToolbar(
 ) {
   showMobileBottomSheet(
     context,
-    backgroundColor: Theme.of(context).colorScheme.surface,
     showDragHandle: true,
     showDivider: false,
     useSafeArea: false,
+    backgroundColor: Theme.of(context).colorScheme.background,
     builder: (_) {
       return BlocProvider.value(
         value: context.read<SortEditorBloc>(),

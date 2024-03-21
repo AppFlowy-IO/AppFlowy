@@ -75,7 +75,7 @@ pub fn apply_cell_changeset(
   cell_data_cache: Option<CellCache>,
 ) -> Result<Cell, FlowyError> {
   let field_type = FieldType::from(field.field_type);
-  match TypeOptionCellExt::new_with_cell_data_cache(field, cell_data_cache)
+  match TypeOptionCellExt::new(field, cell_data_cache)
     .get_type_option_cell_data_handler(&field_type)
   {
     None => Ok(Cell::default()),
@@ -128,7 +128,7 @@ pub fn try_decode_cell_to_cell_protobuf(
   field: &Field,
   cell_data_cache: Option<CellCache>,
 ) -> FlowyResult<CellProtobufBlob> {
-  match TypeOptionCellExt::new_with_cell_data_cache(field, cell_data_cache)
+  match TypeOptionCellExt::new(field, cell_data_cache)
     .get_type_option_cell_data_handler(to_field_type)
   {
     None => Ok(CellProtobufBlob::default()),
@@ -143,7 +143,7 @@ pub fn try_decode_cell_to_cell_data<T: Default + 'static>(
   field: &Field,
   cell_data_cache: Option<CellCache>,
 ) -> Option<T> {
-  let handler = TypeOptionCellExt::new_with_cell_data_cache(field, cell_data_cache)
+  let handler = TypeOptionCellExt::new(field, cell_data_cache)
     .get_type_option_cell_data_handler(to_field_type)?;
   handler
     .get_cell_data(cell, from_field_type, field)
@@ -152,8 +152,8 @@ pub fn try_decode_cell_to_cell_data<T: Default + 'static>(
 }
 
 /// Returns a string that represents the current field_type's cell data.
-/// For example, The string of the Multi-Select cell will be a list of the option's name
-/// separated by a comma.
+/// For example, a Multi-Select cell will be represented by a list of the options' names
+/// separated by commas.
 ///
 /// # Arguments
 ///
@@ -162,16 +162,13 @@ pub fn try_decode_cell_to_cell_data<T: Default + 'static>(
 /// * `from_field_type`: the original field type of the passed-in cell data.
 /// * `field`: used to get the corresponding TypeOption for the specified field type.
 ///
-/// returns: String
 pub fn stringify_cell_data(
   cell: &Cell,
   to_field_type: &FieldType,
   from_field_type: &FieldType,
   field: &Field,
 ) -> String {
-  match TypeOptionCellExt::new_with_cell_data_cache(field, None)
-    .get_type_option_cell_data_handler(from_field_type)
-  {
+  match TypeOptionCellExt::new(field, None).get_type_option_cell_data_handler(from_field_type) {
     None => "".to_string(),
     Some(handler) => handler.handle_stringify_cell(cell, to_field_type, field),
   }

@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 
+import 'package:appflowy/shared/patterns/common_patterns.dart';
+
 extension StringExtension on String {
   static const _specialCharacters = r'\/:*?"<>| ';
 
@@ -31,8 +33,6 @@ extension StringExtension on String {
     return null;
   }
 
-  /// Returns if the string is a appflowy cloud url.
-  bool get isAppFlowyCloudUrl {
-    return RegExp(r'^(https:\/\/)(.*)(\.appflowy\.cloud\/)(.*)').hasMatch(this);
-  }
+  /// Returns true if the string is a appflowy cloud url.
+  bool get isAppFlowyCloudUrl => appflowyCloudUrlRegex.hasMatch(this);
 }

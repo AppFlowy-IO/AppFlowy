@@ -15,12 +15,12 @@ export interface FieldProps {
 
 const initialAnchorOrigin: PopoverOrigin = {
   vertical: 'bottom',
-  horizontal: 'left',
+  horizontal: 'right',
 };
 
 const initialTransformOrigin: PopoverOrigin = {
   vertical: 'top',
-  horizontal: 'left',
+  horizontal: 'center',
 };
 
 export const Property: FC<FieldProps> = ({ field, onCloseMenu, className, menuOpened }) => {
@@ -54,7 +54,7 @@ export const Property: FC<FieldProps> = ({ field, onCloseMenu, className, menuOp
   }, [menuOpened]);
 
   const { paperHeight, paperWidth, transformOrigin, anchorOrigin, isEntered } = usePopoverAutoPosition({
-    initialPaperWidth: 369,
+    initialPaperWidth: 300,
     initialPaperHeight: 400,
     anchorPosition,
     initialAnchorOrigin,
@@ -81,7 +81,7 @@ export const Property: FC<FieldProps> = ({ field, onCloseMenu, className, menuOp
           PaperProps={{
             style: {
               maxHeight: paperHeight,
-              maxWidth: paperWidth,
+              width: paperWidth,
               height: 'auto',
             },
             className: 'flex h-full flex-col overflow-hidden',

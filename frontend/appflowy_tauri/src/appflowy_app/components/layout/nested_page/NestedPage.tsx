@@ -12,7 +12,16 @@ function NestedPage({ pageId }: { pageId: string }) {
   const { toggleCollapsed, collapsed, childPages } = useLoadChildPages(pageId);
   const { onAddPage, onPageClick, onDeletePage, onDuplicatePage, onRenamePage } = usePageActions(pageId);
   const dispatch = useAppDispatch();
-  const page = useAppSelector((state) => state.pages.pageMap[pageId]);
+  const { page, parentLayout } = useAppSelector((state) => {
+    const page = state.pages.pageMap[pageId];
+    const parent = state.pages.pageMap[page?.parentId || ''];
+
+    return {
+      page,
+      parentLayout: parent?.layout,
+    };
+  });
+
   const disableChildren = useAppSelector((state) => {
     if (!page) return true;
     const layout = state.pages.pageMap[page.parentId]?.layout;
@@ -65,6 +74,9 @@ function NestedPage({ pageId }: { pageId: string }) {
     }
   }, [dropPosition, isDragging, isDraggingOver, page?.layout]);
 
+  // Only allow dragging if the parent layout is undefined or a document
+  const draggable = parentLayout === undefined || parentLayout === ViewLayoutPB.Document;
+
   return (
     <div
       className={className}
@@ -73,7 +85,7 @@ function NestedPage({ pageId }: { pageId: string }) {
       onDragOver={onDragOver}
       onDragEnd={onDragEnd}
       onDrop={onDrop}
-      draggable={true}
+      draggable={draggable}
       data-drop-enabled={page?.layout === ViewLayoutPB.Document}
       data-dragging={isDragging}
       data-page-id={pageId}

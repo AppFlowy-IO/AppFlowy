@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -17,7 +18,6 @@ import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class QuestionBubble extends StatelessWidget {
   const QuestionBubble({super.key});
@@ -95,26 +95,26 @@ class _BubbleActionListState extends State<BubbleActionList> {
         if (action is BubbleActionWrapper) {
           switch (action.inner) {
             case BubbleAction.whatsNews:
-              _launchURL("https://www.appflowy.io/what-is-new");
+              afLaunchUrlString("https://www.appflowy.io/what-is-new");
               break;
             case BubbleAction.help:
-              _launchURL("https://discord.gg/9Q2xaN37tV");
+              afLaunchUrlString("https://discord.gg/9Q2xaN37tV");
               break;
             case BubbleAction.debug:
               _DebugToast().show();
               break;
             case BubbleAction.shortcuts:
-              _launchURL(
-                "https://appflowy.gitbook.io/docs/essential-documentation/shortcuts",
+              afLaunchUrlString(
+                "https://docs.appflowy.io/docs/appflowy/product/shortcuts",
               );
               break;
             case BubbleAction.markdown:
-              _launchURL(
-                "https://appflowy.gitbook.io/docs/essential-documentation/markdown",
+              afLaunchUrlString(
+                "https://docs.appflowy.io/docs/appflowy/product/markdown",
               );
               break;
             case BubbleAction.github:
-              _launchURL(
+              afLaunchUrlString(
                 'https://github.com/AppFlowy-IO/AppFlowy/issues/new/choose',
               );
               break;
@@ -126,15 +126,6 @@ class _BubbleActionListState extends State<BubbleActionList> {
         controller.close();
       },
     );
-  }
-
-  void _launchURL(String url) async {
-    final uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri);
-    } else {
-      throw 'Could not launch $url';
-    }
   }
 }
 
@@ -189,7 +180,6 @@ class FlowyVersionDescription extends CustomActionCell {
                 isLoading: state.isLoading,
                 isUpdateAvailable: state.isUpdateAvailable,
               ),
-              rightIcon: null,
               itemHeight: 20,
               name: '${state.appName} ${state.currentVersion}',
               onTap: () {

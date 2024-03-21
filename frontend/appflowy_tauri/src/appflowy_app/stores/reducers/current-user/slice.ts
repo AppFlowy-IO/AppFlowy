@@ -17,35 +17,41 @@ export enum Theme {
   Lavender = 'lavender',
 }
 
+export enum LoginState {
+  Loading = 'loading',
+  Success = 'success',
+  Error = 'error',
+}
+
 export interface ICurrentUser {
   id?: number;
+  deviceId?: string;
   displayName?: string;
   email?: string;
   token?: string;
+  iconUrl?: string;
   isAuthenticated: boolean;
   workspaceSetting?: WorkspaceSettingPB;
   userSetting: UserSetting;
+  isLocal: boolean;
+  loginState?: LoginState;
 }
 
 const initialState: ICurrentUser | null = {
   isAuthenticated: false,
   userSetting: {},
+  isLocal: true,
 };
 
 export const currentUserSlice = createSlice({
   name: 'currentUser',
   initialState: initialState,
   reducers: {
-    checkUser: (state, action: PayloadAction<Partial<ICurrentUser>>) => {
-      return {
-        ...state,
-        ...action.payload,
-      };
-    },
     updateUser: (state, action: PayloadAction<Partial<ICurrentUser>>) => {
       return {
         ...state,
         ...action.payload,
+        loginState: LoginState.Success,
       };
     },
     logout: () => {
@@ -56,6 +62,14 @@ export const currentUserSlice = createSlice({
         ...state.userSetting,
         ...action.payload,
       };
+    },
+
+    setLoginState: (state, action: PayloadAction<LoginState>) => {
+      state.loginState = action.payload;
+    },
+
+    resetLoginState: (state) => {
+      state.loginState = undefined;
     },
   },
 });

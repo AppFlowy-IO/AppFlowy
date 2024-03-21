@@ -14,8 +14,12 @@ const initialOrigin: {
   anchorOrigin?: PopoverOrigin;
 } = {
   anchorOrigin: {
-    vertical: 'top',
+    vertical: 'center',
     horizontal: 'right',
+  },
+  transformOrigin: {
+    vertical: 'center',
+    horizontal: 'left',
   },
 };
 

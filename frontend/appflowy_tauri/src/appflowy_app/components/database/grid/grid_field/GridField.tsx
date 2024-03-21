@@ -133,6 +133,10 @@ export const GridField: FC<GridFieldProps> = memo(
           className='relative flex h-full w-full items-center rounded-none px-0'
           disableRipple
           onContextMenu={(event) => {
+            if (propertyMenuOpened || menuOpened || open) {
+              return;
+            }
+
             event.stopPropagation();
             event.preventDefault();
             handleClick();

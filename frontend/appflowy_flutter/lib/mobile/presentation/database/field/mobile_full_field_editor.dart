@@ -208,7 +208,9 @@ class _MobileFieldEditorState extends State<MobileFieldEditor> {
   Widget build(BuildContext context) {
     final option = _buildOption();
     return Container(
-      color: Theme.of(context).colorScheme.secondaryContainer,
+      color: Theme.of(context).brightness == Brightness.light
+          ? const Color(0xFFF7F8FB)
+          : const Color(0xFF23262B),
       height: MediaQuery.of(context).size.height,
       child: SingleChildScrollView(
         child: Column(
@@ -259,6 +261,7 @@ class _MobileFieldEditorState extends State<MobileFieldEditor> {
             ],
             ..._buildOptionActions(),
             const _Divider(),
+            VSpace(MediaQuery.viewPaddingOf(context).bottom == 0 ? 28.0 : 16.0),
           ],
         ),
       ),
@@ -351,7 +354,7 @@ class _MobileFieldEditorState extends State<MobileFieldEditor> {
     }
 
     return [
-      if (widget.actions.contains(FieldOptionAction.hide))
+      if (widget.actions.contains(FieldOptionAction.hide) && !widget.isPrimary)
         FlowyOptionTile.text(
           text: LocaleKeys.grid_field_hide.tr(),
           leftIcon: const FlowySvg(FlowySvgs.m_field_hide_s),

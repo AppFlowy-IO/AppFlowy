@@ -54,6 +54,13 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v4
 
+      - name: Export pub environment variable on Windows
+        run: |
+          if [ "$RUNNER_OS" == "Windows" ]; then
+            echo "PUB_CACHE=$LOCALAPPDATA\\Pub\\Cache" >> $GITHUB_ENV
+          fi
+        shell: bash
+
       - name: Install flutter
         uses: subosito/flutter-action@v2
         with:

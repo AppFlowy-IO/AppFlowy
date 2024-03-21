@@ -10,6 +10,7 @@ import { useGridColumn, useGridRow } from './GridTable.hooks';
 import GridStickyHeader from '$app/components/database/grid/grid_sticky_header/GridStickyHeader';
 import GridTableOverlay from '$app/components/database/grid/grid_overlay/GridTableOverlay';
 import ReactDOM from 'react-dom';
+import { useViewId } from '$app/hooks';
 
 export interface GridTableProps {
   onEditRecord: (rowId: string) => void;
@@ -30,6 +31,7 @@ export const GridTable: FC<GridTableProps> = React.memo(({ onEditRecord }) => {
     columns,
     ref as React.MutableRefObject<Grid<GridColumn[] | { columns: GridColumn[]; renderRows: RenderRow[] }> | null>
   );
+  const viewId = useViewId();
   const { rowHeight } = useGridRow();
   const onRendered = useDatabaseRendered();
 
@@ -139,7 +141,7 @@ export const GridTable: FC<GridTableProps> = React.memo(({ onEditRecord }) => {
               className={'grid-scroll-container'}
               outerRef={(el) => {
                 scrollElementRef.current = el;
-                onRendered();
+                onRendered(viewId);
               }}
               innerRef={containerRef}
             >

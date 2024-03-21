@@ -128,7 +128,7 @@ extension NumberFormatExtension on NumberFormatPB {
     }
   }
 
-  String iconSymbol() {
+  String iconSymbol([bool defaultPrefixInc = true]) {
     switch (this) {
       case NumberFormatPB.ArgentinePeso:
         return "\$";
@@ -169,7 +169,7 @@ extension NumberFormatExtension on NumberFormatPB {
       case NumberFormatPB.NorwegianKrone:
         return "kr";
       case NumberFormatPB.Num:
-        return "#";
+        return defaultPrefixInc ? "#" : "";
       case NumberFormatPB.Percent:
         return "%";
       case NumberFormatPB.PhilippinePeso:

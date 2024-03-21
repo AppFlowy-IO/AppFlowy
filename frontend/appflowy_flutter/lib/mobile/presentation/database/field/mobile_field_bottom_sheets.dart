@@ -40,14 +40,16 @@ Future<FieldType?> showFieldTypeGridBottomSheet(
     showCloseButton: true,
     elevation: 20,
     title: title,
-    backgroundColor: Theme.of(context).colorScheme.surface,
+    backgroundColor: Theme.of(context).colorScheme.background,
     enableDraggableScrollable: true,
     builder: (context) {
       final typeOptionMenuItemValue = mobileSupportedFieldTypes
           .map(
             (fieldType) => TypeOptionMenuItemValue(
               value: fieldType,
-              backgroundColor: fieldType.mobileIconBackgroundColor,
+              backgroundColor: Theme.of(context).brightness == Brightness.light
+                  ? fieldType.mobileIconBackgroundColor
+                  : fieldType.mobileIconBackgroundColorDark,
               text: fieldType.i18n,
               icon: fieldType.svgData,
               onTap: (context, fieldType) =>
@@ -92,9 +94,6 @@ void mobileCreateFieldWorkflow(
   if (optionValues != null) {
     await optionValues.create(viewId: viewId, position: position);
   }
-  if (context.mounted) {
-    context.pop();
-  }
 }
 
 /// Used to edit a field.
@@ -121,7 +120,6 @@ void showQuickEditField(
 ) {
   showMobileBottomSheet(
     context,
-    backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
     showDragHandle: true,
     builder: (context) {
       return SingleChildScrollView(

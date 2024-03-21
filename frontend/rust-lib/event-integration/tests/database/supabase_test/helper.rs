@@ -81,7 +81,7 @@ pub fn assert_database_collab_content(
   collab_update: &[u8],
   expected: JsonValue,
 ) {
-  let collab = MutexCollab::new(CollabOrigin::Server, database_id, vec![]);
+  let collab = MutexCollab::new(CollabOrigin::Server, database_id, vec![], false);
   collab.lock().with_origin_transact_mut(|txn| {
     let update = Update::decode_v1(collab_update).unwrap();
     txn.apply_update(update);

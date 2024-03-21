@@ -17,7 +17,6 @@ import { ReactComponent as GridIcon } from '$app/assets/grid.svg';
 import { ReactComponent as ImageIcon } from '$app/assets/image.svg';
 import { DataObjectOutlined, FunctionsOutlined, HorizontalRuleOutlined, MenuBookOutlined } from '@mui/icons-material';
 import { CustomEditor } from '$app/components/editor/command';
-import { randomEmoji } from '$app/utils/emoji';
 import { KeyboardNavigationOption } from '$app/components/_shared/keyboard_navigation/KeyboardNavigation';
 import { YjsEditor } from '@slate-yjs/core';
 import { useEditorBlockDispatch } from '$app/components/editor/stores/block';
@@ -133,7 +132,7 @@ export function useSlashCommandPanel({
 
       if (nodeType === EditorNodeType.CalloutBlock) {
         Object.assign(data, {
-          icon: randomEmoji(),
+          icon: '📌',
         });
       }
 
@@ -158,7 +157,7 @@ export function useSlashCommandPanel({
 
       if (!newNode || !path) return;
 
-      const isEmpty = CustomEditor.isEmptyText(editor, newNode) && node.type === EditorNodeType.Paragraph;
+      const isEmpty = CustomEditor.isEmptyText(editor, newNode);
 
       if (!isEmpty) {
         const nextPath = Path.next(path);

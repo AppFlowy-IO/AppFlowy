@@ -1,12 +1,13 @@
 import 'dart:io';
 
+import 'package:flutter/material.dart';
+
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flowy_infra_ui/widget/ignore_parent_gesture.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flutter/material.dart';
 
 class FlowyButton extends StatelessWidget {
   final Widget text;
@@ -88,7 +89,7 @@ class FlowyButton extends StatelessWidget {
   }
 
   Widget _render(BuildContext context) {
-    List<Widget> children = List.empty(growable: true);
+    final List<Widget> children = [];
 
     if (leftIcon != null) {
       children.add(
@@ -213,6 +214,7 @@ class FlowyTextButton extends StatelessWidget {
     );
 
     child = RawMaterialButton(
+      focusNode: FocusNode(skipTraversal: onPressed == null),
       hoverElevation: 0,
       highlightElevation: 0,
       shape: RoundedRectangleBorder(borderRadius: radius ?? Corners.s6Border),
@@ -235,6 +237,10 @@ class FlowyTextButton extends StatelessWidget {
         message: tooltip!,
         child: child,
       );
+    }
+
+    if (onPressed == null) {
+      child = ExcludeFocus(child: child);
     }
 
     return child;

@@ -18,17 +18,18 @@ function ChecklistItem({
   rowId,
   fieldId,
   onClose,
-  isHovered,
-  onMouseEnter,
+  isSelected,
+  onFocus,
 }: {
   checked: boolean;
   option: SelectOption;
   rowId: string;
   fieldId: string;
   onClose: () => void;
-  isHovered: boolean;
-  onMouseEnter: () => void;
+  isSelected: boolean;
+  onFocus: () => void;
 }) {
+  const inputRef = React.useRef<HTMLInputElement>(null);
   const { t } = useTranslation();
   const [value, setValue] = useState(option.name);
   const viewId = useViewId();
@@ -61,17 +62,23 @@ function ChecklistItem({
 
   return (
     <div
-      onMouseEnter={onMouseEnter}
-      className={`flex items-center justify-between gap-2 rounded p-1 text-sm hover:bg-fill-list-active`}
+      style={{
+        backgroundColor: isSelected ? 'var(--fill-list-active)' : undefined,
+      }}
+      className={`checklist-item ${
+        isSelected ? 'selected' : ''
+      } flex items-center justify-between gap-2 rounded p-1 text-sm hover:bg-fill-list-hover`}
     >
-      <div className={'cursor-pointer select-none text-content-blue-400'} onClick={onCheckedChange}>
+      <div className={'relative cursor-pointer select-none text-content-blue-400'} onClick={onCheckedChange}>
         {checked ? <CheckboxCheckSvg className={'h-5 w-5'} /> : <CheckboxUncheckSvg className={'h-5 w-5'} />}
       </div>
 
       <input
         className={'flex-1 truncate'}
+        ref={inputRef}
         onBlur={updateText}
         value={value}
+        onFocus={onFocus}
         placeholder={t('grid.checklist.taskHint')}
         onKeyDown={(e) => {
           if (e.key === 'Escape') {
@@ -99,14 +106,7 @@ function ChecklistItem({
         }}
       />
       <div className={'w-10'}>
-        <IconButton
-          size={'small'}
-          style={{
-            display: isHovered ? 'block' : 'none',
-          }}
-          className={`z-10 mx-2`}
-          onClick={deleteOption}
-        >
+        <IconButton size={'small'} className={`delete-option-button z-10 mx-2`} onClick={deleteOption}>
           <DeleteIcon />
         </IconButton>
       </div>

@@ -1,24 +1,32 @@
 import React, { useCallback, useRef } from 'react';
 
-const MIN_WIDTH = 80;
-
-function ImageResizer({ width, onWidthChange }: { width: number; onWidthChange: (newWidth: number) => void }) {
+function ImageResizer({
+  minWidth,
+  width,
+  onWidthChange,
+  isLeft,
+}: {
+  isLeft?: boolean;
+  minWidth: number;
+  width: number;
+  onWidthChange: (newWidth: number) => void;
+}) {
   const originalWidth = useRef(width);
   const startX = useRef(0);
 
   const onResize = useCallback(
     (e: MouseEvent) => {
       e.preventDefault();
-      const diff = e.clientX - startX.current;
+      const diff = isLeft ? startX.current - e.clientX : e.clientX - startX.current;
       const newWidth = originalWidth.current + diff;
 
-      if (newWidth < MIN_WIDTH) {
+      if (newWidth < minWidth) {
         return;
       }
 
       onWidthChange(newWidth);
     },
-    [onWidthChange]
+    [isLeft, minWidth, onWidthChange]
   );
 
   const onResizeEnd = useCallback(() => {
@@ -29,20 +37,19 @@ function ImageResizer({ width, onWidthChange }: { width: number; onWidthChange: 
   const onResizeStart = useCallback(
     (e: React.MouseEvent) => {
       startX.current = e.clientX;
+      originalWidth.current = width;
       document.addEventListener('mousemove', onResize);
       document.addEventListener('mouseup', onResizeEnd);
     },
-    [onResize, onResizeEnd]
+    [onResize, onResizeEnd, width]
   );
 
   return (
     <div
       onMouseDown={onResizeStart}
-      onMouseUp={() => {
-        originalWidth.current = width;
-      }}
       style={{
-        right: '2px',
+        right: isLeft ? 'auto' : '2px',
+        left: isLeft ? '-2px' : 'auto',
       }}
       className={'image-resizer'}
     >

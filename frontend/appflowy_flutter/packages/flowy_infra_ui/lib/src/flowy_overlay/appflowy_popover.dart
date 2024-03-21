@@ -26,6 +26,10 @@ class AppFlowyPopover extends StatelessWidget {
   ///  the conflict won't be resolve by using Listener, we want these two gestures exclusive.
   final PopoverClickHandler clickHandler;
 
+  /// If true the popover will not participate in focus traversal.
+  ///
+  final bool skipTraversal;
+
   const AppFlowyPopover({
     super.key,
     required this.child,
@@ -43,6 +47,7 @@ class AppFlowyPopover extends StatelessWidget {
     this.windowPadding = const EdgeInsets.all(8.0),
     this.decoration,
     this.clickHandler = PopoverClickHandler.listener,
+    this.skipTraversal = false,
   });
 
   @override
@@ -58,6 +63,7 @@ class AppFlowyPopover extends StatelessWidget {
       windowPadding: windowPadding,
       offset: offset,
       clickHandler: clickHandler,
+      skipTraversal: skipTraversal,
       popupBuilder: (context) {
         return _PopoverContainer(
           constraints: constraints,

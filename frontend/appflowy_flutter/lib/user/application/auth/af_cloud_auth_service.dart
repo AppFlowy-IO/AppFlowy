@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/startup/tasks/appflowy_cloud_task.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
@@ -55,7 +56,7 @@ class AppFlowyCloudAuthService implements AuthService {
       (data) async {
         // Open the webview with oauth url
         final uri = Uri.parse(data.oauthUrl);
-        final isSuccess = await launchUrl(
+        final isSuccess = await afLaunchUrl(
           uri,
           mode: LaunchMode.externalApplication,
           webOnlyWindowName: '_self',
@@ -71,8 +72,9 @@ class AppFlowyCloudAuthService implements AuthService {
             throw Exception('AppFlowyCloudDeepLink is not registered');
           }
         } else {
-          completer
-              .complete(FlowyResult.failure(AuthError.signInWithOauthError));
+          completer.complete(
+            FlowyResult.failure(AuthError.unableToGetDeepLink),
+          );
         }
 
         return completer.future;

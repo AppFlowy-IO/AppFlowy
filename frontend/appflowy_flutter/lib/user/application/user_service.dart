@@ -79,15 +79,13 @@ class UserBackendService {
     return UserEventOpenAnonUser().send();
   }
 
-  Future<FlowyResult<List<WorkspacePB>, FlowyError>> getWorkspaces() {
-    // final request = WorkspaceIdPB.create();
-    // return FolderEventReadAllWorkspaces(request).send().then((result) {
-    //   return result.fold(
-    //     (workspaces) => FlowyResult.success(workspaces.items),
-    //     (error) => FlowyResult.failure(error),
-    //   );
-    // });
-    return Future.value(FlowyResult.success([]));
+  Future<FlowyResult<List<UserWorkspacePB>, FlowyError>> getWorkspaces() {
+    return UserEventGetAllWorkspace().send().then((value) {
+      return value.fold(
+        (workspaces) => FlowyResult.success(workspaces.items),
+        (error) => FlowyResult.failure(error),
+      );
+    });
   }
 
   Future<FlowyResult<void, FlowyError>> openWorkspace(String workspaceId) {
@@ -111,11 +109,45 @@ class UserBackendService {
     final request = CreateWorkspacePayloadPB.create()
       ..name = name
       ..desc = desc;
-    return FolderEventCreateWorkspace(request).send().then((result) {
+    return FolderEventCreateFolderWorkspace(request).send().then((result) {
       return result.fold(
         (workspace) => FlowyResult.success(workspace),
         (error) => FlowyResult.failure(error),
       );
     });
+  }
+
+  Future<FlowyResult<UserWorkspacePB, FlowyError>> createUserWorkspace(
+    String name,
+  ) {
+    final request = CreateWorkspacePB.create()..name = name;
+    return UserEventCreateWorkspace(request).send();
+  }
+
+  Future<FlowyResult<void, FlowyError>> deleteWorkspaceById(
+    String workspaceId,
+  ) {
+    final request = UserWorkspaceIdPB.create()..workspaceId = workspaceId;
+    return UserEventDeleteWorkspace(request).send();
+  }
+
+  Future<FlowyResult<void, FlowyError>> renameWorkspace(
+    String workspaceId,
+    String name,
+  ) {
+    final request = RenameWorkspacePB()
+      ..workspaceId = workspaceId
+      ..newName = name;
+    return UserEventRenameWorkspace(request).send();
+  }
+
+  Future<FlowyResult<void, FlowyError>> updateWorkspaceIcon(
+    String workspaceId,
+    String icon,
+  ) {
+    final request = ChangeWorkspaceIconPB()
+      ..workspaceId = workspaceId
+      ..newIcon = icon;
+    return UserEventChangeWorkspaceIcon(request).send();
   }
 }

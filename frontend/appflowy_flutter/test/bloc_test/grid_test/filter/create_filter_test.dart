@@ -42,7 +42,6 @@ void main() {
     await service.deleteFilter(
       fieldId: textField.id,
       filterId: filterInfo.filter.id,
-      fieldType: textField.fieldType,
     );
     await gridResponseFuture();
 
