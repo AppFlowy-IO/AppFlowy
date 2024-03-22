@@ -105,7 +105,7 @@ class SplashScreen extends StatelessWidget {
 
   Future<void> _registerIfNeeded() async {
     final result = await UserEventGetUserProfile().send();
-    if (result.isFailure()) {
+    if (result.isFailure) {
       await getIt<AuthService>().signUpAsGuest();
     }
   }

@@ -20,6 +20,7 @@ class FlowyDialog extends StatelessWidget {
     this.expandHeight = true,
     this.alignment,
     this.insetPadding,
+    this.width,
   });
 
   final Widget? title;
@@ -35,6 +36,8 @@ class FlowyDialog extends StatelessWidget {
 
   // Inset of the Dialog
   final EdgeInsets? insetPadding;
+
+  final double? width;
 
   @override
   Widget build(BuildContext context) {
@@ -55,8 +58,9 @@ class FlowyDialog extends StatelessWidget {
           type: MaterialType.transparency,
           child: Container(
             height: expandHeight ? size.height : null,
-            width: max(min(size.width, overlayContainerMaxWidth),
-                overlayContainerMinWidth),
+            width: width ??
+                max(min(size.width, overlayContainerMaxWidth),
+                    overlayContainerMinWidth),
             constraints: constraints,
             child: child,
           ),

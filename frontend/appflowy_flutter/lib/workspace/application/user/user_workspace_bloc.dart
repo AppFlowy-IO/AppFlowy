@@ -1,9 +1,13 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/code.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_result/appflowy_result.dart';
+import 'package:collection/collection.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -20,141 +24,133 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
       (event, emit) async {
         await event.when(
           initial: () async {
-            add(const FetchWorkspaces());
+            final result = await _fetchWorkspaces();
+            final isCollabWorkspaceOn =
+                userProfile.authenticator != AuthenticatorPB.Local &&
+                    FeatureFlag.collaborativeWorkspace.isOn;
+            emit(
+              state.copyWith(
+                currentWorkspace: result?.$1,
+                workspaces: result?.$2 ?? [],
+                isCollabWorkspaceOn: isCollabWorkspaceOn,
+                actionResult: null,
+              ),
+            );
           },
-          workspacesReceived: (workspaceId) async {},
           fetchWorkspaces: () async {
             final result = await _fetchWorkspaces();
             if (result != null) {
-              final members = await _userService
-                  .getWorkspaceMembers(
-                    result.$1.workspaceId,
-                  )
-                  .fold((s) => s.items.length, (f) => -1);
               emit(
                 state.copyWith(
-                  isCollaborativeWorkspace: members > 1,
                   currentWorkspace: result.$1,
                   workspaces: result.$2,
                 ),
               );
+            } else {
+              emit(
+                state.copyWith(
+                  actionResult: UserWorkspaceActionResult(
+                    actionType: UserWorkspaceActionType.none,
+                    result: FlowyResult.failure(
+                      FlowyError(
+                        code: ErrorCode.Internal,
+                        msg: LocaleKeys.workspace_fetchWorkspacesFailed.tr(),
+                      ),
+                    ),
+                  ),
+                ),
+              );
             }
           },
-          createWorkspace: (name, desc) async {
+          createWorkspace: (name) async {
             final result = await _userService.createUserWorkspace(name);
-            final (workspaces, createWorkspaceResult) = result.fold(
-              (s) {
-                final workspaces = [...state.workspaces, s];
-                return (
-                  workspaces,
-                  FlowyResult<void, FlowyError>.success(null)
-                );
-              },
-              (e) {
-                Log.error(e);
-                return (state.workspaces, FlowyResult.failure(e));
-              },
+            final workspaces = result.fold(
+              (s) => [...state.workspaces, s],
+              (e) => state.workspaces,
             );
             emit(
               state.copyWith(
-                openWorkspaceResult: null,
-                deleteWorkspaceResult: null,
-                updateWorkspaceIconResult: null,
-                createWorkspaceResult: createWorkspaceResult,
                 workspaces: workspaces,
+                actionResult: UserWorkspaceActionResult(
+                  actionType: UserWorkspaceActionType.create,
+                  result: result,
+                ),
               ),
             );
+            // open the created workspace by default
+            result.onSuccess((s) {
+              add(OpenWorkspace(s.workspaceId));
+            });
           },
           deleteWorkspace: (workspaceId) async {
             if (state.workspaces.length <= 1) {
-              // do not allow to delete the last workspace
+              // do not allow to delete the last workspace, otherwise the user
+              // cannot do create workspace again
+              final result = FlowyResult.failure(
+                FlowyError(
+                  code: ErrorCode.Internal,
+                  msg: LocaleKeys.workspace_cannotDeleteTheOnlyWorkspace.tr(),
+                ),
+              );
               return emit(
                 state.copyWith(
-                  openWorkspaceResult: null,
-                  createWorkspaceResult: null,
-                  updateWorkspaceIconResult: null,
-                  renameWorkspaceResult: null,
-                  deleteWorkspaceResult: FlowyResult.failure(
-                    FlowyError(
-                      code: ErrorCode.Internal,
-                      msg: 'Cannot delete the last workspace',
-                    ),
+                  actionResult: UserWorkspaceActionResult(
+                    actionType: UserWorkspaceActionType.delete,
+                    result: result,
                   ),
                 ),
               );
             }
 
             final result = await _userService.deleteWorkspaceById(workspaceId);
-            final (workspaces, deleteWorkspaceResult) = result.fold(
-              (s) {
-                // if the current workspace is deleted, open the first workspace
-                if (state.currentWorkspace?.workspaceId == workspaceId) {
-                  add(OpenWorkspace(state.workspaces.first.workspaceId));
-                }
-                // remove the deleted workspace from the list instead of fetching
-                // the workspaces again
-                final workspaces = [...state.workspaces]..removeWhere(
-                    (e) => e.workspaceId == workspaceId,
-                  );
-                return (
-                  workspaces,
-                  FlowyResult<void, FlowyError>.success(null)
-                );
-              },
-              (e) {
-                Log.error(e);
-                return (state.workspaces, FlowyResult.failure(e));
-              },
+            final workspaces = result.fold(
+              // remove the deleted workspace from the list instead of fetching
+              // the workspaces again
+              (s) => state.workspaces
+                  .where((e) => e.workspaceId != workspaceId)
+                  .toList(),
+              (e) => state.workspaces,
             );
-
+            result.onSuccess((_) {
+              // if the current workspace is deleted, open the first workspace
+              if (state.currentWorkspace?.workspaceId == workspaceId) {
+                add(OpenWorkspace(workspaces.first.workspaceId));
+              }
+            });
             emit(
               state.copyWith(
-                openWorkspaceResult: null,
-                createWorkspaceResult: null,
-                updateWorkspaceIconResult: null,
-                renameWorkspaceResult: null,
-                deleteWorkspaceResult: deleteWorkspaceResult,
                 workspaces: workspaces,
+                actionResult: UserWorkspaceActionResult(
+                  actionType: UserWorkspaceActionType.delete,
+                  result: result,
+                ),
               ),
             );
           },
           openWorkspace: (workspaceId) async {
-            final (currentWorkspace, openWorkspaceResult) =
-                await _userService.openWorkspace(workspaceId).fold(
-              (s) {
-                final openedWorkspace = state.workspaces.firstWhere(
-                  (e) => e.workspaceId == workspaceId,
-                );
-                return (
-                  openedWorkspace,
-                  FlowyResult<void, FlowyError>.success(null)
-                );
-              },
-              (f) {
-                Log.error(f);
-                return (state.currentWorkspace, FlowyResult.failure(f));
-              },
+            final result = await _userService.openWorkspace(workspaceId);
+            final currentWorkspace = result.fold(
+              (s) => state.workspaces.firstWhereOrNull(
+                (e) => e.workspaceId == workspaceId,
+              ),
+              (e) => state.currentWorkspace,
             );
-
             emit(
               state.copyWith(
-                createWorkspaceResult: null,
-                deleteWorkspaceResult: null,
-                updateWorkspaceIconResult: null,
-                openWorkspaceResult: openWorkspaceResult,
                 currentWorkspace: currentWorkspace,
+                actionResult: UserWorkspaceActionResult(
+                  actionType: UserWorkspaceActionType.open,
+                  result: result,
+                ),
               ),
             );
           },
           renameWorkspace: (workspaceId, name) async {
-            final result = await _userService.renameWorkspace(
-              workspaceId,
-              name,
-            );
-            final (workspaces, currentWorkspace, renameWorkspaceResult) =
-                result.fold(
-              (s) {
-                final workspaces = state.workspaces.map((e) {
+            final result =
+                await _userService.renameWorkspace(workspaceId, name);
+            final workspaces = result.fold(
+              (s) => state.workspaces.map(
+                (e) {
                   if (e.workspaceId == workspaceId) {
                     e.freeze();
                     return e.rebuild((p0) {
@@ -162,36 +158,21 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
                     });
                   }
                   return e;
-                }).toList();
-
-                final currentWorkspace = workspaces.firstWhere(
-                  (e) => e.workspaceId == state.currentWorkspace?.workspaceId,
-                );
-
-                return (
-                  workspaces,
-                  currentWorkspace,
-                  FlowyResult<void, FlowyError>.success(null),
-                );
-              },
-              (e) {
-                Log.error(e);
-                return (
-                  state.workspaces,
-                  state.currentWorkspace,
-                  FlowyResult.failure(e),
-                );
-              },
+                },
+              ).toList(),
+              (f) => state.workspaces,
+            );
+            final currentWorkspace = workspaces.firstWhere(
+              (e) => e.workspaceId == state.currentWorkspace?.workspaceId,
             );
             emit(
               state.copyWith(
-                createWorkspaceResult: null,
-                deleteWorkspaceResult: null,
-                openWorkspaceResult: null,
-                updateWorkspaceIconResult: null,
                 workspaces: workspaces,
                 currentWorkspace: currentWorkspace,
-                renameWorkspaceResult: renameWorkspaceResult,
+                actionResult: UserWorkspaceActionResult(
+                  actionType: UserWorkspaceActionType.rename,
+                  result: result,
+                ),
               ),
             );
           },
@@ -200,11 +181,9 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
               workspaceId,
               icon,
             );
-
-            final (workspaces, currentWorkspace, updateWorkspaceIconResult) =
-                result.fold(
-              (s) {
-                final workspaces = state.workspaces.map((e) {
+            final workspaces = result.fold(
+              (s) => state.workspaces.map(
+                (e) {
                   if (e.workspaceId == workspaceId) {
                     e.freeze();
                     return e.rebuild((p0) {
@@ -212,37 +191,21 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
                     });
                   }
                   return e;
-                }).toList();
-
-                final currentWorkspace = workspaces.firstWhere(
-                  (e) => e.workspaceId == state.currentWorkspace?.workspaceId,
-                );
-
-                return (
-                  workspaces,
-                  currentWorkspace,
-                  FlowyResult<void, FlowyError>.success(null),
-                );
-              },
-              (e) {
-                Log.error(e);
-                return (
-                  state.workspaces,
-                  state.currentWorkspace,
-                  FlowyResult.failure(e),
-                );
-              },
+                },
+              ).toList(),
+              (f) => state.workspaces,
             );
-
+            final currentWorkspace = workspaces.firstWhere(
+              (e) => e.workspaceId == state.currentWorkspace?.workspaceId,
+            );
             emit(
               state.copyWith(
-                createWorkspaceResult: null,
-                deleteWorkspaceResult: null,
-                openWorkspaceResult: null,
-                renameWorkspaceResult: null,
-                updateWorkspaceIconResult: updateWorkspaceIconResult,
                 workspaces: workspaces,
                 currentWorkspace: currentWorkspace,
+                actionResult: UserWorkspaceActionResult(
+                  actionType: UserWorkspaceActionType.updateIcon,
+                  result: result,
+                ),
               ),
             );
           },
@@ -273,9 +236,9 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
 @freezed
 class UserWorkspaceEvent with _$UserWorkspaceEvent {
   const factory UserWorkspaceEvent.initial() = Initial;
-  const factory UserWorkspaceEvent.createWorkspace(String name, String desc) =
-      CreateWorkspace;
   const factory UserWorkspaceEvent.fetchWorkspaces() = FetchWorkspaces;
+  const factory UserWorkspaceEvent.createWorkspace(String name) =
+      CreateWorkspace;
   const factory UserWorkspaceEvent.deleteWorkspace(String workspaceId) =
       DeleteWorkspace;
   const factory UserWorkspaceEvent.openWorkspace(String workspaceId) =
@@ -288,24 +251,51 @@ class UserWorkspaceEvent with _$UserWorkspaceEvent {
     String workspaceId,
     String icon,
   ) = _UpdateWorkspaceIcon;
-  const factory UserWorkspaceEvent.workspacesReceived(
-    FlowyResult<List<UserWorkspacePB>, FlowyError> workspacesOrFail,
-  ) = WorkspacesReceived;
+}
+
+enum UserWorkspaceActionType {
+  none,
+  create,
+  delete,
+  open,
+  rename,
+  updateIcon,
+  fetchWorkspaces;
+}
+
+class UserWorkspaceActionResult {
+  const UserWorkspaceActionResult({
+    required this.actionType,
+    required this.result,
+  });
+
+  final UserWorkspaceActionType actionType;
+  final FlowyResult<void, FlowyError> result;
 }
 
 @freezed
 class UserWorkspaceState with _$UserWorkspaceState {
+  const UserWorkspaceState._();
+
   const factory UserWorkspaceState({
-    required UserWorkspacePB? currentWorkspace,
-    required List<UserWorkspacePB> workspaces,
-    @Default(false) bool isCollaborativeWorkspace,
-    @Default(null) FlowyResult<void, FlowyError>? createWorkspaceResult,
-    @Default(null) FlowyResult<void, FlowyError>? deleteWorkspaceResult,
-    @Default(null) FlowyResult<void, FlowyError>? openWorkspaceResult,
-    @Default(null) FlowyResult<void, FlowyError>? renameWorkspaceResult,
-    @Default(null) FlowyResult<void, FlowyError>? updateWorkspaceIconResult,
+    @Default(null) UserWorkspacePB? currentWorkspace,
+    @Default([]) List<UserWorkspacePB> workspaces,
+    @Default(null) UserWorkspaceActionResult? actionResult,
+    @Default(false) bool isCollabWorkspaceOn,
   }) = _UserWorkspaceState;
 
-  factory UserWorkspaceState.initial() =>
-      const UserWorkspaceState(currentWorkspace: null, workspaces: []);
+  factory UserWorkspaceState.initial() => const UserWorkspaceState();
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is UserWorkspaceState &&
+        other.currentWorkspace == currentWorkspace &&
+        other.workspaces == workspaces &&
+        identical(other.actionResult, actionResult);
+  }
 }

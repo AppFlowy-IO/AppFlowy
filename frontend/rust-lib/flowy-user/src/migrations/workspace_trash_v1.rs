@@ -38,7 +38,7 @@ impl UserDataMigration for WorkspaceTrashMapToSectionMigration {
           .collect::<Vec<String>>();
 
         if !trash_ids.is_empty() {
-          folder.add_trash(trash_ids);
+          folder.add_trash_view_ids(trash_ids);
         }
 
         let encode = folder.encode_collab_v1();
