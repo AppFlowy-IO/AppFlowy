@@ -10,13 +10,13 @@ class ActionArgumentKeys {
   static String rowId = "row_id";
 }
 
-/// A [NavigationAction] is used to communicate with the
-/// [ActionNavigationBloc] to perform actions based on an event
+/// A [NotificationAction] is used to communicate with the
+/// [NotificationActionBloc] to perform actions based on an event
 /// triggered by pressing a notification, such as opening a specific
 /// view and jumping to a specific block.
 ///
-class NavigationAction {
-  const NavigationAction({
+class NotificationAction {
+  const NotificationAction({
     this.type = ActionType.openView,
     this.arguments,
     required this.objectId,
@@ -27,12 +27,12 @@ class NavigationAction {
   final String objectId;
   final Map<String, dynamic>? arguments;
 
-  NavigationAction copyWith({
+  NotificationAction copyWith({
     ActionType? type,
     String? objectId,
     Map<String, dynamic>? arguments,
   }) =>
-      NavigationAction(
+      NotificationAction(
         type: type ?? this.type,
         objectId: objectId ?? this.objectId,
         arguments: arguments ?? this.arguments,

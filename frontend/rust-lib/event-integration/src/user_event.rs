@@ -51,14 +51,13 @@ impl EventIntegrationTest {
     config.encrypt_secret
   }
 
-  /// Create a anonymous user for given test.
-  pub async fn new_anon() -> Self {
+  pub async fn new_with_guest_user() -> Self {
     let test = Self::new().await;
-    test.sign_up_as_anon().await;
+    test.sign_up_as_guest().await;
     test
   }
 
-  pub async fn sign_up_as_anon(&self) -> SignUpContext {
+  pub async fn sign_up_as_guest(&self) -> SignUpContext {
     let password = login_password();
     let email = unique_email();
     let payload = SignUpPayloadPB {
@@ -117,7 +116,7 @@ impl EventIntegrationTest {
   }
 
   pub async fn init_anon_user(&self) -> UserProfilePB {
-    self.sign_up_as_anon().await.user_profile
+    self.sign_up_as_guest().await.user_profile
   }
 
   pub async fn get_user_profile(&self) -> Result<UserProfilePB, FlowyError> {

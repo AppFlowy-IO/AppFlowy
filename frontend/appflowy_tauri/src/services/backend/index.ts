@@ -5,4 +5,3 @@ export * from "./models/flowy-document";
 export * from "./models/flowy-error";
 export * from "./models/flowy-config";
 export * from "./models/flowy-date";
-export * from "./models/flowy-search";
