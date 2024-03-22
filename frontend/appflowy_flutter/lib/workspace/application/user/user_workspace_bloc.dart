@@ -77,6 +77,10 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
                 ),
               ),
             );
+            // open the created workspace by default
+            result.onSuccess((s) {
+              add(OpenWorkspace(s.workspaceId));
+            });
           },
           deleteWorkspace: (workspaceId) async {
             if (state.workspaces.length <= 1) {
