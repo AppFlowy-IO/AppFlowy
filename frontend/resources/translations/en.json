@@ -442,7 +442,9 @@
         "members": "members",
         "memberLimitExceeded": "You've reached the maximum member limit allowed for your account. If you want to add more additional members to continue your work, please request on Github",
         "failedToAddMember": "Failed to add member",
-        "addMemberSuccess": "Member added successfully"
+        "addMemberSuccess": "Member added successfully",
+        "removeMember": "Remove Member",
+        "areYouSureToRemoveMember": "Are you sure you want to remove this member?"
       }
     },
     "files": {

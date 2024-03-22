@@ -349,14 +349,24 @@ class _MemberMoreActionList extends StatelessWidget {
           },
         );
       },
-      onSelected: (action, controller) async {
+      onSelected: (action, controller) {
         switch (action.inner) {
           case _MemberMoreAction.delete:
-            context.read<WorkspaceMemberBloc>().add(
-                  WorkspaceMemberEvent.removeWorkspaceMember(
-                    action.member.email,
-                  ),
-                );
+            showDialog(
+              context: context,
+              builder: (_) => NavigatorOkCancelDialog(
+                title: LocaleKeys.settings_appearance_members_removeMember.tr(),
+                message: LocaleKeys
+                    .settings_appearance_members_areYouSureToRemoveMember
+                    .tr(),
+                onOkPressed: () => context.read<WorkspaceMemberBloc>().add(
+                      WorkspaceMemberEvent.removeWorkspaceMember(
+                        action.member.email,
+                      ),
+                    ),
+                okTitle: LocaleKeys.button_yes.tr(),
+              ),
+            );
             break;
         }
         controller.close();

@@ -182,7 +182,7 @@ class NavigatorOkCancelDialog extends StatelessWidget {
     this.okTitle,
     this.cancelTitle,
     this.title,
-    required this.message,
+    this.message,
     this.maxWidth,
   });
 
@@ -191,13 +191,14 @@ class NavigatorOkCancelDialog extends StatelessWidget {
   final String? okTitle;
   final String? cancelTitle;
   final String? title;
-  final String message;
+  final String? message;
   final double? maxWidth;
 
   @override
   Widget build(BuildContext context) {
     return StyledDialog(
       maxWidth: maxWidth ?? 500,
+      padding: EdgeInsets.symmetric(horizontal: Insets.xl, vertical: Insets.l),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
@@ -205,6 +206,7 @@ class NavigatorOkCancelDialog extends StatelessWidget {
             FlowyText.medium(
               title!.toUpperCase(),
               fontSize: FontSizes.s16,
+              maxLines: 3,
             ),
             VSpace(Insets.sm * 1.5),
             Container(
@@ -213,10 +215,11 @@ class NavigatorOkCancelDialog extends StatelessWidget {
             ),
             VSpace(Insets.m * 1.5),
           ],
-          FlowyText.medium(
-            message,
-            maxLines: 3,
-          ),
+          if (message != null)
+            FlowyText.medium(
+              message!,
+              maxLines: 3,
+            ),
           SizedBox(height: Insets.l),
           OkCancelButton(
             onOkPressed: () {
