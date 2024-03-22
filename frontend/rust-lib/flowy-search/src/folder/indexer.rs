@@ -1,4 +1,11 @@
-use std::{any::Any, collections::HashMap, fs, path::Path, sync::Weak};
+use std::{
+  any::Any,
+  collections::HashMap,
+  fs,
+  ops::Deref,
+  path::Path,
+  sync::{Arc, Mutex, MutexGuard, Weak},
+};
 
 use crate::{
   entities::ResultIconTypePB,
@@ -28,6 +35,7 @@ pub struct FolderIndexManagerImpl {
   folder_schema: Option<FolderSchema>,
   index: Option<Index>,
   index_reader: Option<IndexReader>,
+  index_writer: Option<Arc<Mutex<IndexWriter>>>,
 }
 
 const FOLDER_INDEX_DIR: &str = "folder_index";
@@ -92,10 +100,20 @@ impl FolderIndexManagerImpl {
       return FolderIndexManagerImpl::empty();
     }
 
+    let index_writer = index.writer(50_000_000);
+    if let Err(e) = index_writer {
+      tracing::error!(
+        "FolderIndexManager failed to instantiate index writer: {:?}",
+        e
+      );
+      return FolderIndexManagerImpl::empty();
+    }
+
     Self {
       folder_schema: Some(folder_schema),
       index: Some(index),
       index_reader: Some(index_reader.unwrap()),
+      index_writer: Some(Arc::new(Mutex::new(index_writer.unwrap()))),
     }
   }
 
@@ -105,6 +123,7 @@ impl FolderIndexManagerImpl {
     }
 
     let mut index_writer = self.get_index_writer()?;
+
     let folder_schema = self.get_folder_schema()?;
 
     let id_field = folder_schema.schema.get_field(FOLDER_ID_FIELD_NAME)?;
@@ -141,13 +160,19 @@ impl FolderIndexManagerImpl {
       folder_schema: None,
       index: None,
       index_reader: None,
+      index_writer: None,
     }
   }
 
-  fn get_index_writer(&self) -> FlowyResult<IndexWriter> {
-    match &self.index {
-      // Creates an IndexWriter with a heap size of 50 MB (50.000.000 bytes)
-      Some(index) => Ok(index.writer(50_000_000)?),
+  fn get_index_writer(&self) -> FlowyResult<MutexGuard<IndexWriter>> {
+    match &self.index_writer {
+      Some(index_writer) => match index_writer.deref().lock() {
+        Ok(writer) => Ok(writer),
+        Err(e) => {
+          tracing::error!("FolderIndexManager failed to lock index writer: {:?}", e);
+          return Err(FlowyError::folder_index_manager_unavailable());
+        },
+      },
       None => Err(FlowyError::folder_index_manager_unavailable()),
     }
   }
@@ -316,6 +341,7 @@ impl IndexManager for FolderIndexManagerImpl {
 
   fn remove_indices(&self, ids: Vec<String>) -> Result<(), FlowyError> {
     let mut index_writer = self.get_index_writer()?;
+
     let folder_schema = self.get_folder_schema()?;
 
     let id_field = folder_schema.schema.get_field(FOLDER_ID_FIELD_NAME)?;
