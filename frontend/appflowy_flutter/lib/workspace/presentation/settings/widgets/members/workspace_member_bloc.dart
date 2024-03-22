@@ -32,7 +32,25 @@ class WorkspaceMemberBloc
         initial: () async {
           await _setCurrentWorkspaceId();
 
-          add(const WorkspaceMemberEvent.getWorkspaceMembers());
+          final result = await _userBackendService.getWorkspaceMembers(
+            _workspaceId,
+          );
+          final members = result.fold<List<WorkspaceMemberPB>>(
+            (s) => s.items,
+            (e) => [],
+          );
+          final myRole = _getMyRole(members);
+          emit(
+            state.copyWith(
+              members: members,
+              myRole: myRole,
+              isLoading: false,
+              actionResult: WorkspaceMemberActionResult(
+                actionType: WorkspaceMemberActionType.get,
+                result: result,
+              ),
+            ),
+          );
         },
         getWorkspaceMembers: () async {
           final result = await _userBackendService.getWorkspaceMembers(
@@ -202,6 +220,7 @@ class WorkspaceMemberState with _$WorkspaceMemberState {
     @Default([]) List<WorkspaceMemberPB> members,
     @Default(AFRolePB.Guest) AFRolePB myRole,
     @Default(null) WorkspaceMemberActionResult? actionResult,
+    @Default(true) bool isLoading,
   }) = _WorkspaceMemberState;
 
   factory WorkspaceMemberState.initial() => const WorkspaceMemberState();
