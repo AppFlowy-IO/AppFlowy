@@ -146,18 +146,24 @@ class WorkspaceMenuItem extends StatelessWidget {
                   rightIcon: const HSpace(42.0),
                   text: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
+                    // mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       FlowyText.medium(
                         workspace.name,
                         fontSize: 14.0,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      if (members.length > 1)
-                        FlowyText(
-                          '${members.length} ${LocaleKeys.settings_appearance_members_members.tr()}',
-                          fontSize: 10.0,
-                          color: Theme.of(context).hintColor,
-                        ),
+                      FlowyText(
+                        state.isLoading
+                            ? ''
+                            : LocaleKeys
+                                .settings_appearance_members_membersCount
+                                .plural(
+                                members.length,
+                              ),
+                        fontSize: 10.0,
+                        color: Theme.of(context).hintColor,
+                      ),
                     ],
                   ),
                 ),

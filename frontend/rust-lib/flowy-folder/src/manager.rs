@@ -754,6 +754,16 @@ impl FolderManager {
       None
     };
 
+    let is_private = self.with_folder(
+      || false,
+      |folder| folder.is_view_in_section(Section::Private, &view.id),
+    );
+    let section = if is_private {
+      ViewSectionPB::Private
+    } else {
+      ViewSectionPB::Public
+    };
+
     let duplicate_params = CreateViewParams {
       parent_view_id: view.parent_view_id.clone(),
       name: format!("{} (copy)", &view.name),
@@ -764,8 +774,7 @@ impl FolderManager {
       meta: Default::default(),
       set_as_current: true,
       index,
-      // TODO: lucas.xu fetch the section from the view
-      section: Some(ViewSectionPB::Public),
+      section: Some(section),
     };
 
     self.create_view_with_params(duplicate_params).await?;
