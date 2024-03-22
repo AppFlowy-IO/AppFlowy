@@ -2,7 +2,7 @@ use std::num::NonZeroUsize;
 use std::sync::Arc;
 use std::sync::Weak;
 
-use collab::core::collab::{CollabDocState, MutexCollab};
+use collab::core::collab::{DocStateSource, MutexCollab};
 use collab::core::collab_plugin::EncodedCollab;
 use collab::core::origin::CollabOrigin;
 use collab::preclude::Collab;
@@ -122,7 +122,7 @@ impl DocumentManager {
           .doc_state
           .to_vec();
       let collab = self
-        .collab_for_document(uid, doc_id, doc_state, false)
+        .collab_for_document(uid, doc_id, DocStateSource::FromDocState(doc_state), false)
         .await?;
       collab.lock().flush();
       Ok(())
@@ -138,14 +138,16 @@ impl DocumentManager {
       return Ok(doc);
     }
 
-    let mut doc_state = CollabDocState::default();
+    let mut doc_state = DocStateSource::FromDisk;
     // If the document does not exist in local disk, try get the doc state from the cloud. This happens
     // When user_device_a create a document and user_device_b open the document.
     if !self.is_doc_exist(doc_id).await? {
-      doc_state = self
-        .cloud_service
-        .get_document_doc_state(doc_id, &self.user_service.workspace_id()?)
-        .await?;
+      doc_state = DocStateSource::FromDocState(
+        self
+          .cloud_service
+          .get_document_doc_state(doc_id, &self.user_service.workspace_id()?)
+          .await?,
+      );
 
       // the doc_state should not be empty if remote return the doc state without error.
       if doc_state.is_empty() {
@@ -183,16 +185,16 @@ impl DocumentManager {
   }
 
   pub async fn get_document_data(&self, doc_id: &str) -> FlowyResult<DocumentData> {
-    let mut updates = vec![];
+    let mut doc_state = vec![];
     if !self.is_doc_exist(doc_id).await? {
-      updates = self
+      doc_state = self
         .cloud_service
         .get_document_doc_state(doc_id, &self.user_service.workspace_id()?)
         .await?;
     }
     let uid = self.user_service.user_id()?;
     let collab = self
-      .collab_for_document(uid, doc_id, updates, false)
+      .collab_for_document(uid, doc_id, DocStateSource::FromDocState(doc_state), false)
       .await?;
     Document::open(collab)?
       .get_document_data()
@@ -326,22 +328,19 @@ impl DocumentManager {
     &self,
     uid: i64,
     doc_id: &str,
-    doc_state: CollabDocState,
+    doc_state: DocStateSource,
     sync_enable: bool,
   ) -> FlowyResult<Arc<MutexCollab>> {
     let db = self.user_service.collab_db(uid)?;
-    let collab = self
-      .collab_builder
-      .build_with_config(
-        uid,
-        doc_id,
-        CollabType::Document,
-        db,
-        doc_state,
-        CollabPersistenceConfig::default().snapshot_per_update(1000),
-        CollabBuilderConfig::default().sync_enable(sync_enable),
-      )
-      .await?;
+    let collab = self.collab_builder.build_with_config(
+      uid,
+      doc_id,
+      CollabType::Document,
+      db,
+      doc_state,
+      CollabPersistenceConfig::default().snapshot_per_update(1000),
+      CollabBuilderConfig::default().sync_enable(sync_enable),
+    )?;
     Ok(collab)
   }
 

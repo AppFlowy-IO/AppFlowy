@@ -1,4 +1,4 @@
-use collab::core::collab::CollabDocState;
+use collab::core::collab::DocStateSource;
 use collab::core::origin::CollabOrigin;
 use collab_document::blocks::DocumentData;
 use collab_document::document::Document;
@@ -108,8 +108,8 @@ impl EventIntegrationTest {
   pub async fn get_collab_doc_state(
     &self,
     oid: &str,
-    collay_type: CollabType,
-  ) -> Result<CollabDocState, FlowyError> {
+    collab_type: CollabType,
+  ) -> Result<Vec<u8>, FlowyError> {
     let server = self.server_provider.get_server().unwrap();
     let workspace_id = self.get_current_workspace().await.id;
     let uid = self.get_user_profile().await?.id;
@@ -122,17 +122,20 @@ impl EventIntegrationTest {
   }
 }
 
-pub fn document_data_from_document_doc_state(
-  doc_id: &str,
-  doc_state: CollabDocState,
-) -> DocumentData {
+pub fn document_data_from_document_doc_state(doc_id: &str, doc_state: Vec<u8>) -> DocumentData {
   document_from_document_doc_state(doc_id, doc_state)
     .get_document_data()
     .unwrap()
 }
 
-pub fn document_from_document_doc_state(doc_id: &str, doc_state: CollabDocState) -> Document {
-  Document::from_doc_state(CollabOrigin::Empty, doc_state, doc_id, vec![]).unwrap()
+pub fn document_from_document_doc_state(doc_id: &str, doc_state: Vec<u8>) -> Document {
+  Document::from_doc_state(
+    CollabOrigin::Empty,
+    DocStateSource::FromDocState(doc_state),
+    doc_id,
+    vec![],
+  )
+  .unwrap()
 }
 
 async fn init_core(config: AppFlowyCoreConfig) -> AppFlowyCore {

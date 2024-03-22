@@ -1,5 +1,4 @@
 use anyhow::Error;
-use collab::core::collab::CollabDocState;
 use collab_entity::CollabType;
 
 use flowy_database_pub::cloud::{CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot};
@@ -13,7 +12,7 @@ impl DatabaseCloudService for LocalServerDatabaseCloudServiceImpl {
     _object_id: &str,
     _collab_type: CollabType,
     _workspace_id: &str,
-  ) -> FutureResult<CollabDocState, Error> {
+  ) -> FutureResult<Vec<u8>, Error> {
     FutureResult::new(async move { Ok(vec![]) })
   }
 

@@ -1,5 +1,5 @@
 use anyhow::Error;
-use collab::core::collab::CollabDocState;
+use collab::core::collab::DocStateSource;
 use collab::core::origin::CollabOrigin;
 use collab_document::blocks::DocumentData;
 use collab_document::document::Document;
@@ -33,7 +33,7 @@ where
     &self,
     document_id: &str,
     workspace_id: &str,
-  ) -> FutureResult<CollabDocState, FlowyError> {
+  ) -> FutureResult<Vec<u8>, FlowyError> {
     let try_get_postgrest = self.server.try_get_weak_postgrest();
     let document_id = document_id.to_string();
     let (tx, rx) = channel();
@@ -94,8 +94,12 @@ where
           let action =
             FetchObjectUpdateAction::new(document_id.clone(), CollabType::Document, postgrest);
           let doc_state = action.run_with_fix_interval(5, 10).await?;
-          let document =
-            Document::from_doc_state(CollabOrigin::Empty, doc_state, &document_id, vec![])?;
+          let document = Document::from_doc_state(
+            CollabOrigin::Empty,
+            DocStateSource::FromDocState(doc_state),
+            &document_id,
+            vec![],
+          )?;
           Ok(document.get_document_data().ok())
         }
         .await,
