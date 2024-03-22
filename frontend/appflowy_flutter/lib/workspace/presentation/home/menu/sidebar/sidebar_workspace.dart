@@ -6,6 +6,7 @@ import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sid
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_menu.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy/workspace/presentation/notifications/widgets/notification_button.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/code.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
@@ -13,7 +14,6 @@ import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SidebarWorkspace extends StatelessWidget {
@@ -58,14 +58,32 @@ class SidebarWorkspace extends StatelessWidget {
 
     final actionType = actionResult.actionType;
     final result = actionResult.result;
+
+    result.onFailure((f) {
+      Log.error(
+        '[Workspace] Failed to perform ${actionType.toString()} action: $f',
+      );
+    });
+
+    // show a confirmation dialog if the action is create and the result is LimitExceeded failure
+    if (actionType == UserWorkspaceActionType.create &&
+        result.isFailure &&
+        result.getFailure().code == ErrorCode.WorkspaceLimitExceeded) {
+      showDialog(
+        context: context,
+        builder: (context) => NavigatorOkCancelDialog(
+          message: LocaleKeys.workspace_createLimitExceeded.tr(),
+        ),
+      );
+      return;
+    }
+
     final String? message;
     switch (actionType) {
       case UserWorkspaceActionType.create:
         message = result.fold(
           (s) => LocaleKeys.workspace_createSuccess.tr(),
-          (e) => e.code == ErrorCode.WorkspaceLimitExceeded
-              ? LocaleKeys.workspace_createLimitExceeded.tr()
-              : '${LocaleKeys.workspace_createFailed.tr()}: ${e.msg}',
+          (e) => '${LocaleKeys.workspace_createFailed.tr()}: ${e.msg}',
         );
         break;
       case UserWorkspaceActionType.delete:
@@ -97,12 +115,6 @@ class SidebarWorkspace extends StatelessWidget {
         message = null;
         break;
     }
-
-    result.onFailure((f) {
-      Log.error(
-        '[Workspace] Failed to perform ${actionType.toString()} action: $f',
-      );
-    });
 
     if (message != null) {
       showSnackBarMessage(context, message);

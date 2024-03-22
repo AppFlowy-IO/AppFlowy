@@ -24,11 +24,11 @@ extension FlowyAsyncResultExtension<S, F extends Object>
   }
 
   Future<bool> isError() {
-    return then((result) => result.isFailure());
+    return then((result) => result.isFailure);
   }
 
   Future<bool> isSuccess() {
-    return then((result) => result.isSuccess());
+    return then((result) => result.isSuccess);
   }
 
   FlowyAsyncResult<S, F> onFailure(void Function(F failure) onFailure) {
