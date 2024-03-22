@@ -50,6 +50,7 @@ class SettingsDialog extends StatelessWidget {
               color: Theme.of(context).colorScheme.tertiary,
             ),
           ),
+          width: MediaQuery.of(context).size.width * 0.7,
           child: ScaffoldMessenger(
             child: Scaffold(
               backgroundColor: Colors.transparent,

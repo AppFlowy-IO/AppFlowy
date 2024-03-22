@@ -1,9 +1,9 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
+import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/folder/_favorite_folder.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/folder/_section_folder.dart';
@@ -50,8 +50,7 @@ class SidebarFolder extends StatelessWidget {
               builder: (context, state) {
                 // only show public and private section if the workspace is collaborative and not local
                 final isCollaborativeWorkspace =
-                    userProfile.authenticator != AuthenticatorPB.Local &&
-                        FeatureFlag.collaborativeWorkspace.isOn;
+                    context.read<UserWorkspaceBloc>().state.isCollabWorkspaceOn;
 
                 return Column(
                   children:

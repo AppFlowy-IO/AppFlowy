@@ -29,7 +29,7 @@ pub fn init(folder: Weak<FolderManager>) -> AFPlugin {
     .event(FolderEvent::RestoreTrashItem, putback_trash_handler)
     .event(FolderEvent::PermanentlyDeleteTrashItem, delete_trash_handler)
     .event(FolderEvent::RecoverAllTrashItems, restore_all_trash_handler)
-    .event(FolderEvent::PermanentlyDeleteAllTrashItem, delete_all_trash_handler)
+    .event(FolderEvent::PermanentlyDeleteAllTrashItem, delete_my_trash_handler)
     .event(FolderEvent::ImportData, import_data_handler)
     .event(FolderEvent::GetFolderSnapshots, get_folder_snapshots_handler)
     .event(FolderEvent::UpdateViewIcon, update_view_icon_handler)

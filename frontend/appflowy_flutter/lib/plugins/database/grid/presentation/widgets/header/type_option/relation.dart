@@ -138,9 +138,8 @@ class _DatabaseList extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
               rightIcon: meta.databaseId == currentDatabaseId
-                  ? FlowySvg(
+                  ? const FlowySvg(
                       FlowySvgs.check_s,
-                      color: Theme.of(context).colorScheme.primary,
                     )
                   : null,
             ),
