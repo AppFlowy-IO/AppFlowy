@@ -1426,7 +1426,7 @@
     },
     "syncState": {
       "syncing": "Syncing",
-      "synced": "Everything is up to date",
+      "synced": "Synced",
       "noNetworkConnected": "No network connected"
     }
   }
