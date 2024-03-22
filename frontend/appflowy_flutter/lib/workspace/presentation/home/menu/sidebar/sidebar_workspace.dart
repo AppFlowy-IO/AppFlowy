@@ -8,7 +8,6 @@ import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy/workspace/presentation/notifications/widgets/notification_button.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/code.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -28,17 +27,15 @@ class SidebarWorkspace extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocConsumer<UserWorkspaceBloc, UserWorkspaceState>(
       listener: _showResultDialog,
-      listenWhen: (previous, current) => true,
       builder: (context, state) {
         final currentWorkspace = state.currentWorkspace;
-        // todo: show something if there is no workspace
         if (currentWorkspace == null) {
           return const SizedBox.shrink();
         }
         return Row(
           children: [
             Expanded(
-              child: SidebarWorkspaceWrapper(
+              child: SidebarSwitchWorkspaceButton(
                 userProfile: userProfile,
                 currentWorkspace: currentWorkspace,
               ),
@@ -53,62 +50,60 @@ class SidebarWorkspace extends StatelessWidget {
   }
 
   void _showResultDialog(BuildContext context, UserWorkspaceState state) {
-    var result = state.createWorkspaceResult;
-
-    if (result != null) {
-      final message = result.fold(
-        (s) => LocaleKeys.workspace_createSuccess.tr(),
-        (e) => e.code == ErrorCode.WorkspaceLimitExeceeded
-            ? LocaleKeys.workspace_createLimitExceeded.tr()
-            : '${LocaleKeys.workspace_createFailed.tr()}: ${e.msg}',
-      );
-      return showSnackBarMessage(context, message);
-    }
-
-    result = state.deleteWorkspaceResult;
-    if (result != null) {
-      final message = result.fold(
-        (s) => LocaleKeys.workspace_deleteSuccess.tr(),
-        (e) => '${LocaleKeys.workspace_deleteFailed.tr()}: ${e.msg}',
-      );
-      showSnackBarMessage(context, message);
+    final actionResult = state.actionResult;
+    if (actionResult == null) {
       return;
     }
 
-    result = state.openWorkspaceResult;
-    if (result != null) {
-      final message = result.fold(
-        (s) => LocaleKeys.workspace_openSuccess.tr(),
-        (e) => '${LocaleKeys.workspace_openFailed.tr()}: ${e.msg}',
-      );
-      showSnackBarMessage(context, message);
-      return;
+    final actionType = actionResult.actionType;
+    final String? message;
+    switch (actionType) {
+      case UserWorkspaceActionType.create:
+        message = actionResult.result.fold(
+          (s) => LocaleKeys.workspace_createSuccess.tr(),
+          (e) => e.code == ErrorCode.WorkspaceLimitExceeded
+              ? LocaleKeys.workspace_createLimitExceeded.tr()
+              : '${LocaleKeys.workspace_createFailed.tr()}: ${e.msg}',
+        );
+        break;
+      case UserWorkspaceActionType.delete:
+        message = actionResult.result.fold(
+          (s) => LocaleKeys.workspace_deleteSuccess.tr(),
+          (e) => '${LocaleKeys.workspace_deleteFailed.tr()}: ${e.msg}',
+        );
+        break;
+      case UserWorkspaceActionType.open:
+        message = actionResult.result.fold(
+          (s) => LocaleKeys.workspace_openSuccess.tr(),
+          (e) => '${LocaleKeys.workspace_openFailed.tr()}: ${e.msg}',
+        );
+        break;
+      case UserWorkspaceActionType.updateIcon:
+        message = actionResult.result.fold(
+          (s) => LocaleKeys.workspace_updateIconSuccess.tr(),
+          (e) => '${LocaleKeys.workspace_updateIconFailed.tr()}: ${e.msg}',
+        );
+        break;
+      case UserWorkspaceActionType.rename:
+        message = actionResult.result.fold(
+          (s) => LocaleKeys.workspace_renameSuccess.tr(),
+          (e) => '${LocaleKeys.workspace_renameFailed.tr()}: ${e.msg}',
+        );
+        break;
+      case UserWorkspaceActionType.none:
+      case UserWorkspaceActionType.fetchWorkspaces:
+        message = null;
+        return;
     }
 
-    result = state.updateWorkspaceIconResult;
-    if (result != null) {
-      final message = result.fold(
-        (s) => LocaleKeys.workspace_updateIconSuccess.tr(),
-        (e) => '${LocaleKeys.workspace_updateIconFailed.tr()}: ${e.msg}',
-      );
+    if (message != null) {
       showSnackBarMessage(context, message);
-      return;
-    }
-
-    result = state.renameWorkspaceResult;
-    if (result != null) {
-      final message = result.fold(
-        (s) => LocaleKeys.workspace_renameSuccess.tr(),
-        (e) => '${LocaleKeys.workspace_renameFailed.tr()}: ${e.msg}',
-      );
-      showSnackBarMessage(context, message);
-      return;
     }
   }
 }
 
-class SidebarWorkspaceWrapper extends StatefulWidget {
-  const SidebarWorkspaceWrapper({
+class SidebarSwitchWorkspaceButton extends StatefulWidget {
+  const SidebarSwitchWorkspaceButton({
     super.key,
     required this.userProfile,
     required this.currentWorkspace,
@@ -118,40 +113,12 @@ class SidebarWorkspaceWrapper extends StatefulWidget {
   final UserProfilePB userProfile;
 
   @override
-  State<SidebarWorkspaceWrapper> createState() =>
-      _SidebarWorkspaceWrapperState();
+  State<SidebarSwitchWorkspaceButton> createState() =>
+      _SidebarSwitchWorkspaceButtonState();
 }
 
-class _SidebarWorkspaceWrapperState extends State<SidebarWorkspaceWrapper> {
-  @override
-  Widget build(BuildContext context) {
-    if (PlatformExtension.isDesktopOrWeb) {
-      return _DesktopWorkspaceWrapper(
-        userProfile: widget.userProfile,
-        currentWorkspace: widget.currentWorkspace,
-      );
-    } else {
-      // TODO(Lucas) mobile workspace menu
-      return const Placeholder();
-    }
-  }
-}
-
-class _DesktopWorkspaceWrapper extends StatefulWidget {
-  const _DesktopWorkspaceWrapper({
-    required this.userProfile,
-    required this.currentWorkspace,
-  });
-
-  final UserWorkspacePB currentWorkspace;
-  final UserProfilePB userProfile;
-
-  @override
-  State<_DesktopWorkspaceWrapper> createState() =>
-      _DesktopWorkspaceWrapperState();
-}
-
-class _DesktopWorkspaceWrapperState extends State<_DesktopWorkspaceWrapper> {
+class _SidebarSwitchWorkspaceButtonState
+    extends State<SidebarSwitchWorkspaceButton> {
   final controller = PopoverController();
 
   @override

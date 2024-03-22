@@ -13,7 +13,7 @@ import 'base.dart';
 extension AppFlowyWorkspace on WidgetTester {
   /// Open workspace menu
   Future<void> openWorkspaceMenu() async {
-    final workspaceWrapper = find.byType(SidebarWorkspaceWrapper);
+    final workspaceWrapper = find.byType(SidebarSwitchWorkspaceButton);
     expect(workspaceWrapper, findsOneWidget);
     await tapButton(workspaceWrapper);
     final workspaceMenu = find.byType(WorkspacesMenu);

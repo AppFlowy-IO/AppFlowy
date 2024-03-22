@@ -261,7 +261,7 @@ pub enum ErrorCode {
   CloudRequestPayloadTooLarge = 90,
 
   #[error("Workspace limit exceeded")]
-  WorkspaceLimitExeceeded = 91,
+  WorkspaceLimitExceeded = 91,
 
   #[error("Workspace member limit exceeded")]
   WorkspaceMemberLimitExeceeded = 92,

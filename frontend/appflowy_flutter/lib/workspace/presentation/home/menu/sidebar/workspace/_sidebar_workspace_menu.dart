@@ -89,7 +89,7 @@ class WorkspacesMenu extends StatelessWidget {
       final workspaceBloc = context.read<UserWorkspaceBloc>();
       await CreateWorkspaceDialog(
         onConfirm: (name) {
-          workspaceBloc.add(UserWorkspaceEvent.createWorkspace(name, ''));
+          workspaceBloc.add(UserWorkspaceEvent.createWorkspace(name));
         },
       ).show(context);
     }

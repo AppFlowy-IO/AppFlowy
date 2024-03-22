@@ -76,7 +76,9 @@
     "renameSuccess": "Workspace renamed successfully",
     "renameFailed": "Failed to rename workspace",
     "updateIconSuccess": "Updated workspace icon successfully",
-    "updateIconFailed": "Updated workspace icon failed"
+    "updateIconFailed": "Updated workspace icon failed",
+    "cannotDeleteTheOnlyWorkspace": "Cannot delete the only workspace",
+    "fetchWorkspacesFailed": "Failed to fetch workspaces"
   },
   "shareAction": {
     "buttonText": "Share",
