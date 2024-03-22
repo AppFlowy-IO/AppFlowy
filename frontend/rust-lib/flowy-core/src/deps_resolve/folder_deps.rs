@@ -1,7 +1,4 @@
 use bytes::Bytes;
-
-use tokio::sync::RwLock;
-
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use collab_integrate::CollabKVDB;
 use flowy_database2::entities::DatabaseLayoutPB;
@@ -17,10 +14,10 @@ use flowy_folder::manager::{FolderManager, FolderUser};
 use flowy_folder::share::ImportType;
 use flowy_folder::view_operation::{FolderOperationHandler, FolderOperationHandlers, View};
 use flowy_folder::ViewLayout;
-use flowy_search::folder::indexer::FolderIndexManagerImpl;
 use std::collections::HashMap;
 use std::convert::TryFrom;
 use std::sync::{Arc, Weak};
+use tokio::sync::RwLock;
 
 use flowy_folder_pub::folder_builder::WorkspaceViewBuilder;
 use flowy_user::services::authenticate_user::AuthenticateUser;
@@ -38,7 +35,6 @@ impl FolderDepsResolver {
     database_manager: &Arc<DatabaseManager>,
     collab_builder: Arc<AppFlowyCollabBuilder>,
     server_provider: Arc<ServerProvider>,
-    folder_indexer: Arc<FolderIndexManagerImpl>,
   ) -> Arc<FolderManager> {
     let user: Arc<dyn FolderUser> = Arc::new(FolderUserImpl {
       authenticate_user: authenticate_user.clone(),
@@ -51,7 +47,6 @@ impl FolderDepsResolver {
         collab_builder,
         handlers,
         server_provider.clone(),
-        folder_indexer,
       )
       .await
       .unwrap(),
