@@ -133,6 +133,7 @@ class WorkspaceMenuItem extends StatelessWidget {
                               workspace.workspaceId,
                             ),
                           );
+                      PopoverContainer.of(context).closeAll();
                     }
                   },
                   margin:
