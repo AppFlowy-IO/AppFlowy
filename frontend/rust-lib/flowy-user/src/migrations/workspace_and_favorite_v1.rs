@@ -42,7 +42,7 @@ impl UserDataMigration for FavoriteV1AndWorkspaceArrayMigration {
           .collect::<Vec<String>>();
 
         if !favorite_view_ids.is_empty() {
-          folder.add_favorites(favorite_view_ids);
+          folder.add_favorite_view_ids(favorite_view_ids);
         }
 
         let encode = folder.encode_collab_v1();

@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
 import 'package:appflowy/workspace/application/notifications/notification_action.dart';
@@ -15,7 +14,6 @@ import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_trash.
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_user.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_workspace.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/auth.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
     show UserProfilePB;
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -207,8 +205,7 @@ class _SidebarState extends State<_Sidebar> {
           // user or workspace, setting
           Padding(
             padding: menuHorizontalInset,
-            child: widget.userProfile.authenticator != AuthenticatorPB.Local &&
-                    FeatureFlag.collaborativeWorkspace.isOn
+            child: context.read<UserWorkspaceBloc>().state.isCollabWorkspaceOn
                 ? SidebarWorkspace(
                     userProfile: widget.userProfile,
                   )

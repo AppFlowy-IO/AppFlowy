@@ -125,7 +125,7 @@ pub(crate) fn subscribe_folder_trash_changed(
                 unique_ids.insert(view.parent_view_id.clone());
               }
 
-              let repeated_trash: RepeatedTrashPB = folder.get_all_trash().into();
+              let repeated_trash: RepeatedTrashPB = folder.get_my_trash_info().into();
               send_notification("trash", FolderNotification::DidUpdateTrash)
                 .payload(repeated_trash)
                 .send();
@@ -150,7 +150,7 @@ pub(crate) fn notify_parent_view_did_change<T: AsRef<str>>(
   let folder = folder.as_ref()?;
   let workspace_id = folder.get_workspace_id();
   let trash_ids = folder
-    .get_all_trash()
+    .get_all_trash_sections()
     .into_iter()
     .map(|trash| trash.id)
     .collect::<Vec<String>>();

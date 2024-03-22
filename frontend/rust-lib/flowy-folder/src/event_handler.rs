@@ -53,7 +53,7 @@ pub(crate) async fn get_workspace_views_handler(
 ) -> DataResult<RepeatedViewPB, FlowyError> {
   let folder = upgrade_folder(folder)?;
   let params: GetWorkspaceViewParams = data.into_inner().try_into()?;
-  let child_views = folder.get_workspace_views(&params.value).await?;
+  let child_views = folder.get_workspace_public_views(&params.value).await?;
   let repeated_view: RepeatedViewPB = child_views.into();
   data_result_ok(repeated_view)
 }
@@ -63,7 +63,7 @@ pub(crate) async fn get_current_workspace_views_handler(
   folder: AFPluginState<Weak<FolderManager>>,
 ) -> DataResult<RepeatedViewPB, FlowyError> {
   let folder = upgrade_folder(folder)?;
-  let child_views = folder.get_current_workspace_views().await?;
+  let child_views = folder.get_current_workspace_public_views().await?;
   let repeated_view: RepeatedViewPB = child_views.into();
   data_result_ok(repeated_view)
 }
@@ -286,7 +286,7 @@ pub(crate) async fn read_trash_handler(
   folder: AFPluginState<Weak<FolderManager>>,
 ) -> DataResult<RepeatedTrashPB, FlowyError> {
   let folder = upgrade_folder(folder)?;
-  let trash = folder.get_all_trash().await;
+  let trash = folder.get_my_trash_info().await;
   data_result_ok(trash.into())
 }
 
@@ -323,11 +323,11 @@ pub(crate) async fn restore_all_trash_handler(
 }
 
 #[tracing::instrument(level = "debug", skip(folder), err)]
-pub(crate) async fn delete_all_trash_handler(
+pub(crate) async fn delete_my_trash_handler(
   folder: AFPluginState<Weak<FolderManager>>,
 ) -> Result<(), FlowyError> {
   let folder = upgrade_folder(folder)?;
-  folder.delete_all_trash().await;
+  folder.delete_my_trash().await;
   Ok(())
 }
 
