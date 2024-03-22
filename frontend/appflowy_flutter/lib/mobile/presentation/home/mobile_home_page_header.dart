@@ -3,7 +3,6 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/home/mobile_home_setting_page.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_picker_screen.dart';
 import 'package:appflowy/plugins/base/icon/icon_picker.dart';
-import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/user/settings_user_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
@@ -32,8 +31,7 @@ class MobileHomePageHeader extends StatelessWidget {
       child: BlocBuilder<SettingsUserViewBloc, SettingsUserState>(
         builder: (context, state) {
           final isCollaborativeWorkspace =
-              userProfile.authenticator != AuthenticatorPB.Local &&
-                  FeatureFlag.collaborativeWorkspace.isOn;
+              context.read<UserWorkspaceBloc>().state.isCollabWorkspaceOn;
           return ConstrainedBox(
             constraints: const BoxConstraints(minHeight: 52),
             child: Row(

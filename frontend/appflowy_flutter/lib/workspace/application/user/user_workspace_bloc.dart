@@ -1,4 +1,5 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/code.pbenum.dart';
@@ -24,15 +25,17 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
         await event.when(
           initial: () async {
             final result = await _fetchWorkspaces();
-            if (result != null) {
-              emit(
-                state.copyWith(
-                  currentWorkspace: result.$1,
-                  workspaces: result.$2,
-                  actionResult: null,
-                ),
-              );
-            }
+            final isCollabWorkspaceOn =
+                userProfile.authenticator != AuthenticatorPB.Local &&
+                    FeatureFlag.collaborativeWorkspace.isOn;
+            emit(
+              state.copyWith(
+                currentWorkspace: result?.$1,
+                workspaces: result?.$2 ?? [],
+                isCollabWorkspaceOn: isCollabWorkspaceOn,
+                actionResult: null,
+              ),
+            );
           },
           fetchWorkspaces: () async {
             final result = await _fetchWorkspaces();
@@ -274,6 +277,7 @@ class UserWorkspaceState with _$UserWorkspaceState {
     @Default(null) UserWorkspacePB? currentWorkspace,
     @Default([]) List<UserWorkspacePB> workspaces,
     @Default(null) UserWorkspaceActionResult? actionResult,
+    @Default(false) bool isCollabWorkspaceOn,
   }) = _UserWorkspaceState;
 
   factory UserWorkspaceState.initial() => const UserWorkspaceState();
