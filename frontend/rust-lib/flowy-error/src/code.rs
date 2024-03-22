@@ -264,7 +264,7 @@ pub enum ErrorCode {
   WorkspaceLimitExceeded = 91,
 
   #[error("Workspace member limit exceeded")]
-  WorkspaceMemberLimitExeceeded = 92,
+  WorkspaceMemberLimitExceeded = 92,
 }
 
 impl ErrorCode {

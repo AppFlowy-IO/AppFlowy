@@ -3,7 +3,9 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/af_role_pb_extension.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/members/workspace_member_bloc.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/code.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -57,17 +59,40 @@ class WorkspaceMembersPage extends StatelessWidget {
   }
 
   void _showResultDialog(BuildContext context, WorkspaceMemberState state) {
-    final result = state.addMemberResult;
-
-    if (result != null) {
-      final message = result.fold(
-        (s) => LocaleKeys.settings_appearance_members_emailSent.tr(),
-        (e) => e.code == ErrorCode.WorkspaceMemberLimitExeceeded
-            ? LocaleKeys.settings_appearance_members_memberLimitExceeded.tr()
-            : LocaleKeys.settings_appearance_members_failedToAddMember.tr(),
-      );
-      return showSnackBarMessage(context, message);
+    final actionResult = state.actionResult;
+    if (actionResult == null) {
+      return;
     }
+
+    final actionType = actionResult.actionType;
+    final result = actionResult.result;
+
+    // only show the result dialog when the action is WorkspaceMemberActionType.add
+    if (actionType == WorkspaceMemberActionType.add) {
+      result.fold(
+        (s) {
+          showSnackBarMessage(
+            context,
+            LocaleKeys.settings_appearance_members_addMemberSuccess.tr(),
+          );
+        },
+        (f) {
+          final message = f.code == ErrorCode.WorkspaceMemberLimitExceeded
+              ? LocaleKeys.settings_appearance_members_memberLimitExceeded.tr()
+              : LocaleKeys.settings_appearance_members_failedToAddMember.tr();
+          showDialog(
+            context: context,
+            builder: (context) => NavigatorOkCancelDialog(message: message),
+          );
+        },
+      );
+    }
+
+    result.onFailure((f) {
+      Log.error(
+        '[Member] Failed to perform ${actionType.toString()} action: $f',
+      );
+    });
   }
 }
 

@@ -7,6 +7,7 @@ import 'package:appflowy_result/appflowy_result.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:protobuf/protobuf.dart';
 
 part 'workspace_member_bloc.freezed.dart';
 
@@ -29,47 +30,95 @@ class WorkspaceMemberBloc
     on<WorkspaceMemberEvent>((event, emit) async {
       await event.when(
         initial: () async {
-          if (workspace != null) {
-            workspaceId = workspace!.workspaceId;
-          } else {
-            final currentWorkspace =
-                await FolderEventReadCurrentWorkspace().send();
-            currentWorkspace.fold((s) {
-              workspaceId = s.id;
-            }, (e) {
-              assert(false, 'Failed to read current workspace: $e');
-              Log.error('Failed to read current workspace: $e');
-              workspaceId = '';
-            });
-          }
+          await _setCurrentWorkspaceId();
 
           add(const WorkspaceMemberEvent.getWorkspaceMembers());
         },
         getWorkspaceMembers: () async {
-          final members = await _getWorkspaceMembers();
+          final result = await _userBackendService.getWorkspaceMembers(
+            _workspaceId,
+          );
+          final members = result.fold<List<WorkspaceMemberPB>>(
+            (s) => s.items,
+            (e) => [],
+          );
           final myRole = _getMyRole(members);
           emit(
             state.copyWith(
               members: members,
               myRole: myRole,
+              actionResult: WorkspaceMemberActionResult(
+                actionType: WorkspaceMemberActionType.get,
+                result: result,
+              ),
             ),
           );
         },
         addWorkspaceMember: (email) async {
           final result = await _userBackendService.addWorkspaceMember(
-            workspaceId,
+            _workspaceId,
             email,
           );
-          emit(state.copyWith(addMemberResult: result));
-          add(const WorkspaceMemberEvent.getWorkspaceMembers());
+          emit(
+            state.copyWith(
+              actionResult: WorkspaceMemberActionResult(
+                actionType: WorkspaceMemberActionType.add,
+                result: result,
+              ),
+            ),
+          );
+          // the addWorkspaceMember doesn't return the updated members,
+          //  so we need to get the members again
+          result.onSuccess((s) {
+            add(const WorkspaceMemberEvent.getWorkspaceMembers());
+          });
         },
         removeWorkspaceMember: (email) async {
-          await _removeWorkspaceMember(email);
-          add(const WorkspaceMemberEvent.getWorkspaceMembers());
+          final result = await _userBackendService.removeWorkspaceMember(
+            _workspaceId,
+            email,
+          );
+          final members = result.fold(
+            (s) => state.members.where((e) => e.email != email).toList(),
+            (e) => state.members,
+          );
+          emit(
+            state.copyWith(
+              members: members,
+              actionResult: WorkspaceMemberActionResult(
+                actionType: WorkspaceMemberActionType.remove,
+                result: result,
+              ),
+            ),
+          );
         },
         updateWorkspaceMember: (email, role) async {
-          await _updateWorkspaceMember(email, role);
-          add(const WorkspaceMemberEvent.getWorkspaceMembers());
+          final result = await _userBackendService.updateWorkspaceMember(
+            _workspaceId,
+            email,
+            role,
+          );
+          final members = result.fold(
+            (s) => state.members.map((e) {
+              if (e.email == email) {
+                e.freeze();
+                return e.rebuild((p0) {
+                  p0.role = role;
+                });
+              }
+              return e;
+            }).toList(),
+            (e) => state.members,
+          );
+          emit(
+            state.copyWith(
+              members: members,
+              actionResult: WorkspaceMemberActionResult(
+                actionType: WorkspaceMemberActionType.updateRole,
+                result: result,
+              ),
+            ),
+          );
         },
       );
     });
@@ -80,18 +129,8 @@ class WorkspaceMemberBloc
   // if the workspace is null, use the current workspace
   final UserWorkspacePB? workspace;
 
-  late final String workspaceId;
-  late final UserBackendService _userBackendService;
-
-  Future<List<WorkspaceMemberPB>> _getWorkspaceMembers() async {
-    return _userBackendService.getWorkspaceMembers(workspaceId).fold(
-      (s) => s.items,
-      (e) {
-        Log.error('Failed to read workspace members: $e');
-        return [];
-      },
-    );
-  }
+  late final String _workspaceId;
+  final UserBackendService _userBackendService;
 
   AFRolePB _getMyRole(List<WorkspaceMemberPB> members) {
     final role = members
@@ -106,20 +145,19 @@ class WorkspaceMemberBloc
     return role;
   }
 
-  Future<void> _removeWorkspaceMember(String email) async {
-    return _userBackendService.removeWorkspaceMember(workspaceId, email).fold(
-          (s) => Log.debug('Removed workspace member: $email'),
-          (e) => Log.error('Failed to remove workspace member: $e'),
-        );
-  }
-
-  Future<void> _updateWorkspaceMember(String email, AFRolePB role) async {
-    return _userBackendService
-        .updateWorkspaceMember(workspaceId, email, role)
-        .fold(
-          (s) => Log.debug('Updated workspace member: $email'),
-          (e) => Log.error('Failed to update workspace member: $e'),
-        );
+  Future<void> _setCurrentWorkspaceId() async {
+    if (workspace != null) {
+      _workspaceId = workspace!.workspaceId;
+    } else {
+      final currentWorkspace = await FolderEventReadCurrentWorkspace().send();
+      currentWorkspace.fold((s) {
+        _workspaceId = s.id;
+      }, (e) {
+        assert(false, 'Failed to read current workspace: $e');
+        Log.error('Failed to read current workspace: $e');
+        _workspaceId = '';
+      });
+    }
   }
 }
 
@@ -138,6 +176,24 @@ class WorkspaceMemberEvent with _$WorkspaceMemberEvent {
   ) = UpdateWorkspaceMember;
 }
 
+enum WorkspaceMemberActionType {
+  none,
+  get,
+  add,
+  remove,
+  updateRole,
+}
+
+class WorkspaceMemberActionResult {
+  const WorkspaceMemberActionResult({
+    required this.actionType,
+    required this.result,
+  });
+
+  final WorkspaceMemberActionType actionType;
+  final FlowyResult<void, FlowyError> result;
+}
+
 @freezed
 class WorkspaceMemberState with _$WorkspaceMemberState {
   const WorkspaceMemberState._();
@@ -145,7 +201,7 @@ class WorkspaceMemberState with _$WorkspaceMemberState {
   const factory WorkspaceMemberState({
     @Default([]) List<WorkspaceMemberPB> members,
     @Default(AFRolePB.Guest) AFRolePB myRole,
-    @Default(null) FlowyResult<void, FlowyError>? addMemberResult,
+    @Default(null) WorkspaceMemberActionResult? actionResult,
   }) = _WorkspaceMemberState;
 
   factory WorkspaceMemberState.initial() => const WorkspaceMemberState();
@@ -160,6 +216,6 @@ class WorkspaceMemberState with _$WorkspaceMemberState {
     return other is WorkspaceMemberState &&
         other.members == members &&
         other.myRole == myRole &&
-        identical(other.addMemberResult, addMemberResult);
+        identical(other.actionResult, actionResult);
   }
 }

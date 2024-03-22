@@ -213,7 +213,10 @@ class NavigatorOkCancelDialog extends StatelessWidget {
             ),
             VSpace(Insets.m * 1.5),
           ],
-          FlowyText.medium(message),
+          FlowyText.medium(
+            message,
+            maxLines: 3,
+          ),
           SizedBox(height: Insets.l),
           OkCancelButton(
             onOkPressed: () {

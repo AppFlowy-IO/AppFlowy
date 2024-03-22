@@ -6,6 +6,7 @@ import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sid
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_menu.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy/workspace/presentation/notifications/widgets/notification_button.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/code.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -56,10 +57,11 @@ class SidebarWorkspace extends StatelessWidget {
     }
 
     final actionType = actionResult.actionType;
+    final result = actionResult.result;
     final String? message;
     switch (actionType) {
       case UserWorkspaceActionType.create:
-        message = actionResult.result.fold(
+        message = result.fold(
           (s) => LocaleKeys.workspace_createSuccess.tr(),
           (e) => e.code == ErrorCode.WorkspaceLimitExceeded
               ? LocaleKeys.workspace_createLimitExceeded.tr()
@@ -67,25 +69,25 @@ class SidebarWorkspace extends StatelessWidget {
         );
         break;
       case UserWorkspaceActionType.delete:
-        message = actionResult.result.fold(
+        message = result.fold(
           (s) => LocaleKeys.workspace_deleteSuccess.tr(),
           (e) => '${LocaleKeys.workspace_deleteFailed.tr()}: ${e.msg}',
         );
         break;
       case UserWorkspaceActionType.open:
-        message = actionResult.result.fold(
+        message = result.fold(
           (s) => LocaleKeys.workspace_openSuccess.tr(),
           (e) => '${LocaleKeys.workspace_openFailed.tr()}: ${e.msg}',
         );
         break;
       case UserWorkspaceActionType.updateIcon:
-        message = actionResult.result.fold(
+        message = result.fold(
           (s) => LocaleKeys.workspace_updateIconSuccess.tr(),
           (e) => '${LocaleKeys.workspace_updateIconFailed.tr()}: ${e.msg}',
         );
         break;
       case UserWorkspaceActionType.rename:
-        message = actionResult.result.fold(
+        message = result.fold(
           (s) => LocaleKeys.workspace_renameSuccess.tr(),
           (e) => '${LocaleKeys.workspace_renameFailed.tr()}: ${e.msg}',
         );
@@ -93,8 +95,14 @@ class SidebarWorkspace extends StatelessWidget {
       case UserWorkspaceActionType.none:
       case UserWorkspaceActionType.fetchWorkspaces:
         message = null;
-        return;
+        break;
     }
+
+    result.onFailure((f) {
+      Log.error(
+        '[Workspace] Failed to perform ${actionType.toString()} action: $f',
+      );
+    });
 
     if (message != null) {
       showSnackBarMessage(context, message);

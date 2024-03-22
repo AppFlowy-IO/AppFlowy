@@ -441,7 +441,8 @@
         "emailSent": "Email sent, please check the inbox",
         "members": "members",
         "memberLimitExceeded": "You've reached the maximum member limit allowed for your account. If you want to add more additional members to continue your work, please request on Github",
-        "failedToAddMember": "Failed to add member"
+        "failedToAddMember": "Failed to add member",
+        "addMemberSuccess": "Member added successfully"
       }
     },
     "files": {
