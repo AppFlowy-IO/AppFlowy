@@ -11,7 +11,6 @@ import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flowy_infra_ui/widget/buttons/primary_button.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flutter/material.dart';
@@ -50,6 +49,7 @@ class WorkspaceMembersPage extends StatelessWidget {
                     userProfile: userProfile,
                     myRole: state.myRole,
                   ),
+                const VSpace(48.0),
               ],
             ),
           );
@@ -152,6 +152,7 @@ class _InviteMemberState extends State<_InviteMember> {
           ],
         ),
         const VSpace(16.0),
+        /* Enable this when the feature is ready
         PrimaryButton(
           backgroundColor: const Color(0xFFE0E0E0),
           child: Padding(
@@ -181,6 +182,7 @@ class _InviteMemberState extends State<_InviteMember> {
           },
         ),
         const VSpace(16.0),
+        */
         const Divider(
           height: 1.0,
           thickness: 1.0,
