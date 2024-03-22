@@ -3,7 +3,7 @@ import { ReactEditor } from 'slate-react';
 import { withBlockDelete } from '$app/components/editor/plugins/withBlockDelete';
 import { withBlockInsertBreak } from '$app/components/editor/plugins/withBlockInsertBreak';
 import { withSplitNodes } from '$app/components/editor/plugins/withSplitNodes';
-import { withPasted } from '$app/components/editor/plugins/withPasted';
+import { withPasted, withCopy } from '$app/components/editor/plugins/copyPasted';
 import { withBlockMove } from '$app/components/editor/plugins/withBlockMove';
 import { CustomEditor } from '$app/components/editor/command';
 
@@ -26,5 +26,5 @@ export function withBlockPlugins(editor: ReactEditor) {
     return !CustomEditor.isEmbedNode(element) && isEmpty(element);
   };
 
-  return withBlockMove(withSplitNodes(withBlockInsertBreak(withBlockDelete(withPasted(editor)))));
+  return withPasted(withBlockMove(withSplitNodes(withBlockInsertBreak(withBlockDelete(withCopy(editor))))));
 }

@@ -8,11 +8,11 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'filter_menu_bloc.freezed.dart';
 
-class GridFilterMenuBloc
-    extends Bloc<GridFilterMenuEvent, GridFilterMenuState> {
-  GridFilterMenuBloc({required this.viewId, required this.fieldController})
+class DatabaseFilterMenuBloc
+    extends Bloc<DatabaseFilterMenuEvent, DatabaseFilterMenuState> {
+  DatabaseFilterMenuBloc({required this.viewId, required this.fieldController})
       : super(
-          GridFilterMenuState.initial(
+          DatabaseFilterMenuState.initial(
             viewId,
             fieldController.filterInfos,
             fieldController.fieldInfos,
@@ -27,7 +27,7 @@ class GridFilterMenuBloc
   void Function(List<FieldInfo>)? _onFieldFn;
 
   void _dispatch() {
-    on<GridFilterMenuEvent>(
+    on<DatabaseFilterMenuEvent>(
       (event, emit) async {
         event.when(
           initial: () {
@@ -55,11 +55,11 @@ class GridFilterMenuBloc
 
   void _startListening() {
     _onFilterFn = (filters) {
-      add(GridFilterMenuEvent.didReceiveFilters(filters));
+      add(DatabaseFilterMenuEvent.didReceiveFilters(filters));
     };
 
     _onFieldFn = (fields) {
-      add(GridFilterMenuEvent.didReceiveFields(fields));
+      add(DatabaseFilterMenuEvent.didReceiveFields(fields));
     };
 
     fieldController.addListener(
@@ -87,32 +87,33 @@ class GridFilterMenuBloc
 }
 
 @freezed
-class GridFilterMenuEvent with _$GridFilterMenuEvent {
-  const factory GridFilterMenuEvent.initial() = _Initial;
-  const factory GridFilterMenuEvent.didReceiveFilters(
+class DatabaseFilterMenuEvent with _$DatabaseFilterMenuEvent {
+  const factory DatabaseFilterMenuEvent.initial() = _Initial;
+  const factory DatabaseFilterMenuEvent.didReceiveFilters(
     List<FilterInfo> filters,
   ) = _DidReceiveFilters;
-  const factory GridFilterMenuEvent.didReceiveFields(List<FieldInfo> fields) =
-      _DidReceiveFields;
-  const factory GridFilterMenuEvent.toggleMenu() = _SetMenuVisibility;
+  const factory DatabaseFilterMenuEvent.didReceiveFields(
+    List<FieldInfo> fields,
+  ) = _DidReceiveFields;
+  const factory DatabaseFilterMenuEvent.toggleMenu() = _SetMenuVisibility;
 }
 
 @freezed
-class GridFilterMenuState with _$GridFilterMenuState {
-  const factory GridFilterMenuState({
+class DatabaseFilterMenuState with _$DatabaseFilterMenuState {
+  const factory DatabaseFilterMenuState({
     required String viewId,
     required List<FilterInfo> filters,
     required List<FieldInfo> fields,
     required List<FieldInfo> creatableFields,
     required bool isVisible,
-  }) = _GridFilterMenuState;
+  }) = _DatabaseFilterMenuState;
 
-  factory GridFilterMenuState.initial(
+  factory DatabaseFilterMenuState.initial(
     String viewId,
     List<FilterInfo> filterInfos,
     List<FieldInfo> fields,
   ) =>
-      GridFilterMenuState(
+      DatabaseFilterMenuState(
         viewId: viewId,
         filters: filterInfos,
         fields: fields,

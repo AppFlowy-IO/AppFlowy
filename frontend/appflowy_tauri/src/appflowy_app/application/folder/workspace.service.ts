@@ -1,16 +1,12 @@
+import { parserViewPBToPage } from '$app_reducers/pages/slice';
 import {
+  ChangeWorkspaceIconPB,
   CreateViewPayloadPB,
+  GetWorkspaceViewPB,
+  RenameWorkspacePB,
   UserWorkspaceIdPB,
   WorkspaceIdPB,
-  RenameWorkspacePB,
-  ChangeWorkspaceIconPB,
 } from '@/services/backend';
-import {
-  UserEventOpenWorkspace,
-  UserEventRenameWorkspace,
-  UserEventChangeWorkspaceIcon,
-  UserEventGetAllWorkspace,
-} from '@/services/backend/events/flowy-user';
 import {
   FolderEventCreateView,
   FolderEventDeleteWorkspace,
@@ -18,7 +14,12 @@ import {
   FolderEventReadCurrentWorkspace,
   FolderEventReadWorkspaceViews,
 } from '@/services/backend/events/flowy-folder';
-import { parserViewPBToPage } from '$app_reducers/pages/slice';
+import {
+  UserEventChangeWorkspaceIcon,
+  UserEventGetAllWorkspace,
+  UserEventOpenWorkspace,
+  UserEventRenameWorkspace,
+} from '@/services/backend/events/flowy-user';
 
 export async function openWorkspace(id: string) {
   const payload = new UserWorkspaceIdPB({
@@ -49,7 +50,7 @@ export async function deleteWorkspace(id: string) {
 }
 
 export async function getWorkspaceChildViews(id: string) {
-  const payload = new WorkspaceIdPB({
+  const payload = new GetWorkspaceViewPB({
     value: id,
   });
 

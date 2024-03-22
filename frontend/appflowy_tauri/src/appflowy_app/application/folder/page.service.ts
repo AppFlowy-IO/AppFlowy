@@ -19,6 +19,7 @@ import {
   FolderEventMoveNestedView,
   FolderEventUpdateView,
   FolderEventUpdateViewIcon,
+  FolderEventSetLatestView,
 } from '@/services/backend/events/flowy-folder';
 
 export async function getPage(id: string) {
@@ -149,3 +150,17 @@ export const updatePageIcon = async (viewId: string, icon?: PageIcon) => {
 
   return Promise.reject(result.err);
 };
+
+export async function setLatestOpenedPage(id: string) {
+  const payload = new ViewIdPB({
+    value: id,
+  });
+
+  const res = await FolderEventSetLatestView(payload);
+
+  if (res.ok) {
+    return res.val;
+  }
+
+  return Promise.reject(res.err);
+}

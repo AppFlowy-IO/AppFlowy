@@ -65,15 +65,13 @@ pub extern "C" fn init_sdk(_port: i64, data: *mut c_char) -> i64 {
     let _ = save_appflowy_cloud_config(&configuration.root, &configuration.appflowy_cloud_config);
   }
 
-  let log_crates = vec!["flowy-ffi".to_string()];
   let config = AppFlowyCoreConfig::new(
     configuration.app_version,
     configuration.custom_app_path,
     configuration.origin_app_path,
     configuration.device_id,
     DEFAULT_NAME.to_string(),
-  )
-  .log_filter("info", log_crates);
+  );
 
   // Ensure that the database is closed before initialization. Also, verify that the init_sdk function can be called
   // multiple times (is reentrant). Currently, only the database resource is exclusive.
@@ -112,10 +110,7 @@ pub extern "C" fn async_event(port: i64, input: *const u8, len: usize) {
   AFPluginDispatcher::boxed_async_send_with_callback(
     dispatcher.as_ref(),
     request,
-    move |resp: AFPluginEventResponse| {
-      trace!("[FFI]: Post data to dart through {} port", port);
-      Box::pin(post_to_flutter(resp, port))
-    },
+    move |resp: AFPluginEventResponse| Box::pin(post_to_flutter(resp, port)),
   );
 }
 
@@ -161,9 +156,7 @@ async fn post_to_flutter(response: AFPluginEventResponse, port: i64) {
     })
     .await
   {
-    Ok(_success) => {
-      trace!("[FFI]: Post data to dart success");
-    },
+    Ok(_success) => {},
     Err(e) => {
       if let Some(msg) = e.downcast_ref::<&str>() {
         error!("[FFI]: {:?}", msg);

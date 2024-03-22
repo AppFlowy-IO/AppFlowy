@@ -20,87 +20,16 @@ import { CustomEditor } from '$app/components/editor/command';
 import { KeyboardNavigationOption } from '$app/components/_shared/keyboard_navigation/KeyboardNavigation';
 import { YjsEditor } from '@slate-yjs/core';
 import { useEditorBlockDispatch } from '$app/components/editor/stores/block';
-
-enum SlashCommandPanelTab {
-  BASIC = 'basic',
-  MEDIA = 'media',
-  DATABASE = 'database',
-  ADVANCED = 'advanced',
-}
-
-export enum SlashOptionType {
-  Paragraph,
-  TodoList,
-  Heading1,
-  Heading2,
-  Heading3,
-  BulletedList,
-  NumberedList,
-  Quote,
-  ToggleList,
-  Divider,
-  Callout,
-  Code,
-  Grid,
-  MathEquation,
-  Image,
-}
-const slashOptionGroup = [
-  {
-    key: SlashCommandPanelTab.BASIC,
-    options: [
-      SlashOptionType.Paragraph,
-      SlashOptionType.TodoList,
-      SlashOptionType.Heading1,
-      SlashOptionType.Heading2,
-      SlashOptionType.Heading3,
-      SlashOptionType.BulletedList,
-      SlashOptionType.NumberedList,
-      SlashOptionType.Quote,
-      SlashOptionType.ToggleList,
-      SlashOptionType.Divider,
-      SlashOptionType.Callout,
-    ],
-  },
-  {
-    key: SlashCommandPanelTab.MEDIA,
-    options: [SlashOptionType.Code, SlashOptionType.Image],
-  },
-  {
-    key: SlashCommandPanelTab.DATABASE,
-    options: [SlashOptionType.Grid],
-  },
-  {
-    key: SlashCommandPanelTab.ADVANCED,
-    options: [SlashOptionType.MathEquation],
-  },
-];
-
-const slashOptionMapToEditorNodeType = {
-  [SlashOptionType.Paragraph]: EditorNodeType.Paragraph,
-  [SlashOptionType.TodoList]: EditorNodeType.TodoListBlock,
-  [SlashOptionType.Heading1]: EditorNodeType.HeadingBlock,
-  [SlashOptionType.Heading2]: EditorNodeType.HeadingBlock,
-  [SlashOptionType.Heading3]: EditorNodeType.HeadingBlock,
-  [SlashOptionType.BulletedList]: EditorNodeType.BulletedListBlock,
-  [SlashOptionType.NumberedList]: EditorNodeType.NumberedListBlock,
-  [SlashOptionType.Quote]: EditorNodeType.QuoteBlock,
-  [SlashOptionType.ToggleList]: EditorNodeType.ToggleListBlock,
-  [SlashOptionType.Divider]: EditorNodeType.DividerBlock,
-  [SlashOptionType.Callout]: EditorNodeType.CalloutBlock,
-  [SlashOptionType.Code]: EditorNodeType.CodeBlock,
-  [SlashOptionType.Grid]: EditorNodeType.GridBlock,
-  [SlashOptionType.MathEquation]: EditorNodeType.EquationBlock,
-  [SlashOptionType.Image]: EditorNodeType.ImageBlock,
-};
-
-const headingTypeToLevelMap: Record<string, number> = {
-  [SlashOptionType.Heading1]: 1,
-  [SlashOptionType.Heading2]: 2,
-  [SlashOptionType.Heading3]: 3,
-};
-
-const headingTypes = [SlashOptionType.Heading1, SlashOptionType.Heading2, SlashOptionType.Heading3];
+import {
+  headingTypes,
+  headingTypeToLevelMap,
+  reorderSlashOptions,
+  SlashAliases,
+  SlashCommandPanelTab,
+  slashOptionGroup,
+  slashOptionMapToEditorNodeType,
+  SlashOptionType,
+} from '$app/components/editor/components/tools/command_panel/slash_command_panel/const';
 
 export function useSlashCommandPanel({
   searchText,
@@ -281,6 +210,7 @@ export function useSlashCommandPanel({
           key: group.key,
           content: <div className={'px-3 pb-1 pt-2 text-sm'}>{groupTypeToLabelMap[group.key]}</div>,
           children: group.options
+
             .map((type) => {
               return {
                 key: type,
@@ -297,8 +227,12 @@ export function useSlashCommandPanel({
                 newSearchText = searchText.slice(1);
               }
 
-              return label.toLowerCase().includes(newSearchText.toLowerCase());
-            }),
+              return (
+                label.toLowerCase().includes(newSearchText.toLowerCase()) ||
+                SlashAliases[option.key].some((alias) => alias.startsWith(newSearchText.toLowerCase()))
+              );
+            })
+            .sort(reorderSlashOptions(searchText)),
         };
       })
       .filter((group) => group.children.length > 0);

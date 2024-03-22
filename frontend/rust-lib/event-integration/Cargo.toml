@@ -23,6 +23,7 @@ flowy-server-pub = { workspace = true }
 flowy-notification  = { workspace = true }
 anyhow.workspace = true
 flowy-storage = { workspace = true }
+flowy-search = { workspace = true }
 
 serde.workspace = true
 serde_json.workspace = true
@@ -51,6 +52,7 @@ assert-json-diff = "2.0.2"
 tokio-postgres = { version = "0.7.8" }
 chrono = "0.4.31"
 zip = "0.6.6"
+walkdir = "2.5.0"
 
 [features]
 default = ["supabase_cloud_test"]

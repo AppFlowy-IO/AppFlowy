@@ -262,9 +262,11 @@ function flattenBlockJson(block: BlockJSON) {
     slateNode.children = block.children.map((child) => traverse(child));
 
     if (textNode) {
-      if (!LIST_TYPES.includes(block.type as EditorNodeType) && slateNode.type !== EditorNodeType.Page) {
+      const texts = CustomEditor.getNodeTextContent(textNode);
+
+      if (texts && !LIST_TYPES.includes(block.type as EditorNodeType) && slateNode.type !== EditorNodeType.Page) {
         slateNode.children.unshift(textNode);
-      } else {
+      } else if (texts) {
         slateNode.children.unshift({
           type: EditorNodeType.Paragraph,
           children: [textNode],

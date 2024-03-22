@@ -73,7 +73,7 @@ async fn af_cloud_create_workspace_test() {
     // before opening new workspace
     let folder_ws = test.folder_read_current_workspace().await;
     assert_eq!(&folder_ws.id, first_workspace_id);
-    let views = test.folder_read_workspace_views().await;
+    let views = test.folder_read_current_workspace_views().await;
     assert_eq!(views.items[0].parent_view_id.as_str(), first_workspace_id);
   }
   {
@@ -81,7 +81,7 @@ async fn af_cloud_create_workspace_test() {
     test.open_workspace(&created_workspace.workspace_id).await;
     let folder_ws = test.folder_read_current_workspace().await;
     assert_eq!(folder_ws.id, created_workspace.workspace_id);
-    let views = test.folder_read_workspace_views().await;
+    let views = test.folder_read_current_workspace_views().await;
     assert_eq!(
       views.items[0].parent_view_id.as_str(),
       created_workspace.workspace_id

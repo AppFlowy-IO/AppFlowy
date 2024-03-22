@@ -35,14 +35,14 @@ void main() {
   final email = '${uuid()}@appflowy.io';
 
   group('collaborative workspace', () {
-    // only run the test when the feature flag is on
-    if (!FeatureFlag.collaborativeWorkspace.isOn) {
-      return;
-    }
-
     // combine the create and delete workspace test to reduce the time
     testWidgets('create a new workspace, open it and then delete it',
         (tester) async {
+      // only run the test when the feature flag is on
+      if (!FeatureFlag.collaborativeWorkspace.isOn) {
+        return;
+      }
+
       await tester.initializeAppFlowy(
         cloudType: AuthenticatorType.appflowyCloudSelfHost,
         email: email,

@@ -97,6 +97,42 @@ pub struct WorkspaceIdPB {
   pub value: String,
 }
 
+#[derive(Clone, Debug)]
+pub struct WorkspaceIdParams {
+  pub value: String,
+}
+
+impl TryInto<WorkspaceIdParams> for WorkspaceIdPB {
+  type Error = ErrorCode;
+
+  fn try_into(self) -> Result<WorkspaceIdParams, Self::Error> {
+    Ok(WorkspaceIdParams {
+      value: WorkspaceIdentify::parse(self.value)?.0,
+    })
+  }
+}
+
+#[derive(Clone, ProtoBuf, Default, Debug)]
+pub struct GetWorkspaceViewPB {
+  #[pb(index = 1)]
+  pub value: String,
+}
+
+#[derive(Clone, Debug)]
+pub struct GetWorkspaceViewParams {
+  pub value: String,
+}
+
+impl TryInto<GetWorkspaceViewParams> for GetWorkspaceViewPB {
+  type Error = ErrorCode;
+
+  fn try_into(self) -> Result<GetWorkspaceViewParams, Self::Error> {
+    Ok(GetWorkspaceViewParams {
+      value: WorkspaceIdentify::parse(self.value)?.0,
+    })
+  }
+}
+
 #[derive(Default, ProtoBuf, Debug, Clone)]
 pub struct WorkspaceSettingPB {
   #[pb(index = 1)]

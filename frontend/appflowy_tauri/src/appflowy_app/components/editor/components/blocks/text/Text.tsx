@@ -20,7 +20,6 @@ export const Text = memo(
       >
         {renderIcon()}
         <Placeholder isEmpty={isEmpty} node={node} />
-
         <span className={`text-content ${isEmpty ? 'empty-text' : ''}`}>{children}</span>
       </span>
     );

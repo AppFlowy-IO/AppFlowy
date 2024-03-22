@@ -1,8 +1,9 @@
 import { RefObject, useCallback, useEffect, useState } from 'react';
 import { ReactEditor, useSlate } from 'slate-react';
-import { findEventRange, getBlockActionsPosition } from '$app/components/editor/components/tools/block_actions/utils';
+import { findEventNode, getBlockActionsPosition } from '$app/components/editor/components/tools/block_actions/utils';
 import { Element, Editor, Range } from 'slate';
 import { EditorNodeType } from '$app/application/document/document.types';
+import { Log } from '$app/utils/log';
 
 export function useBlockActionsToolbar(ref: RefObject<HTMLDivElement>, contextMenuVisible: boolean) {
   const editor = useSlate();
@@ -45,36 +46,54 @@ export function useBlockActionsToolbar(ref: RefObject<HTMLDivElement>, contextMe
       }
 
       let range: Range | null = null;
+      let node;
 
       try {
         range = ReactEditor.findEventRange(editor, e);
       } catch {
         const editorDom = ReactEditor.toDOMNode(editor, editor);
+        const rect = editorDom.getBoundingClientRect();
+        const isOverLeftBoundary = e.clientX < rect.left + 64;
+        const isOverRightBoundary = e.clientX > rect.right - 64;
+        let newX = e.clientX;
 
-        range = findEventRange(editor, {
-          ...e,
-          clientX: e.clientX + editorDom.offsetWidth / 2,
-          clientY: e.clientY,
+        if (isOverLeftBoundary) {
+          newX = rect.left + 64;
+        }
+
+        if (isOverRightBoundary) {
+          newX = rect.right - 64;
+        }
+
+        node = findEventNode(editor, {
+          x: newX,
+          y: e.clientY,
         });
       }
 
-      if (!range) {
+      if (!range && !node) {
+        Log.warn('No range and node found');
         return;
+      } else if (range) {
+        const match = editor.above({
+          match: (n) => {
+            return !Editor.isEditor(n) && Element.isElement(n) && n.blockId !== undefined;
+          },
+          at: range,
+        });
+
+        if (!match) {
+          close();
+          return;
+        }
+
+        node = match[0] as Element;
       }
 
-      const match = editor.above({
-        match: (n) => {
-          return !Editor.isEditor(n) && Element.isElement(n) && n.blockId !== undefined;
-        },
-        at: range,
-      });
-
-      if (!match) {
+      if (!node) {
         close();
         return;
       }
-
-      const node = match[0] as Element;
 
       if (node.type === EditorNodeType.Page) return;
       const blockElement = ReactEditor.toDOMNode(editor, node);

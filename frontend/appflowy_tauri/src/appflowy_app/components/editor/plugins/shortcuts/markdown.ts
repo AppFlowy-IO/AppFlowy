@@ -73,7 +73,7 @@ const defaultMarkdownRegex: MarkdownRegex = {
   ],
   [MarkdownShortcuts.CodeBlock]: [
     {
-      pattern: /^(`{3,})$/,
+      pattern: /^(`{2,})$/,
       data: {
         language: 'json',
       },
@@ -81,7 +81,7 @@ const defaultMarkdownRegex: MarkdownRegex = {
   ],
   [MarkdownShortcuts.Divider]: [
     {
-      pattern: /^(([-*]){3,})$/,
+      pattern: /^(([-*]){2,})$/,
     },
   ],
 

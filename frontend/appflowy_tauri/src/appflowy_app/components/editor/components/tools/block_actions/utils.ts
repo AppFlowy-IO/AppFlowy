@@ -2,7 +2,6 @@ import { ReactEditor } from 'slate-react';
 import { getEditorDomNode, getHeadingCssProperty } from '$app/components/editor/plugins/utils';
 import { Element } from 'slate';
 import { EditorNodeType, HeadingNode } from '$app/application/document/document.types';
-import { Log } from '$app/utils/log';
 
 export function getBlockActionsPosition(editor: ReactEditor, blockElement: HTMLElement) {
   const editorDom = getEditorDomNode(editor);
@@ -35,41 +34,25 @@ export function getBlockCssProperty(node: Element) {
 }
 
 /**
- * Resolve can not find the range when the drop occurs on the icon.
  * @param editor
  * @param e
  */
-export function findEventRange(editor: ReactEditor, e: MouseEvent) {
-  const { clientX: x, clientY: y } = e;
+export function findEventNode(
+  editor: ReactEditor,
+  {
+    x,
+    y,
+  }: {
+    x: number;
+    y: number;
+  }
+) {
+  const element = document.elementFromPoint(x, y);
+  const nodeDom = element?.closest('[data-block-type]');
 
-  // Else resolve a range from the caret position where the drop occured.
-  let domRange;
-  const { document } = ReactEditor.getWindow(editor);
-
-  // COMPAT: In Firefox, `caretRangeFromPoint` doesn't exist. (2016/07/25)
-  if (document.caretRangeFromPoint) {
-    domRange = document.caretRangeFromPoint(x, y);
-  } else if ('caretPositionFromPoint' in document && typeof document.caretPositionFromPoint === 'function') {
-    const position = document.caretPositionFromPoint(x, y);
-
-    if (position) {
-      domRange = document.createRange();
-      domRange.setStart(position.offsetNode, position.offset);
-      domRange.setEnd(position.offsetNode, position.offset);
-    }
+  if (nodeDom) {
+    return ReactEditor.toSlateNode(editor, nodeDom) as Element;
   }
 
-  if (!domRange) {
-    Log.warn('Could not find a range from the caret position.');
-    return null;
-  }
-
-  try {
-    return ReactEditor.toSlateRange(editor, domRange, {
-      exactMatch: false,
-      suppressThrow: false,
-    });
-  } catch {
-    return null;
-  }
+  return null;
 }

@@ -2,7 +2,7 @@ import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/code.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -20,14 +20,20 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
       (event, emit) async {
         await event.when(
           initial: () async {
-            // do nothing
+            add(const FetchWorkspaces());
           },
           workspacesReceived: (workspaceId) async {},
           fetchWorkspaces: () async {
             final result = await _fetchWorkspaces();
             if (result != null) {
+              final members = await _userService
+                  .getWorkspaceMembers(
+                    result.$1.workspaceId,
+                  )
+                  .fold((s) => s.items.length, (f) => -1);
               emit(
                 state.copyWith(
+                  isCollaborativeWorkspace: members > 1,
                   currentWorkspace: result.$1,
                   workspaces: result.$2,
                 ),
@@ -258,7 +264,7 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
           workspaces.firstWhere((e) => e.workspaceId == currentWorkspace.id);
       return (currentWorkspaceInList, workspaces);
     } catch (e) {
-      Log.error(e);
+      Log.error('fetch workspace error: $e');
       return null;
     }
   }
@@ -292,6 +298,7 @@ class UserWorkspaceState with _$UserWorkspaceState {
   const factory UserWorkspaceState({
     required UserWorkspacePB? currentWorkspace,
     required List<UserWorkspacePB> workspaces,
+    @Default(false) bool isCollaborativeWorkspace,
     @Default(null) FlowyResult<void, FlowyError>? createWorkspaceResult,
     @Default(null) FlowyResult<void, FlowyError>? deleteWorkspaceResult,
     @Default(null) FlowyResult<void, FlowyError>? openWorkspaceResult,

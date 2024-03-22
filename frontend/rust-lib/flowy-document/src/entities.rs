@@ -445,14 +445,27 @@ pub struct DocumentSnapshotStatePB {
 #[derive(Debug, Default, ProtoBuf)]
 pub struct DocumentSyncStatePB {
   #[pb(index = 1)]
-  pub is_syncing: bool,
+  pub value: DocumentSyncState,
+}
+
+#[derive(Debug, Default, ProtoBuf_Enum, PartialEq, Eq, Clone, Copy)]
+pub enum DocumentSyncState {
+  #[default]
+  InitSyncBegin = 0,
+  InitSyncEnd = 1,
+  Syncing = 2,
+  SyncFinished = 3,
 }
 
 impl From<SyncState> for DocumentSyncStatePB {
   fn from(value: SyncState) -> Self {
-    Self {
-      is_syncing: value.is_syncing(),
-    }
+    let value = match value {
+      SyncState::InitSyncBegin => DocumentSyncState::InitSyncBegin,
+      SyncState::InitSyncEnd => DocumentSyncState::InitSyncEnd,
+      SyncState::Syncing => DocumentSyncState::Syncing,
+      SyncState::SyncFinished => DocumentSyncState::SyncFinished,
+    };
+    Self { value }
   }
 }
 

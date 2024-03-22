@@ -1,6 +1,6 @@
 import { KeyboardEvent, useCallback, useEffect, useMemo } from 'react';
 
-import { BaseRange, createEditor, Editor, NodeEntry, Range, Transforms, Element } from 'slate';
+import { BaseRange, createEditor, Editor, Element, NodeEntry, Range, Transforms } from 'slate';
 import { ReactEditor, withReact } from 'slate-react';
 import { withBlockPlugins } from '$app/components/editor/plugins/withBlockPlugins';
 import { withInlines } from '$app/components/editor/components/inline_nodes';
@@ -9,8 +9,8 @@ import * as Y from 'yjs';
 import { CustomEditor } from '$app/components/editor/command';
 import { CodeNode, EditorNodeType } from '$app/application/document/document.types';
 import { decorateCode } from '$app/components/editor/components/blocks/code/utils';
-import isHotkey from 'is-hotkey';
 import { withMarkdown } from '$app/components/editor/plugins/shortcuts';
+import { createHotkey, HOT_KEY_NAME } from '$app/utils/hotkeys';
 
 export function useEditor(sharedType: Y.XmlText) {
   const editor = useMemo(() => {
@@ -47,6 +47,20 @@ export function useEditor(sharedType: Y.XmlText) {
   }, [editor]);
 
   const handleOnClickEnd = useCallback(() => {
+    const path = [editor.children.length - 1];
+    const node = Editor.node(editor, path) as NodeEntry<Element>;
+    const latestNodeIsEmpty = CustomEditor.isEmptyText(editor, node[0]);
+
+    if (latestNodeIsEmpty) {
+      ReactEditor.focus(editor);
+      editor.select(path);
+      editor.collapse({
+        edge: 'end',
+      });
+
+      return;
+    }
+
     CustomEditor.insertEmptyLineAtEnd(editor);
   }, [editor]);
 
@@ -98,7 +112,7 @@ export function useInlineKeyDown(editor: ReactEditor) {
         const { nativeEvent } = e;
 
         if (
-          isHotkey('left', nativeEvent) &&
+          createHotkey(HOT_KEY_NAME.LEFT)(nativeEvent) &&
           CustomEditor.beforeIsInlineNode(editor, selection, {
             unit: 'offset',
           })
@@ -108,7 +122,10 @@ export function useInlineKeyDown(editor: ReactEditor) {
           return;
         }
 
-        if (isHotkey('right', nativeEvent) && CustomEditor.afterIsInlineNode(editor, selection, { unit: 'offset' })) {
+        if (
+          createHotkey(HOT_KEY_NAME.RIGHT)(nativeEvent) &&
+          CustomEditor.afterIsInlineNode(editor, selection, { unit: 'offset' })
+        ) {
           e.preventDefault();
           Transforms.move(editor, { unit: 'offset' });
           return;

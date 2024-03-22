@@ -24,7 +24,7 @@ function PlaceholderContent({ node, ...attributes }: { node: Element; className?
   }, [editor, node]);
 
   const className = useMemo(() => {
-    return `text-placeholder ${attributes.className ?? ''}`;
+    return `text-placeholder select-none ${attributes.className ?? ''}`;
   }, [attributes.className]);
 
   const unSelectedPlaceholder = useMemo(() => {

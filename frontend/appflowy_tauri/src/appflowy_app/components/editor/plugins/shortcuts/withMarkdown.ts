@@ -1,6 +1,7 @@
 import { Range, Element, Editor, NodeEntry, Path } from 'slate';
 import { ReactEditor } from 'slate-react';
 import {
+  defaultTriggerChar,
   getRegex,
   MarkdownShortcuts,
   whatShortcutsMatch,
@@ -29,9 +30,17 @@ export const withMarkdown = (editor: ReactEditor) => {
 
     const match = CustomEditor.getBlock(editor);
     const [node, path] = match as NodeEntry<Element>;
-    const prevPath = Path.previous(path);
-    const prev = editor.node(prevPath) as NodeEntry<Element>;
-    const prevIsNumberedList = prev && prev[0].type === EditorNodeType.NumberedListBlock;
+
+    let prevIsNumberedList = false;
+
+    try {
+      const prevPath = Path.previous(path);
+      const prev = editor.node(prevPath) as NodeEntry<Element>;
+
+      prevIsNumberedList = prev && prev[0].type === EditorNodeType.NumberedListBlock;
+    } catch (e) {
+      // do nothing
+    }
 
     const start = Editor.start(editor, path);
     const beforeRange = { anchor: start, focus: selection.anchor };
@@ -51,7 +60,7 @@ export const withMarkdown = (editor: ReactEditor) => {
 
       // if the block shortcut is matched, remove the before text and turn to the block
       // then return
-      if (block) {
+      if (block && defaultTriggerChar[shortcut].includes(char)) {
         // Don't turn to the block condition
         // 1. Heading should be able to co-exist with number list
         if (block.type === EditorNodeType.NumberedListBlock && node.type === EditorNodeType.HeadingBlock) {
@@ -105,7 +114,7 @@ export const withMarkdown = (editor: ReactEditor) => {
 
       const removeText = execArr ? execArr[0] : '';
 
-      const text = execArr ? execArr[2].replaceAll(char, '') : '';
+      const text = execArr ? execArr[2]?.replaceAll(char, '') : '';
 
       if (text) {
         const index = rangeText.indexOf(removeText);

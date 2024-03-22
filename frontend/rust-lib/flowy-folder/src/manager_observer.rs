@@ -14,9 +14,9 @@ use lib_dispatch::prelude::af_spawn;
 
 use crate::entities::{
   view_pb_with_child_views, view_pb_without_child_views, ChildViewUpdatePB, FolderSnapshotStatePB,
-  FolderSyncStatePB, RepeatedTrashPB, RepeatedViewPB, ViewPB,
+  FolderSyncStatePB, RepeatedTrashPB, RepeatedViewPB, SectionViewsPB, ViewPB, ViewSectionPB,
 };
-use crate::manager::{get_workspace_view_pbs, MutexFolder};
+use crate::manager::{get_workspace_private_view_pbs, get_workspace_public_view_pbs, MutexFolder};
 use crate::notification::{send_notification, FolderNotification};
 
 /// Listen on the [ViewChange] after create/delete/update events happened
@@ -161,7 +161,8 @@ pub(crate) fn notify_parent_view_did_change<T: AsRef<str>>(
     // if the view's parent id equal to workspace id. Then it will fetch the current
     // workspace views. Because the the workspace is not a view stored in the views map.
     if parent_view_id == workspace_id {
-      notify_did_update_workspace(&workspace_id, folder)
+      notify_did_update_workspace(&workspace_id, folder);
+      notify_did_update_section_views(&workspace_id, folder);
     } else {
       // Parent view can contain a list of child views. Currently, only get the first level
       // child views.
@@ -181,8 +182,35 @@ pub(crate) fn notify_parent_view_did_change<T: AsRef<str>>(
   None
 }
 
+pub(crate) fn notify_did_update_section_views(workspace_id: &str, folder: &Folder) {
+  let public_views = get_workspace_public_view_pbs(workspace_id, folder);
+  let private_views = get_workspace_private_view_pbs(workspace_id, folder);
+  tracing::trace!(
+    "Did update section views: public len = {}, private len = {}",
+    public_views.len(),
+    private_views.len()
+  );
+
+  // TODO(Lucas.xu) - Only notify the section changed, not the public/private both.
+  // Notify the public views
+  send_notification(workspace_id, FolderNotification::DidUpdateSectionViews)
+    .payload(SectionViewsPB {
+      section: ViewSectionPB::Public,
+      views: public_views,
+    })
+    .send();
+
+  // Notify the private views
+  send_notification(workspace_id, FolderNotification::DidUpdateSectionViews)
+    .payload(SectionViewsPB {
+      section: ViewSectionPB::Private,
+      views: private_views,
+    })
+    .send();
+}
+
 pub(crate) fn notify_did_update_workspace(workspace_id: &str, folder: &Folder) {
-  let repeated_view: RepeatedViewPB = get_workspace_view_pbs(workspace_id, folder).into();
+  let repeated_view: RepeatedViewPB = get_workspace_public_view_pbs(workspace_id, folder).into();
   tracing::trace!("Did update workspace views: {:?}", repeated_view);
   send_notification(workspace_id, FolderNotification::DidUpdateWorkspaceViews)
     .payload(repeated_view)

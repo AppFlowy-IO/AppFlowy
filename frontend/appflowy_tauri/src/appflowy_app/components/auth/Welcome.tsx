@@ -2,18 +2,17 @@ import { ReactComponent as AppflowyLogo } from '$app/assets/logo.svg';
 import Button from '@mui/material/Button';
 import { useTranslation } from 'react-i18next';
 import { LoginButtonGroup } from '$app/components/auth/LoginButtonGroup';
-import { useNavigate } from 'react-router-dom';
 import { useAuth } from '$app/components/auth/auth.hooks';
+import { Log } from '$app/utils/log';
 
 export const Welcome = () => {
   const { signInAsAnonymous } = useAuth();
   const { t } = useTranslation();
-  const navigate = useNavigate();
 
   return (
     <>
       <form onSubmit={(e) => e.preventDefault()} method='POST'>
-        <div className='relative flex h-screen w-screen flex-col items-center justify-center gap-12 bg-bg-body text-center text-text-title text-text-title'>
+        <div className='relative flex h-screen w-screen flex-col items-center justify-center gap-12 bg-bg-body text-center text-text-title'>
           <div className='flex justify-center' id='appflowy'>
             <AppflowyLogo className={'h-16 w-16'} />
           </div>
@@ -33,9 +32,8 @@ export const Welcome = () => {
               onClick={async () => {
                 try {
                   await signInAsAnonymous();
-                  navigate('/');
                 } catch (e) {
-                  console.error(e);
+                  Log.error(e);
                 }
               }}
             >

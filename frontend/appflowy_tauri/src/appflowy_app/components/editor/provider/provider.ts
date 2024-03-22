@@ -13,10 +13,9 @@ export class Provider extends EventEmitter {
   dataClient: DataClient;
   // get origin data after document updated
   backupDoc: Y.Doc = new Y.Doc();
-  constructor(public id: string, includeRoot?: boolean) {
+  constructor(public id: string) {
     super();
     this.dataClient = new DataClient(id);
-    void this.initialDocument(includeRoot);
     this.document.on('update', this.documentUpdate);
   }
 

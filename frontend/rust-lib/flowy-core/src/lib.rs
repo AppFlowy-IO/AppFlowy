@@ -1,5 +1,7 @@
 #![allow(unused_doc_comments)]
 
+use flowy_search::folder::indexer::FolderIndexManagerImpl;
+use flowy_search::services::manager::SearchManager;
 use flowy_storage::ObjectStorageService;
 use std::sync::Arc;
 use std::time::Duration;
@@ -11,6 +13,7 @@ use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabPluginProvid
 use flowy_database2::DatabaseManager;
 use flowy_document::manager::DocumentManager;
 use flowy_folder::manager::FolderManager;
+
 use flowy_sqlite::kv::StorePreferences;
 use flowy_user::services::authenticate_user::AuthenticateUser;
 use flowy_user::services::entities::UserConfig;
@@ -30,7 +33,7 @@ use crate::integrate::user::UserStatusCallbackImpl;
 
 pub mod config;
 mod deps_resolve;
-mod integrate;
+pub mod integrate;
 pub mod module;
 
 /// This name will be used as to identify the current [AppFlowyCore] instance.
@@ -49,6 +52,7 @@ pub struct AppFlowyCore {
   pub server_provider: Arc<ServerProvider>,
   pub task_dispatcher: Arc<RwLock<TaskDispatcher>>,
   pub store_preference: Arc<StorePreferences>,
+  pub search_manager: Arc<SearchManager>,
 }
 
 impl AppFlowyCore {
@@ -102,6 +106,7 @@ impl AppFlowyCore {
       database_manager,
       document_manager,
       collab_builder,
+      search_manager,
     ) = async {
       /// The shared collab builder is used to build the [Collab] instance. The plugins will be loaded
       /// on demand based on the [CollabPluginConfig].
@@ -141,17 +146,21 @@ impl AppFlowyCore {
         Arc::downgrade(&(server_provider.clone() as Arc<dyn ObjectStorageService>)),
       );
 
+      let folder_indexer = Arc::new(FolderIndexManagerImpl::new(Arc::downgrade(
+        &authenticate_user,
+      )));
       let folder_manager = FolderDepsResolver::resolve(
         Arc::downgrade(&authenticate_user),
         &document_manager,
         &database_manager,
         collab_builder.clone(),
         server_provider.clone(),
+        folder_indexer.clone(),
       )
       .await;
 
       let user_manager = UserDepsResolver::resolve(
-        authenticate_user,
+        authenticate_user.clone(),
         collab_builder.clone(),
         server_provider.clone(),
         store_preference.clone(),
@@ -160,6 +169,8 @@ impl AppFlowyCore {
       )
       .await;
 
+      let search_manager = SearchDepsResolver::resolve(folder_indexer).await;
+
       (
         user_manager,
         folder_manager,
@@ -167,6 +178,7 @@ impl AppFlowyCore {
         database_manager,
         document_manager,
         collab_builder,
+        search_manager,
       )
     }
     .await;
@@ -201,6 +213,7 @@ impl AppFlowyCore {
         Arc::downgrade(&database_manager),
         Arc::downgrade(&user_manager),
         Arc::downgrade(&document_manager),
+        Arc::downgrade(&search_manager),
       ),
     ));
 
@@ -214,6 +227,7 @@ impl AppFlowyCore {
       server_provider,
       task_dispatcher,
       store_preference,
+      search_manager,
     }
   }
 

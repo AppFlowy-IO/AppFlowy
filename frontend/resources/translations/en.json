@@ -205,10 +205,16 @@
     "closeSidebar": "Close side bar",
     "openSidebar": "Open side bar",
     "personal": "Personal",
+    "private": "Private",
+    "public": "Public",
     "favorites": "Favorites",
+    "clickToHidePrivate": "Click to hide private section\nPages you created here are only visible to you",
+    "clickToHidePublic": "Click to hide public section\nPages you created here are visible to every member",
     "clickToHidePersonal": "Click to hide personal section",
     "clickToHideFavorites": "Click to hide favorite section",
     "addAPage": "Add a page",
+    "addAPageToPrivate": "Add a page to private section",
+    "addAPageToPublic": "Add a page to public section",
     "recent": "Recent"
   },
   "notifications": {
@@ -614,6 +620,7 @@
       "insertRight": "Insert Right",
       "duplicate": "Duplicate",
       "delete": "Delete",
+      "clear": "Clear cells",
       "textFieldName": "Text",
       "checkboxFieldName": "Checkbox",
       "dateFieldName": "Date",
@@ -654,6 +661,7 @@
       "editProperty": "Edit property",
       "newProperty": "New property",
       "deleteFieldPromptMessage": "Are you sure? This property will be deleted",
+      "clearFieldPromptMessage": "Are you sure? All cells in this column will be emptied",
       "newColumn": "New Column",
       "format": "Format",
       "reminderOnDateTooltip": "This cell has a scheduled reminder",
@@ -1409,6 +1417,21 @@
         },
         "language": "Language"
       }
+    },
+    "syncState": {
+      "syncing": "Syncing",
+      "synced": "Everything is up to date",
+      "noNetworkConnected": "No network connected"
     }
+  },
+  "commandPalette": {
+    "placeholder": "Type to search for views...",
+    "bestMatches": "Best matches",
+    "recentHistory": "Recent history",
+    "navigateHint": "to navigate",
+    "loadingTooltip": "We are looking for results...",
+    "betaLabel": "BETA",
+    "betaTooltip": "We currently only support searching for pages",
+    "fromTrashHint": "From trash"
   }
 }

@@ -11,9 +11,10 @@ import {
   Path,
   EditorBeforeOptions,
   Text,
+  addMark,
 } from 'slate';
 import { LIST_TYPES, tabBackward, tabForward } from '$app/components/editor/command/tab';
-import { isMarkActive, removeMarks, toggleMark } from '$app/components/editor/command/mark';
+import { getAllMarks, isMarkActive, removeMarks, toggleMark } from '$app/components/editor/command/mark';
 import {
   deleteFormula,
   insertFormula,
@@ -31,6 +32,7 @@ import {
   inlineNodeTypes,
   FormulaNode,
   ImageNode,
+  EditorMarkFormat,
 } from '$app/application/document/document.types';
 import cloneDeep from 'lodash-es/cloneDeep';
 import { generateId } from '$app/components/editor/provider/utils/convert';
@@ -235,6 +237,10 @@ export const CustomEditor = {
   },
 
   toggleAlign(editor: ReactEditor, format: string) {
+    const isIncludeRoot = CustomEditor.selectionIncludeRoot(editor);
+
+    if (isIncludeRoot) return;
+
     const matchNodes = Array.from(
       Editor.nodes(editor, {
         // Note: we need to select the text node instead of the element node, otherwise the parent node will be selected
@@ -669,5 +675,41 @@ export const CustomEditor = {
     }
 
     return level;
+  },
+
+  getLinks(editor: ReactEditor): string[] {
+    const marks = getAllMarks(editor);
+
+    if (!marks) return [];
+
+    return Object.entries(marks)
+      .filter(([key]) => key === 'href')
+      .map(([_, val]) => val as string);
+  },
+
+  extendLineBackward(editor: ReactEditor) {
+    Transforms.move(editor, {
+      unit: 'line',
+      edge: 'focus',
+      reverse: true,
+    });
+  },
+
+  extendLineForward(editor: ReactEditor) {
+    Transforms.move(editor, { unit: 'line', edge: 'focus' });
+  },
+
+  insertPlainText(editor: ReactEditor, text: string) {
+    const [appendText, ...lines] = text.split('\n');
+
+    editor.insertText(appendText);
+    lines.forEach((line) => {
+      editor.insertBreak();
+      editor.insertText(line);
+    });
+  },
+
+  highlight(editor: ReactEditor) {
+    addMark(editor, EditorMarkFormat.BgColor, 'appflowy_them_color_tint5');
   },
 };

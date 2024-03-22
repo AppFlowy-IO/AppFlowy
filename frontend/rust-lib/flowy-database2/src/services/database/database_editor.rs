@@ -361,6 +361,30 @@ impl DatabaseEditor {
     Ok(())
   }
 
+  pub async fn clear_field(&self, view_id: &str, field_id: &str) -> FlowyResult<()> {
+    let field_type: FieldType = self
+      .get_field(field_id)
+      .map(|field| field.field_type.into())
+      .unwrap_or_default();
+
+    if matches!(
+      field_type,
+      FieldType::LastEditedTime | FieldType::CreatedTime
+    ) {
+      return Err(FlowyError::new(
+        ErrorCode::Internal,
+        "Can not clear the field type of Last Edited Time or Created Time.",
+      ));
+    }
+
+    let cells: Vec<RowCell> = self.get_cells_for_field(view_id, field_id).await;
+    for row_cell in cells {
+      self.clear_cell(view_id, row_cell.row_id, field_id).await?;
+    }
+
+    Ok(())
+  }
+
   /// Update the field type option data.
   /// Do nothing if the [TypeOptionData] is empty.
   pub async fn update_field_type_option(
@@ -804,6 +828,37 @@ impl DatabaseEditor {
       });
     });
 
+    self
+      .did_update_row(view_id, row_id, field_id, old_row)
+      .await;
+
+    Ok(())
+  }
+
+  pub async fn clear_cell(&self, view_id: &str, row_id: RowId, field_id: &str) -> FlowyResult<()> {
+    // Get the old row before updating the cell. It would be better to get the old cell
+    let old_row = { self.get_row_detail(view_id, &row_id) };
+
+    self.database.lock().update_row(&row_id, |row_update| {
+      row_update.update_cells(|cell_update| {
+        cell_update.clear(field_id);
+      });
+    });
+
+    self
+      .did_update_row(view_id, row_id, field_id, old_row)
+      .await;
+
+    Ok(())
+  }
+
+  async fn did_update_row(
+    &self,
+    view_id: &str,
+    row_id: RowId,
+    field_id: &str,
+    old_row: Option<RowDetail>,
+  ) {
     let option_row = self.get_row_detail(view_id, &row_id);
     if let Some(new_row_detail) = option_row {
       for view in self.database_views.editors().await {
@@ -821,8 +876,6 @@ impl DatabaseEditor {
     self
       .notify_update_row(view_id, row_id, vec![changeset])
       .await;
-
-    Ok(())
   }
 
   pub fn get_auto_updated_fields_changesets(
@@ -1078,7 +1131,7 @@ impl DatabaseEditor {
 
   pub async fn group_by_field(&self, view_id: &str, field_id: &str) -> FlowyResult<()> {
     let view = self.database_views.get_view_editor(view_id).await?;
-    view.v_grouping_by_field(field_id).await?;
+    view.v_group_by_field(field_id).await?;
     Ok(())
   }
 
