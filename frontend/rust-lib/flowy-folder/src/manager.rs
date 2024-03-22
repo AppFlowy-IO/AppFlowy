@@ -986,8 +986,7 @@ impl FolderManager {
       meta: Default::default(),
       set_as_current: false,
       index: None,
-      // TODO: Lucas.xu fetch the section from the view
-      section: Some(ViewSectionPB::Public),
+      section: None,
     };
 
     let view = create_view(self.user.user_id()?, params, import_data.view_layout);
