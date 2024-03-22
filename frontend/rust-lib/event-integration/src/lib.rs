@@ -115,7 +115,7 @@ impl EventIntegrationTest {
     let uid = self.get_user_profile().await?.id;
     let doc_state = server
       .folder_service()
-      .get_folder_doc_state(&workspace_id, uid, collay_type, oid)
+      .get_folder_doc_state(&workspace_id, uid, collab_type, oid)
       .await?;
 
     Ok(doc_state)
