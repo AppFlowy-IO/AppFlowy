@@ -402,7 +402,7 @@ class _MemberRoleActionList extends StatelessWidget {
     return PopoverActionList<_MemberRoleActionWrapper>(
       asBarrier: true,
       direction: PopoverDirection.bottomWithLeftAligned,
-      actions: [AFRolePB.Member, AFRolePB.Guest]
+      actions: [AFRolePB.Member]
           .map((e) => _MemberRoleActionWrapper(e, member))
           .toList(),
       offset: const Offset(0, 10),
