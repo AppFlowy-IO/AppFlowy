@@ -16,8 +16,6 @@ use lru::LruCache;
 use parking_lot::Mutex;
 use tokio::io::AsyncWriteExt;
 use tracing::error;
-use tracing::info;
-use tracing::warn;
 use tracing::{event, instrument};
 
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
@@ -286,7 +284,7 @@ impl DocumentManager {
     #[cfg(not(target_arch = "wasm32"))]
     {
       if tokio::fs::metadata(&local_file_path).await.is_ok() {
-        warn!("file already exist in user local disk: {}", local_file_path);
+        tracing::warn!("file already exist in user local disk: {}", local_file_path);
         return Ok(());
       }
 
@@ -300,7 +298,7 @@ impl DocumentManager {
         .await?;
 
       let n = file.write(&object_value.raw).await?;
-      info!("downloaded {} bytes to file: {}", n, local_file_path);
+      tracing::info!("downloaded {} bytes to file: {}", n, local_file_path);
     }
     Ok(())
   }
