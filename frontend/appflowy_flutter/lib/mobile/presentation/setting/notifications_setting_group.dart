@@ -1,12 +1,13 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
 
 import 'widgets/widgets.dart';
 
 class NotificationsSettingGroup extends StatefulWidget {
-  const NotificationsSettingGroup({super.key});
+  const NotificationsSettingGroup({
+    super.key,
+  });
 
   @override
   State<NotificationsSettingGroup> createState() =>
@@ -14,6 +15,7 @@ class NotificationsSettingGroup extends StatefulWidget {
 }
 
 class _NotificationsSettingGroupState extends State<NotificationsSettingGroup> {
+  // TODO:remove this after notification page is implemented
   bool isPushNotificationOn = false;
 
   @override

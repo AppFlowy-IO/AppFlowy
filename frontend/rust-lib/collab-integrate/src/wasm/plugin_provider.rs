@@ -2,6 +2,7 @@ use crate::collab_builder::{CollabPluginProviderContext, CollabPluginProviderTyp
 use collab::preclude::CollabPlugin;
 use lib_infra::future::Fut;
 use std::rc::Rc;
+use std::sync::Arc;
 
 pub trait CollabCloudPluginProvider: 'static {
   fn provider_type(&self) -> CollabPluginProviderType;

@@ -16,6 +16,8 @@ pub enum FolderScript {
   AssertWorkspace(WorkspacePB),
   #[allow(dead_code)]
   ReadWorkspace(String),
+
+  // App
   CreateParentView {
     name: String,
     desc: String,
@@ -79,16 +81,16 @@ impl FolderTest {
     let parent_view = create_view(
       &sdk,
       &workspace.id,
-      "first level view",
-      "",
+      "Folder App",
+      "Folder test app",
       ViewLayout::Document,
     )
     .await;
     let view = create_view(
       &sdk,
       &parent_view.id,
-      "second level view",
-      "",
+      "Folder View",
+      "Folder test view",
       ViewLayout::Document,
     )
     .await;

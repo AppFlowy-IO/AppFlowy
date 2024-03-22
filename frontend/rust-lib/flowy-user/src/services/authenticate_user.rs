@@ -8,7 +8,6 @@ use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_sqlite::kv::StorePreferences;
 use flowy_sqlite::DBConnection;
 use flowy_user_pub::session::Session;
-use std::path::PathBuf;
 use std::sync::{Arc, Weak};
 use tracing::{debug, error, info};
 
@@ -71,11 +70,6 @@ impl AuthenticateUser {
 
   pub fn get_sqlite_connection(&self, uid: i64) -> FlowyResult<DBConnection> {
     self.database.get_connection(uid)
-  }
-
-  pub fn get_index_path(&self) -> PathBuf {
-    let uid = self.user_id().unwrap_or(0);
-    PathBuf::from(self.user_paths.user_data_dir(uid)).join("indexes")
   }
 
   pub fn close_db(&self) -> FlowyResult<()> {

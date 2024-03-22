@@ -15,7 +15,7 @@ use crate::integrate::log::create_log_filter;
 pub struct AppFlowyCoreConfig {
   /// Different `AppFlowyCoreConfig` instance should have different name
   pub(crate) app_version: String,
-  pub name: String,
+  pub(crate) name: String,
   pub(crate) device_id: String,
   /// Used to store the user data
   pub storage_path: String,
@@ -102,8 +102,8 @@ impl AppFlowyCoreConfig {
     }
   }
 
-  pub fn log_filter(mut self, log_filter: String) -> Self {
-    self.log_filter = log_filter;
+  pub fn log_filter(mut self, level: &str, with_crates: Vec<String>) -> Self {
+    self.log_filter = create_log_filter(level.to_owned(), with_crates);
     self
   }
 }

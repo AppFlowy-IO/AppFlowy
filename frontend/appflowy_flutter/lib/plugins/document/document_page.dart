@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/doc_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/banner.dart';
@@ -8,14 +6,15 @@ import 'package:appflowy/plugins/document/presentation/editor_page.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
-import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
+import 'package:appflowy/workspace/application/notifications/notification_action.dart';
+import 'package:appflowy/workspace/application/notifications/notification_action_bloc.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class DocumentPage extends StatefulWidget {
@@ -58,7 +57,7 @@ class _DocumentPageState extends State<DocumentPage> {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider.value(value: getIt<ActionNavigationBloc>()),
+        BlocProvider.value(value: getIt<NotificationActionBloc>()),
         BlocProvider(
           create: (_) => DocumentBloc(view: widget.view)
             ..add(const DocumentEvent.initial()),
@@ -86,9 +85,9 @@ class _DocumentPageState extends State<DocumentPage> {
             return const SizedBox.shrink();
           }
 
-          return BlocListener<ActionNavigationBloc, ActionNavigationState>(
-            listenWhen: (_, curr) => curr.action != null,
+          return BlocListener<NotificationActionBloc, NotificationActionState>(
             listener: _onNotificationAction,
+            listenWhen: (_, curr) => curr.action != null,
             child: _buildEditorPage(context, state),
           );
         },
@@ -162,7 +161,7 @@ class _DocumentPageState extends State<DocumentPage> {
 
   void _onNotificationAction(
     BuildContext context,
-    ActionNavigationState state,
+    NotificationActionState state,
   ) {
     if (state.action != null && state.action!.type == ActionType.jumpToBlock) {
       final path = state.action?.arguments?[ActionArgumentKeys.nodePath];

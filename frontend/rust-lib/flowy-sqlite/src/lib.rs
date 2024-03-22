@@ -11,7 +11,8 @@ pub use diesel::*;
 pub use diesel_derives::*;
 use diesel_migrations::{EmbeddedMigrations, MigrationHarness};
 
-pub use crate::sqlite_impl::{ConnectionPool, DBConnection, Database, PoolConfig};
+use crate::sqlite_impl::PoolConfig;
+pub use crate::sqlite_impl::{ConnectionPool, DBConnection, Database};
 
 pub mod kv;
 mod sqlite_impl;
@@ -43,7 +44,6 @@ pub fn init<P: AsRef<Path>>(storage_path: P) -> Result<Database, io::Error> {
   (*conn)
     .run_pending_migrations(MIGRATIONS)
     .map_err(|e| io::Error::new(io::ErrorKind::Other, format!("{:?}", e)))?;
-
   Ok(database)
 }
 
