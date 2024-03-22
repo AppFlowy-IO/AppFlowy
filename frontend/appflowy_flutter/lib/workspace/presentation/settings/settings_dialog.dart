@@ -29,6 +29,7 @@ class SettingsDialog extends StatelessWidget {
         ..add(const SettingsDialogEvent.initial()),
       child: BlocBuilder<SettingsDialogBloc, SettingsDialogState>(
         builder: (context, state) => FlowyDialog(
+          constraints: const BoxConstraints(minWidth: 564, maxHeight: 784),
           child: ScaffoldMessenger(
             child: Scaffold(
               backgroundColor: Colors.transparent,
