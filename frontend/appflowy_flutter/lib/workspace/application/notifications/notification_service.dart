@@ -1,5 +1,4 @@
 import 'package:flutter/foundation.dart';
-
 import 'package:local_notifier/local_notifier.dart';
 
 const _appName = "AppFlowy";
@@ -13,7 +12,9 @@ const _appName = "AppFlowy";
 ///
 class NotificationService {
   static Future<void> initialize() async {
-    await localNotifier.setup(appName: _appName);
+    await localNotifier.setup(
+      appName: _appName,
+    );
   }
 }
 

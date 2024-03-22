@@ -10,7 +10,7 @@ class DocumentService {
     required ViewPB view,
   }) async {
     final canOpen = await openDocument(viewId: view.id);
-    if (canOpen.isSuccess()) {
+    if (canOpen.isSuccess) {
       return FlowyResult.success(null);
     }
     final payload = CreateDocumentPayloadPB()..documentId = view.id;

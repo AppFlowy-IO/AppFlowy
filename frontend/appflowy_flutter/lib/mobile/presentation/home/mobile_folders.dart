@@ -1,9 +1,9 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/mobile/presentation/home/section_folder/mobile_home_section_folder.dart';
-import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
+import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -53,8 +53,7 @@ class MobileFolders extends StatelessWidget {
         },
         builder: (context, state) {
           final isCollaborativeWorkspace =
-              user.authenticator != AuthenticatorPB.Local &&
-                  FeatureFlag.collaborativeWorkspace.isOn;
+              context.read<UserWorkspaceBloc>().state.isCollabWorkspaceOn;
           return SlidableAutoCloseBehavior(
             child: Column(
               children: [

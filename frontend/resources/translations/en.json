@@ -68,6 +68,7 @@
     "deleteWorkspaceHintText": "Are you sure you want to delete the workspace? This action cannot be undone.",
     "createSuccess": "Workspace created successfully",
     "createFailed": "Failed to create workspace",
+    "createLimitExceeded": "You've reached the maximum workspace limit allowed for your account. If you need additional workspaces to continue your work, please request on Github",
     "deleteSuccess": "Workspace deleted successfully",
     "deleteFailed": "Failed to delete workspace",
     "openSuccess": "Open workspace successfully",
@@ -75,7 +76,9 @@
     "renameSuccess": "Workspace renamed successfully",
     "renameFailed": "Failed to rename workspace",
     "updateIconSuccess": "Updated workspace icon successfully",
-    "updateIconFailed": "Updated workspace icon failed"
+    "updateIconFailed": "Updated workspace icon failed",
+    "cannotDeleteTheOnlyWorkspace": "Cannot delete the only workspace",
+    "fetchWorkspacesFailed": "Failed to fetch workspaces"
   },
   "shareAction": {
     "buttonText": "Share",
@@ -466,7 +469,17 @@
         "guestHintText": "A Guest can read, react, comment, and can edit certain pages with permission.",
         "emailInvalidError": "Invalid email, please check and try again",
         "emailSent": "Email sent, please check the inbox",
-        "members": "members"
+        "members": "members",
+        "membersCount": {
+          "zero": "{} members",
+          "one": "{} member",
+          "other": "{} members"
+        },
+        "memberLimitExceeded": "You've reached the maximum member limit allowed for your account. If you want to add more additional members to continue your work, please request on Github",
+        "failedToAddMember": "Failed to add member",
+        "addMemberSuccess": "Member added successfully",
+        "removeMember": "Remove Member",
+        "areYouSureToRemoveMember": "Are you sure you want to remove this member?"
       }
     },
     "files": {
@@ -1450,18 +1463,8 @@
     },
     "syncState": {
       "syncing": "Syncing",
-      "synced": "Everything is up to date",
+      "synced": "Synced",
       "noNetworkConnected": "No network connected"
     }
-  },
-  "commandPalette": {
-    "placeholder": "Type to search for views...",
-    "bestMatches": "Best matches",
-    "recentHistory": "Recent history",
-    "navigateHint": "to navigate",
-    "loadingTooltip": "We are looking for results...",
-    "betaLabel": "BETA",
-    "betaTooltip": "We currently only support searching for pages",
-    "fromTrashHint": "From trash"
   }
 }

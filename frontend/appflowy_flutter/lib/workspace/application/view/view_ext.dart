@@ -92,7 +92,7 @@ extension ViewExtension on ViewPB {
     }
     FlowyResult<ViewPB, FlowyError> parent =
         await ViewBackendService.getView(parentViewId);
-    while (parent.isSuccess()) {
+    while (parent.isSuccess) {
       // parent is not null
       final view = parent.fold((s) => s, (e) => null);
       if (view == null || (!includeRoot && view.parentViewId.isEmpty)) {

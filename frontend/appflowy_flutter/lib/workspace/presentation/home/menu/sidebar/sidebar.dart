@@ -1,12 +1,9 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
-
-import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
-import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
 import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
+import 'package:appflowy/workspace/application/notifications/notification_action.dart';
+import 'package:appflowy/workspace/application/notifications/notification_action_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
@@ -17,11 +14,11 @@ import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_trash.
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_user.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_workspace.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/auth.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
     show UserProfilePB;
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Home Sidebar is the left side bar of the home page.
@@ -72,7 +69,9 @@ class HomeSideBar extends StatelessWidget {
         builder: (context, state) {
           return MultiBlocProvider(
             providers: [
-              BlocProvider(create: (_) => getIt<ActionNavigationBloc>()),
+              BlocProvider(
+                create: (_) => getIt<NotificationActionBloc>(),
+              ),
               BlocProvider(
                 create: (_) => SidebarSectionsBloc()
                   ..add(
@@ -95,7 +94,7 @@ class HomeSideBar extends StatelessWidget {
                         ),
                       ),
                 ),
-                BlocListener<ActionNavigationBloc, ActionNavigationState>(
+                BlocListener<NotificationActionBloc, NotificationActionState>(
                   listenWhen: (_, curr) => curr.action != null,
                   listener: _onNotificationAction,
                 ),
@@ -121,28 +120,35 @@ class HomeSideBar extends StatelessWidget {
 
   void _onNotificationAction(
     BuildContext context,
-    ActionNavigationState state,
+    NotificationActionState state,
   ) {
     final action = state.action;
-    if (action?.type == ActionType.openView) {
-      final view = state.views.findView(action!.objectId);
+    if (action != null) {
+      if (action.type == ActionType.openView) {
+        final view = context
+            .read<SidebarSectionsBloc>()
+            .state
+            .section
+            .publicViews
+            .findView(action.objectId);
 
-      if (view != null) {
-        final Map<String, dynamic> arguments = {};
+        if (view != null) {
+          final Map<String, dynamic> arguments = {};
 
-        final nodePath = action.arguments?[ActionArgumentKeys.nodePath];
-        if (nodePath != null) {
-          arguments[PluginArgumentKeys.selection] = Selection.collapsed(
-            Position(path: [nodePath]),
-          );
+          final nodePath = action.arguments?[ActionArgumentKeys.nodePath];
+          if (nodePath != null) {
+            arguments[PluginArgumentKeys.selection] = Selection.collapsed(
+              Position(path: [nodePath]),
+            );
+          }
+
+          final rowId = action.arguments?[ActionArgumentKeys.rowId];
+          if (rowId != null) {
+            arguments[PluginArgumentKeys.rowId] = rowId;
+          }
+
+          context.read<TabsBloc>().openPlugin(view, arguments: arguments);
         }
-
-        final rowId = action.arguments?[ActionArgumentKeys.rowId];
-        if (rowId != null) {
-          arguments[PluginArgumentKeys.rowId] = rowId;
-        }
-
-        context.read<TabsBloc>().openPlugin(view, arguments: arguments);
       }
     }
   }
@@ -199,8 +205,7 @@ class _SidebarState extends State<_Sidebar> {
           // user or workspace, setting
           Padding(
             padding: menuHorizontalInset,
-            child: widget.userProfile.authenticator != AuthenticatorPB.Local &&
-                    FeatureFlag.collaborativeWorkspace.isOn
+            child: context.read<UserWorkspaceBloc>().state.isCollabWorkspaceOn
                 ? SidebarWorkspace(
                     userProfile: widget.userProfile,
                   )

@@ -89,7 +89,7 @@ class WorkspacesMenu extends StatelessWidget {
       final workspaceBloc = context.read<UserWorkspaceBloc>();
       await CreateWorkspaceDialog(
         onConfirm: (name) {
-          workspaceBloc.add(UserWorkspaceEvent.createWorkspace(name, ''));
+          workspaceBloc.add(UserWorkspaceEvent.createWorkspace(name));
         },
       ).show(context);
     }
@@ -120,59 +120,72 @@ class WorkspaceMenuItem extends StatelessWidget {
           // settings right icon inside the flowy button will
           //  cause the popover dismiss intermediately when click the right icon.
           // so using the stack to put the right icon on the flowy button.
-          return Stack(
-            alignment: Alignment.center,
-            children: [
-              FlowyButton(
-                onTap: () {
-                  if (!isSelected) {
-                    context.read<UserWorkspaceBloc>().add(
-                          UserWorkspaceEvent.openWorkspace(
-                            workspace.workspaceId,
-                          ),
-                        );
-                  }
-                },
-                margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                iconPadding: 10.0,
-                leftIconSize: const Size.square(32),
-                leftIcon: const SizedBox.square(
-                  dimension: 32,
-                ),
-                rightIcon: const HSpace(42.0),
-                text: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    FlowyText.medium(
-                      workspace.name,
-                      fontSize: 14.0,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    if (members.length > 1)
+          return SizedBox(
+            height: 52,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                FlowyButton(
+                  onTap: () {
+                    if (!isSelected) {
+                      context.read<UserWorkspaceBloc>().add(
+                            UserWorkspaceEvent.openWorkspace(
+                              workspace.workspaceId,
+                            ),
+                          );
+                      PopoverContainer.of(context).closeAll();
+                    }
+                  },
+                  margin:
+                      const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                  iconPadding: 10.0,
+                  leftIconSize: const Size.square(32),
+                  leftIcon: const SizedBox.square(
+                    dimension: 32,
+                  ),
+                  rightIcon: const HSpace(42.0),
+                  text: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    // mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      FlowyText.medium(
+                        workspace.name,
+                        fontSize: 14.0,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                       FlowyText(
-                        '${members.length} ${LocaleKeys.settings_appearance_members_members.tr()}',
+                        state.isLoading
+                            ? ''
+                            : LocaleKeys
+                                .settings_appearance_members_membersCount
+                                .plural(
+                                members.length,
+                              ),
                         fontSize: 10.0,
                         color: Theme.of(context).hintColor,
                       ),
-                  ],
-                ),
-              ),
-              Positioned(
-                left: 8,
-                child: SizedBox.square(
-                  dimension: 32,
-                  child: WorkspaceIcon(
-                    workspace: workspace,
-                    iconSize: 26,
-                    enableEdit: true,
+                    ],
                   ),
                 ),
-              ),
-              Positioned(
-                right: 12.0,
-                child: Align(child: _buildRightIcon(context)),
-              ),
-            ],
+                Positioned(
+                  left: 8,
+                  child: SizedBox.square(
+                    dimension: 32,
+                    child: WorkspaceIcon(
+                      workspace: workspace,
+                      iconSize: 26,
+                      enableEdit: true,
+                    ),
+                  ),
+                ),
+                Positioned(
+                  right: 12.0,
+                  child: Align(
+                    child: _buildRightIcon(context),
+                  ),
+                ),
+              ],
+            ),
           );
         },
       ),
@@ -182,7 +195,7 @@ class WorkspaceMenuItem extends StatelessWidget {
   Widget _buildRightIcon(BuildContext context) {
     // only the owner can update or delete workspace.
     // only show the more action button when the workspace is selected.
-    if (!isSelected) {
+    if (!isSelected || context.read<WorkspaceMemberBloc>().state.isLoading) {
       return const SizedBox.shrink();
     }
 

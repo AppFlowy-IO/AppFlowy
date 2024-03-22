@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -23,9 +24,6 @@ import '../desktop_grid/desktop_grid_url_cell.dart';
 import '../desktop_row_detail/desktop_row_detail_url_cell.dart';
 import '../mobile_grid/mobile_grid_url_cell.dart';
 import '../mobile_row_detail/mobile_row_detail_url_cell.dart';
-
-const regexUrl =
-    r"[(http(s)?):\/\/(www\.)?a-zA-Z0-9@:._\+-~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:_\+.~#?&\/\/=]*)";
 
 abstract class IEditableURLCellSkin {
   const IEditableURLCellSkin();
@@ -134,8 +132,8 @@ class _GridURLCellState extends GridEditableTextCell<EditableURLCell> {
   Future<void> focusChanged() async {
     if (mounted &&
         !cellBloc.isClosed &&
-        cellBloc.state.content != _textEditingController.text.trim()) {
-      cellBloc.add(URLCellEvent.updateURL(_textEditingController.text.trim()));
+        cellBloc.state.content != _textEditingController.text) {
+      cellBloc.add(URLCellEvent.updateURL(_textEditingController.text));
     }
     return super.focusChanged();
   }
@@ -169,6 +167,9 @@ class MobileURLEditor extends StatelessWidget {
             textStyle: Theme.of(context).textTheme.bodyMedium,
             keyboardType: TextInputType.url,
             hintTextConstraints: const BoxConstraints(maxHeight: 52),
+            error: context.watch<URLCellBloc>().state.isValid
+                ? null
+                : const SizedBox.shrink(),
             onChanged: (_) {
               if (textEditingController.value.composing.isCollapsed) {
                 context
@@ -212,8 +213,11 @@ class MobileURLEditor extends StatelessWidget {
   }
 }
 
-void openUrlCellLink(String content) {
-  if (RegExp(regexUrl).hasMatch(content)) {
+void openUrlCellLink(String content) async {
+  String url = "";
+
+  try {
+    // check protocol is provided
     const linkPrefix = [
       'http://',
       'https://',
@@ -224,11 +228,15 @@ void openUrlCellLink(String content) {
     ];
     final shouldAddScheme =
         !linkPrefix.any((pattern) => content.startsWith(pattern));
-    final url = shouldAddScheme ? 'https://$content' : content;
-    afLaunchUrlString(url);
-  } else {
-    afLaunchUrlString(
-      "https://www.google.com/search?q=${Uri.encodeComponent(content)}",
-    );
+    url = shouldAddScheme ? 'http://$content' : content;
+
+    // get hostname and check validity
+    final uri = Uri.parse(url);
+    final hostName = uri.host;
+    await InternetAddress.lookup(hostName);
+  } catch (_) {
+    url = "https://www.google.com/search?q=${Uri.encodeComponent(content)}";
+  } finally {
+    await afLaunchUrlString(url);
   }
 }
