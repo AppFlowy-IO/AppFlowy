@@ -1,7 +1,7 @@
 use std::sync::{Arc, Weak};
 
 use anyhow::Context;
-use collab::core::collab::{CollabDocState, MutexCollab};
+use collab::core::collab::{DocStateSource, MutexCollab};
 use collab_entity::reminder::Reminder;
 use collab_entity::CollabType;
 use collab_integrate::collab_builder::CollabBuilderConfig;
@@ -164,7 +164,7 @@ impl UserManager {
     &self,
     session: &Session,
     collab_db: Weak<CollabKVDB>,
-    raw_data: CollabDocState,
+    doc_state: Vec<u8>,
   ) -> Result<Arc<MutexCollab>, FlowyError> {
     let collab_builder = self.collab_builder.upgrade().ok_or(FlowyError::new(
       ErrorCode::Internal,
@@ -176,7 +176,7 @@ impl UserManager {
         session.user_id,
         &user_awareness_id.to_string(),
         CollabType::UserAwareness,
-        raw_data,
+        DocStateSource::FromDocState(doc_state),
         collab_db,
         CollabBuilderConfig::default().sync_enable(true),
       )

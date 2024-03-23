@@ -7,7 +7,7 @@ use std::time::Duration;
 
 use anyhow::Error;
 use chrono::{DateTime, Utc};
-use collab::core::collab::CollabDocState;
+use collab::core::collab::DocStateSource;
 use collab_entity::{CollabObject, CollabType};
 use collab_plugins::cloud_storage::RemoteCollabSnapshot;
 use serde_json::Value;
@@ -60,7 +60,7 @@ impl FetchObjectUpdateAction {
 
 impl Action for FetchObjectUpdateAction {
   type Future = Pin<Box<dyn Future<Output = Result<Self::Item, Self::Error>> + Send>>;
-  type Item = CollabDocState;
+  type Item = Vec<u8>;
   type Error = anyhow::Error;
 
   fn run(&mut self) -> Self::Future {
@@ -284,7 +284,7 @@ pub async fn batch_get_updates_from_server(
         match parser_updates_form_json(record.clone(), &postgrest.secret()) {
           Ok(items) => {
             if items.is_empty() {
-              updates_by_oid.insert(oid.to_string(), vec![]);
+              updates_by_oid.insert(oid.to_string(), DocStateSource::FromDocState(vec![]));
             } else {
               let updates = items
                 .iter()
@@ -293,7 +293,7 @@ pub async fn batch_get_updates_from_server(
 
               let doc_state = merge_updates_v1(&updates)
                 .map_err(|err| anyhow::anyhow!("merge updates failed: {:?}", err))?;
-              updates_by_oid.insert(oid.to_string(), doc_state);
+              updates_by_oid.insert(oid.to_string(), DocStateSource::FromDocState(doc_state));
             }
           },
           Err(e) => {

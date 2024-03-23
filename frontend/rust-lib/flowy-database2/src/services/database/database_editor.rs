@@ -805,6 +805,7 @@ impl DatabaseEditor {
       }?;
       (field, database.get_cell(field_id, &row_id).cell)
     };
+
     let new_cell =
       apply_cell_changeset(cell_changeset, cell, &field, Some(self.cell_cache.clone()))?;
     self.update_cell(view_id, row_id, field_id, new_cell).await

@@ -6,7 +6,7 @@ use std::sync::{Arc, Weak};
 use std::time::Duration;
 
 use anyhow::Error;
-use collab::core::collab::{CollabDocState, MutexCollab};
+use collab::core::collab::MutexCollab;
 use collab::core::origin::CollabOrigin;
 use collab_entity::{CollabObject, CollabType};
 use parking_lot::RwLock;
@@ -249,7 +249,7 @@ where
     })
   }
 
-  fn get_user_awareness_doc_state(&self, uid: i64) -> FutureResult<CollabDocState, FlowyError> {
+  fn get_user_awareness_doc_state(&self, uid: i64) -> FutureResult<Vec<u8>, FlowyError> {
     let try_get_postgrest = self.server.try_get_weak_postgrest();
     let awareness_id = uid.to_string();
     let (tx, rx) = channel();
