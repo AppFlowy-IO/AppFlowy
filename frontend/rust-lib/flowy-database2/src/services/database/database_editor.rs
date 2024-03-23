@@ -117,7 +117,6 @@ impl DatabaseEditor {
 
   /// Returns bool value indicating whether the database is empty.
   ///
-  #[tracing::instrument(level = "debug", skip_all)]
   pub async fn close_view(&self, view_id: &str) -> bool {
     // If the database is empty, flush the database to the disk.
     if self.database_views.editors().await.len() == 1 {

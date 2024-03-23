@@ -1,4 +1,5 @@
 use std::sync::{Arc, Weak};
+use tracing::instrument;
 
 use flowy_error::{FlowyError, FlowyResult};
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
@@ -207,6 +208,7 @@ pub(crate) async fn set_latest_view_handler(
   Ok(())
 }
 
+#[instrument(level = "debug", skip(data, folder), err)]
 pub(crate) async fn close_view_handler(
   data: AFPluginData<ViewIdPB>,
   folder: AFPluginState<Weak<FolderManager>>,
