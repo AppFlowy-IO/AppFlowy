@@ -1,8 +1,9 @@
 import 'dart:async';
 
-import 'package:flowy_infra/size.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
+import 'package:flowy_infra/size.dart';
 
 class FlowyTextField extends StatefulWidget {
   final String? hintText;
@@ -31,6 +32,7 @@ class FlowyTextField extends StatefulWidget {
   final InputDecoration? decoration;
   final TextAlignVertical? textAlignVertical;
   final TextInputAction? textInputAction;
+  final TextInputType? keyboardType;
   final List<TextInputFormatter>? inputFormatters;
 
   const FlowyTextField({
@@ -61,6 +63,7 @@ class FlowyTextField extends StatefulWidget {
     this.decoration,
     this.textAlignVertical,
     this.textInputAction,
+    this.keyboardType,
     this.inputFormatters,
   });
 
@@ -154,7 +157,7 @@ class FlowyTextFieldState extends State<FlowyTextField> {
       maxLengthEnforcement: MaxLengthEnforcement.truncateAfterCompositionEnds,
       style: widget.textStyle ?? Theme.of(context).textTheme.bodySmall,
       textAlignVertical: widget.textAlignVertical ?? TextAlignVertical.center,
-      keyboardType: TextInputType.multiline,
+      keyboardType: widget.keyboardType ?? TextInputType.multiline,
       inputFormatters: widget.inputFormatters,
       decoration: widget.decoration ??
           InputDecoration(

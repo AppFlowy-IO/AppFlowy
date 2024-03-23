@@ -94,6 +94,7 @@ class _TimeTextFieldState extends State<TimeTextField> {
       padding: const EdgeInsets.symmetric(horizontal: 18.0),
       child: FlowyTextField(
         text: text,
+        keyboardType: TextInputType.datetime,
         focusNode: _focusNode,
         autoFocus: false,
         controller: _textController,
@@ -105,7 +106,16 @@ class _TimeTextFieldState extends State<TimeTextField> {
             ? _maxLengthTwelveHour
             : _maxLengthTwentyFourHour,
         showCounter: false,
-        inputFormatters: [TimeInputFormatter(widget.timeFormat)],
+        inputFormatters: [
+          if (widget.timeFormat == TimeFormatPB.TwelveHour) ...[
+            // Allow for AM/PM if time format is 12-hour
+            FilteringTextInputFormatter.allow(RegExp('[0-9:aApPmM ]')),
+          ] else ...[
+            // Default allow for hh:mm format
+            FilteringTextInputFormatter.allow(RegExp('[0-9:]')),
+          ],
+          TimeInputFormatter(widget.timeFormat),
+        ],
         onSubmitted: widget.onSubmitted,
       ),
     );
@@ -142,9 +152,20 @@ class TimeInputFormatter extends TextInputFormatter {
       return _formatText(newText, spacePosition, ' ');
     }
 
-    return TextEditingValue(
-      text: newText.toUpperCase(),
-    );
+    if (timeFormat == TimeFormatPB.TwentyFourHour &&
+        newValue.text.length == 5) {
+      final prefix = newValue.text.substring(0, 3);
+      final suffix = newValue.text.length > 5 ? newValue.text.substring(6) : '';
+
+      final minutes = int.tryParse(newValue.text.substring(3, 5));
+      if (minutes == null || minutes <= 0) {
+        return newValue.copyWith(text: '${prefix}00$suffix'.toUpperCase());
+      } else if (minutes > 59) {
+        return newValue.copyWith(text: '${prefix}59$suffix'.toUpperCase());
+      }
+    }
+
+    return newValue.copyWith(text: newText.toUpperCase());
   }
 
   TextEditingValue _formatText(String text, int index, String separator) {
