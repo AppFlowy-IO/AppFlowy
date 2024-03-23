@@ -1,5 +1,4 @@
 pub use anyhow::Error;
-use collab::core::collab::CollabDocState;
 use collab_entity::CollabType;
 pub use collab_folder::{Folder, FolderData, Workspace};
 use uuid::Uuid;
@@ -36,7 +35,7 @@ pub trait FolderCloudService: Send + Sync + 'static {
     uid: i64,
     collab_type: CollabType,
     object_id: &str,
-  ) -> FutureResult<CollabDocState, Error>;
+  ) -> FutureResult<Vec<u8>, Error>;
 
   fn batch_create_folder_collab_objects(
     &self,

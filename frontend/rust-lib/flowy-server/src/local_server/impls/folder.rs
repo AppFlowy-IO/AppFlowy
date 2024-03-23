@@ -1,7 +1,6 @@
 use std::sync::Arc;
 
 use anyhow::{anyhow, Error};
-use collab::core::collab::CollabDocState;
 use collab_entity::CollabType;
 
 use flowy_folder_pub::cloud::{
@@ -59,7 +58,7 @@ impl FolderCloudService for LocalServerFolderCloudServiceImpl {
     _uid: i64,
     _collab_type: CollabType,
     _object_id: &str,
-  ) -> FutureResult<CollabDocState, Error> {
+  ) -> FutureResult<Vec<u8>, Error> {
     FutureResult::new(async {
       Err(anyhow!(
         "Local server doesn't support get collab doc state from remote"

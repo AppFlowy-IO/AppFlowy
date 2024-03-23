@@ -6,7 +6,7 @@ use std::rc::Rc;
 pub trait CollabCloudPluginProvider: 'static {
   fn provider_type(&self) -> CollabPluginProviderType;
 
-  fn get_plugins(&self, context: CollabPluginProviderContext) -> Fut<Vec<Box<dyn CollabPlugin>>>;
+  fn get_plugins(&self, context: CollabPluginProviderContext) -> Vec<Box<dyn CollabPlugin>>;
 
   fn is_sync_enabled(&self) -> bool;
 }
@@ -19,7 +19,7 @@ where
     (**self).provider_type()
   }
 
-  fn get_plugins(&self, context: CollabPluginProviderContext) -> Fut<Vec<Box<dyn CollabPlugin>>> {
+  fn get_plugins(&self, context: CollabPluginProviderContext) -> Vec<Box<dyn CollabPlugin>> {
     (**self).get_plugins(context)
   }
 

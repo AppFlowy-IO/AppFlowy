@@ -16,7 +16,6 @@ use flowy_document_pub::cloud::DocumentCloudService;
 use flowy_folder_pub::cloud::FolderCloudService;
 use flowy_user_pub::cloud::UserCloudService;
 use flowy_user_pub::entities::UserTokenState;
-use lib_infra::future::FutureResult;
 
 pub trait AppFlowyEncryption: Send + Sync + 'static {
   fn get_secret(&self) -> Option<String>;
@@ -123,7 +122,7 @@ pub trait AppFlowyServer: Send + Sync + 'static {
   fn collab_ws_channel(
     &self,
     _object_id: &str,
-  ) -> FutureResult<
+  ) -> Result<
     Option<(
       Arc<WebSocketChannel<ServerCollabMessage>>,
       WSConnectStateReceiver,
@@ -131,7 +130,7 @@ pub trait AppFlowyServer: Send + Sync + 'static {
     )>,
     anyhow::Error,
   > {
-    FutureResult::new(async { Ok(None) })
+    Ok(None)
   }
 
   fn file_storage(&self) -> Option<Arc<dyn ObjectStorageService>>;

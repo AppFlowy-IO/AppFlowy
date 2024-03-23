@@ -5,7 +5,7 @@ use crate::services::entities::UserPaths;
 use crate::services::sqlite_sql::user_sql::select_user_profile;
 use crate::user_manager::run_collab_data_migration;
 use anyhow::anyhow;
-use collab::core::collab::{CollabDocState, MutexCollab};
+use collab::core::collab::{DocStateSource, MutexCollab};
 use collab::core::origin::CollabOrigin;
 use collab::core::transaction::DocTransactionExtension;
 use collab::preclude::updates::decoder::Decode;
@@ -447,7 +447,7 @@ where
 }
 
 fn import_collab_object_with_doc_state<'a, W>(
-  doc_state: CollabDocState,
+  doc_state: Vec<u8>,
   new_uid: i64,
   new_object_id: &str,
   w_txn: &'a W,
@@ -456,8 +456,13 @@ where
   W: CollabKVAction<'a>,
   PersistenceError: From<W::Error>,
 {
-  let collab =
-    Collab::new_with_doc_state(CollabOrigin::Empty, new_object_id, doc_state, vec![], false)?;
+  let collab = Collab::new_with_doc_state(
+    CollabOrigin::Empty,
+    new_object_id,
+    DocStateSource::FromDocState(doc_state),
+    vec![],
+    false,
+  )?;
   write_collab_object(&collab, new_uid, new_object_id, w_txn);
   Ok(())
 }
