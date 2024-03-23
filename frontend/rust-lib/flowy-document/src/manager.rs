@@ -15,7 +15,7 @@ use flowy_storage::object_from_disk;
 use lru::LruCache;
 use parking_lot::Mutex;
 use tokio::io::AsyncWriteExt;
-use tracing::error;
+use tracing::{error, trace};
 use tracing::{event, instrument};
 
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
@@ -199,10 +199,10 @@ impl DocumentManager {
       .map_err(internal_error)
   }
 
-  #[instrument(level = "debug", skip(self), err)]
   pub async fn close_document(&self, doc_id: &str) -> FlowyResult<()> {
     // The lru will pop the least recently used document when the cache is full.
     if let Ok(doc) = self.get_document(doc_id).await {
+      trace!("close document: {}", doc_id);
       if let Some(doc) = doc.try_lock() {
         let _ = doc.flush();
       }
