@@ -1,25 +1,3 @@
-use std::fmt::{Display, Formatter};
-use std::ops::Deref;
-use std::sync::{Arc, Weak};
-
-use collab::core::collab::{CollabDocState, MutexCollab};
-use collab_entity::CollabType;
-use collab_folder::error::FolderError;
-use collab_folder::{
-  Folder, FolderData, FolderNotify, Section, SectionItem, TrashInfo, UserId, View, ViewLayout,
-  ViewUpdate, Workspace,
-};
-use parking_lot::{Mutex, RwLock};
-use tracing::{error, info, instrument};
-
-use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
-use collab_integrate::{CollabKVDB, CollabPersistenceConfig};
-use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use flowy_folder_pub::cloud::{gen_view_id, FolderCloudService};
-use flowy_folder_pub::folder_builder::ParentChildViews;
-
-use lib_infra::conditional_send_sync_trait;
-
 use crate::entities::icon::UpdateViewIconParams;
 use crate::entities::{
   view_pb_with_child_views, view_pb_without_child_views, CreateViewParams, CreateWorkspaceParams,
@@ -38,6 +16,24 @@ use crate::util::{
   folder_not_init_error, insert_parent_child_views, workspace_data_not_sync_error,
 };
 use crate::view_operation::{create_view, FolderOperationHandler, FolderOperationHandlers};
+use collab::core::collab::{DocStateSource, MutexCollab};
+use collab_entity::CollabType;
+use collab_folder::error::FolderError;
+use collab_folder::{
+  Folder, FolderData, FolderNotify, Section, SectionItem, TrashInfo, UserId, View, ViewLayout,
+  ViewUpdate, Workspace,
+};
+use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
+use collab_integrate::{CollabKVDB, CollabPersistenceConfig};
+use flowy_error::{ErrorCode, FlowyError, FlowyResult};
+use flowy_folder_pub::cloud::{gen_view_id, FolderCloudService};
+use flowy_folder_pub::folder_builder::ParentChildViews;
+use lib_infra::conditional_send_sync_trait;
+use parking_lot::{Mutex, RwLock};
+use std::fmt::{Display, Formatter};
+use std::ops::Deref;
+use std::sync::{Arc, Weak};
+use tracing::{error, info, instrument};
 
 conditional_send_sync_trait! {
   "[crate::manager::FolderUser] represents the user for folder.";
@@ -164,24 +160,21 @@ impl FolderManager {
     uid: i64,
     workspace_id: &str,
     collab_db: Weak<CollabKVDB>,
-    collab_doc_state: CollabDocState,
+    doc_state: DocStateSource,
     folder_notifier: T,
   ) -> Result<Folder, FlowyError> {
     let folder_notifier = folder_notifier.into();
-    let collab = self
-      .collab_builder
-      .build_with_config(
-        uid,
-        workspace_id,
-        CollabType::Folder,
-        collab_db,
-        collab_doc_state,
-        CollabPersistenceConfig::new()
-          .enable_snapshot(true)
-          .snapshot_per_update(50),
-        CollabBuilderConfig::default().sync_enable(true),
-      )
-      .await?;
+    let collab = self.collab_builder.build_with_config(
+      uid,
+      workspace_id,
+      CollabType::Folder,
+      collab_db,
+      doc_state,
+      CollabPersistenceConfig::new()
+        .enable_snapshot(true)
+        .snapshot_per_update(50),
+      CollabBuilderConfig::default().sync_enable(true),
+    )?;
     let (should_clear, err) = match Folder::open(UserId::from(uid), collab, folder_notifier) {
       Ok(folder) => {
         return Ok(folder);
@@ -207,20 +200,17 @@ impl FolderManager {
     workspace_id: &str,
     collab_db: Weak<CollabKVDB>,
   ) -> Result<Arc<MutexCollab>, FlowyError> {
-    let collab = self
-      .collab_builder
-      .build_with_config(
-        uid,
-        workspace_id,
-        CollabType::Folder,
-        collab_db,
-        vec![],
-        CollabPersistenceConfig::new()
-          .enable_snapshot(true)
-          .snapshot_per_update(50),
-        CollabBuilderConfig::default().sync_enable(true),
-      )
-      .await?;
+    let collab = self.collab_builder.build_with_config(
+      uid,
+      workspace_id,
+      CollabType::Folder,
+      collab_db,
+      DocStateSource::FromDocState(vec![]),
+      CollabPersistenceConfig::new()
+        .enable_snapshot(true)
+        .snapshot_per_update(50),
+      CollabBuilderConfig::default().sync_enable(true),
+    )?;
     Ok(collab)
   }
 
@@ -1229,7 +1219,7 @@ pub enum FolderInitDataSource {
   /// It means using the data stored on local disk to initialize the folder
   LocalDisk { create_if_not_exist: bool },
   /// If there is no data stored on local disk, we will use the data from the server to initialize the folder
-  Cloud(CollabDocState),
+  Cloud(Vec<u8>),
   /// If the user is new, we use the [DefaultFolderBuilder] to create the default folder.
   FolderData(FolderData),
 }
