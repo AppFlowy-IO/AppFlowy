@@ -63,12 +63,12 @@
     "copyLink": "リンクをコピー"
   },
   "moreAction": {
-    "fontSize": "フォントサイズ",
-    "import": "取り込む",
-    "moreOptions": "より多くのオプション",
     "small": "小さい",
     "medium": "中くらい",
-    "large": "大きい"
+    "large": "大きい",
+    "fontSize": "フォントサイズ",
+    "import": "取り込む",
+    "moreOptions": "より多くのオプション"
   },
   "importPanel": {
     "textAndMarkdown": "テキストとマークダウン",
@@ -110,7 +110,7 @@
       "caption": "この操作は元に戻すことができません。"
     },
     "mobile": {
-      "empty": "ゴミ箱を殻にする",
+      "empty": "ゴミ箱を空にする",
       "emptyDescription": "削除されたファイルはありません",
       "isDeleted": "削除済み"
     }
@@ -412,13 +412,9 @@
       "isComplete": "完了",
       "isIncomplted": "未完了"
     },
-    "singleSelectOptionFilter": {
+    "selectOptionFilter": {
       "is": "等しい",
       "isNot": "等しくない",
-      "isEmpty": "空である",
-      "isNotEmpty": "空ではない"
-    },
-    "multiSelectOptionFilter": {
       "contains": "を含む",
       "doesNotContain": "を含まない",
       "isEmpty": "空である",

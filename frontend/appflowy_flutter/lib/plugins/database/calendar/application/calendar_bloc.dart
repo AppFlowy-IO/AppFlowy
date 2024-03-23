@@ -7,8 +7,8 @@ import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/protobuf.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:calendar_view/calendar_view.dart';
-import 'package:dartz/dartz.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -44,15 +44,13 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
           },
           didReceiveCalendarSettings: (CalendarLayoutSettingPB settings) {
             // If the field id changed, reload all events
-            state.settings.fold(() => null, (oldSetting) {
-              if (oldSetting.fieldId != settings.fieldId) {
-                _loadAllEvents();
-              }
-            });
-            emit(state.copyWith(settings: Some(settings)));
+            if (state.settings?.fieldId != settings.fieldId) {
+              _loadAllEvents();
+            }
+            emit(state.copyWith(settings: settings));
           },
           didReceiveDatabaseUpdate: (DatabasePB database) {
-            emit(state.copyWith(database: Some(database)));
+            emit(state.copyWith(database: database));
           },
           didLoadAllEvents: (events) {
             final calenderEvents = _calendarEventDataFromEventPBs(events);
@@ -65,6 +63,20 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
           },
           createEvent: (DateTime date) async {
             await _createEvent(date);
+          },
+          duplicateEvent: (String viewId, String rowId) async {
+            final result = await RowBackendService.duplicateRow(viewId, rowId);
+            result.fold(
+              (_) => null,
+              (e) => Log.error('Failed to duplicate event: $e', e),
+            );
+          },
+          deleteEvent: (String viewId, String rowId) async {
+            final result = await RowBackendService.deleteRow(viewId, rowId);
+            result.fold(
+              (_) => null,
+              (e) => Log.error('Failed to delete event: $e', e),
+            );
           },
           newEventPopupDisplayed: () {
             emit(state.copyWith(editingEvent: null));
@@ -132,45 +144,47 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
       (database) {
         databaseController.setIsLoading(false);
         emit(
-          state.copyWith(loadingState: LoadingState.finish(left(unit))),
+          state.copyWith(
+            loadingState: LoadingState.finish(FlowyResult.success(null)),
+          ),
         );
       },
       (err) => emit(
-        state.copyWith(loadingState: LoadingState.finish(right(err))),
+        state.copyWith(
+          loadingState: LoadingState.finish(FlowyResult.failure(err)),
+        ),
       ),
     );
   }
 
   Future<void> _createEvent(DateTime date) async {
-    return state.settings.fold(
-      () {
-        Log.warn('Calendar settings not found');
-      },
-      (settings) async {
-        final dateField = _getCalendarFieldInfo(settings.fieldId);
-        if (dateField != null) {
-          final newRow = await RowBackendService.createRow(
-            viewId: viewId,
-            withCells: (builder) => builder.insertDate(dateField, date),
-          ).then(
-            (result) => result.fold(
-              (newRow) => newRow,
-              (err) {
-                Log.error(err);
-                return null;
-              },
-            ),
-          );
+    final settings = state.settings;
+    if (settings == null) {
+      Log.warn('Calendar settings not found');
+      return;
+    }
+    final dateField = _getCalendarFieldInfo(settings.fieldId);
+    if (dateField != null) {
+      final newRow = await RowBackendService.createRow(
+        viewId: viewId,
+        withCells: (builder) => builder.insertDate(dateField, date),
+      ).then(
+        (result) => result.fold(
+          (newRow) => newRow,
+          (err) {
+            Log.error(err);
+            return null;
+          },
+        ),
+      );
 
-          if (newRow != null) {
-            final event = await _loadEvent(newRow.id);
-            if (event != null && !isClosed) {
-              add(CalendarEvent.didCreateEvent(event));
-            }
-          }
+      if (newRow != null) {
+        final event = await _loadEvent(newRow.id);
+        if (event != null && !isClosed) {
+          add(CalendarEvent.didCreateEvent(event));
         }
-      },
-    );
+      }
+    }
   }
 
   Future<void> _moveEvent(CalendarDayEvent event, DateTime date) async {
@@ -407,12 +421,18 @@ class CalendarEvent with _$CalendarEvent {
 
   const factory CalendarEvent.didReceiveDatabaseUpdate(DatabasePB database) =
       _ReceiveDatabaseUpdate;
+
+  const factory CalendarEvent.duplicateEvent(String viewId, String rowId) =
+      _DuplicateEvent;
+
+  const factory CalendarEvent.deleteEvent(String viewId, String rowId) =
+      _DeleteEvent;
 }
 
 @freezed
 class CalendarState with _$CalendarState {
   const factory CalendarState({
-    required Option<DatabasePB> database,
+    required DatabasePB? database,
     // events by row id
     required Events allEvents,
     required Events initialEvents,
@@ -420,19 +440,19 @@ class CalendarState with _$CalendarState {
     CalendarEventData<CalendarDayEvent>? newEvent,
     CalendarEventData<CalendarDayEvent>? updateEvent,
     required List<String> deleteEventIds,
-    required Option<CalendarLayoutSettingPB> settings,
+    required CalendarLayoutSettingPB? settings,
     required LoadingState loadingState,
-    required Option<FlowyError> noneOrError,
+    required FlowyError? noneOrError,
   }) = _CalendarState;
 
-  factory CalendarState.initial() => CalendarState(
-        database: none(),
+  factory CalendarState.initial() => const CalendarState(
+        database: null,
         allEvents: [],
         initialEvents: [],
         deleteEventIds: [],
-        settings: none(),
-        noneOrError: none(),
-        loadingState: const LoadingState.loading(),
+        settings: null,
+        noneOrError: null,
+        loadingState: LoadingState.loading(),
       );
 }
 

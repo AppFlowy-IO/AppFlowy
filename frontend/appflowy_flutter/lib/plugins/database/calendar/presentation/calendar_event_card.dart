@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/mobile/presentation/database/card/card_detail/mobile_card_detail_screen.dart';
 import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/application/row/row_cache.dart';
@@ -9,11 +11,11 @@ import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../application/calendar_bloc.dart';
+
 import 'calendar_event_editor.dart';
 
 class EventCard extends StatefulWidget {
@@ -144,18 +146,18 @@ class _EventCardState extends State<EventCard> {
       asBarrier: true,
       margin: EdgeInsets.zero,
       offset: const Offset(10.0, 0),
-      popupBuilder: (BuildContext popoverContext) {
-        final settings = context.watch<CalendarBloc>().state.settings.fold(
-              () => null,
-              (layoutSettings) => layoutSettings,
-            );
+      popupBuilder: (_) {
+        final settings = context.watch<CalendarBloc>().state.settings;
         if (settings == null) {
           return const SizedBox.shrink();
         }
-        return CalendarEventEditor(
-          databaseController: widget.databaseController,
-          rowMeta: widget.event.event.rowMeta,
-          layoutSettings: settings,
+        return BlocProvider.value(
+          value: context.read<CalendarBloc>(),
+          child: CalendarEventEditor(
+            databaseController: widget.databaseController,
+            rowMeta: widget.event.event.rowMeta,
+            layoutSettings: settings,
+          ),
         );
       },
       child: Container(

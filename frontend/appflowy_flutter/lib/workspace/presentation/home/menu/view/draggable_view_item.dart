@@ -1,3 +1,4 @@
+import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/widgets/draggable_item/draggable_item.dart';
@@ -188,6 +189,9 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
       return;
     }
 
+    final fromSection = getViewSection(from);
+    final toSection = getViewSection(to);
+
     switch (position) {
       case DraggableHoverPosition.top:
         context.read<ViewBloc>().add(
@@ -195,6 +199,8 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
                 from,
                 to.parentViewId,
                 null,
+                fromSection,
+                toSection,
               ),
             );
         break;
@@ -204,6 +210,8 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
                 from,
                 to.parentViewId,
                 to.id,
+                fromSection,
+                toSection,
               ),
             );
         break;
@@ -213,6 +221,8 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
                 from,
                 to.id,
                 to.childViews.lastOrNull?.id,
+                fromSection,
+                toSection,
               ),
             );
         break;
@@ -250,6 +260,10 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
     }
 
     return true;
+  }
+
+  ViewSectionPB? getViewSection(ViewPB view) {
+    return context.read<SidebarSectionsBloc>().getViewSection(view);
   }
 }
 

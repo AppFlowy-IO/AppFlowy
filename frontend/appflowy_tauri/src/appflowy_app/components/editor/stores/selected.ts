@@ -1,19 +1,7 @@
-import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useEffect, useMemo, useState } from 'react';
 import { proxySet, subscribeKey } from 'valtio/utils';
 import { ReactEditor } from 'slate-react';
 import { Element } from 'slate';
-
-export function useSelectedBlocksSize() {
-  const selectedBlocks = useContext(EditorSelectedBlockContext);
-
-  const [selectedLength, setSelectedLength] = useState(0);
-
-  useEffect(() => {
-    subscribeKey(selectedBlocks, 'size', (v) => setSelectedLength(v));
-  }, [selectedBlocks]);
-
-  return selectedLength;
-}
 
 export function useInitialSelectedBlocks(editor: ReactEditor) {
   const selectedBlocks = useMemo(() => proxySet([]), []);

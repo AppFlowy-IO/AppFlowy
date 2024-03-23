@@ -391,7 +391,7 @@
             "isComplete": "مکمل ہے",
             "isIncomplted": "نامکمل ہے"
         },
-        "singleSelectOptionFilter": {
+        "selectOptionFilter": {
             "is": "ہے",
             "isNot": "نہیں ہے",
             "isEmpty": "خالی ہے",

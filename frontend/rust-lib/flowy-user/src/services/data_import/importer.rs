@@ -32,7 +32,7 @@ where
 {
   let mut collab_by_oid = HashMap::new();
   for object_id in object_ids {
-    let collab = Collab::new(uid, object_id, "phantom", vec![]);
+    let collab = Collab::new(uid, object_id, "phantom", vec![], false);
     match collab
       .with_origin_transact_mut(|txn| collab_read_txn.load_doc_with_txn(uid, &object_id, txn))
     {

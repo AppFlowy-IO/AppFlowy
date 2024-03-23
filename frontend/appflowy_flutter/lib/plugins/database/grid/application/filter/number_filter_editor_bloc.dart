@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:appflowy/plugins/database/application/filter/filter_listener.dart';
-import 'package:appflowy/plugins/database/application/filter/filter_service.dart';
+import 'package:appflowy/plugins/database/domain/filter_listener.dart';
+import 'package:appflowy/plugins/database/domain/filter_service.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/filter_info.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -59,7 +59,6 @@ class NumberFilterEditorBloc
             _filterBackendSvc.deleteFilter(
               fieldId: filterInfo.fieldInfo.id,
               filterId: filterInfo.filter.id,
-              fieldType: filterInfo.fieldInfo.fieldType,
             );
           },
         );
@@ -69,11 +68,6 @@ class NumberFilterEditorBloc
 
   void _startListening() {
     _listener.start(
-      onDeleted: () {
-        if (!isClosed) {
-          add(const NumberFilterEditorEvent.delete());
-        }
-      },
       onUpdated: (filter) {
         if (!isClosed) {
           add(NumberFilterEditorEvent.didReceiveFilter(filter));

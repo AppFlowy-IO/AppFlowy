@@ -1,39 +1,77 @@
-import React from 'react';
-import Select from '@mui/material/Select';
-import { FormControl, MenuItem, SelectProps } from '@mui/material';
+import React, { useCallback, useMemo, useState } from 'react';
+import KeyboardNavigation, {
+  KeyboardNavigationOption,
+} from '$app/components/_shared/keyboard_navigation/KeyboardNavigation';
+import { ReactComponent as MoreSvg } from '$app/assets/more.svg';
+import Popover from '@mui/material/Popover';
 
 function ConditionSelect({
   conditions,
-  ...props
-}: SelectProps & {
+  value,
+  onChange,
+}: {
   conditions: {
     value: number;
     text: string;
   }[];
+  value: number;
+  onChange: (condition: number) => void;
 }) {
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const options: KeyboardNavigationOption<number>[] = useMemo(() => {
+    return conditions.map((condition) => {
+      return {
+        key: condition.value,
+        content: condition.text,
+      };
+    });
+  }, [conditions]);
+
+  const handleClose = useCallback(() => {
+    setAnchorEl(null);
+  }, []);
+
+  const onConfirm = useCallback(
+    (key: number) => {
+      onChange(key);
+    },
+    [onChange]
+  );
+
+  const valueText = useMemo(() => {
+    return conditions.find((condition) => condition.value === value)?.text;
+  }, [conditions, value]);
+
+  const open = Boolean(anchorEl);
+
   return (
-    <FormControl size={'small'} variant={'outlined'}>
-      <Select
-        {...props}
-        sx={{
-          '& .MuiSelect-select': {
-            padding: 0,
-            fontSize: '12px',
-          },
-          '& .MuiOutlinedInput-notchedOutline': {
-            borderColor: 'transparent !important',
-          },
+    <div>
+      <div
+        onClick={(e) => {
+          setAnchorEl(e.currentTarget);
         }}
+        className={'flex cursor-pointer select-none items-center gap-2 py-2 text-xs'}
       >
-        {conditions.map((condition) => {
-          return (
-            <MenuItem key={condition.value} value={condition.value}>
-              {condition.text}
-            </MenuItem>
-          );
-        })}
-      </Select>
-    </FormControl>
+        <div className={'flex-1'}>{valueText}</div>
+        <MoreSvg className={`h-4 w-4 transform ${open ? 'rotate-90' : ''}`} />
+      </div>
+      <Popover
+        open={open}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'center',
+        }}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'center',
+        }}
+        anchorEl={anchorEl}
+        onClose={handleClose}
+        keepMounted={false}
+      >
+        <KeyboardNavigation defaultFocusedKey={value} options={options} onConfirm={onConfirm} onEscape={handleClose} />
+      </Popover>
+    </div>
   );
 }
 

@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/plugins/document/application/document_data_pb_extension.dart';
 import 'package:appflowy/plugins/document/application/prelude.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
@@ -12,7 +10,8 @@ import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/reminder.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:dartz/dartz.dart';
+import 'package:appflowy_result/appflowy_result.dart';
+import 'package:flutter/material.dart';
 
 /// Displays a Lsit of Notifications, currently used primarily to
 /// display Reminders.
@@ -103,12 +102,12 @@ class NotificationsView extends StatelessWidget {
   }
 
   Future<Node?> _getNodeFromDocument(
-    Future<Either<FlowyError, DocumentDataPB>> documentFuture,
+    Future<FlowyResult<DocumentDataPB, FlowyError>> documentFuture,
     String blockId,
   ) async {
     final document = (await documentFuture).fold(
-      (l) => null,
       (document) => document,
+      (_) => null,
     );
 
     if (document == null) {

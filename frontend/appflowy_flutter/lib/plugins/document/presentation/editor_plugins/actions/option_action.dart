@@ -114,9 +114,12 @@ enum OptionAlignType {
 }
 
 enum OptionDepthType {
-  h1(1, "H1"),
-  h2(2, "H2"),
-  h3(3, "H3");
+  h1(1, 'H1'),
+  h2(2, 'H2'),
+  h3(3, 'H3'),
+  h4(4, 'H4'),
+  h5(5, 'H5'),
+  h6(6, 'H6');
 
   const OptionDepthType(this.level, this.description);
 
@@ -357,9 +360,7 @@ class DepthOptionAction extends PopoverActionCell {
           (e) => HoverButton(
             onTap: () => onTap(e.inner),
             itemHeight: ActionListSizes.itemHeight,
-            leftIcon: null,
             name: e.name,
-            rightIcon: null,
           ),
         )
         .toList();

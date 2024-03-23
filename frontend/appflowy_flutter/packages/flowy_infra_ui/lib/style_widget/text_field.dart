@@ -21,6 +21,7 @@ class FlowyTextField extends StatefulWidget {
   final bool submitOnLeave;
   final Duration? debounceDuration;
   final String? errorText;
+  final Widget? error;
   final int? maxLines;
   final bool showCounter;
   final Widget? prefixIcon;
@@ -52,6 +53,7 @@ class FlowyTextField extends StatefulWidget {
     this.submitOnLeave = false,
     this.debounceDuration,
     this.errorText,
+    this.error,
     this.maxLines = 1,
     this.showCounter = true,
     this.prefixIcon,
@@ -63,7 +65,7 @@ class FlowyTextField extends StatefulWidget {
     this.decoration,
     this.textAlignVertical,
     this.textInputAction,
-    this.keyboardType,
+    this.keyboardType = TextInputType.multiline,
     this.inputFormatters,
   });
 
@@ -148,7 +150,6 @@ class FlowyTextFieldState extends State<FlowyTextField> {
           _onChanged(text);
         }
       },
-      textInputAction: widget.textInputAction,
       onSubmitted: (text) => _onSubmitted(text),
       onEditingComplete: widget.onEditingComplete,
       minLines: 1,
@@ -157,7 +158,7 @@ class FlowyTextFieldState extends State<FlowyTextField> {
       maxLengthEnforcement: MaxLengthEnforcement.truncateAfterCompositionEnds,
       style: widget.textStyle ?? Theme.of(context).textTheme.bodySmall,
       textAlignVertical: widget.textAlignVertical ?? TextAlignVertical.center,
-      keyboardType: widget.keyboardType ?? TextInputType.multiline,
+      keyboardType: widget.keyboardType,
       inputFormatters: widget.inputFormatters,
       decoration: widget.decoration ??
           InputDecoration(
@@ -180,6 +181,7 @@ class FlowyTextFieldState extends State<FlowyTextField> {
             isDense: false,
             hintText: widget.hintText,
             errorText: widget.errorText,
+            error: widget.error,
             errorStyle: Theme.of(context)
                 .textTheme
                 .bodySmall!

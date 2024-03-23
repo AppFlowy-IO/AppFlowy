@@ -13,6 +13,7 @@ describe('Transform events to actions', () => {
   let provider: Provider;
   beforeEach(() => {
     provider = new Provider(generateId());
+    provider.initialDocument(true);
     provider.connect();
     applyActions.mockClear();
   });

@@ -10,29 +10,28 @@ use flowy_error::FlowyResult;
 
 use crate::entities::{
   CheckboxTypeOptionPB, ChecklistTypeOptionPB, DateTypeOptionPB, FieldType,
-  MultiSelectTypeOptionPB, NumberTypeOptionPB, RichTextTypeOptionPB, SingleSelectTypeOptionPB,
-  TimestampTypeOptionPB, URLTypeOptionPB,
+  MultiSelectTypeOptionPB, NumberTypeOptionPB, RelationTypeOptionPB, RichTextTypeOptionPB,
+  SingleSelectTypeOptionPB, TimestampTypeOptionPB, URLTypeOptionPB,
 };
 use crate::services::cell::CellDataDecoder;
 use crate::services::field::checklist_type_option::ChecklistTypeOption;
 use crate::services::field::{
-  CheckboxTypeOption, DateTypeOption, MultiSelectTypeOption, NumberTypeOption, RichTextTypeOption,
-  SingleSelectTypeOption, TimestampTypeOption, URLTypeOption,
+  CheckboxTypeOption, DateTypeOption, MultiSelectTypeOption, NumberTypeOption, RelationTypeOption,
+  RichTextTypeOption, SingleSelectTypeOption, TimestampTypeOption, URLTypeOption,
 };
-use crate::services::filter::FromFilterString;
+use crate::services::filter::{ParseFilterData, PreFillCellsWithFilter};
 use crate::services::sort::SortCondition;
 
-pub trait TypeOption {
-  /// `CellData` represents as the decoded model for current type option. Each of them impl the
-  /// `FromCellString` and `Default` trait. If the cell string can not be decoded into the specified
-  /// cell data type then the default value will be returned.
-  /// For example:
+pub trait TypeOption: From<TypeOptionData> + Into<TypeOptionData> {
+  /// `CellData` represents the decoded model for the current type option. Each of them must
+  /// implement the From<&Cell> trait. If the `Cell` cannot be decoded into this type, the default
+  /// value will be returned.
+  ///
+  /// Note: Use `StrCellData` for any `TypeOption` whose cell data is simply `String`.
   ///
   /// - FieldType::Checkbox => CheckboxCellData
   /// - FieldType::Date => DateCellData
   /// - FieldType::URL => URLCellData
-  ///
-  /// Uses `StrCellData` for any `TypeOption` if their cell data is pure `String`.
   ///
   type CellData: for<'a> From<&'a Cell>
     + TypeOptionCellData
@@ -59,7 +58,7 @@ pub trait TypeOption {
   type CellProtobufType: TryInto<Bytes, Error = ProtobufError> + Debug;
 
   /// Represents the filter configuration for this type option.
-  type CellFilter: FromFilterString + Send + Sync + 'static;
+  type CellFilter: ParseFilterData + PreFillCellsWithFilter + Clone + Send + Sync + 'static;
 }
 /// This trait providing serialization and deserialization methods for cell data.
 ///
@@ -118,7 +117,7 @@ pub trait TypeOptionTransform: TypeOption {
   ///
   /// # Arguments
   ///
-  /// * `cell_str`: the cell string of the current field type
+  /// * `cell`: the cell in the current field type
   /// * `transformed_field_type`: the cell will be transformed to the is field type's cell data.
   /// current `TypeOption` field type.
   ///
@@ -136,7 +135,6 @@ pub trait TypeOptionCellDataFilter: TypeOption + CellDataDecoder {
   fn apply_filter(
     &self,
     filter: &<Self as TypeOption>::CellFilter,
-    field_type: &FieldType,
     cell_data: &<Self as TypeOption>::CellData,
   ) -> bool;
 }
@@ -202,6 +200,9 @@ pub fn type_option_data_from_pb<T: Into<Bytes>>(
     FieldType::Checklist => {
       ChecklistTypeOptionPB::try_from(bytes).map(|pb| ChecklistTypeOption::from(pb).into())
     },
+    FieldType::Relation => {
+      RelationTypeOptionPB::try_from(bytes).map(|pb| RelationTypeOption::from(pb).into())
+    },
   }
 }
 
@@ -257,6 +258,12 @@ pub fn type_option_to_pb(type_option: TypeOptionData, field_type: &FieldType) ->
         .try_into()
         .unwrap()
     },
+    FieldType::Relation => {
+      let relation_type_option: RelationTypeOption = type_option.into();
+      RelationTypeOptionPB::from(relation_type_option)
+        .try_into()
+        .unwrap()
+    },
   }
 }
 
@@ -276,5 +283,6 @@ pub fn default_type_option_data_from_type(field_type: FieldType) -> TypeOptionDa
     FieldType::Checkbox => CheckboxTypeOption::default().into(),
     FieldType::URL => URLTypeOption::default().into(),
     FieldType::Checklist => ChecklistTypeOption.into(),
+    FieldType::Relation => RelationTypeOption::default().into(),
   }
 }

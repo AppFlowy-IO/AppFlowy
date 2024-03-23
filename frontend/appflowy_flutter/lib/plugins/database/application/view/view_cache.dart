@@ -1,10 +1,13 @@
 import 'dart:async';
 import 'dart:collection';
+
 import 'package:appflowy/plugins/database/application/row/row_service.dart';
 import 'package:appflowy_backend/log.dart';
+
 import '../defines.dart';
 import '../field/field_controller.dart';
 import '../row/row_cache.dart';
+
 import 'view_listener.dart';
 
 class DatabaseViewCallbacks {
@@ -30,7 +33,7 @@ class DatabaseViewCallbacks {
   final OnRowsDeleted? onRowsDeleted;
 }
 
-/// Read https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/frontend/grid for more information
+/// Read https://docs.appflowy.io/docs/documentation/software-contributions/architecture/frontend/frontend/grid for more information
 class DatabaseViewCache {
   DatabaseViewCache({
     required this.viewId,

@@ -58,7 +58,7 @@ class GridChecklistCellState extends GridCellState<EditableChecklistCell> {
       widget.databaseController,
       widget.cellContext,
     ).as(),
-  )..add(const ChecklistCellEvent.initial());
+  );
 
   @override
   void dispose() {

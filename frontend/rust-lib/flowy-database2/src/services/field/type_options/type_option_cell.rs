@@ -9,14 +9,13 @@ use flowy_error::FlowyResult;
 use lib_infra::box_any::BoxAny;
 
 use crate::entities::FieldType;
-use crate::services::cell::{
-  CellCache, CellDataChangeset, CellDataDecoder, CellFilterCache, CellProtobufBlob,
-};
+use crate::services::cell::{CellCache, CellDataChangeset, CellDataDecoder, CellProtobufBlob};
 use crate::services::field::checklist_type_option::ChecklistTypeOption;
 use crate::services::field::{
-  CheckboxTypeOption, DateTypeOption, MultiSelectTypeOption, NumberTypeOption, RichTextTypeOption,
-  SingleSelectTypeOption, TimestampTypeOption, TypeOption, TypeOptionCellDataCompare,
-  TypeOptionCellDataFilter, TypeOptionCellDataSerde, TypeOptionTransform, URLTypeOption,
+  CheckboxTypeOption, DateTypeOption, MultiSelectTypeOption, NumberTypeOption, RelationTypeOption,
+  RichTextTypeOption, SingleSelectTypeOption, TimestampTypeOption, TypeOption,
+  TypeOptionCellDataCompare, TypeOptionCellDataFilter, TypeOptionCellDataSerde,
+  TypeOptionTransform, URLTypeOption,
 };
 use crate::services::sort::SortCondition;
 
@@ -32,7 +31,7 @@ pub const CELL_DATA: &str = "data";
 /// 2. there are no generic types parameters.
 ///
 pub trait TypeOptionCellDataHandler: Send + Sync + 'static {
-  fn handle_cell_str(
+  fn handle_cell_protobuf(
     &self,
     cell: &Cell,
     decoded_field_type: &FieldType,
@@ -54,7 +53,7 @@ pub trait TypeOptionCellDataHandler: Send + Sync + 'static {
     sort_condition: SortCondition,
   ) -> Ordering;
 
-  fn handle_cell_filter(&self, field_type: &FieldType, field: &Field, cell: &Cell) -> bool;
+  fn handle_cell_filter(&self, field: &Field, cell: &Cell, filter: &BoxAny) -> bool;
 
   /// Format the cell to string using the passed-in [FieldType] and [Field].
   /// The [Cell] is generic, so we need to know the [FieldType] and [Field] to format the cell.
@@ -99,7 +98,6 @@ impl AsRef<u64> for CellDataCacheKey {
 struct TypeOptionCellDataHandlerImpl<T> {
   inner: T,
   cell_data_cache: Option<CellCache>,
-  cell_filter_cache: Option<CellFilterCache>,
 }
 
 impl<T> TypeOptionCellDataHandlerImpl<T>
@@ -121,13 +119,11 @@ where
 
   pub fn new_with_boxed(
     inner: T,
-    cell_filter_cache: Option<CellFilterCache>,
     cell_data_cache: Option<CellCache>,
   ) -> Box<dyn TypeOptionCellDataHandler> {
     Self {
       inner,
       cell_data_cache,
-      cell_filter_cache,
     }
     .into_boxed()
   }
@@ -142,7 +138,7 @@ where
     cell: &Cell,
     decoded_field_type: &FieldType,
     field: &Field,
-  ) -> FlowyResult<<Self as TypeOption>::CellData> {
+  ) -> FlowyResult<T::CellData> {
     let key = CellDataCacheKey::new(field, *decoded_field_type, cell);
     if let Some(cell_data_cache) = self.cell_data_cache.as_ref() {
       let read_guard = cell_data_cache.read();
@@ -172,12 +168,7 @@ where
     Ok(cell_data)
   }
 
-  fn set_decoded_cell_data(
-    &self,
-    cell: &Cell,
-    cell_data: <Self as TypeOption>::CellData,
-    field: &Field,
-  ) {
+  fn set_decoded_cell_data(&self, cell: &Cell, cell_data: T::CellData, field: &Field) {
     if let Some(cell_data_cache) = self.cell_data_cache.as_ref() {
       let field_type = FieldType::from(field.field_type);
       let key = CellDataCacheKey::new(field, field_type, cell);
@@ -200,16 +191,6 @@ impl<T> std::ops::Deref for TypeOptionCellDataHandlerImpl<T> {
   }
 }
 
-impl<T> TypeOption for TypeOptionCellDataHandlerImpl<T>
-where
-  T: TypeOption + Send + Sync,
-{
-  type CellData = T::CellData;
-  type CellChangeset = T::CellChangeset;
-  type CellProtobufType = T::CellProtobufType;
-  type CellFilter = T::CellFilter;
-}
-
 impl<T> TypeOptionCellDataHandler for TypeOptionCellDataHandlerImpl<T>
 where
   T: TypeOption
@@ -223,7 +204,7 @@ where
     + Sync
     + 'static,
 {
-  fn handle_cell_str(
+  fn handle_cell_protobuf(
     &self,
     cell: &Cell,
     decoded_field_type: &FieldType,
@@ -231,7 +212,7 @@ where
   ) -> FlowyResult<CellProtobufBlob> {
     let cell_data = self
       .get_cell_data(cell, decoded_field_type, field_rev)?
-      .unbox_or_default::<<Self as TypeOption>::CellData>();
+      .unbox_or_default::<T::CellData>();
 
     CellProtobufBlob::from(self.protobuf_encode(cell_data))
   }
@@ -242,7 +223,7 @@ where
     old_cell: Option<Cell>,
     field: &Field,
   ) -> FlowyResult<Cell> {
-    let changeset = cell_changeset.unbox_or_error::<<Self as TypeOption>::CellChangeset>()?;
+    let changeset = cell_changeset.unbox_or_error::<T::CellChangeset>()?;
     let (cell, cell_data) = self.apply_changeset(changeset, old_cell)?;
     self.set_decoded_cell_data(&cell, cell_data, field);
     Ok(cell)
@@ -307,12 +288,12 @@ where
     }
   }
 
-  fn handle_cell_filter(&self, field_type: &FieldType, field: &Field, cell: &Cell) -> bool {
+  fn handle_cell_filter(&self, field: &Field, cell: &Cell, filter: &BoxAny) -> bool {
     let perform_filter = || {
-      let filter_cache = self.cell_filter_cache.as_ref()?.read();
-      let cell_filter = filter_cache.get::<<Self as TypeOption>::CellFilter>(&field.id)?;
-      let cell_data = self.get_decoded_cell_data(cell, field_type, field).ok()?;
-      Some(self.apply_filter(cell_filter, field_type, &cell_data))
+      let field_type = FieldType::from(field.field_type);
+      let cell_filter = filter.downcast_ref::<T::CellFilter>()?;
+      let cell_data = self.get_decoded_cell_data(cell, &field_type, field).ok()?;
+      Some(self.apply_filter(cell_filter, &cell_data))
     };
 
     perform_filter().unwrap_or(true)
@@ -361,26 +342,14 @@ where
 pub struct TypeOptionCellExt<'a> {
   field: &'a Field,
   cell_data_cache: Option<CellCache>,
-  cell_filter_cache: Option<CellFilterCache>,
 }
 
 impl<'a> TypeOptionCellExt<'a> {
-  pub fn new_with_cell_data_cache(field: &'a Field, cell_data_cache: Option<CellCache>) -> Self {
+  pub fn new(field: &'a Field, cell_data_cache: Option<CellCache>) -> Self {
     Self {
       field,
       cell_data_cache,
-      cell_filter_cache: None,
     }
-  }
-
-  pub fn new(
-    field: &'a Field,
-    cell_data_cache: Option<CellCache>,
-    cell_filter_cache: Option<CellFilterCache>,
-  ) -> Self {
-    let mut this = Self::new_with_cell_data_cache(field, cell_data_cache);
-    this.cell_filter_cache = cell_filter_cache;
-    this
   }
 
   pub fn get_cells<T>(&self) -> Vec<T> {
@@ -402,93 +371,63 @@ impl<'a> TypeOptionCellExt<'a> {
         .field
         .get_type_option::<RichTextTypeOption>(field_type)
         .map(|type_option| {
-          TypeOptionCellDataHandlerImpl::new_with_boxed(
-            type_option,
-            self.cell_filter_cache.clone(),
-            self.cell_data_cache.clone(),
-          )
+          TypeOptionCellDataHandlerImpl::new_with_boxed(type_option, self.cell_data_cache.clone())
         }),
       FieldType::Number => self
         .field
         .get_type_option::<NumberTypeOption>(field_type)
         .map(|type_option| {
-          TypeOptionCellDataHandlerImpl::new_with_boxed(
-            type_option,
-            self.cell_filter_cache.clone(),
-            self.cell_data_cache.clone(),
-          )
+          TypeOptionCellDataHandlerImpl::new_with_boxed(type_option, self.cell_data_cache.clone())
         }),
       FieldType::DateTime => self
         .field
         .get_type_option::<DateTypeOption>(field_type)
         .map(|type_option| {
-          TypeOptionCellDataHandlerImpl::new_with_boxed(
-            type_option,
-            self.cell_filter_cache.clone(),
-            self.cell_data_cache.clone(),
-          )
+          TypeOptionCellDataHandlerImpl::new_with_boxed(type_option, self.cell_data_cache.clone())
         }),
       FieldType::LastEditedTime | FieldType::CreatedTime => self
         .field
         .get_type_option::<TimestampTypeOption>(field_type)
         .map(|type_option| {
-          TypeOptionCellDataHandlerImpl::new_with_boxed(
-            type_option,
-            self.cell_filter_cache.clone(),
-            self.cell_data_cache.clone(),
-          )
+          TypeOptionCellDataHandlerImpl::new_with_boxed(type_option, self.cell_data_cache.clone())
         }),
       FieldType::SingleSelect => self
         .field
         .get_type_option::<SingleSelectTypeOption>(field_type)
         .map(|type_option| {
-          TypeOptionCellDataHandlerImpl::new_with_boxed(
-            type_option,
-            self.cell_filter_cache.clone(),
-            self.cell_data_cache.clone(),
-          )
+          TypeOptionCellDataHandlerImpl::new_with_boxed(type_option, self.cell_data_cache.clone())
         }),
       FieldType::MultiSelect => self
         .field
         .get_type_option::<MultiSelectTypeOption>(field_type)
         .map(|type_option| {
-          TypeOptionCellDataHandlerImpl::new_with_boxed(
-            type_option,
-            self.cell_filter_cache.clone(),
-            self.cell_data_cache.clone(),
-          )
+          TypeOptionCellDataHandlerImpl::new_with_boxed(type_option, self.cell_data_cache.clone())
         }),
       FieldType::Checkbox => self
         .field
         .get_type_option::<CheckboxTypeOption>(field_type)
         .map(|type_option| {
-          TypeOptionCellDataHandlerImpl::new_with_boxed(
-            type_option,
-            self.cell_filter_cache.clone(),
-            self.cell_data_cache.clone(),
-          )
+          TypeOptionCellDataHandlerImpl::new_with_boxed(type_option, self.cell_data_cache.clone())
         }),
       FieldType::URL => {
         self
           .field
           .get_type_option::<URLTypeOption>(field_type)
           .map(|type_option| {
-            TypeOptionCellDataHandlerImpl::new_with_boxed(
-              type_option,
-              self.cell_filter_cache.clone(),
-              self.cell_data_cache.clone(),
-            )
+            TypeOptionCellDataHandlerImpl::new_with_boxed(type_option, self.cell_data_cache.clone())
           })
       },
       FieldType::Checklist => self
         .field
         .get_type_option::<ChecklistTypeOption>(field_type)
         .map(|type_option| {
-          TypeOptionCellDataHandlerImpl::new_with_boxed(
-            type_option,
-            self.cell_filter_cache.clone(),
-            self.cell_data_cache.clone(),
-          )
+          TypeOptionCellDataHandlerImpl::new_with_boxed(type_option, self.cell_data_cache.clone())
+        }),
+      FieldType::Relation => self
+        .field
+        .get_type_option::<RelationTypeOption>(field_type)
+        .map(|type_option| {
+          TypeOptionCellDataHandlerImpl::new_with_boxed(type_option, self.cell_data_cache.clone())
         }),
     }
   }
@@ -567,6 +506,9 @@ fn get_type_option_transform_handler(
     },
     FieldType::Checklist => {
       Box::new(ChecklistTypeOption::from(type_option_data)) as Box<dyn TypeOptionTransformHandler>
+    },
+    FieldType::Relation => {
+      Box::new(RelationTypeOption::from(type_option_data)) as Box<dyn TypeOptionTransformHandler>
     },
   }
 }

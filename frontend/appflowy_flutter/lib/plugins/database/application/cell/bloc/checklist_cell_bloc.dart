@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
-import 'package:appflowy/plugins/database/application/cell/checklist_cell_service.dart';
+import 'package:appflowy/plugins/database/domain/checklist_cell_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/checklist_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option_entities.pb.dart';
@@ -11,7 +11,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'checklist_cell_bloc.freezed.dart';
 
 class ChecklistSelectOption {
-  ChecklistSelectOption(this.isSelected, this.data);
+  ChecklistSelectOption({required this.isSelected, required this.data});
 
   final bool isSelected;
   final SelectOptionPB data;
@@ -26,6 +26,7 @@ class ChecklistCellBloc extends Bloc<ChecklistCellEvent, ChecklistCellState> {
         ),
         super(ChecklistCellState.initial(cellController)) {
     _dispatch();
+    _startListening();
   }
 
   final ChecklistCellController cellController;
@@ -46,9 +47,6 @@ class ChecklistCellBloc extends Bloc<ChecklistCellEvent, ChecklistCellState> {
     on<ChecklistCellEvent>(
       (event, emit) async {
         await event.when(
-          initial: () {
-            _startListening();
-          },
           didReceiveOptions: (data) {
             if (data == null) {
               emit(
@@ -71,8 +69,8 @@ class ChecklistCellBloc extends Bloc<ChecklistCellEvent, ChecklistCellState> {
           updateTaskName: (option, name) {
             _updateOption(option, name);
           },
-          selectTask: (option) async {
-            await _checklistCellService.select(optionId: option.id);
+          selectTask: (id) async {
+            await _checklistCellService.select(optionId: id);
           },
           createNewTask: (name) async {
             final result = await _checklistCellService.create(name: name);
@@ -81,8 +79,8 @@ class ChecklistCellBloc extends Bloc<ChecklistCellEvent, ChecklistCellState> {
               (err) => Log.error(err),
             );
           },
-          deleteTask: (option) async {
-            await _deleteOption([option]);
+          deleteTask: (id) async {
+            await _deleteOption([id]);
           },
         );
       },
@@ -102,21 +100,17 @@ class ChecklistCellBloc extends Bloc<ChecklistCellEvent, ChecklistCellState> {
   void _updateOption(SelectOptionPB option, String name) async {
     final result =
         await _checklistCellService.updateName(option: option, name: name);
-
     result.fold((l) => null, (err) => Log.error(err));
   }
 
-  Future<void> _deleteOption(List<SelectOptionPB> options) async {
-    final result = await _checklistCellService.delete(
-      optionIds: options.map((e) => e.id).toList(),
-    );
+  Future<void> _deleteOption(List<String> options) async {
+    final result = await _checklistCellService.delete(optionIds: options);
     result.fold((l) => null, (err) => Log.error(err));
   }
 }
 
 @freezed
 class ChecklistCellEvent with _$ChecklistCellEvent {
-  const factory ChecklistCellEvent.initial() = _InitialCell;
   const factory ChecklistCellEvent.didReceiveOptions(
     ChecklistCellDataPB? data,
   ) = _DidReceiveCellUpdate;
@@ -124,12 +118,10 @@ class ChecklistCellEvent with _$ChecklistCellEvent {
     SelectOptionPB option,
     String name,
   ) = _UpdateTaskName;
-  const factory ChecklistCellEvent.selectTask(SelectOptionPB task) =
-      _SelectTask;
+  const factory ChecklistCellEvent.selectTask(String taskId) = _SelectTask;
   const factory ChecklistCellEvent.createNewTask(String description) =
       _CreateNewTask;
-  const factory ChecklistCellEvent.deleteTask(SelectOptionPB option) =
-      _DeleteTask;
+  const factory ChecklistCellEvent.deleteTask(String taskId) = _DeleteTask;
 }
 
 @freezed
@@ -157,16 +149,14 @@ List<ChecklistSelectOption> _makeChecklistSelectOptions(
   if (data == null) {
     return [];
   }
-
-  final List<ChecklistSelectOption> options = [];
-  final List<SelectOptionPB> allOptions = List.from(data.options);
-  final selectedOptionIds = data.selectedOptions.map((e) => e.id).toList();
-
-  for (final option in allOptions) {
-    options.add(
-      ChecklistSelectOption(selectedOptionIds.contains(option.id), option),
-    );
-  }
-
-  return options;
+  return data.options
+      .map(
+        (option) => ChecklistSelectOption(
+          isSelected: data.selectedOptions.any(
+            (selected) => selected.id == option.id,
+          ),
+          data: option,
+        ),
+      )
+      .toList();
 }

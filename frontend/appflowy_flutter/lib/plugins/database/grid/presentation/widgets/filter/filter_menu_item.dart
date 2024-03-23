@@ -26,7 +26,7 @@ class FilterMenuItem extends StatelessWidget {
       FieldType.RichText => TextFilterChoicechip(filterInfo: filterInfo),
       FieldType.SingleSelect =>
         SelectOptionFilterChoicechip(filterInfo: filterInfo),
-      FieldType.URL => URLFilterChoicechip(filterInfo: filterInfo),
+      FieldType.URL => URLFilterChoiceChip(filterInfo: filterInfo),
       FieldType.Checklist => ChecklistFilterChoicechip(filterInfo: filterInfo),
       _ => const SizedBox(),
     };

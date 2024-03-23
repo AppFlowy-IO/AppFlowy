@@ -1,10 +1,10 @@
 import 'dart:convert';
 
+import 'package:appflowy/plugins/database/domain/cell_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 
 import 'cell_controller.dart';
-import 'cell_service.dart';
 
 abstract class IGridCellDataConfig {
   // The cell data will reload if it receives the field's change notification.
@@ -131,5 +131,12 @@ class URLCellDataParser implements CellDataParser<URLCellDataPB> {
       return null;
     }
     return URLCellDataPB.fromBuffer(data);
+  }
+}
+
+class RelationCellDataParser implements CellDataParser<RelationCellDataPB> {
+  @override
+  RelationCellDataPB? parserData(List<int> data) {
+    return data.isEmpty ? null : RelationCellDataPB.fromBuffer(data);
   }
 }

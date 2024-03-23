@@ -3,13 +3,27 @@ import 'dart:convert';
 import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+
 part 'folder_bloc.freezed.dart';
 
 enum FolderCategoryType {
   favorite,
-  personal,
+  private,
+  public;
+
+  ViewSectionPB get toViewSectionPB {
+    switch (this) {
+      case FolderCategoryType.private:
+        return ViewSectionPB.Private;
+      case FolderCategoryType.public:
+        return ViewSectionPB.Public;
+      case FolderCategoryType.favorite:
+        throw UnimplementedError();
+    }
+  }
 }
 
 class FolderBloc extends Bloc<FolderEvent, FolderState> {
@@ -34,10 +48,10 @@ class FolderBloc extends Bloc<FolderEvent, FolderState> {
 
   Future<void> _setFolderExpandStatus(bool isExpanded) async {
     final result = await getIt<KeyValueStorage>().get(KVKeys.expandedViews);
-    final map = result.fold(
-      () => {},
-      (r) => jsonDecode(r),
-    );
+    var map = {};
+    if (result != null) {
+      map = jsonDecode(result);
+    }
     if (isExpanded) {
       // set expand status to true if it's not expanded
       map[state.type.name] = true;
@@ -50,10 +64,11 @@ class FolderBloc extends Bloc<FolderEvent, FolderState> {
 
   Future<bool> _getFolderExpandStatus() async {
     return getIt<KeyValueStorage>().get(KVKeys.expandedViews).then((result) {
-      return result.fold(() => true, (r) {
-        final map = jsonDecode(r);
-        return map[state.type.name] ?? true;
-      });
+      if (result == null) {
+        return true;
+      }
+      final map = jsonDecode(result);
+      return map[state.type.name] ?? true;
     });
   }
 }

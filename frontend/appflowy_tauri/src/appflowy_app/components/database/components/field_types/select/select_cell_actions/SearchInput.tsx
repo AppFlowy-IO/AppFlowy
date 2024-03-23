@@ -1,16 +1,17 @@
 import React, { FormEvent, useCallback } from 'react';
-import { ListSubheader, OutlinedInput } from '@mui/material';
-import { t } from 'i18next';
+import { OutlinedInput } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 
 function SearchInput({
   setNewOptionName,
   newOptionName,
-  onEnter,
+  inputRef,
 }: {
   newOptionName: string;
   setNewOptionName: (value: string) => void;
-  onEnter: () => void;
+  inputRef?: React.RefObject<HTMLInputElement>;
 }) {
+  const { t } = useTranslation();
   const handleInput = useCallback(
     (event: FormEvent) => {
       const value = (event.target as HTMLInputElement).value;
@@ -21,20 +22,16 @@ function SearchInput({
   );
 
   return (
-    <ListSubheader className='flex'>
-      <OutlinedInput
-        size='small'
-        autoFocus={true}
-        value={newOptionName}
-        onInput={handleInput}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter') {
-            onEnter();
-          }
-        }}
-        placeholder={t('grid.selectOption.searchOrCreateOption')}
-      />
-    </ListSubheader>
+    <OutlinedInput
+      size='small'
+      className={'mx-4'}
+      autoFocus={true}
+      inputRef={inputRef}
+      value={newOptionName}
+      onInput={handleInput}
+      spellCheck={false}
+      placeholder={t('grid.selectOption.searchOrCreateOption')}
+    />
   );
 }
 

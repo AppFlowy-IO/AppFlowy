@@ -1,8 +1,7 @@
+import 'package:appflowy/plugins/database/domain/database_view_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/setting_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-
-import '../database_view_service.dart';
 
 part 'layout_bloc.freezed.dart';
 

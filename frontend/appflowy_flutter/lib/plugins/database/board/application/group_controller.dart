@@ -1,12 +1,12 @@
-import 'package:appflowy/plugins/database/application/row/row_service.dart';
-import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'dart:typed_data';
 
 import 'package:appflowy/core/notification/grid_notification.dart';
+import 'package:appflowy/plugins/database/application/row/row_service.dart';
+import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flowy_infra/notifier.dart';
-import 'package:dartz/dartz.dart';
 import 'package:protobuf/protobuf.dart';
 
 typedef OnGroupError = void Function(FlowyError);
@@ -31,23 +31,11 @@ class GroupController {
   final GroupControllerDelegate delegate;
   final void Function(GroupPB group) onGroupChanged;
 
-  RowMetaPB? rowAtIndex(int index) {
-    if (index < group.rows.length) {
-      return group.rows[index];
-    } else {
-      return null;
-    }
-  }
+  RowMetaPB? rowAtIndex(int index) => group.rows.elementAtOrNull(index);
 
-  RowMetaPB? firstRow() {
-    if (group.rows.isEmpty) return null;
-    return group.rows.first;
-  }
+  RowMetaPB? firstRow() => group.rows.firstOrNull;
 
-  RowMetaPB? lastRow() {
-    if (group.rows.isEmpty) return null;
-    return group.rows.last;
-  }
+  RowMetaPB? lastRow() => group.rows.lastOrNull;
 
   void startListening() {
     _listener.start(
@@ -112,7 +100,8 @@ class GroupController {
   }
 }
 
-typedef UpdateGroupNotifiedValue = Either<GroupRowsNotificationPB, FlowyError>;
+typedef UpdateGroupNotifiedValue
+    = FlowyResult<GroupRowsNotificationPB, FlowyError>;
 
 class SingleGroupListener {
   SingleGroupListener(this.group);
@@ -134,14 +123,14 @@ class SingleGroupListener {
 
   void _handler(
     DatabaseNotification ty,
-    Either<Uint8List, FlowyError> result,
+    FlowyResult<Uint8List, FlowyError> result,
   ) {
     switch (ty) {
       case DatabaseNotification.DidUpdateGroupRow:
         result.fold(
           (payload) => _groupNotifier?.value =
-              left(GroupRowsNotificationPB.fromBuffer(payload)),
-          (error) => _groupNotifier?.value = right(error),
+              FlowyResult.success(GroupRowsNotificationPB.fromBuffer(payload)),
+          (error) => _groupNotifier?.value = FlowyResult.failure(error),
         );
         break;
       default:

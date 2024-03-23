@@ -42,6 +42,7 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
             appearanceSettings.monospaceFont,
             appearanceSettings.layoutDirection,
             appearanceSettings.textDirection,
+            appearanceSettings.enableRtlToolbarItems,
             appearanceSettings.locale,
             appearanceSettings.isMenuCollapsed,
             appearanceSettings.menuOffset,
@@ -83,13 +84,11 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
 
   Future<void> readTextScaleFactor() async {
     final textScaleFactor = await getIt<KeyValueStorage>().getWithFormat(
-      KVKeys.textScaleFactor,
-      (value) => double.parse(value),
-    );
-    textScaleFactor.fold(
-      () => emit(state.copyWith(textScaleFactor: 1.0)),
-      (value) => emit(state.copyWith(textScaleFactor: value.clamp(0.7, 1.0))),
-    );
+          KVKeys.textScaleFactor,
+          (value) => double.parse(value),
+        ) ??
+        1.0;
+    emit(state.copyWith(textScaleFactor: textScaleFactor.clamp(0.7, 1.0)));
   }
 
   /// Update selected theme in the user's settings and emit an updated state
@@ -134,6 +133,12 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
         textDirection?.toTextDirectionPB() ?? TextDirectionPB.FALLBACK;
     _saveAppearanceSettings();
     emit(state.copyWith(textDirection: textDirection));
+  }
+
+  void setEnableRTLToolbarItems(bool value) {
+    _appearanceSettings.enableRtlToolbarItems = value;
+    _saveAppearanceSettings();
+    emit(state.copyWith(enableRtlToolbarItems: value));
   }
 
   /// Update selected font in the user's settings and emit an updated state
@@ -267,8 +272,8 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
     final result = await UserSettingsBackendService()
         .setDateTimeSettings(_dateTimeSettings);
     result.fold(
-      (error) => Log.error(error),
       (_) => null,
+      (error) => Log.error(error),
     );
   }
 
@@ -367,6 +372,7 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
     required String monospaceFont,
     required LayoutDirection layoutDirection,
     required AppFlowyTextDirection? textDirection,
+    required bool enableRtlToolbarItems,
     required Locale locale,
     required bool isMenuCollapsed,
     required double menuOffset,
@@ -385,6 +391,7 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
     String monospaceFont,
     LayoutDirectionPB layoutDirectionPB,
     TextDirectionPB? textDirectionPB,
+    bool enableRtlToolbarItems,
     LocaleSettingsPB localePB,
     bool isMenuCollapsed,
     double menuOffset,
@@ -401,6 +408,7 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
       monospaceFont: monospaceFont,
       layoutDirection: LayoutDirection.fromLayoutDirectionPB(layoutDirectionPB),
       textDirection: AppFlowyTextDirection.fromTextDirectionPB(textDirectionPB),
+      enableRtlToolbarItems: enableRtlToolbarItems,
       themeMode: _themeModeFromPB(themeModePB),
       locale: Locale(localePB.languageCode, localePB.countryCode),
       isMenuCollapsed: isMenuCollapsed,

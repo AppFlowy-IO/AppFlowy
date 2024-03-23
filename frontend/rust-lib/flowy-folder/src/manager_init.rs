@@ -1,7 +1,12 @@
 use collab_entity::CollabType;
+
 use collab_folder::{Folder, FolderNotify, UserId};
+
 use collab_integrate::CollabKVDB;
+
 use flowy_error::{FlowyError, FlowyResult};
+
+use collab::core::collab::DocStateSource;
 use std::sync::{Arc, Weak};
 use tracing::{event, Level};
 
@@ -48,8 +53,15 @@ impl FolderManager {
         let is_exist = self.is_workspace_exist_in_local(uid, &workspace_id).await;
         // 1. if the folder exists, open it from local disk
         if is_exist {
+          event!(Level::INFO, "Init folder from local disk");
           self
-            .open_local_folder(uid, &workspace_id, collab_db, folder_notifier)
+            .make_folder(
+              uid,
+              &workspace_id,
+              collab_db,
+              DocStateSource::FromDisk,
+              folder_notifier,
+            )
             .await?
         } else if create_if_not_exist {
           // 2. if the folder doesn't exist and create_if_not_exist is true, create a default folder
@@ -66,30 +78,46 @@ impl FolderManager {
             .get_folder_doc_state(&workspace_id, uid, CollabType::Folder, &workspace_id)
             .await?;
 
-          let collab = self
-            .collab_for_folder(uid, &workspace_id, collab_db.clone(), doc_state)
-            .await?;
-          Folder::open(UserId::from(uid), collab, Some(folder_notifier.clone()))?
+          self
+            .make_folder(
+              uid,
+              &workspace_id,
+              collab_db.clone(),
+              DocStateSource::FromDocState(doc_state),
+              folder_notifier.clone(),
+            )
+            .await?
         }
       },
       FolderInitDataSource::Cloud(doc_state) => {
         if doc_state.is_empty() {
           event!(Level::ERROR, "remote folder data is empty, open from local");
           self
-            .open_local_folder(uid, &workspace_id, collab_db, folder_notifier)
+            .make_folder(
+              uid,
+              &workspace_id,
+              collab_db,
+              DocStateSource::FromDisk,
+              folder_notifier,
+            )
             .await?
         } else {
-          event!(Level::INFO, "Restore folder with remote data");
-          let collab = self
-            .collab_for_folder(uid, &workspace_id, collab_db.clone(), doc_state)
-            .await?;
-          Folder::open(UserId::from(uid), collab, Some(folder_notifier.clone()))?
+          event!(Level::INFO, "Restore folder from remote data");
+          self
+            .make_folder(
+              uid,
+              &workspace_id,
+              collab_db.clone(),
+              DocStateSource::FromDocState(doc_state),
+              folder_notifier.clone(),
+            )
+            .await?
         }
       },
       FolderInitDataSource::FolderData(folder_data) => {
         event!(Level::INFO, "Restore folder with passed-in folder data");
         let collab = self
-          .collab_for_folder(uid, &workspace_id, collab_db, vec![])
+          .create_empty_collab(uid, &workspace_id, collab_db)
           .await?;
         Folder::create(
           UserId::from(uid),
@@ -135,7 +163,7 @@ impl FolderManager {
     let folder_data =
       DefaultFolderBuilder::build(uid, workspace_id.to_string(), &self.operation_handlers).await;
     let collab = self
-      .collab_for_folder(uid, workspace_id, collab_db, vec![])
+      .create_empty_collab(uid, workspace_id, collab_db)
       .await?;
     Ok(Folder::create(
       UserId::from(uid),
@@ -143,20 +171,5 @@ impl FolderManager {
       Some(folder_notifier),
       folder_data,
     ))
-  }
-
-  async fn open_local_folder(
-    &self,
-    uid: i64,
-    workspace_id: &str,
-    collab_db: Weak<CollabKVDB>,
-    folder_notifier: FolderNotify,
-  ) -> Result<Folder, FlowyError> {
-    event!(Level::INFO, "Init folder from local disk");
-    let collab = self
-      .collab_for_folder(uid, workspace_id, collab_db, vec![])
-      .await?;
-    let folder = Folder::open(UserId::from(uid), collab, Some(folder_notifier))?;
-    Ok(folder)
   }
 }

@@ -2,7 +2,7 @@ import 'package:appflowy/user/application/user_listener.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
-import 'package:dartz/dartz.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -16,6 +16,8 @@ enum SettingsPage {
   notifications,
   cloud,
   shortcuts,
+  member,
+  featureFlags,
 }
 
 class SettingsDialogBloc
@@ -53,7 +55,9 @@ class SettingsDialogBloc
     );
   }
 
-  void _profileUpdated(Either<UserProfilePB, FlowyError> userProfileOrFailed) {
+  void _profileUpdated(
+    FlowyResult<UserProfilePB, FlowyError> userProfileOrFailed,
+  ) {
     userProfileOrFailed.fold(
       (newUserProfile) =>
           add(SettingsDialogEvent.didReceiveUserProfile(newUserProfile)),
@@ -76,14 +80,14 @@ class SettingsDialogEvent with _$SettingsDialogEvent {
 class SettingsDialogState with _$SettingsDialogState {
   const factory SettingsDialogState({
     required UserProfilePB userProfile,
-    required Either<Unit, String> successOrFailure,
+    required FlowyResult<void, String> successOrFailure,
     required SettingsPage page,
   }) = _SettingsDialogState;
 
   factory SettingsDialogState.initial(UserProfilePB userProfile) =>
       SettingsDialogState(
         userProfile: userProfile,
-        successOrFailure: left(unit),
+        successOrFailure: FlowyResult.success(null),
         page: SettingsPage.appearance,
       );
 }

@@ -59,6 +59,8 @@
     "failedToLoad": "Qualcosa è andato storto! Impossibile caricare lo spazio di lavoro. Prova a chiudere qualsiasi istanza aperta di AppFlowy e riprova.",
     "errorActions": {
       "reportIssue": "Segnala un problema",
+      "reportIssueOnGithub": "Segnalate un problema su Github",
+      "exportLogFiles": "Esporta i file di log",
       "reachOut": "Contattaci su Discord"
     }
   },
@@ -70,12 +72,16 @@
     "copyLink": "Copia Link"
   },
   "moreAction": {
+    "small": "piccolo",
+    "medium": "medio",
+    "large": "grande",
     "fontSize": "Dimensione del font",
     "import": "Importare",
     "moreOptions": "Più opzioni",
-    "small": "piccolo",
-    "medium": "medio",
-    "large": "grande"
+    "wordCount": "Conteggio parole: {}",
+    "charCount": "Numero di caratteri: {}",
+    "deleteView": "Cancella",
+    "duplicateView": "Duplica"
   },
   "importPanel": {
     "textAndMarkdown": "Testo e markdown",
@@ -177,9 +183,7 @@
     "dragRow": "Premere a lungo per riordinare la riga",
     "viewDataBase": "Visualizza banca dati",
     "referencePage": "Questo {nome} è referenziato",
-    "addBlockBelow": "Aggiungi un blocco qui sotto",
-    "urlLaunchAccessory": "Apri nel browser",
-    "urlCopyAccessory": "Copia l'URL"
+    "addBlockBelow": "Aggiungi un blocco qui sotto"
   },
   "sideBar": {
     "closeSidebar": "Close sidebar",
@@ -231,7 +235,9 @@
     "rename": "Rinomina",
     "helpCenter": "Centro assistenza",
     "add": "Aggiungi",
-    "yes": "SÌ"
+    "yes": "SÌ",
+    "remove": "Rimuovi",
+    "dontRemove": "Non rimuovere"
   },
   "label": {
     "welcome": "Benvenuto!",
@@ -276,7 +282,10 @@
       "cloudLocal": "Locale",
       "cloudSupabase": "Supabase",
       "cloudSupabaseUrl": "URL di Supabase",
+      "cloudSupabaseUrlCanNotBeEmpty": "L'url di supabase non può essere vuoto",
       "cloudAppFlowy": "AppFlowy Cloud",
+      "cloudAppFlowySelfHost": "AppFlowy Cloud Self-hosted (autogestito)",
+      "appFlowyCloudUrlCanNotBeEmpty": "L'url del cloud non può essere vuoto",
       "clickToCopy": "Fare clic per copiare",
       "selfHostStart": "Se non disponi di un server, fai riferimento a",
       "selfHostContent": "documento",
@@ -286,6 +295,7 @@
       "cloudWSURLHint": "Inserisci l'indirizzo websocket del tuo server",
       "restartApp": "Riavvia",
       "restartAppTip": "Riavvia l'applicazione affinché le modifiche abbiano effetto. Tieni presente che ciò potrebbe disconnettere il tuo account corrente",
+      "changeServerTip": "Dopo aver modificato il server, è necessario fare clic sul pulsante di riavvio affinché le modifiche abbiano effetto.",
       "enableEncryptPrompt": "Attiva la crittografia per proteggere i tuoi dati con questo segreto. Conservarlo in modo sicuro; una volta abilitato, non può essere spento. In caso di perdita, i tuoi dati diventano irrecuperabili. Fare clic per copiare",
       "inputEncryptPrompt": "Inserisci il tuo segreto di crittografia per",
       "clickToCopySecret": "Fare clic per copiare il segreto",
@@ -297,6 +307,7 @@
       "openHistoricalUser": "Fare clic per aprire l'account anonimo",
       "customPathPrompt": "L'archiviazione della cartella dati di AppFlowy in una cartella sincronizzata sul cloud come Google Drive può comportare rischi. Se si accede o si modifica il database all'interno di questa cartella da più posizioni contemporaneamente, potrebbero verificarsi conflitti di sincronizzazione e potenziale danneggiamento dei dati",
       "importAppFlowyData": "Importa dati dalla cartella AppFlowy esterna",
+      "importingAppFlowyDataTip": "L'importazione dei dati è in corso. Non chiudere l'applicazione",
       "importAppFlowyDataDescription": "Copia i dati da una cartella dati AppFlowy esterna e importali nella cartella dati AppFlowy corrente",
       "importSuccess": "Importazione della cartella dati AppFlowy riuscita",
       "importFailed": "L'importazione della cartella dati di AppFlowy non è riuscita",
@@ -441,10 +452,12 @@
       "joinDiscord": "Unisciti a noi su Discord",
       "privacyPolicy": "Politica sulla riservatezza",
       "userAgreement": "Accordo per gli utenti",
+      "termsAndConditions": "Termini e Condizioni",
       "userprofileError": "Impossibile caricare il profilo utente",
       "userprofileErrorDescription": "Prova a disconnetterti e ad accedere nuovamente per verificare se il problema persiste.",
       "selectLayout": "Seleziona disposizione",
-      "selectStartingDay": "Seleziona il giorno di inizio"
+      "selectStartingDay": "Seleziona il giorno di inizio",
+      "version": "Versione"
     }
   },
   "grid": {
@@ -503,13 +516,9 @@
       "isComplete": "è completo",
       "isIncomplted": "è incompleto"
     },
-    "singleSelectOptionFilter": {
+    "selectOptionFilter": {
       "is": "È",
       "isNot": "Non è",
-      "isEmpty": "È vuoto",
-      "isNotEmpty": "Non è vuoto"
-    },
-    "multiSelectOptionFilter": {
       "contains": "Contiene",
       "doesNotContain": "Non contiene",
       "isEmpty": "È vuoto",
@@ -524,6 +533,16 @@
       "between": "È tra",
       "empty": "È vuoto",
       "notEmpty": "Non è vuoto"
+    },
+    "numberFilter": {
+      "equal": "Uguale",
+      "notEqual": "Non è uguale",
+      "lessThan": "È meno di",
+      "greaterThan": "È maggiore di",
+      "lessThanOrEqualTo": "È inferiore o uguale a",
+      "greaterThanOrEqualTo": "È maggiore o uguale a",
+      "isEmpty": "È vuoto",
+      "isNotEmpty": "Non è vuoto"
     },
     "field": {
       "hide": "Nascondere",
@@ -556,6 +575,7 @@
       "timeFormatTwelveHour": "12 ore",
       "timeFormatTwentyFourHour": "24 ore",
       "clearDate": "Pulisci data",
+      "dateTime": "Data e ora",
       "failedToLoadDate": "Impossibile caricare il valore della data",
       "selectTime": "Seleziona l'ora",
       "selectDate": "Seleziona la data",
@@ -569,7 +589,9 @@
       "newProperty": "Nuova proprietà",
       "deleteFieldPromptMessage": "Sei sicuro? Questa proprietà verrà eliminata",
       "newColumn": "Nuova colonna",
-      "format": "Formato"
+      "format": "Formato",
+      "reminderOnDateTooltip": "Questa cella ha un promemoria programmato",
+      "optionAlreadyExist": "L'opzione esiste già"
     },
     "rowPage": {
       "newField": "Aggiungi un nuovo campo",
@@ -588,8 +610,10 @@
     "sort": {
       "ascending": "Ascendente",
       "descending": "Discendente",
+      "cannotFindCreatableField": "Impossibile trovare un campo adatto per l'ordinamento",
       "deleteAllSorts": "Elimina tutti gli ordinamenti",
       "addSort": "Aggiungi ordinamento",
+      "removeSorting": "Si desidera rimuovere l'ordinamento?",
       "deleteSort": "Elimina ordinamento"
     },
     "row": {
@@ -635,8 +659,20 @@
       "hideComplete": "Nascondi le attività completate",
       "showComplete": "Mostra tutte le attività"
     },
+    "url": {
+      "launch": "Apri nel browser",
+      "copy": "Copia l'URL"
+    },
     "menuName": "Griglia",
-    "referencedGridPrefix": "Vista di"
+    "referencedGridPrefix": "Vista di",
+    "calculate": "Calcolare",
+    "calculationTypeLabel": {
+      "average": "Media",
+      "max": "Massimo",
+      "median": "Medio",
+      "min": "Minimo",
+      "sum": "Somma"
+    }
   },
   "document": {
     "menuName": "Documento",
@@ -742,13 +778,16 @@
       },
       "image": {
         "copiedToPasteBoard": "Il link dell'immagine è stato copiato negli appunti",
-        "addAnImage": "Aggiungi un'immagine"
+        "addAnImage": "Aggiungi un'immagine",
+        "imageUploadFailed": "Caricamento dell'immagine non riuscito"
       },
       "urlPreview": {
-        "copiedToPasteBoard": "Il link è stato copiato negli appunti"
+        "copiedToPasteBoard": "Il link è stato copiato negli appunti",
+        "convertToLink": "Convertire in link da incorporare"
       },
       "outline": {
-        "addHeadingToCreateOutline": "Aggiungi intestazioni per creare un sommario."
+        "addHeadingToCreateOutline": "Aggiungi intestazioni per creare un sommario.",
+        "noMatchHeadings": "Non sono stati trovati titoli corrispondenti."
       },
       "table": {
         "addAfter": "Aggiungi dopo",
@@ -771,7 +810,9 @@
         "toContinue": "continuare",
         "newDatabase": "Nuova banca dati",
         "linkToDatabase": "Collegamento alla banca dati"
-      }
+      },
+      "date": "Data",
+      "emoji": "Emoji"
     },
     "textBlock": {
       "placeholder": "Digita '/' per i comandi"
@@ -817,7 +858,10 @@
       "saveImageToGallery": "Salva immagine",
       "failedToAddImageToGallery": "Impossibile aggiungere l'immagine alla galleria",
       "successToAddImageToGallery": "Immagine aggiunta alla galleria con successo",
-      "unableToLoadImage": "Impossibile caricare l'immagine"
+      "unableToLoadImage": "Impossibile caricare l'immagine",
+      "maximumImageSize": "La dimensione massima supportata per il caricamento delle immagini è di 10 MB",
+      "uploadImageErrorImageSizeTooBig": "Le dimensioni dell'immagine devono essere inferiori a 10 MB",
+      "imageIsUploading": "L'immagine si sta caricando"
     },
     "codeBlock": {
       "language": {
@@ -844,7 +888,9 @@
       "page": {
         "label": "Collegamento alla pagina",
         "tooltip": "Fare clic per aprire la pagina"
-      }
+      },
+      "deleted": "Eliminato",
+      "deletedContent": "Questo contenuto non esiste o è stato cancellato"
     },
     "toolbar": {
       "resetToDefaultFont": "Ripristina alle condizioni predefinite"
@@ -876,6 +922,7 @@
     "cardDuplicated": "La carta è stata duplicata",
     "cardDeleted": "La carta è stata eliminata",
     "showOnCard": "Mostra sui dettagli della carta",
+    "setting": "Impostazioni",
     "propertyName": "Nome della proprietà",
     "menuName": "Bacheca",
     "showUngrouped": "Mostra elementi non raggruppati",
@@ -902,11 +949,16 @@
       "previousMonth": "Il mese scorso",
       "nextMonth": "Il prossimo mese"
     },
+    "mobileEventScreen": {
+      "emptyTitle": "Non ci sono ancora eventi",
+      "emptyBody": "Premere il pulsante più per creare un evento in questo giorno."
+    },
     "settings": {
       "showWeekNumbers": "Mostra i numeri della settimana",
       "showWeekends": "Mostra i fine settimana",
       "firstDayOfWeek": "Inizia la settimana",
       "layoutDateField": "Layout calendario per",
+      "changeLayoutDateField": "Modifica del campo di layout",
       "noDateTitle": "Nessuna data",
       "unscheduledEventsTitle": "Eventi non programmati",
       "clickToAdd": "Fare clic per aggiungere al calendario",
@@ -983,9 +1035,14 @@
   },
   "inlineActions": {
     "noResults": "Nessun risultato",
+    "pageReference": "Riferimento della pagina",
+    "docReference": "Riferimento al documento",
+    "calReference": "Calendario di riferimento",
+    "gridReference": "Riferimento griglia",
     "date": "Data",
     "reminder": {
-      "groupTitle": "Promemoria"
+      "groupTitle": "Promemoria",
+      "shortKeyword": "ricordare"
     }
   },
   "datePicker": {
@@ -994,7 +1051,23 @@
     "includeTime": "Includere l'orario",
     "isRange": "Data di fine",
     "timeFormat": "Formato orario",
-    "clearDate": "Rimuovi data"
+    "clearDate": "Rimuovi data",
+    "reminderLabel": "Promemoria",
+    "selectReminder": "Seleziona il promemoria",
+    "reminderOptions": {
+      "atTimeOfEvent": "Ora dell'evento",
+      "fiveMinsBefore": "5 minuti prima",
+      "tenMinsBefore": "10 minuti prima",
+      "fifteenMinsBefore": "15 minuti prima",
+      "thirtyMinsBefore": "30 minuti prima",
+      "oneHourBefore": "1 ora prima",
+      "twoHoursBefore": "2 hours before",
+      "onDayOfEvent": "Il giorno dell'evento",
+      "oneDayBefore": "1 giorno prima",
+      "twoDaysBefore": "2 giorni prima",
+      "oneWeekBefore": "1 settimana prima",
+      "custom": "Personalizzato"
+    }
   },
   "relativeDates": {
     "yesterday": "Ieri",
@@ -1010,6 +1083,7 @@
     "emptyTitle": "Tutto a posto!",
     "emptyBody": "Nessuna notifica o azione in sospeso. Goditi la calma.",
     "tabs": {
+      "inbox": "Posta in arrivo",
       "upcoming": "Prossimamente"
     },
     "actions": {
@@ -1057,6 +1131,7 @@
     "highlight": "Evidenzia",
     "color": "Colore",
     "image": "Immagine",
+    "date": "Data",
     "italic": "Corsivo",
     "link": "Link",
     "numberedList": "Elenco numerato",
@@ -1158,7 +1233,10 @@
     "colClear": "Rimuovi contenuto",
     "rowClear": "Rimuovi contenuto",
     "slashPlaceHolder": "Digita \"/\" per inserire un blocco o inizia a digitare",
-    "typeSomething": "Scrivi qualcosa..."
+    "typeSomething": "Scrivi qualcosa...",
+    "quoteListShortForm": "Citazione",
+    "mathEquationShortForm": "Formula",
+    "codeBlockShortForm": "Codice"
   },
   "favorite": {
     "noFavorite": "Nessuna pagina preferita",
@@ -1182,5 +1260,6 @@
     "date": "Data",
     "addField": "Aggiungi campo",
     "userIcon": "Icona utente"
-  }
+  },
+  "noLogFiles": "Non ci sono file di log"
 }

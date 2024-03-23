@@ -132,5 +132,9 @@ export async function updateDateCell(
 
   const result = await DatabaseEventUpdateDateCell(payload);
 
-  return result.unwrap();
+  if (!result.ok) {
+    return Promise.reject(typeof result.val.msg === 'string' ? result.val.msg : 'Unknown error');
+  }
+
+  return result.val;
 }

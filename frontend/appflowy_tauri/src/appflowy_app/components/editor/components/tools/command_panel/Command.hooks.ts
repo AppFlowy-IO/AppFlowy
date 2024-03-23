@@ -50,19 +50,21 @@ export function useCommandPanel() {
       if (deleteText && startPoint.current && endPoint.current) {
         const anchor = {
           path: startPoint.current.path,
-          offset: startPoint.current.offset - 1,
+          offset: startPoint.current.offset > 0 ? startPoint.current.offset - 1 : 0,
         };
         const focus = {
           path: endPoint.current.path,
           offset: endPoint.current.offset,
         };
 
-        Transforms.delete(editor, {
-          at: {
-            anchor,
-            focus,
-          },
-        });
+        if (!Point.equals(anchor, focus)) {
+          Transforms.delete(editor, {
+            at: {
+              anchor,
+              focus,
+            },
+          });
+        }
       }
 
       setSlashOpen(false);
@@ -117,7 +119,7 @@ export function useCommandPanel() {
    * listen to editor insertText and deleteBackward event
    */
   useEffect(() => {
-    const { insertText, deleteBackward } = editor;
+    const { insertText } = editor;
 
     /**
      * insertText: when insert char at after space or at start of element, show the panel
@@ -171,50 +173,10 @@ export function useCommandPanel() {
       openPanel();
     };
 
-    /**
-     * deleteBackward: when delete char at start of panel char, and then it will be deleted, so we should close the panel if it is open
-     * close condition:
-     * 1. open is true
-     * 2. current block is not code block
-     * 3. current selection is not include root
-     * 4. current selection is collapsed
-     * 5. before text is command char
-     * --------- start -----------------
-     * | - selection point
-     * @ - panel char
-     * - - other text
-     * -------- close panel ----------------
-     * --@|---  => delete text is panel char, close the panel
-     * -------- delete text ----------------
-     * ---@__|---  => delete text is not panel char, delete the text
-     */
-    editor.deleteBackward = (...args) => {
-      if (!open || CustomEditor.isCodeBlock(editor)) {
-        deleteBackward(...args);
-        return;
-      }
-
-      const { selection } = editor;
-
-      if (selection && Range.isCollapsed(selection)) {
-        const { anchor } = selection;
-        const block = CustomEditor.getBlock(editor);
-        const path = block ? block[1] : [];
-        const beforeText = Editor.string(editor, { anchor, focus: Editor.start(editor, path) });
-
-        deleteBackward(...args);
-        // if delete backward at start of panel char, and then it will be deleted, so we should close the panel if it is open
-        if (beforeText === command) {
-          closePanel();
-        }
-      }
-    };
-
     return () => {
       editor.insertText = insertText;
-      editor.deleteBackward = deleteBackward;
     };
-  }, [setSlashOpen, command, open, setPosition, editor, closePanel, openPanel]);
+  }, [open, editor, openPanel, setSlashOpen]);
 
   /**
    * listen to editor onChange event

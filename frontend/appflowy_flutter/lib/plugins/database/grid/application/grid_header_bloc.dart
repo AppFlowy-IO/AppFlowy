@@ -7,7 +7,7 @@ import 'package:appflowy_backend/protobuf/flowy-database2/field_settings_entitie
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import '../../application/field/field_service.dart';
+import '../../domain/field_service.dart';
 
 part 'grid_header_bloc.freezed.dart';
 

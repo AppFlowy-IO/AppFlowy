@@ -1,8 +1,9 @@
 import 'dart:typed_data';
-import 'package:appflowy_backend/protobuf/flowy-notification/protobuf.dart';
-import 'package:dartz/dartz.dart';
 
-class NotificationParser<T, E> {
+import 'package:appflowy_backend/protobuf/flowy-notification/protobuf.dart';
+import 'package:appflowy_result/appflowy_result.dart';
+
+class NotificationParser<T, E extends Object> {
   NotificationParser({
     this.id,
     required this.callback,
@@ -11,7 +12,7 @@ class NotificationParser<T, E> {
   });
 
   String? id;
-  void Function(T, Either<Uint8List, E>) callback;
+  void Function(T, FlowyResult<Uint8List, E>) callback;
   E Function(Uint8List) errorParser;
   T? Function(int) tyParser;
 
@@ -30,10 +31,10 @@ class NotificationParser<T, E> {
     if (subject.hasError()) {
       final bytes = Uint8List.fromList(subject.error);
       final error = errorParser(bytes);
-      callback(ty, right(error));
+      callback(ty, FlowyResult.failure(error));
     } else {
       final bytes = Uint8List.fromList(subject.payload);
-      callback(ty, left(bytes));
+      callback(ty, FlowyResult.success(bytes));
     }
   }
 }

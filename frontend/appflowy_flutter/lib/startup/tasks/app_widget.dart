@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:appflowy/mobile/application/mobile_router.dart';
-import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
+import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/user/application/user_settings_service.dart';
@@ -61,11 +61,13 @@ class InitAppWidgetTask extends LaunchTask {
           Locale('am', 'ET'),
           Locale('ar', 'SA'),
           Locale('ca', 'ES'),
+          Locale('cs', 'CZ'),
           Locale('ckb', 'KU'),
           Locale('de', 'DE'),
           Locale('en'),
           Locale('es', 'VE'),
           Locale('eu', 'ES'),
+          Locale('el', 'GR'),
           Locale('fr', 'FR'),
           Locale('fr', 'CA'),
           Locale('hu', 'HU'),

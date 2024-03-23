@@ -38,7 +38,7 @@ class FlowyIconButton extends StatelessWidget {
     this.preferBelow = true,
     this.isSelected,
     required this.icon,
-  })  : assert((richTooltipText != null && tooltipText == null) ||
+  }) : assert((richTooltipText != null && tooltipText == null) ||
             (richTooltipText == null && tooltipText != null) ||
             (richTooltipText == null && tooltipText == null));
 

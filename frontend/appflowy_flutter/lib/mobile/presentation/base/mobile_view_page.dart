@@ -4,7 +4,9 @@ import 'package:appflowy/mobile/presentation/base/app_bar_actions.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_state_container.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
-import 'package:appflowy/plugins/document/document_page.dart';
+import 'package:appflowy/plugins/document/presentation/document_sync_indicator.dart';
+import 'package:appflowy/plugins/document/presentation/editor_notification.dart';
+import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
@@ -13,7 +15,7 @@ import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
-import 'package:dartz/dartz.dart' hide State;
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -40,7 +42,7 @@ class MobileViewPage extends StatefulWidget {
 }
 
 class _MobileViewPageState extends State<MobileViewPage> {
-  late final Future<Either<ViewPB, FlowyError>> future;
+  late final Future<FlowyResult<ViewPB, FlowyError>> future;
 
   @override
   void initState() {
@@ -70,11 +72,16 @@ class _MobileViewPageState extends State<MobileViewPage> {
         } else {
           body = state.data!.fold((view) {
             viewPB = view;
-            actions.add(_buildAppBarMoreButton(view));
-            return view
-                .plugin(arguments: widget.arguments ?? const {})
-                .widgetBuilder
-                .buildWidget(shrinkWrap: false);
+            actions.addAll([
+              if (FeatureFlag.syncDocument.isOn) ...[
+                DocumentSyncIndicator(view: view),
+                const HSpace(8.0),
+              ],
+              _buildAppBarMoreButton(view),
+            ]);
+            final plugin = view.plugin(arguments: widget.arguments ?? const {})
+              ..init();
+            return plugin.widgetBuilder.buildWidget(shrinkWrap: false);
           }, (error) {
             return FlowyMobileStateContainer.error(
               emoji: '😔',
@@ -145,11 +152,13 @@ class _MobileViewPageState extends State<MobileViewPage> {
   Widget _buildAppBarMoreButton(ViewPB view) {
     return AppBarMoreButton(
       onTap: (context) {
+        EditorNotification.exitEditing().post();
+
         showMobileBottomSheet(
           context,
           showDragHandle: true,
           showDivider: false,
-          backgroundColor: Theme.of(context).colorScheme.surface,
+          backgroundColor: Theme.of(context).colorScheme.background,
           builder: (_) => _buildViewPageBottomSheet(context),
         );
       },
@@ -184,14 +193,12 @@ class _MobileViewPageState extends State<MobileViewPage> {
             context.read<FavoriteBloc>().add(FavoriteEvent.toggle(view));
             break;
           case MobileViewBottomSheetBodyAction.undo:
-            context.dispatchNotification(
-              const EditorNotification(type: EditorNotificationType.redo),
-            );
+            EditorNotification.undo().post();
             context.pop();
             break;
           case MobileViewBottomSheetBodyAction.redo:
+            EditorNotification.redo().post();
             context.pop();
-            context.dispatchNotification(EditorNotification.redo());
             break;
           case MobileViewBottomSheetBodyAction.helpCenter:
             // unimplemented

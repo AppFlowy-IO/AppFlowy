@@ -27,6 +27,7 @@ pub fn init(database_manager: Weak<DatabaseManager>) -> AFPlugin {
         .event(DatabaseEvent::UpdateField, update_field_handler)
         .event(DatabaseEvent::UpdateFieldTypeOption, update_field_type_option_handler)
         .event(DatabaseEvent::DeleteField, delete_field_handler)
+        .event(DatabaseEvent::ClearField, clear_field_handler)
         .event(DatabaseEvent::UpdateFieldType, switch_to_field_handler)
         .event(DatabaseEvent::DuplicateField, duplicate_field_handler)
         .event(DatabaseEvent::MoveField, move_field_handler)
@@ -83,6 +84,11 @@ pub fn init(database_manager: Weak<DatabaseManager>) -> AFPlugin {
         .event(DatabaseEvent::GetAllCalculations, get_all_calculations_handler)
         .event(DatabaseEvent::UpdateCalculation, update_calculation_handler)
         .event(DatabaseEvent::RemoveCalculation, remove_calculation_handler)
+         // Relation
+         .event(DatabaseEvent::GetRelatedDatabaseIds, get_related_database_ids_handler)
+         .event(DatabaseEvent::UpdateRelationCell, update_relation_cell_handler)
+         .event(DatabaseEvent::GetRelatedRowDatas, get_related_row_datas_handler)
+         .event(DatabaseEvent::GetRelatedDatabaseRows, get_related_database_rows_handler)
 }
 
 /// [DatabaseEvent] defines events that are used to interact with the Grid. You could check [this](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/backend/protobuf)
@@ -155,6 +161,11 @@ pub enum DatabaseEvent {
   /// is used to delete the field from the Database.
   #[event(input = "DeleteFieldPayloadPB")]
   DeleteField = 14,
+
+  /// [ClearField] event is used to clear all Cells in a Field. [ClearFieldPayloadPB] is the context that
+  /// is used to clear the field from the Database.
+  #[event(input = "ClearFieldPayloadPB")]
+  ClearField = 15,
 
   /// [UpdateFieldType] event is used to update the current Field's type.
   /// It will insert a new FieldTypeOptionData if the new FieldType doesn't exist before, otherwise
@@ -342,4 +353,22 @@ pub enum DatabaseEvent {
 
   #[event(input = "RemoveCalculationChangesetPB")]
   RemoveCalculation = 165,
+
+  /// Currently unused. Get a list of database ids that this database relates
+  /// to.
+  #[event(input = "DatabaseViewIdPB", output = "RepeatedDatabaseIdPB")]
+  GetRelatedDatabaseIds = 170,
+
+  /// Updates a relation cell, adding or removing links to rows in another
+  /// database
+  #[event(input = "RelationCellChangesetPB")]
+  UpdateRelationCell = 171,
+
+  /// Get the names of the linked rows in a relation cell.
+  #[event(input = "RepeatedRowIdPB", output = "RepeatedRelatedRowDataPB")]
+  GetRelatedRowDatas = 172,
+
+  /// Get the names of all the rows in a related database.
+  #[event(input = "DatabaseIdPB", output = "RepeatedRelatedRowDataPB")]
+  GetRelatedDatabaseRows = 173,
 }

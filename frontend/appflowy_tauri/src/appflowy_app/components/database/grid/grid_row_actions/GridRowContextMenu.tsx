@@ -5,8 +5,10 @@ import { toggleProperty } from './GridRowActions.hooks';
 export function GridRowContextMenu({
   containerRef,
   hoverRowId,
+  onOpenConfirm,
 }: {
   hoverRowId?: string;
+  onOpenConfirm: (onOk: () => Promise<void>, onCancel: () => void) => void;
   containerRef: React.MutableRefObject<HTMLDivElement | null>;
 }) {
   const [position, setPosition] = useState<{ left: number; top: number } | undefined>();
@@ -23,7 +25,7 @@ export function GridRowContextMenu({
 
     if (!container || !rowId) return;
     toggleProperty(container, rowId, false);
-    setRowId(undefined);
+    // setRowId(undefined);
   }, [rowId, containerRef]);
 
   const openContextMenu = useCallback(
@@ -56,8 +58,14 @@ export function GridRowContextMenu({
     };
   }, [containerRef, openContextMenu]);
 
-  return isContextMenuOpen && rowId ? (
-    <GridRowMenu open={isContextMenuOpen} onClose={closeContextMenu} anchorPosition={position} rowId={rowId} />
+  return rowId ? (
+    <GridRowMenu
+      onOpenConfirm={onOpenConfirm}
+      open={isContextMenuOpen}
+      onClose={closeContextMenu}
+      anchorPosition={position}
+      rowId={rowId}
+    />
   ) : null;
 }
 

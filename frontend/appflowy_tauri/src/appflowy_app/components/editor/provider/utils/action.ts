@@ -4,7 +4,7 @@ import { generateId } from '$app/components/editor/provider/utils/convert';
 import { YDelta2Delta } from '$app/components/editor/provider/utils/delta';
 import { YDelta } from '$app/components/editor/provider/types/y_event';
 import { getInsertTarget, getYTarget } from '$app/components/editor/provider/utils/relation';
-import { EditorNodeType } from '$app/application/document/document.types';
+import { EditorInlineNodeType, EditorNodeType } from '$app/application/document/document.types';
 import { Log } from '$app/utils/log';
 
 export function YEvents2BlockActions(
@@ -35,6 +35,30 @@ export function YEvent2BlockActions(
 
   const backupTarget = getYTarget(backupDoc, path) as Readonly<Y.XmlText>;
   const actions = [];
+
+  if ([EditorInlineNodeType.Formula, EditorInlineNodeType.Mention].includes(yXmlText.getAttribute('type'))) {
+    const parentYXmlText = yXmlText.parent as Y.XmlText;
+    const parentDelta = parentYXmlText.toDelta() as YDelta;
+    const index = parentDelta.findIndex((op) => op.insert === yXmlText);
+    const ops = YDelta2Delta(parentDelta);
+
+    const retainIndex = ops.reduce((acc, op, currentIndex) => {
+      if (currentIndex < index) {
+        return acc + (op.insert as string).length ?? 0;
+      }
+
+      return acc;
+    }, 0);
+
+    const newDelta = [
+      {
+        retain: retainIndex,
+      },
+      ...delta,
+    ];
+
+    actions.push(...generateApplyTextActions(parentYXmlText, newDelta));
+  }
 
   if (yXmlText.getAttribute('type') === 'text') {
     actions.push(...textOps2BlockActions(rootId, yXmlText, delta));
@@ -137,6 +161,8 @@ function blockOps2BlockActions(
                 ids: [deletedId],
               })
             );
+          } else {
+            Log.error('blockOps2BlockActions', 'deletedId is not exist');
           }
         }
       }

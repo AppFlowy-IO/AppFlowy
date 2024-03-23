@@ -2,17 +2,17 @@ use std::collections::HashMap;
 use std::num::NonZeroUsize;
 use std::sync::{Arc, Weak};
 
-use collab::core::collab::{CollabDocState, MutexCollab};
+use collab::core::collab::{DocStateSource, MutexCollab};
 use collab_database::blocks::BlockEvent;
-use collab_database::database::{DatabaseData, MutexDatabase};
+use collab_database::database::{get_inline_view_id, DatabaseData, MutexDatabase};
 use collab_database::error::DatabaseError;
 use collab_database::user::{
-  CollabDocStateByOid, CollabFuture, DatabaseCollabService, WorkspaceDatabase,
+  CollabDocStateByOid, CollabFuture, DatabaseCollabService, DatabaseMeta, WorkspaceDatabase,
 };
 use collab_database::views::{CreateDatabaseParams, CreateViewParams, DatabaseLayout};
 use collab_entity::CollabType;
 use collab_plugins::local_storage::kv::KVTransactionDB;
-use futures::executor::block_on;
+
 use lru::LruCache;
 use tokio::sync::{Mutex, RwLock};
 use tracing::{event, instrument, trace};
@@ -24,10 +24,7 @@ use flowy_error::{internal_error, FlowyError, FlowyResult};
 use lib_dispatch::prelude::af_spawn;
 use lib_infra::priority_task::TaskDispatcher;
 
-use crate::entities::{
-  DatabaseDescriptionPB, DatabaseLayoutPB, DatabaseSnapshotPB, DidFetchRowPB,
-  RepeatedDatabaseDescriptionPB,
-};
+use crate::entities::{DatabaseLayoutPB, DatabaseSnapshotPB, DidFetchRowPB};
 use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::database::DatabaseEditor;
 use crate::services::database_view::DatabaseLayoutDepsResolver;
@@ -101,7 +98,7 @@ impl DatabaseManager {
     };
     let config = CollabPersistenceConfig::new().snapshot_per_update(100);
 
-    let mut workspace_database_doc_state = CollabDocState::default();
+    let mut workspace_database_doc_state = DocStateSource::FromDisk;
     // If the workspace database not exist in disk, try to fetch from remote.
     if !self.is_collab_exist(uid, &collab_db, &workspace_database_object_id) {
       trace!("workspace database not exist, try to fetch from remote");
@@ -114,8 +111,8 @@ impl DatabaseManager {
         )
         .await
       {
-        Ok(remote_doc_state) => {
-          workspace_database_doc_state = remote_doc_state;
+        Ok(doc_state) => {
+          workspace_database_doc_state = DocStateSource::FromDocState(doc_state);
         },
         Err(err) => {
           return Err(FlowyError::record_not_found().with_context(format!(
@@ -164,16 +161,27 @@ impl DatabaseManager {
     Ok(())
   }
 
-  pub async fn get_all_databases_description(&self) -> RepeatedDatabaseDescriptionPB {
+  pub async fn get_database_inline_view_id(&self, database_id: &str) -> FlowyResult<String> {
+    let wdb = self.get_workspace_database().await?;
+    let database_collab = wdb.get_database_collab(database_id).await.ok_or_else(|| {
+      FlowyError::record_not_found().with_context(format!("The database:{} not found", database_id))
+    })?;
+
+    let inline_view_id = get_inline_view_id(&database_collab.lock()).ok_or_else(|| {
+      FlowyError::record_not_found().with_context(format!(
+        "Can't find the inline view for database:{}",
+        database_id
+      ))
+    })?;
+    Ok(inline_view_id)
+  }
+
+  pub async fn get_all_databases_meta(&self) -> Vec<DatabaseMeta> {
     let mut items = vec![];
     if let Ok(wdb) = self.get_workspace_database().await {
-      items = wdb
-        .get_all_databases()
-        .into_iter()
-        .map(DatabaseDescriptionPB::from)
-        .collect();
+      items = wdb.get_all_database_meta()
     }
-    RepeatedDatabaseDescriptionPB { items }
+    items
   }
 
   pub async fn track_database(
@@ -415,7 +423,7 @@ impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
     &self,
     object_id: &str,
     object_ty: CollabType,
-  ) -> CollabFuture<Result<CollabDocState, DatabaseError>> {
+  ) -> CollabFuture<Result<DocStateSource, DatabaseError>> {
     let workspace_id = self.workspace_id.clone();
     let object_id = object_id.to_string();
     let weak_cloud_service = Arc::downgrade(&self.cloud_service);
@@ -423,13 +431,13 @@ impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
       match weak_cloud_service.upgrade() {
         None => {
           tracing::warn!("Cloud service is dropped");
-          Ok(vec![])
+          Ok(DocStateSource::FromDocState(vec![]))
         },
         Some(cloud_service) => {
-          let updates = cloud_service
+          let doc_state = cloud_service
             .get_database_object_doc_state(&object_id, object_ty, &workspace_id)
             .await?;
-          Ok(updates)
+          Ok(DocStateSource::FromDocState(doc_state))
         },
       }
     })
@@ -464,18 +472,20 @@ impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
     object_id: &str,
     object_type: CollabType,
     collab_db: Weak<CollabKVDB>,
-    collab_raw_data: CollabDocState,
+    collab_raw_data: DocStateSource,
     persistence_config: CollabPersistenceConfig,
   ) -> Arc<MutexCollab> {
-    block_on(self.collab_builder.build_with_config(
-      uid,
-      object_id,
-      object_type,
-      collab_db,
-      collab_raw_data,
-      persistence_config,
-      CollabBuilderConfig::default().sync_enable(true),
-    ))
-    .unwrap()
+    self
+      .collab_builder
+      .build_with_config(
+        uid,
+        object_id,
+        object_type,
+        collab_db,
+        collab_raw_data,
+        persistence_config,
+        CollabBuilderConfig::default().sync_enable(true),
+      )
+      .unwrap()
   }
 }

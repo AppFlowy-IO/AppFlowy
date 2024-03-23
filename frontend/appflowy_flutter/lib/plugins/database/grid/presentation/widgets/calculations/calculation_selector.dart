@@ -32,7 +32,7 @@ class _CalculationSelectorState extends State<CalculationSelector> {
       onEnter: (_) => _setHovering(true),
       onExit: (_) => _setHovering(false),
       child: AnimatedOpacity(
-        duration: const Duration(milliseconds: 200),
+        duration: const Duration(milliseconds: 100),
         opacity: widget.isSelected || _isHovering ? 1 : 0,
         child: FlowyButton(
           radius: BorderRadius.zero,

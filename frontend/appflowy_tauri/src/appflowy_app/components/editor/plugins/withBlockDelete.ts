@@ -71,8 +71,13 @@ export function withBlockDelete(editor: ReactEditor) {
       });
     }
 
-    // if the current node is not a paragraph, convert it to a paragraph
-    if (node.type !== EditorNodeType.Paragraph && node.type !== EditorNodeType.Page) {
+    // if the current node is not a paragraph, convert it to a paragraph(except code block and callout block)
+    if (
+      ![EditorNodeType.Paragraph, EditorNodeType.CalloutBlock, EditorNodeType.CodeBlock].includes(
+        node.type as EditorNodeType
+      ) &&
+      node.type !== EditorNodeType.Page
+    ) {
       CustomEditor.turnToBlock(editor, { type: EditorNodeType.Paragraph });
       return;
     }
@@ -92,6 +97,34 @@ export function withBlockDelete(editor: ReactEditor) {
       editor.liftNodes({
         at: [...path, i],
       });
+    }
+
+    // if previous node is an embed, merge the current node to another node which is not an embed
+    if (Element.isElement(previousNode) && editor.isEmbed(previousNode)) {
+      const previousTextMatch = editor.previous({
+        at: path,
+        match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.textId !== undefined,
+      });
+
+      if (!previousTextMatch) {
+        deleteBackward(unit);
+        return;
+      }
+
+      const previousTextPath = previousTextMatch[1];
+      const textNode = node.children[0] as Element;
+
+      const at = Editor.end(editor, previousTextPath);
+
+      editor.select(at);
+      editor.insertNodes(textNode.children, {
+        at,
+      });
+
+      editor.removeNodes({
+        at: path,
+      });
+      return;
     }
 
     deleteBackward(unit);

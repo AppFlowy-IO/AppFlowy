@@ -1,19 +1,18 @@
 use std::sync::{Arc, Weak};
 
-use collab_database::database::gen_row_id;
 use collab_database::rows::RowId;
 use lib_infra::box_any::BoxAny;
 use tokio::sync::oneshot;
+use tracing::error;
 
 use flowy_error::{FlowyError, FlowyResult};
 use lib_dispatch::prelude::{af_spawn, data_result_ok, AFPluginData, AFPluginState, DataResult};
-use lib_infra::util::timestamp;
 
 use crate::entities::*;
 use crate::manager::DatabaseManager;
-use crate::services::cell::CellBuilder;
 use crate::services::field::{
-  type_option_data_from_pb, ChecklistCellChangeset, DateCellChangeset, SelectOptionCellChangeset,
+  type_option_data_from_pb, ChecklistCellChangeset, DateCellChangeset, RelationCellChangeset,
+  SelectOptionCellChangeset,
 };
 use crate::services::field_settings::FieldSettingsChangesetParams;
 use crate::services::group::GroupChangeset;
@@ -90,14 +89,28 @@ pub(crate) async fn update_database_setting_handler(
   let params = data.try_into_inner()?;
   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
 
-  if let Some(update_filter) = params.update_filter {
+  if let Some(payload) = params.insert_filter {
     database_editor
-      .create_or_update_filter(update_filter.try_into()?)
+      .modify_view_filters(&params.view_id, payload.try_into()?)
       .await?;
   }
 
-  if let Some(delete_filter) = params.delete_filter {
-    database_editor.delete_filter(delete_filter).await?;
+  if let Some(payload) = params.update_filter_type {
+    database_editor
+      .modify_view_filters(&params.view_id, payload.try_into()?)
+      .await?;
+  }
+
+  if let Some(payload) = params.update_filter_data {
+    database_editor
+      .modify_view_filters(&params.view_id, payload.try_into()?)
+      .await?;
+  }
+
+  if let Some(payload) = params.delete_filter {
+    database_editor
+      .modify_view_filters(&params.view_id, payload.into())
+      .await?;
   }
 
   if let Some(update_sort) = params.update_sort {
@@ -244,6 +257,20 @@ pub(crate) async fn delete_field_handler(
   Ok(())
 }
 
+#[tracing::instrument(level = "trace", skip(data, manager), err)]
+pub(crate) async fn clear_field_handler(
+  data: AFPluginData<ClearFieldPayloadPB>,
+  manager: AFPluginState<Weak<DatabaseManager>>,
+) -> Result<(), FlowyError> {
+  let manager = upgrade_manager(manager)?;
+  let params: FieldIdParams = data.into_inner().try_into()?;
+  let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
+  database_editor
+    .clear_field(&params.view_id, &params.field_id)
+    .await?;
+  Ok(())
+}
+
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub(crate) async fn switch_to_field_handler(
   data: AFPluginData<UpdateFieldTypePayloadPB>,
@@ -281,7 +308,7 @@ pub(crate) async fn duplicate_field_handler(
   manager: AFPluginState<Weak<DatabaseManager>>,
 ) -> Result<(), FlowyError> {
   let manager = upgrade_manager(manager)?;
-  let params: FieldIdParams = data.into_inner().try_into()?;
+  let params: DuplicateFieldPayloadPB = data.into_inner();
   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
   database_editor
     .duplicate_field(&params.view_id, &params.field_id)
@@ -378,7 +405,7 @@ pub(crate) async fn duplicate_row_handler(
   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
   database_editor
     .duplicate_row(&params.view_id, &params.row_id)
-    .await;
+    .await?;
   Ok(())
 }
 
@@ -402,27 +429,12 @@ pub(crate) async fn create_row_handler(
   manager: AFPluginState<Weak<DatabaseManager>>,
 ) -> DataResult<RowMetaPB, FlowyError> {
   let manager = upgrade_manager(manager)?;
-  let params: CreateRowParams = data.into_inner().try_into()?;
+  let params = data.try_into_inner()?;
   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
-  let fields = database_editor.get_fields(&params.view_id, None);
-  let cells =
-    CellBuilder::with_cells(params.cell_data_by_field_id.unwrap_or_default(), &fields).build();
-  let view_id = params.view_id;
-  let group_id = params.group_id;
-  let params = collab_database::rows::CreateRowParams {
-    id: gen_row_id(),
-    cells,
-    height: 60,
-    visibility: true,
-    row_position: params.row_position,
-    timestamp: timestamp(),
-  };
-  match database_editor
-    .create_row(&view_id, group_id, params)
-    .await?
-  {
-    None => Err(FlowyError::internal().with_context("Create row fail")),
+
+  match database_editor.create_row(params).await? {
     Some(row) => data_result_ok(RowMetaPB::from(row)),
+    None => Err(FlowyError::internal().with_context("Error creating row")),
   }
 }
 
@@ -670,7 +682,7 @@ pub(crate) async fn update_group_handler(
   let (tx, rx) = oneshot::channel();
   af_spawn(async move {
     let result = database_editor
-      .update_group(&view_id, vec![group_changeset].into())
+      .update_group(&view_id, vec![group_changeset])
       .await;
     let _ = tx.send(result);
   });
@@ -744,7 +756,22 @@ pub(crate) async fn get_databases_handler(
   manager: AFPluginState<Weak<DatabaseManager>>,
 ) -> DataResult<RepeatedDatabaseDescriptionPB, FlowyError> {
   let manager = upgrade_manager(manager)?;
-  let data = manager.get_all_databases_description().await;
+  let metas = manager.get_all_databases_meta().await;
+
+  let mut items = Vec::with_capacity(metas.len());
+  for meta in metas {
+    match manager.get_database_inline_view_id(&meta.database_id).await {
+      Ok(view_id) => items.push(DatabaseMetaPB {
+        database_id: meta.database_id,
+        inline_view_id: view_id,
+      }),
+      Err(err) => {
+        error!(?err);
+      },
+    }
+  }
+
+  let data = RepeatedDatabaseDescriptionPB { items };
   data_result_ok(data)
 }
 
@@ -977,4 +1004,82 @@ pub(crate) async fn remove_calculation_handler(
   editor.remove_calculation(params).await?;
 
   Ok(())
+}
+
+pub(crate) async fn get_related_database_ids_handler(
+  _data: AFPluginData<DatabaseViewIdPB>,
+  _manager: AFPluginState<Weak<DatabaseManager>>,
+) -> FlowyResult<()> {
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn update_relation_cell_handler(
+  data: AFPluginData<RelationCellChangesetPB>,
+  manager: AFPluginState<Weak<DatabaseManager>>,
+) -> FlowyResult<()> {
+  let manager = upgrade_manager(manager)?;
+  let params: RelationCellChangesetPB = data.into_inner();
+  let view_id = parser::NotEmptyStr::parse(params.view_id)
+    .map_err(|_| flowy_error::ErrorCode::DatabaseViewIdIsEmpty)?
+    .0;
+  let cell_id: CellIdParams = params.cell_id.try_into()?;
+  let params = RelationCellChangeset {
+    inserted_row_ids: params
+      .inserted_row_ids
+      .into_iter()
+      .map(Into::into)
+      .collect(),
+    removed_row_ids: params.removed_row_ids.into_iter().map(Into::into).collect(),
+  };
+
+  let database_editor = manager.get_database_with_view_id(&view_id).await?;
+
+  // // get the related database
+  // let related_database_id = database_editor
+  //   .get_related_database_id(&cell_id.field_id)
+  //   .await?;
+  // let related_database_editor = manager.get_database(&related_database_id).await?;
+
+  // // validate the changeset contents
+  // related_database_editor
+  //   .validate_row_ids_exist(&params)
+  //   .await?;
+
+  // update the cell in the database
+  database_editor
+    .update_cell_with_changeset(
+      &view_id,
+      cell_id.row_id,
+      &cell_id.field_id,
+      BoxAny::new(params),
+    )
+    .await?;
+  Ok(())
+}
+
+pub(crate) async fn get_related_row_datas_handler(
+  data: AFPluginData<RepeatedRowIdPB>,
+  manager: AFPluginState<Weak<DatabaseManager>>,
+) -> DataResult<RepeatedRelatedRowDataPB, FlowyError> {
+  let manager = upgrade_manager(manager)?;
+  let params: RepeatedRowIdPB = data.into_inner();
+  let database_editor = manager.get_database(&params.database_id).await?;
+  let row_datas = database_editor
+    .get_related_rows(Some(&params.row_ids))
+    .await?;
+
+  data_result_ok(RepeatedRelatedRowDataPB { rows: row_datas })
+}
+
+pub(crate) async fn get_related_database_rows_handler(
+  data: AFPluginData<DatabaseIdPB>,
+  manager: AFPluginState<Weak<DatabaseManager>>,
+) -> DataResult<RepeatedRelatedRowDataPB, FlowyError> {
+  let manager = upgrade_manager(manager)?;
+  let database_id = data.into_inner().value;
+  let database_editor = manager.get_database(&database_id).await?;
+  let row_datas = database_editor.get_related_rows(None).await?;
+
+  data_result_ok(RepeatedRelatedRowDataPB { rows: row_datas })
 }

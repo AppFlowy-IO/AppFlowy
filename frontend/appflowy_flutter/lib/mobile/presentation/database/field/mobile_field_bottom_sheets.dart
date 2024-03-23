@@ -29,48 +29,31 @@ const mobileSupportedFieldTypes = [
   FieldType.Checklist,
 ];
 
-/// Shows the field type grid and upon selection, allow users to edit the
-/// field's properties and saving it when the user clicks save.
-void showCreateFieldBottomSheet(
-  BuildContext context,
-  String viewId, {
-  OrderObjectPositionPB? position,
+Future<FieldType?> showFieldTypeGridBottomSheet(
+  BuildContext context, {
+  required String title,
 }) {
-  showMobileBottomSheet(
+  return showMobileBottomSheet<FieldType>(
     context,
     showHeader: true,
     showDragHandle: true,
     showCloseButton: true,
     elevation: 20,
-    title: LocaleKeys.grid_field_newProperty.tr(),
-    backgroundColor: Theme.of(context).colorScheme.surface,
+    title: title,
+    backgroundColor: Theme.of(context).colorScheme.background,
     enableDraggableScrollable: true,
     builder: (context) {
       final typeOptionMenuItemValue = mobileSupportedFieldTypes
           .map(
             (fieldType) => TypeOptionMenuItemValue(
               value: fieldType,
-              backgroundColor: fieldType.mobileIconBackgroundColor,
+              backgroundColor: Theme.of(context).brightness == Brightness.light
+                  ? fieldType.mobileIconBackgroundColor
+                  : fieldType.mobileIconBackgroundColorDark,
               text: fieldType.i18n,
               icon: fieldType.svgData,
-              onTap: (_, fieldType) async {
-                final optionValues = await context.push<FieldOptionValues>(
-                  Uri(
-                    path: MobileNewPropertyScreen.routeName,
-                    queryParameters: {
-                      MobileNewPropertyScreen.argViewId: viewId,
-                      MobileNewPropertyScreen.argFieldTypeId:
-                          fieldType.value.toString(),
-                    },
-                  ).toString(),
-                );
-                if (optionValues != null) {
-                  await optionValues.create(viewId: viewId, position: position);
-                  if (context.mounted) {
-                    context.pop();
-                  }
-                }
-              },
+              onTap: (context, fieldType) =>
+                  Navigator.of(context).pop(fieldType),
             ),
           )
           .toList();
@@ -83,6 +66,34 @@ void showCreateFieldBottomSheet(
       );
     },
   );
+}
+
+/// Shows the field type grid and upon selection, allow users to edit the
+/// field's properties and saving it when the user clicks save.
+void mobileCreateFieldWorkflow(
+  BuildContext context,
+  String viewId, {
+  OrderObjectPositionPB? position,
+}) async {
+  final fieldType = await showFieldTypeGridBottomSheet(
+    context,
+    title: LocaleKeys.grid_field_newProperty.tr(),
+  );
+  if (fieldType == null || !context.mounted) {
+    return;
+  }
+  final optionValues = await context.push<FieldOptionValues>(
+    Uri(
+      path: MobileNewPropertyScreen.routeName,
+      queryParameters: {
+        MobileNewPropertyScreen.argViewId: viewId,
+        MobileNewPropertyScreen.argFieldTypeId: fieldType.value.toString(),
+      },
+    ).toString(),
+  );
+  if (optionValues != null) {
+    await optionValues.create(viewId: viewId, position: position);
+  }
 }
 
 /// Used to edit a field.
@@ -104,16 +115,17 @@ Future<FieldOptionValues?> showEditFieldScreen(
 void showQuickEditField(
   BuildContext context,
   String viewId,
+  FieldController fieldController,
   FieldInfo fieldInfo,
 ) {
   showMobileBottomSheet(
     context,
-    backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
     showDragHandle: true,
     builder: (context) {
       return SingleChildScrollView(
         child: QuickEditField(
           viewId: viewId,
+          fieldController: fieldController,
           fieldInfo: fieldInfo,
         ),
       );

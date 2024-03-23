@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:appflowy/plugins/database/application/filter/filter_listener.dart';
-import 'package:appflowy/plugins/database/application/filter/filter_service.dart';
+import 'package:appflowy/plugins/database/domain/filter_listener.dart';
+import 'package:appflowy/plugins/database/domain/filter_service.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/filter_info.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/checkbox_filter.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/util.pb.dart';
@@ -44,7 +44,6 @@ class CheckboxFilterEditorBloc
             _filterBackendSvc.deleteFilter(
               fieldId: filterInfo.fieldInfo.id,
               filterId: filterInfo.filter.id,
-              fieldType: filterInfo.fieldInfo.fieldType,
             );
           },
           didReceiveFilter: (FilterPB filter) {
@@ -64,11 +63,10 @@ class CheckboxFilterEditorBloc
 
   void _startListening() {
     _listener.start(
-      onDeleted: () {
-        if (!isClosed) add(const CheckboxFilterEditorEvent.delete());
-      },
       onUpdated: (filter) {
-        if (!isClosed) add(CheckboxFilterEditorEvent.didReceiveFilter(filter));
+        if (!isClosed) {
+          add(CheckboxFilterEditorEvent.didReceiveFilter(filter));
+        }
       },
     );
   }

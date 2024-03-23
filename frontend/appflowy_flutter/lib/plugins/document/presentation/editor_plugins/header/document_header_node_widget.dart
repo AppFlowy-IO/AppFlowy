@@ -7,13 +7,13 @@ import 'package:appflowy/plugins/base/emoji/emoji_picker_screen.dart';
 import 'package:appflowy/plugins/base/icon/icon_picker.dart';
 import 'package:appflowy/plugins/document/application/doc_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/image_util.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/upload_image_menu.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/shared/appflowy_network_image.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide UploadImageMenu;
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -177,6 +177,7 @@ class _DocumentHeaderNodeWidgetState extends State<DocumentHeaderNodeWidget> {
       DocumentHeaderBlockKeys.coverDetails: coverDetails,
       DocumentHeaderBlockKeys.icon:
           widget.node.attributes[DocumentHeaderBlockKeys.icon],
+      CustomImageBlockKeys.imageType: '1',
     };
     if (cover != null) {
       attributes[DocumentHeaderBlockKeys.coverType] = cover.$1.toString();
@@ -629,9 +630,7 @@ class DocumentCoverState extends State<DocumentCover> {
   }
 
   bool _isLocalMode() {
-    final userProfilePB = context.read<DocumentBloc>().state.userProfilePB;
-    final type = userProfilePB?.authenticator ?? AuthenticatorPB.Local;
-    return type == AuthenticatorPB.Local;
+    return context.read<DocumentBloc>().isLocalMode;
   }
 }
 

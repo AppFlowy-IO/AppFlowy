@@ -40,7 +40,7 @@ class MobileRowDetailCreateFieldButton extends StatelessWidget {
           LocaleKeys.grid_field_newProperty.tr(),
           fontSize: 15,
         ),
-        onPressed: () => showCreateFieldBottomSheet(context, viewId),
+        onPressed: () => mobileCreateFieldWorkflow(context, viewId),
         icon: const FlowySvg(FlowySvgs.add_m),
       ),
     );

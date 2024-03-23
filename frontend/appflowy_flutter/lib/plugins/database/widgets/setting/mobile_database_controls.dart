@@ -6,7 +6,6 @@ import 'package:appflowy/mobile/presentation/database/view/database_sort_bottom_
 import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/grid/application/filter/filter_menu_bloc.dart';
 import 'package:appflowy/plugins/database/grid/application/sort/sort_editor_bloc.dart';
-import 'package:appflowy/plugins/database/grid/application/sort/sort_menu_bloc.dart';
 import 'package:appflowy/plugins/database/grid/presentation/grid_page.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -28,30 +27,22 @@ class MobileDatabaseControls extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider<GridFilterMenuBloc>(
-          create: (context) => GridFilterMenuBloc(
+        BlocProvider<DatabaseFilterMenuBloc>(
+          create: (context) => DatabaseFilterMenuBloc(
             viewId: controller.viewId,
             fieldController: controller.fieldController,
-          )..add(const GridFilterMenuEvent.initial()),
+          )..add(const DatabaseFilterMenuEvent.initial()),
         ),
-        BlocProvider<SortMenuBloc>(
-          create: (context) => SortMenuBloc(
+        BlocProvider<SortEditorBloc>(
+          create: (context) => SortEditorBloc(
             viewId: controller.viewId,
             fieldController: controller.fieldController,
-          )..add(const SortMenuEvent.initial()),
+          ),
         ),
       ],
-      child: MultiBlocListener(
-        listeners: [
-          BlocListener<GridFilterMenuBloc, GridFilterMenuState>(
-            listenWhen: (p, c) => p.isVisible != c.isVisible,
-            listener: (context, state) => toggleExtension.toggle(),
-          ),
-          BlocListener<SortMenuBloc, SortMenuState>(
-            listenWhen: (p, c) => p.isVisible != c.isVisible,
-            listener: (context, state) => toggleExtension.toggle(),
-          ),
-        ],
+      child: BlocListener<DatabaseFilterMenuBloc, DatabaseFilterMenuState>(
+        listenWhen: (p, c) => p.isVisible != c.isVisible,
+        listener: (context, state) => toggleExtension.toggle(),
         child: ValueListenableBuilder<bool>(
           valueListenable: controller.isLoading,
           builder: (context, isLoading, child) {
@@ -64,7 +55,7 @@ class MobileDatabaseControls extends StatelessWidget {
               children: [
                 _DatabaseControlButton(
                   icon: FlowySvgs.sort_ascending_s,
-                  count: context.watch<SortMenuBloc>().state.sortInfos.length,
+                  count: context.watch<SortEditorBloc>().state.sortInfos.length,
                   onTap: () => _showEditSortPanelFromToolbar(
                     context,
                     controller,
@@ -156,17 +147,13 @@ void _showEditSortPanelFromToolbar(
 ) {
   showMobileBottomSheet(
     context,
-    backgroundColor: Theme.of(context).colorScheme.surface,
     showDragHandle: true,
     showDivider: false,
     useSafeArea: false,
+    backgroundColor: Theme.of(context).colorScheme.background,
     builder: (_) {
-      return BlocProvider(
-        create: (_) => SortEditorBloc(
-          viewId: databaseController.viewId,
-          fieldController: databaseController.fieldController,
-          sortInfos: databaseController.fieldController.sortInfos,
-        )..add(const SortEditorEvent.initial()),
+      return BlocProvider.value(
+        value: context.read<SortEditorBloc>(),
         child: const MobileSortEditor(),
       );
     },

@@ -2,7 +2,7 @@ use anyhow::Error;
 use client_api::entity::QueryCollabResult::{Failed, Success};
 use client_api::entity::{QueryCollab, QueryCollabParams};
 use client_api::error::ErrorCode::RecordNotFound;
-use collab::core::collab::CollabDocState;
+use collab::core::collab::DocStateSource;
 use collab::core::collab_plugin::EncodedCollab;
 use collab_entity::CollabType;
 use tracing::error;
@@ -23,7 +23,7 @@ where
     object_id: &str,
     collab_type: CollabType,
     workspace_id: &str,
-  ) -> FutureResult<CollabDocState, Error> {
+  ) -> FutureResult<Vec<u8>, Error> {
     let workspace_id = workspace_id.to_string();
     let object_id = object_id.to_string();
     let try_get_client = self.0.try_get_client();
@@ -73,7 +73,10 @@ where
           .flat_map(|(object_id, result)| match result {
             Success { encode_collab_v1 } => {
               match EncodedCollab::decode_from_bytes(&encode_collab_v1) {
-                Ok(encode) => Some((object_id, encode.doc_state.to_vec())),
+                Ok(encode) => Some((
+                  object_id,
+                  DocStateSource::FromDocState(encode.doc_state.to_vec()),
+                )),
                 Err(err) => {
                   error!("Failed to decode collab: {}", err);
                   None

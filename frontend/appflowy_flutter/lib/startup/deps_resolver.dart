@@ -6,6 +6,8 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_p
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/openai_client.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/stability_ai/stability_ai_client.dart';
 import 'package:appflowy/plugins/trash/application/prelude.dart';
+import 'package:appflowy/shared/appflowy_cache_manager.dart';
+import 'package:appflowy/shared/custom_image_cache_manager.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/startup/tasks/appflowy_cloud_task.dart';
 import 'package:appflowy/user/application/auth/af_cloud_auth_service.dart';
@@ -90,14 +92,14 @@ void _resolveCommonService(
     () async {
       final result = await UserBackendService.getCurrentUserProfile();
       return result.fold(
-        (l) {
-          throw Exception('Failed to get user profile: ${l.msg}');
-        },
-        (r) {
+        (s) {
           return HttpOpenAIRepository(
             client: http.Client(),
-            apiKey: r.openaiKey,
+            apiKey: s.openaiKey,
           );
+        },
+        (e) {
+          throw Exception('Failed to get user profile: ${e.msg}');
         },
       );
     },
@@ -107,14 +109,14 @@ void _resolveCommonService(
     () async {
       final result = await UserBackendService.getCurrentUserProfile();
       return result.fold(
-        (l) {
-          throw Exception('Failed to get user profile: ${l.msg}');
-        },
-        (r) {
+        (s) {
           return HttpStabilityAIRepository(
             client: http.Client(),
-            apiKey: r.stabilityAiKey,
+            apiKey: s.stabilityAiKey,
           );
+        },
+        (e) {
+          throw Exception('Failed to get user profile: ${e.msg}');
         },
       );
     },
@@ -127,6 +129,13 @@ void _resolveCommonService(
   // theme
   getIt.registerFactory<BaseAppearance>(
     () => PlatformExtension.isMobile ? MobileAppearance() : DesktopAppearance(),
+  );
+
+  getIt.registerFactory<FlowyCacheManager>(
+    () => FlowyCacheManager()
+      ..registerCache(TemporaryDirectoryCache())
+      ..registerCache(CustomImageCacheManager())
+      ..registerCache(FeatureFlagCache()),
   );
 }
 

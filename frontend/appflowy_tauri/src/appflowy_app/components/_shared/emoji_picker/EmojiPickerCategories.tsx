@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import {
   EMOJI_SIZE,
   EmojiCategory,
@@ -14,10 +14,12 @@ function EmojiPickerCategories({
   emojiCategories,
   onEmojiSelect,
   onEscape,
+  defaultEmoji,
 }: {
   emojiCategories: EmojiCategory[];
   onEmojiSelect: (emoji: string) => void;
   onEscape?: () => void;
+  defaultEmoji?: string;
 }) {
   const scrollRef = React.useRef<HTMLDivElement>(null);
   const { t } = useTranslation();
@@ -28,6 +30,8 @@ function EmojiPickerCategories({
   const rows = useMemo(() => {
     return getRowsWithCategories(emojiCategories, PER_ROW_EMOJI_COUNT);
   }, [emojiCategories]);
+  const mouseY = useRef<number | null>(null);
+  const mouseX = useRef<number | null>(null);
 
   const ref = React.useRef<HTMLDivElement>(null);
 
@@ -75,6 +79,8 @@ function EmojiPickerCategories({
             {item.emojis?.map((emoji, columnIndex) => {
               const isSelected = selectCell.row === index && selectCell.column === columnIndex;
 
+              const isDefaultEmoji = defaultEmoji === emoji.native;
+
               return (
                 <div
                   key={emoji.id}
@@ -86,9 +92,24 @@ function EmojiPickerCategories({
                   onClick={() => {
                     onEmojiSelect(emoji.native);
                   }}
-                  className={`flex cursor-pointer items-center justify-center rounded hover:bg-fill-list-active ${
-                    isSelected ? 'bg-fill-list-hover' : ''
-                  }`}
+                  onMouseMove={(e) => {
+                    mouseY.current = e.clientY;
+                    mouseX.current = e.clientX;
+                  }}
+                  onMouseEnter={(e) => {
+                    if (mouseY.current === null || mouseY.current !== e.clientY || mouseX.current !== e.clientX) {
+                      setSelectCell({
+                        row: index,
+                        column: columnIndex,
+                      });
+                    }
+
+                    mouseX.current = e.clientX;
+                    mouseY.current = e.clientY;
+                  }}
+                  className={`flex cursor-pointer items-center justify-center rounded hover:bg-fill-list-hover ${
+                    isSelected ? 'bg-fill-list-hover' : 'hover:bg-transparent'
+                  } ${isDefaultEmoji ? 'bg-fill-list-active' : ''}`}
                 >
                   {emoji.native}
                 </div>
@@ -98,7 +119,7 @@ function EmojiPickerCategories({
         </div>
       );
     },
-    [getCategoryName, onEmojiSelect, rows, selectCell.column, selectCell.row]
+    [defaultEmoji, getCategoryName, onEmojiSelect, rows, selectCell.column, selectCell.row]
   );
 
   const getNewColumnIndex = useCallback(

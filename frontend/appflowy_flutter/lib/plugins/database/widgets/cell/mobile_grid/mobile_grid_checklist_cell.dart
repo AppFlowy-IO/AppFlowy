@@ -39,7 +39,6 @@ class MobileGridChecklistCellSkin extends IEditableChecklistCellSkin {
       ),
       onTap: () => showMobileBottomSheet(
         context,
-        backgroundColor: Theme.of(context).colorScheme.background,
         builder: (context) {
           return BlocProvider.value(
             value: bloc,

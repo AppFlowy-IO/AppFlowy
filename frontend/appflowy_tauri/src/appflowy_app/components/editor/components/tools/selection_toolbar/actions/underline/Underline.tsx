@@ -5,13 +5,13 @@ import { useSlateStatic } from 'slate-react';
 import { CustomEditor } from '$app/components/editor/command';
 import { ReactComponent as UnderlineSvg } from '$app/assets/underline.svg';
 import { EditorMarkFormat } from '$app/application/document/document.types';
-import { getHotKey } from '$app/components/editor/plugins/shortcuts';
+import { createHotKeyLabel, HOT_KEY_NAME } from '$app/utils/hotkeys';
 
 export function Underline() {
   const { t } = useTranslation();
   const editor = useSlateStatic();
   const isActivated = CustomEditor.isMarkActive(editor, EditorMarkFormat.Underline);
-  const modifier = useMemo(() => getHotKey(EditorMarkFormat.Underline).modifier, []);
+  const modifier = useMemo(() => createHotKeyLabel(HOT_KEY_NAME.UNDERLINE), []);
 
   const onClick = useCallback(() => {
     CustomEditor.toggleMark(editor, {

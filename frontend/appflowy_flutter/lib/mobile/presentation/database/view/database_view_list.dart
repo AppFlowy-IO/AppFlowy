@@ -44,8 +44,10 @@ class MobileDatabaseViewList extends StatelessWidget {
               useFilledDoneButton: false,
               onDone: (context) => Navigator.pop(context),
             ),
-            SingleChildScrollView(
-              child: Column(
+            Expanded(
+              child: ListView(
+                shrinkWrap: true,
+                padding: EdgeInsets.zero,
                 children: [
                   ...views.mapIndexed(
                     (index, view) => MobileDatabaseViewListButton(
@@ -55,6 +57,9 @@ class MobileDatabaseViewList extends StatelessWidget {
                   ),
                   const VSpace(20),
                   const MobileNewDatabaseViewButton(),
+                  VSpace(
+                    context.bottomSheetPadding(ignoreViewPadding: false),
+                  ),
                 ],
               ),
             ),
@@ -178,6 +183,7 @@ class MobileDatabaseViewListButton extends StatelessWidget {
         showMobileBottomSheet(
           context,
           showDragHandle: true,
+          backgroundColor: Theme.of(context).colorScheme.background,
           builder: (_) {
             return BlocProvider<ViewBloc>(
               create: (_) =>

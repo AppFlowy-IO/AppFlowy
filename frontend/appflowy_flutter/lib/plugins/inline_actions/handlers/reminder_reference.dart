@@ -6,6 +6,7 @@ import 'package:appflowy/plugins/document/application/doc_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/string_extension.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_result.dart';
+import 'package:appflowy/plugins/inline_actions/service_handler.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/user/application/reminder/reminder_extension.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/reminder_selector.dart';
@@ -21,7 +22,7 @@ final _keywords = [
   LocaleKeys.inlineActions_reminder_shortKeyword.tr().toLowerCase(),
 ];
 
-class ReminderReferenceService {
+class ReminderReferenceService extends InlineActionsDelegate {
   ReminderReferenceService(this.context) {
     // Initialize locale
     _locale = context.locale.toLanguageTag();
@@ -37,7 +38,8 @@ class ReminderReferenceService {
 
   List<InlineActionsMenuItem> options = [];
 
-  Future<InlineActionsResult> reminderReferenceDelegate([
+  @override
+  Future<InlineActionsResult> search([
     String? search,
   ]) async {
     // Checks if Locale has changed since last
@@ -111,13 +113,13 @@ class ReminderReferenceService {
     final result = await DateService.queryDate(search);
 
     result.fold(
-      (l) {},
       (date) {
         // Only insert dates in the future
         if (DateTime.now().isBefore(date)) {
           options.insert(0, _itemFromDate(date));
         }
       },
+      (_) {},
     );
   }
 

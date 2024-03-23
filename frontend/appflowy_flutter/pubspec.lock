@@ -53,17 +53,17 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "1715ed4"
-      resolved-ref: "1715ed45490e0a432fa1bbfcb2f1693471632ff7"
+      ref: a571f2b
+      resolved-ref: a571f2bc9df764d90569951f40364c8c59787f30
       url: "https://github.com/AppFlowy-IO/appflowy-editor.git"
     source: git
-    version: "2.3.2"
+    version: "2.3.3"
   appflowy_editor_plugins:
     dependency: "direct main"
     description:
       path: "."
-      ref: "0223cca"
-      resolved-ref: "0223ccabe74b86092d3f3849b69026c89df3b236"
+      ref: "8f238f2"
+      resolved-ref: "8f238f214de72e629fe2d90317518c5a0510cdc5"
       url: "https://github.com/LucasXu0/appflowy_editor_plugins"
     source: git
     version: "0.0.1"
@@ -71,6 +71,13 @@ packages:
     dependency: "direct main"
     description:
       path: "packages/appflowy_popover"
+      relative: true
+    source: path
+    version: "0.0.1"
+  appflowy_result:
+    dependency: "direct main"
+    description:
+      path: "packages/appflowy_result"
       relative: true
     source: path
     version: "0.0.1"
@@ -339,14 +346,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.3.4"
-  dartz:
-    dependency: "direct main"
-    description:
-      name: dartz
-      sha256: e6acf34ad2e31b1eb00948692468c30ab48ac8250e0f0df661e29f12dd252168
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.10.1"
   dbus:
     dependency: transitive
     description:
@@ -1102,10 +1101,10 @@ packages:
     dependency: transitive
     description:
       name: markdown
-      sha256: "1b134d9f8ff2da15cb298efe6cd8b7d2a78958c1b00384ebcbdf13fe340a6c90"
+      sha256: ef2a1298144e3f985cc736b22e0ccdaf188b5b3970648f2d9dc13efd1d9df051
       url: "https://pub.dev"
     source: hosted
-    version: "7.2.1"
+    version: "7.2.2"
   matcher:
     dependency: transitive
     description:
@@ -1606,11 +1605,11 @@ packages:
     dependency: "direct main"
     description:
       path: sheet
-      ref: "8ee20bd"
-      resolved-ref: "8ee20bd36acaeb36996a09ba9d0f9e7059bb49df"
-      url: "https://github.com/richardshiue/modal_bottom_sheet"
+      ref: e44458d
+      resolved-ref: e44458d2359565324e117bb3d41da04f5e60362e
+      url: "https://github.com/jamesblasco/modal_bottom_sheet"
     source: git
-    version: "1.0.0-pre"
+    version: "1.0.0"
   shelf:
     dependency: transitive
     description:
@@ -2187,5 +2186,5 @@ packages:
     source: hosted
     version: "2.0.0"
 sdks:
-  dart: ">=3.3.0-279.1.beta <4.0.0"
+  dart: ">=3.3.0 <4.0.0"
   flutter: ">=3.19.0"

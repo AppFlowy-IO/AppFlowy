@@ -1,13 +1,15 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/grid/application/row/row_document_bloc.dart';
 import 'package:appflowy/plugins/document/application/doc_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_page.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
+import 'package:appflowy/workspace/application/view_info/view_info_bloc.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class RowDocument extends StatelessWidget {
@@ -107,22 +109,25 @@ class _RowEditorState extends State<RowEditor> {
                 howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),
               );
             }
+
             return IntrinsicHeight(
               child: Container(
                 constraints: const BoxConstraints(minHeight: 300),
-                child: AppFlowyEditorPage(
-                  shrinkWrap: true,
-                  autoFocus: false,
-                  editorState: editorState,
-                  // scrollController: widget.scrollController,
-                  styleCustomizer: EditorStyleCustomizer(
-                    context: context,
-                    padding: const EdgeInsets.only(left: 16, right: 54),
+                child: BlocProvider<ViewInfoBloc>(
+                  create: (context) => ViewInfoBloc(view: widget.viewPB),
+                  child: AppFlowyEditorPage(
+                    shrinkWrap: true,
+                    autoFocus: false,
+                    editorState: editorState,
+                    styleCustomizer: EditorStyleCustomizer(
+                      context: context,
+                      padding: const EdgeInsets.only(left: 16, right: 54),
+                    ),
+                    showParagraphPlaceholder: (editorState, node) =>
+                        editorState.document.isEmpty,
+                    placeholderText: (node) =>
+                        LocaleKeys.cardDetails_notesPlaceholder.tr(),
                   ),
-                  showParagraphPlaceholder: (editorState, node) =>
-                      editorState.document.isEmpty,
-                  placeholderText: (node) =>
-                      LocaleKeys.cardDetails_notesPlaceholder.tr(),
                 ),
               ),
             );

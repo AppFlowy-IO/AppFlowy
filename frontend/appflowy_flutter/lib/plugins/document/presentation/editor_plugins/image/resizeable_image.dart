@@ -59,9 +59,7 @@ class _ResizableImageState extends State<ResizableImage> {
 
     imageWidth = widget.width;
 
-    if (widget.type == CustomImageType.internal) {
-      _userProfilePB = context.read<DocumentBloc>().state.userProfilePB;
-    }
+    _userProfilePB = context.read<DocumentBloc>().state.userProfilePB;
   }
 
   @override
@@ -93,9 +91,9 @@ class _ResizableImageState extends State<ResizableImage> {
         return _buildLoading(context);
       }
 
-      _cacheImage ??= FlowyNetworkImage(
+      _cacheImage = FlowyNetworkImage(
         url: widget.src,
-        width: widget.width,
+        width: imageWidth - moveDistance,
         userProfilePB: _userProfilePB,
         errorWidgetBuilder: (context, url, error) =>
             _buildError(context, error),

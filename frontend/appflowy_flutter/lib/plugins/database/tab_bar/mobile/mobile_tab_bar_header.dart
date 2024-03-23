@@ -1,16 +1,17 @@
+import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/show_transition_bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/database/view/database_view_list.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
 import 'package:appflowy/plugins/database/application/tab_bar_bloc.dart';
-import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database/widgets/setting/mobile_database_controls.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:collection/collection.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../grid/presentation/grid_page.dart';
@@ -26,11 +27,14 @@ class _MobileTabBarHeaderState extends State<MobileTabBarHeader> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 14),
+      padding: EdgeInsets.only(
+        left: GridSize.horizontalHeaderPadding,
+        top: 14.0,
+        right: GridSize.horizontalHeaderPadding - 5.0,
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          HSpace(GridSize.leadingHeaderPadding),
           const _DatabaseViewSelectorButton(),
           const Spacer(),
           BlocBuilder<DatabaseTabBarBloc, DatabaseTabBarState>(
@@ -83,7 +87,11 @@ class _DatabaseViewSelectorButton extends StatelessWidget {
                 borderRadius: BorderRadius.all(Radius.circular(12)),
               ),
             ),
-            backgroundColor: const MaterialStatePropertyAll(Color(0x0F212729)),
+            backgroundColor: MaterialStatePropertyAll(
+              Theme.of(context).brightness == Brightness.light
+                  ? const Color(0x0F212729)
+                  : const Color(0x0FFFFFFF),
+            ),
             overlayColor: MaterialStatePropertyAll(
               Theme.of(context).colorScheme.secondary,
             ),

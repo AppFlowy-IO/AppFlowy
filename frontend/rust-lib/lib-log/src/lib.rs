@@ -7,7 +7,7 @@ use tracing_appender::rolling::Rotation;
 use tracing_appender::{non_blocking::WorkerGuard, rolling::RollingFileAppender};
 use tracing_bunyan_formatter::JsonStorageLayer;
 use tracing_subscriber::fmt::format::Writer;
-use tracing_subscriber::{fmt, layer::SubscriberExt, EnvFilter};
+use tracing_subscriber::{layer::SubscriberExt, EnvFilter};
 
 use crate::layer::FlowyFormattingLayer;
 
@@ -48,22 +48,20 @@ impl Builder {
   pub fn build(self) -> Result<(), String> {
     let env_filter = EnvFilter::new(self.env_filter);
 
-    let std_out_layer = fmt::layer().with_writer(std::io::stdout).pretty();
+    // let std_out_layer = std::fmt::layer().with_writer(std::io::stdout).pretty();
     let (non_blocking, guard) = tracing_appender::non_blocking(self.file_appender);
     let file_layer = FlowyFormattingLayer::new(non_blocking);
 
     let subscriber = tracing_subscriber::fmt()
       .with_timer(CustomTime)
       .with_ansi(true)
-      .with_target(false)
       .with_max_level(tracing::Level::TRACE)
       .with_thread_ids(false)
       .pretty()
       .with_env_filter(env_filter)
       .finish()
       .with(JsonStorageLayer)
-      .with(file_layer)
-      .with(std_out_layer);
+      .with(file_layer);
 
     set_global_default(subscriber).map_err(|e| format!("{:?}", e))?;
 

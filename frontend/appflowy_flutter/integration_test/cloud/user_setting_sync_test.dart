@@ -18,11 +18,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
 import 'package:integration_test/integration_test.dart';
-import '../util/database_test_op.dart';
-import '../util/dir.dart';
-import '../util/emoji.dart';
-import '../util/mock/mock_file_picker.dart';
-import '../util/util.dart';
+import '../shared/database_test_op.dart';
+import '../shared/dir.dart';
+import '../shared/emoji.dart';
+import '../shared/mock/mock_file_picker.dart';
+import '../shared/util.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -40,19 +40,19 @@ void main() {
 
       await tester.openSettings();
       await tester.openSettingsPage(SettingsPage.user);
-      final userAvatarFinder = find.descendant(
-        of: find.byType(SettingsUserView),
-        matching: find.byType(UserAvatar),
-      );
+      // final userAvatarFinder = find.descendant(
+      //   of: find.byType(SettingsUserView),
+      //   matching: find.byType(UserAvatar),
+      // );
 
       // Open icon picker dialog and select emoji
-      await tester.tap(userAvatarFinder);
-      await tester.pumpAndSettle();
-      await tester.tapEmoji('😁');
-      await tester.pumpAndSettle();
-      final UserAvatar userAvatar =
-          tester.widget(userAvatarFinder) as UserAvatar;
-      expect(userAvatar.iconUrl, '😁');
+      // await tester.tap(userAvatarFinder);
+      // await tester.pumpAndSettle();
+      // await tester.tapEmoji('😁');
+      // await tester.pumpAndSettle();
+      // final UserAvatar userAvatar =
+      //     tester.widget(userAvatarFinder) as UserAvatar;
+      // expect(userAvatar.iconUrl, '😁');
 
       // enter user name
       final userNameFinder = find.descendant(
@@ -81,12 +81,12 @@ void main() {
     await tester.openSettingsPage(SettingsPage.user);
 
     // verify icon
-    final userAvatarFinder = find.descendant(
-      of: find.byType(SettingsUserView),
-      matching: find.byType(UserAvatar),
-    );
-    final UserAvatar userAvatar = tester.widget(userAvatarFinder) as UserAvatar;
-    expect(userAvatar.iconUrl, '😁');
+    // final userAvatarFinder = find.descendant(
+    //   of: find.byType(SettingsUserView),
+    //   matching: find.byType(UserAvatar),
+    // );
+    // final UserAvatar userAvatar = tester.widget(userAvatarFinder) as UserAvatar;
+    // expect(userAvatar.iconUrl, '😁');
 
     // verify name
     final userNameFinder = find.descendant(

@@ -69,12 +69,12 @@
     "copyLink": "Bağlantıyı kopyala"
   },
   "moreAction": {
-    "fontSize": "Yazı boyutu",
-    "import": "İçe aktar",
-    "moreOptions": "Diğer seçenekler",
     "small": "Küçük",
     "medium": "Orta",
-    "large": "Büyük"
+    "large": "Büyük",
+    "fontSize": "Yazı boyutu",
+    "import": "İçe aktar",
+    "moreOptions": "Diğer seçenekler"
   },
   "importPanel": {
     "textAndMarkdown": "Metin ve Markdown",
@@ -454,13 +454,9 @@
       "isComplete": "Tamamlanmış",
       "isIncomplted": "Tamamlanmamış"
     },
-    "singleSelectOptionFilter": {
+    "selectOptionFilter": {
       "is": "Şu olan",
       "isNot": "Şu olmayan",
-      "isEmpty": "Boş olan",
-      "isNotEmpty": "Boş olmayan"
-    },
-    "multiSelectOptionFilter": {
       "contains": "Şunu içeren",
       "doesNotContain": "Şunu içermeyen",
       "isEmpty": "Boş olan",

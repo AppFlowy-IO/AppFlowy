@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::str::FromStr;
 
 use collab_database::fields::Field;
 use collab_database::rows::{get_field_type_from_cell, Cell, Cells};
@@ -74,7 +75,7 @@ pub fn apply_cell_changeset(
   cell_data_cache: Option<CellCache>,
 ) -> Result<Cell, FlowyError> {
   let field_type = FieldType::from(field.field_type);
-  match TypeOptionCellExt::new_with_cell_data_cache(field, cell_data_cache)
+  match TypeOptionCellExt::new(field, cell_data_cache)
     .get_type_option_cell_data_handler(&field_type)
   {
     None => Ok(Cell::default()),
@@ -94,13 +95,8 @@ pub fn get_cell_protobuf(
 
   let from_field_type = from_field_type.unwrap();
   let to_field_type = FieldType::from(field.field_type);
-  match try_decode_cell_str_to_cell_protobuf(
-    cell,
-    &from_field_type,
-    &to_field_type,
-    field,
-    cell_cache,
-  ) {
+  match try_decode_cell_to_cell_protobuf(cell, &from_field_type, &to_field_type, field, cell_cache)
+  {
     Ok(cell_bytes) => cell_bytes,
     Err(e) => {
       tracing::error!("Decode cell data failed, {:?}", e);
@@ -125,18 +121,18 @@ pub fn get_cell_protobuf(
 ///
 /// returns: CellBytes
 ///
-pub fn try_decode_cell_str_to_cell_protobuf(
+pub fn try_decode_cell_to_cell_protobuf(
   cell: &Cell,
   from_field_type: &FieldType,
   to_field_type: &FieldType,
   field: &Field,
   cell_data_cache: Option<CellCache>,
 ) -> FlowyResult<CellProtobufBlob> {
-  match TypeOptionCellExt::new_with_cell_data_cache(field, cell_data_cache)
+  match TypeOptionCellExt::new(field, cell_data_cache)
     .get_type_option_cell_data_handler(to_field_type)
   {
     None => Ok(CellProtobufBlob::default()),
-    Some(handler) => handler.handle_cell_str(cell, from_field_type, field),
+    Some(handler) => handler.handle_cell_protobuf(cell, from_field_type, field),
   }
 }
 
@@ -147,7 +143,7 @@ pub fn try_decode_cell_to_cell_data<T: Default + 'static>(
   field: &Field,
   cell_data_cache: Option<CellCache>,
 ) -> Option<T> {
-  let handler = TypeOptionCellExt::new_with_cell_data_cache(field, cell_data_cache)
+  let handler = TypeOptionCellExt::new(field, cell_data_cache)
     .get_type_option_cell_data_handler(to_field_type)?;
   handler
     .get_cell_data(cell, from_field_type, field)
@@ -156,8 +152,8 @@ pub fn try_decode_cell_to_cell_data<T: Default + 'static>(
 }
 
 /// Returns a string that represents the current field_type's cell data.
-/// For example, The string of the Multi-Select cell will be a list of the option's name
-/// separated by a comma.
+/// For example, a Multi-Select cell will be represented by a list of the options' names
+/// separated by commas.
 ///
 /// # Arguments
 ///
@@ -166,16 +162,13 @@ pub fn try_decode_cell_to_cell_data<T: Default + 'static>(
 /// * `from_field_type`: the original field type of the passed-in cell data.
 /// * `field`: used to get the corresponding TypeOption for the specified field type.
 ///
-/// returns: String
 pub fn stringify_cell_data(
   cell: &Cell,
   to_field_type: &FieldType,
   from_field_type: &FieldType,
   field: &Field,
 ) -> String {
-  match TypeOptionCellExt::new_with_cell_data_cache(field, None)
-    .get_type_option_cell_data_handler(from_field_type)
-  {
+  match TypeOptionCellExt::new(field, None).get_type_option_cell_data_handler(from_field_type) {
     None => "".to_string(),
     Some(handler) => handler.handle_stringify_cell(cell, to_field_type, field),
   }
@@ -245,13 +238,6 @@ pub fn delete_select_option_cell(option_ids: Vec<String>, field: &Field) -> Cell
   apply_cell_changeset(BoxAny::new(changeset), None, field, None).unwrap()
 }
 
-/// Deserialize the String into cell specific data type.
-pub trait FromCellString {
-  fn from_cell_str(s: &str) -> FlowyResult<Self>
-  where
-    Self: Sized;
-}
-
 pub struct CellBuilder<'a> {
   cells: Cells,
   field_maps: HashMap<String, &'a Field>,
@@ -290,12 +276,12 @@ impl<'a> CellBuilder<'a> {
             tracing::warn!("Shouldn't insert cell data to cell whose field type is LastEditedTime or CreatedTime");
           },
           FieldType::SingleSelect | FieldType::MultiSelect => {
-            if let Ok(ids) = SelectOptionIds::from_cell_str(&cell_str) {
+            if let Ok(ids) = SelectOptionIds::from_str(&cell_str) {
               cells.insert(field_id, insert_select_option_cell(ids.into_inner(), field));
             }
           },
           FieldType::Checkbox => {
-            if let Ok(value) = CheckboxCellDataPB::from_cell_str(&cell_str) {
+            if let Ok(value) = CheckboxCellDataPB::from_str(&cell_str) {
               cells.insert(field_id, insert_checkbox_cell(value.is_checked, field));
             }
           },
@@ -303,9 +289,12 @@ impl<'a> CellBuilder<'a> {
             cells.insert(field_id, insert_url_cell(cell_str, field));
           },
           FieldType::Checklist => {
-            if let Ok(ids) = SelectOptionIds::from_cell_str(&cell_str) {
+            if let Ok(ids) = SelectOptionIds::from_str(&cell_str) {
               cells.insert(field_id, insert_select_option_cell(ids.into_inner(), field));
             }
+          },
+          FieldType::Relation => {
+            cells.insert(field_id, (&RelationCellData::from(cell_str)).into());
           },
         }
       }

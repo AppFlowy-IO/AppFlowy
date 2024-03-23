@@ -1,6 +1,7 @@
 import { ReactEditor } from 'slate-react';
-import { Editor, Text, Range } from 'slate';
-import { EditorMarkFormat } from '$app/application/document/document.types';
+import { Editor, Text, Range, Element } from 'slate';
+import { EditorInlineNodeType, EditorMarkFormat } from '$app/application/document/document.types';
+import { CustomEditor } from '$app/components/editor/command/index';
 
 export function toggleMark(
   editor: ReactEditor,
@@ -9,6 +10,10 @@ export function toggleMark(
     value: string | boolean;
   }
 ) {
+  if (CustomEditor.selectionIncludeRoot(editor)) {
+    return;
+  }
+
   const { key, value } = mark;
 
   const isActive = isMarkActive(editor, key);
@@ -25,7 +30,7 @@ export function toggleMark(
  * @param editor
  * @param format
  */
-export function isMarkActive(editor: ReactEditor, format: EditorMarkFormat) {
+export function isMarkActive(editor: ReactEditor, format: EditorMarkFormat | EditorInlineNodeType) {
   const selection = editor.selection;
 
   if (!selection) return false;
@@ -33,18 +38,13 @@ export function isMarkActive(editor: ReactEditor, format: EditorMarkFormat) {
   const isExpanded = Range.isExpanded(selection);
 
   if (isExpanded) {
-    const matches = Array.from(getSelectionNodeEntry(editor) || []);
+    const texts = getSelectionTexts(editor);
 
-    return matches.every((match) => {
-      const [node] = match;
-
+    return texts.every((node) => {
       const { text, ...attributes } = node;
 
-      if (!text) {
-        return true;
-      }
-
-      return !!(attributes as Record<string, boolean | string>)[format];
+      if (!text) return true;
+      return Boolean((attributes as Record<string, boolean | string>)[format]);
     });
   }
 
@@ -53,10 +53,12 @@ export function isMarkActive(editor: ReactEditor, format: EditorMarkFormat) {
   return marks ? !!marks[format] : false;
 }
 
-function getSelectionNodeEntry(editor: ReactEditor) {
+export function getSelectionTexts(editor: ReactEditor) {
   const selection = editor.selection;
 
-  if (!selection) return null;
+  if (!selection) return [];
+
+  const texts: Text[] = [];
 
   const isExpanded = Range.isExpanded(selection);
 
@@ -73,16 +75,25 @@ function getSelectionNodeEntry(editor: ReactEditor) {
       }
     }
 
-    return Editor.nodes(editor, {
-      match: Text.isText,
-      at: {
-        anchor,
-        focus,
-      },
+    Array.from(
+      Editor.nodes(editor, {
+        at: {
+          anchor,
+          focus,
+        },
+      })
+    ).forEach((match) => {
+      const node = match[0] as Element;
+
+      if (Text.isText(node)) {
+        texts.push(node);
+      } else if (Editor.isInline(editor, node)) {
+        texts.push(...(node.children as Text[]));
+      }
     });
   }
 
-  return null;
+  return texts;
 }
 
 /**
@@ -97,13 +108,11 @@ export function getAllMarks(editor: ReactEditor) {
   const isExpanded = Range.isExpanded(selection);
 
   if (isExpanded) {
-    const matches = Array.from(getSelectionNodeEntry(editor) || []);
+    const texts = getSelectionTexts(editor);
 
     const marks: Record<string, string | boolean> = {};
 
-    matches.forEach((match) => {
-      const [node] = match;
-
+    texts.forEach((node) => {
       Object.entries(node).forEach(([key, value]) => {
         if (key !== 'text') {
           marks[key] = value;

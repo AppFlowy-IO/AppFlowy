@@ -72,12 +72,12 @@
     "copyLink": "Salin tautan"
   },
   "moreAction": {
-    "fontSize": "Ukuran huruf",
-    "import": "Impor",
-    "moreOptions": "Lebih banyak pilihan",
     "small": "kecil",
     "medium": "sedang",
-    "large": "besar"
+    "large": "besar",
+    "fontSize": "Ukuran huruf",
+    "import": "Impor",
+    "moreOptions": "Lebih banyak pilihan"
   },
   "importPanel": {
     "textAndMarkdown": "Teks & Markdown",
@@ -452,13 +452,9 @@
       "isComplete": "selesai",
       "isIncomplted": "tidak lengkap"
     },
-    "singleSelectOptionFilter": {
+    "selectOptionFilter": {
       "is": "Adalah",
       "isNot": "Tidak",
-      "isEmpty": "Kosong",
-      "isNotEmpty": "Tidak kosong"
-    },
-    "multiSelectOptionFilter": {
       "contains": "Mengandung",
       "doesNotContain": "Tidak mengandung",
       "isEmpty": "Kosong",

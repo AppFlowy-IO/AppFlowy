@@ -69,12 +69,12 @@
     "copyLink": "Copiar l'enllaç"
   },
   "moreAction": {
-    "fontSize": "Mida de la font",
-    "import": "Importar",
-    "moreOptions": "Més opcions",
     "small": "petit",
     "medium": "mitjà",
-    "large": "gran"
+    "large": "gran",
+    "fontSize": "Mida de la font",
+    "import": "Importar",
+    "moreOptions": "Més opcions"
   },
   "importPanel": {
     "textAndMarkdown": "Text i rebaixa",
@@ -176,9 +176,7 @@
     "dragRow": "Premeu llargament per reordenar la fila",
     "viewDataBase": "Veure base de dades",
     "referencePage": "Es fa referència a aquest {nom}",
-    "addBlockBelow": "Afegeix un bloc a continuació",
-    "urlLaunchAccessory": "Oberta al navegador",
-    "urlCopyAccessory": "Copia l'URL"
+    "addBlockBelow": "Afegeix un bloc a continuació"
   },
   "sideBar": {
     "closeSidebar": "Close sidebar",
@@ -461,13 +459,9 @@
       "isComplete": "està completa",
       "isIncomplted": "és incompleta"
     },
-    "singleSelectOptionFilter": {
+    "selectOptionFilter": {
       "is": "És",
       "isNot": "No és",
-      "isEmpty": "Està buit",
-      "isNotEmpty": "No està buit"
-    },
-    "multiSelectOptionFilter": {
       "contains": "Conté",
       "doesNotContain": "No conté",
       "isEmpty": "Està buit",
@@ -572,6 +566,10 @@
     "checklist": {
       "addNew": "Afegeix un element",
       "submitNewTask": "Crear"
+    },
+    "url": {
+      "launch": "Oberta al navegador",
+      "copy": "Copia l'URL"
     },
     "menuName": "Quadrícula",
     "referencedGridPrefix": "Vista de"
