@@ -50,12 +50,12 @@
     "copyLink": "Esteka kopiatu"
   },
   "moreAction": {
-    "small": "txikia",
-    "medium": "ertaina",
-    "large": "handia",
     "fontSize": "Letra tamaina",
     "import": "Inportatu",
-    "moreOptions": "Aukera gehiago"
+    "moreOptions": "Aukera gehiago",
+    "small": "txikia",
+    "medium": "ertaina",
+    "large": "handia"
   },
   "importPanel": {
     "textAndMarkdown": "Testua eta Markdown",
