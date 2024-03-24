@@ -238,7 +238,6 @@ impl DatabaseManager {
     Ok(editor)
   }
 
-  #[tracing::instrument(level = "debug", skip_all)]
   pub async fn close_database_view<T: AsRef<str>>(&self, view_id: T) -> FlowyResult<()> {
     let view_id = view_id.as_ref();
     let wdb = self.get_workspace_database().await?;
