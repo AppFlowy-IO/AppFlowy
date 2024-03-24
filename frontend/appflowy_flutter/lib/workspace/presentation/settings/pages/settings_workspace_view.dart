@@ -48,16 +48,15 @@ class _SettingsWorkspaceViewState extends State<SettingsWorkspaceView> {
         builder: (context, state) {
           return SettingsBody(
             children: [
-              const SettingsHeader(
-                title: 'Workspace',
-                description:
-                    'Customize your workspace appearance, theme, font, text layout, date, time, and language.',
+              SettingsHeader(
+                title: LocaleKeys.settings_workspace_title.tr(),
+                description: LocaleKeys.settings_workspace_description.tr(),
               ),
               // We don't allow changing workspace name for local/offline
               if (widget.userProfile.authenticator !=
                   AuthenticatorPB.Local) ...[
                 SettingsCategory(
-                  title: 'Workspace name',
+                  title: LocaleKeys.settings_workspace_workspaceName_title.tr(),
                   children: [
                     SettingsActionableInput(
                       controller: _workspaceNameController,
@@ -90,42 +89,43 @@ class _SettingsWorkspaceViewState extends State<SettingsWorkspaceView> {
                 ),
               ],
               const SettingsCategorySpacer(),
-              const SettingsCategory(
-                title: 'Workspace icon',
+              SettingsCategory(
+                title: LocaleKeys.settings_workspace_workspaceIcon_title.tr(),
+                description: LocaleKeys
+                    .settings_workspace_workspaceIcon_description
+                    .tr(),
+                children: [],
+              ),
+              const SettingsCategorySpacer(),
+              SettingsCategory(
+                title: LocaleKeys.settings_workspace_appearance_title.tr(),
+                children: [],
+              ),
+              const SettingsCategorySpacer(),
+              SettingsCategory(
+                title: LocaleKeys.settings_workspace_theme_title.tr(),
                 description:
-                    'Customize your workspace appearance, theme, font, text layout, date, time, and language.',
+                    LocaleKeys.settings_workspace_theme_description.tr(),
                 children: [],
               ),
               const SettingsCategorySpacer(),
-              const SettingsCategory(
-                title: 'Appearance',
+              SettingsCategory(
+                title: LocaleKeys.settings_workspace_workspaceFont_title.tr(),
                 children: [],
               ),
               const SettingsCategorySpacer(),
-              const SettingsCategory(
-                title: 'Theme',
-                description:
-                    'Select a preset theme, or upload your own custom theme.',
+              SettingsCategory(
+                title: LocaleKeys.settings_workspace_textDirection_title.tr(),
                 children: [],
               ),
               const SettingsCategorySpacer(),
-              const SettingsCategory(
-                title: 'Workspace font',
+              SettingsCategory(
+                title: LocaleKeys.settings_workspace_dateTime_title.tr(),
                 children: [],
               ),
               const SettingsCategorySpacer(),
-              const SettingsCategory(
-                title: 'Text direction',
-                children: [],
-              ),
-              const SettingsCategorySpacer(),
-              const SettingsCategory(
-                title: 'Date & time',
-                children: [],
-              ),
-              const SettingsCategorySpacer(),
-              const SettingsCategory(
-                title: 'Language',
+              SettingsCategory(
+                title: LocaleKeys.settings_workspace_language_title.tr(),
                 children: [],
               ),
             ],

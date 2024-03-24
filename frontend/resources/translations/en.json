@@ -324,7 +324,36 @@
       }
     },
     "workspace": {
-      "menuLabel": "Workspace"
+      "menuLabel": "Workspace",
+      "title": "Workspace",
+      "description": "Customize your workspace appearance, theme, font, text layout, date-/time-format, and language.",
+      "workspaceName": {
+        "title": "Workspace name"
+      },
+      "workspaceIcon": {
+        "title": "Workspace icon",
+        "description": "Customize your workspace appearance, theme, font, text layout, date, time, and language."
+      },
+      "appearance": {
+        "title": "Appearance",
+        "description": "Customize your workspace appearance, theme, font, text layout, date, time, and language."
+      },
+      "theme": {
+        "title": "Theme",
+        "description": "Select a preset theme, or upload your own custom theme."
+      },
+      "workspaceFont": {
+        "title": "Workspace font"
+      },
+      "textDirection": {
+        "title": "Text direction"
+      },
+      "dateTime": {
+        "title": "Date & time"
+      },
+      "language": {
+        "title": "Language"
+      }
     },
     "menu": {
       "appearance": "Appearance",
