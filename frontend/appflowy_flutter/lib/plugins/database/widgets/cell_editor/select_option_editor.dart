@@ -197,9 +197,15 @@ class _Title extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: SizedBox(
         height: GridSize.popoverItemHeight,
-        child: FlowyText.medium(
-          LocaleKeys.grid_selectOption_panelTitle.tr(),
-          color: Theme.of(context).hintColor,
+        child: Row(
+          children: [
+            Flexible(
+              child: FlowyText.medium(
+                LocaleKeys.grid_selectOption_panelTitle.tr(),
+                color: Theme.of(context).hintColor,
+              ),
+            ),
+          ],
         ),
       ),
     );
