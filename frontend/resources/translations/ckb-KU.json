@@ -168,21 +168,23 @@
     "inlineCode": "کۆدی ناو هێڵ",
     "quote": "ده‌ق",
     "header": "سه‌رپه‌ڕه‌",
-    "highlight": "بەرجەستەکردن⚡️",
+    "highlight": "بەرجەستەکردن",
     "color": "ڕەنگ",
     "addLink": "زیادکردنی لینک",
-    "link": "🔗️لینک"
+    "link": "لینک"
   },
   "tooltip": {
-    "lightMode": "مۆدی کاڵ/لاییت",
-    "darkMode": "مۆدی تاریک",
+    "lightMode": "دۆخی ڕووناک",
+    "darkMode": "دۆخی تاریک",
     "openAsPage": "کردنەوە وەک لاپەڕە",
     "addNewRow": "زیادکردنی ڕیزێکی نوێ",
     "openMenu": "Menu کردنەوەی",
     "dragRow": "بۆ ڕێکخستنەوەی ڕیزەکە فشارێکی درێژ بکە",
     "viewDataBase": "بینینی بنکەدراوە",
     "referencePage": "ئەم {name} ڕەوانە کراوە",
-    "addBlockBelow": "لە خوارەوە بلۆکێک زیاد بکە"
+    "addBlockBelow": "لە خوارەوە بلۆکێک زیاد بکە",
+    "urlLaunchAccessory": "کردنەوە لە وێبگەڕ",
+    "urlCopyAccessory": "کۆپی کردنی URL"
   },
   "sideBar": {
     "closeSidebar": "داخستنی سایدبار",
@@ -191,7 +193,8 @@
     "favorites": "دڵخوازەکان",
     "clickToHidePersonal": "بۆ شاردنەوەی بەشی کەسی کلیک بکە",
     "clickToHideFavorites": "بۆ شاردنەوەی بەشی دڵخوازەکان کلیک بکە",
-    "addAPage": "زیاد کردنی لاپەڕەیەک"
+    "addAPage": "زیاد کردنی لاپەڕەیەک",
+    "recent": "نوێ"
   },
   "notifications": {
     "export": {
@@ -206,7 +209,9 @@
     "editContact": "دەستکاریکردنی پەیوەندی"
   },
   "button": {
+    "ok": "باشە",
     "done": "ئەنجامدرا",
+    "cancel": "ڕەتکردنەوە",
     "signIn": "چوونە ژوورەوە",
     "signOut": "دەرچوون",
     "complete": "تەواوە",
@@ -218,11 +223,20 @@
     "discard": "ڕەتکردنەوە",
     "replace": "شوێن گرتنەوە",
     "insertBelow": "insert لە خوارەوە",
+    "insertAbove": "لە سەرەوە دابنێ",
     "upload": "بارکردن...",
     "edit": "بژارکردن",
     "delete": "سڕینەوە",
     "duplicate": "هاوشێوە کردن",
     "putback": "بیخەرەوە بۆ دواوە",
+    "update": "نوێکردنەوە",
+    "share": "هاوبەشکردن",
+    "removeFromFavorites": "سڕینەوە لە دڵخوازەکان",
+    "addToFavorites": "خستنە لیستی دڵخوازەکان",
+    "rename": "گۆڕینی ناو",
+    "helpCenter": "ناوەندی یارمەتی",
+    "add": "زیادکردن",
+    "yes": "بەڵێ",
     "Done": "تەواوه",
     "Cancel": "ڕەتکردن",
     "OK": "ئۆکەی"
@@ -254,9 +268,11 @@
       "language": "زمانەکان",
       "user": "بەکارهێنەر",
       "files": "فایلەکان",
+      "notifications": "ئاگادارکردنەوەکان",
       "open": "کردنەوەی ڕێکخستنەکان",
       "logout": "دەرچوون",
       "logoutPrompt": "دڵنیای کە دەتەوێت بچیتە دەرەوە؟",
+      "selfEncryptionLogoutPrompt": "دڵنیای کە دەتەوێت بچیتە دەرەوە؟ تکایە دڵنیابە کە نهێنی کۆدکردنەکەت کۆپی کردووە",
       "syncSetting": "ڕێکخستنەکانی هاوکاتکردن",
       "enableSync": "چالاک کردنی هاوکاتکردن",
       "historicalUserList": "مێژووی چوونەژوورەوەی بەکارهێنەر",
