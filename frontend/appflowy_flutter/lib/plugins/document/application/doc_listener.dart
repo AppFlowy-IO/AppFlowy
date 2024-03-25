@@ -8,6 +8,11 @@ import 'package:appflowy_backend/protobuf/flowy-notification/subject.pb.dart';
 import 'package:appflowy_backend/rust_stream.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 
+typedef OnDocumentEventUpdate = void Function(DocEventPB docEvent);
+typedef OnDocumentAwarenessStateUpdate = void Function(
+  DocumentAwarenessStatesPB awarenessStates,
+);
+
 class DocumentListener {
   DocumentListener({
     required this.id,
@@ -18,12 +23,15 @@ class DocumentListener {
   StreamSubscription<SubscribeObject>? _subscription;
   DocumentNotificationParser? _parser;
 
-  Function(DocEventPB docEvent)? didReceiveUpdate;
+  OnDocumentEventUpdate? _onDocEventUpdate;
+  OnDocumentAwarenessStateUpdate? _onDocAwarenessUpdate;
 
   void start({
-    Function(DocEventPB docEvent)? didReceiveUpdate,
+    OnDocumentEventUpdate? onDocEventUpdate,
+    OnDocumentAwarenessStateUpdate? onDocAwarenessUpdate,
   }) {
-    this.didReceiveUpdate = didReceiveUpdate;
+    _onDocEventUpdate = onDocEventUpdate;
+    _onDocAwarenessUpdate = onDocAwarenessUpdate;
 
     _parser = DocumentNotificationParser(
       id: id,
@@ -40,7 +48,16 @@ class DocumentListener {
   ) {
     switch (ty) {
       case DocumentNotification.DidReceiveUpdate:
-        result.map((r) => didReceiveUpdate?.call(DocEventPB.fromBuffer(r)));
+        result.map(
+          (s) => _onDocEventUpdate?.call(DocEventPB.fromBuffer(s)),
+        );
+        break;
+      case DocumentNotification.DidUpdateDocumentAwarenessState:
+        result.map(
+          (s) => _onDocAwarenessUpdate?.call(
+            DocumentAwarenessStatesPB.fromBuffer(s),
+          ),
+        );
         break;
       default:
         break;

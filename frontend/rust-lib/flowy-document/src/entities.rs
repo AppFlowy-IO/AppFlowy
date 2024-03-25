@@ -3,7 +3,10 @@ use std::collections::HashMap;
 use collab::core::collab_state::SyncState;
 use collab_document::{
   blocks::{json_str_to_hashmap, Block, BlockAction, DocumentData},
-  document_awareness::{DocumentAwarenessState, DocumentSharedPosition, DocumentSharedSelection},
+  document_awareness::{
+    DocumentAwarenessPosition, DocumentAwarenessSelection, DocumentAwarenessState,
+    DocumentAwarenessUser,
+  },
 };
 
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
@@ -517,46 +520,116 @@ pub struct DocumentSnapshotData {
 }
 
 #[derive(ProtoBuf, Debug, Default)]
-pub struct DocumentAwarenessStatePB {
+pub struct DocumentAwarenessStatesPB {
+  #[pb(index = 1)]
+  pub value: HashMap<String, DocumentAwarenessStatePB>,
+}
+
+impl From<HashMap<u64, DocumentAwarenessState>> for DocumentAwarenessStatesPB {
+  fn from(value: HashMap<u64, DocumentAwarenessState>) -> Self {
+    let value = value
+      .into_iter()
+      .map(|(k, v)| (k.to_string(), v.into()))
+      .collect();
+    Self { value }
+  }
+}
+
+#[derive(ProtoBuf, Debug, Default)]
+pub struct UpdateDocumentAwarenessStatePB {
   #[pb(index = 1)]
   pub document_id: String,
   #[pb(index = 2, one_of)]
-  pub selection: Option<DocumentSharedSelectionPB>,
+  pub selection: Option<DocumentAwarenessSelectionPB>,
 }
 
 #[derive(ProtoBuf, Debug, Default)]
-pub struct DocumentSharedSelectionPB {
+pub struct DocumentAwarenessStatePB {
   #[pb(index = 1)]
-  pub start: DocumentSharedPositionPB,
-  #[pb(index = 2)]
-  pub end: DocumentSharedPositionPB,
+  pub user: DocumentAwarenessUserPB,
+  #[pb(index = 2, one_of)]
+  pub selection: Option<DocumentAwarenessSelectionPB>,
+}
+
+impl Into<DocumentAwarenessStatePB> for DocumentAwarenessState {
+  fn into(self) -> DocumentAwarenessStatePB {
+    DocumentAwarenessStatePB {
+      user: self.user.into(),
+      selection: self.selection.map(|s| s.into()),
+    }
+  }
 }
 
 #[derive(ProtoBuf, Debug, Default)]
-pub struct DocumentSharedPositionPB {
+pub struct DocumentAwarenessUserPB {
+  #[pb(index = 1)]
+  pub uid: String,
+}
+
+impl Into<DocumentAwarenessUser> for DocumentAwarenessUserPB {
+  fn into(self) -> DocumentAwarenessUser {
+    DocumentAwarenessUser {
+      uid: self.uid.parse().unwrap_or_default(),
+    }
+  }
+}
+
+impl Into<DocumentAwarenessUserPB> for DocumentAwarenessUser {
+  fn into(self) -> DocumentAwarenessUserPB {
+    DocumentAwarenessUserPB {
+      uid: self.uid.to_string(),
+    }
+  }
+}
+
+#[derive(ProtoBuf, Debug, Default)]
+pub struct DocumentAwarenessSelectionPB {
+  #[pb(index = 1)]
+  pub start: DocumentAwarenessPositionPB,
+  #[pb(index = 2)]
+  pub end: DocumentAwarenessPositionPB,
+}
+
+#[derive(ProtoBuf, Debug, Default)]
+pub struct DocumentAwarenessPositionPB {
   #[pb(index = 1)]
   pub path: Vec<u64>,
   #[pb(index = 2)]
-  pub start: u64,
-  #[pb(index = 3)]
-  end: u64,
+  pub offset: u64,
 }
 
-impl Into<DocumentSharedSelection> for DocumentSharedSelectionPB {
-  fn into(self) -> DocumentSharedSelection {
-    DocumentSharedSelection {
+impl Into<DocumentAwarenessSelection> for DocumentAwarenessSelectionPB {
+  fn into(self) -> DocumentAwarenessSelection {
+    DocumentAwarenessSelection {
       start: self.start.into(),
       end: self.end.into(),
     }
   }
 }
 
-impl Into<DocumentSharedPosition> for DocumentSharedPositionPB {
-  fn into(self) -> DocumentSharedPosition {
-    DocumentSharedPosition {
+impl Into<DocumentAwarenessSelectionPB> for DocumentAwarenessSelection {
+  fn into(self) -> DocumentAwarenessSelectionPB {
+    DocumentAwarenessSelectionPB {
+      start: self.start.into(),
+      end: self.end.into(),
+    }
+  }
+}
+
+impl Into<DocumentAwarenessPosition> for DocumentAwarenessPositionPB {
+  fn into(self) -> DocumentAwarenessPosition {
+    DocumentAwarenessPosition {
       path: self.path,
-      start: self.start,
-      end: self.end,
+      offset: self.offset,
+    }
+  }
+}
+
+impl Into<DocumentAwarenessPositionPB> for DocumentAwarenessPosition {
+  fn into(self) -> DocumentAwarenessPositionPB {
+    DocumentAwarenessPositionPB {
+      path: self.path,
+      offset: self.offset,
     }
   }
 }

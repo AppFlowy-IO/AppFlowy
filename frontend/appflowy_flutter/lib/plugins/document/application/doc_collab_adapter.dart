@@ -2,14 +2,16 @@ import 'dart:convert';
 
 import 'package:appflowy/plugins/document/application/document_data_pb_extension.dart';
 import 'package:appflowy/plugins/document/application/prelude.dart';
+import 'package:appflowy/util/color_generator/color_generator.dart';
 import 'package:appflowy/util/json_print.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-document/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:collection/collection.dart';
+import 'package:fixnum/fixnum.dart';
 
-class CollabDocumentAdapter {
-  CollabDocumentAdapter(this.editorState, this.docId);
+class DocumentCollabAdapter {
+  DocumentCollabAdapter(this.editorState, this.docId);
 
   final EditorState editorState;
   final String docId;
@@ -121,6 +123,46 @@ class CollabDocumentAdapter {
         }
       }
     }
+  }
+
+  Future<void> updateRemoteSelection(
+    String userId,
+    DocumentAwarenessStatesPB states,
+  ) async {
+    final List<RemoteSelection> remoteSelections = [];
+    for (final state in states.value.values) {
+      // if (state.user.uid == userId) {
+      //   continue;
+      // }
+      final start = state.selection.start;
+      final end = state.selection.end;
+      final selection = Selection(
+        start: Position(
+          path: start.path.toIntList(),
+          offset: start.offset.toInt(),
+        ),
+        end: Position(
+          path: end.path.toIntList(),
+          offset: end.offset.toInt(),
+        ),
+      );
+      final color = ColorGenerator.generateColorFromString(state.user.uid);
+      final remoteSelection = RemoteSelection(
+        selection: selection,
+        selectionColor: color.withOpacity(0.3),
+        cursorColor: color,
+      );
+      remoteSelections.add(remoteSelection);
+    }
+    if (remoteSelections.isNotEmpty) {
+      editorState.remoteSelections.value = remoteSelections;
+    }
+  }
+}
+
+extension on List<Int64> {
+  List<int> toIntList() {
+    return map((e) => e.toInt()).toList();
   }
 }
 

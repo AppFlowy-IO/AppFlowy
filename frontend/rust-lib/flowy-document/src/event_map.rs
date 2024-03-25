@@ -124,6 +124,6 @@ pub enum DocumentEvent {
   #[event(input = "UploadedFilePB")]
   DeleteFile = 17,
 
-  #[event(input = "DocumentAwarenessStatePB")]
+  #[event(input = "UpdateDocumentAwarenessStatePB")]
   SetAwarenessState = 18,
 }
