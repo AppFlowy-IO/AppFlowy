@@ -77,15 +77,20 @@ enum FeatureFlag {
   }
 
   bool get isOn {
+    // Release in version 0.5.3
+    if (this == FeatureFlag.syncDocument) {
+      return true;
+    }
+
     if (_values.containsKey(this)) {
       return _values[this]!;
     }
 
     switch (this) {
       case FeatureFlag.collaborativeWorkspace:
-        return true;
+        return false;
       case FeatureFlag.membersSettings:
-        return true;
+        return false;
       case FeatureFlag.syncDocument:
         return false;
       case FeatureFlag.unknown:

@@ -18,12 +18,16 @@ class SectionFolder extends StatelessWidget {
     required this.categoryType,
     required this.views,
     this.isHoverEnabled = true,
+    required this.expandButtonTooltip,
+    required this.addButtonTooltip,
   });
 
   final String title;
   final FolderCategoryType categoryType;
   final List<ViewPB> views;
   final bool isHoverEnabled;
+  final String expandButtonTooltip;
+  final String addButtonTooltip;
 
   @override
   Widget build(BuildContext context) {
@@ -96,21 +100,5 @@ class SectionFolder extends StatelessWidget {
         },
       ),
     );
-  }
-
-  String get expandButtonTooltip {
-    return switch (categoryType) {
-      FolderCategoryType.public => LocaleKeys.sideBar_clickToHidePublic.tr(),
-      FolderCategoryType.private => LocaleKeys.sideBar_clickToHidePrivate.tr(),
-      _ => '',
-    };
-  }
-
-  String get addButtonTooltip {
-    return switch (categoryType) {
-      FolderCategoryType.public => LocaleKeys.sideBar_addAPageToPublic.tr(),
-      FolderCategoryType.private => LocaleKeys.sideBar_addAPageToPrivate.tr(),
-      _ => '',
-    };
   }
 }
