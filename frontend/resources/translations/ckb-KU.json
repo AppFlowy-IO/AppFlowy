@@ -3,7 +3,7 @@
   "defaultUsername": "من",
   "welcomeText": "@:appName بەخێربێن بۆ",
   "welcomeTo": "بەخێربێن بۆ",
-  "githubStarText": "وە گیتهابی ئێمە ئەستێرە بدەن",
+  "githubStarText": "بە گیتهابەکەمان ئەستێرە بدەن",
   "subscribeNewsletterText": "سەبسکرایبی هەواڵنامە بکە",
   "letsGoButtonText": "دەست پێ بکە",
   "title": "سه‌ردێڕ",
@@ -18,15 +18,15 @@
     "openMenuTooltip": "کلیک کردن بۆ کردنەوەی مینیوەکە"
   },
   "signUp": {
-    "buttonText": "📄️ناو نووسین",
+    "buttonText": "ناو نووسین",
     "title": " ناو نووسین لە @:appName",
     "getStartedText": "دەست پێ بکە",
     "emptyPasswordError": "ناتوانرێت تێپه‌ڕه‌وشه بەتاڵ بێت",
     "repeatPasswordEmptyError": "تێپه‌ڕه‌وشەی دووبارەکراو ناتوانرێت بەتاڵ بێت",
     "unmatchedPasswordError": "دووبارەکراوەی تێپه‌ڕه‌وشه هەمان تێپه‌ڕه‌وشه نییە",
     "alreadyHaveAnAccount": "لە پێشتر ئەکاونتت هەیە؟",
-    "emailHint": "📧️ئیمەیڵ",
-    "passwordHint": "🔑️تێپه‌ڕه‌وشه",
+    "emailHint": "ئیمەیڵ",
+    "passwordHint": "تێپه‌ڕه‌وشه",
     "repeatPasswordHint": "دووبارە کردنی تێپه‌ڕه‌وشه",
     "signUpWith": "ناونووسین وە:"
   },
@@ -38,8 +38,8 @@
     "buttonText": "چوونه‌ژووره‌وه‌",
     "signingInText": "چوونە ناوەوە...",
     "forgotPassword": "تێپه‌ڕه‌وشەت لەبیر كردووە ؟",
-    "emailHint": "📧️ئیمەیڵ",
-    "passwordHint": "🔑️تێپه‌ڕه‌وشه",
+    "emailHint": "ئیمەیڵ",
+    "passwordHint": "تێپه‌ڕه‌وشه",
     "dontHaveAnAccount": "ئەکاونتت نییە؟",
     "repeatPasswordEmptyError": "ناتوانرێت تێپه‌ڕه‌وشه بەتاڵ بێت",
     "unmatchedPasswordError": "دووبارەکراوەی تێپه‌ڕه‌وشه هەمان تێپه‌ڕه‌وشه نییە",
@@ -62,13 +62,15 @@
     "errorActions": {
       "reportIssue": "ڕاپۆرت کردنی کێشەیەک",
       "reportIssueOnGithub": "ڕاپۆرت کردنی کێشەیەک لەسەر گیتهابەوە ",
-      "exportLogFiles": "هەناردەکردنی فایلەکانی گوزارش"
+      "exportLogFiles": "هەناردەکردنی فایلەکانی گوزارش",
+      "reachOut": "پەیوەندی لەگەڵ دیسکۆرد"
     }
   },
   "shareAction": {
     "buttonText": "هاوبەشکردن",
     "workInProgress": "بەم زووانە",
     "markdown": "Markdown",
+    "csv": "CSV",
     "copyLink": "کۆپی کردنی لینک"
   },
   "moreAction": {
@@ -84,7 +86,7 @@
     "documentFromV010": "به‌ڵگه‌نامه لە وەشانی 0.1.0",
     "databaseFromV010": "داتابەیس  لە وەشانی 0.1.0",
     "csv": "CSV",
-    "database": "🪪️داتابەیس-بنکەدراوە"
+    "database": "بنکەدراوە"
   },
   "disclosureAction": {
     "rename": "گۆڕینی ناو",
@@ -99,6 +101,10 @@
   },
   "blankPageTitle": "لاپەڕەی بەتاڵ",
   "newPageText": "لاپەڕەی نوێ",
+  "newDocumentText": "بەڵگەنامەی نوێ",
+  "newGridText": "تۆڕی نوێ",
+  "newCalendarText": "ڕۆژژمێری نوێ",
+  "newBoardText": "تەختەی نوێ",
   "trash": {
     "text": "زبڵدان",
     "restoreAll": "گەڕاندنەوەی هەموو",
