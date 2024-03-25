@@ -117,7 +117,7 @@
     "moveTo": "Move to",
     "addToFavorites": "Add to Favorites",
     "copyLink": "Copy Link"
-  },
+  },earch ane
   "blankPageTitle": "Blank page",
   "newPageText": "New page",
   "newDocumentText": "New document",
@@ -733,9 +733,9 @@
       "blueColor": "Blue",
       "deleteTag": "Delete tag",
       "colorPanelTitle": "Color",
-      "panelTitle": "Select an option or create one",
+      "panelTitle": "Select an option",
       "searchOption": "Search for an option",
-      "searchOrCreateOption": "Search or create an option...",
+      "searchOrCreateOption": "Search...",
       "createNew": "Create a new",
       "orSelectOne": "Or select an option",
       "typeANewOption": "Type a new option",
