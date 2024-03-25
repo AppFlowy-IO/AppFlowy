@@ -8,12 +8,10 @@ use collab::core::origin::CollabOrigin;
 use collab::preclude::Collab;
 use collab_document::blocks::DocumentData;
 use collab_document::document::Document;
-use collab_document::document_awareness::DocumentAwarenessSelection;
 use collab_document::document_awareness::DocumentAwarenessState;
 use collab_document::document_awareness::DocumentAwarenessUser;
 use collab_document::document_data::default_document_data;
 use collab_entity::CollabType;
-use collab_plugins::local_storage::kv::doc;
 use collab_plugins::CollabKVDB;
 use flowy_storage::object_from_disk;
 use lru::LruCache;
@@ -30,7 +28,6 @@ use flowy_storage::ObjectStorageService;
 use lib_dispatch::prelude::af_spawn;
 
 use crate::document::MutexDocument;
-use crate::entities::DocumentAwarenessStatePB;
 use crate::entities::UpdateDocumentAwarenessStatePB;
 use crate::entities::{
   DocumentSnapshotData, DocumentSnapshotMeta, DocumentSnapshotMetaPB, DocumentSnapshotPB,
@@ -39,6 +36,7 @@ use crate::reminder::DocumentReminderAction;
 
 pub trait DocumentUserService: Send + Sync {
   fn user_id(&self) -> Result<i64, FlowyError>;
+  fn device_id(&self) -> Result<String, FlowyError>;
   fn workspace_id(&self) -> Result<String, FlowyError>;
   fn collab_db(&self, uid: i64) -> Result<Weak<CollabKVDB>, FlowyError>;
 }
@@ -234,10 +232,11 @@ impl DocumentManager {
     state: UpdateDocumentAwarenessStatePB,
   ) -> FlowyResult<bool> {
     let uid = self.user_service.user_id()?;
+    let device_id = self.user_service.device_id()?;
     if let Ok(doc) = self.get_document(doc_id).await {
       if let Some(doc) = doc.try_lock() {
         // convert DocumentAwarenessStatePB to DocumentAwarenessState
-        let user = DocumentAwarenessUser { uid };
+        let user = DocumentAwarenessUser { uid, device_id };
         let selection = state.selection.map(|s| s.into());
         let state = DocumentAwarenessState { user, selection };
         doc.set_awareness_local_state(state);

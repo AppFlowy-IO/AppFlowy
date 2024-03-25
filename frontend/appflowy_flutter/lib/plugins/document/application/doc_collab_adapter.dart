@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:appflowy/plugins/document/application/document_data_pb_extension.dart';
 import 'package:appflowy/plugins/document/application/prelude.dart';
+import 'package:appflowy/user/application/auth/device_id.dart';
 import 'package:appflowy/util/color_generator/color_generator.dart';
 import 'package:appflowy/util/json_print.dart';
 import 'package:appflowy_backend/log.dart';
@@ -9,6 +10,8 @@ import 'package:appflowy_backend/protobuf/flowy-document/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:collection/collection.dart';
 import 'package:fixnum/fixnum.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
 
 class DocumentCollabAdapter {
   DocumentCollabAdapter(this.editorState, this.docId);
@@ -130,10 +133,13 @@ class DocumentCollabAdapter {
     DocumentAwarenessStatesPB states,
   ) async {
     final List<RemoteSelection> remoteSelections = [];
+    final deviceId = await getDeviceId();
     for (final state in states.value.values) {
-      // if (state.user.uid == userId) {
-      //   continue;
-      // }
+      final uid = state.user.uid.toString();
+      final did = state.user.deviceId;
+      if (uid == userId && did == deviceId) {
+        continue;
+      }
       final start = state.selection.start;
       final end = state.selection.end;
       final selection = Selection(
@@ -146,11 +152,28 @@ class DocumentCollabAdapter {
           offset: end.offset.toInt(),
         ),
       );
-      final color = ColorGenerator.generateColorFromString(state.user.uid);
+      final color = ColorGenerator.generateColorFromString(
+        uid + did,
+      );
       final remoteSelection = RemoteSelection(
+        id: uid,
         selection: selection,
         selectionColor: color.withOpacity(0.3),
         cursorColor: color,
+        builder: (_, __, rect) {
+          return Positioned(
+            top: rect.top - 10,
+            left: selection.isCollapsed ? rect.right : rect.left,
+            child: ColoredBox(
+              color: color,
+              child: FlowyText(
+                uid,
+                color: Colors.black,
+                fontSize: 12.0,
+              ),
+            ),
+          );
+        },
       );
       remoteSelections.add(remoteSelection);
     }

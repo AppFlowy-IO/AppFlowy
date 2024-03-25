@@ -563,21 +563,16 @@ impl Into<DocumentAwarenessStatePB> for DocumentAwarenessState {
 #[derive(ProtoBuf, Debug, Default)]
 pub struct DocumentAwarenessUserPB {
   #[pb(index = 1)]
-  pub uid: String,
-}
-
-impl Into<DocumentAwarenessUser> for DocumentAwarenessUserPB {
-  fn into(self) -> DocumentAwarenessUser {
-    DocumentAwarenessUser {
-      uid: self.uid.parse().unwrap_or_default(),
-    }
-  }
+  pub uid: i64,
+  #[pb(index = 2)]
+  pub device_id: String,
 }
 
 impl Into<DocumentAwarenessUserPB> for DocumentAwarenessUser {
   fn into(self) -> DocumentAwarenessUserPB {
     DocumentAwarenessUserPB {
-      uid: self.uid.to_string(),
+      uid: self.uid,
+      device_id: self.device_id.to_string(),
     }
   }
 }

@@ -110,7 +110,7 @@ rocksdb = { git = "https://github.com/LucasXu0/rust-rocksdb", rev = "21cf4a23ec1
 # Run the script:
 # scripts/tool/update_client_api_rev.sh  new_rev_id
 # ⚠️⚠️⚠️️
-client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "4878d51c1ba5137a94d986383d65fd2dfa103a1e" }
+client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "d4e45efd6a16cb83e9c60af26d7bab99cde76646" }
 # Please use the following script to update collab.
 # Working directory: frontend
 #

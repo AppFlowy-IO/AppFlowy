@@ -56,6 +56,10 @@ impl AuthenticateUser {
     Ok(session.user_id)
   }
 
+  pub fn device_id(&self) -> FlowyResult<String> {
+    Ok(self.user_config.device_id.to_string())
+  }
+
   pub fn workspace_id(&self) -> FlowyResult<String> {
     let session = self.get_session()?;
     Ok(session.user_workspace.id)

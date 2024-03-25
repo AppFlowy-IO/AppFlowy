@@ -10,6 +10,7 @@ import 'package:appflowy/plugins/trash/application/trash_service.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
+import 'package:appflowy/util/debounce.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy_backend/protobuf/flowy-document/entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-document/protobuf.dart';
@@ -58,6 +59,8 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   );
 
   StreamSubscription? _transactionSubscription;
+
+  final _updateSelectionDebounce = Debounce();
 
   // TODO: use state
   bool get isLocalMode {
@@ -199,7 +202,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
       },
     );
 
-    editorState.selectionNotifier.addListener(_onSelectionUpdate);
+    editorState.selectionNotifier.addListener(_debounceOnSelectionUpdate);
 
     // output the log from the editor when debug mode
     if (kDebugMode) {
@@ -274,6 +277,10 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
         awarenessStates,
       );
     }
+  }
+
+  void _debounceOnSelectionUpdate() {
+    _updateSelectionDebounce.call(_onSelectionUpdate);
   }
 
   void _onSelectionUpdate() {

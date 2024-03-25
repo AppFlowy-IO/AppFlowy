@@ -205,19 +205,6 @@ class _Title extends StatelessWidget {
                 color: Theme.of(context).hintColor,
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 4.0,
-              ),
-              child: FlowyIconButton(
-                onPressed: onPressedAddButton,
-                width: 18,
-                icon: const FlowySvg(
-                  FlowySvgs.add_s,
-                ),
-                iconColorOnHover: Theme.of(context).colorScheme.onSecondary,
-              ),
-            ),
           ],
         ),
       ),
