@@ -1,7 +1,10 @@
 use std::collections::HashMap;
 
 use collab::core::collab_state::SyncState;
-use collab_document::blocks::{json_str_to_hashmap, Block, BlockAction, DocumentData};
+use collab_document::{
+  blocks::{json_str_to_hashmap, Block, BlockAction, DocumentData},
+  document_awareness::{DocumentAwarenessState, DocumentSharedPosition, DocumentSharedSelection},
+};
 
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
@@ -511,4 +514,49 @@ pub struct DocumentSnapshotMeta {
 pub struct DocumentSnapshotData {
   pub object_id: String,
   pub encoded_v1: Vec<u8>,
+}
+
+#[derive(ProtoBuf, Debug, Default)]
+pub struct DocumentAwarenessStatePB {
+  #[pb(index = 1)]
+  pub document_id: String,
+  #[pb(index = 2, one_of)]
+  pub selection: Option<DocumentSharedSelectionPB>,
+}
+
+#[derive(ProtoBuf, Debug, Default)]
+pub struct DocumentSharedSelectionPB {
+  #[pb(index = 1)]
+  pub start: DocumentSharedPositionPB,
+  #[pb(index = 2)]
+  pub end: DocumentSharedPositionPB,
+}
+
+#[derive(ProtoBuf, Debug, Default)]
+pub struct DocumentSharedPositionPB {
+  #[pb(index = 1)]
+  pub path: Vec<u64>,
+  #[pb(index = 2)]
+  pub start: u64,
+  #[pb(index = 3)]
+  end: u64,
+}
+
+impl Into<DocumentSharedSelection> for DocumentSharedSelectionPB {
+  fn into(self) -> DocumentSharedSelection {
+    DocumentSharedSelection {
+      start: self.start.into(),
+      end: self.end.into(),
+    }
+  }
+}
+
+impl Into<DocumentSharedPosition> for DocumentSharedPositionPB {
+  fn into(self) -> DocumentSharedPosition {
+    DocumentSharedPosition {
+      path: self.path,
+      start: self.start,
+      end: self.end,
+    }
+  }
 }

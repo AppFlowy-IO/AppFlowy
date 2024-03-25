@@ -8,8 +8,12 @@ use collab::core::origin::CollabOrigin;
 use collab::preclude::Collab;
 use collab_document::blocks::DocumentData;
 use collab_document::document::Document;
+use collab_document::document_awareness::DocumentAwarenessState;
+use collab_document::document_awareness::DocumentSharedSelection;
+use collab_document::document_awareness::DocumentUser;
 use collab_document::document_data::default_document_data;
 use collab_entity::CollabType;
+use collab_plugins::local_storage::kv::doc;
 use collab_plugins::CollabKVDB;
 use flowy_storage::object_from_disk;
 use lru::LruCache;
@@ -26,6 +30,7 @@ use flowy_storage::ObjectStorageService;
 use lib_dispatch::prelude::af_spawn;
 
 use crate::document::MutexDocument;
+use crate::entities::DocumentAwarenessStatePB;
 use crate::entities::{
   DocumentSnapshotData, DocumentSnapshotMeta, DocumentSnapshotMetaPB, DocumentSnapshotPB,
 };
@@ -220,6 +225,25 @@ impl DocumentManager {
       self.documents.lock().pop(doc_id);
     }
     Ok(())
+  }
+
+  pub async fn set_document_awareness_local_state(
+    &self,
+    doc_id: &str,
+    state: DocumentAwarenessStatePB,
+  ) -> FlowyResult<bool> {
+    let uid = self.user_service.user_id()?;
+    if let Ok(doc) = self.get_document(doc_id).await {
+      if let Some(doc) = doc.try_lock() {
+        // convert DocumentAwarenessStatePB to DocumentAwarenessState
+        let user = DocumentUser { uid };
+        let selection = state.selection.map(|s| s.into());
+        let state = DocumentAwarenessState { user, selection };
+        doc.set_awareness_local_state(state);
+        return Ok(true);
+      }
+    }
+    Ok(false)
   }
 
   /// Return the list of snapshots of the document.

@@ -4,12 +4,16 @@ use std::{
 };
 
 use collab::core::collab::MutexCollab;
-use collab_document::{blocks::DocumentData, document::Document};
+use collab_document::{
+  blocks::DocumentData,
+  document::{self, Document},
+};
 use futures::StreamExt;
 use parking_lot::Mutex;
 
 use flowy_error::FlowyResult;
 use lib_dispatch::prelude::af_spawn;
+use tracing::trace;
 
 use crate::entities::{DocEventPB, DocumentSnapshotStatePB, DocumentSyncStatePB};
 use crate::notification::{send_notification, DocumentNotification};
@@ -59,6 +63,15 @@ fn subscribe_document_changed(doc_id: &str, document: &MutexDocument) {
         .payload::<DocEventPB>((events, is_remote).into())
         .send();
     });
+  document.lock().subscribe_awareness_state(move |events| {
+    trace!("subscribe_document_changed: {:?}", events);
+    // send_notification(
+    //   &doc_id,
+    //   DocumentNotification::DidUpdateDocumentAwarenessState,
+    // )
+    // .payload::<DocEventPB>(events.into())
+    // .send();
+  });
 }
 
 fn subscribe_document_snapshot_state(collab: &Arc<MutexCollab>) {
