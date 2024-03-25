@@ -79,16 +79,15 @@ class SettingsMenu extends StatelessWidget {
               icon: Icons.people,
               changeSelectedPage: changeSelectedPage,
             ),
-          // enable in v0.5.3 temporarily
           // if (kDebugMode)
-          SettingsMenuElement(
-            // no need to translate this page
-            page: SettingsPage.featureFlags,
-            selectedPage: currentPage,
-            label: 'Feature Flags',
-            icon: Icons.flag,
-            changeSelectedPage: changeSelectedPage,
-          ),
+          //   SettingsMenuElement(
+          //     // no need to translate this page
+          //     page: SettingsPage.featureFlags,
+          //     selectedPage: currentPage,
+          //     label: 'Feature Flags',
+          //     icon: Icons.flag,
+          //     changeSelectedPage: changeSelectedPage,
+          //   ),
         ],
       ),
     );

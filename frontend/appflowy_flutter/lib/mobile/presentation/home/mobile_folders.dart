@@ -3,6 +3,7 @@ import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/mobile/presentation/home/section_folder/mobile_home_section_folder.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
+import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
@@ -61,17 +62,20 @@ class MobileFolders extends StatelessWidget {
                     ? [
                         MobileSectionFolder(
                           title: LocaleKeys.sideBar_public.tr(),
+                          categoryType: FolderCategoryType.public,
                           views: state.section.publicViews,
                         ),
                         const VSpace(8.0),
                         MobileSectionFolder(
                           title: LocaleKeys.sideBar_private.tr(),
+                          categoryType: FolderCategoryType.private,
                           views: state.section.privateViews,
                         ),
                       ]
                     : [
                         MobileSectionFolder(
                           title: LocaleKeys.sideBar_personal.tr(),
+                          categoryType: FolderCategoryType.public,
                           views: state.section.publicViews,
                         ),
                       ],
