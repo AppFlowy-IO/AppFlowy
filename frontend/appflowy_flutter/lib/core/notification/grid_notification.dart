@@ -9,12 +9,6 @@ import 'package:appflowy_result/appflowy_result.dart';
 
 import 'notification_helper.dart';
 
-// DatabasePB
-typedef DatabaseNotificationCallback = void Function(
-  DatabaseNotification,
-  FlowyResult<Uint8List, FlowyError>,
-);
-
 class DatabaseNotificationParser
     extends NotificationParser<DatabaseNotification, FlowyError> {
   DatabaseNotificationParser({

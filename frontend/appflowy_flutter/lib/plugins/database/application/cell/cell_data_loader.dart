@@ -6,11 +6,6 @@ import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 
 import 'cell_controller.dart';
 
-abstract class IGridCellDataConfig {
-  // The cell data will reload if it receives the field's change notification.
-  bool get reloadOnFieldChanged;
-}
-
 abstract class CellDataParser<T> {
   T? parserData(List<int> data);
 }

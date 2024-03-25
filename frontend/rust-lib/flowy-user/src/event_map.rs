@@ -60,6 +60,7 @@ pub fn init(user_manager: Weak<UserManager>) -> AFPlugin {
     .event(UserEvent::UpdateWorkspaceMember, update_workspace_member_handler)
       // Workspace
     .event(UserEvent::GetAllWorkspace, get_all_workspace_handler)
+    .event(UserEvent::GetWorkspace, get_workspace_handler)
     .event(UserEvent::CreateWorkspace, create_workspace_handler)
     .event(UserEvent::DeleteWorkspace, delete_workspace_handler)
     .event(UserEvent::RenameWorkspace, rename_workspace_handler)
@@ -134,6 +135,9 @@ pub enum UserEvent {
   /// Return the all the workspaces of the user
   #[event(output = "RepeatedUserWorkspacePB")]
   GetAllWorkspace = 17,
+
+  #[event(input = "UserWorkspaceIdPB", output = "UserWorkspacePB")]
+  GetWorkspace = 18,
 
   #[event(input = "UserWorkspaceIdPB")]
   OpenWorkspace = 21,

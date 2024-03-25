@@ -9,12 +9,6 @@ import 'package:appflowy_result/appflowy_result.dart';
 
 import 'notification_helper.dart';
 
-// Folder
-typedef FolderNotificationCallback = void Function(
-  FolderNotification,
-  FlowyResult<Uint8List, FlowyError>,
-);
-
 class FolderNotificationParser
     extends NotificationParser<FolderNotification, FlowyError> {
   FolderNotificationParser({

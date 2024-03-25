@@ -1,8 +1,9 @@
 import 'dart:async';
 
-import 'package:flowy_infra/size.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
+import 'package:flowy_infra/size.dart';
 
 class FlowyTextField extends StatefulWidget {
   final String? hintText;
@@ -33,6 +34,8 @@ class FlowyTextField extends StatefulWidget {
   final TextAlignVertical? textAlignVertical;
   final TextInputType? keyboardType;
   final List<TextInputFormatter>? inputFormatters;
+  final bool obscureText;
+  final bool isDense;
 
   const FlowyTextField({
     super.key,
@@ -64,6 +67,8 @@ class FlowyTextField extends StatefulWidget {
     this.textAlignVertical,
     this.keyboardType = TextInputType.multiline,
     this.inputFormatters,
+    this.obscureText = false,
+    this.isDense = true,
   });
 
   @override
@@ -157,6 +162,7 @@ class FlowyTextFieldState extends State<FlowyTextField> {
       textAlignVertical: widget.textAlignVertical ?? TextAlignVertical.center,
       keyboardType: widget.keyboardType,
       inputFormatters: widget.inputFormatters,
+      obscureText: widget.obscureText,
       decoration: widget.decoration ??
           InputDecoration(
             constraints: widget.hintTextConstraints ??
@@ -164,14 +170,13 @@ class FlowyTextFieldState extends State<FlowyTextField> {
                   maxHeight: widget.errorText?.isEmpty ?? true ? 32 : 58,
                 ),
             contentPadding: EdgeInsets.symmetric(
-              horizontal: 12,
+              horizontal: widget.isDense ? 12 : 18,
               vertical:
                   (widget.maxLines == null || widget.maxLines! > 1) ? 12 : 0,
             ),
             enabledBorder: OutlineInputBorder(
               borderSide: BorderSide(
                 color: Theme.of(context).colorScheme.outline,
-                width: 1.0,
               ),
               borderRadius: Corners.s8Border,
             ),
@@ -193,21 +198,18 @@ class FlowyTextFieldState extends State<FlowyTextField> {
             focusedBorder: OutlineInputBorder(
               borderSide: BorderSide(
                 color: Theme.of(context).colorScheme.primary,
-                width: 1.0,
               ),
               borderRadius: Corners.s8Border,
             ),
             errorBorder: OutlineInputBorder(
               borderSide: BorderSide(
                 color: Theme.of(context).colorScheme.error,
-                width: 1.0,
               ),
               borderRadius: Corners.s8Border,
             ),
             focusedErrorBorder: OutlineInputBorder(
               borderSide: BorderSide(
                 color: Theme.of(context).colorScheme.error,
-                width: 1.0,
               ),
               borderRadius: Corners.s8Border,
             ),

@@ -15,7 +15,6 @@ import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flowy_infra/notifier.dart';
 
 typedef UserProfileNotifyValue = FlowyResult<UserProfilePB, FlowyError>;
-typedef AuthNotifyValue = FlowyResult<void, FlowyError>;
 
 class UserListener {
   UserListener({

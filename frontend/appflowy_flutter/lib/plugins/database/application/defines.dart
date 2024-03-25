@@ -31,8 +31,6 @@ typedef OnNumOfRowsChanged = void Function(
   ChangedReason reason,
 );
 
-typedef OnError = void Function(FlowyError);
-
 @freezed
 class LoadingState with _$LoadingState {
   const factory LoadingState.idle() = _Idle;

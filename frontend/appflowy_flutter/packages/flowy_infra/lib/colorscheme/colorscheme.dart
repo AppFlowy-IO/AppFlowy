@@ -1,10 +1,11 @@
-import 'package:flowy_infra/utils/color_converter.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flowy_infra/theme.dart';
+import 'package:flowy_infra/utils/color_converter.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'default_colorscheme.dart';
+
 import 'dandelion.dart';
+import 'default_colorscheme.dart';
 import 'lavender.dart';
 import 'lemonade.dart';
 
@@ -74,6 +75,7 @@ class FlowyColorScheme {
   final Color topbarBg;
   final Color icon;
   final Color text;
+  final Color secondaryText;
   final Color input;
   final Color hint;
   final Color primary;
@@ -93,6 +95,7 @@ class FlowyColorScheme {
   final Color calendarWeekendBGColor;
   //grid bottom count color
   final Color gridRowCountColor;
+
   const FlowyColorScheme({
     required this.surface,
     required this.hover,
@@ -128,6 +131,7 @@ class FlowyColorScheme {
     required this.topbarBg,
     required this.icon,
     required this.text,
+    required this.secondaryText,
     required this.input,
     required this.hint,
     required this.primary,

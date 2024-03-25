@@ -108,7 +108,7 @@ class _MoreViewActionsState extends State<MoreViewActions> {
                   FlowySvgs.details_s,
                   size: const Size(18, 18),
                   color: isHovering
-                      ? Theme.of(context).colorScheme.onPrimary
+                      ? Theme.of(context).colorScheme.onSecondary
                       : Theme.of(context).iconTheme.color,
                 ),
               ),

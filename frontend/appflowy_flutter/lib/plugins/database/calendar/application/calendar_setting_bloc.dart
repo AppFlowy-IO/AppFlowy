@@ -8,8 +8,6 @@ import 'package:protobuf/protobuf.dart';
 
 part 'calendar_setting_bloc.freezed.dart';
 
-typedef DayOfWeek = int;
-
 class CalendarSettingBloc
     extends Bloc<CalendarSettingEvent, CalendarSettingState> {
   CalendarSettingBloc({required DatabaseController databaseController})
