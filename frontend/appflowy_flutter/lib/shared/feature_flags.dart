@@ -77,11 +77,6 @@ enum FeatureFlag {
   }
 
   bool get isOn {
-    // Release in version 0.5.3
-    if (this == FeatureFlag.syncDocument) {
-      return true;
-    }
-
     if (_values.containsKey(this)) {
       return _values[this]!;
     }
