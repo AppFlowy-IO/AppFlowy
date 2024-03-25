@@ -121,6 +121,13 @@
     "confirmRestoreAll": {
       "title": "ئایا دەتەوێت هەموو لاپەڕەکانی ناو زبڵدانەکە بگەڕێنێتەوە؟",
       "caption": "ئەم کارە پێچەوانە نابێتەوە."
+    },
+    "mobile": {
+      "actions": "کردەکانی زبڵدان",
+      "empty": "تەنەکەی زبڵدان بەتاڵە",
+      "emptyDescription": "هیچ فایلێکی سڕاوەت نییە",
+      "isDeleted": "دەسڕدرێتەوە",
+      "isRestored": "دەگەڕێتەوە"
     }
   },
   "deletePagePrompt": {
@@ -147,6 +154,7 @@
     "defaultNewPageName": "بێ ناونیشان",
     "renameDialog": "گۆڕینی ناو"
   },
+  "noPagesInside": "لە ناوەوە هیچ لاپەڕەیەک نییە",
   "toolbar": {
     "undo": "پاشەکشە",
     "redo": "Redo",
@@ -156,7 +164,7 @@
     "strike": "لەگەڵ هێڵ لە ناوەڕاستدا",
     "numList": "لیستی ژمارەدار",
     "bulletList": "بووڵت لیست",
-    "checkList": "لیستی پشکنین",
+    "checkList": "لیستی پیاچوونه‌وه‌",
     "inlineCode": "کۆدی ناو هێڵ",
     "quote": "ده‌ق",
     "header": "سه‌رپه‌ڕه‌",
