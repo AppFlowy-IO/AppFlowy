@@ -704,7 +704,10 @@
       "smartEditDisabled": "لە ڕێکخستنەکاندا پەیوەندی بە OpenAI بکە",
       "discardResponse": "ئایا دەتەوێت وەڵامەکانی AI بسڕیتەوە؟",
       "createInlineMathEquation": "درووست کردنی هاوکێشە",
-      "toggleList": "toggle لیست",
+      "fonts": "فۆنتەکان",
+      "toggleList": "Toggle لیستی",
+      "quoteList": "لیستی وەرگرتە",
+      "numberedList": "لیستی ژمارەدار",
       "cover": {
         "changeCover": "گۆڕینی بەرگ",
         "colors": "ڕەنگەکان",
