@@ -65,6 +65,7 @@
       "exportLogFiles": "Export log files",
       "reachOut": "Reach out on Discord"
     },
+    "menuTitle": "Workspaces",
     "deleteWorkspaceHintText": "Are you sure you want to delete the workspace? This action cannot be undone.",
     "createSuccess": "Workspace created successfully",
     "createFailed": "Failed to create workspace",
