@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:appflowy/plugins/base/icon/icon_picker.dart';
 import 'package:appflowy/util/color_generator/color_generator.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
@@ -31,16 +33,16 @@ class _WorkspaceIconState extends State<WorkspaceIcon> {
     Widget child = widget.workspace.icon.isNotEmpty
         ? Container(
             width: widget.iconSize,
-            margin: const EdgeInsets.all(2),
+            alignment: Alignment.center,
             child: FlowyText(
               widget.workspace.icon,
-              textAlign: TextAlign.center,
               fontSize: widget.iconSize,
             ),
           )
         : Container(
             alignment: Alignment.center,
             width: widget.iconSize,
+            height: max(widget.iconSize, 26),
             decoration: BoxDecoration(
               color: ColorGenerator.generateColorFromString(
                 widget.workspace.name,

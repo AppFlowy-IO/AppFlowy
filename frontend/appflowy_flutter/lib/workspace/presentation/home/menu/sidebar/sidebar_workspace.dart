@@ -174,10 +174,10 @@ class _SidebarSwitchWorkspaceButtonState
           children: [
             const HSpace(2.0),
             SizedBox.square(
-              dimension: 28.0,
+              dimension: 30.0,
               child: WorkspaceIcon(
                 workspace: widget.currentWorkspace,
-                iconSize: 18,
+                iconSize: 20,
                 enableEdit: false,
               ),
             ),

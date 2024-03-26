@@ -1,10 +1,13 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/default_mobile_action_pane.dart';
 import 'package:appflowy/mobile/presentation/home/section_folder/mobile_home_section_folder_header.dart';
 import 'package:appflowy/mobile/presentation/page_item/mobile_view_item.dart';
+import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -38,9 +41,19 @@ class MobileSectionFolder extends StatelessWidget {
                 onPressed: () => context
                     .read<FolderBloc>()
                     .add(const FolderEvent.expandOrUnExpand()),
-                onAdded: () => context.read<FolderBloc>().add(
-                      const FolderEvent.expandOrUnExpand(isExpanded: true),
-                    ),
+                onAdded: () {
+                  context.read<SidebarSectionsBloc>().add(
+                        SidebarSectionsEvent.createRootViewInSection(
+                          name:
+                              LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
+                          index: 0,
+                          viewSection: categoryType.toViewSectionPB,
+                        ),
+                      );
+                  context.read<FolderBloc>().add(
+                        const FolderEvent.expandOrUnExpand(isExpanded: true),
+                      );
+                },
               ),
               const VSpace(8.0),
               const Divider(
