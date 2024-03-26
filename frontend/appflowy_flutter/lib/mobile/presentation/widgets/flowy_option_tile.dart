@@ -36,26 +36,31 @@ class FlowyOptionTile extends StatelessWidget {
     this.content,
     this.backgroundColor,
     this.fontFamily,
+    this.height,
   });
 
   factory FlowyOptionTile.text({
-    required String text,
+    String? text,
+    Widget? content,
     Color? textColor,
     bool showTopBorder = true,
     bool showBottomBorder = true,
     Widget? leftIcon,
     Widget? trailing,
     VoidCallback? onTap,
+    double? height,
   }) {
     return FlowyOptionTile._(
       type: FlowyOptionTileType.text,
       text: text,
+      content: content,
       textColor: textColor,
       onTap: onTap,
       showTopBorder: showTopBorder,
       showBottomBorder: showBottomBorder,
       leading: leftIcon,
       trailing: trailing,
+      height: height,
     );
   }
 
@@ -174,6 +179,8 @@ class FlowyOptionTile extends StatelessWidget {
   final Color? backgroundColor;
   final String? fontFamily;
 
+  final double? height;
+
   @override
   Widget build(BuildContext context) {
     final leadingWidget = _buildLeading();
@@ -182,16 +189,19 @@ class FlowyOptionTile extends StatelessWidget {
       color: backgroundColor,
       showTopBorder: showTopBorder,
       showBottomBorder: showBottomBorder,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        child: Row(
-          children: [
-            if (leadingWidget != null) leadingWidget,
-            if (content != null) content!,
-            if (content == null) _buildText(),
-            if (content == null) _buildTextField(),
-            if (trailing != null) trailing!,
-          ],
+      child: SizedBox(
+        height: height,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Row(
+            children: [
+              if (leadingWidget != null) leadingWidget,
+              if (content != null) content!,
+              if (content == null) _buildText(),
+              if (content == null) _buildTextField(),
+              if (trailing != null) trailing!,
+            ],
+          ),
         ),
       ),
     );
