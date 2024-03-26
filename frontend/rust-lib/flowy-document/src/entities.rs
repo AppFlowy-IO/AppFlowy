@@ -541,6 +541,8 @@ pub struct UpdateDocumentAwarenessStatePB {
   pub document_id: String,
   #[pb(index = 2, one_of)]
   pub selection: Option<DocumentAwarenessSelectionPB>,
+  #[pb(index = 3, one_of)]
+  pub metadata: Option<String>,
 }
 
 #[derive(ProtoBuf, Debug, Default)]

@@ -208,6 +208,8 @@ impl DocumentManager {
     if let Ok(doc) = self.get_document(doc_id).await {
       trace!("close document: {}", doc_id);
       if let Some(doc) = doc.try_lock() {
+        // clear the awareness state when close the document
+        doc.clean_awareness_local_state();
         let _ = doc.flush();
       }
     }
@@ -238,7 +240,11 @@ impl DocumentManager {
         // convert DocumentAwarenessStatePB to DocumentAwarenessState
         let user = DocumentAwarenessUser { uid, device_id };
         let selection = state.selection.map(|s| s.into());
-        let state = DocumentAwarenessState { user, selection };
+        let state = DocumentAwarenessState {
+          user,
+          selection,
+          metadata: None,
+        };
         doc.set_awareness_local_state(state);
         return Ok(true);
       }
