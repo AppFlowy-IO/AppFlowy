@@ -428,8 +428,10 @@
     "user": {
       "name": "ناو",
       "email": "ئیمەیڵ",
+      "tooltipSelectIcon": "هەڵبژاەدنی وێنۆچكه‌",
       "selectAnIcon": "هەڵبژاردنی وێنۆچكه‌",
-      "pleaseInputYourOpenAIKey": "🔑️تکایە کلیلی OpenAI ـەکەت بنووسە",
+      "pleaseInputYourOpenAIKey": "تکایە کلیلی OpenAI ـەکەت بنووسە",
+      "pleaseInputYourStabilityAIKey": "تکایە جێگیری کلیلی  AI ـەکەت بنووسە",
       "clickToLogout": "بۆ دەرچوون لە بەکارهێنەری ئێستا کلیک بکە"
     },
     "shortcuts": {
@@ -442,6 +444,17 @@
       "resetToDefault": "گەڕاندنەوە بۆ کلیلەکانی بنه‌ڕه‌ت",
       "couldNotLoadErrorMsg": "کورتە ڕێگاکان نەتوانرا باربکرێن، تکایە دووبارە هەوڵبدەرەوە",
       "couldNotSaveErrorMsg": "کورتە ڕێگاکان نەتوانرا پاشەکەوت بکرێن، تکایە دووبارە هەوڵبدەرەوە"
+    },
+    "mobile": {
+      "personalInfo": "زانیاری کەسی",
+      "username": "ناوی بەکارهێنەر",
+      "usernameEmptyError": "ناوی بەکارهێنەر ناتوانێت بەتاڵ بێت",
+      "about": "لەربارەی",
+      "pushNotifications": "ئاگادارکردنەوەکانی خستنه‌سه‌ر",
+      "support": "پشتیوانی",
+      "joinDiscord": "لە دیسکۆرد لەگەڵمان بن",
+      "privacyPolicy": "سیاسەتی پاراستنی نهێنی",
+      "userAgreement": "ڕێککەوتنی بەکارهێنەر"
     }
   },
   "grid": {
