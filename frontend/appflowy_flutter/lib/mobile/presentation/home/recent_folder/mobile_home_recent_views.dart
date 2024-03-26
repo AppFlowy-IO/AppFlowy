@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/home/recent_folder/mobile_recent_view.dart';
 import 'package:appflowy/workspace/application/recent/prelude.dart';
+import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -22,31 +23,38 @@ class _MobileRecentFolderState extends State<MobileRecentFolder> {
         ..add(
           const RecentViewsEvent.initial(),
         ),
-      child: BlocBuilder<RecentViewsBloc, RecentViewsState>(
-        builder: (context, state) {
-          final ids = <String>{};
-
-          List<ViewPB> recentViews = state.views.reversed.toList();
-          recentViews.retainWhere((element) => ids.add(element.id));
-
-          // only keep the first 20 items.
-          recentViews = recentViews.take(20).toList();
-
-          if (recentViews.isEmpty) {
-            return const SizedBox.shrink();
-          }
-
-          return Column(
-            children: [
-              _RecentViews(
-                key: ValueKey(recentViews),
-                // the recent views are in reverse order
-                recentViews: recentViews,
-              ),
-              const VSpace(12.0),
-            ],
-          );
+      child: BlocListener<UserWorkspaceBloc, UserWorkspaceState>(
+        listener: (context, state) {
+          context.read<RecentViewsBloc>().add(
+                const RecentViewsEvent.fetchRecentViews(),
+              );
         },
+        child: BlocBuilder<RecentViewsBloc, RecentViewsState>(
+          builder: (context, state) {
+            final ids = <String>{};
+
+            List<ViewPB> recentViews = state.views.reversed.toList();
+            recentViews.retainWhere((element) => ids.add(element.id));
+
+            // only keep the first 20 items.
+            recentViews = recentViews.take(20).toList();
+
+            if (recentViews.isEmpty) {
+              return const SizedBox.shrink();
+            }
+
+            return Column(
+              children: [
+                _RecentViews(
+                  key: ValueKey(recentViews),
+                  // the recent views are in reverse order
+                  recentViews: recentViews,
+                ),
+                const VSpace(12.0),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
