@@ -488,12 +488,15 @@
         "one": "{count} بینین",
         "other": "{count} بینینەکان"
       },
-      "editView": "دەستکاری دیمەن"
+      "editView": "دەستکاری دیمەن",
+      "boardSettings": "ڕێکخستنەکانی تەختە",
+      "calendarSettings": "ڕێکخستنەکانی ساڵنامە",
+      "numberOfVisibleFields": "{} نیشان دراوە"
     },
     "textFilter": {
       "contains": "لەخۆ دەگرێت",
       "doesNotContain": "لەخۆناگرێت",
-      "endsWith": "کۆتایی دێت بە🔚️",
+      "endsWith": "کۆتایی دێت بە",
       "startWith": "دەسپێکردن بە",
       "is": "هەیە",
       "isNot": "نییە",
@@ -530,8 +533,17 @@
       "isEmpty": "به‌تاڵه‌",
       "isNotEmpty": "بەتاڵ نییە"
     },
+    "dateFilter": {
+      "is": "هەیە",
+      "before": "پێشترە",
+      "after": "دوای ئەبێت",
+      "between": "لە نێواندایە",
+      "empty": "به‌تاڵه‌",
+      "notEmpty": "بەتاڵ نییە"
+    },
     "field": {
       "hide": "شاردنەوە",
+      "show": "نیشاندان",
       "insertLeft": "جێگیرکردن لە چەپ",
       "insertRight": "جێگیرکردن لە ڕاست",
       "duplicate": "دووبارەکردنەوە",
@@ -549,6 +561,7 @@
       "numberFormat": "فۆرمات ژمارە",
       "dateFormat": "فۆرمات ڕێکەوت",
       "includeTime": "کات لەخۆ بگرێت",
+      "isRange": "ڕۆژی کۆتایی",
       "dateFormatFriendly": "Mang Roj, Sall",
       "dateFormatISO": "Sall-Mang-Roj",
       "dateFormatLocal": "Mang/Roj/Sall",
@@ -559,6 +572,14 @@
       "timeFormatTwelveHour": "دوانزە کاتژمێر",
       "timeFormatTwentyFourHour": "بیست و چوار کاتژمێر",
       "clearDate": "سڕینەوەی ڕێکەوت",
+      "dateTime": "کاتی بەروار",
+      "startDateTime": "کاتی بەرواری دەستپێک",
+      "endDateTime": "کاتی بەرواری کۆتایی",
+      "failedToLoadDate": "شکستی هێنا لە بارکردنی بەهای بەروار",
+      "selectTime": "کات هەڵبژێرە",
+      "selectDate": "بەروار هەڵبژێرە",
+      "visibility": "پلەی بینین",
+      "propertyType": "جۆری تایبه‌تمه‌ندی",
       "addSelectOption": "زیادکردنی بژاردەیەک",
       "optionTitle": "بژاردەکان",
       "addOption": "زیادکردنی بژاردە",
