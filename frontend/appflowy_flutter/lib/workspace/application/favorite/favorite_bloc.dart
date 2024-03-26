@@ -27,8 +27,8 @@ class FavoriteBloc extends Bloc<FavoriteEvent, FavoriteState> {
   void _dispatch() {
     on<FavoriteEvent>(
       (event, emit) async {
-        await event.map(
-          initial: (e) async {
+        await event.when(
+          initial: () async {
             _listener.start(
               favoritesUpdated: _onFavoritesUpdated,
             );
@@ -44,23 +44,36 @@ class FavoriteBloc extends Bloc<FavoriteEvent, FavoriteState> {
               ),
             );
           },
-          didFavorite: (e) {
+          fetchFavorites: () async {
+            final result = await _service.readFavorites();
             emit(
-              state.copyWith(views: [...state.views, ...e.favorite.items]),
+              result.fold(
+                (view) => state.copyWith(
+                  views: view.items,
+                ),
+                (error) => state.copyWith(
+                  views: [],
+                ),
+              ),
             );
           },
-          didUnfavorite: (e) {
+          didFavorite: (favorite) {
+            emit(
+              state.copyWith(views: [...state.views, ...favorite.items]),
+            );
+          },
+          didUnfavorite: (favorite) {
             final views = [...state.views]..removeWhere(
-                (view) => e.favorite.items.any((item) => item.id == view.id),
+                (view) => favorite.items.any((item) => item.id == view.id),
               );
             emit(
               state.copyWith(views: views),
             );
           },
-          toggle: (e) async {
+          toggle: (view) async {
             await _service.toggleFavorite(
-              e.view.id,
-              !e.view.isFavorite,
+              view.id,
+              !view.isFavorite,
             );
           },
         );
@@ -89,6 +102,7 @@ class FavoriteEvent with _$FavoriteEvent {
   const factory FavoriteEvent.didUnfavorite(RepeatedViewPB favorite) =
       DidUnfavorite;
   const factory FavoriteEvent.toggle(ViewPB view) = ToggleFavorite;
+  const factory FavoriteEvent.fetchFavorites() = FetchFavorites;
 }
 
 @freezed
