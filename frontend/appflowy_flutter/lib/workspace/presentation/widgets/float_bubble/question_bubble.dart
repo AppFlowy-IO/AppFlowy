@@ -4,18 +4,22 @@ import 'package:flutter/services.dart';
 import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/startup/tasks/rust_sdk.dart';
+import 'package:appflowy/workspace/application/version_checker/version_checker_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
-import 'package:flowy_infra_ui/style_widget/button.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
-import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:package_info_plus/package_info_plus.dart';
-import 'package:styled_widget/styled_widget.dart';
+import 'package:flowy_infra/theme_extension.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+const _whatIsNewUrl = "https://www.appflowy.io/what-is-new";
 
 class QuestionBubble extends StatelessWidget {
   const QuestionBubble({super.key});
@@ -38,6 +42,7 @@ class BubbleActionList extends StatefulWidget {
 }
 
 class _BubbleActionListState extends State<BubbleActionList> {
+  final popoverMutex = PopoverMutex();
   bool isOpen = false;
 
   Color get fontColor => isOpen
@@ -56,16 +61,21 @@ class _BubbleActionListState extends State<BubbleActionList> {
 
   @override
   Widget build(BuildContext context) {
-    final List<PopoverAction> actions = [];
-    actions.addAll(
-      BubbleAction.values.map((action) => BubbleActionWrapper(action)),
-    );
-    actions.add(FlowyVersionDescription());
+    final List<PopoverAction> actions = [
+      ...BubbleAction.values.map((action) => BubbleActionWrapper(action)),
+      FlowyVersionDescription(popoverMutex: popoverMutex),
+    ];
 
     return PopoverActionList<PopoverAction>(
+      popoverMutex: popoverMutex,
       direction: PopoverDirection.topWithRightAligned,
       actions: actions,
       offset: const Offset(0, -8),
+      constraints: const BoxConstraints(
+        minWidth: 170,
+        maxWidth: 225,
+        maxHeight: 300,
+      ),
       buildChild: (controller) {
         return FlowyTextButton(
           '?',
@@ -87,7 +97,7 @@ class _BubbleActionListState extends State<BubbleActionList> {
         if (action is BubbleActionWrapper) {
           switch (action.inner) {
             case BubbleAction.whatsNews:
-              afLaunchUrlString("https://www.appflowy.io/what-is-new");
+              afLaunchUrlString(_whatIsNewUrl);
               break;
             case BubbleAction.help:
               afLaunchUrlString("https://discord.gg/9Q2xaN37tV");
@@ -112,6 +122,8 @@ class _BubbleActionListState extends State<BubbleActionList> {
               break;
           }
         }
+
+        debugPrint(action.runtimeType.toString());
 
         controller.close();
       },
@@ -146,48 +158,163 @@ class _DebugToast {
 }
 
 class FlowyVersionDescription extends CustomActionCell {
+  FlowyVersionDescription({required this.popoverMutex});
+
+  final PopoverMutex popoverMutex;
+
   @override
   Widget buildWithContext(BuildContext context) {
-    return FutureBuilder(
-      future: PackageInfo.fromPlatform(),
-      builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-        if (snapshot.connectionState == ConnectionState.done) {
-          if (snapshot.hasError) {
-            return FlowyText(
-              "Error: ${snapshot.error}",
-              color: Theme.of(context).disabledColor,
-            );
-          }
-
-          final PackageInfo packageInfo = snapshot.data;
-          final String appName = packageInfo.appName;
-          final String version = packageInfo.version;
-
-          return SizedBox(
-            height: 30,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Divider(
-                  height: 1,
-                  color: Theme.of(context).dividerColor,
-                  thickness: 1.0,
-                ),
-                const VSpace(6),
-                FlowyText(
-                  "$appName $version",
-                  color: Theme.of(context).hintColor,
-                ),
-              ],
-            ).padding(
-              horizontal: ActionListSizes.itemHPadding,
+    return BlocProvider.value(
+      value: getIt<VersionCheckerBloc>(),
+      child: BlocBuilder<VersionCheckerBloc, VersionCheckerState>(
+        builder: (context, state) {
+          return Container(
+            margin: const EdgeInsets.only(top: 4),
+            decoration: BoxDecoration(
+              border: Border(
+                top: BorderSide(color: Theme.of(context).dividerColor),
+              ),
+            ),
+            padding: const EdgeInsets.only(top: 4),
+            child: HoverButton(
+              leftIcon: getLeftIcon(
+                context,
+                isLoading: state.isLoading,
+                isUpdateAvailable: state.isUpdateAvailable,
+              ),
+              itemHeight: 20,
+              name: '${state.appName} ${state.currentVersion}',
+              onTap: () {
+                PopoverContainer.of(context).close();
+                showUpdateDialog(context, state);
+              },
             ),
           );
-        } else {
-          return const SizedBox(height: 30);
-        }
-      },
+        },
+      ),
     );
+  }
+
+  Widget? getLeftIcon(
+    BuildContext context, {
+    required bool isLoading,
+    required bool isUpdateAvailable,
+  }) {
+    if (isLoading) {
+      return const Padding(
+        padding: EdgeInsets.only(right: 4),
+        child: SizedBox(
+          height: 12,
+          width: 12,
+          child: CircularProgressIndicator(strokeWidth: 2),
+        ),
+      );
+    } else if (isUpdateAvailable) {
+      return FlowySvg(
+        FlowySvgs.close_s,
+        size: const Size.square(18),
+        color: Theme.of(context).colorScheme.error,
+      );
+    } else {
+      return FlowySvg(
+        FlowySvgs.check_s,
+        size: const Size.square(18),
+        color: AFThemeExtension.of(context).success,
+      );
+    }
+  }
+
+  void showUpdateDialog(BuildContext context, VersionCheckerState state) {
+    Builder(
+      builder: (context) {
+        // Workaround for following theme updates
+        Theme.of(context).brightness;
+
+        return FlowyDialog(
+          title: FlowyText.semibold(
+            state.isUpdateAvailable
+                ? LocaleKeys.updateDialog_updateAvailable.tr(
+                    args: [state.latestVersion ?? ''],
+                  )
+                : LocaleKeys.updateDialog_upToDate.tr(),
+            fontSize: 20,
+          ),
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const VSpace(8),
+                  FlowyText(
+                    state.isUpdateAvailable
+                        ? LocaleKeys.updateDialog_updateAvailableContent.tr()
+                        : LocaleKeys.updateDialog_upToDateContent.tr(),
+                    fontSize: 12,
+                    maxLines: 3,
+                  ),
+                  const VSpace(8),
+                  Row(
+                    children: [
+                      if (state.isUpdateAvailable &&
+                          state.downloadLink != null) ...[
+                        FlowyTextButton(
+                          LocaleKeys.updateDialog_downloadLabel.tr(),
+                          fillColor: Theme.of(context).colorScheme.primary,
+                          hoverColor:
+                              Theme.of(context).colorScheme.primaryContainer,
+                          fontColor: Theme.of(context).colorScheme.onPrimary,
+                          onPressed: () =>
+                              afLaunchUrlString(state.downloadLink!),
+                        ),
+                        const HSpace(8),
+                      ],
+                      FlowyTextButton(
+                        LocaleKeys.updateDialog_allReleaseNotes.tr(),
+                        fillColor: Theme.of(context).colorScheme.primary,
+                        hoverColor:
+                            Theme.of(context).colorScheme.primaryContainer,
+                        fontColor: Theme.of(context).colorScheme.onPrimary,
+                        onPressed: () => afLaunchUrlString(_whatIsNewUrl),
+                      ),
+                    ],
+                  ),
+                  if (state.changelog?.trim() != null) ...[
+                    const VSpace(12),
+                    DecoratedBox(
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Theme.of(context).dividerColor,
+                        ),
+                        borderRadius: BorderRadius.circular(4),
+                        color: AFThemeExtension.of(context).lightGreyHover,
+                      ),
+                      child: AppFlowyEditor(
+                        editorStyle: EditorStyle.desktop(
+                          padding: const EdgeInsets.all(12),
+                          textScaleFactor: 0.8,
+                          textStyleConfiguration: TextStyleConfiguration(
+                            text: Theme.of(context).textTheme.bodyLarge ??
+                                const TextStyle(),
+                          ),
+                        ),
+                        editable: false,
+                        shrinkWrap: true,
+                        editorState: EditorState(
+                          document:
+                              markdownToDocument(state.changelog?.trim() ?? ''),
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    ).show(context);
   }
 }
 
@@ -197,6 +324,7 @@ class BubbleActionWrapper extends ActionCell {
   BubbleActionWrapper(this.inner);
 
   final BubbleAction inner;
+
   @override
   Widget? leftIcon(Color iconColor) => inner.emoji;
 
@@ -236,11 +364,8 @@ extension QuestionBubbleExtension on BubbleAction {
         return const FlowyText.regular('✨');
       case BubbleAction.github:
         return const Padding(
-          padding: EdgeInsets.all(3.0),
-          child: FlowySvg(
-            FlowySvgs.archive_m,
-            size: Size.square(12),
-          ),
+          padding: EdgeInsets.all(.5),
+          child: FlowySvg(FlowySvgs.archive_m, size: Size.square(14)),
         );
     }
   }

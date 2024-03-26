@@ -167,6 +167,11 @@
       "success": "Copied debug info to clipboard!",
       "fail": "Unable to copy debug info to clipboard"
     },
+    "updateStatus": {
+      "upToDate": "AppFlowy is up to date 🎉",
+      "updateAvailable": "Version {} is available",
+      "checking": "Checking version..."
+    },
     "feedback": "Feedback"
   },
   "menuAppHeader": {
@@ -1391,6 +1396,14 @@
     "userIcon": "User icon"
   },
   "noLogFiles": "There're no log files",
+  "updateDialog": {
+    "updateAvailable": "Version {} is available",
+    "upToDate": "You are up-to-date",
+    "updateAvailableContent": "It seems you are on an older version of AppFlowy, check the release notes below to see what you are missing out on.",
+    "upToDateContent": "You are on the latest version of AppFlowy! If you want to see what was included in this version, check out the release notes below.",
+    "downloadLabel": "Download",
+    "allReleaseNotes": "See all release notes"
+  },
   "newSettings": {
     "myAccount": {
       "title": "My account",
