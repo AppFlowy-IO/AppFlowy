@@ -80,3 +80,36 @@ enum ImportType {
     }
   }
 }
+
+enum ImportFromNotionType {
+  markdownZip;
+
+  @override
+  String toString() {
+    switch (this) {
+      case ImportFromNotionType.markdownZip:
+        return LocaleKeys.importPanel_fromMarkdownZip.tr();
+    }
+  }
+
+  List<String> get allowedExtensions {
+    switch (this) {
+      case ImportFromNotionType.markdownZip:
+        return ['zip'];
+    }
+  }
+
+  bool get allowMultiSelect {
+    switch (this) {
+      case ImportFromNotionType.markdownZip:
+        return false;
+    }
+  }
+
+  String get tooltips {
+    switch (this) {
+      case ImportFromNotionType.markdownZip:
+        return LocaleKeys.importPanel_importFromNotionMarkdownZipTooltip.tr();
+    }
+  }
+}
