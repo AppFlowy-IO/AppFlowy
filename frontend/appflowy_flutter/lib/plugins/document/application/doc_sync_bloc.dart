@@ -49,12 +49,13 @@ class DocumentSyncBloc extends Bloc<DocumentSyncEvent, DocumentSyncBlocState> {
 
             connectivityStream =
                 _connectivity.onConnectivityChanged.listen((result) {
-              if (!isClosed) {}
-              emit(
-                state.copyWith(
-                  isNetworkConnected: result != ConnectivityResult.none,
-                ),
-              );
+              if (!isClosed) {
+                emit(
+                  state.copyWith(
+                    isNetworkConnected: result != ConnectivityResult.none,
+                  ),
+                );
+              }
             });
           },
           syncStateChanged: (syncState) {
