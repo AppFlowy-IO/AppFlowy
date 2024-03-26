@@ -581,12 +581,19 @@
       "visibility": "پلەی بینین",
       "propertyType": "جۆری تایبه‌تمه‌ندی",
       "addSelectOption": "زیادکردنی بژاردەیەک",
+      "typeANewOption": "بژاردەیەکی نوێ بنووسە",
       "optionTitle": "بژاردەکان",
       "addOption": "زیادکردنی بژاردە",
       "editProperty": "دەستکاریکردنی تایبەتمەندی",
       "newProperty": "تایبەتمەندی نوێ",
       "deleteFieldPromptMessage": "ئایا دڵنیایت لە سڕدنەوەی ئەم تایبەتمەندییە؟",
-      "newColumn": "ستوونی نوێ"
+      "newColumn": "ستوونی نوێ",
+      "format": "فۆرمات",
+      "reminderOnDateTooltip": "ئەم خانەیە بیرخستنەوەیەکی بەرنامە بۆ داڕێژراوی هەیە"
+    },
+    "rowPage": {
+      "newField": "خانەیێکی نوێ زیاد بکە",
+      "fieldDragElementTooltip": "بۆ کردنەوەی مێنۆ کرتە بکە"
     },
     "sort": {
       "ascending": "هەڵکشاو",
@@ -597,11 +604,14 @@
     "row": {
       "duplicate": "دووبارە کردنەوە",
       "delete": "سڕینەوە",
+      "titlePlaceholder": "بێ ناونیشان",
       "textPlaceholder": "بەتاڵ",
       "copyProperty": "تایبەتمەندی کۆپی کرا بۆ کلیپبۆرد",
       "count": "سەرژمێرکردن",
       "newRow": "ڕیزی نوێ",
-      "action": "کردەوە"
+      "action": "کردەوە",
+      "drag": "ڕاکێشان بۆ جوڵە",
+      "dragAndClick": "بۆ جوڵاندن ڕابکێشە، کلیک بکە بۆ کردنەوەی مێنۆ"
     },
     "selectOption": {
       "create": "دروستکردن",
@@ -617,13 +627,31 @@
       "deleteTag": "سڕینەوە تاگ",
       "colorPanelTitle": "ڕەنگەکان",
       "panelTitle": "بژاردەیەک زیاد یان دروستی بکە.",
-      "searchOption": "گەڕان بەدوای بژاردەیەکدا"
+      "searchOption": "گەڕان بەدوای بژاردەیەکدا",
+      "searchOrCreateOption": "گەڕان یان دروستکردنی بژاردەیەک...",
+      "createNew": "دروستکردنی نوێ",
+      "orSelectOne": "یان بژاردەیەک هەڵبژێرە",
+      "typeANewOption": "بژاردەیەکی نوێ بنووسە",
+      "tagName": "ناوی تاگ"
     },
     "checklist": {
-      "addNew": "شتێک زیاد بکە"
+      "taskHint": "وەسفکردنی ئەرک",
+      "addNew": "شتێک زیاد بکە",
+      "submitNewTask": "ئافراندن",
+      "hideComplete": "شاردنەوەی ئەرکە تەواوکراوەکان",
+      "showComplete": "هەموو ئەرکەکان پیشان بدە"
     },
     "menuName": "تۆڕ",
-    "referencedGridPrefix": "نواندن"
+    "referencedGridPrefix": "نواندن",
+    "calculate": "حیساب بکە",
+    "calculationTypeLabel": {
+      "none": "هیچ",
+      "average": "تێکڕا و ڕێژە",
+      "max": "زۆر",
+      "median": "ناوەند",
+      "min": "کەم",
+      "sum": "کۆ"
+    }
   },
   "document": {
     "menuName": "بەڵگەنامە",
@@ -643,15 +671,20 @@
       "calendar": {
         "selectACalendarToLinkTo": "ساڵنامەیەک هەڵبژێرە بۆ ئەوەی لینکی بۆ بکەیت.",
         "createANewCalendar": "ساڵنامەیەکی نوێ دروست بکە"
+      },
+      "document": {
+        "selectADocumentToLinkTo": "بەڵگەنامەیەک هەڵبژێرە کە بەستەرەکەی بۆ دابنێیت"
       }
     },
     "selectionMenu": {
-      "outline": "گەڵاڵە"
+      "outline": "گەڵاڵە",
+      "codeBlock": "بلۆکی کۆد"
     },
     "plugins": {
       "referencedBoard": "بۆردی چاوگ",
-      "referencedGrid": "تۆڕی چاوگ",
-      "referencedCalendar": "ساڵنامەی چاوگ",
+      "referencedGrid": "تۆڕی ئاماژەپێکراو",
+      "referencedCalendar": "ساڵنامەی ئاماژەپێکراو",
+      "referencedDocument": "بەڵگەنامەی ئاماژەپێکراو",
       "autoGeneratorMenuItemName": "OpenAI نووسەری",
       "autoGeneratorTitleName": "داوا لە AI بکە هەر شتێک بنووسێت...",
       "autoGeneratorLearnMore": "زیاتر زانین",
