@@ -57,19 +57,6 @@ class FavoriteBloc extends Bloc<FavoriteEvent, FavoriteState> {
               ),
             );
           },
-          didFavorite: (favorite) {
-            emit(
-              state.copyWith(views: [...state.views, ...favorite.items]),
-            );
-          },
-          didUnfavorite: (favorite) {
-            final views = [...state.views]..removeWhere(
-                (view) => favorite.items.any((item) => item.id == view.id),
-              );
-            emit(
-              state.copyWith(views: views),
-            );
-          },
           toggle: (view) async {
             await _service.toggleFavorite(
               view.id,
@@ -86,9 +73,7 @@ class FavoriteBloc extends Bloc<FavoriteEvent, FavoriteState> {
     bool didFavorite,
   ) {
     favoriteOrFailed.fold(
-      (favorite) => didFavorite
-          ? add(FavoriteEvent.didFavorite(favorite))
-          : add(FavoriteEvent.didUnfavorite(favorite)),
+      (favorite) => add(const FetchFavorites()),
       (error) => Log.error(error),
     );
   }
@@ -97,10 +82,6 @@ class FavoriteBloc extends Bloc<FavoriteEvent, FavoriteState> {
 @freezed
 class FavoriteEvent with _$FavoriteEvent {
   const factory FavoriteEvent.initial() = Initial;
-  const factory FavoriteEvent.didFavorite(RepeatedViewPB favorite) =
-      DidFavorite;
-  const factory FavoriteEvent.didUnfavorite(RepeatedViewPB favorite) =
-      DidUnfavorite;
   const factory FavoriteEvent.toggle(ViewPB view) = ToggleFavorite;
   const factory FavoriteEvent.fetchFavorites() = FetchFavorites;
 }

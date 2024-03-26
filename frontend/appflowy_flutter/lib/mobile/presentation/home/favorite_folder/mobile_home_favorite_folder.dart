@@ -52,26 +52,29 @@ class MobileFavoriteFolder extends StatelessWidget {
               ],
               if (forceExpanded || state.isExpanded)
                 ...views.map(
-                  (view) => MobileViewItem(
-                    key: ValueKey(
-                      '${FolderCategoryType.favorite.name} ${view.id}',
-                    ),
-                    categoryType: FolderCategoryType.favorite,
-                    isDraggable: false,
-                    isFirstChild: view.id == views.first.id,
-                    isFeedback: false,
-                    view: view,
-                    level: 0,
-                    onSelected: (view) async {
-                      await context.pushView(view);
-                    },
-                    endActionPane: (context) => buildEndActionPane(context, [
-                      view.isFavorite
-                          ? MobilePaneActionType.removeFromFavorites
-                          : MobilePaneActionType.addToFavorites,
-                      MobilePaneActionType.more,
-                    ]),
-                  ),
+                  (view) {
+                    print('view_id: ${view.id}');
+                    return MobileViewItem(
+                      key: ValueKey(
+                        '${FolderCategoryType.favorite.name} ${view.id}',
+                      ),
+                      categoryType: FolderCategoryType.favorite,
+                      isDraggable: false,
+                      isFirstChild: view.id == views.first.id,
+                      isFeedback: false,
+                      view: view,
+                      level: 0,
+                      onSelected: (view) async {
+                        await context.pushView(view);
+                      },
+                      endActionPane: (context) => buildEndActionPane(context, [
+                        view.isFavorite
+                            ? MobilePaneActionType.removeFromFavorites
+                            : MobilePaneActionType.addToFavorites,
+                        MobilePaneActionType.more,
+                      ]),
+                    );
+                  },
                 ),
             ],
           );
