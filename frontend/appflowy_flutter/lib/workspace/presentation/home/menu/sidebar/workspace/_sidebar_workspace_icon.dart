@@ -49,7 +49,6 @@ class _WorkspaceIconState extends State<WorkspaceIcon> {
               ),
               borderRadius: BorderRadius.circular(4),
             ),
-            margin: const EdgeInsets.all(2),
             child: FlowyText(
               widget.workspace.name.isEmpty
                   ? ''
