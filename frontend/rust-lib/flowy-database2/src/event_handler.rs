@@ -379,7 +379,9 @@ pub(crate) async fn update_row_meta_handler(
   let params: UpdateRowMetaParams = data.into_inner().try_into()?;
   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
   let row_id = RowId::from(params.id.clone());
-  database_editor.update_row_meta(&row_id, params).await;
+  database_editor
+    .update_row_meta(&row_id.clone(), params)
+    .await;
   Ok(())
 }
 
