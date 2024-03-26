@@ -9,7 +9,7 @@ import 'package:easy_localization/easy_localization.dart';
 // Document Reference
 
 SelectionMenuItem referencedDocumentMenuItem = SelectionMenuItem(
-  getName: () => LocaleKeys.document_plugins_referencedDocument.tr(),
+  getName: LocaleKeys.document_plugins_referencedDocument.tr,
   icon: (editorState, onSelected, style) => SelectableSvgWidget(
     data: FlowySvgs.document_s,
     isSelected: onSelected,
@@ -23,7 +23,7 @@ SelectionMenuItem referencedDocumentMenuItem = SelectionMenuItem(
 // Database References
 
 SelectionMenuItem referencedGridMenuItem = SelectionMenuItem(
-  getName: () => LocaleKeys.document_plugins_referencedGrid.tr(),
+  getName: LocaleKeys.document_plugins_referencedGrid.tr,
   icon: (editorState, onSelected, style) => SelectableSvgWidget(
     data: FlowySvgs.grid_s,
     isSelected: onSelected,
@@ -35,7 +35,7 @@ SelectionMenuItem referencedGridMenuItem = SelectionMenuItem(
 );
 
 SelectionMenuItem referencedBoardMenuItem = SelectionMenuItem(
-  getName: () => LocaleKeys.document_plugins_referencedBoard.tr(),
+  getName: LocaleKeys.document_plugins_referencedBoard.tr,
   icon: (editorState, onSelected, style) => SelectableSvgWidget(
     data: FlowySvgs.board_s,
     isSelected: onSelected,
@@ -47,7 +47,7 @@ SelectionMenuItem referencedBoardMenuItem = SelectionMenuItem(
 );
 
 SelectionMenuItem referencedCalendarMenuItem = SelectionMenuItem(
-  getName: () => LocaleKeys.document_plugins_referencedCalendar.tr(),
+  getName: LocaleKeys.document_plugins_referencedCalendar.tr,
   icon: (editorState, onSelected, style) => SelectableSvgWidget(
     data: FlowySvgs.date_s,
     isSelected: onSelected,

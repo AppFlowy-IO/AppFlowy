@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 SelectionMenuItem emojiMenuItem = SelectionMenuItem(
-  getName: () => LocaleKeys.document_plugins_emoji.tr(),
+  getName: LocaleKeys.document_plugins_emoji.tr,
   icon: (editorState, onSelected, style) => SelectableIconWidget(
     icon: Icons.emoji_emotions_outlined,
     isSelected: onSelected,

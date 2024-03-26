@@ -110,7 +110,7 @@ CharacterShortcutEvent insertChildNodeInsideToggleList = CharacterShortcutEvent(
 // toggle the todo list
 final CommandShortcutEvent toggleToggleListCommand = CommandShortcutEvent(
   key: 'toggle the toggle list',
-  getDescription: () => 'Toggle the toggle list',
+  getDescription: () => AppFlowyEditorL10n.current.cmdToggleTodoList,
   command: 'ctrl+enter',
   macOSCommand: 'cmd+enter',
   handler: _toggleToggleListCommandHandler,

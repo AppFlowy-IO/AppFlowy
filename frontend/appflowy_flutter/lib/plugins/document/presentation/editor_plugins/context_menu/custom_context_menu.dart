@@ -6,15 +6,15 @@ import 'package:easy_localization/easy_localization.dart';
 final List<List<ContextMenuItem>> customContextMenuItems = [
   [
     ContextMenuItem(
-      getName: () => LocaleKeys.document_plugins_contextMenu_copy.tr(),
+      getName: LocaleKeys.document_plugins_contextMenu_copy.tr,
       onPressed: (editorState) => customCopyCommand.execute(editorState),
     ),
     ContextMenuItem(
-      getName: () => LocaleKeys.document_plugins_contextMenu_paste.tr(),
+      getName: LocaleKeys.document_plugins_contextMenu_paste.tr,
       onPressed: (editorState) => customPasteCommand.execute(editorState),
     ),
     ContextMenuItem(
-      getName: () => LocaleKeys.document_plugins_contextMenu_cut.tr(),
+      getName: LocaleKeys.document_plugins_contextMenu_cut.tr,
       onPressed: (editorState) => customCutCommand.execute(editorState),
     ),
   ],

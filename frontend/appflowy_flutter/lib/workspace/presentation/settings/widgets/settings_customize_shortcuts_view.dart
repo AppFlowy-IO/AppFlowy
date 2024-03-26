@@ -117,7 +117,7 @@ class ShortcutsListTile extends StatelessWidget {
             Expanded(
               child: FlowyText.medium(
                 key: Key(shortcutEvent.key),
-                shortcutEvent.key.capitalize(),
+                shortcutEvent.description!.capitalize(),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
