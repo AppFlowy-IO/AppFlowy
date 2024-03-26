@@ -151,10 +151,12 @@ class DocumentService {
   Future<FlowyResult<void, FlowyError>> syncAwarenessStates({
     required String documentId,
     required Selection? selection,
+    String? metadata,
   }) async {
     final payload = UpdateDocumentAwarenessStatePB(
       documentId: documentId,
       selection: convertSelectionToAwarenessSelection(selection),
+      metadata: metadata,
     );
 
     final result = await DocumentEventSetAwarenessState(payload).send();

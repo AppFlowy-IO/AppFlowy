@@ -237,13 +237,12 @@ impl DocumentManager {
     let device_id = self.user_service.device_id()?;
     if let Ok(doc) = self.get_document(doc_id).await {
       if let Some(doc) = doc.try_lock() {
-        // convert DocumentAwarenessStatePB to DocumentAwarenessState
         let user = DocumentAwarenessUser { uid, device_id };
         let selection = state.selection.map(|s| s.into());
         let state = DocumentAwarenessState {
           user,
           selection,
-          metadata: None,
+          metadata: state.metadata,
         };
         doc.set_awareness_local_state(state);
         return Ok(true);

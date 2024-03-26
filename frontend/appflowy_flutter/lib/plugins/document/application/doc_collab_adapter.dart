@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:appflowy/plugins/document/application/doc_awareness_metadata.dart';
 import 'package:appflowy/plugins/document/application/document_data_pb_extension.dart';
 import 'package:appflowy/plugins/document/application/prelude.dart';
 import 'package:appflowy/user/application/auth/device_id.dart';
@@ -137,7 +138,13 @@ class DocumentCollabAdapter {
     for (final state in states.value.values) {
       final uid = state.user.uid.toString();
       final did = state.user.deviceId;
-      if (uid == userId && did == deviceId) {
+      final metadata = DocAwarenessMetadata.fromJson(
+        jsonDecode(state.metadata),
+      );
+      final selectionColor = metadata.selectionColor.tryToColor();
+      final cursorColor = metadata.cursorColor.tryToColor();
+      if ((uid == userId && did == deviceId) ||
+          (cursorColor == null || selectionColor == null)) {
         continue;
       }
       final start = state.selection.start;
@@ -158,18 +165,24 @@ class DocumentCollabAdapter {
       final remoteSelection = RemoteSelection(
         id: uid,
         selection: selection,
-        selectionColor: color.withOpacity(0.3),
-        cursorColor: color,
+        selectionColor: selectionColor,
+        cursorColor: cursorColor,
         builder: (_, __, rect) {
           return Positioned(
             top: rect.top - 10,
             left: selection.isCollapsed ? rect.right : rect.left,
             child: ColoredBox(
               color: color,
-              child: FlowyText(
-                uid,
-                color: Colors.black,
-                fontSize: 12.0,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 2.0,
+                  vertical: 1.0,
+                ),
+                child: FlowyText(
+                  metadata.userName,
+                  color: Colors.black,
+                  fontSize: 12.0,
+                ),
               ),
             ),
           );

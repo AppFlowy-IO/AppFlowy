@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:convert';
 
+import 'package:appflowy/plugins/document/application/doc_awareness_metadata.dart';
 import 'package:appflowy/plugins/document/application/doc_collab_adapter.dart';
 import 'package:appflowy/plugins/document/application/doc_listener.dart';
 import 'package:appflowy/plugins/document/application/doc_service.dart';
@@ -10,6 +12,9 @@ import 'package:appflowy/plugins/trash/application/trash_service.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
+import 'package:appflowy/user/application/auth/device_id.dart';
+import 'package:appflowy/util/color_generator/color_generator.dart';
+import 'package:appflowy/util/color_to_hex_string.dart';
 import 'package:appflowy/util/debounce.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy_backend/protobuf/flowy-document/entities.pb.dart';
@@ -283,8 +288,10 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     _updateSelectionDebounce.call(_onSelectionUpdate);
   }
 
-  void _onSelectionUpdate() {
-    if (!FeatureFlag.syncDocument.isOn) {
+  Future<void> _onSelectionUpdate() async {
+    final user = state.userProfilePB;
+    final deviceId = await getDeviceId();
+    if (!FeatureFlag.syncDocument.isOn || user == null) {
       return;
     }
 
@@ -295,9 +302,18 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     final selection = editorState.selection;
 
     // sync the selection
-    _documentService.syncAwarenessStates(
+    final id = user.id.toString() + deviceId;
+    final basicColor = ColorGenerator.generateColorFromString(id.toString());
+    final metadata = DocAwarenessMetadata(
+      cursorColor: basicColor.toHexString(),
+      selectionColor: basicColor.withOpacity(0.6).toHexString(),
+      userName: user.name,
+      userAvatar: user.iconUrl,
+    );
+    await _documentService.syncAwarenessStates(
       documentId: view.id,
       selection: selection,
+      metadata: jsonEncode(metadata.toJson()),
     );
   }
 }
