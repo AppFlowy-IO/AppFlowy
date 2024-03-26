@@ -127,7 +127,9 @@ class MobileHomePage extends StatelessWidget {
                             padding: const EdgeInsets.symmetric(horizontal: 24),
                             child: MobileFolders(
                               user: userProfile,
-                              workspaceSetting: workspaceSetting,
+                              workspaceId:
+                                  state.currentWorkspace?.workspaceId ??
+                                      workspaceSetting.workspaceId,
                               showFavorite: false,
                             ),
                           ),

@@ -28,14 +28,19 @@ class _WorkspaceIconState extends State<WorkspaceIcon> {
 
   @override
   Widget build(BuildContext context) {
-    final child = widget.workspace.icon.isNotEmpty
-        ? FlowyText(
-            widget.workspace.icon,
-            textAlign: TextAlign.center,
-            fontSize: widget.iconSize,
+    Widget child = widget.workspace.icon.isNotEmpty
+        ? Container(
+            width: widget.iconSize,
+            margin: const EdgeInsets.all(2),
+            child: FlowyText(
+              widget.workspace.icon,
+              textAlign: TextAlign.center,
+              fontSize: widget.iconSize,
+            ),
           )
         : Container(
             alignment: Alignment.center,
+            width: widget.iconSize,
             decoration: BoxDecoration(
               color: ColorGenerator.generateColorFromString(
                 widget.workspace.name,
@@ -51,29 +56,32 @@ class _WorkspaceIconState extends State<WorkspaceIcon> {
               color: Colors.black,
             ),
           );
-    return AppFlowyPopover(
-      offset: const Offset(0, 8),
-      controller: controller,
-      direction: PopoverDirection.bottomWithLeftAligned,
-      constraints: BoxConstraints.loose(const Size(360, 380)),
-      clickHandler: PopoverClickHandler.gestureDetector,
-      popupBuilder: (BuildContext popoverContext) {
-        return FlowyIconPicker(
-          onSelected: (result) {
-            context.read<UserWorkspaceBloc>().add(
-                  UserWorkspaceEvent.updateWorkspaceIcon(
-                    widget.workspace.workspaceId,
-                    result.emoji,
-                  ),
-                );
-            controller.close();
-          },
-        );
-      },
-      child: MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: child,
-      ),
-    );
+    if (widget.enableEdit) {
+      child = AppFlowyPopover(
+        offset: const Offset(0, 8),
+        controller: controller,
+        direction: PopoverDirection.bottomWithLeftAligned,
+        constraints: BoxConstraints.loose(const Size(360, 380)),
+        clickHandler: PopoverClickHandler.gestureDetector,
+        popupBuilder: (BuildContext popoverContext) {
+          return FlowyIconPicker(
+            onSelected: (result) {
+              context.read<UserWorkspaceBloc>().add(
+                    UserWorkspaceEvent.updateWorkspaceIcon(
+                      widget.workspace.workspaceId,
+                      result.emoji,
+                    ),
+                  );
+              controller.close();
+            },
+          );
+        },
+        child: MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: child,
+        ),
+      );
+    }
+    return child;
   }
 }
