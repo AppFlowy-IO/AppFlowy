@@ -14,15 +14,17 @@ class MobileSectionFolder extends StatelessWidget {
     super.key,
     required this.title,
     required this.views,
+    required this.categoryType,
   });
 
   final String title;
   final List<ViewPB> views;
+  final FolderCategoryType categoryType;
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider<FolderBloc>(
-      create: (context) => FolderBloc(type: FolderCategoryType.private)
+      create: (context) => FolderBloc(type: categoryType)
         ..add(
           const FolderEvent.initial(),
         ),
@@ -50,7 +52,7 @@ class MobileSectionFolder extends StatelessWidget {
                     key: ValueKey(
                       '${FolderCategoryType.private.name} ${view.id}',
                     ),
-                    categoryType: FolderCategoryType.private,
+                    categoryType: categoryType,
                     isFirstChild: view.id == views.first.id,
                     view: view,
                     level: 0,

@@ -4,11 +4,13 @@ import 'package:appflowy/mobile/presentation/favorite/mobile_favorite_folder.dar
 import 'package:appflowy/mobile/presentation/home/mobile_home_page_header.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
+import 'package:appflowy/workspace/application/user/prelude.dart';
 import 'package:appflowy/workspace/presentation/home/errors/workspace_failed_screen.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class MobileFavoriteScreen extends StatelessWidget {
   const MobileFavoriteScreen({
@@ -50,9 +52,15 @@ class MobileFavoriteScreen extends StatelessWidget {
 
         return Scaffold(
           body: SafeArea(
-            child: MobileFavoritePage(
-              userProfile: userProfile,
-              workspaceSetting: workspaceSetting,
+            child: BlocProvider(
+              create: (_) => UserWorkspaceBloc(userProfile: userProfile)
+                ..add(
+                  const UserWorkspaceEvent.initial(),
+                ),
+              child: MobileFavoritePage(
+                userProfile: userProfile,
+                workspaceSetting: workspaceSetting,
+              ),
             ),
           ),
         );
