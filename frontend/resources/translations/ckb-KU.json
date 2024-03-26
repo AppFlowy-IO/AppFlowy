@@ -28,10 +28,10 @@
     "emailHint": "ئیمەیڵ",
     "passwordHint": "تێپه‌ڕه‌وشه",
     "repeatPasswordHint": "دووبارە کردنی تێپه‌ڕه‌وشه",
-    "signUpWith": "ناونووسین وە:"
+    "signUpWith": "ناونووسین بە:"
   },
   "signIn": {
-    "loginTitle": "چوونه‌ژووره‌وه‌ وە @:appName",
+    "loginTitle": "چوونه‌ژووره‌وه‌ بە @:appName",
     "loginButtonText": "چوونه‌ژووره‌وه‌",
     "loginStartWithAnonymous": "بە دانیشتنێکی بێناو دەست پێ بکە",
     "continueAnonymousUser": "وەک بەکارهێنەری میوان بەردەوام بە",
@@ -243,9 +243,9 @@
   },
   "label": {
     "welcome": "بەخێربێن!",
-    "firstName": "ناوی یەکەم",
+    "firstName": "ناو",
     "middleName": "ناوی ناوەڕاست",
-    "lastName": "ناوی کۆتایی",
+    "lastName": "دوایین ناو",
     "stepX": "Step {X}"
   },
   "oAuth": {
