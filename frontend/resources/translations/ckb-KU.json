@@ -285,6 +285,7 @@
       "cloudSupabase": "Supabase",
       "cloudSupabaseUrl": "Supabase URL",
       "cloudSupabaseUrlCanNotBeEmpty": "url ی supabase ناتوانێت بەتاڵ بێت",
+      "cloudSupabaseAnonKey": "کلیلی شاراوەی Supabase",
       "cloudSupabaseAnonKeyCanNotBeEmpty": "کلیلی anon ناتوانێت بەتاڵ بێت",
       "cloudAppFlowy": "ئەپفلۆوی کلاود بێتا",
       "cloudAppFlowySelfHost": "ئەپفلۆوی کلاود بە هۆستی خۆیی",
@@ -332,7 +333,7 @@
         "label": "مۆدی تێم",
         "light": "مۆدی ڕوناک",
         "dark": "مۆدی تاریک",
-        "system": "خۆگونجاندن لەگەڵ تێمی سیستەمدا"
+        "system": "خۆگونجاندن لەگەڵ سیستەمدا"
       },
       "documentSettings": {
         "cursorColor": "ڕەنگی جێنیشانده‌ری بەڵگەنامە",
@@ -397,7 +398,7 @@
       "restoreLocation": "گەڕاندنەوە بۆ ڕێڕەوی پێشوەختەی AppFlowy",
       "customizeLocation": "فۆڵدەرێکی دیکە بکەرەوە",
       "restartApp": "تکایە ئەپەکە دابخە و بیکەرەوە بۆ ئەوەی گۆڕانکارییەکان جێبەجێ بکرێن.",
-      "exportDatabase": "بنکەدراوە هەناردە بکە",
+      "exportDatabase": "هەناردە کردنی بنکەدراوە",
       "selectFiles": "پەڕگەکان هەڵبژێرە بۆ هەناردە کردن",
       "selectAll": "هەڵبژاردنی هەموویان",
       "deselectAll": "هەڵبژاردەی هەموو هەڵبگرە",
@@ -454,25 +455,40 @@
       "support": "پشتیوانی",
       "joinDiscord": "لە دیسکۆرد لەگەڵمان بن",
       "privacyPolicy": "سیاسەتی پاراستنی نهێنی",
-      "userAgreement": "ڕێککەوتنی بەکارهێنەر"
+      "userAgreement": "ڕێککەوتنی بەکارهێنەر",
+      "termsAndConditions": "بار و دۆخ و مەرجەکان",
+      "userprofileError": "شکستی هێنا لە بارکردنی پڕۆفایلی بەکارهێنەر",
+      "userprofileErrorDescription": "تکایە هەوڵبدە بچیتە دەرەوە و بچۆرەوە ژوورەوە بۆ ئەوەی بزانیت ئایا کێشەکە هێشتا بەردەوامە یان نا.",
+      "selectLayout": "نەخشە هەڵبژێرە",
+      "selectStartingDay": "ڕۆژی دەستپێکردنەکەت هەڵبژێرە",
+      "version": "وەشان"
     }
   },
   "grid": {
     "deleteView": "ئایا دڵنیای کە دەتەوێت ئەم دیمەنە بسڕیتەوە؟",
     "createView": "نوێ",
+    "title": {
+      "placeholder": "بێ ناونیشان"
+    },
     "settings": {
       "filter": "فیلتێر",
       "sort": "پۆلێن کردن",
       "sortBy": "ڕیزکردن بەپێی",
-      "properties": "خەسیەتەکان",
+      "properties": "تایبەتمەندیەکان",
       "reorderPropertiesTooltip": "بۆ ڕێکخستنەوەی تایبەتمەندییەکان ڕابکێشە",
       "group": "ده‌سته‌",
       "addFilter": "زیادکردنی فیلتێر",
       "deleteFilter": "سڕینەوەی فیلتێر",
       "filterBy": "فیلتێر بەپێی...",
       "typeAValue": "بەهایەک بنووسە...",
-      "layout": "طرح‌بندی",
-      "databaseLayout": "گه‌ڵاڵه‌به‌ندی"
+      "layout": "گه‌ڵاڵه‌به‌ندی",
+      "databaseLayout": "گه‌ڵاڵه‌به‌ندی",
+      "viewList": {
+        "zero": "0 بینین",
+        "one": "{count} بینین",
+        "other": "{count} بینینەکان"
+      },
+      "editView": "دەستکاری دیمەن"
     },
     "textFilter": {
       "contains": "لەخۆ دەگرێت",
