@@ -307,6 +307,9 @@ pub struct DocEventPB {
 
   #[pb(index = 2)]
   pub is_remote: bool,
+
+  #[pb(index = 3, one_of)]
+  pub new_snapshot: Option<DocumentDataPB>,
 }
 
 #[derive(Default, ProtoBuf)]

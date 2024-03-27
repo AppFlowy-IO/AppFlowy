@@ -78,6 +78,9 @@ class DocumentCollaboratorsBloc
       ..sort((a, b) => b.timestamp.compareTo(a.timestamp))
       ..retainWhere((e) => ids.add(e.user.uid.toString() + e.user.deviceId));
     for (final state in sorted) {
+      if (state.version != 1) {
+        continue;
+      }
       // filter current user
       if (_filterCurrentUser &&
           userProfile.id == state.user.uid &&

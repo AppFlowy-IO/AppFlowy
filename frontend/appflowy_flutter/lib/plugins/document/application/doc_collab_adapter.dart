@@ -67,7 +67,7 @@ class DocumentCollabAdapter {
   /// Sync version 3
   ///
   /// Diff the local document with the remote document and apply the changes
-  Future<void> syncV3() async {
+  Future<void> syncV3(DocEventPB docEvent) async {
     final result = await _service.getDocument(viewId: docId);
     final document = result.fold((s) => s.toDocument(), (f) => null);
     if (document == null) {
@@ -76,8 +76,11 @@ class DocumentCollabAdapter {
 
     final ops = diffNodes(editorState.document.root, document.root);
     if (ops.isEmpty) {
+      debugPrint('[collab] received empty ops');
       return;
     }
+
+    debugPrint('[collab] received ops: $ops');
 
     final transaction = editorState.transaction;
     for (final op in ops) {
@@ -136,6 +139,10 @@ class DocumentCollabAdapter {
     final List<RemoteSelection> remoteSelections = [];
     final deviceId = await getDeviceId();
     for (final state in states.value.values) {
+      // the following code is only for version 1
+      if (state.version != 1) {
+        return;
+      }
       final uid = state.user.uid.toString();
       final did = state.user.deviceId;
       final metadata = DocumentAwarenessMetadata.fromJson(

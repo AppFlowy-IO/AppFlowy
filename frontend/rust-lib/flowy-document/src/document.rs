@@ -57,18 +57,19 @@ fn subscribe_document_changed(doc_id: &str, document: &MutexDocument) {
   document
     .lock()
     .subscribe_block_changed(move |events, is_remote| {
+      trace!("subscribe_document_changed: {:?}", events);
       // send notification to the client.
       send_notification(
         &doc_id_clone_for_block_changed,
         DocumentNotification::DidReceiveUpdate,
       )
-      .payload::<DocEventPB>((events, is_remote).into())
+      .payload::<DocEventPB>((events, is_remote, None).into())
       .send();
     });
 
   let doc_id_clone_for_awareness_state = doc_id.to_owned();
   document.lock().subscribe_awareness_state(move |events| {
-    trace!("subscribe_document_changed: {:?}", events);
+    trace!("subscribe_awareness_state: {:?}", events);
     send_notification(
       &doc_id_clone_for_awareness_state,
       DocumentNotification::DidUpdateDocumentAwarenessState,

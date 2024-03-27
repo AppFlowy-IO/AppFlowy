@@ -77,7 +77,6 @@ enum FeatureFlag {
   }
 
   bool get isOn {
-    return true;
     if (_values.containsKey(this)) {
       return _values[this]!;
     }

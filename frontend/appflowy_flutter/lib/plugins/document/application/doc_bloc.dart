@@ -66,6 +66,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   StreamSubscription? _transactionSubscription;
 
   final _updateSelectionDebounce = Debounce();
+  final _syncDocDebounce = Debounce();
 
   bool get isLocalMode {
     final userProfilePB = state.userProfilePB;
@@ -154,7 +155,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   /// subscribe to the document content change
   void _onDocumentChanged() {
     _documentListener.start(
-      onDocEventUpdate: _onDocumentStateUpdate,
+      onDocEventUpdate: _debounceSyncDoc,
       onDocAwarenessUpdate: _onAwarenessStatesUpdate,
     );
 
@@ -266,7 +267,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
       return;
     }
 
-    await _documentCollabAdapter.syncV3();
+    unawaited(_documentCollabAdapter.syncV3(docEvent));
   }
 
   Future<void> _onAwarenessStatesUpdate(
@@ -287,6 +288,12 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
 
   void _debounceOnSelectionUpdate() {
     _updateSelectionDebounce.call(_onSelectionUpdate);
+  }
+
+  void _debounceSyncDoc(DocEventPB docEvent) {
+    _syncDocDebounce.call(() {
+      _onDocumentStateUpdate(docEvent);
+    });
   }
 
   Future<void> _onSelectionUpdate() async {
