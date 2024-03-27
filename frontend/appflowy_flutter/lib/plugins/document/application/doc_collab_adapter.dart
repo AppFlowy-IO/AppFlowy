@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:appflowy/plugins/document/application/doc_awareness_metadata.dart';
 import 'package:appflowy/plugins/document/application/document_data_pb_extension.dart';
 import 'package:appflowy/plugins/document/application/prelude.dart';
-import 'package:appflowy/user/application/auth/device_id.dart';
+import 'package:appflowy/startup/tasks/device_info_task.dart';
 import 'package:appflowy/util/color_generator/color_generator.dart';
 import 'package:appflowy/util/json_print.dart';
 import 'package:appflowy_backend/log.dart';
@@ -137,7 +137,7 @@ class DocumentCollabAdapter {
     DocumentAwarenessStatesPB states,
   ) async {
     final List<RemoteSelection> remoteSelections = [];
-    final deviceId = await getDeviceId();
+    final deviceId = ApplicationInfo.deviceId;
     for (final state in states.value.values) {
       // the following code is only for version 1
       if (state.version != 1) {

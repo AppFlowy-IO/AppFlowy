@@ -47,7 +47,7 @@ class AboutSettingGroup extends StatelessWidget {
         MobileSettingItem(
           name: LocaleKeys.settings_mobile_version.tr(),
           trailing: FlowyText(
-            '${DeviceOrApplicationInfoTask.applicationVersion} (${DeviceOrApplicationInfoTask.buildNumber})',
+            '${ApplicationInfo.applicationVersion} (${ApplicationInfo.buildNumber})',
             color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
