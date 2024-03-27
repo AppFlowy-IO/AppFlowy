@@ -67,7 +67,6 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
 
   final _updateSelectionDebounce = Debounce();
 
-  // TODO: use state
   bool get isLocalMode {
     final userProfilePB = state.userProfilePB;
     final type = userProfilePB?.authenticator ?? AuthenticatorPB.Local;
@@ -113,6 +112,9 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
           ),
         );
         emit(newState);
+        if (newState.userProfilePB != null) {
+          await _updateCollaborator();
+        }
       },
       moveToTrash: () async {
         emit(state.copyWith(isDeleted: true));
@@ -274,7 +276,6 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
       return;
     }
 
-    debugPrint('syncAwarenessStates: $awarenessStates');
     final userId = state.userProfilePB?.id;
     if (userId != null) {
       await _documentCollabAdapter.updateRemoteSelection(
@@ -313,6 +314,28 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     await _documentService.syncAwarenessStates(
       documentId: view.id,
       selection: selection,
+      metadata: jsonEncode(metadata.toJson()),
+    );
+  }
+
+  Future<void> _updateCollaborator() async {
+    final user = state.userProfilePB;
+    final deviceId = await getDeviceId();
+    if (!FeatureFlag.syncDocument.isOn || user == null) {
+      return;
+    }
+
+    // sync the selection
+    final id = user.id.toString() + deviceId;
+    final basicColor = ColorGenerator.generateColorFromString(id.toString());
+    final metadata = DocumentAwarenessMetadata(
+      cursorColor: basicColor.toHexString(),
+      selectionColor: basicColor.withOpacity(0.6).toHexString(),
+      userName: user.name,
+      userAvatar: user.iconUrl,
+    );
+    await _documentService.syncAwarenessStates(
+      documentId: view.id,
       metadata: jsonEncode(metadata.toJson()),
     );
   }

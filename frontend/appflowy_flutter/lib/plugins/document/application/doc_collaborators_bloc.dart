@@ -13,7 +13,7 @@ import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-part 'doc_awareness_bloc.freezed.dart';
+part 'doc_collaborators_bloc.freezed.dart';
 
 bool _filterCurrentUser = false;
 
@@ -73,7 +73,11 @@ class DocumentCollaboratorsBloc
     DocumentAwarenessStatesPB states,
   ) {
     final result = <DocumentAwarenessMetadata>[];
-    for (final state in states.value.values) {
+    final ids = <dynamic>{};
+    final sorted = states.value.values.toList()
+      ..sort((a, b) => b.timestamp.compareTo(a.timestamp))
+      ..retainWhere((e) => ids.add(e.user.uid.toString() + e.user.deviceId));
+    for (final state in sorted) {
       // filter current user
       if (_filterCurrentUser &&
           userProfile.id == state.user.uid &&

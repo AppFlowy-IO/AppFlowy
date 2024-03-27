@@ -548,19 +548,25 @@ pub struct UpdateDocumentAwarenessStatePB {
 #[derive(ProtoBuf, Debug, Default)]
 pub struct DocumentAwarenessStatePB {
   #[pb(index = 1)]
+  pub version: i64,
+  #[pb(index = 2)]
   pub user: DocumentAwarenessUserPB,
-  #[pb(index = 2, one_of)]
-  pub selection: Option<DocumentAwarenessSelectionPB>,
   #[pb(index = 3, one_of)]
+  pub selection: Option<DocumentAwarenessSelectionPB>,
+  #[pb(index = 4, one_of)]
   pub metadata: Option<String>,
+  #[pb(index = 5)]
+  pub timestamp: i64,
 }
 
 impl Into<DocumentAwarenessStatePB> for DocumentAwarenessState {
   fn into(self) -> DocumentAwarenessStatePB {
     DocumentAwarenessStatePB {
+      version: self.version,
       user: self.user.into(),
       selection: self.selection.map(|s| s.into()),
       metadata: self.metadata,
+      timestamp: self.timestamp,
     }
   }
 }

@@ -150,7 +150,7 @@ class DocumentService {
   /// For example, the cursor position, selection, who is viewing the document.
   Future<FlowyResult<void, FlowyError>> syncAwarenessStates({
     required String documentId,
-    required Selection? selection,
+    Selection? selection,
     String? metadata,
   }) async {
     final payload = UpdateDocumentAwarenessStatePB(

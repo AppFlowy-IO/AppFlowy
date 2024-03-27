@@ -1,4 +1,4 @@
-import 'package:appflowy/plugins/document/application/doc_awareness_bloc.dart';
+import 'package:appflowy/plugins/document/application/doc_collaborators_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/collaborator_avater_stack.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -45,10 +45,10 @@ class DocumentCollaborators extends StatelessWidget {
                   Theme.of(context).colorScheme.onSecondaryContainer,
               avatars: collaborators
                   .map(
-                    (c) => CircleAvatar(
-                      backgroundColor: c.selectionColor.tryToColor(),
-                      child: FlowyTooltip(
-                        message: c.userName,
+                    (c) => FlowyTooltip(
+                      message: c.userName,
+                      child: CircleAvatar(
+                        backgroundColor: c.selectionColor.tryToColor(),
                         child: FlowyText(
                           c.userName.characters.firstOrNull ?? ' ',
                           fontSize: fontSize,

@@ -14,6 +14,7 @@ use collab_document::document_data::default_document_data;
 use collab_entity::CollabType;
 use collab_plugins::CollabKVDB;
 use flowy_storage::object_from_disk;
+use lib_infra::util::timestamp;
 use lru::LruCache;
 use parking_lot::Mutex;
 use tokio::io::AsyncWriteExt;
@@ -240,9 +241,11 @@ impl DocumentManager {
         let user = DocumentAwarenessUser { uid, device_id };
         let selection = state.selection.map(|s| s.into());
         let state = DocumentAwarenessState {
+          version: 1,
           user,
           selection,
           metadata: state.metadata,
+          timestamp: timestamp(),
         };
         doc.set_awareness_local_state(state);
         return Ok(true);
