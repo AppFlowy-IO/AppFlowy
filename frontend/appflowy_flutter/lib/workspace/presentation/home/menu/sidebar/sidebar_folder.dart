@@ -93,6 +93,8 @@ class PrivateSectionFolder extends SectionFolder {
   }) : super(
           title: LocaleKeys.sideBar_private.tr(),
           categoryType: FolderCategoryType.private,
+          expandButtonTooltip: LocaleKeys.sideBar_clickToHidePrivate.tr(),
+          addButtonTooltip: LocaleKeys.sideBar_addAPageToPrivate.tr(),
         );
 }
 
@@ -103,6 +105,8 @@ class PublicSectionFolder extends SectionFolder {
   }) : super(
           title: LocaleKeys.sideBar_public.tr(),
           categoryType: FolderCategoryType.public,
+          expandButtonTooltip: LocaleKeys.sideBar_clickToHidePublic.tr(),
+          addButtonTooltip: LocaleKeys.sideBar_addAPageToPublic.tr(),
         );
 }
 
@@ -113,5 +117,7 @@ class PersonalSectionFolder extends SectionFolder {
   }) : super(
           title: LocaleKeys.sideBar_personal.tr(),
           categoryType: FolderCategoryType.public,
+          expandButtonTooltip: LocaleKeys.sideBar_clickToHidePersonal.tr(),
+          addButtonTooltip: LocaleKeys.sideBar_addAPage.tr(),
         );
 }

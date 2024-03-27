@@ -105,6 +105,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.11.0"
+  avatar_stack:
+    dependency: "direct main"
+    description:
+      name: avatar_stack
+      sha256: e4a1576f7478add964bbb8aa5e530db39288fbbf81c30c4fb4b81162dd68aa49
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.2.0"
   bloc:
     dependency: "direct main"
     description:
@@ -459,7 +467,7 @@ packages:
     source: hosted
     version: "2.1.2"
   file:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: file
       sha256: "5fc22d7c25582e38ad9a8515372cd9a93834027aacf1801cf01164dac0ffa08c"
@@ -565,10 +573,11 @@ packages:
   flutter_cache_manager:
     dependency: "direct main"
     description:
-      name: flutter_cache_manager
-      sha256: "8207f27539deb83732fdda03e259349046a39a4c767269285f449ade355d54ba"
-      url: "https://pub.dev"
-    source: hosted
+      path: flutter_cache_manager
+      ref: HEAD
+      resolved-ref: fbab857b1b1d209240a146d32f496379b9f62276
+      url: "https://github.com/LucasXu0/flutter_cache_manager.git"
+    source: git
     version: "3.3.1"
   flutter_chat_types:
     dependency: transitive

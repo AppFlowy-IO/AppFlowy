@@ -59,7 +59,7 @@ class _FeatureFlagItemState extends State<_FeatureFlagItem> {
         widget.featureFlag.description,
         maxLines: 3,
       ),
-      trailing: Switch(
+      trailing: Switch.adaptive(
         value: widget.featureFlag.isOn,
         onChanged: (value) {
           setState(() {

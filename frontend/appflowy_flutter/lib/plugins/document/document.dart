@@ -148,9 +148,11 @@ class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
               ? [
                   DocumentCollaborators(
                     key: ValueKey('collaborators_${view.id}'),
+                    width: 100,
+                    height: 32,
                     view: view,
                   ),
-                  const HSpace(20),
+                  const HSpace(16),
                   DocumentSyncIndicator(
                     key: ValueKey('sync_state_${view.id}'),
                     view: view,

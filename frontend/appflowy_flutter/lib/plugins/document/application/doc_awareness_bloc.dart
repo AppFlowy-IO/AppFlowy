@@ -15,6 +15,8 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'doc_awareness_bloc.freezed.dart';
 
+bool _filterCurrentUser = false;
+
 class DocumentCollaboratorsBloc
     extends Bloc<DocumentCollaboratorsEvent, DocumentCollaboratorsState> {
   DocumentCollaboratorsBloc({
@@ -25,25 +27,31 @@ class DocumentCollaboratorsBloc
       (event, emit) async {
         await event.when(
           initial: () async {
-            final userProfile = await getIt<AuthService>().getUser().then(
-                  (result) => result.fold(
-                    (l) => l,
-                    (r) => null,
-                  ),
-                );
+            final result = await getIt<AuthService>().getUser();
+            final userProfile = result.fold((s) => s, (f) => null);
             final deviceId = await getDeviceId();
             _listener.start(
               onDocAwarenessUpdate: (states) {
-                if (!isClosed && userProfile != null) {
-                  final metadata = _buildMetadata(
+                if (userProfile == null) {
+                  return;
+                }
+                add(
+                  DocumentCollaboratorsEvent.update(
                     userProfile,
                     deviceId,
                     states,
-                  );
-                  emit(state.copyWith(metadata: metadata));
-                }
+                  ),
+                );
               },
             );
+          },
+          update: (userProfile, deviceId, states) {
+            final collaborators = _buildCollaborators(
+              userProfile,
+              deviceId,
+              states,
+            );
+            emit(state.copyWith(collaborators: collaborators));
           },
         );
       },
@@ -59,7 +67,7 @@ class DocumentCollaboratorsBloc
     return super.close();
   }
 
-  List<DocumentAwarenessMetadata> _buildMetadata(
+  List<DocumentAwarenessMetadata> _buildCollaborators(
     UserProfilePB userProfile,
     String deviceId,
     DocumentAwarenessStatesPB states,
@@ -67,7 +75,9 @@ class DocumentCollaboratorsBloc
     final result = <DocumentAwarenessMetadata>[];
     for (final state in states.value.values) {
       // filter current user
-      if (userProfile.id == state.user.uid && deviceId == state.user.deviceId) {
+      if (_filterCurrentUser &&
+          userProfile.id == state.user.uid &&
+          deviceId == state.user.deviceId) {
         continue;
       }
       try {
@@ -86,12 +96,17 @@ class DocumentCollaboratorsBloc
 @freezed
 class DocumentCollaboratorsEvent with _$DocumentCollaboratorsEvent {
   const factory DocumentCollaboratorsEvent.initial() = Initial;
+  const factory DocumentCollaboratorsEvent.update(
+    UserProfilePB userProfile,
+    String deviceId,
+    DocumentAwarenessStatesPB states,
+  ) = Update;
 }
 
 @freezed
 class DocumentCollaboratorsState with _$DocumentCollaboratorsState {
   const factory DocumentCollaboratorsState({
-    @Default([]) List<DocumentAwarenessMetadata> metadata,
+    @Default([]) List<DocumentAwarenessMetadata> collaborators,
   }) = _DocumentCollaboratorsState;
 
   factory DocumentCollaboratorsState.initial() =>

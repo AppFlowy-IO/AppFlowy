@@ -20,14 +20,3 @@ class DocumentAwarenessMetadata with _$DocumentAwarenessMetadata {
   factory DocumentAwarenessMetadata.fromJson(Map<String, Object?> json) =>
       _$DocumentAwarenessMetadataFromJson(json);
 }
-
-@freezed
-class DocumentAwarenessCollaborator with _$DocumentAwarenessCollaborator {
-  const factory DocumentAwarenessCollaborator({
-    required String userName,
-    required String userAvatar,
-  }) = _DocumentAwarenessCollaborator;
-
-  factory DocumentAwarenessCollaborator.fromJson(Map<String, Object?> json) =>
-      _$DocumentAwarenessCollaboratorFromJson(json);
-}
