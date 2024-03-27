@@ -138,7 +138,7 @@ class DocumentCollabAdapter {
     for (final state in states.value.values) {
       final uid = state.user.uid.toString();
       final did = state.user.deviceId;
-      final metadata = DocAwarenessMetadata.fromJson(
+      final metadata = DocumentAwarenessMetadata.fromJson(
         jsonDecode(state.metadata),
       );
       final selectionColor = metadata.selectionColor.tryToColor();

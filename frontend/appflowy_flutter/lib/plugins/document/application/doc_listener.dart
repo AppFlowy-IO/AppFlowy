@@ -65,6 +65,8 @@ class DocumentListener {
   }
 
   Future<void> stop() async {
+    _onDocAwarenessUpdate = null;
+    _onDocEventUpdate = null;
     await _subscription?.cancel();
     _subscription = null;
   }

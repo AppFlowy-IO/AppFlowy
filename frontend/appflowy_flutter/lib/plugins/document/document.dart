@@ -4,8 +4,8 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
 import 'package:appflowy/plugins/document/document_page.dart';
+import 'package:appflowy/plugins/document/presentation/document_collaborators.dart';
 import 'package:appflowy/plugins/document/presentation/document_sync_indicator.dart';
-import 'package:appflowy/plugins/document/presentation/share/share_button.dart';
 import 'package:appflowy/plugins/util.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
@@ -140,12 +140,16 @@ class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          DocumentShareButton(
-            key: ValueKey('share_button_${view.id}'),
-            view: view,
-          ),
+          // DocumentShareButton(
+          //   key: ValueKey('share_button_${view.id}'),
+          //   view: view,
+          // ),
           ...FeatureFlag.syncDocument.isOn
               ? [
+                  DocumentCollaborators(
+                    key: ValueKey('collaborators_${view.id}'),
+                    view: view,
+                  ),
                   const HSpace(20),
                   DocumentSyncIndicator(
                     key: ValueKey('sync_state_${view.id}'),
