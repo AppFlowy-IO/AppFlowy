@@ -1,0 +1,47 @@
+name: Web2-CI
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/web2_ci.yaml"
+      - "frontend/appflowy_web_app/**
+
+env:
+  NODE_VERSION: "18.16.0"
+  PNPM_VERSION: "8.5.0"
+  RUST_TOOLCHAIN: "1.75"
+
+jobs:
+  code-check:
+    if: github.event.pull_request.draft != true
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [ubuntu-latest]
+
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Check backend path usage
+        run: |
+          echo "Checking backend path usage"
+          commit1=$(git rev-parse HEAD^)
+          commit2=$(git rev-parse HEAD)
+          
+          allow_dirs="frontend/appflowy_web_app/src/application/services/tauri-services"
+          backend_path="tauri-services/backend"
+          
+          files_changed=$(git diff --name-only $commit1 $commit2)
+          
+          for file in $files_changed; do
+            if [[ $file != $allow_dirs* ]]; then
+              if grep -q $backend_path $file; then
+                echo "Error: $file contains backend path $backend_path"
+                exit 1
+              fi
+            fi
+          done
