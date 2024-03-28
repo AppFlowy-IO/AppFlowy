@@ -140,7 +140,7 @@ pub(crate) fn subscribe_folder_trash_changed(
   });
 }
 
-/// Notify the the list of parent view ids that its child views were changed.
+/// Notify the list of parent view ids that its child views were changed.
 #[tracing::instrument(level = "debug", skip(folder, parent_view_ids))]
 pub(crate) fn notify_parent_view_did_change<T: AsRef<str>>(
   folder: Arc<MutexFolder>,
@@ -159,7 +159,7 @@ pub(crate) fn notify_parent_view_did_change<T: AsRef<str>>(
     let parent_view_id = parent_view_id.as_ref();
 
     // if the view's parent id equal to workspace id. Then it will fetch the current
-    // workspace views. Because the the workspace is not a view stored in the views map.
+    // workspace views. Because the workspace is not a view stored in the views map.
     if parent_view_id == workspace_id {
       notify_did_update_workspace(&workspace_id, folder);
       notify_did_update_section_views(&workspace_id, folder);
@@ -232,7 +232,7 @@ pub enum ChildViewChangeReason {
   Update,
 }
 
-/// Notify the the list of parent view ids that its child views were changed.
+/// Notify the list of parent view ids that its child views were changed.
 #[tracing::instrument(level = "debug", skip_all)]
 pub(crate) fn notify_child_views_changed(view_pb: ViewPB, reason: ChildViewChangeReason) {
   let parent_view_id = view_pb.parent_view_id.clone();
