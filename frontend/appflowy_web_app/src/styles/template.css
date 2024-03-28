@@ -1,0 +1,68 @@
+@import "./variables/light.variables.css";
+@import "./variables/dark.variables.css";
+
+
+:root {
+    /* resize popover shadow */
+    --shadow-resize-popover: 0px 5px 5px -3px rgba(0, 0, 0, 0.2), 0px 8px 10px 1px rgba(0, 0, 0, 0.14), 0px 3px 14px 2px rgba(0, 0, 0, 0.12);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
+/* stop body from scrolling */
+html,
+body {
+    margin: 0;
+    height: 100%;
+    overflow: hidden;
+}
+
+[contenteditable] {
+    -webkit-tap-highlight-color: transparent;
+}
+
+input,
+textarea {
+    outline: 0;
+    background: transparent;
+}
+
+body {
+    font-family: Poppins, Roboto, serif;
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+
+:root[data-dark-mode=true] body {
+    scrollbar-color: #fff var(--bg-body);
+}
+
+body {
+    scrollbar-track-color: var(--bg-body);
+    scrollbar-shadow-color: var(--bg-body);
+}
+
+
+.btn {
+    @apply rounded-xl border border-line-divider px-4 py-3;
+}
+
+.btn-primary {
+    @apply bg-fill-default text-text-title hover:bg-fill-list-hover;
+}
+
+.input {
+    @apply rounded-xl border border-line-divider px-[18px] py-[14px] text-sm;
+}
+
+
+th {
+    @apply text-left font-normal;
+}
+

@@ -1,0 +1,105 @@
+[package]
+name = "appflowy_tauri"
+version = "0.0.0"
+description = "A Tauri App"
+authors = ["you"]
+license = ""
+repository = ""
+edition = "2021"
+rust-version = "1.57"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[build-dependencies]
+tauri-build = { version = "1.5", features = [] }
+
+[workspace.dependencies]
+anyhow = "1.0"
+tracing = "0.1.40"
+bytes = "1.5.0"
+serde = "1.0"
+serde_json = "1.0.108"
+protobuf = { version = "2.28.0" }
+diesel = { version = "2.1.0", features = ["sqlite", "chrono", "r2d2"] }
+uuid = { version = "1.5.0", features = ["serde", "v4"] }
+serde_repr = "0.1"
+parking_lot = "0.12"
+futures = "0.3.29"
+tokio = "1.34.0"
+tokio-stream = "0.1.14"
+async-trait = "0.1.74"
+chrono = { version = "0.4.31", default-features = false, features = ["clock"] }
+lru = "0.12.0"
+
+[dependencies]
+serde_json.workspace = true
+serde.workspace = true
+tauri = { version = "1.5", features = [
+    "dialog-all",
+    "clipboard-all",
+    "fs-all",
+    "shell-open",
+] }
+tauri-utils = "1.5.2"
+bytes.workspace = true
+tracing.workspace = true
+lib-dispatch = { path = "../../rust-lib/lib-dispatch", features = [
+    "use_serde",
+] }
+flowy-core = { path = "../../rust-lib/flowy-core", features = [
+    "rev-sqlite",
+    "ts",
+] }
+flowy-user = { path = "../../rust-lib/flowy-user", features = ["tauri_ts"] }
+flowy-config = { path = "../../rust-lib/flowy-config", features = ["tauri_ts"] }
+flowy-date = { path = "../../rust-lib/flowy-date", features = ["tauri_ts"] }
+flowy-error = { path = "../../rust-lib/flowy-error", features = [
+    "impl_from_sqlite",
+    "impl_from_dispatch_error",
+    "impl_from_appflowy_cloud",
+    "impl_from_reqwest",
+    "impl_from_serde",
+    "tauri_ts",
+] }
+flowy-document = { path = "../../rust-lib/flowy-document", features = [
+    "tauri_ts",
+] }
+flowy-notification = { path = "../../rust-lib/flowy-notification", features = [
+    "tauri_ts",
+] }
+
+uuid = "1.5.0"
+tauri-plugin-deep-link = "0.1.2"
+dotenv = "0.15.0"
+
+[features]
+# by default Tauri runs in production mode
+# when `tauri dev` runs it is executed with `cargo run --no-default-features` if `devPath` is an URL
+default = ["custom-protocol"]
+# this feature is used used for production builds where `devPath` points to the filesystem
+# DO NOT remove this
+custom-protocol = ["tauri/custom-protocol"]
+
+[patch.crates-io]
+# Please using the following command to update the revision id
+# Current directory: frontend
+# Run the script:
+# scripts/tool/update_client_api_rev.sh  new_rev_id
+# ⚠️⚠️⚠️️
+client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "d4e45efd6a16cb83e9c60af26d7bab99cde76646" }
+# Please use the following script to update collab.
+# Working directory: frontend
+#
+# To update the commit ID, run:
+# scripts/tool/update_collab_rev.sh new_rev_id
+#
+# To switch to the local path, run:
+# scripts/tool/update_collab_source.sh
+# ⚠️⚠️⚠️️
+collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "22ed64d598cd060a7b68554af61df3568e39a62a" }
+collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "22ed64d598cd060a7b68554af61df3568e39a62a" }
+collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "22ed64d598cd060a7b68554af61df3568e39a62a" }
+collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "22ed64d598cd060a7b68554af61df3568e39a62a" }
+collab-plugins = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "22ed64d598cd060a7b68554af61df3568e39a62a" }
+collab-user = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "22ed64d598cd060a7b68554af61df3568e39a62a" }
+collab-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "22ed64d598cd060a7b68554af61df3568e39a62a" }
