@@ -234,6 +234,10 @@ pub trait UserCloudService: Send + Sync + 'static {
     workspace_id: &str,
     objects: Vec<UserCollabParams>,
   ) -> FutureResult<(), FlowyError>;
+
+  fn leave_workspace(&self, workspace_id: &str) -> FutureResult<(), FlowyError> {
+    FutureResult::new(async { Ok(()) })
+  }
 }
 
 pub type UserUpdateReceiver = tokio::sync::mpsc::Receiver<UserUpdate>;

@@ -202,6 +202,19 @@ impl UserManager {
     save_user_workspaces(uid, conn, &[user_workspace])
   }
 
+  pub async fn leave_workspace(&self, workspace_id: &str) -> FlowyResult<()> {
+    self
+      .cloud_services
+      .get_user_service()?
+      .leave_workspace(workspace_id)
+      .await?;
+
+    // delete workspace from local sqlite db
+    let uid = self.user_id()?;
+    let conn = self.db_connection(uid)?;
+    delete_user_workspaces(conn, workspace_id)
+  }
+
   pub async fn delete_workspace(&self, workspace_id: &str) -> FlowyResult<()> {
     self
       .cloud_services

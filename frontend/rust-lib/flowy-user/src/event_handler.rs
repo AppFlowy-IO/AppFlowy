@@ -709,3 +709,14 @@ pub async fn change_workspace_icon_handler(
     .await?;
   Ok(())
 }
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn leave_workspace_handler(
+  param: AFPluginData<UserWorkspaceIdPB>,
+  manager: AFPluginState<Weak<UserManager>>,
+) -> Result<(), FlowyError> {
+  let workspace_id = param.into_inner().workspace_id;
+  let manager = upgrade_manager(manager)?;
+  manager.leave_workspace(&workspace_id).await?;
+  Ok(())
+}

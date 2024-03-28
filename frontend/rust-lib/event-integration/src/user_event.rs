@@ -313,6 +313,17 @@ impl EventIntegrationTest {
       .async_send()
       .await;
   }
+
+  pub async fn leave_workspace(&self, workspace_id: &str) {
+    let payload = UserWorkspaceIdPB {
+      workspace_id: workspace_id.to_string(),
+    };
+    EventBuilder::new(self.clone())
+      .event(UserEvent::LeaveWorkspace)
+      .payload(payload)
+      .async_send()
+      .await;
+  }
 }
 
 #[derive(Clone)]

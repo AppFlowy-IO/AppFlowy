@@ -64,6 +64,7 @@ pub fn init(user_manager: Weak<UserManager>) -> AFPlugin {
     .event(UserEvent::DeleteWorkspace, delete_workspace_handler)
     .event(UserEvent::RenameWorkspace, rename_workspace_handler)
     .event(UserEvent::ChangeWorkspaceIcon, change_workspace_icon_handler)
+    .event(UserEvent::LeaveWorkspace, leave_workspace_handler)
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
@@ -208,6 +209,9 @@ pub enum UserEvent {
 
   #[event(input = "ChangeWorkspaceIconPB")]
   ChangeWorkspaceIcon = 45,
+
+  #[event(input = "UserWorkspaceIdPB")]
+  LeaveWorkspace = 46,
 }
 
 pub trait UserStatusCallback: Send + Sync + 'static {
