@@ -3,7 +3,7 @@ use std::sync::{Arc, Weak};
 
 use anyhow::Error;
 use chrono::{DateTime, Utc};
-use client_api::collab_sync::collab_msg::MsgId;
+use client_api::collab_sync::MsgId;
 use collab::core::collab::DocStateSource;
 use collab::preclude::merge_updates_v1;
 use collab_entity::CollabObject;
