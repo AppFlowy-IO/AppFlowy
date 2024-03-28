@@ -44,9 +44,7 @@ class _WorkspaceIconState extends State<WorkspaceIcon> {
             width: widget.iconSize,
             height: max(widget.iconSize, 26),
             decoration: BoxDecoration(
-              color: ColorGenerator.generateColorFromString(
-                widget.workspace.name,
-              ),
+              color: ColorGenerator(widget.workspace.name).toColor(),
               borderRadius: BorderRadius.circular(4),
             ),
             child: FlowyText(

@@ -166,9 +166,7 @@ class DocumentCollabAdapter {
           offset: end.offset.toInt(),
         ),
       );
-      final color = ColorGenerator.generateColorFromString(
-        uid + did,
-      );
+      final color = ColorGenerator(uid + did).toColor();
       final remoteSelection = RemoteSelection(
         id: uid,
         selection: selection,
