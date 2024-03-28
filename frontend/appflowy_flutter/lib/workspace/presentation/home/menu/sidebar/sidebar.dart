@@ -67,6 +67,9 @@ class HomeSideBar extends StatelessWidget {
             previous.currentWorkspace?.workspaceId !=
             current.currentWorkspace?.workspaceId,
         builder: (context, state) {
+          if (state.currentWorkspace == null) {
+            return const SizedBox.shrink();
+          }
           return MultiBlocProvider(
             providers: [
               BlocProvider(

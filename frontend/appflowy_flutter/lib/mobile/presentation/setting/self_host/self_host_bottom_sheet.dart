@@ -5,7 +5,6 @@ import 'package:appflowy/workspace/application/settings/appflowy_cloud_urls_bloc
 import 'package:appflowy_backend/log.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 class SelfHostUrlBottomSheet extends StatefulWidget {
   const SelfHostUrlBottomSheet({
@@ -38,32 +37,9 @@ class _SelfHostUrlBottomSheetState extends State<SelfHostUrlBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              LocaleKeys.editor_urlHint.tr(),
-              style: theme.textTheme.labelSmall,
-            ),
-            IconButton(
-              icon: Icon(
-                Icons.close,
-                color: theme.hintColor,
-              ),
-              onPressed: () {
-                context.pop();
-              },
-            ),
-          ],
-        ),
-        const SizedBox(
-          height: 16,
-        ),
         Form(
           key: _formKey,
           child: TextFormField(

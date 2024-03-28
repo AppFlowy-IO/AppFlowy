@@ -1,5 +1,8 @@
+import 'package:appflowy/core/config/kv.dart';
+import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/feature_flags.dart';
+import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/code.pbenum.dart';
@@ -135,6 +138,12 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
               ),
               (e) => state.currentWorkspace,
             );
+            result.onSuccess((_) async {
+              await getIt<KeyValueStorage>().set(
+                KVKeys.lastOpenedWorkspaceId,
+                workspaceId,
+              );
+            });
             emit(
               state.copyWith(
                 currentWorkspace: currentWorkspace,
@@ -220,11 +229,21 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
   Future<(UserWorkspacePB currentWorkspace, List<UserWorkspacePB> workspaces)?>
       _fetchWorkspaces() async {
     try {
+      final lastOpenedWorkspaceId = await getIt<KeyValueStorage>().get(
+        KVKeys.lastOpenedWorkspaceId,
+      );
       final currentWorkspace =
           await _userService.getCurrentWorkspace().getOrThrow();
       final workspaces = await _userService.getWorkspaces().getOrThrow();
-      final currentWorkspaceInList =
+      UserWorkspacePB currentWorkspaceInList =
           workspaces.firstWhere((e) => e.workspaceId == currentWorkspace.id);
+      if (lastOpenedWorkspaceId != null) {
+        final lastOpenedWorkspace = workspaces
+            .firstWhereOrNull((e) => e.workspaceId == lastOpenedWorkspaceId);
+        if (lastOpenedWorkspace != null) {
+          currentWorkspaceInList = lastOpenedWorkspace;
+        }
+      }
       return (currentWorkspaceInList, workspaces);
     } catch (e) {
       Log.error('fetch workspace error: $e');

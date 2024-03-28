@@ -2,7 +2,9 @@ import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-document/entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_result/appflowy_result.dart';
+import 'package:fixnum/fixnum.dart';
 
 class DocumentService {
   // unused now.
@@ -142,5 +144,40 @@ class DocumentService {
     }, (r) async {
       return FlowyResult.failure(FlowyError(msg: 'Workspace not found'));
     });
+  }
+
+  /// Sync the awareness states
+  /// For example, the cursor position, selection, who is viewing the document.
+  Future<FlowyResult<void, FlowyError>> syncAwarenessStates({
+    required String documentId,
+    Selection? selection,
+    String? metadata,
+  }) async {
+    final payload = UpdateDocumentAwarenessStatePB(
+      documentId: documentId,
+      selection: convertSelectionToAwarenessSelection(selection),
+      metadata: metadata,
+    );
+
+    final result = await DocumentEventSetAwarenessState(payload).send();
+    return result;
+  }
+
+  DocumentAwarenessSelectionPB? convertSelectionToAwarenessSelection(
+    Selection? selection,
+  ) {
+    if (selection == null) {
+      return null;
+    }
+    return DocumentAwarenessSelectionPB(
+      start: DocumentAwarenessPositionPB(
+        offset: Int64(selection.startIndex),
+        path: selection.start.path.map((e) => Int64(e)),
+      ),
+      end: DocumentAwarenessPositionPB(
+        offset: Int64(selection.endIndex),
+        path: selection.end.path.map((e) => Int64(e)),
+      ),
+    );
   }
 }

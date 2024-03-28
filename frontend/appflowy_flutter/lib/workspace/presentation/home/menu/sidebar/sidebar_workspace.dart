@@ -181,7 +181,7 @@ class _SidebarSwitchWorkspaceButtonState
                 enableEdit: false,
               ),
             ),
-            const HSpace(4),
+            const HSpace(6),
             Expanded(
               child: FlowyText.medium(
                 widget.currentWorkspace.name,
