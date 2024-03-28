@@ -562,14 +562,14 @@ pub struct DocumentAwarenessStatePB {
   pub timestamp: i64,
 }
 
-impl Into<DocumentAwarenessStatePB> for DocumentAwarenessState {
-  fn into(self) -> DocumentAwarenessStatePB {
+impl From<DocumentAwarenessState> for DocumentAwarenessStatePB {
+  fn from(value: DocumentAwarenessState) -> Self {
     DocumentAwarenessStatePB {
-      version: self.version,
-      user: self.user.into(),
-      selection: self.selection.map(|s| s.into()),
-      metadata: self.metadata,
-      timestamp: self.timestamp,
+      version: value.version,
+      user: value.user.into(),
+      selection: value.selection.map(|s| s.into()),
+      metadata: value.metadata,
+      timestamp: value.timestamp,
     }
   }
 }
@@ -582,11 +582,11 @@ pub struct DocumentAwarenessUserPB {
   pub device_id: String,
 }
 
-impl Into<DocumentAwarenessUserPB> for DocumentAwarenessUser {
-  fn into(self) -> DocumentAwarenessUserPB {
+impl From<DocumentAwarenessUser> for DocumentAwarenessUserPB {
+  fn from(value: DocumentAwarenessUser) -> Self {
     DocumentAwarenessUserPB {
-      uid: self.uid,
-      device_id: self.device_id.to_string(),
+      uid: value.uid,
+      device_id: value.device_id.to_string(),
     }
   }
 }
@@ -607,38 +607,38 @@ pub struct DocumentAwarenessPositionPB {
   pub offset: u64,
 }
 
-impl Into<DocumentAwarenessSelection> for DocumentAwarenessSelectionPB {
-  fn into(self) -> DocumentAwarenessSelection {
+impl From<DocumentAwarenessSelectionPB> for DocumentAwarenessSelection {
+  fn from(value: DocumentAwarenessSelectionPB) -> Self {
     DocumentAwarenessSelection {
-      start: self.start.into(),
-      end: self.end.into(),
+      start: value.start.into(),
+      end: value.end.into(),
     }
   }
 }
 
-impl Into<DocumentAwarenessSelectionPB> for DocumentAwarenessSelection {
-  fn into(self) -> DocumentAwarenessSelectionPB {
+impl From<DocumentAwarenessSelection> for DocumentAwarenessSelectionPB {
+  fn from(value: DocumentAwarenessSelection) -> Self {
     DocumentAwarenessSelectionPB {
-      start: self.start.into(),
-      end: self.end.into(),
+      start: value.start.into(),
+      end: value.end.into(),
     }
   }
 }
 
-impl Into<DocumentAwarenessPosition> for DocumentAwarenessPositionPB {
-  fn into(self) -> DocumentAwarenessPosition {
+impl From<DocumentAwarenessPositionPB> for DocumentAwarenessPosition {
+  fn from(value: DocumentAwarenessPositionPB) -> Self {
     DocumentAwarenessPosition {
-      path: self.path,
-      offset: self.offset,
+      path: value.path,
+      offset: value.offset,
     }
   }
 }
 
-impl Into<DocumentAwarenessPositionPB> for DocumentAwarenessPosition {
-  fn into(self) -> DocumentAwarenessPositionPB {
+impl From<DocumentAwarenessPosition> for DocumentAwarenessPositionPB {
+  fn from(value: DocumentAwarenessPosition) -> Self {
     DocumentAwarenessPositionPB {
-      path: self.path,
-      offset: self.offset,
+      path: value.path,
+      offset: value.offset,
     }
   }
 }
