@@ -3,7 +3,7 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use anyhow::Error;
-use client_api::collab_sync::collab_msg::ServerCollabMessage;
+use client_api::collab_sync::ServerCollabMessage;
 use client_api::entity::UserMessage;
 use client_api::notify::{TokenState, TokenStateReceiver};
 use client_api::ws::{
