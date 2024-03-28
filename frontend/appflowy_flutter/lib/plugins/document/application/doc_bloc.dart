@@ -17,7 +17,6 @@ import 'package:appflowy/util/color_generator/color_generator.dart';
 import 'package:appflowy/util/color_to_hex_string.dart';
 import 'package:appflowy/util/debounce.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
-import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-document/entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-document/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -117,8 +116,6 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
         if (newState.userProfilePB != null) {
           await _updateCollaborator();
         }
-        final x = await FolderEventReadRecentViews().send();
-        print(x);
       },
       moveToTrash: () async {
         emit(state.copyWith(isDeleted: true));
