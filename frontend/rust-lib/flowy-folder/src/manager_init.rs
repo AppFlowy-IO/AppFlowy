@@ -1,14 +1,14 @@
 use collab_entity::CollabType;
 
 use collab_folder::{Folder, FolderNotify, UserId};
-use tokio::task::spawn_blocking;
-use tracing::{event, Level};
 
 use collab_integrate::CollabKVDB;
 
 use flowy_error::{FlowyError, FlowyResult};
 
+use collab::core::collab::DocStateSource;
 use std::sync::{Arc, Weak};
+use tracing::{event, Level};
 
 use crate::manager::{FolderInitDataSource, FolderManager};
 use crate::manager_observer::{
@@ -55,7 +55,13 @@ impl FolderManager {
         if is_exist {
           event!(Level::INFO, "Init folder from local disk");
           self
-            .make_folder(uid, &workspace_id, collab_db, vec![], folder_notifier)
+            .make_folder(
+              uid,
+              &workspace_id,
+              collab_db,
+              DocStateSource::FromDisk,
+              folder_notifier,
+            )
             .await?
         } else if create_if_not_exist {
           // 2. if the folder doesn't exist and create_if_not_exist is true, create a default folder
@@ -77,7 +83,7 @@ impl FolderManager {
               uid,
               &workspace_id,
               collab_db.clone(),
-              doc_state,
+              DocStateSource::FromDocState(doc_state),
               folder_notifier.clone(),
             )
             .await?
@@ -87,7 +93,13 @@ impl FolderManager {
         if doc_state.is_empty() {
           event!(Level::ERROR, "remote folder data is empty, open from local");
           self
-            .make_folder(uid, &workspace_id, collab_db, vec![], folder_notifier)
+            .make_folder(
+              uid,
+              &workspace_id,
+              collab_db,
+              DocStateSource::FromDisk,
+              folder_notifier,
+            )
             .await?
         } else {
           event!(Level::INFO, "Restore folder from remote data");
@@ -96,7 +108,7 @@ impl FolderManager {
               uid,
               &workspace_id,
               collab_db.clone(),
-              doc_state,
+              DocStateSource::FromDocState(doc_state),
               folder_notifier.clone(),
             )
             .await?
@@ -117,22 +129,6 @@ impl FolderManager {
     };
 
     let folder_state_rx = folder.subscribe_sync_state();
-    let index_content_rx = folder.subscribe_index_content();
-    self
-      .folder_indexer
-      .set_index_content_receiver(index_content_rx);
-
-    // Index all views in the folder if needed
-    if !self.folder_indexer.is_indexed() {
-      let views = folder.get_all_views_recursively();
-      let folder_indexer = self.folder_indexer.clone();
-
-      // We spawn a blocking task to index all views in the folder
-      spawn_blocking(move || {
-        folder_indexer.index_all_views(views);
-      });
-    }
-
     *self.mutex_folder.lock() = Some(folder);
 
     let weak_mutex_folder = Arc::downgrade(&self.mutex_folder);

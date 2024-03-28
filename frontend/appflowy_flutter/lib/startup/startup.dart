@@ -130,7 +130,7 @@ class FlowyRunner {
         if (!mode.isUnitTest) ...[
           // The DeviceOrApplicationInfoTask should be placed before the AppWidgetTask to fetch the app information.
           // It is unable to get the device information from the test environment.
-          const DeviceOrApplicationInfoTask(),
+          const ApplicationInfoTask(),
           const HotKeyTask(),
           if (isSupabaseEnabled) InitSupabaseTask(),
           if (isAppFlowyCloudEnabled) InitAppFlowyCloudTask(),

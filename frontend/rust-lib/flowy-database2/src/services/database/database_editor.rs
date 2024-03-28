@@ -117,7 +117,6 @@ impl DatabaseEditor {
 
   /// Returns bool value indicating whether the database is empty.
   ///
-  #[tracing::instrument(level = "debug", skip_all)]
   pub async fn close_view(&self, view_id: &str) -> bool {
     // If the database is empty, flush the database to the disk.
     if self.database_views.editors().await.len() == 1 {
@@ -805,6 +804,7 @@ impl DatabaseEditor {
       }?;
       (field, database.get_cell(field_id, &row_id).cell)
     };
+
     let new_cell =
       apply_cell_changeset(cell_changeset, cell, &field, Some(self.cell_cache.clone()))?;
     self.update_cell(view_id, row_id, field_id, new_cell).await

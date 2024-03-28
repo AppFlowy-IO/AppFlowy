@@ -65,9 +65,11 @@
       "exportLogFiles": "Export log files",
       "reachOut": "Reach out on Discord"
     },
+    "menuTitle": "Workspaces",
     "deleteWorkspaceHintText": "Are you sure you want to delete the workspace? This action cannot be undone.",
     "createSuccess": "Workspace created successfully",
     "createFailed": "Failed to create workspace",
+    "createLimitExceeded": "You've reached the maximum workspace limit allowed for your account. If you need additional workspaces to continue your work, please request on Github",
     "deleteSuccess": "Workspace deleted successfully",
     "deleteFailed": "Failed to delete workspace",
     "openSuccess": "Open workspace successfully",
@@ -75,7 +77,9 @@
     "renameSuccess": "Workspace renamed successfully",
     "renameFailed": "Failed to rename workspace",
     "updateIconSuccess": "Updated workspace icon successfully",
-    "updateIconFailed": "Updated workspace icon failed"
+    "updateIconFailed": "Updated workspace icon failed",
+    "cannotDeleteTheOnlyWorkspace": "Cannot delete the only workspace",
+    "fetchWorkspacesFailed": "Failed to fetch workspaces"
   },
   "shareAction": {
     "buttonText": "Share",
@@ -208,13 +212,13 @@
     "private": "Private",
     "public": "Public",
     "favorites": "Favorites",
-    "clickToHidePrivate": "Click to hide private section\nPages you created here are only visible to you",
-    "clickToHidePublic": "Click to hide public section\nPages you created here are visible to every member",
-    "clickToHidePersonal": "Click to hide personal section",
-    "clickToHideFavorites": "Click to hide favorite section",
+    "clickToHidePrivate": "Click to hide private space\nPages you created here are only visible to you",
+    "clickToHidePublic": "Click to hide public space\nPages you created here are visible to every member",
+    "clickToHidePersonal": "Click to hide personal space",
+    "clickToHideFavorites": "Click to hide favorite space",
     "addAPage": "Add a page",
-    "addAPageToPrivate": "Add a page to private section",
-    "addAPageToPublic": "Add a page to public section",
+    "addAPageToPrivate": "Add a page to private space",
+    "addAPageToPublic": "Add a page to public space",
     "recent": "Recent"
   },
   "notifications": {
@@ -436,7 +440,17 @@
         "guestHintText": "A Guest can read, react, comment, and can edit certain pages with permission.",
         "emailInvalidError": "Invalid email, please check and try again",
         "emailSent": "Email sent, please check the inbox",
-        "members": "members"
+        "members": "members",
+        "membersCount": {
+          "zero": "{} members",
+          "one": "{} member",
+          "other": "{} members"
+        },
+        "memberLimitExceeded": "You've reached the maximum member limit allowed for your account. If you want to add more additional members to continue your work, please request on Github",
+        "failedToAddMember": "Failed to add member",
+        "addMemberSuccess": "Member added successfully",
+        "removeMember": "Remove Member",
+        "areYouSureToRemoveMember": "Are you sure you want to remove this member?"
       }
     },
     "files": {
@@ -720,9 +734,9 @@
       "blueColor": "Blue",
       "deleteTag": "Delete tag",
       "colorPanelTitle": "Color",
-      "panelTitle": "Select an option or create one",
+      "panelTitle": "Select an option",
       "searchOption": "Search for an option",
-      "searchOrCreateOption": "Search or create an option...",
+      "searchOrCreateOption": "Search...",
       "createNew": "Create a new",
       "orSelectOne": "Or select an option",
       "typeANewOption": "Type a new option",
@@ -1420,18 +1434,8 @@
     },
     "syncState": {
       "syncing": "Syncing",
-      "synced": "Everything is up to date",
+      "synced": "Synced",
       "noNetworkConnected": "No network connected"
     }
-  },
-  "commandPalette": {
-    "placeholder": "Type to search for views...",
-    "bestMatches": "Best matches",
-    "recentHistory": "Recent history",
-    "navigateHint": "to navigate",
-    "loadingTooltip": "We are looking for results...",
-    "betaLabel": "BETA",
-    "betaTooltip": "We currently only support searching for pages",
-    "fromTrashHint": "From trash"
   }
 }

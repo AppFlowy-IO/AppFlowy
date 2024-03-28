@@ -2,22 +2,23 @@ use std::num::NonZeroUsize;
 use std::sync::Arc;
 use std::sync::Weak;
 
-use collab::core::collab::{CollabDocState, MutexCollab};
+use collab::core::collab::{DocStateSource, MutexCollab};
 use collab::core::collab_plugin::EncodedCollab;
 use collab::core::origin::CollabOrigin;
 use collab::preclude::Collab;
 use collab_document::blocks::DocumentData;
 use collab_document::document::Document;
+use collab_document::document_awareness::DocumentAwarenessState;
+use collab_document::document_awareness::DocumentAwarenessUser;
 use collab_document::document_data::default_document_data;
 use collab_entity::CollabType;
 use collab_plugins::CollabKVDB;
 use flowy_storage::object_from_disk;
+use lib_infra::util::timestamp;
 use lru::LruCache;
 use parking_lot::Mutex;
 use tokio::io::AsyncWriteExt;
-use tracing::error;
-use tracing::info;
-use tracing::warn;
+use tracing::{error, trace};
 use tracing::{event, instrument};
 
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
@@ -28,6 +29,7 @@ use flowy_storage::ObjectStorageService;
 use lib_dispatch::prelude::af_spawn;
 
 use crate::document::MutexDocument;
+use crate::entities::UpdateDocumentAwarenessStatePB;
 use crate::entities::{
   DocumentSnapshotData, DocumentSnapshotMeta, DocumentSnapshotMetaPB, DocumentSnapshotPB,
 };
@@ -35,6 +37,7 @@ use crate::reminder::DocumentReminderAction;
 
 pub trait DocumentUserService: Send + Sync {
   fn user_id(&self) -> Result<i64, FlowyError>;
+  fn device_id(&self) -> Result<String, FlowyError>;
   fn workspace_id(&self) -> Result<String, FlowyError>;
   fn collab_db(&self, uid: i64) -> Result<Weak<CollabKVDB>, FlowyError>;
 }
@@ -122,7 +125,7 @@ impl DocumentManager {
           .doc_state
           .to_vec();
       let collab = self
-        .collab_for_document(uid, doc_id, doc_state, false)
+        .collab_for_document(uid, doc_id, DocStateSource::FromDocState(doc_state), false)
         .await?;
       collab.lock().flush();
       Ok(())
@@ -138,14 +141,16 @@ impl DocumentManager {
       return Ok(doc);
     }
 
-    let mut doc_state = CollabDocState::default();
+    let mut doc_state = DocStateSource::FromDisk;
     // If the document does not exist in local disk, try get the doc state from the cloud. This happens
     // When user_device_a create a document and user_device_b open the document.
     if !self.is_doc_exist(doc_id).await? {
-      doc_state = self
-        .cloud_service
-        .get_document_doc_state(doc_id, &self.user_service.workspace_id()?)
-        .await?;
+      doc_state = DocStateSource::FromDocState(
+        self
+          .cloud_service
+          .get_document_doc_state(doc_id, &self.user_service.workspace_id()?)
+          .await?,
+      );
 
       // the doc_state should not be empty if remote return the doc state without error.
       if doc_state.is_empty() {
@@ -183,27 +188,29 @@ impl DocumentManager {
   }
 
   pub async fn get_document_data(&self, doc_id: &str) -> FlowyResult<DocumentData> {
-    let mut updates = vec![];
+    let mut doc_state = vec![];
     if !self.is_doc_exist(doc_id).await? {
-      updates = self
+      doc_state = self
         .cloud_service
         .get_document_doc_state(doc_id, &self.user_service.workspace_id()?)
         .await?;
     }
     let uid = self.user_service.user_id()?;
     let collab = self
-      .collab_for_document(uid, doc_id, updates, false)
+      .collab_for_document(uid, doc_id, DocStateSource::FromDocState(doc_state), false)
       .await?;
     Document::open(collab)?
       .get_document_data()
       .map_err(internal_error)
   }
 
-  #[instrument(level = "debug", skip(self), err)]
   pub async fn close_document(&self, doc_id: &str) -> FlowyResult<()> {
     // The lru will pop the least recently used document when the cache is full.
     if let Ok(doc) = self.get_document(doc_id).await {
+      trace!("close document: {}", doc_id);
       if let Some(doc) = doc.try_lock() {
+        // clear the awareness state when close the document
+        doc.clean_awareness_local_state();
         let _ = doc.flush();
       }
     }
@@ -220,6 +227,31 @@ impl DocumentManager {
       self.documents.lock().pop(doc_id);
     }
     Ok(())
+  }
+
+  pub async fn set_document_awareness_local_state(
+    &self,
+    doc_id: &str,
+    state: UpdateDocumentAwarenessStatePB,
+  ) -> FlowyResult<bool> {
+    let uid = self.user_service.user_id()?;
+    let device_id = self.user_service.device_id()?;
+    if let Ok(doc) = self.get_document(doc_id).await {
+      if let Some(doc) = doc.try_lock() {
+        let user = DocumentAwarenessUser { uid, device_id };
+        let selection = state.selection.map(|s| s.into());
+        let state = DocumentAwarenessState {
+          version: 1,
+          user,
+          selection,
+          metadata: state.metadata,
+          timestamp: timestamp(),
+        };
+        doc.set_awareness_local_state(state);
+        return Ok(true);
+      }
+    }
+    Ok(false)
   }
 
   /// Return the list of snapshots of the document.
@@ -284,7 +316,7 @@ impl DocumentManager {
     #[cfg(not(target_arch = "wasm32"))]
     {
       if tokio::fs::metadata(&local_file_path).await.is_ok() {
-        warn!("file already exist in user local disk: {}", local_file_path);
+        tracing::warn!("file already exist in user local disk: {}", local_file_path);
         return Ok(());
       }
 
@@ -298,7 +330,7 @@ impl DocumentManager {
         .await?;
 
       let n = file.write(&object_value.raw).await?;
-      info!("downloaded {} bytes to file: {}", n, local_file_path);
+      tracing::info!("downloaded {} bytes to file: {}", n, local_file_path);
     }
     Ok(())
   }
@@ -326,22 +358,19 @@ impl DocumentManager {
     &self,
     uid: i64,
     doc_id: &str,
-    doc_state: CollabDocState,
+    doc_state: DocStateSource,
     sync_enable: bool,
   ) -> FlowyResult<Arc<MutexCollab>> {
     let db = self.user_service.collab_db(uid)?;
-    let collab = self
-      .collab_builder
-      .build_with_config(
-        uid,
-        doc_id,
-        CollabType::Document,
-        db,
-        doc_state,
-        CollabPersistenceConfig::default().snapshot_per_update(1000),
-        CollabBuilderConfig::default().sync_enable(sync_enable),
-      )
-      .await?;
+    let collab = self.collab_builder.build_with_config(
+      uid,
+      doc_id,
+      CollabType::Document,
+      db,
+      doc_state,
+      CollabPersistenceConfig::default().snapshot_per_update(1000),
+      CollabBuilderConfig::default().sync_enable(sync_enable),
+    )?;
     Ok(collab)
   }
 

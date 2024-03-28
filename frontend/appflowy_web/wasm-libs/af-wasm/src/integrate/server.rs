@@ -55,8 +55,8 @@ impl CollabCloudPluginProvider for ServerProviderWASM {
     CollabPluginProviderType::AppFlowyCloud
   }
 
-  fn get_plugins(&self, _context: CollabPluginProviderContext) -> Fut<Vec<Box<dyn CollabPlugin>>> {
-    to_fut(async move { vec![] })
+  fn get_plugins(&self, _context: CollabPluginProviderContext) -> Vec<Box<dyn CollabPlugin>> {
+    vec![]
   }
 
   fn is_sync_enabled(&self) -> bool {

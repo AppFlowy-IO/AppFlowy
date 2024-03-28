@@ -12,7 +12,7 @@ pub(crate) fn init_log(config: &AppFlowyCoreConfig) {
       .build();
   }
 }
-pub fn create_log_filter(level: String, with_crates: Vec<String>) -> String {
+pub(crate) fn create_log_filter(level: String, with_crates: Vec<String>) -> String {
   let level = std::env::var("RUST_LOG").unwrap_or(level);
   let mut filters = with_crates
     .into_iter()
@@ -32,14 +32,14 @@ pub fn create_log_filter(level: String, with_crates: Vec<String>) -> String {
   filters.push(format!("flowy_server={}", level));
   filters.push(format!("flowy_notification={}", "info"));
   filters.push(format!("lib_infra={}", level));
-  filters.push(format!("flowy_search={}", level));
 
-  // Most of the time, we don't need to see the logs from the following crates
-  // unless we are debugging the ffi or event dispatching
-  // filters.push(format!("lib_dispatch={}", level));
-  // filters.push(format!("dart_ffi={}", level));
+  // ⚠️Enable debug log for dart_ffi, flowy_sqlite and lib_dispatch as needed. Don't enable them by default.
+  {
+    // filters.push(format!("flowy_sqlite={}", "info"));
+    // filters.push(format!("dart_ffi={}", "info"));
+    // filters.push(format!("lib_dispatch={}", level));
+  }
 
-  filters.push(format!("flowy_sqlite={}", "info"));
   filters.push(format!("client_api={}", level));
   #[cfg(feature = "profiling")]
   filters.push(format!("tokio={}", level));

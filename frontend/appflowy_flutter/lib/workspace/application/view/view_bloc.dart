@@ -363,7 +363,7 @@ class ViewEvent with _$ViewEvent {
     ViewLayoutPB layoutType, {
     /// open the view after created
     @Default(true) bool openAfterCreated,
-    required ViewSectionPB section,
+    ViewSectionPB? section,
   }) = CreateView;
   const factory ViewEvent.viewDidUpdate(
     FlowyResult<ViewPB, FlowyError> result,

@@ -3,7 +3,7 @@ use std::sync::{Arc, Weak};
 
 use crate::CollabKVDB;
 use anyhow::Error;
-use collab::core::collab::{CollabDocState, MutexCollab};
+use collab::core::collab::{DocStateSource, MutexCollab};
 use collab::preclude::CollabBuilder;
 use collab_entity::{CollabObject, CollabType};
 use collab_plugins::connect_state::{CollabConnectReachability, CollabConnectState};
@@ -68,7 +68,7 @@ impl Display for CollabPluginProviderContext {
 pub struct AppFlowyCollabBuilder {
   network_reachability: CollabConnectReachability,
   workspace_id: RwLock<Option<String>>,
-  plugin_provider: tokio::sync::RwLock<Arc<dyn CollabCloudPluginProvider>>,
+  plugin_provider: RwLock<Arc<dyn CollabCloudPluginProvider>>,
   snapshot_persistence: Mutex<Option<Arc<dyn SnapshotPersistence>>>,
   #[cfg(not(target_arch = "wasm32"))]
   rocksdb_backup: Mutex<Option<Arc<dyn RocksdbBackup>>>,
@@ -97,7 +97,7 @@ impl AppFlowyCollabBuilder {
     Self {
       network_reachability: CollabConnectReachability::new(),
       workspace_id: Default::default(),
-      plugin_provider: tokio::sync::RwLock::new(Arc::new(storage_provider)),
+      plugin_provider: RwLock::new(Arc::new(storage_provider)),
       snapshot_persistence: Default::default(),
       #[cfg(not(target_arch = "wasm32"))]
       rocksdb_backup: Default::default(),
@@ -167,22 +167,20 @@ impl AppFlowyCollabBuilder {
     uid: i64,
     object_id: &str,
     object_type: CollabType,
-    collab_doc_state: CollabDocState,
+    collab_doc_state: DocStateSource,
     collab_db: Weak<CollabKVDB>,
     build_config: CollabBuilderConfig,
   ) -> Result<Arc<MutexCollab>, Error> {
     let persistence_config = CollabPersistenceConfig::default();
-    self
-      .build_with_config(
-        uid,
-        object_id,
-        object_type,
-        collab_db,
-        collab_doc_state,
-        persistence_config,
-        build_config,
-      )
-      .await
+    self.build_with_config(
+      uid,
+      object_id,
+      object_type,
+      collab_db,
+      collab_doc_state,
+      persistence_config,
+      build_config,
+    )
   }
 
   /// Creates a new collaboration builder with the custom configuration.
@@ -200,13 +198,13 @@ impl AppFlowyCollabBuilder {
   /// - `collab_db`: A weak reference to the [CollabKVDB].
   ///
   #[allow(clippy::too_many_arguments)]
-  pub async fn build_with_config(
+  pub fn build_with_config(
     &self,
     uid: i64,
     object_id: &str,
     object_type: CollabType,
     collab_db: Weak<CollabKVDB>,
-    collab_doc_state: CollabDocState,
+    collab_doc_state: DocStateSource,
     #[allow(unused_variables)] persistence_config: CollabPersistenceConfig,
     build_config: CollabBuilderConfig,
   ) -> Result<Arc<MutexCollab>, Error> {
@@ -240,23 +238,22 @@ impl AppFlowyCollabBuilder {
     {
       let collab_object = self.collab_object(uid, object_id, object_type)?;
       if build_config.sync_enable {
-        let provider_type = self.plugin_provider.read().await.provider_type();
+        let provider_type = self.plugin_provider.read().provider_type();
         let span = tracing::span!(tracing::Level::TRACE, "collab_builder", object_id = %object_id);
         let _enter = span.enter();
         match provider_type {
           CollabPluginProviderType::AppFlowyCloud => {
             trace!("init appflowy cloud collab plugins");
             let local_collab = Arc::downgrade(&collab);
-            let plugins = self
-              .plugin_provider
-              .read()
-              .await
-              .get_plugins(CollabPluginProviderContext::AppFlowyCloud {
-                uid,
-                collab_object,
-                local_collab,
-              })
-              .await;
+            let plugins =
+              self
+                .plugin_provider
+                .read()
+                .get_plugins(CollabPluginProviderContext::AppFlowyCloud {
+                  uid,
+                  collab_object,
+                  local_collab,
+                });
 
             trace!("add appflowy cloud collab plugins: {}", plugins.len());
             for plugin in plugins {
@@ -269,17 +266,16 @@ impl AppFlowyCollabBuilder {
               trace!("init supabase collab plugins");
               let local_collab = Arc::downgrade(&collab);
               let local_collab_db = collab_db.clone();
-              let plugins = self
-                .plugin_provider
-                .read()
-                .await
-                .get_plugins(CollabPluginProviderContext::Supabase {
-                  uid,
-                  collab_object,
-                  local_collab,
-                  local_collab_db,
-                })
-                .await;
+              let plugins =
+                self
+                  .plugin_provider
+                  .read()
+                  .get_plugins(CollabPluginProviderContext::Supabase {
+                    uid,
+                    collab_object,
+                    local_collab,
+                    local_collab_db,
+                  });
               for plugin in plugins {
                 collab.lock().add_plugin(plugin);
               }
@@ -291,7 +287,7 @@ impl AppFlowyCollabBuilder {
     }
 
     #[cfg(target_arch = "wasm32")]
-    collab.lock().initialize().await;
+    futures::executor::block_on(collab.lock().initialize());
 
     #[cfg(not(target_arch = "wasm32"))]
     collab.lock().initialize();

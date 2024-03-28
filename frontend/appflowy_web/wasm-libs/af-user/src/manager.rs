@@ -2,7 +2,7 @@ use crate::authenticate_user::AuthenticateUser;
 use crate::define::{user_profile_key, user_workspace_key, AF_USER_SESSION_KEY};
 use af_persistence::store::{AppFlowyWASMStore, IndexddbStore};
 use anyhow::Context;
-use collab::core::collab::CollabDocState;
+use collab::core::collab::DocStateSource;
 use collab_entity::CollabType;
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
 use collab_integrate::{CollabKVDB, MutexCollab};
@@ -200,7 +200,7 @@ impl UserManager {
     &self,
     session: &Session,
     collab_db: Weak<CollabKVDB>,
-    raw_data: CollabDocState,
+    raw_data: Vec<u8>,
   ) -> Result<Arc<MutexCollab>, FlowyError> {
     let collab_builder = self.collab_builder.upgrade().ok_or(FlowyError::new(
       ErrorCode::Internal,
@@ -212,7 +212,7 @@ impl UserManager {
         session.user_id,
         &user_awareness_id.to_string(),
         CollabType::UserAwareness,
-        raw_data,
+        DocStateSource::FromDocState(raw_data),
         collab_db,
         CollabBuilderConfig::default().sync_enable(true),
       )

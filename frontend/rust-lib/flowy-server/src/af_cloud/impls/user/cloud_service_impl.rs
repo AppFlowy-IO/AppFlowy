@@ -7,7 +7,6 @@ use client_api::entity::workspace_dto::{
 };
 use client_api::entity::{AFRole, AFWorkspace, AuthProvider, CollabParams, CreateCollabParams};
 use client_api::{Client, ClientConfiguration};
-use collab::core::collab::CollabDocState;
 use collab_entity::CollabObject;
 use parking_lot::RwLock;
 
@@ -239,7 +238,7 @@ where
     })
   }
 
-  fn get_user_awareness_doc_state(&self, _uid: i64) -> FutureResult<CollabDocState, FlowyError> {
+  fn get_user_awareness_doc_state(&self, _uid: i64) -> FutureResult<Vec<u8>, FlowyError> {
     FutureResult::new(async { Ok(vec![]) })
   }
 

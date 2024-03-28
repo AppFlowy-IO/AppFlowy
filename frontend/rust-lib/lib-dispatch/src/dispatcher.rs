@@ -164,7 +164,7 @@ impl AFPluginDispatcher {
     let request: AFPluginRequest = request.into();
     let plugins = dispatch.plugins.clone();
     let service = Box::new(DispatchService { plugins });
-    tracing::trace!("Async event: {:?}", &request.event);
+    tracing::trace!("[dispatch]: Async event: {:?}", &request.event);
     let service_ctx = DispatchContext {
       request,
       callback: Some(Box::new(callback)),
@@ -172,7 +172,7 @@ impl AFPluginDispatcher {
 
     let handle = dispatch.runtime.spawn(async move {
       service.call(service_ctx).await.unwrap_or_else(|e| {
-        tracing::error!("Dispatch runtime error: {:?}", e);
+        tracing::error!("[dispatch]: runtime error: {:?}", e);
         InternalError::Other(format!("{:?}", e)).as_response()
       })
     });
@@ -292,18 +292,27 @@ impl Service<DispatchContext> for DispatchService {
       let result = {
         match module_map.get(&request.event) {
           Some(module) => {
+            let event = format!("{:?}", request.event);
             event!(
               tracing::Level::TRACE,
-              "Handle event: {:?} by {:?}",
-              &request.event,
-              module.name
+              "[dispatch]: {:?} exec event:{}",
+              &module.name,
+              &event,
             );
             let fut = module.new_service(());
             let service_fut = fut.await?.call(request);
-            service_fut.await
+            let result = service_fut.await;
+            event!(
+              tracing::Level::TRACE,
+              "[dispatch]: {:?} exec event:{} with result: {}",
+              &module.name,
+              &event,
+              result.is_ok()
+            );
+            result
           },
           None => {
-            let msg = format!("Can not find the event handler. {:?}", request);
+            let msg = format!("[dispatch]: can not find the event handler. {:?}", request);
             event!(tracing::Level::ERROR, "{}", msg);
             Err(InternalError::HandleNotFound(msg).into())
           },

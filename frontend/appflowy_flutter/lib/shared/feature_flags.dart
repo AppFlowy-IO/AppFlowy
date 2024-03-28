@@ -87,7 +87,7 @@ enum FeatureFlag {
       case FeatureFlag.membersSettings:
         return false;
       case FeatureFlag.syncDocument:
-        return false;
+        return true;
       case FeatureFlag.unknown:
         return false;
     }
@@ -100,7 +100,7 @@ enum FeatureFlag {
       case FeatureFlag.membersSettings:
         return 'if it\'s on, you can see the members settings in the settings page';
       case FeatureFlag.syncDocument:
-        return 'if it\'s on, the document will be synced the events from server in real-time';
+        return 'if it\'s on, the document will be synced in real-time';
       case FeatureFlag.unknown:
         return '';
     }

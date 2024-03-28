@@ -50,9 +50,8 @@ class RelationCellEditor extends StatelessWidget {
                         rightIcon: cellState.rows
                                 .map((e) => e.rowId)
                                 .contains(row.rowId)
-                            ? FlowySvg(
+                            ? const FlowySvg(
                                 FlowySvgs.check_s,
-                                color: Theme.of(context).primaryColor,
                               )
                             : null,
                         onTap: () => context
