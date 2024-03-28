@@ -82,6 +82,10 @@ impl DocumentUserService for FakeUser {
   fn collab_db(&self, _uid: i64) -> Result<std::sync::Weak<CollabKVDB>, FlowyError> {
     Ok(Arc::downgrade(&self.collab_db))
   }
+
+  fn device_id(&self) -> Result<String, FlowyError> {
+    Ok("".to_string())
+  }
 }
 
 pub fn setup_log() {

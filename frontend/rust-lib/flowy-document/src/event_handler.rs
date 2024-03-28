@@ -8,6 +8,7 @@ use std::sync::{Arc, Weak};
 
 use collab_document::blocks::{
   BlockAction, BlockActionPayload, BlockActionType, BlockEvent, BlockEventPayload, DeltaType,
+  DocumentData,
 };
 
 use flowy_error::{FlowyError, FlowyResult};
@@ -293,12 +294,15 @@ impl From<DeltaType> for DeltaTypePB {
   }
 }
 
-impl From<(&Vec<BlockEvent>, bool)> for DocEventPB {
-  fn from((events, is_remote): (&Vec<BlockEvent>, bool)) -> Self {
+impl From<(&Vec<BlockEvent>, bool, Option<DocumentData>)> for DocEventPB {
+  fn from(
+    (events, is_remote, new_snapshot): (&Vec<BlockEvent>, bool, Option<DocumentData>),
+  ) -> Self {
     // Convert each individual `BlockEvent` to a protobuf `BlockEventPB`, and collect the results into a `Vec`
     Self {
       events: events.iter().map(|e| e.to_owned().into()).collect(),
       is_remote,
+      new_snapshot: new_snapshot.map(|d| d.into()),
     }
   }
 }
@@ -450,4 +454,17 @@ pub(crate) async fn delete_file_handler(
   }) = params;
   let manager = upgrade_document(manager)?;
   manager.delete_file(local_file_path, url).await
+}
+
+pub(crate) async fn set_awareness_local_state_handler(
+  data: AFPluginData<UpdateDocumentAwarenessStatePB>,
+  manager: AFPluginState<Weak<DocumentManager>>,
+) -> FlowyResult<()> {
+  let manager = upgrade_document(manager)?;
+  let data = data.into_inner();
+  let doc_id = data.document_id.clone();
+  manager
+    .set_document_awareness_local_state(&doc_id, data)
+    .await?;
+  Ok(())
 }

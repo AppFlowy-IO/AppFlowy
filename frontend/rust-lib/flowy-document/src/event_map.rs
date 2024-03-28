@@ -4,6 +4,7 @@ use strum_macros::Display;
 
 use flowy_derive::{Flowy_Event, ProtoBuf_Enum};
 use lib_dispatch::prelude::AFPlugin;
+use tracing::event;
 
 use crate::event_handler::get_snapshot_meta_handler;
 use crate::{event_handler::*, manager::DocumentManager};
@@ -42,6 +43,10 @@ pub fn init(document_manager: Weak<DocumentManager>) -> AFPlugin {
     .event(DocumentEvent::UploadFile, upload_file_handler)
     .event(DocumentEvent::DownloadFile, download_file_handler)
     .event(DocumentEvent::DeleteFile, delete_file_handler)
+    .event(
+      DocumentEvent::SetAwarenessState,
+      set_awareness_local_state_handler,
+    )
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Display, ProtoBuf_Enum, Flowy_Event)]
@@ -118,4 +123,7 @@ pub enum DocumentEvent {
   DownloadFile = 16,
   #[event(input = "UploadedFilePB")]
   DeleteFile = 17,
+
+  #[event(input = "UpdateDocumentAwarenessStatePB")]
+  SetAwarenessState = 18,
 }

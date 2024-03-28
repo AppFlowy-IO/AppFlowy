@@ -87,7 +87,7 @@ enum FeatureFlag {
       case FeatureFlag.membersSettings:
         return false;
       case FeatureFlag.syncDocument:
-        return false;
+        return true;
       case FeatureFlag.unknown:
         return false;
     }

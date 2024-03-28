@@ -19,7 +19,7 @@ version: 0.5.3
 
 environment:
   flutter: ">=3.19.0"
-  sdk: ">=3.1.5 <4.0.0"
+  sdk: ">=3.3.0 <4.0.0"
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -132,6 +132,7 @@ dependencies:
   share_plus: ^7.2.1
   sheet:
   file: ^7.0.0
+  avatar_stack: ^1.2.0
 
 dev_dependencies:
   flutter_lints: ^3.0.1
@@ -168,7 +169,7 @@ dependency_overrides:
   appflowy_editor:
     git:
       url: https://github.com/AppFlowy-IO/appflowy-editor.git
-      ref: "a571f2b"
+      ref: "b927ec0"
 
   sheet:
     git:

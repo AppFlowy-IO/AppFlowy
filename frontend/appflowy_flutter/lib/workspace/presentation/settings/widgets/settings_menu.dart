@@ -4,6 +4,7 @@ import 'package:appflowy/workspace/application/settings/settings_dialog_bloc.dar
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_menu_element.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class SettingsMenu extends StatelessWidget {
@@ -79,15 +80,15 @@ class SettingsMenu extends StatelessWidget {
               icon: Icons.people,
               changeSelectedPage: changeSelectedPage,
             ),
-          // if (kDebugMode)
-          //   SettingsMenuElement(
-          //     // no need to translate this page
-          //     page: SettingsPage.featureFlags,
-          //     selectedPage: currentPage,
-          //     label: 'Feature Flags',
-          //     icon: Icons.flag,
-          //     changeSelectedPage: changeSelectedPage,
-          //   ),
+          if (kDebugMode)
+            SettingsMenuElement(
+              // no need to translate this page
+              page: SettingsPage.featureFlags,
+              selectedPage: currentPage,
+              label: 'Feature Flags',
+              icon: Icons.flag,
+              changeSelectedPage: changeSelectedPage,
+            ),
         ],
       ),
     );

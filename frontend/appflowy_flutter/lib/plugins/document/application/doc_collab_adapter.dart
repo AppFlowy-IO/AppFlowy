@@ -1,15 +1,21 @@
 import 'dart:convert';
 
+import 'package:appflowy/plugins/document/application/doc_awareness_metadata.dart';
 import 'package:appflowy/plugins/document/application/document_data_pb_extension.dart';
 import 'package:appflowy/plugins/document/application/prelude.dart';
+import 'package:appflowy/startup/tasks/device_info_task.dart';
+import 'package:appflowy/util/color_generator/color_generator.dart';
 import 'package:appflowy/util/json_print.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-document/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:collection/collection.dart';
+import 'package:fixnum/fixnum.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
 
-class CollabDocumentAdapter {
-  CollabDocumentAdapter(this.editorState, this.docId);
+class DocumentCollabAdapter {
+  DocumentCollabAdapter(this.editorState, this.docId);
 
   final EditorState editorState;
   final String docId;
@@ -61,7 +67,7 @@ class CollabDocumentAdapter {
   /// Sync version 3
   ///
   /// Diff the local document with the remote document and apply the changes
-  Future<void> syncV3() async {
+  Future<void> syncV3(DocEventPB docEvent) async {
     final result = await _service.getDocument(viewId: docId);
     final document = result.fold((s) => s.toDocument(), (f) => null);
     if (document == null) {
@@ -70,8 +76,11 @@ class CollabDocumentAdapter {
 
     final ops = diffNodes(editorState.document.root, document.root);
     if (ops.isEmpty) {
+      debugPrint('[collab] received empty ops');
       return;
     }
+
+    debugPrint('[collab] received ops: $ops');
 
     final transaction = editorState.transaction;
     for (final op in ops) {
@@ -121,6 +130,80 @@ class CollabDocumentAdapter {
         }
       }
     }
+  }
+
+  Future<void> updateRemoteSelection(
+    String userId,
+    DocumentAwarenessStatesPB states,
+  ) async {
+    final List<RemoteSelection> remoteSelections = [];
+    final deviceId = ApplicationInfo.deviceId;
+    for (final state in states.value.values) {
+      // the following code is only for version 1
+      if (state.version != 1) {
+        return;
+      }
+      final uid = state.user.uid.toString();
+      final did = state.user.deviceId;
+      final metadata = DocumentAwarenessMetadata.fromJson(
+        jsonDecode(state.metadata),
+      );
+      final selectionColor = metadata.selectionColor.tryToColor();
+      final cursorColor = metadata.cursorColor.tryToColor();
+      if ((uid == userId && did == deviceId) ||
+          (cursorColor == null || selectionColor == null)) {
+        continue;
+      }
+      final start = state.selection.start;
+      final end = state.selection.end;
+      final selection = Selection(
+        start: Position(
+          path: start.path.toIntList(),
+          offset: start.offset.toInt(),
+        ),
+        end: Position(
+          path: end.path.toIntList(),
+          offset: end.offset.toInt(),
+        ),
+      );
+      final color = ColorGenerator(uid + did).toColor();
+      final remoteSelection = RemoteSelection(
+        id: uid,
+        selection: selection,
+        selectionColor: selectionColor,
+        cursorColor: cursorColor,
+        builder: (_, __, rect) {
+          return Positioned(
+            top: rect.top - 10,
+            left: selection.isCollapsed ? rect.right : rect.left,
+            child: ColoredBox(
+              color: color,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 2.0,
+                  vertical: 1.0,
+                ),
+                child: FlowyText(
+                  metadata.userName,
+                  color: Colors.black,
+                  fontSize: 12.0,
+                ),
+              ),
+            ),
+          );
+        },
+      );
+      remoteSelections.add(remoteSelection);
+    }
+    if (remoteSelections.isNotEmpty) {
+      editorState.remoteSelections.value = remoteSelections;
+    }
+  }
+}
+
+extension on List<Int64> {
+  List<int> toIntList() {
+    return map((e) => e.toInt()).toList();
   }
 }
 
