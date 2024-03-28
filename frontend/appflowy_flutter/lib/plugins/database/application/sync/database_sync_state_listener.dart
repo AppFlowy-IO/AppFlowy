@@ -1,33 +1,34 @@
 import 'dart:async';
 import 'dart:typed_data';
 
-import 'package:appflowy/core/notification/document_notification.dart';
-import 'package:appflowy_backend/protobuf/flowy-document/protobuf.dart';
+import 'package:appflowy/core/notification/grid_notification.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-notification/subject.pb.dart';
 import 'package:appflowy_backend/rust_stream.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 
-typedef DocumentSyncStateCallback = void Function(
-  DocumentSyncStatePB syncState,
+typedef DatabaseSyncStateCallback = void Function(
+  DatabaseSyncStatePB syncState,
 );
 
-class DocumentSyncStateListener {
-  DocumentSyncStateListener({
+class DatabaseSyncStateListener {
+  DatabaseSyncStateListener({
     required this.id,
   });
 
   final String id;
   StreamSubscription<SubscribeObject>? _subscription;
-  DocumentNotificationParser? _parser;
-  DocumentSyncStateCallback? didReceiveSyncState;
+  DatabaseNotificationParser? _parser;
+
+  DatabaseSyncStateCallback? didReceiveSyncState;
 
   void start({
-    DocumentSyncStateCallback? didReceiveSyncState,
+    DatabaseSyncStateCallback? didReceiveSyncState,
   }) {
     this.didReceiveSyncState = didReceiveSyncState;
 
-    _parser = DocumentNotificationParser(
+    _parser = DatabaseNotificationParser(
       id: id,
       callback: _callback,
     );
@@ -37,14 +38,14 @@ class DocumentSyncStateListener {
   }
 
   void _callback(
-    DocumentNotification ty,
+    DatabaseNotification ty,
     FlowyResult<Uint8List, FlowyError> result,
   ) {
     switch (ty) {
-      case DocumentNotification.DidUpdateDocumentSyncState:
+      case DatabaseNotification.DidUpdateDatabaseSyncUpdate:
         result.map(
           (r) {
-            final value = DocumentSyncStatePB.fromBuffer(r);
+            final value = DatabaseSyncStatePB.fromBuffer(r);
             didReceiveSyncState?.call(value);
           },
         );
