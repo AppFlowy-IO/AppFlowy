@@ -5,6 +5,7 @@ import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -74,12 +75,32 @@ class _RecentViews extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: FlowyText.semibold(
-            LocaleKeys.sideBar_recent.tr(),
-            fontSize: 20.0,
-          ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: FlowyText.semibold(
+                LocaleKeys.sideBar_recent.tr(),
+                fontSize: 20.0,
+              ),
+            ),
+            if (kDebugMode)
+              Padding(
+                padding: const EdgeInsets.only(right: 16.0),
+                child: FlowyButton(
+                  useIntrinsicWidth: true,
+                  text: FlowyText(LocaleKeys.button_clear.tr()),
+                  onTap: () {
+                    context.read<RecentViewsBloc>().add(
+                          RecentViewsEvent.removeRecentViews(
+                            recentViews.map((e) => e.id).toList(),
+                          ),
+                        );
+                  },
+                ),
+              ),
+          ],
         ),
         SingleChildScrollView(
           key: const PageStorageKey('recent_views_page_storage_key'),
