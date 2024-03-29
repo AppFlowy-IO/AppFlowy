@@ -14,10 +14,11 @@ typedef DatabaseSyncStateCallback = void Function(
 
 class DatabaseSyncStateListener {
   DatabaseSyncStateListener({
-    required this.id,
+    // NOTE: NOT the view id.
+    required this.databaseId,
   });
 
-  final String id;
+  final String databaseId;
   StreamSubscription<SubscribeObject>? _subscription;
   DatabaseNotificationParser? _parser;
 
@@ -29,7 +30,7 @@ class DatabaseSyncStateListener {
     this.didReceiveSyncState = didReceiveSyncState;
 
     _parser = DatabaseNotificationParser(
-      id: id,
+      id: databaseId,
       callback: _callback,
     );
     _subscription = RustStreamReceiver.listen(

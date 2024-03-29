@@ -1,8 +1,10 @@
 import 'dart:async';
 
 import 'package:appflowy/plugins/database/application/sync/database_sync_state_listener.dart';
+import 'package:appflowy/plugins/database/domain/database_view_service.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/database_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
@@ -15,31 +17,36 @@ part 'database_sync_bloc.freezed.dart';
 class DatabaseSyncBloc extends Bloc<DatabaseSyncEvent, DatabaseSyncBlocState> {
   DatabaseSyncBloc({
     required this.view,
-  })  : _syncStateListener = DatabaseSyncStateListener(id: view.id),
-        super(DatabaseSyncBlocState.initial()) {
+  }) : super(DatabaseSyncBlocState.initial()) {
     on<DatabaseSyncEvent>(
       (event, emit) async {
         await event.when(
           initial: () async {
             final userProfile = await getIt<AuthService>().getUser().then(
-                  (result) => result.fold(
-                    (l) => l,
-                    (r) => null,
-                  ),
+                  (value) => value.fold((s) => s, (f) => null),
                 );
+            final databaseId = await DatabaseViewBackendService(viewId: view.id)
+                .getDatabaseId()
+                .then((value) => value.fold((s) => s, (f) => null));
             emit(
               state.copyWith(
                 shouldShowIndicator:
-                    userProfile?.authenticator != AuthenticatorPB.Local,
+                    userProfile?.authenticator != AuthenticatorPB.Local &&
+                        databaseId != null,
               ),
             );
-            _syncStateListener.start(
-              didReceiveSyncState: (syncState) {
-                if (!isClosed) {
-                  add(DatabaseSyncEvent.syncStateChanged(syncState));
-                }
-              },
-            );
+            if (databaseId != null) {
+              _syncStateListener =
+                  DatabaseSyncStateListener(databaseId: databaseId)
+                    ..start(
+                      didReceiveSyncState: (syncState) {
+                        Log.info(
+                          'database sync state changed, from ${state.syncState} to $syncState',
+                        );
+                        add(DatabaseSyncEvent.syncStateChanged(syncState));
+                      },
+                    );
+            }
 
             final isNetworkConnected = await _connectivity
                 .checkConnectivity()
@@ -48,17 +55,18 @@ class DatabaseSyncBloc extends Bloc<DatabaseSyncEvent, DatabaseSyncBlocState> {
 
             connectivityStream =
                 _connectivity.onConnectivityChanged.listen((result) {
-              if (!isClosed) {
-                emit(
-                  state.copyWith(
-                    isNetworkConnected: result != ConnectivityResult.none,
-                  ),
-                );
-              }
+              add(DatabaseSyncEvent.networkStateChanged(result));
             });
           },
           syncStateChanged: (syncState) {
             emit(state.copyWith(syncState: syncState.value));
+          },
+          networkStateChanged: (result) {
+            emit(
+              state.copyWith(
+                isNetworkConnected: result != ConnectivityResult.none,
+              ),
+            );
           },
         );
       },
@@ -66,15 +74,15 @@ class DatabaseSyncBloc extends Bloc<DatabaseSyncEvent, DatabaseSyncBlocState> {
   }
 
   final ViewPB view;
-  final DatabaseSyncStateListener _syncStateListener;
   final _connectivity = Connectivity();
 
   StreamSubscription? connectivityStream;
+  DatabaseSyncStateListener? _syncStateListener;
 
   @override
   Future<void> close() async {
     await connectivityStream?.cancel();
-    await _syncStateListener.stop();
+    await _syncStateListener?.stop();
     return super.close();
   }
 }
@@ -85,6 +93,9 @@ class DatabaseSyncEvent with _$DatabaseSyncEvent {
   const factory DatabaseSyncEvent.syncStateChanged(
     DatabaseSyncStatePB syncState,
   ) = syncStateChanged;
+  const factory DatabaseSyncEvent.networkStateChanged(
+    ConnectivityResult result,
+  ) = NetworkStateChanged;
 }
 
 @freezed
