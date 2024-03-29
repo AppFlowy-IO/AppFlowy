@@ -1,4 +1,4 @@
-use crate::entities::{FieldType, TextFilterPB, URLCellDataPB};
+use crate::entities::{TextFilterPB, URLCellDataPB};
 use crate::services::cell::{CellDataChangeset, CellDataDecoder};
 use crate::services::field::{
   TypeOption, TypeOptionCellDataCompare, TypeOptionCellDataFilter, TypeOptionCellDataSerde,
@@ -7,7 +7,7 @@ use crate::services::field::{
 use crate::services::sort::SortCondition;
 
 use collab::core::any_map::AnyMapExtension;
-use collab_database::fields::{Field, TypeOptionData, TypeOptionDataBuilder};
+use collab_database::fields::{TypeOptionData, TypeOptionDataBuilder};
 use collab_database::rows::Cell;
 use fancy_regex::Regex;
 use flowy_error::FlowyResult;
@@ -61,26 +61,12 @@ impl TypeOptionCellDataSerde for URLTypeOption {
 }
 
 impl CellDataDecoder for URLTypeOption {
-  fn decode_cell(
-    &self,
-    cell: &Cell,
-    decoded_field_type: &FieldType,
-    _field: &Field,
-  ) -> FlowyResult<<Self as TypeOption>::CellData> {
-    if !decoded_field_type.is_url() {
-      return Ok(Default::default());
-    }
-
+  fn decode_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
     self.parse_cell(cell)
   }
 
   fn stringify_cell_data(&self, cell_data: <Self as TypeOption>::CellData) -> String {
     cell_data.data
-  }
-
-  fn stringify_cell(&self, cell: &Cell) -> String {
-    let cell_data = Self::CellData::from(cell);
-    self.stringify_cell_data(cell_data)
   }
 
   fn numeric_cell(&self, _cell: &Cell) -> Option<f64> {

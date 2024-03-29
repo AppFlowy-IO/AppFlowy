@@ -1,9 +1,10 @@
-use crate::entities::{CalculationType, FieldType};
+use std::sync::Arc;
 
-use crate::services::field::TypeOptionCellExt;
 use collab_database::fields::Field;
 use collab_database::rows::RowCell;
-use std::sync::Arc;
+
+use crate::entities::CalculationType;
+use crate::services::field::TypeOptionCellExt;
 
 pub struct CalculationsService {}
 
@@ -35,10 +36,7 @@ impl CalculationsService {
   fn calculate_average(&self, field: &Field, row_cells: Vec<Arc<RowCell>>) -> String {
     let mut sum = 0.0;
     let mut len = 0.0;
-    let field_type = FieldType::from(field.field_type);
-    if let Some(handler) =
-      TypeOptionCellExt::new(field, None).get_type_option_cell_data_handler(&field_type)
-    {
+    if let Some(handler) = TypeOptionCellExt::new(field, None).get_type_option_cell_data_handler() {
       for row_cell in row_cells {
         if let Some(cell) = &row_cell.cell {
           if let Some(value) = handler.handle_numeric_cell(cell) {
@@ -130,50 +128,39 @@ impl CalculationsService {
   }
 
   fn calculate_count_empty(&self, field: &Field, row_cells: Vec<Arc<RowCell>>) -> String {
-    let field_type = FieldType::from(field.field_type);
-    if let Some(handler) =
-      TypeOptionCellExt::new(field, None).get_type_option_cell_data_handler(&field_type)
-    {
-      if !row_cells.is_empty() {
-        return format!(
-          "{}",
-          row_cells
-            .iter()
-            .filter(|c| c.is_none()
-              || handler
-                .handle_stringify_cell(&c.cell.clone().unwrap_or_default(), &field_type, field)
-                .is_empty())
-            .collect::<Vec<_>>()
-            .len()
-        );
-      }
+    match TypeOptionCellExt::new(field, None).get_type_option_cell_data_handler() {
+      Some(handler) if !row_cells.is_empty() => row_cells
+        .iter()
+        .filter(|row_cell| {
+          if let Some(cell) = &row_cell.cell {
+            handler.handle_is_cell_empty(cell, field)
+          } else {
+            true
+          }
+        })
+        .collect::<Vec<_>>()
+        .len()
+        .to_string(),
+      _ => "".to_string(),
     }
-
-    String::new()
   }
 
   fn calculate_count_non_empty(&self, field: &Field, row_cells: Vec<Arc<RowCell>>) -> String {
-    let field_type = FieldType::from(field.field_type);
-    if let Some(handler) =
-      TypeOptionCellExt::new(field, None).get_type_option_cell_data_handler(&field_type)
-    {
-      if !row_cells.is_empty() {
-        return format!(
-          "{}",
-          row_cells
-            .iter()
-            // Check the Cell has data and that the stringified version is not empty
-            .filter(|c| c.is_some()
-              && !handler
-                .handle_stringify_cell(&c.cell.clone().unwrap_or_default(), &field_type, field)
-                .is_empty())
-            .collect::<Vec<_>>()
-            .len()
-        );
-      }
+    match TypeOptionCellExt::new(field, None).get_type_option_cell_data_handler() {
+      Some(handler) if !row_cells.is_empty() => row_cells
+        .iter()
+        .filter(|row_cell| {
+          if let Some(cell) = &row_cell.cell {
+            !handler.handle_is_cell_empty(cell, field)
+          } else {
+            false
+          }
+        })
+        .collect::<Vec<_>>()
+        .len()
+        .to_string(),
+      _ => "".to_string(),
     }
-
-    String::new()
   }
 
   fn reduce_values_f64<F, T>(&self, field: &Field, row_cells: Vec<Arc<RowCell>>, f: F) -> T
@@ -182,10 +169,7 @@ impl CalculationsService {
   {
     let mut values = vec![];
 
-    let field_type = FieldType::from(field.field_type);
-    if let Some(handler) =
-      TypeOptionCellExt::new(field, None).get_type_option_cell_data_handler(&field_type)
-    {
+    if let Some(handler) = TypeOptionCellExt::new(field, None).get_type_option_cell_data_handler() {
       for row_cell in row_cells {
         if let Some(cell) = &row_cell.cell {
           if let Some(value) = handler.handle_numeric_cell(cell) {

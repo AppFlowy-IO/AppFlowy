@@ -111,11 +111,11 @@ pub(crate) async fn get_cell_for_row(
   let field = delegate.get_field(field_id)?;
   let row_cell = delegate.get_cell_in_row(field_id, row_id).await;
   let field_type = FieldType::from(field.field_type);
-  let handler = delegate.get_type_option_cell_handler(&field, &field_type)?;
+  let handler = delegate.get_type_option_cell_handler(&field)?;
 
   let cell_data = match &row_cell.cell {
     None => None,
-    Some(cell) => handler.get_cell_data(cell, &field_type, &field).ok(),
+    Some(cell) => handler.handle_get_boxed_cell_data(cell, &field),
   };
   Some(RowSingleCellData {
     row_id: row_cell.row_id.clone(),
@@ -133,14 +133,14 @@ pub(crate) async fn get_cells_for_field(
 ) -> Vec<RowSingleCellData> {
   if let Some(field) = delegate.get_field(field_id) {
     let field_type = FieldType::from(field.field_type);
-    if let Some(handler) = delegate.get_type_option_cell_handler(&field, &field_type) {
+    if let Some(handler) = delegate.get_type_option_cell_handler(&field) {
       let cells = delegate.get_cells_for_field(view_id, field_id).await;
       return cells
         .iter()
         .map(|row_cell| {
           let cell_data = match &row_cell.cell {
             None => None,
-            Some(cell) => handler.get_cell_data(cell, &field_type, &field).ok(),
+            Some(cell) => handler.handle_get_boxed_cell_data(cell, &field),
           };
           RowSingleCellData {
             row_id: row_cell.row_id.clone(),

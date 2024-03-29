@@ -3,7 +3,7 @@ mod tests {
   use collab_database::rows::Cell;
 
   use crate::entities::FieldType;
-  use crate::services::cell::stringify_cell_data;
+  use crate::services::cell::stringify_cell;
   use crate::services::field::FieldBuilder;
   use crate::services::field::*;
 
@@ -15,7 +15,7 @@ mod tests {
     let field = FieldBuilder::new(field_type, DateTypeOption::test()).build();
 
     assert_eq!(
-      stringify_cell_data(
+      stringify_cell(
         &to_text_cell(1647251762.to_string()),
         &FieldType::RichText,
         &field_type,
@@ -33,7 +33,7 @@ mod tests {
     };
 
     assert_eq!(
-      stringify_cell_data(&(&data).into(), &FieldType::RichText, &field_type, &field),
+      stringify_cell(&(&data).into(), &FieldType::RichText, &field_type, &field),
       "Mar 14, 2022 09:56"
     );
 
@@ -46,7 +46,7 @@ mod tests {
     };
 
     assert_eq!(
-      stringify_cell_data(&(&data).into(), &FieldType::RichText, &field_type, &field),
+      stringify_cell(&(&data).into(), &FieldType::RichText, &field_type, &field),
       "Mar 14, 2022 09:56"
     );
 
@@ -59,7 +59,7 @@ mod tests {
     };
 
     assert_eq!(
-      stringify_cell_data(&(&data).into(), &FieldType::RichText, &field_type, &field),
+      stringify_cell(&(&data).into(), &FieldType::RichText, &field_type, &field),
       "Mar 14, 2022 09:56 → Mar 29, 2022 06:03"
     );
   }
@@ -83,7 +83,7 @@ mod tests {
     let field = FieldBuilder::new(field_type, single_select).build();
 
     assert_eq!(
-      stringify_cell_data(
+      stringify_cell(
         &to_text_cell(option_id),
         &FieldType::RichText,
         &field_type,
@@ -113,7 +113,7 @@ mod tests {
     let field_rev = FieldBuilder::new(field_type, multi_select).build();
 
     assert_eq!(
-      stringify_cell_data(
+      stringify_cell(
         &to_text_cell(format!("{},{}", france_option_id, argentina_option_id)),
         &FieldType::RichText,
         &field_type,

@@ -336,7 +336,6 @@ fn cmp_row(
           .as_ref()
           .map_or_else(|| right.cells.get(&sort.field_id), |cell| cell.1.as_ref()),
         field_rev,
-        field_type,
         cell_data_cache,
         sort.condition,
       )
@@ -348,12 +347,11 @@ fn cmp_cell(
   left_cell: Option<&Cell>,
   right_cell: Option<&Cell>,
   field: &Field,
-  field_type: FieldType,
   cell_data_cache: &CellCache,
   sort_condition: SortCondition,
 ) -> Ordering {
   match TypeOptionCellExt::new(field, Some(cell_data_cache.clone()))
-    .get_type_option_cell_data_handler(&field_type)
+    .get_type_option_cell_data_handler()
   {
     None => default_order(),
     Some(handler) => handler.handle_cell_compare(left_cell, right_cell, field, sort_condition),

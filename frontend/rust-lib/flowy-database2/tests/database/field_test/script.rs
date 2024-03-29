@@ -1,7 +1,7 @@
 use collab_database::fields::{Field, TypeOptionData};
 
 use flowy_database2::entities::{CreateFieldParams, FieldChangesetParams, FieldType};
-use flowy_database2::services::cell::stringify_cell_data;
+use flowy_database2::services::cell::stringify_cell;
 
 use crate::database::database_editor::DatabaseEditorTest;
 
@@ -128,7 +128,7 @@ impl DatabaseFieldTest {
         let row_detail = rows.get(row_index).unwrap();
 
         let cell = row_detail.row.cells.get(&field_id).unwrap().clone();
-        let content = stringify_cell_data(&cell, &from_field_type, &field_type, &field);
+        let content = stringify_cell(&cell, &from_field_type, &field_type, &field);
         assert_eq!(content, expected_content);
       },
     }

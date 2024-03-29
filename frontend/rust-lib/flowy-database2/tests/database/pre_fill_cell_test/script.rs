@@ -2,7 +2,7 @@ use std::ops::{Deref, DerefMut};
 use std::time::Duration;
 
 use flowy_database2::entities::{CreateRowPayloadPB, FieldType, FilterDataPB, InsertFilterPB};
-use flowy_database2::services::cell::stringify_cell_data;
+use flowy_database2::services::cell::stringify_cell;
 use flowy_database2::services::field::{SelectOptionIds, SELECTION_IDS_SEPARATOR};
 
 use crate::database::database_editor::DatabaseEditorTest;
@@ -120,7 +120,7 @@ impl DatabasePreFillRowCellTest {
           .get(&field_id)
           .cloned()
           .unwrap_or_default();
-        let content = stringify_cell_data(&cell, &from_field_type, &field_type, &field);
+        let content = stringify_cell(&cell, &from_field_type, &field_type, &field);
         assert_eq!(content, expected_content);
       },
       PreFillRowCellTestScript::AssertSelectOptionCellStrict {

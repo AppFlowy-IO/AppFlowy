@@ -75,10 +75,6 @@ impl<T> TypeOptionTransform for T
 where
   T: SelectTypeOptionSharedAction + TypeOption<CellData = SelectOptionIds> + CellDataDecoder,
 {
-  fn transformable(&self) -> bool {
-    true
-  }
-
   fn transform_type_option(
     &mut self,
     _old_type_option_field_type: FieldType,
@@ -90,18 +86,24 @@ where
       _old_type_option_data,
     );
   }
+}
 
-  fn transform_type_option_cell(
+impl<T> CellDataDecoder for T
+where
+  T:
+    SelectTypeOptionSharedAction + TypeOption<CellData = SelectOptionIds> + TypeOptionCellDataSerde,
+{
+  fn decode_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
+    self.parse_cell(cell)
+  }
+
+  fn decode_cell_with_transform(
     &self,
     cell: &Cell,
-    transformed_field_type: &FieldType,
+    from_field_type: FieldType,
     _field: &Field,
   ) -> Option<<Self as TypeOption>::CellData> {
-    match transformed_field_type {
-      FieldType::SingleSelect | FieldType::MultiSelect | FieldType::Checklist => {
-        // If the transformed field type is SingleSelect, MultiSelect or Checklist, Do nothing.
-        None
-      },
+    match from_field_type {
       FieldType::Checkbox => {
         let cell_content = CheckboxCellDataPB::from(cell).to_string();
         let mut transformed_ids = Vec::new();
@@ -112,38 +114,19 @@ where
         Some(SelectOptionIds::from(transformed_ids))
       },
       FieldType::RichText => Some(SelectOptionIds::from(cell)),
-      _ => Some(SelectOptionIds::from(vec![])),
+      FieldType::SingleSelect | FieldType::MultiSelect => Some(SelectOptionIds::from(cell)),
+      _ => None,
     }
   }
-}
 
-impl<T, C> CellDataDecoder for T
-where
-  C: Into<SelectOptionIds> + for<'a> From<&'a Cell>,
-  T: SelectTypeOptionSharedAction + TypeOption<CellData = C> + TypeOptionCellDataSerde,
-{
-  fn decode_cell(
-    &self,
-    cell: &Cell,
-    _decoded_field_type: &FieldType,
-    _field: &Field,
-  ) -> FlowyResult<<Self as TypeOption>::CellData> {
-    self.parse_cell(cell)
-  }
-
-  fn stringify_cell_data(&self, cell_data: C) -> String {
+  fn stringify_cell_data(&self, cell_data: <Self as TypeOption>::CellData) -> String {
     self
-      .get_selected_options(cell_data.into())
+      .get_selected_options(cell_data)
       .select_options
       .into_iter()
       .map(|option| option.name)
       .collect::<Vec<String>>()
       .join(SELECTION_IDS_SEPARATOR)
-  }
-
-  fn stringify_cell(&self, cell: &Cell) -> String {
-    let cell_data = C::from(cell);
-    self.stringify_cell_data(cell_data)
   }
 
   fn numeric_cell(&self, _cell: &Cell) -> Option<f64> {

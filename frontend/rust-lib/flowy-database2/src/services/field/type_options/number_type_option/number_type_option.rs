@@ -3,7 +3,7 @@ use std::default::Default;
 use std::str::FromStr;
 
 use collab::core::any_map::AnyMapExtension;
-use collab_database::fields::{Field, TypeOptionData, TypeOptionDataBuilder};
+use collab_database::fields::{TypeOptionData, TypeOptionDataBuilder};
 use collab_database::rows::{new_cell_builder, Cell};
 use fancy_regex::Regex;
 use lazy_static::lazy_static;
@@ -175,19 +175,7 @@ impl NumberTypeOption {
 impl TypeOptionTransform for NumberTypeOption {}
 
 impl CellDataDecoder for NumberTypeOption {
-  fn decode_cell(
-    &self,
-    cell: &Cell,
-    decoded_field_type: &FieldType,
-    _field: &Field,
-  ) -> FlowyResult<<Self as TypeOption>::CellData> {
-    if decoded_field_type.is_date()
-      || decoded_field_type.is_created_time()
-      || decoded_field_type.is_last_edited_time()
-    {
-      return Ok(Default::default());
-    }
-
+  fn decode_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
     let num_cell_data = self.parse_cell(cell)?;
     Ok(NumberCellData::from(
       self.format_cell_data(&num_cell_data)?.to_string(),
@@ -199,11 +187,6 @@ impl CellDataDecoder for NumberTypeOption {
       Ok(cell_data) => cell_data.to_string(),
       Err(_) => "".to_string(),
     }
-  }
-
-  fn stringify_cell(&self, cell: &Cell) -> String {
-    let cell_data = Self::CellData::from(cell);
-    self.stringify_cell_data(cell_data)
   }
 
   fn numeric_cell(&self, cell: &Cell) -> Option<f64> {

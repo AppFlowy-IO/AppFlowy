@@ -405,16 +405,16 @@ impl DatabaseEditor {
         }
 
         let old_field_type = FieldType::from(field.field_type);
-        let old_type_option = field.get_any_type_option(old_field_type);
-        let new_type_option = field
+        let old_type_option_data = field.get_any_type_option(old_field_type);
+        let new_type_option_data = field
           .get_any_type_option(new_field_type)
           .unwrap_or_else(|| default_type_option_data_from_type(new_field_type));
 
         let transformed_type_option = transform_type_option(
-          &new_type_option,
-          new_field_type,
-          old_type_option,
           old_field_type,
+          new_field_type,
+          old_type_option_data,
+          new_type_option_data,
         );
         self
           .database
@@ -1323,7 +1323,7 @@ impl DatabaseEditor {
   ) -> FlowyResult<Vec<RelatedRowDataPB>> {
     let primary_field = self.database.lock().fields.get_primary_field().unwrap();
     let handler = TypeOptionCellExt::new(&primary_field, Some(self.cell_cache.clone()))
-      .get_type_option_cell_data_handler(&FieldType::RichText)
+      .get_type_option_cell_data_handler_with_field_type(FieldType::RichText)
       .ok_or(FlowyError::internal())?;
 
     let row_data = {
@@ -1338,11 +1338,7 @@ impl DatabaseEditor {
           let title = database
             .get_cell(&primary_field.id, &row.id)
             .cell
-            .and_then(|cell| {
-              handler
-                .get_cell_data(&cell, &FieldType::RichText, &primary_field)
-                .ok()
-            })
+            .and_then(|cell| handler.handle_get_boxed_cell_data(&cell, &primary_field))
             .and_then(|cell_data| cell_data.unbox_or_none())
             .unwrap_or_else(|| StrCellData("".to_string()));
 
@@ -1689,10 +1685,8 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
   fn get_type_option_cell_handler(
     &self,
     field: &Field,
-    field_type: &FieldType,
   ) -> Option<Box<dyn TypeOptionCellDataHandler>> {
-    TypeOptionCellExt::new(field, Some(self.cell_cache.clone()))
-      .get_type_option_cell_data_handler(field_type)
+    TypeOptionCellExt::new(field, Some(self.cell_cache.clone())).get_type_option_cell_data_handler()
   }
 
   fn get_field_settings(

@@ -3,8 +3,7 @@ use indexmap::IndexMap;
 
 use flowy_error::{FlowyError, FlowyResult};
 
-use crate::entities::FieldType;
-use crate::services::cell::stringify_cell_data;
+use crate::services::cell::stringify_cell;
 
 #[derive(Debug, Clone, Copy)]
 pub enum CSVFormat {
@@ -46,12 +45,9 @@ impl CSVExport {
         .iter()
         .map(|(field_id, field)| match row.cells.get(field_id) {
           None => "".to_string(),
-          Some(cell) => {
-            let field_type = FieldType::from(field.field_type);
-            match style {
-              CSVFormat::Original => stringify_cell_data(cell, &field_type, &field_type, field),
-              CSVFormat::META => serde_json::to_string(cell).unwrap_or_else(|_| "".to_string()),
-            }
+          Some(cell) => match style {
+            CSVFormat::Original => stringify_cell(cell, field),
+            CSVFormat::META => serde_json::to_string(cell).unwrap_or_else(|_| "".to_string()),
           },
         })
         .collect::<Vec<_>>();

@@ -4,13 +4,13 @@ use std::str::FromStr;
 use chrono::{DateTime, FixedOffset, Local, NaiveDateTime, NaiveTime, Offset, TimeZone};
 use chrono_tz::Tz;
 use collab::core::any_map::AnyMapExtension;
-use collab_database::fields::{Field, TypeOptionData, TypeOptionDataBuilder};
+use collab_database::fields::{TypeOptionData, TypeOptionDataBuilder};
 use collab_database::rows::Cell;
 use serde::{Deserialize, Serialize};
 
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 
-use crate::entities::{DateCellDataPB, DateFilterPB, FieldType};
+use crate::entities::{DateCellDataPB, DateFilterPB};
 use crate::services::cell::{CellDataChangeset, CellDataDecoder};
 use crate::services::field::{
   default_order, DateCellChangeset, DateCellData, DateFormat, TimeFormat, TypeOption,
@@ -199,20 +199,7 @@ impl DateTypeOption {
 impl TypeOptionTransform for DateTypeOption {}
 
 impl CellDataDecoder for DateTypeOption {
-  fn decode_cell(
-    &self,
-    cell: &Cell,
-    decoded_field_type: &FieldType,
-    _field: &Field,
-  ) -> FlowyResult<<Self as TypeOption>::CellData> {
-    // Return default data if the type_option_cell_data is not FieldType::DateTime.
-    // It happens when switching from one field to another.
-    // For example:
-    // FieldType::RichText -> FieldType::DateTime, it will display empty content on the screen.
-    if !decoded_field_type.is_date() {
-      return Ok(Default::default());
-    }
-
+  fn decode_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
     self.parse_cell(cell)
   }
 
@@ -242,11 +229,6 @@ impl CellDataDecoder for DateTypeOption {
     } else {
       date
     }
-  }
-
-  fn stringify_cell(&self, cell: &Cell) -> String {
-    let cell_data = Self::CellData::from(cell);
-    self.stringify_cell_data(cell_data)
   }
 
   fn numeric_cell(&self, _cell: &Cell) -> Option<f64> {

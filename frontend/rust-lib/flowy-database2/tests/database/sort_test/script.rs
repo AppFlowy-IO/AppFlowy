@@ -10,7 +10,7 @@ use tokio::sync::broadcast::Receiver;
 use flowy_database2::entities::{
   CreateRowPayloadPB, DeleteSortPayloadPB, FieldType, ReorderSortPayloadPB, UpdateSortPayloadPB,
 };
-use flowy_database2::services::cell::stringify_cell_data;
+use flowy_database2::services::cell::stringify_cell;
 use flowy_database2::services::database_view::DatabaseViewChanged;
 use flowy_database2::services::sort::SortCondition;
 
@@ -122,7 +122,7 @@ impl DatabaseSortTest {
         let field_type = FieldType::from(field.field_type);
         for row_detail in rows {
           if let Some(cell) = row_detail.row.cells.get(&field_id) {
-            let content = stringify_cell_data(cell, &field_type, &field_type, &field);
+            let content = stringify_cell(cell, &field_type, &field_type, &field);
             cells.push(content);
           } else {
             cells.push("".to_string());
