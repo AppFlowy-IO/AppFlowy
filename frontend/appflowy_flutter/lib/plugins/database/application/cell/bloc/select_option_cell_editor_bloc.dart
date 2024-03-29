@@ -44,6 +44,8 @@ class SelectOptionCellEditorBloc
               ),
         super(SelectOptionCellEditorState.initial(cellController)) {
     _dispatch();
+    _startListening();
+    _loadOptions();
   }
 
   final SelectOptionCellBackendService _selectOptionService;
@@ -56,10 +58,6 @@ class SelectOptionCellEditorBloc
     on<SelectOptionCellEditorEvent>(
       (event, emit) async {
         await event.when(
-          initial: () async {
-            _startListening();
-            await _loadOptions();
-          },
           didReceiveOptions: (options, selectedOptions) {
             final result = _makeOptions(state.filter, options);
             emit(
@@ -136,7 +134,14 @@ class SelectOptionCellEditorBloc
               fromOptionId,
               toOptionId,
             );
-            emit(state.copyWith(allOptions: options));
+            final result = _makeOptions(state.filter, options);
+            emit(
+              state.copyWith(
+                allOptions: options,
+                options: result.options,
+              ),
+            );
+            emit(state.copyWith(allOptions: []));
           },
           filterOption: (optionName) {
             _filterOption(optionName, emit);
@@ -306,7 +311,6 @@ class SelectOptionCellEditorBloc
 
 @freezed
 class SelectOptionCellEditorEvent with _$SelectOptionCellEditorEvent {
-  const factory SelectOptionCellEditorEvent.initial() = _Initial;
   const factory SelectOptionCellEditorEvent.didReceiveOptions(
     List<SelectOptionPB> options,
     List<SelectOptionPB> selectedOptions,

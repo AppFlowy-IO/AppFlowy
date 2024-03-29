@@ -10,6 +10,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -47,7 +48,7 @@ class _SelectOptionCellEditorState extends State<SelectOptionCellEditor> {
     return BlocProvider(
       create: (context) => SelectOptionCellEditorBloc(
         cellController: widget.cellController,
-      )..add(const SelectOptionCellEditorEvent.initial()),
+      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -80,6 +81,10 @@ class _OptionList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<SelectOptionCellEditorBloc, SelectOptionCellEditorState>(
+      buildWhen: (previous, current) =>
+          !listEquals(previous.options, current.options) ||
+          previous.createSelectOptionSuggestion !=
+              current.createSelectOptionSuggestion,
       builder: (context, state) {
         return ReorderableListView.builder(
           shrinkWrap: true,
@@ -87,7 +92,10 @@ class _OptionList extends StatelessWidget {
             color: Colors.transparent,
             child: Stack(
               children: [
-                child,
+                BlocProvider.value(
+                  value: context.read<SelectOptionCellEditorBloc>(),
+                  child: child,
+                ),
                 MouseRegion(
                   cursor: Platform.isWindows
                       ? SystemMouseCursors.click
@@ -106,7 +114,6 @@ class _OptionList extends StatelessWidget {
               key: ValueKey("option_list_${option.id}"),
               index: index,
               option: option,
-              isSelected: state.selectedOptions.contains(option),
               popoverMutex: popoverMutex,
             );
           },
@@ -266,13 +273,11 @@ class _SelectOptionCell extends StatefulWidget {
     super.key,
     required this.option,
     required this.index,
-    required this.isSelected,
     required this.popoverMutex,
   });
 
   final SelectOptionPB option;
   final int index;
-  final bool isSelected;
   final PopoverMutex popoverMutex;
 
   @override
@@ -290,35 +295,6 @@ class _SelectOptionCellState extends State<_SelectOptionCell> {
 
   @override
   Widget build(BuildContext context) {
-    final child = SizedBox(
-      height: 28,
-      child: SelectOptionTagCell(
-        option: widget.option,
-        index: widget.index,
-        onSelected: _onTap,
-        children: [
-          if (widget.isSelected)
-            FlowyIconButton(
-              width: 20,
-              hoverColor: Colors.transparent,
-              onPressed: _onTap,
-              icon: FlowySvg(
-                FlowySvgs.check_s,
-                color: Theme.of(context).iconTheme.color,
-              ),
-            ),
-          FlowyIconButton(
-            onPressed: () => _popoverController.show(),
-            iconPadding: const EdgeInsets.symmetric(horizontal: 6.0),
-            hoverColor: Colors.transparent,
-            icon: FlowySvg(
-              FlowySvgs.details_s,
-              color: Theme.of(context).iconTheme.color,
-            ),
-          ),
-        ],
-      ),
-    );
     return AppFlowyPopover(
       controller: _popoverController,
       offset: const Offset(8, 0),
@@ -334,7 +310,40 @@ class _SelectOptionCellState extends State<_SelectOptionCell> {
           style: HoverStyle(
             hoverColor: AFThemeExtension.of(context).lightGreyHover,
           ),
-          child: child,
+          child: SizedBox(
+            height: 28,
+            child: SelectOptionTagCell(
+              option: widget.option,
+              index: widget.index,
+              onSelected: _onTap,
+              children: [
+                if (context
+                    .watch<SelectOptionCellEditorBloc>()
+                    .state
+                    .selectedOptions
+                    .contains(widget.option))
+                  FlowyIconButton(
+                    width: 20,
+                    hoverColor: Colors.transparent,
+                    onPressed: _onTap,
+                    icon: FlowySvg(
+                      FlowySvgs.check_s,
+                      color: Theme.of(context).iconTheme.color,
+                    ),
+                  ),
+                FlowyIconButton(
+                  onPressed: () => _popoverController.show(),
+                  iconPadding: const EdgeInsets.symmetric(horizontal: 6.0),
+                  hoverColor: Colors.transparent,
+                  icon: FlowySvg(
+                    FlowySvgs.three_dots_s,
+                    size: const Size.square(16),
+                    color: Theme.of(context).hintColor,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
       popupBuilder: (BuildContext popoverContext) {
@@ -361,7 +370,11 @@ class _SelectOptionCellState extends State<_SelectOptionCell> {
 
   void _onTap() {
     widget.popoverMutex.close();
-    if (widget.isSelected) {
+    if (context
+        .read<SelectOptionCellEditorBloc>()
+        .state
+        .selectedOptions
+        .contains(widget.option)) {
       context
           .read<SelectOptionCellEditorBloc>()
           .add(SelectOptionCellEditorEvent.unSelectOption(widget.option.id));
@@ -399,13 +412,12 @@ class SelectOptionTagCell extends StatelessWidget {
               cursor: Platform.isWindows
                   ? SystemMouseCursors.click
                   : SystemMouseCursors.grab,
-              child: SizedBox(
+              child: const SizedBox(
                 width: 26,
                 child: Center(
                   child: FlowySvg(
                     FlowySvgs.drag_element_s,
-                    color: Theme.of(context).iconTheme.color,
-                    size: const Size.square(14),
+                    size: Size.square(14),
                   ),
                 ),
               ),

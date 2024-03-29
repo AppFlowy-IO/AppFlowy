@@ -55,7 +55,7 @@ class _MobileSelectOptionEditorState extends State<MobileSelectOptionEditor> {
       child: BlocProvider(
         create: (context) => SelectOptionCellEditorBloc(
           cellController: widget.cellController,
-        )..add(const SelectOptionCellEditorEvent.initial()),
+        ),
         child: BlocBuilder<SelectOptionCellEditorBloc,
             SelectOptionCellEditorState>(
           builder: (context, state) {
