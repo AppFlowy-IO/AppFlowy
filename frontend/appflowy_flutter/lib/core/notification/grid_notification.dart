@@ -9,13 +9,23 @@ import 'package:appflowy_result/appflowy_result.dart';
 
 import 'notification_helper.dart';
 
+// This value should be the same as the DATABASE_OBSERVABLE_SOURCE value
+const String _source = 'Database';
+
+// DatabasePB
+typedef DatabaseNotificationCallback = void Function(
+  DatabaseNotification,
+  FlowyResult<Uint8List, FlowyError>,
+);
+
 class DatabaseNotificationParser
     extends NotificationParser<DatabaseNotification, FlowyError> {
   DatabaseNotificationParser({
     super.id,
     required super.callback,
   }) : super(
-          tyParser: (ty) => DatabaseNotification.valueOf(ty),
+          tyParser: (ty, source) =>
+              source == _source ? DatabaseNotification.valueOf(ty) : null,
           errorParser: (bytes) => FlowyError.fromBuffer(bytes),
         );
 }

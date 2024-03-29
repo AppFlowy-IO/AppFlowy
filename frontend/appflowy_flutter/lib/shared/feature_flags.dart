@@ -25,6 +25,10 @@ enum FeatureFlag {
   // if it's on, the document will be synced the events from server in real-time
   syncDocument,
 
+  // used to control the sync feature of the database
+  // if it's on, the collaborators will show in the database
+  syncDatabase,
+
   // used for ignore the conflicted feature flag
   unknown;
 
@@ -83,11 +87,13 @@ enum FeatureFlag {
 
     switch (this) {
       case FeatureFlag.collaborativeWorkspace:
-        return true;
-      case FeatureFlag.membersSettings:
-        return true;
-      case FeatureFlag.syncDocument:
         return false;
+      case FeatureFlag.membersSettings:
+        return false;
+      case FeatureFlag.syncDocument:
+        return true;
+      case FeatureFlag.syncDatabase:
+        return true;
       case FeatureFlag.unknown:
         return false;
     }
@@ -100,7 +106,9 @@ enum FeatureFlag {
       case FeatureFlag.membersSettings:
         return 'if it\'s on, you can see the members settings in the settings page';
       case FeatureFlag.syncDocument:
-        return 'if it\'s on, the document will be synced the events from server in real-time';
+        return 'if it\'s on, the document will be synced in real-time';
+      case FeatureFlag.syncDatabase:
+        return 'if it\'s on, the collaborators will show in the database';
       case FeatureFlag.unknown:
         return '';
     }

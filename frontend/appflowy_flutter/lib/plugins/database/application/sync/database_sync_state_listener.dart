@@ -1,30 +1,36 @@
 import 'dart:async';
 import 'dart:typed_data';
 
-import 'package:appflowy/core/notification/document_notification.dart';
-import 'package:appflowy_backend/protobuf/flowy-document/protobuf.dart';
+import 'package:appflowy/core/notification/grid_notification.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-notification/subject.pb.dart';
 import 'package:appflowy_backend/rust_stream.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 
-class DocumentSyncStateListener {
-  DocumentSyncStateListener({
-    required this.id,
+typedef DatabaseSyncStateCallback = void Function(
+  DatabaseSyncStatePB syncState,
+);
+
+class DatabaseSyncStateListener {
+  DatabaseSyncStateListener({
+    // NOTE: NOT the view id.
+    required this.databaseId,
   });
 
-  final String id;
+  final String databaseId;
   StreamSubscription<SubscribeObject>? _subscription;
-  DocumentNotificationParser? _parser;
-  Function(DocumentSyncStatePB syncState)? didReceiveSyncState;
+  DatabaseNotificationParser? _parser;
+
+  DatabaseSyncStateCallback? didReceiveSyncState;
 
   void start({
-    Function(DocumentSyncStatePB syncState)? didReceiveSyncState,
+    DatabaseSyncStateCallback? didReceiveSyncState,
   }) {
     this.didReceiveSyncState = didReceiveSyncState;
 
-    _parser = DocumentNotificationParser(
-      id: id,
+    _parser = DatabaseNotificationParser(
+      id: databaseId,
       callback: _callback,
     );
     _subscription = RustStreamReceiver.listen(
@@ -33,14 +39,14 @@ class DocumentSyncStateListener {
   }
 
   void _callback(
-    DocumentNotification ty,
+    DatabaseNotification ty,
     FlowyResult<Uint8List, FlowyError> result,
   ) {
     switch (ty) {
-      case DocumentNotification.DidUpdateDocumentSyncState:
+      case DatabaseNotification.DidUpdateDatabaseSyncUpdate:
         result.map(
           (r) {
-            final value = DocumentSyncStatePB.fromBuffer(r);
+            final value = DatabaseSyncStatePB.fromBuffer(r);
             didReceiveSyncState?.call(value);
           },
         );

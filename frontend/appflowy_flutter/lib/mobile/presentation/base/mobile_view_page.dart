@@ -4,8 +4,9 @@ import 'package:appflowy/mobile/presentation/base/app_bar_actions.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_state_container.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
-import 'package:appflowy/plugins/document/presentation/document_sync_indicator.dart';
+import 'package:appflowy/plugins/document/presentation/document_collaborators.dart';
 import 'package:appflowy/plugins/document/presentation/editor_notification.dart';
+import 'package:appflowy/plugins/shared/sync_indicator.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
@@ -74,6 +75,14 @@ class _MobileViewPageState extends State<MobileViewPage> {
             viewPB = view;
             actions.addAll([
               if (FeatureFlag.syncDocument.isOn) ...[
+                DocumentCollaborators(
+                  width: 60,
+                  height: 44,
+                  fontSize: 14,
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  view: view,
+                ),
+                const HSpace(16.0),
                 DocumentSyncIndicator(view: view),
                 const HSpace(8.0),
               ],

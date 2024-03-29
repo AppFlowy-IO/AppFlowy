@@ -1,10 +1,14 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/plugins/base/icon/icon_picker.dart';
 import 'package:appflowy/util/color_generator/color_generator.dart';
+import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class WorkspaceIcon extends StatefulWidget {
   const WorkspaceIcon({
@@ -29,21 +33,23 @@ class _WorkspaceIconState extends State<WorkspaceIcon> {
 
   @override
   Widget build(BuildContext context) {
-    final child = widget.workspace.icon.isNotEmpty
-        ? FlowyText(
-            widget.workspace.icon,
-            textAlign: TextAlign.center,
-            fontSize: widget.iconSize,
+    Widget child = widget.workspace.icon.isNotEmpty
+        ? Container(
+            width: widget.iconSize,
+            alignment: Alignment.center,
+            child: FlowyText(
+              widget.workspace.icon,
+              fontSize: widget.iconSize,
+            ),
           )
         : Container(
             alignment: Alignment.center,
+            width: widget.iconSize,
+            height: max(widget.iconSize, 26),
             decoration: BoxDecoration(
-              color: ColorGenerator.generateColorFromString(
-                widget.workspace.name,
-              ),
+              color: ColorGenerator(widget.workspace.name).toColor(),
               borderRadius: BorderRadius.circular(4),
             ),
-            margin: const EdgeInsets.all(2),
             child: FlowyText(
               widget.workspace.name.isEmpty
                   ? ''
@@ -52,24 +58,33 @@ class _WorkspaceIconState extends State<WorkspaceIcon> {
               color: Colors.black,
             ),
           );
-    return AppFlowyPopover(
-      offset: const Offset(0, 8),
-      controller: controller,
-      direction: PopoverDirection.bottomWithLeftAligned,
-      constraints: BoxConstraints.loose(const Size(360, 380)),
-      clickHandler: PopoverClickHandler.gestureDetector,
-      popupBuilder: (BuildContext popoverContext) {
-        return FlowyIconPicker(
-          onSelected: (result) {
-            widget.onSelected(result);
-            controller.close();
-          },
-        );
-      },
-      child: MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: child,
-      ),
-    );
+
+    if (widget.enableEdit) {
+      child = AppFlowyPopover(
+        offset: const Offset(0, 8),
+        controller: controller,
+        direction: PopoverDirection.bottomWithLeftAligned,
+        constraints: BoxConstraints.loose(const Size(360, 380)),
+        clickHandler: PopoverClickHandler.gestureDetector,
+        popupBuilder: (BuildContext popoverContext) {
+          return FlowyIconPicker(
+            onSelected: (result) {
+              context.read<UserWorkspaceBloc>().add(
+                    UserWorkspaceEvent.updateWorkspaceIcon(
+                      widget.workspace.workspaceId,
+                      result.emoji,
+                    ),
+                  );
+              controller.close();
+            },
+          );
+        },
+        child: MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: child,
+        ),
+      );
+    }
+    return child;
   }
 }

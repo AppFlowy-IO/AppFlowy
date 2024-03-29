@@ -175,10 +175,10 @@ class _SidebarSwitchWorkspaceButtonState
           children: [
             const HSpace(2.0),
             SizedBox.square(
-              dimension: 28.0,
+              dimension: 30.0,
               child: WorkspaceIcon(
                 workspace: widget.currentWorkspace,
-                iconSize: 18,
+                iconSize: 20,
                 enableEdit: false,
                 onSelected: (result) => context.read<UserWorkspaceBloc>().add(
                       UserWorkspaceEvent.updateWorkspaceIcon(
@@ -188,7 +188,7 @@ class _SidebarSwitchWorkspaceButtonState
                     ),
               ),
             ),
-            const HSpace(4),
+            const HSpace(6),
             Expanded(
               child: FlowyText.medium(
                 widget.currentWorkspace.name,

@@ -8,22 +8,24 @@ import 'package:appflowy_backend/protobuf/flowy-notification/subject.pb.dart';
 import 'package:appflowy_backend/rust_stream.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 
-class DocumentListener {
-  DocumentListener({
+typedef DocumentSyncStateCallback = void Function(
+  DocumentSyncStatePB syncState,
+);
+
+class DocumentSyncStateListener {
+  DocumentSyncStateListener({
     required this.id,
   });
 
   final String id;
-
   StreamSubscription<SubscribeObject>? _subscription;
   DocumentNotificationParser? _parser;
-
-  Function(DocEventPB docEvent)? didReceiveUpdate;
+  DocumentSyncStateCallback? didReceiveSyncState;
 
   void start({
-    Function(DocEventPB docEvent)? didReceiveUpdate,
+    DocumentSyncStateCallback? didReceiveSyncState,
   }) {
-    this.didReceiveUpdate = didReceiveUpdate;
+    this.didReceiveSyncState = didReceiveSyncState;
 
     _parser = DocumentNotificationParser(
       id: id,
@@ -39,8 +41,13 @@ class DocumentListener {
     FlowyResult<Uint8List, FlowyError> result,
   ) {
     switch (ty) {
-      case DocumentNotification.DidReceiveUpdate:
-        result.map((r) => didReceiveUpdate?.call(DocEventPB.fromBuffer(r)));
+      case DocumentNotification.DidUpdateDocumentSyncState:
+        result.map(
+          (r) {
+            final value = DocumentSyncStatePB.fromBuffer(r);
+            didReceiveSyncState?.call(value);
+          },
+        );
         break;
       default:
         break;

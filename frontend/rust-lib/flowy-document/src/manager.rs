@@ -8,10 +8,13 @@ use collab::core::origin::CollabOrigin;
 use collab::preclude::Collab;
 use collab_document::blocks::DocumentData;
 use collab_document::document::Document;
+use collab_document::document_awareness::DocumentAwarenessState;
+use collab_document::document_awareness::DocumentAwarenessUser;
 use collab_document::document_data::default_document_data;
 use collab_entity::CollabType;
 use collab_plugins::CollabKVDB;
 use flowy_storage::object_from_disk;
+use lib_infra::util::timestamp;
 use lru::LruCache;
 use parking_lot::Mutex;
 use tokio::io::AsyncWriteExt;
@@ -26,6 +29,7 @@ use flowy_storage::ObjectStorageService;
 use lib_dispatch::prelude::af_spawn;
 
 use crate::document::MutexDocument;
+use crate::entities::UpdateDocumentAwarenessStatePB;
 use crate::entities::{
   DocumentSnapshotData, DocumentSnapshotMeta, DocumentSnapshotMetaPB, DocumentSnapshotPB,
 };
@@ -33,6 +37,7 @@ use crate::reminder::DocumentReminderAction;
 
 pub trait DocumentUserService: Send + Sync {
   fn user_id(&self) -> Result<i64, FlowyError>;
+  fn device_id(&self) -> Result<String, FlowyError>;
   fn workspace_id(&self) -> Result<String, FlowyError>;
   fn collab_db(&self, uid: i64) -> Result<Weak<CollabKVDB>, FlowyError>;
 }
@@ -204,6 +209,8 @@ impl DocumentManager {
     if let Ok(doc) = self.get_document(doc_id).await {
       trace!("close document: {}", doc_id);
       if let Some(doc) = doc.try_lock() {
+        // clear the awareness state when close the document
+        doc.clean_awareness_local_state();
         let _ = doc.flush();
       }
     }
@@ -220,6 +227,31 @@ impl DocumentManager {
       self.documents.lock().pop(doc_id);
     }
     Ok(())
+  }
+
+  pub async fn set_document_awareness_local_state(
+    &self,
+    doc_id: &str,
+    state: UpdateDocumentAwarenessStatePB,
+  ) -> FlowyResult<bool> {
+    let uid = self.user_service.user_id()?;
+    let device_id = self.user_service.device_id()?;
+    if let Ok(doc) = self.get_document(doc_id).await {
+      if let Some(doc) = doc.try_lock() {
+        let user = DocumentAwarenessUser { uid, device_id };
+        let selection = state.selection.map(|s| s.into());
+        let state = DocumentAwarenessState {
+          version: 1,
+          user,
+          selection,
+          metadata: state.metadata,
+          timestamp: timestamp(),
+        };
+        doc.set_awareness_local_state(state);
+        return Ok(true);
+      }
+    }
+    Ok(false)
   }
 
   /// Return the list of snapshots of the document.

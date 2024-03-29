@@ -346,6 +346,16 @@ where
       Ok(())
     })
   }
+
+  fn leave_workspace(&self, workspace_id: &str) -> FutureResult<(), FlowyError> {
+    let try_get_client = self.server.try_get_client();
+    let workspace_id = workspace_id.to_string();
+    FutureResult::new(async move {
+      let client = try_get_client?;
+      client.leave_workspace(&workspace_id).await?;
+      Ok(())
+    })
+  }
 }
 
 async fn get_admin_client(client: &Arc<AFCloudClient>) -> FlowyResult<Client> {

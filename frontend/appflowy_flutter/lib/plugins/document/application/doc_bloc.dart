@@ -1,15 +1,21 @@
 import 'dart:async';
+import 'dart:convert';
 
-import 'package:appflowy/plugins/document/application/collab_document_adapter.dart';
+import 'package:appflowy/plugins/document/application/doc_awareness_metadata.dart';
+import 'package:appflowy/plugins/document/application/doc_collab_adapter.dart';
+import 'package:appflowy/plugins/document/application/doc_listener.dart';
 import 'package:appflowy/plugins/document/application/doc_service.dart';
+import 'package:appflowy/plugins/document/application/doc_sync_state_listener.dart';
 import 'package:appflowy/plugins/document/application/document_data_pb_extension.dart';
 import 'package:appflowy/plugins/document/application/editor_transaction_adapter.dart';
 import 'package:appflowy/plugins/trash/application/trash_service.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/startup/tasks/device_info_task.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
-import 'package:appflowy/workspace/application/doc/doc_listener.dart';
-import 'package:appflowy/workspace/application/doc/sync_state_listener.dart';
+import 'package:appflowy/util/color_generator/color_generator.dart';
+import 'package:appflowy/util/color_to_hex_string.dart';
+import 'package:appflowy/util/debounce.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy_backend/protobuf/flowy-document/entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-document/protobuf.dart';
@@ -50,14 +56,17 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   final DocumentService _documentService = DocumentService();
   final TrashService _trashService = TrashService();
 
-  late CollabDocumentAdapter _collabDocumentAdapter;
+  late DocumentCollabAdapter _documentCollabAdapter;
 
   late final TransactionAdapter _transactionAdapter = TransactionAdapter(
     documentId: view.id,
     documentService: _documentService,
   );
 
-  StreamSubscription? _subscription;
+  StreamSubscription? _transactionSubscription;
+
+  final _updateSelectionDebounce = Debounce();
+  final _syncDocDebounce = Debounce();
 
   bool get isLocalMode {
     final userProfilePB = state.userProfilePB;
@@ -70,7 +79,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     await _documentListener.stop();
     await _syncStateListener.stop();
     await _viewListener.stop();
-    await _subscription?.cancel();
+    await _transactionSubscription?.cancel();
     await _documentService.closeDocument(view: view);
     state.editorState?.service.keyboardService?.closeKeyboard();
     state.editorState?.dispose();
@@ -104,6 +113,9 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
           ),
         );
         emit(newState);
+        if (newState.userProfilePB != null) {
+          await _updateCollaborator();
+        }
       },
       moveToTrash: () async {
         emit(state.copyWith(isDeleted: true));
@@ -143,7 +155,8 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   /// subscribe to the document content change
   void _onDocumentChanged() {
     _documentListener.start(
-      didReceiveUpdate: syncDocumentDataPB,
+      onDocEventUpdate: _debounceSyncDoc,
+      onDocAwarenessUpdate: _onAwarenessStatesUpdate,
     );
 
     _syncStateListener.start(
@@ -173,24 +186,31 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
 
     final editorState = EditorState(document: document);
 
-    _collabDocumentAdapter = CollabDocumentAdapter(editorState, view.id);
+    _documentCollabAdapter = DocumentCollabAdapter(editorState, view.id);
 
     // subscribe to the document change from the editor
-    _subscription = editorState.transactionStream.listen((event) async {
-      final time = event.$1;
-      if (time != TransactionTime.before) {
-        return;
-      }
-      await _transactionAdapter.apply(event.$2, editorState);
+    _transactionSubscription = editorState.transactionStream.listen(
+      (event) async {
+        final time = event.$1;
+        final transaction = event.$2;
+        if (time != TransactionTime.before) {
+          return;
+        }
 
-      // check if the document is empty.
-      await applyRules();
+        // apply transaction to backend
+        await _transactionAdapter.apply(transaction, editorState);
 
-      if (!isClosed) {
-        // ignore: invalid_use_of_visible_for_testing_member
-        emit(state.copyWith(isDocumentEmpty: editorState.document.isEmpty));
-      }
-    });
+        // check if the document is empty.
+        await _applyRules();
+
+        if (!isClosed) {
+          // ignore: invalid_use_of_visible_for_testing_member
+          emit(state.copyWith(isDocumentEmpty: editorState.document.isEmpty));
+        }
+      },
+    );
+
+    editorState.selectionNotifier.addListener(_debounceOnSelectionUpdate);
 
     // output the log from the editor when debug mode
     if (kDebugMode) {
@@ -204,14 +224,14 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     return editorState;
   }
 
-  Future<void> applyRules() async {
+  Future<void> _applyRules() async {
     await Future.wait([
-      ensureAtLeastOneParagraphExists(),
-      ensureLastNodeIsEditable(),
+      _ensureAtLeastOneParagraphExists(),
+      _ensureLastNodeIsEditable(),
     ]);
   }
 
-  Future<void> ensureLastNodeIsEditable() async {
+  Future<void> _ensureLastNodeIsEditable() async {
     final editorState = state.editorState;
     if (editorState == null) {
       return;
@@ -226,7 +246,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     }
   }
 
-  Future<void> ensureAtLeastOneParagraphExists() async {
+  Future<void> _ensureAtLeastOneParagraphExists() async {
     final editorState = state.editorState;
     if (editorState == null) {
       return;
@@ -242,12 +262,89 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     }
   }
 
-  Future<void> syncDocumentDataPB(DocEventPB docEvent) async {
+  Future<void> _onDocumentStateUpdate(DocEventPB docEvent) async {
     if (!docEvent.isRemote || !FeatureFlag.syncDocument.isOn) {
       return;
     }
 
-    await _collabDocumentAdapter.syncV3();
+    unawaited(_documentCollabAdapter.syncV3(docEvent));
+  }
+
+  Future<void> _onAwarenessStatesUpdate(
+    DocumentAwarenessStatesPB awarenessStates,
+  ) async {
+    if (!FeatureFlag.syncDocument.isOn) {
+      return;
+    }
+
+    final userId = state.userProfilePB?.id;
+    if (userId != null) {
+      await _documentCollabAdapter.updateRemoteSelection(
+        userId.toString(),
+        awarenessStates,
+      );
+    }
+  }
+
+  void _debounceOnSelectionUpdate() {
+    _updateSelectionDebounce.call(_onSelectionUpdate);
+  }
+
+  void _debounceSyncDoc(DocEventPB docEvent) {
+    _syncDocDebounce.call(() {
+      _onDocumentStateUpdate(docEvent);
+    });
+  }
+
+  Future<void> _onSelectionUpdate() async {
+    final user = state.userProfilePB;
+    final deviceId = ApplicationInfo.deviceId;
+    if (!FeatureFlag.syncDocument.isOn || user == null) {
+      return;
+    }
+
+    final editorState = state.editorState;
+    if (editorState == null) {
+      return;
+    }
+    final selection = editorState.selection;
+
+    // sync the selection
+    final id = user.id.toString() + deviceId;
+    final basicColor = ColorGenerator(id.toString()).toColor();
+    final metadata = DocumentAwarenessMetadata(
+      cursorColor: basicColor.toHexString(),
+      selectionColor: basicColor.withOpacity(0.6).toHexString(),
+      userName: user.name,
+      userAvatar: user.iconUrl,
+    );
+    await _documentService.syncAwarenessStates(
+      documentId: view.id,
+      selection: selection,
+      metadata: jsonEncode(metadata.toJson()),
+    );
+  }
+
+  Future<void> _updateCollaborator() async {
+    final user = state.userProfilePB;
+    final deviceId = ApplicationInfo.deviceId;
+    if (!FeatureFlag.syncDocument.isOn || user == null) {
+      return;
+    }
+
+    // sync the selection
+    final id = user.id.toString() + deviceId;
+    final basicColor = ColorGenerator(id.toString()).toColor();
+    final metadata = DocumentAwarenessMetadata(
+      cursorColor: basicColor.toHexString(),
+      selectionColor: basicColor.withOpacity(0.6).toHexString(),
+      userName: user.name,
+      userAvatar: user.iconUrl,
+    );
+    await _documentService.syncAwarenessStates(
+      documentId: view.id,
+      metadata: jsonEncode(metadata.toJson()),
+    );
   }
 }
 
@@ -274,6 +371,7 @@ class DocumentState with _$DocumentState {
     UserProfilePB? userProfilePB,
     EditorState? editorState,
     FlowyError? error,
+    @Default(null) DocumentAwarenessStatesPB? awarenessStates,
   }) = _DocumentState;
 
   factory DocumentState.initial() => const DocumentState(
