@@ -67,6 +67,25 @@ abstract class ISelectOptionAction {
     updateTypeOption(newOptions);
     return newOptions;
   }
+
+  List<SelectOptionPB> reorderOption(
+    List<SelectOptionPB> options,
+    String fromOptionId,
+    String toOptionId,
+  ) {
+    final newOptions = List<SelectOptionPB>.from(options);
+    final fromIndex =
+        newOptions.indexWhere((element) => element.id == fromOptionId);
+    final toIndex =
+        newOptions.indexWhere((element) => element.id == toOptionId);
+
+    if (fromIndex != -1 && toIndex != -1) {
+      newOptions.insert(toIndex, newOptions.removeAt(fromIndex));
+    }
+
+    updateTypeOption(newOptions);
+    return newOptions;
+  }
 }
 
 class MultiSelectAction extends ISelectOptionAction {

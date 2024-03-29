@@ -2,9 +2,10 @@ import 'dart:async';
 
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database/application/field/type_option/select_type_option_actions.dart';
+import 'package:appflowy/plugins/database/domain/field_service.dart';
 import 'package:appflowy/plugins/database/domain/select_option_cell_service.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/select_option_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -20,11 +21,33 @@ class SelectOptionCellEditorBloc
           fieldId: cellController.fieldId,
           rowId: cellController.rowId,
         ),
+        _typeOptionAction = cellController.fieldType == FieldType.SingleSelect
+            ? SingleSelectAction(
+                viewId: cellController.viewId,
+                fieldId: cellController.fieldId,
+                onTypeOptionUpdated: (typeOptionData) =>
+                    FieldBackendService.updateFieldTypeOption(
+                  viewId: cellController.viewId,
+                  fieldId: cellController.fieldId,
+                  typeOptionData: typeOptionData,
+                ),
+              )
+            : MultiSelectAction(
+                viewId: cellController.viewId,
+                fieldId: cellController.fieldId,
+                onTypeOptionUpdated: (typeOptionData) =>
+                    FieldBackendService.updateFieldTypeOption(
+                  viewId: cellController.viewId,
+                  fieldId: cellController.fieldId,
+                  typeOptionData: typeOptionData,
+                ),
+              ),
         super(SelectOptionCellEditorState.initial(cellController)) {
     _dispatch();
   }
 
   final SelectOptionCellBackendService _selectOptionService;
+  final ISelectOptionAction _typeOptionAction;
   final SelectOptionCellController cellController;
 
   VoidCallback? _onCellChangedFn;
@@ -106,6 +129,14 @@ class SelectOptionCellEditorBloc
               _selectMultipleOptions(optionNames);
             }
             _filterOption(remainder, emit);
+          },
+          reorderOption: (fromOptionId, toOptionId) {
+            final options = _typeOptionAction.reorderOption(
+              state.allOptions,
+              fromOptionId,
+              toOptionId,
+            );
+            emit(state.copyWith(allOptions: options));
           },
           filterOption: (optionName) {
             _filterOption(optionName, emit);
@@ -293,6 +324,10 @@ class SelectOptionCellEditorEvent with _$SelectOptionCellEditorEvent {
   ) = _DeleteOption;
   const factory SelectOptionCellEditorEvent.deleteAllOptions() =
       _DeleteAllOptions;
+  const factory SelectOptionCellEditorEvent.reorderOption(
+    String fromOptionId,
+    String toOptionId,
+  ) = _ReorderOption;
   const factory SelectOptionCellEditorEvent.filterOption(String optionName) =
       _SelectOptionFilter;
   const factory SelectOptionCellEditorEvent.submitTextFieldValue(

@@ -1,4 +1,5 @@
 import 'dart:collection';
+import 'dart:io';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -47,26 +48,21 @@ class _SelectOptionCellEditorState extends State<SelectOptionCellEditor> {
       create: (context) => SelectOptionCellEditorBloc(
         cellController: widget.cellController,
       )..add(const SelectOptionCellEditorEvent.initial()),
-      child:
-          BlocBuilder<SelectOptionCellEditorBloc, SelectOptionCellEditorState>(
-        builder: (context, state) {
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _TextField(
-                textEditingController: textEditingController,
-                popoverMutex: popoverMutex,
-              ),
-              const TypeOptionSeparator(spacing: 0.0),
-              Flexible(
-                child: _OptionList(
-                  textEditingController: textEditingController,
-                  popoverMutex: popoverMutex,
-                ),
-              ),
-            ],
-          );
-        },
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _TextField(
+            textEditingController: textEditingController,
+            popoverMutex: popoverMutex,
+          ),
+          const TypeOptionSeparator(spacing: 0.0),
+          Flexible(
+            child: _OptionList(
+              textEditingController: textEditingController,
+              popoverMutex: popoverMutex,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -85,26 +81,54 @@ class _OptionList extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<SelectOptionCellEditorBloc, SelectOptionCellEditorState>(
       builder: (context, state) {
-        final cells = [
-          const _Title(),
-          ...state.options.map(
-            (option) => _SelectOptionCell(
+        return ReorderableListView.builder(
+          shrinkWrap: true,
+          proxyDecorator: (child, index, _) => Material(
+            color: Colors.transparent,
+            child: Stack(
+              children: [
+                child,
+                MouseRegion(
+                  cursor: Platform.isWindows
+                      ? SystemMouseCursors.click
+                      : SystemMouseCursors.grabbing,
+                  child: const SizedBox.expand(),
+                ),
+              ],
+            ),
+          ),
+          buildDefaultDragHandles: false,
+          itemCount: state.options.length,
+          onReorderStart: (_) => popoverMutex.close(),
+          itemBuilder: (_, int index) {
+            final option = state.options[index];
+            return _SelectOptionCell(
+              key: ValueKey("option_list_${option.id}"),
+              index: index,
               option: option,
               isSelected: state.selectedOptions.contains(option),
               popoverMutex: popoverMutex,
-            ),
-          ),
-          if (state.createSelectOptionSuggestion != null)
-            _CreateOptionCell(suggestion: state.createSelectOptionSuggestion!),
-        ];
-
-        return ListView.separated(
-          shrinkWrap: true,
-          itemCount: cells.length,
-          separatorBuilder: (_, __) =>
-              VSpace(GridSize.typeOptionSeparatorHeight),
-          physics: StyledScrollPhysics(),
-          itemBuilder: (_, int index) => cells[index],
+            );
+          },
+          onReorder: (oldIndex, newIndex) {
+            if (oldIndex < newIndex) {
+              newIndex--;
+            }
+            final fromOptionId = state.options[oldIndex].id;
+            final toOptionId = state.options[newIndex].id;
+            context.read<SelectOptionCellEditorBloc>().add(
+                  SelectOptionCellEditorEvent.reorderOption(
+                    fromOptionId,
+                    toOptionId,
+                  ),
+                );
+          },
+          header: const _Title(),
+          footer: state.createSelectOptionSuggestion == null
+              ? null
+              : _CreateOptionCell(
+                  suggestion: state.createSelectOptionSuggestion!,
+                ),
           padding: const EdgeInsets.symmetric(vertical: 8.0),
         );
       },
@@ -239,12 +263,15 @@ class _CreateOptionCell extends StatelessWidget {
 
 class _SelectOptionCell extends StatefulWidget {
   const _SelectOptionCell({
+    super.key,
     required this.option,
+    required this.index,
     required this.isSelected,
     required this.popoverMutex,
   });
 
   final SelectOptionPB option;
+  final int index;
   final bool isSelected;
   final PopoverMutex popoverMutex;
 
@@ -267,6 +294,7 @@ class _SelectOptionCellState extends State<_SelectOptionCell> {
       height: 28,
       child: SelectOptionTagCell(
         option: widget.option,
+        index: widget.index,
         onSelected: _onTap,
         children: [
           if (widget.isSelected)
@@ -300,7 +328,7 @@ class _SelectOptionCellState extends State<_SelectOptionCell> {
       mutex: widget.popoverMutex,
       clickHandler: PopoverClickHandler.gestureDetector,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
         child: FlowyHover(
           resetHoverOnRebuild: false,
           style: HoverStyle(
@@ -342,5 +370,68 @@ class _SelectOptionCellState extends State<_SelectOptionCell> {
           .read<SelectOptionCellEditorBloc>()
           .add(SelectOptionCellEditorEvent.selectOption(widget.option.id));
     }
+  }
+}
+
+class SelectOptionTagCell extends StatelessWidget {
+  const SelectOptionTagCell({
+    super.key,
+    required this.option,
+    required this.onSelected,
+    this.children = const [],
+    this.index,
+  });
+
+  final SelectOptionPB option;
+  final VoidCallback onSelected;
+  final List<Widget> children;
+  final int? index;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (index != null)
+          ReorderableDragStartListener(
+            index: index!,
+            child: MouseRegion(
+              cursor: Platform.isWindows
+                  ? SystemMouseCursors.click
+                  : SystemMouseCursors.grab,
+              child: SizedBox(
+                width: 26,
+                child: Center(
+                  child: FlowySvg(
+                    FlowySvgs.drag_element_s,
+                    color: Theme.of(context).iconTheme.color,
+                    size: const Size.square(14),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        Expanded(
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: onSelected,
+            child: Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 5.0,
+                  vertical: 4.0,
+                ),
+                child: SelectOptionTag(
+                  option: option,
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                ),
+              ),
+            ),
+          ),
+        ),
+        ...children,
+      ],
+    );
   }
 }
