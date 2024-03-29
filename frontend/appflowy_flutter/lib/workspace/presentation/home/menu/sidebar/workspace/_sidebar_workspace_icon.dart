@@ -4,11 +4,9 @@ import 'package:flutter/material.dart';
 
 import 'package:appflowy/plugins/base/icon/icon_picker.dart';
 import 'package:appflowy/util/color_generator/color_generator.dart';
-import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 class WorkspaceIcon extends StatefulWidget {
   const WorkspaceIcon({
@@ -66,19 +64,12 @@ class _WorkspaceIconState extends State<WorkspaceIcon> {
         direction: PopoverDirection.bottomWithLeftAligned,
         constraints: BoxConstraints.loose(const Size(360, 380)),
         clickHandler: PopoverClickHandler.gestureDetector,
-        popupBuilder: (BuildContext popoverContext) {
-          return FlowyIconPicker(
-            onSelected: (result) {
-              context.read<UserWorkspaceBloc>().add(
-                    UserWorkspaceEvent.updateWorkspaceIcon(
-                      widget.workspace.workspaceId,
-                      result.emoji,
-                    ),
-                  );
-              controller.close();
-            },
-          );
-        },
+        popupBuilder: (_) => FlowyIconPicker(
+          onSelected: (result) {
+            widget.onSelected(result);
+            controller.close();
+          },
+        ),
         child: MouseRegion(
           cursor: SystemMouseCursors.click,
           child: child,
