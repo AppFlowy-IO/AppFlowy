@@ -49,21 +49,23 @@ class _SelectOptionCellEditorState extends State<SelectOptionCellEditor> {
       create: (context) => SelectOptionCellEditorBloc(
         cellController: widget.cellController,
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _TextField(
-            textEditingController: textEditingController,
-            popoverMutex: popoverMutex,
-          ),
-          const TypeOptionSeparator(spacing: 0.0),
-          Flexible(
-            child: _OptionList(
+      child: TextFieldTapRegion(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _TextField(
               textEditingController: textEditingController,
               popoverMutex: popoverMutex,
             ),
-          ),
-        ],
+            const TypeOptionSeparator(spacing: 0.0),
+            Flexible(
+              child: _OptionList(
+                textEditingController: textEditingController,
+                popoverMutex: popoverMutex,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -162,40 +164,42 @@ class _TextField extends StatelessWidget {
           value: (option) => option,
         );
 
-        return Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: SelectOptionTextField(
-            options: state.options,
-            selectedOptionMap: optionMap,
-            distanceToText: _editorPanelWidth * 0.7,
-            textController: textEditingController,
-            textSeparators: const [','],
-            onClick: () => popoverMutex.close(),
-            newText: (text) {
-              context
-                  .read<SelectOptionCellEditorBloc>()
-                  .add(SelectOptionCellEditorEvent.filterOption(text));
-            },
-            onSubmitted: (tagName) {
-              context.read<SelectOptionCellEditorBloc>().add(
-                    SelectOptionCellEditorEvent.submitTextFieldValue(tagName),
-                  );
-            },
-            onPaste: (tagNames, remainder) {
-              context.read<SelectOptionCellEditorBloc>().add(
-                    SelectOptionCellEditorEvent.selectMultipleOptions(
-                      tagNames,
-                      remainder,
-                    ),
-                  );
-            },
-            onRemove: (optionName) {
-              context.read<SelectOptionCellEditorBloc>().add(
-                    SelectOptionCellEditorEvent.unSelectOption(
-                      optionMap[optionName]!.id,
-                    ),
-                  );
-            },
+        return Material(
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: SelectOptionTextField(
+              options: state.options,
+              selectedOptionMap: optionMap,
+              distanceToText: _editorPanelWidth * 0.7,
+              textController: textEditingController,
+              textSeparators: const [','],
+              onClick: () => popoverMutex.close(),
+              newText: (text) {
+                context
+                    .read<SelectOptionCellEditorBloc>()
+                    .add(SelectOptionCellEditorEvent.filterOption(text));
+              },
+              onSubmitted: (tagName) {
+                context.read<SelectOptionCellEditorBloc>().add(
+                      SelectOptionCellEditorEvent.submitTextFieldValue(tagName),
+                    );
+              },
+              onPaste: (tagNames, remainder) {
+                context.read<SelectOptionCellEditorBloc>().add(
+                      SelectOptionCellEditorEvent.selectMultipleOptions(
+                        tagNames,
+                        remainder,
+                      ),
+                    );
+              },
+              onRemove: (optionName) {
+                context.read<SelectOptionCellEditorBloc>().add(
+                      SelectOptionCellEditorEvent.unSelectOption(
+                        optionMap[optionName]!.id,
+                      ),
+                    );
+              },
+            ),
           ),
         );
       },
@@ -412,12 +416,15 @@ class SelectOptionTagCell extends StatelessWidget {
               cursor: Platform.isWindows
                   ? SystemMouseCursors.click
                   : SystemMouseCursors.grab,
-              child: const SizedBox(
-                width: 26,
-                child: Center(
-                  child: FlowySvg(
-                    FlowySvgs.drag_element_s,
-                    size: Size.square(14),
+              child: GestureDetector(
+                onTap: onSelected,
+                child: const SizedBox(
+                  width: 26,
+                  child: Center(
+                    child: FlowySvg(
+                      FlowySvgs.drag_element_s,
+                      size: Size.square(14),
+                    ),
                   ),
                 ),
               ),
