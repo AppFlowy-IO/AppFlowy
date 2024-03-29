@@ -134,12 +134,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "allocator-api2"
-version = "0.2.16"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0942ffc6dcaadf03badf6e6a2d0228460359d5e34b57ccdc720b7382dfbd5ec5"
-
-[[package]]
 name = "android-tzdata"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -764,7 +758,7 @@ dependencies = [
 [[package]]
 name = "collab"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=c08d23f5a1f9f0de9465a3b248aedeaf8cd65381#c08d23f5a1f9f0de9465a3b248aedeaf8cd65381"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=f766d5c92a8af1b8d7959ecc6476b1e4dd90e912#f766d5c92a8af1b8d7959ecc6476b1e4dd90e912"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -788,7 +782,7 @@ dependencies = [
 [[package]]
 name = "collab-database"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=c08d23f5a1f9f0de9465a3b248aedeaf8cd65381#c08d23f5a1f9f0de9465a3b248aedeaf8cd65381"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=f766d5c92a8af1b8d7959ecc6476b1e4dd90e912#f766d5c92a8af1b8d7959ecc6476b1e4dd90e912"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -796,10 +790,10 @@ dependencies = [
  "collab",
  "collab-entity",
  "collab-plugins",
+ "dashmap",
  "getrandom 0.2.10",
  "js-sys",
  "lazy_static",
- "lru",
  "nanoid",
  "parking_lot 0.12.1",
  "rayon",
@@ -818,7 +812,7 @@ dependencies = [
 [[package]]
 name = "collab-document"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=c08d23f5a1f9f0de9465a3b248aedeaf8cd65381#c08d23f5a1f9f0de9465a3b248aedeaf8cd65381"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=f766d5c92a8af1b8d7959ecc6476b1e4dd90e912#f766d5c92a8af1b8d7959ecc6476b1e4dd90e912"
 dependencies = [
  "anyhow",
  "collab",
@@ -837,7 +831,7 @@ dependencies = [
 [[package]]
 name = "collab-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=c08d23f5a1f9f0de9465a3b248aedeaf8cd65381#c08d23f5a1f9f0de9465a3b248aedeaf8cd65381"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=f766d5c92a8af1b8d7959ecc6476b1e4dd90e912#f766d5c92a8af1b8d7959ecc6476b1e4dd90e912"
 dependencies = [
  "anyhow",
  "bytes",
@@ -852,7 +846,7 @@ dependencies = [
 [[package]]
 name = "collab-folder"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=c08d23f5a1f9f0de9465a3b248aedeaf8cd65381#c08d23f5a1f9f0de9465a3b248aedeaf8cd65381"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=f766d5c92a8af1b8d7959ecc6476b1e4dd90e912#f766d5c92a8af1b8d7959ecc6476b1e4dd90e912"
 dependencies = [
  "anyhow",
  "chrono",
@@ -890,7 +884,7 @@ dependencies = [
 [[package]]
 name = "collab-plugins"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=c08d23f5a1f9f0de9465a3b248aedeaf8cd65381#c08d23f5a1f9f0de9465a3b248aedeaf8cd65381"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=f766d5c92a8af1b8d7959ecc6476b1e4dd90e912#f766d5c92a8af1b8d7959ecc6476b1e4dd90e912"
 dependencies = [
  "anyhow",
  "async-stream",
@@ -967,7 +961,7 @@ dependencies = [
 [[package]]
 name = "collab-user"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=c08d23f5a1f9f0de9465a3b248aedeaf8cd65381#c08d23f5a1f9f0de9465a3b248aedeaf8cd65381"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=f766d5c92a8af1b8d7959ecc6476b1e4dd90e912#f766d5c92a8af1b8d7959ecc6476b1e4dd90e912"
 dependencies = [
  "anyhow",
  "collab",
@@ -1838,7 +1832,6 @@ dependencies = [
  "lazy_static",
  "lib-dispatch",
  "lib-infra",
- "lru",
  "nanoid",
  "parking_lot 0.12.1",
  "protobuf",
@@ -1899,6 +1892,7 @@ dependencies = [
  "collab-entity",
  "collab-integrate",
  "collab-plugins",
+ "dashmap",
  "flowy-codegen",
  "flowy-derive",
  "flowy-document-pub",
@@ -1910,7 +1904,6 @@ dependencies = [
  "indexmap 2.1.0",
  "lib-dispatch",
  "lib-infra",
- "lru",
  "nanoid",
  "parking_lot 0.12.1",
  "protobuf",
@@ -2560,10 +2553,6 @@ name = "hashbrown"
 version = "0.14.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "290f1a1d9242c78d09ce40a5e87e7554ee637af1351968159f4952f028f75604"
-dependencies = [
- "ahash 0.8.6",
- "allocator-api2",
-]
 
 [[package]]
 name = "hdrhistogram"
@@ -3119,15 +3108,6 @@ name = "log"
 version = "0.4.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b5e6163cb8c49088c2c36f57875e58ccd8c87c7427f7fbd50ea6710b2f3f2e8f"
-
-[[package]]
-name = "lru"
-version = "0.12.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1efa59af2ddfad1854ae27d75009d538d0998b4b2fd47083e743ac1a10e46c60"
-dependencies = [
- "hashbrown 0.14.3",
-]
 
 [[package]]
 name = "mac"
