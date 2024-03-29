@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-use std::num::NonZeroUsize;
 use std::sync::Arc;
 use std::sync::Weak;
 
@@ -17,7 +15,6 @@ use collab_plugins::CollabKVDB;
 use dashmap::DashMap;
 use flowy_storage::object_from_disk;
 use lib_infra::util::timestamp;
-use parking_lot::Mutex;
 use tokio::io::AsyncWriteExt;
 use tracing::{error, trace};
 use tracing::{event, instrument};
@@ -144,6 +141,10 @@ impl DocumentManager {
     }
 
     if let Some((doc_id, doc)) = self.removing_documents.remove(doc_id) {
+      trace!(
+        "move document {} from removing_documents to documents",
+        doc_id
+      );
       self.documents.insert(doc_id, doc.clone());
       return Ok(doc);
     }
@@ -216,7 +217,7 @@ impl DocumentManager {
         let _ = doc.flush();
       }
       let clone_doc_id = doc_id.clone();
-      trace!("insert document to removing_documents: {}", doc_id);
+      trace!("move document to removing_documents: {}", doc_id);
       self.removing_documents.insert(doc_id, document);
 
       let weak_removing_documents = Arc::downgrade(&self.removing_documents);
@@ -224,19 +225,10 @@ impl DocumentManager {
         tokio::time::sleep(std::time::Duration::from_secs(60)).await;
         if let Some(removing_documents) = weak_removing_documents.upgrade() {
           if removing_documents.remove(&clone_doc_id).is_some() {
-            trace!("remove document from removing_documents: {}", clone_doc_id);
+            trace!("drop document from removing_documents: {}", clone_doc_id);
           }
         }
       });
-    }
-
-    if let Ok(doc) = self.get_document(doc_id).await {
-      trace!("close document: {}", doc_id);
-      if let Some(doc) = doc.try_lock() {
-        // clear the awareness state when close the document
-        doc.clean_awareness_local_state();
-        let _ = doc.flush();
-      }
     }
 
     Ok(())
