@@ -13,6 +13,9 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'select_option_cell_editor_bloc.freezed.dart';
 
+const String createSelectOptionSuggestionId =
+    "create_select_ption_suggestion_id";
+
 class SelectOptionCellEditorBloc
     extends Bloc<SelectOptionCellEditorEvent, SelectOptionCellEditorState> {
   SelectOptionCellEditorBloc({required this.cellController})
@@ -145,6 +148,9 @@ class SelectOptionCellEditorBloc
           },
           filterOption: (optionName) {
             _filterOption(optionName, emit);
+          },
+          updateFocusedOption: (optionId) {
+            emit(state.copyWith(focusedOptionId: optionId));
           },
         );
       },
@@ -341,6 +347,9 @@ class SelectOptionCellEditorEvent with _$SelectOptionCellEditorEvent {
     List<String> optionNames,
     String remainder,
   ) = _SelectMultipleOptions;
+  const factory SelectOptionCellEditorEvent.updateFocusedOption(
+    String? optionId,
+  ) = _UpdateFocusedOption;
 }
 
 @freezed
@@ -351,6 +360,7 @@ class SelectOptionCellEditorState with _$SelectOptionCellEditorState {
     required List<SelectOptionPB> selectedOptions,
     required CreateSelectOptionSuggestion? createSelectOptionSuggestion,
     required String? filter,
+    required String? focusedOptionId,
   }) = _SelectOptionEditorState;
 
   factory SelectOptionCellEditorState.initial(
@@ -363,6 +373,7 @@ class SelectOptionCellEditorState with _$SelectOptionCellEditorState {
       selectedOptions: data?.selectOptions ?? [],
       createSelectOptionSuggestion: null,
       filter: null,
+      focusedOptionId: null,
     );
   }
 }

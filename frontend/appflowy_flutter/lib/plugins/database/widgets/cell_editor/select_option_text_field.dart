@@ -141,23 +141,26 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
         )
         .toList();
 
-    return MouseRegion(
-      cursor: SystemMouseCursors.basic,
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: ScrollConfiguration(
-          behavior: ScrollConfiguration.of(context).copyWith(
-            dragDevices: {
-              PointerDeviceKind.mouse,
-              PointerDeviceKind.touch,
-              PointerDeviceKind.trackpad,
-              PointerDeviceKind.stylus,
-              PointerDeviceKind.invertedStylus,
-            },
-          ),
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Wrap(spacing: 4, children: children),
+    return Focus(
+      descendantsAreFocusable: false,
+      child: MouseRegion(
+        cursor: SystemMouseCursors.basic,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: ScrollConfiguration(
+            behavior: ScrollConfiguration.of(context).copyWith(
+              dragDevices: {
+                PointerDeviceKind.mouse,
+                PointerDeviceKind.touch,
+                PointerDeviceKind.trackpad,
+                PointerDeviceKind.stylus,
+                PointerDeviceKind.invertedStylus,
+              },
+            ),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Wrap(spacing: 4, children: children),
+            ),
           ),
         ),
       ),

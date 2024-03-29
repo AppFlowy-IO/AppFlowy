@@ -3,18 +3,17 @@ import 'dart:io';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/database/application/cell/bloc/select_option_cell_editor_bloc.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option_entities.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../application/cell/bloc/select_option_cell_editor_bloc.dart';
 import '../../grid/presentation/layout/sizes.dart';
 import '../../grid/presentation/widgets/common/type_option_separator.dart';
 import '../field/type_option_editor/select/select_option_editor.dart';
@@ -58,10 +57,13 @@ class _SelectOptionCellEditorState extends State<SelectOptionCellEditor> {
               popoverMutex: popoverMutex,
             ),
             const TypeOptionSeparator(spacing: 0.0),
-            Flexible(
-              child: _OptionList(
-                textEditingController: textEditingController,
-                popoverMutex: popoverMutex,
+            Focus(
+              descendantsAreFocusable: false,
+              child: Flexible(
+                child: _OptionList(
+                  textEditingController: textEditingController,
+                  popoverMutex: popoverMutex,
+                ),
               ),
             ),
           ],
@@ -216,56 +218,9 @@ class _Title extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: SizedBox(
         height: GridSize.popoverItemHeight,
-        child: FlowyText.medium(
+        child: FlowyText.regular(
           LocaleKeys.grid_selectOption_panelTitle.tr(),
           color: Theme.of(context).hintColor,
-        ),
-      ),
-    );
-  }
-}
-
-class _CreateOptionCell extends StatelessWidget {
-  const _CreateOptionCell({
-    required this.suggestion,
-  });
-
-  final CreateSelectOptionSuggestion suggestion;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-      child: SizedBox(
-        height: 28,
-        child: FlowyButton(
-          hoverColor: AFThemeExtension.of(context).lightGreyHover,
-          onTap: () => context
-              .read<SelectOptionCellEditorBloc>()
-              .add(const SelectOptionCellEditorEvent.createOption()),
-          text: Row(
-            children: [
-              FlowyText.medium(
-                LocaleKeys.grid_selectOption_create.tr(),
-                color: Theme.of(context).hintColor,
-              ),
-              const HSpace(10),
-              Expanded(
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: SelectOptionTag(
-                    name: suggestion.name,
-                    color: suggestion.color.toColor(context),
-                    fontSize: 11,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 1,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
         ),
       ),
     );
@@ -309,13 +264,26 @@ class _SelectOptionCellState extends State<_SelectOptionCell> {
       clickHandler: PopoverClickHandler.gestureDetector,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
-        child: FlowyHover(
-          resetHoverOnRebuild: false,
-          style: HoverStyle(
-            hoverColor: AFThemeExtension.of(context).lightGreyHover,
-          ),
-          child: SizedBox(
+        child: MouseRegion(
+          onEnter: (_) {
+            context.read<SelectOptionCellEditorBloc>().add(
+                  SelectOptionCellEditorEvent.updateFocusedOption(
+                    widget.option.id,
+                  ),
+                );
+          },
+          child: Container(
             height: 28,
+            decoration: BoxDecoration(
+              color: context
+                          .watch<SelectOptionCellEditorBloc>()
+                          .state
+                          .focusedOptionId ==
+                      widget.option.id
+                  ? AFThemeExtension.of(context).lightGreyHover
+                  : null,
+              borderRadius: const BorderRadius.all(Radius.circular(6)),
+            ),
             child: SelectOptionTagCell(
               option: widget.option,
               index: widget.index,
@@ -451,6 +419,68 @@ class SelectOptionTagCell extends StatelessWidget {
         ),
         ...children,
       ],
+    );
+  }
+}
+
+class _CreateOptionCell extends StatelessWidget {
+  const _CreateOptionCell({
+    required this.suggestion,
+  });
+
+  final CreateSelectOptionSuggestion suggestion;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 28,
+      margin: const EdgeInsets.symmetric(horizontal: 8.0),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color:
+            context.watch<SelectOptionCellEditorBloc>().state.focusedOptionId ==
+                    createSelectOptionSuggestionId
+                ? AFThemeExtension.of(context).lightGreyHover
+                : null,
+        borderRadius: const BorderRadius.all(Radius.circular(6)),
+      ),
+      child: GestureDetector(
+        onTap: () => context
+            .read<SelectOptionCellEditorBloc>()
+            .add(const SelectOptionCellEditorEvent.createOption()),
+        child: MouseRegion(
+          onEnter: (_) {
+            context.read<SelectOptionCellEditorBloc>().add(
+                  const SelectOptionCellEditorEvent.updateFocusedOption(
+                    createSelectOptionSuggestionId,
+                  ),
+                );
+          },
+          child: Row(
+            children: [
+              FlowyText.medium(
+                LocaleKeys.grid_selectOption_create.tr(),
+                color: Theme.of(context).hintColor,
+              ),
+              const HSpace(10),
+              Expanded(
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: SelectOptionTag(
+                    name: suggestion.name,
+                    color: suggestion.color.toColor(context),
+                    fontSize: 11,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 1,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
