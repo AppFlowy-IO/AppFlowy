@@ -33,7 +33,7 @@ extension SelectOptionColorExtension on SelectOptionColorPB {
     }
   }
 
-  String optionName() {
+  String colorName() {
     switch (this) {
       case SelectOptionColorPB.Purple:
         return LocaleKeys.grid_selectOption_purpleColor.tr();

@@ -1,9 +1,7 @@
-import 'dart:async';
-
 import 'package:appflowy/plugins/database/domain/type_option_service.dart';
 import 'package:appflowy/plugins/database/widgets/field/type_option_editor/builder.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option_entities.pb.dart';
+import 'package:nanoid/nanoid.dart';
 
 abstract class ISelectOptionAction {
   ISelectOptionAction({
@@ -20,29 +18,25 @@ abstract class ISelectOptionAction {
     onTypeOptionUpdated(newTypeOption.writeToBuffer());
   }
 
-  Future<List<SelectOptionPB>> insertOption(
+  List<SelectOptionPB> insertOption(
     List<SelectOptionPB> options,
     String optionName,
   ) {
-    final newOptions = List<SelectOptionPB>.from(options);
-    return service.newOption(name: optionName).then((result) {
-      return result.fold(
-        (option) {
-          final exists =
-              newOptions.any((element) => element.name == option.name);
-          if (!exists) {
-            newOptions.insert(0, option);
-          }
+    if (options.any((element) => element.name == optionName)) {
+      return options;
+    }
 
-          updateTypeOption(newOptions);
-          return newOptions;
-        },
-        (err) {
-          Log.error(err);
-          return newOptions;
-        },
-      );
-    });
+    final newOptions = List<SelectOptionPB>.from(options);
+
+    final newSelectOption = SelectOptionPB()
+      ..id = nanoid(4)
+      ..color = newSelectOptionColor(options)
+      ..name = optionName;
+
+    newOptions.insert(0, newSelectOption);
+
+    updateTypeOption(newOptions);
+    return newOptions;
   }
 
   List<SelectOptionPB> deleteOption(
@@ -101,4 +95,20 @@ class SingleSelectAction extends ISelectOptionAction {
     final newTypeOption = SingleSelectTypeOptionPB()..options.addAll(options);
     onTypeOptionUpdated(newTypeOption.writeToBuffer());
   }
+}
+
+SelectOptionColorPB newSelectOptionColor(List<SelectOptionPB> options) {
+  final colorFrequency = List.filled(SelectOptionColorPB.values.length, 0);
+
+  for (final option in options) {
+    colorFrequency[option.color.value]++;
+  }
+
+  final minIndex = colorFrequency
+      .asMap()
+      .entries
+      .reduce((a, b) => a.value <= b.value ? a : b)
+      .key;
+
+  return SelectOptionColorPB.valueOf(minIndex) ?? SelectOptionColorPB.Purple;
 }

@@ -1,24 +1,26 @@
 import 'dart:async';
 
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
+import 'package:appflowy/plugins/database/application/field/type_option/select_type_option_actions.dart';
 import 'package:appflowy/plugins/database/domain/select_option_cell_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option_entities.pb.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-part 'select_option_editor_bloc.freezed.dart';
+part 'select_option_cell_editor_bloc.freezed.dart';
 
 class SelectOptionCellEditorBloc
-    extends Bloc<SelectOptionEditorEvent, SelectOptionEditorState> {
+    extends Bloc<SelectOptionCellEditorEvent, SelectOptionCellEditorState> {
   SelectOptionCellEditorBloc({required this.cellController})
       : _selectOptionService = SelectOptionCellBackendService(
           viewId: cellController.viewId,
           fieldId: cellController.fieldId,
           rowId: cellController.rowId,
         ),
-        super(SelectOptionEditorState.initial(cellController)) {
+        super(SelectOptionCellEditorState.initial(cellController)) {
     _dispatch();
   }
 
@@ -28,7 +30,7 @@ class SelectOptionCellEditorBloc
   VoidCallback? _onCellChangedFn;
 
   void _dispatch() {
-    on<SelectOptionEditorEvent>(
+    on<SelectOptionCellEditorEvent>(
       (event, emit) async {
         await event.when(
           initial: () async {
@@ -41,13 +43,20 @@ class SelectOptionCellEditorBloc
               state.copyWith(
                 allOptions: options,
                 options: result.options,
-                createOption: result.createOption,
+                createSelectOptionSuggestion:
+                    result.createSelectOptionSuggestion,
                 selectedOptions: selectedOptions,
               ),
             );
           },
-          newOption: (optionName) async {
-            await _createOption(optionName);
+          createOption: () async {
+            if (state.createSelectOptionSuggestion == null) {
+              return;
+            }
+            await _createOption(
+              name: state.createSelectOptionSuggestion!.name,
+              color: state.createSelectOptionSuggestion!.color,
+            );
             emit(
               state.copyWith(
                 filter: null,
@@ -89,8 +98,8 @@ class SelectOptionCellEditorBloc
               ),
             );
           },
-          trySelectOption: (optionName) {
-            _trySelectOption(optionName, emit);
+          submitTextFieldValue: (optionName) {
+            _submitTextFieldValue(optionName, emit);
           },
           selectMultipleOptions: (optionNames, remainder) {
             if (optionNames.isNotEmpty) {
@@ -115,8 +124,14 @@ class SelectOptionCellEditorBloc
     return super.close();
   }
 
-  Future<void> _createOption(String name) async {
-    final result = await _selectOptionService.create(name: name);
+  Future<void> _createOption({
+    required String name,
+    required SelectOptionColorPB color,
+  }) async {
+    final result = await _selectOptionService.create(
+      name: name,
+      color: color,
+    );
     result.fold((l) => {}, (err) => Log.error(err));
   }
 
@@ -133,31 +148,24 @@ class SelectOptionCellEditorBloc
     result.fold((l) => null, (err) => Log.error(err));
   }
 
-  void _trySelectOption(
+  void _submitTextFieldValue(
     String optionName,
-    Emitter<SelectOptionEditorState> emit,
+    Emitter<SelectOptionCellEditorState> emit,
   ) {
-    SelectOptionPB? matchingOption;
-    bool optionExistsButSelected = false;
-
-    for (final option in state.options) {
-      if (option.name.toLowerCase() == optionName.toLowerCase()) {
-        if (!state.selectedOptions.contains(option)) {
-          matchingOption = option;
-          break;
-        } else {
-          optionExistsButSelected = true;
-        }
-      }
-    }
+    final matchingOption = state.options.firstWhereOrNull(
+      (option) => option.name.toLowerCase() == optionName.toLowerCase(),
+    );
 
     // if there isn't a matching option at all, then create it
-    if (matchingOption == null && !optionExistsButSelected) {
-      _createOption(optionName);
+    if (matchingOption == null) {
+      _createOption(
+        name: optionName,
+        color: state.createSelectOptionSuggestion!.color,
+      );
     }
 
     // if there is an unselected matching option, select it
-    if (matchingOption != null) {
+    else if (!state.selectedOptions.contains(matchingOption)) {
       _selectOptionService.select(optionIds: [matchingOption.id]);
     }
 
@@ -182,7 +190,10 @@ class SelectOptionCellEditorBloc
     _selectOptionService.select(optionIds: optionIds);
   }
 
-  void _filterOption(String optionName, Emitter<SelectOptionEditorState> emit) {
+  void _filterOption(
+    String optionName,
+    Emitter<SelectOptionCellEditorState> emit,
+  ) {
     final _MakeOptionResult result = _makeOptions(
       optionName,
       state.allOptions,
@@ -191,7 +202,7 @@ class SelectOptionCellEditorBloc
       state.copyWith(
         filter: optionName,
         options: result.options,
-        createOption: result.createOption,
+        createSelectOptionSuggestion: result.createSelectOptionSuggestion,
       ),
     );
   }
@@ -205,7 +216,7 @@ class SelectOptionCellEditorBloc
 
     return result.fold(
       (data) => add(
-        SelectOptionEditorEvent.didReceiveOptions(
+        SelectOptionCellEditorEvent.didReceiveOptions(
           data.options,
           data.selectOptions,
         ),
@@ -222,7 +233,7 @@ class SelectOptionCellEditorBloc
     List<SelectOptionPB> allOptions,
   ) {
     final List<SelectOptionPB> options = List.from(allOptions);
-    String? createOption = filter;
+    String? newOptionName = filter;
 
     if (filter != null && filter.isNotEmpty) {
       options.retainWhere((option) {
@@ -230,18 +241,23 @@ class SelectOptionCellEditorBloc
         final lFilter = filter.toLowerCase();
 
         if (name == lFilter) {
-          createOption = null;
+          newOptionName = null;
         }
 
         return name.contains(lFilter);
       });
     } else {
-      createOption = null;
+      newOptionName = null;
     }
 
     return _MakeOptionResult(
       options: options,
-      createOption: createOption,
+      createSelectOptionSuggestion: newOptionName != null
+          ? CreateSelectOptionSuggestion(
+              name: newOptionName!,
+              color: newSelectOptionColor(allOptions),
+            )
+          : null,
     );
   }
 
@@ -258,50 +274,55 @@ class SelectOptionCellEditorBloc
 }
 
 @freezed
-class SelectOptionEditorEvent with _$SelectOptionEditorEvent {
-  const factory SelectOptionEditorEvent.initial() = _Initial;
-  const factory SelectOptionEditorEvent.didReceiveOptions(
+class SelectOptionCellEditorEvent with _$SelectOptionCellEditorEvent {
+  const factory SelectOptionCellEditorEvent.initial() = _Initial;
+  const factory SelectOptionCellEditorEvent.didReceiveOptions(
     List<SelectOptionPB> options,
     List<SelectOptionPB> selectedOptions,
   ) = _DidReceiveOptions;
-  const factory SelectOptionEditorEvent.newOption(String optionName) =
-      _NewOption;
-  const factory SelectOptionEditorEvent.selectOption(String optionId) =
+  const factory SelectOptionCellEditorEvent.createOption() = _CreateOption;
+  const factory SelectOptionCellEditorEvent.selectOption(String optionId) =
       _SelectOption;
-  const factory SelectOptionEditorEvent.unSelectOption(String optionId) =
+  const factory SelectOptionCellEditorEvent.unSelectOption(String optionId) =
       _UnSelectOption;
-  const factory SelectOptionEditorEvent.updateOption(SelectOptionPB option) =
-      _UpdateOption;
-  const factory SelectOptionEditorEvent.deleteOption(SelectOptionPB option) =
-      _DeleteOption;
-  const factory SelectOptionEditorEvent.deleteAllOptions() = _DeleteAllOptions;
-  const factory SelectOptionEditorEvent.filterOption(String optionName) =
+  const factory SelectOptionCellEditorEvent.updateOption(
+    SelectOptionPB option,
+  ) = _UpdateOption;
+  const factory SelectOptionCellEditorEvent.deleteOption(
+    SelectOptionPB option,
+  ) = _DeleteOption;
+  const factory SelectOptionCellEditorEvent.deleteAllOptions() =
+      _DeleteAllOptions;
+  const factory SelectOptionCellEditorEvent.filterOption(String optionName) =
       _SelectOptionFilter;
-  const factory SelectOptionEditorEvent.trySelectOption(String optionName) =
-      _TrySelectOption;
-  const factory SelectOptionEditorEvent.selectMultipleOptions(
+  const factory SelectOptionCellEditorEvent.submitTextFieldValue(
+    String optionName,
+  ) = _SubmitTextFieldValue;
+  const factory SelectOptionCellEditorEvent.selectMultipleOptions(
     List<String> optionNames,
     String remainder,
   ) = _SelectMultipleOptions;
 }
 
 @freezed
-class SelectOptionEditorState with _$SelectOptionEditorState {
-  const factory SelectOptionEditorState({
+class SelectOptionCellEditorState with _$SelectOptionCellEditorState {
+  const factory SelectOptionCellEditorState({
     required List<SelectOptionPB> options,
     required List<SelectOptionPB> allOptions,
     required List<SelectOptionPB> selectedOptions,
-    required String? createOption,
+    required CreateSelectOptionSuggestion? createSelectOptionSuggestion,
     required String? filter,
   }) = _SelectOptionEditorState;
 
-  factory SelectOptionEditorState.initial(SelectOptionCellController context) {
+  factory SelectOptionCellEditorState.initial(
+    SelectOptionCellController context,
+  ) {
     final data = context.getCellData(loadIfNotExist: false);
-    return SelectOptionEditorState(
+    return SelectOptionCellEditorState(
       options: data?.options ?? [],
       allOptions: data?.options ?? [],
       selectedOptions: data?.selectOptions ?? [],
-      createOption: null,
+      createSelectOptionSuggestion: null,
       filter: null,
     );
   }
@@ -310,9 +331,19 @@ class SelectOptionEditorState with _$SelectOptionEditorState {
 class _MakeOptionResult {
   _MakeOptionResult({
     required this.options,
-    required this.createOption,
+    required this.createSelectOptionSuggestion,
   });
 
   List<SelectOptionPB> options;
-  String? createOption;
+  CreateSelectOptionSuggestion? createSelectOptionSuggestion;
+}
+
+class CreateSelectOptionSuggestion {
+  CreateSelectOptionSuggestion({
+    required this.name,
+    required this.color,
+  });
+
+  final String name;
+  final SelectOptionColorPB color;
 }

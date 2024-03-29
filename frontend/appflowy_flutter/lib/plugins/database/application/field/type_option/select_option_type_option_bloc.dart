@@ -20,10 +20,10 @@ class SelectOptionTypeOptionBloc
   void _dispatch() {
     on<SelectOptionTypeOptionEvent>(
       (event, emit) async {
-        await event.when(
-          createOption: (optionName) async {
+        event.when(
+          createOption: (optionName) {
             final List<SelectOptionPB> options =
-                await typeOptionAction.insertOption(state.options, optionName);
+                typeOptionAction.insertOption(state.options, optionName);
             emit(state.copyWith(options: options));
           },
           addingOption: () {

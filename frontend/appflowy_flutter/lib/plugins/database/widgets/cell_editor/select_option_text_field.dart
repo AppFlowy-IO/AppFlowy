@@ -4,8 +4,6 @@ import 'package:appflowy_backend/protobuf/flowy-database2/select_option_entities
 import 'package:flowy_infra/size.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:easy_localization/easy_localization.dart';
-import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:flutter/services.dart';
 
 import 'extension.dart';
@@ -100,11 +98,6 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
         ),
         isDense: true,
         prefixIcon: _renderTags(context),
-        hintText: LocaleKeys.grid_selectOption_searchOption.tr(),
-        hintStyle: Theme.of(context)
-            .textTheme
-            .bodySmall!
-            .copyWith(color: Theme.of(context).hintColor),
         prefixIconConstraints: BoxConstraints(maxWidth: widget.distanceToText),
         focusedBorder: OutlineInputBorder(
           borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),

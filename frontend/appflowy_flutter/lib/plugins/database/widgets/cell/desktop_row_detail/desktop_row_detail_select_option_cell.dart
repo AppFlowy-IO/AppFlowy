@@ -23,7 +23,7 @@ class DesktopRowDetailSelectOptionCellSkin
   ) {
     return AppFlowyPopover(
       controller: popoverController,
-      constraints: BoxConstraints.loose(const Size.square(300)),
+      constraints: const BoxConstraints.tightFor(width: 300),
       margin: EdgeInsets.zero,
       direction: PopoverDirection.bottomWithLeftAligned,
       popupBuilder: (BuildContext popoverContext) {

@@ -12,7 +12,7 @@ import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../application/cell/bloc/select_option_editor_bloc.dart';
+import '../../application/cell/bloc/select_option_cell_editor_bloc.dart';
 import '../../grid/presentation/layout/sizes.dart';
 import '../../grid/presentation/widgets/common/type_option_separator.dart';
 import '../field/type_option_editor/select/select_option_editor.dart';
@@ -46,8 +46,9 @@ class _SelectOptionCellEditorState extends State<SelectOptionCellEditor> {
     return BlocProvider(
       create: (context) => SelectOptionCellEditorBloc(
         cellController: widget.cellController,
-      )..add(const SelectOptionEditorEvent.initial()),
-      child: BlocBuilder<SelectOptionCellEditorBloc, SelectOptionEditorState>(
+      )..add(const SelectOptionCellEditorEvent.initial()),
+      child:
+          BlocBuilder<SelectOptionCellEditorBloc, SelectOptionCellEditorState>(
         builder: (context, state) {
           return Column(
             mainAxisSize: MainAxisSize.min,
@@ -82,10 +83,10 @@ class _OptionList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<SelectOptionCellEditorBloc, SelectOptionEditorState>(
+    return BlocBuilder<SelectOptionCellEditorBloc, SelectOptionCellEditorState>(
       builder: (context, state) {
         final cells = [
-          _Title(onPressedAddButton: () => onPressedAddButton(context)),
+          const _Title(),
           ...state.options.map(
             (option) => _SelectOptionCell(
               option: option,
@@ -93,12 +94,9 @@ class _OptionList extends StatelessWidget {
               popoverMutex: popoverMutex,
             ),
           ),
+          if (state.createSelectOptionSuggestion != null)
+            _CreateOptionCell(suggestion: state.createSelectOptionSuggestion!),
         ];
-
-        final createOption = state.createOption;
-        if (createOption != null) {
-          cells.add(_CreateOptionCell(name: createOption));
-        }
 
         return ListView.separated(
           shrinkWrap: true,
@@ -111,16 +109,6 @@ class _OptionList extends StatelessWidget {
         );
       },
     );
-  }
-
-  void onPressedAddButton(BuildContext context) {
-    final text = textEditingController.text;
-    if (text.isNotEmpty) {
-      context
-          .read<SelectOptionCellEditorBloc>()
-          .add(SelectOptionEditorEvent.trySelectOption(text));
-    }
-    textEditingController.clear();
   }
 }
 
@@ -135,7 +123,7 @@ class _TextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<SelectOptionCellEditorBloc, SelectOptionEditorState>(
+    return BlocBuilder<SelectOptionCellEditorBloc, SelectOptionCellEditorState>(
       builder: (context, state) {
         final optionMap = LinkedHashMap<String, SelectOptionPB>.fromIterable(
           state.selectedOptions,
@@ -155,16 +143,16 @@ class _TextField extends StatelessWidget {
             newText: (text) {
               context
                   .read<SelectOptionCellEditorBloc>()
-                  .add(SelectOptionEditorEvent.filterOption(text));
+                  .add(SelectOptionCellEditorEvent.filterOption(text));
             },
             onSubmitted: (tagName) {
-              context
-                  .read<SelectOptionCellEditorBloc>()
-                  .add(SelectOptionEditorEvent.trySelectOption(tagName));
+              context.read<SelectOptionCellEditorBloc>().add(
+                    SelectOptionCellEditorEvent.submitTextFieldValue(tagName),
+                  );
             },
             onPaste: (tagNames, remainder) {
               context.read<SelectOptionCellEditorBloc>().add(
-                    SelectOptionEditorEvent.selectMultipleOptions(
+                    SelectOptionCellEditorEvent.selectMultipleOptions(
                       tagNames,
                       remainder,
                     ),
@@ -172,7 +160,7 @@ class _TextField extends StatelessWidget {
             },
             onRemove: (optionName) {
               context.read<SelectOptionCellEditorBloc>().add(
-                    SelectOptionEditorEvent.unSelectOption(
+                    SelectOptionCellEditorEvent.unSelectOption(
                       optionMap[optionName]!.id,
                     ),
                   );
@@ -185,11 +173,7 @@ class _TextField extends StatelessWidget {
 }
 
 class _Title extends StatelessWidget {
-  const _Title({
-    required this.onPressedAddButton,
-  });
-
-  final VoidCallback onPressedAddButton;
+  const _Title();
 
   @override
   Widget build(BuildContext context) {
@@ -197,15 +181,9 @@ class _Title extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: SizedBox(
         height: GridSize.popoverItemHeight,
-        child: Row(
-          children: [
-            Flexible(
-              child: FlowyText.medium(
-                LocaleKeys.grid_selectOption_panelTitle.tr(),
-                color: Theme.of(context).hintColor,
-              ),
-            ),
-          ],
+        child: FlowyText.medium(
+          LocaleKeys.grid_selectOption_panelTitle.tr(),
+          color: Theme.of(context).hintColor,
         ),
       ),
     );
@@ -214,10 +192,10 @@ class _Title extends StatelessWidget {
 
 class _CreateOptionCell extends StatelessWidget {
   const _CreateOptionCell({
-    required this.name,
+    required this.suggestion,
   });
 
-  final String name;
+  final CreateSelectOptionSuggestion suggestion;
 
   @override
   Widget build(BuildContext context) {
@@ -229,7 +207,7 @@ class _CreateOptionCell extends StatelessWidget {
           hoverColor: AFThemeExtension.of(context).lightGreyHover,
           onTap: () => context
               .read<SelectOptionCellEditorBloc>()
-              .add(SelectOptionEditorEvent.newOption(name)),
+              .add(const SelectOptionCellEditorEvent.createOption()),
           text: Row(
             children: [
               FlowyText.medium(
@@ -241,13 +219,13 @@ class _CreateOptionCell extends StatelessWidget {
                 child: Align(
                   alignment: Alignment.centerLeft,
                   child: SelectOptionTag(
-                    name: name,
+                    name: suggestion.name,
+                    color: suggestion.color.toColor(context),
                     fontSize: 11,
                     padding: const EdgeInsets.symmetric(
                       horizontal: 8,
                       vertical: 1,
                     ),
-                    color: Theme.of(context).colorScheme.surfaceVariant,
                   ),
                 ),
               ),
@@ -337,13 +315,13 @@ class _SelectOptionCellState extends State<_SelectOptionCell> {
           onDeleted: () {
             context
                 .read<SelectOptionCellEditorBloc>()
-                .add(SelectOptionEditorEvent.deleteOption(widget.option));
+                .add(SelectOptionCellEditorEvent.deleteOption(widget.option));
             PopoverContainer.of(popoverContext).close();
           },
           onUpdated: (updatedOption) {
             context
                 .read<SelectOptionCellEditorBloc>()
-                .add(SelectOptionEditorEvent.updateOption(updatedOption));
+                .add(SelectOptionCellEditorEvent.updateOption(updatedOption));
           },
           key: ValueKey(
             widget.option.id,
@@ -358,11 +336,11 @@ class _SelectOptionCellState extends State<_SelectOptionCell> {
     if (widget.isSelected) {
       context
           .read<SelectOptionCellEditorBloc>()
-          .add(SelectOptionEditorEvent.unSelectOption(widget.option.id));
+          .add(SelectOptionCellEditorEvent.unSelectOption(widget.option.id));
     } else {
       context
           .read<SelectOptionCellEditorBloc>()
-          .add(SelectOptionEditorEvent.selectOption(widget.option.id));
+          .add(SelectOptionCellEditorEvent.selectOption(widget.option.id));
     }
   }
 }
