@@ -15,7 +15,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../application/cell/bloc/select_option_editor_bloc.dart';
 import '../../grid/presentation/layout/sizes.dart';
 import '../../grid/presentation/widgets/common/type_option_separator.dart';
-import '../../grid/presentation/widgets/header/type_option/select/select_option_editor.dart';
+import '../field/type_option_editor/select/select_option_editor.dart';
 import 'extension.dart';
 import 'select_option_text_field.dart';
 
@@ -332,7 +332,7 @@ class _SelectOptionCellState extends State<_SelectOptionCell> {
         ),
       ),
       popupBuilder: (BuildContext popoverContext) {
-        return SelectOptionTypeOptionEditor(
+        return SelectOptionEditor(
           option: widget.option,
           onDeleted: () {
             context

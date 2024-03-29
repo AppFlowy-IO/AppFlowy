@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:appflowy/plugins/database/widgets/field/field_editor.dart';
+import 'package:appflowy/plugins/database/widgets/field/field_type_list.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -29,10 +31,8 @@ import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/discl
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/filter_menu_item.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/footer/grid_footer.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/header/desktop_field_cell.dart';
-import 'package:appflowy/plugins/database/grid/presentation/widgets/header/field_editor.dart';
-import 'package:appflowy/plugins/database/grid/presentation/widgets/header/field_type_list.dart';
-import 'package:appflowy/plugins/database/grid/presentation/widgets/header/type_option/date/date_time_format.dart';
-import 'package:appflowy/plugins/database/grid/presentation/widgets/header/type_option/number.dart';
+import 'package:appflowy/plugins/database/widgets/field/type_option_editor/date/date_time_format.dart';
+import 'package:appflowy/plugins/database/widgets/field/type_option_editor/number.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/row/row.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/sort/create_sort_list.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/sort/order_panel.dart';
@@ -54,7 +54,7 @@ import 'package:appflowy/plugins/database/widgets/cell_editor/checklist_cell_edi
 import 'package:appflowy/plugins/database/widgets/cell_editor/checklist_progress_bar.dart';
 import 'package:appflowy/plugins/database/widgets/cell_editor/date_editor.dart';
 import 'package:appflowy/plugins/database/widgets/cell_editor/extension.dart';
-import 'package:appflowy/plugins/database/widgets/cell_editor/select_option_editor.dart';
+import 'package:appflowy/plugins/database/widgets/cell_editor/select_option_cell_editor.dart';
 import 'package:appflowy/plugins/database/widgets/cell_editor/select_option_text_field.dart';
 import 'package:appflowy/plugins/database/widgets/database_layout_ext.dart';
 import 'package:appflowy/plugins/database/widgets/row/accessory/cell_accessory.dart';
