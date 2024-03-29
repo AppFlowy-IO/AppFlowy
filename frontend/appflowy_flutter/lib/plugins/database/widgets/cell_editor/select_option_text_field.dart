@@ -4,7 +4,6 @@ import 'package:appflowy_backend/protobuf/flowy-database2/select_option_entities
 import 'package:flowy_infra/size.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import 'extension.dart';
 
@@ -16,6 +15,7 @@ class SelectOptionTextField extends StatefulWidget {
     required this.distanceToText,
     required this.textSeparators,
     required this.textController,
+    required this.focusNode,
     required this.onSubmitted,
     required this.newText,
     required this.onPaste,
@@ -28,8 +28,9 @@ class SelectOptionTextField extends StatefulWidget {
   final double distanceToText;
   final List<String> textSeparators;
   final TextEditingController textController;
+  final FocusNode focusNode;
 
-  final Function(String) onSubmitted;
+  final Function() onSubmitted;
   final Function(String) newText;
   final Function(List<String>, String) onPaste;
   final Function(String) onRemove;
@@ -40,32 +41,11 @@ class SelectOptionTextField extends StatefulWidget {
 }
 
 class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
-  late final FocusNode focusNode;
-
   @override
   void initState() {
     super.initState();
-    focusNode = FocusNode(
-      onKeyEvent: (node, event) {
-        if (event is KeyDownEvent &&
-            event.logicalKey == LogicalKeyboardKey.escape) {
-          if (!widget.textController.value.composing.isCollapsed) {
-            final TextRange(:start, :end) =
-                widget.textController.value.composing;
-            final text = widget.textController.text;
-
-            widget.textController.value = TextEditingValue(
-              text: "${text.substring(0, start)}${text.substring(end)}",
-              selection: TextSelection(baseOffset: start, extentOffset: start),
-            );
-            return KeyEventResult.handled;
-          }
-        }
-        return KeyEventResult.ignored;
-      },
-    );
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      focusNode.requestFocus();
+      widget.focusNode.requestFocus();
     });
     widget.textController.addListener(_onChanged);
   }
@@ -73,7 +53,6 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
   @override
   void dispose() {
     widget.textController.removeListener(_onChanged);
-    focusNode.dispose();
     super.dispose();
   }
 
@@ -81,15 +60,9 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
   Widget build(BuildContext context) {
     return TextField(
       controller: widget.textController,
-      focusNode: focusNode,
+      focusNode: widget.focusNode,
       onTap: widget.onClick,
-      onSubmitted: (text) {
-        if (text.isNotEmpty) {
-          widget.onSubmitted(text.trim());
-          focusNode.requestFocus();
-          widget.textController.clear();
-        }
-      },
+      onSubmitted: (_) => widget.onSubmitted(),
       style: Theme.of(context).textTheme.bodyMedium,
       decoration: InputDecoration(
         enabledBorder: OutlineInputBorder(

@@ -143,10 +143,10 @@ class _MobileSelectOptionEditorState extends State<MobileSelectOptionEditor> {
           _SearchField(
             controller: searchController,
             hintText: LocaleKeys.grid_selectOption_searchOrCreateOption.tr(),
-            onSubmitted: (option) {
-              context.read<SelectOptionCellEditorBloc>().add(
-                    SelectOptionCellEditorEvent.submitTextFieldValue(option),
-                  );
+            onSubmitted: (_) {
+              context
+                  .read<SelectOptionCellEditorBloc>()
+                  .add(const SelectOptionCellEditorEvent.submitTextField());
               searchController.clear();
             },
             onChanged: (value) {

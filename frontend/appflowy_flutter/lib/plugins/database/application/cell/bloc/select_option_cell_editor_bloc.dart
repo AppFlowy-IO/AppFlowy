@@ -6,7 +6,6 @@ import 'package:appflowy/plugins/database/domain/field_service.dart';
 import 'package:appflowy/plugins/database/domain/select_option_cell_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
-import 'package:collection/collection.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -14,7 +13,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'select_option_cell_editor_bloc.freezed.dart';
 
 const String createSelectOptionSuggestionId =
-    "create_select_ption_suggestion_id";
+    "create_select_option_suggestion_id";
 
 class SelectOptionCellEditorBloc
     extends Bloc<SelectOptionCellEditorEvent, SelectOptionCellEditorState> {
@@ -122,8 +121,8 @@ class SelectOptionCellEditorBloc
               ),
             );
           },
-          submitTextFieldValue: (optionName) {
-            _submitTextFieldValue(optionName, emit);
+          submitTextField: () {
+            _submitTextFieldValue(emit);
           },
           selectMultipleOptions: (optionNames, remainder) {
             if (optionNames.isNotEmpty) {
@@ -148,6 +147,46 @@ class SelectOptionCellEditorBloc
           },
           filterOption: (optionName) {
             _filterOption(optionName, emit);
+          },
+          focusPreviousOption: () {
+            if (state.options.isEmpty) {
+              return;
+            }
+            if (state.focusedOptionId == null) {
+              emit(state.copyWith(focusedOptionId: state.options.last.id));
+            } else {
+              final currentIndex = state.options
+                  .indexWhere((option) => option.id == state.focusedOptionId);
+
+              if (currentIndex != -1) {
+                final newIndex = (currentIndex - 1) % state.options.length;
+                emit(
+                  state.copyWith(
+                    focusedOptionId: state.options[newIndex].id,
+                  ),
+                );
+              }
+            }
+          },
+          focusNextOption: () {
+            if (state.options.isEmpty) {
+              return;
+            }
+            if (state.focusedOptionId == null) {
+              emit(state.copyWith(focusedOptionId: state.options.first.id));
+            } else {
+              final currentIndex = state.options
+                  .indexWhere((option) => option.id == state.focusedOptionId);
+
+              if (currentIndex != -1) {
+                final newIndex = (currentIndex + 1) % state.options.length;
+                emit(
+                  state.copyWith(
+                    focusedOptionId: state.options[newIndex].id,
+                  ),
+                );
+              }
+            }
           },
           updateFocusedOption: (optionId) {
             emit(state.copyWith(focusedOptionId: optionId));
@@ -190,29 +229,22 @@ class SelectOptionCellEditorBloc
     result.fold((l) => null, (err) => Log.error(err));
   }
 
-  void _submitTextFieldValue(
-    String optionName,
-    Emitter<SelectOptionCellEditorState> emit,
-  ) {
-    final matchingOption = state.options.firstWhereOrNull(
-      (option) => option.name.toLowerCase() == optionName.toLowerCase(),
-    );
+  void _submitTextFieldValue(Emitter<SelectOptionCellEditorState> emit) {
+    if (state.focusedOptionId == null) {
+      return;
+    }
 
-    // if there isn't a matching option at all, then create it
-    if (matchingOption == null) {
+    final optionId = state.focusedOptionId!;
+
+    if (optionId == createSelectOptionSuggestionId) {
       _createOption(
-        name: optionName,
+        name: optionId,
         color: state.createSelectOptionSuggestion!.color,
       );
+      emit(state.copyWith(filter: null));
+    } else if (!state.selectedOptions.any((option) => option.id == optionId)) {
+      _selectOptionService.select(optionIds: [optionId]);
     }
-
-    // if there is an unselected matching option, select it
-    else if (!state.selectedOptions.contains(matchingOption)) {
-      _selectOptionService.select(optionIds: [matchingOption.id]);
-    }
-
-    // clear the filter
-    emit(state.copyWith(filter: null));
   }
 
   void _selectMultipleOptions(List<String> optionNames) {
@@ -240,11 +272,19 @@ class SelectOptionCellEditorBloc
       optionName,
       state.allOptions,
     );
+    final focusedOptionId = result.options.isEmpty
+        ? result.createSelectOptionSuggestion == null
+            ? null
+            : createSelectOptionSuggestionId
+        : result.options.length != state.options.length
+            ? result.options.first.id
+            : state.focusedOptionId;
     emit(
       state.copyWith(
         filter: optionName,
         options: result.options,
         createSelectOptionSuggestion: result.createSelectOptionSuggestion,
+        focusedOptionId: focusedOptionId,
       ),
     );
   }
@@ -340,13 +380,16 @@ class SelectOptionCellEditorEvent with _$SelectOptionCellEditorEvent {
   ) = _ReorderOption;
   const factory SelectOptionCellEditorEvent.filterOption(String optionName) =
       _SelectOptionFilter;
-  const factory SelectOptionCellEditorEvent.submitTextFieldValue(
-    String optionName,
-  ) = _SubmitTextFieldValue;
+  const factory SelectOptionCellEditorEvent.submitTextField() =
+      _SubmitTextField;
   const factory SelectOptionCellEditorEvent.selectMultipleOptions(
     List<String> optionNames,
     String remainder,
   ) = _SelectMultipleOptions;
+  const factory SelectOptionCellEditorEvent.focusPreviousOption() =
+      _FocusPreviousOption;
+  const factory SelectOptionCellEditorEvent.focusNextOption() =
+      _FocusNextOption;
   const factory SelectOptionCellEditorEvent.updateFocusedOption(
     String? optionId,
   ) = _UpdateFocusedOption;

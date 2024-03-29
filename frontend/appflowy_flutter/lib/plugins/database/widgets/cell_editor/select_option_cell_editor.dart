@@ -12,6 +12,7 @@ import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../grid/presentation/layout/sizes.dart';
@@ -34,26 +35,67 @@ class SelectOptionCellEditor extends StatefulWidget {
 class _SelectOptionCellEditorState extends State<SelectOptionCellEditor> {
   final TextEditingController textEditingController = TextEditingController();
   final popoverMutex = PopoverMutex();
+  late final bloc = SelectOptionCellEditorBloc(
+    cellController: widget.cellController,
+  );
+  late final FocusNode focusNode;
+
+  @override
+  void initState() {
+    super.initState();
+    focusNode = FocusNode(
+      onKeyEvent: (node, event) {
+        if (event is KeyUpEvent) {
+          return KeyEventResult.ignored;
+        }
+        switch (event.logicalKey) {
+          case LogicalKeyboardKey.arrowUp:
+            if (textEditingController.value.composing.isCollapsed) {
+              bloc.add(const SelectOptionCellEditorEvent.focusPreviousOption());
+              return KeyEventResult.handled;
+            }
+          case LogicalKeyboardKey.arrowDown:
+            if (textEditingController.value.composing.isCollapsed) {
+              bloc.add(const SelectOptionCellEditorEvent.focusNextOption());
+              return KeyEventResult.handled;
+            }
+          case LogicalKeyboardKey.escape:
+            if (!textEditingController.value.composing.isCollapsed) {
+              final end = textEditingController.value.composing.end;
+              final text = textEditingController.text;
+
+              textEditingController.value = TextEditingValue(
+                text: text,
+                selection: TextSelection.collapsed(offset: end),
+              );
+              return KeyEventResult.handled;
+            }
+        }
+        return KeyEventResult.ignored;
+      },
+    );
+  }
 
   @override
   void dispose() {
     popoverMutex.dispose();
     textEditingController.dispose();
+    bloc.close();
+    focusNode.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => SelectOptionCellEditorBloc(
-        cellController: widget.cellController,
-      ),
+    return BlocProvider.value(
+      value: bloc,
       child: TextFieldTapRegion(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             _TextField(
               textEditingController: textEditingController,
+              focusNode: focusNode,
               popoverMutex: popoverMutex,
             ),
             const TypeOptionSeparator(spacing: 0.0),
@@ -150,10 +192,12 @@ class _OptionList extends StatelessWidget {
 class _TextField extends StatelessWidget {
   const _TextField({
     required this.textEditingController,
+    required this.focusNode,
     required this.popoverMutex,
   });
 
   final TextEditingController textEditingController;
+  final FocusNode focusNode;
   final PopoverMutex popoverMutex;
 
   @override
@@ -171,6 +215,7 @@ class _TextField extends StatelessWidget {
             padding: const EdgeInsets.all(12.0),
             child: SelectOptionTextField(
               options: state.options,
+              focusNode: focusNode,
               selectedOptionMap: optionMap,
               distanceToText: _editorPanelWidth * 0.7,
               textController: textEditingController,
@@ -181,10 +226,12 @@ class _TextField extends StatelessWidget {
                     .read<SelectOptionCellEditorBloc>()
                     .add(SelectOptionCellEditorEvent.filterOption(text));
               },
-              onSubmitted: (tagName) {
-                context.read<SelectOptionCellEditorBloc>().add(
-                      SelectOptionCellEditorEvent.submitTextFieldValue(tagName),
-                    );
+              onSubmitted: () {
+                context
+                    .read<SelectOptionCellEditorBloc>()
+                    .add(const SelectOptionCellEditorEvent.submitTextField());
+                textEditingController.clear();
+                focusNode.requestFocus();
               },
               onPaste: (tagNames, remainder) {
                 context.read<SelectOptionCellEditorBloc>().add(
@@ -402,16 +449,19 @@ class SelectOptionTagCell extends StatelessWidget {
           child: GestureDetector(
             behavior: HitTestBehavior.opaque,
             onTap: onSelected,
-            child: Align(
-              alignment: AlignmentDirectional.centerStart,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 5.0,
-                  vertical: 4.0,
-                ),
-                child: SelectOptionTag(
-                  option: option,
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 5.0,
+                    vertical: 4.0,
+                  ),
+                  child: SelectOptionTag(
+                    option: option,
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                  ),
                 ),
               ),
             ),
