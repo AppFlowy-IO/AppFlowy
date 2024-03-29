@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use flowy_database2::entities::{
-  DatabaseSnapshotStatePB, DatabaseSyncStatePB, FieldChangesetPB, FieldType,
+  DatabaseSnapshotStatePB, DatabaseSyncState, DatabaseSyncStatePB, FieldChangesetPB, FieldType,
 };
 use flowy_database2::notification::DatabaseNotification::DidUpdateDatabaseSnapshotState;
 
@@ -53,7 +53,9 @@ async fn supabase_edit_database_test() {
     // wait all updates are send to the remote
     let rx = test
       .notification_sender
-      .subscribe_with_condition::<DatabaseSyncStatePB, _>(&database.id, |pb| pb.is_finish);
+      .subscribe_with_condition::<DatabaseSyncStatePB, _>(&database.id, |pb| {
+        pb.value == DatabaseSyncState::SyncFinished
+      });
     receive_with_timeout(rx, Duration::from_secs(30))
       .await
       .unwrap();

@@ -111,6 +111,7 @@ fn subscribe_document_sync_state(collab: &Arc<MutexCollab>) {
     }
   });
 }
+
 unsafe impl Sync for MutexDocument {}
 unsafe impl Send for MutexDocument {}
 
