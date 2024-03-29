@@ -16,8 +16,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../layout/sizes.dart';
 import '../../../common/type_option_separator.dart';
 
-class SelectOptionTypeOptionEditor extends StatelessWidget {
-  const SelectOptionTypeOptionEditor({
+class SelectOptionEditor extends StatelessWidget {
+  const SelectOptionEditor({
     super.key,
     required this.option,
     required this.onDeleted,
@@ -32,7 +32,7 @@ class SelectOptionTypeOptionEditor extends StatelessWidget {
   final bool showOptions;
   final bool autoFocus;
 
-  static String get identifier => (SelectOptionTypeOptionEditor).toString();
+  static String get identifier => (SelectOptionEditor).toString();
 
   @override
   Widget build(BuildContext context) {

@@ -54,7 +54,7 @@ import 'package:appflowy/plugins/database/widgets/cell_editor/checklist_cell_edi
 import 'package:appflowy/plugins/database/widgets/cell_editor/checklist_progress_bar.dart';
 import 'package:appflowy/plugins/database/widgets/cell_editor/date_editor.dart';
 import 'package:appflowy/plugins/database/widgets/cell_editor/extension.dart';
-import 'package:appflowy/plugins/database/widgets/cell_editor/select_option_editor.dart';
+import 'package:appflowy/plugins/database/widgets/cell_editor/select_option_cell_editor.dart';
 import 'package:appflowy/plugins/database/widgets/cell_editor/select_option_text_field.dart';
 import 'package:appflowy/plugins/database/widgets/database_layout_ext.dart';
 import 'package:appflowy/plugins/database/widgets/row/accessory/cell_accessory.dart';
