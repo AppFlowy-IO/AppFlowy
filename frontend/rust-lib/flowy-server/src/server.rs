@@ -5,7 +5,7 @@ use flowy_storage::ObjectStorageService;
 use std::sync::Arc;
 
 use anyhow::Error;
-use client_api::collab_sync::collab_msg::ServerCollabMessage;
+use client_api::collab_sync::ServerCollabMessage;
 use parking_lot::RwLock;
 use tokio_stream::wrappers::WatchStream;
 #[cfg(feature = "enable_supabase")]
