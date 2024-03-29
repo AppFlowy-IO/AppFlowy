@@ -20,7 +20,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:styled_widget/styled_widget.dart';
 
 import 'field_type_list.dart';
-import 'type_option/builder.dart';
+import 'type_option_editor/builder.dart';
 
 enum FieldEditorPage {
   general,

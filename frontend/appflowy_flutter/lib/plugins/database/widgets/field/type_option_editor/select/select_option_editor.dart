@@ -13,8 +13,8 @@ import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../layout/sizes.dart';
-import '../../../common/type_option_separator.dart';
+import '../../../../grid/presentation/layout/sizes.dart';
+import '../../../../grid/presentation/widgets/common/type_option_separator.dart';
 
 class SelectOptionEditor extends StatelessWidget {
   const SelectOptionEditor({
