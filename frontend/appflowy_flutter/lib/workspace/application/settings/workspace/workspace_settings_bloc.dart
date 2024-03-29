@@ -5,6 +5,7 @@ import 'package:appflowy_backend/protobuf/flowy-user/workspace.pb.dart';
 import 'package:bloc/bloc.dart';
 import 'package:collection/collection.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:protobuf/protobuf.dart';
 
 part 'workspace_settings_bloc.freezed.dart';
 
@@ -36,13 +37,39 @@ class WorkspaceSettingsBloc
               workspaceId: state.workspace?.workspaceId,
               newName: name,
             );
-            final workspace = await UserEventRenameWorkspace(request).send();
+            final result = await UserEventRenameWorkspace(request).send();
 
-            workspace.fold(
+            result.fold(
               (_) => emit(
                 state.copyWith(workspace: state.workspace?..name = name),
               ),
               (e) => Log.error('Failed to rename workspace: $e'),
+            );
+          },
+          updateWorkspaceIcon: (icon) async {
+            if (state.workspace == null) {
+              return null;
+            }
+
+            final request = ChangeWorkspaceIconPB()
+              ..workspaceId = state.workspace!.workspaceId
+              ..newIcon = icon;
+            final result = await UserEventChangeWorkspaceIcon(request).send();
+
+            result.fold(
+              (_) {
+                final workspace = state.workspace?..freeze();
+                if (workspace != null) {
+                  final newWorkspace = workspace.rebuild((p0) {
+                    p0.icon = icon;
+                  });
+
+                  return emit(state.copyWith(workspace: newWorkspace));
+                }
+
+                Log.error('Failed to update workspace icon, no workspace.');
+              },
+              (e) => Log.error('Failed to update workspace icon: $e'),
             );
           },
           addWorkspaceMember: (email) {},
@@ -90,6 +117,9 @@ class WorkspaceSettingsEvent with _$WorkspaceSettingsEvent {
   // Workspace itself
   const factory WorkspaceSettingsEvent.updateWorkspaceName(String name) =
       UpdateWorkspaceName;
+
+  const factory WorkspaceSettingsEvent.updateWorkspaceIcon(String icon) =
+      UpdateWorkspaceIcon;
 
   // Workspace Member
   const factory WorkspaceSettingsEvent.addWorkspaceMember(String email) =

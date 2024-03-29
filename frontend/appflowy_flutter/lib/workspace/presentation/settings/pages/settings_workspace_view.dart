@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/settings/workspace/workspace_settings_bloc.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_icon.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_actionable_input.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_body.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_category.dart';
@@ -88,45 +89,74 @@ class _SettingsWorkspaceViewState extends State<SettingsWorkspaceView> {
                   ],
                 ),
               ],
-              const SettingsCategorySpacer(),
-              SettingsCategory(
-                title: LocaleKeys.settings_workspace_workspaceIcon_title.tr(),
-                description: LocaleKeys
-                    .settings_workspace_workspaceIcon_description
-                    .tr(),
-                children: [],
-              ),
+              if (state.workspace != null) ...[
+                const SettingsCategorySpacer(),
+                SettingsCategory(
+                  title: LocaleKeys.settings_workspace_workspaceIcon_title.tr(),
+                  description: LocaleKeys
+                      .settings_workspace_workspaceIcon_description
+                      .tr(),
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Theme.of(context).colorScheme.outline,
+                        ),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      height: 64,
+                      width: 64,
+                      child: Padding(
+                        padding: const EdgeInsets.all(1),
+                        child: WorkspaceIcon(
+                          workspace: state.workspace!,
+                          iconSize: state.workspace?.icon.isNotEmpty == true
+                              ? 46
+                              : 20,
+                          enableEdit: true,
+                          onSelected: (emojiResult) =>
+                              context.read<WorkspaceSettingsBloc>().add(
+                                    WorkspaceSettingsEvent.updateWorkspaceIcon(
+                                      emojiResult.emoji,
+                                    ),
+                                  ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
               const SettingsCategorySpacer(),
               SettingsCategory(
                 title: LocaleKeys.settings_workspace_appearance_title.tr(),
-                children: [],
+                children: const [],
               ),
               const SettingsCategorySpacer(),
               SettingsCategory(
                 title: LocaleKeys.settings_workspace_theme_title.tr(),
                 description:
                     LocaleKeys.settings_workspace_theme_description.tr(),
-                children: [],
+                children: const [],
               ),
               const SettingsCategorySpacer(),
               SettingsCategory(
                 title: LocaleKeys.settings_workspace_workspaceFont_title.tr(),
-                children: [],
+                children: const [],
               ),
               const SettingsCategorySpacer(),
               SettingsCategory(
                 title: LocaleKeys.settings_workspace_textDirection_title.tr(),
-                children: [],
+                children: const [],
               ),
               const SettingsCategorySpacer(),
               SettingsCategory(
                 title: LocaleKeys.settings_workspace_dateTime_title.tr(),
-                children: [],
+                children: const [],
               ),
               const SettingsCategorySpacer(),
               SettingsCategory(
                 title: LocaleKeys.settings_workspace_language_title.tr(),
-                children: [],
+                children: const [],
               ),
             ],
           );

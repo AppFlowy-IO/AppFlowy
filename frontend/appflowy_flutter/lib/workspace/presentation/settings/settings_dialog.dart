@@ -4,6 +4,7 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/settings/settings_dialog_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/settings_account_view.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/settings_workspace_view.dart';
+import 'package:appflowy/workspace/presentation/settings/widgets/feature_flags/feature_flag_page.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_menu.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -91,8 +92,8 @@ class SettingsDialog extends StatelessWidget {
       //   return const SettingsCustomizeShortcutsWrapper();
       // case SettingsPage.member:
       //   return WorkspaceMembersPage(userProfile: user);
-      // case SettingsPage.featureFlags:
-      //   return const FeatureFlagsPage();
+      case SettingsPage.featureFlags:
+        return const FeatureFlagsPage();
       default:
         return const SizedBox.shrink();
     }

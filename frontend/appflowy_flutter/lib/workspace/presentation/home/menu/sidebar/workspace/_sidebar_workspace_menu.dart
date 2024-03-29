@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/af_role_pb_extension.dart';
@@ -10,7 +12,6 @@ import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 @visibleForTesting
@@ -175,13 +176,24 @@ class WorkspaceMenuItem extends StatelessWidget {
                       workspace: workspace,
                       iconSize: 26,
                       enableEdit: true,
+                      onSelected: (result) =>
+                          context.read<UserWorkspaceBloc>().add(
+                                UserWorkspaceEvent.updateWorkspaceIcon(
+                                  workspace.workspaceId,
+                                  result.emoji,
+                                ),
+                              ),
                     ),
                   ),
                 ),
                 Positioned(
                   right: 12.0,
                   child: Align(
-                    child: _buildRightIcon(context),
+                    child: _buildRightIcon(
+                      context,
+                      state.isLoading,
+                      state.myRole.isOwner,
+                    ),
                   ),
                 ),
               ],
@@ -192,20 +204,21 @@ class WorkspaceMenuItem extends StatelessWidget {
     );
   }
 
-  Widget _buildRightIcon(BuildContext context) {
+  Widget _buildRightIcon(
+    BuildContext context,
+    bool isLoading,
+    bool isOwner,
+  ) {
     // only the owner can update or delete workspace.
     // only show the more action button when the workspace is selected.
-    if (!isSelected || context.read<WorkspaceMemberBloc>().state.isLoading) {
+    if (!isSelected || isLoading) {
       return const SizedBox.shrink();
     }
 
     return Row(
       children: [
-        if (context.read<WorkspaceMemberBloc>().state.myRole.isOwner)
-          WorkspaceMoreActionList(workspace: workspace),
-        const FlowySvg(
-          FlowySvgs.blue_check_s,
-        ),
+        if (isOwner) WorkspaceMoreActionList(workspace: workspace),
+        const FlowySvg(FlowySvgs.blue_check_s),
       ],
     );
   }

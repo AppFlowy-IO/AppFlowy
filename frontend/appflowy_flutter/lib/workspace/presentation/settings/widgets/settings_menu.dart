@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
@@ -112,15 +113,15 @@ class SettingsMenu extends StatelessWidget {
                   //     icon: Icons.people,
                   //     changeSelectedPage: changeSelectedPage,
                   //   ),
-                  // if (kDebugMode)
-                  //   SettingsMenuElement(
-                  //     // no need to translate this page
-                  //     page: SettingsPage.featureFlags,
-                  //     selectedPage: currentPage,
-                  //     label: 'Feature Flags',
-                  //     icon: Icons.flag,
-                  //     changeSelectedPage: changeSelectedPage,
-                  //   ),
+                  if (kDebugMode)
+                    SettingsMenuElement(
+                      // no need to translate this page
+                      page: SettingsPage.featureFlags,
+                      selectedPage: currentPage,
+                      label: 'Feature Flags',
+                      icon: FlowySvgs.folder_m,
+                      changeSelectedPage: changeSelectedPage,
+                    ),
                 ],
               ),
             ),
