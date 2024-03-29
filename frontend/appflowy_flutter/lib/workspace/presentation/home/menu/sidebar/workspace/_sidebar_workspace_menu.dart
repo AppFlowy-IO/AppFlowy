@@ -1,6 +1,5 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/shared/af_role_pb_extension.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_actions.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_icon.dart';
@@ -201,8 +200,7 @@ class WorkspaceMenuItem extends StatelessWidget {
 
     return Row(
       children: [
-        if (context.read<WorkspaceMemberBloc>().state.myRole.isOwner)
-          WorkspaceMoreActionList(workspace: workspace),
+        WorkspaceMoreActionList(workspace: workspace),
         const FlowySvg(
           FlowySvgs.blue_check_s,
         ),
