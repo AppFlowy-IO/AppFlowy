@@ -32,9 +32,22 @@ class SingleSelectOptionFilterDelegateImpl
   ) {
     final selectOptionIds = Set<String>.from(currentOptionIds);
 
-    if (condition == SelectOptionFilterConditionPB.OptionIsNot ||
-        selectOptionIds.isEmpty) {
-      selectOptionIds.add(optionId);
+    switch (condition) {
+      case SelectOptionFilterConditionPB.OptionIs:
+        if (selectOptionIds.isNotEmpty) {
+          selectOptionIds.clear();
+        }
+        selectOptionIds.add(optionId);
+        break;
+      case SelectOptionFilterConditionPB.OptionIsNot:
+        selectOptionIds.add(optionId);
+        break;
+      case SelectOptionFilterConditionPB.OptionIsEmpty ||
+            SelectOptionFilterConditionPB.OptionIsNotEmpty:
+        selectOptionIds.clear();
+        break;
+      default:
+        throw UnimplementedError();
     }
 
     return selectOptionIds;
