@@ -218,6 +218,30 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
               ),
             );
           },
+          leaveWorkspace: (workspaceId) async {
+            final result = await _userService.leaveWorkspace(workspaceId);
+            final workspaces = result.fold(
+              (s) => state.workspaces
+                  .where((e) => e.workspaceId != workspaceId)
+                  .toList(),
+              (e) => state.workspaces,
+            );
+            result.onSuccess((_) {
+              // if leaving the current workspace, open the first workspace
+              if (state.currentWorkspace?.workspaceId == workspaceId) {
+                add(OpenWorkspace(workspaces.first.workspaceId));
+              }
+            });
+            emit(
+              state.copyWith(
+                workspaces: workspaces,
+                actionResult: UserWorkspaceActionResult(
+                  actionType: UserWorkspaceActionType.leave,
+                  result: result,
+                ),
+              ),
+            );
+          },
         );
       },
     );
@@ -270,6 +294,8 @@ class UserWorkspaceEvent with _$UserWorkspaceEvent {
     String workspaceId,
     String icon,
   ) = _UpdateWorkspaceIcon;
+  const factory UserWorkspaceEvent.leaveWorkspace(String workspaceId) =
+      LeaveWorkspace;
 }
 
 enum UserWorkspaceActionType {
@@ -279,7 +305,8 @@ enum UserWorkspaceActionType {
   open,
   rename,
   updateIcon,
-  fetchWorkspaces;
+  fetchWorkspaces,
+  leave;
 }
 
 class UserWorkspaceActionResult {
