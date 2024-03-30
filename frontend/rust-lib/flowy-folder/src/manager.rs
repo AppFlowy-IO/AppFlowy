@@ -866,7 +866,7 @@ impl FolderManager {
   }
 
   async fn send_update_recent_views_notification(&self) {
-    let recent_views = self.get_all_recent_sections().await;
+    let recent_views = self.get_my_recent_sections().await;
     send_notification("recent_views", FolderNotification::DidUpdateRecentViews)
       .payload(RepeatedViewIdPB {
         items: recent_views.into_iter().map(|item| item.id).collect(),
@@ -879,8 +879,8 @@ impl FolderManager {
     self.get_sections(Section::Favorite)
   }
 
-  #[tracing::instrument(level = "trace", skip(self))]
-  pub(crate) async fn get_all_recent_sections(&self) -> Vec<SectionItem> {
+  #[tracing::instrument(level = "debug", skip(self))]
+  pub(crate) async fn get_my_recent_sections(&self) -> Vec<SectionItem> {
     self.get_sections(Section::Recent)
   }
 
@@ -1120,24 +1120,77 @@ impl FolderManager {
     &self.cloud_service
   }
 
-  fn get_sections(&self, section_type: Section) -> Vec<SectionItem> {
+  /// Only support getting the Favorite and Recent sections.
+  pub fn get_sections(&self, section_type: Section) -> Vec<SectionItem> {
     self.with_folder(Vec::new, |folder| {
-      let trash_ids = folder
-        .get_all_trash_sections()
-        .into_iter()
-        .map(|trash| trash.id)
-        .collect::<Vec<String>>();
-
-      let mut views = match section_type {
+      let views = match section_type {
         Section::Favorite => folder.get_my_favorite_sections(),
         Section::Recent => folder.get_my_recent_sections(),
         _ => vec![],
       };
-
-      // filter the views that are in the trash
-      views.retain(|view| !trash_ids.contains(&view.id));
+      let view_ids_should_be_filtered = self.get_view_ids_should_be_filtered(folder);
       views
+        .into_iter()
+        .filter(|view| view_ids_should_be_filtered.contains(&view.id))
+        .collect()
     })
+  }
+
+  /// Get all the view that are in the trash, including the child views of the child views.
+  /// For example, if A view which is in the trash has a child view B, this function will return
+  /// both A and B.
+  fn get_all_trash_ids(&self, folder: &Folder) -> Vec<String> {
+    let trash_ids = folder
+      .get_all_trash_sections()
+      .into_iter()
+      .map(|trash| trash.id)
+      .collect::<Vec<String>>();
+    let mut all_trash_ids = trash_ids.clone();
+    for trash_id in trash_ids {
+      all_trash_ids.extend(self.get_all_child_view_ids(folder, &trash_id));
+    }
+    all_trash_ids
+  }
+
+  /// Get all the child views belong to the view id, including the child views of the child views.
+  fn get_all_child_view_ids(&self, folder: &Folder, view_id: &str) -> Vec<String> {
+    let child_view_ids = folder
+      .views
+      .get_views_belong_to(view_id)
+      .into_iter()
+      .map(|view| view.id.clone())
+      .collect::<Vec<String>>();
+    let mut all_child_view_ids = child_view_ids.clone();
+    for child_view_id in child_view_ids {
+      all_child_view_ids.extend(self.get_all_child_view_ids(folder, &child_view_id));
+    }
+    all_child_view_ids
+  }
+
+  /// Filter the views that are in the trash and belong to the other private sections.
+  fn get_view_ids_should_be_filtered(&self, folder: &Folder) -> Vec<String> {
+    let trash_ids = self.get_all_trash_ids(folder);
+    let other_private_view_ids = self.get_other_private_view_ids(&folder);
+    [trash_ids, other_private_view_ids].concat()
+  }
+
+  fn get_other_private_view_ids(&self, folder: &Folder) -> Vec<String> {
+    let private_view_ids = folder
+      .get_my_private_sections()
+      .into_iter()
+      .map(|view| view.id)
+      .collect::<Vec<String>>();
+
+    let all_private_view_ids = folder
+      .get_all_private_sections()
+      .into_iter()
+      .map(|view| view.id)
+      .collect::<Vec<String>>();
+
+    all_private_view_ids
+      .into_iter()
+      .filter(|id| private_view_ids.contains(id))
+      .collect()
   }
 }
 
