@@ -143,7 +143,6 @@ class SelectOptionCellEditorBloc
                 options: result.options,
               ),
             );
-            emit(state.copyWith(allOptions: []));
           },
           filterOption: (optionName) {
             _filterOption(optionName, emit);

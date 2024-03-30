@@ -157,7 +157,7 @@ class _OptionList extends StatelessWidget {
           itemBuilder: (_, int index) {
             final option = state.options[index];
             return _SelectOptionCell(
-              key: ValueKey("option_list_${option.id}"),
+              key: ValueKey("select_cell_option_list_${option.id}"),
               index: index,
               option: option,
               popoverMutex: popoverMutex,
@@ -211,6 +211,7 @@ class _TextField extends StatelessWidget {
         );
 
         return Material(
+          color: Colors.transparent,
           child: Padding(
             padding: const EdgeInsets.all(12.0),
             child: SelectOptionTextField(
@@ -357,7 +358,7 @@ class _SelectOptionCellState extends State<_SelectOptionCell> {
                   icon: FlowySvg(
                     FlowySvgs.three_dots_s,
                     size: const Size.square(16),
-                    color: Theme.of(context).hintColor,
+                    color: Theme.of(context).colorScheme.onBackground,
                   ),
                 ),
               ],
@@ -433,12 +434,13 @@ class SelectOptionTagCell extends StatelessWidget {
                   : SystemMouseCursors.grab,
               child: GestureDetector(
                 onTap: onSelected,
-                child: const SizedBox(
+                child: SizedBox(
                   width: 26,
                   child: Center(
                     child: FlowySvg(
                       FlowySvgs.drag_element_s,
-                      size: Size.square(14),
+                      size: const Size.square(14),
+                      color: Theme.of(context).colorScheme.onBackground,
                     ),
                   ),
                 ),
