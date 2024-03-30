@@ -99,9 +99,9 @@ class _SelectOptionCellEditorState extends State<SelectOptionCellEditor> {
               popoverMutex: popoverMutex,
             ),
             const TypeOptionSeparator(spacing: 0.0),
-            Focus(
-              descendantsAreFocusable: false,
-              child: Flexible(
+            Flexible(
+              child: Focus(
+                descendantsAreFocusable: false,
                 child: _OptionList(
                   textEditingController: textEditingController,
                   popoverMutex: popoverMutex,

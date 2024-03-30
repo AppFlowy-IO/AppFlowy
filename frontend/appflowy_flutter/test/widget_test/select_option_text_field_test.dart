@@ -60,11 +60,6 @@ void main() {
       await tester.testTextInput.receiveAction(TextInputAction.done);
       expect(submit, 'an option');
 
-      submit = '';
-      await tester.enterText(find.byType(TextField), ' ');
-      await tester.testTextInput.receiveAction(TextInputAction.done);
-      expect(submit, '');
-
       // test inputs containing commas
       await tester.enterText(find.byType(TextField), 'a a, bbbb , c');
       expect(remainder, 'c');

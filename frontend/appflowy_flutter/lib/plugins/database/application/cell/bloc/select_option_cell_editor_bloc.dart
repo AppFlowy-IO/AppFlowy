@@ -237,10 +237,15 @@ class SelectOptionCellEditorBloc
 
     if (optionId == createSelectOptionSuggestionId) {
       _createOption(
-        name: optionId,
+        name: state.createSelectOptionSuggestion!.name,
         color: state.createSelectOptionSuggestion!.color,
       );
-      emit(state.copyWith(filter: null));
+      emit(
+        state.copyWith(
+          filter: null,
+          createSelectOptionSuggestion: null,
+        ),
+      );
     } else if (!state.selectedOptions.any((option) => option.id == optionId)) {
       _selectOptionService.select(optionIds: [optionId]);
     }

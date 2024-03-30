@@ -150,8 +150,8 @@ void main() {
       bloc.add(const SelectOptionCellEditorEvent.submitTextField());
       await gridResponseFuture();
 
-      assert(bloc.state.selectedOptions.length == 1);
-      assert(bloc.state.options.length == 2);
+      expect(bloc.state.selectedOptions.length, 1);
+      expect(bloc.state.options.length, 1);
       expect(bloc.state.selectedOptions[0].name, "A");
     });
 
@@ -209,6 +209,7 @@ void main() {
 
       bloc.add(const SelectOptionCellEditorEvent.filterOption("aaaa"));
       bloc.add(const SelectOptionCellEditorEvent.createOption());
+      await gridResponseFuture();
       expect(
         bloc.state.options.length,
         2,
