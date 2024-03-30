@@ -1,21 +1,18 @@
-use std::{
-  ops::{Deref, DerefMut},
-  sync::Arc,
-};
-
-use collab::core::collab::MutexCollab;
-use collab_document::{blocks::DocumentData, document::Document};
-use futures::StreamExt;
-use parking_lot::Mutex;
-
-use flowy_error::FlowyResult;
-use lib_dispatch::prelude::af_spawn;
-use tracing::trace;
-
 use crate::entities::{
   DocEventPB, DocumentAwarenessStatesPB, DocumentSnapshotStatePB, DocumentSyncStatePB,
 };
 use crate::notification::{send_notification, DocumentNotification};
+use collab::core::collab::MutexCollab;
+use collab_document::{blocks::DocumentData, document::Document};
+use flowy_error::FlowyResult;
+use futures::StreamExt;
+use lib_dispatch::prelude::af_spawn;
+use parking_lot::Mutex;
+use std::{
+  ops::{Deref, DerefMut},
+  sync::Arc,
+};
+use tracing::trace;
 
 /// This struct wrap the document::Document
 #[derive(Clone)]

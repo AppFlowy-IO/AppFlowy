@@ -211,7 +211,6 @@ pub(crate) fn notify_did_update_section_views(workspace_id: &str, folder: &Folde
 
 pub(crate) fn notify_did_update_workspace(workspace_id: &str, folder: &Folder) {
   let repeated_view: RepeatedViewPB = get_workspace_public_view_pbs(workspace_id, folder).into();
-  tracing::trace!("Did update workspace views: {:?}", repeated_view);
   send_notification(workspace_id, FolderNotification::DidUpdateWorkspaceViews)
     .payload(repeated_view)
     .send();

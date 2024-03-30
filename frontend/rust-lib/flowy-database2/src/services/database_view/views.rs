@@ -20,7 +20,7 @@ pub struct DatabaseViews {
   database: Arc<MutexDatabase>,
   cell_cache: CellCache,
   view_operation: Arc<dyn DatabaseViewOperation>,
-  editor_by_view_id: Arc<RwLock<EditorByViewId>>,
+  view_editors: Arc<RwLock<EditorByViewId>>,
 }
 
 impl DatabaseViews {
@@ -28,41 +28,38 @@ impl DatabaseViews {
     database: Arc<MutexDatabase>,
     cell_cache: CellCache,
     view_operation: Arc<dyn DatabaseViewOperation>,
-    editor_by_view_id: Arc<RwLock<EditorByViewId>>,
+    view_editors: Arc<RwLock<EditorByViewId>>,
   ) -> FlowyResult<Self> {
     Ok(Self {
       database,
       view_operation,
       cell_cache,
-      editor_by_view_id,
+      view_editors,
     })
   }
 
-  pub async fn close_view(&self, view_id: &str) -> bool {
-    let mut editor_map = self.editor_by_view_id.write().await;
-    if let Some(view) = editor_map.remove(view_id) {
+  pub async fn close_view(&self, view_id: &str) {
+    let mut lock_guard = self.view_editors.write().await;
+    if let Some(view) = lock_guard.remove(view_id) {
       view.close().await;
     }
-    editor_map.is_empty()
+  }
+
+  pub async fn num_editors(&self) -> usize {
+    self.view_editors.read().await.len()
   }
 
   pub async fn editors(&self) -> Vec<Arc<DatabaseViewEditor>> {
-    self
-      .editor_by_view_id
-      .read()
-      .await
-      .values()
-      .cloned()
-      .collect()
+    self.view_editors.read().await.values().cloned().collect()
   }
 
   pub async fn get_view_editor(&self, view_id: &str) -> FlowyResult<Arc<DatabaseViewEditor>> {
     debug_assert!(!view_id.is_empty());
-    if let Some(editor) = self.editor_by_view_id.read().await.get(view_id) {
+    if let Some(editor) = self.view_editors.read().await.get(view_id) {
       return Ok(editor.clone());
     }
 
-    let mut editor_map = self.editor_by_view_id.try_write().map_err(|err| {
+    let mut editor_map = self.view_editors.try_write().map_err(|err| {
       FlowyError::internal().with_context(format!(
         "fail to acquire the lock of editor_by_view_id: {}",
         err

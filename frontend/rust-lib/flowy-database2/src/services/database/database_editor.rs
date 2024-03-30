@@ -1,22 +1,3 @@
-use std::collections::HashMap;
-use std::sync::Arc;
-
-use collab_database::database::MutexDatabase;
-use collab_database::fields::{Field, TypeOptionData};
-use collab_database::rows::{Cell, Cells, Row, RowCell, RowDetail, RowId};
-use collab_database::views::{
-  DatabaseLayout, DatabaseView, FilterMap, LayoutSetting, OrderObjectPosition,
-};
-use futures::StreamExt;
-use lib_infra::box_any::BoxAny;
-use tokio::sync::{broadcast, RwLock};
-use tracing::{event, warn};
-
-use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
-use lib_dispatch::prelude::af_spawn;
-use lib_infra::future::{to_fut, Fut, FutureResult};
-use lib_infra::priority_task::TaskDispatcher;
-
 use crate::entities::*;
 use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::calculations::Calculation;
@@ -39,6 +20,22 @@ use crate::services::group::{default_group_setting, GroupChangeset, GroupSetting
 use crate::services::share::csv::{CSVExport, CSVFormat};
 use crate::services::sort::Sort;
 use crate::utils::cache::AnyTypeCache;
+use collab_database::database::MutexDatabase;
+use collab_database::fields::{Field, TypeOptionData};
+use collab_database::rows::{Cell, Cells, Row, RowCell, RowDetail, RowId};
+use collab_database::views::{
+  DatabaseLayout, DatabaseView, FilterMap, LayoutSetting, OrderObjectPosition,
+};
+use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
+use futures::StreamExt;
+use lib_dispatch::prelude::af_spawn;
+use lib_infra::box_any::BoxAny;
+use lib_infra::future::{to_fut, Fut, FutureResult};
+use lib_infra::priority_task::TaskDispatcher;
+use std::collections::HashMap;
+use std::sync::Arc;
+use tokio::sync::{broadcast, RwLock};
+use tracing::{event, warn};
 
 #[derive(Clone)]
 pub struct DatabaseEditor {
@@ -115,23 +112,16 @@ impl DatabaseEditor {
     })
   }
 
-  /// Returns bool value indicating whether the database is empty.
-  ///
-  pub async fn close_view(&self, view_id: &str) -> bool {
-    // If the database is empty, flush the database to the disk.
-    if self.database_views.editors().await.len() == 1 {
-      if let Some(database) = self.database.try_lock() {
-        let _ = database.flush();
-      }
-    }
-    self.database_views.close_view(view_id).await
+  pub async fn close_view(&self, view_id: &str) {
+    self.database_views.close_view(view_id).await;
+  }
+
+  pub async fn num_views(&self) -> usize {
+    self.database_views.num_editors().await
   }
 
   #[tracing::instrument(level = "debug", skip_all)]
-  pub async fn close(&self) {
-    if let Some(database) = self.database.try_lock() {
-      let _ = database.flush();
-    }
+  pub async fn close_all_views(&self) {
     for view in self.database_views.editors().await {
       view.close().await;
     }

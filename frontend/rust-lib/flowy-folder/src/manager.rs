@@ -205,7 +205,7 @@ impl FolderManager {
       workspace_id,
       CollabType::Folder,
       collab_db,
-      DocStateSource::FromDocState(vec![]),
+      DocStateSource::FromDisk,
       CollabPersistenceConfig::new()
         .enable_snapshot(true)
         .snapshot_per_update(50),
@@ -782,7 +782,15 @@ impl FolderManager {
       },
     )?;
 
-    send_workspace_setting_notification(workspace_id, self.get_current_view().await);
+    let view = self.get_current_view().await;
+    if let Some(view) = &view {
+      let view_layout: ViewLayout = view.layout.clone().into();
+      if let Some(handle) = self.operation_handlers.get(&view_layout) {
+        let _ = handle.open_view(view_id).await;
+      }
+    }
+
+    send_workspace_setting_notification(workspace_id, view);
     Ok(())
   }
 

@@ -8,7 +8,7 @@ use collab::core::collab::MutexCollab;
 use collab::preclude::Collab;
 use collab_database::database::get_database_row_ids;
 use collab_database::rows::database_row_document_id_from_row_id;
-use collab_database::user::{get_all_database_meta, DatabaseMeta};
+use collab_database::workspace_database::{get_all_database_meta, DatabaseMeta};
 use collab_entity::{CollabObject, CollabType};
 use collab_folder::{Folder, View, ViewLayout};
 use collab_plugins::local_storage::kv::KVTransactionDB;
