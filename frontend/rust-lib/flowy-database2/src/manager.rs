@@ -235,6 +235,15 @@ impl DatabaseManager {
     Ok(editor)
   }
 
+  pub async fn open_database_view<T: AsRef<str>>(&self, view_id: T) -> FlowyResult<()> {
+    let view_id = view_id.as_ref();
+    let wdb = self.get_workspace_database().await?;
+    if let Some(database_id) = wdb.get_database_id_with_view_id(view_id) {
+      wdb.open_database(&database_id);
+    }
+    Ok(())
+  }
+
   pub async fn close_database_view<T: AsRef<str>>(&self, view_id: T) -> FlowyResult<()> {
     let view_id = view_id.as_ref();
     let wdb = self.get_workspace_database().await?;

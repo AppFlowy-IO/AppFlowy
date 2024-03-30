@@ -4,10 +4,8 @@ use crate::AppFlowyCoreConfig;
 
 static INIT_LOG: AtomicBool = AtomicBool::new(false);
 pub(crate) fn init_log(config: &AppFlowyCoreConfig) {
-  if cfg!(debug_assertions) {
-    if get_bool_from_env_var("DISABLE_CI_TEST_LOG") {
-      return;
-    }
+  if cfg!(debug_assertions) && get_bool_from_env_var("DISABLE_CI_TEST_LOG") {
+    return;
   }
 
   if !INIT_LOG.load(Ordering::SeqCst) {

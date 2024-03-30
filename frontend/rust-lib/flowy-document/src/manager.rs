@@ -140,12 +140,7 @@ impl DocumentManager {
       return Ok(doc);
     }
 
-    if let Some((doc_id, doc)) = self.removing_documents.remove(doc_id) {
-      trace!(
-        "move document {} from removing_documents to documents",
-        doc_id
-      );
-      self.documents.insert(doc_id, doc.clone());
+    if let Some(doc) = self.restore_document_from_removing(doc_id) {
       return Ok(doc);
     }
 
@@ -211,6 +206,12 @@ impl DocumentManager {
       .map_err(internal_error)
   }
 
+  pub async fn open_document(&self, doc_id: &str) -> FlowyResult<()> {
+    // TODO(nathan): refactor the get_database that split the database creation and database opening.
+    self.restore_document_from_removing(doc_id);
+    Ok(())
+  }
+
   pub async fn close_document(&self, doc_id: &str) -> FlowyResult<()> {
     if let Some((doc_id, document)) = self.documents.remove(doc_id) {
       if let Some(doc) = document.try_lock() {
@@ -224,7 +225,7 @@ impl DocumentManager {
 
       let weak_removing_documents = Arc::downgrade(&self.removing_documents);
       af_spawn(async move {
-        tokio::time::sleep(std::time::Duration::from_secs(60)).await;
+        tokio::time::sleep(std::time::Duration::from_secs(120)).await;
         if let Some(removing_documents) = weak_removing_documents.upgrade() {
           if removing_documents.remove(&clone_doc_id).is_some() {
             trace!("drop document from removing_documents: {}", clone_doc_id);
@@ -417,6 +418,16 @@ impl DocumentManager {
   #[cfg(debug_assertions)]
   pub fn get_file_storage_service(&self) -> &Weak<dyn ObjectStorageService> {
     &self.storage_service
+  }
+
+  fn restore_document_from_removing(&self, doc_id: &str) -> Option<Arc<MutexDocument>> {
+    let (doc_id, doc) = self.removing_documents.remove(doc_id)?;
+    trace!(
+      "move document {} from removing_documents to documents",
+      doc_id
+    );
+    self.documents.insert(doc_id, doc.clone());
+    Some(doc)
   }
 }
 
