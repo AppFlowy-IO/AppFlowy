@@ -10,7 +10,7 @@ use collab_database::database::{
   is_database_collab, mut_database_views_with_collab, reset_inline_view_id,
 };
 use collab_database::rows::{database_row_document_id_from_row_id, mut_row_with_collab, RowId};
-use collab_database::user::DatabaseMetaList;
+use collab_database::workspace_database::DatabaseMetaList;
 use collab_folder::{Folder, UserId};
 use collab_plugins::local_storage::kv::KVTransactionDB;
 use parking_lot::{Mutex, RwLock};

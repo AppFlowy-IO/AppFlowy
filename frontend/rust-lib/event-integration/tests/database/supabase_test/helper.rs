@@ -73,6 +73,7 @@ impl FlowySupabaseDatabaseTest {
       .get_database_object_doc_state(database_id, CollabType::Database, &workspace_id)
       .await
       .unwrap()
+      .unwrap()
   }
 }
 

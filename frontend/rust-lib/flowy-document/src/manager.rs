@@ -1,4 +1,3 @@
-use std::num::NonZeroUsize;
 use std::sync::Arc;
 use std::sync::Weak;
 
@@ -13,10 +12,9 @@ use collab_document::document_awareness::DocumentAwarenessUser;
 use collab_document::document_data::default_document_data;
 use collab_entity::CollabType;
 use collab_plugins::CollabKVDB;
+use dashmap::DashMap;
 use flowy_storage::object_from_disk;
 use lib_infra::util::timestamp;
-use lru::LruCache;
-use parking_lot::Mutex;
 use tokio::io::AsyncWriteExt;
 use tracing::{error, trace};
 use tracing::{event, instrument};
@@ -53,7 +51,8 @@ pub trait DocumentSnapshotService: Send + Sync {
 pub struct DocumentManager {
   pub user_service: Arc<dyn DocumentUserService>,
   collab_builder: Arc<AppFlowyCollabBuilder>,
-  documents: Arc<Mutex<LruCache<String, Arc<MutexDocument>>>>,
+  documents: Arc<DashMap<String, Arc<MutexDocument>>>,
+  removing_documents: Arc<DashMap<String, Arc<MutexDocument>>>,
   cloud_service: Arc<dyn DocumentCloudService>,
   storage_service: Weak<dyn ObjectStorageService>,
   snapshot_service: Arc<dyn DocumentSnapshotService>,
@@ -67,11 +66,11 @@ impl DocumentManager {
     storage_service: Weak<dyn ObjectStorageService>,
     snapshot_service: Arc<dyn DocumentSnapshotService>,
   ) -> Self {
-    let documents = Arc::new(Mutex::new(LruCache::new(NonZeroUsize::new(10).unwrap())));
     Self {
       user_service,
       collab_builder,
-      documents,
+      documents: Arc::new(Default::default()),
+      removing_documents: Arc::new(Default::default()),
       cloud_service,
       storage_service,
       snapshot_service,
@@ -79,7 +78,7 @@ impl DocumentManager {
   }
 
   pub async fn initialize(&self, _uid: i64, _workspace_id: String) -> FlowyResult<()> {
-    self.documents.lock().clear();
+    self.documents.clear();
     Ok(())
   }
 
@@ -137,7 +136,11 @@ impl DocumentManager {
   /// If the document exists, open the document and cache it
   #[tracing::instrument(level = "info", skip(self), err)]
   pub async fn get_document(&self, doc_id: &str) -> FlowyResult<Arc<MutexDocument>> {
-    if let Some(doc) = self.documents.lock().get(doc_id).cloned() {
+    if let Some(doc) = self.documents.get(doc_id).map(|item| item.value().clone()) {
+      return Ok(doc);
+    }
+
+    if let Some(doc) = self.restore_document_from_removing(doc_id) {
       return Ok(doc);
     }
 
@@ -170,10 +173,7 @@ impl DocumentManager {
     match MutexDocument::open(doc_id, collab) {
       Ok(document) => {
         let document = Arc::new(document);
-        self
-          .documents
-          .lock()
-          .put(doc_id.to_string(), document.clone());
+        self.documents.insert(doc_id.to_string(), document.clone());
         Ok(document)
       },
       Err(err) => {
@@ -188,31 +188,50 @@ impl DocumentManager {
   }
 
   pub async fn get_document_data(&self, doc_id: &str) -> FlowyResult<DocumentData> {
-    let mut doc_state = vec![];
+    let mut doc_state = DocStateSource::FromDisk;
     if !self.is_doc_exist(doc_id).await? {
-      doc_state = self
-        .cloud_service
-        .get_document_doc_state(doc_id, &self.user_service.workspace_id()?)
-        .await?;
+      doc_state = DocStateSource::FromDocState(
+        self
+          .cloud_service
+          .get_document_doc_state(doc_id, &self.user_service.workspace_id()?)
+          .await?,
+      );
     }
     let uid = self.user_service.user_id()?;
     let collab = self
-      .collab_for_document(uid, doc_id, DocStateSource::FromDocState(doc_state), false)
+      .collab_for_document(uid, doc_id, doc_state, false)
       .await?;
     Document::open(collab)?
       .get_document_data()
       .map_err(internal_error)
   }
 
+  pub async fn open_document(&self, doc_id: &str) -> FlowyResult<()> {
+    // TODO(nathan): refactor the get_database that split the database creation and database opening.
+    self.restore_document_from_removing(doc_id);
+    Ok(())
+  }
+
   pub async fn close_document(&self, doc_id: &str) -> FlowyResult<()> {
-    // The lru will pop the least recently used document when the cache is full.
-    if let Ok(doc) = self.get_document(doc_id).await {
-      trace!("close document: {}", doc_id);
-      if let Some(doc) = doc.try_lock() {
+    if let Some((doc_id, document)) = self.documents.remove(doc_id) {
+      if let Some(doc) = document.try_lock() {
         // clear the awareness state when close the document
         doc.clean_awareness_local_state();
         let _ = doc.flush();
       }
+      let clone_doc_id = doc_id.clone();
+      trace!("move document to removing_documents: {}", doc_id);
+      self.removing_documents.insert(doc_id, document);
+
+      let weak_removing_documents = Arc::downgrade(&self.removing_documents);
+      af_spawn(async move {
+        tokio::time::sleep(std::time::Duration::from_secs(120)).await;
+        if let Some(removing_documents) = weak_removing_documents.upgrade() {
+          if removing_documents.remove(&clone_doc_id).is_some() {
+            trace!("drop document from removing_documents: {}", clone_doc_id);
+          }
+        }
+      });
     }
 
     Ok(())
@@ -222,9 +241,8 @@ impl DocumentManager {
     let uid = self.user_service.user_id()?;
     if let Some(db) = self.user_service.collab_db(uid)?.upgrade() {
       db.delete_doc(uid, doc_id).await?;
-
       // When deleting a document, we need to remove it from the cache.
-      self.documents.lock().pop(doc_id);
+      self.documents.remove(doc_id);
     }
     Ok(())
   }
@@ -400,6 +418,16 @@ impl DocumentManager {
   #[cfg(debug_assertions)]
   pub fn get_file_storage_service(&self) -> &Weak<dyn ObjectStorageService> {
     &self.storage_service
+  }
+
+  fn restore_document_from_removing(&self, doc_id: &str) -> Option<Arc<MutexDocument>> {
+    let (doc_id, doc) = self.removing_documents.remove(doc_id)?;
+    trace!(
+      "move document {} from removing_documents to documents",
+      doc_id
+    );
+    self.documents.insert(doc_id, doc.clone());
+    Some(doc)
   }
 }
 

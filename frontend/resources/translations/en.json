@@ -79,7 +79,9 @@
     "updateIconSuccess": "Updated workspace icon successfully",
     "updateIconFailed": "Updated workspace icon failed",
     "cannotDeleteTheOnlyWorkspace": "Cannot delete the only workspace",
-    "fetchWorkspacesFailed": "Failed to fetch workspaces"
+    "fetchWorkspacesFailed": "Failed to fetch workspaces",
+    "leaveCurrentWorkspace": "Leave workspace",
+    "leaveCurrentWorkspacePrompt": "Are you sure you want to leave the current workspace?"
   },
   "shareAction": {
     "buttonText": "Share",

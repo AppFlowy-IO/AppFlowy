@@ -190,4 +190,11 @@ class UserBackendService {
       ..role = role;
     return UserEventUpdateWorkspaceMember(data).send();
   }
+
+  Future<FlowyResult<void, FlowyError>> leaveWorkspace(
+    String workspaceId,
+  ) async {
+    final data = UserWorkspaceIdPB.create()..workspaceId = workspaceId;
+    return UserEventLeaveWorkspace(data).send();
+  }
 }

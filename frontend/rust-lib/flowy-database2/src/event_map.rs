@@ -14,7 +14,7 @@ pub fn init(database_manager: Weak<DatabaseManager>) -> AFPlugin {
     .state(database_manager);
   plugin
         .event(DatabaseEvent::GetDatabase, get_database_data_handler)
-        .event(DatabaseEvent::OpenDatabase, get_database_data_handler)
+        .event(DatabaseEvent::GetDatabaseData, get_database_data_handler)
         .event(DatabaseEvent::GetDatabaseId, get_database_id_handler)
         .event(DatabaseEvent::GetDatabaseSetting, get_database_setting_handler)
         .event(DatabaseEvent::UpdateDatabaseSetting, update_database_setting_handler)
@@ -128,7 +128,7 @@ pub enum DatabaseEvent {
   DeleteAllSorts = 6,
 
   #[event(input = "DatabaseViewIdPB")]
-  OpenDatabase = 7,
+  GetDatabaseData = 7,
 
   /// [GetFields] event is used to get the database's fields.
   ///

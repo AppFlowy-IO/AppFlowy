@@ -113,6 +113,7 @@ class SidebarWorkspace extends StatelessWidget {
         break;
       case UserWorkspaceActionType.none:
       case UserWorkspaceActionType.fetchWorkspaces:
+      case UserWorkspaceActionType.leave:
         message = null;
         break;
     }

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/shared/af_role_pb_extension.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_actions.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_icon.dart';
@@ -189,11 +188,7 @@ class WorkspaceMenuItem extends StatelessWidget {
                 Positioned(
                   right: 12.0,
                   child: Align(
-                    child: _buildRightIcon(
-                      context,
-                      state.isLoading,
-                      state.myRole.isOwner,
-                    ),
+                    child: _buildRightIcon(context, state.isLoading),
                   ),
                 ),
               ],
@@ -204,11 +199,7 @@ class WorkspaceMenuItem extends StatelessWidget {
     );
   }
 
-  Widget _buildRightIcon(
-    BuildContext context,
-    bool isLoading,
-    bool isOwner,
-  ) {
+  Widget _buildRightIcon(BuildContext context, bool isLoading) {
     // only the owner can update or delete workspace.
     // only show the more action button when the workspace is selected.
     if (!isSelected || isLoading) {
@@ -217,7 +208,7 @@ class WorkspaceMenuItem extends StatelessWidget {
 
     return Row(
       children: [
-        if (isOwner) WorkspaceMoreActionList(workspace: workspace),
+        WorkspaceMoreActionList(workspace: workspace),
         const FlowySvg(FlowySvgs.blue_check_s),
       ],
     );
