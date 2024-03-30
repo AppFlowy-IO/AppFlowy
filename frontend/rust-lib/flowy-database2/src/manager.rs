@@ -215,7 +215,7 @@ impl DatabaseManager {
   }
 
   pub async fn open_database(&self, database_id: &str) -> FlowyResult<Arc<DatabaseEditor>> {
-    trace!("create database editor:{}", database_id);
+    trace!("open database editor:{}", database_id);
     let database = self
       .get_workspace_database()
       .await?
