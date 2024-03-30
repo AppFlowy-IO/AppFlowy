@@ -65,13 +65,13 @@ void main() {
         context.makeCellControllerFromFieldId(multiSelectField.id)
             as SelectOptionCellController;
 
-    final multiSelectOptionBloc =
-        SelectOptionCellEditorBloc(cellController: cellController);
-    multiSelectOptionBloc.add(const SelectOptionEditorEvent.initial());
+    final bloc = SelectOptionCellEditorBloc(cellController: cellController);
     await boardResponseFuture();
-    multiSelectOptionBloc.add(const SelectOptionEditorEvent.newOption("A"));
+    bloc.add(const SelectOptionCellEditorEvent.filterOption("A"));
+    bloc.add(const SelectOptionCellEditorEvent.createOption());
     await boardResponseFuture();
-    multiSelectOptionBloc.add(const SelectOptionEditorEvent.newOption("B"));
+    bloc.add(const SelectOptionCellEditorEvent.filterOption("B"));
+    bloc.add(const SelectOptionCellEditorEvent.createOption());
     await boardResponseFuture();
 
     // set grouped by the new multi-select field"

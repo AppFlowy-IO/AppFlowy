@@ -21,10 +21,10 @@ void main() {
       );
 
       final bloc = SelectOptionCellEditorBloc(cellController: cellController);
-      bloc.add(const SelectOptionCellEditorEvent.initial());
       await gridResponseFuture();
 
-      bloc.add(const SelectOptionCellEditorEvent.newOption("A"));
+      bloc.add(const SelectOptionCellEditorEvent.filterOption("A"));
+      bloc.add(const SelectOptionCellEditorEvent.createOption());
       await gridResponseFuture();
 
       expect(bloc.state.options.length, 1);
@@ -40,10 +40,10 @@ void main() {
       );
 
       final bloc = SelectOptionCellEditorBloc(cellController: cellController);
-      bloc.add(const SelectOptionCellEditorEvent.initial());
       await gridResponseFuture();
 
-      bloc.add(const SelectOptionCellEditorEvent.newOption("A"));
+      bloc.add(const SelectOptionCellEditorEvent.filterOption("A"));
+      bloc.add(const SelectOptionCellEditorEvent.createOption());
       await gridResponseFuture();
 
       final SelectOptionPB optionUpdate = bloc.state.options[0]
@@ -65,24 +65,26 @@ void main() {
       );
 
       final bloc = SelectOptionCellEditorBloc(cellController: cellController);
-      bloc.add(const SelectOptionCellEditorEvent.initial());
       await gridResponseFuture();
 
-      bloc.add(const SelectOptionCellEditorEvent.newOption("A"));
+      bloc.add(const SelectOptionCellEditorEvent.filterOption("A"));
+      bloc.add(const SelectOptionCellEditorEvent.createOption());
       await gridResponseFuture();
       assert(
         bloc.state.options.length == 1,
         "Expect 1 but receive ${bloc.state.options.length}, Options: ${bloc.state.options}",
       );
 
-      bloc.add(const SelectOptionCellEditorEvent.newOption("B"));
+      bloc.add(const SelectOptionCellEditorEvent.filterOption("B"));
+      bloc.add(const SelectOptionCellEditorEvent.createOption());
       await gridResponseFuture();
       assert(
         bloc.state.options.length == 2,
         "Expect 2 but receive ${bloc.state.options.length}, Options: ${bloc.state.options}",
       );
 
-      bloc.add(const SelectOptionCellEditorEvent.newOption("C"));
+      bloc.add(const SelectOptionCellEditorEvent.filterOption("C"));
+      bloc.add(const SelectOptionCellEditorEvent.createOption());
       await gridResponseFuture();
       assert(
         bloc.state.options.length == 3,
@@ -107,10 +109,10 @@ void main() {
       );
 
       final bloc = SelectOptionCellEditorBloc(cellController: cellController);
-      bloc.add(const SelectOptionCellEditorEvent.initial());
       await gridResponseFuture();
 
-      bloc.add(const SelectOptionCellEditorEvent.newOption("A"));
+      bloc.add(const SelectOptionCellEditorEvent.filterOption("A"));
+      bloc.add(const SelectOptionCellEditorEvent.createOption());
       await gridResponseFuture();
 
       final optionId = bloc.state.options[0].id;
@@ -134,16 +136,18 @@ void main() {
       );
 
       final bloc = SelectOptionCellEditorBloc(cellController: cellController);
-      bloc.add(const SelectOptionCellEditorEvent.initial());
       await gridResponseFuture();
 
-      bloc.add(const SelectOptionCellEditorEvent.newOption("A"));
+      bloc.add(const SelectOptionCellEditorEvent.filterOption("A"));
+      bloc.add(const SelectOptionCellEditorEvent.createOption());
       await gridResponseFuture();
 
-      bloc.add(const SelectOptionCellEditorEvent.trySelectOption("B"));
+      bloc.add(const SelectOptionCellEditorEvent.filterOption("B"));
+      bloc.add(const SelectOptionCellEditorEvent.submitTextField());
       await gridResponseFuture();
 
-      bloc.add(const SelectOptionCellEditorEvent.trySelectOption("A"));
+      bloc.add(const SelectOptionCellEditorEvent.filterOption("A"));
+      bloc.add(const SelectOptionCellEditorEvent.submitTextField());
       await gridResponseFuture();
 
       assert(bloc.state.selectedOptions.length == 1);
@@ -160,13 +164,14 @@ void main() {
       );
 
       final bloc = SelectOptionCellEditorBloc(cellController: cellController);
-      bloc.add(const SelectOptionCellEditorEvent.initial());
       await gridResponseFuture();
 
-      bloc.add(const SelectOptionCellEditorEvent.newOption("A"));
+      bloc.add(const SelectOptionCellEditorEvent.filterOption("A"));
+      bloc.add(const SelectOptionCellEditorEvent.createOption());
       await gridResponseFuture();
 
-      bloc.add(const SelectOptionCellEditorEvent.newOption("B"));
+      bloc.add(const SelectOptionCellEditorEvent.filterOption("B"));
+      bloc.add(const SelectOptionCellEditorEvent.createOption());
       await gridResponseFuture();
 
       bloc.add(
@@ -191,10 +196,10 @@ void main() {
       );
 
       final bloc = SelectOptionCellEditorBloc(cellController: cellController);
-      bloc.add(const SelectOptionCellEditorEvent.initial());
       await gridResponseFuture();
 
-      bloc.add(const SelectOptionCellEditorEvent.newOption("abcd"));
+      bloc.add(const SelectOptionCellEditorEvent.filterOption("abcd"));
+      bloc.add(const SelectOptionCellEditorEvent.createOption());
       await gridResponseFuture();
       expect(
         bloc.state.options.length,
@@ -202,15 +207,16 @@ void main() {
         reason: "Options: ${bloc.state.options}",
       );
 
-      bloc.add(const SelectOptionCellEditorEvent.newOption("aaaa"));
-      await gridResponseFuture();
+      bloc.add(const SelectOptionCellEditorEvent.filterOption("aaaa"));
+      bloc.add(const SelectOptionCellEditorEvent.createOption());
       expect(
         bloc.state.options.length,
         2,
         reason: "Options: ${bloc.state.options}",
       );
 
-      bloc.add(const SelectOptionCellEditorEvent.newOption("defg"));
+      bloc.add(const SelectOptionCellEditorEvent.filterOption("defg"));
+      bloc.add(const SelectOptionCellEditorEvent.createOption());
       await gridResponseFuture();
       expect(
         bloc.state.options.length,
@@ -231,7 +237,7 @@ void main() {
         3,
         reason: "Options: ${bloc.state.options}",
       );
-      expect(bloc.state.createOption, "a");
+      expect(bloc.state.createSelectOptionSuggestion!.name, "a");
       expect(bloc.state.filter, "a");
     });
   });
