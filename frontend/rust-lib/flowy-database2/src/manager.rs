@@ -1,3 +1,4 @@
+use anyhow::anyhow;
 use std::collections::HashMap;
 use std::sync::{Arc, Weak};
 
@@ -107,8 +108,13 @@ impl DatabaseManager {
         )
         .await
       {
-        Ok(doc_state) => {
-          workspace_database_doc_state = DocStateSource::FromDocState(doc_state);
+        Ok(doc_state) => match doc_state {
+          Some(doc_state) => {
+            workspace_database_doc_state = DocStateSource::FromDocState(doc_state);
+          },
+          None => {
+            workspace_database_doc_state = DocStateSource::FromDisk;
+          },
         },
         Err(err) => {
           return Err(FlowyError::record_not_found().with_context(format!(
@@ -427,15 +433,15 @@ impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
     let weak_cloud_service = Arc::downgrade(&self.cloud_service);
     Box::pin(async move {
       match weak_cloud_service.upgrade() {
-        None => {
-          tracing::warn!("Cloud service is dropped");
-          Ok(DocStateSource::FromDisk)
-        },
+        None => Err(DatabaseError::Internal(anyhow!("Cloud service is dropped"))),
         Some(cloud_service) => {
           let doc_state = cloud_service
             .get_database_object_doc_state(&object_id, object_ty, &workspace_id)
             .await?;
-          Ok(DocStateSource::FromDocState(doc_state))
+          match doc_state {
+            None => Ok(DocStateSource::FromDisk),
+            Some(doc_state) => Ok(DocStateSource::FromDocState(doc_state)),
+          }
         },
       }
     })

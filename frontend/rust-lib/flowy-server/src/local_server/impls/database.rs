@@ -15,7 +15,7 @@ impl DatabaseCloudService for LocalServerDatabaseCloudServiceImpl {
     object_id: &str,
     collab_type: CollabType,
     _workspace_id: &str,
-  ) -> FutureResult<Vec<u8>, Error> {
+  ) -> FutureResult<Option<Vec<u8>>, Error> {
     let object_id = object_id.to_string();
     // create the minimal required data for the given collab type
     FutureResult::new(async move {
@@ -44,7 +44,7 @@ impl DatabaseCloudService for LocalServerDatabaseCloudServiceImpl {
         _ => vec![],
       };
 
-      Ok(data)
+      Ok(Some(data))
     })
   }
 

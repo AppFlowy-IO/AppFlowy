@@ -21,7 +21,7 @@ use collab_plugins::local_storage::CollabPersistenceConfig;
 
 use lib_infra::{if_native, if_wasm};
 use parking_lot::{Mutex, RwLock};
-use tracing::trace;
+use tracing::{error, trace};
 
 #[derive(Clone, Debug)]
 pub enum CollabPluginProviderType {
@@ -216,7 +216,13 @@ impl AppFlowyCollabBuilder {
 
     // If the object is from doc state, we need to validate the object type
     if is_from_doc_state {
-      object_type.validate(&collab.lock())?;
+      if let Err(err) = object_type.validate(&collab.lock()) {
+        error!(
+          "{:?} validation failed: {}, object_id: {}",
+          object_type, err, object_id
+        );
+        return Err(err);
+      }
     }
 
     #[cfg(target_arch = "wasm32")]

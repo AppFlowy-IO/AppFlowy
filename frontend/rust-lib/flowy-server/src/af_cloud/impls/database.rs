@@ -23,7 +23,7 @@ where
     object_id: &str,
     collab_type: CollabType,
     workspace_id: &str,
-  ) -> FutureResult<Vec<u8>, Error> {
+  ) -> FutureResult<Option<Vec<u8>>, Error> {
     let workspace_id = workspace_id.to_string();
     let object_id = object_id.to_string();
     let try_get_client = self.0.try_get_client();
@@ -36,10 +36,10 @@ where
         },
       };
       match try_get_client?.get_collab(params).await {
-        Ok(data) => Ok(data.doc_state.to_vec()),
+        Ok(data) => Ok(Some(data.doc_state.to_vec())),
         Err(err) => {
           if err.code == RecordNotFound {
-            Ok(vec![])
+            Ok(None)
           } else {
             Err(Error::new(err))
           }

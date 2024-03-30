@@ -193,16 +193,18 @@ impl DocumentManager {
   }
 
   pub async fn get_document_data(&self, doc_id: &str) -> FlowyResult<DocumentData> {
-    let mut doc_state = vec![];
+    let mut doc_state = DocStateSource::FromDisk;
     if !self.is_doc_exist(doc_id).await? {
-      doc_state = self
-        .cloud_service
-        .get_document_doc_state(doc_id, &self.user_service.workspace_id()?)
-        .await?;
+      doc_state = DocStateSource::FromDocState(
+        self
+          .cloud_service
+          .get_document_doc_state(doc_id, &self.user_service.workspace_id()?)
+          .await?,
+      );
     }
     let uid = self.user_service.user_id()?;
     let collab = self
-      .collab_for_document(uid, doc_id, DocStateSource::FromDocState(doc_state), false)
+      .collab_for_document(uid, doc_id, doc_state, false)
       .await?;
     Document::open(collab)?
       .get_document_data()

@@ -225,7 +225,7 @@ impl DatabaseCloudService for ServerProvider {
     object_id: &str,
     collab_type: CollabType,
     workspace_id: &str,
-  ) -> FutureResult<Vec<u8>, Error> {
+  ) -> FutureResult<Option<Vec<u8>>, Error> {
     let workspace_id = workspace_id.to_string();
     let server = self.get_server();
     let database_id = object_id.to_string();
