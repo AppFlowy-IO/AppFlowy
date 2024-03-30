@@ -205,7 +205,7 @@ impl FolderManager {
       workspace_id,
       CollabType::Folder,
       collab_db,
-      DocStateSource::FromDocState(vec![]),
+      DocStateSource::FromDisk,
       CollabPersistenceConfig::new()
         .enable_snapshot(true)
         .snapshot_per_update(50),

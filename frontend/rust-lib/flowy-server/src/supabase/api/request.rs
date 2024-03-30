@@ -284,7 +284,7 @@ pub async fn batch_get_updates_from_server(
         match parser_updates_form_json(record.clone(), &postgrest.secret()) {
           Ok(items) => {
             if items.is_empty() {
-              updates_by_oid.insert(oid.to_string(), DocStateSource::FromDocState(vec![]));
+              updates_by_oid.insert(oid.to_string(), DocStateSource::FromDisk);
             } else {
               let updates = items
                 .iter()

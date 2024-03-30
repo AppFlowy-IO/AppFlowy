@@ -3,9 +3,8 @@ use std::sync::{Arc, Weak};
 
 use collab::core::collab::{DocStateSource, MutexCollab};
 use collab_database::blocks::BlockEvent;
-use collab_database::database::{Database, DatabaseData, MutexDatabase};
+use collab_database::database::{DatabaseData, MutexDatabase};
 use collab_database::error::DatabaseError;
-use collab_database::rows::DatabaseRow;
 use collab_database::views::{CreateDatabaseParams, CreateViewParams, DatabaseLayout};
 use collab_database::workspace_database::{
   CollabDocStateByOid, CollabFuture, DatabaseCollabService, DatabaseMeta, WorkspaceDatabase,
@@ -430,7 +429,7 @@ impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
       match weak_cloud_service.upgrade() {
         None => {
           tracing::warn!("Cloud service is dropped");
-          Ok(DocStateSource::FromDocState(vec![]))
+          Ok(DocStateSource::FromDisk)
         },
         Some(cloud_service) => {
           let doc_state = cloud_service
@@ -474,39 +473,15 @@ impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
     collab_raw_data: DocStateSource,
     persistence_config: CollabPersistenceConfig,
   ) -> Result<Arc<MutexCollab>, DatabaseError> {
-    let is_from_doc_state = matches!(collab_raw_data, DocStateSource::FromDocState(_));
-    let collab = self
-      .collab_builder
-      .build_with_config(
-        uid,
-        object_id,
-        object_type.clone(),
-        collab_db.clone(),
-        collab_raw_data,
-        persistence_config,
-        CollabBuilderConfig::default().sync_enable(true),
-      )
-      .unwrap();
-
-    if is_from_doc_state {
-      if let Err(err) = match object_type {
-        CollabType::Database => Database::validate(&collab.lock()),
-        CollabType::WorkspaceDatabase => WorkspaceDatabase::validate(&collab.lock()),
-        CollabType::DatabaseRow => DatabaseRow::validate(&collab.lock()),
-        _ => {
-          debug_assert!(false, "Unsupported object type: {:?}", object_type);
-          Ok(())
-        },
-      } {
-        if let Some(collab_db) = collab_db.upgrade() {
-          let _ = collab_db.with_write_txn(|txn| {
-            txn.delete_doc(uid, object_id)?;
-            Ok(())
-          });
-        }
-        return Err(err);
-      }
-    }
+    let collab = self.collab_builder.build_with_config(
+      uid,
+      object_id,
+      object_type.clone(),
+      collab_db.clone(),
+      collab_raw_data,
+      persistence_config,
+      CollabBuilderConfig::default().sync_enable(true),
+    )?;
     Ok(collab)
   }
 }

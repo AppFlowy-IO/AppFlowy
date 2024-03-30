@@ -208,33 +208,43 @@ impl AppFlowyCollabBuilder {
     #[allow(unused_variables)] persistence_config: CollabPersistenceConfig,
     build_config: CollabBuilderConfig,
   ) -> Result<Arc<MutexCollab>, Error> {
-    let mut builder = CollabBuilder::new(uid, object_id)
+    let is_from_doc_state = matches!(collab_doc_state, DocStateSource::FromDocState(_));
+    let collab = CollabBuilder::new(uid, object_id)
       .with_doc_state(collab_doc_state)
-      .with_device_id(self.device_id.clone());
+      .with_device_id(self.device_id.clone())
+      .build()?;
+
+    // If the object is from doc state, we need to validate the object type
+    if is_from_doc_state {
+      object_type.validate(&collab.lock())?;
+    }
 
     #[cfg(target_arch = "wasm32")]
     {
-      builder = builder.with_plugin(IndexeddbDiskPlugin::new(
+      collab.lock().add_plugin(Box::new(IndexeddbDiskPlugin::new(
         uid,
         object_id.to_string(),
         object_type.clone(),
         collab_db.clone(),
-      ));
+      )));
     }
 
     #[cfg(not(target_arch = "wasm32"))]
     {
-      builder = builder.with_plugin(RocksdbDiskPlugin::new_with_config(
-        uid,
-        object_id.to_string(),
-        object_type.clone(),
-        collab_db.clone(),
-        persistence_config.clone(),
-        None,
-      ));
+      collab
+        .lock()
+        .add_plugin(Box::new(RocksdbDiskPlugin::new_with_config(
+          uid,
+          object_id.to_string(),
+          object_type.clone(),
+          collab_db.clone(),
+          persistence_config.clone(),
+          None,
+        )));
     }
 
-    let collab = Arc::new(builder.build()?);
+    let arc_collab = Arc::new(collab);
+
     {
       let collab_object = self.collab_object(uid, object_id, object_type)?;
       if build_config.sync_enable {
@@ -244,7 +254,7 @@ impl AppFlowyCollabBuilder {
         match provider_type {
           CollabPluginProviderType::AppFlowyCloud => {
             trace!("init appflowy cloud collab plugins");
-            let local_collab = Arc::downgrade(&collab);
+            let local_collab = Arc::downgrade(&arc_collab);
             let plugins =
               self
                 .plugin_provider
@@ -257,14 +267,14 @@ impl AppFlowyCollabBuilder {
 
             trace!("add appflowy cloud collab plugins: {}", plugins.len());
             for plugin in plugins {
-              collab.lock().add_plugin(plugin);
+              arc_collab.lock().add_plugin(plugin);
             }
           },
           CollabPluginProviderType::Supabase => {
             #[cfg(not(target_arch = "wasm32"))]
             {
               trace!("init supabase collab plugins");
-              let local_collab = Arc::downgrade(&collab);
+              let local_collab = Arc::downgrade(&arc_collab);
               let local_collab_db = collab_db.clone();
               let plugins =
                 self
@@ -277,7 +287,7 @@ impl AppFlowyCollabBuilder {
                     local_collab_db,
                   });
               for plugin in plugins {
-                collab.lock().add_plugin(plugin);
+                arc_collab.lock().add_plugin(plugin);
               }
             }
           },
@@ -287,12 +297,12 @@ impl AppFlowyCollabBuilder {
     }
 
     #[cfg(target_arch = "wasm32")]
-    futures::executor::block_on(collab.lock().initialize());
+    futures::executor::block_on(arc_collab.lock().initialize());
 
     #[cfg(not(target_arch = "wasm32"))]
-    collab.lock().initialize();
+    arc_collab.lock().initialize();
 
     trace!("collab initialized: {}", object_id);
-    Ok(collab)
+    Ok(arc_collab)
   }
 }
