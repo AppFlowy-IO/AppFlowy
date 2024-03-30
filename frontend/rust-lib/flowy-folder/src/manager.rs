@@ -1120,6 +1120,19 @@ impl FolderManager {
     &self.cloud_service
   }
 
+  pub fn set_views_visibility(&self, view_ids: Vec<String>, is_public: bool) {
+    self.with_folder(
+      || (),
+      |folder| {
+        if is_public {
+          folder.delete_private_view_ids(view_ids);
+        } else {
+          folder.add_private_view_ids(view_ids);
+        }
+      },
+    );
+  }
+
   fn get_sections(&self, section_type: Section) -> Vec<SectionItem> {
     self.with_folder(Vec::new, |folder| {
       let trash_ids = folder

@@ -207,6 +207,13 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
               ),
             );
           },
+          updateViewVisibility: (value) async {
+            final view = value.view;
+            await ViewBackendService.updateViewsVisibility(
+              [view],
+              value.isPublic,
+            );
+          },
         );
       },
     );
@@ -370,6 +377,8 @@ class ViewEvent with _$ViewEvent {
   ) = ViewDidUpdate;
   const factory ViewEvent.viewUpdateChildView(ViewPB result) =
       ViewUpdateChildView;
+  const factory ViewEvent.updateViewVisibility(ViewPB view, bool isPublic) =
+      UpdateViewVisibility;
 }
 
 @freezed
