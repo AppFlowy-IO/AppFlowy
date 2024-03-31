@@ -4,7 +4,7 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/import/import_type.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:archive/archive_io.dart';
 import 'package:collection/collection.dart';
 import 'package:flowy_infra/uuid.dart';
@@ -54,7 +54,8 @@ class NotionImporter {
   Future<void> _importFromMarkdownZip(String path) async {
     final zip = File(path);
     final bytes = await zip.readAsBytes();
-    final unzipFiles = ZipDecoder().decodeBytes(bytes);
+    final files = ZipDecoder().decodeBytes(bytes);
+    final List<ArchiveFile> unzipFiles = files.files.toList();
     final List<Level> levels = []; //list of all the levels of pages
     final Map<String, String> nameToId =
         {}; // this map store page name and viewID
@@ -66,7 +67,7 @@ class NotionImporter {
           element.name.endsWith('.md') &&
           !element.name.contains("/")) {
         mainpage = element;
-        unzipFiles.files.remove(element);
+        unzipFiles.remove(element);
         break;
       }
     }
@@ -86,7 +87,7 @@ class NotionImporter {
       }
     }
     for (final element in mainpageAssets) {
-      unzipFiles.files.remove(element);
+      unzipFiles.remove(element);
     }
 
     // now we store each level of pages inside levels list
@@ -138,13 +139,13 @@ class NotionImporter {
       levels.add(Level(assetsAtThelevel: images, pagesAtTheLevel: files));
       // removing all the files that are already added in the levels list
       for (final element in files) {
-        unzipFiles.files.remove(element.page);
+        unzipFiles.remove(element.page);
       }
       for (final element in folders) {
-        unzipFiles.files.remove(element);
+        unzipFiles.remove(element);
       }
       for (final element in images) {
-        unzipFiles.files.remove(element);
+        unzipFiles.remove(element);
       }
     }
     final int noOfLevels = levels.length;
@@ -223,8 +224,8 @@ class NotionImporter {
       parentViewId: parentViewId,
       initialDataBytes: data,
     );
-    if (result.isLeft()) {
-      return result.getLeftOrNull()!.id;
+    if (result.isSuccess) {
+      return result.fold((s) => s, (f) => null)!.id;
     }
     return null;
   }
@@ -244,9 +245,6 @@ class NotionImporter {
     Iterable<ArchiveFile> images,
     Map<String, String> nameToID,
   ) async {
-    if (images.isEmpty) {
-      return markdown;
-    }
 
     final lines = markdown.split('\n');
     final result = <String>[];
