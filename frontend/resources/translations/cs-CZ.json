@@ -455,6 +455,14 @@
       "isComplete": "je hotový",
       "isIncomplted": "není hotový"
     },
+    "selectOptionFilter": {
+      "is": "Je",
+      "isNot": "Není",
+      "contains": "Obsahuje",
+      "doesNotContain": "Neobsahuje",
+      "isEmpty": "Je prázdné",
+      "isNotEmpty": "Není prázdný"
+    },
     "field": {
       "hide": "Schovat",
       "show": "Ukázat",
@@ -564,19 +572,7 @@
       "showComplete": "Zobrazit všechny úkoly"
     },
     "menuName": "Mřížka",
-    "referencedGridPrefix": "Pohled na",
-    "singleSelectOptionFilter": {
-      "is": "Je",
-      "isNot": "Není",
-      "isEmpty": "Je prázdné",
-      "isNotEmpty": "Není prázdné"
-    },
-    "multiSelectOptionFilter": {
-      "contains": "Obsahuje",
-      "doesNotContain": "Neobsahuje",
-      "isEmpty": "Je prázdné",
-      "isNotEmpty": "Není prázdný"
-    }
+    "referencedGridPrefix": "Pohled na"
   },
   "document": {
     "menuName": "Dokument",
