@@ -89,7 +89,7 @@ class _SelectOptionFilterCellState extends State<SelectOptionFilterCell> {
           if (widget.isSelected) {
             context
                 .read<SelectOptionFilterListBloc>()
-                .add(SelectOptionFilterListEvent.unselectOption(widget.option));
+                .add(SelectOptionFilterListEvent.unSelectOption(widget.option));
           } else {
             context.read<SelectOptionFilterListBloc>().add(
                   SelectOptionFilterListEvent.selectOption(
