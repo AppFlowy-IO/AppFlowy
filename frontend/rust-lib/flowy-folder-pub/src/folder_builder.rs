@@ -60,6 +60,7 @@ impl ViewBuilder {
       layout: ViewLayout::Document,
       child_views: vec![],
       is_favorite: false,
+
       icon: None,
     }
   }

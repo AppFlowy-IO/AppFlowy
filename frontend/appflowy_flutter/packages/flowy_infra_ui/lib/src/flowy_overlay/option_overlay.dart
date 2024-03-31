@@ -10,11 +10,11 @@ class OptionItem {
 
 class OptionOverlay<T> extends StatelessWidget {
   const OptionOverlay({
-    Key? key,
+    super.key,
     required this.items,
     this.onHover,
     this.onTap,
-  }) : super(key: key);
+  });
 
   final List<T> items;
   final IndexedValueCallback<T>? onHover;
@@ -69,8 +69,8 @@ class OptionOverlay<T> extends StatelessWidget {
 class _OptionListItem<T> extends StatelessWidget {
   const _OptionListItem(
     this.value, {
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   final T value;
 

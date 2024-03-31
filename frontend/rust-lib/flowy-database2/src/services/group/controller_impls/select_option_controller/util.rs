@@ -9,7 +9,7 @@ use crate::services::cell::{
   insert_checkbox_cell, insert_date_cell, insert_select_option_cell, insert_url_cell,
 };
 use crate::services::field::{SelectOption, SelectOptionIds, CHECK};
-use crate::services::group::{GeneratedGroupConfig, Group, GroupData, MoveGroupRowContext};
+use crate::services::group::{Group, GroupData, MoveGroupRowContext};
 
 pub fn add_or_remove_select_option_row(
   group: &mut GroupData,
@@ -176,7 +176,7 @@ pub fn make_inserted_cell(group_id: &str, field: &Field) -> Option<Cell> {
       let date =
         NaiveDateTime::parse_from_str(&format!("{} 00:00:00", group_id), "%Y/%m/%d %H:%M:%S")
           .unwrap();
-      let cell = insert_date_cell(date.timestamp(), None, field);
+      let cell = insert_date_cell(date.timestamp(), None, Some(false), field);
       Some(cell)
     },
     _ => {
@@ -186,16 +186,10 @@ pub fn make_inserted_cell(group_id: &str, field: &Field) -> Option<Cell> {
   }
 }
 
-pub fn generate_select_option_groups(
-  _field_id: &str,
-  options: &[SelectOption],
-) -> Vec<GeneratedGroupConfig> {
+pub fn generate_select_option_groups(_field_id: &str, options: &[SelectOption]) -> Vec<Group> {
   let groups = options
     .iter()
-    .map(|option| GeneratedGroupConfig {
-      group: Group::new(option.id.clone(), option.name.clone()),
-      filter_content: option.id.clone(),
-    })
+    .map(|option| Group::new(option.id.clone()))
     .collect();
 
   groups

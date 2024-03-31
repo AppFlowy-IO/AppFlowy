@@ -54,6 +54,7 @@ impl DefaultFolderBuilder {
       favorites: Default::default(),
       recent: Default::default(),
       trash: Default::default(),
+      private: Default::default(),
     }
   }
 }

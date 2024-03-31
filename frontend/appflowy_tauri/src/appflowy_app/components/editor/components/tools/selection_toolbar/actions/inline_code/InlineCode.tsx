@@ -5,13 +5,13 @@ import { useSlateStatic } from 'slate-react';
 import { CustomEditor } from '$app/components/editor/command';
 import { ReactComponent as CodeSvg } from '$app/assets/inline-code.svg';
 import { EditorMarkFormat } from '$app/application/document/document.types';
-import { getHotKey } from '$app/components/editor/plugins/shortcuts';
+import { createHotKeyLabel, HOT_KEY_NAME } from '$app/utils/hotkeys';
 
 export function InlineCode() {
   const { t } = useTranslation();
   const editor = useSlateStatic();
   const isActivated = CustomEditor.isMarkActive(editor, EditorMarkFormat.Code);
-  const modifier = useMemo(() => getHotKey(EditorMarkFormat.Code).modifier, []);
+  const modifier = useMemo(() => createHotKeyLabel(HOT_KEY_NAME.CODE), []);
 
   const onClick = useCallback(() => {
     CustomEditor.toggleMark(editor, {

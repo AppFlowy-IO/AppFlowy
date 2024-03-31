@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import Tooltip from '@mui/material/Tooltip';
 import { ReactComponent as AlignLeftSvg } from '$app/assets/align-left.svg';
 import { ReactComponent as AlignCenterSvg } from '$app/assets/align-center.svg';
@@ -14,7 +14,7 @@ export function Align() {
   const { t } = useTranslation();
   const editor = useSlateStatic();
   const align = CustomEditor.getAlign(editor);
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
 
   const handleClose = useCallback(() => {
     setOpen(false);

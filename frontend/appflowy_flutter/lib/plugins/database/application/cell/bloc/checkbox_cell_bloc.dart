@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -86,7 +87,6 @@ class CheckboxCellState with _$CheckboxCellState {
   }
 }
 
-bool _isSelected(String? cellData) {
-  // The backend use "Yes" and "No" to represent the checkbox cell data.
-  return cellData == "Yes";
+bool _isSelected(CheckboxCellDataPB? cellData) {
+  return cellData != null && cellData.isChecked;
 }

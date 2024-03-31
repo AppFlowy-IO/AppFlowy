@@ -69,6 +69,7 @@ void showSnackBarMessage(
       content: FlowyText(
         message,
         color: Colors.white,
+        maxLines: 2,
       ),
     ),
   );

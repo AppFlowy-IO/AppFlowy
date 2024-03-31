@@ -14,9 +14,9 @@ use lib_dispatch::prelude::af_spawn;
 
 use crate::entities::{
   view_pb_with_child_views, view_pb_without_child_views, ChildViewUpdatePB, FolderSnapshotStatePB,
-  FolderSyncStatePB, RepeatedTrashPB, RepeatedViewPB, ViewPB,
+  FolderSyncStatePB, RepeatedTrashPB, RepeatedViewPB, SectionViewsPB, ViewPB, ViewSectionPB,
 };
-use crate::manager::{get_workspace_view_pbs, MutexFolder};
+use crate::manager::{get_workspace_private_view_pbs, get_workspace_public_view_pbs, MutexFolder};
 use crate::notification::{send_notification, FolderNotification};
 
 /// Listen on the [ViewChange] after create/delete/update events happened
@@ -32,7 +32,7 @@ pub(crate) fn subscribe_folder_view_changed(
         match value {
           ViewChange::DidCreateView { view } => {
             notify_child_views_changed(
-              view_pb_without_child_views(Arc::new(view.clone())),
+              view_pb_without_child_views(view.clone()),
               ChildViewChangeReason::Create,
             );
             notify_parent_view_did_change(folder.clone(), vec![view.parent_view_id]);
@@ -40,7 +40,7 @@ pub(crate) fn subscribe_folder_view_changed(
           ViewChange::DidDeleteView { views } => {
             for view in views {
               notify_child_views_changed(
-                view_pb_without_child_views(view),
+                view_pb_without_child_views(view.as_ref().clone()),
                 ChildViewChangeReason::Delete,
               );
             }
@@ -48,7 +48,7 @@ pub(crate) fn subscribe_folder_view_changed(
           ViewChange::DidUpdate { view } => {
             notify_view_did_change(view.clone());
             notify_child_views_changed(
-              view_pb_without_child_views(Arc::new(view.clone())),
+              view_pb_without_child_views(view.clone()),
               ChildViewChangeReason::Update,
             );
             notify_parent_view_did_change(folder.clone(), vec![view.parent_view_id.clone()]);
@@ -125,7 +125,7 @@ pub(crate) fn subscribe_folder_trash_changed(
                 unique_ids.insert(view.parent_view_id.clone());
               }
 
-              let repeated_trash: RepeatedTrashPB = folder.get_all_trash().into();
+              let repeated_trash: RepeatedTrashPB = folder.get_my_trash_info().into();
               send_notification("trash", FolderNotification::DidUpdateTrash)
                 .payload(repeated_trash)
                 .send();
@@ -140,7 +140,7 @@ pub(crate) fn subscribe_folder_trash_changed(
   });
 }
 
-/// Notify the the list of parent view ids that its child views were changed.
+/// Notify the list of parent view ids that its child views were changed.
 #[tracing::instrument(level = "debug", skip(folder, parent_view_ids))]
 pub(crate) fn notify_parent_view_did_change<T: AsRef<str>>(
   folder: Arc<MutexFolder>,
@@ -150,7 +150,7 @@ pub(crate) fn notify_parent_view_did_change<T: AsRef<str>>(
   let folder = folder.as_ref()?;
   let workspace_id = folder.get_workspace_id();
   let trash_ids = folder
-    .get_all_trash()
+    .get_all_trash_sections()
     .into_iter()
     .map(|trash| trash.id)
     .collect::<Vec<String>>();
@@ -159,9 +159,10 @@ pub(crate) fn notify_parent_view_did_change<T: AsRef<str>>(
     let parent_view_id = parent_view_id.as_ref();
 
     // if the view's parent id equal to workspace id. Then it will fetch the current
-    // workspace views. Because the the workspace is not a view stored in the views map.
+    // workspace views. Because the workspace is not a view stored in the views map.
     if parent_view_id == workspace_id {
-      notify_did_update_workspace(&workspace_id, folder)
+      notify_did_update_workspace(&workspace_id, folder);
+      notify_did_update_section_views(&workspace_id, folder);
     } else {
       // Parent view can contain a list of child views. Currently, only get the first level
       // child views.
@@ -181,17 +182,44 @@ pub(crate) fn notify_parent_view_did_change<T: AsRef<str>>(
   None
 }
 
+pub(crate) fn notify_did_update_section_views(workspace_id: &str, folder: &Folder) {
+  let public_views = get_workspace_public_view_pbs(workspace_id, folder);
+  let private_views = get_workspace_private_view_pbs(workspace_id, folder);
+  tracing::trace!(
+    "Did update section views: public len = {}, private len = {}",
+    public_views.len(),
+    private_views.len()
+  );
+
+  // TODO(Lucas.xu) - Only notify the section changed, not the public/private both.
+  // Notify the public views
+  send_notification(workspace_id, FolderNotification::DidUpdateSectionViews)
+    .payload(SectionViewsPB {
+      section: ViewSectionPB::Public,
+      views: public_views,
+    })
+    .send();
+
+  // Notify the private views
+  send_notification(workspace_id, FolderNotification::DidUpdateSectionViews)
+    .payload(SectionViewsPB {
+      section: ViewSectionPB::Private,
+      views: private_views,
+    })
+    .send();
+}
+
 pub(crate) fn notify_did_update_workspace(workspace_id: &str, folder: &Folder) {
-  let repeated_view: RepeatedViewPB = get_workspace_view_pbs(workspace_id, folder).into();
-  tracing::trace!("Did update workspace views: {:?}", repeated_view);
+  let repeated_view: RepeatedViewPB = get_workspace_public_view_pbs(workspace_id, folder).into();
   send_notification(workspace_id, FolderNotification::DidUpdateWorkspaceViews)
     .payload(repeated_view)
     .send();
 }
 
 fn notify_view_did_change(view: View) -> Option<()> {
-  let view_pb = view_pb_without_child_views(Arc::new(view.clone()));
-  send_notification(&view.id, FolderNotification::DidUpdateView)
+  let view_id = view.id.clone();
+  let view_pb = view_pb_without_child_views(view);
+  send_notification(&view_id, FolderNotification::DidUpdateView)
     .payload(view_pb)
     .send();
   None
@@ -203,7 +231,7 @@ pub enum ChildViewChangeReason {
   Update,
 }
 
-/// Notify the the list of parent view ids that its child views were changed.
+/// Notify the list of parent view ids that its child views were changed.
 #[tracing::instrument(level = "debug", skip_all)]
 pub(crate) fn notify_child_views_changed(view_pb: ViewPB, reason: ChildViewChangeReason) {
   let parent_view_id = view_pb.parent_view_id.clone();

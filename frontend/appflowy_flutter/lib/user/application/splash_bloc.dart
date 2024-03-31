@@ -13,8 +13,8 @@ class SplashBloc extends Bloc<SplashEvent, SplashState> {
         getUser: (val) async {
           final response = await getIt<AuthService>().getUser();
           final authState = response.fold(
-            (error) => AuthState.unauthenticated(error),
             (user) => AuthState.authenticated(user),
+            (error) => AuthState.unauthenticated(error),
           );
           emit(state.copyWith(auth: authState));
         },

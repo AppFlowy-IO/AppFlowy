@@ -159,7 +159,9 @@
     "editContact": "연락처 편집"
   },
   "button": {
+    "ok": "확인",
     "done": "완료",
+    "cancel": "취소",
     "signIn": "로그인",
     "signOut": "로그아웃",
     "complete": "완료",
@@ -175,10 +177,7 @@
     "edit": "편집하다",
     "delete": "삭제",
     "duplicate": "복제하다",
-    "putback": "다시 집어 넣어",
-    "Done": "완료",
-    "Cancel": "취소",
-    "OK": "확인"
+    "putback": "다시 집어 넣어"
   },
   "label": {
     "welcome": "환영합니다!",
@@ -325,13 +324,9 @@
       "isComplete": "완료되었습니다",
       "isIncomplted": "불완전하다"
     },
-    "singleSelectOptionFilter": {
+    "selectOptionFilter": {
       "is": "~이다",
       "isNot": "아니다",
-      "isEmpty": "비었다",
-      "isNotEmpty": "비어 있지 않음"
-    },
-    "multiSelectOptionFilter": {
       "contains": "포함",
       "doesNotContain": "포함되어 있지 않다",
       "isEmpty": "비었다",

@@ -454,13 +454,9 @@
       "isComplete": "Tamamlanmış",
       "isIncomplted": "Tamamlanmamış"
     },
-    "singleSelectOptionFilter": {
+    "selectOptionFilter": {
       "is": "Şu olan",
       "isNot": "Şu olmayan",
-      "isEmpty": "Boş olan",
-      "isNotEmpty": "Boş olmayan"
-    },
-    "multiSelectOptionFilter": {
       "contains": "Şunu içeren",
       "doesNotContain": "Şunu içermeyen",
       "isEmpty": "Boş olan",

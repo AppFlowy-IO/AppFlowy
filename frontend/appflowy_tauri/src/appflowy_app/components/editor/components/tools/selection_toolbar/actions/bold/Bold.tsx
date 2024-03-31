@@ -5,13 +5,14 @@ import { useSlateStatic } from 'slate-react';
 import { CustomEditor } from '$app/components/editor/command';
 import { ReactComponent as BoldSvg } from '$app/assets/bold.svg';
 import { EditorMarkFormat } from '$app/application/document/document.types';
-import { getHotKey } from '$app/components/editor/plugins/shortcuts';
+import { createHotKeyLabel, HOT_KEY_NAME } from '$app/utils/hotkeys';
 
 export function Bold() {
   const { t } = useTranslation();
   const editor = useSlateStatic();
   const isActivated = CustomEditor.isMarkActive(editor, EditorMarkFormat.Bold);
-  const modifier = useMemo(() => getHotKey(EditorMarkFormat.Bold).modifier, []);
+
+  const modifier = useMemo(() => createHotKeyLabel(HOT_KEY_NAME.BOLD), []);
   const onClick = useCallback(() => {
     CustomEditor.toggleMark(editor, {
       key: EditorMarkFormat.Bold,

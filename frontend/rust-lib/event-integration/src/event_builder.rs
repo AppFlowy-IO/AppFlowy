@@ -63,19 +63,11 @@ impl EventBuilder {
     match response.clone().parse::<R, FlowyError>() {
       Ok(Ok(data)) => data,
       Ok(Err(e)) => {
-        panic!(
-          "Parser {:?} failed: {:?}, response {:?}",
-          std::any::type_name::<R>(),
-          e,
-          response
-        )
+        panic!("Parser {:?} failed: {:?}", std::any::type_name::<R>(), e)
       },
-      Err(e) => panic!(
-        "Dispatch {:?} failed: {:?}, response {:?}",
-        std::any::type_name::<R>(),
-        e,
-        response
-      ),
+      Err(e) => {
+        panic!("Parser {:?} failed: {:?}", std::any::type_name::<R>(), e)
+      },
     }
   }
 

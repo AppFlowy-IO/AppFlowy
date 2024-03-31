@@ -1,6 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
 import 'package:appflowy/plugins/document/application/doc_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_configuration.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/align_toolbar_item/custom_text_align_command.dart';
@@ -17,11 +14,14 @@ import 'package:appflowy/plugins/inline_actions/inline_actions_command.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_service.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_service.dart';
+import 'package:appflowy/workspace/application/view_info/view_info_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/emoji_picker/emoji_picker.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 final List<CommandShortcutEvent> commandShortcutEvents = [
@@ -32,6 +32,7 @@ final List<CommandShortcutEvent> commandShortcutEvents = [
   customCutCommand,
   ...customTextAlignCommands,
   ...standardCommandShortcutEvents,
+  emojiShortcutEvent,
 ];
 
 final List<CommandShortcutEvent> defaultCommandShortcutEvents = [
@@ -79,9 +80,9 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
       InlinePageReferenceService(
         currentViewId: documentBloc.view.id,
         limitResults: 5,
-      ).inlinePageReferenceDelegate,
-      DateReferenceService(context).dateReferenceDelegate,
-      ReminderReferenceService(context).reminderReferenceDelegate,
+      ),
+      DateReferenceService(context),
+      ReminderReferenceService(context),
     ],
   );
 
@@ -93,6 +94,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     customCutCommand,
     ...customTextAlignCommands,
     ...standardCommandShortcutEvents,
+    emojiShortcutEvent,
     ..._buildFindAndReplaceCommands(),
   ];
 
@@ -175,6 +177,8 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
 
   late final EditorScrollController editorScrollController;
 
+  late final ViewInfoBloc viewInfoBloc = context.read<ViewInfoBloc>();
+
   Future<bool> showSlashMenu(editorState) async => customSlashCommand(
         slashMenuItems,
         shouldInsertSlash: false,
@@ -185,8 +189,15 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   void initState() {
     super.initState();
 
+    viewInfoBloc.add(
+      ViewInfoEvent.registerEditorState(
+        editorState: widget.editorState,
+      ),
+    );
+
     _initEditorL10n();
     _initializeShortcuts();
+    appFlowyEditorAutoScrollEdgeOffset = 220;
     indentableBlockTypes.add(ToggleListBlockKeys.type);
     convertibleBlockTypes.add(ToggleListBlockKeys.type);
     slashMenuItems = _customSlashMenuItems();
@@ -223,6 +234,10 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
 
   @override
   void dispose() {
+    if (!viewInfoBloc.isClosed) {
+      viewInfoBloc.add(const ViewInfoEvent.unregisterEditorState());
+    }
+
     SystemChannels.textInput.invokeMethod('TextInput.hide');
 
     if (widget.scrollController == null) {
@@ -244,7 +259,9 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
             LayoutDirection.rtlLayout;
     final textDirection = isRTL ? TextDirection.rtl : TextDirection.ltr;
 
-    _setRTLToolbarItems(isRTL);
+    _setRTLToolbarItems(
+      context.read<AppearanceSettingsCubit>().state.enableRtlToolbarItems,
+    );
 
     final editor = Directionality(
       textDirection: textDirection,
@@ -280,19 +297,12 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
 
     if (PlatformExtension.isMobile) {
       return AppFlowyMobileToolbar(
-        toolbarHeight: 46.0,
+        toolbarHeight: 42.0,
         editorState: editorState,
-        toolbarItems: [
-          undoToolbarItem,
-          redoToolbarItem,
-          addBlockToolbarItem,
-          todoListToolbarItem,
-          aaToolbarItem,
-          boldToolbarItem,
-          italicToolbarItem,
-          underlineToolbarItem,
-          colorToolbarItem,
-        ],
+        toolbarItemsBuilder: (selection) => buildMobileToolbarItems(
+          editorState,
+          selection,
+        ),
         child: Column(
           children: [
             Expanded(
@@ -300,19 +310,12 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
                 editorState: editorState,
                 editorScrollController: editorScrollController,
                 toolbarBuilder: (context, anchor, closeToolbar) {
-                  return AdaptiveTextSelectionToolbar.editable(
-                    clipboardStatus: ClipboardStatus.pasteable,
-                    onCopy: () {
-                      customCopyCommand.execute(editorState);
-                      closeToolbar();
-                    },
-                    onCut: () => customCutCommand.execute(editorState),
-                    onPaste: () => customPasteCommand.execute(editorState),
-                    onSelectAll: () => selectAllCommand.execute(editorState),
-                    onLiveTextInput: null,
-                    onLookUp: null,
-                    onSearchWeb: null,
-                    onShare: null,
+                  return AdaptiveTextSelectionToolbar.buttonItems(
+                    buttonItems: buildMobileFloatingToolbarItems(
+                      editorState,
+                      anchor,
+                      closeToolbar,
+                    ),
                     anchors: TextSelectionToolbarAnchors(
                       primaryAnchor: anchor,
                     ),
@@ -397,12 +400,12 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     );
   }
 
-  void _setRTLToolbarItems(bool isRTL) {
+  void _setRTLToolbarItems(bool enableRtlToolbarItems) {
     final textDirectionItemIds = textDirectionItems.map((e) => e.id);
     // clear all the text direction items
     toolbarItems.removeWhere((item) => textDirectionItemIds.contains(item.id));
     // only show the rtl item when the layout direction is ltr.
-    if (isRTL) {
+    if (enableRtlToolbarItems) {
       toolbarItems.addAll(textDirectionItems);
     }
   }

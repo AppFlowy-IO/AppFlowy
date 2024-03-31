@@ -17,7 +17,7 @@ use std::sync::atomic::{AtomicI64, Ordering};
 use std::sync::{Arc, Weak};
 use tokio::sync::{Mutex, RwLock};
 use tokio_stream::StreamExt;
-use tracing::{debug, error, event, info, instrument};
+use tracing::{debug, error, event, info, instrument, warn};
 
 use lib_dispatch::prelude::af_spawn;
 use lib_infra::box_any::BoxAny;
@@ -152,56 +152,88 @@ impl UserManager {
         user.email
       );
 
+      self.prepare_user(&session).await;
+      self.prepare_backup(&session).await;
+
       // Set the token if the current cloud service using token to authenticate
       // Currently, only the AppFlowy cloud using token to init the client api.
-      if let Err(err) = self.cloud_services.set_token(&user.token) {
-        error!("Set token failed: {}", err);
-      }
+      // TODO(nathan): using trait to separate the init process for different cloud service
+      if user.authenticator.is_appflowy_cloud() {
+        if let Err(err) = self.cloud_services.set_token(&user.token) {
+          error!("Set token failed: {}", err);
+        }
 
-      // Subscribe the token state
-      let weak_cloud_services = Arc::downgrade(&self.cloud_services);
-      let weak_authenticate_user = Arc::downgrade(&self.authenticate_user);
-      let weak_pool = Arc::downgrade(&self.db_pool(user.uid)?);
-      let cloned_session = session.clone();
-      if let Some(mut token_state_rx) = self.cloud_services.subscribe_token_state() {
-        event!(tracing::Level::DEBUG, "Listen token state change");
-        let user_uid = user.uid;
-        let local_token = user.token.clone();
-        af_spawn(async move {
-          while let Some(token_state) = token_state_rx.next().await {
-            debug!("Token state changed: {:?}", token_state);
-            match token_state {
-              UserTokenState::Refresh { token: new_token } => {
-                // Only save the token if the token is different from the current token
-                if new_token != local_token {
-                  if let Some(conn) = weak_pool.upgrade().and_then(|pool| pool.get().ok()) {
-                    // Save the new token
-                    if let Err(err) = save_user_token(user_uid, conn, new_token) {
-                      error!("Save user token failed: {}", err);
+        // Subscribe the token state
+        let weak_cloud_services = Arc::downgrade(&self.cloud_services);
+        let weak_authenticate_user = Arc::downgrade(&self.authenticate_user);
+        let weak_pool = Arc::downgrade(&self.db_pool(user.uid)?);
+        let cloned_session = session.clone();
+        if let Some(mut token_state_rx) = self.cloud_services.subscribe_token_state() {
+          event!(tracing::Level::DEBUG, "Listen token state change");
+          let user_uid = user.uid;
+          let local_token = user.token.clone();
+          af_spawn(async move {
+            while let Some(token_state) = token_state_rx.next().await {
+              debug!("Token state changed: {:?}", token_state);
+              match token_state {
+                UserTokenState::Refresh { token: new_token } => {
+                  // Only save the token if the token is different from the current token
+                  if new_token != local_token {
+                    if let Some(conn) = weak_pool.upgrade().and_then(|pool| pool.get().ok()) {
+                      // Save the new token
+                      if let Err(err) = save_user_token(user_uid, conn, new_token) {
+                        error!("Save user token failed: {}", err);
+                      }
                     }
                   }
-                }
-              },
-              UserTokenState::Invalid => {
-                // Force user to sign out when the token is invalid
-                if let (Some(cloud_services), Some(authenticate_user), Some(conn)) = (
-                  weak_cloud_services.upgrade(),
-                  weak_authenticate_user.upgrade(),
-                  weak_pool.upgrade().and_then(|pool| pool.get().ok()),
-                ) {
+                },
+                UserTokenState::Invalid => {
+                  // Attempt to upgrade the weak reference for cloud_services
+                  let cloud_services = match weak_cloud_services.upgrade() {
+                    Some(cloud_services) => cloud_services,
+                    None => {
+                      error!("Failed to upgrade weak reference for cloud_services");
+                      return; // Exit early if the upgrade fails
+                    },
+                  };
+
+                  // Attempt to upgrade the weak reference for authenticate_user
+                  let authenticate_user = match weak_authenticate_user.upgrade() {
+                    Some(authenticate_user) => authenticate_user,
+                    None => {
+                      warn!("Failed to upgrade weak reference for authenticate_user");
+                      return; // Exit early if the upgrade fails
+                    },
+                  };
+
+                  // Attempt to upgrade the weak reference for pool and then get a connection
+                  let conn = match weak_pool.upgrade() {
+                    Some(pool) => match pool.get() {
+                      Ok(conn) => conn,
+                      Err(_) => {
+                        warn!("Failed to get connection from pool");
+                        return; // Exit early if getting connection fails
+                      },
+                    },
+                    None => {
+                      warn!("Failed to upgrade weak reference for pool");
+                      return; // Exit early if the upgrade fails
+                    },
+                  };
+
+                  // If all upgrades succeed, proceed with the sign_out operation
                   if let Err(err) =
                     sign_out(&cloud_services, &cloned_session, &authenticate_user, conn).await
                   {
                     error!("Sign out when token invalid failed: {:?}", err);
                   }
-                }
-              },
+                },
+                UserTokenState::Init => {},
+              }
             }
-          }
-        });
+          });
+        }
       }
-      self.prepare_user(&session).await;
-      self.prepare_backup(&session).await;
 
       // Do the user data migration if needed
       event!(tracing::Level::INFO, "Prepare user data migration");
@@ -270,7 +302,7 @@ impl UserManager {
   ///
   /// A sign-in notification is also sent after a successful sign-in.
   ///
-  #[tracing::instrument(level = "debug", skip(self, params))]
+  #[tracing::instrument(level = "info", skip(self, params))]
   pub async fn sign_in(
     &self,
     params: SignInParams,
@@ -663,6 +695,7 @@ impl UserManager {
 
     save_user_workspaces(uid, self.db_connection(uid)?, response.user_workspaces())?;
     event!(tracing::Level::INFO, "Save new user profile to disk");
+
     self.authenticate_user.set_session(Some(session.clone()))?;
     self
       .save_user(uid, (user_profile, authenticator.clone()).into())

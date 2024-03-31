@@ -22,11 +22,15 @@ class AuthError {
     ..msg = 'sign in with oauth error -10003'
     ..code = ErrorCode.UserUnauthorized;
 
-  static final emptyDeeplink = FlowyError()
-    ..msg = 'Unexpected empty deeplink'
-    ..code = ErrorCode.UnexpectedEmpty;
+  static final emptyDeepLink = FlowyError()
+    ..msg = 'Unexpected empty DeepLink'
+    ..code = ErrorCode.UnexpectedCalendarFieldType;
 
-  static final deeplinkError = FlowyError()
-    ..msg = 'Deeplink error'
+  static final deepLinkError = FlowyError()
+    ..msg = 'DeepLink error'
+    ..code = ErrorCode.Internal;
+
+  static final unableToGetDeepLink = FlowyError()
+    ..msg = 'Unable to get the deep link'
     ..code = ErrorCode.Internal;
 }

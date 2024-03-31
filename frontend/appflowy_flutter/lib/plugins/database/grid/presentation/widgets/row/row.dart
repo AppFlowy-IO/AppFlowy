@@ -115,7 +115,7 @@ class _RowLeadingState extends State<_RowLeading> {
       child: Consumer<RegionStateNotifier>(
         builder: (context, state, _) {
           return SizedBox(
-            width: GridSize.leadingHeaderPadding,
+            width: GridSize.horizontalHeaderPadding,
             child: state.onEnter ? _activeWidget() : null,
           );
         },
@@ -283,7 +283,6 @@ class RowContent extends StatelessWidget {
       cursor: SystemMouseCursors.basic,
       child: Container(
         width: GridSize.trailHeaderPadding,
-        padding: GridSize.headerContentInsets,
         constraints: const BoxConstraints(minHeight: 46),
         decoration: BoxDecoration(
           border: Border(

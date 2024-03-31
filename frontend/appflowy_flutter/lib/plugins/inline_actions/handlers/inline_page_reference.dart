@@ -9,16 +9,23 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/me
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_menu.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_result.dart';
+import 'package:appflowy/plugins/inline_actions/service_handler.dart';
+import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
+import 'package:appflowy/workspace/application/workspace/workspace_listener.dart';
+import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 
-class InlinePageReferenceService {
+class InlinePageReferenceService extends InlineActionsDelegate {
   InlinePageReferenceService({
     required this.currentViewId,
     this.viewLayout,
@@ -51,10 +58,65 @@ class InlinePageReferenceService {
   List<InlineActionsMenuItem> _items = [];
   List<InlineActionsMenuItem> _filtered = [];
 
+  UserProfilePB? _user;
+  String? _workspaceId;
+  WorkspaceListener? _listener;
+
   Future<void> init() async {
     _items = await _generatePageItems(currentViewId, viewLayout);
     _filtered = limitResults > 0 ? _items.take(limitResults).toList() : _items;
+
+    await _initWorkspaceListener();
+
     _initCompleter.complete();
+  }
+
+  Future<void> _initWorkspaceListener() async {
+    final snapshot = await Future.wait([
+      FolderEventGetCurrentWorkspaceSetting().send(),
+      getIt<AuthService>().getUser(),
+    ]);
+
+    final (workspaceSettings, userProfile) = (snapshot.first, snapshot.last);
+    _workspaceId = workspaceSettings.fold(
+      (s) => (s as WorkspaceSettingPB).workspaceId,
+      (e) => null,
+    );
+
+    _user = userProfile.fold((s) => s as UserProfilePB, (e) => null);
+
+    if (_user != null && _workspaceId != null) {
+      _listener = WorkspaceListener(
+        user: _user!,
+        workspaceId: _workspaceId!,
+      );
+      _listener!.start(
+        appsChanged: (_) async {
+          _items = await _generatePageItems(currentViewId, viewLayout);
+          _filtered =
+              limitResults > 0 ? _items.take(limitResults).toList() : _items;
+        },
+      );
+    }
+  }
+
+  @override
+  Future<InlineActionsResult> search([
+    String? search,
+  ]) async {
+    _filtered = await _filterItems(search);
+
+    return InlineActionsResult(
+      title: customTitle?.isNotEmpty == true
+          ? customTitle!
+          : LocaleKeys.inlineActions_pageReference.tr(),
+      results: _filtered,
+    );
+  }
+
+  @override
+  Future<void> dispose() async {
+    await _listener?.stop();
   }
 
   Future<List<InlineActionsMenuItem>> _filterItems(String? search) async {
@@ -74,19 +136,6 @@ class InlinePageReferenceService {
     return limitResults > 0
         ? items.take(limitResults).toList()
         : items.toList();
-  }
-
-  Future<InlineActionsResult> inlinePageReferenceDelegate([
-    String? search,
-  ]) async {
-    _filtered = await _filterItems(search);
-
-    return InlineActionsResult(
-      title: customTitle?.isNotEmpty == true
-          ? customTitle!
-          : LocaleKeys.inlineActions_pageReference.tr(),
-      results: _filtered,
-    );
   }
 
   Future<List<InlineActionsMenuItem>> _generatePageItems(

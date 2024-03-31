@@ -1,19 +1,32 @@
 import { useTranslation } from 'react-i18next';
-import { PageIcon } from '$app_reducers/pages/slice';
+import { CoverType, PageCover, PageIcon } from '$app_reducers/pages/slice';
 import React, { useCallback } from 'react';
 import { randomEmoji } from '$app/utils/emoji';
 import { EmojiEmotionsOutlined } from '@mui/icons-material';
 import Button from '@mui/material/Button';
+import { ReactComponent as ImageIcon } from '$app/assets/image.svg';
+import { ImageType } from '$app/application/document/document.types';
 
 interface Props {
   icon?: PageIcon;
-  // onUpdateCover: (coverType: CoverType, cover: string) => void;
   onUpdateIcon: (icon: string) => void;
+  showCover: boolean;
+  cover?: PageCover;
+  onUpdateCover?: (cover: PageCover) => void;
 }
-function ViewIconGroup({ icon, onUpdateIcon }: Props) {
+
+const defaultCover = {
+  cover_selection_type: CoverType.Asset,
+  cover_selection: 'app_flowy_abstract_cover_2.jpeg',
+  image_type: ImageType.Internal,
+};
+
+function ViewIconGroup({ icon, onUpdateIcon, showCover, cover, onUpdateCover }: Props) {
   const { t } = useTranslation();
 
   const showAddIcon = !icon?.value;
+
+  const showAddCover = !cover && showCover;
 
   const onAddIcon = useCallback(() => {
     const emoji = randomEmoji();
@@ -21,24 +34,22 @@ function ViewIconGroup({ icon, onUpdateIcon }: Props) {
     onUpdateIcon(emoji);
   }, [onUpdateIcon]);
 
-  // const onAddCover = useCallback(() => {
-  //   const color = randomColor();
-  //
-  //   onUpdateCover(CoverType.Color, color);
-  // }, []);
+  const onAddCover = useCallback(() => {
+    onUpdateCover?.(defaultCover);
+  }, [onUpdateCover]);
 
   return (
-    <div className={'flex items-center py-2'}>
+    <div className={'flex items-center py-1'}>
       {showAddIcon && (
-        <Button onClick={onAddIcon} color={'inherit'} startIcon={<EmojiEmotionsOutlined />}>
+        <Button size={'small'} onClick={onAddIcon} color={'inherit'} startIcon={<EmojiEmotionsOutlined />}>
           {t('document.plugins.cover.addIcon')}
         </Button>
       )}
-      {/*{showAddCover && (*/}
-      {/*  <Button onClick={onAddCover} color={'inherit'} startIcon={<ImageOutlined />}>*/}
-      {/*    {t('document.plugins.cover.addCover')}*/}
-      {/*  </Button>*/}
-      {/*)}*/}
+      {showAddCover && (
+        <Button size={'small'} onClick={onAddCover} color={'inherit'} startIcon={<ImageIcon />}>
+          {t('document.plugins.cover.addCover')}
+        </Button>
+      )}
     </div>
   );
 }

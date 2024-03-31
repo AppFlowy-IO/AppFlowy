@@ -78,7 +78,7 @@ abstract mixin class FlowyOverlayDelegate {
 }
 
 class FlowyOverlay extends StatefulWidget {
-  const FlowyOverlay({Key? key, required this.child}) : super(key: key);
+  const FlowyOverlay({super.key, required this.child});
 
   final Widget child;
 
@@ -292,7 +292,7 @@ class FlowyOverlayState extends State<FlowyOverlay> {
         RenderObject renderObject = anchorContext.findRenderObject()!;
         assert(
           renderObject is RenderBox,
-          'Unexpected non-RenderBox render object caught.',
+          'Unexpecteded non-RenderBox render object caught.',
         );
         final renderBox = renderObject as RenderBox;
         targetAnchorPosition = renderBox.localToGlobal(Offset.zero);

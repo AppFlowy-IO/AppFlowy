@@ -57,7 +57,7 @@ impl EventIntegrationTest {
 
   pub async fn get_all_workspace_views(&self) -> Vec<ViewPB> {
     EventBuilder::new(self.clone())
-      .event(FolderEvent::ReadWorkspaceViews)
+      .event(FolderEvent::ReadCurrentWorkspaceViews)
       .async_send()
       .await
       .parse::<RepeatedViewPB>()
@@ -115,6 +115,7 @@ impl EventIntegrationTest {
       meta: Default::default(),
       set_as_current: false,
       index: None,
+      section: None,
     };
     EventBuilder::new(self.clone())
       .event(FolderEvent::CreateView)
@@ -130,6 +131,15 @@ impl EventIntegrationTest {
       .payload(ViewIdPB {
         value: view_id.to_string(),
       })
+      .async_send()
+      .await
+      .parse::<ViewPB>()
+  }
+
+  pub async fn import_data(&self, data: ImportPB) -> ViewPB {
+    EventBuilder::new(self.clone())
+      .event(FolderEvent::ImportData)
+      .payload(data)
       .async_send()
       .await
       .parse::<ViewPB>()
@@ -156,6 +166,7 @@ impl ViewTest {
       meta: Default::default(),
       set_as_current: true,
       index: None,
+      section: None,
     };
 
     let view = EventBuilder::new(sdk.clone())
@@ -192,7 +203,7 @@ async fn create_workspace(sdk: &EventIntegrationTest, name: &str, desc: &str) ->
   };
 
   EventBuilder::new(sdk.clone())
-    .event(CreateWorkspace)
+    .event(CreateFolderWorkspace)
     .payload(request)
     .async_send()
     .await

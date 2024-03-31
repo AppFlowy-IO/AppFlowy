@@ -11,20 +11,30 @@ export function Formula() {
   const editor = useSlateStatic();
   const isActivatedMention = CustomEditor.isMentionActive(editor);
 
+  const formulaMatch = CustomEditor.formulaActiveNode(editor);
   const isActivated = !isActivatedMention && CustomEditor.isFormulaActive(editor);
 
   const { setRange, openPopover } = useEditorInlineBlockState('formula');
   const onClick = useCallback(() => {
-    const selection = editor.selection;
+    let selection = editor.selection;
 
     if (!selection) return;
-    CustomEditor.toggleFormula(editor);
+    if (formulaMatch) {
+      selection = editor.range(formulaMatch[1]);
+      editor.select(selection);
+    } else {
+      CustomEditor.toggleFormula(editor);
+    }
 
     requestAnimationFrame(() => {
+      const selection = editor.selection;
+
+      if (!selection) return;
+
       setRange(selection);
       openPopover();
     });
-  }, [editor, setRange, openPopover]);
+  }, [editor, formulaMatch, setRange, openPopover]);
 
   return (
     <ActionButton

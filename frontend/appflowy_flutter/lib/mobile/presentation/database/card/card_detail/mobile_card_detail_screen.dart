@@ -150,6 +150,7 @@ class _MobileRowDetailPageState extends State<MobileRowDetailPage> {
             icon: FlowySvgs.m_delete_m,
             iconColor: Theme.of(context).colorScheme.error,
           ),
+          const Divider(height: 8.5, thickness: 0.5),
         ],
       ),
     );

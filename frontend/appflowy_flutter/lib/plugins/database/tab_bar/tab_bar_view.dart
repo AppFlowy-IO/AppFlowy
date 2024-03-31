@@ -1,17 +1,21 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/application/tab_bar_bloc.dart';
-import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database/widgets/share_button.dart';
+import 'package:appflowy/plugins/shared/sync_indicator.dart';
 import 'package:appflowy/plugins/util.dart';
+import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
+import 'package:appflowy/workspace/application/view_info/view_info_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
+import 'package:appflowy/workspace/presentation/widgets/favorite_button.dart';
+import 'package:appflowy/workspace/presentation/widgets/more_view_actions/more_view_actions.dart';
 import 'package:appflowy/workspace/presentation/widgets/tab_bar_item.dart';
 import 'package:appflowy/workspace/presentation/widgets/view_title_bar.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'desktop/tab_bar_header.dart';
@@ -108,19 +112,9 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
                       return const SizedBox.shrink();
                     }
 
-                    if (PlatformExtension.isDesktop) {
-                      return Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: GridSize.leadingHeaderPadding,
-                        ),
-                        child: const TabBarHeader(),
-                      );
-                    } else {
-                      return const Padding(
-                        padding: EdgeInsets.only(right: 8),
-                        child: MobileTabBarHeader(),
-                      );
-                    }
+                    return PlatformExtension.isDesktop
+                        ? const TabBarHeader()
+                        : const MobileTabBarHeader();
                   },
                 );
               },
@@ -184,7 +178,9 @@ class DatabaseTabBarViewPlugin extends Plugin {
 
   @override
   final ViewPluginNotifier notifier;
+
   final PluginType _pluginType;
+  late final ViewInfoBloc _viewInfoBloc;
 
   /// Used to open a Row on plugin load
   ///
@@ -192,6 +188,7 @@ class DatabaseTabBarViewPlugin extends Plugin {
 
   @override
   PluginWidgetBuilder get widgetBuilder => DatabasePluginWidgetBuilder(
+        bloc: _viewInfoBloc,
         notifier: notifier,
         initialRowId: initialRowId,
       );
@@ -201,11 +198,28 @@ class DatabaseTabBarViewPlugin extends Plugin {
 
   @override
   PluginType get pluginType => _pluginType;
+
+  @override
+  void init() {
+    _viewInfoBloc = ViewInfoBloc(view: notifier.view)
+      ..add(const ViewInfoEvent.started());
+  }
+
+  @override
+  void dispose() {
+    _viewInfoBloc.close();
+    notifier.dispose();
+  }
 }
 
 class DatabasePluginWidgetBuilder extends PluginWidgetBuilder {
-  DatabasePluginWidgetBuilder({required this.notifier, this.initialRowId});
+  DatabasePluginWidgetBuilder({
+    required this.bloc,
+    required this.notifier,
+    this.initialRowId,
+  });
 
+  final ViewInfoBloc bloc;
   final ViewPluginNotifier notifier;
 
   /// Used to open a Row on plugin load
@@ -221,12 +235,12 @@ class DatabasePluginWidgetBuilder extends PluginWidgetBuilder {
   @override
   Widget buildWidget({PluginContext? context, required bool shrinkWrap}) {
     notifier.isDeleted.addListener(() {
-      notifier.isDeleted.value.fold(() => null, (deletedView) {
-        if (deletedView.hasIndex()) {
-          context?.onDeleted(notifier.view, deletedView.index);
-        }
-      });
+      final deletedView = notifier.isDeleted.value;
+      if (deletedView != null && deletedView.hasIndex()) {
+        context?.onDeleted(notifier.view, deletedView.index);
+      }
     });
+
     return DatabaseTabBarView(
       key: ValueKey(notifier.view.id),
       view: notifier.view,
@@ -240,9 +254,27 @@ class DatabasePluginWidgetBuilder extends PluginWidgetBuilder {
 
   @override
   Widget? get rightBarItem {
-    return DatabaseShareButton(
-      key: ValueKey(notifier.view.id),
-      view: notifier.view,
+    final view = notifier.view;
+    return BlocProvider<ViewInfoBloc>.value(
+      value: bloc,
+      child: Row(
+        children: [
+          ...FeatureFlag.syncDatabase.isOn
+              ? [
+                  DatabaseSyncIndicator(
+                    key: ValueKey('sync_state_${view.id}'),
+                    view: view,
+                  ),
+                  const HSpace(16),
+                ]
+              : [],
+          DatabaseShareButton(key: ValueKey(view.id), view: view),
+          const HSpace(4),
+          ViewFavoriteButton(view: view),
+          const HSpace(4),
+          MoreViewActions(view: view, isDocument: false),
+        ],
+      ),
     );
   }
 }

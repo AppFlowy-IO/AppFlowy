@@ -17,7 +17,7 @@ function TrashItem({
   item: Trash;
   hoverId: string;
   onPutback: (id: string) => void;
-  onDelete: (ids: string[]) => void;
+  onDelete: (id: string) => void;
 }) {
   const { t } = useTranslation();
 
@@ -35,7 +35,9 @@ function TrashItem({
       }}
     >
       <div className={'flex w-[100%] items-center justify-around gap-2 rounded-lg p-2 text-xs hover:bg-fill-list-hover'}>
-        <div className={'w-[40%] whitespace-break-spaces text-left'}>{item.name || t('document.title.placeholder')}</div>
+        <div className={'w-[40%] whitespace-break-spaces text-left'}>
+          {item.name.trim() || t('menuAppHeader.defaultNewPageName')}
+        </div>
         <div className={'flex-1'}>{dayjs.unix(item.modifiedTime).format('MM/DD/YYYY hh:mm A')}</div>
         <div className={'flex-1'}>{dayjs.unix(item.createTime).format('MM/DD/YYYY hh:mm A')}</div>
         <div
@@ -50,7 +52,7 @@ function TrashItem({
             </IconButton>
           </Tooltip>
           <Tooltip placement={'top-start'} title={t('button.delete')}>
-            <IconButton size={'small'} color={'error'} onClick={(_) => onDelete([item.id])}>
+            <IconButton size={'small'} color={'error'} onClick={(_) => onDelete(item.id)}>
               <DeleteOutline />
             </IconButton>
           </Tooltip>

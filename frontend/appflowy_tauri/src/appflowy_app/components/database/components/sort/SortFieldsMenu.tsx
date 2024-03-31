@@ -1,4 +1,4 @@
-import React, { FC, MouseEvent, useCallback } from 'react';
+import React, { FC, useCallback } from 'react';
 import { MenuProps } from '@mui/material';
 import PropertiesList from '$app/components/database/components/property/PropertiesList';
 import { Field, sortService } from '$app/application/database';
@@ -15,10 +15,9 @@ const SortFieldsMenu: FC<
   const { t } = useTranslation();
   const viewId = useViewId();
   const addSort = useCallback(
-    async (event: MouseEvent, field: Field) => {
+    async (field: Field) => {
       await sortService.insertSort(viewId, {
         fieldId: field.id,
-        fieldType: field.type,
         condition: SortConditionPB.Ascending,
       });
       props.onClose?.({}, 'backdropClick');
@@ -28,8 +27,25 @@ const SortFieldsMenu: FC<
   );
 
   return (
-    <Popover disableRestoreFocus={true} keepMounted={false} {...props}>
-      <PropertiesList showSearch={true} onItemClick={addSort} searchPlaceholder={t('grid.settings.sortBy')} />
+    <Popover
+      onKeyDown={(e) => {
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          e.stopPropagation();
+          props.onClose?.({}, 'escapeKeyDown');
+        }
+      }}
+      keepMounted={false}
+      {...props}
+    >
+      <PropertiesList
+        onClose={() => {
+          props.onClose?.({}, 'escapeKeyDown');
+        }}
+        showSearch={true}
+        onItemClick={addSort}
+        searchPlaceholder={t('grid.settings.sortBy')}
+      />
     </Popover>
   );
 };

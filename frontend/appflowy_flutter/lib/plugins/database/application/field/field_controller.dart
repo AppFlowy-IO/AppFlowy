@@ -1,30 +1,26 @@
-import 'package:appflowy/plugins/database/application/database_view_service.dart';
-import 'package:appflowy/plugins/database/application/field_settings/field_settings_listener.dart';
-import 'package:appflowy/plugins/database/application/field_settings/field_settings_service.dart';
-import 'package:appflowy/plugins/database/application/filter/filter_listener.dart';
-import 'package:appflowy/plugins/database/application/filter/filter_service.dart';
+import 'dart:collection';
+
+import 'package:appflowy/plugins/database/domain/database_view_service.dart';
+import 'package:appflowy/plugins/database/domain/field_listener.dart';
+import 'package:appflowy/plugins/database/domain/field_settings_listener.dart';
+import 'package:appflowy/plugins/database/domain/field_settings_service.dart';
+import 'package:appflowy/plugins/database/domain/filter_listener.dart';
+import 'package:appflowy/plugins/database/domain/filter_service.dart';
 import 'package:appflowy/plugins/database/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database/application/setting/setting_listener.dart';
-import 'package:appflowy/plugins/database/application/sort/sort_listener.dart';
-import 'package:appflowy/plugins/database/application/sort/sort_service.dart';
+import 'package:appflowy/plugins/database/domain/sort_listener.dart';
+import 'package:appflowy/plugins/database/domain/sort_service.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/filter_info.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/sort/sort_info.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/field_settings_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/filter_changeset.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/group.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/setting_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/sort_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/util.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:collection/collection.dart';
-import 'package:dartz/dartz.dart';
 import 'package:flutter/foundation.dart';
 
 import '../setting/setting_service.dart';
 import 'field_info.dart';
-import 'field_listener.dart';
 
 class _GridFieldNotifier extends ChangeNotifier {
   List<FieldInfo> _fieldInfos = [];
@@ -166,75 +162,6 @@ class FieldController {
 
   /// Listen for filter changes in the backend.
   void _listenOnFilterChanges() {
-    void deleteFilterFromChangeset(
-      List<FilterInfo> filters,
-      FilterChangesetNotificationPB changeset,
-    ) {
-      final deleteFilterIds = changeset.deleteFilters.map((e) => e.id).toList();
-      if (deleteFilterIds.isNotEmpty) {
-        filters.retainWhere(
-          (element) => !deleteFilterIds.contains(element.filter.id),
-        );
-      }
-    }
-
-    void insertFilterFromChangeset(
-      List<FilterInfo> filters,
-      FilterChangesetNotificationPB changeset,
-    ) {
-      for (final newFilter in changeset.insertFilters) {
-        final filterIndex =
-            filters.indexWhere((element) => element.filter.id == newFilter.id);
-        if (filterIndex == -1) {
-          final fieldInfo = _findFieldInfo(
-            fieldInfos: fieldInfos,
-            fieldId: newFilter.fieldId,
-            fieldType: newFilter.fieldType,
-          );
-          if (fieldInfo != null) {
-            filters.add(FilterInfo(viewId, newFilter, fieldInfo));
-          }
-        }
-      }
-    }
-
-    void updateFilterFromChangeset(
-      List<FilterInfo> filters,
-      FilterChangesetNotificationPB changeset,
-    ) {
-      for (final updatedFilter in changeset.updateFilters) {
-        final filterIndex = filters.indexWhere(
-          (element) => element.filter.id == updatedFilter.filterId,
-        );
-        // Remove the old filter
-        if (filterIndex != -1) {
-          filters.removeAt(filterIndex);
-        }
-
-        // Insert the filter if there is a filter and its field info is
-        // not null
-        if (updatedFilter.hasFilter()) {
-          final fieldInfo = _findFieldInfo(
-            fieldInfos: fieldInfos,
-            fieldId: updatedFilter.filter.fieldId,
-            fieldType: updatedFilter.filter.fieldType,
-          );
-
-          if (fieldInfo != null) {
-            // Insert the filter with the position: filterIndex, otherwise,
-            // append it to the end of the list.
-            final filterInfo =
-                FilterInfo(viewId, updatedFilter.filter, fieldInfo);
-            if (filterIndex != -1) {
-              filters.insert(filterIndex, filterInfo);
-            } else {
-              filters.add(filterInfo);
-            }
-          }
-        }
-      }
-    }
-
     _filtersListener.start(
       onFilterChanged: (result) {
         if (_isDisposed) {
@@ -243,15 +170,19 @@ class FieldController {
 
         result.fold(
           (FilterChangesetNotificationPB changeset) {
-            final List<FilterInfo> filters = filterInfos;
-            // delete removed filters
-            deleteFilterFromChangeset(filters, changeset);
+            final List<FilterInfo> filters = [];
+            for (final filter in changeset.filters.items) {
+              final fieldInfo = _findFieldInfo(
+                fieldInfos: fieldInfos,
+                fieldId: filter.data.fieldId,
+                fieldType: filter.data.fieldType,
+              );
 
-            // insert new filters
-            insertFilterFromChangeset(filters, changeset);
-
-            // edit modified filters
-            updateFilterFromChangeset(filters, changeset);
+              if (fieldInfo != null) {
+                final filterInfo = FilterInfo(viewId, filter, fieldInfo);
+                filters.add(filterInfo);
+              }
+            }
 
             _filterNotifier?.filters = filters;
             _updateFieldInfos();
@@ -287,7 +218,7 @@ class FieldController {
           final fieldInfo = _findFieldInfo(
             fieldInfos: fieldInfos,
             fieldId: newSortPB.sort.fieldId,
-            fieldType: newSortPB.sort.fieldType,
+            fieldType: null,
           );
 
           if (fieldInfo != null) {
@@ -316,7 +247,7 @@ class FieldController {
         final fieldInfo = _findFieldInfo(
           fieldInfos: fieldInfos,
           fieldId: updatedSort.fieldId,
-          fieldType: updatedSort.fieldType,
+          fieldType: null,
         );
 
         if (fieldInfo != null) {
@@ -333,6 +264,33 @@ class FieldController {
       }
     }
 
+    void updateFieldInfos(
+      List<SortInfo> newSortInfos,
+      SortChangesetNotificationPB changeset,
+    ) {
+      final changedFieldIds = HashSet<String>.from([
+        ...changeset.insertSorts.map((sort) => sort.sort.fieldId),
+        ...changeset.updateSorts.map((sort) => sort.fieldId),
+        ...changeset.deleteSorts.map((sort) => sort.fieldId),
+        ...?_sortNotifier?.sorts.map((sort) => sort.fieldId),
+      ]);
+
+      final newFieldInfos = [...fieldInfos];
+
+      for (final fieldId in changedFieldIds) {
+        final index =
+            newFieldInfos.indexWhere((fieldInfo) => fieldInfo.id == fieldId);
+        if (index == -1) {
+          continue;
+        }
+        newFieldInfos[index] = newFieldInfos[index].copyWith(
+          hasSort: newSortInfos.any((sort) => sort.fieldId == fieldId),
+        );
+      }
+
+      _fieldNotifier.fieldInfos = newFieldInfos;
+    }
+
     _sortsListener.start(
       onSortChanged: (result) {
         if (_isDisposed) {
@@ -345,6 +303,7 @@ class FieldController {
             insertSortFromChangeset(newSortInfos, changeset);
             updateSortFromChangeset(newSortInfos, changeset);
 
+            updateFieldInfos(newSortInfos, changeset);
             _sortNotifier?.sorts = newSortInfos;
           },
           (err) => Log.error(err),
@@ -353,7 +312,7 @@ class FieldController {
     );
   }
 
-  /// Listen for databse setting changes in the backend.
+  /// Listen for database setting changes in the backend.
   void _listenOnSettingChanges() {
     _settingListener.start(
       onSettingUpdated: (result) {
@@ -552,7 +511,7 @@ class FieldController {
   }
 
   /// Load all of the fields. This is required when opening the database
-  Future<Either<Unit, FlowyError>> loadFields({
+  Future<FlowyResult<void, FlowyError>> loadFields({
     required List<FieldIdPB> fieldIds,
   }) async {
     final result = await _databaseViewBackendSvc.getFields(fieldIds: fieldIds);
@@ -560,7 +519,7 @@ class FieldController {
       () => result.fold(
         (newFields) async {
           if (_isDisposed) {
-            return left(unit);
+            return FlowyResult.success(null);
           }
 
           _fieldNotifier.fieldInfos =
@@ -573,54 +532,54 @@ class FieldController {
           ]);
           _updateFieldInfos();
 
-          return left(unit);
+          return FlowyResult.success(null);
         },
-        (err) => right(err),
+        (err) => FlowyResult.failure(err),
       ),
     );
   }
 
   /// Load all the filters from the backend. Required by `loadFields`
-  Future<Either<Unit, FlowyError>> _loadFilters() async {
+  Future<FlowyResult<void, FlowyError>> _loadFilters() async {
     return _filterBackendSvc.getAllFilters().then((result) {
       return result.fold(
         (filterPBs) {
           _filterNotifier?.filters = _filterInfoListFromPBs(filterPBs);
-          return left(unit);
+          return FlowyResult.success(null);
         },
-        (err) => right(err),
+        (err) => FlowyResult.failure(err),
       );
     });
   }
 
   /// Load all the sorts from the backend. Required by `loadFields`
-  Future<Either<Unit, FlowyError>> _loadSorts() async {
+  Future<FlowyResult<void, FlowyError>> _loadSorts() async {
     return _sortBackendSvc.getAllSorts().then((result) {
       return result.fold(
         (sortPBs) {
           _sortNotifier?.sorts = _sortInfoListFromPBs(sortPBs);
-          return left(unit);
+          return FlowyResult.success(null);
         },
-        (err) => right(err),
+        (err) => FlowyResult.failure(err),
       );
     });
   }
 
   /// Load all the field settings from the backend. Required by `loadFields`
-  Future<Either<Unit, FlowyError>> _loadAllFieldSettings() async {
+  Future<FlowyResult<void, FlowyError>> _loadAllFieldSettings() async {
     return _fieldSettingsBackendSvc.getAllFieldSettings().then((result) {
       return result.fold(
         (fieldSettingsList) {
           _fieldSettings.clear();
           _fieldSettings.addAll(fieldSettingsList);
-          return left(unit);
+          return FlowyResult.success(null);
         },
-        (err) => right(err),
+        (err) => FlowyResult.failure(err),
       );
     });
   }
 
-  Future<Either<Unit, FlowyError>> _loadSettings() async {
+  Future<FlowyResult<void, FlowyError>> _loadSettings() async {
     return SettingBackendService(viewId: viewId).getSetting().then(
           (result) => result.fold(
             (setting) {
@@ -629,9 +588,9 @@ class FieldController {
                 _groupConfigurationByFieldId[configuration.fieldId] =
                     configuration;
               }
-              return left(unit);
+              return FlowyResult.success(null);
             },
-            (err) => right(err),
+            (err) => FlowyResult.failure(err),
           ),
         );
   }
@@ -641,8 +600,8 @@ class FieldController {
     FilterInfo? getFilterInfo(FilterPB filterPB) {
       final fieldInfo = _findFieldInfo(
         fieldInfos: fieldInfos,
-        fieldId: filterPB.fieldId,
-        fieldType: filterPB.fieldType,
+        fieldId: filterPB.data.fieldId,
+        fieldType: filterPB.data.fieldType,
       );
       return fieldInfo != null ? FilterInfo(viewId, filterPB, fieldInfo) : null;
     }
@@ -659,7 +618,7 @@ class FieldController {
       final fieldInfo = _findFieldInfo(
         fieldInfos: fieldInfos,
         fieldId: sortPB.fieldId,
-        fieldType: sortPB.fieldType,
+        fieldType: null,
       );
       return fieldInfo != null
           ? SortInfo(sortPB: sortPB, fieldInfo: fieldInfo)
@@ -818,9 +777,11 @@ class RowCacheDependenciesImpl extends RowFieldsDelegate with RowLifeCycle {
 FieldInfo? _findFieldInfo({
   required List<FieldInfo> fieldInfos,
   required String fieldId,
-  required FieldType fieldType,
+  required FieldType? fieldType,
 }) {
   return fieldInfos.firstWhereOrNull(
-    (element) => element.id == fieldId && element.fieldType == fieldType,
+    (element) =>
+        element.id == fieldId &&
+        (fieldType == null || element.fieldType == fieldType),
   );
 }

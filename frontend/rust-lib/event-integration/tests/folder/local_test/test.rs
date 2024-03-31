@@ -12,7 +12,7 @@ async fn create_workspace_event_test() {
     desc: "".to_owned(),
   };
   let view_pb = EventBuilder::new(test)
-    .event(flowy_folder::event_map::FolderEvent::CreateWorkspace)
+    .event(flowy_folder::event_map::FolderEvent::CreateFolderWorkspace)
     .payload(request)
     .async_send()
     .await
@@ -474,7 +474,7 @@ async fn create_parent_view_with_invalid_name() {
     };
     assert_eq!(
       EventBuilder::new(sdk)
-        .event(flowy_folder::event_map::FolderEvent::CreateWorkspace)
+        .event(flowy_folder::event_map::FolderEvent::CreateFolderWorkspace)
         .payload(request)
         .async_send()
         .await
@@ -549,6 +549,8 @@ async fn move_folder_nested_view(
     view_id,
     new_parent_id,
     prev_view_id,
+    from_section: None,
+    to_section: None,
   };
   EventBuilder::new(sdk)
     .event(flowy_folder::event_map::FolderEvent::MoveNestedView)

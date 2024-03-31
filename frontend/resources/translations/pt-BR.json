@@ -152,7 +152,7 @@
     "defaultNewPageName": "Sem título",
     "renameDialog": "Renomear"
   },
-  "noPagesInside": "Nenhuma página dentro",
+  "noPagesInside": "Sem páginas internas",
   "toolbar": {
     "undo": "Desfazer",
     "redo": "Refazer",
@@ -180,9 +180,7 @@
     "dragRow": "Pressione e segure para reordenar a linha",
     "viewDataBase": "Visualizar banco de dados",
     "referencePage": "Esta {name} é uma referência",
-    "addBlockBelow": "Adicione um bloco abaixo",
-    "urlLaunchAccessory": "Abrir com o navegador",
-    "urlCopyAccessory": "Copiar URL"
+    "addBlockBelow": "Adicione um bloco abaixo"
   },
   "sideBar": {
     "closeSidebar": "Fechar barra lateral",
@@ -192,7 +190,7 @@
     "clickToHidePersonal": "Clique para ocultar a seção pessoal",
     "clickToHideFavorites": "Clique para ocultar a seção favorita",
     "addAPage": "Adicionar uma página",
-    "recent": "Recente"
+    "recent": "Recentes"
   },
   "notifications": {
     "export": {
@@ -221,7 +219,7 @@
     "discard": "Descartar",
     "replace": "substituir",
     "insertBelow": "Inserir Abaixo",
-    "insertAbove": "Inserir acima",
+    "insertAbove": "Insira acima",
     "upload": "Carregar",
     "edit": "Editar",
     "delete": "Excluir",
@@ -235,9 +233,6 @@
     "helpCenter": "Central de Ajuda",
     "add": "Adicionar",
     "yes": "Sim",
-    "Done": "Feito",
-    "Cancel": "Cancelar",
-    "OK": "Ok",
     "tryAGain": "Tentar novamente"
   },
   "label": {
@@ -298,7 +293,7 @@
       "enableEncryptPrompt": "Ative a criptografia para proteger seus dados com este segredo. Armazene-o com segurança; uma vez ativado, não pode ser desativado. Se perdidos, seus dados se tornarão irrecuperáveis. Clique para copiar",
       "inputEncryptPrompt": "Por favor, insira seu segredo de criptografia para",
       "clickToCopySecret": "Clique para copiar o segredo",
-      "configServerSetting": "Defina as configurações do seu servidor",
+      "configServerSetting": "Configure seu servidor",
       "configServerGuide": "Após selecionar `Quick Start`, navegue até `Settings` e depois \"Cloud Settings\" para configurar seu servidor auto-hospedado.",
       "inputTextFieldHint": "Seu segredo",
       "historicalUserList": "Histórico de login do usuário",
@@ -315,7 +310,7 @@
     "notifications": {
       "enableNotifications": {
         "label": "Habilitar notificações",
-        "hint": "Desligue para impedir que notificações locais apareçam."
+        "hint": "Desligue para impedir notificações locais de aparecer"
       }
     },
     "appearance": {
@@ -516,13 +511,9 @@
       "isComplete": "está completo",
       "isIncomplted": "está imcompleto"
     },
-    "singleSelectOptionFilter": {
+    "selectOptionFilter": {
       "is": "Está",
       "isNot": "Não está",
-      "isEmpty": "Está vazio",
-      "isNotEmpty": "Não está vazio"
-    },
-    "multiSelectOptionFilter": {
       "contains": "Contém",
       "doesNotContain": "Não contém",
       "isEmpty": "Está vazio",
@@ -650,6 +641,10 @@
       "submitNewTask": "Criar",
       "hideComplete": "Ocultar tarefas concluídas",
       "showComplete": "Mostrar todas as tarefas"
+    },
+    "url": {
+      "launch": "Abrir com o navegador",
+      "copy": "Copiar URL"
     },
     "menuName": "Grade",
     "referencedGridPrefix": "Vista de"

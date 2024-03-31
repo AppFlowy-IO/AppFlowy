@@ -214,7 +214,6 @@ class _ReminderSelector extends StatelessWidget {
       ),
       onTap: () => showMobileBottomSheet(
         context,
-        padding: EdgeInsets.zero,
         builder: (_) => DraggableScrollableSheet(
           expand: false,
           snap: true,
@@ -224,7 +223,7 @@ class _ReminderSelector extends StatelessWidget {
             children: [
               ColoredBox(
                 color: Theme.of(context).colorScheme.surface,
-                child: const Center(child: DragHandler()),
+                child: const Center(child: DragHandle()),
               ),
               const _ReminderSelectHeader(),
               Flexible(

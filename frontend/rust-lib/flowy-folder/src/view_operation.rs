@@ -32,6 +32,7 @@ pub trait FolderOperationHandler {
     FutureResult::new(async { Ok(()) })
   }
 
+  fn open_view(&self, view_id: &str) -> FutureResult<(), FlowyError>;
   /// Closes the view and releases the resources that this view has in
   /// the backend
   fn close_view(&self, view_id: &str) -> FutureResult<(), FlowyError>;

@@ -5,7 +5,7 @@ use crate::services::entities::UserPaths;
 use crate::services::sqlite_sql::user_sql::select_user_profile;
 use crate::user_manager::run_collab_data_migration;
 use anyhow::anyhow;
-use collab::core::collab::{CollabDocState, MutexCollab};
+use collab::core::collab::{DocStateSource, MutexCollab};
 use collab::core::origin::CollabOrigin;
 use collab::core::transaction::DocTransactionExtension;
 use collab::preclude::updates::decoder::Decode;
@@ -14,7 +14,7 @@ use collab_database::database::{
   is_database_collab, mut_database_views_with_collab, reset_inline_view_id,
 };
 use collab_database::rows::{database_row_document_id_from_row_id, mut_row_with_collab, RowId};
-use collab_database::user::DatabaseViewTrackerList;
+use collab_database::workspace_database::DatabaseMetaList;
 use collab_document::document_data::default_document_collab_data;
 use collab_entity::CollabType;
 use collab_folder::{Folder, UserId, View, ViewIdentifier, ViewLayout};
@@ -271,6 +271,7 @@ where
     &other_session.user_workspace.workspace_database_object_id,
     "phantom",
     vec![],
+    false,
   );
   database_view_tracker_collab.with_origin_transact_mut(|txn| {
     other_collab_read_txn.load_doc_with_txn(
@@ -280,11 +281,11 @@ where
     )
   })?;
 
-  let array = DatabaseViewTrackerList::from_collab(&database_view_tracker_collab);
-  for database_view_tracker in array.get_all_database_tracker() {
+  let array = DatabaseMetaList::from_collab(&database_view_tracker_collab);
+  for database_meta in array.get_all_database_meta() {
     database_view_ids_by_database_id.insert(
-      old_to_new_id_map.renew_id(&database_view_tracker.database_id),
-      database_view_tracker
+      old_to_new_id_map.renew_id(&database_meta.database_id),
+      database_meta
         .linked_views
         .into_iter()
         .map(|view_id| old_to_new_id_map.renew_id(&view_id))
@@ -446,7 +447,7 @@ where
 }
 
 fn import_collab_object_with_doc_state<'a, W>(
-  doc_state: CollabDocState,
+  doc_state: Vec<u8>,
   new_uid: i64,
   new_object_id: &str,
   w_txn: &'a W,
@@ -455,7 +456,13 @@ where
   W: CollabKVAction<'a>,
   PersistenceError: From<W::Error>,
 {
-  let collab = Collab::new_with_doc_state(CollabOrigin::Empty, new_object_id, doc_state, vec![])?;
+  let collab = Collab::new_with_doc_state(
+    CollabOrigin::Empty,
+    new_object_id,
+    DocStateSource::FromDocState(doc_state),
+    vec![],
+    false,
+  )?;
   write_collab_object(&collab, new_uid, new_object_id, w_txn);
   Ok(())
 }
@@ -475,6 +482,7 @@ where
     &other_session.user_workspace.id,
     "phantom",
     vec![],
+    false,
   );
   other_folder_collab.with_origin_transact_mut(|txn| {
     other_collab_read_txn.load_doc_with_txn(

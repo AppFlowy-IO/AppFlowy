@@ -5,13 +5,13 @@ import { useSlateStatic } from 'slate-react';
 import { CustomEditor } from '$app/components/editor/command';
 import { ReactComponent as StrikeThroughSvg } from '$app/assets/strikethrough.svg';
 import { EditorMarkFormat } from '$app/application/document/document.types';
-import { getHotKey } from '$app/components/editor/plugins/shortcuts';
+import { createHotKeyLabel, HOT_KEY_NAME } from '$app/utils/hotkeys';
 
 export function StrikeThrough() {
   const { t } = useTranslation();
   const editor = useSlateStatic();
   const isActivated = CustomEditor.isMarkActive(editor, EditorMarkFormat.StrikeThrough);
-  const modifier = useMemo(() => getHotKey(EditorMarkFormat.StrikeThrough).modifier, []);
+  const modifier = useMemo(() => createHotKeyLabel(HOT_KEY_NAME.STRIKETHROUGH), []);
 
   const onClick = useCallback(() => {
     CustomEditor.toggleMark(editor, {

@@ -178,9 +178,7 @@
     "dragRow": "اضغط مطولاً لإعادة ترتيب الصف",
     "viewDataBase": "عرض قاعدة البيانات",
     "referencePage": "تمت الإشارة إلى هذا {name}",
-    "addBlockBelow": "إضافة كتلة أدناه",
-    "urlLaunchAccessory": "فتح في المتصفح",
-    "urlCopyAccessory": "إنسخ الرابط"
+    "addBlockBelow": "إضافة كتلة أدناه"
   },
   "sideBar": {
     "closeSidebar": "إغلاق الشريط الجانبي",
@@ -233,9 +231,7 @@
     "helpCenter": "مركز المساعدة",
     "add": "اضافة",
     "yes": "نعم",
-    "Done": "منتهي",
-    "Cancel": "إلغاء",
-    "OK": "نعم",
+    "back": "خلف",
     "tryAGain": "حاول ثانية"
   },
   "label": {
@@ -491,13 +487,9 @@
       "isComplete": "كاملة",
       "isIncomplted": "غير مكتمل"
     },
-    "singleSelectOptionFilter": {
+    "selectOptionFilter": {
       "is": "يكون",
       "isNot": "ليس",
-      "isEmpty": "فارغ",
-      "isNotEmpty": "ليس فارغا"
-    },
-    "multiSelectOptionFilter": {
       "contains": "يتضمن",
       "doesNotContain": "لا يحتوي",
       "isEmpty": "فارغ",
@@ -627,6 +619,10 @@
       "submitNewTask": "انشئ",
       "hideComplete": "إخفاء المهام المكتملة",
       "showComplete": "إظهار كافة المهام"
+    },
+    "url": {
+      "launch": "فتح في المتصفح",
+      "copy": "إنسخ الرابط"
     },
     "menuName": "شبكة",
     "referencedGridPrefix": "نظرا ل"
@@ -851,10 +847,10 @@
       "addToColumnBottomTooltip": "أضف بطاقة جديدة في الأسفل",
       "renameColumn": "إعادة تسمية",
       "hideColumn": "اخفاء",
-      "groupActions": "إجراءات المجموعة",
       "newGroup": "مجموعة جديدة",
       "deleteColumn": "مسح",
-      "deleteColumnConfirmation": "سيؤدي هذا إلى حذف هذه المجموعة وجميع البطاقات الموجودة فيها. هل أنت متأكد من الاستمرار؟"
+      "deleteColumnConfirmation": "سيؤدي هذا إلى حذف هذه المجموعة وجميع البطاقات الموجودة فيها. هل أنت متأكد من الاستمرار؟",
+      "groupActions": "إجراءات المجموعة"
     },
     "hiddenGroupSection": {
       "sectionTitle": "المجموعات المخفية",

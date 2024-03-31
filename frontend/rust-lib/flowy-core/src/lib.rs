@@ -3,6 +3,7 @@
 use flowy_storage::ObjectStorageService;
 use std::sync::Arc;
 use std::time::Duration;
+use sysinfo::System;
 use tokio::sync::RwLock;
 use tracing::{debug, error, event, info, instrument};
 
@@ -64,7 +65,7 @@ impl AppFlowyCore {
     #[allow(clippy::if_same_then_else)]
     if cfg!(debug_assertions) {
       /// The profiling can be used to tracing the performance of the application.
-      /// Check out the [Link](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/backend/profiling)
+      /// Check out the [Link](https://docs.appflowy.io/docs/documentation/software-contributions/architecture/backend/profiling#enable-profiling)
       ///  for more information.
       #[cfg(feature = "profiling")]
       console_subscriber::init();
@@ -79,6 +80,8 @@ impl AppFlowyCore {
     // Init the key value database
     let store_preference = Arc::new(StorePreferences::new(&config.storage_path).unwrap());
     info!("🔥{:?}", &config);
+    info!("💡System info: {:?}", System::long_os_version());
+
     let task_scheduler = TaskDispatcher::new(Duration::from_secs(2));
     let task_dispatcher = Arc::new(RwLock::new(task_scheduler));
     runtime.spawn(TaskRunner::run(task_dispatcher.clone()));

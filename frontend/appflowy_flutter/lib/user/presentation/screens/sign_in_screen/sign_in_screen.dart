@@ -23,14 +23,14 @@ class SignInScreen extends StatelessWidget {
       create: (context) => getIt<SignInBloc>(),
       child: BlocConsumer<SignInBloc, SignInState>(
         listener: (context, state) {
-          state.successOrFail.fold(
-            () => null,
-            (userProfileResult) => handleUserProfileResult(
-              userProfileResult,
+          final successOrFail = state.successOrFail;
+          if (successOrFail != null) {
+            handleUserProfileResult(
+              successOrFail,
               context,
               getIt<AuthRouter>(),
-            ),
-          );
+            );
+          }
         },
         builder: (context, state) {
           final isLoading = context.read<SignInBloc>().state.isSubmitting;

@@ -17,7 +17,7 @@ function DatabaseList({
   toggleDrawer,
 }: {
   node: GridNode;
-  toggleDrawer: (open: boolean) => (e: React.MouseEvent | KeyboardEvent) => void;
+  toggleDrawer: (open: boolean) => (e: React.MouseEvent | KeyboardEvent | React.FocusEvent) => void;
 }) {
   const scrollRef = React.useRef<HTMLDivElement>(null);
 
@@ -35,7 +35,7 @@ function DatabaseList({
       return (
         <div className={'flex items-center text-text-title'}>
           <GridSvg className={'mr-2 h-4 w-4'} />
-          <div className={'truncate'}>{item.name || t('document.title.placeholder')}</div>
+          <div className={'truncate'}>{item.name.trim() || t('menuAppHeader.defaultNewPageName')}</div>
         </div>
       );
     },
@@ -70,10 +70,12 @@ function DatabaseList({
   );
 
   return (
-    <div className={'relative flex flex-col gap-1.5 p-2'}>
+    <div className={'relative flex h-full flex-col gap-1.5 p-2'}>
       <TextField
         variant={'standard'}
         autoFocus={true}
+        spellCheck={false}
+        onBlur={toggleDrawer(false)}
         inputRef={inputRef}
         className={'sticky top-0 z-10 px-2'}
         value={searchText}

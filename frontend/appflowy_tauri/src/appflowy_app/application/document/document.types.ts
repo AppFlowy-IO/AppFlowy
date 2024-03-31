@@ -2,7 +2,8 @@ import { Op } from 'quill-delta';
 import { HTMLAttributes } from 'react';
 import { Element } from 'slate';
 import { ViewIconTypePB, ViewLayoutPB } from '@/services/backend';
-import { YXmlText } from 'yjs/dist/src/types/YXmlText';
+import { PageCover } from '$app_reducers/pages/slice';
+import * as Y from 'yjs';
 
 export interface EditorNode {
   id: string;
@@ -73,6 +74,9 @@ export interface QuoteNode extends Element {
 export interface NumberedListNode extends Element {
   type: EditorNodeType.NumberedListBlock;
   blockId: string;
+  data: {
+    number?: number;
+  } & BlockData;
 }
 
 export interface BulletedListNode extends Element {
@@ -106,6 +110,23 @@ export interface MathEquationNode extends Element {
   blockId: string;
   data: {
     formula?: string;
+  } & BlockData;
+}
+
+export enum ImageType {
+  Local = 0,
+  Internal = 1,
+  External = 2,
+}
+
+export interface ImageNode extends Element {
+  type: EditorNodeType.ImageBlock;
+  blockId: string;
+  data: {
+    url?: string;
+    width?: number;
+    image_type?: ImageType;
+    height?: number;
   } & BlockData;
 }
 
@@ -146,11 +167,20 @@ export interface MentionPage {
 }
 
 export interface EditorProps {
-  id: string;
-  sharedType?: YXmlText;
   title?: string;
+  cover?: PageCover;
   onTitleChange?: (title: string) => void;
+  onCoverChange?: (cover?: PageCover) => void;
   showTitle?: boolean;
+  id: string;
+  disableFocus?: boolean;
+}
+
+export interface LocalEditorProps {
+  disableFocus?: boolean;
+  sharedType: Y.XmlText;
+  id: string;
+  caretColor?: string;
 }
 
 export enum EditorNodeType {
@@ -204,7 +234,9 @@ export enum MentionType {
 
 export interface Mention {
   // inline page ref id
-  page?: string;
+  page_id?: string;
   // reminder date ref id
   date?: string;
+
+  type: MentionType;
 }

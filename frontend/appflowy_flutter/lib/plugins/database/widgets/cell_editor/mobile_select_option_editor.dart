@@ -5,7 +5,7 @@ import 'package:appflowy/mobile/presentation/base/option_color_list.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_search_text_field.dart';
 import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
 import 'package:appflowy/plugins/base/drag_handler.dart';
-import 'package:appflowy/plugins/database/application/cell/bloc/select_option_editor_bloc.dart';
+import 'package:appflowy/plugins/database/application/cell/bloc/select_option_cell_editor_bloc.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database/widgets/cell_editor/extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
@@ -55,13 +55,14 @@ class _MobileSelectOptionEditorState extends State<MobileSelectOptionEditor> {
       child: BlocProvider(
         create: (context) => SelectOptionCellEditorBloc(
           cellController: widget.cellController,
-        )..add(const SelectOptionEditorEvent.initial()),
-        child: BlocBuilder<SelectOptionCellEditorBloc, SelectOptionEditorState>(
+        ),
+        child: BlocBuilder<SelectOptionCellEditorBloc,
+            SelectOptionCellEditorState>(
           builder: (context, state) {
             return Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const DragHandler(),
+                const DragHandle(),
                 _buildHeader(context),
                 const Divider(height: 0.5),
                 Expanded(
@@ -84,12 +85,11 @@ class _MobileSelectOptionEditorState extends State<MobileSelectOptionEditor> {
     const height = 44.0;
     return Stack(
       children: [
-        Align(
-          alignment: Alignment.centerLeft,
-          child: showMoreOptions
-              ? AppBarBackButton(onTap: _popOrBack)
-              : AppBarCloseButton(onTap: _popOrBack),
-        ),
+        if (showMoreOptions)
+          Align(
+            alignment: Alignment.centerLeft,
+            child: AppBarBackButton(onTap: _popOrBack),
+          ),
         SizedBox(
           height: 44.0,
           child: Align(
@@ -111,7 +111,7 @@ class _MobileSelectOptionEditorState extends State<MobileSelectOptionEditor> {
         onDelete: () {
           context
               .read<SelectOptionCellEditorBloc>()
-              .add(SelectOptionEditorEvent.deleteOption(option!));
+              .add(SelectOptionCellEditorEvent.deleteOption(option!));
           _popOrBack();
         },
         onUpdate: (name, color) {
@@ -121,7 +121,7 @@ class _MobileSelectOptionEditorState extends State<MobileSelectOptionEditor> {
           }
           option.freeze();
           context.read<SelectOptionCellEditorBloc>().add(
-            SelectOptionEditorEvent.updateOption(
+            SelectOptionCellEditorEvent.updateOption(
               option.rebuild((p0) {
                 if (name != null) {
                   p0.name = name;
@@ -143,16 +143,16 @@ class _MobileSelectOptionEditorState extends State<MobileSelectOptionEditor> {
           _SearchField(
             controller: searchController,
             hintText: LocaleKeys.grid_selectOption_searchOrCreateOption.tr(),
-            onSubmitted: (option) {
+            onSubmitted: (_) {
               context
                   .read<SelectOptionCellEditorBloc>()
-                  .add(SelectOptionEditorEvent.trySelectOption(option));
+                  .add(const SelectOptionCellEditorEvent.submitTextField());
               searchController.clear();
             },
             onChanged: (value) {
               typingOption = value;
               context.read<SelectOptionCellEditorBloc>().add(
-                    SelectOptionEditorEvent.selectMultipleOptions(
+                    SelectOptionCellEditorEvent.selectMultipleOptions(
                       [],
                       value,
                     ),
@@ -165,18 +165,18 @@ class _MobileSelectOptionEditorState extends State<MobileSelectOptionEditor> {
             onCreateOption: (optionName) {
               context
                   .read<SelectOptionCellEditorBloc>()
-                  .add(SelectOptionEditorEvent.newOption(optionName));
+                  .add(const SelectOptionCellEditorEvent.createOption());
               searchController.clear();
             },
             onCheck: (option, value) {
               if (value) {
                 context
                     .read<SelectOptionCellEditorBloc>()
-                    .add(SelectOptionEditorEvent.selectOption(option.id));
+                    .add(SelectOptionCellEditorEvent.selectOption(option.id));
               } else {
                 context
                     .read<SelectOptionCellEditorBloc>()
-                    .add(SelectOptionEditorEvent.unSelectOption(option.id));
+                    .add(SelectOptionCellEditorEvent.unSelectOption(option.id));
               }
             },
             onMoreOptions: (option) {
@@ -254,23 +254,23 @@ class _OptionList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<SelectOptionCellEditorBloc, SelectOptionEditorState>(
+    return BlocBuilder<SelectOptionCellEditorBloc, SelectOptionCellEditorState>(
       builder: (context, state) {
         // existing options
         final List<Widget> cells = [];
 
         // create an option cell
-        state.createOption.fold(
-          () => null,
-          (createOption) {
-            cells.add(
-              _CreateOptionCell(
-                optionName: createOption,
-                onTap: () => onCreateOption(createOption),
+        if (state.createSelectOptionSuggestion != null) {
+          cells.add(
+            _CreateOptionCell(
+              name: state.createSelectOptionSuggestion!.name,
+              color: state.createSelectOptionSuggestion!.color,
+              onTap: () => onCreateOption(
+                state.createSelectOptionSuggestion!.name,
               ),
-            );
-          },
-        );
+            ),
+          );
+        }
 
         cells.addAll(
           state.options.map(
@@ -335,14 +335,17 @@ class _SelectOption extends StatelessWidget {
             const HSpace(12),
             // option tag
             Expanded(
-              child: SelectOptionTag(
-                option: option,
-                padding: const EdgeInsets.symmetric(
-                  vertical: 10,
+              child: Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: SelectOptionTag(
+                  option: option,
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 10,
+                    horizontal: 14,
+                  ),
+                  textAlign: TextAlign.center,
+                  fontSize: 15.0,
                 ),
-                textAlign: TextAlign.center,
-                fontSize: 15.0,
-                isExpanded: true,
               ),
             ),
             const HSpace(24),
@@ -362,11 +365,13 @@ class _SelectOption extends StatelessWidget {
 
 class _CreateOptionCell extends StatelessWidget {
   const _CreateOptionCell({
-    required this.optionName,
+    required this.name,
+    required this.color,
     required this.onTap,
   });
 
-  final String optionName;
+  final String name;
+  final SelectOptionColorPB color;
   final VoidCallback onTap;
 
   @override
@@ -384,13 +389,16 @@ class _CreateOptionCell extends StatelessWidget {
             ),
             const HSpace(8),
             Expanded(
-              child: SelectOptionTag(
-                isExpanded: true,
-                name: optionName,
-                color: Theme.of(context).colorScheme.surfaceVariant,
-                textAlign: TextAlign.center,
-                padding: const EdgeInsets.symmetric(
-                  vertical: 10,
+              child: Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: SelectOptionTag(
+                  name: name,
+                  color: color.toColor(context),
+                  textAlign: TextAlign.center,
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 10,
+                    horizontal: 14,
+                  ),
                 ),
               ),
             ),
@@ -423,7 +431,6 @@ class _MoreOptionsState extends State<_MoreOptions> {
 
   @override
   Widget build(BuildContext context) {
-    final color = Theme.of(context).colorScheme.secondaryContainer;
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -434,22 +441,18 @@ class _MoreOptionsState extends State<_MoreOptions> {
           const VSpace(16.0),
           Padding(
             padding: const EdgeInsets.only(left: 12.0),
-            child: ColoredBox(
-              color: color,
-              child: FlowyText(
-                LocaleKeys.grid_selectOption_colorPanelTitle.tr().toUpperCase(),
-                color: Theme.of(context).hintColor,
-                fontSize: 13,
-              ),
+            child: FlowyText(
+              LocaleKeys.grid_selectOption_colorPanelTitle.tr().toUpperCase(),
+              color: Theme.of(context).hintColor,
+              fontSize: 13,
             ),
           ),
           const VSpace(4.0),
           FlowyOptionDecorateBox(
             child: Padding(
-              padding: const EdgeInsets.only(
-                top: 12.0,
-                left: 6.0,
-                right: 6.0,
+              padding: const EdgeInsets.symmetric(
+                vertical: 12.0,
+                horizontal: 6.0,
               ),
               child: OptionColorList(
                 selectedColor: option.color,
@@ -482,7 +485,11 @@ class _MoreOptionsState extends State<_MoreOptions> {
   Widget _buildDeleteButton(BuildContext context) {
     return FlowyOptionTile.text(
       text: LocaleKeys.button_delete.tr(),
-      leftIcon: const FlowySvg(FlowySvgs.m_delete_s),
+      textColor: Theme.of(context).colorScheme.error,
+      leftIcon: FlowySvg(
+        FlowySvgs.m_delete_s,
+        color: Theme.of(context).colorScheme.error,
+      ),
       onTap: widget.onDelete,
     );
   }

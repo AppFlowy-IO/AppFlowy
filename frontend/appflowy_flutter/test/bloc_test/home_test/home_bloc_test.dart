@@ -38,8 +38,13 @@ void main() {
     final appBloc = ViewBloc(view: app)..add(const ViewEvent.initial());
     assert(appBloc.state.lastCreatedView == null);
 
-    appBloc
-        .add(const ViewEvent.createView("New document", ViewLayoutPB.Document));
+    appBloc.add(
+      const ViewEvent.createView(
+        "New document",
+        ViewLayoutPB.Document,
+        section: ViewSectionPB.Public,
+      ),
+    );
     await blocResponseFuture();
 
     assert(appBloc.state.lastCreatedView != null);

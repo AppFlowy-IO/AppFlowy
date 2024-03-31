@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database/board/presentation/board_page.dart';
 import 'package:appflowy/plugins/database/calendar/presentation/calendar_page.dart';
@@ -12,7 +10,8 @@ import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:dartz/dartz.dart' hide id;
+import 'package:appflowy_result/appflowy_result.dart';
+import 'package:flutter/material.dart';
 
 enum FlowyPlugin {
   editor,
@@ -93,13 +92,13 @@ extension ViewExtension on ViewPB {
     final ancestors = <ViewPB>[];
     if (includeSelf) {
       final self = await ViewBackendService.getView(id);
-      ancestors.add(self.getLeftOrNull<ViewPB>() ?? this);
+      ancestors.add(self.fold((s) => s, (e) => this));
     }
-    Either<ViewPB, FlowyError> parent =
+    FlowyResult<ViewPB, FlowyError> parent =
         await ViewBackendService.getView(parentViewId);
-    while (parent.isLeft()) {
+    while (parent.isSuccess) {
       // parent is not null
-      final view = parent.getLeftOrNull<ViewPB>();
+      final view = parent.fold((s) => s, (e) => null);
       if (view == null || (!includeRoot && view.parentViewId.isEmpty)) {
         break;
       }

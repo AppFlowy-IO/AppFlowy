@@ -1,6 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
 import 'package:appflowy/workspace/presentation/widgets/date_picker/appflowy_date_picker.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/utils/date_time_format_ext.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/utils/user_time_format_ext.dart';
@@ -9,6 +6,8 @@ import 'package:appflowy_backend/protobuf/flowy-user/date_time.pbenum.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/style_widget/decoration.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 /// Provides arguemnts for [AppFlowyDatePicker] when showing
 /// a [DatePickerMenu]
@@ -118,11 +117,10 @@ class DatePickerMenu extends DatePickerService {
         child: SizedBox(
           height: editorSize.height,
           width: editorSize.width,
-          child: RawKeyboardListener(
+          child: KeyboardListener(
             focusNode: FocusNode()..requestFocus(),
-            onKey: (event) {
-              if (event is RawKeyDownEvent &&
-                  event.logicalKey == LogicalKeyboardKey.escape) {
+            onKeyEvent: (event) {
+              if (event.logicalKey == LogicalKeyboardKey.escape) {
                 dismiss();
               }
             },

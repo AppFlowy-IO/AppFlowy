@@ -193,9 +193,8 @@
     "editContact": "Редагувати контакт"
   },
   "button": {
-    "OK": "OK",
-    "Done": "Готово",
-    "Cancel": "Скасувати",
+    "ok": "OK",
+    "cancel": "Скасувати",
     "signIn": "Увійти",
     "signOut": "Вийти",
     "complete": "Завершити",
@@ -282,7 +281,6 @@
         "auto": "АВТО",
         "fallback": "Такий же, як і напрямок макету"
       },
-
       "themeUpload": {
         "button": "Завантажити",
         "uploadTheme": "Завантажити тему",
@@ -348,7 +346,6 @@
       "exportFileFail": "Помилка експорту файлу!",
       "export": "Експорт"
     },
-
     "user": {
       "name": "Ім'я",
       "email": "Електронна пошта",
@@ -417,13 +414,9 @@
       "isComplete": "є завершено",
       "isIncomplted": "є незавершено"
     },
-    "singleSelectOptionFilter": {
+    "selectOptionFilter": {
       "is": "є",
       "isNot": "не є",
-      "isEmpty": "порожнє",
-      "isNotEmpty": "не порожнє"
-    },
-    "multiSelectOptionFilter": {
       "contains": "Містить",
       "doesNotContain": "Не містить",
       "isEmpty": "порожнє",

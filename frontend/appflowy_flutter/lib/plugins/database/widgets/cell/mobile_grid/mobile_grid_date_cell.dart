@@ -44,8 +44,6 @@ class MobileGridDateCellSkin extends IEditableDateCellSkin {
       onTap: () {
         showMobileBottomSheet(
           context,
-          padding: EdgeInsets.zero,
-          backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
           builder: (context) {
             return MobileDateCellEditScreen(
               controller: bloc.cellController,

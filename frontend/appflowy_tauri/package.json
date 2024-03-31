@@ -52,6 +52,7 @@
     "react-beautiful-dnd": "^13.1.1",
     "react-big-calendar": "^1.8.5",
     "react-color": "^2.19.3",
+    "react-custom-scrollbars": "^4.2.1",
     "react-datepicker": "^4.23.0",
     "react-dom": "^18.2.0",
     "react-error-boundary": "^3.1.4",
@@ -73,6 +74,7 @@
     "slate-history": "^0.100.0",
     "slate-react": "^0.101.3",
     "ts-results": "^3.3.0",
+    "unsplash-js": "^7.0.19",
     "utf8": "^3.0.0",
     "valtio": "^1.12.1",
     "yjs": "^13.5.51"
@@ -91,6 +93,7 @@
     "@types/react": "^18.0.15",
     "@types/react-beautiful-dnd": "^13.1.3",
     "@types/react-color": "^3.0.6",
+    "@types/react-custom-scrollbars": "^4.0.13",
     "@types/react-datepicker": "^4.19.3",
     "@types/react-dom": "^18.0.6",
     "@types/react-katex": "^3.0.0",

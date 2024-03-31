@@ -92,7 +92,7 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
   Future<void> _doSearch() async {
     final List<InlineActionsResult> newResults = [];
     for (final handler in widget.service.handlers) {
-      final group = await handler.call(_search);
+      final group = await handler.search(_search);
 
       if (group.results.isNotEmpty) {
         newResults.add(group);
@@ -145,7 +145,7 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
   Widget build(BuildContext context) {
     return Focus(
       focusNode: _focusNode,
-      onKey: onKey,
+      onKeyEvent: onKeyEvent,
       child: Container(
         constraints: BoxConstraints.loose(const Size(200, _menuHeight)),
         decoration: BoxDecoration(
@@ -208,8 +208,8 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
   InlineActionsMenuItem handlerOf(int groupIndex, int handlerIndex) =>
       results[groupIndex].results[handlerIndex];
 
-  KeyEventResult onKey(focus, event) {
-    if (event is! RawKeyDownEvent) {
+  KeyEventResult onKeyEvent(focus, KeyEvent event) {
+    if (event is! KeyDownEvent) {
       return KeyEventResult.ignored;
     }
 
@@ -348,7 +348,7 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
 
     if (key == LogicalKeyboardKey.arrowUp ||
         (key == LogicalKeyboardKey.tab &&
-            RawKeyboard.instance.isShiftPressed)) {
+            HardwareKeyboard.instance.isShiftPressed)) {
       if (_selectedIndex == 0 && _selectedGroup > 0) {
         _selectedGroup -= 1;
         _selectedIndex = lengthOfGroup(_selectedGroup) - 1;

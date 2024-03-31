@@ -47,14 +47,18 @@ class FieldInfo with _$FieldInfo {
   }
 
   bool get canCreateFilter {
-    if (hasFilter) return false;
+    if (isGroupField) {
+      return false;
+    }
 
     switch (field.fieldType) {
+      case FieldType.Number:
       case FieldType.Checkbox:
       case FieldType.MultiSelect:
       case FieldType.RichText:
       case FieldType.SingleSelect:
       case FieldType.Checklist:
+      case FieldType.URL:
         return true;
       default:
         return false;
@@ -62,7 +66,9 @@ class FieldInfo with _$FieldInfo {
   }
 
   bool get canCreateSort {
-    if (hasSort) return false;
+    if (hasSort) {
+      return false;
+    }
 
     switch (field.fieldType) {
       case FieldType.RichText:
@@ -73,6 +79,7 @@ class FieldInfo with _$FieldInfo {
       case FieldType.MultiSelect:
       case FieldType.LastEditedTime:
       case FieldType.CreatedTime:
+      case FieldType.Checklist:
         return true;
       default:
         return false;

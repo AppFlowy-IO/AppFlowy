@@ -15,6 +15,7 @@ import ExpandRecordModal from '$app/components/database/components/edit_record/E
 import { subscribeNotifications } from '$app/application/notification';
 import { Page } from '$app_reducers/pages/slice';
 import { getPage } from '$app/application/folder/page.service';
+import './database.scss';
 
 interface Props {
   selectedViewId?: string;
@@ -25,6 +26,7 @@ export const Database = forwardRef<HTMLDivElement, Props>(({ selectedViewId, set
   const innerRef = useRef<HTMLDivElement>();
   const databaseRef = (ref ?? innerRef) as React.MutableRefObject<HTMLDivElement>;
   const viewId = useViewId();
+  const [settingDom, setSettingDom] = useState<HTMLDivElement | null>(null);
 
   const [page, setPage] = useState<Page | null>(null);
   const { t } = useTranslation();
@@ -56,65 +58,43 @@ export const Database = forwardRef<HTMLDivElement, Props>(({ selectedViewId, set
     }
   }, [viewId]);
 
+  const parentId = page?.parentId;
+
   useEffect(() => {
     void handleGetPage();
     void handleResetDatabaseViews(viewId);
-    const unsubscribePromise = subscribeNotifications(
-      {
-        [FolderNotification.DidUpdateView]: (changeset) => {
-          setChildViews((prev) => {
-            const index = prev.findIndex((view) => view.id === changeset.id);
+    const unsubscribePromise = subscribeNotifications({
+      [FolderNotification.DidUpdateView]: (changeset) => {
+        if (changeset.parent_view_id !== viewId && changeset.id !== viewId) return;
+        setChildViews((prev) => {
+          const index = prev.findIndex((view) => view.id === changeset.id);
 
-            if (index === -1) {
-              return prev;
-            }
-
-            const newViews = [...prev];
-
-            newViews[index] = {
-              ...newViews[index],
-              name: changeset.name,
-            };
-
-            return newViews;
-          });
-        },
-        [FolderNotification.DidUpdateChildViews]: (changeset) => {
-          if (changeset.create_child_views.length === 0 && changeset.delete_child_views.length === 0) {
-            return;
+          if (index === -1) {
+            return prev;
           }
 
-          void handleResetDatabaseViews(viewId);
-        },
+          const newViews = [...prev];
+
+          newViews[index] = {
+            ...newViews[index],
+            name: changeset.name,
+          };
+
+          return newViews;
+        });
       },
-      {
-        id: viewId,
-      }
-    );
+      [FolderNotification.DidUpdateChildViews]: (changeset) => {
+        if (changeset.parent_view_id !== viewId && changeset.parent_view_id !== parentId) return;
+        if (changeset.create_child_views.length === 0 && changeset.delete_child_views.length === 0) {
+          return;
+        }
+
+        void handleResetDatabaseViews(viewId);
+      },
+    });
 
     return () => void unsubscribePromise.then((unsubscribe) => unsubscribe());
-  }, [handleGetPage, handleResetDatabaseViews, viewId]);
-
-  useEffect(() => {
-    const parentId = page?.parentId;
-
-    if (!parentId) return;
-
-    const unsubscribePromise = subscribeNotifications(
-      {
-        [FolderNotification.DidUpdateChildViews]: (changeset) => {
-          if (changeset.delete_child_views.includes(viewId)) {
-            setNotFound(true);
-          }
-        },
-      },
-      {
-        id: parentId,
-      }
-    );
-
-    return () => void unsubscribePromise.then((unsubscribe) => unsubscribe());
-  }, [page, viewId]);
+  }, [handleGetPage, handleResetDatabaseViews, viewId, parentId]);
 
   const value = useMemo(() => {
     return Math.max(
@@ -161,12 +141,16 @@ export const Database = forwardRef<HTMLDivElement, Props>(({ selectedViewId, set
   }
 
   return (
-    <div ref={databaseRef} className='appflowy-database relative flex flex-1 flex-col overflow-y-hidden'>
+    <div
+      ref={databaseRef}
+      className='appflowy-database relative flex w-full flex-1 select-none flex-col overflow-y-hidden'
+    >
       <DatabaseTabBar
         pageId={viewId}
         setSelectedViewId={setSelectedViewId}
         selectedViewId={selectedViewId}
         childViews={childViews}
+        ref={setSettingDom}
       />
       <SwipeableViews
         slideStyle={{
@@ -177,17 +161,24 @@ export const Database = forwardRef<HTMLDivElement, Props>(({ selectedViewId, set
         index={value}
       >
         {childViews.map((view, index) => (
-          <TabPanel className={'flex h-full w-full flex-col'} key={view.id} index={index} value={value}>
+          <TabPanel
+            data-view-id={view.id}
+            className={'flex h-full w-full flex-col'}
+            key={view.id}
+            index={index}
+            value={value}
+          >
             <DatabaseLoader viewId={view.id}>
               {selectedViewId === view.id && (
                 <>
-                  <Portal container={databaseRef.current}>
-                    <div className={'absolute right-16 top-0 py-1'}>
+                  {settingDom && (
+                    <Portal container={settingDom}>
                       <DatabaseSettings
                         onToggleCollection={(forceOpen?: boolean) => onToggleCollection(view.id, forceOpen)}
                       />
-                    </div>
-                  </Portal>
+                    </Portal>
+                  )}
+
                   <DatabaseCollection open={openCollections.includes(view.id)} />
                   {editRecordRowId && (
                     <ExpandRecordModal

@@ -35,12 +35,15 @@ class _MobileHomeSettingPageState extends State<MobileHomeSettingPage> {
           return const Center(child: CircularProgressIndicator.adaptive());
         }
 
-        final userProfile = snapshot.data?.fold((error) {
-          errorMsg = error.msg;
-          return null;
-        }, (userProfile) {
-          return userProfile;
-        });
+        final userProfile = snapshot.data?.fold(
+          (userProfile) {
+            return userProfile;
+          },
+          (error) {
+            errorMsg = error.msg;
+            return null;
+          },
+        );
 
         return Scaffold(
           appBar: FlowyAppBar(

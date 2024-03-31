@@ -194,7 +194,9 @@
     "editContact": "Editar um conctato"
   },
   "button": {
+    "ok": "OK",
     "done": "Feito",
+    "cancel": "Cancelar",
     "signIn": "Entrar",
     "signOut": "Sair",
     "complete": "Completar",
@@ -210,10 +212,7 @@
     "edit": "Editar",
     "delete": "Excluir",
     "duplicate": "Duplicado",
-    "putback": "Por de volta",
-    "Done": "Feito",
-    "Cancel": "Cancelar",
-    "OK": "OK"
+    "putback": "Por de volta"
   },
   "label": {
     "welcome": "Bem vindo!",
@@ -427,13 +426,9 @@
       "isComplete": "está completo",
       "isIncomplted": "está incompleto"
     },
-    "singleSelectOptionFilter": {
+    "selectOptionFilter": {
       "is": "É",
       "isNot": "não é",
-      "isEmpty": "Está vazia",
-      "isNotEmpty": "Não está vazio"
-    },
-    "multiSelectOptionFilter": {
       "contains": "contém",
       "doesNotContain": "Não contém",
       "isEmpty": "Está vazia",

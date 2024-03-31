@@ -12,7 +12,7 @@ const ActionButton = forwardRef<
   } & IconButtonProps
 >(({ tooltip, onClick, disabled, children, active, className, ...props }, ref) => {
   return (
-    <Tooltip placement={'top'} title={tooltip}>
+    <Tooltip disableInteractive={true} placement={'top'} title={tooltip}>
       <IconButton
         ref={ref}
         onClick={onClick}

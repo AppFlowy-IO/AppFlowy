@@ -127,6 +127,15 @@ impl FolderOperationHandler for DocumentFolderOperation {
     })
   }
 
+  fn open_view(&self, view_id: &str) -> FutureResult<(), FlowyError> {
+    let manager = self.0.clone();
+    let view_id = view_id.to_string();
+    FutureResult::new(async move {
+      manager.open_document(&view_id).await?;
+      Ok(())
+    })
+  }
+
   /// Close the document view.
   fn close_view(&self, view_id: &str) -> FutureResult<(), FlowyError> {
     let manager = self.0.clone();
@@ -237,6 +246,15 @@ impl FolderOperationHandler for DocumentFolderOperation {
 
 struct DatabaseFolderOperation(Arc<DatabaseManager>);
 impl FolderOperationHandler for DatabaseFolderOperation {
+  fn open_view(&self, view_id: &str) -> FutureResult<(), FlowyError> {
+    let database_manager = self.0.clone();
+    let view_id = view_id.to_string();
+    FutureResult::new(async move {
+      database_manager.open_database_view(view_id).await?;
+      Ok(())
+    })
+  }
+
   fn close_view(&self, view_id: &str) -> FutureResult<(), FlowyError> {
     let database_manager = self.0.clone();
     let view_id = view_id.to_string();
@@ -361,8 +379,11 @@ impl FolderOperationHandler for DatabaseFolderOperation {
       _ => CSVFormat::Original,
     };
     FutureResult::new(async move {
-      let content =
-        String::from_utf8(bytes).map_err(|err| FlowyError::internal().with_context(err))?;
+      let content = tokio::task::spawn_blocking(move || {
+        String::from_utf8(bytes).map_err(|err| FlowyError::internal().with_context(err))
+      })
+      .await??;
+
       database_manager
         .import_csv(view_id, content, format)
         .await?;

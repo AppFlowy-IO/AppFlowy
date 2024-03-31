@@ -1,17 +1,21 @@
 import 'dart:async';
 import 'dart:typed_data';
+
+import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-notification/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
-import 'package:dartz/dartz.dart';
-import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/rust_stream.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 
 import 'notification_helper.dart';
+
+// This value should be the same as the USER_OBSERVABLE_SOURCE value
+const String _source = 'User';
 
 // User
 typedef UserNotificationCallback = void Function(
   UserNotification,
-  Either<Uint8List, FlowyError>,
+  FlowyResult<Uint8List, FlowyError>,
 );
 
 class UserNotificationParser
@@ -20,14 +24,15 @@ class UserNotificationParser
     required String super.id,
     required super.callback,
   }) : super(
-          tyParser: (ty) => UserNotification.valueOf(ty),
+          tyParser: (ty, source) =>
+              source == _source ? UserNotification.valueOf(ty) : null,
           errorParser: (bytes) => FlowyError.fromBuffer(bytes),
         );
 }
 
 typedef UserNotificationHandler = Function(
   UserNotification ty,
-  Either<Uint8List, FlowyError> result,
+  FlowyResult<Uint8List, FlowyError> result,
 );
 
 class UserNotificationListener {

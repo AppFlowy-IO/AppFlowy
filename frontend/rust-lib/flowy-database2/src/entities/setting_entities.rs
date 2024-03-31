@@ -9,9 +9,9 @@ use validator::Validate;
 
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::{
-  CalendarLayoutSettingPB, DeleteFilterPayloadPB, DeleteSortPayloadPB, RepeatedFieldSettingsPB,
-  RepeatedFilterPB, RepeatedGroupSettingPB, RepeatedSortPB, UpdateFilterPayloadPB, UpdateGroupPB,
-  UpdateSortPayloadPB,
+  CalendarLayoutSettingPB, DeleteFilterPB, DeleteSortPayloadPB, InsertFilterPB,
+  RepeatedFieldSettingsPB, RepeatedFilterPB, RepeatedGroupSettingPB, RepeatedSortPB,
+  UpdateFilterDataPB, UpdateFilterTypePB, UpdateGroupPB, UpdateSortPayloadPB,
 };
 use crate::services::setting::{BoardLayoutSetting, CalendarLayoutSetting};
 
@@ -79,25 +79,33 @@ pub struct DatabaseSettingChangesetPB {
 
   #[pb(index = 3, one_of)]
   #[validate]
-  pub update_filter: Option<UpdateFilterPayloadPB>,
+  pub insert_filter: Option<InsertFilterPB>,
 
   #[pb(index = 4, one_of)]
   #[validate]
-  pub delete_filter: Option<DeleteFilterPayloadPB>,
+  pub update_filter_type: Option<UpdateFilterTypePB>,
 
   #[pb(index = 5, one_of)]
   #[validate]
-  pub update_group: Option<UpdateGroupPB>,
+  pub update_filter_data: Option<UpdateFilterDataPB>,
 
   #[pb(index = 6, one_of)]
   #[validate]
-  pub update_sort: Option<UpdateSortPayloadPB>,
+  pub delete_filter: Option<DeleteFilterPB>,
 
   #[pb(index = 7, one_of)]
   #[validate]
-  pub reorder_sort: Option<ReorderSortPayloadPB>,
+  pub update_group: Option<UpdateGroupPB>,
 
   #[pb(index = 8, one_of)]
+  #[validate]
+  pub update_sort: Option<UpdateSortPayloadPB>,
+
+  #[pb(index = 9, one_of)]
+  #[validate]
+  pub reorder_sort: Option<ReorderSortPayloadPB>,
+
+  #[pb(index = 10, one_of)]
   #[validate]
   pub delete_sort: Option<DeleteSortPayloadPB>,
 }

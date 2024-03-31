@@ -4,7 +4,6 @@ import 'package:appflowy/env/backend_env.dart';
 import 'package:appflowy/env/env.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:dartz/dartz.dart';
 
 /// Sets the cloud type for the application.
 ///
@@ -52,7 +51,7 @@ const String kAppflowyCloudUrl = "https://beta.appflowy.cloud";
 ///
 Future<AuthenticatorType> getAuthenticatorType() async {
   final value = await getIt<KeyValueStorage>().get(KVKeys.kCloudType);
-  if (value.isNone() && !integrationMode().isUnitTest) {
+  if (value == null && !integrationMode().isUnitTest) {
     // if the cloud type is not set, then set it to AppFlowy Cloud as default.
     await useAppFlowyBetaCloudWithURL(
       kAppflowyCloudUrl,
@@ -61,7 +60,7 @@ Future<AuthenticatorType> getAuthenticatorType() async {
     return AuthenticatorType.appflowyCloud;
   }
 
-  switch (value.getOrElse(() => "0")) {
+  switch (value ?? "0") {
     case "0":
       return AuthenticatorType.local;
     case "1":
@@ -177,16 +176,13 @@ AuthenticatorType currentCloudType() {
   return getIt<AppFlowyCloudSharedEnv>().authenticatorType;
 }
 
-Future<void> _setAppFlowyCloudUrl(Option<String> url) async {
-  await url.fold(
-    () => getIt<KeyValueStorage>().set(KVKeys.kAppflowyCloudBaseURL, ""),
-    (s) => getIt<KeyValueStorage>().set(KVKeys.kAppflowyCloudBaseURL, s),
-  );
+Future<void> _setAppFlowyCloudUrl(String? url) async {
+  await getIt<KeyValueStorage>().set(KVKeys.kAppflowyCloudBaseURL, url ?? '');
 }
 
 Future<void> useSelfHostedAppFlowyCloudWithURL(String url) async {
   await _setAuthenticatorType(AuthenticatorType.appflowyCloudSelfHost);
-  await _setAppFlowyCloudUrl(Some(url));
+  await _setAppFlowyCloudUrl(url);
 }
 
 Future<void> useAppFlowyBetaCloudWithURL(
@@ -194,7 +190,7 @@ Future<void> useAppFlowyBetaCloudWithURL(
   AuthenticatorType authenticatorType,
 ) async {
   await _setAuthenticatorType(authenticatorType);
-  await _setAppFlowyCloudUrl(Some(url));
+  await _setAppFlowyCloudUrl(url);
 }
 
 Future<void> useLocalServer() async {
@@ -206,7 +202,7 @@ Future<void> useSupabaseCloud({
   required String anonKey,
 }) async {
   await _setAuthenticatorType(AuthenticatorType.supabase);
-  await setSupbaseServer(Some(url), Some(anonKey));
+  await setSupabaseServer(url, anonKey);
 }
 
 /// Use getIt<AppFlowyCloudSharedEnv>() to get the shared environment.
@@ -285,7 +281,7 @@ Future<AppFlowyCloudConfiguration> configurationFromUri(
   if (authenticatorType == AuthenticatorType.appflowyCloudDevelop) {
     return AppFlowyCloudConfiguration(
       base_url: "$baseUrl:8000",
-      ws_base_url: "ws://${baseUri.host}:8000/ws",
+      ws_base_url: "ws://${baseUri.host}:8000/ws/v1",
       gotrue_url: "$baseUrl:9999",
     );
   } else {
@@ -314,10 +310,7 @@ Future<AppFlowyCloudConfiguration> getAppFlowyCloudConfig(
 Future<String> getAppFlowyCloudUrl() async {
   final result =
       await getIt<KeyValueStorage>().get(KVKeys.kAppflowyCloudBaseURL);
-  return result.fold(
-    () => kAppflowyCloudUrl,
-    (url) => url,
-  );
+  return result ?? kAppflowyCloudUrl;
 }
 
 Future<String> _getAppFlowyCloudWSUrl(String baseURL) async {
@@ -326,7 +319,7 @@ Future<String> _getAppFlowyCloudWSUrl(String baseURL) async {
 
     // Construct the WebSocket URL directly from the parsed URI.
     final wsScheme = uri.isScheme('HTTPS') ? 'wss' : 'ws';
-    final wsUrl = Uri(scheme: wsScheme, host: uri.host, path: '/ws');
+    final wsUrl = Uri(scheme: wsScheme, host: uri.host, path: '/ws/v1');
 
     return wsUrl.toString();
   } catch (e) {
@@ -339,27 +332,30 @@ Future<String> _getAppFlowyCloudGotrueUrl(String baseURL) async {
   return "$baseURL/gotrue";
 }
 
-Future<void> setSupbaseServer(
-  Option<String> url,
-  Option<String> anonKey,
+Future<void> setSupabaseServer(
+  String? url,
+  String? anonKey,
 ) async {
   assert(
-    (url.isSome() && anonKey.isSome()) || (url.isNone() && anonKey.isNone()),
+    (url != null && anonKey != null) || (url == null && anonKey == null),
     "Either both Supabase URL and anon key must be set, or both should be unset",
   );
 
-  await url.fold(
-    () => getIt<KeyValueStorage>().remove(KVKeys.kSupabaseURL),
-    (s) => getIt<KeyValueStorage>().set(KVKeys.kSupabaseURL, s),
-  );
-  await anonKey.fold(
-    () => getIt<KeyValueStorage>().remove(KVKeys.kSupabaseAnonKey),
-    (s) => getIt<KeyValueStorage>().set(KVKeys.kSupabaseAnonKey, s),
-  );
+  if (url == null) {
+    await getIt<KeyValueStorage>().remove(KVKeys.kSupabaseURL);
+  } else {
+    await getIt<KeyValueStorage>().set(KVKeys.kSupabaseURL, url);
+  }
+
+  if (anonKey == null) {
+    await getIt<KeyValueStorage>().remove(KVKeys.kSupabaseAnonKey);
+  } else {
+    await getIt<KeyValueStorage>().set(KVKeys.kSupabaseAnonKey, anonKey);
+  }
 }
 
 Future<SupabaseConfiguration> getSupabaseCloudConfig() async {
-  final url = await _getSupbaseUrl();
+  final url = await _getSupabaseUrl();
   final anonKey = await _getSupabaseAnonKey();
   return SupabaseConfiguration(
     url: url,
@@ -367,18 +363,12 @@ Future<SupabaseConfiguration> getSupabaseCloudConfig() async {
   );
 }
 
-Future<String> _getSupbaseUrl() async {
+Future<String> _getSupabaseUrl() async {
   final result = await getIt<KeyValueStorage>().get(KVKeys.kSupabaseURL);
-  return result.fold(
-    () => "",
-    (url) => url,
-  );
+  return result ?? '';
 }
 
 Future<String> _getSupabaseAnonKey() async {
   final result = await getIt<KeyValueStorage>().get(KVKeys.kSupabaseAnonKey);
-  return result.fold(
-    () => "",
-    (url) => url,
-  );
+  return result ?? '';
 }

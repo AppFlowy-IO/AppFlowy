@@ -10,6 +10,7 @@ import { useGridColumn, useGridRow } from './GridTable.hooks';
 import GridStickyHeader from '$app/components/database/grid/grid_sticky_header/GridStickyHeader';
 import GridTableOverlay from '$app/components/database/grid/grid_overlay/GridTableOverlay';
 import ReactDOM from 'react-dom';
+import { useViewId } from '$app/hooks';
 
 export interface GridTableProps {
   onEditRecord: (rowId: string) => void;
@@ -20,8 +21,17 @@ export const GridTable: FC<GridTableProps> = React.memo(({ onEditRecord }) => {
   const fields = useDatabaseVisibilityFields();
   const renderRows = useMemo<RenderRow[]>(() => rowMetasToRenderRow(rowMetas as RowMeta[]), [rowMetas]);
   const columns = useMemo<GridColumn[]>(() => fieldsToColumns(fields), [fields]);
-  const ref = useRef<Grid<HTMLDivElement>>(null);
-  const { columnWidth } = useGridColumn(columns, ref);
+  const ref = useRef<
+    Grid<{
+      columns: GridColumn[];
+      renderRows: RenderRow[];
+    }>
+  >(null);
+  const { columnWidth } = useGridColumn(
+    columns,
+    ref as React.MutableRefObject<Grid<GridColumn[] | { columns: GridColumn[]; renderRows: RenderRow[] }> | null>
+  );
+  const viewId = useViewId();
   const { rowHeight } = useGridRow();
   const onRendered = useDatabaseRendered();
 
@@ -54,9 +64,9 @@ export const GridTable: FC<GridTableProps> = React.memo(({ onEditRecord }) => {
   }, []);
 
   const Cell = useCallback(
-    ({ columnIndex, rowIndex, style }: GridChildComponentProps) => {
-      const row = renderRows[rowIndex];
-      const column = columns[columnIndex];
+    ({ columnIndex, rowIndex, style, data }: GridChildComponentProps) => {
+      const row = data.renderRows[rowIndex];
+      const column = data.columns[columnIndex];
 
       return (
         <GridCell
@@ -69,15 +79,19 @@ export const GridTable: FC<GridTableProps> = React.memo(({ onEditRecord }) => {
         />
       );
     },
-    [columns, getContainerRef, renderRows, onEditRecord]
+    [getContainerRef, onEditRecord]
   );
 
-  const staticGrid = useRef<Grid<HTMLDivElement> | null>(null);
+  const staticGrid = useRef<Grid<GridColumn[]> | null>(null);
 
   const onScroll = useCallback(({ scrollLeft, scrollUpdateWasRequested }: GridOnScrollProps) => {
     if (!scrollUpdateWasRequested) {
       staticGrid.current?.scrollTo({ scrollLeft, scrollTop: 0 });
     }
+  }, []);
+
+  const onHeaderScroll = useCallback(({ scrollLeft }: GridOnScrollProps) => {
+    ref.current?.scrollTo({ scrollLeft });
   }, []);
 
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -95,7 +109,12 @@ export const GridTable: FC<GridTableProps> = React.memo(({ onEditRecord }) => {
         </div>
       )}
       <div className={'h-[36px]'}>
-        <GridStickyHeader ref={staticGrid} getScrollElement={getScrollElement} columns={columns} />
+        <GridStickyHeader
+          ref={staticGrid}
+          onScroll={onHeaderScroll}
+          getScrollElement={getScrollElement}
+          columns={columns}
+        />
       </div>
 
       <div className={'flex-1'}>
@@ -110,6 +129,10 @@ export const GridTable: FC<GridTableProps> = React.memo(({ onEditRecord }) => {
               rowCount={renderRows.length}
               rowHeight={rowHeight}
               width={width}
+              itemData={{
+                columns,
+                renderRows,
+              }}
               overscanRowCount={10}
               itemKey={getItemKey}
               style={{
@@ -118,7 +141,7 @@ export const GridTable: FC<GridTableProps> = React.memo(({ onEditRecord }) => {
               className={'grid-scroll-container'}
               outerRef={(el) => {
                 scrollElementRef.current = el;
-                onRendered();
+                onRendered(viewId);
               }}
               innerRef={containerRef}
             >

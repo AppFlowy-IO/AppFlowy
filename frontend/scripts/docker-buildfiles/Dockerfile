@@ -21,10 +21,10 @@ WORKDIR /home/$user
 RUN sudo pacman -S --needed --noconfirm curl tar
 RUN curl -sSfL \
     --output yay.tar.gz \
-    https://github.com/Jguer/yay/releases/download/v12.0.2/yay_12.0.2_x86_64.tar.gz && \
+    https://github.com/Jguer/yay/releases/download/v12.3.3/yay_12.3.3_x86_64.tar.gz && \
   tar -xf yay.tar.gz && \
-  sudo mv yay_12.0.2_x86_64/yay /bin && \
-  rm -rf yay_12.0.2_x86_64 && \
+  sudo mv yay_12.3.3_x86_64/yay /bin && \
+  rm -rf yay_12.3.3_x86_64 && \
   yay --version
 
 # Install Rust
@@ -39,7 +39,7 @@ RUN source ~/.cargo/env && \
 RUN sudo pacman -S --noconfirm git tar gtk3
 RUN curl -sSfL \
       --output flutter.tar.xz \
-      https://storage.googleapis.com/flutter_infra_release/releases/beta/linux/flutter_linux_3.18.0-0.2.pre-beta.tar.xz && \
+      https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.19.0-stable.tar.xz && \
     tar -xf flutter.tar.xz && \
     rm flutter.tar.xz
 RUN flutter config --enable-linux-desktop

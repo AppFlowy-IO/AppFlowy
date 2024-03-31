@@ -4,9 +4,6 @@ import 'package:appflowy_backend/protobuf/flowy-database2/select_option_entities
 import 'package:flowy_infra/size.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:easy_localization/easy_localization.dart';
-import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:flutter/services.dart';
 
 import 'extension.dart';
 
@@ -18,6 +15,7 @@ class SelectOptionTextField extends StatefulWidget {
     required this.distanceToText,
     required this.textSeparators,
     required this.textController,
+    required this.focusNode,
     required this.onSubmitted,
     required this.newText,
     required this.onPaste,
@@ -30,8 +28,9 @@ class SelectOptionTextField extends StatefulWidget {
   final double distanceToText;
   final List<String> textSeparators;
   final TextEditingController textController;
+  final FocusNode focusNode;
 
-  final Function(String) onSubmitted;
+  final Function() onSubmitted;
   final Function(String) newText;
   final Function(List<String>, String) onPaste;
   final Function(String) onRemove;
@@ -42,32 +41,11 @@ class SelectOptionTextField extends StatefulWidget {
 }
 
 class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
-  late final FocusNode focusNode;
-
   @override
   void initState() {
     super.initState();
-    focusNode = FocusNode(
-      onKeyEvent: (node, event) {
-        if (event is KeyDownEvent &&
-            event.logicalKey == LogicalKeyboardKey.escape) {
-          if (!widget.textController.value.composing.isCollapsed) {
-            final TextRange(:start, :end) =
-                widget.textController.value.composing;
-            final text = widget.textController.text;
-
-            widget.textController.value = TextEditingValue(
-              text: "${text.substring(0, start)}${text.substring(end)}",
-              selection: TextSelection(baseOffset: start, extentOffset: start),
-            );
-            return KeyEventResult.handled;
-          }
-        }
-        return KeyEventResult.ignored;
-      },
-    );
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      focusNode.requestFocus();
+      widget.focusNode.requestFocus();
     });
     widget.textController.addListener(_onChanged);
   }
@@ -82,15 +60,9 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
   Widget build(BuildContext context) {
     return TextField(
       controller: widget.textController,
-      focusNode: focusNode,
+      focusNode: widget.focusNode,
       onTap: widget.onClick,
-      onSubmitted: (text) {
-        if (text.isNotEmpty) {
-          widget.onSubmitted(text.trim());
-          focusNode.requestFocus();
-          widget.textController.clear();
-        }
-      },
+      onSubmitted: (_) => widget.onSubmitted(),
       style: Theme.of(context).textTheme.bodyMedium,
       decoration: InputDecoration(
         enabledBorder: OutlineInputBorder(
@@ -99,11 +71,6 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
         ),
         isDense: true,
         prefixIcon: _renderTags(context),
-        hintText: LocaleKeys.grid_selectOption_searchOption.tr(),
-        hintStyle: Theme.of(context)
-            .textTheme
-            .bodySmall!
-            .copyWith(color: Theme.of(context).hintColor),
         prefixIconConstraints: BoxConstraints(maxWidth: widget.distanceToText),
         focusedBorder: OutlineInputBorder(
           borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
@@ -147,23 +114,26 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
         )
         .toList();
 
-    return MouseRegion(
-      cursor: SystemMouseCursors.basic,
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: ScrollConfiguration(
-          behavior: ScrollConfiguration.of(context).copyWith(
-            dragDevices: {
-              PointerDeviceKind.mouse,
-              PointerDeviceKind.touch,
-              PointerDeviceKind.trackpad,
-              PointerDeviceKind.stylus,
-              PointerDeviceKind.invertedStylus,
-            },
-          ),
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Wrap(spacing: 4, children: children),
+    return Focus(
+      descendantsAreFocusable: false,
+      child: MouseRegion(
+        cursor: SystemMouseCursors.basic,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: ScrollConfiguration(
+            behavior: ScrollConfiguration.of(context).copyWith(
+              dragDevices: {
+                PointerDeviceKind.mouse,
+                PointerDeviceKind.touch,
+                PointerDeviceKind.trackpad,
+                PointerDeviceKind.stylus,
+                PointerDeviceKind.invertedStylus,
+              },
+            ),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Wrap(spacing: 4, children: children),
+            ),
           ),
         ),
       ),

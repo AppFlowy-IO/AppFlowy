@@ -137,20 +137,20 @@ typedef _store_dart_post_cobject_Dart = void Function(
   Pointer<NativeFunction<Int8 Function(Int64, Pointer<Dart_CObject>)>> ptr,
 );
 
-void log(
+void rust_log(
   int level,
   Pointer<ffi.Utf8> data,
 ) {
-  _invoke_log(level, data);
+  _invoke_rust_log(level, data);
 }
 
-final _invoke_log_Dart _invoke_log = _dart_ffi_lib
-    .lookupFunction<_invoke_log_C, _invoke_log_Dart>('backend_log');
-typedef _invoke_log_C = Void Function(
+final _invoke_rust_log_Dart _invoke_rust_log = _dart_ffi_lib
+    .lookupFunction<_invoke_rust_log_C, _invoke_rust_log_Dart>('rust_log');
+typedef _invoke_rust_log_C = Void Function(
   Int64 level,
   Pointer<ffi.Utf8> data,
 );
-typedef _invoke_log_Dart = void Function(
+typedef _invoke_rust_log_Dart = void Function(
   int level,
   Pointer<ffi.Utf8>,
 );

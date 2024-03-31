@@ -4,6 +4,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.da
 final moreToolbarItem = AppFlowyMobileToolbarItem(
   itemBuilder: (context, editorState, _, __, onAction) {
     return AppFlowyMobileToolbarIconItem(
+      editorState: editorState,
       icon: FlowySvgs.m_toolbar_more_s,
       onTap: () {},
     );
