@@ -2,7 +2,7 @@ import 'package:appflowy/plugins/database/application/cell/cell_controller_build
 import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/application/setting/group_bloc.dart';
 import 'package:appflowy/plugins/database/board/application/board_bloc.dart';
-import 'package:appflowy/plugins/database/application/cell/bloc/select_option_editor_bloc.dart';
+import 'package:appflowy/plugins/database/application/cell/bloc/select_option_cell_editor_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -65,13 +65,13 @@ void main() {
         context.makeCellControllerFromFieldId(multiSelectField.id)
             as SelectOptionCellController;
 
-    final multiSelectOptionBloc =
-        SelectOptionCellEditorBloc(cellController: cellController);
-    multiSelectOptionBloc.add(const SelectOptionEditorEvent.initial());
+    final bloc = SelectOptionCellEditorBloc(cellController: cellController);
     await boardResponseFuture();
-    multiSelectOptionBloc.add(const SelectOptionEditorEvent.newOption("A"));
+    bloc.add(const SelectOptionCellEditorEvent.filterOption("A"));
+    bloc.add(const SelectOptionCellEditorEvent.createOption());
     await boardResponseFuture();
-    multiSelectOptionBloc.add(const SelectOptionEditorEvent.newOption("B"));
+    bloc.add(const SelectOptionCellEditorEvent.filterOption("B"));
+    bloc.add(const SelectOptionCellEditorEvent.createOption());
     await boardResponseFuture();
 
     // set grouped by the new multi-select field"
