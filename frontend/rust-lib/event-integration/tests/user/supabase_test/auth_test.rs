@@ -123,7 +123,7 @@ async fn sign_up_as_guest_and_then_update_to_new_cloud_user_test() {
     let test = EventIntegrationTest::new_with_guest_user().await;
     let old_views = test
       .folder_manager
-      .get_current_workspace_views()
+      .get_current_workspace_public_views()
       .await
       .unwrap();
     let old_workspace = test.folder_manager.get_current_workspace().await.unwrap();
@@ -132,7 +132,7 @@ async fn sign_up_as_guest_and_then_update_to_new_cloud_user_test() {
     test.supabase_sign_up_with_uuid(&uuid, None).await.unwrap();
     let new_views = test
       .folder_manager
-      .get_current_workspace_views()
+      .get_current_workspace_public_views()
       .await
       .unwrap();
     let new_workspace = test.folder_manager.get_current_workspace().await.unwrap();
@@ -163,7 +163,7 @@ async fn sign_up_as_guest_and_then_update_to_existing_cloud_user_test() {
     let old_cloud_workspace = test.folder_manager.get_current_workspace().await.unwrap();
     let old_cloud_views = test
       .folder_manager
-      .get_current_workspace_views()
+      .get_current_workspace_public_views()
       .await
       .unwrap();
     assert_eq!(old_cloud_views.len(), 1);
@@ -189,7 +189,7 @@ async fn sign_up_as_guest_and_then_update_to_existing_cloud_user_test() {
     let new_cloud_workspace = test.folder_manager.get_current_workspace().await.unwrap();
     let new_cloud_views = test
       .folder_manager
-      .get_current_workspace_views()
+      .get_current_workspace_public_views()
       .await
       .unwrap();
     assert_eq!(new_cloud_workspace, old_cloud_workspace);

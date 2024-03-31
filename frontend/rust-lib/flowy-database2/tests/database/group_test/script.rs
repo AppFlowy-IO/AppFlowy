@@ -60,10 +60,9 @@ pub enum GroupScript {
   GroupByField {
     field_id: String,
   },
-  AssertGroupIDName {
+  AssertGroupId {
     group_index: usize,
     group_id: String,
-    group_name: String,
   },
   CreateGroup {
     name: String,
@@ -241,7 +240,6 @@ impl DatabaseGroupTest {
       } => {
         let group = self.group_at_index(group_index).await;
         assert_eq!(group.group_id, group_pb.group_id);
-        assert_eq!(group.group_name, group_pb.group_name);
       },
       GroupScript::UpdateSingleSelectSelectOption { inserted_options } => {
         self
@@ -259,14 +257,12 @@ impl DatabaseGroupTest {
           .await
           .unwrap();
       },
-      GroupScript::AssertGroupIDName {
+      GroupScript::AssertGroupId {
         group_index,
         group_id,
-        group_name,
       } => {
         let group = self.group_at_index(group_index).await;
         assert_eq!(group_id, group.group_id, "group index: {}", group_index);
-        assert_eq!(group_name, group.group_name, "group index: {}", group_index);
       },
       GroupScript::CreateGroup { name } => self
         .editor

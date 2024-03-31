@@ -1,19 +1,17 @@
+use anyhow::anyhow;
 use std::collections::HashMap;
-use std::num::NonZeroUsize;
 use std::sync::{Arc, Weak};
 
-use collab::core::collab::{CollabDocState, MutexCollab};
+use collab::core::collab::{DocStateSource, MutexCollab};
 use collab_database::blocks::BlockEvent;
 use collab_database::database::{DatabaseData, MutexDatabase};
 use collab_database::error::DatabaseError;
-use collab_database::user::{
-  CollabDocStateByOid, CollabFuture, DatabaseCollabService, WorkspaceDatabase,
-};
 use collab_database::views::{CreateDatabaseParams, CreateViewParams, DatabaseLayout};
+use collab_database::workspace_database::{
+  CollabDocStateByOid, CollabFuture, DatabaseCollabService, DatabaseMeta, WorkspaceDatabase,
+};
 use collab_entity::CollabType;
 use collab_plugins::local_storage::kv::KVTransactionDB;
-use futures::executor::block_on;
-use lru::LruCache;
 use tokio::sync::{Mutex, RwLock};
 use tracing::{event, instrument, trace};
 
@@ -24,10 +22,7 @@ use flowy_error::{internal_error, FlowyError, FlowyResult};
 use lib_dispatch::prelude::af_spawn;
 use lib_infra::priority_task::TaskDispatcher;
 
-use crate::entities::{
-  DatabaseDescriptionPB, DatabaseLayoutPB, DatabaseSnapshotPB, DidFetchRowPB,
-  RepeatedDatabaseDescriptionPB,
-};
+use crate::entities::{DatabaseLayoutPB, DatabaseSnapshotPB, DidFetchRowPB};
 use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::database::DatabaseEditor;
 use crate::services::database_view::DatabaseLayoutDepsResolver;
@@ -43,7 +38,7 @@ pub struct DatabaseManager {
   user: Arc<dyn DatabaseUser>,
   workspace_database: Arc<RwLock<Option<Arc<WorkspaceDatabase>>>>,
   task_scheduler: Arc<RwLock<TaskDispatcher>>,
-  editors: Mutex<LruCache<String, Arc<DatabaseEditor>>>,
+  editors: Mutex<HashMap<String, Arc<DatabaseEditor>>>,
   collab_builder: Arc<AppFlowyCollabBuilder>,
   cloud_service: Arc<dyn DatabaseCloudService>,
 }
@@ -55,12 +50,11 @@ impl DatabaseManager {
     collab_builder: Arc<AppFlowyCollabBuilder>,
     cloud_service: Arc<dyn DatabaseCloudService>,
   ) -> Self {
-    let editors = Mutex::new(LruCache::new(NonZeroUsize::new(5).unwrap()));
     Self {
       user: database_user,
       workspace_database: Default::default(),
       task_scheduler,
-      editors,
+      editors: Default::default(),
       collab_builder,
       cloud_service,
     }
@@ -87,7 +81,7 @@ impl DatabaseManager {
     self.task_scheduler.write().await.clear_task();
     // 2. Release all existing editors
     for (_, editor) in self.editors.lock().await.iter() {
-      editor.close().await;
+      editor.close_all_views().await;
     }
     self.editors.lock().await.clear();
     // 3. Clear the workspace database
@@ -101,7 +95,7 @@ impl DatabaseManager {
     };
     let config = CollabPersistenceConfig::new().snapshot_per_update(100);
 
-    let mut workspace_database_doc_state = CollabDocState::default();
+    let mut workspace_database_doc_state = DocStateSource::FromDisk;
     // If the workspace database not exist in disk, try to fetch from remote.
     if !self.is_collab_exist(uid, &collab_db, &workspace_database_object_id) {
       trace!("workspace database not exist, try to fetch from remote");
@@ -114,8 +108,13 @@ impl DatabaseManager {
         )
         .await
       {
-        Ok(remote_doc_state) => {
-          workspace_database_doc_state = remote_doc_state;
+        Ok(doc_state) => match doc_state {
+          Some(doc_state) => {
+            workspace_database_doc_state = DocStateSource::FromDocState(doc_state);
+          },
+          None => {
+            workspace_database_doc_state = DocStateSource::FromDisk;
+          },
         },
         Err(err) => {
           return Err(FlowyError::record_not_found().with_context(format!(
@@ -139,7 +138,7 @@ impl DatabaseManager {
       collab_db.clone(),
       workspace_database_doc_state,
       config.clone(),
-    );
+    )?;
     let workspace_database =
       WorkspaceDatabase::open(uid, collab, collab_db, config, collab_builder);
     *self.workspace_database.write().await = Some(Arc::new(workspace_database));
@@ -164,16 +163,22 @@ impl DatabaseManager {
     Ok(())
   }
 
-  pub async fn get_all_databases_description(&self) -> RepeatedDatabaseDescriptionPB {
+  pub async fn get_database_inline_view_id(&self, database_id: &str) -> FlowyResult<String> {
+    let wdb = self.get_workspace_database().await?;
+    let database_collab = wdb.get_database(database_id).await.ok_or_else(|| {
+      FlowyError::record_not_found().with_context(format!("The database:{} not found", database_id))
+    })?;
+
+    let lock_guard = database_collab.lock();
+    Ok(lock_guard.get_inline_view_id())
+  }
+
+  pub async fn get_all_databases_meta(&self) -> Vec<DatabaseMeta> {
     let mut items = vec![];
     if let Ok(wdb) = self.get_workspace_database().await {
-      items = wdb
-        .get_all_database_meta()
-        .into_iter()
-        .map(DatabaseDescriptionPB::from)
-        .collect();
+      items = wdb.get_all_database_meta()
     }
-    RepeatedDatabaseDescriptionPB { items }
+    items
   }
 
   pub async fn track_database(
@@ -210,7 +215,7 @@ impl DatabaseManager {
   }
 
   pub async fn open_database(&self, database_id: &str) -> FlowyResult<Arc<DatabaseEditor>> {
-    trace!("create new editor for database {}", database_id);
+    trace!("open database editor:{}", database_id);
     let database = self
       .get_workspace_database()
       .await?
@@ -226,19 +231,35 @@ impl DatabaseManager {
       .editors
       .lock()
       .await
-      .put(database_id.to_string(), editor.clone());
+      .insert(database_id.to_string(), editor.clone());
     Ok(editor)
   }
 
-  #[tracing::instrument(level = "debug", skip_all)]
+  pub async fn open_database_view<T: AsRef<str>>(&self, view_id: T) -> FlowyResult<()> {
+    let view_id = view_id.as_ref();
+    let wdb = self.get_workspace_database().await?;
+    if let Some(database_id) = wdb.get_database_id_with_view_id(view_id) {
+      wdb.open_database(&database_id);
+    }
+    Ok(())
+  }
+
   pub async fn close_database_view<T: AsRef<str>>(&self, view_id: T) -> FlowyResult<()> {
     let view_id = view_id.as_ref();
     let wdb = self.get_workspace_database().await?;
     let database_id = wdb.get_database_id_with_view_id(view_id);
     if let Some(database_id) = database_id {
       let mut editors = self.editors.lock().await;
+      let mut should_remove = false;
       if let Some(editor) = editors.get(&database_id) {
         editor.close_view(view_id).await;
+        should_remove = editor.num_views().await == 0;
+      }
+
+      if should_remove {
+        trace!("remove database editor:{}", database_id);
+        editors.remove(&database_id);
+        wdb.close_database(&database_id);
       }
     }
 
@@ -415,21 +436,21 @@ impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
     &self,
     object_id: &str,
     object_ty: CollabType,
-  ) -> CollabFuture<Result<CollabDocState, DatabaseError>> {
+  ) -> CollabFuture<Result<DocStateSource, DatabaseError>> {
     let workspace_id = self.workspace_id.clone();
     let object_id = object_id.to_string();
     let weak_cloud_service = Arc::downgrade(&self.cloud_service);
     Box::pin(async move {
       match weak_cloud_service.upgrade() {
-        None => {
-          tracing::warn!("Cloud service is dropped");
-          Ok(vec![])
-        },
+        None => Err(DatabaseError::Internal(anyhow!("Cloud service is dropped"))),
         Some(cloud_service) => {
-          let updates = cloud_service
+          let doc_state = cloud_service
             .get_database_object_doc_state(&object_id, object_ty, &workspace_id)
             .await?;
-          Ok(updates)
+          match doc_state {
+            None => Ok(DocStateSource::FromDisk),
+            Some(doc_state) => Ok(DocStateSource::FromDocState(doc_state)),
+          }
         },
       }
     })
@@ -464,18 +485,18 @@ impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
     object_id: &str,
     object_type: CollabType,
     collab_db: Weak<CollabKVDB>,
-    collab_raw_data: CollabDocState,
+    collab_raw_data: DocStateSource,
     persistence_config: CollabPersistenceConfig,
-  ) -> Arc<MutexCollab> {
-    block_on(self.collab_builder.build_with_config(
+  ) -> Result<Arc<MutexCollab>, DatabaseError> {
+    let collab = self.collab_builder.build_with_config(
       uid,
       object_id,
-      object_type,
-      collab_db,
+      object_type.clone(),
+      collab_db.clone(),
       collab_raw_data,
       persistence_config,
       CollabBuilderConfig::default().sync_enable(true),
-    ))
-    .unwrap()
+    )?;
+    Ok(collab)
   }
 }

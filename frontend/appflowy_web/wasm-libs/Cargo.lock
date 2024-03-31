@@ -192,12 +192,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "allocator-api2"
-version = "0.2.16"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0942ffc6dcaadf03badf6e6a2d0228460359d5e34b57ccdc720b7382dfbd5ec5"
-
-[[package]]
 name = "android-tzdata"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -221,7 +215,7 @@ checksum = "080e9890a082662b09c1ad45f567faeeb47f22b5fb23895fbe1e651e718e25ca"
 [[package]]
 name = "app-error"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=e408073448ee08816f6e62f86a7bedb04539aec6#e408073448ee08816f6e62f86a7bedb04539aec6"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=0821c052f996b56ec42b86c9462f065e4639d735#0821c052f996b56ec42b86c9462f065e4639d735"
 dependencies = [
  "anyhow",
  "bincode",
@@ -545,7 +539,7 @@ dependencies = [
 [[package]]
 name = "client-api"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=e408073448ee08816f6e62f86a7bedb04539aec6#e408073448ee08816f6e62f86a7bedb04539aec6"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=0821c052f996b56ec42b86c9462f065e4639d735#0821c052f996b56ec42b86c9462f065e4639d735"
 dependencies = [
  "again",
  "anyhow",
@@ -555,8 +549,11 @@ dependencies = [
  "brotli",
  "bytes",
  "chrono",
+ "client-websocket",
  "collab",
  "collab-entity",
+ "collab-rt-entity",
+ "collab-rt-protocol",
  "database-entity",
  "futures-core",
  "futures-util",
@@ -568,8 +565,6 @@ dependencies = [
  "mime_guess",
  "parking_lot 0.12.1",
  "prost",
- "realtime-entity",
- "realtime-protocol",
  "reqwest",
  "scraper 0.17.1",
  "semver",
@@ -585,8 +580,25 @@ dependencies = [
  "url",
  "uuid",
  "wasm-bindgen-futures",
- "websocket",
  "yrs",
+]
+
+[[package]]
+name = "client-websocket"
+version = "0.1.0"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=0821c052f996b56ec42b86c9462f065e4639d735#0821c052f996b56ec42b86c9462f065e4639d735"
+dependencies = [
+ "futures-channel",
+ "futures-util",
+ "http",
+ "httparse",
+ "js-sys",
+ "percent-encoding",
+ "thiserror",
+ "tokio",
+ "tokio-tungstenite",
+ "wasm-bindgen",
+ "web-sys",
 ]
 
 [[package]]
@@ -618,7 +630,7 @@ dependencies = [
 [[package]]
 name = "collab"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=551eb25bb1f24c18fa1840764cb75669489846b9#551eb25bb1f24c18fa1840764cb75669489846b9"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=ab468ea96a15863d1e792ea4bed3a8769f3ea8a7#ab468ea96a15863d1e792ea4bed3a8769f3ea8a7"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -634,6 +646,7 @@ dependencies = [
  "tokio",
  "tokio-stream",
  "tracing",
+ "unicode-segmentation",
  "web-sys",
  "yrs",
 ]
@@ -641,7 +654,7 @@ dependencies = [
 [[package]]
 name = "collab-document"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=551eb25bb1f24c18fa1840764cb75669489846b9#551eb25bb1f24c18fa1840764cb75669489846b9"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=ab468ea96a15863d1e792ea4bed3a8769f3ea8a7#ab468ea96a15863d1e792ea4bed3a8769f3ea8a7"
 dependencies = [
  "anyhow",
  "collab",
@@ -660,7 +673,7 @@ dependencies = [
 [[package]]
 name = "collab-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=551eb25bb1f24c18fa1840764cb75669489846b9#551eb25bb1f24c18fa1840764cb75669489846b9"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=ab468ea96a15863d1e792ea4bed3a8769f3ea8a7#ab468ea96a15863d1e792ea4bed3a8769f3ea8a7"
 dependencies = [
  "anyhow",
  "bytes",
@@ -675,7 +688,7 @@ dependencies = [
 [[package]]
 name = "collab-folder"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=551eb25bb1f24c18fa1840764cb75669489846b9#551eb25bb1f24c18fa1840764cb75669489846b9"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=ab468ea96a15863d1e792ea4bed3a8769f3ea8a7#ab468ea96a15863d1e792ea4bed3a8769f3ea8a7"
 dependencies = [
  "anyhow",
  "chrono",
@@ -701,6 +714,7 @@ dependencies = [
  "collab",
  "collab-entity",
  "collab-plugins",
+ "futures",
  "lib-infra",
  "parking_lot 0.12.1",
  "serde",
@@ -712,7 +726,7 @@ dependencies = [
 [[package]]
 name = "collab-plugins"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=551eb25bb1f24c18fa1840764cb75669489846b9#551eb25bb1f24c18fa1840764cb75669489846b9"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=ab468ea96a15863d1e792ea4bed3a8769f3ea8a7#ab468ea96a15863d1e792ea4bed3a8769f3ea8a7"
 dependencies = [
  "anyhow",
  "async-stream",
@@ -748,9 +762,47 @@ dependencies = [
 ]
 
 [[package]]
+name = "collab-rt-entity"
+version = "0.1.0"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=0821c052f996b56ec42b86c9462f065e4639d735#0821c052f996b56ec42b86c9462f065e4639d735"
+dependencies = [
+ "anyhow",
+ "bincode",
+ "bytes",
+ "chrono",
+ "client-websocket",
+ "collab",
+ "collab-entity",
+ "collab-rt-protocol",
+ "database-entity",
+ "prost",
+ "prost-build",
+ "protoc-bin-vendored",
+ "serde",
+ "serde_json",
+ "serde_repr",
+ "thiserror",
+ "tokio-tungstenite",
+ "yrs",
+]
+
+[[package]]
+name = "collab-rt-protocol"
+version = "0.1.0"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=0821c052f996b56ec42b86c9462f065e4639d735#0821c052f996b56ec42b86c9462f065e4639d735"
+dependencies = [
+ "anyhow",
+ "bincode",
+ "collab",
+ "serde",
+ "thiserror",
+ "yrs",
+]
+
+[[package]]
 name = "collab-user"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=551eb25bb1f24c18fa1840764cb75669489846b9#551eb25bb1f24c18fa1840764cb75669489846b9"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=ab468ea96a15863d1e792ea4bed3a8769f3ea8a7#ab468ea96a15863d1e792ea4bed3a8769f3ea8a7"
 dependencies = [
  "anyhow",
  "collab",
@@ -947,7 +999,7 @@ checksum = "7e962a19be5cfc3f3bf6dd8f61eb50107f356ad6270fbb3ed41476571db78be5"
 [[package]]
 name = "database-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=e408073448ee08816f6e62f86a7bedb04539aec6#e408073448ee08816f6e62f86a7bedb04539aec6"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=0821c052f996b56ec42b86c9462f065e4639d735#0821c052f996b56ec42b86c9462f065e4639d735"
 dependencies = [
  "anyhow",
  "app-error",
@@ -1234,6 +1286,7 @@ dependencies = [
  "collab-entity",
  "collab-integrate",
  "collab-plugins",
+ "dashmap",
  "flowy-codegen",
  "flowy-derive",
  "flowy-document-pub",
@@ -1245,7 +1298,6 @@ dependencies = [
  "indexmap",
  "lib-dispatch",
  "lib-infra",
- "lru",
  "nanoid",
  "parking_lot 0.12.1",
  "protobuf",
@@ -1702,7 +1754,7 @@ dependencies = [
 [[package]]
 name = "gotrue"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=e408073448ee08816f6e62f86a7bedb04539aec6#e408073448ee08816f6e62f86a7bedb04539aec6"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=0821c052f996b56ec42b86c9462f065e4639d735#0821c052f996b56ec42b86c9462f065e4639d735"
 dependencies = [
  "anyhow",
  "futures-util",
@@ -1719,7 +1771,7 @@ dependencies = [
 [[package]]
 name = "gotrue-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=e408073448ee08816f6e62f86a7bedb04539aec6#e408073448ee08816f6e62f86a7bedb04539aec6"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=0821c052f996b56ec42b86c9462f065e4639d735#0821c052f996b56ec42b86c9462f065e4639d735"
 dependencies = [
  "anyhow",
  "app-error",
@@ -1772,10 +1824,6 @@ name = "hashbrown"
 version = "0.14.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "290f1a1d9242c78d09ce40a5e87e7554ee637af1351968159f4952f028f75604"
-dependencies = [
- "ahash",
- "allocator-api2",
-]
 
 [[package]]
 name = "heck"
@@ -2053,7 +2101,7 @@ dependencies = [
 [[package]]
 name = "infra"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=e408073448ee08816f6e62f86a7bedb04539aec6#e408073448ee08816f6e62f86a7bedb04539aec6"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=0821c052f996b56ec42b86c9462f065e4639d735#0821c052f996b56ec42b86c9462f065e4639d735"
 dependencies = [
  "anyhow",
  "reqwest",
@@ -2272,15 +2320,6 @@ name = "log"
 version = "0.4.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b5e6163cb8c49088c2c36f57875e58ccd8c87c7427f7fbd50ea6710b2f3f2e8f"
-
-[[package]]
-name = "lru"
-version = "0.12.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "db2c024b41519440580066ba82aab04092b333e09066a5eb86c7c4890df31f22"
-dependencies = [
- "hashbrown",
-]
 
 [[package]]
 name = "mac"
@@ -3295,43 +3334,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "realtime-entity"
-version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=e408073448ee08816f6e62f86a7bedb04539aec6#e408073448ee08816f6e62f86a7bedb04539aec6"
-dependencies = [
- "anyhow",
- "bincode",
- "bytes",
- "collab",
- "collab-entity",
- "database-entity",
- "prost",
- "prost-build",
- "protoc-bin-vendored",
- "realtime-protocol",
- "serde",
- "serde_json",
- "serde_repr",
- "thiserror",
- "tokio-tungstenite",
- "websocket",
- "yrs",
-]
-
-[[package]]
-name = "realtime-protocol"
-version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=e408073448ee08816f6e62f86a7bedb04539aec6#e408073448ee08816f6e62f86a7bedb04539aec6"
-dependencies = [
- "anyhow",
- "bincode",
- "collab",
- "serde",
- "thiserror",
- "yrs",
-]
-
-[[package]]
 name = "redox_syscall"
 version = "0.1.57"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3774,7 +3776,7 @@ dependencies = [
 [[package]]
 name = "shared-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=e408073448ee08816f6e62f86a7bedb04539aec6#e408073448ee08816f6e62f86a7bedb04539aec6"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=0821c052f996b56ec42b86c9462f065e4639d735#0821c052f996b56ec42b86c9462f065e4639d735"
 dependencies = [
  "anyhow",
  "app-error",
@@ -4714,24 +4716,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1778a42e8b3b90bff8d0f5032bf22250792889a5cdc752aa0020c84abe3aaf10"
 
 [[package]]
-name = "websocket"
-version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=e408073448ee08816f6e62f86a7bedb04539aec6#e408073448ee08816f6e62f86a7bedb04539aec6"
-dependencies = [
- "futures-channel",
- "futures-util",
- "http",
- "httparse",
- "js-sys",
- "percent-encoding",
- "thiserror",
- "tokio",
- "tokio-tungstenite",
- "wasm-bindgen",
- "web-sys",
-]
-
-[[package]]
 name = "wee_alloc"
 version = "0.4.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5024,4 +5008,4 @@ dependencies = [
 [[patch.unused]]
 name = "collab-database"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=551eb25bb1f24c18fa1840764cb75669489846b9#551eb25bb1f24c18fa1840764cb75669489846b9"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=ab468ea96a15863d1e792ea4bed3a8769f3ea8a7#ab468ea96a15863d1e792ea4bed3a8769f3ea8a7"

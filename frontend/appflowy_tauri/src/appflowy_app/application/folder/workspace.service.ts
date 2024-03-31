@@ -1,15 +1,12 @@
+import { parserViewPBToPage } from '$app_reducers/pages/slice';
 import {
+  ChangeWorkspaceIconPB,
   CreateViewPayloadPB,
+  GetWorkspaceViewPB,
+  RenameWorkspacePB,
   UserWorkspaceIdPB,
   WorkspaceIdPB,
-  RenameWorkspacePB,
-  ChangeWorkspaceIconPB,
 } from '@/services/backend';
-import {
-  UserEventOpenWorkspace,
-  UserEventRenameWorkspace,
-  UserEventChangeWorkspaceIcon,
-} from '@/services/backend/events/flowy-user';
 import {
   FolderEventCreateView,
   FolderEventDeleteWorkspace,
@@ -17,7 +14,12 @@ import {
   FolderEventReadCurrentWorkspace,
   FolderEventReadWorkspaceViews,
 } from '@/services/backend/events/flowy-folder';
-import { parserViewPBToPage } from '$app_reducers/pages/slice';
+import {
+  UserEventChangeWorkspaceIcon,
+  UserEventGetAllWorkspace,
+  UserEventOpenWorkspace,
+  UserEventRenameWorkspace,
+} from '@/services/backend/events/flowy-user';
 
 export async function openWorkspace(id: string) {
   const payload = new UserWorkspaceIdPB({
@@ -48,7 +50,7 @@ export async function deleteWorkspace(id: string) {
 }
 
 export async function getWorkspaceChildViews(id: string) {
-  const payload = new WorkspaceIdPB({
+  const payload = new GetWorkspaceViewPB({
     value: id,
   });
 
@@ -62,17 +64,13 @@ export async function getWorkspaceChildViews(id: string) {
 }
 
 export async function getWorkspaces() {
-  const result = await FolderEventReadCurrentWorkspace();
+  const result = await UserEventGetAllWorkspace();
 
   if (result.ok) {
-    const item = result.val;
-
-    return [
-      {
-        id: item.id,
-        name: item.name,
-      },
-    ];
+    return result.val.items.map((workspace) => ({
+      id: workspace.workspace_id,
+      name: workspace.name,
+    }));
   }
 
   return [];
@@ -92,12 +90,7 @@ export async function getCurrentWorkspace() {
   const result = await FolderEventReadCurrentWorkspace();
 
   if (result.ok) {
-    const workspace = result.val;
-
-    return {
-      id: workspace.id,
-      name: workspace.name,
-    };
+    return result.val.id;
   }
 
   return null;
@@ -111,9 +104,7 @@ export async function createCurrentWorkspaceChildView(
   const result = await FolderEventCreateView(payload);
 
   if (result.ok) {
-    const view = result.val;
-
-    return view;
+    return result.val;
   }
 
   return Promise.reject(result.err);

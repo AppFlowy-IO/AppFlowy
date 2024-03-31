@@ -14,7 +14,7 @@ import { Quote } from '$app/components/editor/components/tools/selection_toolbar
 import { ToggleList } from '$app/components/editor/components/tools/selection_toolbar/actions/toggle_list';
 import { BulletedList } from '$app/components/editor/components/tools/selection_toolbar/actions/bulleted_list';
 import { NumberedList } from '$app/components/editor/components/tools/selection_toolbar/actions/numbered_list';
-import { Href } from '$app/components/editor/components/tools/selection_toolbar/actions/href';
+import { Href, LinkActions } from '$app/components/editor/components/tools/selection_toolbar/actions/href';
 import { Align } from '$app/components/editor/components/tools/selection_toolbar/actions/align';
 import { Color } from '$app/components/editor/components/tools/selection_toolbar/actions/color';
 
@@ -65,6 +65,7 @@ function SelectionActions({
       {!isAcrossBlocks && <Href />}
       <Align />
       <Color onClose={restoreSelection} onOpen={storeSelection} />
+      <LinkActions />
     </div>
   );
 }

@@ -1,11 +1,7 @@
-use std::time::Duration;
-
 use event_integration::user_event::user_localhost_af_cloud;
 use event_integration::EventIntegrationTest;
-use flowy_user::entities::{RepeatedUserWorkspacePB, UserWorkspacePB};
-use flowy_user::protobuf::UserNotification;
 
-use crate::util::receive_with_timeout;
+use crate::user::af_cloud_test::util::get_synced_workspaces;
 
 #[tokio::test]
 async fn af_cloud_workspace_delete() {
@@ -77,7 +73,7 @@ async fn af_cloud_create_workspace_test() {
     // before opening new workspace
     let folder_ws = test.folder_read_current_workspace().await;
     assert_eq!(&folder_ws.id, first_workspace_id);
-    let views = test.folder_read_workspace_views().await;
+    let views = test.folder_read_current_workspace_views().await;
     assert_eq!(views.items[0].parent_view_id.as_str(), first_workspace_id);
   }
   {
@@ -85,7 +81,7 @@ async fn af_cloud_create_workspace_test() {
     test.open_workspace(&created_workspace.workspace_id).await;
     let folder_ws = test.folder_read_current_workspace().await;
     assert_eq!(folder_ws.id, created_workspace.workspace_id);
-    let views = test.folder_read_workspace_views().await;
+    let views = test.folder_read_current_workspace_views().await;
     assert_eq!(
       views.items[0].parent_view_id.as_str(),
       created_workspace.workspace_id
@@ -110,19 +106,4 @@ async fn af_cloud_open_workspace_test() {
   // the first view is the default get started view
   assert_eq!(views[1].name, "my first document".to_string());
   assert_eq!(views[2].name, "my second document".to_string());
-}
-
-async fn get_synced_workspaces(test: &EventIntegrationTest, user_id: i64) -> Vec<UserWorkspacePB> {
-  let _workspaces = test.get_all_workspaces().await.items;
-  let sub_id = user_id.to_string();
-  let rx = test
-    .notification_sender
-    .subscribe::<RepeatedUserWorkspacePB>(
-      &sub_id,
-      UserNotification::DidUpdateUserWorkspaces as i32,
-    );
-  receive_with_timeout(rx, Duration::from_secs(30))
-    .await
-    .unwrap()
-    .items
 }

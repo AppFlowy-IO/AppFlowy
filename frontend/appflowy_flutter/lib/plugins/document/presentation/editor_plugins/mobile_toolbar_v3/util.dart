@@ -1,5 +1,5 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/_toolbar_theme.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/aa_menu/_toolbar_theme.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -24,6 +24,7 @@ class MobileToolbarMenuItemWrapper extends StatelessWidget {
     this.showRightArrow = false,
     this.textPadding = EdgeInsets.zero,
     required this.onTap,
+    this.iconColor,
   });
 
   final Size size;
@@ -43,17 +44,20 @@ class MobileToolbarMenuItemWrapper extends StatelessWidget {
   final Color? backgroundColor;
   final Color? selectedBackgroundColor;
   final EdgeInsets textPadding;
+  final Color? iconColor;
 
   @override
   Widget build(BuildContext context) {
     final theme = ToolbarColorExtension.of(context);
-    Color? iconColor;
-    if (enable != null) {
-      iconColor = enable! ? null : theme.toolbarMenuIconDisabledColor;
-    } else {
-      iconColor = isSelected
-          ? theme.toolbarMenuIconSelectedColor
-          : theme.toolbarMenuIconColor;
+    Color? iconColor = this.iconColor;
+    if (iconColor == null) {
+      if (enable != null) {
+        iconColor = enable! ? null : theme.toolbarMenuIconDisabledColor;
+      } else {
+        iconColor = isSelected
+            ? theme.toolbarMenuIconSelectedColor
+            : theme.toolbarMenuIconColor;
+      }
     }
     final textColor =
         enable == false ? theme.toolbarMenuIconDisabledColor : null;

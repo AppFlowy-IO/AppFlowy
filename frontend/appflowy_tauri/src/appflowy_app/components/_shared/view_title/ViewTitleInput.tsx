@@ -23,7 +23,7 @@ function ViewTitleInput({ value, onChange }: { value: string; onChange?: (value:
       autoFocus
       value={value}
       onInput={onTitleChange}
-      className={`min-h-[40px] resize-none text-4xl font-bold leading-[50px] caret-text-title`}
+      className={`min-h-[40px] resize-none text-5xl font-bold leading-[50px] caret-text-title`}
     />
   );
 }

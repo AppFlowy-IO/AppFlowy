@@ -28,14 +28,15 @@ void main() {
   final email = '${uuid()}@appflowy.io';
 
   testWidgets('change name and icon', (tester) async {
+    // only run the test when the feature flag is on
+    if (!FeatureFlag.collaborativeWorkspace.isOn) {
+      return;
+    }
+
     await tester.initializeAppFlowy(
       cloudType: AuthenticatorType.appflowyCloudSelfHost,
       email: email, // use the same email to check the next test
     );
-
-    // turn on the collaborative workspace feature flag before testing,
-    //  if the feature is released to the public, this step can be removed
-    await FeatureFlag.collaborativeWorkspace.turnOn();
 
     await tester.tapGoogleLoginInButton();
     await tester.expectToSeeHomePageWithGetStartedPage();
@@ -57,14 +58,15 @@ void main() {
   });
 
   testWidgets('verify the result again after relaunching', (tester) async {
+    // only run the test when the feature flag is on
+    if (!FeatureFlag.collaborativeWorkspace.isOn) {
+      return;
+    }
+
     await tester.initializeAppFlowy(
       cloudType: AuthenticatorType.appflowyCloudSelfHost,
       email: email, // use the same email to check the next test
     );
-
-    // turn on the collaborative workspace feature flag before testing,
-    //  if the feature is released to the public, this step can be removed
-    await FeatureFlag.collaborativeWorkspace.turnOn();
 
     await tester.tapGoogleLoginInButton();
     await tester.expectToSeeHomePageWithGetStartedPage();

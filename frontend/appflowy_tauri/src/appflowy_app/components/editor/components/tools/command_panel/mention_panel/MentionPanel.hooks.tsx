@@ -1,50 +1,25 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSlate } from 'slate-react';
 import { MentionPage, MentionType } from '$app/application/document/document.types';
 import { CustomEditor } from '$app/components/editor/command';
-import { useAppSelector } from '$app/stores/store';
 import { KeyboardNavigationOption } from '$app/components/_shared/keyboard_navigation/KeyboardNavigation';
 import { ReactComponent as DocumentSvg } from '$app/assets/document.svg';
+// import dayjs from 'dayjs';
 
+// enum DateKey {
+//   Today = 'today',
+//   Tomorrow = 'tomorrow',
+// }
 export function useMentionPanel({
   closePanel,
-  searchText,
+  pages,
 }: {
-  searchText: string;
+  pages: MentionPage[];
   closePanel: (deleteText?: boolean) => void;
 }) {
   const { t } = useTranslation();
   const editor = useSlate();
-
-  const pagesMap = useAppSelector((state) => state.pages.pageMap);
-
-  const pagesRef = useRef<MentionPage[]>([]);
-  const [recentPages, setPages] = useState<MentionPage[]>([]);
-
-  const loadPages = useCallback(async () => {
-    const pages = Object.values(pagesMap);
-
-    pagesRef.current = pages;
-    setPages(pages);
-  }, [pagesMap]);
-
-  useEffect(() => {
-    void loadPages();
-  }, [loadPages]);
-
-  useEffect(() => {
-    if (!searchText) {
-      setPages(pagesRef.current);
-      return;
-    }
-
-    const filteredPages = pagesRef.current.filter((page) => {
-      return page.name.toLowerCase().includes(searchText.toLowerCase());
-    });
-
-    setPages(filteredPages);
-  }, [searchText]);
 
   const onConfirm = useCallback(
     (key: string) => {
@@ -67,7 +42,7 @@ export function useMentionPanel({
           <div className={'flex items-center gap-2'}>
             <div className={'flex h-5 w-5 items-center justify-center'}>{page.icon?.value || <DocumentSvg />}</div>
 
-            <div className={'flex-1'}>{page.name || t('document.title.placeholder')}</div>
+            <div className={'flex-1'}>{page.name.trim() || t('menuAppHeader.defaultNewPageName')}</div>
           </div>
         ),
       };
@@ -75,15 +50,62 @@ export function useMentionPanel({
     [t]
   );
 
+  // const renderDate = useCallback(() => {
+  //   return [
+  //     {
+  //       key: DateKey.Today,
+  //       content: (
+  //         <div className={'px-3 pb-1 pt-2 text-xs '}>
+  //           <span className={'text-text-title'}>{t('relativeDates.today')}</span> -{' '}
+  //           <span className={'text-xs text-text-caption'}>{dayjs().format('MMM D, YYYY')}</span>
+  //         </div>
+  //       ),
+  //
+  //       children: [],
+  //     },
+  //     {
+  //       key: DateKey.Tomorrow,
+  //       content: (
+  //         <div className={'px-3 pb-1 pt-2 text-xs '}>
+  //           <span className={'text-text-title'}>{t('relativeDates.tomorrow')}</span>
+  //         </div>
+  //       ),
+  //       children: [],
+  //     },
+  //   ];
+  // }, [t]);
+
   const options: KeyboardNavigationOption<MentionType | string>[] = useMemo(() => {
     return [
+      // {
+      //   key: MentionType.Date,
+      //   content: <div className={'px-3 pb-1 pt-2 text-sm'}>{t('editor.date')}</div>,
+      //   children: renderDate(),
+      // },
+      {
+        key: 'divider',
+        content: <div className={'border-t border-line-divider'} />,
+        children: [],
+      },
+
       {
         key: MentionType.PageRef,
         content: <div className={'px-3 pb-1 pt-2 text-sm'}>{t('document.mention.page.label')}</div>,
-        children: recentPages.map(renderPage),
+        children:
+          pages.length > 0
+            ? pages.map(renderPage)
+            : [
+                {
+                  key: 'noPage',
+                  content: (
+                    <div className={'px-3 pb-3 pt-2 text-xs text-text-caption'}>{t('findAndReplace.noResult')}</div>
+                  ),
+                  children: [],
+                },
+              ],
       },
-    ].filter((option) => option.children.length > 0);
-  }, [recentPages, renderPage, t]);
+    ];
+  }, [pages, renderPage, t]);
 
   return {
     options,

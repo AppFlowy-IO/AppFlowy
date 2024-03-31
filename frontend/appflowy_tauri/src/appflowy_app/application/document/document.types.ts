@@ -74,6 +74,9 @@ export interface QuoteNode extends Element {
 export interface NumberedListNode extends Element {
   type: EditorNodeType.NumberedListBlock;
   blockId: string;
+  data: {
+    number?: number;
+  } & BlockData;
 }
 
 export interface BulletedListNode extends Element {

@@ -64,4 +64,9 @@ class KVKeys {
   /// The value is a json string with the following format:
   /// {'feature_flag_1': true, 'feature_flag_2': false}
   static const String featureFlag = 'featureFlag';
+
+  /// The key for saving the last opened workspace id
+  ///
+  /// The workspace id is a string.
+  static const String lastOpenedWorkspaceId = 'lastOpenedWorkspaceId';
 }

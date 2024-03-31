@@ -3,14 +3,14 @@ use std::ops::{Deref, DerefMut};
 use std::sync::Arc;
 
 use anyhow::anyhow;
-use collab::core::collab::MutexCollab;
+use collab::core::collab::{DocStateSource, MutexCollab};
 use collab::core::origin::{CollabClient, CollabOrigin};
 use collab::preclude::Collab;
 use collab_database::database::{
   is_database_collab, mut_database_views_with_collab, reset_inline_view_id,
 };
 use collab_database::rows::{database_row_document_id_from_row_id, mut_row_with_collab, RowId};
-use collab_database::user::DatabaseMetaList;
+use collab_database::workspace_database::DatabaseMetaList;
 use collab_folder::{Folder, UserId};
 use collab_plugins::local_storage::kv::KVTransactionDB;
 use parking_lot::{Mutex, RwLock};
@@ -151,6 +151,7 @@ where
     &old_user.session.user_workspace.workspace_database_object_id,
     "phantom",
     vec![],
+    false,
   );
   database_with_views_collab.with_origin_transact_mut(|txn| {
     old_collab_r_txn.load_doc_with_txn(
@@ -164,8 +165,8 @@ where
   let new_object_id = &new_user_session.user_workspace.workspace_database_object_id;
 
   let array = DatabaseMetaList::from_collab(&database_with_views_collab);
-  for database_metas in array.get_all_database_meta() {
-    array.update_database(&database_metas.database_id, |update| {
+  for database_meta in array.get_all_database_meta() {
+    array.update_database(&database_meta.database_id, |update| {
       let new_linked_views = update
         .linked_views
         .iter()
@@ -214,7 +215,7 @@ where
   let new_uid = new_user_session.user_id;
   let new_workspace_id = &new_user_session.user_workspace.id;
 
-  let old_folder_collab = Collab::new(old_uid, old_workspace_id, "phantom", vec![]);
+  let old_folder_collab = Collab::new(old_uid, old_workspace_id, "phantom", vec![], false);
   old_folder_collab.with_origin_transact_mut(|txn| {
     old_collab_r_txn.load_doc_with_txn(old_uid, old_workspace_id, txn)
   })?;
@@ -304,8 +305,14 @@ where
   }
 
   let origin = CollabOrigin::Client(CollabClient::new(new_uid, "phantom"));
-  let new_folder_collab = Collab::new_with_doc_state(origin, new_workspace_id, vec![], vec![])
-    .map_err(|err| PersistenceError::Internal(err.into()))?;
+  let new_folder_collab = Collab::new_with_doc_state(
+    origin,
+    new_workspace_id,
+    DocStateSource::FromDisk,
+    vec![],
+    false,
+  )
+  .map_err(|err| PersistenceError::Internal(err.into()))?;
   let mutex_collab = Arc::new(MutexCollab::from_collab(new_folder_collab));
   let new_user_id = UserId::from(new_uid);
   info!("migrated folder: {:?}", folder_data);
@@ -450,7 +457,13 @@ where
 {
   let mut collab_by_oid = HashMap::new();
   for object_id in object_ids {
-    let collab = Collab::new(old_user.session.user_id, object_id, "phantom", vec![]);
+    let collab = Collab::new(
+      old_user.session.user_id,
+      object_id,
+      "phantom",
+      vec![],
+      false,
+    );
     match collab.with_origin_transact_mut(|txn| {
       old_collab_r_txn.load_doc_with_txn(old_user.session.user_id, &object_id, txn)
     }) {

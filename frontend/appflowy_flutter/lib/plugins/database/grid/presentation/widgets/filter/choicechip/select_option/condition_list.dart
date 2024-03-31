@@ -96,9 +96,9 @@ extension SelectOptionFilterConditionPBExtension
       SelectOptionFilterConditionPB.OptionIsNot =>
         LocaleKeys.grid_selectOptionFilter_isNot.tr(),
       SelectOptionFilterConditionPB.OptionContains =>
-        LocaleKeys.grid_selectOptionFilter_isNot.tr(),
+        LocaleKeys.grid_selectOptionFilter_contains.tr(),
       SelectOptionFilterConditionPB.OptionDoesNotContain =>
-        LocaleKeys.grid_selectOptionFilter_isNot.tr(),
+        LocaleKeys.grid_selectOptionFilter_doesNotContain.tr(),
       SelectOptionFilterConditionPB.OptionIsEmpty =>
         LocaleKeys.grid_selectOptionFilter_isEmpty.tr(),
       SelectOptionFilterConditionPB.OptionIsNotEmpty =>

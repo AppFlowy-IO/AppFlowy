@@ -77,7 +77,7 @@ env = { RUST_LOG = "info" }
 description = "Run rust-lib unit tests"
 script = '''
 cd rust-lib
-RUST_LOG=info RUST_BACKTRACE=1 cargo test --no-default-features --features "rev-sqlite"
+RUST_LOG=info DISABLE_CI_TEST_LOG="true" RUST_BACKTRACE=1 cargo test --no-default-features --features "rev-sqlite"
 '''
 
 

@@ -165,6 +165,8 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
               viewId: value.from.id,
               newParentId: value.newParentId,
               prevViewId: value.prevId,
+              fromSection: value.fromSection,
+              toSection: value.toSection,
             );
             emit(
               result.fold(
@@ -184,8 +186,8 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
               layoutType: e.layoutType,
               ext: {},
               openAfterCreate: e.openAfterCreated,
+              section: e.section,
             );
-
             emit(
               result.fold(
                 (view) => state.copyWith(
@@ -353,12 +355,15 @@ class ViewEvent with _$ViewEvent {
     ViewPB from,
     String newParentId,
     String? prevId,
+    ViewSectionPB? fromSection,
+    ViewSectionPB? toSection,
   ) = Move;
   const factory ViewEvent.createView(
     String name,
     ViewLayoutPB layoutType, {
     /// open the view after created
     @Default(true) bool openAfterCreated,
+    ViewSectionPB? section,
   }) = CreateView;
   const factory ViewEvent.viewDidUpdate(
     FlowyResult<ViewPB, FlowyError> result,

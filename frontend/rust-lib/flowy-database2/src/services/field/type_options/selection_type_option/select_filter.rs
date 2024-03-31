@@ -1,5 +1,10 @@
+use collab_database::fields::Field;
+use collab_database::rows::Cell;
+
 use crate::entities::{SelectOptionFilterConditionPB, SelectOptionFilterPB};
-use crate::services::field::SelectOption;
+use crate::services::cell::insert_select_option_cell;
+use crate::services::field::{select_type_option_from_field, SelectOption};
+use crate::services::filter::PreFillCellsWithFilter;
 
 impl SelectOptionFilterPB {
   pub fn is_visible(&self, selected_options: &[SelectOption]) -> Option<bool> {
@@ -90,6 +95,40 @@ impl SelectOptionFilterStrategy {
   }
 }
 
+impl PreFillCellsWithFilter for SelectOptionFilterPB {
+  fn get_compliant_cell(&self, field: &Field) -> (Option<Cell>, bool) {
+    let get_non_empty_expected_options = || {
+      if !self.option_ids.is_empty() {
+        Some(self.option_ids.clone())
+      } else {
+        None
+      }
+    };
+
+    let option_ids = match self.condition {
+      SelectOptionFilterConditionPB::OptionIs => get_non_empty_expected_options(),
+      SelectOptionFilterConditionPB::OptionContains => {
+        get_non_empty_expected_options().map(|mut options| vec![options.swap_remove(0)])
+      },
+      SelectOptionFilterConditionPB::OptionIsNotEmpty => select_type_option_from_field(field)
+        .ok()
+        .map(|mut type_option| {
+          let options = type_option.mut_options();
+          if options.is_empty() {
+            vec![]
+          } else {
+            vec![options.swap_remove(0).id]
+          }
+        }),
+      _ => None,
+    };
+
+    (
+      option_ids.map(|ids| insert_select_option_cell(ids, field)),
+      false,
+    )
+  }
+}
 #[cfg(test)]
 mod tests {
   use crate::entities::{SelectOptionFilterConditionPB, SelectOptionFilterPB};

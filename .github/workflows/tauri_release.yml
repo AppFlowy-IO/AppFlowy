@@ -31,7 +31,7 @@ jobs:
           - platform: macos-latest
             args: "--target x86_64-apple-darwin"
             target: "macos-x86_64"
-          - platform: ubuntu-latest
+          - platform: ubuntu-20.04
             args: "--target x86_64-unknown-linux-gnu"
             target: "linux-x86_64"
 
@@ -46,7 +46,7 @@ jobs:
           ref: ${{ github.event.inputs.branch }}
 
       - name: Maximize build space (ubuntu only)
-        if: matrix.settings.platform == 'ubuntu-latest'
+        if: matrix.settings.platform == 'ubuntu-20.04'
         run: |
           sudo rm -rf /usr/share/dotnet
           sudo rm -rf /opt/ghc
@@ -88,7 +88,7 @@ jobs:
           vcpkg integrate install
 
       - name: install dependencies (ubuntu only)
-        if: matrix.settings.platform == 'ubuntu-latest'
+        if: matrix.settings.platform == 'ubuntu-20.04'
         working-directory: frontend
         run: |
           sudo apt-get update
@@ -140,14 +140,14 @@ jobs:
 
       - name: Upload Deb package(ubuntu only)
         uses: actions/upload-artifact@v4
-        if: matrix.settings.platform == 'ubuntu-latest'
+        if: matrix.settings.platform == 'ubuntu-20.04'
         with:
           name: ${{ env.PACKAGE_PREFIX }}.deb
           path: frontend/appflowy_tauri/src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/deb/app-flowy_${{ github.event.inputs.version }}_amd64.deb
 
       - name: Upload AppImage package(ubuntu only)
         uses: actions/upload-artifact@v4
-        if: matrix.settings.platform == 'ubuntu-latest'
+        if: matrix.settings.platform == 'ubuntu-20.04'
         with:
           name: ${{ env.PACKAGE_PREFIX }}.AppImage
           path: frontend/appflowy_tauri/src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/app-flowy_${{ github.event.inputs.version }}_amd64.AppImage

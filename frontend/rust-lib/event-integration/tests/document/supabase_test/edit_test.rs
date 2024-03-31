@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use event_integration::document_event::assert_document_data_equal;
-use flowy_document::entities::DocumentSyncStatePB;
+use flowy_document::entities::{DocumentSyncState, DocumentSyncStatePB};
 
 use crate::document::supabase_test::helper::FlowySupabaseDocumentTest;
 use crate::util::receive_with_timeout;
@@ -23,7 +23,9 @@ async fn supabase_document_edit_sync_test() {
     // wait all update are send to the remote
     let rx = test
       .notification_sender
-      .subscribe_with_condition::<DocumentSyncStatePB, _>(&document_id, |pb| !pb.is_syncing);
+      .subscribe_with_condition::<DocumentSyncStatePB, _>(&document_id, |pb| {
+        pb.value != DocumentSyncState::Syncing
+      });
     receive_with_timeout(rx, Duration::from_secs(30))
       .await
       .unwrap();
@@ -49,7 +51,9 @@ async fn supabase_document_edit_sync_test2() {
     // wait all update are send to the remote
     let rx = test
       .notification_sender
-      .subscribe_with_condition::<DocumentSyncStatePB, _>(&document_id, |pb| !pb.is_syncing);
+      .subscribe_with_condition::<DocumentSyncStatePB, _>(&document_id, |pb| {
+        pb.value != DocumentSyncState::Syncing
+      });
     receive_with_timeout(rx, Duration::from_secs(30))
       .await
       .unwrap();

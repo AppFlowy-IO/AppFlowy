@@ -197,7 +197,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
 
     _initEditorL10n();
     _initializeShortcuts();
-    appFlowyEditorAutoScrollEdgeOffset = 250;
+    appFlowyEditorAutoScrollEdgeOffset = 220;
     indentableBlockTypes.add(ToggleListBlockKeys.type);
     convertibleBlockTypes.add(ToggleListBlockKeys.type);
     slashMenuItems = _customSlashMenuItems();
@@ -297,19 +297,12 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
 
     if (PlatformExtension.isMobile) {
       return AppFlowyMobileToolbar(
-        toolbarHeight: 46.0,
+        toolbarHeight: 42.0,
         editorState: editorState,
-        toolbarItems: [
-          undoToolbarItem,
-          redoToolbarItem,
-          addBlockToolbarItem,
-          todoListToolbarItem,
-          aaToolbarItem,
-          boldToolbarItem,
-          italicToolbarItem,
-          underlineToolbarItem,
-          colorToolbarItem,
-        ],
+        toolbarItemsBuilder: (selection) => buildMobileToolbarItems(
+          editorState,
+          selection,
+        ),
         child: Column(
           children: [
             Expanded(
@@ -317,19 +310,12 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
                 editorState: editorState,
                 editorScrollController: editorScrollController,
                 toolbarBuilder: (context, anchor, closeToolbar) {
-                  return AdaptiveTextSelectionToolbar.editable(
-                    clipboardStatus: ClipboardStatus.pasteable,
-                    onCopy: () {
-                      customCopyCommand.execute(editorState);
-                      closeToolbar();
-                    },
-                    onCut: () => customCutCommand.execute(editorState),
-                    onPaste: () => customPasteCommand.execute(editorState),
-                    onSelectAll: () => selectAllCommand.execute(editorState),
-                    onLiveTextInput: null,
-                    onLookUp: null,
-                    onSearchWeb: null,
-                    onShare: null,
+                  return AdaptiveTextSelectionToolbar.buttonItems(
+                    buttonItems: buildMobileFloatingToolbarItems(
+                      editorState,
+                      anchor,
+                      closeToolbar,
+                    ),
                     anchors: TextSelectionToolbarAnchors(
                       primaryAnchor: anchor,
                     ),

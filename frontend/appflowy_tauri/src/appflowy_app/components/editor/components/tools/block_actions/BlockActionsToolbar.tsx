@@ -9,6 +9,9 @@ import { PopoverProps } from '@mui/material/Popover';
 
 import { EditorSelectedBlockContext } from '$app/components/editor/stores/selected';
 import withErrorBoundary from '$app/components/_shared/error_boundary/withError';
+import { CustomEditor } from '$app/components/editor/command';
+import isEqual from 'lodash-es/isEqual';
+import { Range } from 'slate';
 
 const Toolbar = () => {
   const ref = useRef<HTMLDivElement | null>(null);
@@ -38,9 +41,41 @@ const Toolbar = () => {
     if (!node) return;
     const nodeDom = ReactEditor.toDOMNode(editor, node);
     const onContextMenu = (e: MouseEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
       const { clientX, clientY } = e;
+
+      e.stopPropagation();
+
+      const { selection } = editor;
+
+      const editorRange = ReactEditor.findEventRange(editor, e);
+
+      if (!editorRange || !selection) return;
+
+      const rangeBlock = CustomEditor.getBlock(editor, editorRange);
+      const selectedBlock = CustomEditor.getBlock(editor, selection);
+
+      if (
+        Range.intersection(selection, editorRange) ||
+        (rangeBlock && selectedBlock && isEqual(rangeBlock[1], selectedBlock[1]))
+      ) {
+        const windowSelection = window.getSelection();
+        const range = windowSelection?.rangeCount ? windowSelection?.getRangeAt(0) : null;
+        const isCollapsed = windowSelection?.isCollapsed;
+
+        if (windowSelection && !isCollapsed) {
+          if (range && range.endOffset === 0 && range.startContainer !== range.endContainer) {
+            const newRange = range.cloneRange();
+
+            newRange.setEnd(range.startContainer, range.startOffset);
+            windowSelection.removeAllRanges();
+            windowSelection.addRange(newRange);
+          }
+        }
+
+        return;
+      }
+
+      e.preventDefault();
 
       popoverPropsRef.current = {
         transformOrigin: {

@@ -15,7 +15,7 @@ where
   R: CollabKVAction<'a>,
   PersistenceError: From<R::Error>,
 {
-  let collab = Collab::new(uid, object_id, "phantom", vec![]);
+  let collab = Collab::new(uid, object_id, "phantom", vec![], false);
   collab.with_origin_transact_mut(|txn| collab_r_txn.load_doc_with_txn(uid, &object_id, txn))?;
   Ok(Arc::new(MutexCollab::from_collab(collab)))
 }
