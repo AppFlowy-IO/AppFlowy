@@ -184,7 +184,7 @@ void main() {
 
       assert(bloc.state.selectedOptions.length == 1);
       expect(bloc.state.selectedOptions[0].name, "A");
-      expect(bloc.state.filter, "x");
+      expect(bloc.filter, "x");
     });
 
     test('filter options', () async {
@@ -234,12 +234,12 @@ void main() {
         reason: "Options: ${bloc.state.options}",
       );
       expect(
-        bloc.state.allOptions.length,
+        bloc.allOptions.length,
         3,
         reason: "Options: ${bloc.state.options}",
       );
       expect(bloc.state.createSelectOptionSuggestion!.name, "a");
-      expect(bloc.state.filter, "a");
+      expect(bloc.filter, "a");
     });
   });
 }

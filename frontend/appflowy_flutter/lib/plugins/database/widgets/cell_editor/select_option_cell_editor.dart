@@ -45,21 +45,20 @@ class _SelectOptionCellEditorState extends State<SelectOptionCellEditor> {
     super.initState();
     focusNode = FocusNode(
       onKeyEvent: (node, event) {
-        if (event is KeyUpEvent) {
-          return KeyEventResult.ignored;
-        }
         switch (event.logicalKey) {
-          case LogicalKeyboardKey.arrowUp:
+          case LogicalKeyboardKey.arrowUp when event is! KeyUpEvent:
             if (textEditingController.value.composing.isCollapsed) {
               bloc.add(const SelectOptionCellEditorEvent.focusPreviousOption());
               return KeyEventResult.handled;
             }
-          case LogicalKeyboardKey.arrowDown:
+            break;
+          case LogicalKeyboardKey.arrowDown when event is! KeyUpEvent:
             if (textEditingController.value.composing.isCollapsed) {
               bloc.add(const SelectOptionCellEditorEvent.focusNextOption());
               return KeyEventResult.handled;
             }
-          case LogicalKeyboardKey.escape:
+            break;
+          case LogicalKeyboardKey.escape when event is! KeyUpEvent:
             if (!textEditingController.value.composing.isCollapsed) {
               final end = textEditingController.value.composing.end;
               final text = textEditingController.text;
@@ -70,6 +69,13 @@ class _SelectOptionCellEditorState extends State<SelectOptionCellEditor> {
               );
               return KeyEventResult.handled;
             }
+            break;
+          case LogicalKeyboardKey.backspace when event is KeyUpEvent:
+            if (!textEditingController.text.isNotEmpty) {
+              bloc.add(const SelectOptionCellEditorEvent.unSelectLastOption());
+              return KeyEventResult.handled;
+            }
+            break;
         }
         return KeyEventResult.ignored;
       },
@@ -126,7 +132,18 @@ class _OptionList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<SelectOptionCellEditorBloc, SelectOptionCellEditorState>(
+    return BlocConsumer<SelectOptionCellEditorBloc,
+        SelectOptionCellEditorState>(
+      listenWhen: (previous, current) =>
+          previous.clearFilter != current.clearFilter,
+      listener: (context, state) {
+        if (state.clearFilter) {
+          textEditingController.clear();
+          context
+              .read<SelectOptionCellEditorBloc>()
+              .add(const SelectOptionCellEditorEvent.resetClearFilterFlag());
+        }
+      },
       buildWhen: (previous, current) =>
           !listEquals(previous.options, current.options) ||
           previous.createSelectOptionSuggestion !=
@@ -231,7 +248,6 @@ class _TextField extends StatelessWidget {
                 context
                     .read<SelectOptionCellEditorBloc>()
                     .add(const SelectOptionCellEditorEvent.submitTextField());
-                textEditingController.clear();
                 focusNode.requestFocus();
               },
               onPaste: (tagNames, remainder) {

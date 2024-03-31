@@ -36,7 +36,7 @@ class SelectOptionFilterListBloc<T>
               emit: emit,
             );
           },
-          unselectOption: (option) {
+          unSelectOption: (option) {
             final selectedOptionIds = Set<String>.from(state.selectedOptionIds);
             selectedOptionIds.remove(option.id);
 
@@ -121,7 +121,7 @@ class SelectOptionFilterListEvent with _$SelectOptionFilterListEvent {
     SelectOptionPB option,
     SelectOptionFilterConditionPB condition,
   ) = _SelectOption;
-  const factory SelectOptionFilterListEvent.unselectOption(
+  const factory SelectOptionFilterListEvent.unSelectOption(
     SelectOptionPB option,
   ) = _UnSelectOption;
   const factory SelectOptionFilterListEvent.didReceiveOptions(
