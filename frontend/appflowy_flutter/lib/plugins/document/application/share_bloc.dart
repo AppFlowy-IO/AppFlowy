@@ -13,6 +13,7 @@ part 'share_bloc.freezed.dart';
 class DocShareBloc extends Bloc<DocShareEvent, DocShareState> {
   DocShareBloc({required this.view}) : super(const DocShareState.initial()) {
     on<ShareMarkdown>(_onShareMarkdown);
+    on<ShareHTML>(_onShareHTML);
   }
 
   final ViewPB view;
@@ -42,11 +43,38 @@ class DocShareBloc extends Bloc<DocShareEvent, DocShareState> {
       ..data = markdown
       ..exportType = ExportType.Markdown;
   }
+
+  Future<void> _onShareHTML(
+    ShareHTML event,
+    Emitter<DocShareState> emit,
+  ) async {
+    emit(const DocShareState.loading());
+
+    final documentExporter = DocumentExporter(view);
+    final result = await documentExporter.export(DocumentExportType.html);
+    emit(
+      DocShareState.finish(
+        result.fold(
+          (html) =>
+              FlowyResult.success(_saveHTMLToPath(html, event.path)),
+          (error) => FlowyResult.failure(error),
+        ),
+      ),
+    );
+  }
+
+  ExportDataPB _saveHTMLToPath(String html, String path) {
+    File(path).writeAsStringSync(html);
+    return ExportDataPB()
+      ..data = html
+      ..exportType = ExportType.HTML;
+  }
 }
 
 @freezed
 class DocShareEvent with _$DocShareEvent {
   const factory DocShareEvent.shareMarkdown(String path) = ShareMarkdown;
+  const factory DocShareEvent.shareHTML(String path) = ShareHTML;
   const factory DocShareEvent.shareText() = ShareText;
   const factory DocShareEvent.shareLink() = ShareLink;
 }

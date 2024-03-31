@@ -87,6 +87,8 @@
     "buttonText": "Share",
     "workInProgress": "Coming soon",
     "markdown": "Markdown",
+    "html": "HTML",
+    "clipboard": "Copy to clipboard",
     "csv": "CSV",
     "copyLink": "Copy Link"
   },

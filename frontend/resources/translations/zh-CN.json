@@ -70,6 +70,8 @@
     "buttonText": "分享",
     "workInProgress": "敬请期待",
     "markdown": "Markdown",
+    "html": "HTML",
+    "clipboard": "拷贝到剪贴板",
     "csv": "CSV",
     "copyLink": "复制链接"
   },

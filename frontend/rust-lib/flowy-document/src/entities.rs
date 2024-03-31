@@ -339,6 +339,7 @@ pub enum ExportType {
   Text = 0,
   Markdown = 1,
   Link = 2,
+  HTML = 3,
 }
 
 impl From<i32> for ExportType {
@@ -347,6 +348,7 @@ impl From<i32> for ExportType {
       0 => ExportType::Text,
       1 => ExportType::Markdown,
       2 => ExportType::Link,
+      3 => ExportType::HTML,
       _ => {
         tracing::error!("🔴Invalid export type: {}", val);
         ExportType::Text
