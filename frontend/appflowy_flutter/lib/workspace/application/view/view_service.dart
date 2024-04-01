@@ -280,4 +280,15 @@ class ViewBackendService {
       );
     });
   }
+
+  static Future<FlowyResult<void, FlowyError>> updateViewsVisibility(
+    List<ViewPB> views,
+    bool isPublic,
+  ) async {
+    final payload = UpdateViewVisibilityStatusPayloadPB(
+      viewIds: views.map((e) => e.id).toList(),
+      isPublic: isPublic,
+    );
+    return FolderEventUpdateViewVisibilityStatus(payload).send();
+  }
 }

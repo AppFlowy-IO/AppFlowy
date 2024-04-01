@@ -31,9 +31,13 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
             final isCollabWorkspaceOn =
                 userProfile.authenticator != AuthenticatorPB.Local &&
                     FeatureFlag.collaborativeWorkspace.isOn;
+            final currentWorkspace = result?.$1;
+            if (currentWorkspace != null && result?.$3 == true) {
+              await _userService.openWorkspace(currentWorkspace.workspaceId);
+            }
             emit(
               state.copyWith(
-                currentWorkspace: result?.$1,
+                currentWorkspace: currentWorkspace,
                 workspaces: result?.$2 ?? [],
                 isCollabWorkspaceOn: isCollabWorkspaceOn,
                 actionResult: null,
@@ -250,8 +254,12 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
   final UserProfilePB userProfile;
   final UserBackendService _userService;
 
-  Future<(UserWorkspacePB currentWorkspace, List<UserWorkspacePB> workspaces)?>
-      _fetchWorkspaces() async {
+  Future<
+      (
+        UserWorkspacePB currentWorkspace,
+        List<UserWorkspacePB> workspaces,
+        bool shouldOpenWorkspace,
+      )?> _fetchWorkspaces() async {
     try {
       final lastOpenedWorkspaceId = await getIt<KeyValueStorage>().get(
         KVKeys.lastOpenedWorkspaceId,
@@ -268,7 +276,11 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
           currentWorkspaceInList = lastOpenedWorkspace;
         }
       }
-      return (currentWorkspaceInList, workspaces);
+      return (
+        currentWorkspaceInList,
+        workspaces,
+        lastOpenedWorkspaceId != currentWorkspace.id
+      );
     } catch (e) {
       Log.error('fetch workspace error: $e');
       return null;

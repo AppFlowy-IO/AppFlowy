@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:appflowy/plugins/document/application/doc_awareness_metadata.dart';
 import 'package:appflowy/plugins/document/application/document_data_pb_extension.dart';
 import 'package:appflowy/plugins/document/application/prelude.dart';
+import 'package:appflowy/shared/list_extension.dart';
 import 'package:appflowy/startup/tasks/device_info_task.dart';
 import 'package:appflowy/util/color_generator/color_generator.dart';
 import 'package:appflowy/util/json_print.dart';
@@ -138,7 +139,15 @@ class DocumentCollabAdapter {
   ) async {
     final List<RemoteSelection> remoteSelections = [];
     final deviceId = ApplicationInfo.deviceId;
-    for (final state in states.value.values) {
+    // the values may be duplicated, sort by the timestamp and then filter the duplicated values
+    final values = states.value.values
+        .sorted(
+          (a, b) => b.timestamp.compareTo(a.timestamp),
+        ) // in descending order
+        .unique(
+          (e) => Object.hashAll([e.user.uid, e.user.deviceId]),
+        );
+    for (final state in values) {
       // the following code is only for version 1
       if (state.version != 1) {
         return;
@@ -174,7 +183,7 @@ class DocumentCollabAdapter {
         cursorColor: cursorColor,
         builder: (_, __, rect) {
           return Positioned(
-            top: rect.top - 10,
+            top: rect.top - 14,
             left: selection.isCollapsed ? rect.right : rect.left,
             child: ColoredBox(
               color: color,
