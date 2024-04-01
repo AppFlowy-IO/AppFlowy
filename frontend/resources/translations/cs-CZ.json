@@ -265,6 +265,7 @@
       "enableSync": "Zapnout synchronizaci",
       "enableEncrypt": "Šifrovat data",
       "cloudURL": "URL adresa serveru",
+      "cloudAppFlowy": "AppFlowy Cloud Beta",
       "enableEncryptPrompt": "Zapněte šifrování a zabezpečte svá ",
       "inputEncryptPrompt": "Vložte prosím Váš šifrovací klíč k",
       "clickToCopySecret": "Kliknutím zkopírujete šifrovací klíč",
@@ -454,13 +455,9 @@
       "isComplete": "je hotový",
       "isIncomplted": "není hotový"
     },
-    "singleSelectOptionFilter": {
+    "selectOptionFilter": {
       "is": "Je",
       "isNot": "Není",
-      "isEmpty": "Je prázdné",
-      "isNotEmpty": "Není prázdné"
-    },
-    "multiSelectOptionFilter": {
       "contains": "Obsahuje",
       "doesNotContain": "Neobsahuje",
       "isEmpty": "Je prázdné",

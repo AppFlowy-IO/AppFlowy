@@ -48,10 +48,11 @@ class DocumentCollaborators extends StatelessWidget {
                     (c) => FlowyTooltip(
                       message: c.userName,
                       child: CircleAvatar(
-                        backgroundColor: c.selectionColor.tryToColor(),
+                        backgroundColor: c.cursorColor.tryToColor(),
                         child: FlowyText(
                           c.userName.characters.firstOrNull ?? ' ',
                           fontSize: fontSize,
+                          color: Colors.black,
                         ),
                       ),
                     ),
