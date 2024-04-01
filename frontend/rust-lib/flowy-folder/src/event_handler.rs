@@ -363,3 +363,14 @@ pub(crate) async fn reload_workspace_handler(
   folder.reload_workspace().await?;
   Ok(())
 }
+
+#[tracing::instrument(level = "debug", skip(data, folder), err)]
+pub(crate) async fn update_view_visibility_status_handler(
+  data: AFPluginData<UpdateViewVisibilityStatusPayloadPB>,
+  folder: AFPluginState<Weak<FolderManager>>,
+) -> Result<(), FlowyError> {
+  let folder = upgrade_folder(folder)?;
+  let params = data.into_inner();
+  folder.set_views_visibility(params.view_ids, params.is_public);
+  Ok(())
+}
