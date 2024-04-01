@@ -184,7 +184,7 @@ mod tests {
     let result = importer
       .import_csv_from_string(gen_database_view_id(), s.to_string(), CSVFormat::Original)
       .unwrap();
-    assert_eq!(result.created_rows.len(), 3);
+    assert_eq!(result.rows.len(), 3);
     assert_eq!(result.fields.len(), 6);
 
     assert_eq!(result.fields[0].name, "Name");
@@ -194,9 +194,9 @@ mod tests {
     assert_eq!(result.fields[4].name, "Checkbox");
     assert_eq!(result.fields[5].name, "URL");
 
-    assert_eq!(result.created_rows[0].cells.len(), 6);
-    assert_eq!(result.created_rows[1].cells.len(), 6);
-    assert_eq!(result.created_rows[2].cells.len(), 6);
+    assert_eq!(result.rows[0].cells.len(), 6);
+    assert_eq!(result.rows[1].cells.len(), 6);
+    assert_eq!(result.rows[2].cells.len(), 6);
 
     println!("{:?}", result);
   }
