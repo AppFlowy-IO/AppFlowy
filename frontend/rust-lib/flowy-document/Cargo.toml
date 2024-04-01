@@ -55,4 +55,4 @@ tauri_ts = ["flowy-codegen/ts"]
 web_ts = [
     "flowy-codegen/ts",
 ]
-
+verbose_log = ["collab-document/verbose_log"]
