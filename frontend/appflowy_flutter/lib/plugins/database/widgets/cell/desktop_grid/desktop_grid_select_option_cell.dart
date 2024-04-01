@@ -7,6 +7,7 @@ import 'package:appflowy_backend/protobuf/flowy-database2/select_option_entities
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../editable_cell_skeleton/select_option.dart';
 
@@ -16,29 +17,29 @@ class DesktopGridSelectOptionCellSkin extends IEditableSelectOptionCellSkin {
     BuildContext context,
     CellContainerNotifier cellContainerNotifier,
     SelectOptionCellBloc bloc,
-    SelectOptionCellState state,
     PopoverController popoverController,
   ) {
     return AppFlowyPopover(
       controller: popoverController,
-      constraints: BoxConstraints.loose(const Size.square(300)),
+      constraints: const BoxConstraints.tightFor(width: 300),
       margin: EdgeInsets.zero,
       direction: PopoverDirection.bottomWithLeftAligned,
       popupBuilder: (BuildContext popoverContext) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          cellContainerNotifier.isFocus = true;
-        });
         return SelectOptionCellEditor(
           cellController: bloc.cellController,
         );
       },
       onClose: () => cellContainerNotifier.isFocus = false,
-      child: Container(
-        alignment: AlignmentDirectional.centerStart,
-        padding: GridSize.cellContentInsets,
-        child: state.selectedOptions.isEmpty
-            ? const SizedBox.shrink()
-            : _buildOptions(context, state.selectedOptions),
+      child: BlocBuilder<SelectOptionCellBloc, SelectOptionCellState>(
+        builder: (context, state) {
+          return Container(
+            alignment: AlignmentDirectional.centerStart,
+            padding: GridSize.cellContentInsets,
+            child: state.selectedOptions.isEmpty
+                ? const SizedBox.shrink()
+                : _buildOptions(context, state.selectedOptions),
+          );
+        },
       ),
     );
   }

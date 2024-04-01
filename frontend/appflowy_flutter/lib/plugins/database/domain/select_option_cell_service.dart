@@ -2,8 +2,7 @@ import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
-
-import 'type_option_service.dart';
+import 'package:nanoid/nanoid.dart';
 
 class SelectOptionCellBackendService {
   SelectOptionCellBackendService({
@@ -18,26 +17,23 @@ class SelectOptionCellBackendService {
 
   Future<FlowyResult<void, FlowyError>> create({
     required String name,
+    SelectOptionColorPB? color,
     bool isSelected = true,
   }) {
-    return TypeOptionBackendService(viewId: viewId, fieldId: fieldId)
-        .newOption(name: name)
-        .then(
-      (result) {
-        return result.fold(
-          (option) {
-            final payload = RepeatedSelectOptionPayload()
-              ..viewId = viewId
-              ..fieldId = fieldId
-              ..rowId = rowId
-              ..items.add(option);
+    final option = SelectOptionPB()
+      ..id = nanoid(4)
+      ..name = name;
+    if (color != null) {
+      option.color = color;
+    }
 
-            return DatabaseEventInsertOrUpdateSelectOption(payload).send();
-          },
-          (r) => FlowyResult.failure(r),
-        );
-      },
-    );
+    final payload = RepeatedSelectOptionPayload()
+      ..viewId = viewId
+      ..fieldId = fieldId
+      ..rowId = rowId
+      ..items.add(option);
+
+    return DatabaseEventInsertOrUpdateSelectOption(payload).send();
   }
 
   Future<FlowyResult<void, FlowyError>> update({
