@@ -55,6 +55,16 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
           fetchWorkspaces: () async {
             final result = await _fetchWorkspaces();
             if (result != null) {
+              final currentWorkspace = result.$1;
+              final workspaces = result.$2;
+              // the equal function has been overridden.
+              if (_deepCollectionEquality.equals(
+                    workspaces,
+                    state.workspaces,
+                  ) &&
+                  currentWorkspace == state.currentWorkspace) {
+                return;
+              }
               emit(
                 state.copyWith(
                   currentWorkspace: result.$1,
@@ -255,8 +265,10 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
             );
           },
           updateWorkspaces: (workspaces) async {
-            if (!const DeepCollectionEquality()
-                .equals(workspaces.items, state.workspaces)) {
+            if (!_deepCollectionEquality.equals(
+              workspaces.items,
+              state.workspaces,
+            )) {
               emit(
                 state.copyWith(
                   workspaces: workspaces.items,
@@ -278,6 +290,8 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
   final UserProfilePB userProfile;
   final UserBackendService _userService;
   final UserListener _listener;
+  final DeepCollectionEquality _deepCollectionEquality =
+      const DeepCollectionEquality();
 
   Future<
       (

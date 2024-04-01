@@ -1,7 +1,6 @@
+import 'package:appflowy_popover/src/layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
-import 'package:appflowy_popover/src/layout.dart';
 
 import 'mask.dart';
 import 'mutex.dart';
@@ -79,7 +78,8 @@ class Popover extends StatefulWidget {
   /// The direction of the popover
   final PopoverDirection direction;
 
-  final void Function()? onClose;
+  final VoidCallback? onOpen;
+  final VoidCallback? onClose;
   final Future<bool> Function()? canClose;
 
   final bool asBarrier;
@@ -109,6 +109,7 @@ class Popover extends StatefulWidget {
     this.direction = PopoverDirection.rightWithTopAligned,
     this.mutex,
     this.windowPadding,
+    this.onOpen,
     this.onClose,
     this.canClose,
     this.asBarrier = false,
@@ -228,6 +229,7 @@ class PopoverState extends State<Popover> {
       child: _buildClickHandler(
         widget.child,
         () {
+          widget.onOpen?.call();
           if (widget.triggerActions & PopoverTriggerFlags.click != 0) {
             showOverlay();
           }
