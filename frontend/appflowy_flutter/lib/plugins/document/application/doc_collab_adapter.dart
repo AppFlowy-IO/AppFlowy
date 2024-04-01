@@ -174,7 +174,7 @@ class DocumentCollabAdapter {
         cursorColor: cursorColor,
         builder: (_, __, rect) {
           return Positioned(
-            top: rect.top - 10,
+            top: rect.top - 14,
             left: selection.isCollapsed ? rect.right : rect.left,
             child: ColoredBox(
               color: color,
