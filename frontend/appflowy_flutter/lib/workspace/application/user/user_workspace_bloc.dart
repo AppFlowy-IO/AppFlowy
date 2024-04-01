@@ -31,14 +31,21 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
             final isCollabWorkspaceOn =
                 userProfile.authenticator != AuthenticatorPB.Local &&
                     FeatureFlag.collaborativeWorkspace.isOn;
-            final currentWorkspace = result?.$1;
-            if (currentWorkspace != null && result?.$3 == true) {
-              await _userService.openWorkspace(currentWorkspace.workspaceId);
+            final currentWorkspace = result.$1;
+            if (currentWorkspace != null && result.$3 == true) {
+              final result = await _userService
+                  .openWorkspace(currentWorkspace.workspaceId);
+              result.onSuccess((s) async {
+                await getIt<KeyValueStorage>().set(
+                  KVKeys.lastOpenedWorkspaceId,
+                  currentWorkspace.workspaceId,
+                );
+              });
             }
             emit(
               state.copyWith(
                 currentWorkspace: currentWorkspace,
-                workspaces: result?.$2 ?? [],
+                workspaces: result.$2,
                 isCollabWorkspaceOn: isCollabWorkspaceOn,
                 actionResult: null,
               ),
@@ -46,28 +53,12 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
           },
           fetchWorkspaces: () async {
             final result = await _fetchWorkspaces();
-            if (result != null) {
-              emit(
-                state.copyWith(
-                  currentWorkspace: result.$1,
-                  workspaces: result.$2,
-                ),
-              );
-            } else {
-              emit(
-                state.copyWith(
-                  actionResult: UserWorkspaceActionResult(
-                    actionType: UserWorkspaceActionType.none,
-                    result: FlowyResult.failure(
-                      FlowyError(
-                        code: ErrorCode.Internal,
-                        msg: LocaleKeys.workspace_fetchWorkspacesFailed.tr(),
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            }
+            emit(
+              state.copyWith(
+                currentWorkspace: result.$1,
+                workspaces: result.$2,
+              ),
+            );
           },
           createWorkspace: (name) async {
             final result = await _userService.createUserWorkspace(name);
@@ -256,10 +247,10 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
 
   Future<
       (
-        UserWorkspacePB currentWorkspace,
+        UserWorkspacePB? currentWorkspace,
         List<UserWorkspacePB> workspaces,
         bool shouldOpenWorkspace,
-      )?> _fetchWorkspaces() async {
+      )> _fetchWorkspaces() async {
     try {
       final lastOpenedWorkspaceId = await getIt<KeyValueStorage>().get(
         KVKeys.lastOpenedWorkspaceId,
@@ -267,8 +258,8 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
       final currentWorkspace =
           await _userService.getCurrentWorkspace().getOrThrow();
       final workspaces = await _userService.getWorkspaces().getOrThrow();
-      UserWorkspacePB currentWorkspaceInList =
-          workspaces.firstWhere((e) => e.workspaceId == currentWorkspace.id);
+      UserWorkspacePB? currentWorkspaceInList = workspaces
+          .firstWhereOrNull((e) => e.workspaceId == currentWorkspace.id);
       if (lastOpenedWorkspaceId != null) {
         final lastOpenedWorkspace = workspaces
             .firstWhereOrNull((e) => e.workspaceId == lastOpenedWorkspaceId);
@@ -276,6 +267,7 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
           currentWorkspaceInList = lastOpenedWorkspace;
         }
       }
+      currentWorkspaceInList ??= workspaces.first;
       return (
         currentWorkspaceInList,
         workspaces,
@@ -283,7 +275,7 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
       );
     } catch (e) {
       Log.error('fetch workspace error: $e');
-      return null;
+      return (null, <UserWorkspacePB>[], false);
     }
   }
 }

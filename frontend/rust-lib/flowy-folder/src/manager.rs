@@ -1144,7 +1144,7 @@ impl FolderManager {
       let view_ids_should_be_filtered = self.get_view_ids_should_be_filtered(folder);
       views
         .into_iter()
-        .filter(|view| view_ids_should_be_filtered.contains(&view.id))
+        .filter(|view| !view_ids_should_be_filtered.contains(&view.id))
         .collect()
     })
   }
@@ -1160,35 +1160,20 @@ impl FolderManager {
       .collect::<Vec<String>>();
     let mut all_trash_ids = trash_ids.clone();
     for trash_id in trash_ids {
-      all_trash_ids.extend(self.get_all_child_view_ids(folder, &trash_id));
+      all_trash_ids.extend(get_all_child_view_ids(folder, &trash_id));
     }
     all_trash_ids
-  }
-
-  /// Get all the child views belong to the view id, including the child views of the child views.
-  fn get_all_child_view_ids(&self, folder: &Folder, view_id: &str) -> Vec<String> {
-    let child_view_ids = folder
-      .views
-      .get_views_belong_to(view_id)
-      .into_iter()
-      .map(|view| view.id.clone())
-      .collect::<Vec<String>>();
-    let mut all_child_view_ids = child_view_ids.clone();
-    for child_view_id in child_view_ids {
-      all_child_view_ids.extend(self.get_all_child_view_ids(folder, &child_view_id));
-    }
-    all_child_view_ids
   }
 
   /// Filter the views that are in the trash and belong to the other private sections.
   fn get_view_ids_should_be_filtered(&self, folder: &Folder) -> Vec<String> {
     let trash_ids = self.get_all_trash_ids(folder);
-    let other_private_view_ids = self.get_other_private_view_ids(&folder);
+    let other_private_view_ids = self.get_other_private_view_ids(folder);
     [trash_ids, other_private_view_ids].concat()
   }
 
   fn get_other_private_view_ids(&self, folder: &Folder) -> Vec<String> {
-    let private_view_ids = folder
+    let my_private_view_ids = folder
       .get_my_private_sections()
       .into_iter()
       .map(|view| view.id)
@@ -1202,7 +1187,7 @@ impl FolderManager {
 
     all_private_view_ids
       .into_iter()
-      .filter(|id| private_view_ids.contains(id))
+      .filter(|id| !my_private_view_ids.contains(id))
       .collect()
   }
 }
@@ -1240,6 +1225,21 @@ pub(crate) fn get_workspace_public_view_pbs(_workspace_id: &str, folder: &Folder
       view_pb_with_child_views(view, child_views)
     })
     .collect()
+}
+
+/// Get all the child views belong to the view id, including the child views of the child views.
+fn get_all_child_view_ids(folder: &Folder, view_id: &str) -> Vec<String> {
+  let child_view_ids = folder
+    .views
+    .get_views_belong_to(view_id)
+    .into_iter()
+    .map(|view| view.id.clone())
+    .collect::<Vec<String>>();
+  let mut all_child_view_ids = child_view_ids.clone();
+  for child_view_id in child_view_ids {
+    all_child_view_ids.extend(get_all_child_view_ids(folder, &child_view_id));
+  }
+  all_child_view_ids
 }
 
 /// Get the current private views of the user.
