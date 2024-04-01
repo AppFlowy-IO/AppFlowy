@@ -3,6 +3,7 @@ import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/user/application/user_listener.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/code.pbenum.dart';
@@ -22,11 +23,18 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
   UserWorkspaceBloc({
     required this.userProfile,
   })  : _userService = UserBackendService(userId: userProfile.id),
+        _listener = UserListener(userProfile: userProfile),
         super(UserWorkspaceState.initial()) {
     on<UserWorkspaceEvent>(
       (event, emit) async {
         await event.when(
           initial: () async {
+            _listener
+              ..didUpdateUserWorkspaces = (workspaces) {
+                add(UserWorkspaceEvent.updateWorkspaces(workspaces));
+              }
+              ..start();
+
             final result = await _fetchWorkspaces();
             final isCollabWorkspaceOn =
                 userProfile.authenticator != AuthenticatorPB.Local &&
@@ -246,13 +254,30 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
               ),
             );
           },
+          updateWorkspaces: (workspaces) async {
+            if (!const DeepCollectionEquality()
+                .equals(workspaces.items, state.workspaces)) {
+              emit(
+                state.copyWith(
+                  workspaces: workspaces.items,
+                ),
+              );
+            }
+          },
         );
       },
     );
   }
 
+  @override
+  Future<void> close() {
+    _listener.stop();
+    return super.close();
+  }
+
   final UserProfilePB userProfile;
   final UserBackendService _userService;
+  final UserListener _listener;
 
   Future<
       (
@@ -308,6 +333,9 @@ class UserWorkspaceEvent with _$UserWorkspaceEvent {
   ) = _UpdateWorkspaceIcon;
   const factory UserWorkspaceEvent.leaveWorkspace(String workspaceId) =
       LeaveWorkspace;
+  const factory UserWorkspaceEvent.updateWorkspaces(
+    RepeatedUserWorkspacePB workspaces,
+  ) = UpdateWorkspaces;
 }
 
 enum UserWorkspaceActionType {
