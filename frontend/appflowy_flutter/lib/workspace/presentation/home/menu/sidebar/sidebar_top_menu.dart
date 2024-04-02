@@ -1,5 +1,7 @@
 import 'dart:io' show Platform;
 
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/core/frameless_window.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -7,9 +9,8 @@ import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
 import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra_ui/style_widget/icon_button.dart';
+import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Sidebar top menu is the top bar of the sidebar.
@@ -71,15 +72,19 @@ class SidebarTopMenu extends StatelessWidget {
     );
     return FlowyTooltip(
       richMessage: textSpan,
-      child: FlowyIconButton(
-        width: 28,
-        hoverColor: Colors.transparent,
-        onPressed: () => context
+      child: Listener(
+        behavior: HitTestBehavior.opaque,
+        onPointerDown: (_) => context
             .read<HomeSettingBloc>()
             .add(const HomeSettingEvent.collapseMenu()),
-        iconPadding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
-        icon: const FlowySvg(
-          FlowySvgs.hide_menu_m,
+        child: const FlowyHover(
+          style: HoverStyle.transparent(),
+          child: SizedBox(
+            width: 20,
+            child: FlowySvg(
+              FlowySvgs.hide_menu_m,
+            ),
+          ),
         ),
       ),
     );

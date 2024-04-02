@@ -8,7 +8,7 @@ import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
-import 'package:flowy_infra_ui/style_widget/icon_button.dart';
+import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -71,18 +71,19 @@ class FlowyNavigation extends StatelessWidget {
                 context,
                 LocaleKeys.sideBar_openSidebar.tr(),
               ),
-              child: FlowyIconButton(
-                width: 24,
-                hoverColor: Colors.transparent,
-                onPressed: () {
-                  context
-                      .read<HomeSettingBloc>()
-                      .add(const HomeSettingEvent.collapseMenu());
-                },
-                iconPadding: const EdgeInsets.fromLTRB(2, 2, 2, 2),
-                icon: FlowySvg(
-                  FlowySvgs.hide_menu_m,
-                  color: Theme.of(context).iconTheme.color,
+              child: Listener(
+                behavior: HitTestBehavior.opaque,
+                onPointerDown: (_) => context
+                    .read<HomeSettingBloc>()
+                    .add(const HomeSettingEvent.collapseMenu()),
+                child: const FlowyHover(
+                  style: HoverStyle.transparent(),
+                  child: SizedBox(
+                    width: 20,
+                    child: FlowySvg(
+                      FlowySvgs.hide_menu_m,
+                    ),
+                  ),
                 ),
               ),
             ),
