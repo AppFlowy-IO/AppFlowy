@@ -3,14 +3,20 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 const defaultConfig: AFServiceConfig = {
   cloudConfig: {
-    baseURL: import.meta.env.DEV
-      ? import.meta.env.AF_BASE_URL || 'https://test.appflowy.cloud'
+    baseURL: import.meta.env.AF_BASE_URL
+      ? import.meta.env.AF_BASE_URL
+      : import.meta.env.DEV
+      ? 'https://test.appflowy.cloud'
       : 'https://beta.appflowy.cloud',
-    gotrueURL: import.meta.env.DEV
-      ? import.meta.env.AF_GOTRUE_URL || 'https://test.appflowy.cloud/gotrue'
+    gotrueURL: import.meta.env.AF_GOTRUE_URL
+      ? import.meta.env.AF_GOTRUE_URL
+      : import.meta.env.DEV
+      ? 'https://test.appflowy.cloud/gotrue'
       : 'https://beta.appflowy.cloud/gotrue',
-    wsURL: import.meta.env.DEV
-      ? import.meta.env.AF_WS_URL || 'wss://test.appflowy.cloud/ws/v1'
+    wsURL: import.meta.env.AF_WS_URL
+      ? import.meta.env.AF_WS_URL
+      : import.meta.env.DEV
+      ? 'wss://test.appflowy.cloud/ws/v1'
       : 'wss://beta.appflowy.cloud/ws/v1',
   },
 };

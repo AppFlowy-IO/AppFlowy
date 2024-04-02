@@ -194,6 +194,60 @@ Don't modify the theme file in `frontend/appflowy_web_app/src/styles/variables` 
     }
   ```
 
+### 📦 Deployment (Self-Hosted)
+
+#### Setting up the environment variables(Action -> Secrets Keys)
+
+Before deploying the application, ensure you have the following environment variables set:
+
+```bash
+# Set the environment variables in Actions/Secrets
+
+# test environment variables
+WEB_TEST_SSH_PRIVATE_KEY=// your ssh private key
+WEB_TEST_SSH_USER=// your ssh user
+WEB_TEST_SSH_HOST=// your ssh host
+WEB_TEST_SSL_CERTIFICATE=// your ssl certificate
+WEB_TEST_SSL_CERTIFICATE_KEY=// your ssl certificate key
+
+# production environment variables
+WEB_PROD_SSH_PRIVATE_KEY=// your ssh private key
+WEB_PROD_SSH_USER=// your ssh user
+WEB_PROD_SSH_HOST=// your ssh host
+WEB_PROD_SSL_CERTIFICATE=// your ssl certificate
+WEB_PROD_SSL_CERTIFICATE_KEY=// your ssl certificate key
+```
+
+#### Create machine for deployment(Example using AWS EC2)
+
+- Create an EC2 instance
+- Create a security group with the following inbound rules:
+    - SSH (22) - Anywhere
+    - HTTP (80) - Anywhere
+    - HTTPS (443) - Anywhere
+- Create a key pair and download the private key
+- Connect to the EC2 instance using the private key(ssh -i "your-private-key.pem" ec2-user@your-ec2-public-ip)
+- Install the required dependencies
+    - Docker
+- Create user(Optional)
+    - Create a user and add the user to the docker group
+    - Add the user to the sudo group
+    - Generate the ssh key for the user, ensure you are in /home/${user_name} directory
+    - Save the private key in the local machine (WEB_SSH_PRIVATE_KEY)
+    - Save the public key in the authorized_keys file
+    - Connect to the EC2 instance using the private key
+
+#### Deploy the application(CI/CD)
+
+- Push the changes to the main branch
+- Deploy Test Environment
+    - Automatically, the test environment will be deployed if merged to the main branch or build/test branch
+- Deploy Production Environment
+    - Navigate to the Actions tab
+    - Click on the workflow and select the Run workflow
+    - Enter the options
+    - Click on the Run workflow button
+
 ### 🧪 Testing
 
 > To be Continued...

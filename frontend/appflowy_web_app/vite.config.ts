@@ -45,13 +45,7 @@ export default defineConfig({
     watch: {
       ignored: ['**/__tests__/**'],
     },
-    // proxy: {
-    //   '/api': {
-    //     target: 'https://test.appflowy.cloud',
-    //     changeOrigin: true,
-    //     secure: false,
-    //   },
-    // },
+    cors: false,
   },
   envPrefix: ['AF', 'TAURI_'],
   build: process.env.TAURI_MODE

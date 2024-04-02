@@ -47,6 +47,7 @@ jobs:
         with:
           path: frontend/appflowy_web_app/node_modules
           key: node-modules-${{ runner.os }}
+      
       - name: install frontend dependencies
         working-directory: frontend/appflowy_web_app
         run: |
