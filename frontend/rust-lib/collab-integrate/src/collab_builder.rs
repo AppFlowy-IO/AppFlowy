@@ -259,7 +259,6 @@ impl AppFlowyCollabBuilder {
                   local_collab,
                 });
 
-            trace!("add appflowy cloud collab plugins: {}", plugins.len());
             for plugin in plugins {
               arc_collab.lock().add_plugin(plugin);
             }
