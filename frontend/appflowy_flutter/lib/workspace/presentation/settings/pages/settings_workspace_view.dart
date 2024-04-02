@@ -1,17 +1,27 @@
 import 'package:flutter/material.dart';
 
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/workspace/workspace_settings_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_icon.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_actionable_input.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_body.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_category.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_category_spacer.dart';
+import 'package:appflowy/workspace/presentation/settings/shared/settings_dropdown.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_header.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/auth.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/plugins/bloc/dynamic_plugin_bloc.dart';
+import 'package:flowy_infra/plugins/bloc/dynamic_plugin_event.dart';
+import 'package:flowy_infra/plugins/bloc/dynamic_plugin_state.dart';
+import 'package:flowy_infra/size.dart';
+import 'package:flowy_infra/theme.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SettingsWorkspaceView extends StatefulWidget {
@@ -129,14 +139,18 @@ class _SettingsWorkspaceViewState extends State<SettingsWorkspaceView> {
               const SettingsCategorySpacer(),
               SettingsCategory(
                 title: LocaleKeys.settings_workspace_appearance_title.tr(),
-                children: const [],
+                children: const [
+                  _AppearanceSelector(),
+                ],
               ),
               const SettingsCategorySpacer(),
               SettingsCategory(
                 title: LocaleKeys.settings_workspace_theme_title.tr(),
                 description:
                     LocaleKeys.settings_workspace_theme_description.tr(),
-                children: const [],
+                children: const [
+                  _ThemeDropdown(),
+                ],
               ),
               const SettingsCategorySpacer(),
               SettingsCategory(
@@ -164,4 +178,133 @@ class _SettingsWorkspaceViewState extends State<SettingsWorkspaceView> {
       ),
     );
   }
+}
+
+class _ThemeDropdown extends StatelessWidget {
+  const _ThemeDropdown({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => DynamicPluginBloc()..add(DynamicPluginEvent.load()),
+      child: BlocBuilder<DynamicPluginBloc, DynamicPluginState>(
+        buildWhen: (previous, current) => current is Ready,
+        builder: (context, state) {
+          final currentTheme =
+              context.read<AppearanceSettingsCubit>().state.appTheme.themeName;
+
+          final customThemes = state.maybeWhen(
+            ready: (plugins) =>
+                plugins.map((p) => p.theme).whereType<AppTheme>(),
+            orElse: () => null,
+          );
+
+          return SettingsDropdown(
+            onChanged: (appTheme) =>
+                context.read<AppearanceSettingsCubit>().setTheme(appTheme),
+            selectedOption: currentTheme,
+            options: [
+              ...AppTheme.builtins.map(
+                (e) => DropdownMenuEntry<String>(
+                  value: e.themeName,
+                  label: e.themeName,
+                ),
+              ),
+              ...?customThemes?.map(
+                (e) => DropdownMenuEntry<String>(
+                  value: e.themeName,
+                  label: e.themeName,
+                  trailingIcon: FlowyIconButton(
+                    onPressed: () {
+                      context.read<DynamicPluginBloc>().add(
+                            DynamicPluginEvent.removePlugin(
+                              name: e.themeName,
+                            ),
+                          );
+
+                      if (currentTheme == e.themeName) {
+                        context.read<AppearanceSettingsCubit>().setTheme(
+                              AppTheme.builtins.first.themeName,
+                            );
+                      }
+                    },
+                    icon: const FlowySvg(FlowySvgs.delete_s),
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _AppearanceSelector extends StatelessWidget {
+  const _AppearanceSelector();
+
+  @override
+  Widget build(BuildContext context) {
+    final themeMode = context.read<AppearanceSettingsCubit>().state.themeMode;
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ...ThemeMode.values.map(
+          (t) => Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () =>
+                  context.read<AppearanceSettingsCubit>().setThemeMode(t),
+              child: FlowyHover(
+                style: HoverStyle.transparent(
+                  foregroundColorOnHover:
+                      AFThemeExtension.of(context).textColor,
+                ),
+                child: Column(
+                  children: [
+                    Container(
+                      width: 88,
+                      height: 72,
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: t == themeMode
+                              ? Theme.of(context).colorScheme.onSecondary
+                              : Theme.of(context).colorScheme.outline,
+                        ),
+                        borderRadius: Corners.s4Border,
+                        image: DecorationImage(
+                          image: AssetImage(
+                            'assets/images/appearance/${t.name.toLowerCase()}.png',
+                          ),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                    const VSpace(6),
+                    FlowyText.regular(
+                      getLabel(t),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  String getLabel(ThemeMode t) => switch (t) {
+        ThemeMode.system =>
+          LocaleKeys.settings_workspace_appearance_options_system.tr(),
+        ThemeMode.light =>
+          LocaleKeys.settings_workspace_appearance_options_light.tr(),
+        ThemeMode.dark =>
+          LocaleKeys.settings_workspace_appearance_options_dark.tr(),
+      };
 }

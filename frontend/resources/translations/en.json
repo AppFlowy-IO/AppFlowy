@@ -339,7 +339,12 @@
       },
       "appearance": {
         "title": "Appearance",
-        "description": "Customize your workspace appearance, theme, font, text layout, date, time, and language."
+        "description": "Customize your workspace appearance, theme, font, text layout, date, time, and language.",
+        "options": {
+          "system": "Auto",
+          "light": "Light",
+          "dark": "Dark"
+        }
       },
       "theme": {
         "title": "Theme",
