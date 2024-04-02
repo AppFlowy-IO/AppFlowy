@@ -38,11 +38,11 @@ pub(crate) fn create_log_filter(level: String, with_crates: Vec<String>) -> Stri
   filters.push(format!("flowy_server={}", level));
   filters.push(format!("flowy_notification={}", "info"));
   filters.push(format!("lib_infra={}", level));
+  filters.push(format!("dart_ffi={}", level));
 
   // ⚠️Enable debug log for dart_ffi, flowy_sqlite and lib_dispatch as needed. Don't enable them by default.
   {
     // filters.push(format!("flowy_sqlite={}", "info"));
-    // filters.push(format!("dart_ffi={}", "info"));
     // filters.push(format!("lib_dispatch={}", level));
   }
 

@@ -21,7 +21,7 @@ use collab_plugins::local_storage::CollabPersistenceConfig;
 
 use lib_infra::{if_native, if_wasm};
 use parking_lot::{Mutex, RwLock};
-use tracing::{error, trace};
+use tracing::trace;
 
 #[derive(Clone, Debug)]
 pub enum CollabPluginProviderType {
