@@ -63,6 +63,14 @@ class UserBackendService {
     throw UnimplementedError();
   }
 
+  static Future<FlowyResult<UserProfilePB, FlowyError>> signInWithMagicLink(
+    String email,
+    String redirectTo,
+  ) async {
+    final payload = MagicLinkSignInPB(email: email, redirectTo: redirectTo);
+    return UserEventMagicLinkSignIn(payload).send();
+  }
+
   static Future<FlowyResult<void, FlowyError>> signOut() {
     return UserEventSignOut().send();
   }

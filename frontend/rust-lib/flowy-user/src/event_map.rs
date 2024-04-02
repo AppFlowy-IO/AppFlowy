@@ -65,6 +65,7 @@ pub fn init(user_manager: Weak<UserManager>) -> AFPlugin {
     .event(UserEvent::RenameWorkspace, rename_workspace_handler)
     .event(UserEvent::ChangeWorkspaceIcon, change_workspace_icon_handler)
     .event(UserEvent::LeaveWorkspace, leave_workspace_handler)
+    .event(UserEvent::MagicLinkSignIn, sign_in_with_magic_link_handler)
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
@@ -212,6 +213,9 @@ pub enum UserEvent {
 
   #[event(input = "UserWorkspaceIdPB")]
   LeaveWorkspace = 46,
+
+  #[event(input = "MagicLinkSignInPB", output = "UserProfilePB")]
+  MagicLinkSignIn = 47,
 }
 
 pub trait UserStatusCallback: Send + Sync + 'static {

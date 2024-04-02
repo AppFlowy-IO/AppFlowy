@@ -113,6 +113,26 @@ where
     })
   }
 
+  fn sign_in_with_magic_link(
+    &self,
+    email: &str,
+    redirect_to: &str,
+  ) -> FutureResult<UserProfile, FlowyError> {
+    let email = email.to_owned();
+    let redirect_to = redirect_to.to_owned();
+    let try_get_client = self.server.try_get_client();
+    FutureResult::new(async move {
+      let client = try_get_client?;
+      client
+        .sign_in_with_magic_link(&email, Some(redirect_to))
+        .await?;
+      let profile = client.get_profile().await?;
+      let token = client.get_token()?;
+      let profile = user_profile_from_af_profile(token, profile)?;
+      Ok(profile)
+    })
+  }
+
   fn generate_oauth_url_with_provider(&self, provider: &str) -> FutureResult<String, FlowyError> {
     let provider = AuthProvider::from(provider);
     let try_get_client = self.server.try_get_client();

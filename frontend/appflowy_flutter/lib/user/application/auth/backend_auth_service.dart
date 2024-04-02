@@ -1,3 +1,4 @@
+import 'package:appflowy/startup/tasks/supabase_task.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
@@ -104,10 +105,7 @@ class BackendAuthService implements AuthService {
     required String email,
     Map<String, String> params = const {},
   }) async {
-    return FlowyResult.failure(
-      FlowyError.create()
-        ..code = ErrorCode.Internal
-        ..msg = "Unsupported sign up action",
-    );
+    final redirectTo = params['redirectTo'] ?? appflowyDeepLinkSchema;
+    return UserBackendService.signInWithMagicLink(email, redirectTo);
   }
 }

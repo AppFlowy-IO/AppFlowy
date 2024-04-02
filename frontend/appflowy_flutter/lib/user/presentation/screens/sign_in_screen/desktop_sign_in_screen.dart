@@ -1,6 +1,7 @@
 import 'package:appflowy/core/frameless_window.dart';
 import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/magic_link_sign_in_buttons.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/widgets.dart';
 import 'package:appflowy/user/presentation/widgets/widgets.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -37,13 +38,14 @@ class DesktopSignInScreen extends StatelessWidget {
             const VSpace(20),
             const LoginButton(),
             const VSpace(10),
-      
+
             const VSpace(10),
             SignUpPrompt(router: router),
           ],
           */
 
-            const SignInAnonymousButton(),
+            // const SignInAnonymousButton(),
+            const SignInWithMagicLinkButtons(),
 
             // third-party sign in.
             const VSpace(20),
