@@ -29,7 +29,6 @@ mod env_serde;
 mod model;
 mod notification;
 mod protobuf;
-mod util;
 
 lazy_static! {
   static ref APPFLOWY_CORE: MutexAppFlowyCore = MutexAppFlowyCore::new();
@@ -65,15 +64,13 @@ pub extern "C" fn init_sdk(_port: i64, data: *mut c_char) -> i64 {
     let _ = save_appflowy_cloud_config(&configuration.root, &configuration.appflowy_cloud_config);
   }
 
-  let log_crates = vec!["flowy-ffi".to_string()];
   let config = AppFlowyCoreConfig::new(
     configuration.app_version,
     configuration.custom_app_path,
     configuration.origin_app_path,
     configuration.device_id,
     DEFAULT_NAME.to_string(),
-  )
-  .log_filter("info", log_crates);
+  );
 
   // Ensure that the database is closed before initialization. Also, verify that the init_sdk function can be called
   // multiple times (is reentrant). Currently, only the database resource is exclusive.
@@ -95,6 +92,7 @@ pub extern "C" fn init_sdk(_port: i64, data: *mut c_char) -> i64 {
 #[allow(clippy::let_underscore_future)]
 pub extern "C" fn async_event(port: i64, input: *const u8, len: usize) {
   let request: AFPluginRequest = FFIRequest::from_u8_pointer(input, len).into();
+  #[cfg(feature = "sync_verbose_log")]
   trace!(
     "[FFI]: {} Async Event: {:?} with {} port",
     &request.id,
@@ -113,6 +111,7 @@ pub extern "C" fn async_event(port: i64, input: *const u8, len: usize) {
     dispatcher.as_ref(),
     request,
     move |resp: AFPluginEventResponse| {
+      #[cfg(feature = "sync_verbose_log")]
       trace!("[FFI]: Post data to dart through {} port", port);
       Box::pin(post_to_flutter(resp, port))
     },
@@ -122,6 +121,7 @@ pub extern "C" fn async_event(port: i64, input: *const u8, len: usize) {
 #[no_mangle]
 pub extern "C" fn sync_event(input: *const u8, len: usize) -> *const u8 {
   let request: AFPluginRequest = FFIRequest::from_u8_pointer(input, len).into();
+  #[cfg(feature = "sync_verbose_log")]
   trace!("[FFI]: {} Sync Event: {:?}", &request.id, &request.event,);
 
   let dispatcher = match APPFLOWY_CORE.dispatcher() {
@@ -162,6 +162,7 @@ async fn post_to_flutter(response: AFPluginEventResponse, port: i64) {
     .await
   {
     Ok(_success) => {
+      #[cfg(feature = "sync_verbose_log")]
       trace!("[FFI]: Post data to dart success");
     },
     Err(e) => {

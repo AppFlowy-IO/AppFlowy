@@ -118,6 +118,7 @@ class SidebarWorkspace extends StatelessWidget {
     }
 
     if (message != null) {
+      Log.info('[Workspace] $message');
       showSnackBarMessage(context, message);
     }
   }
