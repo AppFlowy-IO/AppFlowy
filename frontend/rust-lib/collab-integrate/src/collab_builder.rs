@@ -208,22 +208,10 @@ impl AppFlowyCollabBuilder {
     #[allow(unused_variables)] persistence_config: CollabPersistenceConfig,
     build_config: CollabBuilderConfig,
   ) -> Result<Arc<MutexCollab>, Error> {
-    let is_from_doc_state = matches!(collab_doc_state, DocStateSource::FromDocState(_));
     let collab = CollabBuilder::new(uid, object_id)
       .with_doc_state(collab_doc_state)
       .with_device_id(self.device_id.clone())
       .build()?;
-
-    // If the object is from doc state, we need to validate the object type
-    if is_from_doc_state {
-      if let Err(err) = object_type.validate(&collab.lock()) {
-        error!(
-          "{:?} validation failed: {}, object_id: {}",
-          object_type, err, object_id
-        );
-        return Err(err);
-      }
-    }
 
     #[cfg(target_arch = "wasm32")]
     {
