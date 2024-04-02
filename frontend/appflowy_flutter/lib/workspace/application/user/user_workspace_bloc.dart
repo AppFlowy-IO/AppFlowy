@@ -292,7 +292,10 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
       currentWorkspaceInList ??= workspaces.first;
       return (
         currentWorkspaceInList,
-        workspaces,
+        workspaces
+          ..sort(
+            (a, b) => a.createdAtTimestamp.compareTo(b.createdAtTimestamp),
+          ),
         lastOpenedWorkspaceId != currentWorkspace.id
       );
     } catch (e) {
