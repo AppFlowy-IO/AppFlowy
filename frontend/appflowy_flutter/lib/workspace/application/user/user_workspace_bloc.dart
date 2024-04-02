@@ -39,14 +39,21 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
             final isCollabWorkspaceOn =
                 userProfile.authenticator != AuthenticatorPB.Local &&
                     FeatureFlag.collaborativeWorkspace.isOn;
-            final currentWorkspace = result?.$1;
-            if (currentWorkspace != null && result?.$3 == true) {
-              await _userService.openWorkspace(currentWorkspace.workspaceId);
+            final currentWorkspace = result.$1;
+            if (currentWorkspace != null && result.$3 == true) {
+              final result = await _userService
+                  .openWorkspace(currentWorkspace.workspaceId);
+              result.onSuccess((s) async {
+                await getIt<KeyValueStorage>().set(
+                  KVKeys.lastOpenedWorkspaceId,
+                  currentWorkspace.workspaceId,
+                );
+              });
             }
             emit(
               state.copyWith(
                 currentWorkspace: currentWorkspace,
-                workspaces: result?.$2 ?? [],
+                workspaces: result.$2,
                 isCollabWorkspaceOn: isCollabWorkspaceOn,
                 actionResult: null,
               ),
@@ -54,38 +61,12 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
           },
           fetchWorkspaces: () async {
             final result = await _fetchWorkspaces();
-            if (result != null) {
-              final currentWorkspace = result.$1;
-              final workspaces = result.$2;
-              // the equal function has been overridden.
-              if (_deepCollectionEquality.equals(
-                    workspaces,
-                    state.workspaces,
-                  ) &&
-                  currentWorkspace == state.currentWorkspace) {
-                return;
-              }
-              emit(
-                state.copyWith(
-                  currentWorkspace: result.$1,
-                  workspaces: result.$2,
-                ),
-              );
-            } else {
-              emit(
-                state.copyWith(
-                  actionResult: UserWorkspaceActionResult(
-                    actionType: UserWorkspaceActionType.none,
-                    result: FlowyResult.failure(
-                      FlowyError(
-                        code: ErrorCode.Internal,
-                        msg: LocaleKeys.workspace_fetchWorkspacesFailed.tr(),
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            }
+            emit(
+              state.copyWith(
+                currentWorkspace: result.$1,
+                workspaces: result.$2,
+              ),
+            );
           },
           createWorkspace: (name) async {
             final result = await _userService.createUserWorkspace(name);
@@ -265,16 +246,11 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
             );
           },
           updateWorkspaces: (workspaces) async {
-            if (!_deepCollectionEquality.equals(
-              workspaces.items,
-              state.workspaces,
-            )) {
-              emit(
-                state.copyWith(
-                  workspaces: workspaces.items,
-                ),
-              );
-            }
+            emit(
+              state.copyWith(
+                workspaces: workspaces.items,
+              ),
+            );
           },
         );
       },
@@ -290,15 +266,13 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
   final UserProfilePB userProfile;
   final UserBackendService _userService;
   final UserListener _listener;
-  final DeepCollectionEquality _deepCollectionEquality =
-      const DeepCollectionEquality();
 
   Future<
       (
-        UserWorkspacePB currentWorkspace,
+        UserWorkspacePB? currentWorkspace,
         List<UserWorkspacePB> workspaces,
         bool shouldOpenWorkspace,
-      )?> _fetchWorkspaces() async {
+      )> _fetchWorkspaces() async {
     try {
       final lastOpenedWorkspaceId = await getIt<KeyValueStorage>().get(
         KVKeys.lastOpenedWorkspaceId,
@@ -306,8 +280,8 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
       final currentWorkspace =
           await _userService.getCurrentWorkspace().getOrThrow();
       final workspaces = await _userService.getWorkspaces().getOrThrow();
-      UserWorkspacePB currentWorkspaceInList =
-          workspaces.firstWhere((e) => e.workspaceId == currentWorkspace.id);
+      UserWorkspacePB? currentWorkspaceInList = workspaces
+          .firstWhereOrNull((e) => e.workspaceId == currentWorkspace.id);
       if (lastOpenedWorkspaceId != null) {
         final lastOpenedWorkspace = workspaces
             .firstWhereOrNull((e) => e.workspaceId == lastOpenedWorkspaceId);
@@ -315,6 +289,7 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
           currentWorkspaceInList = lastOpenedWorkspace;
         }
       }
+      currentWorkspaceInList ??= workspaces.first;
       return (
         currentWorkspaceInList,
         workspaces,
@@ -322,7 +297,7 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
       );
     } catch (e) {
       Log.error('fetch workspace error: $e');
-      return null;
+      return (null, <UserWorkspacePB>[], false);
     }
   }
 }
@@ -389,13 +364,16 @@ class UserWorkspaceState with _$UserWorkspaceState {
   @override
   int get hashCode => runtimeType.hashCode;
 
+  final DeepCollectionEquality _deepCollectionEquality =
+      const DeepCollectionEquality();
+
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
 
     return other is UserWorkspaceState &&
         other.currentWorkspace == currentWorkspace &&
-        other.workspaces == workspaces &&
+        _deepCollectionEquality.equals(other.workspaces, workspaces) &&
         identical(other.actionResult, actionResult);
   }
 }
