@@ -113,11 +113,12 @@ class _MobileWorkspace extends StatelessWidget {
           return const SizedBox.shrink();
         }
         return GestureDetector(
-          onTap: () => _showSwitchWorkspacesBottomSheet(
-            context,
-            currentWorkspace,
-            workspaces,
-          ),
+          onTap: () {
+            context.read<UserWorkspaceBloc>().add(
+                  const UserWorkspaceEvent.fetchWorkspaces(),
+                );
+            _showSwitchWorkspacesBottomSheet(context);
+          },
           child: Row(
             children: [
               const HSpace(2.0),
@@ -171,8 +172,6 @@ class _MobileWorkspace extends StatelessWidget {
 
   void _showSwitchWorkspacesBottomSheet(
     BuildContext context,
-    UserWorkspacePB currentWorkspace,
-    List<UserWorkspacePB> workspaces,
   ) {
     showMobileBottomSheet(
       context,
@@ -181,23 +180,35 @@ class _MobileWorkspace extends StatelessWidget {
       showDragHandle: true,
       title: LocaleKeys.workspace_menuTitle.tr(),
       builder: (_) {
-        return MobileWorkspaceMenu(
-          userProfile: userProfile,
-          currentWorkspace: currentWorkspace,
-          workspaces: workspaces,
-          onWorkspaceSelected: (workspace) {
-            context.pop();
+        return BlocProvider.value(
+          value: context.read<UserWorkspaceBloc>(),
+          child: BlocBuilder<UserWorkspaceBloc, UserWorkspaceState>(
+            builder: (context, state) {
+              final currentWorkspace = state.currentWorkspace;
+              final workspaces = state.workspaces;
+              if (currentWorkspace == null || workspaces.isEmpty) {
+                return const SizedBox.shrink();
+              }
+              return MobileWorkspaceMenu(
+                userProfile: userProfile,
+                currentWorkspace: currentWorkspace,
+                workspaces: workspaces,
+                onWorkspaceSelected: (workspace) {
+                  context.pop();
 
-            if (workspace == currentWorkspace) {
-              return;
-            }
+                  if (workspace == currentWorkspace) {
+                    return;
+                  }
 
-            context.read<UserWorkspaceBloc>().add(
-                  UserWorkspaceEvent.openWorkspace(
-                    workspace.workspaceId,
-                  ),
-                );
-          },
+                  context.read<UserWorkspaceBloc>().add(
+                        UserWorkspaceEvent.openWorkspace(
+                          workspace.workspaceId,
+                        ),
+                      );
+                },
+              );
+            },
+          ),
         );
       },
     );

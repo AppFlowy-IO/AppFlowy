@@ -62,6 +62,7 @@ class WorkspacesMenu extends StatelessWidget {
         ),
         for (final workspace in workspaces) ...[
           WorkspaceMenuItem(
+            key: ValueKey(workspace.workspaceId),
             workspace: workspace,
             userProfile: userProfile,
             isSelected: workspace.workspaceId == currentWorkspace.workspaceId,

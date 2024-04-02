@@ -56,8 +56,8 @@ class DocumentService {
   Future<FlowyResult<void, FlowyError>> closeDocument({
     required ViewPB view,
   }) async {
-    final payload = CloseDocumentPayloadPB()..documentId = view.id;
-    final result = await DocumentEventCloseDocument(payload).send();
+    final payload = ViewIdPB()..value = view.id;
+    final result = await FolderEventCloseView(payload).send();
     return result;
   }
 

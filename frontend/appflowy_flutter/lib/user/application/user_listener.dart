@@ -14,6 +14,9 @@ import 'package:appflowy_backend/rust_stream.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flowy_infra/notifier.dart';
 
+typedef DidUserWorkspaceUpdateCallback = void Function(
+  RepeatedUserWorkspacePB workspaces,
+);
 typedef UserProfileNotifyValue = FlowyResult<UserProfilePB, FlowyError>;
 
 class UserListener {
@@ -26,12 +29,18 @@ class UserListener {
   UserNotificationParser? _userParser;
   StreamSubscription<SubscribeObject>? _subscription;
   PublishNotifier<UserProfileNotifyValue>? _profileNotifier = PublishNotifier();
+  DidUserWorkspaceUpdateCallback? didUpdateUserWorkspaces;
 
   void start({
     void Function(UserProfileNotifyValue)? onProfileUpdated,
+    void Function(RepeatedUserWorkspacePB)? didUpdateUserWorkspaces,
   }) {
     if (onProfileUpdated != null) {
       _profileNotifier?.addPublishListener(onProfileUpdated);
+    }
+
+    if (didUpdateUserWorkspaces != null) {
+      this.didUpdateUserWorkspaces = didUpdateUserWorkspaces;
     }
 
     _userParser = UserNotificationParser(
@@ -60,6 +69,14 @@ class UserListener {
           (payload) => _profileNotifier?.value =
               FlowyResult.success(UserProfilePB.fromBuffer(payload)),
           (error) => _profileNotifier?.value = FlowyResult.failure(error),
+        );
+        break;
+      case user.UserNotification.DidUpdateUserWorkspaces:
+        result.map(
+          (r) {
+            final value = RepeatedUserWorkspacePB.fromBuffer(r);
+            didUpdateUserWorkspaces?.call(value);
+          },
         );
         break;
       default:
@@ -107,6 +124,7 @@ class UserWorkspaceListener {
               _settingChangedNotifier?.value = FlowyResult.failure(error),
         );
         break;
+
       default:
         break;
     }

@@ -149,6 +149,11 @@ class _SidebarSwitchWorkspaceButtonState
       direction: PopoverDirection.bottomWithCenterAligned,
       offset: const Offset(0, 10),
       constraints: const BoxConstraints(maxWidth: 260, maxHeight: 600),
+      onOpen: () {
+        context.read<UserWorkspaceBloc>().add(
+              const UserWorkspaceEvent.fetchWorkspaces(),
+            );
+      },
       popupBuilder: (_) {
         return BlocProvider<UserWorkspaceBloc>.value(
           value: context.read<UserWorkspaceBloc>(),
