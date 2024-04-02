@@ -74,7 +74,7 @@ jobs:
           cargo make appflowy-flutter-deps-tools
         shell: bash
 
-      - name: Build AppFlowy
+      - name: Build AppFlowy Core
         working-directory: frontend
         run: |
           cargo make --profile development-ios-arm64-sim appflowy-core-dev-ios
@@ -85,6 +85,12 @@ jobs:
         with:
           model: 'iPhone 15'
           shutdown_after_job: false
+
+      - name: Prebuilt AppFlowy
+        working-directory: frontend/appflowy_flutter
+        run: |
+          flutter build ios --simulator --debug
+        shell: bash
 
       - name: Run integration tests
         working-directory: frontend/appflowy_flutter
