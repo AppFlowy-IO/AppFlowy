@@ -12,7 +12,7 @@ use std::{
   ops::{Deref, DerefMut},
   sync::Arc,
 };
-use tracing::trace;
+use tracing::{instrument, trace, warn};
 
 /// This struct wrap the document::Document
 #[derive(Clone)]
@@ -46,6 +46,19 @@ impl MutexDocument {
     let document =
       Document::create_with_data(collab, data).map(|inner| Self(Arc::new(Mutex::new(inner))))?;
     Ok(document)
+  }
+
+  #[instrument(level = "debug", skip_all)]
+  pub fn start_init_sync(&self) {
+    if let Some(document) = self.0.try_lock() {
+      if let Some(collab) = document.get_collab().try_lock() {
+        collab.start_init_sync();
+      } else {
+        warn!("Failed to start init sync, collab is locked");
+      }
+    } else {
+      warn!("Failed to start init sync, document is locked");
+    }
   }
 }
 

@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:appflowy/plugins/document/application/doc_sync_state_listener.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-document/entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-document/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -37,9 +36,6 @@ class DocumentSyncBloc extends Bloc<DocumentSyncEvent, DocumentSyncBlocState> {
             );
             _syncStateListener.start(
               didReceiveSyncState: (syncState) {
-                Log.info(
-                  'document sync state changed, from ${state.syncState} to $syncState',
-                );
                 add(DocumentSyncEvent.syncStateChanged(syncState));
               },
             );

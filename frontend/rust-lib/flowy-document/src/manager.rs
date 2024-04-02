@@ -207,8 +207,9 @@ impl DocumentManager {
   }
 
   pub async fn open_document(&self, doc_id: &str) -> FlowyResult<()> {
-    // TODO(nathan): refactor the get_database that split the database creation and database opening.
-    self.restore_document_from_removing(doc_id);
+    if let Some(mutex_document) = self.restore_document_from_removing(doc_id) {
+      mutex_document.start_init_sync();
+    }
     Ok(())
   }
 
