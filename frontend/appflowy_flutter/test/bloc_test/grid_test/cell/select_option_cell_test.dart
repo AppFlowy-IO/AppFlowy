@@ -91,12 +91,19 @@ void main() {
         "Expect 3 but receive ${bloc.state.options.length}. Options: ${bloc.state.options}",
       );
 
+      bloc.add(SelectOptionCellEditorEvent.deleteOption(bloc.state.options[0]));
+      await gridResponseFuture();
+      assert(
+        bloc.state.options.length == 2,
+        "Expect 2 but receive ${bloc.state.options.length}. Options: ${bloc.state.options}",
+      );
+
       bloc.add(const SelectOptionCellEditorEvent.deleteAllOptions());
       await gridResponseFuture();
 
       assert(
         bloc.state.options.isEmpty,
-        "Expect empty but receive ${bloc.state.options.length}",
+        "Expect empty but receive ${bloc.state.options.length}. Options: ${bloc.state.options}",
       );
     });
 

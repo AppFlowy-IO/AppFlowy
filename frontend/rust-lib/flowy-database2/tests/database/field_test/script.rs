@@ -31,7 +31,6 @@ pub enum FieldScript {
   AssertCellContent {
     field_id: String,
     row_index: usize,
-    from_field_type: FieldType,
     expected_content: String,
   },
 }
@@ -118,17 +117,15 @@ impl DatabaseFieldTest {
       FieldScript::AssertCellContent {
         field_id,
         row_index,
-        from_field_type,
         expected_content,
       } => {
         let field = self.editor.get_field(&field_id).unwrap();
-        let field_type = FieldType::from(field.field_type);
 
         let rows = self.editor.get_rows(&self.view_id()).await.unwrap();
         let row_detail = rows.get(row_index).unwrap();
 
         let cell = row_detail.row.cells.get(&field_id).unwrap().clone();
-        let content = stringify_cell(&cell, &from_field_type, &field_type, &field);
+        let content = stringify_cell(&cell, &field);
         assert_eq!(content, expected_content);
       },
     }

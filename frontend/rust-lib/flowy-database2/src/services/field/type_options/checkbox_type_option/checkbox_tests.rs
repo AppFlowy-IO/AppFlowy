@@ -38,16 +38,12 @@ mod tests {
     type_option: &CheckboxTypeOption,
     input_str: &str,
     expected_str: &str,
-    field_type: &FieldType,
-    field: &Field,
+    _field_type: &FieldType,
+    _field: &Field,
   ) {
     assert_eq!(
       type_option
-        .decode_cell(
-          &CheckboxCellDataPB::from_str(input_str).unwrap().into(),
-          field_type,
-          field
-        )
+        .decode_cell(&CheckboxCellDataPB::from_str(input_str).unwrap().into())
         .unwrap()
         .to_string(),
       expected_str.to_owned()

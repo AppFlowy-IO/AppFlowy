@@ -67,7 +67,7 @@ async fn export_and_then_import_meta_csv_test() {
     for (index, row_detail) in rows.iter().enumerate() {
       if let Some(cell) = row_detail.row.cells.get(&field.id) {
         let field_type = FieldType::from(field.field_type);
-        let s = stringify_cell(cell, &field_type, &field_type, &field);
+        let s = stringify_cell(cell, &field);
         match &field_type {
           FieldType::RichText => {
             if index == 0 {
@@ -141,7 +141,7 @@ async fn history_database_import_test() {
     for (index, row_detail) in rows.iter().enumerate() {
       if let Some(cell) = row_detail.row.cells.get(&field.id) {
         let field_type = FieldType::from(field.field_type);
-        let s = stringify_cell(cell, &field_type, &field_type, &field);
+        let s = stringify_cell(cell, &field);
         match &field_type {
           FieldType::RichText => {
             if index == 0 {

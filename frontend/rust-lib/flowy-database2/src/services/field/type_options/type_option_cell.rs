@@ -179,13 +179,7 @@ where
   }
 
   fn get_cell_data(&self, cell: &Cell, field: &Field) -> Option<T::CellData> {
-    let field_type_of_cell = get_field_type_from_cell(cell);
-
-    if field_type_of_cell.is_none() {
-      return None;
-    }
-
-    let field_type_of_cell = field_type_of_cell.unwrap();
+    let field_type_of_cell = get_field_type_from_cell(cell)?;
 
     if let Some(cell_data) = self.get_cell_data_from_cache(cell, field) {
       return Some(cell_data);
@@ -458,14 +452,14 @@ pub fn is_type_option_cell_transformable(
   from_field_type: FieldType,
   to_field_type: FieldType,
 ) -> bool {
-  match (from_field_type, to_field_type) {
-    (FieldType::Checkbox, FieldType::SingleSelect) => true,
-    (FieldType::Checkbox, FieldType::MultiSelect) => true,
-    (FieldType::SingleSelect, FieldType::MultiSelect) => true,
-    (FieldType::MultiSelect, FieldType::SingleSelect) => true,
-    (_, FieldType::RichText) => true,
-    _ => false,
-  }
+  matches!(
+    (from_field_type, to_field_type),
+    (FieldType::Checkbox, FieldType::SingleSelect)
+      | (FieldType::Checkbox, FieldType::MultiSelect)
+      | (FieldType::SingleSelect, FieldType::MultiSelect)
+      | (FieldType::MultiSelect, FieldType::SingleSelect)
+      | (_, FieldType::RichText)
+  )
 }
 
 pub fn transform_type_option(

@@ -141,11 +141,14 @@ pub fn try_decode_cell_to_cell_protobuf(
 /// * `field`: used to get the corresponding TypeOption for the specified field type.
 ///
 pub fn stringify_cell(cell: &Cell, field: &Field) -> String {
-  let field_type_of_cell = get_field_type_from_cell(cell).unwrap();
-  TypeOptionCellExt::new(field, None)
-    .get_type_option_cell_data_handler_with_field_type(field_type_of_cell)
-    .map(|handler| handler.handle_stringify_cell(cell, field))
-    .unwrap_or_default()
+  if let Some(field_type_of_cell) = get_field_type_from_cell::<FieldType>(cell) {
+    TypeOptionCellExt::new(field, None)
+      .get_type_option_cell_data_handler_with_field_type(field_type_of_cell)
+      .map(|handler| handler.handle_stringify_cell(cell, field))
+      .unwrap_or_default()
+  } else {
+    "".to_string()
+  }
 }
 
 pub fn insert_text_cell(s: String, field: &Field) -> Cell {

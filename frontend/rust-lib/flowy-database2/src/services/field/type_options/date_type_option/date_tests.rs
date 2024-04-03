@@ -546,10 +546,8 @@ mod tests {
     assert_eq!(decode_cell_data(&cell, type_option, field), expected_str,);
   }
 
-  fn decode_cell_data(cell: &Cell, type_option: &DateTypeOption, field: &Field) -> String {
-    let decoded_data = type_option
-      .decode_cell(cell, &FieldType::DateTime, field)
-      .unwrap();
+  fn decode_cell_data(cell: &Cell, type_option: &DateTypeOption, _field: &Field) -> String {
+    let decoded_data = type_option.decode_cell(cell).unwrap();
     type_option.stringify_cell_data(decoded_data)
   }
 
