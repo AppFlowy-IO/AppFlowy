@@ -1,6 +1,7 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:flutter/material.dart';
 
 final List<CharacterShortcutEvent> codeBlockCharacterEvents = [
   enterInCodeBlock,
@@ -189,7 +190,7 @@ CommandShortcutEventHandler _insertNewParagraphNextToCodeBlockCommandHandler =
 CommandShortcutEventHandler _tabToInsertSpacesInCodeBlockCommandHandler =
     (editorState) {
   final selection = editorState.selection;
-  if (selection == null || !selection.isCollapsed) {
+  if (selection == null) {
     return KeyEventResult.ignored;
   }
   final node = editorState.getNodeAtPath(selection.end.path);
@@ -197,29 +198,65 @@ CommandShortcutEventHandler _tabToInsertSpacesInCodeBlockCommandHandler =
   if (node == null || delta == null || node.type != CodeBlockKeys.type) {
     return KeyEventResult.ignored;
   }
+
   const spaces = '  ';
   final lines = delta.toPlainText().split('\n');
-  var index = 0;
+
+  int index = 0;
+
+  // We store indexes to be indented in a list, because we should
+  // indent it in a reverse order to not mess up the offsets.
+  final List<int> transactions = [];
   for (final line in lines) {
-    if (index <= selection.endIndex &&
-        selection.endIndex <= index + line.length) {
-      final transaction = editorState.transaction
-        ..insertText(
-          node,
-          index,
-          spaces, // two spaces
-        )
-        ..afterSelection = Selection.collapsed(
-          Position(
-            path: selection.end.path,
-            offset: selection.endIndex + spaces.length,
-          ),
-        );
-      editorState.apply(transaction);
-      break;
+    bool canIndentLine = false;
+    if (selection.isCollapsed) {
+      canIndentLine = index <= selection.endIndex &&
+          selection.endIndex <= index + line.length;
+    } else {
+      canIndentLine = index + line.length >= selection.startIndex &&
+          selection.endIndex >= index;
+
+      if (line.trim().isEmpty) {
+        canIndentLine = false;
+      }
+    }
+
+    if (canIndentLine) {
+      transactions.add(index);
     }
     index += line.length + 1;
   }
+
+  if (transactions.isEmpty) {
+    return KeyEventResult.ignored;
+  }
+
+  final transaction = editorState.transaction;
+
+  for (final index in transactions.reversed) {
+    transaction.insertText(node, index, spaces);
+  }
+
+  // In case the selection is made backwards, we store the start
+  // and end here, we will adjust the order later
+  final start = !selection.isBackward ? selection.end : selection.start;
+  final end = !selection.isBackward ? selection.start : selection.end;
+
+  final endSelection = end.copyWith(
+    offset: end.offset + (spaces.length * transactions.length),
+  );
+
+  final startSelection = selection.isCollapsed
+      ? endSelection
+      : start.copyWith(offset: start.offset + spaces.length);
+
+  transaction.afterSelection = selection.copyWith(
+    start: selection.isBackward ? startSelection : endSelection,
+    end: selection.isBackward ? endSelection : startSelection,
+  );
+
+  editorState.apply(transaction);
+
   return KeyEventResult.handled;
 };
 

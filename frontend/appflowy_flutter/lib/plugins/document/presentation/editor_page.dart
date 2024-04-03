@@ -150,10 +150,10 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         ...standardCharacterShortcutEvents
           ..removeWhere(
             (shortcut) => [
-              slashCommand,
-              formatGreaterEqual,
+              slashCommand, // Remove default slash command
+              formatGreaterEqual, // Overridden by customFormatGreaterEqual
             ].contains(shortcut),
-          ), // remove the default slash command.
+          ),
 
         /// Inline Actions
         /// - Reminder
