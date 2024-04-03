@@ -1,16 +1,22 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart';
+
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/mobile_block_action_buttons.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/selectable_item_list_menu.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/string_extension.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/code_block/code_language_screen.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
+import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
+import 'package:flowy_infra_ui/style_widget/hover.dart';
+import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:go_router/go_router.dart';
 import 'package:highlight/highlight.dart' as highlight;
 import 'package:highlight/languages/all.dart';
@@ -170,9 +176,8 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
   final forwardKey = GlobalKey(debugLabel: 'flowy_rich_text');
 
   @override
-  GlobalKey<State<StatefulWidget>> blockComponentKey = GlobalKey(
-    debugLabel: CodeBlockKeys.type,
-  );
+  GlobalKey<State<StatefulWidget>> blockComponentKey =
+      GlobalKey(debugLabel: CodeBlockKeys.type);
 
   @override
   BlockComponentConfiguration get configuration => widget.configuration;
@@ -183,50 +188,69 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
   @override
   Node get node => widget.node;
 
-  final popoverController = PopoverController();
-
   @override
   late final editorState = context.read<EditorState>();
 
+  final popoverController = PopoverController();
+
   String? get language => node.attributes[CodeBlockKeys.language] as String?;
   String? autoDetectLanguage;
+
+  bool isSelected = false;
 
   @override
   Widget build(BuildContext context) {
     final textDirection = calculateTextDirection(
       layoutDirection: Directionality.maybeOf(context),
     );
-    Widget child = Container(
-      decoration: BoxDecoration(
-        borderRadius: const BorderRadius.all(Radius.circular(8.0)),
-        color: AFThemeExtension.of(context).calloutBGColor,
+
+    Widget child = FlowyHover(
+      resetHoverOnRebuild: false,
+      isSelected: () => isSelected,
+      style: const HoverStyle(
+        borderRadius: BorderRadius.all(Radius.circular(8.0)),
       ),
-      width: MediaQuery.of(context).size.width,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        textDirection: textDirection,
-        children: [
-          _buildSwitchLanguageButton(context),
-          _buildCodeBlock(context, textDirection),
-        ],
+      builder: (_, isHovering) => DecoratedBox(
+        decoration: BoxDecoration(
+          borderRadius: const BorderRadius.all(Radius.circular(8.0)),
+          color: AFThemeExtension.of(context).calloutBGColor,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          textDirection: textDirection,
+          children: [
+            Opacity(
+              opacity: isHovering || isSelected ? 1.0 : 0.0,
+              child: Row(
+                children: [
+                  _LanguageSelector(
+                    controller: popoverController,
+                    language: language,
+                    isSelected: isSelected,
+                    onLanguageSelected: updateLanguage,
+                    onMenuOpen: () => isSelected = true,
+                    onMenuClose: () => setState(() => isSelected = false),
+                  ),
+                  const Spacer(),
+                  _CopyButton(node: node),
+                ],
+              ),
+            ),
+            _buildCodeBlock(context, textDirection),
+          ],
+        ),
       ),
     );
 
-    child = Padding(
-      key: blockComponentKey,
-      padding: padding,
-      child: child,
-    );
+    child = Padding(key: blockComponentKey, padding: padding, child: child);
 
     child = BlockSelectionContainer(
       node: node,
       delegate: this,
       listenable: editorState.selectionNotifier,
       blockColor: editorState.editorStyle.selectionColor,
-      supportTypes: const [
-        BlockSelectionType.block,
-      ],
+      supportTypes: const [BlockSelectionType.block],
       child: child,
     );
 
@@ -260,13 +284,16 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
       language: language,
       autoDetection: language == null,
     );
+
     autoDetectLanguage = language ?? result.language;
 
     final codeNodes = result.nodes;
     if (codeNodes == null) {
       throw Exception('Code block parse error.');
     }
+
     final codeTextSpans = _convert(codeNodes, isLightMode: isLightMode);
+
     return Padding(
       padding: widget.padding,
       child: AppFlowyRichText(
@@ -276,13 +303,11 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
         editorState: editorState,
         placeholderText: placeholderText,
         lineHeight: 1.5,
-        textSpanDecorator: (textSpan) => TextSpan(
+        textSpanDecorator: (_) => TextSpan(
           style: textStyle,
           children: codeTextSpans,
         ),
-        placeholderTextSpanDecorator: (textSpan) => TextSpan(
-          style: textStyle,
-        ),
+        placeholderTextSpanDecorator: (textSpan) => textSpan,
         textDirection: textDirection,
         cursorColor: editorState.editorStyle.cursorColor,
         selectionColor: editorState.editorStyle.selectionColor,
@@ -290,61 +315,12 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
     );
   }
 
-  Widget _buildSwitchLanguageButton(BuildContext context) {
-    const maxWidth = 100.0;
-
-    Widget child = Container(
-      width: maxWidth,
-      alignment: Alignment.centerLeft,
-      padding: const EdgeInsets.only(
-        top: 4.0,
-        left: 4.0,
-        bottom: 12.0,
-      ),
-      child: FlowyTextButton(
-        '${language?.capitalize() ?? 'Auto'} ',
-        constraints: const BoxConstraints(maxWidth: maxWidth),
-        fontColor: Theme.of(context).colorScheme.onBackground,
-        fillColor: Colors.transparent,
-        onPressed: () async {
-          if (PlatformExtension.isMobile) {
-            final language = await context.push<String>(
-              MobileCodeLanguagePickerScreen.routeName,
-            );
-            if (language != null) {
-              unawaited(updateLanguage(language));
-            }
-          }
-        },
-      ),
-    );
-
-    if (PlatformExtension.isDesktopOrWeb) {
-      child = AppFlowyPopover(
-        controller: popoverController,
-        child: child,
-        popupBuilder: (BuildContext context) {
-          return SelectableItemListMenu(
-            items:
-                codeBlockSupportedLanguages.map((e) => e.capitalize()).toList(),
-            selectedIndex: codeBlockSupportedLanguages.indexOf(language ?? ''),
-            onSelected: (index) {
-              updateLanguage(codeBlockSupportedLanguages[index]);
-              popoverController.close();
-            },
-          );
-        },
-      );
-    }
-
-    return child;
-  }
-
   Future<void> updateLanguage(String language) async {
     final transaction = editorState.transaction
-      ..updateNode(node, {
-        CodeBlockKeys.language: language == 'auto' ? null : language,
-      })
+      ..updateNode(
+        node,
+        {CodeBlockKeys.language: language == 'auto' ? null : language},
+      )
       ..afterSelection = Selection.collapsed(
         Position(path: node.path, offset: node.delta?.length ?? 0),
       );
@@ -358,7 +334,7 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
     bool isLightMode = true,
   }) {
     final List<TextSpan> spans = [];
-    var currentSpans = spans;
+    List<TextSpan> currentSpans = spans;
     final List<List<TextSpan>> stack = [];
 
     final codeblockTheme =
@@ -399,5 +375,102 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
     }
 
     return spans;
+  }
+}
+
+class _CopyButton extends StatelessWidget {
+  const _CopyButton({required this.node});
+
+  final Node node;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(4),
+      child: FlowyTooltip(
+        message: LocaleKeys.document_codeBlock_copyTooltip.tr(),
+        child: FlowyIconButton(
+          onPressed: () async => getIt<ClipboardService>().setData(
+            ClipboardServiceData(
+              plainText: node.delta?.toPlainText(),
+            ),
+          ),
+          hoverColor: Theme.of(context).colorScheme.secondaryContainer,
+          icon: FlowySvg(
+            FlowySvgs.copy_s,
+            color: AFThemeExtension.of(context).textColor,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _LanguageSelector extends StatelessWidget {
+  const _LanguageSelector({
+    required this.controller,
+    this.language,
+    required this.isSelected,
+    required this.onLanguageSelected,
+    this.onMenuOpen,
+    this.onMenuClose,
+  });
+
+  final PopoverController controller;
+  final String? language;
+  final bool isSelected;
+  final void Function(String) onLanguageSelected;
+  final VoidCallback? onMenuOpen;
+  final VoidCallback? onMenuClose;
+
+  @override
+  Widget build(BuildContext context) {
+    Widget child = Row(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
+          child: FlowyTextButton(
+            language?.capitalize() ??
+                LocaleKeys.document_codeBlock_language_auto.tr(),
+            constraints: const BoxConstraints(minWidth: 40),
+            fontColor: Theme.of(context).colorScheme.onBackground,
+            fillColor: isSelected
+                ? Theme.of(context).colorScheme.secondaryContainer
+                : Colors.transparent,
+            padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 4),
+            onPressed: () async {
+              if (PlatformExtension.isMobile) {
+                final language = await context
+                    .push<String>(MobileCodeLanguagePickerScreen.routeName);
+                if (language != null) {
+                  onLanguageSelected(language);
+                }
+              }
+            },
+          ),
+        ),
+      ],
+    );
+
+    if (PlatformExtension.isDesktopOrWeb) {
+      child = AppFlowyPopover(
+        controller: controller,
+        direction: PopoverDirection.bottomWithLeftAligned,
+        onOpen: onMenuOpen,
+        onClose: onMenuClose,
+        popupBuilder: (_) => SelectableItemListMenu(
+          items:
+              codeBlockSupportedLanguages.map((e) => e.capitalize()).toList(),
+          selectedIndex: codeBlockSupportedLanguages.indexOf(language ?? ''),
+          onSelected: (index) {
+            onLanguageSelected(codeBlockSupportedLanguages[index]);
+            controller.close();
+          },
+        ),
+        child: child,
+      );
+    }
+
+    return child;
   }
 }

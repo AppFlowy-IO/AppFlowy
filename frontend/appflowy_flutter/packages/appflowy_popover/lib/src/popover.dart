@@ -1,6 +1,7 @@
-import 'package:appflowy_popover/src/layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
+import 'package:appflowy_popover/src/layout.dart';
 
 import 'mask.dart';
 import 'mutex.dart';
@@ -127,8 +128,8 @@ class PopoverState extends State<Popover> {
 
   @override
   void initState() {
-    widget.controller?._state = this;
     super.initState();
+    widget.controller?._state = this;
   }
 
   void showOverlay() {
@@ -161,22 +162,17 @@ class PopoverState extends State<Popover> {
           offset: widget.offset ?? Offset.zero,
           windowPadding: widget.windowPadding ?? EdgeInsets.zero,
           popupBuilder: widget.popupBuilder,
-          onClose: () => close(),
-          onCloseAll: () => _removeRootOverlay(),
+          onClose: close,
+          onCloseAll: _removeRootOverlay,
           skipTraversal: widget.skipTraversal,
         ),
       );
 
       return CallbackShortcuts(
         bindings: {
-          const SingleActivator(LogicalKeyboardKey.escape): () =>
-              _removeRootOverlay(),
+          const SingleActivator(LogicalKeyboardKey.escape): _removeRootOverlay,
         },
-        child: FocusScope(
-          child: Stack(
-            children: children,
-          ),
-        ),
+        child: FocusScope(child: Stack(children: children)),
       );
     });
     _rootEntry.addEntry(context, this, newEntry, widget.asBarrier);

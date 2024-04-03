@@ -981,8 +981,10 @@
     "codeBlock": {
       "language": {
         "label": "Language",
-        "placeholder": "Select language"
-      }
+        "placeholder": "Select language",
+        "auto": "Auto"
+      },
+      "copyTooltip": "Copy contents of the code block"
     },
     "inlineLink": {
       "placeholder": "Paste or type a link",
