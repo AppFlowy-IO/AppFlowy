@@ -31,7 +31,7 @@ class DocumentCollaborators extends StatelessWidget {
       child: BlocBuilder<DocumentCollaboratorsBloc, DocumentCollaboratorsState>(
         builder: (context, state) {
           final collaborators = state.collaborators;
-          if (collaborators.isEmpty) {
+          if (!state.shouldShowIndicator || collaborators.isEmpty) {
             return const SizedBox.shrink();
           }
 

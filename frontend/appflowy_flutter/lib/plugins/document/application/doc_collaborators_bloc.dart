@@ -29,12 +29,16 @@ class DocumentCollaboratorsBloc
           initial: () async {
             final result = await getIt<AuthService>().getUser();
             final userProfile = result.fold((s) => s, (f) => null);
+            if (userProfile == null ||
+                userProfile.authenticator == AuthenticatorPB.Local) {
+              emit(
+                state.copyWith(shouldShowIndicator: false),
+              );
+              return;
+            }
             final deviceId = ApplicationInfo.deviceId;
             _listener.start(
               onDocAwarenessUpdate: (states) {
-                if (userProfile == null) {
-                  return;
-                }
                 add(
                   DocumentCollaboratorsEvent.update(
                     userProfile,
@@ -114,6 +118,7 @@ class DocumentCollaboratorsEvent with _$DocumentCollaboratorsEvent {
 class DocumentCollaboratorsState with _$DocumentCollaboratorsState {
   const factory DocumentCollaboratorsState({
     @Default([]) List<DocumentAwarenessMetadata> collaborators,
+    @Default(false) bool shouldShowIndicator,
   }) = _DocumentCollaboratorsState;
 
   factory DocumentCollaboratorsState.initial() =>
