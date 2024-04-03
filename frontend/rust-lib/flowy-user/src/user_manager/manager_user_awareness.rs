@@ -102,7 +102,7 @@ impl UserManager {
 
   pub async fn initialize_user_awareness(&self, session: &Session) {
     match self.try_initial_user_awareness(session).await {
-      Ok(_) => trace!("User awareness initialized"),
+      Ok(_) => {},
       Err(e) => error!("Failed to initialize user awareness: {:?}", e),
     }
   }
@@ -121,7 +121,7 @@ impl UserManager {
   /// - Returns `Ok(())` if the user's awareness is successfully initialized.
   /// - May return errors of type `FlowyError` if any issues arise during the initialization.
   #[instrument(level = "info", skip(self, session), err)]
-  async fn try_initial_user_awareness(&self, session: &Session) -> FlowyResult<()> {
+  pub(crate) async fn try_initial_user_awareness(&self, session: &Session) -> FlowyResult<()> {
     if self.is_loading_awareness.load(Ordering::SeqCst) {
       return Ok(());
     }
@@ -134,9 +134,13 @@ impl UserManager {
     let weak_cloud_services = Arc::downgrade(&self.cloud_services);
     let weak_user_awareness = Arc::downgrade(&self.user_awareness);
     let weak_builder = self.collab_builder.clone();
-    let weak_is_loading_awareness = Arc::downgrade(&self.is_loading_awareness);
+    let cloned_is_loading = self.is_loading_awareness.clone();
     let session = session.clone();
     tokio::spawn(async move {
+      if cloned_is_loading.load(Ordering::SeqCst) {
+        return Ok(());
+      }
+
       if let (Some(cloud_services), Some(user_awareness)) =
         (weak_cloud_services.upgrade(), weak_user_awareness.upgrade())
       {
@@ -145,8 +149,11 @@ impl UserManager {
           .get_user_awareness_doc_state(session.user_id, &session.user_workspace.id, &object_id)
           .await;
 
-        if let Some(is_loading_awareness) = weak_is_loading_awareness.upgrade() {
-          is_loading_awareness.store(false, Ordering::SeqCst);
+        let mut lock_awareness = user_awareness
+          .try_lock()
+          .map_err(|err| FlowyError::internal().with_context(err))?;
+        if lock_awareness.is_some() {
+          return Ok(());
         }
 
         let awareness = match result {
@@ -181,15 +188,14 @@ impl UserManager {
           },
         };
 
-        user_awareness.lock().await.replace(awareness);
-        Ok(())
-      } else {
-        if let Some(is_loading_awareness) = weak_is_loading_awareness.upgrade() {
-          is_loading_awareness.store(false, Ordering::SeqCst);
-        }
-        Ok(())
+        trace!("User awareness initialized");
+        lock_awareness.replace(awareness);
       }
+      Ok(())
     });
+
+    // mark the user awareness as not loading
+    self.is_loading_awareness.store(false, Ordering::SeqCst);
 
     Ok(())
   }
