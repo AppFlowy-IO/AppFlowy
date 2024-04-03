@@ -219,13 +219,20 @@ class _SidebarState extends State<_Sidebar> {
           // user or workspace, setting
           Padding(
             padding: menuHorizontalInset,
-            child: context.read<UserWorkspaceBloc>().state.isCollabWorkspaceOn
-                ? SidebarWorkspace(
-                    userProfile: widget.userProfile,
-                  )
-                : SidebarUser(
-                    userProfile: widget.userProfile,
-                  ),
+            child:
+                // if the workspaces are empty, show the user profile instead
+                context.read<UserWorkspaceBloc>().state.isCollabWorkspaceOn &&
+                        context
+                            .read<UserWorkspaceBloc>()
+                            .state
+                            .workspaces
+                            .isNotEmpty
+                    ? SidebarWorkspace(
+                        userProfile: widget.userProfile,
+                      )
+                    : SidebarUser(
+                        userProfile: widget.userProfile,
+                      ),
           ),
 
           const VSpace(20),
