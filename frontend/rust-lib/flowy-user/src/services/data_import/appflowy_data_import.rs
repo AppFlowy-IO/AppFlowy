@@ -213,6 +213,7 @@ pub(crate) fn import_appflowy_data_folder(
 
         // create the content for the container view
         let import_container_doc_state = default_document_collab_data(&import_container_view_id)
+          .map_err(|err| PersistenceError::InvalidData(err.to_string()))?
           .doc_state
           .to_vec();
         import_collab_object_with_doc_state(
@@ -419,27 +420,29 @@ where
   W: CollabKVAction<'a>,
   PersistenceError: From<W::Error>,
 {
-  if let Ok(update) = Update::decode_v1(&collab.encode_collab_v1().doc_state) {
-    let doc = Doc::new();
-    {
-      let mut txn = doc.transact_mut();
-      txn.apply_update(update);
-      drop(txn);
-    }
+  if let Ok(encode_collab) = collab.encode_collab_v1(|_| Ok::<(), PersistenceError>(())) {
+    if let Ok(update) = Update::decode_v1(&encode_collab.doc_state) {
+      let doc = Doc::new();
+      {
+        let mut txn = doc.transact_mut();
+        txn.apply_update(update);
+        drop(txn);
+      }
 
-    let encoded_collab = doc.get_encoded_collab_v1();
-    info!(
-      "import collab:{} with len: {}",
-      new_object_id,
-      encoded_collab.doc_state.len()
-    );
-    if let Err(err) = w_txn.flush_doc(
-      new_uid,
-      &new_object_id,
-      encoded_collab.state_vector.to_vec(),
-      encoded_collab.doc_state.to_vec(),
-    ) {
-      error!("import collab:{} failed: {:?}", new_object_id, err);
+      let encoded_collab = doc.get_encoded_collab_v1();
+      info!(
+        "import collab:{} with len: {}",
+        new_object_id,
+        encoded_collab.doc_state.len()
+      );
+      if let Err(err) = w_txn.flush_doc(
+        new_uid,
+        &new_object_id,
+        encoded_collab.state_vector.to_vec(),
+        encoded_collab.doc_state.to_vec(),
+      ) {
+        error!("import collab:{} failed: {:?}", new_object_id, err);
+      }
     }
   } else {
     event!(tracing::Level::ERROR, "decode v1 failed");
@@ -754,7 +757,8 @@ where
     .into_iter()
     .filter_map(|(oid, collab)| {
       collab
-        .encode_collab_v1()
+        .encode_collab_v1(|_| Ok::<(), PersistenceError>(()))
+        .ok()?
         .encode_to_bytes()
         .ok()
         .map(|encoded_collab| (oid, encoded_collab))
