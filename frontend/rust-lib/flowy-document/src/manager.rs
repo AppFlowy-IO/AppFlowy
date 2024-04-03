@@ -445,8 +445,9 @@ async fn doc_state_from_document_data(
       vec![],
       false,
     )));
-    let _ = Document::create_with_data(collab.clone(), data).map_err(internal_error)?;
-    Ok::<_, FlowyError>(collab.encode_collab_v1())
+    let document = Document::create_with_data(collab.clone(), data).map_err(internal_error)?;
+    let encode_collab = document.encode_collab()?;
+    Ok::<_, FlowyError>(encode_collab)
   })
   .await??;
   Ok(encoded_collab)
