@@ -28,6 +28,7 @@ use crate::event_map::{DefaultUserStatusCallback, UserStatusCallback};
 use crate::migrations::document_empty_content::HistoricalEmptyDocumentMigration;
 use crate::migrations::migration::{UserDataMigration, UserLocalDataMigration};
 use crate::migrations::workspace_and_favorite_v1::FavoriteV1AndWorkspaceArrayMigration;
+use crate::migrations::workspace_private_v1::WorkspacePrivateSectionMigration;
 use crate::migrations::workspace_trash_v1::WorkspaceTrashMapToSectionMigration;
 use crate::migrations::AnonUser;
 use crate::services::authenticate_user::AuthenticateUser;
@@ -838,6 +839,7 @@ pub(crate) fn run_collab_data_migration(
     Box::new(HistoricalEmptyDocumentMigration),
     Box::new(FavoriteV1AndWorkspaceArrayMigration),
     Box::new(WorkspaceTrashMapToSectionMigration),
+    Box::new(WorkspacePrivateSectionMigration),
   ];
   match UserLocalDataMigration::new(session.clone(), collab_db, sqlite_pool)
     .run(migrations, &user.authenticator)
