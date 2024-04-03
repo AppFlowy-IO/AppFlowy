@@ -68,8 +68,9 @@ void main() {
       );
 
       // open the newly created workspace
-      await tester.tapButton(items.last);
+      await tester.tapButton(items.last, milliseconds: 1000);
       success = find.text(LocaleKeys.workspace_openSuccess.tr());
+      await tester.pumpUntilFound(success);
       expect(success, findsOneWidget);
       await tester.pumpUntilNotFound(success);
 
