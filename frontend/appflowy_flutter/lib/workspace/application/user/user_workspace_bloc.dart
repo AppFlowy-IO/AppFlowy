@@ -91,7 +91,10 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
             });
           },
           deleteWorkspace: (workspaceId) async {
-            if (state.workspaces.length <= 1) {
+            final remoteWorkspaces = await _fetchWorkspaces().then(
+              (value) => value.$2,
+            );
+            if (state.workspaces.length <= 1 || remoteWorkspaces.length <= 1) {
               // do not allow to delete the last workspace, otherwise the user
               // cannot do create workspace again
               final result = FlowyResult.failure(
