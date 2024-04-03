@@ -10,7 +10,7 @@ use collab_user::core::{MutexUserAwareness, UserAwareness};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_user_pub::cloud::{UserCloudConfig, UserCloudServiceProvider};
 use flowy_user_pub::entities::{
-  user_awarenesss_object_id, AuthResponse, Authenticator, UserAuthResponse, UserProfile,
+  user_awareness_object_id, AuthResponse, Authenticator, UserAuthResponse, UserProfile,
   UserWorkspace,
 };
 use flowy_user_pub::session::Session;
@@ -86,10 +86,6 @@ impl UserManager {
       .save_auth_data(&response, &new_user_profile, &new_session)
       .await?;
 
-    if let Err(err) = self.initialize_user_awareness(&new_session).await {
-      error!("Failed to initialize user awareness: {:?}", err);
-    }
-
     for callback in self.user_callbacks.iter() {
       if let Err(e) = callback
         .did_sign_up(
@@ -131,30 +127,6 @@ impl UserManager {
   fn prepare_collab(&self, session: &Session) {
     let collab_builder = self.collab_builder.upgrade().unwrap();
     collab_builder.initialize(session.user_workspace.id.clone());
-  }
-
-  async fn initialize_user_awareness(&self, new_session: &Session) -> FlowyResult<()> {
-    let user_awareness_id = user_awarenesss_object_id(&new_session.user_uuid).to_string();
-    let data = self
-      .cloud_services
-      .get_user_service()?
-      .get_user_awareness_doc_state(
-        new_session.user_id,
-        &new_session.user_workspace.id,
-        &user_awareness_id,
-      )
-      .await?;
-    trace!("Get user awareness collab: {}", data.len());
-    let collab = self
-      .collab_for_user_awareness(
-        new_session.user_id,
-        &user_awareness_id,
-        Arc::downgrade(&self.collab_db),
-        data,
-      )
-      .await?;
-    MutexUserAwareness::new(UserAwareness::create(collab, None));
-    Ok(())
   }
 
   #[instrument(level = "info", skip_all, err)]

@@ -1,16 +1,17 @@
+use std::sync::atomic::Ordering;
 use std::sync::{Arc, Weak};
 
 use anyhow::Context;
 use collab::core::collab::{DocStateSource, MutexCollab};
 use collab_entity::reminder::Reminder;
 use collab_entity::CollabType;
-use collab_integrate::collab_builder::CollabBuilderConfig;
+use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
 use collab_user::core::{MutexUserAwareness, UserAwareness};
 use tracing::{error, info, instrument, trace};
 
 use collab_integrate::CollabKVDB;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use flowy_user_pub::entities::user_awarenesss_object_id;
+use flowy_user_pub::entities::user_awareness_object_id;
 
 use crate::entities::ReminderPB;
 use crate::user_manager::UserManager;
@@ -121,47 +122,75 @@ impl UserManager {
   /// - May return errors of type `FlowyError` if any issues arise during the initialization.
   #[instrument(level = "info", skip(self, session), err)]
   async fn try_initial_user_awareness(&self, session: &Session) -> FlowyResult<()> {
-    let object_id = user_awarenesss_object_id(&session.user_uuid).to_string();
+    if self.is_loading_awareness.load(Ordering::SeqCst) {
+      return Ok(());
+    }
+    self.is_loading_awareness.store(true, Ordering::SeqCst);
+
+    let object_id =
+      user_awareness_object_id(&session.user_uuid, &session.user_workspace.id).to_string();
     trace!("Initializing user awareness {}", object_id);
     let collab_db = self.get_collab_db(session.user_id)?;
-    let result = self
-      .cloud_services
-      .get_user_service()?
-      .get_user_awareness_doc_state(session.user_id, &session.user_workspace.id, &object_id)
-      .await;
+    let weak_cloud_services = Arc::downgrade(&self.cloud_services);
+    let weak_user_awareness = Arc::downgrade(&self.user_awareness);
+    let weak_builder = self.collab_builder.clone();
+    let weak_is_loading_awareness = Arc::downgrade(&self.is_loading_awareness);
+    let session = session.clone();
+    tokio::spawn(async move {
+      if let (Some(cloud_services), Some(user_awareness)) =
+        (weak_cloud_services.upgrade(), weak_user_awareness.upgrade())
+      {
+        let result = cloud_services
+          .get_user_service()?
+          .get_user_awareness_doc_state(session.user_id, &session.user_workspace.id, &object_id)
+          .await;
 
-    let user_awareness = match result {
-      Ok(data) => {
-        trace!("Get user awareness collab from remote: {}", data.len());
-        let collab = self
-          .collab_for_user_awareness(
-            session.user_id,
-            &object_id,
-            collab_db,
-            DocStateSource::FromDocState(data),
-          )
-          .await?;
-        MutexUserAwareness::new(UserAwareness::create(collab, None))
-      },
-      Err(err) => {
-        if err.is_record_not_found() {
-          info!("User awareness not found, creating new");
-          let collab = self
-            .collab_for_user_awareness(
+        if let Some(is_loading_awareness) = weak_is_loading_awareness.upgrade() {
+          is_loading_awareness.store(false, Ordering::SeqCst);
+        }
+
+        let awareness = match result {
+          Ok(data) => {
+            trace!("Get user awareness collab from remote: {}", data.len());
+            let collab = Self::collab_for_user_awareness(
+              &weak_builder,
               session.user_id,
               &object_id,
               collab_db,
-              DocStateSource::FromDisk,
+              DocStateSource::FromDocState(data),
             )
             .await?;
-          MutexUserAwareness::new(UserAwareness::create(collab, None))
-        } else {
-          error!("Failed to fetch user awareness: {:?}", err);
-          return Err(err);
+            MutexUserAwareness::new(UserAwareness::create(collab, None))
+          },
+          Err(err) => {
+            if err.is_record_not_found() {
+              info!("User awareness not found, creating new");
+              let collab = Self::collab_for_user_awareness(
+                &weak_builder,
+                session.user_id,
+                &object_id,
+                collab_db,
+                DocStateSource::FromDisk,
+              )
+              .await?;
+              MutexUserAwareness::new(UserAwareness::create(collab, None))
+            } else {
+              error!("Failed to fetch user awareness: {:?}", err);
+              return Err(err);
+            }
+          },
+        };
+
+        user_awareness.lock().await.replace(awareness);
+        Ok(())
+      } else {
+        if let Some(is_loading_awareness) = weak_is_loading_awareness.upgrade() {
+          is_loading_awareness.store(false, Ordering::SeqCst);
         }
-      },
-    };
-    self.user_awareness.lock().await.replace(user_awareness);
+        Ok(())
+      }
+    });
+
     Ok(())
   }
 
@@ -171,13 +200,13 @@ impl UserManager {
   /// using a collaboration builder. This instance is specifically geared towards handling
   /// user awareness.
   async fn collab_for_user_awareness(
-    &self,
+    collab_builder: &Weak<AppFlowyCollabBuilder>,
     uid: i64,
     object_id: &str,
     collab_db: Weak<CollabKVDB>,
     doc_state: DocStateSource,
   ) -> Result<Arc<MutexCollab>, FlowyError> {
-    let collab_builder = self.collab_builder.upgrade().ok_or(FlowyError::new(
+    let collab_builder = collab_builder.upgrade().ok_or(FlowyError::new(
       ErrorCode::Internal,
       "Unexpected error: collab builder is not available",
     ))?;

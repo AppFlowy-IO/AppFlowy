@@ -13,7 +13,7 @@ use flowy_user_pub::entities::*;
 use flowy_user_pub::workspace_service::UserWorkspaceService;
 use serde_json::Value;
 use std::string::ToString;
-use std::sync::atomic::{AtomicI64, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicI64, Ordering};
 use std::sync::{Arc, Weak};
 use tokio::sync::{Mutex, RwLock};
 use tokio_stream::StreamExt;
@@ -54,6 +54,7 @@ pub struct UserManager {
   auth_process: Mutex<Option<UserAuthProcess>>,
   pub(crate) authenticate_user: Arc<AuthenticateUser>,
   refresh_user_profile_since: AtomicI64,
+  pub(crate) is_loading_awareness: Arc<AtomicBool>,
 }
 
 impl UserManager {
@@ -79,6 +80,7 @@ impl UserManager {
       authenticate_user,
       refresh_user_profile_since,
       user_workspace_service,
+      is_loading_awareness: Arc::new(AtomicBool::new(false)),
     });
 
     let weak_user_manager = Arc::downgrade(&user_manager);
