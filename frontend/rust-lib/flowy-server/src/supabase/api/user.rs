@@ -249,16 +249,21 @@ where
     })
   }
 
-  fn get_user_awareness_doc_state(&self, uid: i64) -> FutureResult<Vec<u8>, FlowyError> {
+  fn get_user_awareness_doc_state(
+    &self,
+    _uid: i64,
+    _workspace_id: &str,
+    object_id: &str,
+  ) -> FutureResult<Vec<u8>, FlowyError> {
     let try_get_postgrest = self.server.try_get_weak_postgrest();
-    let awareness_id = uid.to_string();
     let (tx, rx) = channel();
+    let object_id = object_id.to_string();
     af_spawn(async move {
       tx.send(
         async move {
           let postgrest = try_get_postgrest?;
           let action =
-            FetchObjectUpdateAction::new(awareness_id, CollabType::UserAwareness, postgrest);
+            FetchObjectUpdateAction::new(object_id, CollabType::UserAwareness, postgrest);
           action.run_with_fix_interval(3, 3).await
         }
         .await,
