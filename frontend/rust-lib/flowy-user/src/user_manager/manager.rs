@@ -411,6 +411,7 @@ impl UserManager {
     self
       .save_auth_data(&response, authenticator, &new_session)
       .await?;
+    let _ = self.try_initial_user_awareness(&new_session).await;
     self
       .user_status_callback
       .read()
