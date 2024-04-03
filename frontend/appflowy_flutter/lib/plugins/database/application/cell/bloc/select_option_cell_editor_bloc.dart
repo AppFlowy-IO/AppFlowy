@@ -252,24 +252,22 @@ class SelectOptionCellEditorBloc
   }
 
   Future<void> _loadOptions() async {
-    final result = await _selectOptionService.getCellData();
+    // final result = await _selectOptionService.getCellData();
     if (isClosed) {
       Log.warn("Unexpecteded closing the bloc");
       return;
     }
 
-    return result.fold(
-      (data) => add(
+    final cellData = cellController.getCellData();
+
+    if (cellData != null) {
+      add(
         SelectOptionCellEditorEvent.didReceiveOptions(
-          data.options,
-          data.selectOptions,
+          cellData.options,
+          cellData.selectOptions,
         ),
-      ),
-      (err) {
-        Log.error(err);
-        return null;
-      },
-    );
+      );
+    }
   }
 
   _MakeOptionResult _getVisibleOptions(

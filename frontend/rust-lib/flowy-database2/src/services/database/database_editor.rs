@@ -10,7 +10,7 @@ use crate::services::database_view::{
 use crate::services::field::{
   default_type_option_data_from_type, select_type_option_from_field, transform_type_option,
   type_option_data_from_pb, ChecklistCellChangeset, RelationTypeOption, SelectOptionCellChangeset,
-  SelectOptionIds, StrCellData, TimestampCellData, TypeOptionCellDataHandler, TypeOptionCellExt,
+  StrCellData, TimestampCellData, TypeOptionCellDataHandler, TypeOptionCellExt,
 };
 use crate::services::field_settings::{
   default_field_settings_by_layout_map, FieldSettings, FieldSettingsChangesetParams,
@@ -987,24 +987,6 @@ impl DatabaseEditor {
       .update_cell_with_changeset(view_id, row_id, field_id, BoxAny::new(cell_changeset))
       .await?;
     Ok(())
-  }
-
-  pub async fn get_select_options(&self, row_id: RowId, field_id: &str) -> SelectOptionCellDataPB {
-    let field = self.database.lock().fields.get_field(field_id);
-    match field {
-      None => SelectOptionCellDataPB::default(),
-      Some(field) => {
-        let cell = self.database.lock().get_cell(field_id, &row_id).cell;
-        let ids = match cell {
-          None => SelectOptionIds::new(),
-          Some(cell) => SelectOptionIds::from(&cell),
-        };
-        match select_type_option_from_field(&field) {
-          Ok(type_option) => type_option.get_selected_options(ids).into(),
-          Err(_) => SelectOptionCellDataPB::default(),
-        }
-      },
-    }
   }
 
   pub async fn set_checklist_options(
