@@ -29,25 +29,26 @@ class DocumentCollaboratorsBloc
           initial: () async {
             final result = await getIt<AuthService>().getUser();
             final userProfile = result.fold((s) => s, (f) => null);
-            if (userProfile == null ||
-                userProfile.authenticator == AuthenticatorPB.Local) {
-              emit(
-                state.copyWith(shouldShowIndicator: false),
-              );
-              return;
-            }
-            final deviceId = ApplicationInfo.deviceId;
-            _listener.start(
-              onDocAwarenessUpdate: (states) {
-                add(
-                  DocumentCollaboratorsEvent.update(
-                    userProfile,
-                    deviceId,
-                    states,
-                  ),
-                );
-              },
+            emit(
+              state.copyWith(
+                shouldShowIndicator:
+                    userProfile?.authenticator != AuthenticatorPB.Local,
+              ),
             );
+            final deviceId = ApplicationInfo.deviceId;
+            if (userProfile != null) {
+              _listener.start(
+                onDocAwarenessUpdate: (states) {
+                  add(
+                    DocumentCollaboratorsEvent.update(
+                      userProfile,
+                      deviceId,
+                      states,
+                    ),
+                  );
+                },
+              );
+            }
           },
           update: (userProfile, deviceId, states) {
             final collaborators = _buildCollaborators(
