@@ -49,7 +49,8 @@
     "LogInWithGoogle": "Log in with Google",
     "LogInWithGithub": "Log in with Github",
     "LogInWithDiscord": "Log in with Discord",
-    "signInWith": "Sign in with:"
+    "signInWith": "Sign in with:",
+    "signInWithEmail": "Sign in with Email"
   },
   "workspace": {
     "chooseWorkspace": "Choose your workspace",
