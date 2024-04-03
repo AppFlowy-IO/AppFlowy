@@ -1,9 +1,8 @@
 use crate::util::unzip_history_user_db;
 use assert_json_diff::assert_json_include;
 use collab_database::rows::database_row_document_id_from_row_id;
-use collab_entity::CollabType;
 use event_integration::user_event::user_localhost_af_cloud;
-use event_integration::{document_data_from_document_doc_state, EventIntegrationTest};
+use event_integration::EventIntegrationTest;
 use flowy_core::DEFAULT_NAME;
 use flowy_user::errors::ErrorCode;
 use serde_json::{json, Value};
