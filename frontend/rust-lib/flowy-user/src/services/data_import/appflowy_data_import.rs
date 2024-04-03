@@ -26,7 +26,7 @@ use flowy_folder_pub::entities::{AppFlowyData, ImportData};
 use flowy_folder_pub::folder_builder::{ParentChildViews, ViewBuilder};
 use flowy_sqlite::kv::StorePreferences;
 use flowy_user_pub::cloud::{UserCloudService, UserCollabParams};
-use flowy_user_pub::entities::{awareness_oid_from_user_uuid, Authenticator};
+use flowy_user_pub::entities::{user_awarenesss_object_id, Authenticator};
 use flowy_user_pub::session::Session;
 use parking_lot::{Mutex, RwLock};
 use std::collections::{HashMap, HashSet};
@@ -129,7 +129,7 @@ pub(crate) fn import_appflowy_data_folder(
     all_imported_object_ids
       .retain(|id| id != &imported_session.user_workspace.workspace_database_object_id);
     all_imported_object_ids
-      .retain(|id| id != &awareness_oid_from_user_uuid(&imported_session.user_uuid).to_string());
+      .retain(|id| id != &user_awarenesss_object_id(&imported_session.user_uuid).to_string());
 
     // import database view tracker
     migrate_database_view_tracker(

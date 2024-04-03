@@ -396,6 +396,6 @@ pub struct WorkspaceMember {
   pub name: String,
 }
 
-pub fn awareness_oid_from_user_uuid(user_uuid: &Uuid) -> Uuid {
+pub fn user_awarenesss_object_id(user_uuid: &Uuid) -> Uuid {
   Uuid::new_v5(user_uuid, b"user_awareness")
 }

@@ -10,7 +10,7 @@ use collab_user::core::{MutexUserAwareness, UserAwareness};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_user_pub::cloud::{UserCloudConfig, UserCloudServiceProvider};
 use flowy_user_pub::entities::{
-  awareness_oid_from_user_uuid, AuthResponse, Authenticator, UserAuthResponse, UserProfile,
+  user_awarenesss_object_id, AuthResponse, Authenticator, UserAuthResponse, UserProfile,
   UserWorkspace,
 };
 use flowy_user_pub::session::Session;
@@ -134,14 +134,24 @@ impl UserManager {
   }
 
   async fn initialize_user_awareness(&self, new_session: &Session) -> FlowyResult<()> {
+    let user_awareness_id = user_awarenesss_object_id(&new_session.user_uuid).to_string();
     let data = self
       .cloud_services
       .get_user_service()?
-      .get_user_awareness_doc_state(new_session.user_id)
+      .get_user_awareness_doc_state(
+        new_session.user_id,
+        &new_session.user_workspace.id,
+        &user_awareness_id,
+      )
       .await?;
     trace!("Get user awareness collab: {}", data.len());
     let collab = self
-      .collab_for_user_awareness(new_session, Arc::downgrade(&self.collab_db), data)
+      .collab_for_user_awareness(
+        new_session.user_id,
+        &user_awareness_id,
+        Arc::downgrade(&self.collab_db),
+        data,
+      )
       .await?;
     MutexUserAwareness::new(UserAwareness::create(collab, None));
     Ok(())
@@ -198,7 +208,8 @@ impl UserManager {
 
   async fn collab_for_user_awareness(
     &self,
-    session: &Session,
+    uid: i64,
+    object_id: &str,
     collab_db: Weak<CollabKVDB>,
     raw_data: Vec<u8>,
   ) -> Result<Arc<MutexCollab>, FlowyError> {
@@ -206,11 +217,10 @@ impl UserManager {
       ErrorCode::Internal,
       "Unexpected error: collab builder is not available",
     ))?;
-    let user_awareness_id = awareness_oid_from_user_uuid(&session.user_uuid);
     let collab = collab_builder
       .build(
-        session.user_id,
-        &user_awareness_id.to_string(),
+        uid,
+        object_id,
         CollabType::UserAwareness,
         DocStateSource::FromDocState(raw_data),
         collab_db,

@@ -37,7 +37,6 @@ use crate::services::data_import::importer::import_data;
 use crate::services::data_import::ImportContext;
 
 use crate::services::sqlite_sql::user_sql::{select_user_profile, UserTable, UserTableChangeset};
-use crate::user_manager::manager_user_awareness::UserAwarenessDataSource;
 use crate::user_manager::manager_user_encryption::validate_encryption_sign;
 use crate::user_manager::manager_user_workspace::save_user_workspaces;
 use crate::user_manager::user_login_state::UserAuthProcess;
@@ -252,9 +251,7 @@ impl UserManager {
       self.authenticate_user.vacuum_database_if_need();
       let cloud_config = get_cloud_config(session.user_id, &self.store_preferences);
       // Init the user awareness
-      self
-        .initialize_user_awareness(&session, UserAwarenessDataSource::Local)
-        .await;
+      self.initialize_user_awareness(&session).await;
 
       user_status_callback
         .did_init(
@@ -324,10 +321,7 @@ impl UserManager {
       .save_auth_data(&response, &authenticator, &session)
       .await?;
 
-    let _ = self
-      .initialize_user_awareness(&session, UserAwarenessDataSource::Remote)
-      .await;
-
+    let _ = self.initialize_user_awareness(&session).await;
     self
       .user_status_callback
       .read()
@@ -412,12 +406,6 @@ impl UserManager {
   ) -> FlowyResult<()> {
     let new_session = Session::from(&response);
     self.prepare_user(&new_session).await;
-
-    let user_awareness_source = if response.is_new_user {
-      UserAwarenessDataSource::Local
-    } else {
-      UserAwarenessDataSource::Remote
-    };
     self
       .save_auth_data(&response, authenticator, &new_session)
       .await?;
@@ -432,10 +420,6 @@ impl UserManager {
         &self.authenticate_user.user_config.device_id,
       )
       .await?;
-
-    self
-      .initialize_user_awareness(&new_session, user_awareness_source)
-      .await;
 
     if response.is_new_user {
       if let Some(old_user) = migration_user {
