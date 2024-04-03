@@ -406,7 +406,7 @@ class _CopyButton extends StatelessWidget {
   }
 }
 
-class _LanguageSelector extends StatelessWidget {
+class _LanguageSelector extends StatefulWidget {
   const _LanguageSelector({
     required this.controller,
     this.language,
@@ -424,17 +424,22 @@ class _LanguageSelector extends StatelessWidget {
   final VoidCallback? onMenuClose;
 
   @override
+  State<_LanguageSelector> createState() => _LanguageSelectorState();
+}
+
+class _LanguageSelectorState extends State<_LanguageSelector> {
+  @override
   Widget build(BuildContext context) {
     Widget child = Row(
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
           child: FlowyTextButton(
-            language?.capitalize() ??
+            widget.language?.capitalize() ??
                 LocaleKeys.document_codeBlock_language_auto.tr(),
-            constraints: const BoxConstraints(minWidth: 40),
+            constraints: const BoxConstraints(minWidth: 50),
             fontColor: Theme.of(context).colorScheme.onBackground,
-            fillColor: isSelected
+            fillColor: widget.isSelected
                 ? Theme.of(context).colorScheme.secondaryContainer
                 : Colors.transparent,
             padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 4),
@@ -443,7 +448,7 @@ class _LanguageSelector extends StatelessWidget {
                 final language = await context
                     .push<String>(MobileCodeLanguagePickerScreen.routeName);
                 if (language != null) {
-                  onLanguageSelected(language);
+                  widget.onLanguageSelected(language);
                 }
               }
             },
@@ -454,17 +459,17 @@ class _LanguageSelector extends StatelessWidget {
 
     if (PlatformExtension.isDesktopOrWeb) {
       child = AppFlowyPopover(
-        controller: controller,
+        controller: widget.controller,
         direction: PopoverDirection.bottomWithLeftAligned,
-        onOpen: onMenuOpen,
-        onClose: onMenuClose,
-        popupBuilder: (_) => SelectableItemListMenu(
-          items:
-              codeBlockSupportedLanguages.map((e) => e.capitalize()).toList(),
-          selectedIndex: codeBlockSupportedLanguages.indexOf(language ?? ''),
-          onSelected: (index) {
-            onLanguageSelected(codeBlockSupportedLanguages[index]);
-            controller.close();
+        onOpen: widget.onMenuOpen,
+        constraints: const BoxConstraints(maxHeight: 300, maxWidth: 200),
+        onClose: widget.onMenuClose,
+        popupBuilder: (_) => _LanguageSelectionPopover(
+          editorState: context.read<EditorState>(),
+          language: widget.language,
+          onLanguageSelected: (language) {
+            widget.onLanguageSelected(language);
+            widget.controller.close();
           },
         ),
         child: child,
@@ -472,5 +477,76 @@ class _LanguageSelector extends StatelessWidget {
     }
 
     return child;
+  }
+}
+
+class _LanguageSelectionPopover extends StatefulWidget {
+  const _LanguageSelectionPopover({
+    required this.editorState,
+    required this.language,
+    required this.onLanguageSelected,
+  });
+
+  final EditorState editorState;
+  final String? language;
+  final void Function(String) onLanguageSelected;
+
+  @override
+  State<_LanguageSelectionPopover> createState() =>
+      _LanguageSelectionPopoverState();
+}
+
+class _LanguageSelectionPopoverState extends State<_LanguageSelectionPopover> {
+  final searchController = TextEditingController();
+  final focusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+
+    // TODO(Mathias): This is a workaround to focus the search field due to the
+    //  selection service taking over the focus instead of the search field.
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => Future.delayed(
+        const Duration(milliseconds: 100),
+        () => focusNode.requestFocus(),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    focusNode.dispose();
+    searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        FlowyTextField(
+          focusNode: focusNode,
+          controller: searchController,
+          hintText: LocaleKeys.document_codeBlock_searchLanguageHint.tr(),
+          onChanged: (_) => setState(() {}),
+        ),
+        const VSpace(8),
+        Flexible(
+          child: SelectableItemListMenu(
+            shrinkWrap: true,
+            items: codeBlockSupportedLanguages
+                .where((e) => e.contains(searchController.text.toLowerCase()))
+                .map((e) => e.capitalize())
+                .toList(),
+            selectedIndex:
+                codeBlockSupportedLanguages.indexOf(widget.language ?? ''),
+            onSelected: (index) =>
+                widget.onLanguageSelected(codeBlockSupportedLanguages[index]),
+          ),
+        ),
+      ],
+    );
   }
 }

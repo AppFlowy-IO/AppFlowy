@@ -984,7 +984,8 @@
         "placeholder": "Select language",
         "auto": "Auto"
       },
-      "copyTooltip": "Copy contents of the code block"
+      "copyTooltip": "Copy contents of the code block",
+      "searchLanguageHint": "Search for a language"
     },
     "inlineLink": {
       "placeholder": "Paste or type a link",

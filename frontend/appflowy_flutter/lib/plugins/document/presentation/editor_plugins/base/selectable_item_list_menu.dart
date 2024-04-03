@@ -1,6 +1,7 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
 
 class SelectableItemListMenu extends StatelessWidget {
   const SelectableItemListMenu({
@@ -8,24 +9,29 @@ class SelectableItemListMenu extends StatelessWidget {
     required this.items,
     required this.selectedIndex,
     required this.onSelected,
+    this.shrinkWrap = false,
   });
 
   final List<String> items;
   final int selectedIndex;
   final void Function(int) onSelected;
 
+  /// shrinkWrapping is useful in cases where you have a list of
+  /// limited amount of items. It will make the list take the minimum
+  /// amount of space required to show all the items.
+  ///
+  final bool shrinkWrap;
+
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      itemBuilder: (context, index) {
-        final item = items[index];
-        return SelectableItem(
-          isSelected: index == selectedIndex,
-          item: item,
-          onTap: () => onSelected(index),
-        );
-      },
+      shrinkWrap: shrinkWrap,
       itemCount: items.length,
+      itemBuilder: (context, index) => SelectableItem(
+        isSelected: index == selectedIndex,
+        item: items[index],
+        onTap: () => onSelected(index),
+      ),
     );
   }
 }
