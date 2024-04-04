@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/loading.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_setting.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_icon.dart';
@@ -16,13 +17,20 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class SidebarWorkspace extends StatelessWidget {
+class SidebarWorkspace extends StatefulWidget {
   const SidebarWorkspace({
     super.key,
     required this.userProfile,
   });
 
   final UserProfilePB userProfile;
+
+  @override
+  State<SidebarWorkspace> createState() => _SidebarWorkspaceState();
+}
+
+class _SidebarWorkspaceState extends State<SidebarWorkspace> {
+  Loading? loadingIndicator;
 
   @override
   Widget build(BuildContext context) {
@@ -37,11 +45,11 @@ class SidebarWorkspace extends StatelessWidget {
           children: [
             Expanded(
               child: SidebarSwitchWorkspaceButton(
-                userProfile: userProfile,
+                userProfile: widget.userProfile,
                 currentWorkspace: currentWorkspace,
               ),
             ),
-            UserSettingButton(userProfile: userProfile),
+            UserSettingButton(userProfile: widget.userProfile),
             const HSpace(4),
             const NotificationButton(),
           ],
@@ -58,6 +66,21 @@ class SidebarWorkspace extends StatelessWidget {
 
     final actionType = actionResult.actionType;
     final result = actionResult.result;
+    final isLoading = actionResult.isLoading;
+
+    if (isLoading) {
+      loadingIndicator?.stop();
+      loadingIndicator = Loading(context);
+      loadingIndicator?.start();
+      return;
+    }
+
+    loadingIndicator?.stop();
+    loadingIndicator = null;
+
+    if (result == null) {
+      return;
+    }
 
     result.onFailure((f) {
       Log.error(
