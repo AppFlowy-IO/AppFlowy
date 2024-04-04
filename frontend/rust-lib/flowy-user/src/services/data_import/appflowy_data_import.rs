@@ -80,6 +80,7 @@ pub(crate) fn get_appflowy_data_folder_import_context(path: &str) -> anyhow::Res
     &imported_user,
     imported_collab_db.clone(),
     imported_sqlite_db.get_pool(),
+    None,
   );
 
   Ok(ImportContext {
