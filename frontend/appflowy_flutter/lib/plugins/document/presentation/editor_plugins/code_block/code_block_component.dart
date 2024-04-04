@@ -10,6 +10,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/base/strin
 import 'package:appflowy/plugins/document/presentation/editor_plugins/code_block/code_language_screen.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart' hide TextDirection;
@@ -120,6 +121,8 @@ SelectionMenuItem codeBlockItem = SelectionMenuItem.node(
   replace: (_, node) => node.delta?.isEmpty ?? false,
 );
 
+const _interceptorKey = 'code-block-interceptor';
+
 class CodeBlockComponentBuilder extends BlockComponentBuilder {
   CodeBlockComponentBuilder({
     super.configuration,
@@ -197,6 +200,25 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
   String? autoDetectLanguage;
 
   bool isSelected = false;
+  bool canPanStart = true;
+
+  late final interceptor = SelectionGestureInterceptor(
+    key: _interceptorKey,
+    canTap: (_) => canPanStart && !isSelected,
+    canPanStart: (_) => canPanStart && !isSelected,
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    editorState.selectionService.registerGestureInterceptor(interceptor);
+  }
+
+  @override
+  void dispose() {
+    editorState.selectionService.unregisterGestureInterceptor(_interceptorKey);
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -220,21 +242,25 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
           mainAxisSize: MainAxisSize.min,
           textDirection: textDirection,
           children: [
-            Opacity(
-              opacity: isHovering || isSelected ? 1.0 : 0.0,
-              child: Row(
-                children: [
-                  _LanguageSelector(
-                    controller: popoverController,
-                    language: language,
-                    isSelected: isSelected,
-                    onLanguageSelected: updateLanguage,
-                    onMenuOpen: () => isSelected = true,
-                    onMenuClose: () => setState(() => isSelected = false),
-                  ),
-                  const Spacer(),
-                  _CopyButton(node: node),
-                ],
+            MouseRegion(
+              onEnter: (_) => setState(() => canPanStart = false),
+              onExit: (_) => setState(() => canPanStart = true),
+              child: Opacity(
+                opacity: isHovering || isSelected ? 1.0 : 0.0,
+                child: Row(
+                  children: [
+                    _LanguageSelector(
+                      controller: popoverController,
+                      language: language,
+                      isSelected: isSelected,
+                      onLanguageSelected: updateLanguage,
+                      onMenuOpen: () => isSelected = true,
+                      onMenuClose: () => setState(() => isSelected = false),
+                    ),
+                    const Spacer(),
+                    _CopyButton(node: node),
+                  ],
+                ),
               ),
             ),
             _buildCodeBlock(context, textDirection),
@@ -390,11 +416,20 @@ class _CopyButton extends StatelessWidget {
       child: FlowyTooltip(
         message: LocaleKeys.document_codeBlock_copyTooltip.tr(),
         child: FlowyIconButton(
-          onPressed: () async => getIt<ClipboardService>().setData(
-            ClipboardServiceData(
-              plainText: node.delta?.toPlainText(),
-            ),
-          ),
+          onPressed: () async {
+            await getIt<ClipboardService>().setData(
+              ClipboardServiceData(
+                plainText: node.delta?.toPlainText(),
+              ),
+            );
+
+            if (context.mounted) {
+              showSnackBarMessage(
+                context,
+                LocaleKeys.document_codeBlock_codeCopiedSnackbar.tr(),
+              );
+            }
+          },
           hoverColor: Theme.of(context).colorScheme.secondaryContainer,
           icon: FlowySvg(
             FlowySvgs.copy_s,
@@ -503,10 +538,9 @@ class _LanguageSelectionPopoverState extends State<_LanguageSelectionPopover> {
   @override
   void initState() {
     super.initState();
-
-    // TODO(Mathias): This is a workaround to focus the search field due to the
-    //  selection service taking over the focus instead of the search field.
     WidgetsBinding.instance.addPostFrameCallback(
+      // This is a workaround because longer taps might break the
+      // focus, this might be an issue with the Flutter framework.
       (_) => Future.delayed(
         const Duration(milliseconds: 100),
         () => focusNode.requestFocus(),
@@ -528,6 +562,7 @@ class _LanguageSelectionPopoverState extends State<_LanguageSelectionPopover> {
       children: [
         FlowyTextField(
           focusNode: focusNode,
+          autoFocus: false,
           controller: searchController,
           hintText: LocaleKeys.document_codeBlock_searchLanguageHint.tr(),
           onChanged: (_) => setState(() {}),
