@@ -175,6 +175,7 @@ where
     })
   }
 
+  #[allow(deprecated)]
   fn add_workspace_member(
     &self,
     user_email: String,
@@ -182,6 +183,7 @@ where
   ) -> FutureResult<(), FlowyError> {
     let try_get_client = self.server.try_get_client();
     FutureResult::new(async move {
+      // TODO(zack): add_workspace_members will be deprecated after finishing the invite logic. Don't forget to remove the #[allow(deprecated)]
       try_get_client?
         .add_workspace_members(
           workspace_id,
