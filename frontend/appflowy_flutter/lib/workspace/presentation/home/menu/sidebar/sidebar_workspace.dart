@@ -193,6 +193,7 @@ class _SidebarSwitchWorkspaceButtonState
               child: FlowyText.medium(
                 widget.currentWorkspace.name,
                 overflow: TextOverflow.ellipsis,
+                withTooltip: true,
               ),
             ),
             const FlowySvg(FlowySvgs.drop_menu_show_m),
