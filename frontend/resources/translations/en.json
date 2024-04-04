@@ -213,15 +213,15 @@
     "openSidebar": "Open side bar",
     "personal": "Personal",
     "private": "Private",
-    "public": "Public",
+    "workspace": "Workspace",
     "favorites": "Favorites",
     "clickToHidePrivate": "Click to hide private space\nPages you created here are only visible to you",
-    "clickToHidePublic": "Click to hide public space\nPages you created here are visible to every member",
+    "clickToHideWorkspace": "Click to hide workspace\nPages you created here are visible to every member",
     "clickToHidePersonal": "Click to hide personal space",
     "clickToHideFavorites": "Click to hide favorite space",
     "addAPage": "Add a page",
     "addAPageToPrivate": "Add a page to private space",
-    "addAPageToPublic": "Add a page to public space",
+    "addAPageToWorkspace": "Add a page to workspace",
     "recent": "Recent"
   },
   "notifications": {

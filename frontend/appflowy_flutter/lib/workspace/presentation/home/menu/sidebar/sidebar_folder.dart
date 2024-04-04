@@ -103,10 +103,10 @@ class PublicSectionFolder extends SectionFolder {
     super.key,
     required super.views,
   }) : super(
-          title: LocaleKeys.sideBar_public.tr(),
+          title: LocaleKeys.sideBar_workspace.tr(),
           categoryType: FolderCategoryType.public,
-          expandButtonTooltip: LocaleKeys.sideBar_clickToHidePublic.tr(),
-          addButtonTooltip: LocaleKeys.sideBar_addAPageToPublic.tr(),
+          expandButtonTooltip: LocaleKeys.sideBar_clickToHideWorkspace.tr(),
+          addButtonTooltip: LocaleKeys.sideBar_addAPageToWorkspace.tr(),
         );
 }
 
