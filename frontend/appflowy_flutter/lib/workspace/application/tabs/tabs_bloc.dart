@@ -1,5 +1,3 @@
-import 'package:flutter/foundation.dart';
-
 import 'package:appflowy/plugins/util.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -8,11 +6,12 @@ import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:bloc/bloc.dart';
+import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+part 'tabs_bloc.freezed.dart';
 part 'tabs_event.dart';
 part 'tabs_state.dart';
-part 'tabs_bloc.freezed.dart';
 
 class TabsBloc extends Bloc<TabsEvent, TabsState> {
   TabsBloc() : super(TabsState()) {

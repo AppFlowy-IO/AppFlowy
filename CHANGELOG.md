@@ -1,4 +1,10 @@
 # Release Notes
+## Version 0.5.4 - 04/08/2024
+### New Features
+- TBD
+### Bug Fixes
+- TBD
+
 ## Version 0.5.3 - 03/21/2024
 ### New Features
 - Added build support for 32-bit Android devices

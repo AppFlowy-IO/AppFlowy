@@ -29,7 +29,7 @@ class UserAvatar extends StatelessWidget {
 
     if (iconUrl.isEmpty) {
       final String nameOrDefault = _userName(name);
-      final Color color = ColorGenerator.generateColorFromString(name);
+      final Color color = ColorGenerator(name).toColor();
       const initialsCount = 2;
 
       // Taking the first letters of the name components and limiting to 2 elements

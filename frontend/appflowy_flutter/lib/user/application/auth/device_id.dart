@@ -25,7 +25,7 @@ Future<String> getDeviceId() async {
       deviceId = macInfo.systemGUID;
     } else if (Platform.isWindows) {
       final WindowsDeviceInfo windowsInfo = await deviceInfo.windowsInfo;
-      deviceId = windowsInfo.computerName;
+      deviceId = windowsInfo.deviceId;
     } else if (Platform.isLinux) {
       final LinuxDeviceInfo linuxInfo = await deviceInfo.linuxInfo;
       deviceId = linuxInfo.machineId;

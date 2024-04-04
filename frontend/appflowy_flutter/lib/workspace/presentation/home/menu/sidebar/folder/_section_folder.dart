@@ -2,6 +2,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
+import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/folder/_folder_header.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/rename_view_dialog.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
@@ -18,12 +19,16 @@ class SectionFolder extends StatelessWidget {
     required this.categoryType,
     required this.views,
     this.isHoverEnabled = true,
+    required this.expandButtonTooltip,
+    required this.addButtonTooltip,
   });
 
   final String title;
   final FolderCategoryType categoryType;
   final List<ViewPB> views;
   final bool isHoverEnabled;
+  final String expandButtonTooltip;
+  final String addButtonTooltip;
 
   @override
   Widget build(BuildContext context) {
@@ -91,26 +96,29 @@ class SectionFolder extends StatelessWidget {
                     isHoverEnabled: isHoverEnabled,
                   ),
                 ),
+              if (views.isEmpty)
+                ViewItem(
+                  categoryType: categoryType,
+                  view: ViewPB(
+                    parentViewId: context
+                            .read<UserWorkspaceBloc>()
+                            .state
+                            .currentWorkspace
+                            ?.workspaceId ??
+                        '',
+                  ),
+                  level: 0,
+                  leftPadding: 16,
+                  isFeedback: false,
+                  onSelected: (_) {},
+                  onTertiarySelected: (_) {},
+                  isHoverEnabled: isHoverEnabled,
+                  isPlaceholder: true,
+                ),
             ],
           );
         },
       ),
     );
-  }
-
-  String get expandButtonTooltip {
-    return switch (categoryType) {
-      FolderCategoryType.public => LocaleKeys.sideBar_clickToHidePublic.tr(),
-      FolderCategoryType.private => LocaleKeys.sideBar_clickToHidePrivate.tr(),
-      _ => '',
-    };
-  }
-
-  String get addButtonTooltip {
-    return switch (categoryType) {
-      FolderCategoryType.public => LocaleKeys.sideBar_addAPageToPublic.tr(),
-      FolderCategoryType.private => LocaleKeys.sideBar_addAPageToPrivate.tr(),
-      _ => '',
-    };
   }
 }

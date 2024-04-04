@@ -1,8 +1,8 @@
 import 'dart:async';
 
+import 'package:appflowy/plugins/document/application/doc_sync_state_listener.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
-import 'package:appflowy/workspace/application/doc/sync_state_listener.dart';
 import 'package:appflowy_backend/protobuf/flowy-document/entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-document/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -36,9 +36,7 @@ class DocumentSyncBloc extends Bloc<DocumentSyncEvent, DocumentSyncBlocState> {
             );
             _syncStateListener.start(
               didReceiveSyncState: (syncState) {
-                if (!isClosed) {
-                  add(DocumentSyncEvent.syncStateChanged(syncState));
-                }
+                add(DocumentSyncEvent.syncStateChanged(syncState));
               },
             );
 
@@ -49,16 +47,18 @@ class DocumentSyncBloc extends Bloc<DocumentSyncEvent, DocumentSyncBlocState> {
 
             connectivityStream =
                 _connectivity.onConnectivityChanged.listen((result) {
-              if (!isClosed) {}
-              emit(
-                state.copyWith(
-                  isNetworkConnected: result != ConnectivityResult.none,
-                ),
-              );
+              add(DocumentSyncEvent.networkStateChanged(result));
             });
           },
           syncStateChanged: (syncState) {
             emit(state.copyWith(syncState: syncState.value));
+          },
+          networkStateChanged: (result) {
+            emit(
+              state.copyWith(
+                isNetworkConnected: result != ConnectivityResult.none,
+              ),
+            );
           },
         );
       },
@@ -85,6 +85,9 @@ class DocumentSyncEvent with _$DocumentSyncEvent {
   const factory DocumentSyncEvent.syncStateChanged(
     DocumentSyncStatePB syncState,
   ) = syncStateChanged;
+  const factory DocumentSyncEvent.networkStateChanged(
+    ConnectivityResult result,
+  ) = NetworkStateChanged;
 }
 
 @freezed

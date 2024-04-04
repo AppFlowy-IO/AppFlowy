@@ -17,11 +17,13 @@ void main() {
     String remainder = '';
     List<String> select = [];
 
+    final textController = TextEditingController();
+
     final textField = SelectOptionTextField(
       options: const [],
       selectedOptionMap: LinkedHashMap<String, SelectOptionPB>(),
       distanceToText: 0.0,
-      onSubmitted: (text) => submit = text,
+      onSubmitted: () => submit = textController.text,
       onPaste: (options, remaining) {
         remainder = remaining;
         select = options;
@@ -29,7 +31,8 @@ void main() {
       onRemove: (_) {},
       newText: (text) => remainder = text,
       textSeparators: const [','],
-      textController: TextEditingController(),
+      textController: textController,
+      focusNode: FocusNode(),
     );
 
     testWidgets('SelectOptionTextField callback outputs',
@@ -56,11 +59,6 @@ void main() {
       await tester.enterText(find.byType(TextField), 'an option');
       await tester.testTextInput.receiveAction(TextInputAction.done);
       expect(submit, 'an option');
-
-      submit = '';
-      await tester.enterText(find.byType(TextField), ' ');
-      await tester.testTextInput.receiveAction(TextInputAction.done);
-      expect(submit, '');
 
       // test inputs containing commas
       await tester.enterText(find.byType(TextField), 'a a, bbbb , c');

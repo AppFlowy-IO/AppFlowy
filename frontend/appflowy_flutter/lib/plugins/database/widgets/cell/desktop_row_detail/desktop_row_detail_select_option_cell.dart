@@ -2,12 +2,13 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
 import 'package:appflowy/plugins/database/widgets/cell_editor/extension.dart';
 import 'package:appflowy/plugins/database/application/cell/bloc/select_option_cell_bloc.dart';
-import 'package:appflowy/plugins/database/widgets/cell_editor/select_option_editor.dart';
+import 'package:appflowy/plugins/database/widgets/cell_editor/select_option_cell_editor.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../editable_cell_skeleton/select_option.dart';
 
@@ -18,12 +19,11 @@ class DesktopRowDetailSelectOptionCellSkin
     BuildContext context,
     CellContainerNotifier cellContainerNotifier,
     SelectOptionCellBloc bloc,
-    SelectOptionCellState state,
     PopoverController popoverController,
   ) {
     return AppFlowyPopover(
       controller: popoverController,
-      constraints: BoxConstraints.loose(const Size.square(300)),
+      constraints: const BoxConstraints.tightFor(width: 300),
       margin: EdgeInsets.zero,
       direction: PopoverDirection.bottomWithLeftAligned,
       popupBuilder: (BuildContext popoverContext) {
@@ -35,14 +35,18 @@ class DesktopRowDetailSelectOptionCellSkin
         );
       },
       onClose: () => cellContainerNotifier.isFocus = false,
-      child: Container(
-        alignment: AlignmentDirectional.centerStart,
-        padding: state.selectedOptions.isEmpty
-            ? const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0)
-            : const EdgeInsets.symmetric(horizontal: 8.0, vertical: 5.0),
-        child: state.selectedOptions.isEmpty
-            ? _buildPlaceholder(context)
-            : _buildOptions(context, state.selectedOptions),
+      child: BlocBuilder<SelectOptionCellBloc, SelectOptionCellState>(
+        builder: (context, state) {
+          return Container(
+            alignment: AlignmentDirectional.centerStart,
+            padding: state.selectedOptions.isEmpty
+                ? const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0)
+                : const EdgeInsets.symmetric(horizontal: 8.0, vertical: 5.0),
+            child: state.selectedOptions.isEmpty
+                ? _buildPlaceholder(context)
+                : _buildOptions(context, state.selectedOptions),
+          );
+        },
       ),
     );
   }

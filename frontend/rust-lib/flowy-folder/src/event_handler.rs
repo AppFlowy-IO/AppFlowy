@@ -1,4 +1,5 @@
 use std::sync::{Arc, Weak};
+use tracing::instrument;
 
 use flowy_error::{FlowyError, FlowyResult};
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
@@ -207,6 +208,7 @@ pub(crate) async fn set_latest_view_handler(
   Ok(())
 }
 
+#[instrument(level = "debug", skip(data, folder), err)]
 pub(crate) async fn close_view_handler(
   data: AFPluginData<ViewIdPB>,
   folder: AFPluginState<Weak<FolderManager>>,
@@ -271,7 +273,7 @@ pub(crate) async fn read_recent_views_handler(
   folder: AFPluginState<Weak<FolderManager>>,
 ) -> DataResult<RepeatedViewPB, FlowyError> {
   let folder = upgrade_folder(folder)?;
-  let recent_items = folder.get_all_recent_sections().await;
+  let recent_items = folder.get_my_recent_sections().await;
   let mut views = vec![];
   for item in recent_items {
     if let Ok(view) = folder.get_view_pb(&item.id).await {
@@ -359,5 +361,16 @@ pub(crate) async fn reload_workspace_handler(
 ) -> Result<(), FlowyError> {
   let folder = upgrade_folder(folder)?;
   folder.reload_workspace().await?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip(data, folder), err)]
+pub(crate) async fn update_view_visibility_status_handler(
+  data: AFPluginData<UpdateViewVisibilityStatusPayloadPB>,
+  folder: AFPluginState<Weak<FolderManager>>,
+) -> Result<(), FlowyError> {
+  let folder = upgrade_folder(folder)?;
+  let params = data.into_inner();
+  folder.set_views_visibility(params.view_ids, params.is_public);
   Ok(())
 }

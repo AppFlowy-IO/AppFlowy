@@ -49,6 +49,7 @@ serde_repr.workspace = true
 futures.workspace = true
 walkdir = "2.4.0"
 sysinfo = "0.30.5"
+semver = "1.0.22"
 
 [features]
 default = ["rev-sqlite"]
@@ -72,3 +73,4 @@ ts = [
 ]
 rev-sqlite = ["flowy-user/rev-sqlite"]
 openssl_vendored = ["flowy-sqlite/openssl_vendored"]
+verbose_log = ["flowy-document/verbose_log", "client-api/sync_verbose_log"]

@@ -4,6 +4,11 @@ use crate::AppFlowyCoreConfig;
 
 static INIT_LOG: AtomicBool = AtomicBool::new(false);
 pub(crate) fn init_log(config: &AppFlowyCoreConfig) {
+  #[cfg(debug_assertions)]
+  if get_bool_from_env_var("DISABLE_CI_TEST_LOG") {
+    return;
+  }
+
   if !INIT_LOG.load(Ordering::SeqCst) {
     INIT_LOG.store(true, Ordering::SeqCst);
 
@@ -12,7 +17,8 @@ pub(crate) fn init_log(config: &AppFlowyCoreConfig) {
       .build();
   }
 }
-pub fn create_log_filter(level: String, with_crates: Vec<String>) -> String {
+
+pub(crate) fn create_log_filter(level: String, with_crates: Vec<String>) -> String {
   let level = std::env::var("RUST_LOG").unwrap_or(level);
   let mut filters = with_crates
     .into_iter()
@@ -35,17 +41,26 @@ pub fn create_log_filter(level: String, with_crates: Vec<String>) -> String {
   filters.push(format!("flowy_search={}", level));
 
   // Most of the time, we don't need to see the logs from the following crates
-  // unless we are debugging the ffi or event dispatching
+  // filters.push(format!("flowy_sqlite={}", "info"));
   // filters.push(format!("lib_dispatch={}", level));
-  // filters.push(format!("dart_ffi={}", level));
 
-  filters.push(format!("flowy_sqlite={}", "info"));
   filters.push(format!("client_api={}", level));
   #[cfg(feature = "profiling")]
   filters.push(format!("tokio={}", level));
-
   #[cfg(feature = "profiling")]
   filters.push(format!("runtime={}", level));
 
   filters.join(",")
+}
+
+#[cfg(debug_assertions)]
+fn get_bool_from_env_var(env_var_name: &str) -> bool {
+  match std::env::var(env_var_name) {
+    Ok(value) => match value.to_lowercase().as_str() {
+      "true" | "1" => true,
+      "false" | "0" => false,
+      _ => false,
+    },
+    Err(_) => false,
+  }
 }

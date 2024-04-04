@@ -2,6 +2,7 @@ use std::sync::Arc;
 
 use chrono::NaiveDateTime;
 use diesel::{RunQueryDsl, SqliteConnection};
+use semver::Version;
 
 use collab_integrate::CollabKVDB;
 use flowy_error::FlowyResult;
@@ -47,6 +48,7 @@ impl UserLocalDataMigration {
     self,
     migrations: Vec<Box<dyn UserDataMigration>>,
     authenticator: &Authenticator,
+    app_version: Option<Version>,
   ) -> FlowyResult<Vec<String>> {
     let mut applied_migrations = vec![];
     let mut conn = self.sqlite_pool.get()?;
@@ -57,11 +59,17 @@ impl UserLocalDataMigration {
         .iter()
         .any(|record| record.migration_name == migration.name())
       {
+        if let Some(app_version) = app_version.as_ref() {
+          if !migration.applies_to_version(app_version) {
+            continue;
+          }
+        }
+
         let migration_name = migration.name().to_string();
         if !duplicated_names.contains(&migration_name) {
           migration.run(&self.session, &self.collab_db, authenticator)?;
           applied_migrations.push(migration.name().to_string());
-          save_record(&mut conn, &migration_name);
+          save_migration_record(&mut conn, &migration_name);
           duplicated_names.push(migration_name);
         } else {
           tracing::error!("Duplicated migration name: {}", migration_name);
@@ -75,6 +83,9 @@ impl UserLocalDataMigration {
 pub trait UserDataMigration {
   /// Migration with the same name will be skipped
   fn name(&self) -> &str;
+  /// Returns bool value whether the migration should be applied to the current app version
+  /// true if the migration should be applied, false otherwise
+  fn applies_to_version(&self, app_version: &Version) -> bool;
   fn run(
     &self,
     user: &Session,
@@ -83,7 +94,7 @@ pub trait UserDataMigration {
   ) -> FlowyResult<()>;
 }
 
-fn save_record(conn: &mut SqliteConnection, migration_name: &str) {
+pub(crate) fn save_migration_record(conn: &mut SqliteConnection, migration_name: &str) {
   let new_record = NewUserDataMigrationRecord {
     migration_name: migration_name.to_string(),
   };

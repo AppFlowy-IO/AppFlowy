@@ -94,6 +94,9 @@ class MobileHomePage extends StatelessWidget {
             previous.currentWorkspace?.workspaceId !=
             current.currentWorkspace?.workspaceId,
         builder: (context, state) {
+          if (state.currentWorkspace == null) {
+            return const SizedBox.shrink();
+          }
           return Column(
             children: [
               // Header
@@ -127,7 +130,9 @@ class MobileHomePage extends StatelessWidget {
                             padding: const EdgeInsets.symmetric(horizontal: 24),
                             child: MobileFolders(
                               user: userProfile,
-                              workspaceSetting: workspaceSetting,
+                              workspaceId:
+                                  state.currentWorkspace?.workspaceId ??
+                                      workspaceSetting.workspaceId,
                               showFavorite: false,
                             ),
                           ),

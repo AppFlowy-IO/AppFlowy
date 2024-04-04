@@ -144,10 +144,11 @@ extension BlockToNode on BlockPB {
         final deltaString = meta.textMap[externalId];
         if (deltaString != null) {
           final delta = jsonDecode(deltaString);
-          map.putIfAbsent(
-            'delta',
-            () => delta,
-          );
+          map['delta'] = delta;
+          // map.putIfAbsent(
+          //   'delta',
+          //   () => delta,
+          // );
         }
       }
     }

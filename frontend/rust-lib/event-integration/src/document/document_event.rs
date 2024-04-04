@@ -46,7 +46,7 @@ impl DocumentEventTest {
       .await
       .unwrap();
     let guard = doc.lock();
-    guard.get_collab().encode_collab_v1()
+    guard.encode_collab().unwrap()
   }
 
   pub async fn create_document(&self) -> ViewPB {

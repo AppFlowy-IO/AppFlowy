@@ -207,6 +207,13 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
               ),
             );
           },
+          updateViewVisibility: (value) async {
+            final view = value.view;
+            await ViewBackendService.updateViewsVisibility(
+              [view],
+              value.isPublic,
+            );
+          },
         );
       },
     );
@@ -363,13 +370,15 @@ class ViewEvent with _$ViewEvent {
     ViewLayoutPB layoutType, {
     /// open the view after created
     @Default(true) bool openAfterCreated,
-    required ViewSectionPB section,
+    ViewSectionPB? section,
   }) = CreateView;
   const factory ViewEvent.viewDidUpdate(
     FlowyResult<ViewPB, FlowyError> result,
   ) = ViewDidUpdate;
   const factory ViewEvent.viewUpdateChildView(ViewPB result) =
       ViewUpdateChildView;
+  const factory ViewEvent.updateViewVisibility(ViewPB view, bool isPublic) =
+      UpdateViewVisibility;
 }
 
 @freezed

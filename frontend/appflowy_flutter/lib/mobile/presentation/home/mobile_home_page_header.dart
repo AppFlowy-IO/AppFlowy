@@ -1,6 +1,8 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/home/mobile_home_setting_page.dart';
+import 'package:appflowy/mobile/presentation/home/workspaces/workspace_menu_bottom_sheet.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_picker_screen.dart';
 import 'package:appflowy/plugins/base/icon/icon_picker.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -43,8 +45,9 @@ class MobileHomePageHeader extends StatelessWidget {
                       : _MobileUser(userProfile: userProfile),
                 ),
                 IconButton(
-                  onPressed: () =>
-                      context.push(MobileHomeSettingPage.routeName),
+                  onPressed: () => context.push(
+                    MobileHomeSettingPage.routeName,
+                  ),
                   icon: const FlowySvg(FlowySvgs.m_setting_m),
                 ),
               ],
@@ -104,29 +107,100 @@ class _MobileWorkspace extends StatelessWidget {
     return BlocBuilder<UserWorkspaceBloc, UserWorkspaceState>(
       builder: (context, state) {
         final currentWorkspace = state.currentWorkspace;
-        final workspaces = state.workspaces;
-        if (currentWorkspace == null || workspaces.isEmpty) {
+        if (currentWorkspace == null) {
           return const SizedBox.shrink();
         }
-        return Row(
-          children: [
-            const HSpace(2.0),
-            SizedBox.square(
-              dimension: 34.0,
-              child: WorkspaceIcon(
-                workspace: currentWorkspace,
-                iconSize: 26,
-                enableEdit: false,
+        return GestureDetector(
+          onTap: () {
+            context.read<UserWorkspaceBloc>().add(
+                  const UserWorkspaceEvent.fetchWorkspaces(),
+                );
+            _showSwitchWorkspacesBottomSheet(context);
+          },
+          child: Row(
+            children: [
+              const HSpace(2.0),
+              SizedBox.square(
+                dimension: 34.0,
+                child: WorkspaceIcon(
+                  workspace: currentWorkspace,
+                  iconSize: 26,
+                  enableEdit: false,
+                ),
               ),
-            ),
-            const HSpace(8),
-            Expanded(
-              child: FlowyText.medium(
-                currentWorkspace.name,
-                overflow: TextOverflow.ellipsis,
+              const HSpace(8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        FlowyText.medium(
+                          currentWorkspace.name,
+                          fontSize: 16.0,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const HSpace(4.0),
+                        const FlowySvg(FlowySvgs.list_dropdown_s),
+                      ],
+                    ),
+                    FlowyText.medium(
+                      userProfile.email.isNotEmpty
+                          ? userProfile.email
+                          : userProfile.name,
+                      overflow: TextOverflow.ellipsis,
+                      fontSize: 12,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showSwitchWorkspacesBottomSheet(
+    BuildContext context,
+  ) {
+    showMobileBottomSheet(
+      context,
+      showDivider: false,
+      showHeader: true,
+      showDragHandle: true,
+      title: LocaleKeys.workspace_menuTitle.tr(),
+      builder: (_) {
+        return BlocProvider.value(
+          value: context.read<UserWorkspaceBloc>(),
+          child: BlocBuilder<UserWorkspaceBloc, UserWorkspaceState>(
+            builder: (context, state) {
+              final currentWorkspace = state.currentWorkspace;
+              final workspaces = state.workspaces;
+              if (currentWorkspace == null || workspaces.isEmpty) {
+                return const SizedBox.shrink();
+              }
+              return MobileWorkspaceMenu(
+                userProfile: userProfile,
+                currentWorkspace: currentWorkspace,
+                workspaces: workspaces,
+                onWorkspaceSelected: (workspace) {
+                  context.pop();
+
+                  if (workspace == currentWorkspace) {
+                    return;
+                  }
+
+                  context.read<UserWorkspaceBloc>().add(
+                        UserWorkspaceEvent.openWorkspace(
+                          workspace.workspaceId,
+                        ),
+                      );
+                },
+              );
+            },
+          ),
         );
       },
     );

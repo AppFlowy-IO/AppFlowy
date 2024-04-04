@@ -202,6 +202,19 @@ impl UserManager {
     save_user_workspaces(uid, conn, &[user_workspace])
   }
 
+  pub async fn leave_workspace(&self, workspace_id: &str) -> FlowyResult<()> {
+    self
+      .cloud_services
+      .get_user_service()?
+      .leave_workspace(workspace_id)
+      .await?;
+
+    // delete workspace from local sqlite db
+    let uid = self.user_id()?;
+    let conn = self.db_connection(uid)?;
+    delete_user_workspaces(conn, workspace_id)
+  }
+
   pub async fn delete_workspace(&self, workspace_id: &str) -> FlowyResult<()> {
     self
       .cloud_services
@@ -319,14 +332,24 @@ pub fn save_user_workspaces(
 ) -> FlowyResult<()> {
   let user_workspaces = user_workspaces
     .iter()
-    .flat_map(|user_workspace| UserWorkspaceTable::try_from((uid, user_workspace)).ok())
-    .collect::<Vec<UserWorkspaceTable>>();
+    .map(|user_workspace| UserWorkspaceTable::try_from((uid, user_workspace)))
+    .collect::<Result<Vec<_>, _>>()?;
 
   conn.immediate_transaction(|conn| {
-    for user_workspace in user_workspaces {
-      if let Err(err) = diesel::update(
+    let existing_ids = user_workspace_table::dsl::user_workspace_table
+      .select(user_workspace_table::id)
+      .load::<String>(conn)?;
+    let new_ids: Vec<String> = user_workspaces.iter().map(|w| w.id.clone()).collect();
+    let ids_to_delete: Vec<String> = existing_ids
+      .into_iter()
+      .filter(|id| !new_ids.contains(id))
+      .collect();
+
+    // insert or update the user workspaces
+    for user_workspace in &user_workspaces {
+      let affected_rows = diesel::update(
         user_workspace_table::dsl::user_workspace_table
-          .filter(user_workspace_table::id.eq(user_workspace.id.clone())),
+          .filter(user_workspace_table::id.eq(&user_workspace.id)),
       )
       .set((
         user_workspace_table::name.eq(&user_workspace.name),
@@ -334,18 +357,24 @@ pub fn save_user_workspaces(
         user_workspace_table::database_storage_id.eq(&user_workspace.database_storage_id),
         user_workspace_table::icon.eq(&user_workspace.icon),
       ))
-      .execute(conn)
-      .and_then(|rows| {
-        if rows == 0 {
-          let _ = diesel::insert_into(user_workspace_table::table)
-            .values(user_workspace)
-            .execute(conn)?;
-        }
-        Ok(())
-      }) {
-        tracing::error!("Error saving user workspace: {:?}", err);
+      .execute(conn)?;
+
+      if affected_rows == 0 {
+        diesel::insert_into(user_workspace_table::table)
+          .values(user_workspace)
+          .execute(conn)?;
       }
     }
+
+    // delete the user workspaces that are not in the new list
+    if !ids_to_delete.is_empty() {
+      diesel::delete(
+        user_workspace_table::dsl::user_workspace_table
+          .filter(user_workspace_table::id.eq_any(ids_to_delete)),
+      )
+      .execute(conn)?;
+    }
+
     Ok::<(), FlowyError>(())
   })
 }

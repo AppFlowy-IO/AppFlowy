@@ -112,11 +112,13 @@ class SidebarWorkspace extends StatelessWidget {
         break;
       case UserWorkspaceActionType.none:
       case UserWorkspaceActionType.fetchWorkspaces:
+      case UserWorkspaceActionType.leave:
         message = null;
         break;
     }
 
     if (message != null) {
+      Log.info('[Workspace] $message');
       showSnackBarMessage(context, message);
     }
   }
@@ -147,6 +149,11 @@ class _SidebarSwitchWorkspaceButtonState
       direction: PopoverDirection.bottomWithCenterAligned,
       offset: const Offset(0, 10),
       constraints: const BoxConstraints(maxWidth: 260, maxHeight: 600),
+      onOpen: () {
+        context.read<UserWorkspaceBloc>().add(
+              const UserWorkspaceEvent.fetchWorkspaces(),
+            );
+      },
       popupBuilder: (_) {
         return BlocProvider<UserWorkspaceBloc>.value(
           value: context.read<UserWorkspaceBloc>(),
@@ -154,7 +161,7 @@ class _SidebarSwitchWorkspaceButtonState
             builder: (context, state) {
               final currentWorkspace = state.currentWorkspace;
               final workspaces = state.workspaces;
-              if (currentWorkspace == null || workspaces.isEmpty) {
+              if (currentWorkspace == null) {
                 return const SizedBox.shrink();
               }
               return WorkspacesMenu(
@@ -174,14 +181,14 @@ class _SidebarSwitchWorkspaceButtonState
           children: [
             const HSpace(2.0),
             SizedBox.square(
-              dimension: 28.0,
+              dimension: 30.0,
               child: WorkspaceIcon(
                 workspace: widget.currentWorkspace,
-                iconSize: 18,
+                iconSize: 20,
                 enableEdit: false,
               ),
             ),
-            const HSpace(4),
+            const HSpace(6),
             Expanded(
               child: FlowyText.medium(
                 widget.currentWorkspace.name,

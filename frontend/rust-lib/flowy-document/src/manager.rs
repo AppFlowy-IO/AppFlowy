@@ -1,4 +1,3 @@
-use std::num::NonZeroUsize;
 use std::sync::Arc;
 use std::sync::Weak;
 
@@ -8,14 +7,16 @@ use collab::core::origin::CollabOrigin;
 use collab::preclude::Collab;
 use collab_document::blocks::DocumentData;
 use collab_document::document::Document;
+use collab_document::document_awareness::DocumentAwarenessState;
+use collab_document::document_awareness::DocumentAwarenessUser;
 use collab_document::document_data::default_document_data;
 use collab_entity::CollabType;
 use collab_plugins::CollabKVDB;
+use dashmap::DashMap;
 use flowy_storage::object_from_disk;
-use lru::LruCache;
-use parking_lot::Mutex;
+use lib_infra::util::timestamp;
 use tokio::io::AsyncWriteExt;
-use tracing::error;
+use tracing::{error, trace};
 use tracing::{event, instrument};
 
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
@@ -26,6 +27,7 @@ use flowy_storage::ObjectStorageService;
 use lib_dispatch::prelude::af_spawn;
 
 use crate::document::MutexDocument;
+use crate::entities::UpdateDocumentAwarenessStatePB;
 use crate::entities::{
   DocumentSnapshotData, DocumentSnapshotMeta, DocumentSnapshotMetaPB, DocumentSnapshotPB,
 };
@@ -33,6 +35,7 @@ use crate::reminder::DocumentReminderAction;
 
 pub trait DocumentUserService: Send + Sync {
   fn user_id(&self) -> Result<i64, FlowyError>;
+  fn device_id(&self) -> Result<String, FlowyError>;
   fn workspace_id(&self) -> Result<String, FlowyError>;
   fn collab_db(&self, uid: i64) -> Result<Weak<CollabKVDB>, FlowyError>;
 }
@@ -48,7 +51,8 @@ pub trait DocumentSnapshotService: Send + Sync {
 pub struct DocumentManager {
   pub user_service: Arc<dyn DocumentUserService>,
   collab_builder: Arc<AppFlowyCollabBuilder>,
-  documents: Arc<Mutex<LruCache<String, Arc<MutexDocument>>>>,
+  documents: Arc<DashMap<String, Arc<MutexDocument>>>,
+  removing_documents: Arc<DashMap<String, Arc<MutexDocument>>>,
   cloud_service: Arc<dyn DocumentCloudService>,
   storage_service: Weak<dyn ObjectStorageService>,
   snapshot_service: Arc<dyn DocumentSnapshotService>,
@@ -62,11 +66,11 @@ impl DocumentManager {
     storage_service: Weak<dyn ObjectStorageService>,
     snapshot_service: Arc<dyn DocumentSnapshotService>,
   ) -> Self {
-    let documents = Arc::new(Mutex::new(LruCache::new(NonZeroUsize::new(10).unwrap())));
     Self {
       user_service,
       collab_builder,
-      documents,
+      documents: Arc::new(Default::default()),
+      removing_documents: Arc::new(Default::default()),
       cloud_service,
       storage_service,
       snapshot_service,
@@ -74,7 +78,7 @@ impl DocumentManager {
   }
 
   pub async fn initialize(&self, _uid: i64, _workspace_id: String) -> FlowyResult<()> {
-    self.documents.lock().clear();
+    self.documents.clear();
     Ok(())
   }
 
@@ -132,7 +136,11 @@ impl DocumentManager {
   /// If the document exists, open the document and cache it
   #[tracing::instrument(level = "info", skip(self), err)]
   pub async fn get_document(&self, doc_id: &str) -> FlowyResult<Arc<MutexDocument>> {
-    if let Some(doc) = self.documents.lock().get(doc_id).cloned() {
+    if let Some(doc) = self.documents.get(doc_id).map(|item| item.value().clone()) {
+      return Ok(doc);
+    }
+
+    if let Some(doc) = self.restore_document_from_removing(doc_id) {
       return Ok(doc);
     }
 
@@ -165,10 +173,7 @@ impl DocumentManager {
     match MutexDocument::open(doc_id, collab) {
       Ok(document) => {
         let document = Arc::new(document);
-        self
-          .documents
-          .lock()
-          .put(doc_id.to_string(), document.clone());
+        self.documents.insert(doc_id.to_string(), document.clone());
         Ok(document)
       },
       Err(err) => {
@@ -183,29 +188,51 @@ impl DocumentManager {
   }
 
   pub async fn get_document_data(&self, doc_id: &str) -> FlowyResult<DocumentData> {
-    let mut doc_state = vec![];
+    let mut doc_state = DocStateSource::FromDisk;
     if !self.is_doc_exist(doc_id).await? {
-      doc_state = self
-        .cloud_service
-        .get_document_doc_state(doc_id, &self.user_service.workspace_id()?)
-        .await?;
+      doc_state = DocStateSource::FromDocState(
+        self
+          .cloud_service
+          .get_document_doc_state(doc_id, &self.user_service.workspace_id()?)
+          .await?,
+      );
     }
     let uid = self.user_service.user_id()?;
     let collab = self
-      .collab_for_document(uid, doc_id, DocStateSource::FromDocState(doc_state), false)
+      .collab_for_document(uid, doc_id, doc_state, false)
       .await?;
     Document::open(collab)?
       .get_document_data()
       .map_err(internal_error)
   }
 
-  #[instrument(level = "debug", skip(self), err)]
+  pub async fn open_document(&self, doc_id: &str) -> FlowyResult<()> {
+    if let Some(mutex_document) = self.restore_document_from_removing(doc_id) {
+      mutex_document.start_init_sync();
+    }
+    Ok(())
+  }
+
   pub async fn close_document(&self, doc_id: &str) -> FlowyResult<()> {
-    // The lru will pop the least recently used document when the cache is full.
-    if let Ok(doc) = self.get_document(doc_id).await {
-      if let Some(doc) = doc.try_lock() {
+    if let Some((doc_id, document)) = self.documents.remove(doc_id) {
+      if let Some(doc) = document.try_lock() {
+        // clear the awareness state when close the document
+        doc.clean_awareness_local_state();
         let _ = doc.flush();
       }
+      let clone_doc_id = doc_id.clone();
+      trace!("move document to removing_documents: {}", doc_id);
+      self.removing_documents.insert(doc_id, document);
+
+      let weak_removing_documents = Arc::downgrade(&self.removing_documents);
+      af_spawn(async move {
+        tokio::time::sleep(std::time::Duration::from_secs(120)).await;
+        if let Some(removing_documents) = weak_removing_documents.upgrade() {
+          if removing_documents.remove(&clone_doc_id).is_some() {
+            trace!("drop document from removing_documents: {}", clone_doc_id);
+          }
+        }
+      });
     }
 
     Ok(())
@@ -215,11 +242,35 @@ impl DocumentManager {
     let uid = self.user_service.user_id()?;
     if let Some(db) = self.user_service.collab_db(uid)?.upgrade() {
       db.delete_doc(uid, doc_id).await?;
-
       // When deleting a document, we need to remove it from the cache.
-      self.documents.lock().pop(doc_id);
+      self.documents.remove(doc_id);
     }
     Ok(())
+  }
+
+  pub async fn set_document_awareness_local_state(
+    &self,
+    doc_id: &str,
+    state: UpdateDocumentAwarenessStatePB,
+  ) -> FlowyResult<bool> {
+    let uid = self.user_service.user_id()?;
+    let device_id = self.user_service.device_id()?;
+    if let Ok(doc) = self.get_document(doc_id).await {
+      if let Some(doc) = doc.try_lock() {
+        let user = DocumentAwarenessUser { uid, device_id };
+        let selection = state.selection.map(|s| s.into());
+        let state = DocumentAwarenessState {
+          version: 1,
+          user,
+          selection,
+          metadata: state.metadata,
+          timestamp: timestamp(),
+        };
+        doc.set_awareness_local_state(state);
+        return Ok(true);
+      }
+    }
+    Ok(false)
   }
 
   /// Return the list of snapshots of the document.
@@ -369,6 +420,16 @@ impl DocumentManager {
   pub fn get_file_storage_service(&self) -> &Weak<dyn ObjectStorageService> {
     &self.storage_service
   }
+
+  fn restore_document_from_removing(&self, doc_id: &str) -> Option<Arc<MutexDocument>> {
+    let (doc_id, doc) = self.removing_documents.remove(doc_id)?;
+    trace!(
+      "move document {} from removing_documents to documents",
+      doc_id
+    );
+    self.documents.insert(doc_id, doc.clone());
+    Some(doc)
+  }
 }
 
 async fn doc_state_from_document_data(
@@ -384,8 +445,9 @@ async fn doc_state_from_document_data(
       vec![],
       false,
     )));
-    let _ = Document::create_with_data(collab.clone(), data).map_err(internal_error)?;
-    Ok::<_, FlowyError>(collab.encode_collab_v1())
+    let document = Document::create_with_data(collab.clone(), data).map_err(internal_error)?;
+    let encode_collab = document.encode_collab()?;
+    Ok::<_, FlowyError>(encode_collab)
   })
   .await??;
   Ok(encoded_collab)

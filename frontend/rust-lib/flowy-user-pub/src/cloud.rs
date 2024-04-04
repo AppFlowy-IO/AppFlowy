@@ -212,7 +212,12 @@ pub trait UserCloudService: Send + Sync + 'static {
     FutureResult::new(async { Ok(vec![]) })
   }
 
-  fn get_user_awareness_doc_state(&self, uid: i64) -> FutureResult<Vec<u8>, FlowyError>;
+  fn get_user_awareness_doc_state(
+    &self,
+    uid: i64,
+    workspace_id: &str,
+    object_id: &str,
+  ) -> FutureResult<Vec<u8>, FlowyError>;
 
   fn receive_realtime_event(&self, _json: Value) {}
 
@@ -234,6 +239,10 @@ pub trait UserCloudService: Send + Sync + 'static {
     workspace_id: &str,
     objects: Vec<UserCollabParams>,
   ) -> FutureResult<(), FlowyError>;
+
+  fn leave_workspace(&self, workspace_id: &str) -> FutureResult<(), FlowyError> {
+    FutureResult::new(async { Ok(()) })
+  }
 }
 
 pub type UserUpdateReceiver = tokio::sync::mpsc::Receiver<UserUpdate>;

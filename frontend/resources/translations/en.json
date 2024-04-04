@@ -49,7 +49,8 @@
     "LogInWithGoogle": "Log in with Google",
     "LogInWithGithub": "Log in with Github",
     "LogInWithDiscord": "Log in with Discord",
-    "signInWith": "Sign in with:"
+    "signInWith": "Sign in with:",
+    "signInWithEmail": "Sign in with Email"
   },
   "workspace": {
     "chooseWorkspace": "Choose your workspace",
@@ -65,6 +66,7 @@
       "exportLogFiles": "Export log files",
       "reachOut": "Reach out on Discord"
     },
+    "menuTitle": "Workspaces",
     "deleteWorkspaceHintText": "Are you sure you want to delete the workspace? This action cannot be undone.",
     "createSuccess": "Workspace created successfully",
     "createFailed": "Failed to create workspace",
@@ -78,7 +80,9 @@
     "updateIconSuccess": "Updated workspace icon successfully",
     "updateIconFailed": "Updated workspace icon failed",
     "cannotDeleteTheOnlyWorkspace": "Cannot delete the only workspace",
-    "fetchWorkspacesFailed": "Failed to fetch workspaces"
+    "fetchWorkspacesFailed": "Failed to fetch workspaces",
+    "leaveCurrentWorkspace": "Leave workspace",
+    "leaveCurrentWorkspacePrompt": "Are you sure you want to leave the current workspace?"
   },
   "shareAction": {
     "buttonText": "Share",
@@ -211,13 +215,13 @@
     "private": "Private",
     "public": "Public",
     "favorites": "Favorites",
-    "clickToHidePrivate": "Click to hide private section\nPages you created here are only visible to you",
-    "clickToHidePublic": "Click to hide public section\nPages you created here are visible to every member",
-    "clickToHidePersonal": "Click to hide personal section",
-    "clickToHideFavorites": "Click to hide favorite section",
+    "clickToHidePrivate": "Click to hide private space\nPages you created here are only visible to you",
+    "clickToHidePublic": "Click to hide public space\nPages you created here are visible to every member",
+    "clickToHidePersonal": "Click to hide personal space",
+    "clickToHideFavorites": "Click to hide favorite space",
     "addAPage": "Add a page",
-    "addAPageToPrivate": "Add a page to private section",
-    "addAPageToPublic": "Add a page to public section",
+    "addAPageToPrivate": "Add a page to private space",
+    "addAPageToPublic": "Add a page to public space",
     "recent": "Recent"
   },
   "notifications": {
@@ -735,7 +739,7 @@
       "colorPanelTitle": "Color",
       "panelTitle": "Select an option or create one",
       "searchOption": "Search for an option",
-      "searchOrCreateOption": "Search or create an option...",
+      "searchOrCreateOption": "Search for an option or create one",
       "createNew": "Create a new",
       "orSelectOne": "Or select an option",
       "typeANewOption": "Type a new option",
