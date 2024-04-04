@@ -535,6 +535,10 @@ class _LanguageSelectionPopoverState extends State<_LanguageSelectionPopover> {
   final searchController = TextEditingController();
   final focusNode = FocusNode();
 
+  List<String> supportedLanguages =
+      codeBlockSupportedLanguages.map((e) => e.capitalize()).toList();
+  late int selectedIndex = supportedLanguages.indexOf(widget.language ?? '');
+
   @override
   void initState() {
     super.initState();
@@ -565,20 +569,23 @@ class _LanguageSelectionPopoverState extends State<_LanguageSelectionPopover> {
           autoFocus: false,
           controller: searchController,
           hintText: LocaleKeys.document_codeBlock_searchLanguageHint.tr(),
-          onChanged: (_) => setState(() {}),
+          onChanged: (_) => setState(() {
+            supportedLanguages = codeBlockSupportedLanguages
+                .where((e) => e.contains(searchController.text.toLowerCase()))
+                .map((e) => e.capitalize())
+                .toList();
+            selectedIndex =
+                codeBlockSupportedLanguages.indexOf(widget.language ?? '');
+          }),
         ),
         const VSpace(8),
         Flexible(
           child: SelectableItemListMenu(
             shrinkWrap: true,
-            items: codeBlockSupportedLanguages
-                .where((e) => e.contains(searchController.text.toLowerCase()))
-                .map((e) => e.capitalize())
-                .toList(),
-            selectedIndex:
-                codeBlockSupportedLanguages.indexOf(widget.language ?? ''),
+            items: supportedLanguages,
+            selectedIndex: selectedIndex,
             onSelected: (index) =>
-                widget.onLanguageSelected(codeBlockSupportedLanguages[index]),
+                widget.onLanguageSelected(supportedLanguages[index]),
           ),
         ),
       ],

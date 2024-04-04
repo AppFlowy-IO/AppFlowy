@@ -263,7 +263,7 @@ CommandShortcutEventHandler _tabToInsertSpacesInCodeBlockCommandHandler =
 CommandShortcutEventHandler _tabToDeleteSpacesInCodeBlockCommandHandler =
     (editorState) {
   final selection = editorState.selection;
-  if (selection == null || !selection.isCollapsed) {
+  if (selection == null) {
     return KeyEventResult.ignored;
   }
   final node = editorState.getNodeAtPath(selection.end.path);
@@ -273,29 +273,57 @@ CommandShortcutEventHandler _tabToDeleteSpacesInCodeBlockCommandHandler =
   }
   const spaces = '  ';
   final lines = delta.toPlainText().split('\n');
-  var index = 0;
+  int index = 0;
+
+  // We store indexes to be indented in a list, because we should
+  // indent it in a reverse order to not mess up the offsets.
+  final List<int> transactions = [];
+
   for (final line in lines) {
-    if (index <= selection.endIndex &&
-        selection.endIndex <= index + line.length) {
-      if (line.startsWith(spaces)) {
-        final transaction = editorState.transaction
-          ..deleteText(
-            node,
-            index,
-            spaces.length, // two spaces
-          )
-          ..afterSelection = Selection.collapsed(
-            Position(
-              path: selection.end.path,
-              offset: selection.endIndex - spaces.length,
-            ),
-          );
-        editorState.apply(transaction);
+    if (line.startsWith(spaces)) {
+      bool canOutdentLine = false;
+      if (selection.isCollapsed) {
+        canOutdentLine = index <= selection.endIndex &&
+            selection.endIndex <= index + line.length;
+      } else {
+        canOutdentLine = index + line.length >= selection.startIndex &&
+            selection.endIndex >= index;
       }
-      break;
+
+      if (canOutdentLine) {
+        transactions.add(index);
+      }
     }
+
     index += line.length + 1;
   }
+
+  final transaction = editorState.transaction;
+
+  for (final index in transactions.reversed) {
+    transaction.deleteText(node, index, spaces.length);
+  }
+
+  // In case the selection is made backwards, we store the start
+  // and end here, we will adjust the order later
+  final start = !selection.isBackward ? selection.end : selection.start;
+  final end = !selection.isBackward ? selection.start : selection.end;
+
+  final endSelection = end.copyWith(
+    offset: end.offset - (spaces.length * transactions.length),
+  );
+
+  final startSelection = selection.isCollapsed
+      ? endSelection
+      : start.copyWith(offset: start.offset - spaces.length);
+
+  transaction.afterSelection = selection.copyWith(
+    start: selection.isBackward ? startSelection : endSelection,
+    end: selection.isBackward ? endSelection : startSelection,
+  );
+
+  editorState.apply(transaction);
+
   return KeyEventResult.handled;
 };
 
