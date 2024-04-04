@@ -22,7 +22,6 @@ class CommandPaletteBloc
     );
 
     _initTrash();
-
     _dispatch();
   }
 

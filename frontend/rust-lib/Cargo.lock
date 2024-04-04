@@ -134,6 +134,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "allocator-api2"
+version = "0.2.16"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0942ffc6dcaadf03badf6e6a2d0228460359d5e34b57ccdc720b7382dfbd5ec5"
+
+[[package]]
 name = "android-tzdata"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -816,7 +822,6 @@ dependencies = [
  "getrandom 0.2.10",
  "js-sys",
  "lazy_static",
- "lru 0.12.0",
  "nanoid",
  "parking_lot 0.12.1",
  "rayon",
@@ -1876,7 +1881,6 @@ dependencies = [
  "lazy_static",
  "lib-dispatch",
  "lib-infra",
- "lru 0.12.0",
  "nanoid",
  "parking_lot 0.12.1",
  "protobuf",
@@ -1949,7 +1953,6 @@ dependencies = [
  "indexmap 2.1.0",
  "lib-dispatch",
  "lib-infra",
- "lru 0.12.0",
  "nanoid",
  "parking_lot 0.12.1",
  "protobuf",
@@ -2680,6 +2683,10 @@ name = "hashbrown"
 version = "0.14.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "290f1a1d9242c78d09ce40a5e87e7554ee637af1351968159f4952f028f75604"
+dependencies = [
+ "ahash 0.8.6",
+ "allocator-api2",
+]
 
 [[package]]
 name = "hdrhistogram"
@@ -3279,15 +3286,6 @@ name = "lru"
 version = "0.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a4a83fb7698b3643a0e34f9ae6f2e8f0178c0fd42f8b59d493aa271ff3a5bf21"
-dependencies = [
- "hashbrown 0.14.3",
-]
-
-[[package]]
-name = "lru"
-version = "0.12.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1efa59af2ddfad1854ae27d75009d538d0998b4b2fd47083e743ac1a10e46c60"
 dependencies = [
  "hashbrown 0.14.3",
 ]
@@ -5515,7 +5513,7 @@ dependencies = [
  "itertools 0.11.0",
  "levenshtein_automata",
  "log",
- "lru 0.11.1",
+ "lru",
  "lz4_flex",
  "measure_time",
  "memmap2",

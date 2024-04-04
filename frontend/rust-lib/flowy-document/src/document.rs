@@ -3,6 +3,7 @@ use crate::entities::{
 };
 use crate::notification::{send_notification, DocumentNotification};
 use collab::core::collab::MutexCollab;
+use collab_document::document::DocumentIndexContent;
 use collab_document::{blocks::DocumentData, document::Document};
 use flowy_error::FlowyResult;
 use futures::StreamExt;

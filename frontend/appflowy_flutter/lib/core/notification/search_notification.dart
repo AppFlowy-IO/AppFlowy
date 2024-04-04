@@ -1,5 +1,6 @@
 import 'dart:async';
-import 'dart:typed_data';
+
+import 'package:flutter/foundation.dart';
 
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-notification/protobuf.dart';
@@ -8,6 +9,9 @@ import 'package:appflowy_backend/rust_stream.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 
 import 'notification_helper.dart';
+
+// This value must be identical to the value in the backend (SEARCH_OBSERVABLE_SOURCE)
+const _source = 'Search';
 
 typedef SearchNotificationCallback = void Function(
   SearchNotification,
@@ -20,7 +24,8 @@ class SearchNotificationParser
     super.id,
     required super.callback,
   }) : super(
-          tyParser: (ty) => SearchNotification.valueOf(ty),
+          tyParser: (ty, source) =>
+              source == _source ? SearchNotification.valueOf(ty) : null,
           errorParser: (bytes) => FlowyError.fromBuffer(bytes),
         );
 }

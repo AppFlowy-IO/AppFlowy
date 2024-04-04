@@ -5,7 +5,7 @@ use tokio::sync::broadcast;
 
 use crate::entities::{SearchNotification, SearchResultNotificationPB};
 
-const OBSERVABLE_SOURCE: &str = "SEARCH";
+const SEARCH_OBSERVABLE_SOURCE: &str = "Search";
 const SEARCH_ID: &str = "SEARCH_IDENTIFIER";
 
 #[derive(Clone)]
@@ -49,5 +49,5 @@ impl SearchResultReceiverRunner {
 
 #[tracing::instrument(level = "trace")]
 pub fn send_notification(id: &str, ty: SearchNotification) -> NotificationBuilder {
-  NotificationBuilder::new(id, ty, OBSERVABLE_SOURCE)
+  NotificationBuilder::new(id, ty, SEARCH_OBSERVABLE_SOURCE)
 }
