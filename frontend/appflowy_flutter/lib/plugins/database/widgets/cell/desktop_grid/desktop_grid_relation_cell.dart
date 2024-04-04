@@ -29,9 +29,7 @@ class DesktopGridRelationCellSkin extends IEditableRelationCellSkin {
       popupBuilder: (context) {
         return BlocProvider.value(
           value: bloc,
-          child: RelationCellEditor(
-            selectedRowIds: state.rows.map((row) => row.rowId).toList(),
-          ),
+          child: const RelationCellEditor(),
         );
       },
       child: Container(
