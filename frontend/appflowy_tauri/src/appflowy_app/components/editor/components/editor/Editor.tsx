@@ -1,13 +1,8 @@
-import React, { memo, useCallback } from 'react';
-import {
-  useDecorateCodeHighlight,
-  useEditor,
-  useInlineKeyDown,
-} from '$app/components/editor/components/editor/Editor.hooks';
+import React, { useCallback } from 'react';
+import { useDecorateCodeHighlight, useEditor } from '$app/components/editor/components/editor/Editor.hooks';
 import { Slate } from 'slate-react';
 import { CustomEditable } from '$app/components/editor/components/editor/CustomEditable';
 import { SelectionToolbar } from '$app/components/editor/components/tools/selection_toolbar';
-import { useShortcuts } from 'src/appflowy_app/components/editor/plugins/shortcuts';
 import { BlockActionsToolbar } from '$app/components/editor/components/tools/block_actions';
 
 import { CircularProgress } from '@mui/material';
@@ -26,8 +21,7 @@ import { LocalEditorProps } from '$app/application/document/document.types';
 function Editor({ sharedType, disableFocus, caretColor = 'var(--text-title)' }: LocalEditorProps) {
   const { editor, initialValue, handleOnClickEnd, ...props } = useEditor(sharedType);
   const decorateCodeHighlight = useDecorateCodeHighlight(editor);
-  const { onKeyDown: onShortcutsKeyDown } = useShortcuts(editor);
-  const withInlineKeyDown = useInlineKeyDown(editor);
+
   const {
     selectedBlocks,
     decorate: decorateCustomRange,
@@ -47,14 +41,6 @@ function Editor({ sharedType, disableFocus, caretColor = 'var(--text-title)' }: 
     [decorateCodeHighlight, decorateCustomRange]
   );
 
-  const onKeyDown = useCallback(
-    (event: React.KeyboardEvent<HTMLDivElement>) => {
-      withInlineKeyDown(event);
-      onShortcutsKeyDown(event);
-    },
-    [onShortcutsKeyDown, withInlineKeyDown]
-  );
-
   if (editor.sharedRoot.length === 0) {
     return <CircularProgress className='m-auto' />;
   }
@@ -72,7 +58,6 @@ function Editor({ sharedType, disableFocus, caretColor = 'var(--text-title)' }: 
                 <CustomEditable
                   {...props}
                   disableFocus={disableFocus}
-                  onKeyDown={onKeyDown}
                   decorate={decorate}
                   style={{
                     caretColor,
@@ -90,4 +75,4 @@ function Editor({ sharedType, disableFocus, caretColor = 'var(--text-title)' }: 
   );
 }
 
-export default memo(Editor);
+export default Editor;

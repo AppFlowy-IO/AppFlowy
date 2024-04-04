@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/url_entities.pb.dart';
@@ -29,15 +30,17 @@ class URLCellBloc extends Bloc<URLCellEvent, URLCellState> {
   void _dispatch() {
     on<URLCellEvent>(
       (event, emit) async {
-        event.when(
+        await event.when(
           initial: () {
             _startListening();
           },
-          didReceiveCellUpdate: (cellData) {
+          didReceiveCellUpdate: (cellData) async {
+            final content = cellData?.content ?? "";
+            final isValid = await isUrlValid(content);
             emit(
               state.copyWith(
-                content: cellData?.content ?? "",
-                url: cellData?.url ?? "",
+                content: content,
+                isValid: isValid,
               ),
             );
           },
@@ -58,6 +61,31 @@ class URLCellBloc extends Bloc<URLCellEvent, URLCellState> {
       },
     );
   }
+
+  Future<bool> isUrlValid(String content) async {
+    if (content.isEmpty) {
+      return true;
+    }
+
+    try {
+      // check protocol is provided
+      const linkPrefix = [
+        'http://',
+        'https://',
+      ];
+      final shouldAddScheme =
+          !linkPrefix.any((pattern) => content.startsWith(pattern));
+      final url = shouldAddScheme ? 'http://$content' : content;
+
+      // get hostname and check validity
+      final uri = Uri.parse(url);
+      final hostName = uri.host;
+      await InternetAddress.lookup(hostName);
+    } catch (_) {
+      return false;
+    }
+    return true;
+  }
 }
 
 @freezed
@@ -72,14 +100,14 @@ class URLCellEvent with _$URLCellEvent {
 class URLCellState with _$URLCellState {
   const factory URLCellState({
     required String content,
-    required String url,
+    required bool isValid,
   }) = _URLCellState;
 
   factory URLCellState.initial(URLCellController context) {
     final cellData = context.getCellData();
     return URLCellState(
       content: cellData?.content ?? "",
-      url: cellData?.url ?? "",
+      isValid: true,
     );
   }
 }

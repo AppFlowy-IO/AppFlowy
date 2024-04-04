@@ -1,22 +1,3 @@
-use std::collections::HashMap;
-use std::sync::Arc;
-
-use collab_database::database::MutexDatabase;
-use collab_database::fields::{Field, TypeOptionData};
-use collab_database::rows::{Cell, Cells, Row, RowCell, RowDetail, RowId};
-use collab_database::views::{
-  DatabaseLayout, DatabaseView, FilterMap, LayoutSetting, OrderObjectPosition,
-};
-use futures::StreamExt;
-use lib_infra::box_any::BoxAny;
-use tokio::sync::{broadcast, RwLock};
-use tracing::{event, warn};
-
-use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
-use lib_dispatch::prelude::af_spawn;
-use lib_infra::future::{to_fut, Fut, FutureResult};
-use lib_infra::priority_task::TaskDispatcher;
-
 use crate::entities::*;
 use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::calculations::Calculation;
@@ -39,6 +20,22 @@ use crate::services::group::{default_group_setting, GroupChangeset, GroupSetting
 use crate::services::share::csv::{CSVExport, CSVFormat};
 use crate::services::sort::Sort;
 use crate::utils::cache::AnyTypeCache;
+use collab_database::database::MutexDatabase;
+use collab_database::fields::{Field, TypeOptionData};
+use collab_database::rows::{Cell, Cells, Row, RowCell, RowDetail, RowId};
+use collab_database::views::{
+  DatabaseLayout, DatabaseView, FilterMap, LayoutSetting, OrderObjectPosition,
+};
+use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
+use futures::StreamExt;
+use lib_dispatch::prelude::af_spawn;
+use lib_infra::box_any::BoxAny;
+use lib_infra::future::{to_fut, Fut, FutureResult};
+use lib_infra::priority_task::TaskDispatcher;
+use std::collections::HashMap;
+use std::sync::Arc;
+use tokio::sync::{broadcast, RwLock};
+use tracing::{event, warn};
 
 #[derive(Clone)]
 pub struct DatabaseEditor {
@@ -115,24 +112,16 @@ impl DatabaseEditor {
     })
   }
 
-  /// Returns bool value indicating whether the database is empty.
-  ///
-  #[tracing::instrument(level = "debug", skip_all)]
-  pub async fn close_view(&self, view_id: &str) -> bool {
-    // If the database is empty, flush the database to the disk.
-    if self.database_views.editors().await.len() == 1 {
-      if let Some(database) = self.database.try_lock() {
-        let _ = database.flush();
-      }
-    }
-    self.database_views.close_view(view_id).await
+  pub async fn close_view(&self, view_id: &str) {
+    self.database_views.close_view(view_id).await;
+  }
+
+  pub async fn num_views(&self) -> usize {
+    self.database_views.num_editors().await
   }
 
   #[tracing::instrument(level = "debug", skip_all)]
-  pub async fn close(&self) {
-    if let Some(database) = self.database.try_lock() {
-      let _ = database.flush();
-    }
+  pub async fn close_all_views(&self) {
     for view in self.database_views.editors().await {
       view.close().await;
     }
@@ -356,6 +345,30 @@ impl DatabaseEditor {
 
     for view in self.database_views.editors().await {
       view.v_did_delete_field(field_id).await;
+    }
+
+    Ok(())
+  }
+
+  pub async fn clear_field(&self, view_id: &str, field_id: &str) -> FlowyResult<()> {
+    let field_type: FieldType = self
+      .get_field(field_id)
+      .map(|field| field.field_type.into())
+      .unwrap_or_default();
+
+    if matches!(
+      field_type,
+      FieldType::LastEditedTime | FieldType::CreatedTime
+    ) {
+      return Err(FlowyError::new(
+        ErrorCode::Internal,
+        "Can not clear the field type of Last Edited Time or Created Time.",
+      ));
+    }
+
+    let cells: Vec<RowCell> = self.get_cells_for_field(view_id, field_id).await;
+    for row_cell in cells {
+      self.clear_cell(view_id, row_cell.row_id, field_id).await?;
     }
 
     Ok(())
@@ -781,6 +794,7 @@ impl DatabaseEditor {
       }?;
       (field, database.get_cell(field_id, &row_id).cell)
     };
+
     let new_cell =
       apply_cell_changeset(cell_changeset, cell, &field, Some(self.cell_cache.clone()))?;
     self.update_cell(view_id, row_id, field_id, new_cell).await
@@ -804,6 +818,37 @@ impl DatabaseEditor {
       });
     });
 
+    self
+      .did_update_row(view_id, row_id, field_id, old_row)
+      .await;
+
+    Ok(())
+  }
+
+  pub async fn clear_cell(&self, view_id: &str, row_id: RowId, field_id: &str) -> FlowyResult<()> {
+    // Get the old row before updating the cell. It would be better to get the old cell
+    let old_row = { self.get_row_detail(view_id, &row_id) };
+
+    self.database.lock().update_row(&row_id, |row_update| {
+      row_update.update_cells(|cell_update| {
+        cell_update.clear(field_id);
+      });
+    });
+
+    self
+      .did_update_row(view_id, row_id, field_id, old_row)
+      .await;
+
+    Ok(())
+  }
+
+  async fn did_update_row(
+    &self,
+    view_id: &str,
+    row_id: RowId,
+    field_id: &str,
+    old_row: Option<RowDetail>,
+  ) {
     let option_row = self.get_row_detail(view_id, &row_id);
     if let Some(new_row_detail) = option_row {
       for view in self.database_views.editors().await {
@@ -821,8 +866,6 @@ impl DatabaseEditor {
     self
       .notify_update_row(view_id, row_id, vec![changeset])
       .await;
-
-    Ok(())
   }
 
   pub fn get_auto_updated_fields_changesets(
@@ -1078,7 +1121,7 @@ impl DatabaseEditor {
 
   pub async fn group_by_field(&self, view_id: &str, field_id: &str) -> FlowyResult<()> {
     let view = self.database_views.get_view_editor(view_id).await?;
-    view.v_grouping_by_field(field_id).await?;
+    view.v_group_by_field(field_id).await?;
     Ok(())
   }
 

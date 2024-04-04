@@ -2,7 +2,6 @@ use std::ops::Deref;
 use std::sync::Arc;
 
 use anyhow::Error;
-use collab::core::collab::CollabDocState;
 use collab::preclude::CollabPlugin;
 use collab_document::blocks::DocumentData;
 use collab_document::document_data::default_document_data;
@@ -24,7 +23,7 @@ use flowy_document_pub::cloud::*;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_storage::ObjectStorageService;
 use lib_infra::async_trait::async_trait;
-use lib_infra::future::{to_fut, Fut, FutureResult};
+use lib_infra::future::FutureResult;
 
 pub struct DocumentTest {
   inner: DocumentManager,
@@ -83,6 +82,10 @@ impl DocumentUserService for FakeUser {
   fn collab_db(&self, _uid: i64) -> Result<std::sync::Weak<CollabKVDB>, FlowyError> {
     Ok(Arc::downgrade(&self.collab_db))
   }
+
+  fn device_id(&self) -> Result<String, FlowyError> {
+    Ok("".to_string())
+  }
 }
 
 pub fn setup_log() {
@@ -135,7 +138,7 @@ impl DocumentCloudService for LocalTestDocumentCloudServiceImpl {
     &self,
     document_id: &str,
     _workspace_id: &str,
-  ) -> FutureResult<CollabDocState, FlowyError> {
+  ) -> FutureResult<Vec<u8>, FlowyError> {
     let document_id = document_id.to_string();
     FutureResult::new(async move {
       Err(FlowyError::new(
@@ -197,8 +200,8 @@ impl CollabCloudPluginProvider for DefaultCollabStorageProvider {
     CollabPluginProviderType::Local
   }
 
-  fn get_plugins(&self, _context: CollabPluginProviderContext) -> Fut<Vec<Box<dyn CollabPlugin>>> {
-    to_fut(async move { vec![] })
+  fn get_plugins(&self, _context: CollabPluginProviderContext) -> Vec<Box<dyn CollabPlugin>> {
+    vec![]
   }
 
   fn is_sync_enabled(&self) -> bool {

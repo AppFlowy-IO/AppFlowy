@@ -1,15 +1,6 @@
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/checkbox_filter.pbserver.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/checklist_filter.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/database_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/date_filter.pbserver.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/number_filter.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/select_option_filter.pbserver.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/setting_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/text_filter.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/util.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:fixnum/fixnum.dart' as $fixnum;
@@ -109,25 +100,21 @@ class FilterBackendService {
     int? timestamp,
   }) {
     assert(
-      [
-        FieldType.DateTime,
-        FieldType.LastEditedTime,
-        FieldType.CreatedTime,
-      ].contains(fieldType),
+      fieldType == FieldType.DateTime ||
+          fieldType == FieldType.LastEditedTime ||
+          fieldType == FieldType.CreatedTime,
     );
 
     final filter = DateFilterPB();
+
     if (timestamp != null) {
       filter.timestamp = $fixnum.Int64(timestamp);
-    } else {
-      if (start != null && end != null) {
-        filter.start = $fixnum.Int64(start);
-        filter.end = $fixnum.Int64(end);
-      } else {
-        throw Exception(
-          "Start and end should not be null if the timestamp is null",
-        );
-      }
+    }
+    if (start != null) {
+      filter.start = $fixnum.Int64(start);
+    }
+    if (end != null) {
+      filter.end = $fixnum.Int64(end);
     }
 
     return filterId == null

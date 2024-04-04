@@ -4,6 +4,11 @@ use crate::AppFlowyCoreConfig;
 
 static INIT_LOG: AtomicBool = AtomicBool::new(false);
 pub(crate) fn init_log(config: &AppFlowyCoreConfig) {
+  #[cfg(debug_assertions)]
+  if get_bool_from_env_var("DISABLE_CI_TEST_LOG") {
+    return;
+  }
+
   if !INIT_LOG.load(Ordering::SeqCst) {
     INIT_LOG.store(true, Ordering::SeqCst);
 
@@ -12,6 +17,7 @@ pub(crate) fn init_log(config: &AppFlowyCoreConfig) {
       .build();
   }
 }
+
 pub(crate) fn create_log_filter(level: String, with_crates: Vec<String>) -> String {
   let level = std::env::var("RUST_LOG").unwrap_or(level);
   let mut filters = with_crates
@@ -32,10 +38,14 @@ pub(crate) fn create_log_filter(level: String, with_crates: Vec<String>) -> Stri
   filters.push(format!("flowy_server={}", level));
   filters.push(format!("flowy_notification={}", "info"));
   filters.push(format!("lib_infra={}", level));
-  // filters.push(format!("lib_dispatch={}", level));
+  filters.push(format!("dart_ffi={}", level));
 
-  filters.push(format!("dart_ffi={}", "info"));
-  filters.push(format!("flowy_sqlite={}", "info"));
+  // ⚠️Enable debug log for dart_ffi, flowy_sqlite and lib_dispatch as needed. Don't enable them by default.
+  {
+    // filters.push(format!("flowy_sqlite={}", "info"));
+    // filters.push(format!("lib_dispatch={}", level));
+  }
+
   filters.push(format!("client_api={}", level));
   #[cfg(feature = "profiling")]
   filters.push(format!("tokio={}", level));
@@ -44,4 +54,16 @@ pub(crate) fn create_log_filter(level: String, with_crates: Vec<String>) -> Stri
   filters.push(format!("runtime={}", level));
 
   filters.join(",")
+}
+
+#[cfg(debug_assertions)]
+fn get_bool_from_env_var(env_var_name: &str) -> bool {
+  match std::env::var(env_var_name) {
+    Ok(value) => match value.to_lowercase().as_str() {
+      "true" | "1" => true,
+      "false" | "0" => false,
+      _ => false,
+    },
+    Err(_) => false,
+  }
 }

@@ -1,6 +1,7 @@
 #![allow(unused_doc_comments)]
 
 use flowy_storage::ObjectStorageService;
+use semver::Version;
 use std::sync::Arc;
 use std::time::Duration;
 use sysinfo::System;
@@ -65,7 +66,7 @@ impl AppFlowyCore {
     #[allow(clippy::if_same_then_else)]
     if cfg!(debug_assertions) {
       /// The profiling can be used to tracing the performance of the application.
-      /// Check out the [Link](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/backend/profiling)
+      /// Check out the [Link](https://docs.appflowy.io/docs/documentation/software-contributions/architecture/backend/profiling#enable-profiling)
       ///  for more information.
       #[cfg(feature = "profiling")]
       console_subscriber::init();
@@ -93,6 +94,7 @@ impl AppFlowyCore {
       server_type,
       Arc::downgrade(&store_preference),
     ));
+    let app_version = Version::parse(&config.app_version).unwrap_or_else(|_| Version::new(0, 5, 4));
 
     event!(tracing::Level::DEBUG, "Init managers",);
     let (
@@ -115,6 +117,7 @@ impl AppFlowyCore {
         &config.storage_path,
         &config.application_path,
         &config.device_id,
+        app_version,
       );
 
       let authenticate_user = Arc::new(AuthenticateUser::new(

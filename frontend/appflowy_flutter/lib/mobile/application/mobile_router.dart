@@ -26,7 +26,7 @@ extension on ViewPB {
   String get routeName {
     switch (layout) {
       case ViewLayoutPB.Document:
-        return MobileEditorScreen.routeName;
+        return MobileDocumentScreen.routeName;
       case ViewLayoutPB.Grid:
         return MobileGridScreen.routeName;
       case ViewLayoutPB.Calendar:
@@ -42,8 +42,8 @@ extension on ViewPB {
     switch (layout) {
       case ViewLayoutPB.Document:
         return {
-          MobileEditorScreen.viewId: id,
-          MobileEditorScreen.viewTitle: name,
+          MobileDocumentScreen.viewId: id,
+          MobileDocumentScreen.viewTitle: name,
         };
       case ViewLayoutPB.Grid:
         return {

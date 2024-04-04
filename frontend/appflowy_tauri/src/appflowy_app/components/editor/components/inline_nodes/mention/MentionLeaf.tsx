@@ -2,8 +2,6 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { Mention, MentionPage } from '$app/application/document/document.types';
 import { ReactComponent as DocumentSvg } from '$app/assets/document.svg';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
-import { pageTypeMap } from '$app_reducers/pages/slice';
 import { getPage } from '$app/application/folder/page.service';
 import { useSelected, useSlate } from 'slate-react';
 import { ReactComponent as EyeClose } from '$app/assets/eye_close.svg';
@@ -11,15 +9,17 @@ import { notify } from 'src/appflowy_app/components/_shared/notify';
 import { subscribeNotifications } from '$app/application/notification';
 import { FolderNotification } from '@/services/backend';
 import { Editor, Range } from 'slate';
+import { useAppDispatch } from '$app/stores/store';
+import { openPage } from '$app_reducers/pages/async_actions';
 
 export function MentionLeaf({ mention }: { mention: Mention }) {
   const { t } = useTranslation();
   const [page, setPage] = useState<MentionPage | null>(null);
   const [error, setError] = useState<boolean>(false);
-  const navigate = useNavigate();
   const editor = useSlate();
   const selected = useSelected();
   const isCollapsed = editor.selection && Range.isCollapsed(editor.selection);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (selected && isCollapsed && page) {
@@ -56,16 +56,14 @@ export function MentionLeaf({ mention }: { mention: Mention }) {
     void loadPage();
   }, [loadPage]);
 
-  const openPage = useCallback(() => {
+  const handleOpenPage = useCallback(() => {
     if (!page) {
       notify.error(t('document.mention.deletedContent'));
       return;
     }
 
-    const pageType = pageTypeMap[page.layout];
-
-    navigate(`/page/${pageType}/${page.id}`);
-  }, [navigate, page, t]);
+    void dispatch(openPage(page.id));
+  }, [page, dispatch, t]);
 
   useEffect(() => {
     if (!page) return;
@@ -117,7 +115,7 @@ export function MentionLeaf({ mention }: { mention: Mention }) {
   return (
     <span
       className={`mention-inline mx-1 inline-flex select-none items-center gap-1`}
-      onClick={openPage}
+      onClick={handleOpenPage}
       contentEditable={false}
       style={{
         backgroundColor: selected ? 'var(--content-blue-100)' : undefined,

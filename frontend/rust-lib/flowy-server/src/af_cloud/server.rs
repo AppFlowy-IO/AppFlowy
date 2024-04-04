@@ -3,7 +3,7 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use anyhow::Error;
-use client_api::collab_sync::collab_msg::ServerCollabMessage;
+use client_api::collab_sync::ServerCollabMessage;
 use client_api::entity::UserMessage;
 use client_api::notify::{TokenState, TokenStateReceiver};
 use client_api::ws::{
@@ -25,7 +25,6 @@ use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
 use flowy_user_pub::cloud::{UserCloudService, UserUpdate};
 use flowy_user_pub::entities::UserTokenState;
 use lib_dispatch::prelude::af_spawn;
-use lib_infra::future::FutureResult;
 
 use crate::af_cloud::impls::{
   AFCloudDatabaseCloudServiceImpl, AFCloudDocumentCloudServiceImpl, AFCloudFileStorageServiceImpl,
@@ -196,7 +195,7 @@ impl AppFlowyServer for AppFlowyCloudServer {
   fn collab_ws_channel(
     &self,
     _object_id: &str,
-  ) -> FutureResult<
+  ) -> Result<
     Option<(
       Arc<WebSocketChannel<ServerCollabMessage>>,
       WSConnectStateReceiver,
@@ -204,22 +203,10 @@ impl AppFlowyServer for AppFlowyCloudServer {
     )>,
     Error,
   > {
-    if self.enable_sync.load(Ordering::SeqCst) {
-      let object_id = _object_id.to_string();
-      let weak_ws_client = Arc::downgrade(&self.ws_client);
-      FutureResult::new(async move {
-        match weak_ws_client.upgrade() {
-          None => Ok(None),
-          Some(ws_client) => {
-            let channel = ws_client.subscribe_collab(object_id).ok();
-            let connect_state_recv = ws_client.subscribe_connect_state();
-            Ok(channel.map(|c| (c, connect_state_recv, ws_client.is_connected())))
-          },
-        }
-      })
-    } else {
-      FutureResult::new(async { Ok(None) })
-    }
+    let object_id = _object_id.to_string();
+    let channel = self.ws_client.subscribe_collab(object_id).ok();
+    let connect_state_recv = self.ws_client.subscribe_connect_state();
+    Ok(channel.map(|c| (c, connect_state_recv, self.ws_client.is_connected())))
   }
 
   fn file_storage(&self) -> Option<Arc<dyn ObjectStorageService>> {

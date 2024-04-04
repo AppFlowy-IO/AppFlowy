@@ -5,6 +5,7 @@ use std::path::PathBuf;
 use crate::services::db::UserDBPath;
 use base64::engine::general_purpose::PAD;
 use base64::engine::GeneralPurpose;
+use semver::Version;
 
 pub const URL_SAFE_ENGINE: GeneralPurpose = GeneralPurpose::new(&URL_SAFE, PAD);
 #[derive(Clone)]
@@ -19,18 +20,26 @@ pub struct UserConfig {
   pub device_id: String,
   /// Used as the key of `Session` when saving session information to KV.
   pub(crate) session_cache_key: String,
+  pub app_version: Version,
 }
 
 impl UserConfig {
   /// The `root_dir` represents as the root of the user folders. It must be unique for each
   /// users.
-  pub fn new(name: &str, storage_path: &str, application_path: &str, device_id: &str) -> Self {
+  pub fn new(
+    name: &str,
+    storage_path: &str,
+    application_path: &str,
+    device_id: &str,
+    app_version: Version,
+  ) -> Self {
     let session_cache_key = format!("{}_session_cache", name);
     Self {
       storage_path: storage_path.to_owned(),
       application_path: application_path.to_owned(),
       session_cache_key,
       device_id: device_id.to_owned(),
+      app_version,
     }
   }
 

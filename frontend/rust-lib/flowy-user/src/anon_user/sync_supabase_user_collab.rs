@@ -8,7 +8,7 @@ use collab::core::collab::MutexCollab;
 use collab::preclude::Collab;
 use collab_database::database::get_database_row_ids;
 use collab_database::rows::database_row_document_id_from_row_id;
-use collab_database::user::{get_all_database_meta, DatabaseMeta};
+use collab_database::workspace_database::{get_all_database_meta, DatabaseMeta};
 use collab_entity::{CollabObject, CollabType};
 use collab_folder::{Folder, View, ViewLayout};
 use collab_plugins::local_storage::kv::KVTransactionDB;
@@ -207,13 +207,15 @@ fn get_collab_doc_state(
   collab_object: &CollabObject,
   collab_db: &Arc<CollabKVDB>,
 ) -> Result<Vec<u8>, PersistenceError> {
-  let collab = Collab::new(uid, &collab_object.object_id, "phantom", vec![]);
+  let collab = Collab::new(uid, &collab_object.object_id, "phantom", vec![], false);
   let _ = collab.with_origin_transact_mut(|txn| {
     collab_db
       .read_txn()
       .load_doc_with_txn(uid, &collab_object.object_id, txn)
   })?;
-  let doc_state = collab.encode_collab_v1().doc_state;
+  let doc_state = collab
+    .encode_collab_v1(|_| Ok::<(), PersistenceError>(()))?
+    .doc_state;
   if doc_state.is_empty() {
     return Err(PersistenceError::UnexpectedEmptyUpdates);
   }
@@ -226,7 +228,7 @@ fn get_database_doc_state(
   collab_object: &CollabObject,
   collab_db: &Arc<CollabKVDB>,
 ) -> Result<(Vec<u8>, Vec<String>), PersistenceError> {
-  let collab = Collab::new(uid, &collab_object.object_id, "phantom", vec![]);
+  let collab = Collab::new(uid, &collab_object.object_id, "phantom", vec![], false);
   let _ = collab.with_origin_transact_mut(|txn| {
     collab_db
       .read_txn()
@@ -234,7 +236,9 @@ fn get_database_doc_state(
   })?;
 
   let row_ids = get_database_row_ids(&collab).unwrap_or_default();
-  let doc_state = collab.encode_collab_v1().doc_state;
+  let doc_state = collab
+    .encode_collab_v1(|_| Ok::<(), PersistenceError>(()))?
+    .doc_state;
   if doc_state.is_empty() {
     return Err(PersistenceError::UnexpectedEmptyUpdates);
   }
@@ -250,14 +254,16 @@ async fn sync_folder(
   user_service: Arc<dyn UserCloudService>,
 ) -> Result<MutexFolder, Error> {
   let (folder, update) = {
-    let collab = Collab::new(uid, workspace_id, "phantom", vec![]);
+    let collab = Collab::new(uid, workspace_id, "phantom", vec![], false);
     // Use the temporary result to short the lifetime of the TransactionMut
     collab.with_origin_transact_mut(|txn| {
       collab_db
         .read_txn()
         .load_doc_with_txn(uid, workspace_id, txn)
     })?;
-    let doc_state = collab.encode_collab_v1().doc_state;
+    let doc_state = collab
+      .encode_collab_v1(|_| Ok::<(), PersistenceError>(()))?
+      .doc_state;
     (
       MutexFolder::new(Folder::open(
         uid,
@@ -308,7 +314,7 @@ async fn sync_database_views(
 
   // Use the temporary result to short the lifetime of the TransactionMut
   let result = {
-    let collab = Collab::new(uid, database_views_aggregate_id, "phantom", vec![]);
+    let collab = Collab::new(uid, database_views_aggregate_id, "phantom", vec![], false);
     collab
       .with_origin_transact_mut(|txn| {
         collab_db
@@ -318,7 +324,10 @@ async fn sync_database_views(
       .map(|_| {
         (
           get_all_database_meta(&collab),
-          collab.encode_collab_v1().doc_state,
+          collab
+            .encode_collab_v1(|_| Ok::<(), PersistenceError>(()))
+            .unwrap()
+            .doc_state,
         )
       })
   };

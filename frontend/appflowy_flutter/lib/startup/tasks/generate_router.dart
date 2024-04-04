@@ -25,6 +25,7 @@ import 'package:appflowy/startup/tasks/app_widget.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/presentation/presentation.dart';
 import 'package:appflowy/workspace/presentation/home/desktop_home_screen.dart';
+import 'package:appflowy/workspace/presentation/settings/widgets/feature_flags/mobile_feature_flag_screen.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra/time/duration.dart';
@@ -53,6 +54,7 @@ GoRouter generateRouter(Widget child) {
         _mobileHomeSettingPageRoute(),
         _mobileCloudSettingAppFlowyCloudPageRoute(),
         _mobileLaunchSettingsPageRoute(),
+        _mobileFeatureFlagPageRoute(),
 
         // view page
         _mobileEditorScreenRoute(),
@@ -215,6 +217,16 @@ GoRoute _mobileLaunchSettingsPageRoute() {
     path: MobileLaunchSettingsPage.routeName,
     pageBuilder: (context, state) {
       return const MaterialExtendedPage(child: MobileLaunchSettingsPage());
+    },
+  );
+}
+
+GoRoute _mobileFeatureFlagPageRoute() {
+  return GoRoute(
+    parentNavigatorKey: AppGlobals.rootNavKey,
+    path: FeatureFlagScreen.routeName,
+    pageBuilder: (context, state) {
+      return const MaterialExtendedPage(child: FeatureFlagScreen());
     },
   );
 }
@@ -463,14 +475,14 @@ GoRoute _signInScreenRoute() {
 
 GoRoute _mobileEditorScreenRoute() {
   return GoRoute(
-    path: MobileEditorScreen.routeName,
+    path: MobileDocumentScreen.routeName,
     parentNavigatorKey: AppGlobals.rootNavKey,
     pageBuilder: (context, state) {
-      final id = state.uri.queryParameters[MobileEditorScreen.viewId]!;
-      final title = state.uri.queryParameters[MobileEditorScreen.viewTitle];
+      final id = state.uri.queryParameters[MobileDocumentScreen.viewId]!;
+      final title = state.uri.queryParameters[MobileDocumentScreen.viewTitle];
 
       return MaterialExtendedPage(
-        child: MobileEditorScreen(id: id, title: title),
+        child: MobileDocumentScreen(id: id, title: title),
       );
     },
   );
@@ -577,7 +589,7 @@ GoRoute _rootRoute(Widget child) {
   return GoRoute(
     path: '/',
     redirect: (context, state) async {
-      // Every time before navigating to splash screen, we check if user is already logged in in desktop. It is used to skip showing splash screen when user just changes apperance settings like theme mode.
+      // Every time before navigating to splash screen, we check if user is already logged in desktop. It is used to skip showing splash screen when user just changes apperance settings like theme mode.
       final userResponse = await getIt<AuthService>().getUser();
       final routeName = userResponse.fold(
         (user) => DesktopHomeScreen.routeName,

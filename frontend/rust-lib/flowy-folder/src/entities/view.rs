@@ -119,6 +119,15 @@ impl std::convert::From<ViewLayout> for ViewLayoutPB {
 }
 
 #[derive(Eq, PartialEq, Debug, Default, ProtoBuf, Clone)]
+pub struct SectionViewsPB {
+  #[pb(index = 1)]
+  pub section: ViewSectionPB,
+
+  #[pb(index = 2)]
+  pub views: Vec<ViewPB>,
+}
+
+#[derive(Eq, PartialEq, Debug, Default, ProtoBuf, Clone)]
 pub struct RepeatedViewPB {
   #[pb(index = 1)]
   pub items: Vec<ViewPB>,
@@ -181,6 +190,20 @@ pub struct CreateViewPayloadPB {
   // If the index is None or the index is out of range, the view will be appended to the end of the parent view.
   #[pb(index = 9, one_of)]
   pub index: Option<u32>,
+
+  // The section of the view.
+  // Only the view in public section will be shown in the shared workspace view list.
+  // The view in private section will only be shown in the user's private view list.
+  #[pb(index = 10, one_of)]
+  pub section: Option<ViewSectionPB>,
+}
+
+#[derive(Eq, PartialEq, Hash, Debug, ProtoBuf_Enum, Clone, Default)]
+pub enum ViewSectionPB {
+  #[default]
+  // only support public and private section now.
+  Private = 0,
+  Public = 1,
 }
 
 /// The orphan view is meant to be a view that is not attached to any parent view. By default, this
@@ -218,6 +241,8 @@ pub struct CreateViewParams {
   // The index of the view in the parent view.
   // If the index is None or the index is out of range, the view will be appended to the end of the parent view.
   pub index: Option<u32>,
+  // The section of the view.
+  pub section: Option<ViewSectionPB>,
 }
 
 impl TryInto<CreateViewParams> for CreateViewPayloadPB {
@@ -238,6 +263,7 @@ impl TryInto<CreateViewParams> for CreateViewPayloadPB {
       meta: self.meta,
       set_as_current: self.set_as_current,
       index: self.index,
+      section: self.section,
     })
   }
 }
@@ -259,6 +285,7 @@ impl TryInto<CreateViewParams> for CreateOrphanViewPayloadPB {
       meta: Default::default(),
       set_as_current: false,
       index: None,
+      section: None,
     })
   }
 }
@@ -384,6 +411,12 @@ pub struct MoveNestedViewPayloadPB {
 
   #[pb(index = 3, one_of)]
   pub prev_view_id: Option<String>,
+
+  #[pb(index = 4, one_of)]
+  pub from_section: Option<ViewSectionPB>,
+
+  #[pb(index = 5, one_of)]
+  pub to_section: Option<ViewSectionPB>,
 }
 
 pub struct MoveViewParams {
@@ -405,10 +438,13 @@ impl TryInto<MoveViewParams> for MoveViewPayloadPB {
   }
 }
 
+#[derive(Debug)]
 pub struct MoveNestedViewParams {
   pub view_id: String,
   pub new_parent_id: String,
   pub prev_view_id: Option<String>,
+  pub from_section: Option<ViewSectionPB>,
+  pub to_section: Option<ViewSectionPB>,
 }
 
 impl TryInto<MoveNestedViewParams> for MoveNestedViewPayloadPB {
@@ -422,6 +458,8 @@ impl TryInto<MoveNestedViewParams> for MoveNestedViewPayloadPB {
       view_id,
       new_parent_id,
       prev_view_id,
+      from_section: self.from_section,
+      to_section: self.to_section,
     })
   }
 }
@@ -435,6 +473,15 @@ pub struct UpdateRecentViewPayloadPB {
   // If false, the view will be removed from the recent view list.
   #[pb(index = 2)]
   pub add_in_recent: bool,
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct UpdateViewVisibilityStatusPayloadPB {
+  #[pb(index = 1)]
+  pub view_ids: Vec<String>,
+
+  #[pb(index = 2)]
+  pub is_public: bool,
 }
 
 // impl<'de> Deserialize<'de> for ViewDataType {

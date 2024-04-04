@@ -32,8 +32,14 @@
 
 .appflowy-scroll-container {
   &::-webkit-scrollbar {
-    width: 0px;
+    width: 0;
   }
+}
+
+.appflowy-scrollbar-thumb-horizontal, .appflowy-scrollbar-thumb-vertical {
+  background-color: var(--scrollbar-thumb);
+  border-radius: 4px;
+  opacity: 60%;
 }
 
 .workspaces {
@@ -65,5 +71,11 @@
 [data-dark-mode="true"] {
   .theme-mode-item {
     background: linear-gradient(150.74deg, rgba(128, 125, 125, 0) 17.95%, #4d4d4d 95.51%);
+  }
+}
+
+.document-header {
+  .view-banner {
+    @apply items-center;
   }
 }

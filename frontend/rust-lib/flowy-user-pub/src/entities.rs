@@ -396,6 +396,10 @@ pub struct WorkspaceMember {
   pub name: String,
 }
 
-pub fn awareness_oid_from_user_uuid(user_uuid: &Uuid) -> Uuid {
-  Uuid::new_v5(user_uuid, b"user_awareness")
+/// represent the user awareness object id for the workspace.
+pub fn user_awareness_object_id(user_uuid: &Uuid, workspace_id: &str) -> Uuid {
+  Uuid::new_v5(
+    user_uuid,
+    format!("user_awareness:{}", workspace_id).as_bytes(),
+  )
 }

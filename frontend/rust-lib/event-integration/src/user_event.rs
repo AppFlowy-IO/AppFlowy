@@ -276,9 +276,9 @@ impl EventIntegrationTest {
       .parse()
   }
 
-  pub async fn folder_read_workspace_views(&self) -> RepeatedViewPB {
+  pub async fn folder_read_current_workspace_views(&self) -> RepeatedViewPB {
     EventBuilder::new(self.clone())
-      .event(FolderEvent::ReadWorkspaceViews)
+      .event(FolderEvent::ReadCurrentWorkspaceViews)
       .async_send()
       .await
       .parse()
@@ -309,6 +309,17 @@ impl EventIntegrationTest {
     };
     EventBuilder::new(self.clone())
       .event(UserEvent::OpenWorkspace)
+      .payload(payload)
+      .async_send()
+      .await;
+  }
+
+  pub async fn leave_workspace(&self, workspace_id: &str) {
+    let payload = UserWorkspaceIdPB {
+      workspace_id: workspace_id.to_string(),
+    };
+    EventBuilder::new(self.clone())
+      .event(UserEvent::LeaveWorkspace)
       .payload(payload)
       .async_send()
       .await;

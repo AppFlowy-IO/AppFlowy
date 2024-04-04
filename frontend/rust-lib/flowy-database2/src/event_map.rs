@@ -14,7 +14,7 @@ pub fn init(database_manager: Weak<DatabaseManager>) -> AFPlugin {
     .state(database_manager);
   plugin
         .event(DatabaseEvent::GetDatabase, get_database_data_handler)
-        .event(DatabaseEvent::OpenDatabase, get_database_data_handler)
+        .event(DatabaseEvent::GetDatabaseData, get_database_data_handler)
         .event(DatabaseEvent::GetDatabaseId, get_database_id_handler)
         .event(DatabaseEvent::GetDatabaseSetting, get_database_setting_handler)
         .event(DatabaseEvent::UpdateDatabaseSetting, update_database_setting_handler)
@@ -27,6 +27,7 @@ pub fn init(database_manager: Weak<DatabaseManager>) -> AFPlugin {
         .event(DatabaseEvent::UpdateField, update_field_handler)
         .event(DatabaseEvent::UpdateFieldTypeOption, update_field_type_option_handler)
         .event(DatabaseEvent::DeleteField, delete_field_handler)
+        .event(DatabaseEvent::ClearField, clear_field_handler)
         .event(DatabaseEvent::UpdateFieldType, switch_to_field_handler)
         .event(DatabaseEvent::DuplicateField, duplicate_field_handler)
         .event(DatabaseEvent::MoveField, move_field_handler)
@@ -127,7 +128,7 @@ pub enum DatabaseEvent {
   DeleteAllSorts = 6,
 
   #[event(input = "DatabaseViewIdPB")]
-  OpenDatabase = 7,
+  GetDatabaseData = 7,
 
   /// [GetFields] event is used to get the database's fields.
   ///
@@ -160,6 +161,11 @@ pub enum DatabaseEvent {
   /// is used to delete the field from the Database.
   #[event(input = "DeleteFieldPayloadPB")]
   DeleteField = 14,
+
+  /// [ClearField] event is used to clear all Cells in a Field. [ClearFieldPayloadPB] is the context that
+  /// is used to clear the field from the Database.
+  #[event(input = "ClearFieldPayloadPB")]
+  ClearField = 15,
 
   /// [UpdateFieldType] event is used to update the current Field's type.
   /// It will insert a new FieldTypeOptionData if the new FieldType doesn't exist before, otherwise

@@ -4,6 +4,7 @@ use std::sync::Arc;
 use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{Cells, Row, RowDetail, RowId};
 use futures::executor::block_on;
+use lib_infra::future::Fut;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 
@@ -24,6 +25,8 @@ use crate::services::group::{GroupChangeset, GroupsBuilder, MoveGroupRowContext}
 
 pub trait GroupControllerDelegate: Send + Sync + 'static {
   fn get_field(&self, field_id: &str) -> Option<Field>;
+
+  fn get_all_rows(&self, view_id: &str) -> Fut<Vec<Arc<RowDetail>>>;
 }
 
 /// [BaseGroupController] is a generic group controller that provides customized implementations
@@ -159,7 +162,7 @@ where
   G: GroupsBuilder<Context = GroupControllerContext<C>, GroupTypeOption = T>,
   Self: GroupCustomize<GroupTypeOption = T>,
 {
-  fn field_id(&self) -> &str {
+  fn get_grouping_field_id(&self) -> &str {
     &self.grouping_field_id
   }
 
@@ -228,12 +231,13 @@ where
     row_detail: &RowDetail,
     index: usize,
   ) -> Vec<GroupRowsNotificationPB> {
+    let mut changesets: Vec<GroupRowsNotificationPB> = vec![];
+
     let cell = match row_detail.row.cells.get(&self.grouping_field_id) {
       None => self.placeholder_cell(),
       Some(cell) => Some(cell.clone()),
     };
 
-    let mut changesets: Vec<GroupRowsNotificationPB> = vec![];
     if let Some(cell) = cell {
       let cell_data = <T as TypeOption>::CellData::from(&cell);
 
@@ -245,7 +249,7 @@ where
           let changeset = GroupRowsNotificationPB::insert(
             group.id.clone(),
             vec![InsertedRowPB {
-              row_meta: row_detail.into(),
+              row_meta: (*row_detail).clone().into(),
               index: Some(index as i32),
               is_new: true,
             }],
@@ -256,15 +260,15 @@ where
       if !suitable_group_ids.is_empty() {
         for group_id in suitable_group_ids.iter() {
           if let Some(group) = self.context.get_mut_group(group_id) {
-            group.add_row(row_detail.clone());
+            group.add_row((*row_detail).clone());
           }
         }
       } else if let Some(no_status_group) = self.context.get_mut_no_status_group() {
-        no_status_group.add_row(row_detail.clone());
+        no_status_group.add_row((*row_detail).clone());
         let changeset = GroupRowsNotificationPB::insert(
           no_status_group.id.clone(),
           vec![InsertedRowPB {
-            row_meta: row_detail.into(),
+            row_meta: (*row_detail).clone().into(),
             index: Some(index as i32),
             is_new: true,
           }],
@@ -282,18 +286,12 @@ where
     row_detail: &RowDetail,
     field: &Field,
   ) -> FlowyResult<DidUpdateGroupRowResult> {
-    // let cell_data = row_rev.cells.get(&self.field_id).and_then(|cell_rev| {
-    //     let cell_data: Option<P> = get_type_cell_data(cell_rev, field_rev, None);
-    //     cell_data
-    // });
     let mut result = DidUpdateGroupRowResult {
       inserted_group: None,
       deleted_group: None,
       row_changesets: vec![],
     };
-
     if let Some(cell_data) = get_cell_data_from_row::<P>(Some(&row_detail.row), field) {
-      let _old_row = old_row_detail.as_ref();
       let old_cell_data =
         get_cell_data_from_row::<P>(old_row_detail.as_ref().map(|detail| &detail.row), field);
       if let Ok((insert, delete)) = self.create_or_delete_group_when_cell_changed(
@@ -376,7 +374,7 @@ where
   }
 
   fn delete_group(&mut self, group_id: &str) -> FlowyResult<(Vec<RowId>, Option<TypeOptionData>)> {
-    let group = if group_id != self.field_id() {
+    let group = if group_id != self.get_grouping_field_id() {
       self.get_group(group_id)
     } else {
       None
@@ -399,17 +397,26 @@ where
   fn apply_group_changeset(
     &mut self,
     changeset: &[GroupChangeset],
-  ) -> FlowyResult<(Vec<GroupPB>, TypeOptionData)> {
+  ) -> FlowyResult<(Vec<GroupPB>, Option<TypeOptionData>)> {
+    // update group visibility
     for group_changeset in changeset.iter() {
       self.context.update_group(group_changeset)?;
     }
 
-    let mut type_option = self.get_grouping_field_type_option().ok_or_else(|| {
+    // update group name
+    let type_option = self.get_grouping_field_type_option().ok_or_else(|| {
       FlowyError::internal().with_context("Failed to get grouping field type option")
     })?;
 
+    let mut updated_type_option = None;
+
     for group_changeset in changeset.iter() {
-      self.update_type_option_when_update_group(group_changeset, &mut type_option);
+      if let Some(type_option) =
+        self.update_type_option_when_update_group(group_changeset, &type_option)
+      {
+        updated_type_option = Some(type_option);
+        break;
+      }
     }
 
     let updated_groups = changeset
@@ -421,7 +428,10 @@ where
       })
       .collect::<Vec<_>>();
 
-    Ok((updated_groups, type_option.into()))
+    Ok((
+      updated_groups,
+      updated_type_option.map(|type_option| type_option.into()),
+    ))
   }
 
   fn will_create_row(&self, cells: &mut Cells, field: &Field, group_id: &str) {

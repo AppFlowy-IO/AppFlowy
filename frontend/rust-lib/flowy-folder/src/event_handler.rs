@@ -1,4 +1,5 @@
 use std::sync::{Arc, Weak};
+use tracing::instrument;
 
 use flowy_error::{FlowyError, FlowyResult};
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
@@ -48,10 +49,34 @@ pub(crate) async fn get_all_workspace_handler(
 
 #[tracing::instrument(level = "debug", skip(folder), err)]
 pub(crate) async fn get_workspace_views_handler(
+  data: AFPluginData<GetWorkspaceViewPB>,
   folder: AFPluginState<Weak<FolderManager>>,
 ) -> DataResult<RepeatedViewPB, FlowyError> {
   let folder = upgrade_folder(folder)?;
-  let child_views = folder.get_current_workspace_views().await?;
+  let params: GetWorkspaceViewParams = data.into_inner().try_into()?;
+  let child_views = folder.get_workspace_public_views(&params.value).await?;
+  let repeated_view: RepeatedViewPB = child_views.into();
+  data_result_ok(repeated_view)
+}
+
+#[tracing::instrument(level = "debug", skip(folder), err)]
+pub(crate) async fn get_current_workspace_views_handler(
+  folder: AFPluginState<Weak<FolderManager>>,
+) -> DataResult<RepeatedViewPB, FlowyError> {
+  let folder = upgrade_folder(folder)?;
+  let child_views = folder.get_current_workspace_public_views().await?;
+  let repeated_view: RepeatedViewPB = child_views.into();
+  data_result_ok(repeated_view)
+}
+
+#[tracing::instrument(level = "debug", skip(folder), err)]
+pub(crate) async fn read_private_views_handler(
+  data: AFPluginData<GetWorkspaceViewPB>,
+  folder: AFPluginState<Weak<FolderManager>>,
+) -> DataResult<RepeatedViewPB, FlowyError> {
+  let folder = upgrade_folder(folder)?;
+  let params: GetWorkspaceViewParams = data.into_inner().try_into()?;
+  let child_views = folder.get_workspace_private_views(&params.value).await?;
   let repeated_view: RepeatedViewPB = child_views.into();
   data_result_ok(repeated_view)
 }
@@ -183,6 +208,7 @@ pub(crate) async fn set_latest_view_handler(
   Ok(())
 }
 
+#[instrument(level = "debug", skip(data, folder), err)]
 pub(crate) async fn close_view_handler(
   data: AFPluginData<ViewIdPB>,
   folder: AFPluginState<Weak<FolderManager>>,
@@ -212,9 +238,7 @@ pub(crate) async fn move_nested_view_handler(
 ) -> Result<(), FlowyError> {
   let folder = upgrade_folder(folder)?;
   let params: MoveNestedViewParams = data.into_inner().try_into()?;
-  folder
-    .move_nested_view(params.view_id, params.new_parent_id, params.prev_view_id)
-    .await?;
+  folder.move_nested_view(params).await?;
   Ok(())
 }
 
@@ -249,7 +273,7 @@ pub(crate) async fn read_recent_views_handler(
   folder: AFPluginState<Weak<FolderManager>>,
 ) -> DataResult<RepeatedViewPB, FlowyError> {
   let folder = upgrade_folder(folder)?;
-  let recent_items = folder.get_all_recent_sections().await;
+  let recent_items = folder.get_my_recent_sections().await;
   let mut views = vec![];
   for item in recent_items {
     if let Ok(view) = folder.get_view_pb(&item.id).await {
@@ -264,7 +288,7 @@ pub(crate) async fn read_trash_handler(
   folder: AFPluginState<Weak<FolderManager>>,
 ) -> DataResult<RepeatedTrashPB, FlowyError> {
   let folder = upgrade_folder(folder)?;
-  let trash = folder.get_all_trash().await;
+  let trash = folder.get_my_trash_info().await;
   data_result_ok(trash.into())
 }
 
@@ -301,11 +325,11 @@ pub(crate) async fn restore_all_trash_handler(
 }
 
 #[tracing::instrument(level = "debug", skip(folder), err)]
-pub(crate) async fn delete_all_trash_handler(
+pub(crate) async fn delete_my_trash_handler(
   folder: AFPluginState<Weak<FolderManager>>,
 ) -> Result<(), FlowyError> {
   let folder = upgrade_folder(folder)?;
-  folder.delete_all_trash().await;
+  folder.delete_my_trash().await;
   Ok(())
 }
 
@@ -337,5 +361,16 @@ pub(crate) async fn reload_workspace_handler(
 ) -> Result<(), FlowyError> {
   let folder = upgrade_folder(folder)?;
   folder.reload_workspace().await?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip(data, folder), err)]
+pub(crate) async fn update_view_visibility_status_handler(
+  data: AFPluginData<UpdateViewVisibilityStatusPayloadPB>,
+  folder: AFPluginState<Weak<FolderManager>>,
+) -> Result<(), FlowyError> {
+  let folder = upgrade_folder(folder)?;
+  let params = data.into_inner();
+  folder.set_views_visibility(params.view_ids, params.is_public);
   Ok(())
 }

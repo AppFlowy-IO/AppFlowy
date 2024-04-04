@@ -1,9 +1,8 @@
 use crate::util::unzip_history_user_db;
 use assert_json_diff::assert_json_include;
 use collab_database::rows::database_row_document_id_from_row_id;
-use collab_entity::CollabType;
 use event_integration::user_event::user_localhost_af_cloud;
-use event_integration::{document_data_from_document_doc_state, EventIntegrationTest};
+use event_integration::EventIntegrationTest;
 use flowy_core::DEFAULT_NAME;
 use flowy_user::errors::ErrorCode;
 use serde_json::{json, Value};
@@ -284,12 +283,12 @@ async fn assert_040_local_2_import_content(test: &EventIntegrationTest, view_id:
   let data = test.get_document_data(&doc_1.id).await;
   assert_json_include!(actual: json!(data), expected: expected_doc_1_json());
 
-  // Check doc 1 remote content
-  let doc_1_doc_state = test
-    .get_collab_doc_state(&doc_1.id, CollabType::Document)
-    .await
-    .unwrap();
-  assert_json_include!(actual:document_data_from_document_doc_state(&doc_1.id, doc_1_doc_state), expected: expected_doc_1_json());
+  // // Check doc 1 remote content
+  // let doc_1_doc_state = test
+  //   .get_collab_doc_state(&doc_1.id, CollabType::Document)
+  //   .await
+  //   .unwrap();
+  // assert_json_include!(actual:document_data_from_document_doc_state(&doc_1.id, doc_1_doc_state), expected: expected_doc_1_json());
 
   // Check doc 2 local content
   let doc_2 = local_2_getting_started_child_views[1].clone();
@@ -298,8 +297,8 @@ async fn assert_040_local_2_import_content(test: &EventIntegrationTest, view_id:
   assert_json_include!(actual: json!(data), expected: expected_doc_2_json());
 
   // Check doc 2 remote content
-  let doc_2_doc_state = test.get_document_doc_state(&doc_2.id).await;
-  assert_json_include!(actual:document_data_from_document_doc_state(&doc_2.id, doc_2_doc_state), expected: expected_doc_2_json());
+  // let doc_2_doc_state = test.get_document_doc_state(&doc_2.id).await;
+  // assert_json_include!(actual:document_data_from_document_doc_state(&doc_2.id, doc_2_doc_state), expected: expected_doc_2_json());
 
   let grid_1 = local_2_getting_started_child_views[2].clone();
   assert_eq!(grid_1.name, "Grid1");

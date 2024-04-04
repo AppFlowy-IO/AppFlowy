@@ -1,9 +1,9 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/application/tab_bar_bloc.dart';
 import 'package:appflowy/plugins/database/widgets/share_button.dart';
+import 'package:appflowy/plugins/shared/sync_indicator.dart';
 import 'package:appflowy/plugins/util.dart';
+import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/workspace/application/view_info/view_info_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
@@ -15,6 +15,7 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'desktop/tab_bar_header.dart';
@@ -258,6 +259,15 @@ class DatabasePluginWidgetBuilder extends PluginWidgetBuilder {
       value: bloc,
       child: Row(
         children: [
+          ...FeatureFlag.syncDatabase.isOn
+              ? [
+                  DatabaseSyncIndicator(
+                    key: ValueKey('sync_state_${view.id}'),
+                    view: view,
+                  ),
+                  const HSpace(16),
+                ]
+              : [],
           DatabaseShareButton(key: ValueKey(view.id), view: view),
           const HSpace(4),
           ViewFavoriteButton(view: view),
