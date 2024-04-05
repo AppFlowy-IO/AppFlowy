@@ -319,24 +319,39 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
     }
 
     final codeTextSpans = _convert(codeNodes, isLightMode: isLightMode);
+    final linesOfCode = delta.toPlainText().split('\n').length;
 
     return Padding(
       padding: widget.padding,
-      child: AppFlowyRichText(
-        key: forwardKey,
-        delegate: this,
-        node: widget.node,
-        editorState: editorState,
-        placeholderText: placeholderText,
-        lineHeight: 1.5,
-        textSpanDecorator: (_) => TextSpan(
-          style: textStyle,
-          children: codeTextSpans,
-        ),
-        placeholderTextSpanDecorator: (textSpan) => textSpan,
-        textDirection: textDirection,
-        cursorColor: editorState.editorStyle.cursorColor,
-        selectionColor: editorState.editorStyle.selectionColor,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _LinesOfCodeNumbers(
+            linesOfCode: linesOfCode,
+            textStyle: textStyle,
+          ),
+          Flexible(
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: AppFlowyRichText(
+                key: forwardKey,
+                delegate: this,
+                node: widget.node,
+                editorState: editorState,
+                placeholderText: placeholderText,
+                lineHeight: 1.5,
+                textSpanDecorator: (_) => TextSpan(
+                  style: textStyle,
+                  children: codeTextSpans,
+                ),
+                placeholderTextSpanDecorator: (textSpan) => textSpan,
+                textDirection: textDirection,
+                cursorColor: editorState.editorStyle.cursorColor,
+                selectionColor: editorState.editorStyle.selectionColor,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -401,6 +416,35 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
     }
 
     return spans;
+  }
+}
+
+class _LinesOfCodeNumbers extends StatelessWidget {
+  const _LinesOfCodeNumbers({
+    required this.linesOfCode,
+    required this.textStyle,
+  });
+
+  final int linesOfCode;
+  final TextStyle textStyle;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          for (int i = 1; i <= linesOfCode; i++)
+            Text(
+              i.toString(),
+              style: textStyle.copyWith(
+                color: AFThemeExtension.of(context).textColor.withAlpha(155),
+              ),
+            ),
+        ],
+      ),
+    );
   }
 }
 

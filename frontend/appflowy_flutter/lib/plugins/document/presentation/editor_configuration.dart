@@ -152,7 +152,7 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
         textStyle: (_) => styleCustomizer.codeBlockStyleBuilder(),
         placeholderTextStyle: (_) => styleCustomizer.codeBlockStyleBuilder(),
       ),
-      padding: const EdgeInsets.only(left: 30, right: 30, bottom: 34),
+      padding: const EdgeInsets.only(left: 20, right: 30, bottom: 34),
     ),
     AutoCompletionBlockKeys.type: AutoCompletionBlockComponentBuilder(),
     SmartEditBlockKeys.type: SmartEditBlockComponentBuilder(),
