@@ -126,11 +126,27 @@ CharacterShortcutEventHandler _enterInCodeBlockCommandHandler =
   if (node == null || node.type != CodeBlockKeys.type) {
     return false;
   }
+
+  final lines = node.delta?.toPlainText().split('\n');
+  int spaces = 0;
+  if (lines?.isNotEmpty == true) {
+    int index = 0;
+    for (final line in lines!) {
+      if (index <= selection.endIndex &&
+          selection.endIndex <= index + line.length) {
+        final lineSpaces = line.length - line.trimLeft().length;
+        spaces = lineSpaces;
+        break;
+      }
+      index += line.length + 1;
+    }
+  }
+
   final transaction = editorState.transaction
     ..insertText(
       node,
       selection.end.offset,
-      '\n',
+      '\n${' ' * spaces}',
     );
   await editorState.apply(transaction);
   return true;

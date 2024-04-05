@@ -16,7 +16,6 @@ import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:go_router/go_router.dart';
 import 'package:highlight/highlight.dart' as highlight;
@@ -176,7 +175,7 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
         BlockComponentTextDirectionMixin {
   // the key used to forward focus to the richtext child
   @override
-  final forwardKey = GlobalKey(debugLabel: 'flowy_rich_text');
+  final forwardKey = GlobalKey(debugLabel: 'code_flowy_rich_text');
 
   @override
   GlobalKey<State<StatefulWidget>> blockComponentKey =
@@ -200,6 +199,7 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
   String? autoDetectLanguage;
 
   bool isSelected = false;
+  bool isHovering = false;
   bool canPanStart = true;
 
   late final interceptor = SelectionGestureInterceptor(
@@ -226,13 +226,10 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
       layoutDirection: Directionality.maybeOf(context),
     );
 
-    Widget child = FlowyHover(
-      resetHoverOnRebuild: false,
-      isSelected: () => isSelected,
-      style: const HoverStyle(
-        borderRadius: BorderRadius.all(Radius.circular(8.0)),
-      ),
-      builder: (_, isHovering) => DecoratedBox(
+    Widget child = MouseRegion(
+      onEnter: (_) => setState(() => isHovering = true),
+      onExit: (_) => setState(() => isHovering = false),
+      child: DecoratedBox(
         decoration: BoxDecoration(
           borderRadius: const BorderRadius.all(Radius.circular(8.0)),
           color: AFThemeExtension.of(context).calloutBGColor,
