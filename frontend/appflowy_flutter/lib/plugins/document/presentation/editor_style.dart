@@ -1,5 +1,8 @@
 import 'dart:math';
 
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
@@ -12,8 +15,6 @@ import 'package:appflowy/workspace/application/settings/appearance/appearance_cu
 import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:collection/collection.dart';
-import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -160,7 +161,8 @@ class EditorStyleCustomizer {
   TextStyle codeBlockStyleBuilder() {
     final theme = Theme.of(context);
     final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
-    final fontFamily = context.read<DocumentAppearanceCubit>().state.fontFamily;
+    final fontFamily =
+        context.read<DocumentAppearanceCubit>().state.codeFontFamily;
     return baseTextStyle(fontFamily).copyWith(
       fontSize: fontSize,
       height: 1.5,
@@ -219,6 +221,13 @@ class EditorStyleCustomizer {
         fontWeight: fontWeight,
       );
     } on Exception {
+      if ([builtInFontFamily, builtInCodeFontFamily].contains(fontFamily)) {
+        return TextStyle(
+          fontFamily: fontFamily,
+          fontWeight: fontWeight,
+        );
+      }
+
       return GoogleFonts.getFont(builtInFontFamily);
     }
   }
