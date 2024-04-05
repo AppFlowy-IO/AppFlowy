@@ -40,7 +40,7 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
             final currentWorkspace = result.$1;
             final workspaces = result.$2;
             final isCollabWorkspaceOn =
-                userProfile.authenticator != AuthenticatorPB.Local &&
+                userProfile.authenticator == AuthenticatorPB.AppFlowyCloud &&
                     FeatureFlag.collaborativeWorkspace.isOn;
             if (currentWorkspace != null && result.$3 == true) {
               final result = await _userService
@@ -336,8 +336,6 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
         }
       }
       currentWorkspaceInList ??= workspaces.firstOrNull;
-      debugPrint('current workspace: $currentWorkspaceInList');
-      debugPrint('workspaces: $workspaces');
       return (
         currentWorkspaceInList,
         workspaces
