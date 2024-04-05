@@ -51,34 +51,11 @@ void main() {
       await tester.expectToSeeHomePageWithGetStartedPage();
 
       const name = 'AppFlowy.IO';
+      // the workspace will be opened after created
       await tester.createCollaborativeWorkspace(name);
 
-      // see the success message
-      var success = find.text(LocaleKeys.workspace_createSuccess.tr());
-      await tester.pumpUntilFound(success);
-      expect(success, findsOneWidget);
-      await tester.pumpUntilNotFound(success);
-
-      // check the create result
-      await tester.openCollaborativeWorkspaceMenu();
-      var items = find.byType(WorkspaceMenuItem);
-      expect(items, findsNWidgets(2));
-      expect(
-        tester.widget<WorkspaceMenuItem>(items.last).workspace.name,
-        name,
-      );
-
-      // open the newly created workspace
-      await tester.tapButton(items.last, milliseconds: 1000);
-      success = find.text(LocaleKeys.workspace_openSuccess.tr());
-      await tester.pumpUntilFound(
-        success,
-        timeout: const Duration(seconds: 20),
-      );
-      expect(success, findsOneWidget);
-      await tester.pumpUntilNotFound(success);
-
-      await tester.closeCollaborativeWorkspaceMenu();
+      Finder success;
+      Finder items;
 
       // delete the newly created workspace
       await tester.openCollaborativeWorkspaceMenu();
