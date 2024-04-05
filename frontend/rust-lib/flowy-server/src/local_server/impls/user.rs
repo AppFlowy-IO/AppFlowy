@@ -166,7 +166,6 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
     &self,
     _collab_object: &CollabObject,
     _data: Vec<u8>,
-    _override_if_exist: bool,
   ) -> FutureResult<(), FlowyError> {
     FutureResult::new(async { Ok(()) })
   }
