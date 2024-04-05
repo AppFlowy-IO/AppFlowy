@@ -3,8 +3,8 @@ use std::sync::{Arc, Weak};
 
 use anyhow::Error;
 use chrono::{DateTime, Utc};
-use client_api::collab_sync::collab_msg::MsgId;
-use collab::core::collab::CollabDocState;
+use client_api::collab_sync::MsgId;
+use collab::core::collab::DocStateSource;
 use collab::preclude::merge_updates_v1;
 use collab_entity::CollabObject;
 use collab_plugins::cloud_storage::{
@@ -62,7 +62,7 @@ where
     true
   }
 
-  async fn get_doc_state(&self, object: &CollabObject) -> Result<CollabDocState, Error> {
+  async fn get_doc_state(&self, object: &CollabObject) -> Result<DocStateSource, Error> {
     let postgrest = self.server.try_get_weak_postgrest()?;
     let action = FetchObjectUpdateAction::new(
       object.object_id.clone(),
@@ -70,7 +70,7 @@ where
       postgrest,
     );
     let doc_state = action.run().await?;
-    Ok(doc_state)
+    Ok(DocStateSource::FromDocState(doc_state))
   }
 
   async fn get_snapshots(&self, object_id: &str, limit: usize) -> Vec<RemoteCollabSnapshot> {

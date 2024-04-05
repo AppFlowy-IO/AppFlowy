@@ -66,7 +66,7 @@ pub fn init(user_manager: Weak<UserManager>) -> AFPlugin {
     .event(UserEvent::DeleteWorkspace, delete_workspace_handler)
     .event(UserEvent::RenameWorkspace, rename_workspace_handler)
     .event(UserEvent::ChangeWorkspaceIcon, change_workspace_icon_handler)
-
+    .event(UserEvent::LeaveWorkspace, leave_workspace_handler)
     .event(UserEvent::InviteWorkspaceMember, invite_workspace_member_handler)
     .event(UserEvent::ListWorkspaceInvitations, list_workspace_invitations_handler)
     .event(UserEvent::AcceptWorkspaceInvitation, accept_workspace_invitations_handler)
@@ -215,14 +215,17 @@ pub enum UserEvent {
   #[event(input = "ChangeWorkspaceIconPB")]
   ChangeWorkspaceIcon = 45,
 
+  #[event(input = "UserWorkspaceIdPB")]
+  LeaveWorkspace = 46,
+
   #[event(input = "WorkspaceMemberInvitationPB")]
-  InviteWorkspaceMember = 46,
+  InviteWorkspaceMember = 47,
 
   #[event(output = "RepeatedWorkspaceInvitationPB")]
-  ListWorkspaceInvitations = 47,
+  ListWorkspaceInvitations = 48,
 
   #[event(input = "AcceptWorkspaceInvitationPB")]
-  AcceptWorkspaceInvitation = 48,
+  AcceptWorkspaceInvitation = 49,
 }
 
 pub trait UserStatusCallback: Send + Sync + 'static {

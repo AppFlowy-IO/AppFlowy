@@ -3,23 +3,22 @@ import { useLoadExpandedPages } from '$app/components/layout/bread_crumb/Breadcr
 import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Link from '@mui/material/Link';
 import Typography from '@mui/material/Typography';
-import { Page, pageTypeMap } from '$app_reducers/pages/slice';
-import { useNavigate } from 'react-router-dom';
+import { Page } from '$app_reducers/pages/slice';
 import { useTranslation } from 'react-i18next';
 import { getPageIcon } from '$app/hooks/page.hooks';
+import { useAppDispatch } from '$app/stores/store';
+import { openPage } from '$app_reducers/pages/async_actions';
 
 function Breadcrumb() {
   const { t } = useTranslation();
   const { isTrash, pagePath, currentPage } = useLoadExpandedPages();
-  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
 
   const navigateToPage = useCallback(
     (page: Page) => {
-      const pageType = pageTypeMap[page.layout];
-
-      navigate(`/page/${pageType}/${page.id}`);
+      void dispatch(openPage(page.id));
     },
-    [navigate]
+    [dispatch]
   );
 
   if (!currentPage) {
@@ -35,9 +34,9 @@ function Breadcrumb() {
       {pagePath?.map((page: Page, index) => {
         if (index === pagePath.length - 1) {
           return (
-            <div key={page.id} className={'flex select-none gap-1 text-text-title'}>
-              <div className={'select-none'}>{getPageIcon(page)}</div>
-              {page.name || t('menuAppHeader.defaultNewPageName')}
+            <div key={page.id} className={'flex cursor-default select-none gap-1 text-text-title'}>
+              <div>{getPageIcon(page)}</div>
+              {page.name.trim() || t('menuAppHeader.defaultNewPageName')}
             </div>
           );
         }
@@ -54,7 +53,7 @@ function Breadcrumb() {
           >
             <div>{getPageIcon(page)}</div>
 
-            {page.name || t('document.title.placeholder')}
+            {page.name.trim() || t('menuAppHeader.defaultNewPageName')}
           </Link>
         );
       })}

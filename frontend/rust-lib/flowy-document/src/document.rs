@@ -1,18 +1,18 @@
+use crate::entities::{
+  DocEventPB, DocumentAwarenessStatesPB, DocumentSnapshotStatePB, DocumentSyncStatePB,
+};
+use crate::notification::{send_notification, DocumentNotification};
+use collab::core::collab::MutexCollab;
+use collab_document::{blocks::DocumentData, document::Document};
+use flowy_error::FlowyResult;
+use futures::StreamExt;
+use lib_dispatch::prelude::af_spawn;
+use parking_lot::Mutex;
 use std::{
   ops::{Deref, DerefMut},
   sync::Arc,
 };
-
-use collab::core::collab::MutexCollab;
-use collab_document::{blocks::DocumentData, document::Document};
-use futures::StreamExt;
-use parking_lot::Mutex;
-
-use flowy_error::FlowyResult;
-use lib_dispatch::prelude::af_spawn;
-
-use crate::entities::{DocEventPB, DocumentSnapshotStatePB, DocumentSyncStatePB};
-use crate::notification::{send_notification, DocumentNotification};
+use tracing::{instrument, trace, warn};
 
 /// This struct wrap the document::Document
 #[derive(Clone)]
@@ -47,18 +47,46 @@ impl MutexDocument {
       Document::create_with_data(collab, data).map(|inner| Self(Arc::new(Mutex::new(inner))))?;
     Ok(document)
   }
+
+  #[instrument(level = "debug", skip_all)]
+  pub fn start_init_sync(&self) {
+    if let Some(document) = self.0.try_lock() {
+      if let Some(collab) = document.get_collab().try_lock() {
+        collab.start_init_sync();
+      } else {
+        warn!("Failed to start init sync, collab is locked");
+      }
+    } else {
+      warn!("Failed to start init sync, document is locked");
+    }
+  }
 }
 
 fn subscribe_document_changed(doc_id: &str, document: &MutexDocument) {
-  let doc_id = doc_id.to_string();
+  let doc_id_clone_for_block_changed = doc_id.to_owned();
   document
     .lock()
     .subscribe_block_changed(move |events, is_remote| {
+      trace!("subscribe_document_changed: {:?}", events);
       // send notification to the client.
-      send_notification(&doc_id, DocumentNotification::DidReceiveUpdate)
-        .payload::<DocEventPB>((events, is_remote).into())
-        .send();
+      send_notification(
+        &doc_id_clone_for_block_changed,
+        DocumentNotification::DidReceiveUpdate,
+      )
+      .payload::<DocEventPB>((events, is_remote, None).into())
+      .send();
     });
+
+  let doc_id_clone_for_awareness_state = doc_id.to_owned();
+  document.lock().subscribe_awareness_state(move |events| {
+    trace!("subscribe_awareness_state: {:?}", events);
+    send_notification(
+      &doc_id_clone_for_awareness_state,
+      DocumentNotification::DidUpdateDocumentAwarenessState,
+    )
+    .payload::<DocumentAwarenessStatesPB>(events.into())
+    .send();
+  });
 }
 
 fn subscribe_document_snapshot_state(collab: &Arc<MutexCollab>) {
@@ -93,6 +121,7 @@ fn subscribe_document_sync_state(collab: &Arc<MutexCollab>) {
     }
   });
 }
+
 unsafe impl Sync for MutexDocument {}
 unsafe impl Send for MutexDocument {}
 

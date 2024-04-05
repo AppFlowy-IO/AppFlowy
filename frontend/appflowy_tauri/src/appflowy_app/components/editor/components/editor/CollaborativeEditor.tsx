@@ -12,8 +12,9 @@ export const CollaborativeEditor = memo(
     const [sharedType, setSharedType] = useState<YXmlText | null>(null);
     const provider = useMemo(() => {
       setSharedType(null);
-      return new Provider(id, showTitle);
-    }, [id, showTitle]);
+
+      return new Provider(id);
+    }, [id]);
 
     const root = useMemo(() => {
       if (!showTitle || !sharedType || !sharedType.doc) return null;
@@ -70,17 +71,18 @@ export const CollaborativeEditor = memo(
 
     useEffect(() => {
       provider.connect();
+
       const handleConnected = () => {
         setSharedType(provider.sharedType);
       };
 
       provider.on('ready', handleConnected);
+      void provider.initialDocument(showTitle);
       return () => {
-        setSharedType(null);
         provider.off('ready', handleConnected);
         provider.disconnect();
       };
-    }, [provider]);
+    }, [provider, showTitle]);
 
     if (!sharedType || id !== provider.id) {
       return null;

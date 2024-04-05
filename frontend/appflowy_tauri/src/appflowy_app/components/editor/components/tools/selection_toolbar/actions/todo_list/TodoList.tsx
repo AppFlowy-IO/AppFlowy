@@ -13,10 +13,19 @@ export function TodoList() {
   const isActivated = CustomEditor.isBlockActive(editor, EditorNodeType.TodoListBlock);
 
   const onClick = useCallback(() => {
+    let type = EditorNodeType.TodoListBlock;
+
+    if (isActivated) {
+      type = EditorNodeType.Paragraph;
+    }
+
     CustomEditor.turnToBlock(editor, {
-      type: EditorNodeType.TodoListBlock,
+      type,
+      data: {
+        checked: false,
+      },
     });
-  }, [editor]);
+  }, [editor, isActivated]);
 
   return (
     <ActionButton active={isActivated} onClick={onClick} tooltip={t('document.plugins.todoList')}>

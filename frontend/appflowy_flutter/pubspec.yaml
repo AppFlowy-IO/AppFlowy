@@ -15,11 +15,11 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 0.5.1
+version: 0.5.4
 
 environment:
   flutter: ">=3.19.0"
-  sdk: ">=3.1.5 <4.0.0"
+  sdk: ">=3.3.0 <4.0.0"
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -131,6 +131,8 @@ dependencies:
   flutter_cache_manager: ^3.3.1
   share_plus: ^7.2.1
   sheet:
+  file: ^7.0.0
+  avatar_stack: ^1.2.0
 
 dev_dependencies:
   flutter_lints: ^3.0.1
@@ -167,15 +169,21 @@ dependency_overrides:
   appflowy_editor:
     git:
       url: https://github.com/AppFlowy-IO/appflowy-editor.git
-      ref: "cbd92c4"
+      ref: "b927ec0"
 
   sheet:
     git:
-      url: https://github.com/richardshiue/modal_bottom_sheet
-      ref: 8ee20bd
+      url: https://github.com/jamesblasco/modal_bottom_sheet
+      ref: e44458d
       path: sheet
 
   uuid: ^4.1.0
+
+  flutter_cache_manager:
+    git:
+      url: https://github.com/LucasXu0/flutter_cache_manager.git
+      commit: fbab857b1b1d209240a146d32f496379b9f62276
+      path: flutter_cache_manager
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

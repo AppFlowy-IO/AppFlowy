@@ -202,7 +202,12 @@ const usePopoverAutoPosition = ({
       newPosition.anchorPosition.top += anchorRect.height;
     }
 
-    if (newPosition.anchorOrigin.vertical === 'top' && newPosition.transformOrigin.vertical === 'bottom') {
+    if (
+      isExceedViewportTop &&
+      isExceedViewportBottom &&
+      newPosition.anchorOrigin.vertical === 'top' &&
+      newPosition.transformOrigin.vertical === 'bottom'
+    ) {
       newPosition.paperHeight = newPaperHeight - anchorRect.height;
     }
 

@@ -1,8 +1,9 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/plugins/database/grid/application/filter/select_option_filter_bloc.dart';
 import 'package:appflowy/plugins/database/grid/application/filter/select_option_filter_list_bloc.dart';
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/filter_info.dart';
-import 'package:appflowy/plugins/database/widgets/cell_editor/extension.dart';
+import 'package:appflowy/plugins/database/widgets/cell_editor/select_option_cell_editor.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option_entities.pb.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
@@ -88,11 +89,18 @@ class _SelectOptionFilterCellState extends State<SelectOptionFilterCell> {
           if (widget.isSelected) {
             context
                 .read<SelectOptionFilterListBloc>()
-                .add(SelectOptionFilterListEvent.unselectOption(widget.option));
+                .add(SelectOptionFilterListEvent.unSelectOption(widget.option));
           } else {
-            context
-                .read<SelectOptionFilterListBloc>()
-                .add(SelectOptionFilterListEvent.selectOption(widget.option));
+            context.read<SelectOptionFilterListBloc>().add(
+                  SelectOptionFilterListEvent.selectOption(
+                    widget.option,
+                    context
+                        .read<SelectOptionFilterEditorBloc>()
+                        .state
+                        .filter
+                        .condition,
+                  ),
+                );
           }
         },
         children: [

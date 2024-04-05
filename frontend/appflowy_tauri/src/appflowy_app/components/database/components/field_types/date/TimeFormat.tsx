@@ -22,7 +22,7 @@ function TimeFormat({ value, onChange }: Props) {
       return (
         <div className={'flex w-full items-center justify-between gap-2'}>
           <div className={'flex-1'}>{title}</div>
-          {value === option && <SelectCheckSvg />}
+          {value === option && <SelectCheckSvg className={'text-content-blue-400'} />}
         </div>
       );
     },

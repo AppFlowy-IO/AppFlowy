@@ -33,7 +33,7 @@ extension SelectOptionColorExtension on SelectOptionColorPB {
     }
   }
 
-  String optionName() {
+  String colorName() {
     switch (this) {
       case SelectOptionColorPB.Purple:
         return LocaleKeys.grid_selectOption_purpleColor.tr();
@@ -123,44 +123,3 @@ class SelectOptionTag extends StatelessWidget {
   }
 }
 
-class SelectOptionTagCell extends StatelessWidget {
-  const SelectOptionTagCell({
-    super.key,
-    required this.option,
-    required this.onSelected,
-    this.children = const [],
-  });
-
-  final SelectOptionPB option;
-  final VoidCallback onSelected;
-  final List<Widget> children;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Expanded(
-          child: GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: onSelected,
-            child: Align(
-              alignment: AlignmentDirectional.centerStart,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 5.0,
-                  vertical: 4.0,
-                ),
-                child: SelectOptionTag(
-                  option: option,
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                ),
-              ),
-            ),
-          ),
-        ),
-        ...children,
-      ],
-    );
-  }
-}

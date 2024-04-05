@@ -6,7 +6,7 @@ use event_integration::document_event::assert_document_data_equal;
 use event_integration::user_event::user_localhost_af_cloud;
 use event_integration::EventIntegrationTest;
 use flowy_core::DEFAULT_NAME;
-use flowy_document::entities::DocumentSyncStatePB;
+use flowy_document::entities::{DocumentSyncState, DocumentSyncStatePB};
 
 use crate::util::{receive_with_timeout, unzip_history_user_db};
 
@@ -30,7 +30,9 @@ async fn af_cloud_edit_document_test() {
   // wait all update are send to the remote
   let rx = test
     .notification_sender
-    .subscribe_with_condition::<DocumentSyncStatePB, _>(&document_id, |pb| !pb.is_syncing);
+    .subscribe_with_condition::<DocumentSyncStatePB, _>(&document_id, |pb| {
+      pb.value != DocumentSyncState::Syncing
+    });
   let _ = receive_with_timeout(rx, Duration::from_secs(30)).await;
 
   let document_data = test.get_document_data(&document_id).await;
@@ -61,7 +63,9 @@ async fn af_cloud_sync_anon_user_document_test() {
   // wait all update are send to the remote
   let rx = test
     .notification_sender
-    .subscribe_with_condition::<DocumentSyncStatePB, _>(&document_id, |pb| !pb.is_syncing);
+    .subscribe_with_condition::<DocumentSyncStatePB, _>(&document_id, |pb| {
+      pb.value != DocumentSyncState::Syncing
+    });
   let _ = receive_with_timeout(rx, Duration::from_secs(30)).await;
 
   let doc_state = test.get_document_doc_state(&document_id).await;

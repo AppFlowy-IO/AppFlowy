@@ -325,13 +325,9 @@
       "isComplete": "teljes",
       "isIncomplted": "hiányos"
     },
-    "singleSelectOptionFilter": {
+    "selectOptionFilter": {
       "is": "Is",
       "isNot": "Nem",
-      "isEmpty": "Üres",
-      "isNotEmpty": "Nem üres"
-    },
-    "multiSelectOptionFilter": {
       "contains": "Tartalmaz",
       "doesNotContain": "Nem tartalmaz",
       "isEmpty": "Üres",

@@ -1,5 +1,5 @@
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/select_option/select_option_loader.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/select_option_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -24,16 +24,19 @@ class SelectOptionFilterListBloc<T>
             _startListening();
             _loadOptions();
           },
-          selectOption: (option) {
-            final selectedOptionIds = Set<String>.from(state.selectedOptionIds);
-            selectedOptionIds.add(option.id);
+          selectOption: (option, condition) {
+            final selectedOptionIds = delegate.selectOption(
+              state.selectedOptionIds,
+              option.id,
+              condition,
+            );
 
             _updateSelectOptions(
               selectedOptionIds: selectedOptionIds,
               emit: emit,
             );
           },
-          unselectOption: (option) {
+          unSelectOption: (option) {
             final selectedOptionIds = Set<String>.from(state.selectedOptionIds);
             selectedOptionIds.remove(option.id);
 
@@ -116,8 +119,9 @@ class SelectOptionFilterListEvent with _$SelectOptionFilterListEvent {
   const factory SelectOptionFilterListEvent.initial() = _Initial;
   const factory SelectOptionFilterListEvent.selectOption(
     SelectOptionPB option,
+    SelectOptionFilterConditionPB condition,
   ) = _SelectOption;
-  const factory SelectOptionFilterListEvent.unselectOption(
+  const factory SelectOptionFilterListEvent.unSelectOption(
     SelectOptionPB option,
   ) = _UnSelectOption;
   const factory SelectOptionFilterListEvent.didReceiveOptions(

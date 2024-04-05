@@ -452,13 +452,9 @@
       "isComplete": "selesai",
       "isIncomplted": "tidak lengkap"
     },
-    "singleSelectOptionFilter": {
+    "selectOptionFilter": {
       "is": "Adalah",
       "isNot": "Tidak",
-      "isEmpty": "Kosong",
-      "isNotEmpty": "Tidak kosong"
-    },
-    "multiSelectOptionFilter": {
       "contains": "Mengandung",
       "doesNotContain": "Tidak mengandung",
       "isEmpty": "Kosong",

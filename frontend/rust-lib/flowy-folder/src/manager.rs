@@ -1,30 +1,8 @@
-use std::fmt::{Display, Formatter};
-use std::ops::Deref;
-use std::sync::{Arc, Weak};
-
-use collab::core::collab::{CollabDocState, MutexCollab};
-use collab_entity::CollabType;
-use collab_folder::error::FolderError;
-use collab_folder::{
-  Folder, FolderData, FolderNotify, Section, SectionItem, TrashInfo, UserId, View, ViewLayout,
-  ViewUpdate, Workspace,
-};
-use parking_lot::{Mutex, RwLock};
-use tracing::{error, info, instrument};
-
-use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
-use collab_integrate::{CollabKVDB, CollabPersistenceConfig};
-use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use flowy_folder_pub::cloud::{gen_view_id, FolderCloudService};
-use flowy_folder_pub::folder_builder::ParentChildViews;
-
-use lib_infra::conditional_send_sync_trait;
-
 use crate::entities::icon::UpdateViewIconParams;
 use crate::entities::{
   view_pb_with_child_views, view_pb_without_child_views, CreateViewParams, CreateWorkspaceParams,
-  DeletedViewPB, FolderSnapshotPB, RepeatedTrashPB, RepeatedViewIdPB, RepeatedViewPB,
-  UpdateViewParams, ViewPB, WorkspacePB, WorkspaceSettingPB,
+  DeletedViewPB, FolderSnapshotPB, MoveNestedViewParams, RepeatedTrashPB, RepeatedViewIdPB,
+  RepeatedViewPB, UpdateViewParams, ViewPB, ViewSectionPB, WorkspacePB, WorkspaceSettingPB,
 };
 use crate::manager_observer::{
   notify_child_views_changed, notify_did_update_workspace, notify_parent_view_did_change,
@@ -38,6 +16,24 @@ use crate::util::{
   folder_not_init_error, insert_parent_child_views, workspace_data_not_sync_error,
 };
 use crate::view_operation::{create_view, FolderOperationHandler, FolderOperationHandlers};
+use collab::core::collab::{DocStateSource, MutexCollab};
+use collab_entity::CollabType;
+use collab_folder::error::FolderError;
+use collab_folder::{
+  Folder, FolderData, FolderNotify, Section, SectionItem, TrashInfo, UserId, View, ViewLayout,
+  ViewUpdate, Workspace,
+};
+use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
+use collab_integrate::{CollabKVDB, CollabPersistenceConfig};
+use flowy_error::{ErrorCode, FlowyError, FlowyResult};
+use flowy_folder_pub::cloud::{gen_view_id, FolderCloudService};
+use flowy_folder_pub::folder_builder::ParentChildViews;
+use lib_infra::conditional_send_sync_trait;
+use parking_lot::{Mutex, RwLock};
+use std::fmt::{Display, Formatter};
+use std::ops::Deref;
+use std::sync::{Arc, Weak};
+use tracing::{error, info, instrument};
 
 conditional_send_sync_trait! {
   "[crate::manager::FolderUser] represents the user for folder.";
@@ -113,7 +109,7 @@ impl FolderManager {
       },
       |folder| {
         let workspace_pb_from_workspace = |workspace: Workspace, folder: &Folder| {
-          let views = get_workspace_view_pbs(&workspace.id, folder);
+          let views = get_workspace_public_view_pbs(&workspace.id, folder);
           let workspace: WorkspacePB = (workspace, views).into();
           Ok::<WorkspacePB, FlowyError>(workspace)
         };
@@ -128,7 +124,7 @@ impl FolderManager {
 
   /// Return a list of views of the current workspace.
   /// Only the first level of child views are included.
-  pub async fn get_current_workspace_views(&self) -> FlowyResult<Vec<ViewPB>> {
+  pub async fn get_current_workspace_public_views(&self) -> FlowyResult<Vec<ViewPB>> {
     let workspace_id = self
       .mutex_folder
       .lock()
@@ -136,16 +132,24 @@ impl FolderManager {
       .map(|folder| folder.get_workspace_id());
 
     if let Some(workspace_id) = workspace_id {
-      self.get_workspace_views(&workspace_id).await
+      self.get_workspace_public_views(&workspace_id).await
     } else {
       tracing::warn!("Can't get current workspace views");
       Ok(vec![])
     }
   }
 
-  pub async fn get_workspace_views(&self, workspace_id: &str) -> FlowyResult<Vec<ViewPB>> {
+  pub async fn get_workspace_public_views(&self, workspace_id: &str) -> FlowyResult<Vec<ViewPB>> {
     let views = self.with_folder(Vec::new, |folder| {
-      get_workspace_view_pbs(workspace_id, folder)
+      get_workspace_public_view_pbs(workspace_id, folder)
+    });
+
+    Ok(views)
+  }
+
+  pub async fn get_workspace_private_views(&self, workspace_id: &str) -> FlowyResult<Vec<ViewPB>> {
+    let views = self.with_folder(Vec::new, |folder| {
+      get_workspace_private_view_pbs(workspace_id, folder)
     });
 
     Ok(views)
@@ -156,24 +160,21 @@ impl FolderManager {
     uid: i64,
     workspace_id: &str,
     collab_db: Weak<CollabKVDB>,
-    collab_doc_state: CollabDocState,
+    doc_state: DocStateSource,
     folder_notifier: T,
   ) -> Result<Folder, FlowyError> {
     let folder_notifier = folder_notifier.into();
-    let collab = self
-      .collab_builder
-      .build_with_config(
-        uid,
-        workspace_id,
-        CollabType::Folder,
-        collab_db,
-        collab_doc_state,
-        CollabPersistenceConfig::new()
-          .enable_snapshot(true)
-          .snapshot_per_update(50),
-        CollabBuilderConfig::default().sync_enable(true),
-      )
-      .await?;
+    let collab = self.collab_builder.build_with_config(
+      uid,
+      workspace_id,
+      CollabType::Folder,
+      collab_db,
+      doc_state,
+      CollabPersistenceConfig::new()
+        .enable_snapshot(true)
+        .snapshot_per_update(50),
+      CollabBuilderConfig::default().sync_enable(true),
+    )?;
     let (should_clear, err) = match Folder::open(UserId::from(uid), collab, folder_notifier) {
       Ok(folder) => {
         return Ok(folder);
@@ -199,20 +200,17 @@ impl FolderManager {
     workspace_id: &str,
     collab_db: Weak<CollabKVDB>,
   ) -> Result<Arc<MutexCollab>, FlowyError> {
-    let collab = self
-      .collab_builder
-      .build_with_config(
-        uid,
-        workspace_id,
-        CollabType::Folder,
-        collab_db,
-        vec![],
-        CollabPersistenceConfig::new()
-          .enable_snapshot(true)
-          .snapshot_per_update(50),
-        CollabBuilderConfig::default().sync_enable(true),
-      )
-      .await?;
+    let collab = self.collab_builder.build_with_config(
+      uid,
+      workspace_id,
+      CollabType::Folder,
+      collab_db,
+      DocStateSource::FromDisk,
+      CollabPersistenceConfig::new()
+        .enable_snapshot(true)
+        .snapshot_per_update(50),
+      CollabBuilderConfig::default().sync_enable(true),
+    )?;
     Ok(collab)
   }
 
@@ -374,7 +372,7 @@ impl FolderManager {
         .views
         .get_views_belong_to(&workspace.id)
         .into_iter()
-        .map(view_pb_without_child_views)
+        .map(|view| view_pb_without_child_views(view.as_ref().clone()))
         .collect::<Vec<ViewPB>>();
 
       WorkspacePB {
@@ -452,11 +450,16 @@ impl FolderManager {
     }
 
     let index = params.index;
+    let section = params.section.clone().unwrap_or(ViewSectionPB::Public);
+    let is_private = section == ViewSectionPB::Private;
     let view = create_view(self.user.user_id()?, params, view_layout);
     self.with_folder(
       || (),
       |folder| {
         folder.insert_view(view.clone(), index);
+        if is_private {
+          folder.add_private_view_ids(vec![view.id.clone()]);
+        }
       },
     );
 
@@ -506,7 +509,7 @@ impl FolderManager {
     let folder = self.mutex_folder.lock();
     let folder = folder.as_ref().ok_or_else(folder_not_init_error)?;
     let trash_ids = folder
-      .get_all_trash()
+      .get_all_trash_sections()
       .into_iter()
       .map(|trash| trash.id)
       .collect::<Vec<String>>();
@@ -546,7 +549,7 @@ impl FolderManager {
       |folder| {
         if let Some(view) = folder.views.get_view(view_id) {
           self.unfavorite_view_and_decendants(view.clone(), folder);
-          folder.add_trash(vec![view_id.to_string()]);
+          folder.add_trash_view_ids(vec![view_id.to_string()]);
           // notify the parent view that the view is moved to trash
           send_notification(view_id, FolderNotification::DidMoveViewToTrash)
             .payload(DeletedViewPB {
@@ -556,7 +559,7 @@ impl FolderManager {
             .send();
 
           notify_child_views_changed(
-            view_pb_without_child_views(view),
+            view_pb_without_child_views(view.as_ref().clone()),
             ChildViewChangeReason::Delete,
           );
         }
@@ -573,11 +576,11 @@ impl FolderManager {
     let favorite_descendant_views: Vec<ViewPB> = all_descendant_views
       .iter()
       .filter(|view| view.is_favorite)
-      .map(|view| view_pb_without_child_views(view.clone()))
+      .map(|view| view_pb_without_child_views(view.as_ref().clone()))
       .collect();
 
     if !favorite_descendant_views.is_empty() {
-      folder.delete_favorites(
+      folder.delete_favorite_view_ids(
         favorite_descendant_views
           .iter()
           .map(|v| v.id.clone())
@@ -609,18 +612,26 @@ impl FolderManager {
   /// * `prev_view_id` - An `Option<String>` that holds the id of the view after which the `view_id` should be positioned.
   ///
   #[tracing::instrument(level = "trace", skip(self), err)]
-  pub async fn move_nested_view(
-    &self,
-    view_id: String,
-    new_parent_id: String,
-    prev_view_id: Option<String>,
-  ) -> FlowyResult<()> {
+  pub async fn move_nested_view(&self, params: MoveNestedViewParams) -> FlowyResult<()> {
+    let view_id = params.view_id;
+    let new_parent_id = params.new_parent_id;
+    let prev_view_id = params.prev_view_id;
+    let from_section = params.from_section;
+    let to_section = params.to_section;
     let view = self.get_view_pb(&view_id).await?;
     let old_parent_id = view.parent_view_id;
     self.with_folder(
       || (),
       |folder| {
         folder.move_nested_view(&view_id, &new_parent_id, prev_view_id);
+
+        if from_section != to_section {
+          if to_section == Some(ViewSectionPB::Private) {
+            folder.add_private_view_ids(vec![view_id.clone()]);
+          } else {
+            folder.delete_private_view_ids(vec![view_id.clone()]);
+          }
+        }
       },
     );
     notify_parent_view_did_change(
@@ -733,6 +744,16 @@ impl FolderManager {
       None
     };
 
+    let is_private = self.with_folder(
+      || false,
+      |folder| folder.is_view_in_section(Section::Private, &view.id),
+    );
+    let section = if is_private {
+      ViewSectionPB::Private
+    } else {
+      ViewSectionPB::Public
+    };
+
     let duplicate_params = CreateViewParams {
       parent_view_id: view.parent_view_id.clone(),
       name: format!("{} (copy)", &view.name),
@@ -743,6 +764,7 @@ impl FolderManager {
       meta: Default::default(),
       set_as_current: true,
       index,
+      section: Some(section),
     };
 
     self.create_view_with_params(duplicate_params).await?;
@@ -760,7 +782,15 @@ impl FolderManager {
       },
     )?;
 
-    send_workspace_setting_notification(workspace_id, self.get_current_view().await);
+    let view = self.get_current_view().await;
+    if let Some(view) = &view {
+      let view_layout: ViewLayout = view.layout.clone().into();
+      if let Some(handle) = self.operation_handlers.get(&view_layout) {
+        let _ = handle.open_view(view_id).await;
+      }
+    }
+
+    send_workspace_setting_notification(workspace_id, view);
     Ok(())
   }
 
@@ -778,9 +808,9 @@ impl FolderManager {
       |folder| {
         if let Some(old_view) = folder.views.get_view(view_id) {
           if old_view.is_favorite {
-            folder.delete_favorites(vec![view_id.to_string()]);
+            folder.delete_favorite_view_ids(vec![view_id.to_string()]);
           } else {
-            folder.add_favorites(vec![view_id.to_string()]);
+            folder.add_favorite_view_ids(vec![view_id.to_string()]);
           }
         }
       },
@@ -836,7 +866,7 @@ impl FolderManager {
   }
 
   async fn send_update_recent_views_notification(&self) {
-    let recent_views = self.get_all_recent_sections().await;
+    let recent_views = self.get_my_recent_sections().await;
     send_notification("recent_views", FolderNotification::DidUpdateRecentViews)
       .payload(RepeatedViewIdPB {
         items: recent_views.into_iter().map(|item| item.id).collect(),
@@ -849,14 +879,14 @@ impl FolderManager {
     self.get_sections(Section::Favorite)
   }
 
-  #[tracing::instrument(level = "trace", skip(self))]
-  pub(crate) async fn get_all_recent_sections(&self) -> Vec<SectionItem> {
+  #[tracing::instrument(level = "debug", skip(self))]
+  pub(crate) async fn get_my_recent_sections(&self) -> Vec<SectionItem> {
     self.get_sections(Section::Recent)
   }
 
   #[tracing::instrument(level = "trace", skip(self))]
-  pub(crate) async fn get_all_trash(&self) -> Vec<TrashInfo> {
-    self.with_folder(Vec::new, |folder| folder.get_all_trash())
+  pub(crate) async fn get_my_trash_info(&self) -> Vec<TrashInfo> {
+    self.with_folder(Vec::new, |folder| folder.get_my_trash_info())
   }
 
   #[tracing::instrument(level = "trace", skip(self))]
@@ -864,7 +894,7 @@ impl FolderManager {
     self.with_folder(
       || (),
       |folder| {
-        folder.remote_all_trash();
+        folder.remove_all_my_trash_sections();
       },
     );
     send_notification("trash", FolderNotification::DidUpdateTrash)
@@ -877,15 +907,15 @@ impl FolderManager {
     self.with_folder(
       || (),
       |folder| {
-        folder.delete_trash(vec![trash_id.to_string()]);
+        folder.delete_trash_view_ids(vec![trash_id.to_string()]);
       },
     );
   }
 
   /// Delete all the trash permanently.
   #[tracing::instrument(level = "trace", skip(self))]
-  pub(crate) async fn delete_all_trash(&self) {
-    let deleted_trash = self.with_folder(Vec::new, |folder| folder.get_all_trash());
+  pub(crate) async fn delete_my_trash(&self) {
+    let deleted_trash = self.with_folder(Vec::new, |folder| folder.get_my_trash_info());
     for trash in deleted_trash {
       let _ = self.delete_trash(&trash.id).await;
     }
@@ -903,7 +933,7 @@ impl FolderManager {
     self.with_folder(
       || (),
       |folder| {
-        folder.delete_trash(vec![view_id.to_string()]);
+        folder.delete_trash_view_ids(vec![view_id.to_string()]);
         folder.views.delete_views(vec![view_id]);
       },
     );
@@ -954,6 +984,7 @@ impl FolderManager {
       meta: Default::default(),
       set_as_current: false,
       index: None,
+      section: None,
     };
 
     let view = create_view(self.user.user_id()?, params, import_data.view_layout);
@@ -1089,37 +1120,148 @@ impl FolderManager {
     &self.cloud_service
   }
 
+  pub fn set_views_visibility(&self, view_ids: Vec<String>, is_public: bool) {
+    self.with_folder(
+      || (),
+      |folder| {
+        if is_public {
+          folder.delete_private_view_ids(view_ids);
+        } else {
+          folder.add_private_view_ids(view_ids);
+        }
+      },
+    );
+  }
+
+  /// Only support getting the Favorite and Recent sections.
   fn get_sections(&self, section_type: Section) -> Vec<SectionItem> {
     self.with_folder(Vec::new, |folder| {
-      let trash_ids = folder
-        .get_all_trash()
-        .into_iter()
-        .map(|trash| trash.id)
-        .collect::<Vec<String>>();
-
-      let mut views = match section_type {
-        Section::Favorite => folder.get_all_favorites(),
-        Section::Recent => folder.get_all_recent_sections(),
+      let views = match section_type {
+        Section::Favorite => folder.get_my_favorite_sections(),
+        Section::Recent => folder.get_my_recent_sections(),
         _ => vec![],
       };
-
-      // filter the views that are in the trash
-      views.retain(|view| !trash_ids.contains(&view.id));
+      let view_ids_should_be_filtered = self.get_view_ids_should_be_filtered(folder);
       views
+        .into_iter()
+        .filter(|view| !view_ids_should_be_filtered.contains(&view.id))
+        .collect()
     })
+  }
+
+  /// Get all the view that are in the trash, including the child views of the child views.
+  /// For example, if A view which is in the trash has a child view B, this function will return
+  /// both A and B.
+  fn get_all_trash_ids(&self, folder: &Folder) -> Vec<String> {
+    let trash_ids = folder
+      .get_all_trash_sections()
+      .into_iter()
+      .map(|trash| trash.id)
+      .collect::<Vec<String>>();
+    let mut all_trash_ids = trash_ids.clone();
+    for trash_id in trash_ids {
+      all_trash_ids.extend(get_all_child_view_ids(folder, &trash_id));
+    }
+    all_trash_ids
+  }
+
+  /// Filter the views that are in the trash and belong to the other private sections.
+  fn get_view_ids_should_be_filtered(&self, folder: &Folder) -> Vec<String> {
+    let trash_ids = self.get_all_trash_ids(folder);
+    let other_private_view_ids = self.get_other_private_view_ids(folder);
+    [trash_ids, other_private_view_ids].concat()
+  }
+
+  fn get_other_private_view_ids(&self, folder: &Folder) -> Vec<String> {
+    let my_private_view_ids = folder
+      .get_my_private_sections()
+      .into_iter()
+      .map(|view| view.id)
+      .collect::<Vec<String>>();
+
+    let all_private_view_ids = folder
+      .get_all_private_sections()
+      .into_iter()
+      .map(|view| view.id)
+      .collect::<Vec<String>>();
+
+    all_private_view_ids
+      .into_iter()
+      .filter(|id| !my_private_view_ids.contains(id))
+      .collect()
   }
 }
 
-/// Return the views that belong to the workspace. The views are filtered by the trash.
-pub(crate) fn get_workspace_view_pbs(_workspace_id: &str, folder: &Folder) -> Vec<ViewPB> {
-  let items = folder.get_all_trash();
-  let trash_ids = items
+/// Return the views that belong to the workspace. The views are filtered by the trash and all the private views.
+pub(crate) fn get_workspace_public_view_pbs(_workspace_id: &str, folder: &Folder) -> Vec<ViewPB> {
+  // get the trash ids
+  let trash_ids = folder
+    .get_all_trash_sections()
     .into_iter()
     .map(|trash| trash.id)
     .collect::<Vec<String>>();
 
+  // get the private view ids
+  let private_view_ids = folder
+    .get_all_private_sections()
+    .into_iter()
+    .map(|view| view.id)
+    .collect::<Vec<String>>();
+
   let mut views = folder.get_workspace_views();
-  views.retain(|view| !trash_ids.contains(&view.id));
+
+  // filter the views that are in the trash and all the private views
+  views.retain(|view| !trash_ids.contains(&view.id) && !private_view_ids.contains(&view.id));
+
+  views
+    .into_iter()
+    .map(|view| {
+      // Get child views
+      let child_views = folder
+        .views
+        .get_views_belong_to(&view.id)
+        .into_iter()
+        .collect();
+      view_pb_with_child_views(view, child_views)
+    })
+    .collect()
+}
+
+/// Get all the child views belong to the view id, including the child views of the child views.
+fn get_all_child_view_ids(folder: &Folder, view_id: &str) -> Vec<String> {
+  let child_view_ids = folder
+    .views
+    .get_views_belong_to(view_id)
+    .into_iter()
+    .map(|view| view.id.clone())
+    .collect::<Vec<String>>();
+  let mut all_child_view_ids = child_view_ids.clone();
+  for child_view_id in child_view_ids {
+    all_child_view_ids.extend(get_all_child_view_ids(folder, &child_view_id));
+  }
+  all_child_view_ids
+}
+
+/// Get the current private views of the user.
+pub(crate) fn get_workspace_private_view_pbs(_workspace_id: &str, folder: &Folder) -> Vec<ViewPB> {
+  // get the trash ids
+  let trash_ids = folder
+    .get_all_trash_sections()
+    .into_iter()
+    .map(|trash| trash.id)
+    .collect::<Vec<String>>();
+
+  // get the private view ids
+  let private_view_ids = folder
+    .get_my_private_sections()
+    .into_iter()
+    .map(|view| view.id)
+    .collect::<Vec<String>>();
+
+  let mut views = folder.get_workspace_views();
+
+  // filter the views that are in the trash and not in the private view ids
+  views.retain(|view| !trash_ids.contains(&view.id) && private_view_ids.contains(&view.id));
 
   views
     .into_iter()
@@ -1151,7 +1293,7 @@ pub enum FolderInitDataSource {
   /// It means using the data stored on local disk to initialize the folder
   LocalDisk { create_if_not_exist: bool },
   /// If there is no data stored on local disk, we will use the data from the server to initialize the folder
-  Cloud(CollabDocState),
+  Cloud(Vec<u8>),
   /// If the user is new, we use the [DefaultFolderBuilder] to create the default folder.
   FolderData(FolderData),
 }

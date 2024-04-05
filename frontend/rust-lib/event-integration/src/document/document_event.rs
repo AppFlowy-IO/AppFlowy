@@ -46,7 +46,7 @@ impl DocumentEventTest {
       .await
       .unwrap();
     let guard = doc.lock();
-    guard.get_collab().encode_collab_v1()
+    guard.encode_collab().unwrap()
   }
 
   pub async fn create_document(&self) -> ViewPB {
@@ -64,6 +64,7 @@ impl DocumentEventTest {
       meta: Default::default(),
       set_as_current: true,
       index: None,
+      section: None,
     };
     EventBuilder::new(core.clone())
       .event(FolderEvent::CreateView)

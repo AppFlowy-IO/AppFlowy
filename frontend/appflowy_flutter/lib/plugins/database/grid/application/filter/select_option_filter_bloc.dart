@@ -38,7 +38,7 @@ class SelectOptionFilterEditorBloc
             _startListening();
             _loadOptions();
           },
-          updateCondition: (SelectOptionConditionPB condition) {
+          updateCondition: (SelectOptionFilterConditionPB condition) {
             _filterBackendSvc.insertSelectOptionFilter(
               filterId: filterInfo.filter.id,
               fieldId: filterInfo.fieldInfo.id,
@@ -60,7 +60,6 @@ class SelectOptionFilterEditorBloc
             _filterBackendSvc.deleteFilter(
               fieldId: filterInfo.fieldInfo.id,
               filterId: filterInfo.filter.id,
-              fieldType: filterInfo.fieldInfo.fieldType,
             );
           },
           didReceiveFilter: (FilterPB filter) {
@@ -83,9 +82,6 @@ class SelectOptionFilterEditorBloc
 
   void _startListening() {
     _listener.start(
-      onDeleted: () {
-        if (!isClosed) add(const SelectOptionFilterEditorEvent.delete());
-      },
       onUpdated: (filter) {
         if (!isClosed) {
           add(SelectOptionFilterEditorEvent.didReceiveFilter(filter));
@@ -121,7 +117,7 @@ class SelectOptionFilterEditorEvent with _$SelectOptionFilterEditorEvent {
     FilterPB filter,
   ) = _DidReceiveFilter;
   const factory SelectOptionFilterEditorEvent.updateCondition(
-    SelectOptionConditionPB condition,
+    SelectOptionFilterConditionPB condition,
   ) = _UpdateCondition;
   const factory SelectOptionFilterEditorEvent.updateContent(
     List<String> optionIds,

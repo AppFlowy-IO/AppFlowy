@@ -140,6 +140,8 @@ pub struct UserWorkspace {
   /// The database storage id is used indexing all the database views in current workspace.
   #[serde(rename = "database_storage_id")]
   pub workspace_database_object_id: String,
+  #[serde(default)]
+  pub icon: String,
 }
 
 impl UserWorkspace {
@@ -149,6 +151,7 @@ impl UserWorkspace {
       name: "".to_string(),
       created_at: Utc::now(),
       workspace_database_object_id: Uuid::new_v4().to_string(),
+      icon: "".to_string(),
     }
   }
 }
@@ -394,8 +397,12 @@ pub struct WorkspaceMember {
   pub name: String,
 }
 
-pub fn awareness_oid_from_user_uuid(user_uuid: &Uuid) -> Uuid {
-  Uuid::new_v5(user_uuid, b"user_awareness")
+/// represent the user awareness object id for the workspace.
+pub fn user_awareness_object_id(user_uuid: &Uuid, workspace_id: &str) -> Uuid {
+  Uuid::new_v5(
+    user_uuid,
+    format!("user_awareness:{}", workspace_id).as_bytes(),
+  )
 }
 
 #[derive(Clone, Debug)]

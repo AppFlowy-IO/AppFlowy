@@ -19,10 +19,10 @@ use crate::services::field::{
   CheckboxTypeOption, DateTypeOption, MultiSelectTypeOption, NumberTypeOption, RelationTypeOption,
   RichTextTypeOption, SingleSelectTypeOption, TimestampTypeOption, URLTypeOption,
 };
-use crate::services::filter::FromFilterString;
+use crate::services::filter::{ParseFilterData, PreFillCellsWithFilter};
 use crate::services::sort::SortCondition;
 
-pub trait TypeOption {
+pub trait TypeOption: From<TypeOptionData> + Into<TypeOptionData> {
   /// `CellData` represents the decoded model for the current type option. Each of them must
   /// implement the From<&Cell> trait. If the `Cell` cannot be decoded into this type, the default
   /// value will be returned.
@@ -58,7 +58,7 @@ pub trait TypeOption {
   type CellProtobufType: TryInto<Bytes, Error = ProtobufError> + Debug;
 
   /// Represents the filter configuration for this type option.
-  type CellFilter: FromFilterString + Send + Sync + 'static;
+  type CellFilter: ParseFilterData + PreFillCellsWithFilter + Clone + Send + Sync + 'static;
 }
 /// This trait providing serialization and deserialization methods for cell data.
 ///

@@ -323,13 +323,9 @@
       "isComplete": "osatu da",
       "isIncomplted": "osatu gabe dago"
     },
-    "singleSelectOptionFilter": {
+    "selectOptionFilter": {
       "is": "da",
       "isNot": "Ez da",
-      "isEmpty": "Hutsa dago",
-      "isNotEmpty": "Ez dago hutsik"
-    },
-    "multiSelectOptionFilter": {
       "contains": "Duen",
       "doesNotContain": "Ez dauka",
       "isEmpty": "Hutsa dago",

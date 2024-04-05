@@ -49,7 +49,8 @@
     "LogInWithGoogle": "Log in with Google",
     "LogInWithGithub": "Log in with Github",
     "LogInWithDiscord": "Log in with Discord",
-    "signInWith": "Sign in with:"
+    "signInWith": "Sign in with:",
+    "signInWithEmail": "Sign in with Email"
   },
   "workspace": {
     "chooseWorkspace": "Choose your workspace",
@@ -65,17 +66,23 @@
       "exportLogFiles": "Export log files",
       "reachOut": "Reach out on Discord"
     },
+    "menuTitle": "Workspaces",
     "deleteWorkspaceHintText": "Are you sure you want to delete the workspace? This action cannot be undone.",
     "createSuccess": "Workspace created successfully",
     "createFailed": "Failed to create workspace",
+    "createLimitExceeded": "You've reached the maximum workspace limit allowed for your account. If you need additional workspaces to continue your work, please request on Github",
     "deleteSuccess": "Workspace deleted successfully",
     "deleteFailed": "Failed to delete workspace",
     "openSuccess": "Open workspace successfully",
     "openFailed": "Failed to open workspace",
     "renameSuccess": "Workspace renamed successfully",
     "renameFailed": "Failed to rename workspace",
-    "updateIconSuccess": "Workspace reset successfully",
-    "updateIconFailed": "Failed to reset workspace"
+    "updateIconSuccess": "Updated workspace icon successfully",
+    "updateIconFailed": "Updated workspace icon failed",
+    "cannotDeleteTheOnlyWorkspace": "Cannot delete the only workspace",
+    "fetchWorkspacesFailed": "Failed to fetch workspaces",
+    "leaveCurrentWorkspace": "Leave workspace",
+    "leaveCurrentWorkspacePrompt": "Are you sure you want to leave the current workspace?"
   },
   "shareAction": {
     "buttonText": "Share",
@@ -144,7 +151,8 @@
       "emptyDescription": "You don't have any deleted file",
       "isDeleted": "is deleted",
       "isRestored": "is restored"
-    }
+    },
+    "confirmDeleteTitle": "Are you sure you want to delete this page permanently?"
   },
   "deletePagePrompt": {
     "text": "This page is in Trash",
@@ -198,18 +206,22 @@
     "dragRow": "Long press to reorder the row",
     "viewDataBase": "View database",
     "referencePage": "This {name} is referenced",
-    "addBlockBelow": "Add a block below",
-    "urlLaunchAccessory": "Open in browser",
-    "urlCopyAccessory": "Copy URL"
+    "addBlockBelow": "Add a block below"
   },
   "sideBar": {
     "closeSidebar": "Close side bar",
     "openSidebar": "Open side bar",
     "personal": "Personal",
+    "private": "Private",
+    "public": "Public",
     "favorites": "Favorites",
-    "clickToHidePersonal": "Click to hide personal section",
-    "clickToHideFavorites": "Click to hide favorite section",
+    "clickToHidePrivate": "Click to hide private space\nPages you created here are only visible to you",
+    "clickToHidePublic": "Click to hide public space\nPages you created here are visible to every member",
+    "clickToHidePersonal": "Click to hide personal space",
+    "clickToHideFavorites": "Click to hide favorite space",
     "addAPage": "Add a page",
+    "addAPageToPrivate": "Add a page to private space",
+    "addAPageToPublic": "Add a page to public space",
     "recent": "Recent"
   },
   "notifications": {
@@ -257,7 +269,14 @@
     "remove": "Remove",
     "dontRemove": "Don't remove",
     "copyLink": "Copy Link",
-    "align": "Align"
+    "align": "Align",
+    "login": "Login",
+    "logout": "Log out",
+    "deleteAccount": "Delete account",
+    "back": "Back",
+    "signInGoogle": "Sign in with Google",
+    "signInGithub": "Sign in with Github",
+    "signInDiscord": "Sign in with Discord"
   },
   "label": {
     "welcome": "Welcome!",
@@ -424,7 +443,17 @@
         "guestHintText": "A Guest can read, react, comment, and can edit certain pages with permission.",
         "emailInvalidError": "Invalid email, please check and try again",
         "emailSent": "Email sent, please check the inbox",
-        "members": "members"
+        "members": "members",
+        "membersCount": {
+          "zero": "{} members",
+          "one": "{} member",
+          "other": "{} members"
+        },
+        "memberLimitExceeded": "You've reached the maximum member limit allowed for your account. If you want to add more additional members to continue your work, please request on Github",
+        "failedToAddMember": "Failed to add member",
+        "addMemberSuccess": "Member added successfully",
+        "removeMember": "Remove Member",
+        "areYouSureToRemoveMember": "Are you sure you want to remove this member?"
       }
     },
     "files": {
@@ -565,13 +594,9 @@
       "isComplete": "is complete",
       "isIncomplted": "is incomplete"
     },
-    "singleSelectOptionFilter": {
+    "selectOptionFilter": {
       "is": "Is",
       "isNot": "Is not",
-      "isEmpty": "Is empty",
-      "isNotEmpty": "Is not empty"
-    },
-    "multiSelectOptionFilter": {
       "contains": "Contains",
       "doesNotContain": "Does not contain",
       "isEmpty": "Is empty",
@@ -612,6 +637,7 @@
       "insertRight": "Insert Right",
       "duplicate": "Duplicate",
       "delete": "Delete",
+      "clear": "Clear cells",
       "textFieldName": "Text",
       "checkboxFieldName": "Checkbox",
       "dateFieldName": "Date",
@@ -652,6 +678,7 @@
       "editProperty": "Edit property",
       "newProperty": "New property",
       "deleteFieldPromptMessage": "Are you sure? This property will be deleted",
+      "clearFieldPromptMessage": "Are you sure? All cells in this column will be emptied",
       "newColumn": "New Column",
       "format": "Format",
       "reminderOnDateTooltip": "This cell has a scheduled reminder",
@@ -712,7 +739,7 @@
       "colorPanelTitle": "Color",
       "panelTitle": "Select an option or create one",
       "searchOption": "Search for an option",
-      "searchOrCreateOption": "Search or create an option...",
+      "searchOrCreateOption": "Search for an option or create one",
       "createNew": "Create a new",
       "orSelectOne": "Or select an option",
       "typeANewOption": "Type a new option",
@@ -725,10 +752,18 @@
       "hideComplete": "Hide completed tasks",
       "showComplete": "Show all tasks"
     },
+    "url": {
+      "launch": "Open link in browser",
+      "copy": "Copy link to clipboard",
+      "textFieldHint": "Enter a URL",
+      "copiedNotification": "Copied to clipboard!"
+    },
     "relation": {
       "relatedDatabasePlaceLabel": "Related Database",
       "relatedDatabasePlaceholder": "None",
       "inRelatedDatabase": "In",
+      "rowSearchTextFieldPlaceholder": "Search",
+      "noDatabaseSelected": "No database selected, please select one first from the list below:",
       "emptySearchResult": "No records found"
     },
     "menuName": "Grid",
@@ -1300,6 +1335,8 @@
     "copy": "Copy",
     "paste": "Paste",
     "find": "Find",
+    "select": "Select",
+    "selectAll": "Select all",
     "previousMatch": "Previous match",
     "nextMatch": "Next match",
     "closeFind": "Close",
@@ -1356,5 +1393,52 @@
     "addField": "Add field",
     "userIcon": "User icon"
   },
-  "noLogFiles": "There're no log files"
+  "noLogFiles": "There're no log files",
+  "newSettings": {
+    "myAccount": {
+      "title": "My account",
+      "subtitle": "Customize your profile, manage account security, open AI keys, or login into your account.",
+      "profileLabel": "Account name & Profile image",
+      "profileNamePlaceholder": "Enter your name",
+      "accountSecurity": "Account security",
+      "2FA": "2-Step Authentication",
+      "aiKeys": "AI keys",
+      "accountLogin": "Account Login",
+      "updateNameError": "Failed to update name",
+      "updateIconError": "Failed to update icon",
+      "deleteAccount": {
+        "title": "Delete Account",
+        "subtitle": "Permanently delete your account and all of your data.",
+        "deleteMyAccount": "Delete my account",
+        "dialogTitle": "Delete account",
+        "dialogContent1": "Are you sure you want to permanently delete your account?",
+        "dialogContent2": "This action cannot be undone, and will remove access from all teamspaces, erasing your entire account, including private workspaces, and removing you from all shared workspaces."
+      }
+    },
+    "workplace": {
+      "name": "Workplace",
+      "title": "Workplace Settings",
+      "subtitle": "Customize your workspace appearance, theme, font, text layout, date, time, and language.",
+      "workplaceName": "Workplace name",
+      "workplaceNamePlaceholder": "Enter workplace name",
+      "workplaceIcon": "Workplace icon",
+      "workplaceIconSubtitle": "Upload an image or use an emoji for your workspace. Icon will show in your sidebar and notifications",
+      "renameError": "Failed to rename workplace",
+      "updateIconError": "Failed to update icon",
+      "appearance": {
+        "name": "Appearance",
+        "themeMode": {
+          "auto": "Auto",
+          "light": "Light",
+          "dark": "Dark"
+        },
+        "language": "Language"
+      }
+    },
+    "syncState": {
+      "syncing": "Syncing",
+      "synced": "Synced",
+      "noNetworkConnected": "No network connected"
+    }
+  }
 }

@@ -19,10 +19,10 @@ function ViewBanner({
   onUpdateCover?: (cover?: PageCover) => void;
 }) {
   return (
-    <div className={'view-banner flex w-full flex-col'}>
+    <div className={'view-banner flex w-full flex-col overflow-hidden'}>
       {showCover && cover && <ViewCover cover={cover} onUpdateCover={onUpdateCover} />}
 
-      <div className={`relative min-h-[65px] ${showCover ? 'px-16' : ''} pt-4`}>
+      <div className={`relative min-h-[65px] ${showCover ? 'w-[964px] min-w-0 max-w-full px-16' : ''} pt-12`}>
         <div
           style={{
             display: icon ? 'flex' : 'none',

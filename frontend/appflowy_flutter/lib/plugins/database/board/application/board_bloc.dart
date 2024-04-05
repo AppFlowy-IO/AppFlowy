@@ -11,9 +11,11 @@ import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_board/appflowy_board.dart';
 import 'package:appflowy_result/appflowy_result.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:intl/intl.dart';
 import 'package:protobuf/protobuf.dart' hide FieldInfo;
 
 import '../../application/database_controller.dart';
@@ -383,21 +385,28 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
         groupList.insert(insertGroups.index, group);
         add(BoardEvent.didReceiveGroups(groupList));
       },
-      onUpdateGroup: (updatedGroups) {
+      onUpdateGroup: (updatedGroups) async {
         if (isClosed) {
           return;
         }
 
+        // workaround: update group most of the time gets called before fields in
+        // field controller are updated. For single and multi-select group
+        // renames, this is required before generating the new group name.
+        await Future.delayed(const Duration(milliseconds: 50));
+
         for (final group in updatedGroups) {
           // see if the column is already in the board
-
           final index = groupList.indexWhere((g) => g.groupId == group.groupId);
-          if (index == -1) continue;
+          if (index == -1) {
+            continue;
+          }
+
           final columnController =
               boardController.getGroupController(group.groupId);
           if (columnController != null) {
             // remove the group or update its name
-            columnController.updateGroupName(group.groupName);
+            columnController.updateGroupName(generateGroupNameFromGroup(group));
             if (!group.isVisible) {
               boardController.removeGroup(group.groupId);
             }
@@ -491,13 +500,79 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   AppFlowyGroupData _initializeGroupData(GroupPB group) {
     return AppFlowyGroupData(
       id: group.groupId,
-      name: group.groupName,
+      name: generateGroupNameFromGroup(group),
       items: _buildGroupItems(group),
       customData: GroupData(
         group: group,
         fieldInfo: fieldController.getField(group.fieldId)!,
       ),
     );
+  }
+
+  String generateGroupNameFromGroup(GroupPB group) {
+    final field = fieldController.getField(group.fieldId);
+    if (field == null) {
+      return "";
+    }
+
+    // if the group is the default group, then
+    if (group.isDefault) {
+      return "No ${field.name}";
+    }
+
+    switch (field.fieldType) {
+      case FieldType.SingleSelect:
+        final options =
+            SingleSelectTypeOptionPB.fromBuffer(field.field.typeOptionData)
+                .options;
+        final option =
+            options.firstWhereOrNull((option) => option.id == group.groupId);
+        return option == null ? "" : option.name;
+      case FieldType.MultiSelect:
+        final options =
+            MultiSelectTypeOptionPB.fromBuffer(field.field.typeOptionData)
+                .options;
+        final option =
+            options.firstWhereOrNull((option) => option.id == group.groupId);
+        return option == null ? "" : option.name;
+      case FieldType.Checkbox:
+        return group.groupId;
+      case FieldType.URL:
+        return group.groupId;
+      case FieldType.DateTime:
+        // Assume DateCondition::Relative as there isn't an option for this
+        // right now.
+        final dateFormat = DateFormat("y/MM/dd");
+        try {
+          final targetDateTime = dateFormat.parseLoose(group.groupId);
+          final targetDateTimeDay = DateTime(
+            targetDateTime.year,
+            targetDateTime.month,
+            targetDateTime.day,
+          );
+          final now = DateTime.now();
+          final nowDay = DateTime(
+            now.year,
+            now.month,
+            now.day,
+          );
+          final diff = targetDateTimeDay.difference(nowDay).inDays;
+          return switch (diff) {
+            0 => "Today",
+            -1 => "Yesterday",
+            1 => "Tomorrow",
+            -7 => "Last 7 days",
+            2 => "Next 7 days",
+            -30 => "Last 30 days",
+            8 => "Next 30 days",
+            _ => DateFormat("MMM y").format(targetDateTimeDay)
+          };
+        } on FormatException {
+          return "";
+        }
+      default:
+        return "";
+    }
   }
 }
 

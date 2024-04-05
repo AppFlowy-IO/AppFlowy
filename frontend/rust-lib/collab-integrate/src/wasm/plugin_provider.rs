@@ -2,12 +2,11 @@ use crate::collab_builder::{CollabPluginProviderContext, CollabPluginProviderTyp
 use collab::preclude::CollabPlugin;
 use lib_infra::future::Fut;
 use std::rc::Rc;
-use std::sync::Arc;
 
 pub trait CollabCloudPluginProvider: 'static {
   fn provider_type(&self) -> CollabPluginProviderType;
 
-  fn get_plugins(&self, context: CollabPluginProviderContext) -> Fut<Vec<Box<dyn CollabPlugin>>>;
+  fn get_plugins(&self, context: CollabPluginProviderContext) -> Vec<Box<dyn CollabPlugin>>;
 
   fn is_sync_enabled(&self) -> bool;
 }
@@ -20,7 +19,7 @@ where
     (**self).provider_type()
   }
 
-  fn get_plugins(&self, context: CollabPluginProviderContext) -> Fut<Vec<Box<dyn CollabPlugin>>> {
+  fn get_plugins(&self, context: CollabPluginProviderContext) -> Vec<Box<dyn CollabPlugin>> {
     (**self).get_plugins(context)
   }
 

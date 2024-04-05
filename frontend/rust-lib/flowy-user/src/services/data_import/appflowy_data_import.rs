@@ -5,7 +5,7 @@ use crate::services::entities::UserPaths;
 use crate::services::sqlite_sql::user_sql::select_user_profile;
 use crate::user_manager::run_collab_data_migration;
 use anyhow::anyhow;
-use collab::core::collab::{CollabDocState, MutexCollab};
+use collab::core::collab::{DocStateSource, MutexCollab};
 use collab::core::origin::CollabOrigin;
 use collab::core::transaction::DocTransactionExtension;
 use collab::preclude::updates::decoder::Decode;
@@ -14,7 +14,7 @@ use collab_database::database::{
   is_database_collab, mut_database_views_with_collab, reset_inline_view_id,
 };
 use collab_database::rows::{database_row_document_id_from_row_id, mut_row_with_collab, RowId};
-use collab_database::user::DatabaseViewTrackerList;
+use collab_database::workspace_database::DatabaseMetaList;
 use collab_document::document_data::default_document_collab_data;
 use collab_entity::CollabType;
 use collab_folder::{Folder, UserId, View, ViewIdentifier, ViewLayout};
@@ -26,7 +26,7 @@ use flowy_folder_pub::entities::{AppFlowyData, ImportData};
 use flowy_folder_pub::folder_builder::{ParentChildViews, ViewBuilder};
 use flowy_sqlite::kv::StorePreferences;
 use flowy_user_pub::cloud::{UserCloudService, UserCollabParams};
-use flowy_user_pub::entities::{awareness_oid_from_user_uuid, Authenticator};
+use flowy_user_pub::entities::{user_awareness_object_id, Authenticator};
 use flowy_user_pub::session::Session;
 use parking_lot::{Mutex, RwLock};
 use std::collections::{HashMap, HashSet};
@@ -80,6 +80,7 @@ pub(crate) fn get_appflowy_data_folder_import_context(path: &str) -> anyhow::Res
     &imported_user,
     imported_collab_db.clone(),
     imported_sqlite_db.get_pool(),
+    None,
   );
 
   Ok(ImportContext {
@@ -128,8 +129,13 @@ pub(crate) fn import_appflowy_data_folder(
     all_imported_object_ids.retain(|id| id != &imported_session.user_workspace.id);
     all_imported_object_ids
       .retain(|id| id != &imported_session.user_workspace.workspace_database_object_id);
-    all_imported_object_ids
-      .retain(|id| id != &awareness_oid_from_user_uuid(&imported_session.user_uuid).to_string());
+    all_imported_object_ids.retain(|id| {
+      id != &user_awareness_object_id(
+        &imported_session.user_uuid,
+        &imported_session.user_workspace.id,
+      )
+      .to_string()
+    });
 
     // import database view tracker
     migrate_database_view_tracker(
@@ -213,6 +219,7 @@ pub(crate) fn import_appflowy_data_folder(
 
         // create the content for the container view
         let import_container_doc_state = default_document_collab_data(&import_container_view_id)
+          .map_err(|err| PersistenceError::InvalidData(err.to_string()))?
           .doc_state
           .to_vec();
         import_collab_object_with_doc_state(
@@ -271,6 +278,7 @@ where
     &other_session.user_workspace.workspace_database_object_id,
     "phantom",
     vec![],
+    false,
   );
   database_view_tracker_collab.with_origin_transact_mut(|txn| {
     other_collab_read_txn.load_doc_with_txn(
@@ -280,11 +288,11 @@ where
     )
   })?;
 
-  let array = DatabaseViewTrackerList::from_collab(&database_view_tracker_collab);
-  for database_view_tracker in array.get_all_database_tracker() {
+  let array = DatabaseMetaList::from_collab(&database_view_tracker_collab);
+  for database_meta in array.get_all_database_meta() {
     database_view_ids_by_database_id.insert(
-      old_to_new_id_map.renew_id(&database_view_tracker.database_id),
-      database_view_tracker
+      old_to_new_id_map.renew_id(&database_meta.database_id),
+      database_meta
         .linked_views
         .into_iter()
         .map(|view_id| old_to_new_id_map.renew_id(&view_id))
@@ -418,27 +426,29 @@ where
   W: CollabKVAction<'a>,
   PersistenceError: From<W::Error>,
 {
-  if let Ok(update) = Update::decode_v1(&collab.encode_collab_v1().doc_state) {
-    let doc = Doc::new();
-    {
-      let mut txn = doc.transact_mut();
-      txn.apply_update(update);
-      drop(txn);
-    }
+  if let Ok(encode_collab) = collab.encode_collab_v1(|_| Ok::<(), PersistenceError>(())) {
+    if let Ok(update) = Update::decode_v1(&encode_collab.doc_state) {
+      let doc = Doc::new();
+      {
+        let mut txn = doc.transact_mut();
+        txn.apply_update(update);
+        drop(txn);
+      }
 
-    let encoded_collab = doc.get_encoded_collab_v1();
-    info!(
-      "import collab:{} with len: {}",
-      new_object_id,
-      encoded_collab.doc_state.len()
-    );
-    if let Err(err) = w_txn.flush_doc(
-      new_uid,
-      &new_object_id,
-      encoded_collab.state_vector.to_vec(),
-      encoded_collab.doc_state.to_vec(),
-    ) {
-      error!("import collab:{} failed: {:?}", new_object_id, err);
+      let encoded_collab = doc.get_encoded_collab_v1();
+      info!(
+        "import collab:{} with len: {}",
+        new_object_id,
+        encoded_collab.doc_state.len()
+      );
+      if let Err(err) = w_txn.flush_doc(
+        new_uid,
+        &new_object_id,
+        encoded_collab.state_vector.to_vec(),
+        encoded_collab.doc_state.to_vec(),
+      ) {
+        error!("import collab:{} failed: {:?}", new_object_id, err);
+      }
     }
   } else {
     event!(tracing::Level::ERROR, "decode v1 failed");
@@ -446,7 +456,7 @@ where
 }
 
 fn import_collab_object_with_doc_state<'a, W>(
-  doc_state: CollabDocState,
+  doc_state: Vec<u8>,
   new_uid: i64,
   new_object_id: &str,
   w_txn: &'a W,
@@ -455,7 +465,13 @@ where
   W: CollabKVAction<'a>,
   PersistenceError: From<W::Error>,
 {
-  let collab = Collab::new_with_doc_state(CollabOrigin::Empty, new_object_id, doc_state, vec![])?;
+  let collab = Collab::new_with_doc_state(
+    CollabOrigin::Empty,
+    new_object_id,
+    DocStateSource::FromDocState(doc_state),
+    vec![],
+    false,
+  )?;
   write_collab_object(&collab, new_uid, new_object_id, w_txn);
   Ok(())
 }
@@ -475,6 +491,7 @@ where
     &other_session.user_workspace.id,
     "phantom",
     vec![],
+    false,
   );
   other_folder_collab.with_origin_transact_mut(|txn| {
     other_collab_read_txn.load_doc_with_txn(
@@ -746,7 +763,8 @@ where
     .into_iter()
     .filter_map(|(oid, collab)| {
       collab
-        .encode_collab_v1()
+        .encode_collab_v1(|_| Ok::<(), PersistenceError>(()))
+        .ok()?
         .encode_to_bytes()
         .ok()
         .map(|encoded_collab| (oid, encoded_collab))

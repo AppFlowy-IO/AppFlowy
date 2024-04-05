@@ -2,6 +2,7 @@ use std::sync::Arc;
 
 use collab_folder::Folder;
 use collab_plugins::local_storage::kv::{KVTransactionDB, PersistenceError};
+use semver::Version;
 use tracing::instrument;
 
 use collab_integrate::{CollabKVAction, CollabKVDB};
@@ -18,6 +19,10 @@ pub struct WorkspaceTrashMapToSectionMigration;
 impl UserDataMigration for WorkspaceTrashMapToSectionMigration {
   fn name(&self) -> &str {
     "workspace_trash_map_to_section_migration"
+  }
+
+  fn applies_to_version(&self, _app_version: &Version) -> bool {
+    true
   }
 
   #[instrument(name = "WorkspaceTrashMapToSectionMigration", skip_all, err)]
@@ -38,10 +43,12 @@ impl UserDataMigration for WorkspaceTrashMapToSectionMigration {
           .collect::<Vec<String>>();
 
         if !trash_ids.is_empty() {
-          folder.add_trash(trash_ids);
+          folder.add_trash_view_ids(trash_ids);
         }
 
-        let encode = folder.encode_collab_v1();
+        let encode = folder
+          .encode_collab_v1()
+          .map_err(|err| PersistenceError::Internal(err.into()))?;
         write_txn.flush_doc_with(
           session.user_id,
           &session.user_workspace.id,

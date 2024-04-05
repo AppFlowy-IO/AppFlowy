@@ -71,8 +71,13 @@ export function withBlockDelete(editor: ReactEditor) {
       });
     }
 
-    // if the current node is not a paragraph, convert it to a paragraph
-    if (node.type !== EditorNodeType.Paragraph && node.type !== EditorNodeType.Page) {
+    // if the current node is not a paragraph, convert it to a paragraph(except code block and callout block)
+    if (
+      ![EditorNodeType.Paragraph, EditorNodeType.CalloutBlock, EditorNodeType.CodeBlock].includes(
+        node.type as EditorNodeType
+      ) &&
+      node.type !== EditorNodeType.Page
+    ) {
       CustomEditor.turnToBlock(editor, { type: EditorNodeType.Paragraph });
       return;
     }

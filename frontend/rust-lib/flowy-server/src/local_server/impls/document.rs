@@ -1,5 +1,4 @@
 use anyhow::Error;
-use collab::core::collab::CollabDocState;
 
 use flowy_document_pub::cloud::*;
 use flowy_error::{ErrorCode, FlowyError};
@@ -12,7 +11,7 @@ impl DocumentCloudService for LocalServerDocumentCloudServiceImpl {
     &self,
     document_id: &str,
     _workspace_id: &str,
-  ) -> FutureResult<CollabDocState, FlowyError> {
+  ) -> FutureResult<Vec<u8>, FlowyError> {
     let document_id = document_id.to_string();
     FutureResult::new(async move {
       Err(FlowyError::new(

@@ -54,13 +54,6 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v4
 
-      - name: Export pub environment variable on Windows
-        run: |
-          if [ "$RUNNER_OS" == "Windows" ]; then
-            echo "PUB_CACHE=$LOCALAPPDATA\\Pub\\Cache" >> $GITHUB_ENV
-          fi
-        shell: bash
-
       - name: Install flutter
         uses: subosito/flutter-action@v2
         with:
@@ -336,6 +329,7 @@ jobs:
       LINUX_PACKAGE_TMP_RPM_NAME: AppFlowy-${{ github.ref_name }}-2.x86_64.rpm
       LINUX_PACKAGE_TMP_APPIMAGE_NAME: AppFlowy-${{ github.ref_name }}-x86_64.AppImage
       LINUX_PACKAGE_APPIMAGE_NAME: AppFlowy-${{ github.ref_name }}-linux-x86_64.AppImage
+      LINUX_PACKAGE_ZIP_NAME: AppFlowy-${{ github.ref_name }}-linux-x86_64.tar.gz
 
     strategy:
       fail-fast: false
@@ -412,7 +406,8 @@ jobs:
         continue-on-error: true
         run: |
           sh scripts/linux_distribution/appimage/build_appimage.sh ${{ github.ref_name }}
-          cp -r ${{ env.LINUX_PACKAGE_TMP_APPIMAGE_NAME }} ${{ env.LINUX_PACKAGE_APPIMAGE_NAME }}
+          cd ..
+          cp -r frontend/${{ env.LINUX_PACKAGE_TMP_APPIMAGE_NAME }} ${{ env.LINUX_APP_RELEASE_PATH }}/${{ env.LINUX_PACKAGE_APPIMAGE_NAME }}
 
       - name: Upload Asset
         id: upload-release-asset
@@ -422,7 +417,7 @@ jobs:
         with:
           upload_url: ${{ needs.create-release.outputs.upload_url }}
           asset_path: ${{ env.LINUX_APP_RELEASE_PATH }}/${{ env.LINUX_ZIP_NAME }}
-          asset_name: ${{ env.LINUX_ZIP_NAME }}
+          asset_name: ${{ env.LINUX_PACKAGE_ZIP_NAME }}
           asset_content_type: application/octet-stream
 
       - name: Upload Debian package
