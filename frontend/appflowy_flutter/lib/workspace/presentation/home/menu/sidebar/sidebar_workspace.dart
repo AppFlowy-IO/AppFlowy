@@ -69,14 +69,12 @@ class _SidebarWorkspaceState extends State<SidebarWorkspace> {
     final isLoading = actionResult.isLoading;
 
     if (isLoading) {
-      loadingIndicator?.stop();
-      loadingIndicator = Loading(context);
-      loadingIndicator?.start();
+      loadingIndicator = Loading(context)..start();
       return;
+    } else {
+      loadingIndicator?.stop();
+      loadingIndicator = null;
     }
-
-    loadingIndicator?.stop();
-    loadingIndicator = null;
 
     if (result == null) {
       return;
