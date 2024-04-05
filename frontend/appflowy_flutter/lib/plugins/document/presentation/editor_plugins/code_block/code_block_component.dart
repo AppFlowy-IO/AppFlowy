@@ -332,6 +332,7 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
           ),
           Flexible(
             child: SingleChildScrollView(
+              physics: const ClampingScrollPhysics(),
               scrollDirection: Axis.horizontal,
               child: AppFlowyRichText(
                 key: forwardKey,
