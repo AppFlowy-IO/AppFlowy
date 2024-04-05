@@ -55,6 +55,7 @@ void main() {
 
       // see the success message
       var success = find.text(LocaleKeys.workspace_createSuccess.tr());
+      await tester.pumpUntilFound(success);
       expect(success, findsOneWidget);
       await tester.pumpUntilNotFound(success);
 
@@ -97,6 +98,7 @@ void main() {
           await tester.tapButton(find.text(LocaleKeys.button_ok.tr()));
           // delete success
           success = find.text(LocaleKeys.workspace_createSuccess.tr());
+          await tester.pumpUntilFound(success);
           expect(success, findsOneWidget);
           await tester.pumpUntilNotFound(success);
         },
