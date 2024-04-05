@@ -18,7 +18,7 @@ pub(crate) fn init_log(config: &AppFlowyCoreConfig) {
   }
 }
 
-pub(crate) fn create_log_filter(level: String, with_crates: Vec<String>) -> String {
+pub fn create_log_filter(level: String, with_crates: Vec<String>) -> String {
   let level = std::env::var("RUST_LOG").unwrap_or(level);
   let mut filters = with_crates
     .into_iter()
