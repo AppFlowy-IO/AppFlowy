@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/favorite/prelude.dart';
@@ -106,21 +105,22 @@ class HomeSideBar extends StatelessWidget {
                 ),
                 BlocListener<UserWorkspaceBloc, UserWorkspaceState>(
                   listener: (context, state) {
-                    context.read<TabsBloc>().add(
-                          TabsEvent.openPlugin(
-                            plugin: makePlugin(pluginType: PluginType.blank),
-                          ),
-                        );
-                    context.read<SidebarSectionsBloc>().add(
-                          SidebarSectionsEvent.initial(
-                            userProfile,
-                            state.currentWorkspace?.workspaceId ??
-                                workspaceSetting.workspaceId,
-                          ),
-                        );
-                    context.read<FavoriteBloc>().add(
-                          const FavoriteEvent.fetchFavorites(),
-                        );
+                    final actionType = state.actionResult?.actionType;
+
+                    if (actionType == UserWorkspaceActionType.create ||
+                        actionType == UserWorkspaceActionType.delete ||
+                        actionType == UserWorkspaceActionType.open) {
+                      context.read<SidebarSectionsBloc>().add(
+                            SidebarSectionsEvent.reload(
+                              userProfile,
+                              state.currentWorkspace?.workspaceId ??
+                                  workspaceSetting.workspaceId,
+                            ),
+                          );
+                      context.read<FavoriteBloc>().add(
+                            const FavoriteEvent.fetchFavorites(),
+                          );
+                    }
                   },
                 ),
               ],
