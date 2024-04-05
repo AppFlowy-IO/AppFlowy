@@ -51,41 +51,65 @@ async fn af_cloud_workspace_change_name_and_icon() {
 
 #[tokio::test]
 async fn af_cloud_create_workspace_test() {
-  user_localhost_af_cloud().await;
-  let test = EventIntegrationTest::new().await;
-  let user_profile_pb = test.af_cloud_sign_up().await;
-
-  let workspaces = test.get_all_workspaces().await.items;
-  let first_workspace_id = workspaces[0].workspace_id.as_str();
-  assert_eq!(workspaces.len(), 1);
-
-  let created_workspace = test.create_workspace("my second workspace").await;
-  assert_eq!(created_workspace.name, "my second workspace");
-
-  let workspaces = get_synced_workspaces(&test, user_profile_pb.id).await;
-  assert_eq!(workspaces.len(), 2);
-  let _second_workspace = workspaces
-    .iter()
-    .find(|w| w.name == "my second workspace")
-    .expect("created workspace not found");
+  let name = uuid::Uuid::new_v4().to_string();
+  let email;
+  let second_workspace_id;
 
   {
-    // before opening new workspace
-    let folder_ws = test.folder_read_current_workspace().await;
-    assert_eq!(&folder_ws.id, first_workspace_id);
-    let views = test.folder_read_current_workspace_views().await;
-    assert_eq!(views.items[0].parent_view_id.as_str(), first_workspace_id);
+    user_localhost_af_cloud().await;
+    let test = EventIntegrationTest::new_with_name(name.clone()).await;
+    let user_profile_pb = test.af_cloud_sign_up().await;
+    email = user_profile_pb.email;
+
+    let workspaces = test.get_all_workspaces().await.items;
+    let first_workspace_id = workspaces[0].workspace_id.as_str();
+    assert_eq!(workspaces.len(), 1);
+
+    let created_workspace = test.create_workspace("my second workspace").await;
+    second_workspace_id = created_workspace.workspace_id.clone();
+    assert_eq!(created_workspace.name, "my second workspace");
+
+    let workspaces = get_synced_workspaces(&test, user_profile_pb.id).await;
+    assert_eq!(workspaces.len(), 2);
+    let _second_workspace = workspaces
+      .iter()
+      .find(|w| w.name == "my second workspace")
+      .expect("created workspace not found");
+
+    {
+      // before opening new workspace
+      let folder_ws = test.folder_read_current_workspace().await;
+      assert_eq!(&folder_ws.id, first_workspace_id);
+      let views = test.folder_read_current_workspace_views().await;
+      assert_eq!(views.items[0].parent_view_id.as_str(), first_workspace_id);
+    }
+    {
+      // after opening new workspace
+      test.open_workspace(&created_workspace.workspace_id).await;
+      let folder_ws = test.folder_read_current_workspace().await;
+      assert_eq!(folder_ws.id, created_workspace.workspace_id);
+      let views = test.folder_read_current_workspace_views().await;
+      assert_eq!(
+        views.items[0].parent_view_id.as_str(),
+        created_workspace.workspace_id
+      );
+    }
   }
+
   {
-    // after opening new workspace
-    test.open_workspace(&created_workspace.workspace_id).await;
-    let folder_ws = test.folder_read_current_workspace().await;
-    assert_eq!(folder_ws.id, created_workspace.workspace_id);
-    let views = test.folder_read_current_workspace_views().await;
-    assert_eq!(
-      views.items[0].parent_view_id.as_str(),
-      created_workspace.workspace_id
-    );
+    // Restart the app and read current workspace
+    user_localhost_af_cloud().await;
+    let test = EventIntegrationTest::new_with_name(name).await;
+    test.af_cloud_sign_in_with_email(&email).await.unwrap();
+    let user_profile_pb = test.get_user_profile().await.unwrap();
+
+    let workspaces = get_synced_workspaces(&test, user_profile_pb.id).await;
+    assert_eq!(workspaces.len(), 2);
+
+    {
+      let folder_ws = test.folder_read_current_workspace().await;
+      assert_eq!(folder_ws.id, second_workspace_id);
+    }
   }
 }
 
