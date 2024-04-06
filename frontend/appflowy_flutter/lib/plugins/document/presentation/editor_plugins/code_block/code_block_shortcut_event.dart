@@ -74,7 +74,10 @@ final CommandShortcutEvent tabToInsertSpacesInCodeBlockCommand =
   key: 'tab to insert two spaces at the line start in code block',
   command: 'tab',
   getDescription: () => 'Insert two spaces at the line start in code block',
-  handler: _tabToInsertSpacesInCodeBlockCommandHandler,
+  handler: (editorState) => _indentationInCodeBlockCommandHandler(
+    editorState,
+    true,
+  ),
 );
 
 /// shift+tab to delete two spaces at the line start in code block if needed.
@@ -87,7 +90,10 @@ final CommandShortcutEvent tabToDeleteSpacesInCodeBlockCommand =
   key: 'shift + tab to delete two spaces at the line start in code block',
   command: 'shift+tab',
   getDescription: () => 'Delete two spaces at the line start in code block',
-  handler: _tabToDeleteSpacesInCodeBlockCommandHandler,
+  handler: (editorState) => _indentationInCodeBlockCommandHandler(
+    editorState,
+    false,
+  ),
 );
 
 /// CTRL+A to select all content inside a Code Block, if cursor is inside one.
@@ -203,8 +209,10 @@ CommandShortcutEventHandler _insertNewParagraphNextToCodeBlockCommandHandler =
   return KeyEventResult.handled;
 };
 
-CommandShortcutEventHandler _tabToInsertSpacesInCodeBlockCommandHandler =
-    (editorState) {
+KeyEventResult _indentationInCodeBlockCommandHandler(
+  EditorState editorState,
+  bool shouldIndent,
+) {
   final selection = editorState.selection;
   if (selection == null) {
     return KeyEventResult.ignored;
@@ -217,29 +225,32 @@ CommandShortcutEventHandler _tabToInsertSpacesInCodeBlockCommandHandler =
 
   const spaces = '  ';
   final lines = delta.toPlainText().split('\n');
-
   int index = 0;
 
   // We store indexes to be indented in a list, because we should
   // indent it in a reverse order to not mess up the offsets.
   final List<int> transactions = [];
-  for (final line in lines) {
-    bool canIndentLine = false;
-    if (selection.isCollapsed) {
-      canIndentLine = index <= selection.endIndex &&
-          selection.endIndex <= index + line.length;
-    } else {
-      canIndentLine = index + line.length >= selection.startIndex &&
-          selection.endIndex >= index;
 
-      if (line.trim().isEmpty) {
-        canIndentLine = false;
+  for (final line in lines) {
+    if (!shouldIndent && line.startsWith(spaces) || shouldIndent) {
+      bool shouldTransform = false;
+      if (selection.isCollapsed) {
+        shouldTransform = index <= selection.endIndex &&
+            selection.endIndex <= index + line.length;
+      } else {
+        shouldTransform = index + line.length >= selection.startIndex &&
+            selection.endIndex >= index;
+
+        if (shouldIndent && line.trim().isEmpty) {
+          shouldTransform = false;
+        }
+      }
+
+      if (shouldTransform) {
+        transactions.add(index);
       }
     }
 
-    if (canIndentLine) {
-      transactions.add(index);
-    }
     index += line.length + 1;
   }
 
@@ -250,74 +261,11 @@ CommandShortcutEventHandler _tabToInsertSpacesInCodeBlockCommandHandler =
   final transaction = editorState.transaction;
 
   for (final index in transactions.reversed) {
-    transaction.insertText(node, index, spaces);
-  }
-
-  // In case the selection is made backwards, we store the start
-  // and end here, we will adjust the order later
-  final start = !selection.isBackward ? selection.end : selection.start;
-  final end = !selection.isBackward ? selection.start : selection.end;
-
-  final endSelection = end.copyWith(
-    offset: end.offset + (spaces.length * transactions.length),
-  );
-
-  final startSelection = selection.isCollapsed
-      ? endSelection
-      : start.copyWith(offset: start.offset + spaces.length);
-
-  transaction.afterSelection = selection.copyWith(
-    start: selection.isBackward ? startSelection : endSelection,
-    end: selection.isBackward ? endSelection : startSelection,
-  );
-
-  editorState.apply(transaction);
-
-  return KeyEventResult.handled;
-};
-
-CommandShortcutEventHandler _tabToDeleteSpacesInCodeBlockCommandHandler =
-    (editorState) {
-  final selection = editorState.selection;
-  if (selection == null) {
-    return KeyEventResult.ignored;
-  }
-  final node = editorState.getNodeAtPath(selection.end.path);
-  final delta = node?.delta;
-  if (node == null || delta == null || node.type != CodeBlockKeys.type) {
-    return KeyEventResult.ignored;
-  }
-  const spaces = '  ';
-  final lines = delta.toPlainText().split('\n');
-  int index = 0;
-
-  // We store indexes to be indented in a list, because we should
-  // indent it in a reverse order to not mess up the offsets.
-  final List<int> transactions = [];
-
-  for (final line in lines) {
-    if (line.startsWith(spaces)) {
-      bool canOutdentLine = false;
-      if (selection.isCollapsed) {
-        canOutdentLine = index <= selection.endIndex &&
-            selection.endIndex <= index + line.length;
-      } else {
-        canOutdentLine = index + line.length >= selection.startIndex &&
-            selection.endIndex >= index;
-      }
-
-      if (canOutdentLine) {
-        transactions.add(index);
-      }
+    if (shouldIndent) {
+      transaction.insertText(node, index, spaces);
+    } else {
+      transaction.deleteText(node, index, spaces.length);
     }
-
-    index += line.length + 1;
-  }
-
-  final transaction = editorState.transaction;
-
-  for (final index in transactions.reversed) {
-    transaction.deleteText(node, index, spaces.length);
   }
 
   // In case the selection is made backwards, we store the start
@@ -325,13 +273,19 @@ CommandShortcutEventHandler _tabToDeleteSpacesInCodeBlockCommandHandler =
   final start = !selection.isBackward ? selection.end : selection.start;
   final end = !selection.isBackward ? selection.start : selection.end;
 
-  final endSelection = end.copyWith(
-    offset: end.offset - (spaces.length * transactions.length),
-  );
+  final endOffset = shouldIndent
+      ? end.offset + (spaces.length * transactions.length)
+      : end.offset - (spaces.length * transactions.length);
+
+  final endSelection = end.copyWith(offset: endOffset);
+
+  final startOffset = shouldIndent
+      ? start.offset + spaces.length
+      : start.offset - spaces.length;
 
   final startSelection = selection.isCollapsed
       ? endSelection
-      : start.copyWith(offset: start.offset - spaces.length);
+      : start.copyWith(offset: startOffset);
 
   transaction.afterSelection = selection.copyWith(
     start: selection.isBackward ? startSelection : endSelection,
@@ -341,7 +295,7 @@ CommandShortcutEventHandler _tabToDeleteSpacesInCodeBlockCommandHandler =
   editorState.apply(transaction);
 
   return KeyEventResult.handled;
-};
+}
 
 CommandShortcutEventHandler _selectAllInCodeBlockCommandHandler =
     (editorState) {
