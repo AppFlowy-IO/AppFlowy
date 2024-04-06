@@ -109,7 +109,7 @@ fn sync_view(
           doc_state.len()
         );
         user_service
-          .create_collab_object(&collab_object, doc_state, false)
+          .create_collab_object(&collab_object, doc_state)
           .await?;
       },
       ViewLayout::Grid | ViewLayout::Board | ViewLayout::Calendar => {
@@ -121,7 +121,7 @@ fn sync_view(
           database_doc_state.len()
         );
         user_service
-          .create_collab_object(&collab_object, database_doc_state, false)
+          .create_collab_object(&collab_object, database_doc_state)
           .await?;
 
         // sync database's row
@@ -145,7 +145,7 @@ fn sync_view(
           );
 
           let _ = user_service
-            .create_collab_object(&database_row_collab_object, database_row_doc_state, false)
+            .create_collab_object(&database_row_collab_object, database_row_doc_state)
             .await;
 
           let database_row_document = CollabObject::new(
@@ -165,7 +165,7 @@ fn sync_view(
               document_doc_state.len()
             );
             let _ = user_service
-              .create_collab_object(&database_row_document, document_doc_state, false)
+              .create_collab_object(&database_row_document, document_doc_state)
               .await;
           }
         }
@@ -287,7 +287,7 @@ async fn sync_folder(
     update.len()
   );
   if let Err(err) = user_service
-    .create_collab_object(&collab_object, update.to_vec(), false)
+    .create_collab_object(&collab_object, update.to_vec())
     .await
   {
     tracing::error!("🔴sync folder failed: {:?}", err);
@@ -334,7 +334,7 @@ async fn sync_database_views(
 
   if let Ok((records, doc_state)) = result {
     let _ = user_service
-      .create_collab_object(&collab_object, doc_state.to_vec(), false)
+      .create_collab_object(&collab_object, doc_state.to_vec())
       .await;
     records.into_iter().map(Arc::new).collect()
   } else {
