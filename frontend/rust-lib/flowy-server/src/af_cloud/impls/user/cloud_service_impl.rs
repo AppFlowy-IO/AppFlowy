@@ -175,6 +175,7 @@ where
     })
   }
 
+  #[allow(deprecated)]
   fn add_workspace_member(
     &self,
     user_email: String,
@@ -182,6 +183,7 @@ where
   ) -> FutureResult<(), FlowyError> {
     let try_get_client = self.server.try_get_client();
     FutureResult::new(async move {
+      // TODO(zack): add_workspace_members will be deprecated after finishing the invite logic. Don't forget to remove the #[allow(deprecated)]
       try_get_client?
         .add_workspace_members(
           workspace_id,
@@ -276,7 +278,6 @@ where
     &self,
     collab_object: &CollabObject,
     data: Vec<u8>,
-    override_if_exist: bool,
   ) -> FutureResult<(), FlowyError> {
     let try_get_client = self.server.try_get_client();
     let collab_object = collab_object.clone();
@@ -287,7 +288,6 @@ where
         object_id: collab_object.object_id.clone(),
         encoded_collab_v1: data,
         collab_type: collab_object.collab_type.clone(),
-        override_if_exist,
       };
       client.create_collab(params).await?;
       Ok(())
@@ -308,7 +308,6 @@ where
           object_id: object.object_id,
           encoded_collab_v1: object.encoded_collab,
           collab_type: object.collab_type,
-          override_if_exist: false,
         })
         .collect::<Vec<_>>();
       try_get_client?
