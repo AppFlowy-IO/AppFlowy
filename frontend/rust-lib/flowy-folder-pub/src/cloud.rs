@@ -51,7 +51,6 @@ pub struct FolderCollabParams {
   pub object_id: String,
   pub encoded_collab_v1: Vec<u8>,
   pub collab_type: CollabType,
-  pub override_if_exist: bool,
 }
 
 pub struct FolderSnapshot {

@@ -35,6 +35,8 @@ class _SidebarWorkspaceState extends State<SidebarWorkspace> {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<UserWorkspaceBloc, UserWorkspaceState>(
+      listenWhen: (previous, current) =>
+          previous.actionResult != current.actionResult,
       listener: _showResultDialog,
       builder: (context, state) {
         final currentWorkspace = state.currentWorkspace;
