@@ -53,12 +53,20 @@ void main() {
       const name = 'AppFlowy.IO';
       // the workspace will be opened after created
       await tester.createCollaborativeWorkspace(name);
+      await tester.pumpAndSettle(const Duration(seconds: 10));
 
-      Finder success;
-      Finder items;
+      Finder success = find.text(LocaleKeys.workspace_openSuccess.tr());
+      await tester.pumpUntilNotFound(success);
 
       // delete the newly created workspace
       await tester.openCollaborativeWorkspaceMenu();
+      Finder items = find.byType(WorkspaceMenuItem);
+      expect(items, findsNWidgets(2));
+      expect(
+        tester.widget<WorkspaceMenuItem>(items.last).workspace.name,
+        name,
+      );
+
       final secondWorkspace = find.byType(WorkspaceMenuItem).last;
       await tester.hoverOnWidget(
         secondWorkspace,
