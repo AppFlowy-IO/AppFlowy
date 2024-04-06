@@ -560,7 +560,6 @@ extension CommonOperations on WidgetTester {
 
     // input the workspace name
     await enterText(find.byType(TextField), name);
-    await pumpAndSettle();
 
     await tapButtonWithName(LocaleKeys.button_ok.tr());
   }

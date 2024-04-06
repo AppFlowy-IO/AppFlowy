@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/loading.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/af_cloud_mock_auth_service.dart';
@@ -53,10 +54,11 @@ void main() {
       const name = 'AppFlowy.IO';
       // the workspace will be opened after created
       await tester.createCollaborativeWorkspace(name);
-      await tester.pumpAndSettle(const Duration(seconds: 10));
 
-      Finder success = find.text(LocaleKeys.workspace_openSuccess.tr());
-      await tester.pumpUntilNotFound(success);
+      final loading = find.byType(Loading);
+      await tester.pumpUntilNotFound(loading);
+
+      Finder success;
 
       // delete the newly created workspace
       await tester.openCollaborativeWorkspaceMenu();
