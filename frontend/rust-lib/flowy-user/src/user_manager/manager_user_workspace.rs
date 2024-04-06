@@ -139,6 +139,7 @@ impl UserManager {
       .get_user_service()?
       .open_workspace(workspace_id)
       .await;
+
     if let Some(user_workspace) = self.get_user_workspace(uid, workspace_id) {
       if let Err(err) = self
         .user_status_callback
