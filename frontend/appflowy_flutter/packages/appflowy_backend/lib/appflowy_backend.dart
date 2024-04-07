@@ -30,11 +30,8 @@ class FlowySDK {
   Future<void> dispose() async {}
 
   Future<void> init(String configuration) async {
-    final notificationPort = RustStreamReceiver.shared.port;
-    debugPrint('log port: ${notificationPort}');
-    ffi.set_stream_port(notificationPort);
+    ffi.set_stream_port(RustStreamReceiver.shared.port);
     ffi.store_dart_post_cobject(NativeApi.postCObject);
-    debugPrint('log port: ${RustLogStreamReceiver.logShared.port}');
     ffi.set_log_stream_port(RustLogStreamReceiver.logShared.port);
 
     // final completer = Completer<Uint8List>();
