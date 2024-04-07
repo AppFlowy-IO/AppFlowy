@@ -1,10 +1,16 @@
 use lib_infra::util::Platform;
+use lib_log::stream_log::StreamLogSender;
 use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::Arc;
 
 use crate::AppFlowyCoreConfig;
 
 static INIT_LOG: AtomicBool = AtomicBool::new(false);
-pub(crate) fn init_log(config: &AppFlowyCoreConfig, platform: &Platform) {
+pub(crate) fn init_log(
+  config: &AppFlowyCoreConfig,
+  platform: &Platform,
+  stream_log_sender: Option<Arc<dyn StreamLogSender>>,
+) {
   #[cfg(debug_assertions)]
   if get_bool_from_env_var("DISABLE_CI_TEST_LOG") {
     return;
@@ -13,7 +19,7 @@ pub(crate) fn init_log(config: &AppFlowyCoreConfig, platform: &Platform) {
   if !INIT_LOG.load(Ordering::SeqCst) {
     INIT_LOG.store(true, Ordering::SeqCst);
 
-    let _ = lib_log::Builder::new("log", &config.storage_path, platform)
+    let _ = lib_log::Builder::new("log", &config.storage_path, platform, stream_log_sender)
       .env_filter(&config.log_filter)
       .build();
   }

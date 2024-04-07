@@ -24,6 +24,7 @@ crossbeam-utils = "0.8.15"
 lazy_static = "1.4.0"
 parking_lot.workspace = true
 tracing.workspace = true
+lib-log.workspace = true
 
 # workspace
 lib-dispatch = { workspace = true }

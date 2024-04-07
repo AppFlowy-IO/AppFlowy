@@ -149,7 +149,7 @@ async fn init_core(config: AppFlowyCoreConfig) -> AppFlowyCore {
   std::thread::spawn(|| {
     let runtime = Arc::new(AFPluginRuntime::new().unwrap());
     let cloned_runtime = runtime.clone();
-    runtime.block_on(async move { AppFlowyCore::new(config, cloned_runtime).await })
+    runtime.block_on(async move { AppFlowyCore::new(config, cloned_runtime, None).await })
   })
   .join()
   .unwrap()

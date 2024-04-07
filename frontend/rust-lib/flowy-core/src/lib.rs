@@ -21,6 +21,7 @@ use lib_dispatch::prelude::*;
 use lib_dispatch::runtime::AFPluginRuntime;
 use lib_infra::priority_task::{TaskDispatcher, TaskRunner};
 use lib_infra::util::Platform;
+use lib_log::stream_log::StreamLogSender;
 use module::make_plugins;
 
 use crate::config::AppFlowyCoreConfig;
@@ -54,7 +55,11 @@ pub struct AppFlowyCore {
 }
 
 impl AppFlowyCore {
-  pub async fn new(config: AppFlowyCoreConfig, runtime: Arc<AFPluginRuntime>) -> Self {
+  pub async fn new(
+    config: AppFlowyCoreConfig,
+    runtime: Arc<AFPluginRuntime>,
+    stream_log_sender: Option<Arc<dyn StreamLogSender>>,
+  ) -> Self {
     let platform = Platform::from(&config.platform);
 
     #[allow(clippy::if_same_then_else)]
@@ -67,9 +72,9 @@ impl AppFlowyCore {
 
       // Init the logger before anything else
       #[cfg(not(feature = "profiling"))]
-      init_log(&config, &platform);
+      init_log(&config, &platform, stream_log_sender);
     } else {
-      init_log(&config, &platform);
+      init_log(&config, &platform, stream_log_sender);
     }
 
     info!(
