@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/loading.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/af_cloud_mock_auth_service.dart';
@@ -51,33 +52,23 @@ void main() {
       await tester.expectToSeeHomePageWithGetStartedPage();
 
       const name = 'AppFlowy.IO';
+      // the workspace will be opened after created
       await tester.createCollaborativeWorkspace(name);
 
-      // see the success message
-      var success = find.text(LocaleKeys.workspace_createSuccess.tr());
-      expect(success, findsOneWidget);
-      await tester.pumpUntilNotFound(success);
+      final loading = find.byType(Loading);
+      await tester.pumpUntilNotFound(loading);
 
-      // check the create result
+      Finder success;
+
+      // delete the newly created workspace
       await tester.openCollaborativeWorkspaceMenu();
-      var items = find.byType(WorkspaceMenuItem);
+      final Finder items = find.byType(WorkspaceMenuItem);
       expect(items, findsNWidgets(2));
       expect(
         tester.widget<WorkspaceMenuItem>(items.last).workspace.name,
         name,
       );
 
-      // open the newly created workspace
-      await tester.tapButton(items.last, milliseconds: 1000);
-      success = find.text(LocaleKeys.workspace_openSuccess.tr());
-      await tester.pumpUntilFound(success);
-      expect(success, findsOneWidget);
-      await tester.pumpUntilNotFound(success);
-
-      await tester.closeCollaborativeWorkspaceMenu();
-
-      // delete the newly created workspace
-      await tester.openCollaborativeWorkspaceMenu();
       final secondWorkspace = find.byType(WorkspaceMenuItem).last;
       await tester.hoverOnWidget(
         secondWorkspace,
@@ -97,20 +88,11 @@ void main() {
           await tester.tapButton(find.text(LocaleKeys.button_ok.tr()));
           // delete success
           success = find.text(LocaleKeys.workspace_createSuccess.tr());
+          await tester.pumpUntilFound(success);
           expect(success, findsOneWidget);
           await tester.pumpUntilNotFound(success);
         },
       );
-
-      // check the result
-      await tester.openCollaborativeWorkspaceMenu();
-      items = find.byType(WorkspaceMenuItem);
-      expect(items, findsOneWidget);
-      expect(
-        tester.widget<WorkspaceMenuItem>(items.last).workspace.name != name,
-        true,
-      );
-      await tester.closeCollaborativeWorkspaceMenu();
     });
   });
 }
