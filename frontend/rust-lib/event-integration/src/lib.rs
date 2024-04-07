@@ -54,15 +54,22 @@ impl EventIntegrationTest {
     let path = path_buf.to_str().unwrap().to_string();
     let device_id = uuid::Uuid::new_v4().to_string();
 
-    let config = AppFlowyCoreConfig::new("".to_string(), path.clone(), path, device_id, name)
-      .log_filter(
-        "trace",
-        vec![
-          "flowy_test".to_string(),
-          "tokio".to_string(),
-          // "lib_dispatch".to_string(),
-        ],
-      );
+    let config = AppFlowyCoreConfig::new(
+      "".to_string(),
+      path.clone(),
+      path,
+      device_id,
+      "test".to_string(),
+      name,
+    )
+    .log_filter(
+      "trace",
+      vec![
+        "flowy_test".to_string(),
+        "tokio".to_string(),
+        // "lib_dispatch".to_string(),
+      ],
+    );
 
     let inner = init_core(config).await;
     let notification_sender = TestNotificationSender::new();
@@ -142,7 +149,7 @@ async fn init_core(config: AppFlowyCoreConfig) -> AppFlowyCore {
   std::thread::spawn(|| {
     let runtime = Arc::new(AFPluginRuntime::new().unwrap());
     let cloned_runtime = runtime.clone();
-    runtime.block_on(async move { AppFlowyCore::new(config, cloned_runtime).await })
+    runtime.block_on(async move { AppFlowyCore::new(config, cloned_runtime, None).await })
   })
   .join()
   .unwrap()

@@ -15,6 +15,7 @@ pub struct AppFlowyDartConfiguration {
   pub custom_app_path: String,
   pub origin_app_path: String,
   pub device_id: String,
+  pub platform: String,
   pub authenticator_type: AuthenticatorType,
   pub(crate) supabase_config: SupabaseConfiguration,
   pub(crate) appflowy_cloud_config: AFCloudConfiguration,

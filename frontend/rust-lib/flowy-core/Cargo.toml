@@ -68,4 +68,9 @@ ts = [
 ]
 rev-sqlite = ["flowy-user/rev-sqlite"]
 openssl_vendored = ["flowy-sqlite/openssl_vendored"]
-verbose_log = ["flowy-document/verbose_log", "client-api/sync_verbose_log"]
+
+# Enable/Disable AppFlowy Verbose Log Configuration
+verbose_log = [
+#    "flowy-document/verbose_log",
+    "client-api/sync_verbose_log"
+]

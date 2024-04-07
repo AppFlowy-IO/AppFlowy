@@ -30,7 +30,7 @@ flowy-error = { workspace = true, features = ["impl_from_dispatch_error", "web_t
 flowy-document = { workspace = true, features = ["web_ts"] }
 flowy-folder = { workspace = true, features = ["web_ts"] }
 lib-infra = { workspace = true }
-collab = { workspace = true, features = ["async-plugin"] }
+collab = { workspace = true }
 web-sys = "0.3"
 wasm-bindgen-futures.workspace = true
 uuid.workspace = true
