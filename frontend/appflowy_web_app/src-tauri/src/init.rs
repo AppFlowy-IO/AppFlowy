@@ -49,6 +49,7 @@ pub fn init_flowy_core() -> AppFlowyCore {
     custom_application_path,
     application_path,
     device_id,
+    "web".to_string(),
     DEFAULT_NAME.to_string(),
   )
   .log_filter("trace", vec!["appflowy_tauri".to_string()]);

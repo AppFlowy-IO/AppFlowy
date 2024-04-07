@@ -65,11 +65,6 @@ impl AppFlowyCore {
   #[instrument(skip(config, runtime))]
   async fn init(config: AppFlowyCoreConfig, runtime: Arc<AFPluginRuntime>) -> Self {
     let platform = Platform::from(&config.platform);
-    info!(
-      "💡{:?}, platform: {:?}",
-      System::long_os_version(),
-      platform
-    );
 
     #[allow(clippy::if_same_then_else)]
     if cfg!(debug_assertions) {
@@ -85,6 +80,12 @@ impl AppFlowyCore {
     } else {
       init_log(&config, &platform);
     }
+
+    info!(
+      "💡{:?}, platform: {:?}",
+      System::long_os_version(),
+      platform
+    );
 
     // Init the key value database
     let store_preference = Arc::new(StorePreferences::new(&config.storage_path).unwrap());

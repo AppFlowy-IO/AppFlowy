@@ -61,7 +61,7 @@ AppFlowyConfiguration _makeAppFlowyConfiguration(
     custom_app_path: customAppPath,
     origin_app_path: originAppPath,
     device_id: deviceId,
-    platform: _platformType(),
+    platform: Platform.operatingSystem,
     authenticator_type: env.authenticatorType.value,
     supabase_config: env.supabaseConfig,
     appflowy_cloud_config: env.appflowyCloudConfig,
@@ -71,6 +71,7 @@ AppFlowyConfiguration _makeAppFlowyConfiguration(
 
 /// Simplify platform type determination using a single function
 String _platformType() {
+  Platform.operatingSystem;
   if (Platform.isIOS) {
     return 'ios';
   } else if (Platform.isAndroid) {

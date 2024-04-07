@@ -5,6 +5,8 @@ import 'package:flutter/services.dart';
 import 'dart:ffi';
 import 'ffi.dart' as ffi;
 import 'package:ffi/ffi.dart';
+import 'dart:isolate';
+import 'dart:io';
 
 enum ExceptionType {
   AppearanceSettingsIsEmpty,
@@ -27,8 +29,8 @@ class FlowySDK {
   Future<void> dispose() async {}
 
   Future<void> init(String configuration) async {
-    final port = RustStreamReceiver.shared.port;
-    ffi.set_stream_port(port);
+    final notificationPort = RustStreamReceiver.shared.port;
+    ffi.set_stream_port(notificationPort);
     ffi.store_dart_post_cobject(NativeApi.postCObject);
 
     // final completer = Completer<Uint8List>();
@@ -40,5 +42,28 @@ class FlowySDK {
       throw Exception('Failed to initialize the SDK');
     }
     // return completer.future;
+  }
+}
+
+class RustLogStreamReceiver {
+  static RustLogStreamReceiver logShared = RustLogStreamReceiver._internal();
+  late RawReceivePort _ffiPort;
+  late StreamController<Uint8List> _streamController;
+  int get port => _ffiPort.sendPort.nativePort;
+
+  RustLogStreamReceiver._internal() {
+    _ffiPort = RawReceivePort();
+    _streamController = StreamController();
+    _ffiPort.handler = _streamController.add;
+    stdout.addStream(_streamController.stream);
+  }
+
+  factory RustLogStreamReceiver() {
+    return logShared;
+  }
+
+  Future<void> dispose() async {
+    await _streamController.close();
+    _ffiPort.close();
   }
 }
