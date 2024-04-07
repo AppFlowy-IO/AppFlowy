@@ -17,6 +17,7 @@ pub struct AppFlowyCoreConfig {
   pub(crate) app_version: String,
   pub(crate) name: String,
   pub(crate) device_id: String,
+  pub platform: String,
   /// Used to store the user data
   pub storage_path: String,
   /// Origin application path is the path of the application binary. By default, the
@@ -77,6 +78,7 @@ impl AppFlowyCoreConfig {
     custom_application_path: String,
     application_path: String,
     device_id: String,
+    platform: String,
     name: String,
   ) -> Self {
     let cloud_config = AFCloudConfiguration::from_env().ok();
@@ -97,6 +99,7 @@ impl AppFlowyCoreConfig {
       storage_path,
       application_path,
       device_id,
+      platform,
       log_filter: create_log_filter("info".to_owned(), vec![]),
       cloud_config,
     }

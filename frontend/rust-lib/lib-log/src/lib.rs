@@ -47,8 +47,6 @@ impl Builder {
 
   pub fn build(self) -> Result<(), String> {
     let env_filter = EnvFilter::new(self.env_filter);
-
-    // let std_out_layer = std::fmt::layer().with_writer(std::io::stdout).pretty();
     let (non_blocking, guard) = tracing_appender::non_blocking(self.file_appender);
     let file_layer = FlowyFormattingLayer::new(non_blocking);
 
@@ -56,6 +54,7 @@ impl Builder {
       .with_timer(CustomTime)
       .with_ansi(true)
       .with_max_level(tracing::Level::TRACE)
+      .with_writer(std::io::stdout)
       .with_thread_ids(false)
       .pretty()
       .with_env_filter(env_filter)
@@ -64,7 +63,6 @@ impl Builder {
       .with(file_layer);
 
     set_global_default(subscriber).map_err(|e| format!("{:?}", e))?;
-
     *LOG_GUARD.write().unwrap() = Some(guard);
     Ok(())
   }

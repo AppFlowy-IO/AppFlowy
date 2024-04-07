@@ -5,6 +5,7 @@ import 'package:appflowy/env/backend_env.dart';
 import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/user/application/auth/device_id.dart';
 import 'package:appflowy_backend/appflowy_backend.dart';
+import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 
@@ -28,6 +29,7 @@ class InitRustSDKTask extends LaunchTask {
     final dir = customApplicationPath ?? applicationPath;
     final deviceId = await getDeviceId();
 
+    debugPrint('application path: ${applicationPath.path}');
     // Pass the environment variables to the Rust SDK
     final env = _makeAppFlowyConfiguration(
       root.path,
@@ -59,11 +61,29 @@ AppFlowyConfiguration _makeAppFlowyConfiguration(
     custom_app_path: customAppPath,
     origin_app_path: originAppPath,
     device_id: deviceId,
+    platform: _platformType(),
     authenticator_type: env.authenticatorType.value,
     supabase_config: env.supabaseConfig,
     appflowy_cloud_config: env.appflowyCloudConfig,
     envs: rustEnvs,
   );
+}
+
+/// Simplify platform type determination using a single function
+String _platformType() {
+  if (Platform.isIOS) {
+    return 'ios';
+  } else if (Platform.isAndroid) {
+    return 'android';
+  } else if (Platform.isMacOS) {
+    return 'macos';
+  } else if (Platform.isWindows) {
+    return 'windows';
+  } else if (Platform.isLinux) {
+    return 'linux';
+  } else {
+    return 'unknown';
+  }
 }
 
 /// The default directory to store the user data. The directory can be

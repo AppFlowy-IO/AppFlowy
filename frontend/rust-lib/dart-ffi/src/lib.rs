@@ -69,6 +69,7 @@ pub extern "C" fn init_sdk(_port: i64, data: *mut c_char) -> i64 {
     configuration.custom_app_path,
     configuration.origin_app_path,
     configuration.device_id,
+    configuration.platform,
     DEFAULT_NAME.to_string(),
   );
 

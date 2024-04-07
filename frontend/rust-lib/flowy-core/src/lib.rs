@@ -20,6 +20,7 @@ use flowy_user::user_manager::UserManager;
 use lib_dispatch::prelude::*;
 use lib_dispatch::runtime::AFPluginRuntime;
 use lib_infra::priority_task::{TaskDispatcher, TaskRunner};
+use lib_infra::util::Platform;
 use module::make_plugins;
 
 use crate::config::AppFlowyCoreConfig;
@@ -81,7 +82,12 @@ impl AppFlowyCore {
     // Init the key value database
     let store_preference = Arc::new(StorePreferences::new(&config.storage_path).unwrap());
     info!("🔥{:?}", &config);
-    info!("💡System info: {:?}", System::long_os_version());
+    let platform = Platform::from(&config.platform);
+    info!(
+      "💡{:?}, platform: {:?}",
+      System::long_os_version(),
+      platform
+    );
 
     let task_scheduler = TaskDispatcher::new(Duration::from_secs(2));
     let task_dispatcher = Arc::new(RwLock::new(task_scheduler));
