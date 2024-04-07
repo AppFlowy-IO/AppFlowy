@@ -55,15 +55,6 @@ pub struct AppFlowyCore {
 
 impl AppFlowyCore {
   pub async fn new(config: AppFlowyCoreConfig, runtime: Arc<AFPluginRuntime>) -> Self {
-    Self::init(config, runtime).await
-  }
-
-  pub fn close_db(&self) {
-    self.user_manager.close_db();
-  }
-
-  #[instrument(skip(config, runtime))]
-  async fn init(config: AppFlowyCoreConfig, runtime: Arc<AFPluginRuntime>) -> Self {
     let platform = Platform::from(&config.platform);
 
     #[allow(clippy::if_same_then_else)]
@@ -87,6 +78,15 @@ impl AppFlowyCore {
       platform
     );
 
+    Self::init(config, runtime).await
+  }
+
+  pub fn close_db(&self) {
+    self.user_manager.close_db();
+  }
+
+  #[instrument(skip(config, runtime))]
+  async fn init(config: AppFlowyCoreConfig, runtime: Arc<AFPluginRuntime>) -> Self {
     // Init the key value database
     let store_preference = Arc::new(StorePreferences::new(&config.storage_path).unwrap());
     info!("🔥{:?}", &config);

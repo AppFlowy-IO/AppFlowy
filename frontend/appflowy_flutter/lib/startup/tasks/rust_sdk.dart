@@ -69,24 +69,6 @@ AppFlowyConfiguration _makeAppFlowyConfiguration(
   );
 }
 
-/// Simplify platform type determination using a single function
-String _platformType() {
-  Platform.operatingSystem;
-  if (Platform.isIOS) {
-    return 'ios';
-  } else if (Platform.isAndroid) {
-    return 'android';
-  } else if (Platform.isMacOS) {
-    return 'macos';
-  } else if (Platform.isWindows) {
-    return 'windows';
-  } else if (Platform.isLinux) {
-    return 'linux';
-  } else {
-    return 'unknown';
-  }
-}
-
 /// The default directory to store the user data. The directory can be
 /// customized by the user via the [ApplicationDataStorage]
 Future<Directory> appFlowyApplicationDataDirectory() async {

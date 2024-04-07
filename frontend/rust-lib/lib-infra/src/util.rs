@@ -80,10 +80,7 @@ pub enum Platform {
 
 impl Platform {
   pub fn is_not_ios(&self) -> bool {
-    match self {
-      Platform::IOS => false,
-      _ => true,
-    }
+    !matches!(self, Platform::IOS)
   }
 }
 

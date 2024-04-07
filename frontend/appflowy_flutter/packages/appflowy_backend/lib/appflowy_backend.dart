@@ -1,6 +1,7 @@
 export 'package:async/async.dart';
 import 'dart:async';
 import 'package:appflowy_backend/rust_stream.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'dart:ffi';
 import 'ffi.dart' as ffi;
@@ -30,8 +31,11 @@ class FlowySDK {
 
   Future<void> init(String configuration) async {
     final notificationPort = RustStreamReceiver.shared.port;
+    debugPrint('log port: ${notificationPort}');
     ffi.set_stream_port(notificationPort);
     ffi.store_dart_post_cobject(NativeApi.postCObject);
+    debugPrint('log port: ${RustLogStreamReceiver.logShared.port}');
+    ffi.set_log_stream_port(RustLogStreamReceiver.logShared.port);
 
     // final completer = Completer<Uint8List>();
     // // Create a SendPort that accepts only one message.

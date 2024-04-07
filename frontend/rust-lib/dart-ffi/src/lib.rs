@@ -141,10 +141,15 @@ pub extern "C" fn sync_event(input: *const u8, len: usize) -> *const u8 {
 }
 
 #[no_mangle]
-pub extern "C" fn set_stream_port(port: i64) -> i32 {
+pub extern "C" fn set_stream_port(notification_port: i64) -> i32 {
   // Make sure hot reload won't register the notification sender twice
   unregister_all_notification_sender();
-  register_notification_sender(DartNotificationSender::new(port));
+  register_notification_sender(DartNotificationSender::new(notification_port));
+  0
+}
+
+#[no_mangle]
+pub extern "C" fn set_log_stream_port(port: i64) -> i32 {
   0
 }
 
