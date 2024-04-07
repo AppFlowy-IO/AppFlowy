@@ -2,6 +2,7 @@ use std::sync::RwLock;
 
 use chrono::Local;
 use lazy_static::lazy_static;
+use lib_infra::util::Platform;
 use tracing::subscriber::set_global_default;
 use tracing_appender::rolling::Rotation;
 use tracing_appender::{non_blocking::WorkerGuard, rolling::RollingFileAppender};
@@ -22,10 +23,11 @@ pub struct Builder {
   name: String,
   env_filter: String,
   file_appender: RollingFileAppender,
+  platform: Platform,
 }
 
 impl Builder {
-  pub fn new(name: &str, directory: &str) -> Self {
+  pub fn new(name: &str, directory: &str, platform: &Platform) -> Self {
     let file_appender = RollingFileAppender::builder()
       .rotation(Rotation::DAILY)
       .filename_prefix(name)
@@ -35,8 +37,9 @@ impl Builder {
 
     Builder {
       name: name.to_owned(),
-      env_filter: "Info".to_owned(),
+      env_filter: "info".to_owned(),
       file_appender,
+      platform: platform.clone(),
     }
   }
 
@@ -52,9 +55,9 @@ impl Builder {
 
     let subscriber = tracing_subscriber::fmt()
       .with_timer(CustomTime)
-      .with_ansi(true)
       .with_max_level(tracing::Level::TRACE)
       .with_writer(std::io::stdout)
+      .with_ansi(self.platform.is_not_ios())
       .with_thread_ids(false)
       .pretty()
       .with_env_filter(env_filter)

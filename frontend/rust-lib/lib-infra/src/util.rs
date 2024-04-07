@@ -78,6 +78,15 @@ pub enum Platform {
   Android,
 }
 
+impl Platform {
+  pub fn is_not_ios(&self) -> bool {
+    match self {
+      Platform::IOS => false,
+      _ => true,
+    }
+  }
+}
+
 impl From<String> for Platform {
   fn from(s: String) -> Self {
     Platform::from(s.as_str())

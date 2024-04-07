@@ -64,6 +64,13 @@ impl AppFlowyCore {
 
   #[instrument(skip(config, runtime))]
   async fn init(config: AppFlowyCoreConfig, runtime: Arc<AFPluginRuntime>) -> Self {
+    let platform = Platform::from(&config.platform);
+    info!(
+      "💡{:?}, platform: {:?}",
+      System::long_os_version(),
+      platform
+    );
+
     #[allow(clippy::if_same_then_else)]
     if cfg!(debug_assertions) {
       /// The profiling can be used to tracing the performance of the application.
@@ -74,20 +81,14 @@ impl AppFlowyCore {
 
       // Init the logger before anything else
       #[cfg(not(feature = "profiling"))]
-      init_log(&config);
+      init_log(&config, &platform);
     } else {
-      init_log(&config);
+      init_log(&config, &platform);
     }
 
     // Init the key value database
     let store_preference = Arc::new(StorePreferences::new(&config.storage_path).unwrap());
     info!("🔥{:?}", &config);
-    let platform = Platform::from(&config.platform);
-    info!(
-      "💡{:?}, platform: {:?}",
-      System::long_os_version(),
-      platform
-    );
 
     let task_scheduler = TaskDispatcher::new(Duration::from_secs(2));
     let task_dispatcher = Arc::new(RwLock::new(task_scheduler));

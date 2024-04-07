@@ -3362,6 +3362,7 @@ version = "0.1.0"
 dependencies = [
  "chrono",
  "lazy_static",
+ "lib-infra",
  "serde",
  "serde_json",
  "tracing",
