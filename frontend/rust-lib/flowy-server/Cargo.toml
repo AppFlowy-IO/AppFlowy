@@ -55,6 +55,7 @@ version = "0.1.0"
 features = [
     "collab-sync",
     "test_util",
+    "enable_brotli",
     # Uncomment the following line to enable verbose logging for sync
     # "sync_verbose_log",
 ]
@@ -65,7 +66,6 @@ tracing-subscriber = { version = "0.3.3", features = ["env-filter"] }
 dotenv = "0.15.0"
 assert-json-diff = "2.0.2"
 serde_json.workspace = true
-client-api = { version = "0.1.0" }
 
 [features]
 enable_supabase = ["collab-plugins/postgres_plugin"]

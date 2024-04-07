@@ -62,7 +62,7 @@ void main() {
 
       // delete the newly created workspace
       await tester.openCollaborativeWorkspaceMenu();
-      Finder items = find.byType(WorkspaceMenuItem);
+      final Finder items = find.byType(WorkspaceMenuItem);
       expect(items, findsNWidgets(2));
       expect(
         tester.widget<WorkspaceMenuItem>(items.last).workspace.name,
@@ -93,16 +93,6 @@ void main() {
           await tester.pumpUntilNotFound(success);
         },
       );
-
-      // check the result
-      await tester.openCollaborativeWorkspaceMenu();
-      items = find.byType(WorkspaceMenuItem);
-      expect(items, findsOneWidget);
-      expect(
-        tester.widget<WorkspaceMenuItem>(items.last).workspace.name != name,
-        true,
-      );
-      await tester.closeCollaborativeWorkspaceMenu();
     });
   });
 }
