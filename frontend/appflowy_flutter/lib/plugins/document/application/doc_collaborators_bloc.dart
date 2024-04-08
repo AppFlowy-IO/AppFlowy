@@ -32,7 +32,7 @@ class DocumentCollaboratorsBloc
             emit(
               state.copyWith(
                 shouldShowIndicator:
-                    userProfile?.authenticator != AuthenticatorPB.Local,
+                    userProfile?.authenticator == AuthenticatorPB.AppFlowyCloud,
               ),
             );
             final deviceId = ApplicationInfo.deviceId;

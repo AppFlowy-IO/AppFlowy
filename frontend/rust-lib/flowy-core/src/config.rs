@@ -8,6 +8,7 @@ use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
 use flowy_server_pub::supabase_config::SupabaseConfiguration;
 use flowy_user::services::entities::URL_SAFE_ENGINE;
 use lib_infra::file_util::copy_dir_recursive;
+use lib_infra::util::Platform;
 
 use crate::integrate::log::create_log_filter;
 
@@ -17,6 +18,7 @@ pub struct AppFlowyCoreConfig {
   pub(crate) app_version: String,
   pub(crate) name: String,
   pub(crate) device_id: String,
+  pub platform: String,
   /// Used to store the user data
   pub storage_path: String,
   /// Origin application path is the path of the application binary. By default, the
@@ -77,6 +79,7 @@ impl AppFlowyCoreConfig {
     custom_application_path: String,
     application_path: String,
     device_id: String,
+    platform: String,
     name: String,
   ) -> Self {
     let cloud_config = AFCloudConfiguration::from_env().ok();
@@ -90,6 +93,7 @@ impl AppFlowyCoreConfig {
       },
       Some(config) => make_user_data_folder(&custom_application_path, &config.base_url),
     };
+    let log_filter = create_log_filter("info".to_owned(), vec![], Platform::from(&platform));
 
     AppFlowyCoreConfig {
       app_version,
@@ -97,13 +101,18 @@ impl AppFlowyCoreConfig {
       storage_path,
       application_path,
       device_id,
-      log_filter: create_log_filter("info".to_owned(), vec![]),
+      platform,
+      log_filter,
       cloud_config,
     }
   }
 
   pub fn log_filter(mut self, level: &str, with_crates: Vec<String>) -> Self {
-    self.log_filter = create_log_filter(level.to_owned(), with_crates);
+    self.log_filter = create_log_filter(
+      level.to_owned(),
+      with_crates,
+      Platform::from(&self.platform),
+    );
     self
   }
 }

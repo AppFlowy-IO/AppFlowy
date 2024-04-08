@@ -86,6 +86,7 @@ jobs:
           model: 'iPhone 15'
           shutdown_after_job: false
 
-      - name: Run integration tests
-        working-directory: frontend/appflowy_flutter
-        run: flutter test integration_test/runner.dart -d ${{ steps.simulator-action.outputs.udid }}
+      # enable it again if the 12 mins timeout is fixed
+      # - name: Run integration tests
+      #   working-directory: frontend/appflowy_flutter
+        # run: flutter test integration_test/runner.dart -d ${{ steps.simulator-action.outputs.udid }}

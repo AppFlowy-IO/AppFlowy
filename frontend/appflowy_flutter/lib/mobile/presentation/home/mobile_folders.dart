@@ -69,7 +69,7 @@ class MobileFolders extends StatelessWidget {
                   ...isCollaborativeWorkspace
                       ? [
                           MobileSectionFolder(
-                            title: LocaleKeys.sideBar_public.tr(),
+                            title: LocaleKeys.sideBar_workspace.tr(),
                             categoryType: FolderCategoryType.public,
                             views: state.section.publicViews,
                           ),

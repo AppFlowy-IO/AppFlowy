@@ -333,7 +333,6 @@ where
     &self,
     collab_object: &CollabObject,
     data: Vec<u8>,
-    override_if_exist: bool,
   ) -> FutureResult<(), FlowyError> {
     let try_get_client = self.server.try_get_client();
     let collab_object = collab_object.clone();
@@ -344,7 +343,6 @@ where
         object_id: collab_object.object_id.clone(),
         encoded_collab_v1: data,
         collab_type: collab_object.collab_type.clone(),
-        override_if_exist,
       };
       client.create_collab(params).await?;
       Ok(())
@@ -365,7 +363,6 @@ where
           object_id: object.object_id,
           encoded_collab_v1: object.encoded_collab,
           collab_type: object.collab_type,
-          override_if_exist: false,
         })
         .collect::<Vec<_>>();
       try_get_client?
