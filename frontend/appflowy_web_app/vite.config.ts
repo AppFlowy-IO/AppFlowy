@@ -109,7 +109,6 @@ export default defineConfig({
               return 'mui';
             }
             if (id.includes('react-dom') || id.includes('react-is') || id.includes('react')) {
-              // console.log(id);
               return 'react-framework';
             }
             if (id.includes('@tauri-apps')) {

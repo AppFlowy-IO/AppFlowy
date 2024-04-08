@@ -22,20 +22,9 @@ jobs:
       REMOTE_USER: ${{ secrets.WEB_TEST_REMOTE_USER }}
       SSL_CERTIFICATE: ${{ secrets.WEB_TEST_SSL_CERTIFICATE }}
       SSL_CERTIFICATE_KEY: ${{ secrets.WEB_TEST_SSL_CERTIFICATE_KEY }}
-      ENV_FILE: env.test
+      ENV_FILE: test.env
     steps:
       - uses: actions/checkout@v4
-      - name: Maximize build space (ubuntu only)
-        if: matrix.settings.platform == 'ubuntu-20.04'
-        run: |
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf /opt/ghc
-          sudo rm -rf "/usr/local/share/boost"
-          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
-          sudo docker image prune --all --force
-          sudo rm -rf /opt/hostedtoolcache/codeQL
-          sudo rm -rf ${GITHUB_WORKSPACE}/.git
-          sudo rm -rf $ANDROID_HOME/ndk
       - name: setup node
         uses: actions/setup-node@v3
         with:

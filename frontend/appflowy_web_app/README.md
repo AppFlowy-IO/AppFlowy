@@ -194,50 +194,9 @@ Don't modify the theme file in `frontend/appflowy_web_app/src/styles/variables` 
     }
   ```
 
-### 📦 Deployment (Self-Hosted)
+### 📦 Deployment
 
-#### Setting up the environment variables(Action -> Secrets Keys)
-
-Before deploying the application, ensure you have the following environment variables set:
-
-```bash
-# Set the environment variables in Actions/Secrets
-
-# test environment variables
-WEB_TEST_SSH_PRIVATE_KEY=// your ssh private key
-WEB_TEST_SSH_USER=// your ssh user
-WEB_TEST_SSH_HOST=// your ssh host
-WEB_TEST_SSL_CERTIFICATE=// your ssl certificate
-WEB_TEST_SSL_CERTIFICATE_KEY=// your ssl certificate key
-
-# production environment variables
-WEB_PROD_SSH_PRIVATE_KEY=// your ssh private key
-WEB_PROD_SSH_USER=// your ssh user
-WEB_PROD_SSH_HOST=// your ssh host
-WEB_PROD_SSL_CERTIFICATE=// your ssl certificate
-WEB_PROD_SSL_CERTIFICATE_KEY=// your ssl certificate key
-```
-
-#### Create machine for deployment(Example using AWS EC2)
-
-- Create an EC2 instance
-- Create a security group with the following inbound rules:
-    - SSH (22) - Anywhere
-    - HTTP (80) - Anywhere
-    - HTTPS (443) - Anywhere
-- Create a key pair and download the private key
-- Connect to the EC2 instance using the private key(ssh -i "your-private-key.pem" ec2-user@your-ec2-public-ip)
-- Install the required dependencies
-    - Docker
-- Create user(Optional)
-    - Create a user and add the user to the docker group
-    - Add the user to the sudo group
-    - Generate the ssh key for the user, ensure you are in /home/${user_name} directory
-    - Save the private key in the local machine (WEB_SSH_PRIVATE_KEY)
-    - Save the public key in the authorized_keys file
-    - Connect to the EC2 instance using the private key
-
-#### Deploy the application(CI/CD)
+Use the AppFlowy CI/CD pipeline to deploy the application to the test and production environments.
 
 - Push the changes to the main branch
 - Deploy Test Environment
@@ -247,6 +206,64 @@ WEB_PROD_SSL_CERTIFICATE_KEY=// your ssl certificate key
     - Click on the workflow and select the Run workflow
     - Enter the options
     - Click on the Run workflow button
+
+#### 📦 Deployment (Self-Hosted)
+
+##### Pre-requisites
+
+Please ensure you have learned about:
+
+- [Deploy Web application on AWS Cloud using EC2 Instance](https://www.youtube.com/watch?v=gWVIIU1ev0Y)
+- [How to Install and Use Rsync Command](https://operavps.com/docs/install-rsync-command-in-linux/)
+- [How to Use ssh-keygen to Generate a New SSH Key?](https://www.ssh.com/academy/ssh/keygen)
+- [Linux post-installation steps for Docker Engine](https://docs.docker.com/engine/install/linux-postinstall/)
+- [Configuring HTTPS servers](https://nginx.org/en/docs/http/configuring_https_servers.html)
+
+And then follow the steps below:
+
+1. Ensure you have the following installed on your server:
+    - Docker: [Install Docker](https://docs.docker.com/engine/install/)
+    - Rsync: [Install Rsync](https://operavps.com/docs/install-rsync-command-in-linux/)
+
+2. Create a new user for deploy, and generate an SSH key for the user
+
+   ```bash
+   sudo adduser appflowy(or any name)
+   sudo su - appflowy
+   mkdir ~/.ssh
+   chmod 700 ~/.ssh
+   ssh-keygen -t rsa
+   chmod 600 ~/.ssh/authorized_keys
+   # add the user to the docker group, to run docker commands without sudo
+   sudo usermod -aG docker ${USER}
+   ```
+    - visit the `~/.ssh/id_rsa` and `~/.ssh/id_rsa.pub` to get the private and public key respectively
+    - add the public key to the `~/.ssh/authorized_keys` file
+    - ensure the private key is kept safe
+    - exit and login back to the server with the new
+      user: `ssh -i your-existing-key.pem ec2-user@your-instance-public-dns`
+
+3. Clone the AppFlowy repository
+
+4. Set the following secrets in your
+   repository, have to
+   know [Using secrets in GitHub Actions](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions)
+
+> Note: Test Environment: prefix the secret with `WEB_TEST_` and Production Environment: prefix the secret with `WEB_`
+
+> for example, `WEB_TEST_SSH_PRIVATE_KEY` and `WEB_SSH_PRIVATE_KEY`
+
+- `SSH_PRIVATE_KEY`: The private key generated in step 2: cat ~/.ssh/id_rsa
+- `REMOTE_HOST`: The host of the server: `your-instance-public-dns` or `your-instance-ip`
+- `REMOTE_USER`: The user created in step 2: `appflowy`
+- `SSL_CERTIFICATE`: The SSL certificate for the
+  server - [Configuring HTTPS servers](https://nginx.org/en/docs/http/configuring_https_servers.html)
+- `SSL_CERTIFICATE_KEY`: The SSL certificate key for the
+  server - [Configuring HTTPS servers](https://nginx.org/en/docs/http/configuring_https_servers.html)
+
+5. Run the deployment workflow to deploy the application(production or test environment)
+
+> Note: the test server will **automatically** deploy if merged to the main branch or build/test branch
 
 ### 🧪 Testing
 
