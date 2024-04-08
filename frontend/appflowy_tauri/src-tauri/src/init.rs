@@ -29,6 +29,7 @@ pub fn init_flowy_core() -> AppFlowyCore {
   let config_json = include_str!("../tauri.conf.json");
   let config: tauri_utils::config::Config = serde_json::from_str(config_json).unwrap();
 
+  let platform = tauri_plugin_os::platform();
   let app_version = config
     .package
     .version
@@ -55,9 +56,9 @@ pub fn init_flowy_core() -> AppFlowyCore {
     application_path,
     device_id,
     "tauri".to_string(),
+    platform.to_string(),
     DEFAULT_NAME.to_string(),
-  )
-  .log_filter("trace", vec!["appflowy_tauri".to_string()]);
+  ).log_filter("trace", vec!["appflowy_tauri".to_string()]);
 
   let runtime = Arc::new(AFPluginRuntime::new().unwrap());
   let cloned_runtime = runtime.clone();
