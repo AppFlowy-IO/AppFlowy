@@ -43,7 +43,7 @@ Node autoCompletionNode({
 }
 
 SelectionMenuItem autoGeneratorMenuItem = SelectionMenuItem.node(
-  getName: () => LocaleKeys.document_plugins_autoGeneratorMenuItemName.tr(),
+  getName: LocaleKeys.document_plugins_autoGeneratorMenuItemName.tr,
   iconData: Icons.generating_tokens,
   keywords: ['ai', 'openai' 'writer', 'autogenerator'],
   nodeBuilder: (editorState, _) {
