@@ -23,7 +23,9 @@ impl EventIntegrationTest {
         email: email.to_string(),
       })
       .async_send()
-      .await;
+      .await
+      .error()
+      .map(|e| panic!("Add workspace member failed: {:?}", e));
   }
 
   pub async fn invite_workspace_member(&self, workspace_id: &str, email: &str, role: Role) {
@@ -35,7 +37,9 @@ impl EventIntegrationTest {
         role: role.into(),
       })
       .async_send()
-      .await;
+      .await
+      .error()
+      .map(|e| panic!("Invite workspace member failed: {:?}", e));
   }
 
   pub async fn list_workspace_invitations(&self) -> RepeatedWorkspaceInvitationPB {
@@ -53,7 +57,9 @@ impl EventIntegrationTest {
         invite_id: invitation_id.to_string(),
       })
       .async_send()
-      .await;
+      .await
+      .error()
+      .map(|e| panic!("Accept workspace invitation failed: {:?}", e));
   }
 
   pub async fn delete_workspace_member(&self, workspace_id: &str, email: &str) {
@@ -64,7 +70,9 @@ impl EventIntegrationTest {
         email: email.to_string(),
       })
       .async_send()
-      .await;
+      .await
+      .error()
+      .map(|e| panic!("Delete workspace member failed: {:?}", e));
   }
 
   pub async fn get_workspace_members(&self, workspace_id: &str) -> Vec<WorkspaceMemberPB> {
@@ -114,7 +122,9 @@ impl EventIntegrationTest {
       .event(FolderEvent::DeleteView)
       .payload(payload)
       .async_send()
-      .await;
+      .await
+      .error()
+      .map(|e| panic!("Delete view failed: {:?}", e));
   }
 
   pub async fn update_view(&self, changeset: UpdateViewPayloadPB) -> Option<FlowyError> {
