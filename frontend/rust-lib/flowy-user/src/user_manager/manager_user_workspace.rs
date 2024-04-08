@@ -140,7 +140,9 @@ impl UserManager {
       .open_workspace(workspace_id)
       .await?;
 
-    self.authenticate_user.set_user_workspace(user_workspace)?;
+    self
+      .authenticate_user
+      .set_user_workspace(user_workspace.clone())?;
     if let Err(err) = self
       .user_status_callback
       .read()
