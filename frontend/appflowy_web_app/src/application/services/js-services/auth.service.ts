@@ -4,7 +4,6 @@ import { HttpClient } from '@/application/services/js-services/http/client';
 import { ACCESS_TOKEN_NAME, REFRESH_TOKEN_NAME, TOKEN_TYPE_NAME } from '@/application/services/js-services/http/const';
 import { AFWasmService } from '@/application/services/wasm-services';
 
-
 export class JSAuthService implements AuthService {
 
   constructor (private httpClient: HttpClient, private wasmService: AFWasmService) {
@@ -35,9 +34,9 @@ export class JSAuthService implements AuthService {
   };
 
   signinWithEmailPassword = async (email: string, password: string): Promise<UserProfile> => {
-    await this.wasmService.cloudService.signIn(email, password);
-    return Promise.reject('Not implemented');
-    // return this.httpClient.signInWithEmailPassword(email, password);
+    // await this.wasmService.cloudService.signIn(email, password);
+    // return Promise.reject('Not implemented');
+    return this.httpClient.signInWithEmailPassword(email, password);
   };
 
   signOut = async (): Promise<void> => {
