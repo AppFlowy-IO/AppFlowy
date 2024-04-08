@@ -16,6 +16,7 @@ import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/util/color_generator/color_generator.dart';
 import 'package:appflowy/util/color_to_hex_string.dart';
 import 'package:appflowy/util/debounce.dart';
+import 'package:appflowy/util/throttle.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy_backend/protobuf/flowy-document/entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-document/protobuf.dart';
@@ -66,7 +67,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   StreamSubscription? _transactionSubscription;
 
   final _updateSelectionDebounce = Debounce();
-  final _syncDocDebounce = Debounce();
+  final _syncThrottle = Throttler(duration: const Duration(milliseconds: 500));
 
   bool get isLocalMode {
     final userProfilePB = state.userProfilePB;
@@ -155,7 +156,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   /// subscribe to the document content change
   void _onDocumentChanged() {
     _documentListener.start(
-      onDocEventUpdate: _debounceSyncDoc,
+      onDocEventUpdate: _throttleSyncDoc,
       onDocAwarenessUpdate: _onAwarenessStatesUpdate,
     );
 
@@ -290,8 +291,8 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     _updateSelectionDebounce.call(_onSelectionUpdate);
   }
 
-  void _debounceSyncDoc(DocEventPB docEvent) {
-    _syncDocDebounce.call(() {
+  void _throttleSyncDoc(DocEventPB docEvent) {
+    _syncThrottle.call(() {
       _onDocumentStateUpdate(docEvent);
     });
   }

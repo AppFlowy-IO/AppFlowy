@@ -1,18 +1,18 @@
 import 'dart:async';
 
-class Debounce {
-  Debounce({
+class Throttler {
+  Throttler({
     this.duration = const Duration(milliseconds: 1000),
   });
 
   final Duration duration;
   Timer? _timer;
 
-  void call(Function action) {
-    dispose();
+  void call(Function callback) {
+    if (_timer?.isActive ?? false) return;
 
     _timer = Timer(duration, () {
-      action();
+      callback();
     });
   }
 

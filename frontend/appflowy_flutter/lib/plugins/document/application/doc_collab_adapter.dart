@@ -77,17 +77,30 @@ class DocumentCollabAdapter {
 
     final ops = diffNodes(editorState.document.root, document.root);
     if (ops.isEmpty) {
-      debugPrint('[collab] received empty ops');
+      Log.info('Doc diff, no changes');
       return;
     }
 
-    debugPrint('[collab] received ops: $ops');
+    prettyPrintJson(ops.map((op) => op.toJson()).toList());
 
     final transaction = editorState.transaction;
     for (final op in ops) {
       transaction.add(op);
     }
     await editorState.apply(transaction, isRemote: true);
+
+    // Use for debugging, DO NOT REMOVE
+    // assert(() {
+    //   final local = editorState.document.root.toJson();
+    //   final remote = document.root.toJson();
+    //   if (!const DeepCollectionEquality().equals(local, remote)) {
+    //     Log.error('Invalid diff status');
+    //     Log.error('Local: $local');
+    //     Log.error('Remote: $remote');
+    //     return false;
+    //   }
+    //   return true;
+    // }());
   }
 
   Future<void> _syncUpdated(
