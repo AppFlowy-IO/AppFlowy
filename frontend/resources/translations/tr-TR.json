@@ -16,15 +16,15 @@
     "addAboveMacCmd": "Option+tıkla",
     "addAboveTooltip": "üste eklemek için",
     "dragTooltip": "Taşımak için sürükleyin",
-    "openMenuTooltip": "Menüyü açmak için tıklayın" 
+    "openMenuTooltip": "Menüyü açmak için tıklayın"
   },
   "signUp": {
     "buttonText": "Kayıt Ol",
-    "title": "@:appName'a Kayıt Ol", 
+    "title": "@:appName'a Kayıt Ol",
     "getStartedText": "Başlayın",
     "emptyPasswordError": "Parola boş bırakılamaz",
     "repeatPasswordEmptyError": "Parola tekrarı boş bırakılamaz",
-    "unmatchedPasswordError": "Parola tekrarı girmiş olduğunuz parola ile aynı değil", 
+    "unmatchedPasswordError": "Parola tekrarı girmiş olduğunuz parola ile aynı değil",
     "alreadyHaveAnAccount": "Zaten bir hesabınız var mı?",
     "emailHint": "E-posta",
     "passwordHint": "Parola",
@@ -34,1423 +34,1423 @@
   "signIn": {
     "loginTitle": "@:appName'a Giriş Yap",
     "loginButtonText": "Giriş Yap",
-    "loginStartWithAnonymous": "Anonim oturumla başla", 
+    "loginStartWithAnonymous": "Anonim oturumla başla",
     "continueAnonymousUser": "Anonim oturumla devam et",
     "buttonText": "Giriş Yap",
     "signingInText": "Giriş yapılıyor...",
     "forgotPassword": "Parolanızı mı unuttunuz?",
     "emailHint": "E-posta",
-    "passwordHint": "Parola", 
+    "passwordHint": "Parola",
     "dontHaveAnAccount": "Hesabınız yok mu?",
     "repeatPasswordEmptyError": "Parola tekrarı boş bırakılamaz",
     "unmatchedPasswordError": "Parola tekrarı girmiş olduğunuz parola ile aynı değil",
-    "syncPromptMessage": "Veriler senkronize ediliyor, lütfen bu sayfayı kapatmayın", 
-    "or": "VEYA", 
+    "syncPromptMessage": "Veriler senkronize ediliyor, lütfen bu sayfayı kapatmayın",
+    "or": "VEYA",
     "LogInWithGoogle": "Google ile Giriş Yap",
-    "LogInWithGithub": "Github ile Giriş Yap", 
-    "LogInWithDiscord": "Discord ile Giriş Yap", 
-    "signInWith": "Şununla giriş yapın:", 
+    "LogInWithGithub": "Github ile Giriş Yap",
+    "LogInWithDiscord": "Discord ile Giriş Yap",
+    "signInWith": "Şununla giriş yapın:",
     "signInWithEmail": "E-posta ile giriş yap"
   },
   "workspace": {
     "chooseWorkspace": "Çalışma Alanınızı Seçin",
     "create": "Çalışma Alanı Oluştur",
-    "reset": "Çalışma Alanını Sıfırla", 
-    "resetWorkspacePrompt": "Çalışma alanını sıfırlamak, içindeki tüm sayfaları ve verileri silecektir. Çalışma alanını sıfırlamak istediğinizden emin misiniz? Alternatif olarak, çalışma alanını geri yüklemek için destek ekibiyle iletişime geçebilirsiniz", 
-    "hint": "çalışma alanı", 
-    "notFoundError": "Çalışma alanı bulunamadı", 
-    "failedToLoad": "Bir şeyler yanlış gitti! Çalışma alanı yüklenemedi. Açık olan tüm AppFlowy örneklerini kapatıp tekrar deneyin.", 
+    "reset": "Çalışma Alanını Sıfırla",
+    "resetWorkspacePrompt": "Çalışma alanını sıfırlamak, içindeki tüm sayfaları ve verileri silecektir. Çalışma alanını sıfırlamak istediğinizden emin misiniz? Alternatif olarak, çalışma alanını geri yüklemek için destek ekibiyle iletişime geçebilirsiniz",
+    "hint": "çalışma alanı",
+    "notFoundError": "Çalışma alanı bulunamadı",
+    "failedToLoad": "Bir şeyler yanlış gitti! Çalışma alanı yüklenemedi. Açık olan tüm AppFlowy örneklerini kapatıp tekrar deneyin.",
     "errorActions": {
-      "reportIssue": "Sorun bildir", 
-      "reportIssueOnGithub": "GitHub'da sorun bildir", 
+      "reportIssue": "Sorun bildir",
+      "reportIssueOnGithub": "GitHub'da sorun bildir",
       "exportLogFiles": "Günlük dosyalarını dışa aktar",
-      "reachOut": "Discord'da ulaşın" 
-    }, 
-    "menuTitle": "Çalışma Alanları", 
-    "deleteWorkspaceHintText": "Çalışma alanını silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.", 
-    "createSuccess": "Çalışma alanı başarıyla oluşturuldu", 
+      "reachOut": "Discord'da ulaşın"
+    },
+    "menuTitle": "Çalışma Alanları",
+    "deleteWorkspaceHintText": "Çalışma alanını silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
+    "createSuccess": "Çalışma alanı başarıyla oluşturuldu",
     "createFailed": "Çalışma alanı oluşturulamadı",
-    "createLimitExceeded": "Hesabınız için izin verilen maksimum çalışma alanı sınırına ulaştınız. Çalışmanıza devam etmek için ek çalışma alanlarına ihtiyacınız varsa, lütfen GitHub'da talepte bulunun", 
-    "deleteSuccess": "Çalışma alanı başarıyla silindi", 
+    "createLimitExceeded": "Hesabınız için izin verilen maksimum çalışma alanı sınırına ulaştınız. Çalışmanıza devam etmek için ek çalışma alanlarına ihtiyacınız varsa, lütfen GitHub'da talepte bulunun",
+    "deleteSuccess": "Çalışma alanı başarıyla silindi",
     "deleteFailed": "Çalışma alanı silinemedi",
     "openSuccess": "Çalışma alanı başarıyla açıldı",
-    "openFailed": "Çalışma alanı açılamadı", 
-    "renameSuccess": "Çalışma alanı başarıyla yeniden adlandırıldı", 
-    "renameFailed": "Çalışma alanı yeniden adlandırılamadı", 
+    "openFailed": "Çalışma alanı açılamadı",
+    "renameSuccess": "Çalışma alanı başarıyla yeniden adlandırıldı",
+    "renameFailed": "Çalışma alanı yeniden adlandırılamadı",
     "updateIconSuccess": "Çalışma alanı simgesi başarıyla güncellendi",
-    "updateIconFailed": "Çalışma alanı simgesi güncellenemedi", 
-    "cannotDeleteTheOnlyWorkspace": "Tek çalışma alanı silinemez", 
-    "fetchWorkspacesFailed": "Çalışma alanları getirilemedi", 
+    "updateIconFailed": "Çalışma alanı simgesi güncellenemedi",
+    "cannotDeleteTheOnlyWorkspace": "Tek çalışma alanı silinemez",
+    "fetchWorkspacesFailed": "Çalışma alanları getirilemedi",
     "leaveCurrentWorkspace": "Çalışma alanından çık",
-    "leaveCurrentWorkspacePrompt": "Geçerli çalışma alanından çıkmak istediğinizden emin misiniz?" 
+    "leaveCurrentWorkspacePrompt": "Geçerli çalışma alanından çıkmak istediğinizden emin misiniz?"
   },
   "shareAction": {
-    "buttonText": "Paylaş", 
+    "buttonText": "Paylaş",
     "workInProgress": "Yakında geliyor",
-    "markdown": "Markdown", 
-    "csv": "CSV", 
-    "copyLink": "Bağlantıyı Kopyala" 
-  }, 
+    "markdown": "Markdown",
+    "csv": "CSV",
+    "copyLink": "Bağlantıyı Kopyala"
+  },
   "moreAction": {
-    "small": "küçük", 
+    "small": "küçük",
     "medium": "orta",
     "large": "büyük",
-    "fontSize": "Yazı boyutu", 
-    "import": "İçe Aktar", 
+    "fontSize": "Yazı boyutu",
+    "import": "İçe Aktar",
     "moreOptions": "Daha fazla seçenek",
-    "wordCount": "Kelime sayısı: {}", 
-    "charCount": "Karakter sayısı: {}", 
-    "createdAt": "Oluşturulma tarihi: {}", 
-    "deleteView": "Sil", 
+    "wordCount": "Kelime sayısı: {}",
+    "charCount": "Karakter sayısı: {}",
+    "createdAt": "Oluşturulma tarihi: {}",
+    "deleteView": "Sil",
     "duplicateView": "Kopyala"
   },
   "importPanel": {
     "textAndMarkdown": "Metin & Markdown",
-    "documentFromV010": "v0.1.0 Belgesi", 
-    "databaseFromV010": "v0.1.0 Veritabanı", 
-    "csv": "CSV", 
-    "database": "Veritabanı" 
+    "documentFromV010": "v0.1.0 Belgesi",
+    "databaseFromV010": "v0.1.0 Veritabanı",
+    "csv": "CSV",
+    "database": "Veritabanı"
   },
   "disclosureAction": {
-    "rename": "Yeniden Adlandır", 
-    "delete": "Sil", 
-    "duplicate": "Kopyala", 
-    "unfavorite": "Favorilerden çıkar", 
-    "favorite": "Favorilere ekle", 
-    "openNewTab": "Yeni sekmede aç", 
-    "moveTo": "Taşı", 
+    "rename": "Yeniden Adlandır",
+    "delete": "Sil",
+    "duplicate": "Kopyala",
+    "unfavorite": "Favorilerden çıkar",
+    "favorite": "Favorilere ekle",
+    "openNewTab": "Yeni sekmede aç",
+    "moveTo": "Taşı",
     "addToFavorites": "Favorilere Ekle",
-    "copyLink": "Bağlantıyı Kopyala" 
+    "copyLink": "Bağlantıyı Kopyala"
   },
-  "blankPageTitle": "Boş sayfa", 
-  "newPageText": "Yeni sayfa", 
-  "newDocumentText": "Yeni belge", 
+  "blankPageTitle": "Boş sayfa",
+  "newPageText": "Yeni sayfa",
+  "newDocumentText": "Yeni belge",
   "newGridText": "Yeni tablo",
-  "newCalendarText": "Yeni takvim", 
+  "newCalendarText": "Yeni takvim",
   "newBoardText": "Yeni pano",
-  "trash": { 
-    "text": "Çöp Kutusu", 
+  "trash": {
+    "text": "Çöp Kutusu",
     "restoreAll": "Tümünü Geri Yükle",
-    "deleteAll": "Tümünü Sil", 
+    "deleteAll": "Tümünü Sil",
     "pageHeader": {
       "fileName": "Dosya adı",
-      "lastModified": "Son Değiştirilme Tarihi", 
-      "created": "Oluşturulma Tarihi" 
-    }, 
+      "lastModified": "Son Değiştirilme Tarihi",
+      "created": "Oluşturulma Tarihi"
+    },
     "confirmDeleteAll": {
-      "title": "Çöp Kutusu'ndaki tüm sayfaları silmek istediğinizden emin misiniz?", 
-      "caption": "Bu işlem geri alınamaz." 
-    }, 
+      "title": "Çöp Kutusu'ndaki tüm sayfaları silmek istediğinizden emin misiniz?",
+      "caption": "Bu işlem geri alınamaz."
+    },
     "confirmRestoreAll": {
-      "title": "Çöp Kutusu'ndaki tüm sayfaları geri yüklemek istediğinizden emin misiniz?", 
-      "caption": "Bu işlem geri alınamaz." 
-    }, 
-    "mobile": { 
-      "actions": "Çöp Kutusu İşlemleri", 
-      "empty": "Çöp Kutusu Boş", 
-      "emptyDescription": "Silinmiş dosyanız yok", 
-      "isDeleted": "silindi", 
+      "title": "Çöp Kutusu'ndaki tüm sayfaları geri yüklemek istediğinizden emin misiniz?",
+      "caption": "Bu işlem geri alınamaz."
+    },
+    "mobile": {
+      "actions": "Çöp Kutusu İşlemleri",
+      "empty": "Çöp Kutusu Boş",
+      "emptyDescription": "Silinmiş dosyanız yok",
+      "isDeleted": "silindi",
       "isRestored": "geri yüklendi"
-    }, 
-    "confirmDeleteTitle": "Bu sayfayı kalıcı olarak silmek istediğinizden emin misiniz?" 
-  }, 
+    },
+    "confirmDeleteTitle": "Bu sayfayı kalıcı olarak silmek istediğinizden emin misiniz?"
+  },
     "deletePagePrompt": {
-    "text": "Bu sayfa Çöp Kutusu'nda", 
-    "restore": "Sayfayı geri yükle", 
-    "deletePermanent": "Kalıcı olarak sil" 
-  }, 
-  "dialogCreatePageNameHint": "Sayfa adı", 
-  "questionBubble": { 
-    "shortcuts": "Kısayollar", 
-    "whatsNew": "Yenilikler?", 
-    "help": "Yardım & Destek", 
-    "markdown": "Markdown", 
+    "text": "Bu sayfa Çöp Kutusu'nda",
+    "restore": "Sayfayı geri yükle",
+    "deletePermanent": "Kalıcı olarak sil"
+  },
+  "dialogCreatePageNameHint": "Sayfa adı",
+  "questionBubble": {
+    "shortcuts": "Kısayollar",
+    "whatsNew": "Yenilikler?",
+    "help": "Yardım & Destek",
+    "markdown": "Markdown",
     "debug": {
       "name": "Hata Ayıklama Bilgisi",
-      "success": "Hata ayıklama bilgisi panoya kopyalandı!", 
-      "fail": "Hata ayıklama bilgisi panoya kopyalanamadı" 
-    }, 
-    "feedback": "Geri Bildirim" 
+      "success": "Hata ayıklama bilgisi panoya kopyalandı!",
+      "fail": "Hata ayıklama bilgisi panoya kopyalanamadı"
+    },
+    "feedback": "Geri Bildirim"
   },
   "menuAppHeader": {
-    "moreButtonToolTip": "Kaldır, yeniden adlandır ve daha fazlası...", 
-    "addPageTooltip": "İçeriye hızlıca bir sayfa ekle", 
+    "moreButtonToolTip": "Kaldır, yeniden adlandır ve daha fazlası...",
+    "addPageTooltip": "İçeriye hızlıca bir sayfa ekle",
     "defaultNewPageName": "İsimsiz",
-    "renameDialog": "Yeniden Adlandır" 
-  }, 
-  "noPagesInside": "İçinde sayfa yok", 
+    "renameDialog": "Yeniden Adlandır"
+  },
+  "noPagesInside": "İçinde sayfa yok",
   "toolbar": {
-    "undo": "Geri Al", 
-    "redo": "Yinele", 
-    "bold": "Kalın", 
-    "italic": "İtalik", 
-    "underline": "Altı Çizili", 
-    "strike": "Üstü Çizili", 
-    "numList": "Numaralı Liste", 
+    "undo": "Geri Al",
+    "redo": "Yinele",
+    "bold": "Kalın",
+    "italic": "İtalik",
+    "underline": "Altı Çizili",
+    "strike": "Üstü Çizili",
+    "numList": "Numaralı Liste",
     "bulletList": "Madde İşaretli Liste",
-    "checkList": "Kontrol Listesi", 
-    "inlineCode": "Satır İçi Kod", 
+    "checkList": "Kontrol Listesi",
+    "inlineCode": "Satır İçi Kod",
     "quote": "Alıntı Bloğu",
-    "header": "Başlık", 
-    "highlight": "Vurgula", 
-    "color": "Renk", 
+    "header": "Başlık",
+    "highlight": "Vurgula",
+    "color": "Renk",
     "addLink": "Bağlantı Ekle",
-    "link": "Bağlantı" 
-  }, 
-  "tooltip": { 
-    "lightMode": "Açık moda geç", 
-    "darkMode": "Koyu moda geç", 
+    "link": "Bağlantı"
+  },
+  "tooltip": {
+    "lightMode": "Açık moda geç",
+    "darkMode": "Koyu moda geç",
     "openAsPage": "Sayfa olarak aç",
-    "addNewRow": "Yeni bir satır ekle", 
-    "openMenu": "Menüyü açmak için tıklayın", 
-    "dragRow": "Satırı yeniden sıralamak için uzun basın", 
+    "addNewRow": "Yeni bir satır ekle",
+    "openMenu": "Menüyü açmak için tıklayın",
+    "dragRow": "Satırı yeniden sıralamak için uzun basın",
     "viewDataBase": "Veritabanını görüntüle",
-    "referencePage": "Bu {name} referans gösteriliyor", 
-    "addBlockBelow": "Alta bir blok ekle" 
+    "referencePage": "Bu {name} referans gösteriliyor",
+    "addBlockBelow": "Alta bir blok ekle"
   },
   "sideBar": {
-    "closeSidebar": "Kenar çubuğunu kapat", 
-    "openSidebar": "Kenar çubuğunu aç", 
-    "personal": "Kişisel", 
-    "private": "Özel", 
-    "workspace": "Çalışma Alanı", 
-    "favorites": "Favoriler", 
-    "clickToHidePrivate": "Özel alanı gizlemek için tıklayın\nBurada oluşturduğunuz sayfalar yalnızca size görünür", 
-    "clickToHideWorkspace": "Çalışma alanını gizlemek için tıklayın\nBurada oluşturduğunuz sayfalar tüm üyelere görünür", 
+    "closeSidebar": "Kenar çubuğunu kapat",
+    "openSidebar": "Kenar çubuğunu aç",
+    "personal": "Kişisel",
+    "private": "Özel",
+    "workspace": "Çalışma Alanı",
+    "favorites": "Favoriler",
+    "clickToHidePrivate": "Özel alanı gizlemek için tıklayın\nBurada oluşturduğunuz sayfalar yalnızca size görünür",
+    "clickToHideWorkspace": "Çalışma alanını gizlemek için tıklayın\nBurada oluşturduğunuz sayfalar tüm üyelere görünür",
     "clickToHidePersonal": "Kişisel alanı gizlemek için tıklayın",
-    "clickToHideFavorites": "Favori alanı gizlemek için tıklayın", 
-    "addAPage": "Sayfa ekle", 
+    "clickToHideFavorites": "Favori alanı gizlemek için tıklayın",
+    "addAPage": "Sayfa ekle",
     "addAPageToPrivate": "Özel alana sayfa ekle",
-    "addAPageToWorkspace": "Çalışma alanına sayfa ekle", 
-    "recent": "Son" 
-  }, 
-  "notifications": {
-    "export": { 
-      "markdown": "Not Markdown Olarak Dışa Aktarıldı", 
-      "path": "Belgeler/flowy"
-    } 
-  }, 
-  "contactsPage": {
-    "title": "Kişiler", 
-    "whatsHappening": "Bu hafta neler oluyor?", 
-    "addContact": "Kişi Ekle", 
-    "editContact": "Kişiyi Düzenle" 
+    "addAPageToWorkspace": "Çalışma alanına sayfa ekle",
+    "recent": "Son"
   },
-  "button": { 
-    "ok": "Tamam", 
-    "done": "Bitti", 
-    "cancel": "İptal", 
-    "signIn": "Giriş Yap", 
-    "signOut": "Çıkış Yap", 
-    "complete": "Tamamla", 
+  "notifications": {
+    "export": {
+      "markdown": "Not Markdown Olarak Dışa Aktarıldı",
+      "path": "Belgeler/flowy"
+    }
+  },
+  "contactsPage": {
+    "title": "Kişiler",
+    "whatsHappening": "Bu hafta neler oluyor?",
+    "addContact": "Kişi Ekle",
+    "editContact": "Kişiyi Düzenle"
+  },
+  "button": {
+    "ok": "Tamam",
+    "done": "Bitti",
+    "cancel": "İptal",
+    "signIn": "Giriş Yap",
+    "signOut": "Çıkış Yap",
+    "complete": "Tamamla",
     "save": "Kaydet",
-    "generate": "Oluştur", 
-    "esc": "ESC", 
-    "keep": "Tut", 
+    "generate": "Oluştur",
+    "esc": "ESC",
+    "keep": "Tut",
     "tryAgain": "Tekrar dene",
-    "discard": "Vazgeç", 
-    "replace": "Değiştir", 
+    "discard": "Vazgeç",
+    "replace": "Değiştir",
     "insertBelow": "Alta ekle",
-    "insertAbove": "Üste ekle", 
-    "upload": "Yükle", 
-    "edit": "Düzenle", 
+    "insertAbove": "Üste ekle",
+    "upload": "Yükle",
+    "edit": "Düzenle",
     "delete": "Sil",
-    "duplicate": "Kopyala", 
-    "putback": "Geri Koy", 
-    "update": "Güncelle", 
-    "share": "Paylaş", 
-    "removeFromFavorites": "Favorilerden çıkar", 
-    "addToFavorites": "Favorilere ekle", 
+    "duplicate": "Kopyala",
+    "putback": "Geri Koy",
+    "update": "Güncelle",
+    "share": "Paylaş",
+    "removeFromFavorites": "Favorilerden çıkar",
+    "addToFavorites": "Favorilere ekle",
     "rename": "Yeniden Adlandır",
-    "helpCenter": "Yardım Merkezi", 
-    "add": "Ekle", 
-    "yes": "Evet", 
+    "helpCenter": "Yardım Merkezi",
+    "add": "Ekle",
+    "yes": "Evet",
     "clear": "Temizle",
-    "remove": "Kaldır", 
+    "remove": "Kaldır",
     "dontRemove": "Kaldırma",
     "copyLink": "Bağlantıyı Kopyala",
-    "align": "Hizala", 
-    "login": "Giriş yap", 
-    "logout": "Çıkış yap", 
+    "align": "Hizala",
+    "login": "Giriş yap",
+    "logout": "Çıkış yap",
     "deleteAccount": "Hesabı sil",
     "back": "Geri",
     "signInGoogle": "Google ile giriş yap",
-    "signInGithub": "Github ile giriş yap", 
-    "signInDiscord": "Discord ile giriş yap" 
+    "signInGithub": "Github ile giriş yap",
+    "signInDiscord": "Discord ile giriş yap"
   },
   "label": {
-    "welcome": "Hoş Geldiniz!", 
-    "firstName": "Ad", 
+    "welcome": "Hoş Geldiniz!",
+    "firstName": "Ad",
     "middleName": "İkinci Ad",
-    "lastName": "Soyad", 
-    "stepX": "{X}. Adım" 
-  }, 
-  "oAuth": { 
+    "lastName": "Soyad",
+    "stepX": "{X}. Adım"
+  },
+  "oAuth": {
     "err": {
-      "failedTitle": "Hesabınıza bağlanılamıyor.", 
+      "failedTitle": "Hesabınıza bağlanılamıyor.",
       "failedMsg": "Lütfen tarayıcınızda giriş işlemini tamamladığınızdan emin olun."
     },
     "google": {
-      "title": "GOOGLE GİRİŞİ", 
-      "instruction1": "Google Kişilerinizi içe aktarmak için, bu uygulamayı web tarayıcınızdan yetkilendirmeniz gerekecek.", 
+      "title": "GOOGLE GİRİŞİ",
+      "instruction1": "Google Kişilerinizi içe aktarmak için, bu uygulamayı web tarayıcınızdan yetkilendirmeniz gerekecek.",
       "instruction2": "Simgeye tıklayarak veya metni seçerek bu kodu panonuza kopyalayın:",
-      "instruction3": "Web tarayıcınızda aşağıdaki bağlantıya gidin ve yukarıdaki kodu girin:", 
-      "instruction4": "Kayıt işlemini tamamladığınızda aşağıdaki butona basın:" 
-    } 
-  }, 
+      "instruction3": "Web tarayıcınızda aşağıdaki bağlantıya gidin ve yukarıdaki kodu girin:",
+      "instruction4": "Kayıt işlemini tamamladığınızda aşağıdaki butona basın:"
+    }
+  },
   "settings": {
     "title": "Ayarlar",
     "menu": {
-      "appearance": "Görünüm", 
-      "language": "Dil", 
-      "user": "Kullanıcı", 
-      "files": "Dosyalar", 
-      "notifications": "Bildirimler", 
-      "open": "Ayarları Aç", 
-      "logout": "Çıkış Yap", 
-      "logoutPrompt": "Çıkış yapmak istediğinizden emin misiniz?", 
-      "selfEncryptionLogoutPrompt": "Çıkış yapmak istediğinizden emin misiniz? Lütfen şifreleme anahtarını kopyaladığınızdan emin olun", 
+      "appearance": "Görünüm",
+      "language": "Dil",
+      "user": "Kullanıcı",
+      "files": "Dosyalar",
+      "notifications": "Bildirimler",
+      "open": "Ayarları Aç",
+      "logout": "Çıkış Yap",
+      "logoutPrompt": "Çıkış yapmak istediğinizden emin misiniz?",
+      "selfEncryptionLogoutPrompt": "Çıkış yapmak istediğinizden emin misiniz? Lütfen şifreleme anahtarını kopyaladığınızdan emin olun",
       "syncSetting": "Senkronizasyon Ayarı",
-      "cloudSettings": "Bulut Ayarları", 
-      "enableSync": "Senkronizasyonu etkinleştir", 
-      "enableEncrypt": "Verileri şifrele", 
-      "cloudURL": "Temel URL", 
-      "invalidCloudURLScheme": "Geçersiz Şema", 
-      "cloudServerType": "Bulut sunucusu", 
-      "cloudServerTypeTip": "Bulut sunucusunu değiştirdikten sonra geçerli hesabınızdan çıkış yapabileceğini lütfen unutmayın", 
-      "cloudLocal": "Yerel", 
-      "cloudSupabase": "Supabase", 
+      "cloudSettings": "Bulut Ayarları",
+      "enableSync": "Senkronizasyonu etkinleştir",
+      "enableEncrypt": "Verileri şifrele",
+      "cloudURL": "Temel URL",
+      "invalidCloudURLScheme": "Geçersiz Şema",
+      "cloudServerType": "Bulut sunucusu",
+      "cloudServerTypeTip": "Bulut sunucusunu değiştirdikten sonra geçerli hesabınızdan çıkış yapabileceğini lütfen unutmayın",
+      "cloudLocal": "Yerel",
+      "cloudSupabase": "Supabase",
       "cloudSupabaseUrl": "Supabase URL'si",
-      "cloudSupabaseUrlCanNotBeEmpty": "Supabase url'si boş olamaz", 
-      "cloudSupabaseAnonKey": "Supabase anonim anahtarı", 
-      "cloudSupabaseAnonKeyCanNotBeEmpty": "Anonim anahtar boş olamaz", 
-      "cloudAppFlowy": "AppFlowy Bulutu Beta", 
+      "cloudSupabaseUrlCanNotBeEmpty": "Supabase url'si boş olamaz",
+      "cloudSupabaseAnonKey": "Supabase anonim anahtarı",
+      "cloudSupabaseAnonKeyCanNotBeEmpty": "Anonim anahtar boş olamaz",
+      "cloudAppFlowy": "AppFlowy Bulutu Beta",
       "cloudAppFlowySelfHost": "AppFlowy Bulutu Kendi Sunucunuzda",
-      "appFlowyCloudUrlCanNotBeEmpty": "Bulut url'si boş olamaz", 
-      "clickToCopy": "Kopyalamak için tıklayın", 
-      "selfHostStart": "Bir sunucunuz yoksa, lütfen", 
-      "selfHostContent": "belgeye", 
-      "selfHostEnd": "bakın. Kendi sunucunuzu nasıl kuracağınız konusunda rehberlik için", 
-      "cloudURLHint": "Sunucunuzun temel URL'sini girin", 
-      "cloudWSURL": "Websocket URL'si", 
-      "cloudWSURLHint": "Sunucunuzun websocket adresini girin", 
-      "restartApp": "Yeniden Başlat", 
-      "restartAppTip": "Değişikliklerin etkili olması için uygulamayı yeniden başlatın. Lütfen bunun geçerli hesabınızdan çıkış yapabileceğini unutmayın", 
-      "changeServerTip": "Sunucuyu değiştirdikten sonra, değişikliklerin etkili olması için yeniden başlat düğmesine tıklamanız gerekir", 
-      "enableEncryptPrompt": "Verilerinizi bu anahtarla güvence altına almak için şifrelemeyi etkinleştirin. Güvenli bir şekilde saklayın; etkinleştirildikten sonra kapatılamaz. Kaybedilirse, verilerinize ulaşılamaz. Kopyalamak için tıklayın", 
-      "inputEncryptPrompt": "Lütfen şifreleme anahtarınızı girin", 
-      "clickToCopySecret": "Anahtarı kopyalamak için tıklayın", 
-      "configServerSetting": "Sunucu ayarlarınızı yapılandırın", 
-      "configServerGuide": "`Hızlı Başlangıç`ı seçtikten sonra, kendi sunucunuzu yapılandırmak için `Ayarlar` ve ardından \"Bulut Ayarları\"na gidin.", 
-      "inputTextFieldHint": "Anahtarınız", 
-      "historicalUserList": "Kullanıcı giriş geçmişi", 
-      "historicalUserListTooltip": "Bu liste anonim hesaplarınızı görüntüler. Ayrıntılarını görüntülemek için bir hesaba tıklayabilirsiniz. Anonim hesaplar 'Başlayın' düğmesine tıklanarak oluşturulur", 
-      "openHistoricalUser": "Anonim hesabı açmak için tıklayın", 
-      "customPathPrompt": "AppFlowy veri klasörünü Google Drive gibi bulutla senkronize edilmiş bir klasörde saklamak risk oluşturabilir. Bu klasördeki veritabanına aynı anda birden fazla konumdan erişilir veya değiştirilirse, senkronizasyon çakışmaları ve olası veri bozulmasıyla sonuçlanabilir", 
+      "appFlowyCloudUrlCanNotBeEmpty": "Bulut url'si boş olamaz",
+      "clickToCopy": "Kopyalamak için tıklayın",
+      "selfHostStart": "Bir sunucunuz yoksa, lütfen",
+      "selfHostContent": "belgeye",
+      "selfHostEnd": "bakın. Kendi sunucunuzu nasıl kuracağınız konusunda rehberlik için",
+      "cloudURLHint": "Sunucunuzun temel URL'sini girin",
+      "cloudWSURL": "Websocket URL'si",
+      "cloudWSURLHint": "Sunucunuzun websocket adresini girin",
+      "restartApp": "Yeniden Başlat",
+      "restartAppTip": "Değişikliklerin etkili olması için uygulamayı yeniden başlatın. Lütfen bunun geçerli hesabınızdan çıkış yapabileceğini unutmayın",
+      "changeServerTip": "Sunucuyu değiştirdikten sonra, değişikliklerin etkili olması için yeniden başlat düğmesine tıklamanız gerekir",
+      "enableEncryptPrompt": "Verilerinizi bu anahtarla güvence altına almak için şifrelemeyi etkinleştirin. Güvenli bir şekilde saklayın; etkinleştirildikten sonra kapatılamaz. Kaybedilirse, verilerinize ulaşılamaz. Kopyalamak için tıklayın",
+      "inputEncryptPrompt": "Lütfen şifreleme anahtarınızı girin",
+      "clickToCopySecret": "Anahtarı kopyalamak için tıklayın",
+      "configServerSetting": "Sunucu ayarlarınızı yapılandırın",
+      "configServerGuide": "`Hızlı Başlangıç`ı seçtikten sonra, kendi sunucunuzu yapılandırmak için `Ayarlar` ve ardından \"Bulut Ayarları\"na gidin.",
+      "inputTextFieldHint": "Anahtarınız",
+      "historicalUserList": "Kullanıcı giriş geçmişi",
+      "historicalUserListTooltip": "Bu liste anonim hesaplarınızı görüntüler. Ayrıntılarını görüntülemek için bir hesaba tıklayabilirsiniz. Anonim hesaplar 'Başlayın' düğmesine tıklanarak oluşturulur",
+      "openHistoricalUser": "Anonim hesabı açmak için tıklayın",
+      "customPathPrompt": "AppFlowy veri klasörünü Google Drive gibi bulutla senkronize edilmiş bir klasörde saklamak risk oluşturabilir. Bu klasördeki veritabanına aynı anda birden fazla konumdan erişilir veya değiştirilirse, senkronizasyon çakışmaları ve olası veri bozulmasıyla sonuçlanabilir",
       "importAppFlowyData": "Harici AppFlowy Klasöründen Veri Al",
-      "importingAppFlowyDataTip": "Veri aktarımı devam ediyor. Lütfen uygulamayı kapatmayın", 
-      "importAppFlowyDataDescription": "Harici bir AppFlowy veri klasöründen veri kopyalayın ve geçerli AppFlowy veri klasörüne aktarın", 
-      "importSuccess": "AppFlowy veri klasörü başarıyla alındı", 
-      "importFailed": "AppFlowy veri klasörü alınamadı", 
+      "importingAppFlowyDataTip": "Veri aktarımı devam ediyor. Lütfen uygulamayı kapatmayın",
+      "importAppFlowyDataDescription": "Harici bir AppFlowy veri klasöründen veri kopyalayın ve geçerli AppFlowy veri klasörüne aktarın",
+      "importSuccess": "AppFlowy veri klasörü başarıyla alındı",
+      "importFailed": "AppFlowy veri klasörü alınamadı",
       "importGuide": "Daha fazla bilgi için lütfen referans belgeyi kontrol edin"
-    }, 
-    "notifications": { 
-      "enableNotifications": { 
-        "label": "Bildirimleri etkinleştir", 
-        "hint": "Yerel bildirimlerin görünmesini durdurmak için kapatın." 
-      } 
     },
-   "appearance": { 
-      "resetSetting": "Sıfırla", 
-      "fontFamily": { 
-        "label": "Yazı Tipi Ailesi", 
-        "search": "Ara" 
+    "notifications": {
+      "enableNotifications": {
+        "label": "Bildirimleri etkinleştir",
+        "hint": "Yerel bildirimlerin görünmesini durdurmak için kapatın."
+      }
+    },
+   "appearance": {
+      "resetSetting": "Sıfırla",
+      "fontFamily": {
+        "label": "Yazı Tipi Ailesi",
+        "search": "Ara"
       },
       "themeMode": {
-        "label": "Tema Modu", 
-        "light": "Açık Mod", 
-        "dark": "Koyu Mod", 
-        "system": "Sisteme Uyarla" 
+        "label": "Tema Modu",
+        "light": "Açık Mod",
+        "dark": "Koyu Mod",
+        "system": "Sisteme Uyarla"
       },
-      "fontScaleFactor": "Yazı Tipi Ölçeklendirme Faktörü", 
-      "documentSettings": { 
-        "cursorColor": "Belge imleç rengi", 
-        "selectionColor": "Belge seçimi rengi", 
-        "hexEmptyError": "Hex rengi boş olamaz", 
-        "hexLengthError": "Hex değeri 6 haneli olmalıdır", 
+      "fontScaleFactor": "Yazı Tipi Ölçeklendirme Faktörü",
+      "documentSettings": {
+        "cursorColor": "Belge imleç rengi",
+        "selectionColor": "Belge seçimi rengi",
+        "hexEmptyError": "Hex rengi boş olamaz",
+        "hexLengthError": "Hex değeri 6 haneli olmalıdır",
         "hexInvalidError": "Geçersiz hex değeri",
-        "opacityEmptyError": "Opaklık boş olamaz", 
-        "opacityRangeError": "Opaklık 1 ile 100 arasında olmalıdır", 
-        "app": "Uygulama", 
-        "flowy": "Flowy", 
-        "apply": "Uygula" 
-      }, 
+        "opacityEmptyError": "Opaklık boş olamaz",
+        "opacityRangeError": "Opaklık 1 ile 100 arasında olmalıdır",
+        "app": "Uygulama",
+        "flowy": "Flowy",
+        "apply": "Uygula"
+      },
       "layoutDirection": {
         "label": "Düzen Yönü",
         "hint": "Ekranınızdaki içeriğin akışını soldan sağa veya sağdan sola doğru kontrol edin.",
-        "ltr": "LTR", 
-        "rtl": "RTL" 
-      }, 
-      "textDirection": { 
-        "label": "Varsayılan Metin Yönü", 
-        "hint": "Metnin varsayılan olarak soldan mı yoksa sağdan mı başlaması gerektiğini belirtin.", 
+        "ltr": "LTR",
+        "rtl": "RTL"
+      },
+      "textDirection": {
+        "label": "Varsayılan Metin Yönü",
+        "hint": "Metnin varsayılan olarak soldan mı yoksa sağdan mı başlaması gerektiğini belirtin.",
         "ltr": "LTR",
         "rtl": "RTL",
-        "auto": "OTOMATİK", 
-        "fallback": "Düzen yönüyle aynı" 
-      }, 
-      "themeUpload": { 
-        "button": "Yükle", 
-        "uploadTheme": "Temayı yükle", 
-        "description": "Aşağıdaki düğmeyi kullanarak kendi AppFlowy temanızı yükleyin.", 
+        "auto": "OTOMATİK",
+        "fallback": "Düzen yönüyle aynı"
+      },
+      "themeUpload": {
+        "button": "Yükle",
+        "uploadTheme": "Temayı yükle",
+        "description": "Aşağıdaki düğmeyi kullanarak kendi AppFlowy temanızı yükleyin.",
         "loading": "Lütfen temanızı doğrularken ve yüklerken bekleyin...",
-        "uploadSuccess": "Temanız başarıyla yüklendi", 
-        "deletionFailure": "Temayı silinemedi. Manuel olarak silmeyi deneyin.", 
-        "filePickerDialogTitle": ".flowy_plugin dosyası seçin", 
+        "uploadSuccess": "Temanız başarıyla yüklendi",
+        "deletionFailure": "Temayı silinemedi. Manuel olarak silmeyi deneyin.",
+        "filePickerDialogTitle": ".flowy_plugin dosyası seçin",
         "urlUploadFailure": "URL açılamadı: {}"
-      }, 
-      "theme": "Tema", 
+      },
+      "theme": "Tema",
       "builtInsLabel": "Yerleşik Temalar",
-      "pluginsLabel": "Eklentiler", 
-      "dateFormat": { 
-        "label": "Tarih formatı", 
-        "local": "Yerel", 
+      "pluginsLabel": "Eklentiler",
+      "dateFormat": {
+        "label": "Tarih formatı",
+        "local": "Yerel",
         "us": "ABD",
-        "iso": "ISO", 
-        "friendly": "Dostça", 
-        "dmy": "G/A/Y" 
-      }, 
+        "iso": "ISO",
+        "friendly": "Dostça",
+        "dmy": "G/A/Y"
+      },
       "timeFormat": {
-        "label": "Saat formatı", 
-        "twelveHour": "12 saatlik", 
+        "label": "Saat formatı",
+        "twelveHour": "12 saatlik",
         "twentyFourHour": "24 saatlik"
       },
-      "showNamingDialogWhenCreatingPage": "Sayfa oluştururken adlandırma iletişim kutusunu göster", 
+      "showNamingDialogWhenCreatingPage": "Sayfa oluştururken adlandırma iletişim kutusunu göster",
       "enableRTLToolbarItems": "RTL araç çubuğu öğelerini etkinleştir",
       "members": {
-        "title": "Üye Ayarları", 
-        "inviteMembers": "Üye Davet Et", 
-        "sendInvite": "Davetiye Gönder", 
-        "copyInviteLink": "Davetiye Bağlantısını Kopyala", 
-        "label": "Üyeler", 
-        "user": "Kullanıcı", 
-        "role": "Rol", 
+        "title": "Üye Ayarları",
+        "inviteMembers": "Üye Davet Et",
+        "sendInvite": "Davetiye Gönder",
+        "copyInviteLink": "Davetiye Bağlantısını Kopyala",
+        "label": "Üyeler",
+        "user": "Kullanıcı",
+        "role": "Rol",
         "removeFromWorkspace": "Çalışma Alanından Kaldır",
-        "owner": "Sahip", 
-        "guest": "Misafir", 
-        "member": "Üye", 
+        "owner": "Sahip",
+        "guest": "Misafir",
+        "member": "Üye",
         "memberHintText": "Bir üye sayfaları okuyabilir, yorum yapabilir ve düzenleyebilir. Üye ve misafir davet edin.",
-        "guestHintText": "Bir Misafir okuyabilir, tepki verebilir, yorum yapabilir ve izin verilen belirli sayfaları düzenleyebilir.", 
+        "guestHintText": "Bir Misafir okuyabilir, tepki verebilir, yorum yapabilir ve izin verilen belirli sayfaları düzenleyebilir.",
         "emailInvalidError": "Geçersiz e-posta, lütfen kontrol edin ve tekrar deneyin",
-        "emailSent": "E-posta gönderildi, lütfen gelen kutunuzu kontrol edin", 
-        "members": "üyeler", 
-        "membersCount": { 
+        "emailSent": "E-posta gönderildi, lütfen gelen kutunuzu kontrol edin",
+        "members": "üyeler",
+        "membersCount": {
           "zero": "{} üye",
-          "one": "{} üye", 
-          "other": "{} üye" 
-        }, 
-        "memberLimitExceeded": "Hesabınız için izin verilen maksimum üye sınırına ulaştınız. Çalışmanıza devam etmek için ek üye eklemek istiyorsanız, lütfen GitHub'da talepte bulunun", 
+          "one": "{} üye",
+          "other": "{} üye"
+        },
+        "memberLimitExceeded": "Hesabınız için izin verilen maksimum üye sınırına ulaştınız. Çalışmanıza devam etmek için ek üye eklemek istiyorsanız, lütfen GitHub'da talepte bulunun",
         "failedToAddMember": "Üye eklenemedi",
-        "addMemberSuccess": "Üye başarıyla eklendi", 
-        "removeMember": "Üyeyi Kaldır", 
+        "addMemberSuccess": "Üye başarıyla eklendi",
+        "removeMember": "Üyeyi Kaldır",
         "areYouSureToRemoveMember": "Bu üyeyi kaldırmak istediğinizden emin misiniz?"
-      } 
-    }, 
-  "files": { 
-      "copy": "Kopyala", 
-      "defaultLocation": "Dosyaları ve verileri okuma konumu", 
+      }
+    },
+  "files": {
+      "copy": "Kopyala",
+      "defaultLocation": "Dosyaları ve verileri okuma konumu",
       "exportData": "Verilerinizi dışa aktarın",
-      "doubleTapToCopy": "Yolu kopyalamak için iki kez dokunun", 
-      "restoreLocation": "AppFlowy varsayılan yoluna geri yükle", 
-      "customizeLocation": "Başka bir klasör aç", 
-      "restartApp": "Değişikliklerin etkili olması için lütfen uygulamayı yeniden başlatın.", 
-      "exportDatabase": "Veritabanını dışa aktar", 
+      "doubleTapToCopy": "Yolu kopyalamak için iki kez dokunun",
+      "restoreLocation": "AppFlowy varsayılan yoluna geri yükle",
+      "customizeLocation": "Başka bir klasör aç",
+      "restartApp": "Değişikliklerin etkili olması için lütfen uygulamayı yeniden başlatın.",
+      "exportDatabase": "Veritabanını dışa aktar",
       "selectFiles": "Dışa aktarılması gereken dosyaları seçin",
-      "selectAll": "Tümünü seç", 
-      "deselectAll": "Tüm seçimleri kaldır", 
-      "createNewFolder": "Yeni bir klasör oluştur", 
-      "createNewFolderDesc": "Verilerinizi nerede saklamak istediğinizi bize bildirin", 
-      "defineWhereYourDataIsStored": "Verilerinizin nerede saklandığını tanımlayın", 
-      "open": "Aç", 
-      "openFolder": "Mevcut bir klasörü aç", 
-      "openFolderDesc": "Mevcut AppFlowy klasörünüze okuyun ve yazın", 
+      "selectAll": "Tümünü seç",
+      "deselectAll": "Tüm seçimleri kaldır",
+      "createNewFolder": "Yeni bir klasör oluştur",
+      "createNewFolderDesc": "Verilerinizi nerede saklamak istediğinizi bize bildirin",
+      "defineWhereYourDataIsStored": "Verilerinizin nerede saklandığını tanımlayın",
+      "open": "Aç",
+      "openFolder": "Mevcut bir klasörü aç",
+      "openFolderDesc": "Mevcut AppFlowy klasörünüze okuyun ve yazın",
       "folderHintText": "klasör adı",
-      "location": "Yeni bir klasör oluşturuluyor", 
-      "locationDesc": "AppFlowy veri klasörünüz için bir ad seçin", 
+      "location": "Yeni bir klasör oluşturuluyor",
+      "locationDesc": "AppFlowy veri klasörünüz için bir ad seçin",
       "browser": "Gözat",
-      "create": "Oluştur", 
-      "set": "Ayarla", 
-      "folderPath": "Klasörünüzü saklamak için yol", 
-      "locationCannotBeEmpty": "Yol boş olamaz", 
-      "pathCopiedSnackbar": "Dosya depolama yolu panoya kopyalandı!", 
+      "create": "Oluştur",
+      "set": "Ayarla",
+      "folderPath": "Klasörünüzü saklamak için yol",
+      "locationCannotBeEmpty": "Yol boş olamaz",
+      "pathCopiedSnackbar": "Dosya depolama yolu panoya kopyalandı!",
       "changeLocationTooltips": "Veri dizinini değiştir",
-      "change": "Değiştir", 
-      "openLocationTooltips": "Başka bir veri dizini aç", 
-      "openCurrentDataFolder": "Geçerli veri dizinini aç", 
-      "recoverLocationTooltips": "AppFlowy'nin varsayılan veri dizinine sıfırla", 
-      "exportFileSuccess": "Dosya başarıyla dışa aktarıldı!", 
-      "exportFileFail": "Dosya dışa aktarılamadı!", 
-      "export": "Dışa Aktar", 
+      "change": "Değiştir",
+      "openLocationTooltips": "Başka bir veri dizini aç",
+      "openCurrentDataFolder": "Geçerli veri dizinini aç",
+      "recoverLocationTooltips": "AppFlowy'nin varsayılan veri dizinine sıfırla",
+      "exportFileSuccess": "Dosya başarıyla dışa aktarıldı!",
+      "exportFileFail": "Dosya dışa aktarılamadı!",
+      "export": "Dışa Aktar",
       "clearCache": "Önbelleği temizle",
-      "clearCacheDesc": "Görüntülerin yüklenmemesinde veya yazı tiplerinin düzgün görüntülenmemesi gibi sorunlarla karşılaşırsanız, önbelleğinizi temizlemeyi deneyin. Bu işlem kullanıcı verilerinizi kaldırmaz.", 
-      "areYouSureToClearCache": "Önbelleği temizlemek istediğinizden emin misiniz?", 
-      "clearCacheSuccess": "Önbellek başarıyla temizlendi!" 
+      "clearCacheDesc": "Görüntülerin yüklenmemesinde veya yazı tiplerinin düzgün görüntülenmemesi gibi sorunlarla karşılaşırsanız, önbelleğinizi temizlemeyi deneyin. Bu işlem kullanıcı verilerinizi kaldırmaz.",
+      "areYouSureToClearCache": "Önbelleği temizlemek istediğinizden emin misiniz?",
+      "clearCacheSuccess": "Önbellek başarıyla temizlendi!"
     },
     "user": {
-      "name": "Ad", 
-      "email": "E-posta", 
-      "tooltipSelectIcon": "Simge seç", 
+      "name": "Ad",
+      "email": "E-posta",
+      "tooltipSelectIcon": "Simge seç",
       "selectAnIcon": "Bir simge seçin",
       "pleaseInputYourOpenAIKey": "Lütfen OpenAI anahtarınızı girin",
-      "pleaseInputYourStabilityAIKey": "Lütfen Stability AI anahtarınızı girin", 
+      "pleaseInputYourStabilityAIKey": "Lütfen Stability AI anahtarınızı girin",
       "clickToLogout": "Geçerli kullanıcıdan çıkış yapmak için tıklayın"
-    }, 
-    "shortcuts": { 
-      "shortcutsLabel": "Kısayollar", 
-      "command": "Komut", 
-      "keyBinding": "Tuş Bağlantısı", 
-      "addNewCommand": "Yeni Komut Ekle", 
-      "updateShortcutStep": "İstediğiniz tuş kombinasyonuna basın ve ENTER tuşuna basın", 
+    },
+    "shortcuts": {
+      "shortcutsLabel": "Kısayollar",
+      "command": "Komut",
+      "keyBinding": "Tuş Bağlantısı",
+      "addNewCommand": "Yeni Komut Ekle",
+      "updateShortcutStep": "İstediğiniz tuş kombinasyonuna basın ve ENTER tuşuna basın",
       "shortcutIsAlreadyUsed": "Bu kısayol zaten şunun için kullanılıyor: {conflict}",
-      "resetToDefault": "Varsayılan tuş bağlantılarını sıfırla", 
-      "couldNotLoadErrorMsg": "Kısayollar yüklenemedi, tekrar deneyin", 
+      "resetToDefault": "Varsayılan tuş bağlantılarını sıfırla",
+      "couldNotLoadErrorMsg": "Kısayollar yüklenemedi, tekrar deneyin",
       "couldNotSaveErrorMsg": "Kısayollar kaydedilemedi, tekrar deneyin",
-      "commands": { 
+      "commands": {
         "codeBlockNewParagraph": "Kod bloğunun yanına yeni bir paragraf ekle",
-        "codeBlockAddTwoSpaces": "Kod bloğunda satır başına iki boşluk ekle", 
-        "codeBlockDeleteTwoSpaces": "Kod bloğunda satır başındaki iki boşluğu sil", 
-        "codeBlockSelectAll": "Kod bloğunun içindeki tüm içeriği seç", 
-        "codeBlockPasteText": "Kod bloğuna metin yapıştır", 
-        "textAlignLeft": "Metni sola hizala", 
-        "textAlignCenter": "Metni ortaya hizala", 
+        "codeBlockAddTwoSpaces": "Kod bloğunda satır başına iki boşluk ekle",
+        "codeBlockDeleteTwoSpaces": "Kod bloğunda satır başındaki iki boşluğu sil",
+        "codeBlockSelectAll": "Kod bloğunun içindeki tüm içeriği seç",
+        "codeBlockPasteText": "Kod bloğuna metin yapıştır",
+        "textAlignLeft": "Metni sola hizala",
+        "textAlignCenter": "Metni ortaya hizala",
         "textAlignRight": "Metni sağa hizala"
       }
-    }, 
-    "mobile": {
-      "personalInfo": "Kişisel Bilgiler", 
-      "username": "Kullanıcı Adı",
-      "usernameEmptyError": "Kullanıcı adı boş olamaz", 
-      "about": "Hakkında",
-      "pushNotifications": "Anında Bildirimler", 
-      "support": "Destek", 
-      "joinDiscord": "Discord'da bize katılın", 
-      "privacyPolicy": "Gizlilik Politikası", 
-      "userAgreement": "Kullanıcı Sözleşmesi", 
-      "termsAndConditions": "Şartlar ve Koşullar", 
-      "userprofileError": "Kullanıcı profili yüklenemedi", 
-      "userprofileErrorDescription": "Lütfen sorunun devam edip etmediğini kontrol etmek için çıkış yapıp tekrar giriş yapmayı deneyin.",
-      "selectLayout": "Düzen seçin", 
-      "selectStartingDay": "Başlangıç gününü seçin", 
-      "version": "Sürüm" 
-    } 
-  }, 
- "grid": { 
-    "deleteView": "Bu görünümü silmek istediğinizden emin misiniz?",
-    "createView": "Yeni", 
-    "title": { 
-      "placeholder": "İsimsiz" 
     },
-    "settings": { 
-      "filter": "Filtre", 
-      "sort": "Sırala", 
+    "mobile": {
+      "personalInfo": "Kişisel Bilgiler",
+      "username": "Kullanıcı Adı",
+      "usernameEmptyError": "Kullanıcı adı boş olamaz",
+      "about": "Hakkında",
+      "pushNotifications": "Anında Bildirimler",
+      "support": "Destek",
+      "joinDiscord": "Discord'da bize katılın",
+      "privacyPolicy": "Gizlilik Politikası",
+      "userAgreement": "Kullanıcı Sözleşmesi",
+      "termsAndConditions": "Şartlar ve Koşullar",
+      "userprofileError": "Kullanıcı profili yüklenemedi",
+      "userprofileErrorDescription": "Lütfen sorunun devam edip etmediğini kontrol etmek için çıkış yapıp tekrar giriş yapmayı deneyin.",
+      "selectLayout": "Düzen seçin",
+      "selectStartingDay": "Başlangıç gününü seçin",
+      "version": "Sürüm"
+    }
+  },
+ "grid": {
+    "deleteView": "Bu görünümü silmek istediğinizden emin misiniz?",
+    "createView": "Yeni",
+    "title": {
+      "placeholder": "İsimsiz"
+    },
+    "settings": {
+      "filter": "Filtre",
+      "sort": "Sırala",
       "sortBy": "Şuna göre sırala",
-      "properties": "Özellikler", 
-      "reorderPropertiesTooltip": "Özellikleri yeniden sıralamak için sürükleyin", 
-      "group": "Grupla", 
-      "addFilter": "Filtre Ekle", 
+      "properties": "Özellikler",
+      "reorderPropertiesTooltip": "Özellikleri yeniden sıralamak için sürükleyin",
+      "group": "Grupla",
+      "addFilter": "Filtre Ekle",
       "deleteFilter": "Filtreyi sil",
-      "filterBy": "Şuna göre filtrele...", 
-      "typeAValue": "Bir değer yazın...", 
+      "filterBy": "Şuna göre filtrele...",
+      "typeAValue": "Bir değer yazın...",
       "layout": "Düzen",
-      "databaseLayout": "Düzen", 
-      "viewList": { 
+      "databaseLayout": "Düzen",
+      "viewList": {
         "zero": "0 görünüm",
-        "one": "{count} görünüm", 
-        "other": "{count} görünüm" 
-      }, 
-      "editView": "Görünümü Düzenle", 
+        "one": "{count} görünüm",
+        "other": "{count} görünüm"
+      },
+      "editView": "Görünümü Düzenle",
       "boardSettings": "Pano ayarları",
       "calendarSettings": "Takvim ayarları",
-      "createView": "Yeni görünüm", 
-      "duplicateView": "Görünümü kopyala", 
+      "createView": "Yeni görünüm",
+      "duplicateView": "Görünümü kopyala",
       "deleteView": "Görünümü sil",
-      "numberOfVisibleFields": "{} gösteriliyor" 
-    }, 
-    "textFilter": { 
+      "numberOfVisibleFields": "{} gösteriliyor"
+    },
+    "textFilter": {
       "contains": "İçerir",
-      "doesNotContain": "İçermez", 
-      "endsWith": "Şununla biter", 
+      "doesNotContain": "İçermez",
+      "endsWith": "Şununla biter",
       "startWith": "Şununla başlar",
-      "is": "Şudur", 
-      "isNot": "Şu değildir", 
-      "isEmpty": "Boş", 
-      "isNotEmpty": "Boş değil", 
-      "choicechipPrefix": { 
-        "isNot": "Değil", 
-        "startWith": "Şununla başlar", 
+      "is": "Şudur",
+      "isNot": "Şu değildir",
+      "isEmpty": "Boş",
+      "isNotEmpty": "Boş değil",
+      "choicechipPrefix": {
+        "isNot": "Değil",
+        "startWith": "Şununla başlar",
         "endWith": "Şununla biter",
-        "isEmpty": "boş", 
-        "isNotEmpty": "boş değil" 
-      } 
-    }, 
-    "checkboxFilter": { 
-      "isChecked": "İşaretli", 
+        "isEmpty": "boş",
+        "isNotEmpty": "boş değil"
+      }
+    },
+    "checkboxFilter": {
+      "isChecked": "İşaretli",
       "isUnchecked": "İşaretsiz",
-      "choicechipPrefix": { 
-        "is": "" 
-      } 
+      "choicechipPrefix": {
+        "is": ""
+      }
     },
     "checklistFilter": {
-      "isComplete": "tamamlandı", 
+      "isComplete": "tamamlandı",
       "isIncomplted": "tamamlanmadı"
     },
-    "selectOptionFilter": { 
-      "is": "Şudur", 
-      "isNot": "Şu değildir", 
+    "selectOptionFilter": {
+      "is": "Şudur",
+      "isNot": "Şu değildir",
       "contains": "İçerir",
-      "doesNotContain": "İçermez", 
-      "isEmpty": "Boş", 
-      "isNotEmpty": "Boş değil" 
+      "doesNotContain": "İçermez",
+      "isEmpty": "Boş",
+      "isNotEmpty": "Boş değil"
     },
     "dateFilter": {
-      "is": "Şudur", 
-      "before": "Şundan önce", 
+      "is": "Şudur",
+      "before": "Şundan önce",
       "after": "Şundan sonra",
-      "onOrBefore": "Şunda veya önce", 
-      "onOrAfter": "Şunda veya sonra", 
+      "onOrBefore": "Şunda veya önce",
+      "onOrAfter": "Şunda veya sonra",
       "between": "Şunlar arasında",
-      "empty": "Boş", 
-      "notEmpty": "Boş değil", 
-      "choicechipPrefix": { 
+      "empty": "Boş",
+      "notEmpty": "Boş değil",
+      "choicechipPrefix": {
         "before": "Önce",
-        "after": "Sonra", 
-        "onOrBefore": "Şunda veya önce", 
-        "onOrAfter": "Şunda veya sonra", 
-        "isEmpty": "Boş", 
-        "isNotEmpty": "Boş değil" 
-      } 
-    }, 
-    "numberFilter": { 
-      "equal": "Eşittir", 
+        "after": "Sonra",
+        "onOrBefore": "Şunda veya önce",
+        "onOrAfter": "Şunda veya sonra",
+        "isEmpty": "Boş",
+        "isNotEmpty": "Boş değil"
+      }
+    },
+    "numberFilter": {
+      "equal": "Eşittir",
       "notEqual": "Eşit değildir",
-      "lessThan": "Şundan küçüktür", 
-      "greaterThan": "Şundan büyüktür", 
+      "lessThan": "Şundan küçüktür",
+      "greaterThan": "Şundan büyüktür",
       "lessThanOrEqualTo": "Şundan küçük veya eşittir",
-      "greaterThanOrEqualTo": "Şundan büyük veya eşittir", 
-      "isEmpty": "Boş", 
-      "isNotEmpty": "Boş değil" 
+      "greaterThanOrEqualTo": "Şundan büyük veya eşittir",
+      "isEmpty": "Boş",
+      "isNotEmpty": "Boş değil"
     },
     "field": {
-      "hide": "Gizle", 
-      "show": "Göster", 
+      "hide": "Gizle",
+      "show": "Göster",
       "insertLeft": "Sola Ekle",
-      "insertRight": "Sağa Ekle", 
-      "duplicate": "Kopyala", 
-      "delete": "Sil", 
-      "clear": "Hücreleri temizle", 
-      "textFieldName": "Metin", 
-      "checkboxFieldName": "Onay Kutusu", 
+      "insertRight": "Sağa Ekle",
+      "duplicate": "Kopyala",
+      "delete": "Sil",
+      "clear": "Hücreleri temizle",
+      "textFieldName": "Metin",
+      "checkboxFieldName": "Onay Kutusu",
       "dateFieldName": "Tarih",
-      "updatedAtFieldName": "Son değiştirilme", 
-      "createdAtFieldName": "Oluşturulma tarihi", 
+      "updatedAtFieldName": "Son değiştirilme",
+      "createdAtFieldName": "Oluşturulma tarihi",
       "numberFieldName": "Sayılar",
-      "singleSelectFieldName": "Seçenek", 
-      "multiSelectFieldName": "Çoklu Seçenek", 
-      "urlFieldName": "URL", 
-      "checklistFieldName": "Kontrol Listesi", 
+      "singleSelectFieldName": "Seçenek",
+      "multiSelectFieldName": "Çoklu Seçenek",
+      "urlFieldName": "URL",
+      "checklistFieldName": "Kontrol Listesi",
       "relationFieldName": "İlişki",
-      "numberFormat": "Sayı formatı", 
-      "dateFormat": "Tarih formatı", 
+      "numberFormat": "Sayı formatı",
+      "dateFormat": "Tarih formatı",
       "includeTime": "Saati dahil et",
-      "isRange": "Bitiş tarihi", 
-      "dateFormatFriendly": "Ay Gün, Yıl", 
-      "dateFormatISO": "Yıl-Ay-Gün", 
-      "dateFormatLocal": "Ay/Gün/Yıl", 
-      "dateFormatUS": "Yıl/Ay/Gün", 
+      "isRange": "Bitiş tarihi",
+      "dateFormatFriendly": "Ay Gün, Yıl",
+      "dateFormatISO": "Yıl-Ay-Gün",
+      "dateFormatLocal": "Ay/Gün/Yıl",
+      "dateFormatUS": "Yıl/Ay/Gün",
       "dateFormatDayMonthYear": "Gün/Ay/Yıl",
-      "timeFormat": "Saat formatı", 
-      "invalidTimeFormat": "Geçersiz format", 
-      "timeFormatTwelveHour": "12 saat", 
-      "timeFormatTwentyFourHour": "24 saat", 
+      "timeFormat": "Saat formatı",
+      "invalidTimeFormat": "Geçersiz format",
+      "timeFormatTwelveHour": "12 saat",
+      "timeFormatTwentyFourHour": "24 saat",
       "clearDate": "Tarihi temizle",
-      "dateTime": "Tarih saat", 
-      "startDateTime": "Başlangıç tarih saati", 
-      "endDateTime": "Bitiş tarih saati", 
-      "failedToLoadDate": "Tarih değeri yüklenemedi", 
-      "selectTime": "Saat seç", 
-      "selectDate": "Tarih seç", 
-      "visibility": "Görünürlük", 
+      "dateTime": "Tarih saat",
+      "startDateTime": "Başlangıç tarih saati",
+      "endDateTime": "Bitiş tarih saati",
+      "failedToLoadDate": "Tarih değeri yüklenemedi",
+      "selectTime": "Saat seç",
+      "selectDate": "Tarih seç",
+      "visibility": "Görünürlük",
       "propertyType": "Özellik türü",
-      "addSelectOption": "Bir seçenek ekle", 
-      "typeANewOption": "Yeni bir seçenek yazın", 
-      "optionTitle": "Seçenekler", 
-      "addOption": "Seçenek ekle", 
+      "addSelectOption": "Bir seçenek ekle",
+      "typeANewOption": "Yeni bir seçenek yazın",
+      "optionTitle": "Seçenekler",
+      "addOption": "Seçenek ekle",
       "editProperty": "Özelliği düzenle",
       "newProperty": "Yeni özellik",
-      "deleteFieldPromptMessage": "Emin misiniz? Bu özellik silinecek", 
-      "clearFieldPromptMessage": "Emin misiniz? Bu sütundaki tüm hücreler boşaltılacak", 
+      "deleteFieldPromptMessage": "Emin misiniz? Bu özellik silinecek",
+      "clearFieldPromptMessage": "Emin misiniz? Bu sütundaki tüm hücreler boşaltılacak",
       "newColumn": "Yeni Sütun",
       "format": "Format",
-      "reminderOnDateTooltip": "Bu hücrenin planlanmış bir hatırlatıcısı var", 
-      "optionAlreadyExist": "Seçenek zaten mevcut" 
+      "reminderOnDateTooltip": "Bu hücrenin planlanmış bir hatırlatıcısı var",
+      "optionAlreadyExist": "Seçenek zaten mevcut"
     },
    "rowPage": {
-      "newField": "Yeni bir alan ekle", 
+      "newField": "Yeni bir alan ekle",
       "fieldDragElementTooltip": "Menüyü açmak için tıklayın",
-      "showHiddenFields": { 
-        "one": "{count} gizli alanı göster", 
-        "many": "{count} gizli alanı göster", 
-        "other": "{count} gizli alanı göster" 
-      }, 
-      "hideHiddenFields": { 
-        "one": "{count} gizli alanı gizle", 
-        "many": "{count} gizli alanı gizle", 
+      "showHiddenFields": {
+        "one": "{count} gizli alanı göster",
+        "many": "{count} gizli alanı göster",
+        "other": "{count} gizli alanı göster"
+      },
+      "hideHiddenFields": {
+        "one": "{count} gizli alanı gizle",
+        "many": "{count} gizli alanı gizle",
         "other": "{count} gizli alanı gizle"
-      } 
-    }, 
-    "sort": { 
-      "ascending": "Artan", 
-      "descending": "Azalan", 
-      "by": "Şuna göre", 
-      "empty": "Aktif sıralama yok", 
+      }
+    },
+    "sort": {
+      "ascending": "Artan",
+      "descending": "Azalan",
+      "by": "Şuna göre",
+      "empty": "Aktif sıralama yok",
       "cannotFindCreatableField": "Sıralama yapmak için uygun bir alan bulunamadı",
-      "deleteAllSorts": "Tüm sıralamaları sil", 
-      "addSort": "Yeni sıralama ekle", 
-      "removeSorting": "Sıralamayı kaldırmak ister misiniz?", 
+      "deleteAllSorts": "Tüm sıralamaları sil",
+      "addSort": "Yeni sıralama ekle",
+      "removeSorting": "Sıralamayı kaldırmak ister misiniz?",
       "fieldInUse": "Zaten bu alana göre sıralama yapıyorsunuz"
-    }, 
+    },
     "row": {
-      "duplicate": "Kopyala", 
+      "duplicate": "Kopyala",
       "delete": "Sil",
-      "titlePlaceholder": "İsimsiz", 
-      "textPlaceholder": "Boş", 
+      "titlePlaceholder": "İsimsiz",
+      "textPlaceholder": "Boş",
       "copyProperty": "Özellik panoya kopyalandı",
-      "count": "Sayı", 
-      "newRow": "Yeni satır", 
-      "action": "Eylem", 
+      "count": "Sayı",
+      "newRow": "Yeni satır",
+      "action": "Eylem",
       "add": "Alta eklemek için tıklayın",
-      "drag": "Taşımak için sürükleyin", 
-      "dragAndClick": "Taşımak için sürükleyin, menüyü açmak için tıklayın", 
-      "insertRecordAbove": "Üste kayıt ekle", 
+      "drag": "Taşımak için sürükleyin",
+      "dragAndClick": "Taşımak için sürükleyin, menüyü açmak için tıklayın",
+      "insertRecordAbove": "Üste kayıt ekle",
       "insertRecordBelow": "Alta kayıt ekle"
     },
     "selectOption": {
-      "create": "Oluştur", 
-      "purpleColor": "Mor", 
-      "pinkColor": "Pembe", 
+      "create": "Oluştur",
+      "purpleColor": "Mor",
+      "pinkColor": "Pembe",
       "lightPinkColor": "Açık Pembe",
-      "orangeColor": "Turuncu", 
-      "yellowColor": "Sarı", 
-      "limeColor": "Yeşil", 
+      "orangeColor": "Turuncu",
+      "yellowColor": "Sarı",
+      "limeColor": "Yeşil",
       "greenColor": "Yeşil",
-      "aquaColor": "Su yeşili", 
-      "blueColor": "Mavi", 
-      "deleteTag": "Etiketi sil", 
+      "aquaColor": "Su yeşili",
+      "blueColor": "Mavi",
+      "deleteTag": "Etiketi sil",
       "colorPanelTitle": "Renk",
-      "panelTitle": "Bir seçenek seçin veya yeni bir tane oluşturun", 
-      "searchOption": "Bir seçenek arayın", 
-      "searchOrCreateOption": "Bir seçenek arayın veya yeni bir tane oluşturun", 
-      "createNew": "Yeni oluştur", 
-      "orSelectOne": "Veya bir seçenek seçin", 
-      "typeANewOption": "Yeni bir seçenek yazın", 
+      "panelTitle": "Bir seçenek seçin veya yeni bir tane oluşturun",
+      "searchOption": "Bir seçenek arayın",
+      "searchOrCreateOption": "Bir seçenek arayın veya yeni bir tane oluşturun",
+      "createNew": "Yeni oluştur",
+      "orSelectOne": "Veya bir seçenek seçin",
+      "typeANewOption": "Yeni bir seçenek yazın",
       "tagName": "Etiket adı"
-    }, 
+    },
     "checklist": {
-      "taskHint": "Görev açıklaması", 
-      "addNew": "Yeni bir görev ekle", 
-      "submitNewTask": "Oluştur", 
+      "taskHint": "Görev açıklaması",
+      "addNew": "Yeni bir görev ekle",
+      "submitNewTask": "Oluştur",
       "hideComplete": "Tamamlanan görevleri gizle",
-      "showComplete": "Tüm görevleri göster" 
-    }, 
-    "url": { 
-      "launch": "Bağlantıyı tarayıcıda aç", 
-      "copy": "Bağlantıyı panoya kopyala", 
-      "textFieldHint": "Bir URL girin", 
-      "copiedNotification": "Panoya kopyalandı!" 
-    }, 
+      "showComplete": "Tüm görevleri göster"
+    },
+    "url": {
+      "launch": "Bağlantıyı tarayıcıda aç",
+      "copy": "Bağlantıyı panoya kopyala",
+      "textFieldHint": "Bir URL girin",
+      "copiedNotification": "Panoya kopyalandı!"
+    },
     "relation": {
-      "relatedDatabasePlaceLabel": "İlgili Veritabanı", 
-      "relatedDatabasePlaceholder": "Yok", 
+      "relatedDatabasePlaceLabel": "İlgili Veritabanı",
+      "relatedDatabasePlaceholder": "Yok",
       "inRelatedDatabase": "İçinde",
-      "rowSearchTextFieldPlaceholder": "Ara", 
-      "noDatabaseSelected": "Veritabanı seçilmedi, lütfen önce aşağıdaki listeden bir tane seçin:", 
+      "rowSearchTextFieldPlaceholder": "Ara",
+      "noDatabaseSelected": "Veritabanı seçilmedi, lütfen önce aşağıdaki listeden bir tane seçin:",
       "emptySearchResult": "Kayıt bulunamadı"
-    }, 
-    "menuName": "Tablo", 
-    "referencedGridPrefix": "Görünümü", 
-    "calculate": "Hesapla", 
+    },
+    "menuName": "Tablo",
+    "referencedGridPrefix": "Görünümü",
+    "calculate": "Hesapla",
     "calculationTypeLabel": {
-      "none": "Yok", 
-      "average": "Ortalama", 
+      "none": "Yok",
+      "average": "Ortalama",
       "max": "Maksimum",
-      "median": "Medyan", 
-      "min": "Minimum", 
-      "sum": "Toplam", 
+      "median": "Medyan",
+      "min": "Minimum",
+      "sum": "Toplam",
       "count": "Sayı",
       "countEmpty": "Boş sayısı",
-      "countEmptyShort": "BOŞ", 
+      "countEmptyShort": "BOŞ",
       "countNonEmpty": "Dolu sayısı",
-      "countNonEmptyShort": "DOLU" 
+      "countNonEmptyShort": "DOLU"
     }
-  }, 
+  },
   "document": {
-    "menuName": "Belge", 
+    "menuName": "Belge",
     "date": {
-      "timeHintTextInTwelveHour": "01:00 PM", 
-      "timeHintTextInTwentyFourHour": "13:00" 
+      "timeHintTextInTwelveHour": "01:00 PM",
+      "timeHintTextInTwentyFourHour": "13:00"
     },
     "slashMenu": {
       "board": {
-        "selectABoardToLinkTo": "Bağlantı kurulacak bir Pano seçin", 
-        "createANewBoard": "Yeni bir Pano oluşturun" 
+        "selectABoardToLinkTo": "Bağlantı kurulacak bir Pano seçin",
+        "createANewBoard": "Yeni bir Pano oluşturun"
       },
-      "grid": { 
-        "selectAGridToLinkTo": "Bağlantı kurulacak bir Tablo seçin", 
-        "createANewGrid": "Yeni bir Tablo oluşturun" 
-      }, 
-      "calendar": { 
+      "grid": {
+        "selectAGridToLinkTo": "Bağlantı kurulacak bir Tablo seçin",
+        "createANewGrid": "Yeni bir Tablo oluşturun"
+      },
+      "calendar": {
         "selectACalendarToLinkTo": "Bağlantı kurulacak bir Takvim seçin",
-        "createANewCalendar": "Yeni bir Takvim oluşturun" 
-      }, 
-      "document": { 
-        "selectADocumentToLinkTo": "Bağlantı kurulacak bir Belge seçin" 
+        "createANewCalendar": "Yeni bir Takvim oluşturun"
+      },
+      "document": {
+        "selectADocumentToLinkTo": "Bağlantı kurulacak bir Belge seçin"
       }
     },
     "selectionMenu": {
-      "outline": "Ana Hat", 
-      "codeBlock": "Kod Bloğu" 
-    }, 
+      "outline": "Ana Hat",
+      "codeBlock": "Kod Bloğu"
+    },
     "plugins": {
-      "referencedBoard": "Referans Gösterilen Pano", 
+      "referencedBoard": "Referans Gösterilen Pano",
       "referencedGrid": "Referans Gösterilen Tablo",
       "referencedCalendar": "Referans Gösterilen Takvim",
-      "referencedDocument": "Referans Gösterilen Belge", 
-      "autoGeneratorMenuItemName": "OpenAI Yazar", 
+      "referencedDocument": "Referans Gösterilen Belge",
+      "autoGeneratorMenuItemName": "OpenAI Yazar",
       "autoGeneratorTitleName": "OpenAI: AI'dan istediğinizi yazmasını isteyin...",
-      "autoGeneratorLearnMore": "Daha fazla bilgi edinin", 
-      "autoGeneratorGenerate": "Oluştur", 
-      "autoGeneratorHintText": "OpenAI'ya sorun ...", 
-      "autoGeneratorCantGetOpenAIKey": "OpenAI anahtarı alınamıyor", 
-      "autoGeneratorRewrite": "Yeniden yaz", 
-      "smartEdit": "AI Asistanları", 
-      "openAI": "OpenAI", 
+      "autoGeneratorLearnMore": "Daha fazla bilgi edinin",
+      "autoGeneratorGenerate": "Oluştur",
+      "autoGeneratorHintText": "OpenAI'ya sorun ...",
+      "autoGeneratorCantGetOpenAIKey": "OpenAI anahtarı alınamıyor",
+      "autoGeneratorRewrite": "Yeniden yaz",
+      "smartEdit": "AI Asistanları",
+      "openAI": "OpenAI",
       "smartEditFixSpelling": "Yazımı düzelt",
-      "warning": "⚠️ AI yanıtları yanlış veya yanıltıcı olabilir.", 
-      "smartEditSummarize": "Özetle", 
-      "smartEditImproveWriting": "Yazımı geliştir", 
+      "warning": "⚠️ AI yanıtları yanlış veya yanıltıcı olabilir.",
+      "smartEditSummarize": "Özetle",
+      "smartEditImproveWriting": "Yazımı geliştir",
       "smartEditMakeLonger": "Daha uzun yap",
-      "smartEditCouldNotFetchResult": "OpenAI'dan sonuç alınamadı", 
+      "smartEditCouldNotFetchResult": "OpenAI'dan sonuç alınamadı",
       "smartEditCouldNotFetchKey": "OpenAI anahtarı alınamadı",
-      "smartEditDisabled": "Ayarlar'da OpenAI'yı bağlayın", 
-      "discardResponse": "AI yanıtlarını silmek ister misiniz?", 
-      "createInlineMathEquation": "Denklem oluştur", 
+      "smartEditDisabled": "Ayarlar'da OpenAI'yı bağlayın",
+      "discardResponse": "AI yanıtlarını silmek ister misiniz?",
+      "createInlineMathEquation": "Denklem oluştur",
       "fonts": "Yazı Tipleri",
-      "insertDate": "Tarih ekle", 
-      "emoji": "Emoji", 
-      "toggleList": "Listeyi değiştir", 
+      "insertDate": "Tarih ekle",
+      "emoji": "Emoji",
+      "toggleList": "Listeyi değiştir",
       "quoteList": "Alıntı listesi",
-      "numberedList": "Numaralı liste", 
-      "bulletedList": "Madde işaretli liste", 
-      "todoList": "Yapılacaklar Listesi", 
+      "numberedList": "Numaralı liste",
+      "bulletedList": "Madde işaretli liste",
+      "todoList": "Yapılacaklar Listesi",
       "callout": "Bilgi Kutusu",
       "cover": {
-        "changeCover": "Kapak Resmi Değiştir", 
-        "colors": "Renkler", 
-        "images": "Resimler", 
+        "changeCover": "Kapak Resmi Değiştir",
+        "colors": "Renkler",
+        "images": "Resimler",
         "clearAll": "Tümünü Temizle",
         "abstract": "Soyut",
         "addCover": "Kapak Resmi Ekle",
-        "addLocalImage": "Yerel resim ekle", 
-        "invalidImageUrl": "Geçersiz resim URL'si", 
-        "failedToAddImageToGallery": "Resim galeriye eklenemedi", 
+        "addLocalImage": "Yerel resim ekle",
+        "invalidImageUrl": "Geçersiz resim URL'si",
+        "failedToAddImageToGallery": "Resim galeriye eklenemedi",
         "enterImageUrl": "Resim URL'sini girin",
-        "add": "Ekle", 
-        "back": "Geri", 
-        "saveToGallery": "Galeriye kaydet", 
+        "add": "Ekle",
+        "back": "Geri",
+        "saveToGallery": "Galeriye kaydet",
         "removeIcon": "Simgeyi kaldır",
-        "pasteImageUrl": "Resim URL'sini yapıştır", 
-        "or": "VEYA", 
-        "pickFromFiles": "Dosyalardan seç", 
+        "pasteImageUrl": "Resim URL'sini yapıştır",
+        "or": "VEYA",
+        "pickFromFiles": "Dosyalardan seç",
         "couldNotFetchImage": "Resim alınamadı",
-        "imageSavingFailed": "Resim Kaydedilemedi", 
-        "addIcon": "Simge ekle", 
-        "changeIcon": "Simgeyi değiştir", 
-        "coverRemoveAlert": "Silindikten sonra kapak resminden kaldırılacaktır.", 
-        "alertDialogConfirmation": "Devam etmek istediğinizden emin misiniz?" 
-      }, 
-      "mathEquation": { 
-        "name": "Matematik Denklemi", 
+        "imageSavingFailed": "Resim Kaydedilemedi",
+        "addIcon": "Simge ekle",
+        "changeIcon": "Simgeyi değiştir",
+        "coverRemoveAlert": "Silindikten sonra kapak resminden kaldırılacaktır.",
+        "alertDialogConfirmation": "Devam etmek istediğinizden emin misiniz?"
+      },
+      "mathEquation": {
+        "name": "Matematik Denklemi",
         "addMathEquation": "Bir TeX denklemi ekle",
-        "editMathEquation": "Matematik Denklemini Düzenle" 
-      }, 
-      "optionAction": { 
-        "click": "Tıkla", 
-        "toOpenMenu": " menüyü açmak için", 
-        "delete": "Sil", 
-        "duplicate": "Kopyala", 
-        "turnInto": "Şuna dönüştür", 
+        "editMathEquation": "Matematik Denklemini Düzenle"
+      },
+      "optionAction": {
+        "click": "Tıkla",
+        "toOpenMenu": " menüyü açmak için",
+        "delete": "Sil",
+        "duplicate": "Kopyala",
+        "turnInto": "Şuna dönüştür",
         "moveUp": "Yukarı taşı",
-        "moveDown": "Aşağı taşı", 
-        "color": "Renk", 
-        "align": "Hizala", 
-        "left": "Sol", 
-        "center": "Orta", 
-        "right": "Sağ", 
+        "moveDown": "Aşağı taşı",
+        "color": "Renk",
+        "align": "Hizala",
+        "left": "Sol",
+        "center": "Orta",
+        "right": "Sağ",
         "defaultColor": "Varsayılan",
-        "depth": "Derinlik" 
-      }, 
-      "image": { 
+        "depth": "Derinlik"
+      },
+      "image": {
         "copiedToPasteBoard": "Resim bağlantısı panoya kopyalandı",
-        "addAnImage": "Bir resim ekle", 
+        "addAnImage": "Bir resim ekle",
         "imageUploadFailed": "Resim yükleme başarısız"
       },
-      "urlPreview": { 
-        "copiedToPasteBoard": "Bağlantı panoya kopyalandı", 
+      "urlPreview": {
+        "copiedToPasteBoard": "Bağlantı panoya kopyalandı",
         "convertToLink": "Gömülü bağlantıya dönüştür"
-      }, 
-      "outline": { 
-        "addHeadingToCreateOutline": "İçindekiler tablosu oluşturmak için başlıklar ekleyin.", 
-        "noMatchHeadings": "Eşleşen başlık bulunamadı."
-      }, 
-      "table": { 
-        "addAfter": "Sonra ekle", 
-        "addBefore": "Önce ekle", 
-        "delete": "Sil",
-        "clear": "İçeriği temizle", 
-        "duplicate": "Kopyala", 
-        "bgColor": "Arka plan rengi"
-      }, 
-      "contextMenu": { 
-        "copy": "Kopyala", 
-        "cut": "Kes", 
-        "paste": "Yapıştır" 
       },
-      "action": "Eylemler", 
-      "database": { 
-        "selectDataSource": "Veri kaynağını seçin", 
-        "noDataSource": "Veri kaynağı yok", 
+      "outline": {
+        "addHeadingToCreateOutline": "İçindekiler tablosu oluşturmak için başlıklar ekleyin.",
+        "noMatchHeadings": "Eşleşen başlık bulunamadı."
+      },
+      "table": {
+        "addAfter": "Sonra ekle",
+        "addBefore": "Önce ekle",
+        "delete": "Sil",
+        "clear": "İçeriği temizle",
+        "duplicate": "Kopyala",
+        "bgColor": "Arka plan rengi"
+      },
+      "contextMenu": {
+        "copy": "Kopyala",
+        "cut": "Kes",
+        "paste": "Yapıştır"
+      },
+      "action": "Eylemler",
+      "database": {
+        "selectDataSource": "Veri kaynağını seçin",
+        "noDataSource": "Veri kaynağı yok",
         "selectADataSource": "Bir veri kaynağı seçin",
         "toContinue": "devam etmek için",
         "newDatabase": "Yeni Veritabanı",
-        "linkToDatabase": "Veritabanına Bağla" 
-      }, 
+        "linkToDatabase": "Veritabanına Bağla"
+      },
       "date": "Tarih",
-      "emoji": "Emoji" 
-    }, 
-    "outlineBlock": { 
-      "placeholder": "İçindekiler"
-    }, 
-    "textBlock": { 
-      "placeholder": "Komutlar için '/' yazın" 
+      "emoji": "Emoji"
     },
-    "title": { 
-      "placeholder": "İsimsiz" 
-    }, 
+    "outlineBlock": {
+      "placeholder": "İçindekiler"
+    },
+    "textBlock": {
+      "placeholder": "Komutlar için '/' yazın"
+    },
+    "title": {
+      "placeholder": "İsimsiz"
+    },
     "imageBlock": {
       "placeholder": "Resim eklemek için tıklayın",
       "upload": {
-        "label": "Yükle", 
+        "label": "Yükle",
         "placeholder": "Resim yüklemek için tıklayın"
-      }, 
+      },
       "url": {
-        "label": "Resim URL'si", 
-        "placeholder": "Resim URL'sini girin" 
-      }, 
-      "ai": { 
-        "label": "OpenAI ile resim oluştur", 
-        "placeholder": "Lütfen OpenAI'nin resim oluşturması için komutu girin" 
-      }, 
-      "stability_ai": { 
-        "label": "Stability AI ile resim oluştur", 
-        "placeholder": "Lütfen Stability AI'nin resim oluşturması için komutu girin" 
-      }, 
+        "label": "Resim URL'si",
+        "placeholder": "Resim URL'sini girin"
+      },
+      "ai": {
+        "label": "OpenAI ile resim oluştur",
+        "placeholder": "Lütfen OpenAI'nin resim oluşturması için komutu girin"
+      },
+      "stability_ai": {
+        "label": "Stability AI ile resim oluştur",
+        "placeholder": "Lütfen Stability AI'nin resim oluşturması için komutu girin"
+      },
       "support": "Resim boyutu sınırı 5MB'dir. Desteklenen formatlar: JPEG, PNG, GIF, SVG",
       "error": {
-        "invalidImage": "Geçersiz resim", 
+        "invalidImage": "Geçersiz resim",
         "invalidImageSize": "Resim boyutu 5MB'den küçük olmalıdır",
-        "invalidImageFormat": "Resim formatı desteklenmiyor. Desteklenen formatlar: JPEG, PNG, JPG, GIF, SVG, WEBP", 
-        "invalidImageUrl": "Geçersiz resim URL'si", 
+        "invalidImageFormat": "Resim formatı desteklenmiyor. Desteklenen formatlar: JPEG, PNG, JPG, GIF, SVG, WEBP",
+        "invalidImageUrl": "Geçersiz resim URL'si",
         "noImage": "Böyle bir dosya veya dizin yok"
       },
       "embedLink": {
-        "label": "Bağlantıyı göm", 
-        "placeholder": "Bir resim bağlantısını yapıştırın veya yazın" 
-      }, 
-      "unsplash": { 
-        "label": "Unsplash" 
-      }, 
+        "label": "Bağlantıyı göm",
+        "placeholder": "Bir resim bağlantısını yapıştırın veya yazın"
+      },
+      "unsplash": {
+        "label": "Unsplash"
+      },
       "searchForAnImage": "Bir resim arayın",
       "pleaseInputYourOpenAIKey": "Lütfen Ayarlar sayfasında OpenAI anahtarınızı girin",
-      "pleaseInputYourStabilityAIKey": "Lütfen Ayarlar sayfasında Stability AI anahtarınızı girin", 
-      "saveImageToGallery": "Resmi kaydet", 
+      "pleaseInputYourStabilityAIKey": "Lütfen Ayarlar sayfasında Stability AI anahtarınızı girin",
+      "saveImageToGallery": "Resmi kaydet",
       "failedToAddImageToGallery": "Resim galeriye eklenemedi",
-      "successToAddImageToGallery": "Resim başarıyla galeriye eklendi", 
-      "unableToLoadImage": "Resim yüklenemedi", 
+      "successToAddImageToGallery": "Resim başarıyla galeriye eklendi",
+      "unableToLoadImage": "Resim yüklenemedi",
       "maximumImageSize": "Desteklenen maksimum yükleme resim boyutu 10MB'dir",
-      "uploadImageErrorImageSizeTooBig": "Resim boyutu 10MB'den küçük olmalıdır", 
+      "uploadImageErrorImageSizeTooBig": "Resim boyutu 10MB'den küçük olmalıdır",
       "imageIsUploading": "Resim yükleniyor"
     },
-    "codeBlock": { 
-      "language": { 
-        "label": "Dil", 
-        "placeholder": "Dil seçin" 
+    "codeBlock": {
+      "language": {
+        "label": "Dil",
+        "placeholder": "Dil seçin"
       }
-    }, 
+    },
     "inlineLink": {
-      "placeholder": "Bir bağlantıyı yapıştırın veya yazın", 
+      "placeholder": "Bir bağlantıyı yapıştırın veya yazın",
       "openInNewTab": "Yeni sekmede aç",
-      "copyLink": "Bağlantıyı kopyala", 
-      "removeLink": "Bağlantıyı kaldır", 
+      "copyLink": "Bağlantıyı kopyala",
+      "removeLink": "Bağlantıyı kaldır",
       "url": {
-        "label": "Bağlantı URL'si", 
-        "placeholder": "Bağlantı URL'sini girin" 
-      }, 
-      "title": { 
-        "label": "Bağlantı Başlığı", 
-        "placeholder": "Bağlantı başlığını girin" 
-      } 
-    }, 
-    "mention": { 
-      "placeholder": "Bir kişiye, sayfaya veya tarihe bahset...", 
-      "page": { 
-        "label": "Sayfaya bağlantı", 
+        "label": "Bağlantı URL'si",
+        "placeholder": "Bağlantı URL'sini girin"
+      },
+      "title": {
+        "label": "Bağlantı Başlığı",
+        "placeholder": "Bağlantı başlığını girin"
+      }
+    },
+    "mention": {
+      "placeholder": "Bir kişiye, sayfaya veya tarihe bahset...",
+      "page": {
+        "label": "Sayfaya bağlantı",
         "tooltip": "Sayfayı açmak için tıklayın"
       },
-      "deleted": "Silindi", 
-      "deletedContent": "Bu içerik mevcut değil veya silinmiş" 
-    }, 
+      "deleted": "Silindi",
+      "deletedContent": "Bu içerik mevcut değil veya silinmiş"
+    },
     "toolbar": {
-      "resetToDefaultFont": "Varsayılana sıfırla" 
-    }, 
-    "errorBlock": { 
-      "theBlockIsNotSupported": "Geçerli sürüm bu bloğu desteklemiyor.", 
+      "resetToDefaultFont": "Varsayılana sıfırla"
+    },
+    "errorBlock": {
+      "theBlockIsNotSupported": "Geçerli sürüm bu bloğu desteklemiyor.",
       "blockContentHasBeenCopied": "Blok içeriği kopyalandı."
-    } 
-  }, 
-  "board": { 
-    "column": { 
-      "createNewCard": "Yeni", 
-      "renameGroupTooltip": "Grubu yeniden adlandırmak için basın", 
-      "createNewColumn": "Yeni bir grup ekle", 
-      "addToColumnTopTooltip": "Üste yeni bir kart ekle", 
-      "addToColumnBottomTooltip": "Alta yeni bir kart ekle", 
+    }
+  },
+  "board": {
+    "column": {
+      "createNewCard": "Yeni",
+      "renameGroupTooltip": "Grubu yeniden adlandırmak için basın",
+      "createNewColumn": "Yeni bir grup ekle",
+      "addToColumnTopTooltip": "Üste yeni bir kart ekle",
+      "addToColumnBottomTooltip": "Alta yeni bir kart ekle",
       "renameColumn": "Yeniden Adlandır",
-      "hideColumn": "Gizle", 
-      "newGroup": "Yeni Grup", 
-      "deleteColumn": "Sil", 
+      "hideColumn": "Gizle",
+      "newGroup": "Yeni Grup",
+      "deleteColumn": "Sil",
       "deleteColumnConfirmation": "Bu, bu grubu ve içindeki tüm kartları silecektir.\nDevam etmek istediğinizden emin misiniz?"
     },
-    "hiddenGroupSection": { 
-      "sectionTitle": "Gizli Gruplar", 
-      "collapseTooltip": "Gizli grupları gizle", 
-      "expandTooltip": "Gizli grupları görüntüle" 
+    "hiddenGroupSection": {
+      "sectionTitle": "Gizli Gruplar",
+      "collapseTooltip": "Gizli grupları gizle",
+      "expandTooltip": "Gizli grupları görüntüle"
     },
-    "cardDetail": "Kart Detayı", 
-    "cardActions": "Kart Eylemleri", 
-    "cardDuplicated": "Kart kopyalandı", 
-    "cardDeleted": "Kart silindi", 
+    "cardDetail": "Kart Detayı",
+    "cardActions": "Kart Eylemleri",
+    "cardDuplicated": "Kart kopyalandı",
+    "cardDeleted": "Kart silindi",
     "showOnCard": "Kart detayında göster",
-    "setting": "Ayar", 
-    "propertyName": "Özellik adı", 
-    "menuName": "Pano", 
-    "showUngrouped": "Grupsuz öğeleri göster", 
-    "ungroupedButtonText": "Grupsuz", 
+    "setting": "Ayar",
+    "propertyName": "Özellik adı",
+    "menuName": "Pano",
+    "showUngrouped": "Grupsuz öğeleri göster",
+    "ungroupedButtonText": "Grupsuz",
     "ungroupedButtonTooltip": "Herhangi bir gruba ait olmayan kartları içerir",
-    "ungroupedItemsTitle": "Panoya eklemek için tıklayın", 
-    "groupBy": "Şuna göre grupla", 
-    "referencedBoardPrefix": "Görünümü", 
+    "ungroupedItemsTitle": "Panoya eklemek için tıklayın",
+    "groupBy": "Şuna göre grupla",
+    "referencedBoardPrefix": "Görünümü",
     "notesTooltip": "İçindeki notlar",
     "mobile": {
-      "editURL": "URL'yi Düzenle", 
-      "unhideGroup": "Grubu göster", 
+      "editURL": "URL'yi Düzenle",
+      "unhideGroup": "Grubu göster",
       "unhideGroupContent": "Bu grubu panoda göstermek istediğinizden emin misiniz?",
-      "faildToLoad": "Pano görünümü yüklenemedi" 
-    } 
-  }, 
+      "faildToLoad": "Pano görünümü yüklenemedi"
+    }
+  },
   "calendar": {
     "menuName": "Takvim",
-    "defaultNewCalendarTitle": "İsimsiz", 
+    "defaultNewCalendarTitle": "İsimsiz",
     "newEventButtonTooltip": "Yeni bir etkinlik ekle",
     "navigation": {
-      "today": "Bugün", 
+      "today": "Bugün",
       "jumpToday": "Bugüne Git",
-      "previousMonth": "Önceki Ay", 
-      "nextMonth": "Sonraki Ay" 
-    }, 
-    "mobileEventScreen": { 
-      "emptyTitle": "Henüz etkinlik yok", 
-      "emptyBody": "Bu güne bir etkinlik oluşturmak için artı düğmesine basın." 
-    }, 
-    "settings": { 
+      "previousMonth": "Önceki Ay",
+      "nextMonth": "Sonraki Ay"
+    },
+    "mobileEventScreen": {
+      "emptyTitle": "Henüz etkinlik yok",
+      "emptyBody": "Bu güne bir etkinlik oluşturmak için artı düğmesine basın."
+    },
+    "settings": {
       "showWeekNumbers": "Hafta numaralarını göster",
-      "showWeekends": "Hafta sonlarını göster", 
-      "firstDayOfWeek": "Haftayı şunda başlat", 
+      "showWeekends": "Hafta sonlarını göster",
+      "firstDayOfWeek": "Haftayı şunda başlat",
       "layoutDateField": "Takvimi şuna göre düzenle",
-      "changeLayoutDateField": "Düzenleme alanını değiştir", 
-      "noDateTitle": "Tarih Yok", 
-      "noDateHint": { 
+      "changeLayoutDateField": "Düzenleme alanını değiştir",
+      "noDateTitle": "Tarih Yok",
+      "noDateHint": {
         "zero": "Planlanmamış etkinlikler burada görünecek",
-        "one": "{count} planlanmamış etkinlik", 
-        "other": "{count} planlanmamış etkinlik" 
-      }, 
-      "unscheduledEventsTitle": "Planlanmamış etkinlikler", 
+        "one": "{count} planlanmamış etkinlik",
+        "other": "{count} planlanmamış etkinlik"
+      },
+      "unscheduledEventsTitle": "Planlanmamış etkinlikler",
       "clickToAdd": "Takvime eklemek için tıklayın",
-      "name": "Takvim ayarları" 
-    }, 
-    "referencedCalendarPrefix": "Görünümü", 
-    "quickJumpYear": "Şuraya git", 
-    "duplicateEvent": "Etkinliği kopyala" 
-  }, 
+      "name": "Takvim ayarları"
+    },
+    "referencedCalendarPrefix": "Görünümü",
+    "quickJumpYear": "Şuraya git",
+    "duplicateEvent": "Etkinliği kopyala"
+  },
   "errorDialog": {
-    "title": "AppFlowy Hatası", 
+    "title": "AppFlowy Hatası",
     "howToFixFallback": "Verdiğimiz rahatsızlıktan dolayı özür dileriz! Lütfen GitHub sayfamızda hatanızı açıklayan bir sorun bildirin.",
-    "github": "GitHub'da Görüntüle" 
+    "github": "GitHub'da Görüntüle"
   },
   "search": {
     "label": "Ara",
     "placeholder": {
-      "actions": "Eylemleri ara..." 
+      "actions": "Eylemleri ara..."
     }
-  }, 
-  "message": { 
-    "copy": { 
-      "success": "Kopyalandı!", 
-      "fail": "Kopyalanamadı" 
-    } 
+  },
+  "message": {
+    "copy": {
+      "success": "Kopyalandı!",
+      "fail": "Kopyalanamadı"
+    }
   },
   "unSupportBlock": "Geçerli sürüm bu Bloğu desteklemiyor.",
   "views": {
-    "deleteContentTitle": "{pageType} silmek istediğinizden emin misiniz?", 
+    "deleteContentTitle": "{pageType} silmek istediğinizden emin misiniz?",
     "deleteContentCaption": "Bu {pageType} silerseniz, çöp kutusundan geri yükleyebilirsiniz."
-  }, 
+  },
   "colors": {
-    "custom": "Özel", 
-    "default": "Varsayılan", 
+    "custom": "Özel",
+    "default": "Varsayılan",
     "red": "Kırmızı",
-    "orange": "Turuncu", 
-    "yellow": "Sarı", 
-    "green": "Yeşil", 
+    "orange": "Turuncu",
+    "yellow": "Sarı",
+    "green": "Yeşil",
     "blue": "Mavi",
-    "purple": "Mor", 
-    "pink": "Pembe", 
-    "brown": "Kahverengi", 
+    "purple": "Mor",
+    "pink": "Pembe",
+    "brown": "Kahverengi",
     "gray": "Gri"
-  }, 
- "emoji": { 
-    "emojiTab": "Emoji", 
-    "search": "Emoji ara", 
-    "noRecent": "Son kullanılan emoji yok", 
-    "noEmojiFound": "Emoji bulunamadı", 
-    "filter": "Filtre", 
+  },
+ "emoji": {
+    "emojiTab": "Emoji",
+    "search": "Emoji ara",
+    "noRecent": "Son kullanılan emoji yok",
+    "noEmojiFound": "Emoji bulunamadı",
+    "filter": "Filtre",
     "random": "Rastgele",
-    "selectSkinTone": "Cilt tonunu seç", 
-    "remove": "Emojiyi kaldır", 
-    "categories": { 
-      "smileys": "Gülen Yüzler & Duygular", 
+    "selectSkinTone": "Cilt tonunu seç",
+    "remove": "Emojiyi kaldır",
+    "categories": {
+      "smileys": "Gülen Yüzler & Duygular",
       "people": "İnsanlar & Vücut",
-      "animals": "Hayvanlar & Doğa", 
-      "food": "Yiyecek & İçecek", 
-      "activities": "Aktiviteler", 
+      "animals": "Hayvanlar & Doğa",
+      "food": "Yiyecek & İçecek",
+      "activities": "Aktiviteler",
       "places": "Seyahat & Yerler",
-      "objects": "Nesneler", 
-      "symbols": "Semboller", 
-      "flags": "Bayraklar", 
-      "nature": "Doğa", 
+      "objects": "Nesneler",
+      "symbols": "Semboller",
+      "flags": "Bayraklar",
+      "nature": "Doğa",
       "frequentlyUsed": "Sık Kullanılanlar"
     },
     "skinTone": {
-      "default": "Varsayılan", 
-      "light": "Açık", 
-      "mediumLight": "Orta-Açık", 
-      "medium": "Orta", 
-      "mediumDark": "Orta-Koyu", 
-      "dark": "Koyu" 
-    } 
-  }, 
-  "inlineActions": { 
-    "noResults": "Sonuç yok", 
-    "pageReference": "Sayfa referansı", 
-    "docReference": "Belge referansı", 
-    "boardReference": "Pano referansı", 
-    "calReference": "Takvim referansı", 
-    "gridReference": "Tablo referansı", 
-    "date": "Tarih", 
-    "reminder": { 
-      "groupTitle": "Hatırlatıcı", 
+      "default": "Varsayılan",
+      "light": "Açık",
+      "mediumLight": "Orta-Açık",
+      "medium": "Orta",
+      "mediumDark": "Orta-Koyu",
+      "dark": "Koyu"
+    }
+  },
+  "inlineActions": {
+    "noResults": "Sonuç yok",
+    "pageReference": "Sayfa referansı",
+    "docReference": "Belge referansı",
+    "boardReference": "Pano referansı",
+    "calReference": "Takvim referansı",
+    "gridReference": "Tablo referansı",
+    "date": "Tarih",
+    "reminder": {
+      "groupTitle": "Hatırlatıcı",
       "shortKeyword": "hatırlat"
-    } 
-  }, 
-  "datePicker": { 
-    "dateTimeFormatTooltip": "Ayarlardan tarih ve saat formatını değiştirin", 
-    "dateFormat": "Tarih formatı", 
-    "includeTime": "Saati dahil et", 
-    "isRange": "Bitiş tarihi", 
+    }
+  },
+  "datePicker": {
+    "dateTimeFormatTooltip": "Ayarlardan tarih ve saat formatını değiştirin",
+    "dateFormat": "Tarih formatı",
+    "includeTime": "Saati dahil et",
+    "isRange": "Bitiş tarihi",
     "timeFormat": "Saat formatı",
-    "clearDate": "Tarihi temizle", 
-    "reminderLabel": "Hatırlatıcı", 
-    "selectReminder": "Hatırlatıcı seç", 
+    "clearDate": "Tarihi temizle",
+    "reminderLabel": "Hatırlatıcı",
+    "selectReminder": "Hatırlatıcı seç",
     "reminderOptions": {
-      "none": "Yok", 
-      "atTimeOfEvent": "Etkinlik zamanı", 
-      "fiveMinsBefore": "5 dakika önce", 
-      "tenMinsBefore": "10 dakika önce", 
-      "fifteenMinsBefore": "15 dakika önce", 
-      "thirtyMinsBefore": "30 dakika önce", 
-      "oneHourBefore": "1 saat önce", 
-      "twoHoursBefore": "2 saat önce", 
-      "onDayOfEvent": "Etkinlik günü", 
-      "oneDayBefore": "1 gün önce", 
+      "none": "Yok",
+      "atTimeOfEvent": "Etkinlik zamanı",
+      "fiveMinsBefore": "5 dakika önce",
+      "tenMinsBefore": "10 dakika önce",
+      "fifteenMinsBefore": "15 dakika önce",
+      "thirtyMinsBefore": "30 dakika önce",
+      "oneHourBefore": "1 saat önce",
+      "twoHoursBefore": "2 saat önce",
+      "onDayOfEvent": "Etkinlik günü",
+      "oneDayBefore": "1 gün önce",
       "twoDaysBefore": "2 gün önce",
       "oneWeekBefore": "1 hafta önce",
-      "custom": "Özel" 
-    } 
+      "custom": "Özel"
+    }
   },
-  "relativeDates": { 
-    "yesterday": "Dün", 
-    "today": "Bugün", 
-    "tomorrow": "Yarın", 
+  "relativeDates": {
+    "yesterday": "Dün",
+    "today": "Bugün",
+    "tomorrow": "Yarın",
     "oneWeek": "1 hafta"
-  }, 
-  "notificationHub": { 
-    "title": "Bildirimler", 
-    "mobile": { 
+  },
+  "notificationHub": {
+    "title": "Bildirimler",
+    "mobile": {
       "title": "Güncellemeler"
     },
-    "emptyTitle": "Her şey tamam!", 
-    "emptyBody": "Bekleyen bildirim veya eylem yok. Sakinliğin tadını çıkarın.", 
-    "tabs": { 
+    "emptyTitle": "Her şey tamam!",
+    "emptyBody": "Bekleyen bildirim veya eylem yok. Sakinliğin tadını çıkarın.",
+    "tabs": {
       "inbox": "Gelen Kutusu",
-      "upcoming": "Yaklaşan" 
-    }, 
-    "actions": { 
-      "markAllRead": "Tümünü okundu olarak işaretle", 
-      "showAll": "Tümü", 
-      "showUnreads": "Okunmamış" 
-    }, 
+      "upcoming": "Yaklaşan"
+    },
+    "actions": {
+      "markAllRead": "Tümünü okundu olarak işaretle",
+      "showAll": "Tümü",
+      "showUnreads": "Okunmamış"
+    },
     "filters": {
-      "ascending": "Artan", 
-      "descending": "Azalan", 
-      "groupByDate": "Tarihe göre grupla", 
+      "ascending": "Artan",
+      "descending": "Azalan",
+      "groupByDate": "Tarihe göre grupla",
       "showUnreadsOnly": "Yalnızca okunmamışları göster",
-      "resetToDefault": "Varsayılana sıfırla" 
-    } 
-  }, 
-  "reminderNotification": { 
-    "title": "Hatırlatıcı", 
-    "message": "Unutmadan önce bunu kontrol etmeyi unutma!", 
-    "tooltipDelete": "Sil", 
-    "tooltipMarkRead": "Okundu olarak işaretle", 
-    "tooltipMarkUnread": "Okunmamış olarak işaretle" 
-  }, 
+      "resetToDefault": "Varsayılana sıfırla"
+    }
+  },
+  "reminderNotification": {
+    "title": "Hatırlatıcı",
+    "message": "Unutmadan önce bunu kontrol etmeyi unutma!",
+    "tooltipDelete": "Sil",
+    "tooltipMarkRead": "Okundu olarak işaretle",
+    "tooltipMarkUnread": "Okunmamış olarak işaretle"
+  },
   "findAndReplace": {
-    "find": "Bul", 
-    "previousMatch": "Önceki eşleşme", 
-    "nextMatch": "Sonraki eşleşme", 
+    "find": "Bul",
+    "previousMatch": "Önceki eşleşme",
+    "nextMatch": "Sonraki eşleşme",
     "close": "Kapat",
-    "replace": "Değiştir", 
-    "replaceAll": "Tümünü değiştir", 
-    "noResult": "Sonuç yok", 
-    "caseSensitive": "Büyük/küçük harf duyarlı", 
-    "searchMore": "Daha fazla sonuç bulmak için ara" 
+    "replace": "Değiştir",
+    "replaceAll": "Tümünü değiştir",
+    "noResult": "Sonuç yok",
+    "caseSensitive": "Büyük/küçük harf duyarlı",
+    "searchMore": "Daha fazla sonuç bulmak için ara"
   },
   "error": {
-    "weAreSorry": "Üzgünüz", 
+    "weAreSorry": "Üzgünüz",
     "loadingViewError": "Bu görünümü yüklemede sorun yaşıyoruz. Lütfen internet bağlantınızı kontrol edin, uygulamayı yenileyin ve sorun devam ederse ekibe ulaşmaktan çekinmeyin."
-  }, 
+  },
   "editor": {
-    "bold": "Kalın", 
-    "bulletedList": "Madde İşaretli Liste", 
+    "bold": "Kalın",
+    "bulletedList": "Madde İşaretli Liste",
     "bulletedListShortForm": "Madde",
-    "checkbox": "Onay Kutusu", 
-    "embedCode": "Kodu Göm", 
-    "heading1": "H1", 
-    "heading2": "H2", 
-    "heading3": "H3", 
-    "highlight": "Vurgula", 
-    "color": "Renk", 
-    "image": "Resim", 
-    "date": "Tarih", 
-    "italic": "İtalik", 
-    "link": "Bağlantı", 
-    "numberedList": "Numaralı Liste", 
+    "checkbox": "Onay Kutusu",
+    "embedCode": "Kodu Göm",
+    "heading1": "H1",
+    "heading2": "H2",
+    "heading3": "H3",
+    "highlight": "Vurgula",
+    "color": "Renk",
+    "image": "Resim",
+    "date": "Tarih",
+    "italic": "İtalik",
+    "link": "Bağlantı",
+    "numberedList": "Numaralı Liste",
     "numberedListShortForm": "Numaralı",
-    "quote": "Alıntı", 
-    "strikethrough": "Üstü Çizili", 
-    "text": "Metin", 
-    "underline": "Altı Çizili", 
-    "fontColorDefault": "Varsayılan", 
-    "fontColorGray": "Gri", 
+    "quote": "Alıntı",
+    "strikethrough": "Üstü Çizili",
+    "text": "Metin",
+    "underline": "Altı Çizili",
+    "fontColorDefault": "Varsayılan",
+    "fontColorGray": "Gri",
     "fontColorBrown": "Kahverengi",
-    "fontColorOrange": "Turuncu", 
-    "fontColorYellow": "Sarı", 
+    "fontColorOrange": "Turuncu",
+    "fontColorYellow": "Sarı",
     "fontColorGreen": "Yeşil",
-    "fontColorBlue": "Mavi", 
-    "fontColorPurple": "Mor", 
-    "fontColorPink": "Pembe", 
+    "fontColorBlue": "Mavi",
+    "fontColorPurple": "Mor",
+    "fontColorPink": "Pembe",
     "fontColorRed": "Kırmızı",
-    "backgroundColorDefault": "Varsayılan arka plan", 
-    "backgroundColorGray": "Gri arka plan", 
-    "backgroundColorBrown": "Kahverengi arka plan", 
-    "backgroundColorOrange": "Turuncu arka plan", 
-    "backgroundColorYellow": "Sarı arka plan", 
-    "backgroundColorGreen": "Yeşil arka plan", 
-    "backgroundColorBlue": "Mavi arka plan", 
-    "backgroundColorPurple": "Mor arka plan", 
-    "backgroundColorPink": "Pembe arka plan", 
-    "backgroundColorRed": "Kırmızı arka plan", 
-    "backgroundColorLime": "Yeşil arka plan", 
-    "backgroundColorAqua": "Su yeşili arka plan", 
-    "done": "Bitti", 
+    "backgroundColorDefault": "Varsayılan arka plan",
+    "backgroundColorGray": "Gri arka plan",
+    "backgroundColorBrown": "Kahverengi arka plan",
+    "backgroundColorOrange": "Turuncu arka plan",
+    "backgroundColorYellow": "Sarı arka plan",
+    "backgroundColorGreen": "Yeşil arka plan",
+    "backgroundColorBlue": "Mavi arka plan",
+    "backgroundColorPurple": "Mor arka plan",
+    "backgroundColorPink": "Pembe arka plan",
+    "backgroundColorRed": "Kırmızı arka plan",
+    "backgroundColorLime": "Yeşil arka plan",
+    "backgroundColorAqua": "Su yeşili arka plan",
+    "done": "Bitti",
     "cancel": "İptal",
-    "tint1": "Ton 1", 
-    "tint2": "Ton 2", 
-    "tint3": "Ton 3", 
-    "tint4": "Ton 4", 
-    "tint5": "Ton 5", 
-    "tint6": "Ton 6", 
-    "tint7": "Ton 7", 
-    "tint8": "Ton 8", 
-    "tint9": "Ton 9", 
+    "tint1": "Ton 1",
+    "tint2": "Ton 2",
+    "tint3": "Ton 3",
+    "tint4": "Ton 4",
+    "tint5": "Ton 5",
+    "tint6": "Ton 6",
+    "tint7": "Ton 7",
+    "tint8": "Ton 8",
+    "tint9": "Ton 9",
     "lightLightTint1": "Mor",
-    "lightLightTint2": "Pembe", 
-    "lightLightTint3": "Açık Pembe", 
-    "lightLightTint4": "Turuncu", 
-    "lightLightTint5": "Sarı", 
-    "lightLightTint6": "Yeşil", 
-    "lightLightTint7": "Yeşil", 
-    "lightLightTint8": "Su yeşili", 
-    "lightLightTint9": "Mavi", 
+    "lightLightTint2": "Pembe",
+    "lightLightTint3": "Açık Pembe",
+    "lightLightTint4": "Turuncu",
+    "lightLightTint5": "Sarı",
+    "lightLightTint6": "Yeşil",
+    "lightLightTint7": "Yeşil",
+    "lightLightTint8": "Su yeşili",
+    "lightLightTint9": "Mavi",
     "urlHint": "URL",
     "mobileHeading1": "Başlık 1",
-    "mobileHeading2": "Başlık 2", 
-    "mobileHeading3": "Başlık 3", 
-    "textColor": "Metin Rengi", 
-    "backgroundColor": "Arka Plan Rengi", 
-    "addYourLink": "Bağlantınızı ekleyin", 
+    "mobileHeading2": "Başlık 2",
+    "mobileHeading3": "Başlık 3",
+    "textColor": "Metin Rengi",
+    "backgroundColor": "Arka Plan Rengi",
+    "addYourLink": "Bağlantınızı ekleyin",
     "openLink": "Bağlantıyı aç",
-    "copyLink": "Bağlantıyı kopyala", 
-    "removeLink": "Bağlantıyı kaldır", 
-    "editLink": "Bağlantıyı düzenle", 
+    "copyLink": "Bağlantıyı kopyala",
+    "removeLink": "Bağlantıyı kaldır",
+    "editLink": "Bağlantıyı düzenle",
     "linkText": "Metin",
     "linkTextHint": "Lütfen metin girin",
-    "linkAddressHint": "Lütfen URL girin", 
-    "highlightColor": "Vurgu rengi", 
-    "clearHighlightColor": "Vurgu rengini temizle", 
+    "linkAddressHint": "Lütfen URL girin",
+    "highlightColor": "Vurgu rengi",
+    "clearHighlightColor": "Vurgu rengini temizle",
     "customColor": "Özel renk",
-    "hexValue": "Hex değeri", 
-    "opacity": "Opaklık", 
-    "resetToDefaultColor": "Varsayılan renge sıfırla", 
-    "ltr": "LTR", 
+    "hexValue": "Hex değeri",
+    "opacity": "Opaklık",
+    "resetToDefaultColor": "Varsayılan renge sıfırla",
+    "ltr": "LTR",
     "rtl": "RTL",
     "auto": "Otomatik",
-    "cut": "Kes", 
-    "copy": "Kopyala", 
-    "paste": "Yapıştır", 
-    "find": "Bul", 
-    "select": "Seç", 
-    "selectAll": "Tümünü seç", 
+    "cut": "Kes",
+    "copy": "Kopyala",
+    "paste": "Yapıştır",
+    "find": "Bul",
+    "select": "Seç",
+    "selectAll": "Tümünü seç",
     "previousMatch": "Önceki eşleşme",
-    "nextMatch": "Sonraki eşleşme", 
-    "closeFind": "Kapat", 
-    "replace": "Değiştir", 
+    "nextMatch": "Sonraki eşleşme",
+    "closeFind": "Kapat",
+    "replace": "Değiştir",
     "replaceAll": "Tümünü değiştir",
-    "regex": "Regex", 
-    "caseSensitive": "Büyük/küçük harf duyarlı", 
-    "uploadImage": "Resim Yükle", 
-    "urlImage": "URL Resmi", 
-    "incorrectLink": "Hatalı Bağlantı", 
+    "regex": "Regex",
+    "caseSensitive": "Büyük/küçük harf duyarlı",
+    "uploadImage": "Resim Yükle",
+    "urlImage": "URL Resmi",
+    "incorrectLink": "Hatalı Bağlantı",
     "upload": "Yükle",
-    "chooseImage": "Bir resim seçin", 
-    "loading": "Yükleniyor", 
+    "chooseImage": "Bir resim seçin",
+    "loading": "Yükleniyor",
     "imageLoadFailed": "Resim yüklenemedi",
-    "divider": "Ayırıcı", 
-    "table": "Tablo", 
-    "colAddBefore": "Önce ekle", 
+    "divider": "Ayırıcı",
+    "table": "Tablo",
+    "colAddBefore": "Önce ekle",
     "rowAddBefore": "Önce ekle",
-    "colAddAfter": "Sonra ekle", 
-    "rowAddAfter": "Sonra ekle", 
+    "colAddAfter": "Sonra ekle",
+    "rowAddAfter": "Sonra ekle",
     "colRemove": "Kaldır",
-    "rowRemove": "Kaldır", 
-    "colDuplicate": "Kopyala", 
-    "rowDuplicate": "Kopyala", 
+    "rowRemove": "Kaldır",
+    "colDuplicate": "Kopyala",
+    "rowDuplicate": "Kopyala",
     "colClear": "İçeriği Temizle",
-    "rowClear": "İçeriği Temizle", 
+    "rowClear": "İçeriği Temizle",
     "slashPlaceHolder": "Bir blok eklemek için '/' yazın veya yazmaya başlayın",
-    "typeSomething": "Bir şeyler yazın...", 
+    "typeSomething": "Bir şeyler yazın...",
     "toggleListShortForm": "Değiştir",
-    "quoteListShortForm": "Alıntı", 
-    "mathEquationShortForm": "Formül", 
-    "codeBlockShortForm": "Kod" 
-  }, 
-  "favorite": { 
-    "noFavorite": "Favori sayfa yok", 
-    "noFavoriteHintText": "Sayfayı favorilerinize eklemek için sola kaydırın" 
-  }, 
-  "cardDetails": { 
+    "quoteListShortForm": "Alıntı",
+    "mathEquationShortForm": "Formül",
+    "codeBlockShortForm": "Kod"
+  },
+  "favorite": {
+    "noFavorite": "Favori sayfa yok",
+    "noFavoriteHintText": "Sayfayı favorilerinize eklemek için sola kaydırın"
+  },
+  "cardDetails": {
     "notesPlaceholder": "Bir blok eklemek için '/' yazın veya yazmaya başlayın"
-  }, 
+  },
   "blockPlaceholders": {
-    "todoList": "Yapılacaklar", 
-    "bulletList": "Liste", 
-    "numberList": "Liste", 
+    "todoList": "Yapılacaklar",
+    "bulletList": "Liste",
+    "numberList": "Liste",
     "quote": "Alıntı",
-    "heading": "Başlık {}" 
+    "heading": "Başlık {}"
   },
   "titleBar": {
-    "pageIcon": "Sayfa simgesi", 
+    "pageIcon": "Sayfa simgesi",
     "language": "Dil",
-    "font": "Yazı Tipi", 
-    "actions": "Eylemler", 
-    "date": "Tarih", 
+    "font": "Yazı Tipi",
+    "actions": "Eylemler",
+    "date": "Tarih",
     "addField": "Alan ekle",
-    "userIcon": "Kullanıcı simgesi" 
-  }, 
-  "noLogFiles": "Günlük dosyası yok", 
+    "userIcon": "Kullanıcı simgesi"
+  },
+  "noLogFiles": "Günlük dosyası yok",
   "newSettings": {
     "myAccount": {
       "title": "Hesabım",
-      "subtitle": "Profilinizi özelleştirin, hesap güvenliğini yönetin, Open AI anahtarlarını yönetin veya hesabınıza giriş yapın.", 
-      "profileLabel": "Hesap adı & Profil resmi", 
+      "subtitle": "Profilinizi özelleştirin, hesap güvenliğini yönetin, Open AI anahtarlarını yönetin veya hesabınıza giriş yapın.",
+      "profileLabel": "Hesap adı & Profil resmi",
       "profileNamePlaceholder": "Adınızı girin",
-      "accountSecurity": "Hesap güvenliği", 
-      "2FA": "2 Adımlı Doğrulama", 
+      "accountSecurity": "Hesap güvenliği",
+      "2FA": "2 Adımlı Doğrulama",
       "aiKeys": "AI anahtarları",
-      "accountLogin": "Hesap Girişi", 
-      "updateNameError": "Ad güncellenemedi", 
-      "updateIconError": "Simge güncellenemedi", 
-      "deleteAccount": {
-        "title": "Hesabı Sil", 
-        "subtitle": "Hesabınızı ve tüm verilerinizi kalıcı olarak silin.",
-        "deleteMyAccount": "Hesabımı sil", 
-        "dialogTitle": "Hesabı sil", 
-        "dialogContent1": "Hesabınızı kalıcı olarak silmek istediğinizden emin misiniz?", 
-        "dialogContent2": "Bu işlem geri alınamaz ve tüm ekip alanlarına erişiminizi kaldıracak, hesabınızı (özel çalışma alanları dahil) tamamen silecek ve sizi tüm paylaşılan çalışma alanlarından çıkaracaktır." 
-      } 
-    }, 
-    "workplace": { 
-      "name": "Çalışma Alanı", 
-      "title": "Çalışma Alanı Ayarları",
-      "subtitle": "Çalışma alanınızın görünümünü, temasını, yazı tipini, metin düzenini, tarihini, saatini ve dilini özelleştirin.", 
-      "workplaceName": "Çalışma alanı adı",
-      "workplaceNamePlaceholder": "Çalışma alanı adını girin", 
-      "workplaceIcon": "Çalışma alanı simgesi", 
-      "workplaceIconSubtitle": "Çalışma alanınız için bir resim yükleyin veya bir emoji kullanın. Simge kenar çubuğunuzda ve bildirimlerinizde görünecektir", 
-      "renameError": "Çalışma alanı yeniden adlandırılamadı", 
+      "accountLogin": "Hesap Girişi",
+      "updateNameError": "Ad güncellenemedi",
       "updateIconError": "Simge güncellenemedi",
-      "appearance": { 
-        "name": "Görünüm",
-        "themeMode": { 
-          "auto": "Otomatik", 
-          "light": "Açık", 
-          "dark": "Koyu" 
-        }, 
-        "language": "Dil"
-      } 
+      "deleteAccount": {
+        "title": "Hesabı Sil",
+        "subtitle": "Hesabınızı ve tüm verilerinizi kalıcı olarak silin.",
+        "deleteMyAccount": "Hesabımı sil",
+        "dialogTitle": "Hesabı sil",
+        "dialogContent1": "Hesabınızı kalıcı olarak silmek istediğinizden emin misiniz?",
+        "dialogContent2": "Bu işlem geri alınamaz ve tüm ekip alanlarına erişiminizi kaldıracak, hesabınızı (özel çalışma alanları dahil) tamamen silecek ve sizi tüm paylaşılan çalışma alanlarından çıkaracaktır."
+      }
     },
-    "syncState": { 
-      "syncing": "Senkronize ediliyor", 
-      "synced": "Senkronize edildi", 
-      "noNetworkConnected": "Ağ bağlantısı yok" 
-    } 
-  } 
+    "workplace": {
+      "name": "Çalışma Alanı",
+      "title": "Çalışma Alanı Ayarları",
+      "subtitle": "Çalışma alanınızın görünümünü, temasını, yazı tipini, metin düzenini, tarihini, saatini ve dilini özelleştirin.",
+      "workplaceName": "Çalışma alanı adı",
+      "workplaceNamePlaceholder": "Çalışma alanı adını girin",
+      "workplaceIcon": "Çalışma alanı simgesi",
+      "workplaceIconSubtitle": "Çalışma alanınız için bir resim yükleyin veya bir emoji kullanın. Simge kenar çubuğunuzda ve bildirimlerinizde görünecektir",
+      "renameError": "Çalışma alanı yeniden adlandırılamadı",
+      "updateIconError": "Simge güncellenemedi",
+      "appearance": {
+        "name": "Görünüm",
+        "themeMode": {
+          "auto": "Otomatik",
+          "light": "Açık",
+          "dark": "Koyu"
+        },
+        "language": "Dil"
+      }
+    },
+    "syncState": {
+      "syncing": "Senkronize ediliyor",
+      "synced": "Senkronize edildi",
+      "noNetworkConnected": "Ağ bağlantısı yok"
+    }
+  }
 }
