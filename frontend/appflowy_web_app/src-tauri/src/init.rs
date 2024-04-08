@@ -56,5 +56,5 @@ pub fn init_flowy_core() -> AppFlowyCore {
 
   let runtime = Arc::new(AFPluginRuntime::new().unwrap());
   let cloned_runtime = runtime.clone();
-  runtime.block_on(async move { AppFlowyCore::new(config, cloned_runtime).await })
+  runtime.block_on(async move { AppFlowyCore::new(config, cloned_runtime, None).await })
 }
