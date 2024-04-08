@@ -9,6 +9,7 @@
   "title": "Titre",
   "youCanAlso": "Vous pouvez aussi",
   "and": "et",
+  "failedToOpenUrl": "Échec de l'ouverture de l'URL : {}",
   "blockActions": {
     "addBelowTooltip": "Cliquez pour ajouter ci-dessous",
     "addAboveCmd": "Alt+clic",
@@ -49,6 +50,7 @@
     "LogInWithGithub": "Se connecter avec Github",
     "LogInWithDiscord": "Se connecter avec Discord",
     "signInWith": "Se connecter avec :",
+    "signInWithEmail": "Se connecter via e-mail",
     "loginAsGuestButtonText": "Commencer"
   },
   "workspace": {
@@ -64,7 +66,24 @@
       "reportIssueOnGithub": "Signaler un bug sur Github",
       "exportLogFiles": "Exporter les logs",
       "reachOut": "Contactez-nous sur Discord"
-    }
+    },
+    "menuTitle": "Espaces de travail",
+    "deleteWorkspaceHintText": "Êtes-vous sûr de vouloir supprimer l'espace de travail ? Cette action ne peut pas être annulée.",
+    "createSuccess": "Espace de travail créé avec succès",
+    "createFailed": "Échec de la création de l'espace de travail",
+    "createLimitExceeded": "Vous avez atteint la limite maximale d'espace de travail autorisée pour votre compte. Si vous avez besoin d'espaces de travail supplémentaires pour continuer votre travail, veuillez en faire la demande sur Github.",
+    "deleteSuccess": "Espace de travail supprimé avec succès",
+    "deleteFailed": "Échec de la suppression de l'espace de travail",
+    "openSuccess": "Ouverture de l'espace de travail réussie",
+    "openFailed": "Échec de l'ouverture de l'espace de travail",
+    "renameSuccess": "Espace de travail renommé avec succès",
+    "renameFailed": "Échec du renommage de l'espace de travail",
+    "updateIconSuccess": "L'icône de l'espace de travail a été mise à jour avec succès",
+    "updateIconFailed": "La mise a jour de l'icône de l'espace de travail a échoué",
+    "cannotDeleteTheOnlyWorkspace": "Impossible de supprimer le seul espace de travail",
+    "fetchWorkspacesFailed": "Échec de la récupération des espaces de travail",
+    "leaveCurrentWorkspace": "Quitter l'espace de travail",
+    "leaveCurrentWorkspacePrompt": "Êtes-vous sûr de vouloir quitter l'espace de travail actuel ?"
   },
   "shareAction": {
     "buttonText": "Partager",
@@ -133,7 +152,8 @@
       "emptyDescription": "Vous n'avez aucun fichier supprimé",
       "isDeleted": "a été supprimé",
       "isRestored": "a été restauré"
-    }
+    },
+    "confirmDeleteTitle": "Etes-vous sûr de vouloir supprimer définitivement cette page ?"
   },
   "deletePagePrompt": {
     "text": "Cette page se trouve dans la corbeille",
@@ -193,10 +213,16 @@
     "closeSidebar": "Fermer le menu latéral",
     "openSidebar": "Ouvrir le menu latéral",
     "personal": "Personnel",
+    "private": "Privé",
+    "public": "Publique",
     "favorites": "Favoris",
+    "clickToHidePrivate": "Cliquez pour masquer l'espace privé\nLes pages que vous avez créées ici ne sont visibles que par vous",
+    "clickToHidePublic": "Cliquez pour masquer l'espace public\nLes pages que vous avez créées ici sont visibles par tous les membres",
     "clickToHidePersonal": "Cliquez pour cacher la section personnelle",
     "clickToHideFavorites": "Cliquez pour cacher la section favorite",
     "addAPage": "Ajouter une page",
+    "addAPageToPrivate": "Ajouter une page à l'espace privé",
+    "addAPageToPublic": "Ajouter une page à l'espace public",
     "recent": "Récent"
   },
   "notifications": {
@@ -240,9 +266,18 @@
     "helpCenter": "Centre d'aide",
     "add": "Ajouter",
     "yes": "Oui",
+    "clear": "Nettoyer",
     "remove": "Retirer",
     "dontRemove": "Ne pas retirer",
+    "copyLink": "Copier le lien",
     "align": "Aligner",
+    "login": "Se connecter",
+    "logout": "Se déconnecter",
+    "deleteAccount": "Supprimer le compte",
+    "back": "Retour",
+    "signInGoogle": "Se connecter avec Google",
+    "signInGithub": "Se connecter avec Github",
+    "signInDiscord": "Se connecter avec Discord",
     "tryAGain": "Réessayer"
   },
   "label": {
@@ -340,6 +375,7 @@
         "dark": "Mode sombre",
         "system": "S'adapter au système"
       },
+      "fontScaleFactor": "Facteur d'échelle de police",
       "documentSettings": {
         "cursorColor": "Couleur du curseur du document",
         "selectionColor": "Couleur de sélection du document",
@@ -394,7 +430,9 @@
         "twentyFourHour": "Vingt-quatre heures"
       },
       "showNamingDialogWhenCreatingPage": "Afficher la boîte de dialogue de nommage lors de la création d'une page",
+      "enableRTLToolbarItems": "Activer les éléments de la barre d'outils RTL",
       "members": {
+        "title": "Paramètres des membres",
         "inviteMembers": "Inviter des membres",
         "sendInvite": "Envoyer une invitation",
         "copyInviteLink": "Copier le lien d'invitation",
@@ -408,7 +446,15 @@
         "memberHintText": "Un membre peut lire, commenter, et éditer des pages. Inviter des membres et des invités.",
         "guestHintText": "Un invité peut lire, réagir, commenter, et peut éditer certaines pages avec une permission",
         "emailInvalidError": "Email invalide, veuillez le vérifier et recommencer",
-        "emailSent": "Email envoyé, veuillez vérifier dans votre boîte mail."
+        "emailSent": "Email envoyé, veuillez vérifier dans votre boîte mail.",
+        "members": "membres",
+        "membersCount": {
+          "zero": "{} membres",
+          "one": "{} membre",
+          "other": "{} membres"
+        },
+        "memberLimitExceeded": "Vous avez atteint la limite maximale de membres autorisée pour votre compte. Si vous souhaitez ajouter d'autres membres pour continuer votre travail, veuillez en faire la demande sur Github.",
+        "failedToAddMember": "Échec de l'ajout d'un membre"
       }
     },
     "files": {
