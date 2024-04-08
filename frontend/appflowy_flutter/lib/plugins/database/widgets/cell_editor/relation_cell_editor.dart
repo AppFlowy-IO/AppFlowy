@@ -3,6 +3,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/field/type_option/relation_type_option_cubit.dart';
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/common/type_option_separator.dart';
+import 'package:appflowy/plugins/database/widgets/row/relation_row_detail.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -209,11 +210,16 @@ class _RelationCellEditorRowListState
                                     const BorderRadius.all(Radius.circular(6)),
                               ),
                               child: GestureDetector(
-                                onTap: () => context
-                                    .read<RelationCellBloc>()
-                                    .add(
-                                      RelationCellEvent.selectRow(row.rowId),
-                                    ),
+                                onTap: () => FlowyOverlay.show(
+                                  context: context,
+                                  builder: (BuildContext overlayContext) {
+                                    return RelatedRowDetailPage(
+                                      databaseId:
+                                          widget.relatedDatabaseMeta.databaseId,
+                                      rowId: row.rowId,
+                                    );
+                                  },
+                                ),
                                 child: MouseRegion(
                                   cursor: SystemMouseCursors.click,
                                   onHover: (_) =>
