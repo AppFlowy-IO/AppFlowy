@@ -1,4 +1,4 @@
-import 'package:appflowy/plugins/document/application/doc_collaborators_bloc.dart';
+import 'package:appflowy/plugins/document/application/document_collaborators_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/collaborator_avater_stack.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
