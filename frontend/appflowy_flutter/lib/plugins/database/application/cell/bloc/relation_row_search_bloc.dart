@@ -32,6 +32,7 @@ class RelationRowSearchBloc
             emit(
               state.copyWith(
                 filteredRows: allRows,
+                focusedRowId: state.focusedRowId ?? allRows.firstOrNull?.rowId,
               ),
             );
           },
