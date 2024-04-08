@@ -1,21 +1,6 @@
 name: Rust-CI
 
-on:
-  push:
-    branches:
-      - "main"
-      - "develop"
-      - "release/*"
-    paths:
-      - "frontend/rust-lib/**"
-
-  pull_request:
-    branches:
-      - "main"
-      - "develop"
-      - "release/*"
-    paths:
-      - "frontend/rust-lib/**"
+on: push
 
 env:
   CARGO_TERM_COLOR: always
@@ -82,7 +67,7 @@ jobs:
       - name: Run Docker-Compose
         working-directory: AppFlowy-Cloud
         run: |
-          docker pull appflowyinc/appflowy_cloud:latest
+          docker compose pull
           docker compose up -d
 
       - name: Run rust-lib tests
