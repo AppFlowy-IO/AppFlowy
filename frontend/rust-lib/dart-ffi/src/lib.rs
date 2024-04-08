@@ -1,5 +1,6 @@
 #![allow(clippy::not_unsafe_ptr_arg_deref)]
 
+use allo_isolate::Isolate;
 use std::sync::Arc;
 use std::{ffi::CStr, os::raw::c_char};
 
@@ -14,6 +15,7 @@ use flowy_server_pub::AuthenticatorType;
 use lib_dispatch::prelude::ToBytes;
 use lib_dispatch::prelude::*;
 use lib_dispatch::runtime::AFPluginRuntime;
+use lib_log::stream_log::StreamLogSender;
 
 use crate::appflowy_yaml::save_appflowy_cloud_config;
 use crate::env_serde::AppFlowyDartConfiguration;
@@ -32,6 +34,7 @@ mod protobuf;
 
 lazy_static! {
   static ref APPFLOWY_CORE: MutexAppFlowyCore = MutexAppFlowyCore::new();
+  static ref LOG_STREAM_ISOLATE: Mutex<Option<Isolate>> = Mutex::new(None);
 }
 
 struct MutexAppFlowyCore(Arc<Mutex<Option<AppFlowyCore>>>);
@@ -69,6 +72,7 @@ pub extern "C" fn init_sdk(_port: i64, data: *mut c_char) -> i64 {
     configuration.custom_app_path,
     configuration.origin_app_path,
     configuration.device_id,
+    configuration.platform,
     DEFAULT_NAME.to_string(),
   );
 
@@ -80,9 +84,15 @@ pub extern "C" fn init_sdk(_port: i64, data: *mut c_char) -> i64 {
 
   let runtime = Arc::new(AFPluginRuntime::new().unwrap());
   let cloned_runtime = runtime.clone();
+
+  let log_stream = LOG_STREAM_ISOLATE
+    .lock()
+    .take()
+    .map(|isolate| Arc::new(LogStreamSenderImpl { isolate }) as Arc<dyn StreamLogSender>);
+
   // let isolate = allo_isolate::Isolate::new(port);
   *APPFLOWY_CORE.0.lock() = runtime.block_on(async move {
-    Some(AppFlowyCore::new(config, cloned_runtime).await)
+    Some(AppFlowyCore::new(config, cloned_runtime, log_stream).await)
     // isolate.post("".to_string());
   });
   0
@@ -140,10 +150,23 @@ pub extern "C" fn sync_event(input: *const u8, len: usize) -> *const u8 {
 }
 
 #[no_mangle]
-pub extern "C" fn set_stream_port(port: i64) -> i32 {
+pub extern "C" fn set_stream_port(notification_port: i64) -> i32 {
   // Make sure hot reload won't register the notification sender twice
   unregister_all_notification_sender();
-  register_notification_sender(DartNotificationSender::new(port));
+  register_notification_sender(DartNotificationSender::new(notification_port));
+  0
+}
+
+#[no_mangle]
+pub extern "C" fn set_log_stream_port(port: i64) -> i32 {
+  *LOG_STREAM_ISOLATE.lock() = Some(Isolate::new(port));
+
+  LOG_STREAM_ISOLATE
+    .lock()
+    .as_ref()
+    .unwrap()
+    .post("hello log".to_string().as_bytes().to_vec());
+
   0
 }
 
@@ -226,4 +249,13 @@ pub extern "C" fn rust_log(level: i64, data: *const c_char) {
 #[no_mangle]
 pub extern "C" fn set_env(_data: *const c_char) {
   // Deprecated
+}
+
+struct LogStreamSenderImpl {
+  isolate: Isolate,
+}
+impl StreamLogSender for LogStreamSenderImpl {
+  fn send(&self, message: &[u8]) {
+    self.isolate.post(message.to_vec());
+  }
 }

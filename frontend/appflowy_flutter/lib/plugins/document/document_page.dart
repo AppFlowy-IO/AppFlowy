@@ -1,5 +1,5 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/document/application/doc_bloc.dart';
+import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/banner.dart';
 import 'package:appflowy/plugins/document/presentation/editor_notification.dart';
 import 'package:appflowy/plugins/document/presentation/editor_page.dart';
@@ -39,17 +39,12 @@ class _DocumentPageState extends State<DocumentPage> {
   @override
   void initState() {
     super.initState();
-
-    // The appflowy editor use Intl as localization, set the default language as fallback.
-    Intl.defaultLocale = 'en_US';
-
     EditorNotification.addListener(_onEditorNotification);
   }
 
   @override
   void dispose() {
     EditorNotification.removeListener(_onEditorNotification);
-
     super.dispose();
   }
 

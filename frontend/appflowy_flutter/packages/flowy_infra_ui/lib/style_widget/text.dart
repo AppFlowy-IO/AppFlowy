@@ -15,6 +15,7 @@ class FlowyText extends StatelessWidget {
   final String? fontFamily;
   final List<String>? fallbackFontFamily;
   final double? lineHeight;
+  final bool withTooltip;
 
   const FlowyText(
     this.text, {
@@ -30,6 +31,7 @@ class FlowyText extends StatelessWidget {
     this.fontFamily,
     this.fallbackFontFamily,
     this.lineHeight,
+    this.withTooltip = false,
   });
 
   FlowyText.small(
@@ -44,6 +46,7 @@ class FlowyText extends StatelessWidget {
     this.fontFamily,
     this.fallbackFontFamily,
     this.lineHeight,
+    this.withTooltip = false,
   })  : fontWeight = FontWeight.w400,
         fontSize = (Platform.isIOS || Platform.isAndroid) ? 14 : 12;
 
@@ -60,6 +63,7 @@ class FlowyText extends StatelessWidget {
     this.fontFamily,
     this.fallbackFontFamily,
     this.lineHeight,
+    this.withTooltip = false,
   }) : fontWeight = FontWeight.w400;
 
   const FlowyText.medium(
@@ -75,6 +79,7 @@ class FlowyText extends StatelessWidget {
     this.fontFamily,
     this.fallbackFontFamily,
     this.lineHeight,
+    this.withTooltip = false,
   }) : fontWeight = FontWeight.w500;
 
   const FlowyText.semibold(
@@ -90,6 +95,7 @@ class FlowyText extends StatelessWidget {
     this.fontFamily,
     this.fallbackFontFamily,
     this.lineHeight,
+    this.withTooltip = false,
   }) : fontWeight = FontWeight.w600;
 
   // Some emojis are not supported on Linux and Android, fallback to noto color emoji
@@ -104,14 +110,17 @@ class FlowyText extends StatelessWidget {
     this.decoration,
     this.selectable = false,
     this.lineHeight,
+    this.withTooltip = false,
   })  : fontWeight = FontWeight.w400,
         fontFamily = 'noto color emoji',
         fallbackFontFamily = null;
 
   @override
   Widget build(BuildContext context) {
+    Widget child;
+
     if (selectable) {
-      return SelectableText(
+      child = SelectableText(
         text,
         maxLines: maxLines,
         textAlign: textAlign,
@@ -126,7 +135,7 @@ class FlowyText extends StatelessWidget {
             ),
       );
     } else {
-      return Text(
+      child = Text(
         text,
         maxLines: maxLines,
         textAlign: textAlign,
@@ -142,5 +151,14 @@ class FlowyText extends StatelessWidget {
             ),
       );
     }
+
+    if (withTooltip) {
+      child = Tooltip(
+        message: text,
+        child: child,
+      );
+    }
+
+    return child;
   }
 }

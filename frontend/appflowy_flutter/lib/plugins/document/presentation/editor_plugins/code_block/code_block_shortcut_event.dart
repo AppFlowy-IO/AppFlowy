@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 final List<CharacterShortcutEvent> codeBlockCharacterEvents = [
   enterInCodeBlock,
@@ -60,7 +62,8 @@ final CommandShortcutEvent insertNewParagraphNextToCodeBlockCommand =
     CommandShortcutEvent(
   key: 'insert a new paragraph next to the code block',
   command: 'shift+enter',
-  getDescription: () => 'Insert a new paragraph next to the code block',
+  getDescription:
+      LocaleKeys.settings_shortcuts_commands_codeBlockNewParagraph.tr,
   handler: _insertNewParagraphNextToCodeBlockCommandHandler,
 );
 
@@ -73,7 +76,8 @@ final CommandShortcutEvent tabToInsertSpacesInCodeBlockCommand =
     CommandShortcutEvent(
   key: 'tab to insert two spaces at the line start in code block',
   command: 'tab',
-  getDescription: () => 'Insert two spaces at the line start in code block',
+  getDescription:
+      LocaleKeys.settings_shortcuts_commands_codeBlockAddTwoSpaces.tr,
   handler: (editorState) => _indentationInCodeBlockCommandHandler(
     editorState,
     true,
@@ -89,7 +93,8 @@ final CommandShortcutEvent tabToDeleteSpacesInCodeBlockCommand =
     CommandShortcutEvent(
   key: 'shift + tab to delete two spaces at the line start in code block',
   command: 'shift+tab',
-  getDescription: () => 'Delete two spaces at the line start in code block',
+  getDescription:
+      LocaleKeys.settings_shortcuts_commands_codeBlockDeleteTwoSpaces.tr,
   handler: (editorState) => _indentationInCodeBlockCommandHandler(
     editorState,
     false,
@@ -105,7 +110,7 @@ final CommandShortcutEvent selectAllInCodeBlockCommand = CommandShortcutEvent(
   key: 'ctrl + a to select all content inside a code block',
   command: 'ctrl+a',
   macOSCommand: 'meta+a',
-  getDescription: () => 'Select all content inside a code block',
+  getDescription: LocaleKeys.settings_shortcuts_commands_codeBlockSelectAll.tr,
   handler: _selectAllInCodeBlockCommandHandler,
 );
 
@@ -118,7 +123,7 @@ final CommandShortcutEvent pasteInCodeblock = CommandShortcutEvent(
   key: 'paste in codeblock',
   command: 'ctrl+v',
   macOSCommand: 'cmd+v',
-  getDescription: () => 'Paste text in codeblock',
+  getDescription: LocaleKeys.settings_shortcuts_commands_codeBlockPasteText.tr,
   handler: _pasteInCodeBlock,
 );
 

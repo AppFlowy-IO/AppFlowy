@@ -180,7 +180,11 @@ extension AppFlowyTestBase on WidgetTester {
       buttons: buttons,
       warnIfMissed: warnIfMissed,
     );
-    await pumpAndSettle(Duration(milliseconds: milliseconds));
+    await pumpAndSettle(
+      Duration(milliseconds: milliseconds),
+      EnginePhase.sendSemanticsUpdate,
+      const Duration(seconds: 5),
+    );
   }
 
   Future<void> tapButtonWithName(
