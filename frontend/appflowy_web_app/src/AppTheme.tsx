@@ -1,7 +1,8 @@
 import React, { useMemo } from 'react';
-import { createTheme, ThemeProvider } from '@mui/material';
+import createTheme from '@mui/material/styles/createTheme';
+import ThemeProvider from '@mui/material/styles/ThemeProvider';
 
-function AppTheme({ children }: {
+function AppTheme ({ children }: {
   children: React.ReactNode;
 }) {
   const isDark = false;

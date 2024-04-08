@@ -47,6 +47,7 @@ jobs:
         with:
           path: frontend/appflowy_web_app/node_modules
           key: node-modules-${{ runner.os }}
+
       - name: install frontend dependencies
         working-directory: frontend/appflowy_web_app
         run: |
@@ -55,7 +56,19 @@ jobs:
         working-directory: frontend/appflowy_web_app
         run: |
           pnpm run lint
-      - name: build
+      - name: build and analyze
         working-directory: frontend/appflowy_web_app
         run: |
-          pnpm run build
+          pnpm run analyze >> analyze-size.txt
+      - name: Upload analyze-size.txt
+        uses: actions/upload-artifact@v4
+        with:
+          name: analyze-size.txt
+          path: frontend/appflowy_web_app/analyze-size.txt
+          retention-days: 30
+      - name: Upload stats.html
+        uses: actions/upload-artifact@v4
+        with:
+          name: stats.html
+          path: frontend/appflowy_web_app/dist/stats.html
+          retention-days: 30
