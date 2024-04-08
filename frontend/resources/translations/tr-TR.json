@@ -360,7 +360,7 @@
         "hint": "Yerel bildirimlerin görünmesini durdurmak için kapatın."
       }
     },
-   "appearance": {
+    "appearance": {
       "resetSetting": "Sıfırla",
       "fontFamily": {
         "label": "Yazı Tipi Ailesi",
@@ -456,7 +456,7 @@
         "areYouSureToRemoveMember": "Bu üyeyi kaldırmak istediğinizden emin misiniz?"
       }
     },
-  "files": {
+    "files": {
       "copy": "Kopyala",
       "defaultLocation": "Dosyaları ve verileri okuma konumu",
       "exportData": "Verilerinizi dışa aktarın",
@@ -544,7 +544,7 @@
       "version": "Sürüm"
     }
   },
- "grid": {
+  "grid": {
     "deleteView": "Bu görünümü silmek istediğinizden emin misiniz?",
     "createView": "Yeni",
     "title": {
@@ -694,7 +694,7 @@
       "reminderOnDateTooltip": "Bu hücrenin planlanmış bir hatırlatıcısı var",
       "optionAlreadyExist": "Seçenek zaten mevcut"
     },
-   "rowPage": {
+    "rowPage": {
       "newField": "Yeni bir alan ekle",
       "fieldDragElementTooltip": "Menüyü açmak için tıklayın",
       "showHiddenFields": {
