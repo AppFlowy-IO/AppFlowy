@@ -194,6 +194,11 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
   late final editorState = context.read<EditorState>();
 
   final popoverController = PopoverController();
+  final scrollController = ScrollController();
+
+  // We use this to calculate the position of the cursor in the code block
+  // for automatic scrolling.
+  final codeBlockKey = GlobalKey();
 
   String? get language => node.attributes[CodeBlockKeys.language] as String?;
   String? autoDetectLanguage;
@@ -208,15 +213,28 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
     canPanStart: (_) => canPanStart && !isSelected,
   );
 
+  late final StreamSubscription<(TransactionTime, Transaction)>
+      transactionSubscription;
+
   @override
   void initState() {
     super.initState();
     editorState.selectionService.registerGestureInterceptor(interceptor);
+    editorState.selectionNotifier.addListener(calculateScrollPosition);
+    transactionSubscription = editorState.transactionStream.listen((event) {
+      if (event.$2.operations.any((op) => op.path.equals(node.path))) {
+        calculateScrollPosition();
+      }
+    });
   }
 
   @override
   void dispose() {
+    scrollController.dispose();
+    editorState.selectionService.currentSelection
+        .removeListener(calculateScrollPosition);
     editorState.selectionService.unregisterGestureInterceptor(_interceptorKey);
+    transactionSubscription.cancel();
     super.dispose();
   }
 
@@ -329,6 +347,8 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
           ),
           Flexible(
             child: SingleChildScrollView(
+              key: codeBlockKey,
+              controller: scrollController,
               physics: const ClampingScrollPhysics(),
               scrollDirection: Axis.horizontal,
               child: AppFlowyRichText(
@@ -364,6 +384,53 @@ class _CodeBlockComponentWidgetState extends State<CodeBlockComponentWidget>
         Position(path: node.path, offset: node.delta?.length ?? 0),
       );
     await editorState.apply(transaction);
+  }
+
+  void calculateScrollPosition() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final selection = editorState.selection;
+      if (!mounted || selection == null || !selection.isCollapsed) {
+        return;
+      }
+
+      final nodes = editorState.getNodesInSelection(selection);
+      if (nodes.isEmpty || nodes.length > 1) {
+        return;
+      }
+
+      final selectedNode = nodes.first;
+      if (selectedNode.path.equals(widget.node.path)) {
+        final renderBox =
+            codeBlockKey.currentContext?.findRenderObject() as RenderBox?;
+        final rects = editorState.selectionRects();
+        if (renderBox == null || rects.isEmpty) {
+          return;
+        }
+
+        final codeBlockOffset = renderBox.localToGlobal(Offset.zero);
+        final codeBlockSize = renderBox.size;
+
+        final cursorRect = rects.first;
+        final cursorRelativeOffset = cursorRect.center - codeBlockOffset;
+
+        // If the relative position of the cursor is less than 1, and the scrollController
+        // is not at offset 0, then we need to scroll to the left to make cursor visible.
+        if (cursorRelativeOffset.dx < 1 && scrollController.offset > 0) {
+          scrollController
+              .jumpTo(scrollController.offset + cursorRelativeOffset.dx - 1);
+
+          // If the relative position of the cursor is greater than the width of the code block,
+          // then we need to scroll to the right to make cursor visible.
+        } else if (cursorRelativeOffset.dx > codeBlockSize.width - 1) {
+          scrollController.jumpTo(
+            scrollController.offset +
+                cursorRelativeOffset.dx -
+                codeBlockSize.width +
+                1,
+          );
+        }
+      }
+    });
   }
 
   // Copy from flutter.highlight package.
