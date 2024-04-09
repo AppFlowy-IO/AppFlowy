@@ -1,4 +1,49 @@
 # Release Notes
+## Version 0.5.4 - 04/08/2024
+### New Features
+- Introduced support for displaying a synchronization indicator within documents and databases to enhance user awareness of data sync status
+- Revamped the select option cell editor in database
+- Improved translations for Spanish, German, Kurdish, and Vietnamese
+- Supported Android 6 and newer versions
+### Bug Fixes
+- Resolved an issue where twelve-hour time formats were not being parsed correctly in databases
+- Fixed a bug affecting the user interface of the single select option filter
+- Fixed various minor UI issues
+
+## Version 0.5.3 - 03/21/2024
+### New Features
+- Added build support for 32-bit Android devices
+- Introduced filters for KanBan boards for enhanced organization
+- Introduced the new "Relations" column type in Grids
+- Expanded language support with the addition of Greek
+- Enhanced toolbar design for Mobile devices
+- Introduced a command palette feature with initial support for page search
+### Bug Fixes
+- Rectified the issue of incomplete row data in Grids when adding new rows with active filters
+- Enhanced the logic governing the filtering of number and select/multi-select fields for improved accuracy
+- Implemented UI refinements on both Desktop and Mobile platforms, enriching the overall user experience of AppFlowy
+
+## Version 0.5.2 - 03/13/2024
+### Bug Fixes
+- Import csv file.
+
+## Version 0.5.1 - 03/11/2024
+### New Features
+- Introduced support for performing generic calculations on databases.
+- Implemented functionality for easily duplicating calendar events.
+- Added the ability to duplicate fields with cell data, facilitating smoother data management.
+- Now supports customizing font styles and colors prior to typing.
+- Enhanced the checklist user experience with the integration of keyboard shortcuts.
+- Improved the dark mode experience on mobile devices.
+### Bug Fixes
+- Fixed an issue with some pages failing to sync properly.
+- Fixed an issue where links without the http(s) scheme could not be opened, ensuring consistent link functionality.
+- Fixed an issue that prevented numbers from being inserted before heading blocks.
+- Fixed the inline page reference update mechanism to accurately reflect workspace changes.
+- Fixed an issue that made it difficult to resize images in certain cases.
+- Enhanced image loading reliability by clearing the image cache when images fail to load.
+- Resolved a problem preventing the launching of URLs on some Linux distributions.
+
 ## Version 0.5.0 - 02/26/2024
 ### New Features
 - Added support for scaling text on mobile platforms for better readability.

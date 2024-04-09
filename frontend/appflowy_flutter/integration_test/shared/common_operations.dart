@@ -162,9 +162,7 @@ extension CommonOperations on WidgetTester {
   }) async {
     try {
       final gesture = await createGesture(kind: PointerDeviceKind.mouse);
-      await gesture.addPointer(location: Offset.zero);
-      await pump();
-      await gesture.moveTo(offset ?? getCenter(finder));
+      await gesture.addPointer(location: offset ?? getCenter(finder));
       await pumpAndSettle();
       await onHover?.call();
       await gesture.removePointer();
@@ -530,7 +528,7 @@ extension CommonOperations on WidgetTester {
     final workspace = find.byType(SidebarWorkspace);
     expect(workspace, findsOneWidget);
     // click it
-    await tapButton(workspace);
+    await tapButton(workspace, milliseconds: 2000);
   }
 
   Future<void> closeCollaborativeWorkspaceMenu() async {
@@ -562,7 +560,6 @@ extension CommonOperations on WidgetTester {
 
     // input the workspace name
     await enterText(find.byType(TextField), name);
-    await pumpAndSettle();
 
     await tapButtonWithName(LocaleKeys.button_ok.tr());
   }

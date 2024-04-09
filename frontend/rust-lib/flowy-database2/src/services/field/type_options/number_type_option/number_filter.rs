@@ -1,23 +1,30 @@
-use crate::entities::{NumberFilterConditionPB, NumberFilterPB};
-use crate::services::field::NumberCellFormat;
-use rust_decimal::prelude::Zero;
-use rust_decimal::Decimal;
 use std::str::FromStr;
+
+use collab_database::fields::Field;
+use collab_database::rows::Cell;
+use rust_decimal::Decimal;
+
+use crate::entities::{NumberFilterConditionPB, NumberFilterPB};
+use crate::services::cell::insert_text_cell;
+use crate::services::field::NumberCellFormat;
+use crate::services::filter::PreFillCellsWithFilter;
 
 impl NumberFilterPB {
   pub fn is_visible(&self, cell_data: &NumberCellFormat) -> Option<bool> {
-    let expected_decimal = Decimal::from_str(&self.content).unwrap_or_else(|_| Decimal::zero());
+    let expected_decimal = || Decimal::from_str(&self.content).ok();
 
     let strategy = match self.condition {
-      NumberFilterConditionPB::Equal => NumberFilterStrategy::Equal(expected_decimal),
-      NumberFilterConditionPB::NotEqual => NumberFilterStrategy::NotEqual(expected_decimal),
-      NumberFilterConditionPB::GreaterThan => NumberFilterStrategy::GreaterThan(expected_decimal),
-      NumberFilterConditionPB::LessThan => NumberFilterStrategy::LessThan(expected_decimal),
+      NumberFilterConditionPB::Equal => NumberFilterStrategy::Equal(expected_decimal()?),
+      NumberFilterConditionPB::NotEqual => NumberFilterStrategy::NotEqual(expected_decimal()?),
+      NumberFilterConditionPB::GreaterThan => {
+        NumberFilterStrategy::GreaterThan(expected_decimal()?)
+      },
+      NumberFilterConditionPB::LessThan => NumberFilterStrategy::LessThan(expected_decimal()?),
       NumberFilterConditionPB::GreaterThanOrEqualTo => {
-        NumberFilterStrategy::GreaterThanOrEqualTo(expected_decimal)
+        NumberFilterStrategy::GreaterThanOrEqualTo(expected_decimal()?)
       },
       NumberFilterConditionPB::LessThanOrEqualTo => {
-        NumberFilterStrategy::LessThanOrEqualTo(expected_decimal)
+        NumberFilterStrategy::LessThanOrEqualTo(expected_decimal()?)
       },
       NumberFilterConditionPB::NumberIsEmpty => NumberFilterStrategy::Empty,
       NumberFilterConditionPB::NumberIsNotEmpty => NumberFilterStrategy::NotEmpty,
@@ -27,6 +34,39 @@ impl NumberFilterPB {
   }
 }
 
+impl PreFillCellsWithFilter for NumberFilterPB {
+  fn get_compliant_cell(&self, field: &Field) -> (Option<Cell>, bool) {
+    let expected_decimal = || Decimal::from_str(&self.content).ok();
+
+    let text = match self.condition {
+      NumberFilterConditionPB::Equal
+      | NumberFilterConditionPB::GreaterThanOrEqualTo
+      | NumberFilterConditionPB::LessThanOrEqualTo
+        if !self.content.is_empty() =>
+      {
+        Some(self.content.clone())
+      },
+      NumberFilterConditionPB::GreaterThan if !self.content.is_empty() => {
+        expected_decimal().map(|value| {
+          let answer = value + Decimal::from_f32_retain(1.0).unwrap();
+          answer.to_string()
+        })
+      },
+      NumberFilterConditionPB::LessThan if !self.content.is_empty() => {
+        expected_decimal().map(|value| {
+          let answer = value - Decimal::from_f32_retain(1.0).unwrap();
+          answer.to_string()
+        })
+      },
+      _ => None,
+    };
+
+    let open_after_create = matches!(self.condition, NumberFilterConditionPB::NumberIsNotEmpty);
+
+    // use `insert_text_cell` because self.content might not be a parsable i64.
+    (text.map(|s| insert_text_cell(s, field)), open_after_create)
+  }
+}
 enum NumberFilterStrategy {
   Equal(Decimal),
   NotEqual(Decimal),

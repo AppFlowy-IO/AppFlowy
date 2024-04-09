@@ -9,15 +9,15 @@ function TextFilterValue({ data }: { data: TextFilterData }) {
   const value = useMemo(() => {
     if (!data.content) return '';
     switch (data.condition) {
-      case TextFilterConditionPB.Contains:
-      case TextFilterConditionPB.Is:
+      case TextFilterConditionPB.TextContains:
+      case TextFilterConditionPB.TextIs:
         return `: ${data.content}`;
-      case TextFilterConditionPB.DoesNotContain:
-      case TextFilterConditionPB.IsNot:
+      case TextFilterConditionPB.TextDoesNotContain:
+      case TextFilterConditionPB.TextIsNot:
         return `: ${t('grid.textFilter.choicechipPrefix.isNot')} ${data.content}`;
-      case TextFilterConditionPB.StartsWith:
+      case TextFilterConditionPB.TextStartsWith:
         return `: ${t('grid.textFilter.choicechipPrefix.startWith')} ${data.content}`;
-      case TextFilterConditionPB.EndsWith:
+      case TextFilterConditionPB.TextEndsWith:
         return `: ${t('grid.textFilter.choicechipPrefix.endWith')} ${data.content}`;
       case TextFilterConditionPB.TextIsEmpty:
         return `: ${t('grid.textFilter.choicechipPrefix.isEmpty')}`;

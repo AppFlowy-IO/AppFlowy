@@ -1,6 +1,8 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/shared/af_role_pb_extension.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
+import 'package:appflowy/workspace/presentation/settings/widgets/members/workspace_member_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
@@ -13,6 +15,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 enum WorkspaceMoreAction {
   rename,
   delete,
+  leave,
 }
 
 class WorkspaceMoreActionList extends StatelessWidget {
@@ -25,9 +28,20 @@ class WorkspaceMoreActionList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final myRole = context.read<WorkspaceMemberBloc>().state.myRole;
+    final actions = [];
+    if (myRole.isOwner) {
+      actions.add(WorkspaceMoreAction.rename);
+      actions.add(WorkspaceMoreAction.delete);
+    } else if (myRole.canLeave) {
+      actions.add(WorkspaceMoreAction.leave);
+    }
+    if (actions.isEmpty) {
+      return const SizedBox.shrink();
+    }
     return PopoverActionList<_WorkspaceMoreActionWrapper>(
       direction: PopoverDirection.bottomWithCenterAligned,
-      actions: WorkspaceMoreAction.values
+      actions: actions
           .map((e) => _WorkspaceMoreActionWrapper(e, workspace))
           .toList(),
       buildChild: (controller) {
@@ -92,6 +106,19 @@ class _WorkspaceMoreActionWrapper extends CustomActionCell {
                 );
               },
             ).show(context);
+          case WorkspaceMoreAction.leave:
+            await showDialog(
+              context: context,
+              builder: (_) => NavigatorOkCancelDialog(
+                message: LocaleKeys.workspace_leaveCurrentWorkspacePrompt.tr(),
+                onOkPressed: () {
+                  workspaceBloc.add(
+                    UserWorkspaceEvent.leaveWorkspace(workspace.workspaceId),
+                  );
+                },
+                okTitle: LocaleKeys.button_yes.tr(),
+              ),
+            );
         }
       },
     );
@@ -103,6 +130,8 @@ class _WorkspaceMoreActionWrapper extends CustomActionCell {
         return LocaleKeys.button_delete.tr();
       case WorkspaceMoreAction.rename:
         return LocaleKeys.button_rename.tr();
+      case WorkspaceMoreAction.leave:
+        return LocaleKeys.workspace_leaveCurrentWorkspace.tr();
     }
   }
 }

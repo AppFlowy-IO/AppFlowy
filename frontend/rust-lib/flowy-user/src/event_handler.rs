@@ -7,7 +7,7 @@ use lib_infra::box_any::BoxAny;
 use serde_json::Value;
 use std::sync::Weak;
 use std::{convert::TryInto, sync::Arc};
-use tracing::event;
+use tracing::{event, trace};
 
 use crate::entities::*;
 use crate::notification::{send_notification, UserNotification};
@@ -562,6 +562,8 @@ pub async fn get_all_reminder_event_handler(
     .into_iter()
     .map(ReminderPB::from)
     .collect::<Vec<_>>();
+
+  trace!("number of reminders: {}", reminders.len());
   data_result_ok(reminders.into())
 }
 
@@ -707,5 +709,16 @@ pub async fn change_workspace_icon_handler(
   manager
     .patch_workspace(&params.workspace_id, None, Some(&params.new_icon))
     .await?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn leave_workspace_handler(
+  param: AFPluginData<UserWorkspaceIdPB>,
+  manager: AFPluginState<Weak<UserManager>>,
+) -> Result<(), FlowyError> {
+  let workspace_id = param.into_inner().workspace_id;
+  let manager = upgrade_manager(manager)?;
+  manager.leave_workspace(&workspace_id).await?;
   Ok(())
 }

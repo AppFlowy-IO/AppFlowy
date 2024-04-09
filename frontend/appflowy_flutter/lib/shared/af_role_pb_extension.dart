@@ -5,11 +5,15 @@ import 'package:easy_localization/easy_localization.dart';
 extension AFRolePBExtension on AFRolePB {
   bool get isOwner => this == AFRolePB.Owner;
 
+  bool get isMember => this == AFRolePB.Member;
+
   bool get canInvite => isOwner;
 
   bool get canDelete => isOwner;
 
   bool get canUpdate => isOwner;
+
+  bool get canLeave => this != AFRolePB.Owner;
 
   String get description {
     switch (this) {

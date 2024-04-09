@@ -1,4 +1,4 @@
-import 'package:appflowy/plugins/document/application/doc_bloc.dart';
+import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/workspace/application/home/home_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
@@ -38,8 +38,13 @@ void main() {
     final appBloc = ViewBloc(view: app)..add(const ViewEvent.initial());
     assert(appBloc.state.lastCreatedView == null);
 
-    appBloc
-        .add(const ViewEvent.createView("New document", ViewLayoutPB.Document));
+    appBloc.add(
+      const ViewEvent.createView(
+        "New document",
+        ViewLayoutPB.Document,
+        section: ViewSectionPB.Public,
+      ),
+    );
     await blocResponseFuture();
 
     assert(appBloc.state.lastCreatedView != null);

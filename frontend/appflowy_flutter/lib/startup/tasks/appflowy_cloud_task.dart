@@ -89,8 +89,10 @@ class AppFlowyCloudDeepLink {
       Log.error('onDeepLinkError: Unexpected empty deep link callback');
       _completer?.complete(FlowyResult.failure(AuthError.emptyDeepLink));
       _completer = null;
+      return;
     }
-    return _isAuthCallbackDeepLink(uri!).fold(
+
+    return _isAuthCallbackDeepLink(uri).fold(
       (_) async {
         final deviceId = await getDeviceId();
         final payload = OauthSignInPB(
@@ -101,8 +103,7 @@ class AppFlowyCloudDeepLink {
           },
         );
         _stateNotifier?.value = DeepLinkResult(state: DeepLinkState.loading);
-        final result =
-            await UserEventOauthSignIn(payload).send().then((value) => value);
+        final result = await UserEventOauthSignIn(payload).send();
 
         _stateNotifier?.value = DeepLinkResult(
           state: DeepLinkState.finish,

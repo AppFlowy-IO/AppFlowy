@@ -24,7 +24,7 @@ impl WASMEventTester {
     setup_log();
     let config = AFCloudConfiguration {
       base_url: "http://localhost".to_string(),
-      ws_base_url: "ws://localhost/ws".to_string(),
+      ws_base_url: "ws://localhost/ws/v1".to_string(),
       gotrue_url: "http://localhost/gotrue".to_string(),
     };
     let core = Arc::new(AppFlowyWASMCore::new("device_id", config).await.unwrap());

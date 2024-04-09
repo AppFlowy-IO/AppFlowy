@@ -24,7 +24,7 @@ function PlaceholderContent({ node, ...attributes }: { node: Element; className?
   }, [editor, node]);
 
   const className = useMemo(() => {
-    return `text-placeholder ${attributes.className ?? ''}`;
+    return `text-placeholder select-none ${attributes.className ?? ''}`;
   }, [attributes.className]);
 
   const unSelectedPlaceholder = useMemo(() => {
@@ -38,15 +38,15 @@ function PlaceholderContent({ node, ...attributes }: { node: Element; className?
       }
 
       case EditorNodeType.ToggleListBlock:
-        return t('document.plugins.toggleList');
+        return t('blockPlaceholders.bulletList');
       case EditorNodeType.QuoteBlock:
-        return t('editor.quote');
+        return t('blockPlaceholders.quote');
       case EditorNodeType.TodoListBlock:
-        return t('document.plugins.todoList');
+        return t('blockPlaceholders.todoList');
       case EditorNodeType.NumberedListBlock:
-        return t('document.plugins.numberedList');
+        return t('blockPlaceholders.numberList');
       case EditorNodeType.BulletedListBlock:
-        return t('document.plugins.bulletedList');
+        return t('blockPlaceholders.bulletList');
       case EditorNodeType.HeadingBlock: {
         const level = (block as HeadingNode).data.level;
 

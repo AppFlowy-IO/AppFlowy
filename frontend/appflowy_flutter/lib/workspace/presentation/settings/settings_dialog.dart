@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/settings/settings_dialog_bloc.dart';
+import 'package:appflowy/workspace/presentation/settings/widgets/feature_flags/feature_flag_page.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/members/workspace_member_page.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_appearance_view.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_customize_shortcuts_view.dart';
@@ -49,6 +50,7 @@ class SettingsDialog extends StatelessWidget {
               color: Theme.of(context).colorScheme.tertiary,
             ),
           ),
+          width: MediaQuery.of(context).size.width * 0.7,
           child: ScaffoldMessenger(
             child: Scaffold(
               backgroundColor: Colors.transparent,
@@ -60,6 +62,7 @@ class SettingsDialog extends StatelessWidget {
                     SizedBox(
                       width: 200,
                       child: SettingsMenu(
+                        userProfile: user,
                         changeSelectedPage: (index) {
                           context
                               .read<SettingsDialogBloc>()
@@ -114,6 +117,8 @@ class SettingsDialog extends StatelessWidget {
         return const SettingsCustomizeShortcutsWrapper();
       case SettingsPage.member:
         return WorkspaceMembersPage(userProfile: user);
+      case SettingsPage.featureFlags:
+        return const FeatureFlagsPage();
       default:
         return const SizedBox.shrink();
     }

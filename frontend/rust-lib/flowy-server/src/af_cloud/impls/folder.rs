@@ -2,7 +2,7 @@ use anyhow::Error;
 use client_api::entity::{
   workspace_dto::CreateWorkspaceParam, CollabParams, QueryCollab, QueryCollabParams,
 };
-use collab::core::collab::CollabDocState;
+use collab::core::collab::DocStateSource;
 use collab::core::origin::CollabOrigin;
 use collab_entity::CollabType;
 use collab_folder::RepeatedViewIdentifier;
@@ -96,8 +96,13 @@ where
         .map_err(FlowyError::from)?
         .doc_state
         .to_vec();
-      let folder =
-        Folder::from_collab_doc_state(uid, CollabOrigin::Empty, doc_state, &workspace_id, vec![])?;
+      let folder = Folder::from_collab_doc_state(
+        uid,
+        CollabOrigin::Empty,
+        DocStateSource::FromDocState(doc_state),
+        &workspace_id,
+        vec![],
+      )?;
       Ok(folder.get_folder_data())
     })
   }
@@ -116,7 +121,7 @@ where
     _uid: i64,
     collab_type: CollabType,
     object_id: &str,
-  ) -> FutureResult<CollabDocState, Error> {
+  ) -> FutureResult<Vec<u8>, Error> {
     let object_id = object_id.to_string();
     let workspace_id = workspace_id.to_string();
     let try_get_client = self.0.try_get_client();
@@ -152,7 +157,6 @@ where
           object_id: object.object_id,
           encoded_collab_v1: object.encoded_collab_v1,
           collab_type: object.collab_type,
-          override_if_exist: object.override_if_exist,
         })
         .collect::<Vec<_>>();
       try_get_client?

@@ -14,7 +14,7 @@ import KeyboardNavigation, {
 } from '$app/components/_shared/keyboard_navigation/KeyboardNavigation';
 import isHotkey from 'is-hotkey';
 import LinkEditInput from '$app/components/editor/components/inline_nodes/link/LinkEditInput';
-import { openUrl, pattern } from '$app/utils/open_url';
+import { openUrl, isUrl } from '$app/utils/open_url';
 
 function LinkEditContent({ onClose, defaultHref }: { onClose: () => void; defaultHref: string }) {
   const editor = useSlateStatic();
@@ -44,12 +44,22 @@ function LinkEditContent({ onClose, defaultHref }: { onClose: () => void; defaul
 
     if (!input) return;
 
+    let isComposing = false;
+
+    const handleCompositionUpdate = () => {
+      isComposing = true;
+    };
+
+    const handleCompositionEnd = () => {
+      isComposing = false;
+    };
+
     const handleKeyDown = (e: KeyboardEvent) => {
       e.stopPropagation();
 
       if (e.key === 'Enter') {
         e.preventDefault();
-        if (pattern.test(link)) {
+        if (isUrl(link)) {
           onClose();
           setNodeMark();
         }
@@ -69,16 +79,22 @@ function LinkEditContent({ onClose, defaultHref }: { onClose: () => void; defaul
         return;
       }
 
-      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      if (!isComposing && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
         notify.clear();
         notify.info(`Press Tab to focus on the menu`);
         return;
       }
     };
 
+    input.addEventListener('compositionstart', handleCompositionUpdate);
+    input.addEventListener('compositionend', handleCompositionEnd);
+    input.addEventListener('compositionupdate', handleCompositionUpdate);
     input.addEventListener('keydown', handleKeyDown);
     return () => {
       input.removeEventListener('keydown', handleKeyDown);
+      input.removeEventListener('compositionstart', handleCompositionUpdate);
+      input.removeEventListener('compositionend', handleCompositionEnd);
+      input.removeEventListener('compositionupdate', handleCompositionUpdate);
     };
   }, [link, onClose, setNodeMark]);
 
@@ -109,7 +125,7 @@ function LinkEditContent({ onClose, defaultHref }: { onClose: () => void; defaul
     return [
       {
         key: 'open',
-        disabled: !pattern.test(link),
+        disabled: !isUrl(link),
         content: renderOption(<LinkSvg className={'h-4 w-4'} />, t('editor.openLink')),
       },
       {
@@ -133,9 +149,9 @@ function LinkEditContent({ onClose, defaultHref }: { onClose: () => void; defaul
       <div ref={scrollRef} className={'mt-1 flex w-full flex-col items-start'}>
         {isActivated && (
           <KeyboardNavigation
+            options={editOptions}
             disableFocus={!focusMenu}
             scrollRef={scrollRef}
-            options={editOptions}
             onConfirm={onConfirm}
             onFocus={() => {
               setFocusMenu(true);
@@ -143,8 +159,8 @@ function LinkEditContent({ onClose, defaultHref }: { onClose: () => void; defaul
             onBlur={() => {
               setFocusMenu(false);
             }}
-            onEscape={onClose}
             disableSelect={!focusMenu}
+            onEscape={onClose}
             onKeyDown={(e) => {
               e.stopPropagation();
               if (isHotkey('Tab', e)) {

@@ -86,6 +86,13 @@ class ImagePlaceholderState extends State<ImagePlaceholder> {
         popupBuilder: (context) {
           return UploadImageMenu(
             limitMaximumImageSize: !_isLocalMode(),
+            supportTypes: const [
+              UploadImageType.local,
+              UploadImageType.url,
+              UploadImageType.unsplash,
+              UploadImageType.openAI,
+              UploadImageType.stabilityAI,
+            ],
             onSelectedLocalImage: (path) {
               controller.close();
               WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {

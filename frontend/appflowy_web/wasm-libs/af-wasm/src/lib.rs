@@ -49,14 +49,14 @@ pub fn init_wasm_core() -> js_sys::Promise {
   #[cfg(feature = "localhost_dev")]
   let config = AFCloudConfiguration {
     base_url: "http://localhost".to_string(),
-    ws_base_url: "ws://localhost/ws".to_string(),
+    ws_base_url: "ws://localhost/ws/v1".to_string(),
     gotrue_url: "http://localhost/gotrue".to_string(),
   };
 
   #[cfg(not(feature = "localhost_dev"))]
   let config = AFCloudConfiguration {
     base_url: "https://beta.appflowy.cloud".to_string(),
-    ws_base_url: "wss://beta.appflowy.cloud/ws".to_string(),
+    ws_base_url: "wss://beta.appflowy.cloud/ws/v1".to_string(),
     gotrue_url: "https://beta.appflowy.cloud/gotrue".to_string(),
   };
 

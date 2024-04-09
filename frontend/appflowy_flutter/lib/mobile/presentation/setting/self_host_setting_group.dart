@@ -36,6 +36,14 @@ class _SelfHostSettingGroupState extends State<SelfHostSettingGroup> {
               onTap: () {
                 showMobileBottomSheet(
                   context,
+                  showHeader: true,
+                  title: LocaleKeys.editor_urlHint.tr(),
+                  showCloseButton: true,
+                  showDivider: false,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0,
+                    vertical: 8.0,
+                  ),
                   builder: (_) {
                     return SelfHostUrlBottomSheet(
                       url: url,

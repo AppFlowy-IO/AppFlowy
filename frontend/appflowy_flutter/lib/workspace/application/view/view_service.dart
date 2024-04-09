@@ -37,6 +37,7 @@ class ViewBackendService {
     /// The [index] is the index of the view in the parent view.
     /// If the index is null, the view will be added to the end of the list.
     int? index,
+    ViewSectionPB? section,
   }) {
     final payload = CreateViewPayloadPB.create()
       ..parentViewId = parentViewId
@@ -56,6 +57,10 @@ class ViewBackendService {
 
     if (index != null) {
       payload.index = index;
+    }
+
+    if (section != null) {
+      payload.section = section;
     }
 
     return FolderEventCreateView(payload).send();
@@ -195,11 +200,15 @@ class ViewBackendService {
     required String viewId,
     required String newParentId,
     required String? prevViewId,
+    ViewSectionPB? fromSection,
+    ViewSectionPB? toSection,
   }) {
     final payload = MoveNestedViewPayloadPB(
       viewId: viewId,
       newParentId: newParentId,
       prevViewId: prevViewId,
+      fromSection: fromSection,
+      toSection: toSection,
     );
 
     return FolderEventMoveNestedView(payload).send();
@@ -251,10 +260,17 @@ class ViewBackendService {
   }
 
   static Future<FlowyResult<ViewPB, FlowyError>> getView(
-    String viewID,
+    String viewId,
   ) async {
-    final payload = ViewIdPB.create()..value = viewID;
+    final payload = ViewIdPB.create()..value = viewId;
     return FolderEventGetView(payload).send();
+  }
+
+  static Future<FlowyResult<RepeatedViewPB, FlowyError>> getViewAncestors(
+    String viewId,
+  ) async {
+    final payload = ViewIdPB.create()..value = viewId;
+    return FolderEventGetViewAncestors(payload).send();
   }
 
   Future<FlowyResult<ViewPB, FlowyError>> getChildView({
@@ -270,5 +286,16 @@ class ViewBackendService {
         (error) => FlowyResult.failure(error),
       );
     });
+  }
+
+  static Future<FlowyResult<void, FlowyError>> updateViewsVisibility(
+    List<ViewPB> views,
+    bool isPublic,
+  ) async {
+    final payload = UpdateViewVisibilityStatusPayloadPB(
+      viewIds: views.map((e) => e.id).toList(),
+      isPublic: isPublic,
+    );
+    return FolderEventUpdateViewVisibilityStatus(payload).send();
   }
 }

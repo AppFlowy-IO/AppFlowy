@@ -165,6 +165,8 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
               viewId: value.from.id,
               newParentId: value.newParentId,
               prevViewId: value.prevId,
+              fromSection: value.fromSection,
+              toSection: value.toSection,
             );
             emit(
               result.fold(
@@ -184,8 +186,8 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
               layoutType: e.layoutType,
               ext: {},
               openAfterCreate: e.openAfterCreated,
+              section: e.section,
             );
-
             emit(
               result.fold(
                 (view) => state.copyWith(
@@ -203,6 +205,13 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
               state.copyWith(
                 view: e.result,
               ),
+            );
+          },
+          updateViewVisibility: (value) async {
+            final view = value.view;
+            await ViewBackendService.updateViewsVisibility(
+              [view],
+              value.isPublic,
             );
           },
         );
@@ -353,18 +362,23 @@ class ViewEvent with _$ViewEvent {
     ViewPB from,
     String newParentId,
     String? prevId,
+    ViewSectionPB? fromSection,
+    ViewSectionPB? toSection,
   ) = Move;
   const factory ViewEvent.createView(
     String name,
     ViewLayoutPB layoutType, {
     /// open the view after created
     @Default(true) bool openAfterCreated,
+    ViewSectionPB? section,
   }) = CreateView;
   const factory ViewEvent.viewDidUpdate(
     FlowyResult<ViewPB, FlowyError> result,
   ) = ViewDidUpdate;
   const factory ViewEvent.viewUpdateChildView(ViewPB result) =
       ViewUpdateChildView;
+  const factory ViewEvent.updateViewVisibility(ViewPB view, bool isPublic) =
+      UpdateViewVisibility;
 }
 
 @freezed

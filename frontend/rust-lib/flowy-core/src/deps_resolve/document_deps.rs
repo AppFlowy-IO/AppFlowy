@@ -89,6 +89,14 @@ impl DocumentUserService for DocumentUserImpl {
       .user_id()
   }
 
+  fn device_id(&self) -> Result<String, FlowyError> {
+    self
+      .0
+      .upgrade()
+      .ok_or(FlowyError::internal().with_context("Unexpected error: UserSession is None"))?
+      .device_id()
+  }
+
   fn workspace_id(&self) -> Result<String, FlowyError> {
     self
       .0

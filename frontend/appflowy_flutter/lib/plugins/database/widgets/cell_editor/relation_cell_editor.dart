@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/database/application/field/type_option/relation_type_option_cubit.dart';
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/common/type_option_separator.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -13,38 +14,24 @@ import '../../application/cell/bloc/relation_row_search_bloc.dart';
 class RelationCellEditor extends StatelessWidget {
   const RelationCellEditor({
     super.key,
-    required this.databaseId,
     required this.selectedRowIds,
-    required this.onSelectRow,
   });
 
-  final String databaseId;
   final List<String> selectedRowIds;
-  final void Function(String rowId) onSelectRow;
 
   @override
   Widget build(BuildContext context) {
-    if (databaseId.isEmpty) {
-      // no i18n here because UX needs thorough checking.
-      return const Center(
-        child: FlowyText(
-          '''
-No database has been selected,
-please select one first in the field editor.
-          ''',
-          maxLines: null,
-          textAlign: TextAlign.center,
-        ),
-      );
-    }
+    return BlocBuilder<RelationCellBloc, RelationCellState>(
+      builder: (context, cellState) {
+        if (cellState.relatedDatabaseMeta == null) {
+          return const _RelationCellEditorDatabaseList();
+        }
 
-    return BlocProvider<RelationRowSearchBloc>(
-      create: (context) => RelationRowSearchBloc(
-        databaseId: databaseId,
-      ),
-      child: BlocBuilder<RelationCellBloc, RelationCellState>(
-        builder: (context, cellState) {
-          return BlocBuilder<RelationRowSearchBloc, RelationRowSearchState>(
+        return BlocProvider<RelationRowSearchBloc>(
+          create: (context) => RelationRowSearchBloc(
+            databaseId: cellState.relatedDatabaseMeta!.databaseId,
+          ),
+          child: BlocBuilder<RelationRowSearchBloc, RelationRowSearchState>(
             builder: (context, state) {
               final children = state.filteredRows
                   .map(
@@ -63,12 +50,13 @@ please select one first in the field editor.
                         rightIcon: cellState.rows
                                 .map((e) => e.rowId)
                                 .contains(row.rowId)
-                            ? FlowySvg(
+                            ? const FlowySvg(
                                 FlowySvgs.check_s,
-                                color: Theme.of(context).primaryColor,
                               )
                             : null,
-                        onTap: () => onSelectRow(row.rowId),
+                        onTap: () => context
+                            .read<RelationCellBloc>()
+                            .add(RelationCellEvent.selectRow(row.rowId)),
                       ),
                     ),
                   )
@@ -78,7 +66,6 @@ please select one first in the field editor.
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const VSpace(6.0),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 6.0) +
                         GridSize.typeOptionContentInsets,
@@ -90,15 +77,13 @@ please select one first in the field editor.
                           fontSize: 11,
                           color: Theme.of(context).hintColor,
                         ),
-                        const HSpace(2.0),
-                        FlowyButton(
-                          useIntrinsicWidth: true,
-                          margin: const EdgeInsets.symmetric(
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
                             horizontal: 4,
                             vertical: 2,
                           ),
-                          text: FlowyText.regular(
-                            cellState.relatedDatabaseId,
+                          child: FlowyText.regular(
+                            cellState.relatedDatabaseMeta!.databaseName,
                             fontSize: 11,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -106,10 +91,16 @@ please select one first in the field editor.
                       ],
                     ),
                   ),
-                  VSpace(GridSize.typeOptionSeparatorHeight),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 6.0),
                     child: FlowyTextField(
+                      hintText: LocaleKeys
+                          .grid_relation_rowSearchTextFieldPlaceholder
+                          .tr(),
+                      hintStyle: Theme.of(context)
+                          .textTheme
+                          .bodySmall
+                          ?.copyWith(color: Theme.of(context).hintColor),
                       onChanged: (text) => context
                           .read<RelationRowSearchBloc>()
                           .add(RelationRowSearchEvent.updateFilter(text)),
@@ -140,6 +131,62 @@ please select one first in the field editor.
                 ],
               );
             },
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _RelationCellEditorDatabaseList extends StatelessWidget {
+  const _RelationCellEditorDatabaseList();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => RelationDatabaseListCubit(),
+      child: BlocBuilder<RelationDatabaseListCubit, RelationDatabaseListState>(
+        builder: (context, state) {
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(6, 6, 6, 0),
+                child: FlowyText(
+                  LocaleKeys.grid_relation_noDatabaseSelected.tr(),
+                  maxLines: null,
+                  fontSize: 10,
+                  color: Theme.of(context).hintColor,
+                ),
+              ),
+              Flexible(
+                child: ListView.separated(
+                  padding: const EdgeInsets.all(6),
+                  separatorBuilder: (context, index) =>
+                      VSpace(GridSize.typeOptionSeparatorHeight),
+                  itemCount: state.databaseMetas.length,
+                  shrinkWrap: true,
+                  itemBuilder: (context, index) {
+                    final databaseMeta = state.databaseMetas[index];
+                    return SizedBox(
+                      height: GridSize.popoverItemHeight,
+                      child: FlowyButton(
+                        onTap: () => context.read<RelationCellBloc>().add(
+                              RelationCellEvent.selectDatabaseId(
+                                databaseMeta.databaseId,
+                              ),
+                            ),
+                        text: FlowyText.medium(
+                          databaseMeta.databaseName,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
           );
         },
       ),

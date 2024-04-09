@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:appflowy/env/cloud_env.dart';
+import 'package:appflowy/startup/tasks/feature_flag_task.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
 import 'package:appflowy_backend/appflowy_backend.dart';
 import 'package:flutter/foundation.dart';
@@ -113,6 +114,7 @@ class FlowyRunner {
         // there's a flag named _enable in memory_leak_detector.dart. If it's false, the task will be ignored.
         MemoryLeakDetectorTask(),
         const DebugTask(),
+        const FeatureFlagTask(),
 
         // localization
         const InitLocalizationTask(),
@@ -128,7 +130,7 @@ class FlowyRunner {
         if (!mode.isUnitTest) ...[
           // The DeviceOrApplicationInfoTask should be placed before the AppWidgetTask to fetch the app information.
           // It is unable to get the device information from the test environment.
-          const DeviceOrApplicationInfoTask(),
+          const ApplicationInfoTask(),
           const HotKeyTask(),
           if (isSupabaseEnabled) InitSupabaseTask(),
           if (isAppFlowyCloudEnabled) InitAppFlowyCloudTask(),

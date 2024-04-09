@@ -8,7 +8,7 @@
   },
   "package": {
     "productName": "AppFlowy",
-    "version": "0.0.0"
+    "version": "0.0.1"
   },
   "tauri": {
     "allowlist": {
@@ -95,7 +95,18 @@
         "title": "AppFlowy",
         "width": 1200,
         "minWidth": 800,
-        "minHeight": 600
+        "minHeight": 600,
+        "visible": false,
+        "label": "main"
+      },
+      {
+        "height": 300,
+        "width": 549,
+        "decorations": false,
+        "url": "launch_splash.jpg",
+        "label": "splashscreen",
+        "center": true,
+        "visible": true
       }
     ]
   }

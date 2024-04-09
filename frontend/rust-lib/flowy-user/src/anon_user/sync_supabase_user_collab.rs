@@ -8,7 +8,7 @@ use collab::core::collab::MutexCollab;
 use collab::preclude::Collab;
 use collab_database::database::get_database_row_ids;
 use collab_database::rows::database_row_document_id_from_row_id;
-use collab_database::user::{get_all_database_view_trackers, DatabaseViewTracker};
+use collab_database::workspace_database::{get_all_database_meta, DatabaseMeta};
 use collab_entity::{CollabObject, CollabType};
 use collab_folder::{Folder, View, ViewLayout};
 use collab_plugins::local_storage::kv::KVTransactionDB;
@@ -75,7 +75,7 @@ pub async fn sync_supabase_user_data_to_cloud(
 fn sync_view(
   uid: i64,
   folder: Arc<MutexFolder>,
-  database_records: Vec<Arc<DatabaseViewTracker>>,
+  database_metas: Vec<Arc<DatabaseMeta>>,
   workspace_id: String,
   device_id: String,
   view: Arc<View>,
@@ -84,7 +84,7 @@ fn sync_view(
 ) -> Pin<Box<dyn Future<Output = Result<(), Error>> + Send + Sync>> {
   Box::pin(async move {
     let collab_type = collab_type_from_view_layout(&view.layout);
-    let object_id = object_id_from_view(&view, &database_records)?;
+    let object_id = object_id_from_view(&view, &database_metas)?;
     tracing::debug!(
       "sync view: {:?}:{} with object_id: {}",
       view.layout,
@@ -109,7 +109,7 @@ fn sync_view(
           doc_state.len()
         );
         user_service
-          .create_collab_object(&collab_object, doc_state, false)
+          .create_collab_object(&collab_object, doc_state)
           .await?;
       },
       ViewLayout::Grid | ViewLayout::Board | ViewLayout::Calendar => {
@@ -121,7 +121,7 @@ fn sync_view(
           database_doc_state.len()
         );
         user_service
-          .create_collab_object(&collab_object, database_doc_state, false)
+          .create_collab_object(&collab_object, database_doc_state)
           .await?;
 
         // sync database's row
@@ -145,7 +145,7 @@ fn sync_view(
           );
 
           let _ = user_service
-            .create_collab_object(&database_row_collab_object, database_row_doc_state, false)
+            .create_collab_object(&database_row_collab_object, database_row_doc_state)
             .await;
 
           let database_row_document = CollabObject::new(
@@ -165,7 +165,7 @@ fn sync_view(
               document_doc_state.len()
             );
             let _ = user_service
-              .create_collab_object(&database_row_document, document_doc_state, false)
+              .create_collab_object(&database_row_document, document_doc_state)
               .await;
           }
         }
@@ -180,7 +180,7 @@ fn sync_view(
       if let Err(err) = Box::pin(sync_view(
         uid,
         folder.clone(),
-        database_records.clone(),
+        database_metas.clone(),
         workspace_id.clone(),
         device_id.to_string(),
         child_view,
@@ -207,13 +207,15 @@ fn get_collab_doc_state(
   collab_object: &CollabObject,
   collab_db: &Arc<CollabKVDB>,
 ) -> Result<Vec<u8>, PersistenceError> {
-  let collab = Collab::new(uid, &collab_object.object_id, "phantom", vec![]);
+  let collab = Collab::new(uid, &collab_object.object_id, "phantom", vec![], false);
   let _ = collab.with_origin_transact_mut(|txn| {
     collab_db
       .read_txn()
       .load_doc_with_txn(uid, &collab_object.object_id, txn)
   })?;
-  let doc_state = collab.encode_collab_v1().doc_state;
+  let doc_state = collab
+    .encode_collab_v1(|_| Ok::<(), PersistenceError>(()))?
+    .doc_state;
   if doc_state.is_empty() {
     return Err(PersistenceError::UnexpectedEmptyUpdates);
   }
@@ -226,7 +228,7 @@ fn get_database_doc_state(
   collab_object: &CollabObject,
   collab_db: &Arc<CollabKVDB>,
 ) -> Result<(Vec<u8>, Vec<String>), PersistenceError> {
-  let collab = Collab::new(uid, &collab_object.object_id, "phantom", vec![]);
+  let collab = Collab::new(uid, &collab_object.object_id, "phantom", vec![], false);
   let _ = collab.with_origin_transact_mut(|txn| {
     collab_db
       .read_txn()
@@ -234,7 +236,9 @@ fn get_database_doc_state(
   })?;
 
   let row_ids = get_database_row_ids(&collab).unwrap_or_default();
-  let doc_state = collab.encode_collab_v1().doc_state;
+  let doc_state = collab
+    .encode_collab_v1(|_| Ok::<(), PersistenceError>(()))?
+    .doc_state;
   if doc_state.is_empty() {
     return Err(PersistenceError::UnexpectedEmptyUpdates);
   }
@@ -250,14 +254,16 @@ async fn sync_folder(
   user_service: Arc<dyn UserCloudService>,
 ) -> Result<MutexFolder, Error> {
   let (folder, update) = {
-    let collab = Collab::new(uid, workspace_id, "phantom", vec![]);
+    let collab = Collab::new(uid, workspace_id, "phantom", vec![], false);
     // Use the temporary result to short the lifetime of the TransactionMut
     collab.with_origin_transact_mut(|txn| {
       collab_db
         .read_txn()
         .load_doc_with_txn(uid, workspace_id, txn)
     })?;
-    let doc_state = collab.encode_collab_v1().doc_state;
+    let doc_state = collab
+      .encode_collab_v1(|_| Ok::<(), PersistenceError>(()))?
+      .doc_state;
     (
       MutexFolder::new(Folder::open(
         uid,
@@ -281,7 +287,7 @@ async fn sync_folder(
     update.len()
   );
   if let Err(err) = user_service
-    .create_collab_object(&collab_object, update.to_vec(), false)
+    .create_collab_object(&collab_object, update.to_vec())
     .await
   {
     tracing::error!("🔴sync folder failed: {:?}", err);
@@ -297,7 +303,7 @@ async fn sync_database_views(
   database_views_aggregate_id: &str,
   collab_db: &Arc<CollabKVDB>,
   user_service: Arc<dyn UserCloudService>,
-) -> Vec<Arc<DatabaseViewTracker>> {
+) -> Vec<Arc<DatabaseMeta>> {
   let collab_object = CollabObject::new(
     uid,
     database_views_aggregate_id.to_string(),
@@ -308,7 +314,7 @@ async fn sync_database_views(
 
   // Use the temporary result to short the lifetime of the TransactionMut
   let result = {
-    let collab = Collab::new(uid, database_views_aggregate_id, "phantom", vec![]);
+    let collab = Collab::new(uid, database_views_aggregate_id, "phantom", vec![], false);
     collab
       .with_origin_transact_mut(|txn| {
         collab_db
@@ -317,15 +323,18 @@ async fn sync_database_views(
       })
       .map(|_| {
         (
-          get_all_database_view_trackers(&collab),
-          collab.encode_collab_v1().doc_state,
+          get_all_database_meta(&collab),
+          collab
+            .encode_collab_v1(|_| Ok::<(), PersistenceError>(()))
+            .unwrap()
+            .doc_state,
         )
       })
   };
 
   if let Ok((records, doc_state)) = result {
     let _ = user_service
-      .create_collab_object(&collab_object, doc_state.to_vec(), false)
+      .create_collab_object(&collab_object, doc_state.to_vec())
       .await;
     records.into_iter().map(Arc::new).collect()
   } else {
@@ -357,7 +366,7 @@ fn collab_type_from_view_layout(view_layout: &ViewLayout) -> CollabType {
 
 fn object_id_from_view(
   view: &Arc<View>,
-  database_records: &[Arc<DatabaseViewTracker>],
+  database_records: &[Arc<DatabaseMeta>],
 ) -> Result<String, Error> {
   if view.layout.is_database() {
     match database_records

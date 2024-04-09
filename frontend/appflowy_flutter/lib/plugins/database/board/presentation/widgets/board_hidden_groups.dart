@@ -269,7 +269,7 @@ class HiddenGroupButtonContent extends StatelessWidget {
                           ),
                           const HSpace(4),
                           FlowyText.medium(
-                            group.groupName,
+                            bloc.generateGroupNameFromGroup(group),
                             overflow: TextOverflow.ellipsis,
                           ),
                           const HSpace(6),
@@ -369,7 +369,7 @@ class HiddenGroupPopupItemList extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
             child: FlowyText.medium(
-              group.groupName,
+              context.read<BoardBloc>().generateGroupNameFromGroup(group),
               fontSize: 10,
               color: Theme.of(context).hintColor,
               overflow: TextOverflow.ellipsis,

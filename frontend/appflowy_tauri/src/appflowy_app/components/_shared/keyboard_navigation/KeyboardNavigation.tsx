@@ -49,6 +49,8 @@ export interface KeyboardNavigationProps<T> {
   onFocus?: () => void;
   onBlur?: () => void;
   itemClassName?: string;
+  itemStyle?: React.CSSProperties;
+  renderNoResult?: () => React.ReactNode;
 }
 
 function KeyboardNavigation<T>({
@@ -67,6 +69,8 @@ function KeyboardNavigation<T>({
   onBlur,
   onFocus,
   itemClassName,
+  itemStyle,
+  renderNoResult,
 }: KeyboardNavigationProps<T>) {
   const { t } = useTranslation();
   const ref = useRef<HTMLDivElement>(null);
@@ -232,6 +236,7 @@ function KeyboardNavigation<T>({
                 }
               }}
               selected={isFocused}
+              style={itemStyle}
               className={`ml-0 flex w-full items-center justify-start rounded-none px-2 py-1 text-xs ${
                 !isFocused ? 'hover:bg-transparent' : ''
               } ${itemClassName ?? ''}`}
@@ -246,7 +251,7 @@ function KeyboardNavigation<T>({
         </div>
       );
     },
-    [itemClassName, focusedKey, onConfirm, onFocus]
+    [itemClassName, focusedKey, onConfirm, onFocus, itemStyle]
   );
 
   useEffect(() => {
@@ -284,14 +289,22 @@ function KeyboardNavigation<T>({
       onBlur={(e) => {
         e.stopPropagation();
 
+        const target = e.relatedTarget as HTMLElement;
+
+        if (target?.closest('.keyboard-navigation')) {
+          return;
+        }
+
         onBlur?.();
       }}
       autoFocus={!disableFocus}
-      className={'flex w-full flex-col gap-1 outline-none'}
+      className={'keyboard-navigation flex w-full flex-col gap-1 outline-none'}
       ref={ref}
     >
       {options.length > 0 ? (
         options.map(renderOption)
+      ) : renderNoResult ? (
+        renderNoResult()
       ) : (
         <Typography variant='body1' className={'p-3 text-xs text-text-caption'}>
           {t('findAndReplace.noResult')}

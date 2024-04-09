@@ -180,9 +180,7 @@
     "dragRow": "Pressione e segure para reordenar a linha",
     "viewDataBase": "Visualizar banco de dados",
     "referencePage": "Esta {name} é uma referência",
-    "addBlockBelow": "Adicione um bloco abaixo",
-    "urlLaunchAccessory": "Abrir com o navegador",
-    "urlCopyAccessory": "Copiar URL"
+    "addBlockBelow": "Adicione um bloco abaixo"
   },
   "sideBar": {
     "closeSidebar": "Fechar barra lateral",
@@ -436,7 +434,17 @@
       "shortcutIsAlreadyUsed": "Este atalho já é usado para: {conflict}",
       "resetToDefault": "Redefinir para atalhos de teclado padrão",
       "couldNotLoadErrorMsg": "Não foi possível carregar os atalhos. Tente novamente",
-      "couldNotSaveErrorMsg": "Não foi possível salvar os atalhos. Tente novamente"
+      "couldNotSaveErrorMsg": "Não foi possível salvar os atalhos. Tente novamente",
+      "commands": {
+        "codeBlockNewParagraph": "Bloco de código: insirir um novo parágrafo",
+        "codeBlockAddTwoSpaces": "Bloco de código: insirir dois espaços no início da linha",
+        "codeBlockDeleteTwoSpaces": "Bloco de código: excluir dois espaços no início da linha",
+        "codeBlockSelectAll": "Bloco de código: selecionar tudo",
+        "codeBlockPasteText": "Bloco de códito: Colar texto",
+        "textAlignLeft": "Alinhar texto à esquerda",
+        "textAlignCenter": "Alinhar texto ao centro",
+        "textAlignRight": "Alinhar texto à direita"
+      }
     },
     "mobile": {
       "personalInfo": "Informações pessoais",
@@ -513,13 +521,9 @@
       "isComplete": "está completo",
       "isIncomplted": "está imcompleto"
     },
-    "singleSelectOptionFilter": {
+    "selectOptionFilter": {
       "is": "Está",
       "isNot": "Não está",
-      "isEmpty": "Está vazio",
-      "isNotEmpty": "Não está vazio"
-    },
-    "multiSelectOptionFilter": {
       "contains": "Contém",
       "doesNotContain": "Não contém",
       "isEmpty": "Está vazio",
@@ -648,6 +652,10 @@
       "hideComplete": "Ocultar tarefas concluídas",
       "showComplete": "Mostrar todas as tarefas"
     },
+    "url": {
+      "launch": "Abrir com o navegador",
+      "copy": "Copiar URL"
+    },
     "menuName": "Grade",
     "referencedGridPrefix": "Vista de"
   },
@@ -679,9 +687,9 @@
       "codeBlock": "Bloco de código"
     },
     "plugins": {
-      "referencedBoard": "Quadro vinculado",
-      "referencedGrid": "Grade vinculado",
-      "referencedCalendar": "calendário referenciado",
+      "referencedBoard": "Quadro referenciado",
+      "referencedGrid": "Grade referenciada",
+      "referencedCalendar": "Calendário referenciado",
       "referencedDocument": "Referenciar um documento",
       "autoGeneratorMenuItemName": "Gerar nome automaticamente",
       "autoGeneratorTitleName": "Gerar por IA",
@@ -709,6 +717,8 @@
       "bulletedList": "Lista com marcadores",
       "todoList": "Lista de afazeres",
       "callout": "Destacar",
+      "insertDate": "Inserir data",
+      "emoji": "Emoji",
       "cover": {
         "changeCover": "Mudar capa",
         "colors": "cores",

@@ -37,24 +37,25 @@ class FavoriteListener {
     FolderNotification ty,
     FlowyResult<Uint8List, FlowyError> result,
   ) {
-    if (_favoriteUpdated == null) {
-      return;
-    }
-
-    final isFavorite = ty == FolderNotification.DidFavoriteView;
-    result.fold(
-      (payload) {
-        final view = RepeatedViewPB.fromBuffer(payload);
-        _favoriteUpdated!(
-          FlowyResult.success(view),
-          isFavorite,
+    switch (ty) {
+      case FolderNotification.DidFavoriteView:
+        result.onSuccess(
+          (success) => _favoriteUpdated?.call(
+            FlowyResult.success(RepeatedViewPB.fromBuffer(success)),
+            true,
+          ),
         );
-      },
-      (error) => _favoriteUpdated!(
-        FlowyResult.failure(error),
-        isFavorite,
-      ),
-    );
+      case FolderNotification.DidUnfavoriteView:
+        result.map(
+          (success) => _favoriteUpdated?.call(
+            FlowyResult.success(RepeatedViewPB.fromBuffer(success)),
+            false,
+          ),
+        );
+        break;
+      default:
+        break;
+    }
   }
 
   Future<void> stop() async {

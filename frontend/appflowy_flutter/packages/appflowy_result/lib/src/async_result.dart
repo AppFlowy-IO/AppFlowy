@@ -8,6 +8,10 @@ extension FlowyAsyncResultExtension<S, F extends Object>
     return then((result) => result.getOrElse(onFailure));
   }
 
+  Future<S?> toNullable() {
+    return then((result) => result.toNullable());
+  }
+
   Future<S> getOrThrow() {
     return then((result) => result.getOrThrow());
   }
@@ -20,11 +24,11 @@ extension FlowyAsyncResultExtension<S, F extends Object>
   }
 
   Future<bool> isError() {
-    return then((result) => result.isFailure());
+    return then((result) => result.isFailure);
   }
 
   Future<bool> isSuccess() {
-    return then((result) => result.isSuccess());
+    return then((result) => result.isSuccess);
   }
 
   FlowyAsyncResult<S, F> onFailure(void Function(F failure) onFailure) {

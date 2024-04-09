@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class Loading {
   Loading(this.context);
 
-  late BuildContext loadingContext;
+  BuildContext? loadingContext;
   final BuildContext context;
 
   Future<void> start() async => showDialog<void>(
@@ -24,7 +24,12 @@ class Loading {
         },
       );
 
-  Future<void> stop() async => Navigator.of(loadingContext).pop();
+  Future<void> stop() async {
+    if (loadingContext != null) {
+      Navigator.of(loadingContext!).pop();
+      loadingContext = null;
+    }
+  }
 }
 
 class BarrierDialog {

@@ -9,4 +9,4 @@ function RecordDocument({ documentId }: Props) {
   return <Editor disableFocus={true} id={documentId} showTitle={false} />;
 }
 
-export default React.memo(RecordDocument);
+export default RecordDocument;

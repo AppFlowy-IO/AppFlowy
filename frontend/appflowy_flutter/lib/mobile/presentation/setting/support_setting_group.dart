@@ -7,6 +7,7 @@ import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
 import 'package:appflowy/shared/appflowy_cache_manager.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/share_log_files.dart';
+import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -71,9 +72,14 @@ class SupportSettingGroup extends StatelessWidget {
                   maxLines: 4,
                 ),
                 actionButtonTitle: LocaleKeys.button_yes.tr(),
-                actionButtonColor: Theme.of(context).colorScheme.error,
                 onActionButtonPressed: () async {
                   await getIt<FlowyCacheManager>().clearAllCache();
+                  if (context.mounted) {
+                    showSnackBarMessage(
+                      context,
+                      LocaleKeys.settings_files_clearCacheSuccess.tr(),
+                    );
+                  }
                 },
               );
             },

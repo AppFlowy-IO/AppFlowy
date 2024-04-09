@@ -11,13 +11,13 @@ use crate::manager::FolderManager;
 pub fn init(folder: Weak<FolderManager>) -> AFPlugin {
   AFPlugin::new().name("Flowy-Folder").state(folder)
     // Workspace
-    .event(FolderEvent::CreateWorkspace, create_workspace_handler)
+    .event(FolderEvent::CreateFolderWorkspace, create_workspace_handler)
     .event(FolderEvent::GetCurrentWorkspaceSetting, read_current_workspace_setting_handler)
     .event(FolderEvent::ReadCurrentWorkspace, read_current_workspace_handler)
     .event(FolderEvent::ReadWorkspaceViews, get_workspace_views_handler)
     .event(FolderEvent::CreateView, create_view_handler)
     .event(FolderEvent::CreateOrphanView, create_orphan_view_handler)
-    .event(FolderEvent::GetView, read_view_handler)
+    .event(FolderEvent::GetView, get_view_handler)
     .event(FolderEvent::UpdateView, update_view_handler)
     .event(FolderEvent::DeleteView, delete_view_handler)
     .event(FolderEvent::DuplicateView, duplicate_view_handler)
@@ -29,7 +29,7 @@ pub fn init(folder: Weak<FolderManager>) -> AFPlugin {
     .event(FolderEvent::RestoreTrashItem, putback_trash_handler)
     .event(FolderEvent::PermanentlyDeleteTrashItem, delete_trash_handler)
     .event(FolderEvent::RecoverAllTrashItems, restore_all_trash_handler)
-    .event(FolderEvent::PermanentlyDeleteAllTrashItem, delete_all_trash_handler)
+    .event(FolderEvent::PermanentlyDeleteAllTrashItem, delete_my_trash_handler)
     .event(FolderEvent::ImportData, import_data_handler)
     .event(FolderEvent::GetFolderSnapshots, get_folder_snapshots_handler)
     .event(FolderEvent::UpdateViewIcon, update_view_icon_handler)
@@ -38,6 +38,10 @@ pub fn init(folder: Weak<FolderManager>) -> AFPlugin {
     .event(FolderEvent::ToggleFavorite, toggle_favorites_handler)
     .event(FolderEvent::UpdateRecentViews, update_recent_views_handler)
     .event(FolderEvent::ReloadWorkspace, reload_workspace_handler)
+    .event(FolderEvent::ReadPrivateViews, read_private_views_handler)
+    .event(FolderEvent::ReadCurrentWorkspaceViews, get_current_workspace_views_handler)
+    .event(FolderEvent::UpdateViewVisibilityStatus, update_view_visibility_status_handler)
+    .event(FolderEvent::GetViewAncestors, get_view_ancestors_handler)
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
@@ -45,7 +49,7 @@ pub fn init(folder: Weak<FolderManager>) -> AFPlugin {
 pub enum FolderEvent {
   /// Create a new workspace
   #[event(input = "CreateWorkspacePayloadPB", output = "WorkspacePB")]
-  CreateWorkspace = 0,
+  CreateFolderWorkspace = 0,
 
   /// Read the current opening workspace. Currently, we only support one workspace
   #[event(output = "WorkspaceSettingPB")]
@@ -59,9 +63,9 @@ pub enum FolderEvent {
   #[event(input = "WorkspaceIdPB")]
   DeleteWorkspace = 3,
 
-  /// Return a list of views of the current workspace.
+  /// Return a list of views of the specified workspace.
   /// Only the first level of child views are included.
-  #[event(input = "WorkspaceIdPB", output = "RepeatedViewPB")]
+  #[event(input = "GetWorkspaceViewPB", output = "RepeatedViewPB")]
   ReadWorkspaceViews = 5,
 
   /// Create a new view in the corresponding app
@@ -124,7 +128,7 @@ pub enum FolderEvent {
   #[event()]
   PermanentlyDeleteAllTrashItem = 27,
 
-  #[event(input = "ImportPB")]
+  #[event(input = "ImportPB", output = "ViewPB")]
   ImportData = 30,
 
   #[event(input = "WorkspaceIdPB", output = "RepeatedFolderSnapshotPB")]
@@ -156,4 +160,19 @@ pub enum FolderEvent {
 
   #[event()]
   ReloadWorkspace = 38,
+
+  #[event(input = "GetWorkspaceViewPB", output = "RepeatedViewPB")]
+  ReadPrivateViews = 39,
+
+  /// Return a list of views of the current workspace.
+  /// Only the first level of child views are included.
+  #[event(output = "RepeatedViewPB")]
+  ReadCurrentWorkspaceViews = 40,
+
+  #[event(input = "UpdateViewVisibilityStatusPayloadPB")]
+  UpdateViewVisibilityStatus = 41,
+
+  /// Return the ancestors of the view
+  #[event(input = "ViewIdPB", output = "RepeatedViewPB")]
+  GetViewAncestors = 42,
 }

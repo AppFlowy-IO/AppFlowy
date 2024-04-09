@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -10,7 +11,19 @@ part 'folder_bloc.freezed.dart';
 
 enum FolderCategoryType {
   favorite,
-  personal,
+  private,
+  public;
+
+  ViewSectionPB get toViewSectionPB {
+    switch (this) {
+      case FolderCategoryType.private:
+        return ViewSectionPB.Private;
+      case FolderCategoryType.public:
+        return ViewSectionPB.Public;
+      case FolderCategoryType.favorite:
+        throw UnimplementedError();
+    }
+  }
 }
 
 class FolderBloc extends Bloc<FolderEvent, FolderState> {

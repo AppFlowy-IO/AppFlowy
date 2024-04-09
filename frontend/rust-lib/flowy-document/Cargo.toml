@@ -35,8 +35,8 @@ indexmap = {version = "2.1.0", features = ["serde"]}
 uuid.workspace = true
 futures.workspace = true
 tokio-stream = { workspace = true, features = ["sync"] }
+dashmap = "5"
 scraper = "0.18.0"
-lru.workspace = true
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 getrandom = { version = "0.2", features = ["js"]}
@@ -56,3 +56,5 @@ web_ts = [
     "flowy-codegen/ts",
 ]
 
+# search "Enable/Disable AppFlowy Verbose Log" to find the place that can enable verbose log
+verbose_log = ["collab-document/verbose_log"]

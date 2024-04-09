@@ -14,14 +14,13 @@ export const Text = memo(
       <span
         ref={ref}
         {...attributes}
-        className={`text-element relative my-1 flex w-full px-1 ${isEmpty ? 'select-none' : ''} ${className ?? ''} ${
+        className={`text-element relative my-1 flex w-full whitespace-pre-wrap break-words px-1 ${className ?? ''} ${
           hasStartIcon ? 'has-start-icon' : ''
         }`}
       >
         {renderIcon()}
         <Placeholder isEmpty={isEmpty} node={node} />
-
-        <span className={`text-content ${isEmpty ? 'empty-content' : ''}`}>{children}</span>
+        <span className={`text-content ${isEmpty ? 'empty-text' : ''}`}>{children}</span>
       </span>
     );
   })

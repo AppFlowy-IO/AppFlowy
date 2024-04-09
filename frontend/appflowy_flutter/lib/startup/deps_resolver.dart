@@ -134,7 +134,8 @@ void _resolveCommonService(
   getIt.registerFactory<FlowyCacheManager>(
     () => FlowyCacheManager()
       ..registerCache(TemporaryDirectoryCache())
-      ..registerCache(CustomImageCacheManager()),
+      ..registerCache(CustomImageCacheManager())
+      ..registerCache(FeatureFlagCache()),
   );
 }
 
@@ -188,8 +189,8 @@ void _resolveHomeDeps(GetIt getIt) {
   );
 
   // share
-  getIt.registerFactoryParam<DocShareBloc, ViewPB, void>(
-    (view, _) => DocShareBloc(view: view),
+  getIt.registerFactoryParam<DocumentShareBloc, ViewPB, void>(
+    (view, _) => DocumentShareBloc(view: view),
   );
 
   getIt.registerSingleton<NotificationActionBloc>(NotificationActionBloc());

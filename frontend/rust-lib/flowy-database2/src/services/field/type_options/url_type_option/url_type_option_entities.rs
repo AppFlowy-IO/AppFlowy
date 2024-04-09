@@ -71,7 +71,7 @@ impl From<URLCellDataPB> for URLCellData {
 
 impl AsRef<str> for URLCellData {
   fn as_ref(&self) -> &str {
-    &self.url
+    &self.data
   }
 }
 

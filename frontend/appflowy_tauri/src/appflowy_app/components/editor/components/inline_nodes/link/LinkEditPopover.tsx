@@ -40,7 +40,7 @@ export function LinkEditPopover({
     initialAnchorOrigin,
     initialTransformOrigin,
     initialPaperWidth: 340,
-    initialPaperHeight: 180,
+    initialPaperHeight: 200,
   });
 
   return (
@@ -60,7 +60,7 @@ export function LinkEditPopover({
         style={{
           maxHeight: paperHeight,
         }}
-        className='flex flex-col p-4'
+        className='flex select-none flex-col p-4'
       >
         <LinkEditContent defaultHref={defaultHref} onClose={onClose} />
       </div>

@@ -5,8 +5,8 @@ use std::pin::Pin;
 use std::sync::{Arc, Weak};
 use std::time::Duration;
 
-use anyhow::{anyhow, Error};
-use collab::core::collab::{CollabDocState, MutexCollab};
+use anyhow::Error;
+use collab::core::collab::MutexCollab;
 use collab::core::origin::CollabOrigin;
 use collab_entity::{CollabObject, CollabType};
 use parking_lot::RwLock;
@@ -16,7 +16,7 @@ use tokio_retry::strategy::FixedInterval;
 use tokio_retry::{Action, RetryIf};
 use uuid::Uuid;
 
-use flowy_error::FlowyError;
+use flowy_error::{internal_error, FlowyError};
 use flowy_folder_pub::cloud::{Folder, FolderData, Workspace};
 use flowy_user_pub::cloud::*;
 use flowy_user_pub::entities::*;
@@ -248,22 +248,31 @@ where
       Ok(user_workspaces)
     })
   }
-  fn get_user_awareness_doc_state(&self, uid: i64) -> FutureResult<CollabDocState, Error> {
+
+  fn get_user_awareness_doc_state(
+    &self,
+    _uid: i64,
+    _workspace_id: &str,
+    object_id: &str,
+  ) -> FutureResult<Vec<u8>, FlowyError> {
     let try_get_postgrest = self.server.try_get_weak_postgrest();
-    let awareness_id = uid.to_string();
     let (tx, rx) = channel();
+    let object_id = object_id.to_string();
     af_spawn(async move {
       tx.send(
         async move {
           let postgrest = try_get_postgrest?;
           let action =
-            FetchObjectUpdateAction::new(awareness_id, CollabType::UserAwareness, postgrest);
+            FetchObjectUpdateAction::new(object_id, CollabType::UserAwareness, postgrest);
           action.run_with_fix_interval(3, 3).await
         }
         .await,
       )
     });
-    FutureResult::new(async { rx.await? })
+    FutureResult::new(async {
+      let doc_state = rx.await.map_err(internal_error)?;
+      doc_state.map_err(internal_error)
+    })
   }
 
   fn receive_realtime_event(&self, json: Value) {
@@ -286,7 +295,7 @@ where
     self.user_update_rx.write().take()
   }
 
-  fn reset_workspace(&self, collab_object: CollabObject) -> FutureResult<(), Error> {
+  fn reset_workspace(&self, collab_object: CollabObject) -> FutureResult<(), FlowyError> {
     let try_get_postgrest = self.server.try_get_weak_postgrest();
     let (tx, rx) = channel();
     let init_update = default_workspace_doc_state(&collab_object);
@@ -324,7 +333,6 @@ where
     &self,
     collab_object: &CollabObject,
     data: Vec<u8>,
-    _override_if_exist: bool,
   ) -> FutureResult<(), FlowyError> {
     let try_get_postgrest = self.server.try_get_weak_postgrest();
     let cloned_collab_object = collab_object.clone();
@@ -347,11 +355,12 @@ where
     &self,
     _workspace_id: &str,
     _objects: Vec<UserCollabParams>,
-  ) -> FutureResult<(), Error> {
+  ) -> FutureResult<(), FlowyError> {
     FutureResult::new(async {
-      Err(anyhow!(
-        "supabase server doesn't support batch create collab"
-      ))
+      Err(
+        FlowyError::local_version_not_support()
+          .with_context("supabase server doesn't support batch create collab"),
+      )
     })
   }
 
@@ -669,10 +678,11 @@ fn default_workspace_doc_state(collab_object: &CollabObject) -> Vec<u8> {
     CollabOrigin::Empty,
     &collab_object.object_id,
     vec![],
+    false,
   ));
   let workspace = Workspace::new(workspace_id, "My workspace".to_string(), collab_object.uid);
   let folder = Folder::create(collab_object.uid, collab, None, FolderData::new(workspace));
-  folder.encode_collab_v1().doc_state.to_vec()
+  folder.encode_collab_v1().unwrap().doc_state.to_vec()
 }
 
 fn oauth_params_from_box_any(any: BoxAny) -> Result<SupabaseOAuthParams, Error> {

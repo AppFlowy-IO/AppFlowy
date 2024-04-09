@@ -78,7 +78,8 @@ class Popover extends StatefulWidget {
   /// The direction of the popover
   final PopoverDirection direction;
 
-  final void Function()? onClose;
+  final VoidCallback? onOpen;
+  final VoidCallback? onClose;
   final Future<bool> Function()? canClose;
 
   final bool asBarrier;
@@ -89,6 +90,8 @@ class Popover extends StatefulWidget {
   /// Because if the parent widget of the popover is GestureDetector,
   ///  the conflict won't be resolve by using Listener, we want these two gestures exclusive.
   final PopoverClickHandler clickHandler;
+
+  final bool skipTraversal;
 
   /// The content area of the popover.
   final Widget child;
@@ -106,10 +109,12 @@ class Popover extends StatefulWidget {
     this.direction = PopoverDirection.rightWithTopAligned,
     this.mutex,
     this.windowPadding,
+    this.onOpen,
     this.onClose,
     this.canClose,
     this.asBarrier = false,
     this.clickHandler = PopoverClickHandler.listener,
+    this.skipTraversal = false,
   });
 
   @override
@@ -158,6 +163,7 @@ class PopoverState extends State<Popover> {
           popupBuilder: widget.popupBuilder,
           onClose: () => close(),
           onCloseAll: () => _removeRootOverlay(),
+          skipTraversal: widget.skipTraversal,
         ),
       );
 
@@ -223,6 +229,7 @@ class PopoverState extends State<Popover> {
       child: _buildClickHandler(
         widget.child,
         () {
+          widget.onOpen?.call();
           if (widget.triggerActions & PopoverTriggerFlags.click != 0) {
             showOverlay();
           }
@@ -263,6 +270,7 @@ class PopoverContainer extends StatefulWidget {
   final EdgeInsets windowPadding;
   final void Function() onClose;
   final void Function() onCloseAll;
+  final bool skipTraversal;
 
   const PopoverContainer({
     super.key,
@@ -273,6 +281,7 @@ class PopoverContainer extends StatefulWidget {
     required this.windowPadding,
     required this.onClose,
     required this.onCloseAll,
+    required this.skipTraversal,
   });
 
   @override
@@ -293,6 +302,7 @@ class PopoverContainerState extends State<PopoverContainer> {
   Widget build(BuildContext context) {
     return Focus(
       autofocus: true,
+      skipTraversal: widget.skipTraversal,
       child: CustomSingleChildLayout(
         delegate: PopoverLayoutDelegate(
           direction: widget.direction,

@@ -2,7 +2,7 @@ use crate::authenticate_user::AuthenticateUser;
 use crate::define::{user_profile_key, user_workspace_key, AF_USER_SESSION_KEY};
 use af_persistence::store::{AppFlowyWASMStore, IndexddbStore};
 use anyhow::Context;
-use collab::core::collab::CollabDocState;
+use collab::core::collab::DocStateSource;
 use collab_entity::CollabType;
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
 use collab_integrate::{CollabKVDB, MutexCollab};
@@ -10,7 +10,7 @@ use collab_user::core::{MutexUserAwareness, UserAwareness};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_user_pub::cloud::{UserCloudConfig, UserCloudServiceProvider};
 use flowy_user_pub::entities::{
-  awareness_oid_from_user_uuid, AuthResponse, Authenticator, UserAuthResponse, UserProfile,
+  user_awareness_object_id, AuthResponse, Authenticator, UserAuthResponse, UserProfile,
   UserWorkspace,
 };
 use flowy_user_pub::session::Session;
@@ -86,10 +86,6 @@ impl UserManager {
       .save_auth_data(&response, &new_user_profile, &new_session)
       .await?;
 
-    if let Err(err) = self.initialize_user_awareness(&new_session).await {
-      error!("Failed to initialize user awareness: {:?}", err);
-    }
-
     for callback in self.user_callbacks.iter() {
       if let Err(e) = callback
         .did_sign_up(
@@ -131,20 +127,6 @@ impl UserManager {
   fn prepare_collab(&self, session: &Session) {
     let collab_builder = self.collab_builder.upgrade().unwrap();
     collab_builder.initialize(session.user_workspace.id.clone());
-  }
-
-  async fn initialize_user_awareness(&self, new_session: &Session) -> FlowyResult<()> {
-    let data = self
-      .cloud_services
-      .get_user_service()?
-      .get_user_awareness_doc_state(new_session.user_id)
-      .await?;
-    trace!("Get user awareness collab: {}", data.len());
-    let collab = self
-      .collab_for_user_awareness(new_session, Arc::downgrade(&self.collab_db), data)
-      .await?;
-    MutexUserAwareness::new(UserAwareness::create(collab, None));
-    Ok(())
   }
 
   #[instrument(level = "info", skip_all, err)]
@@ -198,21 +180,21 @@ impl UserManager {
 
   async fn collab_for_user_awareness(
     &self,
-    session: &Session,
+    uid: i64,
+    object_id: &str,
     collab_db: Weak<CollabKVDB>,
-    raw_data: CollabDocState,
+    raw_data: Vec<u8>,
   ) -> Result<Arc<MutexCollab>, FlowyError> {
     let collab_builder = self.collab_builder.upgrade().ok_or(FlowyError::new(
       ErrorCode::Internal,
       "Unexpected error: collab builder is not available",
     ))?;
-    let user_awareness_id = awareness_oid_from_user_uuid(&session.user_uuid);
     let collab = collab_builder
       .build(
-        session.user_id,
-        &user_awareness_id.to_string(),
+        uid,
+        object_id,
         CollabType::UserAwareness,
-        raw_data,
+        DocStateSource::FromDocState(raw_data),
         collab_db,
         CollabBuilderConfig::default().sync_enable(true),
       )

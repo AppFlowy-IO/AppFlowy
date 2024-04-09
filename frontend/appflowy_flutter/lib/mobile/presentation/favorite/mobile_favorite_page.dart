@@ -4,11 +4,13 @@ import 'package:appflowy/mobile/presentation/favorite/mobile_favorite_folder.dar
 import 'package:appflowy/mobile/presentation/home/mobile_home_page_header.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
+import 'package:appflowy/workspace/application/user/prelude.dart';
 import 'package:appflowy/workspace/presentation/home/errors/workspace_failed_screen.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class MobileFavoriteScreen extends StatelessWidget {
   const MobileFavoriteScreen({
@@ -50,9 +52,23 @@ class MobileFavoriteScreen extends StatelessWidget {
 
         return Scaffold(
           body: SafeArea(
-            child: MobileFavoritePage(
-              userProfile: userProfile,
-              workspaceSetting: workspaceSetting,
+            child: BlocProvider(
+              create: (_) => UserWorkspaceBloc(userProfile: userProfile)
+                ..add(
+                  const UserWorkspaceEvent.initial(),
+                ),
+              child: BlocBuilder<UserWorkspaceBloc, UserWorkspaceState>(
+                buildWhen: (previous, current) =>
+                    previous.currentWorkspace?.workspaceId !=
+                    current.currentWorkspace?.workspaceId,
+                builder: (context, state) {
+                  return MobileFavoritePage(
+                    userProfile: userProfile,
+                    workspaceId: state.currentWorkspace?.workspaceId ??
+                        workspaceSetting.workspaceId,
+                  );
+                },
+              ),
             ),
           ),
         );
@@ -65,11 +81,11 @@ class MobileFavoritePage extends StatelessWidget {
   const MobileFavoritePage({
     super.key,
     required this.userProfile,
-    required this.workspaceSetting,
+    required this.workspaceId,
   });
 
   final UserProfilePB userProfile;
-  final WorkspaceSettingPB workspaceSetting;
+  final String workspaceId;
 
   @override
   Widget build(BuildContext context) {
@@ -92,7 +108,7 @@ class MobileFavoritePage extends StatelessWidget {
         Expanded(
           child: MobileFavoritePageFolder(
             userProfile: userProfile,
-            workspaceSetting: workspaceSetting,
+            workspaceId: workspaceId,
           ),
         ),
       ],

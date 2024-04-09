@@ -18,7 +18,7 @@ function DatabaseSettings(props: Props) {
     <div className='flex h-[39px] items-center gap-2 border-b border-line-divider'>
       <FilterSettings {...props} />
       <SortSettings {...props} />
-      <TextButton color='inherit' onClick={(e) => setSettingAnchorEl(e.currentTarget)}>
+      <TextButton className={'min-w-fit'} color='inherit' onClick={(e) => setSettingAnchorEl(e.currentTarget)}>
         {t('settings.title')}
       </TextButton>
       <SettingsMenu

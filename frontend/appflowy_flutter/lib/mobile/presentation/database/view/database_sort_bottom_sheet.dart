@@ -262,11 +262,9 @@ class _SortItem extends StatelessWidget {
                 children: [
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                    child: Expanded(
-                      child: FlowyText.medium(
-                        LocaleKeys.grid_sort_by.tr(),
-                        fontSize: 15,
-                      ),
+                    child: FlowyText.medium(
+                      LocaleKeys.grid_sort_by.tr(),
+                      fontSize: 15,
                     ),
                   ),
                   const VSpace(10),
@@ -407,6 +405,8 @@ class _SortDetailContent extends StatelessWidget {
 
   final SortInfo? sortInfo;
 
+  bool get isCreatingNewSort => sortInfo == null;
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -417,7 +417,7 @@ class _SortDetailContent extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: DefaultTabController(
             length: 2,
-            initialIndex: sortInfo == null
+            initialIndex: isCreatingNewSort
                 ? 0
                 : sortInfo!.sortPB.condition == SortConditionPB.Ascending
                     ? 0
@@ -489,30 +489,40 @@ class _SortDetailContent extends StatelessWidget {
           child: BlocBuilder<SortEditorBloc, SortEditorState>(
             builder: (context, state) {
               final fields = state.allFields
-                  .where(
-                    (field) =>
-                        field.canCreateSort ||
-                        sortInfo != null && sortInfo!.fieldId == field.id,
-                  )
+                  .where((field) => field.canCreateSort || field.hasSort)
                   .toList();
               return ListView.builder(
                 itemCount: fields.length,
                 itemBuilder: (context, index) {
                   final fieldInfo = fields[index];
-                  final isSelected = sortInfo == null
+                  final isSelected = isCreatingNewSort
                       ? context
                               .watch<MobileSortEditorCubit>()
                               .state
                               .newSortFieldId ==
                           fieldInfo.id
                       : sortInfo!.fieldId == fieldInfo.id;
+
+                  final enabled = fieldInfo.canCreateSort ||
+                      isCreatingNewSort && !fieldInfo.hasSort ||
+                      !isCreatingNewSort && sortInfo!.fieldId == fieldInfo.id;
+
                   return FlowyOptionTile.checkbox(
                     text: fieldInfo.field.name,
                     isSelected: isSelected,
+                    textColor: enabled ? null : Theme.of(context).disabledColor,
                     showTopBorder: false,
                     onTap: () {
-                      if (!isSelected) {
+                      if (isSelected) {
+                        return;
+                      }
+                      if (enabled) {
                         _changeFieldId(context, fieldInfo.id);
+                      } else {
+                        Fluttertoast.showToast(
+                          msg: LocaleKeys.grid_sort_fieldInUse.tr(),
+                          gravity: ToastGravity.BOTTOM,
+                        );
                       }
                     },
                   );
@@ -526,7 +536,7 @@ class _SortDetailContent extends StatelessWidget {
   }
 
   void _changeCondition(BuildContext context, SortConditionPB newCondition) {
-    if (sortInfo == null) {
+    if (isCreatingNewSort) {
       context.read<MobileSortEditorCubit>().changeSortCondition(newCondition);
     } else {
       context.read<SortEditorBloc>().add(
@@ -539,7 +549,7 @@ class _SortDetailContent extends StatelessWidget {
   }
 
   void _changeFieldId(BuildContext context, String newFieldId) {
-    if (sortInfo == null) {
+    if (isCreatingNewSort) {
       context.read<MobileSortEditorCubit>().changeFieldId(newFieldId);
     } else {
       context.read<SortEditorBloc>().add(

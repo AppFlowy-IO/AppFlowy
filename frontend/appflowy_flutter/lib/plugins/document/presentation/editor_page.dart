@@ -1,7 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
-import 'package:appflowy/plugins/document/application/doc_bloc.dart';
+import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_configuration.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/align_toolbar_item/custom_text_align_command.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/background_color/theme_background_color.dart';
@@ -23,6 +20,8 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 final List<CommandShortcutEvent> commandShortcutEvents = [
@@ -198,6 +197,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
 
     _initEditorL10n();
     _initializeShortcuts();
+    appFlowyEditorAutoScrollEdgeOffset = 220;
     indentableBlockTypes.add(ToggleListBlockKeys.type);
     convertibleBlockTypes.add(ToggleListBlockKeys.type);
     slashMenuItems = _customSlashMenuItems();
@@ -297,19 +297,12 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
 
     if (PlatformExtension.isMobile) {
       return AppFlowyMobileToolbar(
-        toolbarHeight: 46.0,
+        toolbarHeight: 42.0,
         editorState: editorState,
-        toolbarItems: [
-          undoToolbarItem,
-          redoToolbarItem,
-          addBlockToolbarItem,
-          todoListToolbarItem,
-          aaToolbarItem,
-          boldToolbarItem,
-          italicToolbarItem,
-          underlineToolbarItem,
-          colorToolbarItem,
-        ],
+        toolbarItemsBuilder: (selection) => buildMobileToolbarItems(
+          editorState,
+          selection,
+        ),
         child: Column(
           children: [
             Expanded(
@@ -317,19 +310,12 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
                 editorState: editorState,
                 editorScrollController: editorScrollController,
                 toolbarBuilder: (context, anchor, closeToolbar) {
-                  return AdaptiveTextSelectionToolbar.editable(
-                    clipboardStatus: ClipboardStatus.pasteable,
-                    onCopy: () {
-                      customCopyCommand.execute(editorState);
-                      closeToolbar();
-                    },
-                    onCut: () => customCutCommand.execute(editorState),
-                    onPaste: () => customPasteCommand.execute(editorState),
-                    onSelectAll: () => selectAllCommand.execute(editorState),
-                    onLiveTextInput: null,
-                    onLookUp: null,
-                    onSearchWeb: null,
-                    onShare: null,
+                  return AdaptiveTextSelectionToolbar.buttonItems(
+                    buttonItems: buildMobileFloatingToolbarItems(
+                      editorState,
+                      anchor,
+                      closeToolbar,
+                    ),
                     anchors: TextSelectionToolbarAnchors(
                       primaryAnchor: anchor,
                     ),
