@@ -1,3 +1,4 @@
+import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -186,9 +187,12 @@ class _GridPageState extends State<GridPage> {
 
       FlowyOverlay.show(
         context: context,
-        builder: (_) => RowDetailPage(
-          databaseController: context.read<GridBloc>().databaseController,
-          rowController: rowController,
+        builder: (_) => BlocProvider.value(
+          value: context.read<ViewBloc>(),
+          child: RowDetailPage(
+            databaseController: context.read<GridBloc>().databaseController,
+            rowController: rowController,
+          ),
         ),
       );
     });
@@ -415,12 +419,15 @@ class _GridRowsState extends State<_GridRows> {
       isDraggable: isDraggable,
       rowController: rowController,
       cellBuilder: EditableCellBuilder(databaseController: databaseController),
-      openDetailPage: (context, cellBuilder) {
+      openDetailPage: (rowDetailContext) {
         FlowyOverlay.show(
-          context: context,
-          builder: (_) => RowDetailPage(
-            rowController: rowController,
-            databaseController: databaseController,
+          context: rowDetailContext,
+          builder: (_) => BlocProvider.value(
+            value: context.read<ViewBloc>(),
+            child: RowDetailPage(
+              rowController: rowController,
+              databaseController: databaseController,
+            ),
           ),
         );
       },

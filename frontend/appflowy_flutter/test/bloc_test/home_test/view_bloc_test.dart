@@ -192,7 +192,7 @@ void main() {
     workspaceSetting.latestView.id == viewBloc.state.lastCreatedView!.id;
 
     // ignore: unused_local_variable
-    final documentBloc = DocumentBloc(view: document)
+    final documentBloc = DocumentBloc(documentId: document.id)
       ..add(
         const DocumentEvent.initial(),
       );

@@ -4,11 +4,17 @@ import 'package:appflowy/plugins/database/application/cell/cell_controller.dart'
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/row/row_banner_bloc.dart';
 import 'package:appflowy/plugins/database/application/row/row_controller.dart';
+import 'package:appflowy/plugins/database/domain/database_view_service.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_builder.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/text.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
 import 'package:appflowy/plugins/database/application/cell/bloc/text_cell_bloc.dart';
 import 'package:appflowy/plugins/database/widgets/row/row_action.dart';
+import 'package:appflowy/plugins/database_document/database_document_plugin.dart';
+import 'package:appflowy/startup/plugin/plugin.dart';
+import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
+import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/emoji_picker/emoji_picker.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -83,6 +89,40 @@ class _RowBannerState extends State<RowBanner> {
               top: 12,
               right: 12,
               child: RowActionButton(rowController: widget.rowController),
+            ),
+            Positioned(
+              top: 12,
+              left: 12,
+              child: FlowyIconButton(
+                width: 20,
+                height: 20,
+                icon: const FlowySvg(FlowySvgs.full_view_s),
+                onPressed: () async {
+                  Navigator.of(context).pop();
+                  final viewBloc = context.read<ViewBloc>();
+                  final databaseId = await DatabaseViewBackendService(
+                    viewId: widget.cellBuilder.databaseController.viewId,
+                  )
+                      .getDatabaseId()
+                      .then((value) => value.fold((s) => s, (f) => null));
+                  final documentId = widget.rowController.rowMeta.documentId;
+                  if (databaseId != null) {
+                    getIt<TabsBloc>().add(
+                      TabsEvent.openPlugin(
+                        plugin: DatabaseDocumentPlugin(
+                          data: DatabaseDocumentContext(
+                            view: viewBloc.state.view,
+                            databaseId: databaseId,
+                            rowId: widget.rowController.rowId,
+                            documentId: documentId,
+                          ),
+                          pluginType: PluginType.databaseDocument,
+                        ),
+                      ),
+                    );
+                  }
+                },
+              ),
             ),
           ],
         ),

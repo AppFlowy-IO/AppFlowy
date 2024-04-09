@@ -8,6 +8,7 @@ import 'package:appflowy/plugins/database/calendar/application/calendar_bloc.dar
 import 'package:appflowy/plugins/database/calendar/application/unschedule_event_bloc.dart';
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database/tab_bar/tab_bar_view.dart';
+import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/calendar_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -353,9 +354,12 @@ void showEventDetails({
   FlowyOverlay.show(
     context: context,
     builder: (BuildContext overlayContext) {
-      return RowDetailPage(
-        rowController: rowController,
-        databaseController: databaseController,
+      return BlocProvider.value(
+        value: context.read<ViewBloc>(),
+        child: RowDetailPage(
+          rowController: rowController,
+          databaseController: databaseController,
+        ),
       );
     },
   );

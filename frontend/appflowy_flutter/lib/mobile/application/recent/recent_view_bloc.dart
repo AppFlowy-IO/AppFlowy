@@ -77,7 +77,7 @@ class RecentViewBloc extends Bloc<RecentViewEvent, RecentViewState> {
   final ViewListener _viewListener;
 
   Future<(CoverType, String?)> getCover() async {
-    final result = await _service.getDocument(viewId: view.id);
+    final result = await _service.getDocument(documentId: view.id);
     final document = result.fold((s) => s.toDocument(), (f) => null);
     if (document != null) {
       final coverType = CoverType.fromString(

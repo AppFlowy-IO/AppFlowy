@@ -69,7 +69,7 @@ class _RowEditorState extends State<RowEditor> {
   @override
   void initState() {
     super.initState();
-    documentBloc = DocumentBloc(view: widget.viewPB)
+    documentBloc = DocumentBloc(documentId: widget.viewPB.id)
       ..add(const DocumentEvent.initial());
   }
 

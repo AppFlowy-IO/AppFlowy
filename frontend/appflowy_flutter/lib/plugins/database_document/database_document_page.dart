@@ -1,75 +1,76 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/database/application/row/related_row_detail_bloc.dart';
+import 'package:appflowy/plugins/database/grid/application/row/row_detail_bloc.dart';
+import 'package:appflowy/plugins/database/grid/presentation/widgets/common/type_option_separator.dart';
+import 'package:appflowy/plugins/database/widgets/cell/editable_cell_builder.dart';
+import 'package:appflowy/plugins/database/widgets/row/row_property.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/banner.dart';
 import 'package:appflowy/plugins/document/presentation/editor_notification.dart';
 import 'package:appflowy/plugins/document/presentation/editor_page.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
 import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
-import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class DocumentPage extends StatefulWidget {
-  const DocumentPage({
+// This widget is largely copied from `plugins/document/document_page.dart` intentionally instead of opting for an abstraction. We can make an abstraction after the view refactor is done and there's more clarity in that department.
+
+class DatabaseDocumentPage extends StatefulWidget {
+  const DatabaseDocumentPage({
     super.key,
     required this.view,
-    required this.onDeleted,
+    required this.databaseId,
+    required this.rowId,
+    required this.documentId,
     this.initialSelection,
   });
 
   final ViewPB view;
-  final VoidCallback onDeleted;
+  final String databaseId;
+  final String rowId;
+  final String documentId;
   final Selection? initialSelection;
 
   @override
-  State<DocumentPage> createState() => _DocumentPageState();
+  State<DatabaseDocumentPage> createState() => _DatabaseDocumentPageState();
 }
 
-class _DocumentPageState extends State<DocumentPage>
-    with WidgetsBindingObserver {
+class _DatabaseDocumentPageState extends State<DatabaseDocumentPage> {
   EditorState? editorState;
-  late final documentBloc = DocumentBloc(documentId: widget.view.id)
-    ..add(const DocumentEvent.initial());
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
     EditorNotification.addListener(_onEditorNotification);
   }
 
   @override
   void dispose() {
     EditorNotification.removeListener(_onEditorNotification);
-    WidgetsBinding.instance.removeObserver(this);
-    documentBloc.close();
     super.dispose();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused ||
-        state == AppLifecycleState.detached) {
-      documentBloc.add(const DocumentEvent.clearAwarenessStates());
-    } else if (state == AppLifecycleState.resumed) {
-      documentBloc.add(const DocumentEvent.syncAwarenessStates());
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider.value(value: getIt<ActionNavigationBloc>()),
-        BlocProvider.value(value: documentBloc),
+        BlocProvider.value(
+          value: getIt<ActionNavigationBloc>(),
+        ),
+        BlocProvider(
+          create: (_) => DocumentBloc(
+            databaseViewId: widget.databaseId,
+            rowId: widget.rowId,
+            documentId: widget.documentId,
+          )..add(const DocumentEvent.initial()),
+        ),
       ],
       child: BlocBuilder<DocumentBloc, DocumentState>(
         builder: (context, state) {
@@ -89,13 +90,12 @@ class _DocumentPageState extends State<DocumentPage>
           }
 
           if (state.forceClose) {
-            widget.onDeleted();
             return const SizedBox.shrink();
           }
 
           return BlocListener<ActionNavigationBloc, ActionNavigationState>(
-            listenWhen: (_, curr) => curr.action != null,
             listener: _onNotificationAction,
+            listenWhen: (_, curr) => curr.action != null,
             child: _buildEditorPage(context, state),
           );
         },
@@ -111,8 +111,9 @@ class _DocumentPageState extends State<DocumentPage>
         // the 44 is the width of the left action list
         padding: EditorStyleCustomizer.documentPadding,
       ),
-      header: _buildCoverAndIcon(context, state.editorState!),
+      header: _buildDatabaseDataContent(context, state.editorState!),
       initialSelection: widget.initialSelection,
+      useViewInfoBloc: false,
     );
 
     return Column(
@@ -127,6 +128,52 @@ class _DocumentPageState extends State<DocumentPage>
     );
   }
 
+  Widget _buildDatabaseDataContent(
+    BuildContext context,
+    EditorState editorState,
+  ) {
+    return BlocProvider(
+      create: (context) => RelatedRowDetailPageBloc(
+        databaseId: widget.databaseId,
+        initialRowId: widget.rowId,
+      ),
+      child: BlocBuilder<RelatedRowDetailPageBloc, RelatedRowDetailPageState>(
+        builder: (context, state) {
+          return state.when(
+            loading: () => const SizedBox.shrink(),
+            ready: (databaseController, rowController) {
+              return BlocProvider(
+                create: (context) => RowDetailBloc(
+                  fieldController: databaseController.fieldController,
+                  rowController: rowController,
+                ),
+                child: Padding(
+                  padding: EdgeInsets.only(
+                    top: 24,
+                    left: EditorStyleCustomizer.documentPadding.left + 16 + 6,
+                    right: EditorStyleCustomizer.documentPadding.right,
+                  ),
+                  child: Column(
+                    children: [
+                      RowPropertyList(
+                        viewId: databaseController.viewId,
+                        fieldController: databaseController.fieldController,
+                        cellBuilder: EditableCellBuilder(
+                          databaseController: databaseController,
+                        ),
+                      ),
+                      const TypeOptionSeparator(spacing: 24.0),
+                    ],
+                  ),
+                ),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+
   Widget _buildBanner(BuildContext context) {
     return DocumentBanner(
       onRestore: () => context.read<DocumentBloc>().add(
@@ -135,21 +182,6 @@ class _DocumentPageState extends State<DocumentPage>
       onDelete: () => context.read<DocumentBloc>().add(
             const DocumentEvent.deletePermanently(),
           ),
-    );
-  }
-
-  Widget _buildCoverAndIcon(BuildContext context, EditorState editorState) {
-    final page = editorState.document.root;
-    return DocumentHeaderNodeWidget(
-      node: page,
-      editorState: editorState,
-      view: widget.view,
-      onIconChanged: (icon) async {
-        await ViewBackendService.updateViewIcon(
-          viewId: widget.view.id,
-          viewIcon: icon,
-        );
-      },
     );
   }
 
@@ -175,7 +207,7 @@ class _DocumentPageState extends State<DocumentPage>
       final path = state.action?.arguments?[ActionArgumentKeys.nodePath];
 
       final editorState = context.read<DocumentBloc>().state.editorState;
-      if (editorState != null && widget.view.id == state.action?.objectId) {
+      if (editorState != null && widget.documentId == state.action?.objectId) {
         editorState.updateSelectionWithReason(
           Selection.collapsed(Position(path: [path])),
         );

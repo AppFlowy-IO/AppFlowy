@@ -27,6 +27,7 @@ import 'package:flutter/material.dart' hide Card;
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../workspace/application/view/view_bloc.dart';
 import '../../widgets/card/card.dart';
 import '../../widgets/cell/card_cell_builder.dart';
 import '../application/board_bloc.dart';
@@ -344,9 +345,12 @@ class _DesktopBoardContentState extends State<DesktopBoardContent> {
 
     FlowyOverlay.show(
       context: context,
-      builder: (_) => RowDetailPage(
-        databaseController: databaseController,
-        rowController: rowController,
+      builder: (_) => BlocProvider.value(
+        value: context.read<ViewBloc>(),
+        child: RowDetailPage(
+          databaseController: databaseController,
+          rowController: rowController,
+        ),
       ),
     );
   }
