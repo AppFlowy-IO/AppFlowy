@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:appflowy/plugins/document/application/doc_awareness_metadata.dart';
+import 'package:appflowy/plugins/document/application/document_awareness_metadata.dart';
 import 'package:appflowy/plugins/document/application/document_data_pb_extension.dart';
 import 'package:appflowy/plugins/document/application/prelude.dart';
 import 'package:appflowy/shared/list_extension.dart';
@@ -68,7 +68,7 @@ class DocumentCollabAdapter {
   /// Sync version 3
   ///
   /// Diff the local document with the remote document and apply the changes
-  Future<void> syncV3(DocEventPB docEvent) async {
+  Future<void> syncV3({DocEventPB? docEvent}) async {
     final result = await _service.getDocument(viewId: docId);
     final document = result.fold((s) => s.toDocument(), (f) => null);
     if (document == null) {
@@ -81,7 +81,8 @@ class DocumentCollabAdapter {
       return;
     }
 
-    prettyPrintJson(ops.map((op) => op.toJson()).toList());
+    // Use for debugging, DO NOT REMOVE
+    // prettyPrintJson(ops.map((op) => op.toJson()).toList());
 
     final transaction = editorState.transaction;
     for (final op in ops) {
@@ -101,6 +102,26 @@ class DocumentCollabAdapter {
     //   }
     //   return true;
     // }());
+  }
+
+  Future<void> forceReload() async {
+    final result = await _service.getDocument(viewId: docId);
+    final document = result.fold((s) => s.toDocument(), (f) => null);
+    if (document == null) {
+      return;
+    }
+
+    final beforeSelection = editorState.selection;
+
+    final clear = editorState.transaction;
+    clear.deleteNodes(editorState.document.root.children);
+    await editorState.apply(clear, isRemote: true);
+
+    final insert = editorState.transaction;
+    insert.insertNodes([0], document.root.children);
+    await editorState.apply(insert, isRemote: true);
+
+    editorState.selection = beforeSelection;
   }
 
   Future<void> _syncUpdated(
