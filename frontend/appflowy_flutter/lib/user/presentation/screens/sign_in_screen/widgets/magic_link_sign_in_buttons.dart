@@ -1,6 +1,8 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/user/application/sign_in_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -30,7 +32,7 @@ class _SignInWithMagicLinkButtonsState
           height: 48.0,
           child: FlowyTextField(
             controller: controller,
-            hintText: 'Please enter your email address',
+            hintText: LocaleKeys.signIn_pleaseInputYourEmail.tr(),
           ),
         ),
         const VSpace(12),
@@ -40,7 +42,10 @@ class _SignInWithMagicLinkButtonsState
               context
                   .read<SignInBloc>()
                   .add(SignInEvent.signedWithMagicLink(controller.text));
-              showSnackBarMessage(context, 'Sent a magic link to your email');
+              showSnackBarMessage(
+                context,
+                LocaleKeys.signIn_magicLinkSent.tr(),
+              );
             }
           },
         ),
@@ -65,7 +70,7 @@ class _ConfirmButton extends StatelessWidget {
         ),
         onPressed: onTap,
         child: FlowyText(
-          'Log in with email',
+          LocaleKeys.signIn_logInWithMagicLink.tr(),
           fontSize: 14,
           color: Theme.of(context).colorScheme.onPrimary,
           fontWeight: FontWeight.w500,
@@ -77,8 +82,8 @@ class _ConfirmButton extends StatelessWidget {
         child: FlowyButton(
           isSelected: true,
           onTap: onTap,
-          text: const FlowyText.medium(
-            'Log in with email',
+          text: FlowyText.medium(
+            LocaleKeys.signIn_logInWithMagicLink.tr(),
             textAlign: TextAlign.center,
           ),
           radius: Corners.s6Border,

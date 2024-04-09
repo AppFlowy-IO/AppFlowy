@@ -51,6 +51,8 @@
     "LogInWithDiscord": "Log in with Discord",
     "signInWith": "Sign in with:",
     "signInWithEmail": "Sign in with Email",
+    "logInWithMagicLink": "Log in with Magic Link",
+    "pleaseInputYourEmail": "Please enter your email address",
     "magicLinkSent": "Magic link sent to your email, please check your inbox"
   },
   "workspace": {
