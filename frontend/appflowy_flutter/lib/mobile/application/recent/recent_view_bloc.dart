@@ -1,6 +1,6 @@
-import 'package:appflowy/plugins/document/application/doc_listener.dart';
-import 'package:appflowy/plugins/document/application/doc_service.dart';
 import 'package:appflowy/plugins/document/application/document_data_pb_extension.dart';
+import 'package:appflowy/plugins/document/application/document_listener.dart';
+import 'package:appflowy/plugins/document/application/document_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
