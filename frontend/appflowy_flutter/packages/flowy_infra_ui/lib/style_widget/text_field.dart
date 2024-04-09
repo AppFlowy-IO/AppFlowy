@@ -1,9 +1,8 @@
 import 'dart:async';
 
+import 'package:flowy_infra/size.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
-import 'package:flowy_infra/size.dart';
 
 class FlowyTextField extends StatefulWidget {
   final String? hintText;

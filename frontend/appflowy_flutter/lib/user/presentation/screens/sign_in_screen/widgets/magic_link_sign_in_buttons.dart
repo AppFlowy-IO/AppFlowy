@@ -45,6 +45,7 @@ class _SignInWithMagicLinkButtonsState
               showSnackBarMessage(
                 context,
                 LocaleKeys.signIn_magicLinkSent.tr(),
+                duration: const Duration(seconds: 8),
               );
             }
           },
