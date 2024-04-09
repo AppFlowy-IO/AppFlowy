@@ -1,7 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
-
 class Debounce {
   Debounce({
     this.duration = const Duration(milliseconds: 1000),
@@ -10,8 +8,9 @@ class Debounce {
   final Duration duration;
   Timer? _timer;
 
-  void call(VoidCallback action) {
+  void call(Function action) {
     dispose();
+
     _timer = Timer(duration, () {
       action();
     });

@@ -25,21 +25,30 @@ impl DatabaseCloudService for LocalServerDatabaseCloudServiceImpl {
           collab.with_origin_transact_mut(|txn| {
             collab.insert_map_with_txn(txn, DATABASE);
           });
-          collab.encode_collab_v1().doc_state.to_vec()
+          collab
+            .encode_collab_v1(|_| Ok::<(), Error>(()))?
+            .doc_state
+            .to_vec()
         },
         CollabType::WorkspaceDatabase => {
           let collab = Collab::new(1, object_id, collab_type, vec![], false);
           collab.with_origin_transact_mut(|txn| {
             collab.create_array_with_txn::<MapPrelim<Any>>(txn, WORKSPACE_DATABASES, vec![]);
           });
-          collab.encode_collab_v1().doc_state.to_vec()
+          collab
+            .encode_collab_v1(|_| Ok::<(), Error>(()))?
+            .doc_state
+            .to_vec()
         },
         CollabType::DatabaseRow => {
           let collab = Collab::new(1, object_id, collab_type, vec![], false);
           collab.with_origin_transact_mut(|txn| {
             collab.insert_map_with_txn(txn, DATABASE_ROW_DATA);
           });
-          collab.encode_collab_v1().doc_state.to_vec()
+          collab
+            .encode_collab_v1(|_| Ok::<(), Error>(()))?
+            .doc_state
+            .to_vec()
         },
         _ => vec![],
       };

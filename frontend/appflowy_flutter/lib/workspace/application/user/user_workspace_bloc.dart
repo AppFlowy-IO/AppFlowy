@@ -8,6 +8,7 @@ import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/code.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:collection/collection.dart';
@@ -36,10 +37,11 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
               ..start();
 
             final result = await _fetchWorkspaces();
-            final isCollabWorkspaceOn =
-                userProfile.authenticator != AuthenticatorPB.Local &&
-                    FeatureFlag.collaborativeWorkspace.isOn;
             final currentWorkspace = result.$1;
+            final workspaces = result.$2;
+            final isCollabWorkspaceOn =
+                userProfile.authenticator == AuthenticatorPB.AppFlowyCloud &&
+                    FeatureFlag.collaborativeWorkspace.isOn;
             if (currentWorkspace != null && result.$3 == true) {
               final result = await _userService
                   .openWorkspace(currentWorkspace.workspaceId);
@@ -53,7 +55,7 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
             emit(
               state.copyWith(
                 currentWorkspace: currentWorkspace,
-                workspaces: result.$2,
+                workspaces: workspaces,
                 isCollabWorkspaceOn: isCollabWorkspaceOn,
                 actionResult: null,
               ),
@@ -69,6 +71,15 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
             );
           },
           createWorkspace: (name) async {
+            emit(
+              state.copyWith(
+                actionResult: const UserWorkspaceActionResult(
+                  actionType: UserWorkspaceActionType.create,
+                  isLoading: true,
+                  result: null,
+                ),
+              ),
+            );
             final result = await _userService.createUserWorkspace(name);
             final workspaces = result.fold(
               (s) => [...state.workspaces, s],
@@ -79,6 +90,7 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
                 workspaces: workspaces,
                 actionResult: UserWorkspaceActionResult(
                   actionType: UserWorkspaceActionType.create,
+                  isLoading: false,
                   result: result,
                 ),
               ),
@@ -89,7 +101,19 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
             });
           },
           deleteWorkspace: (workspaceId) async {
-            if (state.workspaces.length <= 1) {
+            emit(
+              state.copyWith(
+                actionResult: const UserWorkspaceActionResult(
+                  actionType: UserWorkspaceActionType.delete,
+                  isLoading: true,
+                  result: null,
+                ),
+              ),
+            );
+            final remoteWorkspaces = await _fetchWorkspaces().then(
+              (value) => value.$2,
+            );
+            if (state.workspaces.length <= 1 || remoteWorkspaces.length <= 1) {
               // do not allow to delete the last workspace, otherwise the user
               // cannot do create workspace again
               final result = FlowyResult.failure(
@@ -103,6 +127,7 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
                   actionResult: UserWorkspaceActionResult(
                     actionType: UserWorkspaceActionType.delete,
                     result: result,
+                    isLoading: false,
                   ),
                 ),
               );
@@ -129,11 +154,21 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
                 actionResult: UserWorkspaceActionResult(
                   actionType: UserWorkspaceActionType.delete,
                   result: result,
+                  isLoading: false,
                 ),
               ),
             );
           },
           openWorkspace: (workspaceId) async {
+            emit(
+              state.copyWith(
+                actionResult: const UserWorkspaceActionResult(
+                  actionType: UserWorkspaceActionType.open,
+                  isLoading: true,
+                  result: null,
+                ),
+              ),
+            );
             final result = await _userService.openWorkspace(workspaceId);
             final currentWorkspace = result.fold(
               (s) => state.workspaces.firstWhereOrNull(
@@ -152,6 +187,7 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
                 currentWorkspace: currentWorkspace,
                 actionResult: UserWorkspaceActionResult(
                   actionType: UserWorkspaceActionType.open,
+                  isLoading: false,
                   result: result,
                 ),
               ),
@@ -183,6 +219,7 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
                 currentWorkspace: currentWorkspace,
                 actionResult: UserWorkspaceActionResult(
                   actionType: UserWorkspaceActionType.rename,
+                  isLoading: false,
                   result: result,
                 ),
               ),
@@ -216,6 +253,7 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
                 currentWorkspace: currentWorkspace,
                 actionResult: UserWorkspaceActionResult(
                   actionType: UserWorkspaceActionType.updateIcon,
+                  isLoading: false,
                   result: result,
                 ),
               ),
@@ -240,6 +278,7 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
                 workspaces: workspaces,
                 actionResult: UserWorkspaceActionResult(
                   actionType: UserWorkspaceActionType.leave,
+                  isLoading: false,
                   result: result,
                 ),
               ),
@@ -248,7 +287,11 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
           updateWorkspaces: (workspaces) async {
             emit(
               state.copyWith(
-                workspaces: workspaces.items,
+                workspaces: workspaces.items
+                  ..sort(
+                    (a, b) =>
+                        a.createdAtTimestamp.compareTo(b.createdAtTimestamp),
+                  ),
               ),
             );
           },
@@ -280,6 +323,9 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
       final currentWorkspace =
           await _userService.getCurrentWorkspace().getOrThrow();
       final workspaces = await _userService.getWorkspaces().getOrThrow();
+      if (workspaces.isEmpty) {
+        workspaces.add(convertWorkspacePBToUserWorkspace(currentWorkspace));
+      }
       UserWorkspacePB? currentWorkspaceInList = workspaces
           .firstWhereOrNull((e) => e.workspaceId == currentWorkspace.id);
       if (lastOpenedWorkspaceId != null) {
@@ -289,7 +335,7 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
           currentWorkspaceInList = lastOpenedWorkspace;
         }
       }
-      currentWorkspaceInList ??= workspaces.first;
+      currentWorkspaceInList ??= workspaces.firstOrNull;
       return (
         currentWorkspaceInList,
         workspaces
@@ -302,6 +348,13 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
       Log.error('fetch workspace error: $e');
       return (null, <UserWorkspacePB>[], false);
     }
+  }
+
+  UserWorkspacePB convertWorkspacePBToUserWorkspace(WorkspacePB workspace) {
+    return UserWorkspacePB.create()
+      ..workspaceId = workspace.id
+      ..name = workspace.name
+      ..createdAtTimestamp = workspace.createTime;
   }
 }
 
@@ -344,11 +397,13 @@ enum UserWorkspaceActionType {
 class UserWorkspaceActionResult {
   const UserWorkspaceActionResult({
     required this.actionType,
+    required this.isLoading,
     required this.result,
   });
 
   final UserWorkspaceActionType actionType;
-  final FlowyResult<void, FlowyError> result;
+  final bool isLoading;
+  final FlowyResult<void, FlowyError>? result;
 }
 
 @freezed

@@ -1,7 +1,8 @@
-import 'package:appflowy/plugins/document/application/doc_collaborators_bloc.dart';
+import 'package:appflowy/plugins/document/application/document_collaborators_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/collaborator_avater_stack.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:avatar_stack/avatar_stack.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
@@ -31,7 +32,7 @@ class DocumentCollaborators extends StatelessWidget {
       child: BlocBuilder<DocumentCollaboratorsBloc, DocumentCollaboratorsState>(
         builder: (context, state) {
           final collaborators = state.collaborators;
-          if (collaborators.isEmpty) {
+          if (!state.shouldShowIndicator || collaborators.isEmpty) {
             return const SizedBox.shrink();
           }
 
@@ -41,8 +42,30 @@ class DocumentCollaborators extends StatelessWidget {
               height: height,
               width: width,
               borderWidth: 1.0,
-              backgroundColor:
-                  Theme.of(context).colorScheme.onSecondaryContainer,
+              plusWidgetBuilder: (value, border) {
+                final lastXCollaborators = collaborators.sublist(
+                  collaborators.length - value,
+                );
+                return BorderedCircleAvatar(
+                  border: border,
+                  backgroundColor: Theme.of(context).hoverColor,
+                  child: FittedBox(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: FlowyTooltip(
+                        message: lastXCollaborators
+                            .map((e) => e.userName)
+                            .join('\n'),
+                        child: FlowyText(
+                          '+$value',
+                          fontSize: fontSize,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              },
               avatars: collaborators
                   .map(
                     (c) => FlowyTooltip(

@@ -35,6 +35,8 @@ class _NotificationDialogState extends State<NotificationDialog>
   @override
   void initState() {
     super.initState();
+    // Get all the past and upcoming reminders
+    _reminderBloc.add(const ReminderEvent.started());
     _controller.addListener(_updateState);
   }
 

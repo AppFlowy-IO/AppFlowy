@@ -508,16 +508,14 @@ impl FolderManager {
     let view_id = view_id.to_string();
     let folder = self.mutex_folder.lock();
     let folder = folder.as_ref().ok_or_else(folder_not_init_error)?;
-    let trash_ids = folder
-      .get_all_trash_sections()
-      .into_iter()
-      .map(|trash| trash.id)
-      .collect::<Vec<String>>();
 
-    if trash_ids.contains(&view_id) {
+    // trash views and other private views should not be accessed
+    let view_ids_should_be_filtered = self.get_view_ids_should_be_filtered(folder);
+
+    if view_ids_should_be_filtered.contains(&view_id) {
       return Err(FlowyError::new(
         ErrorCode::RecordNotFound,
-        format!("View:{} is in trash", view_id),
+        format!("View:{} is in trash or other private section", view_id),
       ));
     }
 
@@ -531,7 +529,7 @@ impl FolderManager {
           .views
           .get_views_belong_to(&view.id)
           .into_iter()
-          .filter(|view| !trash_ids.contains(&view.id))
+          .filter(|view| !view_ids_should_be_filtered.contains(&view.id))
           .collect::<Vec<_>>();
         let view_pb = view_pb_with_child_views(view, child_views);
         Ok(view_pb)

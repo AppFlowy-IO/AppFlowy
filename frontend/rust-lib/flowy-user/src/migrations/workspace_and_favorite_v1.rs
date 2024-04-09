@@ -2,6 +2,7 @@ use std::sync::Arc;
 
 use collab_folder::Folder;
 use collab_plugins::local_storage::kv::{KVTransactionDB, PersistenceError};
+use semver::Version;
 use tracing::instrument;
 
 use collab_integrate::{CollabKVAction, CollabKVDB};
@@ -20,6 +21,10 @@ pub struct FavoriteV1AndWorkspaceArrayMigration;
 impl UserDataMigration for FavoriteV1AndWorkspaceArrayMigration {
   fn name(&self) -> &str {
     "workspace_favorite_v1_and_workspace_array_migration"
+  }
+
+  fn applies_to_version(&self, _app_version: &Version) -> bool {
+    true
   }
 
   #[instrument(name = "FavoriteV1AndWorkspaceArrayMigration", skip_all, err)]
@@ -45,7 +50,9 @@ impl UserDataMigration for FavoriteV1AndWorkspaceArrayMigration {
           folder.add_favorite_view_ids(favorite_view_ids);
         }
 
-        let encode = folder.encode_collab_v1();
+        let encode = folder
+          .encode_collab_v1()
+          .map_err(|err| PersistenceError::Internal(err.into()))?;
         write_txn.flush_doc_with(
           session.user_id,
           &session.user_workspace.id,

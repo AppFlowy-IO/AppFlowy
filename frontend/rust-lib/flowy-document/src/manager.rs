@@ -207,8 +207,9 @@ impl DocumentManager {
   }
 
   pub async fn open_document(&self, doc_id: &str) -> FlowyResult<()> {
-    // TODO(nathan): refactor the get_database that split the database creation and database opening.
-    self.restore_document_from_removing(doc_id);
+    if let Some(mutex_document) = self.restore_document_from_removing(doc_id) {
+      mutex_document.start_init_sync();
+    }
     Ok(())
   }
 
@@ -444,8 +445,9 @@ async fn doc_state_from_document_data(
       vec![],
       false,
     )));
-    let _ = Document::create_with_data(collab.clone(), data).map_err(internal_error)?;
-    Ok::<_, FlowyError>(collab.encode_collab_v1())
+    let document = Document::create_with_data(collab.clone(), data).map_err(internal_error)?;
+    let encode_collab = document.encode_collab()?;
+    Ok::<_, FlowyError>(encode_collab)
   })
   .await??;
   Ok(encoded_collab)

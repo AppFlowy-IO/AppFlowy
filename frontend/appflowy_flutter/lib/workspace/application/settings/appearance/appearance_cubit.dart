@@ -10,6 +10,8 @@ import 'package:appflowy/workspace/application/settings/appearance/base_appearan
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/date_time.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_setting.pb.dart';
+import 'package:appflowy_editor/appflowy_editor.dart'
+    show AppFlowyEditorLocalizations;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flutter/material.dart';
@@ -192,6 +194,9 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
     context.setLocale(newLocale).catchError((e) {
       Log.warn('Catch error in setLocale: $e}');
     });
+
+    // Sync the app's locale with the editor (initialization and update)
+    AppFlowyEditorLocalizations.load(newLocale);
 
     if (state.locale != newLocale) {
       _appearanceSettings.locale.languageCode = newLocale.languageCode;

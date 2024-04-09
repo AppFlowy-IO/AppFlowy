@@ -2,8 +2,8 @@ import 'dart:io';
 
 import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
-import 'package:appflowy/plugins/document/application/doc_listener.dart';
 import 'package:appflowy/plugins/document/application/document_data_pb_extension.dart';
+import 'package:appflowy/plugins/document/application/document_listener.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/shared/appflowy_network_image.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';

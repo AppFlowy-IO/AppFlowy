@@ -1,11 +1,9 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/show_mobile_bottom_sheet.dart';
 import 'package:appflowy/plugins/base/drag_handler.dart';
-import 'package:appflowy/plugins/document/application/doc_bloc.dart';
 import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
+import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/user/application/reminder/reminder_extension.dart';
@@ -27,6 +25,7 @@ import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nanoid/non_secure.dart';
 
@@ -258,11 +257,11 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
   }
 
   DateTime _parseTime(String timeStr, UserTimeFormatPB timeFormat) {
-    final twelveHourFormat = DateFormat('HH:mm a');
+    final twelveHourFormat = DateFormat('hh:mm a');
     final twentyFourHourFormat = DateFormat('HH:mm');
 
     try {
-      if (timeFormat == TimeFormatPB.TwelveHour) {
+      if (timeFormat == UserTimeFormatPB.TwelveHour) {
         return twelveHourFormat.parseStrict(timeStr);
       }
 
