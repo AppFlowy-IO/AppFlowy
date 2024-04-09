@@ -1,3 +1,6 @@
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/plugins/blank/blank.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -22,13 +25,12 @@ import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
     show UserProfilePB;
 import 'package:flowy_infra_ui/style_widget/container.dart';
-import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sized_context/sized_context.dart';
 import 'package:styled_widget/styled_widget.dart';
 
 import '../widgets/edit_panel/edit_panel.dart';
+
 import 'home_layout.dart';
 import 'home_stack.dart';
 
@@ -67,15 +69,11 @@ class DesktopHomeScreen extends StatelessWidget {
         return MultiBlocProvider(
           key: ValueKey(userProfile.id),
           providers: [
-            BlocProvider<ReminderBloc>.value(
-              value: getIt<ReminderBloc>()..add(const ReminderEvent.started()),
-            ),
+            BlocProvider<ReminderBloc>.value(value: getIt<ReminderBloc>()),
             BlocProvider<TabsBloc>.value(value: getIt<TabsBloc>()),
             BlocProvider<HomeBloc>(
-              create: (context) {
-                return HomeBloc(workspaceSetting)
-                  ..add(const HomeEvent.initial());
-              },
+              create: (_) =>
+                  HomeBloc(workspaceSetting)..add(const HomeEvent.initial()),
             ),
             BlocProvider<HomeSettingBloc>(
               create: (_) {
