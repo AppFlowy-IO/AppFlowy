@@ -910,10 +910,12 @@
         "imageUploadFailed": "Téléchargement de l'image échoué"
       },
       "urlPreview": {
-        "copiedToPasteBoard": "Le lien a été copié dans le presse-papier"
+        "copiedToPasteBoard": "Le lien a été copié dans le presse-papier",
+        "convertToLink": "Convertir en lien intégré"
       },
       "outline": {
-        "addHeadingToCreateOutline": "Ajoutez des titres pour créer une table des matières."
+        "addHeadingToCreateOutline": "Ajoutez des titres pour créer une table des matières.",
+        "noMatchHeadings": "Aucune rubrique correspondante trouvée."
       },
       "table": {
         "addAfter": "Ajouter après",
@@ -971,7 +973,8 @@
         "invalidImage": "Image invalide",
         "invalidImageSize": "La taille de l'image doit être inférieure à 5 Mo",
         "invalidImageFormat": "Le format d'image n'est pas pris en charge. Formats pris en charge : JPEG, PNG, GIF, SVG",
-        "invalidImageUrl": "URL d'image non valide"
+        "invalidImageUrl": "URL d'image non valide",
+        "noImage": "Aucun fichier ou répertoire de ce nom"
       },
       "embedLink": {
         "label": "Lien intégré",
@@ -1090,13 +1093,14 @@
       "layoutDateField": "Calendrier de mise en page par",
       "changeLayoutDateField": "Modifier le champ de mise en page",
       "noDateTitle": "Pas de date",
+      "noDateHint": "Les événements non planifiés s'afficheront ici",
       "unscheduledEventsTitle": "Événements non planifiés",
       "clickToAdd": "Cliquez pour ajouter au calendrier",
-      "name": "Disposition du calendrier",
-      "noDateHint": "Les événements non planifiés s'afficheront ici"
+      "name": "Disposition du calendrier"
     },
     "referencedCalendarPrefix": "Vue",
-    "quickJumpYear": "Sauter à"
+    "quickJumpYear": "Sauter à",
+    "duplicateEvent": "Événement en double"
   },
   "errorDialog": {
     "title": "Erreur AppFlowy",
@@ -1295,6 +1299,8 @@
     "backgroundColorPurple": "Fond violet",
     "backgroundColorPink": "Fond rose",
     "backgroundColorRed": "Fond rouge",
+    "backgroundColorLime": "Fond citron vert",
+    "backgroundColorAqua": "Fond turquoise ",
     "done": "Fait",
     "cancel": "Annuler",
     "tint1": "Teinte 1",
@@ -1342,6 +1348,8 @@
     "copy": "Copier",
     "paste": "Color",
     "find": "Chercher",
+    "select": "Sélectionner",
+    "selectAll": "Tout sélectionner",
     "previousMatch": "Occurence précédente",
     "nextMatch": "Occurence suivante",
     "closeFind": "Fermer",
@@ -1398,5 +1406,50 @@
     "addField": "Ajouter un champ",
     "userIcon": "Icône utilisateur"
   },
-  "noLogFiles": "Il n'y a pas de log"
+  "noLogFiles": "Il n'y a pas de log",
+  "newSettings": {
+    "myAccount": {
+      "title": "Mon compte",
+      "subtitle": "Personnalisez votre profil, gérez la sécurité de votre compte, ouvrez les clés AI ou connectez-vous à votre compte.",
+      "profileLabel": "Nom du compte et image de profil",
+      "profileNamePlaceholder": "Entrez votre nom",
+      "accountSecurity": "Sécurité du compte",
+      "2FA": "Authentification en 2 étapes",
+      "aiKeys": "Clés IA",
+      "accountLogin": "Connexion au compte",
+      "updateNameError": "Échec de la mise à jour du nom",
+      "updateIconError": "Échec de la mise à jour de l'icône",
+      "deleteAccount": {
+        "title": "Supprimer le compte",
+        "subtitle": "Supprimez définitivement votre compte et toutes vos données.",
+        "deleteMyAccount": "Supprimer mon compte",
+        "dialogTitle": "Supprimer le compte",
+        "dialogContent1": "Êtes-vous sûr de vouloir supprimer définitivement votre compte ?",
+        "dialogContent2": "Cette action ne peut pas être annulée et supprimera l'accès à tous les espaces d'équipe, effaçant l'intégralité de votre compte, y compris les espaces de travail privés, et vous supprimant de tous les espaces de travail partagés."
+      }
+    },
+    "workplace": {
+      "name": "Lieu de travail",
+      "title": "Paramètres du lieu de travail",
+      "subtitle": "Personnalisez l'apparence, le thème, la police, la disposition du texte, la date, l'heure et la langue de votre espace de travail.",
+      "workplaceName": "Nom du lieu de travail",
+      "workplaceNamePlaceholder": "Entrez le nom du lieu de travail",
+      "workplaceIcon": "Icône du lieu de travail",
+      "workplaceIconSubtitle": "Téléchargez une image ou utilisez un emoji pour votre espace de travail. L'icône s'affichera dans votre barre latérale et dans vos notifications",
+      "renameError": "Échec du changement de nom du lieu de travail",
+      "updateIconError": "Échec de la mise à jour de l'icône",
+      "appearance": {
+        "name": "Apparence",
+        "themeMode": {
+          "auto": "Auto"
+        },
+        "language": "Langue"
+      }
+    },
+    "syncState": {
+      "syncing": "Synchronisation",
+      "synced": "Synchronisé",
+      "noNetworkConnected": "Aucun réseau connecté"
+    }
+  }
 }
