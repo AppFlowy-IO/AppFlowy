@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:math';
 import 'dart:ui';
 
 import 'package:appflowy/core/config/kv.dart';
@@ -9,6 +8,9 @@ import 'package:appflowy/startup/startup.dart';
 class WindowSizeManager {
   static const double minWindowHeight = 600.0;
   static const double minWindowWidth = 800.0;
+  // Preventing failed assertion due to Texture Descriptor Validation
+  static const double maxWindowHeight = 8192.0;
+  static const double maxWindowWidth = 8192.0;
 
   static const width = 'width';
   static const height = 'height';
@@ -18,8 +20,8 @@ class WindowSizeManager {
 
   Future<void> setSize(Size size) async {
     final windowSize = {
-      height: max(size.height, minWindowHeight),
-      width: max(size.width, minWindowWidth),
+      height: size.height.clamp(minWindowHeight, maxWindowHeight),
+      width: size.width.clamp(minWindowWidth, maxWindowWidth),
     };
 
     await getIt<KeyValueStorage>().set(
@@ -29,12 +31,19 @@ class WindowSizeManager {
   }
 
   Future<Size> getSize() async {
-    final defaultWindowSize = jsonEncode({height: 600.0, width: 800.0});
+    final defaultWindowSize = jsonEncode(
+      {WindowSizeManager.height: 600.0, WindowSizeManager.width: 800.0},
+    );
     final windowSize = await getIt<KeyValueStorage>().get(KVKeys.windowSize);
     final size = json.decode(
       windowSize ?? defaultWindowSize,
     );
-    return Size(size[width]!, size[height]!);
+    final double width = size[WindowSizeManager.width] ?? minWindowWidth;
+    final double height = size[WindowSizeManager.height] ?? minWindowHeight;
+    return Size(
+      width.clamp(minWindowWidth, maxWindowWidth),
+      height.clamp(minWindowHeight, maxWindowHeight),
+    );
   }
 
   Future<void> setPosition(Offset offset) async {
