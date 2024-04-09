@@ -831,6 +831,7 @@
       "discardResponse": "Möchten Sie die KI-Antworten verwerfen?",
       "createInlineMathEquation": "Formel erstellen",
       "fonts": "Schriftarten",
+      "emoji": "Emoji",
       "toggleList": "Liste umschalten",
       "quoteList": "Kursblatt",
       "numberedList": "Nummerierte Liste",
@@ -918,8 +919,7 @@
         "newDatabase": "Neue Datenbank",
         "linkToDatabase": "Verknüpfung zur Datenbank"
       },
-      "date": "Datum",
-      "emoji": "Emoji"
+      "date": "Datum"
     },
     "outlineBlock": {
       "placeholder": "Inhaltsverzeichnis"

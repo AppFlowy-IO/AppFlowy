@@ -721,6 +721,7 @@
       "discardResponse": "Voulez-vous supprimer les réponses de l'IA ?",
       "createInlineMathEquation": "Créer une équation",
       "fonts": "Polices",
+      "emoji": "Emoji",
       "toggleList": "Liste pliable",
       "quoteList": "Liste de citations",
       "numberedList": "Liste numérotée",
@@ -804,8 +805,7 @@
         "newDatabase": "Nouvelle Base de données",
         "linkToDatabase": "Lien vers la Base de données"
       },
-      "date": "Date",
-      "emoji": "Emoji"
+      "date": "Date"
     },
     "textBlock": {
       "placeholder": "Tapez '/' pour les commandes"

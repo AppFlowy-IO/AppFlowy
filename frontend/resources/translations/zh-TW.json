@@ -712,6 +712,7 @@
       "discardResponse": "確定捨棄 AI 的回覆？",
       "createInlineMathEquation": "建立公式",
       "fonts": "字型",
+      "emoji": "表情符號",
       "toggleList": "切換列表",
       "quoteList": "引述列表",
       "numberedList": "編號列表",
@@ -795,8 +796,7 @@
         "newDatabase": "新建資料庫",
         "linkToDatabase": "連結至資料庫"
       },
-      "date": "日期",
-      "emoji": "表情符號"
+      "date": "日期"
     },
     "textBlock": {
       "placeholder": "輸入“/”作為命令"

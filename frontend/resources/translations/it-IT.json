@@ -726,6 +726,7 @@
       "discardResponse": "Vuoi scartare le risposte AI?",
       "createInlineMathEquation": "Crea un'equazione",
       "fonts": "Caratteri",
+      "emoji": "Emoji",
       "toggleList": "Elenco alternato",
       "quoteList": "Elenco citazioni",
       "numberedList": "Elenco numerato",
@@ -811,8 +812,7 @@
         "newDatabase": "Nuova banca dati",
         "linkToDatabase": "Collegamento alla banca dati"
       },
-      "date": "Data",
-      "emoji": "Emoji"
+      "date": "Data"
     },
     "textBlock": {
       "placeholder": "Digita '/' per i comandi"

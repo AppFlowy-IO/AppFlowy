@@ -934,8 +934,7 @@
         "newDatabase": "New Database",
         "linkToDatabase": "Link to Database"
       },
-      "date": "Date",
-      "emoji": "Emoji"
+      "date": "Date"
     },
     "outlineBlock": {
       "placeholder": "Table of Contents"

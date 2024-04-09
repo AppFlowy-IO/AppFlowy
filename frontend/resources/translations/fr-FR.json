@@ -214,16 +214,19 @@
     "openSidebar": "Ouvrir le menu latéral",
     "personal": "Personnel",
     "private": "Privé",
-    "public": "Publique",
+    "workspace": "Espace de travail",
     "favorites": "Favoris",
     "clickToHidePrivate": "Cliquez pour masquer l'espace privé\nLes pages que vous avez créées ici ne sont visibles que par vous",
-    "clickToHidePublic": "Cliquez pour masquer l'espace public\nLes pages que vous avez créées ici sont visibles par tous les membres",
+    "clickToHideWorkspace": "Cliquez pour masquer l'espace de travail\nLes pages que vous avez créées ici sont visibles par tous les membres",
     "clickToHidePersonal": "Cliquez pour cacher la section personnelle",
     "clickToHideFavorites": "Cliquez pour cacher la section favorite",
     "addAPage": "Ajouter une page",
     "addAPageToPrivate": "Ajouter une page à l'espace privé",
-    "addAPageToPublic": "Ajouter une page à l'espace public",
-    "recent": "Récent"
+    "addAPageToWorkspace": "Ajouter une page à l'espace de travail",
+    "recent": "Récent",
+    "public": "Publique",
+    "clickToHidePublic": "Cliquez pour masquer l'espace public\nLes pages que vous avez créées ici sont visibles par tous les membres",
+    "addAPageToPublic": "Ajouter une page à l'espace public"
   },
   "notifications": {
     "export": {
@@ -385,7 +388,7 @@
         "opacityEmptyError": "L'opacité ne peut pas être vide",
         "opacityRangeError": "L'opacité doit être comprise entre 1 et 100",
         "app": "Application",
-        "flowy": "Flowy",
+        "flowy": "Fluide",
         "apply": "Appliquer"
       },
       "layoutDirection": {
@@ -454,7 +457,10 @@
           "other": "{} membres"
         },
         "memberLimitExceeded": "Vous avez atteint la limite maximale de membres autorisée pour votre compte. Si vous souhaitez ajouter d'autres membres pour continuer votre travail, veuillez en faire la demande sur Github.",
-        "failedToAddMember": "Échec de l'ajout d'un membre"
+        "failedToAddMember": "Échec de l'ajout d'un membre",
+        "addMemberSuccess": "Membre ajouté avec succès",
+        "removeMember": "Supprimer un membre",
+        "areYouSureToRemoveMember": "Êtes-vous sûr de vouloir supprimer ce membre ?"
       }
     },
     "files": {
@@ -491,7 +497,11 @@
       "recoverLocationTooltips": "Réinitialiser au répertoire de données par défaut d'AppFlowy",
       "exportFileSuccess": "Exporter le fichier avec succès !",
       "exportFileFail": "Échec de l'export  du fichier !",
-      "export": "Exporter"
+      "export": "Exporter",
+      "clearCache": "Vider le cache",
+      "clearCacheDesc": "Si vous rencontrez des problèmes avec des images qui ne se chargent pas ou des polices qui ne s'affichent pas correctement, essayez de vider votre cache. Cette action ne supprimera pas vos données utilisateur.",
+      "areYouSureToClearCache": "Êtes-vous sûr de vider le cache ?",
+      "clearCacheSuccess": "Cache vidé avec succès !"
     },
     "user": {
       "name": "Nom",
@@ -511,7 +521,17 @@
       "shortcutIsAlreadyUsed": "Ce raccourci est déjà utilisé pour : {conflict}",
       "resetToDefault": "Réinitialiser les raccourcis clavier par défaut",
       "couldNotLoadErrorMsg": "Impossible de charger les raccourcis, réessayez",
-      "couldNotSaveErrorMsg": "Impossible d'enregistrer les raccourcis. Réessayez"
+      "couldNotSaveErrorMsg": "Impossible d'enregistrer les raccourcis. Réessayez",
+      "commands": {
+        "codeBlockNewParagraph": "Insérez un nouveau paragraphe à côté du bloc de code",
+        "codeBlockAddTwoSpaces": "Insérez deux espaces au début de la ligne dans le bloc de code",
+        "codeBlockDeleteTwoSpaces": "Supprimez deux espaces au début de la ligne dans le bloc de code",
+        "codeBlockSelectAll": "Sélectionnez tout le contenu à l'intérieur d'un bloc de code",
+        "codeBlockPasteText": "Coller le texte dans le bloc de code",
+        "textAlignLeft": "Aligner le texte à gauche",
+        "textAlignCenter": "Aligner le texte au centre",
+        "textAlignRight": "Aligner le texte à droite"
+      }
     },
     "mobile": {
       "personalInfo": "Informations personnelles",
@@ -550,6 +570,7 @@
       "typeAValue": "Tapez une valeur...",
       "layout": "Mise en page",
       "databaseLayout": "Mise en page",
+      "viewList": "Vues de base de données",
       "editView": "Modifier vue",
       "boardSettings": "Paramètres du tableau",
       "calendarSettings": "Paramètres du calendrier",
@@ -557,8 +578,7 @@
       "duplicateView": "Dupliquer la vue",
       "deleteView": "Supprimer la vue",
       "numberOfVisibleFields": "{} affiché(s)",
-      "Properties": "Propriétés",
-      "viewList": "Vues de base de données"
+      "Properties": "Propriétés"
     },
     "textFilter": {
       "contains": "Contient",
@@ -631,6 +651,7 @@
       "insertRight": "Insérer à droite",
       "duplicate": "Dupliquer",
       "delete": "Supprimer",
+      "clear": "Effacer les cellules",
       "textFieldName": "Texte",
       "checkboxFieldName": "Case à cocher",
       "dateFieldName": "Date",
@@ -671,6 +692,7 @@
       "editProperty": "Modifier la propriété",
       "newProperty": "Nouvelle colonne",
       "deleteFieldPromptMessage": "Vous voulez supprimer cette propriété ?",
+      "clearFieldPromptMessage": "Es-tu sûr? Toutes les cellules de cette colonne seront vidées",
       "newColumn": "Nouvelle colonne",
       "format": "Format",
       "reminderOnDateTooltip": "Cette cellule a un rappel programmé",
@@ -695,9 +717,11 @@
       "descending": "Descendant",
       "by": "Par",
       "empty": "Tri pas actif",
+      "cannotFindCreatableField": "Impossible de trouver un champ approprié pour trier",
       "deleteAllSorts": "Supprimer tous les tris",
       "addSort": "Ajouter un tri",
       "removeSorting": "Voulez-vous supprimer le tri ?",
+      "fieldInUse": "Vous êtes déjà en train de trier par ce champ",
       "deleteSort": "Supprimer le tri"
     },
     "row": {
@@ -745,10 +769,16 @@
     },
     "url": {
       "launch": "Ouvrir dans le navigateur",
-      "copy": "Copier l'URL"
+      "copy": "Copier l'URL",
+      "textFieldHint": "Entrez une URL",
+      "copiedNotification": "Copié dans le presse-papier!"
     },
     "relation": {
+      "relatedDatabasePlaceLabel": "Base de données associée",
+      "relatedDatabasePlaceholder": "Aucun",
       "inRelatedDatabase": "Dans",
+      "rowSearchTextFieldPlaceholder": "Recherche",
+      "noDatabaseSelected": "Aucune base de données sélectionnée, veuillez d'abord en sélectionner une dans la liste ci-dessous :",
       "emptySearchResult": "Aucun enregistrement trouvé"
     },
     "menuName": "Grille",
@@ -760,7 +790,12 @@
       "max": "Maximum",
       "median": "Médiane",
       "min": "Minimum",
-      "sum": "Somme"
+      "sum": "Somme",
+      "count": "Compter",
+      "countEmpty": "Compter les cellules vides",
+      "countEmptyShort": "VIDE",
+      "countNonEmpty": "Compter les cellules non vides",
+      "countNonEmptyShort": "REMPLI"
     }
   },
   "document": {
@@ -815,6 +850,8 @@
       "discardResponse": "Voulez-vous supprimer les réponses de l'IA ?",
       "createInlineMathEquation": "Créer une équation",
       "fonts": "Polices",
+      "insertDate": "Insérer la date",
+      "emoji": "Emoji",
       "toggleList": "Liste pliable",
       "quoteList": "Liste de citations",
       "numberedList": "Liste numérotée",
@@ -900,8 +937,7 @@
         "newDatabase": "Nouvelle Base de données",
         "linkToDatabase": "Lien vers la Base de données"
       },
-      "date": "Date",
-      "emoji": "Emoji"
+      "date": "Date"
     },
     "outlineBlock": {
       "placeholder": "Table de contenu"
