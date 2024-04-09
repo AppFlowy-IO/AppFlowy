@@ -117,49 +117,21 @@ class _RecentViews extends StatelessWidget {
             },
           ),
         ),
-        // Row(
-        //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        //   children: [
-        //     Padding(
-        //       padding: const EdgeInsets.symmetric(horizontal: 24),
-        //       child: FlowyText.semibold(
-        //         LocaleKeys.sideBar_recent.tr(),
-        //         fontSize: 20.0,
-        //       ),
-        //     ),
-        //     if (kDebugMode)
-        //       Padding(
-        //         padding: const EdgeInsets.only(right: 16.0),
-        //         child: FlowyButton(
-        //           useIntrinsicWidth: true,
-        //           text: FlowyText(LocaleKeys.button_clear.tr()),
-        //           onTap: () {
-        //             context.read<RecentViewsBloc>().add(
-        //                   RecentViewsEvent.removeRecentViews(
-        //                     recentViews.map((e) => e.id).toList(),
-        //                   ),
-        //                 );
-        //           },
-        //         ),
-        //       ),
-        //   ],
-        // ),
-        SingleChildScrollView(
-          key: const PageStorageKey('recent_views_page_storage_key'),
-          scrollDirection: Axis.horizontal,
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-          child: IntrinsicHeight(
-            child: SeparatedRow(
-              separatorBuilder: () => const HSpace(8),
-              children: recentViews
-                  .map(
-                    (view) => SizedBox.square(
-                      dimension: 148,
-                      child: MobileRecentView(view: view),
-                    ),
-                  )
-                  .toList(),
-            ),
+        SizedBox(
+          height: 148,
+          child: ListView.separated(
+            key: const PageStorageKey('recent_views_page_storage_key'),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+            scrollDirection: Axis.horizontal,
+            itemBuilder: (context, index) {
+              final view = recentViews[index];
+              return SizedBox.square(
+                dimension: 148,
+                child: MobileRecentView(view: view),
+              );
+            },
+            separatorBuilder: (context, index) => const HSpace(8),
+            itemCount: recentViews.length,
           ),
         ),
       ],
