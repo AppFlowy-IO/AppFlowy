@@ -292,13 +292,13 @@ pub async fn get_user_setting(
 pub async fn sign_in_with_magic_link_handler(
   data: AFPluginData<MagicLinkSignInPB>,
   manager: AFPluginState<Weak<UserManager>>,
-) -> DataResult<UserProfilePB, FlowyError> {
+) -> Result<(), FlowyError> {
   let manager = upgrade_manager(manager)?;
   let params = data.into_inner();
-  let user_profile = manager
+  let _ = manager
     .sign_in_with_magic_link(&params.email, &params.redirect_to)
     .await?;
-  data_result_ok(user_profile.into())
+  Ok(())
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]

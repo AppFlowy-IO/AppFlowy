@@ -1,4 +1,3 @@
-import 'package:appflowy/startup/tasks/supabase_task.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
@@ -105,7 +104,7 @@ class BackendAuthService implements AuthService {
     required String email,
     Map<String, String> params = const {},
   }) async {
-    final redirectTo = params['redirectTo'] ?? appflowyDeepLinkSchema;
-    return UserBackendService.signInWithMagicLink(email, redirectTo);
+    // No need to pass the redirect URL.
+    return UserBackendService.signInWithMagicLink(email, '');
   }
 }

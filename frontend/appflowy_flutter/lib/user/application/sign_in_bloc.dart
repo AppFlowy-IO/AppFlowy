@@ -7,6 +7,7 @@ import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
     show UserProfilePB;
 import 'package:appflowy_result/appflowy_result.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -23,11 +24,58 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
       });
     }
 
-    _dispatch();
+    on<SignInEvent>(
+      (event, emit) async {
+        await event.when(
+          signedInWithUserEmailAndPassword: () async => _onSignIn(emit),
+          signedInWithOAuth: (platform) async => _onSignInWithOAuth(
+            emit,
+            platform,
+          ),
+          signedInAsGuest: () async => _onSignInAsGuest(emit),
+          signedWithMagicLink: (email) async => _onSignInWithMagicLink(
+            emit,
+            email,
+          ),
+          deepLinkStateChange: (result) => _onDeepLinkStateChange(
+            emit,
+            result,
+          ),
+          cancel: () {
+            emit(
+              state.copyWith(
+                isSubmitting: false,
+                emailError: null,
+                passwordError: null,
+                successOrFail: null,
+              ),
+            );
+          },
+          emailChanged: (email) async {
+            emit(
+              state.copyWith(
+                email: email,
+                emailError: null,
+                successOrFail: null,
+              ),
+            );
+          },
+          passwordChanged: (password) async {
+            emit(
+              state.copyWith(
+                password: password,
+                passwordError: null,
+                successOrFail: null,
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 
   final AuthService authService;
-  void Function()? deepLinkStateListener;
+  VoidCallback? deepLinkStateListener;
 
   @override
   Future<void> close() {
@@ -40,87 +88,39 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
     return super.close();
   }
 
-  void _dispatch() {
-    on<SignInEvent>(
-      (event, emit) async {
-        await event.map(
-          signedInWithUserEmailAndPassword: (e) async {
-            await _performActionOnSignIn(
-              state,
-              emit,
-            );
-          },
-          signedInWithOAuth: (value) async =>
-              _performActionOnSignInWithOAuth(state, emit, value.platform),
-          signedInAsGuest: (value) async =>
-              _performActionOnSignInAsGuest(state, emit),
-          emailChanged: (EmailChanged value) async {
-            emit(
-              state.copyWith(
-                email: value.email,
-                emailError: null,
-                successOrFail: null,
-              ),
-            );
-          },
-          passwordChanged: (PasswordChanged value) async {
-            emit(
-              state.copyWith(
-                password: value.password,
-                passwordError: null,
-                successOrFail: null,
-              ),
-            );
-          },
-          signedWithMagicLink: (SignedWithMagicLink value) async {
-            await _performActionOnSignInWithMagicLink(state, emit, value.email);
-          },
-          deepLinkStateChange: (_DeepLinkStateChange value) {
-            final deepLinkState = value.result.state;
+  Future<void> _onDeepLinkStateChange(
+    Emitter<SignInState> emit,
+    DeepLinkResult result,
+  ) async {
+    final deepLinkState = result.state;
 
-            switch (deepLinkState) {
-              case DeepLinkState.none:
-                break;
-              case DeepLinkState.loading:
-                emit(
-                  state.copyWith(
-                    isSubmitting: true,
-                    emailError: null,
-                    passwordError: null,
-                    successOrFail: null,
-                  ),
-                );
-              case DeepLinkState.finish:
-                if (value.result.result != null) {
-                  emit(
-                    value.result.result!.fold(
-                      (userProfile) => state.copyWith(
-                        isSubmitting: false,
-                        successOrFail: FlowyResult.success(userProfile),
-                      ),
-                      (error) => stateFromCode(error),
-                    ),
-                  );
-                }
-            }
-          },
-          cancel: (value) {
-            emit(
-              state.copyWith(
-                isSubmitting: false,
-                emailError: null,
-                passwordError: null,
-                successOrFail: null,
-              ),
-            );
-          },
+    switch (deepLinkState) {
+      case DeepLinkState.none:
+        break;
+      case DeepLinkState.loading:
+        emit(
+          state.copyWith(
+            isSubmitting: true,
+            emailError: null,
+            passwordError: null,
+            successOrFail: null,
+          ),
         );
-      },
-    );
+      case DeepLinkState.finish:
+        final newState = result.result?.fold(
+          (s) => state.copyWith(
+            isSubmitting: false,
+            successOrFail: FlowyResult.success(s),
+          ),
+          (f) => _stateFromCode(f),
+        );
+        if (newState != null) {
+          emit(newState);
+        }
+    }
   }
 
-  Future<void> _performActionOnSignIn(
-    SignInState state,
+  Future<void> _onSignIn(
     Emitter<SignInState> emit,
   ) async {
     final result = await authService.signInWithEmailPassword(
@@ -133,13 +133,12 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
           isSubmitting: false,
           successOrFail: FlowyResult.success(userProfile),
         ),
-        (error) => stateFromCode(error),
+        (error) => _stateFromCode(error),
       ),
     );
   }
 
-  Future<void> _performActionOnSignInWithOAuth(
-    SignInState state,
+  Future<void> _onSignInWithOAuth(
     Emitter<SignInState> emit,
     String platform,
   ) async {
@@ -161,13 +160,12 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
           isSubmitting: false,
           successOrFail: FlowyResult.success(userProfile),
         ),
-        (error) => stateFromCode(error),
+        (error) => _stateFromCode(error),
       ),
     );
   }
 
-  Future<void> _performActionOnSignInWithMagicLink(
-    SignInState state,
+  Future<void> _onSignInWithMagicLink(
     Emitter<SignInState> emit,
     String email,
   ) async {
@@ -187,16 +185,14 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
     emit(
       result.fold(
         (userProfile) => state.copyWith(
-          isSubmitting: false,
-          successOrFail: FlowyResult.success(userProfile),
+          isSubmitting: true,
         ),
-        (error) => stateFromCode(error),
+        (error) => _stateFromCode(error),
       ),
     );
   }
 
-  Future<void> _performActionOnSignInAsGuest(
-    SignInState state,
+  Future<void> _onSignInAsGuest(
     Emitter<SignInState> emit,
   ) async {
     emit(
@@ -215,12 +211,12 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
           isSubmitting: false,
           successOrFail: FlowyResult.success(userProfile),
         ),
-        (error) => stateFromCode(error),
+        (error) => _stateFromCode(error),
       ),
     );
   }
 
-  SignInState stateFromCode(FlowyError error) {
+  SignInState _stateFromCode(FlowyError error) {
     switch (error.code) {
       case ErrorCode.EmailFormatInvalid:
         return state.copyWith(
@@ -255,7 +251,7 @@ class SignInEvent with _$SignInEvent {
   const factory SignInEvent.emailChanged(String email) = EmailChanged;
   const factory SignInEvent.passwordChanged(String password) = PasswordChanged;
   const factory SignInEvent.deepLinkStateChange(DeepLinkResult result) =
-      _DeepLinkStateChange;
+      DeepLinkStateChange;
   const factory SignInEvent.cancel() = _Cancel;
 }
 

@@ -191,7 +191,7 @@ where
     &self,
     _email: &str,
     _redirect_to: &str,
-  ) -> FutureResult<UserProfile, FlowyError> {
+  ) -> FutureResult<(), FlowyError> {
     FutureResult::new(async {
       Err(
         FlowyError::not_support().with_context("Can't sign in with magic link when using supabase"),

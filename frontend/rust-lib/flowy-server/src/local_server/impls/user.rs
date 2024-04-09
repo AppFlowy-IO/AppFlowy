@@ -111,7 +111,7 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
     &self,
     _email: &str,
     _redirect_to: &str,
-  ) -> FutureResult<UserProfile, FlowyError> {
+  ) -> FutureResult<(), FlowyError> {
     FutureResult::new(async {
       Err(FlowyError::local_version_not_support().with_context("Not support"))
     })

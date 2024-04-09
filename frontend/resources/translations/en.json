@@ -50,7 +50,8 @@
     "LogInWithGithub": "Log in with Github",
     "LogInWithDiscord": "Log in with Discord",
     "signInWith": "Sign in with:",
-    "signInWithEmail": "Sign in with Email"
+    "signInWithEmail": "Sign in with Email",
+    "magicLinkSent": "Magic link sent to your email, please check your inbox"
   },
   "workspace": {
     "chooseWorkspace": "Choose your workspace",

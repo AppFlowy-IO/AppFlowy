@@ -676,7 +676,7 @@ impl UserManager {
     &self,
     email: &str,
     redirect_to: &str,
-  ) -> Result<UserProfile, FlowyError> {
+  ) -> Result<(), FlowyError> {
     let auth_service = self.cloud_services.get_user_service()?;
     auth_service
       .sign_in_with_magic_link(email, redirect_to)
