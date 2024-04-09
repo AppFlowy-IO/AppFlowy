@@ -7,7 +7,7 @@ use lib_infra::box_any::BoxAny;
 use serde_json::Value;
 use std::sync::Weak;
 use std::{convert::TryInto, sync::Arc};
-use tracing::event;
+use tracing::{event, trace};
 
 use crate::entities::*;
 use crate::notification::{send_notification, UserNotification};
@@ -577,6 +577,8 @@ pub async fn get_all_reminder_event_handler(
     .into_iter()
     .map(ReminderPB::from)
     .collect::<Vec<_>>();
+
+  trace!("number of reminders: {}", reminders.len());
   data_result_ok(reminders.into())
 }
 

@@ -111,7 +111,6 @@ class _WorkspaceMoreActionWrapper extends CustomActionCell {
             await showDialog(
               context: context,
               builder: (_) => NavigatorOkCancelDialog(
-                title: LocaleKeys.workspace_leaveCurrentWorkspace.tr(),
                 message: LocaleKeys.workspace_leaveCurrentWorkspacePrompt.tr(),
                 onOkPressed: () {
                   workspaceBloc.add(

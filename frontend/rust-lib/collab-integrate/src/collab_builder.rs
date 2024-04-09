@@ -21,7 +21,7 @@ use collab_plugins::local_storage::CollabPersistenceConfig;
 
 use lib_infra::{if_native, if_wasm};
 use parking_lot::{Mutex, RwLock};
-use tracing::trace;
+use tracing::{instrument, trace};
 
 #[derive(Clone, Debug)]
 pub enum CollabPluginProviderType {
@@ -198,6 +198,10 @@ impl AppFlowyCollabBuilder {
   /// - `collab_db`: A weak reference to the [CollabKVDB].
   ///
   #[allow(clippy::too_many_arguments)]
+  #[instrument(
+    level = "trace",
+    skip(self, collab_db, collab_doc_state, persistence_config, build_config)
+  )]
   pub fn build_with_config(
     &self,
     uid: i64,
@@ -240,14 +244,13 @@ impl AppFlowyCollabBuilder {
     let arc_collab = Arc::new(collab);
 
     {
-      let collab_object = self.collab_object(uid, object_id, object_type)?;
+      let collab_object = self.collab_object(uid, object_id, object_type.clone())?;
       if build_config.sync_enable {
         let provider_type = self.plugin_provider.read().provider_type();
         let span = tracing::span!(tracing::Level::TRACE, "collab_builder", object_id = %object_id);
         let _enter = span.enter();
         match provider_type {
           CollabPluginProviderType::AppFlowyCloud => {
-            trace!("init appflowy cloud collab plugins");
             let local_collab = Arc::downgrade(&arc_collab);
             let plugins =
               self
@@ -259,7 +262,6 @@ impl AppFlowyCollabBuilder {
                   local_collab,
                 });
 
-            trace!("add appflowy cloud collab plugins: {}", plugins.len());
             for plugin in plugins {
               arc_collab.lock().add_plugin(plugin);
             }
@@ -296,7 +298,7 @@ impl AppFlowyCollabBuilder {
     #[cfg(not(target_arch = "wasm32"))]
     arc_collab.lock().initialize();
 
-    trace!("collab initialized: {}", object_id);
+    trace!("collab initialized: {}:{}", object_type, object_id);
     Ok(arc_collab)
   }
 }

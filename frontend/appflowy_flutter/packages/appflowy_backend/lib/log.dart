@@ -1,6 +1,5 @@
 // ignore: import_of_legacy_library_into_null_safe
 import 'dart:ffi';
-
 import 'package:ffi/ffi.dart' as ffi;
 import 'package:flutter/foundation.dart';
 import 'package:logger/logger.dart';

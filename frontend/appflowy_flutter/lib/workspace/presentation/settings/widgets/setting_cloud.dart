@@ -117,13 +117,14 @@ class CloudTypeSwitcher extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDevelopMode = integrationMode().isDevelop;
     // Only show the appflowyCloudDevelop in develop mode
-    final values = AuthenticatorType.values
-        .where(
-          (element) =>
-              isDevelopMode ||
-              element != AuthenticatorType.appflowyCloudDevelop,
-        )
-        .toList();
+    final values = AuthenticatorType.values.where((element) {
+      // Supabase will going to be removed in the future
+      if (element == AuthenticatorType.supabase) {
+        return false;
+      }
+
+      return isDevelopMode || element != AuthenticatorType.appflowyCloudDevelop;
+    }).toList();
     return PlatformExtension.isDesktopOrWeb
         ? AppFlowyPopover(
             direction: PopoverDirection.bottomWithRightAligned,

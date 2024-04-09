@@ -40,6 +40,7 @@ class SettingsDialog extends StatelessWidget {
                   SizedBox(
                     width: 200,
                     child: SettingsMenu(
+                      userProfile: user,
                       changeSelectedPage: (index) => context
                           .read<SettingsDialogBloc>()
                           .add(SettingsDialogEvent.setSelectedPage(index)),

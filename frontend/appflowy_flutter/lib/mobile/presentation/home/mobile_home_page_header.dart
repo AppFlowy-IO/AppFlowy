@@ -108,8 +108,7 @@ class _MobileWorkspace extends StatelessWidget {
     return BlocBuilder<UserWorkspaceBloc, UserWorkspaceState>(
       builder: (context, state) {
         final currentWorkspace = state.currentWorkspace;
-        final workspaces = state.workspaces;
-        if (currentWorkspace == null || workspaces.isEmpty) {
+        if (currentWorkspace == null) {
           return const SizedBox.shrink();
         }
         return GestureDetector(

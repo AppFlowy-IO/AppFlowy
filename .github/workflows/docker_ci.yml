@@ -7,19 +7,13 @@ on:
       - release/*
     paths:
       - frontend/**
-
   pull_request:
     branches:
       - main
       - release/*
     paths:
       - frontend/**
-    types:
-      - opened
-      - synchronize
-      - reopened
-      - unlocked
-      - ready_for_review
+    types: [opened, synchronize, reopened, unlocked, ready_for_review]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -33,6 +27,15 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v4
 
+      - name: Set up Docker Compose
+        run: |
+          docker-compose --version || {
+            echo "Docker Compose not found, installing..."
+            sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+            sudo chmod +x /usr/local/bin/docker-compose
+            docker-compose --version
+          }
+
       - name: Build the app
         shell: bash
         run: |
@@ -45,4 +48,4 @@ jobs:
               else \
                 echo "$line"; \
               fi; \
-            done \
+            done

@@ -80,17 +80,15 @@ class FlowyNavigation extends StatelessWidget {
                   style: HoverStyle.transparent(),
                   child: SizedBox(
                     width: 20,
-                    child: FlowySvg(
-                      FlowySvgs.hide_menu_m,
-                    ),
+                    child: FlowySvg(FlowySvgs.hide_menu_m),
                   ),
                 ),
               ),
             ),
           );
-        } else {
-          return const SizedBox.shrink();
         }
+
+        return const SizedBox.shrink();
       },
     );
   }

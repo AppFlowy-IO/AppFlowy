@@ -27,7 +27,7 @@ impl CollabInteract for CollabInteractImpl {
               .handle_reminder_action(DocumentReminderAction::Add { reminder })
               .await;
           },
-          Err(e) => tracing::error!("Failed to convert reminder: {:?}", e),
+          Err(e) => tracing::error!("Failed to add reminder: {:?}", e),
         }
       }
       Ok(())
@@ -56,7 +56,7 @@ impl CollabInteract for CollabInteractImpl {
               .handle_reminder_action(DocumentReminderAction::Update { reminder })
               .await;
           },
-          Err(e) => tracing::error!("Failed to convert reminder: {:?}", e),
+          Err(e) => tracing::error!("Failed to update reminder: {:?}", e),
         }
       }
       Ok(())

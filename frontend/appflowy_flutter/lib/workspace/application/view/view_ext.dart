@@ -8,11 +8,10 @@ import 'package:appflowy/plugins/database/grid/presentation/mobile_grid_page.dar
 import 'package:appflowy/plugins/database/tab_bar/tab_bar_view.dart';
 import 'package:appflowy/plugins/document/document.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
-import 'package:appflowy/workspace/application/view/view_service.dart';
-import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:appflowy_result/appflowy_result.dart';
+
+enum FlowyPlugin { editor, kanban }
 
 class PluginArgumentKeys {
   static String selection = "selection";
@@ -80,29 +79,6 @@ extension ViewExtension on ViewPB {
       };
 
   FlowySvgData get iconData => layout.icon;
-
-  Future<List<ViewPB>> getAncestors({
-    bool includeSelf = false,
-    bool includeRoot = false,
-  }) async {
-    final ancestors = <ViewPB>[];
-    if (includeSelf) {
-      final self = await ViewBackendService.getView(id);
-      ancestors.add(self.fold((s) => s, (e) => this));
-    }
-    FlowyResult<ViewPB, FlowyError> parent =
-        await ViewBackendService.getView(parentViewId);
-    while (parent.isSuccess) {
-      // parent is not null
-      final view = parent.fold((s) => s, (e) => null);
-      if (view == null || (!includeRoot && view.parentViewId.isEmpty)) {
-        break;
-      }
-      ancestors.add(view);
-      parent = await ViewBackendService.getView(view.parentViewId);
-    }
-    return ancestors.reversed.toList();
-  }
 }
 
 extension ViewLayoutExtension on ViewLayoutPB {

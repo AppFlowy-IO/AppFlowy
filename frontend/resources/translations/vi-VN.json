@@ -9,6 +9,7 @@
   "title": "Tiêu đề",
   "youCanAlso": "Bạn cũng có thể",
   "and": "và",
+  "failedToOpenUrl": "Không mở được url: {}",
   "blockActions": {
     "addBelowTooltip": "Nhấn để thêm vào bên dưới",
     "addAboveCmd": "Alt+nhấp chuột",
@@ -49,6 +50,7 @@
     "LogInWithGithub": "Đăng nhập bằng Github",
     "LogInWithDiscord": "Đăng nhập bằng Discord",
     "signInWith": "Đăng nhập bằng:",
+    "signInWithEmail": "Đăng nhập bằng Email",
     "loginAsGuestButtonText": "Đăng nhập với chế độ khách"
   },
   "workspace": {
@@ -61,8 +63,27 @@
     "failedToLoad": "Đã xảy ra lỗi! Không tải được không gian làm việc. Hãy thử đóng mọi phiên bản đang mở của AppFlowy và thử lại.",
     "errorActions": {
       "reportIssue": "Báo cáo một vấn đề",
+      "reportIssueOnGithub": "Báo cáo sự cố trên Github",
+      "exportLogFiles": "Xuất tệp nhật ký",
       "reachOut": "Báo cáo trên Discord"
-    }
+    },
+    "menuTitle": "Không gian làm việc",
+    "deleteWorkspaceHintText": "Bạn có chắc chắn muốn xóa không gian làm việc không? Hành động này không thể được hoàn tác.",
+    "createSuccess": "Không gian làm việc được tạo thành công",
+    "createFailed": "Không tạo được không gian làm việc",
+    "createLimitExceeded": "Bạn đã đạt đến giới hạn không gian làm việc tối đa được phép cho tài khoản của mình. Nếu bạn cần thêm không gian làm việc để tiếp tục công việc của mình, vui lòng yêu cầu trên Github",
+    "deleteSuccess": "Đã xóa thành công không gian làm việc",
+    "deleteFailed": "Không thể xóa không gian làm việc",
+    "openSuccess": "Mở không gian làm việc thành công",
+    "openFailed": "Không thể mở không gian làm việc",
+    "renameSuccess": "Đã đổi tên không gian làm việc thành công",
+    "renameFailed": "Không đổi tên được không gian làm việc",
+    "updateIconSuccess": "Đã cập nhật biểu tượng không gian làm việc thành công",
+    "updateIconFailed": "Biểu tượng không gian làm việc không được cập nhật thành công",
+    "cannotDeleteTheOnlyWorkspace": "Không thể xóa không gian làm việc duy nhất",
+    "fetchWorkspacesFailed": "Không thể lấy được không gian làm việc",
+    "leaveCurrentWorkspace": "Rời khỏi không gian làm việc",
+    "leaveCurrentWorkspacePrompt": "Bạn có chắc chắn muốn rời khỏi không gian làm việc hiện tại không?"
   },
   "shareAction": {
     "buttonText": "Chia sẻ",
@@ -77,7 +98,12 @@
     "large": "lớn",
     "fontSize": "Cỡ chữ",
     "import": "Import",
-    "moreOptions": "Lựa chọn khác"
+    "moreOptions": "Lựa chọn khác",
+    "wordCount": "Số từ: {}",
+    "charCount": "Số ký tự: {}",
+    "createdAt": "Tạo: {}",
+    "deleteView": "Xóa",
+    "duplicateView": "Nhân bản"
   },
   "importPanel": {
     "textAndMarkdown": "Văn bản &amp; Markdown",
@@ -126,7 +152,8 @@
       "emptyDescription": "Bạn không có tập tin nào bị xóa",
       "isDeleted": "đã bị xóa",
       "isRestored": "đã được phục hồi"
-    }
+    },
+    "confirmDeleteTitle": "Bạn có chắc chắn muốn xóa trang này vĩnh viễn không?"
   },
   "deletePagePrompt": {
     "text": "Trang này nằm trong Thùng rác",
@@ -163,6 +190,8 @@
     "numList": "Danh sách đánh số",
     "bulletList": "Danh sách có dấu đầu dòng",
     "checkList": "Danh mục",
+    "header": "Tiêu đề",
+    "highlight": "Điểm nổi bật",
     "color": "Màu",
     "addLink": "Thêm liên kết",
     "link": "Liên kết"
@@ -175,12 +204,15 @@
     "openMenu": "Bấm để mở menu",
     "dragRow": "Nhấn và giữ để sắp xếp lại hàng",
     "viewDataBase": "Xem cơ sở dữ liệu",
-    "referencePage": "{name} này được tham chiếu"
+    "referencePage": "{name} này được tham chiếu",
+    "addBlockBelow": "Thêm một khối bên dưới"
   },
   "sideBar": {
     "closeSidebar": "Đóng thanh bên",
     "openSidebar": "Thanh bên mở",
     "personal": "Riêng tư",
+    "private": "Riêng tư",
+    "workspace": "Không gian làm việc",
     "favorites": "Yêu thích",
     "clickToHidePersonal": "Bấm để ẩn mục riêng tư",
     "clickToHideFavorites": "Bấm để ẩn mục yêu thích",
@@ -228,6 +260,14 @@
     "helpCenter": "Trung tâm trợ giúp",
     "add": "Thêm",
     "yes": "Đúng",
+    "copyLink": "Sao chép đường dẫn",
+    "align": "Căn chỉnh",
+    "login": "Đăng nhập",
+    "logout": "Đăng xuất",
+    "deleteAccount": "Xóa tài khoản",
+    "signInGoogle": "Đăng nhập bằng Google",
+    "signInGithub": "Đăng nhập bằng Github",
+    "signInDiscord": "Đăng nhập bằng Discord",
     "tryAGain": "Thử lại"
   },
   "label": {
@@ -369,7 +409,21 @@
         "twelveHour": "12 tiếng",
         "twentyFourHour": "Hai mươi bốn tiếng"
       },
-      "showNamingDialogWhenCreatingPage": "Hiển thị hộp thoại đặt tên khi tạo trang"
+      "showNamingDialogWhenCreatingPage": "Hiển thị hộp thoại đặt tên khi tạo trang",
+      "members": {
+        "title": "Cài đặt thành viên",
+        "inviteMembers": "Mời thành viên",
+        "sendInvite": "Gửi lời mời",
+        "copyInviteLink": "Sao chép liên kết mời",
+        "label": "Các thành viên",
+        "user": "Người dùng",
+        "role": "Vai trò",
+        "removeFromWorkspace": "Xóa khỏi Workspace",
+        "owner": "Người sở hữu",
+        "guest": "Khách",
+        "member": "Thành viên",
+        "members": "các thành viên"
+      }
     },
     "files": {
       "copy": "Sao chép",
@@ -392,6 +446,7 @@
       "folderHintText": "tên thư mục",
       "location": "Tạo một thư mục mới",
       "locationDesc": "Chọn tên cho thư mục dữ liệu AppFlowy của bạn",
+      "browser": "Duyệt",
       "create": "Tạo",
       "folderPath": "Đường dẫn lưu trữ thư mục của bạn",
       "locationCannotBeEmpty": "Đường dẫn không thể trống",
@@ -620,6 +675,7 @@
       }
     },
     "plugins": {
+      "openAI": "OpenAI",
       "optionAction": {
         "delete": "Xóa",
         "color": "Màu",

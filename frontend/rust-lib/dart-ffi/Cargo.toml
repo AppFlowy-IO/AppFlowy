@@ -24,14 +24,15 @@ crossbeam-utils = "0.8.15"
 lazy_static = "1.4.0"
 parking_lot.workspace = true
 tracing.workspace = true
+lib-log.workspace = true
 
 # workspace
 lib-dispatch = { workspace = true }
 
 # Core
 #flowy-core = { workspace = true, features = ["profiling"] }
-flowy-core = { workspace = true, features = ["verbose_log"] }
-#flowy-core = { workspace = true }
+#flowy-core = { workspace = true, features = ["verbose_log"] }
+flowy-core = { workspace = true }
 
 flowy-notification = { workspace = true, features = ["dart"] }
 flowy-document = { workspace = true, features = ["dart"] }
