@@ -4,6 +4,7 @@ import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:collection/collection.dart';
+import 'package:flutter/foundation.dart';
 
 typedef FeatureFlagMap = Map<FeatureFlag, bool>;
 
@@ -83,12 +84,16 @@ enum FeatureFlag {
   bool get isOn {
     // release this feature in version 0.5.4
     if ([
-      FeatureFlag.collaborativeWorkspace,
-      FeatureFlag.membersSettings,
+      // FeatureFlag.collaborativeWorkspace,
+      // FeatureFlag.membersSettings,
       FeatureFlag.syncDatabase,
       FeatureFlag.syncDocument,
     ].contains(this)) {
       return true;
+    }
+
+    if (kReleaseMode) {
+      return false;
     }
 
     if (_values.containsKey(this)) {
