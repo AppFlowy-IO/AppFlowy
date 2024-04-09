@@ -16,13 +16,11 @@ class WorkspaceSettingsBloc
       (event, emit) async {
         await event.when(
           initial: (userProfile, workspace) async {
-            UserWorkspacePB? currentWorkspace = workspace;
-            if (workspace == null) {
-              currentWorkspace = await _getWorkspace(userProfile.workspaceId);
-            }
+            final currentWorkspace =
+                workspace ?? await _getWorkspace(userProfile.workspaceId);
 
             // We emit here because the next event might take longer.
-            emit(state.copyWith(workspace: currentWorkspace!));
+            emit(state.copyWith(workspace: currentWorkspace));
 
             final members = await _getWorkspaceMembers(userProfile.workspaceId);
             final role = members

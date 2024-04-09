@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
@@ -12,7 +14,6 @@ import 'package:flowy_infra/plugins/bloc/dynamic_plugin_state.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ColorSchemeSetting extends StatelessWidget {
@@ -64,13 +65,15 @@ class ColorSchemeUploadOverlayButton extends StatelessWidget {
             child: ThemeUploadWidget(),
           ),
         ),
-      ).then((value) {
-        if (value == null) return;
-        showSnackBarMessage(
-          context,
-          LocaleKeys.settings_appearance_themeUpload_uploadSuccess.tr(),
-        );
-      }),
+      ).then(
+        (value) {
+          if (value == null) return;
+          showSnackBarMessage(
+            context,
+            LocaleKeys.settings_appearance_themeUpload_uploadSuccess.tr(),
+          );
+        },
+      ),
     );
   }
 }

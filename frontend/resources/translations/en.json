@@ -354,7 +354,10 @@
         "title": "Workspace font"
       },
       "textDirection": {
-        "title": "Text direction"
+        "title": "Text direction",
+        "leftToRight": "Left to right",
+        "rightToLeft": "Right to left",
+        "auto": "Auto"
       },
       "dateTime": {
         "title": "Date & time"
@@ -362,6 +365,9 @@
       "language": {
         "title": "Language"
       }
+    },
+    "common": {
+      "reset": "Reset"
     },
     "menu": {
       "appearance": "Appearance",

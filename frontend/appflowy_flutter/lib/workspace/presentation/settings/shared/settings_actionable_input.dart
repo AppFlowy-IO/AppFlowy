@@ -34,6 +34,10 @@ class SettingsActionableInput extends StatelessWidget {
               isDense: false,
               suffixIconConstraints:
                   BoxConstraints.tight(const Size(23 + 18, 24)),
+              textStyle: const TextStyle(
+                fontWeight: FontWeight.w500,
+                fontSize: 14,
+              ),
               onSubmitted: onSave,
             ),
           ),
