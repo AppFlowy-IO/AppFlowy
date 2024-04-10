@@ -60,6 +60,12 @@ class RelatedRowDetailPageBloc
     });
   }
 
+  /// initialize bloc through the `database_id` and `row_id`. The process is as
+  /// follows:
+  /// 1. use the `database_id` to get the database meta, which contains the
+  /// `inline_view_id`
+  /// 2. use the `inline_view_id` to instantiate a `DatabaseController`.
+  /// 3. use the `row_id` with the DatabaseController` to create `RowController`
   void _init(String databaseId, String initialRowId) async {
     final databaseMeta = await DatabaseEventGetDatabases()
         .send()
