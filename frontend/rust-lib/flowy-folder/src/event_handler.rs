@@ -139,6 +139,19 @@ pub(crate) async fn get_view_handler(
 }
 
 #[tracing::instrument(level = "debug", skip(data, folder), err)]
+pub(crate) async fn get_view_ancestors_handler(
+  data: AFPluginData<ViewIdPB>,
+  folder: AFPluginState<Weak<FolderManager>>,
+) -> DataResult<RepeatedViewPB, FlowyError> {
+  let folder = upgrade_folder(folder)?;
+  let view_id: ViewIdPB = data.into_inner();
+  let view_ancestors = folder.get_view_ancestors_pb(&view_id.value).await?;
+  data_result_ok(RepeatedViewPB {
+    items: view_ancestors,
+  })
+}
+
+#[tracing::instrument(level = "debug", skip(data, folder), err)]
 pub(crate) async fn update_view_handler(
   data: AFPluginData<UpdateViewPayloadPB>,
   folder: AFPluginState<Weak<FolderManager>>,
@@ -273,7 +286,7 @@ pub(crate) async fn read_recent_views_handler(
   folder: AFPluginState<Weak<FolderManager>>,
 ) -> DataResult<RepeatedViewPB, FlowyError> {
   let folder = upgrade_folder(folder)?;
-  let recent_items = folder.get_all_recent_sections().await;
+  let recent_items = folder.get_my_recent_sections().await;
   let mut views = vec![];
   for item in recent_items {
     if let Ok(view) = folder.get_view_pb(&item.id).await {
@@ -361,5 +374,16 @@ pub(crate) async fn reload_workspace_handler(
 ) -> Result<(), FlowyError> {
   let folder = upgrade_folder(folder)?;
   folder.reload_workspace().await?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip(data, folder), err)]
+pub(crate) async fn update_view_visibility_status_handler(
+  data: AFPluginData<UpdateViewVisibilityStatusPayloadPB>,
+  folder: AFPluginState<Weak<FolderManager>>,
+) -> Result<(), FlowyError> {
+  let folder = upgrade_folder(folder)?;
+  let params = data.into_inner();
+  folder.set_views_visibility(params.view_ids, params.is_public);
   Ok(())
 }

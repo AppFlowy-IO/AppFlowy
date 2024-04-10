@@ -5,7 +5,7 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 SelectionMenuItem dateMenuItem = SelectionMenuItem(
-  getName: () => LocaleKeys.document_plugins_date.tr(),
+  getName: LocaleKeys.document_plugins_insertDate.tr,
   icon: (_, isSelected, style) => FlowySvg(
     FlowySvgs.date_s,
     color: isSelected

@@ -65,9 +65,11 @@
       "exportLogFiles": "Exportiere Log-Dateien",
       "reachOut": "Kontaktiere uns auf Discord"
     },
+    "menuTitle": "Arbeitsbereiche",
     "deleteWorkspaceHintText": "Sicher, dass du dein Workspace löschen möchtest?\nDies kann nicht mehr Rückgängig gemacht werden.",
     "createSuccess": "Workspace erfolgreich erstellt",
     "createFailed": "Der Workspace konnte nicht erstellt werden",
+    "createLimitExceeded": "Du hast die für dein Benutzerkonto maximal zulässige Anzahl an Arbeitsbereichen erreicht. Benötigst du zum fortsetzen deiner Arbeit noch weitere Arbeitsbereiche, erstelle auf Github bitte eine entsprechende Anfrage.",
     "deleteSuccess": "Workspace erfolgreich gelöscht",
     "deleteFailed": "Der Workspace konnte nicht gelöscht werden",
     "openSuccess": "Workspace erfolgreich geöffnet",
@@ -75,7 +77,9 @@
     "renameSuccess": "Workspace erfolgreich umbenannt",
     "renameFailed": "Der Workspace konnte nicht umbenannt werden",
     "updateIconSuccess": "Workspace erfolgreich zurückgesetzt",
-    "updateIconFailed": "Der Workspace konnte nicht zurückgesetzt werden"
+    "updateIconFailed": "Der Workspace konnte nicht zurückgesetzt werden",
+    "cannotDeleteTheOnlyWorkspace": "Der einzig vorhandene Arbeitsbereich kann nicht gelöscht werden",
+    "fetchWorkspacesFailed": "Arbeitsbereiche konnten nicht abgerufen werden!"
   },
   "shareAction": {
     "buttonText": "Teilen",
@@ -144,7 +148,8 @@
       "emptyDescription": "Es sind keine gelöschten Dateien vorhanden.",
       "isDeleted": "wurde gelöscht",
       "isRestored": "wurde wiederhergestellt"
-    }
+    },
+    "confirmDeleteTitle": "Bist du dir sicher, dass du diese Seite unwiderruflich löschen möchtest?"
   },
   "deletePagePrompt": {
     "text": "Diese Seite befindet sich im Papierkorb",
@@ -206,11 +211,17 @@
     "closeSidebar": "Seitenleiste schließen",
     "openSidebar": "Seitenleiste öffnen",
     "personal": "Persönlich",
+    "private": "Privat",
     "favorites": "Favoriten",
+    "clickToHidePrivate": "Hier klicken, um den privaten Bereich auszublenden.\nVon dir hier erstellte Seiten sind nur für dich sichtbar.",
     "clickToHidePersonal": "Klicken, um den persönlichen Abschnitt zu verbergen",
     "clickToHideFavorites": "Klicken, um Favoriten zu verbergen",
     "addAPage": "Seite hinzufügen",
-    "recent": "Zuletzt"
+    "addAPageToPrivate": "Eine Seite zum privaten Bereich hinzufügen.",
+    "recent": "Zuletzt",
+    "public": "Öffentlich",
+    "clickToHidePublic": "Hier klicken, um den öffentlichen Raum auszublenden.\nVon dir hier erstellte Seiten sind für jedes Mitglied sichtbar.",
+    "addAPageToPublic": "Eine Seite zum öffentlichen Bereich hinzufügen."
   },
   "notifications": {
     "export": {
@@ -257,7 +268,14 @@
     "remove": "Entfernen",
     "dontRemove": "Nicht entfernen",
     "copyLink": "Link kopieren",
-    "align": "zentrieren"
+    "align": "zentrieren",
+    "login": "Anmelden",
+    "logout": "Abmelden",
+    "deleteAccount": "Benutzerkonto löschen",
+    "back": "Zurück",
+    "signInGoogle": "Mit einem Google Benutzerkonto anmelden",
+    "signInGithub": "Mit einem Github Benutzerkonto anmelden",
+    "signInDiscord": "Mit einem Discord Benutzerkonto anmelden"
   },
   "label": {
     "welcome": "Willkommen!",
@@ -425,7 +443,17 @@
         "guestHintText": "Ein Gast kann mit Erlaubnis bestimmte Seiten lesen, reagieren, kommentieren und bearbeiten.",
         "emailInvalidError": "Ungültige E-Mail. Bitte prüfe die E-Mail und versuche es erneut.",
         "emailSent": "E-Mail gesendet. Prüfe den Posteingang.",
-        "members": "Mitglieder"
+        "members": "Mitglieder",
+        "membersCount": {
+          "zero": "{} Mitglieder",
+          "one": "{} Mitglied",
+          "other": "{} Mitglieder"
+        },
+        "memberLimitExceeded": "Du hast die maximal zulässige Mitgliederzahl für dein Benutzerkonto erreicht. Benötigst du weitere Mitglieder, um deine Arbeit fortsetzen zu können, erstelle auf Github bitte eine entsprechende Anfrage.",
+        "failedToAddMember": "Mitglied konnte nicht hinzugefügt werden!",
+        "addMemberSuccess": "Mitglied erfolgreich hinzugefügt",
+        "removeMember": "Mitglied entfernen",
+        "areYouSureToRemoveMember": "Möchten Sie dieses Mitglied wirklich entfernen?"
       }
     },
     "files": {
@@ -525,14 +553,14 @@
       "typeAValue": "Einen Wert eingeben...",
       "layout": "Layout",
       "databaseLayout": "Layout",
-      "viewList": "Datenbank-Ansichten",
       "editView": "Ansicht editieren",
       "boardSettings": "Board-Einstellungen",
       "calendarSettings": "Kalender-Einstellungen",
       "createView": "New Ansicht",
       "duplicateView": "Ansicht duplizieren",
       "deleteView": "Anslicht löschen",
-      "numberOfVisibleFields": "{} angezeigt"
+      "numberOfVisibleFields": "{} angezeigt",
+      "viewList": "Datenbank-Ansichten"
     },
     "textFilter": {
       "contains": "Enthält",
@@ -605,6 +633,7 @@
       "insertRight": "Rechts einfügen",
       "duplicate": "Duplikat",
       "delete": "Löschen",
+      "clear": " Zelleninhalte löschen",
       "textFieldName": "Text",
       "checkboxFieldName": "Kontrollkästchen",
       "dateFieldName": "Datum",
@@ -645,6 +674,7 @@
       "editProperty": "Eigenschaft bearbeiten",
       "newProperty": "Neue Eigenschaft",
       "deleteFieldPromptMessage": "Sicher? Diese Eigenschaft wird gelöscht",
+      "clearFieldPromptMessage": "Bist du dir sicher? Alle Zelleninhalte in dieser Spalte werden gelöscht!",
       "newColumn": "Neue Spalte",
       "format": "Format",
       "reminderOnDateTooltip": "Diese Zeile hat eine terminierte Erinnerung",
@@ -718,15 +748,19 @@
       "hideComplete": "Blende abgeschlossene Aufgaben aus",
       "showComplete": "Zeige alle Aufgaben"
     },
+    "url": {
+      "launch": "Im Browser öffnen",
+      "copy": "Webadresse kopieren",
+      "textFieldHint": "Geben Sie eine URL ein",
+      "copiedNotification": "In die Zwischenablage kopiert!"
+    },
     "relation": {
       "relatedDatabasePlaceLabel": "Verwandte Datenbank",
       "relatedDatabasePlaceholder": "Nichts",
       "inRelatedDatabase": "in",
+      "rowSearchTextFieldPlaceholder": "Suchen",
+      "noDatabaseSelected": "Keine Datenbank ausgewählt! Bitte wähle zuerst eine Datenbank aus der nachfolgenden Liste aus:",
       "emptySearchResult": "Nichts gefunden"
-    },
-    "url": {
-      "launch": "Im Browser öffnen",
-      "copy": "Webadresse kopieren"
     },
     "menuName": "Raster",
     "referencedGridPrefix": "Sicht von",
@@ -797,6 +831,7 @@
       "discardResponse": "Möchten Sie die KI-Antworten verwerfen?",
       "createInlineMathEquation": "Formel erstellen",
       "fonts": "Schriftarten",
+      "emoji": "Emoji",
       "toggleList": "Liste umschalten",
       "quoteList": "Kursblatt",
       "numberedList": "Nummerierte Liste",
@@ -884,8 +919,7 @@
         "newDatabase": "Neue Datenbank",
         "linkToDatabase": "Verknüpfung zur Datenbank"
       },
-      "date": "Datum",
-      "emoji": "Emoji"
+      "date": "Datum"
     },
     "outlineBlock": {
       "placeholder": "Inhaltsverzeichnis"
@@ -1049,7 +1083,8 @@
       "name": "Kalendereinstellungen"
     },
     "referencedCalendarPrefix": "Sicht von",
-    "quickJumpYear": "Spring zu"
+    "quickJumpYear": "Spring zu",
+    "duplicateEvent": "Doppeltes Ereignis"
   },
   "errorDialog": {
     "title": "AppFlowy-Fehler",
@@ -1297,6 +1332,8 @@
     "copy": "Kopieren",
     "paste": "Einfügen",
     "find": "Finden",
+    "select": "Auswählen",
+    "selectAll": "Alle auswählen",
     "previousMatch": "Vorheriger Treffer",
     "nextMatch": "Nächster Treffer",
     "closeFind": "Schließen",
@@ -1353,5 +1390,31 @@
     "addField": "Ein Feld hinzufügen",
     "userIcon": "Nutzerbild"
   },
-  "noLogFiles": "Hier gibt es kein Log-File"
+  "noLogFiles": "Hier gibt es kein Log-File",
+  "newSettings": {
+    "myAccount": {
+      "title": "Mein Benutzerkonto",
+      "subtitle": "Passe dein Profil an, verwalte Einstellungen zur Sicherheit deines Benutzerkontos, öffne AI-Schlüssel oder melde dich bei deinem Konto an.",
+      "profileLabel": "Kontoname und Profilbild",
+      "profileNamePlaceholder": "Gib deinen Namen ein",
+      "accountSecurity": "Konto Sicherheit",
+      "2FA": "Authentifizierung in zwei Schritten",
+      "aiKeys": "AI-Schlüssel",
+      "accountLogin": "Benutzerkonto Login",
+      "updateNameError": "Namensaktualisierung fehlgeschlagen!",
+      "updateIconError": "Symbol konnte nicht aktualisiert werden!",
+      "deleteAccount": {
+        "title": "Benutzerkonto löschen",
+        "subtitle": "Benutzerkonto inkl. deiner persönlicher Daten unwiderruflich löschen.",
+        "deleteMyAccount": "Mein Benutzerkonto löschen",
+        "dialogTitle": "Benutzerkonto löschen",
+        "dialogContent1": "Bist du sicher, dass du dein Benutzerkonto unwiderruflich löschen möchtest?",
+        "dialogContent2": "Diese Aktion kann nicht rückgängig gemacht werden und führt dazu, dass der Zugriff auf alle Teambereiche aufgehoben wird, Ihr gesamtes Benutzerkonto, einschließlich privater Arbeitsbereiche, gelöscht wird und Sie aus allen freigegebenen Arbeitsbereichen entfernt werden."
+      }
+    },
+    "workplace": {
+      "name": "Arbeitsbereich",
+      "title": "Arbeitsbereichseinstellungen"
+    }
+  }
 }

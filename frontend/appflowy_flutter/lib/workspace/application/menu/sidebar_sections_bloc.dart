@@ -1,5 +1,9 @@
 import 'dart:async';
 
+import 'package:appflowy/startup/plugin/plugin.dart';
+import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/workspace/workspace_sections_listener.dart';
 import 'package:appflowy/workspace/application/workspace/workspace_service.dart';
 import 'package:appflowy_backend/log.dart';
@@ -152,6 +156,37 @@ class SidebarSectionsBloc
               },
             );
           },
+          reload: (userProfile, workspaceId) async {
+            _initial(userProfile, workspaceId);
+            final sectionViews = await _getSectionViews();
+            if (sectionViews != null) {
+              emit(
+                state.copyWith(
+                  section: sectionViews,
+                ),
+              );
+              // try to open the fist view in public section or private section
+              if (sectionViews.publicViews.isNotEmpty) {
+                getIt<TabsBloc>().add(
+                  TabsEvent.openPlugin(
+                    plugin: sectionViews.publicViews.first.plugin(),
+                  ),
+                );
+              } else if (sectionViews.privateViews.isNotEmpty) {
+                getIt<TabsBloc>().add(
+                  TabsEvent.openPlugin(
+                    plugin: sectionViews.privateViews.first.plugin(),
+                  ),
+                );
+              } else {
+                getIt<TabsBloc>().add(
+                  TabsEvent.openPlugin(
+                    plugin: makePlugin(pluginType: PluginType.blank),
+                  ),
+                );
+              }
+            }
+          },
         );
       },
     );
@@ -245,6 +280,10 @@ class SidebarSectionsEvent with _$SidebarSectionsEvent {
   const factory SidebarSectionsEvent.receiveSectionViewsUpdate(
     SectionViewsPB sectionViews,
   ) = _ReceiveSectionViewsUpdate;
+  const factory SidebarSectionsEvent.reload(
+    UserProfilePB userProfile,
+    String workspaceId,
+  ) = _Reload;
 }
 
 @freezed

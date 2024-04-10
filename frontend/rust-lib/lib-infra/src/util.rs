@@ -67,3 +67,44 @@ pub fn md5<T: AsRef<[u8]>>(data: T) -> String {
   let md5 = format!("{:x}", md5::compute(data));
   md5
 }
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum Platform {
+  Unknown,
+  Windows,
+  Linux,
+  MacOS,
+  IOS,
+  Android,
+}
+
+impl Platform {
+  pub fn is_not_ios(&self) -> bool {
+    !matches!(self, Platform::IOS)
+  }
+}
+
+impl From<String> for Platform {
+  fn from(s: String) -> Self {
+    Platform::from(s.as_str())
+  }
+}
+
+impl From<&String> for Platform {
+  fn from(s: &String) -> Self {
+    Platform::from(s.as_str())
+  }
+}
+
+impl From<&str> for Platform {
+  fn from(s: &str) -> Self {
+    match s {
+      "windows" => Platform::Windows,
+      "linux" => Platform::Linux,
+      "macos" => Platform::MacOS,
+      "ios" => Platform::IOS,
+      "android" => Platform::Android,
+      _ => Platform::Unknown,
+    }
+  }
+}

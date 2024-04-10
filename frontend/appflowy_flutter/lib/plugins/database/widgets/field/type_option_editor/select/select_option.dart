@@ -1,9 +1,11 @@
+import 'dart:io';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/field/type_option/select_option_type_option_bloc.dart';
 import 'package:appflowy/plugins/database/application/field/type_option/select_type_option_actions.dart';
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
-import 'package:appflowy/plugins/database/widgets/cell_editor/extension.dart';
+import 'package:appflowy/plugins/database/widgets/cell_editor/select_option_cell_editor.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option_entities.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -48,16 +50,15 @@ class SelectOptionTypeOptionWidget extends StatelessWidget {
             ] else
               const _AddOptionButton(),
             const VSpace(4),
-            ...state.options.map((option) {
-              return _OptionCell(
-                option: option,
+            Flexible(
+              child: _OptionList(
                 popoverMutex: popoverMutex,
-              );
-            }),
+              ),
+            ),
           ];
 
-          return ListView(
-            shrinkWrap: true,
+          return Column(
+            mainAxisSize: MainAxisSize.min,
             children: children,
           );
         },
@@ -90,9 +91,15 @@ class _OptionTitle extends StatelessWidget {
 }
 
 class _OptionCell extends StatefulWidget {
-  const _OptionCell({required this.option, this.popoverMutex});
+  const _OptionCell({
+    super.key,
+    required this.option,
+    required this.index,
+    this.popoverMutex,
+  });
 
   final SelectOptionPB option;
+  final int index;
   final PopoverMutex? popoverMutex;
 
   @override
@@ -108,6 +115,7 @@ class _OptionCellState extends State<_OptionCell> {
       height: 28,
       child: SelectOptionTagCell(
         option: widget.option,
+        index: widget.index,
         onSelected: () => _popoverController.show(),
         children: [
           FlowyIconButton(
@@ -115,8 +123,9 @@ class _OptionCellState extends State<_OptionCell> {
             iconPadding: const EdgeInsets.symmetric(horizontal: 6.0),
             hoverColor: Colors.transparent,
             icon: FlowySvg(
-              FlowySvgs.details_s,
+              FlowySvgs.three_dots_s,
               color: Theme.of(context).iconTheme.color,
+              size: const Size.square(16),
             ),
           ),
         ],
@@ -251,5 +260,63 @@ class _CreateOptionTextFieldState extends State<CreateOptionTextField> {
     });
     _focusNode.dispose();
     super.dispose();
+  }
+}
+
+class _OptionList extends StatelessWidget {
+  const _OptionList({
+    this.popoverMutex,
+  });
+
+  final PopoverMutex? popoverMutex;
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<SelectOptionTypeOptionBloc, SelectOptionTypeOptionState>(
+      builder: (context, state) {
+        return ReorderableListView.builder(
+          shrinkWrap: true,
+          onReorderStart: (_) => popoverMutex?.close(),
+          proxyDecorator: (child, index, _) => Material(
+            color: Colors.transparent,
+            child: Stack(
+              children: [
+                BlocProvider.value(
+                  value: context.read<SelectOptionTypeOptionBloc>(),
+                  child: child,
+                ),
+                MouseRegion(
+                  cursor: Platform.isWindows
+                      ? SystemMouseCursors.click
+                      : SystemMouseCursors.grabbing,
+                  child: const SizedBox.expand(),
+                ),
+              ],
+            ),
+          ),
+          buildDefaultDragHandles: false,
+          itemBuilder: (context, index) => _OptionCell(
+            key: ValueKey("select_type_option_list_${state.options[index].id}"),
+            index: index,
+            option: state.options[index],
+            popoverMutex: popoverMutex,
+          ),
+          itemCount: state.options.length,
+          onReorder: (oldIndex, newIndex) {
+            if (oldIndex < newIndex) {
+              newIndex--;
+            }
+            final fromOptionId = state.options[oldIndex].id;
+            final toOptionId = state.options[newIndex].id;
+            context.read<SelectOptionTypeOptionBloc>().add(
+                  SelectOptionTypeOptionEvent.reorderOption(
+                    fromOptionId,
+                    toOptionId,
+                  ),
+                );
+          },
+        );
+      },
+    );
   }
 }

@@ -32,7 +32,6 @@ abstract class IEditableSelectOptionCellSkin {
     BuildContext context,
     CellContainerNotifier cellContainerNotifier,
     SelectOptionCellBloc bloc,
-    SelectOptionCellState state,
     PopoverController popoverController,
   );
 }
@@ -77,16 +76,11 @@ class _SelectOptionCellState extends GridCellState<EditableSelectOptionCell> {
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: cellBloc,
-      child: BlocBuilder<SelectOptionCellBloc, SelectOptionCellState>(
-        builder: (context, state) {
-          return widget.skin.build(
-            context,
-            widget.cellContainerNotifier,
-            cellBloc,
-            state,
-            _popover,
-          );
-        },
+      child: widget.skin.build(
+        context,
+        widget.cellContainerNotifier,
+        cellBloc,
+        _popover,
       ),
     );
   }

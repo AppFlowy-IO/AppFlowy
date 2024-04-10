@@ -475,6 +475,15 @@ pub struct UpdateRecentViewPayloadPB {
   pub add_in_recent: bool,
 }
 
+#[derive(Default, ProtoBuf)]
+pub struct UpdateViewVisibilityStatusPayloadPB {
+  #[pb(index = 1)]
+  pub view_ids: Vec<String>,
+
+  #[pb(index = 2)]
+  pub is_public: bool,
+}
+
 // impl<'de> Deserialize<'de> for ViewDataType {
 //     fn deserialize<D>(deserializer: D) -> Result<Self, <D as Deserializer<'de>>::Error>
 //     where

@@ -20,10 +20,10 @@ class SelectOptionTypeOptionBloc
   void _dispatch() {
     on<SelectOptionTypeOptionEvent>(
       (event, emit) async {
-        await event.when(
-          createOption: (optionName) async {
+        event.when(
+          createOption: (optionName) {
             final List<SelectOptionPB> options =
-                await typeOptionAction.insertOption(state.options, optionName);
+                typeOptionAction.insertOption(state.options, optionName);
             emit(state.copyWith(options: options));
           },
           addingOption: () {
@@ -33,13 +33,21 @@ class SelectOptionTypeOptionBloc
             emit(state.copyWith(isEditingOption: false, newOptionName: null));
           },
           updateOption: (option) {
-            final List<SelectOptionPB> options =
+            final options =
                 typeOptionAction.updateOption(state.options, option);
             emit(state.copyWith(options: options));
           },
           deleteOption: (option) {
-            final List<SelectOptionPB> options =
+            final options =
                 typeOptionAction.deleteOption(state.options, option);
+            emit(state.copyWith(options: options));
+          },
+          reorderOption: (fromOptionId, toOptionId) {
+            final options = typeOptionAction.reorderOption(
+              state.options,
+              fromOptionId,
+              toOptionId,
+            );
             emit(state.copyWith(options: options));
           },
         );
@@ -61,6 +69,10 @@ class SelectOptionTypeOptionEvent with _$SelectOptionTypeOptionEvent {
   const factory SelectOptionTypeOptionEvent.deleteOption(
     SelectOptionPB option,
   ) = _DeleteOption;
+  const factory SelectOptionTypeOptionEvent.reorderOption(
+    String fromOptionId,
+    String toOptionId,
+  ) = _ReorderOption;
 }
 
 @freezed

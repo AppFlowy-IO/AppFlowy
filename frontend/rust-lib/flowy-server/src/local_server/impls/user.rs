@@ -148,8 +148,14 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
     FutureResult::new(async { Ok(vec![]) })
   }
 
-  fn get_user_awareness_doc_state(&self, _uid: i64) -> FutureResult<Vec<u8>, FlowyError> {
-    FutureResult::new(async { Ok(vec![]) })
+  fn get_user_awareness_doc_state(
+    &self,
+    _uid: i64,
+    _workspace_id: &str,
+    _object_id: &str,
+  ) -> FutureResult<Vec<u8>, FlowyError> {
+    // must return record not found error
+    FutureResult::new(async { Err(FlowyError::record_not_found()) })
   }
 
   fn reset_workspace(&self, _collab_object: CollabObject) -> FutureResult<(), FlowyError> {
@@ -160,7 +166,6 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
     &self,
     _collab_object: &CollabObject,
     _data: Vec<u8>,
-    _override_if_exist: bool,
   ) -> FutureResult<(), FlowyError> {
     FutureResult::new(async { Ok(()) })
   }

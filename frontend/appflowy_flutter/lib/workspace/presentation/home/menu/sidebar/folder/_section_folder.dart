@@ -2,6 +2,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
+import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/folder/_folder_header.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/rename_view_dialog.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
@@ -94,6 +95,25 @@ class SectionFolder extends StatelessWidget {
                         context.read<TabsBloc>().openTab(view),
                     isHoverEnabled: isHoverEnabled,
                   ),
+                ),
+              if (views.isEmpty)
+                ViewItem(
+                  categoryType: categoryType,
+                  view: ViewPB(
+                    parentViewId: context
+                            .read<UserWorkspaceBloc>()
+                            .state
+                            .currentWorkspace
+                            ?.workspaceId ??
+                        '',
+                  ),
+                  level: 0,
+                  leftPadding: 16,
+                  isFeedback: false,
+                  onSelected: (_) {},
+                  onTertiarySelected: (_) {},
+                  isHoverEnabled: isHoverEnabled,
+                  isPlaceholder: true,
                 ),
             ],
           );

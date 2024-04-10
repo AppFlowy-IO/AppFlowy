@@ -26,6 +26,7 @@ class DraggableViewItem extends StatefulWidget {
     this.topHighlightColor,
     this.bottomHighlightColor,
     this.onDragging,
+    this.onMove,
   });
 
   final Widget child;
@@ -36,6 +37,7 @@ class DraggableViewItem extends StatefulWidget {
   final Color? topHighlightColor;
   final Color? bottomHighlightColor;
   final void Function(bool isDragging)? onDragging;
+  final void Function(ViewPB from, ViewPB to)? onMove;
 
   @override
   State<DraggableViewItem> createState() => _DraggableViewItemState();
@@ -186,6 +188,11 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
     if (position == DraggableHoverPosition.center &&
         to.layout != ViewLayoutPB.Document) {
       // not support moving into a database
+      return;
+    }
+
+    if (widget.onMove != null) {
+      widget.onMove?.call(from, to);
       return;
     }
 

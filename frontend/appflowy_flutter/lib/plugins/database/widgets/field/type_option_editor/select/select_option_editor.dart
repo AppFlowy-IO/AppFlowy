@@ -230,7 +230,7 @@ class _SelectOptionColorCell extends StatelessWidget {
       child: FlowyButton(
         hoverColor: AFThemeExtension.of(context).lightGreyHover,
         text: FlowyText.medium(
-          color.optionName(),
+          color.colorName(),
           color: AFThemeExtension.of(context).textColor,
         ),
         leftIcon: colorIcon,

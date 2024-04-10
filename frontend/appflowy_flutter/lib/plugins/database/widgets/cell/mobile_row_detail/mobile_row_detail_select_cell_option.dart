@@ -10,6 +10,7 @@ import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../editable_cell_skeleton/select_option.dart';
 
@@ -20,53 +21,56 @@ class MobileRowDetailSelectOptionCellSkin
     BuildContext context,
     CellContainerNotifier cellContainerNotifier,
     SelectOptionCellBloc bloc,
-    SelectOptionCellState state,
     PopoverController popoverController,
   ) {
-    return InkWell(
-      borderRadius: const BorderRadius.all(Radius.circular(14)),
-      onTap: () => showMobileBottomSheet(
-        context,
-        builder: (context) {
-          return MobileSelectOptionEditor(
-            cellController: bloc.cellController,
-          );
-        },
-      ),
-      child: Container(
-        constraints: const BoxConstraints(
-          minHeight: 48,
-          minWidth: double.infinity,
-        ),
-        padding: EdgeInsets.symmetric(
-          horizontal: 12,
-          vertical: state.selectedOptions.isEmpty ? 13 : 10,
-        ),
-        decoration: BoxDecoration(
-          border: Border.fromBorderSide(
-            BorderSide(color: Theme.of(context).colorScheme.outline),
-          ),
+    return BlocBuilder<SelectOptionCellBloc, SelectOptionCellState>(
+      builder: (context, state) {
+        return InkWell(
           borderRadius: const BorderRadius.all(Radius.circular(14)),
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: state.selectedOptions.isEmpty
-                  ? _buildPlaceholder(context)
-                  : _buildOptions(context, state.selectedOptions),
+          onTap: () => showMobileBottomSheet(
+            context,
+            builder: (context) {
+              return MobileSelectOptionEditor(
+                cellController: bloc.cellController,
+              );
+            },
+          ),
+          child: Container(
+            constraints: const BoxConstraints(
+              minHeight: 48,
+              minWidth: double.infinity,
             ),
-            const HSpace(6),
-            RotatedBox(
-              quarterTurns: 3,
-              child: Icon(
-                Icons.chevron_left,
-                color: Theme.of(context).hintColor,
+            padding: EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: state.selectedOptions.isEmpty ? 13 : 10,
+            ),
+            decoration: BoxDecoration(
+              border: Border.fromBorderSide(
+                BorderSide(color: Theme.of(context).colorScheme.outline),
               ),
+              borderRadius: const BorderRadius.all(Radius.circular(14)),
             ),
-            const HSpace(2),
-          ],
-        ),
-      ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: state.selectedOptions.isEmpty
+                      ? _buildPlaceholder(context)
+                      : _buildOptions(context, state.selectedOptions),
+                ),
+                const HSpace(6),
+                RotatedBox(
+                  quarterTurns: 3,
+                  child: Icon(
+                    Icons.chevron_left,
+                    color: Theme.of(context).hintColor,
+                  ),
+                ),
+                const HSpace(2),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
