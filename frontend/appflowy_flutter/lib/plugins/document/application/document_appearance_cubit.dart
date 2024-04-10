@@ -12,6 +12,7 @@ class DocumentAppearance {
   const DocumentAppearance({
     required this.fontSize,
     required this.fontFamily,
+    required this.codeFontFamily,
     this.cursorColor,
     this.selectionColor,
     this.defaultTextDirection,
@@ -19,6 +20,7 @@ class DocumentAppearance {
 
   final double fontSize;
   final String fontFamily;
+  final String codeFontFamily;
   final Color? cursorColor;
   final Color? selectionColor;
   final String? defaultTextDirection;
@@ -31,6 +33,7 @@ class DocumentAppearance {
   DocumentAppearance copyWith({
     double? fontSize,
     String? fontFamily,
+    String? codeFontFamily,
     Color? cursorColor,
     Color? selectionColor,
     String? defaultTextDirection,
@@ -41,6 +44,7 @@ class DocumentAppearance {
     return DocumentAppearance(
       fontSize: fontSize ?? this.fontSize,
       fontFamily: fontFamily ?? this.fontFamily,
+      codeFontFamily: codeFontFamily ?? this.codeFontFamily,
       cursorColor: cursorColorIsNull ? null : cursorColor ?? this.cursorColor,
       selectionColor:
           selectionColorIsNull ? null : selectionColor ?? this.selectionColor,
@@ -57,6 +61,7 @@ class DocumentAppearanceCubit extends Cubit<DocumentAppearance> {
           const DocumentAppearance(
             fontSize: 16.0,
             fontFamily: builtInFontFamily,
+            codeFontFamily: builtInCodeFontFamily,
           ),
         );
 
