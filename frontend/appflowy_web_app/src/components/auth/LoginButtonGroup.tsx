@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from './auth.hooks';
 import { ProviderType } from '@/application/services/user.type';
 import { useState } from 'react';
-import { EmailOutlined } from '@mui/icons-material';
+import EmailOutlined from '@mui/icons-material/EmailOutlined';
 import SignInWithEmail from './SignInWithEmail';
 
 export const LoginButtonGroup = () => {
@@ -24,7 +24,7 @@ export const LoginButtonGroup = () => {
         color={'inherit'}
         variant={'outlined'}
       >
-        <EmailOutlined className={'mr-2 h-6 w-6'} />
+        <EmailOutlined className={'mr-2 h-6 w-6'}/>
         {t('signIn.signInWithEmail')}
       </Button>
       <Button
@@ -35,7 +35,7 @@ export const LoginButtonGroup = () => {
         color={'inherit'}
         variant={'outlined'}
       >
-        <img src={GoogleIcon} alt={'Google'} className={'mr-2 h-6 w-6'} />
+        <img src={GoogleIcon} alt={'Google'} className={'mr-2 h-6 w-6'}/>
         {t('button.signInGoogle')}
       </Button>
       <Button
@@ -46,7 +46,7 @@ export const LoginButtonGroup = () => {
         color={'inherit'}
         variant={'outlined'}
       >
-        <img src={GithubIcon} alt={'Github'} className={'mr-2 h-6 w-6'} />
+        <img src={GithubIcon} alt={'Github'} className={'mr-2 h-6 w-6'}/>
         {t('button.signInGithub')}
       </Button>
       <Button
@@ -57,10 +57,10 @@ export const LoginButtonGroup = () => {
         color={'inherit'}
         variant={'outlined'}
       >
-        <img src={DiscordIcon} alt={'Discord'} className={'mr-2 h-6 w-6'} />
+        <img src={DiscordIcon} alt={'Discord'} className={'mr-2 h-6 w-6'}/>
         {t('button.signInDiscord')}
       </Button>
-      <SignInWithEmail open={openSignInWithEmail} onClose={() => setOpenSignInWithEmail(false)} />
+      <SignInWithEmail open={openSignInWithEmail} onClose={() => setOpenSignInWithEmail(false)}/>
     </div>
   );
 };

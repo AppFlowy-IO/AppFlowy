@@ -23,6 +23,8 @@ use flowy_user::user_manager::UserManager;
 use lib_dispatch::prelude::*;
 use lib_dispatch::runtime::AFPluginRuntime;
 use lib_infra::priority_task::{TaskDispatcher, TaskRunner};
+use lib_infra::util::Platform;
+use lib_log::stream_log::StreamLogSender;
 use module::make_plugins;
 
 use crate::config::AppFlowyCoreConfig;
@@ -57,16 +59,13 @@ pub struct AppFlowyCore {
 }
 
 impl AppFlowyCore {
-  pub async fn new(config: AppFlowyCoreConfig, runtime: Arc<AFPluginRuntime>) -> Self {
-    Self::init(config, runtime).await
-  }
+  pub async fn new(
+    config: AppFlowyCoreConfig,
+    runtime: Arc<AFPluginRuntime>,
+    stream_log_sender: Option<Arc<dyn StreamLogSender>>,
+  ) -> Self {
+    let platform = Platform::from(&config.platform);
 
-  pub fn close_db(&self) {
-    self.user_manager.close_db();
-  }
-
-  #[instrument(skip(config, runtime))]
-  async fn init(config: AppFlowyCoreConfig, runtime: Arc<AFPluginRuntime>) -> Self {
     #[allow(clippy::if_same_then_else)]
     if cfg!(debug_assertions) {
       /// The profiling can be used to tracing the performance of the application.
@@ -77,15 +76,29 @@ impl AppFlowyCore {
 
       // Init the logger before anything else
       #[cfg(not(feature = "profiling"))]
-      init_log(&config);
+      init_log(&config, &platform, stream_log_sender);
     } else {
-      init_log(&config);
+      init_log(&config, &platform, stream_log_sender);
     }
 
+    info!(
+      "💡{:?}, platform: {:?}",
+      System::long_os_version(),
+      platform
+    );
+
+    Self::init(config, runtime).await
+  }
+
+  pub fn close_db(&self) {
+    self.user_manager.close_db();
+  }
+
+  #[instrument(skip(config, runtime))]
+  async fn init(config: AppFlowyCoreConfig, runtime: Arc<AFPluginRuntime>) -> Self {
     // Init the key value database
     let store_preference = Arc::new(StorePreferences::new(&config.storage_path).unwrap());
     info!("🔥{:?}", &config);
-    info!("💡System info: {:?}", System::long_os_version());
 
     let task_scheduler = TaskDispatcher::new(Duration::from_secs(2));
     let task_dispatcher = Arc::new(RwLock::new(task_scheduler));

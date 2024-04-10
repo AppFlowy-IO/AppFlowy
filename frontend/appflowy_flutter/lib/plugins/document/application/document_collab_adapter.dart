@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:appflowy/plugins/document/application/doc_awareness_metadata.dart';
+import 'package:appflowy/plugins/document/application/document_awareness_metadata.dart';
 import 'package:appflowy/plugins/document/application/document_data_pb_extension.dart';
 import 'package:appflowy/plugins/document/application/prelude.dart';
 import 'package:appflowy/shared/list_extension.dart';
@@ -68,7 +68,7 @@ class DocumentCollabAdapter {
   /// Sync version 3
   ///
   /// Diff the local document with the remote document and apply the changes
-  Future<void> syncV3(DocEventPB docEvent) async {
+  Future<void> syncV3({DocEventPB? docEvent}) async {
     final result = await _service.getDocument(viewId: docId);
     final document = result.fold((s) => s.toDocument(), (f) => null);
     if (document == null) {
@@ -77,17 +77,51 @@ class DocumentCollabAdapter {
 
     final ops = diffNodes(editorState.document.root, document.root);
     if (ops.isEmpty) {
-      debugPrint('[collab] received empty ops');
+      Log.info('Doc diff, no changes');
       return;
     }
 
-    debugPrint('[collab] received ops: $ops');
+    // Use for debugging, DO NOT REMOVE
+    // prettyPrintJson(ops.map((op) => op.toJson()).toList());
 
     final transaction = editorState.transaction;
     for (final op in ops) {
       transaction.add(op);
     }
     await editorState.apply(transaction, isRemote: true);
+
+    // Use for debugging, DO NOT REMOVE
+    // assert(() {
+    //   final local = editorState.document.root.toJson();
+    //   final remote = document.root.toJson();
+    //   if (!const DeepCollectionEquality().equals(local, remote)) {
+    //     Log.error('Invalid diff status');
+    //     Log.error('Local: $local');
+    //     Log.error('Remote: $remote');
+    //     return false;
+    //   }
+    //   return true;
+    // }());
+  }
+
+  Future<void> forceReload() async {
+    final result = await _service.getDocument(viewId: docId);
+    final document = result.fold((s) => s.toDocument(), (f) => null);
+    if (document == null) {
+      return;
+    }
+
+    final beforeSelection = editorState.selection;
+
+    final clear = editorState.transaction;
+    clear.deleteNodes(editorState.document.root.children);
+    await editorState.apply(clear, isRemote: true);
+
+    final insert = editorState.transaction;
+    insert.insertNodes([0], document.root.children);
+    await editorState.apply(insert, isRemote: true);
+
+    editorState.selection = beforeSelection;
   }
 
   Future<void> _syncUpdated(

@@ -8,10 +8,11 @@ import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-part 'share_bloc.freezed.dart';
+part 'document_share_bloc.freezed.dart';
 
-class DocShareBloc extends Bloc<DocShareEvent, DocShareState> {
-  DocShareBloc({required this.view}) : super(const DocShareState.initial()) {
+class DocumentShareBloc extends Bloc<DocumentShareEvent, DocumentShareState> {
+  DocumentShareBloc({required this.view})
+      : super(const DocumentShareState.initial()) {
     on<ShareMarkdown>(_onShareMarkdown);
   }
 
@@ -19,14 +20,14 @@ class DocShareBloc extends Bloc<DocShareEvent, DocShareState> {
 
   Future<void> _onShareMarkdown(
     ShareMarkdown event,
-    Emitter<DocShareState> emit,
+    Emitter<DocumentShareState> emit,
   ) async {
-    emit(const DocShareState.loading());
+    emit(const DocumentShareState.loading());
 
     final documentExporter = DocumentExporter(view);
     final result = await documentExporter.export(DocumentExportType.markdown);
     emit(
-      DocShareState.finish(
+      DocumentShareState.finish(
         result.fold(
           (markdown) =>
               FlowyResult.success(_saveMarkdownToPath(markdown, event.path)),
@@ -45,17 +46,17 @@ class DocShareBloc extends Bloc<DocShareEvent, DocShareState> {
 }
 
 @freezed
-class DocShareEvent with _$DocShareEvent {
-  const factory DocShareEvent.shareMarkdown(String path) = ShareMarkdown;
-  const factory DocShareEvent.shareText() = ShareText;
-  const factory DocShareEvent.shareLink() = ShareLink;
+class DocumentShareEvent with _$DocumentShareEvent {
+  const factory DocumentShareEvent.shareMarkdown(String path) = ShareMarkdown;
+  const factory DocumentShareEvent.shareText() = ShareText;
+  const factory DocumentShareEvent.shareLink() = ShareLink;
 }
 
 @freezed
-class DocShareState with _$DocShareState {
-  const factory DocShareState.initial() = _Initial;
-  const factory DocShareState.loading() = _Loading;
-  const factory DocShareState.finish(
+class DocumentShareState with _$DocumentShareState {
+  const factory DocumentShareState.initial() = _Initial;
+  const factory DocumentShareState.loading() = _Loading;
+  const factory DocumentShareState.finish(
     FlowyResult<ExportDataPB, FlowyError> successOrFail,
   ) = _Finish;
 }

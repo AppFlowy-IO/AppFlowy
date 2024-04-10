@@ -1,8 +1,8 @@
 // This file is "main.dart"
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-part 'doc_awareness_metadata.freezed.dart';
-part 'doc_awareness_metadata.g.dart';
+part 'document_awareness_metadata.freezed.dart';
+part 'document_awareness_metadata.g.dart';
 
 @freezed
 class DocumentAwarenessMetadata with _$DocumentAwarenessMetadata {

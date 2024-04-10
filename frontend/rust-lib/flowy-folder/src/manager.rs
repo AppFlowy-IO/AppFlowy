@@ -514,24 +514,26 @@ impl FolderManager {
     Ok(())
   }
 
-  /// Returns the view with the given view id.
-  /// The child views of the view will only access the first. So if you want to get the child view's
-  /// child view, you need to call this method again.
+  /// Retrieves the view corresponding to the specified view ID.
+  ///
+  /// It is important to note that if the target view contains child views,
+  /// this method only provides access to the first level of child views.
+  ///
+  /// Therefore, to access a nested child view within one of the initial child views, you must invoke this method
+  /// again using the ID of the child view you wish to access.
   #[tracing::instrument(level = "debug", skip(self))]
   pub async fn get_view_pb(&self, view_id: &str) -> FlowyResult<ViewPB> {
     let view_id = view_id.to_string();
     let folder = self.mutex_folder.lock();
     let folder = folder.as_ref().ok_or_else(folder_not_init_error)?;
-    let trash_ids = folder
-      .get_all_trash_sections()
-      .into_iter()
-      .map(|trash| trash.id)
-      .collect::<Vec<String>>();
 
-    if trash_ids.contains(&view_id) {
+    // trash views and other private views should not be accessed
+    let view_ids_should_be_filtered = self.get_view_ids_should_be_filtered(folder);
+
+    if view_ids_should_be_filtered.contains(&view_id) {
       return Err(FlowyError::new(
         ErrorCode::RecordNotFound,
-        format!("View:{} is in trash", view_id),
+        format!("View: {} is in trash or other private sections", view_id),
       ));
     }
 
@@ -545,12 +547,34 @@ impl FolderManager {
           .views
           .get_views_belong_to(&view.id)
           .into_iter()
-          .filter(|view| !trash_ids.contains(&view.id))
+          .filter(|view| !view_ids_should_be_filtered.contains(&view.id))
           .collect::<Vec<_>>();
         let view_pb = view_pb_with_child_views(view, child_views);
         Ok(view_pb)
       },
     }
+  }
+
+  /// Retrieves the ancestors of the view corresponding to the specified view ID, including the view itself.
+  ///
+  /// For example, if the view hierarchy is as follows:
+  ///   - View A
+  ///    - View B
+  ///     - View C
+  ///
+  /// If you invoke this method with the ID of View C, it will return a list of views: [View A, View B, View C].
+  #[tracing::instrument(level = "debug", skip(self))]
+  pub async fn get_view_ancestors_pb(&self, view_id: &str) -> FlowyResult<Vec<ViewPB>> {
+    let mut ancestors = vec![];
+    let mut parent_view_id = view_id.to_string();
+    while let Some(view) =
+      self.with_folder(|| None, |folder| folder.views.get_view(&parent_view_id))
+    {
+      ancestors.push(view_pb_without_child_views(view.as_ref().clone()));
+      parent_view_id = view.parent_view_id.clone();
+    }
+    ancestors.reverse();
+    Ok(ancestors)
   }
 
   /// Move the view to trash. If the view is the current view, then set the current view to empty.

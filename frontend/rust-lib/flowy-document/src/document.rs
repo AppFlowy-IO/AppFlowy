@@ -13,7 +13,7 @@ use std::{
   ops::{Deref, DerefMut},
   sync::Arc,
 };
-use tracing::{instrument, trace, warn};
+use tracing::{instrument, warn};
 
 /// This struct wrap the document::Document
 #[derive(Clone)]
@@ -68,7 +68,9 @@ fn subscribe_document_changed(doc_id: &str, document: &MutexDocument) {
   document
     .lock()
     .subscribe_block_changed(move |events, is_remote| {
-      trace!("subscribe_document_changed: {:?}", events);
+      #[cfg(feature = "verbose_log")]
+      tracing::trace!("subscribe_document_changed: {:?}", events);
+
       // send notification to the client.
       send_notification(
         &doc_id_clone_for_block_changed,
@@ -80,7 +82,8 @@ fn subscribe_document_changed(doc_id: &str, document: &MutexDocument) {
 
   let doc_id_clone_for_awareness_state = doc_id.to_owned();
   document.lock().subscribe_awareness_state(move |events| {
-    trace!("subscribe_awareness_state: {:?}", events);
+    #[cfg(feature = "verbose_log")]
+    tracing::trace!("subscribe_awareness_state: {:?}", events);
     send_notification(
       &doc_id_clone_for_awareness_state,
       DocumentNotification::DidUpdateDocumentAwarenessState,

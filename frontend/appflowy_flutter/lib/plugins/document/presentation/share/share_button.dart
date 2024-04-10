@@ -1,7 +1,5 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/document/application/share_bloc.dart';
+import 'package:appflowy/plugins/document/application/document_share_bloc.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/string_extension.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
@@ -14,6 +12,7 @@ import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/file_picker/file_picker_service.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class DocumentShareButton extends StatelessWidget {
@@ -27,8 +26,8 @@ class DocumentShareButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => getIt<DocShareBloc>(param1: view),
-      child: BlocListener<DocShareBloc, DocShareState>(
+      create: (context) => getIt<DocumentShareBloc>(param1: view),
+      child: BlocListener<DocumentShareBloc, DocumentShareState>(
         listener: (context, state) {
           state.mapOrNull(
             finish: (state) {
@@ -39,7 +38,7 @@ class DocumentShareButton extends StatelessWidget {
             },
           );
         },
-        child: BlocBuilder<DocShareBloc, DocShareState>(
+        child: BlocBuilder<DocumentShareBloc, DocumentShareState>(
           builder: (context, state) => ConstrainedBox(
             constraints: const BoxConstraints.expand(
               height: 30,
@@ -102,7 +101,7 @@ class ShareActionListState extends State<ShareActionList> {
 
   @override
   Widget build(BuildContext context) {
-    final docShareBloc = context.read<DocShareBloc>();
+    final docShareBloc = context.read<DocumentShareBloc>();
     return PopoverActionList<ShareActionWrapper>(
       direction: PopoverDirection.bottomWithCenterAligned,
       offset: const Offset(0, 8),
@@ -126,7 +125,7 @@ class ShareActionListState extends State<ShareActionList> {
               fileName: '${name.toFileName()}.md',
             );
             if (exportPath != null) {
-              docShareBloc.add(DocShareEvent.shareMarkdown(exportPath));
+              docShareBloc.add(DocumentShareEvent.shareMarkdown(exportPath));
             }
             break;
         }

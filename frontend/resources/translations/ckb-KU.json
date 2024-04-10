@@ -74,12 +74,12 @@
     "copyLink": "کۆپی کردنی لینک"
   },
   "moreAction": {
-    "fontSize": "قەبارەی قەڵەم",
-    "import": "زیادکردن",
-    "moreOptions": "بژاردەی زیاتر",
     "small": "بچووک",
     "medium": "ناوەند",
-    "large": "گەورە"
+    "large": "گەورە",
+    "fontSize": "قەبارەی قەڵەم",
+    "import": "زیادکردن",
+    "moreOptions": "بژاردەی زیاتر"
   },
   "importPanel": {
     "textAndMarkdown": "Text & Markdown",
@@ -521,18 +521,6 @@
       "isComplete": "تەواوە",
       "isIncomplted": "ناتەواوە"
     },
-    "singleSelectOptionFilter": {
-      "is": "هەیە",
-      "isNot": "نییە",
-      "isEmpty": "به‌تاڵه‌",
-      "isNotEmpty": "بەتاڵ نییە"
-    },
-    "multiSelectOptionFilter": {
-      "contains": "لەخۆ دەگرێت",
-      "doesNotContain": "لەخۆناگرێت",
-      "isEmpty": "به‌تاڵه‌",
-      "isNotEmpty": "بەتاڵ نییە"
-    },
     "dateFilter": {
       "is": "هەیە",
       "before": "پێشترە",
@@ -651,6 +639,18 @@
       "median": "ناوەند",
       "min": "کەم",
       "sum": "کۆ"
+    },
+    "singleSelectOptionFilter": {
+      "is": "هەیە",
+      "isNot": "نییە",
+      "isEmpty": "به‌تاڵه‌",
+      "isNotEmpty": "بەتاڵ نییە"
+    },
+    "multiSelectOptionFilter": {
+      "contains": "لەخۆ دەگرێت",
+      "doesNotContain": "لەخۆناگرێت",
+      "isEmpty": "به‌تاڵه‌",
+      "isNotEmpty": "بەتاڵ نییە"
     }
   },
   "document": {

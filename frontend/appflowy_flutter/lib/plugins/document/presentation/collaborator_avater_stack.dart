@@ -13,6 +13,7 @@ class CollaboratorAvatarStack extends StatelessWidget {
     this.borderWidth,
     this.borderColor,
     this.backgroundColor,
+    required this.plusWidgetBuilder,
   });
 
   final List<Widget> avatars;
@@ -31,13 +32,16 @@ class CollaboratorAvatarStack extends StatelessWidget {
 
   final Color? backgroundColor;
 
+  final Widget Function(int value, BorderSide border) plusWidgetBuilder;
+
   @override
   Widget build(BuildContext context) {
     final settings = this.settings ??
         RestrictedPositions(
           maxCoverage: 0.3,
-          minCoverage: 0.1,
+          minCoverage: 0.2,
           align: StackAlign.right,
+          laying: StackLaying.first,
         );
 
     final border = BorderSide(
@@ -45,27 +49,12 @@ class CollaboratorAvatarStack extends StatelessWidget {
       width: borderWidth ?? 2.0,
     );
 
-    Widget textInfoWidgetBuilder(surplus) => BorderedCircleAvatar(
-          border: border,
-          backgroundColor: backgroundColor,
-          child: FittedBox(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(
-                '+$surplus',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-            ),
-          ),
-        );
-    final infoWidgetBuilder = this.infoWidgetBuilder ?? textInfoWidgetBuilder;
-
     return SizedBox(
       height: height,
       width: width,
       child: WidgetStack(
         positions: settings,
-        buildInfoWidget: infoWidgetBuilder,
+        buildInfoWidget: (value) => plusWidgetBuilder(value, border),
         stackedWidgets: avatars
             .map(
               (avatar) => CircleAvatar(

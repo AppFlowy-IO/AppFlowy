@@ -30,9 +30,9 @@ class DatabaseSyncBloc extends Bloc<DatabaseSyncEvent, DatabaseSyncBlocState> {
                 .then((value) => value.fold((s) => s, (f) => null));
             emit(
               state.copyWith(
-                shouldShowIndicator:
-                    userProfile?.authenticator != AuthenticatorPB.Local &&
-                        databaseId != null,
+                shouldShowIndicator: userProfile?.authenticator ==
+                        AuthenticatorPB.AppFlowyCloud &&
+                    databaseId != null,
               ),
             );
             if (databaseId != null) {

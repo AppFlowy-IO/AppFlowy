@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:appflowy/plugins/document/application/doc_awareness_metadata.dart';
-import 'package:appflowy/plugins/document/application/doc_listener.dart';
+import 'package:appflowy/plugins/document/application/document_awareness_metadata.dart';
+import 'package:appflowy/plugins/document/application/document_listener.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/startup/tasks/device_info_task.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
@@ -13,7 +13,7 @@ import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-part 'doc_collaborators_bloc.freezed.dart';
+part 'document_collaborators_bloc.freezed.dart';
 
 bool _filterCurrentUser = false;
 
@@ -32,7 +32,7 @@ class DocumentCollaboratorsBloc
             emit(
               state.copyWith(
                 shouldShowIndicator:
-                    userProfile?.authenticator != AuthenticatorPB.Local,
+                    userProfile?.authenticator == AuthenticatorPB.AppFlowyCloud,
               ),
             );
             final deviceId = ApplicationInfo.deviceId;

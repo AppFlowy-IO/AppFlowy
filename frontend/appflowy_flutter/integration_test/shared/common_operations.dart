@@ -539,7 +539,7 @@ extension CommonOperations on WidgetTester {
     final workspace = find.byType(SidebarWorkspace);
     expect(workspace, findsOneWidget);
     // click it
-    await tapButton(workspace);
+    await tapButton(workspace, milliseconds: 2000);
   }
 
   Future<void> closeCollaborativeWorkspaceMenu() async {
@@ -571,7 +571,6 @@ extension CommonOperations on WidgetTester {
 
     // input the workspace name
     await enterText(find.byType(TextField), name);
-    await pumpAndSettle();
 
     await tapButtonWithName(LocaleKeys.button_ok.tr());
   }

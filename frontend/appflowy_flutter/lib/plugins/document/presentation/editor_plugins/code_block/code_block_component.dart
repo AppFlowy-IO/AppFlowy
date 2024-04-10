@@ -107,7 +107,7 @@ Node codeBlockNode({
 
 // defining the callout block menu item for selection
 SelectionMenuItem codeBlockItem = SelectionMenuItem.node(
-  getName: () => LocaleKeys.document_selectionMenu_codeBlock.tr(),
+  getName: LocaleKeys.document_selectionMenu_codeBlock.tr,
   iconData: Icons.abc,
   keywords: ['code', 'codeblock'],
   nodeBuilder: (editorState, _) => codeBlockNode(),

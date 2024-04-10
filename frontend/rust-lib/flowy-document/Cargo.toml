@@ -55,4 +55,6 @@ tauri_ts = ["flowy-codegen/ts"]
 web_ts = [
     "flowy-codegen/ts",
 ]
+
+# search "Enable/Disable AppFlowy Verbose Log" to find the place that can enable verbose log
 verbose_log = ["collab-document/verbose_log"]

@@ -7,6 +7,7 @@ use collab_integrate::CollabKVDB;
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_sqlite::kv::StorePreferences;
 use flowy_sqlite::DBConnection;
+use flowy_user_pub::entities::UserWorkspace;
 use flowy_user_pub::session::Session;
 use std::path::PathBuf;
 use std::sync::{Arc, Weak};
@@ -108,6 +109,12 @@ impl AuthenticateUser {
         Ok(())
       },
     }
+  }
+
+  pub fn set_user_workspace(&self, user_workspace: UserWorkspace) -> FlowyResult<()> {
+    let mut session = self.get_session()?;
+    session.user_workspace = user_workspace;
+    self.set_session(Some(session))
   }
 
   pub fn get_session(&self) -> FlowyResult<Session> {

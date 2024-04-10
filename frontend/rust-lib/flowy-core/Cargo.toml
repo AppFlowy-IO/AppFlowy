@@ -30,7 +30,7 @@ collab = { version = "0.1.0" }
 diesel.workspace = true
 uuid.workspace = true
 flowy-storage = { workspace = true }
-client-api = { version = "0.1.0", features = ["collab-sync", "template"] }
+client-api = { version = "0.1.0" }
 
 tracing.workspace = true
 futures-core = { version = "0.3", default-features = false }
@@ -73,4 +73,9 @@ ts = [
 ]
 rev-sqlite = ["flowy-user/rev-sqlite"]
 openssl_vendored = ["flowy-sqlite/openssl_vendored"]
-verbose_log = ["flowy-document/verbose_log", "client-api/sync_verbose_log"]
+
+# Enable/Disable AppFlowy Verbose Log Configuration
+verbose_log = [
+    #    "flowy-document/verbose_log",
+    "client-api/sync_verbose_log"
+]
