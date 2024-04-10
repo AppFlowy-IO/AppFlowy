@@ -1,7 +1,4 @@
 use bytes::Bytes;
-
-use tokio::sync::RwLock;
-
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use collab_integrate::CollabKVDB;
 use flowy_database2::entities::DatabaseLayoutPB;
@@ -17,18 +14,18 @@ use flowy_folder::manager::{FolderManager, FolderUser};
 use flowy_folder::share::ImportType;
 use flowy_folder::view_operation::{FolderOperationHandler, FolderOperationHandlers, View};
 use flowy_folder::ViewLayout;
+use flowy_folder_pub::folder_builder::NestedViewBuilder;
 use flowy_search::folder::indexer::FolderIndexManagerImpl;
-use std::collections::HashMap;
-use std::convert::TryFrom;
-use std::sync::{Arc, Weak};
-
-use flowy_folder_pub::folder_builder::WorkspaceViewBuilder;
 use flowy_user::services::authenticate_user::AuthenticateUser;
-
-use crate::integrate::server::ServerProvider;
 use lib_dispatch::prelude::ToBytes;
 use lib_infra::async_trait::async_trait;
 use lib_infra::future::FutureResult;
+use std::collections::HashMap;
+use std::convert::TryFrom;
+use std::sync::{Arc, Weak};
+use tokio::sync::RwLock;
+
+use crate::integrate::server::ServerProvider;
 
 pub struct FolderDepsResolver();
 impl FolderDepsResolver {
@@ -103,7 +100,7 @@ impl FolderOperationHandler for DocumentFolderOperation {
   fn create_workspace_view(
     &self,
     uid: i64,
-    workspace_view_builder: Arc<RwLock<WorkspaceViewBuilder>>,
+    workspace_view_builder: Arc<RwLock<NestedViewBuilder>>,
   ) -> FutureResult<(), FlowyError> {
     let manager = self.0.clone();
     FutureResult::new(async move {
