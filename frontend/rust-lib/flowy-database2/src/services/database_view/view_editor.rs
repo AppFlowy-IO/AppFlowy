@@ -240,7 +240,7 @@ impl DatabaseViewEditor {
     &self,
     old_row: &Option<RowDetail>,
     row_detail: &RowDetail,
-    field_id: String,
+    field_id: Option<String>,
   ) {
     if let Some(controller) = self.group_controller.write().await.as_mut() {
       let field = self.delegate.get_field(controller.get_grouping_field_id());
@@ -283,9 +283,11 @@ impl DatabaseViewEditor {
 
     // Each row update will trigger a calculations, filter and sort operation. We don't want
     // to block the main thread, so we spawn a new task to do the work.
-    self
-      .gen_did_update_row_view_tasks(row_detail.row.id.clone(), field_id)
-      .await;
+    if let Some(field_id) = field_id {
+      self
+        .gen_did_update_row_view_tasks(row_detail.row.id.clone(), field_id)
+        .await;
+    }
   }
 
   pub async fn v_filter_rows(&self, row_details: &mut Vec<Arc<RowDetail>>) {

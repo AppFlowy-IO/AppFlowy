@@ -757,6 +757,7 @@
       "discardResponse": "Хотите убрать ответы ИИ?",
       "createInlineMathEquation": "Создать уравнение",
       "fonts": "Шрифты",
+      "emoji": "Эмодзи",
       "toggleList": "Выпадающий список",
       "quoteList": "Список цитат",
       "numberedList": "Нумерованный список",
@@ -844,8 +845,7 @@
         "newDatabase": "Новая база данных",
         "linkToDatabase": "Связать базу данных"
       },
-      "date": "Дата",
-      "emoji": "Эмодзи"
+      "date": "Дата"
     },
     "outlineBlock": {
       "placeholder": "Оглавление"

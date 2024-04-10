@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - build/test
-      - main
 env:
   NODE_VERSION: "18.16.0"
   PNPM_VERSION: "8.5.0"
