@@ -854,7 +854,9 @@
       "inRelatedDatabase": "In",
       "rowSearchTextFieldPlaceholder": "Search",
       "noDatabaseSelected": "No database selected, please select one first from the list below:",
-      "emptySearchResult": "No records found"
+      "emptySearchResult": "No records found",
+      "linkedRowListLabel": "{count} linked rows",
+      "unlinkedRowListLabel": "Link another row"
     },
     "menuName": "Grid",
     "referencedGridPrefix": "View of",
@@ -1072,8 +1074,12 @@
     "codeBlock": {
       "language": {
         "label": "Language",
-        "placeholder": "Select language"
-      }
+        "placeholder": "Select language",
+        "auto": "Auto"
+      },
+      "copyTooltip": "Copy contents of the code block",
+      "searchLanguageHint": "Search for a language",
+      "codeCopiedSnackbar": "Code copied to clipboard!"
     },
     "inlineLink": {
       "placeholder": "Paste or type a link",

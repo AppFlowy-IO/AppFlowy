@@ -20,6 +20,7 @@ class SelectOptionTextField extends StatefulWidget {
     required this.newText,
     required this.onPaste,
     required this.onRemove,
+    this.scrollController,
     this.onClick,
   });
 
@@ -28,6 +29,7 @@ class SelectOptionTextField extends StatefulWidget {
   final double distanceToText;
   final List<String> textSeparators;
   final TextEditingController textController;
+  final ScrollController? scrollController;
   final FocusNode focusNode;
 
   final Function() onSubmitted;
@@ -46,8 +48,19 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       widget.focusNode.requestFocus();
+      _scrollToEnd();
     });
     widget.textController.addListener(_onChanged);
+  }
+
+  @override
+  void didUpdateWidget(covariant oldWidget) {
+    if (oldWidget.selectedOptionMap.length < widget.selectedOptionMap.length) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _scrollToEnd();
+      });
+    }
+    super.didUpdateWidget(oldWidget);
   }
 
   @override
@@ -78,6 +91,16 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
         ),
       ),
     );
+  }
+
+  void _scrollToEnd() {
+    if (widget.scrollController?.hasClients ?? false) {
+      widget.scrollController?.animateTo(
+        widget.scrollController!.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 150),
+        curve: Curves.easeOut,
+      );
+    }
   }
 
   void _onChanged() {
@@ -132,6 +155,7 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
             ),
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
+              controller: widget.scrollController,
               child: Wrap(spacing: 4, children: children),
             ),
           ),
