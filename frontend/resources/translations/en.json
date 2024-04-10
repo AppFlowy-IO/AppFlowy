@@ -937,8 +937,7 @@
         "newDatabase": "New Database",
         "linkToDatabase": "Link to Database"
       },
-      "date": "Date",
-      "emoji": "Emoji"
+      "date": "Date"
     },
     "outlineBlock": {
       "placeholder": "Table of Contents"
@@ -996,8 +995,12 @@
     "codeBlock": {
       "language": {
         "label": "Language",
-        "placeholder": "Select language"
-      }
+        "placeholder": "Select language",
+        "auto": "Auto"
+      },
+      "copyTooltip": "Copy contents of the code block",
+      "searchLanguageHint": "Search for a language",
+      "codeCopiedSnackbar": "Code copied to clipboard!"
     },
     "inlineLink": {
       "placeholder": "Paste or type a link",

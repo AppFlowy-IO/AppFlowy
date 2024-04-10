@@ -4,3 +4,4 @@ src-tauri/
 .eslintrc.cjs
 tsconfig.json
 **/backend/**
+vite.config.ts
