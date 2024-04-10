@@ -154,7 +154,7 @@
     },
     "confirmDeleteTitle": "Bu sayfayı kalıcı olarak silmek istediğinizden emin misiniz?"
   },
-    "deletePagePrompt": {
+  "deletePagePrompt": {
     "text": "Bu sayfa Çöp Kutusu'nda",
     "restore": "Sayfayı geri yükle",
     "deletePermanent": "Kalıcı olarak sil"
@@ -595,10 +595,7 @@
     },
     "checkboxFilter": {
       "isChecked": "İşaretli",
-      "isUnchecked": "İşaretsiz",
-      "choicechipPrefix": {
-        "is": ""
-      }
+      "isUnchecked": "İşaretsiz"
     },
     "checklistFilter": {
       "isComplete": "tamamlandı",
@@ -934,8 +931,7 @@
         "newDatabase": "Yeni Veritabanı",
         "linkToDatabase": "Veritabanına Bağla"
       },
-      "date": "Tarih",
-      "emoji": "Emoji"
+      "date": "Tarih"
     },
     "outlineBlock": {
       "placeholder": "İçindekiler"
