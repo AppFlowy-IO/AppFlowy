@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
@@ -6,7 +8,6 @@ import 'package:appflowy/workspace/presentation/widgets/toggle/toggle_style.dart
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
 
 class DateFormatButton extends StatelessWidget {
   const DateFormatButton({
@@ -165,13 +166,9 @@ class TimeFormatList extends StatelessWidget {
       width: 120,
       child: ListView.separated(
         shrinkWrap: true,
-        separatorBuilder: (context, index) {
-          return VSpace(GridSize.typeOptionSeparatorHeight);
-        },
         itemCount: cells.length,
-        itemBuilder: (BuildContext context, int index) {
-          return cells[index];
-        },
+        separatorBuilder: (_, __) => VSpace(GridSize.typeOptionSeparatorHeight),
+        itemBuilder: (_, int index) => cells[index],
       ),
     );
   }
@@ -208,27 +205,24 @@ class TimeFormatCell extends StatelessWidget {
 }
 
 extension TimeFormatExtension on TimeFormatPB {
-  String title() {
-    switch (this) {
-      case TimeFormatPB.TwelveHour:
-        return LocaleKeys.grid_field_timeFormatTwelveHour.tr();
-      case TimeFormatPB.TwentyFourHour:
-        return LocaleKeys.grid_field_timeFormatTwentyFourHour.tr();
-      default:
-        throw UnimplementedError;
-    }
-  }
+  String title() => switch (this) {
+        TimeFormatPB.TwelveHour =>
+          LocaleKeys.grid_field_timeFormatTwelveHour.tr(),
+        TimeFormatPB.TwentyFourHour =>
+          LocaleKeys.grid_field_timeFormatTwentyFourHour.tr(),
+        _ => throw UnimplementedError(),
+      };
 }
 
 class IncludeTimeButton extends StatelessWidget {
   const IncludeTimeButton({
     super.key,
-    required this.onChanged,
     required this.value,
+    required this.onChanged,
   });
 
-  final Function(bool value) onChanged;
   final bool value;
+  final Function(bool value) onChanged;
 
   @override
   Widget build(BuildContext context) {

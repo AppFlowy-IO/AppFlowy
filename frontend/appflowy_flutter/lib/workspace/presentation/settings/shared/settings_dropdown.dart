@@ -4,41 +4,47 @@ import 'package:appflowy/flutter/af_dropdown_menu.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 
-class SettingsDropdown extends StatefulWidget {
+class SettingsDropdown<T> extends StatefulWidget {
   const SettingsDropdown({
     super.key,
     required this.selectedOption,
     required this.options,
     this.onChanged,
     this.actions,
+    this.expandWidth = true,
   });
 
-  final String selectedOption;
-  final List<DropdownMenuEntry<String>> options;
-  final void Function(String)? onChanged;
+  final T selectedOption;
+  final List<DropdownMenuEntry<T>> options;
+  final void Function(T)? onChanged;
   final List<Widget>? actions;
+  final bool expandWidth;
 
   @override
-  State<SettingsDropdown> createState() => _SettingsDropdownState();
+  State<SettingsDropdown<T>> createState() => _SettingsDropdownState<T>();
 }
 
-class _SettingsDropdownState extends State<SettingsDropdown> {
+class _SettingsDropdownState<T> extends State<SettingsDropdown<T>> {
   late final TextEditingController controller;
 
   @override
   void initState() {
     super.initState();
-    controller = TextEditingController(text: widget.selectedOption);
+    controller = TextEditingController(
+      text: widget.options
+          .firstWhere((e) => e.value == widget.selectedOption)
+          .label,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Expanded(
-          child: AFDropdownMenu<String>(
+        Flexible(
+          child: AFDropdownMenu<T>(
             controller: controller,
-            expandedInsets: EdgeInsets.zero,
+            expandedInsets: widget.expandWidth ? EdgeInsets.zero : null,
             initialSelection: widget.selectedOption,
             dropdownMenuEntries: widget.options,
             menuStyle: MenuStyle(
@@ -87,6 +93,7 @@ class _SettingsDropdownState extends State<SettingsDropdown> {
               ),
             ),
             onSelected: (v) async {
+              debugPrint("REACHED HERE ($v)");
               v != null ? widget.onChanged?.call(v) : null;
             },
           ),

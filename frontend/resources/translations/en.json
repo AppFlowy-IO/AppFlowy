@@ -361,7 +361,17 @@
         "auto": "Auto"
       },
       "dateTime": {
-        "title": "Date & time"
+        "title": "Date & time",
+        "example": "{} at {} ({})",
+        "24HourTime": "24-hour time",
+        "dateFormat": {
+          "label": "Date format",
+          "local": "Local",
+          "us": "US",
+          "iso": "ISO",
+          "friendly": "Friendly",
+          "dmy": "D/M/Y"
+        }
       },
       "language": {
         "title": "Language"

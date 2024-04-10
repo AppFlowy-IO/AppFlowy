@@ -41,6 +41,7 @@ class SettingsCategory extends StatelessWidget {
         ],
         SeparatedColumn(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           separatorBuilder: () =>
               children.length > 1 ? const VSpace(16) : const SizedBox.shrink(),
           children: children,

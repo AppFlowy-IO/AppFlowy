@@ -4,6 +4,8 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
+import 'package:appflowy/workspace/application/settings/date_time/date_format_ext.dart';
+import 'package:appflowy/workspace/application/settings/date_time/time_format_ext.dart';
 import 'package:appflowy/workspace/application/settings/workspace/workspace_settings_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_icon.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
@@ -12,13 +14,18 @@ import 'package:appflowy/workspace/presentation/settings/shared/settings_actiona
 import 'package:appflowy/workspace/presentation/settings/shared/settings_body.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_category.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_category_spacer.dart';
+import 'package:appflowy/workspace/presentation/settings/shared/settings_dotted_divider.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_dropdown.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_header.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_radio_select.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/theme_upload/theme_upload_view.dart';
+import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
+import 'package:appflowy/workspace/presentation/widgets/toggle/toggle_style.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/auth.pbenum.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/date_time.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/language.dart';
 import 'package:flowy_infra/plugins/bloc/dynamic_plugin_bloc.dart';
 import 'package:flowy_infra/plugins/bloc/dynamic_plugin_event.dart';
 import 'package:flowy_infra/plugins/bloc/dynamic_plugin_state.dart';
@@ -114,120 +121,265 @@ class _SettingsWorkspaceViewState extends State<SettingsWorkspaceView> {
                       .settings_workspace_workspaceIcon_description
                       .tr(),
                   children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: Theme.of(context).colorScheme.outline,
-                        ),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      height: 64,
-                      width: 64,
-                      child: Padding(
-                        padding: const EdgeInsets.all(1),
-                        child: WorkspaceIcon(
-                          workspace: state.workspace!,
-                          iconSize: state.workspace?.icon.isNotEmpty == true
-                              ? 46
-                              : 20,
-                          enableEdit: true,
-                          onSelected: (result) =>
-                              context.read<WorkspaceSettingsBloc>().add(
-                                    WorkspaceSettingsEvent.updateWorkspaceIcon(
-                                      result.emoji,
-                                    ),
-                                  ),
-                        ),
-                      ),
-                    ),
+                    if (state.workspace != null)
+                      _WorkspaceIconSetting(workspace: state.workspace!),
                   ],
                 ),
               ],
               const SettingsCategorySpacer(),
               SettingsCategory(
                 title: LocaleKeys.settings_workspace_appearance_title.tr(),
-                children: const [
-                  _AppearanceSelector(),
-                ],
+                children: const [_AppearanceSelector()],
               ),
               const SettingsCategorySpacer(),
               SettingsCategory(
                 title: LocaleKeys.settings_workspace_theme_title.tr(),
                 description:
                     LocaleKeys.settings_workspace_theme_description.tr(),
-                children: const [
-                  _ThemeDropdown(),
-                ],
+                children: const [_ThemeDropdown()],
               ),
               const SettingsCategorySpacer(),
               SettingsCategory(
                 title: LocaleKeys.settings_workspace_workspaceFont_title.tr(),
-                children: const [
-                  _FontSelectorDropdown(),
-                ],
+                children: const [_FontSelectorDropdown()],
               ),
               const SettingsCategorySpacer(),
               SettingsCategory(
                 title: LocaleKeys.settings_workspace_textDirection_title.tr(),
-                children: [
-                  BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
-                    builder: (context, state) {
-                      // TODO(Lucas): Do we even use TextDirection or do we just rely on LayoutDirection?
-                      //  Also if we rely on LayoutDirection, auto does not exist, but we can implement it using
-                      //  Bidi.isRtlLanguage(language) from Intl package.
-                      return SettingsRadioSelect<AppFlowyTextDirection>(
-                        onChanged: (item) => context
-                            .read<AppearanceSettingsCubit>()
-                            .setTextDirection(item.value),
-                        items: [
-                          SettingsRadioItem(
-                            value: AppFlowyTextDirection.ltr,
-                            icon: const FlowySvg(FlowySvgs.textdirection_ltr_m),
-                            label: LocaleKeys
-                                .settings_workspace_textDirection_leftToRight
-                                .tr(),
-                            isSelected: state.textDirection ==
-                                AppFlowyTextDirection.ltr,
-                          ),
-                          SettingsRadioItem(
-                            value: AppFlowyTextDirection.rtl,
-                            icon: const FlowySvg(FlowySvgs.textdirection_rtl_m),
-                            label: LocaleKeys
-                                .settings_workspace_textDirection_rightToLeft
-                                .tr(),
-                            isSelected: state.textDirection ==
-                                AppFlowyTextDirection.rtl,
-                          ),
-                          SettingsRadioItem(
-                            value: AppFlowyTextDirection.auto,
-                            icon:
-                                const FlowySvg(FlowySvgs.textdirection_auto_m),
-                            label: LocaleKeys
-                                .settings_workspace_textDirection_auto
-                                .tr(),
-                            isSelected: state.textDirection ==
-                                AppFlowyTextDirection.auto,
-                          ),
-                        ],
-                      );
-                    },
-                  ),
-                ],
+                children: const [_TextDirectionSelect()],
               ),
               const SettingsCategorySpacer(),
               SettingsCategory(
                 title: LocaleKeys.settings_workspace_dateTime_title.tr(),
-                children: const [],
+                children: [
+                  const _DateTimeFormatLabel(),
+                  const _TimeFormatSwitcher(),
+                  SettingsDashedDivider(
+                    color: Theme.of(context).colorScheme.outline,
+                  ),
+                  const _DateFormatDropdown(),
+                ],
               ),
               const SettingsCategorySpacer(),
               SettingsCategory(
                 title: LocaleKeys.settings_workspace_language_title.tr(),
-                children: const [],
+                children: const [_LanguageDropdown()],
               ),
             ],
           );
         },
       ),
+    );
+  }
+}
+
+class _LanguageDropdown extends StatelessWidget {
+  const _LanguageDropdown();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
+      builder: (context, state) {
+        return SettingsDropdown<Locale>(
+          expandWidth: false,
+          onChanged: (locale) => context
+              .read<AppearanceSettingsCubit>()
+              .setLocale(context, locale),
+          selectedOption: state.locale,
+          options: EasyLocalization.of(context)!
+              .supportedLocales
+              .map(
+                (locale) => buildDropdownMenuEntry<Locale>(
+                  context,
+                  selectedValue: state.locale,
+                  value: locale,
+                  label: languageFromLocale(locale),
+                ),
+              )
+              .toList(),
+        );
+      },
+    );
+  }
+}
+
+class _WorkspaceIconSetting extends StatelessWidget {
+  const _WorkspaceIconSetting({required this.workspace});
+
+  final UserWorkspacePB workspace;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 64,
+      width: 64,
+      decoration: BoxDecoration(
+        border: Border.all(color: Theme.of(context).colorScheme.outline),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(1),
+        child: WorkspaceIcon(
+          workspace: workspace,
+          iconSize: workspace.icon.isNotEmpty == true ? 46 : 20,
+          enableEdit: true,
+          onSelected: (r) => context
+              .read<WorkspaceSettingsBloc>()
+              .add(WorkspaceSettingsEvent.updateWorkspaceIcon(r.emoji)),
+        ),
+      ),
+    );
+  }
+}
+
+class _TextDirectionSelect extends StatelessWidget {
+  const _TextDirectionSelect();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
+      builder: (context, state) {
+        // TODO(Lucas): Do we even use TextDirection or do we just rely on LayoutDirection?
+        //  Also if we rely on LayoutDirection, auto does not exist, but we can implement it using
+        //  Bidi.isRtlLanguage(language) from Intl package.
+        return SettingsRadioSelect<AppFlowyTextDirection>(
+          onChanged: (item) => context
+              .read<AppearanceSettingsCubit>()
+              .setTextDirection(item.value),
+          items: [
+            SettingsRadioItem(
+              value: AppFlowyTextDirection.ltr,
+              icon: const FlowySvg(FlowySvgs.textdirection_ltr_m),
+              label:
+                  LocaleKeys.settings_workspace_textDirection_leftToRight.tr(),
+              isSelected: state.textDirection == AppFlowyTextDirection.ltr,
+            ),
+            SettingsRadioItem(
+              value: AppFlowyTextDirection.rtl,
+              icon: const FlowySvg(FlowySvgs.textdirection_rtl_m),
+              label:
+                  LocaleKeys.settings_workspace_textDirection_rightToLeft.tr(),
+              isSelected: state.textDirection == AppFlowyTextDirection.rtl,
+            ),
+            SettingsRadioItem(
+              value: AppFlowyTextDirection.auto,
+              icon: const FlowySvg(FlowySvgs.textdirection_auto_m),
+              label: LocaleKeys.settings_workspace_textDirection_auto.tr(),
+              isSelected: state.textDirection == AppFlowyTextDirection.auto,
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _DateFormatDropdown extends StatelessWidget {
+  const _DateFormatDropdown();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
+      builder: (context, state) {
+        return Padding(
+          padding: const EdgeInsets.only(top: 8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              FlowyText.regular(
+                LocaleKeys.settings_workspace_dateTime_dateFormat_label.tr(),
+                fontSize: 16,
+              ),
+              const VSpace(8),
+              SettingsDropdown<UserDateFormatPB>(
+                expandWidth: false,
+                onChanged: (format) => context
+                    .read<AppearanceSettingsCubit>()
+                    .setDateFormat(format),
+                selectedOption: state.dateFormat,
+                options: UserDateFormatPB.values
+                    .map(
+                      (f) => buildDropdownMenuEntry<UserDateFormatPB>(
+                        context,
+                        value: f,
+                        label: _formatLabel(f),
+                      ),
+                    )
+                    .toList(),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  String _formatLabel(UserDateFormatPB format) => switch (format) {
+        UserDateFormatPB.Locally =>
+          LocaleKeys.settings_workspace_dateTime_dateFormat_local.tr(),
+        UserDateFormatPB.US =>
+          LocaleKeys.settings_workspace_dateTime_dateFormat_us.tr(),
+        UserDateFormatPB.ISO =>
+          LocaleKeys.settings_workspace_dateTime_dateFormat_iso.tr(),
+        UserDateFormatPB.Friendly =>
+          LocaleKeys.settings_workspace_dateTime_dateFormat_friendly.tr(),
+        UserDateFormatPB.DayMonthYear =>
+          LocaleKeys.settings_workspace_dateTime_dateFormat_dmy.tr(),
+        _ => "Unknown format",
+      };
+}
+
+class _DateTimeFormatLabel extends StatelessWidget {
+  const _DateTimeFormatLabel();
+
+  @override
+  Widget build(BuildContext context) {
+    final now = DateTime.now();
+
+    return BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
+      builder: (context, state) {
+        return FlowyText.regular(
+          LocaleKeys.settings_workspace_dateTime_example.tr(
+            args: [
+              state.dateFormat.formatDate(now, false),
+              state.timeFormat.formatTime(now),
+              now.timeZoneName,
+            ],
+          ),
+          fontSize: 16,
+          color: AFThemeExtension.of(context).secondaryTextColor,
+        );
+      },
+    );
+  }
+}
+
+class _TimeFormatSwitcher extends StatelessWidget {
+  const _TimeFormatSwitcher();
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: FlowyText.regular(
+            LocaleKeys.settings_workspace_dateTime_24HourTime.tr(),
+            fontSize: 16,
+          ),
+        ),
+        const HSpace(16),
+        Toggle(
+          style: ToggleStyle.big,
+          value: context.watch<AppearanceSettingsCubit>().state.timeFormat ==
+              UserTimeFormatPB.TwentyFourHour,
+          onChanged: (value) =>
+              context.read<AppearanceSettingsCubit>().setTimeFormat(
+                    value
+                        ? UserTimeFormatPB.TwelveHour
+                        : UserTimeFormatPB.TwentyFourHour,
+                  ),
+        ),
+      ],
     );
   }
 }
