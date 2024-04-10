@@ -24,6 +24,12 @@ class _SignInWithMagicLinkButtonsState
   final controller = TextEditingController();
 
   @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -33,24 +39,31 @@ class _SignInWithMagicLinkButtonsState
           child: FlowyTextField(
             controller: controller,
             hintText: LocaleKeys.signIn_pleaseInputYourEmail.tr(),
+            onSubmitted: (_) => _sendMagicLink(context, controller.text),
           ),
         ),
         const VSpace(12),
         _ConfirmButton(
-          onTap: () {
-            if (isEmail(controller.text)) {
-              context
-                  .read<SignInBloc>()
-                  .add(SignInEvent.signedWithMagicLink(controller.text));
-              showSnackBarMessage(
-                context,
-                LocaleKeys.signIn_magicLinkSent.tr(),
-                duration: const Duration(seconds: 8),
-              );
-            }
-          },
+          onTap: () => _sendMagicLink(context, controller.text),
         ),
       ],
+    );
+  }
+
+  void _sendMagicLink(BuildContext context, String email) {
+    if (!isEmail(email)) {
+      showSnackBarMessage(
+        context,
+        LocaleKeys.signIn_invalidEmail.tr(),
+        duration: const Duration(seconds: 8),
+      );
+      return;
+    }
+    context.read<SignInBloc>().add(SignInEvent.signedWithMagicLink(email));
+    showSnackBarMessage(
+      context,
+      LocaleKeys.signIn_magicLinkSent.tr(),
+      duration: const Duration(seconds: 1000),
     );
   }
 }
@@ -83,6 +96,7 @@ class _ConfirmButton extends StatelessWidget {
         child: FlowyButton(
           isSelected: true,
           onTap: onTap,
+          hoverColor: Theme.of(context).colorScheme.primary,
           text: FlowyText.medium(
             LocaleKeys.signIn_logInWithMagicLink.tr(),
             textAlign: TextAlign.center,

@@ -129,7 +129,7 @@ class SignInAnonymousButtonV2 extends StatelessWidget {
                     child: FlowyText(
                       text,
                       color: Colors.blue,
-                      fontSize: PlatformExtension.isDesktop ? 16 : 12,
+                      fontSize: 12,
                     ),
                   ),
                 );
