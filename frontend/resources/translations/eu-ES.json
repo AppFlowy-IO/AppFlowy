@@ -551,7 +551,12 @@
       "createNewCard": "Berria"
     },
     "menuName": "Kontseilua",
-    "referencedBoardPrefix": "-ren ikuspegia"
+    "referencedBoardPrefix": "-ren ikuspegia",
+    "mobile": {
+      "showGroup": "Erakutsi taldea",
+      "showGroupContent": "Ziur talde hau arbelean erakutsi nahi duzula?",
+      "failedToLoad": "Ezin izan da kargatu arbelaren ikuspegia"
+    }
   },
   "calendar": {
     "menuName": "Egutegia",

@@ -741,7 +741,12 @@
       "hideColumn": "Ẩn",
       "deleteColumn": "Xoá"
     },
-    "menuName": "Bảng"
+    "menuName": "Bảng",
+    "mobile": {
+      "showGroup": "Hiển thị nhóm",
+      "showGroupContent": "Bạn có chắc chắn muốn hiển thị nhóm này trên bảng không?",
+      "failedToLoad": "Không tải được chế độ xem bảng"
+    }
   },
   "calendar": {
     "menuName": "Lịch",

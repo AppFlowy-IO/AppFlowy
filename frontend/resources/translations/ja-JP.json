@@ -636,7 +636,12 @@
       "createNewCard": "新しい"
     },
     "menuName": "ボード",
-    "referencedBoardPrefix": "のビュー"
+    "referencedBoardPrefix": "のビュー",
+    "mobile": {
+      "showGroup": "グループを表示",
+      "showGroupContent": "このグループをボードに表示してもよろしいですか?",
+      "failedToLoad": "ボードビューの読み込みに失敗しました"
+    }
   },
   "calendar": {
     "menuName": "カレンダー",

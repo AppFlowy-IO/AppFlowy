@@ -762,7 +762,12 @@
       "createNewCard": "Nou"
     },
     "menuName": "Pissarra",
-    "referencedBoardPrefix": "Vista de"
+    "referencedBoardPrefix": "Vista de",
+    "mobile": {
+      "showGroup": "Mostra grup",
+      "showGroupContent": "Esteu segur que voleu mostrar aquest grup al tauler?",
+      "failedToLoad": "No s'ha pogut carregar la vista del tauler"
+    }
   },
   "calendar": {
     "menuName": "Calendari",
