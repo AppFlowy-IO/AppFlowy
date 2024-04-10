@@ -882,9 +882,9 @@
     "notesTooltip": "Notas en el interior",
     "mobile": {
       "editURL": "Editar URL",
-      "unhideGroup": "Mostrar grupo",
-      "unhideGroupContent": "¿Estás seguro de que quieres mostrar este grupo en el tablero?",
-      "faildToLoad": "No se pudo cargar la vista del tablero"
+      "showGroup": "Mostrar grupo",
+      "showGroupContent": "¿Estás seguro de que quieres mostrar este grupo en el tablero?",
+      "failedToLoad": "No se pudo cargar la vista del tablero"
     }
   },
   "calendar": {

@@ -1047,9 +1047,9 @@
     "notesTooltip": "Notizen vorhanden",
     "mobile": {
       "editURL": "Bearbeite URL",
-      "unhideGroup": "Zeige die Gruppe",
-      "unhideGroupContent": "Sicher, dass diese Gruppe auf dem Board angezeigt werden soll?",
-      "faildToLoad": "Boardansicht konnte nicht geladen werden"
+      "showGroup": "Zeige die Gruppe",
+      "showGroupContent": "Sicher, dass diese Gruppe auf dem Board angezeigt werden soll?",
+      "failedToLoad": "Boardansicht konnte nicht geladen werden"
     }
   },
   "calendar": {

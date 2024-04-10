@@ -1067,9 +1067,9 @@
     "notesTooltip": "Notes à l'intérieur",
     "mobile": {
       "editURL": "Modifier l'URL",
-      "unhideGroup": "Afficher le groupe",
-      "unhideGroupContent": "Êtes-vous sûr de vouloir afficher ce groupe sur le tableau ?",
-      "faildToLoad": "Échec du chargement de la vue du tableau"
+      "showGroup": "Afficher le groupe",
+      "showGroupContent": "Êtes-vous sûr de vouloir afficher ce groupe sur le tableau ?",
+      "failedToLoad": "Échec du chargement de la vue du tableau"
     }
   },
   "calendar": {
