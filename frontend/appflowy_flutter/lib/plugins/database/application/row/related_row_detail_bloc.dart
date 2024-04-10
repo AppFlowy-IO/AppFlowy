@@ -1,6 +1,7 @@
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:bloc/bloc.dart';
 import 'package:collection/collection.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -60,31 +61,27 @@ class RelatedRowDetailPageBloc
   }
 
   void _init(String databaseId, String initialRowId) async {
-    final getDatabaseResult = await DatabaseEventGetDatabases().send();
-    final databaseMeta = getDatabaseResult.fold<DatabaseMetaPB?>(
-      (s) =>
-          s.items.firstWhereOrNull((metaPB) => metaPB.databaseId == databaseId),
-      (f) => null,
-    );
+    final databaseMeta = await DatabaseEventGetDatabases()
+        .send()
+        .fold<DatabaseMetaPB?>(
+          (s) => s.items
+              .firstWhereOrNull((metaPB) => metaPB.databaseId == databaseId),
+          (f) => null,
+        );
     if (databaseMeta == null) {
       return;
     }
-    final getInlineViewResult =
-        await ViewBackendService.getView(databaseMeta.inlineViewId);
     final inlineView =
-        getInlineViewResult.fold((viewPB) => viewPB, (f) => null);
+        await ViewBackendService.getView(databaseMeta.inlineViewId)
+            .fold((viewPB) => viewPB, (f) => null);
     if (inlineView == null) {
       return;
     }
     final databaseController = DatabaseController(view: inlineView);
-    _startListening(databaseController);
-    final openDatabaseResult = await databaseController.open();
-    openDatabaseResult.fold(
-      (s) {
-        databaseController.setIsLoading(false);
-      },
-      (f) => null,
-    );
+    await databaseController.open().fold(
+          (s) => databaseController.setIsLoading(false),
+          (f) => null,
+        );
     final rowInfo = databaseController.rowCache.getRow(initialRowId);
     if (rowInfo == null) {
       return;
@@ -100,10 +97,6 @@ class RelatedRowDetailPageBloc
         rowController,
       ),
     );
-  }
-
-  void _startListening(DatabaseController databaseController) {
-    databaseController.addListener();
   }
 }
 

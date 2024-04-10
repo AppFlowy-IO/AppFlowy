@@ -63,11 +63,11 @@ class RelationRowSearchBloc
       rows.retainWhere(
         (row) =>
             row.name.toLowerCase().contains(filter.toLowerCase()) ||
-            row.name.isEmpty &&
+            (row.name.isEmpty &&
                 LocaleKeys.grid_row_titlePlaceholder
                     .tr()
                     .toLowerCase()
-                    .contains(filter.toLowerCase()),
+                    .contains(filter.toLowerCase())),
       );
     }
 
