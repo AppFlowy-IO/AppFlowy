@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/shared/af_role_pb_extension.dart';
+import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:appflowy/workspace/application/settings/date_time/date_format_ext.dart';
@@ -11,6 +13,7 @@ import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sid
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/af_dropdown_menu_entry.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_actionable_input.dart';
+import 'package:appflowy/workspace/presentation/settings/shared/settings_alert_dialog.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_body.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_category.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_category_spacer.dart';
@@ -18,12 +21,11 @@ import 'package:appflowy/workspace/presentation/settings/shared/settings_dotted_
 import 'package:appflowy/workspace/presentation/settings/shared/settings_dropdown.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_header.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_radio_select.dart';
+import 'package:appflowy/workspace/presentation/settings/shared/single_setting_action.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/theme_upload/theme_upload_view.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle_style.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/auth.pbenum.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/date_time.pbenum.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/language.dart';
 import 'package:flowy_infra/plugins/bloc/dynamic_plugin_bloc.dart';
@@ -67,10 +69,16 @@ class _SettingsWorkspaceViewState extends State<SettingsWorkspaceView> {
         ..add(WorkspaceSettingsEvent.initial(userProfile: widget.userProfile)),
       child: BlocConsumer<WorkspaceSettingsBloc, WorkspaceSettingsState>(
         listenWhen: (previous, current) =>
-            previous.workspace?.name != current.workspace?.name,
-        listener: (context, state) =>
-            _workspaceNameController.text = state.workspace?.name ?? '',
+            previous.workspace?.workspaceId != current.workspace?.workspaceId &&
+            previous.workspace?.workspaceId != null,
+        listener: (context, state) async {
+          // TODO(Mathias): Temporary measure, remember to fix to set the
+          //  current workspace upon deleting/leaving instead of this hack.
+          Navigator.of(context).pop();
+          await runAppFlowy();
+        },
         builder: (context, state) {
+          _workspaceNameController.text = state.workspace?.name ?? '';
           return SettingsBody(
             children: [
               SettingsHeader(
@@ -161,9 +169,46 @@ class _SettingsWorkspaceViewState extends State<SettingsWorkspaceView> {
                 ],
               ),
               const SettingsCategorySpacer(),
-              SettingsCategory(
-                title: LocaleKeys.settings_workspace_language_title.tr(),
-                children: const [_LanguageDropdown()],
+              FlowyText.regular(
+                LocaleKeys.settings_workspace_language_title.tr(),
+                fontSize: 16,
+              ),
+              const VSpace(8),
+              const _LanguageDropdown(),
+              const SettingsCategorySpacer(),
+              SingleSettingAction(
+                label: LocaleKeys.settings_workspace_manageWorkspace_title.tr(),
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                onPressed: () => SettingsAlertDialog(
+                  title: state.myRole.isOwner
+                      ? LocaleKeys
+                          .settings_workspace_deleteWorkspacePrompt_title
+                          .tr()
+                      : LocaleKeys.settings_workspace_leaveWorkspacePrompt_title
+                          .tr(),
+                  subtitle: state.myRole.isOwner
+                      ? LocaleKeys
+                          .settings_workspace_deleteWorkspacePrompt_content
+                          .tr()
+                      : LocaleKeys
+                          .settings_workspace_leaveWorkspacePrompt_content
+                          .tr(),
+                  isDangerous: true,
+                  confirm: () => context.read<WorkspaceSettingsBloc>().add(
+                        state.myRole.isOwner
+                            ? const WorkspaceSettingsEvent.deleteWorkspace()
+                            : const WorkspaceSettingsEvent.leaveWorkspace(),
+                      ),
+                ).show(context),
+                isDangerous: true,
+                buttonLabel: state.myRole.isOwner
+                    ? LocaleKeys
+                        .settings_workspace_manageWorkspace_deleteWorkspace
+                        .tr()
+                    : LocaleKeys
+                        .settings_workspace_manageWorkspace_leaveWorkspace
+                        .tr(),
               ),
             ],
           );

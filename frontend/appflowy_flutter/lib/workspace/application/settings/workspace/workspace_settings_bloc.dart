@@ -1,3 +1,9 @@
+import 'package:flutter/foundation.dart';
+
+import 'package:appflowy/core/config/kv.dart';
+import 'package:appflowy/core/config/kv_keys.dart';
+import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
@@ -16,13 +22,29 @@ class WorkspaceSettingsBloc
       (event, emit) async {
         await event.when(
           initial: (userProfile, workspace) async {
-            final currentWorkspace =
-                workspace ?? await _getWorkspace(userProfile.workspaceId);
+            _userService = UserBackendService(userId: userProfile.id);
+
+            late UserWorkspacePB currentWorkspace;
+            final kvStore = getIt<KeyValueStorage>();
+            final lastOpenedWorkspaceId =
+                await kvStore.get(KVKeys.lastOpenedWorkspaceId);
+
+            if (lastOpenedWorkspaceId != null) {
+              currentWorkspace = await _getWorkspace(lastOpenedWorkspaceId);
+            } else {
+              currentWorkspace = await _getWorkspace(userProfile.workspaceId);
+              await kvStore.set(
+                KVKeys.lastOpenedWorkspaceId,
+                userProfile.workspaceId,
+              );
+            }
 
             // We emit here because the next event might take longer.
             emit(state.copyWith(workspace: currentWorkspace));
 
-            final members = await _getWorkspaceMembers(userProfile.workspaceId);
+            final members = await _getWorkspaceMembers(
+              currentWorkspace.workspaceId,
+            );
             final role = members
                     .firstWhereOrNull((e) => e.email == userProfile.email)
                     ?.role ??
@@ -70,13 +92,54 @@ class WorkspaceSettingsBloc
               (e) => Log.error('Failed to update workspace icon: $e'),
             );
           },
+          deleteWorkspace: () async {
+            final request =
+                UserWorkspaceIdPB(workspaceId: state.workspace!.workspaceId);
+            final result = await UserEventDeleteWorkspace(request).send();
+
+            await result.fold(
+              (_) async {
+                final workspaces = await _userService?.getWorkspaces();
+                final workspace = workspaces?.toNullable()?.first;
+                if (workspace != null) {
+                  await getIt<KeyValueStorage>().set(
+                    KVKeys.lastOpenedWorkspaceId,
+                    workspace.workspaceId,
+                  );
+                  emit(state.copyWith(workspace: workspace));
+                }
+              },
+              (f) async => Log.error('Failed to delete workspace $f'),
+            );
+          },
           addWorkspaceMember: (email) {},
           removeWorkspaceMember: (email) {},
           updateWorkspaceMember: (email, role) {},
+          leaveWorkspace: () async {
+            final result = await _userService
+                ?.leaveWorkspace(state.workspace!.workspaceId);
+
+            await result?.fold(
+              (_) async {
+                final workspaces = await _userService?.getWorkspaces();
+                final workspace = workspaces?.toNullable()?.first;
+                if (workspace != null) {
+                  await getIt<KeyValueStorage>().set(
+                    KVKeys.lastOpenedWorkspaceId,
+                    workspace.workspaceId,
+                  );
+                  emit(state.copyWith(workspace: workspace));
+                }
+              },
+              (f) async => Log.error('Failed to leave workspace: $f'),
+            );
+          },
         );
       },
     );
   }
+
+  UserBackendService? _userService;
 
   Future<UserWorkspacePB> _getWorkspace(String workspaceId) async {
     final request = UserWorkspaceIdPB(workspaceId: workspaceId);
@@ -115,9 +178,9 @@ class WorkspaceSettingsEvent with _$WorkspaceSettingsEvent {
   // Workspace itself
   const factory WorkspaceSettingsEvent.updateWorkspaceName(String name) =
       UpdateWorkspaceName;
-
   const factory WorkspaceSettingsEvent.updateWorkspaceIcon(String icon) =
       UpdateWorkspaceIcon;
+  const factory WorkspaceSettingsEvent.deleteWorkspace() = DeleteWorkspace;
 
   // Workspace Member
   const factory WorkspaceSettingsEvent.addWorkspaceMember(String email) =
@@ -128,6 +191,7 @@ class WorkspaceSettingsEvent with _$WorkspaceSettingsEvent {
     String email,
     AFRolePB role,
   ) = UpdateWorkspaceMember;
+  const factory WorkspaceSettingsEvent.leaveWorkspace() = leaveWorkspace;
 }
 
 @freezed

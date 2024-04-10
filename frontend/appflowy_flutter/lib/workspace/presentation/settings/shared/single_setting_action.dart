@@ -22,6 +22,7 @@ class SingleSettingAction extends StatelessWidget {
     this.onPressed,
     this.isDangerous = false,
     this.fontSize = 14,
+    this.fontWeight = FontWeight.normal,
   });
 
   final String label;
@@ -41,14 +42,17 @@ class SingleSettingAction extends StatelessWidget {
 
   final double fontSize;
 
+  final FontWeight fontWeight;
+
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
         Expanded(
-          child: FlowyText.medium(
+          child: FlowyText(
             label,
             fontSize: fontSize,
+            fontWeight: fontWeight,
             maxLines: labelMaxLines,
             overflow: TextOverflow.ellipsis,
             color: AFThemeExtension.of(context).secondaryTextColor,

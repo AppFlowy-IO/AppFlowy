@@ -109,6 +109,7 @@ class _SettingsAlertDialogState extends State<SettingsAlertDialog> {
                     widget.subtitle!,
                     fontSize: 16,
                     color: Theme.of(context).colorScheme.tertiary,
+                    textAlign: TextAlign.center,
                     maxLines: null,
                   ),
                 ),

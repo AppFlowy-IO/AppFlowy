@@ -375,6 +375,19 @@
       },
       "language": {
         "title": "Language"
+      },
+      "deleteWorkspacePrompt": {
+        "title": "Delete workspace",
+        "content": "Are you sure you want to delete this workspace? This action cannot be undone."
+      },
+      "leaveWorkspacePrompt": {
+        "title": "Leave workspace",
+        "content": "Are you sure you want to leave this workspace? You will lose access to all pages and data within it."
+      },
+      "manageWorkspace": {
+        "title": "Manage workspace",
+        "leaveWorkspace": "Leave workspace",
+        "deleteWorkspace": "Delete workspace"
       }
     },
     "common": {
