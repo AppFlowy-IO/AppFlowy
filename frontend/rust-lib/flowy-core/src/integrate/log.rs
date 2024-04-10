@@ -25,11 +25,7 @@ pub(crate) fn init_log(
   }
 }
 
-pub(crate) fn create_log_filter(
-  level: String,
-  with_crates: Vec<String>,
-  platform: Platform,
-) -> String {
+pub fn create_log_filter(level: String, with_crates: Vec<String>, platform: Platform) -> String {
   let mut level = std::env::var("RUST_LOG").unwrap_or(level);
 
   #[cfg(debug_assertions)]
