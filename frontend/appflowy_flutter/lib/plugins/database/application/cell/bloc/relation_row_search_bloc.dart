@@ -91,20 +91,14 @@ class RelationRowSearchBloc
     }
 
     final rowIds = state.filteredRows.map((e) => e.rowId).toList();
+    final currentIndex = state.focusedRowId == null
+        ? -1
+        : rowIds.indexWhere((id) => id == state.focusedRowId);
 
-    if (state.focusedRowId == null) {
-      emit(
-        state.copyWith(
-          focusedRowId: previous ? rowIds.last : rowIds.first,
-        ),
-      );
-      return;
-    }
-
-    final currentIndex = rowIds.indexWhere((id) => id == state.focusedRowId);
-
+    // If the current index is -1, it means that the focused row is not in the list of row ids.
+    // In this case, we set the new index to the last index if previous is true, otherwise to 0.
     final newIndex = currentIndex == -1
-        ? 0
+        ? (previous ? rowIds.length - 1 : 0)
         : (currentIndex + (previous ? -1 : 1)) % rowIds.length;
 
     emit(state.copyWith(focusedRowId: rowIds[newIndex]));

@@ -22,8 +22,7 @@ class RelatedRowDetailPageBloc
 
   @override
   Future<void> close() {
-    state.when(
-      loading: () {},
+    state.whenOrNull(
       ready: (databaseController, rowController) {
         rowController.dispose();
         databaseController.dispose();
