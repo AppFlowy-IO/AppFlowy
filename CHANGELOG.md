@@ -1,4 +1,10 @@
 # Release Notes
+## Version 0.5.5 - 04/22/2024
+### New Features
+- TBD
+### Bug Fixes
+- TBD
+
 ## Version 0.5.4 - 04/08/2024
 ### New Features
 - Introduced support for displaying a synchronization indicator within documents and databases to enhance user awareness of data sync status
