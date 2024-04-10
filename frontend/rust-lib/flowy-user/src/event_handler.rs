@@ -295,7 +295,7 @@ pub async fn sign_in_with_magic_link_handler(
 ) -> Result<(), FlowyError> {
   let manager = upgrade_manager(manager)?;
   let params = data.into_inner();
-  let _ = manager
+  manager
     .sign_in_with_magic_link(&params.email, &params.redirect_to)
     .await?;
   Ok(())
