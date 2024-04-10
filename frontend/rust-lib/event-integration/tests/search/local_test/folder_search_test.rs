@@ -3,7 +3,7 @@ use collab_folder::View;
 use event_integration::EventIntegrationTest;
 use flowy_core::DEFAULT_NAME;
 use flowy_folder::entities::UpdateViewPayloadPB;
-use flowy_folder_pub::folder_builder::{FlattedViews, WorkspaceViewBuilder};
+use flowy_folder_pub::folder_builder::{FlattedViews, NestedViewBuilder};
 use std::time::Duration;
 use tokio::time::sleep;
 
@@ -176,7 +176,7 @@ async fn create_folder_test_data(file_name: &str) {
 ///   - view_2_1
 ///   - view_2_2
 async fn create_1002_views(uid: i64, workspace_id: String) -> Vec<View> {
-  let mut builder = WorkspaceViewBuilder::new(workspace_id.clone(), uid);
+  let mut builder = NestedViewBuilder::new(workspace_id.clone(), uid);
   builder
     .with_view_builder(|view_builder| async {
       let mut builder = view_builder.with_name("1");
