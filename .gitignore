@@ -40,3 +40,5 @@ frontend/package
 frontend/*.deb
 
 **/Cargo.toml.bak
+
+**/.cargo/**

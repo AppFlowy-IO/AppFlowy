@@ -72,10 +72,6 @@ class URLCellBloc extends Bloc<URLCellEvent, URLCellState> {
       const linkPrefix = [
         'http://',
         'https://',
-        'file://',
-        'ftp://',
-        'ftps://',
-        'mailto:',
       ];
       final shouldAddScheme =
           !linkPrefix.any((pattern) => content.startsWith(pattern));

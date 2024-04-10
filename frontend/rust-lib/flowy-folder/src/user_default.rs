@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use collab_folder::{FolderData, RepeatedViewIdentifier, ViewIdentifier, Workspace};
-use flowy_folder_pub::folder_builder::{FlattedViews, ParentChildViews, WorkspaceViewBuilder};
+use flowy_folder_pub::folder_builder::{FlattedViews, NestedViewBuilder, ParentChildViews};
 use tokio::sync::RwLock;
 
 use lib_infra::util::timestamp;
@@ -16,7 +16,7 @@ impl DefaultFolderBuilder {
     workspace_id: String,
     handlers: &FolderOperationHandlers,
   ) -> FolderData {
-    let workspace_view_builder = Arc::new(RwLock::new(WorkspaceViewBuilder::new(
+    let workspace_view_builder = Arc::new(RwLock::new(NestedViewBuilder::new(
       workspace_id.clone(),
       uid,
     )));

@@ -1,13 +1,12 @@
 name: WEB-CI
 
 on:
-  pull_request:
-    branches:
-      - "main"
-    paths:
-      - ".github/workflows/web_ci.yaml"
-      - "frontend/rust-lib/**"
-      - "frontend/appflowy_web/**"
+  workflow_dispatch:
+    inputs:
+      build:
+        description: 'Build the web app'
+        required: true
+        default: 'true'
 
 env:
   CARGO_TERM_COLOR: always
@@ -22,7 +21,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [ubuntu-latest]
+        platform: [ ubuntu-latest ]
 
     runs-on: ${{ matrix.platform }}
     steps:

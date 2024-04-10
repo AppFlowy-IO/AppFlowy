@@ -260,10 +260,17 @@ class ViewBackendService {
   }
 
   static Future<FlowyResult<ViewPB, FlowyError>> getView(
-    String viewID,
+    String viewId,
   ) async {
-    final payload = ViewIdPB.create()..value = viewID;
+    final payload = ViewIdPB.create()..value = viewId;
     return FolderEventGetView(payload).send();
+  }
+
+  static Future<FlowyResult<RepeatedViewPB, FlowyError>> getViewAncestors(
+    String viewId,
+  ) async {
+    final payload = ViewIdPB.create()..value = viewId;
+    return FolderEventGetViewAncestors(payload).send();
   }
 
   Future<FlowyResult<ViewPB, FlowyError>> getChildView({
@@ -279,5 +286,16 @@ class ViewBackendService {
         (error) => FlowyResult.failure(error),
       );
     });
+  }
+
+  static Future<FlowyResult<void, FlowyError>> updateViewsVisibility(
+    List<ViewPB> views,
+    bool isPublic,
+  ) async {
+    final payload = UpdateViewVisibilityStatusPayloadPB(
+      viewIds: views.map((e) => e.id).toList(),
+      isPublic: isPublic,
+    );
+    return FolderEventUpdateViewVisibilityStatus(payload).send();
   }
 }

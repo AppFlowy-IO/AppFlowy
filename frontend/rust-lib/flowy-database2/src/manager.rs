@@ -211,6 +211,7 @@ impl DatabaseManager {
     if let Some(editor) = self.editors.lock().await.get(database_id).cloned() {
       return Ok(editor);
     }
+    // TODO(nathan): refactor the get_database that split the database creation and database opening.
     self.open_database(database_id).await
   }
 
@@ -239,7 +240,14 @@ impl DatabaseManager {
     let view_id = view_id.as_ref();
     let wdb = self.get_workspace_database().await?;
     if let Some(database_id) = wdb.get_database_id_with_view_id(view_id) {
-      wdb.open_database(&database_id);
+      if let Some(database) = wdb.open_database(&database_id) {
+        if let Some(lock_database) = database.try_lock() {
+          if let Some(lock_collab) = lock_database.get_collab().try_lock() {
+            trace!("{} database start init sync", view_id);
+            lock_collab.start_init_sync();
+          }
+        }
+      }
     }
     Ok(())
   }

@@ -212,7 +212,12 @@ pub trait UserCloudService: Send + Sync + 'static {
     FutureResult::new(async { Ok(vec![]) })
   }
 
-  fn get_user_awareness_doc_state(&self, uid: i64) -> FutureResult<Vec<u8>, FlowyError>;
+  fn get_user_awareness_doc_state(
+    &self,
+    uid: i64,
+    workspace_id: &str,
+    object_id: &str,
+  ) -> FutureResult<Vec<u8>, FlowyError>;
 
   fn receive_realtime_event(&self, _json: Value) {}
 
@@ -226,7 +231,6 @@ pub trait UserCloudService: Send + Sync + 'static {
     &self,
     collab_object: &CollabObject,
     data: Vec<u8>,
-    override_if_exist: bool,
   ) -> FutureResult<(), FlowyError>;
 
   fn batch_create_collab_object(

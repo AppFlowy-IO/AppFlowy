@@ -1,7 +1,6 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/style_widget/decoration.dart';
+import 'package:flutter/material.dart';
 
 class AppFlowyPopover extends StatelessWidget {
   final Widget child;
@@ -10,7 +9,8 @@ class AppFlowyPopover extends StatelessWidget {
   final PopoverDirection direction;
   final int triggerActions;
   final BoxConstraints constraints;
-  final void Function()? onClose;
+  final VoidCallback? onOpen;
+  final VoidCallback? onClose;
   final Future<bool> Function()? canClose;
   final PopoverMutex? mutex;
   final Offset? offset;
@@ -35,6 +35,7 @@ class AppFlowyPopover extends StatelessWidget {
     required this.child,
     required this.popupBuilder,
     this.direction = PopoverDirection.rightWithTopAligned,
+    this.onOpen,
     this.onClose,
     this.canClose,
     this.constraints = const BoxConstraints(maxWidth: 240, maxHeight: 600),
@@ -54,6 +55,7 @@ class AppFlowyPopover extends StatelessWidget {
   Widget build(BuildContext context) {
     return Popover(
       controller: controller,
+      onOpen: onOpen,
       onClose: onClose,
       canClose: canClose,
       direction: direction,

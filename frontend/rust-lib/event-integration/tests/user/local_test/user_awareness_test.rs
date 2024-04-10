@@ -22,6 +22,7 @@ async fn user_update_with_reminder() {
     object_id: "".to_string(),
     meta,
   };
+
   let _ = EventBuilder::new(sdk.clone())
     .event(CreateReminder)
     .payload(payload)

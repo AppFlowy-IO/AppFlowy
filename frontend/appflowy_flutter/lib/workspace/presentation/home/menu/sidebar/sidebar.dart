@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
+import 'package:appflowy/workspace/application/favorite/prelude.dart';
 import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
 import 'package:appflowy/workspace/application/notifications/notification_action.dart';
 import 'package:appflowy/workspace/application/notifications/notification_action_bloc.dart';
@@ -103,13 +105,22 @@ class HomeSideBar extends StatelessWidget {
                 ),
                 BlocListener<UserWorkspaceBloc, UserWorkspaceState>(
                   listener: (context, state) {
-                    context.read<SidebarSectionsBloc>().add(
-                          SidebarSectionsEvent.initial(
-                            userProfile,
-                            state.currentWorkspace?.workspaceId ??
-                                workspaceSetting.workspaceId,
-                          ),
-                        );
+                    final actionType = state.actionResult?.actionType;
+
+                    if (actionType == UserWorkspaceActionType.create ||
+                        actionType == UserWorkspaceActionType.delete ||
+                        actionType == UserWorkspaceActionType.open) {
+                      context.read<SidebarSectionsBloc>().add(
+                            SidebarSectionsEvent.reload(
+                              userProfile,
+                              state.currentWorkspace?.workspaceId ??
+                                  workspaceSetting.workspaceId,
+                            ),
+                          );
+                      context.read<FavoriteBloc>().add(
+                            const FavoriteEvent.fetchFavorites(),
+                          );
+                    }
                   },
                 ),
               ],
@@ -208,13 +219,20 @@ class _SidebarState extends State<_Sidebar> {
           // user or workspace, setting
           Padding(
             padding: menuHorizontalInset,
-            child: context.read<UserWorkspaceBloc>().state.isCollabWorkspaceOn
-                ? SidebarWorkspace(
-                    userProfile: widget.userProfile,
-                  )
-                : SidebarUser(
-                    userProfile: widget.userProfile,
-                  ),
+            child:
+                // if the workspaces are empty, show the user profile instead
+                context.read<UserWorkspaceBloc>().state.isCollabWorkspaceOn &&
+                        context
+                            .read<UserWorkspaceBloc>()
+                            .state
+                            .workspaces
+                            .isNotEmpty
+                    ? SidebarWorkspace(
+                        userProfile: widget.userProfile,
+                      )
+                    : SidebarUser(
+                        userProfile: widget.userProfile,
+                      ),
           ),
 
           const VSpace(20),

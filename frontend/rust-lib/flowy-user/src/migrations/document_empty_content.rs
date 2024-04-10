@@ -6,6 +6,7 @@ use collab_document::document::Document;
 use collab_document::document_data::default_document_data;
 use collab_folder::{Folder, View};
 use collab_plugins::local_storage::kv::KVTransactionDB;
+use semver::Version;
 use tracing::{event, instrument};
 
 use collab_integrate::{CollabKVAction, CollabKVDB, PersistenceError};
@@ -22,6 +23,10 @@ pub struct HistoricalEmptyDocumentMigration;
 impl UserDataMigration for HistoricalEmptyDocumentMigration {
   fn name(&self) -> &str {
     "historical_empty_document"
+  }
+
+  fn applies_to_version(&self, _version: &Version) -> bool {
+    true
   }
 
   #[instrument(name = "HistoricalEmptyDocumentMigration", skip_all, err)]
@@ -82,7 +87,9 @@ where
   if load_collab(user_id, write_txn, &view.id).is_err() {
     let collab = Arc::new(MutexCollab::new(origin.clone(), &view.id, vec![], false));
     let document = Document::create_with_data(collab, default_document_data())?;
-    let encode = document.get_collab().encode_collab_v1();
+    let encode = document
+      .get_collab()
+      .encode_collab_v1(|_| Ok::<(), PersistenceError>(()))?;
     write_txn.flush_doc_with(user_id, &view.id, &encode.doc_state, &encode.state_vector)?;
     event!(
       tracing::Level::INFO,

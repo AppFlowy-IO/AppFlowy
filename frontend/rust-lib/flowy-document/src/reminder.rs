@@ -1,6 +1,5 @@
 use collab_entity::reminder::Reminder;
 use serde::{Deserialize, Serialize};
-use serde_json::json;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum DocumentReminderAction {
@@ -18,6 +17,8 @@ impl TryFrom<Reminder> for DocumentReminder {
   type Error = serde_json::Error;
 
   fn try_from(value: Reminder) -> Result<Self, Self::Error> {
-    serde_json::from_value(json!(value.meta.into_inner()))
+    Ok(Self {
+      document_id: value.object_id,
+    })
   }
 }

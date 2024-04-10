@@ -109,7 +109,7 @@ fn sync_view(
           doc_state.len()
         );
         user_service
-          .create_collab_object(&collab_object, doc_state, false)
+          .create_collab_object(&collab_object, doc_state)
           .await?;
       },
       ViewLayout::Grid | ViewLayout::Board | ViewLayout::Calendar => {
@@ -121,7 +121,7 @@ fn sync_view(
           database_doc_state.len()
         );
         user_service
-          .create_collab_object(&collab_object, database_doc_state, false)
+          .create_collab_object(&collab_object, database_doc_state)
           .await?;
 
         // sync database's row
@@ -145,7 +145,7 @@ fn sync_view(
           );
 
           let _ = user_service
-            .create_collab_object(&database_row_collab_object, database_row_doc_state, false)
+            .create_collab_object(&database_row_collab_object, database_row_doc_state)
             .await;
 
           let database_row_document = CollabObject::new(
@@ -165,7 +165,7 @@ fn sync_view(
               document_doc_state.len()
             );
             let _ = user_service
-              .create_collab_object(&database_row_document, document_doc_state, false)
+              .create_collab_object(&database_row_document, document_doc_state)
               .await;
           }
         }
@@ -213,7 +213,9 @@ fn get_collab_doc_state(
       .read_txn()
       .load_doc_with_txn(uid, &collab_object.object_id, txn)
   })?;
-  let doc_state = collab.encode_collab_v1().doc_state;
+  let doc_state = collab
+    .encode_collab_v1(|_| Ok::<(), PersistenceError>(()))?
+    .doc_state;
   if doc_state.is_empty() {
     return Err(PersistenceError::UnexpectedEmptyUpdates);
   }
@@ -234,7 +236,9 @@ fn get_database_doc_state(
   })?;
 
   let row_ids = get_database_row_ids(&collab).unwrap_or_default();
-  let doc_state = collab.encode_collab_v1().doc_state;
+  let doc_state = collab
+    .encode_collab_v1(|_| Ok::<(), PersistenceError>(()))?
+    .doc_state;
   if doc_state.is_empty() {
     return Err(PersistenceError::UnexpectedEmptyUpdates);
   }
@@ -257,7 +261,9 @@ async fn sync_folder(
         .read_txn()
         .load_doc_with_txn(uid, workspace_id, txn)
     })?;
-    let doc_state = collab.encode_collab_v1().doc_state;
+    let doc_state = collab
+      .encode_collab_v1(|_| Ok::<(), PersistenceError>(()))?
+      .doc_state;
     (
       MutexFolder::new(Folder::open(
         uid,
@@ -281,7 +287,7 @@ async fn sync_folder(
     update.len()
   );
   if let Err(err) = user_service
-    .create_collab_object(&collab_object, update.to_vec(), false)
+    .create_collab_object(&collab_object, update.to_vec())
     .await
   {
     tracing::error!("🔴sync folder failed: {:?}", err);
@@ -318,14 +324,17 @@ async fn sync_database_views(
       .map(|_| {
         (
           get_all_database_meta(&collab),
-          collab.encode_collab_v1().doc_state,
+          collab
+            .encode_collab_v1(|_| Ok::<(), PersistenceError>(()))
+            .unwrap()
+            .doc_state,
         )
       })
   };
 
   if let Ok((records, doc_state)) = result {
     let _ = user_service
-      .create_collab_object(&collab_object, doc_state.to_vec(), false)
+      .create_collab_object(&collab_object, doc_state.to_vec())
       .await;
     records.into_iter().map(Arc::new).collect()
   } else {

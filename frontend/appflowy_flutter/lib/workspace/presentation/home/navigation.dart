@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
@@ -9,7 +11,6 @@ import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:styled_widget/styled_widget.dart';
@@ -75,11 +76,9 @@ class FlowyNavigation extends StatelessWidget {
               child: FlowyIconButton(
                 width: 24,
                 hoverColor: Colors.transparent,
-                onPressed: () {
-                  context
-                      .read<HomeSettingBloc>()
-                      .add(const HomeSettingEvent.collapseMenu());
-                },
+                onPressed: () => context
+                    .read<HomeSettingBloc>()
+                    .add(const HomeSettingEvent.collapseMenu()),
                 iconPadding: const EdgeInsets.fromLTRB(2, 2, 2, 2),
                 icon: FlowySvg(
                   FlowySvgs.hide_menu_m,
@@ -88,9 +87,9 @@ class FlowyNavigation extends StatelessWidget {
               ),
             ),
           );
-        } else {
-          return const SizedBox.shrink();
         }
+
+        return const SizedBox.shrink();
       },
     );
   }

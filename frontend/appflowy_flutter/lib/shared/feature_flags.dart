@@ -81,6 +81,17 @@ enum FeatureFlag {
   }
 
   bool get isOn {
+    if ([
+      // release this feature in version 0.5.5
+      FeatureFlag.collaborativeWorkspace,
+      FeatureFlag.membersSettings,
+      // release this feature in version 0.5.4
+      FeatureFlag.syncDatabase,
+      FeatureFlag.syncDocument,
+    ].contains(this)) {
+      return true;
+    }
+
     if (_values.containsKey(this)) {
       return _values[this]!;
     }

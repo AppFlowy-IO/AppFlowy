@@ -79,7 +79,8 @@ class Popover extends StatefulWidget {
   /// The direction of the popover
   final PopoverDirection direction;
 
-  final void Function()? onClose;
+  final VoidCallback? onOpen;
+  final VoidCallback? onClose;
   final Future<bool> Function()? canClose;
 
   final bool asBarrier;
@@ -109,6 +110,7 @@ class Popover extends StatefulWidget {
     this.direction = PopoverDirection.rightWithTopAligned,
     this.mutex,
     this.windowPadding,
+    this.onOpen,
     this.onClose,
     this.canClose,
     this.asBarrier = false,
@@ -126,8 +128,8 @@ class PopoverState extends State<Popover> {
 
   @override
   void initState() {
-    widget.controller?._state = this;
     super.initState();
+    widget.controller?._state = this;
   }
 
   void showOverlay() {
@@ -160,22 +162,17 @@ class PopoverState extends State<Popover> {
           offset: widget.offset ?? Offset.zero,
           windowPadding: widget.windowPadding ?? EdgeInsets.zero,
           popupBuilder: widget.popupBuilder,
-          onClose: () => close(),
-          onCloseAll: () => _removeRootOverlay(),
+          onClose: close,
+          onCloseAll: _removeRootOverlay,
           skipTraversal: widget.skipTraversal,
         ),
       );
 
       return CallbackShortcuts(
         bindings: {
-          const SingleActivator(LogicalKeyboardKey.escape): () =>
-              _removeRootOverlay(),
+          const SingleActivator(LogicalKeyboardKey.escape): _removeRootOverlay,
         },
-        child: FocusScope(
-          child: Stack(
-            children: children,
-          ),
-        ),
+        child: FocusScope(child: Stack(children: children)),
       );
     });
     _rootEntry.addEntry(context, this, newEntry, widget.asBarrier);
@@ -228,6 +225,7 @@ class PopoverState extends State<Popover> {
       child: _buildClickHandler(
         widget.child,
         () {
+          widget.onOpen?.call();
           if (widget.triggerActions & PopoverTriggerFlags.click != 0) {
             showOverlay();
           }

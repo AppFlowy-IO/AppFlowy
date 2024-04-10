@@ -8,7 +8,7 @@ use tokio::sync::RwLock;
 
 use flowy_error::FlowyError;
 
-use flowy_folder_pub::folder_builder::WorkspaceViewBuilder;
+use flowy_folder_pub::folder_builder::NestedViewBuilder;
 use lib_infra::future::FutureResult;
 use lib_infra::util::timestamp;
 
@@ -27,7 +27,7 @@ pub trait FolderOperationHandler {
   fn create_workspace_view(
     &self,
     _uid: i64,
-    _workspace_view_builder: Arc<RwLock<WorkspaceViewBuilder>>,
+    _workspace_view_builder: Arc<RwLock<NestedViewBuilder>>,
   ) -> FutureResult<(), FlowyError> {
     FutureResult::new(async { Ok(()) })
   }

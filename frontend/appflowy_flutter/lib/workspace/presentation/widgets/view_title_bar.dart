@@ -1,15 +1,16 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
 import 'package:appflowy/startup/tasks/app_window_size_manager.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
+import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy/workspace/presentation/widgets/rename_view_popover.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 // workspaces / ... / view_title
@@ -115,9 +116,8 @@ class _ViewTitleBarState extends State<ViewTitleBar> {
   }
 
   void _reloadAncestors() {
-    ancestors = widget.view.getAncestors(
-      includeSelf: true,
-    );
+    ancestors = ViewBackendService.getViewAncestors(widget.view.id)
+        .fold((s) => s.items, (f) => []);
   }
 }
 

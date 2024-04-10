@@ -33,7 +33,8 @@ class SelectOptionCellEditor extends StatefulWidget {
 }
 
 class _SelectOptionCellEditorState extends State<SelectOptionCellEditor> {
-  final TextEditingController textEditingController = TextEditingController();
+  final textEditingController = TextEditingController();
+  final scrollController = ScrollController();
   final popoverMutex = PopoverMutex();
   late final bloc = SelectOptionCellEditorBloc(
     cellController: widget.cellController,
@@ -86,6 +87,7 @@ class _SelectOptionCellEditorState extends State<SelectOptionCellEditor> {
   void dispose() {
     popoverMutex.dispose();
     textEditingController.dispose();
+    scrollController.dispose();
     bloc.close();
     focusNode.dispose();
     super.dispose();
@@ -101,6 +103,7 @@ class _SelectOptionCellEditorState extends State<SelectOptionCellEditor> {
           children: [
             _TextField(
               textEditingController: textEditingController,
+              scrollController: scrollController,
               focusNode: focusNode,
               popoverMutex: popoverMutex,
             ),
@@ -209,11 +212,13 @@ class _OptionList extends StatelessWidget {
 class _TextField extends StatelessWidget {
   const _TextField({
     required this.textEditingController,
+    required this.scrollController,
     required this.focusNode,
     required this.popoverMutex,
   });
 
   final TextEditingController textEditingController;
+  final ScrollController scrollController;
   final FocusNode focusNode;
   final PopoverMutex popoverMutex;
 
@@ -237,6 +242,7 @@ class _TextField extends StatelessWidget {
               selectedOptionMap: optionMap,
               distanceToText: _editorPanelWidth * 0.7,
               textController: textEditingController,
+              scrollController: scrollController,
               textSeparators: const [','],
               onClick: () => popoverMutex.close(),
               newText: (text) {
@@ -473,7 +479,7 @@ class SelectOptionTagCell extends StatelessWidget {
                 alignment: AlignmentDirectional.centerStart,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 5.0,
+                    horizontal: 6.0,
                     vertical: 4.0,
                   ),
                   child: SelectOptionTag(

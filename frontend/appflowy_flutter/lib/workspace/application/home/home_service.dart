@@ -6,9 +6,10 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 
 class HomeService {
-  Future<FlowyResult<ViewPB, FlowyError>> readApp({required String appId}) {
+  static Future<FlowyResult<ViewPB, FlowyError>> readApp({
+    required String appId,
+  }) {
     final payload = ViewIdPB.create()..value = appId;
-
     return FolderEventGetView(payload).send();
   }
 }

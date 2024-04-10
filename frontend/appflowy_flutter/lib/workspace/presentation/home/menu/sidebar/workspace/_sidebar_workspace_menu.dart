@@ -9,6 +9,7 @@ import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -61,6 +62,7 @@ class WorkspacesMenu extends StatelessWidget {
         ),
         for (final workspace in workspaces) ...[
           WorkspaceMenuItem(
+            key: ValueKey(workspace.workspaceId),
             workspace: workspace,
             userProfile: userProfile,
             isSelected: workspace.workspaceId == currentWorkspace.workspaceId,
@@ -135,8 +137,10 @@ class WorkspaceMenuItem extends StatelessWidget {
                       PopoverContainer.of(context).closeAll();
                     }
                   },
-                  margin:
-                      const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                  margin: const EdgeInsets.symmetric(
+                    vertical: 8,
+                    horizontal: 12,
+                  ),
                   iconPadding: 10.0,
                   leftIconSize: const Size.square(32),
                   leftIcon: const SizedBox.square(
@@ -145,12 +149,12 @@ class WorkspaceMenuItem extends StatelessWidget {
                   rightIcon: const HSpace(42.0),
                   text: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    // mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       FlowyText.medium(
                         workspace.name,
                         fontSize: 14.0,
                         overflow: TextOverflow.ellipsis,
+                        withTooltip: true,
                       ),
                       FlowyText(
                         state.isLoading
@@ -170,10 +174,14 @@ class WorkspaceMenuItem extends StatelessWidget {
                   left: 8,
                   child: SizedBox.square(
                     dimension: 32,
-                    child: WorkspaceIcon(
-                      workspace: workspace,
-                      iconSize: 26,
-                      enableEdit: true,
+                    child: FlowyTooltip(
+                      message:
+                          LocaleKeys.document_plugins_cover_changeIcon.tr(),
+                      child: WorkspaceIcon(
+                        workspace: workspace,
+                        iconSize: 26,
+                        enableEdit: true,
+                      ),
                     ),
                   ),
                 ),
