@@ -60,15 +60,6 @@ class SelectOptionCellBackendService {
     return DatabaseEventDeleteSelectOption(payload).send();
   }
 
-  Future<FlowyResult<SelectOptionCellDataPB, FlowyError>> getCellData() {
-    final payload = CellIdPB()
-      ..viewId = viewId
-      ..fieldId = fieldId
-      ..rowId = rowId;
-
-    return DatabaseEventGetSelectOptionCellData(payload).send();
-  }
-
   Future<FlowyResult<void, FlowyError>> select({
     required Iterable<String> optionIds,
   }) {

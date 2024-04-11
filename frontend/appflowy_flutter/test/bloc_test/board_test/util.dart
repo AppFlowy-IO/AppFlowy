@@ -96,8 +96,7 @@ class BoardTestContext {
 
   Future<FieldEditorBloc> createField(FieldType fieldType) async {
     final editorBloc =
-        await createFieldEditor(databaseController: _boardDataController)
-          ..add(const FieldEditorEvent.initial());
+        await createFieldEditor(databaseController: _boardDataController);
     await gridResponseFuture();
     editorBloc.add(FieldEditorEvent.switchFieldType(fieldType));
     await gridResponseFuture();

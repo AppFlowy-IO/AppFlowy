@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/domain/cell_listener.dart';
-import 'package:appflowy/plugins/database/domain/field_listener.dart';
 import 'package:appflowy/plugins/database/application/field/type_option/type_option_data_parser.dart';
 import 'package:appflowy/plugins/database/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database/domain/row_meta_listener.dart';
@@ -49,7 +48,6 @@ class CellController<T, D> {
         _rowCache = rowCache,
         _cellDataLoader = cellDataLoader,
         _cellDataPersistence = cellDataPersistence,
-        _fieldListener = SingleFieldListener(fieldId: cellContext.fieldId),
         _cellDataNotifier =
             CellDataNotifier(value: rowCache.cellCache.get(cellContext)) {
     _startListening();
@@ -64,10 +62,9 @@ class CellController<T, D> {
 
   CellListener? _cellListener;
   RowMetaListener? _rowMetaListener;
-  SingleFieldListener? _fieldListener;
   CellDataNotifier<T?>? _cellDataNotifier;
 
-  void Function(FieldPB field)? _onCellFieldChanged;
+  void Function(FieldInfo field)? _onCellFieldChanged;
   VoidCallback? _onRowMetaChanged;
   Timer? _loadDataOperation;
   Timer? _saveDataOperation;
@@ -105,8 +102,9 @@ class CellController<T, D> {
     );
 
     // 2. Listen on the field event and load the cell data if needed.
-    _fieldListener?.start(
-      onFieldChanged: (fieldPB) {
+    _fieldController.addSingleFieldListener(
+      fieldId,
+      onFieldChanged: (fieldInfo) {
         // reloadOnFieldChanged should be true if you want to reload the cell
         // data when the corresponding field is changed.
         // For example:
@@ -114,7 +112,7 @@ class CellController<T, D> {
         if (_cellDataLoader.reloadOnFieldChange) {
           _loadData();
         }
-        _onCellFieldChanged?.call(fieldPB);
+        _onCellFieldChanged?.call(fieldInfo);
       },
     );
 
@@ -132,7 +130,7 @@ class CellController<T, D> {
   /// Add a new listener
   VoidCallback? addListener({
     required void Function(T?) onCellChanged,
-    void Function(FieldPB field)? onCellFieldChanged,
+    void Function(FieldInfo field)? onCellFieldChanged,
     VoidCallback? onRowMetaChanged,
   }) {
     _onCellFieldChanged = onCellFieldChanged;
@@ -219,9 +217,6 @@ class CellController<T, D> {
 
     await _cellListener?.stop();
     _cellListener = null;
-
-    await _fieldListener?.stop();
-    _fieldListener = null;
 
     _loadDataOperation?.cancel();
     _saveDataOperation?.cancel();

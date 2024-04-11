@@ -383,6 +383,7 @@ pub enum UserTokenState {
   Invalid,
 }
 
+// Workspace Role
 #[derive(Clone, Debug)]
 pub enum Role {
   Owner,
@@ -402,4 +403,21 @@ pub fn user_awareness_object_id(user_uuid: &Uuid, workspace_id: &str) -> Uuid {
     user_uuid,
     format!("user_awareness:{}", workspace_id).as_bytes(),
   )
+}
+
+#[derive(Clone, Debug)]
+pub enum WorkspaceInvitationStatus {
+  Pending,
+  Accepted,
+  Rejected,
+}
+
+pub struct WorkspaceInvitation {
+  pub invite_id: Uuid,
+  pub workspace_id: Uuid,
+  pub workspace_name: Option<String>,
+  pub inviter_email: Option<String>,
+  pub inviter_name: Option<String>,
+  pub status: WorkspaceInvitationStatus,
+  pub updated_at: DateTime<Utc>,
 }

@@ -31,8 +31,7 @@ class GridTestContext {
 
   Future<FieldEditorBloc> createField(FieldType fieldType) async {
     final editorBloc =
-        await createFieldEditor(databaseController: gridController)
-          ..add(const FieldEditorEvent.initial());
+        await createFieldEditor(databaseController: gridController);
     await gridResponseFuture();
     editorBloc.add(FieldEditorEvent.switchFieldType(fieldType));
     await gridResponseFuture();

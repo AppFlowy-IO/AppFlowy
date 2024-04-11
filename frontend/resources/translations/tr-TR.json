@@ -1058,9 +1058,9 @@
     "notesTooltip": "İçindeki notlar",
     "mobile": {
       "editURL": "URL'yi Düzenle",
-      "unhideGroup": "Grubu göster",
-      "unhideGroupContent": "Bu grubu panoda göstermek istediğinizden emin misiniz?",
-      "faildToLoad": "Pano görünümü yüklenemedi"
+      "showGroup": "Grubu göster",
+      "showGroupContent": "Bu grubu panoda göstermek istediğinizden emin misiniz?",
+      "failedToLoad": "Pano görünümü yüklenemedi"
     }
   },
   "calendar": {

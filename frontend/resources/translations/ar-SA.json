@@ -874,9 +874,9 @@
     "notesTooltip": "ملاحظات بالداخل",
     "mobile": {
       "editURL": "تعديل الرابط",
-      "unhideGroup": "إظهار المجموعة",
-      "unhideGroupContent": "هل أنت متأكد من إظهار هذه المجموعة على السبورة؟",
-      "faildToLoad": "فشل تحميل عرض السبورة"
+      "showGroup": "إظهار المجموعة",
+      "showGroupContent": "هل أنت متأكد من إظهار هذه المجموعة على السبورة؟",
+      "failedToLoad": "فشل تحميل عرض السبورة"
     }
   },
   "calendar": {

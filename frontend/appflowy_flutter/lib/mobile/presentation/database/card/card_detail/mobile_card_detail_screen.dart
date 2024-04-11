@@ -322,6 +322,7 @@ class MobileRowDetailPageContentState
               BlocProvider<RowBannerBloc>(
                 create: (context) => RowBannerBloc(
                   viewId: viewId,
+                  fieldController: fieldController,
                   rowMeta: rowController.rowMeta,
                 )..add(const RowBannerEvent.initial()),
                 child: BlocBuilder<RowBannerBloc, RowBannerState>(

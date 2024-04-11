@@ -549,7 +549,12 @@
       "createNewCard": "Új"
     },
     "menuName": "Feladat Tábla",
-    "referencedBoardPrefix": "Nézet"
+    "referencedBoardPrefix": "Nézet",
+    "mobile": {
+      "showGroup": "Csoport megjelenítése",
+      "showGroupContent": "Biztos, hogy meg szeretnéd jeleníteni ezt a csoportot a táblán?",
+      "failedToLoad": "Nem sikerült betölteni a tábla nézetét"
+    }
   },
   "calendar": {
     "menuName": "Naptár",
