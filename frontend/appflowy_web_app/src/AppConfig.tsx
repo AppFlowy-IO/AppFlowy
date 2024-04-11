@@ -5,13 +5,12 @@ import { useAppSelector } from '@/stores/store';
 
 export const AFConfigContext = createContext<
   | {
-      service: AFService | undefined;
-    }
+  service: AFService | undefined;
+}
   | undefined
 >(undefined);
 
-
-function AppConfig({ children }: { children: React.ReactNode }) {
+function AppConfig ({ children }: { children: React.ReactNode }) {
   const appConfig = useAppSelector((state) => state.app.appConfig);
   const [service, setService] = useState<AFService>();
 
@@ -26,7 +25,7 @@ function AppConfig({ children }: { children: React.ReactNode }) {
     () => ({
       service,
     }),
-    [service]
+    [service],
   );
 
   return <AFConfigContext.Provider value={config}>{children}</AFConfigContext.Provider>;

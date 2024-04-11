@@ -15,10 +15,13 @@
     "css:variables": "node style-dictionary/config.cjs",
     "sync:i18n": "node scripts/i18n.cjs",
     "link:client-api": "rm -rf node_modules/.vite && node scripts/create-symlink.cjs",
-    "analyze": "ANALYZE_MODE=true vite build"
+    "analyze": "ANALYZE_MODE=true vite build",
+    "cypress:open": "cypress open",
+    "test:components": "cypress run --component --browser chrome --headless",
+    "test:unit": "jest"
   },
   "dependencies": {
-    "@appflowyinc/client-api-wasm": "^0.0.2",
+    "@appflowyinc/client-api-wasm": "0.0.2-alpha.1",
     "@emoji-mart/data": "^1.1.2",
     "@emoji-mart/react": "^1.1.1",
     "@emotion/react": "^11.10.6",
@@ -33,6 +36,7 @@
     "@types/react-swipeable-views": "^0.13.4",
     "axios": "^1.6.8",
     "dayjs": "^1.11.9",
+    "dexie": "^4.0.1",
     "emoji-mart": "^5.5.2",
     "emoji-regex": "^10.2.1",
     "events": "^3.3.0",
@@ -80,7 +84,8 @@
     "utf8": "^3.0.0",
     "valtio": "^1.12.1",
     "vite-plugin-wasm": "^3.3.0",
-    "yjs": "^13.5.51"
+    "y-indexeddb": "9.0.12",
+    "yjs": "^13.6.14"
   },
   "devDependencies": {
     "@svgr/plugin-svgo": "^8.0.1",
@@ -110,6 +115,7 @@
     "autoprefixer": "^10.4.13",
     "babel-jest": "^29.6.2",
     "chalk": "^4.1.2",
+    "cypress": "^13.7.2",
     "eslint": "^8.57.0",
     "eslint-plugin-react": "^7.32.2",
     "eslint-plugin-react-hooks": "^4.6.0",

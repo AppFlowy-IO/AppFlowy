@@ -1,23 +1,11 @@
-import React, { useContext } from 'react';
-import { Button } from '@mui/material';
-import { useAuth } from '@/components/auth/auth.hooks';
-import { AFConfigContext } from '@/AppConfig';
+import Header from '@/components/layout/Header';
+import React from 'react';
 
-function Layout({ children }: { children: React.ReactNode }) {
-  const { logout } = useAuth();
-  const AFConfig = useContext(AFConfigContext);
+function Layout ({ children }: { children: React.ReactNode }) {
 
   return (
     <div>
-      <div>hello world</div>
-      <Button onClick={logout}>logout</Button>
-      <Button
-        onClick={() => {
-          void AFConfig?.service?.documentService.openDocument('test');
-        }}
-      >
-        get document
-      </Button>
+      <Header />
       {children}
     </div>
   );

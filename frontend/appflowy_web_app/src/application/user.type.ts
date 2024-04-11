@@ -10,17 +10,12 @@ export enum EncryptionType {
 }
 
 export interface UserProfile {
-  id?: string;
+  uid: number;
+  uuid?: string;
   email?: string;
   name?: string;
-  token?: string;
   iconUrl?: string;
-  openaiKey?: string;
-  authenticator?: Authenticator;
-  encryptionSign?: string;
-  encryptionType?: EncryptionType;
   workspaceId?: string;
-  stabilityAiKey?: string;
 }
 
 export interface Workspace {

@@ -1,11 +1,13 @@
 import { ReactComponent as AppflowyLogo } from '@/assets/logo.svg';
-import Button from '@mui/material/Button';
 import { useTranslation } from 'react-i18next';
-import { useAuth } from './auth.hooks';
 import { LoginButtonGroup } from './LoginButtonGroup';
+import { getPlatform } from '@/utils/platform';
+import { lazy } from 'react';
+
+const SignInAsAnonymous = lazy(() => import('@/components/tauri/SignInAsAnonymous'));
 
 export const Welcome = () => {
-  const { signInAsAnonymous } = useAuth();
+
   const { t } = useTranslation();
 
   return (
@@ -24,20 +26,7 @@ export const Welcome = () => {
           </div>
 
           <div id="Get-Started" className="flex w-[340px] flex-col gap-4 " aria-label="Get-Started">
-            <Button
-              size={'large'}
-              color={'inherit'}
-              className={'border-transparent bg-line-divider py-3'}
-              variant={'outlined'}
-              onClick={signInAsAnonymous}
-            >
-              {t('signIn.loginStartWithAnonymous')}
-            </Button>
-            <div className={'flex w-full items-center justify-center gap-2 text-sm'}>
-              <div className={'h-px flex-1 bg-line-divider'}/>
-              {t('signIn.or')}
-              <div className={'h-px flex-1 bg-line-divider'}/>
-            </div>
+            {getPlatform().isTauri && <SignInAsAnonymous/>}
             <div className={'w-w-full flex items-center justify-center gap-2 text-sm'}>
               <LoginButtonGroup/>
             </div>

@@ -56,6 +56,9 @@ jobs:
         working-directory: frontend/appflowy_web_app
         run: |
           pnpm run lint
+          
+          apt-get install libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libnss3 libxss1 libasound2 libxtst6 xauth xvfb
+          pnpm run test:components
       - name: build and analyze
         working-directory: frontend/appflowy_web_app
         run: |

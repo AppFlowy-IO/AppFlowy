@@ -10,6 +10,8 @@
     "allowJs": false,
     "skipLibCheck": true,
     "esModuleInterop": false,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
     "allowSyntheticDefaultImports": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
@@ -17,11 +19,14 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
+    "preserveValueImports": false,
     "noEmit": true,
     "jsx": "react-jsx",
     "types": [
+      "cypress",
       "node",
-      "jest"
+      "jest",
+      "node_modules/@types"
     ],
     "baseUrl": "./",
     "paths": {
@@ -38,7 +43,9 @@
   },
   "include": [
     "src",
-    "vite.config.ts"
+    "vite.config.ts",
+    "./cypress.d.ts",
+    "cypress"
   ],
   "exclude": [
     "node_modules"

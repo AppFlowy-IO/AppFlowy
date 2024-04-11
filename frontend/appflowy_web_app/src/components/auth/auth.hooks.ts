@@ -2,7 +2,7 @@ import { useAppDispatch, useAppSelector } from '@/stores/store';
 import { useCallback, useContext } from 'react';
 import { nanoid } from 'nanoid';
 import { open } from '@tauri-apps/api/shell';
-import { ProviderType, UserProfile } from '@/application/services/user.type';
+import { ProviderType, UserProfile } from '@/application/user.type';
 import { currentUserActions } from '@/stores/currentUser/slice';
 import { AFConfigContext } from '@/AppConfig';
 import { notify } from '@/components/_shared/notify';
@@ -11,17 +11,18 @@ export const useAuth = () => {
   const dispatch = useAppDispatch();
   const AFConfig = useContext(AFConfigContext);
   const currentUser = useAppSelector((state) => state.currentUser);
+  const isReady = !!AFConfig?.service;
 
   const handleSuccess = useCallback(() => {
     notify.clear();
     dispatch(currentUserActions.loginSuccess());
   }, [dispatch]);
   const setUser = useCallback(
-    async (userProfile: Partial<UserProfile>) => {
+    async (userProfile: UserProfile) => {
       handleSuccess();
       dispatch(currentUserActions.updateUser(userProfile));
     },
-    [dispatch, handleSuccess]
+    [dispatch, handleSuccess],
   );
 
   const handleStart = useCallback(() => {
@@ -36,12 +37,12 @@ export const useAuth = () => {
       notify.error(message);
       dispatch(currentUserActions.loginError());
     },
-    [dispatch]
+    [dispatch],
   );
 
   // Check if the user is authenticated
   const checkUser = useCallback(async () => {
-    handleStart();
+
     try {
       const userProfile = await AFConfig?.service?.userService.getUserProfile();
 
@@ -53,13 +54,10 @@ export const useAuth = () => {
 
       return userProfile;
     } catch (e) {
-      handleError({
-        message: 'Failed to check user',
-      });
 
       return Promise.reject('Failed to check user');
     }
-  }, [AFConfig?.service?.userService, handleError, handleStart, setUser]);
+  }, [AFConfig?.service?.userService, setUser]);
 
   const register = useCallback(
     async (email: string, password: string, name: string): Promise<UserProfile | null> => {
@@ -85,7 +83,7 @@ export const useAuth = () => {
         return null;
       }
     },
-    [handleStart, AFConfig?.service?.authService, setUser, handleError]
+    [handleStart, AFConfig?.service?.authService, setUser, handleError],
   );
 
   const logout = useCallback(async () => {
@@ -124,7 +122,7 @@ export const useAuth = () => {
         });
       }
     },
-    [AFConfig?.service?.authService, handleError, handleStart]
+    [AFConfig?.service?.authService, handleError, handleStart],
   );
 
   const signInWithOAuth = useCallback(
@@ -147,15 +145,18 @@ export const useAuth = () => {
         });
       }
     },
-    [AFConfig?.service?.authService, AFConfig?.service?.userService, handleError, handleStart, setUser]
+    [AFConfig?.service?.authService, AFConfig?.service?.userService, handleError, handleStart, setUser],
   );
 
   const signInWithEmailPassword = useCallback(
     async (email: string, password: string) => {
       handleStart();
       try {
-        const userProfile = await AFConfig?.service?.authService.signinWithEmailPassword(email, password);
+        await AFConfig?.service?.authService.signinWithEmailPassword(email, password);
 
+        const userProfile = await AFConfig?.service?.userService.getUserProfile();
+
+        console.log('userProfile', userProfile);
         if (!userProfile) {
           throw new Error('Failed to sign in');
         }
@@ -169,10 +170,11 @@ export const useAuth = () => {
         });
       }
     },
-    [AFConfig?.service?.authService, handleError, handleStart, setUser]
+    [AFConfig?.service?.authService, AFConfig?.service?.userService, handleError, handleStart, setUser],
   );
 
   return {
+    isReady,
     currentUser,
     checkUser,
     register,

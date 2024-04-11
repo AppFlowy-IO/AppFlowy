@@ -1,6 +1,11 @@
 import React, { useMemo } from 'react';
 import createTheme from '@mui/material/styles/createTheme';
 import ThemeProvider from '@mui/material/styles/ThemeProvider';
+import '@/i18n/config';
+
+import './styles/tailwind.css';
+import './styles/font.css';
+import './styles/template.css';
 
 function AppTheme ({ children }: {
   children: React.ReactNode;

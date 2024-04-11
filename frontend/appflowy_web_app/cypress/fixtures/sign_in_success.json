@@ -1,0 +1,66 @@
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTI4Mjk2MjAsImlhdCI6MTcxMjgyNjAyMCwic3ViIjoiY2JmZjA2MGEtMTk2ZC00MTVhLWFhODAtNzU5YzAxODg2NDY2IiwiZW1haWwiOiJsdUBhcHBmbG93eS5pbyIsInBob25lIjoiIiwiYXBwX21ldGFkYXRhIjp7InByb3ZpZGVyIjoiZ29vZ2xlIiwicHJvdmlkZXJzIjpbImdvb2dsZSJdfSwidXNlcl9tZXRhZGF0YSI6eyJhdmF0YXJfdXJsIjoiaHR0cHM6Ly9saDMuZ29vZ2xldXNlcmNvbnRlbnQuY29tL2EvQUNnOG9jTEhabVZBczRTb0ZlVFFuWG5CU2JiNTBBVXF0YktHNWx5MGllVHZCSklYZ1o3UmdRPXM5Ni1jIiwiY3VzdG9tX2NsYWltcyI6eyJoZCI6ImFwcGZsb3d5LmlvIn0sImVtYWlsIjoibHVAYXBwZmxvd3kuaW8iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiZnVsbF9uYW1lIjoiTHUgSGUiLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiTHUgSGUiLCJwaG9uZV92ZXJpZmllZCI6ZmFsc2UsInBpY3R1cmUiOiJodHRwczovL2xoMy5nb29nbGV1c2VyY29udGVudC5jb20vYS9BQ2c4b2NMSFptVkFzNFNvRmVUUW5YbkJTYmI1MEFVcXRiS0c1bHkwaWVUdkJKSVhnWjdSZ1E9czk2LWMiLCJwcm92aWRlcl9pZCI6IjEwMTE2OTI1MDgyOTU1NDAyODM4MSIsInN1YiI6IjEwMTE2OTI1MDgyOTU1NDAyODM4MSJ9LCJyb2xlIjoiIiwiYWFsIjoiYWFsMSIsImFtciI6W3sibWV0aG9kIjoicGFzc3dvcmQiLCJ0aW1lc3RhbXAiOjE3MTI4MjYwMjB9XSwic2Vzc2lvbl9pZCI6ImJmMzE5OTRlLTQwMTgtNDhjMS05Yzc0LWVmYzkyMGNjOWQ0NSJ9.QeTrRhsnBjBL1GUS3TIWOgU1SPM6RcaWwxZdMVfcFBU",
+  "token_type": "bearer",
+  "expires_in": 3600,
+  "expires_at": 1712829620,
+  "refresh_token": "71vp1jJnSAVluZKaXkhG1A",
+  "user": {
+    "id": "cbff060a-196d-415a-aa80-759c01886466",
+    "aud": "",
+    "role": "",
+    "email": "lu@appflowy.io",
+    "email_confirmed_at": "2024-03-13T10:49:53.165361Z",
+    "phone": "",
+    "confirmed_at": "2024-03-13T10:49:53.165361Z",
+    "last_sign_in_at": "2024-04-11T09:00:20.547468985Z",
+    "app_metadata": {
+      "provider": "google",
+      "providers": [
+        "google"
+      ]
+    },
+    "user_metadata": {
+      "avatar_url": "https://lh3.googleusercontent.com/a/ACg8ocLHZmVAs4SoFeTQnXnBSbb50AUqtbKG5ly0ieTvBJIXgZ7RgQ=s96-c",
+      "custom_claims": {
+        "hd": "appflowy.io"
+      },
+      "email": "lu@appflowy.io",
+      "email_verified": true,
+      "full_name": "Lu He",
+      "iss": "https://accounts.google.com",
+      "name": "Lu He",
+      "phone_verified": false,
+      "picture": "https://lh3.googleusercontent.com/a/ACg8ocLHZmVAs4SoFeTQnXnBSbb50AUqtbKG5ly0ieTvBJIXgZ7RgQ=s96-c",
+      "provider_id": "101169250829554028381",
+      "sub": "101169250829554028381"
+    },
+    "identities": [
+      {
+        "identity_id": "e4cf8b69-7f80-42e9-aed2-e25132ad0178",
+        "id": "101169250829554028381",
+        "user_id": "cbff060a-196d-415a-aa80-759c01886466",
+        "identity_data": {
+          "avatar_url": "https://lh3.googleusercontent.com/a/ACg8ocLHZmVAs4SoFeTQnXnBSbb50AUqtbKG5ly0ieTvBJIXgZ7RgQ=s96-c",
+          "custom_claims": {
+            "hd": "appflowy.io"
+          },
+          "email": "lu@appflowy.io",
+          "email_verified": true,
+          "full_name": "Lu He",
+          "iss": "https://accounts.google.com",
+          "name": "Lu He",
+          "phone_verified": false,
+          "picture": "https://lh3.googleusercontent.com/a/ACg8ocLHZmVAs4SoFeTQnXnBSbb50AUqtbKG5ly0ieTvBJIXgZ7RgQ=s96-c",
+          "provider_id": "101169250829554028381",
+          "sub": "101169250829554028381"
+        },
+        "provider": "google",
+        "last_sign_in_at": "2024-03-13T07:22:43.110504Z",
+        "created_at": "2024-03-13T07:22:43.110543Z",
+        "updated_at": "2024-04-04T06:15:14.03093Z"
+      }
+    ],
+    "created_at": "2024-03-13T07:22:43.102586Z",
+    "updated_at": "2024-04-11T09:00:20.551485Z"
+  }
+}

@@ -1,5 +1,5 @@
 import { UserService } from '@/application/services/services.type';
-import { UserProfile } from '@/application/services/user.type';
+import { UserProfile } from '@/application/user.type';
 import { UserEventGetUserProfile } from './backend/events/flowy-user';
 import { parseUserProfileFrom } from '@/application/services/tauri-services/auth.service';
 
