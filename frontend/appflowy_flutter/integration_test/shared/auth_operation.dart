@@ -23,7 +23,7 @@ extension AppFlowyAuthTest on WidgetTester {
   }
 
   Future<void> tapSignInAsGuest() async {
-    await tapButton(find.byType(SignInAnonymousButton));
+    await tapButton(find.byType(SignInAnonymousButtonV2));
   }
 
   void expectToSeeGoogleLoginButton() {

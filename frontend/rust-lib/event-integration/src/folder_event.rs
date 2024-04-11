@@ -39,7 +39,7 @@ impl EventIntegrationTest {
         role: role.into(),
       })
       .async_send()
-      .await
+      .await;
   }
 
   pub async fn list_workspace_invitations(&self) -> RepeatedWorkspaceInvitationPB {
