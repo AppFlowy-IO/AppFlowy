@@ -87,15 +87,11 @@ class RelationCellBloc extends Bloc<RelationCellEvent, RelationCellState> {
         }
       },
       onCellFieldChanged: (field) {
-        // hack: SingleFieldListener receives notification before
-        // FieldController's copy is updated.
-        Future.delayed(const Duration(milliseconds: 50), () {
-          if (!isClosed) {
-            final RelationTypeOptionPB typeOption =
-                cellController.getTypeOption(RelationTypeOptionDataParser());
-            add(RelationCellEvent.didUpdateRelationTypeOption(typeOption));
-          }
-        });
+        if (!isClosed) {
+          final RelationTypeOptionPB typeOption =
+              cellController.getTypeOption(RelationTypeOptionDataParser());
+          add(RelationCellEvent.didUpdateRelationTypeOption(typeOption));
+        }
       },
     );
   }

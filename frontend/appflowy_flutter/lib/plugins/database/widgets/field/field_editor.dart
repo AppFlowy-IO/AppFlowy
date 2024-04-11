@@ -72,7 +72,7 @@ class _FieldEditorState extends State<FieldEditor> {
         field: widget.field,
         fieldController: widget.fieldController,
         onFieldInserted: widget.onFieldInserted,
-      )..add(const FieldEditorEvent.initial()),
+      ),
       child: _currentPage == FieldEditorPage.details
           ? _fieldDetails()
           : _fieldGeneral(),
