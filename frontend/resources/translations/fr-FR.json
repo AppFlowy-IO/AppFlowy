@@ -9,6 +9,7 @@
   "title": "Titre",
   "youCanAlso": "Vous pouvez aussi",
   "and": "et",
+  "failedToOpenUrl": "Échec de l'ouverture de l'URL : {}",
   "blockActions": {
     "addBelowTooltip": "Cliquez pour ajouter ci-dessous",
     "addAboveCmd": "Alt+clic",
@@ -49,6 +50,7 @@
     "LogInWithGithub": "Se connecter avec Github",
     "LogInWithDiscord": "Se connecter avec Discord",
     "signInWith": "Se connecter avec :",
+    "signInWithEmail": "Se connecter via e-mail",
     "loginAsGuestButtonText": "Commencer"
   },
   "workspace": {
@@ -64,7 +66,24 @@
       "reportIssueOnGithub": "Signaler un bug sur Github",
       "exportLogFiles": "Exporter les logs",
       "reachOut": "Contactez-nous sur Discord"
-    }
+    },
+    "menuTitle": "Espaces de travail",
+    "deleteWorkspaceHintText": "Êtes-vous sûr de vouloir supprimer l'espace de travail ? Cette action ne peut pas être annulée.",
+    "createSuccess": "Espace de travail créé avec succès",
+    "createFailed": "Échec de la création de l'espace de travail",
+    "createLimitExceeded": "Vous avez atteint la limite maximale d'espace de travail autorisée pour votre compte. Si vous avez besoin d'espaces de travail supplémentaires pour continuer votre travail, veuillez en faire la demande sur Github.",
+    "deleteSuccess": "Espace de travail supprimé avec succès",
+    "deleteFailed": "Échec de la suppression de l'espace de travail",
+    "openSuccess": "Ouverture de l'espace de travail réussie",
+    "openFailed": "Échec de l'ouverture de l'espace de travail",
+    "renameSuccess": "Espace de travail renommé avec succès",
+    "renameFailed": "Échec du renommage de l'espace de travail",
+    "updateIconSuccess": "L'icône de l'espace de travail a été mise à jour avec succès",
+    "updateIconFailed": "La mise a jour de l'icône de l'espace de travail a échoué",
+    "cannotDeleteTheOnlyWorkspace": "Impossible de supprimer le seul espace de travail",
+    "fetchWorkspacesFailed": "Échec de la récupération des espaces de travail",
+    "leaveCurrentWorkspace": "Quitter l'espace de travail",
+    "leaveCurrentWorkspacePrompt": "Êtes-vous sûr de vouloir quitter l'espace de travail actuel ?"
   },
   "shareAction": {
     "buttonText": "Partager",
@@ -133,7 +152,8 @@
       "emptyDescription": "Vous n'avez aucun fichier supprimé",
       "isDeleted": "a été supprimé",
       "isRestored": "a été restauré"
-    }
+    },
+    "confirmDeleteTitle": "Etes-vous sûr de vouloir supprimer définitivement cette page ?"
   },
   "deletePagePrompt": {
     "text": "Cette page se trouve dans la corbeille",
@@ -193,11 +213,20 @@
     "closeSidebar": "Fermer le menu latéral",
     "openSidebar": "Ouvrir le menu latéral",
     "personal": "Personnel",
+    "private": "Privé",
+    "workspace": "Espace de travail",
     "favorites": "Favoris",
+    "clickToHidePrivate": "Cliquez pour masquer l'espace privé\nLes pages que vous avez créées ici ne sont visibles que par vous",
+    "clickToHideWorkspace": "Cliquez pour masquer l'espace de travail\nLes pages que vous avez créées ici sont visibles par tous les membres",
     "clickToHidePersonal": "Cliquez pour cacher la section personnelle",
     "clickToHideFavorites": "Cliquez pour cacher la section favorite",
     "addAPage": "Ajouter une page",
-    "recent": "Récent"
+    "addAPageToPrivate": "Ajouter une page à l'espace privé",
+    "addAPageToWorkspace": "Ajouter une page à l'espace de travail",
+    "recent": "Récent",
+    "public": "Publique",
+    "clickToHidePublic": "Cliquez pour masquer l'espace public\nLes pages que vous avez créées ici sont visibles par tous les membres",
+    "addAPageToPublic": "Ajouter une page à l'espace public"
   },
   "notifications": {
     "export": {
@@ -240,9 +269,18 @@
     "helpCenter": "Centre d'aide",
     "add": "Ajouter",
     "yes": "Oui",
+    "clear": "Nettoyer",
     "remove": "Retirer",
     "dontRemove": "Ne pas retirer",
+    "copyLink": "Copier le lien",
     "align": "Aligner",
+    "login": "Se connecter",
+    "logout": "Se déconnecter",
+    "deleteAccount": "Supprimer le compte",
+    "back": "Retour",
+    "signInGoogle": "Se connecter avec Google",
+    "signInGithub": "Se connecter avec Github",
+    "signInDiscord": "Se connecter avec Discord",
     "tryAGain": "Réessayer"
   },
   "label": {
@@ -340,6 +378,7 @@
         "dark": "Mode sombre",
         "system": "S'adapter au système"
       },
+      "fontScaleFactor": "Facteur d'échelle de police",
       "documentSettings": {
         "cursorColor": "Couleur du curseur du document",
         "selectionColor": "Couleur de sélection du document",
@@ -349,7 +388,7 @@
         "opacityEmptyError": "L'opacité ne peut pas être vide",
         "opacityRangeError": "L'opacité doit être comprise entre 1 et 100",
         "app": "Application",
-        "flowy": "Flowy",
+        "flowy": "Fluide",
         "apply": "Appliquer"
       },
       "layoutDirection": {
@@ -394,7 +433,9 @@
         "twentyFourHour": "Vingt-quatre heures"
       },
       "showNamingDialogWhenCreatingPage": "Afficher la boîte de dialogue de nommage lors de la création d'une page",
+      "enableRTLToolbarItems": "Activer les éléments de la barre d'outils RTL",
       "members": {
+        "title": "Paramètres des membres",
         "inviteMembers": "Inviter des membres",
         "sendInvite": "Envoyer une invitation",
         "copyInviteLink": "Copier le lien d'invitation",
@@ -408,7 +449,18 @@
         "memberHintText": "Un membre peut lire, commenter, et éditer des pages. Inviter des membres et des invités.",
         "guestHintText": "Un invité peut lire, réagir, commenter, et peut éditer certaines pages avec une permission",
         "emailInvalidError": "Email invalide, veuillez le vérifier et recommencer",
-        "emailSent": "Email envoyé, veuillez vérifier dans votre boîte mail."
+        "emailSent": "Email envoyé, veuillez vérifier dans votre boîte mail.",
+        "members": "membres",
+        "membersCount": {
+          "zero": "{} membres",
+          "one": "{} membre",
+          "other": "{} membres"
+        },
+        "memberLimitExceeded": "Vous avez atteint la limite maximale de membres autorisée pour votre compte. Si vous souhaitez ajouter d'autres membres pour continuer votre travail, veuillez en faire la demande sur Github.",
+        "failedToAddMember": "Échec de l'ajout d'un membre",
+        "addMemberSuccess": "Membre ajouté avec succès",
+        "removeMember": "Supprimer un membre",
+        "areYouSureToRemoveMember": "Êtes-vous sûr de vouloir supprimer ce membre ?"
       }
     },
     "files": {
@@ -445,7 +497,11 @@
       "recoverLocationTooltips": "Réinitialiser au répertoire de données par défaut d'AppFlowy",
       "exportFileSuccess": "Exporter le fichier avec succès !",
       "exportFileFail": "Échec de l'export  du fichier !",
-      "export": "Exporter"
+      "export": "Exporter",
+      "clearCache": "Vider le cache",
+      "clearCacheDesc": "Si vous rencontrez des problèmes avec des images qui ne se chargent pas ou des polices qui ne s'affichent pas correctement, essayez de vider votre cache. Cette action ne supprimera pas vos données utilisateur.",
+      "areYouSureToClearCache": "Êtes-vous sûr de vider le cache ?",
+      "clearCacheSuccess": "Cache vidé avec succès !"
     },
     "user": {
       "name": "Nom",
@@ -465,7 +521,17 @@
       "shortcutIsAlreadyUsed": "Ce raccourci est déjà utilisé pour : {conflict}",
       "resetToDefault": "Réinitialiser les raccourcis clavier par défaut",
       "couldNotLoadErrorMsg": "Impossible de charger les raccourcis, réessayez",
-      "couldNotSaveErrorMsg": "Impossible d'enregistrer les raccourcis. Réessayez"
+      "couldNotSaveErrorMsg": "Impossible d'enregistrer les raccourcis. Réessayez",
+      "commands": {
+        "codeBlockNewParagraph": "Insérez un nouveau paragraphe à côté du bloc de code",
+        "codeBlockAddTwoSpaces": "Insérez deux espaces au début de la ligne dans le bloc de code",
+        "codeBlockDeleteTwoSpaces": "Supprimez deux espaces au début de la ligne dans le bloc de code",
+        "codeBlockSelectAll": "Sélectionnez tout le contenu à l'intérieur d'un bloc de code",
+        "codeBlockPasteText": "Coller le texte dans le bloc de code",
+        "textAlignLeft": "Aligner le texte à gauche",
+        "textAlignCenter": "Aligner le texte au centre",
+        "textAlignRight": "Aligner le texte à droite"
+      }
     },
     "mobile": {
       "personalInfo": "Informations personnelles",
@@ -504,6 +570,7 @@
       "typeAValue": "Tapez une valeur...",
       "layout": "Mise en page",
       "databaseLayout": "Mise en page",
+      "viewList": "Vues de base de données",
       "editView": "Modifier vue",
       "boardSettings": "Paramètres du tableau",
       "calendarSettings": "Paramètres du calendrier",
@@ -511,8 +578,7 @@
       "duplicateView": "Dupliquer la vue",
       "deleteView": "Supprimer la vue",
       "numberOfVisibleFields": "{} affiché(s)",
-      "Properties": "Propriétés",
-      "viewList": "Vues de base de données"
+      "Properties": "Propriétés"
     },
     "textFilter": {
       "contains": "Contient",
@@ -585,6 +651,7 @@
       "insertRight": "Insérer à droite",
       "duplicate": "Dupliquer",
       "delete": "Supprimer",
+      "clear": "Effacer les cellules",
       "textFieldName": "Texte",
       "checkboxFieldName": "Case à cocher",
       "dateFieldName": "Date",
@@ -625,6 +692,7 @@
       "editProperty": "Modifier la propriété",
       "newProperty": "Nouvelle colonne",
       "deleteFieldPromptMessage": "Vous voulez supprimer cette propriété ?",
+      "clearFieldPromptMessage": "Es-tu sûr? Toutes les cellules de cette colonne seront vidées",
       "newColumn": "Nouvelle colonne",
       "format": "Format",
       "reminderOnDateTooltip": "Cette cellule a un rappel programmé",
@@ -649,9 +717,11 @@
       "descending": "Descendant",
       "by": "Par",
       "empty": "Tri pas actif",
+      "cannotFindCreatableField": "Impossible de trouver un champ approprié pour trier",
       "deleteAllSorts": "Supprimer tous les tris",
       "addSort": "Ajouter un tri",
       "removeSorting": "Voulez-vous supprimer le tri ?",
+      "fieldInUse": "Vous êtes déjà en train de trier par ce champ",
       "deleteSort": "Supprimer le tri"
     },
     "row": {
@@ -699,10 +769,16 @@
     },
     "url": {
       "launch": "Ouvrir dans le navigateur",
-      "copy": "Copier l'URL"
+      "copy": "Copier l'URL",
+      "textFieldHint": "Entrez une URL",
+      "copiedNotification": "Copié dans le presse-papier!"
     },
     "relation": {
+      "relatedDatabasePlaceLabel": "Base de données associée",
+      "relatedDatabasePlaceholder": "Aucun",
       "inRelatedDatabase": "Dans",
+      "rowSearchTextFieldPlaceholder": "Recherche",
+      "noDatabaseSelected": "Aucune base de données sélectionnée, veuillez d'abord en sélectionner une dans la liste ci-dessous :",
       "emptySearchResult": "Aucun enregistrement trouvé"
     },
     "menuName": "Grille",
@@ -714,7 +790,12 @@
       "max": "Maximum",
       "median": "Médiane",
       "min": "Minimum",
-      "sum": "Somme"
+      "sum": "Somme",
+      "count": "Compter",
+      "countEmpty": "Compter les cellules vides",
+      "countEmptyShort": "VIDE",
+      "countNonEmpty": "Compter les cellules non vides",
+      "countNonEmptyShort": "REMPLI"
     }
   },
   "document": {
@@ -769,6 +850,8 @@
       "discardResponse": "Voulez-vous supprimer les réponses de l'IA ?",
       "createInlineMathEquation": "Créer une équation",
       "fonts": "Polices",
+      "insertDate": "Insérer la date",
+      "emoji": "Emoji",
       "toggleList": "Liste pliable",
       "quoteList": "Liste de citations",
       "numberedList": "Liste numérotée",
@@ -827,10 +910,12 @@
         "imageUploadFailed": "Téléchargement de l'image échoué"
       },
       "urlPreview": {
-        "copiedToPasteBoard": "Le lien a été copié dans le presse-papier"
+        "copiedToPasteBoard": "Le lien a été copié dans le presse-papier",
+        "convertToLink": "Convertir en lien intégré"
       },
       "outline": {
-        "addHeadingToCreateOutline": "Ajoutez des titres pour créer une table des matières."
+        "addHeadingToCreateOutline": "Ajoutez des titres pour créer une table des matières.",
+        "noMatchHeadings": "Aucune rubrique correspondante trouvée."
       },
       "table": {
         "addAfter": "Ajouter après",
@@ -854,8 +939,7 @@
         "newDatabase": "Nouvelle Base de données",
         "linkToDatabase": "Lien vers la Base de données"
       },
-      "date": "Date",
-      "emoji": "Emoji"
+      "date": "Date"
     },
     "outlineBlock": {
       "placeholder": "Table de contenu"
@@ -889,7 +973,8 @@
         "invalidImage": "Image invalide",
         "invalidImageSize": "La taille de l'image doit être inférieure à 5 Mo",
         "invalidImageFormat": "Le format d'image n'est pas pris en charge. Formats pris en charge : JPEG, PNG, GIF, SVG",
-        "invalidImageUrl": "URL d'image non valide"
+        "invalidImageUrl": "URL d'image non valide",
+        "noImage": "Aucun fichier ou répertoire de ce nom"
       },
       "embedLink": {
         "label": "Lien intégré",
@@ -1008,13 +1093,14 @@
       "layoutDateField": "Calendrier de mise en page par",
       "changeLayoutDateField": "Modifier le champ de mise en page",
       "noDateTitle": "Pas de date",
+      "noDateHint": "Les événements non planifiés s'afficheront ici",
       "unscheduledEventsTitle": "Événements non planifiés",
       "clickToAdd": "Cliquez pour ajouter au calendrier",
-      "name": "Disposition du calendrier",
-      "noDateHint": "Les événements non planifiés s'afficheront ici"
+      "name": "Disposition du calendrier"
     },
     "referencedCalendarPrefix": "Vue",
-    "quickJumpYear": "Sauter à"
+    "quickJumpYear": "Sauter à",
+    "duplicateEvent": "Événement en double"
   },
   "errorDialog": {
     "title": "Erreur AppFlowy",
@@ -1213,6 +1299,8 @@
     "backgroundColorPurple": "Fond violet",
     "backgroundColorPink": "Fond rose",
     "backgroundColorRed": "Fond rouge",
+    "backgroundColorLime": "Fond citron vert",
+    "backgroundColorAqua": "Fond turquoise ",
     "done": "Fait",
     "cancel": "Annuler",
     "tint1": "Teinte 1",
@@ -1260,6 +1348,8 @@
     "copy": "Copier",
     "paste": "Color",
     "find": "Chercher",
+    "select": "Sélectionner",
+    "selectAll": "Tout sélectionner",
     "previousMatch": "Occurence précédente",
     "nextMatch": "Occurence suivante",
     "closeFind": "Fermer",
@@ -1316,5 +1406,50 @@
     "addField": "Ajouter un champ",
     "userIcon": "Icône utilisateur"
   },
-  "noLogFiles": "Il n'y a pas de log"
+  "noLogFiles": "Il n'y a pas de log",
+  "newSettings": {
+    "myAccount": {
+      "title": "Mon compte",
+      "subtitle": "Personnalisez votre profil, gérez la sécurité de votre compte, ouvrez les clés AI ou connectez-vous à votre compte.",
+      "profileLabel": "Nom du compte et image de profil",
+      "profileNamePlaceholder": "Entrez votre nom",
+      "accountSecurity": "Sécurité du compte",
+      "2FA": "Authentification en 2 étapes",
+      "aiKeys": "Clés IA",
+      "accountLogin": "Connexion au compte",
+      "updateNameError": "Échec de la mise à jour du nom",
+      "updateIconError": "Échec de la mise à jour de l'icône",
+      "deleteAccount": {
+        "title": "Supprimer le compte",
+        "subtitle": "Supprimez définitivement votre compte et toutes vos données.",
+        "deleteMyAccount": "Supprimer mon compte",
+        "dialogTitle": "Supprimer le compte",
+        "dialogContent1": "Êtes-vous sûr de vouloir supprimer définitivement votre compte ?",
+        "dialogContent2": "Cette action ne peut pas être annulée et supprimera l'accès à tous les espaces d'équipe, effaçant l'intégralité de votre compte, y compris les espaces de travail privés, et vous supprimant de tous les espaces de travail partagés."
+      }
+    },
+    "workplace": {
+      "name": "Lieu de travail",
+      "title": "Paramètres du lieu de travail",
+      "subtitle": "Personnalisez l'apparence, le thème, la police, la disposition du texte, la date, l'heure et la langue de votre espace de travail.",
+      "workplaceName": "Nom du lieu de travail",
+      "workplaceNamePlaceholder": "Entrez le nom du lieu de travail",
+      "workplaceIcon": "Icône du lieu de travail",
+      "workplaceIconSubtitle": "Téléchargez une image ou utilisez un emoji pour votre espace de travail. L'icône s'affichera dans votre barre latérale et dans vos notifications",
+      "renameError": "Échec du changement de nom du lieu de travail",
+      "updateIconError": "Échec de la mise à jour de l'icône",
+      "appearance": {
+        "name": "Apparence",
+        "themeMode": {
+          "auto": "Auto"
+        },
+        "language": "Langue"
+      }
+    },
+    "syncState": {
+      "syncing": "Synchronisation",
+      "synced": "Synchronisé",
+      "noNetworkConnected": "Aucun réseau connecté"
+    }
+  }
 }

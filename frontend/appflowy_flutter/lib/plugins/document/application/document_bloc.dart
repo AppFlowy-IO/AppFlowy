@@ -1,12 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:appflowy/plugins/document/application/doc_awareness_metadata.dart';
-import 'package:appflowy/plugins/document/application/doc_collab_adapter.dart';
-import 'package:appflowy/plugins/document/application/doc_listener.dart';
-import 'package:appflowy/plugins/document/application/doc_service.dart';
 import 'package:appflowy/plugins/document/application/doc_sync_state_listener.dart';
+import 'package:appflowy/plugins/document/application/document_awareness_metadata.dart';
+import 'package:appflowy/plugins/document/application/document_collab_adapter.dart';
 import 'package:appflowy/plugins/document/application/document_data_pb_extension.dart';
+import 'package:appflowy/plugins/document/application/document_listener.dart';
+import 'package:appflowy/plugins/document/application/document_service.dart';
 import 'package:appflowy/plugins/document/application/editor_transaction_adapter.dart';
 import 'package:appflowy/plugins/trash/application/trash_service.dart';
 import 'package:appflowy/shared/feature_flags.dart';
@@ -16,7 +16,9 @@ import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/util/color_generator/color_generator.dart';
 import 'package:appflowy/util/color_to_hex_string.dart';
 import 'package:appflowy/util/debounce.dart';
+import 'package:appflowy/util/throttle.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-document/entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-document/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -35,7 +37,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-part 'doc_bloc.freezed.dart';
+part 'document_bloc.freezed.dart';
 
 class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   DocumentBloc({
@@ -66,7 +68,12 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   StreamSubscription? _transactionSubscription;
 
   final _updateSelectionDebounce = Debounce();
-  final _syncDocDebounce = Debounce();
+  final _syncThrottle = Throttler(duration: const Duration(milliseconds: 500));
+
+  // The conflict handle logic is not fully implemented yet
+  // use the syncTimer to force to reload the document state when the conflict happens.
+  Timer? _syncTimer;
+  bool _shouldSync = false;
 
   bool get isLocalMode {
     final userProfilePB = state.userProfilePB;
@@ -81,6 +88,8 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     await _viewListener.stop();
     await _transactionSubscription?.cancel();
     await _documentService.closeDocument(view: view);
+    _syncTimer?.cancel();
+    _syncTimer = null;
     state.editorState?.service.keyboardService?.closeKeyboard();
     state.editorState?.dispose();
     return super.close();
@@ -92,6 +101,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   ) async {
     await event.when(
       initial: () async {
+        _resetSyncTimer();
         final result = await _fetchDocumentState();
         _onViewChanged();
         _onDocumentChanged();
@@ -155,7 +165,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   /// subscribe to the document content change
   void _onDocumentChanged() {
     _documentListener.start(
-      onDocEventUpdate: _debounceSyncDoc,
+      onDocEventUpdate: _throttleSyncDoc,
       onDocAwarenessUpdate: _onAwarenessStatesUpdate,
     );
 
@@ -166,6 +176,19 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
         }
       },
     );
+  }
+
+  void _resetSyncTimer() {
+    _syncTimer?.cancel();
+    _syncTimer = null;
+    _syncTimer = Timer.periodic(const Duration(seconds: 10), (_) {
+      if (!_shouldSync) {
+        return;
+      }
+      Log.debug('auto sync document');
+      // unawaited(_documentCollabAdapter.forceReload());
+      _shouldSync = false;
+    });
   }
 
   /// Fetch document
@@ -207,6 +230,10 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
           // ignore: invalid_use_of_visible_for_testing_member
           emit(state.copyWith(isDocumentEmpty: editorState.document.isEmpty));
         }
+
+        // reset the sync timer
+        _shouldSync = true;
+        _resetSyncTimer();
       },
     );
 
@@ -267,7 +294,9 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
       return;
     }
 
-    unawaited(_documentCollabAdapter.syncV3(docEvent));
+    unawaited(_documentCollabAdapter.syncV3(docEvent: docEvent));
+
+    _resetSyncTimer();
   }
 
   Future<void> _onAwarenessStatesUpdate(
@@ -290,8 +319,9 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     _updateSelectionDebounce.call(_onSelectionUpdate);
   }
 
-  void _debounceSyncDoc(DocEventPB docEvent) {
-    _syncDocDebounce.call(() {
+  void _throttleSyncDoc(DocEventPB docEvent) {
+    _shouldSync = true;
+    _syncThrottle.call(() {
       _onDocumentStateUpdate(docEvent);
     });
   }

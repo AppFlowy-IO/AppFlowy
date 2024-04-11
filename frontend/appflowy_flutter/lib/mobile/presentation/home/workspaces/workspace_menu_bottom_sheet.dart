@@ -31,6 +31,7 @@ class MobileWorkspaceMenu extends StatelessWidget {
       final workspace = workspaces[i];
       children.add(
         _WorkspaceMenuItem(
+          key: ValueKey(workspace.workspaceId),
           userProfile: userProfile,
           workspace: workspace,
           showTopBorder: i == 0,
@@ -47,6 +48,7 @@ class MobileWorkspaceMenu extends StatelessWidget {
 
 class _WorkspaceMenuItem extends StatelessWidget {
   const _WorkspaceMenuItem({
+    super.key,
     required this.userProfile,
     required this.workspace,
     required this.showTopBorder,

@@ -110,6 +110,22 @@ typedef _set_stream_port_Dart = int Function(
   int port,
 );
 
+/// C function `set log stream port`.
+int set_log_stream_port(int port) {
+  return _set_log_stream_port(port);
+}
+
+final _set_log_stream_port_Dart _set_log_stream_port = _dart_ffi_lib
+    .lookupFunction<_set_log_stream_port_C, _set_log_stream_port_Dart>(
+        'set_log_stream_port');
+
+typedef _set_log_stream_port_C = Int32 Function(
+  Int64 port,
+);
+typedef _set_log_stream_port_Dart = int Function(
+  int port,
+);
+
 /// C function `link_me_please`.
 void link_me_please() {
   _link_me_please();

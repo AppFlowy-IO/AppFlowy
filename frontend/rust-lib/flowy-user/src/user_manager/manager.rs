@@ -11,13 +11,14 @@ use flowy_sqlite::{query_dsl::*, DBConnection, ExpressionMethods};
 use flowy_user_pub::cloud::{UserCloudServiceProvider, UserUpdate};
 use flowy_user_pub::entities::*;
 use flowy_user_pub::workspace_service::UserWorkspaceService;
+use semver::Version;
 use serde_json::Value;
 use std::string::ToString;
 use std::sync::atomic::{AtomicBool, AtomicI64, Ordering};
 use std::sync::{Arc, Weak};
 use tokio::sync::{Mutex, RwLock};
 use tokio_stream::StreamExt;
-use tracing::{debug, error, event, info, instrument, warn};
+use tracing::{debug, error, event, info, instrument, trace, warn};
 
 use lib_dispatch::prelude::af_spawn;
 use lib_infra::box_any::BoxAny;
@@ -26,7 +27,9 @@ use crate::anon_user::{migration_anon_user_on_sign_up, sync_supabase_user_data_t
 use crate::entities::{AuthStateChangedPB, AuthStatePB, UserProfilePB, UserSettingPB};
 use crate::event_map::{DefaultUserStatusCallback, UserStatusCallback};
 use crate::migrations::document_empty_content::HistoricalEmptyDocumentMigration;
-use crate::migrations::migration::{UserDataMigration, UserLocalDataMigration};
+use crate::migrations::migration::{
+  save_migration_record, UserDataMigration, UserLocalDataMigration,
+};
 use crate::migrations::workspace_and_favorite_v1::FavoriteV1AndWorkspaceArrayMigration;
 use crate::migrations::workspace_trash_v1::WorkspaceTrashMapToSectionMigration;
 use crate::migrations::AnonUser;
@@ -246,7 +249,13 @@ impl UserManager {
         self.authenticate_user.database.get_pool(session.user_id),
       ) {
         (Ok(collab_db), Ok(sqlite_pool)) => {
-          run_collab_data_migration(&session, &user, collab_db, sqlite_pool);
+          run_collab_data_migration(
+            &session,
+            &user,
+            collab_db,
+            sqlite_pool,
+            Some(self.authenticate_user.user_config.app_version.clone()),
+          );
         },
         _ => error!("Failed to get collab db or sqlite pool"),
       }
@@ -425,6 +434,17 @@ impl UserManager {
       .await?;
 
     if response.is_new_user {
+      // For new user, we don't need to run the migrations
+      if let Ok(pool) = self
+        .authenticate_user
+        .database
+        .get_pool(new_session.user_id)
+      {
+        mark_all_migrations_as_applied(&pool);
+      } else {
+        error!("Failed to get pool for user {}", new_session.user_id);
+      }
+
       if let Some(old_user) = migration_user {
         event!(
           tracing::Level::INFO,
@@ -827,22 +847,39 @@ fn remove_user_token(uid: i64, mut conn: DBConnection) -> FlowyResult<()> {
   Ok(())
 }
 
+fn collab_migration_list() -> Vec<Box<dyn UserDataMigration>> {
+  // ⚠️The order of migrations is crucial. If you're adding a new migration, please ensure
+  // it's appended to the end of the list.
+  vec![
+    Box::new(HistoricalEmptyDocumentMigration),
+    Box::new(FavoriteV1AndWorkspaceArrayMigration),
+    Box::new(WorkspaceTrashMapToSectionMigration),
+  ]
+}
+
+fn mark_all_migrations_as_applied(sqlite_pool: &Arc<ConnectionPool>) {
+  if let Ok(mut conn) = sqlite_pool.get() {
+    for migration in collab_migration_list() {
+      save_migration_record(&mut conn, migration.name());
+    }
+    info!("Mark all migrations as applied");
+  }
+}
+
 pub(crate) fn run_collab_data_migration(
   session: &Session,
   user: &UserProfile,
   collab_db: Arc<CollabKVDB>,
   sqlite_pool: Arc<ConnectionPool>,
+  version: Option<Version>,
 ) {
-  // ⚠️The order of migrations is crucial. If you're adding a new migration, please ensure
-  // it's appended to the end of the list.
-  let migrations: Vec<Box<dyn UserDataMigration>> = vec![
-    Box::new(HistoricalEmptyDocumentMigration),
-    Box::new(FavoriteV1AndWorkspaceArrayMigration),
-    Box::new(WorkspaceTrashMapToSectionMigration),
-  ];
-  match UserLocalDataMigration::new(session.clone(), collab_db, sqlite_pool)
-    .run(migrations, &user.authenticator)
-  {
+  trace!("Run collab data migration: {:?}", version);
+  let migrations = collab_migration_list();
+  match UserLocalDataMigration::new(session.clone(), collab_db, sqlite_pool).run(
+    migrations,
+    &user.authenticator,
+    version,
+  ) {
     Ok(applied_migrations) => {
       if !applied_migrations.is_empty() {
         info!("Did apply migrations: {:?}", applied_migrations);

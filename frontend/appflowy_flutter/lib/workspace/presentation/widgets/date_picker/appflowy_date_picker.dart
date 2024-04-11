@@ -174,85 +174,92 @@ class _AppFlowyDatePickerState extends State<AppFlowyDatePicker> {
   }
 
   Widget buildDesktopPicker() {
-    return Padding(
-      padding: const EdgeInsets.only(top: 18.0, bottom: 12.0),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          StartTextField(
-            includeTime: widget.includeTime,
-            timeFormat: widget.timeFormat,
-            timeHintText: widget.timeHintText,
-            parseEndTimeError: widget.parseEndTimeError,
-            parseTimeError: widget.parseTimeError,
-            timeStr: widget.timeStr,
-            popoverMutex: widget.popoverMutex,
-            onSubmitted: widget.onStartTimeSubmitted,
-          ),
-          EndTextField(
-            includeTime: widget.includeTime,
-            timeFormat: widget.timeFormat,
-            isRange: widget.isRange,
-            endTimeStr: widget.endTimeStr,
-            popoverMutex: widget.popoverMutex,
-            onSubmitted: widget.onEndTimeSubmitted,
-          ),
-          DatePicker(
-            isRange: widget.isRange,
-            onDaySelected: (selectedDay, focusedDay) {
-              widget.onDaySelected?.call(selectedDay, focusedDay);
-
-              if (widget.rebuildOnDaySelected) {
-                setState(() => _selectedDay = selectedDay);
-              }
-            },
-            onRangeSelected: widget.onRangeSelected,
-            selectedDay:
-                widget.rebuildOnDaySelected ? _selectedDay : widget.selectedDay,
-            firstDay: widget.firstDay,
-            lastDay: widget.lastDay,
-            startDay: widget.startDay,
-            endDay: widget.endDay,
-            onCalendarCreated: widget.onCalendarCreated,
-            onPageChanged: widget.onPageChanged,
-          ),
-          const TypeOptionSeparator(spacing: 12.0),
-          if (widget.enableRanges && widget.onIsRangeChanged != null) ...[
-            EndTimeButton(
+    // GestureDetector is a workaround to stop popover from closing
+    // when clicking on the date picker.
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () {},
+      child: Padding(
+        padding: const EdgeInsets.only(top: 18.0, bottom: 12.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            StartTextField(
+              includeTime: widget.includeTime,
+              timeFormat: widget.timeFormat,
+              timeHintText: widget.timeHintText,
+              parseEndTimeError: widget.parseEndTimeError,
+              parseTimeError: widget.parseTimeError,
+              timeStr: widget.timeStr,
+              popoverMutex: widget.popoverMutex,
+              onSubmitted: widget.onStartTimeSubmitted,
+            ),
+            EndTextField(
+              includeTime: widget.includeTime,
+              timeFormat: widget.timeFormat,
               isRange: widget.isRange,
-              onChanged: widget.onIsRangeChanged!,
+              endTimeStr: widget.endTimeStr,
+              popoverMutex: widget.popoverMutex,
+              onSubmitted: widget.onEndTimeSubmitted,
             ),
-            const VSpace(4.0),
-          ],
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12.0),
-            child: IncludeTimeButton(
-              value: widget.includeTime,
-              onChanged: widget.onIncludeTimeChanged,
+            DatePicker(
+              isRange: widget.isRange,
+              onDaySelected: (selectedDay, focusedDay) {
+                widget.onDaySelected?.call(selectedDay, focusedDay);
+
+                if (widget.rebuildOnDaySelected) {
+                  setState(() => _selectedDay = selectedDay);
+                }
+              },
+              onRangeSelected: widget.onRangeSelected,
+              selectedDay: widget.rebuildOnDaySelected
+                  ? _selectedDay
+                  : widget.selectedDay,
+              firstDay: widget.firstDay,
+              lastDay: widget.lastDay,
+              startDay: widget.startDay,
+              endDay: widget.endDay,
+              onCalendarCreated: widget.onCalendarCreated,
+              onPageChanged: widget.onPageChanged,
             ),
-          ),
-          const _GroupSeparator(),
-          ReminderSelector(
-            mutex: widget.popoverMutex,
-            hasTime: widget.includeTime,
-            timeFormat: widget.timeFormat,
-            selectedOption: _selectedReminderOption,
-            onOptionSelected: (option) {
-              setState(() => _selectedReminderOption = option);
-              widget.onReminderSelected?.call(option);
-            },
-          ),
-          if (widget.options?.isNotEmpty ?? false) ...[
+            const TypeOptionSeparator(spacing: 12.0),
+            if (widget.enableRanges && widget.onIsRangeChanged != null) ...[
+              EndTimeButton(
+                isRange: widget.isRange,
+                onChanged: widget.onIsRangeChanged!,
+              ),
+              const VSpace(4.0),
+            ],
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+              child: IncludeTimeButton(
+                value: widget.includeTime,
+                onChanged: widget.onIncludeTimeChanged,
+              ),
+            ),
             const _GroupSeparator(),
-            ListView.separated(
-              shrinkWrap: true,
-              itemCount: widget.options!.length,
-              separatorBuilder: (_, __) => const _GroupSeparator(),
-              itemBuilder: (_, index) =>
-                  _renderGroupOptions(widget.options![index].options),
+            ReminderSelector(
+              mutex: widget.popoverMutex,
+              hasTime: widget.includeTime,
+              timeFormat: widget.timeFormat,
+              selectedOption: _selectedReminderOption,
+              onOptionSelected: (option) {
+                setState(() => _selectedReminderOption = option);
+                widget.onReminderSelected?.call(option);
+              },
             ),
+            if (widget.options?.isNotEmpty ?? false) ...[
+              const _GroupSeparator(),
+              ListView.separated(
+                shrinkWrap: true,
+                itemCount: widget.options!.length,
+                separatorBuilder: (_, __) => const _GroupSeparator(),
+                itemBuilder: (_, index) =>
+                    _renderGroupOptions(widget.options![index].options),
+              ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }

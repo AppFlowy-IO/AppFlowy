@@ -213,15 +213,15 @@
     "openSidebar": "Open side bar",
     "personal": "Personal",
     "private": "Private",
-    "public": "Public",
+    "workspace": "Workspace",
     "favorites": "Favorites",
     "clickToHidePrivate": "Click to hide private space\nPages you created here are only visible to you",
-    "clickToHidePublic": "Click to hide public space\nPages you created here are visible to every member",
+    "clickToHideWorkspace": "Click to hide workspace\nPages you created here are visible to every member",
     "clickToHidePersonal": "Click to hide personal space",
     "clickToHideFavorites": "Click to hide favorite space",
     "addAPage": "Add a page",
     "addAPageToPrivate": "Add a page to private space",
-    "addAPageToPublic": "Add a page to public space",
+    "addAPageToWorkspace": "Add a page to workspace",
     "recent": "Recent"
   },
   "notifications": {
@@ -514,7 +514,17 @@
       "shortcutIsAlreadyUsed": "This shortcut is already used for: {conflict}",
       "resetToDefault": "Reset to default keybindings",
       "couldNotLoadErrorMsg": "Could not load shortcuts, Try again",
-      "couldNotSaveErrorMsg": "Could not save shortcuts, Try again"
+      "couldNotSaveErrorMsg": "Could not save shortcuts, Try again",
+      "commands": {
+        "codeBlockNewParagraph": "Insert a new paragraph next to the code block",
+        "codeBlockAddTwoSpaces": "Insert two spaces at the line start in code block",
+        "codeBlockDeleteTwoSpaces": "Delete two spaces at the line start in code block",
+        "codeBlockSelectAll": "Select all content inside a code block",
+        "codeBlockPasteText": "Paste text in codeblock",
+        "textAlignLeft": "Align text to the left",
+        "textAlignCenter": "Align text to the center",
+        "textAlignRight": "Align text to the right"
+      }
     },
     "mobile": {
       "personalInfo": "Personal Information",
@@ -764,7 +774,9 @@
       "inRelatedDatabase": "In",
       "rowSearchTextFieldPlaceholder": "Search",
       "noDatabaseSelected": "No database selected, please select one first from the list below:",
-      "emptySearchResult": "No records found"
+      "emptySearchResult": "No records found",
+      "linkedRowListLabel": "{count} linked rows",
+      "unlinkedRowListLabel": "Link another row"
     },
     "menuName": "Grid",
     "referencedGridPrefix": "View of",
@@ -835,6 +847,8 @@
       "discardResponse": "Do you want to discard the AI responses?",
       "createInlineMathEquation": "Create equation",
       "fonts": "Fonts",
+      "insertDate": "Insert date",
+      "emoji": "Emoji",
       "toggleList": "Toggle list",
       "quoteList": "Quote list",
       "numberedList": "Numbered list",
@@ -922,8 +936,7 @@
         "newDatabase": "New Database",
         "linkToDatabase": "Link to Database"
       },
-      "date": "Date",
-      "emoji": "Emoji"
+      "date": "Date"
     },
     "outlineBlock": {
       "placeholder": "Table of Contents"
@@ -981,8 +994,12 @@
     "codeBlock": {
       "language": {
         "label": "Language",
-        "placeholder": "Select language"
-      }
+        "placeholder": "Select language",
+        "auto": "Auto"
+      },
+      "copyTooltip": "Copy contents of the code block",
+      "searchLanguageHint": "Search for a language",
+      "codeCopiedSnackbar": "Code copied to clipboard!"
     },
     "inlineLink": {
       "placeholder": "Paste or type a link",

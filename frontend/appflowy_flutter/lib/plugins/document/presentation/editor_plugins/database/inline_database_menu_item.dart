@@ -1,6 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/document/application/doc_bloc.dart';
+import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/insert_page_command.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/selectable_svg_widget.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
@@ -10,7 +10,7 @@ import 'package:easy_localization/easy_localization.dart';
 
 SelectionMenuItem inlineGridMenuItem(DocumentBloc documentBloc) =>
     SelectionMenuItem(
-      getName: () => LocaleKeys.document_slashMenu_grid_createANewGrid.tr(),
+      getName: LocaleKeys.document_slashMenu_grid_createANewGrid.tr,
       icon: (editorState, onSelected, style) => SelectableSvgWidget(
         data: FlowySvgs.grid_s,
         isSelected: onSelected,
@@ -31,7 +31,7 @@ SelectionMenuItem inlineGridMenuItem(DocumentBloc documentBloc) =>
 
 SelectionMenuItem inlineBoardMenuItem(DocumentBloc documentBloc) =>
     SelectionMenuItem(
-      getName: () => LocaleKeys.document_slashMenu_board_createANewBoard.tr(),
+      getName: LocaleKeys.document_slashMenu_board_createANewBoard.tr,
       icon: (editorState, onSelected, style) => SelectableSvgWidget(
         data: FlowySvgs.board_s,
         isSelected: onSelected,
@@ -52,8 +52,7 @@ SelectionMenuItem inlineBoardMenuItem(DocumentBloc documentBloc) =>
 
 SelectionMenuItem inlineCalendarMenuItem(DocumentBloc documentBloc) =>
     SelectionMenuItem(
-      getName: () =>
-          LocaleKeys.document_slashMenu_calendar_createANewCalendar.tr(),
+      getName: LocaleKeys.document_slashMenu_calendar_createANewCalendar.tr,
       icon: (editorState, onSelected, style) => SelectableSvgWidget(
         data: FlowySvgs.date_s,
         isSelected: onSelected,

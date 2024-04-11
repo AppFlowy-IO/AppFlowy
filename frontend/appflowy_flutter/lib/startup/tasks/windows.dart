@@ -9,11 +9,9 @@ import 'package:window_manager/window_manager.dart';
 
 class InitAppWindowTask extends LaunchTask with WindowListener {
   const InitAppWindowTask({
-    this.minimumSize = const Size(800, 600),
     this.title = 'AppFlowy',
   });
 
-  final Size minimumSize;
   final String title;
 
   @override
@@ -27,12 +25,15 @@ class InitAppWindowTask extends LaunchTask with WindowListener {
     windowManager.addListener(this);
 
     final windowSize = await WindowSizeManager().getSize();
-
     final windowOptions = WindowOptions(
       size: windowSize,
       minimumSize: const Size(
         WindowSizeManager.minWindowWidth,
         WindowSizeManager.minWindowHeight,
+      ),
+      maximumSize: const Size(
+        WindowSizeManager.maxWindowWidth,
+        WindowSizeManager.maxWindowHeight,
       ),
       title: title,
     );

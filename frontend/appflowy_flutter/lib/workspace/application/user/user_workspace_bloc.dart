@@ -40,7 +40,7 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
             final currentWorkspace = result.$1;
             final workspaces = result.$2;
             final isCollabWorkspaceOn =
-                userProfile.authenticator != AuthenticatorPB.Local &&
+                userProfile.authenticator == AuthenticatorPB.AppFlowyCloud &&
                     FeatureFlag.collaborativeWorkspace.isOn;
             if (currentWorkspace != null && result.$3 == true) {
               final result = await _userService
@@ -71,6 +71,15 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
             );
           },
           createWorkspace: (name) async {
+            emit(
+              state.copyWith(
+                actionResult: const UserWorkspaceActionResult(
+                  actionType: UserWorkspaceActionType.create,
+                  isLoading: true,
+                  result: null,
+                ),
+              ),
+            );
             final result = await _userService.createUserWorkspace(name);
             final workspaces = result.fold(
               (s) => [...state.workspaces, s],
@@ -81,6 +90,7 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
                 workspaces: workspaces,
                 actionResult: UserWorkspaceActionResult(
                   actionType: UserWorkspaceActionType.create,
+                  isLoading: false,
                   result: result,
                 ),
               ),
@@ -91,6 +101,15 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
             });
           },
           deleteWorkspace: (workspaceId) async {
+            emit(
+              state.copyWith(
+                actionResult: const UserWorkspaceActionResult(
+                  actionType: UserWorkspaceActionType.delete,
+                  isLoading: true,
+                  result: null,
+                ),
+              ),
+            );
             final remoteWorkspaces = await _fetchWorkspaces().then(
               (value) => value.$2,
             );
@@ -108,6 +127,7 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
                   actionResult: UserWorkspaceActionResult(
                     actionType: UserWorkspaceActionType.delete,
                     result: result,
+                    isLoading: false,
                   ),
                 ),
               );
@@ -134,11 +154,21 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
                 actionResult: UserWorkspaceActionResult(
                   actionType: UserWorkspaceActionType.delete,
                   result: result,
+                  isLoading: false,
                 ),
               ),
             );
           },
           openWorkspace: (workspaceId) async {
+            emit(
+              state.copyWith(
+                actionResult: const UserWorkspaceActionResult(
+                  actionType: UserWorkspaceActionType.open,
+                  isLoading: true,
+                  result: null,
+                ),
+              ),
+            );
             final result = await _userService.openWorkspace(workspaceId);
             final currentWorkspace = result.fold(
               (s) => state.workspaces.firstWhereOrNull(
@@ -157,6 +187,7 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
                 currentWorkspace: currentWorkspace,
                 actionResult: UserWorkspaceActionResult(
                   actionType: UserWorkspaceActionType.open,
+                  isLoading: false,
                   result: result,
                 ),
               ),
@@ -188,6 +219,7 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
                 currentWorkspace: currentWorkspace,
                 actionResult: UserWorkspaceActionResult(
                   actionType: UserWorkspaceActionType.rename,
+                  isLoading: false,
                   result: result,
                 ),
               ),
@@ -221,6 +253,7 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
                 currentWorkspace: currentWorkspace,
                 actionResult: UserWorkspaceActionResult(
                   actionType: UserWorkspaceActionType.updateIcon,
+                  isLoading: false,
                   result: result,
                 ),
               ),
@@ -245,6 +278,7 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
                 workspaces: workspaces,
                 actionResult: UserWorkspaceActionResult(
                   actionType: UserWorkspaceActionType.leave,
+                  isLoading: false,
                   result: result,
                 ),
               ),
@@ -253,7 +287,11 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
           updateWorkspaces: (workspaces) async {
             emit(
               state.copyWith(
-                workspaces: workspaces.items,
+                workspaces: workspaces.items
+                  ..sort(
+                    (a, b) =>
+                        a.createdAtTimestamp.compareTo(b.createdAtTimestamp),
+                  ),
               ),
             );
           },
@@ -359,11 +397,13 @@ enum UserWorkspaceActionType {
 class UserWorkspaceActionResult {
   const UserWorkspaceActionResult({
     required this.actionType,
+    required this.isLoading,
     required this.result,
   });
 
   final UserWorkspaceActionType actionType;
-  final FlowyResult<void, FlowyError> result;
+  final bool isLoading;
+  final FlowyResult<void, FlowyError>? result;
 }
 
 @freezed

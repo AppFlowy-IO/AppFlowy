@@ -6,6 +6,7 @@ use collab_document::document::Document;
 use collab_document::document_data::default_document_data;
 use collab_folder::{Folder, View};
 use collab_plugins::local_storage::kv::KVTransactionDB;
+use semver::Version;
 use tracing::{event, instrument};
 
 use collab_integrate::{CollabKVAction, CollabKVDB, PersistenceError};
@@ -22,6 +23,10 @@ pub struct HistoricalEmptyDocumentMigration;
 impl UserDataMigration for HistoricalEmptyDocumentMigration {
   fn name(&self) -> &str {
     "historical_empty_document"
+  }
+
+  fn applies_to_version(&self, _version: &Version) -> bool {
+    true
   }
 
   #[instrument(name = "HistoricalEmptyDocumentMigration", skip_all, err)]

@@ -46,7 +46,7 @@ Node toggleListBlockNode({
 
 // defining the toggle list block menu item
 SelectionMenuItem toggleListBlockItem = SelectionMenuItem.node(
-  getName: () => LocaleKeys.document_plugins_toggleList.tr(),
+  getName: LocaleKeys.document_plugins_toggleList.tr,
   iconData: Icons.arrow_right,
   keywords: ['collapsed list', 'toggle list', 'list'],
   nodeBuilder: (editorState, _) => toggleListBlockNode(),

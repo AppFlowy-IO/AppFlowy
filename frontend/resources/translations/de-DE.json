@@ -212,16 +212,16 @@
     "openSidebar": "Seitenleiste öffnen",
     "personal": "Persönlich",
     "private": "Privat",
-    "public": "Öffentlich",
     "favorites": "Favoriten",
     "clickToHidePrivate": "Hier klicken, um den privaten Bereich auszublenden.\nVon dir hier erstellte Seiten sind nur für dich sichtbar.",
-    "clickToHidePublic": "Hier klicken, um den öffentlichen Raum auszublenden.\nVon dir hier erstellte Seiten sind für jedes Mitglied sichtbar.",
     "clickToHidePersonal": "Klicken, um den persönlichen Abschnitt zu verbergen",
     "clickToHideFavorites": "Klicken, um Favoriten zu verbergen",
     "addAPage": "Seite hinzufügen",
     "addAPageToPrivate": "Eine Seite zum privaten Bereich hinzufügen.",
-    "addAPageToPublic": "Eine Seite zum öffentlichen Bereich hinzufügen.",
-    "recent": "Zuletzt"
+    "recent": "Zuletzt",
+    "public": "Öffentlich",
+    "clickToHidePublic": "Hier klicken, um den öffentlichen Raum auszublenden.\nVon dir hier erstellte Seiten sind für jedes Mitglied sichtbar.",
+    "addAPageToPublic": "Eine Seite zum öffentlichen Bereich hinzufügen."
   },
   "notifications": {
     "export": {
@@ -553,14 +553,14 @@
       "typeAValue": "Einen Wert eingeben...",
       "layout": "Layout",
       "databaseLayout": "Layout",
-      "viewList": "Datenbank-Ansichten",
       "editView": "Ansicht editieren",
       "boardSettings": "Board-Einstellungen",
       "calendarSettings": "Kalender-Einstellungen",
       "createView": "New Ansicht",
       "duplicateView": "Ansicht duplizieren",
       "deleteView": "Anslicht löschen",
-      "numberOfVisibleFields": "{} angezeigt"
+      "numberOfVisibleFields": "{} angezeigt",
+      "viewList": "Datenbank-Ansichten"
     },
     "textFilter": {
       "contains": "Enthält",
@@ -831,6 +831,7 @@
       "discardResponse": "Möchten Sie die KI-Antworten verwerfen?",
       "createInlineMathEquation": "Formel erstellen",
       "fonts": "Schriftarten",
+      "emoji": "Emoji",
       "toggleList": "Liste umschalten",
       "quoteList": "Kursblatt",
       "numberedList": "Nummerierte Liste",
@@ -918,8 +919,7 @@
         "newDatabase": "Neue Datenbank",
         "linkToDatabase": "Verknüpfung zur Datenbank"
       },
-      "date": "Datum",
-      "emoji": "Emoji"
+      "date": "Datum"
     },
     "outlineBlock": {
       "placeholder": "Inhaltsverzeichnis"

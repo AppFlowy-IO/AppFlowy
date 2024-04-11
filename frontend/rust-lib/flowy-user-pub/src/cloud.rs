@@ -231,7 +231,6 @@ pub trait UserCloudService: Send + Sync + 'static {
     &self,
     collab_object: &CollabObject,
     data: Vec<u8>,
-    override_if_exist: bool,
   ) -> FutureResult<(), FlowyError>;
 
   fn batch_create_collab_object(

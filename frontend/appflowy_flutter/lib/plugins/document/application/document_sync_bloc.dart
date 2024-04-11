@@ -11,7 +11,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-part 'doc_sync_bloc.freezed.dart';
+part 'document_sync_bloc.freezed.dart';
 
 class DocumentSyncBloc extends Bloc<DocumentSyncEvent, DocumentSyncBlocState> {
   DocumentSyncBloc({
@@ -31,7 +31,7 @@ class DocumentSyncBloc extends Bloc<DocumentSyncEvent, DocumentSyncBlocState> {
             emit(
               state.copyWith(
                 shouldShowIndicator:
-                    userProfile?.authenticator != AuthenticatorPB.Local,
+                    userProfile?.authenticator == AuthenticatorPB.AppFlowyCloud,
               ),
             );
             _syncStateListener.start(
