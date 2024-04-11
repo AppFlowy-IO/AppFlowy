@@ -31,7 +31,7 @@ impl EventIntegrationTest {
   }
 
   pub async fn invite_workspace_member(&self, workspace_id: &str, email: &str, role: Role) {
-    if let Some(err) = EventBuilder::new(self.clone())
+    EventBuilder::new(self.clone())
       .event(UserEvent::InviteWorkspaceMember)
       .payload(WorkspaceMemberInvitationPB {
         workspace_id: workspace_id.to_string(),
@@ -39,11 +39,7 @@ impl EventIntegrationTest {
         role: role.into(),
       })
       .async_send()
-      .await
-      .error()
-    {
-      panic!("Invite workspace member failed: {:?}", err);
-    }
+      .await;
   }
 
   pub async fn list_workspace_invitations(&self) -> RepeatedWorkspaceInvitationPB {

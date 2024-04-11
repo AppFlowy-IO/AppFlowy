@@ -31,7 +31,7 @@ void main() {
       await tester.initializeAppFlowy();
 
       // click the anonymousSignInButton
-      final anonymousSignInButton = find.byType(SignInAnonymousButton);
+      final anonymousSignInButton = find.byType(SignInAnonymousButtonV2);
       expect(anonymousSignInButton, findsOneWidget);
       await tester.tapButton(anonymousSignInButton);
 
