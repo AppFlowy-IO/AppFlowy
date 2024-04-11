@@ -1,12 +1,12 @@
 use std::cmp::Ordering;
 
 use collab::core::any_map::AnyMapExtension;
-use collab_database::fields::{Field, TypeOptionData, TypeOptionDataBuilder};
+use collab_database::fields::{TypeOptionData, TypeOptionDataBuilder};
 use collab_database::rows::Cell;
 use flowy_error::FlowyResult;
 use serde::{Deserialize, Serialize};
 
-use crate::entities::{FieldType, RelationCellDataPB, RelationFilterPB};
+use crate::entities::{RelationCellDataPB, RelationFilterPB};
 use crate::services::cell::{CellDataChangeset, CellDataDecoder};
 use crate::services::field::{
   default_order, TypeOption, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
@@ -77,25 +77,11 @@ impl CellDataChangeset for RelationTypeOption {
 }
 
 impl CellDataDecoder for RelationTypeOption {
-  fn decode_cell(
-    &self,
-    cell: &Cell,
-    decoded_field_type: &FieldType,
-    _field: &Field,
-  ) -> FlowyResult<RelationCellData> {
-    if !decoded_field_type.is_relation() {
-      return Ok(Default::default());
-    }
-
+  fn decode_cell(&self, cell: &Cell) -> FlowyResult<RelationCellData> {
     Ok(cell.into())
   }
 
   fn stringify_cell_data(&self, cell_data: RelationCellData) -> String {
-    cell_data.to_string()
-  }
-
-  fn stringify_cell(&self, cell: &Cell) -> String {
-    let cell_data = RelationCellData::from(cell);
     cell_data.to_string()
   }
 
@@ -121,27 +107,7 @@ impl TypeOptionCellDataFilter for RelationTypeOption {
   }
 }
 
-impl TypeOptionTransform for RelationTypeOption {
-  fn transformable(&self) -> bool {
-    false
-  }
-
-  fn transform_type_option(
-    &mut self,
-    _old_type_option_field_type: FieldType,
-    _old_type_option_data: TypeOptionData,
-  ) {
-  }
-
-  fn transform_type_option_cell(
-    &self,
-    _cell: &Cell,
-    _transformed_field_type: &FieldType,
-    _field: &Field,
-  ) -> Option<RelationCellData> {
-    None
-  }
-}
+impl TypeOptionTransform for RelationTypeOption {}
 
 impl TypeOptionCellDataSerde for RelationTypeOption {
   fn protobuf_encode(&self, cell_data: RelationCellData) -> RelationCellDataPB {

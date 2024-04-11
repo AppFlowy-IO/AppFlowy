@@ -409,6 +409,19 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       behavior: HitTestBehavior.translucent,
       onTap: () => widget.onSelected(widget.view),
       onTertiaryTapDown: (_) => widget.onTertiarySelected?.call(widget.view),
+      onDoubleTap: isSelected
+          ? () {
+              NavigatorTextFieldDialog(
+                title: LocaleKeys.disclosureAction_rename.tr(),
+                autoSelectAllText: true,
+                value: widget.view.name,
+                maxLength: 256,
+                onConfirm: (newValue, _) {
+                  context.read<ViewBloc>().add(ViewEvent.rename(newValue));
+                },
+              ).show(context);
+            }
+          : null,
       child: SizedBox(
         height: widget.height,
         child: Padding(

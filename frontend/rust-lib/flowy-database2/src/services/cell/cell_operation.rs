@@ -14,7 +14,6 @@ use crate::services::group::make_no_status_group;
 
 /// Decode the opaque cell data into readable format content
 pub trait CellDataDecoder: TypeOption {
-  ///
   /// Tries to decode the [Cell] to `decoded_field_type`'s cell data. Sometimes, the `field_type`
   /// of the `Field` is not equal to the `decoded_field_type`(This happened When switching
   /// the field type of the `Field` to another field type). So the cell data is need to do
@@ -25,20 +24,29 @@ pub trait CellDataDecoder: TypeOption {
   /// But the data of the cell doesn't change. We can't iterate all the rows to transform the cell
   /// data that can be parsed by the current field type. One approach is to transform the cell data
   /// when reading.
-  fn decode_cell(
+  fn decode_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData>;
+
+  /// Transform the cell data from one field type to another
+  ///
+  /// # Arguments
+  ///
+  /// * `cell`: the cell in the current field type
+  /// * `transformed_field_type`: the cell will be transformed to the is field type's cell data.
+  /// current `TypeOption` field type.
+  ///
+  fn decode_cell_with_transform(
     &self,
-    cell: &Cell,
-    decoded_field_type: &FieldType,
-    field: &Field,
-  ) -> FlowyResult<<Self as TypeOption>::CellData>;
+    _cell: &Cell,
+    _from_field_type: FieldType,
+    _field: &Field,
+  ) -> Option<<Self as TypeOption>::CellData> {
+    None
+  }
 
   /// Decode the cell data to readable `String`
   /// For example, The string of the Multi-Select cell will be a list of the option's name
   /// separated by a comma.
   fn stringify_cell_data(&self, cell_data: <Self as TypeOption>::CellData) -> String;
-
-  /// Same as [CellDataDecoder::stringify_cell_data] but the input parameter is the [Cell]
-  fn stringify_cell(&self, cell: &Cell) -> String;
 
   /// Decode the cell into f64
   /// Different field type has different way to decode the cell data into f64
@@ -74,10 +82,7 @@ pub fn apply_cell_changeset(
   field: &Field,
   cell_data_cache: Option<CellCache>,
 ) -> Result<Cell, FlowyError> {
-  let field_type = FieldType::from(field.field_type);
-  match TypeOptionCellExt::new(field, cell_data_cache)
-    .get_type_option_cell_data_handler(&field_type)
-  {
+  match TypeOptionCellExt::new(field, cell_data_cache).get_type_option_cell_data_handler() {
     None => Ok(Cell::default()),
     Some(handler) => Ok(handler.handle_cell_changeset(changeset, cell, field)?),
   }
@@ -88,15 +93,7 @@ pub fn get_cell_protobuf(
   field: &Field,
   cell_cache: Option<CellCache>,
 ) -> CellProtobufBlob {
-  let from_field_type = get_field_type_from_cell(cell);
-  if from_field_type.is_none() {
-    return CellProtobufBlob::default();
-  }
-
-  let from_field_type = from_field_type.unwrap();
-  let to_field_type = FieldType::from(field.field_type);
-  match try_decode_cell_to_cell_protobuf(cell, &from_field_type, &to_field_type, field, cell_cache)
-  {
+  match try_decode_cell_to_cell_protobuf(cell, field, cell_cache) {
     Ok(cell_bytes) => cell_bytes,
     Err(e) => {
       tracing::error!("Decode cell data failed, {:?}", e);
@@ -123,32 +120,13 @@ pub fn get_cell_protobuf(
 ///
 pub fn try_decode_cell_to_cell_protobuf(
   cell: &Cell,
-  from_field_type: &FieldType,
-  to_field_type: &FieldType,
   field: &Field,
   cell_data_cache: Option<CellCache>,
 ) -> FlowyResult<CellProtobufBlob> {
-  match TypeOptionCellExt::new(field, cell_data_cache)
-    .get_type_option_cell_data_handler(to_field_type)
-  {
+  match TypeOptionCellExt::new(field, cell_data_cache).get_type_option_cell_data_handler() {
     None => Ok(CellProtobufBlob::default()),
-    Some(handler) => handler.handle_cell_protobuf(cell, from_field_type, field),
+    Some(handler) => handler.handle_get_protobuf_cell_data(cell, field),
   }
-}
-
-pub fn try_decode_cell_to_cell_data<T: Default + 'static>(
-  cell: &Cell,
-  from_field_type: &FieldType,
-  to_field_type: &FieldType,
-  field: &Field,
-  cell_data_cache: Option<CellCache>,
-) -> Option<T> {
-  let handler = TypeOptionCellExt::new(field, cell_data_cache)
-    .get_type_option_cell_data_handler(to_field_type)?;
-  handler
-    .get_cell_data(cell, from_field_type, field)
-    .ok()?
-    .unbox_or_none::<T>()
 }
 
 /// Returns a string that represents the current field_type's cell data.
@@ -162,15 +140,14 @@ pub fn try_decode_cell_to_cell_data<T: Default + 'static>(
 /// * `from_field_type`: the original field type of the passed-in cell data.
 /// * `field`: used to get the corresponding TypeOption for the specified field type.
 ///
-pub fn stringify_cell_data(
-  cell: &Cell,
-  to_field_type: &FieldType,
-  from_field_type: &FieldType,
-  field: &Field,
-) -> String {
-  match TypeOptionCellExt::new(field, None).get_type_option_cell_data_handler(from_field_type) {
-    None => "".to_string(),
-    Some(handler) => handler.handle_stringify_cell(cell, to_field_type, field),
+pub fn stringify_cell(cell: &Cell, field: &Field) -> String {
+  if let Some(field_type_of_cell) = get_field_type_from_cell::<FieldType>(cell) {
+    TypeOptionCellExt::new(field, None)
+      .get_type_option_cell_data_handler_with_field_type(field_type_of_cell)
+      .map(|handler| handler.handle_stringify_cell(cell, field))
+      .unwrap_or_default()
+  } else {
+    "".to_string()
   }
 }
 

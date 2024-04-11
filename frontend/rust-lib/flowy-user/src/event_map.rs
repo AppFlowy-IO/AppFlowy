@@ -23,6 +23,7 @@ pub fn init(user_manager: Weak<UserManager>) -> AFPlugin {
     .state(user_manager)
     .state(store_preferences)
     .event(UserEvent::SignInWithEmailPassword, sign_in_with_email_password_handler)
+    .event(UserEvent::MagicLinkSignIn, sign_in_with_magic_link_handler)
     .event(UserEvent::SignUp, sign_up)
     .event(UserEvent::InitUser, init_user_handler)
     .event(UserEvent::GetUserProfile, get_user_profile_handler)
@@ -54,7 +55,9 @@ pub fn init(user_manager: Weak<UserManager>) -> AFPlugin {
     .event(UserEvent::GetNotificationSettings, get_notification_settings)
     .event(UserEvent::ImportAppFlowyDataFolder, import_appflowy_data_folder_handler)
       // Workspace member
-    .event(UserEvent::AddWorkspaceMember, add_workspace_member_handler)
+    .event(UserEvent::AddWorkspaceMember, add_workspace_member_handler) // deprecated, use invite
+                                                                        // instead
+
     .event(UserEvent::RemoveWorkspaceMember, delete_workspace_member_handler)
     .event(UserEvent::GetWorkspaceMember, get_workspace_member_handler)
     .event(UserEvent::UpdateWorkspaceMember, update_workspace_member_handler)
@@ -65,7 +68,9 @@ pub fn init(user_manager: Weak<UserManager>) -> AFPlugin {
     .event(UserEvent::RenameWorkspace, rename_workspace_handler)
     .event(UserEvent::ChangeWorkspaceIcon, change_workspace_icon_handler)
     .event(UserEvent::LeaveWorkspace, leave_workspace_handler)
-    .event(UserEvent::MagicLinkSignIn, sign_in_with_magic_link_handler)
+    .event(UserEvent::InviteWorkspaceMember, invite_workspace_member_handler)
+    .event(UserEvent::ListWorkspaceInvitations, list_workspace_invitations_handler)
+    .event(UserEvent::AcceptWorkspaceInvitation, accept_workspace_invitations_handler)
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
@@ -214,8 +219,17 @@ pub enum UserEvent {
   #[event(input = "UserWorkspaceIdPB")]
   LeaveWorkspace = 46,
 
+  #[event(input = "WorkspaceMemberInvitationPB")]
+  InviteWorkspaceMember = 47,
+
+  #[event(output = "RepeatedWorkspaceInvitationPB")]
+  ListWorkspaceInvitations = 48,
+
+  #[event(input = "AcceptWorkspaceInvitationPB")]
+  AcceptWorkspaceInvitation = 49,
+
   #[event(input = "MagicLinkSignInPB", output = "UserProfilePB")]
-  MagicLinkSignIn = 47,
+  MagicLinkSignIn = 50,
 }
 
 pub trait UserStatusCallback: Send + Sync + 'static {

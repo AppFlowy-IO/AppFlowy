@@ -1,5 +1,5 @@
 use flowy_database2::entities::FieldType;
-use flowy_database2::services::cell::stringify_cell_data;
+use flowy_database2::services::cell::stringify_cell;
 use flowy_database2::services::field::CHECK;
 use flowy_database2::services::share::csv::CSVFormat;
 
@@ -67,7 +67,7 @@ async fn export_and_then_import_meta_csv_test() {
     for (index, row_detail) in rows.iter().enumerate() {
       if let Some(cell) = row_detail.row.cells.get(&field.id) {
         let field_type = FieldType::from(field.field_type);
-        let s = stringify_cell_data(cell, &field_type, &field_type, &field);
+        let s = stringify_cell(cell, &field);
         match &field_type {
           FieldType::RichText => {
             if index == 0 {
@@ -141,7 +141,7 @@ async fn history_database_import_test() {
     for (index, row_detail) in rows.iter().enumerate() {
       if let Some(cell) = row_detail.row.cells.get(&field.id) {
         let field_type = FieldType::from(field.field_type);
-        let s = stringify_cell_data(cell, &field_type, &field_type, &field);
+        let s = stringify_cell(cell, &field);
         match &field_type {
           FieldType::RichText => {
             if index == 0 {
