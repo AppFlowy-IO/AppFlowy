@@ -18,7 +18,7 @@ void main() {
   group('board add row test:', () {
     testWidgets('from header', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Board);
 
@@ -61,7 +61,7 @@ void main() {
 
     testWidgets('from footer', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Board);
 

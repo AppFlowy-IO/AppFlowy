@@ -72,7 +72,7 @@ abstract class AuthService {
   /// - `params`: Additional parameters for authentication with magic link (optional).
   ///
   /// Returns [UserProfilePB] if the user is authenticated, otherwise returns [FlowyError].
-  Future<FlowyResult<UserProfilePB, FlowyError>> signInWithMagicLink({
+  Future<FlowyResult<void, FlowyError>> signInWithMagicLink({
     required String email,
     Map<String, String> params,
   });

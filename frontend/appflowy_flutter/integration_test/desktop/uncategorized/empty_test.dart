@@ -10,7 +10,7 @@ void main() {
   group('Empty', () {
     testWidgets('toggle theme mode', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
     });
   });
 }

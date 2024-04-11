@@ -17,7 +17,7 @@ void main() {
     testWidgets('cmd/ctrl+alt+e shortcut opens the emoji picker',
         (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       final Finder editor = find.byType(AppFlowyEditor);
       await tester.tap(editor);

@@ -15,7 +15,7 @@ void main() {
   group('Rename current view item', () {
     testWidgets('by F2 shortcut', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       await FlowyTestKeyboard.simulateKeyDownEvent(
         [LogicalKeyboardKey.f2],

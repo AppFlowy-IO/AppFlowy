@@ -7,8 +7,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
-import '../../shared/util.dart';
 import '../../shared/database_test_op.dart';
+import '../../shared/util.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -16,7 +16,7 @@ void main() {
   group('board row test', () {
     testWidgets('delete item in ToDo card', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Board);
       const name = 'Card 1';
@@ -34,7 +34,7 @@ void main() {
 
     testWidgets('duplicate item in ToDo card', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Board);
       const name = 'Card 1';
@@ -52,7 +52,7 @@ void main() {
 
     testWidgets('add new group', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
       await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Board);
 
       // assert number of groups

@@ -23,6 +23,7 @@ pub fn init(user_manager: Weak<UserManager>) -> AFPlugin {
     .state(user_manager)
     .state(store_preferences)
     .event(UserEvent::SignInWithEmailPassword, sign_in_with_email_password_handler)
+    .event(UserEvent::MagicLinkSignIn, sign_in_with_magic_link_handler)
     .event(UserEvent::SignUp, sign_up)
     .event(UserEvent::InitUser, init_user_handler)
     .event(UserEvent::GetUserProfile, get_user_profile_handler)
@@ -226,6 +227,9 @@ pub enum UserEvent {
 
   #[event(input = "AcceptWorkspaceInvitationPB")]
   AcceptWorkspaceInvitation = 49,
+
+  #[event(input = "MagicLinkSignInPB", output = "UserProfilePB")]
+  MagicLinkSignIn = 50,
 }
 
 pub trait UserStatusCallback: Send + Sync + 'static {

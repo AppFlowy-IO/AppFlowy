@@ -14,7 +14,7 @@ void main() {
     testWidgets('select language, language changed', (tester) async {
       await tester.initializeAppFlowy();
 
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
       await tester.expectToSeeHomePageWithGetStartedPage();
       await tester.openSettings();
 

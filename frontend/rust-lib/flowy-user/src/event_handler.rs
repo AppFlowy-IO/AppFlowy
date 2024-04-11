@@ -289,6 +289,19 @@ pub async fn get_user_setting(
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
+pub async fn sign_in_with_magic_link_handler(
+  data: AFPluginData<MagicLinkSignInPB>,
+  manager: AFPluginState<Weak<UserManager>>,
+) -> Result<(), FlowyError> {
+  let manager = upgrade_manager(manager)?;
+  let params = data.into_inner();
+  manager
+    .sign_in_with_magic_link(&params.email, &params.redirect_to)
+    .await?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub async fn oauth_sign_in_handler(
   data: AFPluginData<OauthSignInPB>,
   manager: AFPluginState<Weak<UserManager>>,

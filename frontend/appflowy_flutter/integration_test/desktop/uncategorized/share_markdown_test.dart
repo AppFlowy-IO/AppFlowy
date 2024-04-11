@@ -14,7 +14,7 @@ void main() {
   group('share markdown in document page', () {
     testWidgets('click the share button in document page', (tester) async {
       final context = await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       // mock the file picker
       final path = await mockSaveFilePath(
@@ -38,7 +38,7 @@ void main() {
       'share the markdown after renaming the document name',
       (tester) async {
         final context = await tester.initializeAppFlowy();
-        await tester.tapGoButton();
+        await tester.tapAnonymousSignInButton();
 
         // expect to see a getting started page
         tester.expectToSeePageName(gettingStarted);
@@ -104,12 +104,12 @@ fn main() {
 > Click `?` at the bottom right for help and support.
 
 > 🥰
-> 
+>
 > Like AppFlowy? Follow us:
 > [GitHub](https://github.com/AppFlowy-IO/AppFlowy)
 > [Twitter](https://twitter.com/appflowy): @appflowy
 > [Newsletter](https://blog-appflowy.ghost.io/)
-> 
+>
 
 
 

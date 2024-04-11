@@ -15,7 +15,7 @@ void main() {
     testWidgets('move row to another group', (tester) async {
       const card1Name = 'Card 1';
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Board);
       final card1 = find.ancestor(

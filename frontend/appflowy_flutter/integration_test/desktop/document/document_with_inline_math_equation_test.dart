@@ -16,7 +16,7 @@ void main() {
   group('inline math equation in document', () {
     testWidgets('insert an inline math equation', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       // create a new document
       await tester.createNewPageWithNameUnderParent(
@@ -61,7 +61,7 @@ void main() {
 
     testWidgets('remove the inline math equation format', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       // create a new document
       await tester.createNewPageWithNameUnderParent(

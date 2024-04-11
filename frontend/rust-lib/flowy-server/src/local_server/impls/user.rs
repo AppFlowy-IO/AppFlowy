@@ -107,6 +107,16 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
     })
   }
 
+  fn sign_in_with_magic_link(
+    &self,
+    _email: &str,
+    _redirect_to: &str,
+  ) -> FutureResult<(), FlowyError> {
+    FutureResult::new(async {
+      Err(FlowyError::local_version_not_support().with_context("Not support"))
+    })
+  }
+
   fn generate_oauth_url_with_provider(&self, _provider: &str) -> FutureResult<String, FlowyError> {
     FutureResult::new(async {
       Err(FlowyError::internal().with_context("Can't oauth url when using offline mode"))

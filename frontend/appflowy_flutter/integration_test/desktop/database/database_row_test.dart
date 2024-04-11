@@ -11,7 +11,7 @@ void main() {
   group('grid', () {
     testWidgets('create row of the grid', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
       await tester.tapCreateRowButtonInGrid();
@@ -23,7 +23,7 @@ void main() {
 
     testWidgets('create row from row menu of the grid', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
 
@@ -38,7 +38,7 @@ void main() {
 
     testWidgets('delete row of the grid', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
       await tester.hoverOnFirstRowOfGrid();
@@ -55,7 +55,7 @@ void main() {
     testWidgets('check number of row indicator in the initial grid',
         (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
 

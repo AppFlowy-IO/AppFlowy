@@ -15,7 +15,7 @@ void main() {
   group('insert inline document reference', () {
     testWidgets('insert by slash menu', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       final name = await createDocumentToReference(tester);
 
@@ -42,7 +42,7 @@ void main() {
 
     testWidgets('insert by `[[` character shortcut', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       final name = await createDocumentToReference(tester);
 
@@ -62,7 +62,7 @@ void main() {
 
     testWidgets('insert by `+` character shortcut', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       final name = await createDocumentToReference(tester);
 

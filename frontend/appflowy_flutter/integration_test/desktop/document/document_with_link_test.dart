@@ -20,7 +20,7 @@ void main() {
 
     testWidgets('insert/edit/open link', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       // create a new document
       await tester.createNewPageWithNameUnderParent();
