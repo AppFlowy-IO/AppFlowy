@@ -778,7 +778,9 @@
       "inRelatedDatabase": "In",
       "rowSearchTextFieldPlaceholder": "Search",
       "noDatabaseSelected": "No database selected, please select one first from the list below:",
-      "emptySearchResult": "No records found"
+      "emptySearchResult": "No records found",
+      "linkedRowListLabel": "{count} linked rows",
+      "unlinkedRowListLabel": "Link another row"
     },
     "menuName": "Grid",
     "referencedGridPrefix": "View of",
@@ -1069,9 +1071,9 @@
     "notesTooltip": "Notes inside",
     "mobile": {
       "editURL": "Edit URL",
-      "unhideGroup": "Unhide group",
-      "unhideGroupContent": "Are you sure you want to show this group on the board?",
-      "faildToLoad": "Failed to load board view"
+      "showGroup": "Show group",
+      "showGroupContent": "Are you sure you want to show this group on the board?",
+      "failedToLoad": "Failed to load board view"
     }
   },
   "calendar": {
