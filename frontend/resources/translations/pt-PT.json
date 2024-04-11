@@ -194,7 +194,9 @@
     "editContact": "Editar um conctato"
   },
   "button": {
+    "ok": "OK",
     "done": "Feito",
+    "cancel": "Cancelar",
     "signIn": "Entrar",
     "signOut": "Sair",
     "complete": "Completar",
@@ -210,10 +212,7 @@
     "edit": "Editar",
     "delete": "Excluir",
     "duplicate": "Duplicado",
-    "putback": "Por de volta",
-    "Done": "Feito",
-    "Cancel": "Cancelar",
-    "OK": "OK"
+    "putback": "Por de volta"
   },
   "label": {
     "welcome": "Bem vindo!",
@@ -295,12 +294,12 @@
         "button": "Carregar",
         "uploadTheme": "Carregar tema",
         "description": "Carregue seu próprio tema AppFlowy usando o botão abaixo.",
-        "failure": "O tema que foi carregado tinha um formato inválido.",
         "loading": "Aguarde enquanto validamos e carregamos seu tema...",
         "uploadSuccess": "Seu tema foi carregado com sucesso",
         "deletionFailure": "Falha ao excluir o tema. Tente excluí-lo manualmente.",
         "filePickerDialogTitle": "Escolha um arquivo .flowy_plugin",
-        "urlUploadFailure": "Falha ao abrir url: {}"
+        "urlUploadFailure": "Falha ao abrir url: {}",
+        "failure": "O tema que foi carregado tinha um formato inválido."
       },
       "theme": "Tema",
       "builtInsLabel": "Temas integrados",
@@ -427,13 +426,9 @@
       "isComplete": "está completo",
       "isIncomplted": "está incompleto"
     },
-    "singleSelectOptionFilter": {
+    "selectOptionFilter": {
       "is": "É",
       "isNot": "não é",
-      "isEmpty": "Está vazia",
-      "isNotEmpty": "Não está vazio"
-    },
-    "multiSelectOptionFilter": {
       "contains": "contém",
       "doesNotContain": "Não contém",
       "isEmpty": "Está vazia",
@@ -729,7 +724,12 @@
       "createNewCard": "Novo"
     },
     "menuName": "Quadro",
-    "referencedBoardPrefix": "Vista de"
+    "referencedBoardPrefix": "Vista de",
+    "mobile": {
+      "showGroup": "Mostrar grupo",
+      "showGroupContent": "Tem certeza de que deseja mostrar este grupo no quadro?",
+      "failedToLoad": "Falha ao carregar a visualização do quadro"
+    }
   },
   "calendar": {
     "menuName": "Calendário",

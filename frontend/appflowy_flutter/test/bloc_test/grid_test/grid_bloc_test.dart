@@ -1,7 +1,8 @@
-import 'package:appflowy/plugins/database_view/grid/application/grid_bloc.dart';
-import 'package:appflowy/plugins/database_view/application/database_controller.dart';
-import 'package:flutter_test/flutter_test.dart';
+import 'package:appflowy/plugins/database/application/database_controller.dart';
+import 'package:appflowy/plugins/database/grid/application/grid_bloc.dart';
 import 'package:bloc_test/bloc_test.dart';
+import 'package:flutter_test/flutter_test.dart';
+
 import 'util.dart';
 
 void main() {
@@ -17,7 +18,8 @@ void main() {
       context = await gridTest.createTestGrid();
     });
 
-    // The initial number of rows is 3 for each grid.
+    // The initial number of rows is 3 for each grid
+    // We create one row so we expect 4 rows
     blocTest<GridBloc, GridState>(
       "create a row",
       build: () => GridBloc(

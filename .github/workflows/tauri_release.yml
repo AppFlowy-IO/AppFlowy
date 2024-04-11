@@ -1,0 +1,153 @@
+name: Publish Tauri Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'The branch to release'
+        required: true
+        default: 'main'
+      version:
+        description: 'The version to release'
+        required: true
+        default: '0.0.0'
+env:
+  NODE_VERSION: "18.16.0"
+  PNPM_VERSION: "8.5.0"
+  RUST_TOOLCHAIN: "1.75"
+
+jobs:
+
+  publish-tauri:
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        settings:
+          - platform: windows-latest
+            args: "--verbose"
+            target: "windows-x86_64"
+          - platform: macos-latest
+            args: "--target x86_64-apple-darwin"
+            target: "macos-x86_64"
+          - platform: ubuntu-20.04
+            args: "--target x86_64-unknown-linux-gnu"
+            target: "linux-x86_64"
+
+    runs-on: ${{ matrix.settings.platform }}
+
+    env:
+      CI: true
+      PACKAGE_PREFIX: AppFlowy_Tauri-${{ github.event.inputs.version }}-${{ matrix.settings.target }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch }}
+
+      - name: Maximize build space (ubuntu only)
+        if: matrix.settings.platform == 'ubuntu-20.04'
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf "/usr/local/share/boost"
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+          sudo docker image prune --all --force
+          sudo rm -rf /opt/hostedtoolcache/codeQL
+          sudo rm -rf ${GITHUB_WORKSPACE}/.git
+          sudo rm -rf $ANDROID_HOME/ndk
+
+      - name: setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Install Rust toolchain
+        id: rust_toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ env.RUST_TOOLCHAIN }}
+          override: true
+          profile: minimal
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: "./frontend/appflowy_tauri/src-tauri -> target"
+
+      - name: install dependencies (windows only)
+        if: matrix.settings.platform == 'windows-latest'
+        working-directory: frontend
+        run: |
+          cargo install --force duckscript_cli
+          vcpkg integrate install
+
+      - name: install dependencies (ubuntu only)
+        if: matrix.settings.platform == 'ubuntu-20.04'
+        working-directory: frontend
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
+
+      - name: install cargo-make
+        working-directory: frontend
+        run: |
+          cargo install --force cargo-make
+          cargo make appflowy-tauri-deps-tools
+
+      - name: install frontend dependencies
+        working-directory: frontend/appflowy_tauri
+        run: |
+          mkdir dist
+          pnpm install
+          pnpm exec node scripts/update_version.cjs ${{ github.event.inputs.version }}
+          cargo make --cwd .. tauri_build
+
+      - uses: tauri-apps/tauri-action@dev
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          APPLE_CERTIFICATE: ${{ secrets.MACOS_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.MACOS_CERTIFICATE_PWD }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.MACOS_TEAM_ID }}
+          APPLE_ID: ${{ secrets.MACOS_NOTARY_USER }}
+          APPLE_TEAM_ID: ${{ secrets.MACOS_TEAM_ID }}
+          APPLE_PASSWORD: ${{ secrets.MACOS_NOTARY_PWD }}
+          CI: true
+        with:
+          args: ${{ matrix.settings.args }}
+          appVersion: ${{ github.event.inputs.version }}
+          tauriScript: pnpm tauri
+          projectPath: frontend/appflowy_tauri
+
+      - name: Upload EXE package(windows only)
+        uses: actions/upload-artifact@v4
+        if: matrix.settings.platform == 'windows-latest'
+        with:
+          name: ${{ env.PACKAGE_PREFIX }}.exe
+          path: frontend/appflowy_tauri/src-tauri/target/release/bundle/nsis/AppFlowy_${{ github.event.inputs.version }}_x64-setup.exe
+
+      - name: Upload DMG package(macos only)
+        uses: actions/upload-artifact@v4
+        if: matrix.settings.platform == 'macos-latest'
+        with:
+          name: ${{ env.PACKAGE_PREFIX }}.dmg
+          path: frontend/appflowy_tauri/src-tauri/target/x86_64-apple-darwin/release/bundle/dmg/AppFlowy_${{ github.event.inputs.version }}_x64.dmg
+
+      - name: Upload Deb package(ubuntu only)
+        uses: actions/upload-artifact@v4
+        if: matrix.settings.platform == 'ubuntu-20.04'
+        with:
+          name: ${{ env.PACKAGE_PREFIX }}.deb
+          path: frontend/appflowy_tauri/src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/deb/app-flowy_${{ github.event.inputs.version }}_amd64.deb
+
+      - name: Upload AppImage package(ubuntu only)
+        uses: actions/upload-artifact@v4
+        if: matrix.settings.platform == 'ubuntu-20.04'
+        with:
+          name: ${{ env.PACKAGE_PREFIX }}.AppImage
+          path: frontend/appflowy_tauri/src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/app-flowy_${{ github.event.inputs.version }}_amd64.AppImage

@@ -43,14 +43,15 @@ class MobileBottomNavigationBar extends StatelessWidget {
               blendMode: null,
             ),
           ),
-          BottomNavigationBarItem(
-            label: 'search',
-            icon: const FlowySvg(FlowySvgs.m_search_lg),
-            activeIcon: FlowySvg(
-              FlowySvgs.m_search_lg,
-              color: style.colorScheme.primary,
-            ),
-          ),
+          // Enable this when search is ready.
+          // BottomNavigationBarItem(
+          //   label: 'search',
+          //   icon: const FlowySvg(FlowySvgs.m_search_lg),
+          //   activeIcon: FlowySvg(
+          //     FlowySvgs.m_search_lg,
+          //     color: style.colorScheme.primary,
+          //   ),
+          // ),
           BottomNavigationBarItem(
             label: 'notification',
             icon: const FlowySvg(FlowySvgs.m_notification_unselected_lg),

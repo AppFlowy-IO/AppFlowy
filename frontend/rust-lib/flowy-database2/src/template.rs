@@ -34,7 +34,7 @@ pub fn make_default_grid(view_id: &str, name: &str) -> CreateDatabaseParams {
   CreateDatabaseParams {
     database_id: gen_database_id(),
     view_id: view_id.to_string(),
-    name: name.to_string(),
+    view_name: name.to_string(),
     layout: DatabaseLayout::Grid,
     layout_settings: Default::default(),
     filters: vec![],
@@ -97,7 +97,7 @@ pub fn make_default_board(view_id: &str, name: &str) -> CreateDatabaseParams {
   CreateDatabaseParams {
     database_id: gen_database_id(),
     view_id: view_id.to_string(),
-    name: name.to_string(),
+    view_name: name.to_string(),
     layout: DatabaseLayout::Board,
     layout_settings,
     filters: vec![],
@@ -143,7 +143,7 @@ pub fn make_default_calendar(view_id: &str, name: &str) -> CreateDatabaseParams 
   CreateDatabaseParams {
     database_id: gen_database_id(),
     view_id: view_id.to_string(),
-    name: name.to_string(),
+    view_name: name.to_string(),
     layout: DatabaseLayout::Calendar,
     layout_settings,
     filters: vec![],

@@ -11,6 +11,7 @@ describe('Provider connected', () => {
 
   beforeEach(() => {
     provider = new Provider(generateId());
+    provider.initialDocument(true);
     provider.connect();
     applyActions.mockClear();
   });
@@ -22,7 +23,7 @@ describe('Provider connected', () => {
   test('should initial document', () => {
     const sharedType = provider.sharedType;
     expect(sharedType).not.toBeNull();
-    expect(sharedType?.length).toBe(24);
+    expect(sharedType?.length).toBe(25);
     expect(sharedType?.getAttribute('blockId')).toBe('3EzeCrtxlh');
   });
 
@@ -30,11 +31,11 @@ describe('Provider connected', () => {
     const sharedType = provider.sharedType;
 
     const parentId = sharedType?.getAttribute('blockId') as string;
-    const insertTextOp = generateInsertTextOp('', parentId, 1);
+    const insertTextOp = generateInsertTextOp('');
 
-    sharedType?.applyDelta([{ retain: 1 }, insertTextOp]);
+    sharedType?.applyDelta([{ retain: 2 }, insertTextOp]);
 
-    expect(sharedType?.length).toBe(25);
+    expect(sharedType?.length).toBe(26);
     expect(applyActions).toBeCalledTimes(1);
   });
 });

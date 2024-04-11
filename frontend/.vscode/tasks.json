@@ -297,6 +297,6 @@
       "options": {
         "cwd": "${workspaceFolder}/appflowy_flutter"
       }
-    },
+    }
   ]
 }

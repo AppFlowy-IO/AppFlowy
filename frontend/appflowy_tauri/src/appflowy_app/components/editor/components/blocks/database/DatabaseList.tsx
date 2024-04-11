@@ -1,22 +1,55 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { List, MenuItem, TextField } from '@mui/material';
+import { TextField } from '@mui/material';
 import { useLoadDatabaseList } from '$app/components/editor/components/blocks/database/DatabaseList.hooks';
 import { ViewLayoutPB } from '@/services/backend';
 import { ReactComponent as GridSvg } from '$app/assets/grid.svg';
 import { useSlateStatic } from 'slate-react';
 import { CustomEditor } from '$app/components/editor/command';
 import { GridNode } from '$app/application/document/document.types';
+import KeyboardNavigation, {
+  KeyboardNavigationOption,
+} from '$app/components/_shared/keyboard_navigation/KeyboardNavigation';
+import { Page } from '$app_reducers/pages/slice';
 
-function DatabaseList({ node }: { node: GridNode }) {
+function DatabaseList({
+  node,
+  toggleDrawer,
+}: {
+  node: GridNode;
+  toggleDrawer: (open: boolean) => (e: React.MouseEvent | KeyboardEvent | React.FocusEvent) => void;
+}) {
+  const scrollRef = React.useRef<HTMLDivElement>(null);
+
+  const inputRef = React.useRef<HTMLElement>(null);
   const editor = useSlateStatic();
   const { t } = useTranslation();
   const [searchText, setSearchText] = React.useState<string>('');
-  const [hovered, setHovered] = React.useState<string | null>(null);
   const { list } = useLoadDatabaseList({
     searchText: searchText || '',
     layout: ViewLayoutPB.Grid,
   });
+
+  const renderItem = useCallback(
+    (item: Page) => {
+      return (
+        <div className={'flex items-center text-text-title'}>
+          <GridSvg className={'mr-2 h-4 w-4'} />
+          <div className={'truncate'}>{item.name.trim() || t('menuAppHeader.defaultNewPageName')}</div>
+        </div>
+      );
+    },
+    [t]
+  );
+
+  const options: KeyboardNavigationOption[] = useMemo(() => {
+    return list.map((item) => {
+      return {
+        key: item.id,
+        content: renderItem(item),
+      };
+    });
+  }, [list, renderItem]);
 
   const handleSelected = useCallback(
     (id: string) => {
@@ -25,53 +58,25 @@ function DatabaseList({ node }: { node: GridNode }) {
     [editor, node]
   );
 
-  useEffect(() => {
-    if (list.length > 0) {
-      setHovered(list[0].id);
-    }
-  }, [list]);
-
   const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLDivElement>) => {
-      const index = list.findIndex((item) => item.id === hovered);
-      const prevIndex = index - 1;
-      const nextIndex = index + 1;
-
-      switch (e.key) {
-        case 'ArrowDown':
-          e.stopPropagation();
-          e.preventDefault();
-          if (nextIndex < list.length) {
-            setHovered(list[nextIndex].id);
-          }
-
-          break;
-        case 'ArrowUp':
-          e.stopPropagation();
-          e.preventDefault();
-          if (prevIndex >= 0) {
-            setHovered(list[prevIndex].id);
-          }
-
-          break;
-        case 'Enter':
-          e.stopPropagation();
-          if (hovered) {
-            handleSelected(hovered);
-          }
-
-          break;
+    (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.stopPropagation();
+        e.preventDefault();
+        toggleDrawer(false)(e);
       }
     },
-    [handleSelected, hovered, list]
+    [toggleDrawer]
   );
 
   return (
-    <div className={'relative overflow-y-auto overflow-x-hidden p-2'}>
+    <div className={'relative flex h-full flex-col gap-1.5 p-2'}>
       <TextField
-        onKeyDown={handleKeyDown}
         variant={'standard'}
         autoFocus={true}
+        spellCheck={false}
+        onBlur={toggleDrawer(false)}
+        inputRef={inputRef}
         className={'sticky top-0 z-10 px-2'}
         value={searchText}
         onChange={(e) => {
@@ -82,28 +87,16 @@ function DatabaseList({ node }: { node: GridNode }) {
         }}
         placeholder={t('document.plugins.database.linkToDatabase')}
       />
-      <List>
-        {list.map((item) => {
-          return (
-            <MenuItem
-              onMouseEnter={() => {
-                setHovered(item.id);
-              }}
-              selected={hovered === item.id}
-              key={item.id}
-              className={'flex items-center justify-between'}
-              onClick={() => {
-                handleSelected(item.id);
-              }}
-            >
-              <div className={'flex items-center text-text-title'}>
-                <GridSvg className={'mr-2 h-4 w-4'} />
-                <div className={'truncate'}>{item.name || t('document.title.placeholder')}</div>
-              </div>
-            </MenuItem>
-          );
-        })}
-      </List>
+      <div ref={scrollRef} className={'flex-1 overflow-y-auto overflow-x-hidden'}>
+        <KeyboardNavigation
+          disableFocus={true}
+          onKeyDown={handleKeyDown}
+          focusRef={inputRef}
+          scrollRef={scrollRef}
+          options={options}
+          onConfirm={handleSelected}
+        />
+      </div>
     </div>
   );
 }

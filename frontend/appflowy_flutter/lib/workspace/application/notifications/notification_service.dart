@@ -14,7 +14,6 @@ class NotificationService {
   static Future<void> initialize() async {
     await localNotifier.setup(
       appName: _appName,
-      shortcutPolicy: ShortcutPolicy.requireCreate, // Windows Specific
     );
   }
 }

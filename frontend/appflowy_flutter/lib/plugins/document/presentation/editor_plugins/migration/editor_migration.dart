@@ -141,7 +141,7 @@ class EditorMigration {
     }
     const backgroundColor = 'backgroundColor';
     if (attributes.containsKey(backgroundColor)) {
-      attributes[AppFlowyRichTextKeys.highlightColor] =
+      attributes[AppFlowyRichTextKeys.backgroundColor] =
           attributes[backgroundColor];
       attributes.remove(backgroundColor);
     }

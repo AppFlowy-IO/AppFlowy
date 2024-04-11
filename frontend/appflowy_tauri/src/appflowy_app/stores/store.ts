@@ -10,8 +10,6 @@ import {
 import { pagesSlice } from './reducers/pages/slice';
 import { currentUserSlice } from './reducers/current-user/slice';
 import { workspaceSlice } from './reducers/workspace/slice';
-import { databaseSlice } from './reducers/database/slice';
-import { boardSlice } from './reducers/board/slice';
 import { errorSlice } from './reducers/error/slice';
 import { sidebarSlice } from '$app_reducers/sidebar/slice';
 import { trashSlice } from '$app_reducers/trash/slice';
@@ -24,8 +22,6 @@ const store = configureStore({
   reducer: {
     [pagesSlice.name]: pagesSlice.reducer,
     [currentUserSlice.name]: currentUserSlice.reducer,
-    [databaseSlice.name]: databaseSlice.reducer,
-    [boardSlice.name]: boardSlice.reducer,
     [workspaceSlice.name]: workspaceSlice.reducer,
     [errorSlice.name]: errorSlice.reducer,
     [sidebarSlice.name]: sidebarSlice.reducer,

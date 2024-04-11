@@ -1,14 +1,15 @@
+use flowy_storage::ObjectStorageService;
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use collab::core::collab::MutexCollab;
+use collab::core::collab::{DocStateSource, MutexCollab};
 use collab::core::origin::CollabOrigin;
 use collab_plugins::cloud_storage::RemoteCollabStorage;
 use uuid::Uuid;
 
-use flowy_database_deps::cloud::DatabaseCloudService;
+use flowy_database_pub::cloud::DatabaseCloudService;
 use flowy_error::FlowyError;
-use flowy_folder_deps::cloud::{Folder, FolderCloudService};
+use flowy_folder_pub::cloud::{Folder, FolderCloudService};
 use flowy_server::supabase::api::{
   RESTfulPostgresServer, SupabaseCollabStorageImpl, SupabaseDatabaseServiceImpl,
   SupabaseFolderServiceImpl, SupabaseServerServiceImpl, SupabaseUserServiceImpl,
@@ -16,9 +17,9 @@ use flowy_server::supabase::api::{
 use flowy_server::supabase::define::{USER_DEVICE_ID, USER_EMAIL, USER_UUID};
 use flowy_server::supabase::file_storage::core::SupabaseFileStorage;
 use flowy_server::{AppFlowyEncryption, EncryptionImpl};
-use flowy_server_config::supabase_config::SupabaseConfiguration;
-use flowy_storage::{FileStoragePlan, FileStorageService, StorageObject};
-use flowy_user_deps::cloud::UserCloudService;
+use flowy_server_pub::supabase_config::SupabaseConfiguration;
+use flowy_storage::{FileStoragePlan, StorageObject};
+use flowy_user_pub::cloud::UserCloudService;
 use lib_infra::future::FutureResult;
 
 use crate::setup_log;
@@ -60,7 +61,8 @@ pub fn folder_service() -> Arc<dyn FolderCloudService> {
   Arc::new(SupabaseFolderServiceImpl::new(server))
 }
 
-pub fn file_storage_service() -> Arc<dyn FileStorageService> {
+#[allow(dead_code)]
+pub fn file_storage_service() -> Arc<dyn ObjectStorageService> {
   let encryption_impl: Arc<dyn AppFlowyEncryption> = Arc::new(EncryptionImpl::new(None));
   let config = SupabaseConfiguration::from_env().unwrap();
   Arc::new(
@@ -120,8 +122,14 @@ pub async fn print_encryption_folder_snapshot(
     .pop()
     .unwrap();
   let collab = Arc::new(
-    MutexCollab::new_with_raw_data(CollabOrigin::Empty, folder_id, vec![snapshot.blob], vec![])
-      .unwrap(),
+    MutexCollab::new_with_doc_state(
+      CollabOrigin::Empty,
+      folder_id,
+      DocStateSource::FromDocState(snapshot.blob),
+      vec![],
+      false,
+    )
+    .unwrap(),
   );
   let folder_data = Folder::open(uid, collab, None)
     .unwrap()

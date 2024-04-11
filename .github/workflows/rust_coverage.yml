@@ -7,19 +7,18 @@ on:
       - "release/*"
     paths:
       - "frontend/rust-lib/**"
-      - "shared-lib/**"
 
 env:
   CARGO_TERM_COLOR: always
-  FLUTTER_VERSION: "3.16.2"
-  RUST_TOOLCHAIN: "1.70"
+  FLUTTER_VERSION: "3.19.0"
+  RUST_TOOLCHAIN: "1.75"
 
 jobs:
   tests:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Install Rust toolchain
         id: rust_toolchain

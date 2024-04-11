@@ -31,12 +31,9 @@ class SettingsLanguageView extends StatelessWidget {
 }
 
 class LanguageSelector extends StatelessWidget {
-  final Locale currentLocale;
+  const LanguageSelector({super.key, required this.currentLocale});
 
-  const LanguageSelector({
-    super.key,
-    required this.currentLocale,
-  });
+  final Locale currentLocale;
 
   @override
   Widget build(BuildContext context) {
@@ -85,14 +82,14 @@ class LanguageItemsListView extends StatelessWidget {
 }
 
 class LanguageItem extends StatelessWidget {
-  final Locale locale;
-  final Locale currentLocale;
-
   const LanguageItem({
     super.key,
     required this.locale,
     required this.currentLocale,
   });
+
+  final Locale locale;
+  final Locale currentLocale;
 
   @override
   Widget build(BuildContext context) {

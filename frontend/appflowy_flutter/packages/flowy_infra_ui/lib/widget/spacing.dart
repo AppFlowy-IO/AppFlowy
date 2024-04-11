@@ -4,7 +4,7 @@ class Space extends StatelessWidget {
   final double width;
   final double height;
 
-  const Space(this.width, this.height, {Key? key}) : super(key: key);
+  const Space(this.width, this.height, {super.key});
 
   @override
   Widget build(BuildContext context) => SizedBox(width: width, height: height);
@@ -37,10 +37,27 @@ class VSpace extends StatelessWidget {
 }
 
 class HSpace extends StatelessWidget {
-  final double size;
+  const HSpace(
+    this.size, {
+    super.key,
+    this.color,
+  });
 
-  const HSpace(this.size, {Key? key}) : super(key: key);
+  final double size;
+  final Color? color;
 
   @override
-  Widget build(BuildContext context) => Space(size, 0);
+  Widget build(BuildContext context) {
+    if (color != null) {
+      return SizedBox(
+        height: double.infinity,
+        width: size,
+        child: ColoredBox(
+          color: color!,
+        ),
+      );
+    } else {
+      return Space(size, 0);
+    }
+  }
 }

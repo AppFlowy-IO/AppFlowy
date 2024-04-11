@@ -1,7 +1,7 @@
-import 'package:appflowy/plugins/document/application/doc_bloc.dart';
+import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../util.dart';
@@ -36,7 +36,11 @@ void main() {
     final viewBloc = await createTestViewBloc();
     // create a nested view
     viewBloc.add(
-      const ViewEvent.createView(name, ViewLayoutPB.Document),
+      const ViewEvent.createView(
+        name,
+        ViewLayoutPB.Document,
+        section: ViewSectionPB.Public,
+      ),
     );
     await blocResponseFuture();
     expect(viewBloc.state.view.childViews.length, 1);
@@ -52,7 +56,11 @@ void main() {
   test('delete view test', () async {
     final viewBloc = await createTestViewBloc();
     viewBloc.add(
-      const ViewEvent.createView(name, ViewLayoutPB.Document),
+      const ViewEvent.createView(
+        name,
+        ViewLayoutPB.Document,
+        section: ViewSectionPB.Public,
+      ),
     );
     await blocResponseFuture();
     expect(viewBloc.state.view.childViews.length, 1);
@@ -69,7 +77,11 @@ void main() {
   test('create nested view test', () async {
     final viewBloc = await createTestViewBloc();
     viewBloc.add(
-      const ViewEvent.createView('Document 1', ViewLayoutPB.Document),
+      const ViewEvent.createView(
+        'Document 1',
+        ViewLayoutPB.Document,
+        section: ViewSectionPB.Public,
+      ),
     );
     await blocResponseFuture();
     final document1Bloc = ViewBloc(view: viewBloc.state.view.childViews.first)
@@ -79,7 +91,11 @@ void main() {
     await blocResponseFuture();
     const name = 'Document 1 - 1';
     document1Bloc.add(
-      const ViewEvent.createView('Document 1 - 1', ViewLayoutPB.Document),
+      const ViewEvent.createView(
+        'Document 1 - 1',
+        ViewLayoutPB.Document,
+        section: ViewSectionPB.Public,
+      ),
     );
     await blocResponseFuture();
     expect(document1Bloc.state.view.childViews.length, 1);
@@ -91,7 +107,11 @@ void main() {
     final names = ['1', '2', '3'];
     for (final name in names) {
       viewBloc.add(
-        ViewEvent.createView(name, ViewLayoutPB.Document),
+        ViewEvent.createView(
+          name,
+          ViewLayoutPB.Document,
+          section: ViewSectionPB.Public,
+        ),
       );
       await blocResponseFuture();
     }
@@ -106,7 +126,13 @@ void main() {
     final viewBloc = await createTestViewBloc();
     expect(viewBloc.state.lastCreatedView, isNull);
 
-    viewBloc.add(const ViewEvent.createView('1', ViewLayoutPB.Document));
+    viewBloc.add(
+      const ViewEvent.createView(
+        '1',
+        ViewLayoutPB.Document,
+        section: ViewSectionPB.Public,
+      ),
+    );
     await blocResponseFuture();
     expect(
       viewBloc.state.lastCreatedView!.id,
@@ -117,7 +143,13 @@ void main() {
       '1',
     );
 
-    viewBloc.add(const ViewEvent.createView('2', ViewLayoutPB.Document));
+    viewBloc.add(
+      const ViewEvent.createView(
+        '2',
+        ViewLayoutPB.Document,
+        section: ViewSectionPB.Public,
+      ),
+    );
     await blocResponseFuture();
     expect(
       viewBloc.state.lastCreatedView!.name,
@@ -128,13 +160,25 @@ void main() {
   test('open latest document test', () async {
     const name1 = 'document';
     final viewBloc = await createTestViewBloc();
-    viewBloc.add(const ViewEvent.createView(name1, ViewLayoutPB.Document));
+    viewBloc.add(
+      const ViewEvent.createView(
+        name1,
+        ViewLayoutPB.Document,
+        section: ViewSectionPB.Public,
+      ),
+    );
     await blocResponseFuture();
     final document = viewBloc.state.lastCreatedView!;
     assert(document.name == name1);
 
     const gird = 'grid';
-    viewBloc.add(const ViewEvent.createView(gird, ViewLayoutPB.Document));
+    viewBloc.add(
+      const ViewEvent.createView(
+        gird,
+        ViewLayoutPB.Document,
+        section: ViewSectionPB.Public,
+      ),
+    );
     await blocResponseFuture();
     assert(viewBloc.state.lastCreatedView!.name == gird);
 
@@ -170,7 +214,11 @@ void main() {
     for (var i = 0; i < layouts.length; i++) {
       final layout = layouts[i];
       viewBloc.add(
-        ViewEvent.createView('Test $layout', layout),
+        ViewEvent.createView(
+          'Test $layout',
+          layout,
+          section: ViewSectionPB.Public,
+        ),
       );
       await blocResponseFuture();
       expect(viewBloc.state.view.childViews.length, i + 1);

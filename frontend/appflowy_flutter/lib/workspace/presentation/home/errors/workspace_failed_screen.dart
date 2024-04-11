@@ -1,11 +1,12 @@
 import 'dart:io';
 
+import 'package:flutter/material.dart';
+
+import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 class WorkspaceFailedScreen extends StatefulWidget {
@@ -51,7 +52,7 @@ class _WorkspaceFailedScreenState extends State<WorkspaceFailedScreen> {
                         title:
                             LocaleKeys.workspace_errorActions_reportIssue.tr(),
                         height: 40,
-                        onPressed: () => safeLaunchUrl(
+                        onPressed: () => afLaunchUrlString(
                           'https://github.com/AppFlowy-IO/AppFlowy/issues/new?assignees=&labels=&projects=&template=bug_report.yaml&title=[Bug]%20Workspace%20failed%20to%20load&version=$version&os=$os',
                         ),
                       ),
@@ -62,7 +63,7 @@ class _WorkspaceFailedScreenState extends State<WorkspaceFailedScreen> {
                         title: LocaleKeys.workspace_errorActions_reachOut.tr(),
                         height: 40,
                         onPressed: () =>
-                            safeLaunchUrl('https://discord.gg/JucBXeU2FE'),
+                            afLaunchUrlString('https://discord.gg/JucBXeU2FE'),
                       ),
                     ),
                   ],

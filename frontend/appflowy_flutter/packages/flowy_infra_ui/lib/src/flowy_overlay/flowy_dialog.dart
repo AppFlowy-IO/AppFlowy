@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
 import 'dart:math';
+
+import 'package:flutter/material.dart';
 
 const _overlayContainerPadding = EdgeInsets.symmetric(vertical: 12);
 const overlayContainerMaxWidth = 760.0;
@@ -14,6 +15,7 @@ class FlowyDialog extends StatelessWidget {
     this.constraints,
     this.padding = _overlayContainerPadding,
     this.backgroundColor,
+    this.width,
   });
 
   final Widget? title;
@@ -22,11 +24,12 @@ class FlowyDialog extends StatelessWidget {
   final BoxConstraints? constraints;
   final EdgeInsets padding;
   final Color? backgroundColor;
+  final double? width;
 
   @override
   Widget build(BuildContext context) {
     final windowSize = MediaQuery.of(context).size;
-    final size = windowSize * 0.7;
+    final size = windowSize * 0.6;
     return SimpleDialog(
         contentPadding: EdgeInsets.zero,
         backgroundColor: backgroundColor ?? Theme.of(context).cardColor,
@@ -38,8 +41,11 @@ class FlowyDialog extends StatelessWidget {
             type: MaterialType.transparency,
             child: Container(
               height: size.height,
-              width: max(min(size.width, overlayContainerMaxWidth),
-                  overlayContainerMinWidth),
+              width: width ??
+                  max(
+                    min(size.width, overlayContainerMaxWidth),
+                    overlayContainerMinWidth,
+                  ),
               constraints: constraints,
               child: child,
             ),

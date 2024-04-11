@@ -13,17 +13,18 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'theme_setting_entry_template.dart';
 
 class BrightnessSetting extends StatelessWidget {
-  final ThemeMode currentThemeMode;
   const BrightnessSetting({required this.currentThemeMode, super.key});
+
+  final ThemeMode currentThemeMode;
 
   @override
   Widget build(BuildContext context) {
-    return ThemeSettingEntryTemplateWidget(
+    return FlowySettingListTile(
       label: LocaleKeys.settings_appearance_themeMode_label.tr(),
       hint: hintText,
       onResetRequested: context.read<AppearanceSettingsCubit>().resetThemeMode,
       trailing: [
-        ThemeValueDropDown(
+        FlowySettingValueDropDown(
           currentValue: currentThemeMode.labelText,
           popupBuilder: (context) => Column(
             mainAxisSize: MainAxisSize.min,

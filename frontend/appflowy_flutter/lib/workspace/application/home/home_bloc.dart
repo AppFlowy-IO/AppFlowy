@@ -1,22 +1,29 @@
 import 'package:appflowy/user/application/user_listener.dart';
-import 'package:flowy_infra/time/duration.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart'
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart'
     show WorkspaceSettingPB;
-import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flowy_infra/time/duration.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 part 'home_bloc.freezed.dart';
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
+  HomeBloc(WorkspaceSettingPB workspaceSetting)
+      : _workspaceListener = UserWorkspaceListener(),
+        super(HomeState.initial(workspaceSetting)) {
+    _dispatch(workspaceSetting);
+  }
+
   final UserWorkspaceListener _workspaceListener;
 
-  HomeBloc(
-    UserProfilePB userProfile,
-    WorkspaceSettingPB workspaceSetting,
-  )   : _workspaceListener = UserWorkspaceListener(userProfile: userProfile),
-        super(HomeState.initial(workspaceSetting)) {
+  @override
+  Future<void> close() async {
+    await _workspaceListener.stop();
+    return super.close();
+  }
+
+  void _dispatch(WorkspaceSettingPB workspaceSetting) {
     on<HomeEvent>(
       (event, emit) async {
         await event.map(
@@ -56,12 +63,6 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       },
     );
   }
-
-  @override
-  Future<void> close() async {
-    await _workspaceListener.stop();
-    return super.close();
-  }
 }
 
 enum MenuResizeType {
@@ -100,6 +101,5 @@ class HomeState with _$HomeState {
   factory HomeState.initial(WorkspaceSettingPB workspaceSetting) => HomeState(
         isLoading: false,
         workspaceSetting: workspaceSetting,
-        latestView: null,
       );
 }

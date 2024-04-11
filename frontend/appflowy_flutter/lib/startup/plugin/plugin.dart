@@ -1,11 +1,12 @@
 library flowy_plugin;
 
+import 'package:flutter/widgets.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
-import 'package:flutter/widgets.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 
 export "./src/sandbox.dart";
 
@@ -28,6 +29,8 @@ abstract class Plugin<T> {
   PluginNotifier? get notifier => null;
 
   PluginType get pluginType;
+
+  void init() {}
 
   void dispose() {
     notifier?.dispose();
@@ -71,10 +74,10 @@ abstract class PluginWidgetBuilder with NavigationItem {
 }
 
 class PluginContext {
+  PluginContext({required this.onDeleted});
+
   // calls when widget of the plugin get deleted
   final Function(ViewPB, int?) onDeleted;
-
-  PluginContext({required this.onDeleted});
 }
 
 void registerPlugin({required PluginBuilder builder, PluginConfig? config}) {

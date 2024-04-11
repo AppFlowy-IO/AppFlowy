@@ -5,6 +5,7 @@ use serde_json::Value;
 use tracing::{Event, Id, Subscriber};
 use tracing_bunyan_formatter::JsonStorage;
 use tracing_core::metadata::Level;
+use tracing_core::span::Attributes;
 use tracing_subscriber::{fmt::MakeWriter, layer::Context, registry::SpanRef, Layer};
 
 const LEVEL: &str = "level";
@@ -31,7 +32,7 @@ where
   pub fn new(make_writer: W) -> Self {
     Self {
       make_writer,
-      with_target: false,
+      with_target: true,
       phantom: std::marker::PhantomData,
     }
   }
@@ -63,8 +64,8 @@ where
       map_serializer.serialize_entry("target", &span.metadata().target())?;
     }
 
-    map_serializer.serialize_entry("line", &span.metadata().line())?;
-    map_serializer.serialize_entry("file", &span.metadata().file())?;
+    // map_serializer.serialize_entry("line", &span.metadata().line())?;
+    // map_serializer.serialize_entry("file", &span.metadata().file())?;
 
     let extensions = span.extensions();
     if let Some(visitor) = extensions.get::<JsonStorage>() {
@@ -102,9 +103,9 @@ pub enum Type {
 impl fmt::Display for Type {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
     let repr = match self {
-      Type::EnterSpan => "Start",
-      Type::ExitSpan => "End",
-      Type::Event => "Event",
+      Type::EnterSpan => "START",
+      Type::ExitSpan => "END",
+      Type::Event => "EVENT",
     };
     write!(f, "{}", repr)
   }
@@ -113,19 +114,12 @@ impl fmt::Display for Type {
 fn format_span_context<'b, S: Subscriber + for<'a> tracing_subscriber::registry::LookupSpan<'a>>(
   span: &SpanRef<'b, S>,
   ty: Type,
-  context: &Context<'_, S>,
+  _: &Context<'_, S>,
 ) -> String {
-  match context.lookup_current() {
-    None => {
-      if matches!(ty, Type::EnterSpan) {
-        format!("[🟢 {} - {}]", span.metadata().name().to_uppercase(), ty)
-      } else {
-        format!("[🔵 {} - {}]", span.metadata().name().to_uppercase(), ty)
-      }
-    },
-    Some(_) => {
-      format!("[{} - {}]", span.metadata().name().to_uppercase(), ty)
-    },
+  if matches!(ty, Type::EnterSpan) {
+    format!("[🟢 {} - {}]", span.metadata().name().to_uppercase(), ty)
+  } else {
+    format!("[{} - {}]", span.metadata().name().to_uppercase(), ty)
   }
 }
 
@@ -224,6 +218,13 @@ where
     let result: std::io::Result<Vec<u8>> = format();
     if let Ok(formatted) = result {
       let _ = self.emit(formatted);
+    }
+  }
+
+  fn on_new_span(&self, _attrs: &Attributes, id: &Id, ctx: Context<'_, S>) {
+    let span = ctx.span(id).expect("Span not found, this is a bug");
+    if let Ok(serialized) = self.serialize_span(&span, Type::EnterSpan, &ctx) {
+      let _ = self.emit(serialized);
     }
   }
 

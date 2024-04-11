@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-document2/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-document/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart'
     show
         Document,
@@ -59,11 +59,11 @@ extension DocumentDataPBFromTo on DocumentDataPB {
 
     // generate the meta
     final childrenMap = <String, ChildrenPB>{};
-    blocks.forEach((key, value) {
-      final parentId = value.parentId;
-      if (parentId.isNotEmpty) {
-        childrenMap[parentId] ??= ChildrenPB.create();
-        childrenMap[parentId]!.children.add(value.id);
+    blocks.values.where((e) => e.parentId.isNotEmpty).forEach((value) {
+      final childrenId = blocks[value.parentId]?.childrenId;
+      if (childrenId != null) {
+        childrenMap[childrenId] ??= ChildrenPB.create();
+        childrenMap[childrenId]!.children.add(value.id);
       }
     });
     final meta = MetaPB(childrenMap: childrenMap);
@@ -101,10 +101,16 @@ extension DocumentDataPBFromTo on DocumentDataPB {
       children.addAll(childrenIds.map((e) => buildNode(e)).whereNotNull());
     }
 
-    return block?.toNode(
+    final node = block?.toNode(
       children: children,
       meta: meta,
     );
+
+    for (final element in children) {
+      element.parent = node;
+    }
+
+    return node;
   }
 }
 
@@ -138,10 +144,11 @@ extension BlockToNode on BlockPB {
         final deltaString = meta.textMap[externalId];
         if (deltaString != null) {
           final delta = jsonDecode(deltaString);
-          map.putIfAbsent(
-            'delta',
-            () => delta,
-          );
+          map['delta'] = delta;
+          // map.putIfAbsent(
+          //   'delta',
+          //   () => delta,
+          // );
         }
       }
     }

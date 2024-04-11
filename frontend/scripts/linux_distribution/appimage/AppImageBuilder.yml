@@ -49,6 +49,9 @@ AppDir:
     - libc6:amd64
     - libnotify4:amd64
     - libkeybinder-3.0-0:amd64
+    - libwayland-cursor0:amd64
+    - libwayland-client0:amd64
+    - libwayland-egl1:amd64
   files:
     include: []
     exclude:

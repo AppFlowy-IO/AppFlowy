@@ -38,8 +38,8 @@ final _convertToBlockMenuItems = [
     icon: const FlowySvg(FlowySvgs.m_text_decoration_m),
     label: LocaleKeys.editor_text.tr(),
     onTap: (editorState, selection, _) => editorState.convertBlockType(
-      selection,
       ParagraphBlockKeys.type,
+      selection: selection,
     ),
   ),
 
@@ -49,8 +49,8 @@ final _convertToBlockMenuItems = [
     icon: const FlowySvg(FlowySvgs.m_checkbox_m),
     label: LocaleKeys.editor_checkbox.tr(),
     onTap: (editorState, selection, _) => editorState.convertBlockType(
-      selection,
       TodoListBlockKeys.type,
+      selection: selection,
       extraAttributes: {
         TodoListBlockKeys.checked: false,
       },
@@ -74,8 +74,8 @@ final _convertToBlockMenuItems = [
         1,
       );
       editorState.convertBlockType(
-        selection,
         HeadingBlockKeys.type,
+        selection: selection,
         isSelected: isSelected,
         extraAttributes: {
           HeadingBlockKeys.level: 1,
@@ -99,8 +99,8 @@ final _convertToBlockMenuItems = [
         2,
       );
       editorState.convertBlockType(
-        selection,
         HeadingBlockKeys.type,
+        selection: selection,
         isSelected: isSelected,
         extraAttributes: {
           HeadingBlockKeys.level: 2,
@@ -124,8 +124,8 @@ final _convertToBlockMenuItems = [
         3,
       );
       editorState.convertBlockType(
-        selection,
         HeadingBlockKeys.type,
+        selection: selection,
         isSelected: isSelected,
         extraAttributes: {
           HeadingBlockKeys.level: 3,
@@ -140,8 +140,8 @@ final _convertToBlockMenuItems = [
     icon: const FlowySvg(FlowySvgs.m_bulleted_list_m),
     label: LocaleKeys.editor_bulletedList.tr(),
     onTap: (editorState, selection, _) => editorState.convertBlockType(
-      selection,
       BulletedListBlockKeys.type,
+      selection: selection,
     ),
   ),
 
@@ -151,8 +151,8 @@ final _convertToBlockMenuItems = [
     icon: const FlowySvg(FlowySvgs.m_numbered_list_m),
     label: LocaleKeys.editor_numberedList.tr(),
     onTap: (editorState, selection, _) => editorState.convertBlockType(
-      selection,
       NumberedListBlockKeys.type,
+      selection: selection,
     ),
   ),
 
@@ -162,7 +162,7 @@ final _convertToBlockMenuItems = [
     icon: const FlowySvg(FlowySvgs.m_toggle_list_m),
     label: LocaleKeys.document_plugins_toggleList.tr(),
     onTap: (editorState, selection, _) => editorState.convertBlockType(
-      selection,
+      selection: selection,
       ToggleListBlockKeys.type,
     ),
   ),
@@ -173,7 +173,7 @@ final _convertToBlockMenuItems = [
     icon: const FlowySvg(FlowySvgs.m_quote_m),
     label: LocaleKeys.editor_quote.tr(),
     onTap: (editorState, selection, _) => editorState.convertBlockType(
-      selection,
+      selection: selection,
       QuoteBlockKeys.type,
     ),
   ),
@@ -185,8 +185,8 @@ final _convertToBlockMenuItems = [
     icon: const Icon(Icons.note_rounded),
     label: LocaleKeys.document_plugins_callout.tr(),
     onTap: (editorState, selection, _) => editorState.convertBlockType(
-      selection,
       CalloutBlockKeys.type,
+      selection: selection,
       extraAttributes: {
         CalloutBlockKeys.icon: '📌',
       },
@@ -199,42 +199,11 @@ final _convertToBlockMenuItems = [
     icon: const FlowySvg(FlowySvgs.m_code_m),
     label: LocaleKeys.document_selectionMenu_codeBlock.tr(),
     onTap: (editorState, selection, _) => editorState.convertBlockType(
-      selection,
       CodeBlockKeys.type,
+      selection: selection,
     ),
   ),
 ];
-
-extension on EditorState {
-  Future<void> convertBlockType(
-    Selection selection,
-    String newBlockType, {
-    Attributes? extraAttributes,
-    bool? isSelected,
-  }) async {
-    final node = getNodeAtPath(selection.start.path);
-    final type = node?.type;
-    if (node == null || type == null) {
-      assert(false, 'node or type is null');
-      return;
-    }
-    final selected = isSelected ?? type == newBlockType;
-    await formatNode(
-      selection,
-      (node) {
-        final attributes = {
-          ParagraphBlockKeys.delta: (node.delta ?? Delta()).toJson(),
-          // for some block types, they have extra attributes, like todo list has checked attribute, callout has icon attribute, etc.
-          if (!selected && extraAttributes != null) ...extraAttributes,
-        };
-        return node.copyWith(
-          type: selected ? ParagraphBlockKeys.type : newBlockType,
-          attributes: attributes,
-        );
-      },
-    );
-  }
-}
 
 bool _isHeadingSelected(
   EditorState editorState,

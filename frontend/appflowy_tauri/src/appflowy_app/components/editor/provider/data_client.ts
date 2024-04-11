@@ -1,4 +1,4 @@
-import { applyActions, openDocument } from '$app/application/document/document_service';
+import { applyActions, closeDocument, openDocument } from '$app/application/document/document.service';
 import { slateNodesToInsertDelta } from '@slate-yjs/core';
 import { convertToSlateValue } from '$app/components/editor/provider/utils/convert';
 import { EventEmitter } from 'events';
@@ -23,16 +23,18 @@ export class DataClient extends EventEmitter {
 
   public disconnect() {
     this.off('update', this.handleReceiveMessage);
-
+    void closeDocument(this.id);
     void this.unsubscribe.then((unsubscribe) => unsubscribe());
   }
 
-  public async getInsertDelta() {
+  public async getInsertDelta(includeRoot = true) {
     const data = await openDocument(this.id);
 
     this.rootId = data.rootId;
 
-    return slateNodesToInsertDelta(convertToSlateValue(data));
+    const slateValue = convertToSlateValue(data, includeRoot);
+
+    return slateNodesToInsertDelta(slateValue);
   }
 
   public on(event: 'change', listener: (events: YDelta) => void): this;

@@ -1,3 +1,6 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/mobile_block_action_buttons.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component.dart';
@@ -7,24 +10,6 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flowy_infra/theme_extension.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
-List<MobileToolbarItem> getMobileToolbarItems() {
-  return [
-    customTextDecorationMobileToolbarItem,
-    buildTextAndBackgroundColorMobileToolbarItem(),
-    mobileAddBlockToolbarItem,
-    mobileConvertBlockToolbarItem,
-    imageMobileToolbarItem,
-    mobileAlignToolbarItem,
-    mobileIndentToolbarItem,
-    mobileOutdentToolbarItem,
-    undoMobileToolbarItem,
-    redoMobileToolbarItem,
-    mobileBlockSettingsToolbarItem,
-  ];
-}
 
 Map<String, BlockComponentBuilder> getEditorBuilderMap({
   required BuildContext context,
@@ -46,6 +31,7 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
   final calloutBGColor = AFThemeExtension.of(context).calloutBGColor;
 
   final configuration = BlockComponentConfiguration(
+    // use EdgeInsets.zero to remove the default padding.
     padding: (_) => const EdgeInsets.symmetric(vertical: 5.0),
     indentPadding: (node, textDirection) => textDirection == TextDirection.ltr
         ? const EdgeInsets.only(left: 26.0)
@@ -166,11 +152,7 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
         textStyle: (_) => styleCustomizer.codeBlockStyleBuilder(),
         placeholderTextStyle: (_) => styleCustomizer.codeBlockStyleBuilder(),
       ),
-      padding: const EdgeInsets.only(
-        left: 30,
-        right: 30,
-        bottom: 36,
-      ),
+      padding: const EdgeInsets.only(left: 20, right: 30, bottom: 34),
     ),
     AutoCompletionBlockKeys.type: AutoCompletionBlockComponentBuilder(),
     SmartEditBlockKeys.type: SmartEditBlockComponentBuilder(),
@@ -203,6 +185,7 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
       ),
       builder: (context, node, url, title, description, imageUrl) =>
           CustomLinkPreviewWidget(
+        node: node,
         url: url,
         title: title,
         description: description,
@@ -244,6 +227,10 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
         ImageBlockKeys.type,
       ];
 
+      final supportDepthBuilderType = [
+        OutlineBlockKeys.type,
+      ];
+
       final colorAction = [
         OptionAction.divider,
         OptionAction.color,
@@ -254,10 +241,15 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
         OptionAction.align,
       ];
 
+      final depthAction = [
+        OptionAction.depth,
+      ];
+
       final List<OptionAction> actions = [
         ...standardActions,
         if (supportColorBuilderTypes.contains(entry.key)) ...colorAction,
         if (supportAlignBuilderType.contains(entry.key)) ...alignAction,
+        if (supportDepthBuilderType.contains(entry.key)) ...depthAction,
       ];
 
       if (PlatformExtension.isDesktop) {

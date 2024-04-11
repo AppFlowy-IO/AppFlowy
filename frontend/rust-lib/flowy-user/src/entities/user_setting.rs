@@ -64,6 +64,14 @@ pub struct AppearanceSettingsPB {
   #[pb(index = 11)]
   #[serde(default)]
   pub text_direction: TextDirectionPB,
+
+  #[pb(index = 12)]
+  #[serde(default)]
+  pub document_setting: DocumentSettingsPB,
+
+  #[pb(index = 13)]
+  #[serde(default)]
+  pub enable_rtl_toolbar_items: bool,
 }
 
 const DEFAULT_RESET_VALUE: fn() -> bool = || APPEARANCE_RESET_AS_DEFAULT;
@@ -110,12 +118,22 @@ impl std::default::Default for LocaleSettingsPB {
   }
 }
 
+#[derive(ProtoBuf, Serialize, Deserialize, Debug, Clone, Default)]
+pub struct DocumentSettingsPB {
+  #[pb(index = 1, one_of)]
+  pub cursor_color: Option<String>,
+
+  #[pb(index = 2, one_of)]
+  pub selection_color: Option<String>,
+}
+
 pub const APPEARANCE_DEFAULT_THEME: &str = "Default";
 pub const APPEARANCE_DEFAULT_FONT: &str = "Poppins";
 pub const APPEARANCE_DEFAULT_MONOSPACE_FONT: &str = "SF Mono";
 const APPEARANCE_RESET_AS_DEFAULT: bool = true;
 const APPEARANCE_DEFAULT_IS_MENU_COLLAPSED: bool = false;
 const APPEARANCE_DEFAULT_MENU_OFFSET: f64 = 0.0;
+const APPEARANCE_DEFAULT_ENABLE_RTL_TOOLBAR_ITEMS: bool = false;
 
 impl std::default::Default for AppearanceSettingsPB {
   fn default() -> Self {
@@ -131,6 +149,8 @@ impl std::default::Default for AppearanceSettingsPB {
       menu_offset: APPEARANCE_DEFAULT_MENU_OFFSET,
       layout_direction: LayoutDirectionPB::default(),
       text_direction: TextDirectionPB::default(),
+      enable_rtl_toolbar_items: APPEARANCE_DEFAULT_ENABLE_RTL_TOOLBAR_ITEMS,
+      document_setting: DocumentSettingsPB::default(),
     }
   }
 }

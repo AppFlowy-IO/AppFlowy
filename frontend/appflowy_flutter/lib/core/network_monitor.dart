@@ -7,13 +7,13 @@ import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:flutter/services.dart';
 
 class NetworkListener {
-  final Connectivity _connectivity = Connectivity();
-  late StreamSubscription<ConnectivityResult> _connectivitySubscription;
-
   NetworkListener() {
     _connectivitySubscription =
         _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
   }
+
+  final Connectivity _connectivity = Connectivity();
+  late StreamSubscription<ConnectivityResult> _connectivitySubscription;
 
   Future<void> start() async {
     late ConnectivityResult result;
@@ -21,7 +21,7 @@ class NetworkListener {
     try {
       result = await _connectivity.checkConnectivity();
     } on PlatformException catch (e) {
-      Log.error('Couldn\'t check connectivity status. $e');
+      Log.error("Couldn't check connectivity status. $e");
       return;
     }
     return _updateConnectionStatus(result);
@@ -49,13 +49,9 @@ class NetworkListener {
           return NetworkTypePB.NetworkUnknown;
       }
     }();
-    Log.info("Network type: $networkType");
     final state = NetworkStatePB.create()..ty = networkType;
-    UserEventUpdateNetworkState(state).send().then((result) {
-      result.fold(
-        (l) {},
-        (e) => Log.error(e),
-      );
+    return UserEventUpdateNetworkState(state).send().then((result) {
+      result.fold((l) {}, (e) => Log.error(e));
     });
   }
 }

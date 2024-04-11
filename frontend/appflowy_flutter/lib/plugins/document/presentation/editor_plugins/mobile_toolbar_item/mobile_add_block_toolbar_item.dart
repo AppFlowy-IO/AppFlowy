@@ -228,7 +228,7 @@ bool _unSelectable(
   return false;
 }
 
-extension on EditorState {
+extension EditorStateAddBlock on EditorState {
   Future<void> insertBlockOrReplaceCurrentBlock(
     Selection selection,
     Node insertedNode,
@@ -247,7 +247,7 @@ extension on EditorState {
       transaction
         ..insertNode(path, insertedNode)
         ..afterSelection = Selection.collapsed(
-          Position(path: path, offset: 0),
+          Position(path: path),
         );
     } else {
       final path = node.path;
@@ -256,8 +256,9 @@ extension on EditorState {
         ..insertNode(path, insertedNode)
         ..deleteNode(node)
         ..afterSelection = Selection.collapsed(
-          Position(path: path, offset: 0),
-        );
+          Position(path: path),
+        )
+        ..selectionExtraInfo = null;
     }
     await apply(transaction);
     service.keyboardService?.enableKeyBoard(selection);
@@ -319,10 +320,10 @@ extension on EditorState {
         paragraphNode(),
       );
     }
+    transaction.selectionExtraInfo = {};
     transaction.afterSelection = Selection.collapsed(
       Position(path: insertedPath.next),
     );
     await apply(transaction);
-    service.keyboardService?.enableKeyBoard(selection);
   }
 }

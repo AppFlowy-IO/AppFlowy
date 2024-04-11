@@ -26,20 +26,26 @@ export function slateElementToYText({
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function generateInsertTextOp(text: string, parentId: string, level: number, attributes?: Record<string, any>) {
+export function generateInsertTextOp(text: string) {
   const insertYText = slateElementToYText({
-    children: [{ text: text }],
+    children: [
+      {
+        type: 'text',
+        textId: generateId(),
+        children: [
+          {
+            text,
+          },
+        ],
+      },
+    ],
     type: 'paragraph',
     data: {},
     blockId: generateId(),
-    parentId,
-    textId: generateId(),
-    level,
   });
 
   return {
     insert: insertYText,
-    attributes,
   };
 }
 

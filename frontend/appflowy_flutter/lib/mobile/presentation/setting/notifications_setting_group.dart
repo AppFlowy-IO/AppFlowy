@@ -15,7 +15,7 @@ class NotificationsSettingGroup extends StatefulWidget {
 }
 
 class _NotificationsSettingGroupState extends State<NotificationsSettingGroup> {
-  // TODO(yijing):remove this after notification page is implemented
+  // TODO:remove this after notification page is implemented
   bool isPushNotificationOn = false;
 
   @override

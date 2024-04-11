@@ -2,15 +2,15 @@ import 'dart:async';
 
 import 'package:appflowy/core/notification/folder_notification.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/notification.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/notification.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-notification/subject.pb.dart';
 import 'package:appflowy_backend/rust_stream.dart';
-import 'package:dartz/dartz.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flutter/foundation.dart';
 
 typedef RecentViewsUpdated = void Function(
-  Either<FlowyError, RepeatedViewIdPB> result,
+  FlowyResult<RepeatedViewIdPB, FlowyError> result,
 );
 
 class RecentViewsListener {
@@ -34,7 +34,7 @@ class RecentViewsListener {
 
   void _observableCallback(
     FolderNotification ty,
-    Either<Uint8List, FlowyError> result,
+    FlowyResult<Uint8List, FlowyError> result,
   ) {
     if (_recentViewsUpdated == null) {
       return;
@@ -44,11 +44,11 @@ class RecentViewsListener {
       (payload) {
         final view = RepeatedViewIdPB.fromBuffer(payload);
         _recentViewsUpdated?.call(
-          right(view),
+          FlowyResult.success(view),
         );
       },
       (error) => _recentViewsUpdated?.call(
-        left(error),
+        FlowyResult.failure(error),
       ),
     );
   }

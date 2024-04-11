@@ -1,5 +1,5 @@
 import { FC, FormEventHandler, Suspense, lazy, useCallback, useRef, useMemo } from 'react';
-import { TextCell as TextCellType } from '../../application';
+import { TextCell as TextCellType } from '$app/application/database';
 import { CellText } from '../../_shared';
 import { useInputCell } from '$app/components/database/components/cell/Cell.hooks';
 
@@ -40,7 +40,7 @@ export const TextCell: FC<TextCellProps> = ({ placeholder, cell }) => {
 
   return (
     <>
-      <CellText className={`min-h-[36px] w-full`} ref={cellRef} onClick={handleClick}>
+      <CellText className={`min-h-[36px] w-full cursor-text`} ref={cellRef} onClick={handleClick}>
         {content}
       </CellText>
       <Suspense>

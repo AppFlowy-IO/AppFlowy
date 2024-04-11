@@ -6,8 +6,8 @@ on:
       - "*"
 
 env:
-  FLUTTER_VERSION: "3.16.2"
-  RUST_TOOLCHAIN: "1.70"
+  FLUTTER_VERSION: "3.19.0"
+  RUST_TOOLCHAIN: "1.75"
 
 jobs:
   create-release:
@@ -18,7 +18,7 @@ jobs:
       upload_url: ${{ steps.create_release.outputs.upload_url }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Build release notes
         run: |
@@ -52,7 +52,7 @@ jobs:
           - { target: x86_64-pc-windows-msvc, os: windows-2019 }
     steps:
       - name: Checkout source code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install flutter
         uses: subosito/flutter-action@v2
@@ -138,7 +138,7 @@ jobs:
           - { target: x86_64-apple-darwin, os: macos-11, extra-build-args: "" }
     steps:
       - name: Checkout source code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install flutter
         uses: subosito/flutter-action@v2
@@ -238,7 +238,7 @@ jobs:
             }
     steps:
       - name: Checkout source code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install flutter
         uses: subosito/flutter-action@v2
@@ -263,7 +263,7 @@ jobs:
         working-directory: frontend
         run: |
           flutter config --enable-macos-desktop
-          sh scripts/flutter_release_build/build_universal_package_for_macos.sh
+          sh scripts/flutter_release_build/build_universal_package_for_macos.sh ${{ github.ref_name }}
 
       - name: Codesign AppFlowy
         run: |
@@ -327,6 +327,9 @@ jobs:
       LINUX_PACKAGE_DEB_NAME: AppFlowy-${{ github.ref_name }}-linux-x86_64.deb
       LINUX_PACKAGE_RPM_NAME: AppFlowy-${{ github.ref_name }}-linux-x86_64.rpm
       LINUX_PACKAGE_TMP_RPM_NAME: AppFlowy-${{ github.ref_name }}-2.x86_64.rpm
+      LINUX_PACKAGE_TMP_APPIMAGE_NAME: AppFlowy-${{ github.ref_name }}-x86_64.AppImage
+      LINUX_PACKAGE_APPIMAGE_NAME: AppFlowy-${{ github.ref_name }}-linux-x86_64.AppImage
+      LINUX_PACKAGE_ZIP_NAME: AppFlowy-${{ github.ref_name }}-linux-x86_64.tar.gz
 
     strategy:
       fail-fast: false
@@ -341,7 +344,7 @@ jobs:
             }
     steps:
       - name: Checkout source code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install flutter
         uses: subosito/flutter-action@v2
@@ -395,11 +398,16 @@ jobs:
       - name: Build Linux package (.rpm)
         working-directory: ${{ env.LINUX_APP_RELEASE_PATH }}
         run: |
-          ls -a
           sudo alien -r ${{ env.LINUX_PACKAGE_DEB_NAME }}
-          echo '------------'
           cp -r ${{ env.LINUX_PACKAGE_TMP_RPM_NAME }} ${{ env.LINUX_PACKAGE_RPM_NAME }}
-          ls -a
+
+      - name: Build Linux package (.AppImage)
+        working-directory: frontend
+        continue-on-error: true
+        run: |
+          sh scripts/linux_distribution/appimage/build_appimage.sh ${{ github.ref_name }}
+          cd ..
+          cp -r frontend/${{ env.LINUX_PACKAGE_TMP_APPIMAGE_NAME }} ${{ env.LINUX_APP_RELEASE_PATH }}/${{ env.LINUX_PACKAGE_APPIMAGE_NAME }}
 
       - name: Upload Asset
         id: upload-release-asset
@@ -409,7 +417,7 @@ jobs:
         with:
           upload_url: ${{ needs.create-release.outputs.upload_url }}
           asset_path: ${{ env.LINUX_APP_RELEASE_PATH }}/${{ env.LINUX_ZIP_NAME }}
-          asset_name: ${{ env.LINUX_ZIP_NAME }}
+          asset_name: ${{ env.LINUX_PACKAGE_ZIP_NAME }}
           asset_content_type: application/octet-stream
 
       - name: Upload Debian package
@@ -434,23 +442,34 @@ jobs:
           asset_name: ${{ env.LINUX_PACKAGE_RPM_NAME }}
           asset_content_type: application/octet-stream
 
+      - name: Upload AppImage package
+        id: upload-release-asset-install-package-appimage
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ${{ env.LINUX_APP_RELEASE_PATH }}/${{ env.LINUX_PACKAGE_APPIMAGE_NAME }}
+          asset_name: ${{ env.LINUX_PACKAGE_APPIMAGE_NAME }}
+          asset_content_type: application/octet-stream
+
   build-for-docker:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Login to Docker Hub
-        uses: docker/login-action@v1
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v3
 
       - name: Build and push
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v5
         with:
           context: .
           file: ./frontend/scripts/docker-buildfiles/Dockerfile

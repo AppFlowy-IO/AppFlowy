@@ -1,9 +1,9 @@
 import React, { useRef, useState } from 'react';
 import { ReactComponent as MoreIcon } from '$app/assets/more.svg';
-import { SelectOption } from '$app/components/database/application';
+import { SelectOption } from '$app/application/database';
 // import { ReactComponent as DragIcon } from '$app/assets/drag.svg';
 
-import { SelectOptionMenu } from '$app/components/database/components/field_types/select/SelectOptionMenu';
+import { SelectOptionModifyMenu } from '$app/components/database/components/field_types/select/SelectOptionModifyMenu';
 import Button from '@mui/material/Button';
 import { SelectOptionColorMap } from '$app/components/database/components/field_types/select/constants';
 
@@ -14,6 +14,7 @@ function Option({ option, fieldId }: { option: SelectOption; fieldId: string }) 
   return (
     <>
       <Button
+        size={'small'}
         onClick={() => setExpanded(!expanded)}
         color={'inherit'}
         // startIcon={<DragIcon />}
@@ -25,7 +26,7 @@ function Option({ option, fieldId }: { option: SelectOption; fieldId: string }) 
           <div className={`${SelectOptionColorMap[option.color]} rounded-lg px-1.5 py-1`}>{option.name}</div>
         </div>
       </Button>
-      <SelectOptionMenu
+      <SelectOptionModifyMenu
         fieldId={fieldId}
         MenuProps={{
           anchorEl: ref.current,

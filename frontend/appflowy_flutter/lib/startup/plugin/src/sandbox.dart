@@ -7,15 +7,15 @@ import '../plugin.dart';
 import 'runner.dart';
 
 class PluginSandbox {
+  PluginSandbox() {
+    pluginRunner = PluginRunner();
+  }
+
   final LinkedHashMap<PluginType, PluginBuilder> _pluginBuilders =
       LinkedHashMap();
   final Map<PluginType, PluginConfig> _pluginConfigs =
       <PluginType, PluginConfig>{};
   late PluginRunner pluginRunner;
-
-  PluginSandbox() {
-    pluginRunner = PluginRunner();
-  }
 
   int indexOf(PluginType pluginType) {
     final index =

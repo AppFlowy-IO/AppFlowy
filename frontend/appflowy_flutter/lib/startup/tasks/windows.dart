@@ -9,11 +9,9 @@ import 'package:window_manager/window_manager.dart';
 
 class InitAppWindowTask extends LaunchTask with WindowListener {
   const InitAppWindowTask({
-    this.minimumSize = const Size(800, 600),
     this.title = 'AppFlowy',
   });
 
-  final Size minimumSize;
   final String title;
 
   @override
@@ -27,17 +25,20 @@ class InitAppWindowTask extends LaunchTask with WindowListener {
     windowManager.addListener(this);
 
     final windowSize = await WindowSizeManager().getSize();
-
     final windowOptions = WindowOptions(
       size: windowSize,
       minimumSize: const Size(
         WindowSizeManager.minWindowWidth,
         WindowSizeManager.minWindowHeight,
       ),
+      maximumSize: const Size(
+        WindowSizeManager.maxWindowWidth,
+        WindowSizeManager.maxWindowHeight,
+      ),
       title: title,
     );
 
-    windowManager.waitUntilReadyToShow(windowOptions, () async {
+    await windowManager.waitUntilReadyToShow(windowOptions, () async {
       await windowManager.show();
       await windowManager.focus();
 
@@ -53,7 +54,7 @@ class InitAppWindowTask extends LaunchTask with WindowListener {
     super.onWindowResize();
 
     final currentWindowSize = await windowManager.getSize();
-    WindowSizeManager().setSize(currentWindowSize);
+    return WindowSizeManager().setSize(currentWindowSize);
   }
 
   @override
@@ -61,7 +62,7 @@ class InitAppWindowTask extends LaunchTask with WindowListener {
     super.onWindowMaximize();
 
     final currentWindowSize = await windowManager.getSize();
-    WindowSizeManager().setSize(currentWindowSize);
+    return WindowSizeManager().setSize(currentWindowSize);
   }
 
   @override
@@ -69,7 +70,7 @@ class InitAppWindowTask extends LaunchTask with WindowListener {
     super.onWindowMoved();
 
     final position = await windowManager.getPosition();
-    WindowSizeManager().setPosition(position);
+    return WindowSizeManager().setPosition(position);
   }
 
   @override

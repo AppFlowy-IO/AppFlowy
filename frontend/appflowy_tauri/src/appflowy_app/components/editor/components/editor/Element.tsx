@@ -1,6 +1,12 @@
 import React, { FC, HTMLAttributes, useMemo } from 'react';
-import { RenderElementProps } from 'slate-react';
-import { EditorElementProps, EditorInlineNodeType, EditorNodeType } from '$app/application/document/document.types';
+import { RenderElementProps, useSlateStatic } from 'slate-react';
+import {
+  BlockData,
+  EditorElementProps,
+  EditorInlineNodeType,
+  EditorNodeType,
+  TextNode,
+} from '$app/application/document/document.types';
 import { Paragraph } from '$app/components/editor/components/blocks/paragraph';
 import { Heading } from '$app/components/editor/components/blocks/heading';
 import { TodoList } from '$app/components/editor/components/blocks/todo_list';
@@ -15,7 +21,13 @@ import { Callout } from '$app/components/editor/components/blocks/callout';
 import { Mention } from '$app/components/editor/components/inline_nodes/mention';
 import { GridBlock } from '$app/components/editor/components/blocks/database';
 import { MathEquation } from '$app/components/editor/components/blocks/math_equation';
-import { useSelectedBlock } from '$app/components/editor/components/editor/Editor.hooks';
+import { ImageBlock } from '$app/components/editor/components/blocks/image';
+
+import { Text as TextComponent } from '../blocks/text';
+import { Page } from '../blocks/page';
+import { useElementState } from '$app/components/editor/components/editor/Element.hooks';
+import UnSupportBlock from '$app/components/editor/components/blocks/_shared/unSupportBlock';
+import { renderColor } from '$app/utils/color';
 
 function Element({ element, attributes, children }: RenderElementProps) {
   const node = element;
@@ -33,6 +45,8 @@ function Element({ element, attributes, children }: RenderElementProps) {
 
   const Component = useMemo(() => {
     switch (node.type) {
+      case EditorNodeType.Page:
+        return Page;
       case EditorNodeType.HeadingBlock:
         return Heading;
       case EditorNodeType.TodoListBlock:
@@ -57,36 +71,58 @@ function Element({ element, attributes, children }: RenderElementProps) {
         return GridBlock;
       case EditorNodeType.EquationBlock:
         return MathEquation;
+      case EditorNodeType.ImageBlock:
+        return ImageBlock;
       default:
-        return Paragraph;
+        return UnSupportBlock;
     }
   }, [node.type]) as FC<EditorElementProps & HTMLAttributes<HTMLElement>>;
 
-  const marginLeft = useMemo(() => {
-    if (!node.level) return;
+  const editor = useSlateStatic();
+  const { blockSelected } = useElementState(node);
+  const isEmbed = editor.isEmbed(node);
 
-    return (node.level - 1) * 24;
-  }, [node.level]);
+  const className = useMemo(() => {
+    const align =
+      (
+        node.data as {
+          align: 'left' | 'center' | 'right';
+        }
+      )?.align || 'left';
 
-  const isSelected = useSelectedBlock(node.blockId);
+    return `block-element flex rounded ${align ? `block-align-${align}` : ''} ${
+      blockSelected && !isEmbed ? 'bg-content-blue-100' : ''
+    }`;
+  }, [node.data, blockSelected, isEmbed]);
+
+  const style = useMemo(() => {
+    const data = (node.data as BlockData) || {};
+
+    return {
+      backgroundColor: data.bg_color ? renderColor(data.bg_color) : undefined,
+      color: data.font_color ? renderColor(data.font_color) : undefined,
+    };
+  }, [node.data]);
 
   if (InlineComponent) {
     return (
-      <span {...attributes}>
-        <InlineComponent node={node}>{children}</InlineComponent>
-      </span>
+      <InlineComponent {...attributes} node={node}>
+        {children}
+      </InlineComponent>
+    );
+  }
+
+  if (node.type === EditorNodeType.Text) {
+    return (
+      <TextComponent {...attributes} node={node as TextNode}>
+        {children}
+      </TextComponent>
     );
   }
 
   return (
-    <div
-      {...attributes}
-      style={{
-        marginLeft,
-      }}
-      className={`${node.isHidden ? 'hidden' : 'inline-block'} block-element leading-1 my-0.5 w-full px-16`}
-    >
-      <Component className={`${isSelected ? 'bg-content-blue-100' : ''}`} node={node}>
+    <div {...attributes} data-block-type={node.type} className={className}>
+      <Component style={style} className={`flex w-full flex-col`} node={node}>
         {children}
       </Component>
     </div>

@@ -1,9 +1,12 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { TimeFormatPB } from '@/services/backend';
 import { useTranslation } from 'react-i18next';
 import { Menu, MenuItem } from '@mui/material';
 import { ReactComponent as MoreSvg } from '$app/assets/more.svg';
 import { ReactComponent as SelectCheckSvg } from '$app/assets/select-check.svg';
+import KeyboardNavigation, {
+  KeyboardNavigationOption,
+} from '$app/components/_shared/keyboard_navigation/KeyboardNavigation';
 
 interface Props {
   value: TimeFormatPB;
@@ -13,13 +16,31 @@ function TimeFormat({ value, onChange }: Props) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLLIElement>(null);
-  const timeFormatMap = useMemo(
-    () => ({
-      [TimeFormatPB.TwelveHour]: t('grid.field.timeFormatTwelveHour'),
-      [TimeFormatPB.TwentyFourHour]: t('grid.field.timeFormatTwentyFourHour'),
-    }),
-    [t]
+
+  const renderOptionContent = useCallback(
+    (option: TimeFormatPB, title: string) => {
+      return (
+        <div className={'flex w-full items-center justify-between gap-2'}>
+          <div className={'flex-1'}>{title}</div>
+          {value === option && <SelectCheckSvg className={'text-content-blue-400'} />}
+        </div>
+      );
+    },
+    [value]
   );
+
+  const options: KeyboardNavigationOption<TimeFormatPB>[] = useMemo(() => {
+    return [
+      {
+        key: TimeFormatPB.TwelveHour,
+        content: renderOptionContent(TimeFormatPB.TwelveHour, t('grid.field.timeFormatTwelveHour')),
+      },
+      {
+        key: TimeFormatPB.TwentyFourHour,
+        content: renderOptionContent(TimeFormatPB.TwentyFourHour, t('grid.field.timeFormatTwentyFourHour')),
+      },
+    ];
+  }, [renderOptionContent, t]);
 
   const handleClick = (option: TimeFormatPB) => {
     onChange(option);
@@ -45,20 +66,14 @@ function TimeFormat({ value, onChange }: Props) {
         anchorEl={ref.current}
         onClose={() => setOpen(false)}
       >
-        {Object.keys(timeFormatMap).map((option) => {
-          const optionValue = Number(option) as TimeFormatPB;
-
-          return (
-            <MenuItem
-              className={'min-w-[120px] justify-between'}
-              key={optionValue}
-              onClick={() => handleClick(optionValue)}
-            >
-              {timeFormatMap[optionValue]}
-              {value === optionValue && <SelectCheckSvg />}
-            </MenuItem>
-          );
-        })}
+        <KeyboardNavigation
+          onEscape={() => {
+            setOpen(false);
+          }}
+          disableFocus={true}
+          options={options}
+          onConfirm={handleClick}
+        />
       </Menu>
     </>
   );

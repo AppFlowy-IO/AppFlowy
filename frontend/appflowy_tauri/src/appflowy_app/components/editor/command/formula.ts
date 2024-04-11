@@ -1,6 +1,6 @@
 import { ReactEditor } from 'slate-react';
-import { Editor, Element as SlateElement, Range, Transforms } from 'slate';
-import { EditorInlineNodeType } from '$app/application/document/document.types';
+import { Editor, Element, Element as SlateElement, NodeEntry, Range, Transforms } from 'slate';
+import { EditorInlineNodeType, FormulaNode } from '$app/application/document/document.types';
 
 export function insertFormula(editor: ReactEditor, formula?: string) {
   if (editor.selection) {
@@ -11,7 +11,13 @@ export function insertFormula(editor: ReactEditor, formula?: string) {
 export function updateFormula(editor: ReactEditor, formula: string) {
   if (isFormulaActive(editor)) {
     Transforms.delete(editor);
-    insertFormula(editor, formula);
+    wrapFormula(editor, formula);
+  }
+}
+
+export function deleteFormula(editor: ReactEditor) {
+  if (isFormulaActive(editor)) {
+    Transforms.delete(editor);
   }
 }
 
@@ -21,38 +27,69 @@ export function wrapFormula(editor: ReactEditor, formula?: string) {
   }
 
   const { selection } = editor;
+
+  if (!selection) return;
   const isCollapsed = selection && Range.isCollapsed(selection);
 
+  const data = formula || editor.string(selection);
   const formulaElement = {
     type: EditorInlineNodeType.Formula,
-    data: true,
-    children: isCollapsed
-      ? [
-          {
-            text: formula || '',
-          },
-        ]
-      : [],
+    data,
+    children: [
+      {
+        text: '$',
+      },
+    ],
   };
 
-  if (isCollapsed) {
-    Transforms.insertNodes(editor, formulaElement);
-  } else {
-    Transforms.wrapNodes(editor, formulaElement, { split: true });
-    Transforms.collapse(editor, { edge: 'end' });
+  if (!isCollapsed) {
+    Transforms.delete(editor);
+  }
+
+  Transforms.insertNodes(editor, formulaElement, {
+    select: true,
+  });
+
+  const path = editor.selection?.anchor.path;
+
+  if (path) {
+    editor.select(path);
   }
 }
 
 export function unwrapFormula(editor: ReactEditor) {
-  Transforms.unwrapNodes(editor, {
+  const [match] = Editor.nodes(editor, {
     match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type === EditorInlineNodeType.Formula,
+  });
+
+  if (!match) return;
+
+  const [node, path] = match as NodeEntry<FormulaNode>;
+  const formula = node.data;
+  const range = Editor.range(editor, match[1]);
+  const beforePoint = Editor.before(editor, path, { unit: 'character' });
+
+  Transforms.select(editor, range);
+  Transforms.delete(editor);
+
+  Transforms.insertText(editor, formula);
+
+  if (!beforePoint) return;
+  Transforms.select(editor, {
+    anchor: beforePoint,
+    focus: {
+      ...beforePoint,
+      offset: beforePoint.offset + formula.length,
+    },
   });
 }
 
 export function isFormulaActive(editor: ReactEditor) {
-  const [node] = Editor.nodes(editor, {
-    match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type === EditorInlineNodeType.Formula,
+  const [match] = editor.nodes({
+    match: (n) => {
+      return !Editor.isEditor(n) && Element.isElement(n) && n.type === EditorInlineNodeType.Formula;
+    },
   });
 
-  return !!node;
+  return Boolean(match);
 }

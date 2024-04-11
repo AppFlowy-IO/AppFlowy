@@ -1,12 +1,13 @@
 import 'dart:io';
 
+import 'package:flutter/material.dart';
+
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flowy_infra_ui/widget/ignore_parent_gesture.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flutter/material.dart';
 
 class FlowyButton extends StatelessWidget {
   final Widget text;
@@ -31,7 +32,7 @@ class FlowyButton extends StatelessWidget {
   final bool expand;
 
   const FlowyButton({
-    Key? key,
+    super.key,
     required this.text,
     this.onTap,
     this.onSecondaryTap,
@@ -52,7 +53,7 @@ class FlowyButton extends StatelessWidget {
     this.showDefaultBoxDecorationOnMobile = false,
     this.iconPadding = 6,
     this.expand = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -88,7 +89,7 @@ class FlowyButton extends StatelessWidget {
   }
 
   Widget _render(BuildContext context) {
-    List<Widget> children = List.empty(growable: true);
+    final List<Widget> children = [];
 
     if (leftIcon != null) {
       children.add(
@@ -168,7 +169,7 @@ class FlowyTextButton extends StatelessWidget {
   // final HoverDisplayConfig? hoverDisplay;
   const FlowyTextButton(
     this.text, {
-    Key? key,
+    super.key,
     this.onPressed,
     this.fontSize,
     this.fontColor,
@@ -184,7 +185,7 @@ class FlowyTextButton extends StatelessWidget {
     this.constraints = const BoxConstraints(minWidth: 0.0, minHeight: 0.0),
     this.decoration,
     this.fontFamily,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -213,6 +214,7 @@ class FlowyTextButton extends StatelessWidget {
     );
 
     child = RawMaterialButton(
+      focusNode: FocusNode(skipTraversal: onPressed == null),
       hoverElevation: 0,
       highlightElevation: 0,
       shape: RoundedRectangleBorder(borderRadius: radius ?? Corners.s6Border),
@@ -235,6 +237,10 @@ class FlowyTextButton extends StatelessWidget {
         message: tooltip!,
         child: child,
       );
+    }
+
+    if (onPressed == null) {
+      child = ExcludeFocus(child: child);
     }
 
     return child;
@@ -260,7 +266,7 @@ class FlowyRichTextButton extends StatelessWidget {
   // final HoverDisplayConfig? hoverDisplay;
   const FlowyRichTextButton(
     this.text, {
-    Key? key,
+    super.key,
     this.onPressed,
     this.overflow = TextOverflow.ellipsis,
     this.padding = const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
@@ -272,7 +278,7 @@ class FlowyRichTextButton extends StatelessWidget {
     this.tooltip,
     this.constraints = const BoxConstraints(minWidth: 58.0, minHeight: 30.0),
     this.decoration,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

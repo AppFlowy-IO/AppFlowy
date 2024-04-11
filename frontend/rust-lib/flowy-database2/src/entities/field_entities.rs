@@ -10,6 +10,7 @@ use strum_macros::{EnumCount as EnumCountMacro, EnumIter};
 
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
+use validator::Validate;
 
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::position_entities::OrderObjectPositionPB;
@@ -46,7 +47,7 @@ impl FieldPB {
     let field_type = field.field_type.into();
     let type_option = field
       .get_any_type_option(field_type)
-      .unwrap_or_else(|| default_type_option_data_from_type(&field_type));
+      .unwrap_or_else(|| default_type_option_data_from_type(field_type));
     Self {
       id: field.id,
       name: field.name,
@@ -473,6 +474,7 @@ pub enum FieldType {
   Checklist = 7,
   LastEditedTime = 8,
   CreatedTime = 9,
+  Relation = 10,
 }
 
 impl Display for FieldType {
@@ -509,8 +511,9 @@ impl FieldType {
       FieldType::Checkbox => "Checkbox",
       FieldType::URL => "URL",
       FieldType::Checklist => "Checklist",
-      FieldType::LastEditedTime => "Last edited time",
+      FieldType::LastEditedTime => "Last modified",
       FieldType::CreatedTime => "Created time",
+      FieldType::Relation => "Relation",
     };
     s.to_string()
   }
@@ -559,6 +562,10 @@ impl FieldType {
     matches!(self, FieldType::Checklist)
   }
 
+  pub fn is_relation(&self) -> bool {
+    matches!(self, FieldType::Relation)
+  }
+
   pub fn can_be_group(&self) -> bool {
     self.is_select_option() || self.is_checkbox() || self.is_url()
   }
@@ -602,6 +609,30 @@ pub struct DuplicateFieldPayloadPB {
 // }
 
 impl TryInto<FieldIdParams> for DuplicateFieldPayloadPB {
+  type Error = ErrorCode;
+
+  fn try_into(self) -> Result<FieldIdParams, Self::Error> {
+    let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::DatabaseIdIsEmpty)?;
+    let field_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
+    Ok(FieldIdParams {
+      view_id: view_id.0,
+      field_id: field_id.0,
+    })
+  }
+}
+
+#[derive(Debug, Clone, Default, ProtoBuf, Validate)]
+pub struct ClearFieldPayloadPB {
+  #[pb(index = 1)]
+  #[validate(custom = "lib_infra::validator_fn::required_not_empty_str")]
+  pub field_id: String,
+
+  #[pb(index = 2)]
+  #[validate(custom = "lib_infra::validator_fn::required_not_empty_str")]
+  pub view_id: String,
+}
+
+impl TryInto<FieldIdParams> for ClearFieldPayloadPB {
   type Error = ErrorCode;
 
   fn try_into(self) -> Result<FieldIdParams, Self::Error> {

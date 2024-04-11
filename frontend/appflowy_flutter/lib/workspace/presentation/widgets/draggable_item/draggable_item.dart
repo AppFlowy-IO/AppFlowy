@@ -8,8 +8,8 @@ class DraggableItem<T extends Object> extends StatefulWidget {
     required this.data,
     this.feedback,
     this.childWhenDragging,
-    this.onAccept,
-    this.onWillAccept,
+    this.onAcceptWithDetails,
+    this.onWillAcceptWithDetails,
     this.onMove,
     this.onLeave,
     this.enableAutoScroll = true,
@@ -23,8 +23,8 @@ class DraggableItem<T extends Object> extends StatefulWidget {
   final Widget? feedback;
   final Widget? childWhenDragging;
 
-  final DragTargetAccept<T>? onAccept;
-  final DragTargetWillAccept<T>? onWillAccept;
+  final DragTargetAcceptWithDetails<T>? onAcceptWithDetails;
+  final DragTargetWillAcceptWithDetails<T>? onWillAcceptWithDetails;
   final DragTargetMove<T>? onMove;
   final DragTargetLeave<T>? onLeave;
 
@@ -57,8 +57,8 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
     initAutoScrollerIfNeeded(context);
 
     return DragTarget(
-      onAccept: widget.onAccept,
-      onWillAccept: widget.onWillAccept,
+      onAcceptWithDetails: widget.onAcceptWithDetails,
+      onWillAcceptWithDetails: widget.onWillAcceptWithDetails,
       onMove: widget.onMove,
       onLeave: widget.onLeave,
       builder: (_, __, ___) => _Draggable<T>(

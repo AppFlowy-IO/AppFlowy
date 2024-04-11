@@ -29,7 +29,7 @@ class UserAvatar extends StatelessWidget {
 
     if (iconUrl.isEmpty) {
       final String nameOrDefault = _userName(name);
-      final Color color = ColorGenerator().generateColorFromString(name);
+      final Color color = ColorGenerator(name).toColor();
       const initialsCount = 2;
 
       // Taking the first letters of the name components and limiting to 2 elements
@@ -38,7 +38,7 @@ class UserAvatar extends StatelessWidget {
           .where((element) => element.isNotEmpty)
           .take(initialsCount)
           .map((element) => element[0].toUpperCase())
-          .join('');
+          .join();
 
       return Container(
         width: size,
@@ -50,7 +50,7 @@ class UserAvatar extends StatelessWidget {
         ),
         child: FlowyText.semibold(
           nameInitials,
-          color: Colors.white,
+          color: Colors.black,
           fontSize: isLarge
               ? nameInitials.length == initialsCount
                   ? 20

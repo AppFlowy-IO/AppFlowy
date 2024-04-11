@@ -33,7 +33,7 @@ export default defineConfig({
       },
     }),
   ],
-  publicDir: '../appflowy_flutter/assets',
+
   // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
   // prevent vite from obscuring rust errors
   clearScreen: false,
@@ -65,6 +65,6 @@ export default defineConfig({
     ],
   },
   optimizeDeps: {
-    include: ['@mui/material/Tooltip', '@emotion/styled', '@mui/material/Unstable_Grid2'],
+    include: ['@mui/material/Tooltip'],
   },
 });

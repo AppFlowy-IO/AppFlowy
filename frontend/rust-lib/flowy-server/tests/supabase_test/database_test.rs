@@ -1,7 +1,8 @@
+use collab::core::collab::DocStateSource;
 use collab_entity::{CollabObject, CollabType};
 use uuid::Uuid;
 
-use flowy_user_deps::entities::AuthResponse;
+use flowy_user_pub::entities::AuthResponse;
 use lib_infra::box_any::BoxAny;
 
 use crate::supabase_test::util::{
@@ -45,12 +46,17 @@ async fn supabase_create_database_test() {
   }
 
   let updates_by_oid = database_service
-    .batch_get_collab_updates(row_ids, CollabType::DatabaseRow, "fake_workspace_id")
+    .batch_get_database_object_doc_state(row_ids, CollabType::DatabaseRow, "fake_workspace_id")
     .await
     .unwrap();
 
   assert_eq!(updates_by_oid.len(), 3);
-  for (_, update) in updates_by_oid {
-    assert_eq!(update.len(), 2);
+  for (_, source) in updates_by_oid {
+    match source {
+      DocStateSource::FromDisk => panic!("should not be from disk"),
+      DocStateSource::FromDocState(doc_state) => {
+        assert_eq!(doc_state.len(), 2);
+      },
+    }
   }
 }

@@ -1,8 +1,27 @@
 import { ReactEditor } from 'slate-react';
-import { Editor, Element, Node, NodeEntry, Transforms } from 'slate';
+import {
+  Editor,
+  Element,
+  Node,
+  NodeEntry,
+  Point,
+  Range,
+  Transforms,
+  Location,
+  Path,
+  EditorBeforeOptions,
+  Text,
+  addMark,
+} from 'slate';
 import { LIST_TYPES, tabBackward, tabForward } from '$app/components/editor/command/tab';
-import { isMarkActive, toggleMark } from '$app/components/editor/command/mark';
-import { insertFormula, isFormulaActive, unwrapFormula, updateFormula } from '$app/components/editor/command/formula';
+import { getAllMarks, isMarkActive, removeMarks, toggleMark } from '$app/components/editor/command/mark';
+import {
+  deleteFormula,
+  insertFormula,
+  isFormulaActive,
+  unwrapFormula,
+  updateFormula,
+} from '$app/components/editor/command/formula';
 import {
   EditorInlineNodeType,
   EditorNodeType,
@@ -10,209 +29,377 @@ import {
   Mention,
   TodoListNode,
   ToggleListNode,
+  inlineNodeTypes,
+  FormulaNode,
+  ImageNode,
+  EditorMarkFormat,
 } from '$app/application/document/document.types';
 import cloneDeep from 'lodash-es/cloneDeep';
 import { generateId } from '$app/components/editor/provider/utils/convert';
 import { YjsEditor } from '@slate-yjs/core';
 
+export const EmbedTypes: string[] = [
+  EditorNodeType.DividerBlock,
+  EditorNodeType.EquationBlock,
+  EditorNodeType.GridBlock,
+  EditorNodeType.ImageBlock,
+];
+
 export const CustomEditor = {
+  getBlock: (editor: ReactEditor, at?: Location): NodeEntry<Element> | undefined => {
+    return Editor.above(editor, {
+      at,
+      match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.blockId !== undefined,
+    });
+  },
+
+  isInlineNode: (editor: ReactEditor, point: Point): boolean => {
+    return Boolean(
+      editor.above({
+        at: point,
+        match: (n) => {
+          return !Editor.isEditor(n) && Element.isElement(n) && inlineNodeTypes.includes(n.type as EditorInlineNodeType);
+        },
+      })
+    );
+  },
+
+  beforeIsInlineNode: (editor: ReactEditor, at: Location, opts?: EditorBeforeOptions): boolean => {
+    const beforePoint = Editor.before(editor, at, opts);
+
+    if (!beforePoint) return false;
+    return CustomEditor.isInlineNode(editor, beforePoint);
+  },
+
+  afterIsInlineNode: (editor: ReactEditor, at: Location, opts?: EditorBeforeOptions): boolean => {
+    const afterPoint = Editor.after(editor, at, opts);
+
+    if (!afterPoint) return false;
+    return CustomEditor.isInlineNode(editor, afterPoint);
+  },
+
+  /**
+   * judge if the selection is multiple block
+   * @param editor
+   * @param filterEmptyEndSelection if the filterEmptyEndSelection is true, the function will filter the empty end selection
+   */
+  isMultipleBlockSelected: (editor: ReactEditor, filterEmptyEndSelection?: boolean): boolean => {
+    const { selection } = editor;
+
+    if (!selection) return false;
+
+    if (Range.isCollapsed(selection)) return false;
+    const start = Range.start(selection);
+    const end = Range.end(selection);
+    const isBackward = Range.isBackward(selection);
+    const startBlock = CustomEditor.getBlock(editor, start);
+    const endBlock = CustomEditor.getBlock(editor, end);
+
+    if (!startBlock || !endBlock) return false;
+
+    const [, startPath] = startBlock;
+    const [, endPath] = endBlock;
+
+    const isSomePath = Path.equals(startPath, endPath);
+
+    // if the start and end path is the same, return false
+    if (isSomePath) {
+      return false;
+    }
+
+    if (!filterEmptyEndSelection) {
+      return true;
+    }
+
+    // The end point is at the start of the end block
+    const focusEndStart = Point.equals(end, editor.start(endPath));
+
+    if (!focusEndStart) {
+      return true;
+    }
+
+    // find the previous block
+    const previous = editor.previous({
+      at: endPath,
+      match: (n) => Element.isElement(n) && n.blockId !== undefined,
+    });
+
+    if (!previous) {
+      return true;
+    }
+
+    // backward selection
+    const newEnd = editor.end(editor.range(previous[1]));
+
+    editor.select({
+      anchor: isBackward ? newEnd : start,
+      focus: isBackward ? start : newEnd,
+    });
+
+    return false;
+  },
+
+  /**
+   * turn the current block to a new block
+   * 1. clone the current block to a new block
+   * 2. lift the children of the current block if the current block doesn't allow has children
+   * 3. remove the old block
+   * 4. insert the new block
+   * @param editor
+   * @param newProperties
+   */
   turnToBlock: (editor: ReactEditor, newProperties: Partial<Element>) => {
     const selection = editor.selection;
 
     if (!selection) return;
-    const [match] = Editor.nodes(editor, {
-      match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.blockId !== undefined && n.type !== undefined,
-    });
+    const match = CustomEditor.getBlock(editor);
 
     if (!match) return;
 
     const [node, path] = match as NodeEntry<Element>;
 
-    const parentId = node.parentId;
-    const cloneNode = {
-      ...cloneDeep(node),
-      blockId: generateId(),
-      textId: generateId(),
-      type: newProperties.type || EditorNodeType.Paragraph,
-      data: newProperties.data || {},
+    const cloneNode = CustomEditor.cloneBlock(editor, node);
+
+    Object.assign(cloneNode, newProperties);
+    cloneNode.data = {
+      ...(node.data || {}),
+      ...(newProperties.data || {}),
     };
+
+    const isEmbed = editor.isEmbed(cloneNode);
+
+    if (isEmbed) {
+      editor.splitNodes({
+        always: true,
+      });
+      cloneNode.children = [];
+
+      Transforms.removeNodes(editor, {
+        at: path,
+      });
+      Transforms.insertNodes(editor, cloneNode, { at: path });
+      return cloneNode;
+    }
+
     const isListType = LIST_TYPES.includes(cloneNode.type as EditorNodeType);
-    const extendId = isListType ? cloneNode.blockId : parentId;
-    const subordinates = CustomEditor.findNodeSubordinate(editor, node);
 
-    Transforms.insertNodes(editor, cloneNode, { at: [path[0] + 1] });
+    // if node doesn't allow has children, lift the children before insert the new node and remove the old node
+    if (!isListType) {
+      const [textNode, ...children] = cloneNode.children;
 
-    subordinates.forEach((subordinate) => {
-      const subordinatePath = ReactEditor.findPath(editor, subordinate);
-      const level = subordinate.level ?? 2;
+      const length = children.length;
 
-      const newProperties = {
-        level: isListType ? level : level - 1,
-      };
-
-      if (subordinate.parentId === node.blockId) {
-        Object.assign(newProperties, {
-          parentId: extendId,
+      for (let i = 0; i < length; i++) {
+        editor.liftNodes({
+          at: [...path, length - i],
         });
       }
 
-      Transforms.setNodes(editor, newProperties, {
-        at: [subordinatePath[0] + 1],
-      });
-    });
+      cloneNode.children = [textNode];
+    }
 
     Transforms.removeNodes(editor, {
       at: path,
     });
 
-    Transforms.select(editor, selection);
+    Transforms.insertNodes(editor, cloneNode, { at: path });
+    if (selection) {
+      editor.select(selection);
+    }
+
+    return cloneNode;
   },
   tabForward,
   tabBackward,
   toggleMark,
+  removeMarks,
   isMarkActive,
   isFormulaActive,
+  insertFormula,
   updateFormula,
-  toggleInlineElement: (editor: ReactEditor, format: EditorInlineNodeType) => {
-    if (format === EditorInlineNodeType.Formula) {
-      if (isFormulaActive(editor)) {
-        unwrapFormula(editor);
-      } else {
-        insertFormula(editor);
-      }
+  deleteFormula,
+  toggleFormula: (editor: ReactEditor) => {
+    if (isFormulaActive(editor)) {
+      unwrapFormula(editor);
+    } else {
+      insertFormula(editor);
     }
   },
-  isBlockActive(editor: ReactEditor, format?: string) {
-    const [match] = Editor.nodes(editor, {
-      match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.blockId !== undefined && n.type !== undefined,
-    });
 
-    if (format !== undefined) {
-      return match && (match[0] as Element).type === format;
+  isBlockActive(editor: ReactEditor, format?: string) {
+    const match = CustomEditor.getBlock(editor);
+
+    if (match && format !== undefined) {
+      return match[0].type === format;
     }
 
     return !!match;
   },
+
+  toggleAlign(editor: ReactEditor, format: string) {
+    const isIncludeRoot = CustomEditor.selectionIncludeRoot(editor);
+
+    if (isIncludeRoot) return;
+
+    const matchNodes = Array.from(
+      Editor.nodes(editor, {
+        // Note: we need to select the text node instead of the element node, otherwise the parent node will be selected
+        match: (n) => Element.isElement(n) && n.type === EditorNodeType.Text,
+      })
+    );
+
+    if (!matchNodes) return;
+
+    matchNodes.forEach((match) => {
+      const [, textPath] = match as NodeEntry<Element>;
+      const [node] = editor.parent(textPath) as NodeEntry<
+        Element & {
+          data: {
+            align?: string;
+          };
+        }
+      >;
+      const path = ReactEditor.findPath(editor, node);
+
+      const data = (node.data as { align?: string }) || {};
+      const newProperties = {
+        data: {
+          ...data,
+          align: data.align === format ? undefined : format,
+        },
+      } as Partial<Element>;
+
+      Transforms.setNodes(editor, newProperties, { at: path });
+    });
+  },
+
+  getAlign(editor: ReactEditor) {
+    const match = CustomEditor.getBlock(editor);
+
+    if (!match) return undefined;
+
+    const [node] = match as NodeEntry<Element>;
+
+    return (node.data as { align?: string })?.align;
+  },
+
+  isInlineActive(editor: ReactEditor) {
+    const [match] = editor.nodes({
+      match: (n) => {
+        return !Editor.isEditor(n) && Element.isElement(n) && inlineNodeTypes.includes(n.type as EditorInlineNodeType);
+      },
+    });
+
+    return !!match;
+  },
+
+  formulaActiveNode(editor: ReactEditor) {
+    const [match] = editor.nodes({
+      match: (n) => {
+        return !Editor.isEditor(n) && Element.isElement(n) && n.type === EditorInlineNodeType.Formula;
+      },
+    });
+
+    return match ? (match as NodeEntry<FormulaNode>) : undefined;
+  },
+
+  isMentionActive(editor: ReactEditor) {
+    const [match] = editor.nodes({
+      match: (n) => {
+        return !Editor.isEditor(n) && Element.isElement(n) && n.type === EditorInlineNodeType.Mention;
+      },
+    });
+
+    return Boolean(match);
+  },
+
   insertMention(editor: ReactEditor, mention: Mention) {
-    const mentionElement = {
-      type: EditorInlineNodeType.Mention,
-      children: [{ text: '@' }],
-      data: {
-        ...mention,
+    const mentionElement = [
+      {
+        type: EditorInlineNodeType.Mention,
+        children: [{ text: '$' }],
+        data: {
+          ...mention,
+        },
       },
-    };
+    ];
 
-    Transforms.insertNodes(editor, mentionElement);
-    Transforms.move(editor);
+    Transforms.insertNodes(editor, mentionElement, {
+      select: true,
+    });
+
+    editor.collapse({
+      edge: 'end',
+    });
   },
 
-  splitToParagraph(editor: ReactEditor) {
-    Transforms.splitNodes(editor, { always: true });
-    Transforms.setNodes(editor, { type: EditorNodeType.Paragraph });
-  },
+  toggleTodo(editor: ReactEditor, at?: Location) {
+    const selection = at || editor.selection;
 
-  findParentNode(editor: ReactEditor, node: Element) {
-    const parentId = node.parentId;
+    if (!selection) return;
 
-    if (!parentId) return null;
+    const nodes = Array.from(
+      editor.nodes({
+        at: selection,
+        match: (n) => Element.isElement(n) && n.type === EditorNodeType.TodoListBlock,
+      })
+    );
 
-    return editor.children.find((child) => (child as Element).blockId === parentId) as Element;
-  },
+    const matchUnChecked = nodes.some(([node]) => {
+      return !(node as TodoListNode).data.checked;
+    });
 
-  findNodeSubordinate(editor: ReactEditor, node: Element) {
-    const index = editor.children.findIndex((child) => (child as Element).blockId === node.blockId);
+    const checked = Boolean(matchUnChecked);
 
-    const level = node.level ?? 1;
-    const subordinateNodes: Element[] = [];
+    nodes.forEach(([node, path]) => {
+      const data = (node as TodoListNode).data || {};
+      const newProperties = {
+        data: {
+          ...data,
+          checked: checked,
+        },
+      } as Partial<Element>;
 
-    if (index === editor.children.length - 1) return subordinateNodes;
-
-    for (let i = index + 1; i < editor.children.length; i++) {
-      const nextNode = editor.children[i] as Element & { level: number };
-
-      if (nextNode.level > level) {
-        subordinateNodes.push(nextNode);
-      } else {
-        break;
-      }
-    }
-
-    return subordinateNodes;
-  },
-
-  findNextNode(editor: ReactEditor, node: Element, level: number) {
-    const index = editor.children.findIndex((child) => (child as Element).blockId === node.blockId);
-    let nextIndex = -1;
-
-    if (index === editor.children.length - 1) return null;
-
-    for (let i = index + 1; i < editor.children.length; i++) {
-      const nextNode = editor.children[i] as Element & { level: number };
-
-      if (nextNode.level === level) {
-        nextIndex = i;
-        break;
-      }
-
-      if (nextNode.level < level) break;
-    }
-
-    const nextNode = editor.children[nextIndex] as Element & { level: number };
-
-    return nextNode;
-  },
-
-  toggleTodo(editor: ReactEditor, node: TodoListNode) {
-    const checked = node.data.checked;
-    const path = ReactEditor.findPath(editor, node);
-    const newProperties = {
-      data: {
-        checked: !checked,
-      },
-    } as Partial<Element>;
-
-    Transforms.setNodes(editor, newProperties, { at: path });
+      Transforms.setNodes(editor, newProperties, { at: path });
+    });
   },
 
   toggleToggleList(editor: ReactEditor, node: ToggleListNode) {
-    if (!node.level) return;
-    const collapsed = !node.data.collapsed;
-
+    const collapsed = node.data.collapsed;
     const path = ReactEditor.findPath(editor, node);
+    const data = node.data || {};
     const newProperties = {
       data: {
-        collapsed,
+        ...data,
+        collapsed: !collapsed,
       },
     } as Partial<Element>;
 
-    Transforms.select(editor, path);
-    Transforms.collapse(editor, { edge: 'end' });
+    const selectMatch = Editor.above(editor, {
+      match: (n) => Element.isElement(n) && n.blockId !== undefined,
+    });
+
     Transforms.setNodes(editor, newProperties, { at: path });
 
-    // hide or show the children
-    const index = path[0];
+    if (selectMatch) {
+      const [selectNode] = selectMatch;
+      const selectNodePath = ReactEditor.findPath(editor, selectNode);
 
-    if (index === editor.children.length - 1) return;
-
-    for (let i = index + 1; i < editor.children.length; i++) {
-      const nextNode = editor.children[i] as Element & { level: number };
-
-      if (nextNode.level === node.level) break;
-      if (nextNode.level > node.level) {
-        const nextPath = ReactEditor.findPath(editor, nextNode);
-        const nextProperties = {
-          isHidden: collapsed,
-        } as Partial<Element>;
-
-        Transforms.setNodes(editor, nextProperties, { at: nextPath });
+      if (Path.isAncestor(path, selectNodePath)) {
+        editor.select(path);
+        editor.collapse({
+          edge: 'start',
+        });
       }
     }
   },
 
   setCalloutIcon(editor: ReactEditor, node: CalloutNode, newIcon: string) {
     const path = ReactEditor.findPath(editor, node);
+    const data = node.data || {};
     const newProperties = {
       data: {
+        ...data,
         icon: newIcon,
       },
     } as Partial<Element>;
@@ -222,8 +409,10 @@ export const CustomEditor = {
 
   setMathEquationBlockFormula(editor: ReactEditor, node: Element, newFormula: string) {
     const path = ReactEditor.findPath(editor, node);
+    const data = node.data || {};
     const newProperties = {
       data: {
+        ...data,
         formula: newFormula,
       },
     } as Partial<Element>;
@@ -233,8 +422,10 @@ export const CustomEditor = {
 
   setGridBlockViewId(editor: ReactEditor, node: Element, newViewId: string) {
     const path = ReactEditor.findPath(editor, node);
+    const data = node.data || {};
     const newProperties = {
       data: {
+        ...data,
         viewId: newViewId,
       },
     } as Partial<Element>;
@@ -242,60 +433,80 @@ export const CustomEditor = {
     Transforms.setNodes(editor, newProperties, { at: path });
   },
 
-  findNodeChildren(editor: ReactEditor, node: Node) {
-    const nodeId = (node as Element).blockId;
+  setImageBlockData(editor: ReactEditor, node: Element, newData: ImageNode['data']) {
+    const path = ReactEditor.findPath(editor, node);
+    const data = node.data || {};
+    const newProperties = {
+      data: {
+        ...data,
+        ...newData,
+      },
+    } as Partial<Element>;
 
-    return editor.children.filter((child) => (child as Element).parentId === nodeId) as Element[];
+    Transforms.setNodes(editor, newProperties, { at: path });
   },
 
-  duplicateNode(editor: ReactEditor, node: Node) {
-    const children = CustomEditor.findNodeChildren(editor, node);
-    const newBlockId = generateId();
-    const newTextId = generateId();
-    const cloneNode = {
-      ...cloneDeep(node),
-      blockId: newBlockId,
-      textId: newTextId,
+  cloneBlock(editor: ReactEditor, block: Element): Element {
+    const cloneNode: Element = {
+      ...cloneDeep(block),
+      blockId: generateId(),
+      type: block.type === EditorNodeType.Page ? EditorNodeType.Paragraph : block.type,
+      children: [],
     };
+    const isEmbed = editor.isEmbed(cloneNode);
+
+    if (isEmbed) {
+      return cloneNode;
+    }
+
+    const [firstTextNode, ...children] = block.children as Element[];
+
+    const textNode =
+      firstTextNode && firstTextNode.type === EditorNodeType.Text
+        ? {
+            textId: generateId(),
+            type: EditorNodeType.Text,
+            children: cloneDeep(firstTextNode.children),
+          }
+        : undefined;
+
+    if (textNode) {
+      cloneNode.children.push(textNode);
+    }
 
     const cloneChildren = children.map((child) => {
-      const childBlockId = generateId();
-      const childTextId = generateId();
-
-      return {
-        ...cloneDeep(child),
-        blockId: childBlockId,
-        textId: childTextId,
-        parentId: newBlockId,
-      };
+      return CustomEditor.cloneBlock(editor, child);
     });
 
-    const path = ReactEditor.findPath(editor, node);
-    const endPath = children.length ? ReactEditor.findPath(editor, children[children.length - 1]) : null;
+    cloneNode.children.push(...cloneChildren);
 
-    Transforms.insertNodes(editor, [cloneNode, ...cloneChildren], { at: [endPath ? endPath[0] + 1 : path[0] + 1] });
-    Transforms.move(editor);
+    return cloneNode;
+  },
+
+  duplicateNode(editor: ReactEditor, node: Element) {
+    const cloneNode = CustomEditor.cloneBlock(editor, node);
+
+    const path = ReactEditor.findPath(editor, node);
+
+    const nextPath = Path.next(path);
+
+    Transforms.insertNodes(editor, cloneNode, { at: nextPath });
+    return cloneNode;
   },
 
   deleteNode(editor: ReactEditor, node: Node) {
-    const children = CustomEditor.findNodeChildren(editor, node);
     const path = ReactEditor.findPath(editor, node);
-    const endPath = children.length ? ReactEditor.findPath(editor, children[children.length - 1]) : null;
 
     Transforms.removeNodes(editor, {
-      at: {
-        anchor: { path, offset: 0 },
-        focus: { path: endPath ?? path, offset: 0 },
-      },
+      at: path,
     });
-
-    Transforms.move(editor);
+    editor.collapse({
+      edge: 'start',
+    });
   },
 
   getBlockType: (editor: ReactEditor) => {
-    const [match] = Editor.nodes(editor, {
-      match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.blockId !== undefined && n.type !== undefined,
-    });
+    const match = CustomEditor.getBlock(editor);
 
     if (!match) return null;
 
@@ -304,61 +515,201 @@ export const CustomEditor = {
     return node.type as EditorNodeType;
   },
 
-  isGridBlock: (editor: ReactEditor) => {
-    return CustomEditor.getBlockType(editor) === EditorNodeType.GridBlock;
+  selectionIncludeRoot: (editor: ReactEditor) => {
+    const [match] = Editor.nodes(editor, {
+      match: (n) => Element.isElement(n) && n.blockId !== undefined && n.type === EditorNodeType.Page,
+    });
+
+    return Boolean(match);
   },
 
   isCodeBlock: (editor: ReactEditor) => {
     return CustomEditor.getBlockType(editor) === EditorNodeType.CodeBlock;
   },
 
-  insertEmptyLineAtEnd: (editor: ReactEditor & YjsEditor) => {
+  insertEmptyLine: (editor: ReactEditor & YjsEditor, path: Path) => {
     editor.insertNode(
       {
         type: EditorNodeType.Paragraph,
-        level: 1,
         data: {},
         blockId: generateId(),
-        textId: generateId(),
-        parentId: editor.sharedRoot.getAttribute('blockId'),
-        children: [{ text: '' }],
+        children: [
+          {
+            type: EditorNodeType.Text,
+            textId: generateId(),
+            children: [
+              {
+                text: '',
+              },
+            ],
+          },
+        ],
       },
       {
         select: true,
-        at: [editor.children.length],
+        at: path,
       }
     );
     ReactEditor.focus(editor);
     Transforms.move(editor);
   },
 
-  insertLineAtStart: (editor: ReactEditor & YjsEditor, node: Element) => {
-    const blockId = generateId();
-    const parentId = editor.sharedRoot.getAttribute('blockId');
+  insertEmptyLineAtEnd: (editor: ReactEditor & YjsEditor) => {
+    CustomEditor.insertEmptyLine(editor, [editor.children.length]);
+  },
 
-    ReactEditor.focus(editor);
-    editor.insertNode(
-      {
-        ...node,
-        blockId,
-        parentId,
-        textId: generateId(),
-        level: 1,
-      },
-      {
-        at: [0],
-      }
-    );
+  focusAtStartOfBlock(editor: ReactEditor) {
+    const { selection } = editor;
 
-    editor.select({
-      anchor: {
-        path: [0, 0],
-        offset: 0,
+    if (selection && Range.isCollapsed(selection)) {
+      const match = CustomEditor.getBlock(editor);
+      const [, path] = match as NodeEntry<Element>;
+      const start = Editor.start(editor, path);
+
+      return match && Point.equals(selection.anchor, start);
+    }
+
+    return false;
+  },
+
+  setBlockColor(
+    editor: ReactEditor,
+    node: Element,
+    data: {
+      font_color?: string;
+      bg_color?: string;
+    }
+  ) {
+    const path = ReactEditor.findPath(editor, node);
+
+    const nodeData = node.data || {};
+    const newProperties = {
+      data: {
+        ...nodeData,
+        ...data,
       },
-      focus: {
-        path: [0, 0],
-        offset: 0,
-      },
+    } as Partial<Element>;
+
+    Transforms.setNodes(editor, newProperties, { at: path });
+    editor.select(path);
+  },
+
+  deleteAllText(editor: ReactEditor, node: Element) {
+    const [textNode] = (node.children || []) as Element[];
+    const hasTextNode = textNode && textNode.type === EditorNodeType.Text;
+
+    if (!hasTextNode) return;
+    const path = ReactEditor.findPath(editor, textNode);
+    const textLength = editor.string(path).length;
+    const start = Editor.start(editor, path);
+
+    for (let i = 0; i < textLength; i++) {
+      editor.select(start);
+      editor.deleteForward('character');
+    }
+  },
+
+  getNodeText: (editor: ReactEditor, node: Element) => {
+    const [textNode] = (node.children || []) as Element[];
+    const hasTextNode = textNode && textNode.type === EditorNodeType.Text;
+
+    if (!hasTextNode) return '';
+
+    const path = ReactEditor.findPath(editor, textNode);
+
+    return editor.string(path);
+  },
+
+  isEmptyText: (editor: ReactEditor, node: Element) => {
+    const [textNode] = (node.children || []) as Element[];
+    const hasTextNode = textNode && textNode.type === EditorNodeType.Text;
+
+    if (!hasTextNode) return false;
+
+    return editor.isEmpty(textNode);
+  },
+
+  includeInlineBlocks: (editor: ReactEditor) => {
+    const [match] = Editor.nodes(editor, {
+      match: (n) => Element.isElement(n) && editor.isInline(n),
     });
+
+    return Boolean(match);
+  },
+
+  getNodeTextContent(node: Node): string {
+    if (Element.isElement(node) && node.type === EditorInlineNodeType.Formula) {
+      return (node as FormulaNode).data || '';
+    }
+
+    if (Text.isText(node)) {
+      return node.text || '';
+    }
+
+    return node.children.map((n) => CustomEditor.getNodeTextContent(n)).join('');
+  },
+
+  isEmbedNode(node: Element): boolean {
+    return EmbedTypes.includes(node.type);
+  },
+
+  getListLevel(editor: ReactEditor, type: EditorNodeType, path: Path) {
+    let level = 0;
+    let currentPath = path;
+
+    while (currentPath.length > 0) {
+      const parent = editor.parent(currentPath);
+
+      if (!parent) {
+        break;
+      }
+
+      const [parentNode, parentPath] = parent as NodeEntry<Element>;
+
+      if (parentNode.type !== type) {
+        break;
+      }
+
+      level += 1;
+      currentPath = parentPath;
+    }
+
+    return level;
+  },
+
+  getLinks(editor: ReactEditor): string[] {
+    const marks = getAllMarks(editor);
+
+    if (!marks) return [];
+
+    return Object.entries(marks)
+      .filter(([key]) => key === 'href')
+      .map(([_, val]) => val as string);
+  },
+
+  extendLineBackward(editor: ReactEditor) {
+    Transforms.move(editor, {
+      unit: 'line',
+      edge: 'focus',
+      reverse: true,
+    });
+  },
+
+  extendLineForward(editor: ReactEditor) {
+    Transforms.move(editor, { unit: 'line', edge: 'focus' });
+  },
+
+  insertPlainText(editor: ReactEditor, text: string) {
+    const [appendText, ...lines] = text.split('\n');
+
+    editor.insertText(appendText);
+    lines.forEach((line) => {
+      editor.insertBreak();
+      editor.insertText(line);
+    });
+  },
+
+  highlight(editor: ReactEditor) {
+    addMark(editor, EditorMarkFormat.BgColor, 'appflowy_them_color_tint5');
   },
 };

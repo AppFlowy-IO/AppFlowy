@@ -5,6 +5,7 @@ import 'package:appflowy/plugins/base/icon/icon_picker.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
+import 'package:appflowy/workspace/application/sidebar/rename_view/rename_view_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
@@ -15,7 +16,8 @@ import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.
 import 'package:appflowy/workspace/presentation/home/menu/view/view_add_button.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_more_action_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy/workspace/presentation/widgets/rename_view_popover.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -40,6 +42,8 @@ class ViewItem extends StatelessWidget {
     this.isDraggable = true,
     required this.isFeedback,
     this.height = 28.0,
+    this.isHoverEnabled = true,
+    this.isPlaceholder = false,
   });
 
   final ViewPB view;
@@ -73,6 +77,12 @@ class ViewItem extends StatelessWidget {
 
   final double height;
 
+  final bool isHoverEnabled;
+
+  // all the view movement depends on the [ViewItem] widget, so we have to add a
+  // placeholder widget to receive the drop event when moving view across sections.
+  final bool isPlaceholder;
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -99,6 +109,8 @@ class ViewItem extends StatelessWidget {
             isDraggable: isDraggable,
             isFeedback: isFeedback,
             height: height,
+            isHoverEnabled: isHoverEnabled,
+            isPlaceholder: isPlaceholder,
           );
         },
       ),
@@ -125,6 +137,8 @@ class InnerViewItem extends StatelessWidget {
     this.isFirstChild = false,
     required this.isFeedback,
     required this.height,
+    this.isHoverEnabled = true,
+    this.isPlaceholder = false,
   });
 
   final ViewPB view;
@@ -146,6 +160,9 @@ class InnerViewItem extends StatelessWidget {
   final ViewItemOnSelected? onTertiarySelected;
   final double height;
 
+  final bool isHoverEnabled;
+  final bool isPlaceholder;
+
   @override
   Widget build(BuildContext context) {
     Widget child = SingleInnerViewItem(
@@ -161,6 +178,7 @@ class InnerViewItem extends StatelessWidget {
       leftPadding: leftPadding,
       isFeedback: isFeedback,
       height: height,
+      isPlaceholder: isPlaceholder,
     );
 
     // if the view is expanded and has child views, render its child views
@@ -179,6 +197,7 @@ class InnerViewItem extends StatelessWidget {
             isDraggable: isDraggable,
             leftPadding: leftPadding,
             isFeedback: isFeedback,
+            isPlaceholder: isPlaceholder,
           );
         }).toList();
 
@@ -213,14 +232,17 @@ class InnerViewItem extends StatelessWidget {
     }
 
     // wrap the child with DraggableItem if isDraggable is true
-    if (isDraggable && !isReferencedDatabaseView(view, parentView)) {
+    if ((isDraggable || isPlaceholder) &&
+        !isReferencedDatabaseView(view, parentView)) {
       child = DraggableViewItem(
         isFirstChild: isFirstChild,
         view: view,
-        child: child,
         onDragging: (isDragging) {
           _isDragging = isDragging;
         },
+        onMove: isPlaceholder
+            ? (from, to) => _moveViewCrossSection(context, from, to)
+            : null,
         feedback: (context) {
           return ViewItem(
             view: view,
@@ -234,6 +256,7 @@ class InnerViewItem extends StatelessWidget {
             isFeedback: true,
           );
         },
+        child: child,
       );
     } else {
       // keep the same height of the DraggableItem
@@ -244,6 +267,37 @@ class InnerViewItem extends StatelessWidget {
     }
 
     return child;
+  }
+
+  void _moveViewCrossSection(
+    BuildContext context,
+    ViewPB from,
+    ViewPB to,
+  ) {
+    if (isReferencedDatabaseView(view, parentView)) {
+      return;
+    }
+    final fromSection = categoryType == FolderCategoryType.public
+        ? ViewSectionPB.Private
+        : ViewSectionPB.Public;
+    final toSection = categoryType == FolderCategoryType.public
+        ? ViewSectionPB.Public
+        : ViewSectionPB.Private;
+    context.read<ViewBloc>().add(
+          ViewEvent.move(
+            from,
+            to.parentViewId,
+            null,
+            fromSection,
+            toSection,
+          ),
+        );
+    context.read<ViewBloc>().add(
+          ViewEvent.updateViewVisibility(
+            from,
+            categoryType == FolderCategoryType.public,
+          ),
+        );
   }
 }
 
@@ -262,6 +316,8 @@ class SingleInnerViewItem extends StatefulWidget {
     this.onTertiarySelected,
     required this.isFeedback,
     required this.height,
+    this.isHoverEnabled = true,
+    this.isPlaceholder = false,
   });
 
   final ViewPB view;
@@ -280,6 +336,9 @@ class SingleInnerViewItem extends StatefulWidget {
   final FolderCategoryType categoryType;
   final double height;
 
+  final bool isHoverEnabled;
+  final bool isPlaceholder;
+
   @override
   State<SingleInnerViewItem> createState() => _SingleInnerViewItemState();
 }
@@ -290,8 +349,21 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.isFeedback) {
-      return _buildViewItem(false);
+    final isSelected =
+        getIt<MenuSharedState>().latestOpenView?.id == widget.view.id;
+
+    if (widget.isPlaceholder) {
+      return const SizedBox(
+        height: 4,
+        width: double.infinity,
+      );
+    }
+
+    if (widget.isFeedback || !widget.isHoverEnabled) {
+      return _buildViewItem(
+        false,
+        !widget.isHoverEnabled ? isSelected : false,
+      );
     }
 
     return FlowyHover(
@@ -301,14 +373,12 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       resetHoverOnRebuild: widget.showActions || !isIconPickerOpened,
       buildWhenOnHover: () =>
           !widget.showActions && !_isDragging && !isIconPickerOpened,
-      builder: (_, onHover) => _buildViewItem(onHover),
-      isSelected: () =>
-          widget.showActions ||
-          getIt<MenuSharedState>().latestOpenView?.id == widget.view.id,
+      builder: (_, onHover) => _buildViewItem(onHover, isSelected),
+      isSelected: () => widget.showActions || isSelected,
     );
   }
 
-  Widget _buildViewItem(bool onHover) {
+  Widget _buildViewItem(bool onHover, [bool isSelected = false]) {
     final children = [
       // expand icon
       _buildLeftIcon(),
@@ -335,10 +405,23 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       }
     }
 
-    return GestureDetector(
+    final child = GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () => widget.onSelected(widget.view),
       onTertiaryTapDown: (_) => widget.onTertiarySelected?.call(widget.view),
+      onDoubleTap: isSelected
+          ? () {
+              NavigatorTextFieldDialog(
+                title: LocaleKeys.disclosureAction_rename.tr(),
+                autoSelectAllText: true,
+                value: widget.view.name,
+                maxLength: 256,
+                onConfirm: (newValue, _) {
+                  context.read<ViewBloc>().add(ViewEvent.rename(newValue));
+                },
+              ).show(context);
+            }
+          : null,
       child: SizedBox(
         height: widget.height,
         child: Padding(
@@ -349,6 +432,26 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
         ),
       ),
     );
+
+    if (isSelected) {
+      final popoverController = getIt<RenameViewBloc>().state.controller;
+      return AppFlowyPopover(
+        controller: popoverController,
+        triggerActions: PopoverTriggerFlags.none,
+        offset: const Offset(0, 5),
+        direction: PopoverDirection.bottomWithLeftAligned,
+        popupBuilder: (_) => RenameViewPopover(
+          viewId: widget.view.id,
+          name: widget.view.name,
+          emoji: widget.view.icon.value,
+          popoverController: popoverController,
+          showIconChanger: false,
+        ),
+        child: child,
+      );
+    }
+
+    return child;
   }
 
   Widget _buildViewIconButton() {
@@ -432,13 +535,14 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
             createViewAndShowRenameDialogIfNeeded(
               context,
               _convertLayoutToHintText(pluginBuilder.layoutType!),
-              (viewName) {
+              (viewName, _) {
                 if (viewName.isNotEmpty) {
                   viewBloc.add(
                     ViewEvent.createView(
                       viewName,
                       pluginBuilder.layoutType!,
                       openAfterCreated: openAfterCreated,
+                      section: widget.categoryType.toViewSectionPB,
                     ),
                   );
                 }
@@ -474,7 +578,8 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
                 title: LocaleKeys.disclosureAction_rename.tr(),
                 autoSelectAllText: true,
                 value: widget.view.name,
-                confirm: (newValue) {
+                maxLength: 256,
+                onConfirm: (newValue, _) {
                   context.read<ViewBloc>().add(ViewEvent.rename(newValue));
                 },
               ).show(context);

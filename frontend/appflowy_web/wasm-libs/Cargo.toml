@@ -1,0 +1,74 @@
+[workspace]
+members = ["af-wasm", "af-user", "af-persistence"]
+resolver = "2"
+
+[workspace.dependencies]
+af-user = { path = "af-user" }
+af-persistence = { path = "af-persistence" }
+
+lib-dispatch = { path = "../../rust-lib/lib-dispatch" }
+parking_lot = { version = "0.12.1" }
+tracing = { version = "0.1.22" }
+serde = { version = "1.0.194", features = ["derive"] }
+serde_json = "1.0"
+collab-integrate = { path = "../../rust-lib/collab-integrate" }
+flowy-notification = { path = "../../rust-lib/flowy-notification" }
+flowy-user-pub = { path = "../../rust-lib/flowy-user-pub" }
+flowy-server = { path = "../../rust-lib/flowy-server" }
+flowy-server-pub = { path = "../../rust-lib/flowy-server-pub" }
+flowy-error = { path = "../../rust-lib/flowy-error" }
+flowy-derive = { path = "../../rust-lib/build-tool/flowy-derive" }
+flowy-codegen = { path = "../../rust-lib/build-tool/flowy-codegen" }
+flowy-document = { path = "../../rust-lib/flowy-document" }
+flowy-folder = { path = "../../rust-lib/flowy-folder" }
+flowy-storage = { path = "../../rust-lib/flowy-storage" }
+lib-infra = { path = "../../rust-lib/lib-infra" }
+collab = { version = "0.1.0" }
+collab-entity = { version = "0.1.0" }
+collab-user = { version = "0.1.0" }
+bytes = { version = "1.5" }
+protobuf = { version = "2.28.0" }
+thiserror = "1.0"
+anyhow = "1.0"
+futures-util = "0.3"
+uuid = { version = "1.5", features = ["serde", "v4", "v5"] }
+tokio-stream = "0.1"
+tokio = { version = "1.35", features = ["sync"] }
+wasm-bindgen-futures = "0.4.40"
+serde-wasm-bindgen = "0.4"
+
+
+[profile.dev]
+opt-level = 0
+lto = false
+codegen-units = 16
+
+[profile.release]
+lto = true
+opt-level = 3
+codegen-units = 1
+
+
+[patch.crates-io]
+# Please using the following command to update the revision id
+# Current directory: frontend
+# Run the script:
+# scripts/tool/update_client_api_rev.sh  new_rev_id
+# ⚠️⚠️⚠️️
+client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "b1c3d779badcd382e3d6e46c292042de70d38cdd" }
+# Please use the following script to update collab.
+# Working directory: frontend
+#
+# To update the commit ID, run:
+# scripts/tool/update_collab_rev.sh new_rev_id
+#
+# To switch to the local path, run:
+# scripts/tool/update_collab_source.sh
+# ⚠️⚠️⚠️️
+collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "352c55199449fbe321965fd42d2ff09ff54cf3f1" }
+collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "352c55199449fbe321965fd42d2ff09ff54cf3f1" }
+collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "352c55199449fbe321965fd42d2ff09ff54cf3f1" }
+collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "352c55199449fbe321965fd42d2ff09ff54cf3f1" }
+collab-plugins = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "352c55199449fbe321965fd42d2ff09ff54cf3f1" }
+collab-user = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "352c55199449fbe321965fd42d2ff09ff54cf3f1" }
+collab-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "352c55199449fbe321965fd42d2ff09ff54cf3f1" }

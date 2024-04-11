@@ -27,11 +27,12 @@ pub(crate) fn send_notification(id: &str, ty: UserNotification) -> NotificationB
 }
 
 #[tracing::instrument(level = "trace")]
-pub(crate) fn send_auth_state_notification(payload: AuthStateChangedPB) -> NotificationBuilder {
+pub(crate) fn send_auth_state_notification(payload: AuthStateChangedPB) {
   NotificationBuilder::new(
     "auth_state_change_notification",
     UserNotification::UserAuthStateChanged,
     USER_OBSERVABLE_SOURCE,
   )
   .payload(payload)
+  .send()
 }

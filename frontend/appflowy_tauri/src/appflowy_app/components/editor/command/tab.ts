@@ -1,4 +1,4 @@
-import { Editor, Element, NodeEntry, Transforms } from 'slate';
+import { Path, Element, NodeEntry } from 'slate';
 import { ReactEditor } from 'slate-react';
 import { EditorNodeType } from '$app/application/document/document.types';
 import { CustomEditor } from '$app/components/editor/command/index';
@@ -10,16 +10,6 @@ export const LIST_TYPES = [
   EditorNodeType.ToggleListBlock,
   EditorNodeType.QuoteBlock,
   EditorNodeType.Paragraph,
-];
-
-const LIST_ITEM_TYPES = [
-  EditorNodeType.NumberedListBlock,
-  EditorNodeType.BulletedListBlock,
-  EditorNodeType.TodoListBlock,
-  EditorNodeType.ToggleListBlock,
-  EditorNodeType.QuoteBlock,
-  EditorNodeType.Paragraph,
-  EditorNodeType.HeadingBlock,
 ];
 
 /**
@@ -35,103 +25,58 @@ const LIST_ITEM_TYPES = [
  * @param editor
  */
 export function tabForward(editor: ReactEditor) {
-  const [match] = Editor.nodes(editor, {
-    match: (n) => !Editor.isEditor(n) && Element.isElement(n) && Editor.isBlock(editor, n),
-  });
+  const match = CustomEditor.getBlock(editor);
 
   if (!match) return;
 
   const [node, path] = match as NodeEntry<Element>;
 
-  // the node is not a list item
-  if (!LIST_ITEM_TYPES.includes(node.type as EditorNodeType)) {
-    return;
-  }
+  const hasPrevious = Path.hasPrevious(path);
 
-  const previous = Editor.previous(editor, {
-    match: (n) => !Editor.isEditor(n) && Element.isElement(n) && Editor.isBlock(editor, n) && n.level === node.level,
-    at: path,
-  });
+  if (!hasPrevious) return;
 
-  if (!previous) return;
+  const previousPath = Path.previous(path);
 
+  const previous = editor.node(previousPath);
   const [previousNode] = previous as NodeEntry<Element>;
 
   if (!previousNode) return;
+
   const type = previousNode.type as EditorNodeType;
 
+  if (type === EditorNodeType.Page) return;
   // the previous node is not a list
   if (!LIST_TYPES.includes(type)) return;
 
-  const previousNodeLevel = previousNode.level;
+  const toPath = [...previousPath, previousNode.children.length];
 
-  if (!previousNodeLevel) return;
-
-  const newParentId = previousNode.blockId;
-  const children = CustomEditor.findNodeChildren(editor, node);
-
-  children.forEach((child) => {
-    const childPath = ReactEditor.findPath(editor, child);
-
-    Transforms.setNodes(
-      editor,
-      {
-        parentId: newParentId,
-      },
-      {
-        at: childPath,
-      }
-    );
+  editor.moveNodes({
+    at: path,
+    to: toPath,
   });
 
-  const newProperties = { level: previousNodeLevel + 1, parentId: newParentId };
+  const length = node.children.length;
 
-  Transforms.setNodes(editor, newProperties);
+  for (let i = length - 1; i > 0; i--) {
+    editor.liftNodes({
+      at: [...toPath, i],
+    });
+  }
 }
 
-/**
- * Outdent the current list item
- * Conditions:
- * 1. The current node must be a list item
- * 2. The current node must be indented
- * Result:
- * 1. The current node will be the sibling of the parent node
- * 2. The current node will be outdented
- * 3. The children of the parent node will be moved to the children of the current node
- * @param editor
- */
 export function tabBackward(editor: ReactEditor) {
-  const [match] = Editor.nodes(editor, {
-    match: (n) => !Editor.isEditor(n) && Element.isElement(n) && Editor.isBlock(editor, n),
-  });
+  const match = CustomEditor.getBlock(editor);
 
   if (!match) return;
 
-  const [node] = match as NodeEntry<Element & { level: number }>;
+  const [node, path] = match as NodeEntry<Element & { level: number }>;
 
-  const level = node.level;
+  const depth = path.length;
 
-  if (level === 1) return;
-  const parent = CustomEditor.findParentNode(editor, node);
+  if (node.type === EditorNodeType.Page) return;
 
-  if (!parent) return;
-
-  const newParentId = parent.parentId;
-
-  if (!newParentId) return;
-
-  const newProperties = { level: level - 1, parentId: newParentId };
-
-  const parentChildren = CustomEditor.findNodeChildren(editor, parent);
-
-  const nodeIndex = parentChildren.findIndex((child) => child.blockId === node.blockId);
-
-  Transforms.setNodes(editor, newProperties);
-
-  for (let i = nodeIndex + 1; i < parentChildren.length; i++) {
-    const child = parentChildren[i];
-    const childPath = ReactEditor.findPath(editor, child);
-
-    Transforms.setNodes(editor, { parentId: node.blockId }, { at: childPath });
-  }
+  if (depth === 1) return;
+  editor.liftNodes({
+    at: path,
+  });
 }

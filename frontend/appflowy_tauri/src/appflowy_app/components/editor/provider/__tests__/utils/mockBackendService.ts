@@ -10,10 +10,11 @@ jest.mock('$app/application/notification', () => {
 
 jest.mock('nanoid', () => ({ nanoid: jest.fn().mockReturnValue(String(Math.random())) }));
 
-jest.mock('$app/application/document/document_service', () => {
+jest.mock('$app/application/document/document.service', () => {
   return {
     openDocument: jest.fn().mockReturnValue(Promise.resolve(read_me)),
     applyActions,
+    closeDocument: jest.fn().mockReturnValue(Promise.resolve()),
   };
 });
 

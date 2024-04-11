@@ -2,9 +2,7 @@ use anyhow::Error;
 use collab_entity::CollabType;
 use tokio::sync::oneshot::channel;
 
-use flowy_database_deps::cloud::{
-  CollabObjectUpdate, CollabObjectUpdateByOid, DatabaseCloudService, DatabaseSnapshot,
-};
+use flowy_database_pub::cloud::{CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot};
 use lib_dispatch::prelude::af_spawn;
 use lib_infra::future::FutureResult;
 
@@ -27,12 +25,12 @@ impl<T> DatabaseCloudService for SupabaseDatabaseServiceImpl<T>
 where
   T: SupabaseServerService,
 {
-  fn get_collab_update(
+  fn get_database_object_doc_state(
     &self,
     object_id: &str,
     collab_type: CollabType,
     _workspace_id: &str,
-  ) -> FutureResult<CollabObjectUpdate, Error> {
+  ) -> FutureResult<Option<Vec<u8>>, Error> {
     let try_get_postgrest = self.server.try_get_weak_postgrest();
     let object_id = object_id.to_string();
     let (tx, rx) = channel();
@@ -43,7 +41,7 @@ where
           let updates = FetchObjectUpdateAction::new(object_id.to_string(), collab_type, postgrest)
             .run_with_fix_interval(5, 10)
             .await?;
-          Ok(updates)
+          Ok(Some(updates))
         }
         .await,
       )
@@ -51,12 +49,12 @@ where
     FutureResult::new(async { rx.await? })
   }
 
-  fn batch_get_collab_updates(
+  fn batch_get_database_object_doc_state(
     &self,
     object_ids: Vec<String>,
     object_ty: CollabType,
     _workspace_id: &str,
-  ) -> FutureResult<CollabObjectUpdateByOid, Error> {
+  ) -> FutureResult<CollabDocStateByOid, Error> {
     let try_get_postgrest = self.server.try_get_weak_postgrest();
     let (tx, rx) = channel();
     af_spawn(async move {
@@ -73,7 +71,7 @@ where
     FutureResult::new(async { rx.await? })
   }
 
-  fn get_collab_snapshots(
+  fn get_database_collab_object_snapshots(
     &self,
     object_id: &str,
     limit: usize,

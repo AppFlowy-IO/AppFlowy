@@ -28,6 +28,13 @@ class TrashPage extends StatefulWidget {
 
 class _TrashPageState extends State<TrashPage> {
   final ScrollController _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     const horizontalPadding = 80.0;
@@ -37,7 +44,6 @@ class _TrashPageState extends State<TrashPage> {
         builder: (context, state) {
           return SizedBox.expand(
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 _renderTopBar(context, state),
                 const VSpace(32),

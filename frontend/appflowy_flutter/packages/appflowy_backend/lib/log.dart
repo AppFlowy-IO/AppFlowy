@@ -1,6 +1,5 @@
 // ignore: import_of_legacy_library_into_null_safe
 import 'dart:ffi';
-
 import 'package:ffi/ffi.dart' as ffi;
 import 'package:flutter/foundation.dart';
 import 'package:logger/logger.dart';
@@ -9,6 +8,7 @@ import 'ffi.dart';
 
 class Log {
   static final shared = Log();
+  // ignore: unused_field
   late Logger _logger;
 
   Log() {
@@ -26,63 +26,23 @@ class Log {
   }
 
   static void info(dynamic msg, [dynamic error, StackTrace? stackTrace]) {
-    if (isReleaseVersion()) {
-      log(0, toNativeUtf8(msg));
-    } else {
-      Log.shared._logger.i(
-        msg,
-        error: error,
-        stackTrace: stackTrace,
-      );
-    }
+    rust_log(0, toNativeUtf8(msg));
   }
 
   static void debug(dynamic msg, [dynamic error, StackTrace? stackTrace]) {
-    if (isReleaseVersion()) {
-      log(1, toNativeUtf8(msg));
-    } else {
-      Log.shared._logger.d(
-        msg,
-        error: error,
-        stackTrace: stackTrace,
-      );
-    }
+    rust_log(1, toNativeUtf8(msg));
   }
 
   static void warn(dynamic msg, [dynamic error, StackTrace? stackTrace]) {
-    if (isReleaseVersion()) {
-      log(3, toNativeUtf8(msg));
-    } else {
-      Log.shared._logger.w(
-        msg,
-        error: error,
-        stackTrace: stackTrace,
-      );
-    }
+    rust_log(3, toNativeUtf8(msg));
   }
 
   static void trace(dynamic msg, [dynamic error, StackTrace? stackTrace]) {
-    if (isReleaseVersion()) {
-      log(2, toNativeUtf8(msg));
-    } else {
-      Log.shared._logger.t(
-        msg,
-        error: error,
-        stackTrace: stackTrace,
-      );
-    }
+    rust_log(2, toNativeUtf8(msg));
   }
 
   static void error(dynamic msg, [dynamic error, StackTrace? stackTrace]) {
-    if (isReleaseVersion()) {
-      log(4, toNativeUtf8(msg));
-    } else {
-      Log.shared._logger.e(
-        msg,
-        error: error,
-        stackTrace: stackTrace,
-      );
-    }
+    rust_log(4, toNativeUtf8(msg));
   }
 }
 

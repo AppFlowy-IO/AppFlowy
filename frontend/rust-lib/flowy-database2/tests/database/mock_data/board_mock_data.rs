@@ -5,8 +5,8 @@ use strum::IntoEnumIterator;
 use flowy_database2::entities::FieldType;
 use flowy_database2::services::field::checklist_type_option::ChecklistTypeOption;
 use flowy_database2::services::field::{
-  DateFormat, DateTypeOption, FieldBuilder, MultiSelectTypeOption, SelectOption, SelectOptionColor,
-  SingleSelectTypeOption, TimeFormat, TimestampTypeOption,
+  DateFormat, DateTypeOption, FieldBuilder, MultiSelectTypeOption, RelationTypeOption,
+  SelectOption, SelectOptionColor, SingleSelectTypeOption, TimeFormat, TimestampTypeOption,
 };
 use flowy_database2::services::field_settings::default_field_settings_for_fields;
 use flowy_database2::services::setting::BoardLayoutSetting;
@@ -118,13 +118,23 @@ pub fn make_test_board() -> DatabaseData {
         // let option1 = SelectOption::with_color(FIRST_THING, SelectOptionColor::Purple);
         // let option2 = SelectOption::with_color(SECOND_THING, SelectOptionColor::Orange);
         // let option3 = SelectOption::with_color(THIRD_THING, SelectOptionColor::Yellow);
-        let type_option = ChecklistTypeOption::default();
+        let type_option = ChecklistTypeOption;
         // type_option.options.extend(vec![option1, option2, option3]);
         let checklist_field = FieldBuilder::new(field_type, type_option)
           .name("TODO")
           .visibility(true)
           .build();
         fields.push(checklist_field);
+      },
+      FieldType::Relation => {
+        let type_option = RelationTypeOption {
+          database_id: "".to_string(),
+        };
+        let relation_field = FieldBuilder::new(field_type, type_option)
+          .name("Related")
+          .visibility(true)
+          .build();
+        fields.push(relation_field);
       },
     }
   }
@@ -227,7 +237,6 @@ pub fn make_test_board() -> DatabaseData {
             FieldType::SingleSelect => {
               row_builder.insert_single_select_cell(|mut options| options.remove(2))
             },
-
             FieldType::Checkbox => row_builder.insert_checkbox_cell("false"),
             _ => "".to_owned(),
           };

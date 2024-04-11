@@ -23,7 +23,6 @@ class ThemeUploadDecoration extends StatelessWidget {
       padding: ThemeUploadWidget.padding,
       child: DottedBorder(
         borderType: BorderType.RRect,
-        strokeWidth: 1,
         dashPattern: const [6, 6],
         color: Theme.of(context)
             .colorScheme

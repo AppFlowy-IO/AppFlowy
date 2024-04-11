@@ -30,9 +30,12 @@ class MobileSettingItem extends StatelessWidget {
               leadingIcon!,
               const HSpace(8),
             ],
-            FlowyText.medium(
-              name,
-              fontSize: 14.0,
+            Expanded(
+              child: FlowyText.medium(
+                name,
+                fontSize: 14.0,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ],
         ),
@@ -40,6 +43,7 @@ class MobileSettingItem extends StatelessWidget {
         trailing: trailing,
         onTap: onTap,
         visualDensity: VisualDensity.compact,
+        contentPadding: const EdgeInsets.only(left: 8.0),
       ),
     );
   }

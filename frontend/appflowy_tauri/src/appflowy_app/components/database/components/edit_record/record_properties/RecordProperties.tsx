@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Field, fieldService, RowMeta } from '$app/components/database/application';
+import { Field, fieldService, RowMeta } from '$app/application/database';
 import { useDatabase } from '$app/components/database';
 import { FieldVisibility } from '@/services/backend';
 
@@ -10,11 +10,10 @@ import { DragDropContext, Droppable, DropResult, OnDragEndResponder } from 'reac
 import SwitchPropertiesVisible from '$app/components/database/components/edit_record/record_properties/SwitchPropertiesVisible';
 
 interface Props {
-  documentId?: string;
   row: RowMeta;
 }
 
-function RecordProperties({ documentId, row }: Props) {
+function RecordProperties({ row }: Props) {
   const viewId = useViewId();
   const { fields } = useDatabase();
   const fieldId = useMemo(() => {
@@ -73,10 +72,9 @@ function RecordProperties({ documentId, row }: Props) {
         <Droppable droppableId='droppable' type='droppableItem'>
           {(dropProvided) => (
             <PropertyList
-              documentId={documentId}
+              {...dropProvided.droppableProps}
               placeholderNode={dropProvided.placeholder}
               ref={dropProvided.innerRef}
-              {...dropProvided.droppableProps}
               rowId={rowId}
               properties={state}
               openMenuPropertyId={openMenuPropertyId}

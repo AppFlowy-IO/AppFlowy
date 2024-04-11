@@ -30,16 +30,26 @@ linter:
   rules:
     - require_trailing_commas
 
+    - prefer_collection_literals
     - prefer_final_fields
     - prefer_final_in_for_each
     - prefer_final_locals
 
     - sized_box_for_whitespace
+    - use_decorated_box
+
+    - unnecessary_parenthesis
+    - unnecessary_await_in_return
+    - unnecessary_raw_strings
+
     - avoid_unnecessary_containers
+    - avoid_redundant_argument_values
+    - avoid_unused_constructor_parameters
 
     - always_declare_return_types
-    - unnecessary_raw_strings
-    - use_decorated_box
+
+    - sort_constructors_first
+    - unawaited_futures
 
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options

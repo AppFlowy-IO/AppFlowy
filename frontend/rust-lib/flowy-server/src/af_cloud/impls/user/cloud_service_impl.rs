@@ -1,24 +1,37 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use anyhow::{anyhow, Error};
-use client_api::entity::workspace_dto::{CreateWorkspaceMember, WorkspaceMemberChangeset};
-use client_api::entity::{AFRole, AFWorkspace, AuthProvider, InsertCollabParams};
-use collab_entity::CollabObject;
+use anyhow::anyhow;
+use client_api::entity::workspace_dto::{
+  CreateWorkspaceMember, CreateWorkspaceParam, PatchWorkspaceParam, WorkspaceMemberChangeset,
+  WorkspaceMemberInvitation,
+};
+use client_api::entity::{
+  AFRole, AFWorkspace, AFWorkspaceInvitation, AuthProvider, CollabParams, CreateCollabParams,
+};
+use client_api::entity::{QueryCollab, QueryCollabParams};
+use client_api::{Client, ClientConfiguration};
+use collab_entity::{CollabObject, CollabType};
 use parking_lot::RwLock;
 
-use flowy_error::{ErrorCode, FlowyError};
-use flowy_user_deps::cloud::{UserCloudService, UserUpdate, UserUpdateReceiver};
-use flowy_user_deps::entities::*;
+use flowy_error::{ErrorCode, FlowyError, FlowyResult};
+use flowy_user_pub::cloud::{UserCloudService, UserCollabParams, UserUpdate, UserUpdateReceiver};
+use flowy_user_pub::entities::{
+  AFCloudOAuthParams, AuthResponse, Role, UpdateUserProfileParams, UserCredentials, UserProfile,
+  UserWorkspace, WorkspaceInvitation, WorkspaceInvitationStatus, WorkspaceMember,
+};
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
+use uuid::Uuid;
 
+use crate::af_cloud::define::USER_SIGN_IN_URL;
 use crate::af_cloud::impls::user::dto::{
   af_update_from_update_params, from_af_workspace_member, to_af_role, user_profile_from_af_profile,
 };
 use crate::af_cloud::impls::user::util::encryption_type_from_profile;
 use crate::af_cloud::{AFCloudClient, AFServer};
-use crate::supabase::define::USER_SIGN_IN_URL;
+
+use super::dto::{from_af_workspace_invitation_status, to_workspace_invitation_status};
 
 pub(crate) struct AFCloudUserAuthServiceImpl<T> {
   server: T,
@@ -59,8 +72,9 @@ where
   }
 
   fn sign_out(&self, _token: Option<String>) -> FutureResult<(), FlowyError> {
-    let try_get_client = self.server.try_get_client();
-    FutureResult::new(async move { Ok(try_get_client?.sign_out().await?) })
+    // Calling the sign_out method that will revoke all connected devices' refresh tokens.
+    // So do nothing here.
+    FutureResult::new(async move { Ok(()) })
   }
 
   fn generate_sign_in_url_with_email(&self, email: &str) -> FutureResult<String, FlowyError> {
@@ -68,25 +82,43 @@ where
     let try_get_client = self.server.try_get_client();
     FutureResult::new(async move {
       let client = try_get_client?;
-      let admin_email = std::env::var("GOTRUE_ADMIN_EMAIL").map_err(|_| {
-        anyhow!(
-          "GOTRUE_ADMIN_EMAIL is not set. Please set it to the admin email for the test server"
-        )
-      })?;
-      let admin_password = std::env::var("GOTRUE_ADMIN_PASSWORD").map_err(|_| {
-        anyhow!(
-          "GOTRUE_ADMIN_PASSWORD is not set. Please set it to the admin password for the test server"
-        )
-      })?;
-      let admin_client =
-        client_api::Client::new(client.base_url(), client.ws_addr(), client.gotrue_url());
-      admin_client
-        .sign_in_password(&admin_email, &admin_password)
-        .await?;
-
+      let admin_client = get_admin_client(&client).await?;
       let action_link = admin_client.generate_sign_in_action_link(&email).await?;
       let sign_in_url = client.extract_sign_in_url(&action_link).await?;
       Ok(sign_in_url)
+    })
+  }
+
+  fn create_user(&self, email: &str, password: &str) -> FutureResult<(), FlowyError> {
+    let password = password.to_string();
+    let email = email.to_string();
+    let try_get_client = self.server.try_get_client();
+    FutureResult::new(async move {
+      let client = try_get_client?;
+      let admin_client = get_admin_client(&client).await?;
+      admin_client
+        .create_email_verified_user(&email, &password)
+        .await?;
+
+      Ok(())
+    })
+  }
+
+  fn sign_in_with_password(
+    &self,
+    email: &str,
+    password: &str,
+  ) -> FutureResult<UserProfile, FlowyError> {
+    let password = password.to_string();
+    let email = email.to_string();
+    let try_get_client = self.server.try_get_client();
+    FutureResult::new(async move {
+      let client = try_get_client?;
+      client.sign_in_password(&email, &password).await?;
+      let profile = client.get_profile().await?;
+      let token = client.get_token()?;
+      let profile = user_profile_from_af_profile(token, profile)?;
+      Ok(profile)
     })
   }
 
@@ -149,13 +181,15 @@ where
     })
   }
 
+  #[allow(deprecated)]
   fn add_workspace_member(
     &self,
     user_email: String,
     workspace_id: String,
-  ) -> FutureResult<(), Error> {
+  ) -> FutureResult<(), FlowyError> {
     let try_get_client = self.server.try_get_client();
     FutureResult::new(async move {
+      // TODO(zack): add_workspace_members will be deprecated after finishing the invite logic. Don't forget to remove the #[allow(deprecated)]
       try_get_client?
         .add_workspace_members(
           workspace_id,
@@ -169,11 +203,60 @@ where
     })
   }
 
+  fn invite_workspace_member(
+    &self,
+    invitee_email: String,
+    workspace_id: String,
+    role: Role,
+  ) -> FutureResult<(), FlowyError> {
+    let try_get_client = self.server.try_get_client();
+    FutureResult::new(async move {
+      try_get_client?
+        .invite_workspace_members(
+          &workspace_id,
+          vec![WorkspaceMemberInvitation {
+            email: invitee_email,
+            role: to_af_role(role),
+          }],
+        )
+        .await?;
+      Ok(())
+    })
+  }
+
+  fn list_workspace_invitations(
+    &self,
+    filter: Option<WorkspaceInvitationStatus>,
+  ) -> FutureResult<Vec<WorkspaceInvitation>, FlowyError> {
+    let try_get_client = self.server.try_get_client();
+    let filter = filter.map(to_workspace_invitation_status);
+
+    FutureResult::new(async move {
+      let r = try_get_client?
+        .list_workspace_invitations(filter)
+        .await?
+        .into_iter()
+        .map(to_workspace_invitation)
+        .collect();
+      Ok(r)
+    })
+  }
+
+  fn accept_workspace_invitations(&self, invite_id: String) -> FutureResult<(), FlowyError> {
+    let try_get_client = self.server.try_get_client();
+    FutureResult::new(async move {
+      try_get_client?
+        .accept_workspace_invitation(&invite_id)
+        .await?;
+      Ok(())
+    })
+  }
+
   fn remove_workspace_member(
     &self,
     user_email: String,
     workspace_id: String,
-  ) -> FutureResult<(), Error> {
+  ) -> FutureResult<(), FlowyError> {
     let try_get_client = self.server.try_get_client();
     FutureResult::new(async move {
       try_get_client?
@@ -188,7 +271,7 @@ where
     user_email: String,
     workspace_id: String,
     role: Role,
-  ) -> FutureResult<(), Error> {
+  ) -> FutureResult<(), FlowyError> {
     let try_get_client = self.server.try_get_client();
     FutureResult::new(async move {
       let changeset = WorkspaceMemberChangeset::new(user_email).with_role(to_af_role(role));
@@ -202,7 +285,7 @@ where
   fn get_workspace_members(
     &self,
     workspace_id: String,
-  ) -> FutureResult<Vec<WorkspaceMember>, Error> {
+  ) -> FutureResult<Vec<WorkspaceMember>, FlowyError> {
     let try_get_client = self.server.try_get_client();
     FutureResult::new(async move {
       let members = try_get_client?
@@ -215,15 +298,34 @@ where
     })
   }
 
-  fn get_user_awareness_updates(&self, _uid: i64) -> FutureResult<Vec<Vec<u8>>, Error> {
-    FutureResult::new(async { Ok(vec![]) })
+  fn get_user_awareness_doc_state(
+    &self,
+    _uid: i64,
+    workspace_id: &str,
+    object_id: &str,
+  ) -> FutureResult<Vec<u8>, FlowyError> {
+    let workspace_id = workspace_id.to_string();
+    let object_id = object_id.to_string();
+    let try_get_client = self.server.try_get_client();
+    FutureResult::new(async {
+      let params = QueryCollabParams {
+        workspace_id,
+        inner: QueryCollab {
+          object_id,
+          collab_type: CollabType::UserAwareness,
+        },
+      };
+
+      let resp = try_get_client?.get_collab(params).await?;
+      Ok(resp.doc_state.to_vec())
+    })
   }
 
   fn subscribe_user_update(&self) -> Option<UserUpdateReceiver> {
     self.user_change_recv.write().take()
   }
 
-  fn reset_workspace(&self, _collab_object: CollabObject) -> FutureResult<(), Error> {
+  fn reset_workspace(&self, _collab_object: CollabObject) -> FutureResult<(), FlowyError> {
     FutureResult::new(async { Ok(()) })
   }
 
@@ -231,21 +333,124 @@ where
     &self,
     collab_object: &CollabObject,
     data: Vec<u8>,
-  ) -> FutureResult<(), Error> {
+  ) -> FutureResult<(), FlowyError> {
     let try_get_client = self.server.try_get_client();
     let collab_object = collab_object.clone();
     FutureResult::new(async move {
       let client = try_get_client?;
-      let params = InsertCollabParams::new(
-        collab_object.object_id.clone(),
-        collab_object.collab_type.clone(),
-        data,
-        collab_object.workspace_id.clone(),
-      );
+      let params = CreateCollabParams {
+        workspace_id: collab_object.workspace_id.clone(),
+        object_id: collab_object.object_id.clone(),
+        encoded_collab_v1: data,
+        collab_type: collab_object.collab_type.clone(),
+      };
       client.create_collab(params).await?;
       Ok(())
     })
   }
+
+  fn batch_create_collab_object(
+    &self,
+    workspace_id: &str,
+    objects: Vec<UserCollabParams>,
+  ) -> FutureResult<(), FlowyError> {
+    let workspace_id = workspace_id.to_string();
+    let try_get_client = self.server.try_get_client();
+    FutureResult::new(async move {
+      let params = objects
+        .into_iter()
+        .map(|object| CollabParams {
+          object_id: object.object_id,
+          encoded_collab_v1: object.encoded_collab,
+          collab_type: object.collab_type,
+        })
+        .collect::<Vec<_>>();
+      try_get_client?
+        .create_collab_list(&workspace_id, params)
+        .await
+        .map_err(FlowyError::from)?;
+      Ok(())
+    })
+  }
+
+  fn create_workspace(&self, workspace_name: &str) -> FutureResult<UserWorkspace, FlowyError> {
+    let try_get_client = self.server.try_get_client();
+    let workspace_name_owned = workspace_name.to_owned();
+    FutureResult::new(async move {
+      let client = try_get_client?;
+      let new_workspace = client
+        .create_workspace(CreateWorkspaceParam {
+          workspace_name: Some(workspace_name_owned),
+        })
+        .await?;
+      Ok(to_user_workspace(new_workspace))
+    })
+  }
+
+  fn delete_workspace(&self, workspace_id: &str) -> FutureResult<(), FlowyError> {
+    let try_get_client = self.server.try_get_client();
+    let workspace_id_owned = workspace_id.to_owned();
+    FutureResult::new(async move {
+      let client = try_get_client?;
+      client.delete_workspace(&workspace_id_owned).await?;
+      Ok(())
+    })
+  }
+
+  fn patch_workspace(
+    &self,
+    workspace_id: &str,
+    new_workspace_name: Option<&str>,
+    new_workspace_icon: Option<&str>,
+  ) -> FutureResult<(), FlowyError> {
+    let try_get_client = self.server.try_get_client();
+    let owned_workspace_id = workspace_id.to_owned();
+    let owned_workspace_name = new_workspace_name.map(|s| s.to_owned());
+    let owned_workspace_icon = new_workspace_icon.map(|s| s.to_owned());
+    FutureResult::new(async move {
+      let workspace_id: Uuid = owned_workspace_id
+        .parse()
+        .map_err(|_| ErrorCode::InvalidParams)?;
+      let client = try_get_client?;
+      client
+        .patch_workspace(PatchWorkspaceParam {
+          workspace_id,
+          workspace_name: owned_workspace_name,
+          workspace_icon: owned_workspace_icon,
+        })
+        .await?;
+      Ok(())
+    })
+  }
+
+  fn leave_workspace(&self, workspace_id: &str) -> FutureResult<(), FlowyError> {
+    let try_get_client = self.server.try_get_client();
+    let workspace_id = workspace_id.to_string();
+    FutureResult::new(async move {
+      let client = try_get_client?;
+      client.leave_workspace(&workspace_id).await?;
+      Ok(())
+    })
+  }
+}
+
+async fn get_admin_client(client: &Arc<AFCloudClient>) -> FlowyResult<Client> {
+  let admin_email =
+    std::env::var("GOTRUE_ADMIN_EMAIL").unwrap_or_else(|_| "admin@example.com".to_string());
+  let admin_password =
+    std::env::var("GOTRUE_ADMIN_PASSWORD").unwrap_or_else(|_| "password".to_string());
+  let admin_client = client_api::Client::new(
+    client.base_url(),
+    client.ws_addr(),
+    client.gotrue_url(),
+    &client.device_id,
+    ClientConfiguration::default(),
+    &client.client_version.to_string(),
+  );
+  admin_client
+    .sign_in_password(&admin_email, &admin_password)
+    .await?;
+  Ok(admin_client)
 }
 
 pub async fn user_sign_up_request(
@@ -270,6 +475,7 @@ pub async fn user_sign_in_with_url(
 
   Ok(AuthResponse {
     user_id: user_profile.uid,
+    user_uuid: user_profile.uuid,
     name: user_profile.name.unwrap_or_default(),
     latest_workspace,
     user_workspaces,
@@ -287,7 +493,8 @@ fn to_user_workspace(af_workspace: AFWorkspace) -> UserWorkspace {
     id: af_workspace.workspace_id.to_string(),
     name: af_workspace.workspace_name,
     created_at: af_workspace.created_at,
-    database_views_aggregate_id: af_workspace.database_storage_id.to_string(),
+    workspace_database_object_id: af_workspace.database_storage_id.to_string(),
+    icon: af_workspace.icon,
   }
 }
 
@@ -299,7 +506,19 @@ fn to_user_workspaces(workspaces: Vec<AFWorkspace>) -> Result<Vec<UserWorkspace>
   Ok(result)
 }
 
-fn oauth_params_from_box_any(any: BoxAny) -> Result<AFCloudOAuthParams, Error> {
+fn to_workspace_invitation(invi: AFWorkspaceInvitation) -> WorkspaceInvitation {
+  WorkspaceInvitation {
+    invite_id: invi.invite_id,
+    workspace_id: invi.workspace_id,
+    workspace_name: invi.workspace_name,
+    inviter_email: invi.inviter_email,
+    inviter_name: invi.inviter_name,
+    status: from_af_workspace_invitation_status(invi.status),
+    updated_at: invi.updated_at,
+  }
+}
+
+fn oauth_params_from_box_any(any: BoxAny) -> Result<AFCloudOAuthParams, FlowyError> {
   let map: HashMap<String, String> = any.unbox_or_error()?;
   let sign_in_url = map
     .get(USER_SIGN_IN_URL)

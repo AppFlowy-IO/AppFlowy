@@ -1,11 +1,12 @@
 use anyhow::Error;
+use collab::core::collab::DocStateSource;
 use collab::core::origin::CollabOrigin;
 use collab_document::blocks::DocumentData;
 use collab_document::document::Document;
 use collab_entity::CollabType;
 use tokio::sync::oneshot::channel;
 
-use flowy_document_deps::cloud::{DocumentCloudService, DocumentSnapshot};
+use flowy_document_pub::cloud::{DocumentCloudService, DocumentSnapshot};
 use flowy_error::FlowyError;
 use lib_dispatch::prelude::af_spawn;
 use lib_infra::future::FutureResult;
@@ -28,11 +29,11 @@ where
   T: SupabaseServerService,
 {
   #[tracing::instrument(level = "debug", skip(self))]
-  fn get_document_updates(
+  fn get_document_doc_state(
     &self,
     document_id: &str,
     workspace_id: &str,
-  ) -> FutureResult<Vec<Vec<u8>>, FlowyError> {
+  ) -> FutureResult<Vec<u8>, FlowyError> {
     let try_get_postgrest = self.server.try_get_weak_postgrest();
     let document_id = document_id.to_string();
     let (tx, rx) = channel();
@@ -41,11 +42,11 @@ where
         async move {
           let postgrest = try_get_postgrest?;
           let action = FetchObjectUpdateAction::new(document_id, CollabType::Document, postgrest);
-          let updates = action.run_with_fix_interval(5, 10).await?;
-          if updates.is_empty() {
+          let collab_doc_state = action.run_with_fix_interval(5, 10).await?;
+          if collab_doc_state.is_empty() {
             return Err(FlowyError::collab_not_sync());
           }
-          Ok(updates)
+          Ok(collab_doc_state)
         }
         .await,
       )
@@ -81,7 +82,7 @@ where
   fn get_document_data(
     &self,
     document_id: &str,
-    workspace_id: &str,
+    _workspace_id: &str,
   ) -> FutureResult<Option<DocumentData>, Error> {
     let try_get_postgrest = self.server.try_get_weak_postgrest();
     let document_id = document_id.to_string();
@@ -92,9 +93,13 @@ where
           let postgrest = try_get_postgrest?;
           let action =
             FetchObjectUpdateAction::new(document_id.clone(), CollabType::Document, postgrest);
-          let updates = action.run_with_fix_interval(5, 10).await?;
-          let document =
-            Document::from_updates(CollabOrigin::Empty, updates, &document_id, vec![])?;
+          let doc_state = action.run_with_fix_interval(5, 10).await?;
+          let document = Document::from_doc_state(
+            CollabOrigin::Empty,
+            DocStateSource::FromDocState(doc_state),
+            &document_id,
+            vec![],
+          )?;
           Ok(document.get_document_data().ok())
         }
         .await,

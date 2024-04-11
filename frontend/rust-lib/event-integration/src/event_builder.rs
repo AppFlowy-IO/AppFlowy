@@ -50,7 +50,7 @@ impl EventBuilder {
 
   pub async fn async_send(mut self) -> Self {
     let request = self.get_request();
-    let resp = AFPluginDispatcher::async_send(self.dispatch(), request).await;
+    let resp = AFPluginDispatcher::async_send(self.dispatch().as_ref(), request).await;
     self.context.response = Some(resp);
     self
   }
@@ -63,19 +63,11 @@ impl EventBuilder {
     match response.clone().parse::<R, FlowyError>() {
       Ok(Ok(data)) => data,
       Ok(Err(e)) => {
-        panic!(
-          "Parser {:?} failed: {:?}, response {:?}",
-          std::any::type_name::<R>(),
-          e,
-          response
-        )
+        panic!("Parser {:?} failed: {:?}", std::any::type_name::<R>(), e)
       },
-      Err(e) => panic!(
-        "Dispatch {:?} failed: {:?}, response {:?}",
-        std::any::type_name::<R>(),
-        e,
-        response
-      ),
+      Err(e) => {
+        panic!("Parser {:?} failed: {:?}", std::any::type_name::<R>(), e)
+      },
     }
   }
 

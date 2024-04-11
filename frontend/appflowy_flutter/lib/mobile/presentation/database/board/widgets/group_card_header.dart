@@ -1,15 +1,16 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet_action_widget.dart';
-import 'package:appflowy/mobile/presentation/widgets/show_flowy_mobile_bottom_sheet.dart';
-import 'package:appflowy/plugins/database_view/board/application/board_bloc.dart';
-import 'package:appflowy/plugins/database_view/grid/presentation/widgets/header/field_type_extension.dart';
+import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
+import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_quick_action_button.dart';
+import 'package:appflowy/plugins/database/board/application/board_bloc.dart';
+import 'package:appflowy/plugins/database/grid/presentation/widgets/header/field_type_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/group.pb.dart';
 import 'package:appflowy_board/appflowy_board.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -83,8 +84,12 @@ class _GroupCardHeaderState extends State<GroupCardHeader> {
                     _controller.text,
                   ),
                 ),
-            maxLines: 1,
             style: titleTextStyle,
+            onTapOutside: (_) => context.read<BoardBloc>().add(
+                  // group header switch from TextField to Text
+                  // group name won't be changed
+                  BoardEvent.endEditingHeader(widget.groupData.id, null),
+                ),
           );
         }
 
@@ -102,46 +107,45 @@ class _GroupCardHeaderState extends State<GroupCardHeader> {
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
                   splashRadius: 5,
-                  onPressed: () => showFlowyMobileBottomSheet(
+                  onPressed: () => showMobileBottomSheet(
                     context,
-                    title: LocaleKeys.board_column_groupActions.tr(),
-                    builder: (_) {
-                      return Row(
-                        children: [
-                          Expanded(
-                            child: BottomSheetActionWidget(
-                              svg: FlowySvgs.edit_s,
-                              text: LocaleKeys.board_column_renameColumn.tr(),
-                              onTap: () {
-                                context.read<BoardBloc>().add(
-                                      BoardEvent.startEditingHeader(
-                                        widget.groupData.id,
-                                      ),
-                                    );
-                                context.pop();
-                              },
-                            ),
-                          ),
-                          const HSpace(8),
-                          Expanded(
-                            child: BottomSheetActionWidget(
-                              svg: FlowySvgs.hide_s,
-                              text: LocaleKeys.board_column_hideColumn.tr(),
-                              onTap: () {
-                                context.read<BoardBloc>().add(
-                                      BoardEvent.toggleGroupVisibility(
-                                        widget.groupData.customData.group
-                                            as GroupPB,
-                                        false,
-                                      ),
-                                    );
-                                context.pop();
-                              },
-                            ),
-                          ),
-                        ],
-                      );
-                    },
+                    showDragHandle: true,
+                    backgroundColor: Theme.of(context).colorScheme.surface,
+                    builder: (_) => SeparatedColumn(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      separatorBuilder: () => const Divider(
+                        height: 8.5,
+                        thickness: 0.5,
+                      ),
+                      children: [
+                        MobileQuickActionButton(
+                          text: LocaleKeys.board_column_renameColumn.tr(),
+                          icon: FlowySvgs.edit_s,
+                          onTap: () {
+                            context.read<BoardBloc>().add(
+                                  BoardEvent.startEditingHeader(
+                                    widget.groupData.id,
+                                  ),
+                                );
+                            context.pop();
+                          },
+                        ),
+                        MobileQuickActionButton(
+                          text: LocaleKeys.board_column_hideColumn.tr(),
+                          icon: FlowySvgs.hide_s,
+                          onTap: () {
+                            context.read<BoardBloc>().add(
+                                  BoardEvent.toggleGroupVisibility(
+                                    widget.groupData.customData.group
+                                        as GroupPB,
+                                    false,
+                                  ),
+                                );
+                            context.pop();
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 IconButton(

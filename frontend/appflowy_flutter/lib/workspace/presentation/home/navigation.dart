@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
@@ -9,7 +11,6 @@ import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:styled_widget/styled_widget.dart';
@@ -17,8 +18,9 @@ import 'package:styled_widget/styled_widget.dart';
 typedef NaviAction = void Function();
 
 class NavigationNotifier with ChangeNotifier {
-  List<NavigationItem> navigationItems;
   NavigationNotifier({required this.navigationItems});
+
+  List<NavigationItem> navigationItems;
 
   void update(PageNotifier notifier) {
     if (navigationItems != notifier.plugin.widgetBuilder.navigationItems) {
@@ -74,11 +76,9 @@ class FlowyNavigation extends StatelessWidget {
               child: FlowyIconButton(
                 width: 24,
                 hoverColor: Colors.transparent,
-                onPressed: () {
-                  context
-                      .read<HomeSettingBloc>()
-                      .add(const HomeSettingEvent.collapseMenu());
-                },
+                onPressed: () => context
+                    .read<HomeSettingBloc>()
+                    .add(const HomeSettingEvent.collapseMenu()),
                 iconPadding: const EdgeInsets.fromLTRB(2, 2, 2, 2),
                 icon: FlowySvg(
                   FlowySvgs.hide_menu_m,
@@ -87,9 +87,9 @@ class FlowyNavigation extends StatelessWidget {
               ),
             ),
           );
-        } else {
-          return Container();
         }
+
+        return const SizedBox.shrink();
       },
     );
   }
@@ -133,8 +133,9 @@ class FlowyNavigation extends StatelessWidget {
 }
 
 class NaviItemWidget extends StatelessWidget {
-  final NavigationItem item;
   const NaviItemWidget(this.item, {super.key});
+
+  final NavigationItem item;
 
   @override
   Widget build(BuildContext context) {
@@ -145,8 +146,9 @@ class NaviItemWidget extends StatelessWidget {
 }
 
 class NaviItemDivider extends StatelessWidget {
-  final Widget child;
   const NaviItemDivider({super.key, required this.child});
+
+  final Widget child;
 
   @override
   Widget build(BuildContext context) {
@@ -157,10 +159,9 @@ class NaviItemDivider extends StatelessWidget {
 }
 
 class EllipsisNaviItem extends NavigationItem {
+  EllipsisNaviItem({required this.items});
+
   final List<NavigationItem> items;
-  EllipsisNaviItem({
-    required this.items,
-  });
 
   @override
   Widget get leftBarItem => FlowyText.medium(
@@ -182,7 +183,7 @@ TextSpan sidebarTooltipTextSpan(BuildContext context, String hintText) =>
           text: "$hintText\n",
         ),
         TextSpan(
-          text: Platform.isMacOS ? "⌘+\\" : "Ctrl+\\",
+          text: Platform.isMacOS ? "⌘+." : "Ctrl+\\",
         ),
       ],
     );

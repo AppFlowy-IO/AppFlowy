@@ -36,7 +36,7 @@ Node mathEquationNode({
 
 // defining the callout block menu item for selection
 SelectionMenuItem mathEquationItem = SelectionMenuItem.node(
-  name: 'MathEquation',
+  getName: LocaleKeys.document_plugins_mathEquation_name.tr,
   iconData: Icons.text_fields_rounded,
   keywords: ['tex, latex, katex', 'math equation', 'formula'],
   nodeBuilder: (editorState, _) => mathEquationNode(),
@@ -182,27 +182,25 @@ class MathEquationBlockComponentWidgetState
       child: Math.tex(
         formula,
         textStyle: const TextStyle(fontSize: 20),
-        mathStyle: MathStyle.display,
       ),
     );
   }
 
   void showEditingDialog() {
+    final controller = TextEditingController(text: formula);
     showDialog(
       context: context,
       builder: (context) {
-        final controller = TextEditingController(text: formula);
         return AlertDialog(
           backgroundColor: Theme.of(context).canvasColor,
           title: Text(
             LocaleKeys.document_plugins_mathEquation_editMathEquation.tr(),
           ),
-          content: RawKeyboardListener(
+          content: KeyboardListener(
             focusNode: FocusNode(),
-            onKey: (key) {
-              if (key is! RawKeyDownEvent) return;
+            onKeyEvent: (key) {
               if (key.logicalKey == LogicalKeyboardKey.enter &&
-                  !key.isShiftPressed) {
+                  !HardwareKeyboard.instance.isShiftPressed) {
                 updateMathEquation(controller.text, context);
               } else if (key.logicalKey == LogicalKeyboardKey.escape) {
                 dismiss(context);
@@ -224,6 +222,7 @@ class MathEquationBlockComponentWidgetState
           actions: [
             SecondaryTextButton(
               LocaleKeys.button_cancel.tr(),
+              mode: TextButtonMode.big,
               onPressed: () => dismiss(context),
             ),
             PrimaryTextButton(
@@ -235,7 +234,7 @@ class MathEquationBlockComponentWidgetState
           actionsAlignment: MainAxisAlignment.spaceAround,
         );
       },
-    );
+    ).then((_) => controller.dispose());
   }
 
   void updateMathEquation(String mathEquation, BuildContext context) {

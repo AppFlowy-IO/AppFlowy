@@ -1,17 +1,17 @@
 import 'package:appflowy/plugins/trash/application/trash_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../util.dart';
 
 class TrashTestContext {
+  TrashTestContext(this.unitTest);
+
   late ViewPB view;
   late ViewBloc viewBloc;
   late List<ViewPB> allViews;
   final AppFlowyUnitTest unitTest;
-
-  TrashTestContext(this.unitTest);
 
   Future<void> initialize() async {
     view = await unitTest.createWorkspace();
@@ -22,6 +22,7 @@ class TrashTestContext {
       const ViewEvent.createView(
         "Document 1",
         ViewLayoutPB.Document,
+        section: ViewSectionPB.Public,
       ),
     );
     await blocResponseFuture();
@@ -30,6 +31,7 @@ class TrashTestContext {
       const ViewEvent.createView(
         "Document 2",
         ViewLayoutPB.Document,
+        section: ViewSectionPB.Public,
       ),
     );
     await blocResponseFuture();
@@ -38,6 +40,7 @@ class TrashTestContext {
       const ViewEvent.createView(
         "Document 3",
         ViewLayoutPB.Document,
+        section: ViewSectionPB.Public,
       ),
     );
     await blocResponseFuture();
@@ -64,7 +67,7 @@ void main() {
       final context = TrashTestContext(unitTest);
       await context.initialize();
       final trashBloc = TrashBloc()..add(const TrashEvent.initial());
-      await blocResponseFuture(millisecond: 200);
+      await blocResponseFuture();
 
       // delete a view
       final deletedView = context.viewBloc.state.view.childViews[0];

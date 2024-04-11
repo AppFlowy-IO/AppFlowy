@@ -1,3 +1,3 @@
-export 'doc_bloc.dart';
-export 'doc_service.dart';
-export 'share_bloc.dart';
+export 'document_bloc.dart';
+export 'document_service.dart';
+export 'document_share_bloc.dart';

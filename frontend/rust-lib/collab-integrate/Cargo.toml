@@ -4,28 +4,22 @@ version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 collab = { version = "0.1.0" }
-collab-persistence = { version = "0.1.0", features = ["rocksdb_persistence"] }
-collab-folder = { version = "0.1.0" }
-collab-database = { version = "0.1.0" }
 collab-plugins = { version = "0.1.0" }
-collab-document = { version = "0.1.0" }
 collab-entity = { version = "0.1.0" }
 serde.workspace = true
 serde_json.workspace = true
 anyhow.workspace = true
 tracing.workspace = true
 parking_lot.workspace = true
-futures.workspace = true
 async-trait.workspace = true
 tokio = { workspace = true, features = ["sync"]}
-lib-infra = { path = "../../../shared-lib/lib-infra" }
+lib-infra = { workspace = true }
+futures = "0.3"
 
 [features]
 default = []
-supabase_integrate = ["collab-plugins/postgres_storage_plugin", "rocksdb_plugin"]
-appflowy_cloud_integrate = ["rocksdb_plugin"]
-snapshot_plugin = ["collab-plugins/snapshot_plugin"]
-rocksdb_plugin = ["collab-plugins/rocksdb_plugin"]

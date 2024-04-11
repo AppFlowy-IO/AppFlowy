@@ -10,8 +10,7 @@ use flowy_error::{FlowyError, FlowyResult};
 
 use crate::entities::{FieldType, TextFilterPB};
 use crate::services::cell::{
-  stringify_cell_data, CellDataChangeset, CellDataDecoder, CellProtobufBlobParser, DecodedCellData,
-  FromCellString,
+  stringify_cell, CellDataChangeset, CellDataDecoder, CellProtobufBlobParser,
 };
 use crate::services::field::type_options::util::ProtobufStr;
 use crate::services::field::{
@@ -50,41 +49,7 @@ impl From<RichTextTypeOption> for TypeOptionData {
   }
 }
 
-impl TypeOptionTransform for RichTextTypeOption {
-  fn transformable(&self) -> bool {
-    true
-  }
-
-  fn transform_type_option(
-    &mut self,
-    _old_type_option_field_type: FieldType,
-    _old_type_option_data: TypeOptionData,
-  ) {
-  }
-
-  fn transform_type_option_cell(
-    &self,
-    cell: &Cell,
-    transformed_field_type: &FieldType,
-    _field: &Field,
-  ) -> Option<<Self as TypeOption>::CellData> {
-    if transformed_field_type.is_date()
-      || transformed_field_type.is_single_select()
-      || transformed_field_type.is_multi_select()
-      || transformed_field_type.is_number()
-      || transformed_field_type.is_url()
-    {
-      Some(StrCellData::from(stringify_cell_data(
-        cell,
-        transformed_field_type,
-        transformed_field_type,
-        _field,
-      )))
-    } else {
-      Some(StrCellData::from(cell))
-    }
-  }
-}
+impl TypeOptionTransform for RichTextTypeOption {}
 
 impl TypeOptionCellDataSerde for RichTextTypeOption {
   fn protobuf_encode(
@@ -100,21 +65,37 @@ impl TypeOptionCellDataSerde for RichTextTypeOption {
 }
 
 impl CellDataDecoder for RichTextTypeOption {
-  fn decode_cell(
+  fn decode_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
+    Ok(StrCellData::from(cell))
+  }
+
+  fn decode_cell_with_transform(
     &self,
     cell: &Cell,
-    _decoded_field_type: &FieldType,
-    _field: &Field,
-  ) -> FlowyResult<<Self as TypeOption>::CellData> {
-    Ok(StrCellData::from(cell))
+    from_field_type: FieldType,
+    field: &Field,
+  ) -> Option<<Self as TypeOption>::CellData> {
+    match from_field_type {
+      FieldType::RichText
+      | FieldType::Number
+      | FieldType::DateTime
+      | FieldType::SingleSelect
+      | FieldType::MultiSelect
+      | FieldType::Checkbox
+      | FieldType::URL => Some(StrCellData::from(stringify_cell(cell, field))),
+      FieldType::Checklist
+      | FieldType::LastEditedTime
+      | FieldType::CreatedTime
+      | FieldType::Relation => None,
+    }
   }
 
   fn stringify_cell_data(&self, cell_data: <Self as TypeOption>::CellData) -> String {
     cell_data.to_string()
   }
 
-  fn stringify_cell(&self, cell: &Cell) -> String {
-    Self::CellData::from(cell).to_string()
+  fn numeric_cell(&self, cell: &Cell) -> Option<f64> {
+    StrCellData::from(cell).0.parse::<f64>().ok()
   }
 }
 
@@ -140,13 +121,8 @@ impl TypeOptionCellDataFilter for RichTextTypeOption {
   fn apply_filter(
     &self,
     filter: &<Self as TypeOption>::CellFilter,
-    field_type: &FieldType,
     cell_data: &<Self as TypeOption>::CellData,
   ) -> bool {
-    if !field_type.is_text() {
-      return false;
-    }
-
     filter.is_visible(cell_data)
   }
 }
@@ -186,26 +162,9 @@ impl std::ops::Deref for TextCellData {
   }
 }
 
-impl FromCellString for TextCellData {
-  fn from_cell_str(s: &str) -> FlowyResult<Self>
-  where
-    Self: Sized,
-  {
-    Ok(TextCellData(s.to_owned()))
-  }
-}
-
 impl ToString for TextCellData {
   fn to_string(&self) -> String {
     self.0.clone()
-  }
-}
-
-impl DecodedCellData for TextCellData {
-  type Object = TextCellData;
-
-  fn is_empty(&self) -> bool {
-    self.0.is_empty()
   }
 }
 
@@ -253,12 +212,6 @@ impl From<StrCellData> for Cell {
 impl std::ops::DerefMut for StrCellData {
   fn deref_mut(&mut self) -> &mut Self::Target {
     &mut self.0
-  }
-}
-
-impl FromCellString for StrCellData {
-  fn from_cell_str(s: &str) -> FlowyResult<Self> {
-    Ok(Self(s.to_owned()))
   }
 }
 

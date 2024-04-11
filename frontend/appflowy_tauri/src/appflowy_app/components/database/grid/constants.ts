@@ -1,4 +1,4 @@
-import { Field, RowMeta } from '../application';
+import { Field, RowMeta } from '$app/application/database';
 
 export const GridCalculateCountHeight = 40;
 
@@ -65,7 +65,7 @@ export const rowMetasToRenderRow = (rowMetas: RowMeta[]): RenderRow[] => {
     })),
     {
       type: RenderRowType.NewRow,
-      data: { },
+      data: {},
     },
     {
       type: RenderRowType.CalculateRow,

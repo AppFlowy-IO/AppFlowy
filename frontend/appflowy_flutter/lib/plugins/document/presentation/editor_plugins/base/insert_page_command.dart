@@ -1,10 +1,10 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/database_view/application/database_view_service.dart';
+import 'package:appflowy/plugins/database/domain/database_view_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 
@@ -14,6 +14,7 @@ extension InsertDatabase on EditorState {
     if (selection == null || !selection.isCollapsed) {
       return;
     }
+
     final node = getNodeAtPath(selection.end.path);
     if (node == null) {
       return;
@@ -52,19 +53,9 @@ extension InsertDatabase on EditorState {
       );
     }
 
-    late Transaction transaction;
-    if (viewType == ViewLayoutPB.Document) {
-      transaction = await _insertDocumentReference(
-        childView,
-        selection,
-        node,
-      );
-    } else {
-      transaction = await _insertDatabaseReference(
-        childView,
-        selection.end.path,
-      );
-    }
+    final Transaction transaction = viewType == ViewLayoutPB.Document
+        ? await _insertDocumentReference(childView, selection, node)
+        : await _insertDatabaseReference(childView, selection.end.path);
 
     await apply(transaction);
   }
@@ -96,7 +87,7 @@ extension InsertDatabase on EditorState {
     // get the database id that the view is associated with
     final databaseId = await DatabaseViewBackendService(viewId: view.id)
         .getDatabaseId()
-        .then((value) => value.swap().toOption().toNullable());
+        .then((value) => value.toNullable());
 
     if (databaseId == null) {
       throw StateError(
@@ -110,7 +101,7 @@ extension InsertDatabase on EditorState {
       name: "$prefix ${view.name}",
       layoutType: view.layout,
       databaseId: databaseId,
-    ).then((value) => value.swap().toOption().toNullable());
+    ).then((value) => value.toNullable());
 
     if (ref == null) {
       throw FlowyError(

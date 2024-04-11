@@ -2,14 +2,14 @@ import React, { FC, useCallback } from 'react';
 import { ReactComponent as CheckboxCheckSvg } from '$app/assets/database/checkbox-check.svg';
 import { ReactComponent as CheckboxUncheckSvg } from '$app/assets/database/checkbox-uncheck.svg';
 import { useViewId } from '$app/hooks';
-import { cellService, CheckboxCell as CheckboxCellType, Field } from '../../application';
+import { cellService, CheckboxCell as CheckboxCellType, Field } from '$app/application/database';
 
 export const CheckboxCell: FC<{
   field: Field;
   cell: CheckboxCellType;
 }> = ({ field, cell }) => {
   const viewId = useViewId();
-  const checked = cell.data === 'Yes';
+  const checked = cell.data;
 
   const handleClick = useCallback(() => {
     void cellService.updateCell(viewId, cell.rowId, field.id, !checked ? 'Yes' : 'No');

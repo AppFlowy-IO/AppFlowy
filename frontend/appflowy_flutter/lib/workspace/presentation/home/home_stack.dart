@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/core/frameless_window.dart';
 import 'package:appflowy/plugins/blank/blank.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
@@ -8,9 +10,8 @@ import 'package:appflowy/workspace/presentation/home/navigation.dart';
 import 'package:appflowy/workspace/presentation/home/tabs/tabs_manager.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:time/time.dart';
@@ -24,13 +25,14 @@ abstract class HomeStackDelegate {
 }
 
 class HomeStack extends StatelessWidget {
-  final HomeStackDelegate delegate;
-  final HomeLayout layout;
   const HomeStack({
+    super.key,
     required this.delegate,
     required this.layout,
-    super.key,
   });
+
+  final HomeStackDelegate delegate;
+  final HomeLayout layout;
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +43,6 @@ class HomeStack extends StatelessWidget {
       child: BlocBuilder<TabsBloc, TabsState>(
         builder: (context, state) {
           return Column(
-            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Padding(
                 padding: EdgeInsets.only(left: layout.menuSpacing),
@@ -105,10 +106,6 @@ class _PageStackState extends State<PageStack>
 }
 
 class FadingIndexedStack extends StatefulWidget {
-  final int index;
-  final List<Widget> children;
-  final Duration duration;
-
   const FadingIndexedStack({
     super.key,
     required this.index,
@@ -117,6 +114,10 @@ class FadingIndexedStack extends StatefulWidget {
       milliseconds: 250,
     ),
   });
+
+  final int index;
+  final List<Widget> children;
+  final Duration duration;
 
   @override
   FadingIndexedStackState createState() => FadingIndexedStackState();
@@ -161,6 +162,9 @@ abstract mixin class NavigationItem {
 }
 
 class PageNotifier extends ChangeNotifier {
+  PageNotifier({Plugin? plugin})
+      : _plugin = plugin ?? makePlugin(pluginType: PluginType.blank);
+
   Plugin _plugin;
 
   Widget get titleWidget => _plugin.widgetBuilder.leftBarItem;
@@ -168,13 +172,11 @@ class PageNotifier extends ChangeNotifier {
   Widget tabBarWidget(String pluginId) =>
       _plugin.widgetBuilder.tabBarItem(pluginId);
 
-  PageNotifier({Plugin? plugin})
-      : _plugin = plugin ?? makePlugin(pluginType: PluginType.blank);
-
   /// This is the only place where the plugin is set.
   /// No need compare the old plugin with the new plugin. Just set it.
   set plugin(Plugin newPlugin) {
     _plugin.dispose();
+    newPlugin.init();
 
     /// Set the plugin view as the latest view.
     FolderEventSetLatestView(ViewIdPB(value: newPlugin.id)).send();
@@ -188,11 +190,11 @@ class PageNotifier extends ChangeNotifier {
 
 // PageManager manages the view for one Tab
 class PageManager {
+  PageManager();
+
   final PageNotifier _notifier = PageNotifier();
 
   PageNotifier get notifier => _notifier;
-
-  PageManager();
 
   Widget title() {
     return _notifier.plugin.widgetBuilder.leftBarItem;
@@ -253,6 +255,10 @@ class PageManager {
       ),
     );
   }
+
+  void dispose() {
+    _notifier.dispose();
+  }
 }
 
 class HomeTopBar extends StatelessWidget {
@@ -275,7 +281,6 @@ class HomeTopBar extends StatelessWidget {
           horizontal: HomeInsets.topBarTitlePadding,
         ),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             HSpace(layout.menuSpacing),
             const FlowyNavigation(),

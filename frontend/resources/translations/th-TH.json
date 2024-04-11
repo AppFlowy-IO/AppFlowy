@@ -177,9 +177,7 @@
     "dragRow": "กดค้างเพื่อเรียงลำดับแถวใหม่",
     "viewDataBase": "ดูฐานข้อมูล",
     "referencePage": "{name} ถูกอ้างอิงถึง",
-    "addBlockBelow": "เพิ่มบล็อกด้านล่าง",
-    "urlLaunchAccessory": "เปิดในเบราว์เซอร์",
-    "urlCopyAccessory": "คัดลอก URL"
+    "addBlockBelow": "เพิ่มบล็อกด้านล่าง"
   },
   "sideBar": {
     "closeSidebar": "ปิดแถบด้านข้าง",
@@ -231,9 +229,7 @@
     "rename": "เปลี่ยนชื่อ",
     "helpCenter": "ศูนย์ช่วยเหลือ",
     "add": "เพิ่ม",
-    "yes": "ใช่",
-    "Done": "เสร็จแล้ว",
-    "Cancel": "ยกเลิก"
+    "yes": "ใช่"
   },
   "label": {
     "welcome": "ยินดีต้อนรับ!",
@@ -482,13 +478,9 @@
       "isComplete": "เสร็จสมบูรณ์",
       "isIncomplted": "ไม่เสร็จสมบูรณ์"
     },
-    "singleSelectOptionFilter": {
+    "selectOptionFilter": {
       "is": "เป็น",
       "isNot": "ไม่เป็น",
-      "isEmpty": "ว่างเปล่า",
-      "isNotEmpty": "ไม่ว่างเปล่า"
-    },
-    "multiSelectOptionFilter": {
       "contains": "ประกอบด้วย",
       "doesNotContain": "ไม่ประกอบด้วย",
       "isEmpty": "ว่างเปล่า",
@@ -559,7 +551,7 @@
       "showHiddenFields": {
         "one": "แสดงฟิลด์ที่ซ่อนอยู่ {count} ฟิลด์",
         "many": "แสดงฟิลด์ที่ซ่อนอยู่ {count} ฟิลด์",
-        "other": "แสดงฟิลด์ที่ซ่อนอยู่ {count} ฟิลด์"  
+        "other": "แสดงฟิลด์ที่ซ่อนอยู่ {count} ฟิลด์"
       },
       "hideHiddenFields": {
         "one": "ซ่อนฟิลด์ที่ซ่อนอยู่ {count} ฟิลด์",
@@ -616,6 +608,10 @@
       "hideComplete": "ซ่อนงานเสร็จ",
       "showComplete": "แสดงงานทั้งหมด"
     },
+    "url": {
+      "launch": "เปิดในเบราว์เซอร์",
+      "copy": "คัดลอก URL"
+    },
     "menuName": "ตาราง",
     "referencedGridPrefix": "มุมมองของ"
   },
@@ -632,11 +628,11 @@
       },
       "grid": {
         "selectAGridToLinkTo": "เลือกตารางเพื่อเชื่อมโยง",
-      "createANewGrid": "สร้างตารางใหม่"
+        "createANewGrid": "สร้างตารางใหม่"
       },
       "calendar": {
         "selectACalendarToLinkTo": "เลือกปฏิทินเพื่อเชื่อมโยง",
-      "createANewCalendar": "สร้างปฏิทินใหม่"
+        "createANewCalendar": "สร้างปฏิทินใหม่"
       },
       "document": {
         "selectADocumentToLinkTo": "เลือกเอกสารเพื่อเชื่อมโยง"
@@ -766,7 +762,7 @@
       },
       "stability_ai": {
         "label": "สร้างรูปภาพจาก Stability AI",
-      "placeholder": "โปรดระบุคำขอใช้ Stability AI สร้างรูปภาพ"
+        "placeholder": "โปรดระบุคำขอใช้ Stability AI สร้างรูปภาพ"
       },
       "support": "ขนาดรูปภาพจำกัดอยู่ที่ 5MB รูปแบบที่รองรับ: JPEG, PNG, GIF, SVG",
       "error": {
@@ -861,9 +857,9 @@
     "notesTooltip": "บันทึกย่อข้างใน",
     "mobile": {
       "editURL": "แก้ไข URL",
-      "unhideGroup": "เลิกซ่อนกลุ่ม",
-      "unhideGroupContent": "คุณแน่ใจหรือไม่ว่าต้องการแสดงกลุ่มนี้บนกระดาน?",
-      "faildToLoad": "โหลดมุมมองกระดานไม่สำเร็จ"
+      "showGroup": "เลิกซ่อนกลุ่ม",
+      "showGroupContent": "คุณแน่ใจหรือไม่ว่าต้องการแสดงกลุ่มนี้บนกระดาน?",
+      "failedToLoad": "โหลดมุมมองกระดานไม่สำเร็จ"
     }
   },
   "calendar": {

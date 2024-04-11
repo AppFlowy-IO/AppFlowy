@@ -1,10 +1,9 @@
-import 'package:dartz/dartz.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 abstract class KeyValueStorage {
   Future<void> set(String key, String value);
-  Future<Option<String>> get(String key);
-  Future<Option<T>> getWithFormat<T>(
+  Future<String?> get(String key);
+  Future<T?> getWithFormat<T>(
     String key,
     T Function(String value) formatter,
   );
@@ -17,26 +16,26 @@ class DartKeyValue implements KeyValueStorage {
   SharedPreferences get sharedPreferences => _sharedPreferences!;
 
   @override
-  Future<Option<String>> get(String key) async {
+  Future<String?> get(String key) async {
     await _initSharedPreferencesIfNeeded();
 
     final value = sharedPreferences.getString(key);
     if (value != null) {
-      return Some(value);
+      return value;
     }
-    return none();
+    return null;
   }
 
   @override
-  Future<Option<T>> getWithFormat<T>(
+  Future<T?> getWithFormat<T>(
     String key,
     T Function(String value) formatter,
   ) async {
     final value = await get(key);
-    return value.fold(
-      () => none(),
-      (s) => Some(formatter(s)),
-    );
+    if (value == null) {
+      return null;
+    }
+    return formatter(value);
   }
 
   @override

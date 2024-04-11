@@ -1,13 +1,13 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/document/application/share_bloc.dart';
+import 'package:appflowy/plugins/document/application/document_share_bloc.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/string_extension.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
-import 'package:appflowy_backend/protobuf/flowy-document2/entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-document/entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/file_picker/file_picker_service.dart';
@@ -26,8 +26,8 @@ class DocumentShareButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => getIt<DocShareBloc>(param1: view),
-      child: BlocListener<DocShareBloc, DocShareState>(
+      create: (context) => getIt<DocumentShareBloc>(param1: view),
+      child: BlocListener<DocumentShareBloc, DocumentShareState>(
         listener: (context, state) {
           state.mapOrNull(
             finish: (state) {
@@ -38,7 +38,7 @@ class DocumentShareButton extends StatelessWidget {
             },
           );
         },
-        child: BlocBuilder<DocShareBloc, DocShareState>(
+        child: BlocBuilder<DocumentShareBloc, DocumentShareState>(
           builder: (context, state) => ConstrainedBox(
             constraints: const BoxConstraints.expand(
               height: 30,
@@ -101,20 +101,21 @@ class ShareActionListState extends State<ShareActionList> {
 
   @override
   Widget build(BuildContext context) {
-    final docShareBloc = context.read<DocShareBloc>();
+    final docShareBloc = context.read<DocumentShareBloc>();
     return PopoverActionList<ShareActionWrapper>(
       direction: PopoverDirection.bottomWithCenterAligned,
       offset: const Offset(0, 8),
       actions: ShareAction.values
           .map((action) => ShareActionWrapper(action))
           .toList(),
-      buildChild: (controller) {
-        return RoundedTextButton(
+      buildChild: (controller) => Listener(
+        onPointerDown: (_) => controller.show(),
+        child: RoundedTextButton(
           title: LocaleKeys.shareAction_buttonText.tr(),
-          onPressed: () => controller.show(),
+          onPressed: () {},
           textColor: Theme.of(context).colorScheme.onPrimary,
-        );
-      },
+        ),
+      ),
       onSelected: (action, controller) async {
         switch (action.inner) {
           case ShareAction.markdown:
@@ -124,7 +125,7 @@ class ShareActionListState extends State<ShareActionList> {
               fileName: '${name.toFileName()}.md',
             );
             if (exportPath != null) {
-              docShareBloc.add(DocShareEvent.shareMarkdown(exportPath));
+              docShareBloc.add(DocumentShareEvent.shareMarkdown(exportPath));
             }
             break;
         }
@@ -148,9 +149,9 @@ enum ShareAction {
 }
 
 class ShareActionWrapper extends ActionCell {
-  final ShareAction inner;
-
   ShareActionWrapper(this.inner);
+
+  final ShareAction inner;
 
   Widget? icon(Color iconColor) => null;
 

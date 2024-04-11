@@ -1,7 +1,7 @@
 use event_integration::event_builder::EventBuilder;
 use event_integration::EventIntegrationTest;
-use flowy_folder2::entities::icon::{UpdateViewIconPayloadPB, ViewIconPB, ViewIconTypePB};
-use flowy_folder2::entities::*;
+use flowy_folder::entities::icon::{UpdateViewIconPayloadPB, ViewIconPB, ViewIconTypePB};
+use flowy_folder::entities::*;
 use flowy_user::errors::ErrorCode;
 
 #[tokio::test]
@@ -11,14 +11,14 @@ async fn create_workspace_event_test() {
     name: "my second workspace".to_owned(),
     desc: "".to_owned(),
   };
-  let resp = EventBuilder::new(test)
-    .event(flowy_folder2::event_map::FolderEvent::CreateWorkspace)
+  let view_pb = EventBuilder::new(test)
+    .event(flowy_folder::event_map::FolderEvent::CreateFolderWorkspace)
     .payload(request)
     .async_send()
     .await
-    .error()
-    .unwrap();
-  assert_eq!(resp.code, ErrorCode::NotSupportYet);
+    .parse::<flowy_folder::entities::ViewPB>();
+
+  assert_eq!(view_pb.parent_view_id, "my second workspace".to_owned());
 }
 
 // #[tokio::test]
@@ -30,22 +30,22 @@ async fn create_workspace_event_test() {
 //   };
 //   // create a workspace
 //   let resp_1 = EventBuilder::new(test.clone())
-//     .event(flowy_folder2::event_map::FolderEvent::CreateWorkspace)
+//     .event(flowy_folder::event_map::FolderEvent::CreateWorkspace)
 //     .payload(payload)
 //     .async_send()
 //     .await
-//     .parse::<flowy_folder2::entities::WorkspacePB>();
+//     .parse::<flowy_folder::entities::WorkspacePB>();
 //
 //   // open the workspace
 //   let payload = WorkspaceIdPB {
 //     value: Some(resp_1.id.clone()),
 //   };
 //   let resp_2 = EventBuilder::new(test)
-//     .event(flowy_folder2::event_map::FolderEvent::OpenWorkspace)
+//     .event(flowy_folder::event_map::FolderEvent::OpenWorkspace)
 //     .payload(payload)
 //     .async_send()
 //     .await
-//     .parse::<flowy_folder2::entities::WorkspacePB>();
+//     .parse::<flowy_folder::entities::WorkspacePB>();
 //
 //   assert_eq!(resp_1.id, resp_2.id);
 //   assert_eq!(resp_1.name, resp_2.name);
@@ -122,7 +122,7 @@ async fn delete_view_event_test() {
     value: view.id.clone(),
   };
   let error = EventBuilder::new(test.clone())
-    .event(flowy_folder2::event_map::FolderEvent::ReadView)
+    .event(flowy_folder::event_map::FolderEvent::GetView)
     .payload(payload)
     .async_send()
     .await
@@ -145,7 +145,7 @@ async fn put_back_trash_event_test() {
     value: view.id.clone(),
   };
   let error = EventBuilder::new(test.clone())
-    .event(flowy_folder2::event_map::FolderEvent::ReadView)
+    .event(flowy_folder::event_map::FolderEvent::GetView)
     .payload(payload)
     .async_send()
     .await
@@ -157,7 +157,7 @@ async fn put_back_trash_event_test() {
     id: view.id.clone(),
   };
   EventBuilder::new(test.clone())
-    .event(flowy_folder2::event_map::FolderEvent::PutbackTrash)
+    .event(flowy_folder::event_map::FolderEvent::RestoreTrashItem)
     .payload(payload)
     .async_send()
     .await;
@@ -166,7 +166,7 @@ async fn put_back_trash_event_test() {
     value: view.id.clone(),
   };
   let error = EventBuilder::new(test.clone())
-    .event(flowy_folder2::event_map::FolderEvent::ReadView)
+    .event(flowy_folder::event_map::FolderEvent::GetView)
     .payload(payload)
     .async_send()
     .await
@@ -187,16 +187,16 @@ async fn delete_view_permanently_event_test() {
 
   // delete the view. the view will be moved to trash
   EventBuilder::new(test.clone())
-    .event(flowy_folder2::event_map::FolderEvent::DeleteView)
+    .event(flowy_folder::event_map::FolderEvent::DeleteView)
     .payload(payload)
     .async_send()
     .await;
 
   let trash = EventBuilder::new(test.clone())
-    .event(flowy_folder2::event_map::FolderEvent::ReadTrash)
+    .event(flowy_folder::event_map::FolderEvent::ListTrashItems)
     .async_send()
     .await
-    .parse::<flowy_folder2::entities::RepeatedTrashPB>()
+    .parse::<flowy_folder::entities::RepeatedTrashPB>()
     .items;
   assert_eq!(trash.len(), 1);
   assert_eq!(trash[0].id, view.id);
@@ -208,17 +208,17 @@ async fn delete_view_permanently_event_test() {
     }],
   };
   EventBuilder::new(test.clone())
-    .event(flowy_folder2::event_map::FolderEvent::DeleteTrash)
+    .event(flowy_folder::event_map::FolderEvent::PermanentlyDeleteTrashItem)
     .payload(payload)
     .async_send()
     .await;
 
   // After delete the last view, the trash should be empty
   let trash = EventBuilder::new(test.clone())
-    .event(flowy_folder2::event_map::FolderEvent::ReadTrash)
+    .event(flowy_folder::event_map::FolderEvent::ListTrashItems)
     .async_send()
     .await
-    .parse::<flowy_folder2::entities::RepeatedTrashPB>()
+    .parse::<flowy_folder::entities::RepeatedTrashPB>()
     .items;
   assert!(trash.is_empty());
 }
@@ -237,32 +237,32 @@ async fn delete_all_trash_test() {
     };
     // delete the view. the view will be moved to trash
     EventBuilder::new(test.clone())
-      .event(flowy_folder2::event_map::FolderEvent::DeleteView)
+      .event(flowy_folder::event_map::FolderEvent::DeleteView)
       .payload(payload)
       .async_send()
       .await;
   }
 
   let trash = EventBuilder::new(test.clone())
-    .event(flowy_folder2::event_map::FolderEvent::ReadTrash)
+    .event(flowy_folder::event_map::FolderEvent::ListTrashItems)
     .async_send()
     .await
-    .parse::<flowy_folder2::entities::RepeatedTrashPB>()
+    .parse::<flowy_folder::entities::RepeatedTrashPB>()
     .items;
   assert_eq!(trash.len(), 3);
 
   // Delete all the trash
   EventBuilder::new(test.clone())
-    .event(flowy_folder2::event_map::FolderEvent::DeleteAllTrash)
+    .event(flowy_folder::event_map::FolderEvent::PermanentlyDeleteAllTrashItem)
     .async_send()
     .await;
 
   // After delete the last view, the trash should be empty
   let trash = EventBuilder::new(test.clone())
-    .event(flowy_folder2::event_map::FolderEvent::ReadTrash)
+    .event(flowy_folder::event_map::FolderEvent::ListTrashItems)
     .async_send()
     .await
-    .parse::<flowy_folder2::entities::RepeatedTrashPB>()
+    .parse::<flowy_folder::entities::RepeatedTrashPB>()
     .items;
   assert!(trash.is_empty());
 }
@@ -323,11 +323,11 @@ async fn multiple_hierarchy_view_test() {
       };
 
       let child = EventBuilder::new(test.clone())
-        .event(flowy_folder2::event_map::FolderEvent::ReadView)
+        .event(flowy_folder::event_map::FolderEvent::GetView)
         .payload(payload)
         .async_send()
         .await
-        .parse::<flowy_folder2::entities::ViewPB>();
+        .parse::<flowy_folder::entities::ViewPB>();
       assert_eq!(child.name, format!("My {}-{} view", i + 1, j + 1));
       assert_eq!(child.child_views.len(), 1);
       // By default only the first level of child views will be loaded
@@ -370,7 +370,7 @@ async fn move_view_event_test() {
     to: 2,
   };
   let _ = EventBuilder::new(test.clone())
-    .event(flowy_folder2::event_map::FolderEvent::MoveView)
+    .event(flowy_folder::event_map::FolderEvent::MoveView)
     .payload(payload)
     .async_send()
     .await;
@@ -411,7 +411,7 @@ async fn move_view_event_after_delete_view_test() {
     to: 3,
   };
   let _ = EventBuilder::new(test.clone())
-    .event(flowy_folder2::event_map::FolderEvent::MoveView)
+    .event(flowy_folder::event_map::FolderEvent::MoveView)
     .payload(payload)
     .async_send()
     .await;
@@ -452,7 +452,7 @@ async fn move_view_event_after_delete_view_test2() {
     to: 2,
   };
   let _ = EventBuilder::new(test.clone())
-    .event(flowy_folder2::event_map::FolderEvent::MoveView)
+    .event(flowy_folder::event_map::FolderEvent::MoveView)
     .payload(payload)
     .async_send()
     .await;
@@ -474,7 +474,7 @@ async fn create_parent_view_with_invalid_name() {
     };
     assert_eq!(
       EventBuilder::new(sdk)
-        .event(flowy_folder2::event_map::FolderEvent::CreateWorkspace)
+        .event(flowy_folder::event_map::FolderEvent::CreateFolderWorkspace)
         .payload(request)
         .async_send()
         .await
@@ -549,9 +549,11 @@ async fn move_folder_nested_view(
     view_id,
     new_parent_id,
     prev_view_id,
+    from_section: None,
+    to_section: None,
   };
   EventBuilder::new(sdk)
-    .event(flowy_folder2::event_map::FolderEvent::MoveNestedView)
+    .event(flowy_folder::event_map::FolderEvent::MoveNestedView)
     .payload(payload)
     .async_send()
     .await;

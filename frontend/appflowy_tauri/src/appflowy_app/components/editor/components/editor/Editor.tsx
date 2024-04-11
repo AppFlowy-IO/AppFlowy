@@ -1,62 +1,76 @@
-import React, { useEffect } from 'react';
-import {
-  EditorSelectedBlockProvider,
-  useDecorate,
-  useEditor,
-  useEditorSelectedBlock,
-} from '$app/components/editor/components/editor/Editor.hooks';
+import React, { useCallback } from 'react';
+import { useDecorateCodeHighlight, useEditor } from '$app/components/editor/components/editor/Editor.hooks';
 import { Slate } from 'slate-react';
 import { CustomEditable } from '$app/components/editor/components/editor/CustomEditable';
-import { EditorNodeType, EditorProps } from '$app/application/document/document.types';
 import { SelectionToolbar } from '$app/components/editor/components/tools/selection_toolbar';
-import { useShortcuts } from '$app/components/editor/components/editor/shortcuts';
 import { BlockActionsToolbar } from '$app/components/editor/components/tools/block_actions';
-import { SlashCommandPanel } from '$app/components/editor/components/tools/command_panel/slash_command_panel';
-import { MentionPanel } from '$app/components/editor/components/tools/command_panel/mention_panel';
+
 import { CircularProgress } from '@mui/material';
-import { CustomEditor } from '$app/components/editor/command';
+import { NodeEntry } from 'slate';
+import {
+  DecorateStateProvider,
+  EditorSelectedBlockProvider,
+  useInitialEditorState,
+  SlashStateProvider,
+  EditorInlineBlockStateProvider,
+} from '$app/components/editor/stores';
+import CommandPanel from '../tools/command_panel/CommandPanel';
+import { EditorBlockStateProvider } from '$app/components/editor/stores/block';
+import { LocalEditorProps } from '$app/application/document/document.types';
 
-function Editor({ sharedType, appendTextRef }: EditorProps) {
+function Editor({ sharedType, disableFocus, caretColor = 'var(--text-title)' }: LocalEditorProps) {
   const { editor, initialValue, handleOnClickEnd, ...props } = useEditor(sharedType);
-  const decorate = useDecorate(editor);
-  const { onDOMBeforeInput, onKeyDown: onShortcutsKeyDown } = useShortcuts(editor);
+  const decorateCodeHighlight = useDecorateCodeHighlight(editor);
 
-  useEffect(() => {
-    if (!appendTextRef) return;
-    appendTextRef.current = (text: string) => {
-      CustomEditor.insertLineAtStart(editor, {
-        type: EditorNodeType.Paragraph,
-        children: [{ text }],
-      });
-    };
+  const {
+    selectedBlocks,
+    decorate: decorateCustomRange,
+    decorateState,
+    slashState,
+    inlineBlockState,
+    blockState,
+  } = useInitialEditorState(editor);
 
-    return () => {
-      appendTextRef.current = null;
-    };
-  }, [appendTextRef, editor]);
+  const decorate = useCallback(
+    (entry: NodeEntry) => {
+      const codeRanges = decorateCodeHighlight(entry);
+      const customRanges = decorateCustomRange(entry);
 
-  const { onSelectedBlock, selectedBlockId } = useEditorSelectedBlock(editor);
+      return [...codeRanges, ...customRanges];
+    },
+    [decorateCodeHighlight, decorateCustomRange]
+  );
 
   if (editor.sharedRoot.length === 0) {
     return <CircularProgress className='m-auto' />;
   }
 
   return (
-    <EditorSelectedBlockProvider value={selectedBlockId}>
-      <Slate editor={editor} initialValue={initialValue}>
-        <SelectionToolbar />
-        <BlockActionsToolbar onSelectedBlock={onSelectedBlock} />
-        <CustomEditable
-          {...props}
-          onDOMBeforeInput={onDOMBeforeInput}
-          onKeyDown={onShortcutsKeyDown}
-          decorate={decorate}
-          className={'caret-text-title outline-none focus:outline-none'}
-        />
-        <SlashCommandPanel />
-        <MentionPanel />
-        <div onClick={handleOnClickEnd} className={'relative bottom-0 left-0 h-10 w-full cursor-text'} />
-      </Slate>
+    <EditorSelectedBlockProvider value={selectedBlocks}>
+      <DecorateStateProvider value={decorateState}>
+        <EditorBlockStateProvider value={blockState}>
+          <EditorInlineBlockStateProvider value={inlineBlockState}>
+            <SlashStateProvider value={slashState}>
+              <Slate editor={editor} initialValue={initialValue}>
+                <BlockActionsToolbar />
+                <SelectionToolbar />
+
+                <CustomEditable
+                  {...props}
+                  disableFocus={disableFocus}
+                  decorate={decorate}
+                  style={{
+                    caretColor,
+                  }}
+                  className={`px-16 outline-none focus:outline-none`}
+                />
+                <CommandPanel />
+                <div onClick={handleOnClickEnd} className={'relative bottom-0 left-0 h-10 w-full cursor-text'} />
+              </Slate>
+            </SlashStateProvider>
+          </EditorInlineBlockStateProvider>
+        </EditorBlockStateProvider>
+      </DecorateStateProvider>
     </EditorSelectedBlockProvider>
   );
 }

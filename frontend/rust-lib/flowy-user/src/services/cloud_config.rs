@@ -3,7 +3,7 @@ use std::sync::Arc;
 use flowy_encrypt::generate_encryption_secret;
 use flowy_error::FlowyResult;
 use flowy_sqlite::kv::StorePreferences;
-use flowy_user_deps::cloud::UserCloudConfig;
+use flowy_user_pub::cloud::UserCloudConfig;
 
 const CLOUD_CONFIG_KEY: &str = "af_user_cloud_config";
 

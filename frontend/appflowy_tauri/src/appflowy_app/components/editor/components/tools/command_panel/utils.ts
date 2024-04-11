@@ -19,8 +19,12 @@ export function getPanelPosition(editor: ReactEditor) {
   const rect = domRange?.getBoundingClientRect();
 
   if (!rect) return null;
+  const nodeDom = domSelection.anchorNode?.parentElement?.closest('.text-element');
+  const height = (nodeDom?.getBoundingClientRect().height ?? 0) + 8;
+
   return {
     ...rect,
+    height,
     top: rect.top,
     left: rect.left,
   };

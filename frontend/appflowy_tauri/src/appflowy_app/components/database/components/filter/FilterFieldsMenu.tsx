@@ -1,11 +1,11 @@
-import React, { MouseEvent, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import { MenuProps } from '@mui/material';
 import PropertiesList from '$app/components/database/components/property/PropertiesList';
-import { Field } from '$app/components/database/application';
+import { Field } from '$app/application/database';
 import { useViewId } from '$app/hooks';
 import { useTranslation } from 'react-i18next';
-import { insertFilter } from '$app/components/database/application/filter/filter_service';
-import { getDefaultFilter } from '$app/components/database/application/filter/filter_data';
+import { insertFilter } from '$app/application/database/filter/filter_service';
+import { getDefaultFilter } from '$app/application/database/filter/filter_data';
 import Popover from '@mui/material/Popover';
 
 function FilterFieldsMenu({
@@ -18,7 +18,7 @@ function FilterFieldsMenu({
   const { t } = useTranslation();
 
   const addFilter = useCallback(
-    async (event: MouseEvent, field: Field) => {
+    async (field: Field) => {
       const filterData = getDefaultFilter(field.type);
 
       await insertFilter({
@@ -34,8 +34,24 @@ function FilterFieldsMenu({
   );
 
   return (
-    <Popover {...props}>
-      <PropertiesList showSearch searchPlaceholder={t('grid.settings.filterBy')} onItemClick={addFilter} />
+    <Popover
+      onKeyDown={(e) => {
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          e.stopPropagation();
+          props.onClose?.({}, 'escapeKeyDown');
+        }
+      }}
+      {...props}
+    >
+      <PropertiesList
+        onClose={() => {
+          props.onClose?.({}, 'escapeKeyDown');
+        }}
+        showSearch
+        searchPlaceholder={t('grid.settings.filterBy')}
+        onItemClick={addFilter}
+      />
     </Popover>
   );
 }

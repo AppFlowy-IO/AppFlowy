@@ -6,14 +6,14 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-flowy-derive = { path = "../../../shared-lib/flowy-derive" }
+flowy-derive.workspace = true
 flowy-sqlite = { workspace = true, optional = true }
 flowy-encrypt = { workspace = true }
-flowy-error = { workspace = true, features = ["impl_from_sqlite", "impl_from_dispatch_error"] }
-flowy-folder-deps = { workspace = true }
-lib-infra = { path = "../../../shared-lib/lib-infra" }
+flowy-error = { workspace = true, features = ["impl_from_dispatch_error", "impl_from_sqlite", "impl_from_collab_folder", "impl_from_collab_persistence"] }
+flowy-folder-pub = { workspace = true }
+lib-infra = { workspace = true }
 flowy-notification  = { workspace = true }
-flowy-server-config = { workspace = true }
+flowy-server-pub = { workspace = true }
 lib-dispatch = { workspace = true }
 collab-integrate = { workspace = true }
 collab = { version = "0.1.0" }
@@ -22,7 +22,8 @@ collab-document = { version = "0.1.0" }
 collab-database = { version = "0.1.0" }
 collab-user = { version = "0.1.0" }
 collab-entity = { version = "0.1.0" }
-flowy-user-deps = { workspace = true }
+collab-plugins = { version = "0.1.0" }
+flowy-user-pub = { workspace = true }
 anyhow.workspace = true
 tracing.workspace = true
 bytes.workspace = true
@@ -32,7 +33,7 @@ serde_repr.workspace = true
 protobuf.workspace = true
 lazy_static = "1.4.0"
 diesel.workspace = true
-diesel_derives = { version = "1.4.1", features = ["sqlite"] }
+diesel_derives = { version = "2.1.0", features = ["sqlite", "r2d2"] }
 once_cell = "1.17.1"
 parking_lot.workspace = true
 strum = "0.25"
@@ -45,6 +46,7 @@ uuid.workspace = true
 chrono = { workspace = true,  default-features = false, features = ["clock"] }
 base64 = "^0.21"
 tokio-stream = "0.1.14"
+semver = "1.0.22"
 
 [dev-dependencies]
 nanoid = "0.4.0"
@@ -58,7 +60,7 @@ quickcheck_macros = "1.0"
 default = ["rev-sqlite"]
 rev-sqlite = ["flowy-sqlite"]
 dart = ["flowy-codegen/dart", "flowy-notification/dart"]
-ts = ["flowy-codegen/ts", "flowy-notification/ts"]
+tauri_ts = ["flowy-codegen/ts", "flowy-notification/tauri_ts"]
 
 [build-dependencies]
-flowy-codegen = { path = "../../../shared-lib/flowy-codegen" }
+flowy-codegen.workspace = true

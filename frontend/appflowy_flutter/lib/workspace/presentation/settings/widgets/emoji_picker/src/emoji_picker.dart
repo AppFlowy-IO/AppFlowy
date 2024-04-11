@@ -301,7 +301,7 @@ class EmojiPickerState extends State<EmojiPicker> {
   ) async {
     final prefs = await SharedPreferences.getInstance();
     final emojiJson = jsonEncode(emojis);
-    prefs.setString(title, emojiJson);
+    await prefs.setString(title, emojiJson);
   }
 
   // Returns list of recently used emoji from cache
@@ -335,6 +335,6 @@ class EmojiPickerState extends State<EmojiPicker> {
       min(widget.config.recentsLimit, recentEmojiList.length),
     );
     // save locally
-    prefs.setString('recent', jsonEncode(recentEmojiList));
+    await prefs.setString('recent', jsonEncode(recentEmojiList));
   }
 }

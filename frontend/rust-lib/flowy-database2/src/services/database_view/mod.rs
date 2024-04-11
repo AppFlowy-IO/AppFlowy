@@ -6,6 +6,7 @@ pub use views::*;
 
 mod layout_deps;
 mod notifier;
+mod view_calculations;
 mod view_editor;
 mod view_filter;
 mod view_group;

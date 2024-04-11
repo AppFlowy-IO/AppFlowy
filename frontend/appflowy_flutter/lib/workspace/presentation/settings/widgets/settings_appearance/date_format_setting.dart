@@ -18,10 +18,10 @@ class DateFormatSetting extends StatelessWidget {
   final UserDateFormatPB currentFormat;
 
   @override
-  Widget build(BuildContext context) => ThemeSettingEntryTemplateWidget(
+  Widget build(BuildContext context) => FlowySettingListTile(
         label: LocaleKeys.settings_appearance_dateFormat_label.tr(),
         trailing: [
-          ThemeValueDropDown(
+          FlowySettingValueDropDown(
             currentValue: _formatLabel(currentFormat),
             popupBuilder: (_) => Column(
               mainAxisSize: MainAxisSize.min,

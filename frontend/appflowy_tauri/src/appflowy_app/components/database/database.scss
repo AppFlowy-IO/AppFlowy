@@ -1,0 +1,19 @@
+.database-collection {
+  ::-webkit-scrollbar {
+    width: 0px;
+    height: 0px;
+  }
+}
+
+.checklist-item {
+  @apply my-1;
+  .delete-option-button {
+    display: none;
+  }
+  &:hover, &.selected {
+    background-color: var(--fill-list-hover);
+    .delete-option-button {
+      display: block;
+    }
+  }
+}

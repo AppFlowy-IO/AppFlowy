@@ -1,18 +1,15 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/mobile/presentation/base/app_bar_actions.dart';
-import 'package:appflowy/mobile/presentation/database/field/mobile_field_type_option_editor.dart';
-import 'package:appflowy/plugins/database_view/application/field/field_backend_service.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
+import 'package:appflowy/mobile/presentation/base/app_bar.dart';
+import 'package:appflowy/mobile/presentation/database/field/mobile_full_field_editor.dart';
+import 'package:appflowy/plugins/database/domain/field_backend_service.dart';
+import 'package:appflowy/plugins/database/application/field/field_info.dart';
+import 'package:appflowy/plugins/database/domain/field_service.dart';
+import 'package:appflowy/plugins/database/widgets/setting/field_visibility_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 class MobileEditPropertyScreen extends StatefulWidget {
-  static const routeName = '/edit_property';
-  static const argViewId = 'view_id';
-  static const argField = 'field';
-
   const MobileEditPropertyScreen({
     super.key,
     required this.viewId,
@@ -20,7 +17,11 @@ class MobileEditPropertyScreen extends StatefulWidget {
   });
 
   final String viewId;
-  final FieldPB field;
+  final FieldInfo field;
+
+  static const routeName = '/edit_property';
+  static const argViewId = 'view_id';
+  static const argField = 'field';
 
   @override
   State<MobileEditPropertyScreen> createState() =>
@@ -28,12 +29,17 @@ class MobileEditPropertyScreen extends StatefulWidget {
 }
 
 class _MobileEditPropertyScreenState extends State<MobileEditPropertyScreen> {
-  late FieldOptionValues optionValues;
+  late final FieldBackendService fieldService;
+  late FieldOptionValues _fieldOptionValues;
 
   @override
   void initState() {
     super.initState();
-    optionValues = FieldOptionValues.fromField(field: widget.field);
+    _fieldOptionValues = FieldOptionValues.fromField(field: widget.field.field);
+    fieldService = FieldBackendService(
+      viewId: widget.viewId,
+      fieldId: widget.field.id,
+    );
   }
 
   @override
@@ -41,73 +47,71 @@ class _MobileEditPropertyScreenState extends State<MobileEditPropertyScreen> {
     final viewId = widget.viewId;
     final fieldId = widget.field.id;
 
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: FlowyText.medium(
-          LocaleKeys.grid_field_editProperty.tr(),
+    return PopScope(
+      onPopInvoked: (didPop) {
+        if (didPop) {
+          context.pop(_fieldOptionValues);
+        }
+      },
+      child: Scaffold(
+        appBar: FlowyAppBar(
+          titleText: LocaleKeys.grid_field_editProperty.tr(),
+          onTapLeading: () => context.pop(_fieldOptionValues),
         ),
-        leading: AppBarCancelButton(
-          onTap: () => context.pop(),
-        ),
-        leadingWidth: 120,
-        actions: [
-          _SaveButton(
-            onSave: () {
-              context.pop(optionValues);
-            },
-          ),
-        ],
-      ),
-      body: FieldOptionEditor(
-        mode: FieldOptionMode.edit,
-        isPrimary: widget.field.isPrimary,
-        defaultValues: optionValues,
-        onOptionValuesChanged: (optionValues) {
-          this.optionValues = optionValues;
-        },
-        onAction: (action) {
-          final service = FieldServices(
-            viewId: viewId,
-            fieldId: fieldId,
-          );
-          switch (action) {
-            case FieldOptionAction.delete:
-              service.delete();
-              break;
-            case FieldOptionAction.duplicate:
-              service.duplicate();
-              break;
-            case FieldOptionAction.hide:
-              service.hide();
-              break;
-          }
-          context.pop();
-        },
-      ),
-    );
-  }
-}
+        body: MobileFieldEditor(
+          mode: FieldOptionMode.edit,
+          isPrimary: widget.field.isPrimary,
+          defaultValues: FieldOptionValues.fromField(field: widget.field.field),
+          actions: [
+            widget.field.fieldSettings?.visibility.isVisibleState() ?? true
+                ? FieldOptionAction.hide
+                : FieldOptionAction.show,
+            FieldOptionAction.duplicate,
+            FieldOptionAction.delete,
+          ],
+          onOptionValuesChanged: (fieldOptionValues) async {
+            await fieldService.updateField(name: fieldOptionValues.name);
 
-class _SaveButton extends StatelessWidget {
-  const _SaveButton({
-    required this.onSave,
-  });
+            await FieldBackendService.updateFieldType(
+              viewId: widget.viewId,
+              fieldId: widget.field.id,
+              fieldType: fieldOptionValues.type,
+            );
 
-  final VoidCallback onSave;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 16.0),
-      child: Align(
-        alignment: Alignment.center,
-        child: GestureDetector(
-          onTap: onSave,
-          child: FlowyText.medium(
-            LocaleKeys.button_save.tr(),
-            color: const Color(0xFF00ADDC),
-          ),
+            final data = fieldOptionValues.getTypeOptionData();
+            if (data != null) {
+              await FieldBackendService.updateFieldTypeOption(
+                viewId: widget.viewId,
+                fieldId: widget.field.id,
+                typeOptionData: data,
+              );
+            }
+            setState(() {
+              _fieldOptionValues = fieldOptionValues;
+            });
+          },
+          onAction: (action) {
+            final service = FieldServices(
+              viewId: viewId,
+              fieldId: fieldId,
+            );
+            switch (action) {
+              case FieldOptionAction.delete:
+                fieldService.delete();
+                context.pop();
+                return;
+              case FieldOptionAction.duplicate:
+                fieldService.duplicate();
+                break;
+              case FieldOptionAction.hide:
+                service.hide();
+                break;
+              case FieldOptionAction.show:
+                service.show();
+                break;
+            }
+            context.pop(_fieldOptionValues);
+          },
         ),
       ),
     );

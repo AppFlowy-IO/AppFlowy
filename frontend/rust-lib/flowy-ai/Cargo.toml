@@ -10,7 +10,9 @@ reqwest = { version = "0.11", features = ["json"] }
 serde.workspace = true
 serde_json.workspace = true
 anyhow.workspace = true
-lib-infra = { path = "../../../shared-lib/lib-infra" }
+lib-infra = { workspace = true }
 async-openai = "0.14.2"
 tokio = { workspace = true, features = ["rt", "sync"] }
+
+[dev-dependencies]
 dotenv = "0.15.0"

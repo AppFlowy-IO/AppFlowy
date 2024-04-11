@@ -1,18 +1,24 @@
 use anyhow::Error;
 
-use flowy_document_deps::cloud::*;
-use flowy_error::FlowyError;
+use flowy_document_pub::cloud::*;
+use flowy_error::{ErrorCode, FlowyError};
 use lib_infra::future::FutureResult;
 
 pub(crate) struct LocalServerDocumentCloudServiceImpl();
 
 impl DocumentCloudService for LocalServerDocumentCloudServiceImpl {
-  fn get_document_updates(
+  fn get_document_doc_state(
     &self,
-    _document_id: &str,
+    document_id: &str,
     _workspace_id: &str,
-  ) -> FutureResult<Vec<Vec<u8>>, FlowyError> {
-    FutureResult::new(async move { Ok(vec![]) })
+  ) -> FutureResult<Vec<u8>, FlowyError> {
+    let document_id = document_id.to_string();
+    FutureResult::new(async move {
+      Err(FlowyError::new(
+        ErrorCode::RecordNotFound,
+        format!("Document {} not found", document_id),
+      ))
+    })
   }
 
   fn get_document_snapshots(

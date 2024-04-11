@@ -4,18 +4,21 @@ use std::path::Path;
 use base64::Engine;
 use tracing::{error, info};
 
-use flowy_server_config::af_cloud_config::AFCloudConfiguration;
-use flowy_server_config::supabase_config::SupabaseConfiguration;
-use flowy_user::manager::URL_SAFE_ENGINE;
+use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
+use flowy_server_pub::supabase_config::SupabaseConfiguration;
+use flowy_user::services::entities::URL_SAFE_ENGINE;
 use lib_infra::file_util::copy_dir_recursive;
+use lib_infra::util::Platform;
 
 use crate::integrate::log::create_log_filter;
 
 #[derive(Clone)]
 pub struct AppFlowyCoreConfig {
   /// Different `AppFlowyCoreConfig` instance should have different name
+  pub(crate) app_version: String,
   pub(crate) name: String,
   pub(crate) device_id: String,
+  pub platform: String,
   /// Used to store the user data
   pub storage_path: String,
   /// Origin application path is the path of the application binary. By default, the
@@ -30,6 +33,7 @@ pub struct AppFlowyCoreConfig {
 impl fmt::Debug for AppFlowyCoreConfig {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
     let mut debug = f.debug_struct("AppFlowy Configuration");
+    debug.field("app_version", &self.app_version);
     debug.field("storage_path", &self.storage_path);
     debug.field("application_path", &self.application_path);
     if let Some(config) = &self.cloud_config {
@@ -41,7 +45,7 @@ impl fmt::Debug for AppFlowyCoreConfig {
   }
 }
 
-fn migrate_local_version_data_folder(root: &str, url: &str) -> String {
+fn make_user_data_folder(root: &str, url: &str) -> String {
   // Isolate the user data folder by using the base url of AppFlowy cloud. This is to avoid
   // the user data folder being shared by different AppFlowy cloud.
   let storage_path = if !url.is_empty() {
@@ -71,9 +75,11 @@ fn migrate_local_version_data_folder(root: &str, url: &str) -> String {
 
 impl AppFlowyCoreConfig {
   pub fn new(
+    app_version: String,
     custom_application_path: String,
     application_path: String,
     device_id: String,
+    platform: String,
     name: String,
   ) -> Self {
     let cloud_config = AFCloudConfiguration::from_env().ok();
@@ -82,24 +88,31 @@ impl AppFlowyCoreConfig {
         let supabase_config = SupabaseConfiguration::from_env().ok();
         match &supabase_config {
           None => custom_application_path,
-          Some(config) => migrate_local_version_data_folder(&custom_application_path, &config.url),
+          Some(config) => make_user_data_folder(&custom_application_path, &config.url),
         }
       },
-      Some(config) => migrate_local_version_data_folder(&custom_application_path, &config.base_url),
+      Some(config) => make_user_data_folder(&custom_application_path, &config.base_url),
     };
+    let log_filter = create_log_filter("info".to_owned(), vec![], Platform::from(&platform));
 
     AppFlowyCoreConfig {
+      app_version,
       name,
       storage_path,
       application_path,
       device_id,
-      log_filter: create_log_filter("info".to_owned(), vec![]),
+      platform,
+      log_filter,
       cloud_config,
     }
   }
 
   pub fn log_filter(mut self, level: &str, with_crates: Vec<String>) -> Self {
-    self.log_filter = create_log_filter(level.to_owned(), with_crates);
+    self.log_filter = create_log_filter(
+      level.to_owned(),
+      with_crates,
+      Platform::from(&self.platform),
+    );
     self
   }
 }

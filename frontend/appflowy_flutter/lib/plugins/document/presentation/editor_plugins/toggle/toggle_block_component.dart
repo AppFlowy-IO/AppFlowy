@@ -46,7 +46,7 @@ Node toggleListBlockNode({
 
 // defining the toggle list block menu item
 SelectionMenuItem toggleListBlockItem = SelectionMenuItem.node(
-  name: LocaleKeys.document_plugins_toggleList.tr(),
+  getName: LocaleKeys.document_plugins_toggleList.tr,
   iconData: Icons.arrow_right,
   keywords: ['collapsed list', 'toggle list', 'list'],
   nodeBuilder: (editorState, _) => toggleListBlockNode(),
@@ -159,7 +159,6 @@ class _ToggleListBlockComponentWidgetState
       child: Row(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.start,
         textDirection: textDirection,
         children: [
           // the emoji picker button for the note

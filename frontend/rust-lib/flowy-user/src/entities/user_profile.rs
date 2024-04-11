@@ -1,15 +1,12 @@
 use std::convert::TryInto;
-
 use validator::Validate;
 
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use flowy_user_deps::entities::*;
+use flowy_user_pub::entities::*;
 
 use crate::entities::parser::{UserEmail, UserIcon, UserName, UserOpenaiKey, UserPassword};
-use crate::entities::required_not_empty_str;
-use crate::entities::AuthTypePB;
+use crate::entities::AuthenticatorPB;
 use crate::errors::ErrorCode;
-use crate::services::entities::HistoricalUser;
 
 use super::parser::UserStabilityAIKey;
 
@@ -46,7 +43,7 @@ pub struct UserProfilePB {
   pub openai_key: String,
 
   #[pb(index = 7)]
-  pub auth_type: AuthTypePB,
+  pub authenticator: AuthenticatorPB,
 
   #[pb(index = 8)]
   pub encryption_sign: String,
@@ -73,7 +70,7 @@ impl Default for EncryptionTypePB {
   }
 }
 
-impl std::convert::From<UserProfile> for UserProfilePB {
+impl From<UserProfile> for UserProfilePB {
   fn from(user_profile: UserProfile) -> Self {
     let (encryption_sign, encryption_ty) = match user_profile.encryption_type {
       EncryptionType::NoEncryption => ("".to_string(), EncryptionTypePB::NoEncryption),
@@ -86,7 +83,7 @@ impl std::convert::From<UserProfile> for UserProfilePB {
       token: user_profile.token,
       icon_url: user_profile.icon_url,
       openai_key: user_profile.openai_key,
-      auth_type: user_profile.authenticator.into(),
+      authenticator: user_profile.authenticator.into(),
       encryption_sign,
       encryption_type: encryption_ty,
       workspace_id: user_profile.workspace_id,
@@ -223,11 +220,17 @@ impl From<Vec<UserWorkspace>> for RepeatedUserWorkspacePB {
 #[derive(ProtoBuf, Default, Debug, Clone, Validate)]
 pub struct UserWorkspacePB {
   #[pb(index = 1)]
-  #[validate(custom = "required_not_empty_str")]
+  #[validate(custom = "lib_infra::validator_fn::required_not_empty_str")]
   pub workspace_id: String,
 
   #[pb(index = 2)]
   pub name: String,
+
+  #[pb(index = 3)]
+  pub created_at_timestamp: i64,
+
+  #[pb(index = 4)]
+  pub icon: String,
 }
 
 impl From<UserWorkspace> for UserWorkspacePB {
@@ -235,53 +238,8 @@ impl From<UserWorkspace> for UserWorkspacePB {
     Self {
       workspace_id: value.id,
       name: value.name,
-    }
-  }
-}
-
-#[derive(ProtoBuf, Default, Clone)]
-pub struct RepeatedHistoricalUserPB {
-  #[pb(index = 1)]
-  pub items: Vec<HistoricalUserPB>,
-}
-
-#[derive(ProtoBuf, Default, Clone)]
-pub struct HistoricalUserPB {
-  #[pb(index = 1)]
-  pub user_id: i64,
-
-  #[pb(index = 2)]
-  pub user_name: String,
-
-  #[pb(index = 3)]
-  pub last_time: i64,
-
-  #[pb(index = 4)]
-  pub auth_type: AuthTypePB,
-
-  #[pb(index = 5)]
-  pub device_id: String,
-}
-
-impl From<Vec<HistoricalUser>> for RepeatedHistoricalUserPB {
-  fn from(historical_users: Vec<HistoricalUser>) -> Self {
-    Self {
-      items: historical_users
-        .into_iter()
-        .map(HistoricalUserPB::from)
-        .collect(),
-    }
-  }
-}
-
-impl From<HistoricalUser> for HistoricalUserPB {
-  fn from(historical_user: HistoricalUser) -> Self {
-    Self {
-      user_id: historical_user.user_id,
-      user_name: historical_user.user_name,
-      last_time: historical_user.sign_in_timestamp,
-      auth_type: historical_user.auth_type.into(),
-      device_id: historical_user.device_id,
+      created_at_timestamp: value.created_at.timestamp(),
+      icon: value.icon,
     }
   }
 }

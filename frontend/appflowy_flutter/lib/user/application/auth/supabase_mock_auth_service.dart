@@ -1,13 +1,13 @@
 import 'dart:async';
 
-import 'package:appflowy/user/application/auth/backend_auth_service.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
+import 'package:appflowy/user/application/auth/backend_auth_service.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
-import 'package:dartz/dartz.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'auth_error.dart';
@@ -21,10 +21,10 @@ class SupabaseMockAuthService implements AuthService {
   GoTrueClient get _auth => _client.auth;
 
   final BackendAuthService _appFlowyAuthService =
-      BackendAuthService(AuthTypePB.Supabase);
+      BackendAuthService(AuthenticatorPB.Supabase);
 
   @override
-  Future<Either<FlowyError, UserProfilePB>> signUp({
+  Future<FlowyResult<UserProfilePB, FlowyError>> signUp({
     required String name,
     required String email,
     required String password,
@@ -34,7 +34,7 @@ class SupabaseMockAuthService implements AuthService {
   }
 
   @override
-  Future<Either<FlowyError, UserProfilePB>> signInWithEmailPassword({
+  Future<FlowyResult<UserProfilePB, FlowyError>> signInWithEmailPassword({
     required String email,
     required String password,
     Map<String, String> params = const {},
@@ -43,7 +43,7 @@ class SupabaseMockAuthService implements AuthService {
   }
 
   @override
-  Future<Either<FlowyError, UserProfilePB>> signUpWithOAuth({
+  Future<FlowyResult<UserProfilePB, FlowyError>> signUpWithOAuth({
     required String platform,
     Map<String, String> params = const {},
   }) async {
@@ -58,7 +58,7 @@ class SupabaseMockAuthService implements AuthService {
           );
         } catch (e) {
           Log.error(e);
-          return Left(AuthError.supabaseSignUpError);
+          return FlowyResult.failure(AuthError.supabaseSignUpError);
         }
       }
       // Check if the user is already logged in.
@@ -67,7 +67,7 @@ class SupabaseMockAuthService implements AuthService {
 
       // Create the OAuth sign-in payload.
       final payload = OauthSignInPB(
-        authType: AuthTypePB.Supabase,
+        authenticator: AuthenticatorPB.Supabase,
         map: {
           AuthServiceMapKeys.uuid: uuid,
           AuthServiceMapKeys.email: email,
@@ -76,10 +76,10 @@ class SupabaseMockAuthService implements AuthService {
       );
 
       // Send the sign-in event and handle the response.
-      return UserEventOauthSignIn(payload).send().then((value) => value.swap());
+      return UserEventOauthSignIn(payload).send().then((value) => value);
     } on AuthException catch (e) {
       Log.error(e);
-      return Left(AuthError.supabaseSignInError);
+      return FlowyResult.failure(AuthError.supabaseSignInError);
     }
   }
 
@@ -90,7 +90,7 @@ class SupabaseMockAuthService implements AuthService {
   }
 
   @override
-  Future<Either<FlowyError, UserProfilePB>> signUpAsGuest({
+  Future<FlowyResult<UserProfilePB, FlowyError>> signUpAsGuest({
     Map<String, String> params = const {},
   }) async {
     // supabase don't support guest login.
@@ -99,7 +99,7 @@ class SupabaseMockAuthService implements AuthService {
   }
 
   @override
-  Future<Either<FlowyError, UserProfilePB>> signInWithMagicLink({
+  Future<FlowyResult<UserProfilePB, FlowyError>> signInWithMagicLink({
     required String email,
     Map<String, String> params = const {},
   }) async {
@@ -107,7 +107,7 @@ class SupabaseMockAuthService implements AuthService {
   }
 
   @override
-  Future<Either<FlowyError, UserProfilePB>> getUser() async {
+  Future<FlowyResult<UserProfilePB, FlowyError>> getUser() async {
     return UserBackendService.getCurrentUserProfile();
   }
 }

@@ -15,21 +15,21 @@ import 'package:flutter/material.dart';
 Future<void> createViewAndShowRenameDialogIfNeeded(
   BuildContext context,
   String dialogTitle,
-  void Function(String viewName) createView,
+  void Function(String viewName, BuildContext context) createView,
 ) async {
   final value = await getIt<KeyValueStorage>().getWithFormat(
     KVKeys.showRenameDialogWhenCreatingNewFile,
     (value) => bool.parse(value),
   );
-  final showRenameDialog = value.fold(() => false, (r) => r);
+  final showRenameDialog = value ?? false;
   if (context.mounted && showRenameDialog) {
-    NavigatorTextFieldDialog(
+    await NavigatorTextFieldDialog(
       title: dialogTitle,
       value: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
       autoSelectAllText: true,
-      confirm: createView,
+      onConfirm: createView,
     ).show(context);
-  } else {
-    createView(LocaleKeys.menuAppHeader_defaultNewPageName.tr());
+  } else if (context.mounted) {
+    createView(LocaleKeys.menuAppHeader_defaultNewPageName.tr(), context);
   }
 }

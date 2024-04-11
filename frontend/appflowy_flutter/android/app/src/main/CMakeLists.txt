@@ -11,6 +11,12 @@ file(COPY
     DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/jniLibs/arm64-v8a
 )
 
+# armeabi-v7a
+file(COPY
+    ${ANDROID_NDK}/sources/cxx-stl/llvm-libc++/libs/armeabi-v7a/libc++_shared.so
+    DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/jniLibs/armeabi-v7a
+)
+
 # x86_64
 file(COPY
     ${ANDROID_NDK}/sources/cxx-stl/llvm-libc++/libs/x86_64/libc++_shared.so

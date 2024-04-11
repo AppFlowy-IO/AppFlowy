@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 
 class PopoverMenu extends StatefulWidget {
-  const PopoverMenu({Key? key}) : super(key: key);
+  const PopoverMenu({super.key});
 
   @override
   State<StatefulWidget> createState() => _PopoverMenuState();
@@ -77,11 +77,11 @@ class ExampleButton extends StatelessWidget {
   final PopoverDirection? direction;
 
   const ExampleButton({
-    Key? key,
+    super.key,
     required this.label,
     this.direction,
     this.offset = Offset.zero,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

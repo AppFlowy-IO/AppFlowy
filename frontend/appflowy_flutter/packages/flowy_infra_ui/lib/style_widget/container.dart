@@ -14,7 +14,7 @@ class FlowyContainer extends StatelessWidget {
   final BoxBorder? border;
 
   const FlowyContainer(this.color,
-      {Key? key,
+      {super.key,
       this.borderRadius,
       this.shadows,
       this.child,
@@ -23,8 +23,7 @@ class FlowyContainer extends StatelessWidget {
       this.align,
       this.margin,
       this.duration,
-      this.border})
-      : super(key: key);
+      this.border});
 
   @override
   Widget build(BuildContext context) {

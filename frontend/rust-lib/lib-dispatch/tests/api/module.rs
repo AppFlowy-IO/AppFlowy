@@ -11,11 +11,12 @@ pub async fn hello() -> String {
 async fn test() {
   let event = "1";
   let runtime = Arc::new(AFPluginRuntime::new().unwrap());
-  let dispatch = Arc::new(AFPluginDispatcher::construct(runtime, || {
-    vec![AFPlugin::new().event(event, hello)]
-  }));
+  let dispatch = Arc::new(AFPluginDispatcher::new(
+    runtime,
+    vec![AFPlugin::new().event(event, hello)],
+  ));
   let request = AFPluginRequest::new(event);
-  let _ = AFPluginDispatcher::async_send_with_callback(dispatch.clone(), request, |resp| {
+  let _ = AFPluginDispatcher::async_send_with_callback(dispatch.as_ref(), request, |resp| {
     Box::pin(async move {
       dbg!(&resp);
     })

@@ -1,12 +1,10 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet_header.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:string_validator/string_validator.dart';
 
 class MobileBottomSheetEditLinkWidget extends StatefulWidget {
   const MobileBottomSheetEditLinkWidget({
@@ -46,7 +44,6 @@ class _MobileBottomSheetEditLinkWidgetState
   void dispose() {
     textController.dispose();
     hrefController.dispose();
-
     super.dispose();
   }
 
@@ -55,40 +52,24 @@ class _MobileBottomSheetEditLinkWidgetState
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _buildTextField(textController, null),
-        const VSpace(12.0),
-        _buildTextField(hrefController, LocaleKeys.editor_linkTextHint.tr()),
-        const VSpace(12.0),
-        Row(
-          children: [
-            Expanded(
-              child: BottomSheetActionWidget(
-                text: LocaleKeys.button_cancel.tr(),
-                onTap: () => context.pop(),
-              ),
-            ),
-            const HSpace(8),
-            Expanded(
-              child: BottomSheetActionWidget(
-                text: LocaleKeys.button_done.tr(),
-                onTap: () {
-                  widget.onEdit(textController.text, hrefController.text);
-                },
-              ),
-            ),
-            if (widget.href != null && isURL(widget.href)) ...[
-              const HSpace(8),
-              Expanded(
-                child: BottomSheetActionWidget(
-                  text: LocaleKeys.editor_openLink.tr(),
-                  onTap: () {
-                    safeLaunchUrl(widget.href!);
-                  },
-                ),
-              ),
-            ],
-          ],
+        BottomSheetHeader(
+          title: LocaleKeys.editor_editLink.tr(),
+          onClose: () => context.pop(),
+          onDone: () {
+            widget.onEdit(textController.text, hrefController.text);
+          },
         ),
+        const VSpace(20.0),
+        _buildTextField(
+          textController,
+          LocaleKeys.document_inlineLink_title_placeholder.tr(),
+        ),
+        const VSpace(12.0),
+        _buildTextField(
+          hrefController,
+          LocaleKeys.document_inlineLink_url_placeholder.tr(),
+        ),
+        const VSpace(12.0),
       ],
     );
   }
@@ -98,10 +79,12 @@ class _MobileBottomSheetEditLinkWidgetState
     String? hintText,
   ) {
     return SizedBox(
-      height: 44.0,
+      height: 48.0,
       child: FlowyTextField(
         controller: controller,
         hintText: hintText,
+        textStyle: const TextStyle(fontSize: 16.0),
+        hintStyle: const TextStyle(fontSize: 16.0),
         suffixIcon: Padding(
           padding: const EdgeInsets.all(4.0),
           child: FlowyButton(

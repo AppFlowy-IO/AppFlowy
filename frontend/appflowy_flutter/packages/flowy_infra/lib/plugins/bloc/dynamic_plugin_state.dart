@@ -11,7 +11,8 @@ class DynamicPluginState with _$DynamicPluginState {
     required Iterable<FlowyDynamicPlugin> plugins,
   }) = Ready;
   const factory DynamicPluginState.processing() = _Processing;
-  const factory DynamicPluginState.compilationFailure() = _CompilationFailure;
+  const factory DynamicPluginState.compilationFailure(
+      {required String errorMessage}) = _CompilationFailure;
   const factory DynamicPluginState.deletionFailure({
     required String path,
   }) = _DeletionFailure;

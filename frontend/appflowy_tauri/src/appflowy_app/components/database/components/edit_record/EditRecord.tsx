@@ -2,10 +2,10 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import RecordDocument from '$app/components/database/components/edit_record/RecordDocument';
 import RecordHeader from '$app/components/database/components/edit_record/RecordHeader';
 import { Page } from '$app_reducers/pages/slice';
-import { PageController } from '$app/stores/effects/workspace/page/page_controller';
 import { ErrorCode, ViewLayoutPB } from '@/services/backend';
 import { Log } from '$app/utils/log';
 import { useDatabase } from '$app/components/database';
+import { createOrphanPage, getPage } from '$app/application/folder/page.service';
 
 interface Props {
   rowId: string;
@@ -21,10 +21,9 @@ function EditRecord({ rowId }: Props) {
 
   const loadPage = useCallback(async () => {
     if (!id) return;
-    const controller = new PageController(id);
 
     try {
-      const page = await controller.getPage();
+      const page = await getPage(id);
 
       setPage(page);
     } catch (e) {
@@ -33,7 +32,8 @@ function EditRecord({ rowId }: Props) {
       // @ts-ignore
       if (e.code === ErrorCode.RecordNotFound) {
         try {
-          const page = await controller.createOrphanPage({
+          const page = await createOrphanPage({
+            view_id: id,
             name: '',
             layout: ViewLayoutPB.Document,
           });
@@ -60,4 +60,4 @@ function EditRecord({ rowId }: Props) {
   );
 }
 
-export default React.memo(EditRecord);
+export default EditRecord;

@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { DateField, TimeField } from '@mui/x-date-pickers-pro';
 import dayjs from 'dayjs';
 import { Divider } from '@mui/material';
+import debounce from 'lodash-es/debounce';
 
 interface Props {
   onChange: (params: { date?: number; time?: string }) => void;
@@ -23,12 +24,16 @@ const sx = {
 
 function DateTimeInput({ includeTime, dateFormat, timeFormat, ...props }: Props) {
   const date = useMemo(() => {
-    return dayjs.unix(props.date || dayjs().unix());
+    return props.date ? dayjs.unix(props.date) : undefined;
   }, [props.date]);
 
   const time = useMemo(() => {
-    return dayjs(dayjs().format('YYYY/MM/DD ') + props.time);
+    return props.time ? dayjs(dayjs().format('YYYY/MM/DD ') + props.time) : undefined;
   }, [props.time]);
+
+  const debounceOnChange = useMemo(() => {
+    return debounce(props.onChange, 500);
+  }, [props.onChange]);
 
   return (
     <div
@@ -40,7 +45,7 @@ function DateTimeInput({ includeTime, dateFormat, timeFormat, ...props }: Props)
         value={date}
         onChange={(date) => {
           if (!date) return;
-          props.onChange({
+          debounceOnChange({
             date: date.unix(),
           });
         }}
@@ -63,7 +68,7 @@ function DateTimeInput({ includeTime, dateFormat, timeFormat, ...props }: Props)
             }}
             onChange={(time) => {
               if (!time) return;
-              props.onChange({
+              debounceOnChange({
                 time: time.format(timeFormat),
               });
             }}

@@ -14,7 +14,9 @@ use event_integration::EventIntegrationTest;
 use flowy_core::DEFAULT_NAME;
 use flowy_encrypt::decrypt_text;
 use flowy_server::supabase::define::{USER_DEVICE_ID, USER_EMAIL, USER_UUID};
-use flowy_user::entities::{AuthTypePB, OauthSignInPB, UpdateUserProfilePayloadPB, UserProfilePB};
+use flowy_user::entities::{
+  AuthenticatorPB, OauthSignInPB, UpdateUserProfilePayloadPB, UserProfilePB,
+};
 use flowy_user::errors::ErrorCode;
 use flowy_user::event_map::UserEvent::*;
 
@@ -33,7 +35,7 @@ async fn third_party_sign_up_test() {
     map.insert(USER_DEVICE_ID.to_string(), uuid::Uuid::new_v4().to_string());
     let payload = OauthSignInPB {
       map,
-      auth_type: AuthTypePB::Supabase,
+      authenticator: AuthenticatorPB::Supabase,
     };
 
     let response = EventBuilder::new(test.clone())
@@ -77,7 +79,7 @@ async fn third_party_sign_up_with_duplicated_uuid() {
       .event(OauthSignIn)
       .payload(OauthSignInPB {
         map: map.clone(),
-        auth_type: AuthTypePB::Supabase,
+        authenticator: AuthenticatorPB::Supabase,
       })
       .async_send()
       .await
@@ -88,7 +90,7 @@ async fn third_party_sign_up_with_duplicated_uuid() {
       .event(OauthSignIn)
       .payload(OauthSignInPB {
         map: map.clone(),
-        auth_type: AuthTypePB::Supabase,
+        authenticator: AuthenticatorPB::Supabase,
       })
       .async_send()
       .await
@@ -121,7 +123,7 @@ async fn sign_up_as_guest_and_then_update_to_new_cloud_user_test() {
     let test = EventIntegrationTest::new_with_guest_user().await;
     let old_views = test
       .folder_manager
-      .get_current_workspace_views()
+      .get_current_workspace_public_views()
       .await
       .unwrap();
     let old_workspace = test.folder_manager.get_current_workspace().await.unwrap();
@@ -130,7 +132,7 @@ async fn sign_up_as_guest_and_then_update_to_new_cloud_user_test() {
     test.supabase_sign_up_with_uuid(&uuid, None).await.unwrap();
     let new_views = test
       .folder_manager
-      .get_current_workspace_views()
+      .get_current_workspace_public_views()
       .await
       .unwrap();
     let new_workspace = test.folder_manager.get_current_workspace().await.unwrap();
@@ -161,7 +163,7 @@ async fn sign_up_as_guest_and_then_update_to_existing_cloud_user_test() {
     let old_cloud_workspace = test.folder_manager.get_current_workspace().await.unwrap();
     let old_cloud_views = test
       .folder_manager
-      .get_current_workspace_views()
+      .get_current_workspace_public_views()
       .await
       .unwrap();
     assert_eq!(old_cloud_views.len(), 1);
@@ -187,7 +189,7 @@ async fn sign_up_as_guest_and_then_update_to_existing_cloud_user_test() {
     let new_cloud_workspace = test.folder_manager.get_current_workspace().await.unwrap();
     let new_cloud_views = test
       .folder_manager
-      .get_current_workspace_views()
+      .get_current_workspace_public_views()
       .await
       .unwrap();
     assert_eq!(new_cloud_workspace, old_cloud_workspace);
@@ -386,9 +388,8 @@ async fn migrate_anon_data_on_cloud_signup() {
           json!("Row document")
         );
       }
-
       assert!(cloud_service
-        .get_collab_update(&database_id, CollabType::Database, &workspace_id)
+        .get_database_object_doc_state(&database_id, CollabType::Database, &workspace_id)
         .await
         .is_ok());
     }

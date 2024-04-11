@@ -1,9 +1,6 @@
-import 'package:appflowy/plugins/inline_actions/inline_actions_result.dart';
 import 'package:flutter/material.dart';
 
-typedef InlineActionsDelegate = Future<InlineActionsResult> Function([
-  String? search,
-]);
+import 'package:appflowy/plugins/inline_actions/service_handler.dart';
 
 abstract class _InlineActionsProvider {
   void dispose();
@@ -26,7 +23,10 @@ class InlineActionsService extends _InlineActionsProvider {
   /// we set the [BuildContext] to null.
   ///
   @override
-  void dispose() {
+  Future<void> dispose() async {
+    for (final handler in handlers) {
+      await handler.dispose();
+    }
     context = null;
   }
 }

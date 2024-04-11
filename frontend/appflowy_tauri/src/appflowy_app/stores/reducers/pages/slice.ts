@@ -1,5 +1,8 @@
 import { ViewIconTypePB, ViewLayoutPB, ViewPB } from '@/services/backend';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import isEqual from 'lodash-es/isEqual';
+import { ImageType } from '$app/application/document/document.types';
+import { Nullable } from 'unsplash-js/dist/helpers/typescript';
 
 export const pageTypeMap = {
   [ViewLayoutPB.Document]: 'document',
@@ -13,12 +16,24 @@ export interface Page {
   name: string;
   layout: ViewLayoutPB;
   icon?: PageIcon;
+  cover?: PageCover;
 }
 
 export interface PageIcon {
   ty: ViewIconTypePB;
   value: string;
 }
+
+export enum CoverType {
+  Color = 'CoverType.color',
+  Image = 'CoverType.file',
+  Asset = 'CoverType.asset',
+}
+export type PageCover = Nullable<{
+  image_type?: ImageType;
+  cover_selection_type?: CoverType;
+  cover_selection?: string;
+}>;
 
 export function parserViewPBToPage(view: ViewPB): Page {
   const icon = view.icon;
@@ -41,6 +56,7 @@ export interface PageState {
   pageMap: Record<string, Page>;
   relationMap: Record<string, string[] | undefined>;
   expandedIdMap: Record<string, boolean>;
+  showTrashSnackbar: boolean;
 }
 
 export const initialState: PageState = {
@@ -50,6 +66,7 @@ export const initialState: PageState = {
     acc[id] = true;
     return acc;
   }, {} as Record<string, boolean>),
+  showTrashSnackbar: false,
 };
 
 export const pagesSlice = createSlice({
@@ -83,13 +100,90 @@ export const pagesSlice = createSlice({
     onPageChanged(state, action: PayloadAction<Page>) {
       const page = action.payload;
 
-      state.pageMap[page.id] = page;
+      if (!isEqual(state.pageMap[page.id], page)) {
+        state.pageMap[page.id] = page;
+      }
     },
 
-    removeChildPages(state, action: PayloadAction<string>) {
-      const parentId = action.payload;
+    addPage(
+      state,
+      action: PayloadAction<{
+        page: Page;
+        isLast?: boolean;
+        prevId?: string;
+      }>
+    ) {
+      const { page, prevId, isLast } = action.payload;
 
-      delete state.relationMap[parentId];
+      state.pageMap[page.id] = page;
+      state.relationMap[page.id] = [];
+
+      const parentId = page.parentId;
+
+      if (isLast) {
+        state.relationMap[parentId]?.push(page.id);
+      } else {
+        const index = prevId ? state.relationMap[parentId]?.indexOf(prevId) ?? -1 : -1;
+
+        state.relationMap[parentId]?.splice(index + 1, 0, page.id);
+      }
+    },
+
+    deletePages(state, action: PayloadAction<string[]>) {
+      const ids = action.payload;
+
+      ids.forEach((id) => {
+        const parentId = state.pageMap[id].parentId;
+        const parentChildren = state.relationMap[parentId];
+
+        state.relationMap[parentId] = parentChildren && parentChildren.filter((childId) => childId !== id);
+        delete state.relationMap[id];
+        delete state.expandedIdMap[id];
+        delete state.pageMap[id];
+      });
+    },
+
+    duplicatePage(
+      state,
+      action: PayloadAction<{
+        id: string;
+        newId: string;
+      }>
+    ) {
+      const { id, newId } = action.payload;
+      const page = state.pageMap[id];
+      const newPage = { ...page, id: newId };
+
+      state.pageMap[newPage.id] = newPage;
+
+      const index = state.relationMap[page.parentId]?.indexOf(id);
+
+      state.relationMap[page.parentId]?.splice(index ?? 0, 0, newId);
+    },
+
+    movePage(
+      state,
+      action: PayloadAction<{
+        id: string;
+        newParentId: string;
+        prevId?: string;
+      }>
+    ) {
+      const { id, newParentId, prevId } = action.payload;
+      const parentId = state.pageMap[id].parentId;
+      const parentChildren = state.relationMap[parentId];
+
+      const index = parentChildren?.indexOf(id) ?? -1;
+
+      if (index > -1) {
+        state.relationMap[parentId]?.splice(index, 1);
+      }
+
+      state.pageMap[id].parentId = newParentId;
+      const newParentChildren = state.relationMap[newParentId] || [];
+      const prevIndex = prevId ? newParentChildren.indexOf(prevId) : -1;
+
+      state.relationMap[newParentId]?.splice(prevIndex + 1, 0, id);
     },
 
     expandPage(state, action: PayloadAction<string>) {
@@ -108,6 +202,10 @@ export const pagesSlice = createSlice({
       const ids = Object.keys(state.expandedIdMap).filter((id) => state.expandedIdMap[id]);
 
       storeExpandedPageIds(ids);
+    },
+
+    setTrashSnackbar(state, action: PayloadAction<boolean>) {
+      state.showTrashSnackbar = action.payload;
     },
   },
 });

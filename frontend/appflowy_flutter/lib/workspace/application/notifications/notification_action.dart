@@ -1,6 +1,13 @@
 enum ActionType {
   openView,
   jumpToBlock,
+  openRow,
+}
+
+class ActionArgumentKeys {
+  static String view = "view";
+  static String nodePath = "node_path";
+  static String rowId = "row_id";
 }
 
 /// A [NotificationAction] is used to communicate with the
@@ -30,13 +37,4 @@ class NotificationAction {
         objectId: objectId ?? this.objectId,
         arguments: arguments ?? this.arguments,
       );
-}
-
-enum ActionArgumentKeys {
-  view('view'),
-  nodePath('node_path');
-
-  final String name;
-
-  const ActionArgumentKeys(this.name);
 }

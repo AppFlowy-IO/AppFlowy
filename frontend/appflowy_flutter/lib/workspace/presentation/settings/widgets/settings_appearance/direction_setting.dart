@@ -1,6 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
+import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -20,12 +20,11 @@ class LayoutDirectionSetting extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ThemeSettingEntryTemplateWidget(
+    return FlowySettingListTile(
       label: LocaleKeys.settings_appearance_layoutDirection_label.tr(),
       hint: LocaleKeys.settings_appearance_layoutDirection_hint.tr(),
       trailing: [
-        ThemeValueDropDown(
-          key: const ValueKey('layout_direction_option_button'),
+        FlowySettingValueDropDown(
           currentValue: _layoutDirectionLabelText(currentLayoutDirection),
           popupBuilder: (context) => Column(
             mainAxisSize: MainAxisSize.min,
@@ -83,11 +82,11 @@ class TextDirectionSetting extends StatelessWidget {
   final AppFlowyTextDirection? currentTextDirection;
 
   @override
-  Widget build(BuildContext context) => ThemeSettingEntryTemplateWidget(
+  Widget build(BuildContext context) => FlowySettingListTile(
         label: LocaleKeys.settings_appearance_textDirection_label.tr(),
         hint: LocaleKeys.settings_appearance_textDirection_hint.tr(),
         trailing: [
-          ThemeValueDropDown(
+          FlowySettingValueDropDown(
             currentValue: _textDirectionLabelText(currentTextDirection),
             popupBuilder: (context) => Column(
               mainAxisSize: MainAxisSize.min,
@@ -139,5 +138,36 @@ class TextDirectionSetting extends StatelessWidget {
       default:
         return LocaleKeys.settings_appearance_textDirection_fallback.tr();
     }
+  }
+}
+
+class EnableRTLToolbarItemsSetting extends StatelessWidget {
+  const EnableRTLToolbarItemsSetting({
+    super.key,
+  });
+
+  static const enableRTLSwitchKey = ValueKey('enable_rtl_toolbar_items_switch');
+
+  @override
+  Widget build(BuildContext context) {
+    return FlowySettingListTile(
+      label: LocaleKeys.settings_appearance_enableRTLToolbarItems.tr(),
+      trailing: [
+        Switch(
+          key: enableRTLSwitchKey,
+          value: context
+              .read<AppearanceSettingsCubit>()
+              .state
+              .enableRtlToolbarItems,
+          splashRadius: 0,
+          activeColor: Theme.of(context).colorScheme.primary,
+          onChanged: (value) {
+            context
+                .read<AppearanceSettingsCubit>()
+                .setEnableRTLToolbarItems(value);
+          },
+        ),
+      ],
+    );
   }
 }

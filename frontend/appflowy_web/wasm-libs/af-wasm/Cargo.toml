@@ -1,0 +1,59 @@
+[package]
+name = "af-wasm"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+wasm-bindgen = { version = "0.2.89" }
+lazy_static = "1.4.0"
+lib-dispatch = { workspace = true, features = ["use_serde"] }
+parking_lot.workspace = true
+tracing.workspace = true
+tracing-core = { version = "0.1.32" }
+tracing-wasm = "0.2.1"
+serde.workspace = true
+collab-integrate = { workspace = true }
+tokio-stream.workspace = true
+
+af-user.workspace = true
+af-persistence.workspace = true
+flowy-storage = { workspace = true }
+flowy-notification = { workspace = true, features = ["web_ts"] }
+flowy-user-pub = { workspace = true }
+flowy-server = { workspace = true }
+flowy-server-pub = { workspace = true }
+flowy-error = { workspace = true, features = ["impl_from_dispatch_error", "web_ts"] }
+flowy-document = { workspace = true, features = ["web_ts"] }
+flowy-folder = { workspace = true, features = ["web_ts"] }
+lib-infra = { workspace = true }
+collab = { workspace = true }
+web-sys = "0.3"
+wasm-bindgen-futures.workspace = true
+uuid.workspace = true
+serde-wasm-bindgen.workspace = true
+js-sys = "0.3.67"
+
+
+# `wee_alloc` is a tiny allocator for wasm that is only ~1K in code size
+# compared to the default allocator's ~10K. However, it is slower than the default
+# allocator, so it's not enabled by default.
+wee_alloc = { version = "0.4.2", optional = true }
+
+# The `console_error_panic_hook` crate provides better debugging of panics by
+# logging them with `console.error`. This is great for development, but requires
+# all the `std::fmt` and `std::panicking` infrastructure, so it's only enabled
+# in debug mode.
+[target."cfg(debug_assertions)".dependencies]
+console_error_panic_hook = "0.1.5"
+
+[dev-dependencies]
+wasm-bindgen-test = "0.3.40"
+tokio = { version = "1.0", features = ["sync"] }
+
+[features]
+#default = ["wee_alloc"]
+localhost_dev = []

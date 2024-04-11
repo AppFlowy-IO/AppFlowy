@@ -2,9 +2,9 @@ use collab_folder::ViewLayout;
 
 use event_integration::event_builder::EventBuilder;
 use event_integration::EventIntegrationTest;
-use flowy_folder2::entities::icon::{UpdateViewIconPayloadPB, ViewIconPB};
-use flowy_folder2::entities::*;
-use flowy_folder2::event_map::FolderEvent::*;
+use flowy_folder::entities::icon::{UpdateViewIconPayloadPB, ViewIconPB};
+use flowy_folder::entities::*;
+use flowy_folder::event_map::FolderEvent::*;
 
 pub enum FolderScript {
   #[allow(dead_code)]
@@ -210,7 +210,7 @@ pub async fn create_workspace(sdk: &EventIntegrationTest, name: &str, desc: &str
   };
 
   EventBuilder::new(sdk.clone())
-    .event(CreateWorkspace)
+    .event(CreateFolderWorkspace)
     .payload(request)
     .async_send()
     .await
@@ -246,6 +246,7 @@ pub async fn create_view(
     meta: Default::default(),
     set_as_current: true,
     index: None,
+    section: None,
   };
   EventBuilder::new(sdk.clone())
     .event(CreateView)
@@ -258,7 +259,7 @@ pub async fn create_view(
 pub async fn read_view(sdk: &EventIntegrationTest, view_id: &str) -> ViewPB {
   let view_id = ViewIdPB::from(view_id);
   EventBuilder::new(sdk.clone())
-    .event(ReadView)
+    .event(GetView)
     .payload(view_id)
     .async_send()
     .await
@@ -275,6 +276,8 @@ pub async fn move_view(
     view_id,
     new_parent_id: parent_id,
     prev_view_id,
+    from_section: None,
+    to_section: None,
   };
   let error = EventBuilder::new(sdk.clone())
     .event(MoveNestedView)
@@ -330,7 +333,7 @@ pub async fn delete_view(sdk: &EventIntegrationTest, view_ids: Vec<String>) {
 
 pub async fn read_trash(sdk: &EventIntegrationTest) -> RepeatedTrashPB {
   EventBuilder::new(sdk.clone())
-    .event(ReadTrash)
+    .event(ListTrashItems)
     .async_send()
     .await
     .parse::<RepeatedTrashPB>()
@@ -341,7 +344,7 @@ pub async fn restore_app_from_trash(sdk: &EventIntegrationTest, app_id: &str) {
     id: app_id.to_owned(),
   };
   EventBuilder::new(sdk.clone())
-    .event(PutbackTrash)
+    .event(RestoreTrashItem)
     .payload(id)
     .async_send()
     .await;
@@ -352,7 +355,7 @@ pub async fn restore_view_from_trash(sdk: &EventIntegrationTest, view_id: &str) 
     id: view_id.to_owned(),
   };
   EventBuilder::new(sdk.clone())
-    .event(PutbackTrash)
+    .event(RestoreTrashItem)
     .payload(id)
     .async_send()
     .await;
@@ -360,7 +363,7 @@ pub async fn restore_view_from_trash(sdk: &EventIntegrationTest, view_id: &str) 
 
 pub async fn delete_all_trash(sdk: &EventIntegrationTest) {
   EventBuilder::new(sdk.clone())
-    .event(DeleteAllTrash)
+    .event(PermanentlyDeleteAllTrashItem)
     .async_send()
     .await;
 }

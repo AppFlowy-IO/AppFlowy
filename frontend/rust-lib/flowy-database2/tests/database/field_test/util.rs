@@ -3,8 +3,8 @@ use collab_database::views::OrderObjectPosition;
 
 use flowy_database2::entities::{CreateFieldParams, FieldType};
 use flowy_database2::services::field::{
-  type_option_to_pb, DateCellChangeset, DateFormat, DateTypeOption, FieldBuilder,
-  RichTextTypeOption, SelectOption, SingleSelectTypeOption, TimeFormat, TimestampTypeOption,
+  type_option_to_pb, DateFormat, DateTypeOption, FieldBuilder, RichTextTypeOption, SelectOption,
+  SingleSelectTypeOption, TimeFormat, TimestampTypeOption,
 };
 
 pub fn create_text_field(grid_id: &str) -> (CreateFieldParams, Field) {
@@ -102,19 +102,4 @@ pub fn create_timestamp_field(grid_id: &str, field_type: FieldType) -> (CreateFi
     position: OrderObjectPosition::default(),
   };
   (params, field)
-}
-
-//  The grid will contains all existing field types and there are three empty rows in this grid.
-
-pub fn make_date_cell_string(timestamp: i64) -> String {
-  serde_json::to_string(&DateCellChangeset {
-    date: Some(timestamp),
-    time: None,
-    end_date: None,
-    end_time: None,
-    include_time: Some(false),
-    is_range: Some(false),
-    clear_flag: None,
-  })
-  .unwrap()
 }

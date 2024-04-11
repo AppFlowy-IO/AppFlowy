@@ -1,31 +1,33 @@
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
+import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/settings/supabase_cloud_setting_bloc.dart';
 import 'package:appflowy/workspace/application/settings/supabase_cloud_urls_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
+import 'package:appflowy/workspace/presentation/settings/widgets/_restart_app_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_setting.pb.dart';
-import 'package:dartz/dartz.dart' show Either;
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
-import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class SettingSupabaseCloudView extends StatelessWidget {
-  final VoidCallback didResetServerUrl;
-  const SettingSupabaseCloudView({required this.didResetServerUrl, super.key});
+  const SettingSupabaseCloudView({required this.restartAppFlowy, super.key});
+
+  final VoidCallback restartAppFlowy;
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<Either<CloudSettingPB, FlowyError>>(
+    return FutureBuilder<FlowyResult<CloudSettingPB, FlowyError>>(
       future: UserEventGetCloudConfig().send(),
       builder: (context, snapshot) {
         if (snapshot.data != null &&
@@ -52,7 +54,7 @@ class SettingSupabaseCloudView extends StatelessWidget {
                     const VSpace(40),
                     const SupabaseSelfhostTip(),
                     SupabaseCloudURLs(
-                      didUpdateUrls: didResetServerUrl,
+                      didUpdateUrls: restartAppFlowy,
                     ),
                   ],
                 ),
@@ -73,18 +75,16 @@ class SettingSupabaseCloudView extends StatelessWidget {
 }
 
 class SupabaseCloudURLs extends StatelessWidget {
+  const SupabaseCloudURLs({super.key, required this.didUpdateUrls});
+
   final VoidCallback didUpdateUrls;
-  const SupabaseCloudURLs({
-    required this.didUpdateUrls,
-    super.key,
-  });
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => SupabaseCloudURLsBloc(),
       child: BlocListener<SupabaseCloudURLsBloc, SupabaseCloudURLsState>(
-        listener: (context, state) {
+        listener: (context, state) async {
           if (state.restartApp) {
             didUpdateUrls();
           }
@@ -102,7 +102,7 @@ class SupabaseCloudURLs extends StatelessWidget {
                         .read<SupabaseCloudURLsBloc>()
                         .add(SupabaseCloudURLsEvent.updateUrl(text));
                   },
-                  error: state.urlError.fold(() => null, (a) => a),
+                  error: state.urlError,
                 ),
                 SupabaseInput(
                   title: LocaleKeys.settings_menu_cloudSupabaseAnonKey.tr(),
@@ -113,27 +113,12 @@ class SupabaseCloudURLs extends StatelessWidget {
                         .read<SupabaseCloudURLsBloc>()
                         .add(SupabaseCloudURLsEvent.updateAnonKey(text));
                   },
-                  error: state.anonKeyError.fold(() => null, (a) => a),
+                  error: state.anonKeyError,
                 ),
                 const VSpace(20),
-                FlowyButton(
-                  isSelected: true,
-                  useIntrinsicWidth: true,
-                  margin: const EdgeInsets.symmetric(
-                    horizontal: 30,
-                    vertical: 10,
-                  ),
-                  text: FlowyText(
-                    LocaleKeys.settings_menu_restartApp.tr(),
-                  ),
-                  onTap: () {
-                    NavigatorAlertDialog(
-                      title: LocaleKeys.settings_menu_restartAppTip.tr(),
-                      confirm: () => context
-                          .read<SupabaseCloudURLsBloc>()
-                          .add(const SupabaseCloudURLsEvent.confirmUpdate()),
-                    ).show(context);
-                  },
+                RestartButton(
+                  onClick: () => _restartApp(context),
+                  showRestartHint: state.showRestartHint,
                 ),
               ],
             );
@@ -141,6 +126,15 @@ class SupabaseCloudURLs extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void _restartApp(BuildContext context) {
+    NavigatorAlertDialog(
+      title: LocaleKeys.settings_menu_restartAppTip.tr(),
+      confirm: () => context
+          .read<SupabaseCloudURLsBloc>()
+          .add(const SupabaseCloudURLsEvent.confirmUpdate()),
+    ).show(context);
   }
 }
 
@@ -154,6 +148,7 @@ class EnableEncrypt extends StatelessWidget {
         final indicator = state.loadingState.when(
           loading: () => const CircularProgressIndicator.adaptive(),
           finish: (successOrFail) => const SizedBox.shrink(),
+          idle: () => const SizedBox.shrink(),
         );
 
         return Column(
@@ -164,7 +159,8 @@ class EnableEncrypt extends StatelessWidget {
                 const Spacer(),
                 indicator,
                 const HSpace(3),
-                Switch(
+                Switch.adaptive(
+                  activeColor: Theme.of(context).colorScheme.primary,
                   onChanged: state.setting.enableEncrypt
                       ? null
                       : (bool value) {
@@ -178,7 +174,6 @@ class EnableEncrypt extends StatelessWidget {
             ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 IntrinsicHeight(
                   child: Opacity(
@@ -195,7 +190,7 @@ class EnableEncrypt extends StatelessWidget {
                   child: FlowyTooltip(
                     message: LocaleKeys.settings_menu_clickToCopySecret.tr(),
                     child: FlowyButton(
-                      disable: !(state.setting.enableEncrypt),
+                      disable: !state.setting.enableEncrypt,
                       decoration: BoxDecoration(
                         borderRadius: Corners.s5Border,
                         border: Border.all(
@@ -232,7 +227,8 @@ class SupabaseEnableSync extends StatelessWidget {
           children: [
             FlowyText.medium(LocaleKeys.settings_menu_enableSync.tr()),
             const Spacer(),
-            Switch(
+            Switch.adaptive(
+              activeColor: Theme.of(context).colorScheme.primary,
               onChanged: (bool value) {
                 context.read<SupabaseCloudSettingBloc>().add(
                       SupabaseCloudSettingEvent.enableSync(value),
@@ -249,20 +245,20 @@ class SupabaseEnableSync extends StatelessWidget {
 
 @visibleForTesting
 class SupabaseInput extends StatefulWidget {
+  const SupabaseInput({
+    super.key,
+    required this.title,
+    required this.url,
+    required this.hint,
+    required this.error,
+    required this.onChanged,
+  });
+
   final String title;
   final String url;
   final String hint;
   final String? error;
   final Function(String) onChanged;
-
-  const SupabaseInput({
-    required this.title,
-    required this.url,
-    required this.hint,
-    required this.onChanged,
-    required this.error,
-    super.key,
-  });
 
   @override
   SupabaseInputState createState() => SupabaseInputState();
@@ -275,6 +271,12 @@ class SupabaseInputState extends State<SupabaseInput> {
   void initState() {
     super.initState();
     _controller = TextEditingController(text: widget.url);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
@@ -302,18 +304,13 @@ class SupabaseInputState extends State<SupabaseInput> {
       onChanged: widget.onChanged,
     );
   }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
 }
 
 class SupabaseSelfhostTip extends StatelessWidget {
+  const SupabaseSelfhostTip({super.key});
+
   final url =
       "https://docs.appflowy.io/docs/guides/appflowy/self-hosting-appflowy-using-supabase";
-  const SupabaseSelfhostTip({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -333,7 +330,8 @@ class SupabaseSelfhostTip extends StatelessWidget {
                     color: Theme.of(context).colorScheme.primary,
                     decoration: TextDecoration.underline,
                   ),
-              recognizer: TapGestureRecognizer()..onTap = () => _launchURL(),
+              recognizer: TapGestureRecognizer()
+                ..onTap = () => afLaunchUrlString(url),
             ),
             TextSpan(
               text: LocaleKeys.settings_menu_selfHostEnd.tr(),
@@ -343,14 +341,5 @@ class SupabaseSelfhostTip extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  Future<void> _launchURL() async {
-    final uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri);
-    } else {
-      Log.error("Could not launch $url");
-    }
   }
 }

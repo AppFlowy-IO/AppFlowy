@@ -1,0 +1,97 @@
+name: Flutter Integration Test
+description: Run integration tests for AppFlowy
+
+inputs:
+  os:
+    description: "The operating system to run the tests on"
+    required: true
+  flutter_version:
+    description: "The version of Flutter to use"
+    required: true
+  rust_toolchain:
+    description: "The version of Rust to use"
+    required: true
+  cargo_make_version:
+    description: "The version of cargo-make to use"
+    required: true
+  rust_target:
+    description: "The target to build for"
+    required: true
+  flutter_profile:
+    description: "The profile to build with"
+    required: true
+
+runs:
+  using: "composite"
+
+  steps:
+    - name: Checkout source code
+      uses: actions/checkout@v4
+
+    - name: Install Rust toolchain
+      id: rust_toolchain
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: ${{ inputs.rust_toolchain }}
+        target: ${{ inputs.rust_target }}
+        override: true
+        profile: minimal
+
+    - name: Install flutter
+      id: flutter
+      uses: subosito/flutter-action@v2
+      with:
+        channel: "stable"
+        flutter-version: ${{ inputs.flutter_version }}
+        cache: true
+
+    - uses: Swatinem/rust-cache@v2
+      with:
+        prefix-key: ${{ inputs.os }}
+        workspaces: |
+          frontend/rust-lib
+        cache-all-crates: true
+
+    - uses: taiki-e/install-action@v2
+      with:
+        tool: cargo-make@${{ inputs.cargo_make_version }}, duckscript_cli
+
+    - name: Install prerequisites
+      working-directory: frontend
+      run: |
+        if [ "$RUNNER_OS" == "Linux" ]; then
+          sudo wget -qO /etc/apt/trusted.gpg.d/dart_linux_signing_key.asc https://dl-ssl.google.com/linux/linux_signing_key.pub
+          sudo wget -qO /etc/apt/sources.list.d/dart_stable.list https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list
+          sudo apt-get update
+          sudo apt-get install -y dart curl build-essential libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev keybinder-3.0 libnotify-dev
+        elif [ "$RUNNER_OS" == "Windows" ]; then
+          vcpkg integrate install
+        elif [ "$RUNNER_OS" == "macOS" ]; then
+          echo 'do nothing'
+        fi
+        cargo make appflowy-flutter-deps-tools
+      shell: bash
+
+    - name: Build AppFlowy
+      working-directory: frontend
+      run: cargo make --profile ${{ inputs.flutter_profile }} appflowy-core-dev
+      shell: bash
+
+    - name: Run code generation
+      working-directory: frontend
+      run: cargo make code_generation
+      shell: bash
+
+    - name: Flutter Analyzer
+      working-directory: frontend/appflowy_flutter
+      run: flutter analyze .
+      shell: bash
+
+    - name: Compress appflowy_flutter
+      run: tar -czf appflowy_flutter.tar.gz frontend/appflowy_flutter
+      shell: bash
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: ${{ github.run_id }}-${{ matrix.os }}
+        path: appflowy_flutter.tar.gz

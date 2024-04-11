@@ -1,0 +1,1411 @@
+{
+  "appName": "AppFlowy",
+  "defaultUsername": "Me",
+  "welcomeText": "Καλωσορίσατε στο @:appName",
+  "welcomeTo": "Καλωσορίσατε στο",
+  "githubStarText": "Star on GitHub",
+  "subscribeNewsletterText": "Εγγραφείτε στο Newsletter",
+  "letsGoButtonText": "Γρήγορη Εκκίνηση",
+  "title": "Τίτλος",
+  "youCanAlso": "Μπορείτε επίσης",
+  "and": "και",
+  "failedToOpenUrl": "Αποτυχία ανοίγματος διεύθυνσης url: {}",
+  "blockActions": {
+    "addBelowTooltip": "Κάντε κλικ για να προσθέσετε παρακάτω",
+    "addAboveCmd": "Alt+click",
+    "addAboveMacCmd": "Option+click",
+    "addAboveTooltip": "για να προσθέσετε παραπάνω",
+    "dragTooltip": "Σύρετε για μετακίνηση",
+    "openMenuTooltip": "Κάντε κλικ για άνοιγμα μενού"
+  },
+  "signUp": {
+    "buttonText": "Εγγραφή",
+    "title": "Εγγραφείτε στο @:appName",
+    "getStartedText": "Ξεκινήστε",
+    "emptyPasswordError": "Ο κωδικός πρόσβασης δεν μπορεί να είναι κενός",
+    "repeatPasswordEmptyError": "Η επανάληψη κωδικού πρόσβασης δεν μπορεί να είναι κενή",
+    "unmatchedPasswordError": "Η επανάληψη κωδικού πρόσβασης δεν είναι ίδια με τον κωδικό πρόσβασης",
+    "alreadyHaveAnAccount": "Έχετε ήδη λογαριασμό;",
+    "emailHint": "Email",
+    "passwordHint": "Κωδικός",
+    "repeatPasswordHint": "Επαναλάβετε τον κωδικό πρόσβασης",
+    "signUpWith": "Εγγραφή με:"
+  },
+  "signIn": {
+    "loginTitle": "Συνδεθείτε στο @:appName",
+    "loginButtonText": "Σύνδεση",
+    "loginStartWithAnonymous": "Έναρξη με ανώνυμη συνεδρία",
+    "continueAnonymousUser": "Συνέχεια με ανώνυμη συνεδρία",
+    "buttonText": "Είσοδος",
+    "signingInText": "Πραγματοποιείται σύνδεση...",
+    "forgotPassword": "Ξεχάσατε το κωδικό;",
+    "emailHint": "Email",
+    "passwordHint": "Κωδικός",
+    "dontHaveAnAccount": "Δεν έχετε λογαριασμό;",
+    "repeatPasswordEmptyError": "Η επανάληψη κωδικού πρόσβασης δεν μπορεί να είναι κενή",
+    "unmatchedPasswordError": "Η επανάληψη κωδικού πρόσβασης δεν είναι ίδια με τον κωδικό πρόσβασης",
+    "syncPromptMessage": "Ο συγχρονισμός των δεδομένων μπορεί να διαρκέσει λίγο. Παρακαλώ μην κλείσετε αυτήν τη σελίδα",
+    "or": "- Ή -",
+    "LogInWithGoogle": "Σύνδεση μέσω Google",
+    "LogInWithGithub": "Σύνδεση μέσω Github",
+    "LogInWithDiscord": "Σύνδεση μέσω Discord",
+    "signInWith": "Συνδεθείτε με:"
+  },
+  "workspace": {
+    "chooseWorkspace": "Επιλέξτε το χώρο εργασίας σας",
+    "create": "Δημιουργία χώρου εργασίας",
+    "reset": "Επαναφορά χώρου εργασίας",
+    "resetWorkspacePrompt": "Η επαναφορά του χώρου εργασίας θα διαγράψει όλες τις σελίδες και τα δεδομένα μέσα σε αυτό. Είστε βέβαιοι ότι θέλετε να επαναφέρετε το χώρο εργασίας? Εναλλακτικά, μπορείτε να επικοινωνήσετε με την ομάδα υποστήριξης για να επαναφέρετε το χώρο εργασίας",
+    "hint": "workspace",
+    "notFoundError": "Workspace not found",
+    "failedToLoad": "Something went wrong! Failed to load the workspace. Try to close any open instance of AppFlowy and try again.",
+    "errorActions": {
+      "reportIssue": "Report an issue",
+      "reportIssueOnGithub": "Report an issue on Github",
+      "exportLogFiles": "Export log files",
+      "reachOut": "Reach out on Discord"
+    },
+    "deleteWorkspaceHintText": "Are you sure you want to delete the workspace? This action cannot be undone.",
+    "createSuccess": "Workspace created successfully",
+    "createFailed": "Failed to create workspace",
+    "deleteSuccess": "Workspace deleted successfully",
+    "deleteFailed": "Failed to delete workspace",
+    "openSuccess": "Open workspace successfully",
+    "openFailed": "Failed to open workspace",
+    "renameSuccess": "Workspace renamed successfully",
+    "renameFailed": "Failed to rename workspace",
+    "updateIconSuccess": "Updated workspace icon successfully",
+    "updateIconFailed": "Updated workspace icon failed"
+  },
+  "shareAction": {
+    "buttonText": "Share",
+    "workInProgress": "Coming soon",
+    "markdown": "Markdown",
+    "csv": "CSV",
+    "copyLink": "Copy Link"
+  },
+  "moreAction": {
+    "small": "small",
+    "medium": "medium",
+    "large": "large",
+    "fontSize": "Font size",
+    "import": "Import",
+    "moreOptions": "More options",
+    "wordCount": "Word count: {}",
+    "charCount": "Character count: {}",
+    "createdAt": "Created: {}",
+    "deleteView": "Delete",
+    "duplicateView": "Duplicate"
+  },
+  "importPanel": {
+    "textAndMarkdown": "Text & Markdown",
+    "documentFromV010": "Document from v0.1.0",
+    "databaseFromV010": "Database from v0.1.0",
+    "csv": "CSV",
+    "database": "Database"
+  },
+  "disclosureAction": {
+    "rename": "Rename",
+    "delete": "Delete",
+    "duplicate": "Duplicate",
+    "unfavorite": "Remove from favorites",
+    "favorite": "Προσθήκη στα αγαπημένα",
+    "openNewTab": "Άνοιγμα σε νέα καρτέλα",
+    "moveTo": "Μετακίνηση στο",
+    "addToFavorites": "Προσθήκη στα Αγαπημένα",
+    "copyLink": "Αντιγραφή Συνδέσμου"
+  },
+  "blankPageTitle": "Κενή σελίδα",
+  "newPageText": "Νέα σελίδα",
+  "newDocumentText": "Νέο έγγραφο",
+  "newGridText": "Νέο πλέγμα",
+  "newCalendarText": "Νέο ημερολόγιο",
+  "newBoardText": "Νέος πίνακας",
+  "trash": {
+    "text": "Κάδος απορριμμάτων",
+    "restoreAll": "Επαναφορά Όλων",
+    "deleteAll": "Διαγραφή Όλων",
+    "pageHeader": {
+      "fileName": "Όνομα αρχείου",
+      "lastModified": "Τελευταία Τροποποίηση",
+      "created": "Δημιουργήθηκε"
+    },
+    "confirmDeleteAll": {
+      "title": "Είστε βέβαιοι οτι θέλετε να διαγράψετε όλες τις σελίδες στον κάδο απορριμμάτων;",
+      "caption": "Αυτή η ενέργεια δεν μπορεί να ανεραιθεί."
+    },
+    "confirmRestoreAll": {
+      "title": "Είστε βέβαιοι οτι θέλετε να επαναφέρετε όλες τις σελίδες στον κάδο απορριμμάτων;",
+      "caption": "Αυτή η ενέργεια δεν μπορεί να ανεραιθεί."
+    },
+    "mobile": {
+      "actions": "Ενέργειες Απορριμμάτων",
+      "empty": "Ο κάδος απορριμμάτων είναι άδειος",
+      "emptyDescription": "Δεν έχετε διαγράψει κανένα αρχείο",
+      "isDeleted": "έχει διαγραφεί",
+      "isRestored": "έγινε επαναφορά"
+    }
+  },
+  "deletePagePrompt": {
+    "text": "Αυτή η σελίδα βρίσκεται στον κάδο απορριμμάτων",
+    "restore": "Επαναφορά σελίδας",
+    "deletePermanent": "Οριστική διαγραφή"
+  },
+  "dialogCreatePageNameHint": "Όνομα σελίδας",
+  "questionBubble": {
+    "shortcuts": "Συντομεύσεις",
+    "whatsNew": "Τι νέο υπάρχει;",
+    "help": "Βοήθεια & Υποστήριξη",
+    "markdown": "Markdown",
+    "debug": {
+      "name": "Debug Info",
+      "success": "Copied debug info to clipboard!",
+      "fail": "Unable to copy debug info to clipboard"
+    },
+    "feedback": "Σχόλια"
+  },
+  "menuAppHeader": {
+    "moreButtonToolTip": "Αφαίρεση, μετονομασία και άλλα...",
+    "addPageTooltip": "Γρήγορη προσθήκη σελίδας",
+    "defaultNewPageName": "Χωρίς τίτλο",
+    "renameDialog": "Μετονομασία"
+  },
+  "noPagesInside": "Δεν υπάρχουν σελίδες",
+  "toolbar": {
+    "undo": "Αναίρεση",
+    "redo": "Επαναφορά",
+    "bold": "Έντονo",
+    "italic": "Πλάγια",
+    "underline": "Υπογράμμιση",
+    "strike": "Διακριτή διαγραφή",
+    "numList": "Αριθμημένη λίστα",
+    "bulletList": "Bulleted List",
+    "checkList": "Check List",
+    "inlineCode": "Inline Code",
+    "quote": "Quote Block",
+    "header": "Header",
+    "highlight": "Highlight",
+    "color": "Color",
+    "addLink": "Add Link",
+    "link": "Link"
+  },
+  "tooltip": {
+    "lightMode": "Switch to Light mode",
+    "darkMode": "Switch to Dark mode",
+    "openAsPage": "Open as a Page",
+    "addNewRow": "Add a new row",
+    "openMenu": "Click to open menu",
+    "dragRow": "Long press to reorder the row",
+    "viewDataBase": "View database",
+    "referencePage": "This {name} is referenced",
+    "addBlockBelow": "Add a block below"
+  },
+  "sideBar": {
+    "closeSidebar": "Close side bar",
+    "openSidebar": "Open side bar",
+    "personal": "Personal",
+    "favorites": "Favorites",
+    "clickToHidePersonal": "Click to hide personal section",
+    "clickToHideFavorites": "Click to hide favorite section",
+    "addAPage": "Add a page",
+    "recent": "Recent"
+  },
+  "notifications": {
+    "export": {
+      "markdown": "Exported Note To Markdown",
+      "path": "Documents/flowy"
+    }
+  },
+  "contactsPage": {
+    "title": "Contacts",
+    "whatsHappening": "What's happening this week?",
+    "addContact": "Add Contact",
+    "editContact": "Edit Contact"
+  },
+  "button": {
+    "ok": "OK",
+    "done": "Done",
+    "cancel": "Cancel",
+    "signIn": "Sign In",
+    "signOut": "Sign Out",
+    "complete": "Complete",
+    "save": "Save",
+    "generate": "Generate",
+    "esc": "ESC",
+    "keep": "Keep",
+    "tryAgain": "Try again",
+    "discard": "Discard",
+    "replace": "Replace",
+    "insertBelow": "Insert below",
+    "insertAbove": "Εισαγωγή από επάνω",
+    "upload": "Μεταφόρτωση",
+    "edit": "Επεξεργασία",
+    "delete": "Διαγραφή",
+    "duplicate": "Δημιουργία διπλότυπου",
+    "putback": "Βάλτε Πίσω",
+    "update": "Ενημέρωση",
+    "share": "Κοινοποίηση",
+    "removeFromFavorites": "Κατάργηση από τα αγαπημένα",
+    "addToFavorites": "Προσθήκη στα αγαπημένα",
+    "rename": "Μετονομασία",
+    "helpCenter": "Κέντρο Βοήθειας",
+    "add": "Προσθήκη",
+    "yes": "Ναι",
+    "clear": "Καθαρισμός",
+    "remove": "Αφαίρεση",
+    "dontRemove": "Να μην αφαιρεθεί",
+    "copyLink": "Αντιγραφή Συνδέσμου",
+    "align": "Στοίχιση",
+    "login": "Σύνδεση",
+    "logout": "Αποσύνδεση",
+    "deleteAccount": "Διαγραφή λογαριασμού",
+    "back": "Πίσω",
+    "signInGoogle": "Συνδεθείτε μέσω λογαριασμού Google",
+    "signInGithub": "Συνδεθείτε μέσω λογαριασμού Github",
+    "signInDiscord": "Συνδεθείτε μέσω λογαριασμού Discord"
+  },
+  "label": {
+    "welcome": "Καλώς ήρθατε!",
+    "firstName": "Όνομα",
+    "middleName": "Μεσαίο όνομα",
+    "lastName": "Επώνυμο",
+    "stepX": "Step {X}"
+  },
+  "oAuth": {
+    "err": {
+      "failedTitle": "Αδυναμία σύνδεσης στο λογαριασμό σας.",
+      "failedMsg": "Παρακαλούμε βεβαιωθείτε ότι έχετε ολοκληρώσει τη διαδικασία εισόδου στο πρόγραμμα περιήγησης."
+    },
+    "google": {
+      "title": "GOOGLE SIGN-IN",
+      "instruction1": "Για να εισαγάγετε τις Επαφές Google σας, θα πρέπει να εξουσιοδοτήσετε αυτήν την εφαρμογή χρησιμοποιώντας το πρόγραμμα περιήγησής σας.",
+      "instruction2": "Αντιγράψτε αυτόν τον κώδικα στο πρόχειρο κάνοντας κλικ στο εικονίδιο ή επιλέγοντας το κείμενο:",
+      "instruction3": "Μεταβείτε στον ακόλουθο σύνδεσμο στο πρόγραμμα περιήγησής σας και πληκτρολογήστε τον παραπάνω κωδικό:",
+      "instruction4": "Πατήστε το κουμπί παρακάτω όταν ολοκληρώσετε την εγγραφή:"
+    }
+  },
+  "settings": {
+    "title": "Ρυθμίσεις",
+    "menu": {
+      "appearance": "Εμφάνιση",
+      "language": "Γλώσσα",
+      "user": "Χρήστης",
+      "files": "Αρχεία",
+      "notifications": "Ειδοποιήσεις",
+      "open": "Άνοιγμα Ρυθμίσεων",
+      "logout": "Αποσυνδέση",
+      "logoutPrompt": "Είστε σίγουροι ότι θέλετε να αποσυνδεθείτε;",
+      "selfEncryptionLogoutPrompt": "Είστε σίγουροι ότι θέλετε να αποσυνδεθείτε; Παρακαλούμε βεβαιωθείτε ότι έχετε αντιγράψει το κρυπτογραφημένο μυστικό",
+      "syncSetting": "Ρυθμίσεις συγχρονισμού",
+      "cloudSettings": "Ρυθμίσεις Cloud",
+      "enableSync": "Enable sync",
+      "enableEncrypt": "Encrypt data",
+      "cloudURL": "Base URL",
+      "invalidCloudURLScheme": "Invalid Scheme",
+      "cloudServerType": "Cloud server",
+      "cloudServerTypeTip": "Please note that it might log out your current account after switching the cloud server",
+      "cloudLocal": "Local",
+      "cloudSupabase": "Supabase",
+      "cloudSupabaseUrl": "Supabase URL",
+      "cloudSupabaseUrlCanNotBeEmpty": "The supabase url can't be empty",
+      "cloudSupabaseAnonKey": "Supabase anon key",
+      "cloudSupabaseAnonKeyCanNotBeEmpty": "The anon key can't be empty",
+      "cloudAppFlowy": "AppFlowy Cloud Beta",
+      "cloudAppFlowySelfHost": "AppFlowy Cloud Self-hosted",
+      "appFlowyCloudUrlCanNotBeEmpty": "The cloud url can't be empty",
+      "clickToCopy": "Click to copy",
+      "selfHostStart": "If you don't have a server, please refer to the",
+      "selfHostContent": "document",
+      "selfHostEnd": "for guidance on how to self-host your own server",
+      "cloudURLHint": "Input the base URL of your server",
+      "cloudWSURL": "Websocket URL",
+      "cloudWSURLHint": "Input the websocket address of your server",
+      "restartApp": "Restart",
+      "restartAppTip": "Restart the application for the changes to take effect. Please note that this might log out your current account",
+      "changeServerTip": "After changing the server, you must click the restart button for the changes to take effect",
+      "enableEncryptPrompt": "Activate encryption to secure your data with this secret. Store it safely; once enabled, it can't be turned off. If lost, your data becomes irretrievable. Click to copy",
+      "inputEncryptPrompt": "Please enter your encryption secret for",
+      "clickToCopySecret": "Click to copy secret",
+      "configServerSetting": "Configurate your server settings",
+      "configServerGuide": "After selecting `Quick Start`, navigate to `Settings` and then \"Cloud Settings\" to configure your self-hosted server.",
+      "inputTextFieldHint": "Your secret",
+      "historicalUserList": "User login history",
+      "historicalUserListTooltip": "This list displays your anonymous accounts. You can click on an account to view its details. Anonymous accounts are created by clicking the 'Get Started' button",
+      "openHistoricalUser": "Click to open the anonymous account",
+      "customPathPrompt": "Storing the AppFlowy data folder in a cloud-synced folder such as Google Drive can pose risks. If the database within this folder is accessed or modified from multiple locations at the same time, it may result in synchronization conflicts and potential data corruption",
+      "importAppFlowyData": "Import Data from External AppFlowy Folder",
+      "importingAppFlowyDataTip": "Data import is in progress. Please do not close the app",
+      "importAppFlowyDataDescription": "Copy data from an external AppFlowy data folder and import it into the current AppFlowy data folder",
+      "importSuccess": "Successfully imported the AppFlowy data folder",
+      "importFailed": "Importing the AppFlowy data folder failed",
+      "importGuide": "For further details, please check the referenced document"
+    },
+    "notifications": {
+      "enableNotifications": {
+        "label": "Enable notifications",
+        "hint": "Turn off to stop local notifications from appearing."
+      }
+    },
+    "appearance": {
+      "resetSetting": "Reset",
+      "fontFamily": {
+        "label": "Font Family",
+        "search": "Search"
+      },
+      "themeMode": {
+        "label": "Theme Mode",
+        "light": "Light Mode",
+        "dark": "Σκοτεινό Θέμα",
+        "system": "Προσαρμογή στο σύστημα"
+      },
+      "fontScaleFactor": "Font Scale Factor",
+      "documentSettings": {
+        "cursorColor": "Χρώμα κέρσορα εγγράφου",
+        "selectionColor": "Χρώμα επιλογής κειμένου",
+        "hexEmptyError": "Το χρώμα σε δεκαεξαδική μορφή δεν μπορεί να είναι κενό",
+        "hexLengthError": "Η τιμή δεκαεξαδικού πρέπει να είναι 6 ψηφία",
+        "hexInvalidError": "Μη έγκυρη τιμή δεκαεξαδικού",
+        "opacityEmptyError": "Η διαφάνεια δεν μπορεί να είναι κενή",
+        "opacityRangeError": "Η διαφάνεια πρέπει να είναι μεταξύ 1 και 100",
+        "app": "Εφαρμογή",
+        "flowy": "Flowy",
+        "apply": "Apply"
+      },
+      "layoutDirection": {
+        "label": "Κατεύθυνση Διάταξης",
+        "hint": "Ελέγξτε τη ροή του περιεχομένου στην οθόνη σας, από αριστερά προς τα δεξιά ή δεξιά προς τα αριστερά.",
+        "ltr": "LTR",
+        "rtl": "RTL"
+      },
+      "textDirection": {
+        "label": "Προεπιλεγμένη κατεύθυνση κειμένου",
+        "hint": "Καθορίστε αν το κείμενο θα ξεκινά από αριστερά ή δεξιά ως προεπιλογή.",
+        "ltr": "LTR",
+        "rtl": "RTL",
+        "auto": "AUTO",
+        "fallback": "Ίδια με την κατεύθυνση διάταξης"
+      },
+      "themeUpload": {
+        "button": "Μεταφόρτωση",
+        "uploadTheme": "Μεταφόρτωση θέματος",
+        "description": "Ανεβάστε το δικό σας θέμα για το AppFlowy χρησιμοποιώντας το παρακάτω κουμπί.",
+        "loading": "Παρακαλώ περιμένετε ενώ επικυρώνουμε και ανεβάζουμε το θέμα σας...",
+        "uploadSuccess": "Το θέμα σας μεταφορτώθηκε με επιτυχία",
+        "deletionFailure": "Αποτυχία διαγραφής του θέματος. Προσπαθήστε να το διαγράψετε χειροκίνητα.",
+        "filePickerDialogTitle": "Επιλέξτε ένα αρχείο .flowy_plugin",
+        "urlUploadFailure": "Αποτυχία ανοίγματος url: {}"
+      },
+      "theme": "Θέμα",
+      "builtInsLabel": "Ενσωματωμένα Θέματα",
+      "pluginsLabel": "Πρόσθετα",
+      "dateFormat": {
+        "label": "Μορφή ημερομηνίας",
+        "local": "Τοπική",
+        "us": "US",
+        "iso": "ISO",
+        "friendly": "Friendly",
+        "dmy": "D/M/Y"
+      },
+      "timeFormat": {
+        "label": "Μορφή ώρας",
+        "twelveHour": "12 ώρες",
+        "twentyFourHour": "24 ώρες"
+      },
+      "showNamingDialogWhenCreatingPage": "Εμφάνιση διαλόγου ονομασίας κατά τη δημιουργία μιας σελίδας",
+      "enableRTLToolbarItems": "Enable RTL toolbar items",
+      "members": {
+        "title": "Members Settings",
+        "inviteMembers": "Πρόσκληση Μέλους",
+        "sendInvite": "Αποστολή Πρόσκλησης",
+        "copyInviteLink": "Αντιγραφή Συνδέσμου Πρόσκλησης",
+        "label": "Μέλη",
+        "user": "User",
+        "role": "Role",
+        "removeFromWorkspace": "Remove from Workspace",
+        "owner": "Owner",
+        "guest": "Guest",
+        "member": "Member",
+        "memberHintText": "A member can read, comment, and edit pages. Invite members and guests.",
+        "guestHintText": "A Guest can read, react, comment, and can edit certain pages with permission.",
+        "emailInvalidError": "Invalid email, please check and try again",
+        "emailSent": "Email sent, please check the inbox",
+        "members": "members"
+      }
+    },
+    "files": {
+      "copy": "Copy",
+      "defaultLocation": "Read files and data storage location",
+      "exportData": "Export your data",
+      "doubleTapToCopy": "Double tap to copy the path",
+      "restoreLocation": "Restore to AppFlowy default path",
+      "customizeLocation": "Open another folder",
+      "restartApp": "Please restart app for the changes to take effect.",
+      "exportDatabase": "Export database",
+      "selectFiles": "Select the files that need to be export",
+      "selectAll": "Select all",
+      "deselectAll": "Deselect all",
+      "createNewFolder": "Create a new folder",
+      "createNewFolderDesc": "Tell us where you want to store your data",
+      "defineWhereYourDataIsStored": "Define where your data is stored",
+      "open": "Open",
+      "openFolder": "Open an existing folder",
+      "openFolderDesc": "Read and write it to your existing AppFlowy folder",
+      "folderHintText": "folder name",
+      "location": "Creating a new folder",
+      "locationDesc": "Pick a name for your AppFlowy data folder",
+      "browser": "Browse",
+      "create": "Create",
+      "set": "Set",
+      "folderPath": "Path to store your folder",
+      "locationCannotBeEmpty": "Path cannot be empty",
+      "pathCopiedSnackbar": "File storage path copied to clipboard!",
+      "changeLocationTooltips": "Change the data directory",
+      "change": "Αλλαγή",
+      "openLocationTooltips": "Open another data directory",
+      "openCurrentDataFolder": "Άνοιγμα του τρέχοντος φακέλου",
+      "recoverLocationTooltips": "Reset to AppFlowy's default data directory",
+      "exportFileSuccess": "Επιτυχής εξαγωγή αρχείου!",
+      "exportFileFail": "Η εξαγωγή αρχείου απέτυχε!",
+      "export": "Εξαγωγή",
+      "clearCache": "Εκκαθάριση προσωρινής μνήμης",
+      "clearCacheDesc": "Αν αντιμετωπίζετε προβλήματα με εικόνες που δεν φορτώνουν ή γραμματοσειρές που δεν εμφανίζονται σωστά, δοκιμάστε να καθαρίσετε την προσωρινή μνήμη. Αυτή η ενέργεια δεν θα διαγράψει τα δεδομένα χρήστη σας.",
+      "areYouSureToClearCache": "Σίγουρα θέλετε να καθαρίσετε την προσωρινή μνήμη;",
+      "clearCacheSuccess": "Επιτυχής εκκαθάριση προσωρινής μνήμης!"
+    },
+    "user": {
+      "name": "Όνομα",
+      "email": "Email",
+      "tooltipSelectIcon": "Select icon",
+      "selectAnIcon": "Select an icon",
+      "pleaseInputYourOpenAIKey": "παρακαλώ εισάγετε το OpenAI κλειδί σας",
+      "pleaseInputYourStabilityAIKey": "παρακαλώ εισάγετε το Stability AI κλειδί σας",
+      "clickToLogout": "Κάντε κλικ για αποσύνδεση του τρέχοντος χρήστη"
+    },
+    "shortcuts": {
+      "shortcutsLabel": "Συντομεύσεις",
+      "command": "Command",
+      "keyBinding": "Keybinding",
+      "addNewCommand": "Προσθήκη Νέας Εντολής",
+      "updateShortcutStep": "Πατήστε τον επιθυμητό συνδυασμό πλήκτρων και πατήστε ENTER",
+      "shortcutIsAlreadyUsed": "Αυτή η συντόμευση χρησιμοποιείται ήδη για: {conflict}",
+      "resetToDefault": "Επαναφορά προεπιλεγμένων συντομεύσεων πληκτρολογίου",
+      "couldNotLoadErrorMsg": "Αδυναμία φόρτωσης συντομεύσεων, Προσπαθήστε ξανά",
+      "couldNotSaveErrorMsg": "Δεν ήταν δυνατή η αποθήκευση συντομεύσεων, Προσπαθήστε ξανά"
+    },
+    "mobile": {
+      "personalInfo": "Προσωπικά Στοιχεία",
+      "username": "Όνομα Χρήστη",
+      "usernameEmptyError": "Το όνομα χρήστη δεν μπορεί να είναι κενό",
+      "about": "Σχετικά",
+      "pushNotifications": "Ειδοποιήσεις Push",
+      "support": "Υποστήριξη",
+      "joinDiscord": "Ελάτε μαζί μας στο Discord",
+      "privacyPolicy": "Πολιτική Απορρήτου",
+      "userAgreement": "Όροι Χρήσης",
+      "termsAndConditions": "Όροι και Προϋποθέσεις",
+      "userprofileError": "Αποτυχία φόρτωσης προφίλ χρήστη",
+      "userprofileErrorDescription": "Παρακαλώ προσπαθήστε να αποσυνδεθείτε και να συνδεθείτε ξανά για να ελέγξετε αν το πρόβλημα εξακολουθεί να υπάρχει.",
+      "selectLayout": "Επιλέξτε διάταξη",
+      "selectStartingDay": "Επιλέξτε ημέρα έναρξης",
+      "version": "Έκδοση"
+    }
+  },
+  "grid": {
+    "deleteView": "Είστε βέβαιοι ότι θέλετε να διαγράψετε αυτήν τη προβολή;",
+    "createView": "Νέο",
+    "title": {
+      "placeholder": "Χωρίς τίτλο"
+    },
+    "settings": {
+      "filter": "Φίλτρο",
+      "sort": "Ταξινόμηση",
+      "sortBy": "Ταξινόμηση κατά",
+      "properties": "Properties",
+      "reorderPropertiesTooltip": "Drag to reorder properties",
+      "group": "Group",
+      "addFilter": "Add Filter",
+      "deleteFilter": "Delete filter",
+      "filterBy": "Filter by...",
+      "typeAValue": "Type a value...",
+      "layout": "Layout",
+      "databaseLayout": "Layout",
+      "viewList": {
+        "zero": "0 views",
+        "one": "{count} view",
+        "other": "{count} views"
+      },
+      "editView": "Edit View",
+      "boardSettings": "Board settings",
+      "calendarSettings": "Calendar settings",
+      "createView": "New view",
+      "duplicateView": "Duplicate view",
+      "deleteView": "Delete view",
+      "numberOfVisibleFields": "{} shown"
+    },
+    "textFilter": {
+      "contains": "Contains",
+      "doesNotContain": "Does not contain",
+      "endsWith": "Ends with",
+      "startWith": "Starts with",
+      "is": "Is",
+      "isNot": "Is not",
+      "isEmpty": "Is empty",
+      "isNotEmpty": "Is not empty",
+      "choicechipPrefix": {
+        "isNot": "Not",
+        "startWith": "Starts with",
+        "endWith": "Ends with",
+        "isEmpty": "is empty",
+        "isNotEmpty": "is not empty"
+      }
+    },
+    "checkboxFilter": {
+      "isChecked": "Checked",
+      "isUnchecked": "Unchecked",
+      "choicechipPrefix": {
+        "is": "is"
+      }
+    },
+    "checklistFilter": {
+      "isComplete": "is complete",
+      "isIncomplted": "is incomplete"
+    },
+    "selectOptionFilter": {
+      "is": "Is",
+      "isNot": "Is not",
+      "contains": "Contains",
+      "doesNotContain": "Does not contain",
+      "isEmpty": "Είναι κενό",
+      "isNotEmpty": "Δεν είναι κενό"
+    },
+    "dateFilter": {
+      "is": "Is",
+      "before": "Is before",
+      "after": "Is after",
+      "onOrBefore": "Is on or before",
+      "onOrAfter": "Is on or after",
+      "between": "Is between",
+      "empty": "Είναι κενό",
+      "notEmpty": "Δεν είναι κενό",
+      "choicechipPrefix": {
+        "before": "Before",
+        "after": "After",
+        "onOrBefore": "On or before",
+        "onOrAfter": "On or after",
+        "isEmpty": "Is empty",
+        "isNotEmpty": "Is not empty"
+      }
+    },
+    "numberFilter": {
+      "equal": "Equals",
+      "notEqual": "Δεν ισούται με",
+      "lessThan": "Είναι μικρότερο από",
+      "greaterThan": "Είναι μεγαλύτερο από",
+      "lessThanOrEqualTo": "Είναι μικρότερο από ή ίσο με",
+      "greaterThanOrEqualTo": "Είναι μεγαλύτερο από ή ίσο με",
+      "isEmpty": "Είναι κενό",
+      "isNotEmpty": "Δεν είναι κενό"
+    },
+    "field": {
+      "hide": "Απόκρυψη",
+      "show": "Εμφάνιση",
+      "insertLeft": "Εισαγωγή από αριστερά",
+      "insertRight": "Εισαγωγή από δεξιά",
+      "duplicate": "Διπλότυπο",
+      "delete": "Διαγραφή",
+      "textFieldName": "Κείμενο",
+      "checkboxFieldName": "Checkbox",
+      "dateFieldName": "Date",
+      "updatedAtFieldName": "Τελευταία τροποποίηση",
+      "createdAtFieldName": "Δημιουργήθηκε στις",
+      "numberFieldName": "Numbers",
+      "singleSelectFieldName": "Επιλογή",
+      "multiSelectFieldName": "Multiselect",
+      "urlFieldName": "URL",
+      "checklistFieldName": "Checklist",
+      "relationFieldName": "Relation",
+      "numberFormat": "Μορφή αριθμού",
+      "dateFormat": "Μορφή ημερομηνίας",
+      "includeTime": "Περιλαμβάνει χρόνο",
+      "isRange": "End date",
+      "dateFormatFriendly": "Μήνας Ημέρα, Έτος",
+      "dateFormatISO": "Έτος-Μήνας-Ημέρα",
+      "dateFormatLocal": "Μήνας/Ημέρα/Έτος",
+      "dateFormatUS": "Έτος/Μήνας/Ημέρα",
+      "dateFormatDayMonthYear": "Ημέρα/Μήνας/Έτος",
+      "timeFormat": "Time format",
+      "invalidTimeFormat": "Invalid format",
+      "timeFormatTwelveHour": "12 hour",
+      "timeFormatTwentyFourHour": "24 hour",
+      "clearDate": "Clear date",
+      "dateTime": "Date time",
+      "startDateTime": "Start date time",
+      "endDateTime": "End date time",
+      "failedToLoadDate": "Failed to load date value",
+      "selectTime": "Select time",
+      "selectDate": "Select date",
+      "visibility": "Visibility",
+      "propertyType": "Property type",
+      "addSelectOption": "Add an option",
+      "typeANewOption": "Type a new option",
+      "optionTitle": "Options",
+      "addOption": "Add option",
+      "editProperty": "Edit property",
+      "newProperty": "New property",
+      "deleteFieldPromptMessage": "Are you sure? This property will be deleted",
+      "newColumn": "New Column",
+      "format": "Format",
+      "reminderOnDateTooltip": "This cell has a scheduled reminder",
+      "optionAlreadyExist": "Option already exists"
+    },
+    "rowPage": {
+      "newField": "Add a new field",
+      "fieldDragElementTooltip": "Click to open menu",
+      "showHiddenFields": {
+        "one": "Show {count} hidden field",
+        "many": "Show {count} hidden fields",
+        "other": "Show {count} hidden fields"
+      },
+      "hideHiddenFields": {
+        "one": "Απόκρυψη {count} κρυφού πεδίου",
+        "many": "Απόκρυψη {count} κρυφών πεδίων",
+        "other": "Απόκρυψη {count} κρυφών πεδίων"
+      }
+    },
+    "sort": {
+      "ascending": "Αύξουσα",
+      "descending": "Φθίνουσα",
+      "by": "By",
+      "empty": "No active sorts",
+      "cannotFindCreatableField": "Αδυναμία εύρεσης κατάλληλου πεδίου για ταξινόμηση",
+      "deleteAllSorts": "Delete all sorts",
+      "addSort": "Add new sort",
+      "removeSorting": "Θα θέλατε να αφαιρέσετε τη ταξινόμηση;",
+      "fieldInUse": "You are already sorting by this field"
+    },
+    "row": {
+      "duplicate": "Duplicate",
+      "delete": "Διαγραφή στήλης",
+      "titlePlaceholder": "Χωρίς τίτλο",
+      "textPlaceholder": "Άδειο",
+      "copyProperty": "Copied property to clipboard",
+      "count": "Count",
+      "newRow": "Νέα γραμμή",
+      "action": "Action",
+      "add": "Click add to below",
+      "drag": "Σύρετε για μετακίνηση",
+      "dragAndClick": "Drag to move, click to open menu",
+      "insertRecordAbove": "Εισαγωγή εγγραφής επάνω",
+      "insertRecordBelow": "Εισαγωγή εγγραφής κάτω"
+    },
+    "selectOption": {
+      "create": "Δημιουργία",
+      "purpleColor": "Μωβ",
+      "pinkColor": "Ροζ",
+      "lightPinkColor": "Απαλό ροζ",
+      "orangeColor": "Πορτοκαλί",
+      "yellowColor": "Κίτρινο",
+      "limeColor": "Λάιμ",
+      "greenColor": "Πράσινο",
+      "aquaColor": "Θαλασσί",
+      "blueColor": "Μπλέ",
+      "deleteTag": "Διαγραφή ετικέτας",
+      "colorPanelTitle": "Χρώμα",
+      "panelTitle": "Select an option or create one",
+      "searchOption": "Search for an option",
+      "searchOrCreateOption": "Search or create an option...",
+      "createNew": "Δημιουργία νέας",
+      "orSelectOne": "Or select an option",
+      "typeANewOption": "Type a new option",
+      "tagName": "Όνομα ετικέτας"
+    },
+    "checklist": {
+      "taskHint": "Περιγραφή εργασίας",
+      "addNew": "Προσθήκη νέας εργασίας",
+      "submitNewTask": "Δημιουργία",
+      "hideComplete": "Απόκρυψη ολοκληρωμένων εργασιών",
+      "showComplete": "Εμφάνιση όλων των εργασιών"
+    },
+    "url": {
+      "launch": "Άνοιγμα συνδέσμου στο πρόγραμμα περιήγησης",
+      "copy": "Copy link to clipboard",
+      "textFieldHint": "Enter a URL",
+      "copiedNotification": "Copied to clipboard!"
+    },
+    "relation": {
+      "relatedDatabasePlaceLabel": "Related Database",
+      "relatedDatabasePlaceholder": "None",
+      "inRelatedDatabase": "In",
+      "rowSearchTextFieldPlaceholder": "Search",
+      "noDatabaseSelected": "No database selected, please select one first from the list below:",
+      "emptySearchResult": "No records found"
+    },
+    "menuName": "Grid",
+    "referencedGridPrefix": "View of",
+    "calculate": "Calculate",
+    "calculationTypeLabel": {
+      "none": "None",
+      "average": "Average",
+      "max": "Max",
+      "median": "Median",
+      "min": "Min",
+      "sum": "Sum",
+      "count": "Count",
+      "countEmpty": "Count empty",
+      "countEmptyShort": "EMPTY",
+      "countNonEmpty": "Count not empty",
+      "countNonEmptyShort": "FILLED"
+    }
+  },
+  "document": {
+    "menuName": "Document",
+    "date": {
+      "timeHintTextInTwelveHour": "01:00 PM",
+      "timeHintTextInTwentyFourHour": "13:00"
+    },
+    "slashMenu": {
+      "board": {
+        "selectABoardToLinkTo": "Select a Board to link to",
+        "createANewBoard": "Create a new Board"
+      },
+      "grid": {
+        "selectAGridToLinkTo": "Select a Grid to link to",
+        "createANewGrid": "Create a new Grid"
+      },
+      "calendar": {
+        "selectACalendarToLinkTo": "Select a Calendar to link to",
+        "createANewCalendar": "Create a new Calendar"
+      },
+      "document": {
+        "selectADocumentToLinkTo": "Select a Document to link to"
+      }
+    },
+    "selectionMenu": {
+      "outline": "Outline",
+      "codeBlock": "Code Block"
+    },
+    "plugins": {
+      "referencedBoard": "Referenced Board",
+      "referencedGrid": "Referenced Grid",
+      "referencedCalendar": "Referenced Calendar",
+      "referencedDocument": "Referenced Document",
+      "autoGeneratorMenuItemName": "OpenAI Writer",
+      "autoGeneratorTitleName": "OpenAI: Ask AI to write anything...",
+      "autoGeneratorLearnMore": "Μάθετε περισσότερα",
+      "autoGeneratorGenerate": "Generate",
+      "autoGeneratorHintText": "Ρωτήστε Το OpenAI ...",
+      "autoGeneratorCantGetOpenAIKey": "Αδυναμία λήψης κλειδιού OpenAI",
+      "autoGeneratorRewrite": "Rewrite",
+      "smartEdit": "AI Assistants",
+      "openAI": "OpenAI",
+      "smartEditFixSpelling": "Διόρθωση ορθογραφίας",
+      "warning": "⚠️ Οι απαντήσεις AI μπορεί να είναι ανακριβείς ή παραπλανητικές.",
+      "smartEditSummarize": "Summarize",
+      "smartEditImproveWriting": "Improve writing",
+      "smartEditMakeLonger": "Make longer",
+      "smartEditCouldNotFetchResult": "Could not fetch result from OpenAI",
+      "smartEditCouldNotFetchKey": "Could not fetch OpenAI key",
+      "smartEditDisabled": "Connect OpenAI in Settings",
+      "discardResponse": "Do you want to discard the AI responses?",
+      "createInlineMathEquation": "Create equation",
+      "fonts": "Γραμματοσειρές",
+      "toggleList": "Toggle list",
+      "quoteList": "Quote list",
+      "numberedList": "Αριθμημένη λίστα",
+      "bulletedList": "Bulleted list",
+      "todoList": "Todo List",
+      "callout": "Callout",
+      "cover": {
+        "changeCover": "Change Cover",
+        "colors": "Χρώματα",
+        "images": "Εικόνες",
+        "clearAll": "Εκκαθάριση όλων",
+        "abstract": "Abstract",
+        "addCover": "Προσθέστε ένα εξώφυλλο",
+        "addLocalImage": "Add local image",
+        "invalidImageUrl": "Μη έγκυρο URL εικόνας",
+        "failedToAddImageToGallery": "Failed to add image to gallery",
+        "enterImageUrl": "Enter image URL",
+        "add": "Add",
+        "back": "Back",
+        "saveToGallery": "Save to gallery",
+        "removeIcon": "Remove icon",
+        "pasteImageUrl": "Paste image URL",
+        "or": "OR",
+        "pickFromFiles": "Pick from files",
+        "couldNotFetchImage": "Could not fetch image",
+        "imageSavingFailed": "Image Saving Failed",
+        "addIcon": "Add icon",
+        "changeIcon": "Change icon",
+        "coverRemoveAlert": "It will be removed from cover after it is deleted.",
+        "alertDialogConfirmation": "Are you sure, you want to continue?"
+      },
+      "mathEquation": {
+        "name": "Math Equation",
+        "addMathEquation": "Add a TeX equation",
+        "editMathEquation": "Edit Math Equation"
+      },
+      "optionAction": {
+        "click": "Click",
+        "toOpenMenu": " to open menu",
+        "delete": "Delete",
+        "duplicate": "Duplicate",
+        "turnInto": "Turn into",
+        "moveUp": "Move up",
+        "moveDown": "Move down",
+        "color": "Color",
+        "align": "Align",
+        "left": "Left",
+        "center": "Center",
+        "right": "Right",
+        "defaultColor": "Default",
+        "depth": "Depth"
+      },
+      "image": {
+        "copiedToPasteBoard": "The image link has been copied to the clipboard",
+        "addAnImage": "Add an image",
+        "imageUploadFailed": "Image upload failed"
+      },
+      "urlPreview": {
+        "copiedToPasteBoard": "The link has been copied to the clipboard",
+        "convertToLink": "Convert to embed link"
+      },
+      "outline": {
+        "addHeadingToCreateOutline": "Add headings to create a table of contents.",
+        "noMatchHeadings": "No matching headings found."
+      },
+      "table": {
+        "addAfter": "Add after",
+        "addBefore": "Add before",
+        "delete": "Delete",
+        "clear": "Clear content",
+        "duplicate": "Duplicate",
+        "bgColor": "Background color"
+      },
+      "contextMenu": {
+        "copy": "Copy",
+        "cut": "Cut",
+        "paste": "Paste"
+      },
+      "action": "Actions",
+      "database": {
+        "selectDataSource": "Select data source",
+        "noDataSource": "No data source",
+        "selectADataSource": "Select a data source",
+        "toContinue": "to continue",
+        "newDatabase": "New Database",
+        "linkToDatabase": "Link to Database"
+      },
+      "date": "Date",
+      "emoji": "Emoji"
+    },
+    "outlineBlock": {
+      "placeholder": "Table of Contents"
+    },
+    "textBlock": {
+      "placeholder": "Type '/' for commands"
+    },
+    "title": {
+      "placeholder": "Untitled"
+    },
+    "imageBlock": {
+      "placeholder": "Click to add image",
+      "upload": {
+        "label": "Upload",
+        "placeholder": "Click to upload image"
+      },
+      "url": {
+        "label": "Image URL",
+        "placeholder": "Enter image URL"
+      },
+      "ai": {
+        "label": "Generate image from OpenAI",
+        "placeholder": "Please input the prompt for OpenAI to generate image"
+      },
+      "stability_ai": {
+        "label": "Generate image from Stability AI",
+        "placeholder": "Please input the prompt for Stability AI to generate image"
+      },
+      "support": "Image size limit is 5MB. Supported formats: JPEG, PNG, GIF, SVG",
+      "error": {
+        "invalidImage": "Invalid image",
+        "invalidImageSize": "Image size must be less than 5MB",
+        "invalidImageFormat": "Image format is not supported. Supported formats: JPEG, PNG, JPG, GIF, SVG, WEBP",
+        "invalidImageUrl": "Invalid image URL",
+        "noImage": "No such file or directory"
+      },
+      "embedLink": {
+        "label": "Embed link",
+        "placeholder": "Paste or type an image link"
+      },
+      "unsplash": {
+        "label": "Unsplash"
+      },
+      "searchForAnImage": "Search for an image",
+      "pleaseInputYourOpenAIKey": "please input your OpenAI key in Settings page",
+      "pleaseInputYourStabilityAIKey": "please input your Stability AI key in Settings page",
+      "saveImageToGallery": "Save image",
+      "failedToAddImageToGallery": "Failed to add image to gallery",
+      "successToAddImageToGallery": "Image added to gallery successfully",
+      "unableToLoadImage": "Unable to load image",
+      "maximumImageSize": "Maximum supported upload image size is 10MB",
+      "uploadImageErrorImageSizeTooBig": "Image size must be less than 10MB",
+      "imageIsUploading": "Image is uploading"
+    },
+    "codeBlock": {
+      "language": {
+        "label": "Language",
+        "placeholder": "Select language"
+      }
+    },
+    "inlineLink": {
+      "placeholder": "Paste or type a link",
+      "openInNewTab": "Open in new tab",
+      "copyLink": "Copy link",
+      "removeLink": "Remove link",
+      "url": {
+        "label": "Link URL",
+        "placeholder": "Enter link URL"
+      },
+      "title": {
+        "label": "Link Title",
+        "placeholder": "Enter link title"
+      }
+    },
+    "mention": {
+      "placeholder": "Mention a person or a page or date...",
+      "page": {
+        "label": "Link to page",
+        "tooltip": "Click to open page"
+      },
+      "deleted": "Deleted",
+      "deletedContent": "This content does not exist or has been deleted"
+    },
+    "toolbar": {
+      "resetToDefaultFont": "Reset to default"
+    },
+    "errorBlock": {
+      "theBlockIsNotSupported": "The current version does not support this block.",
+      "blockContentHasBeenCopied": "The block content has been copied."
+    }
+  },
+  "board": {
+    "column": {
+      "createNewCard": "New",
+      "renameGroupTooltip": "Press to rename group",
+      "createNewColumn": "Add a new group",
+      "addToColumnTopTooltip": "Add a new card at the top",
+      "addToColumnBottomTooltip": "Add a new card at the bottom",
+      "renameColumn": "Rename",
+      "hideColumn": "Hide",
+      "newGroup": "New Group",
+      "deleteColumn": "Delete",
+      "deleteColumnConfirmation": "This will delete this group and all the cards in it.\nAre you sure you want to continue?"
+    },
+    "hiddenGroupSection": {
+      "sectionTitle": "Hidden Groups",
+      "collapseTooltip": "Hide the hidden groups",
+      "expandTooltip": "View the hidden groups"
+    },
+    "cardDetail": "Card Detail",
+    "cardActions": "Card Actions",
+    "cardDuplicated": "Card has been duplicated",
+    "cardDeleted": "Card has been deleted",
+    "showOnCard": "Show on card detail",
+    "setting": "Setting",
+    "propertyName": "Property name",
+    "menuName": "Board",
+    "showUngrouped": "Show ungrouped items",
+    "ungroupedButtonText": "Ungrouped",
+    "ungroupedButtonTooltip": "Contains cards that don't belong in any group",
+    "ungroupedItemsTitle": "Click to add to the board",
+    "groupBy": "Group by",
+    "referencedBoardPrefix": "View of",
+    "notesTooltip": "Notes inside",
+    "mobile": {
+      "editURL": "Edit URL",
+      "showGroup": "Show group",
+      "showGroupContent": "Are you sure you want to show this group on the board?",
+      "failedToLoad": "Failed to load board view"
+    }
+  },
+  "calendar": {
+    "menuName": "Calendar",
+    "defaultNewCalendarTitle": "Untitled",
+    "newEventButtonTooltip": "Add a new event",
+    "navigation": {
+      "today": "Today",
+      "jumpToday": "Jump to Today",
+      "previousMonth": "Previous Month",
+      "nextMonth": "Next Month"
+    },
+    "mobileEventScreen": {
+      "emptyTitle": "No events yet",
+      "emptyBody": "Press the plus button to create an event on this day."
+    },
+    "settings": {
+      "showWeekNumbers": "Show week numbers",
+      "showWeekends": "Show weekends",
+      "firstDayOfWeek": "Start week on",
+      "layoutDateField": "Layout calendar by",
+      "changeLayoutDateField": "Change layout field",
+      "noDateTitle": "No Date",
+      "noDateHint": {
+        "zero": "Unscheduled events will show up here",
+        "one": "{count} unscheduled event",
+        "other": "{count} unscheduled events"
+      },
+      "unscheduledEventsTitle": "Unscheduled events",
+      "clickToAdd": "Click to add to the calendar",
+      "name": "Calendar settings"
+    },
+    "referencedCalendarPrefix": "View of",
+    "quickJumpYear": "Jump to",
+    "duplicateEvent": "Duplicate event"
+  },
+  "errorDialog": {
+    "title": "AppFlowy Error",
+    "howToFixFallback": "We're sorry for the inconvenience! Submit an issue on our GitHub page that describes your error.",
+    "github": "View on GitHub"
+  },
+  "search": {
+    "label": "Search",
+    "placeholder": {
+      "actions": "Search actions..."
+    }
+  },
+  "message": {
+    "copy": {
+      "success": "Copied!",
+      "fail": "Unable to copy"
+    }
+  },
+  "unSupportBlock": "The current version does not support this Block.",
+  "views": {
+    "deleteContentTitle": "Are you sure want to delete the {pageType}?",
+    "deleteContentCaption": "if you delete this {pageType}, you can restore it from the trash."
+  },
+  "colors": {
+    "custom": "Custom",
+    "default": "Default",
+    "red": "Red",
+    "orange": "Orange",
+    "yellow": "Yellow",
+    "green": "Green",
+    "blue": "Blue",
+    "purple": "Purple",
+    "pink": "Pink",
+    "brown": "Brown",
+    "gray": "Gray"
+  },
+  "emoji": {
+    "emojiTab": "Emoji",
+    "search": "Search emoji",
+    "noRecent": "No recent emoji",
+    "noEmojiFound": "No emoji found",
+    "filter": "Filter",
+    "random": "Random",
+    "selectSkinTone": "Select skin tone",
+    "remove": "Remove emoji",
+    "categories": {
+      "smileys": "Smileys & Emotion",
+      "people": "People & Body",
+      "animals": "Animals & Nature",
+      "food": "Food & Drink",
+      "activities": "Activities",
+      "places": "Travel & Places",
+      "objects": "Objects",
+      "symbols": "Symbols",
+      "flags": "Flags",
+      "nature": "Nature",
+      "frequentlyUsed": "Frequently Used"
+    },
+    "skinTone": {
+      "default": "Default",
+      "light": "Light",
+      "mediumLight": "Medium-Light",
+      "medium": "Medium",
+      "mediumDark": "Medium-Dark",
+      "dark": "Dark"
+    }
+  },
+  "inlineActions": {
+    "noResults": "No results",
+    "pageReference": "Page reference",
+    "docReference": "Document reference",
+    "boardReference": "Board reference",
+    "calReference": "Calendar reference",
+    "gridReference": "Grid reference",
+    "date": "Date",
+    "reminder": {
+      "groupTitle": "Reminder",
+      "shortKeyword": "remind"
+    }
+  },
+  "datePicker": {
+    "dateTimeFormatTooltip": "Change the date and time format in settings",
+    "dateFormat": "Date format",
+    "includeTime": "Include time",
+    "isRange": "End date",
+    "timeFormat": "Time format",
+    "clearDate": "Clear date",
+    "reminderLabel": "Reminder",
+    "selectReminder": "Select reminder",
+    "reminderOptions": {
+      "none": "None",
+      "atTimeOfEvent": "Time of event",
+      "fiveMinsBefore": "5 mins before",
+      "tenMinsBefore": "10 mins before",
+      "fifteenMinsBefore": "15 mins before",
+      "thirtyMinsBefore": "30 mins before",
+      "oneHourBefore": "1 hour before",
+      "twoHoursBefore": "2 hours before",
+      "onDayOfEvent": "On day of event",
+      "oneDayBefore": "1 day before",
+      "twoDaysBefore": "2 days before",
+      "oneWeekBefore": "1 week before",
+      "custom": "Custom"
+    }
+  },
+  "relativeDates": {
+    "yesterday": "Yesterday",
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "oneWeek": "1 week"
+  },
+  "notificationHub": {
+    "title": "Notifications",
+    "mobile": {
+      "title": "Updates"
+    },
+    "emptyTitle": "All caught up!",
+    "emptyBody": "No pending notifications or actions. Enjoy the calm.",
+    "tabs": {
+      "inbox": "Inbox",
+      "upcoming": "Upcoming"
+    },
+    "actions": {
+      "markAllRead": "Mark all as read",
+      "showAll": "All",
+      "showUnreads": "Unread"
+    },
+    "filters": {
+      "ascending": "Ascending",
+      "descending": "Descending",
+      "groupByDate": "Group by date",
+      "showUnreadsOnly": "Show unreads only",
+      "resetToDefault": "Reset to default"
+    }
+  },
+  "reminderNotification": {
+    "title": "Reminder",
+    "message": "Remember to check this before you forget!",
+    "tooltipDelete": "Delete",
+    "tooltipMarkRead": "Mark as read",
+    "tooltipMarkUnread": "Mark as unread"
+  },
+  "findAndReplace": {
+    "find": "Find",
+    "previousMatch": "Previous match",
+    "nextMatch": "Next match",
+    "close": "Close",
+    "replace": "Replace",
+    "replaceAll": "Replace all",
+    "noResult": "No results",
+    "caseSensitive": "Case sensitive",
+    "searchMore": "Search to find more results"
+  },
+  "error": {
+    "weAreSorry": "We're sorry",
+    "loadingViewError": "We're having trouble loading this view. Please check your internet connection, refresh the app, and do not hesitate to reach out to the team if the issue continues."
+  },
+  "editor": {
+    "bold": "Bold",
+    "bulletedList": "Bulleted List",
+    "bulletedListShortForm": "Bulleted",
+    "checkbox": "Checkbox",
+    "embedCode": "Embed Code",
+    "heading1": "H1",
+    "heading2": "H2",
+    "heading3": "H3",
+    "highlight": "Highlight",
+    "color": "Color",
+    "image": "Image",
+    "date": "Date",
+    "italic": "Italic",
+    "link": "Link",
+    "numberedList": "Numbered List",
+    "numberedListShortForm": "Numbered",
+    "quote": "Quote",
+    "strikethrough": "Strikethrough",
+    "text": "Text",
+    "underline": "Underline",
+    "fontColorDefault": "Default",
+    "fontColorGray": "Gray",
+    "fontColorBrown": "Brown",
+    "fontColorOrange": "Orange",
+    "fontColorYellow": "Yellow",
+    "fontColorGreen": "Green",
+    "fontColorBlue": "Blue",
+    "fontColorPurple": "Purple",
+    "fontColorPink": "Pink",
+    "fontColorRed": "Red",
+    "backgroundColorDefault": "Default background",
+    "backgroundColorGray": "Gray background",
+    "backgroundColorBrown": "Brown background",
+    "backgroundColorOrange": "Orange background",
+    "backgroundColorYellow": "Yellow background",
+    "backgroundColorGreen": "Green background",
+    "backgroundColorBlue": "Blue background",
+    "backgroundColorPurple": "Purple background",
+    "backgroundColorPink": "Pink background",
+    "backgroundColorRed": "Red background",
+    "backgroundColorLime": "Lime background",
+    "backgroundColorAqua": "Aqua background",
+    "done": "Done",
+    "cancel": "Cancel",
+    "tint1": "Tint 1",
+    "tint2": "Tint 2",
+    "tint3": "Tint 3",
+    "tint4": "Tint 4",
+    "tint5": "Tint 5",
+    "tint6": "Tint 6",
+    "tint7": "Tint 7",
+    "tint8": "Tint 8",
+    "tint9": "Tint 9",
+    "lightLightTint1": "Purple",
+    "lightLightTint2": "Pink",
+    "lightLightTint3": "Light Pink",
+    "lightLightTint4": "Orange",
+    "lightLightTint5": "Yellow",
+    "lightLightTint6": "Lime",
+    "lightLightTint7": "Green",
+    "lightLightTint8": "Aqua",
+    "lightLightTint9": "Blue",
+    "urlHint": "URL",
+    "mobileHeading1": "Heading 1",
+    "mobileHeading2": "Heading 2",
+    "mobileHeading3": "Heading 3",
+    "textColor": "Text Color",
+    "backgroundColor": "Background Color",
+    "addYourLink": "Add your link",
+    "openLink": "Open link",
+    "copyLink": "Copy link",
+    "removeLink": "Remove link",
+    "editLink": "Edit link",
+    "linkText": "Text",
+    "linkTextHint": "Please enter text",
+    "linkAddressHint": "Please enter URL",
+    "highlightColor": "Highlight color",
+    "clearHighlightColor": "Clear highlight color",
+    "customColor": "Custom color",
+    "hexValue": "Hex value",
+    "opacity": "Opacity",
+    "resetToDefaultColor": "Reset to default color",
+    "ltr": "LTR",
+    "rtl": "RTL",
+    "auto": "Auto",
+    "cut": "Cut",
+    "copy": "Copy",
+    "paste": "Paste",
+    "find": "Find",
+    "previousMatch": "Previous match",
+    "nextMatch": "Next match",
+    "closeFind": "Close",
+    "replace": "Replace",
+    "replaceAll": "Replace all",
+    "regex": "Regex",
+    "caseSensitive": "Case sensitive",
+    "uploadImage": "Upload Image",
+    "urlImage": "URL Image",
+    "incorrectLink": "Incorrect Link",
+    "upload": "Upload",
+    "chooseImage": "Choose an image",
+    "loading": "Loading",
+    "imageLoadFailed": "Could not load the image",
+    "divider": "Divider",
+    "table": "Table",
+    "colAddBefore": "Add before",
+    "rowAddBefore": "Add before",
+    "colAddAfter": "Add after",
+    "rowAddAfter": "Add after",
+    "colRemove": "Remove",
+    "rowRemove": "Remove",
+    "colDuplicate": "Duplicate",
+    "rowDuplicate": "Duplicate",
+    "colClear": "Clear Content",
+    "rowClear": "Clear Content",
+    "slashPlaceHolder": "Type '/' to insert a block, or start typing",
+    "typeSomething": "Type something...",
+    "toggleListShortForm": "Toggle",
+    "quoteListShortForm": "Quote",
+    "mathEquationShortForm": "Formula",
+    "codeBlockShortForm": "Code"
+  },
+  "favorite": {
+    "noFavorite": "No favorite page",
+    "noFavoriteHintText": "Swipe the page to the left to add it to your favorites"
+  },
+  "cardDetails": {
+    "notesPlaceholder": "Enter a / to insert a block, or start typing"
+  },
+  "blockPlaceholders": {
+    "todoList": "To-do",
+    "bulletList": "List",
+    "numberList": "List",
+    "quote": "Quote",
+    "heading": "Heading {}"
+  },
+  "titleBar": {
+    "pageIcon": "Page icon",
+    "language": "Language",
+    "font": "Font",
+    "actions": "Actions",
+    "date": "Date",
+    "addField": "Add field",
+    "userIcon": "User icon"
+  },
+  "noLogFiles": "There're no log files",
+  "newSettings": {
+    "myAccount": {
+      "title": "My account",
+      "subtitle": "Customize your profile, manage account security, open AI keys, or login into your account.",
+      "profileLabel": "Account name & Profile image",
+      "profileNamePlaceholder": "Enter your name",
+      "accountSecurity": "Account security",
+      "2FA": "2-Step Authentication",
+      "aiKeys": "AI keys",
+      "accountLogin": "Account Login",
+      "updateNameError": "Failed to update name",
+      "updateIconError": "Failed to update icon",
+      "deleteAccount": {
+        "title": "Delete Account",
+        "subtitle": "Permanently delete your account and all of your data.",
+        "deleteMyAccount": "Delete my account",
+        "dialogTitle": "Delete account",
+        "dialogContent1": "Are you sure you want to permanently delete your account?",
+        "dialogContent2": "This action cannot be undone, and will remove access from all teamspaces, erasing your entire account, including private workspaces, and removing you from all shared workspaces."
+      }
+    },
+    "workplace": {
+      "name": "Workplace",
+      "title": "Workplace Settings",
+      "subtitle": "Customize your workspace appearance, theme, font, text layout, date, time, and language.",
+      "workplaceName": "Workplace name",
+      "workplaceNamePlaceholder": "Enter workplace name",
+      "workplaceIcon": "Workplace icon",
+      "workplaceIconSubtitle": "Upload an image or use an emoji for your workspace. Icon will show in your sidebar and notifications",
+      "renameError": "Failed to rename workplace",
+      "updateIconError": "Failed to update icon",
+      "appearance": {
+        "name": "Appearance",
+        "themeMode": {
+          "auto": "Auto",
+          "light": "Light",
+          "dark": "Dark"
+        },
+        "language": "Language"
+      }
+    }
+  }
+}

@@ -8,3 +8,4 @@ pub mod notification;
 mod protobuf;
 pub mod services;
 pub mod template;
+pub mod utils;

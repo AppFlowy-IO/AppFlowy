@@ -3,7 +3,7 @@
   "defaultUsername": "Én",
   "welcomeText": "Üdvözöl az @:appName",
   "githubStarText": "GitHub csillagozás",
-  "subscribeNewsletterText": "Iratkozz fel a hírlevelünkre",
+  "subscribeNewsletterText": "Iratkozzon fel a hírlevelünkre",
   "letsGoButtonText": "Vágjunk bele",
   "title": "Cím",
   "youCanAlso": "Te is",
@@ -21,7 +21,7 @@
     "emptyPasswordError": "A jelszó nem lehet üres",
     "repeatPasswordEmptyError": "A jelszó megerősítése nem lehet üres",
     "unmatchedPasswordError": "A jelszavak nem egyeznek",
-    "alreadyHaveAnAccount": "Rendelkezel már fiókkal?",
+    "alreadyHaveAnAccount": "Rendelkezik már fiókkal?",
     "emailHint": "Email",
     "passwordHint": "Jelszó",
     "repeatPasswordHint": "Jelszó megerősítése"
@@ -72,6 +72,10 @@
   },
   "blankPageTitle": "Üres oldal",
   "newPageText": "Új oldal",
+  "newDocumentText": "Új dokumentum",
+  "newGridText": "Új táblázat",
+  "newCalendarText": "Új naptár",
+  "newBoardText": "Új feladat tábla",
   "trash": {
     "text": "Kuka",
     "restoreAll": "Összes visszaállítása",
@@ -100,7 +104,7 @@
     "shortcuts": "Parancsikonok",
     "whatsNew": "Újdonságok",
     "help": "Segítség & Támogatás",
-    "markdown": "Árleszállítás",
+    "markdown": "Markdown",
     "debug": {
       "name": "Debug Információ",
       "success": "Debug információ a vágólapra másolva",
@@ -159,7 +163,9 @@
     "editContact": "Kontakt Szerkesztése"
   },
   "button": {
+    "ok": "OK",
     "done": "Kész",
+    "cancel": "Mégse",
     "signIn": "Bejelentkezés",
     "signOut": "Kijelentkezés",
     "complete": "Kész",
@@ -175,10 +181,7 @@
     "edit": "Szerkesztés",
     "delete": "Töröl",
     "duplicate": "Másolat",
-    "putback": "Visszatesz",
-    "Done": "Kész",
-    "Cancel": "Mégse",
-    "OK": "OK"
+    "putback": "Visszatesz"
   },
   "label": {
     "welcome": "Üdvözlünk!",
@@ -190,14 +193,14 @@
   "oAuth": {
     "err": {
       "failedTitle": "Sikertelen bejelentkezés.",
-      "failedMsg": "Kérjük győződj meg róla, hogy elvégezted a bejelentkezési folyamatot a böngésződben!"
+      "failedMsg": "Kérjük győződjön meg róla, hogy elvégezte a bejelentkezési folyamatot a böngészőben!"
     },
     "google": {
       "title": "Bejelentkezés Google-lal",
-      "instruction1": "Ahhoz, hogy hozzáférj a Google Kontaktjaidhoz, kérjük hatalmazd fel ezt az alkalmazást a böngésződben.",
-      "instruction2": "Másold ezt a kódot a vágólapra az ikonra kattintással vagy a szöveg kijelölésével:",
-      "instruction3": "Nyisd meg ezt a linket a böngésződben, és írd be a fenti kódot:",
-      "instruction4": "Nyomd meg az alábbi gombot, ha elvégezted a regisztrációt:"
+      "instruction1": "Ahhoz, hogy hozzáférjen a Google Kontaktjaihoz, kérjük hatalmazza fel ezt az alkalmazást a böngészőben.",
+      "instruction2": "Másolja ezt a kódot a vágólapra az ikonra kattintással vagy a szöveg kijelölésével:",
+      "instruction3": "Nyissa meg ezt a linket a böngészőben, és írja be a fenti kódot:",
+      "instruction4": "Nyomja meg az alábbi gombot, ha elvégezte a regisztrációt:"
     }
   },
   "settings": {
@@ -224,12 +227,12 @@
       "themeUpload": {
         "button": "Feltöltés",
         "description": "Töltse fel saját AppFlowy témáját az alábbi gomb segítségével.",
-        "failure": "A feltöltött téma formátuma érvénytelen.",
         "loading": "Kérjük, várjon, amíg ellenőrizzük és feltöltjük a témát...",
         "uploadSuccess": "A témát sikeresen feltöltötte",
         "deletionFailure": "Nem sikerült törölni a témát. Próbálja meg manuálisan törölni.",
         "filePickerDialogTitle": "Válasszon egy .flowy_plugin fájlt",
-        "urlUploadFailure": "Nem sikerült megnyitni az URL-t: {}"
+        "urlUploadFailure": "Nem sikerült megnyitni az URL-t: {}",
+        "failure": "A feltöltött téma formátuma érvénytelen."
       },
       "theme": "Téma",
       "builtInsLabel": "Beépített témák",
@@ -322,13 +325,9 @@
       "isComplete": "teljes",
       "isIncomplted": "hiányos"
     },
-    "singleSelectOptionFilter": {
+    "selectOptionFilter": {
       "is": "Is",
       "isNot": "Nem",
-      "isEmpty": "Üres",
-      "isNotEmpty": "Nem üres"
-    },
-    "multiSelectOptionFilter": {
       "contains": "Tartalmaz",
       "doesNotContain": "Nem tartalmaz",
       "isEmpty": "Üres",
@@ -366,8 +365,8 @@
       "optionTitle": "Lehetőségek",
       "addOption": "Opció hozzáadása",
       "editProperty": "Tulajdonság szerkesztése",
-      "newProperty": "Új ingatlan",
-      "deleteFieldPromptMessage": "biztos vagy ebben? Ez a tulajdonság törlésre kerül"
+      "newProperty": "Új tulajdonság",
+      "deleteFieldPromptMessage": "Biztos ebben? Ez a tulajdonság törlésre kerül"
     },
     "sort": {
       "ascending": "Emelkedő",
@@ -403,7 +402,7 @@
     "checklist": {
       "addNew": "Adjon hozzá egy elemet"
     },
-    "menuName": "Rács",
+    "menuName": "Táblázat",
     "referencedGridPrefix": "Nézet"
   },
   "document": {
@@ -414,12 +413,12 @@
     },
     "slashMenu": {
       "board": {
-        "selectABoardToLinkTo": "Válassza ki azt a táblát, amelyre hivatkozni szeretne",
-        "createANewBoard": "Hozzon létre egy új táblát"
+        "selectABoardToLinkTo": "Válassza ki azt a feladat táblát, amelyre hivatkozni szeretne",
+        "createANewBoard": "Hozzon létre egy új feladat táblát"
       },
       "grid": {
-        "selectAGridToLinkTo": "Válassza ki a rácsot, amelyre hivatkozni szeretne",
-        "createANewGrid": "Hozzon létre egy új rácsot"
+        "selectAGridToLinkTo": "Válassza ki azt a táblázatot, amelyre hivatkozni szeretne",
+        "createANewGrid": "Hozzon létre egy új táblázatot"
       },
       "calendar": {
         "selectACalendarToLinkTo": "Válasszon egy naptárt a hivatkozáshoz",
@@ -430,8 +429,8 @@
       "outline": "Vázlat"
     },
     "plugins": {
-      "referencedBoard": "Hivatkozott tábla",
-      "referencedGrid": "Hivatkozott rács",
+      "referencedBoard": "Hivatkozott feladat tábla",
+      "referencedGrid": "Hivatkozott táblázat",
       "referencedCalendar": "Hivatkozott naptár",
       "autoGeneratorMenuItemName": "OpenAI Writer",
       "autoGeneratorTitleName": "OpenAI: Kérd meg az AI-t, hogy írjon bármit...",
@@ -549,8 +548,13 @@
     "column": {
       "createNewCard": "Új"
     },
-    "menuName": "Tábla",
-    "referencedBoardPrefix": "Nézet"
+    "menuName": "Feladat Tábla",
+    "referencedBoardPrefix": "Nézet",
+    "mobile": {
+      "showGroup": "Csoport megjelenítése",
+      "showGroupContent": "Biztos, hogy meg szeretnéd jeleníteni ezt a csoportot a táblán?",
+      "failedToLoad": "Nem sikerült betölteni a tábla nézetét"
+    }
   },
   "calendar": {
     "menuName": "Naptár",

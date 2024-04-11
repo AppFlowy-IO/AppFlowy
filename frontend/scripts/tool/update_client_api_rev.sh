@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Ensure a new revision ID is provided
 if [ "$#" -ne 1 ]; then
@@ -8,12 +8,12 @@ fi
 
 NEW_REV="$1"
 echo "New revision: $NEW_REV"
-directories=("rust-lib" "appflowy_tauri/src-tauri")
+directories=("rust-lib" "appflowy_tauri/src-tauri" "appflowy_web/wasm-libs" "appflowy_web_app/src-tauri")
 
 for dir in "${directories[@]}"; do
     echo "Updating $dir"
+    pushd "$dir" > /dev/null
 
-    cd "$dir"
     sed -i.bak "/^client-api[[:alnum:]-]*[[:space:]]*=/s/rev = \"[a-fA-F0-9]\{6,40\}\"/rev = \"$NEW_REV\"/g" Cargo.toml
 
     # Detect changed crates
@@ -25,6 +25,5 @@ for dir in "${directories[@]}"; do
         cargo update -p $crate
     done
 
-    cd ..
+    popd > /dev/null
 done
-

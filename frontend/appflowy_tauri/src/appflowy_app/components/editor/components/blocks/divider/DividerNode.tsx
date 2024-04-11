@@ -1,20 +1,26 @@
-import React, { forwardRef, memo } from 'react';
+import React, { forwardRef, memo, useMemo } from 'react';
 import { EditorElementProps, DividerNode as DividerNodeType } from '$app/application/document/document.types';
+import { useSelected } from 'slate-react';
 
 export const DividerNode = memo(
   forwardRef<HTMLDivElement, EditorElementProps<DividerNodeType>>(
     ({ node: _node, children: children, ...attributes }, ref) => {
+      const selected = useSelected();
+
+      const className = useMemo(() => {
+        return `${attributes.className ?? ''} divider-node relative w-full rounded ${
+          selected ? 'bg-content-blue-100' : ''
+        }`;
+      }, [attributes.className, selected]);
+
       return (
-        <div
-          {...attributes}
-          ref={ref}
-          contentEditable={false}
-          className={`${attributes.className ?? ''} relative w-full`}
-        >
-          <div className={'w-full py-2.5 text-line-divider'}>
+        <div {...attributes} className={className}>
+          <div contentEditable={false} className={'w-full px-1 py-2 text-line-divider'}>
             <hr />
           </div>
-          <span className={'absolute left-0 top-0 h-0 w-0 opacity-0'}>{children}</span>
+          <div ref={ref} className={`absolute h-full w-full caret-transparent`}>
+            {children}
+          </div>
         </div>
       );
     }

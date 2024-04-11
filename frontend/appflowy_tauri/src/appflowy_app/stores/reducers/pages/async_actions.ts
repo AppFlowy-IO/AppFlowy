@@ -1,7 +1,9 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { RootState } from '$app/stores/store';
-import { PageController } from '$app/stores/effects/workspace/page/page_controller';
-import { PageIcon, pagesActions } from '$app_reducers/pages/slice';
+import { pagesActions } from '$app_reducers/pages/slice';
+import { movePage, setLatestOpenedPage, updatePage } from '$app/application/folder/page.service';
+import debounce from 'lodash-es/debounce';
+import { currentUserActions } from '$app_reducers/current-user/slice';
 
 export const movePageThunk = createAsyncThunk(
   'pages/movePage',
@@ -14,7 +16,7 @@ export const movePageThunk = createAsyncThunk(
     thunkAPI
   ) => {
     const { sourceId, targetId, insertType } = payload;
-    const { getState } = thunkAPI;
+    const { getState, dispatch } = thunkAPI;
     const { pageMap, relationMap } = (getState() as RootState).pages;
     const sourcePage = pageMap[sourceId];
     const targetPage = pageMap[targetId];
@@ -51,20 +53,27 @@ export const movePageThunk = createAsyncThunk(
       }
     }
 
-    const controller = new PageController(sourceId);
+    dispatch(pagesActions.movePage({ id: sourceId, newParentId: parentId, prevId }));
 
-    await controller.movePage({ parentId, prevId });
+    await movePage({
+      view_id: sourceId,
+      new_parent_id: parentId,
+      prev_view_id: prevId,
+    });
   }
 );
 
+const debounceUpdateName = debounce(updatePage, 1000);
+
 export const updatePageName = createAsyncThunk(
   'pages/updateName',
-  async (payload: { id: string; name: string }, thunkAPI) => {
-    const controller = new PageController(payload.id);
+  async (payload: { id: string; name: string; immediate?: boolean }, thunkAPI) => {
     const { dispatch, getState } = thunkAPI;
     const { pageMap } = (getState() as RootState).pages;
-    const { id, name } = payload;
+    const { id, name, immediate } = payload;
     const page = pageMap[id];
+
+    if (name === page.name) return;
 
     dispatch(
       pagesActions.onPageChanged({
@@ -72,15 +81,26 @@ export const updatePageName = createAsyncThunk(
         name,
       })
     );
-    await controller.updatePage({
-      id: payload.id,
-      name: payload.name,
-    });
+
+    if (immediate) {
+      await updatePage({ id, name });
+    } else {
+      await debounceUpdateName({
+        id,
+        name,
+      });
+    }
   }
 );
 
-export const updatePageIcon = createAsyncThunk('pages/updateIcon', async (payload: { id: string; icon?: PageIcon }) => {
-  const controller = new PageController(payload.id);
+export const openPage = createAsyncThunk('pages/openPage', async (id: string, thunkAPI) => {
+  const { dispatch, getState } = thunkAPI;
+  const { pageMap } = (getState() as RootState).pages;
 
-  await controller.updatePageIcon(payload.icon);
+  const page = pageMap[id];
+
+  if (!page) return;
+
+  dispatch(currentUserActions.setLatestView(page));
+  await setLatestOpenedPage(id);
 });

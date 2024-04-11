@@ -4,13 +4,13 @@ import 'package:appflowy/mobile/presentation/notifications/widgets/mobile_notifi
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/notification_filter/notification_filter_bloc.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
-import 'package:appflowy/workspace/application/menu/menu_bloc.dart';
+import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/errors/workspace_failed_screen.dart';
 import 'package:appflowy/workspace/presentation/notifications/reminder_extension.dart';
 import 'package:appflowy/workspace/presentation/notifications/widgets/inbox_action_bar.dart';
 import 'package:appflowy/workspace/presentation/notifications/widgets/notification_view.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -80,12 +80,15 @@ class _NotificationScreenContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => MenuBloc(
-        workspaceId: workspaceSetting.workspaceId,
-        user: userProfile,
-      )..add(const MenuEvent.initial()),
-      child: BlocBuilder<MenuBloc, MenuState>(
-        builder: (context, menuState) =>
+      create: (_) => SidebarSectionsBloc()
+        ..add(
+          SidebarSectionsEvent.initial(
+            userProfile,
+            workspaceSetting.workspaceId,
+          ),
+        ),
+      child: BlocBuilder<SidebarSectionsBloc, SidebarSectionsState>(
+        builder: (context, sectionState) =>
             BlocBuilder<NotificationFilterBloc, NotificationFilterState>(
           builder: (context, filterState) =>
               BlocBuilder<ReminderBloc, ReminderState>(
@@ -119,7 +122,7 @@ class _NotificationScreenContent extends StatelessWidget {
                             NotificationsView(
                               shownReminders: pastReminders,
                               reminderBloc: reminderBloc,
-                              views: menuState.views,
+                              views: sectionState.section.publicViews,
                               onAction: _onAction,
                               onDelete: _onDelete,
                               onReadChanged: _onReadChanged,
@@ -131,7 +134,7 @@ class _NotificationScreenContent extends StatelessWidget {
                             NotificationsView(
                               shownReminders: upcomingReminders,
                               reminderBloc: reminderBloc,
-                              views: menuState.views,
+                              views: sectionState.section.publicViews,
                               isUpcoming: true,
                               onAction: _onAction,
                             ),
@@ -159,7 +162,7 @@ class _NotificationScreenContent extends StatelessWidget {
       );
 
   void _onDelete(ReminderPB reminder) =>
-      reminderBloc.add(ReminderEvent.remove(reminder: reminder));
+      reminderBloc.add(ReminderEvent.remove(reminderId: reminder.id));
 
   void _onReadChanged(ReminderPB reminder, bool isRead) => reminderBloc.add(
         ReminderEvent.update(ReminderUpdate(id: reminder.id, isRead: isRead)),

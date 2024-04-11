@@ -8,13 +8,7 @@ function DocumentPage() {
   const documentId = params.id;
 
   if (!documentId) return null;
-  return (
-    <div className={'flex w-full justify-center'}>
-      <div className={'max-w-screen w-[964px] min-w-0'}>
-        <Document id={documentId} />
-      </div>
-    </div>
-  );
+  return <Document id={documentId} />;
 }
 
 export default DocumentPage;

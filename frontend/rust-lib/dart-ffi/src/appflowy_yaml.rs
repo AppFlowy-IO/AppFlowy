@@ -4,7 +4,7 @@ use std::path::Path;
 
 use serde::{Deserialize, Serialize};
 
-use flowy_server_config::af_cloud_config::AFCloudConfiguration;
+use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct AppFlowyYamlConfiguration {

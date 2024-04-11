@@ -1,13 +1,28 @@
-import 'dart:math';
 import 'dart:async';
-import 'package:async/async.dart';
-import 'package:flowy_infra/theme_extension.dart';
-import 'package:flowy_infra/size.dart';
-import 'package:flowy_infra_ui/widget/mouse_hover_builder.dart';
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+
+import 'package:async/async.dart';
+import 'package:flowy_infra/size.dart';
+import 'package:flowy_infra/theme_extension.dart';
+import 'package:flowy_infra_ui/widget/mouse_hover_builder.dart';
 import 'package:styled_widget/styled_widget.dart';
 
 class StyledScrollbar extends StatefulWidget {
+  const StyledScrollbar({
+    super.key,
+    this.size,
+    required this.axis,
+    required this.controller,
+    this.onDrag,
+    this.contentSize,
+    this.showTrack = false,
+    this.autoHideScrollbar = true,
+    this.handleColor,
+    this.trackColor,
+  });
+
   final double? size;
   final Axis axis;
   final ScrollController controller;
@@ -22,19 +37,6 @@ class StyledScrollbar extends StatefulWidget {
   // https://stackoverflow.com/questions/60855712/flutter-how-to-force-scrollcontroller-to-recalculate-position-maxextents
   final double? contentSize;
 
-  const StyledScrollbar(
-      {Key? key,
-      this.size,
-      required this.axis,
-      required this.controller,
-      this.onDrag,
-      this.contentSize,
-      this.showTrack = false,
-      this.autoHideScrollbar = true,
-      this.handleColor,
-      this.trackColor})
-      : super(key: key);
-
   @override
   ScrollbarState createState() => ScrollbarState();
 }
@@ -47,25 +49,29 @@ class ScrollbarState extends State<StyledScrollbar> {
   @override
   void initState() {
     super.initState();
-    widget.controller.addListener(() => setState(() {}));
-
-    widget.controller.position.isScrollingNotifier.addListener(
-      _hideScrollbarInTime,
-    );
+    widget.controller.addListener(_onScrollChanged);
+    widget.controller.position.isScrollingNotifier
+        .addListener(_hideScrollbarInTime);
   }
 
   @override
-  void didUpdateWidget(StyledScrollbar oldWidget) {
-    if (oldWidget.contentSize != widget.contentSize) setState(() {});
-    super.didUpdateWidget(oldWidget);
+  void dispose() {
+    if (widget.controller.hasClients) {
+      widget.controller.removeListener(_onScrollChanged);
+      widget.controller.position.isScrollingNotifier
+          .removeListener(_hideScrollbarInTime);
+    }
+    super.dispose();
   }
+
+  void _onScrollChanged() => setState(() {});
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (_, BoxConstraints constraints) {
         double maxExtent;
-        final contentSize = widget.contentSize;
+        final double? contentSize = widget.contentSize;
 
         switch (widget.axis) {
           case Axis.vertical:
@@ -110,11 +116,9 @@ class ScrollbarState extends State<StyledScrollbar> {
         }
 
         // Hide the handle if content is < the viewExtent
-        var showHandle = contentExtent > _viewExtent && contentExtent > 0;
-
-        if (hideHandler) {
-          showHandle = false;
-        }
+        var showHandle = hideHandler
+            ? false
+            : contentExtent > _viewExtent && contentExtent > 0;
 
         // Handle color
         var handleColor = widget.handleColor ??
@@ -185,7 +189,7 @@ class ScrollbarState extends State<StyledScrollbar> {
 
     if (!widget.controller.position.isScrollingNotifier.value) {
       _hideScrollbarOperation = CancelableOperation.fromFuture(
-        Future.delayed(const Duration(seconds: 2), () {}),
+        Future.delayed(const Duration(seconds: 2)),
       ).then((_) {
         hideHandler = true;
         if (mounted) {
@@ -217,17 +221,6 @@ class ScrollbarState extends State<StyledScrollbar> {
 }
 
 class ScrollbarListStack extends StatelessWidget {
-  final double barSize;
-  final Axis axis;
-  final Widget child;
-  final ScrollController controller;
-  final double? contentSize;
-  final EdgeInsets? scrollbarPadding;
-  final Color? handleColor;
-  final Color? trackColor;
-  final bool showTrack;
-  final bool autoHideScrollbar;
-
   const ScrollbarListStack({
     super.key,
     required this.barSize,
@@ -240,20 +233,37 @@ class ScrollbarListStack extends StatelessWidget {
     this.autoHideScrollbar = true,
     this.trackColor,
     this.showTrack = false,
+    this.includeInsets = true,
   });
+
+  final double barSize;
+  final Axis axis;
+  final Widget child;
+  final ScrollController controller;
+  final double? contentSize;
+  final EdgeInsets? scrollbarPadding;
+  final Color? handleColor;
+  final Color? trackColor;
+  final bool showTrack;
+  final bool autoHideScrollbar;
+  final bool includeInsets;
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        /// LIST
-        /// Wrap with a bit of padding on the right
-        child.padding(
-          right: axis == Axis.vertical ? barSize + Insets.m : 0,
-          bottom: axis == Axis.horizontal ? barSize + Insets.m : 0,
+        /// Wrap with a bit of padding on the right or bottom to make room for the scrollbar
+        Padding(
+          padding: !includeInsets
+              ? EdgeInsets.zero
+              : EdgeInsets.only(
+                  right: axis == Axis.vertical ? barSize + Insets.m : 0,
+                  bottom: axis == Axis.horizontal ? barSize + Insets.m : 0,
+                ),
+          child: child,
         ),
 
-        /// SCROLLBAR
+        /// Display the scrollbar
         Padding(
           padding: scrollbarPadding ?? EdgeInsets.zero,
           child: StyledScrollbar(
@@ -267,7 +277,7 @@ class ScrollbarListStack extends StatelessWidget {
             showTrack: showTrack,
           ),
         )
-            // The animate will be used by the children that using styled_widget.
+            // The animate will be used by the children that are using styled_widget.
             .animate(const Duration(milliseconds: 250), Curves.easeOut),
       ],
     );

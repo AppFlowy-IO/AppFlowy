@@ -67,10 +67,15 @@ class MobileBlockActionButtons extends StatelessWidget {
   }
 
   void _showBottomSheet(BuildContext context) {
+    // close the keyboard
+    editorState.updateSelectionWithReason(null, extraInfo: {});
+
     showMobileBottomSheet(
       context,
       showHeader: true,
       showCloseButton: true,
+      showDivider: true,
+      showDragHandle: true,
       title: LocaleKeys.document_plugins_action.tr(),
       builder: (context) {
         return BlockActionBottomSheet(

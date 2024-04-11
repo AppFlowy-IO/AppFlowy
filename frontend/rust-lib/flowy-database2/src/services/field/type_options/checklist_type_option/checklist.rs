@@ -1,15 +1,17 @@
-use crate::entities::{ChecklistCellDataPB, ChecklistFilterPB, FieldType, SelectOptionPB};
+use std::cmp::Ordering;
+
+use collab_database::fields::{TypeOptionData, TypeOptionDataBuilder};
+use collab_database::rows::Cell;
+use flowy_error::FlowyResult;
+
+use crate::entities::{ChecklistCellDataPB, ChecklistFilterPB, SelectOptionPB};
 use crate::services::cell::{CellDataChangeset, CellDataDecoder};
 use crate::services::field::checklist_type_option::{ChecklistCellChangeset, ChecklistCellData};
 use crate::services::field::{
-  SelectOption, TypeOption, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
-  TypeOptionCellDataSerde, TypeOptionTransform, SELECTION_IDS_SEPARATOR,
+  SelectOption, TypeOption, TypeOptionCellData, TypeOptionCellDataCompare,
+  TypeOptionCellDataFilter, TypeOptionCellDataSerde, TypeOptionTransform, SELECTION_IDS_SEPARATOR,
 };
 use crate::services::sort::SortCondition;
-use collab_database::fields::{Field, TypeOptionData, TypeOptionDataBuilder};
-use collab_database::rows::Cell;
-use flowy_error::FlowyResult;
-use std::cmp::Ordering;
 
 #[derive(Debug, Clone, Default)]
 pub struct ChecklistTypeOption;
@@ -101,8 +103,11 @@ fn update_cell_data_with_changeset(
   changeset
     .insert_options
     .into_iter()
-    .for_each(|option_name| {
+    .for_each(|(option_name, is_selected)| {
       let option = SelectOption::new(&option_name);
+      if is_selected {
+        cell_data.selected_option_ids.push(option.id.clone())
+      }
       cell_data.options.push(option);
     });
 
@@ -138,31 +143,22 @@ fn update_cell_data_with_changeset(
 }
 
 impl CellDataDecoder for ChecklistTypeOption {
-  fn decode_cell(
-    &self,
-    cell: &Cell,
-    decoded_field_type: &FieldType,
-    _field: &Field,
-  ) -> FlowyResult<<Self as TypeOption>::CellData> {
-    if !decoded_field_type.is_checklist() {
-      return Ok(Default::default());
-    }
-
+  fn decode_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
     self.parse_cell(cell)
   }
 
   fn stringify_cell_data(&self, cell_data: <Self as TypeOption>::CellData) -> String {
     cell_data
-      .selected_options()
+      .options
       .into_iter()
       .map(|option| option.name)
       .collect::<Vec<_>>()
       .join(SELECTION_IDS_SEPARATOR)
   }
 
-  fn stringify_cell(&self, cell: &Cell) -> String {
-    let cell_data = self.parse_cell(cell).unwrap_or_default();
-    self.stringify_cell_data(cell_data)
+  fn numeric_cell(&self, _cell: &Cell) -> Option<f64> {
+    // return the percentage complete if needed
+    None
   }
 }
 
@@ -170,12 +166,8 @@ impl TypeOptionCellDataFilter for ChecklistTypeOption {
   fn apply_filter(
     &self,
     filter: &<Self as TypeOption>::CellFilter,
-    field_type: &FieldType,
     cell_data: &<Self as TypeOption>::CellData,
   ) -> bool {
-    if !field_type.is_checklist() {
-      return true;
-    }
     let selected_options = cell_data.selected_options();
     filter.is_visible(&cell_data.options, &selected_options)
   }
@@ -186,16 +178,19 @@ impl TypeOptionCellDataCompare for ChecklistTypeOption {
     &self,
     cell_data: &<Self as TypeOption>::CellData,
     other_cell_data: &<Self as TypeOption>::CellData,
-    _sort_condition: SortCondition,
+    sort_condition: SortCondition,
   ) -> Ordering {
-    let left = cell_data.percentage_complete();
-    let right = other_cell_data.percentage_complete();
-    if left > right {
-      Ordering::Greater
-    } else if left < right {
-      Ordering::Less
-    } else {
-      Ordering::Equal
+    match (cell_data.is_cell_empty(), other_cell_data.is_cell_empty()) {
+      (true, true) => Ordering::Equal,
+      (true, false) => Ordering::Greater,
+      (false, true) => Ordering::Less,
+      (false, false) => {
+        let left = cell_data.percentage_complete();
+        let right = other_cell_data.percentage_complete();
+        // safe to unwrap because the two floats won't be NaN
+        let order = left.partial_cmp(&right).unwrap();
+        sort_condition.evaluate_order(order)
+      },
     }
   }
 }

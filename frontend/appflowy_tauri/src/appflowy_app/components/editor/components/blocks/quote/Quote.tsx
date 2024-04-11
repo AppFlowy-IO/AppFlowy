@@ -1,19 +1,15 @@
 import React, { forwardRef, memo, useMemo } from 'react';
 import { EditorElementProps, QuoteNode } from '$app/application/document/document.types';
-import Placeholder from '$app/components/editor/components/blocks/_shared/Placeholder';
 
 export const QuoteList = memo(
-  forwardRef<HTMLDivElement, EditorElementProps<QuoteNode>>(({ node, children, ...attributes }, ref) => {
+  forwardRef<HTMLDivElement, EditorElementProps<QuoteNode>>(({ node: _, children, ...attributes }, ref) => {
     const className = useMemo(() => {
-      return `${attributes.className ?? ''} relative border-l-4 border-fill-default`;
+      return `flex w-full flex-col ml-3 border-l-[4px] border-fill-default pl-2 ${attributes.className ?? ''}`;
     }, [attributes.className]);
 
     return (
       <div {...attributes} ref={ref} className={className}>
-        <span className={'relative left-2'}>
-          <Placeholder node={node} />
-          {children}
-        </span>
+        {children}
       </div>
     );
   })

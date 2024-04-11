@@ -1,15 +1,17 @@
 use std::str::FromStr;
 
-use anyhow::Error;
+use anyhow::{anyhow, Error};
 use chrono::{DateTime, Utc};
+use collab::core::collab::DocStateSource;
 use collab::core::origin::CollabOrigin;
 use collab_entity::CollabType;
 use serde_json::Value;
 use tokio::sync::oneshot::channel;
+use yrs::merge_updates_v1;
 
-use flowy_folder_deps::cloud::{
-  gen_workspace_id, Folder, FolderCloudService, FolderData, FolderSnapshot, Workspace,
-  WorkspaceRecord,
+use flowy_folder_pub::cloud::{
+  gen_workspace_id, Folder, FolderCloudService, FolderCollabParams, FolderData, FolderSnapshot,
+  Workspace, WorkspaceRecord,
 };
 use lib_dispatch::prelude::af_spawn;
 use lib_infra::future::FutureResult;
@@ -89,18 +91,24 @@ where
     let workspace_id = workspace_id.to_string();
     FutureResult::new(async move {
       let postgrest = try_get_postgrest?;
-      let updates = get_updates_from_server(&workspace_id, &CollabType::Folder, &postgrest).await?;
-      let updates = updates
-        .into_iter()
-        .map(|item| item.value)
-        .collect::<Vec<_>>();
-
-      if updates.is_empty() {
+      let items = get_updates_from_server(&workspace_id, &CollabType::Folder, &postgrest).await?;
+      if items.is_empty() {
         return Ok(None);
       }
+      let updates = items
+        .iter()
+        .map(|update| update.value.as_ref())
+        .collect::<Vec<&[u8]>>();
+      let doc_state = merge_updates_v1(&updates)
+        .map_err(|err| anyhow::anyhow!("merge updates failed: {:?}", err))?;
 
-      let folder =
-        Folder::from_collab_raw_data(uid, CollabOrigin::Empty, updates, &workspace_id, vec![])?;
+      let folder = Folder::from_collab_doc_state(
+        uid,
+        CollabOrigin::Empty,
+        DocStateSource::FromDocState(doc_state),
+        &workspace_id,
+        vec![],
+      )?;
       Ok(folder.get_folder_data())
     })
   }
@@ -130,23 +138,37 @@ where
 
   fn get_folder_doc_state(
     &self,
-    workspace_id: &str,
+    _workspace_id: &str,
     _uid: i64,
-  ) -> FutureResult<Vec<Vec<u8>>, Error> {
+    collab_type: CollabType,
+    object_id: &str,
+  ) -> FutureResult<Vec<u8>, Error> {
     let try_get_postgrest = self.server.try_get_weak_postgrest();
-    let workspace_id = workspace_id.to_string();
+    let object_id = object_id.to_string();
     let (tx, rx) = channel();
     af_spawn(async move {
       tx.send(
         async move {
           let postgrest = try_get_postgrest?;
-          let action = FetchObjectUpdateAction::new(workspace_id, CollabType::Folder, postgrest);
+          let action = FetchObjectUpdateAction::new(object_id, collab_type, postgrest);
           action.run_with_fix_interval(5, 10).await
         }
         .await,
       )
     });
     FutureResult::new(async { rx.await? })
+  }
+
+  fn batch_create_folder_collab_objects(
+    &self,
+    _workspace_id: &str,
+    _objects: Vec<FolderCollabParams>,
+  ) -> FutureResult<(), Error> {
+    FutureResult::new(async {
+      Err(anyhow!(
+        "supabase server doesn't support batch create collab"
+      ))
+    })
   }
 
   fn service_name(&self) -> String {

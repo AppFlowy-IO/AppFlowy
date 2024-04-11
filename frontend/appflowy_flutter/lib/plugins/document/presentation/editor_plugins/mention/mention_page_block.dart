@@ -6,9 +6,8 @@ import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
-import 'package:appflowy_editor/appflowy_editor.dart'
-    show EditorState, SelectionUpdateReason;
+import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
+import 'package:appflowy_editor/appflowy_editor.dart' show EditorState;
 import 'package:collection/collection.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
@@ -70,7 +69,7 @@ class _MentionPageBlockState extends State<MentionPageBlock> {
         if (view == null) {
           return const SizedBox.shrink();
         }
-        updateSelection();
+        // updateSelection();
         final iconSize = widget.textStyle?.fontSize ?? 16.0;
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 2),
@@ -127,7 +126,7 @@ class _MentionPageBlockState extends State<MentionPageBlock> {
 
   Future<ViewPB?> fetchView(String pageId) async {
     final view = await ViewBackendService.getView(pageId).then(
-      (value) => value.swap().toOption().toNullable(),
+      (value) => value.toNullable(),
     );
 
     if (view == null) {
@@ -151,7 +150,6 @@ class _MentionPageBlockState extends State<MentionPageBlock> {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       editorState.updateSelectionWithReason(
         editorState.selection,
-        reason: SelectionUpdateReason.transaction,
       );
     });
   }

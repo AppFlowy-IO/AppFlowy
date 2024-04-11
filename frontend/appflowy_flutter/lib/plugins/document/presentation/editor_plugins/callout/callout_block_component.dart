@@ -1,4 +1,9 @@
+import 'package:appflowy/generated/locale_keys.g.dart' show LocaleKeys;
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:easy_localization/easy_localization.dart'
+    show StringTranslateExtension;
+import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -47,7 +52,7 @@ Node calloutNode({
 
 // defining the callout block menu item in selection menu
 SelectionMenuItem calloutItem = SelectionMenuItem.node(
-  name: 'Callout',
+  getName: LocaleKeys.document_plugins_callout.tr,
   iconData: Icons.note,
   keywords: [CalloutBlockKeys.type],
   nodeBuilder: (editorState, context) =>
@@ -147,7 +152,13 @@ class _CalloutBlockComponentWidgetState
   }
 
   // get the emoji of the note block from the node's attributes or default to '📌'
-  String get emoji => node.attributes[CalloutBlockKeys.icon] ?? '📌';
+  String get emoji {
+    final icon = node.attributes[CalloutBlockKeys.icon];
+    if (icon == null || icon.isEmpty) {
+      return '📌';
+    }
+    return icon;
+  }
 
   // get access to the editor state via provider
   @override
@@ -169,7 +180,6 @@ class _CalloutBlockComponentWidgetState
       alignment: alignment,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         textDirection: textDirection,
         children: [
@@ -184,6 +194,7 @@ class _CalloutBlockComponentWidgetState
               key: ValueKey(
                 emoji.toString(),
               ), // force to refresh the popover state
+              title: '',
               emoji: emoji,
               onSubmitted: (emoji, controller) {
                 setEmoji(emoji);

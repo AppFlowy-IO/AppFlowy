@@ -1,20 +1,23 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy/plugins/database_view/board/presentation/board_page.dart';
-import 'package:appflowy/plugins/database_view/calendar/presentation/calendar_page.dart';
-import 'package:appflowy/plugins/database_view/grid/presentation/grid_page.dart';
-import 'package:appflowy/plugins/database_view/grid/presentation/mobile_grid_page.dart';
-import 'package:appflowy/plugins/database_view/tab_bar/tab_bar_view.dart';
+import 'package:appflowy/plugins/database/board/presentation/board_page.dart';
+import 'package:appflowy/plugins/database/calendar/presentation/calendar_page.dart';
+import 'package:appflowy/plugins/database/grid/presentation/grid_page.dart';
+import 'package:appflowy/plugins/database/grid/presentation/mobile_grid_page.dart';
+import 'package:appflowy/plugins/database/tab_bar/tab_bar_view.dart';
 import 'package:appflowy/plugins/document/document.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
-import 'package:appflowy/workspace/application/view/view_service.dart';
-import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
-import 'package:dartz/dartz.dart' hide id;
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 
 enum FlowyPlugin {
   editor,
   kanban,
+}
+
+class PluginArgumentKeys {
+  static String selection = "selection";
+  static String rowId = "row_id";
 }
 
 extension ViewExtension on ViewPB {
@@ -36,17 +39,28 @@ extension ViewExtension on ViewPB {
         _ => throw UnimplementedError(),
       };
 
-  Plugin plugin({bool listenOnViewChanged = false}) {
+  Plugin plugin({
+    Map<String, dynamic> arguments = const {},
+  }) {
     switch (layout) {
       case ViewLayoutPB.Board:
       case ViewLayoutPB.Calendar:
       case ViewLayoutPB.Grid:
-        return DatabaseTabBarViewPlugin(view: this, pluginType: pluginType);
+        final String? rowId = arguments[PluginArgumentKeys.rowId];
+
+        return DatabaseTabBarViewPlugin(
+          view: this,
+          pluginType: pluginType,
+          initialRowId: rowId,
+        );
       case ViewLayoutPB.Document:
+        final Selection? initialSelection =
+            arguments[PluginArgumentKeys.selection];
+
         return DocumentPlugin(
           view: this,
           pluginType: pluginType,
-          listenOnViewChanged: listenOnViewChanged,
+          initialSelection: initialSelection,
         );
     }
     throw UnimplementedError;
@@ -67,29 +81,6 @@ extension ViewExtension on ViewPB {
       };
 
   FlowySvgData get iconData => layout.icon;
-
-  Future<List<ViewPB>> getAncestors({
-    bool includeSelf = false,
-    bool includeRoot = false,
-  }) async {
-    final ancestors = <ViewPB>[];
-    if (includeSelf) {
-      final self = await ViewBackendService.getView(id);
-      ancestors.add(self.getLeftOrNull<ViewPB>() ?? this);
-    }
-    Either<ViewPB, FlowyError> parent =
-        await ViewBackendService.getView(parentViewId);
-    while (parent.isLeft()) {
-      // parent is not null
-      final view = parent.getLeftOrNull<ViewPB>();
-      if (view == null || (!includeRoot && view.parentViewId.isEmpty)) {
-        break;
-      }
-      ancestors.add(view);
-      parent = await ViewBackendService.getView(view.parentViewId);
-    }
-    return ancestors.reversed.toList();
-  }
 }
 
 extension ViewLayoutExtension on ViewLayoutPB {

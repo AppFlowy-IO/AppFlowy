@@ -1,10 +1,31 @@
 import { ReactEditor } from 'slate-react';
-import { Editor, Element, NodeEntry, Transforms } from 'slate';
-import { EditorMarkFormat, EditorNodeType, markTypes, ToggleListNode } from '$app/application/document/document.types';
+import { Transforms, Editor, Element, NodeEntry, Path, Range } from 'slate';
+import { EditorNodeType, ToggleListNode } from '$app/application/document/document.types';
 import { CustomEditor } from '$app/components/editor/command';
-import { BREAK_TO_PARAGRAPH_TYPES } from '$app/components/editor/plugins/constants';
 import { generateId } from '$app/components/editor/provider/utils/convert';
+import cloneDeep from 'lodash-es/cloneDeep';
+import { SOFT_BREAK_TYPES } from '$app/components/editor/plugins/constants';
 
+/**
+ * Split nodes.
+ * split text node into two text nodes, and wrap the second text node with a new block node.
+ *
+ * Split to the first child condition:
+ * 1. block type is toggle list block, and the block is not collapsed.
+ *
+ * Split to the next sibling condition:
+ * 1. block type is toggle list block, and the block is collapsed.
+ * 2. block type is other block type.
+ *
+ * Split to a paragraph node: (otherwise split to the same block type)
+ * 1. block type is heading block.
+ * 2. block type is quote block.
+ * 3. block type is page.
+ * 4. block type is code block and callout block.
+ * 5. block type is paragraph.
+ *
+ * @param editor
+ */
 export function withSplitNodes(editor: ReactEditor) {
   const { splitNodes } = editor;
 
@@ -16,97 +37,102 @@ export function withSplitNodes(editor: ReactEditor) {
       return;
     }
 
-    // This is a workaround for the bug that the new paragraph will inherit the marks of the previous paragraph
-    // remove all marks in current selection, otherwise the new paragraph will inherit the marks
-    markTypes.forEach((markType) => {
-      const isActive = CustomEditor.isMarkActive(editor, markType as EditorMarkFormat);
+    const selection = editor.selection;
 
-      if (isActive) {
-        editor.removeMark(markType as EditorMarkFormat);
-      }
-    });
+    const isCollapsed = selection && Range.isCollapsed(selection);
 
-    const [match] = Editor.nodes(editor, {
-      match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.blockId !== undefined && n.type !== undefined,
-    });
+    if (!isCollapsed) {
+      editor.deleteFragment({ direction: 'backward' });
+    }
+
+    const match = CustomEditor.getBlock(editor);
 
     if (!match) {
       splitNodes(...args);
       return;
     }
 
-    const [node, path] = match as NodeEntry<Element>;
+    const [node, path] = match;
+    const nodeType = node.type as EditorNodeType;
 
     const newBlockId = generateId();
     const newTextId = generateId();
 
-    const nodeType = node.type as EditorNodeType;
+    splitNodes(...args);
 
-    // should be split to a new paragraph for the first child of the toggle list
+    const matchTextNode = editor.above({
+      match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.type === EditorNodeType.Text,
+    });
+
+    if (!matchTextNode) return;
+    const [textNode, textNodePath] = matchTextNode as NodeEntry<Element>;
+
+    editor.removeNodes({
+      at: textNodePath,
+    });
+
+    const newNodeType = [
+      EditorNodeType.HeadingBlock,
+      EditorNodeType.QuoteBlock,
+      EditorNodeType.Page,
+      ...SOFT_BREAK_TYPES,
+    ].includes(node.type as EditorNodeType)
+      ? EditorNodeType.Paragraph
+      : node.type;
+
+    const newNode: Element = {
+      type: newNodeType,
+      data: {},
+      blockId: newBlockId,
+      children: [
+        {
+          ...cloneDeep(textNode),
+          textId: newTextId,
+        },
+      ],
+    };
+    let newNodePath;
+
     if (nodeType === EditorNodeType.ToggleListBlock) {
       const collapsed = (node as ToggleListNode).data.collapsed;
-      const level = node.level ?? 1;
-      const blockId = node.blockId as string;
-      const parentId = node.parentId as string;
 
-      // if the toggle list is collapsed, split to a new paragraph append to the children of the toggle list
       if (!collapsed) {
-        splitNodes(...args);
-        Transforms.setNodes(editor, {
-          type: EditorNodeType.Paragraph,
-          data: {},
-          level: level + 1,
-          blockId: newBlockId,
-          parentId: blockId,
-          textId: newTextId,
-        });
+        newNode.type = EditorNodeType.Paragraph;
+        newNodePath = textNodePath;
       } else {
-        // if the toggle list is not collapsed, split to a toggle list after the toggle list
-        const nextNode = CustomEditor.findNextNode(editor, node, level);
-        const nextIndex = nextNode ? ReactEditor.findPath(editor, nextNode)[0] : null;
-        const index = path[0];
-
-        splitNodes(...args);
-        Transforms.setNodes(editor, { level, data: {}, blockId: newBlockId, parentId, textId: newTextId });
-        if (nextIndex) {
-          Transforms.moveNodes(editor, { at: [index + 1], to: [nextIndex] });
-        }
+        newNode.type = EditorNodeType.ToggleListBlock;
+        newNodePath = Path.next(path);
       }
 
-      return;
-    }
+      Transforms.insertNodes(editor, newNode, {
+        at: newNodePath,
+      });
 
-    // should be split to another paragraph, eg: heading and quote
-    if (BREAK_TO_PARAGRAPH_TYPES.includes(nodeType)) {
-      splitNodes(...args);
-      Transforms.setNodes(editor, {
-        type: EditorNodeType.Paragraph,
-        data: {},
-        blockId: newBlockId,
-        textId: newTextId,
+      editor.select(newNodePath);
+
+      CustomEditor.removeMarks(editor);
+      editor.collapse({
+        edge: 'start',
       });
       return;
     }
 
-    splitNodes(...args);
+    newNodePath = textNodePath;
 
-    Transforms.setNodes(editor, { blockId: newBlockId, data: {}, textId: newTextId });
-
-    const children = CustomEditor.findNodeChildren(editor, node);
-
-    children.forEach((child) => {
-      const childPath = ReactEditor.findPath(editor, child);
-
-      Transforms.setNodes(
-        editor,
-        {
-          parentId: newBlockId,
-        },
-        {
-          at: [childPath[0] + 1],
-        }
-      );
+    Transforms.insertNodes(editor, newNode, {
+      at: newNodePath,
     });
+
+    editor.select(newNodePath);
+    editor.collapse({
+      edge: 'start',
+    });
+
+    editor.liftNodes({
+      at: newNodePath,
+    });
+
+    CustomEditor.removeMarks(editor);
   };
 
   return editor;

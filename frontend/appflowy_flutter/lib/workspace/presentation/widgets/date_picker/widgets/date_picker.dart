@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:table_calendar/table_calendar.dart';
 
-final kFirstDay = DateTime.utc(1970, 1, 1);
-final kLastDay = DateTime.utc(2100, 1, 1);
+final kFirstDay = DateTime.utc(1970);
+final kLastDay = DateTime.utc(2100);
 
 class DatePicker extends StatefulWidget {
   const DatePicker({
@@ -20,6 +21,8 @@ class DatePicker extends StatefulWidget {
     this.lastDay,
     this.onDaySelected,
     this.onRangeSelected,
+    this.onCalendarCreated,
+    this.onPageChanged,
   });
 
   final bool isRange;
@@ -48,12 +51,16 @@ class DatePicker extends StatefulWidget {
     DateTime focusedDay,
   )? onRangeSelected;
 
+  final void Function(PageController pageController)? onCalendarCreated;
+
+  final void Function(DateTime focusedDay)? onPageChanged;
+
   @override
   State<DatePicker> createState() => _DatePickerState();
 }
 
 class _DatePickerState extends State<DatePicker> {
-  DateTime _focusedDay = DateTime.now();
+  late DateTime _focusedDay = widget.selectedDay ?? DateTime.now();
   late CalendarFormat _calendarFormat = widget.calendarFormat;
 
   @override
@@ -64,57 +71,56 @@ class _DatePickerState extends State<DatePicker> {
       shape: BoxShape.circle,
     );
 
+    final calendarStyle = PlatformExtension.isMobile
+        ? _CalendarStyle.mobile(
+            dowTextStyle: textStyle.copyWith(
+              color: Theme.of(context).hintColor,
+              fontSize: 14.0,
+            ),
+          )
+        : _CalendarStyle.desktop(
+            textStyle: textStyle,
+            iconColor: Theme.of(context).iconTheme.color,
+            dowTextStyle: AFThemeExtension.of(context).caption,
+            selectedColor: Theme.of(context).colorScheme.primary,
+          );
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: TableCalendar(
         firstDay: widget.firstDay ?? kFirstDay,
         lastDay: widget.lastDay ?? kLastDay,
         focusedDay: _focusedDay,
-        rowHeight: 26.0 + 7.0,
+        rowHeight: calendarStyle.rowHeight,
         calendarFormat: _calendarFormat,
-        availableCalendarFormats: const {CalendarFormat.month: 'Month'},
-        daysOfWeekHeight: 17.0 + 8.0,
+        daysOfWeekHeight: calendarStyle.dowHeight,
         rangeSelectionMode: widget.isRange
             ? RangeSelectionMode.enforced
             : RangeSelectionMode.disabled,
         rangeStartDay: widget.isRange ? widget.startDay : null,
         rangeEndDay: widget.isRange ? widget.endDay : null,
-        headerStyle: HeaderStyle(
-          formatButtonVisible: false,
-          titleCentered: true,
-          titleTextStyle: textStyle,
-          leftChevronMargin: EdgeInsets.zero,
-          leftChevronPadding: EdgeInsets.zero,
-          leftChevronIcon: FlowySvg(
-            FlowySvgs.arrow_left_s,
-            color: Theme.of(context).iconTheme.color,
-          ),
-          rightChevronPadding: EdgeInsets.zero,
-          rightChevronMargin: EdgeInsets.zero,
-          rightChevronIcon: FlowySvg(
-            FlowySvgs.arrow_right_s,
-            color: Theme.of(context).iconTheme.color,
-          ),
-          headerMargin: EdgeInsets.zero,
-          headerPadding: const EdgeInsets.only(bottom: 8.0),
-        ),
+        availableGestures: calendarStyle.availableGestures,
+        availableCalendarFormats: const {CalendarFormat.month: 'Month'},
+        onCalendarCreated: widget.onCalendarCreated,
+        headerVisible: calendarStyle.headerVisible,
+        headerStyle: calendarStyle.headerStyle,
         calendarStyle: CalendarStyle(
           cellMargin: const EdgeInsets.all(3.5),
           defaultDecoration: boxDecoration,
           selectedDecoration: boxDecoration.copyWith(
-            color: Theme.of(context).colorScheme.primary,
+            color: calendarStyle.selectedColor,
           ),
           todayDecoration: boxDecoration.copyWith(
             color: Colors.transparent,
-            border: Border.all(color: Theme.of(context).colorScheme.primary),
+            border: Border.all(color: calendarStyle.selectedColor),
           ),
           weekendDecoration: boxDecoration,
           outsideDecoration: boxDecoration,
           rangeStartDecoration: boxDecoration.copyWith(
-            color: Theme.of(context).colorScheme.primary,
+            color: calendarStyle.selectedColor,
           ),
           rangeEndDecoration: boxDecoration.copyWith(
-            color: Theme.of(context).colorScheme.primary,
+            color: calendarStyle.selectedColor,
           ),
           defaultTextStyle: textStyle,
           weekendTextStyle: textStyle,
@@ -136,14 +142,11 @@ class _DatePickerState extends State<DatePicker> {
         calendarBuilders: CalendarBuilders(
           dowBuilder: (context, day) {
             final locale = context.locale.toLanguageTag();
-            final label = DateFormat.E(locale).format(day).substring(0, 2);
+            final label = DateFormat.E(locale).format(day);
             return Padding(
               padding: const EdgeInsets.only(bottom: 8.0),
               child: Center(
-                child: Text(
-                  label,
-                  style: AFThemeExtension.of(context).caption,
-                ),
+                child: Text(label, style: calendarStyle.dowTextStyle),
               ),
             );
           },
@@ -152,10 +155,63 @@ class _DatePickerState extends State<DatePicker> {
             widget.isRange ? false : isSameDay(widget.selectedDay, day),
         onFormatChanged: (calendarFormat) =>
             setState(() => _calendarFormat = calendarFormat),
-        onPageChanged: (focusedDay) => setState(() => _focusedDay = focusedDay),
+        onPageChanged: (focusedDay) {
+          widget.onPageChanged?.call(focusedDay);
+          setState(() => _focusedDay = focusedDay);
+        },
         onDaySelected: widget.onDaySelected,
         onRangeSelected: widget.onRangeSelected,
       ),
     );
   }
+}
+
+class _CalendarStyle {
+  _CalendarStyle.desktop({
+    required TextStyle textStyle,
+    required this.selectedColor,
+    required this.dowTextStyle,
+    Color? iconColor,
+  })  : rowHeight = 33,
+        dowHeight = 35,
+        headerVisible = true,
+        headerStyle = HeaderStyle(
+          formatButtonVisible: false,
+          titleCentered: true,
+          titleTextStyle: textStyle,
+          leftChevronMargin: EdgeInsets.zero,
+          leftChevronPadding: EdgeInsets.zero,
+          leftChevronIcon: FlowySvg(FlowySvgs.arrow_left_s, color: iconColor),
+          rightChevronPadding: EdgeInsets.zero,
+          rightChevronMargin: EdgeInsets.zero,
+          rightChevronIcon: FlowySvg(FlowySvgs.arrow_right_s, color: iconColor),
+          headerPadding: const EdgeInsets.only(bottom: 8.0),
+        ),
+        availableGestures = AvailableGestures.all;
+
+  _CalendarStyle.mobile({required this.dowTextStyle})
+      : rowHeight = 48,
+        dowHeight = 48,
+        headerVisible = false,
+        headerStyle = const HeaderStyle(),
+        selectedColor = const Color(0xFF00BCF0),
+        availableGestures = AvailableGestures.horizontalSwipe;
+
+  _CalendarStyle({
+    required this.rowHeight,
+    required this.dowHeight,
+    required this.headerVisible,
+    required this.headerStyle,
+    required this.dowTextStyle,
+    required this.selectedColor,
+    required this.availableGestures,
+  });
+
+  final double rowHeight;
+  final double dowHeight;
+  final bool headerVisible;
+  final HeaderStyle headerStyle;
+  final TextStyle dowTextStyle;
+  final Color selectedColor;
+  final AvailableGestures availableGestures;
 }

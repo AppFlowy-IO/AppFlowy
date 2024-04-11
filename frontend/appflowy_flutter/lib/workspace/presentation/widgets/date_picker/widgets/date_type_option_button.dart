@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/database_view/grid/presentation/layout/sizes.dart';
+import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/date_time_settings.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pbenum.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -31,7 +31,6 @@ class DateTypeOptionButton extends StatelessWidget {
         "${LocaleKeys.datePicker_dateFormat.tr()} & ${LocaleKeys.datePicker_timeFormat.tr()}";
     return AppFlowyPopover(
       mutex: popoverMutex,
-      triggerActions: PopoverTriggerFlags.hover | PopoverTriggerFlags.click,
       offset: const Offset(8, 0),
       margin: EdgeInsets.zero,
       constraints: BoxConstraints.loose(const Size(140, 100)),

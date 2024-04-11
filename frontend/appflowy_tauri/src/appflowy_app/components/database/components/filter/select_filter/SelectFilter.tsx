@@ -1,31 +1,49 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef } from 'react';
 import {
   SelectField,
   SelectFilter as SelectFilterType,
   SelectFilterData,
   SelectTypeOption,
-} from '$app/components/database/application';
-import { MenuItem, MenuList } from '@mui/material';
+} from '$app/application/database';
 import { Tag } from '$app/components/database/components/field_types/select/Tag';
 import { ReactComponent as SelectCheckSvg } from '$app/assets/select-check.svg';
-import { SelectOptionConditionPB } from '@/services/backend';
+import { SelectOptionFilterConditionPB } from '@/services/backend';
 import { useTypeOption } from '$app/components/database';
+import KeyboardNavigation, {
+  KeyboardNavigationOption,
+} from '$app/components/_shared/keyboard_navigation/KeyboardNavigation';
 
 interface Props {
   filter: SelectFilterType;
   field: SelectField;
   onChange: (filterData: SelectFilterData) => void;
+  onClose?: () => void;
 }
 
-function SelectFilter({ filter, field, onChange }: Props) {
+function SelectFilter({ onClose, filter, field, onChange }: Props) {
+  const scrollRef = useRef<HTMLDivElement>(null);
   const condition = filter.data.condition;
   const typeOption = useTypeOption<SelectTypeOption>(field.id);
-  const options = useMemo(() => typeOption.options ?? [], [typeOption]);
+  const options: KeyboardNavigationOption[] = useMemo(() => {
+    return (
+      typeOption?.options?.map((option) => {
+        return {
+          key: option.id,
+          content: (
+            <div className={'flex w-full items-center justify-between px-2'}>
+              <Tag size='small' color={option.color} label={option.name} />
+              {filter.data.optionIds?.includes(option.id) && <SelectCheckSvg className={'text-content-blue-400'} />}
+            </div>
+          ),
+        };
+      }) ?? []
+    );
+  }, [filter.data.optionIds, typeOption?.options]);
 
   const showOptions =
     options.length > 0 &&
-    condition !== SelectOptionConditionPB.OptionIsEmpty &&
-    condition !== SelectOptionConditionPB.OptionIsNotEmpty;
+    condition !== SelectOptionFilterConditionPB.OptionIsEmpty &&
+    condition !== SelectOptionFilterConditionPB.OptionIsNotEmpty;
 
   const handleChange = ({
     condition,
@@ -65,22 +83,9 @@ function SelectFilter({ filter, field, onChange }: Props) {
   if (!showOptions) return null;
 
   return (
-    <MenuList>
-      {options?.map((option) => {
-        const isSelected = filter.data.optionIds?.includes(option.id);
-
-        return (
-          <MenuItem
-            className={'flex items-center justify-between px-2'}
-            onClick={() => handleSelectOption(option.id)}
-            key={option.id}
-          >
-            <Tag size='small' color={option.color} label={option.name} />
-            {isSelected && <SelectCheckSvg />}
-          </MenuItem>
-        );
-      })}
-    </MenuList>
+    <div ref={scrollRef}>
+      <KeyboardNavigation onEscape={onClose} scrollRef={scrollRef} options={options} onConfirm={handleSelectOption} />
+    </div>
   );
 }
 

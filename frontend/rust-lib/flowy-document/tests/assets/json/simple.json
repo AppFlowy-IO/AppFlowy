@@ -1,0 +1,12 @@
+{
+  "type": "page",
+  "data": {
+    "delta": [{
+      "insert": "This is a paragraph",
+      "attributes": {
+        "font_color": "rgb(0, 0, 0)"
+      }
+    }]
+  },
+  "children": []
+}

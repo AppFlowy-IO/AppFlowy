@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:appflowy/plugins/document/presentation/editor_plugins/stability_ai/stability_ai_error.dart';
-import 'package:dartz/dartz.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:http/http.dart' as http;
 
 enum StabilityAIRequestType {
@@ -25,7 +25,7 @@ abstract class StabilityAIRepository {
   /// [n] is the number of images to generate
   ///
   /// the return value is a list of base64 encoded images
-  Future<Either<StabilityAIRequestError, List<String>>> generateImage({
+  Future<FlowyResult<List<String>, StabilityAIRequestError>> generateImage({
     required String prompt,
     int n = 1,
   });
@@ -46,7 +46,7 @@ class HttpStabilityAIRepository implements StabilityAIRepository {
       };
 
   @override
-  Future<Either<StabilityAIRequestError, List<String>>> generateImage({
+  Future<FlowyResult<List<String>, StabilityAIRequestError>> generateImage({
     required String prompt,
     int n = 1,
   }) async {
@@ -76,16 +76,16 @@ class HttpStabilityAIRepository implements StabilityAIRepository {
               (e) => e['base64'].toString(),
             )
             .toList();
-        return Right(base64Images);
+        return FlowyResult.success(base64Images);
       } else {
-        return Left(
+        return FlowyResult.failure(
           StabilityAIRequestError(
             data['message'].toString(),
           ),
         );
       }
     } catch (error) {
-      return Left(
+      return FlowyResult.failure(
         StabilityAIRequestError(
           error.toString(),
         ),

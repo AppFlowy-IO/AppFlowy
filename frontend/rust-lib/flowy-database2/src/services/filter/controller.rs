@@ -2,44 +2,44 @@ use std::collections::HashMap;
 use std::str::FromStr;
 use std::sync::Arc;
 
+use collab_database::database::gen_database_filter_id;
 use collab_database::fields::Field;
-use collab_database::rows::{Cell, Row, RowDetail, RowId};
+use collab_database::rows::{Cell, Cells, Row, RowDetail, RowId};
 use dashmap::DashMap;
 use serde::{Deserialize, Serialize};
 use tokio::sync::RwLock;
 
 use flowy_error::FlowyResult;
-use flowy_task::{QualityOfService, Task, TaskContent, TaskDispatcher};
 use lib_infra::future::Fut;
+use lib_infra::priority_task::{QualityOfService, Task, TaskContent, TaskDispatcher};
 
 use crate::entities::filter_entities::*;
 use crate::entities::{FieldType, InsertedRowPB, RowMetaPB};
-use crate::services::cell::{AnyTypeCache, CellCache, CellFilterCache};
+use crate::services::cell::CellCache;
 use crate::services::database_view::{DatabaseViewChanged, DatabaseViewChangedNotifier};
-use crate::services::field::*;
-use crate::services::filter::{Filter, FilterChangeset, FilterResult, FilterResultNotification};
+use crate::services::field::TypeOptionCellExt;
+use crate::services::filter::{Filter, FilterChangeset, FilterInner, FilterResultNotification};
 
 pub trait FilterDelegate: Send + Sync + 'static {
-  fn get_filter(&self, view_id: &str, filter_id: &str) -> Fut<Option<Arc<Filter>>>;
   fn get_field(&self, field_id: &str) -> Option<Field>;
-  fn get_fields(&self, view_id: &str, field_ids: Option<Vec<String>>) -> Fut<Vec<Arc<Field>>>;
+  fn get_fields(&self, view_id: &str, field_ids: Option<Vec<String>>) -> Fut<Vec<Field>>;
   fn get_rows(&self, view_id: &str) -> Fut<Vec<Arc<RowDetail>>>;
   fn get_row(&self, view_id: &str, rows_id: &RowId) -> Fut<Option<(usize, Arc<RowDetail>)>>;
+  fn get_all_filters(&self, view_id: &str) -> Vec<Filter>;
+  fn save_filters(&self, view_id: &str, filters: &[Filter]);
 }
 
-pub trait FromFilterString {
-  fn from_filter(filter: &Filter) -> Self
-  where
-    Self: Sized;
+pub trait PreFillCellsWithFilter {
+  fn get_compliant_cell(&self, field: &Field) -> (Option<Cell>, bool);
 }
 
 pub struct FilterController {
   view_id: String,
   handler_id: String,
   delegate: Box<dyn FilterDelegate>,
-  result_by_row_id: DashMap<RowId, FilterResult>,
+  result_by_row_id: DashMap<RowId, bool>,
   cell_cache: CellCache,
-  cell_filter_cache: CellFilterCache,
+  filters: RwLock<Vec<Filter>>,
   task_scheduler: Arc<RwLock<TaskDispatcher>>,
   notifier: DatabaseViewChangedNotifier,
 }
@@ -56,26 +56,56 @@ impl FilterController {
     handler_id: &str,
     delegate: T,
     task_scheduler: Arc<RwLock<TaskDispatcher>>,
-    filters: Vec<Arc<Filter>>,
     cell_cache: CellCache,
     notifier: DatabaseViewChangedNotifier,
   ) -> Self
   where
     T: FilterDelegate + 'static,
   {
-    let this = Self {
+    // ensure every filter is valid
+    let field_ids = delegate
+      .get_fields(view_id, None)
+      .await
+      .into_iter()
+      .map(|field| field.id)
+      .collect::<Vec<_>>();
+
+    let mut need_save = false;
+
+    let mut filters = delegate.get_all_filters(view_id);
+    let mut filtering_field_ids: HashMap<String, Vec<String>> = HashMap::new();
+
+    for filter in filters.iter() {
+      filter.get_all_filtering_field_ids(&mut filtering_field_ids);
+    }
+
+    let mut delete_filter_ids = vec![];
+
+    for (field_id, filter_ids) in &filtering_field_ids {
+      if !field_ids.contains(field_id) {
+        need_save = true;
+        delete_filter_ids.extend(filter_ids);
+      }
+    }
+
+    for filter_id in delete_filter_ids {
+      Self::delete_filter(&mut filters, filter_id);
+    }
+
+    if need_save {
+      delegate.save_filters(view_id, &filters);
+    }
+
+    Self {
       view_id: view_id.to_string(),
       handler_id: handler_id.to_string(),
       delegate: Box::new(delegate),
       result_by_row_id: DashMap::default(),
       cell_cache,
-      // Cache by field_id
-      cell_filter_cache: AnyTypeCache::<String>::new(),
+      filters: RwLock::new(filters),
       task_scheduler,
       notifier,
-    };
-    this.refresh_filters(filters).await;
-    this
+    }
   }
 
   pub async fn close(&self) {
@@ -99,7 +129,9 @@ impl FilterController {
   }
 
   pub async fn filter_rows(&self, rows: &mut Vec<Arc<RowDetail>>) {
-    if self.cell_filter_cache.read().is_empty() {
+    let filters = self.filters.read().await;
+
+    if filters.is_empty() {
       return;
     }
     let field_by_field_id = self.get_field_map().await;
@@ -109,7 +141,7 @@ impl FilterController {
         &self.result_by_row_id,
         &field_by_field_id,
         &self.cell_cache,
-        &self.cell_filter_cache,
+        &filters,
       );
     });
 
@@ -117,19 +149,175 @@ impl FilterController {
       self
         .result_by_row_id
         .get(&row_detail.row.id)
-        .map(|result| result.is_visible())
+        .map(|result| *result)
         .unwrap_or(false)
     });
   }
 
-  async fn get_field_map(&self) -> HashMap<String, Arc<Field>> {
+  pub async fn did_receive_row_changed(&self, row_id: RowId) {
+    if !self.filters.read().await.is_empty() {
+      self
+        .gen_task(
+          FilterEvent::RowDidChanged(row_id),
+          QualityOfService::UserInteractive,
+        )
+        .await
+    }
+  }
+
+  #[tracing::instrument(level = "trace", skip(self))]
+  pub async fn apply_changeset(&self, changeset: FilterChangeset) -> FilterChangesetNotificationPB {
+    let mut filters = self.filters.write().await;
+
+    match changeset {
+      FilterChangeset::Insert {
+        parent_filter_id,
+        data,
+      } => {
+        let new_filter = Filter {
+          id: gen_database_filter_id(),
+          inner: data,
+        };
+        match parent_filter_id {
+          Some(parent_filter_id) => {
+            if let Some(parent_filter) = filters
+              .iter_mut()
+              .find_map(|filter| filter.find_filter(&parent_filter_id))
+            {
+              // TODO(RS): error handling for inserting filters
+              let _result = parent_filter.insert_filter(new_filter);
+            }
+          },
+          None => {
+            filters.push(new_filter);
+          },
+        }
+      },
+      FilterChangeset::UpdateType {
+        filter_id,
+        filter_type,
+      } => {
+        for filter in filters.iter_mut() {
+          let filter = filter.find_filter(&filter_id);
+          if let Some(filter) = filter {
+            let result = filter.convert_to_and_or_filter_type(filter_type);
+            if result.is_ok() {
+              break;
+            }
+          }
+        }
+      },
+      FilterChangeset::UpdateData { filter_id, data } => {
+        if let Some(filter) = filters
+          .iter_mut()
+          .find_map(|filter| filter.find_filter(&filter_id))
+        {
+          // TODO(RS): error handling for updating filter data
+          let _result = filter.update_filter_data(data);
+        }
+      },
+      FilterChangeset::Delete {
+        filter_id,
+        field_id: _,
+      } => Self::delete_filter(&mut filters, &filter_id),
+      FilterChangeset::DeleteAllWithFieldId { field_id } => {
+        let mut filter_ids = vec![];
+        for filter in filters.iter() {
+          filter.find_all_filters_with_field_id(&field_id, &mut filter_ids);
+        }
+        for filter_id in filter_ids {
+          Self::delete_filter(&mut filters, &filter_id)
+        }
+      },
+    }
+
+    self.delegate.save_filters(&self.view_id, &filters);
+
     self
-      .delegate
-      .get_fields(&self.view_id, None)
-      .await
-      .into_iter()
-      .map(|field| (field.id.clone(), field))
-      .collect::<HashMap<String, Arc<Field>>>()
+      .gen_task(FilterEvent::FilterDidChanged, QualityOfService::Background)
+      .await;
+
+    FilterChangesetNotificationPB::from_filters(&self.view_id, &filters)
+  }
+
+  pub async fn fill_cells(&self, cells: &mut Cells) -> bool {
+    let filters = self.filters.read().await;
+
+    let mut open_after_create = false;
+
+    let mut min_required_filters: Vec<&FilterInner> = vec![];
+    for filter in filters.iter() {
+      filter.get_min_effective_filters(&mut min_required_filters);
+    }
+
+    let field_map = self.get_field_map().await;
+
+    while let Some(current_inner) = min_required_filters.pop() {
+      if let FilterInner::Data {
+        field_id,
+        field_type,
+        condition_and_content,
+      } = &current_inner
+      {
+        if min_required_filters.iter().any(
+          |inner| matches!(inner, FilterInner::Data { field_id: other_id, .. } if other_id == field_id),
+        ) {
+          min_required_filters.retain(
+            |inner| matches!(inner, FilterInner::Data { field_id: other_id, .. } if other_id != field_id),
+          );
+          open_after_create = true;
+          continue;
+        }
+
+        if let Some(field) = field_map.get(field_id) {
+          let (cell, flag) = match field_type {
+            FieldType::RichText | FieldType::URL => {
+              let filter = condition_and_content.cloned::<TextFilterPB>().unwrap();
+              filter.get_compliant_cell(field)
+            },
+            FieldType::Number => {
+              let filter = condition_and_content.cloned::<NumberFilterPB>().unwrap();
+              filter.get_compliant_cell(field)
+            },
+            FieldType::DateTime => {
+              let filter = condition_and_content.cloned::<DateFilterPB>().unwrap();
+              filter.get_compliant_cell(field)
+            },
+            FieldType::SingleSelect => {
+              let filter = condition_and_content
+                .cloned::<SelectOptionFilterPB>()
+                .unwrap();
+              filter.get_compliant_cell(field)
+            },
+            FieldType::MultiSelect => {
+              let filter = condition_and_content
+                .cloned::<SelectOptionFilterPB>()
+                .unwrap();
+              filter.get_compliant_cell(field)
+            },
+            FieldType::Checkbox => {
+              let filter = condition_and_content.cloned::<CheckboxFilterPB>().unwrap();
+              filter.get_compliant_cell(field)
+            },
+            FieldType::Checklist => {
+              let filter = condition_and_content.cloned::<ChecklistFilterPB>().unwrap();
+              filter.get_compliant_cell(field)
+            },
+            _ => (None, false),
+          };
+
+          if let Some(cell) = cell {
+            cells.insert(field_id.clone(), cell);
+          }
+
+          if flag {
+            open_after_create = flag;
+          }
+        }
+      }
+    }
+
+    open_after_create
   }
 
   #[tracing::instrument(
@@ -142,22 +330,24 @@ impl FilterController {
   pub async fn process(&self, predicate: &str) -> FlowyResult<()> {
     let event_type = FilterEvent::from_str(predicate).unwrap();
     match event_type {
-      FilterEvent::FilterDidChanged => self.filter_all_rows().await?,
-      FilterEvent::RowDidChanged(row_id) => self.filter_row(row_id).await?,
+      FilterEvent::FilterDidChanged => self.filter_all_rows_handler().await?,
+      FilterEvent::RowDidChanged(row_id) => self.filter_single_row_handler(row_id).await?,
     }
     Ok(())
   }
 
-  async fn filter_row(&self, row_id: RowId) -> FlowyResult<()> {
+  async fn filter_single_row_handler(&self, row_id: RowId) -> FlowyResult<()> {
+    let filters = self.filters.read().await;
+
     if let Some((_, row_detail)) = self.delegate.get_row(&self.view_id, &row_id).await {
       let field_by_field_id = self.get_field_map().await;
       let mut notification = FilterResultNotification::new(self.view_id.clone());
-      if let Some((row_id, is_visible)) = filter_row(
+      if let Some(is_visible) = filter_row(
         &row_detail.row,
         &self.result_by_row_id,
         &field_by_field_id,
         &self.cell_cache,
-        &self.cell_filter_cache,
+        &filters,
       ) {
         if is_visible {
           if let Some((index, _row)) = self.delegate.get_row(&self.view_id, &row_id).await {
@@ -177,7 +367,9 @@ impl FilterController {
     Ok(())
   }
 
-  async fn filter_all_rows(&self) -> FlowyResult<()> {
+  async fn filter_all_rows_handler(&self) -> FlowyResult<()> {
+    let filters = self.filters.read().await;
+
     let field_by_field_id = self.get_field_map().await;
     let mut visible_rows = vec![];
     let mut invisible_rows = vec![];
@@ -189,18 +381,18 @@ impl FilterController {
       .into_iter()
       .enumerate()
     {
-      if let Some((row_id, is_visible)) = filter_row(
+      if let Some(is_visible) = filter_row(
         &row_detail.row,
         &self.result_by_row_id,
         &field_by_field_id,
         &self.cell_cache,
-        &self.cell_filter_cache,
+        &filters,
       ) {
         if is_visible {
           let row_meta = RowMetaPB::from(row_detail.as_ref());
           visible_rows.push(InsertedRowPB::new(row_meta).with_index(index as i32))
         } else {
-          invisible_rows.push(row_id);
+          invisible_rows.push(row_detail.row.id.clone());
         }
       }
     }
@@ -210,218 +402,141 @@ impl FilterController {
       invisible_rows,
       visible_rows,
     };
-    tracing::Span::current().record("filter_result", format!("{:?}", &notification).as_str());
+    tracing::trace!("filter result {:?}", filters);
     let _ = self
       .notifier
       .send(DatabaseViewChanged::FilterNotification(notification));
+
     Ok(())
   }
 
-  pub async fn did_receive_row_changed(&self, row_id: RowId) {
-    if !self.cell_filter_cache.read().is_empty() {
-      self
-        .gen_task(
-          FilterEvent::RowDidChanged(row_id),
-          QualityOfService::UserInteractive,
-        )
-        .await
-    }
-  }
-
-  #[tracing::instrument(level = "trace", skip(self))]
-  pub async fn did_receive_changes(
-    &self,
-    changeset: FilterChangeset,
-  ) -> Option<FilterChangesetNotificationPB> {
-    let mut notification: Option<FilterChangesetNotificationPB> = None;
-
-    if let Some(filter_type) = &changeset.insert_filter {
-      if let Some(filter) = self.filter_from_filter_id(&filter_type.filter_id).await {
-        notification = Some(FilterChangesetNotificationPB::from_insert(
-          &self.view_id,
-          vec![filter],
-        ));
-      }
-      if let Some(filter) = self
-        .delegate
-        .get_filter(&self.view_id, &filter_type.filter_id)
-        .await
-      {
-        self.refresh_filters(vec![filter]).await;
-      }
-    }
-
-    if let Some(updated_filter_type) = changeset.update_filter {
-      if let Some(old_filter_type) = updated_filter_type.old {
-        let new_filter = self
-          .filter_from_filter_id(&updated_filter_type.new.filter_id)
-          .await;
-        let old_filter = self.filter_from_filter_id(&old_filter_type.filter_id).await;
-
-        // Get the filter id
-        let mut filter_id = old_filter.map(|filter| filter.id);
-        if filter_id.is_none() {
-          filter_id = new_filter.as_ref().map(|filter| filter.id.clone());
-        }
-
-        if let Some(filter_id) = filter_id {
-          // Update the corresponding filter in the cache
-          if let Some(filter) = self.delegate.get_filter(&self.view_id, &filter_id).await {
-            self.refresh_filters(vec![filter]).await;
-          }
-
-          notification = Some(FilterChangesetNotificationPB::from_update(
-            &self.view_id,
-            vec![UpdatedFilter {
-              filter_id,
-              filter: new_filter,
-            }],
-          ));
-        }
-      }
-    }
-
-    if let Some(filter_type) = &changeset.delete_filter {
-      if let Some(filter) = self.filter_from_filter_id(&filter_type.filter_id).await {
-        notification = Some(FilterChangesetNotificationPB::from_delete(
-          &self.view_id,
-          vec![filter],
-        ));
-      }
-      self.cell_filter_cache.write().remove(&filter_type.field_id);
-    }
-
-    self
-      .gen_task(FilterEvent::FilterDidChanged, QualityOfService::Background)
-      .await;
-    tracing::trace!("{:?}", notification);
-    notification
-  }
-
-  async fn filter_from_filter_id(&self, filter_id: &str) -> Option<FilterPB> {
+  async fn get_field_map(&self) -> HashMap<String, Field> {
     self
       .delegate
-      .get_filter(&self.view_id, filter_id)
+      .get_fields(&self.view_id, None)
       .await
-      .map(|filter| FilterPB::from(filter.as_ref()))
+      .into_iter()
+      .map(|field| (field.id.clone(), field))
+      .collect::<HashMap<String, Field>>()
   }
 
-  #[tracing::instrument(level = "trace", skip_all)]
-  async fn refresh_filters(&self, filters: Vec<Arc<Filter>>) {
-    for filter in filters {
-      let field_id = &filter.field_id;
-      tracing::trace!("Create filter with type: {:?}", filter.field_type);
-      match &filter.field_type {
-        FieldType::RichText => {
-          self
-            .cell_filter_cache
-            .write()
-            .insert(field_id, TextFilterPB::from_filter(filter.as_ref()));
-        },
-        FieldType::Number => {
-          self
-            .cell_filter_cache
-            .write()
-            .insert(field_id, NumberFilterPB::from_filter(filter.as_ref()));
-        },
-        FieldType::DateTime | FieldType::LastEditedTime | FieldType::CreatedTime => {
-          self
-            .cell_filter_cache
-            .write()
-            .insert(field_id, DateFilterPB::from_filter(filter.as_ref()));
-        },
-        FieldType::SingleSelect | FieldType::MultiSelect => {
-          self
-            .cell_filter_cache
-            .write()
-            .insert(field_id, SelectOptionFilterPB::from_filter(filter.as_ref()));
-        },
-        FieldType::Checkbox => {
-          self
-            .cell_filter_cache
-            .write()
-            .insert(field_id, CheckboxFilterPB::from_filter(filter.as_ref()));
-        },
-        FieldType::URL => {
-          self
-            .cell_filter_cache
-            .write()
-            .insert(field_id, TextFilterPB::from_filter(filter.as_ref()));
-        },
-        FieldType::Checklist => {
-          self
-            .cell_filter_cache
-            .write()
-            .insert(field_id, ChecklistFilterPB::from_filter(filter.as_ref()));
-        },
+  fn delete_filter(filters: &mut Vec<Filter>, filter_id: &str) {
+    let mut find_root_filter: Option<usize> = None;
+    let mut find_parent_of_non_root_filter: Option<&mut Filter> = None;
+
+    for (position, filter) in filters.iter_mut().enumerate() {
+      if filter.id == filter_id {
+        find_root_filter = Some(position);
+        break;
+      }
+      if let Some(filter) = filter.find_parent_of_filter(filter_id) {
+        find_parent_of_non_root_filter = Some(filter);
+        break;
+      }
+    }
+
+    if let Some(pos) = find_root_filter {
+      filters.remove(pos);
+    } else if let Some(filter) = find_parent_of_non_root_filter {
+      if let Err(err) = filter.delete_filter(filter_id) {
+        tracing::error!("error while deleting filter: {}", err);
       }
     }
   }
 }
 
-/// Returns None if there is no change in this row after applying the filter
+/// Returns `Some` if the visibility of the row changed after applying the filter and `None`
+/// otherwise
 #[tracing::instrument(level = "trace", skip_all)]
 fn filter_row(
   row: &Row,
-  result_by_row_id: &DashMap<RowId, FilterResult>,
-  field_by_field_id: &HashMap<String, Arc<Field>>,
+  result_by_row_id: &DashMap<RowId, bool>,
+  field_by_field_id: &HashMap<String, Field>,
   cell_data_cache: &CellCache,
-  cell_filter_cache: &CellFilterCache,
-) -> Option<(RowId, bool)> {
-  // Create a filter result cache if it's not exist
-  let mut filter_result = result_by_row_id
-    .entry(row.id.clone())
-    .or_insert_with(FilterResult::default);
-  let old_is_visible = filter_result.is_visible();
+  filters: &Vec<Filter>,
+) -> Option<bool> {
+  // Create a filter result cache if it doesn't exist
+  let mut filter_result = result_by_row_id.entry(row.id.clone()).or_insert(true);
+  let old_is_visible = *filter_result;
 
-  // Iterate each cell of the row to check its visibility
-  for (field_id, field) in field_by_field_id {
-    if !cell_filter_cache.read().contains(field_id) {
-      filter_result.visible_by_field_id.remove(field_id);
-      continue;
-    }
+  let mut new_is_visible = true;
 
-    let cell = row.cells.get(field_id).cloned();
-    let field_type = FieldType::from(field.field_type);
-    // if the visibility of the cell_rew is changed, which means the visibility of the
-    // row is changed too.
-    if let Some(is_visible) =
-      filter_cell(&field_type, field, cell, cell_data_cache, cell_filter_cache)
-    {
-      filter_result
-        .visible_by_field_id
-        .insert(field_id.to_string(), is_visible);
+  for filter in filters {
+    if let Some(is_visible) = apply_filter(row, field_by_field_id, cell_data_cache, filter) {
+      new_is_visible = new_is_visible && is_visible;
+
+      // short-circuit as soon as one filter tree returns false
+      if !new_is_visible {
+        break;
+      }
     }
   }
 
-  let is_visible = filter_result.is_visible();
-  if old_is_visible != is_visible {
-    Some((row.id.clone(), is_visible))
+  *filter_result = new_is_visible;
+
+  if old_is_visible != new_is_visible {
+    Some(new_is_visible)
   } else {
     None
   }
 }
 
-// Returns None if there is no change in this cell after applying the filter
-// Returns Some if the visibility of the cell is changed
-
-#[tracing::instrument(level = "trace", skip_all, fields(cell_content))]
-fn filter_cell(
-  field_type: &FieldType,
-  field: &Arc<Field>,
-  cell: Option<Cell>,
+/// Recursively applies a `Filter` to a `Row`'s cells.
+fn apply_filter(
+  row: &Row,
+  field_by_field_id: &HashMap<String, Field>,
   cell_data_cache: &CellCache,
-  cell_filter_cache: &CellFilterCache,
+  filter: &Filter,
 ) -> Option<bool> {
-  let handler = TypeOptionCellExt::new(
-    field.as_ref(),
-    Some(cell_data_cache.clone()),
-    Some(cell_filter_cache.clone()),
-  )
-  .get_type_option_cell_data_handler(field_type)?;
-  let is_visible =
-    handler.handle_cell_filter(field_type, field.as_ref(), &cell.unwrap_or_default());
-  Some(is_visible)
+  match &filter.inner {
+    FilterInner::And { children } => {
+      if children.is_empty() {
+        return None;
+      }
+      for child_filter in children.iter() {
+        if let Some(false) = apply_filter(row, field_by_field_id, cell_data_cache, child_filter) {
+          return Some(false);
+        }
+      }
+      Some(true)
+    },
+    FilterInner::Or { children } => {
+      if children.is_empty() {
+        return None;
+      }
+      for child_filter in children.iter() {
+        if let Some(true) = apply_filter(row, field_by_field_id, cell_data_cache, child_filter) {
+          return Some(true);
+        }
+      }
+      Some(false)
+    },
+    FilterInner::Data {
+      field_id,
+      field_type,
+      condition_and_content,
+    } => {
+      let field = match field_by_field_id.get(field_id) {
+        Some(field) => field,
+        None => {
+          tracing::error!("cannot find field");
+          return Some(false);
+        },
+      };
+      if *field_type != FieldType::from(field.field_type) {
+        tracing::error!("field type of filter doesn't match field type of field");
+        return Some(false);
+      }
+      let cell = row.cells.get(field_id).cloned();
+      if let Some(handler) = TypeOptionCellExt::new(field, Some(cell_data_cache.clone()))
+        .get_type_option_cell_data_handler()
+      {
+        Some(handler.handle_cell_filter(field, &cell.unwrap_or_default(), condition_and_content))
+      } else {
+        Some(true)
+      }
+    },
+  }
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -438,6 +553,7 @@ impl ToString for FilterEvent {
 
 impl FromStr for FilterEvent {
   type Err = serde_json::Error;
+
   fn from_str(s: &str) -> Result<Self, Self::Err> {
     serde_json::from_str(s)
   }

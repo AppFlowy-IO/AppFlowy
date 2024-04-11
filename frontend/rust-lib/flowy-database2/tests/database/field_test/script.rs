@@ -1,7 +1,7 @@
 use collab_database::fields::{Field, TypeOptionData};
 
 use flowy_database2::entities::{CreateFieldParams, FieldChangesetParams, FieldType};
-use flowy_database2::services::cell::stringify_cell_data;
+use flowy_database2::services::cell::stringify_cell;
 
 use crate::database::database_editor::DatabaseEditorTest;
 
@@ -31,7 +31,6 @@ pub enum FieldScript {
   AssertCellContent {
     field_id: String,
     row_index: usize,
-    from_field_type: FieldType,
     expected_content: String,
   },
 }
@@ -87,7 +86,7 @@ impl DatabaseFieldTest {
         //
         self
           .editor
-          .switch_to_field_type(&field_id, &new_field_type)
+          .switch_to_field_type(&field_id, new_field_type)
           .await
           .unwrap();
       },
@@ -99,7 +98,7 @@ impl DatabaseFieldTest {
         let old_field = self.editor.get_field(&field_id).unwrap();
         self
           .editor
-          .update_field_type_option(&self.view_id, &field_id, type_option, old_field)
+          .update_field_type_option(&field_id, type_option, old_field)
           .await
           .unwrap();
       },
@@ -118,17 +117,15 @@ impl DatabaseFieldTest {
       FieldScript::AssertCellContent {
         field_id,
         row_index,
-        from_field_type,
         expected_content,
       } => {
         let field = self.editor.get_field(&field_id).unwrap();
-        let field_type = FieldType::from(field.field_type);
 
         let rows = self.editor.get_rows(&self.view_id()).await.unwrap();
         let row_detail = rows.get(row_index).unwrap();
 
         let cell = row_detail.row.cells.get(&field_id).unwrap().clone();
-        let content = stringify_cell_data(&cell, &from_field_type, &field_type, &field);
+        let content = stringify_cell(&cell, &field);
         assert_eq!(content, expected_content);
       },
     }

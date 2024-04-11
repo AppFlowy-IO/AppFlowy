@@ -10,6 +10,7 @@ extend = [
   { path = "scripts/makefile/flutter.toml" },
   { path = "scripts/makefile/tool.toml" },
   { path = "scripts/makefile/tauri.toml" },
+  { path = "scripts/makefile/web.toml" },
 ]
 
 [config]
@@ -25,7 +26,7 @@ CARGO_MAKE_EXTEND_WORKSPACE_MAKEFILE = true
 CARGO_MAKE_CRATE_FS_NAME = "dart_ffi"
 CARGO_MAKE_CRATE_NAME = "dart-ffi"
 LIB_NAME = "dart_ffi"
-CURRENT_APP_VERSION = "0.3.9.1"
+APPFLOWY_VERSION = "0.5.5"
 FLUTTER_DESKTOP_FEATURES = "dart,rev-sqlite"
 PRODUCT_NAME = "AppFlowy"
 MACOSX_DEPLOYMENT_TARGET = "11.0"
@@ -48,6 +49,9 @@ LIB_EXT = "a"
 APP_ENVIRONMENT = "local"
 FLUTTER_FLOWY_SDK_PATH = "appflowy_flutter/packages/appflowy_backend"
 TAURI_BACKEND_SERVICE_PATH = "appflowy_tauri/src/services/backend"
+WEB_BACKEND_SERVICE_PATH = "appflowy_web/src/services/backend"
+WEB_LIB_PATH = "appflowy_web/wasm-libs/af-wasm"
+TAURI_APP_BACKEND_SERVICE_PATH = "appflowy_web_app/src/application/services/tauri-services/backend"
 # Test default config
 TEST_CRATE_TYPE = "cdylib"
 TEST_LIB_EXT = "dylib"
@@ -127,6 +131,7 @@ FLUTTER_OUTPUT_DIR = "Release"
 PRODUCT_EXT = "exe"
 CRATE_TYPE = "cdylib"
 LIB_EXT = "dll"
+BUILD_ARCHS = "x64"
 APP_ENVIRONMENT = "production"
 
 [env.development-linux-x86_64]
@@ -222,8 +227,8 @@ script = ['''
     echo FEATURES: ${FLUTTER_DESKTOP_FEATURES}
     echo PRODUCT_EXT: ${PRODUCT_EXT}
     echo APP_ENVIRONMENT: ${APP_ENVIRONMENT}
-    echo ${platforms}
-    echo ${BUILD_ARCHS}
+    echo BUILD_ARCHS: ${BUILD_ARCHS}
+    echo BUILD_VERSION: ${BUILD_VERSION}
     ''']
 script_runner = "@shell"
 

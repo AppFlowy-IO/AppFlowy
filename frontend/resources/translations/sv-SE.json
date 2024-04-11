@@ -2,36 +2,44 @@
   "appName": "AppFlowy",
   "defaultUsername": "Jag",
   "welcomeText": "Välkommen till @:appName",
-  "githubStarText": "Stjärnmärk på GitHub",
+  "welcomeTo": "Välkommen till",
+  "githubStarText": "Stjärna på GitHub",
   "subscribeNewsletterText": "Prenumerera på nyhetsbrev",
-  "letsGoButtonText": "Kör igång",
-  "title": "Namn",
+  "letsGoButtonText": "Snabbstart",
+  "title": "Titel",
   "youCanAlso": "Du kan också",
   "and": "och",
+  "failedToOpenUrl": "Det gick inte att öppna webbadressen: {}",
   "blockActions": {
     "addBelowTooltip": "Klicka för att lägga till nedan",
     "addAboveCmd": "Alt+klicka",
     "addAboveMacCmd": "Alternativ+klicka",
-    "addAboveTooltip": "att lägga till ovan"
+    "addAboveTooltip": "att lägga till ovan",
+    "dragTooltip": "Dra för att flytta",
+    "openMenuTooltip": "Klicka för att öppna menyn"
   },
   "signUp": {
-    "buttonText": "Registrera dig",
-    "title": "Registrera dig på @:appName",
-    "getStartedText": "Sätt igång",
-    "emptyPasswordError": "Lösenordet kan inte vara tomt",
-    "repeatPasswordEmptyError": "Upprepat lösenord kan inte vara tomt",
-    "unmatchedPasswordError": "Upprepat lösenord är inte samma som det första",
+    "buttonText": "Registera",
+    "title": "Registrera dig för @:appName",
+    "getStartedText": "Kom igång",
+    "emptyPasswordError": "Lösenordet får inte vara tomt",
+    "repeatPasswordEmptyError": "Upprepa lösenordet får inte vara tomt",
+    "unmatchedPasswordError": "Upprepa lösenord är inte detsamma som lösenord",
     "alreadyHaveAnAccount": "Har du redan ett konto?",
-    "emailHint": "E-post",
+    "emailHint": "Epost",
     "passwordHint": "Lösenord",
-    "repeatPasswordHint": "Upprepa lösenordet"
+    "repeatPasswordHint": "Upprepa lösenord",
+    "signUpWith": "Registrera med"
   },
   "signIn": {
     "loginTitle": "Logga in till @:appName",
     "loginButtonText": "Logga in",
-    "buttonText": "Registrering",
-    "forgotPassword": "Glömt lösenordet?",
-    "emailHint": "E-post",
+    "loginStartWithAnonymous": "Börja med en anonym session",
+    "continueAnonymousUser": "Fortsätt med en anonym session",
+    "buttonText": "Registrera",
+    "signingInText": "Loggar in...",
+    "forgotPassword": "Glömt ditt lösenord?",
+    "emailHint": "Epost",
     "passwordHint": "Lösenord",
     "dontHaveAnAccount": "Har du inget konto?",
     "repeatPasswordEmptyError": "Upprepat lösenord kan inte vara tomt",
@@ -159,7 +167,9 @@
     "editContact": "Redigera kontakt"
   },
   "button": {
+    "ok": "OK",
     "done": "Gjort",
+    "cancel": "Avbryt",
     "signIn": "Logga in",
     "signOut": "Logga ut",
     "complete": "Slutfört",
@@ -176,9 +186,25 @@
     "delete": "Radera",
     "duplicate": "Duplicera",
     "putback": "Ställ tillbaka",
-    "OK": "OK",
-    "Done": "Gjort",
-    "Cancel": "Avbryt"
+    "update": "Uppdatering",
+    "share": "Dela",
+    "removeFromFavorites": "Ta bort från favoriter",
+    "addToFavorites": "Lägg till i favoriter",
+    "rename": "Döp om",
+    "helpCenter": "Hjälpcenter",
+    "add": "Lägg till",
+    "yes": "Ja",
+    "clear": "Klar",
+    "remove": "Ta bort",
+    "dontRemove": "Ta inte bort",
+    "copyLink": "Kopiera länk",
+    "align": "Jämka",
+    "login": "Logga in",
+    "logout": "Logga ut",
+    "back": "Tillbaka",
+    "signInGoogle": "Logga in med Google",
+    "signInGithub": "Logga in med Github",
+    "signInDiscord": "Logga in med Discord"
   },
   "label": {
     "welcome": "Välkommen!",
@@ -189,15 +215,15 @@
   },
   "oAuth": {
     "err": {
-      "failedTitle": "Kan inte ansluta till ditt konto.",
-      "failedMsg": "Tillse att du har slutfört registreringsprocessen i din webbläsare."
+      "failedTitle": "Det går inte att ansluta till ditt konto.",
+      "failedMsg": "Se till att du har slutfört inloggningsprocessen i din webbläsare."
     },
     "google": {
-      "title": "GOOGLE-inloggning",
-      "instruction1": "För att kunna importera dina Google-kontakter, måste du auktorisera detta program med hjälp av din webbläsare.",
-      "instruction2": "Kopiera den här koden till urklipp genom att klicka på ikonen eller genom att markera texten:",
-      "instruction3": "Gå till följande länk i din webbläsare, och ange ovanstående kod:",
-      "instruction4": "Tryck på nedanstående knapp när du slutfört registreringen:"
+      "title": "GOOGLE LOGGA IN",
+      "instruction1": "För att kunna importera dina Google-kontakter måste du auktorisera denna applikation med din webbläsare.",
+      "instruction2": "Kopiera den här koden till ditt urklipp genom att klicka på ikonen eller välja texten:",
+      "instruction3": "Navigera till följande länk i din webbläsare och ange koden ovan:",
+      "instruction4": "Tryck på knappen nedan när du har slutfört registreringen:"
     }
   },
   "settings": {
@@ -207,7 +233,52 @@
       "language": "Språk",
       "user": "Användare",
       "files": "Filer",
-      "open": "Öppna inställningarna",
+      "notifications": "Aviseringar",
+      "open": "Öppna Inställningar",
+      "logout": "Logga ut",
+      "logoutPrompt": "Är du säker på att logga ut?",
+      "selfEncryptionLogoutPrompt": "Är du säker på att du vill logga ut? Se till att du har kopierat krypteringshemligheten",
+      "syncSetting": "Synkroniseringsinställning",
+      "cloudSettings": "Molninställningar",
+      "enableSync": "Aktivera synkronisering",
+      "enableEncrypt": "Kryptera data",
+      "cloudURL": "Grund-URL",
+      "invalidCloudURLScheme": "Ogiltigt schema",
+      "cloudServerType": "Molnserver",
+      "cloudServerTypeTip": "Observera att det kan logga ut ditt nuvarande konto efter att ha bytt molnserver",
+      "cloudLocal": "Lokal",
+      "cloudSupabase": "Supabase",
+      "cloudSupabaseUrl": "Supabase URL",
+      "cloudSupabaseUrlCanNotBeEmpty": "Webbadressen för supabase kan inte vara tom",
+      "cloudSupabaseAnonKey": "Supabase anonym nyckel",
+      "cloudSupabaseAnonKeyCanNotBeEmpty": "Anon-nyckeln kan inte vara tom",
+      "appFlowyCloudUrlCanNotBeEmpty": "Molnets webbadress får inte vara tom",
+      "clickToCopy": "Klicka för att kopiera",
+      "selfHostStart": "Om du inte har en server, vänligen se",
+      "selfHostContent": "dokument",
+      "selfHostEnd": "för vägledning om hur du själv är värd för din egen server",
+      "cloudURLHint": "Ange grundadressen till din server",
+      "cloudWSURL": "Websocket URL",
+      "cloudWSURLHint": "Infoga websocket-adressen till din server",
+      "restartApp": "Omstart",
+      "restartAppTip": "Starta om programmet för att ändringarna ska träda i kraft. Observera att detta kan logga ut ditt nuvarande konto",
+      "changeServerTip": "När du har bytt server måste du klicka på omstartsknappen för att ändringarna ska träda i kraft",
+      "enableEncryptPrompt": "Aktivera kryptering för att säkra dina data med denna hemlighet. Förvara det säkert; när den väl är aktiverad kan den inte stängas av. Om din data går förlorad blir den omöjlig att återställa. Klicka för att kopiera",
+      "inputEncryptPrompt": "Vänligen ange din krypteringshemlighet för",
+      "clickToCopySecret": "Klicka för att kopiera hemlighet",
+      "configServerSetting": "Konfigurera dina serverinställningar",
+      "configServerGuide": "Efter att ha valt `Quick Start`, navigera till `Settings` och sedan \"Cloud Settings\" för att konfigurera din egen värdserver.",
+      "inputTextFieldHint": "Din hemlighet",
+      "historicalUserList": "Användarinloggningshistorik",
+      "historicalUserListTooltip": "Den här listan visar dina anonyma konton. Du kan klicka på ett konto för att se dess detaljer. Anonyma konton skapas genom att klicka på knappen \"Kom igång\".",
+      "openHistoricalUser": "Klicka för att öppna det anonyma kontot",
+      "customPathPrompt": "Att lagra AppFlowy-datamappen i en molnsynkroniserad mapp som Google Drive kan innebära risker. Om databasen i den här mappen nås eller ändras från flera platser samtidigt, kan det resultera i synkroniseringskonflikter och potentiell datakorruption",
+      "importAppFlowyData": "Importera data från extern AppFlowy-mapp",
+      "importingAppFlowyDataTip": "Dataimport pågår. Stäng inte appen",
+      "importAppFlowyDataDescription": "Kopiera data från en extern AppFlowy-datamapp och importera den till den aktuella AppFlowy-datamappen",
+      "importSuccess": "AppFlowy-datamappen har importerats",
+      "importFailed": "Det gick inte att importera AppFlowy-datamappen",
+      "importGuide": "För ytterligare information, snälla se det refererade dokumentet",
       "supabaseSetting": "Supabase-inställning"
     },
     "appearance": {
@@ -224,12 +295,12 @@
       "themeUpload": {
         "button": "Ladda upp",
         "description": "Ladda upp ditt eget AppFlowy-tema med knappen nedan.",
-        "failure": "Temat som laddades upp hade ett ogiltigt format.",
         "loading": "Vänta medan vi validerar och laddar upp ditt tema...",
         "uploadSuccess": "Ditt tema laddades upp",
         "deletionFailure": "Det gick inte att ta bort temat. Försök att radera det manuellt.",
         "filePickerDialogTitle": "Välj en .flowy_plugin-fil",
-        "urlUploadFailure": "Det gick inte att öppna webbadressen: {}"
+        "urlUploadFailure": "Det gick inte att öppna webbadressen: {}",
+        "failure": "Temat som laddades upp hade ett ogiltigt format."
       },
       "theme": "Tema",
       "builtInsLabel": "Inbyggda teman",
@@ -323,13 +394,9 @@
       "isComplete": "är komplett",
       "isIncomplted": "är ofullständig"
     },
-    "singleSelectOptionFilter": {
+    "selectOptionFilter": {
       "is": "Är",
       "isNot": "Är inte",
-      "isEmpty": "Är tom",
-      "isNotEmpty": "Är inte tom"
-    },
-    "multiSelectOptionFilter": {
       "contains": "Innehåller",
       "doesNotContain": "Innehåller inte",
       "isEmpty": "Är tom",
@@ -547,10 +614,15 @@
     }
   },
   "board": {
-    "menuName": "Tavla",
-    "referencedBoardPrefix": "Utsikt över",
     "column": {
       "createNewCard": "Nytt"
+    },
+    "menuName": "Tavla",
+    "referencedBoardPrefix": "Utsikt över",
+    "mobile": {
+      "showGroup": "Visa grupp",
+      "showGroupContent": "Är du säker på att du vill visa den här gruppen på tavlan?",
+      "failedToLoad": "Det gick inte att ladda tavlan"
     }
   },
   "calendar": {

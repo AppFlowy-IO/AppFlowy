@@ -1,5 +1,5 @@
 use crate::document::document_event::*;
-use flowy_document2::entities::*;
+use flowy_document::entities::*;
 use nanoid::nanoid;
 use serde_json::json;
 use std::collections::HashMap;
@@ -32,7 +32,7 @@ pub fn parse_document_data(document: OpenDocumentData) -> ParseDocumentData {
   let page_block = blocks.get(&page_id).unwrap();
   let children_id = page_block.children_id.clone();
   let children = children_map.get(&children_id).unwrap();
-  let block_id = children.children.get(0).unwrap().to_string();
+  let block_id = children.children.first().unwrap().to_string();
   ParseDocumentData {
     doc_id,
     page_id,

@@ -4,20 +4,23 @@ version = "0.1.0"
 edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 lazy_static = { version = "1.4.0" }
 protobuf.workspace = true
 tracing.workspace = true
 bytes.workspace = true
-serde.workspace = true
+serde = { workspace = true, features = ["derive"] }
 
-flowy-derive = { path = "../../../shared-lib/flowy-derive" }
+flowy-derive.workspace = true
 lib-dispatch = { workspace = true }
 
 [build-dependencies]
-flowy-codegen = { path = "../../../shared-lib/flowy-codegen" }
+flowy-codegen.workspace = true
 
 [features]
 dart = ["flowy-codegen/dart"]
-ts = ["flowy-codegen/ts"]
+tauri_ts = ["flowy-codegen/ts"]
+web_ts = ["flowy-codegen/ts"]

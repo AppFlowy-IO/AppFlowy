@@ -159,7 +159,9 @@
     "editContact": "연락처 편집"
   },
   "button": {
+    "ok": "확인",
     "done": "완료",
+    "cancel": "취소",
     "signIn": "로그인",
     "signOut": "로그아웃",
     "complete": "완료",
@@ -175,10 +177,7 @@
     "edit": "편집하다",
     "delete": "삭제",
     "duplicate": "복제하다",
-    "putback": "다시 집어 넣어",
-    "Done": "완료",
-    "Cancel": "취소",
-    "OK": "확인"
+    "putback": "다시 집어 넣어"
   },
   "label": {
     "welcome": "환영합니다!",
@@ -224,12 +223,12 @@
       "themeUpload": {
         "button": "업로드",
         "description": "아래 버튼을 사용하여 나만의 AppFlowy 테마를 업로드하세요.",
-        "failure": "업로드된 테마의 형식이 잘못되었습니다.",
         "loading": "테마를 확인하고 업로드하는 동안 잠시 기다려 주십시오...",
         "uploadSuccess": "테마가 성공적으로 업로드되었습니다.",
         "deletionFailure": "테마를 삭제하지 못했습니다. 수동으로 삭제해 보십시오.",
         "filePickerDialogTitle": ".flowy_plugin 파일 선택",
-        "urlUploadFailure": "URL을 열지 못했습니다: {}"
+        "urlUploadFailure": "URL을 열지 못했습니다: {}",
+        "failure": "업로드된 테마의 형식이 잘못되었습니다."
       },
       "theme": "주제",
       "builtInsLabel": "내장 테마",
@@ -325,13 +324,9 @@
       "isComplete": "완료되었습니다",
       "isIncomplted": "불완전하다"
     },
-    "singleSelectOptionFilter": {
+    "selectOptionFilter": {
       "is": "~이다",
       "isNot": "아니다",
-      "isEmpty": "비었다",
-      "isNotEmpty": "비어 있지 않음"
-    },
-    "multiSelectOptionFilter": {
       "contains": "포함",
       "doesNotContain": "포함되어 있지 않다",
       "isEmpty": "비었다",
@@ -553,7 +548,12 @@
       "createNewCard": "추가"
     },
     "menuName": "판자",
-    "referencedBoardPrefix": "관점"
+    "referencedBoardPrefix": "관점",
+    "mobile": {
+      "showGroup": "그룹 표시",
+      "showGroupContent": "이 그룹을 보드에 표시하시겠습니까?",
+      "failedToLoad": "보드 보기를 로드하지 못했습니다."
+    }
   },
   "calendar": {
     "menuName": "달력",

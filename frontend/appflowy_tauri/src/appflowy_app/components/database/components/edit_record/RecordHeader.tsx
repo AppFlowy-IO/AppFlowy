@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import RecordTitle from '$app/components/database/components/edit_record/RecordTitle';
 import RecordProperties from '$app/components/database/components/edit_record/record_properties/RecordProperties';
 import { Divider } from '@mui/material';
-import { RowMeta } from '$app/components/database/application';
+import { RowMeta } from '$app/application/database';
 import { Page } from '$app_reducers/pages/slice';
 
 interface Props {
@@ -28,9 +28,9 @@ function RecordHeader({ page, row }: Props) {
   }, []);
 
   return (
-    <div ref={ref} className={'px-16 pb-4'}>
+    <div ref={ref} className={'px-16 py-4'}>
       <RecordTitle page={page} row={row} />
-      <RecordProperties documentId={page?.id} row={row} />
+      <RecordProperties row={row} />
       <Divider />
     </div>
   );

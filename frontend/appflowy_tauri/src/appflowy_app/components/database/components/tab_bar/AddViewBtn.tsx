@@ -3,7 +3,7 @@ import { IconButton } from '@mui/material';
 import { ReactComponent as AddSvg } from '$app/assets/add.svg';
 import { useTranslation } from 'react-i18next';
 import { ViewLayoutPB } from '@/services/backend';
-import { createDatabaseView } from '$app/components/database/application/database_view/database_view_service';
+import { createDatabaseView } from '$app/application/database/database_view/database_view_service';
 
 function AddViewBtn({ pageId, onCreated }: { pageId: string; onCreated: (id: string) => void }) {
   const { t } = useTranslation();
@@ -18,9 +18,11 @@ function AddViewBtn({ pageId, onCreated }: { pageId: string; onCreated: (id: str
   };
 
   return (
-    <IconButton onClick={onClick} size='small'>
-      <AddSvg />
-    </IconButton>
+    <div className={'ml-1 flex items-center justify-center border-l border-line-divider px-1'}>
+      <IconButton className={'flex items-center justify-center'} onClick={onClick} size='small'>
+        <AddSvg />
+      </IconButton>
+    </div>
   );
 }
 

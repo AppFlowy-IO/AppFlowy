@@ -3,21 +3,29 @@ use std::sync::Arc;
 use collab::core::collab::MutexCollab;
 use collab::core::origin::CollabOrigin;
 use collab::preclude::updates::decoder::Decode;
-use collab::preclude::{merge_updates_v1, Update};
+use collab::preclude::Update;
 use collab_document::blocks::DocumentData;
 use collab_document::document::Document;
+use collab_entity::CollabType;
 
-use flowy_document2::entities::{DocumentDataPB, OpenDocumentPayloadPB};
-use flowy_document2::event_map::DocumentEvent;
-use flowy_folder2::entities::{CreateViewPayloadPB, ViewLayoutPB, ViewPB};
-use flowy_folder2::event_map::FolderEvent;
+use flowy_document::entities::{DocumentDataPB, OpenDocumentPayloadPB};
+use flowy_document::event_map::DocumentEvent;
+use flowy_folder::entities::{CreateViewPayloadPB, ViewLayoutPB, ViewPB};
+use flowy_folder::event_map::FolderEvent;
 
 use crate::document::document_event::{DocumentEventTest, OpenDocumentData};
 use crate::event_builder::EventBuilder;
 use crate::EventIntegrationTest;
 
 impl EventIntegrationTest {
-  pub async fn create_document(
+  pub async fn create_document(&self, name: &str) -> ViewPB {
+    let current_workspace = self.get_current_workspace().await;
+    self
+      .create_and_open_document(&current_workspace.id, name.to_string(), vec![])
+      .await
+  }
+
+  pub async fn create_and_open_document(
     &self,
     parent_id: &str,
     name: String,
@@ -33,6 +41,7 @@ impl EventIntegrationTest {
       meta: Default::default(),
       set_as_current: true,
       index: None,
+      section: None,
     };
     let view = EventBuilder::new(self.clone())
       .event(FolderEvent::CreateView)
@@ -86,31 +95,18 @@ impl EventIntegrationTest {
     DocumentData::from(pb)
   }
 
-  pub async fn get_document_update(&self, document_id: &str) -> Vec<u8> {
-    let workspace_id = self.user_manager.workspace_id().unwrap();
-    let cloud_service = self.document_manager.get_cloud_service().clone();
-    let remote_updates = cloud_service
-      .get_document_updates(document_id, &workspace_id)
+  pub async fn get_document_doc_state(&self, document_id: &str) -> Vec<u8> {
+    self
+      .get_collab_doc_state(document_id, CollabType::Document)
       .await
-      .unwrap();
-
-    if remote_updates.is_empty() {
-      return vec![];
-    }
-
-    let updates = remote_updates
-      .iter()
-      .map(|update| update.as_ref())
-      .collect::<Vec<&[u8]>>();
-
-    merge_updates_v1(&updates).unwrap()
+      .unwrap()
   }
 }
 
-pub fn assert_document_data_equal(collab_update: &[u8], doc_id: &str, expected: DocumentData) {
-  let collab = MutexCollab::new(CollabOrigin::Server, doc_id, vec![]);
+pub fn assert_document_data_equal(doc_state: &[u8], doc_id: &str, expected: DocumentData) {
+  let collab = MutexCollab::new(CollabOrigin::Server, doc_id, vec![], false);
   collab.lock().with_origin_transact_mut(|txn| {
-    let update = Update::decode_v1(collab_update).unwrap();
+    let update = Update::decode_v1(doc_state).unwrap();
     txn.apply_update(update);
   });
   let document = Document::open(Arc::new(collab)).unwrap();

@@ -7,13 +7,12 @@ import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/draggable_view_item.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:go_router/go_router.dart';
 
 typedef ViewItemOnSelected = void Function(ViewPB);
 typedef ActionPaneBuilder = ActionPane Function(BuildContext context);
@@ -323,7 +322,6 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
 
     Widget child = InkWell(
       borderRadius: BorderRadius.circular(4.0),
-      enableFeedback: true,
       onTap: () => widget.onSelected(widget.view),
       child: SizedBox(
         height: _itemHeight,
@@ -396,17 +394,22 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
           context,
           showHeader: true,
           title: title,
-          showCloseButton: true,
           showDragHandle: true,
-          builder: (_) {
+          showCloseButton: true,
+          useRootNavigator: true,
+          builder: (sheetContext) {
             return AddNewPageWidgetBottomSheet(
               view: widget.view,
               onAction: (layout) {
-                context.pop();
+                Navigator.of(sheetContext).pop();
                 context.read<ViewBloc>().add(
                       ViewEvent.createView(
                         LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
                         layout,
+                        section:
+                            widget.categoryType != FolderCategoryType.favorite
+                                ? widget.categoryType.toViewSectionPB
+                                : null,
                       ),
                     );
               },

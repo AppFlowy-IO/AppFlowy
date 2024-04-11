@@ -1,11 +1,11 @@
 
 # If you want to test a single file with single case, you can try this command:
-# RUST_LOG="debug" flutter test -j, --concurrency=1 'path to the file' --name 'test case name'
+# RUST_LOG="debug" flutter test -d macOS -j, 'path to the file' --name 'test case name'
 [tasks.flutter_test]
 description = "Run flutter test with single case in single file. Input: cargo make flutter_test 'path to the file' --name 'test case name'"
 script = '''
 cd appflowy_flutter
-RUST_LOG="debug" flutter test -j, --concurrency=1 "${@}"
+flutter test -j, --concurrency=1 "${@}"
 '''
 script_runner = "@shell"
 
@@ -77,16 +77,9 @@ env = { RUST_LOG = "info" }
 description = "Run rust-lib unit tests"
 script = '''
 cd rust-lib
-RUST_LOG=info RUST_BACKTRACE=1 cargo test --no-default-features --features "rev-sqlite"
+RUST_LOG=info DISABLE_CI_TEST_LOG="true" RUST_BACKTRACE=1 cargo test --no-default-features --features "rev-sqlite"
 '''
 
-[tasks.shared_lib_unit_test]
-env = { RUST_LOG = "info" }
-description = "Run shared-lib unit test"
-script = '''
-cd ../shared-lib
-cargo test --no-default-features
-'''
 
 [tasks.check_grcov]
 description = "Check if `grcov` is installled"
@@ -115,7 +108,7 @@ script = ["""
     rm ${full_path}
   end
 
-  shared_lib_profs = glob_array ../shared-lib/**/*.profraw
+  shared_lib_profs = glob_array ./rust-lib/build-tool/**/*.profraw
   for prof in ${shared_lib_profs}
     full_path = canonicalize ${prof}
     rm ${full_path}
@@ -171,53 +164,11 @@ script = [
   """,
 ]
 
-[tasks.get_sharedlib_grcov_report]
-description = "Get `grcov` HTML report for test coverage shared-lib"
-script_runner = "@shell"
-script = [
-  """
-  echo --- Getting 'grcov' results 'shared-lib' ---
-  cd ../shared-lib
-
-  grcov . \
-  --binary-path target/debug/deps \
-  --source-dir . \
-  --output-type html \
-  --branch \
-  --ignore-not-existing \
-  --log-level WARN \
-  --output-path target/coverage-html
-
-  echo "--- Done! Generated HTML report under 'target/coverage-html' for sharedlib."
-  """,
-]
-
 [tasks.get_grcov_report]
 description = "Get `grcov` HTML report for test coverage"
 run_task = { name = [
   "get_rustlib_grcov_report",
-  "get_sharedlib_grcov_report",
 ], parallel = true }
-
-[tasks.get_sharedlib_lcov_report]
-description = "Generates `lcov` report for `shared-lib`"
-script_runner = "@shell"
-script = ["""
-  echo Getting 'lcov' results for 'shared-lib'
-
-  cd ../shared-lib
-
-  grcov . \
-  --binary-path target/debug/deps \
-  --source-dir . \
-  --output-type lcov \
-  --branch \
-  --ignore-not-existing \
-  --log-level WARN \
-  --output-path target/coverage.lcov
-
-  echo "--- Done! Generated 'target/coverage.lcov' sharedlib."
-  """]
 
 [tasks.get_rustlib_lcov_report]
 description = "Generates `lcov` report for `rust-lib`"
@@ -242,7 +193,6 @@ script = ["""
 [tasks.get_lcov_report]
 description = "Get `lcov` reports for test coverage"
 run_task = { name = [
-  "get_sharedlib_lcov_report",
   "get_rustlib_lcov_report",
 ], parallel = true }
 

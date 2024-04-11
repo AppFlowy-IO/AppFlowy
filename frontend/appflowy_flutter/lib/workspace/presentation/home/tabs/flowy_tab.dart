@@ -8,14 +8,14 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class FlowyTab extends StatefulWidget {
-  final PageManager pageManager;
-  final bool isCurrent;
-
   const FlowyTab({
     super.key,
     required this.pageManager,
     required this.isCurrent,
   });
+
+  final PageManager pageManager;
+  final bool isCurrent;
 
   @override
   State<FlowyTab> createState() => _FlowyTabState();

@@ -34,12 +34,15 @@ class BlockOptionButton extends StatelessWidget {
           return ColorOptionAction(editorState: editorState);
         case OptionAction.align:
           return AlignOptionAction(editorState: editorState);
+        case OptionAction.depth:
+          return DepthOptionAction(editorState: editorState);
         default:
           return OptionActionWrapper(e);
       }
     }).toList();
 
     return PopoverActionList<PopoverAction>(
+      popoverMutex: PopoverMutex(),
       direction:
           context.read<AppearanceSettingsCubit>().state.layoutDirection ==
                   LayoutDirection.rtlLayout
@@ -98,7 +101,7 @@ class BlockOptionButton extends StatelessWidget {
       endNode = endNode.children.last;
     }
 
-    final start = Position(path: startNode.path, offset: 0);
+    final start = Position(path: startNode.path);
     final end = endNode.selectable?.end() ??
         Position(
           path: endNode.path,
@@ -136,6 +139,7 @@ class BlockOptionButton extends StatelessWidget {
       case OptionAction.align:
       case OptionAction.color:
       case OptionAction.divider:
+      case OptionAction.depth:
         throw UnimplementedError();
     }
     editorState.apply(transaction);

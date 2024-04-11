@@ -175,7 +175,9 @@
     "editContact": "ویرایش مخاطب"
   },
   "button": {
+    "ok": "باشه",
     "done": "انجام شد",
+    "cancel": "لغو",
     "signIn": "ورود",
     "signOut": "خروج",
     "complete": "کامل شد",
@@ -191,10 +193,7 @@
     "edit": "ویرایش",
     "delete": "حذف کردن",
     "duplicate": "تکرار کردن",
-    "putback": "بازگشت",
-    "Done": "انجام شد",
-    "Cancel": "لغو",
-    "OK": "باشه"
+    "putback": "بازگشت"
   },
   "label": {
     "welcome": "خوش آمدید!",
@@ -247,12 +246,12 @@
       "themeUpload": {
         "button": "بارگذاری",
         "description": "تم قالب AppFlowy خود را با استفاده از دکمه زیر آپلود کنید.",
-        "failure": "تم قالب آپلود شده نامعتبر است.",
         "loading": "لطفاً منتظر بمانید تا تم قالب شما را اعتبارسنجی و آپلود کنیم...",
         "uploadSuccess": "تم قالب شما با موفقیت آپلود شد",
         "deletionFailure": "تم حذف نشد. سعی کنید آن را به صورت دستی حذف کنید.",
         "filePickerDialogTitle": "یک فایل .flowy_plugin را انتخاب کنید",
-        "urlUploadFailure": "نشانی اینترنتی باز نشد: {}"
+        "urlUploadFailure": "نشانی اینترنتی باز نشد: {}",
+        "failure": "تم قالب آپلود شده نامعتبر است."
       },
       "theme": "تم قالب",
       "builtInsLabel": "قالب‌های پیش‌ساخته",
@@ -357,13 +356,9 @@
       "isComplete": "کامل است",
       "isIncomplted": "کامل نیست"
     },
-    "singleSelectOptionFilter": {
+    "selectOptionFilter": {
       "is": "است",
       "isNot": "نیست",
-      "isEmpty": "خالی است",
-      "isNotEmpty": "خالی نیست"
-    },
-    "multiSelectOptionFilter": {
       "contains": "شامل",
       "doesNotContain": "شامل نیست",
       "isEmpty": "خالی است",
@@ -597,7 +592,12 @@
       "createNewCard": "ایجاد"
     },
     "menuName": "بورد",
-    "referencedBoardPrefix": "نمای"
+    "referencedBoardPrefix": "نمای",
+    "mobile": {
+      "showGroup": "نمایش گروه",
+      "showGroupContent": "آیا مطمئن هستید که می خواهید این گروه را روی تابلو نشان دهید؟",
+      "failedToLoad": "نمای تخته بارگیری نشد"
+    }
   },
   "calendar": {
     "menuName": "تقویم",

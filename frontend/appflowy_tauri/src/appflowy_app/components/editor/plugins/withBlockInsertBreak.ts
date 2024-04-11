@@ -1,33 +1,89 @@
 import { ReactEditor } from 'slate-react';
-import { Editor, Element, NodeEntry } from 'slate';
-import { SOFT_BREAK_TYPES } from '$app/components/editor/plugins/constants';
 import { EditorNodeType } from '$app/application/document/document.types';
 import { CustomEditor } from '$app/components/editor/command';
+import { Path, Transforms } from 'slate';
+import { YjsEditor } from '@slate-yjs/core';
+import { generateId } from '$app/components/editor/provider/utils/convert';
 
 export function withBlockInsertBreak(editor: ReactEditor) {
   const { insertBreak } = editor;
 
   editor.insertBreak = (...args) => {
-    const nodeEntry = Editor.above(editor, {
-      match: (n) => !Editor.isEditor(n) && Element.isElement(n) && Editor.isBlock(editor, n),
-    });
+    const block = CustomEditor.getBlock(editor);
 
-    if (!nodeEntry) return insertBreak(...args);
+    if (!block) return insertBreak(...args);
 
-    const [node] = nodeEntry as NodeEntry<Element>;
-    const type = node.type as EditorNodeType;
+    const [node, path] = block;
 
-    // should insert a soft break, eg: code block and callout
-    if (SOFT_BREAK_TYPES.includes(type)) {
-      editor.insertText('\n');
+    const isEmbed = editor.isEmbed(node);
+
+    const nextPath = Path.next(path);
+
+    if (isEmbed) {
+      CustomEditor.insertEmptyLine(editor as ReactEditor & YjsEditor, nextPath);
+      editor.select(nextPath);
       return;
     }
 
-    const isEmpty = Editor.isEmpty(editor, node);
+    const type = node.type as EditorNodeType;
 
-    // if the node is empty, convert it to a paragraph
-    if (isEmpty && type !== EditorNodeType.Paragraph) {
-      CustomEditor.turnToBlock(editor, { type: EditorNodeType.Paragraph });
+    const isBeginning = CustomEditor.focusAtStartOfBlock(editor);
+
+    const isEmpty = CustomEditor.isEmptyText(editor, node);
+
+    if (isEmpty) {
+      const depth = path.length;
+      let hasNextNode = false;
+
+      try {
+        hasNextNode = Boolean(editor.node(nextPath));
+      } catch (e) {
+        // do nothing
+      }
+
+      // if the node is empty and the depth is greater than 1, tab backward
+      if (depth > 1 && !hasNextNode) {
+        CustomEditor.tabBackward(editor);
+        return;
+      }
+
+      // if the node is empty, convert it to a paragraph
+      if (type !== EditorNodeType.Paragraph && type !== EditorNodeType.Page) {
+        CustomEditor.turnToBlock(editor, { type: EditorNodeType.Paragraph });
+        return;
+      }
+    } else if (isBeginning) {
+      // insert line below the current block
+      const newNodeType = [
+        EditorNodeType.TodoListBlock,
+        EditorNodeType.BulletedListBlock,
+        EditorNodeType.NumberedListBlock,
+      ].includes(type)
+        ? type
+        : EditorNodeType.Paragraph;
+
+      Transforms.insertNodes(
+        editor,
+        {
+          type: newNodeType,
+          data: node.data ?? {},
+          blockId: generateId(),
+          children: [
+            {
+              type: EditorNodeType.Text,
+              textId: generateId(),
+              children: [
+                {
+                  text: '',
+                },
+              ],
+            },
+          ],
+        },
+        {
+          at: path,
+        }
+      );
       return;
     }
 

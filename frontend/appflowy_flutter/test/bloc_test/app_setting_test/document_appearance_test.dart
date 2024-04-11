@@ -1,7 +1,8 @@
-import 'package:appflowy/core/config/kv_keys.dart';
-import 'package:appflowy/plugins/document/presentation/more/cubit/document_appearance_cubit.dart';
-import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:flutter/widgets.dart';
+
+import 'package:appflowy/core/config/kv_keys.dart';
+import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
+import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

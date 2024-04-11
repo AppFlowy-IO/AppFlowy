@@ -1,10 +1,9 @@
 import React, { HTMLAttributes, useState } from 'react';
-import { Field } from '$app/components/database/application';
+import { Field } from '$app/application/database';
 import Property from '$app/components/database/components/edit_record/record_properties/Property';
 import { Draggable } from 'react-beautiful-dnd';
 
 interface Props extends HTMLAttributes<HTMLDivElement> {
-  documentId?: string;
   properties: Field[];
   rowId: string;
   placeholderNode?: React.ReactNode;

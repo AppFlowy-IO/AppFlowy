@@ -1,3 +1,4 @@
+use client_api::ClientConfiguration;
 use std::collections::HashMap;
 use std::sync::Arc;
 
@@ -5,7 +6,7 @@ use uuid::Uuid;
 
 use flowy_server::af_cloud::AppFlowyCloudServer;
 use flowy_server::supabase::define::{USER_DEVICE_ID, USER_SIGN_IN_URL};
-use flowy_server_config::af_cloud_config::AFCloudConfiguration;
+use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
 
 use crate::setup_log;
 
@@ -25,15 +26,33 @@ pub fn get_af_cloud_config() -> Option<AFCloudConfiguration> {
 
 pub fn af_cloud_server(config: AFCloudConfiguration) -> Arc<AppFlowyCloudServer> {
   let fake_device_id = uuid::Uuid::new_v4().to_string();
-  Arc::new(AppFlowyCloudServer::new(config, true, fake_device_id))
+  Arc::new(AppFlowyCloudServer::new(
+    config,
+    true,
+    fake_device_id,
+    "0.5.1",
+  ))
 }
 
 pub async fn generate_sign_in_url(user_email: &str, config: &AFCloudConfiguration) -> String {
-  let client = client_api::Client::new(&config.base_url, &config.ws_base_url, &config.gotrue_url);
+  let client = client_api::Client::new(
+    &config.base_url,
+    &config.ws_base_url,
+    &config.gotrue_url,
+    "fake_device_id",
+    ClientConfiguration::default(),
+    "test",
+  );
   let admin_email = std::env::var("GOTRUE_ADMIN_EMAIL").unwrap();
   let admin_password = std::env::var("GOTRUE_ADMIN_PASSWORD").unwrap();
-  let admin_client =
-    client_api::Client::new(client.base_url(), client.ws_addr(), client.gotrue_url());
+  let admin_client = client_api::Client::new(
+    client.base_url(),
+    client.ws_addr(),
+    client.gotrue_url(),
+    "fake_device_id",
+    ClientConfiguration::default(),
+    &client.client_version.to_string(),
+  );
   admin_client
     .sign_in_password(&admin_email, &admin_password)
     .await

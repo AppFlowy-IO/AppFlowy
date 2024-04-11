@@ -134,9 +134,9 @@ class _ToggleUnreadsButtonState extends State<_ToggleUnreadsButton> {
 }
 
 class _MarkAsReadButton extends StatefulWidget {
-  final VoidCallback? onMarkAllRead;
-
   const _MarkAsReadButton({this.onMarkAllRead});
+
+  final VoidCallback? onMarkAllRead;
 
   @override
   State<_MarkAsReadButton> createState() => _MarkAsReadButtonState();

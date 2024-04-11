@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Popover, TextareaAutosize } from '@mui/material';
 
 interface Props {
@@ -8,6 +8,7 @@ interface Props {
   text: string;
   onInput: (event: React.FormEvent<HTMLTextAreaElement>) => void;
 }
+
 function EditTextCellInput({ editing, anchorEl, onClose, text, onInput }: Props) {
   const handleEnter = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     const shift = e.shiftKey;
@@ -20,10 +21,18 @@ function EditTextCellInput({ editing, anchorEl, onClose, text, onInput }: Props)
     }
   };
 
+  const setRef = useCallback((e: HTMLTextAreaElement | null) => {
+    if (!e) return;
+    const selectionStart = e.value.length;
+
+    e.setSelectionRange(selectionStart, selectionStart);
+  }, []);
+
   return (
     <Popover
       open={editing}
       anchorEl={anchorEl}
+      disableRestoreFocus={true}
       PaperProps={{
         className: 'flex p-2 border border-blue-400',
         style: { width: anchorEl?.offsetWidth, minHeight: anchorEl?.offsetHeight, borderRadius: 0, boxShadow: 'none' },
@@ -35,10 +44,19 @@ function EditTextCellInput({ editing, anchorEl, onClose, text, onInput }: Props)
       transitionDuration={0}
       onClose={onClose}
       keepMounted={false}
+      onKeyDown={(e) => {
+        if (e.key === 'Escape') {
+          e.stopPropagation();
+          e.preventDefault();
+          onClose();
+        }
+      }}
     >
       <TextareaAutosize
         className='w-full resize-none whitespace-break-spaces break-all text-sm'
         autoFocus
+        ref={setRef}
+        spellCheck={false}
         autoCorrect='off'
         value={text}
         onInput={onInput}

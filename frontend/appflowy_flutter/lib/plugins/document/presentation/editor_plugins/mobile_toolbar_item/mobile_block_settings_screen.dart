@@ -51,18 +51,15 @@ enum MobileBlockActionType {
 }
 
 class MobileBlockSettingsScreen extends StatelessWidget {
+  const MobileBlockSettingsScreen({super.key, required this.actions});
+
+  final List<MobileBlockActionType> actions;
+
   static const routeName = '/block_settings';
 
   // the action string comes from the enum MobileBlockActionType
   // example: MobileBlockActionType.delete.actionString, MobileBlockActionType.duplicate.actionString, etc.
   static const supportedActions = 'actions';
-
-  const MobileBlockSettingsScreen({
-    super.key,
-    required this.actions,
-  });
-
-  final List<MobileBlockActionType> actions;
 
   @override
   Widget build(BuildContext context) {

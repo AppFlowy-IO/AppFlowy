@@ -121,6 +121,12 @@ class _MathInputTextFieldState extends State<MathInputTextField> {
   }
 
   @override
+  void dispose() {
+    textEditingController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: 240,

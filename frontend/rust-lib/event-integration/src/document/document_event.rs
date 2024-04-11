@@ -1,15 +1,16 @@
+use collab::core::collab_plugin::EncodedCollab;
 use std::collections::HashMap;
 
 use serde_json::Value;
 
-use flowy_document2::entities::*;
-use flowy_document2::event_map::DocumentEvent;
-use flowy_document2::parser::parser_entities::{
+use flowy_document::entities::*;
+use flowy_document::event_map::DocumentEvent;
+use flowy_document::parser::parser_entities::{
   ConvertDataToJsonPayloadPB, ConvertDataToJsonResponsePB, ConvertDocumentPayloadPB,
   ConvertDocumentResponsePB,
 };
-use flowy_folder2::entities::{CreateViewPayloadPB, ViewLayoutPB, ViewPB};
-use flowy_folder2::event_map::FolderEvent;
+use flowy_folder::entities::{CreateViewPayloadPB, ViewLayoutPB, ViewPB};
+use flowy_folder::event_map::FolderEvent;
 
 use crate::document::utils::{gen_delta_str, gen_id, gen_text_block_data};
 use crate::event_builder::EventBuilder;
@@ -18,7 +19,7 @@ use crate::EventIntegrationTest;
 const TEXT_BLOCK_TY: &str = "paragraph";
 
 pub struct DocumentEventTest {
-  inner: EventIntegrationTest,
+  event_test: EventIntegrationTest,
 }
 
 pub struct OpenDocumentData {
@@ -29,15 +30,27 @@ pub struct OpenDocumentData {
 impl DocumentEventTest {
   pub async fn new() -> Self {
     let sdk = EventIntegrationTest::new_with_guest_user().await;
-    Self { inner: sdk }
+    Self { event_test: sdk }
   }
 
   pub fn new_with_core(core: EventIntegrationTest) -> Self {
-    Self { inner: core }
+    Self { event_test: core }
+  }
+
+  pub async fn get_encoded_v1(&self, doc_id: &str) -> EncodedCollab {
+    let doc = self
+      .event_test
+      .appflowy_core
+      .document_manager
+      .get_document(doc_id)
+      .await
+      .unwrap();
+    let guard = doc.lock();
+    guard.encode_collab().unwrap()
   }
 
   pub async fn create_document(&self) -> ViewPB {
-    let core = &self.inner;
+    let core = &self.event_test;
     let current_workspace = core.get_current_workspace().await;
     let parent_id = current_workspace.id.clone();
 
@@ -51,6 +64,7 @@ impl DocumentEventTest {
       meta: Default::default(),
       set_as_current: true,
       index: None,
+      section: None,
     };
     EventBuilder::new(core.clone())
       .event(FolderEvent::CreateView)
@@ -61,22 +75,12 @@ impl DocumentEventTest {
   }
 
   pub async fn open_document(&self, doc_id: String) -> OpenDocumentData {
-    let core = &self.inner;
-    let payload = OpenDocumentPayloadPB {
-      document_id: doc_id.clone(),
-    };
-    let data = EventBuilder::new(core.clone())
-      .event(DocumentEvent::OpenDocument)
-      .payload(payload)
-      .async_send()
-      .await
-      .parse::<DocumentDataPB>();
-    OpenDocumentData { id: doc_id, data }
+    self.event_test.open_document(doc_id).await
   }
 
   pub async fn get_block(&self, doc_id: &str, block_id: &str) -> Option<BlockPB> {
-    let document = self.open_document(doc_id.to_string()).await;
-    document.data.blocks.get(block_id).cloned()
+    let document_data = self.event_test.open_document(doc_id.to_string()).await;
+    document_data.data.blocks.get(block_id).cloned()
   }
 
   pub async fn get_page_id(&self, doc_id: &str) -> String {
@@ -85,8 +89,8 @@ impl DocumentEventTest {
   }
 
   pub async fn get_document_data(&self, doc_id: &str) -> DocumentDataPB {
-    let document = self.open_document(doc_id.to_string()).await;
-    document.data
+    let document_data = self.event_test.open_document(doc_id.to_string()).await;
+    document_data.data
   }
 
   pub async fn get_block_children(&self, doc_id: &str, block_id: &str) -> Option<Vec<String>> {
@@ -98,13 +102,18 @@ impl DocumentEventTest {
     children_map.get(&children_id).map(|c| c.children.clone())
   }
 
-  pub async fn get_block_text_delta(&self, doc_id: &str, text_id: &str) -> Option<String> {
+  pub async fn get_text_id(&self, doc_id: &str, block_id: &str) -> Option<String> {
+    let block = self.get_block(doc_id, block_id).await?;
+    block.external_id
+  }
+
+  pub async fn get_delta(&self, doc_id: &str, text_id: &str) -> Option<String> {
     let document_data = self.get_document_data(doc_id).await;
     document_data.meta.text_map.get(text_id).cloned()
   }
 
   pub async fn apply_actions(&self, payload: ApplyActionPayloadPB) {
-    let core = &self.inner;
+    let core = &self.event_test;
     EventBuilder::new(core.clone())
       .event(DocumentEvent::ApplyAction)
       .payload(payload)
@@ -116,7 +125,7 @@ impl DocumentEventTest {
     &self,
     payload: ConvertDocumentPayloadPB,
   ) -> ConvertDocumentResponsePB {
-    let core = &self.inner;
+    let core = &self.event_test;
     EventBuilder::new(core.clone())
       .event(DocumentEvent::ConvertDocument)
       .payload(payload)
@@ -130,7 +139,7 @@ impl DocumentEventTest {
     &self,
     payload: ConvertDataToJsonPayloadPB,
   ) -> ConvertDataToJsonResponsePB {
-    let core = &self.inner;
+    let core = &self.event_test;
     EventBuilder::new(core.clone())
       .event(DocumentEvent::ConvertDataToJSON)
       .payload(payload)
@@ -140,7 +149,7 @@ impl DocumentEventTest {
   }
 
   pub async fn create_text(&self, payload: TextDeltaPayloadPB) {
-    let core = &self.inner;
+    let core = &self.event_test;
     EventBuilder::new(core.clone())
       .event(DocumentEvent::CreateText)
       .payload(payload)
@@ -149,7 +158,7 @@ impl DocumentEventTest {
   }
 
   pub async fn apply_text_delta(&self, payload: TextDeltaPayloadPB) {
-    let core = &self.inner;
+    let core = &self.event_test;
     EventBuilder::new(core.clone())
       .event(DocumentEvent::ApplyTextDeltaEvent)
       .payload(payload)
@@ -158,7 +167,7 @@ impl DocumentEventTest {
   }
 
   pub async fn undo(&self, doc_id: String) -> DocumentRedoUndoResponsePB {
-    let core = &self.inner;
+    let core = &self.event_test;
     let payload = DocumentRedoUndoPayloadPB {
       document_id: doc_id.clone(),
     };
@@ -171,7 +180,7 @@ impl DocumentEventTest {
   }
 
   pub async fn redo(&self, doc_id: String) -> DocumentRedoUndoResponsePB {
-    let core = &self.inner;
+    let core = &self.event_test;
     let payload = DocumentRedoUndoPayloadPB {
       document_id: doc_id.clone(),
     };
@@ -184,7 +193,7 @@ impl DocumentEventTest {
   }
 
   pub async fn can_undo_redo(&self, doc_id: String) -> DocumentRedoUndoResponsePB {
-    let core = &self.inner;
+    let core = &self.event_test;
     let payload = DocumentRedoUndoPayloadPB {
       document_id: doc_id.clone(),
     };
@@ -207,6 +216,33 @@ impl DocumentEventTest {
         delta: Some(delta),
       })
       .await;
+  }
+
+  pub async fn get_document_snapshot_metas(&self, doc_id: &str) -> Vec<DocumentSnapshotMetaPB> {
+    let core = &self.event_test;
+    let payload = OpenDocumentPayloadPB {
+      document_id: doc_id.to_string(),
+    };
+    EventBuilder::new(core.clone())
+      .event(DocumentEvent::GetDocumentSnapshotMeta)
+      .payload(payload)
+      .async_send()
+      .await
+      .parse::<RepeatedDocumentSnapshotMetaPB>()
+      .items
+  }
+
+  pub async fn get_document_snapshot(
+    &self,
+    snapshot_meta: DocumentSnapshotMetaPB,
+  ) -> DocumentSnapshotPB {
+    let core = &self.event_test;
+    EventBuilder::new(core.clone())
+      .event(DocumentEvent::GetDocumentSnapshot)
+      .payload(snapshot_meta)
+      .async_send()
+      .await
+      .parse::<DocumentSnapshotPB>()
   }
 
   /// Insert a new text block at the index of parent's children.

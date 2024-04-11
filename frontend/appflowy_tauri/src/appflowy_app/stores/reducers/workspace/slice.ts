@@ -3,16 +3,17 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 export interface WorkspaceItem {
   id: string;
   name: string;
+  icon?: string;
 }
 
 interface WorkspaceState {
   workspaces: WorkspaceItem[];
-  currentWorkspace: WorkspaceItem | null;
+  currentWorkspaceId: string | null;
 }
 
 const initialState: WorkspaceState = {
   workspaces: [],
-  currentWorkspace: null,
+  currentWorkspaceId: null,
 };
 
 export const workspaceSlice = createSlice({
@@ -23,37 +24,20 @@ export const workspaceSlice = createSlice({
       state,
       action: PayloadAction<{
         workspaces: WorkspaceItem[];
-        currentWorkspace: WorkspaceItem | null;
+        currentWorkspaceId: string | null;
       }>
     ) => {
       return action.payload;
     },
 
-    onWorkspacesChanged: (
-      state,
-      action: PayloadAction<{
-        workspaces: WorkspaceItem[];
-        currentWorkspace: WorkspaceItem | null;
-      }>
-    ) => {
-      return action.payload;
-    },
-
-    onWorkspaceChanged: (state, action: PayloadAction<WorkspaceItem>) => {
-      const { id } = action.payload;
-      const index = state.workspaces.findIndex((workspace) => workspace.id === id);
+    updateWorkspace: (state, action: PayloadAction<Partial<WorkspaceItem>>) => {
+      const index = state.workspaces.findIndex((workspace) => workspace.id === action.payload.id);
 
       if (index !== -1) {
-        state.workspaces[index] = action.payload;
-      }
-    },
-
-    onWorkspaceDeleted: (state, action: PayloadAction<string>) => {
-      const id = action.payload;
-      const index = state.workspaces.findIndex((workspace) => workspace.id === id);
-
-      if (index !== -1) {
-        state.workspaces.splice(index, 1);
+        state.workspaces[index] = {
+          ...state.workspaces[index],
+          ...action.payload,
+        };
       }
     },
   },

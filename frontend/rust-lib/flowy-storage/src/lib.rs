@@ -1,12 +1,103 @@
+if_native! {
+  mod native;
+  pub use native::*;
+}
+
+if_wasm! {
+  mod wasm;
+  pub use wasm::*;
+}
+
 use bytes::Bytes;
 
 use flowy_error::FlowyError;
 use lib_infra::future::FutureResult;
+use lib_infra::{conditional_send_sync_trait, if_native, if_wasm};
+use mime::Mime;
+
+pub struct ObjectIdentity {
+  pub workspace_id: String,
+  pub file_id: String,
+  pub ext: String,
+}
+
+#[derive(Clone)]
+pub struct ObjectValue {
+  pub raw: Bytes,
+  pub mime: Mime,
+}
+conditional_send_sync_trait! {
+  "Provides a service for object storage. The trait includes methods for CRUD operations on storage objects.";
+  ObjectStorageService {
+    /// Creates a new storage object.
+    ///
+    /// # Parameters
+    /// - `url`: url of the object to be created.
+    ///
+    /// # Returns
+    /// - `Ok()`
+    /// - `Err(Error)`: An error occurred during the operation.
+    fn get_object_url(&self, object_id: ObjectIdentity) -> FutureResult<String, FlowyError>;
+
+    /// Creates a new storage object.
+    ///
+    /// # Parameters
+    /// - `url`: url of the object to be created.
+    ///
+    /// # Returns
+    /// - `Ok()`
+    /// - `Err(Error)`: An error occurred during the operation.
+    fn put_object(&self, url: String, object_value: ObjectValue) -> FutureResult<(), FlowyError>;
+
+    /// Deletes a storage object by its URL.
+    ///
+    /// # Parameters
+    /// - `url`: url of the object to be deleted.
+    ///
+    /// # Returns
+    /// - `Ok()`
+    /// - `Err(Error)`: An error occurred during the operation.
+    fn delete_object(&self, url: String) -> FutureResult<(), FlowyError>;
+
+    /// Fetches a storage object by its URL.
+    ///
+    /// # Parameters
+    /// - `url`: url of the object
+    ///
+    /// # Returns
+    /// - `Ok(File)`: The returned file object.
+    /// - `Err(Error)`: An error occurred during the operation.
+    fn get_object(&self, url: String) -> FutureResult<ObjectValue, FlowyError>;
+  }
+}
+
+pub trait FileStoragePlan: Send + Sync + 'static {
+  fn storage_size(&self) -> FutureResult<u64, FlowyError>;
+  fn maximum_file_size(&self) -> FutureResult<u64, FlowyError>;
+
+  fn check_upload_object(&self, object: &StorageObject) -> FutureResult<(), FlowyError>;
+}
 
 pub struct StorageObject {
   pub workspace_id: String,
   pub file_name: String,
-  pub value: ObjectValue,
+  pub value: ObjectValueSupabase,
+}
+
+pub enum ObjectValueSupabase {
+  File { file_path: String },
+  Bytes { bytes: Bytes, mime: String },
+}
+
+impl ObjectValueSupabase {
+  pub fn mime_type(&self) -> String {
+    match self {
+      ObjectValueSupabase::File { file_path } => mime_guess::from_path(file_path)
+        .first_or_octet_stream()
+        .to_string(),
+      ObjectValueSupabase::Bytes { mime, .. } => mime.clone(),
+    }
+  }
 }
 
 impl StorageObject {
@@ -21,7 +112,7 @@ impl StorageObject {
     Self {
       workspace_id: workspace_id.to_string(),
       file_name: file_name.to_string(),
-      value: ObjectValue::File {
+      value: ObjectValueSupabase::File {
         file_path: file_path.to_string(),
       },
     }
@@ -45,7 +136,7 @@ impl StorageObject {
     Self {
       workspace_id: workspace_id.to_string(),
       file_name: file_name.to_string(),
-      value: ObjectValue::Bytes { bytes, mime },
+      value: ObjectValueSupabase::Bytes { bytes, mime },
     }
   }
 
@@ -56,60 +147,8 @@ impl StorageObject {
   /// The file size in bytes.
   pub fn file_size(&self) -> u64 {
     match &self.value {
-      ObjectValue::File { file_path } => std::fs::metadata(file_path).unwrap().len(),
-      ObjectValue::Bytes { bytes, .. } => bytes.len() as u64,
+      ObjectValueSupabase::File { file_path } => std::fs::metadata(file_path).unwrap().len(),
+      ObjectValueSupabase::Bytes { bytes, .. } => bytes.len() as u64,
     }
   }
-}
-
-pub enum ObjectValue {
-  File { file_path: String },
-  Bytes { bytes: Bytes, mime: String },
-}
-
-impl ObjectValue {
-  pub fn mime_type(&self) -> String {
-    match self {
-      ObjectValue::File { file_path } => mime_guess::from_path(file_path)
-        .first_or_octet_stream()
-        .to_string(),
-      ObjectValue::Bytes { mime, .. } => mime.clone(),
-    }
-  }
-}
-
-/// Provides a service for storing and managing files.
-///
-/// The trait includes methods for CRUD operations on storage objects.
-pub trait FileStorageService: Send + Sync + 'static {
-  /// Creates a new storage object.
-  ///
-  /// # Parameters
-  /// - `object`: The object to be stored.
-  ///
-  /// # Returns
-  /// - `Ok(String)`: A url representing some kind of object identifier.
-  /// - `Err(Error)`: An error occurred during the operation.
-  fn create_object(&self, object: StorageObject) -> FutureResult<String, FlowyError>;
-
-  /// Deletes a storage object by its URL.
-  ///
-  /// # Parameters
-  /// - `object_url`: The URL of the object to be deleted.
-  ///
-  fn delete_object_by_url(&self, object_url: String) -> FutureResult<(), FlowyError>;
-
-  /// Fetches a storage object by its URL.
-  ///
-  /// # Parameters
-  /// - `object_url`: The URL of the object to be fetched.
-  ///
-  fn get_object_by_url(&self, object_url: String) -> FutureResult<Bytes, FlowyError>;
-}
-
-pub trait FileStoragePlan: Send + Sync + 'static {
-  fn storage_size(&self) -> FutureResult<u64, FlowyError>;
-  fn maximum_file_size(&self) -> FutureResult<u64, FlowyError>;
-
-  fn check_upload_object(&self, object: &StorageObject) -> FutureResult<(), FlowyError>;
 }

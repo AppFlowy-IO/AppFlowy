@@ -7,21 +7,20 @@ edition = "2018"
 
 [dependencies]
 diesel.workspace = true
-diesel_derives = { version = "1.4.1", features = ["sqlite"] }
-diesel_migrations = { version = "1.4.0", features = ["sqlite"] }
+diesel_derives = { version = "2.1.0", features = ["sqlite", "r2d2"] }
+diesel_migrations = { version = "2.1.0", features = ["sqlite"] }
 tracing.workspace = true
-lazy_static = "1.4.0"
 serde.workspace = true
 serde_json.workspace = true
 anyhow.workspace = true
 parking_lot.workspace = true
 
 r2d2 = "0.8.10"
-libsqlite3-sys = { version = ">=0.8.0, <0.24.0", features = ["bundled"] }
+libsqlite3-sys = { version = "0.27.0", features = ["bundled"] }
 scheduled-thread-pool = "0.2.6"
-error-chain = "=0.12.0"
-openssl = { version = "0.10.45", optional = true, features = ["vendored"] }
-openssl-sys = { version = "0.9.80", optional = true, features = ["vendored"] }
+openssl = { version = "0.10.62", optional = true, features = ["vendored"] }
+openssl-sys = { version = "0.9.98", optional = true, features = ["vendored"] }
+thiserror = "1.0"
 
 [dev-dependencies]
 tempfile = "3.5.0"

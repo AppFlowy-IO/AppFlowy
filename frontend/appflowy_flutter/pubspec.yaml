@@ -15,11 +15,11 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 0.3.9+1
+version: 0.5.5
 
 environment:
-  flutter: ">=3.16.0"
-  sdk: ">=3.1.5 <4.0.0"
+  flutter: ">=3.19.0"
+  sdk: ">=3.3.0 <4.0.0"
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -43,12 +43,14 @@ dependencies:
   appflowy_board:
     git:
       url: https://github.com/AppFlowy-IO/appflowy-board.git
-      ref: 93a1b70
+      ref: 15a3a50
+  appflowy_result:
+    path: packages/appflowy_result
   appflowy_editor:
   appflowy_editor_plugins:
     git:
       url: https://github.com/LucasXu0/appflowy_editor_plugins
-      ref: "6c49fea"
+      ref: "8f238f2"
 
   appflowy_popover:
     path: packages/appflowy_popover
@@ -61,7 +63,6 @@ dependencies:
   get_it: ^7.6.0
   flutter_bloc: ^8.1.3
   flutter_math_fork: ^0.7.2
-  dartz: ^0.10.1
   provider: ^6.0.5
   path_provider: ^2.0.15
   sized_context: ^1.0.0+4
@@ -74,7 +75,6 @@ dependencies:
   clipboard: ^0.1.3
   connectivity_plus: ^5.0.2
   easy_localization: ^3.0.2
-  textfield_tags: ^2.0.2
   device_info_plus: ^9.0.1
   fluttertoast: ^8.2.2
   json_annotation: ^4.8.1
@@ -99,7 +99,7 @@ dependencies:
   http: ^1.0.0
   path: ^1.8.3
   mocktail: ^1.0.1
-  archive: ^3.3.7
+  archive: ^3.4.10
   nanoid: ^1.0.0
   supabase_flutter: ^1.10.4
   envied: ^0.5.2
@@ -107,8 +107,8 @@ dependencies:
   url_protocol:
   hive: ^2.2.3
   hive_flutter: ^1.1.0
-  super_clipboard: ^0.7.0
-  go_router: ^12.1.1
+  super_clipboard: ^0.8.4
+  go_router: ^13.1.0
   string_validator: ^1.0.0
   unsplash_client: ^2.1.1
   flutter_emoji_mart:
@@ -125,17 +125,25 @@ dependencies:
   image_picker: ^1.0.4
   image_gallery_saver: ^2.0.3
   cached_network_image: ^3.3.0
-  leak_tracker: ^9.0.6
+  leak_tracker: ^10.0.0
+  keyboard_height_plugin: ^0.0.5
+  scrollable_positioned_list: ^0.3.8
+  flutter_cache_manager: ^3.3.1
+  share_plus: ^7.2.1
+  sheet:
+  file: ^7.0.0
+  avatar_stack: ^1.2.0
 
 dev_dependencies:
   flutter_lints: ^3.0.1
+  analyzer: ^6.3.0
 
   flutter_test:
     sdk: flutter
   integration_test:
     sdk: flutter
   build_runner: ^2.4.4
-  freezed: ^2.3.4
+  freezed: ^2.4.7
   bloc_test: ^9.1.2
   json_serializable: ^6.7.0
   envied_generator: ^0.5.2
@@ -149,8 +157,8 @@ dependency_overrides:
 
   supabase_flutter:
     git:
-      url: https://github.com/LucasXu0/supabase-flutter
-      ref: 4bd9139
+      url: https://github.com/supabase/supabase-flutter
+      ref: 9b05eea
       path: packages/supabase_flutter
 
   url_protocol:
@@ -161,9 +169,21 @@ dependency_overrides:
   appflowy_editor:
     git:
       url: https://github.com/AppFlowy-IO/appflowy-editor.git
-      ref: "82f3baf"
+      ref: "6d12761"
 
-  logger: ^2.0.0
+  sheet:
+    git:
+      url: https://github.com/jamesblasco/modal_bottom_sheet
+      ref: e44458d
+      path: sheet
+
+  uuid: ^4.1.0
+
+  flutter_cache_manager:
+    git:
+      url: https://github.com/LucasXu0/flutter_cache_manager.git
+      commit: fbab857b1b1d209240a146d32f496379b9f62276
+      path: flutter_cache_manager
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

@@ -1,13 +1,5 @@
 #!/bin/bash
 
-no_pub_get=false
-
-while getopts 's' flag; do
-  case "${flag}" in
-    s) no_pub_get=true ;;
-  esac
-done
-
 echo "Generating flowy icon files"
 
 # Store the current working directory
@@ -22,9 +14,8 @@ rm -rf assets/flowy_icons/
 mkdir -p assets/flowy_icons/
 rsync -r ../resources/flowy_icons/ assets/flowy_icons/
 
-if [ "$no_pub_get" = false ]; then
-  flutter packages pub get
-fi
+flutter pub get
+flutter packages pub get
 
 echo "Generating FlowySvg classes"
 dart run flowy_svg

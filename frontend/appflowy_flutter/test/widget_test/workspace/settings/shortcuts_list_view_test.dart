@@ -10,21 +10,25 @@ void main() {
   final dummyShortcuts = [
     CommandShortcutEvent(
       key: 'Copy',
+      getDescription: () => 'Copy',
       command: 'ctrl+c',
       handler: dummyHandler,
     ),
     CommandShortcutEvent(
       key: 'Paste',
+      getDescription: () => 'Paste',
       command: 'ctrl+v',
       handler: dummyHandler,
     ),
     CommandShortcutEvent(
       key: 'Undo',
+      getDescription: () => 'Undo',
       command: 'ctrl+z',
       handler: dummyHandler,
     ),
     CommandShortcutEvent(
       key: 'Redo',
+      getDescription: () => 'Redo',
       command: 'ctrl+y',
       handler: dummyHandler,
     ),

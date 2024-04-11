@@ -1,74 +1,87 @@
-import React, { useCallback, useRef } from 'react';
-import { MenuItem, MenuList, Typography } from '@mui/material';
+import React, { useEffect, useRef } from 'react';
+import KeyboardNavigation from '$app/components/_shared/keyboard_navigation/KeyboardNavigation';
 import { useSlashCommandPanel } from '$app/components/editor/components/tools/command_panel/slash_command_panel/SlashCommandPanel.hooks';
-import { useKeyDown } from '$app/components/editor/components/tools/command_panel/usePanel.hooks';
+import { useSlateStatic } from 'slate-react';
+import { SlashOptionType } from '$app/components/editor/components/tools/command_panel/slash_command_panel/const';
+
+const noResultBuffer = 2;
 
 function SlashCommandPanelContent({
   closePanel,
   searchText,
+  maxHeight,
+  width,
 }: {
   closePanel: (deleteText?: boolean) => void;
   searchText: string;
+  maxHeight: number;
+  width: number;
 }) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const { options, selectedType, setSelectedType } = useSlashCommandPanel({
+  const { options, onConfirm } = useSlashCommandPanel({
+    closePanel,
     searchText,
-    closePanel,
-    open: true,
   });
 
-  const handleSelectType = useCallback(
-    (type?: string | number) => {
-      if (type === undefined) return;
+  // Used to keep track of how many times the user has typed and not found any result
+  const noResultCount = useRef(0);
 
-      setSelectedType(Number(type));
-    },
-    [setSelectedType]
-  );
+  const editor = useSlateStatic();
 
-  useKeyDown({
-    scrollRef,
-    panelOpen: true,
-    closePanel,
-    options,
-    selectedKey: selectedType,
-    setSelectedKey: handleSelectType,
-  });
+  useEffect(() => {
+    const { insertText, deleteBackward } = editor;
+
+    editor.insertText = (text, opts) => {
+      // close panel if track of no result is greater than buffer
+      if (noResultCount.current >= noResultBuffer) {
+        closePanel(false);
+      }
+
+      if (options.length === 0) {
+        noResultCount.current += 1;
+      }
+
+      insertText(text, opts);
+    };
+
+    editor.deleteBackward = (unit) => {
+      // reset no result count
+      if (noResultCount.current > 0) {
+        noResultCount.current -= 1;
+      }
+
+      // close panel if no text
+      if (!searchText) {
+        closePanel(true);
+        return;
+      }
+
+      deleteBackward(unit);
+    };
+
+    return () => {
+      editor.insertText = insertText;
+      editor.deleteBackward = deleteBackward;
+    };
+  }, [closePanel, editor, searchText, options.length]);
+
   return (
-    <div ref={scrollRef} className={'max-h-[360px] w-[220px] overflow-auto overflow-x-hidden py-1 pl-1'}>
-      {options.length > 0 ? (
-        options.map((group) => (
-          <div key={group.key}>
-            <Typography variant='body1' className={'p-2 text-text-caption'}>
-              {group.label}
-            </Typography>
-            <MenuList className={'py-0 pl-1'}>
-              {group.options.map((subOption) => {
-                const Icon = subOption.Icon;
-
-                return (
-                  <MenuItem
-                    onMouseEnter={() => setSelectedType(subOption.key)}
-                    selected={selectedType === subOption.key}
-                    data-type={subOption.key}
-                    className={'ml-0 flex w-full items-center justify-start'}
-                    key={subOption.key}
-                    onClick={subOption.onClick}
-                  >
-                    <Icon className={'mr-2 h-4 w-4'} />
-                    <div className={'flex-1'}>{subOption.label}</div>
-                  </MenuItem>
-                );
-              })}
-            </MenuList>
-          </div>
-        ))
-      ) : (
-        <Typography variant='body1' className={'p-3 text-text-caption'}>
-          No results
-        </Typography>
-      )}
+    <div
+      ref={scrollRef}
+      style={{
+        maxHeight,
+        width,
+      }}
+      className={'overflow-auto overflow-x-hidden py-1'}
+    >
+      <KeyboardNavigation
+        scrollRef={scrollRef}
+        onEscape={closePanel}
+        onConfirm={(key) => onConfirm(key as SlashOptionType)}
+        options={options}
+        disableFocus={true}
+      />
     </div>
   );
 }

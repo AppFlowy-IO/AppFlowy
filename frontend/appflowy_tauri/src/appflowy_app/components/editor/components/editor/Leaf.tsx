@@ -1,15 +1,21 @@
 import React, { CSSProperties } from 'react';
 import { RenderLeafProps } from 'slate-react';
-import { Link } from '$app/components/editor/components/marks';
+import { Link } from '$app/components/editor/components/inline_nodes/link';
+import { renderColor } from '$app/utils/color';
 
 export function Leaf({ attributes, children, leaf }: RenderLeafProps) {
   let newChildren = children;
 
-  const classList = [leaf.prism_token, leaf.prism_token && 'token'].filter(Boolean);
+  const classList = [leaf.prism_token, leaf.prism_token && 'token', leaf.class_name].filter(Boolean);
 
   if (leaf.code) {
     newChildren = (
-      <code className={'mx-0.5 rounded-sm bg-gray-300 bg-opacity-50 px-1 text-xs font-normal text-[#EB5757]'}>
+      <code
+        style={{
+          fontSize: '0.85em',
+        }}
+        className={'bg-fill-list-active bg-opacity-50 font-normal tracking-wider text-[#EB5757]'}
+      >
         {newChildren}
       </code>
     );
@@ -34,11 +40,11 @@ export function Leaf({ attributes, children, leaf }: RenderLeafProps) {
   const style: CSSProperties = {};
 
   if (leaf.font_color) {
-    style['color'] = leaf.font_color.replace('0x', '#');
+    style['color'] = renderColor(leaf.font_color);
   }
 
   if (leaf.bg_color) {
-    style['backgroundColor'] = leaf.bg_color.replace('0x', '#');
+    style['backgroundColor'] = renderColor(leaf.bg_color);
   }
 
   if (leaf.href) {

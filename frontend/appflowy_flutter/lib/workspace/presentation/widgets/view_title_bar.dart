@@ -1,12 +1,13 @@
 import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/base/emoji_picker_button.dart';
 import 'package:appflowy/startup/tasks/app_window_size_manager.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy/workspace/presentation/widgets/rename_view_popover.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
@@ -48,7 +49,7 @@ class _ViewTitleBarState extends State<ViewTitleBar> {
   Widget build(BuildContext context) {
     return FutureBuilder<List<ViewPB>>(
       future: ancestors,
-      builder: ((context, snapshot) {
+      builder: (context, snapshot) {
         final ancestors = snapshot.data;
         if (ancestors == null) {
           return const SizedBox.shrink();
@@ -68,14 +69,13 @@ class _ViewTitleBarState extends State<ViewTitleBar> {
               child: _ViewTitle(
                 key: ValueKey(ancestors.last),
                 view: ancestors.last,
-                behavior: _ViewTitleBehavior.editable,
                 maxTitleWidth: constraints.maxWidth - 50.0,
                 onUpdated: () => setState(() => _reloadAncestors()),
               ),
             );
           },
         );
-      }),
+      },
     );
   }
 
@@ -116,9 +116,8 @@ class _ViewTitleBarState extends State<ViewTitleBar> {
   }
 
   void _reloadAncestors() {
-    ancestors = widget.view.getAncestors(
-      includeSelf: true,
-    );
+    ancestors = ViewBackendService.getViewAncestors(widget.view.id)
+        .fold((s) => s.items, (f) => []);
   }
 }
 
@@ -217,12 +216,13 @@ class _ViewTitleState extends State<_ViewTitle> {
     );
 
     if (widget.behavior == _ViewTitleBehavior.uneditable) {
-      return FlowyButton(
-        useIntrinsicWidth: true,
-        onTap: () {
-          context.read<TabsBloc>().openPlugin(widget.view);
-        },
-        text: child,
+      return Listener(
+        onPointerDown: (_) => context.read<TabsBloc>().openPlugin(widget.view),
+        child: FlowyButton(
+          useIntrinsicWidth: true,
+          onTap: () {},
+          text: child,
+        ),
       );
     }
 
@@ -232,59 +232,17 @@ class _ViewTitleState extends State<_ViewTitle> {
         maxHeight: 44,
       ),
       controller: popoverController,
-      direction: PopoverDirection.bottomWithCenterAligned,
+      direction: PopoverDirection.bottomWithLeftAligned,
       offset: const Offset(0, 18),
       popupBuilder: (context) {
         // icon + textfield
         _resetTextEditingController();
-        return Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            EmojiPickerButton(
-              emoji: icon,
-              defaultIcon: widget.view.defaultIcon(),
-              direction: PopoverDirection.bottomWithCenterAligned,
-              offset: const Offset(0, 18),
-              onSubmitted: (emoji, _) async {
-                await ViewBackendService.updateViewIcon(
-                  viewId: widget.view.id,
-                  viewIcon: emoji,
-                );
-                popoverController.close();
-              },
-            ),
-            const HSpace(4.0),
-            SizedBox(
-              height: 36.0,
-              width: 220,
-              child: FlowyTextField(
-                autoFocus: true,
-                controller: textEditingController,
-                onSubmitted: (text) async {
-                  if (text.isNotEmpty && text != name) {
-                    await ViewBackendService.updateView(
-                      viewId: widget.view.id,
-                      name: text,
-                    );
-                  }
-                  popoverController.close();
-                },
-                onChanged: (text) async {
-                  inputtingName = text;
-                },
-                onCanceled: () async {
-                  if (inputtingName.isNotEmpty && inputtingName != name) {
-                    await ViewBackendService.updateView(
-                      viewId: widget.view.id,
-                      name: inputtingName,
-                    );
-                    popoverController.close();
-                  }
-                },
-              ),
-            ),
-            const HSpace(4.0),
-          ],
+        return RenameViewPopover(
+          viewId: widget.view.id,
+          name: widget.view.name,
+          popoverController: popoverController,
+          icon: widget.view.defaultIcon(),
+          emoji: icon,
         );
       },
       child: FlowyButton(

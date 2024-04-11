@@ -159,7 +159,9 @@
     "editContact": "Kontaktua editatu"
   },
   "button": {
+    "ok": "OK",
     "done": "Eginda",
+    "cancel": "Ezteztatu",
     "signIn": "Saioa hasi",
     "signOut": "Saioa itxi",
     "complete": "Burututa",
@@ -175,10 +177,7 @@
     "edit": "Editatu",
     "delete": "Ezabatu",
     "duplicate": "Bikoiztu",
-    "putback": "Jarri Atzera",
-    "Done": "Eginda",
-    "Cancel": "Ezteztatu",
-    "OK": "OK"
+    "putback": "Jarri Atzera"
   },
   "label": {
     "welcome": "Ongi etorri!",
@@ -224,12 +223,12 @@
       "themeUpload": {
         "button": "Kargatu",
         "description": "Kargatu zure AppFlowy gaia beheko botoia erabiliz.",
-        "failure": "Kargatu zen gaiak formatu baliogabea zuen.",
         "loading": "Mesedez, itxaron zure gaia balioztatzen eta kargatzen dugun bitartean...",
         "uploadSuccess": "Zure gaia behar bezala kargatu da",
         "deletionFailure": "Ezin izan da gaia ezabatu. Saiatu eskuz ezabatzen.",
         "filePickerDialogTitle": "Aukeratu .flowy_plugin fitxategi bat",
-        "urlUploadFailure": "Ezin izan da ireki URLa: {}"
+        "urlUploadFailure": "Ezin izan da ireki URLa: {}",
+        "failure": "Kargatu zen gaiak formatu baliogabea zuen."
       },
       "theme": "Itxura",
       "builtInsLabel": "Eraikitako gaiak",
@@ -324,13 +323,9 @@
       "isComplete": "osatu da",
       "isIncomplted": "osatu gabe dago"
     },
-    "singleSelectOptionFilter": {
+    "selectOptionFilter": {
       "is": "da",
       "isNot": "Ez da",
-      "isEmpty": "Hutsa dago",
-      "isNotEmpty": "Ez dago hutsik"
-    },
-    "multiSelectOptionFilter": {
       "contains": "Duen",
       "doesNotContain": "Ez dauka",
       "isEmpty": "Hutsa dago",
@@ -556,7 +551,12 @@
       "createNewCard": "Berria"
     },
     "menuName": "Kontseilua",
-    "referencedBoardPrefix": "-ren ikuspegia"
+    "referencedBoardPrefix": "-ren ikuspegia",
+    "mobile": {
+      "showGroup": "Erakutsi taldea",
+      "showGroupContent": "Ziur talde hau arbelean erakutsi nahi duzula?",
+      "failedToLoad": "Ezin izan da kargatu arbelaren ikuspegia"
+    }
   },
   "calendar": {
     "menuName": "Egutegia",

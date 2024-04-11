@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/text_edit.dart';
-import 'package:dartz/dartz.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:http/http.dart' as http;
 
 import 'error.dart';
@@ -18,7 +18,7 @@ enum OpenAIRequestType {
       case OpenAIRequestType.textCompletion:
         return Uri.parse('https://api.openai.com/v1/completions');
       case OpenAIRequestType.textEdit:
-        return Uri.parse('https://api.openai.com/v1/edits');
+        return Uri.parse('https://api.openai.com/v1/v1/chat/completions');
       case OpenAIRequestType.imageGenerations:
         return Uri.parse('https://api.openai.com/v1/images/generations');
     }
@@ -33,7 +33,7 @@ abstract class OpenAIRepository {
   /// [maxTokens] is the maximum number of tokens to generate
   /// [temperature] is the temperature of the model
   ///
-  Future<Either<OpenAIError, TextCompletionResponse>> getCompletions({
+  Future<FlowyResult<TextCompletionResponse, OpenAIError>> getCompletions({
     required String prompt,
     String? suffix,
     int maxTokens = 2048,
@@ -58,7 +58,7 @@ abstract class OpenAIRepository {
   /// [instruction] is the instruction text
   /// [temperature] is the temperature of the model
   ///
-  Future<Either<OpenAIError, TextEditResponse>> getEdits({
+  Future<FlowyResult<TextEditResponse, OpenAIError>> getEdits({
     required String input,
     required String instruction,
     double temperature = 0.3,
@@ -70,7 +70,7 @@ abstract class OpenAIRepository {
   /// [n] is the number of images to generate
   ///
   /// the result is a list of urls
-  Future<Either<OpenAIError, List<String>>> generateImage({
+  Future<FlowyResult<List<String>, OpenAIError>> generateImage({
     required String prompt,
     int n = 1,
   });
@@ -91,14 +91,14 @@ class HttpOpenAIRepository implements OpenAIRepository {
       };
 
   @override
-  Future<Either<OpenAIError, TextCompletionResponse>> getCompletions({
+  Future<FlowyResult<TextCompletionResponse, OpenAIError>> getCompletions({
     required String prompt,
     String? suffix,
     int maxTokens = 2048,
     double temperature = 0.3,
   }) async {
     final parameters = {
-      'model': 'text-davinci-003',
+      'model': 'gpt-3.5-turbo-instruct',
       'prompt': prompt,
       'suffix': suffix,
       'max_tokens': maxTokens,
@@ -113,7 +113,7 @@ class HttpOpenAIRepository implements OpenAIRepository {
     );
 
     if (response.statusCode == 200) {
-      return Right(
+      return FlowyResult.success(
         TextCompletionResponse.fromJson(
           json.decode(
             utf8.decode(response.bodyBytes),
@@ -121,7 +121,9 @@ class HttpOpenAIRepository implements OpenAIRepository {
         ),
       );
     } else {
-      return Left(OpenAIError.fromJson(json.decode(response.body)['error']));
+      return FlowyResult.failure(
+        OpenAIError.fromJson(json.decode(response.body)['error']),
+      );
     }
   }
 
@@ -138,7 +140,7 @@ class HttpOpenAIRepository implements OpenAIRepository {
     bool useAction = false,
   }) async {
     final parameters = {
-      'model': 'text-davinci-003',
+      'model': 'gpt-3.5-turbo-instruct',
       'prompt': prompt,
       'suffix': suffix,
       'max_tokens': maxTokens,
@@ -206,14 +208,14 @@ class HttpOpenAIRepository implements OpenAIRepository {
   }
 
   @override
-  Future<Either<OpenAIError, TextEditResponse>> getEdits({
+  Future<FlowyResult<TextEditResponse, OpenAIError>> getEdits({
     required String input,
     required String instruction,
     double temperature = 0.3,
     int n = 1,
   }) async {
     final parameters = {
-      'model': 'text-davinci-edit-001',
+      'model': 'gpt-4',
       'input': input,
       'instruction': instruction,
       'temperature': temperature,
@@ -227,7 +229,7 @@ class HttpOpenAIRepository implements OpenAIRepository {
     );
 
     if (response.statusCode == 200) {
-      return Right(
+      return FlowyResult.success(
         TextEditResponse.fromJson(
           json.decode(
             utf8.decode(response.bodyBytes),
@@ -235,12 +237,14 @@ class HttpOpenAIRepository implements OpenAIRepository {
         ),
       );
     } else {
-      return Left(OpenAIError.fromJson(json.decode(response.body)['error']));
+      return FlowyResult.failure(
+        OpenAIError.fromJson(json.decode(response.body)['error']),
+      );
     }
   }
 
   @override
-  Future<Either<OpenAIError, List<String>>> generateImage({
+  Future<FlowyResult<List<String>, OpenAIError>> generateImage({
     required String prompt,
     int n = 1,
   }) async {
@@ -266,12 +270,14 @@ class HttpOpenAIRepository implements OpenAIRepository {
             .expand((e) => e)
             .map((e) => e.toString())
             .toList();
-        return Right(urls);
+        return FlowyResult.success(urls);
       } else {
-        return Left(OpenAIError.fromJson(json.decode(response.body)['error']));
+        return FlowyResult.failure(
+          OpenAIError.fromJson(json.decode(response.body)['error']),
+        );
       }
     } catch (error) {
-      return Left(OpenAIError(message: error.toString()));
+      return FlowyResult.failure(OpenAIError(message: error.toString()));
     }
   }
 }

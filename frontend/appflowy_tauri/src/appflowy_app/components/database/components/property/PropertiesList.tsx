@@ -1,16 +1,18 @@
-import React, { useCallback, useMemo, useState } from 'react';
-import { OutlinedInput, MenuItem, MenuList } from '@mui/material';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
+import { OutlinedInput } from '@mui/material';
 import { Property } from '$app/components/database/components/property/Property';
-import { Field as FieldType } from '../../application';
+import { Field as FieldType } from '$app/application/database';
 import { useDatabase } from '$app/components/database';
+import KeyboardNavigation from '$app/components/_shared/keyboard_navigation/KeyboardNavigation';
 
 interface FieldListProps {
   searchPlaceholder?: string;
   showSearch?: boolean;
-  onItemClick?: (event: React.MouseEvent<HTMLLIElement>, field: FieldType) => void;
+  onItemClick?: (field: FieldType) => void;
+  onClose?: () => void;
 }
 
-function PropertiesList({ showSearch, onItemClick, searchPlaceholder }: FieldListProps) {
+function PropertiesList({ onClose, showSearch, onItemClick, searchPlaceholder }: FieldListProps) {
   const { fields } = useDatabase();
   const [fieldsResult, setFieldsResult] = useState<FieldType[]>(fields as FieldType[]);
 
@@ -24,38 +26,65 @@ function PropertiesList({ showSearch, onItemClick, searchPlaceholder }: FieldLis
     [fields]
   );
 
+  const inputRef = useRef<HTMLInputElement>(null);
+
   const searchInput = useMemo(() => {
     return showSearch ? (
       <div className={'w-[220px] px-4 pt-2'}>
-        <OutlinedInput size={'small'} autoFocus={true} placeholder={searchPlaceholder} onChange={onInputChange} />
+        <OutlinedInput
+          inputRef={inputRef}
+          size={'small'}
+          autoFocus={true}
+          spellCheck={false}
+          autoComplete={'off'}
+          autoCorrect={'off'}
+          inputProps={{
+            className: 'text-xs p-1.5',
+          }}
+          placeholder={searchPlaceholder}
+          onChange={onInputChange}
+        />
       </div>
     ) : null;
   }, [onInputChange, searchPlaceholder, showSearch]);
 
-  const emptyList = useMemo(() => {
-    return fieldsResult.length === 0 ? (
-      <div className={'px-4 pt-3 text-center text-sm font-medium text-gray-500'}>No fields found</div>
-    ) : null;
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const options = useMemo(() => {
+    return fieldsResult.map((field) => {
+      return {
+        key: field.id,
+        content: (
+          <div className={'truncate'}>
+            <Property field={field} />
+          </div>
+        ),
+      };
+    });
   }, [fieldsResult]);
+
+  const onConfirm = useCallback(
+    (key: string) => {
+      const field = fields.find((field) => field.id === key);
+
+      onItemClick?.(field as FieldType);
+    },
+    [fields, onItemClick]
+  );
 
   return (
     <div className={'pt-2'}>
       {searchInput}
-      {emptyList}
-      <MenuList className={'max-h-[300px] overflow-y-auto overflow-x-hidden'}>
-        {fieldsResult.map((field) => (
-          <MenuItem
-            className={'overflow-hidden text-ellipsis px-1'}
-            key={field.id}
-            value={field.id}
-            onClick={(event) => {
-              onItemClick?.(event, field);
-            }}
-          >
-            <Property field={field} />
-          </MenuItem>
-        ))}
-      </MenuList>
+      <div ref={scrollRef} className={'my-2 max-h-[300px] overflow-y-auto overflow-x-hidden'}>
+        <KeyboardNavigation
+          disableFocus={true}
+          scrollRef={scrollRef}
+          focusRef={inputRef}
+          options={options}
+          onConfirm={onConfirm}
+          onEscape={onClose}
+        />
+      </div>
     </div>
   );
 }

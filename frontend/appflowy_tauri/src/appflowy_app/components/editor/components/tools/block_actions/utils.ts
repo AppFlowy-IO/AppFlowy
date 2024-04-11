@@ -20,9 +20,39 @@ export function getBlockActionsPosition(editor: ReactEditor, blockElement: HTMLE
 export function getBlockCssProperty(node: Element) {
   switch (node.type) {
     case EditorNodeType.HeadingBlock:
-      return getHeadingCssProperty((node as HeadingNode).data.level);
+      return `${getHeadingCssProperty((node as HeadingNode).data.level)} mt-1`;
     case EditorNodeType.CodeBlock:
     case EditorNodeType.CalloutBlock:
-      return 'my-2';
+    case EditorNodeType.EquationBlock:
+    case EditorNodeType.GridBlock:
+      return 'my-3';
+    case EditorNodeType.DividerBlock:
+      return 'my-0';
+    default:
+      return 'mt-1';
   }
+}
+
+/**
+ * @param editor
+ * @param e
+ */
+export function findEventNode(
+  editor: ReactEditor,
+  {
+    x,
+    y,
+  }: {
+    x: number;
+    y: number;
+  }
+) {
+  const element = document.elementFromPoint(x, y);
+  const nodeDom = element?.closest('[data-block-type]');
+
+  if (nodeDom) {
+    return ReactEditor.toSlateNode(editor, nodeDom) as Element;
+  }
+
+  return null;
 }

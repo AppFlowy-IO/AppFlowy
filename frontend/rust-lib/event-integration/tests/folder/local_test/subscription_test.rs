@@ -1,8 +1,8 @@
 use std::time::Duration;
 
 use event_integration::EventIntegrationTest;
-use flowy_folder2::entities::{ChildViewUpdatePB, RepeatedViewPB, UpdateViewPayloadPB};
-use flowy_folder2::notification::FolderNotification;
+use flowy_folder::entities::{ChildViewUpdatePB, RepeatedViewPB, UpdateViewPayloadPB};
+use flowy_folder::notification::FolderNotification;
 
 use crate::util::receive_with_timeout;
 
@@ -24,7 +24,7 @@ async fn create_child_view_in_workspace_subscription_test() {
 
   let cloned_test = test.clone();
   let cloned_workspace_id = workspace.id.clone();
-  test.inner.dispatcher().spawn(async move {
+  test.appflowy_core.dispatcher().spawn(async move {
     cloned_test
       .create_view(&cloned_workspace_id, "workspace child view".to_string())
       .await;
@@ -50,7 +50,7 @@ async fn create_child_view_in_view_subscription_test() {
 
   let cloned_test = test.clone();
   let child_view_id = workspace_child_view.id.clone();
-  test.inner.dispatcher().spawn(async move {
+  test.appflowy_core.dispatcher().spawn(async move {
     cloned_test
       .create_view(
         &child_view_id,
@@ -82,7 +82,7 @@ async fn delete_view_subscription_test() {
   let delete_view_id = workspace.views.first().unwrap().id.clone();
   let cloned_delete_view_id = delete_view_id.clone();
   test
-    .inner
+    .appflowy_core
     .dispatcher()
     .spawn(async move {
       cloned_test.delete_view(&cloned_delete_view_id).await;
@@ -91,7 +91,7 @@ async fn delete_view_subscription_test() {
     .unwrap();
 
   let update = test
-    .inner
+    .appflowy_core
     .dispatcher()
     .run_until(receive_with_timeout(rx, Duration::from_secs(30)))
     .await
@@ -114,7 +114,7 @@ async fn update_view_subscription_test() {
   assert!(!view.is_favorite);
 
   let update_view_id = view.id.clone();
-  test.inner.dispatcher().spawn(async move {
+  test.appflowy_core.dispatcher().spawn(async move {
     cloned_test
       .update_view(UpdateViewPayloadPB {
         view_id: update_view_id,

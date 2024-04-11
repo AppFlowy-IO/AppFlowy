@@ -1,7 +1,7 @@
-import { IconButton, SelectChangeEvent, Stack } from '@mui/material';
+import { IconButton, Stack } from '@mui/material';
 import { FC, useCallback } from 'react';
 import { ReactComponent as CloseSvg } from '$app/assets/close.svg';
-import { Field, Sort, sortService } from '../../application';
+import { Field, Sort, sortService } from '$app/application/database';
 import { PropertySelect } from '../property';
 import { SortConditionSelect } from './SortConditionSelect';
 import { useViewId } from '@/appflowy_app/hooks';
@@ -21,7 +21,6 @@ export const SortItem: FC<SortItemProps> = ({ className, sort }) => {
         void sortService.updateSort(viewId, {
           ...sort,
           fieldId: field.id,
-          fieldType: field.type,
         });
       }
     },
@@ -29,10 +28,10 @@ export const SortItem: FC<SortItemProps> = ({ className, sort }) => {
   );
 
   const handleConditionChange = useCallback(
-    (event: SelectChangeEvent<SortConditionPB>) => {
+    (value: SortConditionPB) => {
       void sortService.updateSort(viewId, {
         ...sort,
-        condition: event.target.value as SortConditionPB,
+        condition: value,
       });
     },
     [viewId, sort]
@@ -44,13 +43,8 @@ export const SortItem: FC<SortItemProps> = ({ className, sort }) => {
 
   return (
     <Stack className={className} direction='row' spacing={1}>
-      <PropertySelect className={'w-[150px]'} size='small' value={sort.fieldId} onChange={handleFieldChange} />
-      <SortConditionSelect
-        className={'w-[150px]'}
-        size='small'
-        value={sort.condition}
-        onChange={handleConditionChange}
-      />
+      <PropertySelect value={sort.fieldId} onChange={handleFieldChange} />
+      <SortConditionSelect value={sort.condition} onChange={handleConditionChange} />
       <div className={'flex items-center justify-center'}>
         <IconButton size={'small'} onClick={handleClick}>
           <CloseSvg />

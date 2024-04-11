@@ -1,47 +1,60 @@
-import React, { useCallback } from 'react';
-import { PageIcon } from '$app_reducers/pages/slice';
-import { useAppDispatch, useAppSelector } from '$app/stores/store';
-import ViewTitle from '$app/components/_shared/ViewTitle';
-import { updatePageIcon, updatePageName } from '$app_reducers/pages/async_actions';
+import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { Page, PageCover, PageIcon } from '$app_reducers/pages/slice';
+import ViewTitle from '$app/components/_shared/view_title/ViewTitle';
+import { updatePageIcon } from '$app/application/folder/page.service';
 
 interface DocumentHeaderProps {
-  pageId: string;
-  onSplitTitle: (splitText: string) => void;
+  page: Page;
+  onUpdateCover: (cover?: PageCover) => void;
 }
 
-export function DocumentHeader({ pageId, onSplitTitle }: DocumentHeaderProps) {
-  const page = useAppSelector((state) => state.pages.pageMap[pageId]);
-  const dispatch = useAppDispatch();
-  const onTitleChange = useCallback(
-    (newTitle: string) => {
-      void dispatch(
-        updatePageName({
-          id: pageId,
-          name: newTitle,
-        })
-      );
+export function DocumentHeader({ page, onUpdateCover }: DocumentHeaderProps) {
+  const pageId = page.id;
+  const ref = useRef<HTMLDivElement>(null);
+
+  const [forceHover, setForceHover] = useState(false);
+  const onUpdateIcon = useCallback(
+    async (icon: PageIcon) => {
+      await updatePageIcon(pageId, icon.value ? icon : undefined);
     },
-    [dispatch, pageId]
+    [pageId]
   );
 
-  const onUpdateIcon = useCallback(
-    (icon: PageIcon) => {
-      void dispatch(
-        updatePageIcon({
-          id: pageId,
-          icon: icon.value ? icon : undefined,
-        })
-      );
-    },
-    [dispatch, pageId]
-  );
+  useEffect(() => {
+    const parent = ref.current?.parentElement;
+
+    if (!parent) return;
+
+    const documentDom = parent.querySelector('.appflowy-editor') as HTMLElement;
+
+    if (!documentDom) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const isMoveInTitle = Boolean(e.target instanceof HTMLElement && e.target.closest('.document-title'));
+      const isMoveInHeader = Boolean(e.target instanceof HTMLElement && e.target.closest('.document-header'));
+
+      setForceHover(isMoveInTitle || isMoveInHeader);
+    };
+
+    documentDom.addEventListener('mousemove', handleMouseMove);
+    return () => {
+      documentDom.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, []);
 
   if (!page) return null;
   return (
-    <div className={'document-header px-16 py-4'}>
-      <ViewTitle onSplitTitle={onSplitTitle} onUpdateIcon={onUpdateIcon} onTitleChange={onTitleChange} view={page} />
+    <div ref={ref} className={'document-header select-none'}>
+      <ViewTitle
+        showCover
+        showTitle={false}
+        forceHover={forceHover}
+        onUpdateCover={onUpdateCover}
+        onUpdateIcon={onUpdateIcon}
+        view={page}
+      />
     </div>
   );
 }
 
-export default DocumentHeader;
+export default memo(DocumentHeader);

@@ -5,11 +5,12 @@ on:
       - ".github/workflows/tauri_ci.yaml"
       - "frontend/rust-lib/**"
       - "frontend/appflowy_tauri/**"
+      - "frontend/resources/**"
 
 env:
   NODE_VERSION: "18.16.0"
   PNPM_VERSION: "8.5.0"
-  RUST_TOOLCHAIN: "1.70"
+  RUST_TOOLCHAIN: "1.75"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -21,36 +22,36 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-#        platform: [macos-latest, ubuntu-latest, windows-latest]
-         platform: [ubuntu-latest]
+        platform: [ubuntu-20.04]
 
     runs-on: ${{ matrix.platform }}
+
+    env:
+      CI: true
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+
+      - name: Maximize build space (ubuntu only)
+        if: matrix.platform == 'ubuntu-20.04'
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf "/usr/local/share/boost"
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+          sudo docker image prune --all --force
+          sudo rm -rf /opt/hostedtoolcache/codeQL
+          sudo rm -rf ${GITHUB_WORKSPACE}/.git
+          sudo rm -rf $ANDROID_HOME/ndk
+
       - name: setup node
         uses: actions/setup-node@v3
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      - name: Cache Rust Dependencies
-        uses: Swatinem/rust-cache@v2
+      - name: setup pnpm
+        uses: pnpm/action-setup@v2
         with:
-          key: rust-dependencies-${{ runner.os }}
-          workspaces: |
-            frontend/rust-lib
-            frontend/appflowy_tauri/src-tauri
-
-      - name: Cache Node.js dependencies
-        uses: actions/cache@v2
-        with:
-          path: ~/.npm
-          key: npm-${{ runner.os }}
-
-      - name: Cache node_modules
-        uses: actions/cache@v2
-        with:
-          path: frontend/appflowy_tauri/node_modules
-          key: node-modules-${{ runner.os }}
+          version: ${{ env.PNPM_VERSION }}
 
       - name: Install Rust toolchain
         id: rust_toolchain
@@ -60,51 +61,54 @@ jobs:
           override: true
           profile: minimal
 
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: "./frontend/appflowy_tauri/src-tauri -> target"
+
+      - name: Node_modules cache
+        uses: actions/cache@v2
+        with:
+          path: frontend/appflowy_tauri/node_modules
+          key: node-modules-${{ runner.os }}
+
       - name: install dependencies (windows only)
         if: matrix.platform == 'windows-latest'
         working-directory: frontend
         run: |
-          cargo install --force cargo-make
           cargo install --force duckscript_cli
           vcpkg integrate install
-          cargo make appflowy-tauri-deps-tools
-          npm install -g pnpm@${{ env.PNPM_VERSION }}
 
       - name: install dependencies (ubuntu only)
-        if: matrix.platform == 'ubuntu-latest'
+        if: matrix.platform == 'ubuntu-20.04'
         working-directory: frontend
         run: |
           sudo apt-get update
           sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
-          cargo install --force cargo-make
-          cargo make appflowy-tauri-deps-tools
-          npm install -g pnpm@${{ env.PNPM_VERSION }}
 
-      - name: install dependencies (macOS only)
-        if: matrix.platform == 'macos-latest'
+      - name: install cargo-make
         working-directory: frontend
         run: |
           cargo install --force cargo-make
           cargo make appflowy-tauri-deps-tools
-          npm install -g pnpm@${{ env.PNPM_VERSION }}
 
-      - name: Build
+      - name: install frontend dependencies
         working-directory: frontend/appflowy_tauri
         run: |
           mkdir dist
           pnpm install
           cargo make --cwd .. tauri_build
+
+      - name: frontend tests and linting
+        working-directory: frontend/appflowy_tauri
+        run: |
           pnpm test
           pnpm test:errors
-
-      - name: Check for uncommitted changes
-        run: |
-          diff_files=$(git status --porcelain)
-          if [ -n "$diff_files" ]; then
-            echo "There are uncommitted changes in the working tree. Please commit them before pushing."
-            exit 1
-          fi
 
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tauriScript: pnpm tauri
+          projectPath: frontend/appflowy_tauri
+          args: "--debug"

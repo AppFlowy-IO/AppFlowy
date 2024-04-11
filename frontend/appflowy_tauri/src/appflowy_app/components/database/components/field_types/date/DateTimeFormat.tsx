@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import DateFormat from '$app/components/database/components/field_types/date/DateFormat';
 import TimeFormat from '$app/components/database/components/field_types/date/TimeFormat';
-import { TimeStampTypeOption, UndeterminedDateField, updateTypeOption } from '$app/components/database/application';
+import { TimeStampTypeOption, UndeterminedDateField, updateTypeOption } from '$app/application/database';
 import { DateFormatPB, FieldType, TimeFormatPB } from '@/services/backend';
 import { useViewId } from '$app/hooks';
 import Typography from '@mui/material/Typography';

@@ -1,6 +1,6 @@
 use event_integration::EventIntegrationTest;
 use flowy_core::DEFAULT_NAME;
-use flowy_folder2::entities::ViewLayoutPB;
+use flowy_folder::entities::ViewLayoutPB;
 
 use crate::util::unzip_history_user_db;
 

@@ -1,6 +1,6 @@
-import 'package:appflowy/plugins/database_view/application/database_controller.dart';
-import 'package:appflowy/plugins/database_view/application/field/field_editor_bloc.dart';
-import 'package:appflowy/plugins/database_view/board/application/board_bloc.dart';
+import 'package:appflowy/plugins/database/application/database_controller.dart';
+import 'package:appflowy/plugins/database/application/field/field_editor_bloc.dart';
+import 'package:appflowy/plugins/database/board/application/board_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'util.dart';
@@ -38,7 +38,7 @@ void main() {
       viewId: context.gridView.id,
       field: fieldInfo.field,
       fieldController: context.fieldController,
-    )..add(const FieldEditorEvent.initial());
+    );
     await boardResponseFuture();
 
     editorBloc.add(const FieldEditorEvent.renameField('Hello world'));

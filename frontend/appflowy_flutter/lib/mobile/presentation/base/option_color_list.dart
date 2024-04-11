@@ -1,6 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_cell/extension.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/select_option.pb.dart';
+import 'package:appflowy/plugins/database/widgets/cell_editor/extension.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/select_option_entities.pb.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flutter/material.dart';
 
@@ -20,6 +20,7 @@ class OptionColorList extends StatelessWidget {
       crossAxisCount: 6,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
+      padding: EdgeInsets.zero,
       children: SelectOptionColorPB.values.map(
         (colorPB) {
           final color = colorPB.toColor(context);
@@ -34,6 +35,7 @@ class OptionColorList extends StatelessWidget {
                 color: color,
                 borderRadius: Corners.s12Border,
                 border: Border.all(
+                  width: isSelected ? 2.0 : 1.0,
                   color: isSelected
                       ? const Color(0xff00C6F1)
                       : Theme.of(context).dividerColor,
@@ -42,7 +44,7 @@ class OptionColorList extends StatelessWidget {
               alignment: Alignment.center,
               child: isSelected
                   ? const FlowySvg(
-                      FlowySvgs.blue_check_s,
+                      FlowySvgs.m_blue_check_s,
                       size: Size.square(28.0),
                       blendMode: null,
                     )

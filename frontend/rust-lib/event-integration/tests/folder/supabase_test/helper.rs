@@ -4,12 +4,13 @@ use assert_json_diff::assert_json_eq;
 use collab::core::collab::MutexCollab;
 use collab::core::origin::CollabOrigin;
 use collab::preclude::updates::decoder::Decode;
-use collab::preclude::{merge_updates_v1, JsonValue, Update};
+use collab::preclude::{JsonValue, Update};
+use collab_entity::CollabType;
 use collab_folder::FolderData;
 
 use event_integration::event_builder::EventBuilder;
-use flowy_folder2::entities::{FolderSnapshotPB, RepeatedFolderSnapshotPB, WorkspaceIdPB};
-use flowy_folder2::event_map::FolderEvent::GetFolderSnapshots;
+use flowy_folder::entities::{FolderSnapshotPB, RepeatedFolderSnapshotPB, WorkspaceIdPB};
+use flowy_folder::event_map::FolderEvent::GetFolderSnapshots;
 
 use crate::util::FlowySupabaseTest;
 
@@ -49,21 +50,15 @@ impl FlowySupabaseFolderTest {
 
   pub async fn get_collab_update(&self, workspace_id: &str) -> Vec<u8> {
     let cloud_service = self.folder_manager.get_cloud_service().clone();
-    let remote_updates = cloud_service
-      .get_folder_doc_state(workspace_id, self.user_manager.user_id().unwrap())
+    cloud_service
+      .get_folder_doc_state(
+        workspace_id,
+        self.user_manager.user_id().unwrap(),
+        CollabType::Folder,
+        workspace_id,
+      )
       .await
-      .unwrap();
-
-    if remote_updates.is_empty() {
-      return vec![];
-    }
-
-    let updates = remote_updates
-      .iter()
-      .map(|update| update.as_ref())
-      .collect::<Vec<&[u8]>>();
-
-    merge_updates_v1(&updates).unwrap()
+      .unwrap()
   }
 }
 
@@ -72,7 +67,7 @@ pub fn assert_folder_collab_content(workspace_id: &str, collab_update: &[u8], ex
     panic!("collab update is empty");
   }
 
-  let collab = MutexCollab::new(CollabOrigin::Server, workspace_id, vec![]);
+  let collab = MutexCollab::new(CollabOrigin::Server, workspace_id, vec![], false);
   collab.lock().with_origin_transact_mut(|txn| {
     let update = Update::decode_v1(collab_update).unwrap();
     txn.apply_update(update);

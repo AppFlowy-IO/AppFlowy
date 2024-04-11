@@ -1,8 +1,8 @@
 import 'package:appflowy/workspace/application/favorite/favorite_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
-import 'package:dartz/dartz.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -11,14 +11,24 @@ import 'favorite_listener.dart';
 part 'favorite_bloc.freezed.dart';
 
 class FavoriteBloc extends Bloc<FavoriteEvent, FavoriteState> {
+  FavoriteBloc() : super(FavoriteState.initial()) {
+    _dispatch();
+  }
+
   final _service = FavoriteService();
   final _listener = FavoriteListener();
 
-  FavoriteBloc() : super(FavoriteState.initial()) {
+  @override
+  Future<void> close() async {
+    await _listener.stop();
+    return super.close();
+  }
+
+  void _dispatch() {
     on<FavoriteEvent>(
       (event, emit) async {
-        await event.map(
-          initial: (e) async {
+        await event.when(
+          initial: () async {
             _listener.start(
               favoritesUpdated: _onFavoritesUpdated,
             );
@@ -34,23 +44,23 @@ class FavoriteBloc extends Bloc<FavoriteEvent, FavoriteState> {
               ),
             );
           },
-          didFavorite: (e) {
+          fetchFavorites: () async {
+            final result = await _service.readFavorites();
             emit(
-              state.copyWith(views: [...state.views, ...e.favorite.items]),
+              result.fold(
+                (view) => state.copyWith(
+                  views: view.items,
+                ),
+                (error) => state.copyWith(
+                  views: [],
+                ),
+              ),
             );
           },
-          didUnfavorite: (e) {
-            final views = [...state.views]..removeWhere(
-                (view) => e.favorite.items.any((item) => item.id == view.id),
-              );
-            emit(
-              state.copyWith(views: views),
-            );
-          },
-          toggle: (e) async {
+          toggle: (view) async {
             await _service.toggleFavorite(
-              e.view.id,
-              !e.view.isFavorite,
+              view.id,
+              !view.isFavorite,
             );
           },
         );
@@ -58,21 +68,13 @@ class FavoriteBloc extends Bloc<FavoriteEvent, FavoriteState> {
     );
   }
 
-  @override
-  Future<void> close() async {
-    await _listener.stop();
-    return super.close();
-  }
-
   void _onFavoritesUpdated(
-    Either<FlowyError, RepeatedViewPB> favoriteOrFailed,
+    FlowyResult<RepeatedViewPB, FlowyError> favoriteOrFailed,
     bool didFavorite,
   ) {
     favoriteOrFailed.fold(
+      (favorite) => add(const FetchFavorites()),
       (error) => Log.error(error),
-      (favorite) => didFavorite
-          ? add(FavoriteEvent.didFavorite(favorite))
-          : add(FavoriteEvent.didUnfavorite(favorite)),
     );
   }
 }
@@ -80,11 +82,8 @@ class FavoriteBloc extends Bloc<FavoriteEvent, FavoriteState> {
 @freezed
 class FavoriteEvent with _$FavoriteEvent {
   const factory FavoriteEvent.initial() = Initial;
-  const factory FavoriteEvent.didFavorite(RepeatedViewPB favorite) =
-      DidFavorite;
-  const factory FavoriteEvent.didUnfavorite(RepeatedViewPB favorite) =
-      DidUnfavorite;
   const factory FavoriteEvent.toggle(ViewPB view) = ToggleFavorite;
+  const factory FavoriteEvent.fetchFavorites() = FetchFavorites;
 }
 
 @freezed

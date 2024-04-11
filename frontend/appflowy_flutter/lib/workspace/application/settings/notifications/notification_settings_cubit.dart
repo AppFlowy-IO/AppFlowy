@@ -9,10 +9,6 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'notification_settings_cubit.freezed.dart';
 
 class NotificationSettingsCubit extends Cubit<NotificationSettingsState> {
-  final Completer<void> _initCompleter = Completer();
-
-  late final NotificationSettingsPB _notificationSettings;
-
   NotificationSettingsCubit() : super(NotificationSettingsState.initial()) {
     UserSettingsBackendService()
         .getNotificationSettings()
@@ -27,6 +23,10 @@ class NotificationSettingsCubit extends Cubit<NotificationSettingsState> {
     });
   }
 
+  final Completer<void> _initCompleter = Completer();
+
+  late final NotificationSettingsPB _notificationSettings;
+
   Future<void> toggleNotificationsEnabled() async {
     await _initCompleter.future;
 
@@ -38,20 +38,18 @@ class NotificationSettingsCubit extends Cubit<NotificationSettingsState> {
       ),
     );
 
-    _saveNotificationSettings();
+    await _saveNotificationSettings();
   }
 
   Future<void> _saveNotificationSettings() async {
     await _initCompleter.future;
 
-    UserSettingsBackendService()
-        .setNotificationSettings(_notificationSettings)
-        .then((result) {
-      result.fold(
-        (error) => Log.error(error),
-        (r) => null,
-      );
-    });
+    final result = await UserSettingsBackendService()
+        .setNotificationSettings(_notificationSettings);
+    result.fold(
+      (r) => null,
+      (error) => Log.error(error),
+    );
   }
 }
 

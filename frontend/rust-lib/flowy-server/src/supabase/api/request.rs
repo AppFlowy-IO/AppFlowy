@@ -7,13 +7,15 @@ use std::time::Duration;
 
 use anyhow::Error;
 use chrono::{DateTime, Utc};
+use collab::core::collab::DocStateSource;
 use collab_entity::{CollabObject, CollabType};
 use collab_plugins::cloud_storage::RemoteCollabSnapshot;
 use serde_json::Value;
 use tokio_retry::strategy::FixedInterval;
 use tokio_retry::{Action, Condition, RetryIf};
+use yrs::merge_updates_v1;
 
-use flowy_database_deps::cloud::{CollabObjectUpdate, CollabObjectUpdateByOid};
+use flowy_database_pub::cloud::CollabDocStateByOid;
 use lib_infra::util::md5;
 
 use crate::response::ExtendedResponse;
@@ -58,7 +60,7 @@ impl FetchObjectUpdateAction {
 
 impl Action for FetchObjectUpdateAction {
   type Future = Pin<Box<dyn Future<Output = Result<Self::Item, Self::Error>> + Send>>;
-  type Item = CollabObjectUpdate;
+  type Item = Vec<u8>;
   type Error = anyhow::Error;
 
   fn run(&mut self) -> Self::Future {
@@ -70,7 +72,19 @@ impl Action for FetchObjectUpdateAction {
         None => Ok(vec![]),
         Some(postgrest) => {
           match get_updates_from_server(&object_id, &object_ty, &postgrest).await {
-            Ok(items) => Ok(items.into_iter().map(|item| item.value).collect()),
+            Ok(items) => {
+              if items.is_empty() {
+                return Ok(vec![]);
+              }
+
+              let updates = items
+                .iter()
+                .map(|update| update.value.as_ref())
+                .collect::<Vec<&[u8]>>();
+              let doc_state = merge_updates_v1(&updates)
+                .map_err(|err| anyhow::anyhow!("merge updates failed: {:?}", err))?;
+              Ok(doc_state)
+            },
             Err(err) => {
               tracing::error!("Get {} updates failed with error: {:?}", object_id, err);
               Err(err)
@@ -110,7 +124,7 @@ impl BatchFetchObjectUpdateAction {
 
 impl Action for BatchFetchObjectUpdateAction {
   type Future = Pin<Box<dyn Future<Output = Result<Self::Item, Self::Error>> + Send>>;
-  type Item = CollabObjectUpdateByOid;
+  type Item = CollabDocStateByOid;
   type Error = anyhow::Error;
 
   fn run(&mut self) -> Self::Future {
@@ -119,7 +133,7 @@ impl Action for BatchFetchObjectUpdateAction {
     let object_ty = self.object_ty.clone();
     Box::pin(async move {
       match weak_postgrest.upgrade() {
-        None => Ok(CollabObjectUpdateByOid::default()),
+        None => Ok(CollabDocStateByOid::default()),
         Some(server) => {
           match batch_get_updates_from_server(object_ids.clone(), &object_ty, server).await {
             Ok(updates_by_oid) => Ok(updates_by_oid),
@@ -251,7 +265,7 @@ pub async fn batch_get_updates_from_server(
   object_ids: Vec<String>,
   object_ty: &CollabType,
   postgrest: Arc<PostgresWrapper>,
-) -> Result<CollabObjectUpdateByOid, Error> {
+) -> Result<CollabDocStateByOid, Error> {
   let json = postgrest
     .from(table_name(object_ty))
     .select("oid, key, value, encrypt, md5")
@@ -262,18 +276,24 @@ pub async fn batch_get_updates_from_server(
     .get_json()
     .await?;
 
-  let mut updates_by_oid = CollabObjectUpdateByOid::new();
+  let mut updates_by_oid = CollabDocStateByOid::new();
   if let Some(records) = json.as_array() {
     for record in records {
       tracing::debug!("get updates from server: {:?}", record);
       if let Some(oid) = record.get("oid").and_then(|value| value.as_str()) {
         match parser_updates_form_json(record.clone(), &postgrest.secret()) {
-          Ok(updates) => {
-            let object_updates = updates_by_oid
-              .entry(oid.to_string())
-              .or_insert_with(Vec::new);
-            for update in updates {
-              object_updates.push(update.value);
+          Ok(items) => {
+            if items.is_empty() {
+              updates_by_oid.insert(oid.to_string(), DocStateSource::FromDisk);
+            } else {
+              let updates = items
+                .iter()
+                .map(|update| update.value.as_ref())
+                .collect::<Vec<&[u8]>>();
+
+              let doc_state = merge_updates_v1(&updates)
+                .map_err(|err| anyhow::anyhow!("merge updates failed: {:?}", err))?;
+              updates_by_oid.insert(oid.to_string(), DocStateSource::FromDocState(doc_state));
             }
           },
           Err(e) => {

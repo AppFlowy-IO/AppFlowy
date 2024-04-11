@@ -26,6 +26,13 @@ const defaultUserAvatar = '1F600';
 const _iconSize = Size(60, 60);
 
 class SettingsUserView extends StatelessWidget {
+  SettingsUserView(
+    this.user, {
+    required this.didLogin,
+    required this.didLogout,
+    required this.didOpenUser,
+  }) : super(key: ValueKey(user.id));
+
   // Called when the user login in the setting dialog
   final VoidCallback didLogin;
   // Called when the user logout in the setting dialog
@@ -33,14 +40,6 @@ class SettingsUserView extends StatelessWidget {
   // Called when the user open a historical user in the setting dialog
   final VoidCallback didOpenUser;
   final UserProfilePB user;
-
-  SettingsUserView(
-    this.user, {
-    required this.didLogin,
-    required this.didLogout,
-    required this.didOpenUser,
-    Key? key,
-  }) : super(key: ValueKey(user.id));
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +53,8 @@ class SettingsUserView extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               _buildUserIconSetting(context),
-              if (isAuthEnabled && user.authType != AuthTypePB.Local) ...[
+              if (isAuthEnabled &&
+                  user.authenticator != AuthenticatorPB.Local) ...[
                 const VSpace(12),
                 UserEmailInput(user.email),
               ],
@@ -146,7 +146,7 @@ class SettingsUserView extends StatelessWidget {
     }
 
     // If the user is logged in locally, render a third-party login button.
-    if (state.userProfile.authType == AuthTypePB.Local) {
+    if (state.userProfile.authenticator == AuthenticatorPB.Local) {
       return SettingThirdPartyLogin(didLogin: didLogin);
     }
 
@@ -226,12 +226,9 @@ class SettingsUserView extends StatelessWidget {
 
 @visibleForTesting
 class UserNameInput extends StatefulWidget {
-  final String name;
+  const UserNameInput(this.name, {super.key});
 
-  const UserNameInput(
-    this.name, {
-    super.key,
-  });
+  final String name;
 
   @override
   UserNameInputState createState() => UserNameInputState();
@@ -247,6 +244,13 @@ class UserNameInputState extends State<UserNameInput> {
   void initState() {
     super.initState();
     _controller = TextEditingController(text: widget.name);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _debounce?.cancel();
+    super.dispose();
   }
 
   @override
@@ -280,22 +284,13 @@ class UserNameInputState extends State<UserNameInput> {
       },
     );
   }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
 }
 
 @visibleForTesting
 class UserEmailInput extends StatefulWidget {
-  final String email;
+  const UserEmailInput(this.email, {super.key});
 
-  const UserEmailInput(
-    this.email, {
-    super.key,
-  });
+  final String email;
 
   @override
   UserEmailInputState createState() => UserEmailInputState();
@@ -348,6 +343,7 @@ class UserEmailInputState extends State<UserEmailInput> {
   @override
   void dispose() {
     _controller.dispose();
+    _debounce?.cancel();
     super.dispose();
   }
 }
@@ -447,16 +443,16 @@ final builtInSVGIcons = [
 
 // REMOVE this widget in next version 0.3.10
 class IconGallery extends StatelessWidget {
-  final String selectedIcon;
-  final SelectIconCallback onSelectIcon;
-  final Widget? defaultOption;
-
   const IconGallery({
     super.key,
     required this.selectedIcon,
     required this.onSelectIcon,
     this.defaultOption,
   });
+
+  final String selectedIcon;
+  final SelectIconCallback onSelectIcon;
+  final Widget? defaultOption;
 
   @override
   Widget build(BuildContext context) {
@@ -481,17 +477,17 @@ class IconGallery extends StatelessWidget {
 }
 
 class IconOption extends StatelessWidget {
-  final FlowySvgData emoji;
-  final String iconUrl;
-  final SelectIconCallback onSelectIcon;
-  final bool isSelected;
-
   IconOption({
     required this.emoji,
     required this.iconUrl,
     required this.onSelectIcon,
     required this.isSelected,
   }) : super(key: ValueKey(emoji));
+
+  final FlowySvgData emoji;
+  final String iconUrl;
+  final SelectIconCallback onSelectIcon;
+  final bool isSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -517,13 +513,14 @@ class IconOption extends StatelessWidget {
 }
 
 class SettingLogoutButton extends StatelessWidget {
-  final UserProfilePB user;
-  final VoidCallback didLogout;
   const SettingLogoutButton({
+    super.key,
     required this.user,
     required this.didLogout,
-    super.key,
   });
+
+  final UserProfilePB user;
+  final VoidCallback didLogout;
 
   @override
   Widget build(BuildContext context) {
@@ -537,7 +534,7 @@ class SettingLogoutButton extends StatelessWidget {
             fontSize: 13,
             textAlign: TextAlign.center,
           ),
-          onTap: () async {
+          onTap: () {
             NavigatorAlertDialog(
               title: logoutPromptMessage(),
               confirm: () async {

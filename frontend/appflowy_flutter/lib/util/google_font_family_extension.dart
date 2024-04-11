@@ -1,7 +1,6 @@
+import 'package:appflowy/shared/patterns/common_patterns.dart';
+
 extension GoogleFontsParser on String {
-  String parseFontFamilyName() {
-    final camelCase = RegExp('(?<=[a-z])[A-Z]');
-    return replaceAll('_regular', '')
-        .replaceAllMapped(camelCase, (m) => ' ${m.group(0)}');
-  }
+  String parseFontFamilyName() => replaceAll('_regular', '')
+      .replaceAllMapped(camelCaseRegex, (m) => ' ${m.group(0)}');
 }

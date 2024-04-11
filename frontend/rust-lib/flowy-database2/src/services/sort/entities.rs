@@ -2,41 +2,33 @@ use std::cmp::Ordering;
 
 use anyhow::bail;
 use collab::core::any_map::AnyMapExtension;
-use collab_database::rows::RowId;
+use collab_database::rows::{RowDetail, RowId};
 use collab_database::views::{SortMap, SortMapBuilder};
-
-use crate::entities::{DeleteSortParams, FieldType};
 
 #[derive(Debug, Clone)]
 pub struct Sort {
   pub id: String,
   pub field_id: String,
-  pub field_type: FieldType,
   pub condition: SortCondition,
 }
 
 const SORT_ID: &str = "id";
 const FIELD_ID: &str = "field_id";
-const FIELD_TYPE: &str = "ty";
 const SORT_CONDITION: &str = "condition";
 
 impl TryFrom<SortMap> for Sort {
   type Error = anyhow::Error;
 
   fn try_from(value: SortMap) -> Result<Self, Self::Error> {
-    match (
-      value.get_str_value(SORT_ID),
-      value.get_str_value(FIELD_ID),
-      value.get_i64_value(FIELD_TYPE).map(FieldType::from),
-    ) {
-      (Some(id), Some(field_id), Some(field_type)) => {
-        let condition =
-          SortCondition::try_from(value.get_i64_value(SORT_CONDITION).unwrap_or_default())
-            .unwrap_or_default();
+    match (value.get_str_value(SORT_ID), value.get_str_value(FIELD_ID)) {
+      (Some(id), Some(field_id)) => {
+        let condition = value
+          .get_i64_value(SORT_CONDITION)
+          .map(SortCondition::from)
+          .unwrap_or_default();
         Ok(Self {
           id,
           field_id,
-          field_type,
           condition,
         })
       },
@@ -52,15 +44,15 @@ impl From<Sort> for SortMap {
     SortMapBuilder::new()
       .insert_str_value(SORT_ID, data.id)
       .insert_str_value(FIELD_ID, data.field_id)
-      .insert_i64_value(FIELD_TYPE, data.field_type.into())
       .insert_i64_value(SORT_CONDITION, data.condition.value())
       .build()
   }
 }
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, Default)]
 #[repr(u8)]
 pub enum SortCondition {
+  #[default]
   Ascending = 0,
   Descending = 1,
 }
@@ -81,35 +73,12 @@ impl SortCondition {
   }
 }
 
-impl Default for SortCondition {
-  fn default() -> Self {
-    Self::Ascending
-  }
-}
-
 impl From<i64> for SortCondition {
   fn from(value: i64) -> Self {
     match value {
       0 => SortCondition::Ascending,
       1 => SortCondition::Descending,
       _ => SortCondition::Ascending,
-    }
-  }
-}
-
-#[derive(Hash, Eq, PartialEq, Debug, Clone)]
-pub struct SortType {
-  pub sort_id: String,
-  pub field_id: String,
-  pub field_type: FieldType,
-}
-
-impl From<&Sort> for SortType {
-  fn from(data: &Sort) -> Self {
-    Self {
-      sort_id: data.id.clone(),
-      field_id: data.field_id.clone(),
-      field_type: data.field_type,
     }
   }
 }
@@ -137,50 +106,47 @@ pub struct ReorderSingleRowResult {
   pub new_index: usize,
 }
 
-#[derive(Debug)]
+#[derive(Clone)]
+pub struct InsertRowResult {
+  pub view_id: String,
+  pub row: RowDetail,
+  pub index: usize,
+}
+
+#[derive(Debug, Default)]
 pub struct SortChangeset {
-  pub(crate) insert_sort: Option<SortType>,
-  pub(crate) update_sort: Option<SortType>,
-  pub(crate) delete_sort: Option<DeletedSortType>,
+  pub(crate) insert_sort: Option<Sort>,
+  pub(crate) update_sort: Option<Sort>,
+  pub(crate) delete_sort: Option<String>,
+  pub(crate) reorder_sort: Option<(String, String)>,
 }
 
 impl SortChangeset {
-  pub fn from_insert(sort: SortType) -> Self {
+  pub fn from_insert(sort: Sort) -> Self {
     Self {
       insert_sort: Some(sort),
-      update_sort: None,
-      delete_sort: None,
+      ..Default::default()
     }
   }
 
-  pub fn from_update(sort: SortType) -> Self {
+  pub fn from_update(sort: Sort) -> Self {
     Self {
-      insert_sort: None,
       update_sort: Some(sort),
-      delete_sort: None,
+      ..Default::default()
     }
   }
 
-  pub fn from_delete(deleted_sort: DeletedSortType) -> Self {
+  pub fn from_delete(sort_id: String) -> Self {
     Self {
-      insert_sort: None,
-      update_sort: None,
-      delete_sort: Some(deleted_sort),
+      delete_sort: Some(sort_id),
+      ..Default::default()
     }
   }
-}
 
-#[derive(Debug)]
-pub struct DeletedSortType {
-  pub sort_type: SortType,
-  pub sort_id: String,
-}
-
-impl std::convert::From<DeleteSortParams> for DeletedSortType {
-  fn from(params: DeleteSortParams) -> Self {
+  pub fn from_reorder(from_sort_id: String, to_sort_id: String) -> Self {
     Self {
-      sort_type: params.sort_type,
-      sort_id: params.sort_id,
+      reorder_sort: Some((from_sort_id, to_sort_id)),
+      ..Default::default()
     }
   }
 }

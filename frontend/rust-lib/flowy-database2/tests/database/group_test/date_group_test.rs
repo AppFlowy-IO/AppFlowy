@@ -3,12 +3,8 @@ use std::vec;
 
 use chrono::NaiveDateTime;
 use chrono::{offset, Duration};
-use collab_database::database::gen_row_id;
-use collab_database::rows::CreateRowParams;
 
-use collab_database::views::OrderObjectPosition;
-use flowy_database2::entities::FieldType;
-use flowy_database2::services::cell::CellBuilder;
+use flowy_database2::entities::{CreateRowPayloadPB, FieldType};
 use flowy_database2::services::field::DateCellData;
 
 use crate::database::group_test::script::DatabaseGroupTest;
@@ -26,19 +22,17 @@ async fn group_by_date_test() {
       .unwrap()
       .timestamp()
       .to_string();
+
     let mut cells = HashMap::new();
     cells.insert(date_field.id.clone(), timestamp);
-    let cells = CellBuilder::with_cells(cells, &[date_field.clone()]).build();
 
-    let params = CreateRowParams {
-      id: gen_row_id(),
-      cells,
-      height: 60,
-      visibility: true,
-      row_position: OrderObjectPosition::default(),
-      timestamp: 0,
+    let params = CreateRowPayloadPB {
+      view_id: test.view_id.clone(),
+      data: cells,
+      ..Default::default()
     };
-    let res = test.editor.create_row(&test.view_id, None, params).await;
+
+    let res = test.editor.create_row(params).await;
     assert!(res.is_ok());
   }
 
@@ -69,56 +63,50 @@ async fn group_by_date_test() {
       row_count: 0,
     },
     // Added via `make_test_board`
-    AssertGroupIDName {
+    AssertGroupId {
       group_index: 1,
       group_id: "2022/03/01".to_string(),
-      group_name: "Mar 2022".to_string(),
     },
     AssertGroupRowCount {
       group_index: 1,
       row_count: 3,
     },
     // Added via `make_test_board`
-    AssertGroupIDName {
+    AssertGroupId {
       group_index: 2,
       group_id: "2022/11/01".to_string(),
-      group_name: "Nov 2022".to_string(),
     },
     AssertGroupRowCount {
       group_index: 2,
       row_count: 2,
     },
-    AssertGroupIDName {
+    AssertGroupId {
       group_index: 3,
       group_id: last_30_days,
-      group_name: "Last 30 days".to_string(),
     },
     AssertGroupRowCount {
       group_index: 3,
       row_count: 1,
     },
-    AssertGroupIDName {
+    AssertGroupId {
       group_index: 4,
       group_id: last_day,
-      group_name: "Yesterday".to_string(),
     },
     AssertGroupRowCount {
       group_index: 4,
       row_count: 2,
     },
-    AssertGroupIDName {
+    AssertGroupId {
       group_index: 5,
       group_id: today.format("%Y/%m/%d").to_string(),
-      group_name: "Today".to_string(),
     },
     AssertGroupRowCount {
       group_index: 5,
       row_count: 1,
     },
-    AssertGroupIDName {
+    AssertGroupId {
       group_index: 6,
       group_id: next_7_days,
-      group_name: "Next 7 days".to_string(),
     },
     AssertGroupRowCount {
       group_index: 6,
@@ -186,17 +174,16 @@ async fn change_date_on_moving_row_to_another_group() {
       group_index: 2,
       row_count: 3,
     },
-    AssertGroupIDName {
+    AssertGroupId {
       group_index: 2,
       group_id: "2022/11/01".to_string(),
-      group_name: "Nov 2022".to_string(),
     },
   ];
   test.run_scripts(scripts).await;
 
   let group = test.group_at_index(2).await;
   let rows = group.clone().rows;
-  let row_id = &rows.get(0).unwrap().id;
+  let row_id = &rows.first().unwrap().id;
   let row_detail = test
     .get_rows()
     .await

@@ -1,11 +1,10 @@
-import React, { FormEventHandler, lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { FormEventHandler, lazy, Suspense, useCallback, useMemo, useRef } from 'react';
 import { useInputCell } from '$app/components/database/components/cell/Cell.hooks';
-import { Field, UrlCell as URLCellType } from '$app/components/database/application';
+import { Field, UrlCell as URLCellType } from '$app/application/database';
 import { CellText } from '$app/components/database/_shared';
+import { openUrl } from '$app/utils/open_url';
 
 const EditTextCellInput = lazy(() => import('$app/components/database/components/field_types/text/EditTextCellInput'));
-
-const pattern = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w.-]*)*\/?$/;
 
 interface Props {
   field: Field;
@@ -14,7 +13,6 @@ interface Props {
 }
 
 function UrlCell({ field, cell, placeholder }: Props) {
-  const [isUrl, setIsUrl] = useState(false);
   const cellRef = useRef<HTMLDivElement>(null);
   const { value, editing, updateCell, setEditing, setValue } = useInputCell(cell);
   const handleClick = useCallback(() => {
@@ -33,33 +31,26 @@ function UrlCell({ field, cell, placeholder }: Props) {
     [setValue]
   );
 
-  useEffect(() => {
-    if (editing) return;
-    const str = cell.data.content;
-
-    if (!str) return;
-    const isUrl = pattern.test(str);
-
-    setIsUrl(isUrl);
-  }, [cell, editing]);
-
   const content = useMemo(() => {
     const str = cell.data.content;
 
     if (str) {
-      if (isUrl) {
-        return (
-          <a href={str} target={'_blank'} className={'cursor-pointer text-content-blue-400 underline'}>
-            {str}
-          </a>
-        );
-      }
-
-      return str;
+      return (
+        <a
+          onClick={(e) => {
+            e.stopPropagation();
+            openUrl(str);
+          }}
+          target={'_blank'}
+          className={'cursor-pointer text-content-blue-400 underline'}
+        >
+          {str}
+        </a>
+      );
     }
 
-    return <div className={'text-sm text-text-placeholder'}>{placeholder}</div>;
-  }, [isUrl, cell, placeholder]);
+    return <div className={'cursor-text text-sm text-text-placeholder'}>{placeholder}</div>;
+  }, [cell, placeholder]);
 
   return (
     <>
@@ -68,6 +59,7 @@ function UrlCell({ field, cell, placeholder }: Props) {
           width: `${field.width}px`,
           minHeight: 37,
         }}
+        className={'cursor-text'}
         ref={cellRef}
         onClick={handleClick}
       >

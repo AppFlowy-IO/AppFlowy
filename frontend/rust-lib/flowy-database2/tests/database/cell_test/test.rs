@@ -1,16 +1,15 @@
 use std::time::Duration;
 
-use flowy_database2::entities::{CellChangesetPB, FieldType};
-use flowy_database2::services::cell::ToCellChangeset;
-use flowy_database2::services::field::checklist_type_option::ChecklistCellChangeset;
+use flowy_database2::entities::FieldType;
 use flowy_database2::services::field::{
-  DateCellData, MultiSelectTypeOption, SelectOptionCellChangeset, SingleSelectTypeOption,
-  StrCellData, URLCellData,
+  ChecklistCellChangeset, DateCellChangeset, DateCellData, MultiSelectTypeOption,
+  RelationCellChangeset, SelectOptionCellChangeset, SingleSelectTypeOption, StrCellData,
+  URLCellData,
 };
+use lib_infra::box_any::BoxAny;
 
 use crate::database::cell_test::script::CellScript::UpdateCell;
 use crate::database::cell_test::script::DatabaseCellTest;
-use crate::database::field_test::util::make_date_cell_string;
 
 #[tokio::test]
 async fn grid_cell_update() {
@@ -19,47 +18,53 @@ async fn grid_cell_update() {
   let rows = &test.row_details;
 
   let mut scripts = vec![];
-  for (_, row_detail) in rows.iter().enumerate() {
+  for row_detail in rows.iter() {
     for field in &fields {
       let field_type = FieldType::from(field.field_type);
       if field_type == FieldType::LastEditedTime || field_type == FieldType::CreatedTime {
         continue;
       }
       let cell_changeset = match field_type {
-        FieldType::RichText => "".to_string(),
-        FieldType::Number => "123".to_string(),
-        FieldType::DateTime => make_date_cell_string(123),
+        FieldType::RichText => BoxAny::new("".to_string()),
+        FieldType::Number => BoxAny::new("123".to_string()),
+        FieldType::DateTime => BoxAny::new(DateCellChangeset {
+          date: Some(123),
+          ..Default::default()
+        }),
         FieldType::SingleSelect => {
           let type_option = field
             .get_type_option::<SingleSelectTypeOption>(field.field_type)
             .unwrap();
-          SelectOptionCellChangeset::from_insert_option_id(&type_option.options.first().unwrap().id)
-            .to_cell_changeset_str()
+          BoxAny::new(SelectOptionCellChangeset::from_insert_option_id(
+            &type_option.options.first().unwrap().id,
+          ))
         },
         FieldType::MultiSelect => {
           let type_option = field
             .get_type_option::<MultiSelectTypeOption>(field.field_type)
             .unwrap();
-          SelectOptionCellChangeset::from_insert_option_id(&type_option.options.first().unwrap().id)
-            .to_cell_changeset_str()
+          BoxAny::new(SelectOptionCellChangeset::from_insert_option_id(
+            &type_option.options.first().unwrap().id,
+          ))
         },
-        FieldType::Checklist => ChecklistCellChangeset {
-          insert_options: vec!["new option".to_string()],
+        FieldType::Checklist => BoxAny::new(ChecklistCellChangeset {
+          insert_options: vec![("new option".to_string(), false)],
           ..Default::default()
-        }
-        .to_cell_changeset_str(),
-        FieldType::Checkbox => "1".to_string(),
-        FieldType::URL => "1".to_string(),
-        _ => "".to_string(),
+        }),
+        FieldType::Checkbox => BoxAny::new("1".to_string()),
+        FieldType::URL => BoxAny::new("1".to_string()),
+        FieldType::Relation => BoxAny::new(RelationCellChangeset {
+          inserted_row_ids: vec!["abcdefabcdef".to_string().into()],
+          ..Default::default()
+        }),
+        _ => BoxAny::new("".to_string()),
       };
 
       scripts.push(UpdateCell {
-        changeset: CellChangesetPB {
-          view_id: test.view_id.clone(),
-          row_id: row_detail.row.id.clone().into(),
-          field_id: field.id.clone(),
-          cell_changeset,
-        },
+        view_id: test.view_id.clone(),
+        field_id: field.id.clone(),
+        row_id: row_detail.row.id.clone(),
+        changeset: cell_changeset,
         is_err: false,
       });
     }
@@ -125,12 +130,10 @@ async fn update_updated_at_field_on_other_cell_update() {
   let before_update_timestamp = chrono::offset::Utc::now().timestamp();
   test
     .run_script(UpdateCell {
-      changeset: CellChangesetPB {
-        view_id: test.view_id.clone(),
-        row_id: test.row_details[0].row.id.to_string(),
-        field_id: text_field.id.clone(),
-        cell_changeset: "change".to_string(),
-      },
+      view_id: test.view_id.clone(),
+      row_id: test.row_details[0].row.id.clone(),
+      field_id: text_field.id.clone(),
+      changeset: BoxAny::new("change".to_string()),
       is_err: false,
     })
     .await;

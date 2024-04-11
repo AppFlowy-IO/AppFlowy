@@ -1,38 +1,86 @@
-use flowy_folder2::entities::icon::UpdateViewIconPayloadPB;
-use flowy_folder2::entities::*;
-use flowy_folder2::event_map::FolderEvent;
-use flowy_folder2::event_map::FolderEvent::*;
+use flowy_folder::entities::icon::UpdateViewIconPayloadPB;
+use flowy_folder::entities::*;
+use flowy_folder::event_map::FolderEvent;
+use flowy_folder::event_map::FolderEvent::*;
 use flowy_user::entities::{
-  AddWorkspaceMemberPB, QueryWorkspacePB, RemoveWorkspaceMemberPB, RepeatedWorkspaceMemberPB,
+  AcceptWorkspaceInvitationPB, AddWorkspaceMemberPB, QueryWorkspacePB, RemoveWorkspaceMemberPB,
+  RepeatedWorkspaceInvitationPB, RepeatedWorkspaceMemberPB, WorkspaceMemberInvitationPB,
   WorkspaceMemberPB,
 };
 use flowy_user::errors::FlowyError;
 use flowy_user::event_map::UserEvent;
+use flowy_user_pub::entities::Role;
 
 use crate::event_builder::EventBuilder;
 use crate::EventIntegrationTest;
 
 impl EventIntegrationTest {
   pub async fn add_workspace_member(&self, workspace_id: &str, email: &str) {
-    EventBuilder::new(self.clone())
+    if let Some(err) = EventBuilder::new(self.clone())
       .event(UserEvent::AddWorkspaceMember)
       .payload(AddWorkspaceMemberPB {
         workspace_id: workspace_id.to_string(),
         email: email.to_string(),
       })
       .async_send()
-      .await;
+      .await
+      .error()
+    {
+      panic!("Add workspace member failed: {:?}", err);
+    }
+  }
+
+  pub async fn invite_workspace_member(&self, workspace_id: &str, email: &str, role: Role) {
+    if let Some(err) = EventBuilder::new(self.clone())
+      .event(UserEvent::InviteWorkspaceMember)
+      .payload(WorkspaceMemberInvitationPB {
+        workspace_id: workspace_id.to_string(),
+        invitee_email: email.to_string(),
+        role: role.into(),
+      })
+      .async_send()
+      .await
+      .error()
+    {
+      panic!("Invite workspace member failed: {:?}", err);
+    }
+  }
+
+  pub async fn list_workspace_invitations(&self) -> RepeatedWorkspaceInvitationPB {
+    EventBuilder::new(self.clone())
+      .event(UserEvent::ListWorkspaceInvitations)
+      .async_send()
+      .await
+      .parse()
+  }
+
+  pub async fn accept_workspace_invitation(&self, invitation_id: &str) {
+    if let Some(err) = EventBuilder::new(self.clone())
+      .event(UserEvent::AcceptWorkspaceInvitation)
+      .payload(AcceptWorkspaceInvitationPB {
+        invite_id: invitation_id.to_string(),
+      })
+      .async_send()
+      .await
+      .error()
+    {
+      panic!("Accept workspace invitation failed: {:?}", err)
+    };
   }
 
   pub async fn delete_workspace_member(&self, workspace_id: &str, email: &str) {
-    EventBuilder::new(self.clone())
+    if let Some(err) = EventBuilder::new(self.clone())
       .event(UserEvent::RemoveWorkspaceMember)
       .payload(RemoveWorkspaceMemberPB {
         workspace_id: workspace_id.to_string(),
         email: email.to_string(),
       })
       .async_send()
-      .await;
+      .await
+      .error()
+    {
+      panic!("Delete workspace member failed: {:?}", err)
+    };
   }
 
   pub async fn get_workspace_members(&self, workspace_id: &str) -> Vec<WorkspaceMemberPB> {
@@ -57,22 +105,19 @@ impl EventIntegrationTest {
 
   pub async fn get_all_workspace_views(&self) -> Vec<ViewPB> {
     EventBuilder::new(self.clone())
-      .event(FolderEvent::ReadWorkspaceViews)
+      .event(FolderEvent::ReadCurrentWorkspaceViews)
       .async_send()
       .await
       .parse::<RepeatedViewPB>()
       .items
   }
 
-  pub async fn get_views(&self, parent_view_id: &str) -> ViewPB {
+  pub async fn get_trash(&self) -> RepeatedTrashPB {
     EventBuilder::new(self.clone())
-      .event(FolderEvent::ReadView)
-      .payload(ViewIdPB {
-        value: parent_view_id.to_string(),
-      })
+      .event(FolderEvent::ListTrashItems)
       .async_send()
       .await
-      .parse::<ViewPB>()
+      .parse::<RepeatedTrashPB>()
   }
 
   pub async fn delete_view(&self, view_id: &str) {
@@ -81,11 +126,15 @@ impl EventIntegrationTest {
     };
 
     // delete the view. the view will be moved to trash
-    EventBuilder::new(self.clone())
+    if let Some(err) = EventBuilder::new(self.clone())
       .event(FolderEvent::DeleteView)
       .payload(payload)
       .async_send()
-      .await;
+      .await
+      .error()
+    {
+      panic!("Delete view failed: {:?}", err)
+    };
   }
 
   pub async fn update_view(&self, changeset: UpdateViewPayloadPB) -> Option<FlowyError> {
@@ -118,6 +167,7 @@ impl EventIntegrationTest {
       meta: Default::default(),
       set_as_current: false,
       index: None,
+      section: None,
     };
     EventBuilder::new(self.clone())
       .event(FolderEvent::CreateView)
@@ -129,10 +179,19 @@ impl EventIntegrationTest {
 
   pub async fn get_view(&self, view_id: &str) -> ViewPB {
     EventBuilder::new(self.clone())
-      .event(FolderEvent::ReadView)
+      .event(FolderEvent::GetView)
       .payload(ViewIdPB {
         value: view_id.to_string(),
       })
+      .async_send()
+      .await
+      .parse::<ViewPB>()
+  }
+
+  pub async fn import_data(&self, data: ImportPB) -> ViewPB {
+    EventBuilder::new(self.clone())
+      .event(FolderEvent::ImportData)
+      .payload(data)
       .async_send()
       .await
       .parse::<ViewPB>()
@@ -159,6 +218,7 @@ impl ViewTest {
       meta: Default::default(),
       set_as_current: true,
       index: None,
+      section: None,
     };
 
     let view = EventBuilder::new(sdk.clone())
@@ -195,7 +255,7 @@ async fn create_workspace(sdk: &EventIntegrationTest, name: &str, desc: &str) ->
   };
 
   EventBuilder::new(sdk.clone())
-    .event(CreateWorkspace)
+    .event(CreateFolderWorkspace)
     .payload(request)
     .async_send()
     .await

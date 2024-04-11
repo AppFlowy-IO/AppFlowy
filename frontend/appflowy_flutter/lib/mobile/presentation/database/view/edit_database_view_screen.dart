@@ -2,16 +2,13 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_option_tile.dart';
-import 'package:appflowy/plugins/base/drag_handler.dart';
-import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
-import 'package:appflowy/plugins/database_view/application/database_controller.dart';
-import 'package:appflowy/plugins/database_view/application/database_view_service.dart';
-import 'package:appflowy/plugins/database_view/application/layout/layout_service.dart';
-import 'package:appflowy/plugins/database_view/widgets/database_layout_ext.dart';
+import 'package:appflowy/plugins/database/application/database_controller.dart';
+import 'package:appflowy/plugins/database/domain/database_view_service.dart';
+import 'package:appflowy/plugins/database/domain/layout_service.dart';
+import 'package:appflowy/plugins/database/widgets/database_layout_ext.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
-import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -20,178 +17,47 @@ import 'package:go_router/go_router.dart';
 
 import 'database_field_list.dart';
 import 'database_view_layout.dart';
-import 'edit_database_view_cubit.dart';
 
 /// [MobileEditDatabaseViewScreen] is the main widget used to edit a database
 /// view. It contains multiple sub-pages, and the current page is managed by
 /// [MobileEditDatabaseViewCubit]
-class MobileEditDatabaseViewScreen extends StatefulWidget {
+class MobileEditDatabaseViewScreen extends StatelessWidget {
   const MobileEditDatabaseViewScreen({
     super.key,
     required this.databaseController,
-    required this.viewPB,
   });
 
   final DatabaseController databaseController;
-  final ViewPB viewPB;
-
-  @override
-  State<MobileEditDatabaseViewScreen> createState() =>
-      _MobileEditDatabaseViewScreenState();
-}
-
-class _MobileEditDatabaseViewScreenState
-    extends State<MobileEditDatabaseViewScreen> {
-  @override
-  Widget build(BuildContext context) {
-    return BlocProvider<MobileEditDatabaseViewCubit>(
-      create: (context) => MobileEditDatabaseViewCubit(),
-      child: BlocBuilder<MobileEditDatabaseViewCubit,
-          MobileDatabaseViewEditorState>(
-        builder: (context, state) {
-          return switch (state.currentPage) {
-            MobileEditDatabaseViewPageEnum.main => _EditDatabaseViewMainPage(
-                databaseController: widget.databaseController,
-                viewPB: widget.viewPB,
-              ),
-            MobileEditDatabaseViewPageEnum.fields => _wrapSubPage(
-                context,
-                MobileDatabaseFieldList(
-                  databaseController: widget.databaseController,
-                  viewPB: widget.viewPB,
-                ),
-              ),
-            _ => const SizedBox.shrink(),
-          };
-        },
-      ),
-    );
-  }
-
-  Widget _wrapSubPage(BuildContext context, Widget child) {
-    return PopScope(
-      canPop: false,
-      child: child,
-      onPopInvoked: (_) {
-        context
-            .read<MobileEditDatabaseViewCubit>()
-            .changePage(MobileEditDatabaseViewPageEnum.main);
-      },
-    );
-  }
-}
-
-class _EditDatabaseViewMainPage extends StatelessWidget {
-  const _EditDatabaseViewMainPage({
-    required this.databaseController,
-    required this.viewPB,
-  });
-
-  final DatabaseController databaseController;
-  final ViewPB viewPB;
 
   @override
   Widget build(BuildContext context) {
-    return DraggableScrollableSheet(
-      expand: false,
-      snap: true,
-      initialChildSize: 1.0,
-      minChildSize: 0.0,
-      builder: (context, controller) {
-        return Material(
-          child: Column(
-            children: [
-              const Center(child: DragHandler()),
-              const _EditDatabaseViewHeader(),
-              Expanded(
-                child: SingleChildScrollView(
-                  child: _EditDatabaseViewBody(
-                    databaseController: databaseController,
-                    view: viewPB,
-                  ),
-                ),
+    return BlocBuilder<ViewBloc, ViewState>(
+      builder: (context, state) {
+        return Column(
+          children: [
+            _NameAndIcon(view: state.view),
+            _divider(),
+            DatabaseViewSettingTile(
+              setting: DatabaseViewSettings.layout,
+              databaseController: databaseController,
+              view: state.view,
+              showTopBorder: true,
+            ),
+            if (databaseController.databaseLayout == DatabaseLayoutPB.Calendar)
+              DatabaseViewSettingTile(
+                setting: DatabaseViewSettings.calendar,
+                databaseController: databaseController,
+                view: state.view,
               ),
-            ],
-          ),
+            DatabaseViewSettingTile(
+              setting: DatabaseViewSettings.fields,
+              databaseController: databaseController,
+              view: state.view,
+            ),
+            _divider(),
+          ],
         );
       },
-    );
-  }
-}
-
-class _EditDatabaseViewHeader extends StatelessWidget {
-  const _EditDatabaseViewHeader();
-
-  @override
-  Widget build(BuildContext context) {
-    const iconWidth = 30.0;
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(8, 4, 8, 12),
-      child: Stack(
-        children: [
-          Align(
-            alignment: Alignment.centerLeft,
-            child: FlowyIconButton(
-              icon: const FlowySvg(
-                FlowySvgs.close_s,
-                size: Size.square(iconWidth),
-              ),
-              width: iconWidth,
-              iconPadding: EdgeInsets.zero,
-              onPressed: () => context.pop(),
-            ),
-          ),
-          Align(
-            alignment: Alignment.center,
-            child: FlowyText.medium(
-              LocaleKeys.grid_settings_editView.tr(),
-              fontSize: 16,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _EditDatabaseViewBody extends StatelessWidget {
-  const _EditDatabaseViewBody({
-    required this.databaseController,
-    required this.view,
-  });
-
-  final DatabaseController databaseController;
-  final ViewPB view;
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocProvider<ViewBloc>(
-      create: (context) {
-        return ViewBloc(view: view)..add(const ViewEvent.initial());
-      },
-      child: BlocBuilder<ViewBloc, ViewState>(
-        builder: (context, state) {
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _NameAndIcon(view: state.view),
-              _divider(),
-              DatabaseViewSettingTile(
-                setting: DatabaseViewSettings.layout,
-                databaseController: databaseController,
-                view: state.view,
-                showTopBorder: true,
-              ),
-              DatabaseViewSettingTile(
-                setting: DatabaseViewSettings.fields,
-                databaseController: databaseController,
-                view: state.view,
-              ),
-              _divider(),
-            ],
-          );
-        },
-      ),
     );
   }
 
@@ -217,39 +83,21 @@ class _NameAndIconState extends State<_NameAndIcon> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return FlowyOptionTile.textField(
-      controller: textEditingController,
-      textFieldPadding: const EdgeInsets.symmetric(horizontal: 12.0),
-      onTextChanged: (text) {
-        context.read<ViewBloc>().add(ViewEvent.rename(text));
-      },
-      leftIcon: _buildViewIcon(),
-    );
+  void dispose() {
+    textEditingController.dispose();
+    super.dispose();
   }
 
-  Widget _buildViewIcon() {
-    final icon = widget.view.icon.value.isNotEmpty
-        ? EmojiText(
-            emoji: widget.view.icon.value,
-            fontSize: 16.0,
-          )
-        : SizedBox.square(
-            dimension: 18.0,
-            child: widget.view.defaultIcon(),
-          );
-    return InkWell(
-      onTap: () {},
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: const BorderRadius.all(Radius.circular(12)),
-          border: Border.fromBorderSide(
-            BorderSide(color: Theme.of(context).dividerColor),
-          ),
-        ),
-        width: 36,
-        height: 36,
-        child: Center(child: icon),
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      child: FlowyOptionTile.textField(
+        autofocus: true,
+        showTopBorder: false,
+        controller: textEditingController,
+        onTextChanged: (text) {
+          context.read<ViewBloc>().add(ViewEvent.rename(text));
+        },
       ),
     );
   }
@@ -288,15 +136,6 @@ enum DatabaseViewSettings {
       calendar => FlowySvgs.date_s,
       duplicate => FlowySvgs.copy_s,
       delete => FlowySvgs.delete_s,
-    };
-  }
-
-  MobileEditDatabaseViewPageEnum? get subPage {
-    return switch (this) {
-      fields => MobileEditDatabaseViewPageEnum.fields,
-      filter => MobileEditDatabaseViewPageEnum.filter,
-      sort => MobileEditDatabaseViewPageEnum.sort,
-      _ => null,
     };
   }
 }
@@ -351,7 +190,8 @@ class DatabaseViewSettingTile extends StatelessWidget {
         return Row(
           children: [
             FlowyText(
-              "$numVisible shown",
+              LocaleKeys.grid_settings_numberOfVisibleFields
+                  .tr(args: [numVisible.toString()]),
               color: Theme.of(context).hintColor,
             ),
             const HSpace(8),
@@ -364,33 +204,23 @@ class DatabaseViewSettingTile extends StatelessWidget {
   }
 
   void _onTap(BuildContext context) async {
-    final subPage = setting.subPage;
-
-    if (subPage != null) {
-      context.read<MobileEditDatabaseViewCubit>().changePage(subPage);
-      return;
-    }
-
     if (setting == DatabaseViewSettings.layout) {
       final databaseLayout = databaseLayoutFromViewLayout(view.layout);
       final newLayout = await showMobileBottomSheet<DatabaseLayoutPB>(
         context,
-        padding: EdgeInsets.zero,
-        resizeToAvoidBottomInset: false,
+        showDragHandle: true,
+        showHeader: true,
+        showDivider: false,
+        title: LocaleKeys.grid_settings_layout.tr(),
         builder: (context) {
-          return Padding(
-            padding: const EdgeInsets.only(top: 24, bottom: 46),
-            child: DatabaseViewLayoutPicker(
-              selectedLayout: databaseLayout,
-              onSelect: (layout) {
-                Navigator.of(context).pop(layout);
-              },
-            ),
+          return DatabaseViewLayoutPicker(
+            selectedLayout: databaseLayout,
+            onSelect: (layout) => Navigator.of(context).pop(layout),
           );
         },
       );
       if (newLayout != null && newLayout != databaseLayout) {
-        DatabaseViewBackendService.updateLayout(
+        await DatabaseViewBackendService.updateLayout(
           viewId: databaseController.viewId,
           layout: newLayout,
         );
@@ -398,11 +228,29 @@ class DatabaseViewSettingTile extends StatelessWidget {
       return;
     }
 
-    if (setting == DatabaseViewSettings.board) {
-      showMobileBottomSheet<DatabaseLayoutPB>(
+    if (setting == DatabaseViewSettings.fields) {
+      await showTransitionMobileBottomSheet(
         context,
-        padding: EdgeInsets.zero,
-        resizeToAvoidBottomInset: false,
+        showHeader: true,
+        showBackButton: true,
+        title: LocaleKeys.grid_settings_properties.tr(),
+        showDivider: true,
+        builder: (_) {
+          return BlocProvider.value(
+            value: context.read<ViewBloc>(),
+            child: MobileDatabaseFieldList(
+              databaseController: databaseController,
+              canCreate: true,
+            ),
+          );
+        },
+      );
+      return;
+    }
+
+    if (setting == DatabaseViewSettings.board) {
+      await showMobileBottomSheet<DatabaseLayoutPB>(
+        context,
         builder: (context) {
           return Padding(
             padding: const EdgeInsets.only(top: 24, bottom: 46),
@@ -416,16 +264,15 @@ class DatabaseViewSettingTile extends StatelessWidget {
     }
 
     if (setting == DatabaseViewSettings.calendar) {
-      showMobileBottomSheet<DatabaseLayoutPB>(
+      await showMobileBottomSheet<DatabaseLayoutPB>(
         context,
-        padding: EdgeInsets.zero,
-        resizeToAvoidBottomInset: false,
+        showDragHandle: true,
+        showHeader: true,
+        showDivider: false,
+        title: LocaleKeys.calendar_settings_name.tr(),
         builder: (context) {
-          return Padding(
-            padding: const EdgeInsets.only(top: 24, bottom: 46),
-            child: MobileCalendarViewLayoutSettings(
-              databaseController: databaseController,
-            ),
+          return MobileCalendarViewLayoutSettings(
+            databaseController: databaseController,
           );
         },
       );

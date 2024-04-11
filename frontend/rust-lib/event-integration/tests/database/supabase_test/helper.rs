@@ -4,13 +4,13 @@ use assert_json_diff::assert_json_eq;
 use collab::core::collab::MutexCollab;
 use collab::core::origin::CollabOrigin;
 use collab::preclude::updates::decoder::Decode;
-use collab::preclude::{merge_updates_v1, JsonValue, Update};
+use collab::preclude::{JsonValue, Update};
 use collab_entity::CollabType;
 
 use event_integration::event_builder::EventBuilder;
 use flowy_database2::entities::{DatabasePB, DatabaseViewIdPB, RepeatedDatabaseSnapshotPB};
 use flowy_database2::event_map::DatabaseEvent::*;
-use flowy_folder2::entities::ViewPB;
+use flowy_folder::entities::ViewPB;
 
 use crate::util::FlowySupabaseTest;
 
@@ -69,21 +69,11 @@ impl FlowySupabaseDatabaseTest {
   pub async fn get_database_collab_update(&self, database_id: &str) -> Vec<u8> {
     let workspace_id = self.user_manager.workspace_id().unwrap();
     let cloud_service = self.database_manager.get_cloud_service().clone();
-    let remote_updates = cloud_service
-      .get_collab_update(database_id, CollabType::Database, &workspace_id)
+    cloud_service
+      .get_database_object_doc_state(database_id, CollabType::Database, &workspace_id)
       .await
-      .unwrap();
-
-    if remote_updates.is_empty() {
-      return vec![];
-    }
-
-    let updates = remote_updates
-      .iter()
-      .map(|update| update.as_ref())
-      .collect::<Vec<&[u8]>>();
-
-    merge_updates_v1(&updates).unwrap()
+      .unwrap()
+      .unwrap()
   }
 }
 
@@ -92,7 +82,7 @@ pub fn assert_database_collab_content(
   collab_update: &[u8],
   expected: JsonValue,
 ) {
-  let collab = MutexCollab::new(CollabOrigin::Server, database_id, vec![]);
+  let collab = MutexCollab::new(CollabOrigin::Server, database_id, vec![], false);
   collab.lock().with_origin_transact_mut(|txn| {
     let update = Update::decode_v1(collab_update).unwrap();
     txn.apply_update(update);

@@ -19,6 +19,7 @@ import 'package:string_validator/string_validator.dart';
 ///
 final CommandShortcutEvent customPasteCommand = CommandShortcutEvent(
   key: 'paste the content',
+  getDescription: () => AppFlowyEditorL10n.current.cmdPasteContent,
   command: 'ctrl+v',
   macOSCommand: 'cmd+v',
   handler: _pasteCommandHandler,

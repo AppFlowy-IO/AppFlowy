@@ -17,6 +17,7 @@ export const PropertyTypeText = ({ type }: { type: FieldType }) => {
       [FieldType.Checklist]: t('grid.field.checklistFieldName'),
       [FieldType.LastEditedTime]: t('grid.field.updatedAtFieldName'),
       [FieldType.CreatedTime]: t('grid.field.createdAtFieldName'),
+      [FieldType.Relation]: t('grid.field.relationFieldName'),
     };
 
     return map[type] || 'unknown';

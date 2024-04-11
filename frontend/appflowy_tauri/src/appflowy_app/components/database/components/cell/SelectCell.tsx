@@ -1,23 +1,27 @@
 import { FC, useCallback, useMemo, useState, Suspense, lazy } from 'react';
-import { MenuProps, Menu } from '@mui/material';
-import { SelectField, SelectCell as SelectCellType, SelectTypeOption } from '../../application';
+import { MenuProps } from '@mui/material';
+import { SelectField, SelectCell as SelectCellType, SelectTypeOption } from '$app/application/database';
 import { Tag } from '../field_types/select/Tag';
 import { useTypeOption } from '$app/components/database';
+import usePopoverAutoPosition from '$app/components/_shared/popover/Popover.hooks';
+import { PopoverOrigin } from '@mui/material/Popover/Popover';
+import Popover from '@mui/material/Popover';
 
+const initialAnchorOrigin: PopoverOrigin = {
+  vertical: 'bottom',
+  horizontal: 'center',
+};
+
+const initialTransformOrigin: PopoverOrigin = {
+  vertical: 'top',
+  horizontal: 'center',
+};
 const SelectCellActions = lazy(
   () => import('$app/components/database/components/field_types/select/select_cell_actions/SelectCellActions')
 );
 const menuProps: Partial<MenuProps> = {
   classes: {
     list: 'py-5',
-  },
-  anchorOrigin: {
-    vertical: 'bottom',
-    horizontal: 'left',
-  },
-  transformOrigin: {
-    vertical: 'top',
-    horizontal: 'left',
   },
 };
 
@@ -43,6 +47,15 @@ export const SelectCell: FC<{
     [typeOption]
   );
 
+  const { paperHeight, paperWidth, transformOrigin, anchorOrigin, isEntered } = usePopoverAutoPosition({
+    initialPaperWidth: 369,
+    initialPaperHeight: 400,
+    anchorEl,
+    initialAnchorOrigin,
+    initialTransformOrigin,
+    open,
+  });
+
   return (
     <div className={'relative w-full'}>
       <div
@@ -59,16 +72,35 @@ export const SelectCell: FC<{
       </div>
       <Suspense>
         {open ? (
-          <Menu
+          <Popover
             keepMounted={false}
+            disableRestoreFocus={true}
             className='h-full w-full'
-            open={open}
+            open={open && isEntered}
             anchorEl={anchorEl}
             {...menuProps}
+            transformOrigin={transformOrigin}
+            anchorOrigin={anchorOrigin}
             onClose={handleClose}
+            PaperProps={{
+              className: 'flex h-full flex-col py-4 overflow-hidden',
+              style: {
+                maxHeight: paperHeight,
+                maxWidth: paperWidth,
+                height: 'auto',
+              },
+            }}
+            onMouseDown={(e) => {
+              const isInput = (e.target as Element).closest('input');
+
+              if (isInput) return;
+
+              e.preventDefault();
+              e.stopPropagation();
+            }}
           >
-            <SelectCellActions field={field} cell={cell} />
-          </Menu>
+            <SelectCellActions onClose={handleClose} field={field} cell={cell} />
+          </Popover>
         ) : null}
       </Suspense>
     </div>

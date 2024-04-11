@@ -1,17 +1,30 @@
+use std::collections::HashMap;
 use std::convert::TryFrom;
 
 use bytes::Bytes;
-
 use flowy_database2::entities::*;
 use flowy_database2::event_map::DatabaseEvent;
-use flowy_folder2::entities::*;
-use flowy_folder2::event_map::FolderEvent;
+use flowy_database2::services::share::csv::CSVFormat;
+use flowy_folder::entities::*;
+use flowy_folder::event_map::FolderEvent;
 use flowy_user::errors::FlowyError;
 
 use crate::event_builder::EventBuilder;
 use crate::EventIntegrationTest;
 
 impl EventIntegrationTest {
+  pub async fn get_database_export_data(&self, database_view_id: &str) -> String {
+    self
+      .appflowy_core
+      .database_manager
+      .get_database_with_view_id(database_view_id)
+      .await
+      .unwrap()
+      .export_csv(CSVFormat::Original)
+      .await
+      .unwrap()
+  }
+
   pub async fn create_grid(&self, parent_id: &str, name: String, initial_data: Vec<u8>) -> ViewPB {
     let payload = CreateViewPayloadPB {
       parent_view_id: parent_id.to_string(),
@@ -23,6 +36,7 @@ impl EventIntegrationTest {
       meta: Default::default(),
       set_as_current: true,
       index: None,
+      section: None,
     };
     EventBuilder::new(self.clone())
       .event(FolderEvent::CreateView)
@@ -53,6 +67,7 @@ impl EventIntegrationTest {
       meta: Default::default(),
       set_as_current: true,
       index: None,
+      section: None,
     };
     EventBuilder::new(self.clone())
       .event(FolderEvent::CreateView)
@@ -78,6 +93,7 @@ impl EventIntegrationTest {
       meta: Default::default(),
       set_as_current: true,
       index: None,
+      section: None,
     };
     EventBuilder::new(self.clone())
       .event(FolderEvent::CreateView)
@@ -188,7 +204,7 @@ impl EventIntegrationTest {
     &self,
     view_id: &str,
     row_position: OrderObjectPositionPB,
-    data: Option<RowDataPB>,
+    data: Option<HashMap<String, String>>,
   ) -> RowMetaPB {
     EventBuilder::new(self.clone())
       .event(DatabaseEvent::CreateRow)
@@ -196,7 +212,7 @@ impl EventIntegrationTest {
         view_id: view_id.to_string(),
         row_position,
         group_id: None,
-        data,
+        data: data.unwrap_or_default(),
       })
       .async_send()
       .await
@@ -286,7 +302,7 @@ impl EventIntegrationTest {
       .error()
   }
 
-  pub async fn update_date_cell(&self, changeset: DateChangesetPB) -> Option<FlowyError> {
+  pub async fn update_date_cell(&self, changeset: DateCellChangesetPB) -> Option<FlowyError> {
     EventBuilder::new(self.clone())
       .event(DatabaseEvent::UpdateDateCell)
       .payload(changeset)
@@ -321,6 +337,16 @@ impl EventIntegrationTest {
   ) -> ChecklistCellDataPB {
     let cell = self.get_cell(view_id, row_id, field_id).await;
     ChecklistCellDataPB::try_from(Bytes::from(cell.data)).unwrap()
+  }
+
+  pub async fn get_relation_cell(
+    &self,
+    view_id: &str,
+    field_id: &str,
+    row_id: &str,
+  ) -> RelationCellDataPB {
+    let cell = self.get_cell(view_id, row_id, field_id).await;
+    RelationCellDataPB::try_from(Bytes::from(cell.data)).unwrap_or_default()
   }
 
   pub async fn update_checklist_cell(
@@ -456,5 +482,34 @@ impl EventIntegrationTest {
       .await
       .parse::<RepeatedCalendarEventPB>()
       .items
+  }
+
+  pub async fn update_relation_cell(
+    &self,
+    changeset: RelationCellChangesetPB,
+  ) -> Option<FlowyError> {
+    EventBuilder::new(self.clone())
+      .event(DatabaseEvent::UpdateRelationCell)
+      .payload(changeset)
+      .async_send()
+      .await
+      .error()
+  }
+
+  pub async fn get_related_row_data(
+    &self,
+    database_id: String,
+    row_ids: Vec<String>,
+  ) -> Vec<RelatedRowDataPB> {
+    EventBuilder::new(self.clone())
+      .event(DatabaseEvent::GetRelatedRowDatas)
+      .payload(RepeatedRowIdPB {
+        database_id,
+        row_ids,
+      })
+      .async_send()
+      .await
+      .parse::<RepeatedRelatedRowDataPB>()
+      .rows
   }
 }

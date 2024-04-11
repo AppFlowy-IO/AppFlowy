@@ -1,25 +1,25 @@
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/user_service.dart';
-import 'package:appflowy_backend/protobuf/flowy-error/code.pbenum.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/auth.pb.dart';
-import 'package:dartz/dartz.dart';
-import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/uuid.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/code.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/auth.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
     show SignInPayloadPB, SignUpPayloadPB, UserProfilePB;
+import 'package:appflowy_result/appflowy_result.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/uuid.dart';
 
 import '../../../generated/locale_keys.g.dart';
 import 'device_id.dart';
 
 class BackendAuthService implements AuthService {
-  final AuthTypePB authType;
-
   BackendAuthService(this.authType);
 
+  final AuthenticatorPB authType;
+
   @override
-  Future<Either<FlowyError, UserProfilePB>> signInWithEmailPassword({
+  Future<FlowyResult<UserProfilePB, FlowyError>> signInWithEmailPassword({
     required String email,
     required String password,
     Map<String, String> params = const {},
@@ -30,11 +30,11 @@ class BackendAuthService implements AuthService {
       ..authType = authType
       ..deviceId = await getDeviceId();
     final response = UserEventSignInWithEmailPassword(request).send();
-    return response.then((value) => value.swap());
+    return response.then((value) => value);
   }
 
   @override
-  Future<Either<FlowyError, UserProfilePB>> signUp({
+  Future<FlowyResult<UserProfilePB, FlowyError>> signUp({
     required String name,
     required String email,
     required String password,
@@ -47,7 +47,7 @@ class BackendAuthService implements AuthService {
       ..authType = authType
       ..deviceId = await getDeviceId();
     final response = await UserEventSignUp(request).send().then(
-          (value) => value.swap(),
+          (value) => value,
         );
     return response;
   }
@@ -61,7 +61,7 @@ class BackendAuthService implements AuthService {
   }
 
   @override
-  Future<Either<FlowyError, UserProfilePB>> signUpAsGuest({
+  Future<FlowyResult<UserProfilePB, FlowyError>> signUpAsGuest({
     Map<String, String> params = const {},
   }) async {
     const password = "Guest!@123456";
@@ -73,21 +73,21 @@ class BackendAuthService implements AuthService {
       ..email = userEmail
       ..password = password
       // When sign up as guest, the auth type is always local.
-      ..authType = AuthTypePB.Local
+      ..authType = AuthenticatorPB.Local
       ..deviceId = await getDeviceId();
     final response = await UserEventSignUp(request).send().then(
-          (value) => value.swap(),
+          (value) => value,
         );
     return response;
   }
 
   @override
-  Future<Either<FlowyError, UserProfilePB>> signUpWithOAuth({
+  Future<FlowyResult<UserProfilePB, FlowyError>> signUpWithOAuth({
     required String platform,
-    AuthTypePB authType = AuthTypePB.Local,
+    AuthenticatorPB authType = AuthenticatorPB.Local,
     Map<String, String> params = const {},
   }) async {
-    return left(
+    return FlowyResult.failure(
       FlowyError.create()
         ..code = ErrorCode.Internal
         ..msg = "Unsupported sign up action",
@@ -95,16 +95,16 @@ class BackendAuthService implements AuthService {
   }
 
   @override
-  Future<Either<FlowyError, UserProfilePB>> getUser() async {
+  Future<FlowyResult<UserProfilePB, FlowyError>> getUser() async {
     return UserBackendService.getCurrentUserProfile();
   }
 
   @override
-  Future<Either<FlowyError, UserProfilePB>> signInWithMagicLink({
+  Future<FlowyResult<UserProfilePB, FlowyError>> signInWithMagicLink({
     required String email,
     Map<String, String> params = const {},
   }) async {
-    return left(
+    return FlowyResult.failure(
       FlowyError.create()
         ..code = ErrorCode.Internal
         ..msg = "Unsupported sign up action",

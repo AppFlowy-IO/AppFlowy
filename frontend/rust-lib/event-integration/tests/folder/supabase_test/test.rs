@@ -3,8 +3,8 @@ use std::time::Duration;
 use assert_json_diff::assert_json_eq;
 use serde_json::json;
 
-use flowy_folder2::entities::{FolderSnapshotStatePB, FolderSyncStatePB};
-use flowy_folder2::notification::FolderNotification::DidUpdateFolderSnapshotState;
+use flowy_folder::entities::{FolderSnapshotStatePB, FolderSyncStatePB};
+use flowy_folder::notification::FolderNotification::DidUpdateFolderSnapshotState;
 
 use crate::folder::supabase_test::helper::{assert_folder_collab_content, FlowySupabaseFolderTest};
 use crate::util::{get_folder_data_from_server, receive_with_timeout};

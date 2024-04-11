@@ -1,12 +1,25 @@
-import React, { Suspense, useRef, useState, useMemo } from 'react';
-import { DateTimeCell as DateTimeCellType, DateTimeField } from '$app/components/database/application';
+import React, { Suspense, useRef, useState, useMemo, useEffect } from 'react';
+import { DateTimeCell as DateTimeCellType, DateTimeField } from '$app/application/database';
 import DateTimeCellActions from '$app/components/database/components/field_types/date/DateTimeCellActions';
+import usePopoverAutoPosition from '$app/components/_shared/popover/Popover.hooks';
+import { PopoverOrigin } from '@mui/material/Popover/Popover';
 
 interface Props {
   field: DateTimeField;
   cell: DateTimeCellType;
   placeholder?: string;
 }
+
+const initialAnchorOrigin: PopoverOrigin = {
+  vertical: 'bottom',
+  horizontal: 'left',
+};
+
+const initialTransformOrigin: PopoverOrigin = {
+  vertical: 'top',
+  horizontal: 'left',
+};
+
 function DateTimeCell({ field, cell, placeholder }: Props) {
   const isRange = cell.data.isRange;
   const includeTime = cell.data.includeTime;
@@ -38,14 +51,71 @@ function DateTimeCell({ field, cell, placeholder }: Props) {
     return <div className={'text-sm text-text-placeholder'}>{placeholder}</div>;
   }, [cell, includeTime, isRange, placeholder]);
 
+  const { paperHeight, paperWidth, transformOrigin, anchorOrigin, isEntered, calculateAnchorSize } =
+    usePopoverAutoPosition({
+      initialPaperWidth: 248,
+      initialPaperHeight: 500,
+      anchorEl: ref.current,
+      initialAnchorOrigin,
+      initialTransformOrigin,
+      open,
+      marginThreshold: 34,
+    });
+
+  useEffect(() => {
+    if (!open) return;
+
+    const anchorEl = ref.current;
+
+    const parent = anchorEl?.parentElement?.parentElement;
+
+    if (!anchorEl || !parent) return;
+
+    let timeout: NodeJS.Timeout;
+    const handleObserve = () => {
+      anchorEl.scrollIntoView({ block: 'nearest' });
+
+      timeout = setTimeout(() => {
+        calculateAnchorSize();
+      }, 200);
+    };
+
+    const observer = new MutationObserver(handleObserve);
+
+    observer.observe(parent, {
+      childList: true,
+      subtree: true,
+    });
+    return () => {
+      observer.disconnect();
+      clearTimeout(timeout);
+    };
+  }, [calculateAnchorSize, open]);
+
   return (
     <>
-      <div ref={ref} className={'flex h-full w-full items-center px-2 text-xs font-medium'} onClick={handleClick}>
+      <div
+        ref={ref}
+        className={`flex h-full min-h-[36px] w-full cursor-pointer items-center overflow-x-hidden truncate px-2 text-xs font-medium ${
+          open ? 'bg-fill-list-active' : ''
+        }`}
+        onClick={handleClick}
+      >
         {content}
       </div>
       <Suspense>
         {open && (
-          <DateTimeCellActions field={field} onClose={handleClose} anchorEl={ref.current} cell={cell} open={open} />
+          <DateTimeCellActions
+            field={field}
+            maxWidth={paperWidth}
+            maxHeight={paperHeight}
+            anchorOrigin={anchorOrigin}
+            transformOrigin={transformOrigin}
+            onClose={handleClose}
+            anchorEl={ref.current}
+            cell={cell}
+            open={open && isEntered}
+          />
         )}
       </Suspense>
     </>

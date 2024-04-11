@@ -4,7 +4,7 @@ import 'package:appflowy/core/frameless_window.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
-import 'package:appflowy/workspace/application/menu/menu_bloc.dart';
+import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
@@ -24,7 +24,7 @@ class SidebarTopMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<MenuBloc, MenuState>(
+    return BlocBuilder<SidebarSectionsBloc, SidebarSectionsState>(
       builder: (context, state) {
         return SizedBox(
           height: HomeSizes.topBarHeight,
@@ -65,8 +65,7 @@ class SidebarTopMenu extends StatelessWidget {
           text: '${LocaleKeys.sideBar_closeSidebar.tr()}\n',
         ),
         TextSpan(
-          // TODO(Lucas.Xu): it doesn't work on macOS.
-          text: Platform.isMacOS ? '⌘+\\' : 'Ctrl+\\',
+          text: Platform.isMacOS ? '⌘+.' : 'Ctrl+\\',
         ),
       ],
     );

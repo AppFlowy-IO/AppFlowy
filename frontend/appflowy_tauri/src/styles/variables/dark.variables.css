@@ -1,6 +1,6 @@
 /**
 * Do not edit directly
-* Generated on Wed, 12 Jul 2023 07:09:42 GMT
+* Generated on Tue, 19 Mar 2024 03:48:58 GMT
 * Generated from $pnpm css:variables 
 */
 
@@ -36,7 +36,7 @@
   --base-light-color-light-green: #ddffd6;
   --base-light-color-light-aqua: #defff1;
   --base-light-color-light-blue: #e1fbff;
-  --base-light-color-light-red: #ffe7ee;
+  --base-light-color-light-red: #ffdddd;
   --base-black-neutral-100: #252F41;
   --base-black-neutral-200: #313c51;
   --base-black-neutral-300: #3c4557;
@@ -68,6 +68,7 @@
   --base-black-color-light-red: #56363F;
   --base-black-color-light-aqua: #1B3849;
   --base-black-color-light-lime: #394027;
+  --base-black-color-light-orange: #5E3C3C;
   --base-else-brand: #2c144b;
   --text-title: #e2e9f2;
   --text-caption: #87A0BF;
@@ -79,15 +80,15 @@
   --icon-primary: #e2e9f2;
   --icon-secondary: #59647a;
   --icon-disabled: #525A69;
-  --icon-on-toolbar: #1a202c;
+  --icon-on-toolbar: white;
   --line-border: #59647a;
   --line-divider: #252F41;
   --line-on-toolbar: #99a6b8;
   --fill-default: #00bcf0;
   --fill-hover: #005174;
-  --fill-toolbar: #e2e9f2;
+  --fill-toolbar: #0F111C;
   --fill-selector: #232b38;
-  --fill-list-active: #252F41;
+  --fill-list-active: #3c4557;
   --fill-list-hover: #005174;
   --content-blue-400: #00bcf0;
   --content-blue-300: #52d1f4;
@@ -113,5 +114,8 @@
   --tint-pink: #5E3C5E;
   --tint-lime: #394027;
   --tint-aqua: #1B3849;
+  --tint-orange: #5E3C3C;
   --shadow: 0px 0px 25px 0px rgba(0,0,0,0.3);
+  --scrollbar-track: #252F41;
+  --scrollbar-thumb: #3c4557;
 }

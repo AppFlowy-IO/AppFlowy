@@ -50,6 +50,6 @@ class Svg extends StatelessWidget {
         height: height ?? _defaultHeight,
       );
     }
-    return Container();
+    return const SizedBox.shrink();
   }
 }
