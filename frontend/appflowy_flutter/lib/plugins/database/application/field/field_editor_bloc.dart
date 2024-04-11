@@ -29,6 +29,7 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
         super(FieldEditorState(field: FieldInfo.initial(field))) {
     _dispatch();
     _startListening();
+    _init();
   }
 
   final String viewId;
@@ -113,6 +114,16 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
       fieldId,
       onFieldChanged: _listener,
     );
+  }
+
+  void _init() async {
+    await Future.delayed(const Duration(milliseconds: 50));
+    if (!isClosed) {
+      final field = fieldController.getField(fieldId);
+      if (field != null) {
+        add(FieldEditorEvent.didUpdateField(field));
+      }
+    }
   }
 
   void _logIfError(FlowyResult<void, FlowyError> result) {
