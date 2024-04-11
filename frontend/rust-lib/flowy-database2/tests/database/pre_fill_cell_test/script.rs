@@ -1,8 +1,8 @@
 use std::ops::{Deref, DerefMut};
 use std::time::Duration;
 
-use flowy_database2::entities::{CreateRowPayloadPB, FieldType, FilterDataPB, InsertFilterPB};
-use flowy_database2::services::cell::stringify_cell_data;
+use flowy_database2::entities::{CreateRowPayloadPB, FilterDataPB, InsertFilterPB};
+use flowy_database2::services::cell::stringify_cell;
 use flowy_database2::services::field::{SelectOptionIds, SELECTION_IDS_SEPARATOR};
 
 use crate::database::database_editor::DatabaseEditorTest;
@@ -24,7 +24,6 @@ pub enum PreFillRowCellTestScript {
   AssertCellContent {
     field_id: String,
     row_index: usize,
-    from_field_type: FieldType,
     expected_content: String,
   },
   AssertSelectOptionCellStrict {
@@ -105,11 +104,9 @@ impl DatabasePreFillRowCellTest {
       PreFillRowCellTestScript::AssertCellContent {
         field_id,
         row_index,
-        from_field_type,
         expected_content,
       } => {
         let field = self.editor.get_field(&field_id).unwrap();
-        let field_type = FieldType::from(field.field_type);
 
         let rows = self.editor.get_rows(&self.view_id).await.unwrap();
         let row_detail = rows.get(row_index).unwrap();
@@ -120,7 +117,7 @@ impl DatabasePreFillRowCellTest {
           .get(&field_id)
           .cloned()
           .unwrap_or_default();
-        let content = stringify_cell_data(&cell, &from_field_type, &field_type, &field);
+        let content = stringify_cell(&cell, &field);
         assert_eq!(content, expected_content);
       },
       PreFillRowCellTestScript::AssertSelectOptionCellStrict {

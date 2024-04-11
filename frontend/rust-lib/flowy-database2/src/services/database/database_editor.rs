@@ -10,7 +10,7 @@ use crate::services::database_view::{
 use crate::services::field::{
   default_type_option_data_from_type, select_type_option_from_field, transform_type_option,
   type_option_data_from_pb, ChecklistCellChangeset, RelationTypeOption, SelectOptionCellChangeset,
-  SelectOptionIds, StrCellData, TimestampCellData, TypeOptionCellDataHandler, TypeOptionCellExt,
+  StrCellData, TimestampCellData, TypeOptionCellDataHandler, TypeOptionCellExt,
 };
 use crate::services::field_settings::{
   default_field_settings_by_layout_map, FieldSettings, FieldSettingsChangesetParams,
@@ -406,16 +406,16 @@ impl DatabaseEditor {
         }
 
         let old_field_type = FieldType::from(field.field_type);
-        let old_type_option = field.get_any_type_option(old_field_type);
-        let new_type_option = field
+        let old_type_option_data = field.get_any_type_option(old_field_type);
+        let new_type_option_data = field
           .get_any_type_option(new_field_type)
           .unwrap_or_else(|| default_type_option_data_from_type(new_field_type));
 
         let transformed_type_option = transform_type_option(
-          &new_type_option,
-          new_field_type,
-          old_type_option,
           old_field_type,
+          new_field_type,
+          old_type_option_data,
+          new_type_option_data,
         );
         self
           .database
@@ -1015,24 +1015,6 @@ impl DatabaseEditor {
     Ok(())
   }
 
-  pub async fn get_select_options(&self, row_id: RowId, field_id: &str) -> SelectOptionCellDataPB {
-    let field = self.database.lock().fields.get_field(field_id);
-    match field {
-      None => SelectOptionCellDataPB::default(),
-      Some(field) => {
-        let cell = self.database.lock().get_cell(field_id, &row_id).cell;
-        let ids = match cell {
-          None => SelectOptionIds::new(),
-          Some(cell) => SelectOptionIds::from(&cell),
-        };
-        match select_type_option_from_field(&field) {
-          Ok(type_option) => type_option.get_selected_options(ids).into(),
-          Err(_) => SelectOptionCellDataPB::default(),
-        }
-      },
-    }
-  }
-
   pub async fn set_checklist_options(
     &self,
     view_id: &str,
@@ -1349,7 +1331,7 @@ impl DatabaseEditor {
   ) -> FlowyResult<Vec<RelatedRowDataPB>> {
     let primary_field = self.database.lock().fields.get_primary_field().unwrap();
     let handler = TypeOptionCellExt::new(&primary_field, Some(self.cell_cache.clone()))
-      .get_type_option_cell_data_handler(&FieldType::RichText)
+      .get_type_option_cell_data_handler_with_field_type(FieldType::RichText)
       .ok_or(FlowyError::internal())?;
 
     let row_data = {
@@ -1364,11 +1346,7 @@ impl DatabaseEditor {
           let title = database
             .get_cell(&primary_field.id, &row.id)
             .cell
-            .and_then(|cell| {
-              handler
-                .get_cell_data(&cell, &FieldType::RichText, &primary_field)
-                .ok()
-            })
+            .and_then(|cell| handler.handle_get_boxed_cell_data(&cell, &primary_field))
             .and_then(|cell_data| cell_data.unbox_or_none())
             .unwrap_or_else(|| StrCellData("".to_string()));
 
@@ -1715,10 +1693,8 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
   fn get_type_option_cell_handler(
     &self,
     field: &Field,
-    field_type: &FieldType,
   ) -> Option<Box<dyn TypeOptionCellDataHandler>> {
-    TypeOptionCellExt::new(field, Some(self.cell_cache.clone()))
-      .get_type_option_cell_data_handler(field_type)
+    TypeOptionCellExt::new(field, Some(self.cell_cache.clone())).get_type_option_cell_data_handler()
   }
 
   fn get_field_settings(

@@ -118,7 +118,6 @@ pub trait DatabaseViewOperation: Send + Sync + 'static {
   fn get_type_option_cell_handler(
     &self,
     field: &Field,
-    field_type: &FieldType,
   ) -> Option<Box<dyn TypeOptionCellDataHandler>>;
 
   fn get_field_settings(
