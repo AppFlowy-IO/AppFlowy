@@ -528,9 +528,8 @@ fn apply_filter(
         return Some(false);
       }
       let cell = row.cells.get(field_id).cloned();
-      let field_type = FieldType::from(field.field_type);
       if let Some(handler) = TypeOptionCellExt::new(field, Some(cell_data_cache.clone()))
-        .get_type_option_cell_data_handler(&field_type)
+        .get_type_option_cell_data_handler()
       {
         Some(handler.handle_cell_filter(field, &cell.unwrap_or_default(), condition_and_content))
       } else {

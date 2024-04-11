@@ -23,7 +23,7 @@ impl SelectOptionTypeOptionTransformHelper {
   {
     match old_field_type {
       FieldType::Checkbox => {
-        //add Yes and No options if it does not exist.
+        // add Yes and No options if it does not exist.
         if !shared.options().iter().any(|option| option.name == CHECK) {
           let check_option = SelectOption::with_color(CHECK, SelectOptionColor::Green);
           shared.mut_options().push(check_option);

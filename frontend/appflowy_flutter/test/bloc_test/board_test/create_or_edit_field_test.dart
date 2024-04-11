@@ -38,7 +38,7 @@ void main() {
       viewId: context.gridView.id,
       field: fieldInfo.field,
       fieldController: context.fieldController,
-    )..add(const FieldEditorEvent.initial());
+    );
     await boardResponseFuture();
 
     editorBloc.add(const FieldEditorEvent.renameField('Hello world'));

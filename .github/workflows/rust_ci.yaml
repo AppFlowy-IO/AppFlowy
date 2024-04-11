@@ -78,6 +78,9 @@ jobs:
           cp deploy.env .env
           sed -i 's|RUST_LOG=.*|RUST_LOG=trace|' .env
           sed -i 's|API_EXTERNAL_URL=.*|API_EXTERNAL_URL=http://localhost|' .env
+          sed -i 's|GOTRUE_SMTP_ADMIN_EMAIL=.*|GOTRUE_SMTP_ADMIN_EMAIL=${{ secrets.CI_TEST_GOTRUE_SMTP_ADMIN_EMAIL }}|' .env
+          sed -i 's|GOTRUE_SMTP_USER=.*|GOTRUE_SMTP_USER=${{ secrets.CI_TEST_GOTRUE_SMTP_USER }}|' .env
+          sed -i 's|GOTRUE_SMTP_PASS=.*|GOTRUE_SMTP_PASS=${{ secrets.CI_TEST_GOTRUE_SMTP_PASS }}|' .env
 
       - name: Run Docker-Compose
         working-directory: AppFlowy-Cloud

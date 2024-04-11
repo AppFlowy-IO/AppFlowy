@@ -961,9 +961,9 @@
     "notesTooltip": "内含笔记",
     "mobile": {
       "editURL": "编辑 URL",
-      "unhideGroup": "显示隐藏的组",
-      "unhideGroupContent": "您确定要在看板上显示该组吗？",
-      "faildToLoad": "无法加载看板视图"
+      "showGroup": "显示隐藏的组",
+      "showGroupContent": "您确定要在看板上显示该组吗？",
+      "failedToLoad": "无法加载看板视图"
     }
   },
   "calendar": {

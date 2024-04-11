@@ -2,7 +2,7 @@ use std::cmp::Ordering;
 use std::fmt::Debug;
 
 use bytes::Bytes;
-use collab_database::fields::{Field, TypeOptionData};
+use collab_database::fields::TypeOptionData;
 use collab_database::rows::Cell;
 use protobuf::ProtobufError;
 
@@ -90,11 +90,6 @@ pub trait TypeOptionCellData {
 }
 
 pub trait TypeOptionTransform: TypeOption {
-  /// Returns true if the current `TypeOption` provides custom type option transformation
-  fn transformable(&self) -> bool {
-    false
-  }
-
   /// Transform the TypeOption from one field type to another
   /// For example, when switching from `Checkbox` type option to `Single-Select`
   /// type option, adding the `Yes` option if the `Single-select` type-option doesn't contain it.
@@ -111,23 +106,6 @@ pub trait TypeOptionTransform: TypeOption {
     _old_type_option_field_type: FieldType,
     _old_type_option_data: TypeOptionData,
   ) {
-  }
-
-  /// Transform the cell data from one field type to another
-  ///
-  /// # Arguments
-  ///
-  /// * `cell`: the cell in the current field type
-  /// * `transformed_field_type`: the cell will be transformed to the is field type's cell data.
-  /// current `TypeOption` field type.
-  ///
-  fn transform_type_option_cell(
-    &self,
-    _cell: &Cell,
-    _transformed_field_type: &FieldType,
-    _field: &Field,
-  ) -> Option<<Self as TypeOption>::CellData> {
-    None
   }
 }
 

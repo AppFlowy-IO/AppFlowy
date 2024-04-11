@@ -919,9 +919,9 @@
     "notesTooltip": "內部備註",
     "mobile": {
       "editURL": "編輯網址",
-      "unhideGroup": "取消隱藏群組",
-      "unhideGroupContent": "您確定要在看板上顯示此群組嗎？",
-      "faildToLoad": "無法載入看板"
+      "showGroup": "取消隱藏群組",
+      "showGroupContent": "您確定要在看板上顯示此群組嗎？",
+      "failedToLoad": "無法載入看板"
     }
   },
   "calendar": {

@@ -592,7 +592,12 @@
       "createNewCard": "ایجاد"
     },
     "menuName": "بورد",
-    "referencedBoardPrefix": "نمای"
+    "referencedBoardPrefix": "نمای",
+    "mobile": {
+      "showGroup": "نمایش گروه",
+      "showGroupContent": "آیا مطمئن هستید که می خواهید این گروه را روی تابلو نشان دهید؟",
+      "failedToLoad": "نمای تخته بارگیری نشد"
+    }
   },
   "calendar": {
     "menuName": "تقویم",

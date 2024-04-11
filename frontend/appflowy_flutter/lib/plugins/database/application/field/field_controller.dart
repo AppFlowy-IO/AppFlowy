@@ -69,6 +69,7 @@ class _GridSortNotifier extends ChangeNotifier {
 }
 
 typedef OnReceiveUpdateFields = void Function(List<FieldInfo>);
+typedef OnReceiveField = void Function(FieldInfo);
 typedef OnReceiveFields = void Function(List<FieldInfo>);
 typedef OnReceiveFilters = void Function(List<FilterInfo>);
 typedef OnReceiveSorts = void Function(List<SortInfo>);
@@ -686,6 +687,31 @@ class FieldController {
     }
   }
 
+  void addSingleFieldListener(
+    String fieldId, {
+    required OnReceiveField onFieldChanged,
+    bool Function()? listenWhen,
+  }) {
+    void key(List<FieldInfo> fieldInfos) {
+      final fieldInfo = fieldInfos.firstWhereOrNull(
+        (fieldInfo) => fieldInfo.id == fieldId,
+      );
+      if (fieldInfo != null) {
+        onFieldChanged(fieldInfo);
+      }
+    }
+
+    void callback() {
+      if (listenWhen != null && listenWhen() == false) {
+        return;
+      }
+      key(fieldInfos);
+    }
+
+    _fieldCallbacks[key] = callback;
+    _fieldNotifier.addListener(callback);
+  }
+
   void removeListener({
     OnReceiveFields? onFieldsListener,
     OnReceiveSorts? onSortsListener,
@@ -710,6 +736,25 @@ class FieldController {
       if (callback != null) {
         _sortNotifier?.removeListener(callback);
       }
+    }
+  }
+
+  void removeSingleFieldListener({
+    required String fieldId,
+    required OnReceiveField onFieldChanged,
+  }) {
+    void key(List<FieldInfo> fieldInfos) {
+      final fieldInfo = fieldInfos.firstWhereOrNull(
+        (fieldInfo) => fieldInfo.id == fieldId,
+      );
+      if (fieldInfo != null) {
+        onFieldChanged(fieldInfo);
+      }
+    }
+
+    final callback = _fieldCallbacks.remove(key);
+    if (callback != null) {
+      _fieldNotifier.removeListener(callback);
     }
   }
 

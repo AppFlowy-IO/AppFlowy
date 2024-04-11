@@ -914,9 +914,9 @@
     "notesTooltip": "Notas dentro",
     "mobile": {
       "editURL": "Editar URL",
-      "unhideGroup": "Mostrar grupo",
-      "unhideGroupContent": "Tem certeza de que deseja mostrar este grupo no quadro?",
-      "faildToLoad": "Falha ao carregar a visualização do quadro"
+      "showGroup": "Mostrar grupo",
+      "showGroupContent": "Tem certeza de que deseja mostrar este grupo no quadro?",
+      "failedToLoad": "Falha ao carregar a visualização do quadro"
     }
   },
   "calendar": {
