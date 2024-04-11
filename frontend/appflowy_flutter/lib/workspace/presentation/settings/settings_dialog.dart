@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/settings/settings_dialog_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/settings_account_view.dart';
+import 'package:appflowy/workspace/presentation/settings/pages/settings_manage_data_view.dart';
+import 'package:appflowy/workspace/presentation/settings/pages/settings_members_view.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/settings_workspace_view.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/feature_flags/feature_flag_page.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_menu.dart';
@@ -72,6 +74,10 @@ class SettingsDialog extends StatelessWidget {
         );
       case SettingsPage.workspace:
         return SettingsWorkspaceView(userProfile: user);
+      case SettingsPage.member:
+        return SettingsMembersView(userProfile: user);
+      case SettingsPage.manageData:
+        return SettingsManageDataView(userProfile: user);
       // case SettingsPage.language:
       //   return const SettingsLanguageView();
       // case SettingsPage.files:
@@ -91,8 +97,6 @@ class SettingsDialog extends StatelessWidget {
       //   );
       // case SettingsPage.shortcuts:
       //   return const SettingsCustomizeShortcutsWrapper();
-      // case SettingsPage.member:
-      //   return WorkspaceMembersPage(userProfile: user);
       case SettingsPage.featureFlags:
         return const FeatureFlagsPage();
       default:

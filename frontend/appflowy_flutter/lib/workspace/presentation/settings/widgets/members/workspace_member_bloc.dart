@@ -194,13 +194,7 @@ class WorkspaceMemberEvent with _$WorkspaceMemberEvent {
   ) = UpdateWorkspaceMember;
 }
 
-enum WorkspaceMemberActionType {
-  none,
-  get,
-  add,
-  remove,
-  updateRole,
-}
+enum WorkspaceMemberActionType { none, get, add, remove, updateRole }
 
 class WorkspaceMemberActionResult {
   const WorkspaceMemberActionResult({

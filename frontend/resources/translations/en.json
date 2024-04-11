@@ -390,6 +390,39 @@
         "deleteWorkspace": "Delete workspace"
       }
     },
+    "members": {
+      "title": "Members Settings",
+      "inviteMembers": "Invite members",
+      "sendInvite": "Send invite",
+      "copyInviteLink": "Copy Invite Link",
+      "label": "Members",
+      "user": "User",
+      "role": "Role",
+      "removeFromWorkspace": "Remove from Workspace",
+      "owner": "Owner",
+      "guest": "Guest",
+      "member": "Member",
+      "memberHintText": "A member can read, comment, and edit pages. Invite members and guests.",
+      "guestHintText": "A Guest can read, react, comment, and can edit certain pages with permission.",
+      "emailInvalidError": "Invalid email, please check and try again",
+      "emailSent": "Email sent, please check the inbox",
+      "members": "members",
+      "membersCount": {
+        "zero": "{} members",
+        "one": "{} member",
+        "other": "{} members"
+      },
+      "memberLimitExceeded": "You've reached the maximum member limit allowed for your account. If you want to add more additional members to continue your work, please request on Github",
+      "failedToAddMember": "Failed to add member",
+      "addMemberSuccess": "Member added successfully",
+      "removeMember": "Remove Member",
+      "areYouSureToRemoveMember": "Are you sure you want to remove this member?"
+    },
+    "manageData": {
+      "menuLabel": "Manage data",
+      "title": "Manage data",
+      "description": "Manage data local storage or Import your existing data into Appflowy. You can secure your data with end to end encryption."
+    },
     "common": {
       "reset": "Reset"
     },

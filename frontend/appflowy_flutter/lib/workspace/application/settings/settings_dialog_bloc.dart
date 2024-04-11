@@ -11,6 +11,8 @@ part 'settings_dialog_bloc.freezed.dart';
 enum SettingsPage {
   account,
   workspace,
+  member,
+  manageData,
   // OLD
   appearance,
   language,
@@ -19,7 +21,6 @@ enum SettingsPage {
   notifications,
   cloud,
   shortcuts,
-  member,
   featureFlags,
 }
 

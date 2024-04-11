@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/workspace/application/settings/settings_dialog_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_menu_element.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
@@ -59,6 +60,21 @@ class SettingsMenu extends StatelessWidget {
                     icon: FlowySvgs.settings_workplace_m,
                     changeSelectedPage: changeSelectedPage,
                   ),
+                  if (FeatureFlag.membersSettings.isOn)
+                    SettingsMenuElement(
+                      page: SettingsPage.member,
+                      selectedPage: currentPage,
+                      label: LocaleKeys.settings_appearance_members_label.tr(),
+                      icon: FlowySvgs.settings_members_m,
+                      changeSelectedPage: changeSelectedPage,
+                    ),
+                  SettingsMenuElement(
+                    page: SettingsPage.manageData,
+                    selectedPage: currentPage,
+                    label: LocaleKeys.settings_manageData_menuLabel.tr(),
+                    icon: FlowySvgs.settings_data_m,
+                    changeSelectedPage: changeSelectedPage,
+                  ),
                   // SettingsMenuElement(
                   //   page: SettingsPage.appearance,
                   //   selectedPage: currentPage,
@@ -108,14 +124,6 @@ class SettingsMenu extends StatelessWidget {
                   //   icon: Icons.cut,
                   //   changeSelectedPage: changeSelectedPage,
                   // ),
-                  // if (FeatureFlag.membersSettings.isOn)
-                  //   SettingsMenuElement(
-                  //     page: SettingsPage.member,
-                  //     selectedPage: currentPage,
-                  //     label: LocaleKeys.settings_appearance_members_label.tr(),
-                  //     icon: Icons.people,
-                  //     changeSelectedPage: changeSelectedPage,
-                  //   ),
                   if (kDebugMode)
                     SettingsMenuElement(
                       // no need to translate this page
