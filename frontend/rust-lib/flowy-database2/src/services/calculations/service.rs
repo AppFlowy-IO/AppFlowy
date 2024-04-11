@@ -69,7 +69,7 @@ impl CalculationsService {
     }
   }
 
-  fn median(array: &Vec<f64>) -> f64 {
+  fn median(array: &[f64]) -> f64 {
     if (array.len() % 2) == 0 {
       let left = array.len() / 2 - 1;
       let right = array.len() / 2;

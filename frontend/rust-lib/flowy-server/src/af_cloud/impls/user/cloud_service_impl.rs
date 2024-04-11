@@ -4,18 +4,22 @@ use std::sync::Arc;
 use anyhow::anyhow;
 use client_api::entity::workspace_dto::{
   CreateWorkspaceMember, CreateWorkspaceParam, PatchWorkspaceParam, WorkspaceMemberChangeset,
+  WorkspaceMemberInvitation,
 };
 use client_api::entity::{
-  AFRole, AFWorkspace, AuthProvider, CollabParams, CreateCollabParams, QueryCollab,
-  QueryCollabParams,
+  AFRole, AFWorkspace, AFWorkspaceInvitation, AuthProvider, CollabParams, CreateCollabParams,
 };
+use client_api::entity::{QueryCollab, QueryCollabParams};
 use client_api::{Client, ClientConfiguration};
 use collab_entity::{CollabObject, CollabType};
 use parking_lot::RwLock;
 
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_user_pub::cloud::{UserCloudService, UserCollabParams, UserUpdate, UserUpdateReceiver};
-use flowy_user_pub::entities::*;
+use flowy_user_pub::entities::{
+  AFCloudOAuthParams, AuthResponse, Role, UpdateUserProfileParams, UserCredentials, UserProfile,
+  UserWorkspace, WorkspaceInvitation, WorkspaceInvitationStatus, WorkspaceMember,
+};
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 use uuid::Uuid;
@@ -26,6 +30,8 @@ use crate::af_cloud::impls::user::dto::{
 };
 use crate::af_cloud::impls::user::util::encryption_type_from_profile;
 use crate::af_cloud::{AFCloudClient, AFServer};
+
+use super::dto::{from_af_workspace_invitation_status, to_workspace_invitation_status};
 
 pub(crate) struct AFCloudUserAuthServiceImpl<T> {
   server: T,
@@ -192,6 +198,55 @@ where
             role: AFRole::Member,
           }],
         )
+        .await?;
+      Ok(())
+    })
+  }
+
+  fn invite_workspace_member(
+    &self,
+    invitee_email: String,
+    workspace_id: String,
+    role: Role,
+  ) -> FutureResult<(), FlowyError> {
+    let try_get_client = self.server.try_get_client();
+    FutureResult::new(async move {
+      try_get_client?
+        .invite_workspace_members(
+          &workspace_id,
+          vec![WorkspaceMemberInvitation {
+            email: invitee_email,
+            role: to_af_role(role),
+          }],
+        )
+        .await?;
+      Ok(())
+    })
+  }
+
+  fn list_workspace_invitations(
+    &self,
+    filter: Option<WorkspaceInvitationStatus>,
+  ) -> FutureResult<Vec<WorkspaceInvitation>, FlowyError> {
+    let try_get_client = self.server.try_get_client();
+    let filter = filter.map(to_workspace_invitation_status);
+
+    FutureResult::new(async move {
+      let r = try_get_client?
+        .list_workspace_invitations(filter)
+        .await?
+        .into_iter()
+        .map(to_workspace_invitation)
+        .collect();
+      Ok(r)
+    })
+  }
+
+  fn accept_workspace_invitations(&self, invite_id: String) -> FutureResult<(), FlowyError> {
+    let try_get_client = self.server.try_get_client();
+    FutureResult::new(async move {
+      try_get_client?
+        .accept_workspace_invitation(&invite_id)
         .await?;
       Ok(())
     })
@@ -449,6 +504,18 @@ fn to_user_workspaces(workspaces: Vec<AFWorkspace>) -> Result<Vec<UserWorkspace>
     result.push(to_user_workspace(item));
   }
   Ok(result)
+}
+
+fn to_workspace_invitation(invi: AFWorkspaceInvitation) -> WorkspaceInvitation {
+  WorkspaceInvitation {
+    invite_id: invi.invite_id,
+    workspace_id: invi.workspace_id,
+    workspace_name: invi.workspace_name,
+    inviter_email: invi.inviter_email,
+    inviter_name: invi.inviter_name,
+    status: from_af_workspace_invitation_status(invi.status),
+    updated_at: invi.updated_at,
+  }
 }
 
 fn oauth_params_from_box_any(any: BoxAny) -> Result<AFCloudOAuthParams, FlowyError> {
