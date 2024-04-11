@@ -104,10 +104,7 @@ class BackendAuthService implements AuthService {
     required String email,
     Map<String, String> params = const {},
   }) async {
-    return FlowyResult.failure(
-      FlowyError.create()
-        ..code = ErrorCode.Internal
-        ..msg = "Unsupported sign up action",
-    );
+    // No need to pass the redirect URL.
+    return UserBackendService.signInWithMagicLink(email, '');
   }
 }

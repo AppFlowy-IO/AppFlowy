@@ -5,16 +5,16 @@
   "welcomeTo": "欢迎来到",
   "githubStarText": "在 GitHub 上 Star",
   "subscribeNewsletterText": "消息订阅",
-  "letsGoButtonText": "快速开始",
+  "letsGoButtonText": "开始",
   "title": "标题",
   "youCanAlso": "您还可以",
-  "and": "和",
+  "and": "以及",
   "blockActions": {
     "addBelowTooltip": "点击下方添加",
     "addAboveCmd": "Alt+单击",
-    "addAboveMacCmd": "Option+单击",
+    "addAboveMacCmd": "+单击",
     "addAboveTooltip": "添加上面",
-    "dragTooltip": "拖拽",
+    "dragTooltip": "拖拽以移动",
     "openMenuTooltip": "点击打开菜单"
   },
   "signUp": {
@@ -33,17 +33,17 @@
   "signIn": {
     "loginTitle": "登录 @:appName",
     "loginButtonText": "登录",
-    "loginStartWithAnonymous": "用离线模式开始",
-    "continueAnonymousUser": "继续离线模式",
+    "loginStartWithAnonymous": "从匿名会话开始",
+    "continueAnonymousUser": "继续匿名会话",
     "buttonText": "登录",
     "signingInText": "登录中...",
     "forgotPassword": "忘记密码?",
     "emailHint": "邮箱",
     "passwordHint": "密码",
-    "dontHaveAnAccount": "没有已注册的账户?",
+    "dontHaveAnAccount": "没有账户?",
     "repeatPasswordEmptyError": "确认密码不能为空",
     "unmatchedPasswordError": "两次密码输入不一致",
-    "syncPromptMessage": "同步数据可能需要一段时间。请不要关闭此页面",
+    "syncPromptMessage": "同步数据可能需要一段时间，请不要关闭此页面",
     "or": "或",
     "LogInWithGoogle": "使用 Google 登录",
     "LogInWithGithub": "使用 Github 登录",
@@ -55,21 +55,23 @@
     "chooseWorkspace": "选择您的工作区",
     "create": "新建工作区",
     "reset": "重置工作区",
-    "resetWorkspacePrompt": "重置工作区将删除其中的所有页面和数据。您确定要重置工作区吗？或者，您可以联系支持团队来恢复工作区",
+    "resetWorkspacePrompt": "重置工作区将删除其中的所有页面和数据。您确定要重置工作区吗？您也可以联系技术支持团队来恢复工作区",
     "hint": "工作区",
     "notFoundError": "找不到工作区",
-    "failedToLoad": "出了些问题！无法加载工作区。请尝试重启 AppFlowy。",
+    "failedToLoad": "出了些问题！我们无法加载工作区。请尝试关闭所有打开的 AppFlowy 实例，然后重试。",
     "errorActions": {
       "reportIssue": "上报问题",
-      "reportIssueOnGithub": "在 Github 上提出 issue",
+      "reportIssueOnGithub": "在 Github 上报告问题",
       "exportLogFiles": "导出日志文件",
-      "reachOut": "Discord 联系我们"
+      "reachOut": "在 Discord 联系我们"
     }
   },
   "shareAction": {
     "buttonText": "分享",
     "workInProgress": "敬请期待",
     "markdown": "Markdown",
+    "html": "HTML",
+    "clipboard": "拷贝到剪贴板",
     "csv": "CSV",
     "copyLink": "复制链接"
   },
@@ -77,17 +79,12 @@
     "small": "小",
     "medium": "中",
     "large": "大",
-    "fontSize": "字体大小",
+    "fontSize": "字号",
     "import": "导入",
-    "moreOptions": "更多选项",
-    "wordCount": "字数： {}",
-    "charCount": "字符数：{}",
-    "createdAt": "创建于：{}",
-    "deleteView": "删除",
-    "duplicateView": "复制"
+    "moreOptions": "更多选项"
   },
   "importPanel": {
-    "textAndMarkdown": "文本和Markdown",
+    "textAndMarkdown": "文本 和 Markdown",
     "documentFromV010": "来自 v0.1.0 的文档",
     "databaseFromV010": "来自 v0.1.0 的数据库",
     "csv": "CSV",
@@ -100,15 +97,15 @@
     "unfavorite": "从收藏夹中删除",
     "favorite": "添加到收藏夹",
     "openNewTab": "在新选项卡中打开",
-    "moveTo": "移动到",
+    "moveTo": "移动",
     "addToFavorites": "添加到收藏夹",
     "copyLink": "复制链接"
   },
   "blankPageTitle": "空白页",
-  "newPageText": "新建页面",
-  "newDocumentText": "新建文档",
+  "newPageText": "新页面",
+  "newDocumentText": "新文件",
   "newGridText": "新建网格",
-  "newCalendarText": "新建日历",
+  "newCalendarText": "新日历",
   "newBoardText": "新建看板",
   "trash": {
     "text": "回收站",
@@ -128,38 +125,38 @@
       "caption": "此操作无法撤消。"
     },
     "mobile": {
-      "actions": "回收站操作",
-      "empty": "回收站是空的",
-      "emptyDescription": "您没有已删除的文件",
+      "actions": "垃圾桶操作",
+      "empty": "垃圾桶是空的",
+      "emptyDescription": "您没有任何已删除的文件",
       "isDeleted": "已删除",
       "isRestored": "已恢复"
     }
   },
   "deletePagePrompt": {
-    "text": "此页面已被移动至回收站",
+    "text": "此页面已被移动至垃圾桶",
     "restore": "恢复页面",
-    "deletePermanent": "永久删除"
+    "deletePermanent": "彻底删除"
   },
   "dialogCreatePageNameHint": "页面名称",
   "questionBubble": {
     "shortcuts": "快捷键",
-    "whatsNew": "新功能?",
+    "whatsNew": "新功能",
     "help": "帮助和支持",
     "markdown": "Markdown",
     "debug": {
       "name": "调试信息",
-      "success": "已将调试信息复制到剪贴板！",
+      "success": "将调试信息复制到剪贴板！",
       "fail": "无法将调试信息复制到剪贴板"
     },
     "feedback": "反馈"
   },
   "menuAppHeader": {
     "moreButtonToolTip": "删除、重命名等等...",
-    "addPageTooltip": "添加子页面",
-    "defaultNewPageName": "未命名",
+    "addPageTooltip": "在其中快速添加页面",
+    "defaultNewPageName": "未命名页面",
     "renameDialog": "重命名"
   },
-  "noPagesInside": "无子页面",
+  "noPagesInside": "里面没有页面",
   "toolbar": {
     "undo": "撤销",
     "redo": "恢复",
@@ -179,40 +176,42 @@
     "link": "关联"
   },
   "tooltip": {
-    "lightMode": "切换到浅色",
-    "darkMode": "切换到深色",
+    "lightMode": "切换到亮色模式",
+    "darkMode": "切换到暗色模式",
     "openAsPage": "作为页面打开",
     "addNewRow": "添加一行",
     "openMenu": "点击打开菜单",
-    "dragRow": "长按重新排序该行",
+    "dragRow": "拖动来调整行",
     "viewDataBase": "查看数据库",
-    "referencePage": "这个 {name} 已被引用",
-    "addBlockBelow": "在下面添加一个块"
+    "referencePage": "这个 {name} 正在被引用",
+    "addBlockBelow": "在下面添加一个块",
+    "urlLaunchAccessory": "在浏览器中打开",
+    "urlCopyAccessory": "复制链接"
   },
   "sideBar": {
     "closeSidebar": "关闭侧边栏",
     "openSidebar": "打开侧边栏",
-    "personal": "个人",
+    "personal": "个人的",
     "favorites": "收藏夹",
-    "clickToHidePersonal": "点击隐藏个人",
-    "clickToHideFavorites": "点击隐藏收藏夹",
+    "clickToHidePersonal": "点击隐藏个人部分",
+    "clickToHideFavorites": "单击隐藏收藏夹栏目",
     "addAPage": "添加页面",
     "recent": "最近的"
   },
   "notifications": {
     "export": {
-      "markdown": "导出Markdown文档",
+      "markdown": "导出笔记为Markdown文档",
       "path": "文档/flowy"
     }
   },
   "contactsPage": {
     "title": "联系人",
-    "whatsHappening": "这周发生了哪些事?",
+    "whatsHappening": "这周发生了哪些事",
     "addContact": "添加联系人",
     "editContact": "编辑联系人"
   },
   "button": {
-    "ok": "确定",
+    "ok": "OK",
     "done": "完成",
     "cancel": "取消",
     "signIn": "登录",
@@ -222,7 +221,7 @@
     "generate": "生成",
     "esc": "退出",
     "keep": "保留",
-    "tryAgain": "重新尝试",
+    "tryAgain": "重试",
     "discard": "放弃",
     "replace": "替换",
     "insertBelow": "在下方插入",
@@ -234,20 +233,18 @@
     "putback": "放回去",
     "update": "更新",
     "share": "分享",
-    "removeFromFavorites": "从收藏夹中删除",
+    "removeFromFavorites": "从收藏夹中",
     "addToFavorites": "添加到收藏夹",
     "rename": "重命名",
     "helpCenter": "帮助中心",
     "add": "添加",
     "yes": "是",
-    "clear": "清空",
-    "remove": "删除",
-    "dontRemove": "请勿删除",
-    "copyLink": "复制链接",
-    "align": "对齐"
+    "Done": "完成",
+    "Cancel": "取消",
+    "OK": "确认"
   },
   "label": {
-    "welcome": "欢迎！",
+    "welcome": "欢迎!",
     "firstName": "名",
     "middleName": "中间名",
     "lastName": "姓",
@@ -261,9 +258,9 @@
     "google": {
       "title": "Google 账号登录",
       "instruction1": "为了导入您的 Google 联系人，您需要在浏览器中给予本程序授权。",
-      "instruction2": "单击图标或选择文本将代码复制到剪贴板：",
-      "instruction3": "跳转下方链接，然后输入上述代码：",
-      "instruction4": "完成注册后，请点击下方按钮："
+      "instruction2": "单击图标或选择文本复制到剪贴板：",
+      "instruction3": "进入下面的链接，然后输入上面的代码：",
+      "instruction4": "完成注册后，点击下面的按钮："
     }
   },
   "settings": {
@@ -282,29 +279,29 @@
       "cloudSettings": "云设置",
       "enableSync": "启用同步",
       "enableEncrypt": "加密数据",
-      "cloudURL": "根网址",
-      "invalidCloudURLScheme": "无效的云服务器地址",
+      "cloudURL": "服务器 URL",
+      "invalidCloudURLScheme": "无效主题",
       "cloudServerType": "云服务器",
       "cloudServerTypeTip": "请注意，切换云服务器后可能会登出您当前的账户",
       "cloudLocal": "本地",
       "cloudSupabase": "Supabase",
       "cloudSupabaseUrl": "Supabase URL",
-      "cloudSupabaseUrlCanNotBeEmpty": "SUPABASE 地址不能为空",
-      "cloudSupabaseAnonKey": "Supabase anon key",
+      "cloudSupabaseUrlCanNotBeEmpty": "supabase url 不能为空",
+      "cloudSupabaseAnonKey": "Supabase Anon key",
       "cloudSupabaseAnonKeyCanNotBeEmpty": "如果 Supabase url 不为空，则 Anon key 不能为空",
-      "cloudAppFlowy": "AppFlowy云",
-      "cloudAppFlowySelfHost": "AppFlowy 云自行托管",
+      "cloudAppFlowy": "AppFlowy Cloud",
+      "cloudAppFlowySelfHost": "AppFlowy Cloud 自托管",
       "appFlowyCloudUrlCanNotBeEmpty": "云地址不能为空",
       "clickToCopy": "点击复制",
       "selfHostStart": "如果您没有服务器，请参阅",
       "selfHostContent": "文档",
       "selfHostEnd": "有关如何自行托管自己的服务器的指南",
       "cloudURLHint": "输入您的服务器的 URL",
-      "cloudWSURL": "Websocket URL",
-      "cloudWSURLHint": "输入您的服务器的 Websocket 地址",
+      "cloudWSURL": "WebSocket URL",
+      "cloudWSURLHint": "输入您的服务器的 WebSocket 地址",
       "restartApp": "重启",
       "restartAppTip": "重新启动应用程序以使更改生效。请注意，这可能会注销您当前的帐户",
-      "changeServerTip": "更改同步服务器后，你必须单击“重启”按钮才能使更改生效",
+      "changeServerTip": "更改服务器后，必须单击重新启动按钮才能使更改生效",
       "enableEncryptPrompt": "启用加密以使用此密钥保护您的数据。安全存放；一旦启用，就无法关闭。如果丢失，您的数据将无法恢复。点击复制",
       "inputEncryptPrompt": "请输入您的加密密钥",
       "clickToCopySecret": "点击复制密钥",
@@ -312,70 +309,69 @@
       "configServerGuide": "选择“快速启动”后，导航至“设置”，然后选择“云设置”以配置您的自托管服务器。",
       "inputTextFieldHint": "你的秘密",
       "historicalUserList": "用户登录历史记录",
-      "historicalUserListTooltip": "此列表显示您的离线模式帐户。您可以单击某个帐户来查看其详细信息。单击“开始”按钮即可创建离线模式帐户",
-      "openHistoricalUser": "暂不登录",
+      "historicalUserListTooltip": "此列表显示您的匿名帐户。您可以单击某个帐户来查看其详细信息。单击“开始”按钮即可创建匿名帐户",
+      "openHistoricalUser": "点击开设匿名账户",
       "customPathPrompt": "将 AppFlowy 数据文件夹存储在云同步文件夹（例如 Google Drive）中可能会带来风险。如果同时从多个位置访问或修改此文件夹中的数据库，可能会导致同步冲突和潜在的数据损坏",
-      "importAppFlowyData": "由外部 AppFlowy 文件夹导入数据",
-      "importingAppFlowyDataTip": "数据导入正在进行中。请不要关闭此程序",
+      "importAppFlowyData": "从外部 AppFlowy 文件夹导入数据",
+      "importingAppFlowyDataTip": "数据导入正在进行中。请不要关闭应用程序",
       "importAppFlowyDataDescription": "从外部 AppFlowy 数据文件夹复制数据并将其导入到当前 AppFlowy 数据文件夹中",
-      "importSuccess": "成功导入 AppFlowy 数据文件夹",
-      "importFailed": "导入 AppFlowy",
-      "importGuide": "欲了解更多详情，请查看参考文档",
+      "importSuccess": "成功导入AppFlowy数据文件夹",
+      "importFailed": "导入 AppFlowy 数据文件夹失败",
+      "importGuide": "有关详细信息，请参阅参考文档",
       "supabaseSetting": "Supabase 设置",
       "cloudSetting": "云设置"
     },
     "notifications": {
       "enableNotifications": {
         "label": "启用通知",
-        "hint": "关闭本地通知"
+        "hint": "关闭以阻止本地通知出现。"
       }
     },
     "appearance": {
       "resetSetting": "重置此设置",
       "fontFamily": {
-        "label": "字体",
+        "label": "字体系列",
         "search": "搜索"
       },
       "themeMode": {
-        "label": "色彩模式",
-        "light": "浅色",
-        "dark": "深色",
-        "system": "跟随系统"
+        "label": "主题模式",
+        "light": "日间模式",
+        "dark": "夜间模式",
+        "system": "系统自适应"
       },
-      "fontScaleFactor": "字体缩放比例",
       "documentSettings": {
-        "cursorColor": "光标颜色",
-        "selectionColor": "文本选择颜色",
+        "cursorColor": "文档光标颜色",
+        "selectionColor": "文档选择颜色",
         "hexEmptyError": "十六进制颜色不能为空",
-        "hexLengthError": "十六进制值的长度必须为 6 位",
-        "hexInvalidError": "无效的十六进制值",
+        "hexLengthError": "十六进制值必须为 6 位数字",
+        "hexInvalidError": "十六进制值无效",
         "opacityEmptyError": "不透明度不能为空",
         "opacityRangeError": "不透明度必须介于 1 到 100 之间",
         "app": "应用程序",
-        "flowy": "Flowy",
-        "apply": "提交"
+        "flowy": "弗洛菲",
+        "apply": "申请"
       },
       "layoutDirection": {
         "label": "布局方向",
-        "hint": "控制屏幕上内容的方向，从左到右或从右到左。",
+        "hint": "控制屏幕上内容的流动，从左到右或从右到左。",
         "ltr": "从左到右",
         "rtl": "从右到左"
       },
       "textDirection": {
-        "label": "文本方向",
+        "label": "默认文本方向",
         "hint": "指定文本默认从左开始还是从右开始。",
         "ltr": "从左到右",
         "rtl": "从右到左",
-        "auto": "自适应",
+        "auto": "汽车",
         "fallback": "与布局方向相同"
       },
       "themeUpload": {
         "button": "上传",
         "uploadTheme": "上传主题",
-        "description": "使用下方的按钮上传您自己的 AppFlowy 主题。",
+        "description": "使用下面的按钮上传您自己的 AppFlowy 主题。",
         "loading": "我们正在验证并上传您的主题，请稍候...",
-        "uploadSuccess": "您的主题已成功上传",
-        "deletionFailure": "删除主题失败。尝试手动删除它。",
+        "uploadSuccess": "您的主题已上传成功",
+        "deletionFailure": "删除主题失败，请尝试手动删除。",
         "filePickerDialogTitle": "选择 .flowy_plugin 文件",
         "urlUploadFailure": "无法打开网址：{}",
         "failure": "上传的主题格式无效。"
@@ -385,29 +381,27 @@
       "pluginsLabel": "插件",
       "dateFormat": {
         "label": "日期格式",
-        "local": "本地日期格式",
-        "us": "美国日期格式",
-        "iso": "国际标准格式",
-        "friendly": "友好日期格式",
+        "local": "本地",
+        "us": "美国",
+        "iso": "ISO",
+        "friendly": "易读",
         "dmy": "日/月/年"
       },
       "timeFormat": {
         "label": "时间格式",
-        "twelveHour": "12 小时制",
-        "twentyFourHour": "24 小时制"
+        "twelveHour": "十二小时制",
+        "twentyFourHour": "二十四小时制"
       },
-      "showNamingDialogWhenCreatingPage": "创建页面时显示命名对话框",
-      "lightLabel": "浅色标签",
-      "darkLabel": "深色标签"
+      "showNamingDialogWhenCreatingPage": "创建页面时显示命名对话框"
     },
     "files": {
       "copy": "复制",
-      "defaultLocation": "文件和数据存储位置",
+      "defaultLocation": "读取文件和数据存储位置",
       "exportData": "导出您的数据",
       "doubleTapToCopy": "双击复制路径",
       "restoreLocation": "恢复为 AppFlowy 默认路径",
       "customizeLocation": "打开另一个文件夹",
-      "restartApp": "请重启应用使设置生效",
+      "restartApp": "请重启 App 使设置生效",
       "exportDatabase": "导出数据库",
       "selectFiles": "选择需要导出的文件",
       "selectAll": "全选",
@@ -432,15 +426,15 @@
       "openLocationTooltips": "打开另一个数据目录",
       "openCurrentDataFolder": "打开当前数据目录",
       "recoverLocationTooltips": "恢复为 AppFlowy 默认数据目录",
-      "exportFileSuccess": "导出文件成功!",
-      "exportFileFail": "导出文件失败!",
+      "exportFileSuccess": "导出成功!",
+      "exportFileFail": "导出失败!",
       "export": "导出"
     },
     "user": {
-      "name": "名称",
+      "name": "名字",
       "email": "电子邮件",
       "tooltipSelectIcon": "选择图标",
-      "selectAnIcon": "选择图标",
+      "selectAnIcon": "选择一个图标",
       "pleaseInputYourOpenAIKey": "请输入您的 OpenAI 密钥",
       "pleaseInputYourStabilityAIKey": "请输入您的 Stability AI 密钥",
       "clickToLogout": "点击退出当前用户"
@@ -450,9 +444,9 @@
       "command": "指令",
       "keyBinding": "按键绑定",
       "addNewCommand": "添加新指令",
-      "updateShortcutStep": "按所需的组合键并按 ENTER 键",
+      "updateShortcutStep": "按所需的组合键并按 ENTER",
       "shortcutIsAlreadyUsed": "此快捷方式已用于：{conflict}",
-      "resetToDefault": "重置为默认按键绑定",
+      "resetToDefault": "重置为默认组合键",
       "couldNotLoadErrorMsg": "无法加载快捷方式，请重试",
       "couldNotSaveErrorMsg": "无法保存快捷方式，请重试"
     },
@@ -466,7 +460,7 @@
       "joinDiscord": "在 Discord 中加入我们",
       "privacyPolicy": "隐私政策",
       "userAgreement": "用户协议",
-      "termsAndConditions": "条款与细则",
+      "termsAndConditions": "条款和条件",
       "userprofileError": "无法加载用户配置文件",
       "userprofileErrorDescription": "请尝试注销并重新登录以检查问题是否仍然存在。",
       "selectLayout": "选择布局",
@@ -475,47 +469,48 @@
     }
   },
   "grid": {
-    "deleteView": "您确定要删除这个视图吗?",
+    "deleteView": "您确定要删除这个表格吗?",
     "createView": "新建",
     "title": {
-      "placeholder": "未命名"
+      "placeholder": "无标题"
     },
     "settings": {
       "filter": "筛选",
-      "sort": "排序",
-      "sortBy": "排序方式",
+      "sort": "以……排序",
+      "sortBy": "排序",
       "properties": "特性",
       "reorderPropertiesTooltip": "拖动以重新排序属性",
       "group": "组",
       "addFilter": "添加筛选",
       "deleteFilter": "删除筛选",
-      "filterBy": "筛选方式",
-      "typeAValue": "输入一个值...",
+      "filterBy": "以……筛选",
+      "typeAValue": "请输入一个值",
       "layout": "布局",
       "databaseLayout": "布局",
+      "viewList": {
+        "zero": "0 次观看",
+        "one": "{count} 次查看",
+        "other": "{count} 次浏览"
+      },
       "editView": "编辑视图",
       "boardSettings": "看板设置",
       "calendarSettings": "日历设置",
-      "createView": "新建视图",
-      "duplicateView": "复制视图",
-      "deleteView": "删除视图",
       "numberOfVisibleFields": "显示 {}",
-      "Properties": "属性",
-      "viewList": "数据库视图"
+      "Properties": "属性"
     },
     "textFilter": {
       "contains": "包含",
       "doesNotContain": "不包含",
-      "endsWith": "结尾为",
-      "startWith": "开头为",
-      "is": "是",
-      "isNot": "不是",
+      "endsWith": "以……结束",
+      "startWith": "以……开始",
+      "is": "等于",
+      "isNot": "不等于",
       "isEmpty": "为空",
       "isNotEmpty": "不为空",
       "choicechipPrefix": {
-        "isNot": "不是",
-        "startWith": "开头为",
-        "endWith": "结尾为",
+        "isNot": "不等于",
+        "startWith": "以……开始",
+        "endWith": "以……结束",
         "isEmpty": "为空",
         "isNotEmpty": "不为空"
       }
@@ -531,14 +526,6 @@
       "isComplete": "已完成",
       "isIncomplted": "未完成"
     },
-    "selectOptionFilter": {
-      "is": "是",
-      "isNot": "不是",
-      "contains": "包含",
-      "doesNotContain": "不包含",
-      "isEmpty": "为空",
-      "isNotEmpty": "不为空"
-    },
     "dateFilter": {
       "is": "是",
       "before": "之前",
@@ -547,25 +534,7 @@
       "onOrAfter": "在或之后",
       "between": "之间",
       "empty": "为空",
-      "notEmpty": "不为空",
-      "choicechipPrefix": {
-        "before": "之前",
-        "after": "之后",
-        "onOrBefore": "当天或之前",
-        "onOrAfter": "当天或之后",
-        "isEmpty": "为空",
-        "isNotEmpty": "不为空"
-      }
-    },
-    "numberFilter": {
-      "equal": "等于",
-      "notEqual": "不等于",
-      "lessThan": "小于",
-      "greaterThan": "大于",
-      "lessThanOrEqualTo": "小于等于",
-      "greaterThanOrEqualTo": "大于等于",
-      "isEmpty": "为空",
-      "isNotEmpty": "不为空"
+      "notEmpty": "不为空"
     },
     "field": {
       "hide": "隐藏",
@@ -577,17 +546,16 @@
       "textFieldName": "文本",
       "checkboxFieldName": "勾选框",
       "dateFieldName": "日期",
-      "updatedAtFieldName": "最后修改时间",
+      "updatedAtFieldName": "修改时间",
       "createdAtFieldName": "创建时间",
       "numberFieldName": "数字",
-      "singleSelectFieldName": "单选",
-      "multiSelectFieldName": "多选",
-      "urlFieldName": "网址",
+      "singleSelectFieldName": "单项选择器",
+      "multiSelectFieldName": "多项选择器",
+      "urlFieldName": "链接",
       "checklistFieldName": "清单",
-      "relationFieldName": "关系",
       "numberFormat": "数字格式",
       "dateFormat": "日期格式",
-      "includeTime": "包含时/分",
+      "includeTime": "包含时间",
       "isRange": "结束日期",
       "dateFormatFriendly": "月 日, 年",
       "dateFormatISO": "年-月-日",
@@ -595,9 +563,9 @@
       "dateFormatUS": "年/月/日",
       "dateFormatDayMonthYear": "日/月/年",
       "timeFormat": "时间格式",
-      "invalidTimeFormat": "格式错误",
-      "timeFormatTwelveHour": "12 小时制",
-      "timeFormatTwentyFourHour": "24 小时制",
+      "invalidTimeFormat": "时间格式错误",
+      "timeFormatTwelveHour": "十二小时制",
+      "timeFormatTwentyFourHour": "24小时制",
       "clearDate": "清除日期",
       "dateTime": "日期时间",
       "startDateTime": "开始日期和时间",
@@ -616,21 +584,20 @@
       "deleteFieldPromptMessage": "确定要删除这个属性吗? ",
       "newColumn": "新建列",
       "format": "格式",
-      "reminderOnDateTooltip": "这个单元格设置了一个预定的提醒",
-      "optionAlreadyExist": "选项已存在"
+      "reminderOnDateTooltip": "此单元格有预定的提醒"
     },
     "rowPage": {
       "newField": "添加新字段",
       "fieldDragElementTooltip": "点击打开菜单",
       "showHiddenFields": {
-        "one": "显示 {count} 个私密字段",
-        "many": "显示 {count} 个私密字段",
-        "other": "显示 {count} 个私密字段"
+        "one": "显示 {count} 个隐藏字段",
+        "many": "显示 {count} 个隐藏字段",
+        "other": "显示 {count} 个隐藏字段"
       },
       "hideHiddenFields": {
-        "one": "隐藏 {count} 个私密字段",
-        "many": "隐藏 {count} 个私密字段",
-        "other": "隐藏 {count} 个私密字段"
+        "one": "隐藏 {count} 个隐藏字段",
+        "many": "隐藏 {count} 个隐藏字段",
+        "other": "隐藏 {count} 个隐藏字段"
       }
     },
     "sort": {
@@ -638,23 +605,22 @@
       "descending": "降序",
       "deleteAllSorts": "删除所有排序",
       "addSort": "添加排序",
-      "removeSorting": "你确定要移除排序吗？",
-      "deleteSort": "取消排序"
+      "deleteSort": "删除排序"
     },
     "row": {
       "duplicate": "复制",
       "delete": "删除",
-      "titlePlaceholder": "未命名",
+      "titlePlaceholder": "无标题",
       "textPlaceholder": "空",
-      "copyProperty": "已复制属性到剪贴板",
+      "copyProperty": "复制列",
       "count": "数量",
-      "newRow": "新增行",
+      "newRow": "添加一行",
       "action": "执行",
       "add": "点击添加到下方",
-      "drag": "拖动",
-      "dragAndClick": "拖拽并点击打开菜单",
+      "drag": "拖动以移动",
+      "dragAndClick": "拖拽移动，点击打开菜单",
       "insertRecordAbove": "在上方插入记录",
-      "insertRecordBelow": "在下方插入记录"
+      "insertRecordBelow": "点击添加到下方"
     },
     "selectOption": {
       "create": "新建",
@@ -669,39 +635,43 @@
       "blueColor": "蓝色",
       "deleteTag": "删除标签",
       "colorPanelTitle": "颜色",
-      "panelTitle": "选择或新建选项",
-      "searchOption": "搜索选项",
+      "panelTitle": "选择或新建一个标签",
+      "searchOption": "搜索标签",
       "searchOrCreateOption": "搜索或创建选项...",
-      "createNew": "新建",
+      "createNew": "创建一个新的",
       "orSelectOne": "或者选择一个选项",
-      "typeANewOption": "输入一个新选项",
-      "tagName": "标签名",
-      "pannelTitle": "面板标题"
+      "typeANewOption": "输入一个新的选项",
+      "tagName": "标签名"
     },
     "checklist": {
       "taskHint": "任务描述",
-      "addNew": "添加新任务",
-      "submitNewTask": "新建",
+      "addNew": "添加项",
+      "submitNewTask": "创建",
       "hideComplete": "隐藏已完成的任务",
       "showComplete": "显示所有任务"
-    },
-    "url": {
-      "launch": "在浏览器中打开",
-      "copy": "复制链接"
-    },
-    "relation": {
-      "emptySearchResult": "无结果"
     },
     "menuName": "网格",
     "referencedGridPrefix": "视图",
     "calculate": "计算",
     "calculationTypeLabel": {
-      "none": "无",
-      "average": "均值",
-      "max": "最大值",
+      "none": "没有任何",
+      "average": "平均的",
+      "max": "最大限度",
       "median": "中位数",
-      "min": "最小值",
-      "sum": "求和"
+      "min": "分钟",
+      "sum": "和"
+    },
+    "singleSelectOptionFilter": {
+      "is": "等于",
+      "isNot": "不等于",
+      "isEmpty": "为空",
+      "isNotEmpty": "不为空"
+    },
+    "multiSelectOptionFilter": {
+      "contains": "包含",
+      "doesNotContain": "不包含",
+      "isEmpty": "为空",
+      "isNotEmpty": "不为空"
     }
   },
   "document": {
@@ -738,23 +708,23 @@
       "referencedDocument": "参考文档",
       "autoGeneratorMenuItemName": "OpenAI 创作",
       "autoGeneratorTitleName": "OpenAI: 让 AI 写些什么...",
-      "autoGeneratorLearnMore": "了解更多",
+      "autoGeneratorLearnMore": "学习更多",
       "autoGeneratorGenerate": "生成",
-      "autoGeneratorHintText": "问 OpenAI ...",
-      "autoGeneratorCantGetOpenAIKey": "无法获取 OpenAI 密钥",
+      "autoGeneratorHintText": "让 OpenAI ...",
+      "autoGeneratorCantGetOpenAIKey": "无法获得 OpenAI 密钥",
       "autoGeneratorRewrite": "重写",
       "smartEdit": "AI 助手",
       "openAI": "OpenAI",
       "smartEditFixSpelling": "修正拼写",
-      "warning": "⚠️ AI 的回复可能不准确或具有误导性。",
+      "warning": "⚠️ AI 可能不准确或具有误导性.",
       "smartEditSummarize": "总结",
       "smartEditImproveWriting": "提高写作水平",
       "smartEditMakeLonger": "丰富内容",
       "smartEditCouldNotFetchResult": "无法从 OpenAI 获取到结果",
       "smartEditCouldNotFetchKey": "无法获取到 OpenAI 密钥",
       "smartEditDisabled": "在设置中连接 OpenAI",
-      "discardResponse": "您是否要舍弃 AI 的回复?",
-      "createInlineMathEquation": "创建公式",
+      "discardResponse": "您是否要放弃 AI 继续写作?",
+      "createInlineMathEquation": "创建方程",
       "fonts": "字体",
       "toggleList": "切换列表",
       "quoteList": "引用列表",
@@ -765,31 +735,31 @@
       "cover": {
         "changeCover": "修改封面",
         "colors": "颜色",
-        "images": "图片",
+        "images": "图像",
         "clearAll": "清除所有",
         "abstract": "摘要",
         "addCover": "添加封面",
-        "addLocalImage": "添加本地图片",
-        "invalidImageUrl": "无效的图片网址",
-        "failedToAddImageToGallery": "无法将图片添加到图库",
-        "enterImageUrl": "输入图片网址",
+        "addLocalImage": "添加本地图像",
+        "invalidImageUrl": "无效的图像网址",
+        "failedToAddImageToGallery": "无法将图片添加到库",
+        "enterImageUrl": "输入图像网址",
         "add": "添加",
         "back": "返回",
-        "saveToGallery": "保存至图库",
+        "saveToGallery": "保存至库",
         "removeIcon": "移除图标",
         "pasteImageUrl": "粘贴图片网址",
         "or": "或",
         "pickFromFiles": "从文件中选取",
-        "couldNotFetchImage": "无法获取到图片",
-        "imageSavingFailed": "图片保存失败",
+        "couldNotFetchImage": "无法获取到图像",
+        "imageSavingFailed": "图像保存失败",
         "addIcon": "添加图标",
         "changeIcon": "更改图标",
         "coverRemoveAlert": "删除后将从封面中移除。",
         "alertDialogConfirmation": "您确定您要继续吗?"
       },
       "mathEquation": {
-        "name": "数学公式",
-        "addMathEquation": "添加 Tex 公式",
+        "name": "数学方程",
+        "addMathEquation": "添加数学公式",
         "editMathEquation": "编辑数学公式"
       },
       "optionAction": {
@@ -803,13 +773,13 @@
         "color": "颜色",
         "align": "对齐",
         "left": "左",
-        "center": "中间",
-        "right": "右",
+        "center": "中心",
+        "right": "又",
         "defaultColor": "默认"
       },
       "image": {
         "copiedToPasteBoard": "图片链接已复制到剪贴板",
-        "addAnImage": "添加图片"
+        "addAnImage": "添加图像"
       },
       "urlPreview": {
         "copiedToPasteBoard": "链接已复制到剪贴板"
@@ -822,7 +792,7 @@
         "addBefore": "在后面添加",
         "delete": "删除",
         "clear": "清空内容",
-        "duplicate": "复制",
+        "duplicate": "创建副本",
         "bgColor": "背景颜色"
       },
       "contextMenu": {
@@ -830,21 +800,13 @@
         "cut": "剪切",
         "paste": "粘贴"
       },
-      "action": "操作",
-      "database": {
-        "selectDataSource": "选择数据源",
-        "noDataSource": "无数据源",
-        "selectADataSource": "选择数据源",
-        "toContinue": "以继续",
-        "newDatabase": "新数据库",
-        "linkToDatabase": "链接到数据库"
-      }
+      "action": "操作"
     },
     "textBlock": {
-      "placeholder": "输入 “/” 查看指令"
+      "placeholder": "输入 “/” 作为命令"
     },
     "title": {
-      "placeholder": "未命名"
+      "placeholder": "无标题"
     },
     "imageBlock": {
       "placeholder": "点击添加图片",
@@ -857,36 +819,34 @@
         "placeholder": "输入图片网址"
       },
       "ai": {
-        "label": "从 OpenAI 生成图片",
-        "placeholder": "请输入 OpenAI 生成图片的提示词"
+        "label": "从 OpenAI 生成图像",
+        "placeholder": "请输入 OpenAI 生成图像的提示"
       },
       "stability_ai": {
-        "label": "从 Stability AI 生成图片",
-        "placeholder": "请输入 Stability AI 生成图片的提示词"
+        "label": "从 Stability AI 生成图像",
+        "placeholder": "请输入 Stability AI 生成图像的提示"
       },
       "support": "图片大小限制为 5MB。支持的格式：JPEG、PNG、GIF、SVG",
       "error": {
         "invalidImage": "图片无效",
         "invalidImageSize": "图片大小必须小于 5MB",
-        "invalidImageFormat": "不支持图片格式。支持的格式：JPEG、PNG、GIF、SVG",
+        "invalidImageFormat": "不支持图像格式。支持的格式：JPEG、PNG、GIF、SVG",
         "invalidImageUrl": "图片网址无效"
       },
       "embedLink": {
         "label": "内嵌链接",
-        "placeholder": "粘贴或输入图片链接"
+        "placeholder": "粘贴或输入图像链接"
       },
       "unsplash": {
-        "label": "Unspalsh"
+        "label": "Unsplash"
       },
       "searchForAnImage": "搜索图像",
       "pleaseInputYourOpenAIKey": "请在设置页面输入您的 OpenAI 密钥",
       "pleaseInputYourStabilityAIKey": "请在设置页面输入您的 Stability AI 密钥",
       "saveImageToGallery": "保存图片",
-      "failedToAddImageToGallery": "无法将片像添加到图库",
+      "failedToAddImageToGallery": "无法将图像添加到图库",
       "successToAddImageToGallery": "图片已成功添加到图库",
-      "unableToLoadImage": "无法加载图片",
-      "maximumImageSize": "支持上传的最大图片大小为 10MB",
-      "uploadImageErrorImageSizeTooBig": "图片大小必须小于 10MB"
+      "unableToLoadImage": "无法加载图像"
     },
     "codeBlock": {
       "language": {
@@ -909,7 +869,7 @@
       }
     },
     "mention": {
-      "placeholder": "提及一个人、一个页面或日期...",
+      "placeholder": "提及一个人、或日期...",
       "page": {
         "label": "链接到页面",
         "tooltip": "点击打开页面"
@@ -919,8 +879,8 @@
       "resetToDefaultFont": "重置为默认"
     },
     "errorBlock": {
-      "theBlockIsNotSupported": "当前版本不支持该内容。",
-      "blockContentHasBeenCopied": "内容已被复制。"
+      "theBlockIsNotSupported": "当前版本不支持该块。",
+      "blockContentHasBeenCopied": "块内容已被复制。"
     }
   },
   "board": {
@@ -938,9 +898,9 @@
       "groupActions": "组操作"
     },
     "hiddenGroupSection": {
-      "sectionTitle": "私密组",
-      "collapseTooltip": "隐藏私密组",
-      "expandTooltip": "查看私密组"
+      "sectionTitle": "隐藏组",
+      "collapseTooltip": "隐藏隐藏组",
+      "expandTooltip": "查看隐藏的组"
     },
     "cardDetail": "卡片详情",
     "cardActions": "卡片操作",
@@ -951,17 +911,20 @@
     "propertyName": "属性名称",
     "menuName": "看板",
     "showUngrouped": "显示未分组的项目",
-    "ungroupedButtonText": "未分组",
+    "ungroupedButtonText": "未分组的",
     "ungroupedButtonTooltip": "包含不属于任何组的卡片",
     "ungroupedItemsTitle": "点击添加到看板",
-    "groupBy": "分组方式",
+    "groupBy": "通过...分组",
     "referencedBoardPrefix": "视图",
     "notesTooltip": "内含笔记",
     "mobile": {
       "editURL": "编辑 URL",
-      "showGroup": "显示隐藏的组",
-      "showGroupContent": "您确定要在看板上显示该组吗？",
-      "failedToLoad": "无法加载看板视图"
+      "showGroup": "“显示”组",
+      "showGroupContent": "您确定要在公告板上显示该组吗？",
+      "failedToLoad": "无法加载版面视图",
+      "unhideGroup": "显示隐藏的组",
+      "unhideGroupContent": "您确定要在看板上显示该组吗？",
+      "faildToLoad": "无法加载看板视图"
     }
   },
   "calendar": {
@@ -974,33 +937,24 @@
       "previousMonth": "上一月",
       "nextMonth": "下一月"
     },
-    "mobileEventScreen": {
-      "emptyTitle": "暂无标题",
-      "emptyBody": "点击加号，以在今天创建一个事件。"
-    },
     "settings": {
       "showWeekNumbers": "显示周数",
       "showWeekends": "显示周末",
       "firstDayOfWeek": "一周开始于",
       "layoutDateField": "以……为日历布局",
-      "changeLayoutDateField": "更改布局字段",
       "noDateTitle": "没有日期",
-      "noDateHint": {
-        "zero": "未计划的事件将显示在这里",
-        "one": "{count} 条未计划的事件",
-        "other": "{count} 条未计划的事件"
-      },
       "unscheduledEventsTitle": "未安排的事件",
       "clickToAdd": "单击以添加到日历",
-      "name": "日历布局"
+      "name": "日历布局",
+      "noDateHint": "计划外事件将显示在此处"
     },
     "referencedCalendarPrefix": "视图",
     "quickJumpYear": "跳转到"
   },
   "errorDialog": {
     "title": "AppFlowy 错误",
-    "howToFixFallback": "对于给您带来的不便，我们深表歉意！请在我们的 GitHub 页面上提交 issue 并描述您遇到的错误。",
-    "github": "在 GitHub 上查看"
+    "howToFixFallback": "对于给您带来的不便, 我们深表歉意! 请在我们的 GitHub 页面上提交 issue 并描述您遇到的错误。",
+    "github": "在 GitHub 查看"
   },
   "search": {
     "label": "搜索",
@@ -1020,8 +974,8 @@
     "deleteContentCaption": "如果您删除此{pageType}，您可以从回收站中将其恢复。"
   },
   "colors": {
-    "custom": "自定义",
-    "default": "默认",
+    "custom": "自定义的",
+    "default": "默认的",
     "red": "红色",
     "orange": "橙色",
     "yellow": "黄色",
@@ -1033,43 +987,39 @@
     "gray": "灰色"
   },
   "emoji": {
-    "emojiTab": "表情",
-    "search": "查找表情",
-    "noRecent": "没有最近的表情",
-    "noEmojiFound": "没有找到表情",
+    "emojiTab": "Emoji 表情",
+    "search": "查找 Emoji",
+    "noRecent": "没有最近的 Emoji",
+    "noEmojiFound": "没有找到 Emoji",
     "filter": "筛选",
-    "random": "随机",
+    "random": "随机的",
     "selectSkinTone": "选择肤色",
-    "remove": "移除表情符号",
+    "remove": "移除",
     "categories": {
-      "smileys": "表情 & 情感",
-      "people": "人 & 身体",
-      "animals": "动物 & 自然",
-      "food": "食物 & 饮料",
+      "smileys": "表情与情感",
+      "people": "人与身体",
+      "animals": "动物与自然",
+      "food": "食物和饮料",
       "activities": "活动",
-      "places": "旅行 & 地点",
+      "places": "旅行与地点",
       "objects": "物体",
       "symbols": "符号",
       "flags": "旗帜",
       "nature": "自然",
-      "frequentlyUsed": "最近使用"
+      "frequentlyUsed": "经常使用"
     },
     "skinTone": {
       "default": "默认",
-      "light": "白肤色",
-      "mediumLight": "浅肤色",
-      "medium": "黄肤色",
-      "mediumDark": "黄黑肤色",
-      "dark": "黑肤色"
+      "light": "亮",
+      "mediumLight": "中等偏亮",
+      "medium": "中等的",
+      "mediumDark": "中等偏暗",
+      "dark": "暗"
     }
   },
   "inlineActions": {
     "noResults": "没有结果",
-    "pageReference": "页面引用",
-    "docReference": "文档引用",
-    "boardReference": "看板参考",
-    "calReference": "日历参考",
-    "gridReference": "网格参考",
+    "pageReference": "页面参考",
     "date": "日期",
     "reminder": {
       "groupTitle": "提醒",
@@ -1077,27 +1027,7 @@
     }
   },
   "datePicker": {
-    "dateTimeFormatTooltip": "在设置中更改日期和时间格式",
-    "dateFormat": "日期格式",
-    "includeTime": "精确到时/分",
-    "isRange": "结束日期",
-    "timeFormat": "时间格式",
-    "clearDate": "清除日期",
-    "reminderLabel": "提醒",
-    "reminderOptions": {
-      "none": "空",
-      "atTimeOfEvent": "活动时间",
-      "fiveMinsBefore": "5分钟前",
-      "tenMinsBefore": "10分钟前",
-      "fifteenMinsBefore": "15分钟前",
-      "thirtyMinsBefore": "30分钟前",
-      "oneHourBefore": "1小时前",
-      "twoHoursBefore": "2小时前",
-      "oneDayBefore": "1天前",
-      "twoDaysBefore": "2天前",
-      "oneWeekBefore": "1周以前",
-      "custom": "自定义"
-    }
+    "dateTimeFormatTooltip": "在设置中更改日期和时间格式"
   },
   "relativeDates": {
     "yesterday": "昨天",
@@ -1110,8 +1040,8 @@
     "mobile": {
       "title": "更新"
     },
-    "emptyTitle": "空空如也",
-    "emptyBody": "都处理完成了，享受这份平静吧。",
+    "emptyTitle": "都处理了！",
+    "emptyBody": "没有待处理的通知或操作。享受平静。",
     "tabs": {
       "inbox": "收件箱",
       "upcoming": "即将推出"
@@ -1137,7 +1067,7 @@
     "tooltipMarkUnread": "标记为未读"
   },
   "findAndReplace": {
-    "find": "查找",
+    "find": "寻找",
     "previousMatch": "上一个匹配",
     "nextMatch": "下一个匹配",
     "close": "关闭",
@@ -1152,7 +1082,7 @@
   },
   "editor": {
     "bold": "加粗",
-    "bulletedList": "无序列表",
+    "bulletedList": "符号列表",
     "checkbox": "复选框",
     "embedCode": "嵌入代码",
     "heading1": "一级标题",
@@ -1161,10 +1091,9 @@
     "highlight": "强调",
     "color": "颜色",
     "image": "图像",
-    "date": "日期",
     "italic": "斜体",
     "link": "链接",
-    "numberedList": "有序列表",
+    "numberedList": "编号列表",
     "quote": "引用",
     "strikethrough": "删除线",
     "text": "文本",
@@ -1191,18 +1120,18 @@
     "backgroundColorRed": "红色背景",
     "done": "完成",
     "cancel": "取消",
-    "tint1": "颜色 1",
-    "tint2": "颜色 2",
-    "tint3": "颜色 3",
-    "tint4": "颜色 4",
-    "tint5": "颜色 5",
-    "tint6": "颜色 6",
-    "tint7": "颜色 7",
-    "tint8": "颜色 8",
-    "tint9": "颜色 9",
+    "tint1": "色彩 1",
+    "tint2": "色彩 2",
+    "tint3": "色彩 3",
+    "tint4": "色彩 4",
+    "tint5": "色彩 5",
+    "tint6": "色彩 6",
+    "tint7": "色彩 7",
+    "tint8": "色彩 8",
+    "tint9": "色彩 9",
     "lightLightTint1": "紫色",
     "lightLightTint2": "粉色",
-    "lightLightTint3": "淡粉色",
+    "lightLightTint3": "浅粉色",
     "lightLightTint4": "橙色",
     "lightLightTint5": "黄色",
     "lightLightTint6": "鲜绿色",
@@ -1213,7 +1142,7 @@
     "mobileHeading1": "标题 1",
     "mobileHeading2": "标题 2",
     "mobileHeading3": "标题 3",
-    "textColor": "文本颜色",
+    "textColor": "文字颜色",
     "backgroundColor": "背景颜色",
     "addYourLink": "添加您的链接",
     "openLink": "打开链接",
@@ -1225,7 +1154,7 @@
     "linkAddressHint": "请输入 URL",
     "highlightColor": "高亮颜色",
     "clearHighlightColor": "清除高亮颜色",
-    "customColor": "自定义颜色",
+    "customColor": "定制颜色",
     "hexValue": "十六进制值",
     "opacity": "不透明度",
     "resetToDefaultColor": "重置为默认颜色",
@@ -1247,10 +1176,10 @@
     "urlImage": "URL 图片",
     "incorrectLink": "错误链接",
     "upload": "上传",
-    "chooseImage": "选择图片",
+    "chooseImage": "选择图像",
     "loading": "加载中",
-    "imageLoadFailed": "无法加载图片",
-    "divider": "分割线",
+    "imageLoadFailed": "无法加载图像",
+    "divider": "分隔线",
     "table": "表格",
     "colAddBefore": "在前面添加",
     "rowAddBefore": "在前面添加",
@@ -1262,15 +1191,14 @@
     "rowDuplicate": "复制行",
     "colClear": "清空本列内容",
     "rowClear": "清空本行内容",
-    "slashPlaceHolder": "输入 '/' 以插入块，或开始输入",
-    "typeSomething": "输入点东西..."
+    "slashPlaceHolder": "输入 '/' 以插入块，或开始键入"
   },
   "favorite": {
     "noFavorite": "没有收藏页面",
     "noFavoriteHintText": "向左滑动页面即可将其添加到您的收藏夹"
   },
   "cardDetails": {
-    "notesPlaceholder": "输入 / 以插入块，或开始输入"
+    "notesPlaceholder": "输入 “/” 以插入块，或开始键入"
   },
   "blockPlaceholders": {
     "todoList": "待办",
@@ -1287,6 +1215,5 @@
     "date": "日期",
     "addField": "添加字段",
     "userIcon": "用户图标"
-  },
-  "noLogFiles": "没有日志文件"
+  }
 }

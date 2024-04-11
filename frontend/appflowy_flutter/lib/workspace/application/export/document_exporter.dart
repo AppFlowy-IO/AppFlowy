@@ -21,6 +21,7 @@ enum DocumentExportType {
   json,
   markdown,
   text,
+  html,
 }
 
 class DocumentExporter {
@@ -56,6 +57,11 @@ class DocumentExporter {
             return FlowyResult.success(markdown);
           case DocumentExportType.text:
             throw UnimplementedError();
+          case DocumentExportType.html:
+            final html = documentToHTML(
+              document,
+            );
+            return FlowyResult.success(html);
         }
       },
       (error) => FlowyResult.failure(error),

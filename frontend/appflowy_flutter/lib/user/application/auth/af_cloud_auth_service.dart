@@ -100,7 +100,10 @@ class AppFlowyCloudAuthService implements AuthService {
     required String email,
     Map<String, String> params = const {},
   }) async {
-    throw UnimplementedError();
+    return _backendAuthService.signInWithMagicLink(
+      email: email,
+      params: params,
+    );
   }
 
   @override

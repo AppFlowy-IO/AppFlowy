@@ -16,7 +16,7 @@ void main() {
   group('cover image', () {
     testWidgets('document cover tests', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       tester.expectToSeeNoDocumentCover();
 
@@ -53,7 +53,7 @@ void main() {
 
     testWidgets('document icon tests', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       tester.expectToSeeDocumentIcon('⭐️');
 
@@ -86,7 +86,7 @@ void main() {
 
     testWidgets('icon and cover at the same time', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       tester.expectToSeeDocumentIcon('⭐️');
       tester.expectToSeeNoDocumentCover();
@@ -110,7 +110,7 @@ void main() {
 
     testWidgets('shuffle icon', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       await tester.editor.tapGettingStartedIcon();
 
@@ -123,7 +123,7 @@ void main() {
 
     testWidgets('change skin tone', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       await tester.editor.tapGettingStartedIcon();
 

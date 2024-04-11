@@ -20,7 +20,7 @@ void main() {
   group('sidebar test', () {
     testWidgets('create a new page', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       // create a new page
       await tester.tapNewPageButton();
@@ -36,7 +36,7 @@ void main() {
     testWidgets('create a new document, grid, board and calendar',
         (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       for (final layout in ViewLayoutPB.values) {
         // create a new page
@@ -74,7 +74,7 @@ void main() {
 
     testWidgets('create some nested pages, and move them', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       final names = [1, 2, 3, 4].map((e) => 'document_$e').toList();
       for (var i = 0; i < names.length; i++) {
@@ -140,7 +140,7 @@ void main() {
 
     testWidgets('unable to move a document into a database', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       const document = 'document';
       await tester.createNewPageWithNameUnderParent(
@@ -183,7 +183,7 @@ void main() {
     testWidgets('unable to create a new database inside the existing one',
         (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       const grid = 'grid';
       await tester.createNewPageWithNameUnderParent(

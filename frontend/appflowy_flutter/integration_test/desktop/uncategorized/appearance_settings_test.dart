@@ -15,7 +15,7 @@ void main() {
         (tester) async {
       await tester.initializeAppFlowy();
 
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
       await tester.expectToSeeHomePageWithGetStartedPage();
       await tester.openSettings();
 
@@ -47,7 +47,7 @@ void main() {
     testWidgets('reset the font family', (tester) async {
       await tester.initializeAppFlowy();
 
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
       await tester.expectToSeeHomePageWithGetStartedPage();
       await tester.openSettings();
 

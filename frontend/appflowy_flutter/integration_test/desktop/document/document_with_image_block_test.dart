@@ -32,7 +32,7 @@ void main() {
   group('image block in document', () {
     testWidgets('insert an image from local file', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       // create a new document
       await tester.createNewPageWithNameUnderParent(
@@ -80,7 +80,7 @@ void main() {
 
     testWidgets('insert an image from network', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       // create a new document
       await tester.createNewPageWithNameUnderParent(
@@ -133,7 +133,7 @@ void main() {
     testWidgets('insert an image from unsplash', (tester) async {
       await runWithNetworkImages(() async {
         await tester.initializeAppFlowy();
-        await tester.tapGoButton();
+        await tester.tapAnonymousSignInButton();
 
         // create a new document
         await tester.createNewPageWithNameUnderParent(

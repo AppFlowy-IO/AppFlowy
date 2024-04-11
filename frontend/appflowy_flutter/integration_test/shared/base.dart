@@ -118,7 +118,7 @@ extension AppFlowyTestBase on WidgetTester {
 
   Future<void> waitUntilSignInPageShow() async {
     if (isAuthEnabled) {
-      final finder = find.byType(SignInAnonymousButton);
+      final finder = find.byType(SignInAnonymousButtonV2);
       await pumpUntilFound(finder, timeout: const Duration(seconds: 30));
       expect(finder, findsOneWidget);
     } else {

@@ -22,7 +22,7 @@ void main() {
   group('Tabs', () {
     testWidgets('Open AppFlowy and open/navigate/close tabs', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       expect(
         find.descendant(

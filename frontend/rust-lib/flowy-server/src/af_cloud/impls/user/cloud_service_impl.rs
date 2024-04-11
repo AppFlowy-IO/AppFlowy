@@ -122,6 +122,23 @@ where
     })
   }
 
+  fn sign_in_with_magic_link(
+    &self,
+    email: &str,
+    redirect_to: &str,
+  ) -> FutureResult<(), FlowyError> {
+    let email = email.to_owned();
+    let redirect_to = redirect_to.to_owned();
+    let try_get_client = self.server.try_get_client();
+    FutureResult::new(async move {
+      let client = try_get_client?;
+      client
+        .sign_in_with_magic_link(&email, Some(redirect_to))
+        .await?;
+      Ok(())
+    })
+  }
+
   fn generate_oauth_url_with_provider(&self, provider: &str) -> FutureResult<String, FlowyError> {
     let provider = AuthProvider::from(provider);
     let try_get_client = self.server.try_get_client();
