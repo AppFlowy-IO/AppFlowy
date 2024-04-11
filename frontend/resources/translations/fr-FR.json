@@ -570,7 +570,6 @@
       "typeAValue": "Tapez une valeur...",
       "layout": "Mise en page",
       "databaseLayout": "Mise en page",
-      "viewList": "Vues de base de données",
       "editView": "Modifier vue",
       "boardSettings": "Paramètres du tableau",
       "calendarSettings": "Paramètres du calendrier",
@@ -578,7 +577,8 @@
       "duplicateView": "Dupliquer la vue",
       "deleteView": "Supprimer la vue",
       "numberOfVisibleFields": "{} affiché(s)",
-      "Properties": "Propriétés"
+      "Properties": "Propriétés",
+      "viewList": "Vues de base de données"
     },
     "textFilter": {
       "contains": "Contient",
@@ -1067,9 +1067,9 @@
     "notesTooltip": "Notes à l'intérieur",
     "mobile": {
       "editURL": "Modifier l'URL",
-      "unhideGroup": "Afficher le groupe",
-      "unhideGroupContent": "Êtes-vous sûr de vouloir afficher ce groupe sur le tableau ?",
-      "faildToLoad": "Échec du chargement de la vue du tableau"
+      "showGroup": "Afficher le groupe",
+      "showGroupContent": "Êtes-vous sûr de vouloir afficher ce groupe sur le tableau ?",
+      "failedToLoad": "Échec du chargement de la vue du tableau"
     }
   },
   "calendar": {
@@ -1093,10 +1093,10 @@
       "layoutDateField": "Calendrier de mise en page par",
       "changeLayoutDateField": "Modifier le champ de mise en page",
       "noDateTitle": "Pas de date",
-      "noDateHint": "Les événements non planifiés s'afficheront ici",
       "unscheduledEventsTitle": "Événements non planifiés",
       "clickToAdd": "Cliquez pour ajouter au calendrier",
-      "name": "Disposition du calendrier"
+      "name": "Disposition du calendrier",
+      "noDateHint": "Les événements non planifiés s'afficheront ici"
     },
     "referencedCalendarPrefix": "Vue",
     "quickJumpYear": "Sauter à",
