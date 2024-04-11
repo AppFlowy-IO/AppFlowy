@@ -31,7 +31,11 @@ class FieldInfo with _$FieldInfo {
 
   bool get isPrimary => field.isPrimary;
 
+  double? get width => fieldSettings?.width.toDouble();
+
   FieldVisibility? get visibility => fieldSettings?.visibility;
+
+  bool? get wrapCellContent => fieldSettings?.wrapCellContent;
 
   bool get canBeGroup {
     switch (field.fieldType) {

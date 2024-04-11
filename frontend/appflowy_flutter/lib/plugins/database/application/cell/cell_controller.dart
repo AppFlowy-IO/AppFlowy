@@ -64,7 +64,6 @@ class CellController<T, D> {
   RowMetaListener? _rowMetaListener;
   CellDataNotifier<T?>? _cellDataNotifier;
 
-  void Function(FieldInfo field)? _onCellFieldChanged;
   VoidCallback? _onRowMetaChanged;
   Timer? _loadDataOperation;
   Timer? _saveDataOperation;
@@ -104,16 +103,7 @@ class CellController<T, D> {
     // 2. Listen on the field event and load the cell data if needed.
     _fieldController.addSingleFieldListener(
       fieldId,
-      onFieldChanged: (fieldInfo) {
-        // reloadOnFieldChanged should be true if you want to reload the cell
-        // data when the corresponding field is changed.
-        // For example:
-        //   ￥12 -> $12
-        if (_cellDataLoader.reloadOnFieldChange) {
-          _loadData();
-        }
-        _onCellFieldChanged?.call(fieldInfo);
-      },
+      onFieldChanged: _onFieldChangedListener,
     );
 
     // 3. If the field is primary listen to row meta changes.
@@ -130,22 +120,49 @@ class CellController<T, D> {
   /// Add a new listener
   VoidCallback? addListener({
     required void Function(T?) onCellChanged,
-    void Function(FieldInfo field)? onCellFieldChanged,
+    void Function(FieldInfo fieldInfo)? onFieldChanged,
     VoidCallback? onRowMetaChanged,
   }) {
-    _onCellFieldChanged = onCellFieldChanged;
-    _onRowMetaChanged = onRowMetaChanged;
-
-    /// Notify the listener, the cell data was changed.
+    /// an adaptor for the onCellChanged listener
     void onCellChangedFn() => onCellChanged(_cellDataNotifier?.value);
     _cellDataNotifier?.addListener(onCellChangedFn);
+
+    if (onFieldChanged != null) {
+      _fieldController.addSingleFieldListener(
+        fieldId,
+        onFieldChanged: onFieldChanged,
+      );
+    }
+
+    _onRowMetaChanged = onRowMetaChanged;
 
     // Return the function pointer that can be used when calling removeListener.
     return onCellChangedFn;
   }
 
-  void removeListener(VoidCallback fn) {
-    _cellDataNotifier?.removeListener(fn);
+  void removeListener({
+    required VoidCallback onCellChanged,
+    void Function(FieldInfo fieldInfo)? onFieldChanged,
+    VoidCallback? onRowMetaChanged,
+  }) {
+    _cellDataNotifier?.removeListener(onCellChanged);
+
+    if (onFieldChanged != null) {
+      _fieldController.removeSingleFieldListener(
+        fieldId: fieldId,
+        onFieldChanged: onFieldChanged,
+      );
+    }
+  }
+
+  void _onFieldChangedListener(FieldInfo fieldInfo) {
+    // reloadOnFieldChanged should be true if you want to reload the cell
+    // data when the corresponding field is changed.
+    // For example:
+    //   ￥12 -> $12
+    if (_cellDataLoader.reloadOnFieldChange) {
+      _loadData();
+    }
   }
 
   /// Get the cell data. The cell data will be read from the cache first,
@@ -217,6 +234,11 @@ class CellController<T, D> {
 
     await _cellListener?.stop();
     _cellListener = null;
+
+    _fieldController.removeSingleFieldListener(
+      fieldId: fieldId,
+      onFieldChanged: _onFieldChangedListener,
+    );
 
     _loadDataOperation?.cancel();
     _saveDataOperation?.cancel();

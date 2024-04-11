@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
+import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -10,6 +11,7 @@ class TextCellBloc extends Bloc<TextCellEvent, TextCellState> {
   TextCellBloc({required this.cellController})
       : super(TextCellState.initial(cellController)) {
     _dispatch();
+    _startListening();
   }
 
   final TextCellController cellController;
@@ -18,8 +20,10 @@ class TextCellBloc extends Bloc<TextCellEvent, TextCellState> {
   @override
   Future<void> close() async {
     if (_onCellChangedFn != null) {
-      cellController.removeListener(_onCellChangedFn!);
-      _onCellChangedFn = null;
+      cellController.removeListener(
+        onCellChanged: _onCellChangedFn!,
+        onFieldChanged: _onFieldChangedListener,
+      );
     }
     await cellController.dispose();
     return super.close();
@@ -29,11 +33,14 @@ class TextCellBloc extends Bloc<TextCellEvent, TextCellState> {
     on<TextCellEvent>(
       (event, emit) {
         event.when(
-          initial: () {
-            _startListening();
-          },
           didReceiveCellUpdate: (String content) {
             emit(state.copyWith(content: content));
+          },
+          didUpdateField: (fieldInfo) {
+            final wrap = fieldInfo.wrapCellContent;
+            if (wrap != null) {
+              emit(state.copyWith(wrap: wrap));
+            }
           },
           didUpdateEmoji: (String emoji) {
             emit(state.copyWith(emoji: emoji));
@@ -58,20 +65,30 @@ class TextCellBloc extends Bloc<TextCellEvent, TextCellState> {
           add(TextCellEvent.didReceiveCellUpdate(cellContent ?? ""));
         }
       },
-      onRowMetaChanged: () {
-        if (!isClosed && cellController.fieldInfo.isPrimary) {
-          add(TextCellEvent.didUpdateEmoji(cellController.icon ?? ""));
-        }
-      },
+      onFieldChanged: _onFieldChangedListener,
+      onRowMetaChanged: cellController.fieldInfo.isPrimary
+          ? () {
+              if (!isClosed) {
+                add(TextCellEvent.didUpdateEmoji(cellController.icon ?? ""));
+              }
+            }
+          : null,
     );
+  }
+
+  void _onFieldChangedListener(FieldInfo fieldInfo) {
+    if (!isClosed) {
+      add(TextCellEvent.didUpdateField(fieldInfo));
+    }
   }
 }
 
 @freezed
 class TextCellEvent with _$TextCellEvent {
-  const factory TextCellEvent.initial() = _InitialCell;
   const factory TextCellEvent.didReceiveCellUpdate(String cellContent) =
       _DidReceiveCellUpdate;
+  const factory TextCellEvent.didUpdateField(FieldInfo fieldInfo) =
+      _DidUpdateField;
   const factory TextCellEvent.updateText(String text) = _UpdateText;
   const factory TextCellEvent.enableEdit(bool enabled) = _EnableEdit;
   const factory TextCellEvent.didUpdateEmoji(String emoji) = _UpdateEmoji;
@@ -83,13 +100,20 @@ class TextCellState with _$TextCellState {
     required String content,
     required String emoji,
     required bool enableEdit,
+    required bool wrap,
   }) = _TextCellState;
 
-  factory TextCellState.initial(TextCellController cellController) =>
-      TextCellState(
-        content: cellController.getCellData() ?? "",
-        emoji:
-            cellController.fieldInfo.isPrimary ? cellController.icon ?? "" : "",
-        enableEdit: false,
-      );
+  factory TextCellState.initial(TextCellController cellController) {
+    final cellData = cellController.getCellData() ?? "";
+    final wrap = cellController.fieldInfo.wrapCellContent ?? false;
+    final emoji =
+        cellController.fieldInfo.isPrimary ? cellController.icon ?? "" : "";
+
+    return TextCellState(
+      content: cellData,
+      emoji: emoji,
+      enableEdit: false,
+      wrap: wrap,
+    );
+  }
 }

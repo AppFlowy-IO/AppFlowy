@@ -36,8 +36,7 @@ class ChecklistCellBloc extends Bloc<ChecklistCellEvent, ChecklistCellState> {
   @override
   Future<void> close() async {
     if (_onCellChangedFn != null) {
-      cellController.removeListener(_onCellChangedFn!);
-      _onCellChangedFn = null;
+      cellController.removeListener(onCellChanged: _onCellChangedFn!);
     }
     await cellController.dispose();
     return super.close();
@@ -47,7 +46,7 @@ class ChecklistCellBloc extends Bloc<ChecklistCellEvent, ChecklistCellState> {
     on<ChecklistCellEvent>(
       (event, emit) async {
         await event.when(
-          didReceiveOptions: (data) {
+          didUpdateCell: (data) {
             if (data == null) {
               emit(
                 const ChecklistCellState(
@@ -58,7 +57,6 @@ class ChecklistCellBloc extends Bloc<ChecklistCellEvent, ChecklistCellState> {
               );
               return;
             }
-
             emit(
               state.copyWith(
                 tasks: _makeChecklistSelectOptions(data),
@@ -91,7 +89,7 @@ class ChecklistCellBloc extends Bloc<ChecklistCellEvent, ChecklistCellState> {
     _onCellChangedFn = cellController.addListener(
       onCellChanged: (data) {
         if (!isClosed) {
-          add(ChecklistCellEvent.didReceiveOptions(data));
+          add(ChecklistCellEvent.didUpdateCell(data));
         }
       },
     );
@@ -111,9 +109,9 @@ class ChecklistCellBloc extends Bloc<ChecklistCellEvent, ChecklistCellState> {
 
 @freezed
 class ChecklistCellEvent with _$ChecklistCellEvent {
-  const factory ChecklistCellEvent.didReceiveOptions(
+  const factory ChecklistCellEvent.didUpdateCell(
     ChecklistCellDataPB? data,
-  ) = _DidReceiveCellUpdate;
+  ) = _DidUpdateCell;
   const factory ChecklistCellEvent.updateTaskName(
     SelectOptionPB option,
     String name,

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
+import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/application/field/type_option/select_type_option_actions.dart';
 import 'package:appflowy/plugins/database/application/field/type_option/type_option_data_parser.dart';
 import 'package:appflowy/plugins/database/domain/field_service.dart';
@@ -163,8 +164,10 @@ class SelectOptionCellEditorBloc
   @override
   Future<void> close() async {
     if (_onCellChangedFn != null) {
-      cellController.removeListener(_onCellChangedFn!);
-      _onCellChangedFn = null;
+      cellController.removeListener(
+        onCellChanged: _onCellChangedFn!,
+        onFieldChanged: _onFieldChangedListener,
+      );
     }
     return super.close();
   }
@@ -172,25 +175,23 @@ class SelectOptionCellEditorBloc
   void _startListening() {
     _onCellChangedFn = cellController.addListener(
       onCellChanged: (cellData) {
-        if (isClosed) {
-          Log.warn("Unexpecteded closing the bloc");
-          return;
+        if (!isClosed) {
+          add(
+            SelectOptionCellEditorEvent.didUpdateCell(
+              cellData == null ? [] : cellData.selectOptions,
+            ),
+          );
         }
-        add(
-          SelectOptionCellEditorEvent.didUpdateCell(
-            cellData == null ? [] : cellData.selectOptions,
-          ),
-        );
       },
-      onCellFieldChanged: (field) {
-        if (isClosed) {
-          Log.warn("Unexpecteded closing the bloc");
-          return;
-        }
-        final loadedOptions = _loadAllOptions(cellController);
-        add(SelectOptionCellEditorEvent.didUpdateOptions(loadedOptions));
-      },
+      onFieldChanged: _onFieldChangedListener,
     );
+  }
+
+  void _onFieldChangedListener(FieldInfo fieldInfo) {
+    if (!isClosed) {
+      final loadedOptions = _loadAllOptions(cellController);
+      add(SelectOptionCellEditorEvent.didUpdateOptions(loadedOptions));
+    }
   }
 
   Future<void> _createOption({
