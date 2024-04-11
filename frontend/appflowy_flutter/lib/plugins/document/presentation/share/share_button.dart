@@ -133,7 +133,12 @@ class ShareActionListState extends State<ShareActionList> {
               fileName: '${name.toFileName()}.md',
             );
             if (exportPath != null) {
-              docShareBloc.add(DocumentShareEvent.shareMarkdown(exportPath));
+              docShareBloc.add(
+                DocumentShareEvent.share(
+                  DocumentShareType.markdown,
+                  exportPath,
+                ),
+              );
             }
             break;
           case ShareAction.html:
@@ -142,7 +147,12 @@ class ShareActionListState extends State<ShareActionList> {
               fileName: '${name.toFileName()}.html',
             );
             if (exportPath != null) {
-              docShareBloc.add(DocumentShareEvent.shareHTML(exportPath));
+              docShareBloc.add(
+                DocumentShareEvent.share(
+                  DocumentShareType.html,
+                  exportPath,
+                ),
+              );
             }
             break;
           case ShareAction.clipboard:

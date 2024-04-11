@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:appflowy/workspace/application/export/document_exporter.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-document/entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -16,51 +17,36 @@ class DocumentShareBloc extends Bloc<DocumentShareEvent, DocumentShareState> {
   }) : super(const DocumentShareState.initial()) {
     on<DocumentShareEvent>((event, emit) async {
       await event.when(
-        shareMarkdown: (path) async {
+        share: (type, path) async {
+          if (DocumentShareType.unimplemented.contains(type)) {
+            Log.error('DocumentShareType $type is not implemented');
+            return;
+          }
+
           emit(const DocumentShareState.loading());
 
-          final documentExporter = DocumentExporter(view);
-          final result = await documentExporter.export(
-            DocumentExportType.markdown,
-          );
-          emit(
-            DocumentShareState.finish(
-              result.fold(
-                (markdown) => FlowyResult.success(
-                  _saveMarkdownToPath(
-                    markdown,
-                    path,
-                  ),
-                ),
-                (error) => FlowyResult.failure(error),
-              ),
-            ),
-          );
-        },
-        shareHTML: (path) async {
-          emit(const DocumentShareState.loading());
+          final exporter = DocumentExporter(view);
+          final FlowyResult<ExportDataPB, FlowyError> result =
+              await exporter.export(type.exportType).then((value) {
+            return value.fold(
+              (s) {
+                if (path != null) {
+                  switch (type) {
+                    case DocumentShareType.markdown:
+                      return FlowyResult.success(_saveMarkdownToPath(s, path));
+                    case DocumentShareType.html:
+                      return FlowyResult.success(_saveHTMLToPath(s, path));
+                    default:
+                      break;
+                  }
+                }
+                return FlowyResult.failure(FlowyError());
+              },
+              (f) => FlowyResult.failure(f),
+            );
+          });
 
-          final documentExporter = DocumentExporter(view);
-          final result = await documentExporter.export(DocumentExportType.html);
-          emit(
-            DocumentShareState.finish(
-              result.fold(
-                (html) => FlowyResult.success(
-                  _saveHTMLToPath(
-                    html,
-                    path,
-                  ),
-                ),
-                (error) => FlowyResult.failure(error),
-              ),
-            ),
-          );
-        },
-        shareText: () {
-          // Unimplemented
-        },
-        shareLink: () {
-          // Unimplemented
+          emit(DocumentShareState.finish(result));
         },
       );
     });
@@ -83,12 +69,32 @@ class DocumentShareBloc extends Bloc<DocumentShareEvent, DocumentShareState> {
   }
 }
 
+enum DocumentShareType {
+  markdown,
+  html,
+  text,
+  link;
+
+  static List<DocumentShareType> get unimplemented => [text, link];
+
+  DocumentExportType get exportType {
+    switch (this) {
+      case DocumentShareType.markdown:
+        return DocumentExportType.markdown;
+      case DocumentShareType.html:
+        return DocumentExportType.html;
+      case DocumentShareType.text:
+        return DocumentExportType.text;
+      case DocumentShareType.link:
+        throw UnsupportedError('DocumentShareType.link is not supported');
+    }
+  }
+}
+
 @freezed
 class DocumentShareEvent with _$DocumentShareEvent {
-  const factory DocumentShareEvent.shareMarkdown(String path) = ShareMarkdown;
-  const factory DocumentShareEvent.shareHTML(String path) = ShareHTML;
-  const factory DocumentShareEvent.shareText() = ShareText;
-  const factory DocumentShareEvent.shareLink() = ShareLink;
+  const factory DocumentShareEvent.share(DocumentShareType type, String? path) =
+      Share;
 }
 
 @freezed
