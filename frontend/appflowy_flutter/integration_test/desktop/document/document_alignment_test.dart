@@ -14,7 +14,7 @@ void main() {
   group('document alignment', () {
     testWidgets('edit alignment in toolbar', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       final selection = Selection.single(
         path: [0],
@@ -48,7 +48,7 @@ void main() {
 
     testWidgets('edit alignment using shortcut', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       // click the first line of the readme
       await tester.editor.tapLineOfEditorAt(0);

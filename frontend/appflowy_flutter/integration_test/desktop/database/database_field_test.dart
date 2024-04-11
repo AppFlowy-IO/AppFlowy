@@ -17,7 +17,7 @@ void main() {
   group('grid field editor:', () {
     testWidgets('rename existing field', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
 
@@ -34,7 +34,7 @@ void main() {
 
     testWidgets('update field type of existing field', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
 
@@ -50,7 +50,7 @@ void main() {
 
     testWidgets('create a field and rename it', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       // create a new grid
       await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
@@ -65,7 +65,7 @@ void main() {
 
     testWidgets('delete field', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
 
@@ -85,7 +85,7 @@ void main() {
 
     testWidgets('duplicate field', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
 
@@ -105,7 +105,7 @@ void main() {
 
     testWidgets('insert field on either side of a field', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
 
@@ -128,7 +128,7 @@ void main() {
 
     testWidgets('create checklist field', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
 
@@ -148,7 +148,7 @@ void main() {
 
     testWidgets('create list of fields', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
 
@@ -180,7 +180,7 @@ void main() {
 
     testWidgets('field types with empty type option editor', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
 
@@ -212,7 +212,7 @@ void main() {
 
     testWidgets('number field type option', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
       await tester.scrollToRight(find.byType(GridPage));
@@ -258,7 +258,7 @@ void main() {
 
     testWidgets('add option', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       await tester.createNewPageWithNameUnderParent(
         layout: ViewLayoutPB.Grid,
@@ -286,7 +286,7 @@ void main() {
 
     testWidgets('date time field type options', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
       await tester.scrollToRight(find.byType(GridPage));

@@ -19,7 +19,7 @@ void main() {
   group('outline block test', () {
     testWidgets('insert an outline block', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       await tester.createNewPageWithNameUnderParent(
         name: 'outline_test',
@@ -35,7 +35,7 @@ void main() {
     testWidgets('insert an outline block and check if headings are visible',
         (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       await tester.createNewPageWithNameUnderParent(
         name: 'outline_test',
@@ -91,7 +91,7 @@ void main() {
 
     testWidgets("control the depth of outline block", (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       await tester.createNewPageWithNameUnderParent(
         name: 'outline_test',

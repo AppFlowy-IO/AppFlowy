@@ -20,7 +20,7 @@ void main() {
   group('database view in document', () {
     testWidgets('insert a referenced grid', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       await insertReferenceDatabase(tester, ViewLayoutPB.Grid);
 
@@ -48,7 +48,7 @@ void main() {
 
     testWidgets('insert a referenced board', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       await insertReferenceDatabase(tester, ViewLayoutPB.Board);
 
@@ -64,7 +64,7 @@ void main() {
 
     testWidgets('insert a referenced calendar', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       await insertReferenceDatabase(tester, ViewLayoutPB.Calendar);
 
@@ -80,7 +80,7 @@ void main() {
 
     testWidgets('create a grid inside a document', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       await createInlineDatabase(tester, ViewLayoutPB.Grid);
 
@@ -96,7 +96,7 @@ void main() {
 
     testWidgets('create a board inside a document', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       await createInlineDatabase(tester, ViewLayoutPB.Board);
 
@@ -112,7 +112,7 @@ void main() {
 
     testWidgets('create a calendar inside a document', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       await createInlineDatabase(tester, ViewLayoutPB.Calendar);
 

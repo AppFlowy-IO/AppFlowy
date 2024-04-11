@@ -18,7 +18,7 @@ void main() {
   group('grid row detail page:', () {
     testWidgets('opens', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       // Create a new grid
       await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
@@ -35,7 +35,7 @@ void main() {
 
     testWidgets('add emoji', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       // Create a new grid
       await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
@@ -54,7 +54,7 @@ void main() {
 
     testWidgets('update emoji', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       // Create a new grid
       await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
@@ -81,7 +81,7 @@ void main() {
 
     testWidgets('remove emoji', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       // Create a new grid
       await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
@@ -102,7 +102,7 @@ void main() {
 
     testWidgets('create list of fields', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       // Create a new grid
       await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
@@ -136,7 +136,7 @@ void main() {
 
     testWidgets('change order of fields and cells', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       // Create a new grid
       await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
@@ -169,7 +169,7 @@ void main() {
 
     testWidgets('hide and show hidden fields', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       // Create a new grid
       await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
@@ -218,7 +218,7 @@ void main() {
     testWidgets('update the contents of the document and re-open it',
         (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       // Create a new grid
       await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
@@ -258,7 +258,7 @@ void main() {
         'check if the title wraps properly when a long text is inserted',
         (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       // Create a new grid
       await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
@@ -297,7 +297,7 @@ void main() {
 
     testWidgets('delete row', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       // Create a new grid
       await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
@@ -314,7 +314,7 @@ void main() {
 
     testWidgets('duplicate row', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       // Create a new grid
       await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);

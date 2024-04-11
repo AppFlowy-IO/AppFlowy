@@ -98,7 +98,7 @@ import 'mock/mock_file_picker.dart';
 extension AppFlowyDatabaseTest on WidgetTester {
   Future<void> openV020database() async {
     final context = await initializeAppFlowy();
-    await tapGoButton();
+    await tapAnonymousSignInButton();
 
     // expect to see a readme page
     expectToSeePageName(gettingStarted);

@@ -15,7 +15,7 @@ void main() {
   group('import files', () {
     testWidgets('import multiple markdown files', (tester) async {
       final context = await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       // expect to see a getting started page
       tester.expectToSeePageName(gettingStarted);
@@ -48,7 +48,7 @@ void main() {
 
     testWidgets('import markdown file with table', (tester) async {
       final context = await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       // expect to see a getting started page
       tester.expectToSeePageName(gettingStarted);
@@ -77,12 +77,18 @@ void main() {
       await tester.openPage('markdown_with_table');
 
       final importedPageEditorState = tester.editor.getCurrentEditorState();
-      expect(importedPageEditorState.getNodeAtPath([0])!.type,
-          HeadingBlockKeys.type,);
-      expect(importedPageEditorState.getNodeAtPath([2])!.type,
-          HeadingBlockKeys.type,);
-      expect(importedPageEditorState.getNodeAtPath([4])!.type,
-          TableBlockKeys.type,);
+      expect(
+        importedPageEditorState.getNodeAtPath([0])!.type,
+        HeadingBlockKeys.type,
+      );
+      expect(
+        importedPageEditorState.getNodeAtPath([2])!.type,
+        HeadingBlockKeys.type,
+      );
+      expect(
+        importedPageEditorState.getNodeAtPath([4])!.type,
+        TableBlockKeys.type,
+      );
     });
   });
 }

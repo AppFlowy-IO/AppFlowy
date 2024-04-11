@@ -13,7 +13,7 @@ void main() {
   group('inline page view in document', () {
     testWidgets('insert a inline page - grid', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       await insertInlinePage(tester, ViewLayoutPB.Grid);
 
@@ -24,7 +24,7 @@ void main() {
 
     testWidgets('insert a inline page - board', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       await insertInlinePage(tester, ViewLayoutPB.Board);
 
@@ -35,7 +35,7 @@ void main() {
 
     testWidgets('insert a inline page - calendar', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       await insertInlinePage(tester, ViewLayoutPB.Calendar);
 
@@ -46,7 +46,7 @@ void main() {
 
     testWidgets('insert a inline page - document', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       await insertInlinePage(tester, ViewLayoutPB.Document);
 
@@ -57,7 +57,7 @@ void main() {
 
     testWidgets('insert a inline page and rename it', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       final pageName = await insertInlinePage(tester, ViewLayoutPB.Document);
 
@@ -76,7 +76,7 @@ void main() {
 
     testWidgets('insert a inline page and delete it', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       final pageName = await insertInlinePage(tester, ViewLayoutPB.Grid);
 
