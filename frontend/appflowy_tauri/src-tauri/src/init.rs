@@ -1,5 +1,4 @@
 use flowy_core::config::AppFlowyCoreConfig;
-use flowy_core::integrate::log::create_log_filter;
 use flowy_core::{AppFlowyCore, DEFAULT_NAME};
 use lib_dispatch::runtime::AFPluginRuntime;
 use std::sync::Arc;
@@ -58,10 +57,7 @@ pub fn init_flowy_core() -> AppFlowyCore {
     "tauri".to_string(),
     DEFAULT_NAME.to_string(),
   )
-  .log_filter(create_log_filter(
-    "trace".to_owned(),
-    vec!["appflowy_tauri".to_string()],
-  ));
+  .log_filter("trace", vec!["appflowy_tauri".to_string()]);
 
   let runtime = Arc::new(AFPluginRuntime::new().unwrap());
   let cloned_runtime = runtime.clone();
