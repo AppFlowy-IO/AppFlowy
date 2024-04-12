@@ -15,7 +15,7 @@ void main() {
       const secondDocument = "Second";
 
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       await tester.createNewPageWithNameUnderParent(name: firstDocument);
       await tester.createNewPageWithNameUnderParent(name: secondDocument);

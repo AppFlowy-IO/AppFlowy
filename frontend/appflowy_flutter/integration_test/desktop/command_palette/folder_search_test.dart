@@ -7,7 +7,6 @@ import 'package:integration_test/integration_test.dart';
 
 import '../../shared/util.dart';
 
-
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
@@ -17,7 +16,7 @@ void main() {
       const secondDocument = "ViewOna";
 
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       await tester.createNewPageWithNameUnderParent(name: firstDocument);
       await tester.createNewPageWithNameUnderParent(name: secondDocument);

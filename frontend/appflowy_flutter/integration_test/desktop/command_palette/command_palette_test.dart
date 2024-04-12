@@ -10,7 +10,7 @@ void main() {
   group('Command Palette', () {
     testWidgets('Toggle command palette', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       await tester.toggleCommandPalette();
       expect(find.byType(CommandPaletteModal), findsOneWidget);
