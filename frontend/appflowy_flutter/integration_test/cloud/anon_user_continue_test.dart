@@ -32,7 +32,7 @@ void main() {
       );
 
       tester.expectToSeeText(LocaleKeys.signIn_loginStartWithAnonymous.tr());
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
       await tester.expectToSeeHomePageWithGetStartedPage();
 
       // reanme the name of the anon user

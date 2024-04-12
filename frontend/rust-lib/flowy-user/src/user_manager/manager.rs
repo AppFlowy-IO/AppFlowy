@@ -672,6 +672,18 @@ impl UserManager {
     Ok(url)
   }
 
+  pub(crate) async fn sign_in_with_magic_link(
+    &self,
+    email: &str,
+    redirect_to: &str,
+  ) -> Result<(), FlowyError> {
+    let auth_service = self.cloud_services.get_user_service()?;
+    auth_service
+      .sign_in_with_magic_link(email, redirect_to)
+      .await
+      .map_err(|err| FlowyError::server_error().with_context(err))
+  }
+
   pub(crate) async fn generate_oauth_url(
     &self,
     oauth_provider: &str,

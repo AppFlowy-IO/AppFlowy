@@ -289,6 +289,19 @@ pub async fn get_user_setting(
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
+pub async fn sign_in_with_magic_link_handler(
+  data: AFPluginData<MagicLinkSignInPB>,
+  manager: AFPluginState<Weak<UserManager>>,
+) -> Result<(), FlowyError> {
+  let manager = upgrade_manager(manager)?;
+  let params = data.into_inner();
+  manager
+    .sign_in_with_magic_link(&params.email, &params.redirect_to)
+    .await?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub async fn oauth_sign_in_handler(
   data: AFPluginData<OauthSignInPB>,
   manager: AFPluginState<Weak<UserManager>>,
@@ -713,6 +726,44 @@ pub async fn change_workspace_icon_handler(
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn invite_workspace_member_handler(
+  param: AFPluginData<WorkspaceMemberInvitationPB>,
+  manager: AFPluginState<Weak<UserManager>>,
+) -> Result<(), FlowyError> {
+  let param = param.try_into_inner()?;
+  let manager = upgrade_manager(manager)?;
+  manager
+    .invite_member_to_workspace(param.workspace_id, param.invitee_email, param.role.into())
+    .await?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn list_workspace_invitations_handler(
+  manager: AFPluginState<Weak<UserManager>>,
+) -> DataResult<RepeatedWorkspaceInvitationPB, FlowyError> {
+  let manager = upgrade_manager(manager)?;
+  let invitations = manager.list_pending_workspace_invitations().await?;
+  let invitations_pb: Vec<WorkspaceInvitationPB> = invitations
+    .into_iter()
+    .map(WorkspaceInvitationPB::from)
+    .collect();
+  data_result_ok(RepeatedWorkspaceInvitationPB {
+    items: invitations_pb,
+  })
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn accept_workspace_invitations_handler(
+  param: AFPluginData<AcceptWorkspaceInvitationPB>,
+  manager: AFPluginState<Weak<UserManager>>,
+) -> Result<(), FlowyError> {
+  let invite_id = param.try_into_inner()?.invite_id;
+  let manager = upgrade_manager(manager)?;
+  manager.accept_workspace_invitation(invite_id).await?;
+  Ok(())
+}
+
 pub async fn leave_workspace_handler(
   param: AFPluginData<UserWorkspaceIdPB>,
   manager: AFPluginState<Weak<UserManager>>,

@@ -815,7 +815,12 @@
       "createNewCard": "دروست کردنی نوێ"
     },
     "menuName": "تەختە",
-    "referencedBoardPrefix": "دیمەنی..."
+    "referencedBoardPrefix": "دیمەنی...",
+    "mobile": {
+      "showGroup": "نیشاندانی گروپ",
+      "showGroupContent": "ئایا دڵنیایت دەتەوێت ئەم گروپە لەسەر تەختە نیشان بدەیت؟",
+      "failedToLoad": "بارکردنی بینینی تەختە سەرکەوتوو نەبوو"
+    }
   },
   "calendar": {
     "menuName": "ساڵنامە",

@@ -37,14 +37,14 @@ import 'util.dart';
 
 extension CommonOperations on WidgetTester {
   /// Tap the GetStart button on the launch page.
-  Future<void> tapGoButton() async {
+  Future<void> tapAnonymousSignInButton() async {
     // local version
     final goButton = find.byType(GoButton);
     if (goButton.evaluate().isNotEmpty) {
       await tapButton(goButton);
     } else {
       // cloud version
-      final anonymousButton = find.byType(SignInAnonymousButton);
+      final anonymousButton = find.byType(SignInAnonymousButtonV2);
       await tapButton(anonymousButton);
     }
 

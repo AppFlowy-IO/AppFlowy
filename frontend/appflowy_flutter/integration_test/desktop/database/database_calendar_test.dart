@@ -14,7 +14,7 @@ void main() {
   group('calendar', () {
     testWidgets('update calendar layout', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       await tester.createNewPageWithNameUnderParent(
         layout: ViewLayoutPB.Calendar,
@@ -36,7 +36,7 @@ void main() {
 
     testWidgets('calendar start from day setting', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       // Create calendar view
       const name = 'calendar';
@@ -69,7 +69,7 @@ void main() {
 
     testWidgets('creating and editing calendar events', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       // Create the calendar view
       await tester.createNewPageWithNameUnderParent(
@@ -153,7 +153,7 @@ void main() {
       const customTitle = "EventTitleCustom";
 
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       // Create the calendar view
       await tester.createNewPageWithNameUnderParent(
@@ -194,7 +194,7 @@ void main() {
 
     testWidgets('rescheduling events', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       // Create the calendar view
       await tester.createNewPageWithNameUnderParent(

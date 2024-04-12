@@ -14,7 +14,7 @@ void main() {
   group('reminder in database', () {
     testWidgets('add date field and add reminder', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
 
@@ -68,7 +68,7 @@ void main() {
 
     testWidgets('navigate from reminder to open row', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
 
@@ -135,7 +135,7 @@ void main() {
       'toggle include time sets reminder option correctly',
       (tester) async {
         await tester.initializeAppFlowy();
-        await tester.tapGoButton();
+        await tester.tapAnonymousSignInButton();
 
         await tester.createNewPageWithNameUnderParent(
           layout: ViewLayoutPB.Grid,

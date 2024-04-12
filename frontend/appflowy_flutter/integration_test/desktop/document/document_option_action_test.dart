@@ -12,7 +12,7 @@ void main() {
         'click + to add a block after current selection, and click + and option key to add a block before current selection',
         (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       var editorState = tester.editor.getCurrentEditorState();
       expect(editorState.getNodeAtPath([1])?.delta?.toPlainText(), isNotEmpty);

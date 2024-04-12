@@ -13,7 +13,7 @@ void main() {
   group('Grid Calculations', () {
     testWidgets('add calculation and update cell', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
 
@@ -47,7 +47,7 @@ void main() {
 
     testWidgets('add calculations and remove row', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
 

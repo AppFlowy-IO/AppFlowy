@@ -1,7 +1,9 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/document_share_bloc.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/string_extension.dart';
+import 'package:appflowy/workspace/application/export/document_exporter.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
@@ -61,6 +63,12 @@ class DocumentShareButton extends StatelessWidget {
         break;
       case ExportType.Link:
       case ExportType.Text:
+        break;
+      case ExportType.HTML:
+        showSnackBarMessage(
+          context,
+          LocaleKeys.settings_files_exportFileSuccess.tr(),
+        );
         break;
     }
   }
@@ -125,8 +133,37 @@ class ShareActionListState extends State<ShareActionList> {
               fileName: '${name.toFileName()}.md',
             );
             if (exportPath != null) {
-              docShareBloc.add(DocumentShareEvent.shareMarkdown(exportPath));
+              docShareBloc.add(
+                DocumentShareEvent.share(
+                  DocumentShareType.markdown,
+                  exportPath,
+                ),
+              );
             }
+            break;
+          case ShareAction.html:
+            final exportPath = await getIt<FilePickerService>().saveFile(
+              dialogTitle: '',
+              fileName: '${name.toFileName()}.html',
+            );
+            if (exportPath != null) {
+              docShareBloc.add(
+                DocumentShareEvent.share(
+                  DocumentShareType.html,
+                  exportPath,
+                ),
+              );
+            }
+            break;
+          case ShareAction.clipboard:
+            final documentExporter = DocumentExporter(widget.view);
+            final result =
+                await documentExporter.export(DocumentExportType.markdown);
+            result.fold(
+              (markdown) => getIt<ClipboardService>()
+                  .setData(ClipboardServiceData(plainText: markdown)),
+              (error) => showMessageToast(error.msg),
+            );
             break;
         }
         controller.close();
@@ -146,6 +183,8 @@ class ShareActionListState extends State<ShareActionList> {
 
 enum ShareAction {
   markdown,
+  html,
+  clipboard,
 }
 
 class ShareActionWrapper extends ActionCell {
@@ -160,6 +199,10 @@ class ShareActionWrapper extends ActionCell {
     switch (inner) {
       case ShareAction.markdown:
         return LocaleKeys.shareAction_markdown.tr();
+      case ShareAction.html:
+        return LocaleKeys.shareAction_html.tr();
+      case ShareAction.clipboard:
+        return LocaleKeys.shareAction_clipboard.tr();
     }
   }
 }

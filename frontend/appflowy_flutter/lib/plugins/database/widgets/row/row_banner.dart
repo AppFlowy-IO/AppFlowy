@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
+import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/row/row_banner_bloc.dart';
 import 'package:appflowy/plugins/database/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_builder.dart';
@@ -21,10 +22,12 @@ const _kBannerActionHeight = 40.0;
 class RowBanner extends StatefulWidget {
   const RowBanner({
     super.key,
+    required this.fieldController,
     required this.rowController,
     required this.cellBuilder,
   });
 
+  final FieldController fieldController;
   final RowController rowController;
   final EditableCellBuilder cellBuilder;
 
@@ -47,6 +50,7 @@ class _RowBannerState extends State<RowBanner> {
     return BlocProvider<RowBannerBloc>(
       create: (context) => RowBannerBloc(
         viewId: widget.rowController.viewId,
+        fieldController: widget.fieldController,
         rowMeta: widget.rowController.rowMeta,
       )..add(const RowBannerEvent.initial()),
       child: MouseRegion(

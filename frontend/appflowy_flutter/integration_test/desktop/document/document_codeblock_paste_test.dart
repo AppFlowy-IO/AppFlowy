@@ -15,7 +15,7 @@ void main() {
   group('paste in codeblock', () {
     testWidgets('paste multiple lines in codeblock', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       // create a new document
       await tester.createNewPageWithNameUnderParent();

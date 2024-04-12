@@ -13,7 +13,7 @@ void main() {
   group('database field settings', () {
     testWidgets('field visibility', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
       await tester.tapCreateLinkedDatabaseViewButton(DatabaseLayoutPB.Grid);

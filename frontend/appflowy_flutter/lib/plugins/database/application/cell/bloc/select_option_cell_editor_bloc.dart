@@ -164,6 +164,39 @@ class SelectOptionCellEditorBloc
     return super.close();
   }
 
+  void _startListening() {
+    _onCellChangedFn = cellController.addListener(
+      onCellChanged: (_) {
+        _loadOptions();
+      },
+      onCellFieldChanged: (field) {
+        _loadOptions();
+      },
+    );
+  }
+
+  void _loadOptions() {
+    if (isClosed) {
+      Log.warn("Unexpecteded closing the bloc");
+      return;
+    }
+
+    final cellData = cellController.getCellData();
+
+    if (cellData != null) {
+      add(
+        SelectOptionCellEditorEvent.didReceiveOptions(
+          cellData.options,
+          cellData.selectOptions,
+        ),
+      );
+    } else {
+      add(
+        const SelectOptionCellEditorEvent.didReceiveOptions([], []),
+      );
+    }
+  }
+
   Future<void> _createOption({
     required String name,
     required SelectOptionColorPB color,
@@ -251,27 +284,6 @@ class SelectOptionCellEditorBloc
     );
   }
 
-  Future<void> _loadOptions() async {
-    final result = await _selectOptionService.getCellData();
-    if (isClosed) {
-      Log.warn("Unexpecteded closing the bloc");
-      return;
-    }
-
-    return result.fold(
-      (data) => add(
-        SelectOptionCellEditorEvent.didReceiveOptions(
-          data.options,
-          data.selectOptions,
-        ),
-      ),
-      (err) {
-        Log.error(err);
-        return null;
-      },
-    );
-  }
-
   _MakeOptionResult _getVisibleOptions(
     List<SelectOptionPB> allOptions,
   ) {
@@ -330,17 +342,6 @@ class SelectOptionCellEditorBloc
         : (currentIndex + (previous ? -1 : 1)) % optionIds.length;
 
     emit(state.copyWith(focusedOptionId: optionIds[newIndex]));
-  }
-
-  void _startListening() {
-    _onCellChangedFn = cellController.addListener(
-      onCellChanged: (selectOptionContext) {
-        _loadOptions();
-      },
-      onCellFieldChanged: (field) {
-        _loadOptions();
-      },
-    );
   }
 }
 

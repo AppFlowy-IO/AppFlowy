@@ -12,7 +12,7 @@ void main() {
   group('database', () {
     testWidgets('create linked view', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
 
@@ -33,7 +33,7 @@ void main() {
 
     testWidgets('rename and delete linked view', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
 
@@ -58,7 +58,7 @@ void main() {
 
     testWidgets('delete the last database view', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
 

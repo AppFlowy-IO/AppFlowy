@@ -304,7 +304,7 @@ extension on WidgetTester {
     (String, Uint8List?)? image,
   }) async {
     await initializeAppFlowy();
-    await tapGoButton();
+    await tapAnonymousSignInButton();
 
     // create a new document
     await createNewPageWithNameUnderParent();

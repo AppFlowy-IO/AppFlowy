@@ -1,4 +1,4 @@
-import 'package:appflowy/plugins/database/domain/field_listener.dart';
+import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/domain/field_service.dart';
 import 'package:appflowy/plugins/database/application/row/row_service.dart';
 import 'package:appflowy_backend/log.dart';
@@ -13,6 +13,7 @@ part 'row_banner_bloc.freezed.dart';
 class RowBannerBloc extends Bloc<RowBannerEvent, RowBannerState> {
   RowBannerBloc({
     required this.viewId,
+    required this.fieldController,
     required RowMetaPB rowMeta,
   })  : _rowBackendSvc = RowBackendService(viewId: viewId),
         _metaListener = RowMetaListener(rowMeta.id),
@@ -21,16 +22,13 @@ class RowBannerBloc extends Bloc<RowBannerEvent, RowBannerState> {
   }
 
   final String viewId;
+  final FieldController fieldController;
   final RowBackendService _rowBackendSvc;
   final RowMetaListener _metaListener;
-  SingleFieldListener? _fieldListener;
 
   @override
   Future<void> close() async {
     await _metaListener.stop();
-    await _fieldListener?.stop();
-    _fieldListener = null;
-
     return super.close();
   }
 
@@ -66,11 +64,11 @@ class RowBannerBloc extends Bloc<RowBannerEvent, RowBannerState> {
     fieldOrError.fold(
       (primaryField) {
         if (!isClosed) {
-          _fieldListener = SingleFieldListener(fieldId: primaryField.id);
-          _fieldListener?.start(
+          fieldController.addSingleFieldListener(
+            primaryField.id,
             onFieldChanged: (updatedField) {
               if (!isClosed) {
-                add(RowBannerEvent.didReceiveFieldUpdate(updatedField));
+                add(RowBannerEvent.didReceiveFieldUpdate(updatedField.field));
               }
             },
           );

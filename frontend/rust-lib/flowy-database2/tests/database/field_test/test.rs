@@ -155,8 +155,6 @@ async fn grid_switch_from_checkbox_to_select_option_test() {
       field_id: checkbox_field.id.clone(),
       // the mock data of the checkbox with row_index one is "true"
       row_index: 1,
-      // the from_field_type represents as the current field type
-      from_field_type: FieldType::Checkbox,
       // The content of the checkbox should transform to the corresponding option name.
       expected_content: CHECK.to_string(),
     },
@@ -190,7 +188,6 @@ async fn grid_switch_from_multi_select_to_text_test() {
   let script_assert_field = vec![AssertCellContent {
     field_id: field_rev.id.clone(),
     row_index: 0,
-    from_field_type: FieldType::MultiSelect,
     expected_content: format!(
       "{},{}",
       multi_select_type_option.first().unwrap().name,
@@ -218,13 +215,11 @@ async fn grid_switch_from_checkbox_to_text_test() {
     AssertCellContent {
       field_id: field_rev.id.clone(),
       row_index: 1,
-      from_field_type: FieldType::Checkbox,
       expected_content: "Yes".to_string(),
     },
     AssertCellContent {
       field_id: field_rev.id.clone(),
       row_index: 2,
-      from_field_type: FieldType::Checkbox,
       expected_content: "No".to_string(),
     },
   ];
@@ -246,13 +241,11 @@ async fn grid_switch_from_date_to_text_test() {
     AssertCellContent {
       field_id: field.id.clone(),
       row_index: 2,
-      from_field_type: FieldType::DateTime,
       expected_content: "2022/03/14".to_string(),
     },
     AssertCellContent {
       field_id: field.id.clone(),
       row_index: 3,
-      from_field_type: FieldType::DateTime,
       expected_content: "2022/11/17".to_string(),
     },
   ];
@@ -275,13 +268,11 @@ async fn grid_switch_from_number_to_text_test() {
     AssertCellContent {
       field_id: field.id.clone(),
       row_index: 0,
-      from_field_type: FieldType::Number,
       expected_content: "$1".to_string(),
     },
     AssertCellContent {
       field_id: field.id.clone(),
       row_index: 4,
-      from_field_type: FieldType::Number,
       expected_content: "".to_string(),
     },
   ];
@@ -303,7 +294,6 @@ async fn grid_switch_from_checklist_to_text_test() {
     AssertCellContent {
       field_id: field_rev.id.clone(),
       row_index: 0,
-      from_field_type: FieldType::Checklist,
       expected_content: "First thing".to_string(),
     },
   ];

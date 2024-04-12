@@ -18,7 +18,7 @@ void main() {
         'Toggle favorites for views creates / removes the favorite header along with favorite views',
         (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       // no favorite folder
       expect(find.byType(FavoriteFolder), findsNothing);
@@ -74,7 +74,7 @@ void main() {
       'renaming a favorite view updates name under favorite header',
       (tester) async {
         await tester.initializeAppFlowy();
-        await tester.tapGoButton();
+        await tester.tapAnonymousSignInButton();
 
         const name = 'test';
         await tester.favoriteViewByName(gettingStarted);
@@ -100,7 +100,7 @@ void main() {
       'deleting first level favorite view removes its instance from favorite header, deleting root level views leads to removal of all favorites that are its children',
       (tester) async {
         await tester.initializeAppFlowy();
-        await tester.tapGoButton();
+        await tester.tapAnonymousSignInButton();
 
         final names = [1, 2].map((e) => 'document_$e').toList();
         for (var i = 0; i < names.length; i++) {
@@ -157,7 +157,7 @@ void main() {
       'view selection is synced between favorites and personal folder',
       (tester) async {
         await tester.initializeAppFlowy();
-        await tester.tapGoButton();
+        await tester.tapAnonymousSignInButton();
 
         await tester.createNewPageWithNameUnderParent();
         await tester.favoriteViewByName(gettingStarted);
@@ -177,7 +177,7 @@ void main() {
       'context menu opens up for favorites',
       (tester) async {
         await tester.initializeAppFlowy();
-        await tester.tapGoButton();
+        await tester.tapAnonymousSignInButton();
 
         await tester.createNewPageWithNameUnderParent();
         await tester.favoriteViewByName(gettingStarted);

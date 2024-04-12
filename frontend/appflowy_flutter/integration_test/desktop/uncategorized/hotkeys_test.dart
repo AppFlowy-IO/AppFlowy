@@ -19,7 +19,7 @@ void main() {
     testWidgets('toggle theme mode', (tester) async {
       await tester.initializeAppFlowy();
 
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
       await tester.expectToSeeHomePageWithGetStartedPage();
 
       await tester.openSettings();
@@ -71,7 +71,7 @@ void main() {
     testWidgets('show or hide home menu', (tester) async {
       await tester.initializeAppFlowy();
 
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
       await tester.expectToSeeHomePageWithGetStartedPage();
 
       await tester.pumpAndSettle();

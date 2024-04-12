@@ -14,7 +14,7 @@ void main() {
   group('Icon', () {
     testWidgets('Update page icon in sidebar', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       // create document, board, grid and calendar views
       for (final value in ViewLayoutPB.values) {
@@ -42,7 +42,7 @@ void main() {
 
     testWidgets('Update page icon in title bar', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       // create document, board, grid and calendar views
       for (final value in ViewLayoutPB.values) {

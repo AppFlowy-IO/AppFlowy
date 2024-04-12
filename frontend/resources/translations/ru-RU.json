@@ -972,9 +972,9 @@
     "notesTooltip": "Заметки",
     "mobile": {
       "editURL": "Редактировать URL",
-      "unhideGroup": "Показать группу",
-      "unhideGroupContent": "Точно показать эту группу на доске?",
-      "faildToLoad": "Ошибка загрузки доски"
+      "showGroup": "Показать группу",
+      "showGroupContent": "Точно показать эту группу на доске?",
+      "failedToLoad": "Ошибка загрузки доски"
     }
   },
   "calendar": {

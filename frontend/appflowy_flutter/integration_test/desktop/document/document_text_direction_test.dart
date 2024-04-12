@@ -13,7 +13,7 @@ void main() {
         (tester) async {
       // combine the two tests into one to avoid the time-consuming process of initializing the app
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       final selection = Selection.single(
         path: [0],

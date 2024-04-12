@@ -1,7 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
-
 import 'package:appflowy/plugins/document/application/document_data_pb_extension.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/migration/editor_migration.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -16,6 +14,7 @@ import 'package:flowy_infra_ui/style_widget/container.dart';
 import 'package:flutter/material.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/services.dart';
 import 'package:path/path.dart' as p;
 
 typedef ImportCallback = void Function(
@@ -52,7 +51,7 @@ Future<void> showImportPanel(
   );
 }
 
-class ImportPanel extends StatelessWidget {
+class ImportPanel extends StatefulWidget {
   const ImportPanel({
     super.key,
     required this.parentViewId,
@@ -63,39 +62,62 @@ class ImportPanel extends StatelessWidget {
   final ImportCallback importCallback;
 
   @override
+  State<ImportPanel> createState() => _ImportPanelState();
+}
+
+class _ImportPanelState extends State<ImportPanel> {
+  final flowyContainerFocusNode = FocusNode();
+
+  @override
+  void dispose() {
+    flowyContainerFocusNode.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width * 0.7;
     final height = width * 0.5;
-    return FlowyContainer(
-      Theme.of(context).colorScheme.surface,
-      height: height,
-      width: width,
-      child: GridView.count(
-        childAspectRatio: 1 / .2,
-        crossAxisCount: 2,
-        children: ImportType.values
-            .where((element) => element.enableOnRelease)
-            .map(
-              (e) => Card(
-                child: FlowyButton(
-                  leftIcon: e.icon(context),
-                  leftIconSize: const Size.square(20),
-                  text: FlowyText.medium(
-                    e.toString(),
-                    fontSize: 15,
-                    overflow: TextOverflow.ellipsis,
-                    color: Theme.of(context).colorScheme.tertiary,
+    return KeyboardListener(
+      autofocus: true,
+      focusNode: flowyContainerFocusNode,
+      onKeyEvent: (event) {
+        if (event is KeyDownEvent &&
+            event.physicalKey == PhysicalKeyboardKey.escape) {
+          FlowyOverlay.pop(context);
+        }
+      },
+      child: FlowyContainer(
+        Theme.of(context).colorScheme.surface,
+        height: height,
+        width: width,
+        child: GridView.count(
+          childAspectRatio: 1 / .2,
+          crossAxisCount: 2,
+          children: ImportType.values
+              .where((element) => element.enableOnRelease)
+              .map(
+                (e) => Card(
+                  child: FlowyButton(
+                    leftIcon: e.icon(context),
+                    leftIconSize: const Size.square(20),
+                    text: FlowyText.medium(
+                      e.toString(),
+                      fontSize: 15,
+                      overflow: TextOverflow.ellipsis,
+                      color: Theme.of(context).colorScheme.tertiary,
+                    ),
+                    onTap: () async {
+                      await _importFile(widget.parentViewId, e);
+                      if (context.mounted) {
+                        FlowyOverlay.pop(context);
+                      }
+                    },
                   ),
-                  onTap: () async {
-                    await _importFile(parentViewId, e);
-                    if (context.mounted) {
-                      FlowyOverlay.pop(context);
-                    }
-                  },
                 ),
-              ),
-            )
-            .toList(),
+              )
+              .toList(),
+        ),
       ),
     );
   }
@@ -160,7 +182,7 @@ class ImportPanel extends StatelessWidget {
       }
     }
 
-    importCallback(importType, '', null);
+    widget.importCallback(importType, '', null);
   }
 }
 
