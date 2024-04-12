@@ -170,7 +170,7 @@ impl FolderIndexManagerImpl {
         Ok(writer) => Ok(writer),
         Err(e) => {
           tracing::error!("FolderIndexManager failed to lock index writer: {:?}", e);
-          return Err(FlowyError::folder_index_manager_unavailable());
+          Err(FlowyError::folder_index_manager_unavailable())
         },
       },
       None => Err(FlowyError::folder_index_manager_unavailable()),

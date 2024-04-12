@@ -103,16 +103,10 @@ impl From<SelectOptionColorPB> for SelectOptionColor {
   }
 }
 
-/// [SelectOptionCellDataPB] contains a list of user's selected options and a list of all the options
-/// that the cell can use.
+/// [SelectOptionCellDataPB] contains a list of user's selected options
 #[derive(Clone, Debug, Default, ProtoBuf)]
 pub struct SelectOptionCellDataPB {
-  /// The available options that the cell can use.
   #[pb(index = 1)]
-  pub options: Vec<SelectOptionPB>,
-
-  /// The selected options for the cell.
-  #[pb(index = 2)]
   pub select_options: Vec<SelectOptionPB>,
 }
 

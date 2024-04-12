@@ -14,7 +14,6 @@ use tokio::select;
 use tokio::time::sleep;
 
 use flowy_core::config::AppFlowyCoreConfig;
-use flowy_core::integrate::log::create_log_filter;
 use flowy_core::AppFlowyCore;
 use flowy_notification::register_notification_sender;
 use flowy_server::AppFlowyServer;
