@@ -51,6 +51,10 @@
     "LogInWithDiscord": "Se connecter avec Discord",
     "signInWith": "Se connecter avec :",
     "signInWithEmail": "Se connecter via e-mail",
+    "logInWithMagicLink": "Connectez-vous avec Magic Link",
+    "pleaseInputYourEmail": "Veuillez entrer votre adresse e-mail",
+    "magicLinkSent": "Lien magique envoyé à votre email, veuillez vérifier votre boîte de réception",
+    "invalidEmail": "S'il vous plaît, mettez une adresse email valide",
     "loginAsGuestButtonText": "Commencer"
   },
   "workspace": {
@@ -89,6 +93,7 @@
     "buttonText": "Partager",
     "workInProgress": "Bientôt disponible",
     "markdown": "Markdown",
+    "clipboard": "Copier dans le presse-papier",
     "csv": "CSV",
     "copyLink": "Copier le lien"
   },
@@ -570,6 +575,7 @@
       "typeAValue": "Tapez une valeur...",
       "layout": "Mise en page",
       "databaseLayout": "Mise en page",
+      "viewList": "Vues de base de données",
       "editView": "Modifier vue",
       "boardSettings": "Paramètres du tableau",
       "calendarSettings": "Paramètres du calendrier",
@@ -577,8 +583,7 @@
       "duplicateView": "Dupliquer la vue",
       "deleteView": "Supprimer la vue",
       "numberOfVisibleFields": "{} affiché(s)",
-      "Properties": "Propriétés",
-      "viewList": "Vues de base de données"
+      "Properties": "Propriétés"
     },
     "textFilter": {
       "contains": "Contient",
@@ -779,7 +784,9 @@
       "inRelatedDatabase": "Dans",
       "rowSearchTextFieldPlaceholder": "Recherche",
       "noDatabaseSelected": "Aucune base de données sélectionnée, veuillez d'abord en sélectionner une dans la liste ci-dessous :",
-      "emptySearchResult": "Aucun enregistrement trouvé"
+      "emptySearchResult": "Aucun enregistrement trouvé",
+      "linkedRowListLabel": "{count} lignes liées",
+      "unlinkedRowListLabel": "Lier une autre ligne"
     },
     "menuName": "Grille",
     "referencedGridPrefix": "Vue",
@@ -998,7 +1005,10 @@
       "language": {
         "label": "Langue",
         "placeholder": "Choisir la langue"
-      }
+      },
+      "copyTooltip": "Copier le contenu du bloc de code",
+      "searchLanguageHint": "Rechercher une langue",
+      "codeCopiedSnackbar": "Code copié dans le presse-papier !"
     },
     "inlineLink": {
       "placeholder": "Coller ou saisir un lien",
@@ -1093,10 +1103,10 @@
       "layoutDateField": "Calendrier de mise en page par",
       "changeLayoutDateField": "Modifier le champ de mise en page",
       "noDateTitle": "Pas de date",
+      "noDateHint": "Les événements non planifiés s'afficheront ici",
       "unscheduledEventsTitle": "Événements non planifiés",
       "clickToAdd": "Cliquez pour ajouter au calendrier",
-      "name": "Disposition du calendrier",
-      "noDateHint": "Les événements non planifiés s'afficheront ici"
+      "name": "Disposition du calendrier"
     },
     "referencedCalendarPrefix": "Vue",
     "quickJumpYear": "Sauter à",
@@ -1451,5 +1461,11 @@
       "synced": "Synchronisé",
       "noNetworkConnected": "Aucun réseau connecté"
     }
+  },
+  "commandPalette": {
+    "placeholder": "Tapez pour rechercher des vues...",
+    "navigateHint": "naviguer",
+    "loadingTooltip": "Nous recherchons des résultats...",
+    "betaTooltip": "Nous ne prenons actuellement en charge que la recherche de pages"
   }
 }
