@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use collab_folder::{FolderData, View};
 use flowy_folder::entities::icon::UpdateViewIconPayloadPB;
 use flowy_folder::event_map::FolderEvent;
@@ -11,7 +13,6 @@ use flowy_user::entities::{
 };
 use flowy_user::errors::FlowyError;
 use flowy_user::event_map::UserEvent;
-use std::sync::Arc;
 use flowy_user_pub::entities::Role;
 
 use crate::event_builder::EventBuilder;
