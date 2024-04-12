@@ -60,6 +60,7 @@ flowy-error = { path = "../../rust-lib/flowy-error", features = [
     "impl_from_serde",
     "tauri_ts",
 ] }
+flowy-search = { path = "../../rust-lib/flowy-search", features = ["tauri_ts"] }
 flowy-document = { path = "../../rust-lib/flowy-document", features = [
     "tauri_ts",
 ] }

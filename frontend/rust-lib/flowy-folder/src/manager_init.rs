@@ -1,6 +1,8 @@
 use collab_entity::CollabType;
 
 use collab_folder::{Folder, FolderNotify, UserId};
+use tokio::task::spawn_blocking;
+use tracing::{event, Level};
 
 use collab_integrate::CollabKVDB;
 
@@ -8,7 +10,6 @@ use flowy_error::{FlowyError, FlowyResult};
 
 use collab::core::collab::DocStateSource;
 use std::sync::{Arc, Weak};
-use tracing::{event, Level};
 
 use crate::manager::{FolderInitDataSource, FolderManager};
 use crate::manager_observer::{
@@ -129,6 +130,22 @@ impl FolderManager {
     };
 
     let folder_state_rx = folder.subscribe_sync_state();
+    let index_content_rx = folder.subscribe_index_content();
+    self
+      .folder_indexer
+      .set_index_content_receiver(index_content_rx);
+
+    // Index all views in the folder if needed
+    if !self.folder_indexer.is_indexed() {
+      let views = folder.get_all_views_recursively();
+      let folder_indexer = self.folder_indexer.clone();
+
+      // We spawn a blocking task to index all views in the folder
+      spawn_blocking(move || {
+        folder_indexer.index_all_views(views);
+      });
+    }
+
     *self.mutex_folder.lock() = Some(folder);
 
     let weak_mutex_folder = Arc::downgrade(&self.mutex_folder);

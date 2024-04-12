@@ -1,4 +1,4 @@
-use crate::util::unzip_history_user_db;
+use crate::util::unzip;
 use event_integration::EventIntegrationTest;
 use flowy_core::DEFAULT_NAME;
 use flowy_folder::entities::{ImportPB, ImportTypePB, ViewLayoutPB};
@@ -7,11 +7,11 @@ use flowy_folder::entities::{ImportPB, ImportTypePB, ViewLayoutPB};
 async fn import_492_row_csv_file_test() {
   // csv_500r_15c.csv is a file with 492 rows and 17 columns
   let file_name = "csv_492r_17c.csv".to_string();
-  let (cleaner, csv_file_path) = unzip_history_user_db("./tests/asset", &file_name).unwrap();
+  let (cleaner, csv_file_path) = unzip("./tests/asset", &file_name).unwrap();
 
   let csv_string = std::fs::read_to_string(csv_file_path).unwrap();
   let test = EventIntegrationTest::new_with_name(DEFAULT_NAME).await;
-  test.sign_up_as_guest().await;
+  test.sign_up_as_anon().await;
 
   let workspace_id = test.get_current_workspace().await.id;
   let import_data = gen_import_data(file_name, csv_string, workspace_id);
@@ -26,11 +26,11 @@ async fn import_492_row_csv_file_test() {
 async fn import_10240_row_csv_file_test() {
   // csv_22577r_15c.csv is a file with 10240 rows and 15 columns
   let file_name = "csv_10240r_15c.csv".to_string();
-  let (cleaner, csv_file_path) = unzip_history_user_db("./tests/asset", &file_name).unwrap();
+  let (cleaner, csv_file_path) = unzip("./tests/asset", &file_name).unwrap();
 
   let csv_string = std::fs::read_to_string(csv_file_path).unwrap();
   let test = EventIntegrationTest::new_with_name(DEFAULT_NAME).await;
-  test.sign_up_as_guest().await;
+  test.sign_up_as_anon().await;
 
   let workspace_id = test.get_current_workspace().await.id;
   let import_data = gen_import_data(file_name, csv_string, workspace_id);

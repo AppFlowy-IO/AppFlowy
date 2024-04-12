@@ -14,6 +14,7 @@ use tokio::select;
 use tokio::time::sleep;
 
 use flowy_core::config::AppFlowyCoreConfig;
+use flowy_core::integrate::log::create_log_filter;
 use flowy_core::AppFlowyCore;
 use flowy_notification::register_notification_sender;
 use flowy_server::AppFlowyServer;
@@ -84,6 +85,14 @@ impl EventIntegrationTest {
       notification_sender,
       cleaner: Arc::new(Cleaner(path_buf)),
     }
+  }
+
+  pub fn instance_name(&self) -> String {
+    self.appflowy_core.config.name.clone()
+  }
+
+  pub fn user_data_path(&self) -> String {
+    self.appflowy_core.config.application_path.clone()
   }
 
   pub fn get_server(&self) -> Arc<dyn AppFlowyServer> {

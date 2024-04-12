@@ -120,7 +120,7 @@ pub fn unzip_and_replace(
 
   // Unzip the file
   let file = File::open(zip_path.as_ref())
-    .context(format!("Can't find the zip file: {:?}", zip_path.as_ref()))?;
+    .with_context(|| format!("Can't find the zip file: {:?}", zip_path.as_ref()))?;
   let mut archive = ZipArchive::new(file).context("Unzip file fail")?;
 
   for i in 0..archive.len() {
@@ -143,14 +143,43 @@ pub fn unzip_and_replace(
   // Replace the contents of the target folder
   if target_folder.exists() {
     fs::remove_dir_all(target_folder)
-      .context(format!("Remove all files in {:?}", target_folder))?;
+      .with_context(|| format!("Remove all files in {:?}", target_folder))?;
   }
 
   fs::create_dir_all(target_folder)?;
   for entry in fs::read_dir(temp_dir.path())? {
     let entry = entry?;
-    fs::rename(entry.path(), target_folder.join(entry.file_name()))?;
+    let target_file = target_folder.join(entry.file_name());
+
+    // Use a copy and delete approach instead of fs::rename
+    if entry.path().is_dir() {
+      // Recursively copy directory contents
+      copy_dir_all(entry.path(), &target_file)?;
+    } else {
+      fs::copy(entry.path(), &target_file)?;
+    }
+    // Remove the original file/directory after copying
+    if entry.path().is_dir() {
+      fs::remove_dir_all(entry.path())?;
+    } else {
+      fs::remove_file(entry.path())?;
+    }
   }
 
+  Ok(())
+}
+
+// Helper function for recursively copying directories
+fn copy_dir_all(src: PathBuf, dst: &Path) -> io::Result<()> {
+  fs::create_dir_all(dst)?;
+  for entry in fs::read_dir(src)? {
+    let entry = entry?;
+    let ty = entry.file_type()?;
+    if ty.is_dir() {
+      copy_dir_all(entry.path(), &dst.join(entry.file_name()))?;
+    } else {
+      fs::copy(entry.path(), dst.join(entry.file_name()))?;
+    }
+  }
   Ok(())
 }

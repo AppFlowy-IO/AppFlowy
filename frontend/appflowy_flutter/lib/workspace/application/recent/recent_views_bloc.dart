@@ -29,9 +29,7 @@ class RecentViewsBloc extends Bloc<RecentViewsEvent, RecentViewsState> {
         await event.map(
           initial: (e) async {
             _listener.start(
-              recentViewsUpdated: (result) => _onRecentViewsUpdated(
-                result,
-              ),
+              recentViewsUpdated: (result) => _onRecentViewsUpdated(result),
             );
             add(const RecentViewsEvent.fetchRecentViews());
           },

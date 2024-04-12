@@ -3,7 +3,7 @@ use event_integration::EventIntegrationTest;
 // The number of groups should be 0 if there is no group by field in grid
 #[tokio::test]
 async fn get_groups_event_with_grid_test() {
-  let test = EventIntegrationTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_anon().await;
   let current_workspace = test.get_current_workspace().await;
   let grid_view = test
     .create_grid(&current_workspace.id, "my board view".to_owned(), vec![])
@@ -15,7 +15,7 @@ async fn get_groups_event_with_grid_test() {
 
 #[tokio::test]
 async fn get_groups_event_test() {
-  let test = EventIntegrationTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_anon().await;
   let current_workspace = test.get_current_workspace().await;
   let board_view = test
     .create_board(&current_workspace.id, "my board view".to_owned(), vec![])
@@ -27,7 +27,7 @@ async fn get_groups_event_test() {
 
 #[tokio::test]
 async fn move_group_event_test() {
-  let test = EventIntegrationTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_anon().await;
   let current_workspace = test.get_current_workspace().await;
   let board_view = test
     .create_board(&current_workspace.id, "my board view".to_owned(), vec![])
@@ -61,7 +61,7 @@ async fn move_group_event_test() {
 
 #[tokio::test]
 async fn move_group_event_with_invalid_id_test() {
-  let test = EventIntegrationTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_anon().await;
   let current_workspace = test.get_current_workspace().await;
   let board_view = test
     .create_board(&current_workspace.id, "my board view".to_owned(), vec![])
@@ -83,7 +83,7 @@ async fn move_group_event_with_invalid_id_test() {
 
 #[tokio::test]
 async fn rename_group_event_test() {
-  let test = EventIntegrationTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_anon().await;
   let current_workspace = test.get_current_workspace().await;
   let board_view = test
     .create_board(&current_workspace.id, "my board view".to_owned(), vec![])
@@ -104,7 +104,7 @@ async fn rename_group_event_test() {
 
 #[tokio::test]
 async fn hide_group_event_test() {
-  let test = EventIntegrationTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_anon().await;
   let current_workspace = test.get_current_workspace().await;
   let board_view = test
     .create_board(&current_workspace.id, "my board view".to_owned(), vec![])
@@ -132,7 +132,7 @@ async fn hide_group_event_test() {
 
 #[tokio::test]
 async fn update_group_name_test() {
-  let test = EventIntegrationTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_anon().await;
   let current_workspace = test.get_current_workspace().await;
   let board_view = test
     .create_board(&current_workspace.id, "my board view".to_owned(), vec![])
@@ -157,7 +157,7 @@ async fn update_group_name_test() {
 
 #[tokio::test]
 async fn delete_group_test() {
-  let test = EventIntegrationTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_anon().await;
   let current_workspace = test.get_current_workspace().await;
   let board_view = test
     .create_board(&current_workspace.id, "my board view".to_owned(), vec![])

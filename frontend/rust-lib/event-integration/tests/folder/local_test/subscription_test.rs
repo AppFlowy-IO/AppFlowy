@@ -16,7 +16,7 @@ use crate::util::receive_with_timeout;
 /// 5. Await the notification for workspace view updates with a timeout of 30 seconds.
 /// 6. Ensure that the received views contain the newly created "test_view".
 async fn create_child_view_in_workspace_subscription_test() {
-  let test = EventIntegrationTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_anon().await;
   let workspace = test.get_current_workspace().await;
   let rx = test
     .notification_sender
@@ -40,7 +40,7 @@ async fn create_child_view_in_workspace_subscription_test() {
 
 #[tokio::test]
 async fn create_child_view_in_view_subscription_test() {
-  let test = EventIntegrationTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_anon().await;
   let mut workspace = test.get_current_workspace().await;
   let workspace_child_view = workspace.views.pop().unwrap();
   let rx = test.notification_sender.subscribe::<ChildViewUpdatePB>(
@@ -72,7 +72,7 @@ async fn create_child_view_in_view_subscription_test() {
 
 #[tokio::test]
 async fn delete_view_subscription_test() {
-  let test = EventIntegrationTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_anon().await;
   let workspace = test.get_current_workspace().await;
   let rx = test
     .notification_sender
@@ -103,7 +103,7 @@ async fn delete_view_subscription_test() {
 
 #[tokio::test]
 async fn update_view_subscription_test() {
-  let test = EventIntegrationTest::new_with_guest_user().await;
+  let test = EventIntegrationTest::new_anon().await;
   let mut workspace = test.get_current_workspace().await;
   let rx = test
     .notification_sender

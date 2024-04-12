@@ -1371,6 +1371,7 @@ dependencies = [
  "bytes",
  "chrono",
  "collab",
+ "collab-document",
  "collab-entity",
  "collab-folder",
  "collab-integrate",
@@ -1380,6 +1381,7 @@ dependencies = [
  "flowy-error",
  "flowy-folder-pub",
  "flowy-notification",
+ "flowy-search-pub",
  "lazy_static",
  "lib-dispatch",
  "lib-infra",
@@ -1420,6 +1422,15 @@ dependencies = [
  "protobuf",
  "serde",
  "tracing",
+]
+
+[[package]]
+name = "flowy-search-pub"
+version = "0.1.0"
+dependencies = [
+ "collab",
+ "collab-folder",
+ "flowy-error",
 ]
 
 [[package]]
