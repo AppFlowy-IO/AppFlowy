@@ -308,10 +308,7 @@ impl DatabaseEditor {
       .lock()
       .fields
       .update_field(&params.field_id, |update| {
-        update
-          .set_name_if_not_none(params.name)
-          .set_width_at_if_not_none(params.width.map(|value| value as i64))
-          .set_visibility_if_not_none(params.visibility);
+        update.set_name_if_not_none(params.name);
       });
     notify_did_update_database_field(&self.database, &params.field_id)?;
     Ok(())
