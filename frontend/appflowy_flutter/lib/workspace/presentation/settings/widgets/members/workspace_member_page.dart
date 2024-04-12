@@ -77,9 +77,30 @@ class WorkspaceMembersPage extends StatelessWidget {
           );
         },
         (f) {
+          Log.error(f);
           final message = f.code == ErrorCode.WorkspaceMemberLimitExceeded
               ? LocaleKeys.settings_appearance_members_memberLimitExceeded.tr()
               : LocaleKeys.settings_appearance_members_failedToAddMember.tr();
+          showDialog(
+            context: context,
+            builder: (context) => NavigatorOkCancelDialog(message: message),
+          );
+        },
+      );
+    } else if (actionType == WorkspaceMemberActionType.invite) {
+      result.fold(
+        (s) {
+          showSnackBarMessage(
+            context,
+            LocaleKeys.settings_appearance_members_inviteMemberSuccess.tr(),
+          );
+        },
+        (f) {
+          Log.error(f);
+          final message = f.code == ErrorCode.WorkspaceMemberLimitExceeded
+              ? LocaleKeys.settings_appearance_members_memberLimitExceeded.tr()
+              : LocaleKeys.settings_appearance_members_failedToInviteMember
+                  .tr();
           showDialog(
             context: context,
             builder: (context) => NavigatorOkCancelDialog(message: message),
@@ -202,7 +223,10 @@ class _InviteMemberState extends State<_InviteMember> {
     }
     context
         .read<WorkspaceMemberBloc>()
-        .add(WorkspaceMemberEvent.addWorkspaceMember(email));
+        .add(WorkspaceMemberEvent.inviteWorkspaceMember(email));
+    // context
+    //     .read<WorkspaceMemberBloc>()
+    //     .add(WorkspaceMemberEvent.addWorkspaceMember(email));
   }
 }
 
