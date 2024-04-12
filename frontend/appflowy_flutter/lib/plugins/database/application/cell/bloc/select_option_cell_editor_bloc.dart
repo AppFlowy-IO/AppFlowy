@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database/application/field/type_option/select_type_option_actions.dart';
+import 'package:appflowy/plugins/database/application/field/type_option/type_option_data_parser.dart';
 import 'package:appflowy/plugins/database/domain/field_service.dart';
 import 'package:appflowy/plugins/database/domain/select_option_cell_service.dart';
 import 'package:appflowy_backend/log.dart';
@@ -18,8 +19,9 @@ const String createSelectOptionSuggestionId =
 
 class SelectOptionCellEditorBloc
     extends Bloc<SelectOptionCellEditorEvent, SelectOptionCellEditorState> {
-  SelectOptionCellEditorBloc({required this.cellController})
-      : _selectOptionService = SelectOptionCellBackendService(
+  SelectOptionCellEditorBloc({
+    required this.cellController,
+  })  : _selectOptionService = SelectOptionCellBackendService(
           viewId: cellController.viewId,
           fieldId: cellController.fieldId,
           rowId: cellController.rowId,
@@ -48,7 +50,8 @@ class SelectOptionCellEditorBloc
         super(SelectOptionCellEditorState.initial(cellController)) {
     _dispatch();
     _startListening();
-    _loadOptions();
+    final loadedOptions = _loadAllOptions(cellController);
+    add(SelectOptionCellEditorEvent.didUpdateOptions(loadedOptions));
   }
 
   final SelectOptionCellBackendService _selectOptionService;
@@ -64,17 +67,19 @@ class SelectOptionCellEditorBloc
     on<SelectOptionCellEditorEvent>(
       (event, emit) async {
         await event.when(
-          didReceiveOptions: (options, selectedOptions) {
-            final result = _getVisibleOptions(options);
+          didUpdateCell: (selectedOptions) {
+            emit(state.copyWith(selectedOptions: selectedOptions));
+          },
+          didUpdateOptions: (options) {
             allOptions
               ..clear()
               ..addAll(options);
+            final result = _getVisibleOptions(options);
             emit(
               state.copyWith(
                 options: result.options,
                 createSelectOptionSuggestion:
                     result.createSelectOptionSuggestion,
-                selectedOptions: selectedOptions,
               ),
             );
           },
@@ -166,35 +171,26 @@ class SelectOptionCellEditorBloc
 
   void _startListening() {
     _onCellChangedFn = cellController.addListener(
-      onCellChanged: (_) {
-        _loadOptions();
+      onCellChanged: (cellData) {
+        if (isClosed) {
+          Log.warn("Unexpecteded closing the bloc");
+          return;
+        }
+        add(
+          SelectOptionCellEditorEvent.didUpdateCell(
+            cellData == null ? [] : cellData.selectOptions,
+          ),
+        );
       },
       onCellFieldChanged: (field) {
-        _loadOptions();
+        if (isClosed) {
+          Log.warn("Unexpecteded closing the bloc");
+          return;
+        }
+        final loadedOptions = _loadAllOptions(cellController);
+        add(SelectOptionCellEditorEvent.didUpdateOptions(loadedOptions));
       },
     );
-  }
-
-  void _loadOptions() {
-    if (isClosed) {
-      Log.warn("Unexpecteded closing the bloc");
-      return;
-    }
-
-    final cellData = cellController.getCellData();
-
-    if (cellData != null) {
-      add(
-        SelectOptionCellEditorEvent.didReceiveOptions(
-          cellData.options,
-          cellData.selectOptions,
-        ),
-      );
-    } else {
-      add(
-        const SelectOptionCellEditorEvent.didReceiveOptions([], []),
-      );
-    }
   }
 
   Future<void> _createOption({
@@ -347,10 +343,12 @@ class SelectOptionCellEditorBloc
 
 @freezed
 class SelectOptionCellEditorEvent with _$SelectOptionCellEditorEvent {
-  const factory SelectOptionCellEditorEvent.didReceiveOptions(
-    List<SelectOptionPB> options,
+  const factory SelectOptionCellEditorEvent.didUpdateCell(
     List<SelectOptionPB> selectedOptions,
-  ) = _DidReceiveOptions;
+  ) = _DidUpdateCell;
+  const factory SelectOptionCellEditorEvent.didUpdateOptions(
+    List<SelectOptionPB> options,
+  ) = _DidUpdateOptions;
   const factory SelectOptionCellEditorEvent.createOption() = _CreateOption;
   const factory SelectOptionCellEditorEvent.selectOption(String optionId) =
       _SelectOption;
@@ -400,11 +398,12 @@ class SelectOptionCellEditorState with _$SelectOptionCellEditorState {
   }) = _SelectOptionEditorState;
 
   factory SelectOptionCellEditorState.initial(
-    SelectOptionCellController context,
+    SelectOptionCellController cellController,
   ) {
-    final data = context.getCellData(loadIfNotExist: false);
+    final allOptions = _loadAllOptions(cellController);
+    final data = cellController.getCellData();
     return SelectOptionCellEditorState(
-      options: data?.options ?? [],
+      options: allOptions,
       selectedOptions: data?.selectOptions ?? [],
       createSelectOptionSuggestion: null,
       focusedOptionId: null,
@@ -431,4 +430,22 @@ class CreateSelectOptionSuggestion {
 
   final String name;
   final SelectOptionColorPB color;
+}
+
+List<SelectOptionPB> _loadAllOptions(
+  SelectOptionCellController cellController,
+) {
+  if (cellController.fieldType == FieldType.SingleSelect) {
+    return cellController
+        .getTypeOption<SingleSelectTypeOptionPB>(
+          SingleSelectTypeOptionDataParser(),
+        )
+        .options;
+  } else {
+    return cellController
+        .getTypeOption<MultiSelectTypeOptionPB>(
+          MultiSelectTypeOptionDataParser(),
+        )
+        .options;
+  }
 }

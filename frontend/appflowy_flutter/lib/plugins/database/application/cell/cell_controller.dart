@@ -161,7 +161,7 @@ class CellController<T, D> {
 
   /// Return the TypeOptionPB that can be parsed into corresponding class using the [parser].
   /// [PD] is the type that the parser return.
-  PD getTypeOption<PD, P extends TypeOptionParser>(P parser) {
+  PD getTypeOption<PD>(TypeOptionParser parser) {
     return parser.fromBuffer(fieldInfo.field.typeOptionData);
   }
 

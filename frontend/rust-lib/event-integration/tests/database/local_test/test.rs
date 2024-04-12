@@ -504,7 +504,6 @@ async fn update_single_select_cell_event_test() {
   let cell = test.get_cell(&grid_view.id, &row_id, &field_id).await;
   let select_option_cell = SelectOptionCellDataPB::try_from(Bytes::from(cell.data)).unwrap();
 
-  assert_eq!(select_option_cell.options.len(), 1);
   assert_eq!(select_option_cell.select_options.len(), 1);
 }
 
