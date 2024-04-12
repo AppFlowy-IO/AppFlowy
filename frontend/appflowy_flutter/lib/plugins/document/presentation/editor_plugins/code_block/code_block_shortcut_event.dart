@@ -8,6 +8,7 @@ import 'package:easy_localization/easy_localization.dart';
 final List<CharacterShortcutEvent> codeBlockCharacterEvents = [
   enterInCodeBlock,
   ...ignoreKeysInCodeBlock,
+  insertCodeBlock,
 ];
 
 final List<CommandShortcutEvent> codeBlockCommands = [
@@ -42,7 +43,7 @@ final List<CharacterShortcutEvent> ignoreKeysInCodeBlock =
     [' ', '/', '_', '*', '~', '-']
         .map(
           (e) => CharacterShortcutEvent(
-            key: 'press enter in code block',
+            key: 'ignore key press in code block',
             character: e,
             handler: (editorState) => _ignoreKeysInCodeBlockCommandHandler(
               editorState,
@@ -370,4 +371,77 @@ CommandShortcutEventHandler _pasteInCodeBlock = (editorState) {
   }();
 
   return KeyEventResult.handled;
+};
+
+/// ``` to insert a Code Block
+/// - support
+///  - desktop
+///  - web
+///  - mobile
+///
+final CharacterShortcutEvent insertCodeBlock = CharacterShortcutEvent(
+  key: 'insert code block',
+  character: '`',
+  handler: _insertCodeBlockHandler,
+);
+
+CharacterShortcutEventHandler _insertCodeBlockHandler = (editorState) async {
+  final selection = editorState.selection;
+  if (selection == null || !selection.isCollapsed) {
+    return false;
+  }
+
+  final node = editorState.getNodeAtPath(selection.end.path);
+  final delta = node?.delta;
+  if (node == null || delta == null || node.type != ParagraphBlockKeys.type) {
+    return false;
+  }
+
+  final plainText = delta.toPlainText();
+  bool startOfLine = false;
+  if (plainText.length == 2) {
+    final testString = plainText.substring(
+      selection.end.offset - 2,
+      selection.end.offset,
+    );
+
+    if (testString != '``') {
+      return false;
+    }
+
+    startOfLine = true;
+  } else if (plainText.length > 2) {
+    final testString = plainText.substring(
+      selection.end.offset - 3,
+      selection.end.offset,
+    );
+
+    if (testString != ' ``') {
+      return false;
+    }
+  } else {
+    return false;
+  }
+
+  final transaction = editorState.transaction
+    ..replaceText(
+      node,
+      selection.end.offset - 2,
+      2,
+      '',
+    )
+    ..insertNode(
+      startOfLine ? node.path : node.path.next,
+      codeBlockNode(),
+    )
+    ..afterSelection = Selection.collapsed(
+      Position(path: startOfLine ? node.path : node.path.next),
+    );
+
+  if (startOfLine) {
+    transaction.deleteNode(node);
+  }
+
+  await editorState.apply(transaction);
+  return true;
 };
