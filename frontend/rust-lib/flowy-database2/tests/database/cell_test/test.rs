@@ -110,7 +110,10 @@ async fn url_cell_data_test() {
     if let Some(cell) = row_cell.cell.as_ref() {
       let cell = URLCellData::from(cell);
       if i == 0 {
-        assert_eq!(cell.data.as_str(), "https://www.appflowy.io/");
+        assert_eq!(
+          cell.data.as_str(),
+          "AppFlowy website - https://www.appflowy.io"
+        );
       }
     }
   }
