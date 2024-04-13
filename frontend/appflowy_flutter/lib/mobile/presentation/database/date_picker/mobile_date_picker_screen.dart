@@ -77,7 +77,7 @@ class _MobileDateCellEditScreenState extends State<MobileDateCellEditScreen> {
             create: (_) => DateCellEditorBloc(
               reminderBloc: getIt<ReminderBloc>(),
               cellController: widget.controller,
-            )..add(const DateCellEditorEvent.initial()),
+            ),
           ),
         ],
         child: BlocBuilder<DateCellEditorBloc, DateCellEditorState>(

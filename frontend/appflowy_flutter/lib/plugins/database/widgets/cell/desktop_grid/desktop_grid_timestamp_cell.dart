@@ -16,10 +16,23 @@ class DesktopGridTimestampCellSkin extends IEditableTimestampCellSkin {
   ) {
     return Container(
       alignment: AlignmentDirectional.centerStart,
+      child: state.wrap
+          ? _buildCellContent(state)
+          : SingleChildScrollView(
+              physics: const NeverScrollableScrollPhysics(),
+              scrollDirection: Axis.horizontal,
+              child: _buildCellContent(state),
+            ),
+    );
+  }
+
+  Widget _buildCellContent(TimestampCellState state) {
+    return Padding(
       padding: GridSize.cellContentInsets,
       child: FlowyText.medium(
         state.dateStr,
-        maxLines: null,
+        overflow: state.wrap ? null : TextOverflow.ellipsis,
+        maxLines: state.wrap ? null : 1,
       ),
     );
   }

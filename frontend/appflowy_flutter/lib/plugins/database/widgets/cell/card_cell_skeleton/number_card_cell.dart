@@ -41,7 +41,7 @@ class _NumberCellState extends State<NumberCardCell> {
             widget.databaseController,
             widget.cellContext,
           ).as(),
-        )..add(const NumberCellEvent.initial());
+        );
       },
       child: BlocBuilder<NumberCellBloc, NumberCellState>(
         buildWhen: (previous, current) => previous.content != current.content,

@@ -44,7 +44,7 @@ class DesktopGridTextCellSkin extends IEditableTextCellSkin {
             child: TextField(
               controller: textEditingController,
               focusNode: focusNode,
-              maxLines: null,
+              maxLines: context.watch<TextCellBloc>().state.wrap ? null : 1,
               style: Theme.of(context).textTheme.bodyMedium,
               decoration: const InputDecoration(
                 border: InputBorder.none,

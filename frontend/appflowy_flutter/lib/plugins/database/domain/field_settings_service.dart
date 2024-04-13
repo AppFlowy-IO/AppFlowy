@@ -58,6 +58,7 @@ class FieldSettingsBackendService {
     required String fieldId,
     FieldVisibility? fieldVisibility,
     double? width,
+    bool? wrapCellContent,
   }) {
     final FieldSettingsChangesetPB payload = FieldSettingsChangesetPB.create()
       ..viewId = viewId
@@ -69,6 +70,10 @@ class FieldSettingsBackendService {
 
     if (width != null) {
       payload.width = width.round();
+    }
+
+    if (wrapCellContent != null) {
+      payload.wrapCellContent = wrapCellContent;
     }
 
     return DatabaseEventUpdateFieldSettings(payload).send();

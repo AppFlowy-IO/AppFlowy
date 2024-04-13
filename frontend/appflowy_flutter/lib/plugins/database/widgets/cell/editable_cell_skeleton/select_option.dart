@@ -64,7 +64,7 @@ class _SelectOptionCellState extends GridCellState<EditableSelectOptionCell> {
       widget.databaseController,
       widget.cellContext,
     ).as(),
-  )..add(const SelectOptionCellEvent.initial());
+  );
 
   @override
   void dispose() {
