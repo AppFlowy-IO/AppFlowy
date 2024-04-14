@@ -1,4 +1,5 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/banner.dart';
 import 'package:appflowy/plugins/document/presentation/editor_notification.dart';
@@ -91,16 +92,35 @@ class _DocumentPageState extends State<DocumentPage> {
   }
 
   Widget _buildEditorPage(BuildContext context, DocumentState state) {
-    final appflowyEditorPage = AppFlowyEditorPage(
-      editorState: state.editorState!,
-      styleCustomizer: EditorStyleCustomizer(
-        context: context,
-        // the 44 is the width of the left action list
-        padding: EditorStyleCustomizer.documentPadding,
-      ),
-      header: _buildCoverAndIcon(context, state.editorState!),
-      initialSelection: widget.initialSelection,
-    );
+    final Widget child;
+
+    if (PlatformExtension.isMobile) {
+      child = BlocBuilder<DocumentPageStyleBloc, DocumentPageStyleState>(
+        builder: (context, styleState) {
+          return AppFlowyEditorPage(
+            editorState: state.editorState!,
+            styleCustomizer: EditorStyleCustomizer(
+              context: context,
+              // the 44 is the width of the left action list
+              padding: EditorStyleCustomizer.documentPadding,
+            ),
+            header: _buildCoverAndIcon(context, state.editorState!),
+            initialSelection: widget.initialSelection,
+          );
+        },
+      );
+    } else {
+      child = AppFlowyEditorPage(
+        editorState: state.editorState!,
+        styleCustomizer: EditorStyleCustomizer(
+          context: context,
+          // the 44 is the width of the left action list
+          padding: EditorStyleCustomizer.documentPadding,
+        ),
+        header: _buildCoverAndIcon(context, state.editorState!),
+        initialSelection: widget.initialSelection,
+      );
+    }
 
     return Column(
       children: [
@@ -109,7 +129,7 @@ class _DocumentPageState extends State<DocumentPage> {
         //   const DocumentSyncIndicator(),
 
         if (state.isDeleted) _buildBanner(context),
-        Expanded(child: appflowyEditorPage),
+        Expanded(child: child),
       ],
     );
   }

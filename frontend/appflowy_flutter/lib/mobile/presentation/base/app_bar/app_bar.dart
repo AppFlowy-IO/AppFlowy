@@ -1,4 +1,4 @@
-import 'package:appflowy/mobile/presentation/base/app_bar_actions.dart';
+import 'package:appflowy/mobile/presentation/base/app_bar/app_bar_actions.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 

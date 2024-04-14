@@ -1,7 +1,5 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/mobile_block_action_buttons.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
@@ -10,6 +8,9 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flowy_infra/theme_extension.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 Map<String, BlockComponentBuilder> getEditorBuilderMap({
   required BuildContext context,
@@ -29,10 +30,24 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
   ];
 
   final calloutBGColor = AFThemeExtension.of(context).calloutBGColor;
-
+  final pageStyle = context.read<DocumentPageStyleBloc>().state;
+  final factor = pageStyle.fontLayout.factor;
+  final headingPaddings =
+      pageStyle.lineHeightLayout.headingPaddings.map((e) => e * factor);
+  final padding = pageStyle.lineHeightLayout.padding * factor;
   final configuration = BlockComponentConfiguration(
     // use EdgeInsets.zero to remove the default padding.
-    padding: (_) => const EdgeInsets.symmetric(vertical: 5.0),
+    padding: (node) {
+      if (node.type == HeadingBlockKeys.type) {
+        final level = node.attributes[HeadingBlockKeys.level] ?? 6;
+        return EdgeInsets.only(
+          top: headingPaddings.elementAt(level),
+        );
+      }
+      return EdgeInsets.only(
+        top: padding,
+      );
+    },
     indentPadding: (node, textDirection) => textDirection == TextDirection.ltr
         ? const EdgeInsets.only(left: 26.0)
         : const EdgeInsets.only(right: 26.0),
@@ -71,7 +86,6 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
     ),
     HeadingBlockKeys.type: HeadingBlockComponentBuilder(
       configuration: configuration.copyWith(
-        padding: (_) => const EdgeInsets.only(top: 12.0, bottom: 4.0),
         placeholderText: (node) => LocaleKeys.blockPlaceholders_heading.tr(
           args: [node.attributes[HeadingBlockKeys.level].toString()],
         ),

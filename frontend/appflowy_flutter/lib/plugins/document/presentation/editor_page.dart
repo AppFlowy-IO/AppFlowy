@@ -1,6 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_configuration.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/align_toolbar_item/custom_text_align_command.dart';
@@ -24,6 +21,8 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 final List<CommandShortcutEvent> commandShortcutEvents = [
@@ -120,16 +119,6 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   ];
 
   late final List<SelectionMenuItem> slashMenuItems;
-
-  late final Map<String, BlockComponentBuilder> blockComponentBuilders =
-      getEditorBuilderMap(
-    slashMenuItems: slashMenuItems,
-    context: context,
-    editorState: widget.editorState,
-    styleCustomizer: widget.styleCustomizer,
-    showParagraphPlaceholder: widget.showParagraphPlaceholder,
-    placeholderText: widget.placeholderText,
-  );
 
   List<CharacterShortcutEvent> get characterShortcutEvents => [
         // code block
@@ -281,7 +270,14 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         // setup the theme
         editorStyle: styleCustomizer.style(),
         // customize the block builders
-        blockComponentBuilders: blockComponentBuilders,
+        blockComponentBuilders: getEditorBuilderMap(
+          slashMenuItems: slashMenuItems,
+          context: context,
+          editorState: widget.editorState,
+          styleCustomizer: widget.styleCustomizer,
+          showParagraphPlaceholder: widget.showParagraphPlaceholder,
+          placeholderText: widget.placeholderText,
+        ),
         // customize the shortcuts
         characterShortcutEvents: characterShortcutEvents,
         commandShortcutEvents: commandShortcutEvents,

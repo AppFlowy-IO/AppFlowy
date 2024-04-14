@@ -1,7 +1,10 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/mobile/presentation/base/app_bar.dart';
-import 'package:appflowy/mobile/presentation/base/app_bar_actions.dart';
+import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
+import 'package:appflowy/mobile/presentation/base/app_bar/app_bar.dart';
+import 'package:appflowy/mobile/presentation/base/app_bar/app_bar_actions.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
+import 'package:appflowy/mobile/presentation/bottom_sheet/page_style_bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_state_container.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
 import 'package:appflowy/plugins/document/presentation/document_collaborators.dart';
@@ -53,7 +56,7 @@ class _MobileViewPageState extends State<MobileViewPage> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
+    final child = FutureBuilder(
       future: future,
       builder: (context, state) {
         Widget body;
@@ -86,6 +89,7 @@ class _MobileViewPageState extends State<MobileViewPage> {
                 DocumentSyncIndicator(view: view),
                 const HSpace(8.0),
               ],
+              _buildAppBarLayoutButton(view),
               _buildAppBarMoreButton(view),
             ]);
             final plugin = view.plugin(arguments: widget.arguments ?? const {})
@@ -116,6 +120,10 @@ class _MobileViewPageState extends State<MobileViewPage> {
                 value: getIt<ReminderBloc>()
                   ..add(const ReminderEvent.started()),
               ),
+              if (viewPB!.layout == ViewLayoutPB.Document)
+                BlocProvider(
+                  create: (_) => DocumentPageStyleBloc(view: viewPB!),
+                ),
             ],
             child: Builder(
               builder: (context) {
@@ -129,6 +137,8 @@ class _MobileViewPageState extends State<MobileViewPage> {
         }
       },
     );
+
+    return child;
   }
 
   Widget _buildApp(ViewPB? view, List<Widget> actions, Widget child) {
@@ -158,8 +168,38 @@ class _MobileViewPageState extends State<MobileViewPage> {
     );
   }
 
+  Widget _buildAppBarLayoutButton(ViewPB view) {
+    // only display the layout button if the view is a document
+    if (view.layout != ViewLayoutPB.Document) {
+      return const SizedBox.shrink();
+    }
+
+    return AppBarButton(
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      onTap: (context) {
+        EditorNotification.exitEditing().post();
+
+        showMobileBottomSheet(
+          context,
+          showDragHandle: true,
+          showDivider: false,
+          showDoneButton: true,
+          showHeader: true,
+          title: 'Page Style',
+          backgroundColor: Theme.of(context).colorScheme.background,
+          builder: (_) => BlocProvider.value(
+            value: context.read<DocumentPageStyleBloc>(),
+            child: const PageStyleBottomSheet(),
+          ),
+        );
+      },
+      child: const FlowySvg(FlowySvgs.m_layout_s),
+    );
+  }
+
   Widget _buildAppBarMoreButton(ViewPB view) {
-    return AppBarMoreButton(
+    return AppBarButton(
+      padding: const EdgeInsets.only(left: 8, right: 16),
       onTap: (context) {
         EditorNotification.exitEditing().post();
 
@@ -168,13 +208,14 @@ class _MobileViewPageState extends State<MobileViewPage> {
           showDragHandle: true,
           showDivider: false,
           backgroundColor: Theme.of(context).colorScheme.background,
-          builder: (_) => _buildViewPageBottomSheet(context),
+          builder: (_) => _buildAppBarMoreBottomSheet(context),
         );
       },
+      child: const FlowySvg(FlowySvgs.m_app_bar_more_s),
     );
   }
 
-  Widget _buildViewPageBottomSheet(BuildContext context) {
+  Widget _buildAppBarMoreBottomSheet(BuildContext context) {
     final view = context.read<ViewBloc>().state.view;
     return ViewPageBottomSheet(
       view: view,

@@ -1,9 +1,7 @@
 import 'dart:math';
 
-import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/core/helpers/url_launcher.dart';
+import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_item/utils.dart';
@@ -15,6 +13,8 @@ import 'package:appflowy/workspace/application/settings/appearance/appearance_cu
 import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:collection/collection.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -92,8 +92,10 @@ class EditorStyleCustomizer {
   }
 
   EditorStyle mobile() {
+    final pageStyle = context.read<DocumentPageStyleBloc>().state;
     final theme = Theme.of(context);
-    final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
+    final fontSize = pageStyle.fontLayout.fontSize;
+    final lineHeight = pageStyle.lineHeightLayout.lineHeight;
     final fontFamily = context.read<DocumentAppearanceCubit>().state.fontFamily;
     final defaultTextDirection =
         context.read<DocumentAppearanceCubit>().state.defaultTextDirection;
@@ -105,7 +107,7 @@ class EditorStyleCustomizer {
         text: baseTextStyle(fontFamily).copyWith(
           fontSize: fontSize,
           color: theme.colorScheme.onBackground,
-          height: 1.5,
+          height: lineHeight,
         ),
         bold: baseTextStyle(fontFamily, fontWeight: FontWeight.bold).copyWith(
           fontWeight: FontWeight.w600,
@@ -142,18 +144,25 @@ class EditorStyleCustomizer {
   }
 
   TextStyle headingStyleBuilder(int level) {
-    final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
-    final fontSizes = [
-      fontSize + 16,
-      fontSize + 12,
-      fontSize + 8,
-      fontSize + 4,
-      fontSize + 2,
-      fontSize,
-    ];
     final fontFamily = context.read<DocumentAppearanceCubit>().state.fontFamily;
-    return baseTextStyle(fontFamily, fontWeight: FontWeight.bold).copyWith(
-      fontWeight: FontWeight.w600,
+    final List<double> fontSizes;
+    final double fontSize;
+    if (PlatformExtension.isMobile) {
+      final fontLayout = context.read<DocumentPageStyleBloc>().state.fontLayout;
+      fontSize = fontLayout.fontSize;
+      fontSizes = fontLayout.headingFontSizes;
+    } else {
+      fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
+      fontSizes = [
+        fontSize + 16,
+        fontSize + 12,
+        fontSize + 8,
+        fontSize + 4,
+        fontSize + 2,
+        fontSize,
+      ];
+    }
+    return baseTextStyle(fontFamily, fontWeight: FontWeight.w600).copyWith(
       fontSize: fontSizes.elementAtOrNull(level - 1) ?? fontSize,
     );
   }
