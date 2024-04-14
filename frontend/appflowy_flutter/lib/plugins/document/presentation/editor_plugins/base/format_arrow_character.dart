@@ -1,4 +1,4 @@
-import 'package:appflowy/plugins/document/presentation/editor_plugins/code_block/code_block_component.dart';
+import 'package:appflowy_code_block/appflowy_code_block.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 
 const _greater = '>';

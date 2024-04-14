@@ -133,6 +133,7 @@ dependencies:
   sheet:
   file: ^7.0.0
   avatar_stack: ^1.2.0
+  appflowy_code_block: ^1.1.1
 
 dev_dependencies:
   flutter_lints: ^3.0.1

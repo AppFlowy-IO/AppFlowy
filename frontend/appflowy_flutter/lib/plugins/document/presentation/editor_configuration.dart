@@ -1,3 +1,4 @@
+import 'package:appflowy_code_block/appflowy_code_block.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -152,7 +153,12 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
         textStyle: (_) => styleCustomizer.codeBlockStyleBuilder(),
         placeholderTextStyle: (_) => styleCustomizer.codeBlockStyleBuilder(),
       ),
-      padding: const EdgeInsets.only(left: 20, right: 30, bottom: 34),
+      padding: const EdgeInsets.only(
+        left: 20,
+        right: 30,
+        bottom: 34,
+      ),
+      editorState: editorState,
     ),
     AutoCompletionBlockKeys.type: AutoCompletionBlockComponentBuilder(),
     SmartEditBlockKeys.type: SmartEditBlockComponentBuilder(),

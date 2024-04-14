@@ -10,6 +10,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_too
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/aa_menu/_toolbar_theme.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/startup/tasks/app_widget.dart';
+import 'package:appflowy_code_block/appflowy_code_block.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';

@@ -3,8 +3,6 @@ export 'actions/option_action.dart';
 export 'align_toolbar_item/align_toolbar_item.dart';
 export 'base/toolbar_extension.dart';
 export 'callout/callout_block_component.dart';
-export 'code_block/code_block_component.dart';
-export 'code_block/code_block_shortcut_event.dart';
 export 'context_menu/custom_context_menu.dart';
 export 'copy_and_paste/custom_copy_command.dart';
 export 'copy_and_paste/custom_cut_command.dart';

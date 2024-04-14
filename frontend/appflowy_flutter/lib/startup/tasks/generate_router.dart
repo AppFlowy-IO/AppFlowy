@@ -17,7 +17,7 @@ import 'package:appflowy/mobile/presentation/setting/language/language_picker_sc
 import 'package:appflowy/mobile/presentation/setting/launch_settings_page.dart';
 import 'package:appflowy/plugins/base/color/color_picker_screen.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_picker_screen.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/code_block/code_language_screen.dart';
+// import 'package:appflowy/plugins/document/presentation/editor_plugins/code_block/code_language_screen.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/image_picker_screen.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_item/mobile_block_settings_screen.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -82,7 +82,7 @@ GoRouter generateRouter(Widget child) {
         _mobileColorPickerPageRoute(),
 
         // code language picker
-        _mobileCodeLanguagePickerPageRoute(),
+        // _mobileCodeLanguagePickerPageRoute(),
         _mobileLanguagePickerPageRoute(),
         _mobileFontPickerPageRoute(),
 
@@ -305,17 +305,17 @@ GoRoute _mobileImagePickerPageRoute() {
   );
 }
 
-GoRoute _mobileCodeLanguagePickerPageRoute() {
-  return GoRoute(
-    parentNavigatorKey: AppGlobals.rootNavKey,
-    path: MobileCodeLanguagePickerScreen.routeName,
-    pageBuilder: (context, state) {
-      return const MaterialExtendedPage(
-        child: MobileCodeLanguagePickerScreen(),
-      );
-    },
-  );
-}
+// GoRoute _mobileCodeLanguagePickerPageRoute() {
+//   return GoRoute(
+//     parentNavigatorKey: AppGlobals.rootNavKey,
+//     path: MobileCodeLanguagePickerScreen.routeName,
+//     pageBuilder: (context, state) {
+//       return const MaterialExtendedPage(
+//         child: MobileCodeLanguagePickerScreen(),
+//       );
+//     },
+//   );
+// }
 
 GoRoute _mobileLanguagePickerPageRoute() {
   return GoRoute(

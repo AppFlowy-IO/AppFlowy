@@ -1,3 +1,4 @@
+import 'package:appflowy_code_block/appflowy_code_block.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -28,7 +29,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 final List<CommandShortcutEvent> commandShortcutEvents = [
   toggleToggleListCommand,
-  ...codeBlockCommands,
+  ...codeBlockCommandEvents,
   customCopyCommand,
   customPasteCommand,
   customCutCommand,
@@ -90,7 +91,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
 
   late final List<CommandShortcutEvent> commandShortcutEvents = [
     toggleToggleListCommand,
-    ...codeBlockCommands,
+    ...codeBlockCommandEvents,
     customCopyCommand,
     customPasteCommand,
     customCutCommand,
