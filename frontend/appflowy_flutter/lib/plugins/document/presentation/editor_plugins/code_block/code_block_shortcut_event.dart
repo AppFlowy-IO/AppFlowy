@@ -424,11 +424,11 @@ CharacterShortcutEventHandler _insertCodeBlockHandler = (editorState) async {
   }
 
   final transaction = editorState.transaction
-    ..replaceText(
+    ..insertText(node, selection.end.offset, ' ')
+    ..deleteText(
       node,
-      selection.end.offset - 2,
-      2,
-      '',
+      selection.end.offset - (startOfLine ? 2 : 3),
+      (startOfLine ? 2 : 3),
     )
     ..insertNode(
       startOfLine ? node.path : node.path.next,
