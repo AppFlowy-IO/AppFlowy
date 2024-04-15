@@ -95,6 +95,7 @@ where
     let document = Document::create_with_data(collab, default_document_data())?;
     let encode = document
       .get_collab()
+      .lock()
       .encode_collab_v1(|_| Ok::<(), PersistenceError>(()))?;
     write_txn.flush_doc_with(user_id, &view.id, &encode.doc_state, &encode.state_vector)?;
     event!(

@@ -465,7 +465,7 @@ where
   W: CollabKVAction<'a>,
   PersistenceError: From<W::Error>,
 {
-  let collab = Collab::new_with_doc_state(
+  let collab = Collab::new_with_source(
     CollabOrigin::Empty,
     new_object_id,
     DataSource::DocStateV1(doc_state),
