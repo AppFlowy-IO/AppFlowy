@@ -8,7 +8,7 @@ use collab_integrate::CollabKVDB;
 
 use flowy_error::{FlowyError, FlowyResult};
 
-use collab::core::collab::DocStateSource;
+use collab::core::collab::DataSource;
 use std::sync::{Arc, Weak};
 
 use crate::manager::{FolderInitDataSource, FolderManager};
@@ -60,7 +60,7 @@ impl FolderManager {
               uid,
               &workspace_id,
               collab_db,
-              DocStateSource::FromDisk,
+              DataSource::Disk,
               folder_notifier,
             )
             .await?
@@ -84,7 +84,7 @@ impl FolderManager {
               uid,
               &workspace_id,
               collab_db.clone(),
-              DocStateSource::FromDocState(doc_state),
+              DataSource::DocStateV1(doc_state),
               folder_notifier.clone(),
             )
             .await?
@@ -98,7 +98,7 @@ impl FolderManager {
               uid,
               &workspace_id,
               collab_db,
-              DocStateSource::FromDisk,
+              DataSource::Disk,
               folder_notifier,
             )
             .await?
@@ -109,7 +109,7 @@ impl FolderManager {
               uid,
               &workspace_id,
               collab_db.clone(),
-              DocStateSource::FromDocState(doc_state),
+              DataSource::DocStateV1(doc_state),
               folder_notifier.clone(),
             )
             .await?

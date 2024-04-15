@@ -16,7 +16,7 @@ use crate::util::{
   folder_not_init_error, insert_parent_child_views, workspace_data_not_sync_error,
 };
 use crate::view_operation::{create_view, FolderOperationHandler, FolderOperationHandlers};
-use collab::core::collab::{DocStateSource, MutexCollab};
+use collab::core::collab::{DataSource, MutexCollab};
 use collab_entity::CollabType;
 use collab_folder::error::FolderError;
 use collab_folder::{
@@ -167,7 +167,7 @@ impl FolderManager {
     uid: i64,
     workspace_id: &str,
     collab_db: Weak<CollabKVDB>,
-    doc_state: DocStateSource,
+    doc_state: DataSource,
     folder_notifier: T,
   ) -> Result<Folder, FlowyError> {
     let folder_notifier = folder_notifier.into();
@@ -212,7 +212,7 @@ impl FolderManager {
       workspace_id,
       CollabType::Folder,
       collab_db,
-      DocStateSource::FromDisk,
+      DataSource::Disk,
       CollabPersistenceConfig::new()
         .enable_snapshot(true)
         .snapshot_per_update(50),

@@ -2,7 +2,7 @@ use crate::authenticate_user::AuthenticateUser;
 use crate::define::{user_profile_key, user_workspace_key, AF_USER_SESSION_KEY};
 use af_persistence::store::{AppFlowyWASMStore, IndexddbStore};
 use anyhow::Context;
-use collab::core::collab::DocStateSource;
+use collab::core::collab::DataSource;
 use collab_entity::CollabType;
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
 use collab_integrate::{CollabKVDB, MutexCollab};
@@ -194,7 +194,7 @@ impl UserManager {
         uid,
         object_id,
         CollabType::UserAwareness,
-        DocStateSource::FromDocState(raw_data),
+        DataSource::DocStateV1(raw_data),
         collab_db,
         CollabBuilderConfig::default().sync_enable(true),
       )

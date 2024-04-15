@@ -265,11 +265,7 @@ async fn sync_folder(
       .encode_collab_v1(|_| Ok::<(), PersistenceError>(()))?
       .doc_state;
     (
-      MutexFolder::new(Folder::open(
-        uid,
-        Arc::new(MutexCollab::from_collab(collab)),
-        None,
-      )?),
+      MutexFolder::new(Folder::open(uid, Arc::new(MutexCollab::new(collab)), None)?),
       doc_state,
     )
   };
