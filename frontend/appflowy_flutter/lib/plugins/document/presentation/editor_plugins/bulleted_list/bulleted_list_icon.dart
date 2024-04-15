@@ -40,7 +40,7 @@ class BulletedListIcon extends StatelessWidget {
         minWidth: 22,
         minHeight: 22,
       ),
-      padding: EdgeInsets.only(top: iconPadding, right: 8.0),
+      margin: EdgeInsets.only(top: iconPadding, right: 8.0),
       child: const FlowySvg(
         FlowySvgs.m_bulleted_list_first_s,
       ),

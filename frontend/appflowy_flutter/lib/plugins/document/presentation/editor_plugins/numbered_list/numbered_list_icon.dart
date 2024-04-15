@@ -22,13 +22,16 @@ class NumberedListIcon extends StatelessWidget {
         minWidth: 22,
         minHeight: 22,
       ),
-      padding: const EdgeInsets.only(right: 8.0),
-      child: Text.rich(
-        TextSpan(
-          text: node.levelString,
-          style: text,
+      margin: const EdgeInsets.only(right: 8.0),
+      alignment: Alignment.center,
+      child: Center(
+        child: Text.rich(
+          TextSpan(
+            text: node.levelString,
+            style: text,
+          ),
+          textDirection: textDirection,
         ),
-        textDirection: textDirection,
       ),
     );
   }
