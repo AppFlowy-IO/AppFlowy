@@ -9,6 +9,7 @@
   "title": "标题",
   "youCanAlso": "您还可以",
   "and": "以及",
+  "failedToOpenUrl": "打开 url:{}失败",
   "blockActions": {
     "addBelowTooltip": "点击下方添加",
     "addAboveCmd": "Alt+单击",
