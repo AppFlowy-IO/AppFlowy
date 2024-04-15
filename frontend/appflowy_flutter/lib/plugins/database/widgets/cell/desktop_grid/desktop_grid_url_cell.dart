@@ -11,6 +11,7 @@ import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../editable_cell_skeleton/url.dart';
 
@@ -24,28 +25,31 @@ class DesktopGridURLSkin extends IEditableURLCellSkin {
     TextEditingController textEditingController,
     URLCellDataNotifier cellDataNotifier,
   ) {
-    return TextField(
-      controller: textEditingController,
-      focusNode: focusNode,
-      maxLines: null,
-      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: Theme.of(context).colorScheme.primary,
-            decoration: TextDecoration.underline,
-          ),
-      decoration: InputDecoration(
-        contentPadding: GridSize.cellContentInsets,
-        border: InputBorder.none,
-        focusedBorder: InputBorder.none,
-        enabledBorder: InputBorder.none,
-        errorBorder: InputBorder.none,
-        disabledBorder: InputBorder.none,
-        hintStyle: Theme.of(context)
-            .textTheme
-            .bodyMedium
-            ?.copyWith(color: Theme.of(context).hintColor),
-        isDense: true,
+    return BlocSelector<URLCellBloc, URLCellState, bool>(
+      selector: (state) => state.wrap,
+      builder: (context, wrap) => TextField(
+        controller: textEditingController,
+        focusNode: focusNode,
+        maxLines: wrap ? null : 1,
+        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: Theme.of(context).colorScheme.primary,
+              decoration: TextDecoration.underline,
+            ),
+        decoration: InputDecoration(
+          contentPadding: GridSize.cellContentInsets,
+          border: InputBorder.none,
+          focusedBorder: InputBorder.none,
+          enabledBorder: InputBorder.none,
+          errorBorder: InputBorder.none,
+          disabledBorder: InputBorder.none,
+          hintStyle: Theme.of(context)
+              .textTheme
+              .bodyMedium
+              ?.copyWith(color: Theme.of(context).hintColor),
+          isDense: true,
+        ),
+        onTapOutside: (_) => focusNode.unfocus(),
       ),
-      onTapOutside: (_) => focusNode.unfocus(),
     );
   }
 
@@ -179,8 +183,7 @@ class _VisitURLAccessoryState extends State<_VisitURLAccessory>
   bool enable() => widget.cellDataNotifier.value.isNotEmpty;
 
   @override
-  void onTap() => 
-    openUrlCellLink(widget.cellDataNotifier.value);
+  void onTap() => openUrlCellLink(widget.cellDataNotifier.value);
 }
 
 class _URLAccessoryIconContainer extends StatelessWidget {
@@ -190,9 +193,8 @@ class _URLAccessoryIconContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 26,
-      height: 26,
+    return SizedBox.square(
+      dimension: 26,
       child: Padding(
         padding: const EdgeInsets.all(3.0),
         child: child,

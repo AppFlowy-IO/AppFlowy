@@ -25,21 +25,21 @@ jobs:
   test-on-ubuntu:
     runs-on: ubuntu-latest
     steps:
-#      - name: Maximize build space
-#        uses: easimon/maximize-build-space@master
-#        with:
-#          root-reserve-mb: 2048
-#          swap-size-mb: 1024
-#          remove-dotnet: 'true'
-#
-#          # the following step is required to avoid running out of space
-#      - name: Maximize build space
-#        run: |
-#          sudo rm -rf /usr/share/dotnet
-#          sudo rm -rf /opt/ghc
-#          sudo rm -rf "/usr/local/share/boost"
-#          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
-#          sudo docker image prune --all --force
+      # - name: Maximize build space
+      #   uses: easimon/maximize-build-space@master
+      #   with:
+      #     root-reserve-mb: 2048
+      #     swap-size-mb: 1024
+      #     remove-dotnet: 'true'
+
+      # # the following step is required to avoid running out of space
+      # - name: Maximize build space
+      #   run: |
+      #     sudo rm -rf /usr/share/dotnet
+      #     sudo rm -rf /opt/ghc
+      #     sudo rm -rf "/usr/local/share/boost"
+      #     sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+      #     sudo docker image prune --all --force
 
       - name: Checkout source code
         uses: actions/checkout@v4

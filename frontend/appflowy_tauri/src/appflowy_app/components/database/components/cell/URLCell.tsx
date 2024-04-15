@@ -16,7 +16,7 @@ function UrlCell({ field, cell, placeholder }: Props) {
   const cellRef = useRef<HTMLDivElement>(null);
   const { value, editing, updateCell, setEditing, setValue } = useInputCell(cell);
   const handleClick = useCallback(() => {
-    setValue(cell.data.content || '');
+    setValue(cell.data);
     setEditing(true);
   }, [cell, setEditing, setValue]);
 
@@ -32,19 +32,17 @@ function UrlCell({ field, cell, placeholder }: Props) {
   );
 
   const content = useMemo(() => {
-    const str = cell.data.content;
-
-    if (str) {
+    if (cell.data) {
       return (
         <a
           onClick={(e) => {
             e.stopPropagation();
-            openUrl(str);
+            openUrl(cell.data);
           }}
           target={'_blank'}
           className={'cursor-pointer text-content-blue-400 underline'}
         >
-          {str}
+          {cell.data}
         </a>
       );
     }

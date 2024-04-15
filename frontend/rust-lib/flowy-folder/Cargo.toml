@@ -8,24 +8,29 @@ edition = "2021"
 [dependencies]
 collab = { version = "0.1.0" }
 collab-folder = { version = "0.1.0" }
+collab-document = { version = "0.1.0" }
 collab-entity = { version = "0.1.0" }
 collab-plugins = { version = "0.1.0" }
 collab-integrate = { workspace = true }
 flowy-folder-pub = { workspace = true }
+flowy-search-pub = { workspace = true }
 
 flowy-derive.workspace = true
-flowy-notification  = { workspace = true }
+flowy-notification = { workspace = true }
 parking_lot.workspace = true
 unicode-segmentation = "1.10"
 tracing.workspace = true
-flowy-error = { path = "../flowy-error", features = ["impl_from_dispatch_error", "impl_from_collab_folder"]}
+flowy-error = { path = "../flowy-error", features = [
+    "impl_from_dispatch_error",
+    "impl_from_collab_folder",
+] }
 lib-dispatch = { workspace = true }
 bytes.workspace = true
 lib-infra = { workspace = true }
 tokio = { workspace = true, features = ["sync"] }
 nanoid = "0.4.0"
 lazy_static = "1.4.0"
-chrono = { workspace = true,  default-features = false, features = ["clock"] }
+chrono = { workspace = true, default-features = false, features = ["clock"] }
 strum_macros = "0.21"
 protobuf.workspace = true
 uuid.workspace = true

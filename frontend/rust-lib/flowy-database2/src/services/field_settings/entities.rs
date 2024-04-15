@@ -10,12 +10,13 @@ pub struct FieldSettings {
   pub field_id: String,
   pub visibility: FieldVisibility,
   pub width: i32,
+  pub wrap_cell_content: bool,
 }
 
 pub const VISIBILITY: &str = "visibility";
 pub const WIDTH: &str = "width";
-
 pub const DEFAULT_WIDTH: i32 = 150;
+pub const WRAP_CELL_CONTENT: &str = "wrap";
 
 impl FieldSettings {
   pub fn from_any_map(
@@ -31,11 +32,15 @@ impl FieldSettings {
       .get_i64_value(WIDTH)
       .map(|value| value as i32)
       .unwrap_or(DEFAULT_WIDTH);
+    let wrap_cell_content = field_settings
+      .get_bool_value(WRAP_CELL_CONTENT)
+      .unwrap_or(false);
 
     Self {
       field_id: field_id.to_string(),
       visibility,
       width,
+      wrap_cell_content,
     }
   }
 }
@@ -45,15 +50,7 @@ impl From<FieldSettings> for FieldSettingsMap {
     FieldSettingsMapBuilder::new()
       .insert_i64_value(VISIBILITY, field_settings.visibility.into())
       .insert_i64_value(WIDTH, field_settings.width as i64)
+      .insert_bool_value(WRAP_CELL_CONTENT, field_settings.wrap_cell_content)
       .build()
   }
-}
-
-/// Contains the changeset to a field's settings.
-/// A `Some` value constitutes a change in that particular setting
-pub struct FieldSettingsChangesetParams {
-  pub view_id: String,
-  pub field_id: String,
-  pub visibility: Option<FieldVisibility>,
-  pub width: Option<i32>,
 }

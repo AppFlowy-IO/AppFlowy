@@ -1,6 +1,5 @@
 use std::cmp::Ordering;
 
-use bytes::Bytes;
 use collab::core::any_map::AnyMapExtension;
 use collab_database::fields::{Field, TypeOptionData, TypeOptionDataBuilder};
 use collab_database::rows::{new_cell_builder, Cell};
@@ -9,9 +8,7 @@ use serde::{Deserialize, Serialize};
 use flowy_error::{FlowyError, FlowyResult};
 
 use crate::entities::{FieldType, TextFilterPB};
-use crate::services::cell::{
-  stringify_cell, CellDataChangeset, CellDataDecoder, CellProtobufBlobParser,
-};
+use crate::services::cell::{stringify_cell, CellDataChangeset, CellDataDecoder};
 use crate::services::field::type_options::util::ProtobufStr;
 use crate::services::field::{
   TypeOption, TypeOptionCellData, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
@@ -142,39 +139,6 @@ impl TypeOptionCellDataCompare for RichTextTypeOption {
         let order = cell_data.0.cmp(&other_cell_data.0);
         sort_condition.evaluate_order(order)
       },
-    }
-  }
-}
-
-#[derive(Clone)]
-pub struct TextCellData(pub String);
-impl AsRef<str> for TextCellData {
-  fn as_ref(&self) -> &str {
-    &self.0
-  }
-}
-
-impl std::ops::Deref for TextCellData {
-  type Target = String;
-
-  fn deref(&self) -> &Self::Target {
-    &self.0
-  }
-}
-
-impl ToString for TextCellData {
-  fn to_string(&self) -> String {
-    self.0.clone()
-  }
-}
-
-pub struct TextCellDataParser();
-impl CellProtobufBlobParser for TextCellDataParser {
-  type Object = TextCellData;
-  fn parser(bytes: &Bytes) -> FlowyResult<Self::Object> {
-    match String::from_utf8(bytes.to_vec()) {
-      Ok(s) => Ok(TextCellData(s)),
-      Err(_) => Ok(TextCellData("".to_owned())),
     }
   }
 }

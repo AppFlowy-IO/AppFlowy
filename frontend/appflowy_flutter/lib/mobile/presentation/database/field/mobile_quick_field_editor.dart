@@ -44,8 +44,8 @@ class _QuickEditFieldState extends State<QuickEditField> {
   @override
   void initState() {
     super.initState();
-    fieldVisibility = widget.fieldInfo.fieldSettings?.visibility ??
-        FieldVisibility.AlwaysShown;
+    fieldVisibility =
+        widget.fieldInfo.visibility ?? FieldVisibility.AlwaysShown;
     controller.text = widget.fieldInfo.field.name;
   }
 

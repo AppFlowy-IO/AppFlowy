@@ -12,6 +12,7 @@ class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
   DateCellBloc({required this.cellController})
       : super(DateCellState.initial(cellController)) {
     _dispatch();
+    _startListening();
   }
 
   final DateCellController cellController;
@@ -20,8 +21,10 @@ class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
   @override
   Future<void> close() async {
     if (_onCellChangedFn != null) {
-      cellController.removeListener(_onCellChangedFn!);
-      _onCellChangedFn = null;
+      cellController.removeListener(
+        onCellChanged: _onCellChangedFn!,
+        onFieldChanged: _onFieldChangedListener,
+      );
     }
     await cellController.dispose();
     return super.close();
@@ -31,7 +34,6 @@ class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
     on<DateCellEvent>(
       (event, emit) async {
         event.when(
-          initial: () => _startListening(),
           didReceiveCellUpdate: (DateCellDataPB? cellData) {
             emit(
               state.copyWith(
@@ -39,6 +41,9 @@ class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
                 dateStr: _dateStrFromCellData(cellData),
               ),
             );
+          },
+          didUpdateField: (fieldInfo) {
+            emit(state.copyWith(fieldInfo: fieldInfo));
           },
         );
       },
@@ -52,15 +57,23 @@ class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
           add(DateCellEvent.didReceiveCellUpdate(data));
         }
       },
+      onFieldChanged: _onFieldChangedListener,
     );
+  }
+
+  void _onFieldChangedListener(FieldInfo fieldInfo) {
+    if (!isClosed) {
+      add(DateCellEvent.didUpdateField(fieldInfo));
+    }
   }
 }
 
 @freezed
 class DateCellEvent with _$DateCellEvent {
-  const factory DateCellEvent.initial() = _InitialCell;
   const factory DateCellEvent.didReceiveCellUpdate(DateCellDataPB? data) =
       _DidReceiveCellUpdate;
+  const factory DateCellEvent.didUpdateField(FieldInfo fieldInfo) =
+      _DidUpdateField;
 }
 
 @freezed

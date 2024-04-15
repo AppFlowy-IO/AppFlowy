@@ -54,7 +54,7 @@ impl GroupCustomize for URLGroupController {
   ) -> FlowyResult<(Option<InsertedGroupPB>, Option<GroupPB>)> {
     // Just return if the group with this url already exists
     let mut inserted_group = None;
-    if self.context.get_group(&_cell_data.url).is_none() {
+    if self.context.get_group(&_cell_data.content).is_none() {
       let cell_data: URLCellData = _cell_data.clone().into();
       let group = Group::new(cell_data.data);
       let mut new_group = self.context.add_new_group(group)?;

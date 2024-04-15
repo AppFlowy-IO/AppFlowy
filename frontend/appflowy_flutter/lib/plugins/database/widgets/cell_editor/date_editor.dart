@@ -42,7 +42,7 @@ class _DateCellEditor extends State<DateCellEditor> {
           create: (context) => DateCellEditorBloc(
             reminderBloc: getIt<ReminderBloc>(),
             cellController: widget.cellController,
-          )..add(const DateCellEditorEvent.initial()),
+          ),
         ),
       ],
       child: BlocBuilder<DateCellEditorBloc, DateCellEditorState>(

@@ -162,7 +162,7 @@ where
 
   #[tracing::instrument(level = "trace", skip(self))]
   pub(crate) fn delete_group(&mut self, deleted_group_id: &str) -> FlowyResult<()> {
-    self.group_by_id.remove(deleted_group_id);
+    self.group_by_id.shift_remove(deleted_group_id);
     self.mut_configuration(|configuration| {
       configuration
         .groups

@@ -1,5 +1,4 @@
-use flowy_database2::entities::FieldVisibility;
-use flowy_database2::services::field_settings::FieldSettingsChangesetParams;
+use flowy_database2::entities::{FieldSettingsChangesetPB, FieldVisibility};
 
 use crate::database::database_editor::DatabaseEditorTest;
 
@@ -60,11 +59,12 @@ impl FieldSettingsTest {
     visibility: Option<FieldVisibility>,
     width: Option<i32>,
   ) {
-    let params = FieldSettingsChangesetParams {
+    let params = FieldSettingsChangesetPB {
       view_id: self.view_id.clone(),
       field_id,
       visibility,
       width,
+      wrap_cell_content: None,
     };
     let _ = self
       .editor

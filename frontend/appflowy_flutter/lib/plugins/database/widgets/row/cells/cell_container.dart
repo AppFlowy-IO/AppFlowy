@@ -117,7 +117,7 @@ class _GridCellEnterRegion extends StatelessWidget {
           onExit: (p) =>
               CellContainerNotifier.of(context, listen: false).isHover = false,
           child: Stack(
-            alignment: AlignmentDirectional.center,
+            alignment: Alignment.center,
             fit: StackFit.expand,
             children: children,
           ),

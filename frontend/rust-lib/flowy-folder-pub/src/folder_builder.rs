@@ -141,6 +141,7 @@ impl ViewBuilder {
           .collect(),
       ),
       last_edited_by: Some(self.uid),
+      extra: None,
     };
     ParentChildViews {
       parent_view: view,

@@ -654,6 +654,7 @@
       "insertRight": "Insert Right",
       "duplicate": "Duplicate",
       "delete": "Delete",
+      "wrap": "Wrap",
       "clear": "Clear cells",
       "textFieldName": "Text",
       "checkboxFieldName": "Checkbox",
@@ -1477,5 +1478,15 @@
     "photo": "Photo",
     "unsplash": "Unsplash",
     "pageCover": "Page Cover"
+  },
+  "commandPalette": {
+    "placeholder": "Type to search for views...",
+    "bestMatches": "Best matches",
+    "recentHistory": "Recent history",
+    "navigateHint": "to navigate",
+    "loadingTooltip": "We are looking for results...",
+    "betaLabel": "BETA",
+    "betaTooltip": "We currently only support searching for pages",
+    "fromTrashHint": "From trash"
   }
 }

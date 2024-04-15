@@ -130,5 +130,6 @@ pub(crate) fn create_view(uid: i64, params: CreateViewParams, layout: ViewLayout
     created_by: Some(uid),
     last_edited_time: 0,
     last_edited_by: Some(uid),
+    extra: None,
   }
 }

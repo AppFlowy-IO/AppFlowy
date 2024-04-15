@@ -58,7 +58,7 @@ class _NumberCellState extends GridEditableTextCell<EditableNumberCell> {
       widget.databaseController,
       widget.cellContext,
     ).as(),
-  )..add(const NumberCellEvent.initial());
+  );
 
   @override
   void initState() {
@@ -81,12 +81,16 @@ class _NumberCellState extends GridEditableTextCell<EditableNumberCell> {
       child: BlocListener<NumberCellBloc, NumberCellState>(
         listener: (context, state) =>
             _textEditingController.text = state.content,
-        child: widget.skin.build(
-          context,
-          widget.cellContainerNotifier,
-          cellBloc,
-          focusNode,
-          _textEditingController,
+        child: Builder(
+          builder: (context) {
+            return widget.skin.build(
+              context,
+              widget.cellContainerNotifier,
+              cellBloc,
+              focusNode,
+              _textEditingController,
+            );
+          },
         ),
       ),
     );
