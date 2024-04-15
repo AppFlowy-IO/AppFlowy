@@ -1464,5 +1464,17 @@
       "synced": "Synced",
       "noNetworkConnected": "No network connected"
     }
+  },
+  "pageStyle": {
+    "title": "Page Style",
+    "layout": "Layout",
+    "coverImage": "Cover Image",
+    "pageIcon":"Page Icon",
+    "colors": "Colors",
+    "gradient": "Gradient",
+    "backgroundImage": "Background Image",
+    "presets": "Presets",
+    "photo": "Photo",
+    "unsplash": "Unsplash"
   }
 }

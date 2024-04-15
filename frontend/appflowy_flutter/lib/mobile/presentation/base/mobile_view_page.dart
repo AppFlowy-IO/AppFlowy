@@ -185,7 +185,7 @@ class _MobileViewPageState extends State<MobileViewPage> {
           showDivider: false,
           showDoneButton: true,
           showHeader: true,
-          title: 'Page Style',
+          title: LocaleKeys.pageStyle_title.tr(),
           backgroundColor: Theme.of(context).colorScheme.background,
           builder: (_) => BlocProvider.value(
             value: context.read<DocumentPageStyleBloc>(),

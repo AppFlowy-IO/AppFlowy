@@ -1,5 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,14 +14,16 @@ class PageStyleBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.0),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          FlowyText('Layout'),
-          VSpace(8.0),
-          _PageStyleLayout(),
+          FlowyText(
+            LocaleKeys.pageStyle_layout.tr(),
+          ),
+          const VSpace(8.0),
+          const _PageStyleLayout(),
         ],
       ),
     );
@@ -40,6 +44,10 @@ class _PageStyleLayoutState extends State<_PageStyleLayout> {
 
   @override
   Widget build(BuildContext context) {
+    final themeMode = Theme.of(context).brightness;
+    final backgroundColor = themeMode == Brightness.light
+        ? const Color(0xFFF5F5F8)
+        : const Color(0xFF303030);
     return BlocBuilder<DocumentPageStyleBloc, DocumentPageStyleState>(
       builder: (context, state) {
         return Stack(
@@ -49,9 +57,9 @@ class _PageStyleLayoutState extends State<_PageStyleLayout> {
                 // small font
                 Expanded(
                   child: DecoratedBox(
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFF5F5F8),
-                      borderRadius: BorderRadius.horizontal(
+                    decoration: BoxDecoration(
+                      color: backgroundColor,
+                      borderRadius: const BorderRadius.horizontal(
                         left: Radius.circular(12),
                         right: Radius.circular(12),
                       ),
@@ -70,23 +78,32 @@ class _PageStyleLayoutState extends State<_PageStyleLayout> {
                 const HSpace(14),
                 // small line height
                 Expanded(
-                  child: Row(
-                    children: [
-                      _buildLinHeightButton(
-                        PageStyleLineHeightLayout.small,
-                        state,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: backgroundColor,
+                      borderRadius: const BorderRadius.horizontal(
+                        left: Radius.circular(12),
+                        right: Radius.circular(12),
                       ),
-                      // normal line height
-                      _buildLinHeightButton(
-                        PageStyleLineHeightLayout.normal,
-                        state,
-                      ),
-                      // large line height
-                      _buildLinHeightButton(
-                        PageStyleLineHeightLayout.large,
-                        state,
-                      ),
-                    ],
+                    ),
+                    child: Row(
+                      children: [
+                        _buildLinHeightButton(
+                          PageStyleLineHeightLayout.small,
+                          state,
+                        ),
+                        // normal line height
+                        _buildLinHeightButton(
+                          PageStyleLineHeightLayout.normal,
+                          state,
+                        ),
+                        // large line height
+                        _buildLinHeightButton(
+                          PageStyleLineHeightLayout.large,
+                          state,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
