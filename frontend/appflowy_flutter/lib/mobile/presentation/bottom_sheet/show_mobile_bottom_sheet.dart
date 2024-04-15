@@ -32,6 +32,8 @@ Future<T?> showMobileBottomSheet<T>(
   // this field is only used if showHeader is true
   bool showBackButton = false,
   bool showCloseButton = false,
+  bool showRemoveButton = false,
+  VoidCallback? onRemove,
   // this field is only used if showHeader is true
   String title = '',
   bool isScrollControlled = true,
@@ -102,7 +104,9 @@ Future<T?> showMobileBottomSheet<T>(
             showCloseButton: showCloseButton,
             showBackButton: showBackButton,
             showDoneButton: showDoneButton,
+            showRemoveButton: showRemoveButton,
             title: title,
+            onRemove: onRemove,
           ),
         );
 
@@ -175,14 +179,18 @@ class BottomSheetHeader extends StatelessWidget {
     super.key,
     required this.showBackButton,
     required this.showCloseButton,
+    required this.showRemoveButton,
     required this.title,
     required this.showDoneButton,
+    this.onRemove,
   });
 
   final bool showBackButton;
   final bool showCloseButton;
+  final bool showRemoveButton;
   final String title;
   final bool showDoneButton;
+  final VoidCallback? onRemove;
 
   @override
   Widget build(BuildContext context) {
@@ -201,6 +209,13 @@ class BottomSheetHeader extends StatelessWidget {
               const Align(
                 alignment: Alignment.centerLeft,
                 child: BottomSheetCloseButton(),
+              ),
+            if (showRemoveButton)
+              Align(
+                alignment: Alignment.centerLeft,
+                child: BottomSheetRemoveButton(
+                  onRemove: () => onRemove?.call(),
+                ),
               ),
             Align(
               child: FlowyText(

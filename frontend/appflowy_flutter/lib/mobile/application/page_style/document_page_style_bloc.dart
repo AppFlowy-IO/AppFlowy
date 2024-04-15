@@ -1,6 +1,8 @@
 import 'dart:math';
 
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -41,6 +43,13 @@ class DocumentPageStyleBloc
             emit(
               state.copyWith(
                 fontFamily: fontFamily,
+              ),
+            );
+          },
+          updateCoverImage: (coverImage) {
+            emit(
+              state.copyWith(
+                coverImage: coverImage,
               ),
             );
           },
@@ -88,6 +97,9 @@ class DocumentPageStyleEvent with _$DocumentPageStyleEvent {
   const factory DocumentPageStyleEvent.updateFontFamily(
     String? fontFamily,
   ) = UpdateFontFamily;
+  const factory DocumentPageStyleEvent.updateCoverImage(
+    PageStyleCoverImage coverImage,
+  ) = UpdateCoverImage;
 }
 
 @freezed
@@ -99,9 +111,12 @@ class DocumentPageStyleState with _$DocumentPageStyleState {
     // the default font family is null, which means the system font
     @Default(null) String? fontFamily,
     @Default(2.0) double iconPadding,
+    required PageStyleCoverImage coverImage,
   }) = _DocumentPageStyleState;
 
-  factory DocumentPageStyleState.initial() => const DocumentPageStyleState();
+  factory DocumentPageStyleState.initial() => DocumentPageStyleState(
+        coverImage: PageStyleCoverImage.none(),
+      );
 }
 
 enum PageStyleFontLayout {
@@ -181,5 +196,89 @@ enum PageStyleLineHeightLayout {
       case PageStyleLineHeightLayout.large:
         return [34.0, 28.0, 26.0, 26.0, 26.0, 26.0];
     }
+  }
+}
+
+enum PageStyleCoverImageType {
+  none,
+  // normal color
+  pureColor,
+  // gradient color
+  gradientColor,
+  // built in images
+  builtInImage,
+  // custom images, uploaded by the user
+  customImage,
+  // unsplash images
+  unsplashImage,
+}
+
+class PageStyleCoverImage {
+  const PageStyleCoverImage({
+    required this.type,
+    required this.value,
+  });
+
+  factory PageStyleCoverImage.none() => const PageStyleCoverImage(
+        type: PageStyleCoverImageType.none,
+        value: '',
+      );
+
+  final PageStyleCoverImageType type;
+
+  // there're 4 types of values:
+  // 1. pure color: enum value
+  // 2. gradient color: enum value
+  // 3. built-in image: the image name, read from the assets
+  // 4. custom image or unsplash image: the image url
+  final String value;
+
+  bool get isPresets => isPureColor || isGradient || isBuiltInImage;
+  bool get isNone => type == PageStyleCoverImageType.none;
+  bool get isPureColor => type == PageStyleCoverImageType.pureColor;
+  bool get isGradient => type == PageStyleCoverImageType.gradientColor;
+  bool get isBuiltInImage => type == PageStyleCoverImageType.builtInImage;
+  bool get isCustomImage => type == PageStyleCoverImageType.customImage;
+  bool get isUnsplashImage => type == PageStyleCoverImageType.unsplashImage;
+
+  Color? get valueAsColor {
+    if (isPureColor) {
+      return value.tryToColor();
+    }
+
+    throw ArgumentError('Invalid type');
+  }
+
+  LinearGradient? get valueAsGradient {
+    // if (isGradient) {
+    //   final parts = value.split(',').whereNotNull().toList();
+    //   if (parts.length < 6) {
+    //     Log.error('Invalid gradient color value: $value');
+    //     return null;
+    //   }
+    //   final p1 = double.tryParse(parts[0]);
+    //   final p2 = double.tryParse(parts[1]);
+    //   final p3 = double.tryParse(parts[2]);
+    //   final p4 = double.tryParse(parts[3]);
+    //   if (p1 == null || p2 == null || p3 == null || p4 == null) {
+    //     Log.error('Invalid gradient color value: $value');
+    //     return null;
+    //   }
+    //   final start = Alignment(p1, p2);
+    //   final end = Alignment(p3, p4);
+    //   final colors =
+    //       parts.skip(4).map((e) => e.tryToColor()).whereNotNull().toList();
+    //   if (colors.isEmpty) {
+    //     Log.error('Invalid gradient color value: $value');
+    //     return null;
+    //   }
+    //   return LinearGradient(
+    //     begin: start,
+    //     end: end,
+    //     colors: colors,
+    //   );
+    // }
+
+    throw ArgumentError('Invalid type');
   }
 }

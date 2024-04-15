@@ -66,6 +66,7 @@ Future<T?> showTransitionMobileBottomSheet<T>(
                 showCloseButton: showCloseButton,
                 showBackButton: showBackButton,
                 showDoneButton: showDoneButton,
+                showRemoveButton: false,
                 title: title,
               ),
               if (showDivider)

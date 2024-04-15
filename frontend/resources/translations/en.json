@@ -1475,6 +1475,7 @@
     "backgroundImage": "Background Image",
     "presets": "Presets",
     "photo": "Photo",
-    "unsplash": "Unsplash"
+    "unsplash": "Unsplash",
+    "pageCover": "Page Cover"
   }
 }

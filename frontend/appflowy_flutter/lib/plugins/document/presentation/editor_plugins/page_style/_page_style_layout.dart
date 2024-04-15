@@ -1,19 +1,19 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/page_style/_page_style_util.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class PageStyleLayout extends StatelessWidget {
-  const PageStyleLayout({super.key});
+  const PageStyleLayout({
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final themeMode = Theme.of(context).brightness;
-    final backgroundColor = themeMode == Brightness.light
-        ? const Color(0xFFF5F5F8)
-        : const Color(0xFF303030);
+    final backgroundColor = context.pageStyleBackgroundColor;
     return BlocBuilder<DocumentPageStyleBloc, DocumentPageStyleState>(
       builder: (context, state) {
         return Column(
