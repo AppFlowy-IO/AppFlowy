@@ -1,5 +1,5 @@
 use anyhow::Error;
-use collab::core::collab::DocStateSource;
+use collab::core::collab::DataSource;
 use collab::core::origin::CollabOrigin;
 use collab_document::blocks::DocumentData;
 use collab_document::document::Document;
@@ -96,7 +96,7 @@ where
           let doc_state = action.run_with_fix_interval(5, 10).await?;
           let document = Document::from_doc_state(
             CollabOrigin::Empty,
-            DocStateSource::FromDocState(doc_state),
+            DataSource::DocStateV1(doc_state),
             &document_id,
             vec![],
           )?;

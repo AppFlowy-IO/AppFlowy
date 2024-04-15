@@ -2,7 +2,7 @@ use flowy_storage::ObjectStorageService;
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use collab::core::collab::{DocStateSource, MutexCollab};
+use collab::core::collab::{DataSource, MutexCollab};
 use collab::core::origin::CollabOrigin;
 use collab_plugins::cloud_storage::RemoteCollabStorage;
 use uuid::Uuid;
@@ -125,7 +125,7 @@ pub async fn print_encryption_folder_snapshot(
     MutexCollab::new_with_doc_state(
       CollabOrigin::Empty,
       folder_id,
-      DocStateSource::FromDocState(snapshot.blob),
+      DataSource::DocStateV1(snapshot.blob),
       vec![],
       false,
     )

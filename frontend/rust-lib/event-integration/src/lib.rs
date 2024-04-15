@@ -1,4 +1,4 @@
-use collab::core::collab::DocStateSource;
+use collab::core::collab::DataSource;
 use collab::core::origin::CollabOrigin;
 use collab_document::blocks::DocumentData;
 use collab_document::document::Document;
@@ -146,7 +146,7 @@ pub fn document_data_from_document_doc_state(doc_id: &str, doc_state: Vec<u8>) -
 pub fn document_from_document_doc_state(doc_id: &str, doc_state: Vec<u8>) -> Document {
   Document::from_doc_state(
     CollabOrigin::Empty,
-    DocStateSource::FromDocState(doc_state),
+    DataSource::DocStateV1(doc_state),
     doc_id,
     vec![],
   )

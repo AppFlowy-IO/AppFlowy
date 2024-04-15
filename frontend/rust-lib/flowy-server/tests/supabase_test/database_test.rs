@@ -1,4 +1,4 @@
-use collab::core::collab::DocStateSource;
+use collab::core::collab::DataSource;
 use collab_entity::{CollabObject, CollabType};
 use uuid::Uuid;
 
@@ -53,8 +53,8 @@ async fn supabase_create_database_test() {
   assert_eq!(updates_by_oid.len(), 3);
   for (_, source) in updates_by_oid {
     match source {
-      DocStateSource::FromDisk => panic!("should not be from disk"),
-      DocStateSource::FromDocState(doc_state) => {
+      DataSource::Disk => panic!("should not be from disk"),
+      DataSource::DocStateV1(doc_state) => {
         assert_eq!(doc_state.len(), 2);
       },
     }

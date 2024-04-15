@@ -5,7 +5,7 @@ use crate::services::entities::UserPaths;
 use crate::services::sqlite_sql::user_sql::select_user_profile;
 use crate::user_manager::run_collab_data_migration;
 use anyhow::anyhow;
-use collab::core::collab::{DocStateSource, MutexCollab};
+use collab::core::collab::{DataSource, MutexCollab};
 use collab::core::origin::CollabOrigin;
 use collab::core::transaction::DocTransactionExtension;
 use collab::preclude::updates::decoder::Decode;
@@ -468,7 +468,7 @@ where
   let collab = Collab::new_with_doc_state(
     CollabOrigin::Empty,
     new_object_id,
-    DocStateSource::FromDocState(doc_state),
+    DataSource::DocStateV1(doc_state),
     vec![],
     false,
   )?;
@@ -503,7 +503,7 @@ where
   let other_user_id = UserId::from(other_session.user_id);
   let other_folder = Folder::open(
     other_user_id,
-    Arc::new(MutexCollab::from_collab(other_folder_collab)),
+    Arc::new(MutexCollab::new(other_folder_collab)),
     None,
   )
   .map_err(|err| PersistenceError::InvalidData(err.to_string()))?;
