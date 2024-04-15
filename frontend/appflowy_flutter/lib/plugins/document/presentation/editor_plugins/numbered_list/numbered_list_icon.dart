@@ -15,7 +15,7 @@ class NumberedListIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final text =
+    final textStyle =
         context.read<EditorState>().editorStyle.textStyleConfiguration.text;
     return Container(
       constraints: const BoxConstraints(
@@ -25,11 +25,9 @@ class NumberedListIcon extends StatelessWidget {
       margin: const EdgeInsets.only(right: 8.0),
       alignment: Alignment.center,
       child: Center(
-        child: Text.rich(
-          TextSpan(
-            text: node.levelString,
-            style: text,
-          ),
+        child: Text(
+          node.levelString,
+          style: textStyle,
           textDirection: textDirection,
         ),
       ),
