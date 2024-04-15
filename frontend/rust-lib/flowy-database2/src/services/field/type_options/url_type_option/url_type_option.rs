@@ -1,3 +1,11 @@
+use std::cmp::Ordering;
+
+use collab::core::any_map::AnyMapExtension;
+use collab_database::fields::{TypeOptionData, TypeOptionDataBuilder};
+use collab_database::rows::Cell;
+use flowy_error::FlowyResult;
+use serde::{Deserialize, Serialize};
+
 use crate::entities::{TextFilterPB, URLCellDataPB};
 use crate::services::cell::{CellDataChangeset, CellDataDecoder};
 use crate::services::field::{
@@ -5,15 +13,6 @@ use crate::services::field::{
   TypeOptionTransform, URLCellData,
 };
 use crate::services::sort::SortCondition;
-
-use collab::core::any_map::AnyMapExtension;
-use collab_database::fields::{TypeOptionData, TypeOptionDataBuilder};
-use collab_database::rows::Cell;
-use fancy_regex::Regex;
-use flowy_error::FlowyResult;
-use lazy_static::lazy_static;
-use serde::{Deserialize, Serialize};
-use std::cmp::Ordering;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct URLTypeOption {
@@ -82,14 +81,7 @@ impl CellDataChangeset for URLTypeOption {
     changeset: <Self as TypeOption>::CellChangeset,
     _cell: Option<Cell>,
   ) -> FlowyResult<(Cell, <Self as TypeOption>::CellData)> {
-    let mut url = "".to_string();
-    if let Ok(Some(m)) = URL_REGEX.find(&changeset) {
-      url = auto_append_scheme(m.as_str());
-    }
-    let url_cell_data = URLCellData {
-      url,
-      data: changeset,
-    };
+    let url_cell_data = URLCellData { data: changeset };
     Ok((url_cell_data.clone().into(), url_cell_data))
   }
 }
@@ -123,27 +115,4 @@ impl TypeOptionCellDataCompare for URLTypeOption {
       },
     }
   }
-}
-
-fn auto_append_scheme(s: &str) -> String {
-  // Only support https scheme by now
-  match url::Url::parse(s) {
-    Ok(url) => {
-      if url.scheme() == "https" {
-        url.into()
-      } else {
-        format!("https://{}", s)
-      }
-    },
-    Err(_) => {
-      format!("https://{}", s)
-    },
-  }
-}
-
-lazy_static! {
-    static ref URL_REGEX: Regex = Regex::new(
-        "[(http(s)?):\\/\\/(www\\.)?a-zA-Z0-9@:%._\\+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\+.~#?&//=]*)"
-    )
-    .unwrap();
 }
