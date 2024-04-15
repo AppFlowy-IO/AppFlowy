@@ -170,7 +170,9 @@ class _DocumentPageState extends State<DocumentPage> {
     } else if (type == EditorNotificationType.redo) {
       redoCommand.execute(editorState);
     } else if (type == EditorNotificationType.exitEditing) {
-      editorState.selection = null;
+      if (editorState.selection != null) {
+        editorState.selection = null;
+      }
     }
   }
 

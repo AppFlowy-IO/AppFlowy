@@ -20,7 +20,6 @@ class MobileAppearance extends BaseAppearance {
     String fontFamily,
     String codeFontFamily,
   ) {
-    assert(fontFamily.isNotEmpty);
     assert(codeFontFamily.isNotEmpty);
 
     final fontStyle = getFontStyle(

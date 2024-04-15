@@ -133,6 +133,7 @@ dependencies:
   sheet:
   file: ^7.0.0
   avatar_stack: ^1.2.0
+  numerus: ^2.1.2
 
 dev_dependencies:
   flutter_lints: ^3.0.1
@@ -167,9 +168,10 @@ dependency_overrides:
       commit: 77a8420
 
   appflowy_editor:
-    git:
-      url: https://github.com/AppFlowy-IO/appflowy-editor.git
-      ref: "6d12761"
+    path: /Users/lucas.xu/Desktop/appflowy-editor
+    # git:
+    #   url: https://github.com/AppFlowy-IO/appflowy-editor.git
+    #   ref: "6d12761"
 
   sheet:
     git:

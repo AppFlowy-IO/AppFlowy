@@ -63,6 +63,12 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
       configuration: configuration.copyWith(
         placeholderText: (_) => LocaleKeys.blockPlaceholders_todoList.tr(),
       ),
+      iconBuilder: PlatformExtension.isMobile
+          ? (context, node, onCheck) => TodoListIcon(
+                node: node,
+                onCheck: onCheck,
+              )
+          : null,
       toggleChildrenTriggers: [
         LogicalKeyboardKey.shift,
         LogicalKeyboardKey.shiftLeft,
@@ -73,11 +79,22 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
       configuration: configuration.copyWith(
         placeholderText: (_) => LocaleKeys.blockPlaceholders_bulletList.tr(),
       ),
+      iconBuilder: PlatformExtension.isMobile
+          ? (context, node) => BulletedListIcon(
+                node: node,
+              )
+          : null,
     ),
     NumberedListBlockKeys.type: NumberedListBlockComponentBuilder(
       configuration: configuration.copyWith(
         placeholderText: (_) => LocaleKeys.blockPlaceholders_numberList.tr(),
       ),
+      iconBuilder: PlatformExtension.isMobile
+          ? (context, node, textDirection) => NumberedListIcon(
+                node: node,
+                textDirection: textDirection,
+              )
+          : null,
     ),
     QuoteBlockKeys.type: QuoteBlockComponentBuilder(
       configuration: configuration.copyWith(

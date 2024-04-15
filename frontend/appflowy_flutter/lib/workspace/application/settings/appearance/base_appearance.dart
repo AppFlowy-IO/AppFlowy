@@ -1,11 +1,28 @@
+import 'dart:io';
+
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-// not using the built-in font for mobile
-const builtInFontFamily = 'Poppins';
+String builtInFontFamily() {
+  if (PlatformExtension.isDesktopOrWeb) {
+    return 'Poppins';
+  }
+
+  if (Platform.isIOS) {
+    return 'San Francisco';
+  }
+
+  if (Platform.isAndroid) {
+    return 'Roboto';
+  }
+
+  return 'Roboto';
+}
+
+// 'Poppins';
 const builtInCodeFontFamily = 'RobotoMono';
 
 abstract class BaseAppearance {
@@ -35,13 +52,13 @@ abstract class BaseAppearance {
       fontSize: fontSize,
       color: fontColor,
       fontWeight: fontWeight,
-      fontFamilyFallback: const [builtInFontFamily],
+      fontFamilyFallback: [builtInFontFamily()],
       letterSpacing: letterSpacing,
       height: lineHeight,
     );
 
     // we embed Poppins font in the app, so we can use it without GoogleFonts
-    if (fontFamily == builtInFontFamily) {
+    if (fontFamily == builtInFontFamily()) {
       return textStyle;
     }
 

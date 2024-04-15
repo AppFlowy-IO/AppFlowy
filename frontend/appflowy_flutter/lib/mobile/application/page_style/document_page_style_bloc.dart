@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -17,6 +19,10 @@ class DocumentPageStyleBloc
             emit(
               state.copyWith(
                 fontLayout: fontLayout,
+                iconPadding: calculateIconPadding(
+                  fontLayout,
+                  state.lineHeightLayout,
+                ),
               ),
             );
           },
@@ -24,6 +30,10 @@ class DocumentPageStyleBloc
             emit(
               state.copyWith(
                 lineHeightLayout: lineHeightLayout,
+                iconPadding: calculateIconPadding(
+                  state.fontLayout,
+                  lineHeightLayout,
+                ),
               ),
             );
           },
@@ -40,6 +50,30 @@ class DocumentPageStyleBloc
   }
 
   final ViewPB view;
+
+  // because the line height can not be calculated accurately,
+  //  we need to adjust the icon padding manually.
+  double calculateIconPadding(
+    PageStyleFontLayout fontLayout,
+    PageStyleLineHeightLayout lineHeightLayout,
+  ) {
+    double padding = switch (fontLayout) {
+      PageStyleFontLayout.small => 1.0,
+      PageStyleFontLayout.normal => 2.0,
+      PageStyleFontLayout.large => 4.0,
+    };
+    switch (lineHeightLayout) {
+      case PageStyleLineHeightLayout.small:
+        padding -= 1.0;
+        break;
+      case PageStyleLineHeightLayout.normal:
+        break;
+      case PageStyleLineHeightLayout.large:
+        padding += 3.0;
+        break;
+    }
+    return max(0, padding);
+  }
 }
 
 @freezed
@@ -64,6 +98,7 @@ class DocumentPageStyleState with _$DocumentPageStyleState {
     PageStyleLineHeightLayout lineHeightLayout,
     // the default font family is null, which means the system font
     @Default(null) String? fontFamily,
+    @Default(2.0) double iconPadding,
   }) = _DocumentPageStyleState;
 
   factory DocumentPageStyleState.initial() => const DocumentPageStyleState();

@@ -4,13 +4,17 @@ import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_search_text_fi
 import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
 import 'package:appflowy/util/google_font_family_extension.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
+import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-final List<String> _availableFonts = GoogleFonts.asMap().keys.toList();
+final List<String> _availableFonts = [
+  builtInFontFamily(),
+  ...GoogleFonts.asMap().keys,
+];
 
 class FontPickerScreen extends StatelessWidget {
   const FontPickerScreen({super.key});
@@ -24,7 +28,9 @@ class FontPickerScreen extends StatelessWidget {
 }
 
 class LanguagePickerPage extends StatefulWidget {
-  const LanguagePickerPage({super.key});
+  const LanguagePickerPage({
+    super.key,
+  });
 
   @override
   State<LanguagePickerPage> createState() => _LanguagePickerPageState();
@@ -65,10 +71,12 @@ class _LanguagePickerPageState extends State<LanguagePickerPage> {
                       setState(() {
                         availableFonts = _availableFonts
                             .where(
-                              (font) => font
-                                  .parseFontFamilyName()
-                                  .toLowerCase()
-                                  .contains(keyword.toLowerCase()),
+                              (font) =>
+                                  font.isEmpty || // keep the default one always
+                                  font
+                                      .parseFontFamilyName()
+                                      .toLowerCase()
+                                      .contains(keyword.toLowerCase()),
                             )
                             .toList();
                       });
@@ -80,11 +88,16 @@ class _LanguagePickerPageState extends State<LanguagePickerPage> {
               final fontFamilyName = availableFonts[index - 1];
               final displayName = fontFamilyName.parseFontFamilyName();
               return FlowyOptionTile.checkbox(
-                text: displayName,
+                text: fontFamilyName.isNotEmpty
+                    ? displayName
+                    : LocaleKeys.settings_appearance_fontFamily_defaultFont
+                        .tr(),
                 isSelected: selectedFontFamilyName == fontFamilyName,
                 showTopBorder: false,
                 onTap: () => context.pop(fontFamilyName),
-                fontFamily: GoogleFonts.getFont(fontFamilyName).fontFamily,
+                fontFamily: fontFamilyName != builtInFontFamily()
+                    ? GoogleFonts.getFont(fontFamilyName).fontFamily
+                    : TextStyle(fontFamily: builtInFontFamily()).fontFamily,
                 backgroundColor: Colors.transparent,
               );
             },

@@ -135,6 +135,8 @@ class EditorStyleCustomizer {
             backgroundColor: Colors.grey.withOpacity(0.3),
           ),
         ),
+        applyHeightToFirstAscent: true,
+        applyHeightToLastDescent: true,
       ),
       textSpanDecorator: customizeAttributeDecorator,
       mobileDragHandleBallSize: const Size.square(12.0),
@@ -188,7 +190,7 @@ class EditorStyleCustomizer {
     final theme = Theme.of(context);
     final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
     return TextStyle(
-      fontFamily: builtInFontFamily,
+      fontFamily: builtInFontFamily(),
       fontSize: fontSize,
       height: 1.5,
       color: theme.colorScheme.onBackground.withOpacity(0.6),
@@ -240,14 +242,16 @@ class EditorStyleCustomizer {
         fontWeight: fontWeight,
       );
     } on Exception {
-      if ([builtInFontFamily, builtInCodeFontFamily].contains(fontFamily)) {
+      if ([builtInFontFamily(), builtInCodeFontFamily].contains(fontFamily)) {
         return TextStyle(
           fontFamily: fontFamily,
           fontWeight: fontWeight,
         );
       }
 
-      return GoogleFonts.getFont(builtInFontFamily);
+      return TextStyle(
+        fontWeight: fontWeight,
+      );
     }
   }
 

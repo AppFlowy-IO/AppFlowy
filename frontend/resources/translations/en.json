@@ -370,7 +370,8 @@
       "resetSetting": "Reset",
       "fontFamily": {
         "label": "Font Family",
-        "search": "Search"
+        "search": "Search",
+        "defaultFont": "Default Font"
       },
       "themeMode": {
         "label": "Theme Mode",
