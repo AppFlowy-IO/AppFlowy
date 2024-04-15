@@ -5,6 +5,7 @@ import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/page_style/_page_cover_bottom_sheet.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/page_style/_page_style_util.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -25,7 +26,6 @@ class PageStyleCoverImage extends StatelessWidget {
               context,
               backgroundColor,
               state,
-              (option) {},
             ),
           ],
         );
@@ -33,11 +33,10 @@ class PageStyleCoverImage extends StatelessWidget {
     );
   }
 
-  Widget _buildOptionGroup<T>(
+  Widget _buildOptionGroup(
     BuildContext context,
     Color backgroundColor,
     DocumentPageStyleState state,
-    void Function(T option) onTap,
   ) {
     return Expanded(
       child: Container(
@@ -52,9 +51,19 @@ class PageStyleCoverImage extends StatelessWidget {
         child: Row(
           children: [
             _buildOptionButton(
-              const FlowySvg(
-                FlowySvgs.m_page_style_presets_m,
-                blendMode: null,
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const FlowySvg(
+                    FlowySvgs.m_page_style_presets_m,
+                    blendMode: null,
+                  ),
+                  const VSpace(2.0),
+                  FlowyText(
+                    LocaleKeys.pageStyle_presets.tr(),
+                    fontSize: 12.0,
+                  ),
+                ],
               ),
               true,
               false,
@@ -80,14 +89,34 @@ class PageStyleCoverImage extends StatelessWidget {
               },
             ),
             _buildOptionButton(
-              const FlowySvg(FlowySvgs.m_page_style_photo_m),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const FlowySvg(FlowySvgs.m_page_style_photo_m),
+                  const VSpace(2.0),
+                  FlowyText(
+                    LocaleKeys.pageStyle_photo.tr(),
+                    fontSize: 12.0,
+                  ),
+                ],
+              ),
               false,
               false,
               state.coverImage.isCustomImage,
               () {},
             ),
             _buildOptionButton(
-              const FlowySvg(FlowySvgs.m_page_style_unsplash_m),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const FlowySvg(FlowySvgs.m_page_style_unsplash_m),
+                  const VSpace(2.0),
+                  FlowyText(
+                    LocaleKeys.pageStyle_unsplash.tr(),
+                    fontSize: 12.0,
+                  ),
+                ],
+              ),
               false,
               true,
               state.coverImage.isUnsplashImage,

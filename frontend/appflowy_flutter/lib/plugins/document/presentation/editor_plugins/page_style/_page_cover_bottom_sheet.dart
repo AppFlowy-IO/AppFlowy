@@ -126,7 +126,7 @@ class PageCoverBottomSheet extends StatelessWidget {
       onTap: () {
         context.read<DocumentPageStyleBloc>().add(
               DocumentPageStyleEvent.updateCoverImage(
-                PageStyleCoverImage(
+                PageStyleCover(
                   type: PageStyleCoverImageType.pureColor,
                   value: tint.id,
                 ),
@@ -187,7 +187,7 @@ class PageCoverBottomSheet extends StatelessWidget {
       onTap: () {
         context.read<DocumentPageStyleBloc>().add(
               DocumentPageStyleEvent.updateCoverImage(
-                PageStyleCoverImage(
+                PageStyleCover(
                   type: PageStyleCoverImageType.gradientColor,
                   value: gradientColor.id,
                 ),
@@ -264,7 +264,7 @@ class PageCoverBottomSheet extends StatelessWidget {
       onTap: () {
         context.read<DocumentPageStyleBloc>().add(
               DocumentPageStyleEvent.updateCoverImage(
-                PageStyleCoverImage(
+                PageStyleCover(
                   type: PageStyleCoverImageType.builtInImage,
                   value: image,
                 ),

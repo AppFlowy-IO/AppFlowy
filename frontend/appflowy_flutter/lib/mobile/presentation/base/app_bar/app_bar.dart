@@ -40,6 +40,7 @@ class FlowyAppBar extends AppBar {
     super.centerTitle,
     VoidCallback? onTapLeading,
     bool showDivider = true,
+    super.backgroundColor,
   }) : super(
           title: title ??
               FlowyText(

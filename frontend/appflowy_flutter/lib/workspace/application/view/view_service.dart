@@ -150,6 +150,7 @@ class ViewBackendService {
     required String viewId,
     String? name,
     bool? isFavorite,
+    String? extra,
   }) {
     final payload = UpdateViewPayloadPB.create()..viewId = viewId;
 
@@ -159,6 +160,10 @@ class ViewBackendService {
 
     if (isFavorite != null) {
       payload.isFavorite = isFavorite;
+    }
+
+    if (extra != null) {
+      payload.extra = extra;
     }
 
     return FolderEventUpdateView(payload).send();

@@ -9,6 +9,13 @@ enum FlowyGradientColor {
   gradient6,
   gradient7;
 
+  static FlowyGradientColor fromId(String id) {
+    return FlowyGradientColor.values.firstWhere(
+      (element) => element.id == id,
+      orElse: () => FlowyGradientColor.gradient1,
+    );
+  }
+
   String get id {
     // DON'T change this name because it's saved in the database!
     switch (this) {

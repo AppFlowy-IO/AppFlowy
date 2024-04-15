@@ -122,7 +122,10 @@ class _MobileViewPageState extends State<MobileViewPage> {
               ),
               if (viewPB!.layout == ViewLayoutPB.Document)
                 BlocProvider(
-                  create: (_) => DocumentPageStyleBloc(view: viewPB!),
+                  create: (_) => DocumentPageStyleBloc(view: viewPB!)
+                    ..add(
+                      const DocumentPageStyleEvent.initial(),
+                    ),
                 ),
             ],
             child: Builder(
@@ -144,7 +147,10 @@ class _MobileViewPageState extends State<MobileViewPage> {
   Widget _buildApp(ViewPB? view, List<Widget> actions, Widget child) {
     final icon = view?.icon.value;
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: FlowyAppBar(
+        backgroundColor: Colors.transparent,
+        showDivider: false,
         title: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -164,7 +170,7 @@ class _MobileViewPageState extends State<MobileViewPage> {
         ),
         actions: actions,
       ),
-      body: SafeArea(child: child),
+      body: child,
     );
   }
 

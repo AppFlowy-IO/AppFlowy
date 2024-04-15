@@ -1,8 +1,12 @@
+import 'dart:convert';
 import 'dart:math';
 
+import 'package:appflowy/workspace/application/view/view_ext.dart';
+import 'package:appflowy/workspace/application/view/view_service.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
-import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
-import 'package:flutter/material.dart';
+import 'package:appflowy_result/appflowy_result.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -16,8 +20,53 @@ class DocumentPageStyleBloc
     on<DocumentPageStyleEvent>(
       (event, emit) async {
         await event.when(
-          initial: () async {},
-          updateFont: (fontLayout) {
+          initial: () async {
+            try {
+              final layoutObject =
+                  await ViewBackendService.getView(view.id).fold(
+                (s) {
+                  return jsonDecode(s.extra);
+                },
+                (f) => {},
+              );
+              final fontLayout = layoutObject[ViewExtKeys.fontLayoutKey] ??
+                  PageStyleFontLayout.normal.toString();
+              final lineHeightLayout =
+                  layoutObject[ViewExtKeys.lineHeightLayoutKey] ??
+                      PageStyleLineHeightLayout.normal.toString();
+              final cover = layoutObject[ViewExtKeys.coverKey] ?? {};
+              final coverType = cover[ViewExtKeys.coverTypeKey] ??
+                  PageStyleCoverImageType.none.toString();
+              final coverValue = cover[ViewExtKeys.coverValueKey] ?? '';
+              emit(
+                state.copyWith(
+                  fontLayout: PageStyleFontLayout.values.firstWhere(
+                    (e) => e.toString() == fontLayout,
+                  ),
+                  lineHeightLayout: PageStyleLineHeightLayout.values.firstWhere(
+                    (e) => e.toString() == lineHeightLayout,
+                  ),
+                  coverImage: PageStyleCover(
+                    type: PageStyleCoverImageType.values.firstWhere(
+                      (e) => e.toString() == coverType,
+                    ),
+                    value: coverValue,
+                  ),
+                  iconPadding: calculateIconPadding(
+                    PageStyleFontLayout.values.firstWhere(
+                      (e) => e.toString() == fontLayout,
+                    ),
+                    PageStyleLineHeightLayout.values.firstWhere(
+                      (e) => e.toString() == lineHeightLayout,
+                    ),
+                  ),
+                ),
+              );
+            } catch (e) {
+              Log.error('Failed to decode layout object: $e');
+            }
+          },
+          updateFont: (fontLayout) async {
             emit(
               state.copyWith(
                 fontLayout: fontLayout,
@@ -27,8 +76,10 @@ class DocumentPageStyleBloc
                 ),
               ),
             );
+
+            await updateLayoutObject();
           },
-          updateLineHeight: (lineHeightLayout) {
+          updateLineHeight: (lineHeightLayout) async {
             emit(
               state.copyWith(
                 lineHeightLayout: lineHeightLayout,
@@ -38,20 +89,26 @@ class DocumentPageStyleBloc
                 ),
               ),
             );
+
+            await updateLayoutObject();
           },
-          updateFontFamily: (fontFamily) {
+          updateFontFamily: (fontFamily) async {
             emit(
               state.copyWith(
                 fontFamily: fontFamily,
               ),
             );
+
+            await updateLayoutObject();
           },
-          updateCoverImage: (coverImage) {
+          updateCoverImage: (coverImage) async {
             emit(
               state.copyWith(
                 coverImage: coverImage,
               ),
             );
+
+            await updateLayoutObject();
           },
         );
       },
@@ -59,6 +116,37 @@ class DocumentPageStyleBloc
   }
 
   final ViewPB view;
+  final ViewBackendService viewBackendService = ViewBackendService();
+
+  Future<void> updateLayoutObject() async {
+    final layoutObject = decodeLayoutObject();
+    if (layoutObject != null) {
+      await ViewBackendService.updateView(
+        viewId: view.id,
+        extra: layoutObject,
+      );
+    }
+  }
+
+  String? decodeLayoutObject() {
+    Map oldValue = {};
+    try {
+      final extra = view.extra;
+      oldValue = jsonDecode(extra);
+    } catch (e) {
+      Log.error('Failed to decode layout object: $e');
+    }
+    final newValue = {
+      ViewExtKeys.fontLayoutKey: state.fontLayout.toString(),
+      ViewExtKeys.lineHeightLayoutKey: state.lineHeightLayout.toString(),
+      ViewExtKeys.coverKey: {
+        ViewExtKeys.coverTypeKey: state.coverImage.type.toString(),
+        ViewExtKeys.coverValueKey: state.coverImage.value,
+      },
+    };
+    final merged = mergeMaps(oldValue, newValue);
+    return jsonEncode(merged);
+  }
 
   // because the line height can not be calculated accurately,
   //  we need to adjust the icon padding manually.
@@ -98,7 +186,7 @@ class DocumentPageStyleEvent with _$DocumentPageStyleEvent {
     String? fontFamily,
   ) = UpdateFontFamily;
   const factory DocumentPageStyleEvent.updateCoverImage(
-    PageStyleCoverImage coverImage,
+    PageStyleCover coverImage,
   ) = UpdateCoverImage;
 }
 
@@ -111,11 +199,11 @@ class DocumentPageStyleState with _$DocumentPageStyleState {
     // the default font family is null, which means the system font
     @Default(null) String? fontFamily,
     @Default(2.0) double iconPadding,
-    required PageStyleCoverImage coverImage,
+    required PageStyleCover coverImage,
   }) = _DocumentPageStyleState;
 
   factory DocumentPageStyleState.initial() => DocumentPageStyleState(
-        coverImage: PageStyleCoverImage.none(),
+        coverImage: PageStyleCover.none(),
       );
 }
 
@@ -123,6 +211,25 @@ enum PageStyleFontLayout {
   small,
   normal,
   large;
+
+  @override
+  String toString() {
+    switch (this) {
+      case PageStyleFontLayout.small:
+        return 'small';
+      case PageStyleFontLayout.normal:
+        return 'normal';
+      case PageStyleFontLayout.large:
+        return 'large';
+    }
+  }
+
+  static PageStyleFontLayout fromString(String value) {
+    return PageStyleFontLayout.values.firstWhereOrNull(
+          (e) => e.toString() == value,
+        ) ??
+        PageStyleFontLayout.normal;
+  }
 
   double get fontSize {
     switch (this) {
@@ -164,6 +271,25 @@ enum PageStyleLineHeightLayout {
   small,
   normal,
   large;
+
+  @override
+  String toString() {
+    switch (this) {
+      case PageStyleLineHeightLayout.small:
+        return 'small';
+      case PageStyleLineHeightLayout.normal:
+        return 'normal';
+      case PageStyleLineHeightLayout.large:
+        return 'large';
+    }
+  }
+
+  static PageStyleLineHeightLayout fromString(String value) {
+    return PageStyleLineHeightLayout.values.firstWhereOrNull(
+          (e) => e.toString() == value,
+        ) ??
+        PageStyleLineHeightLayout.normal;
+  }
 
   double get lineHeight {
     switch (this) {
@@ -209,17 +335,46 @@ enum PageStyleCoverImageType {
   builtInImage,
   // custom images, uploaded by the user
   customImage,
+  // local image
+  localImage,
   // unsplash images
-  unsplashImage,
+  unsplashImage;
+
+  @override
+  String toString() {
+    switch (this) {
+      case PageStyleCoverImageType.none:
+        return 'none';
+      case PageStyleCoverImageType.pureColor:
+        return 'color';
+      case PageStyleCoverImageType.gradientColor:
+        return 'gradient';
+      case PageStyleCoverImageType.builtInImage:
+        return 'built_in';
+      case PageStyleCoverImageType.customImage:
+        return 'custom';
+      case PageStyleCoverImageType.localImage:
+        return 'local';
+      case PageStyleCoverImageType.unsplashImage:
+        return 'unsplash';
+    }
+  }
+
+  static PageStyleCoverImageType fromString(String value) {
+    return PageStyleCoverImageType.values.firstWhereOrNull(
+          (e) => e.toString() == value,
+        ) ??
+        PageStyleCoverImageType.none;
+  }
 }
 
-class PageStyleCoverImage {
-  const PageStyleCoverImage({
+class PageStyleCover {
+  const PageStyleCover({
     required this.type,
     required this.value,
   });
 
-  factory PageStyleCoverImage.none() => const PageStyleCoverImage(
+  factory PageStyleCover.none() => const PageStyleCover(
         type: PageStyleCoverImageType.none,
         value: '',
       );
@@ -240,45 +395,4 @@ class PageStyleCoverImage {
   bool get isBuiltInImage => type == PageStyleCoverImageType.builtInImage;
   bool get isCustomImage => type == PageStyleCoverImageType.customImage;
   bool get isUnsplashImage => type == PageStyleCoverImageType.unsplashImage;
-
-  Color? get valueAsColor {
-    if (isPureColor) {
-      return value.tryToColor();
-    }
-
-    throw ArgumentError('Invalid type');
-  }
-
-  LinearGradient? get valueAsGradient {
-    // if (isGradient) {
-    //   final parts = value.split(',').whereNotNull().toList();
-    //   if (parts.length < 6) {
-    //     Log.error('Invalid gradient color value: $value');
-    //     return null;
-    //   }
-    //   final p1 = double.tryParse(parts[0]);
-    //   final p2 = double.tryParse(parts[1]);
-    //   final p3 = double.tryParse(parts[2]);
-    //   final p4 = double.tryParse(parts[3]);
-    //   if (p1 == null || p2 == null || p3 == null || p4 == null) {
-    //     Log.error('Invalid gradient color value: $value');
-    //     return null;
-    //   }
-    //   final start = Alignment(p1, p2);
-    //   final end = Alignment(p3, p4);
-    //   final colors =
-    //       parts.skip(4).map((e) => e.tryToColor()).whereNotNull().toList();
-    //   if (colors.isEmpty) {
-    //     Log.error('Invalid gradient color value: $value');
-    //     return null;
-    //   }
-    //   return LinearGradient(
-    //     begin: start,
-    //     end: end,
-    //     colors: colors,
-    //   );
-    // }
-
-    throw ArgumentError('Invalid type');
-  }
 }
