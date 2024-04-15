@@ -4,6 +4,7 @@ use std::sync::Arc;
 
 use collab::core::collab::{DataSource, MutexCollab};
 use collab::core::origin::CollabOrigin;
+use collab::preclude::Collab;
 use collab_plugins::cloud_storage::RemoteCollabStorage;
 use uuid::Uuid;
 
@@ -121,8 +122,8 @@ pub async fn print_encryption_folder_snapshot(
     .await
     .pop()
     .unwrap();
-  let collab = Arc::new(
-    MutexCollab::new_with_doc_state(
+  let collab = Arc::new(MutexCollab::new(
+    Collab::new_with_source(
       CollabOrigin::Empty,
       folder_id,
       DataSource::DocStateV1(snapshot.blob),
@@ -130,7 +131,7 @@ pub async fn print_encryption_folder_snapshot(
       false,
     )
     .unwrap(),
-  );
+  ));
   let folder_data = Folder::open(uid, collab, None)
     .unwrap()
     .get_folder_data()

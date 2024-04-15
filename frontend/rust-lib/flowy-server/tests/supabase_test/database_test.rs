@@ -57,6 +57,7 @@ async fn supabase_create_database_test() {
       DataSource::DocStateV1(doc_state) => {
         assert_eq!(doc_state.len(), 2);
       },
+      DataSource::DocStateV2(_) => {},
     }
   }
 }
