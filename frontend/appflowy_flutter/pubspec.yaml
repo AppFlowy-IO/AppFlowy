@@ -239,6 +239,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/images/
+    - assets/images/built_in_cover_images/
     - assets/flowy_icons/
     - assets/flowy_icons/16x/
     - assets/flowy_icons/24x/

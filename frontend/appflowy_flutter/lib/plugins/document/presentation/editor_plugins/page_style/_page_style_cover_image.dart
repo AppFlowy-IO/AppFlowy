@@ -58,7 +58,7 @@ class PageStyleCoverImage extends StatelessWidget {
               ),
               true,
               false,
-              state.coverImage.isPresets || state.coverImage.isNone,
+              state.coverImage.isPresets,
               () {
                 showMobileBottomSheet(
                   context,

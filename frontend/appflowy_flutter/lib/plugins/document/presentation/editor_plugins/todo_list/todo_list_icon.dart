@@ -35,7 +35,7 @@ class TodoListIcon extends StatelessWidget {
           checked
               ? FlowySvgs.m_todo_list_checked_s
               : FlowySvgs.m_todo_list_unchecked_s,
-          blendMode: null,
+          blendMode: checked ? null : BlendMode.srcIn,
         ),
       ),
     );
