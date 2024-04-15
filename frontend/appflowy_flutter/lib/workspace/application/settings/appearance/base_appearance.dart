@@ -1,10 +1,10 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme.dart';
+import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+// not using the built-in font for mobile
 const builtInFontFamily = 'Poppins';
 const builtInCodeFontFamily = 'RobotoMono';
 

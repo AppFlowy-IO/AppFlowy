@@ -27,6 +27,13 @@ class DocumentPageStyleBloc
               ),
             );
           },
+          updateFontFamily: (fontFamily) {
+            emit(
+              state.copyWith(
+                fontFamily: fontFamily,
+              ),
+            );
+          },
         );
       },
     );
@@ -44,6 +51,9 @@ class DocumentPageStyleEvent with _$DocumentPageStyleEvent {
   const factory DocumentPageStyleEvent.updateLineHeight(
     PageStyleLineHeightLayout lineHeightLayout,
   ) = UpdateLineHeight;
+  const factory DocumentPageStyleEvent.updateFontFamily(
+    String? fontFamily,
+  ) = UpdateFontFamily;
 }
 
 @freezed
@@ -52,6 +62,8 @@ class DocumentPageStyleState with _$DocumentPageStyleState {
     @Default(PageStyleFontLayout.normal) PageStyleFontLayout fontLayout,
     @Default(PageStyleLineHeightLayout.normal)
     PageStyleLineHeightLayout lineHeightLayout,
+    // the default font family is null, which means the system font
+    @Default(null) String? fontFamily,
   }) = _DocumentPageStyleState;
 
   factory DocumentPageStyleState.initial() => const DocumentPageStyleState();
