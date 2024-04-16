@@ -53,7 +53,7 @@ class _MobileViewPageState extends State<MobileViewPage> {
 
   // used to determine if the user has scrolled down and show the app bar in immersive mode
   ScrollNotificationObserverState? _scrollNotificationObserver;
-  double _appBarOpacity = 0.0;
+  final ValueNotifier<double> _appBarOpacity = ValueNotifier(0.0);
   bool hasCover = false;
 
   @override
@@ -72,6 +72,7 @@ class _MobileViewPageState extends State<MobileViewPage> {
   @override
   void dispose() {
     _viewListener.stop();
+    _appBarOpacity.dispose();
     _scrollNotificationObserver = null;
     super.dispose();
   }
@@ -192,11 +193,21 @@ class _MobileViewPageState extends State<MobileViewPage> {
     if (isImmersive) {
       return Scaffold(
         extendBodyBehindAppBar: true,
-        appBar: FlowyAppBar(
-          backgroundColor: Colors.white.withOpacity(_appBarOpacity),
-          showDivider: false,
-          title: title,
-          actions: actions,
+        appBar: PreferredSize(
+          preferredSize: Size(
+            double.infinity,
+            AppBarTheme.of(context).toolbarHeight ?? kToolbarHeight,
+          ),
+          child: ValueListenableBuilder(
+            valueListenable: _appBarOpacity,
+            builder: (_, opacity, __) => FlowyAppBar(
+              backgroundColor:
+                  AppBarTheme.of(context).backgroundColor?.withOpacity(opacity),
+              showDivider: false,
+              title: title,
+              actions: actions,
+            ),
+          ),
         ),
         body: Builder(
           builder: (context) {
@@ -323,6 +334,8 @@ class _MobileViewPageState extends State<MobileViewPage> {
     );
   }
 
+  // immersive mode related
+  // auto show or hide the app bar based on the scroll position
   void _onScrollNotification(ScrollNotification notification) {
     if (_scrollNotificationObserver == null) {
       return;
@@ -330,15 +343,13 @@ class _MobileViewPageState extends State<MobileViewPage> {
     if (notification is ScrollUpdateNotification &&
         defaultScrollNotificationPredicate(notification)) {
       final ScrollMetrics metrics = notification.metrics;
-      final height = hasCover ? kCoverHeight : 20.0;
+      final height = hasCover ? kDocumentCoverHeight : 0.0;
       final progress = (metrics.pixels / height).clamp(0.0, 1.0);
-      if (((progress - _appBarOpacity).abs() >= 0.1 ||
-              progress == 0 ||
-              progress == 1.0) &&
-          _appBarOpacity != progress) {
-        setState(() {
-          _appBarOpacity = progress;
-        });
+      // reduce the sensitivity of the app bar opacity change
+      if ((progress - _appBarOpacity.value).abs() >= 0.1 ||
+          progress == 0 ||
+          progress == 1.0) {
+        _appBarOpacity.value = progress;
       }
     }
   }

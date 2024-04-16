@@ -7,7 +7,7 @@ import 'package:flowy_infra/theme_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-double kCoverHeight = 98.0;
+double kDocumentCoverHeight = 98.0;
 
 class DocumentImmersiveCover extends StatelessWidget {
   const DocumentImmersiveCover({
@@ -25,54 +25,50 @@ class DocumentImmersiveCover extends StatelessWidget {
       child:
           BlocBuilder<DocumentImmersiveCoverBloc, DocumentImmersiveCoverState>(
         builder: (_, state) {
-          return _buildCover(context, state);
+          final cover = state.cover;
+          final type = cover.type;
+          final naviBarHeight = MediaQuery.of(context).padding.top;
+          final height = naviBarHeight + kDocumentCoverHeight;
+
+          if (type == PageStyleCoverImageType.customImage ||
+              type == PageStyleCoverImageType.unsplashImage) {
+            return SizedBox(
+              height: height,
+              child: FlowyNetworkImage(url: cover.value),
+            );
+          }
+
+          if (type == PageStyleCoverImageType.builtInImage) {
+            return SizedBox(
+              height: height,
+              child: Image.asset(
+                PageStyleCoverImageType.builtInImagePath(cover.value),
+                fit: BoxFit.cover,
+              ),
+            );
+          }
+
+          if (type == PageStyleCoverImageType.pureColor) {
+            return Container(
+              height: height,
+              color: FlowyTint.fromId(cover.value).color(context),
+            );
+          }
+
+          if (type == PageStyleCoverImageType.gradientColor) {
+            return Container(
+              height: height,
+              decoration: BoxDecoration(
+                gradient: FlowyGradientColor.fromId(cover.value).linear,
+              ),
+            );
+          }
+
+          return SizedBox(
+            height: naviBarHeight,
+          );
         },
       ),
-    );
-  }
-
-  Widget _buildCover(BuildContext context, DocumentImmersiveCoverState state) {
-    final cover = state.cover;
-    final type = cover.type;
-    final naviBarHeight = MediaQuery.of(context).padding.top;
-    final height = naviBarHeight + kCoverHeight;
-
-    if (type == PageStyleCoverImageType.customImage ||
-        type == PageStyleCoverImageType.unsplashImage) {
-      return SizedBox(
-        height: height,
-        child: FlowyNetworkImage(url: cover.value),
-      );
-    }
-
-    if (type == PageStyleCoverImageType.builtInImage) {
-      return SizedBox(
-        height: height,
-        child: Image.asset(
-          PageStyleCoverImageType.builtInImagePath(cover.value),
-          fit: BoxFit.cover,
-        ),
-      );
-    }
-
-    if (type == PageStyleCoverImageType.pureColor) {
-      return Container(
-        height: height,
-        color: FlowyTint.fromId(cover.value).color(context),
-      );
-    }
-
-    if (type == PageStyleCoverImageType.gradientColor) {
-      return Container(
-        height: height,
-        decoration: BoxDecoration(
-          gradient: FlowyGradientColor.fromId(cover.value).linear,
-        ),
-      );
-    }
-
-    return SizedBox(
-      height: naviBarHeight,
     );
   }
 }
