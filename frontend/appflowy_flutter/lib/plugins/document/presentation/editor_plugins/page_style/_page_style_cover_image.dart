@@ -3,6 +3,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/image_util.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/image/unsplash_image_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/page_style/_page_cover_bottom_sheet.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/page_style/_page_style_util.dart';
 import 'package:appflowy/shared/feedback_gesture_detector.dart';
@@ -110,7 +111,7 @@ class PageStyleCoverImage extends StatelessWidget {
               false,
               true,
               state.coverImage.isUnsplashImage,
-              () {},
+              () => _showUnsplash(context),
             ),
           ],
         ),
@@ -219,5 +220,44 @@ class PageStyleCoverImage extends StatelessWidget {
             ),
           );
     }
+  }
+
+  void _showUnsplash(BuildContext context) {
+    showMobileBottomSheet(
+      context,
+      showDragHandle: true,
+      showDivider: false,
+      showDoneButton: true,
+      showHeader: true,
+      title: LocaleKeys.pageStyle_coverImage.tr(),
+      barrierColor: Colors.transparent,
+      backgroundColor: Theme.of(context).colorScheme.background,
+      builder: (_) {
+        return ConstrainedBox(
+          constraints: const BoxConstraints(
+            maxHeight: 360,
+            minHeight: 80,
+          ),
+          child: BlocProvider.value(
+            value: context.read<DocumentPageStyleBloc>(),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: UnsplashImageWidget(
+                onSelectUnsplashImage: (url) {
+                  context.read<DocumentPageStyleBloc>().add(
+                        DocumentPageStyleEvent.updateCoverImage(
+                          PageStyleCover(
+                            type: PageStyleCoverImageType.unsplashImage,
+                            value: url,
+                          ),
+                        ),
+                      );
+                },
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 }

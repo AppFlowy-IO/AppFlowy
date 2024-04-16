@@ -1,5 +1,4 @@
-import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:easy_localization/easy_localization.dart';
+import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_search_text_field.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:unsplash_client/unsplash_client.dart';
@@ -52,25 +51,12 @@ class _UnsplashImageWidgetState extends State<UnsplashImageWidget> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Expanded(
-              child: FlowyTextField(
-                hintText: LocaleKeys.document_imageBlock_searchForAnImage.tr(),
-                onChanged: (value) => query = value,
-                onEditingComplete: _search,
-              ),
-            ),
-            const HSpace(4.0),
-            FlowyButton(
-              useIntrinsicWidth: true,
-              text: FlowyText(
-                LocaleKeys.search_label.tr(),
-              ),
-              onTap: _search,
-            ),
-          ],
+        SizedBox(
+          height: 44,
+          child: FlowyMobileSearchTextField(
+            onChanged: (keyword) => query = keyword,
+            onSubmitted: (_) => _search(),
+          ),
         ),
         const VSpace(12.0),
         Expanded(
