@@ -46,11 +46,12 @@ dependencies:
       ref: 15a3a50
   appflowy_result:
     path: packages/appflowy_result
-  appflowy_editor:
   appflowy_editor_plugins:
     git:
-      url: https://github.com/LucasXu0/appflowy_editor_plugins
-      ref: "8f238f2"
+      url: https://github.com/AppFlowy-IO/appflowy-plugins
+      path: packages/appflowy_editor_plugins
+      ref: "43a3b69"
+  appflowy_editor:
 
   appflowy_popover:
     path: packages/appflowy_popover
