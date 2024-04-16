@@ -58,7 +58,7 @@ class PageStyleCoverImage extends StatelessWidget {
                     FlowySvgs.m_page_style_presets_m,
                     blendMode: null,
                   ),
-                  const VSpace(2.0),
+                  const VSpace(4.0),
                   FlowyText(
                     LocaleKeys.pageStyle_presets.tr(),
                     fontSize: 12.0,
@@ -100,7 +100,7 @@ class PageStyleCoverImage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const FlowySvg(FlowySvgs.m_page_style_photo_m),
-                  const VSpace(2.0),
+                  const VSpace(4.0),
                   FlowyText(
                     LocaleKeys.pageStyle_photo.tr(),
                     fontSize: 12.0,
@@ -117,7 +117,7 @@ class PageStyleCoverImage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const FlowySvg(FlowySvgs.m_page_style_unsplash_m),
-                  const VSpace(2.0),
+                  const VSpace(4.0),
                   FlowyText(
                     LocaleKeys.pageStyle_unsplash.tr(),
                     fontSize: 12.0,

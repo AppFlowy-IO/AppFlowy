@@ -91,6 +91,7 @@ class MobileAppearance extends BaseAppearance {
       disabledColor: colorTheme.outline,
       scaffoldBackgroundColor: colorTheme.background,
       appBarTheme: AppBarTheme(
+        toolbarHeight: 44.0,
         foregroundColor: colorTheme.onBackground,
         backgroundColor: colorTheme.background,
         centerTitle: false,

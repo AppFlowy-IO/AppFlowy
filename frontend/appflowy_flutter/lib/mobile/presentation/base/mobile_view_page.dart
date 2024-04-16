@@ -8,7 +8,6 @@ import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_state_containe
 import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
 import 'package:appflowy/plugins/document/presentation/document_collaborators.dart';
 import 'package:appflowy/plugins/document/presentation/editor_notification.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/cover/document_immersive_cover.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/page_style/page_style_bottom_sheet.dart';
 import 'package:appflowy/plugins/shared/sync_indicator.dart';
 import 'package:appflowy/shared/feature_flags.dart';
@@ -17,7 +16,6 @@ import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
-import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -49,29 +47,19 @@ class MobileViewPage extends StatefulWidget {
 
 class _MobileViewPageState extends State<MobileViewPage> {
   late final Future<FlowyResult<ViewPB, FlowyError>> future;
-  late final ViewListener _viewListener;
 
   // used to determine if the user has scrolled down and show the app bar in immersive mode
   ScrollNotificationObserverState? _scrollNotificationObserver;
   final ValueNotifier<double> _appBarOpacity = ValueNotifier(0.0);
-  bool hasCover = false;
 
   @override
   void initState() {
     super.initState();
     future = ViewBackendService.getView(widget.id);
-
-    _viewListener = ViewListener(viewId: widget.id)
-      ..start(
-        onViewUpdated: (view) {
-          _updateCoverStatus(view);
-        },
-      );
   }
 
   @override
   void dispose() {
-    _viewListener.stop();
     _appBarOpacity.dispose();
     _scrollNotificationObserver = null;
     super.dispose();
@@ -204,14 +192,13 @@ class _MobileViewPageState extends State<MobileViewPage> {
               backgroundColor:
                   AppBarTheme.of(context).backgroundColor?.withOpacity(opacity),
               showDivider: false,
-              title: title,
+              title: Opacity(opacity: opacity >= 0.99 ? 1.0 : 0, child: title),
               actions: actions,
             ),
           ),
         ),
         body: Builder(
           builder: (context) {
-            _updateCoverStatus(context.watch<ViewBloc>().state.view);
             _rebuildScrollNotificationObserver(context);
             return child;
           },
@@ -255,7 +242,9 @@ class _MobileViewPageState extends State<MobileViewPage> {
           backgroundColor: Theme.of(context).colorScheme.background,
           builder: (_) => BlocProvider.value(
             value: context.read<DocumentPageStyleBloc>(),
-            child: const PageStyleBottomSheet(),
+            child: PageStyleBottomSheet(
+              view: context.read<ViewBloc>().state.view,
+            ),
           ),
         );
       },
@@ -343,7 +332,7 @@ class _MobileViewPageState extends State<MobileViewPage> {
     if (notification is ScrollUpdateNotification &&
         defaultScrollNotificationPredicate(notification)) {
       final ScrollMetrics metrics = notification.metrics;
-      final height = hasCover ? kDocumentCoverHeight : 0.0;
+      final height = MediaQuery.of(context).padding.top;
       final progress = (metrics.pixels / height).clamp(0.0, 1.0);
       // reduce the sensitivity of the app bar opacity change
       if ((progress - _appBarOpacity.value).abs() >= 0.1 ||
@@ -352,9 +341,5 @@ class _MobileViewPageState extends State<MobileViewPage> {
         _appBarOpacity.value = progress;
       }
     }
-  }
-
-  void _updateCoverStatus(ViewPB view) {
-    hasCover = view.cover?.type != PageStyleCoverImageType.none;
   }
 }

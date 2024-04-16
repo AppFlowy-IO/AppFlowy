@@ -1,8 +1,8 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/page_style/_page_style_util.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/page_style/cover_image_gradient_colors.dart';
 import 'package:appflowy/shared/feedback_gesture_detector.dart';
+import 'package:appflowy/shared/flowy_gradient_colors.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -67,9 +67,7 @@ class PageCoverBottomSheet extends StatelessWidget {
                 color: context.pageStyleTextColor,
               ),
               const VSpace(8.0),
-              _buildBuiltImages(context, state, ['1', '2', '3']),
-              const VSpace(8.0),
-              _buildBuiltImages(context, state, ['4', '5', '6']),
+              _buildBuiltImages(context, state, ['1', '2', '3', '4', '5', '6']),
             ],
           ),
         );
@@ -202,19 +200,19 @@ class PageCoverBottomSheet extends StatelessWidget {
     DocumentPageStyleState state,
     List<String> imageNames,
   ) {
-    return SizedBox(
-      height: 72.0,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: imageNames
-            .map(
-              (e) => _buildBuiltInImage(
-                context,
-                state,
-                e.toString(),
-              ),
-            )
-            .toList(),
+    return GridView.builder(
+      shrinkWrap: true,
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3,
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 12,
+        childAspectRatio: 16.0 / 9.0,
+      ),
+      itemCount: imageNames.length,
+      itemBuilder: (context, index) => _buildBuiltInImage(
+        context,
+        state,
+        imageNames[index],
       ),
     );
   }
@@ -222,24 +220,21 @@ class PageCoverBottomSheet extends StatelessWidget {
   Widget _buildBuiltInImage(
     BuildContext context,
     DocumentPageStyleState state,
-    String image,
+    String imageName,
   ) {
-    final asset = PageStyleCoverImageType.builtInImagePath(image);
+    final asset = PageStyleCoverImageType.builtInImagePath(imageName);
     final isSelected =
-        state.coverImage.isBuiltInImage && state.coverImage.value == image;
+        state.coverImage.isBuiltInImage && state.coverImage.value == imageName;
+    final image = ClipRRect(
+      borderRadius: BorderRadius.circular(4),
+      child: Image.asset(
+        asset,
+        fit: BoxFit.cover,
+      ),
+    );
     final child = !isSelected
-        ? Container(
-            width: 108,
-            height: 72,
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage(asset),
-                fit: BoxFit.cover,
-              ),
-            ),
-          )
+        ? image
         : Container(
-            width: 108,
             clipBehavior: Clip.antiAlias,
             decoration: ShapeDecoration(
               shape: RoundedRectangleBorder(
@@ -247,14 +242,8 @@ class PageCoverBottomSheet extends StatelessWidget {
                 borderRadius: BorderRadius.circular(6),
               ),
             ),
-            padding: const EdgeInsets.all(4.0),
-            child: SizedBox(
-              height: 100,
-              child: Image.asset(
-                asset,
-                fit: BoxFit.cover,
-              ),
-            ),
+            padding: const EdgeInsets.all(2.0),
+            child: image,
           );
 
     return FeedbackGestureDetector(
@@ -263,7 +252,7 @@ class PageCoverBottomSheet extends StatelessWidget {
               DocumentPageStyleEvent.updateCoverImage(
                 PageStyleCover(
                   type: PageStyleCoverImageType.builtInImage,
-                  value: image,
+                  value: imageName,
                 ),
               ),
             );

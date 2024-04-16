@@ -21,6 +21,7 @@ class DocumentImmersiveCoverBloc
               DocumentImmersiveCoverEvent.updateCoverAndIcon(
                 view.cover,
                 view.icon.value,
+                view.name,
               ),
             );
             _viewListener?.start(
@@ -29,16 +30,18 @@ class DocumentImmersiveCoverBloc
                   DocumentImmersiveCoverEvent.updateCoverAndIcon(
                     view.cover,
                     view.icon.value,
+                    view.name,
                   ),
                 );
               },
             );
           },
-          updateCoverAndIcon: (cover, icon) {
+          updateCoverAndIcon: (cover, icon, name) {
             emit(
               state.copyWith(
                 icon: icon,
                 cover: cover ?? state.cover,
+                name: name ?? state.name,
               ),
             );
           },
@@ -63,6 +66,7 @@ class DocumentImmersiveCoverEvent with _$DocumentImmersiveCoverEvent {
   const factory DocumentImmersiveCoverEvent.updateCoverAndIcon(
     PageStyleCover? cover,
     String? icon,
+    String? name,
   ) = UpdateCoverAndIcon;
 }
 
@@ -71,6 +75,7 @@ class DocumentImmersiveCoverState with _$DocumentImmersiveCoverState {
   const factory DocumentImmersiveCoverState({
     @Default(null) String? icon,
     required PageStyleCover cover,
+    @Default('') String name,
   }) = _DocumentImmersiveCoverState;
 
   factory DocumentImmersiveCoverState.initial() => DocumentImmersiveCoverState(

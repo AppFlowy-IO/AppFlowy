@@ -1470,14 +1470,15 @@
     "title": "Page Style",
     "layout": "Layout",
     "coverImage": "Cover Image",
-    "pageIcon":"Page Icon",
+    "pageIcon": "Page Icon",
     "colors": "Colors",
     "gradient": "Gradient",
     "backgroundImage": "Background Image",
     "presets": "Presets",
     "photo": "Photo",
     "unsplash": "Unsplash",
-    "pageCover": "Page Cover"
+    "pageCover": "Page Cover",
+    "none": "None"
   },
   "commandPalette": {
     "placeholder": "Type to search for views...",
