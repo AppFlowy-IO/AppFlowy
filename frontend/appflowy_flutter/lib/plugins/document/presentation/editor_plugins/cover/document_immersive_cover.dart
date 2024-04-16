@@ -10,6 +10,7 @@ import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_infra_ui/widget/ignore_parent_gesture.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -28,37 +29,39 @@ class DocumentImmersiveCover extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => DocumentImmersiveCoverBloc(view: view)
-        ..add(const DocumentImmersiveCoverEvent.initial()),
-      child:
-          BlocBuilder<DocumentImmersiveCoverBloc, DocumentImmersiveCoverState>(
-        builder: (_, state) {
-          final iconAndTitle = _buildIconAndTitle(context, state);
-          if (state.cover.type == PageStyleCoverImageType.none) {
-            return Padding(
-              padding: EdgeInsets.only(
-                top: context.statusBarAndAppBarHeight + kDocumentTitlePadding,
-              ),
-              child: iconAndTitle,
-            );
-          }
-
-          return Stack(
-            children: [
-              _buildCover(context, state),
-              Positioned(
-                left: 0,
-                right: 0,
-                bottom: 0,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 24.0),
-                  child: iconAndTitle,
+    return IgnoreParentGestureWidget(
+      child: BlocProvider(
+        create: (context) => DocumentImmersiveCoverBloc(view: view)
+          ..add(const DocumentImmersiveCoverEvent.initial()),
+        child: BlocBuilder<DocumentImmersiveCoverBloc,
+            DocumentImmersiveCoverState>(
+          builder: (_, state) {
+            final iconAndTitle = _buildIconAndTitle(context, state);
+            if (state.cover.type == PageStyleCoverImageType.none) {
+              return Padding(
+                padding: EdgeInsets.only(
+                  top: context.statusBarAndAppBarHeight + kDocumentTitlePadding,
                 ),
-              ),
-            ],
-          );
-        },
+                child: iconAndTitle,
+              );
+            }
+
+            return Stack(
+              children: [
+                _buildCover(context, state),
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 24.0),
+                    child: iconAndTitle,
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
