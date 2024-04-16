@@ -252,7 +252,6 @@ pub fn default_type_option_data_from_type(field_type: FieldType) -> TypeOptionDa
     FieldType::DateTime => DateTypeOption::default().into(),
     FieldType::LastEditedTime | FieldType::CreatedTime => TimestampTypeOption {
       field_type,
-      include_time: true,
       ..Default::default()
     }
     .into(),
