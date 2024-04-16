@@ -4,8 +4,10 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/page_style
 import 'package:appflowy/shared/appflowy_network_image.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:flowy_infra/theme_extension.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+double kCoverHeight = 98.0;
 
 class DocumentImmersiveCover extends StatelessWidget {
   const DocumentImmersiveCover({
@@ -32,7 +34,8 @@ class DocumentImmersiveCover extends StatelessWidget {
   Widget _buildCover(BuildContext context, DocumentImmersiveCoverState state) {
     final cover = state.cover;
     final type = cover.type;
-    const height = 180.0;
+    final naviBarHeight = MediaQuery.of(context).padding.top;
+    final height = naviBarHeight + kCoverHeight;
 
     if (type == PageStyleCoverImageType.customImage ||
         type == PageStyleCoverImageType.unsplashImage) {
@@ -46,7 +49,7 @@ class DocumentImmersiveCover extends StatelessWidget {
       return SizedBox(
         height: height,
         child: Image.asset(
-          'assets/images/built_in_cover_images/m_cover_image_${cover.value}.png',
+          PageStyleCoverImageType.builtInImagePath(cover.value),
           fit: BoxFit.cover,
         ),
       );
@@ -68,6 +71,8 @@ class DocumentImmersiveCover extends StatelessWidget {
       );
     }
 
-    return const SizedBox.shrink();
+    return SizedBox(
+      height: naviBarHeight,
+    );
   }
 }

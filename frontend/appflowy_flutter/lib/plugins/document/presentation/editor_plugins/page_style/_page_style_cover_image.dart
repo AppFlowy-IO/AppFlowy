@@ -4,10 +4,10 @@ import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/page_style/_page_cover_bottom_sheet.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/page_style/_page_style_util.dart';
+import 'package:appflowy/shared/feedback_gesture_detector.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class PageStyleCoverImage extends StatelessWidget {
@@ -76,6 +76,13 @@ class PageStyleCoverImage extends StatelessWidget {
                   showDoneButton: true,
                   showHeader: true,
                   showRemoveButton: true,
+                  onRemove: () {
+                    context.read<DocumentPageStyleBloc>().add(
+                          DocumentPageStyleEvent.updateCoverImage(
+                            PageStyleCover.none(),
+                          ),
+                        );
+                  },
                   title: LocaleKeys.pageStyle_coverImage.tr(),
                   barrierColor: Colors.transparent,
                   backgroundColor: Theme.of(context).colorScheme.background,
@@ -136,12 +143,9 @@ class PageStyleCoverImage extends StatelessWidget {
     VoidCallback onTap,
   ) {
     return Expanded(
-      child: GestureDetector(
-        onTap: () {
-          HapticFeedback.mediumImpact();
-          onTap();
-        },
-        behavior: HitTestBehavior.opaque,
+      child: FeedbackGestureDetector(
+        feedbackType: HapticFeedbackType.medium,
+        onTap: onTap,
         child: AnimatedContainer(
           height: 64,
           duration: Durations.medium1,

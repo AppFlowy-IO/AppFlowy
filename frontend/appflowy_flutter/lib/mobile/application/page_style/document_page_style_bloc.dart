@@ -366,6 +366,10 @@ enum PageStyleCoverImageType {
         ) ??
         PageStyleCoverImageType.none;
   }
+
+  static String builtInImagePath(String value) {
+    return 'assets/images/built_in_cover_images/m_cover_image_$value.png';
+  }
 }
 
 class PageStyleCover {

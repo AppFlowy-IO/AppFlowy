@@ -1,9 +1,9 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/page_style/_page_style_util.dart';
+import 'package:appflowy/shared/feedback_gesture_detector.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class PageStyleLayout extends StatelessWidget {
@@ -123,12 +123,9 @@ class PageStyleLayout extends StatelessWidget {
     VoidCallback onTap,
   ) {
     return Expanded(
-      child: GestureDetector(
-        onTap: () {
-          HapticFeedback.mediumImpact();
-          onTap();
-        },
-        behavior: HitTestBehavior.opaque,
+      child: FeedbackGestureDetector(
+        feedbackType: HapticFeedbackType.medium,
+        onTap: onTap,
         child: AnimatedContainer(
           height: 52,
           duration: Durations.medium1,

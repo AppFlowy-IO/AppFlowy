@@ -8,6 +8,7 @@ import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_state_containe
 import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
 import 'package:appflowy/plugins/document/presentation/document_collaborators.dart';
 import 'package:appflowy/plugins/document/presentation/editor_notification.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/cover/document_immersive_cover.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/page_style/page_style_bottom_sheet.dart';
 import 'package:appflowy/plugins/shared/sync_indicator.dart';
 import 'package:appflowy/shared/feature_flags.dart';
@@ -16,6 +17,7 @@ import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
+import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -47,11 +49,31 @@ class MobileViewPage extends StatefulWidget {
 
 class _MobileViewPageState extends State<MobileViewPage> {
   late final Future<FlowyResult<ViewPB, FlowyError>> future;
+  late final ViewListener _viewListener;
+
+  // used to determine if the user has scrolled down and show the app bar in immersive mode
+  ScrollNotificationObserverState? _scrollNotificationObserver;
+  double _appBarOpacity = 0.0;
+  bool hasCover = false;
 
   @override
   void initState() {
     super.initState();
     future = ViewBackendService.getView(widget.id);
+
+    _viewListener = ViewListener(viewId: widget.id)
+      ..start(
+        onViewUpdated: (view) {
+          _updateCoverStatus(view);
+        },
+      );
+  }
+
+  @override
+  void dispose() {
+    _viewListener.stop();
+    _scrollNotificationObserver = null;
+    super.dispose();
   }
 
   @override
@@ -76,6 +98,7 @@ class _MobileViewPageState extends State<MobileViewPage> {
         } else {
           body = state.data!.fold((view) {
             viewPB = view;
+
             actions.addAll([
               if (FeatureFlag.syncDocument.isOn) ...[
                 DocumentCollaborators(
@@ -145,33 +168,59 @@ class _MobileViewPageState extends State<MobileViewPage> {
   }
 
   Widget _buildApp(ViewPB? view, List<Widget> actions, Widget child) {
+    // only enable immersive mode for document layout
+    final isImmersive = view?.layout == ViewLayoutPB.Document;
     final icon = view?.icon.value;
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: FlowyAppBar(
-        backgroundColor: Colors.transparent,
-        showDivider: false,
-        title: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (icon != null && icon.isNotEmpty)
-              EmojiText(
-                emoji: '$icon ',
-                fontSize: 22.0,
-              ),
-            Expanded(
-              child: FlowyText.medium(
-                view?.name ?? widget.title ?? '',
-                fontSize: 15.0,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ],
+    final title = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (icon != null && icon.isNotEmpty)
+          EmojiText(
+            emoji: '$icon ',
+            fontSize: 22.0,
+          ),
+        Expanded(
+          child: FlowyText.medium(
+            view?.name ?? widget.title ?? '',
+            fontSize: 15.0,
+            overflow: TextOverflow.ellipsis,
+          ),
         ),
+      ],
+    );
+
+    if (isImmersive) {
+      return Scaffold(
+        extendBodyBehindAppBar: true,
+        appBar: FlowyAppBar(
+          backgroundColor: Colors.white.withOpacity(_appBarOpacity),
+          showDivider: false,
+          title: title,
+          actions: actions,
+        ),
+        body: Builder(
+          builder: (context) {
+            _updateCoverStatus(context.watch<ViewBloc>().state.view);
+            _rebuildScrollNotificationObserver(context);
+            return child;
+          },
+        ),
+      );
+    }
+
+    return Scaffold(
+      appBar: FlowyAppBar(
+        title: title,
         actions: actions,
       ),
       body: child,
     );
+  }
+
+  void _rebuildScrollNotificationObserver(BuildContext context) {
+    _scrollNotificationObserver?.removeListener(_onScrollNotification);
+    _scrollNotificationObserver = ScrollNotificationObserver.maybeOf(context);
+    _scrollNotificationObserver?.addListener(_onScrollNotification);
   }
 
   Widget _buildAppBarLayoutButton(ViewPB view) {
@@ -272,5 +321,29 @@ class _MobileViewPageState extends State<MobileViewPage> {
         context.pop();
       },
     );
+  }
+
+  void _onScrollNotification(ScrollNotification notification) {
+    if (_scrollNotificationObserver == null) {
+      return;
+    }
+    if (notification is ScrollUpdateNotification &&
+        defaultScrollNotificationPredicate(notification)) {
+      final ScrollMetrics metrics = notification.metrics;
+      final height = hasCover ? kCoverHeight : 20.0;
+      final progress = (metrics.pixels / height).clamp(0.0, 1.0);
+      if (((progress - _appBarOpacity).abs() >= 0.1 ||
+              progress == 0 ||
+              progress == 1.0) &&
+          _appBarOpacity != progress) {
+        setState(() {
+          _appBarOpacity = progress;
+        });
+      }
+    }
+  }
+
+  void _updateCoverStatus(ViewPB view) {
+    hasCover = view.cover?.type != PageStyleCoverImageType.none;
   }
 }

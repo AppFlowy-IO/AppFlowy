@@ -2,6 +2,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/page_style/_page_style_util.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/page_style/cover_image_gradient_colors.dart';
+import 'package:appflowy/shared/feedback_gesture_detector.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -121,8 +122,7 @@ class PageCoverBottomSheet extends StatelessWidget {
             ),
           );
 
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
+    return FeedbackGestureDetector(
       onTap: () {
         context.read<DocumentPageStyleBloc>().add(
               DocumentPageStyleEvent.updateCoverImage(
@@ -182,8 +182,7 @@ class PageCoverBottomSheet extends StatelessWidget {
             ),
           );
 
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
+    return FeedbackGestureDetector(
       onTap: () {
         context.read<DocumentPageStyleBloc>().add(
               DocumentPageStyleEvent.updateCoverImage(
@@ -225,8 +224,7 @@ class PageCoverBottomSheet extends StatelessWidget {
     DocumentPageStyleState state,
     String image,
   ) {
-    final asset =
-        'assets/images/built_in_cover_images/m_cover_image_$image.png';
+    final asset = PageStyleCoverImageType.builtInImagePath(image);
     final isSelected =
         state.coverImage.isBuiltInImage && state.coverImage.value == image;
     final child = !isSelected
@@ -259,8 +257,7 @@ class PageCoverBottomSheet extends StatelessWidget {
             ),
           );
 
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
+    return FeedbackGestureDetector(
       onTap: () {
         context.read<DocumentPageStyleBloc>().add(
               DocumentPageStyleEvent.updateCoverImage(
