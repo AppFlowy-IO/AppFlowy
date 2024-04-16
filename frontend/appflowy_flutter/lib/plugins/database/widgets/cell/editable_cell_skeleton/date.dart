@@ -57,7 +57,7 @@ class _DateCellState extends GridCellState<EditableDateCell> {
       widget.databaseController,
       widget.cellContext,
     ).as(),
-  )..add(const DateCellEvent.initial());
+  );
 
   @override
   void dispose() {

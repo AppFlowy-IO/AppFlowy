@@ -24,10 +24,12 @@ members = [
   "collab-integrate",
   "flowy-ai",
   "flowy-date",
+  "flowy-search",
   "lib-infra",
   "build-tool/flowy-ast",
   "build-tool/flowy-codegen",
   "build-tool/flowy-derive",
+  "flowy-search-pub",
 ]
 resolver = "2"
 
@@ -56,6 +58,8 @@ flowy-server-pub = { workspace = true, path = "flowy-server-pub" }
 flowy-config = { workspace = true, path = "flowy-config" }
 flowy-encrypt = { workspace = true, path = "flowy-encrypt" }
 flowy-storage = { workspace = true, path = "flowy-storage" }
+flowy-search = { workspace = true, path = "flowy-search" }
+flowy-search-pub = { workspace = true, path = "flowy-search-pub" }
 collab-integrate = { workspace = true, path = "collab-integrate" }
 flowy-ai = { workspace = true, path = "flowy-ai" }
 flowy-date = { workspace = true, path = "flowy-date" }
@@ -111,7 +115,7 @@ rocksdb = { git = "https://github.com/LucasXu0/rust-rocksdb", rev = "21cf4a23ec1
 # Run the script.add_workspace_members:
 # scripts/tool/update_client_api_rev.sh  new_rev_id
 # ⚠️⚠️⚠️️
-client-api = { git = " https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "dd9cc8d4c78c6d9bfeb9bd7d413222f643c7969e" }
+client-api = { git = " https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "3901356e8ac7c68d1e77128729bf7669b30278ec" }
 # Please use the following script to update collab.
 # Working directory: frontend
 #
@@ -121,10 +125,10 @@ client-api = { git = " https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "dd
 # To switch to the local path, run:
 # scripts/tool/update_collab_source.sh
 # ⚠️⚠️⚠️️
-collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "8a3be96cc854f172c7fddded957d90ed2cd3cbef" }
-collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "8a3be96cc854f172c7fddded957d90ed2cd3cbef" }
-collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "8a3be96cc854f172c7fddded957d90ed2cd3cbef" }
-collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "8a3be96cc854f172c7fddded957d90ed2cd3cbef" }
-collab-plugins = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "8a3be96cc854f172c7fddded957d90ed2cd3cbef" }
-collab-user = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "8a3be96cc854f172c7fddded957d90ed2cd3cbef" }
-collab-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "8a3be96cc854f172c7fddded957d90ed2cd3cbef" }
+collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "5e32057ac8e6939368a8e75df91bcbce2ac143e7" }
+collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "5e32057ac8e6939368a8e75df91bcbce2ac143e7" }
+collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "5e32057ac8e6939368a8e75df91bcbce2ac143e7" }
+collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "5e32057ac8e6939368a8e75df91bcbce2ac143e7" }
+collab-plugins = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "5e32057ac8e6939368a8e75df91bcbce2ac143e7" }
+collab-user = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "5e32057ac8e6939368a8e75df91bcbce2ac143e7" }
+collab-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "5e32057ac8e6939368a8e75df91bcbce2ac143e7" }

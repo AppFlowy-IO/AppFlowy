@@ -11,7 +11,7 @@ use flowy_error::FlowyError;
 use lib_infra::future::{Fut, FutureResult};
 use lib_infra::priority_task::TaskDispatcher;
 
-use crate::entities::{FieldType, FieldVisibility};
+use crate::entities::{FieldSettingsChangesetPB, FieldType};
 use crate::services::calculations::Calculation;
 use crate::services::field::TypeOptionCellDataHandler;
 use crate::services::field_settings::FieldSettings;
@@ -126,11 +126,5 @@ pub trait DatabaseViewOperation: Send + Sync + 'static {
     field_ids: &[String],
   ) -> HashMap<String, FieldSettings>;
 
-  fn update_field_settings(
-    &self,
-    view_id: &str,
-    field_id: &str,
-    visibility: Option<FieldVisibility>,
-    width: Option<i32>,
-  );
+  fn update_field_settings(&self, params: FieldSettingsChangesetPB);
 }

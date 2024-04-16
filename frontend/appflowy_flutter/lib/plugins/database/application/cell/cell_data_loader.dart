@@ -37,12 +37,7 @@ class CellDataLoader<T> {
       (result) => result.fold(
         (CellPB cell) {
           try {
-            // Return null if the data of the cell is empty.
-            if (cell.data.isEmpty) {
-              return null;
-            } else {
-              return parser.parserData(cell.data);
-            }
+            return parser.parserData(cell.data);
           } catch (e, s) {
             Log.error('$parser parser cellData failed, $e');
             Log.error('Stack trace \n $s');

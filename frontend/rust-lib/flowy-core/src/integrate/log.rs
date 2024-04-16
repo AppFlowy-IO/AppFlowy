@@ -25,11 +25,7 @@ pub(crate) fn init_log(
   }
 }
 
-pub(crate) fn create_log_filter(
-  level: String,
-  with_crates: Vec<String>,
-  platform: Platform,
-) -> String {
+pub fn create_log_filter(level: String, with_crates: Vec<String>, platform: Platform) -> String {
   let mut level = std::env::var("RUST_LOG").unwrap_or(level);
 
   #[cfg(debug_assertions)]
@@ -55,18 +51,15 @@ pub(crate) fn create_log_filter(
   filters.push(format!("flowy_server={}", level));
   filters.push(format!("flowy_notification={}", "info"));
   filters.push(format!("lib_infra={}", level));
-  filters.push(format!("dart_ffi={}", level));
+  filters.push(format!("flowy_search={}", level));
 
-  // ⚠️Enable debug log for dart_ffi, flowy_sqlite and lib_dispatch as needed. Don't enable them by default.
-  {
-    // filters.push(format!("flowy_sqlite={}", "info"));
-    // filters.push(format!("lib_dispatch={}", level));
-  }
+  // Most of the time, we don't need to see the logs from the following crates
+  // filters.push(format!("flowy_sqlite={}", "info"));
+  // filters.push(format!("lib_dispatch={}", level));
 
   filters.push(format!("client_api={}", level));
   #[cfg(feature = "profiling")]
   filters.push(format!("tokio={}", level));
-
   #[cfg(feature = "profiling")]
   filters.push(format!("runtime={}", level));
 

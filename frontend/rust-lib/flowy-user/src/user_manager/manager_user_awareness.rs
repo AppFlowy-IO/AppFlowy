@@ -2,7 +2,7 @@ use std::sync::atomic::Ordering;
 use std::sync::{Arc, Weak};
 
 use anyhow::Context;
-use collab::core::collab::{DocStateSource, MutexCollab};
+use collab::core::collab::{DataSource, MutexCollab};
 use collab_entity::reminder::Reminder;
 use collab_entity::CollabType;
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
@@ -164,7 +164,7 @@ impl UserManager {
               session.user_id,
               &object_id,
               collab_db,
-              DocStateSource::FromDocState(data),
+              DataSource::DocStateV1(data),
             )
             .await?;
             MutexUserAwareness::new(UserAwareness::create(collab, None))
@@ -177,7 +177,7 @@ impl UserManager {
                 session.user_id,
                 &object_id,
                 collab_db,
-                DocStateSource::FromDisk,
+                DataSource::Disk,
               )
               .await?;
               MutexUserAwareness::new(UserAwareness::create(collab, None))
@@ -210,7 +210,7 @@ impl UserManager {
     uid: i64,
     object_id: &str,
     collab_db: Weak<CollabKVDB>,
-    doc_state: DocStateSource,
+    doc_state: DataSource,
   ) -> Result<Arc<MutexCollab>, FlowyError> {
     let collab_builder = collab_builder.upgrade().ok_or(FlowyError::new(
       ErrorCode::Internal,

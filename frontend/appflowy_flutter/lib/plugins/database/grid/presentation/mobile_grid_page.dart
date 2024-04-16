@@ -10,7 +10,7 @@ import 'package:appflowy/plugins/database/grid/application/grid_bloc.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/shortcuts.dart';
 import 'package:appflowy/plugins/database/tab_bar/tab_bar_view.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/workspace/application/notifications/notification_action_bloc.dart';
+import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
@@ -87,8 +87,8 @@ class _MobileGridPageState extends State<MobileGridPage> {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider<NotificationActionBloc>.value(
-          value: getIt<NotificationActionBloc>(),
+        BlocProvider<ActionNavigationBloc>.value(
+          value: getIt<ActionNavigationBloc>(),
         ),
         BlocProvider<GridBloc>(
           create: (context) => GridBloc(
@@ -441,7 +441,7 @@ class _AddRowButton extends StatelessWidget {
 
 double getMobileGridContentWidth(List<FieldInfo> fields) {
   final visibleFields = fields.where(
-    (field) => field.fieldSettings?.visibility != FieldVisibility.AlwaysHidden,
+    (field) => field.visibility != FieldVisibility.AlwaysHidden,
   );
   return (visibleFields.length + 1) * 200 +
       GridSize.horizontalHeaderPadding * 2;

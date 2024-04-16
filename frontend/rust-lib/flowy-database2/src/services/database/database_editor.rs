@@ -12,9 +12,7 @@ use crate::services::field::{
   type_option_data_from_pb, ChecklistCellChangeset, RelationTypeOption, SelectOptionCellChangeset,
   StrCellData, TimestampCellData, TypeOptionCellDataHandler, TypeOptionCellExt,
 };
-use crate::services::field_settings::{
-  default_field_settings_by_layout_map, FieldSettings, FieldSettingsChangesetParams,
-};
+use crate::services::field_settings::{default_field_settings_by_layout_map, FieldSettings};
 use crate::services::filter::{Filter, FilterChangeset};
 use crate::services::group::{default_group_setting, GroupChangeset, GroupSetting, RowChangeset};
 use crate::services::share::csv::{CSVExport, CSVFormat};
@@ -310,10 +308,7 @@ impl DatabaseEditor {
       .lock()
       .fields
       .update_field(&params.field_id, |update| {
-        update
-          .set_name_if_not_none(params.name)
-          .set_width_at_if_not_none(params.width.map(|value| value as i64))
-          .set_visibility_if_not_none(params.visibility);
+        update.set_name_if_not_none(params.name);
       });
     notify_did_update_database_field(&self.database, &params.field_id)?;
     Ok(())
@@ -1296,17 +1291,10 @@ impl DatabaseEditor {
 
   pub async fn update_field_settings_with_changeset(
     &self,
-    params: FieldSettingsChangesetParams,
+    params: FieldSettingsChangesetPB,
   ) -> FlowyResult<()> {
     let view = self.database_views.get_view_editor(&params.view_id).await?;
-    view
-      .v_update_field_settings(
-        &params.view_id,
-        &params.field_id,
-        params.visibility,
-        params.width,
-      )
-      .await?;
+    view.v_update_field_settings(params).await?;
 
     Ok(())
   }
@@ -1735,45 +1723,43 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
     field_settings
   }
 
-  fn update_field_settings(
-    &self,
-    view_id: &str,
-    field_id: &str,
-    visibility: Option<FieldVisibility>,
-    width: Option<i32>,
-  ) {
-    let field_settings_map = self.get_field_settings(view_id, &[field_id.to_string()]);
+  fn update_field_settings(&self, params: FieldSettingsChangesetPB) {
+    let field_settings_map = self.get_field_settings(&params.view_id, &[params.field_id.clone()]);
 
-    let new_field_settings = if let Some(field_settings) = field_settings_map.get(field_id) {
-      FieldSettings {
-        field_id: field_settings.field_id.clone(),
-        visibility: visibility.unwrap_or(field_settings.visibility.clone()),
-        width: width.unwrap_or(field_settings.width),
-      }
-    } else {
-      let layout_type = self.get_layout_for_view(view_id);
-      let default_field_settings = default_field_settings_by_layout_map()
-        .get(&layout_type)
-        .unwrap()
-        .to_owned();
-      let field_settings =
-        FieldSettings::from_any_map(field_id, layout_type, &default_field_settings);
-      FieldSettings {
-        field_id: field_settings.field_id.clone(),
-        visibility: visibility.unwrap_or(field_settings.visibility),
-        width: width.unwrap_or(field_settings.width),
-      }
+    let field_settings = field_settings_map
+      .get(&params.field_id)
+      .cloned()
+      .unwrap_or_else(|| {
+        let layout_type = self.get_layout_for_view(&params.view_id);
+        let default_field_settings = default_field_settings_by_layout_map();
+        let default_field_settings = default_field_settings.get(&layout_type).unwrap();
+
+        FieldSettings::from_any_map(&params.field_id, layout_type, default_field_settings)
+      });
+
+    let new_field_settings = FieldSettings {
+      visibility: params
+        .visibility
+        .unwrap_or_else(|| field_settings.visibility.clone()),
+      width: params.width.unwrap_or(field_settings.width),
+      wrap_cell_content: params
+        .wrap_cell_content
+        .unwrap_or(field_settings.wrap_cell_content),
+      ..field_settings
     };
 
     self.database.lock().update_field_settings(
-      view_id,
-      Some(vec![field_id.to_string()]),
+      &params.view_id,
+      Some(vec![params.field_id]),
       new_field_settings.clone(),
     );
 
-    send_notification(view_id, DatabaseNotification::DidUpdateFieldSettings)
-      .payload(FieldSettingsPB::from(new_field_settings))
-      .send()
+    send_notification(
+      &params.view_id,
+      DatabaseNotification::DidUpdateFieldSettings,
+    )
+    .payload(FieldSettingsPB::from(new_field_settings))
+    .send()
   }
 
   fn update_calculation(&self, view_id: &str, calculation: Calculation) {

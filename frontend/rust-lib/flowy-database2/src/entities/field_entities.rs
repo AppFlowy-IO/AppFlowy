@@ -29,12 +29,6 @@ pub struct FieldPB {
   #[pb(index = 3)]
   pub field_type: FieldType,
 
-  #[pb(index = 4)]
-  pub visibility: bool,
-
-  #[pb(index = 5)]
-  pub width: i32,
-
   #[pb(index = 6)]
   pub is_primary: bool,
 
@@ -52,8 +46,6 @@ impl FieldPB {
       id: field.id,
       name: field.name,
       field_type,
-      visibility: field.visibility,
-      width: field.width as i32,
       is_primary: field.is_primary,
       type_option_data: type_option_to_pb(type_option, &field_type).to_vec(),
     }
@@ -388,12 +380,6 @@ pub struct FieldChangesetPB {
 
   #[pb(index = 5, one_of)]
   pub frozen: Option<bool>,
-
-  #[pb(index = 6, one_of)]
-  pub visibility: Option<bool>,
-
-  #[pb(index = 7, one_of)]
-  pub width: Option<i32>,
 }
 
 impl TryInto<FieldChangesetParams> for FieldChangesetPB {
@@ -402,11 +388,6 @@ impl TryInto<FieldChangesetParams> for FieldChangesetPB {
   fn try_into(self) -> Result<FieldChangesetParams, Self::Error> {
     let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::DatabaseIdIsEmpty)?;
     let field_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
-    // if let Some(type_option_data) = self.type_option_data.as_ref() {
-    //     if type_option_data.is_empty() {
-    //         return Err(ErrorCode::TypeOptionDataIsEmpty);
-    //     }
-    // }
 
     Ok(FieldChangesetParams {
       field_id: field_id.0,
@@ -414,9 +395,6 @@ impl TryInto<FieldChangesetParams> for FieldChangesetPB {
       name: self.name,
       desc: self.desc,
       frozen: self.frozen,
-      visibility: self.visibility,
-      width: self.width,
-      // type_option_data: self.type_option_data,
     })
   }
 }
@@ -432,11 +410,6 @@ pub struct FieldChangesetParams {
   pub desc: Option<String>,
 
   pub frozen: Option<bool>,
-
-  pub visibility: Option<bool>,
-
-  pub width: Option<i32>,
-  // pub type_option_data: Option<Vec<u8>>,
 }
 /// Certain field types have user-defined options such as color, date format, number format,
 /// or a list of values for a multi-select list. These options are defined within a specialization

@@ -3,6 +3,7 @@ use crate::entities::{
 };
 use crate::notification::{send_notification, DocumentNotification};
 use collab::core::collab::MutexCollab;
+use collab_document::document::DocumentIndexContent;
 use collab_document::{blocks::DocumentData, document::Document};
 use flowy_error::FlowyResult;
 use futures::StreamExt;
@@ -139,5 +140,12 @@ impl Deref for MutexDocument {
 impl DerefMut for MutexDocument {
   fn deref_mut(&mut self) -> &mut Self::Target {
     &mut self.0
+  }
+}
+
+impl From<&MutexDocument> for DocumentIndexContent {
+  fn from(doc: &MutexDocument) -> Self {
+    let doc = doc.lock();
+    DocumentIndexContent::from(&*doc)
   }
 }

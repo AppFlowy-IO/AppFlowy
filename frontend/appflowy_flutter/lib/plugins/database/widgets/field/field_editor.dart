@@ -1,7 +1,5 @@
 import 'dart:typed_data';
 
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
@@ -12,12 +10,14 @@ import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/common/type_option_separator.dart';
 import 'package:appflowy/util/field_type_extension.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
+import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
+import 'package:appflowy/workspace/presentation/widgets/toggle/toggle_style.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:styled_widget/styled_widget.dart';
 
 import 'field_type_list.dart';
 import 'type_option_editor/builder.dart';
@@ -87,10 +87,12 @@ class _FieldEditorState extends State<FieldEditor> {
         mainAxisSize: MainAxisSize.min,
         children: [
           FieldNameTextField(
-            padding: const EdgeInsets.fromLTRB(4, 4, 4, 8),
+            padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
             textEditingController: textController,
           ),
+          VSpace(GridSize.typeOptionSeparatorHeight),
           _EditFieldButton(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
             onTap: () {
               setState(() => _currentPage = FieldEditorPage.details);
             },
@@ -107,8 +109,11 @@ class _FieldEditorState extends State<FieldEditor> {
           _actionCell(FieldAction.clearData),
           VSpace(GridSize.typeOptionSeparatorHeight),
           _actionCell(FieldAction.delete),
+          const TypeOptionSeparator(spacing: 8.0),
+          _actionCell(FieldAction.wrap),
+          const VSpace(8.0),
         ],
-      ).padding(all: 8.0),
+      ),
     );
   }
 
@@ -124,24 +129,32 @@ class _FieldEditorState extends State<FieldEditor> {
 
   Widget _actionCell(FieldAction action) {
     return BlocBuilder<FieldEditorBloc, FieldEditorState>(
-      builder: (context, state) => FieldActionCell(
-        viewId: widget.viewId,
-        fieldInfo: state.field,
-        action: action,
+      builder: (context, state) => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+        child: FieldActionCell(
+          viewId: widget.viewId,
+          fieldInfo: state.field,
+          action: action,
+        ),
       ),
     );
   }
 }
 
 class _EditFieldButton extends StatelessWidget {
-  const _EditFieldButton({this.onTap});
+  const _EditFieldButton({
+    required this.padding,
+    this.onTap,
+  });
 
+  final EdgeInsetsGeometry padding;
   final void Function()? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return Container(
       height: GridSize.popoverItemHeight,
+      padding: padding,
       child: FlowyButton(
         leftIcon: const FlowySvg(FlowySvgs.edit_s),
         text: FlowyText.medium(
@@ -184,10 +197,11 @@ class FieldActionCell extends StatelessWidget {
       ),
       onHover: (_) => popoverMutex?.close(),
       onTap: () => action.run(context, viewId, fieldInfo),
-      leftIcon: action.icon(
+      leftIcon: action.leading(
         fieldInfo,
         enable ? null : Theme.of(context).disabledColor,
       ),
+      rightIcon: action.trailing(context, fieldInfo),
     );
   }
 }
@@ -198,10 +212,11 @@ enum FieldAction {
   toggleVisibility,
   duplicate,
   clearData,
-  delete;
+  delete,
+  wrap;
 
-  Widget icon(FieldInfo fieldInfo, Color? color) {
-    late final FlowySvgData svgData;
+  Widget? leading(FieldInfo fieldInfo, Color? color) {
+    FlowySvgData? svgData;
     switch (this) {
       case FieldAction.insertLeft:
         svgData = FlowySvgs.arrow_s;
@@ -220,6 +235,11 @@ enum FieldAction {
         svgData = FlowySvgs.reload_s;
       case FieldAction.delete:
         svgData = FlowySvgs.delete_s;
+      default:
+    }
+
+    if (svgData == null) {
+      return null;
     }
     final icon = FlowySvg(
       svgData,
@@ -229,6 +249,21 @@ enum FieldAction {
     return this == FieldAction.insertRight
         ? Transform.flip(flipX: true, child: icon)
         : icon;
+  }
+
+  Widget? trailing(BuildContext context, FieldInfo fieldInfo) {
+    if (this == FieldAction.wrap) {
+      return Toggle(
+        value: fieldInfo.wrapCellContent ?? false,
+        onChanged: (_) => context
+            .read<FieldEditorBloc>()
+            .add(const FieldEditorEvent.toggleWrapCellContent()),
+        style: ToggleStyle.big,
+        padding: EdgeInsets.zero,
+      );
+    }
+
+    return null;
   }
 
   String title(FieldInfo fieldInfo) {
@@ -250,6 +285,8 @@ enum FieldAction {
         return LocaleKeys.grid_field_clear.tr();
       case FieldAction.delete:
         return LocaleKeys.grid_field_delete.tr();
+      case FieldAction.wrap:
+        return LocaleKeys.grid_field_wrap.tr();
     }
   }
 
@@ -307,6 +344,11 @@ enum FieldAction {
           },
         ).show(context);
         PopoverContainer.of(context).close();
+        break;
+      case FieldAction.wrap:
+        context
+            .read<FieldEditorBloc>()
+            .add(const FieldEditorEvent.toggleWrapCellContent());
         break;
     }
   }

@@ -113,6 +113,10 @@ impl FlowyError {
   static_flowy_error!(server_error, ErrorCode::InternalServerError);
   static_flowy_error!(not_support, ErrorCode::NotSupportYet);
   static_flowy_error!(local_version_not_support, ErrorCode::LocalVersionNotSupport);
+  static_flowy_error!(
+    folder_index_manager_unavailable,
+    ErrorCode::FolderIndexManagerUnavailable
+  );
 }
 
 impl std::convert::From<ErrorCode> for FlowyError {

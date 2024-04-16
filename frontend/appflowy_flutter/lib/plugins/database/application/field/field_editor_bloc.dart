@@ -99,6 +99,14 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
             );
             _logIfError(result);
           },
+          toggleWrapCellContent: () async {
+            final currentWrap = state.field.wrapCellContent ?? false;
+            final result = await fieldSettingsService.updateFieldSettings(
+              fieldId: state.field.id,
+              wrapCellContent: !currentWrap,
+            );
+            _logIfError(result);
+          },
         );
       },
     );
@@ -148,6 +156,8 @@ class FieldEditorEvent with _$FieldEditorEvent {
   const factory FieldEditorEvent.insertRight() = _InsertRight;
   const factory FieldEditorEvent.toggleFieldVisibility() =
       _ToggleFieldVisiblity;
+  const factory FieldEditorEvent.toggleWrapCellContent() =
+      _ToggleWrapCellContent;
 }
 
 @freezed

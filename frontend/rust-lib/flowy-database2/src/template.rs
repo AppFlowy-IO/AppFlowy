@@ -18,18 +18,15 @@ pub fn make_default_grid(view_id: &str, name: &str) -> CreateDatabaseParams {
 
   let text_field = FieldBuilder::from_field_type(FieldType::RichText)
     .name("Name")
-    .visibility(true)
     .primary(true)
     .build();
 
   let single_select = FieldBuilder::from_field_type(FieldType::SingleSelect)
     .name("Type")
-    .visibility(true)
     .build();
 
   let checkbox_field = FieldBuilder::from_field_type(FieldType::Checkbox)
     .name("Done")
-    .visibility(true)
     .build();
 
   let fields = vec![text_field, single_select, checkbox_field];
@@ -69,7 +66,6 @@ pub fn make_default_board(view_id: &str, name: &str) -> CreateDatabaseParams {
   // text
   let text_field = FieldBuilder::from_field_type(FieldType::RichText)
     .name("Description")
-    .visibility(true)
     .primary(true)
     .build();
   let text_field_id = text_field.id.clone();
@@ -84,7 +80,6 @@ pub fn make_default_board(view_id: &str, name: &str) -> CreateDatabaseParams {
     .extend(vec![to_do_option.clone(), doing_option, done_option]);
   let single_select = FieldBuilder::new(FieldType::SingleSelect, single_select_type_option)
     .name("Status")
-    .visibility(true)
     .build();
   let single_select_field_id = single_select.id.clone();
 
@@ -138,21 +133,18 @@ pub fn make_default_calendar(view_id: &str, name: &str) -> CreateDatabaseParams 
   // text
   let text_field = FieldBuilder::from_field_type(FieldType::RichText)
     .name("Title")
-    .visibility(true)
     .primary(true)
     .build();
 
   // date
   let date_field = FieldBuilder::from_field_type(FieldType::DateTime)
     .name("Date")
-    .visibility(true)
     .build();
   let date_field_id = date_field.id.clone();
 
   // multi select
   let multi_select_field = FieldBuilder::from_field_type(FieldType::MultiSelect)
     .name("Tags")
-    .visibility(true)
     .build();
 
   let fields = vec![text_field, date_field, multi_select_field];

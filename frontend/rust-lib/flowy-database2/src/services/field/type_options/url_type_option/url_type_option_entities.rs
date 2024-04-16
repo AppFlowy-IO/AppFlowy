@@ -11,14 +11,12 @@ use crate::services::field::{TypeOptionCellData, CELL_DATA};
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct URLCellData {
-  pub url: String,
   pub data: String,
 }
 
 impl URLCellData {
   pub fn new(s: &str) -> Self {
     Self {
-      url: "".to_string(),
       data: s.to_string(),
     }
   }
@@ -36,16 +34,14 @@ impl TypeOptionCellData for URLCellData {
 
 impl From<&Cell> for URLCellData {
   fn from(cell: &Cell) -> Self {
-    let url = cell.get_str_value("url").unwrap_or_default();
-    let content = cell.get_str_value(CELL_DATA).unwrap_or_default();
-    Self { url, data: content }
+    let data = cell.get_str_value(CELL_DATA).unwrap_or_default();
+    Self { data }
   }
 }
 
 impl From<URLCellData> for Cell {
   fn from(data: URLCellData) -> Self {
     new_cell_builder(FieldType::URL)
-      .insert_str_value("url", data.url)
       .insert_str_value(CELL_DATA, data.data)
       .build()
   }
@@ -53,19 +49,13 @@ impl From<URLCellData> for Cell {
 
 impl From<URLCellData> for URLCellDataPB {
   fn from(data: URLCellData) -> Self {
-    Self {
-      url: data.url,
-      content: data.data,
-    }
+    Self { content: data.data }
   }
 }
 
 impl From<URLCellDataPB> for URLCellData {
   fn from(data: URLCellDataPB) -> Self {
-    Self {
-      url: data.url,
-      data: data.content,
-    }
+    Self { data: data.content }
   }
 }
 

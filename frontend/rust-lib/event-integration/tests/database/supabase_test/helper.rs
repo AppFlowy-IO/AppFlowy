@@ -4,7 +4,7 @@ use assert_json_diff::assert_json_eq;
 use collab::core::collab::MutexCollab;
 use collab::core::origin::CollabOrigin;
 use collab::preclude::updates::decoder::Decode;
-use collab::preclude::{JsonValue, Update};
+use collab::preclude::{Collab, JsonValue, Update};
 use collab_entity::CollabType;
 
 use event_integration::event_builder::EventBuilder;
@@ -82,7 +82,12 @@ pub fn assert_database_collab_content(
   collab_update: &[u8],
   expected: JsonValue,
 ) {
-  let collab = MutexCollab::new(CollabOrigin::Server, database_id, vec![], false);
+  let collab = MutexCollab::new(Collab::new_with_origin(
+    CollabOrigin::Server,
+    database_id,
+    vec![],
+    false,
+  ));
   collab.lock().with_origin_transact_mut(|txn| {
     let update = Update::decode_v1(collab_update).unwrap();
     txn.apply_update(update);

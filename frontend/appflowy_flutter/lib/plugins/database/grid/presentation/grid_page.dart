@@ -6,8 +6,8 @@ import 'package:appflowy/plugins/database/grid/presentation/widgets/calculations
 import 'package:appflowy/plugins/database/grid/presentation/widgets/toolbar/grid_setting_bar.dart';
 import 'package:appflowy/plugins/database/tab_bar/desktop/setting_menu.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_builder.dart';
-import 'package:appflowy/workspace/application/notifications/notification_action.dart';
-import 'package:appflowy/workspace/application/notifications/notification_action_bloc.dart';
+import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
+import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:collection/collection.dart';
@@ -123,7 +123,7 @@ class _GridPageState extends State<GridPage> {
         view: widget.view,
         databaseController: widget.databaseController,
       )..add(const GridEvent.initial()),
-      child: BlocListener<NotificationActionBloc, NotificationActionState>(
+      child: BlocListener<ActionNavigationBloc, ActionNavigationState>(
         listener: (context, state) {
           final action = state.action;
           if (action?.type == ActionType.openRow &&

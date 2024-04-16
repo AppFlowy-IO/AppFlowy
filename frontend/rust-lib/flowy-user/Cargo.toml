@@ -12,7 +12,7 @@ flowy-encrypt = { workspace = true }
 flowy-error = { workspace = true, features = ["impl_from_dispatch_error", "impl_from_sqlite", "impl_from_collab_folder", "impl_from_collab_persistence"] }
 flowy-folder-pub = { workspace = true }
 lib-infra = { workspace = true }
-flowy-notification  = { workspace = true }
+flowy-notification = { workspace = true }
 flowy-server-pub = { workspace = true }
 lib-dispatch = { workspace = true }
 collab-integrate = { workspace = true }
@@ -43,7 +43,7 @@ validator = "0.16.0"
 unicode-segmentation = "1.10"
 fancy-regex = "0.11.0"
 uuid.workspace = true
-chrono = { workspace = true,  default-features = false, features = ["clock"] }
+chrono = { workspace = true, default-features = false, features = ["clock"] }
 base64 = "^0.21"
 tokio-stream = "0.1.14"
 semver = "1.0.22"

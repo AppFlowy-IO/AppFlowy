@@ -34,12 +34,7 @@ export interface CheckboxCell extends Cell {
 
 export interface UrlCell extends Cell {
   fieldType: FieldType.URL;
-  data: UrlCellData;
-}
-
-export interface UrlCellData {
-  url: string;
-  content?: string;
+  data: string;
 }
 
 export interface SelectCell extends Cell {
@@ -126,10 +121,9 @@ export const pbToSelectCellData = (pb: SelectOptionCellDataPB): SelectCellData =
   };
 };
 
-const pbToURLCellData = (pb: URLCellDataPB): UrlCellData => ({
-  url: pb.url,
-  content: pb.content,
-});
+const pbToURLCellData = (pb: URLCellDataPB): string => (
+  pb.content
+);
 
 export const pbToChecklistCellData = (pb: ChecklistCellDataPB): ChecklistCellData => ({
   selectedOptions: pb.selected_options.map(({ id }) => id),

@@ -167,9 +167,10 @@ class ViewBackendService {
   static Future<FlowyResult<void, FlowyError>> updateViewIcon({
     required String viewId,
     required String viewIcon,
+    ViewIconTypePB iconType = ViewIconTypePB.Emoji,
   }) {
     final icon = ViewIconPB()
-      ..ty = ViewIconTypePB.Emoji
+      ..ty = iconType
       ..value = viewIcon;
     final payload = UpdateViewIconPayloadPB.create()
       ..viewId = viewId

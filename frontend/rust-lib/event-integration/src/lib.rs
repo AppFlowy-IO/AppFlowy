@@ -1,4 +1,4 @@
-use collab::core::collab::DocStateSource;
+use collab::core::collab::DataSource;
 use collab::core::origin::CollabOrigin;
 use collab_document::blocks::DocumentData;
 use collab_document::document::Document;
@@ -86,6 +86,14 @@ impl EventIntegrationTest {
     }
   }
 
+  pub fn instance_name(&self) -> String {
+    self.appflowy_core.config.name.clone()
+  }
+
+  pub fn user_data_path(&self) -> String {
+    self.appflowy_core.config.application_path.clone()
+  }
+
   pub fn get_server(&self) -> Arc<dyn AppFlowyServer> {
     self.appflowy_core.server_provider.get_server().unwrap()
   }
@@ -138,7 +146,7 @@ pub fn document_data_from_document_doc_state(doc_id: &str, doc_state: Vec<u8>) -
 pub fn document_from_document_doc_state(doc_id: &str, doc_state: Vec<u8>) -> Document {
   Document::from_doc_state(
     CollabOrigin::Empty,
-    DocStateSource::FromDocState(doc_state),
+    DataSource::DocStateV1(doc_state),
     doc_id,
     vec![],
   )

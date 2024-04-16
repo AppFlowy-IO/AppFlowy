@@ -3,7 +3,7 @@ use std::sync::{Arc, Weak};
 
 use crate::CollabKVDB;
 use anyhow::Error;
-use collab::core::collab::{DocStateSource, MutexCollab};
+use collab::core::collab::{DataSource, MutexCollab};
 use collab::preclude::CollabBuilder;
 use collab_entity::{CollabObject, CollabType};
 use collab_plugins::connect_state::{CollabConnectReachability, CollabConnectState};
@@ -167,7 +167,7 @@ impl AppFlowyCollabBuilder {
     uid: i64,
     object_id: &str,
     object_type: CollabType,
-    collab_doc_state: DocStateSource,
+    collab_doc_state: DataSource,
     collab_db: Weak<CollabKVDB>,
     build_config: CollabBuilderConfig,
   ) -> Result<Arc<MutexCollab>, Error> {
@@ -208,7 +208,7 @@ impl AppFlowyCollabBuilder {
     object_id: &str,
     object_type: CollabType,
     collab_db: Weak<CollabKVDB>,
-    collab_doc_state: DocStateSource,
+    collab_doc_state: DataSource,
     #[allow(unused_variables)] persistence_config: CollabPersistenceConfig,
     build_config: CollabBuilderConfig,
   ) -> Result<Arc<MutexCollab>, Error> {

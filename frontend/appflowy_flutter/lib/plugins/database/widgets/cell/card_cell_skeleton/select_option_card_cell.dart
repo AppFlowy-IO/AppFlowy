@@ -46,7 +46,7 @@ class _SelectOptionCellState extends State<SelectOptionCardCell> {
             widget.databaseController,
             widget.cellContext,
           ).as(),
-        )..add(const SelectOptionCellEvent.initial());
+        );
       },
       child: BlocBuilder<SelectOptionCellBloc, SelectOptionCellState>(
         buildWhen: (previous, current) {
