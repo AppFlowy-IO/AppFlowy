@@ -38,6 +38,7 @@ function ProtectedRoutes () {
 
   const navigate = useNavigate();
 
+  console.log('ProtectedRoutes', currentUser, checked);
   if (checked && !currentUser.isAuthenticated && window.location.pathname !== '/login') {
     navigate(`/login?redirect=${encodeURIComponent(window.location.pathname)}`);
     return null;

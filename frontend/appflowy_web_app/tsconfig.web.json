@@ -2,7 +2,7 @@
   "extends": "./tsconfig.json",
   "exclude": [
     "node_modules",
-    "src/application/services/tauri-services"m,
+    "src/application/services/tauri-services",
     "**/*.cy.tsx"
   ],
   "references": [

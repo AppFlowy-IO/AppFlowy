@@ -30,18 +30,74 @@ export enum InlineBlockType {
 
 export interface BasicBlockData {
   bg_color?: string;
+  font_color?: string;
 }
 
 export interface HeadingBlockData extends BasicBlockData {
   level: number;
 }
 
-export interface HeadingBlock extends Block {
-  type: BlockType.HeadingBlock;
-  data: HeadingBlockData;
+export interface NumberedListBlockData {
+  number: number;
 }
 
-export type BlockData = HeadingBlockData & BasicBlockData;
+export interface TodoListBlockData {
+  checked: boolean;
+}
+
+export interface ToggleListBlockData {
+  collapsed: boolean;
+}
+
+export interface CodeBlockData {
+  language: string;
+}
+
+export interface CalloutBlockData {
+  icon: string;
+}
+
+export interface MathEquationBlockData {
+  formula?: string;
+}
+
+export enum ImageType {
+  Local = 0,
+  Internal = 1,
+  External = 2,
+}
+
+export interface ImageBlockData {
+  url?: string;
+  width?: number;
+  align?: string;
+  image_type?: ImageType;
+  height?: number;
+}
+
+export type BlockData = ImageBlockData &
+  MathEquationBlockData &
+  CalloutBlockData &
+  CodeBlockData &
+  ToggleListBlockData &
+  HeadingBlockData &
+  NumberedListBlockData &
+  TodoListBlockData &
+  BasicBlockData;
+
+export enum MentionType {
+  PageRef = 'page',
+  Date = 'date',
+}
+
+export interface Mention {
+  // inline page ref id
+  page_id?: string;
+  // reminder date ref id
+  date?: string;
+
+  type: MentionType;
+}
 
 export interface Block {
   id: BlockId;
@@ -59,6 +115,7 @@ export enum YjsEditorKey {
   database = 'database',
   workspace_database = 'databases',
   folder = 'folder',
+  // eslint-disable-next-line @typescript-eslint/no-duplicate-enum-values
   database_row = 'data',
   user_awareness = 'user_awareness',
   blocks = 'blocks',
@@ -67,33 +124,43 @@ export enum YjsEditorKey {
   children_map = 'children_map',
   text_map = 'text_map',
   text = 'text',
+  delta = 'delta',
+
+  block_id = 'id',
+  block_type = 'ty',
+  // eslint-disable-next-line @typescript-eslint/no-duplicate-enum-values
+  block_data = 'data',
+  block_parent = 'parent',
+  block_children = 'children',
+  block_external_id = 'external_id',
+  block_external_type = 'external_type',
 }
 
 export interface YDoc extends Y.Doc {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  get (key: YjsEditorKey.data_section | string): YSharedRoot | any;
+  get(key: YjsEditorKey.data_section | string): YSharedRoot | any;
 }
 
 export interface YSharedRoot extends Y.Map<unknown> {
-  get (key: YjsEditorKey.document): YDocument;
+  get(key: YjsEditorKey.document): YDocument;
 }
 
 export interface YDocument extends Y.Map<unknown> {
-  get (key: YjsEditorKey.blocks | YjsEditorKey.page_id | YjsEditorKey.meta): YBlocks | YMeta | string;
+  get(key: YjsEditorKey.blocks | YjsEditorKey.page_id | YjsEditorKey.meta): YBlocks | YMeta | string;
 }
 
 export interface YBlocks extends Y.Map<unknown> {
-  get (key: BlockId): Y.Map<unknown>;
+  get(key: BlockId): Y.Map<unknown>;
 }
 
 export interface YMeta extends Y.Map<unknown> {
-  get (key: YjsEditorKey.children_map | YjsEditorKey.text_map): YChildrenMap | YTextMap;
+  get(key: YjsEditorKey.children_map | YjsEditorKey.text_map): YChildrenMap | YTextMap;
 }
 
 export interface YChildrenMap extends Y.Map<unknown> {
-  get (key: ChildrenId): Y.Array<BlockId>;
+  get(key: ChildrenId): Y.Array<BlockId>;
 }
 
 export interface YTextMap extends Y.Map<unknown> {
-  get (key: ExternalId): Y.Text;
+  get(key: ExternalId): Y.Text;
 }

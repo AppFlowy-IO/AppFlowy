@@ -26,12 +26,15 @@
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
 //
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 Cypress.Commands.add('mockAPI', () => {
-  cy.fixture('sign_in_success').then(json => {
+  cy.fixture('sign_in_success').then((json) => {
     cy.intercept('GET', `/api/user/verify/${json.access_token}`, {
       fixture: 'verify_token',
     }).as('verifyToken');
     cy.intercept('POST', '/gotrue/token?grant_type=password', json).as('loginSuccess');
+    cy.intercept('POST', '/gotrue/token?grant_type=refresh_token', json).as('refreshToken');
   });
   cy.intercept('GET', '/api/user/profile', { fixture: 'user' }).as('getUserProfile');
 });
@@ -40,3 +43,4 @@ Cypress.Commands.add('mockAPI', () => {
 // beforeEach(() => {
 //   cy.mockAPI();
 // });
+

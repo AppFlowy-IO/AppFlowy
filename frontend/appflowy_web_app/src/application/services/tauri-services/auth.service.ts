@@ -105,7 +105,7 @@ export function parseUserProfileFrom (userPB: UserProfilePB): UserProfile {
   const user = userPB.toObject();
 
   return {
-    uid: user.id,
+    uid: user.id as number,
     email: user.email,
     name: user.name,
     iconUrl: user.icon_url,

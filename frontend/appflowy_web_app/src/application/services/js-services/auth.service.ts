@@ -6,8 +6,7 @@ import { invalidToken } from '@/application/services/js-services/storage';
 import { afterSignInDecorator } from '@/application/services/js-services/decorator';
 
 export class JSAuthService implements AuthService {
-
-  constructor () {
+  constructor() {
     // Do nothing
   }
 
@@ -16,7 +15,7 @@ export class JSAuthService implements AuthService {
   };
 
   @afterSignInDecorator(signInSuccess)
-  async signInWithOAuth ({ uri }: { uri: string }): Promise<void> {
+  async signInWithOAuth(_: { uri: string }): Promise<void> {
     return Promise.reject('Not implemented');
   }
 
@@ -25,7 +24,7 @@ export class JSAuthService implements AuthService {
   };
 
   @afterSignInDecorator(signInSuccess)
-  async signinWithEmailPassword (email: string, password: string): Promise<void> {
+  async signinWithEmailPassword(email: string, password: string): Promise<void> {
     try {
       return APIService.signIn(email, password);
     } catch (e) {
@@ -37,6 +36,4 @@ export class JSAuthService implements AuthService {
     invalidToken();
     return APIService.logout();
   };
-
 }
-

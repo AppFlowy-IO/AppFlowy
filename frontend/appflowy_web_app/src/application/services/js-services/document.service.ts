@@ -3,23 +3,21 @@ import { getDocumentStorage } from '@/application/services/js-services/storage/d
 import { DocumentService } from '@/application/services/services.type';
 import { APIService } from 'src/application/services/js-services/wasm';
 import { CollabOrigin, CollabType } from '@/application/collab.type';
-import { getAuthInfo } from '@/application/services/js-services/storage/token';
 import { applyDocument } from 'src/application/services/js-services/apply';
 
 export class JSDocumentService implements DocumentService {
-  constructor () {
+  constructor() {
     //
   }
 
-  async openDocument (workspaceId: string, docId: string): Promise<YDoc> {
-    const { uuid } = getAuthInfo() || {};
+  fetchDocument(workspaceId: string, docId: string) {
+    return APIService.getCollab(workspaceId, docId, CollabType.Document);
+  }
 
-    if (!uuid) return Promise.reject(new Error('No user found'));
-
-    const docName = `${uuid}_document_${docId}`;
-    const { doc, localExist } = await getDocumentStorage(docName);
+  async openDocument(workspaceId: string, docId: string): Promise<YDoc> {
+    const { doc, localExist } = await getDocumentStorage(docId);
     const asyncApply = async () => {
-      const res = await APIService.getCollab(workspaceId, docId, CollabType.Document);
+      const res = await this.fetchDocument(workspaceId, docId);
 
       applyDocument(doc, res.state);
     };

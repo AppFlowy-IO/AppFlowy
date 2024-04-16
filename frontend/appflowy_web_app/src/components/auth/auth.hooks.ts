@@ -4,7 +4,7 @@ import { nanoid } from 'nanoid';
 import { open } from '@tauri-apps/api/shell';
 import { ProviderType, UserProfile } from '@/application/user.type';
 import { currentUserActions } from '@/stores/currentUser/slice';
-import { AFConfigContext } from '@/AppConfig';
+import { AFConfigContext } from '@/components/app/AppConfig';
 import { notify } from '@/components/_shared/notify';
 
 export const useAuth = () => {
@@ -17,6 +17,7 @@ export const useAuth = () => {
     notify.clear();
     dispatch(currentUserActions.loginSuccess());
   }, [dispatch]);
+
   const setUser = useCallback(
     async (userProfile: UserProfile) => {
       handleSuccess();
@@ -112,7 +113,7 @@ export const useAuth = () => {
         const url = await AFConfig?.service?.authService.getOAuthURL(provider);
 
         if (!url) {
-          throw new Error('Failed to sign in');
+          throw new Error();
         }
 
         await open(url);
@@ -133,7 +134,7 @@ export const useAuth = () => {
         const userProfile = await AFConfig?.service?.userService.getUserProfile();
 
         if (!userProfile) {
-          throw new Error('Failed to sign in');
+          throw new Error();
         }
 
         await setUser(userProfile);
@@ -156,9 +157,8 @@ export const useAuth = () => {
 
         const userProfile = await AFConfig?.service?.userService.getUserProfile();
 
-        console.log('userProfile', userProfile);
         if (!userProfile) {
-          throw new Error('Failed to sign in');
+          throw new Error();
         }
 
         await setUser(userProfile);

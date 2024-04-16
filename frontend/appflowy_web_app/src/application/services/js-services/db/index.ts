@@ -9,11 +9,11 @@ import { usersSchema, UsersTable } from './tables/users';
 const version = 1;
 
 type DexieTables = UsersTable;
-export type Dexie<T extends any = DexieTables> = BaseDexie & T;
+export type Dexie<T = DexieTables> = BaseDexie & T;
 
 let db: Dexie | undefined;
 
-export function getDB () {
+export function getDB() {
   const authInfo = getAuthInfo();
 
   if (!db && authInfo?.uuid) {
@@ -23,7 +23,7 @@ export function getDB () {
   return db;
 }
 
-export function openDB (uuid: string) {
+export function openDB(uuid: string) {
   const dbName = `${databasePrefix}_${uuid}`;
 
   if (db && db.name === dbName) {
@@ -40,15 +40,14 @@ export function openDB (uuid: string) {
 /**
  * Open the collaboration database, and return a function to close it
  */
-export async function openCollabDB (docName: string): Promise<YDoc> {
-
+export async function openCollabDB(docName: string): Promise<YDoc> {
   const name = `${databasePrefix}_${docName}`;
   const doc = new Y.Doc();
 
   const provider = new IndexeddbPersistence(name, doc);
 
   let resolve: (value: unknown) => void;
-  const promise = new Promise(resolveFn => {
+  const promise = new Promise((resolveFn) => {
     resolve = resolveFn;
   });
 
@@ -59,4 +58,12 @@ export async function openCollabDB (docName: string): Promise<YDoc> {
   await promise;
 
   return doc as YDoc;
+}
+
+export async function deleteCollabDB(docName: string) {
+  const name = `${databasePrefix}_${docName}`;
+  const doc = new Y.Doc();
+  const provider = new IndexeddbPersistence(name, doc);
+
+  await provider.destroy();
 }

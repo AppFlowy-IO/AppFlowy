@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useAuth } from '@/components/auth/auth.hooks';
 import { useTranslation } from 'react-i18next';
 
-function SignInWithEmail ({ open, onClose }: { open: boolean; onClose: () => void }) {
+function SignInWithEmail({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
@@ -68,7 +68,7 @@ function SignInWithEmail ({ open, onClose }: { open: boolean; onClose: () => voi
         <Button
           data-cy={'submit'}
           disabled={loading}
-          className={'flex-1 flex items-center justify-content gap-2 h-[33px]'}
+          className={'justify-content flex h-[33px] flex-1 items-center gap-2'}
           variant={'contained'}
           onClick={handleSignIn}
         >
@@ -81,8 +81,3 @@ function SignInWithEmail ({ open, onClose }: { open: boolean; onClose: () => voi
 }
 
 export default SignInWithEmail;
-
-function useEffect (arg0: () => void, arg1: never[]) {
-  throw new Error('Function not implemented.');
-}
-

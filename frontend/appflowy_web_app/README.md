@@ -186,7 +186,7 @@ Don't modify the theme file in `frontend/appflowy_web_app/src/styles/variables` 
         // ...
         {
           find: '$client-services',
-          replacement: process.env.TAURI_MODE
+          replacement: !!process.env.TAURI_PLATFORM
             ? `${__dirname}/src/application/services/tauri-services`
             : `${__dirname}/src/application/services/js-services`,
         },

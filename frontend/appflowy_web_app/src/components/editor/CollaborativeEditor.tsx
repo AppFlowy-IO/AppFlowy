@@ -1,36 +1,33 @@
-import { AFConfigContext } from '@/AppConfig';
-import Editor from '@/components/editor/slate/Editor';
-import { CircularProgress } from '@mui/material';
-import React, { useContext, useEffect, useState } from 'react';
+import { withYjs, YjsEditor } from '@/application/slate-yjs/plugins/withYjs';
+import EditorEditable from '@/components/editor/Editable';
+import { withPlugins } from '@/components/editor/plugins';
+import React, { useEffect, useMemo, useState } from 'react';
+import { createEditor, Descendant } from 'slate';
+import { Slate } from 'slate-react';
 import * as Y from 'yjs';
 
-function CollaborativeEditor ({ workspaceId, documentId }: {
-  documentId: string;
-  workspaceId: string;
-}) {
+const defaultInitialValue: Descendant[] = [];
 
-  const [doc, setDoc] = useState<Y.Doc>();
-
-  const documentService = useContext(AFConfigContext)?.service?.documentService;
+function CollaborativeEditor({ doc }: { doc: Y.Doc }) {
+  const editor = useMemo(() => doc && (withPlugins(withYjs(createEditor(), doc)) as YjsEditor), [doc]);
+  const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
-    if (!documentService) return;
-    // Fetch the product data
-    documentService.openDocument(workspaceId, documentId).then(doc => {
-      setDoc(doc);
-    }).catch(e => {
-      console.error(e);
-    });
-  }, [documentId, documentService, workspaceId]);
+    if (!editor) return;
+    editor.connect();
+    setIsConnected(true);
 
-  if (!doc) {
-    return <div className={'h-full w-full flex items-center justify-content'}>
-      <CircularProgress />
-    </div>;
-  }
+    return () => {
+      editor.disconnect();
+    };
+  }, [editor]);
+
+  console.log('editor', isConnected, editor.children);
 
   return (
-    <Editor doc={doc} />
+    <Slate editor={editor} initialValue={defaultInitialValue}>
+      <EditorEditable />
+    </Slate>
   );
 }
 

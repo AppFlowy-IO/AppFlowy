@@ -13,9 +13,13 @@ import { initAPIService } from '@/application/services/js-services/wasm/client_a
 
 export class AFClientService implements AFService {
   authService: AuthService;
+
   userService: UserService;
+
   documentService: DocumentService;
+
   private deviceId: string = nanoid(8);
+
   private clientId: string = 'web';
 
   getDeviceID = (): string => {
@@ -26,7 +30,7 @@ export class AFClientService implements AFService {
     return this.clientId;
   };
 
-  constructor (config: AFServiceConfig) {
+  constructor(config: AFServiceConfig) {
     initAPIService({
       ...config.cloudConfig,
       deviceId: this.deviceId,
@@ -37,5 +41,4 @@ export class AFClientService implements AFService {
     this.userService = new JSUserService();
     this.documentService = new JSDocumentService();
   }
-
 }

@@ -9,6 +9,7 @@ export function getAuthInfo () {
 
   try {
     const info = JSON.parse(token);
+
     return {
       uuid: info.user.id,
       access_token: info.access_token,
@@ -24,6 +25,7 @@ export function writeToken (token: string) {
     invalidToken();
     return;
   }
+
   sessionStorage.setItem(tokenKey, token);
 }
 

@@ -11,13 +11,14 @@
  *
  * @returns: A function that returns the data from storage and fetches the data from the server in the background.
  */
-export function asyncDataDecorator<P, T> (
+export function asyncDataDecorator<P, T>(
   getStorage: () => Promise<T | undefined>,
   setStorage: (data: T) => Promise<void>,
-  fetchFunction: (params: P) => Promise<T | undefined>,
+  fetchFunction: (params: P) => Promise<T | undefined>
 ) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
-    async function fetchData (params: P) {
+    async function fetchData(params: P) {
       const data = await fetchFunction(params);
 
       if (!data) return;
@@ -43,10 +44,12 @@ export function asyncDataDecorator<P, T> (
   };
 }
 
-export function afterSignInDecorator (successCallback: () => Promise<void>) {
+export function afterSignInDecorator(successCallback: () => Promise<void>) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
     const originalMethod = descriptor.value;
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     descriptor.value = async function (...args: any[]) {
       await originalMethod.apply(this, args);
       await successCallback();

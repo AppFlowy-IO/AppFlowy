@@ -1,4 +1,5 @@
 import { YjsEditorKey, YSharedRoot } from '@/application/document.type';
+import { applySlateOp } from '@/application/slate-yjs/utils/applySlateOpts';
 import { translateYjsEvent } from 'src/application/slate-yjs/utils/translateYjsEvent';
 import { Editor, Operation, Descendant } from 'slate';
 import Y, { YEvent, Transaction } from 'yjs';
@@ -117,8 +118,12 @@ export function withYjs<T extends Editor> (editor: T, doc: Y.Doc): T & YjsEditor
     const changes = YjsEditor.localChanges(e);
 
     localChanges.delete(e);
-    // parse changes and apply to sharedRoot.doc
-    console.log('flushLocalChanges', changes);
+    // parse changes and apply to ydoc
+    doc.transact(() => {
+      changes.forEach((change) => {
+        applySlateOp(doc, { children: change.slateContent }, change.op);
+      });
+    }, CollabOrigin.Local);
   };
 
   e.apply = (op) => {

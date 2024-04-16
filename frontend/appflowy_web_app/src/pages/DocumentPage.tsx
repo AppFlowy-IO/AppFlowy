@@ -1,17 +1,8 @@
-import { Editor } from '@/components/editor/Editor';
-import React, { useContext, useEffect } from 'react';
-import { AFConfigContext } from '@/AppConfig';
+import { Document } from '@/components/document';
+import React from 'react';
 
-function DocumentPage ({ workspaceId, documentId }: {
-  documentId: string;
-  workspaceId: string;
-}) {
-
-  return (
-    <div>
-      <Editor documentId={documentId} workspaceId={workspaceId} />
-    </div>
-  );
+function DocumentPage() {
+  return <Document />;
 }
 
 export default DocumentPage;
