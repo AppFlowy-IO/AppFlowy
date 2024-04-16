@@ -2,18 +2,26 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/image/image_util.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/page_style/_page_cover_bottom_sheet.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/page_style/_page_style_util.dart';
 import 'package:appflowy/shared/feedback_gesture_detector.dart';
+import 'package:appflowy/user/application/user_service.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_infra_ui/style_widget/snap_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
 
 class PageStyleCoverImage extends StatelessWidget {
-  const PageStyleCoverImage({
+  PageStyleCoverImage({
     super.key,
   });
+
+  late final ImagePicker _imagePicker = ImagePicker();
 
   @override
   Widget build(BuildContext context) {
@@ -68,32 +76,7 @@ class PageStyleCoverImage extends StatelessWidget {
               true,
               false,
               state.coverImage.isPresets,
-              () {
-                showMobileBottomSheet(
-                  context,
-                  showDragHandle: true,
-                  showDivider: false,
-                  showDoneButton: true,
-                  showHeader: true,
-                  showRemoveButton: true,
-                  onRemove: () {
-                    context.read<DocumentPageStyleBloc>().add(
-                          DocumentPageStyleEvent.updateCoverImage(
-                            PageStyleCover.none(),
-                          ),
-                        );
-                  },
-                  title: LocaleKeys.pageStyle_coverImage.tr(),
-                  barrierColor: Colors.transparent,
-                  backgroundColor: Theme.of(context).colorScheme.background,
-                  builder: (_) {
-                    return BlocProvider.value(
-                      value: context.read<DocumentPageStyleBloc>(),
-                      child: const PageCoverBottomSheet(),
-                    );
-                  },
-                );
-              },
+              () => _showPresets(context),
             ),
             _buildOptionButton(
               Column(
@@ -109,8 +92,8 @@ class PageStyleCoverImage extends StatelessWidget {
               ),
               false,
               false,
-              state.coverImage.isCustomImage,
-              () {},
+              state.coverImage.isPhoto,
+              () async => _pickImage(context),
             ),
             _buildOptionButton(
               Column(
@@ -165,5 +148,76 @@ class PageStyleCoverImage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void _showPresets(BuildContext context) {
+    showMobileBottomSheet(
+      context,
+      showDragHandle: true,
+      showDivider: false,
+      showDoneButton: true,
+      showHeader: true,
+      showRemoveButton: true,
+      onRemove: () {
+        context.read<DocumentPageStyleBloc>().add(
+              DocumentPageStyleEvent.updateCoverImage(
+                PageStyleCover.none(),
+              ),
+            );
+      },
+      title: LocaleKeys.pageStyle_coverImage.tr(),
+      barrierColor: Colors.transparent,
+      backgroundColor: Theme.of(context).colorScheme.background,
+      builder: (_) {
+        return BlocProvider.value(
+          value: context.read<DocumentPageStyleBloc>(),
+          child: const PageCoverBottomSheet(),
+        );
+      },
+    );
+  }
+
+  Future<void> _pickImage(BuildContext context) async {
+    final result = await _imagePicker.pickImage(
+      source: ImageSource.gallery,
+    );
+    final path = result?.path;
+    if (path != null && context.mounted) {
+      final String? result;
+      final userProfile = await UserBackendService.getCurrentUserProfile().fold(
+        (s) => s,
+        (f) => null,
+      );
+      final isAppFlowyCloud =
+          userProfile?.authenticator == AuthenticatorPB.AppFlowyCloud;
+      final PageStyleCoverImageType type;
+      if (!isAppFlowyCloud) {
+        result = await saveImageToLocalStorage(path);
+        type = PageStyleCoverImageType.localImage;
+      } else {
+        // else we should save the image to cloud storage
+        (result, _) = await saveImageToCloudStorage(path);
+        type = PageStyleCoverImageType.customImage;
+      }
+      if (!context.mounted) {
+        return;
+      }
+      if (result == null) {
+        showSnapBar(
+          context,
+          LocaleKeys.document_plugins_image_imageUploadFailed,
+        );
+        return;
+      }
+
+      context.read<DocumentPageStyleBloc>().add(
+            DocumentPageStyleEvent.updateCoverImage(
+              PageStyleCover(
+                type: type,
+                value: result,
+              ),
+            ),
+          );
+    }
   }
 }

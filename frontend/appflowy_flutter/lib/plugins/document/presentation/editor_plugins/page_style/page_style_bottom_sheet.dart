@@ -30,7 +30,7 @@ class PageStyleBottomSheet extends StatelessWidget {
             fontSize: 14.0,
           ),
           const VSpace(8.0),
-          const PageStyleCoverImage(),
+          PageStyleCoverImage(),
           const VSpace(20.0),
           // layout: font size, line height and font family.
           FlowyText(

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_picker_screen.dart';
 import 'package:appflowy/plugins/base/icon/icon_picker.dart';
@@ -8,6 +10,7 @@ import 'package:appflowy/shared/appflowy_network_image.dart';
 import 'package:appflowy/shared/flowy_gradient_colors.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/ignore_parent_gesture.dart';
@@ -23,9 +26,11 @@ class DocumentImmersiveCover extends StatelessWidget {
   const DocumentImmersiveCover({
     super.key,
     required this.view,
+    required this.userProfilePB,
   });
 
   final ViewPB view;
+  final UserProfilePB userProfilePB;
 
   @override
   Widget build(BuildContext context) {
@@ -117,7 +122,8 @@ class DocumentImmersiveCover extends StatelessWidget {
       return SizedBox(
         height: height,
         width: double.infinity,
-        child: FlowyNetworkImage(url: cover.value),
+        child:
+            FlowyNetworkImage(url: cover.value, userProfilePB: userProfilePB),
       );
     }
 
@@ -146,6 +152,17 @@ class DocumentImmersiveCover extends StatelessWidget {
         width: double.infinity,
         decoration: BoxDecoration(
           gradient: FlowyGradientColor.fromId(cover.value).linear,
+        ),
+      );
+    }
+
+    if (type == PageStyleCoverImageType.localImage) {
+      return SizedBox(
+        height: height,
+        width: double.infinity,
+        child: Image.file(
+          File(cover.value),
+          fit: BoxFit.cover,
         ),
       );
     }

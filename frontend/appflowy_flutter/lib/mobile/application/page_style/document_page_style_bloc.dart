@@ -393,10 +393,13 @@ class PageStyleCover {
   final String value;
 
   bool get isPresets => isPureColor || isGradient || isBuiltInImage;
+  bool get isPhoto => isCustomImage || isLocalImage;
+
   bool get isNone => type == PageStyleCoverImageType.none;
   bool get isPureColor => type == PageStyleCoverImageType.pureColor;
   bool get isGradient => type == PageStyleCoverImageType.gradientColor;
   bool get isBuiltInImage => type == PageStyleCoverImageType.builtInImage;
   bool get isCustomImage => type == PageStyleCoverImageType.customImage;
   bool get isUnsplashImage => type == PageStyleCoverImageType.unsplashImage;
+  bool get isLocalImage => type == PageStyleCoverImageType.localImage;
 }

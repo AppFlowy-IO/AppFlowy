@@ -105,7 +105,7 @@ class _DocumentPageState extends State<DocumentPage> {
               // the 44 is the width of the left action list
               padding: EditorStyleCustomizer.documentPadding,
             ),
-            header: _buildCoverAndIcon(context, state.editorState!),
+            header: _buildCoverAndIcon(context, state),
             initialSelection: widget.initialSelection,
           );
         },
@@ -118,7 +118,7 @@ class _DocumentPageState extends State<DocumentPage> {
           // the 44 is the width of the left action list
           padding: EditorStyleCustomizer.documentPadding,
         ),
-        header: _buildCoverAndIcon(context, state.editorState!),
+        header: _buildCoverAndIcon(context, state),
         initialSelection: widget.initialSelection,
       );
     }
@@ -146,10 +146,17 @@ class _DocumentPageState extends State<DocumentPage> {
     );
   }
 
-  Widget _buildCoverAndIcon(BuildContext context, EditorState editorState) {
+  Widget _buildCoverAndIcon(BuildContext context, DocumentState state) {
+    final editorState = state.editorState;
+    final userProfilePB = state.userProfilePB;
+    if (editorState == null || userProfilePB == null) {
+      return const SizedBox.shrink();
+    }
+
     if (PlatformExtension.isMobile) {
       return DocumentImmersiveCover(
         view: widget.view,
+        userProfilePB: userProfilePB,
       );
     }
     final page = editorState.document.root;
