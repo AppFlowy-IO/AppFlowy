@@ -324,35 +324,35 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     final editorState = widget.editorState;
 
     if (PlatformExtension.isMobile) {
-      return AppFlowyMobileToolbar(
-        toolbarHeight: 42.0,
-        editorState: editorState,
-        toolbarItemsBuilder: (selection) => buildMobileToolbarItems(
-          editorState,
-          selection,
-        ),
-        child: Column(
-          children: [
-            Expanded(
-              child: MobileFloatingToolbar(
-                editorState: editorState,
-                editorScrollController: editorScrollController,
-                toolbarBuilder: (context, anchor, closeToolbar) {
-                  return AdaptiveTextSelectionToolbar.buttonItems(
+      return BlocProvider.value(
+        value: documentBloc,
+        child: AppFlowyMobileToolbar(
+          toolbarHeight: 42.0,
+          editorState: editorState,
+          toolbarItemsBuilder: (selection) => buildMobileToolbarItems(
+            editorState,
+            selection,
+          ),
+          child: Column(
+            children: [
+              Expanded(
+                child: MobileFloatingToolbar(
+                  editorState: editorState,
+                  editorScrollController: editorScrollController,
+                  toolbarBuilder: (_, anchor, closeToolbar) =>
+                      AdaptiveTextSelectionToolbar.buttonItems(
+                    anchors: TextSelectionToolbarAnchors(primaryAnchor: anchor),
                     buttonItems: buildMobileFloatingToolbarItems(
                       editorState,
                       anchor,
                       closeToolbar,
                     ),
-                    anchors: TextSelectionToolbarAnchors(
-                      primaryAnchor: anchor,
-                    ),
-                  );
-                },
-                child: editor,
+                  ),
+                  child: editor,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       );
     }

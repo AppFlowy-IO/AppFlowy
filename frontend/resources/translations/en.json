@@ -1037,6 +1037,11 @@
     "errorBlock": {
       "theBlockIsNotSupported": "The current version does not support this block.",
       "blockContentHasBeenCopied": "The block content has been copied."
+    },
+    "mobilePageSelector": {
+      "title": "Select page",
+      "failedToLoad": "Failed to load page list",
+      "noPagesFound": "No pages found"
     }
   },
   "board": {
@@ -1282,6 +1287,7 @@
     "color": "Color",
     "image": "Image",
     "date": "Date",
+    "page": "Page",
     "italic": "Italic",
     "link": "Link",
     "numberedList": "Numbered List",
