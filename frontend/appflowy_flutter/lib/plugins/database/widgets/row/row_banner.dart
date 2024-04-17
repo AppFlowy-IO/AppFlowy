@@ -118,6 +118,7 @@ class _RowBannerState extends State<RowBanner> {
                           ),
                           pluginType: PluginType.databaseDocument,
                         ),
+                        setLatest: false,
                       ),
                     );
                   }
