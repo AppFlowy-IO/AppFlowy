@@ -99,7 +99,6 @@ class ViewTitleBarWithRow extends StatelessWidget {
         view: view,
         behavior: _ViewTitleBehavior.uneditable,
         onUpdated: () {},
-        // onUpdated: () => setState(() => _reloadAncestors()),
       ),
     );
   }
