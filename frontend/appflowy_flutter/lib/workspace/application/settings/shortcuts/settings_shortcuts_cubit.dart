@@ -1,6 +1,5 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_page.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/code_block/code_block_shortcut_event.dart';
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_service.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -122,5 +121,5 @@ class ShortcutsCubit extends Cubit<ShortcutsState> {
 }
 
 extension on CommandShortcutEvent {
-  bool get isCodeBlockCommand => codeBlockCommands.contains(this);
+  bool get isCodeBlockCommand => localizedCodeBlockCommands.contains(this);
 }
