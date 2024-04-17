@@ -29,6 +29,7 @@ class RelatedRowDetailPage extends StatelessWidget {
               return RowDetailPage(
                 databaseController: databaseController,
                 rowController: rowController,
+                allowOpenAsFullPage: false,
               );
             },
           );

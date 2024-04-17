@@ -31,11 +31,13 @@ class RowBanner extends StatefulWidget {
     required this.fieldController,
     required this.rowController,
     required this.cellBuilder,
+    this.allowOpenAsFullPage = true,
   });
 
   final FieldController fieldController;
   final RowController rowController;
   final EditableCellBuilder cellBuilder;
+  final bool allowOpenAsFullPage;
 
   @override
   State<RowBanner> createState() => _RowBannerState();
@@ -90,41 +92,42 @@ class _RowBannerState extends State<RowBanner> {
               right: 12,
               child: RowActionButton(rowController: widget.rowController),
             ),
-            Positioned(
-              top: 12,
-              left: 12,
-              child: FlowyIconButton(
-                width: 20,
-                height: 20,
-                icon: const FlowySvg(FlowySvgs.full_view_s),
-                onPressed: () async {
-                  Navigator.of(context).pop();
-                  final viewBloc = context.read<ViewBloc>();
-                  final databaseId = await DatabaseViewBackendService(
-                    viewId: widget.cellBuilder.databaseController.viewId,
-                  )
-                      .getDatabaseId()
-                      .then((value) => value.fold((s) => s, (f) => null));
-                  final documentId = widget.rowController.rowMeta.documentId;
-                  if (databaseId != null) {
-                    getIt<TabsBloc>().add(
-                      TabsEvent.openPlugin(
-                        plugin: DatabaseDocumentPlugin(
-                          data: DatabaseDocumentContext(
-                            view: viewBloc.state.view,
-                            databaseId: databaseId,
-                            rowId: widget.rowController.rowId,
-                            documentId: documentId,
+            if (widget.allowOpenAsFullPage)
+              Positioned(
+                top: 12,
+                left: 12,
+                child: FlowyIconButton(
+                  width: 20,
+                  height: 20,
+                  icon: const FlowySvg(FlowySvgs.full_view_s),
+                  onPressed: () async {
+                    Navigator.of(context).pop();
+                    final viewBloc = context.read<ViewBloc>();
+                    final databaseId = await DatabaseViewBackendService(
+                      viewId: widget.cellBuilder.databaseController.viewId,
+                    )
+                        .getDatabaseId()
+                        .then((value) => value.fold((s) => s, (f) => null));
+                    final documentId = widget.rowController.rowMeta.documentId;
+                    if (databaseId != null) {
+                      getIt<TabsBloc>().add(
+                        TabsEvent.openPlugin(
+                          plugin: DatabaseDocumentPlugin(
+                            data: DatabaseDocumentContext(
+                              view: viewBloc.state.view,
+                              databaseId: databaseId,
+                              rowId: widget.rowController.rowId,
+                              documentId: documentId,
+                            ),
+                            pluginType: PluginType.databaseDocument,
                           ),
-                          pluginType: PluginType.databaseDocument,
+                          setLatest: false,
                         ),
-                        setLatest: false,
-                      ),
-                    );
-                  }
-                },
+                      );
+                    }
+                  },
+                ),
               ),
-            ),
           ],
         ),
       ),
