@@ -146,6 +146,15 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
       syncStateChanged: (syncState) {
         emit(state.copyWith(syncState: syncState.value));
       },
+      clearAwarenessStates: () async {
+        // sync a null selection and a null meta to clear the awareness states
+        await _documentService.syncAwarenessStates(
+          documentId: view.id,
+        );
+      },
+      syncAwarenessStates: () async {
+        await _updateCollaborator();
+      },
     );
   }
 
@@ -388,6 +397,8 @@ class DocumentEvent with _$DocumentEvent {
   const factory DocumentEvent.syncStateChanged(
     final DocumentSyncStatePB syncState,
   ) = syncStateChanged;
+  const factory DocumentEvent.syncAwarenessStates() = SyncAwarenessStates;
+  const factory DocumentEvent.clearAwarenessStates() = ClearAwarenessStates;
 }
 
 @freezed
