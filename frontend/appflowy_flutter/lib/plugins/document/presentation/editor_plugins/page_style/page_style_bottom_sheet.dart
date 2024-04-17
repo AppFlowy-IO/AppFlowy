@@ -43,7 +43,7 @@ class PageStyleBottomSheet extends StatelessWidget {
           const VSpace(20.0),
           // icon
           FlowyText(
-            LocaleKeys.document_plugins_emoji.tr(),
+            LocaleKeys.pageStyle_pageIcon.tr(),
             color: context.pageStyleTextColor,
             fontSize: 14.0,
           ),

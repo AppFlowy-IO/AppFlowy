@@ -30,23 +30,19 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
   ];
 
   final calloutBGColor = AFThemeExtension.of(context).calloutBGColor;
-  final pageStyle = context.read<DocumentPageStyleBloc>().state;
-  final factor = pageStyle.fontLayout.factor;
-  final headingPaddings =
-      pageStyle.lineHeightLayout.headingPaddings.map((e) => e * factor);
-  final padding = pageStyle.lineHeightLayout.padding * factor;
   final configuration = BlockComponentConfiguration(
     // use EdgeInsets.zero to remove the default padding.
     padding: (node) {
-      if (node.type == HeadingBlockKeys.type) {
-        final level = node.attributes[HeadingBlockKeys.level] ?? 6;
+      if (PlatformExtension.isMobile) {
+        final pageStyle = context.read<DocumentPageStyleBloc>().state;
+        final factor = pageStyle.fontLayout.factor;
+        final padding = pageStyle.lineHeightLayout.padding * factor;
         return EdgeInsets.only(
-          top: headingPaddings.elementAt(level),
+          top: padding,
         );
       }
-      return EdgeInsets.only(
-        top: padding,
-      );
+
+      return const EdgeInsets.symmetric(vertical: 5.0);
     },
     indentPadding: (node, textDirection) => textDirection == TextDirection.ltr
         ? const EdgeInsets.only(left: 26.0)
@@ -103,6 +99,20 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
     ),
     HeadingBlockKeys.type: HeadingBlockComponentBuilder(
       configuration: configuration.copyWith(
+        padding: (node) {
+          if (PlatformExtension.isMobile) {
+            final pageStyle = context.read<DocumentPageStyleBloc>().state;
+            final factor = pageStyle.fontLayout.factor;
+            final headingPaddings = pageStyle.lineHeightLayout.headingPaddings
+                .map((e) => e * factor);
+            final level = node.attributes[HeadingBlockKeys.level] ?? 6;
+            return EdgeInsets.only(
+              top: headingPaddings.elementAt(level),
+            );
+          }
+
+          return const EdgeInsets.only(top: 12.0, bottom: 4.0);
+        },
         placeholderText: (node) => LocaleKeys.blockPlaceholders_heading.tr(
           args: [node.attributes[HeadingBlockKeys.level].toString()],
         ),

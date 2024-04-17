@@ -784,6 +784,7 @@ dependencies = [
 [[package]]
 name = "collab"
 version = "0.1.0"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=73c9dc8#73c9dc8502da5d20eceb32dac34b71f56cb4d5d9"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -807,6 +808,7 @@ dependencies = [
 [[package]]
 name = "collab-database"
 version = "0.1.0"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=73c9dc8#73c9dc8502da5d20eceb32dac34b71f56cb4d5d9"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -836,6 +838,7 @@ dependencies = [
 [[package]]
 name = "collab-document"
 version = "0.1.0"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=73c9dc8#73c9dc8502da5d20eceb32dac34b71f56cb4d5d9"
 dependencies = [
  "anyhow",
  "collab",
@@ -854,6 +857,7 @@ dependencies = [
 [[package]]
 name = "collab-entity"
 version = "0.1.0"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=73c9dc8#73c9dc8502da5d20eceb32dac34b71f56cb4d5d9"
 dependencies = [
  "anyhow",
  "bytes",
@@ -868,6 +872,7 @@ dependencies = [
 [[package]]
 name = "collab-folder"
 version = "0.1.0"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=73c9dc8#73c9dc8502da5d20eceb32dac34b71f56cb4d5d9"
 dependencies = [
  "anyhow",
  "chrono",
@@ -905,6 +910,7 @@ dependencies = [
 [[package]]
 name = "collab-plugins"
 version = "0.1.0"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=73c9dc8#73c9dc8502da5d20eceb32dac34b71f56cb4d5d9"
 dependencies = [
  "anyhow",
  "async-stream",
@@ -982,6 +988,7 @@ dependencies = [
 [[package]]
 name = "collab-user"
 version = "0.1.0"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=73c9dc8#73c9dc8502da5d20eceb32dac34b71f56cb4d5d9"
 dependencies = [
  "anyhow",
  "collab",
@@ -4154,7 +4161,7 @@ checksum = "c55e02e35260070b6f716a2423c2ff1c3bb1642ddca6f99e1f26d06268a0e2d2"
 dependencies = [
  "bytes",
  "heck 0.4.1",
- "itertools 0.10.5",
+ "itertools 0.11.0",
  "log",
  "multimap",
  "once_cell",
@@ -4175,7 +4182,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "efb6c9a1dd1def8e2124d17e83a20af56f1570d6c2d2bd9e266ccb768df3840e"
 dependencies = [
  "anyhow",
- "itertools 0.10.5",
+ "itertools 0.11.0",
  "proc-macro2",
  "quote",
  "syn 2.0.47",
