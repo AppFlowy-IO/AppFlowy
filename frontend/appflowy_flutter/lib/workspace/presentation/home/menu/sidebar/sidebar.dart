@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
 import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
@@ -12,6 +14,7 @@ import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
+import 'package:appflowy/workspace/presentation/command_palette/command_palette.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_folder.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_new_page_button.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_top_menu.dart';
@@ -22,6 +25,9 @@ import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
     show UserProfilePB;
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra_ui/style_widget/button.dart';
+import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -203,6 +209,7 @@ class _SidebarState extends State<_Sidebar> {
   @override
   Widget build(BuildContext context) {
     const menuHorizontalInset = EdgeInsets.symmetric(horizontal: 12);
+    final userState = context.read<UserWorkspaceBloc>().state;
     return DecoratedBox(
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceVariant,
@@ -223,21 +230,15 @@ class _SidebarState extends State<_Sidebar> {
             padding: menuHorizontalInset,
             child:
                 // if the workspaces are empty, show the user profile instead
-                context.read<UserWorkspaceBloc>().state.isCollabWorkspaceOn &&
-                        context
-                            .read<UserWorkspaceBloc>()
-                            .state
-                            .workspaces
-                            .isNotEmpty
-                    ? SidebarWorkspace(
-                        userProfile: widget.userProfile,
-                      )
-                    : SidebarUser(
-                        userProfile: widget.userProfile,
-                      ),
+                userState.isCollabWorkspaceOn && userState.workspaces.isNotEmpty
+                    ? SidebarWorkspace(userProfile: widget.userProfile)
+                    : SidebarUser(userProfile: widget.userProfile),
           ),
-
-          const VSpace(20),
+          const VSpace(8),
+          const Padding(
+            padding: menuHorizontalInset,
+            child: _SidebarSearchButton(),
+          ),
           // scrollable document list
           Expanded(
             child: Padding(
@@ -278,5 +279,18 @@ class _SidebarState extends State<_Sidebar> {
     if (mounted) {
       setState(() => isScrolling = false);
     }
+  }
+}
+
+class _SidebarSearchButton extends StatelessWidget {
+  const _SidebarSearchButton();
+
+  @override
+  Widget build(BuildContext context) {
+    return FlowyButton(
+      onTap: () => CommandPalette.of(context).toggle(),
+      leftIcon: const FlowySvg(FlowySvgs.search_s),
+      text: FlowyText(LocaleKeys.search_label.tr()),
+    );
   }
 }
