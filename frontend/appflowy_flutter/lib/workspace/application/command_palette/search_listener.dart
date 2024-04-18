@@ -4,7 +4,8 @@ import 'dart:typed_data';
 import 'package:appflowy/core/notification/search_notification.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-search/entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-search/notification.pbenum.dart';
+import 'package:appflowy_backend/protobuf/flowy-search/result.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flowy_infra/notifier.dart';
 

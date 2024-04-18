@@ -9,10 +9,11 @@ pub struct IndexableData {
   pub data: String,
   pub icon: Option<ViewIcon>,
   pub layout: ViewLayout,
+  pub workspace_id: String,
 }
 
 pub trait IndexManager: Send + Sync {
-  fn set_index_content_receiver(&self, rx: IndexContentReceiver);
+  fn set_index_content_receiver(&self, rx: IndexContentReceiver, workspace_id: String);
   fn add_index(&self, data: IndexableData) -> Result<(), FlowyError>;
   fn update_index(&self, data: IndexableData) -> Result<(), FlowyError>;
   fn remove_indices(&self, ids: Vec<String>) -> Result<(), FlowyError>;
@@ -22,5 +23,5 @@ pub trait IndexManager: Send + Sync {
 }
 
 pub trait FolderIndexManager: IndexManager {
-  fn index_all_views(&self, views: Vec<View>);
+  fn index_all_views(&self, views: Vec<View>, workspace_id: String);
 }

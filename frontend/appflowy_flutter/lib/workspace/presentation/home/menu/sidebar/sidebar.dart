@@ -1,9 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
 import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
+import 'package:appflowy/workspace/application/command_palette/command_palette_bloc.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/favorite/prelude.dart';
 import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
@@ -60,10 +62,19 @@ class HomeSideBar extends StatelessWidget {
     //   +-- Trash Section
     return BlocProvider<UserWorkspaceBloc>(
       create: (_) => UserWorkspaceBloc(userProfile: userProfile)
-        ..add(
-          const UserWorkspaceEvent.initial(),
-        ),
-      child: BlocBuilder<UserWorkspaceBloc, UserWorkspaceState>(
+        ..add(const UserWorkspaceEvent.initial()),
+      child: BlocConsumer<UserWorkspaceBloc, UserWorkspaceState>(
+        listenWhen: (previous, current) =>
+            previous.currentWorkspace?.workspaceId !=
+            current.currentWorkspace?.workspaceId,
+        listener: (context, state) {
+          // // Notify command palette that workspace has changed
+          context.read<CommandPaletteBloc>().add(
+                CommandPaletteEvent.workspaceChanged(
+                  workspaceId: state.currentWorkspace?.workspaceId,
+                ),
+              );
+        },
         // Rebuild the whole sidebar when the current workspace changes
         buildWhen: (previous, current) =>
             previous.currentWorkspace?.workspaceId !=

@@ -21,7 +21,7 @@ pub(crate) async fn search_handler(
 ) -> Result<(), FlowyError> {
   let query = data.into_inner();
   let manager = upgrade_manager(manager)?;
-  manager.perform_search(query.search);
+  manager.perform_search(query.search, query.filter);
 
   Ok(())
 }

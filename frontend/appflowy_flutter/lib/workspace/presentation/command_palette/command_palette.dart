@@ -61,7 +61,6 @@ class _CommandPaletteController extends StatefulWidget {
 }
 
 class _CommandPaletteControllerState extends State<_CommandPaletteController> {
-  late final CommandPaletteBloc _commandPaletteBloc;
   late ValueNotifier<bool> _toggleNotifier = widget.toggleNotifier;
   bool _isOpen = false;
 
@@ -86,14 +85,12 @@ class _CommandPaletteControllerState extends State<_CommandPaletteController> {
   void initState() {
     super.initState();
     _toggleNotifier.addListener(_onToggle);
-    _commandPaletteBloc = CommandPaletteBloc();
   }
 
   @override
   void dispose() {
     _toggleNotifier.removeListener(_onToggle);
     _toggleNotifier.dispose();
-    _commandPaletteBloc.close();
     super.dispose();
   }
 
@@ -103,7 +100,7 @@ class _CommandPaletteControllerState extends State<_CommandPaletteController> {
       FlowyOverlay.show(
         context: context,
         builder: (_) => BlocProvider.value(
-          value: _commandPaletteBloc,
+          value: context.read<CommandPaletteBloc>(),
           child: CommandPaletteModal(shortcutBuilder: _buildShortcut),
         ),
       ).then((_) {

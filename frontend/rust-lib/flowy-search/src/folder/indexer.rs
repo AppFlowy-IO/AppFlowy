@@ -8,8 +8,11 @@ use std::{
 };
 
 use crate::{
-  entities::ResultIconTypePB,
-  folder::schema::{FolderSchema, FOLDER_ICON_FIELD_NAME, FOLDER_TITLE_FIELD_NAME},
+  entities::{ResultIconTypePB, SearchFilterPB, SearchResultPB},
+  folder::schema::{
+    FolderSchema, FOLDER_ICON_FIELD_NAME, FOLDER_ICON_TY_FIELD_NAME, FOLDER_ID_FIELD_NAME,
+    FOLDER_TITLE_FIELD_NAME, FOLDER_WORKSPACE_ID_FIELD_NAME,
+  },
 };
 use collab::core::collab::{IndexContent, IndexContentReceiver};
 use collab_folder::{View, ViewIcon, ViewIndexContent, ViewLayout};
@@ -23,12 +26,7 @@ use tantivy::{
   IndexWriter, Term,
 };
 
-use crate::entities::SearchResultPB;
-
-use super::{
-  entities::FolderIndexData,
-  schema::{FOLDER_ICON_TY_FIELD_NAME, FOLDER_ID_FIELD_NAME},
-};
+use super::entities::FolderIndexData;
 
 #[derive(Clone)]
 pub struct FolderIndexManagerImpl {
@@ -130,15 +128,19 @@ impl FolderIndexManagerImpl {
     let title_field = folder_schema.schema.get_field(FOLDER_TITLE_FIELD_NAME)?;
     let icon_field = folder_schema.schema.get_field(FOLDER_ICON_FIELD_NAME)?;
     let icon_ty_field = folder_schema.schema.get_field(FOLDER_ICON_TY_FIELD_NAME)?;
+    let workspace_id_field = folder_schema
+      .schema
+      .get_field(FOLDER_WORKSPACE_ID_FIELD_NAME)?;
 
     for data in indexes {
       let (icon, icon_ty) = self.extract_icon(data.icon, data.layout);
 
       let _ = index_writer.add_document(doc![
-      id_field => data.id.clone(),
-      title_field => data.data.clone(),
-      icon_field => icon.unwrap_or_default(),
-      icon_ty_field => icon_ty,
+        id_field => data.id.clone(),
+        title_field => data.data.clone(),
+        icon_field => icon.unwrap_or_default(),
+        icon_ty_field => icon_ty,
+        workspace_id_field => data.workspace_id.clone(),
       ]);
     }
 
@@ -206,7 +208,11 @@ impl FolderIndexManagerImpl {
     (icon, icon_ty)
   }
 
-  pub fn search(&self, query: String) -> Result<Vec<SearchResultPB>, FlowyError> {
+  pub fn search(
+    &self,
+    query: String,
+    _filter: Option<SearchFilterPB>,
+  ) -> Result<Vec<SearchResultPB>, FlowyError> {
     let folder_schema = self.get_folder_schema()?;
 
     let index = match &self.index {
@@ -273,8 +279,9 @@ impl IndexManager for FolderIndexManagerImpl {
       .unwrap_or(false)
   }
 
-  fn set_index_content_receiver(&self, mut rx: IndexContentReceiver) {
+  fn set_index_content_receiver(&self, mut rx: IndexContentReceiver, workspace_id: String) {
     let indexer = self.clone();
+    let wid = workspace_id.clone();
     af_spawn(async move {
       while let Ok(msg) = rx.recv().await {
         match msg {
@@ -285,6 +292,7 @@ impl IndexManager for FolderIndexManagerImpl {
                 data: view.name,
                 icon: view.icon,
                 layout: view.layout,
+                workspace_id: wid.clone(),
               });
             },
             Err(err) => tracing::error!("FolderIndexManager error deserialize: {:?}", err),
@@ -296,6 +304,7 @@ impl IndexManager for FolderIndexManagerImpl {
                 data: view.name,
                 icon: view.icon,
                 layout: view.layout,
+                workspace_id: wid.clone(),
               });
             },
             Err(err) => tracing::error!("FolderIndexManager error deserialize: {:?}", err),
@@ -317,7 +326,11 @@ impl IndexManager for FolderIndexManagerImpl {
     let id_field = folder_schema.schema.get_field(FOLDER_ID_FIELD_NAME)?;
     let title_field = folder_schema.schema.get_field(FOLDER_TITLE_FIELD_NAME)?;
     let icon_field = folder_schema.schema.get_field(FOLDER_ICON_FIELD_NAME)?;
-    let icon_ty_field = folder_schema.schema.get_field(FOLDER_ICON_TY_FIELD_NAME)?;
+    let icon_ty_field: tantivy::schema::Field =
+      folder_schema.schema.get_field(FOLDER_ICON_TY_FIELD_NAME)?;
+    let workspace_id_field = folder_schema
+      .schema
+      .get_field(FOLDER_WORKSPACE_ID_FIELD_NAME)?;
 
     let delete_term = Term::from_field_text(id_field, &data.id.clone());
 
@@ -332,6 +345,7 @@ impl IndexManager for FolderIndexManagerImpl {
       title_field => data.data,
       icon_field => icon.unwrap_or_default(),
       icon_ty_field => icon_ty,
+      workspace_id_field => data.workspace_id.clone(),
     ]);
 
     index_writer.commit()?;
@@ -364,6 +378,9 @@ impl IndexManager for FolderIndexManagerImpl {
     let title_field = folder_schema.schema.get_field(FOLDER_TITLE_FIELD_NAME)?;
     let icon_field = folder_schema.schema.get_field(FOLDER_ICON_FIELD_NAME)?;
     let icon_ty_field = folder_schema.schema.get_field(FOLDER_ICON_TY_FIELD_NAME)?;
+    let workspace_id_field = folder_schema
+      .schema
+      .get_field(FOLDER_WORKSPACE_ID_FIELD_NAME)?;
 
     let (icon, icon_ty) = self.extract_icon(data.icon, data.layout);
 
@@ -373,6 +390,7 @@ impl IndexManager for FolderIndexManagerImpl {
       title_field => data.data,
       icon_field => icon.unwrap_or_default(),
       icon_ty_field => icon_ty,
+      workspace_id_field => data.workspace_id,
     ]);
 
     index_writer.commit()?;
@@ -386,7 +404,7 @@ impl IndexManager for FolderIndexManagerImpl {
 }
 
 impl FolderIndexManager for FolderIndexManagerImpl {
-  fn index_all_views(&self, views: Vec<View>) {
+  fn index_all_views(&self, views: Vec<View>, workspace_id: String) {
     let indexable_data = views
       .into_iter()
       .map(|view| IndexableData {
@@ -394,6 +412,7 @@ impl FolderIndexManager for FolderIndexManagerImpl {
         data: view.name,
         icon: view.icon,
         layout: view.layout,
+        workspace_id: workspace_id.clone(),
       })
       .collect();
 

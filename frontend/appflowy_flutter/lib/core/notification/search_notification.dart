@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-notification/protobuf.dart';
-import 'package:appflowy_backend/protobuf/flowy-search/entities.pbenum.dart';
+import 'package:appflowy_backend/protobuf/flowy-search/notification.pbenum.dart';
 import 'package:appflowy_backend/rust_stream.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 

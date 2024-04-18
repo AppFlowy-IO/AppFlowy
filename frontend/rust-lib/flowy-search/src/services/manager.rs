@@ -5,7 +5,7 @@ use flowy_error::FlowyResult;
 use lib_dispatch::prelude::af_spawn;
 use tokio::{sync::broadcast, task::spawn_blocking};
 
-use crate::entities::{SearchResultNotificationPB, SearchResultPB};
+use crate::entities::{SearchResultNotificationPB, SearchResultPB, SearchFilterPB};
 
 use super::notifier::{SearchNotifier, SearchResultChanged, SearchResultReceiverRunner};
 
@@ -18,7 +18,7 @@ pub trait SearchHandler: Send + Sync + 'static {
   /// returns the type of search this handler is responsible for
   fn search_type(&self) -> SearchType;
   /// performs a search and returns the results
-  fn perform_search(&self, query: String) -> FlowyResult<Vec<SearchResultPB>>;
+  fn perform_search(&self, query: String, filter: Option<SearchFilterPB>) -> FlowyResult<Vec<SearchResultPB>>;
   /// returns the number of indexed objects
   fn index_count(&self) -> u64;
 }
@@ -50,17 +50,18 @@ impl SearchManager {
     self.handlers.get(&search_type)
   }
 
-  pub fn perform_search(&self, query: String) {
+  pub fn perform_search(&self, query: String, filter: Option<SearchFilterPB>) {
     let mut sends: usize = 0;
     let max: usize = self.handlers.len();
     let handlers = self.handlers.clone();
 
     for (_, handler) in handlers {
       let q = query.clone();
+      let f = filter.clone();
       let notifier = self.notifier.clone();
 
       spawn_blocking(move || {
-        let res = handler.perform_search(q);
+        let res = handler.perform_search(q, f);
         sends += 1;
 
         let close = sends == max;

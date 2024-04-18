@@ -10,6 +10,7 @@ import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/user/application/user_settings_service.dart';
 import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
 import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
+import 'package:appflowy/workspace/application/command_palette/command_palette_bloc.dart';
 import 'package:appflowy/workspace/application/notification/notification_service.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/notifications/notification_settings_cubit.dart';
@@ -138,6 +139,7 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
+        BlocProvider<CommandPaletteBloc>(create: (_) => CommandPaletteBloc()),
         BlocProvider<AppearanceSettingsCubit>(
           create: (_) => AppearanceSettingsCubit(
             widget.appearanceSetting,

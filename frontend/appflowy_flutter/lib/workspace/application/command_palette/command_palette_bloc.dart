@@ -7,7 +7,7 @@ import 'package:appflowy/plugins/trash/application/trash_service.dart';
 import 'package:appflowy/workspace/application/command_palette/search_listener.dart';
 import 'package:appflowy/workspace/application/command_palette/search_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/trash.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-search/entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-search/result.pb.dart';
 import 'package:bloc/bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -30,6 +30,7 @@ class CommandPaletteBloc
   final SearchListener _searchListener = SearchListener();
   final TrashListener _trashListener = TrashListener();
   String? _oldQuery;
+  String? _workspaceId;
 
   @override
   Future<void> close() {
@@ -44,8 +45,7 @@ class CommandPaletteBloc
         searchChanged: _debounceOnSearchChanged,
         trashChanged: (trash) async {
           if (trash != null) {
-            emit(state.copyWith(trash: trash));
-            return;
+            return emit(state.copyWith(trash: trash));
           }
 
           final trashOrFailure = await _trashService.readTrash();
@@ -59,10 +59,10 @@ class CommandPaletteBloc
           }
         },
         performSearch: (search) async {
-          if (search.isNotEmpty) {
+          if (search.isNotEmpty && search != state.query) {
             _oldQuery = state.query;
             emit(state.copyWith(query: search, isLoading: true));
-            await SearchBackendService.performSearch(search);
+            await SearchBackendService.performSearch(search, _workspaceId);
           } else {
             emit(state.copyWith(query: null, isLoading: false, results: []));
           }
@@ -81,6 +81,10 @@ class CommandPaletteBloc
               isLoading: !didClose,
             ),
           );
+        },
+        workspaceChanged: (workspaceId) {
+          _workspaceId = workspaceId;
+          emit(state.copyWith(results: [], query: '', isLoading: false));
         },
       );
     });
@@ -162,6 +166,10 @@ class CommandPaletteEvent with _$CommandPaletteEvent {
   const factory CommandPaletteEvent.trashChanged({
     @Default(null) List<TrashPB>? trash,
   }) = _TrashChanged;
+
+  const factory CommandPaletteEvent.workspaceChanged({
+    @Default(null) String? workspaceId,
+  }) = _WorkspaceChanged;
 }
 
 @freezed
