@@ -10,7 +10,7 @@ export const Document = () => {
   return (
     <div className={'relative w-full'}>
       <div className={'flex w-full justify-center'}>
-        <div className={'max-w-screen w-[964px] min-w-0'}>
+        <div className={'max-w-screen mt-6 w-[964px] min-w-0'}>
           <Editor readOnly={true} documentId={documentId} workspaceId={workspaceId} />
         </div>
       </div>

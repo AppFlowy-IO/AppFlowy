@@ -8,6 +8,7 @@ import withAppWrapper from '@/components/app/withAppWrapper';
 describe('<Editor />', () => {
   it('renders with a paragraph', () => {
     const documentTest = new DocumentTest();
+
     documentTest.insertParagraph('Hello, world!');
     cy.stub(JSDocumentService.prototype, 'openDocument').returns(Promise.resolve(documentTest.doc));
     renderEditor();

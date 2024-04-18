@@ -7,9 +7,11 @@ import { Heading } from '@/components/editor/components/blocks/heading';
 import { ImageBlock } from '@/components/editor/components/blocks/image';
 import { MathEquation } from '@/components/editor/components/blocks/math_equation';
 import { NumberedList } from '@/components/editor/components/blocks/numbered_list';
+import { Outline } from '@/components/editor/components/blocks/outline';
 import { Page } from '@/components/editor/components/blocks/page';
 import { Paragraph } from '@/components/editor/components/blocks/paragraph';
 import { Quote } from '@/components/editor/components/blocks/quote';
+import { TableBlock, TableCellBlock } from '@/components/editor/components/blocks/table';
 import { Text } from '@/components/editor/components/blocks/text';
 import { TodoListNode } from '@/components/editor/components/blocks/todo_list';
 import { ToggleList } from '@/components/editor/components/blocks/toggle_list';
@@ -56,6 +58,12 @@ export const Element = ({
         return MathEquation;
       case BlockType.ImageBlock:
         return ImageBlock;
+      case BlockType.OutlineBlock:
+        return Outline;
+      case BlockType.TableBlock:
+        return TableBlock;
+      case BlockType.TableCell:
+        return TableCellBlock;
       default:
         return UnSupportedBlock;
     }
@@ -73,12 +81,8 @@ export const Element = ({
   }, [node.type]) as FC<EditorElementProps>;
 
   const className = useMemo(() => {
-    const align =
-      (
-        node.data as {
-          align: 'left' | 'center' | 'right';
-        }
-      )?.align || 'left';
+    const data = (node.data as BlockData) || {};
+    const align = data.align;
 
     return `block-element flex rounded ${align ? `block-align-${align}` : ''}`;
   }, [node.data]);

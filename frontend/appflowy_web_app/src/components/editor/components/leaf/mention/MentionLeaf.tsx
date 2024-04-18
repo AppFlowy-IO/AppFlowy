@@ -1,53 +1,19 @@
-import { Mention } from '@/application/document.type';
-import React, { useCallback, useEffect, useState } from 'react';
-import { ReactComponent as DocumentSvg } from '$app/assets/document.svg';
-import { useTranslation } from 'react-i18next';
-import { useSelected } from 'slate-react';
-import { ReactComponent as EyeClose } from '@/assets/eye_close.svg';
+import { Mention, MentionType } from '@/application/document.type';
+import MentionDate from '@/components/editor/components/leaf/mention/MentionDate';
+import MentionPage from '@/components/editor/components/leaf/mention/MentionPage';
 
-export function MentionLeaf(_: { mention: Mention }) {
-  const { t } = useTranslation();
-  const [page, setPage] = useState<{
-    icon?: {
-      value: string | null;
-    };
-    name: string;
-  } | null>(null);
-  const [error, setError] = useState<boolean>(false);
-  const selected = useSelected();
+export function MentionLeaf({ mention }: { mention: Mention }) {
+  const { type, date, page_id } = mention;
 
-  const loadPage = useCallback(async () => {
-    setError(false);
-    setPage(null);
-  }, []);
+  if (type === MentionType.PageRef && page_id) {
+    return <MentionPage pageId={page_id} />;
+  }
 
-  useEffect(() => {
-    void loadPage();
-  }, [loadPage]);
+  if (type === MentionType.Date && date) {
+    return <MentionDate date={date} />;
+  }
 
-  return (
-    <span
-      className={`mention-inline mx-1 inline-flex select-none items-center gap-1`}
-      contentEditable={false}
-      style={{
-        backgroundColor: selected ? 'var(--content-blue-100)' : undefined,
-      }}
-    >
-      {error ? (
-        <>
-          <EyeClose />
-          <span className={'mr-0.5 text-text-caption underline'}>{t('document.mention.deleted')}</span>
-        </>
-      ) : (
-        page && (
-          <>
-            {page.icon?.value || <DocumentSvg />}
-            <span className={'mr-1 underline'}>{page.name.trim() || t('menuAppHeader.defaultNewPageName')}</span>
-          </>
-        )
-      )}
-    </span>
-  );
+  return null;
 }
 
 export default MentionLeaf;

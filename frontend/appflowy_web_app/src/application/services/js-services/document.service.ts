@@ -3,7 +3,7 @@ import { getDocumentStorage } from '@/application/services/js-services/storage/d
 import { DocumentService } from '@/application/services/services.type';
 import { APIService } from 'src/application/services/js-services/wasm';
 import { CollabOrigin, CollabType } from '@/application/collab.type';
-import { applyDocument } from 'src/application/services/js-services/apply';
+import { applyDocument } from 'src/application/ydoc/apply';
 
 export class JSDocumentService implements DocumentService {
   constructor() {

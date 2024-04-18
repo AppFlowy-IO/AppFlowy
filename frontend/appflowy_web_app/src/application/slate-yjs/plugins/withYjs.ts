@@ -9,7 +9,7 @@ import { CollabOrigin } from '@/application/collab.type';
 type LocalChange = {
   op: Operation;
   slateContent: Descendant[];
-}
+};
 
 export interface YjsEditor extends Editor {
   connect: () => void;
@@ -26,37 +26,36 @@ const localChanges = new WeakMap<YjsEditor, LocalChange[]>();
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const YjsEditor = {
-  connected (editor: YjsEditor): boolean {
+  connected(editor: YjsEditor): boolean {
     return connectSet.has(editor);
   },
 
-  connect (editor: YjsEditor): void {
+  connect(editor: YjsEditor): void {
     editor.connect();
   },
 
-  disconnect (editor: YjsEditor): void {
+  disconnect(editor: YjsEditor): void {
     editor.disconnect();
   },
 
-  applyRemoteEvents (editor: YjsEditor, events: Array<YEvent<YSharedRoot>>, transaction: Transaction): void {
+  applyRemoteEvents(editor: YjsEditor, events: Array<YEvent<YSharedRoot>>, transaction: Transaction): void {
     editor.applyRemoteEvents(events, transaction);
   },
 
-  localChanges (editor: YjsEditor): LocalChange[] {
+  localChanges(editor: YjsEditor): LocalChange[] {
     return localChanges.get(editor) ?? [];
   },
 
-  storeLocalChange (editor: YjsEditor, op: Operation): void {
+  storeLocalChange(editor: YjsEditor, op: Operation): void {
     editor.storeLocalChange(op);
   },
 
-  flushLocalChanges (editor: YjsEditor): void {
+  flushLocalChanges(editor: YjsEditor): void {
     editor.flushLocalChanges();
   },
-
 };
 
-export function withYjs<T extends Editor> (editor: T, doc: Y.Doc): T & YjsEditor {
+export function withYjs<T extends Editor>(editor: T, doc: Y.Doc): T & YjsEditor {
   const e = editor as T & YjsEditor;
   const { apply, onChange } = e;
 
@@ -92,6 +91,8 @@ export function withYjs<T extends Editor> (editor: T, doc: Y.Doc): T & YjsEditor
     if (!content) {
       return;
     }
+
+    console.log(content);
 
     e.sharedRoot.observeDeep(handleYEvents);
     e.children = content.children;

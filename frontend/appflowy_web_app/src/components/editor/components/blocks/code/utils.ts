@@ -93,6 +93,10 @@ const recurseTokenize = (
 function switchCodeTheme(isDark: boolean) {
   const link = document.getElementById('prism-css');
 
+  if (link && link.classList.contains('dark') === isDark) {
+    return;
+  }
+
   if (link) {
     document.head.removeChild(link);
   }
@@ -104,6 +108,7 @@ function switchCodeTheme(isDark: boolean) {
     ? 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism-dark.min.css'
     : 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism.min.css';
   newLink.id = 'prism-css';
+  newLink.classList.add(isDark ? 'dark' : 'light');
   document.head.appendChild(newLink);
 }
 
@@ -117,7 +122,7 @@ export const decorateCode = ([node, path]: NodeEntry, language: string, isDark: 
   }
 
   try {
-    const tokens = Prism.tokenize(node.text, Prism.languages[language]);
+    const tokens = Prism.tokenize(node.text, Prism.languages[language.toLowerCase()]);
 
     let start = 0;
 

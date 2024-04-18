@@ -3,14 +3,15 @@ import EditorEditable from '@/components/editor/Editable';
 import { withPlugins } from '@/components/editor/plugins';
 import React, { useEffect, useMemo, useState } from 'react';
 import { createEditor, Descendant } from 'slate';
-import { Slate } from 'slate-react';
+import { Slate, withReact } from 'slate-react';
 import * as Y from 'yjs';
 
 const defaultInitialValue: Descendant[] = [];
 
 function CollaborativeEditor({ doc }: { doc: Y.Doc }) {
-  const editor = useMemo(() => doc && (withPlugins(withYjs(createEditor(), doc)) as YjsEditor), [doc]);
-  const [isConnected, setIsConnected] = useState(false);
+  const editor = useMemo(() => doc && (withPlugins(withReact(withYjs(createEditor(), doc))) as YjsEditor), [doc]);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_, setIsConnected] = useState(false);
 
   useEffect(() => {
     if (!editor) return;
@@ -22,11 +23,9 @@ function CollaborativeEditor({ doc }: { doc: Y.Doc }) {
     };
   }, [editor]);
 
-  console.log('editor', isConnected, editor.children);
-
   return (
     <Slate editor={editor} initialValue={defaultInitialValue}>
-      <EditorEditable />
+      <EditorEditable editor={editor} />
     </Slate>
   );
 }

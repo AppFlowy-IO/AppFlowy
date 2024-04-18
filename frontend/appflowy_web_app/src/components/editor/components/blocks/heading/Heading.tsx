@@ -7,10 +7,10 @@ export const Heading = memo(
     const level = node.data.level;
     const fontSizeCssProperty = getHeadingCssProperty(level);
 
-    const className = `${attributes.className ?? ''} ${fontSizeCssProperty}`;
+    const className = `${attributes.className ?? ''} ${fontSizeCssProperty} level-${level}`;
 
     return (
-      <div {...attributes} ref={ref} className={className}>
+      <div {...attributes} ref={ref} id={`heading-${node.blockId}`} className={className}>
         {children}
       </div>
     );

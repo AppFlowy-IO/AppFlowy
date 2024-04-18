@@ -43,7 +43,6 @@ export function openDB(uuid: string) {
 export async function openCollabDB(docName: string): Promise<YDoc> {
   const name = `${databasePrefix}_${docName}`;
   const doc = new Y.Doc();
-
   const provider = new IndexeddbPersistence(name, doc);
 
   let resolve: (value: unknown) => void;

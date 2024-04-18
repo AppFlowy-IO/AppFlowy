@@ -21,6 +21,9 @@ export enum BlockType {
   DividerBlock = 'divider',
   ImageBlock = 'image',
   GridBlock = 'grid',
+  OutlineBlock = 'outline',
+  TableBlock = 'table',
+  TableCell = 'table/cell',
 }
 
 export enum InlineBlockType {
@@ -28,36 +31,43 @@ export enum InlineBlockType {
   Mention = 'mention',
 }
 
-export interface BasicBlockData {
-  bg_color?: string;
-  font_color?: string;
+export enum AlignType {
+  Left = 'left',
+  Center = 'center',
+  Right = 'right',
 }
 
-export interface HeadingBlockData extends BasicBlockData {
+export interface BlockData {
+  bg_color?: string;
+  font_color?: string;
+  align?: AlignType;
+}
+
+export interface HeadingBlockData extends BlockData {
   level: number;
 }
 
-export interface NumberedListBlockData {
+export interface NumberedListBlockData extends BlockData {
   number: number;
 }
 
-export interface TodoListBlockData {
+export interface TodoListBlockData extends BlockData {
   checked: boolean;
 }
 
-export interface ToggleListBlockData {
+export interface ToggleListBlockData extends BlockData {
   collapsed: boolean;
 }
 
-export interface CodeBlockData {
+export interface CodeBlockData extends BlockData {
   language: string;
 }
 
-export interface CalloutBlockData {
+export interface CalloutBlockData extends BlockData {
   icon: string;
 }
 
-export interface MathEquationBlockData {
+export interface MathEquationBlockData extends BlockData {
   formula?: string;
 }
 
@@ -67,23 +77,33 @@ export enum ImageType {
   External = 2,
 }
 
-export interface ImageBlockData {
+export interface ImageBlockData extends BlockData {
   url?: string;
   width?: number;
-  align?: string;
+  align?: AlignType;
   image_type?: ImageType;
   height?: number;
 }
 
-export type BlockData = ImageBlockData &
-  MathEquationBlockData &
-  CalloutBlockData &
-  CodeBlockData &
-  ToggleListBlockData &
-  HeadingBlockData &
-  NumberedListBlockData &
-  TodoListBlockData &
-  BasicBlockData;
+export interface OutlineBlockData extends BlockData {
+  depth?: number;
+}
+
+export interface TableBlockData extends BlockData {
+  colDefaultWidth: number;
+  colMinimumWidth: number;
+  colsHeight: number;
+  colsLen: number;
+  rowDefaultHeight: number;
+  rowsLen: number;
+}
+
+export interface TableCellBlockData extends BlockData {
+  colPosition: number;
+  height: number;
+  rowPosition: number;
+  width: number;
+}
 
 export enum MentionType {
   PageRef = 'page',
@@ -97,16 +117,6 @@ export interface Mention {
   date?: string;
 
   type: MentionType;
-}
-
-export interface Block {
-  id: BlockId;
-  type: BlockType;
-  data?: BlockData;
-  parent?: string | null;
-  children?: ChildrenId;
-  externalId?: ExternalId;
-  externalType?: string;
 }
 
 export enum YjsEditorKey {

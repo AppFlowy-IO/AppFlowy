@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "@appflowyinc/client-api-wasm": "0.0.2-alpha.2",
+    "@atlaskit/primitives": "^5.5.3",
     "@emoji-mart/data": "^1.1.2",
     "@emoji-mart/react": "^1.1.1",
     "@emotion/react": "^11.10.6",

@@ -1,17 +1,17 @@
 import { BlockId, BlockType, YBlocks, YChildrenMap, YjsEditorKey, YTextMap } from '@/application/document.type';
-import { applyDocument } from '@/application/services/js-services/apply';
+import { applyDocument } from 'src/application/ydoc/apply';
 import { JSDocumentService } from '@/application/services/js-services/document.service';
 import { nanoid } from 'nanoid';
 import * as Y from 'yjs';
 
 Cypress.Commands.add('mockFullDocument', () => {
-  cy.fixture('doc').then((docJson) => {
-    const doc = new Y.Doc();
+  cy.fixture('full_doc').then((docJson) => {
+    const collab = new Y.Doc();
     const state = new Uint8Array(docJson.data.doc_state);
 
-    applyDocument(doc, state);
+    applyDocument(collab, state);
 
-    cy.stub(JSDocumentService.prototype, 'openDocument').returns(Promise.resolve(doc));
+    cy.stub(JSDocumentService.prototype, 'openDocument').returns(Promise.resolve(collab));
   });
 });
 
@@ -41,7 +41,7 @@ export class DocumentTest {
     const block = new Y.Map();
 
     block.set(YjsEditorKey.block_id, pageId);
-    block.set(YjsEditorKey.block_type, BlockType.Paragraph);
+    block.set(YjsEditorKey.block_type, BlockType.Page);
     block.set(YjsEditorKey.block_children, pageId);
     block.set(YjsEditorKey.block_external_id, pageId);
     block.set(YjsEditorKey.block_external_type, YjsEditorKey.text);
@@ -83,6 +83,6 @@ export class DocumentTest {
     blockText.insert(0, text);
     this.textMap.set(blockId, blockText);
 
-    console.log('blockId', this.doc.getMap(YjsEditorKey.data_section).toJSON());
+    return blockText;
   }
 }

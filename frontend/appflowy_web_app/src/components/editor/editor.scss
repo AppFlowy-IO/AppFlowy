@@ -1,12 +1,21 @@
 
-.block-element {
+.block-element:not([data-block-type="table/cell"]) {
   @apply my-[4px];
 
 }
 
-.block-element .block-element {
+.block-element .block-element:not([data-block-type="table/cell"]) {
   @apply mb-0;
   margin-left: 24px;
+}
+
+.block-element[data-block-type="table/cell"] {
+  margin-left: 0 !important;
+
+  .block-element {
+    margin-left: 0 !important;
+    height: 100%;
+  }
 }
 
 .block-element.block-align-left {
@@ -123,7 +132,7 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
   @apply absolute left-[5px] transform -translate-y-1/2 pointer-events-none select-none whitespace-nowrap;
   &:after {
     @apply text-text-placeholder absolute top-0;
-    content: (attr(placeholder));
+    content: (attr(data-placeholder));
   }
 }
 
@@ -159,7 +168,7 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
 }
 
 .text-block-icon {
-  @apply top-[1px];
+  @apply top-[2px];
 }
 
 .block-align-right {
@@ -184,7 +193,7 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
 }
 
 
-.formula-inline {
+.formula-inline, .mention {
   &.selected {
     @apply rounded bg-content-blue-100;
   }
@@ -239,8 +248,30 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
   }
 }
 
-.mention-inline {
-  &:hover {
-    @apply bg-fill-list-active rounded;
+[data-block-type='heading'] {
+  .mention-inline .mention-content {
+    @apply ml-6;
   }
+
+  .level-1, .level-2 {
+    .mention-inline .mention-content {
+      @apply ml-8;
+    }
+  }
+
+}
+
+.mention-inline {
+  height: inherit;
+  overflow: hidden;
+  @apply px-1 inline-flex select-none gap-1 relative;
+
+  .mention-icon {
+    @apply absolute top-1/2 transform -translate-y-1/2;
+  }
+
+  .mention-content {
+    @apply ml-5;
+  }
+
 }

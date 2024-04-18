@@ -6,4 +6,7 @@
 interface Window {
   refresh_token: (token: string) => void;
   invalid_token: () => void;
+  WebFont?: {
+    load: (options: { google: { families: string[] } }) => void;
+  };
 }

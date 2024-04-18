@@ -1,3 +1,4 @@
+import Placeholder from '@/components/editor/components/blocks/text/Placeholder';
 import { useSlateStatic } from 'slate-react';
 import { useStartIcon } from './StartIcon.hooks';
 import { EditorElementProps, TextNode } from '@/components/editor/editor.type';
@@ -21,6 +22,7 @@ export const Text = memo(
       return (
         <span {...attributes} ref={ref} className={className}>
           {renderIcon()}
+          {isEmpty && <Placeholder node={node} />}
           <span className={`text-content ${isEmpty ? 'empty-text' : ''}`}>{children}</span>
         </span>
       );

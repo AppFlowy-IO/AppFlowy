@@ -15,8 +15,8 @@ const DividerNode = memo(
 
       return (
         <div {...attributes} className={className}>
-          <div contentEditable={false} className={'w-full px-1 py-2 text-line-divider'}>
-            <hr />
+          <div contentEditable={false} className={'w-full px-1 py-2'}>
+            <hr className={'border-line-border'} />
           </div>
           <div ref={ref} className={`absolute h-full w-full caret-transparent`}>
             {children}

@@ -109,6 +109,9 @@ export default defineConfig({
                     let name = id.match(/(?<=chunkName=)(.*)(?=&)|(?<=chunkName=)(.*)/gm);
                     if (name?.[0]) return name[0];
                   }
+                  if (id.includes('prismjs') || id.toLowerCase().includes('katex')) {
+                    return 'media-blocks';
+                  }
                   if (id.includes('@mui')) {
                     return 'mui';
                   }
@@ -129,6 +132,7 @@ export default defineConfig({
       },
   resolve: {
     alias: [
+      { find: 'cypress/', replacement: `${__dirname}/cypress/` },
       { find: 'src/', replacement: `${__dirname}/src/` },
       { find: '@/', replacement: `${__dirname}/src/` },
       {

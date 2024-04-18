@@ -8,7 +8,10 @@ import {
   YMeta,
   YTextMap,
   BlockData,
+  BlockType,
 } from '@/application/document.type';
+import { getFontFamily } from '@/utils/font';
+import { uniq } from 'lodash-es';
 import { Element, Text } from 'slate';
 
 interface BlockJson {
@@ -22,12 +25,15 @@ interface BlockJson {
 export function yDocToSlateContent(doc: YDoc, includeRoot?: boolean): Element | undefined {
   console.log(doc);
   const sharedRoot = doc.getMap(YjsEditorKey.data_section) as YSharedRoot;
+
+  console.log(sharedRoot.toJSON());
   const document = sharedRoot.get(YjsEditorKey.document);
   const pageId = document.get(YjsEditorKey.page_id) as string;
   const blocks = document.get(YjsEditorKey.blocks) as YBlocks;
   const meta = document.get(YjsEditorKey.meta) as YMeta;
   const childrenMap = meta.get(YjsEditorKey.children_map) as YChildrenMap;
   const textMap = meta.get(YjsEditorKey.text_map) as YTextMap;
+  const fontFamilys: string[] = [];
 
   function traverse(id: string) {
     const block = blocks.get(id).toJSON() as BlockJson;
@@ -39,11 +45,15 @@ export function yDocToSlateContent(doc: YDoc, includeRoot?: boolean): Element | 
 
     slateNode.children = children;
 
+    if (slateNode.type === BlockType.Page) {
+      return slateNode;
+    }
+
     let textId = block.external_id as string;
 
     let delta;
 
-    if (!textId || id === pageId) {
+    if (!textId) {
       if (children.length === 0) {
         children.push({
           text: '',
@@ -62,13 +72,19 @@ export function yDocToSlateContent(doc: YDoc, includeRoot?: boolean): Element | 
           return slateNode;
         }
       }
-    } else if (textId) {
+    } else {
       delta = textMap.get(textId)?.toDelta();
     }
 
     try {
       const slateDelta = delta.flatMap(deltaInsertToSlateNode);
 
+      // collect font family
+      slateDelta.forEach((node: Text) => {
+        if (node.font_family) {
+          fontFamilys.push(getFontFamily(node.font_family));
+        }
+      });
       const textNode: Element = {
         textId,
         type: YjsEditorKey.text,
@@ -97,11 +113,26 @@ export function yDocToSlateContent(doc: YDoc, includeRoot?: boolean): Element | 
 
   const { children, ...rootNode } = result;
 
+  // load font family
+  if (fontFamilys.length > 0) {
+    window.WebFont?.load({
+      google: {
+        families: uniq(fontFamilys),
+      },
+    });
+  }
+
   return {
     children: [
       {
         ...rootNode,
-        children: [],
+        children: [
+          {
+            textId: root.toJSON().external_id,
+            type: YjsEditorKey.text,
+            children: [{ text: '' }],
+          },
+        ],
       },
       ...children,
     ],
