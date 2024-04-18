@@ -39,6 +39,7 @@ class _SignInWithMagicLinkButtonsState
           child: FlowyTextField(
             controller: controller,
             hintText: LocaleKeys.signIn_pleaseInputYourEmail.tr(),
+            keyboardType: TextInputType.emailAddress,
             onSubmitted: (_) => _sendMagicLink(context, controller.text),
           ),
         ),
