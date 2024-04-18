@@ -523,8 +523,9 @@
       "couldNotSaveErrorMsg": "Could not save shortcuts, Try again",
       "commands": {
         "codeBlockNewParagraph": "Insert a new paragraph next to the code block",
-        "codeBlockAddTwoSpaces": "Insert two spaces at the line start in code block",
-        "codeBlockDeleteTwoSpaces": "Delete two spaces at the line start in code block",
+        "codeBlockIndentLines": "Insert two spaces at the line start in code block",
+        "codeBlockOutdentLines": "Delete two spaces at the line start in code block",
+        "codeBlockAddTwoSpaces": "Insert two spaces at the cursor position in code block",
         "codeBlockSelectAll": "Select all content inside a code block",
         "codeBlockPasteText": "Paste text in codeblock",
         "textAlignLeft": "Align text to the left",
