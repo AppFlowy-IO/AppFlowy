@@ -69,6 +69,11 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
               ),
             );
           },
+          switchLoginType: (type) {
+            emit(
+              state.copyWith(loginType: type),
+            );
+          },
         );
       },
     );
@@ -253,6 +258,14 @@ class SignInEvent with _$SignInEvent {
   const factory SignInEvent.deepLinkStateChange(DeepLinkResult result) =
       DeepLinkStateChange;
   const factory SignInEvent.cancel() = _Cancel;
+  const factory SignInEvent.switchLoginType(LoginType type) = _SwitchLoginType;
+}
+
+// we support sign in directly without sign up, but we want to allow the users to sign up if they want to
+// this type is only for the UI to know which form to show
+enum LoginType {
+  signIn,
+  signUp,
 }
 
 @freezed
@@ -264,6 +277,7 @@ class SignInState with _$SignInState {
     required String? passwordError,
     required String? emailError,
     required FlowyResult<UserProfilePB, FlowyError>? successOrFail,
+    @Default(LoginType.signIn) LoginType loginType,
   }) = _SignInState;
 
   factory SignInState.initial() => const SignInState(

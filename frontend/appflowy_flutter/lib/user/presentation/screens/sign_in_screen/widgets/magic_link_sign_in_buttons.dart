@@ -78,33 +78,41 @@ class _ConfirmButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (PlatformExtension.isMobile) {
-      return ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          minimumSize: const Size(double.infinity, 56),
-        ),
-        onPressed: onTap,
-        child: FlowyText(
-          LocaleKeys.signIn_logInWithMagicLink.tr(),
-          fontSize: 14,
-          color: Theme.of(context).colorScheme.onPrimary,
-          fontWeight: FontWeight.w500,
-        ),
-      );
-    } else {
-      return SizedBox(
-        height: 48,
-        child: FlowyButton(
-          isSelected: true,
-          onTap: onTap,
-          hoverColor: Theme.of(context).colorScheme.primary,
-          text: FlowyText.medium(
-            LocaleKeys.signIn_logInWithMagicLink.tr(),
-            textAlign: TextAlign.center,
-          ),
-          radius: Corners.s6Border,
-        ),
-      );
-    }
+    return BlocBuilder<SignInBloc, SignInState>(
+      builder: (context, state) {
+        final name = switch (state.loginType) {
+          LoginType.signIn => LocaleKeys.signIn_signInWithMagicLink.tr(),
+          LoginType.signUp => LocaleKeys.signIn_signUpWithMagicLink.tr(),
+        };
+        if (PlatformExtension.isMobile) {
+          return ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              minimumSize: const Size(double.infinity, 56),
+            ),
+            onPressed: onTap,
+            child: FlowyText(
+              name,
+              fontSize: 14,
+              color: Theme.of(context).colorScheme.onPrimary,
+              fontWeight: FontWeight.w500,
+            ),
+          );
+        } else {
+          return SizedBox(
+            height: 48,
+            child: FlowyButton(
+              isSelected: true,
+              onTap: onTap,
+              hoverColor: Theme.of(context).colorScheme.primary,
+              text: FlowyText.medium(
+                name,
+                textAlign: TextAlign.center,
+              ),
+              radius: Corners.s6Border,
+            ),
+          );
+        }
+      },
+    );
   }
 }
