@@ -53,7 +53,7 @@
     "signInWithEmail": "Sign in with Email",
     "logInWithMagicLink": "Log in with Magic Link",
     "pleaseInputYourEmail": "Please enter your email address",
-    "magicLinkSent": "Magic link sent to your email, please check your inbox",
+    "magicLinkSent": "We emailed a magic link. Click the link to log in.",
     "invalidEmail": "Please enter a valid email address"
   },
   "workspace": {
