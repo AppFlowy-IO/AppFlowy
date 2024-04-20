@@ -11,15 +11,10 @@ import 'package:appflowy/plugins/inline_actions/inline_actions_menu.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_result.dart';
 import 'package:appflowy/plugins/inline_actions/service_handler.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/user/application/auth/auth_service.dart';
+import 'package:appflowy/workspace/application/recent/cached_recent_service.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
-import 'package:appflowy/workspace/application/view/view_service.dart';
-import 'package:appflowy/workspace/application/workspace/workspace_listener.dart';
-import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
@@ -54,139 +49,38 @@ class InlinePageReferenceService extends InlineActionsDelegate {
   ///
   final int limitResults;
 
-  final ViewBackendService service = ViewBackendService();
-  List<InlineActionsMenuItem> _items = [];
-  List<InlineActionsMenuItem> _filtered = [];
-
-  UserProfilePB? _user;
-  String? _workspaceId;
-  WorkspaceListener? _listener;
+  late final CachedRecentService _recentService;
+  List<InlineActionsMenuItem> _recentViews = [];
+  List<InlineActionsMenuItem> _results = [];
 
   Future<void> init() async {
-    _items = await _generatePageItems(currentViewId, viewLayout);
-    _filtered = limitResults > 0 ? _items.take(limitResults).toList() : _items;
+    _recentService = getIt<CachedRecentService>();
+    final views =
+        (await _recentService.recentViews()).reversed.toSet().toList();
 
-    await _initWorkspaceListener();
-
+    // Map to InlineActionsMenuItem, then take 6 items (5 + current)
+    // The 0th position (newest) is the current view.
+    _recentViews = views.map(_fromView).take(6).toList()..removeAt(0);
     _initCompleter.complete();
-  }
-
-  Future<void> _initWorkspaceListener() async {
-    final snapshot = await Future.wait([
-      FolderEventGetCurrentWorkspaceSetting().send(),
-      getIt<AuthService>().getUser(),
-    ]);
-
-    final (workspaceSettings, userProfile) = (snapshot.first, snapshot.last);
-    _workspaceId = workspaceSettings.fold(
-      (s) => (s as WorkspaceSettingPB).workspaceId,
-      (e) => null,
-    );
-
-    _user = userProfile.fold((s) => s as UserProfilePB, (e) => null);
-
-    if (_user != null && _workspaceId != null) {
-      _listener = WorkspaceListener(
-        user: _user!,
-        workspaceId: _workspaceId!,
-      );
-      _listener!.start(
-        appsChanged: (_) async {
-          _items = await _generatePageItems(currentViewId, viewLayout);
-          _filtered =
-              limitResults > 0 ? _items.take(limitResults).toList() : _items;
-        },
-      );
-    }
   }
 
   @override
   Future<InlineActionsResult> search([
     String? search,
   ]) async {
-    _filtered = await _filterItems(search);
+    final isSearching = search != null && search.isNotEmpty;
 
+    final items = isSearching ? _results : _recentViews;
+
+    // _filtered = await _filterItems(search);
     return InlineActionsResult(
       title: customTitle?.isNotEmpty == true
           ? customTitle!
-          : LocaleKeys.inlineActions_pageReference.tr(),
-      results: _filtered,
+          : isSearching
+              ? LocaleKeys.inlineActions_pageReference.tr()
+              : 'Recent pages',
+      results: items,
     );
-  }
-
-  @override
-  Future<void> dispose() async {
-    await _listener?.stop();
-  }
-
-  Future<List<InlineActionsMenuItem>> _filterItems(String? search) async {
-    await _initCompleter.future;
-
-    final items = (search == null || search.isEmpty)
-        ? _items
-        : _items.where(
-            (item) =>
-                item.keywords != null &&
-                item.keywords!.isNotEmpty &&
-                item.keywords!.any(
-                  (keyword) => keyword.contains(search.toLowerCase()),
-                ),
-          );
-
-    return limitResults > 0
-        ? items.take(limitResults).toList()
-        : items.toList();
-  }
-
-  Future<List<InlineActionsMenuItem>> _generatePageItems(
-    String currentViewId,
-    ViewLayoutPB? viewLayout,
-  ) async {
-    late List<ViewPB> views;
-    if (viewLayout != null) {
-      views = await service.fetchViewsWithLayoutType(viewLayout);
-    } else {
-      views = await service.fetchViews();
-    }
-
-    if (views.isEmpty) {
-      return [];
-    }
-
-    final List<InlineActionsMenuItem> pages = [];
-    views.sort((a, b) => b.createTime.compareTo(a.createTime));
-
-    for (final view in views) {
-      if (view.id == currentViewId) {
-        continue;
-      }
-
-      final pageSelectionMenuItem = InlineActionsMenuItem(
-        keywords: [view.name.toLowerCase()],
-        label: view.name,
-        icon: (onSelected) => view.icon.value.isNotEmpty
-            ? EmojiText(
-                emoji: view.icon.value,
-                fontSize: 12,
-                textAlign: TextAlign.center,
-                lineHeight: 1.3,
-              )
-            : view.defaultIcon(),
-        onSelected: (context, editorState, menuService, replace) => insertPage
-            ? _onInsertPageRef(view, context, editorState, replace)
-            : _onInsertLinkRef(
-                view,
-                context,
-                editorState,
-                menuService,
-                replace,
-              ),
-      );
-
-      pages.add(pageSelectionMenuItem);
-    }
-
-    return pages;
   }
 
   Future<void> _onInsertPageRef(
@@ -268,4 +162,20 @@ class InlinePageReferenceService extends InlineActionsDelegate {
 
     await editorState.apply(transaction);
   }
+
+  InlineActionsMenuItem _fromView(ViewPB view) => InlineActionsMenuItem(
+        keywords: [view.name.toLowerCase()],
+        label: view.name,
+        icon: (onSelected) => view.icon.value.isNotEmpty
+            ? EmojiText(
+                emoji: view.icon.value,
+                fontSize: 12,
+                textAlign: TextAlign.center,
+                lineHeight: 1.3,
+              )
+            : view.defaultIcon(),
+        onSelected: (context, editorState, menu, replace) => insertPage
+            ? _onInsertPageRef(view, context, editorState, replace)
+            : _onInsertLinkRef(view, context, editorState, menu, replace),
+      );
 }

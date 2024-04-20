@@ -4,7 +4,7 @@ import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_listener.dart';
-import 'package:appflowy/workspace/application/recent/recent_service.dart';
+import 'package:appflowy/workspace/application/recent/cached_recent_service.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -146,7 +146,10 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
                 ),
               ),
             );
-            await RecentService().updateRecentViews([view.id], false);
+            await getIt<CachedRecentService>().updateRecentViews(
+              [view.id],
+              false,
+            );
           },
           duplicate: (e) async {
             final result = await ViewBackendService.duplicate(view: view);

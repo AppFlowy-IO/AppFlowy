@@ -11,6 +11,7 @@ import 'package:appflowy/workspace/application/command_palette/command_palette_b
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/favorite/prelude.dart';
 import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
+import 'package:appflowy/workspace/application/recent/cached_recent_service.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
@@ -74,12 +75,15 @@ class HomeSideBar extends StatelessWidget {
             previous.currentWorkspace?.workspaceId !=
             current.currentWorkspace?.workspaceId,
         listener: (context, state) {
-          // // Notify command palette that workspace has changed
+          // Notify command palette that workspace has changed
           context.read<CommandPaletteBloc>().add(
                 CommandPaletteEvent.workspaceChanged(
                   workspaceId: state.currentWorkspace?.workspaceId,
                 ),
               );
+
+          // Re-initialize workspace-specific services
+          getIt<CachedRecentService>().reset();
         },
         // Rebuild the whole sidebar when the current workspace changes
         buildWhen: (previous, current) =>
@@ -153,11 +157,9 @@ class HomeSideBar extends StatelessWidget {
   ) {
     final action = state.action;
     if (action?.type == ActionType.openView) {
-      final view = state.views.findView(action!.objectId);
-
+      final view = action!.arguments?[ActionArgumentKeys.view];
       if (view != null) {
         final Map<String, dynamic> arguments = {};
-
         final nodePath = action.arguments?[ActionArgumentKeys.nodePath];
         if (nodePath != null) {
           arguments[PluginArgumentKeys.selection] = Selection.collapsed(

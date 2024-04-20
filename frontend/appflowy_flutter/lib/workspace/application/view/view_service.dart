@@ -229,6 +229,11 @@ class ViewBackendService {
         .toList();
   }
 
+  Future<FlowyResult<ViewPB, FlowyError>> fetchView(String viewId) async {
+    final payload = ViewIdPB(value: viewId);
+    return FolderEventGetView(payload).send();
+  }
+
   Future<List<ViewPB>> fetchViews() async {
     final result = <ViewPB>[];
     return FolderEventReadCurrentWorkspace().send().then((value) async {

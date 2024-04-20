@@ -127,12 +127,20 @@ class ApplicationWidget extends StatefulWidget {
 class _ApplicationWidgetState extends State<ApplicationWidget> {
   late final GoRouter routerConfig;
 
+  final _commandPaletteNotifier = ValueNotifier<bool>(false);
+
   @override
   void initState() {
     super.initState();
 
     // avoid rebuild routerConfig when the appTheme is changed.
     routerConfig = generateRouter(widget.child);
+  }
+
+  @override
+  void dispose() {
+    _commandPaletteNotifier.dispose();
+    super.dispose();
   }
 
   @override
@@ -154,10 +162,7 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
           create: (_) => DocumentAppearanceCubit()..fetch(),
         ),
         BlocProvider.value(value: getIt<RenameViewBloc>()),
-        BlocProvider.value(
-          value: getIt<ActionNavigationBloc>()
-            ..add(const ActionNavigationEvent.initialize()),
-        ),
+        BlocProvider.value(value: getIt<ActionNavigationBloc>()),
         BlocProvider.value(
           value: getIt<ReminderBloc>()..add(const ReminderEvent.started()),
         ),
@@ -199,7 +204,7 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
                 child: overlayManagerBuilder(
                   context,
                   CommandPalette(
-                    toggleNotifier: ValueNotifier<bool>(false),
+                    toggleNotifier: _commandPaletteNotifier,
                     child: child,
                   ),
                 ),

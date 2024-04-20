@@ -90,7 +90,6 @@ class _CommandPaletteControllerState extends State<_CommandPaletteController> {
   @override
   void dispose() {
     _toggleNotifier.removeListener(_onToggle);
-    _toggleNotifier.dispose();
     super.dispose();
   }
 
