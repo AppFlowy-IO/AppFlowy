@@ -93,6 +93,8 @@
     "buttonText": "هاوبەشکردن",
     "workInProgress": "بەم زووانە",
     "markdown": "Markdown",
+    "html": "HTML",
+    "clipboard": "کۆپی بکە بۆ کلیپبۆرد",
     "csv": "CSV",
     "copyLink": "کۆپی کردنی لینک"
   },
@@ -102,7 +104,12 @@
     "large": "گەورە",
     "fontSize": "قەبارەی قەڵەم",
     "import": "زیادکردن",
-    "moreOptions": "بژاردەی زیاتر"
+    "moreOptions": "بژاردەی زیاتر",
+    "wordCount": "ژمارەی ووشە: {}",
+    "charCount": "ژمارەی پیتەکان: {}",
+    "createdAt": "دروستکراوە: {}",
+    "deleteView": "سڕینەوە",
+    "duplicateView": "دووبارە کردنەوە"
   },
   "importPanel": {
     "textAndMarkdown": "Text & Markdown",
@@ -151,7 +158,8 @@
       "emptyDescription": "هیچ فایلێکی سڕاوەت نییە",
       "isDeleted": "دەسڕدرێتەوە",
       "isRestored": "دەگەڕێتەوە"
-    }
+    },
+    "confirmDeleteTitle": "دڵنیای کە دەتەوێت ئەم لاپەڕەیە بۆ هەمیشە بسڕیتەوە؟"
   },
   "deletePagePrompt": {
     "text": "ئەم لاپەڕەیە لە زبڵداندایە",
@@ -194,7 +202,7 @@
     "highlight": "بەرجەستەکردن",
     "color": "ڕەنگ",
     "addLink": "زیادکردنی لینک",
-    "link": "لینک"
+    "link": "بەستەر"
   },
   "tooltip": {
     "lightMode": "دۆخی ڕووناک",
@@ -213,10 +221,16 @@
     "closeSidebar": "داخستنی سایدبار",
     "openSidebar": "کردنەوەی سایدبار",
     "personal": "کەسی",
+    "private": "تایبه‌تی",
+    "workspace": "شوێنی کارکردن",
     "favorites": "دڵخوازەکان",
+    "clickToHidePrivate": "بۆ شاردنەوەی شوێنی تایبەت کلیک بکە\nئەو لاپەڕانەی لێرە دروستت کردووە تەنها بۆ تۆ دیارە",
+    "clickToHideWorkspace": "بۆ شاردنەوەی شوێنی کارکردن کلیک بکە\nئەو پەیجانەی لێرە دروستت کردووە بۆ هەموو ئەندامێک دیارە",
     "clickToHidePersonal": "بۆ شاردنەوەی بەشی کەسی کلیک بکە",
     "clickToHideFavorites": "بۆ شاردنەوەی بەشی دڵخوازەکان کلیک بکە",
     "addAPage": "زیاد کردنی لاپەڕەیەک",
+    "addAPageToPrivate": "لاپەڕەیەک زیاد بکە بۆ شوێنی تایبەت",
+    "addAPageToWorkspace": "لاپەڕەیەک زیاد بکە بۆ شوێنی کارکردن",
     "recent": "نوێ"
   },
   "notifications": {
@@ -226,7 +240,7 @@
     }
   },
   "contactsPage": {
-    "title": "پەیوەندییەکان",
+    "title": "بەردەنگەکان",
     "whatsHappening": "چی ڕوودەدات",
     "addContact": "زیادکردنی پەیوەندی",
     "editContact": "دەستکاریکردنی پەیوەندی"
@@ -260,6 +274,18 @@
     "helpCenter": "ناوەندی یارمەتی",
     "add": "زیادکردن",
     "yes": "بەڵێ",
+    "clear": "سڕدن",
+    "remove": "لابردن",
+    "dontRemove": "لامەبە",
+    "copyLink": "کۆپی بەستەر",
+    "align": "لاڕێككردن",
+    "login": "چوونه‌ژووره‌وه‌",
+    "logout": "دەرچوون",
+    "deleteAccount": "سڕینەوەی هەژمار",
+    "back": "پاش",
+    "signInGoogle": "لە ڕێگەی گووگڵەوە بچۆرە ژوورەوە",
+    "signInGithub": "لە ڕێگەی گیتهاب بچۆرە ژوورەوە",
+    "signInDiscord": "لە ڕێگەی دیسکۆرد بچۆرە ژوورەوە",
     "Done": "تەواوه",
     "Cancel": "ڕەتکردن",
     "OK": "ئۆکەی"
@@ -268,8 +294,8 @@
     "welcome": "بەخێربێن!",
     "firstName": "ناو",
     "middleName": "ناوی ناوەڕاست",
-    "lastName": "دوایین ناو",
-    "stepX": "Step {X}"
+    "lastName": "ناوی خێزانی",
+    "stepX": "هەنگاو {X}"
   },
   "oAuth": {
     "err": {
