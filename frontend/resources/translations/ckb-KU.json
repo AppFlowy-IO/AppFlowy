@@ -9,6 +9,7 @@
   "title": "سه‌ردێڕ",
   "youCanAlso": "هەروەها ئەتوانی",
   "and": "وە",
+  "failedToOpenUrl": "شکستی هێنا لە کردنەوەی url: {}",
   "blockActions": {
     "addBelowTooltip": "بۆ زیادکردن لە خوارەوە کلیک بکە",
     "addAboveCmd": "Alt+click",
@@ -24,7 +25,7 @@
     "emptyPasswordError": "ناتوانرێت تێپه‌ڕه‌وشه بەتاڵ بێت",
     "repeatPasswordEmptyError": "تێپه‌ڕه‌وشەی دووبارەکراو ناتوانرێت بەتاڵ بێت",
     "unmatchedPasswordError": "دووبارەکراوەی تێپه‌ڕه‌وشه هەمان تێپه‌ڕه‌وشه نییە",
-    "alreadyHaveAnAccount": "لە پێشتر ئەکاونتت هەیە؟",
+    "alreadyHaveAnAccount": "لە پێشتر هه‌ژمارت هەیە؟",
     "emailHint": "ئیمەیڵ",
     "passwordHint": "تێپه‌ڕه‌وشه",
     "repeatPasswordHint": "دووبارە کردنی تێپه‌ڕه‌وشه",
@@ -40,7 +41,7 @@
     "forgotPassword": "تێپه‌ڕه‌وشەت لەبیر كردووە ؟",
     "emailHint": "ئیمەیڵ",
     "passwordHint": "تێپه‌ڕه‌وشه",
-    "dontHaveAnAccount": "ئەکاونتت نییە؟",
+    "dontHaveAnAccount": "هه‌ژمارت نییە؟",
     "repeatPasswordEmptyError": "ناتوانرێت تێپه‌ڕه‌وشه بەتاڵ بێت",
     "unmatchedPasswordError": "دووبارەکراوەی تێپه‌ڕه‌وشه هەمان تێپه‌ڕه‌وشه نییە",
     "syncPromptMessage": "ڕەنگە هاوکاتکردنی داتاکان ماوەیەکی پێبچێت. تکایە ئەم پەیجە دامەخە",
@@ -49,6 +50,11 @@
     "LogInWithGithub": "چوونە ژوورەوە لە ڕێگەی گیتهاب",
     "LogInWithDiscord": "چوونە ژوورەوە لە ڕێگەی دیسکۆرد",
     "signInWith": "ناونووسین وە:",
+    "signInWithEmail": "لە ڕێگەی ئیمەیڵەوە بچۆرە ژوورەوە",
+    "logInWithMagicLink": "بە مەجیک لینک بچۆرە ژوورەوە",
+    "pleaseInputYourEmail": "تکایە ئیمەیڵەکەت بنووسە",
+    "magicLinkSent": "مەجیک لینک بۆ ئیمەیڵەکەت نێردراوە، تکایە ئیمەیڵەکەت بپشکنە",
+    "invalidEmail": "تکایە ئیمەیڵێکی دروست دابنێ",
     "loginAsGuestButtonText": "دەست پێ بکە"
   },
   "workspace": {
@@ -64,7 +70,8 @@
       "reportIssueOnGithub": "ڕاپۆرت کردنی کێشەیەک لەسەر گیتهابەوە ",
       "exportLogFiles": "هەناردەکردنی فایلەکانی گوزارش",
       "reachOut": "پەیوەندی لەگەڵ دیسکۆرد"
-    }
+    },
+    "menuTitle": "شوێنی کارکردن"
   },
   "shareAction": {
     "buttonText": "هاوبەشکردن",
