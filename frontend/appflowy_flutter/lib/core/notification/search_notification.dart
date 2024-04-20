@@ -23,9 +23,11 @@ class SearchNotificationParser
   SearchNotificationParser({
     super.id,
     required super.callback,
+    String? channel,
   }) : super(
-          tyParser: (ty, source) =>
-              source == _source ? SearchNotification.valueOf(ty) : null,
+          tyParser: (ty, source) => source == "$_source$channel"
+              ? SearchNotification.valueOf(ty)
+              : null,
           errorParser: (bytes) => FlowyError.fromBuffer(bytes),
         );
 }
@@ -39,7 +41,12 @@ class SearchNotificationListener {
   SearchNotificationListener({
     required String objectId,
     required SearchNotificationHandler handler,
-  }) : _parser = SearchNotificationParser(id: objectId, callback: handler) {
+    String? channel,
+  }) : _parser = SearchNotificationParser(
+          id: objectId,
+          callback: handler,
+          channel: channel,
+        ) {
     _subscription =
         RustStreamReceiver.listen((observable) => _parser?.parse(observable));
   }

@@ -6,11 +6,16 @@ import 'package:appflowy_result/appflowy_result.dart';
 
 class SearchBackendService {
   static Future<FlowyResult<void, FlowyError>> performSearch(
-    String keyword, [
+    String keyword, {
     String? workspaceId,
-  ]) async {
+    String? channel,
+  }) async {
     final filter = SearchFilterPB(workspaceId: workspaceId);
-    final request = SearchQueryPB(search: keyword, filter: filter);
+    final request = SearchQueryPB(
+      search: keyword,
+      filter: filter,
+      channel: channel,
+    );
 
     return SearchEventSearch(request).send();
   }

@@ -31,10 +31,7 @@ impl SearchHandler for FolderSearchHandler {
     if let Some(filter) = filter {
       if let Some(workspace_id) = filter.workspace_id {
         // Filter results by workspace ID
-        results = results
-          .into_iter()
-          .filter(|result| result.workspace_id == workspace_id)
-          .collect();
+        results.retain(|result| result.workspace_id == workspace_id);
       }
     }
 

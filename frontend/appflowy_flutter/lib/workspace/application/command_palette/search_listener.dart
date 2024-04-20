@@ -13,7 +13,15 @@ import 'package:flowy_infra/notifier.dart';
 const _searchObjectId = "SEARCH_IDENTIFIER";
 
 class SearchListener {
-  SearchListener();
+  SearchListener({this.channel});
+
+  /// Use this to filter out search results from other channels.
+  ///
+  /// If null, it will receive search results from all
+  /// channels, otherwise it will only receive search results from the specified
+  /// channel.
+  ///
+  final String? channel;
 
   PublishNotifier<RepeatedSearchResultPB>? _updateNotifier = PublishNotifier();
   PublishNotifier<RepeatedSearchResultPB>? _updateDidCloseNotifier =
@@ -29,6 +37,7 @@ class SearchListener {
     _listener = SearchNotificationListener(
       objectId: _searchObjectId,
       handler: _handler,
+      channel: channel,
     );
   }
 

@@ -11,14 +11,21 @@ import 'package:appflowy/plugins/inline_actions/inline_actions_menu.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_result.dart';
 import 'package:appflowy/plugins/inline_actions/service_handler.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/application/command_palette/search_listener.dart';
+import 'package:appflowy/workspace/application/command_palette/search_service.dart';
 import 'package:appflowy/workspace/application/recent/cached_recent_service.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
+import 'package:appflowy/workspace/application/view/view_service.dart';
+import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-search/result.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
+
+const _channel = "InlinePageReference";
 
 class InlinePageReferenceService extends InlineActionsDelegate {
   InlinePageReferenceService({
@@ -51,12 +58,25 @@ class InlinePageReferenceService extends InlineActionsDelegate {
 
   late final CachedRecentService _recentService;
   List<InlineActionsMenuItem> _recentViews = [];
-  List<InlineActionsMenuItem> _results = [];
+
+  final _searchListener = SearchListener(channel: _channel);
+  Completer<List<SearchResultPB>>? _searchCompleter;
+
+  bool _workspaceIdInitialized = false;
+  final _workspaceIdCompleter = Completer<void>();
+  String? _workspaceId;
 
   Future<void> init() async {
     _recentService = getIt<CachedRecentService>();
+    _searchListener.start(
+      onResultsChanged: _onResults,
+      onResultsClosed: _onResults,
+    );
     final views =
         (await _recentService.recentViews()).reversed.toSet().toList();
+
+    // Filter by viewLayout
+    views.retainWhere((i) => viewLayout == null || i.layout == viewLayout);
 
     // Map to InlineActionsMenuItem, then take 6 items (5 + current)
     // The 0th position (newest) is the current view.
@@ -64,13 +84,80 @@ class InlinePageReferenceService extends InlineActionsDelegate {
     _initCompleter.complete();
   }
 
+  void _onResults(RepeatedSearchResultPB results) {
+    _searchCompleter?.complete(results.items);
+  }
+
+  Future<void> _initWorkspaceId() async {
+    _workspaceIdInitialized = true;
+    final results = await FolderEventGetCurrentWorkspaceSetting().send();
+    final workspaceSettings = results.toNullable();
+
+    if (workspaceSettings != null) {
+      _workspaceId = workspaceSettings.workspaceId;
+    }
+
+    _workspaceIdCompleter.complete();
+  }
+
+  @override
+  Future<void> dispose() async {
+    await _searchListener.stop();
+    _searchCompleter?.isCompleted == false
+        ? _searchCompleter!.complete(const [])
+        : null;
+    await super.dispose();
+  }
+
   @override
   Future<InlineActionsResult> search([
     String? search,
   ]) async {
+    if (_workspaceId == null) {
+      if (_workspaceIdInitialized && _workspaceIdCompleter.isCompleted) {
+        return InlineActionsResult(
+          title: LocaleKeys.inlineActions_pageReference.tr(),
+          results: [],
+        );
+      }
+
+      if (!_workspaceIdInitialized) {
+        await _initWorkspaceId();
+        await _workspaceIdCompleter.future;
+      }
+    }
+
+    if (_workspaceId == null) {
+      return InlineActionsResult(
+        title: LocaleKeys.inlineActions_pageReference.tr(),
+        results: [],
+      );
+    }
+
     final isSearching = search != null && search.isNotEmpty;
 
-    final items = isSearching ? _results : _recentViews;
+    late List<InlineActionsMenuItem> items;
+    if (isSearching) {
+      items = [];
+      _searchCompleter = Completer();
+      await SearchBackendService.performSearch(
+        search,
+        workspaceId: _workspaceId,
+        channel: _channel,
+      );
+
+      final results = await _searchCompleter!.future;
+      for (final item in results) {
+        final menuItem = await _fromSearchResult(item);
+        if (menuItem != null) {
+          items.add(menuItem);
+        }
+      }
+    } else {
+      items = _recentViews;
+    }
+
+    if (viewLayout != null) {}
 
     // _filtered = await _filterItems(search);
     return InlineActionsResult(
@@ -178,4 +265,16 @@ class InlinePageReferenceService extends InlineActionsDelegate {
             ? _onInsertPageRef(view, context, editorState, replace)
             : _onInsertLinkRef(view, context, editorState, menu, replace),
       );
+
+  Future<InlineActionsMenuItem?> _fromSearchResult(
+    SearchResultPB result,
+  ) async {
+    final viewRes = await ViewBackendService.getView(result.viewId);
+    final view = viewRes.toNullable();
+    if (view == null) {
+      return null;
+    }
+
+    return _fromView(view);
+  }
 }

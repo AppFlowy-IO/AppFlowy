@@ -13,6 +13,8 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'command_palette_bloc.freezed.dart';
 
+const _searchChannel = 'CommandPalette';
+
 class CommandPaletteBloc
     extends Bloc<CommandPaletteEvent, CommandPaletteState> {
   CommandPaletteBloc() : super(CommandPaletteState.initial()) {
@@ -27,7 +29,9 @@ class CommandPaletteBloc
 
   Timer? _debounceOnChanged;
   final TrashService _trashService = TrashService();
-  final SearchListener _searchListener = SearchListener();
+  final SearchListener _searchListener = SearchListener(
+    channel: _searchChannel,
+  );
   final TrashListener _trashListener = TrashListener();
   String? _oldQuery;
   String? _workspaceId;
@@ -62,7 +66,11 @@ class CommandPaletteBloc
           if (search.isNotEmpty && search != state.query) {
             _oldQuery = state.query;
             emit(state.copyWith(query: search, isLoading: true));
-            await SearchBackendService.performSearch(search, _workspaceId);
+            await SearchBackendService.performSearch(
+              search,
+              workspaceId: _workspaceId,
+              channel: _searchChannel,
+            );
           } else {
             emit(state.copyWith(query: null, isLoading: false, results: []));
           }

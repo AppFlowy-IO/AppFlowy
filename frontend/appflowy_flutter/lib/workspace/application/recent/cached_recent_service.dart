@@ -15,7 +15,7 @@ import 'package:appflowy_result/appflowy_result.dart';
 /// when needed by the application lifecycle.
 ///
 /// Use-cases:
-/// - Desktop: Command Paletterecent view history
+/// - Desktop: Command Palette recent view history
 /// - Desktop: (Documents) Inline-page reference recent view history
 /// - Mobile: Recent view history on home screen
 ///
@@ -49,7 +49,7 @@ class CachedRecentService extends LaunchTask {
   Future<void> _initialize() async {
     _listener.start(recentViewsUpdated: _recentViewsUpdated);
     final result = await _readRecentViews();
-    _recentViews = result.toNullable()?.items ?? [];
+    _recentViews = result.toNullable()?.items ?? const [];
     notifier.value = _recentViews;
     _completer.complete();
   }
@@ -64,7 +64,6 @@ class CachedRecentService extends LaunchTask {
 
   void reset() {
     _resetCompleter();
-    _recentViews = const [];
     _initialize();
   }
 

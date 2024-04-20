@@ -228,11 +228,7 @@ impl FolderIndexManagerImpl {
     let title_field = folder_schema.schema.get_field(FOLDER_TITLE_FIELD_NAME)?;
 
     let length = query.len();
-    let distance: u8 = match length {
-      _ if length > 4 => 2,
-      _ if length > 2 => 1,
-      _ => 0,
-    };
+    let distance: u8 = if length >= 2 { 2 } else { 1 };
 
     let mut query_parser = QueryParser::for_index(&index.clone(), vec![title_field]);
     query_parser.set_field_fuzzy(title_field, true, distance, true);

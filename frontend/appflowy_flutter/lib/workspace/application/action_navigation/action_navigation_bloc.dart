@@ -11,13 +11,18 @@ class ActionNavigationBloc
     on<ActionNavigationEvent>((event, emit) async {
       await event.when(
         performAction: (action, nextActions) async {
-          if (action.arguments?[ActionArgumentKeys.view] == null &&
+          NavigationAction currentAction = action;
+          if (currentAction.arguments?[ActionArgumentKeys.view] == null &&
               action.type == ActionType.openView) {
             final result =
                 await ViewBackendService().fetchView(action.objectId);
             final view = result.toNullable();
             if (view != null) {
-              action.arguments!.addAll({ActionArgumentKeys.view: view});
+              if (currentAction.arguments == null) {
+                currentAction = currentAction.copyWith(arguments: {});
+              }
+
+              action.arguments?.addAll({ActionArgumentKeys.view: view});
             }
           }
 
