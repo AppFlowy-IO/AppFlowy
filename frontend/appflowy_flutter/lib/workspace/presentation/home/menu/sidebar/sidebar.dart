@@ -1,11 +1,12 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
+import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/favorite/prelude.dart';
 import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
-import 'package:appflowy/workspace/application/notifications/notification_action.dart';
-import 'package:appflowy/workspace/application/notifications/notification_action_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
@@ -20,7 +21,6 @@ import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
     show UserProfilePB;
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Home Sidebar is the left side bar of the home page.
@@ -74,9 +74,7 @@ class HomeSideBar extends StatelessWidget {
           }
           return MultiBlocProvider(
             providers: [
-              BlocProvider(
-                create: (_) => getIt<NotificationActionBloc>(),
-              ),
+              BlocProvider(create: (_) => getIt<ActionNavigationBloc>()),
               BlocProvider(
                 create: (_) => SidebarSectionsBloc()
                   ..add(
@@ -99,7 +97,7 @@ class HomeSideBar extends StatelessWidget {
                         ),
                       ),
                 ),
-                BlocListener<NotificationActionBloc, NotificationActionState>(
+                BlocListener<ActionNavigationBloc, ActionNavigationState>(
                   listenWhen: (_, curr) => curr.action != null,
                   listener: _onNotificationAction,
                 ),
@@ -134,35 +132,28 @@ class HomeSideBar extends StatelessWidget {
 
   void _onNotificationAction(
     BuildContext context,
-    NotificationActionState state,
+    ActionNavigationState state,
   ) {
     final action = state.action;
-    if (action != null) {
-      if (action.type == ActionType.openView) {
-        final view = context
-            .read<SidebarSectionsBloc>()
-            .state
-            .section
-            .publicViews
-            .findView(action.objectId);
+    if (action?.type == ActionType.openView) {
+      final view = state.views.findView(action!.objectId);
 
-        if (view != null) {
-          final Map<String, dynamic> arguments = {};
+      if (view != null) {
+        final Map<String, dynamic> arguments = {};
 
-          final nodePath = action.arguments?[ActionArgumentKeys.nodePath];
-          if (nodePath != null) {
-            arguments[PluginArgumentKeys.selection] = Selection.collapsed(
-              Position(path: [nodePath]),
-            );
-          }
-
-          final rowId = action.arguments?[ActionArgumentKeys.rowId];
-          if (rowId != null) {
-            arguments[PluginArgumentKeys.rowId] = rowId;
-          }
-
-          context.read<TabsBloc>().openPlugin(view, arguments: arguments);
+        final nodePath = action.arguments?[ActionArgumentKeys.nodePath];
+        if (nodePath != null) {
+          arguments[PluginArgumentKeys.selection] = Selection.collapsed(
+            Position(path: [nodePath]),
+          );
         }
+
+        final rowId = action.arguments?[ActionArgumentKeys.rowId];
+        if (rowId != null) {
+          arguments[PluginArgumentKeys.rowId] = rowId;
+        }
+
+        context.read<TabsBloc>().openPlugin(view, arguments: arguments);
       }
     }
   }

@@ -17,7 +17,6 @@ pub fn make_test_calendar() -> DatabaseData {
   // text
   let text_field = FieldBuilder::from_field_type(FieldType::RichText)
     .name("Name")
-    .visibility(true)
     .primary(true)
     .build();
   fields.push(text_field);
@@ -25,7 +24,6 @@ pub fn make_test_calendar() -> DatabaseData {
   // date
   let date_field = FieldBuilder::from_field_type(FieldType::DateTime)
     .name("Date")
-    .visibility(true)
     .build();
   let date_field_id = date_field.id.clone();
   fields.push(date_field);
@@ -34,7 +32,6 @@ pub fn make_test_calendar() -> DatabaseData {
   let type_option = MultiSelectTypeOption::default();
   let multi_select_field = FieldBuilder::new(FieldType::MultiSelect, type_option)
     .name("Tags")
-    .visibility(true)
     .build();
   fields.push(multi_select_field);
 
@@ -109,9 +106,12 @@ pub fn make_test_calendar() -> DatabaseData {
   let mut layout_settings = LayoutSettings::new();
   layout_settings.insert(DatabaseLayout::Calendar, calendar_setting);
 
+  let database_id = gen_database_id();
+  let inline_view_id = gen_database_view_id();
+
   let view = DatabaseView {
-    id: gen_database_view_id(),
-    database_id: gen_database_id(),
+    database_id: database_id.clone(),
+    id: inline_view_id.clone(),
     name: "".to_string(),
     layout: DatabaseLayout::Calendar,
     layout_settings,
@@ -125,5 +125,11 @@ pub fn make_test_calendar() -> DatabaseData {
     field_settings,
   };
 
-  DatabaseData { view, fields, rows }
+  DatabaseData {
+    database_id,
+    inline_view_id,
+    views: vec![view],
+    fields,
+    rows,
+  }
 }

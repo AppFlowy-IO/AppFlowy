@@ -1,38 +1,86 @@
+use std::sync::Arc;
+
+use collab_folder::{FolderData, View};
 use flowy_folder::entities::icon::UpdateViewIconPayloadPB;
-use flowy_folder::entities::*;
 use flowy_folder::event_map::FolderEvent;
 use flowy_folder::event_map::FolderEvent::*;
+use flowy_folder::{entities::*, ViewLayout};
+use flowy_search::services::manager::{SearchHandler, SearchType};
 use flowy_user::entities::{
-  AddWorkspaceMemberPB, QueryWorkspacePB, RemoveWorkspaceMemberPB, RepeatedWorkspaceMemberPB,
+  AcceptWorkspaceInvitationPB, AddWorkspaceMemberPB, QueryWorkspacePB, RemoveWorkspaceMemberPB,
+  RepeatedWorkspaceInvitationPB, RepeatedWorkspaceMemberPB, WorkspaceMemberInvitationPB,
   WorkspaceMemberPB,
 };
 use flowy_user::errors::FlowyError;
 use flowy_user::event_map::UserEvent;
+use flowy_user_pub::entities::Role;
 
 use crate::event_builder::EventBuilder;
 use crate::EventIntegrationTest;
 
 impl EventIntegrationTest {
   pub async fn add_workspace_member(&self, workspace_id: &str, email: &str) {
-    EventBuilder::new(self.clone())
+    if let Some(err) = EventBuilder::new(self.clone())
       .event(UserEvent::AddWorkspaceMember)
       .payload(AddWorkspaceMemberPB {
         workspace_id: workspace_id.to_string(),
         email: email.to_string(),
       })
       .async_send()
+      .await
+      .error()
+    {
+      panic!("Add workspace member failed: {:?}", err);
+    }
+  }
+
+  pub async fn invite_workspace_member(&self, workspace_id: &str, email: &str, role: Role) {
+    EventBuilder::new(self.clone())
+      .event(UserEvent::InviteWorkspaceMember)
+      .payload(WorkspaceMemberInvitationPB {
+        workspace_id: workspace_id.to_string(),
+        invitee_email: email.to_string(),
+        role: role.into(),
+      })
+      .async_send()
       .await;
   }
 
-  pub async fn delete_workspace_member(&self, workspace_id: &str, email: &str) {
+  pub async fn list_workspace_invitations(&self) -> RepeatedWorkspaceInvitationPB {
     EventBuilder::new(self.clone())
+      .event(UserEvent::ListWorkspaceInvitations)
+      .async_send()
+      .await
+      .parse()
+  }
+
+  pub async fn accept_workspace_invitation(&self, invitation_id: &str) {
+    if let Some(err) = EventBuilder::new(self.clone())
+      .event(UserEvent::AcceptWorkspaceInvitation)
+      .payload(AcceptWorkspaceInvitationPB {
+        invite_id: invitation_id.to_string(),
+      })
+      .async_send()
+      .await
+      .error()
+    {
+      panic!("Accept workspace invitation failed: {:?}", err)
+    };
+  }
+
+  pub async fn delete_workspace_member(&self, workspace_id: &str, email: &str) {
+    if let Some(err) = EventBuilder::new(self.clone())
       .event(UserEvent::RemoveWorkspaceMember)
       .payload(RemoveWorkspaceMemberPB {
         workspace_id: workspace_id.to_string(),
         email: email.to_string(),
       })
       .async_send()
-      .await;
+      .await
+      .error()
+    {
+      panic!("Delete workspace member failed: {:?}", err)
+    };
   }
 
   pub async fn get_workspace_members(&self, workspace_id: &str) -> Vec<WorkspaceMemberPB> {
@@ -53,6 +101,49 @@ impl EventIntegrationTest {
       .async_send()
       .await
       .parse::<WorkspacePB>()
+  }
+
+  pub fn get_folder_search_handler(&self) -> &Arc<dyn SearchHandler> {
+    self
+      .appflowy_core
+      .search_manager
+      .get_handler(SearchType::Folder)
+      .unwrap()
+  }
+
+  /// create views in the folder.
+  pub async fn create_views(&self, views: Vec<View>) {
+    let create_view_params = views
+      .into_iter()
+      .map(|view| CreateViewParams {
+        parent_view_id: view.parent_view_id,
+        name: view.name,
+        desc: "".to_string(),
+        layout: view.layout.into(),
+        view_id: view.id,
+        initial_data: vec![],
+        meta: Default::default(),
+        set_as_current: false,
+        index: None,
+        section: None,
+      })
+      .collect::<Vec<_>>();
+
+    for params in create_view_params {
+      self
+        .appflowy_core
+        .folder_manager
+        .create_view_with_params(params)
+        .await
+        .unwrap();
+    }
+  }
+
+  pub fn get_folder_data(&self) -> FolderData {
+    let mutex_folder = self.appflowy_core.folder_manager.get_mutex_folder().clone();
+    let folder_lock_guard = mutex_folder.lock();
+    let folder = folder_lock_guard.as_ref().unwrap();
+    folder.get_folder_data().clone().unwrap()
   }
 
   pub async fn get_all_workspace_views(&self) -> Vec<ViewPB> {
@@ -78,11 +169,15 @@ impl EventIntegrationTest {
     };
 
     // delete the view. the view will be moved to trash
-    EventBuilder::new(self.clone())
+    if let Some(err) = EventBuilder::new(self.clone())
       .event(FolderEvent::DeleteView)
       .payload(payload)
       .async_send()
-      .await;
+      .await
+      .error()
+    {
+      panic!("Delete view failed: {:?}", err)
+    };
   }
 
   pub async fn update_view(&self, changeset: UpdateViewPayloadPB) -> Option<FlowyError> {
@@ -153,7 +248,7 @@ pub struct ViewTest {
 }
 impl ViewTest {
   #[allow(dead_code)]
-  pub async fn new(sdk: &EventIntegrationTest, layout: ViewLayoutPB, data: Vec<u8>) -> Self {
+  pub async fn new(sdk: &EventIntegrationTest, layout: ViewLayout, data: Vec<u8>) -> Self {
     let workspace = sdk.folder_manager.get_current_workspace().await.unwrap();
 
     let payload = CreateViewPayloadPB {
@@ -161,7 +256,7 @@ impl ViewTest {
       name: "View A".to_string(),
       desc: "".to_string(),
       thumbnail: Some("http://1.png".to_string()),
-      layout,
+      layout: layout.into(),
       initial_data: data,
       meta: Default::default(),
       set_as_current: true,
@@ -175,6 +270,7 @@ impl ViewTest {
       .async_send()
       .await
       .parse::<ViewPB>();
+
     Self {
       sdk: sdk.clone(),
       workspace,
@@ -183,15 +279,15 @@ impl ViewTest {
   }
 
   pub async fn new_grid_view(sdk: &EventIntegrationTest, data: Vec<u8>) -> Self {
-    Self::new(sdk, ViewLayoutPB::Grid, data).await
+    Self::new(sdk, ViewLayout::Grid, data).await
   }
 
   pub async fn new_board_view(sdk: &EventIntegrationTest, data: Vec<u8>) -> Self {
-    Self::new(sdk, ViewLayoutPB::Board, data).await
+    Self::new(sdk, ViewLayout::Board, data).await
   }
 
   pub async fn new_calendar_view(sdk: &EventIntegrationTest, data: Vec<u8>) -> Self {
-    Self::new(sdk, ViewLayoutPB::Calendar, data).await
+    Self::new(sdk, ViewLayout::Calendar, data).await
   }
 }
 

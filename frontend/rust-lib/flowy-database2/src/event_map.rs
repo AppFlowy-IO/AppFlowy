@@ -47,7 +47,6 @@ pub fn init(database_manager: Weak<DatabaseManager>) -> AFPlugin {
         .event(DatabaseEvent::CreateSelectOption, new_select_option_handler)
         .event(DatabaseEvent::InsertOrUpdateSelectOption, insert_or_update_select_option_handler)
         .event(DatabaseEvent::DeleteSelectOption, delete_select_option_handler)
-        .event(DatabaseEvent::GetSelectOptionCellData, get_select_option_handler)
         .event(DatabaseEvent::UpdateSelectOptionCell, update_select_option_cell_handler)
         // Checklist
         .event(DatabaseEvent::UpdateChecklistCell, update_checklist_cell_handler)
@@ -201,12 +200,6 @@ pub enum DatabaseEvent {
   #[event(input = "CreateSelectOptionPayloadPB", output = "SelectOptionPB")]
   CreateSelectOption = 30,
 
-  /// [GetSelectOptionCellData] event is used to get the select option data for cell editing.
-  /// [CellIdPB] locate which cell data that will be read from. The return value, [SelectOptionCellDataPB]
-  /// contains the available options and the currently selected options.
-  #[event(input = "CellIdPB", output = "SelectOptionCellDataPB")]
-  GetSelectOptionCellData = 31,
-
   /// [InsertOrUpdateSelectOption] event is used to update a FieldTypeOptionData whose field_type is
   /// FieldType::SingleSelect or FieldType::MultiSelect.
   ///
@@ -214,10 +207,10 @@ pub enum DatabaseEvent {
   /// For example, DatabaseNotification::DidUpdateCell will be triggered if the [SelectOptionChangesetPB]
   /// carries a change that updates the name of the option.
   #[event(input = "RepeatedSelectOptionPayload")]
-  InsertOrUpdateSelectOption = 32,
+  InsertOrUpdateSelectOption = 31,
 
   #[event(input = "RepeatedSelectOptionPayload")]
-  DeleteSelectOption = 33,
+  DeleteSelectOption = 32,
 
   #[event(input = "CreateRowPayloadPB", output = "RowMetaPB")]
   CreateRow = 50,

@@ -803,7 +803,10 @@
     "groupBy": "Seskupit podle",
     "referencedBoardPrefix": "Pohled",
     "mobile": {
-      "editURL": "Upravit URL adresu"
+      "editURL": "Upravit URL adresu",
+      "showGroup": "Zobrazit skupinu",
+      "showGroupContent": "Opravdu chcete tuto skupinu zobrazit na nástěnce?",
+      "failedToLoad": "Zobrazení desky se nepodařilo načíst"
     }
   },
   "calendar": {

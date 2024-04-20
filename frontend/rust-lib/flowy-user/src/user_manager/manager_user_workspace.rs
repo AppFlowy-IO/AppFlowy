@@ -9,7 +9,9 @@ use flowy_error::{FlowyError, FlowyResult};
 use flowy_folder_pub::entities::{AppFlowyData, ImportData};
 use flowy_sqlite::schema::user_workspace_table;
 use flowy_sqlite::{query_dsl::*, DBConnection, ExpressionMethods};
-use flowy_user_pub::entities::{Role, UserWorkspace, WorkspaceMember};
+use flowy_user_pub::entities::{
+  Role, UserWorkspace, WorkspaceInvitation, WorkspaceInvitationStatus, WorkspaceMember,
+};
 use lib_dispatch::prelude::af_spawn;
 
 use crate::entities::{RepeatedUserWorkspacePB, ResetWorkspacePB};
@@ -134,23 +136,25 @@ impl UserManager {
   #[instrument(skip(self), err)]
   pub async fn open_workspace(&self, workspace_id: &str) -> FlowyResult<()> {
     let uid = self.user_id()?;
-    let _ = self
+    let user_workspace = self
       .cloud_services
       .get_user_service()?
       .open_workspace(workspace_id)
-      .await;
+      .await?;
 
-    if let Some(user_workspace) = self.get_user_workspace(uid, workspace_id) {
-      if let Err(err) = self
-        .user_status_callback
-        .read()
-        .await
-        .open_workspace(uid, &user_workspace)
-        .await
-      {
-        error!("Open workspace failed: {:?}", err);
-      }
+    self
+      .authenticate_user
+      .set_user_workspace(user_workspace.clone())?;
+    if let Err(err) = self
+      .user_status_callback
+      .read()
+      .await
+      .open_workspace(uid, &user_workspace)
+      .await
+    {
+      error!("Open workspace failed: {:?}", err);
     }
+
     Ok(())
   }
 
@@ -228,6 +232,40 @@ impl UserManager {
     Ok(())
   }
 
+  pub async fn invite_member_to_workspace(
+    &self,
+    workspace_id: String,
+    invitee_email: String,
+    role: Role,
+  ) -> FlowyResult<()> {
+    self
+      .cloud_services
+      .get_user_service()?
+      .invite_workspace_member(invitee_email, workspace_id, role)
+      .await?;
+    Ok(())
+  }
+
+  pub async fn list_pending_workspace_invitations(&self) -> FlowyResult<Vec<WorkspaceInvitation>> {
+    let status = Some(WorkspaceInvitationStatus::Pending);
+    let invitations = self
+      .cloud_services
+      .get_user_service()?
+      .list_workspace_invitations(status)
+      .await?;
+    Ok(invitations)
+  }
+
+  pub async fn accept_workspace_invitation(&self, invite_id: String) -> FlowyResult<()> {
+    self
+      .cloud_services
+      .get_user_service()?
+      .accept_workspace_invitations(invite_id)
+      .await?;
+    Ok(())
+  }
+
+  // deprecated, use invite instead
   pub async fn add_workspace_member(
     &self,
     user_email: String,

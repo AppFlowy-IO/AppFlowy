@@ -120,7 +120,7 @@ async fn third_party_sign_up_with_duplicated_email() {
 #[tokio::test]
 async fn sign_up_as_guest_and_then_update_to_new_cloud_user_test() {
   if get_supabase_config().is_some() {
-    let test = EventIntegrationTest::new_with_guest_user().await;
+    let test = EventIntegrationTest::new_anon().await;
     let old_views = test
       .folder_manager
       .get_current_workspace_public_views()
@@ -151,7 +151,7 @@ async fn sign_up_as_guest_and_then_update_to_new_cloud_user_test() {
 #[tokio::test]
 async fn sign_up_as_guest_and_then_update_to_existing_cloud_user_test() {
   if get_supabase_config().is_some() {
-    let test = EventIntegrationTest::new_with_guest_user().await;
+    let test = EventIntegrationTest::new_anon().await;
     let uuid = uuid::Uuid::new_v4().to_string();
 
     let email = format!("{}@appflowy.io", nanoid!(6));
@@ -172,7 +172,7 @@ async fn sign_up_as_guest_and_then_update_to_existing_cloud_user_test() {
     // sign out and then sign in as a guest
     test.sign_out().await;
 
-    let _sign_up_context = test.sign_up_as_guest().await;
+    let _sign_up_context = test.sign_up_as_anon().await;
     let new_workspace = test.folder_manager.get_current_workspace().await.unwrap();
     test
       .create_view(&new_workspace.id, "new workspace child view".to_string())
@@ -253,7 +253,7 @@ async fn update_user_profile_with_existing_email_test() {
 async fn migrate_anon_document_on_cloud_signup() {
   if get_supabase_config().is_some() {
     let test = EventIntegrationTest::new().await;
-    let user_profile = test.sign_up_as_guest().await.user_profile;
+    let user_profile = test.sign_up_as_anon().await.user_profile;
 
     let view = test
       .create_view(&user_profile.workspace_id, "My first view".to_string())
@@ -292,7 +292,7 @@ async fn migrate_anon_document_on_cloud_signup() {
 #[tokio::test]
 async fn migrate_anon_data_on_cloud_signup() {
   if get_supabase_config().is_some() {
-    let (cleaner, user_db_path) = unzip_history_user_db(
+    let (cleaner, user_db_path) = unzip(
       "./tests/user/supabase_test/history_user_db",
       "workspace_sync",
     )

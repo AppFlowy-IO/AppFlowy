@@ -15,10 +15,10 @@ use lib_dispatch::prelude::af_spawn;
 
 use crate::entities::{
   CalendarEventPB, CreateRowParams, CreateRowPayloadPB, DatabaseLayoutMetaPB,
-  DatabaseLayoutSettingPB, DeleteSortPayloadPB, FieldType, FieldVisibility, GroupChangesPB,
-  GroupPB, LayoutSettingChangeset, LayoutSettingParams, RemoveCalculationChangesetPB,
-  ReorderSortPayloadPB, RowMetaPB, RowsChangePB, SortChangesetNotificationPB, SortPB,
-  UpdateCalculationChangesetPB, UpdateSortPayloadPB,
+  DatabaseLayoutSettingPB, DeleteSortPayloadPB, FieldSettingsChangesetPB, FieldType,
+  GroupChangesPB, GroupPB, LayoutSettingChangeset, LayoutSettingParams,
+  RemoveCalculationChangesetPB, ReorderSortPayloadPB, RowMetaPB, RowsChangePB,
+  SortChangesetNotificationPB, SortPB, UpdateCalculationChangesetPB, UpdateSortPayloadPB,
 };
 use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::calculations::{Calculation, CalculationChangeset, CalculationsController};
@@ -128,6 +128,7 @@ impl DatabaseViewEditor {
     &self,
     params: CreateRowPayloadPB,
   ) -> FlowyResult<CreateRowParams> {
+    let timestamp = timestamp();
     let mut result = CreateRowParams {
       collab_params: collab_database::rows::CreateRowParams {
         id: gen_row_id(),
@@ -135,7 +136,8 @@ impl DatabaseViewEditor {
         height: 60,
         visibility: true,
         row_position: params.row_position.try_into()?,
-        timestamp: timestamp(),
+        created_at: timestamp,
+        modified_at: timestamp,
       },
       open_after_create: false,
     };
@@ -240,7 +242,7 @@ impl DatabaseViewEditor {
     &self,
     old_row: &Option<RowDetail>,
     row_detail: &RowDetail,
-    field_id: String,
+    field_id: Option<String>,
   ) {
     if let Some(controller) = self.group_controller.write().await.as_mut() {
       let field = self.delegate.get_field(controller.get_grouping_field_id());
@@ -283,9 +285,11 @@ impl DatabaseViewEditor {
 
     // Each row update will trigger a calculations, filter and sort operation. We don't want
     // to block the main thread, so we spawn a new task to do the work.
-    self
-      .gen_did_update_row_view_tasks(row_detail.row.id.clone(), field_id)
-      .await;
+    if let Some(field_id) = field_id {
+      self
+        .gen_did_update_row_view_tasks(row_detail.row.id.clone(), field_id)
+        .await;
+    }
   }
 
   pub async fn v_filter_rows(&self, row_details: &mut Vec<Arc<RowDetail>>) {
@@ -1032,20 +1036,8 @@ impl DatabaseViewEditor {
     self.delegate.get_field_settings(&self.view_id, field_ids)
   }
 
-  // pub async fn v_get_all_field_settings(&self) -> HashMap<String, FieldSettings> {
-  //   self.delegate.get_all_field_settings(&self.view_id)
-  // }
-
-  pub async fn v_update_field_settings(
-    &self,
-    view_id: &str,
-    field_id: &str,
-    visibility: Option<FieldVisibility>,
-    width: Option<i32>,
-  ) -> FlowyResult<()> {
-    self
-      .delegate
-      .update_field_settings(view_id, field_id, visibility, width);
+  pub async fn v_update_field_settings(&self, params: FieldSettingsChangesetPB) -> FlowyResult<()> {
+    self.delegate.update_field_settings(params);
 
     Ok(())
   }

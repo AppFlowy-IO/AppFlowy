@@ -618,7 +618,12 @@
       "createNewCard": "Nytt"
     },
     "menuName": "Tavla",
-    "referencedBoardPrefix": "Utsikt över"
+    "referencedBoardPrefix": "Utsikt över",
+    "mobile": {
+      "showGroup": "Visa grupp",
+      "showGroupContent": "Är du säker på att du vill visa den här gruppen på tavlan?",
+      "failedToLoad": "Det gick inte att ladda tavlan"
+    }
   },
   "calendar": {
     "menuName": "Kalender",

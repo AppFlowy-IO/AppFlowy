@@ -1,9 +1,20 @@
 # Release Notes
-## Version 0.5.4 - 04/08/2024
+## Version 0.5.5 - 04/22/2024
 ### New Features
 - TBD
 ### Bug Fixes
 - TBD
+
+## Version 0.5.4 - 04/08/2024
+### New Features
+- Introduced support for displaying a synchronization indicator within documents and databases to enhance user awareness of data sync status
+- Revamped the select option cell editor in database
+- Improved translations for Spanish, German, Kurdish, and Vietnamese
+- Supported Android 6 and newer versions
+### Bug Fixes
+- Resolved an issue where twelve-hour time formats were not being parsed correctly in databases
+- Fixed a bug affecting the user interface of the single select option filter
+- Fixed various minor UI issues
 
 ## Version 0.5.3 - 03/21/2024
 ### New Features

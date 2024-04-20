@@ -14,7 +14,7 @@ void main() {
         (tester) async {
       await tester.initializeAppFlowy();
 
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       // create a new document
       await tester.createNewPageWithNameUnderParent();
@@ -30,7 +30,7 @@ void main() {
     testWidgets('delete the readme page and restore it', (tester) async {
       await tester.initializeAppFlowy();
 
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       // delete the readme page
       await tester.hoverOnPageName(
@@ -54,7 +54,7 @@ void main() {
         (tester) async {
       await tester.initializeAppFlowy();
 
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       // delete the readme page
       await tester.hoverOnPageName(

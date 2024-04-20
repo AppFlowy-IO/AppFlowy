@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
@@ -17,13 +19,13 @@ import 'package:appflowy/workspace/presentation/home/menu/view/view_add_button.d
 import 'package:appflowy/workspace/presentation/home/menu/view/view_more_action_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/rename_view_popover.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 typedef ViewItemOnSelected = void Function(ViewPB);
@@ -409,6 +411,19 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       behavior: HitTestBehavior.translucent,
       onTap: () => widget.onSelected(widget.view),
       onTertiaryTapDown: (_) => widget.onTertiarySelected?.call(widget.view),
+      onDoubleTap: isSelected
+          ? () {
+              NavigatorTextFieldDialog(
+                title: LocaleKeys.disclosureAction_rename.tr(),
+                autoSelectAllText: true,
+                value: widget.view.name,
+                maxLength: 256,
+                onConfirm: (newValue, _) {
+                  context.read<ViewBloc>().add(ViewEvent.rename(newValue));
+                },
+              ).show(context);
+            }
+          : null,
       child: SizedBox(
         height: widget.height,
         child: Padding(
@@ -472,6 +487,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
             ViewBackendService.updateViewIcon(
               viewId: widget.view.id,
               viewIcon: result.emoji,
+              iconType: result.type.toProto(),
             );
             controller.close();
           },

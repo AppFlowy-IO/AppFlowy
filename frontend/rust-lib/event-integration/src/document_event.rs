@@ -3,7 +3,7 @@ use std::sync::Arc;
 use collab::core::collab::MutexCollab;
 use collab::core::origin::CollabOrigin;
 use collab::preclude::updates::decoder::Decode;
-use collab::preclude::Update;
+use collab::preclude::{Collab, Update};
 use collab_document::blocks::DocumentData;
 use collab_document::document::Document;
 use collab_entity::CollabType;
@@ -104,7 +104,12 @@ impl EventIntegrationTest {
 }
 
 pub fn assert_document_data_equal(doc_state: &[u8], doc_id: &str, expected: DocumentData) {
-  let collab = MutexCollab::new(CollabOrigin::Server, doc_id, vec![], false);
+  let collab = MutexCollab::new(Collab::new_with_origin(
+    CollabOrigin::Server,
+    doc_id,
+    vec![],
+    false,
+  ));
   collab.lock().with_origin_transact_mut(|txn| {
     let update = Update::decode_v1(doc_state).unwrap();
     txn.apply_update(update);

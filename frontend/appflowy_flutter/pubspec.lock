@@ -53,18 +53,18 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: e83378c
-      resolved-ref: e83378cc656efbf967649e91a322791e3aa3a378
+      ref: "6d12761"
+      resolved-ref: "6d127619294060999522be904a3e72a59dc270ca"
       url: "https://github.com/AppFlowy-IO/appflowy-editor.git"
     source: git
     version: "2.3.3"
   appflowy_editor_plugins:
     dependency: "direct main"
     description:
-      path: "."
-      ref: "8f238f2"
-      resolved-ref: "8f238f214de72e629fe2d90317518c5a0510cdc5"
-      url: "https://github.com/LucasXu0/appflowy_editor_plugins"
+      path: "packages/appflowy_editor_plugins"
+      ref: "37f35e77"
+      resolved-ref: "37f35e77aefb1b9a0b872086d156b1b885ba02df"
+      url: "https://github.com/AppFlowy-IO/appflowy-plugins.git"
     source: git
     version: "0.0.1"
   appflowy_popover:
@@ -173,10 +173,10 @@ packages:
     dependency: "direct dev"
     description:
       name: build_runner
-      sha256: "581bacf68f89ec8792f5e5a0b2c4decd1c948e97ce659dc783688c8a88fbec21"
+      sha256: "3ac61a79bfb6f6cc11f693591063a7f19a7af628dc52f141743edac5c16e8c22"
       url: "https://pub.dev"
     source: hosted
-    version: "2.4.8"
+    version: "2.4.9"
   build_runner_core:
     dependency: transitive
     description:
@@ -1965,10 +1965,10 @@ packages:
     dependency: "direct main"
     description:
       name: url_launcher
-      sha256: c512655380d241a337521703af62d2c122bf7b77a46ff7dd750092aa9433499c
+      sha256: "6ce1e04375be4eed30548f10a315826fd933c1e493206eab82eed01f438c8d2e"
       url: "https://pub.dev"
     source: hosted
-    version: "6.2.4"
+    version: "6.2.6"
   url_launcher_android:
     dependency: transitive
     description:

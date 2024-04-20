@@ -2,7 +2,7 @@ use anyhow::anyhow;
 use std::collections::HashMap;
 use std::sync::{Arc, Weak};
 
-use collab::core::collab::{DocStateSource, MutexCollab};
+use collab::core::collab::{DataSource, MutexCollab};
 use collab_database::blocks::BlockEvent;
 use collab_database::database::{DatabaseData, MutexDatabase};
 use collab_database::error::DatabaseError;
@@ -95,7 +95,7 @@ impl DatabaseManager {
     };
     let config = CollabPersistenceConfig::new().snapshot_per_update(100);
 
-    let mut workspace_database_doc_state = DocStateSource::FromDisk;
+    let mut workspace_database_doc_state = DataSource::Disk;
     // If the workspace database not exist in disk, try to fetch from remote.
     if !self.is_collab_exist(uid, &collab_db, &workspace_database_object_id) {
       trace!("workspace database not exist, try to fetch from remote");
@@ -110,10 +110,10 @@ impl DatabaseManager {
       {
         Ok(doc_state) => match doc_state {
           Some(doc_state) => {
-            workspace_database_doc_state = DocStateSource::FromDocState(doc_state);
+            workspace_database_doc_state = DataSource::DocStateV1(doc_state);
           },
           None => {
-            workspace_database_doc_state = DocStateSource::FromDisk;
+            workspace_database_doc_state = DataSource::Disk;
           },
         },
         Err(err) => {
@@ -282,7 +282,7 @@ impl DatabaseManager {
 
   pub async fn duplicate_database(&self, view_id: &str) -> FlowyResult<Vec<u8>> {
     let wdb = self.get_workspace_database().await?;
-    let data = wdb.get_database_duplicated_data(view_id).await?;
+    let data = wdb.get_database_data(view_id).await?;
     let json_bytes = data.to_json_bytes()?;
     Ok(json_bytes)
   }
@@ -294,11 +294,22 @@ impl DatabaseManager {
     view_id: &str,
     data: Vec<u8>,
   ) -> FlowyResult<()> {
-    let mut database_data = DatabaseData::from_json_bytes(data)?;
-    database_data.view.id = view_id.to_string();
+    let database_data = DatabaseData::from_json_bytes(data)?;
+
+    let mut create_database_params = CreateDatabaseParams::from_database_data(database_data);
+    let old_view_id = create_database_params.inline_view_id.clone();
+    create_database_params.inline_view_id = view_id.to_string();
+
+    if let Some(create_view_params) = create_database_params
+      .views
+      .iter_mut()
+      .find(|view| view.view_id == old_view_id)
+    {
+      create_view_params.view_id = view_id.to_string();
+    }
 
     let wdb = self.get_workspace_database().await?;
-    let _ = wdb.create_database_with_data(database_data)?;
+    let _ = wdb.create_database(create_database_params)?;
     Ok(())
   }
 
@@ -346,7 +357,7 @@ impl DatabaseManager {
     .map_err(internal_error)??;
     let result = ImportResult {
       database_id: params.database_id.clone(),
-      view_id: params.view_id.clone(),
+      view_id: params.inline_view_id.clone(),
     };
     self.create_database_with_params(params).await?;
     Ok(result)
@@ -444,7 +455,7 @@ impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
     &self,
     object_id: &str,
     object_ty: CollabType,
-  ) -> CollabFuture<Result<DocStateSource, DatabaseError>> {
+  ) -> CollabFuture<Result<DataSource, DatabaseError>> {
     let workspace_id = self.workspace_id.clone();
     let object_id = object_id.to_string();
     let weak_cloud_service = Arc::downgrade(&self.cloud_service);
@@ -456,8 +467,8 @@ impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
             .get_database_object_doc_state(&object_id, object_ty, &workspace_id)
             .await?;
           match doc_state {
-            None => Ok(DocStateSource::FromDisk),
-            Some(doc_state) => Ok(DocStateSource::FromDocState(doc_state)),
+            None => Ok(DataSource::Disk),
+            Some(doc_state) => Ok(DataSource::DocStateV1(doc_state)),
           }
         },
       }
@@ -493,7 +504,7 @@ impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
     object_id: &str,
     object_type: CollabType,
     collab_db: Weak<CollabKVDB>,
-    collab_raw_data: DocStateSource,
+    collab_raw_data: DataSource,
     persistence_config: CollabPersistenceConfig,
   ) -> Result<Arc<MutexCollab>, DatabaseError> {
     let collab = self.collab_builder.build_with_config(

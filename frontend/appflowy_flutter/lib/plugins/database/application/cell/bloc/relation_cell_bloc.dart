@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
+import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/application/field/type_option/relation_type_option_cubit.dart';
 import 'package:appflowy/plugins/database/application/field/type_option/type_option_data_parser.dart';
 import 'package:appflowy/plugins/database/domain/field_service.dart';
@@ -16,7 +17,7 @@ part 'relation_cell_bloc.freezed.dart';
 
 class RelationCellBloc extends Bloc<RelationCellEvent, RelationCellState> {
   RelationCellBloc({required this.cellController})
-      : super(RelationCellState.initial()) {
+      : super(RelationCellState.initial(cellController)) {
     _dispatch();
     _startListening();
     _init();
@@ -28,8 +29,10 @@ class RelationCellBloc extends Bloc<RelationCellEvent, RelationCellState> {
   @override
   Future<void> close() async {
     if (_onCellChangedFn != null) {
-      cellController.removeListener(_onCellChangedFn!);
-      _onCellChangedFn = null;
+      cellController.removeListener(
+        onCellChanged: _onCellChangedFn!,
+        onFieldChanged: _onFieldChangedListener,
+      );
     }
     return super.close();
   }
@@ -38,7 +41,7 @@ class RelationCellBloc extends Bloc<RelationCellEvent, RelationCellState> {
     on<RelationCellEvent>(
       (event, emit) async {
         await event.when(
-          didUpdateCell: (RelationCellDataPB? cellData) async {
+          didUpdateCell: (cellData) async {
             if (cellData == null ||
                 cellData.rowIds.isEmpty ||
                 state.relatedDatabaseMeta == null) {
@@ -60,7 +63,13 @@ class RelationCellBloc extends Bloc<RelationCellEvent, RelationCellState> {
             );
             emit(state.copyWith(rows: rows));
           },
-          didUpdateRelationTypeOption: (typeOption) async {
+          didUpdateField: (FieldInfo fieldInfo) async {
+            final wrap = fieldInfo.wrapCellContent;
+            if (wrap != null) {
+              emit(state.copyWith(wrap: wrap));
+            }
+            final RelationTypeOptionPB typeOption =
+                cellController.getTypeOption(RelationTypeOptionDataParser());
             if (typeOption.databaseId.isEmpty) {
               return;
             }
@@ -86,29 +95,23 @@ class RelationCellBloc extends Bloc<RelationCellEvent, RelationCellState> {
           add(RelationCellEvent.didUpdateCell(data));
         }
       },
-      onCellFieldChanged: (field) {
-        // hack: SingleFieldListener receives notification before
-        // FieldController's copy is updated.
-        Future.delayed(const Duration(milliseconds: 50), () {
-          if (!isClosed) {
-            final RelationTypeOptionPB typeOption =
-                cellController.getTypeOption(RelationTypeOptionDataParser());
-            add(RelationCellEvent.didUpdateRelationTypeOption(typeOption));
-          }
-        });
-      },
+      onFieldChanged: _onFieldChangedListener,
     );
   }
 
+  void _onFieldChangedListener(FieldInfo fieldInfo) {
+    if (!isClosed) {
+      add(RelationCellEvent.didUpdateField(fieldInfo));
+    }
+  }
+
   void _init() {
-    final typeOption =
-        cellController.getTypeOption(RelationTypeOptionDataParser());
-    add(RelationCellEvent.didUpdateRelationTypeOption(typeOption));
+    add(RelationCellEvent.didUpdateField(cellController.fieldInfo));
   }
 
   void _loadCellData() {
     final cellData = cellController.getCellData();
-    if (!isClosed) {
+    if (!isClosed && cellData != null) {
       add(RelationCellEvent.didUpdateCell(cellData));
     }
   }
@@ -170,11 +173,10 @@ class RelationCellBloc extends Bloc<RelationCellEvent, RelationCellState> {
 
 @freezed
 class RelationCellEvent with _$RelationCellEvent {
-  const factory RelationCellEvent.didUpdateRelationTypeOption(
-    RelationTypeOptionPB typeOption,
-  ) = _DidUpdateRelationTypeOption;
   const factory RelationCellEvent.didUpdateCell(RelationCellDataPB? data) =
       _DidUpdateCell;
+  const factory RelationCellEvent.didUpdateField(FieldInfo fieldInfo) =
+      _DidUpdateField;
   const factory RelationCellEvent.selectDatabaseId(
     String databaseId,
   ) = _SelectDatabaseId;
@@ -186,10 +188,15 @@ class RelationCellState with _$RelationCellState {
   const factory RelationCellState({
     required DatabaseMeta? relatedDatabaseMeta,
     required List<RelatedRowDataPB> rows,
+    required bool wrap,
   }) = _RelationCellState;
 
-  factory RelationCellState.initial() => const RelationCellState(
-        relatedDatabaseMeta: null,
-        rows: [],
-      );
+  factory RelationCellState.initial(RelationCellController cellController) {
+    final wrap = cellController.fieldInfo.wrapCellContent;
+    return RelationCellState(
+      relatedDatabaseMeta: null,
+      rows: [],
+      wrap: wrap ?? true,
+    );
+  }
 }

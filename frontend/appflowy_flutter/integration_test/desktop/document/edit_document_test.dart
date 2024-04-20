@@ -13,7 +13,7 @@ void main() {
   group('edit document', () {
     testWidgets('redo & undo', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       // create a new document called Sample
       const pageName = 'Sample';
@@ -67,7 +67,7 @@ void main() {
 
     testWidgets('write a readme document', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       // create a new document called Sample
       const pageName = 'Sample';

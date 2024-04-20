@@ -726,6 +726,7 @@
       "discardResponse": "Vuoi scartare le risposte AI?",
       "createInlineMathEquation": "Crea un'equazione",
       "fonts": "Caratteri",
+      "emoji": "Emoji",
       "toggleList": "Elenco alternato",
       "quoteList": "Elenco citazioni",
       "numberedList": "Elenco numerato",
@@ -811,8 +812,7 @@
         "newDatabase": "Nuova banca dati",
         "linkToDatabase": "Collegamento alla banca dati"
       },
-      "date": "Data",
-      "emoji": "Emoji"
+      "date": "Data"
     },
     "textBlock": {
       "placeholder": "Digita '/' per i comandi"
@@ -934,9 +934,9 @@
     "notesTooltip": "Note all'interno",
     "mobile": {
       "editURL": "Modifica URL",
-      "unhideGroup": "Mostra gruppo",
-      "unhideGroupContent": "Sei sicuro di voler mostrare questo gruppo sulla bacheca?",
-      "faildToLoad": "Impossibile caricare la visualizzazione della bacheca"
+      "showGroup": "Mostra gruppo",
+      "showGroupContent": "Sei sicuro di voler mostrare questo gruppo sulla bacheca?",
+      "failedToLoad": "Impossibile caricare la visualizzazione della bacheca"
     }
   },
   "calendar": {

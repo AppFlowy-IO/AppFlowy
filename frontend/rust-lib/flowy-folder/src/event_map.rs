@@ -41,6 +41,7 @@ pub fn init(folder: Weak<FolderManager>) -> AFPlugin {
     .event(FolderEvent::ReadPrivateViews, read_private_views_handler)
     .event(FolderEvent::ReadCurrentWorkspaceViews, get_current_workspace_views_handler)
     .event(FolderEvent::UpdateViewVisibilityStatus, update_view_visibility_status_handler)
+    .event(FolderEvent::GetViewAncestors, get_view_ancestors_handler)
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
@@ -170,4 +171,8 @@ pub enum FolderEvent {
 
   #[event(input = "UpdateViewVisibilityStatusPayloadPB")]
   UpdateViewVisibilityStatus = 41,
+
+  /// Return the ancestors of the view
+  #[event(input = "ViewIdPB", output = "RepeatedViewPB")]
+  GetViewAncestors = 42,
 }

@@ -94,7 +94,7 @@ void main() {
     testWidgets('reset to default location', (tester) async {
       await tester.initializeAppFlowy();
 
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       // home and readme document
       await tester.expectToSeeHomePageWithGetStartedPage();

@@ -41,7 +41,7 @@ class _TimestampCellState extends State<TimestampCardCell> {
             widget.databaseController,
             widget.cellContext,
           ).as(),
-        )..add(const TimestampCellEvent.initial());
+        );
       },
       child: BlocBuilder<TimestampCellBloc, TimestampCellState>(
         buildWhen: (previous, current) => previous.dateStr != current.dateStr,

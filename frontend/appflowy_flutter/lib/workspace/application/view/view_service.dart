@@ -167,9 +167,10 @@ class ViewBackendService {
   static Future<FlowyResult<void, FlowyError>> updateViewIcon({
     required String viewId,
     required String viewIcon,
+    ViewIconTypePB iconType = ViewIconTypePB.Emoji,
   }) {
     final icon = ViewIconPB()
-      ..ty = ViewIconTypePB.Emoji
+      ..ty = iconType
       ..value = viewIcon;
     final payload = UpdateViewIconPayloadPB.create()
       ..viewId = viewId
@@ -260,10 +261,17 @@ class ViewBackendService {
   }
 
   static Future<FlowyResult<ViewPB, FlowyError>> getView(
-    String viewID,
+    String viewId,
   ) async {
-    final payload = ViewIdPB.create()..value = viewID;
+    final payload = ViewIdPB.create()..value = viewId;
     return FolderEventGetView(payload).send();
+  }
+
+  static Future<FlowyResult<RepeatedViewPB, FlowyError>> getViewAncestors(
+    String viewId,
+  ) async {
+    final payload = ViewIdPB.create()..value = viewId;
+    return FolderEventGetViewAncestors(payload).send();
   }
 
   Future<FlowyResult<ViewPB, FlowyError>> getChildView({

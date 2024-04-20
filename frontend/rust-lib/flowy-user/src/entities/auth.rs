@@ -78,6 +78,15 @@ impl TryInto<SignUpParams> for SignUpPayloadPB {
 }
 
 #[derive(ProtoBuf, Default)]
+pub struct MagicLinkSignInPB {
+  #[pb(index = 1)]
+  pub email: String,
+
+  #[pb(index = 2)]
+  pub redirect_to: String,
+}
+
+#[derive(ProtoBuf, Default)]
 pub struct OauthSignInPB {
   /// Use this field to store the third party auth information.
   /// Different auth type has different fields.

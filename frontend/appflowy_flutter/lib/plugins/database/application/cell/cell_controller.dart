@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/domain/cell_listener.dart';
-import 'package:appflowy/plugins/database/domain/field_listener.dart';
 import 'package:appflowy/plugins/database/application/field/type_option/type_option_data_parser.dart';
 import 'package:appflowy/plugins/database/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database/domain/row_meta_listener.dart';
@@ -49,7 +48,6 @@ class CellController<T, D> {
         _rowCache = rowCache,
         _cellDataLoader = cellDataLoader,
         _cellDataPersistence = cellDataPersistence,
-        _fieldListener = SingleFieldListener(fieldId: cellContext.fieldId),
         _cellDataNotifier =
             CellDataNotifier(value: rowCache.cellCache.get(cellContext)) {
     _startListening();
@@ -64,10 +62,8 @@ class CellController<T, D> {
 
   CellListener? _cellListener;
   RowMetaListener? _rowMetaListener;
-  SingleFieldListener? _fieldListener;
   CellDataNotifier<T?>? _cellDataNotifier;
 
-  void Function(FieldPB field)? _onCellFieldChanged;
   VoidCallback? _onRowMetaChanged;
   Timer? _loadDataOperation;
   Timer? _saveDataOperation;
@@ -105,17 +101,9 @@ class CellController<T, D> {
     );
 
     // 2. Listen on the field event and load the cell data if needed.
-    _fieldListener?.start(
-      onFieldChanged: (fieldPB) {
-        // reloadOnFieldChanged should be true if you want to reload the cell
-        // data when the corresponding field is changed.
-        // For example:
-        //   ￥12 -> $12
-        if (_cellDataLoader.reloadOnFieldChange) {
-          _loadData();
-        }
-        _onCellFieldChanged?.call(fieldPB);
-      },
+    _fieldController.addSingleFieldListener(
+      fieldId,
+      onFieldChanged: _onFieldChangedListener,
     );
 
     // 3. If the field is primary listen to row meta changes.
@@ -132,22 +120,49 @@ class CellController<T, D> {
   /// Add a new listener
   VoidCallback? addListener({
     required void Function(T?) onCellChanged,
-    void Function(FieldPB field)? onCellFieldChanged,
+    void Function(FieldInfo fieldInfo)? onFieldChanged,
     VoidCallback? onRowMetaChanged,
   }) {
-    _onCellFieldChanged = onCellFieldChanged;
-    _onRowMetaChanged = onRowMetaChanged;
-
-    /// Notify the listener, the cell data was changed.
+    /// an adaptor for the onCellChanged listener
     void onCellChangedFn() => onCellChanged(_cellDataNotifier?.value);
     _cellDataNotifier?.addListener(onCellChangedFn);
+
+    if (onFieldChanged != null) {
+      _fieldController.addSingleFieldListener(
+        fieldId,
+        onFieldChanged: onFieldChanged,
+      );
+    }
+
+    _onRowMetaChanged = onRowMetaChanged;
 
     // Return the function pointer that can be used when calling removeListener.
     return onCellChangedFn;
   }
 
-  void removeListener(VoidCallback fn) {
-    _cellDataNotifier?.removeListener(fn);
+  void removeListener({
+    required VoidCallback onCellChanged,
+    void Function(FieldInfo fieldInfo)? onFieldChanged,
+    VoidCallback? onRowMetaChanged,
+  }) {
+    _cellDataNotifier?.removeListener(onCellChanged);
+
+    if (onFieldChanged != null) {
+      _fieldController.removeSingleFieldListener(
+        fieldId: fieldId,
+        onFieldChanged: onFieldChanged,
+      );
+    }
+  }
+
+  void _onFieldChangedListener(FieldInfo fieldInfo) {
+    // reloadOnFieldChanged should be true if you want to reload the cell
+    // data when the corresponding field is changed.
+    // For example:
+    //   ￥12 -> $12
+    if (_cellDataLoader.reloadOnFieldChange) {
+      _loadData();
+    }
   }
 
   /// Get the cell data. The cell data will be read from the cache first,
@@ -163,7 +178,7 @@ class CellController<T, D> {
 
   /// Return the TypeOptionPB that can be parsed into corresponding class using the [parser].
   /// [PD] is the type that the parser return.
-  PD getTypeOption<PD, P extends TypeOptionParser>(P parser) {
+  PD getTypeOption<PD>(TypeOptionParser parser) {
     return parser.fromBuffer(fieldInfo.field.typeOptionData);
   }
 
@@ -220,8 +235,10 @@ class CellController<T, D> {
     await _cellListener?.stop();
     _cellListener = null;
 
-    await _fieldListener?.stop();
-    _fieldListener = null;
+    _fieldController.removeSingleFieldListener(
+      fieldId: fieldId,
+      onFieldChanged: _onFieldChangedListener,
+    );
 
     _loadDataOperation?.cancel();
     _saveDataOperation?.cancel();

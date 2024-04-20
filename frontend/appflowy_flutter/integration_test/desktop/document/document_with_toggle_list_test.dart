@@ -36,7 +36,7 @@ void main() {
     testWidgets('convert > to toggle list, and click the icon to close it',
         (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       // create a new document
       await tester.createNewPageWithNameUnderParent();
@@ -80,7 +80,7 @@ void main() {
         (tester) async {
       // if the toggle list is closed, press enter key will insert a new toggle list after it
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       // create a new document
       await tester.createNewPageWithNameUnderParent();
@@ -117,7 +117,7 @@ void main() {
     testWidgets('press enter key when the toggle list is open', (tester) async {
       // if the toggle list is open, press enter key will insert a new paragraph inside it
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       // create a new document
       await tester.createNewPageWithNameUnderParent();
@@ -152,7 +152,7 @@ void main() {
     testWidgets('clear the format if toggle list if empty', (tester) async {
       // if the toggle list is open, press enter key will insert a new paragraph inside it
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       // create a new document
       await tester.createNewPageWithNameUnderParent();
@@ -181,7 +181,7 @@ void main() {
         (tester) async {
       // if the toggle list is open, press enter key will insert a new paragraph inside it
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       // create a new document
       await tester.createNewPageWithNameUnderParent();

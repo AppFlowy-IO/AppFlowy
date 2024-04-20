@@ -16,7 +16,7 @@ use crate::util::{
   folder_not_init_error, insert_parent_child_views, workspace_data_not_sync_error,
 };
 use crate::view_operation::{create_view, FolderOperationHandler, FolderOperationHandlers};
-use collab::core::collab::{DocStateSource, MutexCollab};
+use collab::core::collab::{DataSource, MutexCollab};
 use collab_entity::CollabType;
 use collab_folder::error::FolderError;
 use collab_folder::{
@@ -28,6 +28,7 @@ use collab_integrate::{CollabKVDB, CollabPersistenceConfig};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_folder_pub::cloud::{gen_view_id, FolderCloudService};
 use flowy_folder_pub::folder_builder::ParentChildViews;
+use flowy_search_pub::entities::FolderIndexManager;
 use lib_infra::conditional_send_sync_trait;
 use parking_lot::{Mutex, RwLock};
 use std::fmt::{Display, Formatter};
@@ -44,12 +45,16 @@ conditional_send_sync_trait! {
 }
 
 pub struct FolderManager {
+  /// workspace_id represents as the id of the Folder.
   pub(crate) workspace_id: RwLock<Option<String>>,
+
+  /// MutexFolder is the folder that is used to store the data.
   pub(crate) mutex_folder: Arc<MutexFolder>,
   pub(crate) collab_builder: Arc<AppFlowyCollabBuilder>,
   pub(crate) user: Arc<dyn FolderUser>,
   pub(crate) operation_handlers: FolderOperationHandlers,
   pub cloud_service: Arc<dyn FolderCloudService>,
+  pub(crate) folder_indexer: Arc<dyn FolderIndexManager>,
 }
 
 impl FolderManager {
@@ -58,6 +63,7 @@ impl FolderManager {
     collab_builder: Arc<AppFlowyCollabBuilder>,
     operation_handlers: FolderOperationHandlers,
     cloud_service: Arc<dyn FolderCloudService>,
+    folder_indexer: Arc<dyn FolderIndexManager>,
   ) -> FlowyResult<Self> {
     let mutex_folder = Arc::new(MutexFolder::default());
     let manager = Self {
@@ -67,6 +73,7 @@ impl FolderManager {
       operation_handlers,
       cloud_service,
       workspace_id: Default::default(),
+      folder_indexer,
     };
 
     Ok(manager)
@@ -134,7 +141,7 @@ impl FolderManager {
     if let Some(workspace_id) = workspace_id {
       self.get_workspace_public_views(&workspace_id).await
     } else {
-      tracing::warn!("Can't get current workspace views");
+      tracing::warn!("Can't get the workspace id from the folder. Return empty list.");
       Ok(vec![])
     }
   }
@@ -160,7 +167,7 @@ impl FolderManager {
     uid: i64,
     workspace_id: &str,
     collab_db: Weak<CollabKVDB>,
-    doc_state: DocStateSource,
+    doc_state: DataSource,
     folder_notifier: T,
   ) -> Result<Folder, FlowyError> {
     let folder_notifier = folder_notifier.into();
@@ -205,7 +212,7 @@ impl FolderManager {
       workspace_id,
       CollabType::Folder,
       collab_db,
-      DocStateSource::FromDisk,
+      DataSource::Disk,
       CollabPersistenceConfig::new()
         .enable_snapshot(true)
         .snapshot_per_update(50),
@@ -463,6 +470,13 @@ impl FolderManager {
       },
     );
 
+    if let Ok(workspace_id) = self.get_current_workspace_id().await {
+      let folder = &self.mutex_folder.lock();
+      if let Some(folder) = folder.as_ref() {
+        notify_did_update_workspace(&workspace_id, folder);
+      }
+    }
+
     Ok(view)
   }
 
@@ -500,9 +514,13 @@ impl FolderManager {
     Ok(())
   }
 
-  /// Returns the view with the given view id.
-  /// The child views of the view will only access the first. So if you want to get the child view's
-  /// child view, you need to call this method again.
+  /// Retrieves the view corresponding to the specified view ID.
+  ///
+  /// It is important to note that if the target view contains child views,
+  /// this method only provides access to the first level of child views.
+  ///
+  /// Therefore, to access a nested child view within one of the initial child views, you must invoke this method
+  /// again using the ID of the child view you wish to access.
   #[tracing::instrument(level = "debug", skip(self))]
   pub async fn get_view_pb(&self, view_id: &str) -> FlowyResult<ViewPB> {
     let view_id = view_id.to_string();
@@ -515,7 +533,7 @@ impl FolderManager {
     if view_ids_should_be_filtered.contains(&view_id) {
       return Err(FlowyError::new(
         ErrorCode::RecordNotFound,
-        format!("View:{} is in trash or other private section", view_id),
+        format!("View: {} is in trash or other private sections", view_id),
       ));
     }
 
@@ -535,6 +553,28 @@ impl FolderManager {
         Ok(view_pb)
       },
     }
+  }
+
+  /// Retrieves the ancestors of the view corresponding to the specified view ID, including the view itself.
+  ///
+  /// For example, if the view hierarchy is as follows:
+  ///   - View A
+  ///    - View B
+  ///     - View C
+  ///
+  /// If you invoke this method with the ID of View C, it will return a list of views: [View A, View B, View C].
+  #[tracing::instrument(level = "debug", skip(self))]
+  pub async fn get_view_ancestors_pb(&self, view_id: &str) -> FlowyResult<Vec<ViewPB>> {
+    let mut ancestors = vec![];
+    let mut parent_view_id = view_id.to_string();
+    while let Some(view) =
+      self.with_folder(|| None, |folder| folder.views.get_view(&parent_view_id))
+    {
+      ancestors.push(view_pb_without_child_views(view.as_ref().clone()));
+      parent_view_id = view.parent_view_id.clone();
+    }
+    ancestors.reverse();
+    Ok(ancestors)
   }
 
   /// Move the view to trash. If the view is the current view, then set the current view to empty.
@@ -1275,6 +1315,8 @@ pub(crate) fn get_workspace_private_view_pbs(_workspace_id: &str, folder: &Folde
     .collect()
 }
 
+/// The MutexFolder is a wrapper of the [Folder] that is used to share the folder between different
+/// threads.  
 #[derive(Clone, Default)]
 pub struct MutexFolder(Arc<Mutex<Option<Folder>>>);
 impl Deref for MutexFolder {

@@ -1,4 +1,10 @@
-use crate::entities::{ChecklistCellDataPB, ChecklistFilterPB, FieldType, SelectOptionPB};
+use std::cmp::Ordering;
+
+use collab_database::fields::{TypeOptionData, TypeOptionDataBuilder};
+use collab_database::rows::Cell;
+use flowy_error::FlowyResult;
+
+use crate::entities::{ChecklistCellDataPB, ChecklistFilterPB, SelectOptionPB};
 use crate::services::cell::{CellDataChangeset, CellDataDecoder};
 use crate::services::field::checklist_type_option::{ChecklistCellChangeset, ChecklistCellData};
 use crate::services::field::{
@@ -6,10 +12,6 @@ use crate::services::field::{
   TypeOptionCellDataFilter, TypeOptionCellDataSerde, TypeOptionTransform, SELECTION_IDS_SEPARATOR,
 };
 use crate::services::sort::SortCondition;
-use collab_database::fields::{Field, TypeOptionData, TypeOptionDataBuilder};
-use collab_database::rows::Cell;
-use flowy_error::FlowyResult;
-use std::cmp::Ordering;
 
 #[derive(Debug, Clone, Default)]
 pub struct ChecklistTypeOption;
@@ -141,16 +143,7 @@ fn update_cell_data_with_changeset(
 }
 
 impl CellDataDecoder for ChecklistTypeOption {
-  fn decode_cell(
-    &self,
-    cell: &Cell,
-    decoded_field_type: &FieldType,
-    _field: &Field,
-  ) -> FlowyResult<<Self as TypeOption>::CellData> {
-    if !decoded_field_type.is_checklist() {
-      return Ok(Default::default());
-    }
-
+  fn decode_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
     self.parse_cell(cell)
   }
 
@@ -161,11 +154,6 @@ impl CellDataDecoder for ChecklistTypeOption {
       .map(|option| option.name)
       .collect::<Vec<_>>()
       .join(SELECTION_IDS_SEPARATOR)
-  }
-
-  fn stringify_cell(&self, cell: &Cell) -> String {
-    let cell_data = self.parse_cell(cell).unwrap_or_default();
-    self.stringify_cell_data(cell_data)
   }
 
   fn numeric_cell(&self, _cell: &Cell) -> Option<f64> {

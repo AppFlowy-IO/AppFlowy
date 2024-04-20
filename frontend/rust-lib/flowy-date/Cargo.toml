@@ -19,9 +19,9 @@ date_time_parser = { version = "0.2.0" }
 chrono.workspace = true
 fancy-regex = { version = "0.11.0" }
 
+[build-dependencies]
+flowy-codegen.workspace = true
+
 [features]
 dart = ["flowy-codegen/dart"]
 tauri_ts = ["flowy-codegen/ts"]
-
-[build-dependencies]
-flowy-codegen.workspace = true

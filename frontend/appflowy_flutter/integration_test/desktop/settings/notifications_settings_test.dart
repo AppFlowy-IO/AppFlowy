@@ -11,7 +11,7 @@ void main() {
   group('board add row test', () {
     testWidgets('Add card from header', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       await tester.openSettings();
       await tester.openSettingsPage(SettingsPage.notifications);

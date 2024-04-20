@@ -28,7 +28,7 @@ pub(crate) const CREATED_AT: &str = "created_at";
 pub fn table_name(ty: &CollabType) -> String {
   match ty {
     CollabType::DatabaseRow => format!("{}_database_row", AF_COLLAB_UPDATE_TABLE),
-    CollabType::Document | CollabType::Empty => format!("{}_document", AF_COLLAB_UPDATE_TABLE),
+    CollabType::Document | CollabType::Unknown => format!("{}_document", AF_COLLAB_UPDATE_TABLE),
     CollabType::Database => format!("{}_database", AF_COLLAB_UPDATE_TABLE),
     CollabType::WorkspaceDatabase => format!("{}_w_database", AF_COLLAB_UPDATE_TABLE),
     CollabType::Folder => format!("{}_folder", AF_COLLAB_UPDATE_TABLE),
@@ -44,6 +44,6 @@ pub fn partition_key(collab_type: &CollabType) -> i32 {
     CollabType::Folder => 3,
     CollabType::DatabaseRow => 4,
     CollabType::UserAwareness => 5,
-    CollabType::Empty => 0,
+    CollabType::Unknown => 0,
   }
 }

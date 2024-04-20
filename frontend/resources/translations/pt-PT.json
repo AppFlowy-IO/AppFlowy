@@ -724,7 +724,12 @@
       "createNewCard": "Novo"
     },
     "menuName": "Quadro",
-    "referencedBoardPrefix": "Vista de"
+    "referencedBoardPrefix": "Vista de",
+    "mobile": {
+      "showGroup": "Mostrar grupo",
+      "showGroupContent": "Tem certeza de que deseja mostrar este grupo no quadro?",
+      "failedToLoad": "Falha ao carregar a visualização do quadro"
+    }
   },
   "calendar": {
     "menuName": "Calendário",

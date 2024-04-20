@@ -1,6 +1,6 @@
 use anyhow::Error;
 use client_api::entity::{QueryCollab, QueryCollabParams};
-use collab::core::collab::DocStateSource;
+use collab::core::collab::DataSource;
 use collab::core::origin::CollabOrigin;
 use collab_document::document::Document;
 use collab_entity::CollabType;
@@ -76,7 +76,7 @@ where
         .to_vec();
       let document = Document::from_doc_state(
         CollabOrigin::Empty,
-        DocStateSource::FromDocState(doc_state),
+        DataSource::DocStateV1(doc_state),
         &document_id,
         vec![],
       )?;

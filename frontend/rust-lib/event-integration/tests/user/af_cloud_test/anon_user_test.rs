@@ -3,11 +3,11 @@ use event_integration::EventIntegrationTest;
 use flowy_core::DEFAULT_NAME;
 use flowy_user::entities::AuthenticatorPB;
 
-use crate::util::unzip_history_user_db;
+use crate::util::unzip;
 
 #[tokio::test]
 async fn reading_039_anon_user_data_test() {
-  let (cleaner, user_db_path) = unzip_history_user_db("./tests/asset", "039_local").unwrap();
+  let (cleaner, user_db_path) = unzip("./tests/asset", "039_local").unwrap();
   let test =
     EventIntegrationTest::new_with_user_data_path(user_db_path, DEFAULT_NAME.to_string()).await;
   let first_level_views = test.get_all_workspace_views().await;
@@ -42,7 +42,7 @@ async fn reading_039_anon_user_data_test() {
 
 #[tokio::test]
 async fn migrate_anon_user_data_to_af_cloud_test() {
-  let (cleaner, user_db_path) = unzip_history_user_db("./tests/asset", "040_local").unwrap();
+  let (cleaner, user_db_path) = unzip("./tests/asset", "040_local").unwrap();
   // In the 040_local, the structure is:
   // workspace:
   //  view: Document1

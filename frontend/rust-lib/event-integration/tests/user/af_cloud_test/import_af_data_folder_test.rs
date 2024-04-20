@@ -1,4 +1,4 @@
-use crate::util::unzip_history_user_db;
+use crate::util::unzip;
 use assert_json_diff::assert_json_include;
 use collab_database::rows::database_row_document_id_from_row_id;
 use event_integration::user_event::user_localhost_af_cloud;
@@ -12,8 +12,7 @@ use std::env::temp_dir;
 async fn import_appflowy_data_need_migration_test() {
   // In 037, the workspace array will be migrated to view.
   let import_container_name = "037_local".to_string();
-  let (cleaner, user_db_path) =
-    unzip_history_user_db("./tests/asset", &import_container_name).unwrap();
+  let (cleaner, user_db_path) = unzip("./tests/asset", &import_container_name).unwrap();
   // Getting started
   //  Document1
   //  Document2(fav)
@@ -52,8 +51,7 @@ async fn import_appflowy_data_need_migration_test() {
 #[tokio::test]
 async fn import_appflowy_data_folder_into_new_view_test() {
   let import_container_name = "040_local".to_string();
-  let (cleaner, user_db_path) =
-    unzip_history_user_db("./tests/asset", &import_container_name).unwrap();
+  let (cleaner, user_db_path) = unzip("./tests/asset", &import_container_name).unwrap();
   // In the 040_local, the structure is:
   // workspace:
   //  view: Document1
@@ -121,8 +119,7 @@ async fn import_appflowy_data_folder_into_new_view_test() {
 #[tokio::test]
 async fn import_appflowy_data_folder_into_current_workspace_test() {
   let import_container_name = "040_local".to_string();
-  let (cleaner, user_db_path) =
-    unzip_history_user_db("./tests/asset", &import_container_name).unwrap();
+  let (cleaner, user_db_path) = unzip("./tests/asset", &import_container_name).unwrap();
   // In the 040_local, the structure is:
   // workspace:
   //  view: Document1
@@ -169,8 +166,7 @@ async fn import_appflowy_data_folder_into_current_workspace_test() {
 #[tokio::test]
 async fn import_appflowy_data_folder_into_new_view_test2() {
   let import_container_name = "040_local_2".to_string();
-  let (cleaner, user_db_path) =
-    unzip_history_user_db("./tests/asset", &import_container_name).unwrap();
+  let (cleaner, user_db_path) = unzip("./tests/asset", &import_container_name).unwrap();
   user_localhost_af_cloud().await;
   let test = EventIntegrationTest::new_with_name(DEFAULT_NAME).await;
   let _ = test.af_cloud_sign_up().await;
@@ -209,8 +205,7 @@ async fn import_empty_appflowy_data_folder_test() {
 #[tokio::test]
 async fn import_appflowy_data_folder_multiple_times_test() {
   let import_container_name = "040_local_2".to_string();
-  let (cleaner, user_db_path) =
-    unzip_history_user_db("./tests/asset", &import_container_name).unwrap();
+  let (cleaner, user_db_path) = unzip("./tests/asset", &import_container_name).unwrap();
   // In the 040_local_2, the structure is:
   //  Getting Started
   //     Doc1

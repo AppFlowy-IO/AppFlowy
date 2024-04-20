@@ -27,7 +27,7 @@ void main() {
 
     testWidgets('first time the personal folder is expanded', (tester) async {
       await tester.initializeAppFlowy();
-      await tester.tapGoButton();
+      await tester.tapAnonymousSignInButton();
 
       // first time is expanded
       expect(isExpanded(type: FolderCategoryType.private), true);

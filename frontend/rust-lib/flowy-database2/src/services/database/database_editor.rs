@@ -10,11 +10,9 @@ use crate::services::database_view::{
 use crate::services::field::{
   default_type_option_data_from_type, select_type_option_from_field, transform_type_option,
   type_option_data_from_pb, ChecklistCellChangeset, RelationTypeOption, SelectOptionCellChangeset,
-  SelectOptionIds, StrCellData, TimestampCellData, TypeOptionCellDataHandler, TypeOptionCellExt,
+  StrCellData, TimestampCellData, TypeOptionCellDataHandler, TypeOptionCellExt,
 };
-use crate::services::field_settings::{
-  default_field_settings_by_layout_map, FieldSettings, FieldSettingsChangesetParams,
-};
+use crate::services::field_settings::{default_field_settings_by_layout_map, FieldSettings};
 use crate::services::filter::{Filter, FilterChangeset};
 use crate::services::group::{default_group_setting, GroupChangeset, GroupSetting, RowChangeset};
 use crate::services::share::csv::{CSVExport, CSVFormat};
@@ -32,6 +30,7 @@ use lib_dispatch::prelude::af_spawn;
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::{to_fut, Fut, FutureResult};
 use lib_infra::priority_task::TaskDispatcher;
+use lib_infra::util::timestamp;
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::{broadcast, RwLock};
@@ -309,10 +308,7 @@ impl DatabaseEditor {
       .lock()
       .fields
       .update_field(&params.field_id, |update| {
-        update
-          .set_name_if_not_none(params.name)
-          .set_width_at_if_not_none(params.width.map(|value| value as i64))
-          .set_visibility_if_not_none(params.visibility);
+        update.set_name_if_not_none(params.name);
       });
     notify_did_update_database_field(&self.database, &params.field_id)?;
     Ok(())
@@ -405,16 +401,16 @@ impl DatabaseEditor {
         }
 
         let old_field_type = FieldType::from(field.field_type);
-        let old_type_option = field.get_any_type_option(old_field_type);
-        let new_type_option = field
+        let old_type_option_data = field.get_any_type_option(old_field_type);
+        let new_type_option_data = field
           .get_any_type_option(new_field_type)
           .unwrap_or_else(|| default_type_option_data_from_type(new_field_type));
 
         let transformed_type_option = transform_type_option(
-          &new_type_option,
-          new_field_type,
-          old_type_option,
           old_field_type,
+          new_field_type,
+          old_type_option_data,
+          new_type_option_data,
         );
         self
           .database
@@ -710,6 +706,11 @@ impl DatabaseEditor {
       send_notification(row_id.as_str(), DatabaseNotification::DidUpdateRowMeta)
         .payload(RowMetaPB::from(&row_detail))
         .send();
+
+      // Update the last modified time of the row
+      self
+        .update_last_modified_time(row_detail.clone(), &changeset.view_id)
+        .await;
     }
   }
 
@@ -800,6 +801,26 @@ impl DatabaseEditor {
     self.update_cell(view_id, row_id, field_id, new_cell).await
   }
 
+  async fn update_last_modified_time(&self, row_detail: RowDetail, view_id: &str) {
+    self
+      .database
+      .lock()
+      .update_row(&row_detail.row.id, |row_update| {
+        row_update.set_last_modified(timestamp());
+      });
+
+    let editor = self.database_views.get_view_editor(view_id).await;
+    if let Ok(editor) = editor {
+      editor
+        .v_did_update_row(&Some(row_detail.clone()), &row_detail, None)
+        .await;
+    }
+
+    self
+      .notify_update_row(view_id, row_detail.row.id, vec![])
+      .await;
+  }
+
   /// Update a cell in the database.
   /// This will notify all views that the cell has been updated.
   pub async fn update_cell(
@@ -853,7 +874,7 @@ impl DatabaseEditor {
     if let Some(new_row_detail) = option_row {
       for view in self.database_views.editors().await {
         view
-          .v_did_update_row(&old_row, &new_row_detail, field_id.to_owned())
+          .v_did_update_row(&old_row, &new_row_detail, Some(field_id.to_owned()))
           .await;
       }
     }
@@ -987,24 +1008,6 @@ impl DatabaseEditor {
       .update_cell_with_changeset(view_id, row_id, field_id, BoxAny::new(cell_changeset))
       .await?;
     Ok(())
-  }
-
-  pub async fn get_select_options(&self, row_id: RowId, field_id: &str) -> SelectOptionCellDataPB {
-    let field = self.database.lock().fields.get_field(field_id);
-    match field {
-      None => SelectOptionCellDataPB::default(),
-      Some(field) => {
-        let cell = self.database.lock().get_cell(field_id, &row_id).cell;
-        let ids = match cell {
-          None => SelectOptionIds::new(),
-          Some(cell) => SelectOptionIds::from(&cell),
-        };
-        match select_type_option_from_field(&field) {
-          Ok(type_option) => type_option.get_selected_options(ids).into(),
-          Err(_) => SelectOptionCellDataPB::default(),
-        }
-      },
-    }
   }
 
   pub async fn set_checklist_options(
@@ -1288,17 +1291,10 @@ impl DatabaseEditor {
 
   pub async fn update_field_settings_with_changeset(
     &self,
-    params: FieldSettingsChangesetParams,
+    params: FieldSettingsChangesetPB,
   ) -> FlowyResult<()> {
     let view = self.database_views.get_view_editor(&params.view_id).await?;
-    view
-      .v_update_field_settings(
-        &params.view_id,
-        &params.field_id,
-        params.visibility,
-        params.width,
-      )
-      .await?;
+    view.v_update_field_settings(params).await?;
 
     Ok(())
   }
@@ -1323,7 +1319,7 @@ impl DatabaseEditor {
   ) -> FlowyResult<Vec<RelatedRowDataPB>> {
     let primary_field = self.database.lock().fields.get_primary_field().unwrap();
     let handler = TypeOptionCellExt::new(&primary_field, Some(self.cell_cache.clone()))
-      .get_type_option_cell_data_handler(&FieldType::RichText)
+      .get_type_option_cell_data_handler_with_field_type(FieldType::RichText)
       .ok_or(FlowyError::internal())?;
 
     let row_data = {
@@ -1338,11 +1334,7 @@ impl DatabaseEditor {
           let title = database
             .get_cell(&primary_field.id, &row.id)
             .cell
-            .and_then(|cell| {
-              handler
-                .get_cell_data(&cell, &FieldType::RichText, &primary_field)
-                .ok()
-            })
+            .and_then(|cell| handler.handle_get_boxed_cell_data(&cell, &primary_field))
             .and_then(|cell_data| cell_data.unbox_or_none())
             .unwrap_or_else(|| StrCellData("".to_string()));
 
@@ -1689,10 +1681,8 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
   fn get_type_option_cell_handler(
     &self,
     field: &Field,
-    field_type: &FieldType,
   ) -> Option<Box<dyn TypeOptionCellDataHandler>> {
-    TypeOptionCellExt::new(field, Some(self.cell_cache.clone()))
-      .get_type_option_cell_data_handler(field_type)
+    TypeOptionCellExt::new(field, Some(self.cell_cache.clone())).get_type_option_cell_data_handler()
   }
 
   fn get_field_settings(
@@ -1733,45 +1723,43 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
     field_settings
   }
 
-  fn update_field_settings(
-    &self,
-    view_id: &str,
-    field_id: &str,
-    visibility: Option<FieldVisibility>,
-    width: Option<i32>,
-  ) {
-    let field_settings_map = self.get_field_settings(view_id, &[field_id.to_string()]);
+  fn update_field_settings(&self, params: FieldSettingsChangesetPB) {
+    let field_settings_map = self.get_field_settings(&params.view_id, &[params.field_id.clone()]);
 
-    let new_field_settings = if let Some(field_settings) = field_settings_map.get(field_id) {
-      FieldSettings {
-        field_id: field_settings.field_id.clone(),
-        visibility: visibility.unwrap_or(field_settings.visibility.clone()),
-        width: width.unwrap_or(field_settings.width),
-      }
-    } else {
-      let layout_type = self.get_layout_for_view(view_id);
-      let default_field_settings = default_field_settings_by_layout_map()
-        .get(&layout_type)
-        .unwrap()
-        .to_owned();
-      let field_settings =
-        FieldSettings::from_any_map(field_id, layout_type, &default_field_settings);
-      FieldSettings {
-        field_id: field_settings.field_id.clone(),
-        visibility: visibility.unwrap_or(field_settings.visibility),
-        width: width.unwrap_or(field_settings.width),
-      }
+    let field_settings = field_settings_map
+      .get(&params.field_id)
+      .cloned()
+      .unwrap_or_else(|| {
+        let layout_type = self.get_layout_for_view(&params.view_id);
+        let default_field_settings = default_field_settings_by_layout_map();
+        let default_field_settings = default_field_settings.get(&layout_type).unwrap();
+
+        FieldSettings::from_any_map(&params.field_id, layout_type, default_field_settings)
+      });
+
+    let new_field_settings = FieldSettings {
+      visibility: params
+        .visibility
+        .unwrap_or_else(|| field_settings.visibility.clone()),
+      width: params.width.unwrap_or(field_settings.width),
+      wrap_cell_content: params
+        .wrap_cell_content
+        .unwrap_or(field_settings.wrap_cell_content),
+      ..field_settings
     };
 
     self.database.lock().update_field_settings(
-      view_id,
-      Some(vec![field_id.to_string()]),
+      &params.view_id,
+      Some(vec![params.field_id]),
       new_field_settings.clone(),
     );
 
-    send_notification(view_id, DatabaseNotification::DidUpdateFieldSettings)
-      .payload(FieldSettingsPB::from(new_field_settings))
-      .send()
+    send_notification(
+      &params.view_id,
+      DatabaseNotification::DidUpdateFieldSettings,
+    )
+    .payload(FieldSettingsPB::from(new_field_settings))
+    .send()
   }
 
   fn update_calculation(&self, view_id: &str, calculation: Calculation) {

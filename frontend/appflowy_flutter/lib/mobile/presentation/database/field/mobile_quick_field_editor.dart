@@ -44,8 +44,8 @@ class _QuickEditFieldState extends State<QuickEditField> {
   @override
   void initState() {
     super.initState();
-    fieldVisibility = widget.fieldInfo.fieldSettings?.visibility ??
-        FieldVisibility.AlwaysShown;
+    fieldVisibility =
+        widget.fieldInfo.visibility ?? FieldVisibility.AlwaysShown;
     controller.text = widget.fieldInfo.field.name;
   }
 
@@ -62,7 +62,7 @@ class _QuickEditFieldState extends State<QuickEditField> {
         viewId: widget.viewId,
         fieldController: widget.fieldController,
         field: widget.fieldInfo.field,
-      )..add(const FieldEditorEvent.initial()),
+      ),
       child: BlocConsumer<FieldEditorBloc, FieldEditorState>(
         listenWhen: (previous, current) =>
             previous.field.name != current.field.name,

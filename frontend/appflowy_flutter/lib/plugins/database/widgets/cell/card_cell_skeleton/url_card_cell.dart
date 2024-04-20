@@ -41,7 +41,7 @@ class _URLCellState extends State<URLCardCell> {
             widget.databaseController,
             widget.cellContext,
           ).as(),
-        )..add(const URLCellEvent.initial());
+        );
       },
       child: BlocBuilder<URLCellBloc, URLCellState>(
         buildWhen: (previous, current) => previous.content != current.content,

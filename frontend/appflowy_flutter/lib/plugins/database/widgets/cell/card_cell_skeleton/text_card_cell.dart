@@ -52,7 +52,7 @@ class _TextCellState extends State<TextCardCell> {
       widget.databaseController,
       widget.cellContext,
     ).as(),
-  )..add(const TextCellEvent.initial());
+  );
   late final TextEditingController _textEditingController =
       TextEditingController(text: cellBloc.state.content);
   final focusNode = SingleListenerFocusNode();

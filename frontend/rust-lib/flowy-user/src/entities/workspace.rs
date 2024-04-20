@@ -1,7 +1,7 @@
 use validator::Validate;
 
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use flowy_user_pub::entities::{Role, WorkspaceMember};
+use flowy_user_pub::entities::{Role, WorkspaceInvitation, WorkspaceMember};
 use lib_infra::validator_fn::required_not_empty_str;
 
 #[derive(ProtoBuf, Default, Clone)]
@@ -30,6 +30,65 @@ impl From<WorkspaceMember> for WorkspaceMemberPB {
 pub struct RepeatedWorkspaceMemberPB {
   #[pb(index = 1)]
   pub items: Vec<WorkspaceMemberPB>,
+}
+
+#[derive(ProtoBuf, Default, Clone, Validate)]
+pub struct WorkspaceMemberInvitationPB {
+  #[pb(index = 1)]
+  #[validate(custom = "required_not_empty_str")]
+  pub workspace_id: String,
+
+  #[pb(index = 2)]
+  #[validate(email)]
+  pub invitee_email: String,
+
+  #[pb(index = 3)]
+  pub role: AFRolePB,
+}
+
+#[derive(Debug, ProtoBuf, Default, Clone)]
+pub struct RepeatedWorkspaceInvitationPB {
+  #[pb(index = 1)]
+  pub items: Vec<WorkspaceInvitationPB>,
+}
+
+#[derive(Debug, ProtoBuf, Default, Clone)]
+pub struct WorkspaceInvitationPB {
+  #[pb(index = 1)]
+  pub invite_id: String,
+  #[pb(index = 2)]
+  pub workspace_id: String,
+  #[pb(index = 3)]
+  pub workspace_name: String,
+  #[pb(index = 4)]
+  pub inviter_email: String,
+  #[pb(index = 5)]
+  pub inviter_name: String,
+  #[pb(index = 6)]
+  pub status: String,
+  #[pb(index = 7)]
+  pub updated_at_timestamp: i64,
+}
+
+impl From<WorkspaceInvitation> for WorkspaceInvitationPB {
+  fn from(value: WorkspaceInvitation) -> Self {
+    Self {
+      invite_id: value.invite_id.to_string(),
+      workspace_id: value.workspace_id.to_string(),
+      workspace_name: value.workspace_name.unwrap_or_default(),
+      inviter_email: value.inviter_email.unwrap_or_default(),
+      inviter_name: value.inviter_name.unwrap_or_default(),
+      status: format!("{:?}", value.status),
+      updated_at_timestamp: value.updated_at.timestamp(),
+    }
+  }
+}
+
+#[derive(ProtoBuf, Default, Clone, Validate)]
+pub struct AcceptWorkspaceInvitationPB {
+  #[pb(index = 1)]
+  #[validate(custom = "required_not_empty_str")]
+  pub invite_id: String,
 }
 
 #[derive(ProtoBuf, Default, Clone, Validate)]
@@ -75,6 +134,7 @@ pub struct UpdateWorkspaceMemberPB {
   pub role: AFRolePB,
 }
 
+// Workspace Role
 #[derive(ProtoBuf_Enum, Clone, Default)]
 pub enum AFRolePB {
   Owner = 0,

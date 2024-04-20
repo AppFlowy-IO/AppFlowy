@@ -18,7 +18,7 @@ void main() {
     final fieldInfo = context.singleSelectFieldContext();
     editorBloc = context.makeFieldEditor(
       fieldInfo: fieldInfo,
-    )..add(const FieldEditorEvent.initial());
+    );
 
     await boardResponseFuture();
   });

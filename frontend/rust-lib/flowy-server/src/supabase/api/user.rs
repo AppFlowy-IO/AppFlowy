@@ -8,6 +8,7 @@ use std::time::Duration;
 use anyhow::Error;
 use collab::core::collab::MutexCollab;
 use collab::core::origin::CollabOrigin;
+use collab::preclude::Collab;
 use collab_entity::{CollabObject, CollabType};
 use parking_lot::RwLock;
 use serde_json::Value;
@@ -184,6 +185,18 @@ where
   ) -> FutureResult<UserProfile, FlowyError> {
     FutureResult::new(async {
       Err(FlowyError::not_support().with_context("Can't sign in with password when using supabase"))
+    })
+  }
+
+  fn sign_in_with_magic_link(
+    &self,
+    _email: &str,
+    _redirect_to: &str,
+  ) -> FutureResult<(), FlowyError> {
+    FutureResult::new(async {
+      Err(
+        FlowyError::not_support().with_context("Can't sign in with magic link when using supabase"),
+      )
     })
   }
 
@@ -674,12 +687,12 @@ impl RealtimeEventHandler for RealtimeCollabUpdateHandler {
 
 fn default_workspace_doc_state(collab_object: &CollabObject) -> Vec<u8> {
   let workspace_id = collab_object.object_id.clone();
-  let collab = Arc::new(MutexCollab::new(
+  let collab = Arc::new(MutexCollab::new(Collab::new_with_origin(
     CollabOrigin::Empty,
     &collab_object.object_id,
     vec![],
     false,
-  ));
+  )));
   let workspace = Workspace::new(workspace_id, "My workspace".to_string(), collab_object.uid);
   let folder = Folder::create(collab_object.uid, collab, None, FolderData::new(workspace));
   folder.encode_collab_v1().unwrap().doc_state.to_vec()

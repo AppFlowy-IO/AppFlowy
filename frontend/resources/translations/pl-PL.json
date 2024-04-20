@@ -787,7 +787,12 @@
     "ungroupedButtonTooltip": "Zawiera karty, które nie należą do żadnej grupy",
     "ungroupedItemsTitle": "Kliknij by dodać tablicę",
     "groupBy": "Grupuj zgodnie z",
-    "referencedBoardPrefix": "Widok"
+    "referencedBoardPrefix": "Widok",
+    "mobile": {
+      "showGroup": "Pokaż grupę",
+      "showGroupContent": "Czy na pewno chcesz pokazać tę grupę na tablicy?",
+      "failedToLoad": "Nie udało się załadować widoku tablicy"
+    }
   },
   "calendar": {
     "menuName": "Kalendarz",

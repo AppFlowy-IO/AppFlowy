@@ -1,6 +1,5 @@
 import 'dart:typed_data';
 
-import 'package:appflowy/plugins/database/domain/field_listener.dart';
 import 'package:appflowy/plugins/database/domain/field_service.dart';
 import 'package:appflowy/plugins/database/domain/field_settings_service.dart';
 import 'package:appflowy_backend/log.dart';
@@ -22,7 +21,6 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
     this.onFieldInserted,
     required FieldPB field,
   })  : fieldId = field.id,
-        _singleFieldListener = SingleFieldListener(fieldId: field.id),
         fieldService = FieldBackendService(
           viewId: viewId,
           fieldId: field.id,
@@ -30,19 +28,25 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
         fieldSettingsService = FieldSettingsBackendService(viewId: viewId),
         super(FieldEditorState(field: FieldInfo.initial(field))) {
     _dispatch();
+    _startListening();
+    _init();
   }
 
   final String viewId;
   final String fieldId;
   final FieldController fieldController;
-  final SingleFieldListener _singleFieldListener;
   final FieldBackendService fieldService;
   final FieldSettingsBackendService fieldSettingsService;
   final void Function(String newFieldId)? onFieldInserted;
 
+  late final OnReceiveField _listener;
+
   @override
   Future<void> close() {
-    _singleFieldListener.stop();
+    fieldController.removeSingleFieldListener(
+      fieldId: fieldId,
+      onFieldChanged: _listener,
+    );
     return super.close();
   }
 
@@ -50,19 +54,8 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
     on<FieldEditorEvent>(
       (event, emit) async {
         await event.when(
-          initial: () async {
-            _singleFieldListener.start(
-              onFieldChanged: (field) {
-                if (!isClosed) {
-                  add(FieldEditorEvent.didReceiveFieldChanged(fieldId));
-                }
-              },
-            );
-            add(FieldEditorEvent.didReceiveFieldChanged(fieldId));
-          },
-          didReceiveFieldChanged: (fieldId) async {
-            await Future.delayed(const Duration(milliseconds: 50));
-            emit(state.copyWith(field: fieldController.getField(fieldId)!));
+          didUpdateField: (fieldInfo) {
+            emit(state.copyWith(field: fieldInfo));
           },
           switchFieldType: (fieldType) async {
             await fieldService.updateType(fieldType: fieldType);
@@ -106,9 +99,39 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
             );
             _logIfError(result);
           },
+          toggleWrapCellContent: () async {
+            final currentWrap = state.field.wrapCellContent ?? false;
+            final result = await fieldSettingsService.updateFieldSettings(
+              fieldId: state.field.id,
+              wrapCellContent: !currentWrap,
+            );
+            _logIfError(result);
+          },
         );
       },
     );
+  }
+
+  void _startListening() {
+    _listener = (field) {
+      if (!isClosed) {
+        add(FieldEditorEvent.didUpdateField(field));
+      }
+    };
+    fieldController.addSingleFieldListener(
+      fieldId,
+      onFieldChanged: _listener,
+    );
+  }
+
+  void _init() async {
+    await Future.delayed(const Duration(milliseconds: 50));
+    if (!isClosed) {
+      final field = fieldController.getField(fieldId);
+      if (field != null) {
+        add(FieldEditorEvent.didUpdateField(field));
+      }
+    }
   }
 
   void _logIfError(FlowyResult<void, FlowyError> result) {
@@ -121,9 +144,8 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
 
 @freezed
 class FieldEditorEvent with _$FieldEditorEvent {
-  const factory FieldEditorEvent.initial() = _InitialField;
-  const factory FieldEditorEvent.didReceiveFieldChanged(final String fieldId) =
-      _DidReceiveFieldChanged;
+  const factory FieldEditorEvent.didUpdateField(final FieldInfo fieldInfo) =
+      _DidUpdateField;
   const factory FieldEditorEvent.switchFieldType(final FieldType fieldType) =
       _SwitchFieldType;
   const factory FieldEditorEvent.updateTypeOption(
@@ -134,6 +156,8 @@ class FieldEditorEvent with _$FieldEditorEvent {
   const factory FieldEditorEvent.insertRight() = _InsertRight;
   const factory FieldEditorEvent.toggleFieldVisibility() =
       _ToggleFieldVisiblity;
+  const factory FieldEditorEvent.toggleWrapCellContent() =
+      _ToggleWrapCellContent;
 }
 
 @freezed

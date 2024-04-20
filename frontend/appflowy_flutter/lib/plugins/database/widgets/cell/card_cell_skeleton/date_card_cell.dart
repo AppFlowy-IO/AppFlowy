@@ -41,7 +41,7 @@ class _DateCellState extends State<DateCardCell> {
             widget.databaseController,
             widget.cellContext,
           ).as(),
-        )..add(const DateCellEvent.initial());
+        );
       },
       child: BlocBuilder<DateCellBloc, DateCellState>(
         buildWhen: (previous, current) => previous.dateStr != current.dateStr,

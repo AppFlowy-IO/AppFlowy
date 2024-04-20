@@ -48,7 +48,7 @@ async fn according_to_text_contains_filter_test() {
     AssertCellContent {
       field_id: text_field.id,
       row_index: test.row_details.len() - 1,
-      from_field_type: FieldType::RichText,
+
       expected_content: "sample".to_string(),
     },
   ];
@@ -195,7 +195,7 @@ async fn according_to_checkbox_is_checked_filter_test() {
     AssertCellContent {
       field_id: checkbox_field.id,
       row_index: 3,
-      from_field_type: FieldType::Checkbox,
+
       expected_content: "Yes".to_string(),
     },
   ];
@@ -242,7 +242,7 @@ async fn according_to_date_time_is_filter_test() {
     AssertCellContent {
       field_id: datetime_field.id,
       row_index: 0,
-      from_field_type: FieldType::DateTime,
+
       expected_content: "2024/03/15".to_string(),
     },
   ];
@@ -331,7 +331,7 @@ async fn according_to_select_option_is_filter_test() {
     AssertCellContent {
       field_id: multi_select_field.id,
       row_index: 1,
-      from_field_type: FieldType::MultiSelect,
+
       expected_content: stringified_expected,
     },
   ];
@@ -380,7 +380,7 @@ async fn according_to_select_option_contains_filter_test() {
     AssertCellContent {
       field_id: multi_select_field.id,
       row_index: 5,
-      from_field_type: FieldType::MultiSelect,
+
       expected_content: stringified_expected,
     },
   ];
@@ -424,7 +424,7 @@ async fn according_to_select_option_is_not_empty_filter_test() {
     AssertCellContent {
       field_id: multi_select_field.id,
       row_index: 5,
-      from_field_type: FieldType::MultiSelect,
+
       expected_content: stringified_expected,
     },
   ];

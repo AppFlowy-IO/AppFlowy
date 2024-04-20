@@ -50,7 +50,11 @@
     "LogInWithGithub": "Log in with Github",
     "LogInWithDiscord": "Log in with Discord",
     "signInWith": "Sign in with:",
-    "signInWithEmail": "Sign in with Email"
+    "signInWithEmail": "Sign in with Email",
+    "logInWithMagicLink": "Log in with Magic Link",
+    "pleaseInputYourEmail": "Please enter your email address",
+    "magicLinkSent": "Magic link sent to your email, please check your inbox",
+    "invalidEmail": "Please enter a valid email address"
   },
   "workspace": {
     "chooseWorkspace": "Choose your workspace",
@@ -88,6 +92,8 @@
     "buttonText": "Share",
     "workInProgress": "Coming soon",
     "markdown": "Markdown",
+    "html": "HTML",
+    "clipboard": "Copy to clipboard",
     "csv": "CSV",
     "copyLink": "Copy Link"
   },
@@ -517,8 +523,9 @@
       "couldNotSaveErrorMsg": "Could not save shortcuts, Try again",
       "commands": {
         "codeBlockNewParagraph": "Insert a new paragraph next to the code block",
-        "codeBlockAddTwoSpaces": "Insert two spaces at the line start in code block",
-        "codeBlockDeleteTwoSpaces": "Delete two spaces at the line start in code block",
+        "codeBlockIndentLines": "Insert two spaces at the line start in code block",
+        "codeBlockOutdentLines": "Delete two spaces at the line start in code block",
+        "codeBlockAddTwoSpaces": "Insert two spaces at the cursor position in code block",
         "codeBlockSelectAll": "Select all content inside a code block",
         "codeBlockPasteText": "Paste text in codeblock",
         "textAlignLeft": "Align text to the left",
@@ -647,6 +654,7 @@
       "insertRight": "Insert Right",
       "duplicate": "Duplicate",
       "delete": "Delete",
+      "wrap": "Wrap",
       "clear": "Clear cells",
       "textFieldName": "Text",
       "checkboxFieldName": "Checkbox",
@@ -774,7 +782,9 @@
       "inRelatedDatabase": "In",
       "rowSearchTextFieldPlaceholder": "Search",
       "noDatabaseSelected": "No database selected, please select one first from the list below:",
-      "emptySearchResult": "No records found"
+      "emptySearchResult": "No records found",
+      "linkedRowListLabel": "{count} linked rows",
+      "unlinkedRowListLabel": "Link another row"
     },
     "menuName": "Grid",
     "referencedGridPrefix": "View of",
@@ -934,8 +944,7 @@
         "newDatabase": "New Database",
         "linkToDatabase": "Link to Database"
       },
-      "date": "Date",
-      "emoji": "Emoji"
+      "date": "Date"
     },
     "outlineBlock": {
       "placeholder": "Table of Contents"
@@ -993,8 +1002,12 @@
     "codeBlock": {
       "language": {
         "label": "Language",
-        "placeholder": "Select language"
-      }
+        "placeholder": "Select language",
+        "auto": "Auto"
+      },
+      "copyTooltip": "Copy contents of the code block",
+      "searchLanguageHint": "Search for a language",
+      "codeCopiedSnackbar": "Code copied to clipboard!"
     },
     "inlineLink": {
       "placeholder": "Paste or type a link",
@@ -1062,9 +1075,9 @@
     "notesTooltip": "Notes inside",
     "mobile": {
       "editURL": "Edit URL",
-      "unhideGroup": "Unhide group",
-      "unhideGroupContent": "Are you sure you want to show this group on the board?",
-      "faildToLoad": "Failed to load board view"
+      "showGroup": "Show group",
+      "showGroupContent": "Are you sure you want to show this group on the board?",
+      "failedToLoad": "Failed to load board view"
     }
   },
   "calendar": {
@@ -1452,5 +1465,15 @@
       "synced": "Synced",
       "noNetworkConnected": "No network connected"
     }
+  },
+  "commandPalette": {
+    "placeholder": "Type to search for views...",
+    "bestMatches": "Best matches",
+    "recentHistory": "Recent history",
+    "navigateHint": "to navigate",
+    "loadingTooltip": "We are looking for results...",
+    "betaLabel": "BETA",
+    "betaTooltip": "We currently only support searching for pages",
+    "fromTrashHint": "From trash"
   }
 }

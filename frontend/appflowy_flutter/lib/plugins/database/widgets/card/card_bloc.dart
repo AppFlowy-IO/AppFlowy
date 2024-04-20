@@ -113,7 +113,7 @@ List<CellContext> _makeCells(
   cellContexts.removeWhere((cellContext) {
     final fieldInfo = fieldController.getField(cellContext.fieldId);
     return fieldInfo == null ||
-        !(fieldInfo.fieldSettings?.visibility.isVisibleState() ?? false) ||
+        !(fieldInfo.visibility?.isVisibleState() ?? false) ||
         (groupFieldId != null && cellContext.fieldId == groupFieldId);
   });
   return cellContexts.toList();
