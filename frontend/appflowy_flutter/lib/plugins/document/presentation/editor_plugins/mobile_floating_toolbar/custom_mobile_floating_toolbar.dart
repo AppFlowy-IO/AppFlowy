@@ -2,6 +2,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 List<ContextMenuButtonItem> buildMobileFloatingToolbarItems(
   EditorState editorState,
@@ -80,5 +81,43 @@ extension on EditorState {
       return;
     }
     updateSelectionWithReason(selection);
+  }
+}
+
+class CustomMobileFloatingToolbar extends StatelessWidget {
+  const CustomMobileFloatingToolbar({
+    super.key,
+    required this.editorState,
+    required this.anchor,
+    required this.closeToolbar,
+  });
+
+  final EditorState editorState;
+  final Offset anchor;
+  final Function closeToolbar;
+
+  @override
+  Widget build(BuildContext context) {
+    return Animate(
+      autoPlay: true,
+      effects: [
+        const FadeEffect(duration: SelectionOverlay.fadeDuration),
+        MoveEffect(
+          curve: Curves.easeOutCubic,
+          begin: const Offset(0, 16),
+          duration: 100.milliseconds,
+        ),
+      ],
+      child: AdaptiveTextSelectionToolbar.buttonItems(
+        buttonItems: buildMobileFloatingToolbarItems(
+          editorState,
+          anchor,
+          closeToolbar,
+        ),
+        anchors: TextSelectionToolbarAnchors(
+          primaryAnchor: anchor,
+        ),
+      ),
+    );
   }
 }
