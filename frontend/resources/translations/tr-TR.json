@@ -93,7 +93,7 @@
     "workInProgress": "Yakında geliyor",
     "markdown": "Markdown",
     "html": "HTML",
-    "clipboard": “Panoya “kopyala,
+    "clipboard": "Panoya kopyala",
     "csv": "CSV",
     "copyLink": "Bağlantıyı Kopyala"
   },
@@ -604,7 +604,7 @@
       "isChecked": "İşaretli",
       "isUnchecked": "İşaretsiz"
       "choicechipPrefix": {
-      	"is": “durum”
+      	"is": "durum"
       }
     },
     "checklistFilter": {
@@ -654,7 +654,7 @@
       "insertRight": "Sağa Ekle",
       "duplicate": "Kopyala",
       "delete": "Sil",
-      "wrap": “Sa”r,
+      "wrap": "Sar",
       "clear": "Hücreleri temizle",
       "textFieldName": "Metin",
       "checkboxFieldName": "Onay Kutusu",
@@ -749,7 +749,7 @@
       "lightPinkColor": "Açık Pembe",
       "orangeColor": "Turuncu",
       "yellowColor": "Sarı",
-      "limeColor": “Limoni”,
+      "limeColor": "Limoni",
       "greenColor": "Yeşil",
       "aquaColor": "Su yeşili",
       "blueColor": "Mavi",
@@ -1003,7 +1003,7 @@
       "language": {
         "label": "Dil",
         "placeholder": "Dil seçin"
-        "auto": “Otomatik”
+        "auto": "Otomatik"
       },
       "copyTooltip": "Kod bloğunun içeriğini kopyala",
       "searchLanguageHint": "Bir dil arayın",
@@ -1329,7 +1329,7 @@
     "lightLightTint3": "Açık Pembe",
     "lightLightTint4": "Turuncu",
     "lightLightTint5": "Sarı",
-    "lightLightTint6": “Limoni”,
+    "lightLightTint6": "Limoni",
     "lightLightTint7": "Yeşil",
     "lightLightTint8": "Su yeşili",
     "lightLightTint9": "Mavi",
