@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 
 import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
+import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/user/application/user_settings_service.dart';
@@ -203,10 +204,12 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
                 ),
                 child: overlayManagerBuilder(
                   context,
-                  CommandPalette(
-                    toggleNotifier: _commandPaletteNotifier,
-                    child: child,
-                  ),
+                  FeatureFlag.search.isOn
+                      ? CommandPalette(
+                          toggleNotifier: _commandPaletteNotifier,
+                          child: child,
+                        )
+                      : child,
                 ),
               ),
               debugShowCheckedModeBanner: false,

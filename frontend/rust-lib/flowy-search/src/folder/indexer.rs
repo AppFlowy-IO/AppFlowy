@@ -1,9 +1,7 @@
 use std::{
   any::Any,
   collections::HashMap,
-  fs,
   ops::Deref,
-  path::Path,
   sync::{Arc, Mutex, MutexGuard, Weak},
 };
 
@@ -21,10 +19,7 @@ use flowy_search_pub::entities::{FolderIndexManager, IndexManager, IndexableData
 use flowy_user::services::authenticate_user::AuthenticateUser;
 use lib_dispatch::prelude::af_spawn;
 use strsim::levenshtein;
-use tantivy::{
-  collector::TopDocs, directory::MmapDirectory, doc, query::QueryParser, Index, IndexReader,
-  IndexWriter, Term,
-};
+use tantivy::{collector::TopDocs, doc, query::QueryParser, Index, IndexReader, IndexWriter, Term};
 
 use super::entities::FolderIndexData;
 
@@ -36,83 +31,86 @@ pub struct FolderIndexManagerImpl {
   index_writer: Option<Arc<Mutex<IndexWriter>>>,
 }
 
-const FOLDER_INDEX_DIR: &str = "folder_index";
+// const FOLDER_INDEX_DIR: &str = "folder_index";
 
 impl FolderIndexManagerImpl {
-  pub fn new(auth_user: Weak<AuthenticateUser>) -> Self {
-    // AuthenticateUser is required to get the index path
-    let authenticate_user = auth_user.upgrade();
+  pub fn new(_auth_user: Weak<AuthenticateUser>) -> Self {
+    // TODO(Mathias): Remove to enable the flowy-search feature
+    FolderIndexManagerImpl::empty()
 
-    // Storage path is the users data path with an index directory
-    // Eg. /usr/flowy-data/indexes
-    let storage_path = match authenticate_user {
-      Some(auth_user) => auth_user.get_index_path(),
-      None => {
-        tracing::error!("FolderIndexManager: AuthenticateUser is not available");
-        return FolderIndexManagerImpl::empty();
-      },
-    };
+    // // AuthenticateUser is required to get the index path
+    // let authenticate_user = auth_user.upgrade();
 
-    // We check if the `folder_index` directory exists, if not we create it
-    let index_path = storage_path.join(Path::new(FOLDER_INDEX_DIR));
-    if !index_path.exists() {
-      let res = fs::create_dir_all(&index_path);
-      if let Err(e) = res {
-        tracing::error!(
-          "FolderIndexManager failed to create index directory: {:?}",
-          e
-        );
-        return FolderIndexManagerImpl::empty();
-      }
-    }
+    // // Storage path is the users data path with an index directory
+    // // Eg. /usr/flowy-data/indexes
+    // let storage_path = match authenticate_user {
+    //   Some(auth_user) => auth_user.get_index_path(),
+    //   None => {
+    //     tracing::error!("FolderIndexManager: AuthenticateUser is not available");
+    //     return FolderIndexManagerImpl::empty();
+    //   },
+    // };
 
-    // We open the existing or newly created folder_index directory
-    // This is required by the Tantivy Index, as it will use it to store
-    // and read index data
-    let dir = MmapDirectory::open(index_path);
-    if let Err(e) = dir {
-      tracing::error!("FolderIndexManager failed to open index directory: {:?}", e);
-      return FolderIndexManagerImpl::empty();
-    }
+    // // We check if the `folder_index` directory exists, if not we create it
+    // let index_path = storage_path.join(Path::new(FOLDER_INDEX_DIR));
+    // if !index_path.exists() {
+    //   let res = fs::create_dir_all(&index_path);
+    //   if let Err(e) = res {
+    //     tracing::error!(
+    //       "FolderIndexManager failed to create index directory: {:?}",
+    //       e
+    //     );
+    //     return FolderIndexManagerImpl::empty();
+    //   }
+    // }
 
-    // The folder schema is used to define the fields of the index along
-    // with how they are stored and if the field is indexed
-    let folder_schema = FolderSchema::new();
+    // // We open the existing or newly created folder_index directory
+    // // This is required by the Tantivy Index, as it will use it to store
+    // // and read index data
+    // let dir = MmapDirectory::open(index_path);
+    // if let Err(e) = dir {
+    //   tracing::error!("FolderIndexManager failed to open index directory: {:?}", e);
+    //   return FolderIndexManagerImpl::empty();
+    // }
 
-    // We open or create an index that takes the directory r/w and the schema.
-    let index_res = Index::open_or_create(dir.unwrap(), folder_schema.schema.clone());
-    if let Err(e) = index_res {
-      tracing::error!("FolderIndexManager failed to open index: {:?}", e);
-      return FolderIndexManagerImpl::empty();
-    }
+    // // The folder schema is used to define the fields of the index along
+    // // with how they are stored and if the field is indexed
+    // let folder_schema = FolderSchema::new();
 
-    let index = index_res.unwrap();
+    // // We open or create an index that takes the directory r/w and the schema.
+    // let index_res = Index::open_or_create(dir.unwrap(), folder_schema.schema.clone());
+    // if let Err(e) = index_res {
+    //   tracing::error!("FolderIndexManager failed to open index: {:?}", e);
+    //   return FolderIndexManagerImpl::empty();
+    // }
 
-    // We read the index reader, we only need one IndexReader per index
-    let index_reader = index.reader();
-    if let Err(e) = index_reader {
-      tracing::error!(
-        "FolderIndexManager failed to instantiate index reader: {:?}",
-        e
-      );
-      return FolderIndexManagerImpl::empty();
-    }
+    // let index = index_res.unwrap();
 
-    let index_writer = index.writer(50_000_000);
-    if let Err(e) = index_writer {
-      tracing::error!(
-        "FolderIndexManager failed to instantiate index writer: {:?}",
-        e
-      );
-      return FolderIndexManagerImpl::empty();
-    }
+    // // We read the index reader, we only need one IndexReader per index
+    // let index_reader = index.reader();
+    // if let Err(e) = index_reader {
+    //   tracing::error!(
+    //     "FolderIndexManager failed to instantiate index reader: {:?}",
+    //     e
+    //   );
+    //   return FolderIndexManagerImpl::empty();
+    // }
 
-    Self {
-      folder_schema: Some(folder_schema),
-      index: Some(index),
-      index_reader: Some(index_reader.unwrap()),
-      index_writer: Some(Arc::new(Mutex::new(index_writer.unwrap()))),
-    }
+    // let index_writer = index.writer(50_000_000);
+    // if let Err(e) = index_writer {
+    //   tracing::error!(
+    //     "FolderIndexManager failed to instantiate index writer: {:?}",
+    //     e
+    //   );
+    //   return FolderIndexManagerImpl::empty();
+    // }
+
+    // Self {
+    //   folder_schema: Some(folder_schema),
+    //   index: Some(index),
+    //   index_reader: Some(index_reader.unwrap()),
+    //   index_writer: Some(Arc::new(Mutex::new(index_writer.unwrap()))),
+    // }
   }
 
   fn index_all(&self, indexes: Vec<IndexableData>) -> Result<(), FlowyError> {

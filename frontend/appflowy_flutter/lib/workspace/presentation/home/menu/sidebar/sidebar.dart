@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
 import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
@@ -236,11 +237,13 @@ class _SidebarState extends State<_Sidebar> {
                     ? SidebarWorkspace(userProfile: widget.userProfile)
                     : SidebarUser(userProfile: widget.userProfile),
           ),
-          const VSpace(8),
-          const Padding(
-            padding: menuHorizontalInset,
-            child: _SidebarSearchButton(),
-          ),
+          if (FeatureFlag.search.isOn) ...[
+            const VSpace(8),
+            const Padding(
+              padding: menuHorizontalInset,
+              child: _SidebarSearchButton(),
+            ),
+          ],
           // scrollable document list
           Expanded(
             child: Padding(
