@@ -213,6 +213,15 @@ class ViewBackendService {
     return FolderEventMoveNestedView(payload).send();
   }
 
+  /// Fetches a flattened list of all Views.
+  ///
+  /// Views do not contain their children in this list, as they all exist
+  /// in the same level in this version.
+  ///
+  static Future<FlowyResult<RepeatedViewPB, FlowyError>> getAllViews() async {
+    return FolderEventGetAllViews().send();
+  }
+
   static Future<FlowyResult<ViewPB, FlowyError>> getView(
     String viewId,
   ) async {

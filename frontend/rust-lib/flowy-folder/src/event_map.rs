@@ -18,6 +18,7 @@ pub fn init(folder: Weak<FolderManager>) -> AFPlugin {
     .event(FolderEvent::CreateView, create_view_handler)
     .event(FolderEvent::CreateOrphanView, create_orphan_view_handler)
     .event(FolderEvent::GetView, get_view_handler)
+    .event(FolderEvent::GetAllViews, get_all_views_handler)
     .event(FolderEvent::UpdateView, update_view_handler)
     .event(FolderEvent::DeleteView, delete_view_handler)
     .event(FolderEvent::DuplicateView, duplicate_view_handler)
@@ -96,6 +97,10 @@ pub enum FolderEvent {
   /// Create a new view in the corresponding app
   #[event(input = "CreateOrphanViewPayloadPB", output = "ViewPB")]
   CreateOrphanView = 16,
+
+  /// Return the view info
+  #[event(output = "RepeatedViewPB")]
+  GetAllViews = 17,
 
   #[event()]
   CopyLink = 20,

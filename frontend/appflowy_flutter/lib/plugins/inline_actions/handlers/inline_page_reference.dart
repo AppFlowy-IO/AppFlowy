@@ -11,29 +11,26 @@ import 'package:appflowy/plugins/inline_actions/inline_actions_menu.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_result.dart';
 import 'package:appflowy/plugins/inline_actions/service_handler.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/workspace/application/command_palette/search_listener.dart';
-import 'package:appflowy/workspace/application/command_palette/search_service.dart';
 import 'package:appflowy/workspace/application/recent/cached_recent_service.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
-import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-search/result.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 
-const _channel = "InlinePageReference";
+// const _channel = "InlinePageReference";
 
+// TODO(Mathias): Clean up and use folder search instead
 class InlinePageReferenceService extends InlineActionsDelegate {
   InlinePageReferenceService({
     required this.currentViewId,
     this.viewLayout,
     this.customTitle,
     this.insertPage = false,
-    this.limitResults = 0,
+    this.limitResults = 5,
   }) {
     init();
   }
@@ -50,8 +47,8 @@ class InlinePageReferenceService extends InlineActionsDelegate {
   ///
   final bool insertPage;
 
-  /// Defaults to 0 where there are no limits
-  /// Anything above 0 will limit the page reference results
+  /// Defaults to 5
+  /// Will limit the page reference results
   /// to [limitResults].
   ///
   final int limitResults;
@@ -59,16 +56,30 @@ class InlinePageReferenceService extends InlineActionsDelegate {
   late final CachedRecentService _recentService;
   List<InlineActionsMenuItem> _recentViews = [];
 
-  final _searchListener = SearchListener(channel: _channel);
-  Completer<List<SearchResultPB>>? _searchCompleter;
+  bool _viewsInitialized = false;
+  late final List<ViewPB> _allViews;
 
-  bool _workspaceIdInitialized = false;
-  final _workspaceIdCompleter = Completer<void>();
-  String? _workspaceId;
+  Future<void> _initViews() async {
+    if (_viewsInitialized) {
+      return;
+    }
+
+    _viewsInitialized = true;
+
+    final viewResult = await ViewBackendService.getAllViews();
+    _allViews = viewResult.toNullable()?.items ?? const [];
+  }
+
+  // final _searchListener = SearchListener(channel: _channel);
+  // Completer<List<SearchResultPB>>? _searchCompleter;
+
+  // bool _workspaceIdInitialized = false;
+  // final _workspaceIdCompleter = Completer<void>();
+  // String? _workspaceId;
 
   Future<void> init() async {
     _recentService = getIt<CachedRecentService>();
-    _searchListener.start(onResultsClosed: _onResults);
+    // _searchListener.start(onResultsClosed: _onResults);
     final views =
         (await _recentService.recentViews()).reversed.toSet().toList();
 
@@ -81,31 +92,31 @@ class InlinePageReferenceService extends InlineActionsDelegate {
     _initCompleter.complete();
   }
 
-  void _onResults(RepeatedSearchResultPB results) {
-    if (_searchCompleter?.isCompleted == true) {
-      return;
-    }
-    _searchCompleter?.complete(results.items);
-  }
+  // void _onResults(RepeatedSearchResultPB results) {
+  //   if (_searchCompleter?.isCompleted == true) {
+  //     return;
+  //   }
+  //   _searchCompleter?.complete(results.items);
+  // }
 
-  Future<void> _initWorkspaceId() async {
-    _workspaceIdInitialized = true;
-    final results = await FolderEventGetCurrentWorkspaceSetting().send();
-    final workspaceSettings = results.toNullable();
+  // Future<void> _initWorkspaceId() async {
+  //   _workspaceIdInitialized = true;
+  //   final results = await FolderEventGetCurrentWorkspaceSetting().send();
+  //   final workspaceSettings = results.toNullable();
 
-    if (workspaceSettings != null) {
-      _workspaceId = workspaceSettings.workspaceId;
-    }
+  //   if (workspaceSettings != null) {
+  //     _workspaceId = workspaceSettings.workspaceId;
+  //   }
 
-    _workspaceIdCompleter.complete();
-  }
+  //   _workspaceIdCompleter.complete();
+  // }
 
   @override
   Future<void> dispose() async {
-    await _searchListener.stop();
-    _searchCompleter?.isCompleted == false
-        ? _searchCompleter!.complete(const [])
-        : null;
+    // await _searchListener.stop();
+    // _searchCompleter?.isCompleted == false
+    //     ? _searchCompleter!.complete(const [])
+    //     : null;
     await super.dispose();
   }
 
@@ -113,49 +124,58 @@ class InlinePageReferenceService extends InlineActionsDelegate {
   Future<InlineActionsResult> search([
     String? search,
   ]) async {
-    _searchCompleter = Completer();
+    // _searchCompleter = Completer();
 
-    if (_workspaceId == null) {
-      if (_workspaceIdInitialized && _workspaceIdCompleter.isCompleted) {
-        return InlineActionsResult(
-          title: LocaleKeys.inlineActions_pageReference.tr(),
-          results: [],
-        );
-      }
+    // if (_workspaceId == null) {
+    //   if (_workspaceIdInitialized && _workspaceIdCompleter.isCompleted) {
+    //     return InlineActionsResult(
+    //       title: LocaleKeys.inlineActions_pageReference.tr(),
+    //       results: [],
+    //     );
+    //   }
 
-      if (!_workspaceIdInitialized) {
-        await _initWorkspaceId();
-        await _workspaceIdCompleter.future;
-      }
-    }
+    //   if (!_workspaceIdInitialized) {
+    //     await _initWorkspaceId();
+    //     await _workspaceIdCompleter.future;
+    //   }
+    // }
 
-    if (_workspaceId == null) {
-      return InlineActionsResult(
-        title: LocaleKeys.inlineActions_pageReference.tr(),
-        results: [],
-      );
-    }
+    // if (_workspaceId == null) {
+    //   return InlineActionsResult(
+    //     title: LocaleKeys.inlineActions_pageReference.tr(),
+    //     results: [],
+    //   );
+    // }
 
     final isSearching = search != null && search.isNotEmpty;
 
     late List<InlineActionsMenuItem> items;
     if (isSearching) {
-      items = [];
-      await SearchBackendService.performSearch(
-        search,
-        workspaceId: _workspaceId,
-        channel: _channel,
-      );
+      await _initViews();
 
-      List<SearchResultPB> results = await _searchCompleter!.future;
-      results.sort((a, b) => b.score.compareTo(a.score));
-      results = results.take(limitResults).toList();
-      for (final item in results) {
-        final menuItem = await _fromSearchResult(item);
-        if (menuItem != null) {
-          items.add(menuItem);
-        }
-      }
+      // await SearchBackendService.performSearch(
+      //   search,
+      //   workspaceId: _workspaceId,
+      //   channel: _channel,
+      // );
+
+      // List<SearchResultPB> results = await _searchCompleter!.future;
+      items = _allViews
+          .where(
+            (view) => view.name.toLowerCase().contains(search.toLowerCase()),
+          )
+          .take(limitResults)
+          .map((view) => _fromView(view))
+          .toList();
+
+      // results.sort((a, b) => b.score.compareTo(a.score));
+      // results = results.take(limitResults).toList();
+      // for (final item in results) {
+      //   final menuItem = await _fromSearchResult(item);
+      //   if (menuItem != null) {
+      //     items.add(menuItem);
+      //   }
+      // }
     } else {
       items = _recentViews;
     }
@@ -266,15 +286,15 @@ class InlinePageReferenceService extends InlineActionsDelegate {
             : _onInsertLinkRef(view, context, editorState, menu, replace),
       );
 
-  Future<InlineActionsMenuItem?> _fromSearchResult(
-    SearchResultPB result,
-  ) async {
-    final viewRes = await ViewBackendService.getView(result.viewId);
-    final view = viewRes.toNullable();
-    if (view == null) {
-      return null;
-    }
+  // Future<InlineActionsMenuItem?> _fromSearchResult(
+  //   SearchResultPB result,
+  // ) async {
+  //   final viewRes = await ViewBackendService.getView(result.viewId);
+  //   final view = viewRes.toNullable();
+  //   if (view == null) {
+  //     return null;
+  //   }
 
-    return _fromView(view);
-  }
+  //   return _fromView(view);
+  // }
 }

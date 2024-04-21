@@ -1,8 +1,9 @@
 use crate::entities::icon::UpdateViewIconParams;
 use crate::entities::{
-  view_pb_with_child_views, view_pb_without_child_views, CreateViewParams, CreateWorkspaceParams,
-  DeletedViewPB, FolderSnapshotPB, MoveNestedViewParams, RepeatedTrashPB, RepeatedViewIdPB,
-  RepeatedViewPB, UpdateViewParams, ViewPB, ViewSectionPB, WorkspacePB, WorkspaceSettingPB,
+  view_pb_with_child_views, view_pb_without_child_views, view_pb_without_child_views_from_arc,
+  CreateViewParams, CreateWorkspaceParams, DeletedViewPB, FolderSnapshotPB, MoveNestedViewParams,
+  RepeatedTrashPB, RepeatedViewIdPB, RepeatedViewPB, UpdateViewParams, ViewPB, ViewSectionPB,
+  WorkspacePB, WorkspaceSettingPB,
 };
 use crate::manager_observer::{
   notify_child_views_changed, notify_did_update_workspace, notify_parent_view_did_change,
@@ -553,6 +554,30 @@ impl FolderManager {
         Ok(view_pb)
       },
     }
+  }
+
+  /// Retrieves all views.
+  ///
+  /// It is important to note that this will return a flat map of all views,
+  /// excluding all child views themselves, as they are all at the same level in this
+  /// map.
+  ///
+  #[tracing::instrument(level = "debug", skip(self))]
+  pub async fn get_all_views_pb(&self) -> FlowyResult<Vec<ViewPB>> {
+    let folder = self.mutex_folder.lock();
+    let folder = folder.as_ref().ok_or_else(folder_not_init_error)?;
+
+    // trash views and other private views should not be accessed
+    let view_ids_should_be_filtered = self.get_view_ids_should_be_filtered(folder);
+
+    let all_views = folder.views.get_all_views();
+    let views = all_views
+      .into_iter()
+      .filter(|view| !view_ids_should_be_filtered.contains(&view.id))
+      .map(view_pb_without_child_views_from_arc)
+      .collect::<Vec<_>>();
+
+    Ok(views)
   }
 
   /// Retrieves the ancestors of the view corresponding to the specified view ID, including the view itself.

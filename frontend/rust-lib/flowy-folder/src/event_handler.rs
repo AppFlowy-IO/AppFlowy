@@ -138,6 +138,16 @@ pub(crate) async fn get_view_handler(
   data_result_ok(view_pb)
 }
 
+#[tracing::instrument(level = "debug", skip(folder), err)]
+pub(crate) async fn get_all_views_handler(
+  folder: AFPluginState<Weak<FolderManager>>,
+) -> DataResult<RepeatedViewPB, FlowyError> {
+  let folder = upgrade_folder(folder)?;
+  let view_pbs = folder.get_all_views_pb().await?;
+
+  data_result_ok(RepeatedViewPB::from(view_pbs))
+}
+
 #[tracing::instrument(level = "debug", skip(data, folder), err)]
 pub(crate) async fn get_view_ancestors_handler(
   data: AFPluginData<ViewIdPB>,
