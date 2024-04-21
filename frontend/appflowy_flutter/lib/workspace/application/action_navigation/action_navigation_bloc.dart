@@ -14,8 +14,7 @@ class ActionNavigationBloc
           NavigationAction currentAction = action;
           if (currentAction.arguments?[ActionArgumentKeys.view] == null &&
               action.type == ActionType.openView) {
-            final result =
-                await ViewBackendService().fetchView(action.objectId);
+            final result = await ViewBackendService.getView(action.objectId);
             final view = result.toNullable();
             if (view != null) {
               if (currentAction.arguments == null) {

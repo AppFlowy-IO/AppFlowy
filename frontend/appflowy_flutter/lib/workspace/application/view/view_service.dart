@@ -99,9 +99,7 @@ class ViewBackendService {
       layoutType: layoutType,
       parentViewId: parentViewId,
       name: name,
-      ext: {
-        'database_id': databaseId,
-      },
+      ext: {'database_id': databaseId},
     );
   }
 
@@ -213,56 +211,6 @@ class ViewBackendService {
     );
 
     return FolderEventMoveNestedView(payload).send();
-  }
-
-  Future<List<ViewPB>> fetchViewsWithLayoutType(
-    ViewLayoutPB? layoutType,
-  ) async {
-    final views = await fetchViews();
-    if (layoutType == null) {
-      return views;
-    }
-    return views
-        .where(
-          (element) => layoutType == element.layout,
-        )
-        .toList();
-  }
-
-  Future<FlowyResult<ViewPB, FlowyError>> fetchView(String viewId) async {
-    final payload = ViewIdPB(value: viewId);
-    return FolderEventGetView(payload).send();
-  }
-
-  Future<List<ViewPB>> fetchViews() async {
-    final result = <ViewPB>[];
-    return FolderEventReadCurrentWorkspace().send().then((value) async {
-      final workspace = value.toNullable();
-      if (workspace != null) {
-        final views = workspace.views;
-        for (final view in views) {
-          result.add(view);
-          final childViews = await getAllViews(view);
-          result.addAll(childViews);
-        }
-      }
-      return result;
-    });
-  }
-
-  Future<List<ViewPB>> getAllViews(ViewPB view) async {
-    final result = <ViewPB>[];
-    final childViews = await getChildViews(viewId: view.id).then(
-      (value) => value.toNullable(),
-    );
-    if (childViews != null && childViews.isNotEmpty) {
-      result.addAll(childViews);
-      final views = await Future.wait(
-        childViews.map((e) async => getAllViews(e)),
-      );
-      result.addAll(views.expand((element) => element));
-    }
-    return result;
   }
 
   static Future<FlowyResult<ViewPB, FlowyError>> getView(

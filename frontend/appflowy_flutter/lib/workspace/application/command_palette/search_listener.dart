@@ -29,11 +29,17 @@ class SearchListener {
   SearchNotificationListener? _listener;
 
   void start({
-    required void Function(RepeatedSearchResultPB) onResultsChanged,
-    required void Function(RepeatedSearchResultPB) onResultsClosed,
+    void Function(RepeatedSearchResultPB)? onResultsChanged,
+    void Function(RepeatedSearchResultPB)? onResultsClosed,
   }) {
-    _updateNotifier?.addPublishListener(onResultsChanged);
-    _updateDidCloseNotifier?.addPublishListener(onResultsClosed);
+    if (onResultsChanged != null) {
+      _updateNotifier?.addPublishListener(onResultsChanged);
+    }
+
+    if (onResultsClosed != null) {
+      _updateDidCloseNotifier?.addPublishListener(onResultsClosed);
+    }
+
     _listener = SearchNotificationListener(
       objectId: _searchObjectId,
       handler: _handler,

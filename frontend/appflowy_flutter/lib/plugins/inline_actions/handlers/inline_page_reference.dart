@@ -68,10 +68,7 @@ class InlinePageReferenceService extends InlineActionsDelegate {
 
   Future<void> init() async {
     _recentService = getIt<CachedRecentService>();
-    _searchListener.start(
-      onResultsChanged: _onResults,
-      onResultsClosed: _onResults,
-    );
+    _searchListener.start(onResultsClosed: _onResults);
     final views =
         (await _recentService.recentViews()).reversed.toSet().toList();
 
@@ -85,6 +82,9 @@ class InlinePageReferenceService extends InlineActionsDelegate {
   }
 
   void _onResults(RepeatedSearchResultPB results) {
+    if (_searchCompleter?.isCompleted == true) {
+      return;
+    }
     _searchCompleter?.complete(results.items);
   }
 
@@ -113,6 +113,8 @@ class InlinePageReferenceService extends InlineActionsDelegate {
   Future<InlineActionsResult> search([
     String? search,
   ]) async {
+    _searchCompleter = Completer();
+
     if (_workspaceId == null) {
       if (_workspaceIdInitialized && _workspaceIdCompleter.isCompleted) {
         return InlineActionsResult(
@@ -139,14 +141,15 @@ class InlinePageReferenceService extends InlineActionsDelegate {
     late List<InlineActionsMenuItem> items;
     if (isSearching) {
       items = [];
-      _searchCompleter = Completer();
       await SearchBackendService.performSearch(
         search,
         workspaceId: _workspaceId,
         channel: _channel,
       );
 
-      final results = await _searchCompleter!.future;
+      List<SearchResultPB> results = await _searchCompleter!.future;
+      results.sort((a, b) => b.score.compareTo(a.score));
+      results = results.take(limitResults).toList();
       for (final item in results) {
         final menuItem = await _fromSearchResult(item);
         if (menuItem != null) {
@@ -157,15 +160,12 @@ class InlinePageReferenceService extends InlineActionsDelegate {
       items = _recentViews;
     }
 
-    if (viewLayout != null) {}
-
-    // _filtered = await _filterItems(search);
     return InlineActionsResult(
       title: customTitle?.isNotEmpty == true
           ? customTitle!
           : isSearching
               ? LocaleKeys.inlineActions_pageReference.tr()
-              : 'Recent pages',
+              : LocaleKeys.inlineActions_recentPages.tr(),
       results: items,
     );
   }
