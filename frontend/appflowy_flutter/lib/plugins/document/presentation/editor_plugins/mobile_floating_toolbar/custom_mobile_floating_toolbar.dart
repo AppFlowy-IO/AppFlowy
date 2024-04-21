@@ -94,7 +94,7 @@ class CustomMobileFloatingToolbar extends StatelessWidget {
 
   final EditorState editorState;
   final Offset anchor;
-  final Function closeToolbar;
+  final VoidCallback closeToolbar;
 
   @override
   Widget build(BuildContext context) {
