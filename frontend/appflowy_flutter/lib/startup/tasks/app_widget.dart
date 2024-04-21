@@ -133,8 +133,7 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
   @override
   void initState() {
     super.initState();
-
-    // avoid rebuild routerConfig when the appTheme is changed.
+    // Avoid rebuild routerConfig when the appTheme is changed.
     routerConfig = generateRouter(widget.child);
   }
 
