@@ -4,7 +4,7 @@ import { FunctionsOutlined } from '@mui/icons-material';
 import { forwardRef, memo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 
-const MathEquation = memo(
+export const MathEquation = memo(
   forwardRef<HTMLDivElement, EditorElementProps<MathEquationNode>>(
     ({ node, children, className, ...attributes }, ref) => {
       const formula = node.data.formula;

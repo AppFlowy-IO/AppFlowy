@@ -23,7 +23,7 @@ export const useAuth = () => {
       handleSuccess();
       dispatch(currentUserActions.updateUser(userProfile));
     },
-    [dispatch, handleSuccess],
+    [dispatch, handleSuccess]
   );
 
   const handleStart = useCallback(() => {
@@ -38,13 +38,18 @@ export const useAuth = () => {
       notify.error(message);
       dispatch(currentUserActions.loginError());
     },
-    [dispatch],
+    [dispatch]
   );
 
   // Check if the user is authenticated
   const checkUser = useCallback(async () => {
-
     try {
+      const userHasSignIn = await AFConfig?.service?.userService.checkUser();
+
+      if (!userHasSignIn) {
+        throw new Error('Failed to check user');
+      }
+
       const userProfile = await AFConfig?.service?.userService.getUserProfile();
 
       if (!userProfile) {
@@ -55,7 +60,6 @@ export const useAuth = () => {
 
       return userProfile;
     } catch (e) {
-
       return Promise.reject('Failed to check user');
     }
   }, [AFConfig?.service?.userService, setUser]);
@@ -84,7 +88,7 @@ export const useAuth = () => {
         return null;
       }
     },
-    [handleStart, AFConfig?.service?.authService, setUser, handleError],
+    [handleStart, AFConfig?.service?.authService, setUser, handleError]
   );
 
   const logout = useCallback(async () => {
@@ -123,7 +127,7 @@ export const useAuth = () => {
         });
       }
     },
-    [AFConfig?.service?.authService, handleError, handleStart],
+    [AFConfig?.service?.authService, handleError, handleStart]
   );
 
   const signInWithOAuth = useCallback(
@@ -146,7 +150,7 @@ export const useAuth = () => {
         });
       }
     },
-    [AFConfig?.service?.authService, AFConfig?.service?.userService, handleError, handleStart, setUser],
+    [AFConfig?.service?.authService, AFConfig?.service?.userService, handleError, handleStart, setUser]
   );
 
   const signInWithEmailPassword = useCallback(
@@ -170,7 +174,7 @@ export const useAuth = () => {
         });
       }
     },
-    [AFConfig?.service?.authService, AFConfig?.service?.userService, handleError, handleStart, setUser],
+    [AFConfig?.service?.authService, AFConfig?.service?.userService, handleError, handleStart, setUser]
   );
 
   return {

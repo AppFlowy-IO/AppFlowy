@@ -2,7 +2,7 @@ import { EditorElementProps, CalloutNode } from '@/components/editor/editor.type
 import React, { forwardRef, memo } from 'react';
 import CalloutIcon from './CalloutIcon';
 
-const Callout = memo(
+export const Callout = memo(
   forwardRef<HTMLDivElement, EditorElementProps<CalloutNode>>(({ node, children, ...attributes }, ref) => {
     return (
       <>

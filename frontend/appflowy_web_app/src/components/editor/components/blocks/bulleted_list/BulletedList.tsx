@@ -1,7 +1,7 @@
 import { BulletedListNode, EditorElementProps } from '@/components/editor/editor.type';
 import React, { forwardRef, memo } from 'react';
 
-const BulletedList = memo(
+export const BulletedList = memo(
   forwardRef<HTMLDivElement, EditorElementProps<BulletedListNode>>(
     ({ node: _, children, className, ...attributes }, ref) => {
       return (

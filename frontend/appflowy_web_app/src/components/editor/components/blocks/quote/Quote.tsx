@@ -1,7 +1,7 @@
 import { EditorElementProps, QuoteNode } from '@/components/editor/editor.type';
 import React, { forwardRef, memo, useMemo } from 'react';
 
-const QuoteList = memo(
+export const Quote = memo(
   forwardRef<HTMLDivElement, EditorElementProps<QuoteNode>>(({ node: _, children, ...attributes }, ref) => {
     const className = useMemo(() => {
       return `flex w-full flex-col ml-3 border-l-[4px] border-fill-default pl-2 ${attributes.className ?? ''}`;
@@ -15,4 +15,4 @@ const QuoteList = memo(
   })
 );
 
-export default QuoteList;
+export default Quote;

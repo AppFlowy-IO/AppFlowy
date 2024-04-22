@@ -2,7 +2,7 @@ import { EditorElementProps, DividerNode as DividerBlock } from '@/components/ed
 import React, { forwardRef, memo, useMemo } from 'react';
 import { useSelected } from 'slate-react';
 
-const DividerNode = memo(
+export const DividerNode = memo(
   forwardRef<HTMLDivElement, EditorElementProps<DividerBlock>>(
     ({ node: _node, children: children, ...attributes }, ref) => {
       const selected = useSelected();

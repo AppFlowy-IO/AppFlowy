@@ -3,7 +3,7 @@ import { CodeNode, EditorElementProps } from '@/components/editor/editor.type';
 import { forwardRef, memo } from 'react';
 import LanguageSelect from './SelectLanguage';
 
-const Code = memo(
+export const CodeBlock = memo(
   forwardRef<HTMLDivElement, EditorElementProps<CodeNode>>(({ node, children, ...attributes }, ref) => {
     const { language, handleChangeLanguage } = useCodeBlock(node);
 
@@ -24,5 +24,3 @@ const Code = memo(
     );
   })
 );
-
-export default Code;

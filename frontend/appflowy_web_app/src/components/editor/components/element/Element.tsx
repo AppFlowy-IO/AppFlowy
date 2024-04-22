@@ -13,7 +13,7 @@ import { Paragraph } from '@/components/editor/components/blocks/paragraph';
 import { Quote } from '@/components/editor/components/blocks/quote';
 import { TableBlock, TableCellBlock } from '@/components/editor/components/blocks/table';
 import { Text } from '@/components/editor/components/blocks/text';
-import { TodoListNode } from '@/components/editor/components/blocks/todo_list';
+import { TodoList } from '@/components/editor/components/blocks/todo_list';
 import { ToggleList } from '@/components/editor/components/blocks/toggle_list';
 import { UnSupportedBlock } from '@/components/editor/components/element/UnSupportedBlock';
 import { Formula } from '@/components/editor/components/leaf/formula';
@@ -35,7 +35,7 @@ export const Element = ({
       case BlockType.HeadingBlock:
         return Heading;
       case BlockType.TodoListBlock:
-        return TodoListNode;
+        return TodoList;
       case BlockType.ToggleListBlock:
         return ToggleList;
       case BlockType.Paragraph:

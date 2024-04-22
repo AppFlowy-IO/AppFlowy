@@ -26,4 +26,8 @@ export class JSUserService implements UserService {
 
     return null!;
   }
+
+  async checkUser(): Promise<boolean> {
+    return (await getSignInUser()) !== undefined;
+  }
 }

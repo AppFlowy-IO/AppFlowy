@@ -44,3 +44,5 @@ export const Editor = ({
     </EditorContextProvider>
   );
 };
+
+export default Editor;

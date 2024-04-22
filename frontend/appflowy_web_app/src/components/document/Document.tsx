@@ -1,5 +1,5 @@
 import { useId } from '@/components/_shared/context-provider/IdProvider';
-import { Editor } from '@/components/editor/Editor';
+import { Editor } from '@/components/editor';
 import React from 'react';
 
 export const Document = () => {

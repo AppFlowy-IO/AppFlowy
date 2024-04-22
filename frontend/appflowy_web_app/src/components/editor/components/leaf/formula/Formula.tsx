@@ -3,7 +3,7 @@ import { EditorElementProps, FormulaNode } from '@/components/editor/editor.type
 import React, { memo, forwardRef } from 'react';
 import { useSelected } from 'slate-react';
 
-const Formula = memo(
+export const Formula = memo(
   forwardRef<HTMLSpanElement, EditorElementProps<FormulaNode>>(({ node, children, ...attributes }, ref) => {
     const formula = node.data;
     const selected = useSelected();

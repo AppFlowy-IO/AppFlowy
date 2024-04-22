@@ -33,4 +33,5 @@ export interface DocumentService {
 
 export interface UserService {
   getUserProfile: () => Promise<UserProfile | null>;
+  checkUser: () => Promise<boolean>;
 }

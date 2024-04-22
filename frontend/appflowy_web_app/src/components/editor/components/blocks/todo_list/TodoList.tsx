@@ -1,7 +1,7 @@
 import { EditorElementProps, TodoListNode } from '@/components/editor/editor.type';
 import React, { forwardRef, memo, useMemo } from 'react';
 
-export default memo(
+export const TodoList = memo(
   forwardRef<HTMLDivElement, EditorElementProps<TodoListNode>>(({ node, children, ...attributes }, ref) => {
     const { checked = false } = useMemo(() => node.data || {}, [node.data]);
     const className = useMemo(() => {

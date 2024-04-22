@@ -3,7 +3,6 @@ import react from '@vitejs/plugin-react';
 import svgr from 'vite-plugin-svgr';
 import wasm from 'vite-plugin-wasm';
 import { visualizer } from 'rollup-plugin-visualizer';
-import { compression } from 'vite-plugin-compression2';
 import usePluginImport from 'vite-plugin-importer';
 import { totalBundleSize } from 'vite-plugin-total-bundle-size';
 
@@ -56,12 +55,6 @@ export default defineConfig({
           calculateGzip: false,
         })
       : undefined,
-    !process.env.ANALYZE_MODE
-      ? compression({
-          threshold: 1024,
-          deleteOriginalAssets: true,
-        })
-      : undefined,
   ],
   // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
   // prevent vite from obscuring rust errors
@@ -96,34 +89,25 @@ export default defineConfig({
               },
             }
           : {},
-        reportCompressedSize: false,
+        reportCompressedSize: true,
         sourcemap: isDev,
         rollupOptions: !isDev
           ? {
               output: {
-                chunkFileNames: 'js/[name]-[hash].js',
-                entryFileNames: 'js/[name]-[hash].js',
-                assetFileNames: '[ext]/[name]-[hash].[ext]',
+                chunkFileNames: 'static/js/[name]-[hash].js',
+                entryFileNames: 'static/js/[name]-[hash].js',
+                assetFileNames: 'static/[ext]/[name]-[hash].[ext]',
                 manualChunks(id) {
-                  if (id.includes('?chunkName=') || id.includes('&chunkName=')) {
-                    let name = id.match(/(?<=chunkName=)(.*)(?=&)|(?<=chunkName=)(.*)/gm);
-                    if (name?.[0]) return name[0];
-                  }
-                  if (id.includes('prismjs') || id.toLowerCase().includes('katex')) {
-                    return 'media-blocks';
-                  }
-                  if (id.includes('@mui')) {
-                    return 'mui';
-                  }
-                  if (id.includes('react-dom') || id.includes('react-is') || id.includes('react')) {
-                    return 'react-framework';
-                  }
-                  if (id.includes('@tauri-apps')) {
-                    return 'tauri-api';
-                  }
-
-                  if (id.includes('node_modules')) {
-                    return id.toString().split('node_modules/')[1].split('/')[0].toString();
+                  if (
+                    id.includes('/react@') ||
+                    id.includes('/react-dom@') ||
+                    id.includes('/react-is@') ||
+                    id.includes('/yjs@') ||
+                    id.includes('/y-indexeddb@') ||
+                    id.includes('/dexie@') ||
+                    id.includes('/redux')
+                  ) {
+                    return 'common';
                   }
                 },
               },
@@ -132,7 +116,6 @@ export default defineConfig({
       },
   resolve: {
     alias: [
-      { find: 'cypress/', replacement: `${__dirname}/cypress/` },
       { find: 'src/', replacement: `${__dirname}/src/` },
       { find: '@/', replacement: `${__dirname}/src/` },
       {
