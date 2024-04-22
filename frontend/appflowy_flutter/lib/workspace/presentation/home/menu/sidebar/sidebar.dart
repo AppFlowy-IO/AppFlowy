@@ -76,12 +76,14 @@ class HomeSideBar extends StatelessWidget {
             previous.currentWorkspace?.workspaceId !=
             current.currentWorkspace?.workspaceId,
         listener: (context, state) {
-          // Notify command palette that workspace has changed
-          context.read<CommandPaletteBloc>().add(
-                CommandPaletteEvent.workspaceChanged(
-                  workspaceId: state.currentWorkspace?.workspaceId,
-                ),
-              );
+          if (FeatureFlag.search.isOn) {
+            // Notify command palette that workspace has changed
+            context.read<CommandPaletteBloc>().add(
+                  CommandPaletteEvent.workspaceChanged(
+                    workspaceId: state.currentWorkspace?.workspaceId,
+                  ),
+                );
+          }
 
           // Re-initialize workspace-specific services
           getIt<CachedRecentService>().reset();

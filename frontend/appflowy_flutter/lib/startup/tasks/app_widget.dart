@@ -147,7 +147,8 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider<CommandPaletteBloc>(create: (_) => CommandPaletteBloc()),
+        if (FeatureFlag.search.isOn)
+          BlocProvider<CommandPaletteBloc>(create: (_) => CommandPaletteBloc()),
         BlocProvider<AppearanceSettingsCubit>(
           create: (_) => AppearanceSettingsCubit(
             widget.appearanceSetting,
