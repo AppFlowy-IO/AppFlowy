@@ -54,69 +54,57 @@ class InlinePageReferenceService extends InlineActionsDelegate {
   final int limitResults;
 
   late final CachedRecentService _recentService;
-  List<InlineActionsMenuItem> _recentViews = [];
+
+  bool _recentViewsInitialized = false;
+  late final List<InlineActionsMenuItem> _recentViews;
+
+  Future<List<InlineActionsMenuItem>> _getRecentViews() async {
+    if (_recentViewsInitialized) {
+      return _recentViews;
+    }
+
+    _recentViewsInitialized = true;
+
+    final views =
+        (await _recentService.recentViews()).reversed.toSet().toList();
+
+    // Filter by viewLayout
+    views.retainWhere(
+      (i) =>
+          currentViewId != i.id &&
+          (viewLayout == null || i.layout == viewLayout),
+    );
+
+    // Map to InlineActionsMenuItem, then take 5 items
+    return _recentViews = views.map(_fromView).take(5).toList();
+  }
 
   bool _viewsInitialized = false;
   late final List<ViewPB> _allViews;
 
-  Future<void> _initViews() async {
+  Future<List<ViewPB>> _getViews() async {
     if (_viewsInitialized) {
-      return;
+      return _allViews;
     }
 
     _viewsInitialized = true;
 
     final viewResult = await ViewBackendService.getAllViews();
-    _allViews = viewResult.toNullable()?.items ?? const [];
+    return _allViews = viewResult
+            .toNullable()
+            ?.items
+            .where((v) => viewLayout == null || v.layout == viewLayout)
+            .toList() ??
+        const [];
   }
-
-  // final _searchListener = SearchListener(channel: _channel);
-  // Completer<List<SearchResultPB>>? _searchCompleter;
-
-  // bool _workspaceIdInitialized = false;
-  // final _workspaceIdCompleter = Completer<void>();
-  // String? _workspaceId;
 
   Future<void> init() async {
     _recentService = getIt<CachedRecentService>();
     // _searchListener.start(onResultsClosed: _onResults);
-    final views =
-        (await _recentService.recentViews()).reversed.toSet().toList();
-
-    // Filter by viewLayout
-    views.retainWhere((i) => viewLayout == null || i.layout == viewLayout);
-
-    // Map to InlineActionsMenuItem, then take 6 items (5 + current)
-    // The 0th position (newest) is the current view.
-    _recentViews = views.map(_fromView).take(6).toList()..removeAt(0);
-    _initCompleter.complete();
   }
-
-  // void _onResults(RepeatedSearchResultPB results) {
-  //   if (_searchCompleter?.isCompleted == true) {
-  //     return;
-  //   }
-  //   _searchCompleter?.complete(results.items);
-  // }
-
-  // Future<void> _initWorkspaceId() async {
-  //   _workspaceIdInitialized = true;
-  //   final results = await FolderEventGetCurrentWorkspaceSetting().send();
-  //   final workspaceSettings = results.toNullable();
-
-  //   if (workspaceSettings != null) {
-  //     _workspaceId = workspaceSettings.workspaceId;
-  //   }
-
-  //   _workspaceIdCompleter.complete();
-  // }
 
   @override
   Future<void> dispose() async {
-    // await _searchListener.stop();
-    // _searchCompleter?.isCompleted == false
-    //     ? _searchCompleter!.complete(const [])
-    //     : null;
     if (!_initCompleter.isCompleted) {
       _initCompleter.complete();
     }
@@ -128,60 +116,21 @@ class InlinePageReferenceService extends InlineActionsDelegate {
   Future<InlineActionsResult> search([
     String? search,
   ]) async {
-    // _searchCompleter = Completer();
-
-    // if (_workspaceId == null) {
-    //   if (_workspaceIdInitialized && _workspaceIdCompleter.isCompleted) {
-    //     return InlineActionsResult(
-    //       title: LocaleKeys.inlineActions_pageReference.tr(),
-    //       results: [],
-    //     );
-    //   }
-
-    //   if (!_workspaceIdInitialized) {
-    //     await _initWorkspaceId();
-    //     await _workspaceIdCompleter.future;
-    //   }
-    // }
-
-    // if (_workspaceId == null) {
-    //   return InlineActionsResult(
-    //     title: LocaleKeys.inlineActions_pageReference.tr(),
-    //     results: [],
-    //   );
-    // }
-
     final isSearching = search != null && search.isNotEmpty;
 
     late List<InlineActionsMenuItem> items;
     if (isSearching) {
-      await _initViews();
+      final allViews = await _getViews();
 
-      // await SearchBackendService.performSearch(
-      //   search,
-      //   workspaceId: _workspaceId,
-      //   channel: _channel,
-      // );
-
-      // List<SearchResultPB> results = await _searchCompleter!.future;
-      items = _allViews
+      items = allViews
           .where(
             (view) => view.name.toLowerCase().contains(search.toLowerCase()),
           )
           .take(limitResults)
           .map((view) => _fromView(view))
           .toList();
-
-      // results.sort((a, b) => b.score.compareTo(a.score));
-      // results = results.take(limitResults).toList();
-      // for (final item in results) {
-      //   final menuItem = await _fromSearchResult(item);
-      //   if (menuItem != null) {
-      //     items.add(menuItem);
-      //   }
-      // }
     } else {
-      items = _recentViews;
+      items = await _getRecentViews();
     }
 
     return InlineActionsResult(
