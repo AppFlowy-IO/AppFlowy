@@ -40,7 +40,7 @@ flowy-config = { workspace = true, features = ["dart"] }
 flowy-user = { workspace = true, features = ["dart"] }
 flowy-date = { workspace = true, features = ["dart"] }
 flowy-server = { workspace = true }
-flowy-server-pub = { workspace = true}
+flowy-server-pub = { workspace = true }
 collab-integrate = { workspace = true }
 flowy-derive.workspace = true
 serde_yaml = "0.9.27"
