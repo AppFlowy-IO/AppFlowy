@@ -52,14 +52,14 @@ class FavoriteFolder extends StatelessWidget {
                     isFeedback: false,
                     view: view,
                     level: 0,
-                    onSelected: (view) {
+                    onSelected: (view, _) {
                       if (HardwareKeyboard.instance.isControlPressed) {
                         context.read<TabsBloc>().openTab(view);
                       }
 
                       context.read<TabsBloc>().openPlugin(view);
                     },
-                    onTertiarySelected: (view) =>
+                    onTertiarySelected: (view, _) =>
                         context.read<TabsBloc>().openTab(view),
                   ),
                 ),
