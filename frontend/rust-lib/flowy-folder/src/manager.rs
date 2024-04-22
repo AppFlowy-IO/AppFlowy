@@ -31,11 +31,11 @@ use flowy_folder_pub::cloud::{gen_view_id, FolderCloudService};
 use flowy_folder_pub::folder_builder::ParentChildViews;
 use flowy_search_pub::entities::FolderIndexManager;
 use lib_infra::conditional_send_sync_trait;
-use parking_lot::{Mutex, RwLock};
+use parking_lot::RwLock;
 use std::fmt::{Display, Formatter};
 use std::ops::Deref;
 use std::sync::{Arc, Weak};
-use tracing::{error, info, instrument};
+use tracing::{error, info, instrument, trace};
 
 conditional_send_sync_trait! {
   "[crate::manager::FolderUser] represents the user for folder.";
@@ -135,7 +135,7 @@ impl FolderManager {
   pub async fn get_current_workspace_public_views(&self) -> FlowyResult<Vec<ViewPB>> {
     let workspace_id = self
       .mutex_folder
-      .lock()
+      .read()
       .as_ref()
       .map(|folder| folder.get_workspace_id());
 
@@ -368,7 +368,7 @@ impl FolderManager {
 
   pub async fn get_workspace_pb(&self) -> FlowyResult<WorkspacePB> {
     let workspace_pb = {
-      let guard = self.mutex_folder.lock();
+      let guard = self.mutex_folder.read();
       let folder = guard
         .as_ref()
         .ok_or(FlowyError::internal().with_context("folder is not initialized"))?;
@@ -397,7 +397,7 @@ impl FolderManager {
   async fn get_current_workspace_id(&self) -> FlowyResult<String> {
     self
       .mutex_folder
-      .lock()
+      .read()
       .as_ref()
       .map(|folder| folder.get_workspace_id())
       .ok_or(FlowyError::internal().with_context("Unexpected empty workspace id"))
@@ -410,12 +410,13 @@ impl FolderManager {
   ///
   /// * `none_callback`: A callback function that is invoked when `mutex_folder` contains `None`.
   /// * `f2`: A callback function that is invoked when `mutex_folder` contains a `Some` value. The contained folder is passed as an argument to this callback.
+  #[instrument(level = "debug", skip_all)]
   fn with_folder<F1, F2, Output>(&self, none_callback: F1, f2: F2) -> Output
   where
     F1: FnOnce() -> Output,
     F2: FnOnce(&Folder) -> Output,
   {
-    let folder = self.mutex_folder.lock();
+    let folder = self.mutex_folder.read();
     match &*folder {
       None => none_callback(),
       Some(folder) => f2(folder),
@@ -472,7 +473,7 @@ impl FolderManager {
     );
 
     if let Ok(workspace_id) = self.get_current_workspace_id().await {
-      let folder = &self.mutex_folder.lock();
+      let folder = &self.mutex_folder.read();
       if let Some(folder) = folder.as_ref() {
         notify_did_update_workspace(&workspace_id, folder);
       }
@@ -524,8 +525,10 @@ impl FolderManager {
   /// again using the ID of the child view you wish to access.
   #[tracing::instrument(level = "debug", skip(self))]
   pub async fn get_view_pb(&self, view_id: &str) -> FlowyResult<ViewPB> {
+    trace!("Get view pb with id: {}", view_id);
     let view_id = view_id.to_string();
-    let folder = self.mutex_folder.lock();
+
+    let folder = self.mutex_folder.read();
     let folder = folder.as_ref().ok_or_else(folder_not_init_error)?;
 
     // trash views and other private views should not be accessed
@@ -564,7 +567,7 @@ impl FolderManager {
   ///
   #[tracing::instrument(level = "debug", skip(self))]
   pub async fn get_all_views_pb(&self) -> FlowyResult<Vec<ViewPB>> {
-    let folder = self.mutex_folder.lock();
+    let folder = self.mutex_folder.read();
     let folder = folder.as_ref().ok_or_else(folder_not_init_error)?;
 
     // trash views and other private views should not be accessed
@@ -1088,7 +1091,7 @@ impl FolderManager {
         .send();
 
       if let Ok(workspace_id) = self.get_current_workspace_id().await {
-        let folder = &self.mutex_folder.lock();
+        let folder = &self.mutex_folder.read();
         if let Some(folder) = folder.as_ref() {
           notify_did_update_workspace(&workspace_id, folder);
         }
@@ -1343,9 +1346,9 @@ pub(crate) fn get_workspace_private_view_pbs(_workspace_id: &str, folder: &Folde
 /// The MutexFolder is a wrapper of the [Folder] that is used to share the folder between different
 /// threads.  
 #[derive(Clone, Default)]
-pub struct MutexFolder(Arc<Mutex<Option<Folder>>>);
+pub struct MutexFolder(Arc<RwLock<Option<Folder>>>);
 impl Deref for MutexFolder {
-  type Target = Arc<Mutex<Option<Folder>>>;
+  type Target = Arc<RwLock<Option<Folder>>>;
   fn deref(&self) -> &Self::Target {
     &self.0
   }

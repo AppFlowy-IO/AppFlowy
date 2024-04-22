@@ -1,35 +1,35 @@
 [workspace]
 members = [
-    "lib-dispatch",
-    "lib-log",
-    "flowy-core",
-    "dart-ffi",
-    "flowy-user",
-    "flowy-user-pub",
-    "event-integration",
-    "flowy-sqlite",
-    "flowy-folder",
-    "flowy-folder-pub",
-    "flowy-notification",
-    "flowy-document",
-    "flowy-document-pub",
-    "flowy-error",
-    "flowy-database2",
-    "flowy-database-pub",
-    "flowy-server",
-    "flowy-server-pub",
-    "flowy-config",
-    "flowy-encrypt",
-    "flowy-storage",
-    "collab-integrate",
-    "flowy-ai",
-    "flowy-date",
-    "flowy-search",
-    "lib-infra",
-    "build-tool/flowy-ast",
-    "build-tool/flowy-codegen",
-    "build-tool/flowy-derive",
-    "flowy-search-pub",
+  "lib-dispatch",
+  "lib-log",
+  "flowy-core",
+  "dart-ffi",
+  "flowy-user",
+  "flowy-user-pub",
+  "event-integration",
+  "flowy-sqlite",
+  "flowy-folder",
+  "flowy-folder-pub",
+  "flowy-notification",
+  "flowy-document",
+  "flowy-document-pub",
+  "flowy-error",
+  "flowy-database2",
+  "flowy-database-pub",
+  "flowy-server",
+  "flowy-server-pub",
+  "flowy-config",
+  "flowy-encrypt",
+  "flowy-storage",
+  "collab-integrate",
+  "flowy-ai",
+  "flowy-date",
+  "flowy-search",
+  "lib-infra",
+  "build-tool/flowy-ast",
+  "build-tool/flowy-codegen",
+  "build-tool/flowy-derive",
+  "flowy-search-pub",
 ]
 resolver = "2"
 
@@ -115,7 +115,7 @@ rocksdb = { git = "https://github.com/LucasXu0/rust-rocksdb", rev = "21cf4a23ec1
 # Run the script.add_workspace_members:
 # scripts/tool/update_client_api_rev.sh  new_rev_id
 # ⚠️⚠️⚠️️
-client-api = { git = " https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "ca70c426311fc6fb87ecccfa66e3927b36e96795" }
+client-api = { git = " https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "21613c7d7a05b4a9b885199a4d852b03d726d6ba" }
 # Please use the following script to update collab.
 # Working directory: frontend
 #
@@ -125,10 +125,10 @@ client-api = { git = " https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "ca
 # To switch to the local path, run:
 # scripts/tool/update_collab_source.sh
 # ⚠️⚠️⚠️️
-collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "2d716faf52ef4f8baf59690eb6491601c0d0bd24" }
-collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "2d716faf52ef4f8baf59690eb6491601c0d0bd24" }
-collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "2d716faf52ef4f8baf59690eb6491601c0d0bd24" }
-collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "2d716faf52ef4f8baf59690eb6491601c0d0bd24" }
-collab-plugins = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "2d716faf52ef4f8baf59690eb6491601c0d0bd24" }
-collab-user = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "2d716faf52ef4f8baf59690eb6491601c0d0bd24" }
-collab-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "2d716faf52ef4f8baf59690eb6491601c0d0bd24" }
+collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "1d81ee4f83d50cee86efc5037b210076853db643" }
+collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "1d81ee4f83d50cee86efc5037b210076853db643" }
+collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "1d81ee4f83d50cee86efc5037b210076853db643" }
+collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "1d81ee4f83d50cee86efc5037b210076853db643" }
+collab-plugins = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "1d81ee4f83d50cee86efc5037b210076853db643" }
+collab-user = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "1d81ee4f83d50cee86efc5037b210076853db643" }
+collab-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "1d81ee4f83d50cee86efc5037b210076853db643" }

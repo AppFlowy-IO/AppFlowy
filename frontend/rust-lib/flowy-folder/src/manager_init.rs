@@ -147,7 +147,7 @@ impl FolderManager {
       });
     }
 
-    *self.mutex_folder.lock() = Some(folder);
+    *self.mutex_folder.write() = Some(folder);
 
     let weak_mutex_folder = Arc::downgrade(&self.mutex_folder);
     subscribe_folder_sync_state_changed(workspace_id.clone(), folder_state_rx, &weak_mutex_folder);
