@@ -1,8 +1,5 @@
-import 'package:appflowy/core/config/kv.dart';
-import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/feature_flags.dart';
-import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/user_listener.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy_backend/log.dart';
@@ -43,14 +40,7 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
                 userProfile.authenticator == AuthenticatorPB.AppFlowyCloud &&
                     FeatureFlag.collaborativeWorkspace.isOn;
             if (currentWorkspace != null && result.$3 == true) {
-              final result = await _userService
-                  .openWorkspace(currentWorkspace.workspaceId);
-              result.onSuccess((s) async {
-                await getIt<KeyValueStorage>().set(
-                  KVKeys.lastOpenedWorkspaceId,
-                  currentWorkspace.workspaceId,
-                );
-              });
+              await _userService.openWorkspace(currentWorkspace.workspaceId);
             }
             emit(
               state.copyWith(
@@ -176,12 +166,6 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
               ),
               (e) => state.currentWorkspace,
             );
-            result.onSuccess((_) async {
-              await getIt<KeyValueStorage>().set(
-                KVKeys.lastOpenedWorkspaceId,
-                workspaceId,
-              );
-            });
             emit(
               state.copyWith(
                 currentWorkspace: currentWorkspace,
@@ -317,32 +301,22 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
         bool shouldOpenWorkspace,
       )> _fetchWorkspaces() async {
     try {
-      final lastOpenedWorkspaceId = await getIt<KeyValueStorage>().get(
-        KVKeys.lastOpenedWorkspaceId,
-      );
       final currentWorkspace =
           await _userService.getCurrentWorkspace().getOrThrow();
       final workspaces = await _userService.getWorkspaces().getOrThrow();
       if (workspaces.isEmpty) {
         workspaces.add(convertWorkspacePBToUserWorkspace(currentWorkspace));
       }
-      UserWorkspacePB? currentWorkspaceInList = workspaces
-          .firstWhereOrNull((e) => e.workspaceId == currentWorkspace.id);
-      if (lastOpenedWorkspaceId != null) {
-        final lastOpenedWorkspace = workspaces
-            .firstWhereOrNull((e) => e.workspaceId == lastOpenedWorkspaceId);
-        if (lastOpenedWorkspace != null) {
-          currentWorkspaceInList = lastOpenedWorkspace;
-        }
-      }
-      currentWorkspaceInList ??= workspaces.firstOrNull;
+      final currentWorkspaceInList = workspaces
+              .firstWhereOrNull((e) => e.workspaceId == currentWorkspace.id) ??
+          workspaces.firstOrNull;
       return (
         currentWorkspaceInList,
         workspaces
           ..sort(
             (a, b) => a.createdAtTimestamp.compareTo(b.createdAtTimestamp),
           ),
-        lastOpenedWorkspaceId != currentWorkspace.id
+        currentWorkspaceInList?.workspaceId != currentWorkspace.id
       );
     } catch (e) {
       Log.error('fetch workspace error: $e');
