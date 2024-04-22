@@ -530,12 +530,12 @@
       "commands": {
         "codeBlockNewParagraph": "Insérez un nouveau paragraphe à côté du bloc de code",
         "codeBlockAddTwoSpaces": "Insérez deux espaces au début de la ligne dans le bloc de code",
-        "codeBlockDeleteTwoSpaces": "Supprimez deux espaces au début de la ligne dans le bloc de code",
         "codeBlockSelectAll": "Sélectionnez tout le contenu à l'intérieur d'un bloc de code",
         "codeBlockPasteText": "Coller le texte dans le bloc de code",
         "textAlignLeft": "Aligner le texte à gauche",
         "textAlignCenter": "Aligner le texte au centre",
-        "textAlignRight": "Aligner le texte à droite"
+        "textAlignRight": "Aligner le texte à droite",
+        "codeBlockDeleteTwoSpaces": "Supprimez deux espaces au début de la ligne dans le bloc de code"
       }
     },
     "mobile": {

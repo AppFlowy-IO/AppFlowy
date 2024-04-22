@@ -438,12 +438,12 @@
       "commands": {
         "codeBlockNewParagraph": "Bloco de código: insirir um novo parágrafo",
         "codeBlockAddTwoSpaces": "Bloco de código: insirir dois espaços no início da linha",
-        "codeBlockDeleteTwoSpaces": "Bloco de código: excluir dois espaços no início da linha",
         "codeBlockSelectAll": "Bloco de código: selecionar tudo",
         "codeBlockPasteText": "Bloco de códito: Colar texto",
         "textAlignLeft": "Alinhar texto à esquerda",
         "textAlignCenter": "Alinhar texto ao centro",
-        "textAlignRight": "Alinhar texto à direita"
+        "textAlignRight": "Alinhar texto à direita",
+        "codeBlockDeleteTwoSpaces": "Bloco de código: excluir dois espaços no início da linha"
       }
     },
     "mobile": {

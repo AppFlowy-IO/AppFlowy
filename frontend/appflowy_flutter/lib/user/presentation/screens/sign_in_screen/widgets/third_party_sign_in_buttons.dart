@@ -29,37 +29,53 @@ class ThirdPartySignInButtons extends StatelessWidget {
         ? MediaQuery.of(context).platformBrightness == Brightness.dark
         : themeModeFromCubit == ThemeMode.dark;
 
-    return Column(
-      children: [
-        _ThirdPartySignInButton(
-          key: const Key('signInWithGoogleButton'),
-          icon: FlowySvgs.google_mark_xl,
-          labelText: LocaleKeys.signIn_LogInWithGoogle.tr(),
-          onPressed: () {
-            _signInWithGoogle(context);
-          },
-        ),
-        const VSpace(8),
-        _ThirdPartySignInButton(
-          icon: isDarkMode
-              ? FlowySvgs.github_mark_white_xl
-              : FlowySvgs.github_mark_black_xl,
-          labelText: LocaleKeys.signIn_LogInWithGithub.tr(),
-          onPressed: () {
-            _signInWithGithub(context);
-          },
-        ),
-        const VSpace(8),
-        _ThirdPartySignInButton(
-          icon: isDarkMode
-              ? FlowySvgs.discord_mark_white_xl
-              : FlowySvgs.discord_mark_blurple_xl,
-          labelText: LocaleKeys.signIn_LogInWithDiscord.tr(),
-          onPressed: () {
-            _signInWithDiscord(context);
-          },
-        ),
-      ],
+    return BlocBuilder<SignInBloc, SignInState>(
+      builder: (context, state) {
+        final (googleText, githubText, discordText) = switch (state.loginType) {
+          LoginType.signIn => (
+              LocaleKeys.signIn_signInWithGoogle.tr(),
+              LocaleKeys.signIn_signInWithGithub.tr(),
+              LocaleKeys.signIn_signInWithDiscord.tr()
+            ),
+          LoginType.signUp => (
+              LocaleKeys.signIn_signUpWithGoogle.tr(),
+              LocaleKeys.signIn_signUpWithGithub.tr(),
+              LocaleKeys.signIn_signUpWithDiscord.tr()
+            ),
+        };
+        return Column(
+          children: [
+            _ThirdPartySignInButton(
+              key: const Key('signInWithGoogleButton'),
+              icon: FlowySvgs.google_mark_xl,
+              labelText: googleText,
+              onPressed: () {
+                _signInWithGoogle(context);
+              },
+            ),
+            const VSpace(8),
+            _ThirdPartySignInButton(
+              icon: isDarkMode
+                  ? FlowySvgs.github_mark_white_xl
+                  : FlowySvgs.github_mark_black_xl,
+              labelText: githubText,
+              onPressed: () {
+                _signInWithGithub(context);
+              },
+            ),
+            const VSpace(8),
+            _ThirdPartySignInButton(
+              icon: isDarkMode
+                  ? FlowySvgs.discord_mark_white_xl
+                  : FlowySvgs.discord_mark_blurple_xl,
+              labelText: discordText,
+              onPressed: () {
+                _signInWithDiscord(context);
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }
