@@ -55,7 +55,7 @@ codegen-units = 1
 # Run the script:
 # scripts/tool/update_client_api_rev.sh  new_rev_id
 # ⚠️⚠️⚠️️
-client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "3901356e8ac7c68d1e77128729bf7669b30278ec" }
+client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "842e3d14e541b94f2fa6329e8a4651e9bae7fc99" }
 # Please use the following script to update collab.
 # Working directory: frontend
 #

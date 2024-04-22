@@ -349,7 +349,7 @@ impl CollabCloudPluginProvider for ServerProvider {
           // If the user is local, we don't need to create a sync plugin.
 
           match server.collab_ws_channel(&collab_object.object_id) {
-            Ok(Some((channel, ws_connect_state, is_connected))) => {
+            Ok(Some((channel, ws_connect_state, _is_connected))) => {
               let origin = CollabOrigin::Client(CollabClient::new(
                 collab_object.uid,
                 collab_object.device_id.clone(),
@@ -365,7 +365,6 @@ impl CollabCloudPluginProvider for ServerProvider {
                 sink_config,
                 stream,
                 Some(channel),
-                !is_connected,
                 ws_connect_state,
               );
               plugins.push(Box::new(sync_plugin));
