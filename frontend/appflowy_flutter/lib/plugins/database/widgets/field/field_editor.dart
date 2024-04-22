@@ -286,7 +286,7 @@ enum FieldAction {
       case FieldAction.delete:
         return LocaleKeys.grid_field_delete.tr();
       case FieldAction.wrap:
-        return LocaleKeys.grid_field_wrap.tr();
+        return LocaleKeys.grid_field_wrapCellContent.tr();
     }
   }
 
