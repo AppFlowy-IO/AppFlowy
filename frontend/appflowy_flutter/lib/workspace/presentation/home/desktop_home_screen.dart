@@ -1,6 +1,3 @@
-import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/plugins/blank/blank.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -13,6 +10,7 @@ import 'package:appflowy/workspace/application/home/home_service.dart';
 import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
+import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/errors/workspace_failed_screen.dart';
 import 'package:appflowy/workspace/presentation/home/hotkeys.dart';
@@ -25,12 +23,13 @@ import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
     show UserProfilePB;
 import 'package:flowy_infra_ui/style_widget/container.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sized_context/sized_context.dart';
 import 'package:styled_widget/styled_widget.dart';
 
 import '../widgets/edit_panel/edit_panel.dart';
-
 import 'home_layout.dart';
 import 'home_stack.dart';
 
@@ -115,9 +114,15 @@ class DesktopHomeScreen extends StatelessWidget {
                 },
                 child: BlocBuilder<HomeSettingBloc, HomeSettingState>(
                   buildWhen: (previous, current) => previous != current,
-                  builder: (context, state) => FlowyContainer(
-                    Theme.of(context).colorScheme.surface,
-                    child: _buildBody(context, userProfile, workspaceSetting),
+                  builder: (context, state) => BlocProvider(
+                    create: (_) => UserWorkspaceBloc(userProfile: userProfile)
+                      ..add(
+                        const UserWorkspaceEvent.initial(),
+                      ),
+                    child: FlowyContainer(
+                      Theme.of(context).colorScheme.surface,
+                      child: _buildBody(context, userProfile, workspaceSetting),
+                    ),
                   ),
                 ),
               ),

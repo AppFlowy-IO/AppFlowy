@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
 import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
@@ -21,6 +20,7 @@ import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
     show UserProfilePB;
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Home Sidebar is the left side bar of the home page.
@@ -58,75 +58,69 @@ class HomeSideBar extends StatelessWidget {
     //   +-- Public Or Private Section: control the sections of the workspace
     //   |
     //   +-- Trash Section
-    return BlocProvider<UserWorkspaceBloc>(
-      create: (_) => UserWorkspaceBloc(userProfile: userProfile)
-        ..add(
-          const UserWorkspaceEvent.initial(),
-        ),
-      child: BlocBuilder<UserWorkspaceBloc, UserWorkspaceState>(
-        // Rebuild the whole sidebar when the current workspace changes
-        buildWhen: (previous, current) =>
-            previous.currentWorkspace?.workspaceId !=
-            current.currentWorkspace?.workspaceId,
-        builder: (context, state) {
-          if (state.currentWorkspace == null) {
-            return const SizedBox.shrink();
-          }
-          return MultiBlocProvider(
-            providers: [
-              BlocProvider(create: (_) => getIt<ActionNavigationBloc>()),
-              BlocProvider(
-                create: (_) => SidebarSectionsBloc()
-                  ..add(
-                    SidebarSectionsEvent.initial(
-                      userProfile,
-                      state.currentWorkspace?.workspaceId ??
-                          workspaceSetting.workspaceId,
-                    ),
+    return BlocBuilder<UserWorkspaceBloc, UserWorkspaceState>(
+      // Rebuild the whole sidebar when the current workspace changes
+      buildWhen: (previous, current) =>
+          previous.currentWorkspace?.workspaceId !=
+          current.currentWorkspace?.workspaceId,
+      builder: (context, state) {
+        if (state.currentWorkspace == null) {
+          return const SizedBox.shrink();
+        }
+        return MultiBlocProvider(
+          providers: [
+            BlocProvider(create: (_) => getIt<ActionNavigationBloc>()),
+            BlocProvider(
+              create: (_) => SidebarSectionsBloc()
+                ..add(
+                  SidebarSectionsEvent.initial(
+                    userProfile,
+                    state.currentWorkspace?.workspaceId ??
+                        workspaceSetting.workspaceId,
                   ),
+                ),
+            ),
+          ],
+          child: MultiBlocListener(
+            listeners: [
+              BlocListener<SidebarSectionsBloc, SidebarSectionsState>(
+                listenWhen: (p, c) =>
+                    p.lastCreatedRootView?.id != c.lastCreatedRootView?.id,
+                listener: (context, state) => context.read<TabsBloc>().add(
+                      TabsEvent.openPlugin(
+                        plugin: state.lastCreatedRootView!.plugin(),
+                      ),
+                    ),
+              ),
+              BlocListener<ActionNavigationBloc, ActionNavigationState>(
+                listenWhen: (_, curr) => curr.action != null,
+                listener: _onNotificationAction,
+              ),
+              BlocListener<UserWorkspaceBloc, UserWorkspaceState>(
+                listener: (context, state) {
+                  final actionType = state.actionResult?.actionType;
+
+                  if (actionType == UserWorkspaceActionType.create ||
+                      actionType == UserWorkspaceActionType.delete ||
+                      actionType == UserWorkspaceActionType.open) {
+                    context.read<SidebarSectionsBloc>().add(
+                          SidebarSectionsEvent.reload(
+                            userProfile,
+                            state.currentWorkspace?.workspaceId ??
+                                workspaceSetting.workspaceId,
+                          ),
+                        );
+                    context.read<FavoriteBloc>().add(
+                          const FavoriteEvent.fetchFavorites(),
+                        );
+                  }
+                },
               ),
             ],
-            child: MultiBlocListener(
-              listeners: [
-                BlocListener<SidebarSectionsBloc, SidebarSectionsState>(
-                  listenWhen: (p, c) =>
-                      p.lastCreatedRootView?.id != c.lastCreatedRootView?.id,
-                  listener: (context, state) => context.read<TabsBloc>().add(
-                        TabsEvent.openPlugin(
-                          plugin: state.lastCreatedRootView!.plugin(),
-                        ),
-                      ),
-                ),
-                BlocListener<ActionNavigationBloc, ActionNavigationState>(
-                  listenWhen: (_, curr) => curr.action != null,
-                  listener: _onNotificationAction,
-                ),
-                BlocListener<UserWorkspaceBloc, UserWorkspaceState>(
-                  listener: (context, state) {
-                    final actionType = state.actionResult?.actionType;
-
-                    if (actionType == UserWorkspaceActionType.create ||
-                        actionType == UserWorkspaceActionType.delete ||
-                        actionType == UserWorkspaceActionType.open) {
-                      context.read<SidebarSectionsBloc>().add(
-                            SidebarSectionsEvent.reload(
-                              userProfile,
-                              state.currentWorkspace?.workspaceId ??
-                                  workspaceSetting.workspaceId,
-                            ),
-                          );
-                      context.read<FavoriteBloc>().add(
-                            const FavoriteEvent.fetchFavorites(),
-                          );
-                    }
-                  },
-                ),
-              ],
-              child: _Sidebar(userProfile: userProfile),
-            ),
-          );
-        },
-      ),
+            child: _Sidebar(userProfile: userProfile),
+          ),
+        );
+      },
     );
   }
 
