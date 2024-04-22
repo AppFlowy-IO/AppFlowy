@@ -46,11 +46,7 @@ dependencies:
       ref: 15a3a50
   appflowy_result:
     path: packages/appflowy_result
-  appflowy_editor_plugins:
-    git:
-      url: https://github.com/AppFlowy-IO/appflowy-plugins.git
-      path: packages/appflowy_editor_plugins
-      ref: "aa17c6cb"
+  appflowy_editor_plugins: ^0.0.2
 
   appflowy_editor:
 
