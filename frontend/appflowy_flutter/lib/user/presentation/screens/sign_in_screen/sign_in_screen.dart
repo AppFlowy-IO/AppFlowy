@@ -39,9 +39,7 @@ class SignInScreen extends StatelessWidget {
                 ? const MobileLoadingScreen()
                 : const MobileSignInScreen();
           }
-          return DesktopSignInScreen(
-            isLoading: isLoading,
-          );
+          return const DesktopSignInScreen();
         },
       ),
     );

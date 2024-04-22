@@ -134,9 +134,9 @@ dependencies = [
 
 [[package]]
 name = "allocator-api2"
-version = "0.2.16"
+version = "0.2.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0942ffc6dcaadf03badf6e6a2d0228460359d5e34b57ccdc720b7382dfbd5ec5"
+checksum = "5c6cb57a04249c6480766f7f7cef5467412af1490f8d1e243141daddada3264f"
 
 [[package]]
 name = "android-tzdata"
@@ -162,7 +162,7 @@ checksum = "080e9890a082662b09c1ad45f567faeeb47f22b5fb23895fbe1e651e718e25ca"
 [[package]]
 name = "app-error"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=3901356e8ac7c68d1e77128729bf7669b30278ec#3901356e8ac7c68d1e77128729bf7669b30278ec"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=ca70c426311fc6fb87ecccfa66e3927b36e96795#ca70c426311fc6fb87ecccfa66e3927b36e96795"
 dependencies = [
  "anyhow",
  "bincode",
@@ -191,7 +191,6 @@ dependencies = [
  "flowy-document",
  "flowy-error",
  "flowy-notification",
- "flowy-search",
  "flowy-user",
  "lib-dispatch",
  "serde",
@@ -206,9 +205,9 @@ dependencies = [
 
 [[package]]
 name = "arc-swap"
-version = "1.6.0"
+version = "1.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bddcadddf5e9015d310179a59bb28c4d4b9920ad0f11e8e14dbadf654890c9a6"
+checksum = "69f7f8c3906b62b754cd5326047894316021dcfe5a194c8ea52bdd94934a3457"
 
 [[package]]
 name = "arrayvec"
@@ -740,7 +739,7 @@ dependencies = [
 [[package]]
 name = "client-api"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=3901356e8ac7c68d1e77128729bf7669b30278ec#3901356e8ac7c68d1e77128729bf7669b30278ec"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=ca70c426311fc6fb87ecccfa66e3927b36e96795#ca70c426311fc6fb87ecccfa66e3927b36e96795"
 dependencies = [
  "again",
  "anyhow",
@@ -775,6 +774,7 @@ dependencies = [
  "tokio",
  "tokio-retry",
  "tokio-stream",
+ "tokio-util",
  "tracing",
  "url",
  "uuid",
@@ -785,7 +785,7 @@ dependencies = [
 [[package]]
 name = "client-websocket"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=3901356e8ac7c68d1e77128729bf7669b30278ec#3901356e8ac7c68d1e77128729bf7669b30278ec"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=ca70c426311fc6fb87ecccfa66e3927b36e96795#ca70c426311fc6fb87ecccfa66e3927b36e96795"
 dependencies = [
  "futures-channel",
  "futures-util",
@@ -1024,7 +1024,7 @@ dependencies = [
 [[package]]
 name = "collab-rt-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=3901356e8ac7c68d1e77128729bf7669b30278ec#3901356e8ac7c68d1e77128729bf7669b30278ec"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=ca70c426311fc6fb87ecccfa66e3927b36e96795#ca70c426311fc6fb87ecccfa66e3927b36e96795"
 dependencies = [
  "anyhow",
  "bincode",
@@ -1049,7 +1049,7 @@ dependencies = [
 [[package]]
 name = "collab-rt-protocol"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=3901356e8ac7c68d1e77128729bf7669b30278ec#3901356e8ac7c68d1e77128729bf7669b30278ec"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=ca70c426311fc6fb87ecccfa66e3927b36e96795#ca70c426311fc6fb87ecccfa66e3927b36e96795"
 dependencies = [
  "anyhow",
  "bincode",
@@ -1403,7 +1403,7 @@ checksum = "c2e66c9d817f1720209181c316d28635c050fa304f9c79e47a520882661b7308"
 [[package]]
 name = "database-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=3901356e8ac7c68d1e77128729bf7669b30278ec#3901356e8ac7c68d1e77128729bf7669b30278ec"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=ca70c426311fc6fb87ecccfa66e3927b36e96795#ca70c426311fc6fb87ecccfa66e3927b36e96795"
 dependencies = [
  "anyhow",
  "app-error",
@@ -1583,9 +1583,9 @@ checksum = "77c90badedccf4105eca100756a0b1289e191f6fcbdadd3cee1d2f614f97da8f"
 
 [[package]]
 name = "downcast-rs"
-version = "1.2.0"
+version = "1.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9ea835d29036a4087793836fa931b08837ad5e957da9e23886b29586fb9b6650"
+checksum = "75b325c5dbd37f80359721ad39aca5a29fb04c89279657cffdda8736d0c0b9d2"
 
 [[package]]
 name = "dtoa"
@@ -1721,9 +1721,9 @@ dependencies = [
 
 [[package]]
 name = "fastdivide"
-version = "0.4.0"
+version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "25c7df09945d65ea8d70b3321547ed414bbc540aad5bac6883d021b970f35b04"
+checksum = "59668941c55e5c186b8b58c391629af56774ec768f73c08bbcd56f09348eb00b"
 
 [[package]]
 name = "fastrand"
@@ -2134,8 +2134,8 @@ dependencies = [
  "protobuf",
  "serde",
  "serde_json",
- "strsim 0.11.0",
- "strum_macros 0.26.1",
+ "strsim 0.11.1",
+ "strum_macros 0.26.2",
  "tantivy",
  "tempfile",
  "tokio",
@@ -2769,7 +2769,7 @@ dependencies = [
 [[package]]
 name = "gotrue"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=3901356e8ac7c68d1e77128729bf7669b30278ec#3901356e8ac7c68d1e77128729bf7669b30278ec"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=ca70c426311fc6fb87ecccfa66e3927b36e96795#ca70c426311fc6fb87ecccfa66e3927b36e96795"
 dependencies = [
  "anyhow",
  "futures-util",
@@ -2786,7 +2786,7 @@ dependencies = [
 [[package]]
 name = "gotrue-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=3901356e8ac7c68d1e77128729bf7669b30278ec#3901356e8ac7c68d1e77128729bf7669b30278ec"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=ca70c426311fc6fb87ecccfa66e3927b36e96795#ca70c426311fc6fb87ecccfa66e3927b36e96795"
 dependencies = [
  "anyhow",
  "app-error",
@@ -3218,7 +3218,7 @@ dependencies = [
 [[package]]
 name = "infra"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=3901356e8ac7c68d1e77128729bf7669b30278ec#3901356e8ac7c68d1e77128729bf7669b30278ec"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=ca70c426311fc6fb87ecccfa66e3927b36e96795#ca70c426311fc6fb87ecccfa66e3927b36e96795"
 dependencies = [
  "anyhow",
  "reqwest",
@@ -3493,9 +3493,9 @@ dependencies = [
 
 [[package]]
 name = "libc"
-version = "0.2.152"
+version = "0.2.153"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "13e3bf6590cbc649f4d1a3eefc9d5d6eb746f5200ffb04e5e142700b8faa56e7"
+checksum = "9c198f91728a82281a64e1f4f9eeb25d82cb32a5de251c6bd1b5154d63a8e7bd"
 
 [[package]]
 name = "libloading"
@@ -3608,9 +3608,9 @@ dependencies = [
 
 [[package]]
 name = "lz4_flex"
-version = "0.11.2"
+version = "0.11.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "912b45c753ff5f7f5208307e8ace7d2a2e30d024e26d3509f3dce546c044ce15"
+checksum = "75761162ae2b0e580d7e7c390558127e5f01b4194debd6221fd8c207fc80e3f5"
 
 [[package]]
 name = "mac"
@@ -3838,9 +3838,9 @@ checksum = "e5ce46fe64a9d73be07dcbe690a38ce1b293be448fd8ce1e6c1b8062c9f72c6a"
 
 [[package]]
 name = "murmurhash32"
-version = "0.3.0"
+version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d9380db4c04d219ac5c51d14996bbf2c2e9a15229771b53f8671eb6c83cf44df"
+checksum = "2195bf6aa996a481483b29d62a7663eed3fe39600c460e323f8ff41e90bdd89b"
 
 [[package]]
 name = "nanoid"
@@ -4721,7 +4721,7 @@ checksum = "c55e02e35260070b6f716a2423c2ff1c3bb1642ddca6f99e1f26d06268a0e2d2"
 dependencies = [
  "bytes",
  "heck 0.4.1",
- "itertools 0.11.0",
+ "itertools 0.10.5",
  "log",
  "multimap",
  "once_cell",
@@ -4742,7 +4742,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "efb6c9a1dd1def8e2124d17e83a20af56f1570d6c2d2bd9e266ccb768df3840e"
 dependencies = [
  "anyhow",
- "itertools 0.11.0",
+ "itertools 0.10.5",
  "proc-macro2",
  "quote",
  "syn 2.0.47",
@@ -5047,15 +5047,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "redox_syscall"
-version = "0.4.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4722d768eff46b75989dd134e5c353f0d6296e5aaa3132e776cbdb56be7731aa"
-dependencies = [
- "bitflags 1.3.2",
-]
-
-[[package]]
 name = "redox_users"
 version = "0.4.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5294,9 +5285,9 @@ dependencies = [
 
 [[package]]
 name = "rustix"
-version = "0.38.30"
+version = "0.38.33"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "322394588aaf33c24007e8bb3238ee3e4c5c09c084ab32bc73890b99ff326bca"
+checksum = "e3cc72858054fcff6d7dea32df2aeaee6a7c24227366d7ea429aada2f26b16ad"
 dependencies = [
  "bitflags 2.4.0",
  "errno",
@@ -5706,7 +5697,7 @@ dependencies = [
 [[package]]
 name = "shared-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=3901356e8ac7c68d1e77128729bf7669b30278ec#3901356e8ac7c68d1e77128729bf7669b30278ec"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud?rev=ca70c426311fc6fb87ecccfa66e3927b36e96795#ca70c426311fc6fb87ecccfa66e3927b36e96795"
 dependencies = [
  "anyhow",
  "app-error",
@@ -5924,9 +5915,9 @@ checksum = "73473c0e59e6d5812c5dfe2a064a6444949f089e20eec9a2e5506596494e4623"
 
 [[package]]
 name = "strsim"
-version = "0.11.0"
+version = "0.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5ee073c9e4cd00e28217186dbe12796d692868f432bf2e97ee73bed0c56dfa01"
+checksum = "7da8b5736845d9f2fcb837ea5d9e2628564b3b043a70948a3f0b778838c5fb4f"
 
 [[package]]
 name = "strum"
@@ -5961,9 +5952,9 @@ dependencies = [
 
 [[package]]
 name = "strum_macros"
-version = "0.26.1"
+version = "0.26.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7a3417fc93d76740d974a01654a09777cb500428cc874ca9f45edfe0c4d4cd18"
+checksum = "c6cf59daf282c0a494ba14fd21610a0325f9f90ec9d1231dea26bcb1d696c946"
 dependencies = [
  "heck 0.4.1",
  "proc-macro2",
@@ -6495,13 +6486,12 @@ dependencies = [
 
 [[package]]
 name = "tempfile"
-version = "3.9.0"
+version = "3.10.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "01ce4141aa927a6d1bd34a041795abd0db1cccba5d5f24b009f694bdf3a1f3fa"
+checksum = "85b77fafb263dd9d05cbeac119526425676db3784113aa9295c88498cbf8bff1"
 dependencies = [
  "cfg-if",
  "fastrand",
- "redox_syscall 0.4.1",
  "rustix",
  "windows-sys 0.52.0",
 ]

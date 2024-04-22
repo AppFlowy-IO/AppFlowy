@@ -1,35 +1,35 @@
 [workspace]
 members = [
-  "lib-dispatch",
-  "lib-log",
-  "flowy-core",
-  "dart-ffi",
-  "flowy-user",
-  "flowy-user-pub",
-  "event-integration",
-  "flowy-sqlite",
-  "flowy-folder",
-  "flowy-folder-pub",
-  "flowy-notification",
-  "flowy-document",
-  "flowy-document-pub",
-  "flowy-error",
-  "flowy-database2",
-  "flowy-database-pub",
-  "flowy-server",
-  "flowy-server-pub",
-  "flowy-config",
-  "flowy-encrypt",
-  "flowy-storage",
-  "collab-integrate",
-  "flowy-ai",
-  "flowy-date",
-  "flowy-search",
-  "lib-infra",
-  "build-tool/flowy-ast",
-  "build-tool/flowy-codegen",
-  "build-tool/flowy-derive",
-  "flowy-search-pub",
+    "lib-dispatch",
+    "lib-log",
+    "flowy-core",
+    "dart-ffi",
+    "flowy-user",
+    "flowy-user-pub",
+    "event-integration",
+    "flowy-sqlite",
+    "flowy-folder",
+    "flowy-folder-pub",
+    "flowy-notification",
+    "flowy-document",
+    "flowy-document-pub",
+    "flowy-error",
+    "flowy-database2",
+    "flowy-database-pub",
+    "flowy-server",
+    "flowy-server-pub",
+    "flowy-config",
+    "flowy-encrypt",
+    "flowy-storage",
+    "collab-integrate",
+    "flowy-ai",
+    "flowy-date",
+    "flowy-search",
+    "lib-infra",
+    "build-tool/flowy-ast",
+    "build-tool/flowy-codegen",
+    "build-tool/flowy-derive",
+    "flowy-search-pub",
 ]
 resolver = "2"
 
@@ -115,7 +115,7 @@ rocksdb = { git = "https://github.com/LucasXu0/rust-rocksdb", rev = "21cf4a23ec1
 # Run the script.add_workspace_members:
 # scripts/tool/update_client_api_rev.sh  new_rev_id
 # ⚠️⚠️⚠️️
-client-api = { git = " https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "3901356e8ac7c68d1e77128729bf7669b30278ec" }
+client-api = { git = " https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "ca70c426311fc6fb87ecccfa66e3927b36e96795" }
 # Please use the following script to update collab.
 # Working directory: frontend
 #

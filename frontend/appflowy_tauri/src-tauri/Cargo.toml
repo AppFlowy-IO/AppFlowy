@@ -60,7 +60,6 @@ flowy-error = { path = "../../rust-lib/flowy-error", features = [
     "impl_from_serde",
     "tauri_ts",
 ] }
-flowy-search = { path = "../../rust-lib/flowy-search", features = ["tauri_ts"] }
 flowy-document = { path = "../../rust-lib/flowy-document", features = [
     "tauri_ts",
 ] }
@@ -88,7 +87,7 @@ yrs = { git = "https://github.com/appflowy/y-crdt", rev = "3f25bb510ca5274e7657d
 # Run the script:
 # scripts/tool/update_client_api_rev.sh  new_rev_id
 # ⚠️⚠️⚠️️
-client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "3901356e8ac7c68d1e77128729bf7669b30278ec" }
+client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "ca70c426311fc6fb87ecccfa66e3927b36e96795" }
 # Please use the following script to update collab.
 # Working directory: frontend
 #

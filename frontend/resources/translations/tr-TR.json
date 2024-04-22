@@ -518,12 +518,12 @@
       "commands": {
         "codeBlockNewParagraph": "Kod bloğunun yanına yeni bir paragraf ekle",
         "codeBlockAddTwoSpaces": "Kod bloğunda satır başına iki boşluk ekle",
-        "codeBlockDeleteTwoSpaces": "Kod bloğunda satır başındaki iki boşluğu sil",
         "codeBlockSelectAll": "Kod bloğunun içindeki tüm içeriği seç",
         "codeBlockPasteText": "Kod bloğuna metin yapıştır",
         "textAlignLeft": "Metni sola hizala",
         "textAlignCenter": "Metni ortaya hizala",
-        "textAlignRight": "Metni sağa hizala"
+        "textAlignRight": "Metni sağa hizala",
+        "codeBlockDeleteTwoSpaces": "Kod bloğunda satır başındaki iki boşluğu sil"
       }
     },
     "mobile": {

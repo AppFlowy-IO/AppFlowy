@@ -665,10 +665,7 @@ impl UserManager {
     self.cloud_services.set_user_authenticator(authenticator);
 
     let auth_service = self.cloud_services.get_user_service()?;
-    let url = auth_service
-      .generate_sign_in_url_with_email(email)
-      .await
-      .map_err(|err| FlowyError::server_error().with_context(err))?;
+    let url = auth_service.generate_sign_in_url_with_email(email).await?;
     Ok(url)
   }
 
@@ -680,8 +677,8 @@ impl UserManager {
     let auth_service = self.cloud_services.get_user_service()?;
     auth_service
       .sign_in_with_magic_link(email, redirect_to)
-      .await
-      .map_err(|err| FlowyError::server_error().with_context(err))
+      .await?;
+    Ok(())
   }
 
   pub(crate) async fn generate_oauth_url(
