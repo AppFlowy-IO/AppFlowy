@@ -12,6 +12,7 @@ import 'package:appflowy/plugins/database/grid/presentation/grid_page.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/header/field_type_extension.dart';
 import 'package:appflowy/plugins/database/tab_bar/desktop/setting_menu.dart';
 import 'package:appflowy/plugins/database/tab_bar/tab_bar_view.dart';
+import 'package:appflowy/plugins/database/widgets/card/card_bloc.dart';
 import 'package:appflowy/plugins/database/widgets/cell/card_cell_style_maps/desktop_board_card_cell_style.dart';
 import 'package:appflowy/plugins/database/widgets/row/row_detail.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
@@ -278,7 +279,7 @@ class _DesktopBoardContentState extends State<DesktopBoardContent> {
           context: context,
           databaseController: databaseController,
           groupId: groupData.group.groupId,
-          rowMeta: rowMeta,
+          rowMeta: context.read<CardBloc>().state.rowMeta,
         ),
         styleConfiguration: RowCardStyleConfiguration(
           cellStyleMap: desktopBoardCardCellStyleMap(context),
