@@ -921,7 +921,8 @@
       "image": {
         "copiedToPasteBoard": "The image link has been copied to the clipboard",
         "addAnImage": "Add an image",
-        "imageUploadFailed": "Image upload failed"
+        "imageUploadFailed": "Image upload failed",
+        "errorCode": "Error code"
       },
       "urlPreview": {
         "copiedToPasteBoard": "The link has been copied to the clipboard",
@@ -1384,7 +1385,7 @@
     "upload": "Upload",
     "chooseImage": "Choose an image",
     "loading": "Loading",
-    "imageLoadFailed": "Could not load the image",
+    "imageLoadFailed": "Image load failed",
     "divider": "Divider",
     "table": "Table",
     "colAddBefore": "Add before",
