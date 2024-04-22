@@ -88,7 +88,7 @@ yrs = { git = "https://github.com/appflowy/y-crdt", rev = "3f25bb510ca5274e7657d
 # Run the script:
 # scripts/tool/update_client_api_rev.sh  new_rev_id
 # ⚠️⚠️⚠️️
-client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "3901356e8ac7c68d1e77128729bf7669b30278ec" }
+client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "ca8dcdfd556495d13bd79683c9406e4d839ab464" }
 # Please use the following script to update collab.
 # Working directory: frontend
 #
