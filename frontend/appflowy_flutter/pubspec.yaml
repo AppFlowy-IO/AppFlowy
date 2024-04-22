@@ -50,7 +50,7 @@ dependencies:
     git:
       url: https://github.com/AppFlowy-IO/appflowy-plugins.git
       path: packages/appflowy_editor_plugins
-      ref: "37f35e77"
+      ref: "aa17c6cb"
 
   appflowy_editor:
 

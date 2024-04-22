@@ -62,8 +62,8 @@ packages:
     dependency: "direct main"
     description:
       path: "packages/appflowy_editor_plugins"
-      ref: "37f35e77"
-      resolved-ref: "37f35e77aefb1b9a0b872086d156b1b885ba02df"
+      ref: aa17c6cb
+      resolved-ref: aa17c6cba53fad811b6e8880dea3a571574557a8
       url: "https://github.com/AppFlowy-IO/appflowy-plugins.git"
     source: git
     version: "0.0.1"

@@ -54,7 +54,8 @@
     "logInWithMagicLink": "Log in with Magic Link",
     "pleaseInputYourEmail": "Please enter your email address",
     "magicLinkSent": "Magic link sent to your email, please check your inbox",
-    "invalidEmail": "Please enter a valid email address"
+    "invalidEmail": "Please enter a valid email address",
+    "settings": "Settings"
   },
   "workspace": {
     "chooseWorkspace": "Choose your workspace",
