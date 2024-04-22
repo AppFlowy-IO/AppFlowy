@@ -58,6 +58,7 @@
     "signInWithMagicLink": "Log in with Magic Link",
     "signUpWithMagicLink": "Sign up with Magic Link",
     "pleaseInputYourEmail": "Please enter your email address",
+    "settings": "Settings",
     "magicLinkSent": "We emailed a magic link. Click the link to log in.",
     "invalidEmail": "Please enter a valid email address",
     "alreadyHaveAnAccount": "Already have an account?",
