@@ -282,7 +282,7 @@ impl DatabaseManager {
 
   pub async fn duplicate_database(&self, view_id: &str) -> FlowyResult<Vec<u8>> {
     let wdb = self.get_workspace_database().await?;
-    let data = wdb.get_database_duplicated_data(view_id).await?;
+    let data = wdb.get_database_data(view_id).await?;
     let json_bytes = data.to_json_bytes()?;
     Ok(json_bytes)
   }
@@ -294,11 +294,22 @@ impl DatabaseManager {
     view_id: &str,
     data: Vec<u8>,
   ) -> FlowyResult<()> {
-    let mut database_data = DatabaseData::from_json_bytes(data)?;
-    database_data.view.id = view_id.to_string();
+    let database_data = DatabaseData::from_json_bytes(data)?;
+
+    let mut create_database_params = CreateDatabaseParams::from_database_data(database_data);
+    let old_view_id = create_database_params.inline_view_id.clone();
+    create_database_params.inline_view_id = view_id.to_string();
+
+    if let Some(create_view_params) = create_database_params
+      .views
+      .iter_mut()
+      .find(|view| view.view_id == old_view_id)
+    {
+      create_view_params.view_id = view_id.to_string();
+    }
 
     let wdb = self.get_workspace_database().await?;
-    let _ = wdb.create_database_with_data(database_data)?;
+    let _ = wdb.create_database(create_database_params)?;
     Ok(())
   }
 
@@ -346,7 +357,7 @@ impl DatabaseManager {
     .map_err(internal_error)??;
     let result = ImportResult {
       database_id: params.database_id.clone(),
-      view_id: params.view_id.clone(),
+      view_id: params.inline_view_id.clone(),
     };
     self.create_database_with_params(params).await?;
     Ok(result)

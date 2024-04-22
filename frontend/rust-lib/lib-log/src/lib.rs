@@ -8,6 +8,7 @@ use tracing_appender::rolling::Rotation;
 use tracing_appender::{non_blocking::WorkerGuard, rolling::RollingFileAppender};
 use tracing_bunyan_formatter::JsonStorageLayer;
 use tracing_subscriber::fmt::format::Writer;
+use tracing_subscriber::fmt::MakeWriter;
 use tracing_subscriber::{layer::SubscriberExt, EnvFilter};
 
 use crate::layer::FlowyFormattingLayer;
@@ -87,6 +88,7 @@ impl Builder {
         .pretty()
         .with_env_filter(env_filter)
         .finish()
+        .with(FlowyFormattingLayer::new(StdoutWriter))
         .with(JsonStorageLayer)
         .with(file_layer);
       set_global_default(subscriber).map_err(|e| format!("{:?}", e))?;
@@ -101,5 +103,15 @@ struct CustomTime;
 impl tracing_subscriber::fmt::time::FormatTime for CustomTime {
   fn format_time(&self, w: &mut Writer<'_>) -> std::fmt::Result {
     write!(w, "{}", Local::now().format("%Y-%m-%d %H:%M:%S"))
+  }
+}
+
+pub struct StdoutWriter;
+
+impl<'a> MakeWriter<'a> for StdoutWriter {
+  type Writer = std::io::Stdout;
+
+  fn make_writer(&'a self) -> Self::Writer {
+    std::io::stdout()
   }
 }
