@@ -37,6 +37,7 @@ class _SignInWithMagicLinkButtonsState
         SizedBox(
           height: 48.0,
           child: FlowyTextField(
+            autoFocus: false,
             controller: controller,
             hintText: LocaleKeys.signIn_pleaseInputYourEmail.tr(),
             keyboardType: TextInputType.emailAddress,

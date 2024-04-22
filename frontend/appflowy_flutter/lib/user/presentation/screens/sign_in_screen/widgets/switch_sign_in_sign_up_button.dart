@@ -21,13 +21,28 @@ class SwitchSignInSignUpButton extends StatelessWidget {
           cursor: SystemMouseCursors.click,
           child: GestureDetector(
             onTap: onTap,
-            child: FlowyText(
-              switch (state.loginType) {
-                LoginType.signIn => LocaleKeys.signIn_dontHaveAnAccount.tr(),
-                LoginType.signUp => LocaleKeys.signIn_alreadyHaveAnAccount.tr(),
-              },
-              color: Colors.blue,
-              fontSize: 12,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                FlowyText(
+                  switch (state.loginType) {
+                    LoginType.signIn =>
+                      LocaleKeys.signIn_dontHaveAnAccount.tr(),
+                    LoginType.signUp =>
+                      LocaleKeys.signIn_alreadyHaveAnAccount.tr(),
+                  },
+                  fontSize: 12,
+                ),
+                const HSpace(4),
+                FlowyText(
+                  switch (state.loginType) {
+                    LoginType.signIn => LocaleKeys.signIn_createAccount.tr(),
+                    LoginType.signUp => LocaleKeys.signIn_logIn.tr(),
+                  },
+                  color: Colors.blue,
+                  fontSize: 12,
+                ),
+              ],
             ),
           ),
         );

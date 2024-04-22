@@ -41,7 +41,8 @@
     "forgotPassword": "Forgot Password?",
     "emailHint": "Email",
     "passwordHint": "Password",
-    "dontHaveAnAccount": "Don't have an account? Click here to sign up",
+    "dontHaveAnAccount": "Don't have an account?",
+    "createAccount": "Create account",
     "repeatPasswordEmptyError": "Repeat password can't be empty",
     "unmatchedPasswordError": "Repeat password is not the same as password",
     "syncPromptMessage": "Syncing the data might take a while. Please don't close this page",
@@ -59,7 +60,8 @@
     "pleaseInputYourEmail": "Please enter your email address",
     "magicLinkSent": "We emailed a magic link. Click the link to log in.",
     "invalidEmail": "Please enter a valid email address",
-    "alreadyHaveAnAccount": "Already have an account? Click here to sign in"
+    "alreadyHaveAnAccount": "Already have an account?",
+    "logIn": "Log in"
   },
   "workspace": {
     "chooseWorkspace": "Choose your workspace",
