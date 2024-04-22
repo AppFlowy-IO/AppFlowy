@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/recent/recent_listener.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
@@ -29,7 +30,16 @@ class CachedRecentService extends LaunchTask {
   final _listener = RecentViewsListener();
 
   Future<List<ViewPB>> recentViews() async {
-    await _completer.future;
+    if (_isInitialized) return _recentViews;
+
+    _isInitialized = true;
+
+    _listener.start(recentViewsUpdated: _recentViewsUpdated);
+    final result = await _readRecentViews();
+    _recentViews = result.toNullable()?.items ?? const [];
+    notifier.value = _recentViews;
+    _completer.complete();
+
     return _recentViews;
   }
 
@@ -46,25 +56,23 @@ class CachedRecentService extends LaunchTask {
   Future<FlowyResult<RepeatedViewPB, FlowyError>> _readRecentViews() =>
       FolderEventReadRecentViews().send();
 
-  Future<void> _initialize() async {
-    _listener.start(recentViewsUpdated: _recentViewsUpdated);
-    final result = await _readRecentViews();
-    _recentViews = result.toNullable()?.items ?? const [];
-    notifier.value = _recentViews;
-    _completer.complete();
+  bool _isInitialized = false;
+
+  Future<void> reset() async {
+    await _listener.stop();
+    _resetCompleter();
+    _isInitialized = false;
+    _recentViews = const [];
   }
 
   @override
-  Future<void> initialize(LaunchContext context) async => _initialize();
+  Future<void> initialize(LaunchContext context) async {
+    Log.info('[CachedRecentService] Started');
+  }
 
   @override
   Future<void> dispose() async {
     await _listener.stop();
-  }
-
-  void reset() {
-    _resetCompleter();
-    _initialize();
   }
 
   void _recentViewsUpdated(
