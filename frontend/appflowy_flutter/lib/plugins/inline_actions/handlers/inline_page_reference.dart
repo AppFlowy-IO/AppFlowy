@@ -117,6 +117,10 @@ class InlinePageReferenceService extends InlineActionsDelegate {
     // _searchCompleter?.isCompleted == false
     //     ? _searchCompleter!.complete(const [])
     //     : null;
+    if (!_initCompleter.isCompleted) {
+      _initCompleter.complete();
+    }
+
     await super.dispose();
   }
 
