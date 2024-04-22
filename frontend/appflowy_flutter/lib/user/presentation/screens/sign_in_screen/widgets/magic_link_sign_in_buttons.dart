@@ -61,9 +61,9 @@ class _SignInWithMagicLinkButtonsState
       );
       return;
     }
-    if (context.read<SignInBloc>().state.isSubmitting) {
-      return;
-    }
+    // if (context.read<SignInBloc>().state.isSubmitting) {
+    //   return;
+    // }
     context.read<SignInBloc>().add(SignInEvent.signedWithMagicLink(email));
     showSnackBarMessage(
       context,

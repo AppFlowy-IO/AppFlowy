@@ -39,7 +39,7 @@ class FolderBloc extends Bloc<FolderEvent, FolderState> {
         },
         expandOrUnExpand: (e) async {
           final isExpanded = e.isExpanded ?? !state.isExpanded;
-          await _setFolderExpandStatus(e.isExpanded ?? !state.isExpanded);
+          await _setFolderExpandStatus(isExpanded);
           emit(state.copyWith(isExpanded: isExpanded));
         },
       );

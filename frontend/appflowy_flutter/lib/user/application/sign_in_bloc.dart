@@ -224,21 +224,6 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
   }
 
   SignInState _stateFromCode(FlowyError error) {
-    // edge case: 429 is the rate limit error code
-    // since the error code and error msg are saved in the msg field,
-    //  we need to check if the msg contains 429
-    final msg = error.msg;
-    if (msg.isNotEmpty) {
-      if (msg.contains('429')) {
-        return state.copyWith(
-          isSubmitting: false,
-          successOrFail: FlowyResult.failure(
-            FlowyError(msg: LocaleKeys.signIn_limitRateError.tr()),
-          ),
-        );
-      }
-    }
-
     switch (error.code) {
       case ErrorCode.EmailFormatInvalid:
         return state.copyWith(
