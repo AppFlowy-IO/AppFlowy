@@ -1,3 +1,5 @@
+use std::io;
+use std::io::Write;
 use std::sync::{Arc, RwLock};
 
 use chrono::Local;
@@ -89,7 +91,7 @@ impl Builder {
         .with_env_filter(env_filter)
         .finish()
         .with(JsonStorageLayer)
-        .with(FlowyFormattingLayer::new(StdoutWriter))
+        .with(FlowyFormattingLayer::new(DebugStdoutWriter))
         .with(file_layer);
       set_global_default(subscriber).map_err(|e| format!("{:?}", e))?;
     };
@@ -106,12 +108,19 @@ impl tracing_subscriber::fmt::time::FormatTime for CustomTime {
   }
 }
 
-pub struct StdoutWriter;
+pub struct DebugStdoutWriter;
 
-impl<'a> MakeWriter<'a> for StdoutWriter {
-  type Writer = std::io::Stdout;
+impl<'a> MakeWriter<'a> for DebugStdoutWriter {
+  type Writer = Box<dyn Write>;
 
   fn make_writer(&'a self) -> Self::Writer {
-    std::io::stdout()
+    #[cfg(not(debug_assertions))]
+    {
+      Box::new(io::sink())
+    }
+    #[cfg(debug_assertions)]
+    {
+      Box::new(io::stdout())
+    }
   }
 }
