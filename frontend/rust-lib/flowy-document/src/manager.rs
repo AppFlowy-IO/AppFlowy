@@ -344,6 +344,7 @@ impl DocumentManager {
       // create file if not exist
       let mut file = tokio::fs::OpenOptions::new()
         .create(true)
+        .truncate(true)
         .write(true)
         .open(&local_file_path)
         .await?;

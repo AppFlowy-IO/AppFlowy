@@ -46,6 +46,7 @@ pub fn save_content_to_file_with_diff_prompt(content: &str, output_file: &str) {
   } else {
     match OpenOptions::new()
       .create(true)
+      .truncate(true)
       .write(true)
       .open(output_file)
     {
