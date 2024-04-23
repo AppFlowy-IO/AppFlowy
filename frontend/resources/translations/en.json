@@ -1193,6 +1193,7 @@
   },
   "inlineActions": {
     "noResults": "No results",
+    "recentPages": "Recent pages",
     "pageReference": "Page reference",
     "docReference": "Document reference",
     "boardReference": "Board reference",

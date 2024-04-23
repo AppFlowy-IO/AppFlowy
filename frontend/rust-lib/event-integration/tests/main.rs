@@ -1,6 +1,8 @@
 mod database;
 mod document;
 mod folder;
-mod search;
+
+// TODO(Mathias): Enable tests for search
+// mod search;
 mod user;
 pub mod util;

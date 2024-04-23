@@ -1,12 +1,14 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/mobile/presentation/database/board/mobile_board_screen.dart';
 import 'package:appflowy/mobile/presentation/database/mobile_calendar_screen.dart';
 import 'package:appflowy/mobile/presentation/database/mobile_grid_screen.dart';
 import 'package:appflowy/mobile/presentation/presentation.dart';
-import 'package:appflowy/workspace/application/recent/recent_service.dart';
+import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/application/recent/cached_recent_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
-import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 extension MobileRouter on BuildContext {
@@ -17,7 +19,7 @@ extension MobileRouter on BuildContext {
         queryParameters: view.queryParameters(arguments),
       ).toString(),
     ).then((value) {
-      RecentService().updateRecentViews([view.id], true);
+      getIt<CachedRecentService>().updateRecentViews([view.id], true);
     });
   }
 }

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -79,6 +81,8 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
   final _focusNode = FocusNode(debugLabel: 'inline_actions_menu_handler');
   final _scrollController = ScrollController();
 
+  Timer? _debounce;
+
   late List<InlineActionsResult> results = widget.results;
   int invalidCounter = 0;
   late int startOffset;
@@ -86,7 +90,8 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
   String _search = '';
   set search(String search) {
     _search = search;
-    _doSearch();
+    _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 200), _doSearch);
   }
 
   Future<void> _doSearch() async {
@@ -138,6 +143,7 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
   void dispose() {
     _scrollController.dispose();
     _focusNode.dispose();
+    _debounce?.cancel();
     super.dispose();
   }
 

@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/loading.dart';
@@ -14,7 +16,6 @@ import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SidebarWorkspace extends StatefulWidget {
@@ -147,7 +148,7 @@ class _SidebarWorkspaceState extends State<SidebarWorkspace> {
   }
 }
 
-class SidebarSwitchWorkspaceButton extends StatefulWidget {
+class SidebarSwitchWorkspaceButton extends StatelessWidget {
   const SidebarSwitchWorkspaceButton({
     super.key,
     required this.userProfile,
@@ -158,25 +159,14 @@ class SidebarSwitchWorkspaceButton extends StatefulWidget {
   final UserProfilePB userProfile;
 
   @override
-  State<SidebarSwitchWorkspaceButton> createState() =>
-      _SidebarSwitchWorkspaceButtonState();
-}
-
-class _SidebarSwitchWorkspaceButtonState
-    extends State<SidebarSwitchWorkspaceButton> {
-  final controller = PopoverController();
-
-  @override
   Widget build(BuildContext context) {
     return AppFlowyPopover(
       direction: PopoverDirection.bottomWithCenterAligned,
       offset: const Offset(0, 10),
       constraints: const BoxConstraints(maxWidth: 260, maxHeight: 600),
-      onOpen: () {
-        context.read<UserWorkspaceBloc>().add(
-              const UserWorkspaceEvent.fetchWorkspaces(),
-            );
-      },
+      onOpen: () => context
+          .read<UserWorkspaceBloc>()
+          .add(const UserWorkspaceEvent.fetchWorkspaces()),
       popupBuilder: (_) {
         return BlocProvider<UserWorkspaceBloc>.value(
           value: context.read<UserWorkspaceBloc>(),
@@ -188,7 +178,7 @@ class _SidebarSwitchWorkspaceButtonState
                 return const SizedBox.shrink();
               }
               return WorkspacesMenu(
-                userProfile: widget.userProfile,
+                userProfile: userProfile,
                 currentWorkspace: currentWorkspace,
                 workspaces: workspaces,
               );
@@ -197,8 +187,6 @@ class _SidebarSwitchWorkspaceButtonState
         );
       },
       child: FlowyButton(
-        onTap: () => controller.show(),
-        useIntrinsicWidth: true,
         margin: const EdgeInsets.symmetric(vertical: 8),
         text: Row(
           children: [
@@ -206,7 +194,7 @@ class _SidebarSwitchWorkspaceButtonState
             SizedBox.square(
               dimension: 30.0,
               child: WorkspaceIcon(
-                workspace: widget.currentWorkspace,
+                workspace: currentWorkspace,
                 iconSize: 20,
                 enableEdit: false,
               ),
@@ -214,7 +202,7 @@ class _SidebarSwitchWorkspaceButtonState
             const HSpace(6),
             Expanded(
               child: FlowyText.medium(
-                widget.currentWorkspace.name,
+                currentWorkspace.name,
                 overflow: TextOverflow.ellipsis,
                 withTooltip: true,
               ),

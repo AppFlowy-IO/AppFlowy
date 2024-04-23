@@ -133,7 +133,7 @@ impl FolderManager {
     let index_content_rx = folder.subscribe_index_content();
     self
       .folder_indexer
-      .set_index_content_receiver(index_content_rx);
+      .set_index_content_receiver(index_content_rx, workspace_id.clone());
 
     // Index all views in the folder if needed
     if !self.folder_indexer.is_indexed() {
@@ -141,12 +141,13 @@ impl FolderManager {
       let folder_indexer = self.folder_indexer.clone();
 
       // We spawn a blocking task to index all views in the folder
+      let wid = workspace_id.clone();
       spawn_blocking(move || {
-        folder_indexer.index_all_views(views);
+        folder_indexer.index_all_views(views, wid);
       });
     }
 
-    *self.mutex_folder.lock() = Some(folder);
+    *self.mutex_folder.write() = Some(folder);
 
     let weak_mutex_folder = Arc::downgrade(&self.mutex_folder);
     subscribe_folder_sync_state_changed(workspace_id.clone(), folder_state_rx, &weak_mutex_folder);
