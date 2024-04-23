@@ -5,22 +5,20 @@ import 'package:flutter/foundation.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/recent/recent_listener.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 
 /// This is a lazy-singleton to share recent views across the application.
 ///
-/// This acts as a LaunchTask, so that it can be properly initialized/disposed
-/// when needed by the application lifecycle.
-///
 /// Use-cases:
 /// - Desktop: Command Palette recent view history
 /// - Desktop: (Documents) Inline-page reference recent view history
 /// - Mobile: Recent view history on home screen
 ///
-class CachedRecentService extends LaunchTask {
+/// See the related [LaunchTask] in [RecentServiceTask].
+///
+class CachedRecentService {
   CachedRecentService();
 
   Completer<void> _completer = Completer();
@@ -65,12 +63,6 @@ class CachedRecentService extends LaunchTask {
     _recentViews = const [];
   }
 
-  @override
-  Future<void> initialize(LaunchContext context) async {
-    Log.info('[CachedRecentService] Started');
-  }
-
-  @override
   Future<void> dispose() async {
     await _listener.stop();
   }

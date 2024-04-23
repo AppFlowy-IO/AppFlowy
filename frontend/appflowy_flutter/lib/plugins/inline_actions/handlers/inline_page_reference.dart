@@ -31,7 +31,7 @@ class InlinePageReferenceService extends InlineActionsDelegate {
     this.customTitle,
     this.insertPage = false,
     this.limitResults = 5,
-  }) {
+  }) : assert(limitResults > 0, 'limitResults must be greater than 0') {
     init();
   }
 
