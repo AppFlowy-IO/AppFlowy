@@ -141,7 +141,7 @@ impl EventIntegrationTest {
 
   pub fn get_folder_data(&self) -> FolderData {
     let mutex_folder = self.appflowy_core.folder_manager.get_mutex_folder().clone();
-    let folder_lock_guard = mutex_folder.lock();
+    let folder_lock_guard = mutex_folder.read();
     let folder = folder_lock_guard.as_ref().unwrap();
     folder.get_folder_data().clone().unwrap()
   }
