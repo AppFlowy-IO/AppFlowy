@@ -36,6 +36,8 @@ class DocumentShareBloc extends Bloc<DocumentShareEvent, DocumentShareState> {
                       return FlowyResult.success(_saveMarkdownToPath(s, path));
                     case DocumentShareType.html:
                       return FlowyResult.success(_saveHTMLToPath(s, path));
+                    case DocumentShareType.json:
+                      return FlowyResult.success(_saveJSONToPath(s, path));
                     default:
                       break;
                   }
@@ -67,13 +69,22 @@ class DocumentShareBloc extends Bloc<DocumentShareEvent, DocumentShareState> {
       ..data = html
       ..exportType = ExportType.HTML;
   }
+
+  ExportDataPB _saveJSONToPath(String json, String path) {
+    File(path).writeAsStringSync(json);
+    return ExportDataPB()
+      ..data = json
+      ..exportType = ExportType.Text;
+  }
 }
 
 enum DocumentShareType {
   markdown,
   html,
   text,
-  link;
+  link,
+  // ONLY FOR DEBUG PURPOSES
+  json;
 
   static List<DocumentShareType> get unimplemented => [text, link];
 
@@ -85,6 +96,8 @@ enum DocumentShareType {
         return DocumentExportType.html;
       case DocumentShareType.text:
         return DocumentExportType.text;
+      case DocumentShareType.json:
+        return DocumentExportType.json;
       case DocumentShareType.link:
         throw UnsupportedError('DocumentShareType.link is not supported');
     }

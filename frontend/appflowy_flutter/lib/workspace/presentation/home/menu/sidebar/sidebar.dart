@@ -98,11 +98,13 @@ class HomeSideBar extends StatelessWidget {
               ),
               BlocListener<UserWorkspaceBloc, UserWorkspaceState>(
                 listener: (context, state) {
+                  final isLoading = state.actionResult?.isLoading ?? false;
                   final actionType = state.actionResult?.actionType;
 
-                  if (actionType == UserWorkspaceActionType.create ||
-                      actionType == UserWorkspaceActionType.delete ||
-                      actionType == UserWorkspaceActionType.open) {
+                  if (!isLoading &&
+                      (actionType == UserWorkspaceActionType.create ||
+                          actionType == UserWorkspaceActionType.delete ||
+                          actionType == UserWorkspaceActionType.open)) {
                     context.read<SidebarSectionsBloc>().add(
                           SidebarSectionsEvent.reload(
                             userProfile,

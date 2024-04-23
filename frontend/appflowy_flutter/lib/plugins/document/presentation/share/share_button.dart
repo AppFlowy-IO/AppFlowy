@@ -14,6 +14,7 @@ import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/file_picker/file_picker_service.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -110,12 +111,17 @@ class ShareActionListState extends State<ShareActionList> {
   @override
   Widget build(BuildContext context) {
     final docShareBloc = context.read<DocumentShareBloc>();
+    final shareActions = [
+      ShareAction.markdown,
+      ShareAction.html,
+      ShareAction.clipboard,
+      if (kDebugMode) ShareAction.json,
+    ];
     return PopoverActionList<ShareActionWrapper>(
       direction: PopoverDirection.bottomWithCenterAligned,
       offset: const Offset(0, 8),
-      actions: ShareAction.values
-          .map((action) => ShareActionWrapper(action))
-          .toList(),
+      actions:
+          shareActions.map((action) => ShareActionWrapper(action)).toList(),
       buildChild: (controller) => Listener(
         onPointerDown: (_) => controller.show(),
         child: RoundedTextButton(
@@ -125,50 +131,57 @@ class ShareActionListState extends State<ShareActionList> {
         ),
       ),
       onSelected: (action, controller) async {
-        switch (action.inner) {
-          case ShareAction.markdown:
-            final exportPath = await getIt<FilePickerService>().saveFile(
-              dialogTitle: '',
-              // encode the file name in case it contains special characters
-              fileName: '${name.toFileName()}.md',
-            );
-            if (exportPath != null) {
-              docShareBloc.add(
-                DocumentShareEvent.share(
-                  DocumentShareType.markdown,
-                  exportPath,
-                ),
-              );
-            }
-            break;
-          case ShareAction.html:
-            final exportPath = await getIt<FilePickerService>().saveFile(
-              dialogTitle: '',
-              fileName: '${name.toFileName()}.html',
-            );
-            if (exportPath != null) {
-              docShareBloc.add(
-                DocumentShareEvent.share(
-                  DocumentShareType.html,
-                  exportPath,
-                ),
-              );
-            }
-            break;
-          case ShareAction.clipboard:
-            final documentExporter = DocumentExporter(widget.view);
-            final result =
-                await documentExporter.export(DocumentExportType.markdown);
-            result.fold(
-              (markdown) => getIt<ClipboardService>()
-                  .setData(ClipboardServiceData(plainText: markdown)),
-              (error) => showMessageToast(error.msg),
-            );
-            break;
+        final exportPath = await _handleShareAction(action, docShareBloc);
+        if (exportPath != null) {
+          docShareBloc.add(
+            DocumentShareEvent.share(
+              _getDocumentShareType(action),
+              exportPath,
+            ),
+          );
         }
         controller.close();
       },
     );
+  }
+
+  Future<String?> _handleShareAction(
+    ShareActionWrapper action,
+    DocumentShareBloc docShareBloc,
+  ) async {
+    switch (action.inner) {
+      case ShareAction.markdown:
+      case ShareAction.html:
+      case ShareAction.json:
+        return getIt<FilePickerService>().saveFile(
+          dialogTitle: '',
+          fileName: '${name.toFileName()}.${action.inner.ext}',
+        );
+      case ShareAction.clipboard:
+        final documentExporter = DocumentExporter(widget.view);
+        final result =
+            await documentExporter.export(DocumentExportType.markdown);
+        result.fold(
+          (markdown) => getIt<ClipboardService>()
+              .setData(ClipboardServiceData(plainText: markdown)),
+          (error) => showMessageToast(error.msg),
+        );
+        break;
+    }
+    return null;
+  }
+
+  DocumentShareType _getDocumentShareType(ShareActionWrapper action) {
+    switch (action.inner) {
+      case ShareAction.markdown:
+        return DocumentShareType.markdown;
+      case ShareAction.html:
+        return DocumentShareType.html;
+      case ShareAction.json:
+        return DocumentShareType.json;
+      default:
+        throw Exception('Unsupported share action');
+    }
   }
 
   void listenOnViewUpdated() {
@@ -185,6 +198,20 @@ enum ShareAction {
   markdown,
   html,
   clipboard,
+  json;
+
+  String get ext {
+    switch (this) {
+      case ShareAction.markdown:
+        return 'md';
+      case ShareAction.html:
+        return 'html';
+      case ShareAction.json:
+        return 'json';
+      case ShareAction.clipboard:
+        return '';
+    }
+  }
 }
 
 class ShareActionWrapper extends ActionCell {
@@ -203,6 +230,8 @@ class ShareActionWrapper extends ActionCell {
         return LocaleKeys.shareAction_html.tr();
       case ShareAction.clipboard:
         return LocaleKeys.shareAction_clipboard.tr();
+      case ShareAction.json:
+        return 'Export JSON (ONLY FOR DEVELOPMENT)';
     }
   }
 }

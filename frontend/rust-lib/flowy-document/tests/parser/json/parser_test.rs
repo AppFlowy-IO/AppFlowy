@@ -105,7 +105,7 @@ fn test_parser_nested_children() {
 
 #[tokio::test]
 async fn parse_readme_test() {
-  let json = include_str!("../../../../flowy-core/assets/read_me.json");
+  let json = include_str!("../../../../flowy-core/assets/desktop/getting_started.json");
   let document = JsonToDocumentParser::json_str_to_document(json).unwrap();
 
   document.blocks.iter().for_each(|(_, block)| {

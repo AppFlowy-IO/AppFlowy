@@ -232,6 +232,8 @@ class SidebarSectionsBloc
   void _initial(UserProfilePB userProfile, String workspaceId) {
     _workspaceService = WorkspaceService(workspaceId: workspaceId);
 
+    _listener?.stop();
+    _listener = null;
     _listener = WorkspaceSectionsListener(
       user: userProfile,
       workspaceId: workspaceId,

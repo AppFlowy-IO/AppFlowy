@@ -22,6 +22,7 @@ use lib_infra::async_trait::async_trait;
 use lib_infra::future::FutureResult;
 use std::collections::HashMap;
 use std::convert::TryFrom;
+use std::env;
 use std::sync::{Arc, Weak};
 use tokio::sync::RwLock;
 
@@ -114,8 +115,15 @@ impl FolderOperationHandler for DocumentFolderOperation {
             .with_name("Getting started")
             .with_icon("⭐️")
             .build();
-          // create a empty document
-          let json_str = include_str!("../../assets/read_me.json");
+          // create a document view with built-in data
+          // the built-in data are different for different os types
+          let os = env::consts::OS;
+          // https://doc.rust-lang.org/std/env/consts/constant.OS.html
+          let json_str = if os == "ios" || os == "android" {
+            include_str!("../../assets/mobile/getting_started.json")
+          } else {
+            include_str!("../../assets/desktop/getting_started.json")
+          };
           let document_pb = JsonToDocumentParser::json_str_to_document(json_str).unwrap();
           manager
             .create_document(uid, &view.parent_view.id, Some(document_pb.into()))

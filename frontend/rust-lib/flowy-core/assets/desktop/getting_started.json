@@ -28,8 +28,9 @@
         "delta": [
           {
             "attributes": { "bg_color": "0x4dffeb3b" },
-            "insert": "Highlight "
+            "insert": "Highlight"
           },
+          { "insert": " " },
           { "insert": "any text, and use the editing menu to " },
           { "attributes": { "italic": true }, "insert": "style" },
           { "insert": " " },
