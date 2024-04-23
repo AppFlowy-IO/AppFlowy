@@ -1,35 +1,35 @@
 [workspace]
 members = [
-  "lib-dispatch",
-  "lib-log",
-  "flowy-core",
-  "dart-ffi",
-  "flowy-user",
-  "flowy-user-pub",
-  "event-integration",
-  "flowy-sqlite",
-  "flowy-folder",
-  "flowy-folder-pub",
-  "flowy-notification",
-  "flowy-document",
-  "flowy-document-pub",
-  "flowy-error",
-  "flowy-database2",
-  "flowy-database-pub",
-  "flowy-server",
-  "flowy-server-pub",
-  "flowy-config",
-  "flowy-encrypt",
-  "flowy-storage",
-  "collab-integrate",
-  "flowy-ai",
-  "flowy-date",
-  "flowy-search",
-  "lib-infra",
-  "build-tool/flowy-ast",
-  "build-tool/flowy-codegen",
-  "build-tool/flowy-derive",
-  "flowy-search-pub",
+    "lib-dispatch",
+    "lib-log",
+    "flowy-core",
+    "dart-ffi",
+    "flowy-user",
+    "flowy-user-pub",
+    "event-integration",
+    "flowy-sqlite",
+    "flowy-folder",
+    "flowy-folder-pub",
+    "flowy-notification",
+    "flowy-document",
+    "flowy-document-pub",
+    "flowy-error",
+    "flowy-database2",
+    "flowy-database-pub",
+    "flowy-server",
+    "flowy-server-pub",
+    "flowy-config",
+    "flowy-encrypt",
+    "flowy-storage",
+    "collab-integrate",
+    "flowy-ai",
+    "flowy-date",
+    "flowy-search",
+    "lib-infra",
+    "build-tool/flowy-ast",
+    "build-tool/flowy-codegen",
+    "build-tool/flowy-derive",
+    "flowy-search-pub",
 ]
 resolver = "2"
 
@@ -81,7 +81,7 @@ chrono = { version = "0.4.31", default-features = false, features = ["clock"] }
 yrs = { version = "0.17.2" }
 
 [profile.dev]
-opt-level = 0
+opt-level = 1
 lto = false
 codegen-units = 16
 
