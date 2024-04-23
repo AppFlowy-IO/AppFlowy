@@ -83,7 +83,9 @@ class _TextCellState extends State<TextCardCell> {
 
   void _bindEditableNotifier() {
     widget.editableNotifier?.isCellEditing.addListener(() {
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
 
       final isEditing = widget.editableNotifier?.isCellEditing.value ?? false;
       if (isEditing) {
@@ -130,9 +132,9 @@ class _TextCellState extends State<TextCardCell> {
           }
 
           final icon = _buildIcon(state, isTitle);
-          final child = state.enableEdit || focusWhenInit
-              ? _buildTextField()
-              : _buildText(state, isTitle);
+          final child = isTitle
+              ? _buildTextField(state.enableEdit || focusWhenInit)
+              : _buildText(state);
 
           return Row(
             children: [
@@ -178,43 +180,51 @@ class _TextCellState extends State<TextCardCell> {
     return null;
   }
 
-  Widget _buildText(TextCellState state, bool isTitle) {
+  Widget _buildText(TextCellState state) {
     final text = state.content.isEmpty
-        ? isTitle
-            ? LocaleKeys.grid_row_titlePlaceholder.tr()
-            : LocaleKeys.grid_row_textPlaceholder.tr()
+        ? LocaleKeys.grid_row_textPlaceholder.tr()
         : state.content;
     final color = state.content.isEmpty ? Theme.of(context).hintColor : null;
-    final textStyle =
-        isTitle ? widget.style.titleTextStyle : widget.style.textStyle;
 
     return Padding(
       padding: widget.style.padding,
       child: Text(
         text,
-        style: textStyle.copyWith(color: color),
+        style: widget.style.textStyle.copyWith(color: color),
         maxLines: widget.style.maxLines,
       ),
     );
   }
 
-  Widget _buildTextField() {
+  Widget _buildTextField(bool isEditing) {
     final padding =
         widget.style.padding.add(const EdgeInsets.symmetric(vertical: 4.0));
-    return TextField(
-      controller: _textEditingController,
-      focusNode: focusNode,
-      onChanged: (_) =>
-          cellBloc.add(TextCellEvent.updateText(_textEditingController.text)),
-      onEditingComplete: () => focusNode.unfocus(),
-      maxLines: null,
-      style: widget.style.titleTextStyle,
-      decoration: InputDecoration(
-        contentPadding: padding,
-        border: InputBorder.none,
-        isDense: true,
-        isCollapsed: true,
-        hintText: LocaleKeys.grid_row_titlePlaceholder.tr(),
+    return IgnorePointer(
+      ignoring: !isEditing,
+      child: TextField(
+        controller: _textEditingController,
+        focusNode: focusNode,
+        onChanged: (_) =>
+            cellBloc.add(TextCellEvent.updateText(_textEditingController.text)),
+        onEditingComplete: () {
+          cellBloc.add(TextCellEvent.updateText(_textEditingController.text));
+          focusNode.unfocus();
+        },
+        maxLines: null,
+        textInputAction: TextInputAction.done,
+        readOnly: !isEditing,
+        enableInteractiveSelection: isEditing,
+        style: widget.style.titleTextStyle,
+        decoration: InputDecoration(
+          contentPadding: padding,
+          border: InputBorder.none,
+          isDense: true,
+          isCollapsed: true,
+          hintText: LocaleKeys.grid_row_titlePlaceholder.tr(),
+          hintStyle: widget.style.titleTextStyle.copyWith(
+            color: Theme.of(context).hintColor,
+          ),
+        ),
       ),
     );
   }
