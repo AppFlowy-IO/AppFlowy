@@ -135,6 +135,7 @@ impl UserManager {
 
   #[instrument(skip(self), err)]
   pub async fn open_workspace(&self, workspace_id: &str) -> FlowyResult<()> {
+    info!("open workspace: {}", workspace_id);
     let uid = self.user_id()?;
     let user_workspace = self
       .cloud_services

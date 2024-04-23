@@ -183,8 +183,8 @@ pub(crate) fn notify_parent_view_did_change<T: AsRef<str>>(
 }
 
 pub(crate) fn notify_did_update_section_views(workspace_id: &str, folder: &Folder) {
-  let public_views = get_workspace_public_view_pbs(workspace_id, folder);
-  let private_views = get_workspace_private_view_pbs(workspace_id, folder);
+  let public_views = get_workspace_public_view_pbs(folder);
+  let private_views = get_workspace_private_view_pbs(folder);
   tracing::trace!(
     "Did update section views: public len = {}, private len = {}",
     public_views.len(),
@@ -210,7 +210,7 @@ pub(crate) fn notify_did_update_section_views(workspace_id: &str, folder: &Folde
 }
 
 pub(crate) fn notify_did_update_workspace(workspace_id: &str, folder: &Folder) {
-  let repeated_view: RepeatedViewPB = get_workspace_public_view_pbs(workspace_id, folder).into();
+  let repeated_view: RepeatedViewPB = get_workspace_public_view_pbs(folder).into();
   send_notification(workspace_id, FolderNotification::DidUpdateWorkspaceViews)
     .payload(repeated_view)
     .send();

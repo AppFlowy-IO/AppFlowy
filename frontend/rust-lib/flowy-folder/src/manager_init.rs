@@ -137,7 +137,7 @@ impl FolderManager {
 
     // Index all views in the folder if needed
     if !self.folder_indexer.is_indexed() {
-      let views = folder.get_all_views_recursively();
+      let views = folder.views.get_all_views();
       let folder_indexer = self.folder_indexer.clone();
 
       // We spawn a blocking task to index all views in the folder
