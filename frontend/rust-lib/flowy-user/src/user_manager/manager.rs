@@ -710,7 +710,10 @@ impl UserManager {
     }
 
     save_user_workspaces(uid, self.db_connection(uid)?, response.user_workspaces())?;
-    event!(tracing::Level::INFO, "Save new user profile to disk");
+    info!(
+      "Save new user profile to disk, authenticator: {:?}",
+      authenticator
+    );
 
     self.authenticate_user.set_session(Some(session.clone()))?;
     self

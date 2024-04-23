@@ -126,13 +126,11 @@ impl FolderManager {
   }
 
   pub async fn get_workspace_public_views(&self) -> FlowyResult<Vec<ViewPB>> {
-    let views = self.with_folder(Vec::new, |folder| get_workspace_public_view_pbs(folder));
-    Ok(views)
+    Ok(self.with_folder(Vec::new, get_workspace_public_view_pbs))
   }
 
   pub async fn get_workspace_private_views(&self) -> FlowyResult<Vec<ViewPB>> {
-    let views = self.with_folder(Vec::new, |folder| get_workspace_private_view_pbs(folder));
-    Ok(views)
+    Ok(self.with_folder(Vec::new, get_workspace_private_view_pbs))
   }
 
   pub(crate) async fn make_folder<T: Into<Option<FolderNotify>>>(
