@@ -43,10 +43,10 @@
     "unmatchedPasswordError": "Hesla se neshodují",
     "syncPromptMessage": "Synchronizace dat může chvilku trvat. Nezavírejte prosím tuto stránku.",
     "or": "NEBO",
+    "signInWith": "Přihlásit přes:",
     "LogInWithGoogle": "Přihlásit přes Google",
     "LogInWithGithub": "Přihlásit přes GitHub",
-    "LogInWithDiscord": "Přihlásit přes Discord",
-    "signInWith": "Přihlásit přes:"
+    "LogInWithDiscord": "Přihlásit přes Discord"
   },
   "workspace": {
     "chooseWorkspace": "Vyberte pracovní ůplochu",

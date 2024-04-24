@@ -46,11 +46,11 @@
     "unmatchedPasswordError": "Mật khẩu nhập lại không giống mật khẩu",
     "syncPromptMessage": "Việc đồng bộ hóa dữ liệu có thể mất một lúc. Xin đừng đóng trang này",
     "or": "HOẶC",
+    "signInWith": "Đăng nhập bằng:",
+    "signInWithEmail": "Đăng nhập bằng Email",
     "LogInWithGoogle": "Đăng nhập bằng Google",
     "LogInWithGithub": "Đăng nhập bằng Github",
     "LogInWithDiscord": "Đăng nhập bằng Discord",
-    "signInWith": "Đăng nhập bằng:",
-    "signInWithEmail": "Đăng nhập bằng Email",
     "loginAsGuestButtonText": "Đăng nhập với chế độ khách"
   },
   "workspace": {

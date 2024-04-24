@@ -43,10 +43,10 @@
     "unmatchedPasswordError": "تكرار كلمة المرور ليس هو نفسه كلمة المرور",
     "syncPromptMessage": "قد تستغرق مزامنة البيانات بعض الوقت. من فضلك لا تغلق هذه الصفحة",
     "or": "أو",
+    "signInWith": "تسجيل الدخول ب:",
     "LogInWithGoogle": "تسجيل الدخول عبر جوجل",
     "LogInWithGithub": "تسجيل الدخول مع جيثب",
     "LogInWithDiscord": "تسجيل الدخول مع ديسكورد",
-    "signInWith": "تسجيل الدخول ب:",
     "loginAsGuestButtonText": "تسجيل دخول كضيف"
   },
   "workspace": {

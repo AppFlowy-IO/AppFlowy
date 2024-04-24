@@ -45,10 +45,10 @@
     "unmatchedPasswordError": "Les deux mots de passe ne sont pas identiques",
     "syncPromptMessage": "La synchronisation des données peut prendre un certain temps. Merci de ne pas fermer pas cette page.",
     "or": "OU",
+    "signInWith": "Se connecter avec:",
     "LogInWithGoogle": "Se connecter avec Google",
     "LogInWithGithub": "Se connecter avec Github",
     "LogInWithDiscord": "Se connecter avec Discord",
-    "signInWith": "Se connecter avec:",
     "loginAsGuestButtonText": "Commencer"
   },
   "workspace": {
