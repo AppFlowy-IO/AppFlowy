@@ -47,10 +47,9 @@ serde_yaml = "0.9.27"
 flowy-error = { workspace = true, features = ["impl_from_sqlite", "impl_from_dispatch_error", "impl_from_appflowy_cloud", "impl_from_reqwest", "impl_from_serde", "dart"] }
 
 [features]
-default = ["dart", "rev-sqlite"]
+default = ["dart"]
 dart = ["flowy-core/dart"]
-rev-sqlite = ["flowy-core/rev-sqlite"]
-http_sync = ["flowy-core/http_sync", "flowy-core/use_bunyan"]
+http_sync = ["flowy-core/http_sync"]
 openssl_vendored = ["flowy-core/openssl_vendored"]
 verbose_log = []
 

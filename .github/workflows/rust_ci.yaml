@@ -94,7 +94,7 @@ jobs:
           af_cloud_test_ws_url: ws://localhost/ws/v1
           af_cloud_test_gotrue_url: http://localhost/gotrue
         run: |
-          DISABLE_CI_TEST_LOG="true" cargo test --no-default-features --features="rev-sqlite,dart" -- --nocapture
+          DISABLE_CI_TEST_LOG="true" cargo test --no-default-features --features="dart" -- --nocapture
 
       - name: rustfmt rust-lib
         run: cargo fmt --all -- --check
