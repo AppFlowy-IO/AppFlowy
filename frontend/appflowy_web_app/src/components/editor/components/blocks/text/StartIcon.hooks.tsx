@@ -1,4 +1,4 @@
-import { BlockType } from '@/application/document.type';
+import { BlockType } from '@/application/collab.type';
 import { BulletedListIcon } from '@/components/editor/components/blocks/bulleted_list';
 import { NumberListIcon } from '@/components/editor/components/blocks/numbered_list';
 import ToggleIcon from '@/components/editor/components/blocks/toggle_list/ToggleIcon';

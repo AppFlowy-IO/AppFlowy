@@ -48,44 +48,20 @@ function AppTheme({ children }: { children: React.ReactNode }) {
                 color: 'var(--content-on-fill)',
                 boxShadow: 'var(--shadow)',
               },
-              containedPrimary: {
-                '&:hover': {
-                  backgroundColor: 'var(--fill-default)',
-                },
-              },
-              containedInherit: {
-                color: 'var(--text-title)',
-                backgroundColor: isDark ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.4)',
-                '&:hover': {
-                  backgroundColor: 'var(--bg-body)',
-                  boxShadow: 'var(--shadow)',
-                },
-              },
-              outlinedInherit: {
-                color: 'var(--text-title)',
-                borderColor: 'var(--line-border)',
-                '&:hover': {
-                  boxShadow: 'var(--shadow)',
-                },
-              },
             },
           },
           MuiButtonBase: {
-            defaultProps: {
-              sx: {
-                '&.Mui-selected:hover': {
-                  backgroundColor: 'var(--fill-list-hover)',
-                },
-              },
-            },
             styleOverrides: {
               root: {
-                '&:hover': {
-                  backgroundColor: 'var(--fill-list-hover)',
+                '&:not(.MuiButton-contained)': {
+                  '&:hover': {
+                    backgroundColor: 'var(--fill-list-hover)',
+                  },
+                  '&:active': {
+                    backgroundColor: 'var(--fill-list-hover)',
+                  },
                 },
-                '&:active': {
-                  backgroundColor: 'var(--fill-list-hover)',
-                },
+
                 borderRadius: '4px',
                 padding: '2px',
                 boxShadow: 'none',

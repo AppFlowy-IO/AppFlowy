@@ -1,4 +1,4 @@
-import { YjsEditorKey } from '@/application/document.type';
+import { YjsEditorKey } from '@/application/collab.type';
 import { openCollabDB } from '@/application/services/js-services/db';
 import { getAuthInfo } from '@/application/services/js-services/storage/token';
 

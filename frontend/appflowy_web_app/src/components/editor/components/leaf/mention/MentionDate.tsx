@@ -1,15 +1,17 @@
-import dayjs from 'dayjs';
+import { renderDate } from '@/utils/time';
 import React, { useMemo } from 'react';
 import { ReactComponent as DateSvg } from '@/assets/date.svg';
+import { ReactComponent as ReminderSvg } from '@/assets/clock_alarm.svg';
 
-function MentionDate({ date }: { date: string }) {
+function MentionDate({ date, reminder }: { date: string; reminder?: { id: string; option: string } }) {
   const dateFormat = useMemo(() => {
-    return dayjs(date).format('MMM D, YYYY');
+    return renderDate(date);
   }, [date]);
 
   return (
     <span className={'mention-inline'}>
-      <DateSvg className={'mention-icon'} />
+      {reminder ? <ReminderSvg className={'mention-icon'} /> : <DateSvg className={'mention-icon'} />}
+
       <span className={'mention-content'}>{dateFormat}</span>
     </span>
   );

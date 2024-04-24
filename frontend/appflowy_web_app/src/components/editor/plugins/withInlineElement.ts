@@ -1,4 +1,4 @@
-import { InlineBlockType } from '@/application/document.type';
+import { InlineBlockType } from '@/application/collab.type';
 import { ReactEditor } from 'slate-react';
 import { Element } from 'slate';
 

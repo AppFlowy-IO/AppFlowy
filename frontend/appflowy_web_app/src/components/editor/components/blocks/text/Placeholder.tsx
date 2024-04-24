@@ -1,4 +1,4 @@
-import { BlockType } from '@/application/document.type';
+import { BlockType } from '@/application/collab.type';
 import { HeadingNode } from '@/components/editor/editor.type';
 import { useEditorContext } from '@/components/editor/EditorContext';
 import React, { CSSProperties, useEffect, useMemo, useState } from 'react';

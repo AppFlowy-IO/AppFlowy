@@ -31,7 +31,6 @@ declare global {
     interface Chainable {
       mount: typeof mount;
       mockAPI: () => void;
-      mockFullDocument: () => void;
     }
   }
 }

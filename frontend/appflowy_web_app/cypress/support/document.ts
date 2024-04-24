@@ -1,19 +1,6 @@
-import { BlockId, BlockType, YBlocks, YChildrenMap, YjsEditorKey, YTextMap } from '@/application/document.type';
-import { applyDocument } from 'src/application/ydoc/apply';
-import { JSDocumentService } from '@/application/services/js-services/document.service';
+import { BlockId, BlockType, YBlocks, YChildrenMap, YjsEditorKey, YTextMap } from '@/application/collab.type';
 import { nanoid } from 'nanoid';
 import * as Y from 'yjs';
-
-Cypress.Commands.add('mockFullDocument', () => {
-  cy.fixture('full_doc').then((docJson) => {
-    const collab = new Y.Doc();
-    const state = new Uint8Array(docJson.data.doc_state);
-
-    applyDocument(collab, state);
-
-    cy.stub(JSDocumentService.prototype, 'openDocument').returns(Promise.resolve(collab));
-  });
-});
 
 export class DocumentTest {
   public doc: Y.Doc;

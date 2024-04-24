@@ -11,7 +11,7 @@ import { useNavigate } from 'react-router-dom';
 
 const TauriAuth = lazy(() => import('@/components/tauri/TauriAuth'));
 
-function ProtectedRoutes () {
+function ProtectedRoutes() {
   const { currentUser, checkUser, isReady } = useAuth();
 
   const isLoading = currentUser?.loginState === LoginState.LOADING;
@@ -24,7 +24,6 @@ function ProtectedRoutes () {
       if (!currentUser.isAuthenticated) {
         await checkUser();
       }
-
     } finally {
       setChecked(true);
     }
@@ -38,7 +37,6 @@ function ProtectedRoutes () {
 
   const navigate = useNavigate();
 
-  console.log('ProtectedRoutes', currentUser, checked);
   if (checked && !currentUser.isAuthenticated && window.location.pathname !== '/login') {
     navigate(`/login?redirect=${encodeURIComponent(window.location.pathname)}`);
     return null;

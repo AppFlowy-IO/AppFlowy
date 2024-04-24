@@ -21,7 +21,7 @@ export const Formula = memo(
           <KatexMath latex={formula || ''} isInline />
         </span>
 
-        <span className={'absolute left-0 right-0 h-0 w-0 select-none opacity-0'}>{children}</span>
+        <span className={'absolute left-0 right-0 h-0 w-0 opacity-0'}>{children}</span>
       </span>
     );
   })

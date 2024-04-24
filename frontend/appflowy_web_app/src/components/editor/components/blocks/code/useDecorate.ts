@@ -1,4 +1,4 @@
-import { BlockType } from '@/application/document.type';
+import { BlockType } from '@/application/collab.type';
 import { decorateCode } from '@/components/editor/components/blocks/code/utils';
 import { CodeNode } from '@/components/editor/editor.type';
 import { useCallback } from 'react';

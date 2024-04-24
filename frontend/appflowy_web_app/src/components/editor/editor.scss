@@ -136,6 +136,18 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
   }
 }
 
+.text-placeholder {
+  &:after {
+    @apply left-0;
+  }
+}
+
+.has-start-icon .text-placeholder {
+  &:after {
+    @apply left-[24px];
+  }
+}
+
 .block-align-center {
   .text-placeholder {
     @apply left-[calc(50%+1px)];
@@ -153,23 +165,6 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
 
 }
 
-.block-align-left {
-  .text-placeholder {
-    &:after {
-      @apply left-0;
-    }
-  }
-
-  .has-start-icon .text-placeholder {
-    &:after {
-      @apply left-[24px];
-    }
-  }
-}
-
-.text-block-icon {
-  @apply top-[2px];
-}
 
 .block-align-right {
 
@@ -264,10 +259,11 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
 .mention-inline {
   height: inherit;
   overflow: hidden;
-  @apply px-1 inline-flex select-none gap-1 relative;
+  @apply inline-flex select-none gap-1 relative;
 
   .mention-icon {
     @apply absolute top-1/2 transform -translate-y-1/2;
+    font-size: 1.25em;
   }
 
   .mention-content {
