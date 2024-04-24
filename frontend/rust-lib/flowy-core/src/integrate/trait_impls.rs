@@ -9,7 +9,7 @@ use collab::preclude::CollabPlugin;
 use collab_entity::CollabType;
 use collab_plugins::cloud_storage::postgres::SupabaseDBPlugin;
 use tokio_stream::wrappers::WatchStream;
-use tracing::{debug, instrument};
+use tracing::debug;
 
 use collab_integrate::collab_builder::{
   CollabCloudPluginProvider, CollabPluginProviderContext, CollabPluginProviderType,
@@ -325,7 +325,6 @@ impl CollabCloudPluginProvider for ServerProvider {
     self.get_server_type().into()
   }
 
-  #[instrument(level = "debug", skip(self, context), fields(server_type = %self.get_server_type()))]
   fn get_plugins(&self, context: CollabPluginProviderContext) -> Vec<Box<dyn CollabPlugin>> {
     // If the user is local, we don't need to create a sync plugin.
     if self.get_server_type().is_local() {

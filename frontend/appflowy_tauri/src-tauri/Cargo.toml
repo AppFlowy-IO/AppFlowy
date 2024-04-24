@@ -46,7 +46,6 @@ lib-dispatch = { path = "../../rust-lib/lib-dispatch", features = [
     "use_serde",
 ] }
 flowy-core = { path = "../../rust-lib/flowy-core", features = [
-    "rev-sqlite",
     "ts",
 ] }
 flowy-user = { path = "../../rust-lib/flowy-user", features = ["tauri_ts"] }
