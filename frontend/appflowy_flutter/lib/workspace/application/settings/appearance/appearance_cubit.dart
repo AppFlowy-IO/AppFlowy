@@ -155,28 +155,28 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
   void resetFontFamily() =>
       setFontFamily(DefaultAppearanceSettings.kDefaultFontFamily);
 
-  /// Update document cursor color in the apperance settings and emit an updated state.
+  /// Update document cursor color in the appearance settings and emit an updated state.
   void setDocumentCursorColor(Color color) {
     _appearanceSettings.documentSetting.cursorColor = color.toHexString();
     _saveAppearanceSettings();
     emit(state.copyWith(documentCursorColor: color));
   }
 
-  /// Reset document cursor color in the apperance settings
+  /// Reset document cursor color in the appearance settings
   void resetDocumentCursorColor() {
     _appearanceSettings.documentSetting.cursorColor = '';
     _saveAppearanceSettings();
     emit(state.copyWith(documentCursorColor: null));
   }
 
-  /// Update document selection color in the apperance settings and emit an updated state.
+  /// Update document selection color in the appearance settings and emit an updated state.
   void setDocumentSelectionColor(Color color) {
     _appearanceSettings.documentSetting.selectionColor = color.toHexString();
     _saveAppearanceSettings();
     emit(state.copyWith(documentSelectionColor: color));
   }
 
-  /// Reset document selection color in the apperance settings
+  /// Reset document selection color in the appearance settings
   void resetDocumentSelectionColor() {
     _appearanceSettings.documentSetting.selectionColor = '';
     _saveAppearanceSettings();

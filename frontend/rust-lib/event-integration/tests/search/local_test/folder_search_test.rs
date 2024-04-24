@@ -79,7 +79,7 @@ async fn test_folder_index_create_view() {
   // Wait for the index to be updated
   sleep(Duration::from_millis(500)).await;
 
-  let results = folder_search_manager.perform_search(view.name.clone());
+  let results = folder_search_manager.perform_search(view.name.clone(), None);
   if let Err(e) = results {
     panic!("Error performing search: {:?}", e);
   }
@@ -114,12 +114,12 @@ async fn test_folder_index_rename_view() {
   // Wait for the index to be updated
   sleep(Duration::from_millis(500)).await;
 
-  let first = folder_search_manager.perform_search(view.name);
+  let first = folder_search_manager.perform_search(view.name, None);
   if let Err(e) = first {
     panic!("Error performing search: {:?}", e);
   }
 
-  let second = folder_search_manager.perform_search(new_view_name.clone());
+  let second = folder_search_manager.perform_search(new_view_name.clone(), None);
   if let Err(e) = second {
     panic!("Error performing search: {:?}", e);
   }

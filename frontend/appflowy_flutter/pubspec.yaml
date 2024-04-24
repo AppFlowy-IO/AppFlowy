@@ -46,7 +46,8 @@ dependencies:
       ref: 15a3a50
   appflowy_result:
     path: packages/appflowy_result
-  appflowy_editor_plugins: ^0.0.1
+  appflowy_editor_plugins: ^0.0.2
+
   appflowy_editor:
 
   appflowy_popover:

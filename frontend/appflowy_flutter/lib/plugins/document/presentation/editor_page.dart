@@ -34,14 +34,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 final codeBlockLocalization = CodeBlockLocalizations(
   codeBlockNewParagraph:
       LocaleKeys.settings_shortcuts_commands_codeBlockNewParagraph.tr(),
-  codeBlockAddTwoSpaces:
-      LocaleKeys.settings_shortcuts_commands_codeBlockAddTwoSpaces.tr(),
-  codeBlockDeleteTwoSpaces:
-      LocaleKeys.settings_shortcuts_commands_codeBlockDeleteTwoSpaces.tr(),
+  codeBlockIndentLines:
+      LocaleKeys.settings_shortcuts_commands_codeBlockIndentLines.tr(),
+  codeBlockOutdentLines:
+      LocaleKeys.settings_shortcuts_commands_codeBlockOutdentLines.tr(),
   codeBlockSelectAll:
       LocaleKeys.settings_shortcuts_commands_codeBlockSelectAll.tr(),
   codeBlockPasteText:
       LocaleKeys.settings_shortcuts_commands_codeBlockPasteText.tr(),
+  codeBlockAddTwoSpaces:
+      LocaleKeys.settings_shortcuts_commands_codeBlockAddTwoSpaces.tr(),
 );
 
 final localizedCodeBlockCommands =
@@ -100,10 +102,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   late final InlineActionsService inlineActionsService = InlineActionsService(
     context: context,
     handlers: [
-      InlinePageReferenceService(
-        currentViewId: documentBloc.view.id,
-        limitResults: 5,
-      ),
+      InlinePageReferenceService(currentViewId: documentBloc.view.id),
       DateReferenceService(context),
       ReminderReferenceService(context),
     ],

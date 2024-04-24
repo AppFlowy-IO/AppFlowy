@@ -1,14 +1,7 @@
 use collab_folder::{IconType, ViewIcon};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 
-#[derive(Eq, PartialEq, ProtoBuf, Default, Debug, Clone)]
-pub struct SearchQueryPB {
-  #[pb(index = 1)]
-  pub search: String,
-
-  #[pb(index = 2, one_of)]
-  pub limit: Option<i64>,
-}
+use super::IndexTypePB;
 
 #[derive(Debug, Default, ProtoBuf, Clone)]
 pub struct RepeatedSearchResultPB {
@@ -35,6 +28,9 @@ pub struct SearchResultPB {
 
   #[pb(index = 6)]
   pub score: f64,
+
+  #[pb(index = 7)]
+  pub workspace_id: String,
 }
 
 impl SearchResultPB {
@@ -46,6 +42,7 @@ impl SearchResultPB {
       data: self.data.clone(),
       icon: self.icon.clone(),
       score,
+      workspace_id: self.workspace_id.clone(),
     }
   }
 }
@@ -122,68 +119,6 @@ impl From<ViewIcon> for ResultIconPB {
     ResultIconPB {
       ty: val.ty.into(),
       value: val.value,
-    }
-  }
-}
-
-#[derive(ProtoBuf_Enum, Eq, PartialEq, Debug, Clone)]
-pub enum IndexTypePB {
-  View = 0,
-  DocumentBlock = 1,
-  DatabaseRow = 2,
-}
-
-impl Default for IndexTypePB {
-  fn default() -> Self {
-    Self::View
-  }
-}
-
-impl std::convert::From<IndexTypePB> for i32 {
-  fn from(notification: IndexTypePB) -> Self {
-    notification as i32
-  }
-}
-
-impl std::convert::From<i32> for IndexTypePB {
-  fn from(notification: i32) -> Self {
-    match notification {
-      1 => IndexTypePB::View,
-      2 => IndexTypePB::DocumentBlock,
-      _ => IndexTypePB::DatabaseRow,
-    }
-  }
-}
-
-#[derive(ProtoBuf, Default, Debug, Clone)]
-pub struct SearchResultNotificationPB {
-  #[pb(index = 1)]
-  pub items: Vec<SearchResultPB>,
-
-  #[pb(index = 2)]
-  pub closed: bool,
-}
-
-#[derive(ProtoBuf_Enum, Debug, Default)]
-pub enum SearchNotification {
-  #[default]
-  Unknown = 0,
-  DidUpdateResults = 1,
-  DidCloseResults = 2,
-}
-
-impl std::convert::From<SearchNotification> for i32 {
-  fn from(notification: SearchNotification) -> Self {
-    notification as i32
-  }
-}
-
-impl std::convert::From<i32> for SearchNotification {
-  fn from(notification: i32) -> Self {
-    match notification {
-      1 => SearchNotification::DidUpdateResults,
-      2 => SearchNotification::DidCloseResults,
-      _ => SearchNotification::Unknown,
     }
   }
 }

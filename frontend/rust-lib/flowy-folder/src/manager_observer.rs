@@ -67,7 +67,7 @@ pub(crate) fn subscribe_folder_snapshot_state_changed(
   af_spawn(async move {
     if let Some(mutex_folder) = weak_mutex_folder.upgrade() {
       let stream = mutex_folder
-        .lock()
+        .read()
         .as_ref()
         .map(|folder| folder.subscribe_snapshot_state());
       if let Some(mut state_stream) = stream {
@@ -119,7 +119,7 @@ pub(crate) fn subscribe_folder_trash_changed(
               TrashSectionChange::TrashItemAdded { ids } => ids,
               TrashSectionChange::TrashItemRemoved { ids } => ids,
             };
-            if let Some(folder) = folder.lock().as_ref() {
+            if let Some(folder) = folder.read().as_ref() {
               let views = folder.views.get_views(&ids);
               for view in views {
                 unique_ids.insert(view.parent_view_id.clone());
@@ -146,7 +146,7 @@ pub(crate) fn notify_parent_view_did_change<T: AsRef<str>>(
   folder: Arc<MutexFolder>,
   parent_view_ids: Vec<T>,
 ) -> Option<()> {
-  let folder = folder.lock();
+  let folder = folder.read();
   let folder = folder.as_ref()?;
   let workspace_id = folder.get_workspace_id();
   let trash_ids = folder
@@ -183,8 +183,8 @@ pub(crate) fn notify_parent_view_did_change<T: AsRef<str>>(
 }
 
 pub(crate) fn notify_did_update_section_views(workspace_id: &str, folder: &Folder) {
-  let public_views = get_workspace_public_view_pbs(workspace_id, folder);
-  let private_views = get_workspace_private_view_pbs(workspace_id, folder);
+  let public_views = get_workspace_public_view_pbs(folder);
+  let private_views = get_workspace_private_view_pbs(folder);
   tracing::trace!(
     "Did update section views: public len = {}, private len = {}",
     public_views.len(),
@@ -210,7 +210,7 @@ pub(crate) fn notify_did_update_section_views(workspace_id: &str, folder: &Folde
 }
 
 pub(crate) fn notify_did_update_workspace(workspace_id: &str, folder: &Folder) {
-  let repeated_view: RepeatedViewPB = get_workspace_public_view_pbs(workspace_id, folder).into();
+  let repeated_view: RepeatedViewPB = get_workspace_public_view_pbs(folder).into();
   send_notification(workspace_id, FolderNotification::DidUpdateWorkspaceViews)
     .payload(repeated_view)
     .send();

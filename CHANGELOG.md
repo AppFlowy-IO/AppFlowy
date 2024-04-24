@@ -1,9 +1,12 @@
 # Release Notes
-## Version 0.5.5 - 04/22/2024
+## Version 0.5.5 - 04/24/2024
 ### New Features
-- TBD
+- Improved the display of code blocks with line numbers
+- Added support for signing in using Magic Link
 ### Bug Fixes
-- TBD
+- Fixed the database synchronization indicator issue
+- Resolved the issue with opening the mentioned page on mobile
+- Cleared the collaboration status when the user exits AppFlowy
 
 ## Version 0.5.4 - 04/08/2024
 ### New Features

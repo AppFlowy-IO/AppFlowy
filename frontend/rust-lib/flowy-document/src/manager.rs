@@ -2,8 +2,8 @@ use std::sync::Arc;
 use std::sync::Weak;
 
 use collab::core::collab::{DataSource, MutexCollab};
-use collab::core::collab_plugin::EncodedCollab;
 use collab::core::origin::CollabOrigin;
+use collab::entity::EncodedCollab;
 use collab::preclude::Collab;
 use collab_document::blocks::DocumentData;
 use collab_document::document::Document;
@@ -344,6 +344,7 @@ impl DocumentManager {
       // create file if not exist
       let mut file = tokio::fs::OpenOptions::new()
         .create(true)
+        .truncate(true)
         .write(true)
         .open(&local_file_path)
         .await?;

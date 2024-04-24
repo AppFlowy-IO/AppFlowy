@@ -1,2 +1,2 @@
-proto_input = ["src/event_map.rs", "src/entities.rs"]
+proto_input = ["src/event_map.rs", "src/entities"]
 event_files = ["src/event_map.rs"]

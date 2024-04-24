@@ -3,7 +3,7 @@ use client_api::entity::QueryCollabResult::{Failed, Success};
 use client_api::entity::{QueryCollab, QueryCollabParams};
 use client_api::error::ErrorCode::RecordNotFound;
 use collab::core::collab::DataSource;
-use collab::core::collab_plugin::EncodedCollab;
+use collab::entity::EncodedCollab;
 use collab_entity::CollabType;
 use tracing::error;
 
@@ -36,7 +36,7 @@ where
         },
       };
       match try_get_client?.get_collab(params).await {
-        Ok(data) => Ok(Some(data.doc_state.to_vec())),
+        Ok(data) => Ok(Some(data.encode_collab.doc_state.to_vec())),
         Err(err) => {
           if err.code == RecordNotFound {
             Ok(None)

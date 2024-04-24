@@ -29,6 +29,9 @@ enum FeatureFlag {
   // if it's on, the collaborators will show in the database
   syncDatabase,
 
+  // used for the search feature
+  search,
+
   // used for ignore the conflicted feature flag
   unknown;
 
@@ -83,8 +86,8 @@ enum FeatureFlag {
   bool get isOn {
     if ([
       // release this feature in version 0.5.5
-      FeatureFlag.collaborativeWorkspace,
-      FeatureFlag.membersSettings,
+      // FeatureFlag.collaborativeWorkspace,
+      // FeatureFlag.membersSettings,
       // release this feature in version 0.5.4
       FeatureFlag.syncDatabase,
       FeatureFlag.syncDocument,
@@ -98,15 +101,13 @@ enum FeatureFlag {
 
     switch (this) {
       case FeatureFlag.collaborativeWorkspace:
-        return false;
       case FeatureFlag.membersSettings:
-        return false;
-      case FeatureFlag.syncDocument:
-        return true;
-      case FeatureFlag.syncDatabase:
-        return true;
+      case FeatureFlag.search:
       case FeatureFlag.unknown:
         return false;
+      case FeatureFlag.syncDocument:
+      case FeatureFlag.syncDatabase:
+        return true;
     }
   }
 
@@ -120,6 +121,8 @@ enum FeatureFlag {
         return 'if it\'s on, the document will be synced in real-time';
       case FeatureFlag.syncDatabase:
         return 'if it\'s on, the collaborators will show in the database';
+      case FeatureFlag.search:
+        return 'if it\'s on, the command palette and search button will be available';
       case FeatureFlag.unknown:
         return '';
     }

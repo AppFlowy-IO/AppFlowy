@@ -277,6 +277,9 @@ pub enum ErrorCode {
 
   #[error("FolderIndexManager or its dependencies are unavailable")]
   FolderIndexManagerUnavailable = 96,
+
+  #[error("Workspace data not match")]
+  WorkspaceDataNotMatch = 97,
 }
 
 impl ErrorCode {

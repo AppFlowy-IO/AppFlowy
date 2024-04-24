@@ -116,6 +116,10 @@ impl FolderManager {
         }
       },
       FolderInitDataSource::FolderData(folder_data) => {
+        if folder_data.workspace.id != workspace_id {
+          return Err(FlowyError::workspace_data_not_match());
+        }
+
         event!(Level::INFO, "Restore folder with passed-in folder data");
         let collab = self
           .create_empty_collab(uid, &workspace_id, collab_db)
@@ -133,20 +137,21 @@ impl FolderManager {
     let index_content_rx = folder.subscribe_index_content();
     self
       .folder_indexer
-      .set_index_content_receiver(index_content_rx);
+      .set_index_content_receiver(index_content_rx, workspace_id.clone());
 
     // Index all views in the folder if needed
     if !self.folder_indexer.is_indexed() {
-      let views = folder.get_all_views_recursively();
+      let views = folder.views.get_all_views();
       let folder_indexer = self.folder_indexer.clone();
 
       // We spawn a blocking task to index all views in the folder
+      let wid = workspace_id.clone();
       spawn_blocking(move || {
-        folder_indexer.index_all_views(views);
+        folder_indexer.index_all_views(views, wid);
       });
     }
 
-    *self.mutex_folder.lock() = Some(folder);
+    *self.mutex_folder.write() = Some(folder);
 
     let weak_mutex_folder = Arc::downgrade(&self.mutex_folder);
     subscribe_folder_sync_state_changed(workspace_id.clone(), folder_state_rx, &weak_mutex_folder);
