@@ -81,6 +81,8 @@ jobs:
 
       - name: Run Docker-Compose
         working-directory: AppFlowy-Cloud
+        env:
+          BACKEND_VERSION: 0.3.24-amd64
         run: |
           docker pull appflowyinc/appflowy_cloud:latest
           docker compose up -d
