@@ -408,14 +408,14 @@ impl IndexManager for FolderIndexManagerImpl {
 }
 
 impl FolderIndexManager for FolderIndexManagerImpl {
-  fn index_all_views(&self, views: Vec<View>, workspace_id: String) {
+  fn index_all_views(&self, views: Vec<Arc<View>>, workspace_id: String) {
     let indexable_data = views
       .into_iter()
       .map(|view| IndexableData {
-        id: view.id,
-        data: view.name,
-        icon: view.icon,
-        layout: view.layout,
+        id: view.id.clone(),
+        data: view.name.clone(),
+        icon: view.icon.clone(),
+        layout: view.layout.clone(),
         workspace_id: workspace_id.clone(),
       })
       .collect();

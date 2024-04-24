@@ -492,7 +492,7 @@ pub async fn get_all_workspace_handler(
   data_result_ok(user_workspaces.into())
 }
 
-#[tracing::instrument(level = "debug", skip(data, manager), err)]
+#[tracing::instrument(level = "info", skip(data, manager), err)]
 pub async fn open_workspace_handler(
   data: AFPluginData<UserWorkspaceIdPB>,
   manager: AFPluginState<Weak<UserManager>>,

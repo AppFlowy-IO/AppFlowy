@@ -80,28 +80,6 @@ impl FolderManager {
     Ok(manager)
   }
 
-  pub async fn reload_workspace(&self) -> FlowyResult<()> {
-    let workspace_id = self
-      .workspace_id
-      .read()
-      .as_ref()
-      .ok_or_else(|| {
-        FlowyError::internal().with_context("workspace id is empty when trying to reload workspace")
-      })?
-      .clone();
-
-    let uid = self.user.user_id()?;
-    let doc_state = self
-      .cloud_service
-      .get_folder_doc_state(&workspace_id, uid, CollabType::Folder, &workspace_id)
-      .await?;
-
-    self
-      .initialize(uid, &workspace_id, FolderInitDataSource::Cloud(doc_state))
-      .await?;
-    Ok(())
-  }
-
   #[instrument(level = "debug", skip(self), err)]
   pub async fn get_current_workspace(&self) -> FlowyResult<WorkspacePB> {
     self.with_folder(
@@ -117,7 +95,7 @@ impl FolderManager {
       },
       |folder| {
         let workspace_pb_from_workspace = |workspace: Workspace, folder: &Folder| {
-          let views = get_workspace_public_view_pbs(&workspace.id, folder);
+          let views = get_workspace_public_view_pbs(folder);
           let workspace: WorkspacePB = (workspace, views).into();
           Ok::<WorkspacePB, FlowyError>(workspace)
         };
@@ -139,28 +117,20 @@ impl FolderManager {
       .as_ref()
       .map(|folder| folder.get_workspace_id());
 
-    if let Some(workspace_id) = workspace_id {
-      self.get_workspace_public_views(&workspace_id).await
+    if workspace_id.is_some() {
+      self.get_workspace_public_views().await
     } else {
       tracing::warn!("Can't get the workspace id from the folder. Return empty list.");
       Ok(vec![])
     }
   }
 
-  pub async fn get_workspace_public_views(&self, workspace_id: &str) -> FlowyResult<Vec<ViewPB>> {
-    let views = self.with_folder(Vec::new, |folder| {
-      get_workspace_public_view_pbs(workspace_id, folder)
-    });
-
-    Ok(views)
+  pub async fn get_workspace_public_views(&self) -> FlowyResult<Vec<ViewPB>> {
+    Ok(self.with_folder(Vec::new, get_workspace_public_view_pbs))
   }
 
-  pub async fn get_workspace_private_views(&self, workspace_id: &str) -> FlowyResult<Vec<ViewPB>> {
-    let views = self.with_folder(Vec::new, |folder| {
-      get_workspace_private_view_pbs(workspace_id, folder)
-    });
-
-    Ok(views)
+  pub async fn get_workspace_private_views(&self) -> FlowyResult<Vec<ViewPB>> {
+    Ok(self.with_folder(Vec::new, get_workspace_private_view_pbs))
   }
 
   pub(crate) async fn make_folder<T: Into<Option<FolderNotify>>>(
@@ -321,19 +291,6 @@ impl FolderManager {
       .create_workspace(uid, &params.name)
       .await?;
     Ok(new_workspace)
-  }
-
-  #[tracing::instrument(level = "info", skip_all, err)]
-  pub async fn open_workspace(&self, _workspace_id: &str) -> FlowyResult<Workspace> {
-    self.with_folder(
-      || Err(FlowyError::internal()),
-      |folder| {
-        let workspace = folder.get_current_workspace().ok_or_else(|| {
-          FlowyError::record_not_found().with_context("Can't open not existing workspace")
-        })?;
-        Ok::<Workspace, FlowyError>(workspace)
-      },
-    )
   }
 
   pub async fn get_workspace(&self, _workspace_id: &str) -> Option<Workspace> {
@@ -1259,7 +1216,7 @@ impl FolderManager {
 }
 
 /// Return the views that belong to the workspace. The views are filtered by the trash and all the private views.
-pub(crate) fn get_workspace_public_view_pbs(_workspace_id: &str, folder: &Folder) -> Vec<ViewPB> {
+pub(crate) fn get_workspace_public_view_pbs(folder: &Folder) -> Vec<ViewPB> {
   // get the trash ids
   let trash_ids = folder
     .get_all_trash_sections()
@@ -1309,7 +1266,7 @@ fn get_all_child_view_ids(folder: &Folder, view_id: &str) -> Vec<String> {
 }
 
 /// Get the current private views of the user.
-pub(crate) fn get_workspace_private_view_pbs(_workspace_id: &str, folder: &Folder) -> Vec<ViewPB> {
+pub(crate) fn get_workspace_private_view_pbs(folder: &Folder) -> Vec<ViewPB> {
   // get the trash ids
   let trash_ids = folder
     .get_all_trash_sections()

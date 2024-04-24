@@ -200,6 +200,8 @@ jobs:
         run: cargo make pub_get
 
       - name: Run Flutter unit tests
+        env:
+          DISABLE_EVENT_LOG: true
         working-directory: frontend
         run: |
           if [ "$RUNNER_OS" == "macOS" ]; then

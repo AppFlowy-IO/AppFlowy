@@ -11,7 +11,7 @@ use flowy_user_pub::entities::UserWorkspace;
 use flowy_user_pub::session::Session;
 use std::path::PathBuf;
 use std::sync::{Arc, Weak};
-use tracing::{debug, error, info};
+use tracing::{error, info};
 
 const SQLITE_VACUUM_042: &str = "sqlite_vacuum_042_version";
 
@@ -91,16 +91,17 @@ impl AuthenticateUser {
   }
 
   pub fn set_session(&self, session: Option<Session>) -> Result<(), FlowyError> {
-    debug!("Set current user session: {:?}", session);
     match &session {
       None => {
-        self.session.write().take();
+        let removed_session = self.session.write().take();
+        info!("remove session: {:?}", removed_session);
         self
           .store_preferences
           .remove(self.user_config.session_cache_key.as_ref());
         Ok(())
       },
       Some(session) => {
+        info!("Set current session: {:?}", session);
         self.session.write().replace(session.clone());
         self
           .store_preferences
