@@ -77,17 +77,30 @@ pub struct AppFlowyCollabBuilder {
 
 pub struct CollabBuilderConfig {
   pub sync_enable: bool,
+  /// If auto_initialize is false, the collab object will not be initialized automatically.
+  /// You need to call collab.initialize() manually.
+  ///
+  /// Default is true.
+  pub auto_initialize: bool,
 }
 
 impl Default for CollabBuilderConfig {
   fn default() -> Self {
-    Self { sync_enable: true }
+    Self {
+      sync_enable: true,
+      auto_initialize: true,
+    }
   }
 }
 
 impl CollabBuilderConfig {
   pub fn sync_enable(mut self, sync_enable: bool) -> Self {
     self.sync_enable = sync_enable;
+    self
+  }
+
+  pub fn auto_initialize(mut self, auto_initialize: bool) -> Self {
+    self.auto_initialize = auto_initialize;
     self
   }
 }
@@ -292,11 +305,13 @@ impl AppFlowyCollabBuilder {
       }
     }
 
-    #[cfg(target_arch = "wasm32")]
-    futures::executor::block_on(arc_collab.lock().initialize());
+    if build_config.auto_initialize {
+      #[cfg(target_arch = "wasm32")]
+      futures::executor::block_on(arc_collab.lock().initialize());
 
-    #[cfg(not(target_arch = "wasm32"))]
-    arc_collab.lock().initialize();
+      #[cfg(not(target_arch = "wasm32"))]
+      arc_collab.lock().initialize();
+    }
 
     trace!("collab initialized: {}:{}", object_type, object_id);
     Ok(arc_collab)

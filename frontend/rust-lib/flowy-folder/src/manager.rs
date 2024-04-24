@@ -142,19 +142,44 @@ impl FolderManager {
     folder_notifier: T,
   ) -> Result<Folder, FlowyError> {
     let folder_notifier = folder_notifier.into();
+    // snapshot_config will be deprecated in the future.
+    let snapshot_config = CollabPersistenceConfig::new()
+      .enable_snapshot(true)
+      .snapshot_per_update(50);
+
+    // only need the check the workspace id when the doc state is not from the disk.
+    let should_check_workspace_id = !matches!(doc_state, DataSource::Disk);
+    let should_auto_initialize = !should_check_workspace_id;
+    let config = CollabBuilderConfig::default()
+      .sync_enable(true)
+      .auto_initialize(should_auto_initialize);
+
     let collab = self.collab_builder.build_with_config(
       uid,
       workspace_id,
       CollabType::Folder,
       collab_db,
       doc_state,
-      CollabPersistenceConfig::new()
-        .enable_snapshot(true)
-        .snapshot_per_update(50),
-      CollabBuilderConfig::default().sync_enable(true),
+      snapshot_config,
+      config,
     )?;
-    let (should_clear, err) = match Folder::open(UserId::from(uid), collab, folder_notifier) {
+    let (should_clear, err) = match Folder::open(UserId::from(uid), collab.clone(), folder_notifier)
+    {
       Ok(folder) => {
+        if should_check_workspace_id {
+          // check the workspace id in the folder is matched with the workspace id. Just in case the folder
+          // is overwritten by another workspace.
+          let folder_workspace_id = folder.get_workspace_id();
+          if folder_workspace_id != workspace_id {
+            error!(
+              "expected workspace id: {}, actual workspace id: {}",
+              workspace_id, folder_workspace_id
+            );
+            return Err(FlowyError::workspace_data_not_match());
+          }
+          // Initialize the folder manually
+          collab.lock().initialize();
+        }
         return Ok(folder);
       },
       Err(err) => (matches!(err, FolderError::NoRequiredData(_)), err),

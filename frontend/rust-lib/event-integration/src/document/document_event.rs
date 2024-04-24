@@ -1,4 +1,4 @@
-use collab::core::collab_plugin::EncodedCollab;
+use collab::entity::EncodedCollab;
 use std::collections::HashMap;
 
 use serde_json::Value;

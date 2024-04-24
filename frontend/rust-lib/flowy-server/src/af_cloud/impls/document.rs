@@ -37,6 +37,7 @@ where
         .get_collab(params)
         .await
         .map_err(FlowyError::from)?
+        .encode_collab
         .doc_state
         .to_vec();
       Ok(doc_state)
@@ -72,6 +73,7 @@ where
         .get_collab(params)
         .await
         .map_err(FlowyError::from)?
+        .encode_collab
         .doc_state
         .to_vec();
       let document = Document::from_doc_state(
