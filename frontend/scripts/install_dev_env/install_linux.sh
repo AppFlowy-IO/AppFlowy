@@ -82,13 +82,13 @@ else
 fi
 
 # For Video Block support
-printMessage "Installing libmpv-dev"
+printMessage "Installing libmpv-dev mpv"
 if command apt-get &>/dev/null; then
-    sudo apt-get install libmpv-dev
+    sudo apt-get install libmpv-dev mpv
 elif command dnf &>/dev/null; then
-    sudo dnf install libmpv-dev
+    sudo dnf install libmpv-dev mpv
 else
-    echo 'Your system is not supported, please install libmpv-dev manually.'
+    echo 'Your system is not supported, please install libmpv-dev mpv manually.'
 fi
 
 # Add the githooks directory to your git configuration
