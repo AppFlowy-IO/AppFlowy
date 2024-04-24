@@ -133,6 +133,7 @@ impl UserManager {
 
     if let Ok(session) = self.get_session() {
       let user = self.get_user_profile_from_disk(session.user_id).await?;
+
       // Get the current authenticator from the environment variable
       let current_authenticator = current_authenticator();
 
@@ -151,9 +152,10 @@ impl UserManager {
 
       event!(
         tracing::Level::INFO,
-        "init user session: {}:{}",
+        "init user session: {}:{}, authenticator: {:?}",
         user.uid,
-        user.email
+        user.email,
+        user.authenticator,
       );
 
       self.prepare_user(&session).await;

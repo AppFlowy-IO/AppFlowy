@@ -35,7 +35,7 @@ use parking_lot::RwLock;
 use std::fmt::{Display, Formatter};
 use std::ops::Deref;
 use std::sync::{Arc, Weak};
-use tracing::{error, info, instrument, trace};
+use tracing::{error, info, instrument};
 
 conditional_send_sync_trait! {
   "[crate::manager::FolderUser] represents the user for folder.";
@@ -367,7 +367,6 @@ impl FolderManager {
   ///
   /// * `none_callback`: A callback function that is invoked when `mutex_folder` contains `None`.
   /// * `f2`: A callback function that is invoked when `mutex_folder` contains a `Some` value. The contained folder is passed as an argument to this callback.
-  #[instrument(level = "debug", skip_all)]
   fn with_folder<F1, F2, Output>(&self, none_callback: F1, f2: F2) -> Output
   where
     F1: FnOnce() -> Output,
@@ -482,7 +481,6 @@ impl FolderManager {
   /// again using the ID of the child view you wish to access.
   #[tracing::instrument(level = "debug", skip(self))]
   pub async fn get_view_pb(&self, view_id: &str) -> FlowyResult<ViewPB> {
-    trace!("Get view pb with id: {}", view_id);
     let view_id = view_id.to_string();
 
     let folder = self.mutex_folder.read();

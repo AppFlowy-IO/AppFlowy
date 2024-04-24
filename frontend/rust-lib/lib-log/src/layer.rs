@@ -46,7 +46,7 @@ where
   ) -> Result<(), std::io::Error> {
     map_serializer.serialize_entry(MESSAGE, &message)?;
     // map_serializer.serialize_entry(LEVEL, &format!("{}", level))?;
-    map_serializer.serialize_entry(TIME, &Local::now().format("%Y-%m-%d %H:%M:%S").to_string())?;
+    map_serializer.serialize_entry(TIME, &Local::now().format("%m-%d %H:%M:%S").to_string())?;
     Ok(())
   }
 
