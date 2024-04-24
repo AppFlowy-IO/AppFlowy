@@ -169,9 +169,9 @@ jobs:
         working-directory: frontend
         run: |
           if [ "$RUNNER_OS" == "Linux" ]; then
+            sudo rm -f /etc/apt/sources.list.d/microsoft-prod.list
             sudo wget -qO /etc/apt/trusted.gpg.d/dart_linux_signing_key.asc https://dl-ssl.google.com/linux/linux_signing_key.pub
             sudo wget -qO /etc/apt/sources.list.d/dart_stable.list https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list
-            sudo rm -f /etc/apt/sources.list.d/microsoft-prod.list
             sudo apt update
             sudo apt install -y dart curl build-essential libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev keybinder-3.0 libnotify-dev libmpv-dev
           fi
@@ -266,9 +266,9 @@ jobs:
       - name: Install prerequisites
         working-directory: frontend
         run: |
+          sudo rm -f /etc/apt/sources.list.d/microsoft-prod.list
           sudo wget -qO /etc/apt/trusted.gpg.d/dart_linux_signing_key.asc https://dl-ssl.google.com/linux/linux_signing_key.pub
           sudo wget -qO /etc/apt/sources.list.d/dart_stable.list https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list
-          sudo rm -f /etc/apt/sources.list.d/microsoft-prod.list
           sudo apt update
           sudo apt install -y dart curl build-essential libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev keybinder-3.0 libnotify-dev libmpv-dev
         shell: bash
