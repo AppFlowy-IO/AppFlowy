@@ -95,6 +95,9 @@ pub(crate) async fn apply_action_handler(
   let doc_id = params.document_id;
   let document = manager.get_document(&doc_id).await?;
   let actions = params.actions;
+  if cfg!(feature = "verbose_log") {
+    tracing::trace!("Applying actions: {:?}", actions);
+  }
   document.lock().apply_action(actions);
   Ok(())
 }
@@ -125,6 +128,9 @@ pub(crate) async fn apply_text_delta_handler(
   let text_id = params.text_id;
   let delta = params.delta;
   let document = document.lock();
+  if cfg!(feature = "verbose_log") {
+    tracing::trace!("Applying delta: {:?}", delta);
+  }
   document.apply_text_delta(&text_id, delta);
   Ok(())
 }

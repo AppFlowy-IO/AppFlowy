@@ -73,6 +73,6 @@ openssl_vendored = ["flowy-sqlite/openssl_vendored"]
 
 # Enable/Disable AppFlowy Verbose Log Configuration
 verbose_log = [
-    #    "flowy-document/verbose_log",
+    "flowy-document/verbose_log",
     "client-api/sync_verbose_log"
 ]
