@@ -48,7 +48,7 @@ RUN dart pub global activate protoc_plugin 21.1.2
 
 # Install build dependencies for AppFlowy
 RUN yay -S --noconfirm jemalloc4 cargo-make cargo-binstall
-RUN sudo pacman -S --noconfirm git libkeybinder3 sqlite clang rsync libnotify rocksdb zstd
+RUN sudo pacman -S --noconfirm git libkeybinder3 sqlite clang rsync libnotify rocksdb zstd mpv
 RUN sudo ln -s /usr/bin/sha1sum /usr/bin/shasum
 RUN source ~/.cargo/env && cargo binstall duckscript_cli -y
 

@@ -78,7 +78,17 @@ if command apt-get &>/dev/null; then
 elif command dnf &>/dev/null; then
     sudo dnf install libnotify-dev
 else
-    echo 'Your system is not supported, please install libnotify manually.'
+    echo 'Your system is not supported, please install libnotify-dev manually.'
+fi
+
+# For Video Block support
+printMessage "Installing libmpv-dev"
+if command apt-get &>/dev/null; then
+    sudo apt-get install libmpv-dev
+elif command dnf &>/dev/null; then
+    sudo dnf install libmpv-dev
+else
+    echo 'Your system is not supported, please install libmpv-dev manually.'
 fi
 
 # Add the githooks directory to your git configuration
