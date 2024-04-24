@@ -317,6 +317,13 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v4
 
+      - name: Install video dependency
+        run: |
+          sudo rm -f /etc/apt/sources.list.d/microsoft-prod.list
+          sudo apt-get update
+          sudo apt-get install libmpv-dev mpv
+        shell: bash
+
       - name: Flutter Integration Test 1
         uses: ./.github/actions/flutter_integration_test
         with:
@@ -341,6 +348,13 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v4
 
+      - name: Install video dependency
+        run: |
+          sudo rm -f /etc/apt/sources.list.d/microsoft-prod.list
+          sudo apt-get update
+          sudo apt-get install libmpv-dev mpv
+        shell: bash
+
       - name: Flutter Integration Test 2
         uses: ./.github/actions/flutter_integration_test
         with:
@@ -364,6 +378,13 @@ jobs:
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
+
+      - name: Install video dependency
+        run: |
+          sudo rm -f /etc/apt/sources.list.d/microsoft-prod.list
+          sudo apt-get update
+          sudo apt-get install libmpv-dev mpv
+        shell: bash
 
       - name: Flutter Integration Test 3
         uses: ./.github/actions/flutter_integration_test
