@@ -334,7 +334,7 @@ where
       };
 
       let resp = try_get_client?.get_collab(params).await?;
-      Ok(resp.doc_state.to_vec())
+      Ok(resp.encode_collab.doc_state.to_vec())
     })
   }
 

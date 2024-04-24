@@ -90,8 +90,8 @@ impl Builder {
         .pretty()
         .with_env_filter(env_filter)
         .finish()
-        .with(JsonStorageLayer)
         .with(FlowyFormattingLayer::new(DebugStdoutWriter))
+        .with(JsonStorageLayer)
         .with(file_layer);
       set_global_default(subscriber).map_err(|e| format!("{:?}", e))?;
     };

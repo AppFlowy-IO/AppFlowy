@@ -116,6 +116,10 @@ impl FolderManager {
         }
       },
       FolderInitDataSource::FolderData(folder_data) => {
+        if folder_data.workspace.id != workspace_id {
+          return Err(FlowyError::workspace_data_not_match());
+        }
+
         event!(Level::INFO, "Restore folder with passed-in folder data");
         let collab = self
           .create_empty_collab(uid, &workspace_id, collab_db)
