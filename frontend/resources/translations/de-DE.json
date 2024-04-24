@@ -57,14 +57,14 @@
     "signInWithEmail": "Mit E-Mail anmelden",
     "signInWithMagicLink": "Mit Authentifizierungslink anmelden",
     "signUpWithMagicLink": "Mit Authentifizierungslink registrieren",
-    "pleaseInputYourEmail": "Geben Sie bitte Ihre E-Mail-Adresse ein",
+    "pleaseInputYourEmail": "Gib bitte deine E-Mail-Adresse ein",
     "settings": "Einstellungen",
-    "magicLinkSent": "Wir haben Ihnen einen Authentifizierungslink per E-Mail geschickt. Klicken Sie auf den Link, um sich anzumelden.",
-    "invalidEmail": "Bitte geben Sie eine gültige E-Mail-Adresse ein",
-    "alreadyHaveAnAccount": "Sie haben bereits ein Konto?",
+    "magicLinkSent": "Wir haben dir einen Authentifizierungslink per E-Mail geschickt. Klicke auf den Link, um dich anzumelden.",
+    "invalidEmail": "Bitte gib eine gültige E-Mail-Adresse ein",
+    "alreadyHaveAnAccount": "Du hast bereits ein Konto?",
     "logIn": "Anmeldung",
-    "generalError": "Etwas ist schiefgelaufen. Bitte versuchen Sie es später noch einmal",
-    "limitRateError": "Aus Sicherheitsgründen können Sie nur alle 60 Sekunden einen Authentifizierungslink anfordern",
+    "generalError": "Etwas ist schiefgelaufen. Bitte versuche es später noch einmal",
+    "limitRateError": "Aus Sicherheitsgründen kannst du nur alle 60 Sekunden einen Authentifizierungslink anfordern",
     "LogInWithGoogle": "Mit Google-Account anmelden",
     "LogInWithGithub": "Mit GitHub-Account anmelden",
     "LogInWithDiscord": "Mit Discord-Account anmelden"
@@ -99,7 +99,7 @@
     "cannotDeleteTheOnlyWorkspace": "Der einzig vorhandene Arbeitsbereich kann nicht gelöscht werden",
     "fetchWorkspacesFailed": "Arbeitsbereiche konnten nicht abgerufen werden!",
     "leaveCurrentWorkspace": "Arbeitsbereich verlassen",
-    "leaveCurrentWorkspacePrompt": "Möchten Sie den aktuellen Arbeitsbereich wirklich verlassen?"
+    "leaveCurrentWorkspacePrompt": "Möchtest du den aktuellen Arbeitsbereich wirklich verlassen?"
   },
   "shareAction": {
     "buttonText": "Teilen",
@@ -237,7 +237,7 @@
     "workspace": "Arbeitsbereich",
     "favorites": "Favoriten",
     "clickToHidePrivate": "Hier klicken, um den privaten Bereich auszublenden.\nVon dir hier erstellte Seiten sind nur für dich sichtbar.",
-    "clickToHideWorkspace": "Klicken, um Arbeitsbereich auszublenden\nDie hier erstellten Seiten sind für jedes Mitglied sichtbar",
+    "clickToHideWorkspace": "Klicken, um den Arbeitsbereich auszublenden\nDie hier erstellten Seiten sind für jedes Mitglied sichtbar",
     "clickToHidePersonal": "Klicken, um den persönlichen Abschnitt zu verbergen",
     "clickToHideFavorites": "Klicken, um Favoriten zu verbergen",
     "addAPage": "Seite hinzufügen",
@@ -1461,11 +1461,11 @@
     "workplace": {
       "name": "Arbeitsbereich",
       "title": "Arbeitsbereichseinstellungen",
-      "subtitle": "Passen Sie das Erscheinungsbild, das Design, die Schriftart, das Textlayout, das Datum, die Uhrzeit und die Sprache Ihres Arbeitsbereiches an.",
+      "subtitle": "Passe das Erscheinungsbild, das Design, die Schriftart, das Textlayout, das Datum, die Uhrzeit und die Sprache deines Arbeitsbereiches an.",
       "workplaceName": "Name des Arbeitsbereiches",
-      "workplaceNamePlaceholder": "Geben Sie den Namen des Arbeitsbereiches ein",
+      "workplaceNamePlaceholder": "Gib den Namen des Arbeitsbereiches ein",
       "workplaceIcon": "Symbol für den Arbeitsbereich",
-      "workplaceIconSubtitle": "Laden Sie ein Bild hoch oder verwenden Sie ein Emoji für Ihren Arbeitsbereich. Das Symbol wird in Ihrer Seitenleiste und in Benachrichtigungen angezeigt",
+      "workplaceIconSubtitle": "Lade ein Bild hoch oder verwende ein Emoji für deinen Arbeitsbereich. Das Symbol wird in deiner Seitenleiste und in deinen Benachrichtigungen angezeigt",
       "renameError": "Umbenennen des Arbeitsbereiches fehlgeschlagen",
       "updateIconError": "Symbol konnte nicht aktualisiert werden",
       "appearance": {
@@ -1485,7 +1485,7 @@
     }
   },
   "commandPalette": {
-    "placeholder": "Tippen Sie, um nach Ansichten zu suchen...",
+    "placeholder": "Tippe, um nach Ansichten zu suchen...",
     "bestMatches": "Beste Ergebnisse",
     "recentHistory": "Aktuelle Historie",
     "navigateHint": "navigieren",
