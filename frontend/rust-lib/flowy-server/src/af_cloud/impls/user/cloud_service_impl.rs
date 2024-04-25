@@ -13,6 +13,7 @@ use client_api::entity::{QueryCollab, QueryCollabParams};
 use client_api::{Client, ClientConfiguration};
 use collab_entity::{CollabObject, CollabType};
 use parking_lot::RwLock;
+use tracing::instrument;
 
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_user_pub::cloud::{UserCloudService, UserCollabParams, UserUpdate, UserUpdateReceiver};
@@ -173,6 +174,7 @@ where
     })
   }
 
+  #[instrument(level = "debug", skip_all)]
   fn get_user_profile(
     &self,
     _credential: UserCredentials,
@@ -188,7 +190,11 @@ where
 
       // Discard the response if the user has switched to a new workspace. This avoids updating the
       // user profile with potentially outdated information when the workspace ID no longer matches.
-      check_request_workspace_id_is_match(&expected_workspace_id, &cloned_user)?;
+      check_request_workspace_id_is_match(
+        &expected_workspace_id,
+        &cloned_user,
+        "get user profile",
+      )?;
       Ok(profile)
     })
   }
@@ -328,6 +334,7 @@ where
     })
   }
 
+  #[instrument(level = "debug", skip_all)]
   fn get_user_awareness_doc_state(
     &self,
     _uid: i64,
@@ -347,7 +354,11 @@ where
         },
       };
       let resp = try_get_client?.get_collab(params).await?;
-      check_request_workspace_id_is_match(&workspace_id, &cloned_user)?;
+      check_request_workspace_id_is_match(
+        &workspace_id,
+        &cloned_user,
+        "get user awareness object",
+      )?;
       Ok(resp.encode_collab.doc_state.to_vec())
     })
   }

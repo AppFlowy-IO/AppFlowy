@@ -6,7 +6,7 @@ use collab::core::collab::DataSource;
 use collab::entity::EncodedCollab;
 use collab_entity::CollabType;
 use std::sync::Arc;
-use tracing::error;
+use tracing::{error, instrument};
 
 use flowy_database_pub::cloud::{CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot};
 use lib_infra::future::FutureResult;
@@ -24,6 +24,7 @@ impl<T> DatabaseCloudService for AFCloudDatabaseCloudServiceImpl<T>
 where
   T: AFServer,
 {
+  #[instrument(level = "debug", skip_all)]
   fn get_database_object_doc_state(
     &self,
     object_id: &str,
@@ -38,13 +39,17 @@ where
       let params = QueryCollabParams {
         workspace_id: workspace_id.clone(),
         inner: QueryCollab {
-          object_id,
-          collab_type,
+          object_id: object_id.clone(),
+          collab_type: collab_type.clone(),
         },
       };
       match try_get_client?.get_collab(params).await {
         Ok(data) => {
-          check_request_workspace_id_is_match(&workspace_id, &cloned_user)?;
+          check_request_workspace_id_is_match(
+            &workspace_id,
+            &cloned_user,
+            format!("get database object: {}:{}", object_id, collab_type),
+          )?;
           Ok(Some(data.encode_collab.doc_state.to_vec()))
         },
         Err(err) => {
@@ -58,6 +63,7 @@ where
     })
   }
 
+  #[instrument(level = "debug", skip_all)]
   fn batch_get_database_object_doc_state(
     &self,
     object_ids: Vec<String>,
@@ -77,7 +83,11 @@ where
         })
         .collect();
       let results = client.batch_get_collab(&workspace_id, params).await?;
-      check_request_workspace_id_is_match(&workspace_id, &cloned_user)?;
+      check_request_workspace_id_is_match(
+        &workspace_id,
+        &cloned_user,
+        "batch get database object",
+      )?;
       Ok(
         results
           .0

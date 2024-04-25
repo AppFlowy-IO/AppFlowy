@@ -21,8 +21,8 @@ use collab::core::collab::{DataSource, MutexCollab};
 use collab_entity::CollabType;
 use collab_folder::error::FolderError;
 use collab_folder::{
-  Folder, FolderData, FolderNotify, Section, SectionItem, TrashInfo, UserId, View, ViewLayout,
-  ViewUpdate, Workspace,
+  Folder, FolderNotify, Section, SectionItem, TrashInfo, UserId, View, ViewLayout, ViewUpdate,
+  Workspace,
 };
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
 use collab_integrate::CollabKVDB;
@@ -117,6 +117,7 @@ impl FolderManager {
     }))
   }
 
+  #[instrument(level = "trace", skip_all, err)]
   pub(crate) async fn make_folder<T: Into<Option<FolderNotify>>>(
     &self,
     uid: i64,
@@ -152,7 +153,7 @@ impl FolderManager {
           let folder_workspace_id = folder.get_workspace_id();
           if folder_workspace_id != workspace_id {
             error!(
-              "expected workspace id: {}, actual workspace id: {}",
+              "expect workspace_id: {}, actual workspace_id: {}",
               workspace_id, folder_workspace_id
             );
             return Err(FlowyError::workspace_data_not_match());
@@ -1304,8 +1305,6 @@ pub enum FolderInitDataSource {
   LocalDisk { create_if_not_exist: bool },
   /// If there is no data stored on local disk, we will use the data from the server to initialize the folder
   Cloud(Vec<u8>),
-  /// If the user is new, we use the [DefaultFolderBuilder] to create the default folder.
-  FolderData(FolderData),
 }
 
 impl Display for FolderInitDataSource {
@@ -1313,7 +1312,6 @@ impl Display for FolderInitDataSource {
     match self {
       FolderInitDataSource::LocalDisk { .. } => f.write_fmt(format_args!("LocalDisk")),
       FolderInitDataSource::Cloud(_) => f.write_fmt(format_args!("Cloud")),
-      FolderInitDataSource::FolderData(_) => f.write_fmt(format_args!("Custom FolderData")),
     }
   }
 }

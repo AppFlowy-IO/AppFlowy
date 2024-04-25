@@ -9,7 +9,6 @@ use nanoid::nanoid;
 use parking_lot::Once;
 use tempfile::TempDir;
 use tracing_subscriber::{fmt::Subscriber, util::SubscriberInitExt, EnvFilter};
-use uuid::Uuid;
 
 use collab_integrate::collab_builder::{
   AppFlowyCollabBuilder, CollabCloudPluginProvider, CollabPluginProviderContext,
@@ -231,7 +230,7 @@ impl DocumentSnapshotService for DocumentTestSnapshot {
 
 struct WorkspaceCollabIntegrateImpl {
   workspace_id: String,
-};
+}
 impl WorkspaceCollabIntegrate for WorkspaceCollabIntegrateImpl {
   fn workspace_id(&self) -> Result<String, Error> {
     Ok(self.workspace_id.clone())

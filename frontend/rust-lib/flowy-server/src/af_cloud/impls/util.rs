@@ -9,12 +9,15 @@ use tracing::warn;
 pub fn check_request_workspace_id_is_match(
   expected_workspace_id: &str,
   user: &Arc<dyn ServerUser>,
+  action: impl AsRef<str>,
 ) -> FlowyResult<()> {
   let actual_workspace_id = user.workspace_id()?;
   if expected_workspace_id != actual_workspace_id {
     warn!(
-      "Expect workspace_id: {}, actual workspace_id: {}",
-      expected_workspace_id, actual_workspace_id
+      "{}, expect workspace_id: {}, actual workspace_id: {}",
+      action.as_ref(),
+      expected_workspace_id,
+      actual_workspace_id
     );
 
     return Err(

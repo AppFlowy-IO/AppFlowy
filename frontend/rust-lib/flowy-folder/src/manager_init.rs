@@ -26,6 +26,12 @@ impl FolderManager {
       workspace_id,
       initial_data
     );
+
+    if let Some(old_folder) = self.mutex_folder.write().take() {
+      old_folder.close();
+      info!("remove old folder: {}", old_folder.get_workspace_id());
+    }
+
     let workspace_id = workspace_id.to_string();
     // Get the collab db for the user with given user id.
     let collab_db = self.user.collab_db(uid)?;
@@ -105,22 +111,6 @@ impl FolderManager {
             .await?
         }
       },
-      FolderInitDataSource::FolderData(folder_data) => {
-        if folder_data.workspace.id != workspace_id {
-          return Err(FlowyError::workspace_data_not_match());
-        }
-
-        event!(Level::INFO, "Restore folder with passed-in folder data");
-        let collab = self
-          .create_empty_collab(uid, &workspace_id, collab_db)
-          .await?;
-        Folder::create(
-          UserId::from(uid),
-          collab,
-          Some(folder_notifier),
-          folder_data,
-        )
-      },
     };
 
     let folder_state_rx = folder.subscribe_sync_state();
@@ -141,10 +131,6 @@ impl FolderManager {
       });
     }
 
-    if let Some(old_folder) = self.mutex_folder.write().take() {
-      old_folder.close();
-      info!("remove old folder: {}", old_folder.get_workspace_id());
-    }
     *self.mutex_folder.write() = Some(folder);
 
     let weak_mutex_folder = Arc::downgrade(&self.mutex_folder);

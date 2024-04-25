@@ -7,6 +7,7 @@ use collab::core::origin::CollabOrigin;
 use collab_entity::CollabType;
 use collab_folder::RepeatedViewIdentifier;
 use std::sync::Arc;
+use tracing::instrument;
 
 use flowy_error::FlowyError;
 use flowy_folder_pub::cloud::{
@@ -79,7 +80,7 @@ where
       Ok(records)
     })
   }
-
+  #[instrument(level = "debug", skip_all)]
   fn get_folder_data(
     &self,
     workspace_id: &str,
@@ -104,7 +105,7 @@ where
         .encode_collab
         .doc_state
         .to_vec();
-      check_request_workspace_id_is_match(&workspace_id, &cloned_user)?;
+      check_request_workspace_id_is_match(&workspace_id, &cloned_user, "get folder data")?;
       let folder = Folder::from_collab_doc_state(
         uid,
         CollabOrigin::Empty,
@@ -124,6 +125,7 @@ where
     FutureResult::new(async move { Ok(vec![]) })
   }
 
+  #[instrument(level = "debug", skip_all)]
   fn get_folder_doc_state(
     &self,
     workspace_id: &str,
@@ -150,7 +152,7 @@ where
         .encode_collab
         .doc_state
         .to_vec();
-      check_request_workspace_id_is_match(&workspace_id, &cloned_user)?;
+      check_request_workspace_id_is_match(&workspace_id, &cloned_user, "get folder doc state")?;
       Ok(doc_state)
     })
   }
