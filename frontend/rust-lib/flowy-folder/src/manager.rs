@@ -88,7 +88,7 @@ impl FolderManager {
           Ok::<WorkspacePB, FlowyError>(workspace)
         };
 
-        match folder.get_current_workspace(&workspace_id) {
+        match folder.get_workspace_info(&workspace_id) {
           None => Err(FlowyError::record_not_found().with_context("Can not find the workspace")),
           Some(workspace) => workspace_pb_from_workspace(workspace, folder),
         }
@@ -328,7 +328,7 @@ impl FolderManager {
       .as_ref()
       .ok_or(FlowyError::internal().with_context("folder is not initialized"))?;
     let workspace = folder
-      .get_current_workspace(&workspace_id)
+      .get_workspace_info(&workspace_id)
       .ok_or_else(|| FlowyError::record_not_found().with_context("Can not find the workspace"))?;
 
     let views = folder
@@ -1069,20 +1069,18 @@ impl FolderManager {
       |folder| {
         let view = folder.views.get_view(view_id)?;
         match folder.views.get_view(&view.parent_view_id) {
-          None => folder
-            .get_current_workspace(&workspace_id)
-            .map(|workspace| {
-              (
-                true,
-                workspace.id,
-                workspace
-                  .child_views
-                  .items
-                  .into_iter()
-                  .map(|view| view.id)
-                  .collect::<Vec<String>>(),
-              )
-            }),
+          None => folder.get_workspace_info(&workspace_id).map(|workspace| {
+            (
+              true,
+              workspace.id,
+              workspace
+                .child_views
+                .items
+                .into_iter()
+                .map(|view| view.id)
+                .collect::<Vec<String>>(),
+            )
+          }),
           Some(parent_view) => Some((
             false,
             parent_view.id.clone(),

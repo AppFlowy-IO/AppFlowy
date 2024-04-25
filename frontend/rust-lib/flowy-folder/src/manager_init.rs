@@ -142,6 +142,7 @@ impl FolderManager {
     }
 
     if let Some(old_folder) = self.mutex_folder.write().take() {
+      old_folder.close();
       info!("remove old folder: {}", old_folder.get_workspace_id());
     }
     *self.mutex_folder.write() = Some(folder);

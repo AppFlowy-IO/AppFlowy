@@ -123,23 +123,27 @@ async fn af_cloud_open_workspace_test() {
   for i in 0..30 {
     if i % 2 == 0 {
       test.open_workspace(&first_workspace.id).await;
-      sleep(Duration::from_millis(400)).await;
+      sleep(Duration::from_millis(300)).await;
+      test
+        .create_document(&uuid::Uuid::new_v4().to_string())
+        .await;
     } else {
       test.open_workspace(&second_workspace.id).await;
       sleep(Duration::from_millis(200)).await;
+      test
+        .create_document(&uuid::Uuid::new_v4().to_string())
+        .await;
     }
   }
 
   test.open_workspace(&first_workspace.id).await;
   let views = test.get_all_workspace_views().await;
-  assert_eq!(views.len(), 3);
   assert_eq!(views[0].name, default_document_name);
   assert_eq!(views[1].name, "A");
   assert_eq!(views[2].name, "B");
 
   test.open_workspace(&second_workspace.id).await;
   let views = test.get_all_workspace_views().await;
-  assert_eq!(views.len(), 3);
   assert_eq!(views[0].name, default_document_name);
   assert_eq!(views[1].name, "C");
   assert_eq!(views[2].name, "D");
