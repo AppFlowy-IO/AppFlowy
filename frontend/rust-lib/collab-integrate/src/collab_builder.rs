@@ -203,7 +203,7 @@ impl AppFlowyCollabBuilder {
     let actual_workspace_id = self.workspace_integrate.workspace_id()?;
     if workspace_id != actual_workspace_id {
       return Err(anyhow::anyhow!(
-        "workspace_id not match when build collab. expected: {}, actual: {}",
+        "workspace_id not match when build collab. expect workspace_id: {}, actual workspace_id: {}",
         workspace_id,
         actual_workspace_id
       ));

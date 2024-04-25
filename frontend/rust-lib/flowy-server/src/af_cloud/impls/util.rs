@@ -13,7 +13,7 @@ pub fn check_request_workspace_id_is_match(
   let actual_workspace_id = user.workspace_id()?;
   if expected_workspace_id != actual_workspace_id {
     warn!(
-      "Expected workspace id: {}, actual workspace id: {}",
+      "Expect workspace_id: {}, actual workspace_id: {}",
       expected_workspace_id, actual_workspace_id
     );
 
