@@ -163,7 +163,11 @@ impl AppFlowyServer for AppFlowyCloudServer {
       }
     });
 
-    Arc::new(AFCloudUserAuthServiceImpl::new(server, rx))
+    Arc::new(AFCloudUserAuthServiceImpl::new(
+      server,
+      rx,
+      self.user.clone(),
+    ))
   }
 
   fn folder_service(&self) -> Arc<dyn FolderCloudService> {

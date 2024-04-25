@@ -1,33 +1,43 @@
-use std::collections::HashSet;
-use std::sync::{Arc, Weak};
-
+use crate::entities::{
+  view_pb_with_child_views, view_pb_without_child_views, ChildViewUpdatePB, FolderSnapshotStatePB,
+  FolderSyncStatePB, RepeatedTrashPB, RepeatedViewPB, SectionViewsPB, ViewPB, ViewSectionPB,
+};
+use crate::manager::{
+  get_workspace_private_view_pbs, get_workspace_public_view_pbs, FolderUser, MutexFolder,
+};
+use crate::notification::{send_notification, FolderNotification};
 use collab::core::collab_state::SyncState;
 use collab_folder::{
   Folder, SectionChange, SectionChangeReceiver, TrashSectionChange, View, ViewChange,
   ViewChangeReceiver,
 };
+use lib_dispatch::prelude::af_spawn;
+use std::collections::HashSet;
+use std::sync::{Arc, Weak};
 use tokio_stream::wrappers::WatchStream;
 use tokio_stream::StreamExt;
-use tracing::{event, Level};
-
-use lib_dispatch::prelude::af_spawn;
-
-use crate::entities::{
-  view_pb_with_child_views, view_pb_without_child_views, ChildViewUpdatePB, FolderSnapshotStatePB,
-  FolderSyncStatePB, RepeatedTrashPB, RepeatedViewPB, SectionViewsPB, ViewPB, ViewSectionPB,
-};
-use crate::manager::{get_workspace_private_view_pbs, get_workspace_public_view_pbs, MutexFolder};
-use crate::notification::{send_notification, FolderNotification};
+use tracing::{event, trace, Level};
 
 /// Listen on the [ViewChange] after create/delete/update events happened
 pub(crate) fn subscribe_folder_view_changed(
   workspace_id: String,
   mut rx: ViewChangeReceiver,
   weak_mutex_folder: &Weak<MutexFolder>,
+  user: Weak<dyn FolderUser>,
 ) {
   let weak_mutex_folder = weak_mutex_folder.clone();
   af_spawn(async move {
     while let Ok(value) = rx.recv().await {
+      if let Some(user) = user.upgrade() {
+        if let Ok(actual_workspace_id) = user.workspace_id() {
+          if actual_workspace_id != workspace_id {
+            trace!("Did break the loop when the workspace id is not matched");
+            // break the loop when the workspace id is not matched.
+            break;
+          }
+        }
+      }
+
       if let Some(folder) = weak_mutex_folder.upgrade() {
         tracing::trace!("Did receive view change: {:?}", value);
         match value {
@@ -67,6 +77,7 @@ pub(crate) fn subscribe_folder_view_changed(
 pub(crate) fn subscribe_folder_snapshot_state_changed(
   workspace_id: String,
   weak_mutex_folder: &Weak<MutexFolder>,
+  user: Weak<dyn FolderUser>,
 ) {
   let weak_mutex_folder = weak_mutex_folder.clone();
   af_spawn(async move {
@@ -77,6 +88,14 @@ pub(crate) fn subscribe_folder_snapshot_state_changed(
         .map(|folder| folder.subscribe_snapshot_state());
       if let Some(mut state_stream) = stream {
         while let Some(snapshot_state) = state_stream.next().await {
+          if let Some(user) = user.upgrade() {
+            if let Ok(actual_workspace_id) = user.workspace_id() {
+              if actual_workspace_id != workspace_id {
+                // break the loop when the workspace id is not matched.
+                break;
+              }
+            }
+          }
           if let Some(new_snapshot_id) = snapshot_state.snapshot_id() {
             tracing::debug!("Did create folder remote snapshot: {}", new_snapshot_id);
             send_notification(
@@ -95,10 +114,19 @@ pub(crate) fn subscribe_folder_snapshot_state_changed(
 pub(crate) fn subscribe_folder_sync_state_changed(
   workspace_id: String,
   mut folder_sync_state_rx: WatchStream<SyncState>,
-  _weak_mutex_folder: &Weak<MutexFolder>,
+  user: Weak<dyn FolderUser>,
 ) {
   af_spawn(async move {
     while let Some(state) = folder_sync_state_rx.next().await {
+      if let Some(user) = user.upgrade() {
+        if let Ok(actual_workspace_id) = user.workspace_id() {
+          if actual_workspace_id != workspace_id {
+            // break the loop when the workspace id is not matched.
+            break;
+          }
+        }
+      }
+
       send_notification(&workspace_id, FolderNotification::DidUpdateFolderSyncUpdate)
         .payload(FolderSyncStatePB::from(state))
         .send();
@@ -111,10 +139,20 @@ pub(crate) fn subscribe_folder_trash_changed(
   workspace_id: String,
   mut rx: SectionChangeReceiver,
   weak_mutex_folder: &Weak<MutexFolder>,
+  user: Weak<dyn FolderUser>,
 ) {
   let weak_mutex_folder = weak_mutex_folder.clone();
   af_spawn(async move {
     while let Ok(value) = rx.recv().await {
+      if let Some(user) = user.upgrade() {
+        if let Ok(actual_workspace_id) = user.workspace_id() {
+          if actual_workspace_id != workspace_id {
+            // break the loop when the workspace id is not matched.
+            break;
+          }
+        }
+      }
+
       if let Some(folder) = weak_mutex_folder.upgrade() {
         let mut unique_ids = HashSet::new();
         tracing::trace!("Did receive trash change: {:?}", value);

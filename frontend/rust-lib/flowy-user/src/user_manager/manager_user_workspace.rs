@@ -146,16 +146,16 @@ impl UserManager {
       .authenticate_user
       .set_user_workspace(user_workspace.clone())?;
 
-    // let uid = self.user_id()?;
-    // if let Err(err) = self
-    //   .user_status_callback
-    //   .read()
-    //   .await
-    //   .open_workspace(uid, &user_workspace)
-    //   .await
-    // {
-    //   error!("Open workspace failed: {:?}", err);
-    // }
+    let uid = self.user_id()?;
+    if let Err(err) = self
+      .user_status_callback
+      .read()
+      .await
+      .open_workspace(uid, &user_workspace)
+      .await
+    {
+      error!("Open workspace failed: {:?}", err);
+    }
 
     Ok(())
   }

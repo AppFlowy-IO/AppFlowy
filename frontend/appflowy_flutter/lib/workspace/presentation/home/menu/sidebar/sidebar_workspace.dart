@@ -78,8 +78,6 @@ class _SidebarWorkspaceState extends State<SidebarWorkspace> {
     } else {
       loadingIndicator?.stop();
       loadingIndicator = null;
-
-      runAppFlowy();
     }
 
     if (result == null) {
