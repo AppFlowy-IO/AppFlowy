@@ -67,16 +67,8 @@ impl UserStatusCallback for UserStatusCallbackImpl {
           },
         )
         .await?;
-      database_manager
-        .initialize(
-          user_id,
-          user_workspace.id.clone(),
-          user_workspace.workspace_database_object_id,
-        )
-        .await?;
-      document_manager
-        .initialize(user_id, user_workspace.id)
-        .await?;
+      database_manager.initialize(user_id).await?;
+      document_manager.initialize(user_id).await?;
       Ok(())
     })
   }
@@ -102,19 +94,9 @@ impl UserStatusCallback for UserStatusCallbackImpl {
         device_id
       );
 
-      folder_manager
-        .initialize_with_workspace_id(user_id, &user_workspace.id)
-        .await?;
-      database_manager
-        .initialize(
-          user_id,
-          user_workspace.id.clone(),
-          user_workspace.workspace_database_object_id,
-        )
-        .await?;
-      document_manager
-        .initialize(user_id, user_workspace.id)
-        .await?;
+      folder_manager.initialize_with_workspace_id(user_id).await?;
+      database_manager.initialize(user_id).await?;
+      document_manager.initialize(user_id).await?;
       Ok(())
     })
   }
@@ -197,16 +179,12 @@ impl UserStatusCallback for UserStatusCallbackImpl {
         .context("FolderManager error")?;
 
       database_manager
-        .initialize_with_new_user(
-          user_profile.uid,
-          user_workspace.id.clone(),
-          user_workspace.workspace_database_object_id,
-        )
+        .initialize_with_new_user(user_profile.uid)
         .await
         .context("DatabaseManager error")?;
 
       document_manager
-        .initialize_with_new_user(user_profile.uid, user_workspace.id)
+        .initialize_with_new_user(user_profile.uid)
         .await
         .context("DocumentManager error")?;
       Ok(())
@@ -221,27 +199,15 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     })
   }
 
-  fn open_workspace(&self, user_id: i64, user_workspace: &UserWorkspace) -> Fut<FlowyResult<()>> {
-    let user_workspace = user_workspace.clone();
+  fn open_workspace(&self, user_id: i64, _user_workspace: &UserWorkspace) -> Fut<FlowyResult<()>> {
     let folder_manager = self.folder_manager.clone();
     let database_manager = self.database_manager.clone();
     let document_manager = self.document_manager.clone();
 
     to_fut(async move {
-      folder_manager
-        .initialize_with_workspace_id(user_id, &user_workspace.id)
-        .await?;
-
-      database_manager
-        .initialize(
-          user_id,
-          user_workspace.id.clone(),
-          user_workspace.workspace_database_object_id,
-        )
-        .await?;
-      document_manager
-        .initialize(user_id, user_workspace.id)
-        .await?;
+      folder_manager.initialize_with_workspace_id(user_id).await?;
+      database_manager.initialize(user_id).await?;
+      document_manager.initialize(user_id).await?;
       Ok(())
     })
   }

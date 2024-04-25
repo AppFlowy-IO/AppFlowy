@@ -4,18 +4,18 @@ use flowy_search::folder::indexer::FolderIndexManagerImpl;
 use flowy_search::services::manager::SearchManager;
 use flowy_storage::ObjectStorageService;
 use semver::Version;
-use std::sync::Arc;
+use std::sync::{Arc, Weak};
 use std::time::Duration;
 use sysinfo::System;
 use tokio::sync::RwLock;
 use tracing::{debug, error, event, info, instrument};
 
-use collab_integrate::collab_builder::{
-  AppFlowyCollabBuilder, CollabPluginProviderType, WorkspaceCollabIntegrate,
-};
+use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabPluginProviderType};
 use flowy_database2::DatabaseManager;
 use flowy_document::manager::DocumentManager;
+use flowy_error::{FlowyError, FlowyResult};
 use flowy_folder::manager::FolderManager;
+use flowy_server::af_cloud::define::ServerUser;
 
 use flowy_sqlite::kv::StorePreferences;
 use flowy_user::services::authenticate_user::AuthenticateUser;
@@ -106,14 +106,29 @@ impl AppFlowyCore {
     let task_dispatcher = Arc::new(RwLock::new(task_scheduler));
     runtime.spawn(TaskRunner::run(task_dispatcher.clone()));
 
+    let app_version = Version::parse(&config.app_version).unwrap_or_else(|_| Version::new(0, 5, 4));
+    let user_config = UserConfig::new(
+      &config.name,
+      &config.storage_path,
+      &config.application_path,
+      &config.device_id,
+      app_version,
+    );
+
+    let authenticate_user = Arc::new(AuthenticateUser::new(
+      user_config.clone(),
+      store_preference.clone(),
+    ));
+
     let server_type = current_server_type();
     debug!("🔥runtime:{}, server:{}", runtime, server_type);
+
     let server_provider = Arc::new(ServerProvider::new(
       config.clone(),
       server_type,
       Arc::downgrade(&store_preference),
+      ServerUserImpl(Arc::downgrade(&authenticate_user)),
     ));
-    let app_version = Version::parse(&config.app_version).unwrap_or_else(|_| Version::new(0, 5, 4));
 
     event!(tracing::Level::DEBUG, "Init managers",);
     let (
@@ -125,24 +140,11 @@ impl AppFlowyCore {
       collab_builder,
       search_manager,
     ) = async {
-      let user_config = UserConfig::new(
-        &config.name,
-        &config.storage_path,
-        &config.application_path,
-        &config.device_id,
-        app_version,
-      );
-
-      let authenticate_user = Arc::new(AuthenticateUser::new(
-        user_config.clone(),
-        store_preference.clone(),
-      ));
-
       /// The shared collab builder is used to build the [Collab] instance. The plugins will be loaded
       /// on demand based on the [CollabPluginConfig].
       let collab_builder = Arc::new(AppFlowyCollabBuilder::new(
         server_provider.clone(),
-        WorkspaceCollabIntegrateImpl(authenticate_user.clone()),
+        WorkspaceCollabIntegrateImpl(Arc::downgrade(&authenticate_user)),
       ));
 
       collab_builder
@@ -270,14 +272,19 @@ impl Drop for AppFlowyCore {
   }
 }
 
-struct WorkspaceCollabIntegrateImpl(Arc<AuthenticateUser>);
-impl WorkspaceCollabIntegrate for WorkspaceCollabIntegrateImpl {
-  fn workspace_id(&self) -> Result<String, anyhow::Error> {
-    let workspace_id = self.0.workspace_id()?;
-    Ok(workspace_id)
-  }
+struct ServerUserImpl(Weak<AuthenticateUser>);
 
-  fn device_id(&self) -> String {
-    self.0.user_config.device_id.clone()
+impl ServerUserImpl {
+  fn upgrade_user(&self) -> Result<Arc<AuthenticateUser>, FlowyError> {
+    let user = self
+      .0
+      .upgrade()
+      .ok_or(FlowyError::internal().with_context("Unexpected error: UserSession is None"))?;
+    Ok(user)
+  }
+}
+impl ServerUser for ServerUserImpl {
+  fn workspace_id(&self) -> FlowyResult<String> {
+    self.upgrade_user()?.workspace_id()
   }
 }

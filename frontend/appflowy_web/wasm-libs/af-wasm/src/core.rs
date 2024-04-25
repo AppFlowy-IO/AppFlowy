@@ -83,7 +83,7 @@ impl WorkspaceCollabIntegrate for WorkspaceCollabIntegrateImpl {
     Ok(workspace_id)
   }
 
-  fn device_id(&self) -> String {
-    "fake device id".to_string()
+  fn device_id(&self) -> Result<String, anyhow::Error> {
+    Ok("fake device id".to_string())
   }
 }

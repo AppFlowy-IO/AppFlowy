@@ -34,9 +34,7 @@ impl FolderManager {
       workspace_id,
       initial_data
     );
-    *self.workspace_id.write() = Some(workspace_id.to_string());
     let workspace_id = workspace_id.to_string();
-
     // Get the collab db for the user with given user id.
     let collab_db = self.user.collab_db(uid)?;
 

@@ -18,7 +18,6 @@ use flowy_folder_pub::folder_builder::NestedViewBuilder;
 use flowy_search::folder::indexer::FolderIndexManagerImpl;
 use flowy_user::services::authenticate_user::AuthenticateUser;
 use lib_dispatch::prelude::ToBytes;
-use lib_infra::async_trait::async_trait;
 use lib_infra::future::FutureResult;
 use std::collections::HashMap;
 use std::convert::TryFrom;
@@ -76,22 +75,27 @@ struct FolderUserImpl {
   authenticate_user: Weak<AuthenticateUser>,
 }
 
-#[async_trait]
-impl FolderUser for FolderUserImpl {
-  fn user_id(&self) -> Result<i64, FlowyError> {
-    self
+impl FolderUserImpl {
+  fn upgrade_user(&self) -> Result<Arc<AuthenticateUser>, FlowyError> {
+    let user = self
       .authenticate_user
       .upgrade()
-      .ok_or(FlowyError::internal().with_context("Unexpected error: UserSession is None"))?
-      .user_id()
+      .ok_or(FlowyError::internal().with_context("Unexpected error: UserSession is None"))?;
+    Ok(user)
+  }
+}
+
+impl FolderUser for FolderUserImpl {
+  fn user_id(&self) -> Result<i64, FlowyError> {
+    self.upgrade_user()?.user_id()
+  }
+
+  fn workspace_id(&self) -> Result<String, FlowyError> {
+    self.upgrade_user()?.workspace_id()
   }
 
   fn collab_db(&self, uid: i64) -> Result<Weak<CollabKVDB>, FlowyError> {
-    self
-      .authenticate_user
-      .upgrade()
-      .ok_or(FlowyError::internal().with_context("Unexpected error: UserSession is None"))?
-      .get_collab_db(uid)
+    self.upgrade_user()?.get_collab_db(uid)
   }
 }
 

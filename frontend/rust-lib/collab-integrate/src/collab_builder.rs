@@ -67,7 +67,7 @@ impl Display for CollabPluginProviderContext {
 
 pub trait WorkspaceCollabIntegrate: Send + Sync {
   fn workspace_id(&self) -> Result<String, Error>;
-  fn device_id(&self) -> String;
+  fn device_id(&self) -> Result<String, Error>;
 }
 
 pub struct AppFlowyCollabBuilder {
@@ -121,7 +121,7 @@ impl AppFlowyCollabBuilder {
     object_id: &str,
     collab_type: CollabType,
   ) -> Result<CollabObject, Error> {
-    let device_id = self.workspace_integrate.device_id();
+    let device_id = self.workspace_integrate.device_id()?;
     let workspace_id = self.workspace_integrate.workspace_id()?;
     Ok(CollabObject::new(
       uid,
@@ -148,6 +148,7 @@ impl AppFlowyCollabBuilder {
   ///
   pub async fn build(
     &self,
+    workspace_id: &str,
     uid: i64,
     object_id: &str,
     object_type: CollabType,
@@ -155,14 +156,13 @@ impl AppFlowyCollabBuilder {
     collab_db: Weak<CollabKVDB>,
     build_config: CollabBuilderConfig,
   ) -> Result<Arc<MutexCollab>, Error> {
-    let persistence_config = CollabPersistenceConfig::default();
     self.build_with_config(
+      workspace_id,
       uid,
       object_id,
       object_type,
       collab_db,
       collab_doc_state,
-      persistence_config,
       build_config,
     )
   }
@@ -182,24 +182,33 @@ impl AppFlowyCollabBuilder {
   /// - `collab_db`: A weak reference to the [CollabKVDB].
   ///
   #[allow(clippy::too_many_arguments)]
-  #[instrument(
-    level = "trace",
-    skip(self, collab_db, collab_doc_state, persistence_config, build_config)
-  )]
+  #[instrument(level = "trace", skip(self, collab_db, collab_doc_state, build_config))]
   pub fn build_with_config(
     &self,
+    workspace_id: &str,
     uid: i64,
     object_id: &str,
     object_type: CollabType,
     collab_db: Weak<CollabKVDB>,
     collab_doc_state: DataSource,
-    #[allow(unused_variables)] persistence_config: CollabPersistenceConfig,
     build_config: CollabBuilderConfig,
   ) -> Result<Arc<MutexCollab>, Error> {
     let collab = CollabBuilder::new(uid, object_id)
       .with_doc_state(collab_doc_state)
-      .with_device_id(self.workspace_integrate.device_id())
+      .with_device_id(self.workspace_integrate.device_id()?)
       .build()?;
+
+    // Compare the workspace_id with the currently opened workspace_id. Return an error if they do not match.
+    // This check is crucial in asynchronous code contexts where the workspace_id might change during operation.
+    let actual_workspace_id = self.workspace_integrate.workspace_id()?;
+    if workspace_id != actual_workspace_id {
+      return Err(anyhow::anyhow!(
+        "workspace_id not match when build collab. expected: {}, actual: {}",
+        workspace_id,
+        actual_workspace_id
+      ));
+    }
+    let persistence_config = CollabPersistenceConfig::default();
 
     #[cfg(target_arch = "wasm32")]
     {

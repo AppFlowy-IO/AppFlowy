@@ -6,6 +6,7 @@ use collab::core::collab::DataSource;
 use collab::core::origin::CollabOrigin;
 use collab_entity::CollabType;
 use collab_folder::RepeatedViewIdentifier;
+use std::sync::Arc;
 
 use flowy_error::FlowyError;
 use flowy_folder_pub::cloud::{
@@ -14,16 +15,21 @@ use flowy_folder_pub::cloud::{
 };
 use lib_infra::future::FutureResult;
 
+use crate::af_cloud::define::ServerUser;
+use crate::af_cloud::impls::util::check_request_workspace_id_is_match;
 use crate::af_cloud::AFServer;
 
-pub(crate) struct AFCloudFolderCloudServiceImpl<T>(pub T);
+pub(crate) struct AFCloudFolderCloudServiceImpl<T> {
+  pub inner: T,
+  pub user: Arc<dyn ServerUser>,
+}
 
 impl<T> FolderCloudService for AFCloudFolderCloudServiceImpl<T>
 where
   T: AFServer,
 {
   fn create_workspace(&self, _uid: i64, name: &str) -> FutureResult<Workspace, Error> {
-    let try_get_client = self.0.try_get_client();
+    let try_get_client = self.inner.try_get_client();
     let cloned_name = name.to_string();
     FutureResult::new(async move {
       let client = try_get_client?;
@@ -47,7 +53,7 @@ where
 
   fn open_workspace(&self, workspace_id: &str) -> FutureResult<(), Error> {
     let workspace_id = workspace_id.to_string();
-    let try_get_client = self.0.try_get_client();
+    let try_get_client = self.inner.try_get_client();
     FutureResult::new(async move {
       let client = try_get_client?;
       let _ = client.open_workspace(&workspace_id).await?;
@@ -56,7 +62,7 @@ where
   }
 
   fn get_all_workspace(&self) -> FutureResult<Vec<WorkspaceRecord>, Error> {
-    let try_get_client = self.0.try_get_client();
+    let try_get_client = self.inner.try_get_client();
     FutureResult::new(async move {
       let client = try_get_client?;
       let records = client
@@ -81,7 +87,8 @@ where
   ) -> FutureResult<Option<FolderData>, Error> {
     let uid = *uid;
     let workspace_id = workspace_id.to_string();
-    let try_get_client = self.0.try_get_client();
+    let try_get_client = self.inner.try_get_client();
+    let cloned_user = self.user.clone();
     FutureResult::new(async move {
       let params = QueryCollabParams {
         workspace_id: workspace_id.clone(),
@@ -97,6 +104,7 @@ where
         .encode_collab
         .doc_state
         .to_vec();
+      check_request_workspace_id_is_match(&workspace_id, &cloned_user)?;
       let folder = Folder::from_collab_doc_state(
         uid,
         CollabOrigin::Empty,
@@ -125,10 +133,11 @@ where
   ) -> FutureResult<Vec<u8>, Error> {
     let object_id = object_id.to_string();
     let workspace_id = workspace_id.to_string();
-    let try_get_client = self.0.try_get_client();
+    let try_get_client = self.inner.try_get_client();
+    let cloned_user = self.user.clone();
     FutureResult::new(async move {
       let params = QueryCollabParams {
-        workspace_id,
+        workspace_id: workspace_id.clone(),
         inner: QueryCollab {
           object_id,
           collab_type,
@@ -141,6 +150,7 @@ where
         .encode_collab
         .doc_state
         .to_vec();
+      check_request_workspace_id_is_match(&workspace_id, &cloned_user)?;
       Ok(doc_state)
     })
   }
@@ -151,7 +161,7 @@ where
     objects: Vec<FolderCollabParams>,
   ) -> FutureResult<(), Error> {
     let workspace_id = workspace_id.to_string();
-    let try_get_client = self.0.try_get_client();
+    let try_get_client = self.inner.try_get_client();
     FutureResult::new(async move {
       let params = objects
         .into_iter()

@@ -5,14 +5,20 @@ use client_api::error::ErrorCode::RecordNotFound;
 use collab::core::collab::DataSource;
 use collab::entity::EncodedCollab;
 use collab_entity::CollabType;
+use std::sync::Arc;
 use tracing::error;
 
 use flowy_database_pub::cloud::{CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot};
 use lib_infra::future::FutureResult;
 
+use crate::af_cloud::define::ServerUser;
+use crate::af_cloud::impls::util::check_request_workspace_id_is_match;
 use crate::af_cloud::AFServer;
 
-pub(crate) struct AFCloudDatabaseCloudServiceImpl<T>(pub T);
+pub(crate) struct AFCloudDatabaseCloudServiceImpl<T> {
+  pub inner: T,
+  pub user: Arc<dyn ServerUser>,
+}
 
 impl<T> DatabaseCloudService for AFCloudDatabaseCloudServiceImpl<T>
 where
@@ -26,17 +32,21 @@ where
   ) -> FutureResult<Option<Vec<u8>>, Error> {
     let workspace_id = workspace_id.to_string();
     let object_id = object_id.to_string();
-    let try_get_client = self.0.try_get_client();
+    let try_get_client = self.inner.try_get_client();
+    let cloned_user = self.user.clone();
     FutureResult::new(async move {
       let params = QueryCollabParams {
-        workspace_id,
+        workspace_id: workspace_id.clone(),
         inner: QueryCollab {
           object_id,
           collab_type,
         },
       };
       match try_get_client?.get_collab(params).await {
-        Ok(data) => Ok(Some(data.encode_collab.doc_state.to_vec())),
+        Ok(data) => {
+          check_request_workspace_id_is_match(&workspace_id, &cloned_user)?;
+          Ok(Some(data.encode_collab.doc_state.to_vec()))
+        },
         Err(err) => {
           if err.code == RecordNotFound {
             Ok(None)
@@ -55,7 +65,8 @@ where
     workspace_id: &str,
   ) -> FutureResult<CollabDocStateByOid, Error> {
     let workspace_id = workspace_id.to_string();
-    let try_get_client = self.0.try_get_client();
+    let try_get_client = self.inner.try_get_client();
+    let cloned_user = self.user.clone();
     FutureResult::new(async move {
       let client = try_get_client?;
       let params = object_ids
@@ -66,6 +77,7 @@ where
         })
         .collect();
       let results = client.batch_get_collab(&workspace_id, params).await?;
+      check_request_workspace_id_is_match(&workspace_id, &cloned_user)?;
       Ok(
         results
           .0

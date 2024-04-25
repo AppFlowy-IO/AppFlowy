@@ -1,3 +1,4 @@
+import 'package:appflowy/startup/startup.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
@@ -77,6 +78,8 @@ class _SidebarWorkspaceState extends State<SidebarWorkspace> {
     } else {
       loadingIndicator?.stop();
       loadingIndicator = null;
+
+      runAppFlowy();
     }
 
     if (result == null) {
