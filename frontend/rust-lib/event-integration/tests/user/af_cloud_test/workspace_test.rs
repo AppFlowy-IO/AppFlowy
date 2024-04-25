@@ -159,11 +159,11 @@ async fn af_cloud_different_open_same_workspace_test() {
 
   // Set up the primary client and sign them up to the cloud.
   let client_1 = EventIntegrationTest::new().await;
-  let client_1_profile = client_1.af_cloud_sign_up().await;
+  let owner_profile = client_1.af_cloud_sign_up().await;
   let shared_workspace_id = client_1.get_current_workspace().await.id.clone();
 
   // Verify that the workspace ID from the profile matches the current session's workspace ID.
-  assert_eq!(shared_workspace_id, client_1_profile.workspace_id);
+  assert_eq!(shared_workspace_id, owner_profile.workspace_id);
 
   // Define the number of additional clients
   let num_clients = 5;
@@ -182,7 +182,7 @@ async fn af_cloud_different_open_same_workspace_test() {
     }
 
     client_1
-      .add_workspace_member(&client_1_profile.workspace_id, &client_profile.email)
+      .add_workspace_member(&owner_profile.workspace_id, &client_profile.email)
       .await;
     clients.push((client, client_profile));
   }
@@ -193,7 +193,7 @@ async fn af_cloud_different_open_same_workspace_test() {
     assert_eq!(all_workspaces.len(), 2);
   }
 
-  // Simulate each client open different workspace 60 times
+  // Simulate each client open different workspace 30 times
   let mut handles = vec![];
   for client in clients.clone() {
     let cloned_shared_workspace_id = shared_workspace_id.clone();
@@ -224,7 +224,7 @@ async fn af_cloud_different_open_same_workspace_test() {
     .await
     .unwrap();
   let folder = Folder::from_collab_doc_state(
-    &client_1_profile.id,
+    owner_profile.id,
     CollabOrigin::Empty,
     DocStateV1(doc_state),
     &shared_workspace_id,

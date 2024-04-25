@@ -146,6 +146,7 @@ impl AppFlowyCollabBuilder {
   /// - `raw_data`: The raw data of the collaboration object, defined by the [CollabDocState] type.
   /// - `collab_db`: A weak reference to the [CollabKVDB].
   ///
+  #[allow(clippy::too_many_arguments)]
   pub async fn build(
     &self,
     workspace_id: &str,

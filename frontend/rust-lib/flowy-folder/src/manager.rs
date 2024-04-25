@@ -256,17 +256,17 @@ impl FolderManager {
         .map_err(FlowyError::from);
 
       match result {
-        Ok(folder_updates) => {
+        Ok(folder_doc_state) => {
           info!(
             "Get folder updates via {}, doc state len: {}",
             self.cloud_service.service_name(),
-            folder_updates.len()
+            folder_doc_state.len()
           );
           self
             .initialize(
               user_id,
               workspace_id,
-              FolderInitDataSource::Cloud(folder_updates),
+              FolderInitDataSource::Cloud(folder_doc_state),
             )
             .await?;
         },
@@ -1117,18 +1117,6 @@ impl FolderManager {
       .collect::<Vec<_>>();
 
     Ok(snapshots)
-  }
-
-  /// Only expose this method for testing
-  #[cfg(debug_assertions)]
-  pub fn get_mutex_folder(&self) -> &Arc<MutexFolder> {
-    &self.mutex_folder
-  }
-
-  /// Only expose this method for testing
-  #[cfg(debug_assertions)]
-  pub fn get_cloud_service(&self) -> &Arc<dyn FolderCloudService> {
-    &self.cloud_service
   }
 
   pub fn set_views_visibility(&self, view_ids: Vec<String>, is_public: bool) {
