@@ -65,56 +65,32 @@ impl Display for CollabPluginProviderContext {
   }
 }
 
+pub trait WorkspaceCollabIntegrate: Send + Sync {
+  fn workspace_id(&self) -> Result<String, Error>;
+  fn device_id(&self) -> String;
+}
+
 pub struct AppFlowyCollabBuilder {
   network_reachability: CollabConnectReachability,
-  workspace_id: RwLock<Option<String>>,
   plugin_provider: RwLock<Arc<dyn CollabCloudPluginProvider>>,
   snapshot_persistence: Mutex<Option<Arc<dyn SnapshotPersistence>>>,
   #[cfg(not(target_arch = "wasm32"))]
   rocksdb_backup: Mutex<Option<Arc<dyn RocksdbBackup>>>,
-  device_id: String,
-}
-
-pub struct CollabBuilderConfig {
-  pub sync_enable: bool,
-  /// If auto_initialize is false, the collab object will not be initialized automatically.
-  /// You need to call collab.initialize() manually.
-  ///
-  /// Default is true.
-  pub auto_initialize: bool,
-}
-
-impl Default for CollabBuilderConfig {
-  fn default() -> Self {
-    Self {
-      sync_enable: true,
-      auto_initialize: true,
-    }
-  }
-}
-
-impl CollabBuilderConfig {
-  pub fn sync_enable(mut self, sync_enable: bool) -> Self {
-    self.sync_enable = sync_enable;
-    self
-  }
-
-  pub fn auto_initialize(mut self, auto_initialize: bool) -> Self {
-    self.auto_initialize = auto_initialize;
-    self
-  }
+  workspace_integrate: Arc<dyn WorkspaceCollabIntegrate>,
 }
 
 impl AppFlowyCollabBuilder {
-  pub fn new<T: CollabCloudPluginProvider>(storage_provider: T, device_id: String) -> Self {
+  pub fn new(
+    storage_provider: impl CollabCloudPluginProvider + 'static,
+    workspace_integrate: impl WorkspaceCollabIntegrate + 'static,
+  ) -> Self {
     Self {
       network_reachability: CollabConnectReachability::new(),
-      workspace_id: Default::default(),
       plugin_provider: RwLock::new(Arc::new(storage_provider)),
       snapshot_persistence: Default::default(),
       #[cfg(not(target_arch = "wasm32"))]
       rocksdb_backup: Default::default(),
-      device_id,
+      workspace_integrate: Arc::new(workspace_integrate),
     }
   }
 
@@ -125,10 +101,6 @@ impl AppFlowyCollabBuilder {
   #[cfg(not(target_arch = "wasm32"))]
   pub fn set_rocksdb_backup(&self, rocksdb_backup: Arc<dyn RocksdbBackup>) {
     *self.rocksdb_backup.lock() = Some(rocksdb_backup);
-  }
-
-  pub fn initialize(&self, workspace_id: String) {
-    *self.workspace_id.write() = Some(workspace_id);
   }
 
   pub fn update_network(&self, reachable: bool) {
@@ -149,15 +121,14 @@ impl AppFlowyCollabBuilder {
     object_id: &str,
     collab_type: CollabType,
   ) -> Result<CollabObject, Error> {
-    let workspace_id = self.workspace_id.read().clone().ok_or_else(|| {
-      anyhow::anyhow!("When using supabase plugin, the workspace_id should not be empty")
-    })?;
+    let device_id = self.workspace_integrate.device_id();
+    let workspace_id = self.workspace_integrate.workspace_id()?;
     Ok(CollabObject::new(
       uid,
       object_id.to_string(),
       collab_type,
       workspace_id,
-      self.device_id.clone(),
+      device_id,
     ))
   }
 
@@ -227,7 +198,7 @@ impl AppFlowyCollabBuilder {
   ) -> Result<Arc<MutexCollab>, Error> {
     let collab = CollabBuilder::new(uid, object_id)
       .with_doc_state(collab_doc_state)
-      .with_device_id(self.device_id.clone())
+      .with_device_id(self.workspace_integrate.device_id())
       .build()?;
 
     #[cfg(target_arch = "wasm32")]
@@ -315,5 +286,35 @@ impl AppFlowyCollabBuilder {
 
     trace!("collab initialized: {}:{}", object_type, object_id);
     Ok(arc_collab)
+  }
+}
+
+pub struct CollabBuilderConfig {
+  pub sync_enable: bool,
+  /// If auto_initialize is false, the collab object will not be initialized automatically.
+  /// You need to call collab.initialize() manually.
+  ///
+  /// Default is true.
+  pub auto_initialize: bool,
+}
+
+impl Default for CollabBuilderConfig {
+  fn default() -> Self {
+    Self {
+      sync_enable: true,
+      auto_initialize: true,
+    }
+  }
+}
+
+impl CollabBuilderConfig {
+  pub fn sync_enable(mut self, sync_enable: bool) -> Self {
+    self.sync_enable = sync_enable;
+    self
+  }
+
+  pub fn auto_initialize(mut self, auto_initialize: bool) -> Self {
+    self.auto_initialize = auto_initialize;
+    self
   }
 }

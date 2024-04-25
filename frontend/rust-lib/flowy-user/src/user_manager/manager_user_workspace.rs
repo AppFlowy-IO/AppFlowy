@@ -136,7 +136,6 @@ impl UserManager {
   #[instrument(skip(self), err)]
   pub async fn open_workspace(&self, workspace_id: &str) -> FlowyResult<()> {
     info!("open workspace: {}", workspace_id);
-    let uid = self.user_id()?;
     let user_workspace = self
       .cloud_services
       .get_user_service()?
@@ -146,15 +145,17 @@ impl UserManager {
     self
       .authenticate_user
       .set_user_workspace(user_workspace.clone())?;
-    if let Err(err) = self
-      .user_status_callback
-      .read()
-      .await
-      .open_workspace(uid, &user_workspace)
-      .await
-    {
-      error!("Open workspace failed: {:?}", err);
-    }
+
+    // let uid = self.user_id()?;
+    // if let Err(err) = self
+    //   .user_status_callback
+    //   .read()
+    //   .await
+    //   .open_workspace(uid, &user_workspace)
+    //   .await
+    // {
+    //   error!("Open workspace failed: {:?}", err);
+    // }
 
     Ok(())
   }

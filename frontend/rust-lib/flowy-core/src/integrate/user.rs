@@ -38,7 +38,6 @@ impl UserStatusCallback for UserStatusCallbackImpl {
   ) -> Fut<FlowyResult<()>> {
     let user_id = user_id.to_owned();
     let user_workspace = user_workspace.clone();
-    let collab_builder = self.collab_builder.clone();
     let folder_manager = self.folder_manager.clone();
     let database_manager = self.database_manager.clone();
     let document_manager = self.document_manager.clone();
@@ -59,7 +58,6 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     }
 
     to_fut(async move {
-      collab_builder.initialize(user_workspace.id.clone());
       folder_manager
         .initialize(
           user_id,
@@ -225,13 +223,11 @@ impl UserStatusCallback for UserStatusCallbackImpl {
 
   fn open_workspace(&self, user_id: i64, user_workspace: &UserWorkspace) -> Fut<FlowyResult<()>> {
     let user_workspace = user_workspace.clone();
-    let collab_builder = self.collab_builder.clone();
     let folder_manager = self.folder_manager.clone();
     let database_manager = self.database_manager.clone();
     let document_manager = self.document_manager.clone();
 
     to_fut(async move {
-      collab_builder.initialize(user_workspace.id.clone());
       folder_manager
         .initialize_with_workspace_id(user_id, &user_workspace.id)
         .await?;

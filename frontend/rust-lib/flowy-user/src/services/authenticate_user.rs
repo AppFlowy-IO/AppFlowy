@@ -16,7 +16,7 @@ use tracing::{error, info};
 const SQLITE_VACUUM_042: &str = "sqlite_vacuum_042_version";
 
 pub struct AuthenticateUser {
-  pub(crate) user_config: UserConfig,
+  pub user_config: UserConfig,
   pub(crate) database: Arc<UserDB>,
   pub(crate) user_paths: UserPaths,
   store_preferences: Arc<StorePreferences>,

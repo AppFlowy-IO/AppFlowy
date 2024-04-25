@@ -10,7 +10,9 @@ use sysinfo::System;
 use tokio::sync::RwLock;
 use tracing::{debug, error, event, info, instrument};
 
-use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabPluginProviderType};
+use collab_integrate::collab_builder::{
+  AppFlowyCollabBuilder, CollabPluginProviderType, WorkspaceCollabIntegrate,
+};
 use flowy_database2::DatabaseManager;
 use flowy_document::manager::DocumentManager;
 use flowy_folder::manager::FolderManager;
@@ -123,13 +125,6 @@ impl AppFlowyCore {
       collab_builder,
       search_manager,
     ) = async {
-      /// The shared collab builder is used to build the [Collab] instance. The plugins will be loaded
-      /// on demand based on the [CollabPluginConfig].
-      let collab_builder = Arc::new(AppFlowyCollabBuilder::new(
-        server_provider.clone(),
-        config.device_id.clone(),
-      ));
-
       let user_config = UserConfig::new(
         &config.name,
         &config.storage_path,
@@ -141,6 +136,13 @@ impl AppFlowyCore {
       let authenticate_user = Arc::new(AuthenticateUser::new(
         user_config.clone(),
         store_preference.clone(),
+      ));
+
+      /// The shared collab builder is used to build the [Collab] instance. The plugins will be loaded
+      /// on demand based on the [CollabPluginConfig].
+      let collab_builder = Arc::new(AppFlowyCollabBuilder::new(
+        server_provider.clone(),
+        WorkspaceCollabIntegrateImpl(authenticate_user.clone()),
       ));
 
       collab_builder
@@ -258,5 +260,24 @@ impl From<Server> for CollabPluginProviderType {
       Server::AppFlowyCloud => CollabPluginProviderType::AppFlowyCloud,
       Server::Supabase => CollabPluginProviderType::Supabase,
     }
+  }
+}
+
+impl Drop for AppFlowyCore {
+  fn drop(&mut self) {
+    info!("🔥AppFlowy Core Drop");
+    self.close_db();
+  }
+}
+
+struct WorkspaceCollabIntegrateImpl(Arc<AuthenticateUser>);
+impl WorkspaceCollabIntegrate for WorkspaceCollabIntegrateImpl {
+  fn workspace_id(&self) -> Result<String, anyhow::Error> {
+    let workspace_id = self.0.workspace_id()?;
+    Ok(workspace_id)
+  }
+
+  fn device_id(&self) -> String {
+    self.0.user_config.device_id.clone()
   }
 }

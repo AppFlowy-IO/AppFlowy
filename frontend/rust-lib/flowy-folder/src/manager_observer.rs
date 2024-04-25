@@ -21,6 +21,7 @@ use crate::notification::{send_notification, FolderNotification};
 
 /// Listen on the [ViewChange] after create/delete/update events happened
 pub(crate) fn subscribe_folder_view_changed(
+  workspace_id: String,
   mut rx: ViewChangeReceiver,
   weak_mutex_folder: &Weak<MutexFolder>,
 ) {
@@ -35,7 +36,7 @@ pub(crate) fn subscribe_folder_view_changed(
               view_pb_without_child_views(view.clone()),
               ChildViewChangeReason::Create,
             );
-            notify_parent_view_did_change(folder.clone(), vec![view.parent_view_id]);
+            notify_parent_view_did_change(&workspace_id, folder.clone(), vec![view.parent_view_id]);
           },
           ViewChange::DidDeleteView { views } => {
             for view in views {
@@ -51,7 +52,11 @@ pub(crate) fn subscribe_folder_view_changed(
               view_pb_without_child_views(view.clone()),
               ChildViewChangeReason::Update,
             );
-            notify_parent_view_did_change(folder.clone(), vec![view.parent_view_id.clone()]);
+            notify_parent_view_did_change(
+              &workspace_id,
+              folder.clone(),
+              vec![view.parent_view_id.clone()],
+            );
           },
         };
       }
@@ -103,6 +108,7 @@ pub(crate) fn subscribe_folder_sync_state_changed(
 
 /// Listen on the [TrashChange]s and notify the frontend some views were changed.
 pub(crate) fn subscribe_folder_trash_changed(
+  workspace_id: String,
   mut rx: SectionChangeReceiver,
   weak_mutex_folder: &Weak<MutexFolder>,
 ) {
@@ -132,7 +138,7 @@ pub(crate) fn subscribe_folder_trash_changed(
             }
 
             let parent_view_ids = unique_ids.into_iter().collect();
-            notify_parent_view_did_change(folder.clone(), parent_view_ids);
+            notify_parent_view_did_change(&workspace_id, folder.clone(), parent_view_ids);
           },
         }
       }
@@ -143,12 +149,12 @@ pub(crate) fn subscribe_folder_trash_changed(
 /// Notify the list of parent view ids that its child views were changed.
 #[tracing::instrument(level = "debug", skip(folder, parent_view_ids))]
 pub(crate) fn notify_parent_view_did_change<T: AsRef<str>>(
+  workspace_id: &str,
   folder: Arc<MutexFolder>,
   parent_view_ids: Vec<T>,
 ) -> Option<()> {
   let folder = folder.read();
   let folder = folder.as_ref()?;
-  let workspace_id = folder.get_workspace_id();
   let trash_ids = folder
     .get_all_trash_sections()
     .into_iter()
@@ -161,8 +167,8 @@ pub(crate) fn notify_parent_view_did_change<T: AsRef<str>>(
     // if the view's parent id equal to workspace id. Then it will fetch the current
     // workspace views. Because the workspace is not a view stored in the views map.
     if parent_view_id == workspace_id {
-      notify_did_update_workspace(&workspace_id, folder);
-      notify_did_update_section_views(&workspace_id, folder);
+      notify_did_update_workspace(workspace_id, folder);
+      notify_did_update_section_views(workspace_id, folder);
     } else {
       // Parent view can contain a list of child views. Currently, only get the first level
       // child views.
@@ -183,8 +189,8 @@ pub(crate) fn notify_parent_view_did_change<T: AsRef<str>>(
 }
 
 pub(crate) fn notify_did_update_section_views(workspace_id: &str, folder: &Folder) {
-  let public_views = get_workspace_public_view_pbs(folder);
-  let private_views = get_workspace_private_view_pbs(folder);
+  let public_views = get_workspace_public_view_pbs(workspace_id, folder);
+  let private_views = get_workspace_private_view_pbs(workspace_id, folder);
   tracing::trace!(
     "Did update section views: public len = {}, private len = {}",
     public_views.len(),
@@ -210,7 +216,7 @@ pub(crate) fn notify_did_update_section_views(workspace_id: &str, folder: &Folde
 }
 
 pub(crate) fn notify_did_update_workspace(workspace_id: &str, folder: &Folder) {
-  let repeated_view: RepeatedViewPB = get_workspace_public_view_pbs(folder).into();
+  let repeated_view: RepeatedViewPB = get_workspace_public_view_pbs(workspace_id, folder).into();
   send_notification(workspace_id, FolderNotification::DidUpdateWorkspaceViews)
     .payload(repeated_view)
     .send();

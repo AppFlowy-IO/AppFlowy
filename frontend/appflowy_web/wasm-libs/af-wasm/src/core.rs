@@ -4,7 +4,7 @@ use crate::integrate::server::ServerProviderWASM;
 use af_persistence::store::AppFlowyWASMStore;
 use af_user::authenticate_user::AuthenticateUser;
 use af_user::manager::UserManager;
-use collab_integrate::collab_builder::AppFlowyCollabBuilder;
+use collab_integrate::collab_builder::{AppFlowyCollabBuilder, WorkspaceCollabIntegrate};
 use flowy_document::manager::DocumentManager;
 use flowy_error::FlowyResult;
 use flowy_folder::manager::FolderManager;
@@ -27,13 +27,13 @@ impl AppFlowyWASMCore {
   pub async fn new(device_id: &str, cloud_config: AFCloudConfiguration) -> FlowyResult<Self> {
     let runtime = Arc::new(AFPluginRuntime::new().unwrap());
     let server_provider = Rc::new(ServerProviderWASM::new(device_id, cloud_config));
-    let collab_builder = Arc::new(AppFlowyCollabBuilder::new(
-      server_provider.clone(),
-      device_id.to_string(),
-    ));
-
     let store = Rc::new(AppFlowyWASMStore::new().await?);
     let auth_user = Rc::new(AuthenticateUser::new(store.clone()).await?);
+    let collab_builder = Arc::new(AppFlowyCollabBuilder::new(
+      device_id.to_string(),
+      server_provider.clone(),
+      WorkspaceCollabIntegrateImpl(auth_user.clone()),
+    ));
 
     let document_manager = DocumentDepsResolver::resolve(
       Rc::downgrade(&auth_user),
@@ -73,5 +73,17 @@ impl AppFlowyWASMCore {
       folder_manager,
       document_manager,
     })
+  }
+}
+
+struct WorkspaceCollabIntegrateImpl(Rc<AuthenticateUser>);
+impl WorkspaceCollabIntegrate for WorkspaceCollabIntegrateImpl {
+  fn workspace_id(&self) -> Result<String, anyhow::Error> {
+    let workspace_id = self.0.workspace_id()?;
+    Ok(workspace_id)
+  }
+
+  fn device_id(&self) -> String {
+    "fake device id".to_string()
   }
 }

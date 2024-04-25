@@ -13,7 +13,7 @@ use uuid::Uuid;
 
 use collab_integrate::collab_builder::{
   AppFlowyCollabBuilder, CollabCloudPluginProvider, CollabPluginProviderContext,
-  CollabPluginProviderType,
+  CollabPluginProviderType, WorkspaceCollabIntegrate,
 };
 use collab_integrate::CollabKVDB;
 use flowy_document::document::MutexDocument;
@@ -101,8 +101,11 @@ pub fn setup_log() {
 }
 
 pub fn default_collab_builder() -> Arc<AppFlowyCollabBuilder> {
-  let builder =
-    AppFlowyCollabBuilder::new(DefaultCollabStorageProvider(), "fake_device_id".to_string());
+  let builder = AppFlowyCollabBuilder::new(
+    "fake_device_id".to_string(),
+    DefaultCollabStorageProvider(),
+    WorkspaceCollabIntegrateImpl,
+  );
   builder.initialize(uuid::Uuid::new_v4().to_string());
   Arc::new(builder)
 }
@@ -219,6 +222,17 @@ impl DocumentSnapshotService for DocumentTestSnapshot {
   }
 
   fn get_document_snapshot(&self, _snapshot_id: &str) -> FlowyResult<DocumentSnapshotData> {
+    todo!()
+  }
+}
+
+struct WorkspaceCollabIntegrateImpl;
+impl WorkspaceCollabIntegrate for WorkspaceCollabIntegrateImpl {
+  fn workspace_id(&self) -> Result<String, Error> {
+    todo!()
+  }
+
+  fn device_id(&self) -> String {
     todo!()
   }
 }

@@ -104,7 +104,7 @@ where
         &workspace_id,
         vec![],
       )?;
-      Ok(folder.get_folder_data())
+      Ok(folder.get_folder_data(&workspace_id))
     })
   }
 
