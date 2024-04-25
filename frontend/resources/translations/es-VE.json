@@ -42,20 +42,34 @@
     "emailHint": "Correo",
     "passwordHint": "Contraseña",
     "dontHaveAnAccount": "¿No posee credenciales?",
+    "createAccount": "Crear una cuenta",
     "repeatPasswordEmptyError": "La contraseña no puede estar en blanco",
     "unmatchedPasswordError": "Las contraseñas no coinciden",
     "syncPromptMessage": "La sincronización de los datos puede tardar un poco. Por favor no cierres esta página",
     "or": "O",
+    "signInWithGoogle": "Iniciar sesión con Google",
+    "signInWithGithub": "Iniciar sesión con Github",
+    "signInWithDiscord": "Iniciar sesión con discordia",
+    "signUpWithGoogle": "Regístrate con Google",
+    "signUpWithGithub": "Regístrate con Github",
+    "signUpWithDiscord": "Regístrate con discordia",
+    "signInWith": "Inicia sesión con:",
+    "signInWithEmail": "Iniciar sesión con correo electrónico",
+    "signInWithMagicLink": "Iniciar sesión con Enlace Mágico",
+    "signUpWithMagicLink": "Regístrate con Enlace Mágico",
+    "pleaseInputYourEmail": "Por favor, introduzca su dirección de correo electrónico",
+    "settings": "Ajustes",
+    "magicLinkSent": "Enlace mágico enviado a tu correo electrónico, por favor revisa tu bandeja de entrada",
+    "invalidEmail": "Por favor, introduce una dirección de correo electrónico válida",
+    "alreadyHaveAnAccount": "¿Ya tienes una cuenta?",
+    "logIn": "Acceso",
+    "generalError": "Algo salió mal. Por favor, inténtelo de nuevo más tarde",
+    "limitRateError": "Por razones de seguridad, solo puedes solicitar un enlace mágico cada 60 segundos.",
     "LogInWithGoogle": "Iniciar sesión con Google",
     "LogInWithGithub": "Iniciar sesión con Github",
     "LogInWithDiscord": "Iniciar sesión con Discord",
-    "signInWith": "Inicia sesión con:",
-    "signInWithEmail": "Iniciar sesión con correo electrónico",
-    "logInWithMagicLink": "Iniciar sesión con Enlace Mágico",
-    "pleaseInputYourEmail": "Por favor, introduzca su dirección de correo electrónico",
-    "magicLinkSent": "Enlace mágico enviado a tu correo electrónico, por favor revisa tu bandeja de entrada",
-    "invalidEmail": "Por favor, introduce una dirección de correo electrónico válida",
-    "loginAsGuestButtonText": "Empezar"
+    "loginAsGuestButtonText": "Empezar",
+    "logInWithMagicLink": "Iniciar sesión con Enlace Mágico"
   },
   "workspace": {
     "chooseWorkspace": "Elige tu espacio de trabajo",
@@ -326,6 +340,7 @@
       "cloudSupabaseAnonKeyCanNotBeEmpty": "La clave anon no puede estar vacía si la URL de supabase no está vacía",
       "cloudAppFlowy": "Nube AppFlowy",
       "cloudAppFlowySelfHost": "AppFlowy Cloud autohospedado",
+      "appFlowyCloudUrlCanNotBeEmpty": "La URL de la nube no puede estar vacía",
       "clickToCopy": "Haga clic para copiar",
       "selfHostStart": "Si no tiene un servidor, consulte la",
       "selfHostContent": "documento",
@@ -366,6 +381,7 @@
         "dark": "Modo Oscuro",
         "system": "Adapt to System"
       },
+      "fontScaleFactor": "Factor de escala de fuente",
       "documentSettings": {
         "cursorColor": "Color del cursor del documento",
         "selectionColor": "Color de selección de documento",
@@ -420,8 +436,28 @@
       },
       "members": {
         "title": "Configuración de miembros",
+        "inviteMembers": "Invitar a los miembros",
         "sendInvite": "Enviar invitación",
-        "user": "Usuario"
+        "copyInviteLink": "Copiar enlace de invitación",
+        "label": "Miembros",
+        "user": "Usuario",
+        "role": "Role",
+        "removeFromWorkspace": "Quitar del espacio de trabajo",
+        "owner": "Dueño",
+        "guest": "Invitado",
+        "member": "Miembro",
+        "memberHintText": "Un miembro puede leer, comentar y editar páginas. Invitar a miembros e invitados.",
+        "emailInvalidError": "Correo electrónico no válido, compruébalo y vuelve a intentarlo.",
+        "emailSent": "Email enviado, por favor revisa la bandeja de entrada",
+        "members": "miembros",
+        "membersCount": {
+          "zero": "{} miembros",
+          "one": "{} miembro",
+          "other": "{} miembros"
+        },
+        "addMemberSuccess": "Miembro agregado exitosamente",
+        "removeMember": "Eliminar miembro",
+        "areYouSureToRemoveMember": "¿Estás seguro de que deseas eliminar a este miembro?"
       }
     },
     "files": {
@@ -458,7 +494,10 @@
       "recoverLocationTooltips": "Restablecer al directorio de datos predeterminado de AppFlowy",
       "exportFileSuccess": "¡Exportar archivo con éxito!",
       "exportFileFail": "¡Error en la exportación del archivo!",
-      "export": "Exportar"
+      "export": "Exportar",
+      "clearCache": "Limpiar cache",
+      "areYouSureToClearCache": "¿Estás seguro de borrar el caché?",
+      "clearCacheSuccess": "¡Caché borrado exitosamente!"
     },
     "user": {
       "name": "Nombre",
@@ -475,7 +514,14 @@
       "addNewCommand": "Añadir nuevo comando",
       "updateShortcutStep": "Presione la combinación de teclas deseada y presione ENTER",
       "couldNotLoadErrorMsg": "No se pudieron cargar los atajos. Inténtalo de nuevo.",
-      "couldNotSaveErrorMsg": "No se pudieron guardar los atajos. Inténtalo de nuevo."
+      "couldNotSaveErrorMsg": "No se pudieron guardar los atajos. Inténtalo de nuevo.",
+      "commands": {
+        "codeBlockSelectAll": "Seleccionar todo el contenido dentro de un bloque de código",
+        "codeBlockPasteText": "Pegar texto en bloque de código",
+        "textAlignLeft": "Alinear texto a la izquierda",
+        "textAlignCenter": "Alinear el texto al centro",
+        "textAlignRight": "Alinear el texto a la derecha"
+      }
     },
     "mobile": {
       "personalInfo": "Informacion personal",
@@ -489,6 +535,7 @@
       "userAgreement": "Acuerdo del Usuario",
       "termsAndConditions": "Términos y condiciones",
       "userprofileError": "No se pudo cargar el perfil de usuario",
+      "userprofileErrorDescription": "Intente cerrar sesión y volver a iniciarla para comprobar si el problema persiste.",
       "selectLayout": "Seleccionar diseño",
       "selectStartingDay": "Seleccione el día de inicio",
       "version": "Versión"
@@ -513,14 +560,15 @@
       "typeAValue": "Escriba un valor...",
       "layout": "Disposición",
       "databaseLayout": "Disposición",
+      "viewList": "Vistas de base de datos",
       "editView": "Editar vista",
       "boardSettings": "Configuración del tablero",
       "calendarSettings": "Configuración del calendario",
       "createView": "Nueva vista",
       "duplicateView": "Duplicar vista",
       "deleteView": "Eliminar vista",
-      "Properties": "Propiedades",
-      "viewList": "Vistas de base de datos"
+      "numberOfVisibleFields": "{} mostrado",
+      "Properties": "Propiedades"
     },
     "textFilter": {
       "contains": "Contiene",
@@ -566,7 +614,25 @@
       "onOrAfter": "Es en o después",
       "between": "Está entre",
       "empty": "Esta vacio",
-      "notEmpty": "No está vacío"
+      "notEmpty": "No está vacío",
+      "choicechipPrefix": {
+        "before": "Antes",
+        "after": "Después",
+        "onOrBefore": "En o antes",
+        "onOrAfter": "Sobre o después",
+        "isEmpty": "Esta vacio",
+        "isNotEmpty": "No está vacío"
+      }
+    },
+    "numberFilter": {
+      "equal": "igual",
+      "notEqual": "No es igual",
+      "lessThan": "Es menos que",
+      "greaterThan": "Es mayor que",
+      "lessThanOrEqualTo": "Es menor o igual a",
+      "greaterThanOrEqualTo": "Es mayor o igual a",
+      "isEmpty": "Esta vacio",
+      "isNotEmpty": "No está vacío"
     },
     "field": {
       "hide": "Ocultar",
@@ -575,6 +641,8 @@
       "insertRight": "Insertar a la Derecha",
       "duplicate": "Duplicar",
       "delete": "Eliminar",
+      "wrapCellContent": "Ajustar texto",
+      "clear": "Borrar celdas",
       "textFieldName": "Texto",
       "checkboxFieldName": "Casilla de verificación",
       "dateFieldName": "Fecha",
@@ -585,6 +653,7 @@
       "multiSelectFieldName": "Selección múltiple",
       "urlFieldName": "URL",
       "checklistFieldName": "Lista de Verificación",
+      "relationFieldName": "Relación",
       "numberFormat": "Formato numérico",
       "dateFormat": "Formato de fecha",
       "includeTime": "Incluir tiempo",
@@ -614,18 +683,32 @@
       "editProperty": "Editar propiedad",
       "newProperty": "Nueva propiedad",
       "deleteFieldPromptMessage": "¿Está seguro? Esta propiedad será eliminada",
+      "clearFieldPromptMessage": "¿Está seguro? Se vaciarán todas las celdas de esta columna.",
       "newColumn": "Nueva columna",
-      "format": "Formato"
+      "format": "Formato",
+      "reminderOnDateTooltip": "Este celular tiene un recordatorio programado",
+      "optionAlreadyExist": "La opción ya existe"
     },
     "rowPage": {
       "newField": "Agregar un nuevo campo",
-      "fieldDragElementTooltip": "Haga clic para abrir el menú"
+      "fieldDragElementTooltip": "Haga clic para abrir el menú",
+      "showHiddenFields": {
+        "one": "Mostrar {count} campo oculto",
+        "many": "Mostrar {count} campos ocultos",
+        "other": "Mostrar {count} campos ocultos"
+      },
+      "hideHiddenFields": {
+        "one": "Ocultar {count} campo oculto",
+        "many": "Ocultar {count} campos ocultos",
+        "other": "Ocultar {count} campos ocultos"
+      }
     },
     "sort": {
       "ascending": "ascendente",
       "descending": "Descendente",
       "deleteAllSorts": "Eliminar todos filtros",
       "addSort": "Agregar clasificación",
+      "fieldInUse": "Ya estás ordenando por este campo",
       "deleteSort": "Borrar ordenar"
     },
     "row": {
@@ -673,10 +756,34 @@
     },
     "url": {
       "launch": "Abrir en el navegador",
-      "copy": "Copiar URL"
+      "copy": "Copiar URL",
+      "textFieldHint": "Introduce una URL",
+      "copiedNotification": "¡Copiado al portapapeles!"
+    },
+    "relation": {
+      "relatedDatabasePlaceLabel": "Base de datos relacionada",
+      "relatedDatabasePlaceholder": "Ninguno",
+      "inRelatedDatabase": "En",
+      "rowSearchTextFieldPlaceholder": "Buscar",
+      "noDatabaseSelected": "No se seleccionó ninguna base de datos, seleccione una primero de la lista a continuación:",
+      "emptySearchResult": "No se encontraron registros",
+      "linkedRowListLabel": "{count} filas vinculadas",
+      "unlinkedRowListLabel": "Vincular otra fila"
     },
     "menuName": "Cuadrícula",
-    "referencedGridPrefix": "Vista de"
+    "referencedGridPrefix": "Vista de",
+    "calculate": "Calcular",
+    "calculationTypeLabel": {
+      "none": "Ninguno",
+      "average": "Promedio",
+      "max": "máx.",
+      "median": "Mediana",
+      "min": "mín.",
+      "sum": "Suma",
+      "countEmpty": "contar vacío",
+      "countEmptyShort": "VACÍO",
+      "countNonEmptyShort": "COMPLETADO"
+    }
   },
   "document": {
     "menuName": "Documento",
@@ -730,7 +837,10 @@
       "discardResponse": "¿Quieres descartar las respuestas de IA?",
       "createInlineMathEquation": "Crear ecuación",
       "fonts": "Tipo de letra",
+      "insertDate": "Insertar la fecha",
+      "emoji": "emojis",
       "toggleList": "Alternar lista",
+      "quoteList": "lista de cotizaciones",
       "numberedList": "lista numerada",
       "bulletedList": "Lista con viñetas",
       "todoList": "Lista de tareas",
@@ -777,11 +887,14 @@
         "left": "Izquierda",
         "center": "Centro",
         "right": "Bien",
-        "defaultColor": "Por defecto"
+        "defaultColor": "Por defecto",
+        "depth": "Profundidad"
       },
       "image": {
         "copiedToPasteBoard": "El enlace de la imagen se ha copiado en el portapapeles.",
-        "addAnImage": "Añadir una imagen"
+        "addAnImage": "Añadir una imagen",
+        "imageUploadFailed": "Error al subir la imagen",
+        "errorCode": "Código de error"
       },
       "urlPreview": {
         "copiedToPasteBoard": "El enlace ha sido copiado al portapapeles."

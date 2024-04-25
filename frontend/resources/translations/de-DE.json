@@ -46,10 +46,10 @@
     "unmatchedPasswordError": "Passwörter stimmen nicht überein",
     "syncPromptMessage": "Synchronisation kann ein paar Minuten dauern. Diese Seite bitte nicht schließen",
     "or": "ODER",
+    "signInWith": "Anmeldeoptionen:",
     "LogInWithGoogle": "Mit Google-Account anmelden",
     "LogInWithGithub": "Mit GitHub-Account anmelden",
-    "LogInWithDiscord": "Mit Discord-Account anmelden",
-    "signInWith": "Anmeldeoptionen:"
+    "LogInWithDiscord": "Mit Discord-Account anmelden"
   },
   "workspace": {
     "chooseWorkspace": "Workspace wählen",

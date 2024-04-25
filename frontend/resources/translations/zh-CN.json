@@ -46,16 +46,16 @@
     "unmatchedPasswordError": "两次密码输入不一致",
     "syncPromptMessage": "同步数据可能需要一段时间，请不要关闭此页面",
     "or": "或",
-    "LogInWithGoogle": "使用 Google 登录",
-    "LogInWithGithub": "使用 Github 登录",
-    "LogInWithDiscord": "使用 Discord 登录",
     "signInWith": "用其他方式登入：",
     "signInWithEmail": "使用邮箱登录",
-    "logInWithMagicLink": "使用魔法链接登录",
     "pleaseInputYourEmail": "请输入邮箱地址",
     "magicLinkSent": "魔法链接已经发送到您的邮箱，请检查！",
     "invalidEmail": "请输入一个有效的邮箱地址",
-    "loginAsGuestButtonText": "开始使用"
+    "LogInWithGoogle": "使用 Google 登录",
+    "LogInWithGithub": "使用 Github 登录",
+    "LogInWithDiscord": "使用 Discord 登录",
+    "loginAsGuestButtonText": "开始使用",
+    "logInWithMagicLink": "使用魔法链接登录"
   },
   "workspace": {
     "chooseWorkspace": "选择您的工作区",
@@ -650,7 +650,6 @@
       "insertRight": "右侧插入",
       "duplicate": "复制",
       "delete": "删除",
-      "wrap": "自动换行",
       "clear": "清空单元格",
       "textFieldName": "文本",
       "checkboxFieldName": "勾选框",
@@ -695,7 +694,8 @@
       "newColumn": "新建列",
       "format": "格式",
       "reminderOnDateTooltip": "此单元格有预定的提醒",
-      "optionAlreadyExist": "选项已存在"
+      "optionAlreadyExist": "选项已存在",
+      "wrap": "自动换行"
     },
     "rowPage": {
       "newField": "添加新字段",
