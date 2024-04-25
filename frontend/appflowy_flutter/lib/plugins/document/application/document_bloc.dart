@@ -160,7 +160,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
       clearAwarenessStates: () async {
         // sync a null selection and a null meta to clear the awareness states
         await _documentService.syncAwarenessStates(
-          documentId: view.id,
+          documentId: documentId,
         );
       },
       syncAwarenessStates: () async {
