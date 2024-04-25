@@ -32,6 +32,9 @@ enum FeatureFlag {
   // used for the search feature
   search,
 
+  // ai
+  ai,
+
   // used for ignore the conflicted feature flag
   unknown;
 
@@ -103,6 +106,7 @@ enum FeatureFlag {
       case FeatureFlag.collaborativeWorkspace:
       case FeatureFlag.membersSettings:
       case FeatureFlag.search:
+      case FeatureFlag.ai:
       case FeatureFlag.unknown:
         return false;
       case FeatureFlag.syncDocument:
@@ -123,6 +127,8 @@ enum FeatureFlag {
         return 'if it\'s on, the collaborators will show in the database';
       case FeatureFlag.search:
         return 'if it\'s on, the command palette and search button will be available';
+      case FeatureFlag.ai:
+        return 'if it\'s on, the AI feature will be available';
       case FeatureFlag.unknown:
         return '';
     }

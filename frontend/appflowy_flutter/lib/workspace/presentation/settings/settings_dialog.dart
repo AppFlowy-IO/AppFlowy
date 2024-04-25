@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/settings/settings_dialog_bloc.dart';
+import 'package:appflowy/workspace/presentation/settings/widgets/ai/settings_ai_page.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/feature_flags/feature_flag_page.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/members/workspace_member_page.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_appearance_view.dart';
@@ -117,6 +118,8 @@ class SettingsDialog extends StatelessWidget {
         return const SettingsCustomizeShortcutsWrapper();
       case SettingsPage.member:
         return WorkspaceMembersPage(userProfile: user);
+      case SettingsPage.ai:
+        return const SettingsAIPage();
       case SettingsPage.featureFlags:
         return const FeatureFlagsPage();
       default:

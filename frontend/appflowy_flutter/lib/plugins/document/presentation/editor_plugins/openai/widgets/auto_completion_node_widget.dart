@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/build_context_extension.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/text_robot.dart';
@@ -188,7 +190,7 @@ class _AutoCompletionBlockComponentState
 
   Future<void> _onGenerate() async {
     final loading = Loading(context);
-    await loading.start();
+    unawaited(loading.start());
 
     await _updateEditingText();
 

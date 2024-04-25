@@ -84,6 +84,14 @@ class SettingsMenu extends StatelessWidget {
               icon: Icons.people,
               changeSelectedPage: changeSelectedPage,
             ),
+          if (FeatureFlag.membersSettings.isOn)
+            SettingsMenuElement(
+              page: SettingsPage.ai,
+              selectedPage: currentPage,
+              label: 'AI',
+              icon: Icons.radar_rounded,
+              changeSelectedPage: changeSelectedPage,
+            ),
           if (kDebugMode)
             SettingsMenuElement(
               // no need to translate this page
