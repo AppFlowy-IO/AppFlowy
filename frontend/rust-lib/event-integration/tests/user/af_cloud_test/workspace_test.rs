@@ -1,5 +1,7 @@
 use event_integration::user_event::user_localhost_af_cloud;
 use event_integration::EventIntegrationTest;
+use std::time::Duration;
+use tokio::time::sleep;
 
 use crate::user::af_cloud_test::util::get_synced_workspaces;
 
@@ -94,16 +96,51 @@ async fn af_cloud_open_workspace_test() {
   user_localhost_af_cloud().await;
   let test = EventIntegrationTest::new().await;
   let _ = test.af_cloud_sign_up().await;
+  let default_document_name = "Getting started";
 
-  let workspace = test.create_workspace("my second workspace").await;
-  test.open_workspace(&workspace.workspace_id).await;
+  test.create_document("A").await;
+  test.create_document("B").await;
+  let first_workspace = test.get_current_workspace().await;
+  let views = test.get_all_workspace_views().await;
+  assert_eq!(views.len(), 3);
+  assert_eq!(views[0].name, default_document_name);
+  assert_eq!(views[1].name, "A");
+  assert_eq!(views[2].name, "B");
 
-  test.create_document("my first document").await;
-  test.create_document("my second document").await;
+  let user_workspace = test.create_workspace("second workspace").await;
+  test.open_workspace(&user_workspace.workspace_id).await;
+  let second_workspace = test.get_current_workspace().await;
+  test.create_document("C").await;
+  test.create_document("D").await;
 
   let views = test.get_all_workspace_views().await;
   assert_eq!(views.len(), 3);
-  // the first view is the default get started view
-  assert_eq!(views[1].name, "my first document".to_string());
-  assert_eq!(views[2].name, "my second document".to_string());
+  assert_eq!(views[0].name, default_document_name);
+  assert_eq!(views[1].name, "C");
+  assert_eq!(views[2].name, "D");
+
+  // simulate open workspace and check if the views are correct
+  for i in 0..30 {
+    if i % 2 == 0 {
+      test.open_workspace(&first_workspace.id).await;
+      sleep(Duration::from_millis(400)).await;
+    } else {
+      test.open_workspace(&second_workspace.id).await;
+      sleep(Duration::from_millis(200)).await;
+    }
+  }
+
+  test.open_workspace(&first_workspace.id).await;
+  let views = test.get_all_workspace_views().await;
+  assert_eq!(views.len(), 3);
+  assert_eq!(views[0].name, default_document_name);
+  assert_eq!(views[1].name, "A");
+  assert_eq!(views[2].name, "B");
+
+  test.open_workspace(&second_workspace.id).await;
+  let views = test.get_all_workspace_views().await;
+  assert_eq!(views.len(), 3);
+  assert_eq!(views[0].name, default_document_name);
+  assert_eq!(views[1].name, "C");
+  assert_eq!(views[2].name, "D");
 }

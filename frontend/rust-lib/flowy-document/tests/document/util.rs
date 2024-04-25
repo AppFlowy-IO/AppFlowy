@@ -35,9 +35,17 @@ impl DocumentTest {
     let cloud_service = Arc::new(LocalTestDocumentCloudServiceImpl());
     let file_storage = Arc::new(DocumentTestFileStorageService) as Arc<dyn ObjectStorageService>;
     let document_snapshot = Arc::new(DocumentTestSnapshot);
+
+    let builder = Arc::new(AppFlowyCollabBuilder::new(
+      DefaultCollabStorageProvider(),
+      WorkspaceCollabIntegrateImpl {
+        workspace_id: user.workspace_id.clone(),
+      },
+    ));
+
     let manager = DocumentManager::new(
       Arc::new(user),
-      default_collab_builder(),
+      builder,
       cloud_service,
       Arc::downgrade(&file_storage),
       document_snapshot,
@@ -55,6 +63,7 @@ impl Deref for DocumentTest {
 }
 
 pub struct FakeUser {
+  workspace_id: String,
   collab_db: Arc<CollabKVDB>,
 }
 
@@ -65,8 +74,12 @@ impl FakeUser {
     let tempdir = TempDir::new().unwrap();
     let path = tempdir.into_path();
     let collab_db = Arc::new(CollabKVDB::open(path).unwrap());
+    let workspace_id = uuid::Uuid::new_v4().to_string();
 
-    Self { collab_db }
+    Self {
+      collab_db,
+      workspace_id,
+    }
   }
 }
 
@@ -76,7 +89,7 @@ impl DocumentUserService for FakeUser {
   }
 
   fn workspace_id(&self) -> Result<String, FlowyError> {
-    Ok(Uuid::new_v4().to_string())
+    Ok(self.workspace_id.clone())
   }
 
   fn collab_db(&self, _uid: i64) -> Result<std::sync::Weak<CollabKVDB>, FlowyError> {
@@ -98,12 +111,6 @@ pub fn setup_log() {
       .finish();
     subscriber.try_init().unwrap();
   });
-}
-
-pub fn default_collab_builder() -> Arc<AppFlowyCollabBuilder> {
-  let builder =
-    AppFlowyCollabBuilder::new(DefaultCollabStorageProvider(), WorkspaceCollabIntegrateImpl);
-  Arc::new(builder)
 }
 
 pub async fn create_and_open_empty_document() -> (DocumentTest, Arc<MutexDocument>, String) {
@@ -222,10 +229,12 @@ impl DocumentSnapshotService for DocumentTestSnapshot {
   }
 }
 
-struct WorkspaceCollabIntegrateImpl;
+struct WorkspaceCollabIntegrateImpl {
+  workspace_id: String,
+};
 impl WorkspaceCollabIntegrate for WorkspaceCollabIntegrateImpl {
   fn workspace_id(&self) -> Result<String, Error> {
-    todo!()
+    Ok(self.workspace_id.clone())
   }
 
   fn device_id(&self) -> Result<String, Error> {
