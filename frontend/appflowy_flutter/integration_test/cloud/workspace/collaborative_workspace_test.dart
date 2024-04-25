@@ -33,12 +33,12 @@ import '../../shared/util.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  final email = '${uuid()}@appflowy.io';
-
   group('collaborative workspace', () {
     // combine the create and delete workspace test to reduce the time
     testWidgets('create a new workspace, open it and then delete it',
         (tester) async {
+      final email = '${uuid()}@appflowy.io';
+
       // only run the test when the feature flag is on
       if (!FeatureFlag.collaborativeWorkspace.isOn) {
         return;
@@ -93,6 +93,81 @@ void main() {
           await tester.pumpUntilNotFound(success);
         },
       );
+    });
+
+    testWidgets('switch workspace multiple times', (tester) async {
+      final email = '${uuid()}@appflowy.io';
+
+      // only run the test when the feature flag is on
+      if (!FeatureFlag.collaborativeWorkspace.isOn) {
+        return;
+      }
+
+      await tester.initializeAppFlowy(
+        cloudType: AuthenticatorType.appflowyCloudSelfHost,
+        email: email,
+      );
+      await tester.tapGoogleLoginInButton();
+      await tester.expectToSeeHomePageWithGetStartedPage();
+
+      Future<void> createWorkspaceAndPages(
+        String workspaceName,
+        List<String> pageNames,
+      ) async {
+        await tester.createCollaborativeWorkspace(workspaceName);
+        final loading = find.byType(Loading);
+        await tester.pumpUntilNotFound(loading);
+        for (final pageName in pageNames) {
+          await tester.createNewPageWithNameUnderParent(name: pageName);
+        }
+      }
+
+      const workspace1 = 'Workspace 1';
+      const workspace2 = 'Workspace 2';
+      const workspace3 = 'Workspace 3';
+      final pageInWorkspace1 = ['Page 1', 'Page 2'];
+      final pageInWorkspace2 = ['Page 3', 'Page 4'];
+      final pageInWorkspace3 = ['Page 5', 'Page 6'];
+
+      await createWorkspaceAndPages(workspace1, pageInWorkspace1);
+      await createWorkspaceAndPages(workspace2, pageInWorkspace2);
+      await createWorkspaceAndPages(workspace3, pageInWorkspace3);
+
+      Future<void> switchWorkspaceAndCheckPages(
+        String workspaceName,
+        List<String> pageNames,
+      ) async {
+        await tester.openCollaborativeWorkspaceMenu();
+        final item = find.byWidgetPredicate(
+          (widget) =>
+              widget is WorkspaceMenuItem &&
+              widget.workspace.name == workspaceName,
+        );
+        await tester.tapButton(item);
+
+        // check workspace name
+        final workspace = find.byWidgetPredicate(
+          (widget) =>
+              widget is SidebarSwitchWorkspaceButton &&
+              widget.currentWorkspace.name == workspaceName,
+        );
+        expect(workspace, findsOneWidget);
+
+        for (final pageName in pageNames) {
+          final page = tester.findPageName(pageName);
+          expect(page, findsOneWidget);
+        }
+      }
+
+      for (var i = 0; i <= 30; i++) {
+        if (i % 3 == 0) {
+          await switchWorkspaceAndCheckPages(workspace1, pageInWorkspace1);
+        } else if (i % 3 == 1) {
+          await switchWorkspaceAndCheckPages(workspace2, pageInWorkspace2);
+        } else {
+          await switchWorkspaceAndCheckPages(workspace3, pageInWorkspace3);
+        }
+      }
     });
   });
 }
