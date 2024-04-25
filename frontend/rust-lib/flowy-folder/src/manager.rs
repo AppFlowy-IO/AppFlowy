@@ -99,18 +99,8 @@ impl FolderManager {
   /// Return a list of views of the current workspace.
   /// Only the first level of child views are included.
   pub async fn get_current_workspace_public_views(&self) -> FlowyResult<Vec<ViewPB>> {
-    let workspace_id = self
-      .mutex_folder
-      .read()
-      .as_ref()
-      .map(|folder| folder.get_workspace_id());
-
-    if workspace_id.is_some() {
-      self.get_workspace_public_views().await
-    } else {
-      tracing::warn!("Can't get the workspace id from the folder. Return empty list.");
-      Ok(vec![])
-    }
+    let views = self.get_workspace_public_views().await?;
+    Ok(views)
   }
 
   pub async fn get_workspace_public_views(&self) -> FlowyResult<Vec<ViewPB>> {
@@ -332,32 +322,29 @@ impl FolderManager {
   }
 
   pub async fn get_workspace_pb(&self) -> FlowyResult<WorkspacePB> {
-    let workspace_pb = {
-      let workspace_id = self.user.workspace_id()?;
-      let guard = self.mutex_folder.read();
-      let folder = guard
-        .as_ref()
-        .ok_or(FlowyError::internal().with_context("folder is not initialized"))?;
-      let workspace = folder.get_current_workspace(&workspace_id).ok_or(
-        FlowyError::record_not_found().with_context("Can't find the current workspace id "),
-      )?;
+    let workspace_id = self.user.workspace_id()?;
+    let guard = self.mutex_folder.read();
+    let folder = guard
+      .as_ref()
+      .ok_or(FlowyError::internal().with_context("folder is not initialized"))?;
+    let workspace = folder
+      .get_current_workspace(&workspace_id)
+      .ok_or_else(|| FlowyError::record_not_found().with_context("Can not find the workspace"))?;
 
-      let views = folder
-        .views
-        .get_views_belong_to(&workspace.id)
-        .into_iter()
-        .map(|view| view_pb_without_child_views(view.as_ref().clone()))
-        .collect::<Vec<ViewPB>>();
+    let views = folder
+      .views
+      .get_views_belong_to(&workspace.id)
+      .into_iter()
+      .map(|view| view_pb_without_child_views(view.as_ref().clone()))
+      .collect::<Vec<ViewPB>>();
+    drop(guard);
 
-      WorkspacePB {
-        id: workspace.id,
-        name: workspace.name,
-        views,
-        create_time: workspace.created_at,
-      }
-    };
-
-    Ok(workspace_pb)
+    Ok(WorkspacePB {
+      id: workspace.id,
+      name: workspace.name,
+      views,
+      create_time: workspace.created_at,
+    })
   }
 
   /// This function acquires a lock on the `mutex_folder` and checks its state.

@@ -8,7 +8,7 @@ use collab_integrate::CollabKVDB;
 use flowy_error::{FlowyError, FlowyResult};
 use std::sync::{Arc, Weak};
 use tokio::task::spawn_blocking;
-use tracing::{event, Level};
+use tracing::{event, info, Level};
 
 impl FolderManager {
   /// Called immediately after the application launched if the user already sign in/sign up.
@@ -141,6 +141,9 @@ impl FolderManager {
       });
     }
 
+    if let Some(old_folder) = self.mutex_folder.write().take() {
+      info!("remove old folder: {}", old_folder.get_workspace_id());
+    }
     *self.mutex_folder.write() = Some(folder);
 
     let weak_mutex_folder = Arc::downgrade(&self.mutex_folder);

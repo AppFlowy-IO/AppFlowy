@@ -432,7 +432,7 @@ async fn update_text_cell_event_test() {
 
   let row_id = database.rows[0].id.clone();
   let field_id = fields[0].id.clone();
-  assert_eq!(fields[0].field_type, FieldType::RichText);
+  assert_eq!(fields[0].field_type, FieldType::RichText)Flowy Core DroFlowy Core Dro;
 
   // Update the first cell of the first row.
   let error = test

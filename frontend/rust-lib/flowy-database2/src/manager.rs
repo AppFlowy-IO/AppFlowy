@@ -214,7 +214,7 @@ impl DatabaseManager {
       .await?
       .get_database(database_id)
       .await
-      .ok_or_else(FlowyError::collab_not_sync)?;
+      .ok_or_else(|| FlowyError::collab_not_sync().with_context("open database error"))?;
 
     // Subscribe the [BlockEvent]
     subscribe_block_event(&database);

@@ -101,12 +101,8 @@ pub fn setup_log() {
 }
 
 pub fn default_collab_builder() -> Arc<AppFlowyCollabBuilder> {
-  let builder = AppFlowyCollabBuilder::new(
-    "fake_device_id".to_string(),
-    DefaultCollabStorageProvider(),
-    WorkspaceCollabIntegrateImpl,
-  );
-  builder.initialize(uuid::Uuid::new_v4().to_string());
+  let builder =
+    AppFlowyCollabBuilder::new(DefaultCollabStorageProvider(), WorkspaceCollabIntegrateImpl);
   Arc::new(builder)
 }
 
@@ -232,7 +228,7 @@ impl WorkspaceCollabIntegrate for WorkspaceCollabIntegrateImpl {
     todo!()
   }
 
-  fn device_id(&self) -> String {
-    todo!()
+  fn device_id(&self) -> Result<String, Error> {
+    Ok("fake_device_id".to_string())
   }
 }

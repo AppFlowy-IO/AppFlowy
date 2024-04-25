@@ -265,13 +265,6 @@ impl From<Server> for CollabPluginProviderType {
   }
 }
 
-impl Drop for AppFlowyCore {
-  fn drop(&mut self) {
-    info!("🔥AppFlowy Core Drop");
-    self.close_db();
-  }
-}
-
 struct ServerUserImpl(Weak<AuthenticateUser>);
 
 impl ServerUserImpl {
