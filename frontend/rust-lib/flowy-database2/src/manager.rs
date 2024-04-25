@@ -82,6 +82,9 @@ impl DatabaseManager {
     }
     self.editors.lock().await.clear();
     // 3. Clear the workspace database
+    if let Some(old_workspace_database) = self.workspace_database.write().await.take() {
+      old_workspace_database.close();
+    }
     *self.workspace_database.write().await = None;
 
     let collab_db = self.user.collab_db(uid)?;

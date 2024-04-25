@@ -20,7 +20,7 @@ pub async fn get_synced_workspaces(
       &sub_id,
       UserNotification::DidUpdateUserWorkspaces as i32,
     );
-  receive_with_timeout(rx, Duration::from_secs(30))
+  receive_with_timeout(rx, Duration::from_secs(60))
     .await
     .unwrap()
     .items
