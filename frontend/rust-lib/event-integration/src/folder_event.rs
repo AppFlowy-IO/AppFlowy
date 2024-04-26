@@ -143,7 +143,8 @@ impl EventIntegrationTest {
     let mutex_folder = self.appflowy_core.folder_manager.get_mutex_folder().clone();
     let folder_lock_guard = mutex_folder.read();
     let folder = folder_lock_guard.as_ref().unwrap();
-    folder.get_folder_data().clone().unwrap()
+    let workspace_id = self.appflowy_core.user_manager.workspace_id().unwrap();
+    folder.get_folder_data(&workspace_id).clone().unwrap()
   }
 
   pub async fn get_all_workspace_views(&self) -> Vec<ViewPB> {

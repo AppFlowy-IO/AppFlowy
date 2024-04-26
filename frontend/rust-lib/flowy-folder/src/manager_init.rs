@@ -1,22 +1,14 @@
-use collab_entity::CollabType;
-
-use collab_folder::{Folder, FolderNotify, UserId};
-use tokio::task::spawn_blocking;
-use tracing::{event, Level};
-
-use collab_integrate::CollabKVDB;
-
-use flowy_error::{FlowyError, FlowyResult};
-
-use collab::core::collab::DataSource;
-use std::sync::{Arc, Weak};
-
 use crate::manager::{FolderInitDataSource, FolderManager};
-use crate::manager_observer::{
-  subscribe_folder_snapshot_state_changed, subscribe_folder_sync_state_changed,
-  subscribe_folder_trash_changed, subscribe_folder_view_changed,
-};
+use crate::manager_observer::*;
 use crate::user_default::DefaultFolderBuilder;
+use collab::core::collab::DataSource;
+use collab_entity::CollabType;
+use collab_folder::{Folder, FolderNotify, UserId};
+use collab_integrate::CollabKVDB;
+use flowy_error::{FlowyError, FlowyResult};
+use std::sync::{Arc, Weak};
+use tokio::task::spawn_blocking;
+use tracing::{event, info, Level};
 
 impl FolderManager {
   /// Called immediately after the application launched if the user already sign in/sign up.
@@ -34,9 +26,13 @@ impl FolderManager {
       workspace_id,
       initial_data
     );
-    *self.workspace_id.write() = Some(workspace_id.to_string());
-    let workspace_id = workspace_id.to_string();
 
+    if let Some(old_folder) = self.mutex_folder.write().take() {
+      old_folder.close();
+      info!("remove old folder: {}", old_folder.get_workspace_id());
+    }
+
+    let workspace_id = workspace_id.to_string();
     // Get the collab db for the user with given user id.
     let collab_db = self.user.collab_db(uid)?;
 
@@ -115,22 +111,6 @@ impl FolderManager {
             .await?
         }
       },
-      FolderInitDataSource::FolderData(folder_data) => {
-        if folder_data.workspace.id != workspace_id {
-          return Err(FlowyError::workspace_data_not_match());
-        }
-
-        event!(Level::INFO, "Restore folder with passed-in folder data");
-        let collab = self
-          .create_empty_collab(uid, &workspace_id, collab_db)
-          .await?;
-        Folder::create(
-          UserId::from(uid),
-          collab,
-          Some(folder_notifier),
-          folder_data,
-        )
-      },
     };
 
     let folder_state_rx = folder.subscribe_sync_state();
@@ -154,10 +134,28 @@ impl FolderManager {
     *self.mutex_folder.write() = Some(folder);
 
     let weak_mutex_folder = Arc::downgrade(&self.mutex_folder);
-    subscribe_folder_sync_state_changed(workspace_id.clone(), folder_state_rx, &weak_mutex_folder);
-    subscribe_folder_snapshot_state_changed(workspace_id, &weak_mutex_folder);
-    subscribe_folder_trash_changed(section_change_rx, &weak_mutex_folder);
-    subscribe_folder_view_changed(view_rx, &weak_mutex_folder);
+    subscribe_folder_sync_state_changed(
+      workspace_id.clone(),
+      folder_state_rx,
+      Arc::downgrade(&self.user),
+    );
+    subscribe_folder_snapshot_state_changed(
+      workspace_id.clone(),
+      &weak_mutex_folder,
+      Arc::downgrade(&self.user),
+    );
+    subscribe_folder_trash_changed(
+      workspace_id.clone(),
+      section_change_rx,
+      &weak_mutex_folder,
+      Arc::downgrade(&self.user),
+    );
+    subscribe_folder_view_changed(
+      workspace_id.clone(),
+      view_rx,
+      &weak_mutex_folder,
+      Arc::downgrade(&self.user),
+    );
     Ok(())
   }
 

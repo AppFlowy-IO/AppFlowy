@@ -509,7 +509,7 @@ where
   .map_err(|err| PersistenceError::InvalidData(err.to_string()))?;
 
   let other_folder_data = other_folder
-    .get_folder_data()
+    .get_folder_data(&other_session.user_workspace.id)
     .ok_or(PersistenceError::Internal(anyhow!(
       "Can't read the folder data"
     )))?;

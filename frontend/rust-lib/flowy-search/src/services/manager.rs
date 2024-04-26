@@ -1,14 +1,11 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
+use super::notifier::{SearchNotifier, SearchResultChanged, SearchResultReceiverRunner};
+use crate::entities::{SearchFilterPB, SearchResultNotificationPB, SearchResultPB};
 use flowy_error::FlowyResult;
 use lib_dispatch::prelude::af_spawn;
 use tokio::{sync::broadcast, task::spawn_blocking};
-
-use crate::entities::{SearchFilterPB, SearchResultNotificationPB, SearchResultPB};
-
-use super::notifier::{SearchNotifier, SearchResultChanged, SearchResultReceiverRunner};
-
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub enum SearchType {
   Folder,
