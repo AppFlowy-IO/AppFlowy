@@ -188,7 +188,8 @@ class _CalendarPageState extends State<CalendarPage> {
         return Padding(
           padding: PlatformExtension.isMobile
               ? CalendarSize.contentInsetsMobile
-              : CalendarSize.contentInsets,
+              : CalendarSize.contentInsets +
+                  const EdgeInsets.symmetric(horizontal: 40),
           child: ScrollConfiguration(
             behavior:
                 ScrollConfiguration.of(context).copyWith(scrollbars: false),

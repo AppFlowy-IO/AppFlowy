@@ -41,6 +41,7 @@ dependencies:
   flowy_svg:
     path: packages/flowy_svg
   appflowy_board:
+    # path: ../../../appflowy-board
     git:
       url: https://github.com/AppFlowy-IO/appflowy-board.git
       ref: 15a3a50

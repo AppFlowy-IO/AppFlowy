@@ -286,4 +286,7 @@ class DatabasePluginWidgetBuilder extends PluginWidgetBuilder {
       ),
     );
   }
+
+  @override
+  EdgeInsets get contentPadding => const EdgeInsets.only(top: 28);
 }

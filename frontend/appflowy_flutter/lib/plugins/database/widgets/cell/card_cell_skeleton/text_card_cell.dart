@@ -108,15 +108,14 @@ class _TextCellState extends State<TextCardCell> {
     return BlocProvider.value(
       value: cellBloc,
       child: BlocConsumer<TextCellBloc, TextCellState>(
+        listenWhen: (previous, current) =>
+            previous.content != current.content && !current.enableEdit,
         listener: (context, state) {
-          if (_textEditingController.text != state.content) {
-            _textEditingController.text = state.content;
-          }
+          _textEditingController.text = state.content;
         },
         buildWhen: (previous, current) {
           if (previous.content != current.content &&
-              _textEditingController.text == current.content &&
-              current.enableEdit) {
+              _textEditingController.text == current.content) {
             return false;
           }
 
@@ -131,10 +130,10 @@ class _TextCellState extends State<TextCardCell> {
             return const SizedBox.shrink();
           }
 
-          final icon = _buildIcon(state, isTitle);
+          final icon = isTitle ? _buildIcon(state) : null;
           final child = isTitle
               ? _buildTextField(state.enableEdit || focusWhenInit)
-              : _buildText(state);
+              : _buildText(state.content);
 
           return Row(
             children: [
@@ -158,10 +157,7 @@ class _TextCellState extends State<TextCardCell> {
     super.dispose();
   }
 
-  Widget? _buildIcon(TextCellState state, bool isTitle) {
-    if (!isTitle) {
-      return null;
-    }
+  Widget? _buildIcon(TextCellState state) {
     if (state.emoji.isNotEmpty) {
       return Text(
         state.emoji,
@@ -180,11 +176,10 @@ class _TextCellState extends State<TextCardCell> {
     return null;
   }
 
-  Widget _buildText(TextCellState state) {
-    final text = state.content.isEmpty
-        ? LocaleKeys.grid_row_textPlaceholder.tr()
-        : state.content;
-    final color = state.content.isEmpty ? Theme.of(context).hintColor : null;
+  Widget _buildText(String content) {
+    final text =
+        content.isEmpty ? LocaleKeys.grid_row_textPlaceholder.tr() : content;
+    final color = content.isEmpty ? Theme.of(context).hintColor : null;
 
     return Padding(
       padding: widget.style.padding,
@@ -204,13 +199,14 @@ class _TextCellState extends State<TextCardCell> {
       child: TextField(
         controller: _textEditingController,
         focusNode: focusNode,
-        onChanged: (_) =>
-            cellBloc.add(TextCellEvent.updateText(_textEditingController.text)),
-        onEditingComplete: () {
-          cellBloc.add(TextCellEvent.updateText(_textEditingController.text));
-          focusNode.unfocus();
+        onChanged: (_) {
+          if (_textEditingController.value.composing.isCollapsed) {
+            cellBloc.add(TextCellEvent.updateText(_textEditingController.text));
+          }
         },
-        maxLines: null,
+        onEditingComplete: () => focusNode.unfocus(),
+        maxLines: isEditing ? null : 2,
+        minLines: 1,
         textInputAction: TextInputAction.done,
         readOnly: !isEditing,
         enableInteractiveSelection: isEditing,
@@ -218,6 +214,7 @@ class _TextCellState extends State<TextCardCell> {
         decoration: InputDecoration(
           contentPadding: padding,
           border: InputBorder.none,
+          enabledBorder: InputBorder.none,
           isDense: true,
           isCollapsed: true,
           hintText: LocaleKeys.grid_row_titlePlaceholder.tr(),

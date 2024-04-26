@@ -139,7 +139,7 @@ class _GridHeaderState extends State<_GridHeader> {
   }
 
   Widget _cellLeading() {
-    return SizedBox(width: GridSize.horizontalHeaderPadding);
+    return SizedBox(width: GridSize.horizontalHeaderPadding + 40);
   }
 }
 

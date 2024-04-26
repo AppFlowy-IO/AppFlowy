@@ -112,7 +112,7 @@ class _RowLeadingState extends State<_RowLeading> {
       child: Consumer<RegionStateNotifier>(
         builder: (context, state, _) {
           return SizedBox(
-            width: GridSize.horizontalHeaderPadding,
+            width: GridSize.horizontalHeaderPadding + 40,
             child: state.onEnter ? _activeWidget() : null,
           );
         },
@@ -122,7 +122,7 @@ class _RowLeadingState extends State<_RowLeading> {
 
   Widget _activeWidget() {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.end,
       children: [
         const InsertRowButton(),
         if (isDraggable)
@@ -246,7 +246,7 @@ class RowContent extends StatelessWidget {
           EditableCellStyle.desktopGrid,
         );
         return CellContainer(
-          width: fieldInfo.fieldSettings!.width.toDouble(),
+          width: fieldInfo.width!.toDouble(),
           isPrimary: fieldInfo.field.isPrimary,
           accessoryBuilder: (buildContext) {
             final builder = child.accessoryBuilder;

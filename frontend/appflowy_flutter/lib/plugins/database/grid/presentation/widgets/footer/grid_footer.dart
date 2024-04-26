@@ -42,9 +42,8 @@ class GridRowBottomBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: GridSize.footerContentInsets,
+      padding: GridSize.footerContentInsets + const EdgeInsets.only(left: 40),
       height: GridSize.footerHeight,
-      // margin: const EdgeInsets.only(bottom: 8, top: 8),
       child: const GridAddRowButton(),
     );
   }

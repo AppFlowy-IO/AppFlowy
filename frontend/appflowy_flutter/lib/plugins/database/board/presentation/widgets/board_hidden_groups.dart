@@ -45,14 +45,14 @@ class HiddenGroupsColumn extends StatelessWidget {
               ? SizedBox(
                   height: 50,
                   child: Padding(
-                    padding: const EdgeInsets.only(left: 40, right: 8),
+                    padding: const EdgeInsets.only(left: 80, right: 8),
                     child: Center(
                       child: _collapseExpandIcon(context, isCollapsed),
                     ),
                   ),
                 )
               : SizedBox(
-                  width: 234,
+                  width: 274,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -60,7 +60,7 @@ class HiddenGroupsColumn extends StatelessWidget {
                         height: 50,
                         child: Padding(
                           padding: EdgeInsets.only(
-                            left: 40 + margin.left,
+                            left: 80 + margin.left,
                             right: margin.right + 4,
                           ),
                           child: Row(
