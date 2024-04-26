@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_quick_action_button.dart';
-import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database/application/database_controller.dart';
@@ -19,6 +18,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../desktop_grid/desktop_grid_url_cell.dart';
 import '../desktop_row_detail/desktop_row_detail_url_cell.dart';
@@ -214,29 +214,19 @@ class MobileURLEditor extends StatelessWidget {
 }
 
 void openUrlCellLink(String content) async {
-  String url = "";
+  late Uri uri;
 
   try {
-    // check protocol is provided
-    const linkPrefix = [
-      'http://',
-      'https://',
-      'file://',
-      'ftp://',
-      'ftps://',
-      'mailto:',
-    ];
-    final shouldAddScheme =
-        !linkPrefix.any((pattern) => content.startsWith(pattern));
-    url = shouldAddScheme ? 'http://$content' : content;
-
-    // get hostname and check validity
-    final uri = Uri.parse(url);
-    final hostName = uri.host;
-    await InternetAddress.lookup(hostName);
+    uri = Uri.parse(content);
+    if (!uri.hasScheme || uri.scheme == "localhost") {
+      uri = Uri.parse('http://$content');
+      await InternetAddress.lookup(uri.host);
+    }
   } catch (_) {
-    url = "https://www.google.com/search?q=${Uri.encodeComponent(content)}";
+    uri = Uri.parse(
+      "https://www.google.com/search?q=${Uri.encodeComponent(content)}",
+    );
   } finally {
-    await afLaunchUrlString(url);
+    await launchUrl(uri);
   }
 }
