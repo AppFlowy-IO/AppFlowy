@@ -50,12 +50,17 @@ class _MobileBoardTrailingState extends State<MobileBoardTrailing> {
                         controller: _textController,
                         autofocus: true,
                         decoration: InputDecoration(
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              Icons.close,
-                              color: style.colorScheme.onBackground,
+                          suffixIcon: Material(
+                            color: Colors.transparent,
+                            shape: const CircleBorder(),
+                            clipBehavior: Clip.antiAlias,
+                            child: IconButton(
+                              icon: Icon(
+                                Icons.close,
+                                color: style.colorScheme.onBackground,
+                              ),
+                              onPressed: () => _textController.clear(),
                             ),
-                            onPressed: () => _textController.clear(),
                           ),
                           isDense: true,
                         ),
