@@ -6,7 +6,7 @@ members = [
     "dart-ffi",
     "flowy-user",
     "flowy-user-pub",
-    "event-integration",
+    "event-integration-test",
     "flowy-sqlite",
     "flowy-folder",
     "flowy-folder-pub",

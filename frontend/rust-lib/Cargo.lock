@@ -1581,7 +1581,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "event-integration"
+name = "event-integration-test"
 version = "0.1.0"
 dependencies = [
  "anyhow",
@@ -1870,7 +1870,7 @@ dependencies = [
  "collab-plugins",
  "csv",
  "dashmap",
- "event-integration",
+ "event-integration-test",
  "fancy-regex 0.11.0",
  "flowy-codegen",
  "flowy-database-pub",
