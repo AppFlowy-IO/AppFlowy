@@ -46,16 +46,16 @@
     "unmatchedPasswordError": "دووبارەکراوەی تێپه‌ڕه‌وشه هەمان تێپه‌ڕه‌وشه نییە",
     "syncPromptMessage": "ڕەنگە هاوکاتکردنی داتاکان ماوەیەکی پێبچێت. تکایە ئەم پەیجە دامەخە",
     "or": "یان",
-    "LogInWithGoogle": "چوونە ژوورەوە لە ڕێگەی گووگڵەوە",
-    "LogInWithGithub": "چوونە ژوورەوە لە ڕێگەی گیتهاب",
-    "LogInWithDiscord": "چوونە ژوورەوە لە ڕێگەی دیسکۆرد",
     "signInWith": "ناونووسین وە:",
     "signInWithEmail": "لە ڕێگەی ئیمەیڵەوە بچۆرە ژوورەوە",
-    "logInWithMagicLink": "بە مەجیک لینک بچۆرە ژوورەوە",
     "pleaseInputYourEmail": "تکایە ئیمەیڵەکەت بنووسە",
     "magicLinkSent": "مەجیک لینک بۆ ئیمەیڵەکەت نێردراوە، تکایە ئیمەیڵەکەت بپشکنە",
     "invalidEmail": "تکایە ئیمەیڵێکی دروست دابنێ",
-    "loginAsGuestButtonText": "دەست پێ بکە"
+    "LogInWithGoogle": "چوونە ژوورەوە لە ڕێگەی گووگڵەوە",
+    "LogInWithGithub": "چوونە ژوورەوە لە ڕێگەی گیتهاب",
+    "LogInWithDiscord": "چوونە ژوورەوە لە ڕێگەی دیسکۆرد",
+    "loginAsGuestButtonText": "دەست پێ بکە",
+    "logInWithMagicLink": "بە مەجیک لینک بچۆرە ژوورەوە"
   },
   "workspace": {
     "chooseWorkspace": "هەڵبژاردنی شوێنی کارەکەت",
