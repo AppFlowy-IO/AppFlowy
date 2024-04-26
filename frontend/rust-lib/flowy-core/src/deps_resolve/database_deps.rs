@@ -27,20 +27,30 @@ impl DatabaseDepsResolver {
 }
 
 struct DatabaseUserImpl(Weak<AuthenticateUser>);
-impl DatabaseUser for DatabaseUserImpl {
-  fn user_id(&self) -> Result<i64, FlowyError> {
-    self
+impl DatabaseUserImpl {
+  fn upgrade_user(&self) -> Result<Arc<AuthenticateUser>, FlowyError> {
+    let user = self
       .0
       .upgrade()
-      .ok_or(FlowyError::internal().with_context("Unexpected error: UserSession is None"))?
-      .user_id()
+      .ok_or(FlowyError::internal().with_context("Unexpected error: UserSession is None"))?;
+    Ok(user)
+  }
+}
+
+impl DatabaseUser for DatabaseUserImpl {
+  fn user_id(&self) -> Result<i64, FlowyError> {
+    self.upgrade_user()?.user_id()
   }
 
   fn collab_db(&self, uid: i64) -> Result<Weak<CollabKVDB>, FlowyError> {
-    self
-      .0
-      .upgrade()
-      .ok_or(FlowyError::internal().with_context("Unexpected error: UserSession is None"))?
-      .get_collab_db(uid)
+    self.upgrade_user()?.get_collab_db(uid)
+  }
+
+  fn workspace_id(&self) -> Result<String, FlowyError> {
+    self.upgrade_user()?.workspace_id()
+  }
+
+  fn workspace_database_object_id(&self) -> Result<String, FlowyError> {
+    self.upgrade_user()?.workspace_database_object_id()
   }
 }

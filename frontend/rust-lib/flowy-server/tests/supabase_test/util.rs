@@ -134,7 +134,7 @@ pub async fn print_encryption_folder_snapshot(
   ));
   let folder_data = Folder::open(uid, collab, None)
     .unwrap()
-    .get_folder_data()
+    .get_folder_data(folder_id)
     .unwrap();
   let json = serde_json::to_value(folder_data).unwrap();
   println!("{}", serde_json::to_string_pretty(&json).unwrap());

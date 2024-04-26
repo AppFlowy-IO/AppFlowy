@@ -20,7 +20,7 @@ lib-dispatch = { workspace = true }
 lib-infra = { workspace = true }
 flowy-server = { path = "../flowy-server" }
 flowy-server-pub = { workspace = true }
-flowy-notification  = { workspace = true }
+flowy-notification = { workspace = true }
 anyhow.workspace = true
 flowy-storage = { workspace = true }
 flowy-search = { workspace = true }
@@ -28,7 +28,7 @@ flowy-search = { workspace = true }
 serde.workspace = true
 serde_json.workspace = true
 protobuf.workspace = true
-tokio = { workspace = true, features = ["full"]}
+tokio = { workspace = true, features = ["full"] }
 futures-util = "0.3.26"
 thread-id = "3.3.0"
 bytes.workspace = true
@@ -53,6 +53,7 @@ tokio-postgres = { version = "0.7.8" }
 chrono = "0.4.31"
 zip = "0.6.6"
 walkdir = "2.5.0"
+futures = "0.3.30"
 
 [features]
 default = ["supabase_cloud_test"]
