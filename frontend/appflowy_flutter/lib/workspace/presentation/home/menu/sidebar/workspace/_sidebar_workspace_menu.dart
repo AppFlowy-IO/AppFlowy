@@ -5,6 +5,7 @@ import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sid
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_icon.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/members/workspace_member_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -117,7 +118,6 @@ class WorkspaceMenuItem extends StatelessWidget {
             ..add(const WorkspaceMemberEvent.initial()),
       child: BlocBuilder<WorkspaceMemberBloc, WorkspaceMemberState>(
         builder: (context, state) {
-          final members = state.members;
           // settings right icon inside the flowy button will
           //  cause the popover dismiss intermediately when click the right icon.
           // so using the stack to put the right icon on the flowy button.
@@ -126,75 +126,33 @@ class WorkspaceMenuItem extends StatelessWidget {
             child: Stack(
               alignment: Alignment.center,
               children: [
-                FlowyButton(
-                  onTap: () {
-                    if (!isSelected) {
-                      context.read<UserWorkspaceBloc>().add(
-                            UserWorkspaceEvent.openWorkspace(
-                              workspace.workspaceId,
-                            ),
-                          );
-                      PopoverContainer.of(context).closeAll();
-                    }
-                  },
-                  margin: const EdgeInsets.symmetric(
-                    vertical: 8,
-                    horizontal: 12,
-                  ),
-                  iconPadding: 10.0,
-                  leftIconSize: const Size.square(32),
-                  leftIcon: const SizedBox.square(
-                    dimension: 32,
-                  ),
-                  rightIcon: const HSpace(42.0),
-                  text: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      FlowyText.medium(
-                        workspace.name,
-                        fontSize: 14.0,
-                        overflow: TextOverflow.ellipsis,
-                        withTooltip: true,
-                      ),
-                      FlowyText(
-                        state.isLoading
-                            ? ''
-                            : LocaleKeys
-                                .settings_appearance_members_membersCount
-                                .plural(
-                                members.length,
-                              ),
-                        fontSize: 10.0,
-                        color: Theme.of(context).hintColor,
-                      ),
-                    ],
-                  ),
+                _WorkspaceInfo(
+                  isSelected: isSelected,
+                  workspace: workspace,
                 ),
-                Positioned(
-                  left: 8,
-                  child: SizedBox.square(
-                    dimension: 32,
-                    child: FlowyTooltip(
-                      message:
-                          LocaleKeys.document_plugins_cover_changeIcon.tr(),
-                      child: WorkspaceIcon(
-                        workspace: workspace,
-                        iconSize: 26,
-                        enableEdit: true,
-                      ),
-                    ),
-                  ),
-                ),
+                Positioned(left: 8, child: _buildLeftIcon(context)),
                 Positioned(
                   right: 12.0,
-                  child: Align(
-                    child: _buildRightIcon(context),
-                  ),
+                  child: Align(child: _buildRightIcon(context)),
                 ),
               ],
             ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildLeftIcon(BuildContext context) {
+    return SizedBox.square(
+      dimension: 32,
+      child: FlowyTooltip(
+        message: LocaleKeys.document_plugins_cover_changeIcon.tr(),
+        child: WorkspaceIcon(
+          workspace: workspace,
+          iconSize: 26,
+          enableEdit: true,
+        ),
       ),
     );
   }
@@ -214,6 +172,68 @@ class WorkspaceMenuItem extends StatelessWidget {
         ),
       ],
     );
+  }
+}
+
+class _WorkspaceInfo extends StatelessWidget {
+  const _WorkspaceInfo({
+    required this.isSelected,
+    required this.workspace,
+  });
+
+  final bool isSelected;
+  final UserWorkspacePB workspace;
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<WorkspaceMemberBloc, WorkspaceMemberState>(
+      builder: (context, state) {
+        final members = state.members;
+        return FlowyButton(
+          onTap: () => _openWorkspace(context),
+          iconPadding: 10.0,
+          margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+          leftIconSize: const Size.square(32),
+          leftIcon: const SizedBox.square(dimension: 32),
+          rightIcon: const HSpace(42.0),
+          text: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // workspace name
+              FlowyText.medium(
+                workspace.name,
+                fontSize: 14.0,
+                overflow: TextOverflow.ellipsis,
+                withTooltip: true,
+              ),
+              // workspace members count
+              FlowyText(
+                state.isLoading
+                    ? ''
+                    : LocaleKeys.settings_appearance_members_membersCount
+                        .plural(
+                        members.length,
+                      ),
+                fontSize: 10.0,
+                color: Theme.of(context).hintColor,
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _openWorkspace(BuildContext context) {
+    if (!isSelected) {
+      Log.info('open workspace: ${workspace.workspaceId}');
+      context.read<UserWorkspaceBloc>().add(
+            UserWorkspaceEvent.openWorkspace(
+              workspace.workspaceId,
+            ),
+          );
+      PopoverContainer.of(context).closeAll();
+    }
   }
 }
 
