@@ -73,7 +73,7 @@ dependencies:
   clipboard: ^0.1.3
   connectivity_plus: ^5.0.2
   easy_localization: ^3.0.2
-  device_info_plus: ^9.0.1
+  device_info_plus: ^10.1.0
   fluttertoast: ^8.2.2
   json_annotation: ^4.8.1
   table_calendar: ^3.0.9
@@ -167,7 +167,7 @@ dependency_overrides:
   appflowy_editor:
     git:
       url: https://github.com/AppFlowy-IO/appflowy-editor.git
-      ref: "6d12761"
+      ref: "90260d3"
 
   sheet:
     git:
