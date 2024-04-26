@@ -1,13 +1,12 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/sidebar/rename_view/rename_view_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_setting.dart';
+import 'package:flutter/material.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:provider/provider.dart';
 
@@ -33,13 +32,20 @@ class HotKeyItem {
       hotKeyManager.register(hotKey, keyDownHandler: keyDownHandler);
 }
 
-class HomeHotKeys extends StatelessWidget {
-  const HomeHotKeys({required this.child, super.key});
+class HomeHotKeys extends StatefulWidget {
+  const HomeHotKeys({
+    super.key,
+    required this.child,
+  });
 
   final Widget child;
 
   @override
-  Widget build(BuildContext context) {
+  State<HomeHotKeys> createState() => _HomeHotKeysState();
+}
+
+class _HomeHotKeysState extends State<HomeHotKeys> {
+  late final items = [
     // Collapse sidebar menu
     HotKeyItem(
       hotKey: HotKey(
@@ -51,7 +57,7 @@ class HomeHotKeys extends StatelessWidget {
       keyDownHandler: (_) => context
           .read<HomeSettingBloc>()
           .add(const HomeSettingEvent.collapseMenu()),
-    ).register();
+    ),
 
     // Toggle theme mode light/dark
     HotKeyItem(
@@ -65,7 +71,7 @@ class HomeHotKeys extends StatelessWidget {
       ),
       keyDownHandler: (_) =>
           context.read<AppearanceSettingsCubit>().toggleThemeMode(),
-    ).register();
+    ),
 
     // Close current tab
     HotKeyItem(
@@ -76,7 +82,7 @@ class HomeHotKeys extends StatelessWidget {
       ),
       keyDownHandler: (_) =>
           context.read<TabsBloc>().add(const TabsEvent.closeCurrentTab()),
-    ).register();
+    ),
 
     // Go to previous tab
     HotKeyItem(
@@ -86,7 +92,7 @@ class HomeHotKeys extends StatelessWidget {
         scope: HotKeyScope.inapp,
       ),
       keyDownHandler: (_) => _selectTab(context, -1),
-    ).register();
+    ),
 
     // Go to next tab
     HotKeyItem(
@@ -96,7 +102,7 @@ class HomeHotKeys extends StatelessWidget {
         scope: HotKeyScope.inapp,
       ),
       keyDownHandler: (_) => _selectTab(context, 1),
-    ).register();
+    ),
 
     // Rename current view
     HotKeyItem(
@@ -106,11 +112,34 @@ class HomeHotKeys extends StatelessWidget {
       ),
       keyDownHandler: (_) =>
           getIt<RenameViewBloc>().add(const RenameViewEvent.open()),
-    ).register();
+    ),
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+
+    _registerHotKeys(context);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    _registerHotKeys(context);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return widget.child;
+  }
+
+  void _registerHotKeys(BuildContext context) {
+    for (final element in items) {
+      element.register();
+    }
 
     _asyncRegistration(context);
-
-    return child;
   }
 
   Future<void> _asyncRegistration(BuildContext context) async {
