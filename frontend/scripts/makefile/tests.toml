@@ -67,7 +67,7 @@ run_task = { name = ["rust_lib_unit_test"] }
 env = { RUST_LOG = "info" }
 description = "Run cloud unit tests"
 script = '''
-cd rust-lib/event-integration
+cd rust-lib/event-integration-test
 RUST_BACKTRACE=1 cargo test supabase_ --features "cloud_test"
 '''
 

@@ -7,8 +7,8 @@ use collab_database::rows::{Row, RowDetail, RowId};
 use lib_infra::box_any::BoxAny;
 use strum::EnumCount;
 
-use event_integration::folder_event::ViewTest;
-use event_integration::EventIntegrationTest;
+use event_integration_test::folder_event::ViewTest;
+use event_integration_test::EventIntegrationTest;
 use flowy_database2::entities::{FieldType, FilterPB, RowMetaPB};
 use flowy_database2::services::cell::CellBuilder;
 use flowy_database2::services::database::DatabaseEditor;
