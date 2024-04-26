@@ -36,7 +36,7 @@ wasm-bindgen-futures.workspace = true
 uuid.workspace = true
 serde-wasm-bindgen.workspace = true
 js-sys = "0.3.67"
-
+anyhow = "1.0"
 
 # `wee_alloc` is a tiny allocator for wasm that is only ~1K in code size
 # compared to the default allocator's ~10K. However, it is slower than the default

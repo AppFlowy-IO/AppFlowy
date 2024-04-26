@@ -518,7 +518,6 @@ impl UserManager {
 
   pub async fn prepare_user(&self, session: &Session) {
     let _ = self.authenticate_user.database.close(session.user_id);
-    self.prepare_collab(session);
   }
 
   pub async fn prepare_backup(&self, session: &Session) {
@@ -722,11 +721,6 @@ impl UserManager {
       .save_user(uid, (user_profile, authenticator.clone()).into())
       .await?;
     Ok(())
-  }
-
-  fn prepare_collab(&self, session: &Session) {
-    let collab_builder = self.collab_builder.upgrade().unwrap();
-    collab_builder.initialize(session.user_workspace.id.clone());
   }
 
   async fn handler_user_update(&self, user_update: UserUpdate) -> FlowyResult<()> {

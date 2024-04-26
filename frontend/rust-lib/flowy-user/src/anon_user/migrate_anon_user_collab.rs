@@ -226,11 +226,12 @@ where
     None,
   )
   .map_err(|err| PersistenceError::InvalidData(err.to_string()))?;
-  let mut folder_data = old_folder
-    .get_folder_data()
-    .ok_or(PersistenceError::Internal(anyhow!(
-      "Can't migrate the folder data"
-    )))?;
+  let mut folder_data =
+    old_folder
+      .get_folder_data(old_workspace_id)
+      .ok_or(PersistenceError::Internal(anyhow!(
+        "Can't migrate the folder data"
+      )))?;
 
   if let Some(old_fav_map) = folder_data.favorites.remove(&old_user_id) {
     let fav_map = old_fav_map

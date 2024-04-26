@@ -184,12 +184,6 @@ void _resolveHomeDeps(GetIt getIt) {
     (user, _) => UserListener(userProfile: user),
   );
 
-  getIt.registerFactoryParam<WorkspaceBloc, UserProfilePB, void>(
-    (user, _) => WorkspaceBloc(
-      userService: UserBackendService(userId: user.id),
-    ),
-  );
-
   // share
   getIt.registerFactoryParam<DocumentShareBloc, ViewPB, void>(
     (view, _) => DocumentShareBloc(view: view),
