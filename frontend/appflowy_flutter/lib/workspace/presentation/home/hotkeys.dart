@@ -1,12 +1,14 @@
 import 'dart:io';
 
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/sidebar/rename_view/rename_view_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_setting.dart';
-import 'package:flutter/material.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:provider/provider.dart';
 
@@ -35,9 +37,11 @@ class HotKeyItem {
 class HomeHotKeys extends StatefulWidget {
   const HomeHotKeys({
     super.key,
+    required this.userProfile,
     required this.child,
   });
 
+  final UserProfilePB userProfile;
   final Widget child;
 
   @override
@@ -113,6 +117,9 @@ class _HomeHotKeysState extends State<HomeHotKeys> {
       keyDownHandler: (_) =>
           getIt<RenameViewBloc>().add(const RenameViewEvent.open()),
     ),
+
+    // Open settings dialog
+    openSettingsHotKey(context, widget.userProfile),
   ];
 
   @override
@@ -130,20 +137,12 @@ class _HomeHotKeysState extends State<HomeHotKeys> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return widget.child;
-  }
+  Widget build(BuildContext context) => widget.child;
 
   void _registerHotKeys(BuildContext context) {
     for (final element in items) {
       element.register();
     }
-
-    _asyncRegistration(context);
-  }
-
-  Future<void> _asyncRegistration(BuildContext context) async {
-    (await openSettingsHotKey(context))?.register();
   }
 
   void _selectTab(BuildContext context, int change) {
