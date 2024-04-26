@@ -180,11 +180,15 @@ extension AppFlowyTestBase on WidgetTester {
       buttons: buttons,
       warnIfMissed: warnIfMissed,
     );
-    await pumpAndSettle(
-      Duration(milliseconds: milliseconds),
-      EnginePhase.sendSemanticsUpdate,
-      const Duration(seconds: 5),
-    );
+    if (milliseconds == 0) {
+      await pumpAndSettle();
+    } else {
+      await pumpAndSettle(
+        Duration(milliseconds: milliseconds),
+        EnginePhase.sendSemanticsUpdate,
+        const Duration(seconds: 5),
+      );
+    }
   }
 
   Future<void> tapButtonWithName(
@@ -205,7 +209,6 @@ extension AppFlowyTestBase on WidgetTester {
       button,
       milliseconds: milliseconds,
     );
-    return;
   }
 
   Future<void> tapButtonWithTooltip(
@@ -217,7 +220,6 @@ extension AppFlowyTestBase on WidgetTester {
       button,
       milliseconds: milliseconds,
     );
-    return;
   }
 
   Future<void> doubleTapAt(

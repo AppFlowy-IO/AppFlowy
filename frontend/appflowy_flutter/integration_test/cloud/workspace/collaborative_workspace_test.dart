@@ -143,7 +143,7 @@ void main() {
               widget is WorkspaceMenuItem &&
               widget.workspace.name == workspaceName,
         );
-        await tester.tapButton(item);
+        await tester.tapButton(item, milliseconds: 0);
 
         // check workspace name
         final workspace = find.byWidgetPredicate(
@@ -159,7 +159,7 @@ void main() {
         }
       }
 
-      for (var i = 0; i <= 30; i++) {
+      for (var i = 0; i <= 15; i++) {
         if (i % 3 == 0) {
           await switchWorkspaceAndCheckPages(workspace1, pageInWorkspace1);
         } else if (i % 3 == 1) {

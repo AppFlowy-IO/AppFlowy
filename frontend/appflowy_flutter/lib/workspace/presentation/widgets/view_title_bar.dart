@@ -52,7 +52,7 @@ class _ViewTitleBarState extends State<ViewTitleBar> {
       future: ancestors,
       builder: (context, snapshot) {
         final ancestors = snapshot.data;
-        if (ancestors == null) {
+        if (ancestors == null || ancestors.isEmpty) {
           return const SizedBox.shrink();
         }
         const maxWidth = WindowSizeManager.minWindowWidth - 200;
