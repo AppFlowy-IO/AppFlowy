@@ -1,5 +1,5 @@
-use event_integration::user_event::{login_password, unique_email};
-use event_integration::{event_builder::EventBuilder, EventIntegrationTest};
+use event_integration_test::user_event::{login_password, unique_email};
+use event_integration_test::{event_builder::EventBuilder, EventIntegrationTest};
 use flowy_user::entities::{AuthenticatorPB, SignInPayloadPB, SignUpPayloadPB};
 use flowy_user::errors::ErrorCode;
 use flowy_user::event_map::UserEvent::*;

@@ -8,7 +8,7 @@ use collab::preclude::{Collab, JsonValue, Update};
 use collab_entity::CollabType;
 use collab_folder::FolderData;
 
-use event_integration::event_builder::EventBuilder;
+use event_integration_test::event_builder::EventBuilder;
 use flowy_folder::entities::{FolderSnapshotPB, RepeatedFolderSnapshotPB, WorkspaceIdPB};
 use flowy_folder::event_map::FolderEvent::GetFolderSnapshots;
 

@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use event_integration::{event_builder::EventBuilder, EventIntegrationTest};
+use event_integration_test::{event_builder::EventBuilder, EventIntegrationTest};
 use flowy_folder::entities::WorkspaceSettingPB;
 use flowy_folder::event_map::FolderEvent::GetCurrentWorkspaceSetting;
 use flowy_server::supabase::define::{USER_EMAIL, USER_UUID};

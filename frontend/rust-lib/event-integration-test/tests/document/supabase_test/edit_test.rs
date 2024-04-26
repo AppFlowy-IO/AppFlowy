@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use event_integration::document_event::assert_document_data_equal;
+use event_integration_test::document_event::assert_document_data_equal;
 use flowy_document::entities::{DocumentSyncState, DocumentSyncStatePB};
 
 use crate::document::supabase_test::helper::FlowySupabaseDocumentTest;

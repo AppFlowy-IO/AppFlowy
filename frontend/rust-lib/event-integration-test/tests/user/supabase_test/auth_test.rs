@@ -8,9 +8,9 @@ use collab_folder::FolderData;
 use nanoid::nanoid;
 use serde_json::json;
 
-use event_integration::document::document_event::DocumentEventTest;
-use event_integration::event_builder::EventBuilder;
-use event_integration::EventIntegrationTest;
+use event_integration_test::document::document_event::DocumentEventTest;
+use event_integration_test::event_builder::EventBuilder;
+use event_integration_test::EventIntegrationTest;
 use flowy_core::DEFAULT_NAME;
 use flowy_encrypt::decrypt_text;
 use flowy_server::supabase::define::{USER_DEVICE_ID, USER_EMAIL, USER_UUID};

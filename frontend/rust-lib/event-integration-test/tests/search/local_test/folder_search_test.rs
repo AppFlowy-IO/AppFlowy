@@ -1,6 +1,6 @@
 use crate::util::{unzip_test_asset, zip};
 use collab_folder::View;
-use event_integration::EventIntegrationTest;
+use event_integration_test::EventIntegrationTest;
 use flowy_core::DEFAULT_NAME;
 use flowy_folder::entities::UpdateViewPayloadPB;
 use flowy_folder_pub::folder_builder::{FlattedViews, NestedViewBuilder};

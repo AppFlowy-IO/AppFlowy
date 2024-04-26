@@ -1,6 +1,6 @@
 use crate::user::af_cloud_test::util::get_synced_workspaces;
-use event_integration::user_event::user_localhost_af_cloud;
-use event_integration::EventIntegrationTest;
+use event_integration_test::user_event::user_localhost_af_cloud;
+use event_integration_test::EventIntegrationTest;
 
 #[tokio::test]
 async fn af_cloud_invite_workspace_member() {

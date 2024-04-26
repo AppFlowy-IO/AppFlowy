@@ -1,5 +1,5 @@
 use crate::user::local_test::helper::*;
-use event_integration::{event_builder::EventBuilder, EventIntegrationTest};
+use event_integration_test::{event_builder::EventBuilder, EventIntegrationTest};
 use flowy_user::entities::{AuthenticatorPB, UpdateUserProfilePayloadPB, UserProfilePB};
 use flowy_user::{errors::ErrorCode, event_map::UserEvent::*};
 use nanoid::nanoid;

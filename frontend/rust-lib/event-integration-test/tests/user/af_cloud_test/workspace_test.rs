@@ -2,8 +2,8 @@ use collab::core::collab::DataSource::DocStateV1;
 use collab::core::origin::CollabOrigin;
 use collab_entity::CollabType;
 use collab_folder::Folder;
-use event_integration::user_event::user_localhost_af_cloud;
-use event_integration::EventIntegrationTest;
+use event_integration_test::user_event::user_localhost_af_cloud;
+use event_integration_test::EventIntegrationTest;
 use std::time::Duration;
 use tokio::time::sleep;
 

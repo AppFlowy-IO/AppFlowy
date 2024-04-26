@@ -1,5 +1,5 @@
-use event_integration::document::document_event::DocumentEventTest;
-use event_integration::document_data_from_document_doc_state;
+use event_integration_test::document::document_event::DocumentEventTest;
+use event_integration_test::document_data_from_document_doc_state;
 use std::time::Duration;
 use tokio::task::yield_now;
 

@@ -2,8 +2,8 @@ use std::convert::TryFrom;
 
 use bytes::Bytes;
 
-use event_integration::event_builder::EventBuilder;
-use event_integration::EventIntegrationTest;
+use event_integration_test::event_builder::EventBuilder;
+use event_integration_test::EventIntegrationTest;
 use flowy_database2::entities::{
   CellChangesetPB, CellIdPB, CheckboxCellDataPB, ChecklistCellDataChangesetPB, DatabaseLayoutPB,
   DatabaseSettingChangesetPB, DatabaseViewIdPB, DateCellChangesetPB, FieldType,

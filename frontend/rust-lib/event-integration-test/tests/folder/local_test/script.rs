@@ -1,7 +1,7 @@
 use collab_folder::ViewLayout;
 
-use event_integration::event_builder::EventBuilder;
-use event_integration::EventIntegrationTest;
+use event_integration_test::event_builder::EventBuilder;
+use event_integration_test::EventIntegrationTest;
 use flowy_folder::entities::icon::{UpdateViewIconPayloadPB, ViewIconPB};
 use flowy_folder::entities::*;
 use flowy_folder::event_map::FolderEvent::*;

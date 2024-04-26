@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use event_integration::EventIntegrationTest;
+use event_integration_test::EventIntegrationTest;
 use flowy_user::{
   entities::{RepeatedUserWorkspacePB, UserWorkspacePB},
   protobuf::UserNotification,

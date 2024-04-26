@@ -1,7 +1,7 @@
 use crate::document::generate_random_string;
 use collab_document::blocks::json_str_to_hashmap;
-use event_integration::document::document_event::DocumentEventTest;
-use event_integration::document::utils::*;
+use event_integration_test::document::document_event::DocumentEventTest;
+use event_integration_test::document::utils::*;
 use flowy_document::entities::*;
 use flowy_document::parser::parser_entities::{
   ConvertDataToJsonPayloadPB, ConvertDocumentPayloadPB, InputType, NestedBlock, ParseTypePB,

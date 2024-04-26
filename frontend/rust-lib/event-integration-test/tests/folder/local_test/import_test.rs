@@ -1,5 +1,5 @@
 use crate::util::unzip;
-use event_integration::EventIntegrationTest;
+use event_integration_test::EventIntegrationTest;
 use flowy_core::DEFAULT_NAME;
 use flowy_folder::entities::{ImportPB, ImportTypePB, ViewLayoutPB};
 

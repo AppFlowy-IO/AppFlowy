@@ -1,6 +1,6 @@
 use std::ops::Deref;
 
-use event_integration::event_builder::EventBuilder;
+use event_integration_test::event_builder::EventBuilder;
 use flowy_document::entities::{OpenDocumentPayloadPB, RepeatedDocumentSnapshotMetaPB};
 use flowy_document::event_map::DocumentEvent::GetDocumentSnapshotMeta;
 use flowy_folder::entities::ViewPB;

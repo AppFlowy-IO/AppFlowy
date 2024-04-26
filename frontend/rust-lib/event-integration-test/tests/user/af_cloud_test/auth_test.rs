@@ -1,5 +1,5 @@
-use event_integration::user_event::user_localhost_af_cloud;
-use event_integration::EventIntegrationTest;
+use event_integration_test::user_event::user_localhost_af_cloud;
+use event_integration_test::EventIntegrationTest;
 use flowy_user::entities::UpdateUserProfilePayloadPB;
 
 use crate::util::generate_test_email;

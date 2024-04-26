@@ -1,4 +1,4 @@
-use event_integration::EventIntegrationTest;
+use event_integration_test::EventIntegrationTest;
 
 // The number of groups should be 0 if there is no group by field in grid
 #[tokio::test]

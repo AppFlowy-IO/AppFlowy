@@ -7,7 +7,7 @@ use collab::preclude::updates::decoder::Decode;
 use collab::preclude::{Collab, JsonValue, Update};
 use collab_entity::CollabType;
 
-use event_integration::event_builder::EventBuilder;
+use event_integration_test::event_builder::EventBuilder;
 use flowy_database2::entities::{DatabasePB, DatabaseViewIdPB, RepeatedDatabaseSnapshotPB};
 use flowy_database2::event_map::DatabaseEvent::*;
 use flowy_folder::entities::ViewPB;

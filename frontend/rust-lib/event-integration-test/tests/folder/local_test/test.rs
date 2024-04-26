@@ -1,5 +1,5 @@
-use event_integration::event_builder::EventBuilder;
-use event_integration::EventIntegrationTest;
+use event_integration_test::event_builder::EventBuilder;
+use event_integration_test::EventIntegrationTest;
 use flowy_folder::entities::icon::{UpdateViewIconPayloadPB, ViewIconPB, ViewIconTypePB};
 use flowy_folder::entities::*;
 use flowy_user::errors::ErrorCode;

@@ -18,9 +18,9 @@ use walkdir::WalkDir;
 use zip::write::FileOptions;
 use zip::{CompressionMethod, ZipArchive, ZipWriter};
 
-use event_integration::event_builder::EventBuilder;
-use event_integration::Cleaner;
-use event_integration::EventIntegrationTest;
+use event_integration_test::event_builder::EventBuilder;
+use event_integration_test::Cleaner;
+use event_integration_test::EventIntegrationTest;
 use flowy_database_pub::cloud::DatabaseCloudService;
 use flowy_folder_pub::cloud::{FolderCloudService, FolderSnapshot};
 use flowy_server::supabase::api::*;
