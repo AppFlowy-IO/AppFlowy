@@ -78,12 +78,10 @@ pub trait TypeOptionCellDataHandler: Send + Sync + 'static {
 
   fn handle_cell_filter(&self, field: &Field, cell: &Cell, filter: &BoxAny) -> bool;
 
-  /// Format the cell to string using the passed-in [FieldType] and [Field].
-  /// The [Cell] is generic, so we need to know the [FieldType] and [Field] to format the cell.
+  /// Stringify the cell according to the field_type of this handler.
   ///
-  /// For example, the field type of the [TypeOptionCellDataHandler] is [FieldType::Date], and
-  /// the if field_type is [FieldType::RichText], then the string would be something like "Mar 14, 2022".
-  ///
+  /// For example, if the field type of the [TypeOptionCellDataHandler] is [FieldType::Date], then the string will be a formatted string according to
+  /// the type option of the field. It might be something like "Mar 14, 2022".
   fn handle_stringify_cell(&self, cell: &Cell, field: &Field) -> String;
 
   fn handle_numeric_cell(&self, cell: &Cell) -> Option<f64>;
