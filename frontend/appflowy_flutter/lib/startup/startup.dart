@@ -1,12 +1,13 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/startup/tasks/feature_flag_task.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
 import 'package:appflowy_backend/appflowy_backend.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
@@ -136,6 +137,7 @@ class FlowyRunner {
           if (isAppFlowyCloudEnabled) InitAppFlowyCloudTask(),
           const InitAppWidgetTask(),
           const InitPlatformServiceTask(),
+          const RecentServiceTask(),
         ],
       ],
     );

@@ -39,6 +39,7 @@ class DateCellEditorBloc
         ),
         super(DateCellEditorState.initial(cellController, reminderBloc)) {
     _dispatch();
+    _startListening();
   }
 
   final DateCellBackendService _dateCellBackendService;
@@ -50,7 +51,6 @@ class DateCellEditorBloc
     on<DateCellEditorEvent>(
       (event, emit) async {
         await event.when(
-          initial: () async => _startListening(),
           didReceiveCellUpdate: (DateCellDataPB? cellData) {
             final dateCellData = _dateDataFromCellData(cellData);
             final endDay =
@@ -365,8 +365,9 @@ class DateCellEditorBloc
   @override
   Future<void> close() async {
     if (_onCellChangedFn != null) {
-      cellController.removeListener(_onCellChangedFn!);
-      _onCellChangedFn = null;
+      cellController.removeListener(
+        onCellChanged: _onCellChangedFn!,
+      );
     }
     return super.close();
   }
@@ -417,9 +418,6 @@ class DateCellEditorBloc
 
 @freezed
 class DateCellEditorEvent with _$DateCellEditorEvent {
-  // initial event
-  const factory DateCellEditorEvent.initial() = _Initial;
-
   // notification that cell is updated in the backend
   const factory DateCellEditorEvent.didReceiveCellUpdate(
     DateCellDataPB? data,

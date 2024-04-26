@@ -3,7 +3,7 @@ use std::ops::{Deref, DerefMut};
 use std::sync::Arc;
 
 use anyhow::anyhow;
-use collab::core::collab::{DocStateSource, MutexCollab};
+use collab::core::collab::{DataSource, MutexCollab};
 use collab::core::origin::{CollabClient, CollabOrigin};
 use collab::preclude::Collab;
 use collab_database::database::{
@@ -222,15 +222,16 @@ where
   let old_user_id = UserId::from(old_uid);
   let old_folder = Folder::open(
     old_user_id.clone(),
-    Arc::new(MutexCollab::from_collab(old_folder_collab)),
+    Arc::new(MutexCollab::new(old_folder_collab)),
     None,
   )
   .map_err(|err| PersistenceError::InvalidData(err.to_string()))?;
-  let mut folder_data = old_folder
-    .get_folder_data()
-    .ok_or(PersistenceError::Internal(anyhow!(
-      "Can't migrate the folder data"
-    )))?;
+  let mut folder_data =
+    old_folder
+      .get_folder_data(old_workspace_id)
+      .ok_or(PersistenceError::Internal(anyhow!(
+        "Can't migrate the folder data"
+      )))?;
 
   if let Some(old_fav_map) = folder_data.favorites.remove(&old_user_id) {
     let fav_map = old_fav_map
@@ -305,15 +306,10 @@ where
   }
 
   let origin = CollabOrigin::Client(CollabClient::new(new_uid, "phantom"));
-  let new_folder_collab = Collab::new_with_doc_state(
-    origin,
-    new_workspace_id,
-    DocStateSource::FromDisk,
-    vec![],
-    false,
-  )
-  .map_err(|err| PersistenceError::Internal(err.into()))?;
-  let mutex_collab = Arc::new(MutexCollab::from_collab(new_folder_collab));
+  let new_folder_collab =
+    Collab::new_with_source(origin, new_workspace_id, DataSource::Disk, vec![], false)
+      .map_err(|err| PersistenceError::Internal(err.into()))?;
+  let mutex_collab = Arc::new(MutexCollab::new(new_folder_collab));
   let new_user_id = UserId::from(new_uid);
   info!("migrated folder: {:?}", folder_data);
   let _ = Folder::create(new_user_id, mutex_collab.clone(), None, folder_data);

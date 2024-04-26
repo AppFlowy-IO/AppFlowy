@@ -50,6 +50,11 @@
     "LogInWithGithub": "Iniciar sesión con Github",
     "LogInWithDiscord": "Iniciar sesión con Discord",
     "signInWith": "Inicia sesión con:",
+    "signInWithEmail": "Iniciar sesión con correo electrónico",
+    "logInWithMagicLink": "Iniciar sesión con Enlace Mágico",
+    "pleaseInputYourEmail": "Por favor, introduzca su dirección de correo electrónico",
+    "magicLinkSent": "Enlace mágico enviado a tu correo electrónico, por favor revisa tu bandeja de entrada",
+    "invalidEmail": "Por favor, introduce una dirección de correo electrónico válida",
     "loginAsGuestButtonText": "Empezar"
   },
   "workspace": {
@@ -66,19 +71,27 @@
       "exportLogFiles": "Exportar archivos de registro (logs)",
       "reachOut": "Comuníquese con Discord"
     },
+    "menuTitle": "Espacios de trabajo",
     "deleteWorkspaceHintText": "¿Está seguro de que desea eliminar el espacio de trabajo? Esta acción no se puede deshacer.",
     "createSuccess": "Espacio de trabajo creado exitosamente",
     "createFailed": "No se pudo crear el espacio de trabajo",
+    "createLimitExceeded": "Has alcanzado el límite máximo de espacio de trabajo permitido para su cuenta. Si necesita espacios de trabajo adicionales para continuar su trabajo, solicítelos en Github",
     "deleteSuccess": "Espacio de trabajo eliminado correctamente",
     "deleteFailed": "No se pudo eliminar el espacio de trabajo",
     "openFailed": "No se pudo abrir el espacio de trabajo",
     "renameSuccess": "Espacio de trabajo renombrado exitosamente",
-    "renameFailed": "No se pudo cambiar el nombre del espacio de trabajo"
+    "renameFailed": "No se pudo cambiar el nombre del espacio de trabajo",
+    "updateIconSuccess": "Icono de espacio de trabajo actualizado correctamente",
+    "cannotDeleteTheOnlyWorkspace": "No se puede eliminar el único espacio de trabajo",
+    "leaveCurrentWorkspace": "Salir del espacio de trabajo",
+    "leaveCurrentWorkspacePrompt": "¿Está seguro de que desea abandonar el espacio de trabajo actual?"
   },
   "shareAction": {
     "buttonText": "Compartir",
     "workInProgress": "Próximamente",
     "markdown": "Marcador",
+    "html": "HTML",
+    "clipboard": "Copiar al portapapeles",
     "csv": "CSV",
     "copyLink": "Copiar enlace"
   },
@@ -91,6 +104,7 @@
     "moreOptions": "Mas opciones",
     "wordCount": "El recuento de palabras: {}",
     "charCount": "Número de caracteres : {}",
+    "createdAt": "Creado: {}",
     "deleteView": "Borrar",
     "duplicateView": "Duplicar"
   },
@@ -141,7 +155,8 @@
       "emptyDescription": "No tienes ningún archivo eliminado",
       "isDeleted": "esta eliminado",
       "isRestored": "esta restaurado"
-    }
+    },
+    "confirmDeleteTitle": "¿Está seguro de que desea eliminar esta página de forma permanente?"
   },
   "deletePagePrompt": {
     "text": "Esta página está en la Papelera",
@@ -201,10 +216,14 @@
     "closeSidebar": "Cerrar panel lateral",
     "openSidebar": "Abrir panel lateral",
     "personal": "Personal",
+    "private": "Privado",
+    "workspace": "Espacio de trabajo",
     "favorites": "Favoritos",
     "clickToHidePersonal": "Haga clic para ocultar la sección personal",
     "clickToHideFavorites": "Haga clic para ocultar la sección de favoritos",
     "addAPage": "Añadir una página",
+    "addAPageToPrivate": "Agregar una página al espacio privado",
+    "addAPageToWorkspace": "Agregar una página al espacio de trabajo",
     "recent": "Reciente"
   },
   "notifications": {
@@ -398,6 +417,11 @@
         "label": "Formato de la hora",
         "twelveHour": "doce horas",
         "twentyFourHour": "veinticuatro horas"
+      },
+      "members": {
+        "title": "Configuración de miembros",
+        "sendInvite": "Enviar invitación",
+        "user": "Usuario"
       }
     },
     "files": {

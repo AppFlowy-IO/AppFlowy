@@ -47,18 +47,12 @@ pub enum SelectOptionColor {
 
 #[derive(Debug)]
 pub struct SelectOptionCellData {
-  pub options: Vec<SelectOption>,
   pub select_options: Vec<SelectOption>,
 }
 
 impl From<SelectOptionCellData> for SelectOptionCellDataPB {
   fn from(data: SelectOptionCellData) -> Self {
     SelectOptionCellDataPB {
-      options: data
-        .options
-        .into_iter()
-        .map(|option| option.into())
-        .collect(),
       select_options: data
         .select_options
         .into_iter()

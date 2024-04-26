@@ -1,10 +1,10 @@
 use anyhow::Error;
-use collab::core::collab::DocStateSource;
+use collab::core::collab::DataSource;
 use collab_entity::CollabType;
 use lib_infra::future::FutureResult;
 use std::collections::HashMap;
 
-pub type CollabDocStateByOid = HashMap<String, DocStateSource>;
+pub type CollabDocStateByOid = HashMap<String, DataSource>;
 
 /// A trait for database cloud service.
 /// Each kind of server should implement this trait. Check out the [AppFlowyServerProvider] of

@@ -4,7 +4,8 @@ import 'dart:typed_data';
 import 'package:appflowy/core/notification/search_notification.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-search/entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-search/notification.pbenum.dart';
+import 'package:appflowy_backend/protobuf/flowy-search/result.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flowy_infra/notifier.dart';
 
@@ -12,7 +13,15 @@ import 'package:flowy_infra/notifier.dart';
 const _searchObjectId = "SEARCH_IDENTIFIER";
 
 class SearchListener {
-  SearchListener();
+  SearchListener({this.channel});
+
+  /// Use this to filter out search results from other channels.
+  ///
+  /// If null, it will receive search results from all
+  /// channels, otherwise it will only receive search results from the specified
+  /// channel.
+  ///
+  final String? channel;
 
   PublishNotifier<RepeatedSearchResultPB>? _updateNotifier = PublishNotifier();
   PublishNotifier<RepeatedSearchResultPB>? _updateDidCloseNotifier =
@@ -20,14 +29,21 @@ class SearchListener {
   SearchNotificationListener? _listener;
 
   void start({
-    required void Function(RepeatedSearchResultPB) onResultsChanged,
-    required void Function(RepeatedSearchResultPB) onResultsClosed,
+    void Function(RepeatedSearchResultPB)? onResultsChanged,
+    void Function(RepeatedSearchResultPB)? onResultsClosed,
   }) {
-    _updateNotifier?.addPublishListener(onResultsChanged);
-    _updateDidCloseNotifier?.addPublishListener(onResultsClosed);
+    if (onResultsChanged != null) {
+      _updateNotifier?.addPublishListener(onResultsChanged);
+    }
+
+    if (onResultsClosed != null) {
+      _updateDidCloseNotifier?.addPublishListener(onResultsClosed);
+    }
+
     _listener = SearchNotificationListener(
       objectId: _searchObjectId,
       handler: _handler,
+      channel: channel,
     );
   }
 

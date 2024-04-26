@@ -1,22 +1,14 @@
-use collab_entity::CollabType;
-
-use collab_folder::{Folder, FolderNotify, UserId};
-use tokio::task::spawn_blocking;
-use tracing::{event, Level};
-
-use collab_integrate::CollabKVDB;
-
-use flowy_error::{FlowyError, FlowyResult};
-
-use collab::core::collab::DocStateSource;
-use std::sync::{Arc, Weak};
-
 use crate::manager::{FolderInitDataSource, FolderManager};
-use crate::manager_observer::{
-  subscribe_folder_snapshot_state_changed, subscribe_folder_sync_state_changed,
-  subscribe_folder_trash_changed, subscribe_folder_view_changed,
-};
+use crate::manager_observer::*;
 use crate::user_default::DefaultFolderBuilder;
+use collab::core::collab::DataSource;
+use collab_entity::CollabType;
+use collab_folder::{Folder, FolderNotify, UserId};
+use collab_integrate::CollabKVDB;
+use flowy_error::{FlowyError, FlowyResult};
+use std::sync::{Arc, Weak};
+use tokio::task::spawn_blocking;
+use tracing::{event, info, Level};
 
 impl FolderManager {
   /// Called immediately after the application launched if the user already sign in/sign up.
@@ -34,9 +26,13 @@ impl FolderManager {
       workspace_id,
       initial_data
     );
-    *self.workspace_id.write() = Some(workspace_id.to_string());
-    let workspace_id = workspace_id.to_string();
 
+    if let Some(old_folder) = self.mutex_folder.write().take() {
+      old_folder.close();
+      info!("remove old folder: {}", old_folder.get_workspace_id());
+    }
+
+    let workspace_id = workspace_id.to_string();
     // Get the collab db for the user with given user id.
     let collab_db = self.user.collab_db(uid)?;
 
@@ -60,7 +56,7 @@ impl FolderManager {
               uid,
               &workspace_id,
               collab_db,
-              DocStateSource::FromDisk,
+              DataSource::Disk,
               folder_notifier,
             )
             .await?
@@ -84,7 +80,7 @@ impl FolderManager {
               uid,
               &workspace_id,
               collab_db.clone(),
-              DocStateSource::FromDocState(doc_state),
+              DataSource::DocStateV1(doc_state),
               folder_notifier.clone(),
             )
             .await?
@@ -98,7 +94,7 @@ impl FolderManager {
               uid,
               &workspace_id,
               collab_db,
-              DocStateSource::FromDisk,
+              DataSource::Disk,
               folder_notifier,
             )
             .await?
@@ -109,23 +105,11 @@ impl FolderManager {
               uid,
               &workspace_id,
               collab_db.clone(),
-              DocStateSource::FromDocState(doc_state),
+              DataSource::DocStateV1(doc_state),
               folder_notifier.clone(),
             )
             .await?
         }
-      },
-      FolderInitDataSource::FolderData(folder_data) => {
-        event!(Level::INFO, "Restore folder with passed-in folder data");
-        let collab = self
-          .create_empty_collab(uid, &workspace_id, collab_db)
-          .await?;
-        Folder::create(
-          UserId::from(uid),
-          collab,
-          Some(folder_notifier),
-          folder_data,
-        )
       },
     };
 
@@ -133,26 +117,45 @@ impl FolderManager {
     let index_content_rx = folder.subscribe_index_content();
     self
       .folder_indexer
-      .set_index_content_receiver(index_content_rx);
+      .set_index_content_receiver(index_content_rx, workspace_id.clone());
 
     // Index all views in the folder if needed
     if !self.folder_indexer.is_indexed() {
-      let views = folder.get_all_views_recursively();
+      let views = folder.views.get_all_views();
       let folder_indexer = self.folder_indexer.clone();
 
       // We spawn a blocking task to index all views in the folder
+      let wid = workspace_id.clone();
       spawn_blocking(move || {
-        folder_indexer.index_all_views(views);
+        folder_indexer.index_all_views(views, wid);
       });
     }
 
-    *self.mutex_folder.lock() = Some(folder);
+    *self.mutex_folder.write() = Some(folder);
 
     let weak_mutex_folder = Arc::downgrade(&self.mutex_folder);
-    subscribe_folder_sync_state_changed(workspace_id.clone(), folder_state_rx, &weak_mutex_folder);
-    subscribe_folder_snapshot_state_changed(workspace_id, &weak_mutex_folder);
-    subscribe_folder_trash_changed(section_change_rx, &weak_mutex_folder);
-    subscribe_folder_view_changed(view_rx, &weak_mutex_folder);
+    subscribe_folder_sync_state_changed(
+      workspace_id.clone(),
+      folder_state_rx,
+      Arc::downgrade(&self.user),
+    );
+    subscribe_folder_snapshot_state_changed(
+      workspace_id.clone(),
+      &weak_mutex_folder,
+      Arc::downgrade(&self.user),
+    );
+    subscribe_folder_trash_changed(
+      workspace_id.clone(),
+      section_change_rx,
+      &weak_mutex_folder,
+      Arc::downgrade(&self.user),
+    );
+    subscribe_folder_view_changed(
+      workspace_id.clone(),
+      view_rx,
+      &weak_mutex_folder,
+      Arc::downgrade(&self.user),
+    );
     Ok(())
   }
 

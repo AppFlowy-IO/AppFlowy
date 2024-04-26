@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/document/application/prelude.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component.dart';
 import 'package:appflowy/shared/appflowy_network_image.dart';
@@ -9,6 +10,7 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:string_validator/string_validator.dart';
 
 class ResizableImage extends StatefulWidget {
@@ -95,8 +97,10 @@ class _ResizableImageState extends State<ResizableImage> {
         url: widget.src,
         width: imageWidth - moveDistance,
         userProfilePB: _userProfilePB,
-        errorWidgetBuilder: (context, url, error) =>
-            _buildError(context, error),
+        errorWidgetBuilder: (context, url, error) => _ImageLoadFailedWidget(
+          width: imageWidth,
+          error: error,
+        ),
         progressIndicatorBuilder: (context, url, progress) =>
             _buildLoading(context),
       );
@@ -159,31 +163,6 @@ class _ResizableImageState extends State<ResizableImage> {
     );
   }
 
-  Widget _buildError(BuildContext context, Object error) {
-    return Container(
-      height: 100,
-      width: imageWidth,
-      alignment: Alignment.center,
-      padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
-      decoration: BoxDecoration(
-        borderRadius: const BorderRadius.all(Radius.circular(4.0)),
-        border: Border.all(),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          FlowyText(AppFlowyEditorL10n.current.imageLoadFailed),
-          const VSpace(4),
-          FlowyText.small(
-            error.toString(),
-            textAlign: TextAlign.center,
-            maxLines: 2,
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildEdgeGesture(
     BuildContext context, {
     double? top,
@@ -239,5 +218,61 @@ class _ResizableImageState extends State<ResizableImage> {
         ),
       ),
     );
+  }
+}
+
+class _ImageLoadFailedWidget extends StatelessWidget {
+  const _ImageLoadFailedWidget({
+    required this.width,
+    required this.error,
+  });
+
+  final double width;
+  final Object error;
+
+  @override
+  Widget build(BuildContext context) {
+    final error = _getErrorMessage();
+    return Container(
+      height: 140,
+      width: width,
+      alignment: Alignment.center,
+      padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+      decoration: BoxDecoration(
+        borderRadius: const BorderRadius.all(Radius.circular(4.0)),
+        border: Border.all(
+          color: Colors.grey.withOpacity(0.6),
+        ),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const FlowySvg(
+            FlowySvgs.broken_image_xl,
+            size: Size.square(48),
+          ),
+          FlowyText(
+            AppFlowyEditorL10n.current.imageLoadFailed,
+          ),
+          const VSpace(6),
+          if (error != null)
+            FlowyText(
+              error,
+              textAlign: TextAlign.center,
+              color: Theme.of(context).hintColor.withOpacity(0.6),
+              fontSize: 10,
+              maxLines: 2,
+            ),
+        ],
+      ),
+    );
+  }
+
+  String? _getErrorMessage() {
+    if (error is HttpExceptionWithStatus) {
+      return 'Error ${(error as HttpExceptionWithStatus).statusCode}';
+    }
+
+    return null;
   }
 }

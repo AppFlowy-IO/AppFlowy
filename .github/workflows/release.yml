@@ -7,7 +7,7 @@ on:
 
 env:
   FLUTTER_VERSION: "3.19.0"
-  RUST_TOOLCHAIN: "1.75"
+  RUST_TOOLCHAIN: "1.77.2"
 
 jobs:
   create-release:
@@ -232,10 +232,10 @@ jobs:
       matrix:
         job:
           - {
-              targets: "aarch64-apple-darwin,x86_64-apple-darwin",
-              os: macos-11,
-              extra-build-args: "",
-            }
+            targets: "aarch64-apple-darwin,x86_64-apple-darwin",
+            os: macos-11,
+            extra-build-args: "",
+          }
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
@@ -336,12 +336,12 @@ jobs:
       matrix:
         job:
           - {
-              arch: x86_64,
-              target: x86_64-unknown-linux-gnu,
-              os: ubuntu-20.04,
-              extra-build-args: "",
-              flutter_profile: production-linux-x86_64,
-            }
+            arch: x86_64,
+            target: x86_64-unknown-linux-gnu,
+            os: ubuntu-20.04,
+            extra-build-args: "",
+            flutter_profile: production-linux-x86_64,
+          }
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4

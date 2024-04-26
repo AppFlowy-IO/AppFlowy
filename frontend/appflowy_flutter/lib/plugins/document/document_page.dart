@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/banner.dart';
@@ -16,6 +14,7 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class DocumentPage extends StatefulWidget {
@@ -34,19 +33,35 @@ class DocumentPage extends StatefulWidget {
   State<DocumentPage> createState() => _DocumentPageState();
 }
 
-class _DocumentPageState extends State<DocumentPage> {
+class _DocumentPageState extends State<DocumentPage>
+    with WidgetsBindingObserver {
   EditorState? editorState;
+  late final documentBloc = DocumentBloc(view: widget.view)
+    ..add(const DocumentEvent.initial());
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     EditorNotification.addListener(_onEditorNotification);
   }
 
   @override
   void dispose() {
     EditorNotification.removeListener(_onEditorNotification);
+    WidgetsBinding.instance.removeObserver(this);
+    documentBloc.close();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.detached) {
+      documentBloc.add(const DocumentEvent.clearAwarenessStates());
+    } else if (state == AppLifecycleState.resumed) {
+      documentBloc.add(const DocumentEvent.syncAwarenessStates());
+    }
   }
 
   @override
@@ -54,10 +69,7 @@ class _DocumentPageState extends State<DocumentPage> {
     return MultiBlocProvider(
       providers: [
         BlocProvider.value(value: getIt<ActionNavigationBloc>()),
-        BlocProvider(
-          create: (_) => DocumentBloc(view: widget.view)
-            ..add(const DocumentEvent.initial()),
-        ),
+        BlocProvider.value(value: documentBloc),
       ],
       child: BlocBuilder<DocumentBloc, DocumentState>(
         builder: (context, state) {

@@ -58,10 +58,7 @@ pub trait SelectTypeOptionSharedAction: Send + Sync {
         select_options.truncate(number_of_max_options);
       },
     }
-    SelectOptionCellData {
-      options: self.options().clone(),
-      select_options,
-    }
+    SelectOptionCellData { select_options }
   }
 
   fn to_type_option_data(&self) -> TypeOptionData;

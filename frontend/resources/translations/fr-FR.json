@@ -530,12 +530,12 @@
       "commands": {
         "codeBlockNewParagraph": "Insérez un nouveau paragraphe à côté du bloc de code",
         "codeBlockAddTwoSpaces": "Insérez deux espaces au début de la ligne dans le bloc de code",
-        "codeBlockDeleteTwoSpaces": "Supprimez deux espaces au début de la ligne dans le bloc de code",
         "codeBlockSelectAll": "Sélectionnez tout le contenu à l'intérieur d'un bloc de code",
         "codeBlockPasteText": "Coller le texte dans le bloc de code",
         "textAlignLeft": "Aligner le texte à gauche",
         "textAlignCenter": "Aligner le texte au centre",
-        "textAlignRight": "Aligner le texte à droite"
+        "textAlignRight": "Aligner le texte à droite",
+        "codeBlockDeleteTwoSpaces": "Supprimez deux espaces au début de la ligne dans le bloc de code"
       }
     },
     "mobile": {
@@ -575,7 +575,6 @@
       "typeAValue": "Tapez une valeur...",
       "layout": "Mise en page",
       "databaseLayout": "Mise en page",
-      "viewList": "Vues de base de données",
       "editView": "Modifier vue",
       "boardSettings": "Paramètres du tableau",
       "calendarSettings": "Paramètres du calendrier",
@@ -583,7 +582,8 @@
       "duplicateView": "Dupliquer la vue",
       "deleteView": "Supprimer la vue",
       "numberOfVisibleFields": "{} affiché(s)",
-      "Properties": "Propriétés"
+      "Properties": "Propriétés",
+      "viewList": "Vues de base de données"
     },
     "textFilter": {
       "contains": "Contient",
@@ -1103,10 +1103,10 @@
       "layoutDateField": "Calendrier de mise en page par",
       "changeLayoutDateField": "Modifier le champ de mise en page",
       "noDateTitle": "Pas de date",
-      "noDateHint": "Les événements non planifiés s'afficheront ici",
       "unscheduledEventsTitle": "Événements non planifiés",
       "clickToAdd": "Cliquez pour ajouter au calendrier",
-      "name": "Disposition du calendrier"
+      "name": "Disposition du calendrier",
+      "noDateHint": "Les événements non planifiés s'afficheront ici"
     },
     "referencedCalendarPrefix": "Vue",
     "quickJumpYear": "Sauter à",

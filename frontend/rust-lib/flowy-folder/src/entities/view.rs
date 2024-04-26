@@ -72,6 +72,19 @@ pub fn view_pb_without_child_views(view: View) -> ViewPB {
   }
 }
 
+pub fn view_pb_without_child_views_from_arc(view: Arc<View>) -> ViewPB {
+  ViewPB {
+    id: view.id.clone(),
+    parent_view_id: view.parent_view_id.clone(),
+    name: view.name.clone(),
+    create_time: view.created_at,
+    child_views: Default::default(),
+    layout: view.layout.clone().into(),
+    icon: view.icon.clone().map(|icon| icon.into()),
+    is_favorite: view.is_favorite,
+  }
+}
+
 /// Returns a ViewPB with child views. Only the first level of child views are included.
 pub fn view_pb_with_child_views(view: Arc<View>, child_views: Vec<Arc<View>>) -> ViewPB {
   ViewPB {

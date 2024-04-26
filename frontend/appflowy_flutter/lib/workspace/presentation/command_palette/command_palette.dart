@@ -61,7 +61,6 @@ class _CommandPaletteController extends StatefulWidget {
 }
 
 class _CommandPaletteControllerState extends State<_CommandPaletteController> {
-  late final CommandPaletteBloc _commandPaletteBloc;
   late ValueNotifier<bool> _toggleNotifier = widget.toggleNotifier;
   bool _isOpen = false;
 
@@ -86,31 +85,28 @@ class _CommandPaletteControllerState extends State<_CommandPaletteController> {
   void initState() {
     super.initState();
     _toggleNotifier.addListener(_onToggle);
-    _commandPaletteBloc = CommandPaletteBloc();
   }
 
   @override
   void dispose() {
     _toggleNotifier.removeListener(_onToggle);
-    _toggleNotifier.dispose();
-    _commandPaletteBloc.close();
     super.dispose();
   }
 
   void _onToggle() {
-    if (widget.toggleNotifier.value && !_isOpen) {
+    if (_toggleNotifier.value && !_isOpen) {
       _isOpen = true;
       FlowyOverlay.show(
         context: context,
         builder: (_) => BlocProvider.value(
-          value: _commandPaletteBloc,
+          value: context.read<CommandPaletteBloc>(),
           child: CommandPaletteModal(shortcutBuilder: _buildShortcut),
         ),
       ).then((_) {
         _isOpen = false;
-        widget.toggleNotifier.value = false;
+        _toggleNotifier.value = false;
       });
-    } else if (!widget.toggleNotifier.value && _isOpen) {
+    } else if (!_toggleNotifier.value && _isOpen) {
       FlowyOverlay.pop(context);
       _isOpen = false;
     }
@@ -148,52 +144,48 @@ class CommandPaletteModal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<CommandPaletteBloc, CommandPaletteState>(
-      builder: (context, state) {
-        return FlowyDialog(
-          alignment: Alignment.topCenter,
-          insetPadding: const EdgeInsets.only(top: 100),
-          constraints: const BoxConstraints(maxHeight: 420, maxWidth: 510),
-          expandHeight: false,
-          child: shortcutBuilder(
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SearchField(query: state.query, isLoading: state.isLoading),
-                if ((state.query?.isEmpty ?? true) ||
-                    state.isLoading && state.results.isEmpty) ...[
-                  const Divider(height: 0),
-                  Flexible(
-                    child: RecentViewsList(
-                      onSelected: () => FlowyOverlay.pop(context),
-                    ),
+      builder: (context, state) => FlowyDialog(
+        alignment: Alignment.topCenter,
+        insetPadding: const EdgeInsets.only(top: 100),
+        constraints: const BoxConstraints(maxHeight: 420, maxWidth: 510),
+        expandHeight: false,
+        child: shortcutBuilder(
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SearchField(query: state.query, isLoading: state.isLoading),
+              if ((state.query?.isEmpty ?? true) ||
+                  state.isLoading && state.results.isEmpty) ...[
+                const Divider(height: 0),
+                Flexible(
+                  child: RecentViewsList(
+                    onSelected: () => FlowyOverlay.pop(context),
                   ),
-                ],
-                if (state.results.isNotEmpty) ...[
-                  const Divider(height: 0),
-                  Flexible(
-                    child: SearchResultsList(
-                      trash: state.trash,
-                      results: state.results,
-                    ),
-                  ),
-                ],
-                _CommandPaletteFooter(
-                  shouldShow: state.results.isNotEmpty &&
-                      (state.query?.isNotEmpty ?? false),
                 ),
               ],
-            ),
+              if (state.results.isNotEmpty) ...[
+                const Divider(height: 0),
+                Flexible(
+                  child: SearchResultsList(
+                    trash: state.trash,
+                    results: state.results,
+                  ),
+                ),
+              ],
+              _CommandPaletteFooter(
+                shouldShow: state.results.isNotEmpty &&
+                    (state.query?.isNotEmpty ?? false),
+              ),
+            ],
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 }
 
 class _CommandPaletteFooter extends StatelessWidget {
-  const _CommandPaletteFooter({
-    required this.shouldShow,
-  });
+  const _CommandPaletteFooter({required this.shouldShow});
 
   final bool shouldShow;
 
@@ -204,38 +196,22 @@ class _CommandPaletteFooter extends StatelessWidget {
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 4,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       decoration: BoxDecoration(
-        border: Border(
-          top: BorderSide(
-            color: Theme.of(context).dividerColor,
-          ),
-        ),
+        border: Border(top: BorderSide(color: Theme.of(context).dividerColor)),
       ),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 5,
-              vertical: 1,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
             decoration: BoxDecoration(
               color: AFThemeExtension.of(context).lightGreyHover,
               borderRadius: BorderRadius.circular(4),
             ),
-            child: const FlowyText.semibold(
-              'TAB',
-              fontSize: 10,
-            ),
+            child: const FlowyText.semibold('TAB', fontSize: 10),
           ),
           const HSpace(4),
-          FlowyText(
-            LocaleKeys.commandPalette_navigateHint.tr(),
-            fontSize: 11,
-          ),
+          FlowyText(LocaleKeys.commandPalette_navigateHint.tr(), fontSize: 11),
         ],
       ),
     );
