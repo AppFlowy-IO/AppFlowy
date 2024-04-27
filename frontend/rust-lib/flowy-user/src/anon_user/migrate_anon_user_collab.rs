@@ -484,7 +484,7 @@ where
     let collab = Collab::new(
       old_user.session.user_id,
       object_id,
-      "phantom",
+      "migrate_device",
       vec![],
       false,
     );

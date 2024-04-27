@@ -346,7 +346,7 @@ where
   let imported_database_indexer = Collab::new(
     imported_session.user_id,
     &imported_session.user_workspace.database_indexer_id,
-    "",
+    "import_device",
     vec![],
     false,
   );
@@ -395,7 +395,7 @@ where
   let database_with_views_collab = Collab::new(
     old_user_session.user_id,
     &old_user_session.user_workspace.database_indexer_id,
-    "",
+    "migrate_device",
     vec![],
     false,
   );
@@ -642,7 +642,7 @@ where
   let imported_folder_collab = Collab::new(
     imported_session.user_id,
     &imported_session.user_workspace.id,
-    "phantom",
+    "migrate_device",
     vec![],
     false,
   );
