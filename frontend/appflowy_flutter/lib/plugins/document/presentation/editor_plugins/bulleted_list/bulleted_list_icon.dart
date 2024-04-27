@@ -13,9 +13,9 @@ class BulletedListIcon extends StatelessWidget {
   final Node node;
 
   static final bulletedListIcons = [
-    '●',
-    '◯',
-    '□',
+    FlowySvgs.bulleted_list_icon_1_s,
+    FlowySvgs.bulleted_list_icon_2_s,
+    FlowySvgs.bulleted_list_icon_3_s,
   ];
 
   int get level {
@@ -30,7 +30,10 @@ class BulletedListIcon extends StatelessWidget {
     return level;
   }
 
-  String get icon => bulletedListIcons[level % bulletedListIcons.length];
+  FlowySvg get icon {
+    final index = level % bulletedListIcons.length;
+    return FlowySvg(bulletedListIcons[index]);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,9 +44,7 @@ class BulletedListIcon extends StatelessWidget {
         minHeight: 22,
       ),
       margin: EdgeInsets.only(top: iconPadding, right: 8.0),
-      child: const FlowySvg(
-        FlowySvgs.m_bulleted_list_first_s,
-      ),
+      child: icon,
     );
   }
 }
