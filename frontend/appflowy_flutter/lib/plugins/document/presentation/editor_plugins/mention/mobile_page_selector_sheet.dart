@@ -46,7 +46,6 @@ class _MobilePageSelectorBody extends StatefulWidget {
 }
 
 class _MobilePageSelectorBodyState extends State<_MobilePageSelectorBody> {
-  final ViewBackendService service = ViewBackendService();
   final searchController = TextEditingController();
   late final Future<List<ViewPB>> _viewsFuture = _fetchViews();
 
@@ -117,5 +116,6 @@ class _MobilePageSelectorBodyState extends State<_MobilePageSelectorBody> {
     );
   }
 
-  Future<List<ViewPB>> _fetchViews() async => service.fetchViews();
+  Future<List<ViewPB>> _fetchViews() async =>
+      (await ViewBackendService.getAllViews()).toNullable()?.items ?? [];
 }

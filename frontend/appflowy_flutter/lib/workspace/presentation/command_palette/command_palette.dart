@@ -16,7 +16,12 @@ class CommandPalette extends InheritedWidget {
   CommandPalette({
     super.key,
     required Widget? child,
-  }) : super(child: _CommandPaletteController(child: child));
+    required this.notifier,
+  }) : super(
+          child: _CommandPaletteController(notifier: notifier, child: child),
+        );
+
+  final ValueNotifier<bool> notifier;
 
   static CommandPalette of(BuildContext context) {
     final CommandPalette? result =
@@ -26,6 +31,8 @@ class CommandPalette extends InheritedWidget {
 
     return result!;
   }
+
+  void toggle() => notifier.value = !notifier.value;
 
   @override
   bool updateShouldNotify(covariant InheritedWidget oldWidget) => false;
@@ -38,9 +45,11 @@ class _ToggleCommandPaletteIntent extends Intent {
 class _CommandPaletteController extends StatefulWidget {
   const _CommandPaletteController({
     required this.child,
+    required this.notifier,
   });
 
   final Widget? child;
+  final ValueNotifier<bool> notifier;
 
   @override
   State<_CommandPaletteController> createState() =>
@@ -48,7 +57,7 @@ class _CommandPaletteController extends StatefulWidget {
 }
 
 class _CommandPaletteControllerState extends State<_CommandPaletteController> {
-  final ValueNotifier<bool> _toggleNotifier = ValueNotifier<bool>(false);
+  late final ValueNotifier<bool> _toggleNotifier = widget.notifier;
   bool _isOpen = false;
 
   @override
