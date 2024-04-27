@@ -75,10 +75,10 @@ Future<bool?> showAddBlockMenu(
     backgroundColor: theme.toolbarMenuBackgroundColor,
     elevation: 20,
     enableDraggableScrollable: true,
-    builder: (_) => BlocProvider.value(
-      value: documentBloc,
-      child: Padding(
-        padding: EdgeInsets.all(16 * context.scale),
+    builder: (_) => Padding(
+      padding: EdgeInsets.all(16 * context.scale),
+      child: BlocProvider.value(
+        value: documentBloc,
         child: _AddBlockMenu(
           selection: selection,
           editorState: editorState,
@@ -99,20 +99,21 @@ class _AddBlockMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TypeOptionMenu<String>(
-      values: buildTypeOptionMenuItemValues(context),
-      scaleFactor: context.scale,
+    return BlocProvider.value(
+      value: context.read<DocumentBloc>(),
+      child: TypeOptionMenu<String>(
+        values: buildTypeOptionMenuItemValues(context),
+        scaleFactor: context.scale,
+      ),
     );
   }
 
   Future<void> _insertBlock(Node node) async {
     AppGlobals.rootNavKey.currentContext?.pop(true);
-    Future.delayed(const Duration(milliseconds: 100), () {
-      editorState.insertBlockAfterCurrentSelection(
-        selection,
-        node,
-      );
-    });
+    Future.delayed(
+      const Duration(milliseconds: 100),
+      () => editorState.insertBlockAfterCurrentSelection(selection, node),
+    );
   }
 
   List<TypeOptionMenuItemValue<String>> buildTypeOptionMenuItemValues(
