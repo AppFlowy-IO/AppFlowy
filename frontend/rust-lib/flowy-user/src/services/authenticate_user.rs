@@ -69,7 +69,7 @@ impl AuthenticateUser {
 
   pub fn workspace_database_object_id(&self) -> FlowyResult<String> {
     let session = self.get_session()?;
-    Ok(session.user_workspace.workspace_database_object_id.clone())
+    Ok(session.user_workspace.database_indexer_id.clone())
   }
 
   pub fn get_collab_db(&self, uid: i64) -> FlowyResult<Weak<CollabKVDB>> {
