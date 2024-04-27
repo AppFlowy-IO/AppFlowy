@@ -1,10 +1,15 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/page_style/_page_style_util.dart';
 import 'package:appflowy/shared/feedback_gesture_detector.dart';
+import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+const kPageStyleLayoutHeight = 52.0;
 
 class PageStyleLayout extends StatelessWidget {
   const PageStyleLayout({
@@ -20,51 +25,60 @@ class PageStyleLayout extends StatelessWidget {
           children: [
             Row(
               children: [
-                _buildOptionGroup(
-                  backgroundColor,
-                  [
+                _OptionGroup<PageStyleFontLayout>(
+                  backgroundColor: backgroundColor,
+                  options: const [
                     PageStyleFontLayout.small,
                     PageStyleFontLayout.normal,
                     PageStyleFontLayout.large,
                   ],
-                  state.fontLayout,
-                  (option) => context
+                  selectedOption: state.fontLayout,
+                  onTap: (option) => context
                       .read<DocumentPageStyleBloc>()
                       .add(DocumentPageStyleEvent.updateFont(option)),
                 ),
                 const HSpace(14),
-                _buildOptionGroup(
-                  backgroundColor,
-                  [
+                _OptionGroup<PageStyleLineHeightLayout>(
+                  backgroundColor: backgroundColor,
+                  options: const [
                     PageStyleLineHeightLayout.small,
                     PageStyleLineHeightLayout.normal,
                     PageStyleLineHeightLayout.large,
                   ],
-                  state.lineHeightLayout,
-                  (option) => context
+                  selectedOption: state.lineHeightLayout,
+                  onTap: (option) => context
                       .read<DocumentPageStyleBloc>()
                       .add(DocumentPageStyleEvent.updateLineHeight(option)),
                 ),
               ],
             ),
-            // the font here will conflict with the font in the editor.
-            // disable the font button for now.
-            /*
             const VSpace(12.0),
-            _buildFontButton(backgroundColor, state, () {}),
-            */
+            _FontButton(
+              backgroundColor: backgroundColor,
+              onTap: () {},
+            ),
           ],
         );
       },
     );
   }
+}
 
-  Widget _buildOptionGroup<T>(
-    Color backgroundColor,
-    List<T> options,
-    dynamic selectedOption,
-    void Function(T option) onTap,
-  ) {
+class _OptionGroup<T> extends StatelessWidget {
+  const _OptionGroup({
+    required this.backgroundColor,
+    required this.options,
+    required this.selectedOption,
+    required this.onTap,
+  });
+
+  final Color backgroundColor;
+  final List<T> options;
+  final T selectedOption;
+  final void Function(T option) onTap;
+
+  @override
+  Widget build(BuildContext context) {
     return Expanded(
       child: DecoratedBox(
         decoration: BoxDecoration(
@@ -92,6 +106,38 @@ class PageStyleLayout extends StatelessWidget {
     );
   }
 
+  Widget _buildOptionButton(
+    Widget child,
+    bool showLeftCorner,
+    bool showRightCorner,
+    bool selected,
+    VoidCallback onTap,
+  ) {
+    return Expanded(
+      child: FeedbackGestureDetector(
+        feedbackType: HapticFeedbackType.medium,
+        onTap: onTap,
+        child: AnimatedContainer(
+          height: kPageStyleLayoutHeight,
+          duration: Durations.medium1,
+          decoration: selected
+              ? ShapeDecoration(
+                  shape: RoundedRectangleBorder(
+                    side: const BorderSide(
+                      width: 1.50,
+                      color: Color(0xFF1AC3F2),
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                )
+              : null,
+          alignment: Alignment.center,
+          child: child,
+        ),
+      ),
+    );
+  }
+
   Widget _buildSvg(dynamic option) {
     if (option is PageStyleFontLayout) {
       return switch (option) {
@@ -114,69 +160,44 @@ class PageStyleLayout extends StatelessWidget {
     }
     throw ArgumentError('Invalid option type');
   }
+}
 
-  Widget _buildOptionButton(
-    Widget child,
-    bool showLeftCorner,
-    bool showRightCorner,
-    bool selected,
-    VoidCallback onTap,
-  ) {
-    return Expanded(
-      child: FeedbackGestureDetector(
-        feedbackType: HapticFeedbackType.medium,
-        onTap: onTap,
-        child: AnimatedContainer(
-          height: 52,
-          duration: Durations.medium1,
-          decoration: selected
-              ? ShapeDecoration(
-                  shape: RoundedRectangleBorder(
-                    side: const BorderSide(
-                      width: 1.50,
-                      color: Color(0xFF1AC3F2),
-                    ),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                )
-              : null,
-          alignment: Alignment.center,
-          child: child,
-        ),
-      ),
+class _FontButton extends StatelessWidget {
+  const _FontButton({
+    required this.backgroundColor,
+    required this.onTap,
+  });
+
+  final Color backgroundColor;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<DocumentPageStyleBloc, DocumentPageStyleState>(
+      builder: (context, state) {
+        return GestureDetector(
+          onTap: onTap,
+          behavior: HitTestBehavior.opaque,
+          child: Container(
+            height: kPageStyleLayoutHeight,
+            decoration: BoxDecoration(
+              color: backgroundColor,
+              borderRadius: BorderRadius.circular(12.0),
+            ),
+            child: Row(
+              children: [
+                const HSpace(16.0),
+                FlowyText(LocaleKeys.titleBar_font.tr()),
+                const Spacer(),
+                FlowyText(state.fontFamily ?? builtInFontFamily()),
+                const HSpace(6.0),
+                const FlowySvg(FlowySvgs.m_page_style_arrow_right_s),
+                const HSpace(12.0),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
-
-  // the font here will conflict with the font in the editor.
-  // disable the font button for now.
-  /*
-  Widget _buildFontButton(
-    Color backgroundColor,
-    DocumentPageStyleState state,
-    VoidCallback onTap,
-  ) {
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: Container(
-        height: 52,
-        decoration: BoxDecoration(
-          color: backgroundColor,
-          borderRadius: BorderRadius.circular(12.0),
-        ),
-        child: Row(
-          children: [
-            const HSpace(16.0),
-            FlowyText(LocaleKeys.titleBar_font.tr()),
-            const Spacer(),
-            FlowyText(state.fontFamily ?? builtInFontFamily()),
-            const HSpace(6.0),
-            const FlowySvg(FlowySvgs.m_page_style_arrow_right_s),
-            const HSpace(12.0),
-          ],
-        ),
-      ),
-    );
-  }
-  */
 }

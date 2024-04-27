@@ -59,93 +59,28 @@ class PageStyleCoverImage extends StatelessWidget {
         padding: const EdgeInsets.all(4.0),
         child: Row(
           children: [
-            _buildOptionButton(
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const FlowySvg(
-                    FlowySvgs.m_page_style_presets_m,
-                    blendMode: null,
-                  ),
-                  const VSpace(4.0),
-                  FlowyText(
-                    LocaleKeys.pageStyle_presets.tr(),
-                    fontSize: 12.0,
-                  ),
-                ],
-              ),
-              true,
-              false,
-              state.coverImage.isPresets,
-              () => _showPresets(context),
+            _CoverOptionButton(
+              showLeftCorner: true,
+              showRightCorner: false,
+              selected: state.coverImage.isPresets,
+              onTap: () => _showPresets(context),
+              child: const _PresetCover(),
             ),
-            _buildOptionButton(
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const FlowySvg(FlowySvgs.m_page_style_photo_m),
-                  const VSpace(4.0),
-                  FlowyText(
-                    LocaleKeys.pageStyle_photo.tr(),
-                    fontSize: 12.0,
-                  ),
-                ],
-              ),
-              false,
-              false,
-              state.coverImage.isPhoto,
-              () async => _pickImage(context),
+            _CoverOptionButton(
+              showLeftCorner: false,
+              showRightCorner: false,
+              selected: state.coverImage.isPhoto,
+              onTap: () => _pickImage(context),
+              child: const _PhotoCover(),
             ),
-            _buildOptionButton(
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const FlowySvg(FlowySvgs.m_page_style_unsplash_m),
-                  const VSpace(4.0),
-                  FlowyText(
-                    LocaleKeys.pageStyle_unsplash.tr(),
-                    fontSize: 12.0,
-                  ),
-                ],
-              ),
-              false,
-              true,
-              state.coverImage.isUnsplashImage,
-              () => _showUnsplash(context),
+            _CoverOptionButton(
+              showLeftCorner: false,
+              showRightCorner: true,
+              selected: state.coverImage.isUnsplashImage,
+              onTap: () => _showUnsplash(context),
+              child: const _UnsplashCover(),
             ),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildOptionButton(
-    Widget child,
-    bool showLeftCorner,
-    bool showRightCorner,
-    bool selected,
-    VoidCallback onTap,
-  ) {
-    return Expanded(
-      child: FeedbackGestureDetector(
-        feedbackType: HapticFeedbackType.medium,
-        onTap: onTap,
-        child: AnimatedContainer(
-          height: 64,
-          duration: Durations.medium1,
-          decoration: selected
-              ? ShapeDecoration(
-                  shape: RoundedRectangleBorder(
-                    side: const BorderSide(
-                      width: 1.50,
-                      color: Color(0xFF1AC3F2),
-                    ),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                )
-              : null,
-          alignment: Alignment.center,
-          child: child,
         ),
       ),
     );
@@ -234,8 +169,8 @@ class PageStyleCoverImage extends StatelessWidget {
       backgroundColor: Theme.of(context).colorScheme.background,
       builder: (_) {
         return ConstrainedBox(
-          constraints: const BoxConstraints(
-            maxHeight: 360,
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.6,
             minHeight: 80,
           ),
           child: BlocProvider.value(
@@ -258,6 +193,109 @@ class PageStyleCoverImage extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class _UnsplashCover extends StatelessWidget {
+  const _UnsplashCover();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const FlowySvg(FlowySvgs.m_page_style_unsplash_m),
+        const VSpace(4.0),
+        FlowyText(
+          LocaleKeys.pageStyle_unsplash.tr(),
+          fontSize: 12.0,
+        ),
+      ],
+    );
+  }
+}
+
+class _PhotoCover extends StatelessWidget {
+  const _PhotoCover();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const FlowySvg(FlowySvgs.m_page_style_photo_m),
+        const VSpace(4.0),
+        FlowyText(
+          LocaleKeys.pageStyle_photo.tr(),
+          fontSize: 12.0,
+        ),
+      ],
+    );
+  }
+}
+
+class _PresetCover extends StatelessWidget {
+  const _PresetCover();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const FlowySvg(
+          FlowySvgs.m_page_style_presets_m,
+          blendMode: null,
+        ),
+        const VSpace(4.0),
+        FlowyText(
+          LocaleKeys.pageStyle_presets.tr(),
+          fontSize: 12.0,
+        ),
+      ],
+    );
+  }
+}
+
+class _CoverOptionButton extends StatelessWidget {
+  const _CoverOptionButton({
+    required this.showLeftCorner,
+    required this.showRightCorner,
+    required this.child,
+    required this.onTap,
+    required this.selected,
+  });
+
+  final Widget child;
+  final bool showLeftCorner;
+  final bool showRightCorner;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: FeedbackGestureDetector(
+        feedbackType: HapticFeedbackType.medium,
+        onTap: onTap,
+        child: AnimatedContainer(
+          height: 64,
+          duration: Durations.medium1,
+          decoration: selected
+              ? ShapeDecoration(
+                  shape: RoundedRectangleBorder(
+                    side: const BorderSide(
+                      width: 1.50,
+                      color: Color(0xFF1AC3F2),
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                )
+              : null,
+          alignment: Alignment.center,
+          child: child,
+        ),
+      ),
     );
   }
 }
