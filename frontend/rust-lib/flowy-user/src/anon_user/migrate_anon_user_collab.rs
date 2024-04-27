@@ -35,6 +35,7 @@ pub fn migration_anon_user_on_sign_up(
     .with_write_txn(|new_collab_w_txn| {
       let old_collab_r_txn = old_collab_db.read_txn();
       let old_to_new_id_map = Arc::new(Mutex::new(OldToNewIdMap::new()));
+
       migrate_user_awareness(
         old_to_new_id_map.lock().deref_mut(),
         old_user,
@@ -57,7 +58,7 @@ pub fn migration_anon_user_on_sign_up(
       // Migration of all objects except the folder and database_with_views
       object_ids.retain(|id| {
         id != &old_user.session.user_workspace.id
-          && id != &old_user.session.user_workspace.workspace_database_object_id
+          && id != &old_user.session.user_workspace.database_indexer_id
       });
 
       info!("migrate collab objects: {:?}", object_ids.len());
@@ -84,7 +85,7 @@ pub fn migration_anon_user_on_sign_up(
       // Migrate other collab objects
       for object_id in &object_ids {
         if let Some(collab) = collab_by_oid.get(object_id) {
-          let new_object_id = old_to_new_id_map.lock().get_new_id(object_id);
+          let new_object_id = old_to_new_id_map.lock().exchange_new_id(object_id);
           tracing::debug!("migrate from: {}, to: {}", object_id, new_object_id,);
           migrate_collab_object(
             collab,
@@ -109,7 +110,7 @@ impl OldToNewIdMap {
   fn new() -> Self {
     Self::default()
   }
-  fn get_new_id(&mut self, old_id: &str) -> String {
+  fn exchange_new_id(&mut self, old_id: &str) -> String {
     let view_id = self
       .0
       .entry(old_id.to_string())
@@ -148,7 +149,7 @@ where
 {
   let database_with_views_collab = Collab::new(
     old_user.session.user_id,
-    &old_user.session.user_workspace.workspace_database_object_id,
+    &old_user.session.user_workspace.database_indexer_id,
     "phantom",
     vec![],
     false,
@@ -156,13 +157,13 @@ where
   database_with_views_collab.with_origin_transact_mut(|txn| {
     old_collab_r_txn.load_doc_with_txn(
       old_user.session.user_id,
-      &old_user.session.user_workspace.workspace_database_object_id,
+      &old_user.session.user_workspace.database_indexer_id,
       txn,
     )
   })?;
 
   let new_uid = new_user_session.user_id;
-  let new_object_id = &new_user_session.user_workspace.workspace_database_object_id;
+  let new_object_id = &new_user_session.user_workspace.database_indexer_id;
 
   let array = DatabaseMetaList::from_collab(&database_with_views_collab);
   for database_meta in array.get_all_database_meta() {
@@ -170,9 +171,9 @@ where
       let new_linked_views = update
         .linked_views
         .iter()
-        .map(|view_id| old_to_new_id_map.get_new_id(view_id))
+        .map(|view_id| old_to_new_id_map.exchange_new_id(view_id))
         .collect();
-      update.database_id = old_to_new_id_map.get_new_id(&update.database_id);
+      update.database_id = old_to_new_id_map.exchange_new_id(&update.database_id);
       update.linked_views = new_linked_views;
     })
   }
@@ -237,7 +238,7 @@ where
     let fav_map = old_fav_map
       .into_iter()
       .map(|mut item| {
-        let new_view_id = old_to_new_id_map.get_new_id(&item.id);
+        let new_view_id = old_to_new_id_map.exchange_new_id(&item.id);
         item.id = new_view_id;
         item
       })
@@ -248,7 +249,7 @@ where
     let trash_map = old_trash_map
       .into_iter()
       .map(|mut item| {
-        let new_view_id = old_to_new_id_map.get_new_id(&item.id);
+        let new_view_id = old_to_new_id_map.exchange_new_id(&item.id);
         item.id = new_view_id;
         item
       })
@@ -260,7 +261,7 @@ where
     let recent_map = old_recent_map
       .into_iter()
       .map(|mut item| {
-        let new_view_id = old_to_new_id_map.get_new_id(&item.id);
+        let new_view_id = old_to_new_id_map.exchange_new_id(&item.id);
         item.id = new_view_id;
         item
       })
@@ -279,19 +280,19 @@ where
     .child_views
     .iter_mut()
     .for_each(|view_identifier| {
-      view_identifier.id = old_to_new_id_map.get_new_id(&view_identifier.id);
+      view_identifier.id = old_to_new_id_map.exchange_new_id(&view_identifier.id);
     });
 
   folder_data.views.iter_mut().for_each(|view| {
     // 2. replace the old parent view id of the view
-    view.parent_view_id = old_to_new_id_map.get_new_id(&view.parent_view_id);
+    view.parent_view_id = old_to_new_id_map.exchange_new_id(&view.parent_view_id);
 
     // 3. replace the old id of the view
-    view.id = old_to_new_id_map.get_new_id(&view.id);
+    view.id = old_to_new_id_map.exchange_new_id(&view.id);
 
     // 4. replace the old id of the children views
     view.children.iter_mut().for_each(|view_identifier| {
-      view_identifier.id = old_to_new_id_map.get_new_id(&view_identifier.id);
+      view_identifier.id = old_to_new_id_map.exchange_new_id(&view_identifier.id);
     });
   });
 
@@ -349,7 +350,8 @@ where
 {
   // Migrate databases
   let mut database_object_ids = vec![];
-  let database_row_object_ids = RwLock::new(HashSet::new());
+  let imported_database_row_object_ids: RwLock<HashMap<String, HashSet<String>>> =
+    RwLock::new(HashMap::new());
 
   for object_id in &mut *object_ids {
     if let Some(collab) = collab_by_oid.get(object_id) {
@@ -359,14 +361,17 @@ where
 
       database_object_ids.push(object_id.clone());
       reset_inline_view_id(collab, |old_inline_view_id| {
-        old_to_new_id_map.lock().get_new_id(&old_inline_view_id)
+        old_to_new_id_map
+          .lock()
+          .exchange_new_id(&old_inline_view_id)
       });
 
       mut_database_views_with_collab(collab, |database_view| {
-        let new_view_id = old_to_new_id_map.lock().get_new_id(&database_view.id);
+        let old_database_id = database_view.database_id.clone();
+        let new_view_id = old_to_new_id_map.lock().exchange_new_id(&database_view.id);
         let new_database_id = old_to_new_id_map
           .lock()
-          .get_new_id(&database_view.database_id);
+          .exchange_new_id(&database_view.database_id);
 
         tracing::trace!(
           "migrate database view id from: {}, to: {}",
@@ -384,7 +389,7 @@ where
         database_view.row_orders.iter_mut().for_each(|row_order| {
           let old_row_id = String::from(row_order.id.clone());
           let old_row_document_id = database_row_document_id_from_row_id(&old_row_id);
-          let new_row_id = old_to_new_id_map.lock().get_new_id(&old_row_id);
+          let new_row_id = old_to_new_id_map.lock().exchange_new_id(&old_row_id);
           let new_row_document_id = database_row_document_id_from_row_id(&new_row_id);
           tracing::debug!("migrate row id: {} to {}", row_order.id, new_row_id);
           tracing::debug!(
@@ -397,11 +402,15 @@ where
             .insert(old_row_document_id, new_row_document_id);
 
           row_order.id = RowId::from(new_row_id);
-          database_row_object_ids.write().insert(old_row_id);
+          imported_database_row_object_ids
+            .write()
+            .entry(old_database_id.clone())
+            .or_default()
+            .insert(old_row_id);
         });
       });
 
-      let new_object_id = old_to_new_id_map.lock().get_new_id(object_id);
+      let new_object_id = old_to_new_id_map.lock().exchange_new_id(object_id);
       tracing::debug!(
         "migrate database from: {}, to: {}",
         object_id,
@@ -415,29 +424,48 @@ where
       );
     }
   }
+
+  let imported_database_row_object_ids = imported_database_row_object_ids.read();
+  // remove the database object ids from the object ids
   object_ids.retain(|id| !database_object_ids.contains(id));
 
-  let database_row_object_ids = database_row_object_ids.read();
-  for object_id in &*database_row_object_ids {
-    if let Some(collab) = collab_by_oid.get(object_id) {
-      let new_object_id = old_to_new_id_map.lock().get_new_id(object_id);
-      tracing::info!(
-        "migrate database row from: {}, to: {}",
-        object_id,
-        new_object_id,
-      );
-      mut_row_with_collab(collab, |row_update| {
-        row_update.set_row_id(RowId::from(new_object_id.clone()));
-      });
-      migrate_collab_object(
-        collab,
-        new_user_session.user_id,
-        &new_object_id,
-        new_collab_w_txn,
-      );
+  // remove database row object ids from the imported object ids
+  object_ids.retain(|id| {
+    !imported_database_row_object_ids
+      .values()
+      .flatten()
+      .any(|row_id| row_id == id)
+  });
+  for (database_id, imported_row_ids) in &*imported_database_row_object_ids {
+    for imported_row_id in imported_row_ids {
+      if let Some(imported_collab) = collab_by_oid.get(imported_row_id) {
+        let new_database_id = old_to_new_id_map.lock().exchange_new_id(database_id);
+        let new_row_id = old_to_new_id_map.lock().exchange_new_id(imported_row_id);
+        info!(
+          "import database row from: {}, to: {}",
+          imported_row_id, new_row_id,
+        );
+        mut_row_with_collab(imported_collab, |row_update| {
+          row_update.set_row_id(RowId::from(new_row_id.clone()), new_database_id.clone());
+        });
+        migrate_collab_object(
+          imported_collab,
+          new_user_session.user_id,
+          &new_row_id,
+          new_collab_w_txn,
+        );
+      }
+
+      // imported_collab_by_oid contains all the collab object ids, including the row document collab object ids.
+      // So, if the id exist in the imported_collab_by_oid, it means the row document collab object is exist.
+      let imported_row_document_id = database_row_document_id_from_row_id(imported_row_id);
+      if collab_by_oid.get(&imported_row_document_id).is_some() {
+        let _ = old_to_new_id_map
+          .lock()
+          .exchange_new_id(&imported_row_document_id);
+      }
     }
   }
-  object_ids.retain(|id| !database_row_object_ids.contains(id));
 
   Ok(())
 }

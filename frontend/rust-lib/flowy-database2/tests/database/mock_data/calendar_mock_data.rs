@@ -11,6 +11,7 @@ use crate::database::database_editor::TestRowBuilder;
 
 // Calendar unit test mock data
 pub fn make_test_calendar() -> DatabaseData {
+  let database_id = gen_database_id();
   let mut fields = vec![];
   let mut rows = vec![];
 
@@ -40,7 +41,7 @@ pub fn make_test_calendar() -> DatabaseData {
   let field_settings = default_field_settings_for_fields(&fields, DatabaseLayout::Calendar);
 
   for i in 0..5 {
-    let mut row_builder = TestRowBuilder::new(gen_row_id(), &fields);
+    let mut row_builder = TestRowBuilder::new(&database_id, gen_row_id(), &fields);
     match i {
       0 => {
         for field_type in FieldType::iter() {
@@ -106,7 +107,6 @@ pub fn make_test_calendar() -> DatabaseData {
   let mut layout_settings = LayoutSettings::new();
   layout_settings.insert(DatabaseLayout::Calendar, calendar_setting);
 
-  let database_id = gen_database_id();
   let inline_view_id = gen_database_view_id();
 
   let view = DatabaseView {
