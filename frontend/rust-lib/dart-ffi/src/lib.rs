@@ -177,6 +177,7 @@ pub extern "C" fn link_me_please() {}
 #[inline(always)]
 async fn post_to_flutter(response: AFPluginEventResponse, port: i64) {
   let isolate = allo_isolate::Isolate::new(port);
+  #[allow(clippy::blocks_in_conditions)]
   match isolate
     .catch_unwind(async {
       let ffi_resp = FFIResponse::from(response);

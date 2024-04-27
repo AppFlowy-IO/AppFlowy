@@ -49,7 +49,7 @@ pub async fn sync_supabase_user_data_to_cloud(
   )
   .await;
 
-  let views = folder.lock().get_current_workspace_views();
+  let views = folder.lock().get_views_belong_to(&workspace_id);
   for view in views {
     let view_id = view.id.clone();
     if let Err(err) = sync_view(

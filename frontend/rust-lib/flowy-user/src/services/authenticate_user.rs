@@ -11,12 +11,12 @@ use flowy_user_pub::entities::UserWorkspace;
 use flowy_user_pub::session::Session;
 use std::path::PathBuf;
 use std::sync::{Arc, Weak};
-use tracing::{debug, error, info};
+use tracing::{error, info};
 
 const SQLITE_VACUUM_042: &str = "sqlite_vacuum_042_version";
 
 pub struct AuthenticateUser {
-  pub(crate) user_config: UserConfig,
+  pub user_config: UserConfig,
   pub(crate) database: Arc<UserDB>,
   pub(crate) user_paths: UserPaths,
   store_preferences: Arc<StorePreferences>,
@@ -67,6 +67,11 @@ impl AuthenticateUser {
     Ok(session.user_workspace.id)
   }
 
+  pub fn workspace_database_object_id(&self) -> FlowyResult<String> {
+    let session = self.get_session()?;
+    Ok(session.user_workspace.workspace_database_object_id.clone())
+  }
+
   pub fn get_collab_db(&self, uid: i64) -> FlowyResult<Weak<CollabKVDB>> {
     self
       .database
@@ -91,16 +96,17 @@ impl AuthenticateUser {
   }
 
   pub fn set_session(&self, session: Option<Session>) -> Result<(), FlowyError> {
-    debug!("Set current user session: {:?}", session);
     match &session {
       None => {
-        self.session.write().take();
+        let removed_session = self.session.write().take();
+        info!("remove session: {:?}", removed_session);
         self
           .store_preferences
           .remove(self.user_config.session_cache_key.as_ref());
         Ok(())
       },
       Some(session) => {
+        info!("Set current session: {:?}", session);
         self.session.write().replace(session.clone());
         self
           .store_preferences

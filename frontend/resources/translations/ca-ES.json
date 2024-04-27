@@ -44,10 +44,10 @@
     "repeatPasswordEmptyError": "La contrasenya repetida no pot ser buida",
     "unmatchedPasswordError": "Les contrasenyes no concorden",
     "or": "O",
+    "signInWith": "Inicia sessió amb:",
     "LogInWithGoogle": "Inicieu sessió amb Google",
     "LogInWithGithub": "Inicieu sessió amb Github",
     "LogInWithDiscord": "Inicieu sessió amb Discord",
-    "signInWith": "Inicia sessió amb:",
     "loginAsGuestButtonText": "Començar"
   },
   "workspace": {

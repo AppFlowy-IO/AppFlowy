@@ -589,7 +589,7 @@ GoRoute _rootRoute(Widget child) {
   return GoRoute(
     path: '/',
     redirect: (context, state) async {
-      // Every time before navigating to splash screen, we check if user is already logged in desktop. It is used to skip showing splash screen when user just changes apperance settings like theme mode.
+      // Every time before navigating to splash screen, we check if user is already logged in desktop. It is used to skip showing splash screen when user just changes appearance settings like theme mode.
       final userResponse = await getIt<AuthService>().getUser();
       final routeName = userResponse.fold(
         (user) => DesktopHomeScreen.routeName,

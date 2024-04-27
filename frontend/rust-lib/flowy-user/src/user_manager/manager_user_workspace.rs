@@ -135,7 +135,7 @@ impl UserManager {
 
   #[instrument(skip(self), err)]
   pub async fn open_workspace(&self, workspace_id: &str) -> FlowyResult<()> {
-    let uid = self.user_id()?;
+    info!("open workspace: {}", workspace_id);
     let user_workspace = self
       .cloud_services
       .get_user_service()?
@@ -145,6 +145,8 @@ impl UserManager {
     self
       .authenticate_user
       .set_user_workspace(user_workspace.clone())?;
+
+    let uid = self.user_id()?;
     if let Err(err) = self
       .user_status_callback
       .read()
@@ -158,12 +160,18 @@ impl UserManager {
     Ok(())
   }
 
+  #[instrument(level = "info", skip(self), err)]
   pub async fn add_workspace(&self, workspace_name: &str) -> FlowyResult<UserWorkspace> {
     let new_workspace = self
       .cloud_services
       .get_user_service()?
       .create_workspace(workspace_name)
       .await?;
+
+    info!(
+      "new workspace: {}, name:{}",
+      new_workspace.id, new_workspace.name
+    );
 
     // save the workspace to sqlite db
     let uid = self.user_id()?;
@@ -207,7 +215,9 @@ impl UserManager {
     save_user_workspaces(uid, conn, &[user_workspace])
   }
 
+  #[instrument(level = "info", skip(self), err)]
   pub async fn leave_workspace(&self, workspace_id: &str) -> FlowyResult<()> {
+    info!("leave workspace: {}", workspace_id);
     self
       .cloud_services
       .get_user_service()?
@@ -220,7 +230,9 @@ impl UserManager {
     delete_user_workspaces(conn, workspace_id)
   }
 
+  #[instrument(level = "info", skip(self), err)]
   pub async fn delete_workspace(&self, workspace_id: &str) -> FlowyResult<()> {
+    info!("delete workspace: {}", workspace_id);
     self
       .cloud_services
       .get_user_service()?

@@ -117,6 +117,7 @@ impl FlowyError {
     folder_index_manager_unavailable,
     ErrorCode::FolderIndexManagerUnavailable
   );
+  static_flowy_error!(workspace_data_not_match, ErrorCode::WorkspaceDataNotMatch);
 }
 
 impl std::convert::From<ErrorCode> for FlowyError {

@@ -3,7 +3,6 @@ import 'package:appflowy/mobile/presentation/widgets/show_flowy_mobile_confirm_d
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/sign_in_bloc.dart';
-import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/sign_in_or_logout_button.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/widgets.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:easy_localization/easy_localization.dart';

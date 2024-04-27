@@ -136,6 +136,7 @@ impl UserManager {
     let weak_builder = self.collab_builder.clone();
     let cloned_is_loading = self.is_loading_awareness.clone();
     let session = session.clone();
+    let workspace_id = session.user_workspace.id.clone();
     tokio::spawn(async move {
       if cloned_is_loading.load(Ordering::SeqCst) {
         return Ok(());
@@ -160,6 +161,7 @@ impl UserManager {
           Ok(data) => {
             trace!("Get user awareness collab from remote: {}", data.len());
             let collab = Self::collab_for_user_awareness(
+              &workspace_id,
               &weak_builder,
               session.user_id,
               &object_id,
@@ -173,6 +175,7 @@ impl UserManager {
             if err.is_record_not_found() {
               info!("User awareness not found, creating new");
               let collab = Self::collab_for_user_awareness(
+                &workspace_id,
                 &weak_builder,
                 session.user_id,
                 &object_id,
@@ -206,6 +209,7 @@ impl UserManager {
   /// using a collaboration builder. This instance is specifically geared towards handling
   /// user awareness.
   async fn collab_for_user_awareness(
+    workspace_id: &str,
     collab_builder: &Weak<AppFlowyCollabBuilder>,
     uid: i64,
     object_id: &str,
@@ -218,6 +222,7 @@ impl UserManager {
     ))?;
     let collab = collab_builder
       .build(
+        workspace_id,
         uid,
         object_id,
         CollabType::UserAwareness,

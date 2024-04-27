@@ -2,8 +2,8 @@ use std::sync::Arc;
 use std::sync::Weak;
 
 use collab::core::collab::{DataSource, MutexCollab};
-use collab::core::collab_plugin::EncodedCollab;
 use collab::core::origin::CollabOrigin;
+use collab::entity::EncodedCollab;
 use collab::preclude::Collab;
 use collab_document::blocks::DocumentData;
 use collab_document::document::Document;
@@ -20,7 +20,6 @@ use tracing::{error, trace};
 use tracing::{event, instrument};
 
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
-use collab_integrate::CollabPersistenceConfig;
 use flowy_document_pub::cloud::DocumentCloudService;
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_storage::ObjectStorageService;
@@ -77,7 +76,7 @@ impl DocumentManager {
     }
   }
 
-  pub async fn initialize(&self, _uid: i64, _workspace_id: String) -> FlowyResult<()> {
+  pub async fn initialize(&self, _uid: i64) -> FlowyResult<()> {
     self.documents.clear();
     Ok(())
   }
@@ -88,8 +87,8 @@ impl DocumentManager {
     skip_all,
     err
   )]
-  pub async fn initialize_with_new_user(&self, uid: i64, workspace_id: String) -> FlowyResult<()> {
-    self.initialize(uid, workspace_id).await?;
+  pub async fn initialize_with_new_user(&self, uid: i64) -> FlowyResult<()> {
+    self.initialize(uid).await?;
     Ok(())
   }
 
@@ -344,6 +343,7 @@ impl DocumentManager {
       // create file if not exist
       let mut file = tokio::fs::OpenOptions::new()
         .create(true)
+        .truncate(true)
         .write(true)
         .open(&local_file_path)
         .await?;
@@ -381,13 +381,14 @@ impl DocumentManager {
     sync_enable: bool,
   ) -> FlowyResult<Arc<MutexCollab>> {
     let db = self.user_service.collab_db(uid)?;
+    let workspace_id = self.user_service.workspace_id()?;
     let collab = self.collab_builder.build_with_config(
+      &workspace_id,
       uid,
       doc_id,
       CollabType::Document,
       db,
       doc_state,
-      CollabPersistenceConfig::default().snapshot_per_update(1000),
       CollabBuilderConfig::default().sync_enable(sync_enable),
     )?;
     Ok(collab)

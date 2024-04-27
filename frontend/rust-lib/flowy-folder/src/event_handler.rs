@@ -49,12 +49,11 @@ pub(crate) async fn get_all_workspace_handler(
 
 #[tracing::instrument(level = "debug", skip(folder), err)]
 pub(crate) async fn get_workspace_views_handler(
-  data: AFPluginData<GetWorkspaceViewPB>,
+  _data: AFPluginData<GetWorkspaceViewPB>,
   folder: AFPluginState<Weak<FolderManager>>,
 ) -> DataResult<RepeatedViewPB, FlowyError> {
   let folder = upgrade_folder(folder)?;
-  let params: GetWorkspaceViewParams = data.into_inner().try_into()?;
-  let child_views = folder.get_workspace_public_views(&params.value).await?;
+  let child_views = folder.get_workspace_public_views().await?;
   let repeated_view: RepeatedViewPB = child_views.into();
   data_result_ok(repeated_view)
 }
@@ -75,8 +74,8 @@ pub(crate) async fn read_private_views_handler(
   folder: AFPluginState<Weak<FolderManager>>,
 ) -> DataResult<RepeatedViewPB, FlowyError> {
   let folder = upgrade_folder(folder)?;
-  let params: GetWorkspaceViewParams = data.into_inner().try_into()?;
-  let child_views = folder.get_workspace_private_views(&params.value).await?;
+  let _params: GetWorkspaceViewParams = data.into_inner().try_into()?;
+  let child_views = folder.get_workspace_private_views().await?;
   let repeated_view: RepeatedViewPB = child_views.into();
   data_result_ok(repeated_view)
 }
@@ -136,6 +135,16 @@ pub(crate) async fn get_view_handler(
   let view_id: ViewIdPB = data.into_inner();
   let view_pb = folder.get_view_pb(&view_id.value).await?;
   data_result_ok(view_pb)
+}
+
+#[tracing::instrument(level = "debug", skip(folder), err)]
+pub(crate) async fn get_all_views_handler(
+  folder: AFPluginState<Weak<FolderManager>>,
+) -> DataResult<RepeatedViewPB, FlowyError> {
+  let folder = upgrade_folder(folder)?;
+  let view_pbs = folder.get_all_views_pb().await?;
+
+  data_result_ok(RepeatedViewPB::from(view_pbs))
 }
 
 #[tracing::instrument(level = "debug", skip(data, folder), err)]
@@ -367,14 +376,6 @@ pub(crate) async fn get_folder_snapshots_handler(
   let data = data.into_inner();
   let snapshots = folder.get_folder_snapshots(&data.value, 10).await?;
   data_result_ok(RepeatedFolderSnapshotPB { items: snapshots })
-}
-
-pub(crate) async fn reload_workspace_handler(
-  folder: AFPluginState<Weak<FolderManager>>,
-) -> Result<(), FlowyError> {
-  let folder = upgrade_folder(folder)?;
-  folder.reload_workspace().await?;
-  Ok(())
 }
 
 #[tracing::instrument(level = "debug", skip(data, folder), err)]
