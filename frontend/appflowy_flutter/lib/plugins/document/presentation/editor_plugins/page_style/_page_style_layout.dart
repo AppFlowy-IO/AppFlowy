@@ -1,6 +1,8 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
+import 'package:appflowy/mobile/presentation/bottom_sheet/show_mobile_bottom_sheet.dart';
+import 'package:appflowy/mobile/presentation/setting/font/font_picker_screen.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/page_style/_page_style_util.dart';
 import 'package:appflowy/shared/feedback_gesture_detector.dart';
 import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
@@ -176,7 +178,7 @@ class _FontButton extends StatelessWidget {
     return BlocBuilder<DocumentPageStyleBloc, DocumentPageStyleState>(
       builder: (context, state) {
         return GestureDetector(
-          onTap: onTap,
+          onTap: () => _showFontSelector(context),
           behavior: HitTestBehavior.opaque,
           child: Container(
             height: kPageStyleLayoutHeight,
@@ -198,6 +200,47 @@ class _FontButton extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+
+  void _showFontSelector(BuildContext context) {
+    showMobileBottomSheet(
+      context,
+      showDragHandle: true,
+      showDivider: false,
+      showDoneButton: true,
+      showHeader: true,
+      title: LocaleKeys.titleBar_font.tr(),
+      barrierColor: Colors.transparent,
+      backgroundColor: Theme.of(context).colorScheme.background,
+      isScrollControlled: true,
+      enableDraggableScrollable: true,
+      minChildSize: 0.6,
+      initialChildSize: 0.61,
+      scrollableWidgetBuilder: (_, controller) {
+        return BlocProvider.value(
+          value: context.read<DocumentPageStyleBloc>(),
+          child: BlocBuilder<DocumentPageStyleBloc, DocumentPageStyleState>(
+            builder: (context, state) {
+              return Expanded(
+                child: FontSelector(
+                  scrollController: controller,
+                  selectedFontFamilyName:
+                      state.fontFamily ?? builtInFontFamily(),
+                  onFontFamilySelected: (fontFamilyName) {
+                    context.read<DocumentPageStyleBloc>().add(
+                          DocumentPageStyleEvent.updateFontFamily(
+                            fontFamilyName,
+                          ),
+                        );
+                  },
+                ),
+              );
+            },
+          ),
+        );
+      },
+      builder: (_) => const SizedBox.shrink(),
     );
   }
 }

@@ -56,53 +56,94 @@ class _LanguagePickerPageState extends State<LanguagePickerPage> {
       ),
       body: SafeArea(
         child: Scrollbar(
-          child: ListView.builder(
-            itemCount: availableFonts.length + 1, // with search bar
-            itemBuilder: (context, index) {
-              if (index == 0) {
-                // search bar
-                return Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 8.0,
-                    horizontal: 12.0,
-                  ),
-                  child: FlowyMobileSearchTextField(
-                    onChanged: (keyword) {
-                      setState(() {
-                        availableFonts = _availableFonts
-                            .where(
-                              (font) =>
-                                  font.isEmpty || // keep the default one always
-                                  font
-                                      .parseFontFamilyName()
-                                      .toLowerCase()
-                                      .contains(keyword.toLowerCase()),
-                            )
-                            .toList();
-                      });
-                    },
-                  ),
-                );
-              }
-
-              final fontFamilyName = availableFonts[index - 1];
-              final displayName = fontFamilyName.parseFontFamilyName();
-              return FlowyOptionTile.checkbox(
-                text: fontFamilyName.isNotEmpty
-                    ? displayName
-                    : LocaleKeys.settings_appearance_fontFamily_defaultFont
-                        .tr(),
-                isSelected: selectedFontFamilyName == fontFamilyName,
-                showTopBorder: false,
-                onTap: () => context.pop(fontFamilyName),
-                fontFamily: fontFamilyName != builtInFontFamily()
-                    ? GoogleFonts.getFont(fontFamilyName).fontFamily
-                    : TextStyle(fontFamily: builtInFontFamily()).fontFamily,
-                backgroundColor: Colors.transparent,
-              );
-            },
+          child: FontSelector(
+            selectedFontFamilyName: selectedFontFamilyName,
+            onFontFamilySelected: (fontFamilyName) =>
+                context.pop(fontFamilyName),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class FontSelector extends StatefulWidget {
+  const FontSelector({
+    super.key,
+    this.scrollController,
+    required this.selectedFontFamilyName,
+    required this.onFontFamilySelected,
+  });
+
+  final ScrollController? scrollController;
+  final String selectedFontFamilyName;
+  final void Function(String fontFamilyName) onFontFamilySelected;
+
+  @override
+  State<FontSelector> createState() => _FontSelectorState();
+}
+
+class _FontSelectorState extends State<FontSelector> {
+  late List<String> availableFonts;
+
+  @override
+  void initState() {
+    super.initState();
+
+    availableFonts = _availableFonts;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      controller: widget.scrollController,
+      itemCount: availableFonts.length + 1, // with search bar
+      itemBuilder: (context, index) {
+        if (index == 0) {
+          // search bar
+          return _buildSearchBar(context);
+        }
+
+        final fontFamilyName = availableFonts[index - 1];
+        final fontFamily = fontFamilyName != builtInFontFamily()
+            ? GoogleFonts.getFont(fontFamilyName).fontFamily
+            : TextStyle(fontFamily: builtInFontFamily()).fontFamily;
+        return FlowyOptionTile.checkbox(
+          // display the default font name if the font family name is empty
+          text: fontFamilyName.isNotEmpty
+              ? fontFamilyName.parseFontFamilyName()
+              : LocaleKeys.settings_appearance_fontFamily_defaultFont.tr(),
+          isSelected: widget.selectedFontFamilyName == fontFamilyName,
+          showTopBorder: false,
+          onTap: () => widget.onFontFamilySelected(fontFamilyName),
+          fontFamily: fontFamily,
+          backgroundColor: Colors.transparent,
+        );
+      },
+    );
+  }
+
+  Widget _buildSearchBar(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        vertical: 8.0,
+        horizontal: 12.0,
+      ),
+      child: FlowyMobileSearchTextField(
+        onChanged: (keyword) {
+          setState(() {
+            availableFonts = _availableFonts
+                .where(
+                  (font) =>
+                      font.isEmpty || // keep the default one always
+                      font
+                          .parseFontFamilyName()
+                          .toLowerCase()
+                          .contains(keyword.toLowerCase()),
+                )
+                .toList();
+          });
+        },
       ),
     );
   }

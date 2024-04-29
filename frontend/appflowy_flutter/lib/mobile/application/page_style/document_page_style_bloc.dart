@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/log.dart';
@@ -24,41 +26,29 @@ class DocumentPageStyleBloc
             try {
               final layoutObject =
                   await ViewBackendService.getView(view.id).fold(
-                (s) {
-                  return jsonDecode(s.extra);
-                },
+                (s) => jsonDecode(s.extra),
                 (f) => {},
               );
-              final fontLayout = layoutObject[ViewExtKeys.fontLayoutKey] ??
-                  PageStyleFontLayout.normal.toString();
-              final lineHeightLayout =
-                  layoutObject[ViewExtKeys.lineHeightLayoutKey] ??
-                      PageStyleLineHeightLayout.normal.toString();
-              final cover = layoutObject[ViewExtKeys.coverKey] ?? {};
-              final coverType = cover[ViewExtKeys.coverTypeKey] ??
-                  PageStyleCoverImageType.none.toString();
-              final coverValue = cover[ViewExtKeys.coverValueKey] ?? '';
+              final fontLayout = _getSelectedFontLayout(layoutObject);
+              final lineHeightLayout = _getSelectedLineHeightLayout(
+                layoutObject,
+              );
+              final fontFamily = _getSelectedFontFamily(layoutObject);
+              final cover = _getSelectedCover(layoutObject);
+              final coverType = cover.$1;
+              final coverValue = cover.$2;
               emit(
                 state.copyWith(
-                  fontLayout: PageStyleFontLayout.values.firstWhere(
-                    (e) => e.toString() == fontLayout,
-                  ),
-                  lineHeightLayout: PageStyleLineHeightLayout.values.firstWhere(
-                    (e) => e.toString() == lineHeightLayout,
-                  ),
+                  fontLayout: fontLayout,
+                  fontFamily: fontFamily,
+                  lineHeightLayout: lineHeightLayout,
                   coverImage: PageStyleCover(
-                    type: PageStyleCoverImageType.values.firstWhere(
-                      (e) => e.toString() == coverType,
-                    ),
+                    type: coverType,
                     value: coverValue,
                   ),
                   iconPadding: calculateIconPadding(
-                    PageStyleFontLayout.values.firstWhere(
-                      (e) => e.toString() == fontLayout,
-                    ),
-                    PageStyleLineHeightLayout.values.firstWhere(
-                      (e) => e.toString() == lineHeightLayout,
-                    ),
+                    fontLayout,
+                    lineHeightLayout,
                   ),
                 ),
               );
@@ -77,7 +67,7 @@ class DocumentPageStyleBloc
               ),
             );
 
-            await updateLayoutObject();
+            unawaited(updateLayoutObject());
           },
           updateLineHeight: (lineHeightLayout) async {
             emit(
@@ -90,7 +80,7 @@ class DocumentPageStyleBloc
               ),
             );
 
-            await updateLayoutObject();
+            unawaited(updateLayoutObject());
           },
           updateFontFamily: (fontFamily) async {
             emit(
@@ -99,7 +89,7 @@ class DocumentPageStyleBloc
               ),
             );
 
-            await updateLayoutObject();
+            unawaited(updateLayoutObject());
           },
           updateCoverImage: (coverImage) async {
             emit(
@@ -108,7 +98,7 @@ class DocumentPageStyleBloc
               ),
             );
 
-            await updateLayoutObject();
+            unawaited(updateLayoutObject());
           },
         );
       },
@@ -143,6 +133,7 @@ class DocumentPageStyleBloc
         ViewExtKeys.coverTypeKey: state.coverImage.type.toString(),
         ViewExtKeys.coverValueKey: state.coverImage.value,
       },
+      ViewExtKeys.fontKey: state.fontFamily,
     };
     final merged = mergeMaps(oldValue, newValue);
     return jsonEncode(merged);
@@ -170,6 +161,41 @@ class DocumentPageStyleBloc
         break;
     }
     return max(0, padding);
+  }
+
+  PageStyleFontLayout _getSelectedFontLayout(Map layoutObject) {
+    final fontLayout = layoutObject[ViewExtKeys.fontLayoutKey] ??
+        PageStyleFontLayout.normal.toString();
+    return PageStyleFontLayout.values.firstWhere(
+      (e) => e.toString() == fontLayout,
+    );
+  }
+
+  PageStyleLineHeightLayout _getSelectedLineHeightLayout(Map layoutObject) {
+    final lineHeightLayout = layoutObject[ViewExtKeys.lineHeightLayoutKey] ??
+        PageStyleLineHeightLayout.normal.toString();
+    return PageStyleLineHeightLayout.values.firstWhere(
+      (e) => e.toString() == lineHeightLayout,
+    );
+  }
+
+  String _getSelectedFontFamily(Map layoutObject) {
+    return layoutObject[ViewExtKeys.fontKey] ?? builtInFontFamily();
+  }
+
+  (PageStyleCoverImageType, String colorValue) _getSelectedCover(
+    Map layoutObject,
+  ) {
+    final cover = layoutObject[ViewExtKeys.coverKey] ?? {};
+    final coverType = cover[ViewExtKeys.coverTypeKey] ??
+        PageStyleCoverImageType.none.toString();
+    final coverValue = cover[ViewExtKeys.coverValueKey] ?? '';
+    return (
+      PageStyleCoverImageType.values.firstWhere(
+        (e) => e.toString() == coverType,
+      ),
+      coverValue,
+    );
   }
 }
 

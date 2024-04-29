@@ -48,6 +48,8 @@ Future<T?> showMobileBottomSheet<T>(
   double? elevation,
   bool showDoneButton = false,
   bool enableDraggableScrollable = false,
+  // this field is only used if showDragHandle is true
+  Widget Function(BuildContext, ScrollController)? scrollableWidgetBuilder,
   // only used when enableDraggableScrollable is true
   double minChildSize = 0.5,
   double maxChildSize = 0.8,
@@ -130,14 +132,15 @@ Future<T?> showMobileBottomSheet<T>(
             return Column(
               children: [
                 ...children,
-                Expanded(
-                  child: Scrollbar(
-                    child: SingleChildScrollView(
-                      controller: scrollController,
-                      child: child,
+                scrollableWidgetBuilder?.call(context, scrollController) ??
+                    Expanded(
+                      child: Scrollbar(
+                        child: SingleChildScrollView(
+                          controller: scrollController,
+                          child: child,
+                        ),
+                      ),
                     ),
-                  ),
-                ),
               ],
             );
           },

@@ -24,8 +24,16 @@ class PluginArgumentKeys {
 }
 
 class ViewExtKeys {
+  // used for customizing the font family.
+  static String fontKey = 'font';
+
+  // used for customizing the font layout.
   static String fontLayoutKey = 'font_layout';
+
+  // used for customizing the line height layout.
   static String lineHeightLayoutKey = 'line_height_layout';
+
+  // cover keys
   static String coverKey = 'cover';
   static String coverTypeKey = 'type';
   static String coverValueKey = 'value';
