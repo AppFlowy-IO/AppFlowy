@@ -218,8 +218,9 @@ void openUrlCellLink(String content) async {
 
   try {
     uri = Uri.parse(content);
-    if (!uri.hasScheme || uri.scheme == "localhost") {
-      uri = Uri.parse('http://$content');
+    // `Uri` identifies `localhost` as a scheme
+    if (!uri.hasScheme || uri.scheme == 'localhost') {
+      uri = Uri.parse("http://$content");
       await InternetAddress.lookup(uri.host);
     }
   } catch (_) {
