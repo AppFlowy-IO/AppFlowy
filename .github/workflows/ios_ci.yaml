@@ -87,6 +87,6 @@ jobs:
           shutdown_after_job: false
 
         # enable it again if the 12 mins timeout is fixed
-        # - name: Run integration tests
-        #   working-directory: frontend/appflowy_flutter
-        # run: flutter test integration_test/runner.dart -d ${{ steps.simulator-action.outputs.udid }}
+      - name: Run integration tests
+        working-directory: frontend/appflowy_flutter
+        run: flutter test integration_test/runner.dart -d ${{ steps.simulator-action.outputs.udid }}

@@ -122,6 +122,9 @@ void main() {
         }
       }
 
+      // wait for the workspace to be created
+      await tester.waitForSeconds(1);
+
       const workspace1 = 'Workspace 1';
       const workspace2 = 'Workspace 2';
       const workspace3 = 'Workspace 3';

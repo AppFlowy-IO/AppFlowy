@@ -186,6 +186,8 @@ extension AppFlowyTestBase on WidgetTester {
         EnginePhase.sendSemanticsUpdate,
         const Duration(seconds: 5),
       );
+    } else {
+      await pumpAndSettle();
     }
   }
 
