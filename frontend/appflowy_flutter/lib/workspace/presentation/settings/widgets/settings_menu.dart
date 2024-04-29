@@ -56,23 +56,10 @@ class SettingsMenu extends StatelessWidget {
                     changeSelectedPage: changeSelectedPage,
                   ),
                   SettingsMenuElement(
-                    page: SettingsPage.appearance,
+                    page: SettingsPage.workspace,
                     selectedPage: currentPage,
-                    label: LocaleKeys.settings_menu_appearance.tr(),
-                    icon: Icon(
-                      Icons.brightness_4,
-                      color: AFThemeExtension.of(context).textColor,
-                    ),
-                    changeSelectedPage: changeSelectedPage,
-                  ),
-                  SettingsMenuElement(
-                    page: SettingsPage.language,
-                    selectedPage: currentPage,
-                    label: LocaleKeys.settings_menu_language.tr(),
-                    icon: Icon(
-                      Icons.translate,
-                      color: AFThemeExtension.of(context).textColor,
-                    ),
+                    label: LocaleKeys.settings_workspacePage_menuLabel.tr(),
+                    icon: const FlowySvg(FlowySvgs.settings_workplace_m),
                     changeSelectedPage: changeSelectedPage,
                   ),
                   SettingsMenuElement(

@@ -4,12 +4,13 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
 import 'package:appflowy/workspace/application/appearance_defaults.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
-import 'package:appflowy/workspace/presentation/settings/widgets/settings_appearance/document_color_setting_button.dart';
-import 'package:appflowy/workspace/presentation/settings/widgets/settings_appearance/theme_setting_entry_template.dart';
+import 'package:appflowy/workspace/presentation/settings/shared/setting_list_tile.dart';
+import 'package:appflowy/workspace/presentation/settings/widgets/document_color_setting_button.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+// TODO(Mathias/Lucas): Do we need to find a place for this in settings=
 class DocumentCursorColorSetting extends StatelessWidget {
   const DocumentCursorColorSetting({
     super.key,
@@ -22,7 +23,7 @@ class DocumentCursorColorSetting extends StatelessWidget {
   Widget build(BuildContext context) {
     final label =
         LocaleKeys.settings_appearance_documentSettings_cursorColor.tr();
-    return FlowySettingListTile(
+    return SettingListTile(
       label: label,
       resetButtonKey: const Key('DocumentCursorColorResetButton'),
       onResetRequested: () {
@@ -56,9 +57,7 @@ class DocumentCursorColorSetting extends StatelessWidget {
 }
 
 class _CursorColorValueWidget extends StatelessWidget {
-  const _CursorColorValueWidget({
-    required this.cursorColor,
-  });
+  const _CursorColorValueWidget({required this.cursorColor});
 
   final Color cursorColor;
 
@@ -67,11 +66,7 @@ class _CursorColorValueWidget extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Container(
-          color: cursorColor,
-          width: 2,
-          height: 16,
-        ),
+        Container(color: cursorColor, width: 2, height: 16),
         FlowyText(
           LocaleKeys.appName.tr(),
           // To avoid the text color changes when it is hovered in dark mode

@@ -3,8 +3,6 @@ import 'package:integration_test/integration_test.dart';
 import 'desktop/board/board_test_runner.dart' as board_test_runner;
 import 'desktop/settings/settings_runner.dart' as settings_test_runner;
 import 'desktop/sidebar/sidebar_test_runner.dart' as sidebar_test_runner;
-import 'desktop/uncategorized/appearance_settings_test.dart'
-    as appearance_test_runner;
 import 'desktop/uncategorized/emoji_shortcut_test.dart' as emoji_shortcut_test;
 import 'desktop/uncategorized/empty_test.dart' as first_test;
 import 'desktop/uncategorized/hotkeys_test.dart' as hotkeys_test;
@@ -26,7 +24,6 @@ Future<void> runIntegration3OnDesktop() async {
   emoji_shortcut_test.main();
   hotkeys_test.main();
   emoji_shortcut_test.main();
-  appearance_test_runner.main();
   settings_test_runner.main();
   share_markdown_test.main();
   import_files_test.main();

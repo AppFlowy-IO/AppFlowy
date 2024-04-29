@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/util/color_to_hex_string.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/utils/hex_opacity_string_extension.dart';
@@ -5,8 +7,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
-import 'package:flutter/material.dart';
 
+// TODO(Mathias/Lucas): Do we need to find a place for this in settings=
 class DocumentColorSettingButton extends StatelessWidget {
   const DocumentColorSettingButton({
     super.key,
