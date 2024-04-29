@@ -24,16 +24,12 @@ export class AFClientService implements AFService {
     return this.clientId;
   };
 
-  constructor(config: AFServiceConfig) {
+  constructor (config: AFServiceConfig) {
     this.authService = new TauriAuthService(config.cloudConfig, {
       deviceId: this.deviceId,
       clientId: this.clientId,
     });
     this.userService = new TauriUserService();
     this.documentService = new TauriDocumentService();
-  }
-
-  async load() {
-    // Do nothing
   }
 }

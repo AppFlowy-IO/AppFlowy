@@ -1,24 +1,20 @@
-import React, { useContext } from 'react';
-import { Button } from '@mui/material';
-import { useAuth } from '@/components/auth/auth.hooks';
-import { AFConfigContext } from '@/AppConfig';
+import Header from '@/components/layout/Header';
+import { AFScroller } from '@/components/_shared/scroller';
+import React from 'react';
 
 function Layout({ children }: { children: React.ReactNode }) {
-  const { logout } = useAuth();
-  const AFConfig = useContext(AFConfigContext);
-
   return (
     <div>
-      <div>hello world</div>
-      <Button onClick={logout}>logout</Button>
-      <Button
-        onClick={() => {
-          void AFConfig?.service?.documentService.openDocument('test');
+      <Header />
+      <AFScroller
+        overflowXHidden
+        style={{
+          height: 'calc(100vh - 64px)',
         }}
+        className={'appflowy-layout appflowy-scroll-container'}
       >
-        get document
-      </Button>
-      {children}
+        {children}
+      </AFScroller>
     </div>
   );
 }

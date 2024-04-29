@@ -9,10 +9,12 @@ function SignInWithEmail({ open, onClose }: { open: boolean; onClose: () => void
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { signInWithEmailPassword } = useAuth();
+
   const handleSignIn = async () => {
     setLoading(true);
     try {
       await signInWithEmailPassword(email, password);
+      onClose();
     } catch (e) {
       // Handle error
     }
@@ -27,9 +29,11 @@ function SignInWithEmail({ open, onClose }: { open: boolean; onClose: () => void
       sx={{
         zIndex: 1500,
       }}
+      data-cy={'signInWithEmailDialog'}
       PaperProps={{
         className: 'w-[400px]',
       }}
+      keepMounted={false}
       onKeyDown={(e) => {
         if (e.key === 'Enter') {
           e.preventDefault();
@@ -41,6 +45,7 @@ function SignInWithEmail({ open, onClose }: { open: boolean; onClose: () => void
         <TextField
           label={'Email'}
           size={'small'}
+          data-cy={'email'}
           required={true}
           placeholder={'name@gmail.com'}
           type={'email'}
@@ -48,6 +53,7 @@ function SignInWithEmail({ open, onClose }: { open: boolean; onClose: () => void
         />
         <TextField
           size={'small'}
+          data-cy={'password'}
           required={true}
           label={'Password'}
           placeholder={'Password'}
@@ -59,8 +65,15 @@ function SignInWithEmail({ open, onClose }: { open: boolean; onClose: () => void
         <Button variant={'outlined'} className={'flex-1'} color={'inherit'} onClick={onClose}>
           {t('button.cancel')}
         </Button>
-        <Button disabled={loading} className={'flex-1'} variant={'contained'} onClick={handleSignIn}>
-          {loading ? <CircularProgress size={12} /> : t('button.signIn')}
+        <Button
+          data-cy={'submit'}
+          disabled={loading}
+          className={'justify-content flex h-[33px] flex-1 items-center gap-2'}
+          variant={'contained'}
+          onClick={handleSignIn}
+        >
+          {loading && <CircularProgress size={20} />}
+          {t('button.signIn')}
         </Button>
       </DialogActions>
     </Dialog>

@@ -1,22 +1,14 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
-import Welcome from './Welcome';
 
-function SplashScreen({
-  isAuthenticated,
-}: {
-  isAuthenticated: boolean;
-}) {
-  if (isAuthenticated) {
-    return (
-      <Layout>
-        <Outlet/>
-      </Layout>
-    );
-  } else {
-    return <Welcome/>;
-  }
+function SplashScreen () {
+
+  return (
+    <Layout>
+      <Outlet/>
+    </Layout>
+  );
 }
 
 export default SplashScreen;
