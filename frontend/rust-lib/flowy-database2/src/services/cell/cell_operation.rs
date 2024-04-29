@@ -14,25 +14,23 @@ use crate::services::group::make_no_status_group;
 
 /// Decode the opaque cell data into readable format content
 pub trait CellDataDecoder: TypeOption {
-  /// Tries to decode the [Cell] to `decoded_field_type`'s cell data. Sometimes, the `field_type`
-  /// of the `Field` is not equal to the `decoded_field_type`(This happened When switching
-  /// the field type of the `Field` to another field type). So the cell data is need to do
-  /// some transformation.
-  ///
-  /// For example, the current field type of the `Field` is a checkbox. When switching the field
-  /// type from the checkbox to single select, it will create two new options,`Yes` and `No`, if they don't exist.
-  /// But the data of the cell doesn't change. We can't iterate all the rows to transform the cell
-  /// data that can be parsed by the current field type. One approach is to transform the cell data
-  /// when reading.
-  fn decode_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData>;
-
-  /// Transform the cell data from one field type to another
+  /// Decodes the [Cell] into a `CellData` of this `TypeOption`'s field type.
+  /// The `field_type` of the `Cell` should be the same as that of this
+  /// `TypeOption`.
   ///
   /// # Arguments
   ///
-  /// * `cell`: the cell in the current field type
-  /// * `transformed_field_type`: the cell will be transformed to the is field type's cell data.
-  /// current `TypeOption` field type.
+  /// * `cell`: the cell to be decoded
+  ///
+  fn decode_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData>;
+
+  /// Decodes the [Cell] that is of a particular field type into a `CellData` of this `TypeOption`'s field type.
+  ///
+  /// # Arguments
+  ///
+  /// * `cell`: the cell to be decoded
+  /// * `from_field_type`: the original field type of the `cell``
+  /// * `field`: the `Field` which this cell belongs to
   ///
   fn decode_cell_with_transform(
     &self,
@@ -43,26 +41,28 @@ pub trait CellDataDecoder: TypeOption {
     None
   }
 
-  /// Decode the cell data to readable `String`
+  /// Decode the cell data to a readable `String`
   /// For example, The string of the Multi-Select cell will be a list of the option's name
   /// separated by a comma.
+  ///
   fn stringify_cell_data(&self, cell_data: <Self as TypeOption>::CellData) -> String;
 
   /// Decode the cell into f64
   /// Different field type has different way to decode the cell data into f64
   /// If the field type doesn't support to decode the cell data into f64, it will return None
+  ///
   fn numeric_cell(&self, cell: &Cell) -> Option<f64>;
 }
 
 pub trait CellDataChangeset: TypeOption {
-  /// The changeset is able to parse into the concrete data struct if `TypeOption::CellChangeset`
-  /// implements the `FromCellChangesetString` trait e.g.
-  /// SelectOptionCellChangeset, DateCellChangeset
+  /// Applies a changeset to a given cell, returning the new `Cell` and
+  /// `TypeOption::CellData`
   ///
   /// # Arguments
   ///
   /// * `changeset`: the cell changeset that represents the changes of the cell.
-  /// * `cell`: the data of the cell. It will be None if the cell does not contain any data.
+  /// * `cell`: the data of the cell. It might be `None`` if the cell does not contain any data.
+  ///
   fn apply_changeset(
     &self,
     changeset: <Self as TypeOption>::CellChangeset,
@@ -70,12 +70,17 @@ pub trait CellDataChangeset: TypeOption {
   ) -> FlowyResult<(Cell, <Self as TypeOption>::CellData)>;
 }
 
-/// changeset: It will be deserialized into specific data base on the FieldType.
-///     For example,
-///         FieldType::RichText => String
-///         FieldType::SingleSelect => SelectOptionChangeset
+/// Applies a cell changeset to a cell
 ///
-/// cell_rev: It will be None if the cell does not contain any data.
+/// Check `TypeOptionCellDataHandler::handle_cell_changeset` for more details
+///
+/// # Arguments
+///
+/// * `changeset`: The cell changeset to be applied
+/// * `cell`: The cell to be changed
+/// * `field`: The field which the cell belongs to
+/// * `cell_data_cache`: for quickly getting cell data
+///
 pub fn apply_cell_changeset(
   changeset: BoxAny,
   cell: Option<Cell>,
@@ -88,56 +93,37 @@ pub fn apply_cell_changeset(
   }
 }
 
-pub fn get_cell_protobuf(
-  cell: &Cell,
-  field: &Field,
-  cell_cache: Option<CellCache>,
-) -> CellProtobufBlob {
-  match try_decode_cell_to_cell_protobuf(cell, field, cell_cache) {
-    Ok(cell_bytes) => cell_bytes,
-    Err(e) => {
-      tracing::error!("Decode cell data failed, {:?}", e);
-      CellProtobufBlob::default()
-    },
-  }
-}
-
-/// Decode the opaque cell data from one field type to another using the corresponding `TypeOption`
+/// Gets the cell protobuf of a cell, returning default when parsing isn't
+/// successful.
 ///
-/// The cell data might become an empty string depends on the to_field_type's `TypeOption`
-/// support transform the from_field_type's cell data or not.
+/// Check `TypeOptionCellDataHandler::handle_get_protobuf_cell_data` for more
+/// details
 ///
 /// # Arguments
 ///
-/// * `cell`: the opaque cell string that can be decoded by corresponding structs.
-/// * `from_field_type`: the original field type of the passed-in cell data. Check the `TypeCellData`
-/// that is used to save the origin field type of the cell data.
-/// * `to_field_type`: decode the passed-in cell data to this field type. It will use the to_field_type's
-/// TypeOption to decode this cell data.
-/// * `field`: used to get the corresponding TypeOption for the specified field type.
+/// * `cell`: The cell from which the protobuf should be created
+/// * `field`: The field which the cell belongs to
+/// * `cell_data_cache`: for quickly getting cell data
 ///
-/// returns: CellBytes
-///
-pub fn try_decode_cell_to_cell_protobuf(
+pub fn get_cell_protobuf(
   cell: &Cell,
   field: &Field,
   cell_data_cache: Option<CellCache>,
-) -> FlowyResult<CellProtobufBlob> {
+) -> CellProtobufBlob {
   match TypeOptionCellExt::new(field, cell_data_cache).get_type_option_cell_data_handler() {
-    None => Ok(CellProtobufBlob::default()),
-    Some(handler) => handler.handle_get_protobuf_cell_data(cell, field),
+    None => CellProtobufBlob::default(),
+    Some(handler) => handler
+      .handle_get_protobuf_cell_data(cell, field)
+      .unwrap_or_default(),
   }
 }
 
-/// Returns a string that represents the current field_type's cell data.
-/// For example, a Multi-Select cell will be represented by a list of the options' names
-/// separated by commas.
+/// Returns a string that represents the cell's data. Using the field type of the cell and the field's type option, create a TypeOptionCellDataHandler. Then,
+/// get the cell data in that field type and stringify it.
 ///
 /// # Arguments
 ///
 /// * `cell`: the opaque cell string that can be decoded by corresponding structs
-/// * `to_field_type`: the cell will be decoded to this field type's cell data.
-/// * `from_field_type`: the original field type of the passed-in cell data.
 /// * `field`: used to get the corresponding TypeOption for the specified field type.
 ///
 pub fn stringify_cell(cell: &Cell, field: &Field) -> String {

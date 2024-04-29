@@ -46,15 +46,15 @@
     "unmatchedPasswordError": "Parola tekrarı girmiş olduğunuz parola ile aynı değil",
     "syncPromptMessage": "Veriler senkronize ediliyor, lütfen bu sayfayı kapatmayın",
     "or": "VEYA",
+    "signInWith": "Şununla giriş yapın:",
+    "signInWithEmail": "E-posta ile giriş yap",
+    "pleaseInputYourEmail": "Lütfen e-posta adresinizi girin",
+    "magicLinkSent": "Sihirli bağlantı e-postanıza gönderildi, lütfen gelen kutunuzu kontrol edin",
+    "invalidEmail": "Lütfen geçerli bir e-posta adresi girin",
     "LogInWithGoogle": "Google ile Giriş Yap",
     "LogInWithGithub": "Github ile Giriş Yap",
     "LogInWithDiscord": "Discord ile Giriş Yap",
-    "signInWith": "Şununla giriş yapın:",
-    "signInWithEmail": "E-posta ile giriş yap",
-    "logInWithMagicLink": "Sihirli Bağlantı ile Giriş Yap",
-    "pleaseInputYourEmail": "Lütfen e-posta adresinizi girin",
-    "magicLinkSent": "Sihirli bağlantı e-postanıza gönderildi, lütfen gelen kutunuzu kontrol edin",
-    "invalidEmail": "Lütfen geçerli bir e-posta adresi girin"
+    "logInWithMagicLink": "Sihirli Bağlantı ile Giriş Yap"
   },
   "workspace": {
     "chooseWorkspace": "Çalışma Alanınızı Seçin",
@@ -605,7 +605,7 @@
       "isChecked": "İşaretli",
       "isUnchecked": "İşaretsiz",
       "choicechipPrefix": {
-      	"is": "durum"
+        "is": "durum"
       }
     },
     "checklistFilter": {
@@ -655,7 +655,6 @@
       "insertRight": "Sağa Ekle",
       "duplicate": "Kopyala",
       "delete": "Sil",
-      "wrap": "Sar",
       "clear": "Hücreleri temizle",
       "textFieldName": "Metin",
       "checkboxFieldName": "Onay Kutusu",
@@ -701,7 +700,8 @@
       "newColumn": "Yeni Sütun",
       "format": "Format",
       "reminderOnDateTooltip": "Bu hücrenin planlanmış bir hatırlatıcısı var",
-      "optionAlreadyExist": "Seçenek zaten mevcut"
+      "optionAlreadyExist": "Seçenek zaten mevcut",
+      "wrap": "Sar"
     },
     "rowPage": {
       "newField": "Yeni bir alan ekle",

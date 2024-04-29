@@ -355,7 +355,6 @@ pub struct CreateRowPayloadPB {
   pub data: HashMap<String, String>,
 }
 
-#[derive(Default)]
 pub struct CreateRowParams {
   pub collab_params: collab_database::rows::CreateRowParams,
   pub open_after_create: bool,

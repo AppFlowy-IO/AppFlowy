@@ -43,10 +43,10 @@
     "unmatchedPasswordError": "Hasła nie są takie same",
     "syncPromptMessage": "Synchronizacja danych może chwilę potrwać. Proszę nie zamykać tej strony",
     "or": "ALBO",
+    "signInWith": "Zaloguj się korzystając z:",
     "LogInWithGoogle": "Zaloguj się za pomocą Google",
     "LogInWithGithub": "Zaloguj się za pomocą Githuba",
     "LogInWithDiscord": "Zaloguj się za pomocą Discorda",
-    "signInWith": "Zaloguj się korzystając z:",
     "loginAsGuestButtonText": "Rozpocznij"
   },
   "workspace": {

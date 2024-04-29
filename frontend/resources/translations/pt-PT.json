@@ -43,10 +43,10 @@
     "unmatchedPasswordError": "As palavras-passes não conferem.",
     "syncPromptMessage": "A sincronização dos dados pode demorar um pouco. Por favor não feche esta página",
     "or": "OU",
+    "signInWith": "Entrar com:",
     "LogInWithGoogle": "Iniciar sessão com o Google",
     "LogInWithGithub": "Iniciar sessão com o Github",
     "LogInWithDiscord": "Iniciar sessão com o Discord",
-    "signInWith": "Entrar com:",
     "loginAsGuestButtonText": "Iniciar"
   },
   "workspace": {

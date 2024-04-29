@@ -102,7 +102,7 @@ fn database_from_fields_and_rows(
   let rows = rows
     .iter()
     .map(|cells| {
-      let mut params = CreateRowParams::new(gen_row_id());
+      let mut params = CreateRowParams::new(gen_row_id(), database_id.clone());
       for (index, cell_content) in cells.iter().enumerate() {
         if let Some(field) = fields.get(index) {
           let field_type = FieldType::from(field.field_type);
