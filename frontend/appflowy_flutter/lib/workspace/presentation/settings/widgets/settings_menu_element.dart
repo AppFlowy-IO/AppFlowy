@@ -1,8 +1,10 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/workspace/application/settings/settings_dialog_bloc.dart';
 import 'package:flowy_infra/size.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
-import 'package:flutter/material.dart';
 
 class SettingsMenuElement extends StatelessWidget {
   const SettingsMenuElement({
@@ -17,27 +19,22 @@ class SettingsMenuElement extends StatelessWidget {
   final SettingsPage page;
   final SettingsPage selectedPage;
   final String label;
-  final IconData icon;
+  final Widget icon;
   final Function changeSelectedPage;
 
   @override
   Widget build(BuildContext context) {
     return FlowyHover(
+      isSelected: () => page == selectedPage,
       resetHoverOnRebuild: false,
       style: HoverStyle(
-        hoverColor: Theme.of(context).colorScheme.primary,
+        hoverColor: AFThemeExtension.of(context).greySelect,
+        borderRadius: BorderRadius.circular(4),
       ),
       child: ListTile(
-        leading: Icon(
-          icon,
-          size: 16,
-          color: page == selectedPage
-              ? Theme.of(context).colorScheme.onSurface
-              : null,
-        ),
-        onTap: () {
-          changeSelectedPage(page);
-        },
+        dense: true,
+        leading: icon,
+        onTap: () => changeSelectedPage(page),
         selected: page == selectedPage,
         selectedColor: Theme.of(context).colorScheme.onSurface,
         selectedTileColor: Theme.of(context).colorScheme.primary,
@@ -45,7 +42,7 @@ class SettingsMenuElement extends StatelessWidget {
           borderRadius: BorderRadius.circular(5),
         ),
         minLeadingWidth: 0,
-        title: FlowyText.semibold(
+        title: FlowyText.medium(
           label,
           fontSize: FontSizes.s14,
           overflow: TextOverflow.ellipsis,

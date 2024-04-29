@@ -1,8 +1,9 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_cubit.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_customize_shortcuts_view.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:bloc_test/bloc_test.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 // ignore: depend_on_referenced_packages
@@ -32,8 +33,7 @@ void main() {
             await widgetTester.pumpWidget(
               BlocProvider.value(
                 value: mockShortcutsCubit,
-                child:
-                    const MaterialApp(home: SettingsCustomizeShortcutsView()),
+                child: const MaterialApp(home: SettingsShortcutsView()),
               ),
             );
             expect(find.byType(CircularProgressIndicator), findsOneWidget);
@@ -49,8 +49,7 @@ void main() {
               await widgetTester.pumpWidget(
                 BlocProvider.value(
                   value: mockShortcutsCubit,
-                  child:
-                      const MaterialApp(home: SettingsCustomizeShortcutsView()),
+                  child: const MaterialApp(home: SettingsShortcutsView()),
                 ),
               );
               expect(find.byType(CircularProgressIndicator), findsOneWidget);
@@ -99,8 +98,7 @@ void main() {
               await widgetTester.pumpWidget(
                 BlocProvider.value(
                   value: mockShortcutsCubit,
-                  child:
-                      const MaterialApp(home: SettingsCustomizeShortcutsView()),
+                  child: const MaterialApp(home: SettingsShortcutsView()),
                 ),
               );
 
@@ -126,8 +124,7 @@ void main() {
             await tester.pumpWidget(
               BlocProvider.value(
                 value: mockShortcutsCubit,
-                child:
-                    const MaterialApp(home: SettingsCustomizeShortcutsView()),
+                child: const MaterialApp(home: SettingsShortcutsView()),
               ),
             );
             expect(find.byType(ShortcutsErrorView), findsOneWidget);

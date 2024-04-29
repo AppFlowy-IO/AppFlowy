@@ -62,14 +62,10 @@ class UserSettingButton extends StatelessWidget {
   }
 }
 
-void showSettingsDialog(
-  BuildContext context,
-  UserProfilePB userProfile,
-) {
-  showDialog(
-    context: context,
-    builder: (dialogContext) {
-      return BlocProvider<DocumentAppearanceCubit>.value(
+void showSettingsDialog(BuildContext context, UserProfilePB userProfile) =>
+    showDialog(
+      context: context,
+      builder: (dialogContext) => BlocProvider<DocumentAppearanceCubit>.value(
         key: _settingsDialogKey,
         value: BlocProvider.of<DocumentAppearanceCubit>(dialogContext),
         child: SettingsDialog(
@@ -81,10 +77,9 @@ void showSettingsDialog(
           },
           dismissDialog: () {
             if (Navigator.of(dialogContext).canPop()) {
-              Navigator.of(dialogContext).pop();
-            } else {
-              Log.warn("Can't pop dialog context");
+              return Navigator.of(dialogContext).pop();
             }
+            Log.warn("Can't pop dialog context");
           },
           restartApp: () async {
             // Pop the dialog using the dialog context
@@ -92,7 +87,5 @@ void showSettingsDialog(
             await runAppFlowy();
           },
         ),
-      );
-    },
-  );
-}
+      ),
+    );

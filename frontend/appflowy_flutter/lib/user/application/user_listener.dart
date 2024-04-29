@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
+
 import 'package:appflowy/core/notification/folder_notification.dart';
 import 'package:appflowy/core/notification/user_notification.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';

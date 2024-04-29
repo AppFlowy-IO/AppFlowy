@@ -253,7 +253,8 @@
     "editContact": "Edit Contact"
   },
   "button": {
-    "ok": "OK",
+    "ok": "Ok",
+    "confirm": "Confirm",
     "done": "Done",
     "cancel": "Cancel",
     "signIn": "Sign In",
@@ -316,6 +317,35 @@
   },
   "settings": {
     "title": "Settings",
+    "accountPage": {
+      "menuLabel": "My account",
+      "title": "My account",
+      "description": "Customize your profile, manage account security, open AI keys, or login into your account.",
+      "general": {
+        "title": "Account name & profile image",
+        "changeProfilePicture": "Change"
+      },
+      "email": {
+        "title": "Email",
+        "actions": {
+          "change": "Change email"
+        }
+      },
+      "keys": {
+        "title": "AI Keys",
+        "openAILabel": "OpenAI key",
+        "openAITooltip": "The OpenAPI API key to use for the AI models",
+        "openAIHint": "Input your OpenAI API Key",
+        "stabilityAILabel": "StabilityAI key",
+        "stabilityAITooltip": "The Stability API key to use for the AI models",
+        "stabilityAIHint": "Input your Stability API Key"
+      },
+      "login": {
+        "title": "Account login",
+        "loginLabel": "Log in",
+        "logoutLabel": "Log out"
+      }
+    },
     "menu": {
       "appearance": "Appearance",
       "language": "Language",
