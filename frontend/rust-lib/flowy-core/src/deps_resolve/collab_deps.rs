@@ -9,8 +9,9 @@ use flowy_sqlite::{
 };
 use flowy_user::services::authenticate_user::AuthenticateUser;
 
+use collab_integrate::collab_builder::WorkspaceCollabIntegrate;
 use lib_infra::util::timestamp;
-use std::sync::Weak;
+use std::sync::{Arc, Weak};
 use tracing::debug;
 
 pub struct SnapshotDBImpl(pub Weak<AuthenticateUser>);
@@ -205,5 +206,28 @@ impl CollabSnapshotSql {
       affected_row
     );
     Ok(())
+  }
+}
+
+pub(crate) struct WorkspaceCollabIntegrateImpl(pub Weak<AuthenticateUser>);
+
+impl WorkspaceCollabIntegrateImpl {
+  fn upgrade_user(&self) -> Result<Arc<AuthenticateUser>, FlowyError> {
+    let user = self
+      .0
+      .upgrade()
+      .ok_or(FlowyError::internal().with_context("Unexpected error: UserSession is None"))?;
+    Ok(user)
+  }
+}
+
+impl WorkspaceCollabIntegrate for WorkspaceCollabIntegrateImpl {
+  fn workspace_id(&self) -> Result<String, anyhow::Error> {
+    let workspace_id = self.upgrade_user()?.workspace_id()?;
+    Ok(workspace_id)
+  }
+
+  fn device_id(&self) -> Result<String, anyhow::Error> {
+    Ok(self.upgrade_user()?.user_config.device_id.clone())
   }
 }

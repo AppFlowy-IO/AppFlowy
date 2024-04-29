@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/presentation/command_palette/widgets/search_result_tile.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/trash.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-search/entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-search/result.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 

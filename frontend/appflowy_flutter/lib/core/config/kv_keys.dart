@@ -68,5 +68,6 @@ class KVKeys {
   /// The key for saving the last opened workspace id
   ///
   /// The workspace id is a string.
+  @Deprecated('deprecated in version 0.5.5')
   static const String lastOpenedWorkspaceId = 'lastOpenedWorkspaceId';
 }

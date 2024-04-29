@@ -1,62 +1,79 @@
 import 'package:appflowy/core/frameless_window.dart';
 import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/magic_link_sign_in_buttons.dart';
+import 'package:appflowy/user/application/sign_in_bloc.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/widgets.dart';
 import 'package:appflowy/user/presentation/widgets/widgets.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class DesktopSignInScreen extends StatelessWidget {
-  const DesktopSignInScreen({super.key, required this.isLoading});
-
-  final bool isLoading;
+  const DesktopSignInScreen({
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
     const indicatorMinHeight = 4.0;
-    return Scaffold(
-      appBar: const PreferredSize(
-        preferredSize: Size(double.infinity, 60),
-        child: MoveWindowDetector(),
-      ),
-      body: Center(
-        child: AuthFormContainer(
-          children: [
-            FlowyLogoTitle(
-              title: LocaleKeys.welcomeText.tr(),
-              logoSize: const Size(60, 60),
+    return BlocBuilder<SignInBloc, SignInState>(
+      builder: (context, state) {
+        return Scaffold(
+          appBar: const PreferredSize(
+            preferredSize: Size(double.infinity, 60),
+            child: MoveWindowDetector(),
+          ),
+          body: Center(
+            child: AuthFormContainer(
+              children: [
+                FlowyLogoTitle(
+                  title: LocaleKeys.welcomeText.tr(),
+                  logoSize: const Size(60, 60),
+                ),
+                const VSpace(30),
+
+                // const SignInAnonymousButton(),
+                const SignInWithMagicLinkButtons(),
+
+                // third-party sign in.
+                const VSpace(20),
+
+                if (isAuthEnabled) ...[
+                  const _OrDivider(),
+                  const VSpace(10),
+                  const ThirdPartySignInButtons(),
+                ],
+                const VSpace(20),
+
+                // anonymous sign in
+                const SignInAnonymousButtonV2(),
+                const VSpace(10),
+
+                SwitchSignInSignUpButton(
+                  onTap: () {
+                    final type = state.loginType == LoginType.signIn
+                        ? LoginType.signUp
+                        : LoginType.signIn;
+                    context.read<SignInBloc>().add(
+                          SignInEvent.switchLoginType(type),
+                        );
+                  },
+                ),
+
+                // loading status
+                const VSpace(indicatorMinHeight),
+                state.isSubmitting
+                    ? const LinearProgressIndicator(
+                        minHeight: indicatorMinHeight,
+                      )
+                    : const VSpace(indicatorMinHeight),
+                const VSpace(20),
+              ],
             ),
-            const VSpace(30),
-
-            // const SignInAnonymousButton(),
-            const SignInWithMagicLinkButtons(),
-
-            // third-party sign in.
-            const VSpace(20),
-
-            if (isAuthEnabled) ...[
-              const _OrDivider(),
-              const VSpace(10),
-              const ThirdPartySignInButtons(),
-            ],
-            const VSpace(20),
-
-            // anonymous sign in
-            const SignInAnonymousButtonV2(),
-
-            // loading status
-            const VSpace(indicatorMinHeight),
-            isLoading
-                ? const LinearProgressIndicator(
-                    minHeight: indicatorMinHeight,
-                  )
-                : const VSpace(indicatorMinHeight),
-            const VSpace(20),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }

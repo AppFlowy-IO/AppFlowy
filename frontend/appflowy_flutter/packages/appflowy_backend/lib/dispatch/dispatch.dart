@@ -14,6 +14,7 @@ import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-document/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-search/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:ffi/ffi.dart';
@@ -25,8 +26,6 @@ import '../protobuf/flowy-config/entities.pb.dart';
 import '../protobuf/flowy-config/event_map.pb.dart';
 import '../protobuf/flowy-date/entities.pb.dart';
 import '../protobuf/flowy-date/event_map.pb.dart';
-import '../protobuf/flowy-search/entities.pb.dart';
-import '../protobuf/flowy-search/event_map.pb.dart';
 
 import 'error.dart';
 

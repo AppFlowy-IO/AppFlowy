@@ -17,6 +17,7 @@ use tokio_stream::wrappers::WatchStream;
 use tracing::{error, event, info, warn};
 use uuid::Uuid;
 
+use crate::af_cloud::define::ServerUser;
 use flowy_database_pub::cloud::DatabaseCloudService;
 use flowy_document_pub::cloud::DocumentCloudService;
 use flowy_error::{ErrorCode, FlowyError};
@@ -42,6 +43,7 @@ pub struct AppFlowyCloudServer {
   network_reachable: Arc<AtomicBool>,
   pub device_id: String,
   ws_client: Arc<WSClient>,
+  user: Arc<dyn ServerUser>,
 }
 
 impl AppFlowyCloudServer {
@@ -50,6 +52,7 @@ impl AppFlowyCloudServer {
     enable_sync: bool,
     mut device_id: String,
     client_version: &str,
+    user: Arc<dyn ServerUser>,
   ) -> Self {
     // The device id can't be empty, so we generate a new one if it is.
     if device_id.is_empty() {
@@ -83,6 +86,7 @@ impl AppFlowyCloudServer {
       network_reachable,
       device_id,
       ws_client,
+      user,
     }
   }
 
@@ -159,28 +163,41 @@ impl AppFlowyServer for AppFlowyCloudServer {
       }
     });
 
-    Arc::new(AFCloudUserAuthServiceImpl::new(server, rx))
+    Arc::new(AFCloudUserAuthServiceImpl::new(
+      server,
+      rx,
+      self.user.clone(),
+    ))
   }
 
   fn folder_service(&self) -> Arc<dyn FolderCloudService> {
     let server = AFServerImpl {
       client: self.get_client(),
     };
-    Arc::new(AFCloudFolderCloudServiceImpl(server))
+    Arc::new(AFCloudFolderCloudServiceImpl {
+      inner: server,
+      user: self.user.clone(),
+    })
   }
 
   fn database_service(&self) -> Arc<dyn DatabaseCloudService> {
     let server = AFServerImpl {
       client: self.get_client(),
     };
-    Arc::new(AFCloudDatabaseCloudServiceImpl(server))
+    Arc::new(AFCloudDatabaseCloudServiceImpl {
+      inner: server,
+      user: self.user.clone(),
+    })
   }
 
   fn document_service(&self) -> Arc<dyn DocumentCloudService> {
     let server = AFServerImpl {
       client: self.get_client(),
     };
-    Arc::new(AFCloudDocumentCloudServiceImpl(server))
+    Arc::new(AFCloudDocumentCloudServiceImpl {
+      inner: server,
+      user: self.user.clone(),
+    })
   }
 
   fn subscribe_ws_state(&self) -> Option<WSConnectStateReceiver> {

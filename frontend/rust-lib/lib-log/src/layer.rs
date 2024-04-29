@@ -1,3 +1,4 @@
+use chrono::Local;
 use std::{fmt, io::Write};
 
 use serde::ser::{SerializeMap, Serializer};
@@ -45,7 +46,7 @@ where
   ) -> Result<(), std::io::Error> {
     map_serializer.serialize_entry(MESSAGE, &message)?;
     // map_serializer.serialize_entry(LEVEL, &format!("{}", level))?;
-    // map_serializer.serialize_entry(TIME, &chrono::Utc::now().timestamp())?;
+    map_serializer.serialize_entry(TIME, &Local::now().format("%m-%d %H:%M:%S").to_string())?;
     Ok(())
   }
 

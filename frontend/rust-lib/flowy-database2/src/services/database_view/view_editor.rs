@@ -45,6 +45,7 @@ use super::notify_did_update_calculation;
 use super::view_calculations::make_calculations_controller;
 
 pub struct DatabaseViewEditor {
+  database_id: String,
   pub view_id: String,
   delegate: Arc<dyn DatabaseViewOperation>,
   group_controller: Arc<RwLock<Option<Box<dyn GroupController>>>>,
@@ -62,6 +63,7 @@ impl Drop for DatabaseViewEditor {
 
 impl DatabaseViewEditor {
   pub async fn new(
+    database_id: String,
     view_id: String,
     delegate: Arc<dyn DatabaseViewOperation>,
     cell_cache: CellCache,
@@ -104,6 +106,7 @@ impl DatabaseViewEditor {
       make_calculations_controller(&view_id, delegate.clone(), notifier.clone()).await;
 
     Ok(Self {
+      database_id,
       view_id,
       delegate,
       group_controller,
@@ -128,14 +131,17 @@ impl DatabaseViewEditor {
     &self,
     params: CreateRowPayloadPB,
   ) -> FlowyResult<CreateRowParams> {
+    let timestamp = timestamp();
     let mut result = CreateRowParams {
       collab_params: collab_database::rows::CreateRowParams {
         id: gen_row_id(),
+        database_id: self.database_id.clone(),
         cells: Cells::new(),
         height: 60,
         visibility: true,
         row_position: params.row_position.try_into()?,
-        timestamp: timestamp(),
+        created_at: timestamp,
+        modified_at: timestamp,
       },
       open_after_create: false,
     };

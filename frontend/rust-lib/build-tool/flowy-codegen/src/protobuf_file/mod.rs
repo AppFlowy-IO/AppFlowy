@@ -197,7 +197,7 @@ fn generate_ts_protobuf_files(
     .write(true)
     .append(false)
     .truncate(true)
-    .open(&ts_index)
+    .open(ts_index)
   {
     Ok(ref mut file) => {
       let mut export = String::new();

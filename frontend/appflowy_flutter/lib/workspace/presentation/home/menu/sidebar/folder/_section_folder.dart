@@ -3,6 +3,7 @@ import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
+import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/folder/_folder_header.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/rename_view_dialog.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
@@ -84,14 +85,17 @@ class SectionFolder extends StatelessWidget {
                     level: 0,
                     leftPadding: 16,
                     isFeedback: false,
-                    onSelected: (view) {
+                    onSelected: (view, viewContext) {
                       if (HardwareKeyboard.instance.isControlPressed) {
                         context.read<TabsBloc>().openTab(view);
                       }
 
                       context.read<TabsBloc>().openPlugin(view);
+                      viewContext.read<ViewBloc>().add(
+                            const ViewEvent.setIsExpanded(true),
+                          );
                     },
-                    onTertiarySelected: (view) =>
+                    onTertiarySelected: (view, viewContext) =>
                         context.read<TabsBloc>().openTab(view),
                     isHoverEnabled: isHoverEnabled,
                   ),
@@ -110,8 +114,8 @@ class SectionFolder extends StatelessWidget {
                   level: 0,
                   leftPadding: 16,
                   isFeedback: false,
-                  onSelected: (_) {},
-                  onTertiarySelected: (_) {},
+                  onSelected: (_, __) {},
+                  onTertiarySelected: (_, __) {},
                   isHoverEnabled: isHoverEnabled,
                   isPlaceholder: true,
                 ),

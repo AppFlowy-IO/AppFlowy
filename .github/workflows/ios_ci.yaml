@@ -19,7 +19,7 @@ on:
 
 env:
   FLUTTER_VERSION: "3.19.0"
-  RUST_TOOLCHAIN: "1.75"
+  RUST_TOOLCHAIN: "1.77.2"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -31,7 +31,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        os: [macos-14]
+        os: [ macos-14 ]
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -86,7 +86,7 @@ jobs:
           model: 'iPhone 15'
           shutdown_after_job: false
 
-      # enable it again if the 12 mins timeout is fixed
-      # - name: Run integration tests
-      #   working-directory: frontend/appflowy_flutter
+        # enable it again if the 12 mins timeout is fixed
+        # - name: Run integration tests
+        #   working-directory: frontend/appflowy_flutter
         # run: flutter test integration_test/runner.dart -d ${{ steps.simulator-action.outputs.udid }}
