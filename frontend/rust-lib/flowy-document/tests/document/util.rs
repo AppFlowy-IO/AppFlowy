@@ -9,11 +9,10 @@ use nanoid::nanoid;
 use parking_lot::Once;
 use tempfile::TempDir;
 use tracing_subscriber::{fmt::Subscriber, util::SubscriberInitExt, EnvFilter};
-use uuid::Uuid;
 
 use collab_integrate::collab_builder::{
   AppFlowyCollabBuilder, CollabCloudPluginProvider, CollabPluginProviderContext,
-  CollabPluginProviderType,
+  CollabPluginProviderType, WorkspaceCollabIntegrate,
 };
 use collab_integrate::CollabKVDB;
 use flowy_document::document::MutexDocument;
@@ -35,9 +34,17 @@ impl DocumentTest {
     let cloud_service = Arc::new(LocalTestDocumentCloudServiceImpl());
     let file_storage = Arc::new(DocumentTestFileStorageService) as Arc<dyn ObjectStorageService>;
     let document_snapshot = Arc::new(DocumentTestSnapshot);
+
+    let builder = Arc::new(AppFlowyCollabBuilder::new(
+      DefaultCollabStorageProvider(),
+      WorkspaceCollabIntegrateImpl {
+        workspace_id: user.workspace_id.clone(),
+      },
+    ));
+
     let manager = DocumentManager::new(
       Arc::new(user),
-      default_collab_builder(),
+      builder,
       cloud_service,
       Arc::downgrade(&file_storage),
       document_snapshot,
@@ -55,6 +62,7 @@ impl Deref for DocumentTest {
 }
 
 pub struct FakeUser {
+  workspace_id: String,
   collab_db: Arc<CollabKVDB>,
 }
 
@@ -65,8 +73,12 @@ impl FakeUser {
     let tempdir = TempDir::new().unwrap();
     let path = tempdir.into_path();
     let collab_db = Arc::new(CollabKVDB::open(path).unwrap());
+    let workspace_id = uuid::Uuid::new_v4().to_string();
 
-    Self { collab_db }
+    Self {
+      collab_db,
+      workspace_id,
+    }
   }
 }
 
@@ -76,7 +88,7 @@ impl DocumentUserService for FakeUser {
   }
 
   fn workspace_id(&self) -> Result<String, FlowyError> {
-    Ok(Uuid::new_v4().to_string())
+    Ok(self.workspace_id.clone())
   }
 
   fn collab_db(&self, _uid: i64) -> Result<std::sync::Weak<CollabKVDB>, FlowyError> {
@@ -98,13 +110,6 @@ pub fn setup_log() {
       .finish();
     subscriber.try_init().unwrap();
   });
-}
-
-pub fn default_collab_builder() -> Arc<AppFlowyCollabBuilder> {
-  let builder =
-    AppFlowyCollabBuilder::new(DefaultCollabStorageProvider(), "fake_device_id".to_string());
-  builder.initialize(uuid::Uuid::new_v4().to_string());
-  Arc::new(builder)
 }
 
 pub async fn create_and_open_empty_document() -> (DocumentTest, Arc<MutexDocument>, String) {
@@ -220,5 +225,18 @@ impl DocumentSnapshotService for DocumentTestSnapshot {
 
   fn get_document_snapshot(&self, _snapshot_id: &str) -> FlowyResult<DocumentSnapshotData> {
     todo!()
+  }
+}
+
+struct WorkspaceCollabIntegrateImpl {
+  workspace_id: String,
+}
+impl WorkspaceCollabIntegrate for WorkspaceCollabIntegrateImpl {
+  fn workspace_id(&self) -> Result<String, Error> {
+    Ok(self.workspace_id.clone())
+  }
+
+  fn device_id(&self) -> Result<String, Error> {
+    Ok("fake_device_id".to_string())
   }
 }

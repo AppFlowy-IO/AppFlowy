@@ -65,7 +65,7 @@ class NotificationsView extends StatelessWidget {
 
                     final documentService = DocumentService();
                     final documentFuture = documentService.openDocument(
-                      viewId: reminder.objectId,
+                      documentId: reminder.objectId,
                     );
 
                     Future<Node?>? nodeBuilder;

@@ -46,11 +46,15 @@
     "unmatchedPasswordError": "Parola tekrarı girmiş olduğunuz parola ile aynı değil",
     "syncPromptMessage": "Veriler senkronize ediliyor, lütfen bu sayfayı kapatmayın",
     "or": "VEYA",
+    "signInWith": "Şununla giriş yapın:",
+    "signInWithEmail": "E-posta ile giriş yap",
+    "pleaseInputYourEmail": "Lütfen e-posta adresinizi girin",
+    "magicLinkSent": "Sihirli bağlantı e-postanıza gönderildi, lütfen gelen kutunuzu kontrol edin",
+    "invalidEmail": "Lütfen geçerli bir e-posta adresi girin",
     "LogInWithGoogle": "Google ile Giriş Yap",
     "LogInWithGithub": "Github ile Giriş Yap",
     "LogInWithDiscord": "Discord ile Giriş Yap",
-    "signInWith": "Şununla giriş yapın:",
-    "signInWithEmail": "E-posta ile giriş yap"
+    "logInWithMagicLink": "Sihirli Bağlantı ile Giriş Yap"
   },
   "workspace": {
     "chooseWorkspace": "Çalışma Alanınızı Seçin",
@@ -88,6 +92,8 @@
     "buttonText": "Paylaş",
     "workInProgress": "Yakında geliyor",
     "markdown": "Markdown",
+    "html": "HTML",
+    "clipboard": "Panoya kopyala",
     "csv": "CSV",
     "copyLink": "Bağlantıyı Kopyala"
   },
@@ -517,13 +523,15 @@
       "couldNotSaveErrorMsg": "Kısayollar kaydedilemedi, tekrar deneyin",
       "commands": {
         "codeBlockNewParagraph": "Kod bloğunun yanına yeni bir paragraf ekle",
+        "codeBlockIndentLines": "Tablonuzdaki kod bloğunda satır başında iki boşluk ekleyin",
+        "codeBlockOutdentLines": "Kod bloğundaki satır başındaki iki boşluğu silin",
         "codeBlockAddTwoSpaces": "Kod bloğunda satır başına iki boşluk ekle",
-        "codeBlockDeleteTwoSpaces": "Kod bloğunda satır başındaki iki boşluğu sil",
         "codeBlockSelectAll": "Kod bloğunun içindeki tüm içeriği seç",
         "codeBlockPasteText": "Kod bloğuna metin yapıştır",
         "textAlignLeft": "Metni sola hizala",
         "textAlignCenter": "Metni ortaya hizala",
-        "textAlignRight": "Metni sağa hizala"
+        "textAlignRight": "Metni sağa hizala",
+        "codeBlockDeleteTwoSpaces": "Kod bloğunda satır başındaki iki boşluğu sil"
       }
     },
     "mobile": {
@@ -595,7 +603,10 @@
     },
     "checkboxFilter": {
       "isChecked": "İşaretli",
-      "isUnchecked": "İşaretsiz"
+      "isUnchecked": "İşaretsiz",
+      "choicechipPrefix": {
+        "is": "durum"
+      }
     },
     "checklistFilter": {
       "isComplete": "tamamlandı",
@@ -689,7 +700,8 @@
       "newColumn": "Yeni Sütun",
       "format": "Format",
       "reminderOnDateTooltip": "Bu hücrenin planlanmış bir hatırlatıcısı var",
-      "optionAlreadyExist": "Seçenek zaten mevcut"
+      "optionAlreadyExist": "Seçenek zaten mevcut",
+      "wrap": "Sar"
     },
     "rowPage": {
       "newField": "Yeni bir alan ekle",
@@ -738,7 +750,7 @@
       "lightPinkColor": "Açık Pembe",
       "orangeColor": "Turuncu",
       "yellowColor": "Sarı",
-      "limeColor": "Yeşil",
+      "limeColor": "Limoni",
       "greenColor": "Yeşil",
       "aquaColor": "Su yeşili",
       "blueColor": "Mavi",
@@ -771,7 +783,9 @@
       "inRelatedDatabase": "İçinde",
       "rowSearchTextFieldPlaceholder": "Ara",
       "noDatabaseSelected": "Veritabanı seçilmedi, lütfen önce aşağıdaki listeden bir tane seçin:",
-      "emptySearchResult": "Kayıt bulunamadı"
+      "emptySearchResult": "Kayıt bulunamadı",
+      "linkedRowListLabel": "{count} bağlı satır",
+      "unlinkedRowListLabel": "Başka bir satırı bağla"
     },
     "menuName": "Tablo",
     "referencedGridPrefix": "Görünümü",
@@ -989,8 +1003,12 @@
     "codeBlock": {
       "language": {
         "label": "Dil",
-        "placeholder": "Dil seçin"
-      }
+        "placeholder": "Dil seçin",
+        "auto": "Otomatik"
+      },
+      "copyTooltip": "Kod bloğunun içeriğini kopyala",
+      "searchLanguageHint": "Bir dil arayın",
+      "codeCopiedSnackbar": "Kod panoya kopyalandı!"
     },
     "inlineLink": {
       "placeholder": "Bir bağlantıyı yapıştırın veya yazın",
@@ -1312,7 +1330,7 @@
     "lightLightTint3": "Açık Pembe",
     "lightLightTint4": "Turuncu",
     "lightLightTint5": "Sarı",
-    "lightLightTint6": "Yeşil",
+    "lightLightTint6": "Limoni",
     "lightLightTint7": "Yeşil",
     "lightLightTint8": "Su yeşili",
     "lightLightTint9": "Mavi",
@@ -1448,5 +1466,15 @@
       "synced": "Senkronize edildi",
       "noNetworkConnected": "Ağ bağlantısı yok"
     }
+  },
+  "commandPalette": {
+    "placeholder": "Görünümleri aramak için yazın...",
+    "bestMatches": "En iyi eşleşmeler",
+    "recentHistory": "Son geçmiş",
+    "navigateHint": "gezinmek için",
+    "loadingTooltip": "Sonuçlar aranıyor...",
+    "betaLabel": "BETA",
+    "betaTooltip": "Şu anda yalnızca sayfaları aramayı destekliyoruz",
+    "fromTrashHint": "Çöp kutusundan"
   }
 }

@@ -49,7 +49,7 @@ void main() {
 
     assert(appBloc.state.lastCreatedView != null);
     final latestView = appBloc.state.lastCreatedView!;
-    final _ = DocumentBloc(view: latestView)
+    final _ = DocumentBloc(documentId: latestView.id)
       ..add(const DocumentEvent.initial());
 
     await FolderEventSetLatestView(ViewIdPB(value: latestView.id)).send();

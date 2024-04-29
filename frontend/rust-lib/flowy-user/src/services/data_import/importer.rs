@@ -1,24 +1,7 @@
-use crate::services::data_import::appflowy_data_import::import_appflowy_data_folder;
-use collab_integrate::{CollabKVAction, CollabKVDB, PersistenceError};
-use flowy_user_pub::session::Session;
-use std::collections::HashMap;
-
-use crate::services::data_import::ImportContext;
 use collab::preclude::Collab;
-use flowy_folder_pub::entities::ImportData;
-use std::sync::Arc;
+use collab_integrate::{CollabKVAction, PersistenceError};
+use std::collections::HashMap;
 use tracing::instrument;
-
-/// Import appflowy data from the given path.
-/// If the container name is not empty, then the data will be imported to the given container.
-/// Otherwise, the data will be imported to the current workspace.
-pub(crate) fn import_data(
-  session: &Session,
-  context: ImportContext,
-  collab_db: Arc<CollabKVDB>,
-) -> anyhow::Result<ImportData> {
-  import_appflowy_data_folder(session, &session.user_workspace.id, &collab_db, context)
-}
 
 #[instrument(level = "debug", skip_all)]
 pub fn load_collab_by_oid<'a, R>(

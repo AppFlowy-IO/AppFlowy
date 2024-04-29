@@ -6,6 +6,7 @@ use parking_lot::RwLock;
 use serde_repr::*;
 
 use flowy_error::{FlowyError, FlowyResult};
+use flowy_server::af_cloud::define::ServerUser;
 use flowy_server::af_cloud::AppFlowyCloudServer;
 use flowy_server::local_server::{LocalServer, LocalServerDB};
 use flowy_server::supabase::SupabaseServer;
@@ -63,6 +64,7 @@ pub struct ServerProvider {
 
   /// The authenticator type of the user.
   authenticator: RwLock<Authenticator>,
+  user: Arc<dyn ServerUser>,
   pub(crate) uid: Arc<RwLock<Option<i64>>>,
 }
 
@@ -71,7 +73,9 @@ impl ServerProvider {
     config: AppFlowyCoreConfig,
     server: Server,
     store_preferences: Weak<StorePreferences>,
+    server_user: impl ServerUser + 'static,
   ) -> Self {
+    let user = Arc::new(server_user);
     let encryption = EncryptionImpl::new(None);
     Self {
       config,
@@ -81,6 +85,7 @@ impl ServerProvider {
       encryption: RwLock::new(Arc::new(encryption)),
       store_preferences,
       uid: Default::default(),
+      user,
     }
   }
 
@@ -129,6 +134,7 @@ impl ServerProvider {
           *self.user_enable_sync.read(),
           self.config.device_id.clone(),
           &self.config.app_version,
+          self.user.clone(),
         ));
 
         Ok::<Arc<dyn AppFlowyServer>, FlowyError>(server)

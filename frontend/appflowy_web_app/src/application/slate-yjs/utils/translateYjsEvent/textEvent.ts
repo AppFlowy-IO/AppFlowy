@@ -1,4 +1,4 @@
-import { YSharedRoot } from '@/application/collab.type';
+import { YSharedRoot } from '@/application/document.type';
 import * as Y from 'yjs';
 import { Editor, Operation } from 'slate';
 

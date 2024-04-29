@@ -71,11 +71,16 @@ class _PrimaryCellAccessoryState extends State<PrimaryCellAccessory>
   Widget build(BuildContext context) {
     return FlowyTooltip(
       message: LocaleKeys.tooltip_openAsPage.tr(),
-      child: SizedBox(
+      child: Container(
         width: 26,
         height: 26,
-        child: Padding(
-          padding: const EdgeInsets.all(3.0),
+        decoration: BoxDecoration(
+          border: Border.fromBorderSide(
+            BorderSide(color: Theme.of(context).dividerColor),
+          ),
+          borderRadius: Corners.s6Border,
+        ),
+        child: Center(
           child: FlowySvg(
             FlowySvgs.full_view_s,
             color: Theme.of(context).colorScheme.primary,
@@ -162,8 +167,10 @@ class CellAccessoryContainer extends StatelessWidget {
     final children =
         accessories.where((accessory) => accessory.enable()).map((accessory) {
       final hover = FlowyHover(
-        style:
-            HoverStyle(hoverColor: AFThemeExtension.of(context).lightGreyHover),
+        style: HoverStyle(
+          hoverColor: AFThemeExtension.of(context).lightGreyHover,
+          backgroundColor: Theme.of(context).cardColor,
+        ),
         builder: (_, onHover) => accessory.build(),
       );
       return GestureDetector(

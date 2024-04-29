@@ -1,5 +1,5 @@
-import 'package:appflowy/plugins/document/presentation/editor_plugins/code_block/code_block_component.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 
 const _greater = '>';
 const _equals = '=';

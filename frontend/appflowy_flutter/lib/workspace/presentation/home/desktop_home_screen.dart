@@ -9,11 +9,12 @@ import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/home/home_bloc.dart';
-import 'package:appflowy/workspace/application/home/home_service.dart';
 import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
+import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
+import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy/workspace/presentation/home/errors/workspace_failed_screen.dart';
 import 'package:appflowy/workspace/presentation/home/hotkeys.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar.dart';
@@ -88,6 +89,7 @@ class DesktopHomeScreen extends StatelessWidget {
             ),
           ],
           child: HomeHotKeys(
+            userProfile: userProfile,
             child: Scaffold(
               floatingActionButton: enableMemoryLeakDetect
                   ? const FloatingActionButton(
@@ -115,9 +117,15 @@ class DesktopHomeScreen extends StatelessWidget {
                 },
                 child: BlocBuilder<HomeSettingBloc, HomeSettingState>(
                   buildWhen: (previous, current) => previous != current,
-                  builder: (context, state) => FlowyContainer(
-                    Theme.of(context).colorScheme.surface,
-                    child: _buildBody(context, userProfile, workspaceSetting),
+                  builder: (context, state) => BlocProvider(
+                    create: (_) => UserWorkspaceBloc(userProfile: userProfile)
+                      ..add(
+                        const UserWorkspaceEvent.initial(),
+                      ),
+                    child: FlowyContainer(
+                      Theme.of(context).colorScheme.surface,
+                      child: _buildBody(context, userProfile, workspaceSetting),
+                    ),
                   ),
                 ),
               ),
@@ -293,8 +301,8 @@ class DesktopHomeScreenStackAdaptor extends HomeStackDelegate {
 
   @override
   void didDeleteStackWidget(ViewPB view, int? index) {
-    HomeService.readApp(appId: view.parentViewId).then((result) {
-      result.fold(
+    ViewBackendService.getView(view.parentViewId).then(
+      (result) => result.fold(
         (parentView) {
           final List<ViewPB> views = parentView.childViews;
           if (views.isNotEmpty) {
@@ -311,7 +319,7 @@ class DesktopHomeScreenStackAdaptor extends HomeStackDelegate {
               .add(TabsEvent.openPlugin(plugin: BlankPagePlugin()));
         },
         (err) => Log.error(err),
-      );
-    });
+      ),
+    );
   }
 }

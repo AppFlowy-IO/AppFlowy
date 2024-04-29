@@ -43,10 +43,10 @@
     "unmatchedPasswordError": "La password ripetuta non è uguale alla password",
     "syncPromptMessage": "La sincronizzazione dei dati potrebbe richiedere del tempo. Per favore, non chiudere questa pagina",
     "or": "O",
+    "signInWith": "Loggati con:",
     "LogInWithGoogle": "Accedi con Google",
     "LogInWithGithub": "Accedi con Github",
     "LogInWithDiscord": "Accedi con Discord",
-    "signInWith": "Loggati con:",
     "loginAsGuestButtonText": "Iniziare"
   },
   "workspace": {

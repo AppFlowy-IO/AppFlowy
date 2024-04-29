@@ -3,13 +3,12 @@ use std::sync::Arc;
 
 use collab_database::database::{gen_database_view_id, timestamp};
 use collab_database::fields::Field;
-use collab_database::rows::{CreateRowParams, RowDetail, RowId};
-use collab_database::views::OrderObjectPosition;
+use collab_database::rows::{Row, RowDetail, RowId};
 use lib_infra::box_any::BoxAny;
 use strum::EnumCount;
 
-use event_integration::folder_event::ViewTest;
-use event_integration::EventIntegrationTest;
+use event_integration_test::folder_event::ViewTest;
+use event_integration_test::EventIntegrationTest;
 use flowy_database2::entities::{FieldType, FilterPB, RowMetaPB};
 use flowy_database2::services::cell::CellBuilder;
 use flowy_database2::services::database::DatabaseEditor;
@@ -285,15 +284,17 @@ impl DatabaseEditorTest {
 }
 
 pub struct TestRowBuilder<'a> {
+  database_id: &'a str,
   row_id: RowId,
   fields: &'a [Field],
   cell_build: CellBuilder<'a>,
 }
 
 impl<'a> TestRowBuilder<'a> {
-  pub fn new(row_id: RowId, fields: &'a [Field]) -> Self {
+  pub fn new(database_id: &'a str, row_id: RowId, fields: &'a [Field]) -> Self {
     let cell_build = CellBuilder::with_cells(Default::default(), fields);
     Self {
+      database_id,
       row_id,
       fields,
       cell_build,
@@ -404,14 +405,16 @@ impl<'a> TestRowBuilder<'a> {
       .clone()
   }
 
-  pub fn build(self) -> CreateRowParams {
-    CreateRowParams {
+  pub fn build(self) -> Row {
+    let timestamp = timestamp();
+    Row {
       id: self.row_id,
+      database_id: self.database_id.to_string(),
       cells: self.cell_build.build(),
       height: 60,
       visibility: true,
-      row_position: OrderObjectPosition::End,
-      timestamp: timestamp(),
+      modified_at: timestamp,
+      created_at: timestamp,
     }
   }
 }

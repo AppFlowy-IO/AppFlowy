@@ -45,10 +45,10 @@
     "unmatchedPasswordError": "As senhas não conferem.",
     "syncPromptMessage": "A sincronização dos dados pode demorar um pouco. Por favor não feche esta página",
     "or": "OU",
+    "signInWith": "Entrar com:",
     "LogInWithGoogle": "Entrar com o Google",
     "LogInWithGithub": "Entrar com o Github",
     "LogInWithDiscord": "Entrar com o Discord",
-    "signInWith": "Entrar com:",
     "loginAsGuestButtonText": "Iniciar"
   },
   "workspace": {
@@ -438,12 +438,12 @@
       "commands": {
         "codeBlockNewParagraph": "Bloco de código: insirir um novo parágrafo",
         "codeBlockAddTwoSpaces": "Bloco de código: insirir dois espaços no início da linha",
-        "codeBlockDeleteTwoSpaces": "Bloco de código: excluir dois espaços no início da linha",
         "codeBlockSelectAll": "Bloco de código: selecionar tudo",
         "codeBlockPasteText": "Bloco de códito: Colar texto",
         "textAlignLeft": "Alinhar texto à esquerda",
         "textAlignCenter": "Alinhar texto ao centro",
-        "textAlignRight": "Alinhar texto à direita"
+        "textAlignRight": "Alinhar texto à direita",
+        "codeBlockDeleteTwoSpaces": "Bloco de código: excluir dois espaços no início da linha"
       }
     },
     "mobile": {

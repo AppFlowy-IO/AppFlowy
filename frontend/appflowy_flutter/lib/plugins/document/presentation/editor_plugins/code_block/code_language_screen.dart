@@ -1,10 +1,11 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/base/app_bar.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/string_extension.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
+import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 class MobileCodeLanguagePickerScreen extends StatelessWidget {
@@ -21,7 +22,7 @@ class MobileCodeLanguagePickerScreen extends StatelessWidget {
       body: SafeArea(
         child: ListView.separated(
           itemBuilder: (context, index) {
-            final language = codeBlockSupportedLanguages[index];
+            final language = defaultCodeBlockSupportedLanguages[index];
             return SizedBox(
               height: 48,
               child: FlowyTextButton(
@@ -35,7 +36,7 @@ class MobileCodeLanguagePickerScreen extends StatelessWidget {
             );
           },
           separatorBuilder: (_, __) => const Divider(),
-          itemCount: codeBlockSupportedLanguages.length,
+          itemCount: defaultCodeBlockSupportedLanguages.length,
         ),
       ),
     );

@@ -1,12 +1,14 @@
+import 'package:flutter/foundation.dart';
+
 import 'package:appflowy/plugins/util.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/application/recent/cached_recent_service.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:bloc/bloc.dart';
-import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'tabs_bloc.freezed.dart';
@@ -52,9 +54,11 @@ class TabsBloc extends Bloc<TabsEvent, TabsState> {
             emit(state.openView(plugin, view));
             _setLatestOpenView(view);
           },
-          openPlugin: (Plugin plugin, ViewPB? view) {
-            emit(state.openPlugin(plugin: plugin));
-            _setLatestOpenView(view);
+          openPlugin: (Plugin plugin, ViewPB? view, bool setLatest) {
+            emit(state.openPlugin(plugin: plugin, setLatest: setLatest));
+            if (setLatest) {
+              _setLatestOpenView(view);
+            }
           },
         );
       },
@@ -81,11 +85,15 @@ class TabsBloc extends Bloc<TabsEvent, TabsState> {
   void openPlugin(
     ViewPB view, {
     Map<String, dynamic> arguments = const {},
-  }) =>
-      add(
-        TabsEvent.openPlugin(
-          plugin: view.plugin(arguments: arguments),
-          view: view,
-        ),
-      );
+  }) {
+    add(
+      TabsEvent.openPlugin(
+        plugin: view.plugin(arguments: arguments),
+        view: view,
+      ),
+    );
+
+    // Update recent views
+    getIt<CachedRecentService>().updateRecentViews([view.id], true);
+  }
 }

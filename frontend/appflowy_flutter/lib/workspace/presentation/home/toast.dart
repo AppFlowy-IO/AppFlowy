@@ -59,6 +59,7 @@ void showSnackBarMessage(
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
       backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+      duration: duration,
       action: !showCancel
           ? null
           : SnackBarAction(

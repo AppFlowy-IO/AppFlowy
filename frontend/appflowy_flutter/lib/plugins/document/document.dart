@@ -40,13 +40,13 @@ class DocumentPluginBuilder extends PluginBuilder {
   FlowySvgData get icon => FlowySvgs.document_s;
 
   @override
-  PluginType get pluginType => PluginType.editor;
+  PluginType get pluginType => PluginType.document;
 
   @override
   ViewLayoutPB? get layoutType => ViewLayoutPB.Document;
 }
 
-class DocumentPlugin extends Plugin<int> {
+class DocumentPlugin extends Plugin {
   DocumentPlugin({
     required ViewPB view,
     required PluginType pluginType,

@@ -139,7 +139,7 @@ class ReminderReferenceService extends InlineActionsDelegate {
       return;
     }
 
-    final viewId = context.read<DocumentBloc>().view.id;
+    final viewId = context.read<DocumentBloc>().documentId;
     final reminder = _reminderFromDate(date, viewId, node);
 
     final transaction = editorState.transaction

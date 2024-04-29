@@ -51,8 +51,7 @@ class FontFamilyItem extends StatelessWidget {
         if (newFont != null && !selection.isCollapsed) {
           if (newFont != fontFamily) {
             await editorState.formatDelta(selection, {
-              AppFlowyRichTextKeys.fontFamily:
-                  GoogleFonts.getFont(newFont).fontFamily,
+              AppFlowyRichTextKeys.fontFamily: newFont,
             });
           }
         }

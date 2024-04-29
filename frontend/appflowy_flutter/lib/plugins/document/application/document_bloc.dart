@@ -22,7 +22,6 @@ import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-document/entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-document/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart'
     show
@@ -41,19 +40,27 @@ part 'document_bloc.freezed.dart';
 
 class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   DocumentBloc({
-    required this.view,
-  })  : _documentListener = DocumentListener(id: view.id),
-        _syncStateListener = DocumentSyncStateListener(id: view.id),
-        _viewListener = ViewListener(viewId: view.id),
+    required this.documentId,
+    this.databaseViewId,
+    this.rowId,
+  })  : _documentListener = DocumentListener(id: documentId),
+        _syncStateListener = DocumentSyncStateListener(id: documentId),
         super(DocumentState.initial()) {
+    _viewListener = databaseViewId == null && rowId == null
+        ? ViewListener(viewId: documentId)
+        : null;
     on<DocumentEvent>(_onDocumentEvent);
   }
 
-  final ViewPB view;
+  /// For a normal document, the document id is the same as the view id
+  final String documentId;
+
+  final String? databaseViewId;
+  final String? rowId;
 
   final DocumentListener _documentListener;
   final DocumentSyncStateListener _syncStateListener;
-  final ViewListener _viewListener;
+  late final ViewListener? _viewListener;
 
   final DocumentService _documentService = DocumentService();
   final TrashService _trashService = TrashService();
@@ -61,7 +68,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   late DocumentCollabAdapter _documentCollabAdapter;
 
   late final TransactionAdapter _transactionAdapter = TransactionAdapter(
-    documentId: view.id,
+    documentId: documentId,
     documentService: _documentService,
   );
 
@@ -85,9 +92,9 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   Future<void> close() async {
     await _documentListener.stop();
     await _syncStateListener.stop();
-    await _viewListener.stop();
+    await _viewListener?.stop();
     await _transactionSubscription?.cancel();
-    await _documentService.closeDocument(view: view);
+    await _documentService.closeDocument(viewId: documentId);
     _syncTimer?.cancel();
     _syncTimer = null;
     state.editorState?.service.keyboardService?.closeKeyboard();
@@ -134,24 +141,37 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
         emit(state.copyWith(isDeleted: false));
       },
       deletePermanently: () async {
-        final result = await _trashService.deleteViews([view.id]);
-        final forceClose = result.fold((l) => true, (r) => false);
-        emit(state.copyWith(forceClose: forceClose));
+        if (databaseViewId == null && rowId == null) {
+          final result = await _trashService.deleteViews([documentId]);
+          final forceClose = result.fold((l) => true, (r) => false);
+          emit(state.copyWith(forceClose: forceClose));
+        }
       },
       restorePage: () async {
-        final result = await _trashService.putback(view.id);
-        final isDeleted = result.fold((l) => false, (r) => true);
-        emit(state.copyWith(isDeleted: isDeleted));
+        if (databaseViewId == null && rowId == null) {
+          final result = await _trashService.putback(documentId);
+          final isDeleted = result.fold((l) => false, (r) => true);
+          emit(state.copyWith(isDeleted: isDeleted));
+        }
       },
       syncStateChanged: (syncState) {
         emit(state.copyWith(syncState: syncState.value));
+      },
+      clearAwarenessStates: () async {
+        // sync a null selection and a null meta to clear the awareness states
+        await _documentService.syncAwarenessStates(
+          documentId: documentId,
+        );
+      },
+      syncAwarenessStates: () async {
+        await _updateCollaborator();
       },
     );
   }
 
   /// subscribe to the view(document page) change
   void _onViewChanged() {
-    _viewListener.start(
+    _viewListener?.start(
       onViewMoveToTrash: (r) {
         r.map((r) => add(const DocumentEvent.moveToTrash()));
       },
@@ -193,7 +213,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
 
   /// Fetch document
   Future<FlowyResult<EditorState?, FlowyError>> _fetchDocumentState() async {
-    final result = await _documentService.openDocument(viewId: view.id);
+    final result = await _documentService.openDocument(documentId: documentId);
     return result.fold(
       (s) async => FlowyResult.success(await _initAppFlowyEditorState(s)),
       (e) => FlowyResult.failure(e),
@@ -209,7 +229,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
 
     final editorState = EditorState(document: document);
 
-    _documentCollabAdapter = DocumentCollabAdapter(editorState, view.id);
+    _documentCollabAdapter = DocumentCollabAdapter(editorState, documentId);
 
     // subscribe to the document change from the editor
     _transactionSubscription = editorState.transactionStream.listen(
@@ -349,7 +369,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
       userAvatar: user.iconUrl,
     );
     await _documentService.syncAwarenessStates(
-      documentId: view.id,
+      documentId: documentId,
       selection: selection,
       metadata: jsonEncode(metadata.toJson()),
     );
@@ -372,7 +392,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
       userAvatar: user.iconUrl,
     );
     await _documentService.syncAwarenessStates(
-      documentId: view.id,
+      documentId: documentId,
       metadata: jsonEncode(metadata.toJson()),
     );
   }
@@ -388,6 +408,8 @@ class DocumentEvent with _$DocumentEvent {
   const factory DocumentEvent.syncStateChanged(
     final DocumentSyncStatePB syncState,
   ) = syncStateChanged;
+  const factory DocumentEvent.syncAwarenessStates() = SyncAwarenessStates;
+  const factory DocumentEvent.clearAwarenessStates() = ClearAwarenessStates;
 }
 
 @freezed

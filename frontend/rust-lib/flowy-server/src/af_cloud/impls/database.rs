@@ -3,21 +3,28 @@ use client_api::entity::QueryCollabResult::{Failed, Success};
 use client_api::entity::{QueryCollab, QueryCollabParams};
 use client_api::error::ErrorCode::RecordNotFound;
 use collab::core::collab::DataSource;
-use collab::core::collab_plugin::EncodedCollab;
+use collab::entity::EncodedCollab;
 use collab_entity::CollabType;
-use tracing::error;
+use std::sync::Arc;
+use tracing::{error, instrument};
 
 use flowy_database_pub::cloud::{CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot};
 use lib_infra::future::FutureResult;
 
+use crate::af_cloud::define::ServerUser;
+use crate::af_cloud::impls::util::check_request_workspace_id_is_match;
 use crate::af_cloud::AFServer;
 
-pub(crate) struct AFCloudDatabaseCloudServiceImpl<T>(pub T);
+pub(crate) struct AFCloudDatabaseCloudServiceImpl<T> {
+  pub inner: T,
+  pub user: Arc<dyn ServerUser>,
+}
 
 impl<T> DatabaseCloudService for AFCloudDatabaseCloudServiceImpl<T>
 where
   T: AFServer,
 {
+  #[instrument(level = "debug", skip_all)]
   fn get_database_object_doc_state(
     &self,
     object_id: &str,
@@ -26,17 +33,25 @@ where
   ) -> FutureResult<Option<Vec<u8>>, Error> {
     let workspace_id = workspace_id.to_string();
     let object_id = object_id.to_string();
-    let try_get_client = self.0.try_get_client();
+    let try_get_client = self.inner.try_get_client();
+    let cloned_user = self.user.clone();
     FutureResult::new(async move {
       let params = QueryCollabParams {
-        workspace_id,
+        workspace_id: workspace_id.clone(),
         inner: QueryCollab {
-          object_id,
-          collab_type,
+          object_id: object_id.clone(),
+          collab_type: collab_type.clone(),
         },
       };
       match try_get_client?.get_collab(params).await {
-        Ok(data) => Ok(Some(data.doc_state.to_vec())),
+        Ok(data) => {
+          check_request_workspace_id_is_match(
+            &workspace_id,
+            &cloned_user,
+            format!("get database object: {}:{}", object_id, collab_type),
+          )?;
+          Ok(Some(data.encode_collab.doc_state.to_vec()))
+        },
         Err(err) => {
           if err.code == RecordNotFound {
             Ok(None)
@@ -48,6 +63,7 @@ where
     })
   }
 
+  #[instrument(level = "debug", skip_all)]
   fn batch_get_database_object_doc_state(
     &self,
     object_ids: Vec<String>,
@@ -55,7 +71,8 @@ where
     workspace_id: &str,
   ) -> FutureResult<CollabDocStateByOid, Error> {
     let workspace_id = workspace_id.to_string();
-    let try_get_client = self.0.try_get_client();
+    let try_get_client = self.inner.try_get_client();
+    let cloned_user = self.user.clone();
     FutureResult::new(async move {
       let client = try_get_client?;
       let params = object_ids
@@ -66,6 +83,11 @@ where
         })
         .collect();
       let results = client.batch_get_collab(&workspace_id, params).await?;
+      check_request_workspace_id_is_match(
+        &workspace_id,
+        &cloned_user,
+        "batch get database object",
+      )?;
       Ok(
         results
           .0

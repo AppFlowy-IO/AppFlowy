@@ -29,7 +29,7 @@ class DocumentCollabAdapter {
   ///
   /// Only use in development
   Future<EditorState?> syncV1() async {
-    final result = await _service.getDocument(viewId: docId);
+    final result = await _service.getDocument(documentId: docId);
     final document = result.fold((s) => s.toDocument(), (f) => null);
     if (document == null) {
       return null;
@@ -69,7 +69,7 @@ class DocumentCollabAdapter {
   ///
   /// Diff the local document with the remote document and apply the changes
   Future<void> syncV3({DocEventPB? docEvent}) async {
-    final result = await _service.getDocument(viewId: docId);
+    final result = await _service.getDocument(documentId: docId);
     final document = result.fold((s) => s.toDocument(), (f) => null);
     if (document == null) {
       return;
@@ -77,7 +77,6 @@ class DocumentCollabAdapter {
 
     final ops = diffNodes(editorState.document.root, document.root);
     if (ops.isEmpty) {
-      Log.info('Doc diff, no changes');
       return;
     }
 
@@ -105,7 +104,7 @@ class DocumentCollabAdapter {
   }
 
   Future<void> forceReload() async {
-    final result = await _service.getDocument(viewId: docId);
+    final result = await _service.getDocument(documentId: docId);
     final document = result.fold((s) => s.toDocument(), (f) => null);
     if (document == null) {
       return;
