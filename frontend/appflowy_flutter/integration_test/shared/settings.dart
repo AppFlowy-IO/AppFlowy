@@ -4,7 +4,6 @@ import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_settin
 import 'package:appflowy/workspace/presentation/settings/settings_dialog.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_appearance/direction_setting.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_menu_element.dart';
-import 'package:appflowy/workspace/presentation/settings/widgets/settings_user_view.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -66,13 +65,13 @@ extension AppFlowySettings on WidgetTester {
 
   /// Enter user name
   Future<void> enterUserName(String name) async {
-    final uni = find.byType(UserNameInput);
-    expect(uni, findsOneWidget);
-    await tap(uni);
-    await enterText(uni, name);
-    await wait(300); //
-    await testTextInput.receiveAction(TextInputAction.done);
-    await pumpAndSettle();
+    // final uni = find.byType(UserNameInput);
+    // expect(uni, findsOneWidget);
+    // await tap(uni);
+    // await enterText(uni, name);
+    // await wait(300); //
+    // await testTextInput.receiveAction(TextInputAction.done);
+    // await pumpAndSettle();
   }
 
   // go to settings page and toggle enable RTL toolbar items

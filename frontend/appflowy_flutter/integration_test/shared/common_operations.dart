@@ -24,6 +24,7 @@ import 'package:appflowy/workspace/presentation/home/menu/view/view_more_action_
 import 'package:appflowy/workspace/presentation/notifications/widgets/flowy_tab.dart';
 import 'package:appflowy/workspace/presentation/notifications/widgets/notification_button.dart';
 import 'package:appflowy/workspace/presentation/notifications/widgets/notification_tab_bar.dart';
+import 'package:appflowy/workspace/presentation/settings/shared/settings_body.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_language_view.dart';
 import 'package:appflowy/workspace/presentation/widgets/view_title_bar.dart';
 import 'package:appflowy_backend/log.dart';
@@ -574,6 +575,20 @@ extension CommonOperations on WidgetTester {
 
     await tapButtonWithName(LocaleKeys.button_ok.tr());
   }
+}
+
+extension SettingsFinder on CommonFinders {
+  Finder findSettingsScrollable() => find
+      .descendant(
+        of: find
+            .descendant(
+              of: find.byType(SettingsBody),
+              matching: find.byType(SingleChildScrollView),
+            )
+            .first,
+        matching: find.byType(Scrollable),
+      )
+      .first;
 }
 
 extension ViewLayoutPBTest on ViewLayoutPB {
