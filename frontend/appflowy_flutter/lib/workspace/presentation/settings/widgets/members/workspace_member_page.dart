@@ -77,7 +77,7 @@ class WorkspaceMembersPage extends StatelessWidget {
           );
         },
         (f) {
-          Log.error(f);
+          Log.error('add workspace member failed: $f');
           final message = f.code == ErrorCode.WorkspaceMemberLimitExceeded
               ? LocaleKeys.settings_appearance_members_memberLimitExceeded.tr()
               : LocaleKeys.settings_appearance_members_failedToAddMember.tr();
@@ -96,7 +96,7 @@ class WorkspaceMembersPage extends StatelessWidget {
           );
         },
         (f) {
-          Log.error(f);
+          Log.error('invite workspace member failed: $f');
           final message = f.code == ErrorCode.WorkspaceMemberLimitExceeded
               ? LocaleKeys.settings_appearance_members_memberLimitExceeded.tr()
               : LocaleKeys.settings_appearance_members_failedToInviteMember
