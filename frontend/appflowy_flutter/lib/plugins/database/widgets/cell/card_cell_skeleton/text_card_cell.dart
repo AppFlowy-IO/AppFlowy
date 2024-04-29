@@ -5,6 +5,7 @@ import 'package:appflowy/plugins/database/application/cell/cell_controller_build
 import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/application/cell/bloc/text_cell_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -128,20 +129,17 @@ class _TextCellState extends State<TextCardCell> {
             return const SizedBox.shrink();
           }
 
+          final icon = _buildIcon(state, isTitle);
           final child = state.enableEdit || focusWhenInit
               ? _buildTextField()
               : _buildText(state, isTitle);
 
           return Row(
             children: [
-              if (isTitle && widget.showNotes)
-                FlowyTooltip(
-                  message: LocaleKeys.board_notesTooltip.tr(),
-                  child: FlowySvg(
-                    FlowySvgs.notes_s,
-                    color: Theme.of(context).hintColor,
-                  ),
-                ),
+              if (icon != null) ...[
+                icon,
+                const HSpace(4.0),
+              ],
               Expanded(child: child),
             ],
           );
@@ -156,6 +154,28 @@ class _TextCellState extends State<TextCardCell> {
     focusNode.dispose();
     cellBloc.close();
     super.dispose();
+  }
+
+  Widget? _buildIcon(TextCellState state, bool isTitle) {
+    if (!isTitle) {
+      return null;
+    }
+    if (state.emoji.isNotEmpty) {
+      return Text(
+        state.emoji,
+        style: widget.style.titleTextStyle,
+      );
+    }
+    if (widget.showNotes) {
+      return FlowyTooltip(
+        message: LocaleKeys.board_notesTooltip.tr(),
+        child: FlowySvg(
+          FlowySvgs.notes_s,
+          color: Theme.of(context).hintColor,
+        ),
+      );
+    }
+    return null;
   }
 
   Widget _buildText(TextCellState state, bool isTitle) {
