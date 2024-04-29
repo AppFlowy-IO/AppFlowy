@@ -276,12 +276,12 @@ class _DesktopBoardContentState extends State<DesktopBoardContent> {
         ),
         styleConfiguration: RowCardStyleConfiguration(
           cellStyleMap: desktopBoardCardCellStyleMap(context),
-          // hoverStyle: HoverStyle(
-          //   hoverColor: Theme.of(context).brightness == Brightness.light
-          //       ? const Color(0x0F1F2329)
-          //       : const Color(0x0FEFF4FB),
-          // foregroundColorOnHover: Theme.of(context).colorScheme.onBackground,
-          // ),
+          hoverStyle: HoverStyle(
+            hoverColor: Theme.of(context).brightness == Brightness.light
+                ? const Color(0x0F1F2329)
+                : const Color(0x0FEFF4FB),
+            foregroundColorOnHover: Theme.of(context).colorScheme.onBackground,
+          ),
         ),
         onStartEditing: () =>
             boardBloc.add(BoardEvent.startEditingRow(groupData.group, rowMeta)),
