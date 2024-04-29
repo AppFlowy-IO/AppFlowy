@@ -164,9 +164,17 @@ class PageStyleCoverImage extends StatelessWidget {
       showDivider: false,
       showDoneButton: true,
       showHeader: true,
+      showRemoveButton: true,
       title: LocaleKeys.pageStyle_coverImage.tr(),
       barrierColor: Colors.transparent,
       backgroundColor: Theme.of(context).colorScheme.background,
+      onRemove: () {
+        context.read<DocumentPageStyleBloc>().add(
+              DocumentPageStyleEvent.updateCoverImage(
+                PageStyleCover.none(),
+              ),
+            );
+      },
       builder: (_) {
         return ConstrainedBox(
           constraints: BoxConstraints(
@@ -178,6 +186,7 @@ class PageStyleCoverImage extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: UnsplashImageWidget(
+                type: UnsplashImageType.fullScreen,
                 onSelectUnsplashImage: (url) {
                   context.read<DocumentPageStyleBloc>().add(
                         DocumentPageStyleEvent.updateCoverImage(

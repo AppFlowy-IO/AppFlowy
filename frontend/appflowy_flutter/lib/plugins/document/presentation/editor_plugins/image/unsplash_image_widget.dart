@@ -3,25 +3,40 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:unsplash_client/unsplash_client.dart';
 
+const _accessKeyA = 'YyD-LbW5bVolHWZBq5fWRM_';
+const _accessKeyB = '3ezkG2XchRFjhNTnK9TE';
+const _secretKeyA = '5z4EnxaXjWjWMnuBhc0Ku0u';
+const _secretKeyB = 'YW2bsYCZlO-REZaqmV6A';
+
+enum UnsplashImageType {
+  // the creator name is under the image
+  halfScreen,
+  // the creator name is on the image
+  fullScreen,
+}
+
+typedef OnSelectUnsplashImage = void Function(String url);
+
 class UnsplashImageWidget extends StatefulWidget {
   const UnsplashImageWidget({
     super.key,
+    this.type = UnsplashImageType.halfScreen,
     required this.onSelectUnsplashImage,
   });
 
-  final void Function(String url) onSelectUnsplashImage;
+  final UnsplashImageType type;
+  final OnSelectUnsplashImage onSelectUnsplashImage;
 
   @override
   State<UnsplashImageWidget> createState() => _UnsplashImageWidgetState();
 }
 
 class _UnsplashImageWidgetState extends State<UnsplashImageWidget> {
-  final client = UnsplashClient(
+  final unsplash = UnsplashClient(
     settings: const ClientSettings(
       credentials: AppCredentials(
-        // TODO: there're the demo keys, we should replace them with the production keys when releasing and inject them with env file.
-        accessKey: 'YyD-LbW5bVolHWZBq5fWRM_3ezkG2XchRFjhNTnK9TE',
-        secretKey: '5z4EnxaXjWjWMnuBhc0Ku0uYW2bsYCZlO-REZaqmV6A',
+        accessKey: _accessKeyA + _accessKeyB,
+        secretKey: _secretKeyA + _secretKeyB,
       ),
     ),
   );
@@ -34,14 +49,14 @@ class _UnsplashImageWidgetState extends State<UnsplashImageWidget> {
   void initState() {
     super.initState();
 
-    randomPhotos = client.photos
+    randomPhotos = unsplash.photos
         .random(count: 18, orientation: PhotoOrientation.landscape)
         .goAndGet();
   }
 
   @override
   void dispose() {
-    client.close();
+    unsplash.close();
 
     super.dispose();
   }
@@ -72,21 +87,10 @@ class _UnsplashImageWidgetState extends State<UnsplashImageWidget> {
                   child: CircularProgressIndicator.adaptive(),
                 );
               }
-              return GridView.count(
-                crossAxisCount: 3,
-                mainAxisSpacing: 16.0,
-                crossAxisSpacing: 10.0,
-                childAspectRatio: 4 / 3,
-                children: data
-                    .map(
-                      (photo) => _UnsplashImage(
-                        photo: photo,
-                        onTap: () => widget.onSelectUnsplashImage(
-                          photo.urls.regular.toString(),
-                        ),
-                      ),
-                    )
-                    .toList(),
+              return _UnsplashImages(
+                type: widget.type,
+                photos: data,
+                onSelectUnsplashImage: widget.onSelectUnsplashImage,
               );
             },
           ),
@@ -97,7 +101,7 @@ class _UnsplashImageWidgetState extends State<UnsplashImageWidget> {
 
   void _search() {
     setState(() {
-      randomPhotos = client.photos
+      randomPhotos = unsplash.photos
           .random(
             count: 18,
             orientation: PhotoOrientation.landscape,
@@ -108,35 +112,113 @@ class _UnsplashImageWidgetState extends State<UnsplashImageWidget> {
   }
 }
 
+class _UnsplashImages extends StatelessWidget {
+  const _UnsplashImages({
+    required this.type,
+    required this.photos,
+    required this.onSelectUnsplashImage,
+  });
+
+  final UnsplashImageType type;
+  final List<Photo> photos;
+  final OnSelectUnsplashImage onSelectUnsplashImage;
+
+  @override
+  Widget build(BuildContext context) {
+    final crossAxisCount = switch (type) {
+      UnsplashImageType.halfScreen => 3,
+      UnsplashImageType.fullScreen => 2,
+    };
+    final mainAxisSpacing = switch (type) {
+      UnsplashImageType.halfScreen => 16.0,
+      UnsplashImageType.fullScreen => 8.0,
+    };
+    return GridView.count(
+      crossAxisCount: crossAxisCount,
+      mainAxisSpacing: mainAxisSpacing,
+      crossAxisSpacing: 10.0,
+      childAspectRatio: 4 / 3,
+      children: photos
+          .map(
+            (photo) => _UnsplashImage(
+              type: type,
+              photo: photo,
+              onTap: () => onSelectUnsplashImage(
+                photo.urls.regular.toString(),
+              ),
+            ),
+          )
+          .toList(),
+    );
+  }
+}
+
 class _UnsplashImage extends StatelessWidget {
   const _UnsplashImage({
+    required this.type,
     required this.photo,
     required this.onTap,
   });
 
+  final UnsplashImageType type;
   final Photo photo;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
+    final child = switch (type) {
+      UnsplashImageType.halfScreen => _buildHalfScreenImage(context),
+      UnsplashImageType.fullScreen => _buildFullScreenImage(context),
+    };
+
     return GestureDetector(
       onTap: onTap,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Expanded(
-            child: Image.network(
+      child: child,
+    );
+  }
+
+  Widget _buildHalfScreenImage(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Expanded(
+          child: Image.network(
+            photo.urls.thumb.toString(),
+            fit: BoxFit.cover,
+          ),
+        ),
+        const HSpace(2.0),
+        FlowyText(
+          'by ${photo.name}',
+          fontSize: 10.0,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFullScreenImage(BuildContext context) {
+    return Stack(
+      children: [
+        LayoutBuilder(
+          builder: (context, constraints) {
+            return Image.network(
               photo.urls.thumb.toString(),
               fit: BoxFit.cover,
-            ),
-          ),
-          const HSpace(2.0),
-          FlowyText(
-            'by ${photo.name}',
+              width: constraints.maxWidth,
+              height: constraints.maxHeight,
+            );
+          },
+        ),
+        Positioned(
+          bottom: 6,
+          left: 6,
+          child: FlowyText.medium(
+            photo.name,
             fontSize: 10.0,
+            color: Colors.white,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
