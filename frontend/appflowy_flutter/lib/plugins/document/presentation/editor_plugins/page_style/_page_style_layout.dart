@@ -20,7 +20,6 @@ class PageStyleLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final backgroundColor = context.pageStyleBackgroundColor;
     return BlocBuilder<DocumentPageStyleBloc, DocumentPageStyleState>(
       builder: (context, state) {
         return Column(
@@ -28,7 +27,6 @@ class PageStyleLayout extends StatelessWidget {
             Row(
               children: [
                 _OptionGroup<PageStyleFontLayout>(
-                  backgroundColor: backgroundColor,
                   options: const [
                     PageStyleFontLayout.small,
                     PageStyleFontLayout.normal,
@@ -41,7 +39,6 @@ class PageStyleLayout extends StatelessWidget {
                 ),
                 const HSpace(14),
                 _OptionGroup<PageStyleLineHeightLayout>(
-                  backgroundColor: backgroundColor,
                   options: const [
                     PageStyleLineHeightLayout.small,
                     PageStyleLineHeightLayout.normal,
@@ -55,10 +52,7 @@ class PageStyleLayout extends StatelessWidget {
               ],
             ),
             const VSpace(12.0),
-            _FontButton(
-              backgroundColor: backgroundColor,
-              onTap: () {},
-            ),
+            const _FontButton(),
           ],
         );
       },
@@ -68,13 +62,11 @@ class PageStyleLayout extends StatelessWidget {
 
 class _OptionGroup<T> extends StatelessWidget {
   const _OptionGroup({
-    required this.backgroundColor,
     required this.options,
     required this.selectedOption,
     required this.onTap,
   });
 
-  final Color backgroundColor;
   final List<T> options;
   final T selectedOption;
   final void Function(T option) onTap;
@@ -84,7 +76,7 @@ class _OptionGroup<T> extends StatelessWidget {
     return Expanded(
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: backgroundColor,
+          color: context.pageStyleBackgroundColor,
           borderRadius: const BorderRadius.horizontal(
             left: Radius.circular(12),
             right: Radius.circular(12),
@@ -165,13 +157,7 @@ class _OptionGroup<T> extends StatelessWidget {
 }
 
 class _FontButton extends StatelessWidget {
-  const _FontButton({
-    required this.backgroundColor,
-    required this.onTap,
-  });
-
-  final Color backgroundColor;
-  final VoidCallback onTap;
+  const _FontButton();
 
   @override
   Widget build(BuildContext context) {
@@ -183,7 +169,7 @@ class _FontButton extends StatelessWidget {
           child: Container(
             height: kPageStyleLayoutHeight,
             decoration: BoxDecoration(
-              color: backgroundColor,
+              color: context.pageStyleBackgroundColor,
               borderRadius: BorderRadius.circular(12.0),
             ),
             child: Row(
