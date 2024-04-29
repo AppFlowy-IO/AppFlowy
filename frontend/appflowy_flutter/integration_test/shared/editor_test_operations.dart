@@ -145,13 +145,6 @@ class EditorOperations {
     );
   }
 
-  Future<void> switchNetworkImageCover(String imageUrl) async {
-    final image = find.byWidgetPredicate(
-      (widget) => widget is ImageGridItem,
-    );
-    await tester.tapButton(image);
-  }
-
   Future<void> tapOnRemoveCover() async {
     await tester.tapButton(find.byType(DeleteCoverButton));
   }

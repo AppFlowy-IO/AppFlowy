@@ -20,7 +20,6 @@ typedef DidUserWorkspaceUpdateCallback = void Function(
   RepeatedUserWorkspacePB workspaces,
 );
 typedef UserProfileNotifyValue = FlowyResult<UserProfilePB, FlowyError>;
-typedef AuthNotifyValue = FlowyResult<void, FlowyError>;
 
 class UserListener {
   UserListener({

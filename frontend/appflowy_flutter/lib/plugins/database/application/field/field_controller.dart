@@ -1,13 +1,15 @@
 import 'dart:collection';
 
+import 'package:flutter/foundation.dart';
+
+import 'package:appflowy/plugins/database/application/row/row_cache.dart';
+import 'package:appflowy/plugins/database/application/setting/setting_listener.dart';
 import 'package:appflowy/plugins/database/domain/database_view_service.dart';
 import 'package:appflowy/plugins/database/domain/field_listener.dart';
 import 'package:appflowy/plugins/database/domain/field_settings_listener.dart';
 import 'package:appflowy/plugins/database/domain/field_settings_service.dart';
 import 'package:appflowy/plugins/database/domain/filter_listener.dart';
 import 'package:appflowy/plugins/database/domain/filter_service.dart';
-import 'package:appflowy/plugins/database/application/row/row_cache.dart';
-import 'package:appflowy/plugins/database/application/setting/setting_listener.dart';
 import 'package:appflowy/plugins/database/domain/sort_listener.dart';
 import 'package:appflowy/plugins/database/domain/sort_service.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/filter_info.dart';
@@ -17,9 +19,9 @@ import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:collection/collection.dart';
-import 'package:flutter/foundation.dart';
 
 import '../setting/setting_service.dart';
+
 import 'field_info.dart';
 
 class _GridFieldNotifier extends ChangeNotifier {
@@ -73,7 +75,7 @@ typedef OnReceiveField = void Function(FieldInfo);
 typedef OnReceiveFields = void Function(List<FieldInfo>);
 typedef OnReceiveFilters = void Function(List<FilterInfo>);
 typedef OnReceiveSorts = void Function(List<SortInfo>);
-typedef OnReceiveFieldSettings = void Function(List<FieldInfo>);
+
 
 class FieldController {
   FieldController({required this.viewId})

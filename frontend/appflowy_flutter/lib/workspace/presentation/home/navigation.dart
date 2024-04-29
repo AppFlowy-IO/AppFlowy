@@ -15,8 +15,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:styled_widget/styled_widget.dart';
 
-typedef NaviAction = void Function();
-
 class NavigationNotifier with ChangeNotifier {
   NavigationNotifier({required this.navigationItems});
 
@@ -141,19 +139,6 @@ class NaviItemWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: item.leftBarItem.padding(horizontal: 2, vertical: 2),
-    );
-  }
-}
-
-class NaviItemDivider extends StatelessWidget {
-  const NaviItemDivider({super.key, required this.child});
-
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [child, const Text('/')],
     );
   }
 }
