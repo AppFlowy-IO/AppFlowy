@@ -21,7 +21,7 @@ class TabsState {
     final selectExistingPlugin = _selectPluginIfOpen(plugin.id);
 
     if (selectExistingPlugin == null) {
-      _pageManagers.add(PageManager()..setPlugin(plugin));
+      _pageManagers.add(PageManager()..setPlugin(plugin, true));
 
       return copyWith(newIndex: pages - 1, pageManagers: [..._pageManagers]);
     }
@@ -58,12 +58,12 @@ class TabsState {
   /// If the plugin is already open in a tab, then that tab
   /// will become selected.
   ///
-  TabsState openPlugin({required Plugin plugin}) {
+  TabsState openPlugin({required Plugin plugin, bool setLatest = true}) {
     final selectExistingPlugin = _selectPluginIfOpen(plugin.id);
 
     if (selectExistingPlugin == null) {
       final pageManagers = [..._pageManagers];
-      pageManagers[currentIndex].setPlugin(plugin);
+      pageManagers[currentIndex].setPlugin(plugin, setLatest);
 
       return copyWith(pageManagers: pageManagers);
     }

@@ -54,9 +54,11 @@ class TabsBloc extends Bloc<TabsEvent, TabsState> {
             emit(state.openView(plugin, view));
             _setLatestOpenView(view);
           },
-          openPlugin: (Plugin plugin, ViewPB? view) {
-            emit(state.openPlugin(plugin: plugin));
-            _setLatestOpenView(view);
+          openPlugin: (Plugin plugin, ViewPB? view, bool setLatest) {
+            emit(state.openPlugin(plugin: plugin, setLatest: setLatest));
+            if (setLatest) {
+              _setLatestOpenView(view);
+            }
           },
         );
       },

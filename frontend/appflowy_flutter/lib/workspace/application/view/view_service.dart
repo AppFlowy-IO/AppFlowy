@@ -95,7 +95,7 @@ class ViewBackendService {
     required ViewLayoutPB layoutType,
     required String name,
   }) {
-    return ViewBackendService.createView(
+    return createView(
       layoutType: layoutType,
       parentViewId: parentViewId,
       name: name,

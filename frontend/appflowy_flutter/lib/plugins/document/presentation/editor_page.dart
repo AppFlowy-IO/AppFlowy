@@ -76,6 +76,7 @@ class AppFlowyEditorPage extends StatefulWidget {
     this.showParagraphPlaceholder,
     this.placeholderText,
     this.initialSelection,
+    this.useViewInfoBloc = true,
   });
 
   final Widget? header;
@@ -91,6 +92,8 @@ class AppFlowyEditorPage extends StatefulWidget {
   ///
   final Selection? initialSelection;
 
+  final bool useViewInfoBloc;
+
   @override
   State<AppFlowyEditorPage> createState() => _AppFlowyEditorPageState();
 }
@@ -101,7 +104,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   late final InlineActionsService inlineActionsService = InlineActionsService(
     context: context,
     handlers: [
-      InlinePageReferenceService(currentViewId: documentBloc.view.id),
+      InlinePageReferenceService(currentViewId: documentBloc.documentId),
       DateReferenceService(context),
       ReminderReferenceService(context),
     ],
@@ -186,14 +189,14 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         /// - Using `[[`
         pageReferenceShortcutBrackets(
           context,
-          documentBloc.view.id,
+          documentBloc.documentId,
           styleCustomizer.inlineActionsMenuStyleBuilder(),
         ),
 
         /// - Using `+`
         pageReferenceShortcutPlusSign(
           context,
-          documentBloc.view.id,
+          documentBloc.documentId,
           styleCustomizer.inlineActionsMenuStyleBuilder(),
         ),
       ];
@@ -215,11 +218,13 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
   void initState() {
     super.initState();
 
-    viewInfoBloc.add(
-      ViewInfoEvent.registerEditorState(
-        editorState: widget.editorState,
-      ),
-    );
+    if (widget.useViewInfoBloc) {
+      viewInfoBloc.add(
+        ViewInfoEvent.registerEditorState(
+          editorState: widget.editorState,
+        ),
+      );
+    }
 
     _initEditorL10n();
     _initializeShortcuts();
@@ -262,7 +267,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
 
   @override
   void dispose() {
-    if (!viewInfoBloc.isClosed) {
+    if (widget.useViewInfoBloc && !viewInfoBloc.isClosed) {
       viewInfoBloc.add(const ViewInfoEvent.unregisterEditorState());
     }
 
