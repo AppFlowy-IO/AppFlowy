@@ -131,6 +131,7 @@ dependencies:
   sheet:
   file: ^7.0.0
   avatar_stack: ^1.2.0
+  flutter_animate: ^4.5.0
 
 dev_dependencies:
   flutter_lints: ^3.0.1

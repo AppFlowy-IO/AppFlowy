@@ -331,28 +331,17 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
           editorState,
           selection,
         ),
-        child: Column(
-          children: [
-            Expanded(
-              child: MobileFloatingToolbar(
-                editorState: editorState,
-                editorScrollController: editorScrollController,
-                toolbarBuilder: (context, anchor, closeToolbar) {
-                  return AdaptiveTextSelectionToolbar.buttonItems(
-                    buttonItems: buildMobileFloatingToolbarItems(
-                      editorState,
-                      anchor,
-                      closeToolbar,
-                    ),
-                    anchors: TextSelectionToolbarAnchors(
-                      primaryAnchor: anchor,
-                    ),
-                  );
-                },
-                child: editor,
-              ),
-            ),
-          ],
+        child: MobileFloatingToolbar(
+          editorState: editorState,
+          editorScrollController: editorScrollController,
+          toolbarBuilder: (context, anchor, closeToolbar) {
+            return CustomMobileFloatingToolbar(
+              editorState: editorState,
+              anchor: anchor,
+              closeToolbar: closeToolbar,
+            );
+          },
+          child: editor,
         ),
       );
     }
