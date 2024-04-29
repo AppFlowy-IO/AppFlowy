@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
 import 'package:appflowy/startup/tasks/app_window_size_manager.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
@@ -70,7 +72,7 @@ class _ViewTitleBarState extends State<ViewTitleBar> {
               child: _ViewTitle(
                 key: ValueKey(ancestors.last),
                 view: ancestors.last,
-                maxTitleWidth: constraints.maxWidth - 50.0,
+                maxTitleWidth: constraints.maxWidth,
                 onUpdated: () => setState(() => _reloadAncestors()),
               ),
             );
@@ -223,23 +225,25 @@ class _ViewTitleState extends State<_ViewTitle> {
       );
     }
 
-    final child = Row(
-      children: [
-        EmojiText(
-          emoji: icon,
-          fontSize: 18.0,
-        ),
-        const HSpace(2.0),
-        ConstrainedBox(
-          constraints: BoxConstraints(
-            maxWidth: widget.maxTitleWidth,
+    final child = SingleChildScrollView(
+      child: Row(
+        children: [
+          EmojiText(
+            emoji: icon,
+            fontSize: 18.0,
           ),
-          child: FlowyText.regular(
-            name,
-            overflow: TextOverflow.ellipsis,
+          const HSpace(2.0),
+          ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: max(0, widget.maxTitleWidth),
+            ),
+            child: FlowyText.regular(
+              name,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
 
     if (widget.behavior == _ViewTitleBehavior.uneditable) {

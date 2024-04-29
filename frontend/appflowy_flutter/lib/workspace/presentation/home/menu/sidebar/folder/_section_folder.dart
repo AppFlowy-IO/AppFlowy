@@ -91,9 +91,17 @@ class SectionFolder extends StatelessWidget {
                       }
 
                       context.read<TabsBloc>().openPlugin(view);
-                      viewContext.read<ViewBloc>().add(
-                            const ViewEvent.setIsExpanded(true),
-                          );
+
+                      // Delay to expand the view to prevent the view from being
+                      // expanded when the user is trying to open the view in a new tab
+                      // This will improve the animation performance
+                      Future.delayed(const Duration(milliseconds: 50), () {
+                        if (viewContext.mounted) {
+                          viewContext
+                              .read<ViewBloc>()
+                              .add(const ViewEvent.setIsExpanded(true));
+                        }
+                      });
                     },
                     onTertiarySelected: (view, viewContext) =>
                         context.read<TabsBloc>().openTab(view),

@@ -46,16 +46,16 @@
     "unmatchedPasswordError": "Las contraseñas no coinciden",
     "syncPromptMessage": "La sincronización de los datos puede tardar un poco. Por favor no cierres esta página",
     "or": "O",
-    "LogInWithGoogle": "Iniciar sesión con Google",
-    "LogInWithGithub": "Iniciar sesión con Github",
-    "LogInWithDiscord": "Iniciar sesión con Discord",
     "signInWith": "Inicia sesión con:",
     "signInWithEmail": "Iniciar sesión con correo electrónico",
-    "logInWithMagicLink": "Iniciar sesión con Enlace Mágico",
     "pleaseInputYourEmail": "Por favor, introduzca su dirección de correo electrónico",
     "magicLinkSent": "Enlace mágico enviado a tu correo electrónico, por favor revisa tu bandeja de entrada",
     "invalidEmail": "Por favor, introduce una dirección de correo electrónico válida",
-    "loginAsGuestButtonText": "Empezar"
+    "LogInWithGoogle": "Iniciar sesión con Google",
+    "LogInWithGithub": "Iniciar sesión con Github",
+    "LogInWithDiscord": "Iniciar sesión con Discord",
+    "loginAsGuestButtonText": "Empezar",
+    "logInWithMagicLink": "Iniciar sesión con Enlace Mágico"
   },
   "workspace": {
     "chooseWorkspace": "Elige tu espacio de trabajo",

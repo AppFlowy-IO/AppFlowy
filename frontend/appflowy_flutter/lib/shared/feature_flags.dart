@@ -85,7 +85,7 @@ enum FeatureFlag {
 
   bool get isOn {
     if ([
-      // release this feature in version 0.5.5
+      // release this feature in version 0.5.6
       FeatureFlag.collaborativeWorkspace,
       FeatureFlag.membersSettings,
       // release this feature in version 0.5.4

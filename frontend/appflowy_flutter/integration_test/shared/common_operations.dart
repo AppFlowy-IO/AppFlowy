@@ -571,7 +571,7 @@ extension CommonOperations on WidgetTester {
     // input the workspace name
     await enterText(find.byType(TextField), name);
 
-    await tapButtonWithName(LocaleKeys.button_ok.tr(), milliseconds: 200);
+    await tapButtonWithName(LocaleKeys.button_ok.tr(), milliseconds: 0);
   }
 }
 

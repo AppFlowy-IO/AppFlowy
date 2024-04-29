@@ -180,9 +180,7 @@ extension AppFlowyTestBase on WidgetTester {
       buttons: buttons,
       warnIfMissed: warnIfMissed,
     );
-    if (milliseconds == 0) {
-      await pumpAndSettle();
-    } else {
+    if (milliseconds > 0) {
       await pumpAndSettle(
         Duration(milliseconds: milliseconds),
         EnginePhase.sendSemanticsUpdate,
