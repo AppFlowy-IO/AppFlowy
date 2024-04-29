@@ -1,14 +1,17 @@
 import 'dart:io';
 
 import 'package:appflowy/mobile/application/mobile_router.dart';
+import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/mobile/application/recent/recent_view_bloc.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/shared/appflowy_network_image.dart';
+import 'package:appflowy/shared/flowy_gradient_colors.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -54,7 +57,8 @@ class MobileRecentView extends StatelessWidget {
                             topRight: Radius.circular(8),
                           ),
                           child: _RecentCover(
-                            coverType: state.coverType,
+                            coverTypeV1: state.coverTypeV1,
+                            coverTypeV2: state.coverTypeV2,
                             value: state.coverValue,
                           ),
                         ),
@@ -108,11 +112,13 @@ class MobileRecentView extends StatelessWidget {
 
 class _RecentCover extends StatelessWidget {
   const _RecentCover({
-    required this.coverType,
+    required this.coverTypeV1,
+    this.coverTypeV2,
     this.value,
   });
 
-  final CoverType coverType;
+  final CoverType coverTypeV1;
+  final PageStyleCoverImageType? coverTypeV2;
   final String? value;
 
   @override
@@ -125,7 +131,59 @@ class _RecentCover extends StatelessWidget {
     if (value == null) {
       return placeholder;
     }
-    switch (coverType) {
+    if (coverTypeV2 != null) {
+      return _buildCoverV2(context, value, placeholder);
+    }
+    return _buildCoverV1(context, value, placeholder);
+  }
+
+  Widget _buildCoverV2(BuildContext context, String value, Widget placeholder) {
+    final type = coverTypeV2;
+    if (type == null) {
+      return placeholder;
+    }
+    if (type == PageStyleCoverImageType.customImage ||
+        type == PageStyleCoverImageType.unsplashImage) {
+      final userProfilePB = Provider.of<UserProfilePB?>(context);
+      return FlowyNetworkImage(
+        url: value,
+        userProfilePB: userProfilePB,
+      );
+    }
+
+    if (type == PageStyleCoverImageType.builtInImage) {
+      return Image.asset(
+        PageStyleCoverImageType.builtInImagePath(value),
+        fit: BoxFit.cover,
+      );
+    }
+
+    if (type == PageStyleCoverImageType.pureColor) {
+      return ColoredBox(
+        color: FlowyTint.fromId(value).color(context),
+      );
+    }
+
+    if (type == PageStyleCoverImageType.gradientColor) {
+      return Container(
+        decoration: BoxDecoration(
+          gradient: FlowyGradientColor.fromId(value).linear,
+        ),
+      );
+    }
+
+    if (type == PageStyleCoverImageType.localImage) {
+      return Image.file(
+        File(value),
+        fit: BoxFit.cover,
+      );
+    }
+
+    return placeholder;
+  }
+
+  Widget _buildCoverV1(BuildContext context, String value, Widget placeholder) {
+    switch (coverTypeV1) {
       case CoverType.file:
         if (isURL(value)) {
           final userProfilePB = Provider.of<UserProfilePB?>(context);

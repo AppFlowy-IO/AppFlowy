@@ -351,6 +351,7 @@ enum PageStyleLineHeightLayout {
   }
 }
 
+// for the version above 0.5.5
 enum PageStyleCoverImageType {
   none,
   // normal color

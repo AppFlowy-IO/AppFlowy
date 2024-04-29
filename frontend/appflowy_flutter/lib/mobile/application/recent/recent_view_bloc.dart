@@ -1,8 +1,10 @@
+import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/plugins/document/application/document_data_pb_extension.dart';
 import 'package:appflowy/plugins/document/application/document_listener.dart';
 import 'package:appflowy/plugins/document/application/document_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -21,10 +23,14 @@ class RecentViewBloc extends Bloc<RecentViewEvent, RecentViewState> {
           initial: () async {
             _documentListener.start(
               onDocEventUpdate: (docEvent) async {
-                final (coverType, coverValue) = await getCover();
+                if (state.coverTypeV2 != null) {
+                  return;
+                }
+                final (coverType, coverValue) = await getCoverV1();
                 add(
                   RecentViewEvent.updateCover(
                     coverType,
+                    null,
                     coverValue,
                   ),
                 );
@@ -38,17 +44,40 @@ class RecentViewBloc extends Bloc<RecentViewEvent, RecentViewState> {
                     view.icon.value,
                   ),
                 );
+
+                if (view.extra.isNotEmpty) {
+                  final cover = view.cover;
+                  add(
+                    RecentViewEvent.updateCover(
+                      CoverType.none,
+                      cover?.type,
+                      cover?.value,
+                    ),
+                  );
+                }
               },
             );
-            final (coverType, coverValue) = await getCover();
-            emit(
-              state.copyWith(
-                name: view.name,
-                icon: view.icon.value,
-                coverType: coverType,
-                coverValue: coverValue,
-              ),
-            );
+            final cover = await getCoverV2();
+            if (cover != null) {
+              emit(
+                state.copyWith(
+                  name: view.name,
+                  icon: view.icon.value,
+                  coverTypeV2: cover.type,
+                  coverValue: cover.value,
+                ),
+              );
+            } else {
+              final (coverTypeV1, coverValue) = await getCoverV1();
+              emit(
+                state.copyWith(
+                  name: view.name,
+                  icon: view.icon.value,
+                  coverTypeV1: coverTypeV1,
+                  coverValue: coverValue,
+                ),
+              );
+            }
           },
           updateNameOrIcon: (name, icon) {
             emit(
@@ -58,10 +87,11 @@ class RecentViewBloc extends Bloc<RecentViewEvent, RecentViewState> {
               ),
             );
           },
-          updateCover: (coverType, coverValue) {
+          updateCover: (coverTypeV1, coverTypeV2, coverValue) {
             emit(
               state.copyWith(
-                coverType: coverType,
+                coverTypeV1: coverTypeV1,
+                coverTypeV2: coverTypeV2,
                 coverValue: coverValue,
               ),
             );
@@ -76,7 +106,13 @@ class RecentViewBloc extends Bloc<RecentViewEvent, RecentViewState> {
   final DocumentListener _documentListener;
   final ViewListener _viewListener;
 
-  Future<(CoverType, String?)> getCover() async {
+  Future<PageStyleCover?> getCoverV2() async {
+    final cover = view.cover;
+    return cover;
+  }
+
+  // for the version under 0.5.5
+  Future<(CoverType, String?)> getCoverV1() async {
     final result = await _service.getDocument(viewId: view.id);
     final document = result.fold((s) => s.toDocument(), (f) => null);
     if (document != null) {
@@ -102,7 +138,8 @@ class RecentViewBloc extends Bloc<RecentViewEvent, RecentViewState> {
 class RecentViewEvent with _$RecentViewEvent {
   const factory RecentViewEvent.initial() = Initial;
   const factory RecentViewEvent.updateCover(
-    CoverType coverType,
+    CoverType coverTypeV1, // for the version under 0.5.5, including 0.5.5
+    PageStyleCoverImageType? coverTypeV2, // for the version above 0.5.5
     String? coverValue,
   ) = UpdateCover;
   const factory RecentViewEvent.updateNameOrIcon(
@@ -116,7 +153,8 @@ class RecentViewState with _$RecentViewState {
   const factory RecentViewState({
     required String name,
     required String icon,
-    @Default(CoverType.none) CoverType coverType,
+    @Default(CoverType.none) CoverType coverTypeV1,
+    PageStyleCoverImageType? coverTypeV2,
     @Default(null) String? coverValue,
   }) = _RecentViewState;
 
