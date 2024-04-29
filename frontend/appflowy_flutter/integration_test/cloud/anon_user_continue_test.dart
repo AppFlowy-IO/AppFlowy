@@ -46,20 +46,7 @@ void main() {
       await tester.openSettingsPage(SettingsPage.account);
       await tester.pumpAndSettle();
 
-      // Enable editing username
-      final editUsernameFinder = find.descendant(
-        of: find.byType(UserProfileSetting),
-        matching: find.byFlowySvg(FlowySvgs.edit_s),
-      );
-      await tester.tap(editUsernameFinder);
-      await tester.pumpAndSettle();
-
-      final userNameFinder = find.descendant(
-        of: find.byType(UserProfileSetting),
-        matching: find.byType(FlowyTextField),
-      );
-      await tester.enterText(userNameFinder, 'local_user');
-      await tester.pumpAndSettle();
+      await tester.enterUserName('local_user');
 
       await tester.tap(find.text(LocaleKeys.button_save.tr()));
       await tester.pumpAndSettle();

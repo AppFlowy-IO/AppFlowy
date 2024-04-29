@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/widgets/row/row_detail.dart';
 import 'package:appflowy/plugins/document/presentation/banner.dart';
@@ -12,7 +14,6 @@ import 'package:appflowy/workspace/presentation/widgets/view_title_bar.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'util.dart';
@@ -89,18 +90,6 @@ extension Expectation on WidgetTester {
     expect(exportSuccess, findsOneWidget);
   }
 
-  /// Expect to see the add button and icon button in the cover toolbar
-  void expectToSeePluginAddCoverAndIconButton() {
-    final addCover = find.textContaining(
-      LocaleKeys.document_plugins_cover_addCover.tr(),
-    );
-    final addIcon = find.textContaining(
-      LocaleKeys.document_plugins_cover_addIcon.tr(),
-    );
-    expect(addCover, findsOneWidget);
-    expect(addIcon, findsOneWidget);
-  }
-
   /// Expect to see the document header toolbar empty
   void expectToSeeEmptyDocumentHeaderToolbar() {
     final addCover = find.textContaining(
@@ -153,14 +142,6 @@ extension Expectation on WidgetTester {
     expect(findRemoveIcon, findsOneWidget);
   }
 
-  /// Expect to see the user name on the home page
-  void expectToSeeUserName(String name) {
-    final userName = find.byWidgetPredicate(
-      (widget) => widget is FlowyText && widget.text == name,
-    );
-    expect(userName, findsOneWidget);
-  }
-
   /// Expect to see a text
   void expectToSeeText(String text) {
     Finder textWidget = find.textContaining(text, findRichText: true);
@@ -178,26 +159,23 @@ extension Expectation on WidgetTester {
     ViewLayoutPB layout = ViewLayoutPB.Document,
     String? parentName,
     ViewLayoutPB parentLayout = ViewLayoutPB.Document,
-  }) {
-    return find.byWidgetPredicate(
-      (widget) =>
-          widget is SingleInnerViewItem &&
-          widget.view.isFavorite &&
-          widget.categoryType == FolderCategoryType.favorite &&
-          widget.view.name == name &&
-          widget.view.layout == layout,
-      skipOffstage: false,
-    );
-  }
+  }) =>
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is SingleInnerViewItem &&
+            widget.view.isFavorite &&
+            widget.categoryType == FolderCategoryType.favorite &&
+            widget.view.name == name &&
+            widget.view.layout == layout,
+        skipOffstage: false,
+      );
 
-  Finder findAllFavoritePages() {
-    return find.byWidgetPredicate(
-      (widget) =>
-          widget is SingleInnerViewItem &&
-          widget.view.isFavorite &&
-          widget.categoryType == FolderCategoryType.favorite,
-    );
-  }
+  Finder findAllFavoritePages() => find.byWidgetPredicate(
+        (widget) =>
+            widget is SingleInnerViewItem &&
+            widget.view.isFavorite &&
+            widget.categoryType == FolderCategoryType.favorite,
+      );
 
   Finder findPageName(
     String name, {

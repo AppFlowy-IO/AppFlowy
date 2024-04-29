@@ -45,37 +45,8 @@ void main() {
 
       await tester.openSettings();
       await tester.openSettingsPage(SettingsPage.account);
-      // final userAvatarFinder = find.descendant(
-      //   of: find.byType(SettingsUserView),
-      //   matching: find.byType(UserAvatar),
-      // );
 
-      // Open icon picker dialog and select emoji
-      // await tester.tap(userAvatarFinder);
-      // await tester.pumpAndSettle();
-      // await tester.tapEmoji('😁');
-      // await tester.pumpAndSettle();
-      // final UserAvatar userAvatar =
-      //     tester.widget(userAvatarFinder) as UserAvatar;
-      // expect(userAvatar.iconUrl, '😁');
-
-      // Enable editing username
-      final editUsernameFinder = find.descendant(
-        of: find.byType(UserProfileSetting),
-        matching: find.byFlowySvg(FlowySvgs.edit_s),
-      );
-      await tester.tap(editUsernameFinder);
-      await tester.pumpAndSettle();
-
-      final userNameFinder = find.descendant(
-        of: find.byType(UserProfileSetting),
-        matching: find.byType(FlowyTextField),
-      );
-      await tester.enterText(userNameFinder, name);
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.text(LocaleKeys.button_save.tr()));
-      await tester.pumpAndSettle();
+      await tester.enterUserName(name);
       await tester.tapEscButton();
 
       // wait 2 seconds for the sync to finish

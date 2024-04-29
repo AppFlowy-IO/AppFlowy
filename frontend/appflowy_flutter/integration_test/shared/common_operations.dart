@@ -73,27 +73,6 @@ extension CommonOperations on WidgetTester {
     await tapButton(newPageButton);
   }
 
-  /// Tap the create document button.
-  ///
-  /// Must call [tapAddViewButton] first.
-  Future<void> tapCreateDocumentButton() async {
-    await tapButtonWithName(LocaleKeys.document_menuName.tr());
-  }
-
-  /// Tap the create grid button.
-  ///
-  /// Must call [tapAddViewButton] first.
-  Future<void> tapCreateGridButton() async {
-    await tapButtonWithName(LocaleKeys.grid_menuName.tr());
-  }
-
-  /// Tap the create grid button.
-  ///
-  /// Must call [tapAddViewButton] first.
-  Future<void> tapCreateCalendarButton() async {
-    await tapButtonWithName(LocaleKeys.calendar_menuName.tr());
-  }
-
   /// Tap the import button.
   ///
   /// Must call [tapAddViewButton] first.
@@ -182,15 +161,9 @@ extension CommonOperations on WidgetTester {
   }) async {
     final pageNames = findPageName(name, layout: layout);
     if (useLast) {
-      await hoverOnWidget(
-        pageNames.last,
-        onHover: onHover,
-      );
+      await hoverOnWidget(pageNames.last, onHover: onHover);
     } else {
-      await hoverOnWidget(
-        pageNames.first,
-        onHover: onHover,
-      );
+      await hoverOnWidget(pageNames.first, onHover: onHover);
     }
   }
 
@@ -498,9 +471,7 @@ extension CommonOperations on WidgetTester {
     await pumpAndSettle();
   }
 
-  Future<void> openNotificationHub({
-    int tabIndex = 0,
-  }) async {
+  Future<void> openNotificationHub({int tabIndex = 0}) async {
     final finder = find.descendant(
       of: find.byType(NotificationButton),
       matching: find.byWidgetPredicate(
@@ -541,15 +512,6 @@ extension CommonOperations on WidgetTester {
     expect(workspace, findsOneWidget);
     // click it
     await tapButton(workspace, milliseconds: 2000);
-  }
-
-  Future<void> closeCollaborativeWorkspaceMenu() async {
-    if (!FeatureFlag.collaborativeWorkspace.isOn) {
-      throw UnsupportedError('Collaborative workspace is not enabled');
-    }
-
-    await tapAt(Offset.zero);
-    await pumpAndSettle();
   }
 
   Future<void> createCollaborativeWorkspace(String name) async {

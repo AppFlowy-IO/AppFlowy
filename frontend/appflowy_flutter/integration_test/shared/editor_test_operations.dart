@@ -31,11 +31,8 @@ class EditorOperations {
 
   final WidgetTester tester;
 
-  EditorState getCurrentEditorState() {
-    return tester
-        .widget<AppFlowyEditor>(find.byType(AppFlowyEditor))
-        .editorState;
-  }
+  EditorState getCurrentEditorState() =>
+      tester.widget<AppFlowyEditor>(find.byType(AppFlowyEditor)).editorState;
 
   /// Tap the line of editor at [index]
   Future<void> tapLineOfEditorAt(int index) async {
@@ -145,9 +142,8 @@ class EditorOperations {
     );
   }
 
-  Future<void> tapOnRemoveCover() async {
-    await tester.tapButton(find.byType(DeleteCoverButton));
-  }
+  Future<void> tapOnRemoveCover() async =>
+      tester.tapButton(find.byType(DeleteCoverButton));
 
   /// A cover must be present in the document to function properly since this
   /// catches all cover types collectively
