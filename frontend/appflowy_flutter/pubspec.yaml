@@ -131,6 +131,7 @@ dependencies:
   sheet:
   file: ^7.0.0
   avatar_stack: ^1.2.0
+  flutter_animate: ^4.5.0
 
 dev_dependencies:
   flutter_lints: ^3.0.1
@@ -167,7 +168,7 @@ dependency_overrides:
   appflowy_editor:
     git:
       url: https://github.com/AppFlowy-IO/appflowy-editor.git
-      ref: "6d12761"
+      ref: "bcaa58e8554963083931272afcfc907f15b804cb"
 
   sheet:
     git:
