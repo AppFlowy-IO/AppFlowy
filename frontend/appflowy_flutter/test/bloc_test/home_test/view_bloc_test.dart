@@ -113,7 +113,7 @@ void main() {
           section: ViewSectionPB.Public,
         ),
       );
-      await blocResponseFuture();
+      await blocResponseFuture(millisecond: 400);
     }
 
     expect(viewBloc.state.view.childViews.length, 3);

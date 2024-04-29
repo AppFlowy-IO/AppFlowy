@@ -46,16 +46,16 @@
     "unmatchedPasswordError": "Les deux mots de passe ne sont pas identiques",
     "syncPromptMessage": "La synchronisation des données peut prendre un certain temps. Merci de ne pas fermer pas cette page.",
     "or": "OU",
-    "LogInWithGoogle": "Se connecter avec Google",
-    "LogInWithGithub": "Se connecter avec Github",
-    "LogInWithDiscord": "Se connecter avec Discord",
     "signInWith": "Se connecter avec :",
     "signInWithEmail": "Se connecter via e-mail",
-    "logInWithMagicLink": "Connectez-vous avec Magic Link",
     "pleaseInputYourEmail": "Veuillez entrer votre adresse e-mail",
     "magicLinkSent": "Lien magique envoyé à votre email, veuillez vérifier votre boîte de réception",
     "invalidEmail": "S'il vous plaît, mettez une adresse email valide",
-    "loginAsGuestButtonText": "Commencer"
+    "LogInWithGoogle": "Se connecter avec Google",
+    "LogInWithGithub": "Se connecter avec Github",
+    "LogInWithDiscord": "Se connecter avec Discord",
+    "loginAsGuestButtonText": "Commencer",
+    "logInWithMagicLink": "Connectez-vous avec Magic Link"
   },
   "workspace": {
     "chooseWorkspace": "Choisissez votre espace de travail",

@@ -77,7 +77,6 @@ class DocumentCollabAdapter {
 
     final ops = diffNodes(editorState.document.root, document.root);
     if (ops.isEmpty) {
-      Log.info('Doc diff, no changes');
       return;
     }
 

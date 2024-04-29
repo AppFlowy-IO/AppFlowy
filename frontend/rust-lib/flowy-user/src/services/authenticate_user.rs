@@ -16,7 +16,7 @@ use tracing::{error, info};
 const SQLITE_VACUUM_042: &str = "sqlite_vacuum_042_version";
 
 pub struct AuthenticateUser {
-  pub(crate) user_config: UserConfig,
+  pub user_config: UserConfig,
   pub(crate) database: Arc<UserDB>,
   pub(crate) user_paths: UserPaths,
   store_preferences: Arc<StorePreferences>,
@@ -65,6 +65,11 @@ impl AuthenticateUser {
   pub fn workspace_id(&self) -> FlowyResult<String> {
     let session = self.get_session()?;
     Ok(session.user_workspace.id)
+  }
+
+  pub fn workspace_database_object_id(&self) -> FlowyResult<String> {
+    let session = self.get_session()?;
+    Ok(session.user_workspace.database_indexer_id.clone())
   }
 
   pub fn get_collab_db(&self, uid: i64) -> FlowyResult<Weak<CollabKVDB>> {

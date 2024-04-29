@@ -319,7 +319,8 @@ Future<String> _getAppFlowyCloudWSUrl(String baseURL) async {
 
     // Construct the WebSocket URL directly from the parsed URI.
     final wsScheme = uri.isScheme('HTTPS') ? 'wss' : 'ws';
-    final wsUrl = Uri(scheme: wsScheme, host: uri.host, path: '/ws/v1');
+    final wsUrl =
+        Uri(scheme: wsScheme, host: uri.host, port: uri.port, path: '/ws/v1');
 
     return wsUrl.toString();
   } catch (e) {

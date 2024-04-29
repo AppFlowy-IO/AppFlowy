@@ -106,58 +106,13 @@ void main() {
         expect(node2.type, ParagraphBlockKeys.type);
         expect(node3.type, ParagraphBlockKeys.type);
         expect(node1.delta!.toJson(), [
-          {
-            "insert": "void",
-            "attributes": {"font_color": "0xfffede5d"},
-          },
-          {
-            "insert": " ",
-            "attributes": {"font_color": "0xffff7edb"},
-          },
-          {
-            "insert": "main",
-            "attributes": {"font_color": "0xff36f9f6"},
-          },
-          {
-            "insert": "() {",
-            "attributes": {"font_color": "0xffff7edb"},
-          }
+          {'insert': 'void main() {'},
         ]);
         expect(node2.delta!.toJson(), [
-          {
-            "insert": "  ",
-            "attributes": {"font_color": "0xffff7edb"},
-          },
-          {
-            "insert": "runApp",
-            "attributes": {"font_color": "0xff36f9f6"},
-          },
-          {
-            "insert": "(",
-            "attributes": {"font_color": "0xffff7edb"},
-          },
-          {
-            "insert": "const",
-            "attributes": {"font_color": "0xfffede5d"},
-          },
-          {
-            "insert": " ",
-            "attributes": {"font_color": "0xffff7edb"},
-          },
-          {
-            "insert": "MyApp",
-            "attributes": {"font_color": "0xfffe4450"},
-          },
-          {
-            "insert": "());",
-            "attributes": {"font_color": "0xffff7edb"},
-          }
+          {'insert': "  runApp(const MyApp());"},
         ]);
         expect(node3.delta!.toJson(), [
-          {
-            "insert": "}",
-            "attributes": {"font_color": "0xffff7edb"},
-          }
+          {"insert": "}"},
         ]);
       });
     });
