@@ -16,6 +16,7 @@ use crate::database::mock_data::{COMPLETED, FACEBOOK, GOOGLE, PAUSED, PLANNED, T
 
 // Kanban board unit test mock data
 pub fn make_test_board() -> DatabaseData {
+  let database_id = gen_database_id();
   let mut fields = vec![];
   let mut rows = vec![];
   // Iterate through the FieldType to create the corresponding Field.
@@ -24,7 +25,6 @@ pub fn make_test_board() -> DatabaseData {
       FieldType::RichText => {
         let text_field = FieldBuilder::from_field_type(field_type)
           .name("Name")
-          .visibility(true)
           .primary(true)
           .build();
         fields.push(text_field);
@@ -33,7 +33,6 @@ pub fn make_test_board() -> DatabaseData {
         // Number
         let number_field = FieldBuilder::from_field_type(field_type)
           .name("Price")
-          .visibility(true)
           .build();
         fields.push(number_field);
       },
@@ -47,7 +46,6 @@ pub fn make_test_board() -> DatabaseData {
         let name = "Time";
         let date_field = FieldBuilder::new(field_type, date_type_option)
           .name(name)
-          .visibility(true)
           .build();
         fields.push(date_field);
       },
@@ -66,7 +64,6 @@ pub fn make_test_board() -> DatabaseData {
         };
         let date_field = FieldBuilder::new(field_type, date_type_option)
           .name(name)
-          .visibility(true)
           .build();
         fields.push(date_field);
       },
@@ -81,7 +78,6 @@ pub fn make_test_board() -> DatabaseData {
           .extend(vec![option1, option2, option3]);
         let single_select_field = FieldBuilder::new(field_type, single_select_type_option)
           .name("Status")
-          .visibility(true)
           .build();
         fields.push(single_select_field);
       },
@@ -94,7 +90,6 @@ pub fn make_test_board() -> DatabaseData {
         type_option.options.extend(vec![option1, option2, option3]);
         let multi_select_field = FieldBuilder::new(field_type, type_option)
           .name("Platform")
-          .visibility(true)
           .build();
         fields.push(multi_select_field);
       },
@@ -102,7 +97,6 @@ pub fn make_test_board() -> DatabaseData {
         // Checkbox
         let checkbox_field = FieldBuilder::from_field_type(field_type)
           .name("is urgent")
-          .visibility(true)
           .build();
         fields.push(checkbox_field);
       },
@@ -110,7 +104,6 @@ pub fn make_test_board() -> DatabaseData {
         // URL
         let url = FieldBuilder::from_field_type(field_type)
           .name("link")
-          .visibility(true)
           .build();
         fields.push(url);
       },
@@ -122,7 +115,6 @@ pub fn make_test_board() -> DatabaseData {
         // type_option.options.extend(vec![option1, option2, option3]);
         let checklist_field = FieldBuilder::new(field_type, type_option)
           .name("TODO")
-          .visibility(true)
           .build();
         fields.push(checklist_field);
       },
@@ -132,7 +124,6 @@ pub fn make_test_board() -> DatabaseData {
         };
         let relation_field = FieldBuilder::new(field_type, type_option)
           .name("Related")
-          .visibility(true)
           .build();
         fields.push(relation_field);
       },
@@ -145,7 +136,7 @@ pub fn make_test_board() -> DatabaseData {
 
   // We have many assumptions base on the number of the rows, so do not change the number of the loop.
   for i in 0..5 {
-    let mut row_builder = TestRowBuilder::new(gen_row_id(), &fields);
+    let mut row_builder = TestRowBuilder::new(&database_id, gen_row_id(), &fields);
     match i {
       0 => {
         for field_type in FieldType::iter() {
@@ -252,9 +243,11 @@ pub fn make_test_board() -> DatabaseData {
   let mut layout_settings = LayoutSettings::new();
   layout_settings.insert(DatabaseLayout::Board, board_setting);
 
+  let inline_view_id = gen_database_view_id();
+
   let view = DatabaseView {
-    id: gen_database_view_id(),
-    database_id: gen_database_id(),
+    id: inline_view_id.clone(),
+    database_id: database_id.clone(),
     name: "".to_string(),
     layout: DatabaseLayout::Board,
     layout_settings,
@@ -267,5 +260,12 @@ pub fn make_test_board() -> DatabaseData {
     modified_at: 0,
     field_settings,
   };
-  DatabaseData { view, fields, rows }
+
+  DatabaseData {
+    database_id,
+    inline_view_id,
+    views: vec![view],
+    fields,
+    rows,
+  }
 }

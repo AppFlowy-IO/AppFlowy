@@ -1,9 +1,6 @@
-import 'package:appflowy/workspace/application/recent/recent_listener.dart';
-import 'package:appflowy/workspace/application/recent/recent_service.dart';
-import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
+import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/application/recent/cached_recent_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
-import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -11,15 +8,15 @@ part 'recent_views_bloc.freezed.dart';
 
 class RecentViewsBloc extends Bloc<RecentViewsEvent, RecentViewsState> {
   RecentViewsBloc() : super(RecentViewsState.initial()) {
+    _service = getIt<CachedRecentService>();
     _dispatch();
   }
 
-  final _service = RecentService();
-  final _listener = RecentViewsListener();
+  late final CachedRecentService _service;
 
   @override
   Future<void> close() async {
-    await _listener.stop();
+    _service.notifier.removeListener(_onRecentViewsUpdated);
     return super.close();
   }
 
@@ -28,11 +25,7 @@ class RecentViewsBloc extends Bloc<RecentViewsEvent, RecentViewsState> {
       (event, emit) async {
         await event.map(
           initial: (e) async {
-            _listener.start(
-              recentViewsUpdated: (result) => _onRecentViewsUpdated(
-                result,
-              ),
-            );
+            _service.notifier.addListener(_onRecentViewsUpdated);
             add(const RecentViewsEvent.fetchRecentViews());
           },
           addRecentViews: (e) async {
@@ -42,22 +35,15 @@ class RecentViewsBloc extends Bloc<RecentViewsEvent, RecentViewsState> {
             await _service.updateRecentViews(e.viewIds, false);
           },
           fetchRecentViews: (e) async {
-            final result = await _service.readRecentViews();
-            result.fold(
-              (views) => emit(state.copyWith(views: views.items)),
-              (error) => Log.error(error),
-            );
+            emit(state.copyWith(views: await _service.recentViews()));
           },
         );
       },
     );
   }
 
-  void _onRecentViewsUpdated(
-    FlowyResult<RepeatedViewIdPB, FlowyError> result,
-  ) {
-    add(const RecentViewsEvent.fetchRecentViews());
-  }
+  void _onRecentViewsUpdated() =>
+      add(const RecentViewsEvent.fetchRecentViews());
 }
 
 @freezed
@@ -76,7 +62,5 @@ class RecentViewsState with _$RecentViewsState {
     required List<ViewPB> views,
   }) = _RecentViewsState;
 
-  factory RecentViewsState.initial() => const RecentViewsState(
-        views: [],
-      );
+  factory RecentViewsState.initial() => const RecentViewsState(views: []);
 }

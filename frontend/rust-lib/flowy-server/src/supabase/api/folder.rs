@@ -2,7 +2,7 @@ use std::str::FromStr;
 
 use anyhow::{anyhow, Error};
 use chrono::{DateTime, Utc};
-use collab::core::collab::DocStateSource;
+use collab::core::collab::DataSource;
 use collab::core::origin::CollabOrigin;
 use collab_entity::CollabType;
 use serde_json::Value;
@@ -105,11 +105,11 @@ where
       let folder = Folder::from_collab_doc_state(
         uid,
         CollabOrigin::Empty,
-        DocStateSource::FromDocState(doc_state),
+        DataSource::DocStateV1(doc_state),
         &workspace_id,
         vec![],
       )?;
-      Ok(folder.get_folder_data())
+      Ok(folder.get_folder_data(&workspace_id))
     })
   }
 

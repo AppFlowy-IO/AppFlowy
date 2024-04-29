@@ -13,6 +13,7 @@ use client_api::entity::{QueryCollab, QueryCollabParams};
 use client_api::{Client, ClientConfiguration};
 use collab_entity::{CollabObject, CollabType};
 use parking_lot::RwLock;
+use tracing::instrument;
 
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_user_pub::cloud::{UserCloudService, UserCollabParams, UserUpdate, UserUpdateReceiver};
@@ -24,11 +25,12 @@ use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 use uuid::Uuid;
 
-use crate::af_cloud::define::USER_SIGN_IN_URL;
+use crate::af_cloud::define::{ServerUser, USER_SIGN_IN_URL};
 use crate::af_cloud::impls::user::dto::{
   af_update_from_update_params, from_af_workspace_member, to_af_role, user_profile_from_af_profile,
 };
 use crate::af_cloud::impls::user::util::encryption_type_from_profile;
+use crate::af_cloud::impls::util::check_request_workspace_id_is_match;
 use crate::af_cloud::{AFCloudClient, AFServer};
 
 use super::dto::{from_af_workspace_invitation_status, to_workspace_invitation_status};
@@ -36,13 +38,19 @@ use super::dto::{from_af_workspace_invitation_status, to_workspace_invitation_st
 pub(crate) struct AFCloudUserAuthServiceImpl<T> {
   server: T,
   user_change_recv: RwLock<Option<tokio::sync::mpsc::Receiver<UserUpdate>>>,
+  user: Arc<dyn ServerUser>,
 }
 
 impl<T> AFCloudUserAuthServiceImpl<T> {
-  pub(crate) fn new(server: T, user_change_recv: tokio::sync::mpsc::Receiver<UserUpdate>) -> Self {
+  pub(crate) fn new(
+    server: T,
+    user_change_recv: tokio::sync::mpsc::Receiver<UserUpdate>,
+    user: Arc<dyn ServerUser>,
+  ) -> Self {
     Self {
       server,
       user_change_recv: RwLock::new(Some(user_change_recv)),
+      user,
     }
   }
 }
@@ -166,16 +174,27 @@ where
     })
   }
 
+  #[instrument(level = "debug", skip_all)]
   fn get_user_profile(
     &self,
     _credential: UserCredentials,
   ) -> FutureResult<UserProfile, FlowyError> {
     let try_get_client = self.server.try_get_client();
+    let cloned_user = self.user.clone();
     FutureResult::new(async move {
+      let expected_workspace_id = cloned_user.workspace_id()?;
       let client = try_get_client?;
       let profile = client.get_profile().await?;
       let token = client.get_token()?;
       let profile = user_profile_from_af_profile(token, profile)?;
+
+      // Discard the response if the user has switched to a new workspace. This avoids updating the
+      // user profile with potentially outdated information when the workspace ID no longer matches.
+      check_request_workspace_id_is_match(
+        &expected_workspace_id,
+        &cloned_user,
+        "get user profile",
+      )?;
       Ok(profile)
     })
   }
@@ -315,6 +334,7 @@ where
     })
   }
 
+  #[instrument(level = "debug", skip_all)]
   fn get_user_awareness_doc_state(
     &self,
     _uid: i64,
@@ -324,17 +344,22 @@ where
     let workspace_id = workspace_id.to_string();
     let object_id = object_id.to_string();
     let try_get_client = self.server.try_get_client();
-    FutureResult::new(async {
+    let cloned_user = self.user.clone();
+    FutureResult::new(async move {
       let params = QueryCollabParams {
-        workspace_id,
+        workspace_id: workspace_id.clone(),
         inner: QueryCollab {
           object_id,
           collab_type: CollabType::UserAwareness,
         },
       };
-
       let resp = try_get_client?.get_collab(params).await?;
-      Ok(resp.doc_state.to_vec())
+      check_request_workspace_id_is_match(
+        &workspace_id,
+        &cloned_user,
+        "get user awareness object",
+      )?;
+      Ok(resp.encode_collab.doc_state.to_vec())
     })
   }
 
@@ -510,7 +535,7 @@ fn to_user_workspace(af_workspace: AFWorkspace) -> UserWorkspace {
     id: af_workspace.workspace_id.to_string(),
     name: af_workspace.workspace_name,
     created_at: af_workspace.created_at,
-    workspace_database_object_id: af_workspace.database_storage_id.to_string(),
+    database_indexer_id: af_workspace.database_storage_id.to_string(),
     icon: af_workspace.icon,
   }
 }

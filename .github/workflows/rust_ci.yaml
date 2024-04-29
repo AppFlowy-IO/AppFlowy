@@ -19,27 +19,27 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
-  RUST_TOOLCHAIN: "1.75"
+  RUST_TOOLCHAIN: "1.77.2"
 
 jobs:
   test-on-ubuntu:
     runs-on: ubuntu-latest
     steps:
-#      - name: Maximize build space
-#        uses: easimon/maximize-build-space@master
-#        with:
-#          root-reserve-mb: 2048
-#          swap-size-mb: 1024
-#          remove-dotnet: 'true'
-#
-#          # the following step is required to avoid running out of space
-#      - name: Maximize build space
-#        run: |
-#          sudo rm -rf /usr/share/dotnet
-#          sudo rm -rf /opt/ghc
-#          sudo rm -rf "/usr/local/share/boost"
-#          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
-#          sudo docker image prune --all --force
+      # - name: Maximize build space
+      #   uses: easimon/maximize-build-space@master
+      #   with:
+      #     root-reserve-mb: 2048
+      #     swap-size-mb: 1024
+      #     remove-dotnet: 'true'
+
+      # # the following step is required to avoid running out of space
+      # - name: Maximize build space
+      #   run: |
+      #     sudo rm -rf /usr/share/dotnet
+      #     sudo rm -rf /opt/ghc
+      #     sudo rm -rf "/usr/local/share/boost"
+      #     sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+      #     sudo docker image prune --all --force
 
       - name: Checkout source code
         uses: actions/checkout@v4
@@ -81,6 +81,8 @@ jobs:
 
       - name: Run Docker-Compose
         working-directory: AppFlowy-Cloud
+        env:
+          BACKEND_VERSION: 0.3.24-amd64
         run: |
           docker pull appflowyinc/appflowy_cloud:latest
           docker compose up -d
@@ -94,7 +96,7 @@ jobs:
           af_cloud_test_ws_url: ws://localhost/ws/v1
           af_cloud_test_gotrue_url: http://localhost/gotrue
         run: |
-          DISABLE_CI_TEST_LOG="true" cargo test --no-default-features --features="rev-sqlite,dart" -- --nocapture
+          DISABLE_CI_TEST_LOG="true" cargo test --no-default-features --features="dart" -- --nocapture
 
       - name: rustfmt rust-lib
         run: cargo fmt --all -- --check

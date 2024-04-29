@@ -1,9 +1,9 @@
 use std::sync::Arc;
 use std::sync::Weak;
 
-use collab::core::collab::{DocStateSource, MutexCollab};
-use collab::core::collab_plugin::EncodedCollab;
+use collab::core::collab::{DataSource, MutexCollab};
 use collab::core::origin::CollabOrigin;
+use collab::entity::EncodedCollab;
 use collab::preclude::Collab;
 use collab_document::blocks::DocumentData;
 use collab_document::document::Document;
@@ -20,7 +20,6 @@ use tracing::{error, trace};
 use tracing::{event, instrument};
 
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
-use collab_integrate::CollabPersistenceConfig;
 use flowy_document_pub::cloud::DocumentCloudService;
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_storage::ObjectStorageService;
@@ -77,7 +76,7 @@ impl DocumentManager {
     }
   }
 
-  pub async fn initialize(&self, _uid: i64, _workspace_id: String) -> FlowyResult<()> {
+  pub async fn initialize(&self, _uid: i64) -> FlowyResult<()> {
     self.documents.clear();
     Ok(())
   }
@@ -88,8 +87,8 @@ impl DocumentManager {
     skip_all,
     err
   )]
-  pub async fn initialize_with_new_user(&self, uid: i64, workspace_id: String) -> FlowyResult<()> {
-    self.initialize(uid, workspace_id).await?;
+  pub async fn initialize_with_new_user(&self, uid: i64) -> FlowyResult<()> {
+    self.initialize(uid).await?;
     Ok(())
   }
 
@@ -124,7 +123,7 @@ impl DocumentManager {
           .doc_state
           .to_vec();
       let collab = self
-        .collab_for_document(uid, doc_id, DocStateSource::FromDocState(doc_state), false)
+        .collab_for_document(uid, doc_id, DataSource::DocStateV1(doc_state), false)
         .await?;
       collab.lock().flush();
       Ok(())
@@ -144,11 +143,11 @@ impl DocumentManager {
       return Ok(doc);
     }
 
-    let mut doc_state = DocStateSource::FromDisk;
+    let mut doc_state = DataSource::Disk;
     // If the document does not exist in local disk, try get the doc state from the cloud. This happens
     // When user_device_a create a document and user_device_b open the document.
     if !self.is_doc_exist(doc_id).await? {
-      doc_state = DocStateSource::FromDocState(
+      doc_state = DataSource::DocStateV1(
         self
           .cloud_service
           .get_document_doc_state(doc_id, &self.user_service.workspace_id()?)
@@ -188,9 +187,9 @@ impl DocumentManager {
   }
 
   pub async fn get_document_data(&self, doc_id: &str) -> FlowyResult<DocumentData> {
-    let mut doc_state = DocStateSource::FromDisk;
+    let mut doc_state = DataSource::Disk;
     if !self.is_doc_exist(doc_id).await? {
-      doc_state = DocStateSource::FromDocState(
+      doc_state = DataSource::DocStateV1(
         self
           .cloud_service
           .get_document_doc_state(doc_id, &self.user_service.workspace_id()?)
@@ -344,6 +343,7 @@ impl DocumentManager {
       // create file if not exist
       let mut file = tokio::fs::OpenOptions::new()
         .create(true)
+        .truncate(true)
         .write(true)
         .open(&local_file_path)
         .await?;
@@ -377,17 +377,18 @@ impl DocumentManager {
     &self,
     uid: i64,
     doc_id: &str,
-    doc_state: DocStateSource,
+    doc_state: DataSource,
     sync_enable: bool,
   ) -> FlowyResult<Arc<MutexCollab>> {
     let db = self.user_service.collab_db(uid)?;
+    let workspace_id = self.user_service.workspace_id()?;
     let collab = self.collab_builder.build_with_config(
+      &workspace_id,
       uid,
       doc_id,
       CollabType::Document,
       db,
       doc_state,
-      CollabPersistenceConfig::default().snapshot_per_update(1000),
       CollabBuilderConfig::default().sync_enable(sync_enable),
     )?;
     Ok(collab)
@@ -439,7 +440,7 @@ async fn doc_state_from_document_data(
   let doc_id = doc_id.to_string();
   // spawn_blocking is used to avoid blocking the tokio thread pool if the document is large.
   let encoded_collab = tokio::task::spawn_blocking(move || {
-    let collab = Arc::new(MutexCollab::from_collab(Collab::new_with_origin(
+    let collab = Arc::new(MutexCollab::new(Collab::new_with_origin(
       CollabOrigin::Empty,
       doc_id,
       vec![],

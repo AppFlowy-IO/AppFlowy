@@ -49,7 +49,7 @@ void main() {
         const ViewEvent.initial(),
       );
     childViewBloc.add(const ViewEvent.duplicate());
-    await blocResponseFuture();
+    await blocResponseFuture(millisecond: 1000);
     expect(viewBloc.state.view.childViews.length, 2);
   });
 
@@ -113,7 +113,7 @@ void main() {
           section: ViewSectionPB.Public,
         ),
       );
-      await blocResponseFuture();
+      await blocResponseFuture(millisecond: 400);
     }
 
     expect(viewBloc.state.view.childViews.length, 3);
@@ -220,7 +220,7 @@ void main() {
           section: ViewSectionPB.Public,
         ),
       );
-      await blocResponseFuture();
+      await blocResponseFuture(millisecond: 1000);
       expect(viewBloc.state.view.childViews.length, i + 1);
       expect(viewBloc.state.view.childViews.last.name, 'Test $layout');
       expect(viewBloc.state.view.childViews.last.layout, layout);

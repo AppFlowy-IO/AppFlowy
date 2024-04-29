@@ -5,7 +5,7 @@ use collab_entity::{CollabObject, CollabType};
 use collab_integrate::CollabKVDB;
 use tracing::{error, info, instrument, warn};
 
-use flowy_error::{FlowyError, FlowyResult};
+use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_folder_pub::entities::{AppFlowyData, ImportData};
 use flowy_sqlite::schema::user_workspace_table;
 use flowy_sqlite::{query_dsl::*, DBConnection, ExpressionMethods};
@@ -17,7 +17,9 @@ use lib_dispatch::prelude::af_spawn;
 use crate::entities::{RepeatedUserWorkspacePB, ResetWorkspacePB};
 use crate::migrations::AnonUser;
 use crate::notification::{send_notification, UserNotification};
-use crate::services::data_import::{upload_collab_objects_data, ImportContext};
+use crate::services::data_import::{
+  generate_import_data, upload_collab_objects_data, ImportedFolder, ImportedSource,
+};
 use crate::services::sqlite_sql::workspace_sql::{
   get_all_user_workspace_op, get_user_workspace_op, insert_new_workspaces_op, UserWorkspaceTable,
 };
@@ -29,16 +31,31 @@ impl UserManager {
   /// If the container name is not empty, then the data will be imported to the given container.
   /// Otherwise, the data will be imported to the current workspace.
   #[instrument(skip_all, err)]
-  pub(crate) async fn import_appflowy_data_folder(
-    &self,
-    context: ImportContext,
-  ) -> FlowyResult<()> {
-    let session = self.get_session()?;
-    let import_data = self.import_appflowy_data(context).await?;
+  pub(crate) async fn perform_import(&self, imported_folder: ImportedFolder) -> FlowyResult<()> {
+    let current_session = self.get_session()?;
+    let user_collab_db = self
+      .authenticate_user
+      .database
+      .get_collab_db(current_session.user_id)?;
+
+    let cloned_current_session = current_session.clone();
+    let import_data = tokio::task::spawn_blocking(move || {
+      generate_import_data(
+        &cloned_current_session,
+        &cloned_current_session.user_workspace.id,
+        &user_collab_db,
+        imported_folder,
+      )
+      .map_err(|err| FlowyError::new(ErrorCode::AppFlowyDataFolderImportError, err.to_string()))
+    })
+    .await??;
+
     match import_data {
       ImportData::AppFlowyDataFolder { items } => {
         for item in items {
-          self.upload_appflowy_data_item(&session, item).await?;
+          self
+            .upload_appflowy_data_item(&current_session, item)
+            .await?;
         }
       },
     }
@@ -47,7 +64,7 @@ impl UserManager {
 
   async fn upload_appflowy_data_item(
     &self,
-    session: &Session,
+    current_session: &Session,
     item: AppFlowyData,
   ) -> Result<(), FlowyError> {
     match item {
@@ -79,13 +96,15 @@ impl UserManager {
         document_object_ids,
         database_object_ids,
       } => {
-        let user = self.get_user_profile_from_disk(session.user_id).await?;
+        let user = self
+          .get_user_profile_from_disk(current_session.user_id)
+          .await?;
         let user_collab_db = self
-          .get_collab_db(session.user_id)?
+          .get_collab_db(current_session.user_id)?
           .upgrade()
           .ok_or_else(|| FlowyError::internal().with_context("Collab db not found"))?;
 
-        let user_id = session.user_id;
+        let user_id = current_session.user_id;
         let weak_user_collab_db = Arc::downgrade(&user_collab_db);
         let weak_user_cloud_service = self.cloud_services.get_user_service()?;
         match upload_collab_objects_data(
@@ -124,18 +143,19 @@ impl UserManager {
     old_user: &AnonUser,
     old_collab_db: &Arc<CollabKVDB>,
   ) -> FlowyResult<()> {
-    let import_context = ImportContext {
+    let import_context = ImportedFolder {
       imported_session: old_user.session.clone(),
       imported_collab_db: old_collab_db.clone(),
       container_name: None,
+      source: ImportedSource::AnonUser,
     };
-    self.import_appflowy_data_folder(import_context).await?;
+    self.perform_import(import_context).await?;
     Ok(())
   }
 
   #[instrument(skip(self), err)]
   pub async fn open_workspace(&self, workspace_id: &str) -> FlowyResult<()> {
-    let uid = self.user_id()?;
+    info!("open workspace: {}", workspace_id);
     let user_workspace = self
       .cloud_services
       .get_user_service()?
@@ -145,6 +165,8 @@ impl UserManager {
     self
       .authenticate_user
       .set_user_workspace(user_workspace.clone())?;
+
+    let uid = self.user_id()?;
     if let Err(err) = self
       .user_status_callback
       .read()
@@ -158,12 +180,18 @@ impl UserManager {
     Ok(())
   }
 
+  #[instrument(level = "info", skip(self), err)]
   pub async fn add_workspace(&self, workspace_name: &str) -> FlowyResult<UserWorkspace> {
     let new_workspace = self
       .cloud_services
       .get_user_service()?
       .create_workspace(workspace_name)
       .await?;
+
+    info!(
+      "new workspace: {}, name:{}",
+      new_workspace.id, new_workspace.name
+    );
 
     // save the workspace to sqlite db
     let uid = self.user_id()?;
@@ -207,7 +235,9 @@ impl UserManager {
     save_user_workspaces(uid, conn, &[user_workspace])
   }
 
+  #[instrument(level = "info", skip(self), err)]
   pub async fn leave_workspace(&self, workspace_id: &str) -> FlowyResult<()> {
+    info!("leave workspace: {}", workspace_id);
     self
       .cloud_services
       .get_user_service()?
@@ -220,7 +250,9 @@ impl UserManager {
     delete_user_workspaces(conn, workspace_id)
   }
 
+  #[instrument(level = "info", skip(self), err)]
   pub async fn delete_workspace(&self, workspace_id: &str) -> FlowyResult<()> {
+    info!("delete workspace: {}", workspace_id);
     self
       .cloud_services
       .get_user_service()?

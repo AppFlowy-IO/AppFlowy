@@ -15,10 +15,10 @@ use lib_dispatch::prelude::af_spawn;
 
 use crate::entities::{
   CalendarEventPB, CreateRowParams, CreateRowPayloadPB, DatabaseLayoutMetaPB,
-  DatabaseLayoutSettingPB, DeleteSortPayloadPB, FieldType, FieldVisibility, GroupChangesPB,
-  GroupPB, LayoutSettingChangeset, LayoutSettingParams, RemoveCalculationChangesetPB,
-  ReorderSortPayloadPB, RowMetaPB, RowsChangePB, SortChangesetNotificationPB, SortPB,
-  UpdateCalculationChangesetPB, UpdateSortPayloadPB,
+  DatabaseLayoutSettingPB, DeleteSortPayloadPB, FieldSettingsChangesetPB, FieldType,
+  GroupChangesPB, GroupPB, LayoutSettingChangeset, LayoutSettingParams,
+  RemoveCalculationChangesetPB, ReorderSortPayloadPB, RowMetaPB, RowsChangePB,
+  SortChangesetNotificationPB, SortPB, UpdateCalculationChangesetPB, UpdateSortPayloadPB,
 };
 use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::calculations::{Calculation, CalculationChangeset, CalculationsController};
@@ -45,6 +45,7 @@ use super::notify_did_update_calculation;
 use super::view_calculations::make_calculations_controller;
 
 pub struct DatabaseViewEditor {
+  database_id: String,
   pub view_id: String,
   delegate: Arc<dyn DatabaseViewOperation>,
   group_controller: Arc<RwLock<Option<Box<dyn GroupController>>>>,
@@ -62,6 +63,7 @@ impl Drop for DatabaseViewEditor {
 
 impl DatabaseViewEditor {
   pub async fn new(
+    database_id: String,
     view_id: String,
     delegate: Arc<dyn DatabaseViewOperation>,
     cell_cache: CellCache,
@@ -104,6 +106,7 @@ impl DatabaseViewEditor {
       make_calculations_controller(&view_id, delegate.clone(), notifier.clone()).await;
 
     Ok(Self {
+      database_id,
       view_id,
       delegate,
       group_controller,
@@ -128,14 +131,17 @@ impl DatabaseViewEditor {
     &self,
     params: CreateRowPayloadPB,
   ) -> FlowyResult<CreateRowParams> {
+    let timestamp = timestamp();
     let mut result = CreateRowParams {
       collab_params: collab_database::rows::CreateRowParams {
         id: gen_row_id(),
+        database_id: self.database_id.clone(),
         cells: Cells::new(),
         height: 60,
         visibility: true,
         row_position: params.row_position.try_into()?,
-        timestamp: timestamp(),
+        created_at: timestamp,
+        modified_at: timestamp,
       },
       open_after_create: false,
     };
@@ -1034,20 +1040,8 @@ impl DatabaseViewEditor {
     self.delegate.get_field_settings(&self.view_id, field_ids)
   }
 
-  // pub async fn v_get_all_field_settings(&self) -> HashMap<String, FieldSettings> {
-  //   self.delegate.get_all_field_settings(&self.view_id)
-  // }
-
-  pub async fn v_update_field_settings(
-    &self,
-    view_id: &str,
-    field_id: &str,
-    visibility: Option<FieldVisibility>,
-    width: Option<i32>,
-  ) -> FlowyResult<()> {
-    self
-      .delegate
-      .update_field_settings(view_id, field_id, visibility, width);
+  pub async fn v_update_field_settings(&self, params: FieldSettingsChangesetPB) -> FlowyResult<()> {
+    self.delegate.update_field_settings(params);
 
     Ok(())
   }

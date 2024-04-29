@@ -17,7 +17,7 @@ anyhow.workspace = true
 tracing.workspace = true
 parking_lot.workspace = true
 async-trait.workspace = true
-tokio = { workspace = true, features = ["sync"]}
+tokio = { workspace = true, features = ["sync"] }
 lib-infra = { workspace = true }
 futures = "0.3"
 

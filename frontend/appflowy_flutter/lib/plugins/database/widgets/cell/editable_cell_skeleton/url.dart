@@ -85,7 +85,7 @@ class _GridURLCellState extends GridEditableTextCell<EditableURLCell> {
       widget.databaseController,
       widget.cellContext,
     ).as(),
-  )..add(const URLCellEvent.initial());
+  );
 
   @override
   SingleListenerFocusNode focusNode = SingleListenerFocusNode();

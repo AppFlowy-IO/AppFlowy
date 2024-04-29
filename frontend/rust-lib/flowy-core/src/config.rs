@@ -16,7 +16,7 @@ use crate::integrate::log::create_log_filter;
 pub struct AppFlowyCoreConfig {
   /// Different `AppFlowyCoreConfig` instance should have different name
   pub(crate) app_version: String,
-  pub(crate) name: String,
+  pub name: String,
   pub(crate) device_id: String,
   pub platform: String,
   /// Used to store the user data

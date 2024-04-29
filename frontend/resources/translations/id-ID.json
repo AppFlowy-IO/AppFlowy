@@ -45,10 +45,10 @@
     "unmatchedPasswordError": "Kata sandi konfirmasi tidak sesuai dengan kata sandi awal",
     "syncPromptMessage": "Menyinkronkan data mungkin memerlukan waktu beberapa saat. Mohon jangan tutup halaman ini",
     "or": "ATAU",
+    "signInWith": "Masuk dengan:",
     "LogInWithGoogle": "Masuk dengan Google",
     "LogInWithGithub": "Masuk dengan Github",
     "LogInWithDiscord": "Masuk dengan Discord",
-    "signInWith": "Masuk dengan:",
     "loginAsGuestButtonText": "Memulai"
   },
   "workspace": {

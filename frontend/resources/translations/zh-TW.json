@@ -45,10 +45,10 @@
     "unmatchedPasswordError": "密碼重複輸入不一致",
     "syncPromptMessage": "同步資料可能需要一些時間。請不要關閉此頁面",
     "or": "或",
+    "signInWith": "透過以下方式登入：",
     "LogInWithGoogle": "使用 Google 登入",
     "LogInWithGithub": "使用 Github 登入",
-    "LogInWithDiscord": "使用 Discord 登入",
-    "signInWith": "透過以下方式登入："
+    "LogInWithDiscord": "使用 Discord 登入"
   },
   "workspace": {
     "chooseWorkspace": "選擇你的工作區",

@@ -1,4 +1,5 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
 import 'package:appflowy/plugins/trash/application/trash_service.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -7,7 +8,8 @@ import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
-import 'package:appflowy_editor/appflowy_editor.dart' show EditorState;
+import 'package:appflowy_editor/appflowy_editor.dart'
+    show EditorState, PlatformExtension;
 import 'package:collection/collection.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
@@ -116,12 +118,18 @@ class _MentionPageBlockState extends State<MentionPageBlock> {
       Log.error('Page($pageId) not found');
       return;
     }
-    getIt<TabsBloc>().add(
-      TabsEvent.openPlugin(
-        plugin: view.plugin(),
-        view: view,
-      ),
-    );
+    if (PlatformExtension.isDesktopOrWeb) {
+      getIt<TabsBloc>().add(
+        TabsEvent.openPlugin(
+          plugin: view.plugin(),
+          view: view,
+        ),
+      );
+    } else {
+      if (mounted) {
+        await context.pushView(view);
+      }
+    }
   }
 
   Future<ViewPB?> fetchView(String pageId) async {

@@ -14,7 +14,7 @@ use crate::notification::{send_notification, UserNotification};
 use crate::services::cloud_config::{
   get_cloud_config, get_or_create_cloud_config, save_cloud_config,
 };
-use crate::services::data_import::get_appflowy_data_folder_import_context;
+use crate::services::data_import::prepare_import;
 use crate::user_manager::UserManager;
 
 fn upgrade_manager(manager: AFPluginState<Weak<UserManager>>) -> FlowyResult<Arc<UserManager>> {
@@ -266,10 +266,11 @@ pub async fn import_appflowy_data_folder_handler(
   af_spawn(async move {
     let result = async {
       let manager = upgrade_manager(manager)?;
-      let context = get_appflowy_data_folder_import_context(&data.path)
+      let imported_folder = prepare_import(&data.path)
         .map_err(|err| FlowyError::new(ErrorCode::AppFlowyDataFolderImportError, err.to_string()))?
         .with_container_name(data.import_container_name);
-      manager.import_appflowy_data_folder(context).await?;
+
+      manager.perform_import(imported_folder).await?;
       Ok::<(), FlowyError>(())
     }
     .await;
@@ -492,7 +493,7 @@ pub async fn get_all_workspace_handler(
   data_result_ok(user_workspaces.into())
 }
 
-#[tracing::instrument(level = "debug", skip(data, manager), err)]
+#[tracing::instrument(level = "info", skip(data, manager), err)]
 pub async fn open_workspace_handler(
   data: AFPluginData<UserWorkspaceIdPB>,
   manager: AFPluginState<Weak<UserManager>>,

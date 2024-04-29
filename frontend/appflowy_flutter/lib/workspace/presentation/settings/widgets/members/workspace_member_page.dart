@@ -224,9 +224,6 @@ class _InviteMemberState extends State<_InviteMember> {
     context
         .read<WorkspaceMemberBloc>()
         .add(WorkspaceMemberEvent.inviteWorkspaceMember(email));
-    // context
-    //     .read<WorkspaceMemberBloc>()
-    //     .add(WorkspaceMemberEvent.addWorkspaceMember(email));
   }
 }
 

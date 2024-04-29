@@ -9,9 +9,11 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'timestamp_cell_bloc.freezed.dart';
 
 class TimestampCellBloc extends Bloc<TimestampCellEvent, TimestampCellState> {
-  TimestampCellBloc({required this.cellController})
-      : super(TimestampCellState.initial(cellController)) {
+  TimestampCellBloc({
+    required this.cellController,
+  }) : super(TimestampCellState.initial(cellController)) {
     _dispatch();
+    _startListening();
   }
 
   final TimestampCellController cellController;
@@ -20,8 +22,10 @@ class TimestampCellBloc extends Bloc<TimestampCellEvent, TimestampCellState> {
   @override
   Future<void> close() async {
     if (_onCellChangedFn != null) {
-      cellController.removeListener(_onCellChangedFn!);
-      _onCellChangedFn = null;
+      cellController.removeListener(
+        onCellChanged: _onCellChangedFn!,
+        onFieldChanged: _onFieldChangedListener,
+      );
     }
     await cellController.dispose();
     return super.close();
@@ -31,7 +35,6 @@ class TimestampCellBloc extends Bloc<TimestampCellEvent, TimestampCellState> {
     on<TimestampCellEvent>(
       (event, emit) async {
         event.when(
-          initial: () => _startListening(),
           didReceiveCellUpdate: (TimestampCellDataPB? cellData) {
             emit(
               state.copyWith(
@@ -39,6 +42,12 @@ class TimestampCellBloc extends Bloc<TimestampCellEvent, TimestampCellState> {
                 dateStr: cellData?.dateTime ?? "",
               ),
             );
+          },
+          didUpdateField: (fieldInfo) {
+            final wrap = fieldInfo.wrapCellContent;
+            if (wrap != null) {
+              emit(state.copyWith(wrap: wrap));
+            }
           },
         );
       },
@@ -52,16 +61,24 @@ class TimestampCellBloc extends Bloc<TimestampCellEvent, TimestampCellState> {
           add(TimestampCellEvent.didReceiveCellUpdate(data));
         }
       },
+      onFieldChanged: _onFieldChangedListener,
     );
+  }
+
+  void _onFieldChangedListener(FieldInfo fieldInfo) {
+    if (!isClosed) {
+      add(TimestampCellEvent.didUpdateField(fieldInfo));
+    }
   }
 }
 
 @freezed
 class TimestampCellEvent with _$TimestampCellEvent {
-  const factory TimestampCellEvent.initial() = _InitialCell;
   const factory TimestampCellEvent.didReceiveCellUpdate(
     TimestampCellDataPB? data,
   ) = _DidReceiveCellUpdate;
+  const factory TimestampCellEvent.didUpdateField(FieldInfo fieldInfo) =
+      _DidUpdateField;
 }
 
 @freezed
@@ -70,15 +87,18 @@ class TimestampCellState with _$TimestampCellState {
     required TimestampCellDataPB? data,
     required String dateStr,
     required FieldInfo fieldInfo,
+    required bool wrap,
   }) = _TimestampCellState;
 
-  factory TimestampCellState.initial(TimestampCellController context) {
-    final cellData = context.getCellData();
+  factory TimestampCellState.initial(TimestampCellController cellController) {
+    final cellData = cellController.getCellData();
+    final wrap = cellController.fieldInfo.wrapCellContent;
 
     return TimestampCellState(
-      fieldInfo: context.fieldInfo,
+      fieldInfo: cellController.fieldInfo,
       data: cellData,
       dateStr: cellData?.dateTime ?? "",
+      wrap: wrap ?? true,
     );
   }
 }

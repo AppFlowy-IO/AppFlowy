@@ -9,6 +9,7 @@
   "title": "标题",
   "youCanAlso": "您还可以",
   "and": "以及",
+  "failedToOpenUrl": "打开 url:{}失败",
   "blockActions": {
     "addBelowTooltip": "点击下方添加",
     "addAboveCmd": "Alt+单击",
@@ -45,11 +46,16 @@
     "unmatchedPasswordError": "两次密码输入不一致",
     "syncPromptMessage": "同步数据可能需要一段时间，请不要关闭此页面",
     "or": "或",
+    "signInWith": "用其他方式登入：",
+    "signInWithEmail": "使用邮箱登录",
+    "pleaseInputYourEmail": "请输入邮箱地址",
+    "magicLinkSent": "魔法链接已经发送到您的邮箱，请检查！",
+    "invalidEmail": "请输入一个有效的邮箱地址",
     "LogInWithGoogle": "使用 Google 登录",
     "LogInWithGithub": "使用 Github 登录",
     "LogInWithDiscord": "使用 Discord 登录",
-    "signInWith": "用其他方式登入：",
-    "loginAsGuestButtonText": "开始使用"
+    "loginAsGuestButtonText": "开始使用",
+    "logInWithMagicLink": "使用魔法链接登录"
   },
   "workspace": {
     "chooseWorkspace": "选择您的工作区",
@@ -64,7 +70,24 @@
       "reportIssueOnGithub": "在 Github 上报告问题",
       "exportLogFiles": "导出日志文件",
       "reachOut": "在 Discord 联系我们"
-    }
+    },
+    "menuTitle": "工作区",
+    "deleteWorkspaceHintText": "您确定要删除这个工作区嘛？这个操作不可恢复。",
+    "createSuccess": "工作区创建成功",
+    "createFailed": "工作区创建失败",
+    "createLimitExceeded": "您已达到账户允许的最大工作空间限制。如果您需要额外的工作空间来继续工作，请在 Github 上申请",
+    "deleteSuccess": "工作区删除成功",
+    "deleteFailed": "工作区删除失败",
+    "openSuccess": "打开工作区成功",
+    "openFailed": "打开工作区失败",
+    "renameSuccess": "工作区已成功重命名",
+    "renameFailed": "工作区重命名失败",
+    "updateIconSuccess": "工作区图标已修改",
+    "updateIconFailed": "修改工作区图标失败",
+    "cannotDeleteTheOnlyWorkspace": "不能删除仅存的工作区",
+    "fetchWorkspacesFailed": "获取工作区失败",
+    "leaveCurrentWorkspace": "退出工作区",
+    "leaveCurrentWorkspacePrompt": "您确定要离开当前工作区吗？"
   },
   "shareAction": {
     "buttonText": "分享",
@@ -81,7 +104,12 @@
     "large": "大",
     "fontSize": "字号",
     "import": "导入",
-    "moreOptions": "更多选项"
+    "moreOptions": "更多选项",
+    "wordCount": "字数:{}",
+    "charCount": "字符数:{}",
+    "createdAt": "创建于 :{}",
+    "deleteView": "删除",
+    "duplicateView": "复制"
   },
   "importPanel": {
     "textAndMarkdown": "文本 和 Markdown",
@@ -130,7 +158,8 @@
       "emptyDescription": "您没有任何已删除的文件",
       "isDeleted": "已删除",
       "isRestored": "已恢复"
-    }
+    },
+    "confirmDeleteTitle": "您确定要永久删除此页面吗？"
   },
   "deletePagePrompt": {
     "text": "此页面已被移动至垃圾桶",
@@ -192,10 +221,13 @@
     "closeSidebar": "关闭侧边栏",
     "openSidebar": "打开侧边栏",
     "personal": "个人的",
+    "private": "私人的",
+    "workspace": "工作区",
     "favorites": "收藏夹",
     "clickToHidePersonal": "点击隐藏个人部分",
     "clickToHideFavorites": "单击隐藏收藏夹栏目",
     "addAPage": "添加页面",
+    "addAPageToPrivate": "添加页面到私人空间",
     "recent": "最近的"
   },
   "notifications": {
@@ -239,6 +271,18 @@
     "helpCenter": "帮助中心",
     "add": "添加",
     "yes": "是",
+    "clear": "清空",
+    "remove": "移除",
+    "dontRemove": "不移除",
+    "copyLink": "复制链接",
+    "align": "对齐",
+    "login": "登录",
+    "logout": "退出",
+    "deleteAccount": "删除账户",
+    "back": "返回",
+    "signInGoogle": "使用 Google 账户登录",
+    "signInGithub": "使用 Github 账户登录",
+    "signInDiscord": "使用 Discord 账户登录",
     "Done": "完成",
     "Cancel": "取消",
     "OK": "确认"
@@ -339,6 +383,7 @@
         "dark": "夜间模式",
         "system": "系统自适应"
       },
+      "fontScaleFactor": "字体缩放",
       "documentSettings": {
         "cursorColor": "文档光标颜色",
         "selectionColor": "文档选择颜色",
@@ -392,7 +437,26 @@
         "twelveHour": "十二小时制",
         "twentyFourHour": "二十四小时制"
       },
-      "showNamingDialogWhenCreatingPage": "创建页面时显示命名对话框"
+      "showNamingDialogWhenCreatingPage": "创建页面时显示命名对话框",
+      "enableRTLToolbarItems": "显示从右到左按钮",
+      "members": {
+        "title": "成员设置",
+        "inviteMembers": "添加成员",
+        "sendInvite": "发送邀请",
+        "copyInviteLink": "复制邀请链接",
+        "label": "成员",
+        "user": "用户",
+        "role": "角色",
+        "removeFromWorkspace": "从工作区移除",
+        "owner": "所有者",
+        "guest": "访客",
+        "member": "成员",
+        "emailSent": "邮件已发送，请检查您的邮箱",
+        "failedToAddMember": "添加成员失败",
+        "addMemberSuccess": "添加成员成功",
+        "removeMember": "移除成员",
+        "areYouSureToRemoveMember": "您确定要删除该成员吗？"
+      }
     },
     "files": {
       "copy": "复制",
@@ -428,7 +492,11 @@
       "recoverLocationTooltips": "恢复为 AppFlowy 默认数据目录",
       "exportFileSuccess": "导出成功!",
       "exportFileFail": "导出失败!",
-      "export": "导出"
+      "export": "导出",
+      "clearCache": "清空缓存",
+      "clearCacheDesc": "如果您遇到图片无法加载或字体无法正确显示的问题，请尝试清除缓存。此操作不会删除您的用户数据。",
+      "areYouSureToClearCache": "您确定要清除缓存吗？",
+      "clearCacheSuccess": "缓存清除成功！"
     },
     "user": {
       "name": "名字",
@@ -448,7 +516,17 @@
       "shortcutIsAlreadyUsed": "此快捷方式已用于：{conflict}",
       "resetToDefault": "重置为默认组合键",
       "couldNotLoadErrorMsg": "无法加载快捷方式，请重试",
-      "couldNotSaveErrorMsg": "无法保存快捷方式，请重试"
+      "couldNotSaveErrorMsg": "无法保存快捷方式，请重试",
+      "commands": {
+        "codeBlockNewParagraph": "在代码块旁边插入一个新段落",
+        "codeBlockAddTwoSpaces": "在代码块的行首插入两个空格",
+        "codeBlockSelectAll": "选择代码块内的所有内容",
+        "codeBlockPasteText": "在代码块中粘贴文本",
+        "textAlignLeft": "左对齐文本",
+        "textAlignCenter": "将文本居中对齐",
+        "textAlignRight": "右对齐文本",
+        "codeBlockDeleteTwoSpaces": "删除代码块中行首的两个空格"
+      }
     },
     "mobile": {
       "personalInfo": "个人信息",
@@ -495,6 +573,9 @@
       "editView": "编辑视图",
       "boardSettings": "看板设置",
       "calendarSettings": "日历设置",
+      "createView": "新视图",
+      "duplicateView": "复制视图",
+      "deleteView": "删除视图",
       "numberOfVisibleFields": "显示 {}",
       "Properties": "属性"
     },
@@ -526,6 +607,14 @@
       "isComplete": "已完成",
       "isIncomplted": "未完成"
     },
+    "selectOptionFilter": {
+      "is": "是",
+      "isNot": "不是",
+      "contains": "包含",
+      "doesNotContain": "不含",
+      "isEmpty": "为空",
+      "isNotEmpty": "不为空"
+    },
     "dateFilter": {
       "is": "是",
       "before": "之前",
@@ -534,7 +623,25 @@
       "onOrAfter": "在或之后",
       "between": "之间",
       "empty": "为空",
-      "notEmpty": "不为空"
+      "notEmpty": "不为空",
+      "choicechipPrefix": {
+        "before": "之前",
+        "after": "之后",
+        "onOrBefore": "今天或之前",
+        "onOrAfter": "今天或之后",
+        "isEmpty": "为空",
+        "isNotEmpty": "不为空"
+      }
+    },
+    "numberFilter": {
+      "equal": "等于",
+      "notEqual": "不相等",
+      "lessThan": "小于",
+      "greaterThan": "大于",
+      "lessThanOrEqualTo": "小于或等于",
+      "greaterThanOrEqualTo": "大于或等于",
+      "isEmpty": "为空",
+      "isNotEmpty": "不为空"
     },
     "field": {
       "hide": "隐藏",
@@ -543,6 +650,7 @@
       "insertRight": "右侧插入",
       "duplicate": "复制",
       "delete": "删除",
+      "clear": "清空单元格",
       "textFieldName": "文本",
       "checkboxFieldName": "勾选框",
       "dateFieldName": "日期",
@@ -582,9 +690,12 @@
       "editProperty": "编辑列属性",
       "newProperty": "添加一列",
       "deleteFieldPromptMessage": "确定要删除这个属性吗? ",
+      "clearFieldPromptMessage": "您确定吗？此列中的所有单元格都将被清空",
       "newColumn": "新建列",
       "format": "格式",
-      "reminderOnDateTooltip": "此单元格有预定的提醒"
+      "reminderOnDateTooltip": "此单元格有预定的提醒",
+      "optionAlreadyExist": "选项已存在",
+      "wrap": "自动换行"
     },
     "rowPage": {
       "newField": "添加新字段",
@@ -603,8 +714,12 @@
     "sort": {
       "ascending": "升序",
       "descending": "降序",
+      "by": "通过",
+      "cannotFindCreatableField": "找不到合适的排序字段",
       "deleteAllSorts": "删除所有排序",
       "addSort": "添加排序",
+      "removeSorting": "您想删除排序吗？",
+      "fieldInUse": "您已按此字段排序",
       "deleteSort": "删除排序"
     },
     "row": {
@@ -649,6 +764,12 @@
       "submitNewTask": "创建",
       "hideComplete": "隐藏已完成的任务",
       "showComplete": "显示所有任务"
+    },
+    "url": {
+      "launch": "在浏览器中打开链接",
+      "copy": "将链接复制到剪贴板",
+      "textFieldHint": "输入 URL",
+      "copiedNotification": "已复制到剪贴板！"
     },
     "menuName": "网格",
     "referencedGridPrefix": "视图",
@@ -726,6 +847,8 @@
       "discardResponse": "您是否要放弃 AI 继续写作?",
       "createInlineMathEquation": "创建方程",
       "fonts": "字体",
+      "insertDate": "插入日期",
+      "emoji": "表情符号",
       "toggleList": "切换列表",
       "quoteList": "引用列表",
       "numberedList": "编号列表",
@@ -800,7 +923,19 @@
         "cut": "剪切",
         "paste": "粘贴"
       },
-      "action": "操作"
+      "action": "操作",
+      "database": {
+        "selectDataSource": "选择数据源",
+        "noDataSource": "没有数据源",
+        "selectADataSource": "选择数据源",
+        "toContinue": "继续",
+        "newDatabase": "新建数据库",
+        "linkToDatabase": "链接至数据库"
+      },
+      "date": "日期"
+    },
+    "outlineBlock": {
+      "placeholder": "目录"
     },
     "textBlock": {
       "placeholder": "输入 “/” 作为命令"
@@ -831,7 +966,8 @@
         "invalidImage": "图片无效",
         "invalidImageSize": "图片大小必须小于 5MB",
         "invalidImageFormat": "不支持图像格式。支持的格式：JPEG、PNG、GIF、SVG",
-        "invalidImageUrl": "图片网址无效"
+        "invalidImageUrl": "图片网址无效",
+        "noImage": "没有这样的文件或目录"
       },
       "embedLink": {
         "label": "内嵌链接",
@@ -846,13 +982,18 @@
       "saveImageToGallery": "保存图片",
       "failedToAddImageToGallery": "无法将图像添加到图库",
       "successToAddImageToGallery": "图片已成功添加到图库",
-      "unableToLoadImage": "无法加载图像"
+      "unableToLoadImage": "无法加载图像",
+      "maximumImageSize": "支持的最大上传图片大小为 10MB",
+      "uploadImageErrorImageSizeTooBig": "图片大小必须小于 10MB",
+      "imageIsUploading": "图片正在上传"
     },
     "codeBlock": {
       "language": {
         "label": "语言",
-        "placeholder": "选择语言"
-      }
+        "placeholder": "选择语言",
+        "auto": "自动"
+      },
+      "copyTooltip": "复制代码块的内容"
     },
     "inlineLink": {
       "placeholder": "粘贴或输入链接",
