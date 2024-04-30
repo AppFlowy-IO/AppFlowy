@@ -113,13 +113,17 @@ class _SettingsWorkspaceViewState extends State<SettingsWorkspaceView> {
                             fillColor: Theme.of(context).colorScheme.primary,
                             hoverColor: const Color(0xFF005483),
                             fontHoverColor: Colors.white,
-                            onPressed: () => context
-                                .read<WorkspaceSettingsBloc>()
-                                .add(
-                                  WorkspaceSettingsEvent.updateWorkspaceName(
-                                    _workspaceNameController.text,
-                                  ),
-                                ),
+                            onPressed: _workspaceNameController.text.isEmpty ||
+                                    _workspaceNameController.text ==
+                                        state.workspace!.name
+                                ? null
+                                : () =>
+                                    context.read<WorkspaceSettingsBloc>().add(
+                                          WorkspaceSettingsEvent
+                                              .updateWorkspaceName(
+                                            _workspaceNameController.text,
+                                          ),
+                                        ),
                           ),
                         ),
                       ],
