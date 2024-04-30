@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
+import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_search_text_field.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_picker.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/page_style/_page_style_icon_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/page_style/_page_style_util.dart';
@@ -82,8 +83,11 @@ class PageStyleIcon extends StatelessWidget {
         return BlocProvider.value(
           value: context.read<PageStyleIconBloc>(),
           child: Expanded(
-            child: _IconSelector(
-              scrollController: controller,
+            child: Scrollbar(
+              controller: controller,
+              child: _IconSelector(
+                scrollController: controller,
+              ),
             ),
           ),
         );
@@ -131,18 +135,25 @@ class _IconSelectorState extends State<_IconSelector> {
 
   @override
   Widget build(BuildContext context) {
-    if (availableEmojis.isEmpty) {
+    if (emojiData == null) {
       return const Center(child: CircularProgressIndicator());
     }
 
     return RepaintBoundary(
       child: BlocBuilder<PageStyleIconBloc, PageStyleIconState>(
-        builder: (_, state) => GridView.count(
-          crossAxisCount: _getEmojiPerLine(context),
-          controller: widget.scrollController,
+        builder: (_, state) => Column(
           children: [
-            for (final emoji in availableEmojis)
-              _buildEmoji(context, emoji, state.icon),
+            _buildSearchBar(context),
+            Expanded(
+              child: GridView.count(
+                crossAxisCount: _getEmojiPerLine(context),
+                controller: widget.scrollController,
+                children: [
+                  for (final emoji in availableEmojis)
+                    _buildEmoji(context, emoji, state.icon),
+                ],
+              ),
+            ),
           ],
         ),
       ),
@@ -202,28 +213,26 @@ class _IconSelectorState extends State<_IconSelector> {
     return width ~/ 48.0; // the size of the emoji
   }
 
-  // Widget _buildSearchBar(BuildContext context) {
-  //   return Padding(
-  //     padding: const EdgeInsets.symmetric(
-  //       vertical: 8.0,
-  //       horizontal: 12.0,
-  //     ),
-  //     child: FlowyMobileSearchTextField(
-  //       onChanged: (keyword) {
-  //         setState(() {
-  //           availableFonts = _availableFonts
-  //               .where(
-  //                 (font) =>
-  //                     font.isEmpty || // keep the default one always
-  //                     font
-  //                         .parseFontFamilyName()
-  //                         .toLowerCase()
-  //                         .contains(keyword.toLowerCase()),
-  //               )
-  //               .toList();
-  //         });
-  //       },
-  //     ),
-  //   );
-  // }
+  Widget _buildSearchBar(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        vertical: 8.0,
+        horizontal: 12.0,
+      ),
+      child: FlowyMobileSearchTextField(
+        onChanged: (keyword) {
+          if (emojiData == null) {
+            return;
+          }
+
+          final filtered = emojiData!.filterByKeyword(keyword);
+          final availableEmojis = _setupAvailableEmojis(filtered);
+
+          setState(() {
+            this.availableEmojis = availableEmojis;
+          });
+        },
+      ),
+    );
+  }
 }

@@ -122,17 +122,22 @@ Future<T?> showMobileBottomSheet<T>(
       // ----- header area -----
 
       if (enableDraggableScrollable) {
+        final keyboardSize =
+            context.bottomSheetPadding() / MediaQuery.of(context).size.height;
         return DraggableScrollableSheet(
           expand: false,
           snap: true,
-          initialChildSize: initialChildSize,
-          minChildSize: minChildSize,
-          maxChildSize: maxChildSize,
+          initialChildSize: (initialChildSize + keyboardSize).clamp(0, 1),
+          minChildSize: (minChildSize + keyboardSize).clamp(0, 1.0),
+          maxChildSize: (maxChildSize + keyboardSize).clamp(0, 1.0),
           builder: (context, scrollController) {
             return Column(
               children: [
                 ...children,
-                scrollableWidgetBuilder?.call(context, scrollController) ??
+                scrollableWidgetBuilder?.call(
+                      context,
+                      scrollController,
+                    ) ??
                     Expanded(
                       child: Scrollbar(
                         child: SingleChildScrollView(

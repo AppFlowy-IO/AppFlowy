@@ -209,17 +209,20 @@ class _FontButton extends StatelessWidget {
           child: BlocBuilder<DocumentPageStyleBloc, DocumentPageStyleState>(
             builder: (context, state) {
               return Expanded(
-                child: FontSelector(
-                  scrollController: controller,
-                  selectedFontFamilyName:
-                      state.fontFamily ?? builtInFontFamily(),
-                  onFontFamilySelected: (fontFamilyName) {
-                    context.read<DocumentPageStyleBloc>().add(
-                          DocumentPageStyleEvent.updateFontFamily(
-                            fontFamilyName,
-                          ),
-                        );
-                  },
+                child: Scrollbar(
+                  controller: controller,
+                  child: FontSelector(
+                    scrollController: controller,
+                    selectedFontFamilyName:
+                        state.fontFamily ?? builtInFontFamily(),
+                    onFontFamilySelected: (fontFamilyName) {
+                      context.read<DocumentPageStyleBloc>().add(
+                            DocumentPageStyleEvent.updateFontFamily(
+                              fontFamilyName,
+                            ),
+                          );
+                    },
+                  ),
                 ),
               );
             },
