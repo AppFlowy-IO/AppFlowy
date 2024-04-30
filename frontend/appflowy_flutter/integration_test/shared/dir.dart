@@ -1,6 +1,7 @@
 import 'dart:io';
-import 'package:path/path.dart' as p;
+
 import 'package:archive/archive.dart';
+import 'package:path/path.dart' as p;
 
 Future<void> deleteDirectoriesWithSameBaseNameAsPrefix(
   String path,

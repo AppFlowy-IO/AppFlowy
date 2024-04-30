@@ -14,7 +14,6 @@ import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/widgets.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/setting_appflowy_cloud.dart';
-import 'package:appflowy/workspace/presentation/settings/widgets/settings_user_view.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/uuid.dart';

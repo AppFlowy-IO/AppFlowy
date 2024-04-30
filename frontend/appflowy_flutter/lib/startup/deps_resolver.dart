@@ -79,15 +79,10 @@ void _resolveCommonService(
   IntegrationMode mode,
 ) async {
   getIt.registerFactory<FilePickerService>(() => FilePicker());
-  if (mode.isTest) {
-    getIt.registerFactory<ApplicationDataStorage>(
-      () => MockApplicationDataStorage(),
-    );
-  } else {
-    getIt.registerFactory<ApplicationDataStorage>(
-      () => ApplicationDataStorage(),
-    );
-  }
+
+  getIt.registerFactory<ApplicationDataStorage>(
+    () => mode.isTest ? MockApplicationDataStorage() : ApplicationDataStorage(),
+  );
 
   getIt.registerFactoryAsync<OpenAIRepository>(
     () async {

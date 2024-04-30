@@ -5,6 +5,7 @@ import 'package:appflowy/plugins/database/application/cell/cell_controller_build
 import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/application/cell/bloc/text_cell_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -82,7 +83,9 @@ class _TextCellState extends State<TextCardCell> {
 
   void _bindEditableNotifier() {
     widget.editableNotifier?.isCellEditing.addListener(() {
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
 
       final isEditing = widget.editableNotifier?.isCellEditing.value ?? false;
       if (isEditing) {
@@ -105,15 +108,14 @@ class _TextCellState extends State<TextCardCell> {
     return BlocProvider.value(
       value: cellBloc,
       child: BlocConsumer<TextCellBloc, TextCellState>(
+        listenWhen: (previous, current) =>
+            previous.content != current.content && !current.enableEdit,
         listener: (context, state) {
-          if (_textEditingController.text != state.content) {
-            _textEditingController.text = state.content;
-          }
+          _textEditingController.text = state.content;
         },
         buildWhen: (previous, current) {
           if (previous.content != current.content &&
-              _textEditingController.text == current.content &&
-              current.enableEdit) {
+              _textEditingController.text == current.content) {
             return false;
           }
 
@@ -128,20 +130,17 @@ class _TextCellState extends State<TextCardCell> {
             return const SizedBox.shrink();
           }
 
-          final child = state.enableEdit || focusWhenInit
-              ? _buildTextField()
-              : _buildText(state, isTitle);
+          final icon = isTitle ? _buildIcon(state) : null;
+          final child = isTitle
+              ? _buildTextField(state.enableEdit || focusWhenInit)
+              : _buildText(state.content);
 
           return Row(
             children: [
-              if (isTitle && widget.showNotes)
-                FlowyTooltip(
-                  message: LocaleKeys.board_notesTooltip.tr(),
-                  child: FlowySvg(
-                    FlowySvgs.notes_s,
-                    color: Theme.of(context).hintColor,
-                  ),
-                ),
+              if (icon != null) ...[
+                icon,
+                const HSpace(4.0),
+              ],
               Expanded(child: child),
             ],
           );
@@ -158,43 +157,71 @@ class _TextCellState extends State<TextCardCell> {
     super.dispose();
   }
 
-  Widget _buildText(TextCellState state, bool isTitle) {
-    final text = state.content.isEmpty
-        ? isTitle
-            ? LocaleKeys.grid_row_titlePlaceholder.tr()
-            : LocaleKeys.grid_row_textPlaceholder.tr()
-        : state.content;
-    final color = state.content.isEmpty ? Theme.of(context).hintColor : null;
-    final textStyle =
-        isTitle ? widget.style.titleTextStyle : widget.style.textStyle;
+  Widget? _buildIcon(TextCellState state) {
+    if (state.emoji.isNotEmpty) {
+      return Text(
+        state.emoji,
+        style: widget.style.titleTextStyle,
+      );
+    }
+    if (widget.showNotes) {
+      return FlowyTooltip(
+        message: LocaleKeys.board_notesTooltip.tr(),
+        child: FlowySvg(
+          FlowySvgs.notes_s,
+          color: Theme.of(context).hintColor,
+        ),
+      );
+    }
+    return null;
+  }
+
+  Widget _buildText(String content) {
+    final text =
+        content.isEmpty ? LocaleKeys.grid_row_textPlaceholder.tr() : content;
+    final color = content.isEmpty ? Theme.of(context).hintColor : null;
 
     return Padding(
       padding: widget.style.padding,
       child: Text(
         text,
-        style: textStyle.copyWith(color: color),
+        style: widget.style.textStyle.copyWith(color: color),
         maxLines: widget.style.maxLines,
       ),
     );
   }
 
-  Widget _buildTextField() {
+  Widget _buildTextField(bool isEditing) {
     final padding =
         widget.style.padding.add(const EdgeInsets.symmetric(vertical: 4.0));
-    return TextField(
-      controller: _textEditingController,
-      focusNode: focusNode,
-      onChanged: (_) =>
-          cellBloc.add(TextCellEvent.updateText(_textEditingController.text)),
-      onEditingComplete: () => focusNode.unfocus(),
-      maxLines: null,
-      style: widget.style.titleTextStyle,
-      decoration: InputDecoration(
-        contentPadding: padding,
-        border: InputBorder.none,
-        isDense: true,
-        isCollapsed: true,
-        hintText: LocaleKeys.grid_row_titlePlaceholder.tr(),
+    return IgnorePointer(
+      ignoring: !isEditing,
+      child: TextField(
+        controller: _textEditingController,
+        focusNode: focusNode,
+        onChanged: (_) {
+          if (_textEditingController.value.composing.isCollapsed) {
+            cellBloc.add(TextCellEvent.updateText(_textEditingController.text));
+          }
+        },
+        onEditingComplete: () => focusNode.unfocus(),
+        maxLines: isEditing ? null : 2,
+        minLines: 1,
+        textInputAction: TextInputAction.done,
+        readOnly: !isEditing,
+        enableInteractiveSelection: isEditing,
+        style: widget.style.titleTextStyle,
+        decoration: InputDecoration(
+          contentPadding: padding,
+          border: InputBorder.none,
+          enabledBorder: InputBorder.none,
+          isDense: true,
+          isCollapsed: true,
+          hintText: LocaleKeys.grid_row_titlePlaceholder.tr(),
+          hintStyle: widget.style.titleTextStyle.copyWith(
+            color: Theme.of(context).hintColor,
+          ),
+        ),
       ),
     );
   }

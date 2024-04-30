@@ -2,6 +2,7 @@ use crate::entities::*;
 use crate::notification::{send_notification, DatabaseNotification};
 use crate::services::calculations::Calculation;
 use crate::services::cell::{apply_cell_changeset, get_cell_protobuf, CellCache};
+use crate::services::database::database_observe::*;
 use crate::services::database::util::database_view_setting_pb_from_view;
 use crate::services::database::UpdatedRow;
 use crate::services::database_view::{
@@ -10,7 +11,8 @@ use crate::services::database_view::{
 use crate::services::field::{
   default_type_option_data_from_type, select_type_option_from_field, transform_type_option,
   type_option_data_from_pb, ChecklistCellChangeset, RelationTypeOption, SelectOptionCellChangeset,
-  StrCellData, TimestampCellData, TypeOptionCellDataHandler, TypeOptionCellExt,
+  StrCellData, TimestampCellData, TimestampCellDataWrapper, TypeOptionCellDataHandler,
+  TypeOptionCellExt,
 };
 use crate::services::field_settings::{default_field_settings_by_layout_map, FieldSettings};
 use crate::services::filter::{Filter, FilterChangeset};
@@ -25,8 +27,6 @@ use collab_database::views::{
   DatabaseLayout, DatabaseView, FilterMap, LayoutSetting, OrderObjectPosition,
 };
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
-use futures::StreamExt;
-use lib_dispatch::prelude::af_spawn;
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::{to_fut, Fut, FutureResult};
 use lib_infra::priority_task::TaskDispatcher;
@@ -52,38 +52,11 @@ impl DatabaseEditor {
     let database_id = database.lock().get_database_id();
 
     // Receive database sync state and send to frontend via the notification
-    let mut sync_state = database.lock().subscribe_sync_state();
-    let cloned_database_id = database_id.clone();
-    af_spawn(async move {
-      while let Some(sync_state) = sync_state.next().await {
-        send_notification(
-          &cloned_database_id,
-          DatabaseNotification::DidUpdateDatabaseSyncUpdate,
-        )
-        .payload(DatabaseSyncStatePB::from(sync_state))
-        .send();
-      }
-    });
-
-    // Receive database snapshot state and send to frontend via the notification
-    let mut snapshot_state = database.lock().subscribe_snapshot_state();
-    af_spawn(async move {
-      while let Some(snapshot_state) = snapshot_state.next().await {
-        if let Some(new_snapshot_id) = snapshot_state.snapshot_id() {
-          tracing::debug!(
-            "Did create {} database remote snapshot: {}",
-            database_id,
-            new_snapshot_id
-          );
-          send_notification(
-            &database_id,
-            DatabaseNotification::DidUpdateDatabaseSnapshotState,
-          )
-          .payload(DatabaseSnapshotStatePB { new_snapshot_id })
-          .send();
-        }
-      }
-    });
+    observe_sync_state(&database_id, &database).await;
+    // observe_view_change(&database_id, &database).await;
+    // observe_field_change(&database_id, &database).await;
+    // observe_rows_change(&database_id, &database).await;
+    // observe_block_event(&database_id, &database).await;
 
     // Used to cache the view of the database for fast access.
     let editor_by_view_id = Arc::new(RwLock::new(EditorByViewId::default()));
@@ -722,12 +695,12 @@ impl DatabaseEditor {
     match field_type {
       FieldType::LastEditedTime | FieldType::CreatedTime => {
         let row = database.get_row(row_id);
-        let cell_data = if field_type.is_created_time() {
-          TimestampCellData::new(row.created_at)
+        let wrapped_cell_data = if field_type.is_created_time() {
+          TimestampCellDataWrapper::from((field_type, TimestampCellData::new(row.created_at)))
         } else {
-          TimestampCellData::new(row.modified_at)
+          TimestampCellDataWrapper::from((field_type, TimestampCellData::new(row.modified_at)))
         };
-        Some(Cell::from(cell_data))
+        Some(Cell::from(wrapped_cell_data))
       },
       _ => database.get_cell(field_id, row_id).cell,
     }

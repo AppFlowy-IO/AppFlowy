@@ -39,7 +39,7 @@ class GridRow extends StatefulWidget {
   final RowId rowId;
   final RowController rowController;
   final EditableCellBuilder cellBuilder;
-  final void Function(BuildContext, EditableCellBuilder) openDetailPage;
+  final void Function(BuildContext context) openDetailPage;
   final int? index;
   final bool isDraggable;
 
@@ -68,10 +68,7 @@ class _GridRowState extends State<GridRow> {
               child: RowContent(
                 fieldController: widget.fieldController,
                 cellBuilder: widget.cellBuilder,
-                onExpand: () => widget.openDetailPage(
-                  context,
-                  widget.cellBuilder,
-                ),
+                onExpand: () => widget.openDetailPage(context),
               ),
             ),
           ],
@@ -115,7 +112,7 @@ class _RowLeadingState extends State<_RowLeading> {
       child: Consumer<RegionStateNotifier>(
         builder: (context, state, _) {
           return SizedBox(
-            width: GridSize.horizontalHeaderPadding,
+            width: GridSize.horizontalHeaderPadding + 40,
             child: state.onEnter ? _activeWidget() : null,
           );
         },
@@ -125,7 +122,7 @@ class _RowLeadingState extends State<_RowLeading> {
 
   Widget _activeWidget() {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.end,
       children: [
         const InsertRowButton(),
         if (isDraggable)
@@ -249,7 +246,7 @@ class RowContent extends StatelessWidget {
           EditableCellStyle.desktopGrid,
         );
         return CellContainer(
-          width: fieldInfo.fieldSettings!.width.toDouble(),
+          width: fieldInfo.width!.toDouble(),
           isPrimary: fieldInfo.field.isPrimary,
           accessoryBuilder: (buildContext) {
             final builder = child.accessoryBuilder;

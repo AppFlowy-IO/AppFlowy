@@ -13,11 +13,6 @@ import 'notification_helper.dart';
 // This value must be identical to the value in the backend (SEARCH_OBSERVABLE_SOURCE)
 const _source = 'Search';
 
-typedef SearchNotificationCallback = void Function(
-  SearchNotification,
-  FlowyResult<Uint8List, FlowyError>,
-);
-
 class SearchNotificationParser
     extends NotificationParser<SearchNotification, FlowyError> {
   SearchNotificationParser({

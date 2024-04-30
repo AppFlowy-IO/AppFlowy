@@ -1,35 +1,33 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/workspace/presentation/settings/shared/settings_body.dart';
+import 'package:appflowy/workspace/presentation/settings/shared/settings_category_spacer.dart';
+import 'package:appflowy/workspace/presentation/settings/shared/settings_header.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/files/setting_file_import_appflowy_data_view.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/files/settings_export_file_widget.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/files/settings_file_cache_widget.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/files/settings_file_customize_location_view.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 
-class SettingsFileSystemView extends StatefulWidget {
-  const SettingsFileSystemView({
-    super.key,
-  });
-
-  @override
-  State<SettingsFileSystemView> createState() => _SettingsFileSystemViewState();
-}
-
-class _SettingsFileSystemViewState extends State<SettingsFileSystemView> {
-  late final _items = [
-    const SettingsFileLocationCustomizer(),
-    // disable export data for v0.2.0 in release mode.
-    if (kDebugMode) const SettingsExportFileWidget(),
-    const ImportAppFlowyData(),
-    // clear the cache
-    const SettingsFileCacheWidget(),
-  ];
+class SettingsFileSystemView extends StatelessWidget {
+  const SettingsFileSystemView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return SeparatedColumn(
-      separatorBuilder: () => const Divider(),
-      children: _items,
+    return SettingsBody(
+      children: [
+        SettingsHeader(title: LocaleKeys.settings_menu_files.tr()),
+        const SettingsFileLocationCustomizer(),
+        const SettingsCategorySpacer(),
+        if (kDebugMode) ...[
+          const SettingsExportFileWidget(),
+        ],
+        const ImportAppFlowyData(),
+        const SettingsCategorySpacer(),
+        const SettingsFileCacheWidget(),
+      ],
     );
   }
 }

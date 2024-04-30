@@ -15,7 +15,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 0.5.5
+version: 0.5.6
 
 environment:
   flutter: ">=3.19.0"
@@ -41,9 +41,10 @@ dependencies:
   flowy_svg:
     path: packages/flowy_svg
   appflowy_board:
+    # path: ../../../appflowy-board
     git:
       url: https://github.com/AppFlowy-IO/appflowy-board.git
-      ref: 15a3a50
+      ref: f88b4ce01d2728c05125cbe9170013f4a7c85a31
   appflowy_result:
     path: packages/appflowy_result
   appflowy_editor_plugins: ^0.0.2
@@ -68,12 +69,12 @@ dependencies:
   expandable: ^5.0.1
   flutter_colorpicker: ^1.0.3
   highlight: ^0.7.0
-  package_info_plus: ^5.0.1
+  package_info_plus: ^6.0.0
   url_launcher: ^6.1.11
   clipboard: ^0.1.3
   connectivity_plus: ^5.0.2
   easy_localization: ^3.0.2
-  device_info_plus: ^9.0.1
+  device_info_plus: ^10.1.0
   fluttertoast: ^8.2.2
   json_annotation: ^4.8.1
   table_calendar: ^3.0.9
@@ -131,6 +132,8 @@ dependencies:
   sheet:
   file: ^7.0.0
   avatar_stack: ^1.2.0
+  numerus: ^2.1.2
+  flutter_animate: ^4.5.0
 
 dev_dependencies:
   flutter_lints: ^3.0.1
@@ -167,7 +170,7 @@ dependency_overrides:
   appflowy_editor:
     git:
       url: https://github.com/AppFlowy-IO/appflowy-editor.git
-      ref: "6d12761"
+      ref: "1d5cdb7"
 
   sheet:
     git:
@@ -235,6 +238,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/images/
+    - assets/images/built_in_cover_images/
     - assets/flowy_icons/
     - assets/flowy_icons/16x/
     - assets/flowy_icons/24x/

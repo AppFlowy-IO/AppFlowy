@@ -284,15 +284,17 @@ impl DatabaseEditorTest {
 }
 
 pub struct TestRowBuilder<'a> {
+  database_id: &'a str,
   row_id: RowId,
   fields: &'a [Field],
   cell_build: CellBuilder<'a>,
 }
 
 impl<'a> TestRowBuilder<'a> {
-  pub fn new(row_id: RowId, fields: &'a [Field]) -> Self {
+  pub fn new(database_id: &'a str, row_id: RowId, fields: &'a [Field]) -> Self {
     let cell_build = CellBuilder::with_cells(Default::default(), fields);
     Self {
+      database_id,
       row_id,
       fields,
       cell_build,
@@ -407,6 +409,7 @@ impl<'a> TestRowBuilder<'a> {
     let timestamp = timestamp();
     Row {
       id: self.row_id,
+      database_id: self.database_id.to_string(),
       cells: self.cell_build.build(),
       height: 60,
       visibility: true,

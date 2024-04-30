@@ -30,9 +30,6 @@ textarea {
     background: transparent;
 }
 
-body {
-    font-family: Poppins, Roboto, serif;
-}
 
 ::-webkit-scrollbar {
     width: 8px;

@@ -111,14 +111,12 @@ class SettingsUserViewBloc extends Bloc<SettingsUserEvent, SettingsUserState> {
 
   void _profileUpdated(
     FlowyResult<UserProfilePB, FlowyError> userProfileOrFailed,
-  ) {
-    userProfileOrFailed.fold(
-      (newUserProfile) {
-        add(SettingsUserEvent.didReceiveUserProfile(newUserProfile));
-      },
-      (err) => Log.error(err),
-    );
-  }
+  ) =>
+      userProfileOrFailed.fold(
+        (newUserProfile) =>
+            add(SettingsUserEvent.didReceiveUserProfile(newUserProfile)),
+        (err) => Log.error(err),
+      );
 }
 
 @freezed

@@ -37,7 +37,7 @@ pub fn make_default_grid(view_id: &str, name: &str) -> CreateDatabaseParams {
     database_id: database_id.clone(),
     inline_view_id: view_id.to_string(),
     views: vec![CreateViewParams {
-      database_id,
+      database_id: database_id.clone(),
       view_id: view_id.to_string(),
       name: name.to_string(),
       layout: DatabaseLayout::Grid,
@@ -51,9 +51,9 @@ pub fn make_default_grid(view_id: &str, name: &str) -> CreateDatabaseParams {
       ..Default::default()
     }],
     rows: vec![
-      CreateRowParams::new(gen_row_id()),
-      CreateRowParams::new(gen_row_id()),
-      CreateRowParams::new(gen_row_id()),
+      CreateRowParams::new(gen_row_id(), database_id.clone()),
+      CreateRowParams::new(gen_row_id(), database_id.clone()),
+      CreateRowParams::new(gen_row_id(), database_id.clone()),
     ],
     fields,
   }
@@ -85,7 +85,7 @@ pub fn make_default_board(view_id: &str, name: &str) -> CreateDatabaseParams {
 
   let mut rows = vec![];
   for i in 0..3 {
-    let mut row = CreateRowParams::new(gen_row_id());
+    let mut row = CreateRowParams::new(gen_row_id(), database_id.clone());
     row.cells.insert(
       single_select_field_id.clone(),
       insert_select_option_cell(vec![to_do_option.id.clone()], &single_select),

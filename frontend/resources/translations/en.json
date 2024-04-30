@@ -253,7 +253,8 @@
     "editContact": "Edit Contact"
   },
   "button": {
-    "ok": "OK",
+    "ok": "Ok",
+    "confirm": "Confirm",
     "done": "Done",
     "cancel": "Cancel",
     "signIn": "Sign In",
@@ -316,6 +317,35 @@
   },
   "settings": {
     "title": "Settings",
+    "accountPage": {
+      "menuLabel": "My account",
+      "title": "My account",
+      "description": "Customize your profile, manage account security, open AI keys, or login into your account.",
+      "general": {
+        "title": "Account name & profile image",
+        "changeProfilePicture": "Change"
+      },
+      "email": {
+        "title": "Email",
+        "actions": {
+          "change": "Change email"
+        }
+      },
+      "keys": {
+        "title": "AI Keys",
+        "openAILabel": "OpenAI key",
+        "openAITooltip": "The OpenAPI API key to use for the AI models",
+        "openAIHint": "Input your OpenAI API Key",
+        "stabilityAILabel": "StabilityAI key",
+        "stabilityAITooltip": "The Stability API key to use for the AI models",
+        "stabilityAIHint": "Input your Stability API Key"
+      },
+      "login": {
+        "title": "Account login",
+        "loginLabel": "Log in",
+        "logoutLabel": "Log out"
+      }
+    },
     "menu": {
       "appearance": "Appearance",
       "language": "Language",
@@ -380,7 +410,8 @@
       "resetSetting": "Reset",
       "fontFamily": {
         "label": "Font Family",
-        "search": "Search"
+        "search": "Search",
+        "defaultFont": "Default Font"
       },
       "themeMode": {
         "label": "Theme Mode",
@@ -469,7 +500,9 @@
         "failedToAddMember": "Failed to add member",
         "addMemberSuccess": "Member added successfully",
         "removeMember": "Remove Member",
-        "areYouSureToRemoveMember": "Are you sure you want to remove this member?"
+        "areYouSureToRemoveMember": "Are you sure you want to remove this member?",
+        "inviteMemberSuccess": "The invitation has been sent successfully",
+        "failedToInviteMember": "Failed to invite member"
       }
     },
     "files": {
@@ -1483,6 +1516,20 @@
       "synced": "Synced",
       "noNetworkConnected": "No network connected"
     }
+  },
+  "pageStyle": {
+    "title": "Page style",
+    "layout": "Layout",
+    "coverImage": "Cover image",
+    "pageIcon": "Page icon",
+    "colors": "Colors",
+    "gradient": "Gradient",
+    "backgroundImage": "Background image",
+    "presets": "Presets",
+    "photo": "Photo",
+    "unsplash": "Unsplash",
+    "pageCover": "Page cover",
+    "none": "None"
   },
   "commandPalette": {
     "placeholder": "Type to search for views...",

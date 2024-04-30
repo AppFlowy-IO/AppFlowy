@@ -1,11 +1,10 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/util/color_to_hex_string.dart';
 import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:bloc/bloc.dart';
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class DocumentAppearance {
@@ -58,9 +57,9 @@ class DocumentAppearance {
 class DocumentAppearanceCubit extends Cubit<DocumentAppearance> {
   DocumentAppearanceCubit()
       : super(
-          const DocumentAppearance(
+          DocumentAppearance(
             fontSize: 16.0,
-            fontFamily: builtInFontFamily,
+            fontFamily: builtInFontFamily(),
             codeFontFamily: builtInCodeFontFamily,
           ),
         );
@@ -70,7 +69,7 @@ class DocumentAppearanceCubit extends Cubit<DocumentAppearance> {
     final fontSize =
         prefs.getDouble(KVKeys.kDocumentAppearanceFontSize) ?? 16.0;
     final fontFamily = prefs.getString(KVKeys.kDocumentAppearanceFontFamily) ??
-        builtInFontFamily;
+        builtInFontFamily();
     final defaultTextDirection =
         prefs.getString(KVKeys.kDocumentAppearanceDefaultTextDirection);
 

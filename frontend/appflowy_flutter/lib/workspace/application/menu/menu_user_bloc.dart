@@ -39,9 +39,6 @@ class MenuUserBloc extends Bloc<MenuUserEvent, MenuUserState> {
             _userListener.start(onProfileUpdated: _profileUpdated);
             await _initUser();
           },
-          fetchWorkspaces: () async {
-            //
-          },
           didReceiveUserProfile: (UserProfilePB newUserProfile) {
             emit(state.copyWith(userProfile: newUserProfile));
           },
@@ -70,9 +67,7 @@ class MenuUserBloc extends Bloc<MenuUserEvent, MenuUserState> {
       return;
     }
     userProfileOrFailed.fold(
-      (newUserProfile) => add(
-        MenuUserEvent.didReceiveUserProfile(newUserProfile),
-      ),
+      (profile) => add(MenuUserEvent.didReceiveUserProfile(profile)),
       (err) => Log.error(err),
     );
   }
@@ -81,7 +76,6 @@ class MenuUserBloc extends Bloc<MenuUserEvent, MenuUserState> {
 @freezed
 class MenuUserEvent with _$MenuUserEvent {
   const factory MenuUserEvent.initial() = _Initial;
-  const factory MenuUserEvent.fetchWorkspaces() = _FetchWorkspaces;
   const factory MenuUserEvent.updateUserName(String name) = _UpdateUserName;
   const factory MenuUserEvent.didReceiveUserProfile(
     UserProfilePB newUserProfile,

@@ -2,22 +2,24 @@ import { useAppDispatch, useAppSelector } from '@/stores/store';
 import { useCallback, useContext } from 'react';
 import { nanoid } from 'nanoid';
 import { open } from '@tauri-apps/api/shell';
-import { ProviderType, UserProfile } from '@/application/services/user.type';
+import { ProviderType, UserProfile } from '@/application/user.type';
 import { currentUserActions } from '@/stores/currentUser/slice';
-import { AFConfigContext } from '@/AppConfig';
+import { AFConfigContext } from '@/components/app/AppConfig';
 import { notify } from '@/components/_shared/notify';
 
 export const useAuth = () => {
   const dispatch = useAppDispatch();
   const AFConfig = useContext(AFConfigContext);
   const currentUser = useAppSelector((state) => state.currentUser);
+  const isReady = !!AFConfig?.service;
 
   const handleSuccess = useCallback(() => {
     notify.clear();
     dispatch(currentUserActions.loginSuccess());
   }, [dispatch]);
+
   const setUser = useCallback(
-    async (userProfile: Partial<UserProfile>) => {
+    async (userProfile: UserProfile) => {
       handleSuccess();
       dispatch(currentUserActions.updateUser(userProfile));
     },
@@ -41,8 +43,13 @@ export const useAuth = () => {
 
   // Check if the user is authenticated
   const checkUser = useCallback(async () => {
-    handleStart();
     try {
+      const userHasSignIn = await AFConfig?.service?.userService.checkUser();
+
+      if (!userHasSignIn) {
+        throw new Error('Failed to check user');
+      }
+
       const userProfile = await AFConfig?.service?.userService.getUserProfile();
 
       if (!userProfile) {
@@ -53,13 +60,9 @@ export const useAuth = () => {
 
       return userProfile;
     } catch (e) {
-      handleError({
-        message: 'Failed to check user',
-      });
-
       return Promise.reject('Failed to check user');
     }
-  }, [AFConfig?.service?.userService, handleError, handleStart, setUser]);
+  }, [AFConfig?.service?.userService, setUser]);
 
   const register = useCallback(
     async (email: string, password: string, name: string): Promise<UserProfile | null> => {
@@ -114,7 +117,7 @@ export const useAuth = () => {
         const url = await AFConfig?.service?.authService.getOAuthURL(provider);
 
         if (!url) {
-          throw new Error('Failed to sign in');
+          throw new Error();
         }
 
         await open(url);
@@ -135,7 +138,7 @@ export const useAuth = () => {
         const userProfile = await AFConfig?.service?.userService.getUserProfile();
 
         if (!userProfile) {
-          throw new Error('Failed to sign in');
+          throw new Error();
         }
 
         await setUser(userProfile);
@@ -154,10 +157,12 @@ export const useAuth = () => {
     async (email: string, password: string) => {
       handleStart();
       try {
-        const userProfile = await AFConfig?.service?.authService.signinWithEmailPassword(email, password);
+        await AFConfig?.service?.authService.signinWithEmailPassword(email, password);
+
+        const userProfile = await AFConfig?.service?.userService.getUserProfile();
 
         if (!userProfile) {
-          throw new Error('Failed to sign in');
+          throw new Error();
         }
 
         await setUser(userProfile);
@@ -169,10 +174,11 @@ export const useAuth = () => {
         });
       }
     },
-    [AFConfig?.service?.authService, handleError, handleStart, setUser]
+    [AFConfig?.service?.authService, AFConfig?.service?.userService, handleError, handleStart, setUser]
   );
 
   return {
+    isReady,
     currentUser,
     checkUser,
     register,

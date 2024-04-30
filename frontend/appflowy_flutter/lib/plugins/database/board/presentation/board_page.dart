@@ -12,6 +12,7 @@ import 'package:appflowy/plugins/database/grid/presentation/grid_page.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/header/field_type_extension.dart';
 import 'package:appflowy/plugins/database/tab_bar/desktop/setting_menu.dart';
 import 'package:appflowy/plugins/database/tab_bar/tab_bar_view.dart';
+import 'package:appflowy/plugins/database/widgets/card/card_bloc.dart';
 import 'package:appflowy/plugins/database/widgets/cell/card_cell_style_maps/desktop_board_card_cell_style.dart';
 import 'package:appflowy/plugins/database/widgets/row/row_detail.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
@@ -27,6 +28,7 @@ import 'package:flutter/material.dart' hide Card;
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../workspace/application/view/view_bloc.dart';
 import '../../widgets/card/card.dart';
 import '../../widgets/cell/card_cell_builder.dart';
 import '../application/board_bloc.dart';
@@ -100,11 +102,12 @@ class BoardPage extends StatelessWidget {
       )..add(const BoardEvent.initial()),
       child: BlocBuilder<BoardBloc, BoardState>(
         buildWhen: (p, c) => p.loadingState != c.loadingState,
-        builder: (context, state) => state.loadingState.map(
-          loading: (_) => const Center(
+        builder: (context, state) => state.loadingState.when(
+          loading: () => const Center(
             child: CircularProgressIndicator.adaptive(),
           ),
-          finish: (result) => result.successOrFail.fold(
+          idle: () => const SizedBox.shrink(),
+          finish: (result) => result.fold(
             (_) => PlatformExtension.isMobile
                 ? const MobileBoardContent()
                 : DesktopBoardContent(onEditStateChanged: onEditStateChanged),
@@ -119,7 +122,6 @@ class BoardPage extends StatelessWidget {
                     howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),
                   ),
           ),
-          idle: (_) => const SizedBox.shrink(),
         ),
       ),
     );
@@ -152,6 +154,10 @@ class _DesktopBoardContentState extends State<DesktopBoardContent> {
     stretchGroupHeight: false,
   );
 
+  late final cellBuilder = CardCellBuilder(
+    databaseController: context.read<BoardBloc>().databaseController,
+  );
+
   @override
   void dispose() {
     scrollController.dispose();
@@ -162,7 +168,6 @@ class _DesktopBoardContentState extends State<DesktopBoardContent> {
   Widget build(BuildContext context) {
     return BlocListener<BoardBloc, BoardState>(
       listener: (context, state) {
-        _handleEditStateChanged(state, context);
         widget.onEditStateChanged?.call();
       },
       child: BlocBuilder<BoardBloc, BoardState>(
@@ -180,7 +185,7 @@ class _DesktopBoardContentState extends State<DesktopBoardContent> {
               leading: HiddenGroupsColumn(margin: config.groupHeaderPadding),
               trailing: showCreateGroupButton
                   ? BoardTrailing(scrollController: scrollController)
-                  : null,
+                  : const HSpace(40),
               headerBuilder: (_, groupData) => BlocProvider<BoardBloc>.value(
                 value: context.read<BoardBloc>(),
                 child: BoardColumnHeader(
@@ -199,16 +204,6 @@ class _DesktopBoardContentState extends State<DesktopBoardContent> {
         },
       ),
     );
-  }
-
-  void _handleEditStateChanged(BoardState state, BuildContext context) {
-    if (state.isEditingRow && state.editingRow != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (state.editingRow!.index == null) {
-          scrollManager.scrollToBottom(state.editingRow!.group.groupId);
-        }
-      });
-    }
   }
 
   Widget _buildFooter(BuildContext context, AppFlowyGroupData columnData) {
@@ -255,14 +250,13 @@ class _DesktopBoardContentState extends State<DesktopBoardContent> {
     final databaseController = boardBloc.databaseController;
     final viewId = boardBloc.viewId;
 
-    final cellBuilder = CardCellBuilder(databaseController: databaseController);
     final isEditing = boardBloc.state.isEditingRow &&
         boardBloc.state.editingRow?.row.id == groupItem.row.id;
 
     final groupItemId = "${groupData.group.groupId}${groupItem.row.id}";
     final rowMeta = rowInfo?.rowMeta ?? groupItem.row;
 
-    return AppFlowyGroupCard(
+    return Container(
       key: ValueKey(groupItemId),
       margin: config.cardMargin,
       decoration: _makeBoxDecoration(context),
@@ -278,7 +272,7 @@ class _DesktopBoardContentState extends State<DesktopBoardContent> {
           context: context,
           databaseController: databaseController,
           groupId: groupData.group.groupId,
-          rowMeta: rowMeta,
+          rowMeta: context.read<CardBloc>().state.rowMeta,
         ),
         styleConfiguration: RowCardStyleConfiguration(
           cellStyleMap: desktopBoardCardCellStyleMap(context),
@@ -344,9 +338,12 @@ class _DesktopBoardContentState extends State<DesktopBoardContent> {
 
     FlowyOverlay.show(
       context: context,
-      builder: (_) => RowDetailPage(
-        databaseController: databaseController,
-        rowController: rowController,
+      builder: (_) => BlocProvider.value(
+        value: context.read<ViewBloc>(),
+        child: RowDetailPage(
+          databaseController: databaseController,
+          rowController: rowController,
+        ),
       ),
     );
   }
@@ -407,52 +404,50 @@ class _BoardTrailingState extends State<BoardTrailing> {
       }
     });
 
-    return Padding(
-      padding: const EdgeInsets.only(left: 8.0, top: 12),
-      child: Align(
-        alignment: AlignmentDirectional.topStart,
-        child: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 300),
-          child: isEditing
-              ? SizedBox(
-                  width: 256,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: TextField(
-                      controller: _textController,
-                      focusNode: _focusNode,
-                      decoration: InputDecoration(
-                        suffixIcon: Padding(
-                          padding: const EdgeInsets.only(left: 4, bottom: 8.0),
-                          child: FlowyIconButton(
-                            icon: const FlowySvg(FlowySvgs.close_filled_m),
-                            hoverColor: Colors.transparent,
-                            onPressed: () => _textController.clear(),
-                          ),
+    return Container(
+      padding: const EdgeInsets.only(left: 8.0, top: 12, right: 40),
+      alignment: AlignmentDirectional.topStart,
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 300),
+        child: isEditing
+            ? SizedBox(
+                width: 256,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: TextField(
+                    controller: _textController,
+                    focusNode: _focusNode,
+                    decoration: InputDecoration(
+                      suffixIcon: Padding(
+                        padding: const EdgeInsets.only(left: 4, bottom: 8.0),
+                        child: FlowyIconButton(
+                          icon: const FlowySvg(FlowySvgs.close_filled_m),
+                          hoverColor: Colors.transparent,
+                          onPressed: () => _textController.clear(),
                         ),
-                        suffixIconConstraints:
-                            BoxConstraints.loose(const Size(20, 24)),
-                        border: const UnderlineInputBorder(),
-                        contentPadding: const EdgeInsets.fromLTRB(8, 4, 8, 8),
-                        isDense: true,
                       ),
-                      style: Theme.of(context).textTheme.bodySmall,
-                      onSubmitted: (groupName) => context
-                          .read<BoardBloc>()
-                          .add(BoardEvent.createGroup(groupName)),
+                      suffixIconConstraints:
+                          BoxConstraints.loose(const Size(20, 24)),
+                      border: const UnderlineInputBorder(),
+                      contentPadding: const EdgeInsets.fromLTRB(8, 4, 8, 8),
+                      isDense: true,
                     ),
-                  ),
-                )
-              : FlowyTooltip(
-                  message: LocaleKeys.board_column_createNewColumn.tr(),
-                  child: FlowyIconButton(
-                    width: 26,
-                    icon: const FlowySvg(FlowySvgs.add_s),
-                    iconColorOnHover: Theme.of(context).colorScheme.onSurface,
-                    onPressed: () => setState(() => isEditing = true),
+                    style: Theme.of(context).textTheme.bodySmall,
+                    onSubmitted: (groupName) => context
+                        .read<BoardBloc>()
+                        .add(BoardEvent.createGroup(groupName)),
                   ),
                 ),
-        ),
+              )
+            : FlowyTooltip(
+                message: LocaleKeys.board_column_createNewColumn.tr(),
+                child: FlowyIconButton(
+                  width: 26,
+                  icon: const FlowySvg(FlowySvgs.add_s),
+                  iconColorOnHover: Theme.of(context).colorScheme.onSurface,
+                  onPressed: () => setState(() => isEditing = true),
+                ),
+              ),
       ),
     );
   }

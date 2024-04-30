@@ -1,4 +1,4 @@
-name: Web2-CI
+name: Web-CI
 on:
   pull_request:
     paths:
@@ -17,14 +17,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [ ubuntu-latest ]
+        platform: [ ubuntu-20.04 ]
 
     runs-on: ${{ matrix.platform }}
 
     steps:
       - uses: actions/checkout@v4
       - name: Maximize build space (ubuntu only)
-        if: matrix.platform == 'ubuntu-latest'
+        if: matrix.platform == 'ubuntu-20.04'
         run: |
           sudo rm -rf /usr/share/dotnet
           sudo rm -rf /opt/ghc
@@ -56,6 +56,7 @@ jobs:
         working-directory: frontend/appflowy_web_app
         run: |
           pnpm run lint
+          pnpm run test:unit
       - name: build and analyze
         working-directory: frontend/appflowy_web_app
         run: |

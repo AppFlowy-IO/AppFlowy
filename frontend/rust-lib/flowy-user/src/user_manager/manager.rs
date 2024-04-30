@@ -2,7 +2,7 @@ use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use collab_integrate::CollabKVDB;
 use collab_user::core::MutexUserAwareness;
 use flowy_error::{internal_error, ErrorCode, FlowyResult};
-use flowy_folder_pub::entities::ImportData;
+
 use flowy_server_pub::AuthenticatorType;
 use flowy_sqlite::kv::StorePreferences;
 use flowy_sqlite::schema::user_table;
@@ -36,8 +36,6 @@ use crate::migrations::AnonUser;
 use crate::services::authenticate_user::AuthenticateUser;
 use crate::services::cloud_config::get_cloud_config;
 use crate::services::collab_interact::{CollabInteract, DefaultCollabInteract};
-use crate::services::data_import::importer::import_data;
-use crate::services::data_import::ImportContext;
 
 use crate::services::sqlite_sql::user_sql::{select_user_profile, UserTable, UserTableChangeset};
 use crate::user_manager::manager_user_encryption::validate_encryption_sign;
@@ -790,24 +788,6 @@ impl UserManager {
       &[old_user.session.user_workspace.clone()],
     )?;
     Ok(())
-  }
-
-  pub(crate) async fn import_appflowy_data(
-    &self,
-    context: ImportContext,
-  ) -> Result<ImportData, FlowyError> {
-    let session = self.get_session()?;
-    let user_collab_db = self
-      .authenticate_user
-      .database
-      .get_collab_db(session.user_id)?;
-    let import_data = tokio::task::spawn_blocking(move || {
-      import_data(&session, context, user_collab_db)
-        .map_err(|err| FlowyError::new(ErrorCode::AppFlowyDataFolderImportError, err.to_string()))
-    })
-    .await
-    .map_err(internal_error)??;
-    Ok(import_data)
   }
 }
 
