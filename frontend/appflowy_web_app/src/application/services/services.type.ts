@@ -1,4 +1,4 @@
-import { YDoc } from '@/application/document.type';
+import { YDoc } from '@/application/collab.type';
 import { ProviderType, SignUpWithEmailPasswordParams, UserProfile } from '@/application/user.type';
 
 export interface AFService {
@@ -7,6 +7,7 @@ export interface AFService {
   authService: AuthService;
   userService: UserService;
   documentService: DocumentService;
+  folderService: FolderService;
 }
 
 export interface AFServiceConfig {
@@ -34,4 +35,8 @@ export interface DocumentService {
 export interface UserService {
   getUserProfile: () => Promise<UserProfile | null>;
   checkUser: () => Promise<boolean>;
+}
+
+export interface FolderService {
+  openWorkspace: (workspaceId: string) => Promise<YDoc>;
 }

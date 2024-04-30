@@ -37,7 +37,7 @@ class GridCalculationsRow extends StatelessWidget {
                     key: Key(
                       '${field.id}-${state.calculationsByFieldId[field.id]?.id}',
                     ),
-                    width: field.fieldSettings!.width.toDouble(),
+                    width: field.width!.toDouble(),
                     fieldInfo: field,
                     calculation: state.calculationsByFieldId[field.id],
                   ),

@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/plugins/database/board/presentation/board_page.dart';
 import 'package:appflowy/plugins/database/calendar/presentation/calendar_page.dart';
 import 'package:appflowy/plugins/database/grid/presentation/grid_page.dart';
@@ -13,6 +16,22 @@ import 'package:flutter/material.dart';
 class PluginArgumentKeys {
   static String selection = "selection";
   static String rowId = "row_id";
+}
+
+class ViewExtKeys {
+  // used for customizing the font family.
+  static String fontKey = 'font';
+
+  // used for customizing the font layout.
+  static String fontLayoutKey = 'font_layout';
+
+  // used for customizing the line height layout.
+  static String lineHeightLayoutKey = 'line_height_layout';
+
+  // cover keys
+  static String coverKey = 'cover';
+  static String coverTypeKey = 'type';
+  static String coverValueKey = 'value';
 }
 
 extension ViewExtension on ViewPB {
@@ -76,6 +95,51 @@ extension ViewExtension on ViewPB {
       };
 
   FlowySvgData get iconData => layout.icon;
+
+  PageStyleCover? get cover {
+    if (layout != ViewLayoutPB.Document) {
+      return null;
+    }
+    try {
+      final ext = jsonDecode(extra);
+      final cover = ext[ViewExtKeys.coverKey] ?? {};
+      final coverType = cover[ViewExtKeys.coverTypeKey] ??
+          PageStyleCoverImageType.none.toString();
+      final coverValue = cover[ViewExtKeys.coverValueKey] ?? '';
+      return PageStyleCover(
+        type: PageStyleCoverImageType.fromString(coverType),
+        value: coverValue,
+      );
+    } catch (e) {
+      return null;
+    }
+  }
+
+  PageStyleLineHeightLayout get lineHeightLayout {
+    if (layout != ViewLayoutPB.Document) {
+      return PageStyleLineHeightLayout.normal;
+    }
+    try {
+      final ext = jsonDecode(extra);
+      final lineHeight = ext[ViewExtKeys.lineHeightLayoutKey];
+      return PageStyleLineHeightLayout.fromString(lineHeight);
+    } catch (e) {
+      return PageStyleLineHeightLayout.normal;
+    }
+  }
+
+  PageStyleFontLayout get fontLayout {
+    if (layout != ViewLayoutPB.Document) {
+      return PageStyleFontLayout.normal;
+    }
+    try {
+      final ext = jsonDecode(extra);
+      final fontLayout = ext[ViewExtKeys.fontLayoutKey];
+      return PageStyleFontLayout.fromString(fontLayout);
+    } catch (e) {
+      return PageStyleFontLayout.normal;
+    }
+  }
 }
 
 extension ViewLayoutExtension on ViewLayoutPB {

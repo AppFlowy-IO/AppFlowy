@@ -1,10 +1,12 @@
+import { notify } from '@/components/_shared/notify';
+
 const tokenKey = 'token';
 
-export function readTokenStr () {
+export function readTokenStr() {
   return sessionStorage.getItem(tokenKey);
 }
 
-export function getAuthInfo () {
+export function getAuthInfo() {
   const token = readTokenStr() || '';
 
   try {
@@ -20,7 +22,7 @@ export function getAuthInfo () {
   }
 }
 
-export function writeToken (token: string) {
+export function writeToken(token: string) {
   if (!token) {
     invalidToken();
     return;
@@ -29,8 +31,7 @@ export function writeToken (token: string) {
   sessionStorage.setItem(tokenKey, token);
 }
 
-export function invalidToken () {
+export function invalidToken() {
   sessionStorage.removeItem(tokenKey);
-  window.location.reload();
+  notify.error('Invalid token, please login again');
 }
-

@@ -1,4 +1,4 @@
-import { YSharedRoot } from '@/application/document.type';
+import { YSharedRoot } from '@/application/collab.type';
 import { translateYArrayEvent } from '@/application/slate-yjs/utils/translateYjsEvent/arrayEvent';
 import { translateYMapEvent } from '@/application/slate-yjs/utils/translateYjsEvent/mapEvent';
 import { Editor, Operation } from 'slate';
@@ -12,11 +12,7 @@ import { translateYTextEvent } from 'src/application/slate-yjs/utils/translateYj
  * @param sharedType
  * @param op
  */
-export function translateYjsEvent (
-  sharedRoot: YSharedRoot,
-  editor: Editor,
-  event: Y.YEvent<YSharedRoot>,
-): Operation[] {
+export function translateYjsEvent(sharedRoot: YSharedRoot, editor: Editor, event: Y.YEvent<YSharedRoot>): Operation[] {
   console.log('translateYjsEvent', event);
   if (event instanceof Y.YMapEvent) {
     return translateYMapEvent(sharedRoot, editor, event);

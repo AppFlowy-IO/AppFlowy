@@ -1,10 +1,9 @@
-import { YjsEditorKey, YSharedRoot } from '@/application/document.type';
+import { CollabOrigin, YjsEditorKey, YSharedRoot } from '@/application/collab.type';
 import { applySlateOp } from '@/application/slate-yjs/utils/applySlateOpts';
 import { translateYjsEvent } from 'src/application/slate-yjs/utils/translateYjsEvent';
 import { Editor, Operation, Descendant } from 'slate';
 import Y, { YEvent, Transaction } from 'yjs';
 import { yDocToSlateContent } from '@/application/slate-yjs/utils/convert';
-import { CollabOrigin } from '@/application/collab.type';
 
 type LocalChange = {
   op: Operation;

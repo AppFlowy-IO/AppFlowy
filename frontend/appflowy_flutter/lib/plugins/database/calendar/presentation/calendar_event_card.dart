@@ -167,10 +167,13 @@ class _EventCardState extends State<EventCard> {
           ),
         );
       },
-      child: Container(
-        padding: widget.padding,
-        decoration: decoration,
-        child: card,
+      child: Material(
+        color: Colors.transparent,
+        child: Container(
+          padding: widget.padding,
+          decoration: decoration,
+          child: card,
+        ),
       ),
     );
 

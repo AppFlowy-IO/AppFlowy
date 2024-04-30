@@ -21,7 +21,6 @@ class MobileAppearance extends BaseAppearance {
     String fontFamily,
     String codeFontFamily,
   ) {
-    assert(fontFamily.isNotEmpty);
     assert(codeFontFamily.isNotEmpty);
 
     final fontStyle = getFontStyle(
@@ -89,6 +88,7 @@ class MobileAppearance extends BaseAppearance {
       disabledColor: colorTheme.outline,
       scaffoldBackgroundColor: colorTheme.background,
       appBarTheme: AppBarTheme(
+        toolbarHeight: 44.0,
         foregroundColor: colorTheme.onBackground,
         backgroundColor: colorTheme.background,
         centerTitle: false,

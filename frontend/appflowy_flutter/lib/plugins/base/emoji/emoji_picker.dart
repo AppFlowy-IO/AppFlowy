@@ -9,7 +9,7 @@ import 'package:flutter_emoji_mart/flutter_emoji_mart.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 // use a global value to store the selected emoji to prevent reloading every time.
-EmojiData? _cachedEmojiData;
+EmojiData? kCachedEmojiData;
 
 class FlowyEmojiPicker extends StatefulWidget {
   const FlowyEmojiPicker({
@@ -34,12 +34,12 @@ class _FlowyEmojiPickerState extends State<FlowyEmojiPicker> {
     super.initState();
 
     // load the emoji data from cache if it's available
-    if (_cachedEmojiData != null) {
-      emojiData = _cachedEmojiData;
+    if (kCachedEmojiData != null) {
+      emojiData = kCachedEmojiData;
     } else {
       EmojiData.builtIn().then(
         (value) {
-          _cachedEmojiData = value;
+          kCachedEmojiData = value;
           setState(() {
             emojiData = value;
           });

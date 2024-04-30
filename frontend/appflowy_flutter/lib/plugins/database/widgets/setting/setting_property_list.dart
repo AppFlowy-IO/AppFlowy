@@ -180,8 +180,7 @@ class _DatabasePropertyCellState extends State<DatabasePropertyCell> {
                 return;
               }
 
-              final newVisiblity =
-                  widget.fieldInfo.fieldSettings!.visibility.toggle();
+              final newVisiblity = widget.fieldInfo.visibility!.toggle();
               context.read<DatabasePropertyBloc>().add(
                     DatabasePropertyEvent.setFieldVisibility(
                       widget.fieldInfo.id,

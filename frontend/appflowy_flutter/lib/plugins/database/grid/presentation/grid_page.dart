@@ -154,7 +154,11 @@ class _GridPageState extends State<GridPage> {
             loading: (_) =>
                 const Center(child: CircularProgressIndicator.adaptive()),
             finish: (result) => result.successOrFail.fold(
-              (_) => GridShortcuts(child: GridPageContent(view: widget.view)),
+              (_) => GridShortcuts(
+                child: GridPageContent(
+                  view: widget.view,
+                ),
+              ),
               (err) => FlowyErrorPage.message(
                 err.toString(),
                 howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),
@@ -234,7 +238,9 @@ class _GridPageContentState extends State<GridPageContent> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _GridHeader(headerScrollController: headerScrollController),
+        _GridHeader(
+          headerScrollController: headerScrollController,
+        ),
         _GridRows(
           viewId: widget.view.id,
           scrollController: _scrollController,
@@ -498,7 +504,7 @@ class _PositionedCalculationsRowState
       left: 0,
       right: 0,
       child: Container(
-        margin: EdgeInsets.only(left: GridSize.horizontalHeaderPadding),
+        margin: EdgeInsets.only(left: GridSize.horizontalHeaderPadding + 40),
         padding: const EdgeInsets.only(bottom: 10),
         decoration: BoxDecoration(
           color: Theme.of(context).canvasColor,

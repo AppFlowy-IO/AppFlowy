@@ -1,4 +1,4 @@
-import { YDoc } from '@/application/document.type';
+import { YDoc } from '@/application/collab.type';
 import { getAuthInfo } from '@/application/services/js-services/storage';
 import * as Y from 'yjs';
 import { IndexeddbPersistence } from 'y-indexeddb';

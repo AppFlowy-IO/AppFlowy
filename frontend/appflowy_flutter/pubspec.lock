@@ -44,11 +44,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "15a3a50"
-      resolved-ref: "15a3a5071ffdb002ffaefda9df343b6800844d8d"
+      ref: f88b4ce01d2728c05125cbe9170013f4a7c85a31
+      resolved-ref: f88b4ce01d2728c05125cbe9170013f4a7c85a31
       url: "https://github.com/AppFlowy-IO/appflowy-board.git"
     source: git
-    version: "0.1.1"
+    version: "0.1.2"
   appflowy_editor:
     dependency: "direct main"
     description:
@@ -1210,7 +1210,7 @@ packages:
     source: hosted
     version: "2.0.2"
   numerus:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: numerus
       sha256: "49cd96fe774dd1f574fc9117ed67e8a2b06a612f723e87ef3119456a7729d837"
@@ -1405,10 +1405,10 @@ packages:
     dependency: "direct main"
     description:
       name: provider
-      sha256: "9a96a0a19b594dbc5bf0f1f27d2bc67d5f95957359b461cd9feb44ed6ae75096"
+      sha256: c8a055ee5ce3fd98d6fc872478b03823ffdb448699c6ebdbbc71d59b596fd48c
       url: "https://pub.dev"
     source: hosted
-    version: "6.1.1"
+    version: "6.1.2"
   pub_semver:
     dependency: transitive
     description:

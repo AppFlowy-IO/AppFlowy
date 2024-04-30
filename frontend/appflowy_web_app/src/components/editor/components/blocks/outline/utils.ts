@@ -1,21 +1,22 @@
-import { BlockType } from '@/application/document.type';
+import { BlockType } from '@/application/collab.type';
+import { CustomEditor } from '@/components/editor/command';
 import { HeadingNode } from '@/components/editor/editor.type';
 import { Element, Text } from 'slate';
+import { ReactEditor } from 'slate-react';
 
-export function extractHeadings(blocks: (Element | Text)[], maxDepth: number): HeadingNode[] {
+export function extractHeadings(editor: ReactEditor, maxDepth: number): HeadingNode[] {
   const headings: HeadingNode[] = [];
+  const blocks = editor.children;
 
   function traverse(children: (Element | Text)[]) {
     for (const block of children) {
       if (Text.isText(block)) continue;
       if (block.type === BlockType.HeadingBlock && (block as HeadingNode).data?.level <= maxDepth) {
-        const texts = (block.children[0] as Element).children as Text[];
-
         headings.push({
           ...block,
           data: {
             level: (block as HeadingNode).data.level,
-            text: texts.map((node) => node.text).join(''),
+            text: CustomEditor.getBlockTextContent(block),
           },
           children: [],
         } as HeadingNode);
