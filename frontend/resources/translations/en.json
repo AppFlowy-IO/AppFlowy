@@ -320,7 +320,7 @@
     "accountPage": {
       "menuLabel": "My account",
       "title": "My account",
-      "description": "Customize your profile, manage account security, open AI keys, or login into your account.",
+      "description": "Customize your profile, manage account security and AI API keys, or login into your account.",
       "general": {
         "title": "Account name & profile image",
         "changeProfilePicture": "Change"
@@ -334,9 +334,9 @@
       "keys": {
         "title": "AI Keys",
         "openAILabel": "OpenAI key",
-        "openAITooltip": "The OpenAPI API key to use for the AI models",
+        "openAITooltip": "The OpenAI API key to use for the AI models",
         "openAIHint": "Input your OpenAI API Key",
-        "stabilityAILabel": "StabilityAI key",
+        "stabilityAILabel": "Stability API key",
         "stabilityAITooltip": "The Stability API key to use for the AI models",
         "stabilityAIHint": "Input your Stability API Key"
       },

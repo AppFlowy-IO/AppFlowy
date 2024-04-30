@@ -262,6 +262,7 @@
   },
   "button": {
     "ok": "OK",
+    "confirm": "Bestätigen",
     "done": "Erledigt!",
     "cancel": "Abbrechen",
     "signIn": "Anmelden",
@@ -324,6 +325,35 @@
   },
   "settings": {
     "title": "Einstellungen",
+    "accountPage": {
+      "menuLabel": "Mein Konto",
+      "title": "Mein Konto",
+      "description": "Passe dein Profil an, verwalte deine Sicherheitseinstellungen und AI-API-Schlüssel oder melde dich bei deinem Konto an.",
+      "general": {
+        "title": "Kontoname und Profilbild",
+        "changeProfilePicture": "Ändern"
+      },
+      "email": {
+        "title": "E-Mail",
+        "actions": {
+          "change": "E-Mail ändern"
+        }
+      },
+      "keys": {
+        "title": "KI-Schlüssel",
+        "openAILabel": "OpenAI-Schlüssel",
+        "openAITooltip": "Der für die KI-Modelle zu verwendende OpenAI-API-Schlüssel",
+        "openAIHint": "OpenAI API-Schlüssel eingeben",
+        "stabilityAILabel": "Stability API-Schlüssel",
+        "stabilityAITooltip": "Der für die KI-Modelle zu verwendende Stability API-Schlüssel",
+        "stabilityAIHint": "Stability API-Schlüssel eingeben"
+      },
+      "login": {
+        "title": "Kontoanmeldung",
+        "loginLabel": "Anmeldung",
+        "logoutLabel": "Ausloggen"
+      }
+    },
     "menu": {
       "appearance": "Oberfläche",
       "language": "Sprache",
@@ -388,7 +418,8 @@
       "resetSetting": "Zurücksetzen",
       "fontFamily": {
         "label": "Schriftfamilie",
-        "search": "Suchen"
+        "search": "Suchen",
+        "defaultFont": "Standardschriftart"
       },
       "themeMode": {
         "label": "Design",
@@ -478,7 +509,9 @@
         "failedToAddMember": "Mitglied konnte nicht hinzugefügt werden!",
         "addMemberSuccess": "Mitglied erfolgreich hinzugefügt",
         "removeMember": "Mitglied entfernen",
-        "areYouSureToRemoveMember": "Möchten Sie dieses Mitglied wirklich entfernen?"
+        "areYouSureToRemoveMember": "Möchten Sie dieses Mitglied wirklich entfernen?",
+        "inviteMemberSuccess": "Die Einladung wurde erfolgreich versendet",
+        "failedToInviteMember": "Das Einladen des Mitglieds ist fehlgeschlagen"
       }
     },
     "files": {
@@ -1483,6 +1516,20 @@
       "synced": "Synchronisiert",
       "noNetworkConnected": "Kein Netzwerk verbunden"
     }
+  },
+  "pageStyle": {
+    "title": "Seitenformatierung",
+    "layout": "Layout",
+    "coverImage": "Titelbild",
+    "pageIcon": "Seitensymbol",
+    "colors": "Farben",
+    "gradient": "Gradient",
+    "backgroundImage": "Hintergrundbild",
+    "presets": "Voreinstellungen",
+    "photo": "Foto",
+    "unsplash": "Unsplash",
+    "pageCover": "Deckblatt",
+    "none": "Keines"
   },
   "commandPalette": {
     "placeholder": "Tippe, um nach Ansichten zu suchen...",
