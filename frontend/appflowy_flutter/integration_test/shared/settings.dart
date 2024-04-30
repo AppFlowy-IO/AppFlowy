@@ -13,7 +13,8 @@ import 'package:flutter_test/flutter_test.dart';
 
 import '../desktop/board/board_hide_groups_test.dart';
 
-import 'util.dart';
+import 'base.dart';
+import 'common_operations.dart';
 
 extension AppFlowySettings on WidgetTester {
   /// Open settings page
