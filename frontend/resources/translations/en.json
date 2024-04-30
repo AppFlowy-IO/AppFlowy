@@ -500,7 +500,9 @@
         "failedToAddMember": "Failed to add member",
         "addMemberSuccess": "Member added successfully",
         "removeMember": "Remove Member",
-        "areYouSureToRemoveMember": "Are you sure you want to remove this member?"
+        "areYouSureToRemoveMember": "Are you sure you want to remove this member?",
+        "inviteMemberSuccess": "The invitation has been sent successfully",
+        "failedToInviteMember": "Failed to invite member"
       }
     },
     "files": {
