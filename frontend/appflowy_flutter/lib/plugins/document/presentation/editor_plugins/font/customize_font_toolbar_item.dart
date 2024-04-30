@@ -14,6 +14,7 @@ import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/style_widget/text_field.dart';
@@ -258,9 +259,7 @@ class _FontFamilyDropDownState extends State<FontFamilyDropDown> {
 }
 
 class _ResetFontButton extends SliverPersistentHeaderDelegate {
-  _ResetFontButton({
-    this.onPressed,
-  });
+  _ResetFontButton({this.onPressed});
 
   final VoidCallback? onPressed;
 
@@ -274,6 +273,9 @@ class _ResetFontButton extends SliverPersistentHeaderDelegate {
       padding: const EdgeInsets.only(right: 8, bottom: 8.0),
       child: FlowyTextButton(
         LocaleKeys.document_toolbar_resetToDefaultFont.tr(),
+        fontColor: AFThemeExtension.of(context).textColor,
+        fontHoverColor: Theme.of(context).colorScheme.onSurface,
+        fontSize: 12,
         onPressed: onPressed,
       ),
     );

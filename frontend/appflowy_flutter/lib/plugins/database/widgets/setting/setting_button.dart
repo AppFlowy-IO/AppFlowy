@@ -44,7 +44,7 @@ class _SettingButtonState extends State<SettingButton> {
         radius: Corners.s4Border,
         onPressed: _popoverController.show,
       ),
-      popupBuilder: (BuildContext context) => DatabaseSettingsList(
+      popupBuilder: (_) => DatabaseSettingsList(
         databaseController: widget.databaseController,
       ),
     );

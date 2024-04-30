@@ -9,6 +9,7 @@ import 'package:appflowy/workspace/presentation/settings/shared/settings_body.da
 import 'package:appflowy/workspace/presentation/settings/shared/settings_header.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -75,6 +76,7 @@ class ShortcutsListView extends StatelessWidget {
             const Spacer(),
             FlowyTextButton(
               LocaleKeys.settings_shortcuts_resetToDefault.tr(),
+              fontColor: AFThemeExtension.of(context).textColor,
               onPressed: () => context.read<ShortcutsCubit>().resetToDefault(),
             ),
           ],
@@ -108,6 +110,7 @@ class ShortcutsListTile extends StatelessWidget {
             ),
             FlowyTextButton(
               shortcutEvent.command,
+              fontColor: AFThemeExtension.of(context).textColor,
               fillColor: Colors.transparent,
               onPressed: () {
                 showKeyListenerDialog(context);

@@ -21,6 +21,8 @@ class MobileCodeLanguagePickerScreen extends StatelessWidget {
       ),
       body: SafeArea(
         child: ListView.separated(
+          separatorBuilder: (_, __) => const Divider(),
+          itemCount: defaultCodeBlockSupportedLanguages.length,
           itemBuilder: (context, index) {
             final language = defaultCodeBlockSupportedLanguages[index];
             return SizedBox(
@@ -35,8 +37,6 @@ class MobileCodeLanguagePickerScreen extends StatelessWidget {
               ),
             );
           },
-          separatorBuilder: (_, __) => const Divider(),
-          itemCount: defaultCodeBlockSupportedLanguages.length,
         ),
       ),
     );

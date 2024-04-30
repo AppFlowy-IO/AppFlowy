@@ -1,10 +1,11 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/plugins/base/emoji/emoji_picker_screen.dart';
 import 'package:appflowy/plugins/base/icon/icon_picker.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/emoji_picker/emoji_picker.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 class EmojiPickerButton extends StatelessWidget {
@@ -64,9 +65,7 @@ class EmojiPickerButton extends StatelessWidget {
                 constraints: const BoxConstraints(minWidth: 35.0),
                 fillColor: Colors.transparent,
                 mainAxisAlignment: MainAxisAlignment.center,
-                onPressed: () {
-                  popoverController.show();
-                },
+                onPressed: popoverController.show,
               ),
       );
     } else {

@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/export/document_exporter.dart';
 import 'package:appflowy/workspace/application/settings/settings_file_exporter_cubit.dart';
@@ -13,8 +15,8 @@ import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/file_picker/file_picker_service.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart' hide WidgetBuilder;
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:path/path.dart' as p;
 
@@ -64,6 +66,7 @@ class _FileExporterWidgetState extends State<FileExporterWidget> {
                                   .every((element) => element)
                               ? LocaleKeys.settings_files_deselectAll.tr()
                               : LocaleKeys.settings_files_selectAll.tr(),
+                          fontColor: AFThemeExtension.of(context).textColor,
                           onPressed: () {
                             context
                                 .read<SettingsFileExporterCubit>()
@@ -93,6 +96,7 @@ class _FileExporterWidgetState extends State<FileExporterWidget> {
         const Spacer(),
         FlowyTextButton(
           LocaleKeys.button_cancel.tr(),
+          fontColor: AFThemeExtension.of(context).textColor,
           onPressed: () {
             Navigator.of(context).pop();
           },
@@ -100,6 +104,7 @@ class _FileExporterWidgetState extends State<FileExporterWidget> {
         const HSpace(8),
         FlowyTextButton(
           LocaleKeys.button_ok.tr(),
+          fontColor: AFThemeExtension.of(context).textColor,
           onPressed: () async {
             await getIt<FilePickerService>()
                 .getDirectoryPath()
