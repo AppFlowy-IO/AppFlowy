@@ -37,7 +37,7 @@ const Table = memo(
     }, [rowGroup, rowDefaultHeight]);
 
     return (
-      <div ref={ref} {...attributes} className={`table-block relative my-2 px-1 ${className || ''}`}>
+      <div ref={ref} {...attributes} className={`table-block relative my-2 w-full px-1 ${className || ''}`}>
         <Grid
           id={`table-${node.blockId}`}
           rowGap='space.0'

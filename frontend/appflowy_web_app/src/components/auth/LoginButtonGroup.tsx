@@ -29,6 +29,7 @@ export const LoginButtonGroup = () => {
         {t('signIn.signInWithEmail')}
       </Button>
       <Button
+        disabled
         onClick={() => {
           void signInWithProvider(ProviderType.Google);
         }}
@@ -40,6 +41,7 @@ export const LoginButtonGroup = () => {
         {t('button.signInGoogle')}
       </Button>
       <Button
+        disabled
         onClick={() => {
           void signInWithProvider(ProviderType.Github);
         }}
@@ -51,6 +53,7 @@ export const LoginButtonGroup = () => {
         {t('button.signInGithub')}
       </Button>
       <Button
+        disabled
         onClick={() => {
           void signInWithProvider(ProviderType.Discord);
         }}

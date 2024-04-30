@@ -16,7 +16,7 @@ import {
   TableCellBlockData,
   BlockId,
   BlockData,
-} from '@/application/document.type';
+} from '@/application/collab.type';
 import { HTMLAttributes } from 'react';
 import { Element } from 'slate';
 

@@ -1,50 +1,27 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { ReactComponent as DocumentSvg } from '@/assets/document.svg';
-import { useTranslation } from 'react-i18next';
-import { useSelected } from 'slate-react';
-import { ReactComponent as EyeClose } from '@/assets/eye_close.svg';
+import { layoutMap, ViewLayout, YjsFolderKey } from '@/application/collab.type';
+import { useId } from '@/components/_shared/context-provider/IdProvider';
+import { usePageInfo } from '@/components/_shared/page/usePageInfo';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 function MentionPage({ pageId }: { pageId: string }) {
-  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { workspaceId } = useId();
+  const { view, icon, name } = usePageInfo(pageId);
 
-  const selected = useSelected();
-  const [page, setPage] = useState<{
-    icon?: {
-      value: string | null;
-    };
-    name: string;
-  } | null>(null);
-  const [error, setError] = useState<boolean>(false);
-  const loadPage = useCallback(async () => {
-    setError(false);
-    setPage(null);
-    console.log(pageId);
-  }, [pageId]);
-
-  useEffect(() => {
-    void loadPage();
-  }, [loadPage]);
   return (
     <span
-      className={`mention-inline mx-1 inline-flex select-none items-center gap-1`}
-      contentEditable={false}
-      style={{
-        backgroundColor: selected ? 'var(--content-blue-100)' : undefined,
+      onClick={() => {
+        const layout = parseInt(view?.get(YjsFolderKey.layout) ?? '0') as ViewLayout;
+
+        navigate(`/workspace/${workspaceId}/${layoutMap[layout]}/${pageId}`);
       }}
+      className={`mention-inline px-1 underline`}
+      contentEditable={false}
     >
-      {error ? (
-        <>
-          <EyeClose />
-          <span className={'mr-0.5 text-text-caption underline'}>{t('document.mention.deleted')}</span>
-        </>
-      ) : (
-        page && (
-          <>
-            {page.icon?.value || <DocumentSvg />}
-            <span className={'mr-1 underline'}>{page.name.trim() || t('menuAppHeader.defaultNewPageName')}</span>
-          </>
-        )
-      )}
+      <span className={'mention-icon'}>{icon}</span>
+
+      <span className={'mention-content'}>{name}</span>
     </span>
   );
 }

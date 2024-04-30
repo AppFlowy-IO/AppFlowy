@@ -1,15 +1,17 @@
+import { CollabType } from '@/application/collab.type';
 import { ClientAPI } from '@appflowyinc/client-api-wasm';
 import { UserProfile } from '@/application/user.type';
 import { AFCloudConfig } from '@/application/services/services.type';
 import { invalidToken, readTokenStr, writeToken } from '@/application/services/js-services/storage';
-import { CollabType } from '@/application/collab.type';
 
 let client: ClientAPI;
 
-export function initAPIService (config: AFCloudConfig & {
-  deviceId: string;
-  clientId: string;
-}) {
+export function initAPIService(
+  config: AFCloudConfig & {
+    deviceId: string;
+    clientId: string;
+  }
+) {
   window.refresh_token = writeToken;
   window.invalid_token = invalidToken;
   client = ClientAPI.new({
@@ -33,15 +35,15 @@ export function initAPIService (config: AFCloudConfig & {
   client.subscribe();
 }
 
-export function signIn (email: string, password: string) {
+export function signIn(email: string, password: string) {
   return client.login(email, password);
 }
 
-export function logout () {
+export function logout() {
   return client.logout();
 }
 
-export async function getUser (): Promise<UserProfile> {
+export async function getUser(): Promise<UserProfile> {
   try {
     const user = await client.get_user();
 
@@ -62,7 +64,7 @@ export async function getUser (): Promise<UserProfile> {
   }
 }
 
-export async function getCollab (workspaceId: string, object_id: string, collabType: CollabType) {
+export async function getCollab(workspaceId: string, object_id: string, collabType: CollabType) {
   const res = await client.get_collab({
     workspace_id: workspaceId,
     object_id: object_id,

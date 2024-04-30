@@ -1,8 +1,7 @@
-import { YDoc } from '@/application/document.type';
+import { CollabOrigin, CollabType, YDoc } from '@/application/collab.type';
 import { getDocumentStorage } from '@/application/services/js-services/storage/document';
 import { DocumentService } from '@/application/services/services.type';
 import { APIService } from 'src/application/services/js-services/wasm';
-import { CollabOrigin, CollabType } from '@/application/collab.type';
 import { applyDocument } from 'src/application/ydoc/apply';
 
 export class JSDocumentService implements DocumentService {

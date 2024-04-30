@@ -16,7 +16,6 @@ const collabTypeMap: Record<string, CollabType> = {
 
 function ProductPage() {
   const { workspaceId, collabType, objectId } = useParams();
-
   const PageComponent = useMemo(() => {
     switch (collabType) {
       case URL_COLLAB_TYPE.DOCUMENT:
