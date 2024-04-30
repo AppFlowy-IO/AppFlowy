@@ -293,7 +293,7 @@ async fn according_to_select_option_is_filter_test() {
   let multi_select_field = test.get_first_field(FieldType::MultiSelect);
   let options = test.get_multi_select_type_option(&multi_select_field.id);
 
-  let filtering_options = vec![options[1].clone(), options[2].clone()];
+  let filtering_options = [options[1].clone(), options[2].clone()];
   let ids = filtering_options
     .iter()
     .map(|option| option.id.clone())
@@ -346,7 +346,7 @@ async fn according_to_select_option_contains_filter_test() {
   let multi_select_field = test.get_first_field(FieldType::MultiSelect);
   let options = test.get_multi_select_type_option(&multi_select_field.id);
 
-  let filtering_options = vec![options[1].clone(), options[2].clone()];
+  let filtering_options = [options[1].clone(), options[2].clone()];
   let ids = filtering_options
     .iter()
     .map(|option| option.id.clone())

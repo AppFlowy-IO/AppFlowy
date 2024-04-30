@@ -37,7 +37,7 @@ impl SearchResultReceiverRunner {
               SearchNotification::DidUpdateResults
             };
 
-            send_notification(SEARCH_ID, ty)
+            send_notification(SEARCH_ID, ty, notification.channel.clone())
               .payload(notification)
               .send();
           },
@@ -48,6 +48,16 @@ impl SearchResultReceiverRunner {
 }
 
 #[tracing::instrument(level = "trace")]
-pub fn send_notification(id: &str, ty: SearchNotification) -> NotificationBuilder {
-  NotificationBuilder::new(id, ty, SEARCH_OBSERVABLE_SOURCE)
+pub fn send_notification(
+  id: &str,
+  ty: SearchNotification,
+  channel: Option<String>,
+) -> NotificationBuilder {
+  let observable_source = &format!(
+    "{}{}",
+    SEARCH_OBSERVABLE_SOURCE,
+    channel.unwrap_or_default()
+  );
+
+  NotificationBuilder::new(id, ty, observable_source)
 }

@@ -1,8 +1,9 @@
 use crate::entities::icon::UpdateViewIconParams;
 use crate::entities::{
-  view_pb_with_child_views, view_pb_without_child_views, CreateViewParams, CreateWorkspaceParams,
-  DeletedViewPB, FolderSnapshotPB, MoveNestedViewParams, RepeatedTrashPB, RepeatedViewIdPB,
-  RepeatedViewPB, UpdateViewParams, ViewPB, ViewSectionPB, WorkspacePB, WorkspaceSettingPB,
+  view_pb_with_child_views, view_pb_without_child_views, view_pb_without_child_views_from_arc,
+  CreateViewParams, CreateWorkspaceParams, DeletedViewPB, FolderSnapshotPB, MoveNestedViewParams,
+  RepeatedTrashPB, RepeatedViewIdPB, RepeatedViewPB, UpdateViewParams, ViewPB, ViewSectionPB,
+  WorkspacePB, WorkspaceSettingPB,
 };
 use crate::manager_observer::{
   notify_child_views_changed, notify_did_update_workspace, notify_parent_view_did_change,
@@ -20,34 +21,28 @@ use collab::core::collab::{DataSource, MutexCollab};
 use collab_entity::CollabType;
 use collab_folder::error::FolderError;
 use collab_folder::{
-  Folder, FolderData, FolderNotify, Section, SectionItem, TrashInfo, UserId, View, ViewLayout,
-  ViewUpdate, Workspace,
+  Folder, FolderNotify, Section, SectionItem, TrashInfo, UserId, View, ViewLayout, ViewUpdate,
+  Workspace,
 };
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
-use collab_integrate::{CollabKVDB, CollabPersistenceConfig};
+use collab_integrate::CollabKVDB;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_folder_pub::cloud::{gen_view_id, FolderCloudService};
 use flowy_folder_pub::folder_builder::ParentChildViews;
 use flowy_search_pub::entities::FolderIndexManager;
-use lib_infra::conditional_send_sync_trait;
-use parking_lot::{Mutex, RwLock};
+use parking_lot::RwLock;
 use std::fmt::{Display, Formatter};
 use std::ops::Deref;
 use std::sync::{Arc, Weak};
 use tracing::{error, info, instrument};
 
-conditional_send_sync_trait! {
-  "[crate::manager::FolderUser] represents the user for folder.";
-   FolderUser {
-     fn user_id(&self) -> Result<i64, FlowyError>;
-     fn collab_db(&self, uid: i64) -> Result<Weak<CollabKVDB>, FlowyError>;
-  }
+pub trait FolderUser: Send + Sync {
+  fn user_id(&self) -> Result<i64, FlowyError>;
+  fn workspace_id(&self) -> Result<String, FlowyError>;
+  fn collab_db(&self, uid: i64) -> Result<Weak<CollabKVDB>, FlowyError>;
 }
 
 pub struct FolderManager {
-  /// workspace_id represents as the id of the Folder.
-  pub(crate) workspace_id: RwLock<Option<String>>,
-
   /// MutexFolder is the folder that is used to store the data.
   pub(crate) mutex_folder: Arc<MutexFolder>,
   pub(crate) collab_builder: Arc<AppFlowyCollabBuilder>,
@@ -72,56 +67,28 @@ impl FolderManager {
       collab_builder,
       operation_handlers,
       cloud_service,
-      workspace_id: Default::default(),
       folder_indexer,
     };
 
     Ok(manager)
   }
 
-  pub async fn reload_workspace(&self) -> FlowyResult<()> {
-    let workspace_id = self
-      .workspace_id
-      .read()
-      .as_ref()
-      .ok_or_else(|| {
-        FlowyError::internal().with_context("workspace id is empty when trying to reload workspace")
-      })?
-      .clone();
-
-    let uid = self.user.user_id()?;
-    let doc_state = self
-      .cloud_service
-      .get_folder_doc_state(&workspace_id, uid, CollabType::Folder, &workspace_id)
-      .await?;
-
-    self
-      .initialize(uid, &workspace_id, FolderInitDataSource::Cloud(doc_state))
-      .await?;
-    Ok(())
-  }
-
   #[instrument(level = "debug", skip(self), err)]
   pub async fn get_current_workspace(&self) -> FlowyResult<WorkspacePB> {
+    let workspace_id = self.user.workspace_id()?;
     self.with_folder(
       || {
         let uid = self.user.user_id()?;
-        let workspace_id = self
-          .workspace_id
-          .read()
-          .as_ref()
-          .cloned()
-          .ok_or_else(|| FlowyError::from(ErrorCode::WorkspaceInitializeError))?;
         Err(workspace_data_not_sync_error(uid, &workspace_id))
       },
       |folder| {
         let workspace_pb_from_workspace = |workspace: Workspace, folder: &Folder| {
-          let views = get_workspace_public_view_pbs(&workspace.id, folder);
+          let views = get_workspace_public_view_pbs(&workspace_id, folder);
           let workspace: WorkspacePB = (workspace, views).into();
           Ok::<WorkspacePB, FlowyError>(workspace)
         };
 
-        match folder.get_current_workspace() {
+        match folder.get_workspace_info(&workspace_id) {
           None => Err(FlowyError::record_not_found().with_context("Can not find the workspace")),
           Some(workspace) => workspace_pb_from_workspace(workspace, folder),
         }
@@ -132,36 +99,25 @@ impl FolderManager {
   /// Return a list of views of the current workspace.
   /// Only the first level of child views are included.
   pub async fn get_current_workspace_public_views(&self) -> FlowyResult<Vec<ViewPB>> {
-    let workspace_id = self
-      .mutex_folder
-      .lock()
-      .as_ref()
-      .map(|folder| folder.get_workspace_id());
-
-    if let Some(workspace_id) = workspace_id {
-      self.get_workspace_public_views(&workspace_id).await
-    } else {
-      tracing::warn!("Can't get the workspace id from the folder. Return empty list.");
-      Ok(vec![])
-    }
-  }
-
-  pub async fn get_workspace_public_views(&self, workspace_id: &str) -> FlowyResult<Vec<ViewPB>> {
-    let views = self.with_folder(Vec::new, |folder| {
-      get_workspace_public_view_pbs(workspace_id, folder)
-    });
-
+    let views = self.get_workspace_public_views().await?;
     Ok(views)
   }
 
-  pub async fn get_workspace_private_views(&self, workspace_id: &str) -> FlowyResult<Vec<ViewPB>> {
-    let views = self.with_folder(Vec::new, |folder| {
-      get_workspace_private_view_pbs(workspace_id, folder)
-    });
-
-    Ok(views)
+  pub async fn get_workspace_public_views(&self) -> FlowyResult<Vec<ViewPB>> {
+    let workspace_id = self.user.workspace_id()?;
+    Ok(self.with_folder(Vec::new, |folder| {
+      get_workspace_public_view_pbs(&workspace_id, folder)
+    }))
   }
 
+  pub async fn get_workspace_private_views(&self) -> FlowyResult<Vec<ViewPB>> {
+    let workspace_id = self.user.workspace_id()?;
+    Ok(self.with_folder(Vec::new, |folder| {
+      get_workspace_private_view_pbs(&workspace_id, folder)
+    }))
+  }
+
+  #[instrument(level = "trace", skip_all, err)]
   pub(crate) async fn make_folder<T: Into<Option<FolderNotify>>>(
     &self,
     uid: i64,
@@ -171,19 +127,40 @@ impl FolderManager {
     folder_notifier: T,
   ) -> Result<Folder, FlowyError> {
     let folder_notifier = folder_notifier.into();
+    // only need the check the workspace id when the doc state is not from the disk.
+    let should_check_workspace_id = !matches!(doc_state, DataSource::Disk);
+    let should_auto_initialize = !should_check_workspace_id;
+    let config = CollabBuilderConfig::default()
+      .sync_enable(true)
+      .auto_initialize(should_auto_initialize);
+
+    let object_id = workspace_id;
     let collab = self.collab_builder.build_with_config(
-      uid,
       workspace_id,
+      uid,
+      object_id,
       CollabType::Folder,
       collab_db,
       doc_state,
-      CollabPersistenceConfig::new()
-        .enable_snapshot(true)
-        .snapshot_per_update(50),
-      CollabBuilderConfig::default().sync_enable(true),
+      config,
     )?;
-    let (should_clear, err) = match Folder::open(UserId::from(uid), collab, folder_notifier) {
+    let (should_clear, err) = match Folder::open(UserId::from(uid), collab.clone(), folder_notifier)
+    {
       Ok(folder) => {
+        if should_check_workspace_id {
+          // check the workspace id in the folder is matched with the workspace id. Just in case the folder
+          // is overwritten by another workspace.
+          let folder_workspace_id = folder.get_workspace_id();
+          if folder_workspace_id != workspace_id {
+            error!(
+              "expect workspace_id: {}, actual workspace_id: {}",
+              workspace_id, folder_workspace_id
+            );
+            return Err(FlowyError::workspace_data_not_match());
+          }
+          // Initialize the folder manually
+          collab.lock().initialize();
+        }
         return Ok(folder);
       },
       Err(err) => (matches!(err, FolderError::NoRequiredData(_)), err),
@@ -207,15 +184,14 @@ impl FolderManager {
     workspace_id: &str,
     collab_db: Weak<CollabKVDB>,
   ) -> Result<Arc<MutexCollab>, FlowyError> {
+    let object_id = workspace_id;
     let collab = self.collab_builder.build_with_config(
-      uid,
       workspace_id,
+      uid,
+      object_id,
       CollabType::Folder,
       collab_db,
       DataSource::Disk,
-      CollabPersistenceConfig::new()
-        .enable_snapshot(true)
-        .snapshot_per_update(50),
       CollabBuilderConfig::default().sync_enable(true),
     )?;
     Ok(collab)
@@ -224,19 +200,17 @@ impl FolderManager {
   /// Initialize the folder with the given workspace id.
   /// Fetch the folder updates from the cloud service and initialize the folder.
   #[tracing::instrument(skip(self, user_id), err)]
-  pub async fn initialize_with_workspace_id(
-    &self,
-    user_id: i64,
-    workspace_id: &str,
-  ) -> FlowyResult<()> {
+  pub async fn initialize_with_workspace_id(&self, user_id: i64) -> FlowyResult<()> {
+    let workspace_id = self.user.workspace_id()?;
+    let object_id = &workspace_id;
     let folder_doc_state = self
       .cloud_service
-      .get_folder_doc_state(workspace_id, user_id, CollabType::Folder, workspace_id)
+      .get_folder_doc_state(&workspace_id, user_id, CollabType::Folder, object_id)
       .await?;
     if let Err(err) = self
       .initialize(
         user_id,
-        workspace_id,
+        &workspace_id,
         FolderInitDataSource::Cloud(folder_doc_state),
       )
       .await
@@ -247,7 +221,7 @@ impl FolderManager {
       self
         .initialize(
           user_id,
-          workspace_id,
+          &workspace_id,
           FolderInitDataSource::LocalDisk {
             create_if_not_exist: false,
           },
@@ -282,17 +256,17 @@ impl FolderManager {
         .map_err(FlowyError::from);
 
       match result {
-        Ok(folder_updates) => {
+        Ok(folder_doc_state) => {
           info!(
             "Get folder updates via {}, doc state len: {}",
             self.cloud_service.service_name(),
-            folder_updates.len()
+            folder_doc_state.len()
           );
           self
             .initialize(
               user_id,
               workspace_id,
-              FolderInitDataSource::Cloud(folder_updates),
+              FolderInitDataSource::Cloud(folder_doc_state),
             )
             .await?;
         },
@@ -322,25 +296,8 @@ impl FolderManager {
     Ok(new_workspace)
   }
 
-  #[tracing::instrument(level = "info", skip_all, err)]
-  pub async fn open_workspace(&self, _workspace_id: &str) -> FlowyResult<Workspace> {
-    self.with_folder(
-      || Err(FlowyError::internal()),
-      |folder| {
-        let workspace = folder.get_current_workspace().ok_or_else(|| {
-          FlowyError::record_not_found().with_context("Can't open not existing workspace")
-        })?;
-        Ok::<Workspace, FlowyError>(workspace)
-      },
-    )
-  }
-
-  pub async fn get_workspace(&self, _workspace_id: &str) -> Option<Workspace> {
-    self.with_folder(|| None, |folder| folder.get_current_workspace())
-  }
-
   pub async fn get_workspace_setting_pb(&self) -> FlowyResult<WorkspaceSettingPB> {
-    let workspace_id = self.get_current_workspace_id().await?;
+    let workspace_id = self.user.workspace_id()?;
     let latest_view = self.get_current_view().await;
     Ok(WorkspaceSettingPB {
       workspace_id,
@@ -366,40 +323,29 @@ impl FolderManager {
   }
 
   pub async fn get_workspace_pb(&self) -> FlowyResult<WorkspacePB> {
-    let workspace_pb = {
-      let guard = self.mutex_folder.lock();
-      let folder = guard
-        .as_ref()
-        .ok_or(FlowyError::internal().with_context("folder is not initialized"))?;
-      let workspace = folder.get_current_workspace().ok_or(
-        FlowyError::record_not_found().with_context("Can't find the current workspace id "),
-      )?;
-
-      let views = folder
-        .views
-        .get_views_belong_to(&workspace.id)
-        .into_iter()
-        .map(|view| view_pb_without_child_views(view.as_ref().clone()))
-        .collect::<Vec<ViewPB>>();
-
-      WorkspacePB {
-        id: workspace.id,
-        name: workspace.name,
-        views,
-        create_time: workspace.created_at,
-      }
-    };
-
-    Ok(workspace_pb)
-  }
-
-  async fn get_current_workspace_id(&self) -> FlowyResult<String> {
-    self
-      .mutex_folder
-      .lock()
+    let workspace_id = self.user.workspace_id()?;
+    let guard = self.mutex_folder.read();
+    let folder = guard
       .as_ref()
-      .map(|folder| folder.get_workspace_id())
-      .ok_or(FlowyError::internal().with_context("Unexpected empty workspace id"))
+      .ok_or(FlowyError::internal().with_context("folder is not initialized"))?;
+    let workspace = folder
+      .get_workspace_info(&workspace_id)
+      .ok_or_else(|| FlowyError::record_not_found().with_context("Can not find the workspace"))?;
+
+    let views = folder
+      .views
+      .get_views_belong_to(&workspace.id)
+      .into_iter()
+      .map(|view| view_pb_without_child_views(view.as_ref().clone()))
+      .collect::<Vec<ViewPB>>();
+    drop(guard);
+
+    Ok(WorkspacePB {
+      id: workspace.id,
+      name: workspace.name,
+      views,
+      create_time: workspace.created_at,
+    })
   }
 
   /// This function acquires a lock on the `mutex_folder` and checks its state.
@@ -414,24 +360,15 @@ impl FolderManager {
     F1: FnOnce() -> Output,
     F2: FnOnce(&Folder) -> Output,
   {
-    let folder = self.mutex_folder.lock();
+    let folder = self.mutex_folder.read();
     match &*folder {
       None => none_callback(),
       Some(folder) => f2(folder),
     }
   }
 
-  pub async fn get_all_workspaces(&self) -> Vec<Workspace> {
-    self.with_folder(Vec::new, |folder| {
-      let mut workspaces = vec![];
-      if let Some(workspace) = folder.get_current_workspace() {
-        workspaces.push(workspace);
-      }
-      workspaces
-    })
-  }
-
   pub async fn create_view_with_params(&self, params: CreateViewParams) -> FlowyResult<View> {
+    let workspace_id = self.user.workspace_id()?;
     let view_layout: ViewLayout = params.layout.clone().into();
     let handler = self.get_handler(&view_layout)?;
     let user_id = self.user.user_id()?;
@@ -470,11 +407,9 @@ impl FolderManager {
       },
     );
 
-    if let Ok(workspace_id) = self.get_current_workspace_id().await {
-      let folder = &self.mutex_folder.lock();
-      if let Some(folder) = folder.as_ref() {
-        notify_did_update_workspace(&workspace_id, folder);
-      }
+    let folder = &self.mutex_folder.read();
+    if let Some(folder) = folder.as_ref() {
+      notify_did_update_workspace(&workspace_id, folder);
     }
 
     Ok(view)
@@ -524,7 +459,8 @@ impl FolderManager {
   #[tracing::instrument(level = "debug", skip(self))]
   pub async fn get_view_pb(&self, view_id: &str) -> FlowyResult<ViewPB> {
     let view_id = view_id.to_string();
-    let folder = self.mutex_folder.lock();
+
+    let folder = self.mutex_folder.read();
     let folder = folder.as_ref().ok_or_else(folder_not_init_error)?;
 
     // trash views and other private views should not be accessed
@@ -553,6 +489,30 @@ impl FolderManager {
         Ok(view_pb)
       },
     }
+  }
+
+  /// Retrieves all views.
+  ///
+  /// It is important to note that this will return a flat map of all views,
+  /// excluding all child views themselves, as they are all at the same level in this
+  /// map.
+  ///
+  #[tracing::instrument(level = "debug", skip(self))]
+  pub async fn get_all_views_pb(&self) -> FlowyResult<Vec<ViewPB>> {
+    let folder = self.mutex_folder.read();
+    let folder = folder.as_ref().ok_or_else(folder_not_init_error)?;
+
+    // trash views and other private views should not be accessed
+    let view_ids_should_be_filtered = self.get_view_ids_should_be_filtered(folder);
+
+    let all_views = folder.views.get_all_views();
+    let views = all_views
+      .into_iter()
+      .filter(|view| !view_ids_should_be_filtered.contains(&view.id))
+      .map(view_pb_without_child_views_from_arc)
+      .collect::<Vec<_>>();
+
+    Ok(views)
   }
 
   /// Retrieves the ancestors of the view corresponding to the specified view ID, including the view itself.
@@ -651,6 +611,7 @@ impl FolderManager {
   ///
   #[tracing::instrument(level = "trace", skip(self), err)]
   pub async fn move_nested_view(&self, params: MoveNestedViewParams) -> FlowyResult<()> {
+    let workspace_id = self.user.workspace_id()?;
     let view_id = params.view_id;
     let new_parent_id = params.new_parent_id;
     let prev_view_id = params.prev_view_id;
@@ -673,6 +634,7 @@ impl FolderManager {
       },
     );
     notify_parent_view_did_change(
+      &workspace_id,
       self.mutex_folder.clone(),
       vec![new_parent_id, old_parent_id],
     );
@@ -685,6 +647,7 @@ impl FolderManager {
   /// We need to convert the index to the real index of the view in the parent view.
   #[tracing::instrument(level = "trace", skip(self), err)]
   pub async fn move_view(&self, view_id: &str, from: usize, to: usize) -> FlowyResult<()> {
+    let workspace_id = self.user.workspace_id()?;
     if let Some((is_workspace, parent_view_id, child_views)) = self.get_view_relation(view_id).await
     {
       // The display parent view is the view that is displayed in the UI
@@ -721,7 +684,11 @@ impl FolderManager {
               folder.move_view(view_id, actual_from_index as u32, actual_to_index as u32);
             },
           );
-          notify_parent_view_did_change(self.mutex_folder.clone(), vec![parent_view_id]);
+          notify_parent_view_did_change(
+            &workspace_id,
+            self.mutex_folder.clone(),
+            vec![parent_view_id],
+          );
         }
       }
     }
@@ -812,12 +779,12 @@ impl FolderManager {
 
   #[tracing::instrument(level = "trace", skip(self), err)]
   pub(crate) async fn set_current_view(&self, view_id: &str) -> Result<(), FlowyError> {
-    let workspace_id = self.with_folder(
+    self.with_folder(
       || Err(FlowyError::record_not_found()),
       |folder| {
         folder.set_current_view(view_id);
         folder.add_recent_view_ids(vec![view_id.to_string()]);
-        Ok(folder.get_workspace_id())
+        Ok(())
       },
     )?;
 
@@ -829,6 +796,7 @@ impl FolderManager {
       }
     }
 
+    let workspace_id = self.user.workspace_id()?;
     send_workspace_setting_notification(workspace_id, view);
     Ok(())
   }
@@ -985,6 +953,7 @@ impl FolderManager {
   }
 
   pub(crate) async fn import(&self, import_data: ImportParams) -> FlowyResult<View> {
+    let workspace_id = self.user.workspace_id()?;
     if import_data.data.is_none() && import_data.file_path.is_none() {
       return Err(FlowyError::new(
         ErrorCode::InvalidParams,
@@ -1033,7 +1002,11 @@ impl FolderManager {
         folder.insert_view(view.clone(), None);
       },
     );
-    notify_parent_view_did_change(self.mutex_folder.clone(), vec![view.parent_view_id.clone()]);
+    notify_parent_view_did_change(
+      &workspace_id,
+      self.mutex_folder.clone(),
+      vec![view.parent_view_id.clone()],
+    );
     Ok(view)
   }
 
@@ -1042,6 +1015,7 @@ impl FolderManager {
   where
     F: FnOnce(ViewUpdate) -> Option<View>,
   {
+    let workspace_id = self.user.workspace_id()?;
     let value = self.with_folder(
       || None,
       |folder| {
@@ -1063,11 +1037,9 @@ impl FolderManager {
         .payload(view_pb)
         .send();
 
-      if let Ok(workspace_id) = self.get_current_workspace_id().await {
-        let folder = &self.mutex_folder.lock();
-        if let Some(folder) = folder.as_ref() {
-          notify_did_update_workspace(&workspace_id, folder);
-        }
+      let folder = &self.mutex_folder.read();
+      if let Some(folder) = folder.as_ref() {
+        notify_did_update_workspace(&workspace_id, folder);
       }
     }
 
@@ -1093,12 +1065,13 @@ impl FolderManager {
   /// Otherwise, the parent_view_id is the parent view id of the view. The child_view_ids is the
   /// child view ids of the view.
   async fn get_view_relation(&self, view_id: &str) -> Option<(bool, String, Vec<String>)> {
+    let workspace_id = self.user.workspace_id().ok()?;
     self.with_folder(
       || None,
       |folder| {
         let view = folder.views.get_view(view_id)?;
         match folder.views.get_view(&view.parent_view_id) {
-          None => folder.get_current_workspace().map(|workspace| {
+          None => folder.get_workspace_info(&workspace_id).map(|workspace| {
             (
               true,
               workspace.id,
@@ -1145,18 +1118,6 @@ impl FolderManager {
       .collect::<Vec<_>>();
 
     Ok(snapshots)
-  }
-
-  /// Only expose this method for testing
-  #[cfg(debug_assertions)]
-  pub fn get_mutex_folder(&self) -> &Arc<MutexFolder> {
-    &self.mutex_folder
-  }
-
-  /// Only expose this method for testing
-  #[cfg(debug_assertions)]
-  pub fn get_cloud_service(&self) -> &Arc<dyn FolderCloudService> {
-    &self.cloud_service
   }
 
   pub fn set_views_visibility(&self, view_ids: Vec<String>, is_public: bool) {
@@ -1232,7 +1193,7 @@ impl FolderManager {
 }
 
 /// Return the views that belong to the workspace. The views are filtered by the trash and all the private views.
-pub(crate) fn get_workspace_public_view_pbs(_workspace_id: &str, folder: &Folder) -> Vec<ViewPB> {
+pub(crate) fn get_workspace_public_view_pbs(workspace_id: &str, folder: &Folder) -> Vec<ViewPB> {
   // get the trash ids
   let trash_ids = folder
     .get_all_trash_sections()
@@ -1247,8 +1208,7 @@ pub(crate) fn get_workspace_public_view_pbs(_workspace_id: &str, folder: &Folder
     .map(|view| view.id)
     .collect::<Vec<String>>();
 
-  let mut views = folder.get_workspace_views();
-
+  let mut views = folder.views.get_views_belong_to(workspace_id);
   // filter the views that are in the trash and all the private views
   views.retain(|view| !trash_ids.contains(&view.id) && !private_view_ids.contains(&view.id));
 
@@ -1282,7 +1242,7 @@ fn get_all_child_view_ids(folder: &Folder, view_id: &str) -> Vec<String> {
 }
 
 /// Get the current private views of the user.
-pub(crate) fn get_workspace_private_view_pbs(_workspace_id: &str, folder: &Folder) -> Vec<ViewPB> {
+pub(crate) fn get_workspace_private_view_pbs(workspace_id: &str, folder: &Folder) -> Vec<ViewPB> {
   // get the trash ids
   let trash_ids = folder
     .get_all_trash_sections()
@@ -1297,8 +1257,7 @@ pub(crate) fn get_workspace_private_view_pbs(_workspace_id: &str, folder: &Folde
     .map(|view| view.id)
     .collect::<Vec<String>>();
 
-  let mut views = folder.get_workspace_views();
-
+  let mut views = folder.views.get_views_belong_to(workspace_id);
   // filter the views that are in the trash and not in the private view ids
   views.retain(|view| !trash_ids.contains(&view.id) && private_view_ids.contains(&view.id));
 
@@ -1319,9 +1278,9 @@ pub(crate) fn get_workspace_private_view_pbs(_workspace_id: &str, folder: &Folde
 /// The MutexFolder is a wrapper of the [Folder] that is used to share the folder between different
 /// threads.
 #[derive(Clone, Default)]
-pub struct MutexFolder(Arc<Mutex<Option<Folder>>>);
+pub struct MutexFolder(Arc<RwLock<Option<Folder>>>);
 impl Deref for MutexFolder {
-  type Target = Arc<Mutex<Option<Folder>>>;
+  type Target = Arc<RwLock<Option<Folder>>>;
   fn deref(&self) -> &Self::Target {
     &self.0
   }
@@ -1335,8 +1294,6 @@ pub enum FolderInitDataSource {
   LocalDisk { create_if_not_exist: bool },
   /// If there is no data stored on local disk, we will use the data from the server to initialize the folder
   Cloud(Vec<u8>),
-  /// If the user is new, we use the [DefaultFolderBuilder] to create the default folder.
-  FolderData(FolderData),
 }
 
 impl Display for FolderInitDataSource {
@@ -1344,7 +1301,6 @@ impl Display for FolderInitDataSource {
     match self {
       FolderInitDataSource::LocalDisk { .. } => f.write_fmt(format_args!("LocalDisk")),
       FolderInitDataSource::Cloud(_) => f.write_fmt(format_args!("Cloud")),
-      FolderInitDataSource::FolderData(_) => f.write_fmt(format_args!("Custom FolderData")),
     }
   }
 }

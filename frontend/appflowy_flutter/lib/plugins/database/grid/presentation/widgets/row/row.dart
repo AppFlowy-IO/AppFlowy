@@ -39,7 +39,7 @@ class GridRow extends StatefulWidget {
   final RowId rowId;
   final RowController rowController;
   final EditableCellBuilder cellBuilder;
-  final void Function(BuildContext, EditableCellBuilder) openDetailPage;
+  final void Function(BuildContext context) openDetailPage;
   final int? index;
   final bool isDraggable;
 
@@ -68,10 +68,7 @@ class _GridRowState extends State<GridRow> {
               child: RowContent(
                 fieldController: widget.fieldController,
                 cellBuilder: widget.cellBuilder,
-                onExpand: () => widget.openDetailPage(
-                  context,
-                  widget.cellBuilder,
-                ),
+                onExpand: () => widget.openDetailPage(context),
               ),
             ),
           ],

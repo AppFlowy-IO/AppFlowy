@@ -65,8 +65,10 @@ impl DatabaseViews {
         err
       ))
     })?;
+    let database_id = self.database.lock().get_database_id();
     let editor = Arc::new(
       DatabaseViewEditor::new(
+        database_id,
         view_id.to_owned(),
         self.view_operation.clone(),
         self.cell_cache.clone(),

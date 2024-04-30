@@ -27,7 +27,7 @@ String languageFromLocale(Locale locale) {
     case "ckb":
       switch (locale.countryCode) {
         case "KU":
-          return "کوردی";
+          return "کوردی سۆرانی";
         default:
           return locale.languageCode;
       }

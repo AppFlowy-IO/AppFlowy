@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { UserProfile, UserSetting } from '@/application/services/user.type';
+import { UserProfile, UserSetting } from '@/application/user.type';
 
 export enum LoginState {
   IDLE = 'idle',
@@ -46,6 +46,7 @@ export const currentUserSlice = createSlice({
     resetLoginState: (state) => {
       state.loginState = LoginState.IDLE;
     },
+
   },
 });
 

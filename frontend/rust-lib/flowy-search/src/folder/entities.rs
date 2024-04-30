@@ -8,6 +8,7 @@ pub struct FolderIndexData {
   pub title: String,
   pub icon: String,
   pub icon_ty: i64,
+  pub workspace_id: String,
 }
 
 impl From<FolderIndexData> for SearchResultPB {
@@ -28,6 +29,7 @@ impl From<FolderIndexData> for SearchResultPB {
       data: data.title,
       score: 0.0,
       icon,
+      workspace_id: data.workspace_id,
     }
   }
 }

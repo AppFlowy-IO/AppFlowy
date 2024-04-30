@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-notification/protobuf.dart';
-import 'package:appflowy_backend/protobuf/flowy-search/entities.pbenum.dart';
+import 'package:appflowy_backend/protobuf/flowy-search/notification.pbenum.dart';
 import 'package:appflowy_backend/rust_stream.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 
@@ -23,9 +23,11 @@ class SearchNotificationParser
   SearchNotificationParser({
     super.id,
     required super.callback,
+    String? channel,
   }) : super(
-          tyParser: (ty, source) =>
-              source == _source ? SearchNotification.valueOf(ty) : null,
+          tyParser: (ty, source) => source == "$_source$channel"
+              ? SearchNotification.valueOf(ty)
+              : null,
           errorParser: (bytes) => FlowyError.fromBuffer(bytes),
         );
 }
@@ -39,7 +41,12 @@ class SearchNotificationListener {
   SearchNotificationListener({
     required String objectId,
     required SearchNotificationHandler handler,
-  }) : _parser = SearchNotificationParser(id: objectId, callback: handler) {
+    String? channel,
+  }) : _parser = SearchNotificationParser(
+          id: objectId,
+          callback: handler,
+          channel: channel,
+        ) {
     _subscription =
         RustStreamReceiver.listen((observable) => _parser?.parse(observable));
   }

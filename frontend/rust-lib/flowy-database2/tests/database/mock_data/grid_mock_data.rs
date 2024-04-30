@@ -14,6 +14,7 @@ use crate::database::database_editor::TestRowBuilder;
 use crate::database::mock_data::{COMPLETED, FACEBOOK, GOOGLE, PAUSED, PLANNED, TWITTER};
 
 pub fn make_test_grid() -> DatabaseData {
+  let database_id = gen_database_id();
   let mut fields = vec![];
   let mut rows = vec![];
 
@@ -130,7 +131,7 @@ pub fn make_test_grid() -> DatabaseData {
   let field_settings = default_field_settings_for_fields(&fields, DatabaseLayout::Grid);
 
   for i in 0..7 {
-    let mut row_builder = TestRowBuilder::new(gen_row_id(), &fields);
+    let mut row_builder = TestRowBuilder::new(&database_id, gen_row_id(), &fields);
     match i {
       0 => {
         for field_type in FieldType::iter() {
@@ -265,19 +266,28 @@ pub fn make_test_grid() -> DatabaseData {
     rows.push(row);
   }
 
+  let inline_view_id = gen_database_view_id();
+
   let view = DatabaseView {
-    id: gen_database_id(),
-    database_id: gen_database_view_id(),
+    database_id: database_id.clone(),
+    id: inline_view_id.clone(),
     name: "".to_string(),
     layout: DatabaseLayout::Grid,
     field_settings,
     ..Default::default()
   };
 
-  DatabaseData { view, fields, rows }
+  DatabaseData {
+    database_id,
+    inline_view_id,
+    views: vec![view],
+    fields,
+    rows,
+  }
 }
 
 pub fn make_no_date_test_grid() -> DatabaseData {
+  let database_id = gen_database_id();
   let mut fields = vec![];
   let mut rows = vec![];
 
@@ -308,7 +318,7 @@ pub fn make_no_date_test_grid() -> DatabaseData {
   let field_settings = default_field_settings_for_fields(&fields, DatabaseLayout::Grid);
 
   for i in 0..3 {
-    let mut row_builder = TestRowBuilder::new(gen_row_id(), &fields);
+    let mut row_builder = TestRowBuilder::new(&database_id, gen_row_id(), &fields);
     match i {
       0 => {
         for field_type in FieldType::iter() {
@@ -344,14 +354,22 @@ pub fn make_no_date_test_grid() -> DatabaseData {
     rows.push(row);
   }
 
+  let inline_view_id = gen_database_view_id();
+
   let view = DatabaseView {
-    id: gen_database_view_id(),
-    database_id: gen_database_id(),
+    database_id: database_id.clone(),
+    id: inline_view_id.clone(),
     name: "".to_string(),
     layout: DatabaseLayout::Grid,
     field_settings,
     ..Default::default()
   };
 
-  DatabaseData { view, fields, rows }
+  DatabaseData {
+    database_id,
+    inline_view_id,
+    views: vec![view],
+    fields,
+    rows,
+  }
 }

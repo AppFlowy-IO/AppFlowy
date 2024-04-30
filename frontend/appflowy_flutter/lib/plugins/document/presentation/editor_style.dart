@@ -271,7 +271,16 @@ class EditorStyleCustomizer {
     // try to refresh font here.
     if (attributes.fontFamily != null) {
       try {
-        GoogleFonts.getFont(attributes.fontFamily!.parseFontFamilyName());
+        if (before.text?.contains('_regular') == true) {
+          GoogleFonts.getFont(attributes.fontFamily!.parseFontFamilyName());
+        } else {
+          return TextSpan(
+            text: before.text,
+            style: after.style?.merge(
+              GoogleFonts.getFont(attributes.fontFamily!),
+            ),
+          );
+        }
       } catch (e) {
         // ignore
       }

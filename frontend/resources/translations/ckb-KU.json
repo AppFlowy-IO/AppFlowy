@@ -9,6 +9,7 @@
   "title": "سه‌ردێڕ",
   "youCanAlso": "هەروەها ئەتوانی",
   "and": "وە",
+  "failedToOpenUrl": "شکستی هێنا لە کردنەوەی url: {}",
   "blockActions": {
     "addBelowTooltip": "بۆ زیادکردن لە خوارەوە کلیک بکە",
     "addAboveCmd": "Alt+click",
@@ -24,7 +25,7 @@
     "emptyPasswordError": "ناتوانرێت تێپه‌ڕه‌وشه بەتاڵ بێت",
     "repeatPasswordEmptyError": "تێپه‌ڕه‌وشەی دووبارەکراو ناتوانرێت بەتاڵ بێت",
     "unmatchedPasswordError": "دووبارەکراوەی تێپه‌ڕه‌وشه هەمان تێپه‌ڕه‌وشه نییە",
-    "alreadyHaveAnAccount": "لە پێشتر ئەکاونتت هەیە؟",
+    "alreadyHaveAnAccount": "لە پێشتر هه‌ژمارت هەیە؟",
     "emailHint": "ئیمەیڵ",
     "passwordHint": "تێپه‌ڕه‌وشه",
     "repeatPasswordHint": "دووبارە کردنی تێپه‌ڕه‌وشه",
@@ -40,16 +41,21 @@
     "forgotPassword": "تێپه‌ڕه‌وشەت لەبیر كردووە ؟",
     "emailHint": "ئیمەیڵ",
     "passwordHint": "تێپه‌ڕه‌وشه",
-    "dontHaveAnAccount": "ئەکاونتت نییە؟",
+    "dontHaveAnAccount": "هه‌ژمارت نییە؟",
     "repeatPasswordEmptyError": "ناتوانرێت تێپه‌ڕه‌وشه بەتاڵ بێت",
     "unmatchedPasswordError": "دووبارەکراوەی تێپه‌ڕه‌وشه هەمان تێپه‌ڕه‌وشه نییە",
     "syncPromptMessage": "ڕەنگە هاوکاتکردنی داتاکان ماوەیەکی پێبچێت. تکایە ئەم پەیجە دامەخە",
     "or": "یان",
+    "signInWith": "ناونووسین وە:",
+    "signInWithEmail": "لە ڕێگەی ئیمەیڵەوە بچۆرە ژوورەوە",
+    "pleaseInputYourEmail": "تکایە ئیمەیڵەکەت بنووسە",
+    "magicLinkSent": "مەجیک لینک بۆ ئیمەیڵەکەت نێردراوە، تکایە ئیمەیڵەکەت بپشکنە",
+    "invalidEmail": "تکایە ئیمەیڵێکی دروست دابنێ",
     "LogInWithGoogle": "چوونە ژوورەوە لە ڕێگەی گووگڵەوە",
     "LogInWithGithub": "چوونە ژوورەوە لە ڕێگەی گیتهاب",
     "LogInWithDiscord": "چوونە ژوورەوە لە ڕێگەی دیسکۆرد",
-    "signInWith": "ناونووسین وە:",
-    "loginAsGuestButtonText": "دەست پێ بکە"
+    "loginAsGuestButtonText": "دەست پێ بکە",
+    "logInWithMagicLink": "بە مەجیک لینک بچۆرە ژوورەوە"
   },
   "workspace": {
     "chooseWorkspace": "هەڵبژاردنی شوێنی کارەکەت",
@@ -64,12 +70,31 @@
       "reportIssueOnGithub": "ڕاپۆرت کردنی کێشەیەک لەسەر گیتهابەوە ",
       "exportLogFiles": "هەناردەکردنی فایلەکانی گوزارش",
       "reachOut": "پەیوەندی لەگەڵ دیسکۆرد"
-    }
+    },
+    "menuTitle": "شوێنی کارکردن",
+    "deleteWorkspaceHintText": "ئایا دڵنیای کە دەتەوێت شوێنی کارەکە بسڕیتەوە؟ ئەم کارە ناتوانرێت پووچەڵ بکرێتەوە.",
+    "createSuccess": "شوێنی کارکردن بە سەرکەوتوویی دروستکرا",
+    "createFailed": "شکستی هێنا لە دروستکردنی شوێنی کارکردن",
+    "createLimitExceeded": "تۆ گەیشتووی بە زۆرترین سنووری شوێنی کارکردن کە ڕێگەپێدراوە بۆ ئەکاونتەکەت. ئەگەر پێویستت بە شوێنی کاری زیاترە بۆ بەردەوامبوون لە کارەکانت، تکایە لە Github داوای بکە",
+    "deleteSuccess": "شوێنی کارکردن بە سەرکەوتوویی سڕاوەتەوە",
+    "deleteFailed": "شکستی هێنا لە سڕینەوەی شوێنی کارکردن",
+    "openSuccess": "بە سەرکەوتوویی شوێنی کارکردن بکەرەوە",
+    "openFailed": "شکستی هێنا لە کردنەوەی شوێنی کارکردن",
+    "renameSuccess": "ناوی شوێنی کار بە سەرکەوتوویی گۆڕدرا",
+    "renameFailed": "شکستی هێنا لە گۆڕینی ناوی شوێنی کار",
+    "updateIconSuccess": "ئایکۆنی شوێنی کار بە سەرکەوتوویی نوێکرایەوە",
+    "updateIconFailed": "لە نوێکردنی ئایکۆنی شوێنی کار شکستی هێنا",
+    "cannotDeleteTheOnlyWorkspace": "ناتوانرێت تاکە شوێنی کارکردن بسڕدرێتەوە",
+    "fetchWorkspacesFailed": "شکستی هێنا لە هێنانی شوێنەکانی کار",
+    "leaveCurrentWorkspace": "شوێنی کارکردن بەجێبهێڵە",
+    "leaveCurrentWorkspacePrompt": "ئایا دڵنیای کە دەتەوێت شوێنی کارکردنی ئێستا بەجێبهێڵیت؟"
   },
   "shareAction": {
     "buttonText": "هاوبەشکردن",
     "workInProgress": "بەم زووانە",
     "markdown": "Markdown",
+    "html": "HTML",
+    "clipboard": "کۆپی بکە بۆ کلیپبۆرد",
     "csv": "CSV",
     "copyLink": "کۆپی کردنی لینک"
   },
@@ -79,7 +104,12 @@
     "large": "گەورە",
     "fontSize": "قەبارەی قەڵەم",
     "import": "زیادکردن",
-    "moreOptions": "بژاردەی زیاتر"
+    "moreOptions": "بژاردەی زیاتر",
+    "wordCount": "ژمارەی ووشە: {}",
+    "charCount": "ژمارەی پیتەکان: {}",
+    "createdAt": "دروستکراوە: {}",
+    "deleteView": "سڕینەوە",
+    "duplicateView": "دووبارە کردنەوە"
   },
   "importPanel": {
     "textAndMarkdown": "Text & Markdown",
@@ -128,7 +158,8 @@
       "emptyDescription": "هیچ فایلێکی سڕاوەت نییە",
       "isDeleted": "دەسڕدرێتەوە",
       "isRestored": "دەگەڕێتەوە"
-    }
+    },
+    "confirmDeleteTitle": "دڵنیای کە دەتەوێت ئەم لاپەڕەیە بۆ هەمیشە بسڕیتەوە؟"
   },
   "deletePagePrompt": {
     "text": "ئەم لاپەڕەیە لە زبڵداندایە",
@@ -171,7 +202,7 @@
     "highlight": "بەرجەستەکردن",
     "color": "ڕەنگ",
     "addLink": "زیادکردنی لینک",
-    "link": "لینک"
+    "link": "بەستەر"
   },
   "tooltip": {
     "lightMode": "دۆخی ڕووناک",
@@ -190,10 +221,16 @@
     "closeSidebar": "داخستنی سایدبار",
     "openSidebar": "کردنەوەی سایدبار",
     "personal": "کەسی",
+    "private": "تایبه‌تی",
+    "workspace": "شوێنی کارکردن",
     "favorites": "دڵخوازەکان",
+    "clickToHidePrivate": "بۆ شاردنەوەی شوێنی تایبەت کلیک بکە\nئەو لاپەڕانەی لێرە دروستت کردووە تەنها بۆ تۆ دیارە",
+    "clickToHideWorkspace": "بۆ شاردنەوەی شوێنی کارکردن کلیک بکە\nئەو پەیجانەی لێرە دروستت کردووە بۆ هەموو ئەندامێک دیارە",
     "clickToHidePersonal": "بۆ شاردنەوەی بەشی کەسی کلیک بکە",
     "clickToHideFavorites": "بۆ شاردنەوەی بەشی دڵخوازەکان کلیک بکە",
     "addAPage": "زیاد کردنی لاپەڕەیەک",
+    "addAPageToPrivate": "لاپەڕەیەک زیاد بکە بۆ شوێنی تایبەت",
+    "addAPageToWorkspace": "لاپەڕەیەک زیاد بکە بۆ شوێنی کارکردن",
     "recent": "نوێ"
   },
   "notifications": {
@@ -203,7 +240,7 @@
     }
   },
   "contactsPage": {
-    "title": "پەیوەندییەکان",
+    "title": "بەردەنگەکان",
     "whatsHappening": "چی ڕوودەدات",
     "addContact": "زیادکردنی پەیوەندی",
     "editContact": "دەستکاریکردنی پەیوەندی"
@@ -237,6 +274,18 @@
     "helpCenter": "ناوەندی یارمەتی",
     "add": "زیادکردن",
     "yes": "بەڵێ",
+    "clear": "سڕدن",
+    "remove": "لابردن",
+    "dontRemove": "لامەبە",
+    "copyLink": "کۆپی بەستەر",
+    "align": "لاڕێككردن",
+    "login": "چوونه‌ژووره‌وه‌",
+    "logout": "دەرچوون",
+    "deleteAccount": "سڕینەوەی هەژمار",
+    "back": "پاش",
+    "signInGoogle": "لە ڕێگەی گووگڵەوە بچۆرە ژوورەوە",
+    "signInGithub": "لە ڕێگەی گیتهاب بچۆرە ژوورەوە",
+    "signInDiscord": "لە ڕێگەی دیسکۆرد بچۆرە ژوورەوە",
     "Done": "تەواوه",
     "Cancel": "ڕەتکردن",
     "OK": "ئۆکەی"
@@ -245,8 +294,8 @@
     "welcome": "بەخێربێن!",
     "firstName": "ناو",
     "middleName": "ناوی ناوەڕاست",
-    "lastName": "دوایین ناو",
-    "stepX": "Step {X}"
+    "lastName": "ناوی خێزانی",
+    "stepX": "هەنگاو {X}"
   },
   "oAuth": {
     "err": {

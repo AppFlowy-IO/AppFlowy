@@ -98,7 +98,9 @@ class _MobileViewPageState extends State<MobileViewPage> {
                   view: view,
                 ),
                 const HSpace(16.0),
-                DocumentSyncIndicator(view: view),
+                view.layout == ViewLayoutPB.Document
+                    ? DocumentSyncIndicator(view: view)
+                    : DatabaseSyncIndicator(view: view),
                 const HSpace(8.0),
               ],
               _buildAppBarLayoutButton(view),

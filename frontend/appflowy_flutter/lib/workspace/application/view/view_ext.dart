@@ -13,11 +13,6 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 
-enum FlowyPlugin {
-  editor,
-  kanban,
-}
-
 class PluginArgumentKeys {
   static String selection = "selection";
   static String rowId = "row_id";
@@ -53,7 +48,7 @@ extension ViewExtension on ViewPB {
   PluginType get pluginType => switch (layout) {
         ViewLayoutPB.Board => PluginType.board,
         ViewLayoutPB.Calendar => PluginType.calendar,
-        ViewLayoutPB.Document => PluginType.editor,
+        ViewLayoutPB.Document => PluginType.document,
         ViewLayoutPB.Grid => PluginType.grid,
         _ => throw UnimplementedError(),
       };

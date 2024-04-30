@@ -7,7 +7,7 @@ edition = "2018"
 
 [dependencies]
 flowy-derive.workspace = true
-flowy-sqlite = { workspace = true, optional = true }
+flowy-sqlite = { workspace = true }
 flowy-encrypt = { workspace = true }
 flowy-error = { workspace = true, features = ["impl_from_dispatch_error", "impl_from_sqlite", "impl_from_collab_folder", "impl_from_collab_persistence"] }
 flowy-folder-pub = { workspace = true }
@@ -57,8 +57,6 @@ rand_core = "0.6.2"
 quickcheck_macros = "1.0"
 
 [features]
-default = ["rev-sqlite"]
-rev-sqlite = ["flowy-sqlite"]
 dart = ["flowy-codegen/dart", "flowy-notification/dart"]
 tauri_ts = ["flowy-codegen/ts", "flowy-notification/tauri_ts"]
 

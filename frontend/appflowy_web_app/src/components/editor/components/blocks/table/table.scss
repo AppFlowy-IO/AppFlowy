@@ -1,0 +1,10 @@
+.table-block {
+  [id^=table-] {
+    width: fit-content;
+    @apply border-t border-l border-line-border;
+  }
+
+  .table-cell {
+    @apply border-b border-r border-line-border;
+  }
+}

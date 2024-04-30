@@ -11,17 +11,18 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 export "./src/sandbox.dart";
 
 enum PluginType {
-  editor,
+  document,
   blank,
   trash,
   grid,
   board,
   calendar,
+  databaseDocument,
 }
 
 typedef PluginId = String;
 
-abstract class Plugin<T> {
+abstract class Plugin {
   PluginId get id;
 
   PluginWidgetBuilder get widgetBuilder;
@@ -55,7 +56,7 @@ abstract class PluginBuilder {
   PluginType get pluginType;
 
   /// The layoutType is used in the backend to determine the layout of the view.
-  /// Currrently, AppFlowy supports 4 layout types: Document, Grid, Board, Calendar.
+  /// Currently, AppFlowy supports 4 layout types: Document, Grid, Board, Calendar.
   ViewLayoutPB? get layoutType => ViewLayoutPB.Document;
 }
 

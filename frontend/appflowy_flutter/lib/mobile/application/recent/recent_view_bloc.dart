@@ -57,7 +57,7 @@ class RecentViewBloc extends Bloc<RecentViewEvent, RecentViewState> {
                 }
               },
             );
-            final cover = await getCoverV2();
+            final cover = getCoverV2();
             if (cover != null) {
               emit(
                 state.copyWith(
@@ -106,14 +106,13 @@ class RecentViewBloc extends Bloc<RecentViewEvent, RecentViewState> {
   final DocumentListener _documentListener;
   final ViewListener _viewListener;
 
-  Future<PageStyleCover?> getCoverV2() async {
-    final cover = view.cover;
-    return cover;
+  PageStyleCover? getCoverV2() {
+    return view.cover;
   }
 
   // for the version under 0.5.5
   Future<(CoverType, String?)> getCoverV1() async {
-    final result = await _service.getDocument(viewId: view.id);
+    final result = await _service.getDocument(documentId: view.id);
     final document = result.fold((s) => s.toDocument(), (f) => null);
     if (document != null) {
       final coverType = CoverType.fromString(

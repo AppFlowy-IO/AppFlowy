@@ -23,12 +23,12 @@ void handleOpenWorkspaceError(BuildContext context, FlowyError error) {
     case ErrorCode.HttpError:
       showSnapBar(
         context,
-        error.toString(),
+        error.msg,
       );
     default:
       showSnapBar(
         context,
-        error.toString(),
+        error.msg,
         onClosed: () {
           getIt<AuthService>().signOut();
           runAppFlowy();

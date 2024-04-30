@@ -6,6 +6,7 @@ use serde::de::{MapAccess, Visitor};
 use serde::{Deserialize, Deserializer, Serialize};
 use serde_json::Value;
 use std::fmt;
+use std::fmt::Display;
 use uuid::Uuid;
 
 #[derive(Debug, Clone, Serialize)]
@@ -13,6 +14,16 @@ pub struct Session {
   pub user_id: i64,
   pub user_uuid: Uuid,
   pub user_workspace: UserWorkspace,
+}
+
+impl Display for Session {
+  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    write!(
+      f,
+      "user_id: {}, user_workspace: {}:{}",
+      self.user_id, self.user_workspace.name, self.user_workspace.id,
+    )
+  }
 }
 
 struct SessionVisitor;
@@ -62,7 +73,7 @@ impl<'de> Visitor<'de> for SessionVisitor {
           name: "My Workspace".to_string(),
           created_at: Utc::now(),
           // For historical reasons, the database_storage_id is constructed by the user_id.
-          workspace_database_object_id: STANDARD.encode(format!("{}:user:database", user_id)),
+          database_indexer_id: STANDARD.encode(format!("{}:user:database", user_id)),
           icon: "".to_owned(),
         })
       }

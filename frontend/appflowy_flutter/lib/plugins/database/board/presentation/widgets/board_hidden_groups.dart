@@ -11,6 +11,7 @@ import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database/widgets/cell/card_cell_builder.dart';
 import 'package:appflowy/plugins/database/widgets/cell/card_cell_skeleton/text_card_cell.dart';
 import 'package:appflowy/plugins/database/widgets/row/row_detail.dart';
+import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:collection/collection.dart';
@@ -399,9 +400,12 @@ class HiddenGroupPopupItemList extends StatelessWidget {
                   FlowyOverlay.show(
                     context: context,
                     builder: (_) {
-                      return RowDetailPage(
-                        databaseController: databaseController,
-                        rowController: rowController,
+                      return BlocProvider.value(
+                        value: context.read<ViewBloc>(),
+                        child: RowDetailPage(
+                          databaseController: databaseController,
+                          rowController: rowController,
+                        ),
                       );
                     },
                   );

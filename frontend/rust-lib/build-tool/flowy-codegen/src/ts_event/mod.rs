@@ -77,7 +77,7 @@ pub fn gen(dest_folder_name: &str, project: Project) {
     .write(true)
     .append(false)
     .truncate(true)
-    .open(&ts_index)
+    .open(ts_index)
   {
     Ok(ref mut file) => {
       let mut export = String::new();

@@ -1,16 +1,13 @@
 name: Tauri-CI
 on:
-  pull_request:
-    paths:
-      - ".github/workflows/tauri_ci.yaml"
-      - "frontend/rust-lib/**"
-      - "frontend/appflowy_tauri/**"
-      - "frontend/resources/**"
+  push:
+    branches:
+      - build/tauri
 
 env:
   NODE_VERSION: "18.16.0"
   PNPM_VERSION: "8.5.0"
-  RUST_TOOLCHAIN: "1.75"
+  RUST_TOOLCHAIN: "1.77.2"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -22,7 +19,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [ubuntu-20.04]
+        platform: [ ubuntu-20.04 ]
 
     runs-on: ${{ matrix.platform }}
 

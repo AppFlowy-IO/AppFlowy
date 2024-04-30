@@ -1,6 +1,9 @@
+import 'dart:math';
+
 import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
 import 'package:appflowy/startup/tasks/app_window_size_manager.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
+import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
@@ -13,7 +16,7 @@ import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-// workspaces / ... / view_title
+// workspace name / ... / view_title
 class ViewTitleBar extends StatefulWidget {
   const ViewTitleBar({
     super.key,
@@ -58,7 +61,7 @@ class _ViewTitleBarState extends State<ViewTitleBar> {
         final replacement = Row(
           // refresh the view title bar when the ancestors changed
           key: ValueKey(ancestors.hashCode),
-          children: _buildViewTitles(ancestors),
+          children: _buildViewTitles(context, ancestors),
         );
         return LayoutBuilder(
           builder: (context, constraints) {
@@ -69,7 +72,7 @@ class _ViewTitleBarState extends State<ViewTitleBar> {
               child: _ViewTitle(
                 key: ValueKey(ancestors.last),
                 view: ancestors.last,
-                maxTitleWidth: constraints.maxWidth - 50.0,
+                maxTitleWidth: constraints.maxWidth,
                 onUpdated: () => setState(() => _reloadAncestors()),
               ),
             );
@@ -79,13 +82,14 @@ class _ViewTitleBarState extends State<ViewTitleBar> {
     );
   }
 
-  List<Widget> _buildViewTitles(List<ViewPB> views) {
+  List<Widget> _buildViewTitles(BuildContext context, List<ViewPB> views) {
     // if the level is too deep, only show the last two view, the first one view and the root view
     bool hasAddedEllipsis = false;
     final children = <Widget>[];
 
     for (var i = 0; i < views.length; i++) {
       final view = views[i];
+
       if (i >= 1 && i < views.length - 2) {
         if (!hasAddedEllipsis) {
           hasAddedEllipsis = true;
@@ -95,8 +99,30 @@ class _ViewTitleBarState extends State<ViewTitleBar> {
         }
         continue;
       }
-      children.add(
-        FlowyTooltip(
+
+      Widget child;
+      if (i == 0) {
+        final currentWorkspace =
+            context.read<UserWorkspaceBloc>().state.currentWorkspace;
+        final icon = currentWorkspace?.icon ?? '';
+        final name = currentWorkspace?.name ?? view.name;
+        // the first one is the workspace name
+        child = FlowyTooltip(
+          message: name,
+          child: Row(
+            children: [
+              EmojiText(
+                emoji: icon,
+                fontSize: 18.0,
+              ),
+              const HSpace(2.0),
+              FlowyText.regular(name),
+              const HSpace(4.0),
+            ],
+          ),
+        );
+      } else {
+        child = FlowyTooltip(
           message: view.name,
           child: _ViewTitle(
             view: view,
@@ -105,8 +131,11 @@ class _ViewTitleBarState extends State<ViewTitleBar> {
                 : _ViewTitleBehavior.uneditable, // others are not editable
             onUpdated: () => setState(() => _reloadAncestors()),
           ),
-        ),
-      );
+        );
+      }
+
+      children.add(child);
+
       if (i != views.length - 1) {
         // if not the last one, add a divider
         children.add(const FlowyText.regular('/'));
@@ -196,23 +225,25 @@ class _ViewTitleState extends State<_ViewTitle> {
       );
     }
 
-    final child = Row(
-      children: [
-        EmojiText(
-          emoji: icon,
-          fontSize: 18.0,
-        ),
-        const HSpace(2.0),
-        ConstrainedBox(
-          constraints: BoxConstraints(
-            maxWidth: widget.maxTitleWidth,
+    final child = SingleChildScrollView(
+      child: Row(
+        children: [
+          EmojiText(
+            emoji: icon,
+            fontSize: 18.0,
           ),
-          child: FlowyText.regular(
-            name,
-            overflow: TextOverflow.ellipsis,
+          const HSpace(2.0),
+          ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: max(0, widget.maxTitleWidth),
+            ),
+            child: FlowyText.regular(
+              name,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
 
     if (widget.behavior == _ViewTitleBehavior.uneditable) {

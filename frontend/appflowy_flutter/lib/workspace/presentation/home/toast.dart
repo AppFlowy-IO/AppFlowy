@@ -41,8 +41,7 @@ void showMessageToast(
   ToastGravity gravity = ToastGravity.BOTTOM,
 }) {
   final child = FlowyMessageToast(message: message);
-  final toast = context == null ? getIt<FToast>() : FToast()
-    ..init(context!);
+  final toast = context == null ? getIt<FToast>() : (FToast()..init(context));
   toast.showToast(
     child: child,
     gravity: gravity,
@@ -59,6 +58,7 @@ void showSnackBarMessage(
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
       backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+      duration: duration,
       action: !showCancel
           ? null
           : SnackBarAction(

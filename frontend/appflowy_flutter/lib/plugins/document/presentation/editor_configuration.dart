@@ -1,6 +1,8 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
+import 'package:appflowy/plugins/document/presentation/editor_page.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/mobile_block_action_buttons.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/code_block/code_block_copy_button.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
@@ -144,6 +146,16 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
       ),
     ),
     TableCellBlockKeys.type: TableCellBlockComponentBuilder(
+      colorBuilder: (context, node) {
+        final String colorString =
+            node.attributes[TableCellBlockKeys.colBackgroundColor] ??
+                node.attributes[TableCellBlockKeys.rowBackgroundColor] ??
+                '';
+        if (colorString.isEmpty) {
+          return null;
+        }
+        return buildEditorCustomizedColor(context, node, colorString);
+      },
       menuBuilder: (node, editorState, position, dir, onBuild, onClose) =>
           TableMenu(
         node: node,
@@ -189,11 +201,18 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
       configuration: configuration,
     ),
     CodeBlockKeys.type: CodeBlockComponentBuilder(
+      editorState: editorState,
       configuration: configuration.copyWith(
         textStyle: (_) => styleCustomizer.codeBlockStyleBuilder(),
         placeholderTextStyle: (_) => styleCustomizer.codeBlockStyleBuilder(),
       ),
+      styleBuilder: () => CodeBlockStyle(
+        backgroundColor: AFThemeExtension.of(context).calloutBGColor,
+        foregroundColor: AFThemeExtension.of(context).textColor.withAlpha(155),
+      ),
       padding: const EdgeInsets.only(left: 20, right: 30, bottom: 34),
+      languagePickerBuilder: codeBlockLanguagePickerBuilder,
+      copyButtonBuilder: codeBlockCopyBuilder,
     ),
     AutoCompletionBlockKeys.type: AutoCompletionBlockComponentBuilder(),
     SmartEditBlockKeys.type: SmartEditBlockComponentBuilder(),
