@@ -24,32 +24,39 @@ class CachedRecentService {
   Completer<void> _completer = Completer();
 
   ValueNotifier<List<ViewPB>> notifier = ValueNotifier(const []);
-  List<ViewPB> _recentViews = const [];
+  List<ViewPB> _recentViewsValue = const [];
+
+  set _recentViews(List<ViewPB> value) {
+    _recentViewsValue = value;
+    notifier.value = value;
+  }
+
   final _listener = RecentViewsListener();
 
   Future<List<ViewPB>> recentViews() async {
-    if (_isInitialized) return _recentViews;
+    if (_isInitialized) return _recentViewsValue;
 
     _isInitialized = true;
 
     _listener.start(recentViewsUpdated: _recentViewsUpdated);
     final result = await _readRecentViews();
     _recentViews = result.toNullable()?.items ?? const [];
-    notifier.value = _recentViews;
     _completer.complete();
 
-    return _recentViews;
+    return _recentViewsValue;
   }
 
   /// Updates the recent views history
   Future<FlowyResult<void, FlowyError>> updateRecentViews(
     List<String> viewIds,
     bool addInRecent,
-  ) async {
-    return FolderEventUpdateRecentViews(
-      UpdateRecentViewPayloadPB(viewIds: viewIds, addInRecent: addInRecent),
-    ).send();
-  }
+  ) async =>
+      FolderEventUpdateRecentViews(
+        UpdateRecentViewPayloadPB(
+          viewIds: viewIds,
+          addInRecent: addInRecent,
+        ),
+      ).send();
 
   Future<FlowyResult<RepeatedViewPB, FlowyError>> _readRecentViews() =>
       FolderEventReadRecentViews().send();
@@ -63,9 +70,7 @@ class CachedRecentService {
     _recentViews = const [];
   }
 
-  Future<void> dispose() async {
-    await _listener.stop();
-  }
+  Future<void> dispose() async => _listener.stop();
 
   void _recentViewsUpdated(
     FlowyResult<RepeatedViewIdPB, FlowyError> result,
