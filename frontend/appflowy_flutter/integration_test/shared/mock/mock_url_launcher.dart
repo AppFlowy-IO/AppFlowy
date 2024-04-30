@@ -27,9 +27,7 @@ class MockUrlLauncher extends Fake
   bool launchCalled = false;
 
   // ignore: use_setters_to_change_properties
-  void setCanLaunchExpectations(String url) {
-    this.url = url;
-  }
+  void setCanLaunchExpectations(String url) => this.url = url;
 
   void setLaunchExpectations({
     required String url,
@@ -53,10 +51,7 @@ class MockUrlLauncher extends Fake
     this.webOnlyWindowName = webOnlyWindowName;
   }
 
-  // ignore: use_setters_to_change_properties
-  void setResponse(bool response) {
-    this.response = response;
-  }
+  void setResponse(bool response) => this.response = response;
 
   @override
   LinkDelegate? get linkDelegate => null;
@@ -104,7 +99,5 @@ class MockUrlLauncher extends Fake
   }
 
   @override
-  Future<void> closeWebView() async {
-    closeWebViewCalled = true;
-  }
+  Future<void> closeWebView() async => closeWebViewCalled = true;
 }

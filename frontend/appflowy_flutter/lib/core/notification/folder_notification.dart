@@ -12,12 +12,6 @@ import 'notification_helper.dart';
 // This value should be the same as the FOLDER_OBSERVABLE_SOURCE value
 const String _source = 'Workspace';
 
-// Folder
-typedef FolderNotificationCallback = void Function(
-  FolderNotification,
-  FlowyResult<Uint8List, FlowyError>,
-);
-
 class FolderNotificationParser
     extends NotificationParser<FolderNotification, FlowyError> {
   FolderNotificationParser({

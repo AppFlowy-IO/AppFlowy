@@ -11,9 +11,7 @@ class MockFilePicker implements FilePickerService {
   final List<String> mockPaths;
 
   @override
-  Future<String?> getDirectoryPath({String? title}) {
-    return Future.value(mockPath);
-  }
+  Future<String?> getDirectoryPath({String? title}) => Future.value(mockPath);
 
   @override
   Future<String?> saveFile({
@@ -23,9 +21,8 @@ class MockFilePicker implements FilePickerService {
     FileType type = FileType.any,
     List<String>? allowedExtensions,
     bool lockParentWindow = false,
-  }) {
-    return Future.value(mockPath);
-  }
+  }) =>
+      Future.value(mockPath);
 
   @override
   Future<FilePickerResult?> pickFiles({
@@ -42,34 +39,21 @@ class MockFilePicker implements FilePickerService {
   }) {
     final platformFiles =
         mockPaths.map((e) => PlatformFile(path: e, name: '', size: 0)).toList();
-    return Future.value(
-      FilePickerResult(
-        platformFiles,
-      ),
-    );
+    return Future.value(FilePickerResult(platformFiles));
   }
 }
 
-Future<void> mockGetDirectoryPath(
-  String path,
-) async {
+Future<void> mockGetDirectoryPath(String path) async {
   getIt.unregister<FilePickerService>();
   getIt.registerFactory<FilePickerService>(
-    () => MockFilePicker(
-      mockPath: path,
-    ),
+    () => MockFilePicker(mockPath: path),
   );
-  return;
 }
 
-Future<String> mockSaveFilePath(
-  String path,
-) async {
+Future<String> mockSaveFilePath(String path) async {
   getIt.unregister<FilePickerService>();
   getIt.registerFactory<FilePickerService>(
-    () => MockFilePicker(
-      mockPath: path,
-    ),
+    () => MockFilePicker(mockPath: path),
   );
   return path;
 }
@@ -77,9 +61,7 @@ Future<String> mockSaveFilePath(
 List<String> mockPickFilePaths({required List<String> paths}) {
   getIt.unregister<FilePickerService>();
   getIt.registerFactory<FilePickerService>(
-    () => MockFilePicker(
-      mockPaths: paths,
-    ),
+    () => MockFilePicker(mockPaths: paths),
   );
   return paths;
 }

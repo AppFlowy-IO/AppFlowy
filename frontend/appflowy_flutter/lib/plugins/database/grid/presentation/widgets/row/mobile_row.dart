@@ -1,4 +1,5 @@
-import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
@@ -8,14 +9,9 @@ import 'package:appflowy/plugins/database/application/row/row_service.dart';
 import 'package:appflowy/plugins/database/grid/application/row/row_bloc.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_builder.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/mobile_cell_container.dart';
-import 'package:flowy_infra/theme_extension.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../layout/sizes.dart';
-import "package:appflowy/generated/locale_keys.g.dart";
-import 'package:easy_localization/easy_localization.dart';
 
 class MobileGridRow extends StatefulWidget {
   const MobileGridRow({
@@ -87,26 +83,6 @@ class _MobileGridRowState extends State<MobileGridRow> {
   Future<void> dispose() async {
     _rowController.dispose();
     super.dispose();
-  }
-}
-
-class InsertRowButton extends StatelessWidget {
-  const InsertRowButton({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return FlowyIconButton(
-      tooltipText: LocaleKeys.tooltip_addNewRow.tr(),
-      hoverColor: AFThemeExtension.of(context).lightGreyHover,
-      width: 20,
-      height: 30,
-      onPressed: () => context.read<RowBloc>().add(const RowEvent.createRow()),
-      iconPadding: const EdgeInsets.all(3),
-      icon: FlowySvg(
-        FlowySvgs.add_s,
-        color: Theme.of(context).colorScheme.tertiary,
-      ),
-    );
   }
 }
 
