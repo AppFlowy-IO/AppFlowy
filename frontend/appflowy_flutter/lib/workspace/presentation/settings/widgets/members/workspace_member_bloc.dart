@@ -95,6 +95,7 @@ class WorkspaceMemberBloc
           final result = await _userBackendService.inviteWorkspaceMember(
             _workspaceId,
             email,
+            role: AFRolePB.Member,
           );
           emit(
             state.copyWith(
