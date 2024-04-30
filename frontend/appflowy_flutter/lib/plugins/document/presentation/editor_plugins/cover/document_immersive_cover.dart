@@ -15,14 +15,13 @@ import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/ignore_parent_gesture.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 double kDocumentCoverHeight = 98.0;
 double kDocumentTitlePadding = 20.0;
 
-class DocumentImmersiveCover extends StatelessWidget {
+class DocumentImmersiveCover extends StatefulWidget {
   const DocumentImmersiveCover({
     super.key,
     required this.view,
@@ -33,13 +32,31 @@ class DocumentImmersiveCover extends StatelessWidget {
   final UserProfilePB userProfilePB;
 
   @override
+  State<DocumentImmersiveCover> createState() => _DocumentImmersiveCoverState();
+}
+
+class _DocumentImmersiveCoverState extends State<DocumentImmersiveCover> {
+  final textEditingController = TextEditingController();
+  final scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    textEditingController.dispose();
+    scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return IgnoreParentGestureWidget(
       child: BlocProvider(
-        create: (context) => DocumentImmersiveCoverBloc(view: view)
+        create: (context) => DocumentImmersiveCoverBloc(view: widget.view)
           ..add(const DocumentImmersiveCoverEvent.initial()),
-        child: BlocBuilder<DocumentImmersiveCoverBloc,
+        child: BlocConsumer<DocumentImmersiveCoverBloc,
             DocumentImmersiveCoverState>(
+          listener: (context, state) {
+            textEditingController.text = state.name;
+          },
           builder: (_, state) {
             final iconAndTitle = _buildIconAndTitle(context, state);
             if (state.cover.type == PageStyleCoverImageType.none) {
@@ -75,39 +92,58 @@ class DocumentImmersiveCover extends StatelessWidget {
     BuildContext context,
     DocumentImmersiveCoverState state,
   ) {
-    final title = state.name;
     final icon = state.icon;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24.0),
       child: Row(
         children: [
           if (icon != null && icon.isNotEmpty) ...[
-            GestureDetector(
-              child: EmojiIconWidget(
-                emoji: icon,
-                emojiSize: 26,
-              ),
-              onTap: () async {
-                final result = await context.push<EmojiPickerResult>(
-                  MobileEmojiPickerScreen.routeName,
-                );
-                if (result != null && context.mounted) {
-                  context
-                      .read<ViewBloc>()
-                      .add(ViewEvent.updateIcon(result.emoji));
-                }
-              },
-            ),
+            _buildIcon(context, icon),
             const HSpace(8.0),
           ],
-          FlowyText(
-            title,
-            fontSize: 28.0,
-            fontWeight: FontWeight.w700,
-            overflow: TextOverflow.ellipsis,
-          ),
+          Expanded(child: _buildTitle(context)),
         ],
       ),
+    );
+  }
+
+  Widget _buildTitle(BuildContext context) {
+    return TextField(
+      controller: textEditingController,
+      decoration: const InputDecoration(
+        border: InputBorder.none,
+        enabledBorder: InputBorder.none,
+        disabledBorder: InputBorder.none,
+        focusedBorder: InputBorder.none,
+        hintText: '',
+        contentPadding: EdgeInsets.zero,
+      ),
+      scrollController: scrollController,
+      style: const TextStyle(
+        fontSize: 28.0,
+        fontWeight: FontWeight.w700,
+      ),
+      onSubmitted: (value) {
+        scrollController.position.jumpTo(0);
+        context.read<ViewBloc>().add(ViewEvent.rename(value));
+      },
+    );
+  }
+
+  Widget _buildIcon(BuildContext context, String icon) {
+    return GestureDetector(
+      child: EmojiIconWidget(
+        emoji: icon,
+        emojiSize: 26,
+      ),
+      onTap: () async {
+        final result = await context.push<EmojiPickerResult>(
+          MobileEmojiPickerScreen.routeName,
+        );
+        if (result != null && context.mounted) {
+          context.read<ViewBloc>().add(ViewEvent.updateIcon(result.emoji));
+        }
+      },
     );
   }
 
@@ -122,8 +158,10 @@ class DocumentImmersiveCover extends StatelessWidget {
       return SizedBox(
         height: height,
         width: double.infinity,
-        child:
-            FlowyNetworkImage(url: cover.value, userProfilePB: userProfilePB),
+        child: FlowyNetworkImage(
+          url: cover.value,
+          userProfilePB: widget.userProfilePB,
+        ),
       );
     }
 
