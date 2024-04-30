@@ -1,5 +1,5 @@
-import * as Y from 'yjs';
 import { CollabOrigin } from '@/application/collab.type';
+import * as Y from 'yjs';
 
 /**
  * Apply doc state from server to client

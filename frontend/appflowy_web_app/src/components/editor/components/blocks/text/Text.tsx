@@ -13,7 +13,7 @@ export const Text = memo(
       const isEmpty = editor.isEmpty(node);
       const className = useMemo(
         () =>
-          `text-element relative my-1 flex w-full whitespace-pre-wrap break-words px-1 ${classNameProp ?? ''} ${
+          `text-element relative my-1 flex w-full whitespace-pre-wrap break-all px-1 ${classNameProp ?? ''} ${
             hasStartIcon ? 'has-start-icon' : ''
           }`,
         [classNameProp, hasStartIcon]

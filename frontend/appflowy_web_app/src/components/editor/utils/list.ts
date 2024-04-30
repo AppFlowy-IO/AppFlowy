@@ -1,4 +1,4 @@
-import { BlockType } from '@/application/document.type';
+import { BlockType } from '@/application/collab.type';
 import { Element, NodeEntry, Path } from 'slate';
 import { ReactEditor } from 'slate-react';
 

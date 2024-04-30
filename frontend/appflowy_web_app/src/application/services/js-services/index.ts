@@ -3,10 +3,12 @@ import {
   AFServiceConfig,
   AuthService,
   DocumentService,
+  FolderService,
   UserService,
 } from '@/application/services/services.type';
 import { JSUserService } from '@/application/services/js-services/user.service';
 import { JSAuthService } from '@/application/services/js-services/auth.service';
+import { JSFolderService } from '@/application/services/js-services/folder.service';
 import { JSDocumentService } from '@/application/services/js-services/document.service';
 import { nanoid } from 'nanoid';
 import { initAPIService } from '@/application/services/js-services/wasm/client_api';
@@ -17,6 +19,8 @@ export class AFClientService implements AFService {
   userService: UserService;
 
   documentService: DocumentService;
+
+  folderService: FolderService;
 
   private deviceId: string = nanoid(8);
 
@@ -40,5 +44,6 @@ export class AFClientService implements AFService {
     this.authService = new JSAuthService();
     this.userService = new JSUserService();
     this.documentService = new JSDocumentService();
+    this.folderService = new JSFolderService();
   }
 }

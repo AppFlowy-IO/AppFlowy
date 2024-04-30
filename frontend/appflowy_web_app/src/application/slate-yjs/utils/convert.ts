@@ -9,7 +9,7 @@ import {
   YTextMap,
   BlockData,
   BlockType,
-} from '@/application/document.type';
+} from '@/application/collab.type';
 import { getFontFamily } from '@/utils/font';
 import { uniq } from 'lodash-es';
 import { Element, Text } from 'slate';
@@ -128,7 +128,7 @@ export function yDocToSlateContent(doc: YDoc, includeRoot?: boolean): Element | 
         ...rootNode,
         children: [
           {
-            textId: root.toJSON().external_id,
+            textId: pageId,
             type: YjsEditorKey.text,
             children: [{ text: '' }],
           },

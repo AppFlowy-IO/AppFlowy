@@ -56,7 +56,7 @@ CardCellStyleMap desktopBoardCardCellStyleMap(BuildContext context) {
     FieldType.RichText: TextCardCellStyle(
       padding: padding,
       textStyle: textStyle,
-      maxLines: null,
+      maxLines: 2,
       titleTextStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
             overflow: TextOverflow.ellipsis,
           ),

@@ -1,4 +1,4 @@
-import { AlignType } from '@/application/document.type';
+import { AlignType } from '@/application/collab.type';
 import { EditorElementProps, ImageBlockNode } from '@/components/editor/editor.type';
 import React, { forwardRef, memo, useCallback, useMemo, useRef } from 'react';
 import { ReactEditor, useSelected, useSlateStatic } from 'slate-react';

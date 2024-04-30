@@ -714,6 +714,7 @@ impl FolderManager {
           .set_desc_if_not_none(params.desc)
           .set_layout_if_not_none(params.layout)
           .set_favorite_if_not_none(params.is_favorite)
+          .set_extra_if_not_none(params.extra)
           .done()
       })
       .await
@@ -1275,7 +1276,7 @@ pub(crate) fn get_workspace_private_view_pbs(workspace_id: &str, folder: &Folder
 }
 
 /// The MutexFolder is a wrapper of the [Folder] that is used to share the folder between different
-/// threads.  
+/// threads.
 #[derive(Clone, Default)]
 pub struct MutexFolder(Arc<RwLock<Option<Folder>>>);
 impl Deref for MutexFolder {

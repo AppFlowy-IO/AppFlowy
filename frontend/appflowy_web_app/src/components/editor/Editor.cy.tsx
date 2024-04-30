@@ -1,7 +1,8 @@
-import { JSDocumentService } from '@/application/services/js-services/document.service';
+import { YDoc } from '@/application/collab.type';
 import { DocumentTest } from '@/../cypress/support/document';
-import { nanoid } from 'nanoid';
+import { applyDocument } from '@/application/ydoc/apply';
 import React from 'react';
+import * as Y from 'yjs';
 import { Editor } from './Editor';
 import withAppWrapper from '@/components/app/withAppWrapper';
 
@@ -10,25 +11,26 @@ describe('<Editor />', () => {
     const documentTest = new DocumentTest();
 
     documentTest.insertParagraph('Hello, world!');
-    cy.stub(JSDocumentService.prototype, 'openDocument').returns(Promise.resolve(documentTest.doc));
-    renderEditor();
+    renderEditor(documentTest.doc);
     cy.get('[role="textbox"]').should('contain', 'Hello, world!');
   });
 
   it('renders with a full document', () => {
-    cy.mockFullDocument();
-    renderEditor();
+    cy.fixture('full_doc').then((docJson) => {
+      const doc = new Y.Doc();
+      const state = new Uint8Array(docJson.data.doc_state);
+
+      applyDocument(doc, state);
+      renderEditor(doc);
+    });
   });
 });
 
-function renderEditor() {
-  const documentId = nanoid(8);
-  const workspaceId = nanoid(8);
-
+function renderEditor(doc: YDoc) {
   const AppWrapper = withAppWrapper(() => {
     return (
       <div className={'h-screen w-screen overflow-y-auto'}>
-        <Editor documentId={documentId} readOnly workspaceId={workspaceId} />
+        <Editor doc={doc} readOnly />
       </div>
     );
   });

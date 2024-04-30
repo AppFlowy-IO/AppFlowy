@@ -13,6 +13,8 @@ export const IdProvider = ({ children, ...props }: IdProviderProps & { children:
   return <IdContext.Provider value={props}>{children}</IdContext.Provider>;
 };
 
+const defaultIdValue = {} as IdProviderProps;
+
 export function useId() {
-  return useContext(IdContext);
+  return useContext(IdContext) || defaultIdValue;
 }

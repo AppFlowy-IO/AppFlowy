@@ -11,7 +11,7 @@ export const Outline = memo(
     const { t } = useTranslation();
 
     useEffect(() => {
-      const root = nestHeadings(extractHeadings(editor.children, node.data.depth || 6));
+      const root = nestHeadings(extractHeadings(editor, node.data.depth || 6));
 
       setRoot(root);
     }, [editor, node.data.depth]);
