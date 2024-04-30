@@ -101,7 +101,7 @@ class PageStyleCoverImage extends StatelessWidget {
               ),
             );
       },
-      title: LocaleKeys.pageStyle_coverImage.tr(),
+      title: LocaleKeys.pageStyle_pageCover.tr(),
       barrierColor: Colors.transparent,
       backgroundColor: Theme.of(context).colorScheme.background,
       builder: (_) {

@@ -1480,17 +1480,17 @@
     }
   },
   "pageStyle": {
-    "title": "Page Style",
+    "title": "Page style",
     "layout": "Layout",
-    "coverImage": "Cover Image",
-    "pageIcon": "Page Icon",
+    "coverImage": "Cover image",
+    "pageIcon": "Page icon",
     "colors": "Colors",
     "gradient": "Gradient",
-    "backgroundImage": "Background Image",
+    "backgroundImage": "Background image",
     "presets": "Presets",
     "photo": "Photo",
     "unsplash": "Unsplash",
-    "pageCover": "Page Cover",
+    "pageCover": "Page cover",
     "none": "None"
   },
   "commandPalette": {

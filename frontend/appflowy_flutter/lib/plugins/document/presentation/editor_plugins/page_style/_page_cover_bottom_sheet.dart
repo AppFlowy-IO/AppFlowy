@@ -24,10 +24,13 @@ class PageCoverBottomSheet extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
+              const VSpace(8.0),
+
               // pure colors
               FlowyText(
                 LocaleKeys.pageStyle_colors.tr(),
                 color: context.pageStyleTextColor,
+                fontSize: 14.0,
               ),
               const VSpace(8.0),
               _buildPureColors(context, state),
@@ -37,6 +40,7 @@ class PageCoverBottomSheet extends StatelessWidget {
               FlowyText(
                 LocaleKeys.pageStyle_gradient.tr(),
                 color: context.pageStyleTextColor,
+                fontSize: 14.0,
               ),
               const VSpace(8.0),
               _buildGradientColors(context, state),
@@ -46,6 +50,7 @@ class PageCoverBottomSheet extends StatelessWidget {
               FlowyText(
                 LocaleKeys.pageStyle_backgroundImage.tr(),
                 color: context.pageStyleTextColor,
+                fontSize: 14.0,
               ),
               const VSpace(8.0),
               _buildBuiltImages(context, state),
