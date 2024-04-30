@@ -380,7 +380,8 @@
       "resetSetting": "Reset",
       "fontFamily": {
         "label": "Font Family",
-        "search": "Search"
+        "search": "Search",
+        "defaultFont": "Default Font"
       },
       "themeMode": {
         "label": "Theme Mode",
@@ -1477,6 +1478,20 @@
       "synced": "Synced",
       "noNetworkConnected": "No network connected"
     }
+  },
+  "pageStyle": {
+    "title": "Page style",
+    "layout": "Layout",
+    "coverImage": "Cover image",
+    "pageIcon": "Page icon",
+    "colors": "Colors",
+    "gradient": "Gradient",
+    "backgroundImage": "Background image",
+    "presets": "Presets",
+    "photo": "Photo",
+    "unsplash": "Unsplash",
+    "pageCover": "Page cover",
+    "none": "None"
   },
   "commandPalette": {
     "placeholder": "Type to search for views...",

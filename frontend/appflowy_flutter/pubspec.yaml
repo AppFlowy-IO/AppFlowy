@@ -131,6 +131,7 @@ dependencies:
   sheet:
   file: ^7.0.0
   avatar_stack: ^1.2.0
+  numerus: ^2.1.2
   flutter_animate: ^4.5.0
 
 dev_dependencies:
@@ -236,6 +237,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/images/
+    - assets/images/built_in_cover_images/
     - assets/flowy_icons/
     - assets/flowy_icons/16x/
     - assets/flowy_icons/24x/

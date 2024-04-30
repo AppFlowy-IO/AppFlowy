@@ -143,16 +143,6 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
 
   late final List<SelectionMenuItem> slashMenuItems;
 
-  late final Map<String, BlockComponentBuilder> blockComponentBuilders =
-      getEditorBuilderMap(
-    slashMenuItems: slashMenuItems,
-    context: context,
-    editorState: widget.editorState,
-    styleCustomizer: widget.styleCustomizer,
-    showParagraphPlaceholder: widget.showParagraphPlaceholder,
-    placeholderText: widget.placeholderText,
-  );
-
   List<CharacterShortcutEvent> get characterShortcutEvents => [
         // code block
         ...codeBlockCharacterEvents,
@@ -307,7 +297,14 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
         // setup the theme
         editorStyle: styleCustomizer.style(),
         // customize the block builders
-        blockComponentBuilders: blockComponentBuilders,
+        blockComponentBuilders: getEditorBuilderMap(
+          slashMenuItems: slashMenuItems,
+          context: context,
+          editorState: widget.editorState,
+          styleCustomizer: widget.styleCustomizer,
+          showParagraphPlaceholder: widget.showParagraphPlaceholder,
+          placeholderText: widget.placeholderText,
+        ),
         // customize the shortcuts
         characterShortcutEvents: characterShortcutEvents,
         commandShortcutEvents: commandShortcutEvents,

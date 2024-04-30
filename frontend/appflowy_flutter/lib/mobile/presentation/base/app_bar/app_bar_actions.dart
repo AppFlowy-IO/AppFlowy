@@ -17,7 +17,7 @@ class AppBarBackButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppBarButton(
-      onTap: onTap ?? () => Navigator.pop(context),
+      onTap: (_) => (onTap ?? () => Navigator.pop(context)).call(),
       padding: padding,
       child: const FlowySvg(
         FlowySvgs.m_app_bar_back_s,
@@ -37,7 +37,7 @@ class AppBarCloseButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppBarButton(
-      onTap: onTap ?? () => Navigator.pop(context),
+      onTap: (_) => (onTap ?? () => Navigator.pop(context)).call(),
       child: const FlowySvg(
         FlowySvgs.m_app_bar_close_s,
       ),
@@ -56,7 +56,7 @@ class AppBarCancelButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppBarButton(
-      onTap: onTap ?? () => Navigator.pop(context),
+      onTap: (_) => (onTap ?? () => Navigator.pop(context)).call(),
       child: FlowyText(
         LocaleKeys.button_cancel.tr(),
         overflow: TextOverflow.ellipsis,
@@ -76,7 +76,7 @@ class AppBarDoneButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppBarButton(
-      onTap: onTap,
+      onTap: (_) => onTap(),
       padding: const EdgeInsets.all(12),
       child: FlowyText(
         LocaleKeys.button_done.tr(),
@@ -103,7 +103,7 @@ class AppBarSaveButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppBarButton(
-      onTap: () {
+      onTap: (_) {
         if (enable) {
           onTap();
         }
@@ -166,7 +166,7 @@ class AppBarMoreButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return AppBarButton(
       padding: const EdgeInsets.all(12),
-      onTap: () => onTap(context),
+      onTap: onTap,
       child: const FlowySvg(FlowySvgs.three_dots_s),
     );
   }
@@ -180,7 +180,7 @@ class AppBarButton extends StatelessWidget {
     this.padding,
   });
 
-  final VoidCallback onTap;
+  final void Function(BuildContext context) onTap;
   final Widget child;
   final EdgeInsetsGeometry? padding;
 
@@ -188,7 +188,7 @@ class AppBarButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: onTap,
+      onTap: () => onTap(context),
       child: Padding(
         padding: padding ?? const EdgeInsets.all(12),
         child: child,
