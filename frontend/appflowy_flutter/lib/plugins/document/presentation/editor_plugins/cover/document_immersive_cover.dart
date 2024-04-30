@@ -8,6 +8,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/cover/docu
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
 import 'package:appflowy/shared/appflowy_network_image.dart';
 import 'package:appflowy/shared/flowy_gradient_colors.dart';
+import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
@@ -17,6 +18,7 @@ import 'package:flowy_infra_ui/widget/ignore_parent_gesture.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 double kDocumentCoverHeight = 98.0;
 double kDocumentTitlePadding = 20.0;
@@ -108,6 +110,12 @@ class _DocumentImmersiveCoverState extends State<DocumentImmersiveCover> {
   }
 
   Widget _buildTitle(BuildContext context) {
+    String? fontFamily = builtInFontFamily();
+    final documentFontFamily =
+        context.read<DocumentPageStyleBloc>().state.fontFamily;
+    if (documentFontFamily != null && fontFamily != documentFontFamily) {
+      fontFamily = GoogleFonts.getFont(documentFontFamily).fontFamily;
+    }
     return TextField(
       controller: textEditingController,
       decoration: const InputDecoration(
@@ -119,9 +127,10 @@ class _DocumentImmersiveCoverState extends State<DocumentImmersiveCover> {
         contentPadding: EdgeInsets.zero,
       ),
       scrollController: scrollController,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 28.0,
         fontWeight: FontWeight.w700,
+        fontFamily: fontFamily,
       ),
       onSubmitted: (value) {
         scrollController.position.jumpTo(0);
