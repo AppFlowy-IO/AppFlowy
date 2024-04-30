@@ -725,7 +725,7 @@ class _FontSelectorDropdown extends StatelessWidget {
           behavior: HitTestBehavior.opaque,
           onTap: () => context
               .read<AppearanceSettingsCubit>()
-              .setFontFamily(builtInFontFamily),
+              .setFontFamily(builtInFontFamily()),
           child: SizedBox(
             height: 26,
             child: FlowyHover(
