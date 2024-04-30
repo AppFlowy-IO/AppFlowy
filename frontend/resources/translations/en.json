@@ -332,8 +332,8 @@
         }
       },
       "keys": {
-        "title": "AI Keys",
-        "openAILabel": "OpenAI key",
+        "title": "AI API Keys",
+        "openAILabel": "OpenAI API key",
         "openAITooltip": "The OpenAI API key to use for the AI models",
         "openAIHint": "Input your OpenAI API Key",
         "stabilityAILabel": "Stability API key",

@@ -340,8 +340,8 @@
         }
       },
       "keys": {
-        "title": "KI-Schlüssel",
-        "openAILabel": "OpenAI-Schlüssel",
+        "title": "KI API-Schlüssel",
+        "openAILabel": "OpenAI API-Schlüssel",
         "openAITooltip": "Der für die KI-Modelle zu verwendende OpenAI-API-Schlüssel",
         "openAIHint": "OpenAI API-Schlüssel eingeben",
         "stabilityAILabel": "Stability API-Schlüssel",
