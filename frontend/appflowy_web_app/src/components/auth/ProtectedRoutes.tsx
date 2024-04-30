@@ -7,22 +7,27 @@ import SplashScreen from '@/components/auth/SplashScreen';
 import CircularProgress from '@mui/material/CircularProgress';
 import Portal from '@mui/material/Portal';
 import { ReactComponent as Logo } from '@/assets/logo.svg';
+import { useNavigate } from 'react-router-dom';
 
 const TauriAuth = lazy(() => import('@/components/tauri/TauriAuth'));
 
-function ProtectedRoutes () {
-  const { currentUser, checkUser } = useAuth();
+function ProtectedRoutes() {
+  const { currentUser, checkUser, isReady } = useAuth();
 
   const isLoading = currentUser?.loginState === LoginState.LOADING;
   const [checked, setChecked] = useState(false);
 
   const checkUserStatus = useCallback(async () => {
+    if (!isReady) return;
+    setChecked(false);
     try {
-      await checkUser();
+      if (!currentUser.isAuthenticated) {
+        await checkUser();
+      }
     } finally {
       setChecked(true);
     }
-  }, [checkUser]);
+  }, [checkUser, isReady, currentUser.isAuthenticated]);
 
   useEffect(() => {
     void checkUserStatus();
@@ -30,18 +35,25 @@ function ProtectedRoutes () {
 
   const platform = useMemo(() => getPlatform(), []);
 
+  const navigate = useNavigate();
+
+  if (checked && !currentUser.isAuthenticated && window.location.pathname !== '/login') {
+    navigate(`/login?redirect=${encodeURIComponent(window.location.pathname)}`);
+    return null;
+  }
+
   return (
     <div className={'relative h-screen w-screen'}>
       {checked ? (
-        <SplashScreen isAuthenticated={currentUser.isAuthenticated}/>
+        <SplashScreen />
       ) : (
         <div className={'flex h-screen w-screen items-center justify-center'}>
-          <Logo className={'h-20 w-20'}/>
+          <Logo className={'h-20 w-20'} />
         </div>
       )}
 
-      {isLoading && <StartLoading/>}
-      <Suspense>{platform.isTauri && <TauriAuth/>}</Suspense>
+      {isLoading && <StartLoading />}
+      <Suspense>{platform.isTauri && <TauriAuth />}</Suspense>
     </div>
   );
 }
@@ -68,7 +80,7 @@ const StartLoading = () => {
   return (
     <Portal>
       <div className={'fixed inset-0 z-[1400] flex h-full w-full items-center justify-center bg-bg-mask bg-opacity-50'}>
-        <CircularProgress/>
+        <CircularProgress />
       </div>
     </Portal>
   );

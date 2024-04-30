@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:appflowy/core/helpers/url_launcher.dart';
+import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_item/utils.dart';
@@ -37,7 +38,7 @@ class EditorStyleCustomizer {
   }
 
   static EdgeInsets get documentPadding => PlatformExtension.isMobile
-      ? const EdgeInsets.only(left: 20, right: 20)
+      ? const EdgeInsets.only(left: 24, right: 24)
       : const EdgeInsets.only(left: 40, right: 40 + 44);
 
   EditorStyle desktop() {
@@ -91,39 +92,42 @@ class EditorStyleCustomizer {
   }
 
   EditorStyle mobile() {
+    final pageStyle = context.read<DocumentPageStyleBloc>().state;
     final theme = Theme.of(context);
-    final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
-    final fontFamily = context.read<DocumentAppearanceCubit>().state.fontFamily;
+    final fontSize = pageStyle.fontLayout.fontSize;
+    final lineHeight = pageStyle.lineHeightLayout.lineHeight;
+    final fontFamily = pageStyle.fontFamily ?? builtInFontFamily();
     final defaultTextDirection =
         context.read<DocumentAppearanceCubit>().state.defaultTextDirection;
+    final baseTextStyle = this.baseTextStyle(fontFamily);
     final codeFontSize = max(0.0, fontSize - 2);
     return EditorStyle.mobile(
       padding: padding,
       defaultTextDirection: defaultTextDirection,
       textStyleConfiguration: TextStyleConfiguration(
-        text: baseTextStyle(fontFamily).copyWith(
+        text: baseTextStyle.copyWith(
           fontSize: fontSize,
           color: theme.colorScheme.onBackground,
-          height: 1.5,
+          height: lineHeight,
         ),
-        bold: baseTextStyle(fontFamily, fontWeight: FontWeight.bold).copyWith(
+        bold: baseTextStyle.copyWith(
           fontWeight: FontWeight.w600,
         ),
-        italic: baseTextStyle(fontFamily).copyWith(
+        italic: baseTextStyle.copyWith(
           fontStyle: FontStyle.italic,
         ),
-        underline: baseTextStyle(fontFamily).copyWith(
+        underline: baseTextStyle.copyWith(
           decoration: TextDecoration.underline,
         ),
-        strikethrough: baseTextStyle(fontFamily).copyWith(
+        strikethrough: baseTextStyle.copyWith(
           decoration: TextDecoration.lineThrough,
         ),
-        href: baseTextStyle(fontFamily).copyWith(
+        href: baseTextStyle.copyWith(
           color: theme.colorScheme.primary,
           decoration: TextDecoration.underline,
         ),
         code: GoogleFonts.robotoMono(
-          textStyle: baseTextStyle(fontFamily).copyWith(
+          textStyle: baseTextStyle.copyWith(
             fontSize: codeFontSize,
             fontWeight: FontWeight.normal,
             fontStyle: FontStyle.italic,
@@ -131,6 +135,8 @@ class EditorStyleCustomizer {
             backgroundColor: Colors.grey.withOpacity(0.3),
           ),
         ),
+        applyHeightToFirstAscent: true,
+        applyHeightToLastDescent: true,
       ),
       textSpanDecorator: customizeAttributeDecorator,
       mobileDragHandleBallSize: const Size.square(12.0),
@@ -141,18 +147,29 @@ class EditorStyleCustomizer {
   }
 
   TextStyle headingStyleBuilder(int level) {
-    final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
-    final fontSizes = [
-      fontSize + 16,
-      fontSize + 12,
-      fontSize + 8,
-      fontSize + 4,
-      fontSize + 2,
-      fontSize,
-    ];
-    final fontFamily = context.read<DocumentAppearanceCubit>().state.fontFamily;
-    return baseTextStyle(fontFamily, fontWeight: FontWeight.bold).copyWith(
-      fontWeight: FontWeight.w600,
+    final String? fontFamily;
+    final List<double> fontSizes;
+    final double fontSize;
+    final FontWeight fontWeight =
+        level <= 2 ? FontWeight.w700 : FontWeight.w600;
+    if (PlatformExtension.isMobile) {
+      final state = context.read<DocumentPageStyleBloc>().state;
+      fontFamily = state.fontFamily;
+      fontSize = state.fontLayout.fontSize;
+      fontSizes = state.fontLayout.headingFontSizes;
+    } else {
+      fontFamily = context.read<DocumentAppearanceCubit>().state.fontFamily;
+      fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
+      fontSizes = [
+        fontSize + 16,
+        fontSize + 12,
+        fontSize + 8,
+        fontSize + 4,
+        fontSize + 2,
+        fontSize,
+      ];
+    }
+    return baseTextStyle(fontFamily, fontWeight: fontWeight).copyWith(
       fontSize: fontSizes.elementAtOrNull(level - 1) ?? fontSize,
     );
   }
@@ -173,7 +190,7 @@ class EditorStyleCustomizer {
     final theme = Theme.of(context);
     final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
     return TextStyle(
-      fontFamily: builtInFontFamily,
+      fontFamily: builtInFontFamily(),
       fontSize: fontSize,
       height: 1.5,
       color: theme.colorScheme.onBackground.withOpacity(0.6),
@@ -211,23 +228,30 @@ class EditorStyleCustomizer {
   }
 
   TextStyle baseTextStyle(
-    String fontFamily, {
+    String? fontFamily, {
     FontWeight? fontWeight,
   }) {
+    if (fontFamily == null) {
+      return TextStyle(
+        fontWeight: fontWeight,
+      );
+    }
     try {
       return GoogleFonts.getFont(
         fontFamily,
         fontWeight: fontWeight,
       );
     } on Exception {
-      if ([builtInFontFamily, builtInCodeFontFamily].contains(fontFamily)) {
+      if ([builtInFontFamily(), builtInCodeFontFamily].contains(fontFamily)) {
         return TextStyle(
           fontFamily: fontFamily,
           fontWeight: fontWeight,
         );
       }
 
-      return GoogleFonts.getFont(builtInFontFamily);
+      return TextStyle(
+        fontWeight: fontWeight,
+      );
     }
   }
 

@@ -174,12 +174,14 @@ class PageNotifier extends ChangeNotifier {
 
   /// This is the only place where the plugin is set.
   /// No need compare the old plugin with the new plugin. Just set it.
-  set plugin(Plugin newPlugin) {
+  void setPlugin(Plugin newPlugin, bool setLatest) {
     _plugin.dispose();
     newPlugin.init();
 
-    /// Set the plugin view as the latest view.
-    FolderEventSetLatestView(ViewIdPB(value: newPlugin.id)).send();
+    // Set the plugin view as the latest view.
+    if (setLatest) {
+      FolderEventSetLatestView(ViewIdPB(value: newPlugin.id)).send();
+    }
 
     _plugin = newPlugin;
     notifyListeners();
@@ -202,8 +204,8 @@ class PageManager {
 
   Plugin get plugin => _notifier.plugin;
 
-  void setPlugin(Plugin newPlugin) {
-    _notifier.plugin = newPlugin;
+  void setPlugin(Plugin newPlugin, bool setLatest) {
+    _notifier.setPlugin(newPlugin, setLatest);
   }
 
   void setStackWithId(String id) {

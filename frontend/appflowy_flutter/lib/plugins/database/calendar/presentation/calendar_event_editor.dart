@@ -1,3 +1,4 @@
+import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
@@ -125,9 +126,12 @@ class EventEditorControls extends StatelessWidget {
               PopoverContainer.of(context).close();
               FlowyOverlay.show(
                 context: context,
-                builder: (_) => RowDetailPage(
-                  databaseController: databaseController,
-                  rowController: rowController,
+                builder: (_) => BlocProvider.value(
+                  value: context.read<ViewBloc>(),
+                  child: RowDetailPage(
+                    databaseController: databaseController,
+                    rowController: rowController,
+                  ),
                 ),
               );
             },

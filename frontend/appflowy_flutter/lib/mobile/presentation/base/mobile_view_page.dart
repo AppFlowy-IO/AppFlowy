@@ -1,11 +1,14 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/mobile/presentation/base/app_bar.dart';
-import 'package:appflowy/mobile/presentation/base/app_bar_actions.dart';
+import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
+import 'package:appflowy/mobile/presentation/base/app_bar/app_bar.dart';
+import 'package:appflowy/mobile/presentation/base/app_bar/app_bar_actions.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_state_container.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
 import 'package:appflowy/plugins/document/presentation/document_collaborators.dart';
 import 'package:appflowy/plugins/document/presentation/editor_notification.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/page_style/page_style_bottom_sheet.dart';
 import 'package:appflowy/plugins/shared/sync_indicator.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -45,6 +48,10 @@ class MobileViewPage extends StatefulWidget {
 class _MobileViewPageState extends State<MobileViewPage> {
   late final Future<FlowyResult<ViewPB, FlowyError>> future;
 
+  // used to determine if the user has scrolled down and show the app bar in immersive mode
+  ScrollNotificationObserverState? _scrollNotificationObserver;
+  final ValueNotifier<double> _appBarOpacity = ValueNotifier(0.0);
+
   @override
   void initState() {
     super.initState();
@@ -52,8 +59,15 @@ class _MobileViewPageState extends State<MobileViewPage> {
   }
 
   @override
+  void dispose() {
+    _appBarOpacity.dispose();
+    _scrollNotificationObserver = null;
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
+    final child = FutureBuilder(
       future: future,
       builder: (context, state) {
         Widget body;
@@ -73,6 +87,7 @@ class _MobileViewPageState extends State<MobileViewPage> {
         } else {
           body = state.data!.fold((view) {
             viewPB = view;
+
             actions.addAll([
               if (FeatureFlag.syncDocument.isOn) ...[
                 DocumentCollaborators(
@@ -88,6 +103,7 @@ class _MobileViewPageState extends State<MobileViewPage> {
                     : DatabaseSyncIndicator(view: view),
                 const HSpace(8.0),
               ],
+              _buildAppBarLayoutButton(view),
               _buildAppBarMoreButton(view),
             ]);
             final plugin = view.plugin(arguments: widget.arguments ?? const {})
@@ -118,6 +134,13 @@ class _MobileViewPageState extends State<MobileViewPage> {
                 value: getIt<ReminderBloc>()
                   ..add(const ReminderEvent.started()),
               ),
+              if (viewPB!.layout == ViewLayoutPB.Document)
+                BlocProvider(
+                  create: (_) => DocumentPageStyleBloc(view: viewPB!)
+                    ..add(
+                      const DocumentPageStyleEvent.initial(),
+                    ),
+                ),
             ],
             child: Builder(
               builder: (context) {
@@ -131,37 +154,109 @@ class _MobileViewPageState extends State<MobileViewPage> {
         }
       },
     );
+
+    return child;
   }
 
   Widget _buildApp(ViewPB? view, List<Widget> actions, Widget child) {
+    // only enable immersive mode for document layout
+    final isImmersive = view?.layout == ViewLayoutPB.Document;
     final icon = view?.icon.value;
+    final title = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (icon != null && icon.isNotEmpty)
+          EmojiText(
+            emoji: '$icon ',
+            fontSize: 22.0,
+          ),
+        Expanded(
+          child: FlowyText.medium(
+            view?.name ?? widget.title ?? '',
+            fontSize: 15.0,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
+    );
+
+    if (isImmersive) {
+      return Scaffold(
+        extendBodyBehindAppBar: true,
+        appBar: PreferredSize(
+          preferredSize: Size(
+            double.infinity,
+            AppBarTheme.of(context).toolbarHeight ?? kToolbarHeight,
+          ),
+          child: ValueListenableBuilder(
+            valueListenable: _appBarOpacity,
+            builder: (_, opacity, __) => FlowyAppBar(
+              backgroundColor:
+                  AppBarTheme.of(context).backgroundColor?.withOpacity(opacity),
+              showDivider: false,
+              title: Opacity(opacity: opacity >= 0.99 ? 1.0 : 0, child: title),
+              actions: actions,
+            ),
+          ),
+        ),
+        body: Builder(
+          builder: (context) {
+            _rebuildScrollNotificationObserver(context);
+            return child;
+          },
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: FlowyAppBar(
-        title: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (icon != null && icon.isNotEmpty)
-              EmojiText(
-                emoji: '$icon ',
-                fontSize: 22.0,
-              ),
-            Expanded(
-              child: FlowyText.medium(
-                view?.name ?? widget.title ?? '',
-                fontSize: 15.0,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ],
-        ),
+        title: title,
         actions: actions,
       ),
-      body: SafeArea(child: child),
+      body: child,
+    );
+  }
+
+  void _rebuildScrollNotificationObserver(BuildContext context) {
+    _scrollNotificationObserver?.removeListener(_onScrollNotification);
+    _scrollNotificationObserver = ScrollNotificationObserver.maybeOf(context);
+    _scrollNotificationObserver?.addListener(_onScrollNotification);
+  }
+
+  Widget _buildAppBarLayoutButton(ViewPB view) {
+    // only display the layout button if the view is a document
+    if (view.layout != ViewLayoutPB.Document) {
+      return const SizedBox.shrink();
+    }
+
+    return AppBarButton(
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      onTap: (context) {
+        EditorNotification.exitEditing().post();
+
+        showMobileBottomSheet(
+          context,
+          showDragHandle: true,
+          showDivider: false,
+          showDoneButton: true,
+          showHeader: true,
+          title: LocaleKeys.pageStyle_title.tr(),
+          backgroundColor: Theme.of(context).colorScheme.background,
+          builder: (_) => BlocProvider.value(
+            value: context.read<DocumentPageStyleBloc>(),
+            child: PageStyleBottomSheet(
+              view: context.read<ViewBloc>().state.view,
+            ),
+          ),
+        );
+      },
+      child: const FlowySvg(FlowySvgs.m_layout_s),
     );
   }
 
   Widget _buildAppBarMoreButton(ViewPB view) {
-    return AppBarMoreButton(
+    return AppBarButton(
+      padding: const EdgeInsets.only(left: 8, right: 16),
       onTap: (context) {
         EditorNotification.exitEditing().post();
 
@@ -170,13 +265,14 @@ class _MobileViewPageState extends State<MobileViewPage> {
           showDragHandle: true,
           showDivider: false,
           backgroundColor: Theme.of(context).colorScheme.background,
-          builder: (_) => _buildViewPageBottomSheet(context),
+          builder: (_) => _buildAppBarMoreBottomSheet(context),
         );
       },
+      child: const FlowySvg(FlowySvgs.m_app_bar_more_s),
     );
   }
 
-  Widget _buildViewPageBottomSheet(BuildContext context) {
+  Widget _buildAppBarMoreBottomSheet(BuildContext context) {
     final view = context.read<ViewBloc>().state.view;
     return ViewPageBottomSheet(
       view: view,
@@ -227,5 +323,25 @@ class _MobileViewPageState extends State<MobileViewPage> {
         context.pop();
       },
     );
+  }
+
+  // immersive mode related
+  // auto show or hide the app bar based on the scroll position
+  void _onScrollNotification(ScrollNotification notification) {
+    if (_scrollNotificationObserver == null) {
+      return;
+    }
+    if (notification is ScrollUpdateNotification &&
+        defaultScrollNotificationPredicate(notification)) {
+      final ScrollMetrics metrics = notification.metrics;
+      final height = MediaQuery.of(context).padding.top;
+      final progress = (metrics.pixels / height).clamp(0.0, 1.0);
+      // reduce the sensitivity of the app bar opacity change
+      if ((progress - _appBarOpacity.value).abs() >= 0.1 ||
+          progress == 0 ||
+          progress == 1.0) {
+        _appBarOpacity.value = progress;
+      }
+    }
   }
 }

@@ -95,7 +95,7 @@ class ViewBackendService {
     required ViewLayoutPB layoutType,
     required String name,
   }) {
-    return ViewBackendService.createView(
+    return createView(
       layoutType: layoutType,
       parentViewId: parentViewId,
       name: name,
@@ -148,6 +148,7 @@ class ViewBackendService {
     required String viewId,
     String? name,
     bool? isFavorite,
+    String? extra,
   }) {
     final payload = UpdateViewPayloadPB.create()..viewId = viewId;
 
@@ -157,6 +158,10 @@ class ViewBackendService {
 
     if (isFavorite != null) {
       payload.isFavorite = isFavorite;
+    }
+
+    if (extra != null) {
+      payload.extra = extra;
     }
 
     return FolderEventUpdateView(payload).send();

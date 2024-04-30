@@ -1,4 +1,4 @@
-name: Tauri2-CI
+name: Tauri-CI
 on:
   pull_request:
     paths:

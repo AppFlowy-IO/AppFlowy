@@ -10,7 +10,8 @@ use crate::services::database_view::{
 use crate::services::field::{
   default_type_option_data_from_type, select_type_option_from_field, transform_type_option,
   type_option_data_from_pb, ChecklistCellChangeset, RelationTypeOption, SelectOptionCellChangeset,
-  StrCellData, TimestampCellData, TypeOptionCellDataHandler, TypeOptionCellExt,
+  StrCellData, TimestampCellData, TimestampCellDataWrapper, TypeOptionCellDataHandler,
+  TypeOptionCellExt,
 };
 use crate::services::field_settings::{default_field_settings_by_layout_map, FieldSettings};
 use crate::services::filter::{Filter, FilterChangeset};
@@ -722,12 +723,12 @@ impl DatabaseEditor {
     match field_type {
       FieldType::LastEditedTime | FieldType::CreatedTime => {
         let row = database.get_row(row_id);
-        let cell_data = if field_type.is_created_time() {
-          TimestampCellData::new(row.created_at)
+        let wrapped_cell_data = if field_type.is_created_time() {
+          TimestampCellDataWrapper::from((field_type, TimestampCellData::new(row.created_at)))
         } else {
-          TimestampCellData::new(row.modified_at)
+          TimestampCellDataWrapper::from((field_type, TimestampCellData::new(row.modified_at)))
         };
-        Some(Cell::from(cell_data))
+        Some(Cell::from(wrapped_cell_data))
       },
       _ => database.get_cell(field_id, row_id).cell,
     }
