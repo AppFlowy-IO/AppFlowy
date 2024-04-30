@@ -21,6 +21,7 @@ import 'package:flowy_infra/uuid.dart';
 import 'package:flowy_infra_ui/style_widget/text_field.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
+import 'package:intl/intl.dart';
 import 'package:path/path.dart' as p;
 
 import '../desktop/board/board_hide_groups_test.dart';
@@ -47,9 +48,6 @@ void main() {
       await tester.pumpAndSettle();
 
       await tester.enterUserName('local_user');
-
-      await tester.tap(find.text(LocaleKeys.button_save.tr()));
-      await tester.pumpAndSettle();
 
       // Scroll to sign-in
       await tester.scrollUntilVisible(
