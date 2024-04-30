@@ -31,14 +31,14 @@ void main() {
     });
 
     test(
-        'baseTextStyle should return the default TextStyle when an exception occurs',
+        'baseTextStyle should return the null TextStyle when an exception occurs',
         () {
       const garbage = 'Garbage';
       final result = editorStyleCustomizer.baseTextStyle(garbage);
       expect(result, isA<TextStyle>());
       expect(
         result.fontFamily,
-        '',
+        null,
       );
     });
   });
