@@ -24,54 +24,73 @@ class PageCoverBottomSheet extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
+              // pure colors
               FlowyText(
                 LocaleKeys.pageStyle_colors.tr(),
                 color: context.pageStyleTextColor,
               ),
               const VSpace(8.0),
-              SizedBox(
-                height: 42.0,
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: FlowyTint.values.length,
-                  separatorBuilder: (context, index) => const HSpace(12.0),
-                  itemBuilder: (context, index) => _buildColorButton(
-                    context,
-                    state,
-                    FlowyTint.values[index],
-                  ),
-                ),
-              ),
+              _buildPureColors(context, state),
               const VSpace(20.0),
+
+              // gradient colors
               FlowyText(
                 LocaleKeys.pageStyle_gradient.tr(),
                 color: context.pageStyleTextColor,
               ),
               const VSpace(8.0),
-              SizedBox(
-                height: 42.0,
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: FlowyGradientColor.values.length,
-                  separatorBuilder: (context, index) => const HSpace(12.0),
-                  itemBuilder: (context, index) => _buildGradientButton(
-                    context,
-                    state,
-                    FlowyGradientColor.values[index],
-                  ),
-                ),
-              ),
+              _buildGradientColors(context, state),
               const VSpace(20.0),
+
+              // built-in images
               FlowyText(
                 LocaleKeys.pageStyle_backgroundImage.tr(),
                 color: context.pageStyleTextColor,
               ),
               const VSpace(8.0),
-              _buildBuiltImages(context, state, ['1', '2', '3', '4', '5', '6']),
+              _buildBuiltImages(context, state),
             ],
           ),
         );
       },
+    );
+  }
+
+  Widget _buildPureColors(
+    BuildContext context,
+    DocumentPageStyleState state,
+  ) {
+    return SizedBox(
+      height: 42.0,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: FlowyTint.values.length,
+        separatorBuilder: (context, index) => const HSpace(12.0),
+        itemBuilder: (context, index) => _buildColorButton(
+          context,
+          state,
+          FlowyTint.values[index],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGradientColors(
+    BuildContext context,
+    DocumentPageStyleState state,
+  ) {
+    return SizedBox(
+      height: 42.0,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: FlowyGradientColor.values.length,
+        separatorBuilder: (context, index) => const HSpace(12.0),
+        itemBuilder: (context, index) => _buildGradientButton(
+          context,
+          state,
+          FlowyGradientColor.values[index],
+        ),
+      ),
     );
   }
 
@@ -198,8 +217,8 @@ class PageCoverBottomSheet extends StatelessWidget {
   Widget _buildBuiltImages(
     BuildContext context,
     DocumentPageStyleState state,
-    List<String> imageNames,
   ) {
+    final imageNames = ['1', '2', '3', '4', '5', '6'];
     return GridView.builder(
       shrinkWrap: true,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
