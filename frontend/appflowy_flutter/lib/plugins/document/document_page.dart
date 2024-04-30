@@ -159,8 +159,9 @@ class _DocumentPageState extends State<DocumentPage> {
         userProfilePB: userProfilePB,
       );
     }
+
     final page = editorState.document.root;
-    return DocumentHeaderNodeWidget(
+    return DocumentCoverWidget(
       node: page,
       editorState: editorState,
       view: widget.view,

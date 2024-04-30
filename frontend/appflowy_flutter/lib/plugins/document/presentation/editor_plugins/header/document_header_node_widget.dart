@@ -6,10 +6,12 @@ import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_picker_screen.dart';
 import 'package:appflowy/plugins/base/icon/icon_picker.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/header/desktop_cover.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/image_util.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/upload_image_menu.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/migration/editor_migration.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/shared/appflowy_network_image.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
@@ -30,6 +32,7 @@ const double kCoverHeight = 250.0;
 const double kIconHeight = 60.0;
 const double kToolbarHeight = 40.0; // with padding to the top
 
+// Remove this widget if the desktop support immersive cover.
 class DocumentHeaderBlockKeys {
   const DocumentHeaderBlockKeys._();
 
@@ -56,8 +59,8 @@ enum CoverType {
   }
 }
 
-class DocumentHeaderNodeWidget extends StatefulWidget {
-  const DocumentHeaderNodeWidget({
+class DocumentCoverWidget extends StatefulWidget {
+  const DocumentCoverWidget({
     super.key,
     required this.node,
     required this.editorState,
@@ -71,11 +74,10 @@ class DocumentHeaderNodeWidget extends StatefulWidget {
   final ViewPB view;
 
   @override
-  State<DocumentHeaderNodeWidget> createState() =>
-      _DocumentHeaderNodeWidgetState();
+  State<DocumentCoverWidget> createState() => _DocumentCoverWidgetState();
 }
 
-class _DocumentHeaderNodeWidgetState extends State<DocumentHeaderNodeWidget> {
+class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
   CoverType get coverType => CoverType.fromString(
         widget.node.attributes[DocumentHeaderBlockKeys.coverType],
       );
@@ -130,6 +132,7 @@ class _DocumentHeaderNodeWidgetState extends State<DocumentHeaderNodeWidget> {
         ),
         if (hasCover)
           DocumentCover(
+            view: widget.view,
             editorState: widget.editorState,
             node: widget.node,
             coverType: coverType,
@@ -189,8 +192,16 @@ class _DocumentHeaderNodeWidgetState extends State<DocumentHeaderNodeWidget> {
       widget.onIconChanged(icon);
     }
 
+    // compatible with version <= 0.5.5.
     transaction.updateNode(widget.node, attributes);
     await widget.editorState.apply(transaction);
+
+    // compatible with version > 0.5.5.
+    EditorMigration.migrateCoverIfNeeded(
+      widget.view,
+      widget.editorState,
+      overwrite: true,
+    );
   }
 }
 
@@ -366,6 +377,7 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
 class DocumentCover extends StatefulWidget {
   const DocumentCover({
     super.key,
+    required this.view,
     required this.node,
     required this.editorState,
     required this.coverType,
@@ -373,6 +385,7 @@ class DocumentCover extends StatefulWidget {
     required this.onChangeCover,
   });
 
+  final ViewPB view;
   final Node node;
   final EditorState editorState;
   final CoverType coverType;
@@ -407,7 +420,13 @@ class DocumentCoverState extends State<DocumentCover> {
             SizedBox(
               height: double.infinity,
               width: double.infinity,
-              child: _buildCoverImage(),
+              child: DesktopCover(
+                view: widget.view,
+                editorState: widget.editorState,
+                node: widget.node,
+                coverType: widget.coverType,
+                coverDetails: widget.coverDetails,
+              ),
             ),
             if (!isOverlayButtonsHidden) _buildCoverOverlayButtons(context),
           ],

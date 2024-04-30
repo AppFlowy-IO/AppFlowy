@@ -8,6 +8,7 @@ import 'package:appflowy/plugins/document/application/document_data_pb_extension
 import 'package:appflowy/plugins/document/application/document_listener.dart';
 import 'package:appflowy/plugins/document/application/document_service.dart';
 import 'package:appflowy/plugins/document/application/editor_transaction_adapter.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/migration/editor_migration.dart';
 import 'package:appflowy/plugins/trash/application/trash_service.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -105,6 +106,11 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
         final result = await _fetchDocumentState();
         _onViewChanged();
         _onDocumentChanged();
+        result.onSuccess((s) {
+          if (s != null) {
+            _migrateCover(s);
+          }
+        });
         final newState = await result.fold(
           (s) async {
             final userProfilePB =
@@ -375,6 +381,11 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
       documentId: view.id,
       metadata: jsonEncode(metadata.toJson()),
     );
+  }
+
+  // from version 0.5.5, the cover is stored in the view.ext
+  Future<void> _migrateCover(EditorState editorState) async {
+    return EditorMigration.migrateCoverIfNeeded(view, editorState);
   }
 }
 
