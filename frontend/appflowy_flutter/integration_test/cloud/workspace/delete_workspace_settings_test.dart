@@ -39,6 +39,9 @@ void main() {
       final loading = find.byType(Loading);
       await tester.pumpUntilNotFound(loading);
 
+      await tester.openCollaborativeWorkspaceMenu();
+      await tester.pump(const Duration(seconds: 1));
+
       final Finder items = find.byType(WorkspaceMenuItem);
       expect(items, findsNWidgets(2));
       expect(tester.widget<WorkspaceMenuItem>(items.last).workspace.name, name);
