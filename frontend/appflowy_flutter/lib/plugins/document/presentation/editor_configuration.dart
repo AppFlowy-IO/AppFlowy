@@ -1,3 +1,6 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_page.dart';
@@ -10,8 +13,6 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flowy_infra/theme_extension.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 Map<String, BlockComponentBuilder> getEditorBuilderMap({
@@ -23,25 +24,17 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
   ShowPlaceholder? showParagraphPlaceholder,
   String Function(Node)? placeholderText,
 }) {
-  final standardActions = [
-    OptionAction.delete,
-    OptionAction.duplicate,
-    // OptionAction.divider,
-    // OptionAction.moveUp,
-    // OptionAction.moveDown,
-  ];
+  final standardActions = [OptionAction.delete, OptionAction.duplicate];
 
   final calloutBGColor = AFThemeExtension.of(context).calloutBGColor;
   final configuration = BlockComponentConfiguration(
     // use EdgeInsets.zero to remove the default padding.
-    padding: (node) {
+    padding: (_) {
       if (PlatformExtension.isMobile) {
         final pageStyle = context.read<DocumentPageStyleBloc>().state;
         final factor = pageStyle.fontLayout.factor;
         final padding = pageStyle.lineHeightLayout.padding * factor;
-        return EdgeInsets.only(
-          top: padding,
-        );
+        return EdgeInsets.only(top: padding);
       }
 
       return const EdgeInsets.symmetric(vertical: 5.0);
@@ -62,10 +55,7 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
         placeholderText: (_) => LocaleKeys.blockPlaceholders_todoList.tr(),
       ),
       iconBuilder: PlatformExtension.isMobile
-          ? (context, node, onCheck) => TodoListIcon(
-                node: node,
-                onCheck: onCheck,
-              )
+          ? (_, node, onCheck) => TodoListIcon(node: node, onCheck: onCheck)
           : null,
       toggleChildrenTriggers: [
         LogicalKeyboardKey.shift,
@@ -78,9 +68,7 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
         placeholderText: (_) => LocaleKeys.blockPlaceholders_bulletList.tr(),
       ),
       iconBuilder: PlatformExtension.isMobile
-          ? (context, node) => BulletedListIcon(
-                node: node,
-              )
+          ? (_, node) => BulletedListIcon(node: node)
           : null,
     ),
     NumberedListBlockKeys.type: NumberedListBlockComponentBuilder(
@@ -88,10 +76,8 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
         placeholderText: (_) => LocaleKeys.blockPlaceholders_numberList.tr(),
       ),
       iconBuilder: PlatformExtension.isMobile
-          ? (context, node, textDirection) => NumberedListIcon(
-                node: node,
-                textDirection: textDirection,
-              )
+          ? (_, node, textDirection) =>
+              NumberedListIcon(node: node, textDirection: textDirection)
           : null,
     ),
     QuoteBlockKeys.type: QuoteBlockComponentBuilder(
@@ -108,9 +94,7 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
             final headingPaddings = pageStyle.lineHeightLayout.headingPaddings
                 .map((e) => e * factor);
             final level = node.attributes[HeadingBlockKeys.level] ?? 6;
-            return EdgeInsets.only(
-              top: headingPaddings.elementAt(level),
-            );
+            return EdgeInsets.only(top: headingPaddings.elementAt(level));
           }
 
           return const EdgeInsets.only(top: 12.0, bottom: 4.0);
@@ -128,10 +112,7 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
           Positioned(
         top: 0,
         right: 10,
-        child: ImageMenu(
-          node: node,
-          state: state,
-        ),
+        child: ImageMenu(node: node, state: state),
       ),
     ),
     TableBlockKeys.type: TableBlockComponentBuilder(
@@ -188,14 +169,12 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
     DividerBlockKeys.type: DividerBlockComponentBuilder(
       configuration: configuration,
       height: 28.0,
-      wrapper: (context, node, child) {
-        return MobileBlockActionButtons(
-          showThreeDots: false,
-          node: node,
-          editorState: editorState,
-          child: child,
-        );
-      },
+      wrapper: (_, node, child) => MobileBlockActionButtons(
+        showThreeDots: false,
+        node: node,
+        editorState: editorState,
+        child: child,
+      ),
     ),
     MathEquationBlockKeys.type: MathEquationBlockComponentBuilder(
       configuration: configuration,
@@ -223,10 +202,7 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
       configuration: configuration.copyWith(
         placeholderTextStyle: (_) =>
             styleCustomizer.outlineBlockPlaceholderStyleBuilder(),
-        padding: (_) => const EdgeInsets.only(
-          top: 12.0,
-          bottom: 4.0,
-        ),
+        padding: (_) => const EdgeInsets.only(top: 12.0, bottom: 4.0),
       ),
     ),
     LinkPreviewBlockKeys.type: LinkPreviewBlockComponentBuilder(
@@ -238,12 +214,9 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
       menuBuilder: (context, node, state) => Positioned(
         top: 10,
         right: 0,
-        child: LinkPreviewMenu(
-          node: node,
-          state: state,
-        ),
+        child: LinkPreviewMenu(node: node, state: state),
       ),
-      builder: (context, node, url, title, description, imageUrl) =>
+      builder: (_, node, url, title, description, imageUrl) =>
           CustomLinkPreviewWidget(
         node: node,
         url: url,
@@ -283,27 +256,11 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
         ToggleListBlockKeys.type,
       ];
 
-      final supportAlignBuilderType = [
-        ImageBlockKeys.type,
-      ];
-
-      final supportDepthBuilderType = [
-        OutlineBlockKeys.type,
-      ];
-
-      final colorAction = [
-        OptionAction.divider,
-        OptionAction.color,
-      ];
-
-      final alignAction = [
-        OptionAction.divider,
-        OptionAction.align,
-      ];
-
-      final depthAction = [
-        OptionAction.depth,
-      ];
+      final supportAlignBuilderType = [ImageBlockKeys.type];
+      final supportDepthBuilderType = [OutlineBlockKeys.type];
+      final colorAction = [OptionAction.divider, OptionAction.color];
+      final alignAction = [OptionAction.divider, OptionAction.align];
+      final depthAction = [OptionAction.depth];
 
       final List<OptionAction> actions = [
         ...standardActions,

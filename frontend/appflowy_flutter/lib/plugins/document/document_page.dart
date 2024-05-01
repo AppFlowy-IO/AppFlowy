@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
@@ -16,7 +18,6 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class DocumentPage extends StatefulWidget {
@@ -153,9 +154,9 @@ class _DocumentPageState extends State<DocumentPage>
       onRestore: () => context.read<DocumentBloc>().add(
             const DocumentEvent.restorePage(),
           ),
-      onDelete: () => context.read<DocumentBloc>().add(
-            const DocumentEvent.deletePermanently(),
-          ),
+      onDelete: () => context
+          .read<DocumentBloc>()
+          .add(const DocumentEvent.deletePermanently()),
     );
   }
 
@@ -178,12 +179,10 @@ class _DocumentPageState extends State<DocumentPage>
       node: page,
       editorState: editorState,
       view: widget.view,
-      onIconChanged: (icon) async {
-        await ViewBackendService.updateViewIcon(
-          viewId: widget.view.id,
-          viewIcon: icon,
-        );
-      },
+      onIconChanged: (icon) async => ViewBackendService.updateViewIcon(
+        viewId: widget.view.id,
+        viewIcon: icon,
+      ),
     );
   }
 
@@ -196,10 +195,9 @@ class _DocumentPageState extends State<DocumentPage>
       undoCommand.execute(editorState);
     } else if (type == EditorNotificationType.redo) {
       redoCommand.execute(editorState);
-    } else if (type == EditorNotificationType.exitEditing) {
-      if (editorState.selection != null) {
-        editorState.selection = null;
-      }
+    } else if (type == EditorNotificationType.exitEditing &&
+        editorState.selection != null) {
+      editorState.selection = null;
     }
   }
 
