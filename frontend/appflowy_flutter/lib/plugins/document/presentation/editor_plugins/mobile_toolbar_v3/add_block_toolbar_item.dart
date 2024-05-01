@@ -226,7 +226,7 @@ class _AddBlockMenu extends StatelessWidget {
         onTap: (_, __) async {
           AppGlobals.rootNavKey.currentContext?.pop(true);
 
-          final currentViewId = context.read<DocumentBloc>().view.id;
+          final currentViewId = context.read<DocumentBloc>().documentId;
           final viewId = await showPageSelectorSheet(
             context,
             currentViewId: currentViewId,

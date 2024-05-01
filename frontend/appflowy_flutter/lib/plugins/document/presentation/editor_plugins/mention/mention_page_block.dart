@@ -171,7 +171,7 @@ class _MentionPageBlockState extends State<MentionPageBlock> {
       return;
     }
 
-    final currentViewId = context.read<DocumentBloc>().view.id;
+    final currentViewId = context.read<DocumentBloc>().documentId;
     final viewId = await showPageSelectorSheet(
       context,
       currentViewId: currentViewId,
