@@ -860,7 +860,7 @@ dependencies = [
 [[package]]
 name = "collab"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=542ab275eae087f7be7207ada311c769ed1808b4#542ab275eae087f7be7207ada311c769ed1808b4"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=29475f0ec00dc06b42da68bc54efa5b7c1bcd0ff#29475f0ec00dc06b42da68bc54efa5b7c1bcd0ff"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -884,7 +884,7 @@ dependencies = [
 [[package]]
 name = "collab-database"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=542ab275eae087f7be7207ada311c769ed1808b4#542ab275eae087f7be7207ada311c769ed1808b4"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=29475f0ec00dc06b42da68bc54efa5b7c1bcd0ff#29475f0ec00dc06b42da68bc54efa5b7c1bcd0ff"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -914,7 +914,7 @@ dependencies = [
 [[package]]
 name = "collab-document"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=542ab275eae087f7be7207ada311c769ed1808b4#542ab275eae087f7be7207ada311c769ed1808b4"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=29475f0ec00dc06b42da68bc54efa5b7c1bcd0ff#29475f0ec00dc06b42da68bc54efa5b7c1bcd0ff"
 dependencies = [
  "anyhow",
  "collab",
@@ -933,7 +933,7 @@ dependencies = [
 [[package]]
 name = "collab-entity"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=542ab275eae087f7be7207ada311c769ed1808b4#542ab275eae087f7be7207ada311c769ed1808b4"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=29475f0ec00dc06b42da68bc54efa5b7c1bcd0ff#29475f0ec00dc06b42da68bc54efa5b7c1bcd0ff"
 dependencies = [
  "anyhow",
  "bytes",
@@ -948,7 +948,7 @@ dependencies = [
 [[package]]
 name = "collab-folder"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=542ab275eae087f7be7207ada311c769ed1808b4#542ab275eae087f7be7207ada311c769ed1808b4"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=29475f0ec00dc06b42da68bc54efa5b7c1bcd0ff#29475f0ec00dc06b42da68bc54efa5b7c1bcd0ff"
 dependencies = [
  "anyhow",
  "chrono",
@@ -986,7 +986,7 @@ dependencies = [
 [[package]]
 name = "collab-plugins"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=542ab275eae087f7be7207ada311c769ed1808b4#542ab275eae087f7be7207ada311c769ed1808b4"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=29475f0ec00dc06b42da68bc54efa5b7c1bcd0ff#29475f0ec00dc06b42da68bc54efa5b7c1bcd0ff"
 dependencies = [
  "anyhow",
  "async-stream",
@@ -1064,7 +1064,7 @@ dependencies = [
 [[package]]
 name = "collab-user"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=542ab275eae087f7be7207ada311c769ed1808b4#542ab275eae087f7be7207ada311c769ed1808b4"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=29475f0ec00dc06b42da68bc54efa5b7c1bcd0ff#29475f0ec00dc06b42da68bc54efa5b7c1bcd0ff"
 dependencies = [
  "anyhow",
  "collab",
@@ -1293,7 +1293,7 @@ dependencies = [
  "cssparser-macros",
  "dtoa-short",
  "itoa 1.0.6",
- "phf 0.8.0",
+ "phf 0.11.2",
  "smallvec",
 ]
 
@@ -1384,12 +1384,12 @@ dependencies = [
 
 [[package]]
 name = "dashmap"
-version = "5.4.0"
+version = "5.5.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "907076dfda823b0b36d2a1bb5f90c96660a5bbcd7729e10727f07858f22c4edc"
+checksum = "978747c1d849a7d2ee5e8adc0159961c48fb7e5db2f06af6723b80123bb53856"
 dependencies = [
  "cfg-if",
- "hashbrown 0.12.3",
+ "hashbrown 0.14.3",
  "lock_api",
  "once_cell",
  "parking_lot_core 0.9.8",
@@ -2103,12 +2103,15 @@ name = "flowy-notification"
 version = "0.1.0"
 dependencies = [
  "bytes",
+ "dashmap",
  "flowy-codegen",
  "flowy-derive",
  "lazy_static",
  "lib-dispatch",
  "protobuf",
  "serde",
+ "tokio",
+ "tokio-util",
  "tracing",
 ]
 
@@ -4722,7 +4725,7 @@ checksum = "c55e02e35260070b6f716a2423c2ff1c3bb1642ddca6f99e1f26d06268a0e2d2"
 dependencies = [
  "bytes",
  "heck 0.4.1",
- "itertools 0.10.5",
+ "itertools 0.11.0",
  "log",
  "multimap",
  "once_cell",
@@ -4743,7 +4746,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "efb6c9a1dd1def8e2124d17e83a20af56f1570d6c2d2bd9e266ccb768df3840e"
 dependencies = [
  "anyhow",
- "itertools 0.10.5",
+ "itertools 0.11.0",
  "proc-macro2",
  "quote",
  "syn 2.0.47",
