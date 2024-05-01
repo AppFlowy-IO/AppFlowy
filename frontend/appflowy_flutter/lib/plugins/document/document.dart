@@ -87,7 +87,6 @@ class DocumentPlugin extends Plugin {
   void dispose() {
     _viewInfoBloc.close();
     notifier.dispose();
-    super.dispose();
   }
 }
 
