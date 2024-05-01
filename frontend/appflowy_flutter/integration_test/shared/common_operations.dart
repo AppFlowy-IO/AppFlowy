@@ -511,7 +511,7 @@ extension CommonOperations on WidgetTester {
     expect(workspace, findsOneWidget);
 
     await tapButton(workspace, pumpAndSettle: false);
-    await pump(const Duration(milliseconds: 2500));
+    await pump(const Duration(seconds: 5));
   }
 
   Future<void> createCollaborativeWorkspace(String name) async {
@@ -527,7 +527,7 @@ extension CommonOperations on WidgetTester {
     final createButton = find.byKey(createWorkspaceButtonKey);
     expect(createButton, findsOneWidget);
     await tapButton(createButton, pumpAndSettle: false);
-    await pump(const Duration(milliseconds: 2000));
+    await pump(const Duration(seconds: 5));
 
     // see the create workspace dialog
     final createWorkspaceDialog = find.byType(CreateWorkspaceDialog);
@@ -537,7 +537,7 @@ extension CommonOperations on WidgetTester {
     await enterText(find.byType(TextField), name);
 
     await tapButtonWithName(LocaleKeys.button_ok.tr(), pumpAndSettle: false);
-    await pump(const Duration(milliseconds: 2000));
+    await pump(const Duration(seconds: 5));
   }
 }
 

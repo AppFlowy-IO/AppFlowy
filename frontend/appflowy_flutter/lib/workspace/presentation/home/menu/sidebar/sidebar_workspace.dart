@@ -19,10 +19,7 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SidebarWorkspace extends StatefulWidget {
-  const SidebarWorkspace({
-    super.key,
-    required this.userProfile,
-  });
+  const SidebarWorkspace({super.key, required this.userProfile});
 
   final UserProfilePB userProfile;
 
