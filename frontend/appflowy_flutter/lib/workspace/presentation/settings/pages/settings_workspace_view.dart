@@ -42,10 +42,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class SettingsWorkspaceView extends StatefulWidget {
-  const SettingsWorkspaceView({
-    super.key,
-    required this.userProfile,
-  });
+  const SettingsWorkspaceView({super.key, required this.userProfile});
 
   final UserProfilePB userProfile;
 
@@ -69,17 +66,15 @@ class _SettingsWorkspaceViewState extends State<SettingsWorkspaceView> {
       create: (context) => WorkspaceSettingsBloc()
         ..add(WorkspaceSettingsEvent.initial(userProfile: widget.userProfile)),
       child: BlocConsumer<WorkspaceSettingsBloc, WorkspaceSettingsState>(
-        listenWhen: (previous, current) =>
-            current.workspace != null &&
-            !previous.deleteWorkspace &&
-            current.deleteWorkspace,
         listener: (context, state) {
-          context.read<UserWorkspaceBloc>().add(
-                UserWorkspaceEvent.deleteWorkspace(
-                  state.workspace!.workspaceId,
-                ),
-              );
-          Navigator.of(context).pop();
+          if (state.deleteWorkspace) {
+            context.read<UserWorkspaceBloc>().add(
+                  UserWorkspaceEvent.deleteWorkspace(
+                    state.workspace!.workspaceId,
+                  ),
+                );
+            Navigator.of(context).pop();
+          }
         },
         builder: (context, state) {
           _workspaceNameController.text = state.workspace?.name ?? '';
@@ -99,6 +94,11 @@ class _SettingsWorkspaceViewState extends State<SettingsWorkspaceView> {
                   children: [
                     SettingsActionableInput(
                       controller: _workspaceNameController,
+                      onSave: (value) => _saveWorkspaceName(
+                        context,
+                        current: state.workspace!.name,
+                        name: value,
+                      ),
                       actions: [
                         SizedBox(
                           height: 48,
@@ -113,17 +113,11 @@ class _SettingsWorkspaceViewState extends State<SettingsWorkspaceView> {
                             fillColor: Theme.of(context).colorScheme.primary,
                             hoverColor: const Color(0xFF005483),
                             fontHoverColor: Colors.white,
-                            onPressed: _workspaceNameController.text.isEmpty ||
-                                    _workspaceNameController.text ==
-                                        state.workspace!.name
-                                ? null
-                                : () =>
-                                    context.read<WorkspaceSettingsBloc>().add(
-                                          WorkspaceSettingsEvent
-                                              .updateWorkspaceName(
-                                            _workspaceNameController.text,
-                                          ),
-                                        ),
+                            onPressed: () => _saveWorkspaceName(
+                              context,
+                              current: state.workspace!.name,
+                              name: _workspaceNameController.text,
+                            ),
                           ),
                         ),
                       ],
@@ -138,8 +132,7 @@ class _SettingsWorkspaceViewState extends State<SettingsWorkspaceView> {
                       .settings_workspacePage_workspaceIcon_description
                       .tr(),
                   children: [
-                    if (state.workspace != null)
-                      _WorkspaceIconSetting(workspace: state.workspace!),
+                    _WorkspaceIconSetting(workspace: state.workspace!),
                   ],
                 ),
                 const SettingsCategorySpacer(),
@@ -174,9 +167,7 @@ class _SettingsWorkspaceViewState extends State<SettingsWorkspaceView> {
               SettingsCategory(
                 title: LocaleKeys.settings_workspacePage_layoutDirection_title
                     .tr(),
-                children: const [
-                  _LayoutDirectionSelect(),
-                ],
+                children: const [_LayoutDirectionSelect()],
               ),
               const SettingsCategorySpacer(),
               SettingsCategory(
@@ -246,6 +237,27 @@ class _SettingsWorkspaceViewState extends State<SettingsWorkspaceView> {
         },
       ),
     );
+  }
+
+  void _saveWorkspaceName(
+    BuildContext context, {
+    required String current,
+    required String name,
+  }) {
+    if (name.isNotEmpty && name != current) {
+      context.read<WorkspaceSettingsBloc>().add(
+            WorkspaceSettingsEvent.updateWorkspaceName(
+              _workspaceNameController.text,
+            ),
+          );
+
+      if (context.mounted) {
+        showSnackBarMessage(
+          context,
+          LocaleKeys.settings_workspacePage_workspaceName_savedMessage.tr(),
+        );
+      }
+    }
   }
 }
 
@@ -317,6 +329,8 @@ class _TextDirectionSelect extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
       builder: (context, state) {
+        final selectedItem = state.textDirection ?? AppFlowyTextDirection.auto;
+
         return SettingsRadioSelect<AppFlowyTextDirection>(
           onChanged: (item) => context
               .read<AppearanceSettingsCubit>()
@@ -327,20 +341,20 @@ class _TextDirectionSelect extends StatelessWidget {
               icon: const FlowySvg(FlowySvgs.textdirection_ltr_m),
               label: LocaleKeys.settings_workspacePage_textDirection_leftToRight
                   .tr(),
-              isSelected: state.textDirection == AppFlowyTextDirection.ltr,
+              isSelected: selectedItem == AppFlowyTextDirection.ltr,
             ),
             SettingsRadioItem(
               value: AppFlowyTextDirection.rtl,
               icon: const FlowySvg(FlowySvgs.textdirection_rtl_m),
               label: LocaleKeys.settings_workspacePage_textDirection_rightToLeft
                   .tr(),
-              isSelected: state.textDirection == AppFlowyTextDirection.rtl,
+              isSelected: selectedItem == AppFlowyTextDirection.rtl,
             ),
             SettingsRadioItem(
               value: AppFlowyTextDirection.auto,
               icon: const FlowySvg(FlowySvgs.textdirection_auto_m),
               label: LocaleKeys.settings_workspacePage_textDirection_auto.tr(),
-              isSelected: state.textDirection == AppFlowyTextDirection.auto,
+              isSelected: selectedItem == AppFlowyTextDirection.auto,
             ),
           ],
         );

@@ -68,10 +68,11 @@ class WorkspaceSettingsBloc
             );
             final result = await UserEventRenameWorkspace(request).send();
 
+            state.workspace!.freeze();
+            final update = state.workspace!.rebuild((p0) => p0.name = name);
+
             result.fold(
-              (_) => emit(
-                state.copyWith(workspace: state.workspace?..name = name),
-              ),
+              (_) => emit(state.copyWith(workspace: update)),
               (e) => Log.error('Failed to rename workspace: $e'),
             );
           },
@@ -87,24 +88,17 @@ class WorkspaceSettingsBloc
 
             result.fold(
               (_) {
-                final workspace = state.workspace?..freeze();
-                if (workspace != null) {
-                  final newWorkspace = workspace.rebuild((p0) {
-                    p0.icon = icon;
-                  });
+                state.workspace!.freeze();
+                final newWorkspace =
+                    state.workspace!.rebuild((p0) => p0.icon = icon);
 
-                  return emit(state.copyWith(workspace: newWorkspace));
-                }
-
-                Log.error('Failed to update workspace icon, no workspace.');
+                return emit(state.copyWith(workspace: newWorkspace));
               },
               (e) => Log.error('Failed to update workspace icon: $e'),
             );
           },
-          deleteWorkspace: () async => emit(state.copyWith(deleteWorkspace: true)),
-          addWorkspaceMember: (email) {},
-          removeWorkspaceMember: (email) {},
-          updateWorkspaceMember: (email, role) {},
+          deleteWorkspace: () async =>
+              emit(state.copyWith(deleteWorkspace: true)),
           leaveWorkspace: () async {
             final result = await _userService
                 ?.leaveWorkspace(state.workspace!.workspaceId);
@@ -156,16 +150,6 @@ class WorkspaceSettingsEvent with _$WorkspaceSettingsEvent {
   const factory WorkspaceSettingsEvent.updateWorkspaceIcon(String icon) =
       UpdateWorkspaceIcon;
   const factory WorkspaceSettingsEvent.deleteWorkspace() = DeleteWorkspace;
-
-  // Workspace Member
-  const factory WorkspaceSettingsEvent.addWorkspaceMember(String email) =
-      AddWorkspaceMember;
-  const factory WorkspaceSettingsEvent.removeWorkspaceMember(String email) =
-      RemoveWorkspaceMember;
-  const factory WorkspaceSettingsEvent.updateWorkspaceMember(
-    String email,
-    AFRolePB role,
-  ) = UpdateWorkspaceMember;
   const factory WorkspaceSettingsEvent.leaveWorkspace() = leaveWorkspace;
 }
 
