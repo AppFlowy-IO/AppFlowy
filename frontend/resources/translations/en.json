@@ -351,7 +351,8 @@
       "title": "Workspace",
       "description": "Customize your workspace appearance, theme, font, text layout, date-/time-format, and language.",
       "workspaceName": {
-        "title": "Workspace name"
+        "title": "Workspace name",
+        "savedMessage": "Saved workspace name"
       },
       "workspaceIcon": {
         "title": "Workspace icon",
