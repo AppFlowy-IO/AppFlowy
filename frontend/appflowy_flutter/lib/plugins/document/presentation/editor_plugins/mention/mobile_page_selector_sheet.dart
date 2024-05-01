@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/base/flowy_search_text_field.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/show_mobile_bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
+import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -102,6 +105,17 @@ class _MobilePageSelectorBodyState extends State<_MobilePageSelectorBody> {
                 children: filtered
                     .map(
                       (view) => FlowyOptionTile.checkbox(
+                        leftIcon: view.icon.value.isNotEmpty
+                            ? EmojiText(
+                                emoji: view.icon.value,
+                                fontSize: 18,
+                                textAlign: TextAlign.center,
+                                lineHeight: 1.3,
+                              )
+                            : FlowySvg(
+                                view.layout.icon,
+                                size: const Size.square(20),
+                              ),
                         text: view.name,
                         isSelected: view.id == widget.selectedViewId,
                         onTap: () => Navigator.of(context).pop(view.id),
