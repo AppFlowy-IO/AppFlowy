@@ -39,6 +39,10 @@ void main() {
       final loading = find.byType(Loading);
       await tester.pumpUntilNotFound(loading);
 
+      final Finder items = find.byType(WorkspaceMenuItem);
+      expect(items, findsNWidgets(2));
+      expect(tester.widget<WorkspaceMenuItem>(items.last).workspace.name, name);
+
       // Open settings dialog
       await tester.openSettings();
       await tester.openSettingsPage(SettingsPage.workspace);
@@ -74,7 +78,8 @@ void main() {
       await tester.pumpUntilNotFound(loading);
 
       await tester.openCollaborativeWorkspaceMenu();
-      final Finder items = find.byType(WorkspaceMenuItem);
+      await tester.pump(const Duration(seconds: 1));
+
       expect(items, findsNWidgets(1));
     });
   });
