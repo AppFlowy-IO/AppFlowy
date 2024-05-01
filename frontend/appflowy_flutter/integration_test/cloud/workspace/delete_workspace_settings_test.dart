@@ -3,7 +3,9 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/custom_cover_picker_bloc.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/workspace/application/settings/settings_dialog_bloc.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_setting.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_menu.dart';
+import 'package:appflowy/workspace/presentation/settings/settings_dialog.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_actionable_input.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/uuid.dart';
@@ -47,8 +49,18 @@ void main() {
       expect(tester.widget<WorkspaceMenuItem>(items.last).workspace.name, name);
 
       // Open settings dialog
-      await tester.openSettings();
+      // We don't use tester.openSettings as it is unstable
+      final settingsButton = find.byType(UserSettingButton);
+      expect(settingsButton, findsOneWidget);
+
+      await tester.tapButton(settingsButton);
+      await tester.pump(const Duration(seconds: 1));
+
+      final settingsDialog = find.byType(SettingsDialog);
+      expect(settingsDialog, findsOneWidget);
+
       await tester.openSettingsPage(SettingsPage.workspace);
+      await tester.pump(const Duration(milliseconds: 200));
 
       // Rename workspace
       final nameFinder = find.descendant(
