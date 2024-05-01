@@ -172,7 +172,7 @@ fn notify_row(
   field_id: String,
   row_id: &RowId,
 ) {
-  let update_row = UpdatedRow::new(&row_id).with_field_ids(vec![field_id]);
+  let update_row = UpdatedRow::new(row_id).with_field_ids(vec![field_id]);
   let update_changeset = RowsChangePB::from_update(update_row.into());
   let subject = NotificationBuilder::new(
     row_id,
@@ -184,9 +184,9 @@ fn notify_row(
   notification_sender.send_subject(subject);
 }
 
-fn notify_cell(notification_sender: &Arc<DebounceNotificationSender>, cell_id: &String) {
+fn notify_cell(notification_sender: &Arc<DebounceNotificationSender>, cell_id: &str) {
   let subject = NotificationBuilder::new(
-    &cell_id,
+    cell_id,
     DatabaseNotification::DidUpdateCell,
     DATABASE_OBSERVABLE_SOURCE,
   )
