@@ -16,6 +16,7 @@ import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
+import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -50,7 +51,13 @@ class _MobileViewPageState extends State<MobileViewPage> {
 
   // used to determine if the user has scrolled down and show the app bar in immersive mode
   ScrollNotificationObserverState? _scrollNotificationObserver;
+
+  // control the app bar opacity when in immersive mode
   final ValueNotifier<double> _appBarOpacity = ValueNotifier(0.0);
+
+  // only enable immersive mode for document layout
+  final ValueNotifier<bool> _isImmersiveMode = ValueNotifier(false);
+  ViewListener? viewListener;
 
   @override
   void initState() {
@@ -61,6 +68,8 @@ class _MobileViewPageState extends State<MobileViewPage> {
   @override
   void dispose() {
     _appBarOpacity.dispose();
+    _isImmersiveMode.dispose();
+    viewListener?.stop();
     _scrollNotificationObserver = null;
     super.dispose();
   }
@@ -87,6 +96,12 @@ class _MobileViewPageState extends State<MobileViewPage> {
         } else {
           body = state.data!.fold((view) {
             viewPB = view;
+            _updateImmersiveMode(view);
+            viewListener?.stop();
+            viewListener = ViewListener(viewId: view.id)
+              ..start(
+                onViewUpdated: _updateImmersiveMode,
+              );
 
             actions.addAll([
               if (FeatureFlag.syncDocument.isOn) ...[
@@ -195,6 +210,15 @@ class _MobileViewPageState extends State<MobileViewPage> {
                   AppBarTheme.of(context).backgroundColor?.withOpacity(opacity),
               showDivider: false,
               title: Opacity(opacity: opacity >= 0.99 ? 1.0 : 0, child: title),
+              leading: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 2.0, vertical: 4.0),
+                child: AppBarButton(
+                  padding: EdgeInsets.zero,
+                  onTap: (context) => context.pop(),
+                  child: _buildImmersiveAppBarIcon(FlowySvgs.m_app_bar_back_s),
+                ),
+              ),
               actions: actions,
             ),
           ),
@@ -230,7 +254,7 @@ class _MobileViewPageState extends State<MobileViewPage> {
     }
 
     return AppBarButton(
-      padding: const EdgeInsets.symmetric(horizontal: 8),
+      padding: const EdgeInsets.symmetric(vertical: 2.0),
       onTap: (context) {
         EditorNotification.exitEditing().post();
 
@@ -250,13 +274,13 @@ class _MobileViewPageState extends State<MobileViewPage> {
           ),
         );
       },
-      child: const FlowySvg(FlowySvgs.m_layout_s),
+      child: _buildImmersiveAppBarIcon(FlowySvgs.m_layout_s),
     );
   }
 
   Widget _buildAppBarMoreButton(ViewPB view) {
     return AppBarButton(
-      padding: const EdgeInsets.only(left: 8, right: 16),
+      padding: const EdgeInsets.only(left: 8, right: 16, top: 2, bottom: 2),
       onTap: (context) {
         EditorNotification.exitEditing().post();
 
@@ -268,7 +292,49 @@ class _MobileViewPageState extends State<MobileViewPage> {
           builder: (_) => _buildAppBarMoreBottomSheet(context),
         );
       },
-      child: const FlowySvg(FlowySvgs.m_app_bar_more_s),
+      child: _buildImmersiveAppBarIcon(FlowySvgs.m_app_bar_more_s),
+    );
+  }
+
+  Widget _buildImmersiveAppBarIcon(FlowySvgData icon) {
+    return ValueListenableBuilder(
+      valueListenable: _isImmersiveMode,
+      builder: (context, isImmersiveMode, child) {
+        return ValueListenableBuilder(
+          valueListenable: _appBarOpacity,
+          builder: (context, appBarOpacity, child) {
+            Color? color;
+
+            // if there's no cover or the cover is not immersive,
+            //  make sure the app bar is always visible
+            if (!isImmersiveMode) {
+              color = null;
+            } else if (appBarOpacity < 0.99) {
+              color = Colors.white;
+            }
+
+            Widget child = Container(
+              margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+              child: FlowySvg(
+                icon,
+                color: color,
+              ),
+            );
+
+            if (isImmersiveMode && appBarOpacity <= 0.99) {
+              child = DecoratedBox(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(22),
+                  color: Colors.black.withOpacity(0.2),
+                ),
+                child: child,
+              );
+            }
+
+            return child;
+          },
+        );
+      },
     );
   }
 
@@ -331,6 +397,7 @@ class _MobileViewPageState extends State<MobileViewPage> {
     if (_scrollNotificationObserver == null) {
       return;
     }
+
     if (notification is ScrollUpdateNotification &&
         defaultScrollNotificationPredicate(notification)) {
       final ScrollMetrics metrics = notification.metrics;
@@ -342,6 +409,18 @@ class _MobileViewPageState extends State<MobileViewPage> {
           progress == 1.0) {
         _appBarOpacity.value = progress;
       }
+    }
+  }
+
+  void _updateImmersiveMode(ViewPB view) {
+    final cover = view.cover;
+    if (cover == null || cover.type == PageStyleCoverImageType.none) {
+      _isImmersiveMode.value = false;
+    } else if (view.layout != ViewLayoutPB.Document) {
+      // only support immersive mode for document layout
+      _isImmersiveMode.value = false;
+    } else {
+      _isImmersiveMode.value = true;
     }
   }
 }

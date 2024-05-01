@@ -103,13 +103,16 @@ class _DocumentImmersiveCoverState extends State<DocumentImmersiveCover> {
             _buildIcon(context, icon),
             const HSpace(8.0),
           ],
-          Expanded(child: _buildTitle(context)),
+          Expanded(child: _buildTitle(context, state)),
         ],
       ),
     );
   }
 
-  Widget _buildTitle(BuildContext context) {
+  Widget _buildTitle(
+    BuildContext context,
+    DocumentImmersiveCoverState state,
+  ) {
     String? fontFamily = builtInFontFamily();
     final documentFontFamily =
         context.read<DocumentPageStyleBloc>().state.fontFamily;
@@ -131,6 +134,9 @@ class _DocumentImmersiveCoverState extends State<DocumentImmersiveCover> {
         fontSize: 28.0,
         fontWeight: FontWeight.w700,
         fontFamily: fontFamily,
+        color: state.cover.type == PageStyleCoverImageType.none
+            ? null
+            : Colors.white,
       ),
       onSubmitted: (value) {
         scrollController.position.jumpTo(0);
