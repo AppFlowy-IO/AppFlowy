@@ -24,7 +24,10 @@ class CachedRecentService {
   Completer<void> _completer = Completer();
 
   ValueNotifier<List<ViewPB>> notifier = ValueNotifier(const []);
-  List<ViewPB> _recentViews = const [];
+
+  List<ViewPB> get _recentViews => notifier.value;
+  set _recentViews(List<ViewPB> value) => notifier.value = value;
+
   final _listener = RecentViewsListener();
 
   Future<List<ViewPB>> recentViews() async {
@@ -35,7 +38,6 @@ class CachedRecentService {
     _listener.start(recentViewsUpdated: _recentViewsUpdated);
     final result = await _readRecentViews();
     _recentViews = result.toNullable()?.items ?? const [];
-    notifier.value = _recentViews;
     _completer.complete();
 
     return _recentViews;
@@ -64,6 +66,7 @@ class CachedRecentService {
   }
 
   Future<void> dispose() async {
+    notifier.dispose();
     await _listener.stop();
   }
 
