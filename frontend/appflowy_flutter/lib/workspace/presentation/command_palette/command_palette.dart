@@ -16,18 +16,12 @@ class CommandPalette extends InheritedWidget {
   CommandPalette({
     super.key,
     required Widget? child,
-    required ValueNotifier<bool> toggleNotifier,
-  })  : _toggleNotifier = toggleNotifier,
-        super(
-          child: _CommandPaletteController(
-            toggleNotifier: toggleNotifier,
-            child: child,
-          ),
+    required this.notifier,
+  }) : super(
+          child: _CommandPaletteController(notifier: notifier, child: child),
         );
 
-  final ValueNotifier<bool> _toggleNotifier;
-
-  void toggle() => _toggleNotifier.value = !_toggleNotifier.value;
+  final ValueNotifier<bool> notifier;
 
   static CommandPalette of(BuildContext context) {
     final CommandPalette? result =
@@ -37,6 +31,8 @@ class CommandPalette extends InheritedWidget {
 
     return result!;
   }
+
+  void toggle() => notifier.value = !notifier.value;
 
   @override
   bool updateShouldNotify(covariant InheritedWidget oldWidget) => false;
@@ -48,12 +44,12 @@ class _ToggleCommandPaletteIntent extends Intent {
 
 class _CommandPaletteController extends StatefulWidget {
   const _CommandPaletteController({
-    required this.toggleNotifier,
     required this.child,
+    required this.notifier,
   });
 
   final Widget? child;
-  final ValueNotifier<bool> toggleNotifier;
+  final ValueNotifier<bool> notifier;
 
   @override
   State<_CommandPaletteController> createState() =>
@@ -61,25 +57,8 @@ class _CommandPaletteController extends StatefulWidget {
 }
 
 class _CommandPaletteControllerState extends State<_CommandPaletteController> {
-  late ValueNotifier<bool> _toggleNotifier = widget.toggleNotifier;
+  late final ValueNotifier<bool> _toggleNotifier = widget.notifier;
   bool _isOpen = false;
-
-  @override
-  void didUpdateWidget(covariant _CommandPaletteController oldWidget) {
-    if (oldWidget.toggleNotifier != widget.toggleNotifier) {
-      _toggleNotifier.removeListener(_onToggle);
-      _toggleNotifier.dispose();
-      _toggleNotifier = widget.toggleNotifier;
-
-      // If widget is changed, eg. on theme mode hotkey used
-      // while modal is shown, set the value before listening
-      _toggleNotifier.value = _isOpen;
-
-      _toggleNotifier.addListener(_onToggle);
-    }
-
-    super.didUpdateWidget(oldWidget);
-  }
 
   @override
   void initState() {

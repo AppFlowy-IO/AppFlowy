@@ -204,9 +204,9 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
                 ),
                 child: overlayManagerBuilder(
                   context,
-                  FeatureFlag.search.isOn
+                  !PlatformExtension.isMobile && FeatureFlag.search.isOn
                       ? CommandPalette(
-                          toggleNotifier: _commandPaletteNotifier,
+                          notifier: _commandPaletteNotifier,
                           child: child,
                         )
                       : child,

@@ -1,5 +1,8 @@
 import 'dart:math';
 
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
@@ -13,17 +16,12 @@ import 'package:appflowy/workspace/application/settings/appearance/appearance_cu
 import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:collection/collection.dart';
-import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class EditorStyleCustomizer {
-  EditorStyleCustomizer({
-    required this.context,
-    required this.padding,
-  });
+  EditorStyleCustomizer({required this.context, required this.padding});
 
   final BuildContext context;
   final EdgeInsets padding;
@@ -63,9 +61,7 @@ class EditorStyleCustomizer {
         bold: baseTextStyle(fontFamily, fontWeight: FontWeight.bold).copyWith(
           fontWeight: FontWeight.w600,
         ),
-        italic: baseTextStyle(fontFamily).copyWith(
-          fontStyle: FontStyle.italic,
-        ),
+        italic: baseTextStyle(fontFamily).copyWith(fontStyle: FontStyle.italic),
         underline: baseTextStyle(fontFamily).copyWith(
           decoration: TextDecoration.underline,
         ),
@@ -110,15 +106,9 @@ class EditorStyleCustomizer {
           color: theme.colorScheme.onBackground,
           height: lineHeight,
         ),
-        bold: baseTextStyle.copyWith(
-          fontWeight: FontWeight.w600,
-        ),
-        italic: baseTextStyle.copyWith(
-          fontStyle: FontStyle.italic,
-        ),
-        underline: baseTextStyle.copyWith(
-          decoration: TextDecoration.underline,
-        ),
+        bold: baseTextStyle.copyWith(fontWeight: FontWeight.w600),
+        italic: baseTextStyle.copyWith(fontStyle: FontStyle.italic),
+        underline: baseTextStyle.copyWith(decoration: TextDecoration.underline),
         strikethrough: baseTextStyle.copyWith(
           decoration: TextDecoration.lineThrough,
         ),
@@ -175,25 +165,23 @@ class EditorStyleCustomizer {
   }
 
   TextStyle codeBlockStyleBuilder() {
-    final theme = Theme.of(context);
     final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
     final fontFamily =
         context.read<DocumentAppearanceCubit>().state.codeFontFamily;
     return baseTextStyle(fontFamily).copyWith(
       fontSize: fontSize,
       height: 1.5,
-      color: theme.colorScheme.onBackground,
+      color: Theme.of(context).colorScheme.onBackground,
     );
   }
 
   TextStyle outlineBlockPlaceholderStyleBuilder() {
-    final theme = Theme.of(context);
     final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
     return TextStyle(
       fontFamily: builtInFontFamily(),
       fontSize: fontSize,
       height: 1.5,
-      color: theme.colorScheme.onBackground.withOpacity(0.6),
+      color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
     );
   }
 
@@ -220,38 +208,22 @@ class EditorStyleCustomizer {
     );
   }
 
-  FloatingToolbarStyle floatingToolbarStyleBuilder() {
-    final theme = Theme.of(context);
-    return FloatingToolbarStyle(
-      backgroundColor: theme.colorScheme.onTertiary,
-    );
-  }
-
-  TextStyle baseTextStyle(
-    String? fontFamily, {
-    FontWeight? fontWeight,
-  }) {
-    if (fontFamily == null) {
-      return TextStyle(
-        fontWeight: fontWeight,
+  FloatingToolbarStyle floatingToolbarStyleBuilder() => FloatingToolbarStyle(
+        backgroundColor: Theme.of(context).colorScheme.onTertiary,
       );
+
+  TextStyle baseTextStyle(String? fontFamily, {FontWeight? fontWeight}) {
+    if (fontFamily == null) {
+      return TextStyle(fontWeight: fontWeight);
     }
     try {
-      return GoogleFonts.getFont(
-        fontFamily,
-        fontWeight: fontWeight,
-      );
+      return GoogleFonts.getFont(fontFamily, fontWeight: fontWeight);
     } on Exception {
       if ([builtInFontFamily(), builtInCodeFontFamily].contains(fontFamily)) {
-        return TextStyle(
-          fontFamily: fontFamily,
-          fontWeight: fontWeight,
-        );
+        return TextStyle(fontFamily: fontFamily, fontWeight: fontWeight);
       }
 
-      return TextStyle(
-        fontWeight: fontWeight,
-      );
+      return TextStyle(fontWeight: fontWeight);
     }
   }
 
@@ -281,7 +253,7 @@ class EditorStyleCustomizer {
             ),
           );
         }
-      } catch (e) {
+      } catch (_) {
         // ignore
       }
     }
@@ -334,18 +306,13 @@ class EditorStyleCustomizer {
           ..onTap = () {
             final editorState = context.read<EditorState>();
             if (editorState.selection == null) {
-              afLaunchUrlString(
-                href,
-                addingHttpSchemeWhenFailed: true,
-              );
+              afLaunchUrlString(href, addingHttpSchemeWhenFailed: true);
               return;
             }
 
             editorState.updateSelectionWithReason(
               editorState.selection,
-              extraInfo: {
-                selectionExtraInfoDisableMobileToolbarKey: true,
-              },
+              extraInfo: {selectionExtraInfoDisableMobileToolbarKey: true},
             );
 
             showEditLinkBottomSheet(
