@@ -41,7 +41,10 @@ impl DebounceNotificationSender {
       .insert(subject_key.clone(), cancel_token.clone());
     let debounce_in_millis = self.debounce_in_millis;
     tokio::spawn(async move {
-      tokio::time::sleep(std::time::Duration::from_millis(debounce_in_millis)).await;
+      if debounce_in_millis > 0 {
+        tokio::time::sleep(std::time::Duration::from_millis(debounce_in_millis)).await;
+      }
+
       if cancel_token.is_cancelled() {
         return;
       }
