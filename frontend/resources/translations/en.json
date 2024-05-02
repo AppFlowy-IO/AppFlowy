@@ -1120,6 +1120,7 @@
     "ungroupedButtonTooltip": "Contains cards that don't belong in any group",
     "ungroupedItemsTitle": "Click to add to the board",
     "groupBy": "Group by",
+    "groupCondition": "Group condition",
     "referencedBoardPrefix": "View of",
     "notesTooltip": "Notes inside",
     "mobile": {

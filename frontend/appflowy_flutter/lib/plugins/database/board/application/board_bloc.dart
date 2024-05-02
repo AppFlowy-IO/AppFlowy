@@ -520,6 +520,9 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
       return "No ${field.name}";
     }
 
+    final groupSettings = databaseController.fieldController.groupSettings
+        .firstWhereOrNull((gs) => gs.fieldId == field.id);
+
     switch (field.fieldType) {
       case FieldType.SingleSelect:
         final options =
@@ -540,33 +543,61 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
       case FieldType.URL:
         return group.groupId;
       case FieldType.DateTime:
-        // Assume DateCondition::Relative as there isn't an option for this
-        // right now.
+        final config = groupSettings?.content != null
+            ? DateGroupConfigurationPB.fromBuffer(groupSettings!.content)
+            : DateGroupConfigurationPB();
         final dateFormat = DateFormat("y/MM/dd");
         try {
           final targetDateTime = dateFormat.parseLoose(group.groupId);
-          final targetDateTimeDay = DateTime(
-            targetDateTime.year,
-            targetDateTime.month,
-            targetDateTime.day,
-          );
-          final now = DateTime.now();
-          final nowDay = DateTime(
-            now.year,
-            now.month,
-            now.day,
-          );
-          final diff = targetDateTimeDay.difference(nowDay).inDays;
-          return switch (diff) {
-            0 => "Today",
-            -1 => "Yesterday",
-            1 => "Tomorrow",
-            -7 => "Last 7 days",
-            2 => "Next 7 days",
-            -30 => "Last 30 days",
-            8 => "Next 30 days",
-            _ => DateFormat("MMM y").format(targetDateTimeDay)
-          };
+          switch (config.condition) {
+            case DateConditionPB.Day:
+              return DateFormat("MMM dd, y").format(targetDateTime);
+            case DateConditionPB.Week:
+              final beginningOfWeek = targetDateTime
+                  .subtract(Duration(days: targetDateTime.weekday - 1));
+              final endOfWeek = targetDateTime.add(
+                Duration(days: DateTime.daysPerWeek - targetDateTime.weekday),
+              );
+
+              final beginningOfWeekFormat =
+                  beginningOfWeek.year != endOfWeek.year
+                      ? "MMM dd y"
+                      : "MMM dd";
+              final endOfWeekFormat = beginningOfWeek.month != endOfWeek.month
+                  ? "MMM dd y"
+                  : "dd y";
+
+              return 'Week of ${DateFormat(beginningOfWeekFormat).format(beginningOfWeek)} - ${DateFormat(endOfWeekFormat).format(endOfWeek)}';
+            case DateConditionPB.Month:
+              return DateFormat("MMM y").format(targetDateTime);
+            case DateConditionPB.Year:
+              return DateFormat("y").format(targetDateTime);
+            case DateConditionPB.Relative:
+              final targetDateTimeDay = DateTime(
+                targetDateTime.year,
+                targetDateTime.month,
+                targetDateTime.day,
+              );
+              final now = DateTime.now();
+              final nowDay = DateTime(
+                now.year,
+                now.month,
+                now.day,
+              );
+              final diff = targetDateTimeDay.difference(nowDay).inDays;
+              return switch (diff) {
+                0 => "Today",
+                -1 => "Yesterday",
+                1 => "Tomorrow",
+                -7 => "Last 7 days",
+                2 => "Next 7 days",
+                -30 => "Last 30 days",
+                8 => "Next 30 days",
+                _ => DateFormat("MMM y").format(targetDateTimeDay)
+              };
+            default:
+              return "";
+          }
         } on FormatException {
           return "";
         }

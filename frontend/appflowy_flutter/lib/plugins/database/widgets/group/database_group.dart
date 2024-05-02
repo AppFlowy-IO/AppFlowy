@@ -8,8 +8,7 @@ import 'package:appflowy/plugins/database/grid/presentation/widgets/common/type_
 import 'package:appflowy/util/field_type_extension.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle_style.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/board_entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 import 'package:flowy_infra/theme_extension.dart';
@@ -17,6 +16,7 @@ import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
+import 'package:collection/collection.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:protobuf/protobuf.dart' hide FieldInfo;
@@ -42,12 +42,11 @@ class DatabaseGroupList extends StatelessWidget {
       )..add(const DatabaseGroupEvent.initial()),
       child: BlocBuilder<DatabaseGroupBloc, DatabaseGroupState>(
         builder: (context, state) {
-          final showHideUngroupedToggle = state.fieldInfos.any(
-            (field) =>
-                field.canBeGroup &&
-                field.isGroupField &&
-                field.fieldType != FieldType.Checkbox,
+          final field = state.fieldInfos.firstWhereOrNull(
+            (field) => field.canBeGroup && field.isGroupField,
           );
+          final showHideUngroupedToggle =
+              field?.fieldType != FieldType.Checkbox;
           final children = [
             if (showHideUngroupedToggle) ...[
               SizedBox(
@@ -90,10 +89,46 @@ class DatabaseGroupList extends StatelessWidget {
             ...state.fieldInfos.where((fieldInfo) => fieldInfo.canBeGroup).map(
                   (fieldInfo) => _GridGroupCell(
                     fieldInfo: fieldInfo,
+                    name: fieldInfo.name,
+                    icon: fieldInfo.fieldType.svgData,
+                    checked: fieldInfo.isGroupField,
                     onSelected: onDismissed,
                     key: ValueKey(fieldInfo.id),
                   ),
                 ),
+            if (field?.groupConditions.isNotEmpty ?? false) ...[
+              const TypeOptionSeparator(spacing: 0),
+              SizedBox(
+                height: GridSize.popoverItemHeight,
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                  child: FlowyText.medium(
+                    LocaleKeys.board_groupCondition.tr(),
+                    textAlign: TextAlign.left,
+                    color: Theme.of(context).hintColor,
+                  ),
+                ),
+              ),
+              ...field!.groupConditions.map(
+                (condition) => _GridGroupCell(
+                  fieldInfo: field,
+                  name: condition.name,
+                  condition: condition.value,
+                  onSelected: onDismissed,
+                  checked: () {
+                    final gs = state.groupSettings
+                        .firstWhereOrNull((gs) => gs.fieldId == field.id);
+                    if (gs == null) {
+                      return false;
+                    }
+                    final config =
+                        DateGroupConfigurationPB.fromBuffer(gs.content);
+                    return config.condition == condition;
+                  }(),
+                ),
+              ),
+            ],
           ];
 
           return ListView.separated(
@@ -128,15 +163,23 @@ class _GridGroupCell extends StatelessWidget {
     super.key,
     required this.fieldInfo,
     required this.onSelected,
+    required this.checked,
+    required this.name,
+    this.condition = 0,
+    this.icon,
   });
 
   final FieldInfo fieldInfo;
   final VoidCallback onSelected;
+  final bool checked;
+  final int condition;
+  final String name;
+  final FlowySvgData? icon;
 
   @override
   Widget build(BuildContext context) {
     Widget? rightIcon;
-    if (fieldInfo.isGroupField) {
+    if (checked) {
       rightIcon = const Padding(
         padding: EdgeInsets.all(2.0),
         child: FlowySvg(FlowySvgs.check_s),
@@ -150,19 +193,31 @@ class _GridGroupCell extends StatelessWidget {
         child: FlowyButton(
           hoverColor: AFThemeExtension.of(context).lightGreyHover,
           text: FlowyText.medium(
-            fieldInfo.name,
+            name,
             color: AFThemeExtension.of(context).textColor,
           ),
-          leftIcon: FlowySvg(
-            fieldInfo.fieldType.svgData,
-            color: Theme.of(context).iconTheme.color,
-          ),
+          leftIcon: icon != null
+              ? FlowySvg(
+                  icon!,
+                  color: Theme.of(context).iconTheme.color,
+                )
+              : null,
           rightIcon: rightIcon,
           onTap: () {
+            List<int> settingContent = [];
+            switch (fieldInfo.fieldType) {
+              case FieldType.DateTime:
+                final config = DateGroupConfigurationPB()
+                  ..condition = DateConditionPB.values[condition];
+                settingContent = config.writeToBuffer();
+                break;
+              default:
+            }
             context.read<DatabaseGroupBloc>().add(
                   DatabaseGroupEvent.setGroupByField(
                     fieldInfo.id,
                     fieldInfo.fieldType,
+                    settingContent,
                   ),
                 );
             onSelected();

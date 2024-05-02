@@ -694,7 +694,7 @@ async fn update_database_layout_event_test2() {
     .find(|field| field.field_type == FieldType::Checkbox)
     .unwrap();
   test
-    .set_group_by_field(&grid_view.id, &checkbox_field.id)
+    .set_group_by_field(&grid_view.id, &checkbox_field.id, vec![])
     .await;
 
   let error = test
@@ -722,7 +722,7 @@ async fn set_group_by_checkbox_field_test() {
 
   let checkbox_field = test.create_field(&board_view.id, FieldType::Checkbox).await;
   test
-    .set_group_by_field(&board_view.id, &checkbox_field.id)
+    .set_group_by_field(&board_view.id, &checkbox_field.id, vec![])
     .await;
 
   let groups = test.get_groups(&board_view.id).await;
