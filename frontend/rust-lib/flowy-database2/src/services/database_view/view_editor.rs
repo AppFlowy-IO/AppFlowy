@@ -173,7 +173,7 @@ impl DatabaseViewEditor {
   pub async fn v_did_update_row_meta(&self, row_id: &RowId, row_detail: &RowDetail) {
     let update_row = UpdatedRow::new(row_id.as_str()).with_row_meta(row_detail.clone());
     let changeset = RowsChangePB::from_update(update_row.into());
-    send_notification(&self.view_id, DatabaseNotification::DidUpdateViewRows)
+    send_notification(&self.view_id, DatabaseNotification::DidUpdateRow)
       .payload(changeset)
       .send();
   }
@@ -223,7 +223,7 @@ impl DatabaseViewEditor {
     }
     let changes = RowsChangePB::from_delete(row.id.clone().into_inner());
 
-    send_notification(&self.view_id, DatabaseNotification::DidUpdateViewRows)
+    send_notification(&self.view_id, DatabaseNotification::DidUpdateRow)
       .payload(changes)
       .send();
 
@@ -1031,7 +1031,7 @@ impl DatabaseViewEditor {
       } => RowsChangePB::from_move(vec![deleted_row_id.into_inner()], vec![inserted_row.into()]),
     };
 
-    send_notification(&self.view_id, DatabaseNotification::DidUpdateViewRows)
+    send_notification(&self.view_id, DatabaseNotification::DidUpdateRow)
       .payload(changeset)
       .send();
   }
