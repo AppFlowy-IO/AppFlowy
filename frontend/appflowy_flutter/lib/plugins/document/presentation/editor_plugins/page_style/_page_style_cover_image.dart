@@ -1,13 +1,17 @@
+import 'dart:async';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
+import 'package:appflowy/mobile/presentation/widgets/show_flowy_mobile_confirm_dialog.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/image_util.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/unsplash_image_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/page_style/_page_cover_bottom_sheet.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/page_style/_page_style_util.dart';
 import 'package:appflowy/shared/feedback_gesture_detector.dart';
 import 'package:appflowy/user/application/user_service.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -16,6 +20,7 @@ import 'package:flowy_infra_ui/style_widget/snap_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class PageStyleCoverImage extends StatelessWidget {
   PageStyleCoverImage({
@@ -114,9 +119,22 @@ class PageStyleCoverImage extends StatelessWidget {
   }
 
   Future<void> _pickImage(BuildContext context) async {
-    final result = await _imagePicker.pickImage(
-      source: ImageSource.gallery,
-    );
+    final photoPermission = await _checkPhotoPermission(context);
+    if (!photoPermission) {
+      Log.error('Has no permission to access the photo library');
+      return;
+    }
+
+    XFile? result;
+    try {
+      result = await _imagePicker.pickImage(
+        source: ImageSource.gallery,
+      );
+    } catch (e) {
+      Log.error('Error while picking image: $e');
+      return;
+    }
+
     final path = result?.path;
     if (path != null && context.mounted) {
       final String? result;
@@ -203,6 +221,37 @@ class PageStyleCoverImage extends StatelessWidget {
         );
       },
     );
+  }
+
+  Future<bool> _checkPhotoPermission(BuildContext context) async {
+    // check the permission first
+    final status = await Permission.photos.status;
+    // if the permission is permanently denied, we should open the app settings
+    if (status.isPermanentlyDenied && context.mounted) {
+      unawaited(
+        showFlowyMobileConfirmDialog(
+          context,
+          content: FlowyText(
+            LocaleKeys.pageStyle_photoPermissionDescription.tr(),
+            maxLines: 5,
+          ),
+          actionButtonTitle: LocaleKeys.pageStyle_openSettings.tr(),
+          onActionButtonPressed: () {
+            openAppSettings();
+          },
+        ),
+      );
+
+      return false;
+    } else if (status.isDenied) {
+      // if the permission is denied, we should request the permission
+      final newStatus = await Permission.photos.request();
+      if (newStatus.isDenied) {
+        return false;
+      }
+    }
+
+    return true;
   }
 }
 

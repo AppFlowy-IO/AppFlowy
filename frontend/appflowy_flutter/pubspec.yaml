@@ -134,6 +134,7 @@ dependencies:
   avatar_stack: ^1.2.0
   numerus: ^2.1.2
   flutter_animate: ^4.5.0
+  permission_handler: ^11.3.1
 
 dev_dependencies:
   flutter_lints: ^3.0.1
