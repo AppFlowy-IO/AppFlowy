@@ -502,7 +502,12 @@
         "removeMember": "Remove Member",
         "areYouSureToRemoveMember": "Are you sure you want to remove this member?",
         "inviteMemberSuccess": "The invitation has been sent successfully",
-        "failedToInviteMember": "Failed to invite member"
+        "failedToInviteMember": "Failed to invite member",
+        "pagePermission": "Page Permission",
+        "moveAllThePublicPagesToYourPrivateSection": "Move all the public pages to your private section",
+        "moveAllThePublicPagesToYourPrivateSectionDescription": "Are you sure you want to move all pages to your private section? This operation cannot be undone.",
+        "moveSuccess": "Moved all the public pages to your private section successfully",
+        "moveFailed": "Failed to move all the public pages to your private section"
       }
     },
     "files": {

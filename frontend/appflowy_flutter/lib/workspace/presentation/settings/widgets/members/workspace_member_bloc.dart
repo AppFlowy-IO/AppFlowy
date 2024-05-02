@@ -162,6 +162,8 @@ class WorkspaceMemberBloc
   // if the workspace is null, use the current workspace
   final UserWorkspacePB? workspace;
 
+  String get workspaceId => _workspaceId;
+
   late final String _workspaceId;
   final UserBackendService _userBackendService;
 

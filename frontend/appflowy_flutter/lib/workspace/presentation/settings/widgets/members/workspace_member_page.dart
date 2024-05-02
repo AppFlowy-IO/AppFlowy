@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/af_role_pb_extension.dart';
+import 'package:appflowy/workspace/application/view/view_service.dart';
+import 'package:appflowy/workspace/application/workspace/workspace_service.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_body.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_category_spacer.dart';
@@ -18,6 +18,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:string_validator/string_validator.dart';
 
@@ -40,6 +41,8 @@ class WorkspaceMembersPage extends StatelessWidget {
               SettingsHeader(
                 title: LocaleKeys.settings_appearance_members_title.tr(),
               ),
+              if (state.myRole.isOwner)
+                const _WorkspacePagePermissionController(),
               if (state.myRole.canInvite) const _InviteMember(),
               if (state.myRole.canInvite && state.members.isNotEmpty)
                 const SettingsCategorySpacer(),
@@ -110,6 +113,74 @@ class WorkspaceMembersPage extends StatelessWidget {
     result.onFailure((f) {
       Log.error(
         '[Member] Failed to perform ${actionType.toString()} action: $f',
+      );
+    });
+  }
+}
+
+class _WorkspacePagePermissionController extends StatelessWidget {
+  const _WorkspacePagePermissionController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        FlowyText.semibold(
+          LocaleKeys.settings_appearance_members_pagePermission.tr(),
+          fontSize: 16.0,
+        ),
+        const VSpace(8.0),
+        SizedBox(
+          height: 48.0,
+          child: IntrinsicWidth(
+            child: RoundedTextButton(
+              title: LocaleKeys
+                  .settings_appearance_members_moveAllThePublicPagesToYourPrivateSection
+                  .tr(),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              onPressed: () => _showConfirmDialog(context),
+            ),
+          ),
+        ),
+        const SettingsCategorySpacer(),
+      ],
+    );
+  }
+
+  void _showConfirmDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (_) => NavigatorOkCancelDialog(
+        message: LocaleKeys
+            .settings_appearance_members_moveAllThePublicPagesToYourPrivateSectionDescription
+            .tr(),
+        onOkPressed: () => _moveAllPagesToPrivateSection(context),
+      ),
+    );
+  }
+
+  void _moveAllPagesToPrivateSection(BuildContext context) async {
+    // get all public views
+    final workspaceId = context.read<WorkspaceMemberBloc>().workspaceId;
+    if (workspaceId.isEmpty) {
+      return;
+    }
+    final publicViews =
+        await WorkspaceService(workspaceId: workspaceId).getPublicViews();
+    // move all the public views to private section
+    await publicViews.fold((s) async {
+      await ViewBackendService.updateViewsVisibility(s, false);
+      if (context.mounted) {
+        showSnackBarMessage(
+          context,
+          LocaleKeys.settings_appearance_members_moveSuccess.tr(),
+        );
+      }
+    }, (f) {
+      showSnackBarMessage(
+        context,
+        LocaleKeys.settings_appearance_members_moveFailed.tr(),
       );
     });
   }
