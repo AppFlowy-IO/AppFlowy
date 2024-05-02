@@ -20,6 +20,7 @@ import 'package:appflowy/workspace/presentation/home/menu/view/view_more_action_
 import 'package:appflowy/workspace/presentation/notifications/widgets/flowy_tab.dart';
 import 'package:appflowy/workspace/presentation/notifications/widgets/notification_button.dart';
 import 'package:appflowy/workspace/presentation/notifications/widgets/notification_tab_bar.dart';
+import 'package:appflowy/workspace/presentation/settings/shared/settings_body.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_language_view.dart';
 import 'package:appflowy/workspace/presentation/widgets/view_title_bar.dart';
 import 'package:appflowy_backend/log.dart';
@@ -69,27 +70,6 @@ extension CommonOperations on WidgetTester {
   Future<void> tapNewPageButton() async {
     final newPageButton = find.byType(SidebarNewPageButton);
     await tapButton(newPageButton);
-  }
-
-  /// Tap the create document button.
-  ///
-  /// Must call [tapAddViewButton] first.
-  Future<void> tapCreateDocumentButton() async {
-    await tapButtonWithName(LocaleKeys.document_menuName.tr());
-  }
-
-  /// Tap the create grid button.
-  ///
-  /// Must call [tapAddViewButton] first.
-  Future<void> tapCreateGridButton() async {
-    await tapButtonWithName(LocaleKeys.grid_menuName.tr());
-  }
-
-  /// Tap the create grid button.
-  ///
-  /// Must call [tapAddViewButton] first.
-  Future<void> tapCreateCalendarButton() async {
-    await tapButtonWithName(LocaleKeys.calendar_menuName.tr());
   }
 
   /// Tap the import button.
@@ -180,15 +160,9 @@ extension CommonOperations on WidgetTester {
   }) async {
     final pageNames = findPageName(name, layout: layout);
     if (useLast) {
-      await hoverOnWidget(
-        pageNames.last,
-        onHover: onHover,
-      );
+      await hoverOnWidget(pageNames.last, onHover: onHover);
     } else {
-      await hoverOnWidget(
-        pageNames.first,
-        onHover: onHover,
-      );
+      await hoverOnWidget(pageNames.first, onHover: onHover);
     }
   }
 
@@ -496,9 +470,7 @@ extension CommonOperations on WidgetTester {
     await pumpAndSettle();
   }
 
-  Future<void> openNotificationHub({
-    int tabIndex = 0,
-  }) async {
+  Future<void> openNotificationHub({int tabIndex = 0}) async {
     final finder = find.descendant(
       of: find.byType(NotificationButton),
       matching: find.byWidgetPredicate(
@@ -541,15 +513,6 @@ extension CommonOperations on WidgetTester {
     await tapButton(workspace, milliseconds: 2000);
   }
 
-  Future<void> closeCollaborativeWorkspaceMenu() async {
-    if (!FeatureFlag.collaborativeWorkspace.isOn) {
-      throw UnsupportedError('Collaborative workspace is not enabled');
-    }
-
-    await tapAt(Offset.zero);
-    await pumpAndSettle();
-  }
-
   Future<void> createCollaborativeWorkspace(String name) async {
     if (!FeatureFlag.collaborativeWorkspace.isOn) {
       throw UnsupportedError('Collaborative workspace is not enabled');
@@ -573,6 +536,20 @@ extension CommonOperations on WidgetTester {
 
     await tapButtonWithName(LocaleKeys.button_ok.tr(), milliseconds: 0);
   }
+}
+
+extension SettingsFinder on CommonFinders {
+  Finder findSettingsScrollable() => find
+      .descendant(
+        of: find
+            .descendant(
+              of: find.byType(SettingsBody),
+              matching: find.byType(SingleChildScrollView),
+            )
+            .first,
+        matching: find.byType(Scrollable),
+      )
+      .first;
 }
 
 extension ViewLayoutPBTest on ViewLayoutPB {

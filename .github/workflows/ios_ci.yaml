@@ -8,6 +8,7 @@ on:
       - ".github/workflows/mobile_ci.yaml"
       - "frontend/**"
       - "!frontend/appflowy_tauri/**"
+      - "!frontend/appflowy_web_app/**"
 
   pull_request:
     branches:
@@ -16,6 +17,7 @@ on:
       - ".github/workflows/mobile_ci.yaml"
       - "frontend/**"
       - "!frontend/appflowy_tauri/**"
+      - "!frontend/appflowy_web_app/**"
 
 env:
   FLUTTER_VERSION: "3.19.0"

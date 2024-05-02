@@ -55,6 +55,31 @@ class BottomSheetDoneButton extends StatelessWidget {
   }
 }
 
+class BottomSheetRemoveButton extends StatelessWidget {
+  const BottomSheetRemoveButton({
+    super.key,
+    required this.onRemove,
+  });
+
+  final VoidCallback onRemove;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onRemove,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12.0),
+        child: FlowyText(
+          LocaleKeys.button_remove.tr(),
+          color: Theme.of(context).colorScheme.primary,
+          fontWeight: FontWeight.w500,
+          textAlign: TextAlign.right,
+        ),
+      ),
+    );
+  }
+}
+
 class BottomSheetBackButton extends StatelessWidget {
   const BottomSheetBackButton({
     super.key,

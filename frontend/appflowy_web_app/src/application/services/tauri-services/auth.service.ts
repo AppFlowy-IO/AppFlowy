@@ -12,7 +12,7 @@ import {
   UserEventSignUp,
   UserProfilePB,
 } from './backend/events/flowy-user';
-import { ProviderType, SignUpWithEmailPasswordParams, UserProfile } from '@/application/services/user.type';
+import { ProviderType, SignUpWithEmailPasswordParams, UserProfile } from '@/application/user.type';
 
 export class TauriAuthService implements AuthService {
 
@@ -41,7 +41,7 @@ export class TauriAuthService implements AuthService {
     return providerData.oauth_url;
   };
 
-  signInWithOAuth = async ({ uri }: { uri: string }): Promise<UserProfile> => {
+  signInWithOAuth = async ({ uri }: { uri: string }): Promise<void> => {
     const payload = OauthSignInPB.fromObject({
       authenticator: AuthenticatorPB.AppFlowyCloud,
       map: {
@@ -56,9 +56,9 @@ export class TauriAuthService implements AuthService {
       throw new Error(res.val.msg);
     }
 
-    return parseUserProfileFrom(res.val);
+    return;
   };
-  signinWithEmailPassword = async (email: string, password: string): Promise<UserProfile> => {
+  signinWithEmailPassword = async (email: string, password: string): Promise<void> => {
     const payload = SignInPayloadPB.fromObject({
       email,
       password,
@@ -70,10 +70,10 @@ export class TauriAuthService implements AuthService {
       return Promise.reject(res.val.msg);
     }
 
-    return parseUserProfileFrom(res.val);
+    return;
   };
 
-  signupWithEmailPassword = async (params: SignUpWithEmailPasswordParams): Promise<UserProfile> => {
+  signupWithEmailPassword = async (params: SignUpWithEmailPasswordParams): Promise<void> => {
     const payload = SignUpPayloadPB.fromObject({
       name: params.name,
       email: params.email,
@@ -84,11 +84,10 @@ export class TauriAuthService implements AuthService {
     const res = await UserEventSignUp(payload);
 
     if (!res.ok) {
-      console.error(res.val.msg);
       return Promise.reject(res.val.msg);
     }
 
-    return parseUserProfileFrom(res.val);
+    return;
   };
 
   signOut = async () => {
@@ -106,16 +105,10 @@ export function parseUserProfileFrom (userPB: UserProfilePB): UserProfile {
   const user = userPB.toObject();
 
   return {
-    id: String(user.id),
+    uid: user.id as number,
     email: user.email,
     name: user.name,
-    token: user.token,
     iconUrl: user.icon_url,
-    openaiKey: user.openai_key,
-    authenticator: user.authenticator as number,
-    encryptionSign: user.encryption_sign,
-    encryptionType: user.encryption_type as number,
     workspaceId: user.workspace_id,
-    stabilityAiKey: user.stability_ai_key,
   };
 }

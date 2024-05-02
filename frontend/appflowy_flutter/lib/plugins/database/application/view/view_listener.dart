@@ -64,7 +64,7 @@ class DatabaseViewListener {
           (error) => _rowsVisibility?.value = FlowyResult.failure(error),
         );
         break;
-      case DatabaseNotification.DidUpdateViewRows:
+      case DatabaseNotification.DidUpdateRow:
         result.fold(
           (payload) => _rowsNotifier?.value =
               FlowyResult.success(RowsChangePB.fromBuffer(payload)),

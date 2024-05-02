@@ -19,10 +19,12 @@ class RowDetailPage extends StatefulWidget with FlowyOverlayDelegate {
     super.key,
     required this.rowController,
     required this.databaseController,
+    this.allowOpenAsFullPage = true,
   });
 
   final RowController rowController;
   final DatabaseController databaseController;
+  final bool allowOpenAsFullPage;
 
   @override
   State<RowDetailPage> createState() => _RowDetailPageState();
@@ -60,6 +62,7 @@ class _RowDetailPageState extends State<RowDetailPage> {
               fieldController: widget.databaseController.fieldController,
               rowController: widget.rowController,
               cellBuilder: cellBuilder,
+              allowOpenAsFullPage: widget.allowOpenAsFullPage,
             ),
             const VSpace(16),
             Padding(

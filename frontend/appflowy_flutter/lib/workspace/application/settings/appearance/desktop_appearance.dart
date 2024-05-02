@@ -1,8 +1,9 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra/theme_extension.dart';
-import 'package:flutter/material.dart';
 
 class DesktopAppearance extends BaseAppearance {
   @override
@@ -119,6 +120,7 @@ class DesktopAppearance extends BaseAppearance {
           tint8: theme.tint8,
           tint9: theme.tint9,
           textColor: theme.text,
+          secondaryTextColor: theme.secondaryText,
           greyHover: theme.hoverBG1,
           greySelect: theme.bg3,
           lightGreyHover: theme.hoverBG3,

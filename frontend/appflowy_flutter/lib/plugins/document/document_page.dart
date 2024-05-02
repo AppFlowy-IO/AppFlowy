@@ -1,8 +1,12 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/banner.dart';
 import 'package:appflowy/plugins/document/presentation/editor_notification.dart';
 import 'package:appflowy/plugins/document/presentation/editor_page.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/cover/document_immersive_cover.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -14,7 +18,6 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class DocumentPage extends StatefulWidget {
@@ -36,7 +39,7 @@ class DocumentPage extends StatefulWidget {
 class _DocumentPageState extends State<DocumentPage>
     with WidgetsBindingObserver {
   EditorState? editorState;
-  late final documentBloc = DocumentBloc(view: widget.view)
+  late final documentBloc = DocumentBloc(documentId: widget.view.id)
     ..add(const DocumentEvent.initial());
 
   @override
@@ -104,16 +107,35 @@ class _DocumentPageState extends State<DocumentPage>
   }
 
   Widget _buildEditorPage(BuildContext context, DocumentState state) {
-    final appflowyEditorPage = AppFlowyEditorPage(
-      editorState: state.editorState!,
-      styleCustomizer: EditorStyleCustomizer(
-        context: context,
-        // the 44 is the width of the left action list
-        padding: EditorStyleCustomizer.documentPadding,
-      ),
-      header: _buildCoverAndIcon(context, state.editorState!),
-      initialSelection: widget.initialSelection,
-    );
+    final Widget child;
+
+    if (PlatformExtension.isMobile) {
+      child = BlocBuilder<DocumentPageStyleBloc, DocumentPageStyleState>(
+        builder: (context, styleState) {
+          return AppFlowyEditorPage(
+            editorState: state.editorState!,
+            styleCustomizer: EditorStyleCustomizer(
+              context: context,
+              // the 44 is the width of the left action list
+              padding: EditorStyleCustomizer.documentPadding,
+            ),
+            header: _buildCoverAndIcon(context, state),
+            initialSelection: widget.initialSelection,
+          );
+        },
+      );
+    } else {
+      child = AppFlowyEditorPage(
+        editorState: state.editorState!,
+        styleCustomizer: EditorStyleCustomizer(
+          context: context,
+          // the 44 is the width of the left action list
+          padding: EditorStyleCustomizer.documentPadding,
+        ),
+        header: _buildCoverAndIcon(context, state),
+        initialSelection: widget.initialSelection,
+      );
+    }
 
     return Column(
       children: [
@@ -122,7 +144,7 @@ class _DocumentPageState extends State<DocumentPage>
         //   const DocumentSyncIndicator(),
 
         if (state.isDeleted) _buildBanner(context),
-        Expanded(child: appflowyEditorPage),
+        Expanded(child: child),
       ],
     );
   }
@@ -132,24 +154,35 @@ class _DocumentPageState extends State<DocumentPage>
       onRestore: () => context.read<DocumentBloc>().add(
             const DocumentEvent.restorePage(),
           ),
-      onDelete: () => context.read<DocumentBloc>().add(
-            const DocumentEvent.deletePermanently(),
-          ),
+      onDelete: () => context
+          .read<DocumentBloc>()
+          .add(const DocumentEvent.deletePermanently()),
     );
   }
 
-  Widget _buildCoverAndIcon(BuildContext context, EditorState editorState) {
+  Widget _buildCoverAndIcon(BuildContext context, DocumentState state) {
+    final editorState = state.editorState;
+    final userProfilePB = state.userProfilePB;
+    if (editorState == null || userProfilePB == null) {
+      return const SizedBox.shrink();
+    }
+
+    if (PlatformExtension.isMobile) {
+      return DocumentImmersiveCover(
+        view: widget.view,
+        userProfilePB: userProfilePB,
+      );
+    }
+
     final page = editorState.document.root;
-    return DocumentHeaderNodeWidget(
+    return DocumentCoverWidget(
       node: page,
       editorState: editorState,
       view: widget.view,
-      onIconChanged: (icon) async {
-        await ViewBackendService.updateViewIcon(
-          viewId: widget.view.id,
-          viewIcon: icon,
-        );
-      },
+      onIconChanged: (icon) async => ViewBackendService.updateViewIcon(
+        viewId: widget.view.id,
+        viewIcon: icon,
+      ),
     );
   }
 
@@ -162,7 +195,8 @@ class _DocumentPageState extends State<DocumentPage>
       undoCommand.execute(editorState);
     } else if (type == EditorNotificationType.redo) {
       redoCommand.execute(editorState);
-    } else if (type == EditorNotificationType.exitEditing) {
+    } else if (type == EditorNotificationType.exitEditing &&
+        editorState.selection != null) {
       editorState.selection = null;
     }
   }

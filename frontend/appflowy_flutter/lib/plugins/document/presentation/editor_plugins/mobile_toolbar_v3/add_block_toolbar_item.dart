@@ -6,8 +6,11 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/base/type_option_menu_item.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
+import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/image_placeholder.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mobile_page_selector_sheet.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_item/mobile_add_block_toolbar_item.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/aa_menu/_toolbar_theme.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
@@ -15,6 +18,7 @@ import 'package:appflowy/startup/tasks/app_widget.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 final addBlockToolbarItem = AppFlowyMobileToolbarItem(
@@ -41,15 +45,12 @@ final addBlockToolbarItem = AppFlowyMobileToolbarItem(
           keepEditorFocusNotifier.increase();
           final didAddBlock = await showAddBlockMenu(
             AppGlobals.rootNavKey.currentContext!,
+            documentBloc: context.read<DocumentBloc>(),
             editorState: editorState,
             selection: selection!,
           );
           if (didAddBlock != true) {
-            unawaited(
-              editorState.updateSelectionWithReason(
-                selection,
-              ),
-            );
+            unawaited(editorState.updateSelectionWithReason(selection));
           }
         });
       },
@@ -59,6 +60,7 @@ final addBlockToolbarItem = AppFlowyMobileToolbarItem(
 
 Future<bool?> showAddBlockMenu(
   BuildContext context, {
+  required DocumentBloc documentBloc,
   required EditorState editorState,
   required Selection selection,
 }) async {
@@ -73,15 +75,16 @@ Future<bool?> showAddBlockMenu(
     backgroundColor: theme.toolbarMenuBackgroundColor,
     elevation: 20,
     enableDraggableScrollable: true,
-    builder: (context) {
-      return Padding(
-        padding: EdgeInsets.all(16 * context.scale),
+    builder: (_) => Padding(
+      padding: EdgeInsets.all(16 * context.scale),
+      child: BlocProvider.value(
+        value: documentBloc,
         child: _AddBlockMenu(
           selection: selection,
           editorState: editorState,
         ),
-      );
-    },
+      ),
+    ),
   );
 }
 
@@ -96,20 +99,21 @@ class _AddBlockMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TypeOptionMenu<String>(
-      values: buildTypeOptionMenuItemValues(context),
-      scaleFactor: context.scale,
+    return BlocProvider.value(
+      value: context.read<DocumentBloc>(),
+      child: TypeOptionMenu<String>(
+        values: buildTypeOptionMenuItemValues(context),
+        scaleFactor: context.scale,
+      ),
     );
   }
 
   Future<void> _insertBlock(Node node) async {
     AppGlobals.rootNavKey.currentContext?.pop(true);
-    Future.delayed(const Duration(milliseconds: 100), () {
-      editorState.insertBlockAfterCurrentSelection(
-        selection,
-        node,
-      );
-    });
+    Future.delayed(
+      const Duration(milliseconds: 100),
+      () => editorState.insertBlockAfterCurrentSelection(selection, node),
+    );
   }
 
   List<TypeOptionMenuItemValue<String>> buildTypeOptionMenuItemValues(
@@ -208,10 +212,35 @@ class _AddBlockMenu extends StatelessWidget {
       // date
       TypeOptionMenuItemValue(
         value: ParagraphBlockKeys.type,
-        backgroundColor: colorMap['date']!,
+        backgroundColor: colorMap[MentionBlockKeys.type]!,
         text: LocaleKeys.editor_date.tr(),
         icon: FlowySvgs.m_add_block_date_s,
         onTap: (_, __) => _insertBlock(dateMentionNode()),
+      ),
+      // page
+      TypeOptionMenuItemValue(
+        value: ParagraphBlockKeys.type,
+        backgroundColor: colorMap[MentionBlockKeys.type]!,
+        text: LocaleKeys.editor_page.tr(),
+        icon: FlowySvgs.document_s,
+        onTap: (_, __) async {
+          AppGlobals.rootNavKey.currentContext?.pop(true);
+
+          final currentViewId = context.read<DocumentBloc>().documentId;
+          final viewId = await showPageSelectorSheet(
+            context,
+            currentViewId: currentViewId,
+          );
+
+          if (viewId != null) {
+            Future.delayed(const Duration(milliseconds: 100), () {
+              editorState.insertBlockAfterCurrentSelection(
+                selection,
+                pageMentionNode(viewId),
+              );
+            });
+          }
+        },
       ),
 
       // divider
@@ -270,7 +299,7 @@ class _AddBlockMenu extends StatelessWidget {
         NumberedListBlockKeys.type: const Color(0xFFA35F94),
         ToggleListBlockKeys.type: const Color(0xFFA35F94),
         ImageBlockKeys.type: const Color(0xFFBAAC74),
-        'date': const Color(0xFF40AAB8),
+        MentionBlockKeys.type: const Color(0xFF40AAB8),
         DividerBlockKeys.type: const Color(0xFF4BB299),
         CalloutBlockKeys.type: const Color(0xFF66599B),
         CodeBlockKeys.type: const Color(0xFF66599B),
@@ -286,7 +315,7 @@ class _AddBlockMenu extends StatelessWidget {
       NumberedListBlockKeys.type: const Color(0xFFFFB9EF),
       ToggleListBlockKeys.type: const Color(0xFFFFB9EF),
       ImageBlockKeys.type: const Color(0xFFFDEDA7),
-      'date': const Color(0xFF91EAF5),
+      MentionBlockKeys.type: const Color(0xFF91EAF5),
       DividerBlockKeys.type: const Color(0xFF98F4CD),
       CalloutBlockKeys.type: const Color(0xFFCABDFF),
       CodeBlockKeys.type: const Color(0xFFCABDFF),

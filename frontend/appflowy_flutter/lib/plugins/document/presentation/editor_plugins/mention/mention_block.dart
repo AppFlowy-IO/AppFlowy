@@ -1,9 +1,10 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_date_block.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/reminder_selector.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
-import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 enum MentionType {
@@ -69,18 +70,21 @@ class MentionBlock extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final type = MentionType.fromString(mention[MentionBlockKeys.type]);
+    final editorState = context.read<EditorState>();
 
     switch (type) {
       case MentionType.page:
         final String pageId = mention[MentionBlockKeys.pageId];
         return MentionPageBlock(
           key: ValueKey(pageId),
+          editorState: editorState,
           pageId: pageId,
+          node: node,
           textStyle: textStyle,
+          index: index,
         );
       case MentionType.date:
         final String date = mention[MentionBlockKeys.date];
-        final editorState = context.read<EditorState>();
         final reminderOption = ReminderOption.values.firstWhereOrNull(
           (o) => o.name == mention[MentionBlockKeys.reminderOption],
         );

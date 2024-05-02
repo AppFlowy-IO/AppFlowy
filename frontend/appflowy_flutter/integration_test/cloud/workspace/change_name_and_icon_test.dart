@@ -9,7 +9,6 @@ import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_icon.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/setting_appflowy_cloud.dart';
-import 'package:appflowy/workspace/presentation/settings/widgets/settings_user_view.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/uuid.dart';
 import 'package:flutter_test/flutter_test.dart';

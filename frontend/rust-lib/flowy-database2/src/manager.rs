@@ -3,8 +3,7 @@ use std::collections::HashMap;
 use std::sync::{Arc, Weak};
 
 use collab::core::collab::{DataSource, MutexCollab};
-use collab_database::blocks::BlockEvent;
-use collab_database::database::{DatabaseData, MutexDatabase};
+use collab_database::database::DatabaseData;
 use collab_database::error::DatabaseError;
 use collab_database::views::{CreateDatabaseParams, CreateViewParams, DatabaseLayout};
 use collab_database::workspace_database::{
@@ -19,11 +18,9 @@ use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfi
 use collab_integrate::{CollabKVAction, CollabKVDB, CollabPersistenceConfig};
 use flowy_database_pub::cloud::DatabaseCloudService;
 use flowy_error::{internal_error, FlowyError, FlowyResult};
-use lib_dispatch::prelude::af_spawn;
 use lib_infra::priority_task::TaskDispatcher;
 
-use crate::entities::{DatabaseLayoutPB, DatabaseSnapshotPB, DidFetchRowPB};
-use crate::notification::{send_notification, DatabaseNotification};
+use crate::entities::{DatabaseLayoutPB, DatabaseSnapshotPB};
 use crate::services::database::DatabaseEditor;
 use crate::services::database_view::DatabaseLayoutDepsResolver;
 use crate::services::field_settings::default_field_settings_by_layout_map;
@@ -219,9 +216,6 @@ impl DatabaseManager {
       .await
       .ok_or_else(|| FlowyError::collab_not_sync().with_context("open database error"))?;
 
-    // Subscribe the [BlockEvent]
-    subscribe_block_event(&database);
-
     let editor = Arc::new(DatabaseEditor::new(database, self.task_scheduler.clone()).await?);
     self
       .editors
@@ -416,27 +410,6 @@ impl DatabaseManager {
   pub fn get_cloud_service(&self) -> &Arc<dyn DatabaseCloudService> {
     &self.cloud_service
   }
-}
-
-/// Send notification to all clients that are listening to the given object.
-fn subscribe_block_event(database: &Arc<MutexDatabase>) {
-  let mut block_event_rx = database.lock().subscribe_block_event();
-  af_spawn(async move {
-    while let Ok(event) = block_event_rx.recv().await {
-      match event {
-        BlockEvent::DidFetchRow(row_details) => {
-          for row_detail in row_details {
-            trace!("Did fetch row: {:?}", row_detail.row.id);
-            let row_id = row_detail.row.id.clone();
-            let pb = DidFetchRowPB::from(row_detail);
-            send_notification(&row_id, DatabaseNotification::DidFetchRow)
-              .payload(pb)
-              .send();
-          }
-        },
-      }
-    }
-  });
 }
 
 struct UserDatabaseCollabServiceImpl {
