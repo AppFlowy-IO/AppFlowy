@@ -4,6 +4,7 @@ use strum::IntoEnumIterator;
 
 use flowy_database2::entities::FieldType;
 use flowy_database2::services::field::checklist_type_option::ChecklistTypeOption;
+use flowy_database2::services::field::summary_type_option::summary::SummarizationTypeOption;
 use flowy_database2::services::field::{
   DateFormat, DateTypeOption, FieldBuilder, MultiSelectTypeOption, RelationTypeOption,
   SelectOption, SelectOptionColor, SingleSelectTypeOption, TimeFormat, TimestampTypeOption,
@@ -124,6 +125,13 @@ pub fn make_test_board() -> DatabaseData {
         };
         let relation_field = FieldBuilder::new(field_type, type_option)
           .name("Related")
+          .build();
+        fields.push(relation_field);
+      },
+      FieldType::Summary => {
+        let type_option = SummarizationTypeOption { auto_fill: false };
+        let relation_field = FieldBuilder::new(field_type, type_option)
+          .name("AI summary")
           .build();
         fields.push(relation_field);
       },

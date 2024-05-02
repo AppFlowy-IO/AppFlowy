@@ -3,6 +3,7 @@ use collab_database::views::{DatabaseLayout, DatabaseView};
 use strum::IntoEnumIterator;
 
 use flowy_database2::entities::FieldType;
+use flowy_database2::services::field::summary_type_option::summary::SummarizationTypeOption;
 use flowy_database2::services::field::{
   ChecklistTypeOption, DateFormat, DateTypeOption, FieldBuilder, MultiSelectTypeOption,
   NumberFormat, NumberTypeOption, RelationTypeOption, SelectOption, SelectOptionColor,
@@ -122,6 +123,13 @@ pub fn make_test_grid() -> DatabaseData {
         };
         let relation_field = FieldBuilder::new(field_type, type_option)
           .name("Related")
+          .build();
+        fields.push(relation_field);
+      },
+      FieldType::Summary => {
+        let type_option = SummarizationTypeOption { auto_fill: false };
+        let relation_field = FieldBuilder::new(field_type, type_option)
+          .name("AI summary")
           .build();
         fields.push(relation_field);
       },

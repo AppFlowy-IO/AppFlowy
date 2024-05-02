@@ -123,6 +123,7 @@ async fn export_and_then_import_meta_csv_test() {
           FieldType::LastEditedTime => {},
           FieldType::CreatedTime => {},
           FieldType::Relation => {},
+          FieldType::Summary => {},
         }
       } else {
         panic!(
@@ -205,6 +206,7 @@ async fn history_database_import_test() {
           FieldType::LastEditedTime => {},
           FieldType::CreatedTime => {},
           FieldType::Relation => {},
+          FieldType::Summary => {},
         }
       } else {
         panic!(

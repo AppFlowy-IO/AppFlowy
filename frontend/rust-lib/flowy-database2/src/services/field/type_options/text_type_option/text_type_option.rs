@@ -84,6 +84,7 @@ impl CellDataDecoder for RichTextTypeOption {
       | FieldType::LastEditedTime
       | FieldType::CreatedTime
       | FieldType::Relation => None,
+      FieldType::Summary => None,
     }
   }
 
