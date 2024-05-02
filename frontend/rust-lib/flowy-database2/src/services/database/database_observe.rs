@@ -44,30 +44,32 @@ pub(crate) async fn observe_rows_change(
   let mut row_change = database.lock().subscribe_row_change();
   af_spawn(async move {
     while let Ok(row_change) = row_change.recv().await {
-      if weak_database.upgrade().is_none() {
-        break;
-      }
+      if let Some(database) = weak_database.upgrade() {
+        trace!(
+          "[Database Observe]: {} row change:{:?}",
+          database_id,
+          row_change
+        );
+        match row_change {
+          RowChange::DidUpdateCell {
+            field_id,
+            row_id,
+            value: _,
+          } => {
+            let cell_id = format!("{}:{}", row_id, field_id);
+            notify_cell(&notification_sender, &cell_id);
 
-      trace!(
-        "[Database Observe]: {} row change:{:?}",
-        database_id,
-        row_change
-      );
-      match row_change {
-        RowChange::DidUpdateCell {
-          field_id,
-          row_id,
-          value: _,
-        } => {
-          let cell_id = format!("{}:{}", row_id, field_id);
-          notify_cell(&notification_sender, &cell_id);
-          // In the old logic, it will notify the row when the cell is updated. But in the new logic,
-          // it will notify the cell only. Enable the following code if needed.
-          // notify_row(&notification_sender, &database_id, field_id, &row_id);
-        },
-        _ => {
-          warn!("unhandled row change: {:?}", row_change);
-        },
+            let views = database.lock().get_all_database_views_meta();
+            for view in views {
+              notify_row(&notification_sender, &view.id, &field_id, &row_id);
+            }
+          },
+          _ => {
+            warn!("unhandled row change: {:?}", row_change);
+          },
+        }
+      } else {
+        break;
       }
     }
   });
@@ -168,14 +170,14 @@ pub(crate) async fn observe_block_event(database_id: &str, database: &Arc<MutexD
 #[allow(dead_code)]
 fn notify_row(
   notification_sender: &Arc<DebounceNotificationSender>,
-  _database_id: &str,
-  field_id: String,
+  view_id: &str,
+  field_id: &str,
   row_id: &RowId,
 ) {
-  let update_row = UpdatedRow::new(row_id).with_field_ids(vec![field_id]);
+  let update_row = UpdatedRow::new(row_id).with_field_ids(vec![field_id.to_string()]);
   let update_changeset = RowsChangePB::from_update(update_row.into());
   let subject = NotificationBuilder::new(
-    row_id,
+    view_id,
     DatabaseNotification::DidUpdateRow,
     DATABASE_OBSERVABLE_SOURCE,
   )
