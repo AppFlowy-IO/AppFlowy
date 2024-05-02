@@ -51,8 +51,7 @@ impl DatabaseEditor {
     database: Arc<MutexDatabase>,
     task_scheduler: Arc<RwLock<TaskDispatcher>>,
   ) -> FlowyResult<Self> {
-    let debounce_in_millis = if cfg!(debug_assertions) { 0 } else { 200 };
-    let notification_sender = Arc::new(DebounceNotificationSender::new(debounce_in_millis));
+    let notification_sender = Arc::new(DebounceNotificationSender::new(200));
     let cell_cache = AnyTypeCache::<u64>::new();
     let database_id = database.lock().get_database_id();
 
