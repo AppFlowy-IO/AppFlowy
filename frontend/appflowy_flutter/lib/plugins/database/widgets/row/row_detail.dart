@@ -59,7 +59,7 @@ class _RowDetailPageState extends State<RowDetailPage> {
           controller: scrollController,
           children: [
             RowBanner(
-              fieldController: widget.databaseController.fieldController,
+              databaseController: widget.databaseController,
               rowController: widget.rowController,
               cellBuilder: cellBuilder,
               allowOpenAsFullPage: widget.allowOpenAsFullPage,
