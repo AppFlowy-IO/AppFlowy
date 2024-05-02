@@ -1,6 +1,10 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
+import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/aa_menu/_close_keyboard_or_menu_button.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/aa_menu/_toolbar_theme.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/appflowy_mobile_toolbar_item.dart';
@@ -8,8 +12,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_too
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -66,9 +69,7 @@ class _AppFlowyMobileToolbarState extends State<AppFlowyMobileToolbar> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Expanded(
-          child: widget.child,
-        ),
+        Expanded(child: widget.child),
         // add a bottom offset to make sure the toolbar is above the keyboard
         ValueListenableBuilder(
           valueListenable: isKeyboardShow,
@@ -108,10 +109,13 @@ class _AppFlowyMobileToolbarState extends State<AppFlowyMobileToolbar> {
         }
 
         return RepaintBoundary(
-          child: _MobileToolbar(
-            editorState: widget.editorState,
-            toolbarItems: widget.toolbarItemsBuilder(selection),
-            toolbarHeight: widget.toolbarHeight,
+          child: BlocProvider.value(
+            value: context.read<DocumentBloc>(),
+            child: _MobileToolbar(
+              editorState: widget.editorState,
+              toolbarItems: widget.toolbarItemsBuilder(selection),
+              toolbarHeight: widget.toolbarHeight,
+            ),
           ),
         );
       },

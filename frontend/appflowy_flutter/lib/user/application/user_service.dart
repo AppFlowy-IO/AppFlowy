@@ -177,6 +177,20 @@ class UserBackendService {
     return UserEventAddWorkspaceMember(data).send();
   }
 
+  Future<FlowyResult<void, FlowyError>> inviteWorkspaceMember(
+    String workspaceId,
+    String email, {
+    AFRolePB? role,
+  }) async {
+    final data = WorkspaceMemberInvitationPB()
+      ..workspaceId = workspaceId
+      ..inviteeEmail = email;
+    if (role != null) {
+      data.role = role;
+    }
+    return UserEventInviteWorkspaceMember(data).send();
+  }
+
   Future<FlowyResult<void, FlowyError>> removeWorkspaceMember(
     String workspaceId,
     String email,

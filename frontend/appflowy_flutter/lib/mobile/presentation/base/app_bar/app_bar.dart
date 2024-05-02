@@ -37,6 +37,7 @@ class FlowyAppBar extends AppBar {
     Widget? title,
     String? titleText,
     FlowyAppBarLeadingType leadingType = FlowyAppBarLeadingType.back,
+    Widget? leading,
     super.centerTitle,
     VoidCallback? onTapLeading,
     bool showDivider = true,
@@ -50,7 +51,7 @@ class FlowyAppBar extends AppBar {
               ),
           titleSpacing: 0,
           elevation: 0,
-          leading: leadingType.getWidget(onTapLeading),
+          leading: leading ?? leadingType.getWidget(onTapLeading),
           leadingWidth: leadingType.width,
           toolbarHeight: 44.0,
           bottom: showDivider
