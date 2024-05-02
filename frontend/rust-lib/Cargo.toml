@@ -61,7 +61,6 @@ flowy-storage = { workspace = true, path = "flowy-storage" }
 flowy-search = { workspace = true, path = "flowy-search" }
 flowy-search-pub = { workspace = true, path = "flowy-search-pub" }
 collab-integrate = { workspace = true, path = "collab-integrate" }
-flowy-ai = { workspace = true, path = "flowy-ai" }
 flowy-date = { workspace = true, path = "flowy-date" }
 anyhow = "1.0"
 tracing = "0.1.40"
