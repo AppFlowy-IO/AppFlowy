@@ -41,23 +41,21 @@ void main() {
       final loading = find.byType(Loading);
       await tester.pumpUntilNotFound(loading);
 
-      await tester.openCollaborativeWorkspaceMenu();
-      await tester.pump(const Duration(seconds: 1));
-
       final Finder items = find.byType(WorkspaceMenuItem);
+      await tester.openCollaborativeWorkspaceMenu();
+      await tester.pumpUntilFound(items);
+
       expect(items, findsNWidgets(2));
       expect(tester.widget<WorkspaceMenuItem>(items.last).workspace.name, name);
 
       // Open settings dialog
-      // We don't use tester.openSettings as it is unstable
       final settingsButton = find.byType(UserSettingButton);
       expect(settingsButton, findsOneWidget);
 
       await tester.tapButton(settingsButton);
-      await tester.pumpAndSettle();
 
       final settingsDialog = find.byType(SettingsDialog);
-      expect(settingsDialog, findsOneWidget);
+      await tester.pumpUntilFound(settingsDialog);
 
       await tester.openSettingsPage(SettingsPage.workspace);
       await tester.pumpAndSettle();
@@ -93,7 +91,7 @@ void main() {
       await tester.pumpUntilNotFound(loading);
 
       await tester.openCollaborativeWorkspaceMenu();
-      await tester.pump(const Duration(seconds: 5));
+      await tester.pumpUntilFound(items);
 
       expect(items, findsNWidgets(1));
     });

@@ -13,10 +13,7 @@ enum SettingsPage {
   account,
   workspace,
   // OLD
-  // appearance,
-  // language,
   files,
-  // user,
   notifications,
   cloud,
   shortcuts,

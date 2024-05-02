@@ -24,17 +24,16 @@ class CachedRecentService {
   Completer<void> _completer = Completer();
 
   ValueNotifier<List<ViewPB>> notifier = ValueNotifier(const []);
-  List<ViewPB> _recentViewsValue = const [];
+  List<ViewPB> get _recentViews => notifier.value;
 
   set _recentViews(List<ViewPB> value) {
-    _recentViewsValue = value;
     notifier.value = value;
   }
 
   final _listener = RecentViewsListener();
 
   Future<List<ViewPB>> recentViews() async {
-    if (_isInitialized) return _recentViewsValue;
+    if (_isInitialized) return _recentViews;
 
     _isInitialized = true;
 
@@ -43,7 +42,7 @@ class CachedRecentService {
     _recentViews = result.toNullable()?.items ?? const [];
     _completer.complete();
 
-    return _recentViewsValue;
+    return _recentViews;
   }
 
   /// Updates the recent views history
@@ -70,7 +69,10 @@ class CachedRecentService {
     _recentViews = const [];
   }
 
-  Future<void> dispose() async => _listener.stop();
+  Future<void> dispose() async {
+    notifier.dispose();
+    await _listener.stop();
+  }
 
   void _recentViewsUpdated(
     FlowyResult<RepeatedViewIdPB, FlowyError> result,
