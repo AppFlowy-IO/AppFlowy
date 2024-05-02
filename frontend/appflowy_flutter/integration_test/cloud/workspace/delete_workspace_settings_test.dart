@@ -54,13 +54,13 @@ void main() {
       expect(settingsButton, findsOneWidget);
 
       await tester.tapButton(settingsButton);
-      await tester.pump(const Duration(seconds: 1));
+      await tester.pumpAndSettle();
 
       final settingsDialog = find.byType(SettingsDialog);
       expect(settingsDialog, findsOneWidget);
 
       await tester.openSettingsPage(SettingsPage.workspace);
-      await tester.pump(const Duration(milliseconds: 200));
+      await tester.pumpAndSettle();
 
       // Rename workspace
       final nameFinder = find.descendant(
@@ -93,7 +93,7 @@ void main() {
       await tester.pumpUntilNotFound(loading);
 
       await tester.openCollaborativeWorkspaceMenu();
-      await tester.pump(const Duration(seconds: 1));
+      await tester.pump(const Duration(seconds: 5));
 
       expect(items, findsNWidgets(1));
     });
