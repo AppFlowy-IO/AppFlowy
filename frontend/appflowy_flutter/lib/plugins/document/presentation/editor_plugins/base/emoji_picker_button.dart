@@ -1,10 +1,11 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/plugins/base/emoji/emoji_picker_screen.dart';
 import 'package:appflowy/plugins/base/icon/icon_picker.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/emoji_picker/emoji_picker.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 class EmojiPickerButton extends StatelessWidget {
@@ -41,7 +42,7 @@ class EmojiPickerButton extends StatelessWidget {
         ),
         offset: offset,
         direction: direction ?? PopoverDirection.rightWithTopAligned,
-        popupBuilder: (context) => Container(
+        popupBuilder: (_) => Container(
           width: emojiPickerSize.width,
           height: emojiPickerSize.height,
           padding: const EdgeInsets.all(4.0),
@@ -54,7 +55,7 @@ class EmojiPickerButton extends StatelessWidget {
             ? FlowyButton(
                 useIntrinsicWidth: true,
                 text: defaultIcon!,
-                onTap: () => popoverController.show(),
+                onTap: popoverController.show,
               )
             : FlowyTextButton(
                 emoji,
@@ -64,37 +65,29 @@ class EmojiPickerButton extends StatelessWidget {
                 constraints: const BoxConstraints(minWidth: 35.0),
                 fillColor: Colors.transparent,
                 mainAxisAlignment: MainAxisAlignment.center,
-                onPressed: () {
-                  popoverController.show();
-                },
+                onPressed: popoverController.show,
               ),
       );
-    } else {
-      return FlowyTextButton(
-        emoji,
-        overflow: TextOverflow.visible,
-        fontSize: emojiSize,
-        padding: EdgeInsets.zero,
-        constraints: const BoxConstraints(minWidth: 35.0),
-        fillColor: Colors.transparent,
-        mainAxisAlignment: MainAxisAlignment.center,
-        onPressed: () async {
-          final result = await context.push<EmojiPickerResult>(
-            Uri(
-              path: MobileEmojiPickerScreen.routeName,
-              queryParameters: {
-                MobileEmojiPickerScreen.pageTitle: title,
-              },
-            ).toString(),
-          );
-          if (result != null) {
-            onSubmitted(
-              result.emoji,
-              null,
-            );
-          }
-        },
-      );
     }
+    return FlowyTextButton(
+      emoji,
+      overflow: TextOverflow.visible,
+      fontSize: emojiSize,
+      padding: EdgeInsets.zero,
+      constraints: const BoxConstraints(minWidth: 35.0),
+      fillColor: Colors.transparent,
+      mainAxisAlignment: MainAxisAlignment.center,
+      onPressed: () async {
+        final result = await context.push<EmojiPickerResult>(
+          Uri(
+            path: MobileEmojiPickerScreen.routeName,
+            queryParameters: {MobileEmojiPickerScreen.pageTitle: title},
+          ).toString(),
+        );
+        if (result != null) {
+          onSubmitted(result.emoji, null);
+        }
+      },
+    );
   }
 }
