@@ -14,7 +14,9 @@ use tracing::debug;
 use collab_integrate::collab_builder::{
   CollabCloudPluginProvider, CollabPluginProviderContext, CollabPluginProviderType,
 };
-use flowy_database_pub::cloud::{CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot};
+use flowy_database_pub::cloud::{
+  CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot, SummaryRow,
+};
 use flowy_document::deps::DocumentData;
 use flowy_document_pub::cloud::{DocumentCloudService, DocumentSnapshot};
 use flowy_error::FlowyError;
@@ -264,6 +266,23 @@ impl DatabaseCloudService for ServerProvider {
       server?
         .database_service()
         .get_database_collab_object_snapshots(&database_id, limit)
+        .await
+    })
+  }
+
+  fn summary_database_row(
+    &self,
+    workspace_id: &str,
+    object_id: &str,
+    summary_row: SummaryRow,
+  ) -> FutureResult<String, Error> {
+    let workspace_id = workspace_id.to_string();
+    let server = self.get_server();
+    let object_id = object_id.to_string();
+    FutureResult::new(async move {
+      server?
+        .database_service()
+        .summary_database_row(&workspace_id, &object_id, summary_row)
         .await
     })
   }

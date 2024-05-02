@@ -2,7 +2,9 @@ use anyhow::Error;
 use collab_entity::CollabType;
 use tokio::sync::oneshot::channel;
 
-use flowy_database_pub::cloud::{CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot};
+use flowy_database_pub::cloud::{
+  CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot, SummaryRow,
+};
 use lib_dispatch::prelude::af_spawn;
 use lib_infra::future::FutureResult;
 
@@ -93,5 +95,14 @@ where
 
       Ok(snapshots)
     })
+  }
+
+  fn summary_database_row(
+    &self,
+    workspace_id: &str,
+    object_id: &str,
+    summary_row: SummaryRow,
+  ) -> FutureResult<String, Error> {
+    FutureResult::new(async move { Ok("".to_string()) })
   }
 }

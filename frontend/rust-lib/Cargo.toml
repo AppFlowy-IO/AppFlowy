@@ -22,7 +22,6 @@ members = [
     "flowy-encrypt",
     "flowy-storage",
     "collab-integrate",
-    "flowy-ai",
     "flowy-date",
     "flowy-search",
     "lib-infra",

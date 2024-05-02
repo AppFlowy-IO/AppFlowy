@@ -1,20 +1,36 @@
-import 'dart:async';
-
 import 'package:appflowy/plugins/database/application/cell/bloc/summary_cell_bloc.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database/application/database_controller.dart';
-import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/text.dart';
+import 'package:appflowy/plugins/database/widgets/cell/desktop_grid/desktop_grid_summary_cell.dart';
+import 'package:appflowy/plugins/database/widgets/cell/desktop_row_detail/desktop_row_detail_summary_cell.dart';
+import 'package:appflowy/plugins/database/widgets/cell/mobile_grid/mobile_grid_summary_cell.dart';
+import 'package:appflowy/plugins/database/widgets/cell/mobile_row_detail/mobile_row_detail_summary_cell.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
-import 'package:appflowy/plugins/database/application/cell/bloc/text_cell_bloc.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../desktop_grid/desktop_grid_text_cell.dart';
-import '../desktop_row_detail/desktop_row_detail_text_cell.dart';
-import '../mobile_grid/mobile_grid_text_cell.dart';
-import '../mobile_row_detail/mobile_row_detail_text_cell.dart';
+abstract class IEditableSummaryCellSkin {
+  const IEditableSummaryCellSkin();
+
+  factory IEditableSummaryCellSkin.fromStyle(EditableCellStyle style) {
+    return switch (style) {
+      EditableCellStyle.desktopGrid => DesktopGridSummaryCellSkin(),
+      EditableCellStyle.desktopRowDetail => DesktopRowDetailSummaryCellSkin(),
+      EditableCellStyle.mobileGrid => MobileGridSummaryCellSkin(),
+      EditableCellStyle.mobileRowDetail => MobileRowDetailSummaryCellSkin(),
+    };
+  }
+
+  Widget build(
+    BuildContext context,
+    CellContainerNotifier cellContainerNotifier,
+    SummaryCellBloc bloc,
+    FocusNode focusNode,
+    TextEditingController textEditingController,
+  );
+}
 
 class EditableSummaryCell extends EditableCellWidget {
   EditableSummaryCell({
@@ -26,16 +42,14 @@ class EditableSummaryCell extends EditableCellWidget {
 
   final DatabaseController databaseController;
   final CellContext cellContext;
-  final IEditableTextCellSkin skin;
+  final IEditableSummaryCellSkin skin;
 
   @override
-  GridEditableSummaryCell<EditableSummaryCell> createState() =>
+  GridEditableTextCell<EditableSummaryCell> createState() =>
       _SummaryCellState();
 }
 
-}
-
-class _SummaryCellState extends GridEditableSummaryCell<EditableSummaryCell> {
+class _SummaryCellState extends GridEditableTextCell<EditableSummaryCell> {
   late final TextEditingController _textEditingController;
   late final cellBloc = SummaryCellBloc(
     cellController: makeCellController(
@@ -98,7 +112,7 @@ class _SummaryCellState extends GridEditableSummaryCell<EditableSummaryCell> {
         !cellBloc.isClosed &&
         cellBloc.state.content != _textEditingController.text.trim()) {
       cellBloc
-          .add(SummaryCellEvent.updateText(_textEditingController.text.trim()));
+          .add(SummaryCellEvent.updateCell(_textEditingController.text.trim()));
     }
     return super.focusChanged();
   }

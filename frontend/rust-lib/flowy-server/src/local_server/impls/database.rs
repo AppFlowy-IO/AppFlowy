@@ -4,7 +4,9 @@ use collab_entity::define::{DATABASE, DATABASE_ROW_DATA, WORKSPACE_DATABASES};
 use collab_entity::CollabType;
 use yrs::{Any, MapPrelim};
 
-use flowy_database_pub::cloud::{CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot};
+use flowy_database_pub::cloud::{
+  CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot, SummaryRow,
+};
 use lib_infra::future::FutureResult;
 
 pub(crate) struct LocalServerDatabaseCloudServiceImpl();
@@ -72,5 +74,15 @@ impl DatabaseCloudService for LocalServerDatabaseCloudServiceImpl {
     _limit: usize,
   ) -> FutureResult<Vec<DatabaseSnapshot>, Error> {
     FutureResult::new(async move { Ok(vec![]) })
+  }
+
+  fn summary_database_row(
+    &self,
+    workspace_id: &str,
+    object_id: &str,
+    summary_row: SummaryRow,
+  ) -> FutureResult<String, Error> {
+    // TODO(lucas): local ai
+    FutureResult::new(async move { Ok("".to_string()) })
   }
 }

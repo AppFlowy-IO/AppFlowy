@@ -1,14 +1,18 @@
 use anyhow::Error;
+use client_api::entity::ai_dto::{SummarizeRowData, SummarizeRowParams};
 use client_api::entity::QueryCollabResult::{Failed, Success};
 use client_api::entity::{QueryCollab, QueryCollabParams};
 use client_api::error::ErrorCode::RecordNotFound;
 use collab::core::collab::DataSource;
 use collab::entity::EncodedCollab;
 use collab_entity::CollabType;
+use serde_json::{json, Map, Value};
 use std::sync::Arc;
 use tracing::{error, instrument};
 
-use flowy_database_pub::cloud::{CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot};
+use flowy_database_pub::cloud::{
+  CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot, SummaryRow,
+};
 use lib_infra::future::FutureResult;
 
 use crate::af_cloud::define::ServerUser;
@@ -118,5 +122,27 @@ where
     _limit: usize,
   ) -> FutureResult<Vec<DatabaseSnapshot>, Error> {
     FutureResult::new(async move { Ok(vec![]) })
+  }
+
+  fn summary_database_row(
+    &self,
+    workspace_id: &str,
+    object_id: &str,
+    summary_row: SummaryRow,
+  ) -> FutureResult<String, Error> {
+    let workspace_id = workspace_id.to_string();
+    let try_get_client = self.inner.try_get_client();
+    FutureResult::new(async move {
+      let map: Map<String, Value> = summary_row
+        .into_iter()
+        .map(|(key, value)| (key, Value::String(value)))
+        .collect();
+      let params = SummarizeRowParams {
+        workspace_id,
+        data: SummarizeRowData::Content(map),
+      };
+      let data = try_get_client?.summarize_row(params).await?;
+      Ok(data.text)
+    })
   }
 }

@@ -1,4 +1,3 @@
-use crate::entities::FieldType;
 #[macro_export]
 macro_rules! impl_into_field_type {
   ($target: ident) => {
