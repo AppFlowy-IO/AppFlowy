@@ -68,9 +68,8 @@ class DatabaseCallbacks {
 }
 
 class DatabaseController {
-  DatabaseController({required ViewPB view})
-      : viewId = view.id,
-        _databaseViewBackendSvc = DatabaseViewBackendService(viewId: view.id),
+  DatabaseController({required this.view})
+      : _databaseViewBackendSvc = DatabaseViewBackendService(viewId: view.id),
         fieldController = FieldController(viewId: view.id),
         _groupListener = DatabaseGroupListener(view.id),
         databaseLayout = databaseLayoutFromViewLayout(view.layout),
@@ -86,7 +85,7 @@ class DatabaseController {
     _listenOnLayoutChanged();
   }
 
-  final String viewId;
+  final ViewPB view;
   final DatabaseViewBackendService _databaseViewBackendSvc;
   final FieldController fieldController;
   DatabaseLayoutPB databaseLayout;
@@ -100,6 +99,7 @@ class DatabaseController {
 
   // Getters
   RowCache get rowCache => _viewCache.rowCache;
+  String get viewId => view.id;
 
   // Listener
   final DatabaseGroupListener _groupListener;
