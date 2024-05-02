@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/af_role_pb_extension.dart';
@@ -18,6 +16,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:string_validator/string_validator.dart';
 
@@ -215,6 +214,8 @@ class _InviteMemberState extends State<_InviteMember> {
     context
         .read<WorkspaceMemberBloc>()
         .add(WorkspaceMemberEvent.inviteWorkspaceMember(email));
+    // clear the email field after inviting
+    _emailController.clear();
   }
 }
 
