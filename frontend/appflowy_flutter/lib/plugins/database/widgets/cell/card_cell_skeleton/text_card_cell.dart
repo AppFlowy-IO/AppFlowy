@@ -8,6 +8,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../editable_cell_builder.dart';
@@ -196,30 +197,37 @@ class _TextCellState extends State<TextCardCell> {
         widget.style.padding.add(const EdgeInsets.symmetric(vertical: 4.0));
     return IgnorePointer(
       ignoring: !isEditing,
-      child: TextField(
-        controller: _textEditingController,
-        focusNode: focusNode,
-        onChanged: (_) {
-          if (_textEditingController.value.composing.isCollapsed) {
-            cellBloc.add(TextCellEvent.updateText(_textEditingController.text));
-          }
+      child: CallbackShortcuts(
+        bindings: {
+          const SingleActivator(LogicalKeyboardKey.escape): () =>
+              focusNode.unfocus(),
         },
-        onEditingComplete: () => focusNode.unfocus(),
-        maxLines: isEditing ? null : 2,
-        minLines: 1,
-        textInputAction: TextInputAction.done,
-        readOnly: !isEditing,
-        enableInteractiveSelection: isEditing,
-        style: widget.style.titleTextStyle,
-        decoration: InputDecoration(
-          contentPadding: padding,
-          border: InputBorder.none,
-          enabledBorder: InputBorder.none,
-          isDense: true,
-          isCollapsed: true,
-          hintText: LocaleKeys.grid_row_titlePlaceholder.tr(),
-          hintStyle: widget.style.titleTextStyle.copyWith(
-            color: Theme.of(context).hintColor,
+        child: TextField(
+          controller: _textEditingController,
+          focusNode: focusNode,
+          onChanged: (_) {
+            if (_textEditingController.value.composing.isCollapsed) {
+              cellBloc
+                  .add(TextCellEvent.updateText(_textEditingController.text));
+            }
+          },
+          onEditingComplete: () => focusNode.unfocus(),
+          maxLines: isEditing ? null : 2,
+          minLines: 1,
+          textInputAction: TextInputAction.done,
+          readOnly: !isEditing,
+          enableInteractiveSelection: isEditing,
+          style: widget.style.titleTextStyle,
+          decoration: InputDecoration(
+            contentPadding: padding,
+            border: InputBorder.none,
+            enabledBorder: InputBorder.none,
+            isDense: true,
+            isCollapsed: true,
+            hintText: LocaleKeys.grid_row_titlePlaceholder.tr(),
+            hintStyle: widget.style.titleTextStyle.copyWith(
+              color: Theme.of(context).hintColor,
+            ),
           ),
         ),
       ),

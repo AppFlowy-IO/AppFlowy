@@ -15,26 +15,35 @@ void main() {
     final context = await boardTest.createTestBoard();
     final databaseController = DatabaseController(view: context.gridView);
     final boardBloc = BoardBloc(
-      view: context.gridView,
       databaseController: databaseController,
     )..add(const BoardEvent.initial());
     await boardResponseFuture();
 
-    final groupId = boardBloc.state.groupIds.last;
+    List<String> groupIds = boardBloc.state.maybeMap(
+      orElse: () => [],
+      ready: (value) => value.groupIds,
+    );
+    String lastGroupId = groupIds.last;
 
     // the group at index 3 is the 'No status' group;
-    assert(boardBloc.groupControllers[groupId]!.group.rows.isEmpty);
+    assert(boardBloc.groupControllers[lastGroupId]!.group.rows.isEmpty);
     assert(
-      boardBloc.state.groupIds.length == 4,
-      'but receive ${boardBloc.state.groupIds.length}',
+      groupIds.length == 4,
+      'but receive ${groupIds.length}',
     );
 
-    boardBloc.add(BoardEvent.createBottomRow(boardBloc.state.groupIds[3]));
+    boardBloc.add(BoardEvent.createBottomRow(groupIds[3]));
     await boardResponseFuture();
 
+    groupIds = boardBloc.state.maybeMap(
+      orElse: () => [],
+      ready: (value) => value.groupIds,
+    );
+    lastGroupId = groupIds.last;
+
     assert(
-      boardBloc.groupControllers[groupId]!.group.rows.length == 1,
-      'but receive ${boardBloc.groupControllers[groupId]!.group.rows.length}',
+      boardBloc.groupControllers[lastGroupId]!.group.rows.length == 1,
+      'but receive ${boardBloc.groupControllers[lastGroupId]!.group.rows.length}',
     );
   });
 }

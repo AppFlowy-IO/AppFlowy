@@ -58,50 +58,63 @@ class _MobileBoardContentState extends State<MobileBoardContent> {
     );
 
     return BlocListener<BoardBloc, BoardState>(
-      listenWhen: (previous, current) =>
-          previous.recentAddedRowMeta != current.recentAddedRowMeta,
+      listenWhen: (previous, current) => current.isOpenCard,
       listener: (context, state) {
-        context.push(
-          MobileRowDetailPage.routeName,
-          extra: {
-            MobileRowDetailPage.argRowId: state.recentAddedRowMeta!.id,
-            MobileRowDetailPage.argDatabaseController:
-                context.read<BoardBloc>().databaseController,
+        state.maybeWhen(
+          orElse: () {},
+          openCard: (rowMeta) {
+            context.push(
+              MobileRowDetailPage.routeName,
+              extra: {
+                MobileRowDetailPage.argRowId: rowMeta.id,
+                MobileRowDetailPage.argDatabaseController:
+                    context.read<BoardBloc>().databaseController,
+              },
+            );
           },
         );
       },
       child: BlocBuilder<BoardBloc, BoardState>(
         builder: (context, state) {
-          final showCreateGroupButton =
-              context.read<BoardBloc>().groupingFieldType.canCreateNewGroup;
-          final showHiddenGroups = state.hiddenGroups.isNotEmpty;
-          return AppFlowyBoard(
-            boardScrollController: scrollManager,
-            scrollController: scrollController,
-            controller: context.read<BoardBloc>().boardController,
-            groupConstraints: BoxConstraints.tightFor(width: screenWidth * 0.7),
-            config: config,
-            leading: showHiddenGroups
-                ? MobileHiddenGroupsColumn(
-                    padding: config.groupHeaderPadding,
-                  )
-                : const HSpace(16),
-            trailing: showCreateGroupButton
-                ? const MobileBoardTrailing()
-                : const HSpace(16),
-            headerBuilder: (_, groupData) => BlocProvider<BoardBloc>.value(
-              value: context.read<BoardBloc>(),
-              child: GroupCardHeader(
-                groupData: groupData,
-              ),
-            ),
-            footerBuilder: _buildFooter,
-            cardBuilder: (_, column, columnItem) => _buildCard(
-              context: context,
-              afGroupData: column,
-              afGroupItem: columnItem,
-              cardMargin: config.cardMargin,
-            ),
+          return state.maybeMap(
+            orElse: () => const SizedBox.shrink(),
+            ready: (state) {
+              final showCreateGroupButton = context
+                      .read<BoardBloc>()
+                      .groupingFieldType
+                      ?.canCreateNewGroup ??
+                  false;
+              final showHiddenGroups = state.hiddenGroups.isNotEmpty;
+              return AppFlowyBoard(
+                boardScrollController: scrollManager,
+                scrollController: scrollController,
+                controller: context.read<BoardBloc>().boardController,
+                groupConstraints:
+                    BoxConstraints.tightFor(width: screenWidth * 0.7),
+                config: config,
+                leading: showHiddenGroups
+                    ? MobileHiddenGroupsColumn(
+                        padding: config.groupHeaderPadding,
+                      )
+                    : const HSpace(16),
+                trailing: showCreateGroupButton
+                    ? const MobileBoardTrailing()
+                    : const HSpace(16),
+                headerBuilder: (_, groupData) => BlocProvider<BoardBloc>.value(
+                  value: context.read<BoardBloc>(),
+                  child: GroupCardHeader(
+                    groupData: groupData,
+                  ),
+                ),
+                footerBuilder: _buildFooter,
+                cardBuilder: (_, column, columnItem) => _buildCard(
+                  context: context,
+                  afGroupData: column,
+                  afGroupItem: columnItem,
+                  cardMargin: config.cardMargin,
+                ),
+              );
+            },
           );
         },
       ),
@@ -146,16 +159,14 @@ class _MobileBoardContentState extends State<MobileBoardContent> {
     final groupItem = afGroupItem as GroupItem;
     final groupData = afGroupData.customData as GroupData;
     final rowMeta = groupItem.row;
-    final rowCache = boardBloc.getRowCache();
-
-    /// Return placeholder widget if the rowCache is null.
-    if (rowCache == null) return SizedBox.shrink(key: ObjectKey(groupItem));
-    final viewId = boardBloc.viewId;
 
     final cellBuilder =
         CardCellBuilder(databaseController: boardBloc.databaseController);
-    final isEditing = boardBloc.state.isEditingRow &&
-        boardBloc.state.editingRow?.row.id == groupItem.row.id;
+
+    final isEditing = boardBloc.state.maybeMap(
+      orElse: () => false,
+      ready: (state) => state.editingRow?.rowId == groupItem.row.id,
+    );
 
     final groupItemId = groupItem.row.id + groupData.group.groupId;
 
@@ -166,12 +177,12 @@ class _MobileBoardContentState extends State<MobileBoardContent> {
       child: RowCard(
         fieldController: boardBloc.fieldController,
         rowMeta: rowMeta,
-        viewId: viewId,
-        rowCache: rowCache,
+        viewId: boardBloc.viewId,
+        rowCache: boardBloc.rowCache,
         groupingFieldId: groupItem.fieldInfo.id,
         isEditing: isEditing,
         cellBuilder: cellBuilder,
-        openCard: (context) {
+        onTap: (context) {
           context.push(
             MobileRowDetailPage.routeName,
             extra: {
@@ -181,10 +192,15 @@ class _MobileBoardContentState extends State<MobileBoardContent> {
             },
           );
         },
-        onStartEditing: () => boardBloc
-            .add(BoardEvent.startEditingRow(groupData.group, groupItem.row)),
-        onEndEditing: () =>
-            boardBloc.add(BoardEvent.endEditingRow(groupItem.row.id)),
+        onStartEditing: () => boardBloc.add(
+          BoardEvent.startEditingRow(
+            GroupedRowId(
+              groupId: groupData.group.groupId,
+              rowId: groupItem.row.id,
+            ),
+          ),
+        ),
+        onEndEditing: () => boardBloc.add(const BoardEvent.endEditingRow()),
         styleConfiguration: RowCardStyleConfiguration(
           cellStyleMap: mobileBoardCardCellStyleMap(context),
           showAccessory: false,

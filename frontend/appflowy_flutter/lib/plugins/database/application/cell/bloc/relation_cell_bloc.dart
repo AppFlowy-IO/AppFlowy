@@ -48,7 +48,7 @@ class RelationCellBloc extends Bloc<RelationCellEvent, RelationCellState> {
               emit(state.copyWith(rows: const []));
               return;
             }
-            final payload = RepeatedRowIdPB(
+            final payload = GetRelatedRowDataPB(
               databaseId: state.relatedDatabaseMeta!.databaseId,
               rowIds: cellData.rowIds,
             );

@@ -73,8 +73,12 @@ class _GroupCardHeaderState extends State<GroupCardHeader> {
           );
         }
 
-        if (state.isEditingHeader &&
-            state.editingHeaderId == widget.groupData.id) {
+        final isEditing = state.maybeMap(
+          ready: (value) => value.editingHeaderId == widget.groupData.id,
+          orElse: () => false,
+        );
+
+        if (isEditing) {
           title = TextField(
             controller: _controller,
             autofocus: true,

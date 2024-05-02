@@ -23,7 +23,10 @@ class MobileHiddenGroupsColumn extends StatelessWidget {
   Widget build(BuildContext context) {
     final databaseController = context.read<BoardBloc>().databaseController;
     return BlocSelector<BoardBloc, BoardState, BoardLayoutSettingPB?>(
-      selector: (state) => state.layoutSettings,
+      selector: (state) => state.maybeMap(
+        orElse: () => null,
+        ready: (value) => value.layoutSettings,
+      ),
       builder: (context, layoutSettings) {
         if (layoutSettings == null) {
           return const SizedBox.shrink();
@@ -105,29 +108,36 @@ class MobileHiddenGroupList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<BoardBloc, BoardState>(
-      builder: (_, state) => ReorderableListView.builder(
-        itemCount: state.hiddenGroups.length,
-        itemBuilder: (_, index) => MobileHiddenGroup(
-          key: ValueKey(state.hiddenGroups[index].groupId),
-          group: state.hiddenGroups[index],
-          index: index,
-        ),
-        proxyDecorator: (child, index, animation) => BlocProvider.value(
-          value: context.read<BoardBloc>(),
-          child: Material(color: Colors.transparent, child: child),
-        ),
-        physics: const ClampingScrollPhysics(),
-        onReorder: (oldIndex, newIndex) {
-          if (oldIndex < newIndex) {
-            newIndex--;
-          }
-          final fromGroupId = state.hiddenGroups[oldIndex].groupId;
-          final toGroupId = state.hiddenGroups[newIndex].groupId;
-          context
-              .read<BoardBloc>()
-              .add(BoardEvent.reorderGroup(fromGroupId, toGroupId));
-        },
-      ),
+      builder: (_, state) {
+        return state.maybeMap(
+          orElse: () => const SizedBox.shrink(),
+          ready: (state) {
+            return ReorderableListView.builder(
+              itemCount: state.hiddenGroups.length,
+              itemBuilder: (_, index) => MobileHiddenGroup(
+                key: ValueKey(state.hiddenGroups[index].groupId),
+                group: state.hiddenGroups[index],
+                index: index,
+              ),
+              proxyDecorator: (child, index, animation) => BlocProvider.value(
+                value: context.read<BoardBloc>(),
+                child: Material(color: Colors.transparent, child: child),
+              ),
+              physics: const ClampingScrollPhysics(),
+              onReorder: (oldIndex, newIndex) {
+                if (oldIndex < newIndex) {
+                  newIndex--;
+                }
+                final fromGroupId = state.hiddenGroups[oldIndex].groupId;
+                final toGroupId = state.hiddenGroups[newIndex].groupId;
+                context
+                    .read<BoardBloc>()
+                    .add(BoardEvent.reorderGroup(fromGroupId, toGroupId));
+              },
+            );
+          },
+        );
+      },
     );
   }
 }
@@ -150,88 +160,97 @@ class MobileHiddenGroup extends StatelessWidget {
 
     return BlocBuilder<BoardBloc, BoardState>(
       builder: (context, state) {
-        final group = state.hiddenGroups.firstWhereOrNull(
-          (g) => g.groupId == this.group.groupId,
-        );
-        if (group == null) {
-          return const SizedBox.shrink();
-        }
+        return state.maybeMap(
+          orElse: () => const SizedBox.shrink(),
+          ready: (state) {
+            final group = state.hiddenGroups.firstWhereOrNull(
+              (g) => g.groupId == this.group.groupId,
+            );
+            if (group == null) {
+              return const SizedBox.shrink();
+            }
 
-        final cells = group.rows.map(
-          (item) {
-            final cellContext =
-                databaseController.rowCache.loadCells(item).firstWhere(
-                      (cellContext) => cellContext.fieldId == primaryField.id,
-                    );
+            final cells = group.rows.map(
+              (item) {
+                final cellContext =
+                    databaseController.rowCache.loadCells(item).firstWhere(
+                          (cellContext) =>
+                              cellContext.fieldId == primaryField.id,
+                        );
 
-            return TextButton(
-              style: TextButton.styleFrom(
-                textStyle: Theme.of(context).textTheme.bodyMedium,
-                foregroundColor: Theme.of(context).colorScheme.onBackground,
-                visualDensity: VisualDensity.compact,
-              ),
-              child: CardCellBuilder(
-                databaseController:
-                    context.read<BoardBloc>().databaseController,
-              ).build(
-                cellContext: cellContext,
-                styleMap: {FieldType.RichText: _titleCellStyle(context)},
-                hasNotes: !item.isDocumentEmpty,
-              ),
-              onPressed: () {
-                context.push(
-                  MobileRowDetailPage.routeName,
-                  extra: {
-                    MobileRowDetailPage.argRowId: item.id,
-                    MobileRowDetailPage.argDatabaseController:
+                return TextButton(
+                  style: TextButton.styleFrom(
+                    textStyle: Theme.of(context).textTheme.bodyMedium,
+                    foregroundColor: Theme.of(context).colorScheme.onBackground,
+                    visualDensity: VisualDensity.compact,
+                  ),
+                  child: CardCellBuilder(
+                    databaseController:
                         context.read<BoardBloc>().databaseController,
+                  ).build(
+                    cellContext: cellContext,
+                    styleMap: {FieldType.RichText: _titleCellStyle(context)},
+                    hasNotes: !item.isDocumentEmpty,
+                  ),
+                  onPressed: () {
+                    context.push(
+                      MobileRowDetailPage.routeName,
+                      extra: {
+                        MobileRowDetailPage.argRowId: item.id,
+                        MobileRowDetailPage.argDatabaseController:
+                            context.read<BoardBloc>().databaseController,
+                      },
+                    );
                   },
                 );
               },
+            ).toList();
+
+            return ExpansionTile(
+              tilePadding: EdgeInsets.zero,
+              childrenPadding: EdgeInsets.zero,
+              title: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      context
+                          .read<BoardBloc>()
+                          .generateGroupNameFromGroup(group),
+                      style: Theme.of(context).textTheme.bodyMedium,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  GestureDetector(
+                    child: const Padding(
+                      padding: EdgeInsets.all(4),
+                      child: FlowySvg(
+                        FlowySvgs.hide_m,
+                        size: Size.square(20),
+                      ),
+                    ),
+                    onTap: () => showFlowyMobileConfirmDialog(
+                      context,
+                      title: FlowyText(LocaleKeys.board_mobile_showGroup.tr()),
+                      content: FlowyText(
+                        LocaleKeys.board_mobile_showGroupContent.tr(),
+                      ),
+                      actionButtonTitle: LocaleKeys.button_yes.tr(),
+                      actionButtonColor: Theme.of(context).colorScheme.primary,
+                      onActionButtonPressed: () =>
+                          context.read<BoardBloc>().add(
+                                BoardEvent.toggleGroupVisibility(
+                                  group,
+                                  true,
+                                ),
+                              ),
+                    ),
+                  ),
+                ],
+              ),
+              children: cells,
             );
           },
-        ).toList();
-
-        return ExpansionTile(
-          tilePadding: EdgeInsets.zero,
-          childrenPadding: EdgeInsets.zero,
-          title: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  context.read<BoardBloc>().generateGroupNameFromGroup(group),
-                  style: Theme.of(context).textTheme.bodyMedium,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              GestureDetector(
-                child: const Padding(
-                  padding: EdgeInsets.all(4),
-                  child: FlowySvg(
-                    FlowySvgs.hide_m,
-                    size: Size.square(20),
-                  ),
-                ),
-                onTap: () => showFlowyMobileConfirmDialog(
-                  context,
-                  title: FlowyText(LocaleKeys.board_mobile_showGroup.tr()),
-                  content: FlowyText(
-                    LocaleKeys.board_mobile_showGroupContent.tr(),
-                  ),
-                  actionButtonTitle: LocaleKeys.button_yes.tr(),
-                  actionButtonColor: Theme.of(context).colorScheme.primary,
-                  onActionButtonPressed: () => context.read<BoardBloc>().add(
-                        BoardEvent.toggleGroupVisibility(
-                          group,
-                          true,
-                        ),
-                      ),
-                ),
-              ),
-            ],
-          ),
-          children: cells,
         );
       },
     );

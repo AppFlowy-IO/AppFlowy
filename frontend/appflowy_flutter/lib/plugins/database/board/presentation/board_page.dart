@@ -1,11 +1,8 @@
-import 'dart:collection';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/database/board/mobile_board_content.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_state_container.dart';
 import 'package:appflowy/plugins/database/application/database_controller.dart';
-import 'package:appflowy/plugins/database/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database/board/presentation/widgets/board_column_header.dart';
 import 'package:appflowy/plugins/database/grid/presentation/grid_page.dart';
@@ -28,12 +25,13 @@ import 'package:flutter/material.dart' hide Card;
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../workspace/application/view/view_bloc.dart';
 import '../../widgets/card/card.dart';
 import '../../widgets/cell/card_cell_builder.dart';
 import '../application/board_bloc.dart';
 import 'toolbar/board_setting_bar.dart';
+import 'widgets/board_focus_scope.dart';
 import 'widgets/board_hidden_groups.dart';
+import 'widgets/board_shortcut_container.dart';
 
 class BoardPageTabBarBuilderImpl extends DatabaseTabBarItemBuilder {
   final _toggleExtension = ToggleExtensionNotifier();
@@ -97,31 +95,28 @@ class BoardPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider<BoardBloc>(
       create: (context) => BoardBloc(
-        view: view,
         databaseController: databaseController,
       )..add(const BoardEvent.initial()),
       child: BlocBuilder<BoardBloc, BoardState>(
-        buildWhen: (p, c) => p.loadingState != c.loadingState,
-        builder: (context, state) => state.loadingState.when(
-          loading: () => const Center(
+        buildWhen: (p, c) => !c.isOpenCard,
+        builder: (context, state) => state.map(
+          loading: (_) => const Center(
             child: CircularProgressIndicator.adaptive(),
           ),
-          idle: () => const SizedBox.shrink(),
-          finish: (result) => result.fold(
-            (_) => PlatformExtension.isMobile
-                ? const MobileBoardContent()
-                : DesktopBoardContent(onEditStateChanged: onEditStateChanged),
-            (err) => PlatformExtension.isMobile
-                ? FlowyMobileStateContainer.error(
-                    emoji: '🛸',
-                    title: LocaleKeys.board_mobile_failedToLoad.tr(),
-                    errorMsg: err.toString(),
-                  )
-                : FlowyErrorPage.message(
-                    err.toString(),
-                    howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),
-                  ),
-          ),
+          openCard: (_) => const SizedBox.shrink(),
+          error: (err) => PlatformExtension.isMobile
+              ? FlowyMobileStateContainer.error(
+                  emoji: '🛸',
+                  title: LocaleKeys.board_mobile_failedToLoad.tr(),
+                  errorMsg: err.toString(),
+                )
+              : FlowyErrorPage.message(
+                  err.toString(),
+                  howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),
+                ),
+          ready: (data) => PlatformExtension.isMobile
+              ? const MobileBoardContent()
+              : DesktopBoardContent(onEditStateChanged: onEditStateChanged),
         ),
       ),
     );
@@ -158,51 +153,77 @@ class _DesktopBoardContentState extends State<DesktopBoardContent> {
     databaseController: context.read<BoardBloc>().databaseController,
   );
 
+  late final cardFocusNotifier = CardFocusScope(
+    boardController: context.read<BoardBloc>().boardController,
+  );
+
   @override
   void dispose() {
+    cardFocusNotifier.dispose();
     scrollController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<BoardBloc, BoardState>(
+    return BlocConsumer<BoardBloc, BoardState>(
       listener: (context, state) {
         widget.onEditStateChanged?.call();
+        state.maybeWhen(
+          orElse: () {},
+          openCard: (rowMeta) {
+            _openCard(
+              context: context,
+              databaseController: context.read<BoardBloc>().databaseController,
+              rowMeta: rowMeta,
+            );
+          },
+        );
       },
-      child: BlocBuilder<BoardBloc, BoardState>(
-        builder: (context, state) {
-          final showCreateGroupButton =
-              context.read<BoardBloc>().groupingFieldType.canCreateNewGroup;
-          return Padding(
-            padding: const EdgeInsets.only(top: 8.0),
-            child: AppFlowyBoard(
-              boardScrollController: scrollManager,
-              scrollController: scrollController,
-              controller: context.read<BoardBloc>().boardController,
-              groupConstraints: const BoxConstraints.tightFor(width: 256),
-              config: config,
-              leading: HiddenGroupsColumn(margin: config.groupHeaderPadding),
-              trailing: showCreateGroupButton
-                  ? BoardTrailing(scrollController: scrollController)
-                  : const HSpace(40),
-              headerBuilder: (_, groupData) => BlocProvider<BoardBloc>.value(
-                value: context.read<BoardBloc>(),
-                child: BoardColumnHeader(
-                  groupData: groupData,
-                  margin: config.groupHeaderPadding,
+      builder: (context, state) {
+        final showCreateGroupButton =
+            context.read<BoardBloc>().groupingFieldType?.canCreateNewGroup ??
+                false;
+        return FocusScope(
+          autofocus: true,
+          child: BoardShortcutContainer(
+            focusScope: cardFocusNotifier,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: AppFlowyBoard(
+                boardScrollController: scrollManager,
+                scrollController: scrollController,
+                controller: context.read<BoardBloc>().boardController,
+                groupConstraints: const BoxConstraints.tightFor(width: 256),
+                config: config,
+                leading: HiddenGroupsColumn(margin: config.groupHeaderPadding),
+                trailing: showCreateGroupButton
+                    ? BoardTrailing(scrollController: scrollController)
+                    : const HSpace(40),
+                headerBuilder: (_, groupData) => BlocProvider<BoardBloc>.value(
+                  value: context.read<BoardBloc>(),
+                  child: BoardColumnHeader(
+                    groupData: groupData,
+                    margin: config.groupHeaderPadding,
+                  ),
+                ),
+                footerBuilder: _buildFooter,
+                cardBuilder: (_, column, columnItem) => BlocProvider.value(
+                  key: ValueKey("${column.id}${columnItem.id}"),
+                  value: context.read<BoardBloc>(),
+                  child: _BoardCard(
+                    afGroupData: column,
+                    groupItem: columnItem as GroupItem,
+                    boardConfig: config,
+                    notifier: cardFocusNotifier,
+                    cellBuilder: cellBuilder,
+                  ),
                 ),
               ),
-              footerBuilder: _buildFooter,
-              cardBuilder: (_, column, columnItem) => _buildCard(
-                context,
-                column,
-                columnItem,
-              ),
             ),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 
@@ -230,75 +251,142 @@ class _DesktopBoardContentState extends State<DesktopBoardContent> {
       ),
     );
   }
+}
 
-  Widget _buildCard(
-    BuildContext context,
-    AppFlowyGroupData afGroupData,
-    AppFlowyGroupItem afGroupItem,
-  ) {
+class _BoardCard extends StatelessWidget {
+  const _BoardCard({
+    required this.afGroupData,
+    required this.groupItem,
+    required this.boardConfig,
+    required this.cellBuilder,
+    required this.notifier,
+  });
+
+  final AppFlowyGroupData afGroupData;
+  final GroupItem groupItem;
+  final AppFlowyBoardConfig boardConfig;
+  final CardCellBuilder cellBuilder;
+  final CardFocusScope notifier;
+
+  @override
+  Widget build(BuildContext context) {
     final boardBloc = context.read<BoardBloc>();
-    final groupItem = afGroupItem as GroupItem;
-    final groupData = afGroupData.customData as GroupData;
-    final rowCache = boardBloc.getRowCache();
-    final rowInfo = rowCache?.getRow(groupItem.row.id);
+    return BlocBuilder<BoardBloc, BoardState>(
+      builder: (context, state) {
+        final groupData = afGroupData.customData as GroupData;
+        final rowCache = boardBloc.rowCache;
+        final rowInfo = rowCache.getRow(groupItem.row.id);
 
-    /// Return placeholder widget if the rowCache or rowInfo is null.
-    if (rowCache == null) {
-      return SizedBox.shrink(key: ObjectKey(groupItem));
-    }
+        final databaseController = boardBloc.databaseController;
+        final rowMeta = rowInfo?.rowMeta ?? groupItem.row;
 
-    final databaseController = boardBloc.databaseController;
-    final viewId = boardBloc.viewId;
+        final isEditing = state.maybeMap(
+          orElse: () => false,
+          ready: (state) => state.editingRow?.rowId == groupItem.row.id,
+        );
 
-    final isEditing = boardBloc.state.isEditingRow &&
-        boardBloc.state.editingRow?.row.id == groupItem.row.id;
+        return Shortcuts(
+          shortcuts: const {
+            SingleActivator(LogicalKeyboardKey.arrowUp):
+                DoNothingAndStopPropagationIntent(),
+            SingleActivator(LogicalKeyboardKey.arrowDown):
+                DoNothingAndStopPropagationIntent(),
+            SingleActivator(LogicalKeyboardKey.arrowUp, shift: true):
+                DoNothingAndStopPropagationIntent(),
+            SingleActivator(LogicalKeyboardKey.arrowDown, shift: true):
+                DoNothingAndStopPropagationIntent(),
+            SingleActivator(LogicalKeyboardKey.keyE):
+                DoNothingAndStopPropagationIntent(),
+            SingleActivator(LogicalKeyboardKey.delete):
+                DoNothingAndStopPropagationIntent(),
+            SingleActivator(LogicalKeyboardKey.enter):
+                DoNothingAndStopPropagationIntent(),
+            SingleActivator(LogicalKeyboardKey.numpadEnter):
+                DoNothingAndStopPropagationIntent(),
+          },
+          child: ConditionalListenableBuilder<List<GroupedRowId>>(
+            valueListenable: notifier,
+            buildWhen: (previous, current) {
+              final focusItem = GroupedRowId(
+                groupId: groupData.group.groupId,
+                rowId: rowMeta.id,
+              );
+              final previousContainsFocus = previous.contains(focusItem);
+              final currentContainsFocus = current.contains(focusItem);
 
-    final groupItemId = "${groupData.group.groupId}${groupItem.row.id}";
-    final rowMeta = rowInfo?.rowMeta ?? groupItem.row;
-
-    return Container(
-      key: ValueKey(groupItemId),
-      margin: config.cardMargin,
-      decoration: _makeBoxDecoration(context),
-      child: RowCard(
-        fieldController: databaseController.fieldController,
-        rowMeta: rowMeta,
-        viewId: viewId,
-        rowCache: rowCache,
-        groupingFieldId: groupItem.fieldInfo.id,
-        isEditing: isEditing,
-        cellBuilder: cellBuilder,
-        openCard: (context) => _openCard(
-          context: context,
-          databaseController: databaseController,
-          groupId: groupData.group.groupId,
-          rowMeta: context.read<CardBloc>().state.rowMeta,
-        ),
-        styleConfiguration: RowCardStyleConfiguration(
-          cellStyleMap: desktopBoardCardCellStyleMap(context),
-          hoverStyle: HoverStyle(
-            hoverColor: Theme.of(context).brightness == Brightness.light
-                ? const Color(0x0F1F2329)
-                : const Color(0x0FEFF4FB),
-            foregroundColorOnHover: Theme.of(context).colorScheme.onBackground,
+              return previousContainsFocus != currentContainsFocus;
+            },
+            builder: (context, focusedItems, child) => Container(
+              margin: boardConfig.cardMargin,
+              decoration: _makeBoxDecoration(
+                context,
+                groupData.group.groupId,
+                groupItem.id,
+              ),
+              child: child,
+            ),
+            child: RowCard(
+              fieldController: databaseController.fieldController,
+              rowMeta: rowMeta,
+              viewId: boardBloc.viewId,
+              rowCache: rowCache,
+              groupingFieldId: groupItem.fieldInfo.id,
+              isEditing: isEditing,
+              cellBuilder: cellBuilder,
+              onTap: (context) => _openCard(
+                context: context,
+                databaseController: databaseController,
+                rowMeta: context.read<CardBloc>().state.rowMeta,
+              ),
+              onShiftTap: (context) => notifier.toggle(
+                GroupedRowId(
+                  rowId: groupItem.row.id,
+                  groupId: groupData.group.groupId,
+                ),
+              ),
+              styleConfiguration: RowCardStyleConfiguration(
+                cellStyleMap: desktopBoardCardCellStyleMap(context),
+                hoverStyle: HoverStyle(
+                  hoverColor: Theme.of(context).brightness == Brightness.light
+                      ? const Color(0x0F1F2329)
+                      : const Color(0x0FEFF4FB),
+                  foregroundColorOnHover:
+                      Theme.of(context).colorScheme.onBackground,
+                ),
+              ),
+              onStartEditing: () => boardBloc.add(
+                BoardEvent.startEditingRow(
+                  GroupedRowId(
+                    groupId: groupData.group.groupId,
+                    rowId: rowMeta.id,
+                  ),
+                ),
+              ),
+              onEndEditing: () =>
+                  boardBloc.add(const BoardEvent.endEditingRow()),
+            ),
           ),
-        ),
-        onStartEditing: () =>
-            boardBloc.add(BoardEvent.startEditingRow(groupData.group, rowMeta)),
-        onEndEditing: () => boardBloc.add(BoardEvent.endEditingRow(rowMeta.id)),
-      ),
+        );
+      },
     );
   }
 
-  BoxDecoration _makeBoxDecoration(BuildContext context) {
+  BoxDecoration _makeBoxDecoration(
+    BuildContext context,
+    String groupId,
+    String rowId,
+  ) {
     return BoxDecoration(
       color: Theme.of(context).colorScheme.surface,
       borderRadius: const BorderRadius.all(Radius.circular(6)),
       border: Border.fromBorderSide(
         BorderSide(
-          color: Theme.of(context).brightness == Brightness.light
-              ? const Color(0xFF1F2329).withOpacity(0.12)
-              : const Color(0xFF59647A),
+          color:
+              notifier.isFocused(GroupedRowId(rowId: rowId, groupId: groupId))
+                  ? Theme.of(context).colorScheme.primary
+                  : Theme.of(context).brightness == Brightness.light
+                      ? const Color(0xFF1F2329).withOpacity(0.12)
+                      : const Color(0xFF59647A),
         ),
       ),
       boxShadow: [
@@ -312,39 +400,6 @@ class _DesktopBoardContentState extends State<DesktopBoardContent> {
           color: const Color(0xFF1F2329).withOpacity(0.02),
         ),
       ],
-    );
-  }
-
-  void _openCard({
-    required BuildContext context,
-    required DatabaseController databaseController,
-    required String groupId,
-    required RowMetaPB rowMeta,
-  }) {
-    final rowInfo = RowInfo(
-      viewId: databaseController.viewId,
-      fields:
-          UnmodifiableListView(databaseController.fieldController.fieldInfos),
-      rowMeta: rowMeta,
-      rowId: rowMeta.id,
-    );
-
-    final rowController = RowController(
-      rowMeta: rowInfo.rowMeta,
-      viewId: rowInfo.viewId,
-      rowCache: databaseController.rowCache,
-      groupId: groupId,
-    );
-
-    FlowyOverlay.show(
-      context: context,
-      builder: (_) => BlocProvider.value(
-        value: context.read<ViewBloc>(),
-        child: RowDetailPage(
-          databaseController: databaseController,
-          rowController: rowController,
-        ),
-      ),
     );
   }
 }
@@ -457,4 +512,24 @@ class _BoardTrailingState extends State<BoardTrailing> {
       _cancelAddNewGroup();
     }
   }
+}
+
+void _openCard({
+  required BuildContext context,
+  required DatabaseController databaseController,
+  required RowMetaPB rowMeta,
+}) {
+  final rowController = RowController(
+    rowMeta: rowMeta,
+    viewId: databaseController.viewId,
+    rowCache: databaseController.rowCache,
+  );
+
+  FlowyOverlay.show(
+    context: context,
+    builder: (_) => RowDetailPage(
+      databaseController: databaseController,
+      rowController: rowController,
+    ),
+  );
 }

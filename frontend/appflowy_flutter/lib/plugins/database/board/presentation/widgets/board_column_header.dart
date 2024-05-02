@@ -65,72 +65,78 @@ class _BoardColumnHeaderState extends State<BoardColumnHeader> {
 
     return BlocBuilder<BoardBloc, BoardState>(
       builder: (context, state) {
-        if (state.isEditingHeader) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            _focusNode.requestFocus();
-          });
-        }
+        return state.maybeMap(
+          orElse: () => const SizedBox.shrink(),
+          ready: (state) {
+            if (state.editingHeaderId != null) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                _focusNode.requestFocus();
+              });
+            }
 
-        Widget title = Expanded(
-          child: FlowyText.medium(
-            widget.groupData.headerData.groupName,
-            overflow: TextOverflow.ellipsis,
-          ),
-        );
+            Widget title = Expanded(
+              child: FlowyText.medium(
+                widget.groupData.headerData.groupName,
+                overflow: TextOverflow.ellipsis,
+              ),
+            );
 
-        if (!boardCustomData.group.isDefault &&
-            boardCustomData.fieldType.canEditHeader) {
-          title = Flexible(
-            fit: FlexFit.tight,
-            child: FlowyTooltip(
-              message: LocaleKeys.board_column_renameGroupTooltip.tr(),
-              child: MouseRegion(
-                cursor: SystemMouseCursors.click,
-                child: GestureDetector(
-                  onTap: () => context
-                      .read<BoardBloc>()
-                      .add(BoardEvent.startEditingHeader(widget.groupData.id)),
-                  child: FlowyText.medium(
-                    widget.groupData.headerData.groupName,
-                    overflow: TextOverflow.ellipsis,
+            if (!boardCustomData.group.isDefault &&
+                boardCustomData.fieldType.canEditHeader) {
+              title = Flexible(
+                fit: FlexFit.tight,
+                child: FlowyTooltip(
+                  message: LocaleKeys.board_column_renameGroupTooltip.tr(),
+                  child: MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: GestureDetector(
+                      onTap: () => context.read<BoardBloc>().add(
+                            BoardEvent.startEditingHeader(widget.groupData.id),
+                          ),
+                      child: FlowyText.medium(
+                        widget.groupData.headerData.groupName,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
                   ),
+                ),
+              );
+            }
+
+            if (state.editingHeaderId == widget.groupData.id) {
+              title = _buildTextField(context);
+            }
+
+            return Padding(
+              padding: widget.margin,
+              child: SizedBox(
+                height: 50,
+                child: Row(
+                  children: [
+                    _buildHeaderIcon(boardCustomData),
+                    title,
+                    const HSpace(6),
+                    _groupOptionsButton(context),
+                    const HSpace(4),
+                    FlowyTooltip(
+                      message:
+                          LocaleKeys.board_column_addToColumnTopTooltip.tr(),
+                      preferBelow: false,
+                      child: FlowyIconButton(
+                        width: 20,
+                        icon: const FlowySvg(FlowySvgs.add_s),
+                        iconColorOnHover:
+                            Theme.of(context).colorScheme.onSurface,
+                        onPressed: () => context.read<BoardBloc>().add(
+                              BoardEvent.createHeaderRow(widget.groupData.id),
+                            ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ),
-          );
-        }
-
-        if (state.isEditingHeader &&
-            state.editingHeaderId == widget.groupData.id) {
-          title = _buildTextField(context);
-        }
-
-        return Padding(
-          padding: widget.margin,
-          child: SizedBox(
-            height: 50,
-            child: Row(
-              children: [
-                _buildHeaderIcon(boardCustomData),
-                title,
-                const HSpace(6),
-                _groupOptionsButton(context),
-                const HSpace(4),
-                FlowyTooltip(
-                  message: LocaleKeys.board_column_addToColumnTopTooltip.tr(),
-                  preferBelow: false,
-                  child: FlowyIconButton(
-                    width: 20,
-                    icon: const FlowySvg(FlowySvgs.add_s),
-                    iconColorOnHover: Theme.of(context).colorScheme.onSurface,
-                    onPressed: () => context
-                        .read<BoardBloc>()
-                        .add(BoardEvent.createHeaderRow(widget.groupData.id)),
-                  ),
-                ),
-              ],
-            ),
-          ),
+            );
+          },
         );
       },
     );

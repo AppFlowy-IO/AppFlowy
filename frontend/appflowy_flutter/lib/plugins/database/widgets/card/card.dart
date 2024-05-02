@@ -29,10 +29,11 @@ class RowCard extends StatefulWidget {
     required this.isEditing,
     required this.rowCache,
     required this.cellBuilder,
-    required this.openCard,
+    required this.onTap,
     required this.onStartEditing,
     required this.onEndEditing,
     required this.styleConfiguration,
+    this.onShiftTap,
     this.groupingFieldId,
     this.groupId,
   });
@@ -50,7 +51,9 @@ class RowCard extends StatefulWidget {
   final CardCellBuilder cellBuilder;
 
   /// Called when the user taps on the card.
-  final void Function(BuildContext) openCard;
+  final void Function(BuildContext context) onTap;
+
+  final void Function(BuildContext context)? onShiftTap;
 
   /// Called when the user starts editing the card.
   final VoidCallback onStartEditing;
@@ -114,7 +117,7 @@ class _RowCardState extends State<RowCard> {
 
   Widget _mobile(CardState state) {
     return GestureDetector(
-      onTap: () => widget.openCard(context),
+      onTap: () => widget.onTap(context),
       behavior: HitTestBehavior.opaque,
       child: MobileCardContent(
         rowMeta: state.rowMeta,
@@ -148,7 +151,8 @@ class _RowCardState extends State<RowCard> {
         buildAccessoryWhen: () => state.isEditing == false,
         accessories: accessories ?? [],
         openAccessory: _handleOpenAccessory,
-        openCard: widget.openCard,
+        onTap: widget.onTap,
+        onShiftTap: widget.onShiftTap,
         child: _CardContent(
           rowMeta: state.rowMeta,
           rowNotifier: rowNotifier,

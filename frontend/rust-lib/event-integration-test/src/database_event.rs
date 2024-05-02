@@ -236,11 +236,10 @@ impl EventIntegrationTest {
 
   pub async fn delete_row(&self, view_id: &str, row_id: &str) -> Option<FlowyError> {
     EventBuilder::new(self.clone())
-      .event(DatabaseEvent::DeleteRow)
-      .payload(RowIdPB {
+      .event(DatabaseEvent::DeleteRows)
+      .payload(RepeatedRowIdPB {
         view_id: view_id.to_string(),
-        row_id: row_id.to_string(),
-        group_id: None,
+        row_ids: vec![row_id.to_string()],
       })
       .async_send()
       .await
@@ -523,7 +522,7 @@ impl EventIntegrationTest {
   ) -> Vec<RelatedRowDataPB> {
     EventBuilder::new(self.clone())
       .event(DatabaseEvent::GetRelatedRowDatas)
-      .payload(RepeatedRowIdPB {
+      .payload(GetRelatedRowDataPB {
         database_id,
         row_ids,
       })

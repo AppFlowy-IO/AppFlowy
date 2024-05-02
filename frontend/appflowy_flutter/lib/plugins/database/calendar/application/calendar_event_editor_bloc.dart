@@ -46,9 +46,9 @@ class CalendarEventEditorBloc
             emit(state.copyWith(cells: cells));
           },
           delete: () async {
-            final result = await RowBackendService.deleteRow(
+            final result = await RowBackendService.deleteRows(
               rowController.viewId,
-              rowController.rowId,
+              [rowController.rowId],
             );
             result.fold((l) => null, (err) => Log.error(err));
           },
