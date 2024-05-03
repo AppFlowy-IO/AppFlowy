@@ -175,10 +175,10 @@ class AppFlowyGridCellTest {
       context.makeSelectOptionCellController(fieldType, rowIndex);
 }
 
-Future<void> gridResponseFuture({int milliseconds = 200}) {
+Future<void> gridResponseFuture({int milliseconds = 400}) {
   return Future.delayed(gridResponseDuration(milliseconds: milliseconds));
 }
 
-Duration gridResponseDuration({int milliseconds = 200}) {
+Duration gridResponseDuration({int milliseconds = 400}) {
   return Duration(milliseconds: milliseconds);
 }

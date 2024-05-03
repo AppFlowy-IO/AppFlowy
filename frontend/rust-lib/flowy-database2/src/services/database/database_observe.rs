@@ -1,14 +1,16 @@
-use crate::entities::{DatabaseSyncStatePB, DidFetchRowPB};
-use crate::notification::{send_notification, DatabaseNotification};
+use crate::entities::{DatabaseSyncStatePB, DidFetchRowPB, RowsChangePB};
+use crate::notification::{send_notification, DatabaseNotification, DATABASE_OBSERVABLE_SOURCE};
+use crate::services::database::UpdatedRow;
 use collab_database::blocks::BlockEvent;
 use collab_database::database::MutexDatabase;
 use collab_database::fields::FieldChange;
-use collab_database::rows::RowChange;
+use collab_database::rows::{RowChange, RowId};
 use collab_database::views::DatabaseViewChange;
+use flowy_notification::{DebounceNotificationSender, NotificationBuilder};
 use futures::StreamExt;
 use lib_dispatch::prelude::af_spawn;
 use std::sync::Arc;
-use tracing::trace;
+use tracing::{trace, warn};
 
 pub(crate) async fn observe_sync_state(database_id: &str, database: &Arc<MutexDatabase>) {
   let weak_database = Arc::downgrade(database);
@@ -31,31 +33,47 @@ pub(crate) async fn observe_sync_state(database_id: &str, database: &Arc<MutexDa
 }
 
 #[allow(dead_code)]
-pub(crate) async fn observe_rows_change(database_id: &str, database: &Arc<MutexDatabase>) {
+pub(crate) async fn observe_rows_change(
+  database_id: &str,
+  database: &Arc<MutexDatabase>,
+  notification_sender: &Arc<DebounceNotificationSender>,
+) {
+  let notification_sender = notification_sender.clone();
   let database_id = database_id.to_string();
   let weak_database = Arc::downgrade(database);
   let mut row_change = database.lock().subscribe_row_change();
   af_spawn(async move {
     while let Ok(row_change) = row_change.recv().await {
-      if weak_database.upgrade().is_none() {
-        break;
-      }
+      if let Some(database) = weak_database.upgrade() {
+        trace!(
+          "[Database Observe]: {} row change:{:?}",
+          database_id,
+          row_change
+        );
+        match row_change {
+          RowChange::DidUpdateCell {
+            field_id,
+            row_id,
+            value: _,
+          } => {
+            let cell_id = format!("{}:{}", row_id, field_id);
+            notify_cell(&notification_sender, &cell_id);
 
-      trace!(
-        "[Database Observe]: {} row change:{:?}",
-        database_id,
-        row_change
-      );
-      match row_change {
-        RowChange::DidUpdateVisibility { .. } => {},
-        RowChange::DidUpdateHeight { .. } => {},
-        RowChange::DidUpdateCell { .. } => {},
-        RowChange::DidUpdateRowComment { .. } => {},
+            let views = database.lock().get_all_database_views_meta();
+            for view in views {
+              notify_row(&notification_sender, &view.id, &field_id, &row_id);
+            }
+          },
+          _ => {
+            warn!("unhandled row change: {:?}", row_change);
+          },
+        }
+      } else {
+        break;
       }
     }
   });
 }
-
 #[allow(dead_code)]
 pub(crate) async fn observe_field_change(database_id: &str, database: &Arc<MutexDatabase>) {
   let database_id = database_id.to_string();
@@ -147,4 +165,33 @@ pub(crate) async fn observe_block_event(database_id: &str, database: &Arc<MutexD
       }
     }
   });
+}
+
+#[allow(dead_code)]
+fn notify_row(
+  notification_sender: &Arc<DebounceNotificationSender>,
+  view_id: &str,
+  field_id: &str,
+  row_id: &RowId,
+) {
+  let update_row = UpdatedRow::new(row_id).with_field_ids(vec![field_id.to_string()]);
+  let update_changeset = RowsChangePB::from_update(update_row.into());
+  let subject = NotificationBuilder::new(
+    view_id,
+    DatabaseNotification::DidUpdateRow,
+    DATABASE_OBSERVABLE_SOURCE,
+  )
+  .payload(update_changeset)
+  .build();
+  notification_sender.send_subject(subject);
+}
+
+fn notify_cell(notification_sender: &Arc<DebounceNotificationSender>, cell_id: &str) {
+  let subject = NotificationBuilder::new(
+    cell_id,
+    DatabaseNotification::DidUpdateCell,
+    DATABASE_OBSERVABLE_SOURCE,
+  )
+  .build();
+  notification_sender.send_subject(subject);
 }

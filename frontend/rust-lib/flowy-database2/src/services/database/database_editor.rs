@@ -4,7 +4,6 @@ use crate::services::calculations::Calculation;
 use crate::services::cell::{apply_cell_changeset, get_cell_protobuf, CellCache};
 use crate::services::database::database_observe::*;
 use crate::services::database::util::database_view_setting_pb_from_view;
-use crate::services::database::UpdatedRow;
 use crate::services::database_view::{
   DatabaseViewChanged, DatabaseViewEditor, DatabaseViewOperation, DatabaseViews, EditorByViewId,
 };
@@ -27,6 +26,7 @@ use collab_database::views::{
   DatabaseLayout, DatabaseView, FilterMap, LayoutSetting, OrderObjectPosition,
 };
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
+use flowy_notification::DebounceNotificationSender;
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::{to_fut, Fut, FutureResult};
 use lib_infra::priority_task::TaskDispatcher;
@@ -41,6 +41,9 @@ pub struct DatabaseEditor {
   database: Arc<MutexDatabase>,
   pub cell_cache: CellCache,
   database_views: Arc<DatabaseViews>,
+  #[allow(dead_code)]
+  /// Used to send notification to the frontend.
+  notification_sender: Arc<DebounceNotificationSender>,
 }
 
 impl DatabaseEditor {
@@ -48,6 +51,7 @@ impl DatabaseEditor {
     database: Arc<MutexDatabase>,
     task_scheduler: Arc<RwLock<TaskDispatcher>>,
   ) -> FlowyResult<Self> {
+    let notification_sender = Arc::new(DebounceNotificationSender::new(200));
     let cell_cache = AnyTypeCache::<u64>::new();
     let database_id = database.lock().get_database_id();
 
@@ -55,7 +59,7 @@ impl DatabaseEditor {
     observe_sync_state(&database_id, &database).await;
     // observe_view_change(&database_id, &database).await;
     // observe_field_change(&database_id, &database).await;
-    // observe_rows_change(&database_id, &database).await;
+    observe_rows_change(&database_id, &database, &notification_sender).await;
     // observe_block_event(&database_id, &database).await;
 
     // Used to cache the view of the database for fast access.
@@ -81,6 +85,7 @@ impl DatabaseEditor {
       database,
       cell_cache,
       database_views,
+      notification_sender,
     })
   }
 
@@ -154,7 +159,7 @@ impl DatabaseEditor {
 
     if !changes.is_empty() {
       for view in self.database_views.editors().await {
-        send_notification(&view.view_id, DatabaseNotification::DidUpdateViewRows)
+        send_notification(&view.view_id, DatabaseNotification::DidUpdateRow)
           .payload(changes.clone())
           .send();
       }
@@ -497,7 +502,7 @@ impl DatabaseEditor {
       let insert_row = InsertedRowPB::new(RowMetaPB::from(row_detail)).with_index(index as i32);
       let changes = RowsChangePB::from_move(vec![delete_row_id], vec![insert_row]);
 
-      send_notification(view_id, DatabaseNotification::DidUpdateViewRows)
+      send_notification(view_id, DatabaseNotification::DidUpdateRow)
         .payload(changes)
         .send();
     }
@@ -788,10 +793,6 @@ impl DatabaseEditor {
         .v_did_update_row(&Some(row_detail.clone()), &row_detail, None)
         .await;
     }
-
-    self
-      .notify_update_row(view_id, row_detail.row.id, vec![])
-      .await;
   }
 
   /// Update a cell in the database.
@@ -851,15 +852,6 @@ impl DatabaseEditor {
           .await;
       }
     }
-
-    let changeset = CellChangesetNotifyPB {
-      view_id: view_id.to_string(),
-      row_id: row_id.clone().into_inner(),
-      field_id: field_id.to_string(),
-    };
-    self
-      .notify_update_row(view_id, row_id, vec![changeset])
-      .await;
   }
 
   pub fn get_auto_updated_fields_changesets(
@@ -1082,13 +1074,6 @@ impl DatabaseEditor {
         self.database.lock().update_row(&row_detail.row.id, |row| {
           row.set_cells(Cells::from(row_changeset.cell_by_field_id.clone()));
         });
-
-        let changesets = cell_changesets_from_cell_by_field_id(
-          view_id,
-          row_changeset.row_id,
-          row_changeset.cell_by_field_id,
-        );
-        self.notify_update_row(view_id, from_row, changesets).await;
       },
     }
 
@@ -1337,58 +1322,6 @@ impl DatabaseEditor {
   pub fn get_mutex_database(&self) -> &MutexDatabase {
     &self.database
   }
-
-  async fn notify_update_row(
-    &self,
-    view_id: &str,
-    row: RowId,
-    extra_changesets: Vec<CellChangesetNotifyPB>,
-  ) {
-    let mut changesets = self.get_auto_updated_fields_changesets(view_id, row);
-    changesets.extend(extra_changesets);
-
-    notify_did_update_cell(changesets.clone()).await;
-    notify_did_update_row(changesets).await;
-  }
-}
-
-pub(crate) async fn notify_did_update_cell(changesets: Vec<CellChangesetNotifyPB>) {
-  for changeset in changesets {
-    let id = format!("{}:{}", changeset.row_id, changeset.field_id);
-    send_notification(&id, DatabaseNotification::DidUpdateCell).send();
-  }
-}
-
-async fn notify_did_update_row(changesets: Vec<CellChangesetNotifyPB>) {
-  let row_id = changesets[0].row_id.clone();
-  let view_id = changesets[0].view_id.clone();
-
-  let field_ids = changesets
-    .iter()
-    .map(|changeset| changeset.field_id.to_string())
-    .collect();
-  let update_row = UpdatedRow::new(&row_id).with_field_ids(field_ids);
-  let update_changeset = RowsChangePB::from_update(update_row.into());
-
-  send_notification(&view_id, DatabaseNotification::DidUpdateViewRows)
-    .payload(update_changeset)
-    .send();
-}
-
-fn cell_changesets_from_cell_by_field_id(
-  view_id: &str,
-  row_id: RowId,
-  cell_by_field_id: HashMap<String, Cell>,
-) -> Vec<CellChangesetNotifyPB> {
-  let row_id = row_id.into_inner();
-  cell_by_field_id
-    .into_keys()
-    .map(|field_id| CellChangesetNotifyPB {
-      view_id: view_id.to_string(),
-      row_id: row_id.clone(),
-      field_id,
-    })
-    .collect()
 }
 
 struct DatabaseViewOperationImpl {

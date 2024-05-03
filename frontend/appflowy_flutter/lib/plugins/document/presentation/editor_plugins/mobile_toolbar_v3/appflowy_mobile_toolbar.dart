@@ -1,9 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/aa_menu/_close_keyboard_or_menu_button.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/aa_menu/_toolbar_theme.dart';
@@ -12,6 +9,8 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_too
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -76,7 +75,10 @@ class _AppFlowyMobileToolbarState extends State<AppFlowyMobileToolbar> {
           builder: (context, isKeyboardShow, __) {
             return AnimatedContainer(
               duration: const Duration(milliseconds: 110),
-              height: isKeyboardShow ? widget.toolbarHeight : 0,
+              // only adding padding when the keyboard is triggered by editor
+              height: isKeyboardShow && widget.editorState.selection != null
+                  ? widget.toolbarHeight
+                  : 0,
             );
           },
         ),
@@ -461,8 +463,13 @@ class _ToolbarItemListViewState extends State<_ToolbarItemListView> {
 
   @override
   Widget build(BuildContext context) {
+    const left = 8.0;
+    const right = 4.0;
+    // 68.0 is the width of the close keyboard/menu button
+    final padding = _calculatePadding(left + right + 68.0);
+
     final children = [
-      const HSpace(8),
+      const HSpace(left),
       ...widget.toolbarItems
           .mapIndexed(
             (index, element) => element.itemBuilder.call(
@@ -481,9 +488,9 @@ class _ToolbarItemListViewState extends State<_ToolbarItemListView> {
                   : null,
             ),
           )
-          .map((e) => [e, const HSpace(10)])
+          .map((e) => [e, HSpace(padding)])
           .flattened,
-      const HSpace(4),
+      const HSpace(right),
     ];
 
     return PageStorage(
@@ -497,6 +504,23 @@ class _ToolbarItemListViewState extends State<_ToolbarItemListView> {
         itemCount: children.length,
       ),
     );
+  }
+
+  double _calculatePadding(double extent) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final width = screenWidth - extent;
+    final int count;
+    if (screenWidth <= 340) {
+      count = 5;
+    } else if (screenWidth <= 384) {
+      count = 6;
+    } else if (screenWidth <= 430) {
+      count = 7;
+    } else {
+      count = 8;
+    }
+    // left + item count * width + item count * padding + right + close button width = screenWidth
+    return (width - count * 40.0) / count;
   }
 
   void _debounceUpdatePilotPosition() {
@@ -539,17 +563,3 @@ class _ToolbarItemListViewState extends State<_ToolbarItemListView> {
     previousSelection = selection;
   }
 }
-
-// class _MyClipper extends CustomClipper<Rect> {
-//   const _MyClipper({
-//     this.offset = 0,
-//   });
-
-//   final double offset;
-
-//   @override
-//   Rect getClip(Size size) => Rect.fromLTWH(offset, 0, 64.0, 46.0);
-
-//   @override
-//   bool shouldReclip(CustomClipper<Rect> oldClipper) => false;
-// }
