@@ -184,47 +184,35 @@ class SidebarSwitchWorkspaceButton extends StatelessWidget {
           ),
         );
       },
-      child: BlocProvider<UserWorkspaceBloc>.value(
-        value: context.read<UserWorkspaceBloc>(),
-        child: BlocBuilder<UserWorkspaceBloc, UserWorkspaceState>(
-          builder: (context, state) {
-            if (state.currentWorkspace == null) {
-              return const SizedBox.shrink();
-            }
-
-            return FlowyButton(
-              margin: const EdgeInsets.symmetric(vertical: 8),
-              text: Row(
-                children: [
-                  const HSpace(2.0),
-                  SizedBox.square(
-                    dimension: 30.0,
-                    child: WorkspaceIcon(
-                      workspace: state.currentWorkspace!,
-                      iconSize: 20,
-                      enableEdit: false,
-                      onSelected: (result) =>
-                          context.read<UserWorkspaceBloc>().add(
-                                UserWorkspaceEvent.updateWorkspaceIcon(
-                                  currentWorkspace.workspaceId,
-                                  result.emoji,
-                                ),
-                              ),
+      child: FlowyButton(
+        margin: const EdgeInsets.symmetric(vertical: 8),
+        text: Row(
+          children: [
+            const HSpace(2.0),
+            SizedBox.square(
+              dimension: 30.0,
+              child: WorkspaceIcon(
+                workspace: currentWorkspace,
+                iconSize: 20,
+                enableEdit: false,
+                onSelected: (result) => context.read<UserWorkspaceBloc>().add(
+                      UserWorkspaceEvent.updateWorkspaceIcon(
+                        currentWorkspace.workspaceId,
+                        result.emoji,
+                      ),
                     ),
-                  ),
-                  const HSpace(6),
-                  Expanded(
-                    child: FlowyText.medium(
-                      state.currentWorkspace!.name,
-                      overflow: TextOverflow.ellipsis,
-                      withTooltip: true,
-                    ),
-                  ),
-                  const FlowySvg(FlowySvgs.drop_menu_show_m),
-                ],
               ),
-            );
-          },
+            ),
+            const HSpace(6),
+            Expanded(
+              child: FlowyText.medium(
+                currentWorkspace.name,
+                overflow: TextOverflow.ellipsis,
+                withTooltip: true,
+              ),
+            ),
+            const FlowySvg(FlowySvgs.drop_menu_show_m),
+          ],
         ),
       ),
     );
