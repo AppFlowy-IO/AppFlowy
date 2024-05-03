@@ -10,6 +10,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/image/unsp
 import 'package:appflowy/plugins/document/presentation/editor_plugins/page_style/_page_cover_bottom_sheet.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/page_style/_page_style_util.dart';
 import 'package:appflowy/shared/feedback_gesture_detector.dart';
+import 'package:appflowy/startup/tasks/device_info_task.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
@@ -17,6 +18,7 @@ import 'package:appflowy_result/appflowy_result.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/snap_bar.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
@@ -255,8 +257,14 @@ class PageStyleCoverImage extends StatelessWidget {
 
       return false;
     } else if (status.isDenied) {
+      // https://github.com/Baseflow/flutter-permission-handler/issues/1262#issuecomment-2006340937
+      Permission permission = Permission.photos;
+      if (defaultTargetPlatform == TargetPlatform.android &&
+          ApplicationInfo.androidSDKVersion <= 32) {
+        permission = Permission.storage;
+      }
       // if the permission is denied, we should request the permission
-      final newStatus = await Permission.photos.request();
+      final newStatus = await permission.request();
       if (newStatus.isDenied) {
         return false;
       }

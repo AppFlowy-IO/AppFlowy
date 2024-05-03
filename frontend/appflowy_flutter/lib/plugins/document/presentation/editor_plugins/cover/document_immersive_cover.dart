@@ -10,6 +10,7 @@ import 'package:appflowy/shared/appflowy_network_image.dart';
 import 'package:appflowy/shared/flowy_gradient_colors.dart';
 import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -117,7 +118,11 @@ class _DocumentImmersiveCoverState extends State<DocumentImmersiveCover> {
     final documentFontFamily =
         context.read<DocumentPageStyleBloc>().state.fontFamily;
     if (documentFontFamily != null && fontFamily != documentFontFamily) {
-      fontFamily = GoogleFonts.getFont(documentFontFamily).fontFamily;
+      try {
+        fontFamily = GoogleFonts.getFont(documentFontFamily).fontFamily;
+      } catch (e) {
+        Log.error('Failed to load font family: $documentFontFamily');
+      }
     }
     return TextField(
       controller: textEditingController,
