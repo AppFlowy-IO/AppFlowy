@@ -1,8 +1,5 @@
 import 'dart:math';
 
-import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
@@ -10,12 +7,15 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/me
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_item/utils.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_menu.dart';
+import 'package:appflowy/shared/google_fonts_extension.dart';
 import 'package:appflowy/util/google_font_family_extension.dart';
 import 'package:appflowy/workspace/application/appearance_defaults.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:collection/collection.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -217,7 +217,7 @@ class EditorStyleCustomizer {
       return TextStyle(fontWeight: fontWeight);
     }
     try {
-      return GoogleFonts.getFont(fontFamily, fontWeight: fontWeight);
+      return getGoogleFontSafely(fontFamily, fontWeight: fontWeight);
     } on Exception {
       if ([builtInFontFamily(), builtInCodeFontFamily].contains(fontFamily)) {
         return TextStyle(fontFamily: fontFamily, fontWeight: fontWeight);
@@ -244,12 +244,12 @@ class EditorStyleCustomizer {
     if (attributes.fontFamily != null) {
       try {
         if (before.text?.contains('_regular') == true) {
-          GoogleFonts.getFont(attributes.fontFamily!.parseFontFamilyName());
+          getGoogleFontSafely(attributes.fontFamily!.parseFontFamilyName());
         } else {
           return TextSpan(
             text: before.text,
             style: after.style?.merge(
-              GoogleFonts.getFont(attributes.fontFamily!),
+              getGoogleFontSafely(attributes.fontFamily!),
             ),
           );
         }

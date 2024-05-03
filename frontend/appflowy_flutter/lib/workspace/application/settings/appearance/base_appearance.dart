@@ -1,10 +1,10 @@
 import 'dart:io';
 
+import 'package:appflowy/shared/google_fonts_extension.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 String builtInFontFamily() {
   if (PlatformExtension.isDesktopOrWeb) {
@@ -63,13 +63,13 @@ abstract class BaseAppearance {
     }
 
     try {
-      return GoogleFonts.getFont(
+      return getGoogleFontSafely(
         fontFamily,
         fontSize: fontSize,
-        color: fontColor,
+        fontColor: fontColor,
         fontWeight: fontWeight,
         letterSpacing: letterSpacing,
-        height: lineHeight,
+        lineHeight: lineHeight,
       );
     } catch (e) {
       return textStyle;
