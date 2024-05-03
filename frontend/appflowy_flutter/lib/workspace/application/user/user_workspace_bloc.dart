@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/user/application/user_listener.dart';
@@ -26,11 +28,18 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
       (event, emit) async {
         await event.when(
           initial: () async {
-            _listener
-              ..didUpdateUserWorkspaces = (workspaces) {
-                add(UserWorkspaceEvent.updateWorkspaces(workspaces));
-              }
-              ..start();
+            _listener.start(
+              didUpdateUserWorkspaces: (workspaces) =>
+                  add(UserWorkspaceEvent.updateWorkspaces(workspaces)),
+              didUpdateUserWorkspace: (workspace) {
+                // If currentWorkspace is updated, eg. Icon or Name, we should notify
+                // the UI to render the updated information.
+                final currentWorkspace = state.currentWorkspace;
+                if (currentWorkspace?.workspaceId == workspace.workspaceId) {
+                  add(UserWorkspaceEvent.updateCurrentWorkspace(workspace));
+                }
+              },
+            );
 
             final result = await _fetchWorkspaces();
             final currentWorkspace = result.$1;
@@ -336,6 +345,25 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
               ),
             );
           },
+          updateCurrentWorkspace: (workspace) async {
+            final workspaces = [...state.workspaces];
+            final index = workspaces
+                .indexWhere((e) => e.workspaceId == workspace.workspaceId);
+            if (index != -1) {
+              workspaces[index] = workspace;
+            }
+
+            emit(
+              state.copyWith(
+                currentWorkspace: workspace,
+                workspaces: workspaces
+                  ..sort(
+                    (a, b) =>
+                        a.createdAtTimestamp.compareTo(b.createdAtTimestamp),
+                  ),
+              ),
+            );
+          },
         );
       },
     );
@@ -412,6 +440,9 @@ class UserWorkspaceEvent with _$UserWorkspaceEvent {
   const factory UserWorkspaceEvent.updateWorkspaces(
     RepeatedUserWorkspacePB workspaces,
   ) = UpdateWorkspaces;
+  const factory UserWorkspaceEvent.updateCurrentWorkspace(
+    UserWorkspacePB workspace,
+  ) = UpdateCurrentWorkspace;
 }
 
 enum UserWorkspaceActionType {

@@ -14,7 +14,7 @@ use flowy_user_pub::entities::{
 };
 use lib_dispatch::prelude::af_spawn;
 
-use crate::entities::{RepeatedUserWorkspacePB, ResetWorkspacePB};
+use crate::entities::{RepeatedUserWorkspacePB, ResetWorkspacePB, UserWorkspacePB};
 use crate::migrations::AnonUser;
 use crate::notification::{send_notification, UserNotification};
 use crate::services::data_import::{
@@ -232,7 +232,14 @@ impl UserManager {
       user_workspace.icon = new_workspace_icon.to_string();
     }
 
-    save_user_workspace(uid, conn, &user_workspace)
+    let _ = save_user_workspace(uid, conn, &user_workspace);
+
+    let payload: UserWorkspacePB = user_workspace.clone().into();
+    send_notification(&uid.to_string(), UserNotification::DidUpdateUserWorkspace)
+      .payload(payload)
+      .send();
+
+    Ok(())
   }
 
   #[instrument(level = "info", skip(self), err)]
