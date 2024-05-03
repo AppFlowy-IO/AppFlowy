@@ -50,62 +50,74 @@ class MobileRecentView extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Expanded(
-                        child: ClipRRect(
-                          borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(8),
-                            topRight: Radius.circular(8),
-                          ),
-                          child: _RecentCover(
-                            coverTypeV1: state.coverTypeV1,
-                            coverTypeV2: state.coverTypeV2,
-                            value: state.coverValue,
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(8, 18, 8, 2),
-                          // hack: minLines currently not supported in Text widget.
-                          // https://github.com/flutter/flutter/issues/31134
-                          child: Stack(
-                            children: [
-                              FlowyText.medium(
-                                view.name,
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              const FlowyText(
-                                "\n\n",
-                                maxLines: 2,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
+                      Expanded(child: _buildCover(context, state)),
+                      Expanded(child: _buildTitle(context, state)),
                     ],
                   ),
                 ),
                 Align(
                   alignment: Alignment.centerLeft,
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: state.icon.isNotEmpty
-                        ? EmojiText(
-                            emoji: state.icon,
-                            fontSize: 30.0,
-                          )
-                        : SizedBox.square(
-                            dimension: 32.0,
-                            child: view.defaultIcon(),
-                          ),
-                  ),
+                  child: _buildIcon(context, state),
                 ),
               ],
             ),
           );
         },
       ),
+    );
+  }
+
+  Widget _buildCover(BuildContext context, RecentViewState state) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 1.0, left: 1.0, right: 1.0),
+      child: ClipRRect(
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(8),
+          topRight: Radius.circular(8),
+        ),
+        child: _RecentCover(
+          coverTypeV1: state.coverTypeV1,
+          coverTypeV2: state.coverTypeV2,
+          value: state.coverValue,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTitle(BuildContext context, RecentViewState state) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8, 18, 8, 2),
+      // hack: minLines currently not supported in Text widget.
+      // https://github.com/flutter/flutter/issues/31134
+      child: Stack(
+        children: [
+          FlowyText.medium(
+            view.name,
+            fontSize: 16.0,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const FlowyText(
+            "\n\n",
+            maxLines: 2,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildIcon(BuildContext context, RecentViewState state) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 8.0),
+      child: state.icon.isNotEmpty
+          ? EmojiText(
+              emoji: state.icon,
+              fontSize: 30.0,
+            )
+          : SizedBox.square(
+              dimension: 32.0,
+              child: view.defaultIcon(),
+            ),
     );
   }
 }
