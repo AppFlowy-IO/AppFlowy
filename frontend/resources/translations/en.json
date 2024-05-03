@@ -1530,8 +1530,10 @@
     "unsplash": "Unsplash",
     "pageCover": "Page cover",
     "none": "None",
-    "photoPermissionDescription": "To add existing photos to your document, allow access to the photo library in your device settings.",
-    "openSettings": "Open settings"
+    "photoPermissionDescription": "Allow access to the photo library for uploading images.",
+    "openSettings": "Open settings",
+    "photoPermissionTitle": "AppFlowy Would Like to Access Your Photo Library",
+    "doNotAllow": "Don't Allow"
   },
   "commandPalette": {
     "placeholder": "Type to search for views...",

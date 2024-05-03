@@ -231,13 +231,13 @@ class PageStyleCoverImage extends StatelessWidget {
       unawaited(
         showFlowyMobileConfirmDialog(
           context,
-          title: const FlowyText.semibold(
-            '"AppFlowy" Would Like to\n Access Your Photo Library',
+          title: FlowyText.semibold(
+            LocaleKeys.pageStyle_photoPermissionTitle.tr(),
             maxLines: 3,
             textAlign: TextAlign.center,
           ),
-          content: const FlowyText(
-            'Allow access to the photo library for uploading images.',
+          content: FlowyText(
+            LocaleKeys.pageStyle_photoPermissionDescription.tr(),
             maxLines: 5,
             textAlign: TextAlign.center,
             fontSize: 12.0,
@@ -245,7 +245,7 @@ class PageStyleCoverImage extends StatelessWidget {
           actionAlignment: ConfirmDialogActionAlignment.vertical,
           actionButtonTitle: LocaleKeys.pageStyle_openSettings.tr(),
           actionButtonColor: Colors.blue,
-          cancelButtonTitle: 'Don\'t Allow',
+          cancelButtonTitle: LocaleKeys.pageStyle_doNotAllow.tr(),
           cancelButtonColor: Colors.blue,
           onActionButtonPressed: () {
             openAppSettings();
