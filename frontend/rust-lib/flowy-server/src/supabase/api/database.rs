@@ -3,7 +3,7 @@ use collab_entity::CollabType;
 use tokio::sync::oneshot::channel;
 
 use flowy_database_pub::cloud::{
-  CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot, SummaryRow,
+  CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot, SummaryRowContent,
 };
 use lib_dispatch::prelude::af_spawn;
 use lib_infra::future::FutureResult;
@@ -101,7 +101,7 @@ where
     &self,
     workspace_id: &str,
     object_id: &str,
-    summary_row: SummaryRow,
+    summary_row: SummaryRowContent,
   ) -> FutureResult<String, Error> {
     FutureResult::new(async move { Ok("".to_string()) })
   }

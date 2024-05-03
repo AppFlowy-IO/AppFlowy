@@ -15,7 +15,7 @@ use collab_integrate::collab_builder::{
   CollabCloudPluginProvider, CollabPluginProviderContext, CollabPluginProviderType,
 };
 use flowy_database_pub::cloud::{
-  CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot, SummaryRow,
+  CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot, SummaryRowContent,
 };
 use flowy_document::deps::DocumentData;
 use flowy_document_pub::cloud::{DocumentCloudService, DocumentSnapshot};
@@ -274,7 +274,7 @@ impl DatabaseCloudService for ServerProvider {
     &self,
     workspace_id: &str,
     object_id: &str,
-    summary_row: SummaryRow,
+    summary_row: SummaryRowContent,
   ) -> FutureResult<String, Error> {
     let workspace_id = workspace_id.to_string();
     let server = self.get_server();

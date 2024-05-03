@@ -5,7 +5,7 @@ use lib_infra::future::FutureResult;
 use std::collections::HashMap;
 
 pub type CollabDocStateByOid = HashMap<String, DataSource>;
-pub type SummaryRow = HashMap<String, String>;
+pub type SummaryRowContent = HashMap<String, String>;
 /// A trait for database cloud service.
 /// Each kind of server should implement this trait. Check out the [AppFlowyServerProvider] of
 /// [flowy-server] crate for more information.
@@ -37,7 +37,7 @@ pub trait DatabaseCloudService: Send + Sync {
     &self,
     workspace_id: &str,
     object_id: &str,
-    summary_row: SummaryRow,
+    summary_row: SummaryRowContent,
   ) -> FutureResult<String, Error>;
 }
 

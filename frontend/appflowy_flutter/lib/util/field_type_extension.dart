@@ -37,7 +37,7 @@ extension FieldTypeExtension on FieldType {
         FieldType.LastEditedTime => FlowySvgs.last_modified_s,
         FieldType.CreatedTime => FlowySvgs.created_at_s,
         FieldType.Relation => FlowySvgs.relation_s,
-        FieldType.Summary => FlowySvgs.text_s,
+        FieldType.Summary => FlowySvgs.ai_summary_s,
         _ => throw UnimplementedError(),
       };
 

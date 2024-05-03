@@ -6,12 +6,12 @@ use client_api::error::ErrorCode::RecordNotFound;
 use collab::core::collab::DataSource;
 use collab::entity::EncodedCollab;
 use collab_entity::CollabType;
-use serde_json::{json, Map, Value};
+use serde_json::{Map, Value};
 use std::sync::Arc;
 use tracing::{error, instrument};
 
 use flowy_database_pub::cloud::{
-  CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot, SummaryRow,
+  CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot, SummaryRowContent,
 };
 use lib_infra::future::FutureResult;
 
@@ -128,7 +128,7 @@ where
     &self,
     workspace_id: &str,
     object_id: &str,
-    summary_row: SummaryRow,
+    summary_row: SummaryRowContent,
   ) -> FutureResult<String, Error> {
     let workspace_id = workspace_id.to_string();
     let try_get_client = self.inner.try_get_client();

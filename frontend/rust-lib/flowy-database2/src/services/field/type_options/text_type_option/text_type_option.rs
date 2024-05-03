@@ -25,7 +25,7 @@ pub struct RichTextTypeOption {
 }
 
 impl TypeOption for RichTextTypeOption {
-  type CellData = StrCellData;
+  type CellData = StringCellData;
   type CellChangeset = String;
   type CellProtobufType = ProtobufStr;
   type CellFilter = TextFilterPB;
@@ -57,13 +57,13 @@ impl TypeOptionCellDataSerde for RichTextTypeOption {
   }
 
   fn parse_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
-    Ok(StrCellData::from(cell))
+    Ok(StringCellData::from(cell))
   }
 }
 
 impl CellDataDecoder for RichTextTypeOption {
   fn decode_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
-    Ok(StrCellData::from(cell))
+    Ok(StringCellData::from(cell))
   }
 
   fn decode_cell_with_transform(
@@ -79,7 +79,7 @@ impl CellDataDecoder for RichTextTypeOption {
       | FieldType::SingleSelect
       | FieldType::MultiSelect
       | FieldType::Checkbox
-      | FieldType::URL => Some(StrCellData::from(stringify_cell(cell, field))),
+      | FieldType::URL => Some(StringCellData::from(stringify_cell(cell, field))),
       FieldType::Checklist
       | FieldType::LastEditedTime
       | FieldType::CreatedTime
@@ -93,7 +93,7 @@ impl CellDataDecoder for RichTextTypeOption {
   }
 
   fn numeric_cell(&self, cell: &Cell) -> Option<f64> {
-    StrCellData::from(cell).0.parse::<f64>().ok()
+    StringCellData::from(cell).0.parse::<f64>().ok()
   }
 }
 
@@ -109,7 +109,7 @@ impl CellDataChangeset for RichTextTypeOption {
           .with_context("The len of the text should not be more than 10000"),
       )
     } else {
-      let text_cell_data = StrCellData(changeset);
+      let text_cell_data = StringCellData(changeset);
       Ok((text_cell_data.clone().into(), text_cell_data))
     }
   }
@@ -145,8 +145,8 @@ impl TypeOptionCellDataCompare for RichTextTypeOption {
 }
 
 #[derive(Default, Debug, Clone)]
-pub struct StrCellData(pub String);
-impl std::ops::Deref for StrCellData {
+pub struct StringCellData(pub String);
+impl std::ops::Deref for StringCellData {
   type Target = String;
 
   fn deref(&self) -> &Self::Target {
@@ -154,57 +154,57 @@ impl std::ops::Deref for StrCellData {
   }
 }
 
-impl TypeOptionCellData for StrCellData {
+impl TypeOptionCellData for StringCellData {
   fn is_cell_empty(&self) -> bool {
     self.0.is_empty()
   }
 }
 
-impl From<&Cell> for StrCellData {
+impl From<&Cell> for StringCellData {
   fn from(cell: &Cell) -> Self {
     Self(cell.get_str_value(CELL_DATA).unwrap_or_default())
   }
 }
 
-impl From<StrCellData> for Cell {
-  fn from(data: StrCellData) -> Self {
+impl From<StringCellData> for Cell {
+  fn from(data: StringCellData) -> Self {
     new_cell_builder(FieldType::RichText)
       .insert_str_value(CELL_DATA, data.0)
       .build()
   }
 }
 
-impl std::ops::DerefMut for StrCellData {
+impl std::ops::DerefMut for StringCellData {
   fn deref_mut(&mut self) -> &mut Self::Target {
     &mut self.0
   }
 }
 
-impl std::convert::From<String> for StrCellData {
+impl std::convert::From<String> for StringCellData {
   fn from(s: String) -> Self {
     Self(s)
   }
 }
 
-impl ToString for StrCellData {
+impl ToString for StringCellData {
   fn to_string(&self) -> String {
     self.0.clone()
   }
 }
 
-impl std::convert::From<StrCellData> for String {
-  fn from(value: StrCellData) -> Self {
+impl std::convert::From<StringCellData> for String {
+  fn from(value: StringCellData) -> Self {
     value.0
   }
 }
 
-impl std::convert::From<&str> for StrCellData {
+impl std::convert::From<&str> for StringCellData {
   fn from(s: &str) -> Self {
     Self(s.to_owned())
   }
 }
 
-impl AsRef<str> for StrCellData {
+impl AsRef<str> for StringCellData {
   fn as_ref(&self) -> &str {
     self.0.as_str()
   }

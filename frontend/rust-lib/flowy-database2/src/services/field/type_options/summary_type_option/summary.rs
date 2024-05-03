@@ -1,8 +1,9 @@
 use crate::entities::TextFilterPB;
 use crate::services::cell::{CellDataChangeset, CellDataDecoder};
+use crate::services::field::summary_type_option::summary_entities::SummaryCellData;
 use crate::services::field::type_options::util::ProtobufStr;
 use crate::services::field::{
-  StrCellData, TypeOption, TypeOptionCellData, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
+  TypeOption, TypeOptionCellData, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
   TypeOptionCellDataSerde, TypeOptionTransform,
 };
 use crate::services::sort::SortCondition;
@@ -33,7 +34,7 @@ impl From<SummarizationTypeOption> for TypeOptionData {
 }
 
 impl TypeOption for SummarizationTypeOption {
-  type CellData = StrCellData;
+  type CellData = SummaryCellData;
   type CellChangeset = String;
   type CellProtobufType = ProtobufStr;
   type CellFilter = TextFilterPB;
@@ -44,8 +45,8 @@ impl CellDataChangeset for SummarizationTypeOption {
     &self,
     changeset: String,
     _cell: Option<Cell>,
-  ) -> FlowyResult<(Cell, StrCellData)> {
-    let cell_data = StrCellData(changeset);
+  ) -> FlowyResult<(Cell, SummaryCellData)> {
+    let cell_data = SummaryCellData(changeset);
     Ok((cell_data.clone().into(), cell_data))
   }
 }
@@ -80,11 +81,11 @@ impl TypeOptionCellDataCompare for SummarizationTypeOption {
 }
 
 impl CellDataDecoder for SummarizationTypeOption {
-  fn decode_cell(&self, cell: &Cell) -> FlowyResult<StrCellData> {
-    Ok(cell.into())
+  fn decode_cell(&self, cell: &Cell) -> FlowyResult<SummaryCellData> {
+    Ok(SummaryCellData::from(cell))
   }
 
-  fn stringify_cell_data(&self, cell_data: StrCellData) -> String {
+  fn stringify_cell_data(&self, cell_data: SummaryCellData) -> String {
     cell_data.to_string()
   }
 
@@ -103,6 +104,6 @@ impl TypeOptionCellDataSerde for SummarizationTypeOption {
   }
 
   fn parse_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
-    Ok(StrCellData::from(cell))
+    Ok(SummaryCellData::from(cell))
   }
 }

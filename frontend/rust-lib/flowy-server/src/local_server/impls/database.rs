@@ -5,7 +5,7 @@ use collab_entity::CollabType;
 use yrs::{Any, MapPrelim};
 
 use flowy_database_pub::cloud::{
-  CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot, SummaryRow,
+  CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot, SummaryRowContent,
 };
 use lib_infra::future::FutureResult;
 
@@ -80,7 +80,7 @@ impl DatabaseCloudService for LocalServerDatabaseCloudServiceImpl {
     &self,
     workspace_id: &str,
     object_id: &str,
-    summary_row: SummaryRow,
+    summary_row: SummaryRowContent,
   ) -> FutureResult<String, Error> {
     // TODO(lucas): local ai
     FutureResult::new(async move { Ok("".to_string()) })
