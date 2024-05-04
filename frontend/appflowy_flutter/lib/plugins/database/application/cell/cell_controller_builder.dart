@@ -15,7 +15,7 @@ typedef DateCellController = CellController<DateCellDataPB, String>;
 typedef TimestampCellController = CellController<TimestampCellDataPB, String>;
 typedef URLCellController = CellController<URLCellDataPB, String>;
 typedef RelationCellController = CellController<RelationCellDataPB, String>;
-typedef SummaryCellController = CellController<SummaryCellDataPB, String>;
+typedef SummaryCellController = CellController<String, String>;
 
 CellController makeCellController(
   DatabaseController databaseController,
@@ -140,7 +140,7 @@ CellController makeCellController(
         cellContext: cellContext,
         rowCache: rowCache,
         cellDataLoader: CellDataLoader(
-          parser: SummaryCellDataParser(),
+          parser: StringCellDataParser(),
           reloadOnFieldChange: true,
         ),
         cellDataPersistence: TextCellDataPersistence(),

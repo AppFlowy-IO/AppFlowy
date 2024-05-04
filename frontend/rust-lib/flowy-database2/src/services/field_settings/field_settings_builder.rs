@@ -7,7 +7,7 @@ use collab_database::views::{
 use strum::IntoEnumIterator;
 
 use crate::entities::FieldVisibility;
-use crate::services::field_settings::{FieldSettings, DEFAULT_WIDTH, VISIBILITY};
+use crate::services::field_settings::{FieldSettings, DEFAULT_WIDTH, VISIBILITY, WIDTH};
 
 /// Helper struct to create a new field setting
 pub struct FieldSettingsBuilder {

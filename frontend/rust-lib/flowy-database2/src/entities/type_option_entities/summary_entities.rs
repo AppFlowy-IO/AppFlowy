@@ -2,12 +2,6 @@ use crate::services::field::summary_type_option::summary::SummarizationTypeOptio
 use flowy_derive::ProtoBuf;
 
 #[derive(Debug, Clone, Default, ProtoBuf)]
-pub struct SummaryCellDataPB {
-  #[pb(index = 1)]
-  pub content: String,
-}
-
-#[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct SummarizationTypeOptionPB {
   #[pb(index = 1)]
   pub auto_fill: bool,

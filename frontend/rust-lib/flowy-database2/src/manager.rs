@@ -446,10 +446,6 @@ impl DatabaseManager {
     database
       .update_cell_with_changeset(&view_id, &row_id, &field_id, BoxAny::new(response))
       .await?;
-
-    let pb = database.get_cell_pb(&field_id, &row_id).await.unwrap();
-    let s = String::from_utf8(pb.data).unwrap();
-    trace!("[AI]:summarize row response: {}", s);
     Ok(())
   }
 

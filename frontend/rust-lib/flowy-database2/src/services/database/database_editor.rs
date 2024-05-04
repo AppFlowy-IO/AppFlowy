@@ -34,7 +34,7 @@ use lib_infra::util::timestamp;
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::{broadcast, RwLock};
-use tracing::{event, warn};
+use tracing::{event, instrument, warn};
 
 #[derive(Clone)]
 pub struct DatabaseEditor {
@@ -755,6 +755,7 @@ impl DatabaseEditor {
     }
   }
 
+  #[instrument(level = "trace", skip_all)]
   pub async fn update_cell_with_changeset(
     &self,
     view_id: &str,

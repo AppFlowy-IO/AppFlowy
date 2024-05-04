@@ -3,7 +3,6 @@ import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/summary.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 class DesktopGridSummaryCellSkin extends IEditableSummaryCellSkin {
   @override
@@ -16,10 +15,12 @@ class DesktopGridSummaryCellSkin extends IEditableSummaryCellSkin {
   ) {
     return TextField(
       controller: textEditingController,
+      enabled: false,
       focusNode: focusNode,
       onEditingComplete: () => focusNode.unfocus(),
       onSubmitted: (_) => focusNode.unfocus(),
-      maxLines: context.watch<SummaryCellBloc>().state.wrap ? null : 1,
+      maxLines: null,
+      minLines: 1,
       style: Theme.of(context).textTheme.bodyMedium,
       textInputAction: TextInputAction.done,
       decoration: InputDecoration(

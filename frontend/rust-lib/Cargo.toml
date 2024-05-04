@@ -79,7 +79,7 @@ chrono = { version = "0.4.31", default-features = false, features = ["clock"] }
 yrs = { version = "0.17.2" }
 
 [profile.dev]
-opt-level = 0
+opt-level = 1
 lto = false
 codegen-units = 16
 debug = true

@@ -35,7 +35,9 @@ class SummaryCellBloc extends Bloc<SummaryCellEvent, SummaryCellState> {
       (event, emit) async {
         await event.when(
           didReceiveCellUpdate: (cellData) {
-            emit(state.copyWith(content: cellData ?? ""));
+            emit(
+              state.copyWith(content: cellData ?? ""),
+            );
           },
           didUpdateField: (fieldInfo) {
             final wrap = fieldInfo.wrapCellContent;
@@ -53,7 +55,7 @@ class SummaryCellBloc extends Bloc<SummaryCellEvent, SummaryCellState> {
               // It needs to get the formatted data after saving.
               add(
                 SummaryCellEvent.didReceiveCellUpdate(
-                  cellController.getCellData()?.content,
+                  cellController.getCellData() ?? "",
                 ),
               );
             }
@@ -67,7 +69,9 @@ class SummaryCellBloc extends Bloc<SummaryCellEvent, SummaryCellState> {
     _onCellChangedFn = cellController.addListener(
       onCellChanged: (cellContent) {
         if (!isClosed) {
-          add(SummaryCellEvent.didReceiveCellUpdate(cellContent?.content));
+          add(
+            SummaryCellEvent.didReceiveCellUpdate(cellContent ?? ""),
+          );
         }
       },
       onFieldChanged: _onFieldChangedListener,
@@ -100,7 +104,7 @@ class SummaryCellState with _$SummaryCellState {
   factory SummaryCellState.initial(SummaryCellController cellController) {
     final wrap = cellController.fieldInfo.wrapCellContent;
     return SummaryCellState(
-      content: cellController.getCellData()?.content ?? "",
+      content: cellController.getCellData() ?? "",
       wrap: wrap ?? true,
     );
   }
