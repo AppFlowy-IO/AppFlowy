@@ -2,6 +2,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/base/app_bar/app_bar.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_search_text_field.dart';
 import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
+import 'package:appflowy/shared/google_fonts_extension.dart';
 import 'package:appflowy/util/google_font_family_extension.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
@@ -106,7 +107,7 @@ class _FontSelectorState extends State<FontSelector> {
 
         final fontFamilyName = availableFonts[index - 1];
         final fontFamily = fontFamilyName != builtInFontFamily()
-            ? GoogleFonts.getFont(fontFamilyName).fontFamily
+            ? getGoogleFontSafely(fontFamilyName).fontFamily
             : TextStyle(fontFamily: builtInFontFamily()).fontFamily;
         return FlowyOptionTile.checkbox(
           // display the default font name if the font family name is empty
