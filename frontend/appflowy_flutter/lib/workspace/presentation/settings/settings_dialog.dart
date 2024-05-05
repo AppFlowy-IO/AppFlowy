@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/settings/settings_dialog_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/settings_account_view.dart';
+import 'package:appflowy/workspace/presentation/settings/pages/settings_manage_data_view.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/settings_workspace_view.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/feature_flags/feature_flag_page.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/members/workspace_member_page.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_customize_shortcuts_view.dart';
-import 'package:appflowy/workspace/presentation/settings/widgets/settings_file_system_view.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_menu.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_notifications_view.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
@@ -79,8 +79,8 @@ class SettingsDialog extends StatelessWidget {
         );
       case SettingsPage.workspace:
         return SettingsWorkspaceView(userProfile: user);
-      case SettingsPage.files:
-        return const SettingsFileSystemView();
+      case SettingsPage.manageData:
+        return SettingsManageDataView(userProfile: user);
       case SettingsPage.notifications:
         return const SettingsNotificationsView();
       case SettingsPage.cloud:

@@ -72,10 +72,10 @@ class SettingsMenu extends StatelessWidget {
                       changeSelectedPage: changeSelectedPage,
                     ),
                   SettingsMenuElement(
-                    page: SettingsPage.files,
+                    page: SettingsPage.manageData,
                     selectedPage: currentPage,
-                    label: LocaleKeys.settings_menu_files.tr(),
-                    icon: const Icon(Icons.file_present_outlined),
+                    label: LocaleKeys.settings_manageDataPage_menuLabel.tr(),
+                    icon: const FlowySvg(FlowySvgs.settings_data_m),
                     changeSelectedPage: changeSelectedPage,
                   ),
                   SettingsMenuElement(
