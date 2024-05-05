@@ -11,6 +11,7 @@ import 'package:appflowy/plugins/database/widgets/cell/mobile_grid/mobile_grid_s
 import 'package:appflowy/plugins/database/widgets/cell/mobile_row_detail/mobile_row_detail_summary_cell.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_builder.dart';
+import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -18,6 +19,7 @@ import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 abstract class IEditableSummaryCellSkin {
@@ -214,27 +216,34 @@ class CopyButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FlowyTooltip(
-      message: LocaleKeys.tooltip_genSummary.tr(),
-      child: Container(
-        width: 26,
-        height: 26,
-        decoration: BoxDecoration(
-          border: Border.fromBorderSide(
-            BorderSide(color: Theme.of(context).dividerColor),
+    return BlocBuilder<SummaryCellBloc, SummaryCellState>(
+      builder: (blocContext, state) {
+        return FlowyTooltip(
+          message: LocaleKeys.settings_menu_clickToCopy.tr(),
+          child: Container(
+            width: 26,
+            height: 26,
+            decoration: BoxDecoration(
+              border: Border.fromBorderSide(
+                BorderSide(color: Theme.of(context).dividerColor),
+              ),
+              borderRadius: Corners.s6Border,
+            ),
+            child: FlowyIconButton(
+              hoverColor: AFThemeExtension.of(context).lightGreyHover,
+              fillColor: Theme.of(context).cardColor,
+              icon: FlowySvg(
+                FlowySvgs.ai_copy_s,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              onPressed: () {
+                Clipboard.setData(ClipboardData(text: state.content));
+                showMessageToast(LocaleKeys.grid_row_copyProperty.tr());
+              },
+            ),
           ),
-          borderRadius: Corners.s6Border,
-        ),
-        child: FlowyIconButton(
-          hoverColor: AFThemeExtension.of(context).lightGreyHover,
-          fillColor: Theme.of(context).cardColor,
-          icon: FlowySvg(
-            FlowySvgs.ai_copy_s,
-            color: Theme.of(context).colorScheme.primary,
-          ),
-          onPressed: () {},
-        ),
-      ),
+        );
+      },
     );
   }
 }

@@ -1,5 +1,3 @@
-import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/summary.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
@@ -260,19 +258,6 @@ class RowContent extends StatelessWidget {
                     key: key,
                     onTap: onExpand,
                     isCellEditing: buildContext.isCellEditing,
-                  ),
-                ),
-              );
-            }
-
-            if (fieldInfo.field.fieldType == FieldType.Summary) {
-              accessories.add(
-                GridCellAccessoryBuilder(
-                  builder: (key) => SummaryCellAccessory(
-                    key: key,
-                    viewId: fieldController.viewId,
-                    rowId: cellContext.rowId,
-                    fieldId: cellContext.fieldId,
                   ),
                 ),
               );

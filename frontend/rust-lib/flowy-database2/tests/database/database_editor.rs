@@ -1,16 +1,16 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use collab_database::database::{gen_database_view_id, timestamp};
+use collab_database::database::gen_database_view_id;
 use collab_database::fields::Field;
-use collab_database::rows::{Row, RowDetail, RowId};
+use collab_database::rows::{RowDetail, RowId};
 use lib_infra::box_any::BoxAny;
 use strum::EnumCount;
 
 use event_integration_test::folder_event::ViewTest;
 use event_integration_test::EventIntegrationTest;
 use flowy_database2::entities::{FieldType, FilterPB, RowMetaPB};
-use flowy_database2::services::cell::CellBuilder;
+
 use flowy_database2::services::database::DatabaseEditor;
 use flowy_database2::services::field::checklist_type_option::{
   ChecklistCellChangeset, ChecklistTypeOption,

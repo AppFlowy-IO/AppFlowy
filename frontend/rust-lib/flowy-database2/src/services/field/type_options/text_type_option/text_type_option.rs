@@ -84,7 +84,7 @@ impl CellDataDecoder for RichTextTypeOption {
       | FieldType::LastEditedTime
       | FieldType::CreatedTime
       | FieldType::Relation => None,
-      FieldType::Summary => None,
+      FieldType::Summary => Some(StringCellData::from(stringify_cell(cell, field))),
     }
   }
 

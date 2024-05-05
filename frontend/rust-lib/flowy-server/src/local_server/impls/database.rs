@@ -78,9 +78,9 @@ impl DatabaseCloudService for LocalServerDatabaseCloudServiceImpl {
 
   fn summary_database_row(
     &self,
-    workspace_id: &str,
-    object_id: &str,
-    summary_row: SummaryRowContent,
+    _workspace_id: &str,
+    _object_id: &str,
+    _summary_row: SummaryRowContent,
   ) -> FutureResult<String, Error> {
     // TODO(lucas): local ai
     FutureResult::new(async move { Ok("".to_string()) })
