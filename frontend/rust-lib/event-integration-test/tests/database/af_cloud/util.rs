@@ -13,6 +13,7 @@ use flowy_database2::services::field::{
 use flowy_database2::services::field_settings::default_field_settings_for_fields;
 use strum::IntoEnumIterator;
 
+#[allow(dead_code)]
 pub fn make_test_summary_grid() -> DatabaseData {
   let database_id = gen_database_id();
   let fields = create_fields();
@@ -51,6 +52,7 @@ pub fn make_test_summary_grid() -> DatabaseData {
   }
 }
 
+#[allow(dead_code)]
 fn create_fields() -> Vec<Field> {
   let mut fields = Vec::new();
   for field_type in FieldType::iter() {
@@ -65,6 +67,7 @@ fn create_fields() -> Vec<Field> {
   fields
 }
 
+#[allow(dead_code)]
 fn create_rows(database_id: &str, fields: &[Field], _options: Vec<SelectOption>) -> Vec<Row> {
   let mut rows = Vec::new();
   let fruits = ["Apple", "Pear", "Banana", "Orange"];
@@ -83,6 +86,7 @@ fn create_rows(database_id: &str, fields: &[Field], _options: Vec<SelectOption>)
   rows
 }
 
+#[allow(dead_code)]
 fn create_text_field(name: &str, primary: bool) -> Field {
   FieldBuilder::from_field_type(FieldType::RichText)
     .name(name)
@@ -90,6 +94,7 @@ fn create_text_field(name: &str, primary: bool) -> Field {
     .build()
 }
 
+#[allow(dead_code)]
 fn create_number_field(name: &str, format: NumberFormat) -> Field {
   let mut type_option = NumberTypeOption::default();
   type_option.set_format(format);
@@ -98,6 +103,7 @@ fn create_number_field(name: &str, format: NumberFormat) -> Field {
     .build()
 }
 
+#[allow(dead_code)]
 fn create_single_select_field(name: &str) -> Field {
   let options = vec![
     SelectOption::with_color("COMPLETED", SelectOptionColor::Purple),
@@ -111,6 +117,7 @@ fn create_single_select_field(name: &str) -> Field {
     .build()
 }
 
+#[allow(dead_code)]
 fn create_summary_field(name: &str) -> Field {
   let type_option = SummarizationTypeOption { auto_fill: false };
   FieldBuilder::new(FieldType::Summary, type_option)
