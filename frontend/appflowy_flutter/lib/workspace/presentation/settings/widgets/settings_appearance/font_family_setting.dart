@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
+import 'package:appflowy/shared/google_fonts_extension.dart';
 import 'package:appflowy/util/google_font_family_extension.dart';
 import 'package:appflowy/workspace/application/appearance_defaults.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
@@ -150,7 +151,7 @@ class _FontFamilyDropDownState extends State<FontFamilyDropDown> {
                 return SliverFixedExtentList.builder(
                   itemBuilder: (context, index) => _fontFamilyItemButton(
                     context,
-                    GoogleFonts.getFont(displayed[index]),
+                    getGoogleFontSafely(displayed[index]),
                   ),
                   itemCount: displayed.length,
                   itemExtent: 32,

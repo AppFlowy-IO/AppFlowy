@@ -28,7 +28,6 @@ class FontSetting extends StatelessWidget {
         children: [
           FlowyText(
             selectedFont,
-            // fontFamily:  GoogleFonts.getFont(selectedFont).fontFamily,
             color: theme.colorScheme.onSurface,
           ),
           const Icon(Icons.chevron_right),
