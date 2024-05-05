@@ -43,7 +43,6 @@ async fn af_cloud_summarize_row_test() {
 
   sleep(Duration::from_secs(1)).await;
   let cell = test.get_text_cell(&view.id, &row_id, &field.id).await;
-
   // should be something like this: The product "Apple" was completed at a price of $2.60.
-  assert!(cell.contains("Apple"));
+  assert!(cell.contains("Apple"), "cell: {}", cell);
 }
