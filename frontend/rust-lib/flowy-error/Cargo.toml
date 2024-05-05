@@ -27,10 +27,10 @@ reqwest = { version = "0.11.14", optional = true, features = [
 flowy-sqlite = { workspace = true, optional = true }
 r2d2 = { version = "0.8", optional = true }
 url = { version = "2.2", optional = true }
-collab-database = { version = "0.1.0", optional = true }
-collab-document = { version = "0.1.0", optional = true }
-collab-plugins = { version = "0.1.0", optional = true }
-collab-folder = { version = "0.1.0", optional = true }
+collab-database = { workspace = true, optional = true }
+collab-document = { workspace = true, optional = true }
+collab-plugins = { workspace = true, optional = true }
+collab-folder = { workspace = true, optional = true }
 client-api = { version = "0.1.0", optional = true }
 tantivy = { version = "0.21.1", optional = true }
 
