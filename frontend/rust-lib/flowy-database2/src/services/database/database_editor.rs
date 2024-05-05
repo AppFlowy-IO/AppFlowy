@@ -10,7 +10,7 @@ use crate::services::database_view::{
 use crate::services::field::{
   default_type_option_data_from_type, select_type_option_from_field, transform_type_option,
   type_option_data_from_pb, ChecklistCellChangeset, RelationTypeOption, SelectOptionCellChangeset,
-  StrCellData, TimestampCellData, TimestampCellDataWrapper, TypeOptionCellDataHandler,
+  StringCellData, TimestampCellData, TimestampCellDataWrapper, TypeOptionCellDataHandler,
   TypeOptionCellExt,
 };
 use crate::services::field_settings::{default_field_settings_by_layout_map, FieldSettings};
@@ -34,7 +34,7 @@ use lib_infra::util::timestamp;
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::{broadcast, RwLock};
-use tracing::{event, warn};
+use tracing::{event, instrument, warn};
 
 #[derive(Clone)]
 pub struct DatabaseEditor {
@@ -440,7 +440,7 @@ impl DatabaseEditor {
       for cell in cells {
         if let Some(new_cell) = cell.cell.clone() {
           self
-            .update_cell(view_id, cell.row_id, &new_field_id, new_cell)
+            .update_cell(view_id, &cell.row_id, &new_field_id, new_cell)
             .await?;
         }
       }
@@ -755,10 +755,11 @@ impl DatabaseEditor {
     }
   }
 
+  #[instrument(level = "trace", skip_all)]
   pub async fn update_cell_with_changeset(
     &self,
     view_id: &str,
-    row_id: RowId,
+    row_id: &RowId,
     field_id: &str,
     cell_changeset: BoxAny,
   ) -> FlowyResult<()> {
@@ -771,7 +772,7 @@ impl DatabaseEditor {
           Err(FlowyError::internal().with_context(msg))
         },
       }?;
-      (field, database.get_cell(field_id, &row_id).cell)
+      (field, database.get_cell(field_id, row_id).cell)
     };
 
     let new_cell =
@@ -800,14 +801,13 @@ impl DatabaseEditor {
   pub async fn update_cell(
     &self,
     view_id: &str,
-    row_id: RowId,
+    row_id: &RowId,
     field_id: &str,
     new_cell: Cell,
   ) -> FlowyResult<()> {
     // Get the old row before updating the cell. It would be better to get the old cell
-    let old_row = { self.get_row_detail(view_id, &row_id) };
-
-    self.database.lock().update_row(&row_id, |row_update| {
+    let old_row = { self.get_row_detail(view_id, row_id) };
+    self.database.lock().update_row(row_id, |row_update| {
       row_update.update_cells(|cell_update| {
         cell_update.insert(field_id, new_cell);
       });
@@ -831,7 +831,7 @@ impl DatabaseEditor {
     });
 
     self
-      .did_update_row(view_id, row_id, field_id, old_row)
+      .did_update_row(view_id, &row_id, field_id, old_row)
       .await;
 
     Ok(())
@@ -840,11 +840,11 @@ impl DatabaseEditor {
   async fn did_update_row(
     &self,
     view_id: &str,
-    row_id: RowId,
+    row_id: &RowId,
     field_id: &str,
     old_row: Option<RowDetail>,
   ) {
-    let option_row = self.get_row_detail(view_id, &row_id);
+    let option_row = self.get_row_detail(view_id, row_id);
     if let Some(new_row_detail) = option_row {
       for view in self.database_views.editors().await {
         view
@@ -931,7 +931,7 @@ impl DatabaseEditor {
 
     // Insert the options into the cell
     self
-      .update_cell_with_changeset(view_id, row_id, field_id, BoxAny::new(cell_changeset))
+      .update_cell_with_changeset(view_id, &row_id, field_id, BoxAny::new(cell_changeset))
       .await?;
     Ok(())
   }
@@ -970,7 +970,7 @@ impl DatabaseEditor {
     .await?;
 
     self
-      .update_cell_with_changeset(view_id, row_id, field_id, BoxAny::new(cell_changeset))
+      .update_cell_with_changeset(view_id, &row_id, field_id, BoxAny::new(cell_changeset))
       .await?;
     Ok(())
   }
@@ -994,7 +994,7 @@ impl DatabaseEditor {
     debug_assert!(FieldType::from(field.field_type).is_checklist());
 
     self
-      .update_cell_with_changeset(view_id, row_id, field_id, BoxAny::new(changeset))
+      .update_cell_with_changeset(view_id, &row_id, field_id, BoxAny::new(changeset))
       .await?;
     Ok(())
   }
@@ -1294,7 +1294,7 @@ impl DatabaseEditor {
             .cell
             .and_then(|cell| handler.handle_get_boxed_cell_data(&cell, &primary_field))
             .and_then(|cell_data| cell_data.unbox_or_none())
-            .unwrap_or_else(|| StrCellData("".to_string()));
+            .unwrap_or_else(|| StringCellData("".to_string()));
 
           RelatedRowDataPB {
             row_id: row.id.to_string(),

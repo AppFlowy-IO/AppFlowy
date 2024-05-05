@@ -12,6 +12,7 @@ import 'number.dart';
 import 'relation.dart';
 import 'rich_text.dart';
 import 'single_select.dart';
+import 'summary.dart';
 import 'timestamp.dart';
 import 'url.dart';
 
@@ -31,6 +32,7 @@ abstract class TypeOptionEditorFactory {
       FieldType.Checkbox => const CheckboxTypeOptionEditorFactory(),
       FieldType.Checklist => const ChecklistTypeOptionEditorFactory(),
       FieldType.Relation => const RelationTypeOptionEditorFactory(),
+      FieldType.Summary => const SummaryTypeOptionEditorFactory(),
       _ => throw UnimplementedError(),
     };
   }

@@ -15,6 +15,7 @@ import 'editable_cell_skeleton/date.dart';
 import 'editable_cell_skeleton/number.dart';
 import 'editable_cell_skeleton/relation.dart';
 import 'editable_cell_skeleton/select_option.dart';
+import 'editable_cell_skeleton/summary.dart';
 import 'editable_cell_skeleton/text.dart';
 import 'editable_cell_skeleton/timestamp.dart';
 import 'editable_cell_skeleton/url.dart';
@@ -111,6 +112,12 @@ class EditableCellBuilder {
           databaseController: databaseController,
           cellContext: cellContext,
           skin: IEditableRelationCellSkin.fromStyle(style),
+          key: key,
+        ),
+      FieldType.Summary => EditableSummaryCell(
+          databaseController: databaseController,
+          cellContext: cellContext,
+          skin: IEditableSummaryCellSkin.fromStyle(style),
           key: key,
         ),
       _ => throw UnimplementedError(),

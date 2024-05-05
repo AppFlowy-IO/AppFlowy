@@ -22,7 +22,6 @@ members = [
     "flowy-encrypt",
     "flowy-storage",
     "collab-integrate",
-    "flowy-ai",
     "flowy-date",
     "flowy-search",
     "lib-infra",
@@ -61,7 +60,6 @@ flowy-storage = { workspace = true, path = "flowy-storage" }
 flowy-search = { workspace = true, path = "flowy-search" }
 flowy-search-pub = { workspace = true, path = "flowy-search-pub" }
 collab-integrate = { workspace = true, path = "collab-integrate" }
-flowy-ai = { workspace = true, path = "flowy-ai" }
 flowy-date = { workspace = true, path = "flowy-date" }
 anyhow = "1.0"
 tracing = "0.1.40"
@@ -84,6 +82,7 @@ yrs = { version = "0.17.2" }
 opt-level = 1
 lto = false
 codegen-units = 16
+debug = true
 
 [profile.release]
 lto = true

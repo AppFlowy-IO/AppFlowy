@@ -46,7 +46,7 @@ impl DatabaseCellTest {
       } => {
         self
           .editor
-          .update_cell_with_changeset(&view_id, row_id, &field_id, changeset)
+          .update_cell_with_changeset(&view_id, &row_id, &field_id, changeset)
           .await
           .unwrap();
       },

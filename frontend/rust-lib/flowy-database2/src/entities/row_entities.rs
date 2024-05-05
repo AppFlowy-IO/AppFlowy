@@ -359,3 +359,15 @@ pub struct CreateRowParams {
   pub collab_params: collab_database::rows::CreateRowParams,
   pub open_after_create: bool,
 }
+
+#[derive(Debug, Default, Clone, ProtoBuf)]
+pub struct SummaryRowPB {
+  #[pb(index = 1)]
+  pub view_id: String,
+
+  #[pb(index = 2)]
+  pub row_id: String,
+
+  #[pb(index = 3)]
+  pub field_id: String,
+}

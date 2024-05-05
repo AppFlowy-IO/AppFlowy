@@ -84,11 +84,13 @@ pub fn init(database_manager: Weak<DatabaseManager>) -> AFPlugin {
         .event(DatabaseEvent::GetAllCalculations, get_all_calculations_handler)
         .event(DatabaseEvent::UpdateCalculation, update_calculation_handler)
         .event(DatabaseEvent::RemoveCalculation, remove_calculation_handler)
-         // Relation
-         .event(DatabaseEvent::GetRelatedDatabaseIds, get_related_database_ids_handler)
-         .event(DatabaseEvent::UpdateRelationCell, update_relation_cell_handler)
-         .event(DatabaseEvent::GetRelatedRowDatas, get_related_row_datas_handler)
-         .event(DatabaseEvent::GetRelatedDatabaseRows, get_related_database_rows_handler)
+        // Relation
+        .event(DatabaseEvent::GetRelatedDatabaseIds, get_related_database_ids_handler)
+        .event(DatabaseEvent::UpdateRelationCell, update_relation_cell_handler)
+        .event(DatabaseEvent::GetRelatedRowDatas, get_related_row_datas_handler)
+        .event(DatabaseEvent::GetRelatedDatabaseRows, get_related_database_rows_handler)
+        // AI
+        .event(DatabaseEvent::SummarizeRow, summarize_row_handler)
 }
 
 /// [DatabaseEvent] defines events that are used to interact with the Grid. You could check [this](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/backend/protobuf)
@@ -368,4 +370,7 @@ pub enum DatabaseEvent {
   /// Get the names of all the rows in a related database.
   #[event(input = "DatabaseIdPB", output = "RepeatedRelatedRowDataPB")]
   GetRelatedDatabaseRows = 173,
+
+  #[event(input = "SummaryRowPB")]
+  SummarizeRow = 174,
 }

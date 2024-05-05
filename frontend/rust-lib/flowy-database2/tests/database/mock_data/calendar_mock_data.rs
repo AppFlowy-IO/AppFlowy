@@ -3,11 +3,10 @@ use collab_database::views::{DatabaseLayout, DatabaseView, LayoutSetting, Layout
 use flowy_database2::services::field_settings::default_field_settings_for_fields;
 use strum::IntoEnumIterator;
 
+use event_integration_test::database_event::TestRowBuilder;
 use flowy_database2::entities::FieldType;
 use flowy_database2::services::field::{FieldBuilder, MultiSelectTypeOption};
 use flowy_database2::services::setting::CalendarLayoutSetting;
-
-use crate::database::database_editor::TestRowBuilder;
 
 // Calendar unit test mock data
 pub fn make_test_calendar() -> DatabaseData {

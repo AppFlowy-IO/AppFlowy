@@ -222,7 +222,8 @@
     "dragRow": "Long press to reorder the row",
     "viewDataBase": "View database",
     "referencePage": "This {name} is referenced",
-    "addBlockBelow": "Add a block below"
+    "addBlockBelow": "Add a block below",
+    "genSummary": "Generate summary"
   },
   "sideBar": {
     "closeSidebar": "Close side bar",
@@ -710,6 +711,7 @@
       "urlFieldName": "URL",
       "checklistFieldName": "Checklist",
       "relationFieldName": "Relation",
+      "summaryFieldName": "AI Summary",
       "numberFormat": "Number format",
       "dateFormat": "Date format",
       "includeTime": "Include time",
@@ -783,7 +785,8 @@
       "drag": "Drag to move",
       "dragAndClick": "Drag to move, click to open menu",
       "insertRecordAbove": "Insert record above",
-      "insertRecordBelow": "Insert record below"
+      "insertRecordBelow": "Insert record below",
+      "noContent": "No content"
     },
     "selectOption": {
       "create": "Create",
