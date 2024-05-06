@@ -8,15 +8,15 @@ edition = "2021"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-collab = { version = "0.1.0" }
-collab-document = { version = "0.1.0" }
-collab-entity = { version = "0.1.0" }
-collab-plugins = { version = "0.1.0" }
+collab = { workspace = true }
+collab-document = { workspace = true }
+collab-entity = { workspace = true }
+collab-plugins = { workspace = true }
 collab-integrate = { workspace = true }
 flowy-document-pub = { workspace = true }
 flowy-storage = { workspace = true }
 flowy-derive.workspace = true
-flowy-notification  = { workspace = true }
+flowy-notification = { workspace = true }
 flowy-error = { path = "../flowy-error", features = ["impl_from_serde", "impl_from_dispatch_error", "impl_from_collab_document", "impl_from_collab_persistence"] }
 lib-dispatch = { workspace = true }
 lib-infra = { workspace = true }
@@ -31,7 +31,7 @@ serde_json.workspace = true
 tracing.workspace = true
 tokio = { workspace = true, features = ["rt"] }
 anyhow.workspace = true
-indexmap = {version = "2.1.0", features = ["serde"]}
+indexmap = { version = "2.1.0", features = ["serde"] }
 uuid.workspace = true
 futures.workspace = true
 tokio-stream = { workspace = true, features = ["sync"] }
@@ -39,7 +39,7 @@ dashmap = "5"
 scraper = "0.18.0"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
-getrandom = { version = "0.2", features = ["js"]}
+getrandom = { version = "0.2", features = ["js"] }
 
 [dev-dependencies]
 tempfile = "3.4.0"

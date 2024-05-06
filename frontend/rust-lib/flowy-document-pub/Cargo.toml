@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 lib-infra = { workspace = true }
-flowy-error  = { workspace = true }
-collab-document = { version = "0.1.0" }
+flowy-error = { workspace = true }
+collab-document = { workspace = true }
 anyhow.workspace = true
-collab = { version = "0.1.0" }
+collab = { workspace = true }
