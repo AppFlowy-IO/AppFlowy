@@ -412,7 +412,7 @@
       "fontFamily": {
         "label": "Font Family",
         "search": "Search",
-        "defaultFont": "Default Font"
+        "defaultFont": "System"
       },
       "themeMode": {
         "label": "Theme Mode",
