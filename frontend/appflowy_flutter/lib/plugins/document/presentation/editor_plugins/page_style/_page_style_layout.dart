@@ -163,6 +163,11 @@ class _FontButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<DocumentPageStyleBloc, DocumentPageStyleState>(
       builder: (context, state) {
+        String fontFamily = state.fontFamily ?? builtInFontFamily();
+        if (fontFamily == builtInFontFamily()) {
+          fontFamily =
+              LocaleKeys.settings_appearance_fontFamily_defaultFont.tr();
+        }
         return GestureDetector(
           onTap: () => _showFontSelector(context),
           behavior: HitTestBehavior.opaque,
@@ -177,7 +182,7 @@ class _FontButton extends StatelessWidget {
                 const HSpace(16.0),
                 FlowyText(LocaleKeys.titleBar_font.tr()),
                 const Spacer(),
-                FlowyText(state.fontFamily ?? builtInFontFamily()),
+                FlowyText(fontFamily),
                 const HSpace(6.0),
                 const FlowySvg(FlowySvgs.m_page_style_arrow_right_s),
                 const HSpace(12.0),

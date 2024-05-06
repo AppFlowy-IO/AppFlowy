@@ -24,7 +24,7 @@ class ThemeFontFamilySetting extends StatefulWidget {
 
   final String currentFontFamily;
   static Key textFieldKey = const Key('FontFamilyTextField');
-  static Key resetButtonkey = const Key('FontFamilyResetButton');
+  static Key resetButtonKey = const Key('FontFamilyResetButton');
   static Key popoverKey = const Key('FontFamilyPopover');
 
   @override
@@ -36,7 +36,7 @@ class _ThemeFontFamilySettingState extends State<ThemeFontFamilySetting> {
   Widget build(BuildContext context) {
     return FlowySettingListTile(
       label: LocaleKeys.settings_appearance_fontFamily_label.tr(),
-      resetButtonKey: ThemeFontFamilySetting.resetButtonkey,
+      resetButtonKey: ThemeFontFamilySetting.resetButtonKey,
       onResetRequested: () {
         context.read<AppearanceSettingsCubit>().resetFontFamily();
         context

@@ -106,12 +106,14 @@ class _FontSelectorState extends State<FontSelector> {
         }
 
         final fontFamilyName = availableFonts[index - 1];
-        final fontFamily = fontFamilyName != builtInFontFamily()
+        final usingDefaultFontFamily = fontFamilyName == builtInFontFamily();
+        final fontFamily = !usingDefaultFontFamily
             ? getGoogleFontSafely(fontFamilyName).fontFamily
             : TextStyle(fontFamily: builtInFontFamily()).fontFamily;
         return FlowyOptionTile.checkbox(
           // display the default font name if the font family name is empty
-          text: fontFamilyName.isNotEmpty
+          //  or using the default font family
+          text: fontFamilyName.isNotEmpty && !usingDefaultFontFamily
               ? fontFamilyName.parseFontFamilyName()
               : LocaleKeys.settings_appearance_fontFamily_defaultFont.tr(),
           isSelected: widget.selectedFontFamilyName == fontFamilyName,
