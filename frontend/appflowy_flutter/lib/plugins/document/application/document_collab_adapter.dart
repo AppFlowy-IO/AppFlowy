@@ -182,14 +182,21 @@ class DocumentCollabAdapter {
         );
     for (final state in values) {
       // the following code is only for version 1
-      if (state.version != 1) {
+      if (state.version != 1 || state.metadata.isEmpty) {
         return;
       }
       final uid = state.user.uid.toString();
       final did = state.user.deviceId;
-      final metadata = DocumentAwarenessMetadata.fromJson(
-        jsonDecode(state.metadata),
-      );
+      debugPrint('metadata: ${state.metadata}');
+      DocumentAwarenessMetadata metadata;
+      try {
+        metadata = DocumentAwarenessMetadata.fromJson(
+          jsonDecode(state.metadata),
+        );
+      } catch (e) {
+        Log.error('Failed to parse metadata: $e, ${state.metadata}');
+        continue;
+      }
       final selectionColor = metadata.selectionColor.tryToColor();
       final cursorColor = metadata.cursorColor.tryToColor();
       if ((uid == userId && did == deviceId) ||

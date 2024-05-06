@@ -44,7 +44,7 @@ dependencies:
     # path: ../../../appflowy-board
     git:
       url: https://github.com/AppFlowy-IO/appflowy-board.git
-      ref: f88b4ce01d2728c05125cbe9170013f4a7c85a31
+      ref: 404262fca4369bc35ff305316e4d59341a732f56
   appflowy_result:
     path: packages/appflowy_result
   appflowy_editor_plugins: ^0.0.2
@@ -134,6 +134,7 @@ dependencies:
   avatar_stack: ^1.2.0
   numerus: ^2.1.2
   flutter_animate: ^4.5.0
+  permission_handler: ^11.3.1
 
 dev_dependencies:
   flutter_lints: ^3.0.1

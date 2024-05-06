@@ -20,7 +20,7 @@ impl FieldSettingsBuilder {
       field_id: field_id.to_string(),
       visibility: FieldVisibility::AlwaysShown,
       width: DEFAULT_WIDTH,
-      wrap_cell_content: false,
+      wrap_cell_content: true,
     };
 
     Self {
