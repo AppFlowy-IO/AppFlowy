@@ -12,7 +12,7 @@ class BoardShortcutContainer extends StatelessWidget {
     required this.child,
   });
 
-  final CardFocusScope focusScope;
+  final BoardFocusScope focusScope;
   final Widget child;
 
   @override
@@ -36,36 +36,14 @@ class BoardShortcutContainer extends StatelessWidget {
               .read<BoardBloc>()
               .add(BoardEvent.startEditingRow(focusScope.value.first));
         },
-        const SingleActivator(LogicalKeyboardKey.delete): () {
-          if (focusScope.value.isEmpty) {
-            return;
-          }
-          context
-              .read<BoardBloc>()
-              .add(BoardEvent.deleteCards(focusScope.value));
-        },
-        const SingleActivator(LogicalKeyboardKey.enter): () {
-          if (focusScope.value.length != 1) {
-            return;
-          }
-          final isEditing = context.read<BoardBloc>().state.maybeMap(
-                orElse: () => false,
-                ready: (value) => value.editingRow != null,
-              );
-          if (!isEditing) {
-            context
-                .read<BoardBloc>()
-                .add(BoardEvent.openCard(focusScope.value.first));
-          }
-        },
-        const SingleActivator(LogicalKeyboardKey.numpadEnter): () {
-          if (focusScope.value.length != 1) {
-            return;
-          }
-          context
-              .read<BoardBloc>()
-              .add(BoardEvent.openCard(focusScope.value.first));
-        },
+        const SingleActivator(LogicalKeyboardKey.delete): () =>
+            _removeHandler(context),
+        const SingleActivator(LogicalKeyboardKey.backspace): () =>
+            _removeHandler(context),
+        const SingleActivator(LogicalKeyboardKey.enter): () =>
+            _enterHandler(context),
+        const SingleActivator(LogicalKeyboardKey.numpadEnter): () =>
+            _enterHandler(context),
       },
       child: FocusScope(
         child: Focus(
@@ -85,5 +63,27 @@ class BoardShortcutContainer extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void _enterHandler(BuildContext context) {
+    if (focusScope.value.length != 1) {
+      return;
+    }
+    final isEditing = context.read<BoardBloc>().state.maybeMap(
+          orElse: () => false,
+          ready: (value) => value.editingRow != null,
+        );
+    if (!isEditing) {
+      context
+          .read<BoardBloc>()
+          .add(BoardEvent.openCard(focusScope.value.first));
+    }
+  }
+
+  void _removeHandler(BuildContext context) {
+    if (focusScope.value.isEmpty) {
+      return;
+    }
+    context.read<BoardBloc>().add(BoardEvent.deleteCards(focusScope.value));
   }
 }

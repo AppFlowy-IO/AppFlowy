@@ -2,11 +2,10 @@ import 'package:appflowy/plugins/database/board/application/board_bloc.dart';
 import 'package:appflowy_board/appflowy_board.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/widgets.dart';
 
-class CardFocusScope extends ChangeNotifier
+class BoardFocusScope extends ChangeNotifier
     implements ValueListenable<List<GroupedRowId>> {
-  CardFocusScope({
+  BoardFocusScope({
     required this.boardController,
   });
 

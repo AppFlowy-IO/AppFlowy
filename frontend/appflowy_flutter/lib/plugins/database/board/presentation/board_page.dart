@@ -12,6 +12,7 @@ import 'package:appflowy/plugins/database/tab_bar/tab_bar_view.dart';
 import 'package:appflowy/plugins/database/widgets/card/card_bloc.dart';
 import 'package:appflowy/plugins/database/widgets/cell/card_cell_style_maps/desktop_board_card_cell_style.dart';
 import 'package:appflowy/plugins/database/widgets/row/row_detail.dart';
+import 'package:appflowy/shared/conditional_listenable_builder.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_board/appflowy_board.dart';
@@ -153,7 +154,7 @@ class _DesktopBoardContentState extends State<DesktopBoardContent> {
     databaseController: context.read<BoardBloc>().databaseController,
   );
 
-  late final cardFocusNotifier = CardFocusScope(
+  late final cardFocusNotifier = BoardFocusScope(
     boardController: context.read<BoardBloc>().boardController,
   );
 
@@ -370,7 +371,7 @@ class _BoardCard extends StatelessWidget {
   final GroupItem groupItem;
   final AppFlowyBoardConfig boardConfig;
   final CardCellBuilder cellBuilder;
-  final CardFocusScope notifier;
+  final BoardFocusScope notifier;
 
   @override
   Widget build(BuildContext context) {
