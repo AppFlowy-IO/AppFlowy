@@ -11,7 +11,6 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
-import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart'
@@ -159,7 +158,6 @@ class _MentionPageBlockState extends State<MentionPageBlock> {
     }
 
     if (PlatformExtension.isMobile && mounted) {
-      getIt<MenuSharedState>().latestOpenView = view;
       await context.pushView(view);
     } else {
       getIt<TabsBloc>().add(
