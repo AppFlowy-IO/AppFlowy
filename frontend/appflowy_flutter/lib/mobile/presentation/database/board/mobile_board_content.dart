@@ -144,7 +144,7 @@ class _MobileBoardContentState extends State<MobileBoardContent> {
         ),
         onPressed: () => context
             .read<BoardBloc>()
-            .add(BoardEvent.createBottomRow(columnData.id)),
+            .add(BoardEvent.createBottomRow(columnData.id, "")),
       ),
     );
   }

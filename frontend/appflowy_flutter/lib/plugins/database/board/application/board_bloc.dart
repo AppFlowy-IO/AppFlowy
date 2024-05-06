@@ -111,22 +111,35 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
                     },
                     orElse: () {},
                   );
+                } else {
+                  add(
+                    BoardEvent.startEditingRow(
+                      GroupedRowId(
+                        groupId: groupId,
+                        rowId: rowMeta.id,
+                      ),
+                    ),
+                  );
                 }
               },
               (err) => Log.error(err),
             );
           },
-          createBottomRow: (groupId) async {
+          createBottomRow: (groupId, title) async {
             final rowId = groupControllers[groupId]?.lastRow()?.id;
             final position = rowId == null
                 ? OrderObjectPositionTypePB.End
                 : OrderObjectPositionTypePB.After;
+
+            final primaryField = databaseController.fieldController.fieldInfos
+                .firstWhereOrNull((element) => element.isPrimary)!;
 
             final result = await RowBackendService.createRow(
               viewId: databaseController.viewId,
               groupId: groupId,
               position: position,
               targetRowId: rowId,
+              withCells: (builder) => builder.insertText(primaryField, title),
             );
 
             result.fold(
@@ -152,13 +165,6 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
           deleteGroup: (groupId) async {
             final result = await groupBackendSvc.deleteGroup(groupId: groupId);
             result.fold((_) {}, (err) => Log.error(err));
-          },
-          didCreateRow: (group, row, int? index) {
-            add(
-              BoardEvent.startEditingRow(
-                GroupedRowId(groupId: group.groupId, rowId: row.id),
-              ),
-            );
           },
           didReceiveError: (error) {
             emit(BoardState.error(error: error));
@@ -494,8 +500,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     final delegate = GroupControllerDelegateImpl(
       controller: boardController,
       fieldController: fieldController,
-      onNewColumnItem: (groupId, row, index) =>
-          add(BoardEvent.didCreateRow(group, row, index)),
+      onNewColumnItem: (groupId, row, index) {},
     );
 
     final controller = GroupController(
@@ -599,18 +604,14 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
 @freezed
 class BoardEvent with _$BoardEvent {
   const factory BoardEvent.initial() = _InitialBoard;
-  const factory BoardEvent.createBottomRow(String groupId) = _CreateBottomRow;
+  const factory BoardEvent.createBottomRow(String groupId, String title) =
+      _CreateBottomRow;
   const factory BoardEvent.createHeaderRow(String groupId) = _CreateHeaderRow;
   const factory BoardEvent.createGroup(String name) = _CreateGroup;
   const factory BoardEvent.startEditingHeader(String groupId) =
       _StartEditingHeader;
   const factory BoardEvent.endEditingHeader(String groupId, String? groupName) =
       _EndEditingHeader;
-  const factory BoardEvent.didCreateRow(
-    GroupPB group,
-    RowMetaPB row,
-    int? index,
-  ) = _DidCreateRow;
   const factory BoardEvent.startEditingRow(GroupedRowId groupedRowId) =
       _StartEditRow;
   const factory BoardEvent.endEditingRow() = _EndEditRow;

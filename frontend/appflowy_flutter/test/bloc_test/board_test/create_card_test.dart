@@ -32,7 +32,7 @@ void main() {
       'but receive ${groupIds.length}',
     );
 
-    boardBloc.add(BoardEvent.createBottomRow(groupIds[3]));
+    boardBloc.add(BoardEvent.createBottomRow(groupIds[3], ""));
     await boardResponseFuture();
 
     groupIds = boardBloc.state.maybeMap(

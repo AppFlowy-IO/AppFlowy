@@ -143,7 +143,7 @@ class _DesktopBoardContentState extends State<DesktopBoardContent> {
   final config = const AppFlowyBoardConfig(
     groupMargin: EdgeInsets.symmetric(horizontal: 4),
     groupBodyPadding: EdgeInsets.symmetric(horizontal: 4),
-    groupFooterPadding: EdgeInsets.fromLTRB(4, 14, 4, 4),
+    groupFooterPadding: EdgeInsets.fromLTRB(8, 14, 8, 4),
     groupHeaderPadding: EdgeInsets.symmetric(horizontal: 8),
     cardMargin: EdgeInsets.symmetric(horizontal: 4, vertical: 3),
     stretchGroupHeight: false,
@@ -207,7 +207,14 @@ class _DesktopBoardContentState extends State<DesktopBoardContent> {
                     margin: config.groupHeaderPadding,
                   ),
                 ),
-                footerBuilder: _buildFooter,
+                footerBuilder: (_, groupData) => BlocProvider.value(
+                  value: context.read<BoardBloc>(),
+                  child: _BoardColumnFooter(
+                    columnData: groupData,
+                    boardConfig: config,
+                    scrollManager: scrollManager,
+                  ),
+                ),
                 cardBuilder: (_, column, columnItem) => BlocProvider.value(
                   key: ValueKey("${column.id}${columnItem.id}"),
                   value: context.read<BoardBloc>(),
@@ -226,27 +233,124 @@ class _DesktopBoardContentState extends State<DesktopBoardContent> {
       },
     );
   }
+}
 
-  Widget _buildFooter(BuildContext context, AppFlowyGroupData columnData) {
+class _BoardColumnFooter extends StatefulWidget {
+  const _BoardColumnFooter({
+    required this.columnData,
+    required this.boardConfig,
+    required this.scrollManager,
+  });
+
+  final AppFlowyGroupData columnData;
+  final AppFlowyBoardConfig boardConfig;
+  final AppFlowyBoardScrollController scrollManager;
+
+  @override
+  State<_BoardColumnFooter> createState() => _BoardColumnFooterState();
+}
+
+class _BoardColumnFooterState extends State<_BoardColumnFooter> {
+  final TextEditingController _textController = TextEditingController();
+  late final FocusNode _focusNode;
+  bool _isCreating = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode = FocusNode(
+      onKeyEvent: (node, event) {
+        if (_focusNode.hasFocus &&
+            event.logicalKey == LogicalKeyboardKey.escape) {
+          _focusNode.unfocus();
+          return KeyEventResult.handled;
+        }
+        return KeyEventResult.ignored;
+      },
+    )..addListener(() {
+        if (!_focusNode.hasFocus) {
+          setState(() => _isCreating = false);
+        }
+      });
+  }
+
+  @override
+  void dispose() {
+    _textController.dispose();
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_isCreating) {
+        _focusNode.requestFocus();
+      }
+    });
     return Padding(
-      padding: config.groupFooterPadding,
-      child: FlowyTooltip(
-        message: LocaleKeys.board_column_addToColumnBottomTooltip.tr(),
-        child: FlowyHover(
-          child: AppFlowyGroupFooter(
-            height: 36,
-            icon: FlowySvg(
-              FlowySvgs.add_s,
-              color: Theme.of(context).hintColor,
-            ),
-            title: FlowyText.medium(
-              LocaleKeys.board_column_createNewCard.tr(),
-              color: Theme.of(context).hintColor,
-            ),
-            onAddButtonClick: () => context
-                .read<BoardBloc>()
-                .add(BoardEvent.createBottomRow(columnData.id)),
+      padding: widget.boardConfig.groupFooterPadding,
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 150),
+        child:
+            _isCreating ? _createCardsTextField() : _startCreatingCardsButton(),
+      ),
+    );
+  }
+
+  Widget _createCardsTextField() {
+    return Shortcuts(
+      shortcuts: const {
+        SingleActivator(LogicalKeyboardKey.arrowUp):
+            DoNothingAndStopPropagationIntent(),
+        SingleActivator(LogicalKeyboardKey.arrowDown):
+            DoNothingAndStopPropagationIntent(),
+        SingleActivator(LogicalKeyboardKey.arrowUp, shift: true):
+            DoNothingAndStopPropagationIntent(),
+        SingleActivator(LogicalKeyboardKey.arrowDown, shift: true):
+            DoNothingAndStopPropagationIntent(),
+        SingleActivator(LogicalKeyboardKey.keyE):
+            DoNothingAndStopPropagationIntent(),
+        SingleActivator(LogicalKeyboardKey.delete):
+            DoNothingAndStopPropagationIntent(),
+        SingleActivator(LogicalKeyboardKey.enter):
+            DoNothingAndStopPropagationIntent(),
+        SingleActivator(LogicalKeyboardKey.numpadEnter):
+            DoNothingAndStopPropagationIntent(),
+      },
+      child: FlowyTextField(
+        hintTextConstraints: const BoxConstraints(maxHeight: 36),
+        controller: _textController,
+        focusNode: _focusNode,
+        onSubmitted: (name) {
+          context
+              .read<BoardBloc>()
+              .add(BoardEvent.createBottomRow(widget.columnData.id, name));
+          widget.scrollManager.scrollToBottom(widget.columnData.id);
+          _textController.clear();
+          _focusNode.requestFocus();
+        },
+      ),
+    );
+  }
+
+  Widget _startCreatingCardsButton() {
+    return FlowyTooltip(
+      message: LocaleKeys.board_column_addToColumnBottomTooltip.tr(),
+      child: SizedBox(
+        height: 36,
+        child: FlowyButton(
+          leftIcon: FlowySvg(
+            FlowySvgs.add_s,
+            color: Theme.of(context).hintColor,
           ),
+          text: FlowyText.medium(
+            LocaleKeys.board_column_createNewCard.tr(),
+            color: Theme.of(context).hintColor,
+          ),
+          onTap: () {
+            setState(() => _isCreating = true);
+          },
         ),
       ),
     );
