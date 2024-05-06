@@ -759,7 +759,9 @@
         "one": "Hide {count} hidden field",
         "many": "Hide {count} hidden fields",
         "other": "Hide {count} hidden fields"
-      }
+      },
+      "openAsFullPage": "Open as full page",
+      "moreRowActions": "More row actions"
     },
     "sort": {
       "ascending": "Ascending",
