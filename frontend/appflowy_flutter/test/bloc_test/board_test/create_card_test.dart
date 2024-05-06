@@ -20,7 +20,7 @@ void main() {
     await boardResponseFuture();
 
     List<String> groupIds = boardBloc.state.maybeMap(
-      orElse: () => [],
+      orElse: () => const [],
       ready: (value) => value.groupIds,
     );
     String lastGroupId = groupIds.last;
