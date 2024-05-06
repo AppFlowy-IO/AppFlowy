@@ -9,6 +9,7 @@ import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_board/appflowy_board.dart';
+import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
@@ -102,7 +103,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
 
             result.fold(
               (rowMeta) {
-                if (_kOpenRowsAfterCreation) {
+                if (_kOpenRowsAfterCreation || PlatformExtension.isMobile) {
                   final previousState = state;
                   state.maybeMap(
                     ready: (state) {
@@ -144,7 +145,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
 
             result.fold(
               (rowMeta) {
-                if (_kOpenRowsAfterCreation) {
+                if (_kOpenRowsAfterCreation || PlatformExtension.isMobile) {
                   final previousState = state;
                   state.maybeMap(
                     ready: (state) {
