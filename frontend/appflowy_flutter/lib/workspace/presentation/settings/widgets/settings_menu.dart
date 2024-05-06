@@ -8,7 +8,6 @@ import 'package:appflowy/workspace/application/settings/settings_dialog_bloc.dar
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_menu_element.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 
 class SettingsMenu extends StatelessWidget {
@@ -59,60 +58,42 @@ class SettingsMenu extends StatelessWidget {
                     page: SettingsPage.appearance,
                     selectedPage: currentPage,
                     label: LocaleKeys.settings_menu_appearance.tr(),
-                    icon: Icon(
-                      Icons.brightness_4,
-                      color: AFThemeExtension.of(context).textColor,
-                    ),
+                    icon: const Icon(Icons.brightness_4),
                     changeSelectedPage: changeSelectedPage,
                   ),
                   SettingsMenuElement(
                     page: SettingsPage.language,
                     selectedPage: currentPage,
                     label: LocaleKeys.settings_menu_language.tr(),
-                    icon: Icon(
-                      Icons.translate,
-                      color: AFThemeExtension.of(context).textColor,
-                    ),
+                    icon: const Icon(Icons.translate),
                     changeSelectedPage: changeSelectedPage,
                   ),
                   SettingsMenuElement(
                     page: SettingsPage.files,
                     selectedPage: currentPage,
                     label: LocaleKeys.settings_menu_files.tr(),
-                    icon: Icon(
-                      Icons.file_present_outlined,
-                      color: AFThemeExtension.of(context).textColor,
-                    ),
+                    icon: const Icon(Icons.file_present_outlined),
                     changeSelectedPage: changeSelectedPage,
                   ),
                   SettingsMenuElement(
                     page: SettingsPage.notifications,
                     selectedPage: currentPage,
                     label: LocaleKeys.settings_menu_notifications.tr(),
-                    icon: Icon(
-                      Icons.notifications_outlined,
-                      color: AFThemeExtension.of(context).textColor,
-                    ),
+                    icon: const Icon(Icons.notifications_outlined),
                     changeSelectedPage: changeSelectedPage,
                   ),
                   SettingsMenuElement(
                     page: SettingsPage.cloud,
                     selectedPage: currentPage,
                     label: LocaleKeys.settings_menu_cloudSettings.tr(),
-                    icon: Icon(
-                      Icons.sync,
-                      color: AFThemeExtension.of(context).textColor,
-                    ),
+                    icon: const Icon(Icons.sync),
                     changeSelectedPage: changeSelectedPage,
                   ),
                   SettingsMenuElement(
                     page: SettingsPage.shortcuts,
                     selectedPage: currentPage,
                     label: LocaleKeys.settings_shortcuts_shortcutsLabel.tr(),
-                    icon: Icon(
-                      Icons.cut,
-                      color: AFThemeExtension.of(context).textColor,
-                    ),
+                    icon: const Icon(Icons.cut),
                     changeSelectedPage: changeSelectedPage,
                   ),
                   if (FeatureFlag.membersSettings.isOn &&
@@ -122,10 +103,7 @@ class SettingsMenu extends StatelessWidget {
                       page: SettingsPage.member,
                       selectedPage: currentPage,
                       label: LocaleKeys.settings_appearance_members_label.tr(),
-                      icon: Icon(
-                        Icons.people,
-                        color: AFThemeExtension.of(context).textColor,
-                      ),
+                      icon: const Icon(Icons.people),
                       changeSelectedPage: changeSelectedPage,
                     ),
                   if (kDebugMode)
@@ -134,10 +112,7 @@ class SettingsMenu extends StatelessWidget {
                       page: SettingsPage.featureFlags,
                       selectedPage: currentPage,
                       label: 'Feature Flags',
-                      icon: Icon(
-                        Icons.flag,
-                        color: AFThemeExtension.of(context).textColor,
-                      ),
+                      icon: const Icon(Icons.flag),
                       changeSelectedPage: changeSelectedPage,
                     ),
                 ],
