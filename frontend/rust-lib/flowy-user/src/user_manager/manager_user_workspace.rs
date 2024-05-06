@@ -166,6 +166,13 @@ impl UserManager {
       .authenticate_user
       .set_user_workspace(user_workspace.clone())?;
 
+    if let Err(err) = self.try_initial_user_awareness(&self.get_session()?).await {
+      error!(
+        "Failed to initialize user awareness when opening workspace: {:?}",
+        err
+      );
+    }
+
     let uid = self.user_id()?;
     if let Err(err) = self
       .user_status_callback
