@@ -112,7 +112,6 @@ class ShortcutsListTile extends StatelessWidget {
               shortcutEvent.command,
               fontColor: AFThemeExtension.of(context).textColor,
               fillColor: Colors.transparent,
-              fontColor: AFThemeExtension.of(context).textColor,
               onPressed: () => showKeyListenerDialog(context),
             ),
           ],

@@ -106,8 +106,6 @@ class _FavoriteHeaderState extends State<FavoriteHeader> {
             constraints: const BoxConstraints(maxHeight: iconSize),
             padding: const EdgeInsets.all(4),
             fillColor: Colors.transparent,
-            fontColor: AFThemeExtension.of(context).textColor,
-            fontHoverColor: Theme.of(context).colorScheme.onSurface,
             onPressed: widget.onPressed,
           ),
         ],
