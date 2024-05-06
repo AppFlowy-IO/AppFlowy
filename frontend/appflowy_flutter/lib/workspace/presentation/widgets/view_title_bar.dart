@@ -31,12 +31,14 @@ class ViewTitleBar extends StatefulWidget {
 
 class _ViewTitleBarState extends State<ViewTitleBar> {
   late Future<List<ViewPB>> ancestors;
+  late String viewId;
 
   @override
   void initState() {
     super.initState();
 
-    _reloadAncestors();
+    viewId = widget.view.id;
+    _reloadAncestors(viewId);
   }
 
   @override
@@ -44,7 +46,8 @@ class _ViewTitleBarState extends State<ViewTitleBar> {
     super.didUpdateWidget(oldWidget);
 
     if (oldWidget.view.id != widget.view.id) {
-      _reloadAncestors();
+      viewId = widget.view.id;
+      _reloadAncestors(viewId);
     }
   }
 
@@ -54,10 +57,12 @@ class _ViewTitleBarState extends State<ViewTitleBar> {
       future: ancestors,
       builder: (context, snapshot) {
         final ancestors = snapshot.data;
-        if (ancestors == null || ancestors.isEmpty) {
+        if (ancestors == null ||
+            ancestors.isEmpty ||
+            snapshot.connectionState != ConnectionState.done) {
           return const SizedBox.shrink();
         }
-        const maxWidth = WindowSizeManager.minWindowWidth - 200;
+        const maxWidth = WindowSizeManager.minWindowWidth / 2.0;
         final replacement = Row(
           // refresh the view title bar when the ancestors changed
           key: ValueKey(ancestors.hashCode),
@@ -73,7 +78,7 @@ class _ViewTitleBarState extends State<ViewTitleBar> {
                 key: ValueKey(ancestors.last),
                 view: ancestors.last,
                 maxTitleWidth: constraints.maxWidth,
-                onUpdated: () => setState(() => _reloadAncestors()),
+                onUpdated: () => setState(() => _reloadAncestors(viewId)),
               ),
             );
           },
@@ -129,7 +134,7 @@ class _ViewTitleBarState extends State<ViewTitleBar> {
             behavior: i == views.length - 1
                 ? _ViewTitleBehavior.editable // only the last one is editable
                 : _ViewTitleBehavior.uneditable, // others are not editable
-            onUpdated: () => setState(() => _reloadAncestors()),
+            onUpdated: () => setState(() => _reloadAncestors(viewId)),
           ),
         );
       }
@@ -144,8 +149,8 @@ class _ViewTitleBarState extends State<ViewTitleBar> {
     return children;
   }
 
-  void _reloadAncestors() {
-    ancestors = ViewBackendService.getViewAncestors(widget.view.id)
+  void _reloadAncestors(String viewId) {
+    ancestors = ViewBackendService.getViewAncestors(viewId)
         .fold((s) => s.items, (f) => []);
   }
 }

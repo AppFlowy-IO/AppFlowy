@@ -4,6 +4,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/setting/font/font_picker_screen.dart';
 import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
+import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -21,13 +22,16 @@ class FontSetting extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final selectedFont = context.watch<AppearanceSettingsCubit>().state.font;
+    final name = selectedFont == builtInFontFamily()
+        ? LocaleKeys.settings_appearance_fontFamily_defaultFont.tr()
+        : selectedFont;
     return MobileSettingItem(
       name: LocaleKeys.settings_appearance_fontFamily_label.tr(),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           FlowyText(
-            selectedFont,
+            name,
             color: theme.colorScheme.onSurface,
           ),
           const Icon(Icons.chevron_right),

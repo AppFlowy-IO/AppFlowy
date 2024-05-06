@@ -73,7 +73,7 @@ void main() {
       await tester.openSettingsPage(SettingsPage.files);
       await tester.openSettingsPage(SettingsPage.appearance);
 
-      final resetButton = find.byKey(ThemeFontFamilySetting.resetButtonkey);
+      final resetButton = find.byKey(ThemeFontFamilySetting.resetButtonKey);
       await tester.tap(resetButton);
       await tester.pumpAndSettle();
 
