@@ -11,6 +11,7 @@ import 'card_cell_skeleton/checklist_card_cell.dart';
 import 'card_cell_skeleton/date_card_cell.dart';
 import 'card_cell_skeleton/number_card_cell.dart';
 import 'card_cell_skeleton/select_option_card_cell.dart';
+import 'card_cell_skeleton/summary_card_cell.dart';
 import 'card_cell_skeleton/text_card_cell.dart';
 import 'card_cell_skeleton/url_card_cell.dart';
 
@@ -86,6 +87,12 @@ class CardCellBuilder {
           cellContext: cellContext,
         ),
       FieldType.Relation => RelationCardCell(
+          key: key,
+          style: isStyleOrNull(style),
+          databaseController: databaseController,
+          cellContext: cellContext,
+        ),
+      FieldType.Summary => SummaryCardCell(
           key: key,
           style: isStyleOrNull(style),
           databaseController: databaseController,

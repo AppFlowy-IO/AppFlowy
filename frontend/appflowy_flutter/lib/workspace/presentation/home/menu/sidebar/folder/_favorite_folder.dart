@@ -100,6 +100,8 @@ class _FavoriteHeaderState extends State<FavoriteHeader> {
         children: [
           FlowyTextButton(
             LocaleKeys.sideBar_favorites.tr(),
+            fontColor: AFThemeExtension.of(context).textColor,
+            fontHoverColor: Theme.of(context).colorScheme.onSurface,
             tooltip: LocaleKeys.sideBar_clickToHideFavorites.tr(),
             constraints: const BoxConstraints(maxHeight: iconSize),
             padding: const EdgeInsets.all(4),

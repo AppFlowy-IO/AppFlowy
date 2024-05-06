@@ -63,9 +63,8 @@ class RecentViewsEvent with _$RecentViewsEvent {
 
 @freezed
 class RecentViewsState with _$RecentViewsState {
-  const factory RecentViewsState({
-    required List<ViewPB> views,
-  }) = _RecentViewsState;
+  const factory RecentViewsState({required List<ViewPB> views}) =
+      _RecentViewsState;
 
   factory RecentViewsState.initial() => const RecentViewsState(views: []);
 }

@@ -97,9 +97,7 @@ class _FileExporterWidgetState extends State<FileExporterWidget> {
         FlowyTextButton(
           LocaleKeys.button_cancel.tr(),
           fontColor: AFThemeExtension.of(context).textColor,
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
+          onPressed: () => Navigator.of(context).pop(),
         ),
         const HSpace(8),
         FlowyTextButton(

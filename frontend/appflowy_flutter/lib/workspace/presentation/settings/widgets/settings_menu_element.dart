@@ -31,9 +31,13 @@ class SettingsMenuElement extends StatelessWidget {
         hoverColor: AFThemeExtension.of(context).greySelect,
         borderRadius: BorderRadius.circular(4),
       ),
-      child: ListTile(
+      builder: (_, isHovering) => ListTile(
         dense: true,
-        leading: icon,
+        leading: iconWidget(
+          isHovering || page == selectedPage
+              ? Theme.of(context).colorScheme.onSurface
+              : AFThemeExtension.of(context).textColor,
+        ),
         onTap: () => changeSelectedPage(page),
         selected: page == selectedPage,
         selectedColor: Theme.of(context).colorScheme.onSurface,
@@ -53,4 +57,9 @@ class SettingsMenuElement extends StatelessWidget {
       ),
     );
   }
+
+  Widget iconWidget(Color color) => IconTheme(
+        data: IconThemeData(color: color),
+        child: icon,
+      );
 }

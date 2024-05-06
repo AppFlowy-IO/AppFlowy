@@ -42,7 +42,7 @@ class EmojiPickerButton extends StatelessWidget {
         ),
         offset: offset,
         direction: direction ?? PopoverDirection.rightWithTopAligned,
-        popupBuilder: (context) => Container(
+        popupBuilder: (_) => Container(
           width: emojiPickerSize.width,
           height: emojiPickerSize.height,
           padding: const EdgeInsets.all(4.0),
@@ -55,7 +55,7 @@ class EmojiPickerButton extends StatelessWidget {
             ? FlowyButton(
                 useIntrinsicWidth: true,
                 text: defaultIcon!,
-                onTap: () => popoverController.show(),
+                onTap: popoverController.show,
               )
             : FlowyTextButton(
                 emoji,
@@ -68,32 +68,26 @@ class EmojiPickerButton extends StatelessWidget {
                 onPressed: popoverController.show,
               ),
       );
-    } else {
-      return FlowyTextButton(
-        emoji,
-        overflow: TextOverflow.visible,
-        fontSize: emojiSize,
-        padding: EdgeInsets.zero,
-        constraints: const BoxConstraints(minWidth: 35.0),
-        fillColor: Colors.transparent,
-        mainAxisAlignment: MainAxisAlignment.center,
-        onPressed: () async {
-          final result = await context.push<EmojiPickerResult>(
-            Uri(
-              path: MobileEmojiPickerScreen.routeName,
-              queryParameters: {
-                MobileEmojiPickerScreen.pageTitle: title,
-              },
-            ).toString(),
-          );
-          if (result != null) {
-            onSubmitted(
-              result.emoji,
-              null,
-            );
-          }
-        },
-      );
     }
+    return FlowyTextButton(
+      emoji,
+      overflow: TextOverflow.visible,
+      fontSize: emojiSize,
+      padding: EdgeInsets.zero,
+      constraints: const BoxConstraints(minWidth: 35.0),
+      fillColor: Colors.transparent,
+      mainAxisAlignment: MainAxisAlignment.center,
+      onPressed: () async {
+        final result = await context.push<EmojiPickerResult>(
+          Uri(
+            path: MobileEmojiPickerScreen.routeName,
+            queryParameters: {MobileEmojiPickerScreen.pageTitle: title},
+          ).toString(),
+        );
+        if (result != null) {
+          onSubmitted(result.emoji, null);
+        }
+      },
+    );
   }
 }

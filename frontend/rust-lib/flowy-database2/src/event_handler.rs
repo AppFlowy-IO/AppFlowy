@@ -465,7 +465,7 @@ pub(crate) async fn update_cell_handler(
   database_editor
     .update_cell_with_changeset(
       &params.view_id,
-      RowId::from(params.row_id),
+      &RowId::from(params.row_id),
       &params.field_id,
       BoxAny::new(params.cell_changeset),
     )
@@ -548,7 +548,7 @@ pub(crate) async fn update_select_option_cell_handler(
   database_editor
     .update_cell_with_changeset(
       &params.cell_identifier.view_id,
-      params.cell_identifier.row_id,
+      &params.cell_identifier.row_id,
       &params.cell_identifier.field_id,
       BoxAny::new(changeset),
     )
@@ -577,7 +577,7 @@ pub(crate) async fn update_checklist_cell_handler(
   database_editor
     .update_cell_with_changeset(
       &params.view_id,
-      params.row_id,
+      &params.row_id,
       &params.field_id,
       BoxAny::new(changeset),
     )
@@ -608,7 +608,7 @@ pub(crate) async fn update_date_cell_handler(
   database_editor
     .update_cell_with_changeset(
       &cell_id.view_id,
-      cell_id.row_id,
+      &cell_id.row_id,
       &cell_id.field_id,
       BoxAny::new(cell_changeset),
     )
@@ -868,7 +868,7 @@ pub(crate) async fn move_calendar_event_handler(
   database_editor
     .update_cell_with_changeset(
       &cell_id.view_id,
-      cell_id.row_id,
+      &cell_id.row_id,
       &cell_id.field_id,
       BoxAny::new(cell_changeset),
     )
@@ -1053,7 +1053,7 @@ pub(crate) async fn update_relation_cell_handler(
   database_editor
     .update_cell_with_changeset(
       &view_id,
-      cell_id.row_id,
+      &cell_id.row_id,
       &cell_id.field_id,
       BoxAny::new(params),
     )
@@ -1085,4 +1085,17 @@ pub(crate) async fn get_related_database_rows_handler(
   let row_datas = database_editor.get_related_rows(None).await?;
 
   data_result_ok(RepeatedRelatedRowDataPB { rows: row_datas })
+}
+
+pub(crate) async fn summarize_row_handler(
+  data: AFPluginData<SummaryRowPB>,
+  manager: AFPluginState<Weak<DatabaseManager>>,
+) -> Result<(), FlowyError> {
+  let manager = upgrade_manager(manager)?;
+  let data = data.into_inner();
+  let row_id = RowId::from(data.row_id);
+  manager
+    .summarize_row(data.view_id, row_id, data.field_id)
+    .await?;
+  Ok(())
 }

@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
@@ -10,7 +12,6 @@ import 'package:appflowy/workspace/presentation/home/menu/sidebar/folder/_sectio
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SidebarFolder extends StatelessWidget {
@@ -38,10 +39,7 @@ class SidebarFolder extends StatelessWidget {
                 }
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 10),
-                  child: FavoriteFolder(
-                    // remove the duplicate views
-                    views: state.views,
-                  ),
+                  child: FavoriteFolder(views: state.views),
                 );
               },
             ),
@@ -52,30 +50,27 @@ class SidebarFolder extends StatelessWidget {
                 final isCollaborativeWorkspace =
                     context.read<UserWorkspaceBloc>().state.isCollabWorkspaceOn;
 
+                // only show public and private section if the workspace is collaborative
                 return Column(
-                  children:
-                      // only show public and private section if the workspace is collaborative
-                      isCollaborativeWorkspace
-                          ? [
-                              // public
-                              const VSpace(10),
-                              PublicSectionFolder(
-                                views: state.section.publicViews,
-                              ),
+                  children: isCollaborativeWorkspace
+                      ? [
+                          // public
+                          const VSpace(10),
+                          PublicSectionFolder(views: state.section.publicViews),
 
-                              // private
-                              const VSpace(10),
-                              PrivateSectionFolder(
-                                views: state.section.privateViews,
-                              ),
-                            ]
-                          : [
-                              // personal
-                              const VSpace(10),
-                              PersonalSectionFolder(
-                                views: state.section.publicViews,
-                              ),
-                            ],
+                          // private
+                          const VSpace(10),
+                          PrivateSectionFolder(
+                            views: state.section.privateViews,
+                          ),
+                        ]
+                      : [
+                          // personal
+                          const VSpace(10),
+                          PersonalSectionFolder(
+                            views: state.section.publicViews,
+                          ),
+                        ],
                 );
               },
             ),
@@ -87,10 +82,8 @@ class SidebarFolder extends StatelessWidget {
 }
 
 class PrivateSectionFolder extends SectionFolder {
-  PrivateSectionFolder({
-    super.key,
-    required super.views,
-  }) : super(
+  PrivateSectionFolder({super.key, required super.views})
+      : super(
           title: LocaleKeys.sideBar_private.tr(),
           categoryType: FolderCategoryType.private,
           expandButtonTooltip: LocaleKeys.sideBar_clickToHidePrivate.tr(),
@@ -99,10 +92,8 @@ class PrivateSectionFolder extends SectionFolder {
 }
 
 class PublicSectionFolder extends SectionFolder {
-  PublicSectionFolder({
-    super.key,
-    required super.views,
-  }) : super(
+  PublicSectionFolder({super.key, required super.views})
+      : super(
           title: LocaleKeys.sideBar_workspace.tr(),
           categoryType: FolderCategoryType.public,
           expandButtonTooltip: LocaleKeys.sideBar_clickToHideWorkspace.tr(),
@@ -111,10 +102,8 @@ class PublicSectionFolder extends SectionFolder {
 }
 
 class PersonalSectionFolder extends SectionFolder {
-  PersonalSectionFolder({
-    super.key,
-    required super.views,
-  }) : super(
+  PersonalSectionFolder({super.key, required super.views})
+      : super(
           title: LocaleKeys.sideBar_personal.tr(),
           categoryType: FolderCategoryType.public,
           expandButtonTooltip: LocaleKeys.sideBar_clickToHidePersonal.tr(),
