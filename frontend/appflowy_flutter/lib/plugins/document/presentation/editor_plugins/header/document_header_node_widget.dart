@@ -89,7 +89,7 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
   bool get hasIcon => viewIcon.isNotEmpty;
   bool get hasCover =>
       coverType != CoverType.none ||
-      cover?.type != PageStyleCoverImageType.none;
+      (cover != null && cover?.type != PageStyleCoverImageType.none);
 
   String viewIcon = '';
   PageStyleCover? cover;
