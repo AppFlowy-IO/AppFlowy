@@ -24,16 +24,16 @@ class _MobileRecentFolderState extends State<MobileRecentFolder> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => RecentViewsBloc()
-        ..add(
-          const RecentViewsEvent.initial(),
-        ),
+      create: (context) =>
+          RecentViewsBloc()..add(const RecentViewsEvent.initial()),
       child: BlocListener<UserWorkspaceBloc, UserWorkspaceState>(
-        listener: (context, state) {
-          context.read<RecentViewsBloc>().add(
-                const RecentViewsEvent.fetchRecentViews(),
-              );
-        },
+        listenWhen: (previous, current) =>
+            current.currentWorkspace != null &&
+            previous.currentWorkspace?.workspaceId !=
+                current.currentWorkspace!.workspaceId,
+        listener: (context, state) => context
+            .read<RecentViewsBloc>()
+            .add(const RecentViewsEvent.resetRecentViews()),
         child: BlocBuilder<RecentViewsBloc, RecentViewsState>(
           builder: (context, state) {
             final ids = <String>{};

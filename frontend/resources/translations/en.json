@@ -324,7 +324,7 @@
       "description": "Customize your profile, manage account security and AI API keys, or login into your account.",
       "general": {
         "title": "Account name & profile image",
-        "changeProfilePicture": "Change"
+        "changeProfilePicture": "Change profile picture"
       },
       "email": {
         "title": "Email",

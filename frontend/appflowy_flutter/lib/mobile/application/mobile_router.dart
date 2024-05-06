@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/mobile/presentation/database/board/mobile_board_screen.dart';
@@ -19,6 +20,7 @@ extension MobileRouter on BuildContext {
         queryParameters: view.queryParameters(arguments),
       ).toString(),
     ).then((value) {
+      getIt<MenuSharedState>().latestOpenView = view;
       getIt<CachedRecentService>().updateRecentViews([view.id], true);
     });
   }
