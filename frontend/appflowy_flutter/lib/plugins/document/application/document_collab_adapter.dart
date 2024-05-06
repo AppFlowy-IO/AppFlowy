@@ -187,7 +187,7 @@ class DocumentCollabAdapter {
       }
       final uid = state.user.uid.toString();
       final did = state.user.deviceId;
-      debugPrint('metadata: ${state.metadata}');
+
       DocumentAwarenessMetadata metadata;
       try {
         metadata = DocumentAwarenessMetadata.fromJson(
