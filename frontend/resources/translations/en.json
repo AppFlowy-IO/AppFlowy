@@ -1534,7 +1534,11 @@
     "photo": "Photo",
     "unsplash": "Unsplash",
     "pageCover": "Page cover",
-    "none": "None"
+    "none": "None",
+    "photoPermissionDescription": "Allow access to the photo library for uploading images.",
+    "openSettings": "Open Settings",
+    "photoPermissionTitle": "AppFlowy Would Like to Access Your Photo Library",
+    "doNotAllow": "Don't Allow"
   },
   "commandPalette": {
     "placeholder": "Type to search for views...",
