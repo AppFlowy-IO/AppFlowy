@@ -163,8 +163,8 @@ class _FontButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<DocumentPageStyleBloc, DocumentPageStyleState>(
       builder: (context, state) {
-        String fontFamily = state.fontFamily ?? builtInFontFamily();
-        if (fontFamily == builtInFontFamily()) {
+        String fontFamily = state.fontFamily ?? defaultFontFamily;
+        if (fontFamily == defaultFontFamily) {
           fontFamily =
               LocaleKeys.settings_appearance_fontFamily_defaultFont.tr();
         }
@@ -219,7 +219,7 @@ class _FontButton extends StatelessWidget {
                   child: FontSelector(
                     scrollController: controller,
                     selectedFontFamilyName:
-                        state.fontFamily ?? builtInFontFamily(),
+                        state.fontFamily ?? defaultFontFamily,
                     onFontFamilySelected: (fontFamilyName) {
                       context.read<DocumentPageStyleBloc>().add(
                             DocumentPageStyleEvent.updateFontFamily(

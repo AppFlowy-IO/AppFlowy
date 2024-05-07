@@ -22,7 +22,7 @@ class FontSetting extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final selectedFont = context.watch<AppearanceSettingsCubit>().state.font;
-    final name = selectedFont == builtInFontFamily()
+    final name = selectedFont == defaultFontFamily
         ? LocaleKeys.settings_appearance_fontFamily_defaultFont.tr()
         : selectedFont;
     return MobileSettingItem(

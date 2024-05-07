@@ -13,7 +13,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 final List<String> _availableFonts = [
-  builtInFontFamily(),
+  defaultFontFamily,
   ...GoogleFonts.asMap().keys,
 ];
 
@@ -106,10 +106,10 @@ class _FontSelectorState extends State<FontSelector> {
         }
 
         final fontFamilyName = availableFonts[index - 1];
-        final usingDefaultFontFamily = fontFamilyName == builtInFontFamily();
+        final usingDefaultFontFamily = fontFamilyName == defaultFontFamily;
         final fontFamily = !usingDefaultFontFamily
             ? getGoogleFontSafely(fontFamilyName).fontFamily
-            : TextStyle(fontFamily: builtInFontFamily()).fontFamily;
+            : defaultFontFamily;
         return FlowyOptionTile.checkbox(
           // display the default font name if the font family name is empty
           //  or using the default font family

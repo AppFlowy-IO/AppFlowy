@@ -127,7 +127,7 @@ class _DocumentImmersiveCoverState extends State<DocumentImmersiveCover> {
     BuildContext context,
     DocumentImmersiveCoverState state,
   ) {
-    String? fontFamily = builtInFontFamily();
+    String? fontFamily = defaultFontFamily;
     final documentFontFamily =
         context.read<DocumentPageStyleBloc>().state.fontFamily;
     if (documentFontFamily != null && fontFamily != documentFontFamily) {

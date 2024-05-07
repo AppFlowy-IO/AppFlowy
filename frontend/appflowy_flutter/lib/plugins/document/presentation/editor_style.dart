@@ -92,7 +92,7 @@ class EditorStyleCustomizer {
     final theme = Theme.of(context);
     final fontSize = pageStyle.fontLayout.fontSize;
     final lineHeight = pageStyle.lineHeightLayout.lineHeight;
-    final fontFamily = pageStyle.fontFamily ?? builtInFontFamily();
+    final fontFamily = pageStyle.fontFamily ?? defaultFontFamily;
     final defaultTextDirection =
         context.read<DocumentAppearanceCubit>().state.defaultTextDirection;
     final baseTextStyle = this.baseTextStyle(fontFamily);
@@ -178,7 +178,7 @@ class EditorStyleCustomizer {
   TextStyle outlineBlockPlaceholderStyleBuilder() {
     final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
     return TextStyle(
-      fontFamily: builtInFontFamily(),
+      fontFamily: defaultFontFamily,
       fontSize: fontSize,
       height: 1.5,
       color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
@@ -219,7 +219,8 @@ class EditorStyleCustomizer {
     try {
       return getGoogleFontSafely(fontFamily, fontWeight: fontWeight);
     } on Exception {
-      if ([builtInFontFamily(), builtInCodeFontFamily].contains(fontFamily)) {
+      if ([defaultFontFamily, fallbackFontFamily, builtInCodeFontFamily]
+          .contains(fontFamily)) {
         return TextStyle(fontFamily: fontFamily, fontWeight: fontWeight);
       }
 
