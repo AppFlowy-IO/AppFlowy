@@ -1,5 +1,6 @@
 import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/board/application/board_bloc.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'util.dart';
@@ -32,7 +33,14 @@ void main() {
       'but receive ${groupIds.length}',
     );
 
-    boardBloc.add(BoardEvent.createBottomRow(groupIds[3], ""));
+    boardBloc.add(
+      BoardEvent.createRow(
+        groupIds[3],
+        OrderObjectPositionTypePB.End,
+        null,
+        null,
+      ),
+    );
     await boardResponseFuture();
 
     groupIds = boardBloc.state.maybeMap(

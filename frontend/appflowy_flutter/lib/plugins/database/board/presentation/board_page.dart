@@ -12,7 +12,7 @@ import 'package:appflowy/plugins/database/widgets/card/card_bloc.dart';
 import 'package:appflowy/plugins/database/widgets/cell/card_cell_style_maps/desktop_board_card_cell_style.dart';
 import 'package:appflowy/plugins/database/widgets/row/row_detail.dart';
 import 'package:appflowy/shared/conditional_listenable_builder.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_board/appflowy_board.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -404,9 +404,14 @@ class _BoardColumnFooterState extends State<_BoardColumnFooter> {
         controller: _textController,
         focusNode: _focusNode,
         onSubmitted: (name) {
-          context
-              .read<BoardBloc>()
-              .add(BoardEvent.createBottomRow(widget.columnData.id, name));
+          context.read<BoardBloc>().add(
+                BoardEvent.createRow(
+                  widget.columnData.id,
+                  OrderObjectPositionTypePB.End,
+                  name,
+                  null,
+                ),
+              );
           widget.scrollManager.scrollToBottom(widget.columnData.id);
           _textController.clear();
           _focusNode.requestFocus();

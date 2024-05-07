@@ -11,6 +11,7 @@ import 'package:appflowy/plugins/database/widgets/card/card.dart';
 import 'package:appflowy/plugins/database/widgets/cell/card_cell_builder.dart';
 import 'package:appflowy/plugins/database/widgets/cell/card_cell_style_maps/mobile_board_card_cell_style.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_board/appflowy_board.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -185,9 +186,14 @@ class _BoardContentState extends State<_BoardContent> {
             color: style.colorScheme.onSurface,
           ),
         ),
-        onPressed: () => context
-            .read<BoardBloc>()
-            .add(BoardEvent.createBottomRow(columnData.id, "")),
+        onPressed: () => context.read<BoardBloc>().add(
+              BoardEvent.createRow(
+                columnData.id,
+                OrderObjectPositionTypePB.End,
+                null,
+                null,
+              ),
+            ),
       ),
     );
   }

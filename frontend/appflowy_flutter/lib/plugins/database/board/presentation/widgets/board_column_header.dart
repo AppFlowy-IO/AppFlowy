@@ -4,8 +4,7 @@ import 'package:appflowy/plugins/database/board/application/board_bloc.dart';
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/header/field_type_extension.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/group.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_board/appflowy_board.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -128,7 +127,12 @@ class _BoardColumnHeaderState extends State<BoardColumnHeader> {
                         iconColorOnHover:
                             Theme.of(context).colorScheme.onSurface,
                         onPressed: () => context.read<BoardBloc>().add(
-                              BoardEvent.createHeaderRow(widget.groupData.id),
+                              BoardEvent.createRow(
+                                widget.groupData.id,
+                                OrderObjectPositionTypePB.Start,
+                                null,
+                                null,
+                              ),
                             ),
                       ),
                     ),

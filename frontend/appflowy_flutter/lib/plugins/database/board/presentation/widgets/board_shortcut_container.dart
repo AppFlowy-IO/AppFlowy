@@ -1,4 +1,5 @@
 import 'package:appflowy/plugins/database/board/application/board_bloc.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -52,6 +53,19 @@ class BoardShortcutContainer extends StatelessWidget {
             _removeHandler(context),
         const SingleActivator(LogicalKeyboardKey.enter): () =>
             _enterHandler(context),
+        const SingleActivator(LogicalKeyboardKey.enter, shift: true): () {
+          if (focusScope.value.length != 1) {
+            return;
+          }
+          context.read<BoardBloc>().add(
+                BoardEvent.createRow(
+                  focusScope.value.first.groupId,
+                  OrderObjectPositionTypePB.After,
+                  null,
+                  focusScope.value.first.rowId,
+                ),
+              );
+        },
         const SingleActivator(LogicalKeyboardKey.numpadEnter): () =>
             _enterHandler(context),
         const SingleActivator(LogicalKeyboardKey.comma): () =>

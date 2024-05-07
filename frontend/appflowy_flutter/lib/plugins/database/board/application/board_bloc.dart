@@ -26,8 +26,6 @@ import 'group_controller.dart';
 
 part 'board_bloc.freezed.dart';
 
-const bool _kOpenRowsAfterCreation = false;
-
 class BoardBloc extends Bloc<BoardEvent, BoardState> {
   BoardBloc({
     required this.databaseController,
@@ -94,22 +92,26 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
             _startListening();
             await _openDatabase(emit);
           },
-          createHeaderRow: (groupId) async {
-            final rowId = groupControllers[groupId]?.firstRow()?.id;
-            final position = rowId == null
-                ? OrderObjectPositionTypePB.Start
-                : OrderObjectPositionTypePB.Before;
+          createRow: (groupId, position, title, targetRowId) async {
+            final primaryField = databaseController.fieldController.fieldInfos
+                .firstWhereOrNull((element) => element.isPrimary)!;
+            final void Function(RowDataBuilder)? cellBuilder = title == null
+                ? null
+                : (builder) => builder.insertText(primaryField, title);
 
             final result = await RowBackendService.createRow(
               viewId: databaseController.viewId,
               groupId: groupId,
               position: position,
-              targetRowId: rowId,
+              targetRowId: targetRowId,
+              withCells: cellBuilder,
             );
+
+            final startEditing = position != OrderObjectPositionTypePB.End;
 
             result.fold(
               (rowMeta) {
-                if (_kOpenRowsAfterCreation || PlatformExtension.isMobile) {
+                if (PlatformExtension.isMobile) {
                   final previousState = state;
                   state.maybeMap(
                     ready: (state) {
@@ -118,7 +120,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
                     },
                     orElse: () {},
                   );
-                } else {
+                } else if (startEditing) {
                   add(
                     BoardEvent.startEditingRow(
                       GroupedRowId(
@@ -126,39 +128,6 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
                         rowId: rowMeta.id,
                       ),
                     ),
-                  );
-                }
-              },
-              (err) => Log.error(err),
-            );
-          },
-          createBottomRow: (groupId, title) async {
-            final rowId = groupControllers[groupId]?.lastRow()?.id;
-            final position = rowId == null
-                ? OrderObjectPositionTypePB.End
-                : OrderObjectPositionTypePB.After;
-
-            final primaryField = databaseController.fieldController.fieldInfos
-                .firstWhereOrNull((element) => element.isPrimary)!;
-
-            final result = await RowBackendService.createRow(
-              viewId: databaseController.viewId,
-              groupId: groupId,
-              position: position,
-              targetRowId: rowId,
-              withCells: (builder) => builder.insertText(primaryField, title),
-            );
-
-            result.fold(
-              (rowMeta) {
-                if (_kOpenRowsAfterCreation || PlatformExtension.isMobile) {
-                  final previousState = state;
-                  state.maybeMap(
-                    ready: (state) {
-                      emit(BoardState.openCard(rowMeta: rowMeta));
-                      emit(previousState);
-                    },
-                    orElse: () {},
                   );
                 }
               },
@@ -662,9 +631,12 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
 @freezed
 class BoardEvent with _$BoardEvent {
   const factory BoardEvent.initial() = _InitialBoard;
-  const factory BoardEvent.createBottomRow(String groupId, String title) =
-      _CreateBottomRow;
-  const factory BoardEvent.createHeaderRow(String groupId) = _CreateHeaderRow;
+  const factory BoardEvent.createRow(
+    String groupId,
+    OrderObjectPositionTypePB position,
+    String? title,
+    String? targetRowId,
+  ) = _CreateRow;
   const factory BoardEvent.createGroup(String name) = _CreateGroup;
   const factory BoardEvent.startEditingHeader(String groupId) =
       _StartEditingHeader;
