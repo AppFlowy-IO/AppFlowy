@@ -216,7 +216,11 @@ class _MobileViewPageState extends State<MobileViewPage> {
                 child: AppBarButton(
                   padding: EdgeInsets.zero,
                   onTap: (context) => context.pop(),
-                  child: _buildImmersiveAppBarIcon(FlowySvgs.m_app_bar_back_s),
+                  child: _buildImmersiveAppBarIcon(
+                    FlowySvgs.m_app_bar_back_s,
+                    30.0,
+                    iconPadding: 6.0,
+                  ),
                 ),
               ),
               actions: actions,
@@ -274,13 +278,13 @@ class _MobileViewPageState extends State<MobileViewPage> {
           ),
         );
       },
-      child: _buildImmersiveAppBarIcon(FlowySvgs.m_layout_s),
+      child: _buildImmersiveAppBarIcon(FlowySvgs.m_layout_s, 30.0),
     );
   }
 
   Widget _buildAppBarMoreButton(ViewPB view) {
     return AppBarButton(
-      padding: const EdgeInsets.only(left: 8, right: 16, top: 2, bottom: 2),
+      padding: const EdgeInsets.only(left: 8, right: 16),
       onTap: (context) {
         EditorNotification.exitEditing().post();
 
@@ -292,49 +296,62 @@ class _MobileViewPageState extends State<MobileViewPage> {
           builder: (_) => _buildAppBarMoreBottomSheet(context),
         );
       },
-      child: _buildImmersiveAppBarIcon(FlowySvgs.m_app_bar_more_s),
+      child: _buildImmersiveAppBarIcon(FlowySvgs.m_app_bar_more_s, 30.0),
     );
   }
 
-  Widget _buildImmersiveAppBarIcon(FlowySvgData icon) {
-    return ValueListenableBuilder(
-      valueListenable: _isImmersiveMode,
-      builder: (context, isImmersiveMode, child) {
-        return ValueListenableBuilder(
-          valueListenable: _appBarOpacity,
-          builder: (context, appBarOpacity, child) {
-            Color? color;
+  Widget _buildImmersiveAppBarIcon(
+    FlowySvgData icon,
+    double dimension, {
+    double iconPadding = 5.0,
+  }) {
+    assert(
+      dimension > 0.0 && dimension <= kToolbarHeight,
+      'dimension must be greater than 0, and less than or equal to kToolbarHeight',
+    );
+    return UnconstrainedBox(
+      child: SizedBox.square(
+        dimension: dimension,
+        child: ValueListenableBuilder(
+          valueListenable: _isImmersiveMode,
+          builder: (context, isImmersiveMode, child) {
+            return ValueListenableBuilder(
+              valueListenable: _appBarOpacity,
+              builder: (context, appBarOpacity, child) {
+                Color? color;
 
-            // if there's no cover or the cover is not immersive,
-            //  make sure the app bar is always visible
-            if (!isImmersiveMode) {
-              color = null;
-            } else if (appBarOpacity < 0.99) {
-              color = Colors.white;
-            }
+                // if there's no cover or the cover is not immersive,
+                //  make sure the app bar is always visible
+                if (!isImmersiveMode) {
+                  color = null;
+                } else if (appBarOpacity < 0.99) {
+                  color = Colors.white;
+                }
 
-            Widget child = Container(
-              margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-              child: FlowySvg(
-                icon,
-                color: color,
-              ),
+                Widget child = Container(
+                  margin: EdgeInsets.all(iconPadding),
+                  child: FlowySvg(
+                    icon,
+                    color: color,
+                  ),
+                );
+
+                if (isImmersiveMode && appBarOpacity <= 0.99) {
+                  child = DecoratedBox(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(dimension / 2.0),
+                      color: Colors.black.withOpacity(0.2),
+                    ),
+                    child: child,
+                  );
+                }
+
+                return child;
+              },
             );
-
-            if (isImmersiveMode && appBarOpacity <= 0.99) {
-              child = DecoratedBox(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(22),
-                  color: Colors.black.withOpacity(0.2),
-                ),
-                child: child,
-              );
-            }
-
-            return child;
           },
-        );
-      },
+        ),
+      ),
     );
   }
 
