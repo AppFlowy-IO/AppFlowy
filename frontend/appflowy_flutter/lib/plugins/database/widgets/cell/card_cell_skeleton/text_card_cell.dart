@@ -109,18 +109,11 @@ class _TextCellState extends State<TextCardCell> {
     return BlocProvider.value(
       value: cellBloc,
       child: BlocConsumer<TextCellBloc, TextCellState>(
-        listenWhen: (previous, current) =>
-            previous.content != current.content && !current.enableEdit,
+        listenWhen: (previous, current) => previous.content != current.content,
         listener: (context, state) {
-          _textEditingController.text = state.content;
-        },
-        buildWhen: (previous, current) {
-          if (previous.content != current.content &&
-              _textEditingController.text == current.content) {
-            return false;
+          if (!state.enableEdit) {
+            _textEditingController.text = state.content;
           }
-
-          return previous != current;
         },
         builder: (context, state) {
           final isTitle = cellBloc.cellController.fieldInfo.isPrimary;
