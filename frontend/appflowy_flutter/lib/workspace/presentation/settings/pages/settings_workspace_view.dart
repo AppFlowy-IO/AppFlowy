@@ -743,7 +743,7 @@ class _FontSelectorDropdown extends StatelessWidget {
           behavior: HitTestBehavior.opaque,
           onTap: () => context
               .read<AppearanceSettingsCubit>()
-              .setFontFamily(builtInFontFamily()),
+              .setFontFamily(defaultFontFamily),
           child: SizedBox(
             height: 26,
             child: FlowyHover(
@@ -765,8 +765,7 @@ class _FontSelectorDropdown extends StatelessWidget {
       onChanged: (font) =>
           context.read<AppearanceSettingsCubit>().setFontFamily(font),
       selectedOption: appearance.font,
-      options: GoogleFonts.asMap()
-          .keys
+      options: [defaultFontFamily, ...GoogleFonts.asMap().keys]
           .map(
             (f) => buildDropdownMenuEntry<String>(
               context,

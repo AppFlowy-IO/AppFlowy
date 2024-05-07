@@ -189,11 +189,13 @@ enum FlowyTint {
     }
   }
 
-  static FlowyTint fromId(String id) {
-    return FlowyTint.values.firstWhere(
-      (element) => element.id == id,
-      orElse: () => FlowyTint.tint1,
-    );
+  static FlowyTint? fromId(String id) {
+    for (final value in FlowyTint.values) {
+      if (value.id == id) {
+        return value;
+      }
+    }
+    return null;
   }
 
   Color color(BuildContext context) => switch (this) {
