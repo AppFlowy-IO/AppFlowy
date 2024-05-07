@@ -316,6 +316,11 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
               );
             }
           },
+          startCreatingBottomRow: (groupId) {
+            final previousState = state;
+            emit(BoardState.createBottomRow(groupId: groupId));
+            emit(previousState);
+          },
         );
       },
     );
@@ -690,6 +695,8 @@ class BoardEvent with _$BoardEvent {
     GroupedRowId groupedRowId,
     bool toPrevious,
   ) = _MoveGroupToAdjacentGroup;
+  const factory BoardEvent.startCreatingBottomRow(String groupId) =
+      _StartCreatingBottomRow;
 }
 
 @freezed
@@ -721,6 +728,10 @@ class BoardState with _$BoardState {
     required List<GroupedRowId> groupedRowIds,
   }) = _BoardSetFocusState;
 
+  const factory BoardState.createBottomRow({
+    required String groupId,
+  }) = _BoardCreateBottomRowState;
+
   factory BoardState.initial(String viewId) => BoardState.ready(
         viewId: viewId,
         groupIds: [],
@@ -735,6 +746,8 @@ class BoardState with _$BoardState {
   bool get isReady => maybeMap(ready: (_) => true, orElse: () => false);
   bool get isOpenCard => maybeMap(openCard: (_) => true, orElse: () => false);
   bool get isSetFocus => maybeMap(setFocus: (_) => true, orElse: () => false);
+  bool get isCreateBottomRow =>
+      maybeMap(createBottomRow: (_) => true, orElse: () => false);
 }
 
 List<GroupPB> _filterHiddenGroups(bool hideUngrouped, List<GroupPB> groups) {

@@ -36,6 +36,16 @@ class BoardShortcutContainer extends StatelessWidget {
               .read<BoardBloc>()
               .add(BoardEvent.startEditingRow(focusScope.value.first));
         },
+        const SingleActivator(LogicalKeyboardKey.keyN): () {
+          if (focusScope.value.length != 1) {
+            return;
+          }
+          context.read<BoardBloc>().add(
+                BoardEvent.startCreatingBottomRow(
+                  focusScope.value.first.groupId,
+                ),
+              );
+        },
         const SingleActivator(LogicalKeyboardKey.delete): () =>
             _removeHandler(context),
         const SingleActivator(LogicalKeyboardKey.backspace): () =>
