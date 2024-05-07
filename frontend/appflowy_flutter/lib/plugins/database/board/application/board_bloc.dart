@@ -31,53 +31,59 @@ const bool _kOpenRowsAfterCreation = false;
 class BoardBloc extends Bloc<BoardEvent, BoardState> {
   BoardBloc({
     required this.databaseController,
+    AppFlowyBoardController? boardController,
   }) : super(const BoardState.loading()) {
     groupBackendSvc = GroupBackendService(viewId);
-    boardController = AppFlowyBoardController(
-      onMoveGroup: (fromGroupId, fromIndex, toGroupId, toIndex) =>
-          databaseController.moveGroup(
-        fromGroupId: fromGroupId,
-        toGroupId: toGroupId,
-      ),
-      onMoveGroupItem: (groupId, fromIndex, toIndex) {
-        final fromRow = groupControllers[groupId]?.rowAtIndex(fromIndex);
-        final toRow = groupControllers[groupId]?.rowAtIndex(toIndex);
-        if (fromRow != null) {
-          databaseController.moveGroupRow(
-            fromRow: fromRow,
-            toRow: toRow,
-            fromGroupId: groupId,
-            toGroupId: groupId,
-          );
-        }
-      },
-      onMoveGroupItemToGroup: (fromGroupId, fromIndex, toGroupId, toIndex) {
-        final fromRow = groupControllers[fromGroupId]?.rowAtIndex(fromIndex);
-        final toRow = groupControllers[toGroupId]?.rowAtIndex(toIndex);
-        if (fromRow != null) {
-          databaseController.moveGroupRow(
-            fromRow: fromRow,
-            toRow: toRow,
-            fromGroupId: fromGroupId,
-            toGroupId: toGroupId,
-          );
-        }
-      },
-    );
-
+    _initBoardController(boardController);
     _dispatch();
   }
 
   final DatabaseController databaseController;
+  late final AppFlowyBoardController boardController;
   final LinkedHashMap<String, GroupController> groupControllers =
       LinkedHashMap();
   final List<GroupPB> groupList = [];
 
-  late final AppFlowyBoardController boardController;
   late final GroupBackendService groupBackendSvc;
 
   FieldController get fieldController => databaseController.fieldController;
   String get viewId => databaseController.viewId;
+
+  void _initBoardController(AppFlowyBoardController? controller) {
+    boardController = controller ??
+        AppFlowyBoardController(
+          onMoveGroup: (fromGroupId, fromIndex, toGroupId, toIndex) =>
+              databaseController.moveGroup(
+            fromGroupId: fromGroupId,
+            toGroupId: toGroupId,
+          ),
+          onMoveGroupItem: (groupId, fromIndex, toIndex) {
+            final fromRow = groupControllers[groupId]?.rowAtIndex(fromIndex);
+            final toRow = groupControllers[groupId]?.rowAtIndex(toIndex);
+            if (fromRow != null) {
+              databaseController.moveGroupRow(
+                fromRow: fromRow,
+                toRow: toRow,
+                fromGroupId: groupId,
+                toGroupId: groupId,
+              );
+            }
+          },
+          onMoveGroupItemToGroup: (fromGroupId, fromIndex, toGroupId, toIndex) {
+            final fromRow =
+                groupControllers[fromGroupId]?.rowAtIndex(fromIndex);
+            final toRow = groupControllers[toGroupId]?.rowAtIndex(toIndex);
+            if (fromRow != null) {
+              databaseController.moveGroupRow(
+                fromRow: fromRow,
+                toRow: toRow,
+                fromGroupId: fromGroupId,
+                toGroupId: toGroupId,
+              );
+            }
+          },
+        );
+  }
 
   void _dispatch() {
     on<BoardEvent>(
@@ -367,6 +373,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     for (final controller in groupControllers.values) {
       await controller.dispose();
     }
+    boardController.dispose();
     return super.close();
   }
 

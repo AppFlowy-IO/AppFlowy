@@ -1,7 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/mobile/presentation/database/board/mobile_board_content.dart';
-import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_state_container.dart';
+import 'package:appflowy/mobile/presentation/database/board/mobile_board_page.dart';
 import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database/board/presentation/widgets/board_column_header.dart';
@@ -45,11 +44,17 @@ class BoardPageTabBarBuilderImpl extends DatabaseTabBarItemBuilder {
     bool shrinkWrap,
     String? initialRowId,
   ) =>
-      BoardPage(
-        key: _makeValueKey(controller),
-        view: view,
-        databaseController: controller,
-      );
+      PlatformExtension.isDesktop
+          ? DesktopBoardPage(
+              key: _makeValueKey(controller),
+              view: view,
+              databaseController: controller,
+            )
+          : MobileBoardPage(
+              key: _makeValueKey(controller),
+              view: view,
+              databaseController: controller,
+            );
 
   @override
   Widget settingBar(BuildContext context, DatabaseController controller) =>
@@ -82,8 +87,8 @@ class BoardPageTabBarBuilderImpl extends DatabaseTabBarItemBuilder {
       ValueKey(controller.viewId);
 }
 
-class BoardPage extends StatelessWidget {
-  const BoardPage({
+class DesktopBoardPage extends StatefulWidget {
+  const DesktopBoardPage({
     super.key,
     required this.view,
     required this.databaseController,
@@ -98,30 +103,87 @@ class BoardPage extends StatelessWidget {
   final VoidCallback? onEditStateChanged;
 
   @override
+  State<DesktopBoardPage> createState() => _DesktopBoardPageState();
+}
+
+class _DesktopBoardPageState extends State<DesktopBoardPage> {
+  late final AppFlowyBoardController _boardController = AppFlowyBoardController(
+    onMoveGroup: (fromGroupId, fromIndex, toGroupId, toIndex) =>
+        widget.databaseController.moveGroup(
+      fromGroupId: fromGroupId,
+      toGroupId: toGroupId,
+    ),
+    onMoveGroupItem: (groupId, fromIndex, toIndex) {
+      final groupControllers = bloc.groupControllers;
+      final fromRow = groupControllers[groupId]?.rowAtIndex(fromIndex);
+      final toRow = groupControllers[groupId]?.rowAtIndex(toIndex);
+      if (fromRow != null) {
+        widget.databaseController.moveGroupRow(
+          fromRow: fromRow,
+          toRow: toRow,
+          fromGroupId: groupId,
+          toGroupId: groupId,
+        );
+      }
+    },
+    onMoveGroupItemToGroup: (fromGroupId, fromIndex, toGroupId, toIndex) {
+      final groupControllers = bloc.groupControllers;
+      final fromRow = groupControllers[fromGroupId]?.rowAtIndex(fromIndex);
+      final toRow = groupControllers[toGroupId]?.rowAtIndex(toIndex);
+      if (fromRow != null) {
+        widget.databaseController.moveGroupRow(
+          fromRow: fromRow,
+          toRow: toRow,
+          fromGroupId: fromGroupId,
+          toGroupId: toGroupId,
+        );
+      }
+    },
+    onStartDraggingCard: (groupId, index) {
+      final groupControllers = bloc.groupControllers;
+      final toRow = groupControllers[groupId]?.rowAtIndex(index);
+      if (toRow != null) {
+        _focusScope.clear();
+      }
+    },
+  );
+
+  late final _focusScope = BoardFocusScope(
+    boardController: _boardController,
+  );
+
+  late final BoardBloc bloc = BoardBloc(
+    databaseController: widget.databaseController,
+    boardController: _boardController,
+  )..add(const BoardEvent.initial());
+
+  @override
+  void dispose() {
+    _focusScope.dispose();
+    _boardController.dispose();
+    bloc.close();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return BlocProvider<BoardBloc>(
-      create: (_) => BoardBloc(
-        databaseController: databaseController,
-      )..add(const BoardEvent.initial()),
+    return BlocProvider<BoardBloc>.value(
+      value: bloc,
       child: BlocBuilder<BoardBloc, BoardState>(
         buildWhen: (p, c) => c.isReady,
         builder: (context, state) => state.maybeMap(
           loading: (_) => const Center(
             child: CircularProgressIndicator.adaptive(),
           ),
-          error: (err) => PlatformExtension.isMobile
-              ? FlowyMobileStateContainer.error(
-                  emoji: '🛸',
-                  title: LocaleKeys.board_mobile_failedToLoad.tr(),
-                  errorMsg: err.toString(),
-                )
-              : FlowyErrorPage.message(
-                  err.toString(),
-                  howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),
-                ),
-          ready: (data) => PlatformExtension.isMobile
-              ? const MobileBoardContent()
-              : DesktopBoardContent(onEditStateChanged: onEditStateChanged),
+          error: (err) => FlowyErrorPage.message(
+            err.toString(),
+            howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),
+          ),
+          ready: (data) => _BoardContent(
+            onEditStateChanged: widget.onEditStateChanged,
+            focusScope: _focusScope,
+            boardController: _boardController,
+          ),
           orElse: () => const SizedBox.shrink(),
         ),
       ),
@@ -129,19 +191,22 @@ class BoardPage extends StatelessWidget {
   }
 }
 
-class DesktopBoardContent extends StatefulWidget {
-  const DesktopBoardContent({
-    super.key,
+class _BoardContent extends StatefulWidget {
+  const _BoardContent({
+    required this.boardController,
+    required this.focusScope,
     this.onEditStateChanged,
   });
 
+  final AppFlowyBoardController boardController;
+  final BoardFocusScope focusScope;
   final VoidCallback? onEditStateChanged;
 
   @override
-  State<DesktopBoardContent> createState() => _DesktopBoardContentState();
+  State<_BoardContent> createState() => _BoardContentState();
 }
 
-class _DesktopBoardContentState extends State<DesktopBoardContent> {
+class _BoardContentState extends State<_BoardContent> {
   final ScrollController scrollController = ScrollController();
   final AppFlowyBoardScrollController scrollManager =
       AppFlowyBoardScrollController();
@@ -156,16 +221,14 @@ class _DesktopBoardContentState extends State<DesktopBoardContent> {
   );
 
   late final cellBuilder = CardCellBuilder(
-    databaseController: context.read<BoardBloc>().databaseController,
+    databaseController: databaseController,
   );
 
-  late final _focusScope = BoardFocusScope(
-    boardController: context.read<BoardBloc>().boardController,
-  );
+  DatabaseController get databaseController =>
+      context.read<BoardBloc>().databaseController;
 
   @override
   void dispose() {
-    _focusScope.dispose();
     scrollController.dispose();
     super.dispose();
   }
@@ -202,7 +265,7 @@ class _DesktopBoardContentState extends State<DesktopBoardContent> {
             state.maybeWhen(
               orElse: () {},
               setFocus: (groupedRowIds) {
-                _focusScope.focusedGroupedRows = groupedRowIds;
+                widget.focusScope.focusedGroupedRows = groupedRowIds;
               },
             );
           },
@@ -217,7 +280,7 @@ class _DesktopBoardContentState extends State<DesktopBoardContent> {
           return FocusScope(
             autofocus: true,
             child: BoardShortcutContainer(
-              focusScope: _focusScope,
+              focusScope: widget.focusScope,
               child: Padding(
                 padding: const EdgeInsets.only(top: 8.0),
                 child: AppFlowyBoard(
@@ -254,7 +317,7 @@ class _DesktopBoardContentState extends State<DesktopBoardContent> {
                       afGroupData: column,
                       groupItem: columnItem as GroupItem,
                       boardConfig: config,
-                      notifier: _focusScope,
+                      notifier: widget.focusScope,
                       cellBuilder: cellBuilder,
                     ),
                   ),
