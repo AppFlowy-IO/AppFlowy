@@ -1,7 +1,9 @@
+use appflowy_cloud_billing_client::entities::{RecurringInterval, SubscriptionPlan};
 use std::collections::HashMap;
 use std::sync::Arc;
 
 use anyhow::anyhow;
+use appflowy_cloud_billing_client::WorkspaceSubscriptionClient;
 use client_api::entity::workspace_dto::{
   CreateWorkspaceMember, CreateWorkspaceParam, PatchWorkspaceParam, WorkspaceMemberChangeset,
   WorkspaceMemberInvitation,
@@ -474,6 +476,30 @@ where
       Ok(())
     })
   }
+
+  fn subscribe_workspace(
+    &self,
+    workspace_id: String,
+    recurring_interval: flowy_user_pub::entities::RecurringInterval,
+    workspace_subscription_plan: flowy_user_pub::entities::SubscriptionPlan,
+    success_url: String,
+  ) -> FutureResult<String, FlowyError> {
+    let try_get_client = self.server.try_get_client();
+    let workspace_id = workspace_id.to_string();
+    FutureResult::new(async move {
+      let client = try_get_client?;
+      let payment_link = client
+        .create_subscription(
+          &workspace_id,
+          to_recurring_interval(recurring_interval),
+          to_workspace_subscription_plan(workspace_subscription_plan),
+          &success_url,
+        )
+        .await?;
+      Ok(payment_link)
+      // Ok(())
+    })
+  }
 }
 
 async fn get_admin_client(client: &Arc<AFCloudClient>) -> FlowyResult<Client> {
@@ -569,4 +595,20 @@ fn oauth_params_from_box_any(any: BoxAny) -> Result<AFCloudOAuthParams, FlowyErr
   Ok(AFCloudOAuthParams {
     sign_in_url: sign_in_url.to_string(),
   })
+}
+
+fn to_recurring_interval(r: flowy_user_pub::entities::RecurringInterval) -> RecurringInterval {
+  match r {
+    flowy_user_pub::entities::RecurringInterval::Month => RecurringInterval::Month,
+    flowy_user_pub::entities::RecurringInterval::Year => RecurringInterval::Year,
+  }
+}
+
+fn to_workspace_subscription_plan(
+  s: flowy_user_pub::entities::SubscriptionPlan,
+) -> SubscriptionPlan {
+  match s {
+    flowy_user_pub::entities::SubscriptionPlan::Pro => SubscriptionPlan::Pro,
+    flowy_user_pub::entities::SubscriptionPlan::Team => SubscriptionPlan::Team,
+  }
 }

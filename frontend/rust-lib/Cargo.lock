@@ -183,7 +183,7 @@ dependencies = [
 [[package]]
 name = "appflowy-cloud-billing-client"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud-Billing-Client?rev=b95d520d5c570c85cb5e0fd2980220deea41df2b#b95d520d5c570c85cb5e0fd2980220deea41df2b"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Cloud-Billing-Client?rev=b141b6eefa0e46d80d5d0f59a8c9c51c0dfdbb78#b141b6eefa0e46d80d5d0f59a8c9c51c0dfdbb78"
 dependencies = [
  "client-api",
  "reqwest",

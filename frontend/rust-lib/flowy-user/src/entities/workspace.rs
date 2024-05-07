@@ -208,7 +208,6 @@ pub struct SubscribeWorkspacePB {
 
   #[pb(index = 2)]
   pub recurring_interval: RecurringIntervalPB,
-
   #[pb(index = 3)]
   pub workspace_subscription_plan: SubscriptionPlanPB,
 
@@ -219,10 +218,8 @@ pub struct SubscribeWorkspacePB {
 #[derive(ProtoBuf_Enum, Clone, Default, Debug)]
 pub enum RecurringIntervalPB {
   #[default]
-  UndefinedRecurringInterval = 0,
-
-  Month = 1,
-  Year = 2,
+  Month = 0,
+  Year = 1,
 }
 
 impl From<RecurringIntervalPB> for RecurringInterval {
@@ -230,9 +227,6 @@ impl From<RecurringIntervalPB> for RecurringInterval {
     match value {
       RecurringIntervalPB::Month => RecurringInterval::Month,
       RecurringIntervalPB::Year => RecurringInterval::Year,
-      RecurringIntervalPB::UndefinedRecurringInterval => {
-        RecurringInterval::UndefinedRecurringInterval
-      },
     }
   }
 }
@@ -240,10 +234,8 @@ impl From<RecurringIntervalPB> for RecurringInterval {
 #[derive(ProtoBuf_Enum, Clone, Default, Debug)]
 pub enum SubscriptionPlanPB {
   #[default]
-  UndefinedSubscriptionPlan = 0,
-
-  Pro = 1,
-  Team = 2,
+  Pro = 0,
+  Team = 1,
 }
 
 impl From<SubscriptionPlanPB> for SubscriptionPlan {
@@ -251,7 +243,6 @@ impl From<SubscriptionPlanPB> for SubscriptionPlan {
     match value {
       SubscriptionPlanPB::Pro => SubscriptionPlan::Pro,
       SubscriptionPlanPB::Team => SubscriptionPlan::Team,
-      SubscriptionPlanPB::UndefinedSubscriptionPlan => SubscriptionPlan::UndefinedSubscriptionPlan,
     }
   }
 }

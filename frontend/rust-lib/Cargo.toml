@@ -129,4 +129,4 @@ rocksdb = { git = "https://github.com/LucasXu0/rust-rocksdb", rev = "21cf4a23ec1
 # scripts/tool/update_client_api_rev.sh  new_rev_id
 # ⚠️⚠️⚠️️
 client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "47e6f1e8" }
-appflowy-cloud-billing-client = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud-Billing-Client", rev = "b95d520d5c570c85cb5e0fd2980220deea41df2b" }
+appflowy-cloud-billing-client = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud-Billing-Client", rev = "b141b6eefa0e46d80d5d0f59a8c9c51c0dfdbb78" }

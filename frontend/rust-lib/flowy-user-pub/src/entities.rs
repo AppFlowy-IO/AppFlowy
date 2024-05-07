@@ -423,15 +423,11 @@ pub struct WorkspaceInvitation {
 }
 
 pub enum RecurringInterval {
-  UndefinedRecurringInterval,
-
   Month,
   Year,
 }
 
 pub enum SubscriptionPlan {
-  UndefinedSubscriptionPlan,
-
   Pro,
   Team,
 }
