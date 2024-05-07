@@ -40,7 +40,7 @@ class UploadImageFileWidget extends StatelessWidget {
       // on desktop, the users can pick a image file from folder
       final result = await getIt<FilePickerService>().pickFiles(
         dialogTitle: '',
-        type: FileType.image,
+        type: FileType.custom,
         allowedExtensions: allowedExtensions,
       );
       onPickFile(result?.files.firstOrNull?.path);
