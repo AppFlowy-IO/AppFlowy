@@ -13,8 +13,9 @@ use tokio_stream::wrappers::WatchStream;
 use uuid::Uuid;
 
 use crate::entities::{
-  AuthResponse, Authenticator, Role, UpdateUserProfileParams, UserCredentials, UserProfile,
-  UserTokenState, UserWorkspace, WorkspaceInvitation, WorkspaceInvitationStatus, WorkspaceMember,
+  AuthResponse, Authenticator, RecurringInterval, Role, SubscriptionPlan, UpdateUserProfileParams,
+  UserCredentials, UserProfile, UserTokenState, UserWorkspace, WorkspaceInvitation,
+  WorkspaceInvitationStatus, WorkspaceMember,
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -265,6 +266,16 @@ pub trait UserCloudService: Send + Sync + 'static {
 
   fn leave_workspace(&self, workspace_id: &str) -> FutureResult<(), FlowyError> {
     FutureResult::new(async { Ok(()) })
+  }
+
+  fn subscribe_workspace(
+    &self,
+    workspace_id: String,
+    recurring_interval: RecurringInterval,
+    workspace_subscription_plan: SubscriptionPlan,
+    success_url: String,
+  ) -> FutureResult<String, FlowyError> {
+    FutureResult::new(async { Err(FlowyError::not_support()) })
   }
 }
 

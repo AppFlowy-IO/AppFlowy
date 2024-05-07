@@ -776,9 +776,12 @@ pub async fn leave_workspace_handler(
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
-pub async fn workspace_subscription_link_handler(
-  data: AFPluginData<WorkspaceSubscriptionLinkPB>,
+pub async fn subscribe_workspace_handler(
+  params: AFPluginData<SubscribeWorkspacePB>,
   manager: AFPluginState<Weak<UserManager>>,
 ) -> DataResult<PaymentLinkPB, FlowyError> {
-  todo!()
+  let params = params.try_into_inner()?;
+  let manager = upgrade_manager(manager)?;
+  let payment_link = manager.subscribe_workspace(params).await?;
+  data_result_ok(PaymentLinkPB { payment_link })
 }

@@ -1,7 +1,9 @@
 use validator::Validate;
 
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use flowy_user_pub::entities::{Role, WorkspaceInvitation, WorkspaceMember};
+use flowy_user_pub::entities::{
+  RecurringInterval, Role, SubscriptionPlan, WorkspaceInvitation, WorkspaceMember,
+};
 use lib_infra::validator_fn::required_not_empty_str;
 
 #[derive(ProtoBuf, Default, Clone)]
@@ -198,8 +200,8 @@ pub struct ChangeWorkspaceIconPB {
   pub new_icon: String,
 }
 
-#[derive(ProtoBuf, Default, Clone, Validate)]
-pub struct WorkspaceSubscriptionLinkPB {
+#[derive(ProtoBuf, Default, Clone, Validate, Debug)]
+pub struct SubscribeWorkspacePB {
   #[pb(index = 1)]
   #[validate(custom = "required_not_empty_str")]
   pub workspace_id: String,
@@ -214,7 +216,7 @@ pub struct WorkspaceSubscriptionLinkPB {
   pub success_url: String,
 }
 
-#[derive(ProtoBuf_Enum, Clone, Default)]
+#[derive(ProtoBuf_Enum, Clone, Default, Debug)]
 pub enum RecurringIntervalPB {
   #[default]
   UndefinedRecurringInterval = 0,
@@ -223,13 +225,35 @@ pub enum RecurringIntervalPB {
   Year = 2,
 }
 
-#[derive(ProtoBuf_Enum, Clone, Default)]
+impl From<RecurringIntervalPB> for RecurringInterval {
+  fn from(value: RecurringIntervalPB) -> Self {
+    match value {
+      RecurringIntervalPB::Month => RecurringInterval::Month,
+      RecurringIntervalPB::Year => RecurringInterval::Year,
+      RecurringIntervalPB::UndefinedRecurringInterval => {
+        RecurringInterval::UndefinedRecurringInterval
+      },
+    }
+  }
+}
+
+#[derive(ProtoBuf_Enum, Clone, Default, Debug)]
 pub enum SubscriptionPlanPB {
   #[default]
   UndefinedSubscriptionPlan = 0,
 
   Pro = 1,
   Team = 2,
+}
+
+impl From<SubscriptionPlanPB> for SubscriptionPlan {
+  fn from(value: SubscriptionPlanPB) -> Self {
+    match value {
+      SubscriptionPlanPB::Pro => SubscriptionPlan::Pro,
+      SubscriptionPlanPB::Team => SubscriptionPlan::Team,
+      SubscriptionPlanPB::UndefinedSubscriptionPlan => SubscriptionPlan::UndefinedSubscriptionPlan,
+    }
+  }
 }
 
 #[derive(Debug, ProtoBuf, Default, Clone)]

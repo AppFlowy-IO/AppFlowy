@@ -14,7 +14,7 @@ use flowy_user_pub::entities::{
 };
 use lib_dispatch::prelude::af_spawn;
 
-use crate::entities::{RepeatedUserWorkspacePB, ResetWorkspacePB};
+use crate::entities::{RepeatedUserWorkspacePB, ResetWorkspacePB, SubscribeWorkspacePB};
 use crate::migrations::AnonUser;
 use crate::notification::{send_notification, UserNotification};
 use crate::services::data_import::{
@@ -400,6 +400,25 @@ impl UserManager {
       .reset_workspace(collab_object)
       .await?;
     Ok(())
+  }
+
+  #[instrument(level = "info", skip(self), err)]
+  pub async fn subscribe_workspace(
+    &self,
+    workspace_subscription: SubscribeWorkspacePB,
+  ) -> FlowyResult<String> {
+    let payment_link = self
+      .cloud_services
+      .get_user_service()?
+      .subscribe_workspace(
+        workspace_subscription.workspace_id,
+        workspace_subscription.recurring_interval.into(),
+        workspace_subscription.workspace_subscription_plan.into(),
+        workspace_subscription.success_url,
+      )
+      .await?;
+
+    Ok(payment_link)
   }
 }
 
