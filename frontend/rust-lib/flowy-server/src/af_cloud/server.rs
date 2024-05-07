@@ -271,10 +271,8 @@ fn spawn_ws_conn(
         match state {
           ConnectState::PingTimeout | ConnectState::Lost => {
             // Try to reconnect if the connection is timed out.
-            if weak_api_client.upgrade().is_some() {
-              if enable_sync.load(Ordering::SeqCst) {
-                attempt_reconnect(&ws_client, 2, &cloned_conn_cancellation_token).await;
-              }
+            if weak_api_client.upgrade().is_some() && enable_sync.load(Ordering::SeqCst) {
+              attempt_reconnect(&ws_client, 2, &cloned_conn_cancellation_token).await;
             }
           },
           ConnectState::Unauthorized => {
