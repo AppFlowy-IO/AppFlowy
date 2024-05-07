@@ -12,8 +12,10 @@ use client_api::ws::{
 use client_api::{Client, ClientConfiguration};
 use flowy_storage::ObjectStorageService;
 use rand::Rng;
-use tokio::sync::watch;
+use tokio::select;
+use tokio::sync::{watch, Mutex};
 use tokio_stream::wrappers::WatchStream;
+use tokio_util::sync::CancellationToken;
 use tracing::{error, event, info, warn};
 use uuid::Uuid;
 
@@ -81,8 +83,15 @@ impl AppFlowyCloudServer {
     );
     let ws_client = Arc::new(ws_client);
     let api_client = Arc::new(api_client);
+    let ws_connect_cancellation_token = Arc::new(Mutex::new(CancellationToken::new()));
 
-    spawn_ws_conn(token_state_rx, &ws_client, &api_client, &enable_sync);
+    spawn_ws_conn(
+      token_state_rx,
+      &ws_client,
+      ws_connect_cancellation_token,
+      &api_client,
+      &enable_sync,
+    );
     Self {
       config,
       client: api_client,
@@ -245,12 +254,14 @@ impl AppFlowyServer for AppFlowyCloudServer {
 fn spawn_ws_conn(
   mut token_state_rx: TokenStateReceiver,
   ws_client: &Arc<WSClient>,
+  conn_cancellation_token: Arc<Mutex<CancellationToken>>,
   api_client: &Arc<Client>,
   enable_sync: &Arc<AtomicBool>,
 ) {
   let weak_ws_client = Arc::downgrade(ws_client);
   let weak_api_client = Arc::downgrade(api_client);
   let enable_sync = enable_sync.clone();
+  let cloned_conn_cancellation_token = conn_cancellation_token.clone();
 
   af_spawn(async move {
     if let Some(ws_client) = weak_ws_client.upgrade() {
@@ -262,13 +273,16 @@ fn spawn_ws_conn(
             // Try to reconnect if the connection is timed out.
             if weak_api_client.upgrade().is_some() {
               if enable_sync.load(Ordering::SeqCst) {
-                attempt_reconnect(&ws_client, 2).await;
+                attempt_reconnect(&ws_client, 2, &cloned_conn_cancellation_token).await;
               }
             }
           },
           ConnectState::Unauthorized => {
             if let Some(api_client) = weak_api_client.upgrade() {
-              if let Err(err) = api_client.refresh_token().await {
+              if let Err(err) = api_client
+                .refresh_token("websocket connect unauthorized")
+                .await
+              {
                 error!("Failed to refresh token: {}", err);
               }
             }
@@ -286,7 +300,7 @@ fn spawn_ws_conn(
       match token_state {
         TokenState::Refresh => {
           if let Some(ws_client) = weak_ws_client.upgrade() {
-            let _ = ws_client.connect().await;
+            attempt_reconnect(&ws_client, 5, &conn_cancellation_token).await;
           }
         },
         TokenState::Invalid => {
@@ -300,17 +314,43 @@ fn spawn_ws_conn(
   });
 }
 
-async fn attempt_reconnect(ws_client: &Arc<WSClient>, minimum_delay_in_secs: u64) {
-  // Introduce randomness in the reconnection attempts to avoid thundering herd problem
-  let delay_seconds = rand::thread_rng().gen_range(minimum_delay_in_secs..8);
-  tokio::time::sleep(Duration::from_secs(delay_seconds)).await;
-  event!(
-    tracing::Level::INFO,
-    "🟢 Attempting to reconnect websocket."
-  );
-  if let Err(e) = ws_client.connect().await {
-    error!("Failed to reconnect websocket: {}", e);
-  }
+/// Attempts to reconnect a WebSocket client with a randomized delay to mitigate the thundering herd problem.
+///
+/// This function cancels any existing reconnection attempt, sets up a new cancellation token, and then
+/// attempts to reconnect after a randomized delay. The delay is set between a specified minimum and
+/// that minimum plus 10 seconds.
+///
+async fn attempt_reconnect(
+  ws_client: &Arc<WSClient>,
+  minimum_delay_in_secs: u64,
+  conn_cancellation_token: &Arc<Mutex<CancellationToken>>,
+) {
+  // Cancel the previous reconnection attempt
+  let mut cancel_token_lock = conn_cancellation_token.lock().await;
+  cancel_token_lock.cancel();
+
+  let new_cancel_token = CancellationToken::new();
+  *cancel_token_lock = new_cancel_token.clone();
+  drop(cancel_token_lock);
+
+  // randomness in the reconnection attempts to avoid thundering herd problem
+  let delay_seconds = rand::thread_rng().gen_range(minimum_delay_in_secs..10);
+  let ws_client = ws_client.clone();
+  tokio::spawn(async move {
+    select! {
+      _ = new_cancel_token.cancelled() => {
+        event!(
+          tracing::Level::TRACE,
+          "🟢websocket reconnection attempt cancelled."
+        );
+      },
+      _ = tokio::time::sleep(Duration::from_secs(delay_seconds)) => {
+        if let Err(e) = ws_client.connect().await {
+          error!("Failed to reconnect websocket: {}", e);
+        }
+      }
+    }
+  });
 }
 
 pub trait AFServer: Send + Sync + 'static {
