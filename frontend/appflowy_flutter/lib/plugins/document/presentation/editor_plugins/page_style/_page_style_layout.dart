@@ -5,6 +5,7 @@ import 'package:appflowy/mobile/presentation/bottom_sheet/show_mobile_bottom_she
 import 'package:appflowy/mobile/presentation/setting/font/font_picker_screen.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/page_style/_page_style_util.dart';
 import 'package:appflowy/shared/feedback_gesture_detector.dart';
+import 'package:appflowy/util/font_family_extension.dart';
 import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -163,11 +164,8 @@ class _FontButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<DocumentPageStyleBloc, DocumentPageStyleState>(
       builder: (context, state) {
-        String fontFamily = state.fontFamily ?? defaultFontFamily;
-        if (fontFamily == defaultFontFamily) {
-          fontFamily =
-              LocaleKeys.settings_appearance_fontFamily_defaultFont.tr();
-        }
+        final fontFamilyDisplayName =
+            (state.fontFamily ?? defaultFontFamily).fontFamilyDisplayName;
         return GestureDetector(
           onTap: () => _showFontSelector(context),
           behavior: HitTestBehavior.opaque,
@@ -182,7 +180,7 @@ class _FontButton extends StatelessWidget {
                 const HSpace(16.0),
                 FlowyText(LocaleKeys.titleBar_font.tr()),
                 const Spacer(),
-                FlowyText(fontFamily),
+                FlowyText(fontFamilyDisplayName),
                 const HSpace(6.0),
                 const FlowySvg(FlowySvgs.m_page_style_arrow_right_s),
                 const HSpace(12.0),

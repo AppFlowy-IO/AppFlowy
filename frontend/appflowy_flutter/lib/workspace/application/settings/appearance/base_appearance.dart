@@ -39,16 +39,15 @@ abstract class BaseAppearance {
     letterSpacing = fontSize * (letterSpacing ?? 0.005);
 
     final textStyle = TextStyle(
-      fontFamily: fontFamily,
+      fontFamily: fontFamily.isEmpty ? null : fontFamily,
       fontSize: fontSize,
       color: fontColor,
       fontWeight: fontWeight,
-      fontFamilyFallback: const [fallbackFontFamily],
       letterSpacing: letterSpacing,
       height: lineHeight,
     );
 
-    if (fontFamily.isEmpty || fontFamily == fallbackFontFamily) {
+    if (fontFamily == defaultFontFamily || fontFamily == fallbackFontFamily) {
       return textStyle;
     }
 

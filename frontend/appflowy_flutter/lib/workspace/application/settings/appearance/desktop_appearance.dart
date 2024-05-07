@@ -1,9 +1,8 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra/theme_extension.dart';
+import 'package:flutter/material.dart';
 
 class DesktopAppearance extends BaseAppearance {
   @override
@@ -13,7 +12,6 @@ class DesktopAppearance extends BaseAppearance {
     String fontFamily,
     String codeFontFamily,
   ) {
-    assert(fontFamily.isNotEmpty);
     assert(codeFontFamily.isNotEmpty);
 
     final theme = brightness == Brightness.light
