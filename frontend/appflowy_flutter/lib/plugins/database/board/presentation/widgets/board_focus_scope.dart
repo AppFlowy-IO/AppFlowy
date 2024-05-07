@@ -18,6 +18,14 @@ class BoardFocusScope extends ChangeNotifier
   UnmodifiableListView<GroupedRowId> get focusedGroupedRows =>
       UnmodifiableListView(_focusedCards);
 
+  set focusedGroupedRows(List<GroupedRowId> focusedGroupedRows) {
+    _deepCopy();
+    _focusedCards
+      ..clear()
+      ..addAll(focusedGroupedRows);
+    notifyListeners();
+  }
+
   bool isFocused(GroupedRowId groupedRowId) =>
       _focusedCards.contains(groupedRowId);
 

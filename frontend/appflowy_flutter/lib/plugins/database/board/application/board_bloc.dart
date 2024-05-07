@@ -221,14 +221,24 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
           },
           startEditingRow: (groupedRowId) {
             _setBoardIsDraggable(true);
-            state.maybeMap(
+            final previousState = state;
+            emit(const BoardState.setFocus(groupedRowIds: []));
+            previousState.maybeMap(
               ready: (state) => emit(state.copyWith(editingRow: groupedRowId)),
               orElse: () {},
             );
           },
           endEditingRow: () {
             _setBoardIsDraggable(false);
-            state.maybeMap(
+            final previousState = state;
+            final groupedRowId = state.maybeMap(
+              ready: (value) => value.editingRow,
+              orElse: () => null,
+            );
+            if (groupedRowId != null) {
+              emit(BoardState.setFocus(groupedRowIds: [groupedRowId]));
+            }
+            previousState.maybeMap(
               ready: (state) => emit(state.copyWith(editingRow: null)),
               orElse: () {},
             );
@@ -264,6 +274,41 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
               ),
             );
             emit(previousState);
+          },
+          moveGroupToAdjacentGroup: (groupedRowId, toPrevious) async {
+            final fromRow =
+                databaseController.rowCache.getRow(groupedRowId.rowId)?.rowMeta;
+            final currentGroupIndex =
+                boardController.groupIds.indexOf(groupedRowId.groupId);
+            final toGroupIndex =
+                toPrevious ? currentGroupIndex - 1 : currentGroupIndex + 1;
+            if (fromRow != null &&
+                toGroupIndex > -1 &&
+                toGroupIndex < boardController.groupIds.length) {
+              final toGroupId = boardController.groupDatas[toGroupIndex].id;
+              final result = await databaseController.moveGroupRow(
+                fromRow: fromRow,
+                fromGroupId: groupedRowId.groupId,
+                toGroupId: toGroupId,
+              );
+              result.fold(
+                (s) {
+                  final previousState = state;
+                  emit(
+                    BoardState.setFocus(
+                      groupedRowIds: [
+                        GroupedRowId(
+                          groupId: toGroupId,
+                          rowId: groupedRowId.rowId,
+                        ),
+                      ],
+                    ),
+                  );
+                  emit(previousState);
+                },
+                (f) {},
+              );
+            }
           },
         );
       },
@@ -634,6 +679,10 @@ class BoardEvent with _$BoardEvent {
   const factory BoardEvent.deleteCards(List<GroupedRowId> groupedRowIds) =
       _DeleteCards;
   const factory BoardEvent.openCard(GroupedRowId groupedRowId) = _OpenCard;
+  const factory BoardEvent.moveGroupToAdjacentGroup(
+    GroupedRowId groupedRowId,
+    bool toPrevious,
+  ) = _MoveGroupToAdjacentGroup;
 }
 
 @freezed
@@ -661,6 +710,10 @@ class BoardState with _$BoardState {
     required RowMetaPB rowMeta,
   }) = _BoardOpenCardState;
 
+  const factory BoardState.setFocus({
+    required List<GroupedRowId> groupedRowIds,
+  }) = _BoardSetFocusState;
+
   factory BoardState.initial(String viewId) => BoardState.ready(
         viewId: viewId,
         groupIds: [],
@@ -674,6 +727,7 @@ class BoardState with _$BoardState {
   bool get isError => maybeMap(error: (_) => true, orElse: () => false);
   bool get isReady => maybeMap(ready: (_) => true, orElse: () => false);
   bool get isOpenCard => maybeMap(openCard: (_) => true, orElse: () => false);
+  bool get isSetFocus => maybeMap(setFocus: (_) => true, orElse: () => false);
 }
 
 List<GroupPB> _filterHiddenGroups(bool hideUngrouped, List<GroupPB> groups) {

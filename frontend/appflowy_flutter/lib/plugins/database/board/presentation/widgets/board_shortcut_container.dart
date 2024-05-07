@@ -44,6 +44,10 @@ class BoardShortcutContainer extends StatelessWidget {
             _enterHandler(context),
         const SingleActivator(LogicalKeyboardKey.numpadEnter): () =>
             _enterHandler(context),
+        const SingleActivator(LogicalKeyboardKey.comma): () =>
+            _moveGroupToAdjacentGroup(context, true),
+        const SingleActivator(LogicalKeyboardKey.period): () =>
+            _moveGroupToAdjacentGroup(context, false),
       },
       child: FocusScope(
         child: Focus(
@@ -85,5 +89,18 @@ class BoardShortcutContainer extends StatelessWidget {
       return;
     }
     context.read<BoardBloc>().add(BoardEvent.deleteCards(focusScope.value));
+  }
+
+  void _moveGroupToAdjacentGroup(BuildContext context, bool toPrevious) {
+    if (focusScope.value.length != 1) {
+      return;
+    }
+    context.read<BoardBloc>().add(
+          BoardEvent.moveGroupToAdjacentGroup(
+            focusScope.value.first,
+            toPrevious,
+          ),
+        );
+    focusScope.clear();
   }
 }

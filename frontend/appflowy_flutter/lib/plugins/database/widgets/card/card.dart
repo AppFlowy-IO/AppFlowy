@@ -89,9 +89,7 @@ class _RowCardState extends State<RowCard> {
       if (!mounted) return;
       _cardBloc.add(CardEvent.setIsEditing(rowNotifier.isEditing.value));
 
-      if (rowNotifier.isEditing.value) {
-        widget.onStartEditing();
-      } else {
+      if (!rowNotifier.isEditing.value) {
         widget.onEndEditing();
       }
     });
@@ -167,6 +165,7 @@ class _RowCardState extends State<RowCard> {
   void _handleOpenAccessory(AccessoryType newAccessoryType) {
     switch (newAccessoryType) {
       case AccessoryType.edit:
+        widget.onStartEditing();
         break;
       case AccessoryType.more:
         popoverController.show();
@@ -268,9 +267,6 @@ class EditCardAccessory extends StatelessWidget with CardAccessory {
       ),
     );
   }
-
-  @override
-  void onTap(BuildContext context) => rowNotifier.becomeFirstResponder();
 
   @override
   AccessoryType get type => AccessoryType.edit;
