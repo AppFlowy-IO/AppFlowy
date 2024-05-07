@@ -197,3 +197,43 @@ pub struct ChangeWorkspaceIconPB {
   #[pb(index = 2)]
   pub new_icon: String,
 }
+
+#[derive(ProtoBuf, Default, Clone, Validate)]
+pub struct WorkspaceSubscriptionLinkPB {
+  #[pb(index = 1)]
+  #[validate(custom = "required_not_empty_str")]
+  pub workspace_id: String,
+
+  #[pb(index = 2)]
+  pub recurring_interval: RecurringIntervalPB,
+
+  #[pb(index = 3)]
+  pub workspace_subscription_plan: SubscriptionPlanPB,
+
+  #[pb(index = 4)]
+  pub success_url: String,
+}
+
+#[derive(ProtoBuf_Enum, Clone, Default)]
+pub enum RecurringIntervalPB {
+  #[default]
+  UndefinedRecurringInterval = 0,
+
+  Month = 1,
+  Year = 2,
+}
+
+#[derive(ProtoBuf_Enum, Clone, Default)]
+pub enum SubscriptionPlanPB {
+  #[default]
+  UndefinedSubscriptionPlan = 0,
+
+  Pro = 1,
+  Team = 2,
+}
+
+#[derive(Debug, ProtoBuf, Default, Clone)]
+pub struct PaymentLinkPB {
+  #[pb(index = 1)]
+  pub payment_link: String,
+}

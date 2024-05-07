@@ -37,6 +37,7 @@ flowy-user-pub = { workspace = true }
 flowy-folder-pub = { workspace = true }
 flowy-database-pub = { workspace = true }
 flowy-document-pub = { workspace = true }
+appflowy-cloud-billing-client = "0.1.0"
 flowy-error = { workspace = true, features = ["impl_from_serde", "impl_from_reqwest", "impl_from_url", "impl_from_appflowy_cloud"] }
 flowy-server-pub = { workspace = true }
 flowy-encrypt = { workspace = true }
@@ -48,7 +49,6 @@ tokio-stream = { workspace = true, features = ["sync"] }
 lib-dispatch = { workspace = true }
 yrs.workspace = true
 rand = "0.8.5"
-
 
 [dependencies.client-api]
 version = "0.1.0"
