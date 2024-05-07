@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/database/board/mobile_board_page.dart';
@@ -372,32 +374,27 @@ class _BoardColumnFooterState extends State<_BoardColumnFooter> {
   }
 
   Widget _createCardsTextField() {
+    const nada = DoNothingAndStopPropagationIntent();
     return Shortcuts(
-      shortcuts: const {
-        SingleActivator(LogicalKeyboardKey.arrowUp):
-            DoNothingAndStopPropagationIntent(),
-        SingleActivator(LogicalKeyboardKey.arrowDown):
-            DoNothingAndStopPropagationIntent(),
-        SingleActivator(LogicalKeyboardKey.arrowUp, shift: true):
-            DoNothingAndStopPropagationIntent(),
-        SingleActivator(LogicalKeyboardKey.arrowDown, shift: true):
-            DoNothingAndStopPropagationIntent(),
-        SingleActivator(LogicalKeyboardKey.keyE):
-            DoNothingAndStopPropagationIntent(),
-        SingleActivator(LogicalKeyboardKey.keyN):
-            DoNothingAndStopPropagationIntent(),
-        SingleActivator(LogicalKeyboardKey.delete):
-            DoNothingAndStopPropagationIntent(),
-        SingleActivator(LogicalKeyboardKey.backspace):
-            DoNothingAndStopPropagationIntent(),
-        SingleActivator(LogicalKeyboardKey.enter):
-            DoNothingAndStopPropagationIntent(),
-        SingleActivator(LogicalKeyboardKey.numpadEnter):
-            DoNothingAndStopPropagationIntent(),
-        SingleActivator(LogicalKeyboardKey.comma):
-            DoNothingAndStopPropagationIntent(),
-        SingleActivator(LogicalKeyboardKey.period):
-            DoNothingAndStopPropagationIntent(),
+      shortcuts: {
+        const SingleActivator(LogicalKeyboardKey.arrowUp): nada,
+        const SingleActivator(LogicalKeyboardKey.arrowDown): nada,
+        const SingleActivator(LogicalKeyboardKey.arrowUp, shift: true): nada,
+        const SingleActivator(LogicalKeyboardKey.arrowDown, shift: true): nada,
+        const SingleActivator(LogicalKeyboardKey.keyE): nada,
+        const SingleActivator(LogicalKeyboardKey.keyN): nada,
+        const SingleActivator(LogicalKeyboardKey.delete): nada,
+        const SingleActivator(LogicalKeyboardKey.backspace): nada,
+        const SingleActivator(LogicalKeyboardKey.enter): nada,
+        const SingleActivator(LogicalKeyboardKey.numpadEnter): nada,
+        const SingleActivator(LogicalKeyboardKey.comma): nada,
+        const SingleActivator(LogicalKeyboardKey.period): nada,
+        SingleActivator(
+          LogicalKeyboardKey.arrowUp,
+          shift: true,
+          meta: Platform.isMacOS,
+          control: !Platform.isMacOS,
+        ): nada,
       },
       child: FlowyTextField(
         hintTextConstraints: const BoxConstraints(maxHeight: 36),
@@ -488,32 +485,30 @@ class _BoardCard extends StatelessWidget {
           ready: (state) => state.editingRow?.rowId == groupItem.row.id,
         );
 
+        const nada = DoNothingAndStopPropagationIntent();
+
         return Shortcuts(
-          shortcuts: const {
-            SingleActivator(LogicalKeyboardKey.arrowUp):
-                DoNothingAndStopPropagationIntent(),
-            SingleActivator(LogicalKeyboardKey.arrowDown):
-                DoNothingAndStopPropagationIntent(),
-            SingleActivator(LogicalKeyboardKey.arrowUp, shift: true):
-                DoNothingAndStopPropagationIntent(),
-            SingleActivator(LogicalKeyboardKey.arrowDown, shift: true):
-                DoNothingAndStopPropagationIntent(),
-            SingleActivator(LogicalKeyboardKey.keyE):
-                DoNothingAndStopPropagationIntent(),
-            SingleActivator(LogicalKeyboardKey.keyN):
-                DoNothingAndStopPropagationIntent(),
-            SingleActivator(LogicalKeyboardKey.delete):
-                DoNothingAndStopPropagationIntent(),
-            SingleActivator(LogicalKeyboardKey.backspace):
-                DoNothingAndStopPropagationIntent(),
-            SingleActivator(LogicalKeyboardKey.enter):
-                DoNothingAndStopPropagationIntent(),
-            SingleActivator(LogicalKeyboardKey.numpadEnter):
-                DoNothingAndStopPropagationIntent(),
-            SingleActivator(LogicalKeyboardKey.comma):
-                DoNothingAndStopPropagationIntent(),
-            SingleActivator(LogicalKeyboardKey.period):
-                DoNothingAndStopPropagationIntent(),
+          shortcuts: {
+            const SingleActivator(LogicalKeyboardKey.arrowUp): nada,
+            const SingleActivator(LogicalKeyboardKey.arrowDown): nada,
+            const SingleActivator(LogicalKeyboardKey.arrowUp, shift: true):
+                nada,
+            const SingleActivator(LogicalKeyboardKey.arrowDown, shift: true):
+                nada,
+            const SingleActivator(LogicalKeyboardKey.keyE): nada,
+            const SingleActivator(LogicalKeyboardKey.keyN): nada,
+            const SingleActivator(LogicalKeyboardKey.delete): nada,
+            const SingleActivator(LogicalKeyboardKey.backspace): nada,
+            const SingleActivator(LogicalKeyboardKey.enter): nada,
+            const SingleActivator(LogicalKeyboardKey.numpadEnter): nada,
+            const SingleActivator(LogicalKeyboardKey.comma): nada,
+            const SingleActivator(LogicalKeyboardKey.period): nada,
+            SingleActivator(
+              LogicalKeyboardKey.arrowUp,
+              shift: true,
+              meta: Platform.isMacOS,
+              control: !Platform.isMacOS,
+            ): nada,
           },
           child: ConditionalListenableBuilder<List<GroupedRowId>>(
             valueListenable: notifier,

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:appflowy/plugins/database/board/application/board_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:flutter/services.dart';
@@ -53,18 +55,49 @@ class BoardShortcutContainer extends StatelessWidget {
             _removeHandler(context),
         const SingleActivator(LogicalKeyboardKey.enter): () =>
             _enterHandler(context),
-        const SingleActivator(LogicalKeyboardKey.enter, shift: true): () {
+        SingleActivator(
+          LogicalKeyboardKey.arrowUp,
+          shift: true,
+          meta: Platform.isMacOS,
+          control: !Platform.isMacOS,
+        ): () {
           if (focusScope.value.length != 1) {
             return;
           }
           context.read<BoardBloc>().add(
                 BoardEvent.createRow(
                   focusScope.value.first.groupId,
-                  OrderObjectPositionTypePB.After,
+                  OrderObjectPositionTypePB.Before,
                   null,
                   focusScope.value.first.rowId,
                 ),
               );
+        },
+        const SingleActivator(LogicalKeyboardKey.enter, shift: true): () {
+          final bloc = context.read<BoardBloc>();
+          final editingRow = bloc.state.maybeMap(
+            orElse: () => null,
+            ready: (value) => value.editingRow,
+          );
+          if (focusScope.value.isEmpty && editingRow != null) {
+            context.read<BoardBloc>().add(
+                  BoardEvent.createRow(
+                    editingRow.groupId,
+                    OrderObjectPositionTypePB.After,
+                    null,
+                    editingRow.rowId,
+                  ),
+                );
+          } else if (focusScope.value.length == 1) {
+            context.read<BoardBloc>().add(
+                  BoardEvent.createRow(
+                    focusScope.value.first.groupId,
+                    OrderObjectPositionTypePB.After,
+                    null,
+                    focusScope.value.first.rowId,
+                  ),
+                );
+          }
         },
         const SingleActivator(LogicalKeyboardKey.numpadEnter): () =>
             _enterHandler(context),
