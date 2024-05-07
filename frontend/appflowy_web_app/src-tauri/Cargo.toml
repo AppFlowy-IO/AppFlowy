@@ -47,6 +47,13 @@ collab-database = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFl
 collab-plugins = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "870cd70" }
 collab-user = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "870cd70" }
 
+# Please using the following command to update the revision id
+# Current directory: frontend
+# Run the script:
+# scripts/tool/update_client_api_rev.sh  new_rev_id
+# ⚠️⚠️⚠️️
+client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "ef8e6f3" }
+
 [dependencies]
 serde_json.workspace = true
 serde.workspace = true
@@ -95,10 +102,3 @@ default = ["custom-protocol"]
 # DO NOT remove this
 custom-protocol = ["tauri/custom-protocol"]
 
-[patch.crates-io]
-# Please using the following command to update the revision id
-# Current directory: frontend
-# Run the script:
-# scripts/tool/update_client_api_rev.sh  new_rev_id
-# ⚠️⚠️⚠️️
-client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "47e6f1e8" }
