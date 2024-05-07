@@ -74,7 +74,11 @@ impl AppFlowyCloudServer {
     let enable_sync = Arc::new(AtomicBool::new(enable_sync));
     let network_reachable = Arc::new(AtomicBool::new(true));
 
-    let ws_client = WSClient::new(WSClientConfig::default(), api_client.clone());
+    let ws_client = WSClient::new(
+      WSClientConfig::default(),
+      api_client.clone(),
+      api_client.clone(),
+    );
     let ws_client = Arc::new(ws_client);
     let api_client = Arc::new(api_client);
 
@@ -256,9 +260,9 @@ fn spawn_ws_conn(
         match state {
           ConnectState::PingTimeout | ConnectState::Lost => {
             // Try to reconnect if the connection is timed out.
-            if let Some(api_client) = weak_api_client.upgrade() {
+            if weak_api_client.upgrade().is_some() {
               if enable_sync.load(Ordering::SeqCst) {
-                attempt_reconnect(&ws_client, &api_client, 2).await;
+                attempt_reconnect(&ws_client, 2).await;
               }
             }
           },
@@ -276,21 +280,13 @@ fn spawn_ws_conn(
   });
 
   let weak_ws_client = Arc::downgrade(ws_client);
-  let weak_api_client = Arc::downgrade(api_client);
   af_spawn(async move {
     while let Ok(token_state) = token_state_rx.recv().await {
       info!("🟢token state: {:?}", token_state);
       match token_state {
         TokenState::Refresh => {
-          if let (Some(api_client), Some(ws_client)) =
-            (weak_api_client.upgrade(), weak_ws_client.upgrade())
-          {
-            match api_client.ws_connect_info().await {
-              Ok(conn_info) => {
-                let _ = ws_client.connect(api_client.ws_addr(), conn_info).await;
-              },
-              Err(err) => error!("Failed to get ws url: {}", err),
-            }
+          if let Some(ws_client) = weak_ws_client.upgrade() {
+            let _ = ws_client.connect().await;
           }
         },
         TokenState::Invalid => {
@@ -304,25 +300,16 @@ fn spawn_ws_conn(
   });
 }
 
-async fn attempt_reconnect(
-  ws_client: &Arc<WSClient>,
-  api_client: &Arc<Client>,
-  minimum_delay: u64,
-) {
+async fn attempt_reconnect(ws_client: &Arc<WSClient>, minimum_delay_in_secs: u64) {
   // Introduce randomness in the reconnection attempts to avoid thundering herd problem
-  let delay_seconds = rand::thread_rng().gen_range(minimum_delay..8);
+  let delay_seconds = rand::thread_rng().gen_range(minimum_delay_in_secs..8);
   tokio::time::sleep(Duration::from_secs(delay_seconds)).await;
   event!(
     tracing::Level::INFO,
     "🟢 Attempting to reconnect websocket."
   );
-  match api_client.ws_connect_info().await {
-    Ok(conn_info) => {
-      if let Err(e) = ws_client.connect(api_client.ws_addr(), conn_info).await {
-        error!("Failed to reconnect websocket: {}", e);
-      }
-    },
-    Err(err) => error!("Failed to get websocket URL: {}", err),
+  if let Err(e) = ws_client.connect().await {
+    error!("Failed to reconnect websocket: {}", e);
   }
 }
 
