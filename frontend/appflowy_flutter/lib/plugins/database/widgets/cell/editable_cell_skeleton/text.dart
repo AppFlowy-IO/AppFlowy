@@ -80,7 +80,9 @@ class _TextCellState extends GridEditableTextCell<EditableTextCell> {
       value: cellBloc,
       child: BlocListener<TextCellBloc, TextCellState>(
         listener: (context, state) {
-          _textEditingController.text = state.content;
+          if (!focusNode.hasFocus) {
+            _textEditingController.text = state.content;
+          }
         },
         child: Builder(
           builder: (context) {
