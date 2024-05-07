@@ -7,11 +7,11 @@ import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/shared/appflowy_network_image.dart';
 import 'package:appflowy/shared/flowy_gradient_colors.dart';
+import 'package:appflowy/util/string_extension.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -171,9 +171,12 @@ class _RecentCover extends StatelessWidget {
     }
 
     if (type == PageStyleCoverImageType.pureColor) {
-      return ColoredBox(
-        color: FlowyTint.fromId(value).color(context),
-      );
+      final color = value.coverColor(context);
+      if (color != null) {
+        return ColoredBox(
+          color: color,
+        );
+      }
     }
 
     if (type == PageStyleCoverImageType.gradientColor) {
