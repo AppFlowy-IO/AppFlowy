@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/af_role_pb_extension.dart';
+import 'package:appflowy/util/font_family_extension.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:appflowy/workspace/application/settings/date_time/date_format_ext.dart';
@@ -735,7 +736,6 @@ class _FontSelectorDropdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final appearance = context.watch<AppearanceSettingsCubit>().state;
-
     return SettingsDropdown<String>(
       key: const Key('FontSelectorDropdown'),
       actions: [
@@ -771,7 +771,7 @@ class _FontSelectorDropdown extends StatelessWidget {
               context,
               selectedValue: appearance.font,
               value: f,
-              label: f,
+              label: f.fontFamilyDisplayName,
             ),
           )
           .toList(),

@@ -8,7 +8,7 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
 
-// TODO(Mathias/Lucas): Do we need to find a place for this in settings=
+// TODO(Mathias/Lucas): Do we need to find a place for this in settings?
 class DocumentColorSettingButton extends StatelessWidget {
   const DocumentColorSettingButton({
     super.key,
