@@ -210,7 +210,8 @@ class _DocumentImmersiveCoverState extends State<DocumentImmersiveCover> {
       return Container(
         height: height,
         width: double.infinity,
-        color: FlowyTint.fromId(cover.value).color(context),
+        color: FlowyTint.fromId(cover.value)?.color(context) ??
+            cover.value.tryToColor(),
       );
     }
 

@@ -172,7 +172,9 @@ class _RecentCover extends StatelessWidget {
 
     if (type == PageStyleCoverImageType.pureColor) {
       return ColoredBox(
-        color: FlowyTint.fromId(value).color(context),
+        color: FlowyTint.fromId(value)?.color(context) ??
+            value.tryToColor() ??
+            Colors.white,
       );
     }
 
