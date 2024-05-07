@@ -162,7 +162,6 @@ class _DesktopBoardPageState extends State<DesktopBoardPage> {
   @override
   void dispose() {
     _focusScope.dispose();
-    _boardController.dispose();
     bloc.close();
     super.dispose();
   }
@@ -172,7 +171,6 @@ class _DesktopBoardPageState extends State<DesktopBoardPage> {
     return BlocProvider<BoardBloc>.value(
       value: bloc,
       child: BlocBuilder<BoardBloc, BoardState>(
-        buildWhen: (p, c) => c.isReady,
         builder: (context, state) => state.maybeMap(
           loading: (_) => const Center(
             child: CircularProgressIndicator.adaptive(),
@@ -181,12 +179,11 @@ class _DesktopBoardPageState extends State<DesktopBoardPage> {
             err.toString(),
             howToFix: LocaleKeys.errorDialog_howToFixFallback.tr(),
           ),
-          ready: (data) => _BoardContent(
+          orElse: () => _BoardContent(
             onEditStateChanged: widget.onEditStateChanged,
             focusScope: _focusScope,
             boardController: _boardController,
           ),
-          orElse: () => const SizedBox.shrink(),
         ),
       ),
     );
