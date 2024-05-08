@@ -1,5 +1,8 @@
 import 'dart:math';
 
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
@@ -14,8 +17,6 @@ import 'package:appflowy/workspace/application/settings/appearance/appearance_cu
 import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:collection/collection.dart';
-import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -48,9 +49,9 @@ class EditorStyleCustomizer {
     return EditorStyle.desktop(
       padding: padding,
       cursorColor: appearance.cursorColor ??
-          DefaultAppearanceSettings.getDefaultDocumentCursorColor(context),
+          DefaultAppearanceSettings.getDefaultCursorColor(context),
       selectionColor: appearance.selectionColor ??
-          DefaultAppearanceSettings.getDefaultDocumentSelectionColor(context),
+          DefaultAppearanceSettings.getDefaultSelectionColor(context),
       defaultTextDirection: appearance.defaultTextDirection,
       textStyleConfiguration: TextStyleConfiguration(
         text: baseTextStyle(fontFamily).copyWith(

@@ -22,10 +22,8 @@ import 'package:appflowy/workspace/presentation/settings/shared/settings_actiona
 import 'package:appflowy/workspace/presentation/settings/shared/settings_alert_dialog.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_body.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_category.dart';
-import 'package:appflowy/workspace/presentation/settings/shared/settings_category_spacer.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_dashed_divider.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_dropdown.dart';
-import 'package:appflowy/workspace/presentation/settings/shared/settings_header.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_radio_select.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/single_setting_action.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/theme_upload/theme_upload_view.dart';
@@ -72,6 +70,10 @@ class _SettingsWorkspaceViewState extends State<SettingsWorkspaceView> {
         ..add(WorkspaceSettingsEvent.initial(userProfile: widget.userProfile)),
       child: BlocConsumer<WorkspaceSettingsBloc, WorkspaceSettingsState>(
         listener: (context, state) {
+          if ((state.workspace?.name ?? '') != _workspaceNameController.text) {
+            _workspaceNameController.text = state.workspace?.name ?? '';
+          }
+
           if (state.deleteWorkspace) {
             context.read<UserWorkspaceBloc>().add(
                   UserWorkspaceEvent.deleteWorkspace(
@@ -80,15 +82,20 @@ class _SettingsWorkspaceViewState extends State<SettingsWorkspaceView> {
                 );
             Navigator.of(context).pop();
           }
+          if (state.leaveWorkspace) {
+            context.read<UserWorkspaceBloc>().add(
+                  UserWorkspaceEvent.leaveWorkspace(
+                    state.workspace!.workspaceId,
+                  ),
+                );
+            Navigator.of(context).pop();
+          }
         },
         builder: (context, state) {
-          _workspaceNameController.text = state.workspace?.name ?? '';
           return SettingsBody(
+            title: LocaleKeys.settings_workspacePage_title.tr(),
+            description: LocaleKeys.settings_workspacePage_description.tr(),
             children: [
-              SettingsHeader(
-                title: LocaleKeys.settings_workspacePage_title.tr(),
-                description: LocaleKeys.settings_workspacePage_description.tr(),
-              ),
               // We don't allow changing workspace name/icon for local/offline
               if (state.workspace != null &&
                   widget.userProfile.authenticator !=
@@ -129,7 +136,6 @@ class _SettingsWorkspaceViewState extends State<SettingsWorkspaceView> {
                     ),
                   ],
                 ),
-                const SettingsCategorySpacer(),
                 SettingsCategory(
                   title: LocaleKeys.settings_workspacePage_workspaceIcon_title
                       .tr(),
@@ -140,13 +146,11 @@ class _SettingsWorkspaceViewState extends State<SettingsWorkspaceView> {
                     _WorkspaceIconSetting(workspace: state.workspace!),
                   ],
                 ),
-                const SettingsCategorySpacer(),
               ],
               SettingsCategory(
                 title: LocaleKeys.settings_workspacePage_appearance_title.tr(),
                 children: const [AppearanceSelector()],
               ),
-              const SettingsCategorySpacer(),
               SettingsCategory(
                 title: LocaleKeys.settings_workspacePage_theme_title.tr(),
                 description:
@@ -158,13 +162,11 @@ class _SettingsWorkspaceViewState extends State<SettingsWorkspaceView> {
                   _DocumentSelectionColorSetting(),
                 ],
               ),
-              const SettingsCategorySpacer(),
               SettingsCategory(
                 title:
                     LocaleKeys.settings_workspacePage_workspaceFont_title.tr(),
                 children: const [_FontSelectorDropdown()],
               ),
-              const SettingsCategorySpacer(),
               SettingsCategory(
                 title:
                     LocaleKeys.settings_workspacePage_textDirection_title.tr(),
@@ -173,13 +175,11 @@ class _SettingsWorkspaceViewState extends State<SettingsWorkspaceView> {
                   EnableRTLItemsSwitcher(),
                 ],
               ),
-              const SettingsCategorySpacer(),
               SettingsCategory(
                 title: LocaleKeys.settings_workspacePage_layoutDirection_title
                     .tr(),
                 children: const [_LayoutDirectionSelect()],
               ),
-              const SettingsCategorySpacer(),
               SettingsCategory(
                 title: LocaleKeys.settings_workspacePage_dateTime_title.tr(),
                 children: [
@@ -191,17 +191,13 @@ class _SettingsWorkspaceViewState extends State<SettingsWorkspaceView> {
                   const _DateFormatDropdown(),
                 ],
               ),
-              const SettingsCategorySpacer(),
-              FlowyText.regular(
-                LocaleKeys.settings_workspacePage_language_title.tr(),
-                fontSize: 16,
+              SettingsCategory(
+                title: LocaleKeys.settings_workspacePage_language_title.tr(),
+                children: const [LanguageDropdown()],
               ),
-              const VSpace(8),
-              const LanguageDropdown(),
               if (state.workspace != null &&
                   widget.userProfile.authenticator !=
                       AuthenticatorPB.Local) ...[
-                const SettingsCategorySpacer(),
                 SingleSettingAction(
                   label: LocaleKeys.settings_workspacePage_manageWorkspace_title
                       .tr(),
@@ -465,10 +461,10 @@ class _DateFormatDropdown extends StatelessWidget {
                 selectedOption: state.dateFormat,
                 options: UserDateFormatPB.values
                     .map(
-                      (f) => buildDropdownMenuEntry<UserDateFormatPB>(
+                      (format) => buildDropdownMenuEntry<UserDateFormatPB>(
                         context,
-                        value: f,
-                        label: _formatLabel(f),
+                        value: format,
+                        label: _formatLabel(format),
                       ),
                     )
                     .toList(),
@@ -776,11 +772,11 @@ class _FontSelectorDropdown extends StatelessWidget {
       selectedOption: appearance.font,
       options: [defaultFontFamily, ...GoogleFonts.asMap().keys]
           .map(
-            (f) => buildDropdownMenuEntry<String>(
+            (font) => buildDropdownMenuEntry<String>(
               context,
               selectedValue: appearance.font,
-              value: f,
-              label: f.fontFamilyDisplayName,
+              value: font,
+              label: font.fontFamilyDisplayName,
             ),
           )
           .toList(),
@@ -800,33 +796,22 @@ class _DocumentCursorColorSetting extends StatelessWidget {
         return SettingListTile(
           label: label,
           resetButtonKey: const Key('DocumentCursorColorResetButton'),
-          onResetRequested: () {
-            context.read<AppearanceSettingsCubit>().resetDocumentCursorColor();
-            context.read<DocumentAppearanceCubit>().syncCursorColor(null);
-          },
+          onResetRequested: () => context
+            ..read<AppearanceSettingsCubit>().resetDocumentCursorColor()
+            ..read<DocumentAppearanceCubit>().syncCursorColor(null),
           trailing: [
             DocumentColorSettingButton(
               key: const Key('DocumentCursorColorSettingButton'),
               currentColor: state.cursorColor ??
-                  DefaultAppearanceSettings.getDefaultDocumentCursorColor(
-                    context,
-                  ),
+                  DefaultAppearanceSettings.getDefaultCursorColor(context),
               previewWidgetBuilder: (color) => _CursorColorValueWidget(
                 cursorColor: color ??
-                    DefaultAppearanceSettings.getDefaultDocumentCursorColor(
-                      context,
-                    ),
+                    DefaultAppearanceSettings.getDefaultCursorColor(context),
               ),
               dialogTitle: label,
-              onApply: (selectedColor) {
-                context
-                    .read<AppearanceSettingsCubit>()
-                    .setDocumentCursorColor(selectedColor);
-                // update the state of document appearance cubit with latest cursor color
-                context
-                    .read<DocumentAppearanceCubit>()
-                    .syncCursorColor(selectedColor);
-              },
+              onApply: (color) => context
+                ..read<AppearanceSettingsCubit>().setDocumentCursorColor(color)
+                ..read<DocumentAppearanceCubit>().syncCursorColor(color),
             ),
           ],
         );
@@ -869,34 +854,21 @@ class _DocumentSelectionColorSetting extends StatelessWidget {
         return SettingListTile(
           label: label,
           resetButtonKey: const Key('DocumentSelectionColorResetButton'),
-          onResetRequested: () {
-            context
-                .read<AppearanceSettingsCubit>()
-                .resetDocumentSelectionColor();
-            context.read<DocumentAppearanceCubit>().syncSelectionColor(null);
-          },
+          onResetRequested: () => context
+            ..read<AppearanceSettingsCubit>().resetDocumentSelectionColor()
+            ..read<DocumentAppearanceCubit>().syncSelectionColor(null),
           trailing: [
             DocumentColorSettingButton(
               currentColor: state.selectionColor ??
-                  DefaultAppearanceSettings.getDefaultDocumentSelectionColor(
-                    context,
-                  ),
+                  DefaultAppearanceSettings.getDefaultSelectionColor(context),
               previewWidgetBuilder: (color) => _SelectionColorValueWidget(
                 selectionColor: color ??
-                    DefaultAppearanceSettings.getDefaultDocumentSelectionColor(
-                      context,
-                    ),
+                    DefaultAppearanceSettings.getDefaultSelectionColor(context),
               ),
               dialogTitle: label,
-              onApply: (selectedColorOnDialog) {
-                context
-                    .read<AppearanceSettingsCubit>()
-                    .setDocumentSelectionColor(selectedColorOnDialog);
-                // update the state of document appearance cubit with latest selection color
-                context
-                    .read<DocumentAppearanceCubit>()
-                    .syncSelectionColor(selectedColorOnDialog);
-              },
+              onApply: (c) => context
+                ..read<AppearanceSettingsCubit>().setDocumentSelectionColor(c)
+                ..read<DocumentAppearanceCubit>().syncSelectionColor(c),
             ),
           ],
         );
@@ -906,9 +878,7 @@ class _DocumentSelectionColorSetting extends StatelessWidget {
 }
 
 class _SelectionColorValueWidget extends StatelessWidget {
-  const _SelectionColorValueWidget({
-    required this.selectionColor,
-  });
+  const _SelectionColorValueWidget({required this.selectionColor});
 
   final Color selectionColor;
 

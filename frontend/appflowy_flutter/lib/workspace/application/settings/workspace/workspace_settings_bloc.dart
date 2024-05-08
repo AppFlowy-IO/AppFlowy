@@ -99,22 +99,8 @@ class WorkspaceSettingsBloc
           },
           deleteWorkspace: () async =>
               emit(state.copyWith(deleteWorkspace: true)),
-          leaveWorkspace: () async {
-            final result = await _userService
-                ?.leaveWorkspace(state.workspace!.workspaceId);
-
-            await result?.fold(
-              (_) async {
-                final workspaces = await _userService?.getWorkspaces();
-                final workspace = workspaces?.toNullable()?.first;
-                if (workspace != null) {
-                  emit(state.copyWith(workspace: workspace));
-                  await _userService?.openWorkspace(workspace.workspaceId);
-                }
-              },
-              (f) async => Log.error('Failed to leave workspace: $f'),
-            );
-          },
+          leaveWorkspace: () async =>
+              emit(state.copyWith(leaveWorkspace: true)),
         );
       },
     );
@@ -150,7 +136,7 @@ class WorkspaceSettingsEvent with _$WorkspaceSettingsEvent {
   const factory WorkspaceSettingsEvent.updateWorkspaceIcon(String icon) =
       UpdateWorkspaceIcon;
   const factory WorkspaceSettingsEvent.deleteWorkspace() = DeleteWorkspace;
-  const factory WorkspaceSettingsEvent.leaveWorkspace() = leaveWorkspace;
+  const factory WorkspaceSettingsEvent.leaveWorkspace() = LeaveWorkspace;
 }
 
 @freezed
@@ -160,6 +146,7 @@ class WorkspaceSettingsState with _$WorkspaceSettingsState {
     @Default([]) List<WorkspaceMemberPB> members,
     @Default(AFRolePB.Guest) AFRolePB myRole,
     @Default(false) bool deleteWorkspace,
+    @Default(false) bool leaveWorkspace,
   }) = _WorkspaceSettingsState;
 
   factory WorkspaceSettingsState.initial() => const WorkspaceSettingsState();
