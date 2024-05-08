@@ -47,7 +47,7 @@ class _MobileBoardPageState extends State<MobileBoardPage> {
         databaseController: widget.databaseController,
       )..add(const BoardEvent.initial()),
       child: BlocBuilder<BoardBloc, BoardState>(
-        buildWhen: (p, c) => c.isReady,
+        buildWhen: (p, c) => !p.isReady && c.isReady,
         builder: (context, state) => state.maybeMap(
           loading: (_) => const Center(
             child: CircularProgressIndicator.adaptive(),
