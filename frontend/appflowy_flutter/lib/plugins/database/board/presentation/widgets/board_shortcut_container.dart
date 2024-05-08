@@ -93,15 +93,9 @@ class BoardShortcutContainer extends StatelessWidget {
     if (focusScope.value.length != 1) {
       return;
     }
-    final isEditing = context.read<BoardBloc>().state.maybeMap(
-          orElse: () => false,
-          ready: (value) => value.editingRow != null,
-        );
-    if (!isEditing) {
       context
           .read<BoardActionsCubit>()
           .openCardWithRowId(focusScope.value.first.rowId);
-    }
   }
 
   void _shitEnterHandler(BuildContext context) {

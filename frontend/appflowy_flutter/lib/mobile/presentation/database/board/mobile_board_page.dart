@@ -213,11 +213,6 @@ class _BoardContentState extends State<_BoardContent> {
     final cellBuilder =
         CardCellBuilder(databaseController: boardBloc.databaseController);
 
-    final isEditing = boardBloc.state.maybeMap(
-      orElse: () => false,
-      ready: (state) => state.editingRow?.rowId == groupItem.row.id,
-    );
-
     final groupItemId = groupItem.row.id + groupData.group.groupId;
 
     return Container(
@@ -230,7 +225,7 @@ class _BoardContentState extends State<_BoardContent> {
         viewId: boardBloc.viewId,
         rowCache: boardBloc.rowCache,
         groupingFieldId: groupItem.fieldInfo.id,
-        isEditing: isEditing,
+        isEditing: false,
         cellBuilder: cellBuilder,
         onTap: (context) {
           context.push(
