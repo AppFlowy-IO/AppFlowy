@@ -37,6 +37,7 @@ Cypress.Commands.add('mockAPI', () => {
     cy.intercept('POST', '/gotrue/token?grant_type=refresh_token', json).as('refreshToken');
   });
   cy.intercept('GET', '/api/user/profile', { fixture: 'user' }).as('getUserProfile');
+  cy.intercept('GET', '/api/user/workspace', { fixture: 'user_workspace' }).as('getUserWorkspace');
 });
 
 // Example use:

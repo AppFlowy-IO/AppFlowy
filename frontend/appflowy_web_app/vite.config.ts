@@ -5,7 +5,9 @@ import wasm from 'vite-plugin-wasm';
 import { visualizer } from 'rollup-plugin-visualizer';
 import usePluginImport from 'vite-plugin-importer';
 import { totalBundleSize } from 'vite-plugin-total-bundle-size';
+import path from 'path';
 
+const resourcesPath = path.resolve(__dirname, '../resources');
 const isDev = process.env.NODE_ENV === 'development';
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -104,8 +106,8 @@ export default defineConfig({
                     id.includes('/react-is@') ||
                     id.includes('/yjs@') ||
                     id.includes('/y-indexeddb@') ||
-                    id.includes('/dexie@') ||
-                    id.includes('/redux')
+                    id.includes('/redux') ||
+                    id.includes('/react-custom-scrollbars')
                   ) {
                     return 'common';
                   }
@@ -124,6 +126,7 @@ export default defineConfig({
           ? `${__dirname}/src/application/services/tauri-services`
           : `${__dirname}/src/application/services/js-services`,
       },
+      { find: '$icons', replacement: `${resourcesPath}/flowy_icons/` },
     ],
   },
 

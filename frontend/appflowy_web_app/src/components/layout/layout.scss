@@ -35,6 +35,7 @@
 .appflowy-scroll-container {
   &::-webkit-scrollbar {
     width: 0;
+    height: 0;
   }
 }
 
@@ -44,19 +45,13 @@
   opacity: 60%;
 }
 
-.workspaces {
-  ::-webkit-scrollbar {
-    width: 0px;
-  }
-}
-
-
-.MuiPopover-root, .MuiPaper-root {
+.workspaces, .database-conditions, .grid-scroll-table {
   ::-webkit-scrollbar {
     width: 0;
     height: 0;
   }
 }
+
 
 .view-icon {
   @apply flex w-fit cursor-pointer rounded-lg py-2 text-6xl;

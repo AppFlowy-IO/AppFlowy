@@ -1,7 +1,9 @@
+import { JSDatabaseService } from '@/application/services/js-services/database.service';
 import {
   AFService,
   AFServiceConfig,
   AuthService,
+  DatabaseService,
   DocumentService,
   FolderService,
   UserService,
@@ -21,6 +23,8 @@ export class AFClientService implements AFService {
   documentService: DocumentService;
 
   folderService: FolderService;
+
+  databaseService: DatabaseService;
 
   private deviceId: string = nanoid(8);
 
@@ -45,5 +49,6 @@ export class AFClientService implements AFService {
     this.userService = new JSUserService();
     this.documentService = new JSDocumentService();
     this.folderService = new JSFolderService();
+    this.databaseService = new JSDatabaseService();
   }
 }

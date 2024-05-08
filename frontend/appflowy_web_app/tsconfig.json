@@ -27,7 +27,7 @@
       "node",
       "jest"
     ],
-    "baseUrl": "./",
+    "baseUrl": ".",
     "paths": {
       "@/*": [
         "src/*"
@@ -37,6 +37,9 @@
       ],
       "$client-services": [
         "src/application/services/js-services"
+      ],
+      "$icons/*": [
+        "../resources/flowy-flowy_icons/*"
       ]
     }
   },
