@@ -8,7 +8,6 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
 
-// TODO(Mathias/Lucas): Do we need to find a place for this in settings?
 class DocumentColorSettingButton extends StatelessWidget {
   const DocumentColorSettingButton({
     super.key,
@@ -58,11 +57,8 @@ class _DocumentColorSettingDialog extends StatefulWidget {
   });
 
   final Color currentColor;
-
   final Widget Function(Color?) previewWidgetBuilder;
-
   final String dialogTitle;
-
   final void Function(Color selectedColorOnDialog) onApply;
 
   @override
@@ -143,6 +139,7 @@ class DocumentColorSettingDialogState
                       controller: hexController,
                       labelText: LocaleKeys.editor_hexValue.tr(),
                       hintText: '6fc9e7',
+                      onChanged: (_) => updateSelectedColor(),
                       onFieldSubmitted: (_) => updateSelectedColor(),
                       validator: (hexValue) => validateHexValue(
                         hexValue,
@@ -192,7 +189,8 @@ class _ColorSettingTextField extends StatelessWidget {
     required this.labelText,
     required this.hintText,
     required this.onFieldSubmitted,
-    required this.validator,
+    this.onChanged,
+    this.validator,
   });
 
   final TextEditingController controller;
@@ -200,6 +198,7 @@ class _ColorSettingTextField extends StatelessWidget {
   final String hintText;
 
   final void Function(String) onFieldSubmitted;
+  final void Function(String)? onChanged;
   final String? Function(String?)? validator;
 
   @override
@@ -211,17 +210,14 @@ class _ColorSettingTextField extends StatelessWidget {
         labelText: labelText,
         hintText: hintText,
         border: OutlineInputBorder(
-          borderSide: BorderSide(
-            color: style.colorScheme.outline,
-          ),
+          borderSide: BorderSide(color: style.colorScheme.outline),
         ),
         enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(
-            color: style.colorScheme.outline,
-          ),
+          borderSide: BorderSide(color: style.colorScheme.outline),
         ),
       ),
       style: style.textTheme.bodyMedium,
+      onChanged: onChanged,
       onFieldSubmitted: onFieldSubmitted,
       validator: validator,
       autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -229,10 +225,7 @@ class _ColorSettingTextField extends StatelessWidget {
   }
 }
 
-String? validateHexValue(
-  String? hexValue,
-  String opacityValue,
-) {
+String? validateHexValue(String? hexValue, String opacityValue) {
   if (hexValue == null || hexValue.isEmpty) {
     return LocaleKeys.settings_appearance_documentSettings_hexEmptyError.tr();
   }

@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
 import 'package:appflowy/shared/af_role_pb_extension.dart';
 import 'package:appflowy/util/font_family_extension.dart';
+import 'package:appflowy/workspace/application/appearance_defaults.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:appflowy/workspace/application/settings/date_time/date_format_ext.dart';
@@ -13,7 +15,9 @@ import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_icon.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/af_dropdown_menu_entry.dart';
+import 'package:appflowy/workspace/presentation/settings/shared/document_color_setting_button.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/setting_action.dart';
+import 'package:appflowy/workspace/presentation/settings/shared/setting_list_tile.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_actionable_input.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_alert_dialog.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_body.dart';
@@ -147,7 +151,12 @@ class _SettingsWorkspaceViewState extends State<SettingsWorkspaceView> {
                 title: LocaleKeys.settings_workspacePage_theme_title.tr(),
                 description:
                     LocaleKeys.settings_workspacePage_theme_description.tr(),
-                children: const [_ThemeDropdown()],
+                children: const [
+                  _ThemeDropdown(),
+                  SettingsDashedDivider(),
+                  _DocumentCursorColorSetting(),
+                  _DocumentSelectionColorSetting(),
+                ],
               ),
               const SettingsCategorySpacer(),
               SettingsCategory(
@@ -775,6 +784,153 @@ class _FontSelectorDropdown extends StatelessWidget {
             ),
           )
           .toList(),
+    );
+  }
+}
+
+class _DocumentCursorColorSetting extends StatelessWidget {
+  const _DocumentCursorColorSetting();
+
+  @override
+  Widget build(BuildContext context) {
+    final label =
+        LocaleKeys.settings_appearance_documentSettings_cursorColor.tr();
+    return BlocBuilder<DocumentAppearanceCubit, DocumentAppearance>(
+      builder: (context, state) {
+        return SettingListTile(
+          label: label,
+          resetButtonKey: const Key('DocumentCursorColorResetButton'),
+          onResetRequested: () {
+            context.read<AppearanceSettingsCubit>().resetDocumentCursorColor();
+            context.read<DocumentAppearanceCubit>().syncCursorColor(null);
+          },
+          trailing: [
+            DocumentColorSettingButton(
+              key: const Key('DocumentCursorColorSettingButton'),
+              currentColor: state.cursorColor ??
+                  DefaultAppearanceSettings.getDefaultDocumentCursorColor(
+                    context,
+                  ),
+              previewWidgetBuilder: (color) => _CursorColorValueWidget(
+                cursorColor: color ??
+                    DefaultAppearanceSettings.getDefaultDocumentCursorColor(
+                      context,
+                    ),
+              ),
+              dialogTitle: label,
+              onApply: (selectedColor) {
+                context
+                    .read<AppearanceSettingsCubit>()
+                    .setDocumentCursorColor(selectedColor);
+                // update the state of document appearance cubit with latest cursor color
+                context
+                    .read<DocumentAppearanceCubit>()
+                    .syncCursorColor(selectedColor);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _CursorColorValueWidget extends StatelessWidget {
+  const _CursorColorValueWidget({required this.cursorColor});
+
+  final Color cursorColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(color: cursorColor, width: 2, height: 16),
+        FlowyText(
+          LocaleKeys.appName.tr(),
+          // To avoid the text color changes when it is hovered in dark mode
+          color: Theme.of(context).colorScheme.onBackground,
+        ),
+      ],
+    );
+  }
+}
+
+class _DocumentSelectionColorSetting extends StatelessWidget {
+  const _DocumentSelectionColorSetting();
+
+  @override
+  Widget build(BuildContext context) {
+    final label =
+        LocaleKeys.settings_appearance_documentSettings_selectionColor.tr();
+
+    return BlocBuilder<DocumentAppearanceCubit, DocumentAppearance>(
+      builder: (context, state) {
+        return SettingListTile(
+          label: label,
+          resetButtonKey: const Key('DocumentSelectionColorResetButton'),
+          onResetRequested: () {
+            context
+                .read<AppearanceSettingsCubit>()
+                .resetDocumentSelectionColor();
+            context.read<DocumentAppearanceCubit>().syncSelectionColor(null);
+          },
+          trailing: [
+            DocumentColorSettingButton(
+              currentColor: state.selectionColor ??
+                  DefaultAppearanceSettings.getDefaultDocumentSelectionColor(
+                    context,
+                  ),
+              previewWidgetBuilder: (color) => _SelectionColorValueWidget(
+                selectionColor: color ??
+                    DefaultAppearanceSettings.getDefaultDocumentSelectionColor(
+                      context,
+                    ),
+              ),
+              dialogTitle: label,
+              onApply: (selectedColorOnDialog) {
+                context
+                    .read<AppearanceSettingsCubit>()
+                    .setDocumentSelectionColor(selectedColorOnDialog);
+                // update the state of document appearance cubit with latest selection color
+                context
+                    .read<DocumentAppearanceCubit>()
+                    .syncSelectionColor(selectedColorOnDialog);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _SelectionColorValueWidget extends StatelessWidget {
+  const _SelectionColorValueWidget({
+    required this.selectionColor,
+  });
+
+  final Color selectionColor;
+
+  @override
+  Widget build(BuildContext context) {
+    // To avoid the text color changes when it is hovered in dark mode
+    final textColor = Theme.of(context).colorScheme.onBackground;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          color: selectionColor,
+          child: FlowyText(
+            LocaleKeys.settings_appearance_documentSettings_app.tr(),
+            color: textColor,
+          ),
+        ),
+        FlowyText(
+          LocaleKeys.settings_appearance_documentSettings_flowy.tr(),
+          color: textColor,
+        ),
+      ],
     );
   }
 }
