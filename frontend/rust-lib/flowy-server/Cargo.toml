@@ -49,9 +49,8 @@ lib-dispatch = { workspace = true }
 yrs.workspace = true
 rand = "0.8.5"
 
-
 [dependencies.client-api]
-version = "0.1.0"
+workspace = true
 features = [
     "collab-sync",
     "test_util",

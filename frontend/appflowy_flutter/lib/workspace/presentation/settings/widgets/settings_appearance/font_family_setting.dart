@@ -1,17 +1,17 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
 import 'package:appflowy/shared/google_fonts_extension.dart';
-import 'package:appflowy/util/google_font_family_extension.dart';
+import 'package:appflowy/util/font_family_extension.dart';
 import 'package:appflowy/workspace/application/appearance_defaults.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
+import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -83,7 +83,10 @@ class FontFamilyDropDown extends StatefulWidget {
 }
 
 class _FontFamilyDropDownState extends State<FontFamilyDropDown> {
-  final List<String> availableFonts = GoogleFonts.asMap().keys.toList();
+  final List<String> availableFonts = [
+    defaultFontFamily,
+    ...GoogleFonts.asMap().keys,
+  ];
   final ValueNotifier<String> query = ValueNotifier('');
 
   @override
@@ -94,10 +97,11 @@ class _FontFamilyDropDownState extends State<FontFamilyDropDown> {
 
   @override
   Widget build(BuildContext context) {
+    final currentValue = widget.currentFontFamily.fontFamilyDisplayName;
     return FlowySettingValueDropDown(
       popoverKey: ThemeFontFamilySetting.popoverKey,
       popoverController: widget.popoverController,
-      currentValue: widget.currentFontFamily.parseFontFamilyName(),
+      currentValue: currentValue,
       onClose: () {
         query.value = '';
         widget.onClose?.call();
@@ -168,8 +172,8 @@ class _FontFamilyDropDownState extends State<FontFamilyDropDown> {
     BuildContext context,
     TextStyle style,
   ) {
-    final buttonFontFamily = style.fontFamily!.parseFontFamilyName();
-
+    final buttonFontFamily =
+        style.fontFamily?.parseFontFamilyName() ?? defaultFontFamily;
     return Tooltip(
       message: buttonFontFamily,
       waitDuration: const Duration(milliseconds: 150),
@@ -179,8 +183,8 @@ class _FontFamilyDropDownState extends State<FontFamilyDropDown> {
         child: FlowyButton(
           onHover: (_) => FocusScope.of(context).unfocus(),
           text: FlowyText.medium(
-            buttonFontFamily,
-            fontFamily: style.fontFamily!,
+            buttonFontFamily.fontFamilyDisplayName,
+            fontFamily: buttonFontFamily,
           ),
           rightIcon:
               buttonFontFamily == widget.currentFontFamily.parseFontFamilyName()
@@ -190,15 +194,14 @@ class _FontFamilyDropDownState extends State<FontFamilyDropDown> {
             if (widget.onFontFamilyChanged != null) {
               widget.onFontFamilyChanged!(buttonFontFamily);
             } else {
-              final fontFamily = style.fontFamily!.parseFontFamilyName();
               if (widget.currentFontFamily.parseFontFamilyName() !=
                   buttonFontFamily) {
                 context
                     .read<AppearanceSettingsCubit>()
-                    .setFontFamily(fontFamily);
+                    .setFontFamily(buttonFontFamily);
                 context
                     .read<DocumentAppearanceCubit>()
-                    .syncFontFamily(fontFamily);
+                    .syncFontFamily(buttonFontFamily);
               }
             }
             PopoverContainer.of(context).close();

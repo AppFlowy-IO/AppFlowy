@@ -1,28 +1,19 @@
-import 'dart:io';
-
 import 'package:appflowy/shared/google_fonts_extension.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flutter/material.dart';
 
-String builtInFontFamily() {
-  if (PlatformExtension.isDesktopOrWeb) {
-    return 'Poppins';
-  }
+// the default font family is empty, so we can use the default font family of the platform
+// the system will choose the default font family of the platform
+// iOS: San Francisco
+// Android: Roboto
+// Desktop: Based on the OS
+const defaultFontFamily = '';
 
-  if (Platform.isIOS) {
-    return 'San Francisco';
-  }
-
-  if (Platform.isAndroid) {
-    return 'Roboto';
-  }
-
-  return 'Roboto';
-}
-
-// 'Poppins';
+// the Poppins font is embedded in the app, so we can use it without GoogleFonts
+// TODO(Lucas): after releasing version 0.5.6, remove it.
+const fallbackFontFamily = 'Poppins';
 const builtInCodeFontFamily = 'RobotoMono';
 
 abstract class BaseAppearance {
@@ -48,17 +39,15 @@ abstract class BaseAppearance {
     letterSpacing = fontSize * (letterSpacing ?? 0.005);
 
     final textStyle = TextStyle(
-      fontFamily: fontFamily,
+      fontFamily: fontFamily.isEmpty ? null : fontFamily,
       fontSize: fontSize,
       color: fontColor,
       fontWeight: fontWeight,
-      fontFamilyFallback: [builtInFontFamily()],
       letterSpacing: letterSpacing,
       height: lineHeight,
     );
 
-    // we embed Poppins font in the app, so we can use it without GoogleFonts
-    if (fontFamily == builtInFontFamily()) {
+    if (fontFamily == defaultFontFamily || fontFamily == fallbackFontFamily) {
       return textStyle;
     }
 
