@@ -61,6 +61,16 @@ class SettingsMenu extends StatelessWidget {
                     icon: const FlowySvg(FlowySvgs.settings_workplace_m),
                     changeSelectedPage: changeSelectedPage,
                   ),
+                  if (FeatureFlag.membersSettings.isOn &&
+                      userProfile.authenticator ==
+                          AuthenticatorPB.AppFlowyCloud)
+                    SettingsMenuElement(
+                      page: SettingsPage.member,
+                      selectedPage: currentPage,
+                      label: LocaleKeys.settings_appearance_members_label.tr(),
+                      icon: const Icon(Icons.people),
+                      changeSelectedPage: changeSelectedPage,
+                    ),
                   SettingsMenuElement(
                     page: SettingsPage.files,
                     selectedPage: currentPage,
@@ -89,16 +99,6 @@ class SettingsMenu extends StatelessWidget {
                     icon: const Icon(Icons.cut),
                     changeSelectedPage: changeSelectedPage,
                   ),
-                  if (FeatureFlag.membersSettings.isOn &&
-                      userProfile.authenticator ==
-                          AuthenticatorPB.AppFlowyCloud)
-                    SettingsMenuElement(
-                      page: SettingsPage.member,
-                      selectedPage: currentPage,
-                      label: LocaleKeys.settings_appearance_members_label.tr(),
-                      icon: const Icon(Icons.people),
-                      changeSelectedPage: changeSelectedPage,
-                    ),
                   if (kDebugMode)
                     SettingsMenuElement(
                       // no need to translate this page
