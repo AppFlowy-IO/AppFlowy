@@ -1,4 +1,5 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/plugins/database/board/presentation/board_page.dart';
 import 'package:appflowy/plugins/database/board/presentation/widgets/board_column_header.dart';
 import 'package:appflowy/plugins/database/widgets/card/card.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -82,23 +83,19 @@ void main() {
         findsOneWidget,
       );
 
-      await tester.tap(
-        find
-            .descendant(
-              of: find.byType(AppFlowyGroupFooter),
-              matching: find.byType(FlowySvg),
-            )
-            .at(1),
+      await tester.tapButton(
+        find.byType(BoardColumnFooter).at(1),
       );
 
       const newCardName = 'Card 4';
       await tester.enterText(
         find.descendant(
-          of: lastCard,
+          of: find.byType(BoardColumnFooter),
           matching: find.byType(TextField),
         ),
         newCardName,
       );
+      await tester.testTextInput.receiveAction(TextInputAction.done);
       await tester.pumpAndSettle(const Duration(milliseconds: 500));
 
       await tester.tap(find.byType(AppFlowyBoard));

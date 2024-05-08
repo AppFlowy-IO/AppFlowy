@@ -340,7 +340,7 @@ class _BoardContentState extends State<_BoardContent> {
                     value: context.read<BoardActionsCubit>(),
                   ),
                 ],
-                child: _BoardColumnFooter(
+                child: BoardColumnFooter(
                   columnData: groupData,
                   boardConfig: config,
                   scrollManager: scrollManager,
@@ -372,8 +372,10 @@ class _BoardContentState extends State<_BoardContent> {
   }
 }
 
-class _BoardColumnFooter extends StatefulWidget {
-  const _BoardColumnFooter({
+@visibleForTesting
+class BoardColumnFooter extends StatefulWidget {
+  const BoardColumnFooter({
+    super.key,
     required this.columnData,
     required this.boardConfig,
     required this.scrollManager,
@@ -384,10 +386,10 @@ class _BoardColumnFooter extends StatefulWidget {
   final AppFlowyBoardScrollController scrollManager;
 
   @override
-  State<_BoardColumnFooter> createState() => _BoardColumnFooterState();
+  State<BoardColumnFooter> createState() => _BoardColumnFooterState();
 }
 
-class _BoardColumnFooterState extends State<_BoardColumnFooter> {
+class _BoardColumnFooterState extends State<BoardColumnFooter> {
   final TextEditingController _textController = TextEditingController();
   late final FocusNode _focusNode;
   bool _isCreating = false;
