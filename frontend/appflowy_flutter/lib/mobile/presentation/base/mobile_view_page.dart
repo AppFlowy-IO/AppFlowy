@@ -1,14 +1,10 @@
-import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/application/base/mobile_view_page_bloc.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
-import 'package:appflowy/mobile/presentation/base/app_bar/app_bar.dart';
-import 'package:appflowy/mobile/presentation/base/app_bar/app_bar_actions.dart';
-import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
+import 'package:appflowy/mobile/presentation/base/view_page/app_bar_buttons.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_state_container.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
 import 'package:appflowy/plugins/document/presentation/document_collaborators.dart';
-import 'package:appflowy/plugins/document/presentation/editor_notification.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/page_style/page_style_bottom_sheet.dart';
 import 'package:appflowy/plugins/shared/sync_indicator.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -16,16 +12,11 @@ import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
-import 'package:appflowy/workspace/application/view/view_listener.dart';
-import 'package:appflowy/workspace/application/view/view_service.dart';
-import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
-import 'package:appflowy_result/appflowy_result.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 
 class MobileViewPage extends StatefulWidget {
   const MobileViewPage({
@@ -47,94 +38,33 @@ class MobileViewPage extends StatefulWidget {
 }
 
 class _MobileViewPageState extends State<MobileViewPage> {
-  late final Future<FlowyResult<ViewPB, FlowyError>> future;
-
   // used to determine if the user has scrolled down and show the app bar in immersive mode
   ScrollNotificationObserverState? _scrollNotificationObserver;
 
   // control the app bar opacity when in immersive mode
-  final ValueNotifier<double> _appBarOpacity = ValueNotifier(0.0);
-
-  // only enable immersive mode for document layout
-  final ValueNotifier<bool> _isImmersiveMode = ValueNotifier(false);
-  ViewListener? viewListener;
-
-  @override
-  void initState() {
-    super.initState();
-    future = ViewBackendService.getView(widget.id);
-  }
+  final ValueNotifier<double> _appBarOpacity = ValueNotifier(1.0);
 
   @override
   void dispose() {
     _appBarOpacity.dispose();
-    _isImmersiveMode.dispose();
-    viewListener?.stop();
     _scrollNotificationObserver = null;
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final child = FutureBuilder(
-      future: future,
-      builder: (context, state) {
-        Widget body;
-        ViewPB? viewPB;
-        final actions = <Widget>[];
-        if (state.connectionState != ConnectionState.done) {
-          body = const Center(
-            child: CircularProgressIndicator(),
-          );
-        } else if (!state.hasData) {
-          body = FlowyMobileStateContainer.error(
-            emoji: '😔',
-            title: LocaleKeys.error_weAreSorry.tr(),
-            description: LocaleKeys.error_loadingViewError.tr(),
-            errorMsg: state.error.toString(),
-          );
-        } else {
-          body = state.data!.fold((view) {
-            viewPB = view;
-            _updateImmersiveMode(view);
-            viewListener?.stop();
-            viewListener = ViewListener(viewId: view.id)
-              ..start(
-                onViewUpdated: _updateImmersiveMode,
-              );
+    return BlocProvider(
+      create: (_) => MobileViewPageBloc(viewId: widget.id)
+        ..add(const MobileViewPageEvent.initial()),
+      child: BlocBuilder<MobileViewPageBloc, MobileViewPageState>(
+        builder: (context, state) {
+          final view = state.result?.fold((s) => s, (f) => null);
+          final body = _buildBody(context, state);
 
-            actions.addAll([
-              if (FeatureFlag.syncDocument.isOn) ...[
-                DocumentCollaborators(
-                  width: 60,
-                  height: 44,
-                  fontSize: 14,
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  view: view,
-                ),
-                const HSpace(16.0),
-                view.layout == ViewLayoutPB.Document
-                    ? DocumentSyncIndicator(view: view)
-                    : DatabaseSyncIndicator(view: view),
-                const HSpace(8.0),
-              ],
-              _buildAppBarLayoutButton(view),
-              _buildAppBarMoreButton(view),
-            ]);
-            final plugin = view.plugin(arguments: widget.arguments ?? const {})
-              ..init();
-            return plugin.widgetBuilder.buildWidget(shrinkWrap: false);
-          }, (error) {
-            return FlowyMobileStateContainer.error(
-              emoji: '😔',
-              title: LocaleKeys.error_weAreSorry.tr(),
-              description: LocaleKeys.error_loadingViewError.tr(),
-              errorMsg: error.toString(),
-            );
-          });
-        }
+          if (view == null) {
+            return _buildApp(context, null, body);
+          }
 
-        if (viewPB != null) {
           return MultiBlocProvider(
             providers: [
               BlocProvider(
@@ -143,41 +73,156 @@ class _MobileViewPageState extends State<MobileViewPage> {
               ),
               BlocProvider(
                 create: (_) =>
-                    ViewBloc(view: viewPB!)..add(const ViewEvent.initial()),
+                    ViewBloc(view: view)..add(const ViewEvent.initial()),
               ),
               BlocProvider.value(
                 value: getIt<ReminderBloc>()
                   ..add(const ReminderEvent.started()),
               ),
-              if (viewPB!.layout == ViewLayoutPB.Document)
+              if (view.layout.isDocumentView)
                 BlocProvider(
-                  create: (_) => DocumentPageStyleBloc(view: viewPB!)
-                    ..add(
-                      const DocumentPageStyleEvent.initial(),
-                    ),
+                  create: (_) => DocumentPageStyleBloc(view: view)
+                    ..add(const DocumentPageStyleEvent.initial()),
                 ),
             ],
             child: Builder(
               builder: (context) {
                 final view = context.watch<ViewBloc>().state.view;
-                return _buildApp(view, actions, body);
+                return _buildApp(context, view, body);
               },
             ),
           );
-        } else {
-          return _buildApp(null, [], body);
-        }
-      },
+        },
+      ),
     );
-
-    return child;
   }
 
-  Widget _buildApp(ViewPB? view, List<Widget> actions, Widget child) {
-    // only enable immersive mode for document layout
-    final isImmersive = view?.layout == ViewLayoutPB.Document;
+  Widget _buildApp(
+    BuildContext context,
+    ViewPB? view,
+    Widget child,
+  ) {
+    final isImmersiveMode =
+        context.read<MobileViewPageBloc>().state.isImmersiveMode;
+    final title = _buildTitle(context, view);
+    final appBar = MobileViewPageImmersiveAppBar(
+      preferredSize: Size(
+        double.infinity,
+        AppBarTheme.of(context).toolbarHeight ?? kToolbarHeight,
+      ),
+      title: title,
+      isImmersiveMode: view?.layout.isDocumentView ?? isImmersiveMode,
+      appBarOpacity: _appBarOpacity,
+      actions: _buildAppBarActions(context, view),
+    );
+    final body = isImmersiveMode
+        ? Builder(
+            builder: (context) {
+              _rebuildScrollNotificationObserver(context);
+              return child;
+            },
+          )
+        : child;
+    return Scaffold(
+      appBar: appBar,
+      body: body,
+    );
+  }
+
+  Widget _buildBody(BuildContext context, MobileViewPageState state) {
+    if (state.isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+
+    final result = state.result;
+    if (result == null) {
+      return FlowyMobileStateContainer.error(
+        emoji: '😔',
+        title: LocaleKeys.error_weAreSorry.tr(),
+        description: LocaleKeys.error_loadingViewError.tr(),
+        errorMsg: '',
+      );
+    }
+
+    return result.fold(
+      (view) {
+        final plugin = view.plugin(arguments: widget.arguments ?? const {})
+          ..init();
+        return plugin.widgetBuilder.buildWidget(shrinkWrap: false);
+      },
+      (error) {
+        return FlowyMobileStateContainer.error(
+          emoji: '😔',
+          title: LocaleKeys.error_weAreSorry.tr(),
+          description: LocaleKeys.error_loadingViewError.tr(),
+          errorMsg: error.toString(),
+        );
+      },
+    );
+  }
+
+  // Document:
+  //  - [ collaborators, sync_indicator, layout_button, more_button]
+  // Database:
+  //  - [ sync_indicator, more_button]
+  List<Widget> _buildAppBarActions(BuildContext context, ViewPB? view) {
+    if (view == null) {
+      return [];
+    }
+
+    final isImmersiveMode =
+        context.read<MobileViewPageBloc>().state.isImmersiveMode;
+    final actions = <Widget>[];
+
+    if (FeatureFlag.syncDocument.isOn) {
+      // only document supports displaying collaborators.
+      if (view.layout.isDocumentView) {
+        actions.addAll([
+          DocumentCollaborators(
+            width: 60,
+            height: 44,
+            fontSize: 14,
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            view: view,
+          ),
+          const HSpace(16.0),
+          DocumentSyncIndicator(view: view),
+          const HSpace(8.0),
+        ]);
+      } else {
+        actions.addAll([
+          DatabaseSyncIndicator(view: view),
+          const HSpace(8.0),
+        ]);
+      }
+    }
+
+    if (view.layout.isDocumentView) {
+      actions.addAll([
+        MobileViewPageLayoutButton(
+          view: view,
+          isImmersiveMode: isImmersiveMode,
+          appBarOpacity: _appBarOpacity,
+        ),
+      ]);
+    }
+
+    actions.addAll([
+      MobileViewPageMoreButton(
+        view: view,
+        isImmersiveMode: isImmersiveMode,
+        appBarOpacity: _appBarOpacity,
+      ),
+    ]);
+
+    return actions;
+  }
+
+  Widget _buildTitle(BuildContext context, ViewPB? view) {
     final icon = view?.icon.value;
-    final title = Row(
+    return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         if (icon != null && icon.isNotEmpty)
@@ -194,218 +239,12 @@ class _MobileViewPageState extends State<MobileViewPage> {
         ),
       ],
     );
-
-    if (isImmersive) {
-      return Scaffold(
-        extendBodyBehindAppBar: true,
-        appBar: PreferredSize(
-          preferredSize: Size(
-            double.infinity,
-            AppBarTheme.of(context).toolbarHeight ?? kToolbarHeight,
-          ),
-          child: ValueListenableBuilder(
-            valueListenable: _appBarOpacity,
-            builder: (_, opacity, __) => FlowyAppBar(
-              backgroundColor:
-                  AppBarTheme.of(context).backgroundColor?.withOpacity(opacity),
-              showDivider: false,
-              title: Opacity(opacity: opacity >= 0.99 ? 1.0 : 0, child: title),
-              leading: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 2.0, vertical: 4.0),
-                child: AppBarButton(
-                  padding: EdgeInsets.zero,
-                  onTap: (context) => context.pop(),
-                  child: _buildImmersiveAppBarIcon(
-                    FlowySvgs.m_app_bar_back_s,
-                    30.0,
-                    iconPadding: 6.0,
-                  ),
-                ),
-              ),
-              actions: actions,
-            ),
-          ),
-        ),
-        body: Builder(
-          builder: (context) {
-            _rebuildScrollNotificationObserver(context);
-            return child;
-          },
-        ),
-      );
-    }
-
-    return Scaffold(
-      appBar: FlowyAppBar(
-        title: title,
-        actions: actions,
-      ),
-      body: child,
-    );
   }
 
   void _rebuildScrollNotificationObserver(BuildContext context) {
     _scrollNotificationObserver?.removeListener(_onScrollNotification);
     _scrollNotificationObserver = ScrollNotificationObserver.maybeOf(context);
     _scrollNotificationObserver?.addListener(_onScrollNotification);
-  }
-
-  Widget _buildAppBarLayoutButton(ViewPB view) {
-    // only display the layout button if the view is a document
-    if (view.layout != ViewLayoutPB.Document) {
-      return const SizedBox.shrink();
-    }
-
-    return AppBarButton(
-      padding: const EdgeInsets.symmetric(vertical: 2.0),
-      onTap: (context) {
-        EditorNotification.exitEditing().post();
-
-        showMobileBottomSheet(
-          context,
-          showDragHandle: true,
-          showDivider: false,
-          showDoneButton: true,
-          showHeader: true,
-          title: LocaleKeys.pageStyle_title.tr(),
-          backgroundColor: Theme.of(context).colorScheme.background,
-          builder: (_) => BlocProvider.value(
-            value: context.read<DocumentPageStyleBloc>(),
-            child: PageStyleBottomSheet(
-              view: context.read<ViewBloc>().state.view,
-            ),
-          ),
-        );
-      },
-      child: _buildImmersiveAppBarIcon(FlowySvgs.m_layout_s, 30.0),
-    );
-  }
-
-  Widget _buildAppBarMoreButton(ViewPB view) {
-    return AppBarButton(
-      padding: const EdgeInsets.only(left: 8, right: 16),
-      onTap: (context) {
-        EditorNotification.exitEditing().post();
-
-        showMobileBottomSheet(
-          context,
-          showDragHandle: true,
-          showDivider: false,
-          backgroundColor: Theme.of(context).colorScheme.background,
-          builder: (_) => _buildAppBarMoreBottomSheet(context),
-        );
-      },
-      child: _buildImmersiveAppBarIcon(FlowySvgs.m_app_bar_more_s, 30.0),
-    );
-  }
-
-  Widget _buildImmersiveAppBarIcon(
-    FlowySvgData icon,
-    double dimension, {
-    double iconPadding = 5.0,
-  }) {
-    assert(
-      dimension > 0.0 && dimension <= kToolbarHeight,
-      'dimension must be greater than 0, and less than or equal to kToolbarHeight',
-    );
-    return UnconstrainedBox(
-      child: SizedBox.square(
-        dimension: dimension,
-        child: ValueListenableBuilder(
-          valueListenable: _isImmersiveMode,
-          builder: (context, isImmersiveMode, child) {
-            return ValueListenableBuilder(
-              valueListenable: _appBarOpacity,
-              builder: (context, appBarOpacity, child) {
-                Color? color;
-
-                // if there's no cover or the cover is not immersive,
-                //  make sure the app bar is always visible
-                if (!isImmersiveMode) {
-                  color = null;
-                } else if (appBarOpacity < 0.99) {
-                  color = Colors.white;
-                }
-
-                Widget child = Container(
-                  margin: EdgeInsets.all(iconPadding),
-                  child: FlowySvg(
-                    icon,
-                    color: color,
-                  ),
-                );
-
-                if (isImmersiveMode && appBarOpacity <= 0.99) {
-                  child = DecoratedBox(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(dimension / 2.0),
-                      color: Colors.black.withOpacity(0.2),
-                    ),
-                    child: child,
-                  );
-                }
-
-                return child;
-              },
-            );
-          },
-        ),
-      ),
-    );
-  }
-
-  Widget _buildAppBarMoreBottomSheet(BuildContext context) {
-    final view = context.read<ViewBloc>().state.view;
-    return ViewPageBottomSheet(
-      view: view,
-      onAction: (action) {
-        switch (action) {
-          case MobileViewBottomSheetBodyAction.duplicate:
-            context.pop();
-            context.read<ViewBloc>().add(const ViewEvent.duplicate());
-            // show toast
-            break;
-          case MobileViewBottomSheetBodyAction.share:
-            // unimplemented
-            context.pop();
-            break;
-          case MobileViewBottomSheetBodyAction.delete:
-            // pop to home page
-            context
-              ..pop()
-              ..pop();
-            context.read<ViewBloc>().add(const ViewEvent.delete());
-            break;
-          case MobileViewBottomSheetBodyAction.addToFavorites:
-          case MobileViewBottomSheetBodyAction.removeFromFavorites:
-            context.pop();
-            context.read<FavoriteBloc>().add(FavoriteEvent.toggle(view));
-            break;
-          case MobileViewBottomSheetBodyAction.undo:
-            EditorNotification.undo().post();
-            context.pop();
-            break;
-          case MobileViewBottomSheetBodyAction.redo:
-            EditorNotification.redo().post();
-            context.pop();
-            break;
-          case MobileViewBottomSheetBodyAction.helpCenter:
-            // unimplemented
-            context.pop();
-            break;
-          case MobileViewBottomSheetBodyAction.rename:
-            // no need to implement, rename is handled by the onRename callback.
-            throw UnimplementedError();
-        }
-      },
-      onRename: (name) {
-        if (name != view.name) {
-          context.read<ViewBloc>().add(ViewEvent.rename(name));
-        }
-        context.pop();
-      },
-    );
   }
 
   // immersive mode related
@@ -426,18 +265,6 @@ class _MobileViewPageState extends State<MobileViewPage> {
           progress == 1.0) {
         _appBarOpacity.value = progress;
       }
-    }
-  }
-
-  void _updateImmersiveMode(ViewPB view) {
-    final cover = view.cover;
-    if (cover == null || cover.type == PageStyleCoverImageType.none) {
-      _isImmersiveMode.value = false;
-    } else if (view.layout != ViewLayoutPB.Document) {
-      // only support immersive mode for document layout
-      _isImmersiveMode.value = false;
-    } else {
-      _isImmersiveMode.value = true;
     }
   }
 }
