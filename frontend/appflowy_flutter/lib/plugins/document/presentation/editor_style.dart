@@ -95,6 +95,8 @@ class EditorStyleCustomizer {
     final fontFamily = pageStyle.fontFamily ?? defaultFontFamily;
     final defaultTextDirection =
         context.read<DocumentAppearanceCubit>().state.defaultTextDirection;
+    final textScaleFactor =
+        context.read<AppearanceSettingsCubit>().state.textScaleFactor;
     final baseTextStyle = this.baseTextStyle(fontFamily);
     final codeFontSize = max(0.0, fontSize - 2);
     return EditorStyle.mobile(
@@ -131,8 +133,7 @@ class EditorStyleCustomizer {
       textSpanDecorator: customizeAttributeDecorator,
       mobileDragHandleBallSize: const Size.square(12.0),
       magnifierSize: const Size(144, 96),
-      textScaleFactor:
-          context.watch<AppearanceSettingsCubit>().state.textScaleFactor,
+      textScaleFactor: textScaleFactor,
     );
   }
 

@@ -102,8 +102,7 @@ class _MobileViewPageState extends State<MobileViewPage> {
     ViewPB? view,
     Widget child,
   ) {
-    final isImmersiveMode =
-        context.read<MobileViewPageBloc>().state.isImmersiveMode;
+    final isImmersiveMode = view?.layout.isDocumentView ?? false;
     final title = _buildTitle(context, view);
     final appBar = MobileViewPageImmersiveAppBar(
       preferredSize: Size(
