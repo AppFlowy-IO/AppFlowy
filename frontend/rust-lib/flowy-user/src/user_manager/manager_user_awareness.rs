@@ -7,7 +7,7 @@ use collab_entity::reminder::Reminder;
 use collab_entity::CollabType;
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
 use collab_user::core::{MutexUserAwareness, UserAwareness};
-use tracing::{error, info, instrument, trace};
+use tracing::{debug, error, info, instrument, trace};
 
 use collab_integrate::CollabKVDB;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
@@ -126,6 +126,12 @@ impl UserManager {
       return Ok(());
     }
     self.is_loading_awareness.store(true, Ordering::SeqCst);
+
+    if let Some(old_user_awareness) = self.user_awareness.lock().await.take() {
+      debug!("Closing old user awareness");
+      old_user_awareness.lock().close();
+      drop(old_user_awareness);
+    }
 
     let object_id =
       user_awareness_object_id(&session.user_uuid, &session.user_workspace.id).to_string();

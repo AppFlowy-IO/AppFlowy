@@ -57,9 +57,9 @@ class DocumentAppearance {
 class DocumentAppearanceCubit extends Cubit<DocumentAppearance> {
   DocumentAppearanceCubit()
       : super(
-          DocumentAppearance(
+          const DocumentAppearance(
             fontSize: 16.0,
-            fontFamily: builtInFontFamily(),
+            fontFamily: defaultFontFamily,
             codeFontFamily: builtInCodeFontFamily,
           ),
         );
@@ -69,7 +69,7 @@ class DocumentAppearanceCubit extends Cubit<DocumentAppearance> {
     final fontSize =
         prefs.getDouble(KVKeys.kDocumentAppearanceFontSize) ?? 16.0;
     final fontFamily = prefs.getString(KVKeys.kDocumentAppearanceFontFamily) ??
-        builtInFontFamily();
+        defaultFontFamily;
     final defaultTextDirection =
         prefs.getString(KVKeys.kDocumentAppearanceDefaultTextDirection);
 

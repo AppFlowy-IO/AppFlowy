@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_picker_screen.dart';
 import 'package:appflowy/plugins/base/icon/icon_picker.dart';
@@ -14,6 +15,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/image/uplo
 import 'package:appflowy/plugins/document/presentation/editor_plugins/migration/editor_migration.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/shared/appflowy_network_image.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide UploadImageMenu;
@@ -85,9 +87,12 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
       widget.node.attributes[DocumentHeaderBlockKeys.coverDetails];
   String? get icon => widget.node.attributes[DocumentHeaderBlockKeys.icon];
   bool get hasIcon => viewIcon.isNotEmpty;
-  bool get hasCover => coverType != CoverType.none;
+  bool get hasCover =>
+      coverType != CoverType.none ||
+      (cover != null && cover?.type != PageStyleCoverImageType.none);
 
   String viewIcon = '';
+  PageStyleCover? cover;
   late final ViewListener viewListener;
 
   @override
@@ -95,6 +100,7 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
     super.initState();
     final value = widget.view.icon.value;
     viewIcon = value.isNotEmpty ? value : icon ?? '';
+    cover = widget.view.cover;
     widget.node.addListener(_reload);
     viewListener = ViewListener(
       viewId: widget.view.id,
@@ -102,6 +108,7 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
         onViewUpdated: (p0) {
           setState(() {
             viewIcon = p0.icon.value;
+            cover = p0.cover;
           });
         },
       );

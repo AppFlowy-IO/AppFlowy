@@ -7,11 +7,11 @@ import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/shared/appflowy_network_image.dart';
 import 'package:appflowy/shared/flowy_gradient_colors.dart';
+import 'package:appflowy/util/string_extension.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -50,62 +50,74 @@ class MobileRecentView extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Expanded(
-                        child: ClipRRect(
-                          borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(8),
-                            topRight: Radius.circular(8),
-                          ),
-                          child: _RecentCover(
-                            coverTypeV1: state.coverTypeV1,
-                            coverTypeV2: state.coverTypeV2,
-                            value: state.coverValue,
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(8, 18, 8, 2),
-                          // hack: minLines currently not supported in Text widget.
-                          // https://github.com/flutter/flutter/issues/31134
-                          child: Stack(
-                            children: [
-                              FlowyText.medium(
-                                view.name,
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              const FlowyText(
-                                "\n\n",
-                                maxLines: 2,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
+                      Expanded(child: _buildCover(context, state)),
+                      Expanded(child: _buildTitle(context, state)),
                     ],
                   ),
                 ),
                 Align(
                   alignment: Alignment.centerLeft,
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: state.icon.isNotEmpty
-                        ? EmojiText(
-                            emoji: state.icon,
-                            fontSize: 30.0,
-                          )
-                        : SizedBox.square(
-                            dimension: 32.0,
-                            child: view.defaultIcon(),
-                          ),
-                  ),
+                  child: _buildIcon(context, state),
                 ),
               ],
             ),
           );
         },
       ),
+    );
+  }
+
+  Widget _buildCover(BuildContext context, RecentViewState state) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 1.0, left: 1.0, right: 1.0),
+      child: ClipRRect(
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(8),
+          topRight: Radius.circular(8),
+        ),
+        child: _RecentCover(
+          coverTypeV1: state.coverTypeV1,
+          coverTypeV2: state.coverTypeV2,
+          value: state.coverValue,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTitle(BuildContext context, RecentViewState state) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8, 18, 8, 2),
+      // hack: minLines currently not supported in Text widget.
+      // https://github.com/flutter/flutter/issues/31134
+      child: Stack(
+        children: [
+          FlowyText.medium(
+            view.name,
+            fontSize: 16.0,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const FlowyText(
+            "\n\n",
+            maxLines: 2,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildIcon(BuildContext context, RecentViewState state) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 8.0),
+      child: state.icon.isNotEmpty
+          ? EmojiText(
+              emoji: state.icon,
+              fontSize: 30.0,
+            )
+          : SizedBox.square(
+              dimension: 32.0,
+              child: view.defaultIcon(),
+            ),
     );
   }
 }
@@ -159,9 +171,12 @@ class _RecentCover extends StatelessWidget {
     }
 
     if (type == PageStyleCoverImageType.pureColor) {
-      return ColoredBox(
-        color: FlowyTint.fromId(value).color(context),
-      );
+      final color = value.coverColor(context);
+      if (color != null) {
+        return ColoredBox(
+          color: color,
+        );
+      }
     }
 
     if (type == PageStyleCoverImageType.gradientColor) {

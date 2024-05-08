@@ -3,7 +3,6 @@ import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:bloc/bloc.dart';
-import 'package:collection/collection.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../database_controller.dart';
@@ -67,13 +66,10 @@ class RelatedRowDetailPageBloc
   /// 2. use the `inline_view_id` to instantiate a `DatabaseController`.
   /// 3. use the `row_id` with the DatabaseController` to create `RowController`
   void _init(String databaseId, String initialRowId) async {
-    final databaseMeta = await DatabaseEventGetDatabases()
-        .send()
-        .fold<DatabaseMetaPB?>(
-          (s) => s.items
-              .firstWhereOrNull((metaPB) => metaPB.databaseId == databaseId),
-          (f) => null,
-        );
+    final databaseMeta =
+        await DatabaseEventGetDatabaseMeta(DatabaseIdPB(value: databaseId))
+            .send()
+            .fold<DatabaseMetaPB?>((s) => s, (f) => null);
     if (databaseMeta == null) {
       return;
     }

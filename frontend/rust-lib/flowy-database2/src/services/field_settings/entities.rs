@@ -34,7 +34,7 @@ impl FieldSettings {
       .unwrap_or(DEFAULT_WIDTH);
     let wrap_cell_content = field_settings
       .get_bool_value(WRAP_CELL_CONTENT)
-      .unwrap_or(false);
+      .unwrap_or(true);
 
     Self {
       field_id: field_id.to_string(),

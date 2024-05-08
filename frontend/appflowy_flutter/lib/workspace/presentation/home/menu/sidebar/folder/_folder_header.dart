@@ -43,6 +43,7 @@ class _FolderHeaderState extends State<FolderHeader> {
               minHeight: iconSize + textPadding * 2,
             ),
             fontColor: AFThemeExtension.of(context).textColor,
+            fontHoverColor: Theme.of(context).colorScheme.onSurface,
             padding: const EdgeInsets.all(textPadding),
             fillColor: Colors.transparent,
             onPressed: widget.onPressed,

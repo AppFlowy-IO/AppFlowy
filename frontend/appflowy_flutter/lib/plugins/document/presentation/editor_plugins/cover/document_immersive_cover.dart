@@ -3,22 +3,24 @@ import 'dart:io';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_picker_screen.dart';
 import 'package:appflowy/plugins/base/icon/icon_picker.dart';
+import 'package:appflowy/plugins/document/application/prelude.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/build_context_extension.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/cover/document_immersive_cover_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
 import 'package:appflowy/shared/appflowy_network_image.dart';
 import 'package:appflowy/shared/flowy_gradient_colors.dart';
+import 'package:appflowy/shared/google_fonts_extension.dart';
+import 'package:appflowy/util/string_extension.dart';
 import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
-import 'package:flowy_infra/theme_extension.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/ignore_parent_gesture.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 double kDocumentCoverHeight = 98.0;
 double kDocumentTitlePadding = 20.0;
@@ -40,11 +42,23 @@ class DocumentImmersiveCover extends StatefulWidget {
 class _DocumentImmersiveCoverState extends State<DocumentImmersiveCover> {
   final textEditingController = TextEditingController();
   final scrollController = ScrollController();
+  final focusNode = FocusNode();
+
+  late PropertyValueNotifier<Selection?>? selectionNotifier =
+      context.read<DocumentBloc>().state.editorState?.selectionNotifier;
+
+  @override
+  void initState() {
+    super.initState();
+    selectionNotifier?.addListener(_unfocus);
+  }
 
   @override
   void dispose() {
     textEditingController.dispose();
     scrollController.dispose();
+    selectionNotifier?.removeListener(_unfocus);
+    focusNode.dispose();
     super.dispose();
   }
 
@@ -113,14 +127,15 @@ class _DocumentImmersiveCoverState extends State<DocumentImmersiveCover> {
     BuildContext context,
     DocumentImmersiveCoverState state,
   ) {
-    String? fontFamily = builtInFontFamily();
+    String? fontFamily = defaultFontFamily;
     final documentFontFamily =
         context.read<DocumentPageStyleBloc>().state.fontFamily;
     if (documentFontFamily != null && fontFamily != documentFontFamily) {
-      fontFamily = GoogleFonts.getFont(documentFontFamily).fontFamily;
+      fontFamily = getGoogleFontSafely(documentFontFamily).fontFamily;
     }
     return TextField(
       controller: textEditingController,
+      focusNode: focusNode,
       decoration: const InputDecoration(
         border: InputBorder.none,
         enabledBorder: InputBorder.none,
@@ -195,7 +210,7 @@ class _DocumentImmersiveCoverState extends State<DocumentImmersiveCover> {
       return Container(
         height: height,
         width: double.infinity,
-        color: FlowyTint.fromId(cover.value).color(context),
+        color: cover.value.coverColor(context),
       );
     }
 
@@ -224,5 +239,12 @@ class _DocumentImmersiveCoverState extends State<DocumentImmersiveCover> {
       height: naviBarHeight,
       width: double.infinity,
     );
+  }
+
+  void _unfocus() {
+    final selection = selectionNotifier?.value;
+    if (selection != null) {
+      focusNode.unfocus(disposition: UnfocusDisposition.previouslyFocusedChild);
+    }
   }
 }

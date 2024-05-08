@@ -105,7 +105,7 @@ class TextCellState with _$TextCellState {
 
   factory TextCellState.initial(TextCellController cellController) {
     final cellData = cellController.getCellData() ?? "";
-    final wrap = cellController.fieldInfo.wrapCellContent ?? false;
+    final wrap = cellController.fieldInfo.wrapCellContent ?? true;
     final emoji =
         cellController.fieldInfo.isPrimary ? cellController.icon ?? "" : "";
 

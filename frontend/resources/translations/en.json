@@ -222,7 +222,8 @@
     "dragRow": "Long press to reorder the row",
     "viewDataBase": "View database",
     "referencePage": "This {name} is referenced",
-    "addBlockBelow": "Add a block below"
+    "addBlockBelow": "Add a block below",
+    "genSummary": "Generate summary"
   },
   "sideBar": {
     "closeSidebar": "Close side bar",
@@ -323,7 +324,7 @@
       "description": "Customize your profile, manage account security and AI API keys, or login into your account.",
       "general": {
         "title": "Account name & profile image",
-        "changeProfilePicture": "Change"
+        "changeProfilePicture": "Change profile picture"
       },
       "email": {
         "title": "Email",
@@ -411,7 +412,7 @@
       "fontFamily": {
         "label": "Font Family",
         "search": "Search",
-        "defaultFont": "Default Font"
+        "defaultFont": "System"
       },
       "themeMode": {
         "label": "Theme Mode",
@@ -710,6 +711,7 @@
       "urlFieldName": "URL",
       "checklistFieldName": "Checklist",
       "relationFieldName": "Relation",
+      "summaryFieldName": "AI Summary",
       "numberFormat": "Number format",
       "dateFormat": "Date format",
       "includeTime": "Include time",
@@ -757,7 +759,9 @@
         "one": "Hide {count} hidden field",
         "many": "Hide {count} hidden fields",
         "other": "Hide {count} hidden fields"
-      }
+      },
+      "openAsFullPage": "Open as full page",
+      "moreRowActions": "More row actions"
     },
     "sort": {
       "ascending": "Ascending",
@@ -783,7 +787,8 @@
       "drag": "Drag to move",
       "dragAndClick": "Drag to move, click to open menu",
       "insertRecordAbove": "Insert record above",
-      "insertRecordBelow": "Insert record below"
+      "insertRecordBelow": "Insert record below",
+      "noContent": "No content"
     },
     "selectOption": {
       "create": "Create",
@@ -1529,7 +1534,11 @@
     "photo": "Photo",
     "unsplash": "Unsplash",
     "pageCover": "Page cover",
-    "none": "None"
+    "none": "None",
+    "photoPermissionDescription": "Allow access to the photo library for uploading images.",
+    "openSettings": "Open Settings",
+    "photoPermissionTitle": "AppFlowy Would Like to Access Your Photo Library",
+    "doNotAllow": "Don't Allow"
   },
   "commandPalette": {
     "placeholder": "Type to search for views...",

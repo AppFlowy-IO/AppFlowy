@@ -176,48 +176,55 @@ class EditorMigration {
       root.attributes[DocumentHeaderBlockKeys.coverType],
     );
     final coverDetails = root.attributes[DocumentHeaderBlockKeys.coverDetails];
+
+    Map extra = {};
+
     if (coverType == CoverType.none ||
         coverDetails == null ||
         coverDetails is! String) {
-      return;
-    }
-
-    Map extra = {};
-    switch (coverType) {
-      case CoverType.asset:
-        // The new version does not support the asset cover.
-        break;
-      case CoverType.color:
-        extra = {
-          ViewExtKeys.coverKey: {
-            ViewExtKeys.coverTypeKey:
-                PageStyleCoverImageType.pureColor.toString(),
-            ViewExtKeys.coverValueKey: coverDetails,
-          },
-        };
-        break;
-      case CoverType.file:
-        if (isURL(coverDetails)) {
-          if (coverDetails.contains('unsplash')) {
-            extra = {
-              ViewExtKeys.coverKey: {
-                ViewExtKeys.coverTypeKey:
-                    PageStyleCoverImageType.unsplashImage.toString(),
-                ViewExtKeys.coverValueKey: coverDetails,
-              },
-            };
-          } else {
-            extra = {
-              ViewExtKeys.coverKey: {
-                ViewExtKeys.coverTypeKey:
-                    PageStyleCoverImageType.customImage.toString(),
-                ViewExtKeys.coverValueKey: coverDetails,
-              },
-            };
+      extra = {
+        ViewExtKeys.coverKey: {
+          ViewExtKeys.coverTypeKey: PageStyleCoverImageType.none.toString(),
+          ViewExtKeys.coverValueKey: '',
+        },
+      };
+    } else {
+      switch (coverType) {
+        case CoverType.asset:
+          // The new version does not support the asset cover.
+          break;
+        case CoverType.color:
+          extra = {
+            ViewExtKeys.coverKey: {
+              ViewExtKeys.coverTypeKey:
+                  PageStyleCoverImageType.pureColor.toString(),
+              ViewExtKeys.coverValueKey: coverDetails,
+            },
+          };
+          break;
+        case CoverType.file:
+          if (isURL(coverDetails)) {
+            if (coverDetails.contains('unsplash')) {
+              extra = {
+                ViewExtKeys.coverKey: {
+                  ViewExtKeys.coverTypeKey:
+                      PageStyleCoverImageType.unsplashImage.toString(),
+                  ViewExtKeys.coverValueKey: coverDetails,
+                },
+              };
+            } else {
+              extra = {
+                ViewExtKeys.coverKey: {
+                  ViewExtKeys.coverTypeKey:
+                      PageStyleCoverImageType.customImage.toString(),
+                  ViewExtKeys.coverValueKey: coverDetails,
+                },
+              };
+            }
           }
-        }
-        break;
-      default:
+          break;
+        default:
+      }
     }
 
     if (extra.isEmpty) {

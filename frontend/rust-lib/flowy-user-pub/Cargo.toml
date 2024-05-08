@@ -7,14 +7,14 @@ edition = "2021"
 
 [dependencies]
 lib-infra = { workspace = true }
-flowy-error  = { workspace = true }
+flowy-error = { workspace = true }
 uuid.workspace = true
 serde.workspace = true
-collab = { version = "0.1.0" }
-collab-entity = { version = "0.1.0" }
+collab = { workspace = true }
+collab-entity = { workspace = true }
 serde_json.workspace = true
 serde_repr.workspace = true
-chrono = { workspace = true,  default-features = false, features = ["clock", "serde"] }
+chrono = { workspace = true, default-features = false, features = ["clock", "serde"] }
 anyhow.workspace = true
 tokio = { workspace = true, features = ["sync"] }
 tokio-stream = "0.1.14"

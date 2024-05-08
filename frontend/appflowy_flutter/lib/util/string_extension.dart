@@ -1,8 +1,9 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/shared/patterns/common_patterns.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:flowy_infra/theme_extension.dart';
+import 'package:flutter/material.dart';
 
 extension StringExtension on String {
   static const _specialCharacters = r'\/:*?"<>| ';
@@ -35,4 +36,13 @@ extension StringExtension on String {
 
   /// Returns true if the string is a appflowy cloud url.
   bool get isAppFlowyCloudUrl => appflowyCloudUrlRegex.hasMatch(this);
+
+  /// Returns the color of the string.
+  ///
+  /// ONLY used for the cover.
+  Color? coverColor(BuildContext context) {
+    // try to parse the color from the tint id,
+    //  if it fails, try to parse the color as a hex string
+    return FlowyTint.fromId(this)?.color(context) ?? tryToColor();
+  }
 }

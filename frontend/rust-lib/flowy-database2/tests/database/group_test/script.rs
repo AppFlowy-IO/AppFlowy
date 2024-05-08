@@ -192,7 +192,7 @@ impl DatabaseGroupTest {
         let row_id = RowId::from(self.row_at_index(from_group_index, row_index).await.id);
         self
           .editor
-          .update_cell(&self.view_id, row_id, &field_id, cell)
+          .update_cell(&self.view_id, &row_id, &field_id, cell)
           .await
           .unwrap();
       },
@@ -218,7 +218,7 @@ impl DatabaseGroupTest {
         let row_id = RowId::from(self.row_at_index(from_group_index, row_index).await.id);
         self
           .editor
-          .update_cell(&self.view_id, row_id, &field_id, cell)
+          .update_cell(&self.view_id, &row_id, &field_id, cell)
           .await
           .unwrap();
       },
