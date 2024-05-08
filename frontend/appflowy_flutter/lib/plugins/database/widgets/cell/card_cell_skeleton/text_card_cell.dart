@@ -222,6 +222,7 @@ class _TextCellState extends State<TextCardCell> {
               color: Theme.of(context).hintColor,
             ),
           ),
+          onTapOutside: (event) {},
         ),
       ),
     );
