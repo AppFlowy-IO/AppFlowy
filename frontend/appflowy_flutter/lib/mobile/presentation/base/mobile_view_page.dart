@@ -111,7 +111,7 @@ class _MobileViewPageState extends State<MobileViewPage> {
         AppBarTheme.of(context).toolbarHeight ?? kToolbarHeight,
       ),
       title: title,
-      isImmersiveMode: view?.layout.isDocumentView ?? isImmersiveMode,
+      isImmersiveMode: isImmersiveMode,
       appBarOpacity: _appBarOpacity,
       actions: _buildAppBarActions(context, view),
     );
@@ -124,6 +124,7 @@ class _MobileViewPageState extends State<MobileViewPage> {
           )
         : child;
     return Scaffold(
+      extendBodyBehindAppBar: isImmersiveMode,
       appBar: appBar,
       body: body,
     );

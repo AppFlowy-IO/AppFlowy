@@ -7,6 +7,7 @@ import 'package:appflowy/mobile/presentation/base/view_page/more_bottom_sheet.da
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/plugins/document/presentation/editor_notification.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/page_style/page_style_bottom_sheet.dart';
+import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -98,7 +99,13 @@ class MobileViewPageMoreButton extends StatelessWidget {
           showDragHandle: true,
           showDivider: false,
           backgroundColor: Theme.of(context).colorScheme.background,
-          builder: (_) => MobileViewPageMoreBottomSheet(view: view),
+          builder: (_) => MultiBlocProvider(
+            providers: [
+              BlocProvider.value(value: context.read<ViewBloc>()),
+              BlocProvider.value(value: context.read<FavoriteBloc>()),
+            ],
+            child: MobileViewPageMoreBottomSheet(view: view),
+          ),
         );
       },
       child: _ImmersiveAppBarButton(
