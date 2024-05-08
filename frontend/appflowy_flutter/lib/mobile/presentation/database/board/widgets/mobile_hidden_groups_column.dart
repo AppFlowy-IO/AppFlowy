@@ -158,101 +158,77 @@ class MobileHiddenGroup extends StatelessWidget {
     final primaryField = databaseController.fieldController.fieldInfos
         .firstWhereOrNull((element) => element.isPrimary)!;
 
-    return BlocBuilder<BoardBloc, BoardState>(
-      builder: (context, state) {
-        return state.maybeMap(
-          orElse: () => const SizedBox.shrink(),
-          ready: (state) {
-            final group = state.hiddenGroups.firstWhereOrNull(
-              (g) => g.groupId == this.group.groupId,
-            );
-            if (group == null) {
-              return const SizedBox.shrink();
-            }
-
-            final cells = group.rows.map(
-              (item) {
-                final cellContext =
-                    databaseController.rowCache.loadCells(item).firstWhere(
-                          (cellContext) =>
-                              cellContext.fieldId == primaryField.id,
-                        );
-
-                return TextButton(
-                  style: TextButton.styleFrom(
-                    textStyle: Theme.of(context).textTheme.bodyMedium,
-                    foregroundColor: Theme.of(context).colorScheme.onBackground,
-                    visualDensity: VisualDensity.compact,
-                  ),
-                  child: CardCellBuilder(
-                    databaseController:
-                        context.read<BoardBloc>().databaseController,
-                  ).build(
-                    cellContext: cellContext,
-                    styleMap: {FieldType.RichText: _titleCellStyle(context)},
-                    hasNotes: !item.isDocumentEmpty,
-                  ),
-                  onPressed: () {
-                    context.push(
-                      MobileRowDetailPage.routeName,
-                      extra: {
-                        MobileRowDetailPage.argRowId: item.id,
-                        MobileRowDetailPage.argDatabaseController:
-                            context.read<BoardBloc>().databaseController,
-                      },
-                    );
-                  },
+    final cells = group.rows.map(
+      (item) {
+        final cellContext =
+            databaseController.rowCache.loadCells(item).firstWhere(
+                  (cellContext) => cellContext.fieldId == primaryField.id,
                 );
-              },
-            ).toList();
 
-            return ExpansionTile(
-              tilePadding: EdgeInsets.zero,
-              childrenPadding: EdgeInsets.zero,
-              title: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      context
-                          .read<BoardBloc>()
-                          .generateGroupNameFromGroup(group),
-                      style: Theme.of(context).textTheme.bodyMedium,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  GestureDetector(
-                    child: const Padding(
-                      padding: EdgeInsets.all(4),
-                      child: FlowySvg(
-                        FlowySvgs.hide_m,
-                        size: Size.square(20),
-                      ),
-                    ),
-                    onTap: () => showFlowyMobileConfirmDialog(
-                      context,
-                      title: FlowyText(LocaleKeys.board_mobile_showGroup.tr()),
-                      content: FlowyText(
-                        LocaleKeys.board_mobile_showGroupContent.tr(),
-                      ),
-                      actionButtonTitle: LocaleKeys.button_yes.tr(),
-                      actionButtonColor: Theme.of(context).colorScheme.primary,
-                      onActionButtonPressed: () =>
-                          context.read<BoardBloc>().add(
-                                BoardEvent.toggleGroupVisibility(
-                                  group,
-                                  true,
-                                ),
-                              ),
-                    ),
-                  ),
-                ],
-              ),
-              children: cells,
+        return TextButton(
+          style: TextButton.styleFrom(
+            textStyle: Theme.of(context).textTheme.bodyMedium,
+            foregroundColor: Theme.of(context).colorScheme.onBackground,
+            visualDensity: VisualDensity.compact,
+          ),
+          child: CardCellBuilder(
+            databaseController: context.read<BoardBloc>().databaseController,
+          ).build(
+            cellContext: cellContext,
+            styleMap: {FieldType.RichText: _titleCellStyle(context)},
+            hasNotes: !item.isDocumentEmpty,
+          ),
+          onPressed: () {
+            context.push(
+              MobileRowDetailPage.routeName,
+              extra: {
+                MobileRowDetailPage.argRowId: item.id,
+                MobileRowDetailPage.argDatabaseController:
+                    context.read<BoardBloc>().databaseController,
+              },
             );
           },
         );
       },
+    ).toList();
+
+    return ExpansionTile(
+      tilePadding: EdgeInsets.zero,
+      childrenPadding: EdgeInsets.zero,
+      title: Row(
+        children: [
+          Expanded(
+            child: Text(
+              context.read<BoardBloc>().generateGroupNameFromGroup(group),
+              style: Theme.of(context).textTheme.bodyMedium,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          GestureDetector(
+            child: const Padding(
+              padding: EdgeInsets.all(4),
+              child: FlowySvg(
+                FlowySvgs.hide_m,
+                size: Size.square(20),
+              ),
+            ),
+            onTap: () => showFlowyMobileConfirmDialog(
+              context,
+              title: FlowyText(LocaleKeys.board_mobile_showGroup.tr()),
+              content: FlowyText(
+                LocaleKeys.board_mobile_showGroupContent.tr(),
+              ),
+              actionButtonTitle: LocaleKeys.button_yes.tr(),
+              actionButtonColor: Theme.of(context).colorScheme.primary,
+              onActionButtonPressed: () => context
+                  .read<BoardBloc>()
+                  .add(BoardEvent.setGroupVisibility(group, true)),
+            ),
+          ),
+        ],
+      ),
+      children: cells,
     );
   }
 

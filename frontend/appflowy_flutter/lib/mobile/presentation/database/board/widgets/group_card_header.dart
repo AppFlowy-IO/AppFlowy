@@ -137,7 +137,7 @@ class _GroupCardHeaderState extends State<GroupCardHeader> {
                           icon: FlowySvgs.hide_s,
                           onTap: () {
                             context.read<BoardBloc>().add(
-                                  BoardEvent.toggleGroupVisibility(
+                                  BoardEvent.setGroupVisibility(
                                     widget.groupData.customData.group
                                         as GroupPB,
                                     false,

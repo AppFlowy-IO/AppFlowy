@@ -303,7 +303,7 @@ class HiddenGroupButtonContent extends StatelessWidget {
                                   ),
                                   onPressed: () =>
                                       context.read<BoardBloc>().add(
-                                            BoardEvent.toggleGroupVisibility(
+                                            BoardEvent.setGroupVisibility(
                                               group,
                                               true,
                                             ),

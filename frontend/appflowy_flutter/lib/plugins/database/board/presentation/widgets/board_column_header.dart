@@ -267,7 +267,7 @@ enum GroupOptions {
       case hide:
         context
             .read<BoardBloc>()
-            .add(BoardEvent.toggleGroupVisibility(group, false));
+            .add(BoardEvent.setGroupVisibility(group, false));
         break;
       case delete:
         NavigatorAlertDialog(

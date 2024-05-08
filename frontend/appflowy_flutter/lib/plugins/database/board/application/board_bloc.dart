@@ -171,8 +171,8 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
               orElse: () {},
             );
           },
-          toggleGroupVisibility: (GroupPB group, bool isVisible) async {
-            await _toggleGroupVisibility(group, isVisible);
+          setGroupVisibility: (GroupPB group, bool isVisible) async {
+            await _setGroupVisibility(group, isVisible);
           },
           toggleHiddenSectionVisibility: (isVisible) async {
             await state.maybeMap(
@@ -299,7 +299,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     boardController.enableGroupDragging(!isEdit);
   }
 
-  Future<void> _toggleGroupVisibility(GroupPB group, bool isVisible) async {
+  Future<void> _setGroupVisibility(GroupPB group, bool isVisible) async {
     if (group.isDefault) {
       await state.maybeMap(
         ready: (state) async {
@@ -645,10 +645,10 @@ class BoardEvent with _$BoardEvent {
   const factory BoardEvent.startEditingRow(GroupedRowId groupedRowId) =
       _StartEditRow;
   const factory BoardEvent.endEditingRow() = _EndEditRow;
-  const factory BoardEvent.toggleGroupVisibility(
+  const factory BoardEvent.setGroupVisibility(
     GroupPB group,
     bool isVisible,
-  ) = _ToggleGroupVisibility;
+  ) = _SetGroupVisibility;
   const factory BoardEvent.toggleHiddenSectionVisibility(bool isVisible) =
       _ToggleHiddenSectionVisibility;
   const factory BoardEvent.deleteGroup(String groupId) = _DeleteGroup;

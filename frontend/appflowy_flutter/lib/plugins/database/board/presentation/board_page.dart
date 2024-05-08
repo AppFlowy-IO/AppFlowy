@@ -289,7 +289,7 @@ class _BoardContentState extends State<_BoardContent> {
                 ),
               ),
               cardBuilder: (_, column, columnItem) => BlocProvider.value(
-                key: ValueKey("${column.id}${columnItem.id}"),
+                key: ValueKey("board_card_${column.id}_${columnItem.id}"),
                 value: context.read<BoardBloc>(),
                 child: _BoardCard(
                   afGroupData: column,
