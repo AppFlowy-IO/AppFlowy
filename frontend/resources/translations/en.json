@@ -64,11 +64,7 @@
     "alreadyHaveAnAccount": "Already have an account?",
     "logIn": "Log in",
     "generalError": "Something went wrong. Please try again later",
-    "limitRateError": "For security reasons, you can only request a magic link every 60 seconds",
-    "LogInWithGoogle": "Log in with Google ",
-    "LogInWithGithub": "Log in with Github",
-    "LogInWithDiscord": "Log in with Discord",
-    "loginAsGuestButtonText": "log in as Guest"
+    "limitRateError": "For security reasons, you can only request a magic link every 60 seconds"
   },
   "workspace": {
     "chooseWorkspace": "Choose your workspace",
@@ -298,8 +294,7 @@
     "back": "Back",
     "signInGoogle": "Sign in with Google",
     "signInGithub": "Sign in with Github",
-    "signInDiscord": "Sign in with Discord",
-    "tryAGain": "try again"
+    "signInDiscord": "Sign in with Discord"
   },
   "label": {
     "welcome": "Welcome!",
@@ -404,8 +399,7 @@
       "importAppFlowyDataDescription": "Copy data from an external AppFlowy data folder and import it into the current AppFlowy data folder",
       "importSuccess": "Successfully imported the AppFlowy data folder",
       "importFailed": "Importing the AppFlowy data folder failed",
-      "importGuide": "For further details, please check the referenced document",
-      "supabaseSetting": "supabase setting"
+      "importGuide": "For further details, please check the referenced document"
     },
     "notifications": {
       "enableNotifications": {
@@ -1111,8 +1105,7 @@
       "hideColumn": "Hide",
       "newGroup": "New group",
       "deleteColumn": "Delete",
-      "deleteColumnConfirmation": "This will delete this group and all the cards in it.\nAre you sure you want to continue?",
-      "groupActions": "group actions"
+      "deleteColumnConfirmation": "This will delete this group and all the cards in it.\nAre you sure you want to continue?"
     },
     "hiddenGroupSection": {
       "sectionTitle": "Hidden Groups",
