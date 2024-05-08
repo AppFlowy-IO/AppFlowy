@@ -54,12 +54,7 @@ class ViewTitleBarWithRow extends StatelessWidget {
               return Visibility(
                 visible: maxWidth < constraints.maxWidth,
                 // if the width is too small, only show one view title bar without the ancestors
-                replacement: _ViewTitle(
-                  key: ValueKey(state.ancestors.last),
-                  view: state.ancestors.last,
-                  maxTitleWidth: constraints.maxWidth - 50.0,
-                  onUpdated: () {},
-                ),
+                replacement: _buildRowName(),
                 child: Row(
                   // refresh the view title bar when the ancestors changed
                   key: ValueKey(state.ancestors.hashCode),
@@ -104,42 +99,39 @@ class ViewTitleBarWithRow extends StatelessWidget {
   }
 
   Widget _buildRowName() {
-    return BlocBuilder<DatabaseDocumentTitleBloc, DatabaseDocumentTitleState>(
-      builder: (context, state) {
-        if (state.databaseController == null) {
-          return const SizedBox.shrink();
-        }
-        return _RowName(
-          cellBuilder: EditableCellBuilder(
-            databaseController: state.databaseController!,
-          ),
-          primaryFieldId: state.fieldId!,
-          rowId: rowId,
-        );
-      },
+    return _RowName(
+      rowId: rowId,
     );
   }
 }
 
 class _RowName extends StatelessWidget {
   const _RowName({
-    required this.cellBuilder,
-    required this.primaryFieldId,
     required this.rowId,
   });
 
-  final EditableCellBuilder cellBuilder;
-  final String primaryFieldId;
   final String rowId;
 
   @override
   Widget build(BuildContext context) {
-    return cellBuilder.buildCustom(
-      CellContext(
-        fieldId: primaryFieldId,
-        rowId: rowId,
-      ),
-      skinMap: EditableCellSkinMap(textSkin: _TitleSkin()),
+    return BlocBuilder<DatabaseDocumentTitleBloc, DatabaseDocumentTitleState>(
+      builder: (context, state) {
+        if (state.databaseController == null) {
+          return const SizedBox.shrink();
+        }
+
+        final cellBuilder = EditableCellBuilder(
+          databaseController: state.databaseController!,
+        );
+
+        return cellBuilder.buildCustom(
+          CellContext(
+            fieldId: state.fieldId!,
+            rowId: rowId,
+          ),
+          skinMap: EditableCellSkinMap(textSkin: _TitleSkin()),
+        );
+      },
     );
   }
 }
@@ -220,12 +212,10 @@ enum _ViewTitleBehavior {
 
 class _ViewTitle extends StatefulWidget {
   const _ViewTitle({
-    super.key,
     required this.view,
     this.behavior = _ViewTitleBehavior.editable,
-    this.maxTitleWidth = 180,
     required this.onUpdated,
-  });
+  }) : maxTitleWidth = 180;
 
   final ViewPB view;
   final _ViewTitleBehavior behavior;
