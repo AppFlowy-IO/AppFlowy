@@ -70,12 +70,10 @@ class RowCard extends StatefulWidget {
 class _RowCardState extends State<RowCard> {
   final popoverController = PopoverController();
   late final CardBloc _cardBloc;
-  late final EditableRowNotifier rowNotifier;
 
   @override
   void initState() {
     super.initState();
-    rowNotifier = EditableRowNotifier(isEditing: widget.isEditing);
     _cardBloc = CardBloc(
       fieldController: widget.fieldController,
       viewId: widget.viewId,
@@ -84,20 +82,18 @@ class _RowCardState extends State<RowCard> {
       rowMeta: widget.rowMeta,
       rowCache: widget.rowCache,
     )..add(const CardEvent.initial());
+  }
 
-    rowNotifier.isEditing.addListener(() {
-      if (!mounted) return;
-      _cardBloc.add(CardEvent.setIsEditing(rowNotifier.isEditing.value));
-
-      if (!rowNotifier.isEditing.value) {
-        widget.onEndEditing();
-      }
-    });
+  @override
+  void didUpdateWidget(covariant oldWidget) {
+    if (widget.isEditing != _cardBloc.state.isEditing) {
+      _cardBloc.add(CardEvent.setIsEditing(widget.isEditing));
+    }
+    super.didUpdateWidget(oldWidget);
   }
 
   @override
   void dispose() {
-    rowNotifier.dispose();
     _cardBloc.close();
     super.dispose();
   }
@@ -106,7 +102,14 @@ class _RowCardState extends State<RowCard> {
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: _cardBloc,
-      child: BlocBuilder<CardBloc, CardState>(
+      child: BlocConsumer<CardBloc, CardState>(
+        listenWhen: (previous, current) =>
+            previous.isEditing != current.isEditing,
+        listener: (context, state) {
+          if (!state.isEditing) {
+            widget.onEndEditing();
+          }
+        },
         builder: (context, state) =>
             PlatformExtension.isMobile ? _mobile(state) : _desktop(state),
       ),
@@ -128,9 +131,9 @@ class _RowCardState extends State<RowCard> {
 
   Widget _desktop(CardState state) {
     final accessories = widget.styleConfiguration.showAccessory
-        ? <CardAccessory>[
-            EditCardAccessory(rowNotifier: rowNotifier),
-            const MoreCardOptionsAccessory(),
+        ? const <CardAccessory>[
+            EditCardAccessory(),
+            MoreCardOptionsAccessory(),
           ]
         : null;
     return AppFlowyPopover(
@@ -153,7 +156,6 @@ class _RowCardState extends State<RowCard> {
         onShiftTap: widget.onShiftTap,
         child: _CardContent(
           rowMeta: state.rowMeta,
-          rowNotifier: rowNotifier,
           cellBuilder: widget.cellBuilder,
           styleConfiguration: widget.styleConfiguration,
           cells: state.cells,
@@ -177,14 +179,12 @@ class _RowCardState extends State<RowCard> {
 class _CardContent extends StatelessWidget {
   const _CardContent({
     required this.rowMeta,
-    required this.rowNotifier,
     required this.cellBuilder,
     required this.cells,
     required this.styleConfiguration,
   });
 
   final RowMetaPB rowMeta;
-  final EditableRowNotifier rowNotifier;
   final CardCellBuilder cellBuilder;
   final List<CellContext> cells;
   final RowCardStyleConfiguration styleConfiguration;
@@ -202,7 +202,7 @@ class _CardContent extends StatelessWidget {
         ? child
         : FlowyHover(
             style: styleConfiguration.hoverStyle,
-            buildWhenOnHover: () => !rowNotifier.isEditing.value,
+            buildWhenOnHover: () => !context.read<CardBloc>().state.isEditing,
             child: child,
           );
   }
@@ -212,16 +212,16 @@ class _CardContent extends StatelessWidget {
     RowMetaPB rowMeta,
     List<CellContext> cells,
   ) {
-    // Remove all the cell listeners.
-    rowNotifier.unbind();
-
     return cells.mapIndexed((int index, CellContext cellContext) {
       EditableCardNotifier? cellNotifier;
 
       if (index == 0) {
-        cellNotifier =
-            EditableCardNotifier(isEditing: rowNotifier.isEditing.value);
-        rowNotifier.bindCell(cellContext, cellNotifier);
+        final bloc = context.read<CardBloc>();
+        cellNotifier = EditableCardNotifier(isEditing: bloc.state.isEditing);
+        cellNotifier.isCellEditing.addListener(() {
+          final isEditing = cellNotifier!.isCellEditing.value;
+          bloc.add(CardEvent.setIsEditing(isEditing));
+        });
       }
 
       return cellBuilder.build(
@@ -232,6 +232,24 @@ class _CardContent extends StatelessWidget {
       );
     }).toList();
   }
+}
+
+class EditCardAccessory extends StatelessWidget with CardAccessory {
+  const EditCardAccessory({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(3.0),
+      child: FlowySvg(
+        FlowySvgs.edit_s,
+        color: Theme.of(context).hintColor,
+      ),
+    );
+  }
+
+  @override
+  AccessoryType get type => AccessoryType.edit;
 }
 
 class MoreCardOptionsAccessory extends StatelessWidget with CardAccessory {
@@ -250,26 +268,6 @@ class MoreCardOptionsAccessory extends StatelessWidget with CardAccessory {
 
   @override
   AccessoryType get type => AccessoryType.more;
-}
-
-class EditCardAccessory extends StatelessWidget with CardAccessory {
-  const EditCardAccessory({super.key, required this.rowNotifier});
-
-  final EditableRowNotifier rowNotifier;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(3.0),
-      child: FlowySvg(
-        FlowySvgs.edit_s,
-        color: Theme.of(context).hintColor,
-      ),
-    );
-  }
-
-  @override
-  AccessoryType get type => AccessoryType.edit;
 }
 
 class RowCardStyleConfiguration {

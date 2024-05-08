@@ -102,19 +102,20 @@ class _BoardContentState extends State<_BoardContent> {
     );
 
     return BlocListener<BoardBloc, BoardState>(
-      listenWhen: (previous, current) => current.isOpenCard,
       listener: (context, state) {
-        state.maybeWhen(
+        state.maybeMap(
           orElse: () {},
-          openCard: (rowMeta) {
-            context.push(
-              MobileRowDetailPage.routeName,
-              extra: {
-                MobileRowDetailPage.argRowId: rowMeta.id,
-                MobileRowDetailPage.argDatabaseController:
-                    context.read<BoardBloc>().databaseController,
-              },
-            );
+          ready: (value) {
+            if (context.mounted && value.createdRow != null) {
+              context.push(
+                MobileRowDetailPage.routeName,
+                extra: {
+                  MobileRowDetailPage.argRowId: value.createdRow!.rowMeta.id,
+                  MobileRowDetailPage.argDatabaseController:
+                      context.read<BoardBloc>().databaseController,
+                },
+              );
+            }
           },
         );
       },
@@ -241,15 +242,8 @@ class _BoardContentState extends State<_BoardContent> {
             },
           );
         },
-        onStartEditing: () => boardBloc.add(
-          BoardEvent.startEditingRow(
-            GroupedRowId(
-              groupId: groupData.group.groupId,
-              rowId: groupItem.row.id,
-            ),
-          ),
-        ),
-        onEndEditing: () => boardBloc.add(const BoardEvent.endEditingRow()),
+        onStartEditing: () {},
+        onEndEditing: () {},
         styleConfiguration: RowCardStyleConfiguration(
           cellStyleMap: mobileBoardCardCellStyleMap(context),
           showAccessory: false,

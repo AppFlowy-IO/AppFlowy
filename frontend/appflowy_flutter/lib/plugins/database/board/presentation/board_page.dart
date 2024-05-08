@@ -5,6 +5,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/database/board/mobile_board_page.dart';
 import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/application/row/row_controller.dart';
+import 'package:appflowy/plugins/database/board/application/board_actions_bloc.dart';
 import 'package:appflowy/plugins/database/board/presentation/widgets/board_column_header.dart';
 import 'package:appflowy/plugins/database/grid/presentation/grid_page.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/header/field_type_extension.dart';
@@ -168,8 +169,17 @@ class _DesktopBoardPageState extends State<DesktopBoardPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<BoardBloc>.value(
-      value: bloc,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<BoardBloc>.value(
+          value: bloc,
+        ),
+        BlocProvider(
+          create: (_) => BoardActionsCubit(
+            databaseController: widget.databaseController,
+          ),
+        ),
+      ],
       child: BlocBuilder<BoardBloc, BoardState>(
         builder: (context, state) => state.maybeMap(
           loading: (_) => const Center(
@@ -234,25 +244,66 @@ class _BoardContentState extends State<_BoardContent> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<BoardBloc, BoardState>(
-      listener: (context, state) {
-        state.maybeMap(
-          ready: (_) {
-            widget.onEditStateChanged?.call();
-          },
-          openCard: (value) {
-            _openCard(
-              context: context,
-              databaseController: context.read<BoardBloc>().databaseController,
-              rowMeta: value.rowMeta,
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<BoardBloc, BoardState>(
+          listener: (context, state) {
+            state.maybeMap(
+              ready: (value) async {
+                widget.onEditStateChanged?.call();
+                // hack: wait for the new card to be inserted into the board before enabling edit
+                await Future.delayed(const Duration(milliseconds: 10));
+                if (context.mounted && value.createdRow != null) {
+                  final result = value.createdRow!;
+                  switch (result.action) {
+                    case DidCreateRowAction.openAsPage:
+                      context
+                          .read<BoardActionsCubit>()
+                          .openCard(result.rowMeta);
+                      break;
+                    case DidCreateRowAction.startEditing:
+                      context.read<BoardActionsCubit>().startEditingRow(
+                            GroupedRowId(
+                              groupId: result.groupId,
+                              rowId: result.rowMeta.id,
+                            ),
+                          );
+                      break;
+                    default:
+                      break;
+                  }
+                }
+              },
+              orElse: () {},
             );
           },
-          setFocus: (value) {
-            widget.focusScope.focusedGroupedRows = value.groupedRowIds;
+        ),
+        BlocListener<BoardActionsCubit, BoardActionsState>(
+          listener: (context, state) {
+            state.maybeMap(
+              openCard: (value) {
+                _openCard(
+                  context: context,
+                  databaseController:
+                      context.read<BoardBloc>().databaseController,
+                  rowMeta: value.rowMeta,
+                );
+              },
+              setFocus: (value) {
+                widget.focusScope.focusedGroupedRows = value.groupedRowIds;
+              },
+              startEditingRow: (value) {
+                widget.focusScope.clear();
+                // widget.boardController.enableGroupDragging(false);
+              },
+              endEditingRow: (value) {
+                // widget.boardController.enableGroupDragging(true);
+              },
+              orElse: () {},
+            );
           },
-          orElse: () {},
-        );
-      },
+        ),
+      ],
       child: FocusScope(
         autofocus: true,
         child: BoardShortcutContainer(
@@ -280,17 +331,31 @@ class _BoardContentState extends State<_BoardContent> {
                   margin: config.groupHeaderPadding,
                 ),
               ),
-              footerBuilder: (_, groupData) => BlocProvider.value(
-                value: context.read<BoardBloc>(),
+              footerBuilder: (_, groupData) => MultiBlocProvider(
+                providers: [
+                  BlocProvider.value(
+                    value: context.read<BoardBloc>(),
+                  ),
+                  BlocProvider.value(
+                    value: context.read<BoardActionsCubit>(),
+                  ),
+                ],
                 child: _BoardColumnFooter(
                   columnData: groupData,
                   boardConfig: config,
                   scrollManager: scrollManager,
                 ),
               ),
-              cardBuilder: (_, column, columnItem) => BlocProvider.value(
+              cardBuilder: (_, column, columnItem) => MultiBlocProvider(
                 key: ValueKey("board_card_${column.id}_${columnItem.id}"),
-                value: context.read<BoardBloc>(),
+                providers: [
+                  BlocProvider<BoardBloc>.value(
+                    value: context.read<BoardBloc>(),
+                  ),
+                  BlocProvider.value(
+                    value: context.read<BoardActionsCubit>(),
+                  ),
+                ],
                 child: _BoardCard(
                   afGroupData: column,
                   groupItem: columnItem as GroupItem,
@@ -415,10 +480,10 @@ class _BoardColumnFooterState extends State<_BoardColumnFooter> {
   }
 
   Widget _startCreatingCardsButton() {
-    return BlocListener<BoardBloc, BoardState>(
+    return BlocListener<BoardActionsCubit, BoardActionsState>(
       listener: (context, state) {
         state.maybeWhen(
-          createBottomRow: (groupId) {
+          startCreateBottomRow: (groupId) {
             if (groupId == widget.columnData.id) {
               setState(() => _isCreating = true);
             }
@@ -449,7 +514,7 @@ class _BoardColumnFooterState extends State<_BoardColumnFooter> {
   }
 }
 
-class _BoardCard extends StatelessWidget {
+class _BoardCard extends StatefulWidget {
   const _BoardCard({
     required this.afGroupData,
     required this.groupItem,
@@ -465,115 +530,149 @@ class _BoardCard extends StatelessWidget {
   final BoardFocusScope notifier;
 
   @override
+  State<_BoardCard> createState() => _BoardCardState();
+}
+
+class _BoardCardState extends State<_BoardCard> {
+  bool _isEditing = false;
+
+  @override
   Widget build(BuildContext context) {
     final boardBloc = context.read<BoardBloc>();
-    return BlocBuilder<BoardBloc, BoardState>(
-      buildWhen: (p, c) => c.isReady,
-      builder: (context, state) {
-        final groupData = afGroupData.customData as GroupData;
-        final rowCache = boardBloc.rowCache;
-        final rowInfo = rowCache.getRow(groupItem.row.id);
 
-        final databaseController = boardBloc.databaseController;
-        final rowMeta = rowInfo?.rowMeta ?? groupItem.row;
+    final groupData = widget.afGroupData.customData as GroupData;
+    final rowCache = boardBloc.rowCache;
 
-        final isEditing = state.maybeMap(
-          orElse: () => false,
-          ready: (state) => state.editingRow?.rowId == groupItem.row.id,
-        );
+    final databaseController = boardBloc.databaseController;
+    final rowMeta =
+        rowCache.getRow(widget.groupItem.id)?.rowMeta ?? widget.groupItem.row;
 
-        const nada = DoNothingAndStopPropagationIntent();
+    const nada = DoNothingAndStopPropagationIntent();
 
-        return Shortcuts(
-          shortcuts: {
-            const SingleActivator(LogicalKeyboardKey.arrowUp): nada,
-            const SingleActivator(LogicalKeyboardKey.arrowDown): nada,
-            const SingleActivator(LogicalKeyboardKey.arrowUp, shift: true):
-                nada,
-            const SingleActivator(LogicalKeyboardKey.arrowDown, shift: true):
-                nada,
-            const SingleActivator(LogicalKeyboardKey.keyE): nada,
-            const SingleActivator(LogicalKeyboardKey.keyN): nada,
-            const SingleActivator(LogicalKeyboardKey.delete): nada,
-            const SingleActivator(LogicalKeyboardKey.backspace): nada,
-            const SingleActivator(LogicalKeyboardKey.enter): nada,
-            const SingleActivator(LogicalKeyboardKey.numpadEnter): nada,
-            const SingleActivator(LogicalKeyboardKey.comma): nada,
-            const SingleActivator(LogicalKeyboardKey.period): nada,
-            SingleActivator(
-              LogicalKeyboardKey.arrowUp,
-              shift: true,
-              meta: Platform.isMacOS,
-              control: !Platform.isMacOS,
-            ): nada,
+    return BlocListener<BoardActionsCubit, BoardActionsState>(
+      listener: (context, state) {
+        state.maybeMap(
+          startEditingRow: (value) {
+            if (value.groupedRowId.rowId == widget.groupItem.id &&
+                value.groupedRowId.groupId == groupData.group.groupId) {
+              setState(() => _isEditing = true);
+            }
           },
-          child: ConditionalListenableBuilder<List<GroupedRowId>>(
-            valueListenable: notifier,
-            buildWhen: (previous, current) {
-              final focusItem = GroupedRowId(
-                groupId: groupData.group.groupId,
-                rowId: rowMeta.id,
-              );
-              final previousContainsFocus = previous.contains(focusItem);
-              final currentContainsFocus = current.contains(focusItem);
+          endEditingRow: (_) {
+            if (_isEditing) {
+              setState(() => _isEditing = false);
+            }
+          },
+          createRow: (value) {
+            if ((_isEditing && value.groupedRowId == null) ||
+                value.groupedRowId?.rowId == widget.groupItem.id ||
+                _isEditing) {
+              context.read<BoardBloc>().add(
+                    BoardEvent.createRow(
+                      groupData.group.groupId,
+                      value.position == CreateBoardCardRelativePosition.before
+                          ? OrderObjectPositionTypePB.Before
+                          : OrderObjectPositionTypePB.After,
+                      null,
+                      widget.groupItem.row.id,
+                    ),
+                  );
+            }
+          },
+          orElse: () {},
+        );
+      },
+      child: Shortcuts(
+        shortcuts: {
+          const SingleActivator(LogicalKeyboardKey.arrowUp): nada,
+          const SingleActivator(LogicalKeyboardKey.arrowDown): nada,
+          const SingleActivator(LogicalKeyboardKey.arrowUp, shift: true): nada,
+          const SingleActivator(LogicalKeyboardKey.arrowDown, shift: true):
+              nada,
+          const SingleActivator(LogicalKeyboardKey.keyE): nada,
+          const SingleActivator(LogicalKeyboardKey.keyN): nada,
+          const SingleActivator(LogicalKeyboardKey.delete): nada,
+          const SingleActivator(LogicalKeyboardKey.backspace): nada,
+          const SingleActivator(LogicalKeyboardKey.enter): nada,
+          const SingleActivator(LogicalKeyboardKey.numpadEnter): nada,
+          const SingleActivator(LogicalKeyboardKey.comma): nada,
+          const SingleActivator(LogicalKeyboardKey.period): nada,
+          SingleActivator(
+            LogicalKeyboardKey.arrowUp,
+            shift: true,
+            meta: Platform.isMacOS,
+            control: !Platform.isMacOS,
+          ): nada,
+        },
+        child: ConditionalListenableBuilder<List<GroupedRowId>>(
+          valueListenable: widget.notifier,
+          buildWhen: (previous, current) {
+            final focusItem = GroupedRowId(
+              groupId: groupData.group.groupId,
+              rowId: rowMeta.id,
+            );
+            final previousContainsFocus = previous.contains(focusItem);
+            final currentContainsFocus = current.contains(focusItem);
 
-              return previousContainsFocus != currentContainsFocus;
-            },
-            builder: (context, focusedItems, child) => Container(
-              margin: boardConfig.cardMargin,
-              decoration: _makeBoxDecoration(
-                context,
-                groupData.group.groupId,
-                groupItem.id,
-              ),
-              child: child,
+            return previousContainsFocus != currentContainsFocus;
+          },
+          builder: (context, focusedItems, child) => Container(
+            margin: widget.boardConfig.cardMargin,
+            decoration: _makeBoxDecoration(
+              context,
+              groupData.group.groupId,
+              widget.groupItem.id,
             ),
-            child: RowCard(
-              fieldController: databaseController.fieldController,
-              rowMeta: rowMeta,
-              viewId: boardBloc.viewId,
-              rowCache: rowCache,
-              groupingFieldId: groupItem.fieldInfo.id,
-              isEditing: isEditing,
-              cellBuilder: cellBuilder,
-              onTap: (context) => _openCard(
-                context: context,
-                databaseController: databaseController,
-                rowMeta: context.read<CardBloc>().state.rowMeta,
-              ),
-              onShiftTap: (_) {
-                Focus.of(context).requestFocus();
-                notifier.toggle(
-                  GroupedRowId(
-                    rowId: groupItem.row.id,
-                    groupId: groupData.group.groupId,
-                  ),
-                );
-              },
-              styleConfiguration: RowCardStyleConfiguration(
-                cellStyleMap: desktopBoardCardCellStyleMap(context),
-                hoverStyle: HoverStyle(
-                  hoverColor: Theme.of(context).brightness == Brightness.light
-                      ? const Color(0x0F1F2329)
-                      : const Color(0x0FEFF4FB),
-                  foregroundColorOnHover:
-                      Theme.of(context).colorScheme.onBackground,
+            child: child,
+          ),
+          child: RowCard(
+            fieldController: databaseController.fieldController,
+            rowMeta: rowMeta,
+            viewId: boardBloc.viewId,
+            rowCache: rowCache,
+            groupingFieldId: widget.groupItem.fieldInfo.id,
+            isEditing: _isEditing,
+            cellBuilder: widget.cellBuilder,
+            onTap: (context) => _openCard(
+              context: context,
+              databaseController: databaseController,
+              rowMeta: context.read<CardBloc>().state.rowMeta,
+            ),
+            onShiftTap: (_) {
+              Focus.of(context).requestFocus();
+              widget.notifier.toggle(
+                GroupedRowId(
+                  rowId: widget.groupItem.row.id,
+                  groupId: groupData.group.groupId,
                 ),
+              );
+            },
+            styleConfiguration: RowCardStyleConfiguration(
+              cellStyleMap: desktopBoardCardCellStyleMap(context),
+              hoverStyle: HoverStyle(
+                hoverColor: Theme.of(context).brightness == Brightness.light
+                    ? const Color(0x0F1F2329)
+                    : const Color(0x0FEFF4FB),
+                foregroundColorOnHover:
+                    Theme.of(context).colorScheme.onBackground,
               ),
-              onStartEditing: () => boardBloc.add(
-                BoardEvent.startEditingRow(
+            ),
+            onStartEditing: () =>
+                context.read<BoardActionsCubit>().startEditingRow(
+                      GroupedRowId(
+                        groupId: groupData.group.groupId,
+                        rowId: rowMeta.id,
+                      ),
+                    ),
+            onEndEditing: () => context.read<BoardActionsCubit>().endEditing(
                   GroupedRowId(
                     groupId: groupData.group.groupId,
                     rowId: rowMeta.id,
                   ),
                 ),
-              ),
-              onEndEditing: () =>
-                  boardBloc.add(const BoardEvent.endEditingRow()),
-            ),
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 
@@ -587,12 +686,12 @@ class _BoardCard extends StatelessWidget {
       borderRadius: const BorderRadius.all(Radius.circular(6)),
       border: Border.fromBorderSide(
         BorderSide(
-          color:
-              notifier.isFocused(GroupedRowId(rowId: rowId, groupId: groupId))
-                  ? Theme.of(context).colorScheme.primary
-                  : Theme.of(context).brightness == Brightness.light
-                      ? const Color(0xFF1F2329).withOpacity(0.12)
-                      : const Color(0xFF59647A),
+          color: widget.notifier
+                  .isFocused(GroupedRowId(rowId: rowId, groupId: groupId))
+              ? Theme.of(context).colorScheme.primary
+              : Theme.of(context).brightness == Brightness.light
+                  ? const Color(0xFF1F2329).withOpacity(0.12)
+                  : const Color(0xFF59647A),
         ),
       ),
       boxShadow: [

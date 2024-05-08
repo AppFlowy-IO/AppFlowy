@@ -108,28 +108,31 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
             );
 
             final startEditing = position != OrderObjectPositionTypePB.End;
+            final action = PlatformExtension.isMobile
+                ? DidCreateRowAction.openAsPage
+                : startEditing
+                    ? DidCreateRowAction.startEditing
+                    : DidCreateRowAction.none;
 
             result.fold(
               (rowMeta) {
-                if (PlatformExtension.isMobile) {
-                  final previousState = state;
-                  state.maybeMap(
-                    ready: (state) {
-                      emit(BoardState.openCard(rowMeta: rowMeta));
-                      emit(previousState);
-                    },
-                    orElse: () {},
-                  );
-                } else if (startEditing) {
-                  add(
-                    BoardEvent.startEditingRow(
-                      GroupedRowId(
-                        groupId: groupId,
-                        rowId: rowMeta.id,
-                      ),
-                    ),
-                  );
-                }
+                state.maybeMap(
+                  ready: (value) {
+                    if (action != DidCreateRowAction.none) {
+                      emit(
+                        value.copyWith(
+                          createdRow: DidCreateRowResult(
+                            action: action,
+                            rowMeta: rowMeta,
+                            groupId: groupId,
+                          ),
+                        ),
+                      );
+                      emit(value);
+                    }
+                  },
+                  orElse: () {},
+                );
               },
               (err) => Log.error(err),
             );
@@ -194,30 +197,6 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
           reorderGroup: (fromGroupId, toGroupId) async {
             _reorderGroup(fromGroupId, toGroupId, emit);
           },
-          startEditingRow: (groupedRowId) {
-            _setBoardIsDraggable(true);
-            final previousState = state;
-            emit(const BoardState.setFocus(groupedRowIds: []));
-            previousState.maybeMap(
-              ready: (state) => emit(state.copyWith(editingRow: groupedRowId)),
-              orElse: () {},
-            );
-          },
-          endEditingRow: () {
-            _setBoardIsDraggable(false);
-            final previousState = state;
-            final groupedRowId = state.maybeMap(
-              ready: (value) => value.editingRow,
-              orElse: () => null,
-            );
-            if (groupedRowId != null) {
-              emit(BoardState.setFocus(groupedRowIds: [groupedRowId]));
-            }
-            previousState.maybeMap(
-              ready: (state) => emit(state.copyWith(editingRow: null)),
-              orElse: () {},
-            );
-          },
           startEditingHeader: (String groupId) {
             state.maybeMap(
               ready: (state) => emit(state.copyWith(editingHeaderId: groupId)),
@@ -238,17 +217,6 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
           deleteCards: (groupedRowIds) async {
             final rowIds = groupedRowIds.map((e) => e.rowId).toList();
             await RowBackendService.deleteRows(viewId, rowIds);
-          },
-          openCard: (groupedRowId) {
-            final previousState = state;
-            emit(
-              BoardState.openCard(
-                rowMeta: databaseController.rowCache
-                    .getRow(groupedRowId.rowId)!
-                    .rowMeta,
-              ),
-            );
-            emit(previousState);
           },
           moveGroupToAdjacentGroup: (groupedRowId, toPrevious) async {
             final fromRow =
@@ -285,18 +253,9 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
               );
             }
           },
-          startCreatingBottomRow: (groupId) {
-            final previousState = state;
-            emit(BoardState.createBottomRow(groupId: groupId));
-            emit(previousState);
-          },
         );
       },
     );
-  }
-
-  void _setBoardIsDraggable(bool isEdit) {
-    boardController.enableGroupDragging(!isEdit);
   }
 
   Future<void> _setGroupVisibility(GroupPB group, bool isVisible) async {
@@ -642,9 +601,6 @@ class BoardEvent with _$BoardEvent {
       _StartEditingHeader;
   const factory BoardEvent.endEditingHeader(String groupId, String? groupName) =
       _EndEditingHeader;
-  const factory BoardEvent.startEditingRow(GroupedRowId groupedRowId) =
-      _StartEditRow;
-  const factory BoardEvent.endEditingRow() = _EndEditRow;
   const factory BoardEvent.setGroupVisibility(
     GroupPB group,
     bool isVisible,
@@ -662,13 +618,10 @@ class BoardEvent with _$BoardEvent {
   ) = _DidUpdateLayoutSettings;
   const factory BoardEvent.deleteCards(List<GroupedRowId> groupedRowIds) =
       _DeleteCards;
-  const factory BoardEvent.openCard(GroupedRowId groupedRowId) = _OpenCard;
   const factory BoardEvent.moveGroupToAdjacentGroup(
     GroupedRowId groupedRowId,
     bool toPrevious,
   ) = _MoveGroupToAdjacentGroup;
-  const factory BoardEvent.startCreatingBottomRow(String groupId) =
-      _StartCreatingBottomRow;
 }
 
 @freezed
@@ -689,20 +642,12 @@ class BoardState with _$BoardState {
     required BoardLayoutSettingPB? layoutSettings,
     required List<GroupPB> hiddenGroups,
     String? editingHeaderId,
-    GroupedRowId? editingRow,
+    DidCreateRowResult? createdRow,
   }) = _BoardReadyState;
-
-  const factory BoardState.openCard({
-    required RowMetaPB rowMeta,
-  }) = _BoardOpenCardState;
 
   const factory BoardState.setFocus({
     required List<GroupedRowId> groupedRowIds,
   }) = _BoardSetFocusState;
-
-  const factory BoardState.createBottomRow({
-    required String groupId,
-  }) = _BoardCreateBottomRowState;
 
   factory BoardState.initial(String viewId) => BoardState.ready(
         viewId: viewId,
@@ -716,10 +661,7 @@ class BoardState with _$BoardState {
   bool get isLoading => maybeMap(loading: (_) => true, orElse: () => false);
   bool get isError => maybeMap(error: (_) => true, orElse: () => false);
   bool get isReady => maybeMap(ready: (_) => true, orElse: () => false);
-  bool get isOpenCard => maybeMap(openCard: (_) => true, orElse: () => false);
   bool get isSetFocus => maybeMap(setFocus: (_) => true, orElse: () => false);
-  bool get isCreateBottomRow =>
-      maybeMap(createBottomRow: (_) => true, orElse: () => false);
 }
 
 List<GroupPB> _filterHiddenGroups(bool hideUngrouped, List<GroupPB> groups) {
@@ -859,4 +801,22 @@ class CheckboxGroup {
   // Hardcode value: "Yes" that equal to the value defined in Rust
   // pub const CHECK: &str = "Yes";
   bool get isCheck => group.groupId == "Yes";
+}
+
+enum DidCreateRowAction {
+  none,
+  openAsPage,
+  startEditing,
+}
+
+class DidCreateRowResult {
+  DidCreateRowResult({
+    required this.action,
+    required this.rowMeta,
+    required this.groupId,
+  });
+
+  final DidCreateRowAction action;
+  final RowMetaPB rowMeta;
+  final String groupId;
 }
