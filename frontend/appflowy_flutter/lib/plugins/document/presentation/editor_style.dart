@@ -214,7 +214,7 @@ class EditorStyleCustomizer {
       );
 
   TextStyle baseTextStyle(String? fontFamily, {FontWeight? fontWeight}) {
-    if (fontFamily == null) {
+    if (fontFamily == null || fontFamily == defaultFontFamily) {
       return TextStyle(fontWeight: fontWeight);
     }
     try {
