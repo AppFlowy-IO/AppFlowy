@@ -27,7 +27,7 @@ void main() {
 
     test('Initial state', () {
       expect(cubit.state.fontSize, 16.0);
-      expect(cubit.state.fontFamily, builtInFontFamily());
+      expect(cubit.state.fontFamily, defaultFontFamily);
     });
 
     test('Fetch document appearance from SharedPreferences', () async {

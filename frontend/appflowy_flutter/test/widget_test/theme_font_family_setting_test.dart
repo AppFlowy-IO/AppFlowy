@@ -1,7 +1,9 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_appearance/font_family_setting.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -56,9 +58,9 @@ void main() {
                 value: documentAppearanceCubit,
               ),
             ],
-            child: Scaffold(
+            child: const Scaffold(
               body: ThemeFontFamilySetting(
-                currentFontFamily: builtInFontFamily(),
+                currentFontFamily: defaultFontFamily,
               ),
             ),
           ),
@@ -71,7 +73,10 @@ void main() {
     await tester.pumpAndSettle();
 
     // Verify the initial font family
-    expect(find.text(builtInFontFamily()), findsAtLeastNWidgets(1));
+    expect(
+      find.text(LocaleKeys.settings_appearance_fontFamily_defaultFont.tr()),
+      findsAtLeastNWidgets(1),
+    );
     when(() => appearanceSettingsCubit.setFontFamily(any<String>()))
         .thenAnswer((_) async {});
     verifyNever(() => appearanceSettingsCubit.setFontFamily(any<String>()));
