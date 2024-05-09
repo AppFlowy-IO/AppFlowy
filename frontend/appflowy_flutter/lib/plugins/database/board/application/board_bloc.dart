@@ -29,6 +29,7 @@ part 'board_bloc.freezed.dart';
 class BoardBloc extends Bloc<BoardEvent, BoardState> {
   BoardBloc({
     required this.databaseController,
+    this.didCreateRow,
     AppFlowyBoardController? boardController,
   }) : super(const BoardState.loading()) {
     groupBackendSvc = GroupBackendService(viewId);
@@ -41,6 +42,8 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   final LinkedHashMap<String, GroupController> groupControllers =
       LinkedHashMap();
   final List<GroupPB> groupList = [];
+
+  final ValueNotifier<DidCreateRowResult?>? didCreateRow;
 
   late final GroupBackendService groupBackendSvc;
 
@@ -118,18 +121,11 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
               (rowMeta) {
                 state.maybeMap(
                   ready: (value) {
-                    if (action != DidCreateRowAction.none) {
-                      emit(
-                        value.copyWith(
-                          createdRow: DidCreateRowResult(
-                            action: action,
-                            rowMeta: rowMeta,
-                            groupId: groupId,
-                          ),
-                        ),
-                      );
-                      emit(value);
-                    }
+                    didCreateRow?.value = DidCreateRowResult(
+                      action: action,
+                      rowMeta: rowMeta,
+                      groupId: groupId,
+                    );
                   },
                   orElse: () {},
                 );

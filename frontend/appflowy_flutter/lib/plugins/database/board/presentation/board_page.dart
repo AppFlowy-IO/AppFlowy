@@ -117,7 +117,7 @@ class _DesktopBoardPageState extends State<DesktopBoardPage> {
       toGroupId: toGroupId,
     ),
     onMoveGroupItem: (groupId, fromIndex, toIndex) {
-      final groupControllers = bloc.groupControllers;
+      final groupControllers = _boardBloc.groupControllers;
       final fromRow = groupControllers[groupId]?.rowAtIndex(fromIndex);
       final toRow = groupControllers[groupId]?.rowAtIndex(toIndex);
       if (fromRow != null) {
@@ -130,7 +130,7 @@ class _DesktopBoardPageState extends State<DesktopBoardPage> {
       }
     },
     onMoveGroupItemToGroup: (fromGroupId, fromIndex, toGroupId, toIndex) {
-      final groupControllers = bloc.groupControllers;
+      final groupControllers = _boardBloc.groupControllers;
       final fromRow = groupControllers[fromGroupId]?.rowAtIndex(fromIndex);
       final toRow = groupControllers[toGroupId]?.rowAtIndex(toIndex);
       if (fromRow != null) {
@@ -143,7 +143,7 @@ class _DesktopBoardPageState extends State<DesktopBoardPage> {
       }
     },
     onStartDraggingCard: (groupId, index) {
-      final groupControllers = bloc.groupControllers;
+      final groupControllers = _boardBloc.groupControllers;
       final toRow = groupControllers[groupId]?.rowAtIndex(index);
       if (toRow != null) {
         _focusScope.clear();
@@ -154,16 +154,32 @@ class _DesktopBoardPageState extends State<DesktopBoardPage> {
   late final _focusScope = BoardFocusScope(
     boardController: _boardController,
   );
+  late final BoardBloc _boardBloc;
+  late final BoardActionsCubit _boardActionsCubit;
+  late final ValueNotifier<DidCreateRowResult?> _didCreateRow;
 
-  late final BoardBloc bloc = BoardBloc(
-    databaseController: widget.databaseController,
-    boardController: _boardController,
-  )..add(const BoardEvent.initial());
+  @override
+  void initState() {
+    super.initState();
+    _didCreateRow = ValueNotifier(null);
+    _didCreateRow.addListener(_handleDidCreateRow);
+    _boardBloc = BoardBloc(
+      databaseController: widget.databaseController,
+      didCreateRow: _didCreateRow,
+      boardController: _boardController,
+    )..add(const BoardEvent.initial());
+    _boardActionsCubit = BoardActionsCubit(
+      databaseController: widget.databaseController,
+    );
+  }
 
   @override
   void dispose() {
     _focusScope.dispose();
-    bloc.close();
+    _boardBloc.close();
+    _boardActionsCubit.close();
+    _didCreateRow.removeListener(_handleDidCreateRow);
+    _didCreateRow.dispose();
     super.dispose();
   }
 
@@ -172,12 +188,10 @@ class _DesktopBoardPageState extends State<DesktopBoardPage> {
     return MultiBlocProvider(
       providers: [
         BlocProvider<BoardBloc>.value(
-          value: bloc,
+          value: _boardBloc,
         ),
-        BlocProvider(
-          create: (_) => BoardActionsCubit(
-            databaseController: widget.databaseController,
-          ),
+        BlocProvider.value(
+          value: _boardActionsCubit,
         ),
       ],
       child: BlocBuilder<BoardBloc, BoardState>(
@@ -197,6 +211,29 @@ class _DesktopBoardPageState extends State<DesktopBoardPage> {
         ),
       ),
     );
+  }
+
+  void _handleDidCreateRow() async {
+    // work around: wait for the new card to be inserted into the board before enabling edit
+    await Future.delayed(const Duration(milliseconds: 50));
+    if (_didCreateRow.value != null) {
+      final result = _didCreateRow.value!;
+      switch (result.action) {
+        case DidCreateRowAction.openAsPage:
+          _boardActionsCubit.openCard(result.rowMeta);
+          break;
+        case DidCreateRowAction.startEditing:
+          _boardActionsCubit.startEditingRow(
+            GroupedRowId(
+              groupId: result.groupId,
+              rowId: result.rowMeta.id,
+            ),
+          );
+          break;
+        default:
+          break;
+      }
+    }
   }
 }
 
@@ -249,30 +286,8 @@ class _BoardContentState extends State<_BoardContent> {
         BlocListener<BoardBloc, BoardState>(
           listener: (context, state) {
             state.maybeMap(
-              ready: (value) async {
+              ready: (value) {
                 widget.onEditStateChanged?.call();
-                // hack: wait for the new card to be inserted into the board before enabling edit
-                await Future.delayed(const Duration(milliseconds: 10));
-                if (context.mounted && value.createdRow != null) {
-                  final result = value.createdRow!;
-                  switch (result.action) {
-                    case DidCreateRowAction.openAsPage:
-                      context
-                          .read<BoardActionsCubit>()
-                          .openCard(result.rowMeta);
-                      break;
-                    case DidCreateRowAction.startEditing:
-                      context.read<BoardActionsCubit>().startEditingRow(
-                            GroupedRowId(
-                              groupId: result.groupId,
-                              rowId: result.rowMeta.id,
-                            ),
-                          );
-                      break;
-                    default:
-                      break;
-                  }
-                }
               },
               orElse: () {},
             );
@@ -294,10 +309,6 @@ class _BoardContentState extends State<_BoardContent> {
               },
               startEditingRow: (value) {
                 widget.focusScope.clear();
-                // widget.boardController.enableGroupDragging(false);
-              },
-              endEditingRow: (value) {
-                // widget.boardController.enableGroupDragging(true);
               },
               orElse: () {},
             );
