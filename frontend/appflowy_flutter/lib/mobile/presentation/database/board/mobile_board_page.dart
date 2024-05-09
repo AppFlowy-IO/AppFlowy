@@ -73,7 +73,6 @@ class _BoardContent extends StatefulWidget {
 
 class _BoardContentState extends State<_BoardContent> {
   late final ScrollController scrollController;
-  late final AppFlowyBoardScrollController scrollManager;
 
   @override
   void initState() {
@@ -129,7 +128,6 @@ class _BoardContentState extends State<_BoardContent> {
                 false;
             final showHiddenGroups = state.hiddenGroups.isNotEmpty;
             return AppFlowyBoard(
-              boardScrollController: scrollManager,
               scrollController: scrollController,
               controller: context.read<BoardBloc>().boardController,
               groupConstraints:

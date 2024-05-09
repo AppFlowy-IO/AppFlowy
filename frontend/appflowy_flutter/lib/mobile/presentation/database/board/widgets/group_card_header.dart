@@ -160,7 +160,7 @@ class _GroupCardHeaderState extends State<GroupCardHeader> {
                     context.read<BoardBloc>().add(
                           BoardEvent.createRow(
                             widget.groupData.id,
-                            OrderObjectPositionTypePB.After,
+                            OrderObjectPositionTypePB.Start,
                             null,
                             null,
                           ),
