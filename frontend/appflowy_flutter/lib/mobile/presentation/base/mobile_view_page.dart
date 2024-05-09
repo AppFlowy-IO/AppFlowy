@@ -226,9 +226,12 @@ class _MobileViewPageState extends State<MobileViewPage> {
       mainAxisSize: MainAxisSize.min,
       children: [
         if (icon != null && icon.isNotEmpty)
-          EmojiText(
-            emoji: '$icon ',
-            fontSize: 22.0,
+          ConstrainedBox(
+            constraints: const BoxConstraints.tightFor(width: 34.0),
+            child: EmojiText(
+              emoji: '$icon ',
+              fontSize: 22.0,
+            ),
           ),
         Expanded(
           child: FlowyText.medium(
