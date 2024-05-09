@@ -15,7 +15,7 @@ use uuid::Uuid;
 use crate::entities::{
   AuthResponse, Authenticator, RecurringInterval, Role, SubscriptionPlan, UpdateUserProfileParams,
   UserCredentials, UserProfile, UserTokenState, UserWorkspace, WorkspaceInvitation,
-  WorkspaceInvitationStatus, WorkspaceMember,
+  WorkspaceInvitationStatus, WorkspaceMember, WorkspaceSubscription,
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -275,6 +275,10 @@ pub trait UserCloudService: Send + Sync + 'static {
     workspace_subscription_plan: SubscriptionPlan,
     success_url: String,
   ) -> FutureResult<String, FlowyError> {
+    FutureResult::new(async { Err(FlowyError::not_support()) })
+  }
+
+  fn get_workspace_subscriptions(&self) -> FutureResult<Vec<WorkspaceSubscription>, FlowyError> {
     FutureResult::new(async { Err(FlowyError::not_support()) })
   }
 }

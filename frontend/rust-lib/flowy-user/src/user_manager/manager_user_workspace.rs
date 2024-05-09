@@ -11,6 +11,7 @@ use flowy_sqlite::schema::user_workspace_table;
 use flowy_sqlite::{query_dsl::*, DBConnection, ExpressionMethods};
 use flowy_user_pub::entities::{
   Role, UserWorkspace, WorkspaceInvitation, WorkspaceInvitationStatus, WorkspaceMember,
+  WorkspaceSubscription,
 };
 use lib_dispatch::prelude::af_spawn;
 
@@ -419,6 +420,16 @@ impl UserManager {
       .await?;
 
     Ok(payment_link)
+  }
+
+  #[instrument(level = "info", skip(self), err)]
+  pub async fn get_workspace_subscriptions(&self) -> FlowyResult<Vec<WorkspaceSubscription>> {
+    let res = self
+      .cloud_services
+      .get_user_service()?
+      .get_workspace_subscriptions()
+      .await?;
+    Ok(res)
   }
 }
 

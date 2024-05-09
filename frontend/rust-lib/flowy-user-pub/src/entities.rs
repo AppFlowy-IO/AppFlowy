@@ -428,6 +428,14 @@ pub enum RecurringInterval {
 }
 
 pub enum SubscriptionPlan {
+  None,
   Pro,
   Team,
+}
+
+pub struct WorkspaceSubscription {
+  pub workspace_id: String,
+  pub subscription_plan: SubscriptionPlan,
+  pub recurring_interval: RecurringInterval,
+  pub is_active: bool,
 }

@@ -73,6 +73,7 @@ pub fn init(user_manager: Weak<UserManager>) -> AFPlugin {
     .event(UserEvent::AcceptWorkspaceInvitation, accept_workspace_invitations_handler)
     // Billing
     .event(UserEvent::SubscribeWorkspace, subscribe_workspace_handler)
+    .event(UserEvent::GetWorkspaceSubscriptions, get_workspace_subscriptions_handler)
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
@@ -235,6 +236,9 @@ pub enum UserEvent {
 
   #[event(input = "SubscribeWorkspacePB", output = "PaymentLinkPB")]
   SubscribeWorkspace = 51,
+
+  #[event(output = "RepeatedWorkspaceSubscriptionPB")]
+  GetWorkspaceSubscriptions = 52,
 }
 
 pub trait UserStatusCallback: Send + Sync + 'static {

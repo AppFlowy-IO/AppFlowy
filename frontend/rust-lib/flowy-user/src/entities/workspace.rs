@@ -3,6 +3,7 @@ use validator::Validate;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_user_pub::entities::{
   RecurringInterval, Role, SubscriptionPlan, WorkspaceInvitation, WorkspaceMember,
+  WorkspaceSubscription,
 };
 use lib_infra::validator_fn::required_not_empty_str;
 
@@ -223,10 +224,19 @@ pub enum RecurringIntervalPB {
 }
 
 impl From<RecurringIntervalPB> for RecurringInterval {
-  fn from(value: RecurringIntervalPB) -> Self {
-    match value {
+  fn from(r: RecurringIntervalPB) -> Self {
+    match r {
       RecurringIntervalPB::Month => RecurringInterval::Month,
       RecurringIntervalPB::Year => RecurringInterval::Year,
+    }
+  }
+}
+
+impl From<RecurringInterval> for RecurringIntervalPB {
+  fn from(r: RecurringInterval) -> Self {
+    match r {
+      RecurringInterval::Month => RecurringIntervalPB::Month,
+      RecurringInterval::Year => RecurringIntervalPB::Year,
     }
   }
 }
@@ -234,8 +244,9 @@ impl From<RecurringIntervalPB> for RecurringInterval {
 #[derive(ProtoBuf_Enum, Clone, Default, Debug)]
 pub enum SubscriptionPlanPB {
   #[default]
-  Pro = 0,
-  Team = 1,
+  None = 0,
+  Pro = 1,
+  Team = 2,
 }
 
 impl From<SubscriptionPlanPB> for SubscriptionPlan {
@@ -243,6 +254,17 @@ impl From<SubscriptionPlanPB> for SubscriptionPlan {
     match value {
       SubscriptionPlanPB::Pro => SubscriptionPlan::Pro,
       SubscriptionPlanPB::Team => SubscriptionPlan::Team,
+      SubscriptionPlanPB::None => SubscriptionPlan::None,
+    }
+  }
+}
+
+impl From<SubscriptionPlan> for SubscriptionPlanPB {
+  fn from(value: SubscriptionPlan) -> Self {
+    match value {
+      SubscriptionPlan::Pro => SubscriptionPlanPB::Pro,
+      SubscriptionPlan::Team => SubscriptionPlanPB::Team,
+      SubscriptionPlan::None => SubscriptionPlanPB::None,
     }
   }
 }
@@ -251,4 +273,36 @@ impl From<SubscriptionPlanPB> for SubscriptionPlan {
 pub struct PaymentLinkPB {
   #[pb(index = 1)]
   pub payment_link: String,
+}
+
+#[derive(Debug, ProtoBuf, Default, Clone)]
+pub struct RepeatedWorkspaceSubscriptionPB {
+  #[pb(index = 1)]
+  pub items: Vec<WorkspaceSubscriptionPB>,
+}
+
+#[derive(Debug, ProtoBuf, Default, Clone)]
+pub struct WorkspaceSubscriptionPB {
+  #[pb(index = 1)]
+  pub workspace_id: String,
+
+  #[pb(index = 2)]
+  pub subscription_plan: SubscriptionPlanPB,
+
+  #[pb(index = 3)]
+  pub recurring_interval: RecurringIntervalPB,
+
+  #[pb(index = 4)]
+  pub is_active: bool,
+}
+
+impl From<WorkspaceSubscription> for WorkspaceSubscriptionPB {
+  fn from(s: WorkspaceSubscription) -> Self {
+    Self {
+      workspace_id: s.workspace_id,
+      subscription_plan: s.subscription_plan.into(),
+      recurring_interval: s.recurring_interval.into(),
+      is_active: s.is_active,
+    }
+  }
 }

@@ -785,3 +785,17 @@ pub async fn subscribe_workspace_handler(
   let payment_link = manager.subscribe_workspace(params).await?;
   data_result_ok(PaymentLinkPB { payment_link })
 }
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn get_workspace_subscriptions_handler(
+  manager: AFPluginState<Weak<UserManager>>,
+) -> DataResult<RepeatedWorkspaceSubscriptionPB, FlowyError> {
+  let manager = upgrade_manager(manager)?;
+  let subs = manager
+    .get_workspace_subscriptions()
+    .await?
+    .into_iter()
+    .map(WorkspaceSubscriptionPB::from)
+    .collect::<Vec<_>>();
+  data_result_ok(RepeatedWorkspaceSubscriptionPB { items: subs })
+}
