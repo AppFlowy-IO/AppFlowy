@@ -48,6 +48,9 @@ class DatabaseDocumentPluginBuilder extends PluginBuilder {
 
   @override
   PluginType get pluginType => PluginType.databaseDocument;
+
+  @override
+  ViewLayoutPB get layoutType => ViewLayoutPB.Document;
 }
 
 class DatabaseDocumentPlugin extends Plugin {

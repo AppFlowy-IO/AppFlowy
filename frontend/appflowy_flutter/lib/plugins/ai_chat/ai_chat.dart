@@ -2,47 +2,47 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/view.pbenum.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 
-class BlankPluginBuilder extends PluginBuilder {
+class AIChatPluginBuilder extends PluginBuilder {
   @override
   Plugin build(dynamic data) {
-    return BlankPagePlugin();
+    return AIChatPagePlugin();
   }
 
   @override
-  String get menuName => "Blank";
+  String get menuName => "AIChat";
 
   @override
-  FlowySvgData get icon => const FlowySvgData('');
+  FlowySvgData get icon => FlowySvgs.ai_summary_s;
 
   @override
-  PluginType get pluginType => PluginType.blank;
+  PluginType get pluginType => PluginType.aiChat;
 
   @override
   ViewLayoutPB get layoutType => ViewLayoutPB.Document;
 }
 
-class BlankPluginConfig implements PluginConfig {
+class AIChatPluginConfig implements PluginConfig {
   @override
-  bool get creatable => false;
+  bool get creatable => true;
 }
 
-class BlankPagePlugin extends Plugin {
+class AIChatPagePlugin extends Plugin {
   @override
-  PluginWidgetBuilder get widgetBuilder => BlankPagePluginWidgetBuilder();
+  PluginWidgetBuilder get widgetBuilder => AIChatPagePluginWidgetBuilder();
 
   @override
-  PluginId get id => "BlankStack";
+  PluginId get id => "AIChatStack";
 
   @override
-  PluginType get pluginType => PluginType.blank;
+  PluginType get pluginType => PluginType.aiChat;
 }
 
-class BlankPagePluginWidgetBuilder extends PluginWidgetBuilder
+class AIChatPagePluginWidgetBuilder extends PluginWidgetBuilder
     with NavigationItem {
   @override
   Widget get leftBarItem => FlowyText.medium(LocaleKeys.blankPageTitle.tr());
@@ -52,20 +52,20 @@ class BlankPagePluginWidgetBuilder extends PluginWidgetBuilder
 
   @override
   Widget buildWidget({PluginContext? context, required bool shrinkWrap}) =>
-      const BlankPage();
+      const AIChatPage();
 
   @override
   List<NavigationItem> get navigationItems => [this];
 }
 
-class BlankPage extends StatefulWidget {
-  const BlankPage({super.key});
+class AIChatPage extends StatefulWidget {
+  const AIChatPage({super.key});
 
   @override
-  State<BlankPage> createState() => _BlankPageState();
+  State<AIChatPage> createState() => _AIChatPageState();
 }
 
-class _BlankPageState extends State<BlankPage> {
+class _AIChatPageState extends State<AIChatPage> {
   @override
   Widget build(BuildContext context) {
     return SizedBox.expand(

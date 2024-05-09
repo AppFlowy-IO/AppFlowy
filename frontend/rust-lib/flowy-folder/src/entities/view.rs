@@ -115,6 +115,7 @@ pub enum ViewLayoutPB {
   Grid = 1,
   Board = 2,
   Calendar = 3,
+  Chat = 4,
 }
 
 impl ViewLayoutPB {
@@ -133,6 +134,7 @@ impl std::convert::From<ViewLayout> for ViewLayoutPB {
       ViewLayout::Board => ViewLayoutPB::Board,
       ViewLayout::Document => ViewLayoutPB::Document,
       ViewLayout::Calendar => ViewLayoutPB::Calendar,
+      ViewLayout::Chat => ViewLayoutPB::Chat,
     }
   }
 }

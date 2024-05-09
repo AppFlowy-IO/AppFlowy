@@ -44,7 +44,7 @@ class DocumentPluginBuilder extends PluginBuilder {
   PluginType get pluginType => PluginType.document;
 
   @override
-  ViewLayoutPB? get layoutType => ViewLayoutPB.Document;
+  ViewLayoutPB get layoutType => ViewLayoutPB.Document;
 }
 
 class DocumentPlugin extends Plugin {

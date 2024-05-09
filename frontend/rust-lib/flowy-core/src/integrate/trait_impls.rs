@@ -3,8 +3,9 @@ use std::sync::Arc;
 
 use anyhow::Error;
 use client_api::collab_sync::{SinkConfig, SyncObject, SyncPlugin};
-
 use collab::core::origin::{CollabClient, CollabOrigin};
+
+// use collab::core::origin::{CollabClient, CollabOrigin};
 use collab::preclude::CollabPlugin;
 use collab_entity::CollabType;
 use collab_plugins::cloud_storage::postgres::SupabaseDBPlugin;
@@ -372,7 +373,12 @@ impl CollabCloudPluginProvider for ServerProvider {
                 collab_object.uid,
                 collab_object.device_id.clone(),
               ));
-              let sync_object = SyncObject::from(collab_object);
+              let sync_object = SyncObject::new(
+                &collab_object.object_id,
+                &collab_object.workspace_id,
+                collab_object.collab_type.into(),
+                &collab_object.device_id,
+              );
               let (sink, stream) = (channel.sink(), channel.stream());
               let sink_config = SinkConfig::new().send_timeout(8);
               let sync_plugin = SyncPlugin::new(

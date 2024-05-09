@@ -37,10 +37,7 @@ where
     FutureResult::new(async move {
       let params = QueryCollabParams {
         workspace_id: workspace_id.clone(),
-        inner: QueryCollab {
-          object_id: document_id.to_string(),
-          collab_type: CollabType::Document,
-        },
+        inner: QueryCollab::new(document_id.to_string(), CollabType::Document.into()),
       };
       let doc_state = try_get_client?
         .get_collab(params)
@@ -82,10 +79,7 @@ where
     FutureResult::new(async move {
       let params = QueryCollabParams {
         workspace_id: workspace_id.clone(),
-        inner: QueryCollab {
-          object_id: document_id.clone(),
-          collab_type: CollabType::Document,
-        },
+        inner: QueryCollab::new(document_id.clone(), CollabType::Document.into()),
       };
       let doc_state = try_get_client?
         .get_collab(params)

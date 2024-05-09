@@ -18,6 +18,7 @@ enum PluginType {
   board,
   calendar,
   databaseDocument,
+  aiChat,
 }
 
 typedef PluginId = String;
@@ -57,7 +58,7 @@ abstract class PluginBuilder {
 
   /// The layoutType is used in the backend to determine the layout of the view.
   /// Currently, AppFlowy supports 4 layout types: Document, Grid, Board, Calendar.
-  ViewLayoutPB? get layoutType => ViewLayoutPB.Document;
+  ViewLayoutPB? get layoutType;
 }
 
 abstract class PluginConfig {

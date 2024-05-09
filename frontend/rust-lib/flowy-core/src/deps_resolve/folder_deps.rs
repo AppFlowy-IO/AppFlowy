@@ -9,7 +9,6 @@ use flowy_document::entities::DocumentDataPB;
 use flowy_document::manager::DocumentManager;
 use flowy_document::parser::json::parser::JsonToDocumentParser;
 use flowy_error::FlowyError;
-use flowy_folder::entities::ViewLayoutPB;
 use flowy_folder::manager::{FolderManager, FolderUser};
 use flowy_folder::share::ImportType;
 use flowy_folder::view_operation::{FolderOperationHandler, FolderOperationHandlers, View};
@@ -315,7 +314,15 @@ impl FolderOperationHandler for DatabaseFolderOperation {
       },
       Some(params) => {
         let database_manager = self.0.clone();
-        let layout = layout_type_from_view_layout(layout.into());
+
+        let layout = match layout {
+          ViewLayout::Board => DatabaseLayoutPB::Board,
+          ViewLayout::Calendar => DatabaseLayoutPB::Calendar,
+          ViewLayout::Grid => DatabaseLayoutPB::Grid,
+          ViewLayout::Document | ViewLayout::Chat => {
+            return FutureResult::new(async move { Err(FlowyError::not_support()) });
+          },
+        };
         let name = name.to_string();
         let database_view_id = view_id.to_string();
 
@@ -350,6 +357,10 @@ impl FolderOperationHandler for DatabaseFolderOperation {
         return FutureResult::new(async move {
           Err(FlowyError::internal().with_context(format!("Can't handle {:?} layout type", layout)))
         });
+      },
+      ViewLayout::Chat => {
+        // TODO(nathan): AI
+        todo!("AI")
       },
     };
     FutureResult::new(async move {
@@ -413,7 +424,7 @@ impl FolderOperationHandler for DatabaseFolderOperation {
 
   fn did_update_view(&self, old: &View, new: &View) -> FutureResult<(), FlowyError> {
     let database_layout = match new.layout {
-      ViewLayout::Document => {
+      ViewLayout::Document | ViewLayout::Chat => {
         return FutureResult::new(async {
           Err(FlowyError::internal().with_context("Can't handle document layout type"))
         });
@@ -447,14 +458,5 @@ impl CreateDatabaseExtParams {
   pub fn from_map(map: HashMap<String, String>) -> Option<Self> {
     let value = serde_json::to_value(map).ok()?;
     serde_json::from_value::<Self>(value).ok()
-  }
-}
-
-pub fn layout_type_from_view_layout(layout: ViewLayoutPB) -> DatabaseLayoutPB {
-  match layout {
-    ViewLayoutPB::Grid => DatabaseLayoutPB::Grid,
-    ViewLayoutPB::Board => DatabaseLayoutPB::Board,
-    ViewLayoutPB::Calendar => DatabaseLayoutPB::Calendar,
-    ViewLayoutPB::Document => DatabaseLayoutPB::Grid,
   }
 }
