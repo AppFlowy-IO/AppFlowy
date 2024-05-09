@@ -151,6 +151,15 @@ extension ViewLayoutExtension on ViewLayoutPB {
         _ => throw Exception('Unknown layout type'),
       };
 
+  bool get isDocumentView => switch (this) {
+        ViewLayoutPB.Document => true,
+        ViewLayoutPB.Grid ||
+        ViewLayoutPB.Board ||
+        ViewLayoutPB.Calendar =>
+          false,
+        _ => throw Exception('Unknown layout type'),
+      };
+
   bool get isDatabaseView => switch (this) {
         ViewLayoutPB.Grid ||
         ViewLayoutPB.Board ||
