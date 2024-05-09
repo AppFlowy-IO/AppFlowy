@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
@@ -25,6 +23,7 @@ import 'package:appflowy_editor/appflowy_editor.dart'
 import 'package:collection/collection.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
@@ -110,40 +109,46 @@ class _MentionPageBlockState extends State<MentionPageBlock> {
         }
 
         final iconSize = widget.textStyle?.fontSize ?? 16.0;
+        final child = GestureDetector(
+          onTap: handleTap,
+          onDoubleTap: handleDoubleTap,
+          behavior: HitTestBehavior.translucent,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const HSpace(4),
+              view.icon.value.isNotEmpty
+                  ? EmojiText(
+                      emoji: view.icon.value,
+                      fontSize: 12,
+                      textAlign: TextAlign.center,
+                      lineHeight: 1.3,
+                    )
+                  : FlowySvg(
+                      view.layout.icon,
+                      size: Size.square(iconSize + 2.0),
+                    ),
+              const HSpace(2),
+              FlowyText(
+                view.name,
+                decoration: TextDecoration.underline,
+                fontSize: widget.textStyle?.fontSize,
+                fontWeight: widget.textStyle?.fontWeight,
+              ),
+              const HSpace(2),
+            ],
+          ),
+        );
+
+        if (PlatformExtension.isMobile) {
+          return child;
+        }
+
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 2),
           child: FlowyHover(
             cursor: SystemMouseCursors.click,
-            child: GestureDetector(
-              onTap: handleTap,
-              onDoubleTap: handleDoubleTap,
-              behavior: HitTestBehavior.translucent,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const HSpace(4),
-                  view.icon.value.isNotEmpty
-                      ? EmojiText(
-                          emoji: view.icon.value,
-                          fontSize: 12,
-                          textAlign: TextAlign.center,
-                          lineHeight: 1.3,
-                        )
-                      : FlowySvg(
-                          view.layout.icon,
-                          size: Size.square(iconSize + 2.0),
-                        ),
-                  const HSpace(2),
-                  FlowyText(
-                    view.name,
-                    decoration: TextDecoration.underline,
-                    fontSize: widget.textStyle?.fontSize,
-                    fontWeight: widget.textStyle?.fontWeight,
-                  ),
-                  const HSpace(2),
-                ],
-              ),
-            ),
+            child: child,
           ),
         );
       },

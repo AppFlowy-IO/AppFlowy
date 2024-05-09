@@ -15,6 +15,7 @@ import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -260,7 +261,10 @@ class _MobileViewPageState extends State<MobileViewPage> {
     if (notification is ScrollUpdateNotification &&
         defaultScrollNotificationPredicate(notification)) {
       final ScrollMetrics metrics = notification.metrics;
-      final height = MediaQuery.of(context).padding.top;
+      double height = MediaQuery.of(context).padding.top;
+      if (defaultTargetPlatform == TargetPlatform.android) {
+        height += AppBarTheme.of(context).toolbarHeight ?? kToolbarHeight;
+      }
       final progress = (metrics.pixels / height).clamp(0.0, 1.0);
       // reduce the sensitivity of the app bar opacity change
       if ((progress - _appBarOpacity.value).abs() >= 0.1 ||
