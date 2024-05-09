@@ -100,12 +100,12 @@ class _BoardContentState extends State<_BoardContent> {
       cardMargin: const EdgeInsets.all(4),
     );
 
-    return BlocListener<BoardBloc, BoardState>(
+    return BlocConsumer<BoardBloc, BoardState>(
       listener: (context, state) {
         state.maybeMap(
           orElse: () {},
           ready: (value) {
-            if (context.mounted && value.createdRow != null) {
+            if (value.createdRow != null) {
               context.push(
                 MobileRowDetailPage.routeName,
                 extra: {
@@ -118,50 +118,48 @@ class _BoardContentState extends State<_BoardContent> {
           },
         );
       },
-      child: BlocBuilder<BoardBloc, BoardState>(
-        builder: (context, state) {
-          return state.maybeMap(
-            orElse: () => const SizedBox.shrink(),
-            ready: (state) {
-              final showCreateGroupButton = context
-                      .read<BoardBloc>()
-                      .groupingFieldType
-                      ?.canCreateNewGroup ??
-                  false;
-              final showHiddenGroups = state.hiddenGroups.isNotEmpty;
-              return AppFlowyBoard(
-                boardScrollController: scrollManager,
-                scrollController: scrollController,
-                controller: context.read<BoardBloc>().boardController,
-                groupConstraints:
-                    BoxConstraints.tightFor(width: screenWidth * 0.7),
-                config: config,
-                leading: showHiddenGroups
-                    ? MobileHiddenGroupsColumn(
-                        padding: config.groupHeaderPadding,
-                      )
-                    : const HSpace(16),
-                trailing: showCreateGroupButton
-                    ? const MobileBoardTrailing()
-                    : const HSpace(16),
-                headerBuilder: (_, groupData) => BlocProvider<BoardBloc>.value(
-                  value: context.read<BoardBloc>(),
-                  child: GroupCardHeader(
-                    groupData: groupData,
-                  ),
+      builder: (context, state) {
+        return state.maybeMap(
+          orElse: () => const SizedBox.shrink(),
+          ready: (state) {
+            final showCreateGroupButton = context
+                    .read<BoardBloc>()
+                    .groupingFieldType
+                    ?.canCreateNewGroup ??
+                false;
+            final showHiddenGroups = state.hiddenGroups.isNotEmpty;
+            return AppFlowyBoard(
+              boardScrollController: scrollManager,
+              scrollController: scrollController,
+              controller: context.read<BoardBloc>().boardController,
+              groupConstraints:
+                  BoxConstraints.tightFor(width: screenWidth * 0.7),
+              config: config,
+              leading: showHiddenGroups
+                  ? MobileHiddenGroupsColumn(
+                      padding: config.groupHeaderPadding,
+                    )
+                  : const HSpace(16),
+              trailing: showCreateGroupButton
+                  ? const MobileBoardTrailing()
+                  : const HSpace(16),
+              headerBuilder: (_, groupData) => BlocProvider<BoardBloc>.value(
+                value: context.read<BoardBloc>(),
+                child: GroupCardHeader(
+                  groupData: groupData,
                 ),
-                footerBuilder: _buildFooter,
-                cardBuilder: (_, column, columnItem) => _buildCard(
-                  context: context,
-                  afGroupData: column,
-                  afGroupItem: columnItem,
-                  cardMargin: config.cardMargin,
-                ),
-              );
-            },
-          );
-        },
-      ),
+              ),
+              footerBuilder: _buildFooter,
+              cardBuilder: (_, column, columnItem) => _buildCard(
+                context: context,
+                afGroupData: column,
+                afGroupItem: columnItem,
+                cardMargin: config.cardMargin,
+              ),
+            );
+          },
+        );
+      },
     );
   }
 
