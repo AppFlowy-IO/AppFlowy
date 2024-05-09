@@ -31,7 +31,7 @@ collab-database = { workspace = true, optional = true }
 collab-document = { workspace = true, optional = true }
 collab-plugins = { workspace = true, optional = true }
 collab-folder = { workspace = true, optional = true }
-client-api = { version = "0.1.0", optional = true }
+client-api = { workspace = true, optional = true }
 tantivy = { version = "0.21.1", optional = true }
 
 

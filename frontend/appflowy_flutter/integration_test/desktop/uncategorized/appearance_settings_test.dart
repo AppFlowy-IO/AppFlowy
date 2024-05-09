@@ -1,3 +1,4 @@
+import 'package:appflowy/util/font_family_extension.dart';
 import 'package:appflowy/workspace/application/appearance_defaults.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_appearance/settings_appearance.dart';
@@ -82,8 +83,10 @@ void main() {
       await tester.openSettingsPage(SettingsPage.appearance);
 
       expect(
-        find.textContaining(DefaultAppearanceSettings.kDefaultFontFamily),
-        findsOneWidget,
+        find.textContaining(
+          DefaultAppearanceSettings.kDefaultFontFamily.fontFamilyDisplayName,
+        ),
+        findsNWidgets(2),
       );
     });
   });
