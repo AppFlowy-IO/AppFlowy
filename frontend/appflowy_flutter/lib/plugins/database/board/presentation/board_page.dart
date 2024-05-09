@@ -161,8 +161,7 @@ class _DesktopBoardPageState extends State<DesktopBoardPage> {
   @override
   void initState() {
     super.initState();
-    _didCreateRow = ValueNotifier(null);
-    _didCreateRow.addListener(_handleDidCreateRow);
+    _didCreateRow = ValueNotifier(null)..addListener(_handleDidCreateRow);
     _boardBloc = BoardBloc(
       databaseController: widget.databaseController,
       didCreateRow: _didCreateRow,
@@ -178,8 +177,9 @@ class _DesktopBoardPageState extends State<DesktopBoardPage> {
     _focusScope.dispose();
     _boardBloc.close();
     _boardActionsCubit.close();
-    _didCreateRow.removeListener(_handleDidCreateRow);
-    _didCreateRow.dispose();
+    _didCreateRow
+      ..removeListener(_handleDidCreateRow)
+      ..dispose();
     super.dispose();
   }
 

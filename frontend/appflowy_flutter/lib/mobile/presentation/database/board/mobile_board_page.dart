@@ -40,11 +40,28 @@ class MobileBoardPage extends StatefulWidget {
 }
 
 class _MobileBoardPageState extends State<MobileBoardPage> {
+  late final ValueNotifier<DidCreateRowResult?> _didCreateRow;
+
+  @override
+  void initState() {
+    super.initState();
+    _didCreateRow = ValueNotifier(null)..addListener(_handleDidCreateRow);
+  }
+
+  @override
+  void dispose() {
+    _didCreateRow
+      ..removeListener(_handleDidCreateRow)
+      ..dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider<BoardBloc>(
       create: (_) => BoardBloc(
         databaseController: widget.databaseController,
+        didCreateRow: _didCreateRow,
       )..add(const BoardEvent.initial()),
       child: BlocBuilder<BoardBloc, BoardState>(
         builder: (context, state) => state.maybeMap(
@@ -61,6 +78,26 @@ class _MobileBoardPageState extends State<MobileBoardPage> {
         ),
       ),
     );
+  }
+
+  void _handleDidCreateRow() {
+    if (_didCreateRow.value != null) {
+      final result = _didCreateRow.value!;
+      switch (result.action) {
+        case DidCreateRowAction.openAsPage:
+          context.push(
+            MobileRowDetailPage.routeName,
+            extra: {
+              MobileRowDetailPage.argRowId: result.rowMeta.id,
+              MobileRowDetailPage.argDatabaseController:
+                  widget.databaseController,
+            },
+          );
+          break;
+        default:
+          break;
+      }
+    }
   }
 }
 
@@ -99,24 +136,7 @@ class _BoardContentState extends State<_BoardContent> {
       cardMargin: const EdgeInsets.all(4),
     );
 
-    return BlocConsumer<BoardBloc, BoardState>(
-      listener: (context, state) {
-        state.maybeMap(
-          orElse: () {},
-          ready: (value) {
-            if (value.createdRow != null) {
-              context.push(
-                MobileRowDetailPage.routeName,
-                extra: {
-                  MobileRowDetailPage.argRowId: value.createdRow!.rowMeta.id,
-                  MobileRowDetailPage.argDatabaseController:
-                      context.read<BoardBloc>().databaseController,
-                },
-              );
-            }
-          },
-        );
-      },
+    return BlocBuilder<BoardBloc, BoardState>(
       builder: (context, state) {
         return state.maybeMap(
           orElse: () => const SizedBox.shrink(),

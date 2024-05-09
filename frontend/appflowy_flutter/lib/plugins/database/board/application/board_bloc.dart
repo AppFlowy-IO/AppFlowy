@@ -638,7 +638,6 @@ class BoardState with _$BoardState {
     required BoardLayoutSettingPB? layoutSettings,
     required List<GroupPB> hiddenGroups,
     String? editingHeaderId,
-    DidCreateRowResult? createdRow,
   }) = _BoardReadyState;
 
   const factory BoardState.setFocus({
