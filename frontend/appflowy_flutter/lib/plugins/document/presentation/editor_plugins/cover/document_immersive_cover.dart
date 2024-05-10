@@ -162,9 +162,12 @@ class _DocumentImmersiveCoverState extends State<DocumentImmersiveCover> {
 
   Widget _buildIcon(BuildContext context, String icon) {
     return GestureDetector(
-      child: EmojiIconWidget(
-        emoji: icon,
-        emojiSize: 26,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints.tightFor(width: 34.0),
+        child: EmojiIconWidget(
+          emoji: icon,
+          emojiSize: 26,
+        ),
       ),
       onTap: () async {
         final result = await context.push<EmojiPickerResult>(
