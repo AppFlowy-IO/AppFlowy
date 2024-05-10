@@ -517,6 +517,15 @@ where
       Ok(workspace_subscriptions)
     })
   }
+
+  fn cancel_workspace_subscription(&self, workspace_id: String) -> FutureResult<(), FlowyError> {
+    let try_get_client = self.server.try_get_client();
+    FutureResult::new(async move {
+      let client = try_get_client?;
+      client.cancel_subscription(&workspace_id).await?;
+      Ok(())
+    })
+  }
 }
 
 async fn get_admin_client(client: &Arc<AFCloudClient>) -> FlowyResult<Client> {

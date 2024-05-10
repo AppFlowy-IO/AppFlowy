@@ -431,6 +431,16 @@ impl UserManager {
       .await?;
     Ok(res)
   }
+
+  #[instrument(level = "info", skip(self), err)]
+  pub async fn cancel_workspace_subscription(&self, workspace_id: String) -> FlowyResult<()> {
+    self
+      .cloud_services
+      .get_user_service()?
+      .cancel_workspace_subscription(workspace_id)
+      .await?;
+    Ok(())
+  }
 }
 
 pub fn save_user_workspaces(

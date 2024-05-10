@@ -799,3 +799,14 @@ pub async fn get_workspace_subscriptions_handler(
     .collect::<Vec<_>>();
   data_result_ok(RepeatedWorkspaceSubscriptionPB { items: subs })
 }
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn cancel_workspace_subscription_handler(
+  param: AFPluginData<UserWorkspaceIdPB>,
+  manager: AFPluginState<Weak<UserManager>>,
+) -> Result<(), FlowyError> {
+  let workspace_id = param.into_inner().workspace_id;
+  let manager = upgrade_manager(manager)?;
+  manager.cancel_workspace_subscription(workspace_id).await?;
+  Ok(())
+}
