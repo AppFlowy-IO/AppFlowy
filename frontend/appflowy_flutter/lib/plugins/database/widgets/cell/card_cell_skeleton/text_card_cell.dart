@@ -55,18 +55,26 @@ class _TextCellState extends State<TextCardCell> {
       widget.cellContext,
     ).as(),
   );
-  late final TextEditingController _textEditingController =
-      TextEditingController(text: cellBloc.state.content);
+  late final TextEditingController _textEditingController;
   final focusNode = SingleListenerFocusNode();
-
-  bool focusWhenInit = false;
 
   @override
   void initState() {
     super.initState();
-    focusWhenInit = widget.editableNotifier?.isCellEditing.value ?? false;
-    if (focusWhenInit) {
-      focusNode.requestFocus();
+
+    _textEditingController = TextEditingController(text: cellBloc.state.content)
+      ..addListener(() {
+        if (_textEditingController.value.composing.isCollapsed) {
+          cellBloc
+              .add(TextCellEvent.updateText(_textEditingController.value.text));
+        }
+      });
+
+    if (widget.editableNotifier?.isCellEditing.value ?? false) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        focusNode.requestFocus();
+        cellBloc.add(const TextCellEvent.enableEdit(true));
+      });
     }
 
     // If the focusNode lost its focus, the widget's editableNotifier will
@@ -74,7 +82,6 @@ class _TextCellState extends State<TextCardCell> {
     // end edit event.
     focusNode.addListener(() {
       if (!focusNode.hasFocus) {
-        focusWhenInit = false;
         widget.editableNotifier?.isCellEditing.value = false;
         cellBloc.add(const TextCellEvent.enableEdit(false));
       }
@@ -100,45 +107,25 @@ class _TextCellState extends State<TextCardCell> {
 
   @override
   void didUpdateWidget(covariant oldWidget) {
-    _bindEditableNotifier();
+    if (oldWidget.editableNotifier != widget.editableNotifier) {
+      _bindEditableNotifier();
+    }
     super.didUpdateWidget(oldWidget);
   }
 
   @override
   Widget build(BuildContext context) {
+    final isTitle = cellBloc.cellController.fieldInfo.isPrimary;
     return BlocProvider.value(
       value: cellBloc,
-      child: BlocConsumer<TextCellBloc, TextCellState>(
+      child: BlocListener<TextCellBloc, TextCellState>(
         listenWhen: (previous, current) => previous.content != current.content,
         listener: (context, state) {
           if (!state.enableEdit) {
             _textEditingController.text = state.content;
           }
         },
-        builder: (context, state) {
-          final isTitle = cellBloc.cellController.fieldInfo.isPrimary;
-          if (state.content.isEmpty &&
-              state.enableEdit == false &&
-              focusWhenInit == false &&
-              !isTitle) {
-            return const SizedBox.shrink();
-          }
-
-          final icon = isTitle ? _buildIcon(state) : null;
-          final child = isTitle
-              ? _buildTextField(state.enableEdit || focusWhenInit)
-              : _buildText(state.content);
-
-          return Row(
-            children: [
-              if (icon != null) ...[
-                icon,
-                const HSpace(4.0),
-              ],
-              Expanded(child: child),
-            ],
-          );
-        },
+        child: isTitle ? _buildTitle() : _buildText(),
       ),
     );
   }
@@ -146,6 +133,8 @@ class _TextCellState extends State<TextCardCell> {
   @override
   void dispose() {
     _textEditingController.dispose();
+    widget.editableNotifier?.isCellEditing
+        .removeListener(_bindEditableNotifier);
     focusNode.dispose();
     cellBloc.close();
     super.dispose();
@@ -170,61 +159,83 @@ class _TextCellState extends State<TextCardCell> {
     return null;
   }
 
-  Widget _buildText(String content) {
-    final text =
-        content.isEmpty ? LocaleKeys.grid_row_textPlaceholder.tr() : content;
-    final color = content.isEmpty ? Theme.of(context).hintColor : null;
+  Widget _buildText() {
+    return BlocBuilder<TextCellBloc, TextCellState>(
+      builder: (context, state) {
+        final content = state.content;
+        final text = content.isEmpty
+            ? LocaleKeys.grid_row_textPlaceholder.tr()
+            : content;
+        final color = content.isEmpty ? Theme.of(context).hintColor : null;
 
-    return Padding(
-      padding: widget.style.padding,
-      child: Text(
-        text,
-        style: widget.style.textStyle.copyWith(color: color),
-        maxLines: widget.style.maxLines,
-      ),
+        return Padding(
+          padding: widget.style.padding,
+          child: Text(
+            text,
+            style: widget.style.textStyle.copyWith(color: color),
+            maxLines: widget.style.maxLines,
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildTextField(bool isEditing) {
-    final padding =
-        widget.style.padding.add(const EdgeInsets.symmetric(vertical: 4.0));
-    return IgnorePointer(
-      ignoring: !isEditing,
-      child: CallbackShortcuts(
-        bindings: {
-          const SingleActivator(LogicalKeyboardKey.escape): () =>
-              focusNode.unfocus(),
-        },
-        child: TextField(
-          controller: _textEditingController,
-          focusNode: focusNode,
-          onChanged: (_) {
-            if (_textEditingController.value.composing.isCollapsed) {
-              cellBloc
-                  .add(TextCellEvent.updateText(_textEditingController.text));
-            }
-          },
-          onEditingComplete: () => focusNode.unfocus(),
-          maxLines: isEditing ? null : 2,
-          minLines: 1,
-          textInputAction: TextInputAction.done,
-          readOnly: !isEditing,
-          enableInteractiveSelection: isEditing,
-          style: widget.style.titleTextStyle,
-          decoration: InputDecoration(
-            contentPadding: padding,
-            border: InputBorder.none,
-            enabledBorder: InputBorder.none,
-            isDense: true,
-            isCollapsed: true,
-            hintText: LocaleKeys.grid_row_titlePlaceholder.tr(),
-            hintStyle: widget.style.titleTextStyle.copyWith(
-              color: Theme.of(context).hintColor,
+  Widget _buildTitle() {
+    final textField = _buildTextField();
+    return BlocBuilder<TextCellBloc, TextCellState>(
+      builder: (context, state) {
+        final icon = _buildIcon(state);
+        return Row(
+          children: [
+            if (icon != null) ...[
+              icon,
+              const HSpace(4.0),
+            ],
+            Expanded(child: textField),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildTextField() {
+    return BlocSelector<TextCellBloc, TextCellState, bool>(
+      selector: (state) => state.enableEdit,
+      builder: (context, isEditing) {
+        return IgnorePointer(
+          ignoring: !isEditing,
+          child: CallbackShortcuts(
+            bindings: {
+              const SingleActivator(LogicalKeyboardKey.escape): () =>
+                  focusNode.unfocus(),
+            },
+            child: TextField(
+              controller: _textEditingController,
+              focusNode: focusNode,
+              onEditingComplete: () => focusNode.unfocus(),
+              maxLines: isEditing ? null : 2,
+              minLines: 1,
+              textInputAction: TextInputAction.done,
+              readOnly: !isEditing,
+              enableInteractiveSelection: isEditing,
+              style: widget.style.titleTextStyle,
+              decoration: InputDecoration(
+                contentPadding: widget.style.padding
+                    .add(const EdgeInsets.symmetric(vertical: 4.0)),
+                border: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                isDense: true,
+                isCollapsed: true,
+                hintText: LocaleKeys.grid_row_titlePlaceholder.tr(),
+                hintStyle: widget.style.titleTextStyle.copyWith(
+                  color: Theme.of(context).hintColor,
+                ),
+              ),
+              onTapOutside: (_) {},
             ),
           ),
-          onTapOutside: (_) {},
-        ),
-      ),
+        );
+      },
     );
   }
 }
