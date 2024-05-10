@@ -48,7 +48,7 @@ class NotificationButton extends StatelessWidget {
                       ),
                     ),
                   )
-                : const SizedBox(),
+                : const SizedBox.shrink(),
           );
         },
       ),
