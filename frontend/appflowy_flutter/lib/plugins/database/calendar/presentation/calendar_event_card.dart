@@ -80,7 +80,7 @@ class _EventCardState extends State<EventCard> {
       rowCache: rowCache,
       isEditing: false,
       cellBuilder: cellBuilder,
-      openCard: (context) {
+      onTap: (context) {
         if (PlatformExtension.isMobile) {
           context.push(
             MobileRowDetailPage.routeName,

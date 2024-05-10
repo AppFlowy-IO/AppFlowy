@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import 'accessory.dart';
@@ -7,14 +8,16 @@ class RowCardContainer extends StatelessWidget {
   const RowCardContainer({
     super.key,
     required this.child,
-    required this.openCard,
+    required this.onTap,
     required this.openAccessory,
     required this.accessories,
     this.buildAccessoryWhen,
+    this.onShiftTap,
   });
 
   final Widget child;
-  final void Function(BuildContext) openCard;
+  final void Function(BuildContext) onTap;
+  final void Function(BuildContext)? onShiftTap;
   final void Function(AccessoryType) openAccessory;
   final List<CardAccessory> accessories;
   final bool Function()? buildAccessoryWhen;
@@ -41,7 +44,13 @@ class RowCardContainer extends StatelessWidget {
 
           return GestureDetector(
             behavior: HitTestBehavior.opaque,
-            onTap: () => openCard(context),
+            onTap: () {
+              if (HardwareKeyboard.instance.isShiftPressed) {
+                onShiftTap?.call(context);
+              } else {
+                onTap(context);
+              }
+            },
             child: ConstrainedBox(
               constraints: const BoxConstraints(minHeight: 30),
               child: container,

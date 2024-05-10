@@ -17,7 +17,6 @@ void main() {
   test('group by checkbox field test', () async {
     final context = await boardTest.createTestBoard();
     final boardBloc = BoardBloc(
-      view: context.gridView,
       databaseController: DatabaseController(view: context.gridView),
     )..add(const BoardEvent.initial());
     await boardResponseFuture();

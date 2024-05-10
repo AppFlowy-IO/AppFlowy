@@ -44,7 +44,7 @@ dependencies:
     # path: ../../../appflowy-board
     git:
       url: https://github.com/AppFlowy-IO/appflowy-board.git
-      ref: 404262fca4369bc35ff305316e4d59341a732f56
+      ref: 8a6434ae3d02624b614a010af80f775db11bf22e
   appflowy_result:
     path: packages/appflowy_result
   appflowy_editor_plugins: ^0.0.2

@@ -654,9 +654,10 @@ impl DatabaseEditor {
     }
   }
 
-  pub async fn delete_row(&self, row_id: &RowId) {
-    let row = self.database.lock().remove_row(row_id);
-    if let Some(row) = row {
+  pub async fn delete_rows(&self, row_ids: &[RowId]) {
+    let rows = self.database.lock().remove_rows(row_ids);
+
+    for row in rows {
       tracing::trace!("Did delete row:{:?}", row);
       for view in self.database_views.editors().await {
         view.v_did_delete_row(&row).await;

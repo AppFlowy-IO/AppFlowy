@@ -61,7 +61,7 @@ void main() {
             expect(find.byType(GridPage), findsOneWidget);
             break;
           case ViewLayoutPB.Board:
-            expect(find.byType(BoardPage), findsOneWidget);
+            expect(find.byType(DesktopBoardPage), findsOneWidget);
             break;
           case ViewLayoutPB.Calendar:
             expect(find.byType(CalendarPage), findsOneWidget);

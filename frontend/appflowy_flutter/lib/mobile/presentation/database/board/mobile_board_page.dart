@@ -3,12 +3,16 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/database/board/board.dart';
 import 'package:appflowy/mobile/presentation/database/board/widgets/group_card_header.dart';
 import 'package:appflowy/mobile/presentation/database/card/card.dart';
+import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
+import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/board/application/board_bloc.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/header/field_type_extension.dart';
 import 'package:appflowy/plugins/database/widgets/card/card.dart';
 import 'package:appflowy/plugins/database/widgets/cell/card_cell_builder.dart';
 import 'package:appflowy/plugins/database/widgets/cell/card_cell_style_maps/mobile_board_card_cell_style.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_board/appflowy_board.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -16,25 +20,100 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-class MobileBoardContent extends StatefulWidget {
-  const MobileBoardContent({
+class MobileBoardPage extends StatefulWidget {
+  const MobileBoardPage({
     super.key,
+    required this.view,
+    required this.databaseController,
+    this.onEditStateChanged,
   });
 
+  final ViewPB view;
+
+  final DatabaseController databaseController;
+
+  /// Called when edit state changed
+  final VoidCallback? onEditStateChanged;
+
   @override
-  State<MobileBoardContent> createState() => _MobileBoardContentState();
+  State<MobileBoardPage> createState() => _MobileBoardPageState();
 }
 
-class _MobileBoardContentState extends State<MobileBoardContent> {
-  late final ScrollController scrollController;
-  late final AppFlowyBoardScrollController scrollManager;
+class _MobileBoardPageState extends State<MobileBoardPage> {
+  late final ValueNotifier<DidCreateRowResult?> _didCreateRow;
 
   @override
   void initState() {
     super.initState();
-    // mobile may not need this
-    // scroll to bottom when add a new card
-    scrollManager = AppFlowyBoardScrollController();
+    _didCreateRow = ValueNotifier(null)..addListener(_handleDidCreateRow);
+  }
+
+  @override
+  void dispose() {
+    _didCreateRow
+      ..removeListener(_handleDidCreateRow)
+      ..dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider<BoardBloc>(
+      create: (_) => BoardBloc(
+        databaseController: widget.databaseController,
+        didCreateRow: _didCreateRow,
+      )..add(const BoardEvent.initial()),
+      child: BlocBuilder<BoardBloc, BoardState>(
+        builder: (context, state) => state.maybeMap(
+          loading: (_) => const Center(
+            child: CircularProgressIndicator.adaptive(),
+          ),
+          error: (err) => FlowyMobileStateContainer.error(
+            emoji: '🛸',
+            title: LocaleKeys.board_mobile_failedToLoad.tr(),
+            errorMsg: err.toString(),
+          ),
+          ready: (data) => const _BoardContent(),
+          orElse: () => const SizedBox.shrink(),
+        ),
+      ),
+    );
+  }
+
+  void _handleDidCreateRow() {
+    if (_didCreateRow.value != null) {
+      final result = _didCreateRow.value!;
+      switch (result.action) {
+        case DidCreateRowAction.openAsPage:
+          context.push(
+            MobileRowDetailPage.routeName,
+            extra: {
+              MobileRowDetailPage.argRowId: result.rowMeta.id,
+              MobileRowDetailPage.argDatabaseController:
+                  widget.databaseController,
+            },
+          );
+          break;
+        default:
+          break;
+      }
+    }
+  }
+}
+
+class _BoardContent extends StatefulWidget {
+  const _BoardContent();
+
+  @override
+  State<_BoardContent> createState() => _BoardContentState();
+}
+
+class _BoardContentState extends State<_BoardContent> {
+  late final ScrollController scrollController;
+
+  @override
+  void initState() {
+    super.initState();
     scrollController = ScrollController();
   }
 
@@ -57,54 +136,48 @@ class _MobileBoardContentState extends State<MobileBoardContent> {
       cardMargin: const EdgeInsets.all(4),
     );
 
-    return BlocListener<BoardBloc, BoardState>(
-      listenWhen: (previous, current) =>
-          previous.recentAddedRowMeta != current.recentAddedRowMeta,
-      listener: (context, state) {
-        context.push(
-          MobileRowDetailPage.routeName,
-          extra: {
-            MobileRowDetailPage.argRowId: state.recentAddedRowMeta!.id,
-            MobileRowDetailPage.argDatabaseController:
-                context.read<BoardBloc>().databaseController,
+    return BlocBuilder<BoardBloc, BoardState>(
+      builder: (context, state) {
+        return state.maybeMap(
+          orElse: () => const SizedBox.shrink(),
+          ready: (state) {
+            final showCreateGroupButton = context
+                    .read<BoardBloc>()
+                    .groupingFieldType
+                    ?.canCreateNewGroup ??
+                false;
+            final showHiddenGroups = state.hiddenGroups.isNotEmpty;
+            return AppFlowyBoard(
+              scrollController: scrollController,
+              controller: context.read<BoardBloc>().boardController,
+              groupConstraints:
+                  BoxConstraints.tightFor(width: screenWidth * 0.7),
+              config: config,
+              leading: showHiddenGroups
+                  ? MobileHiddenGroupsColumn(
+                      padding: config.groupHeaderPadding,
+                    )
+                  : const HSpace(16),
+              trailing: showCreateGroupButton
+                  ? const MobileBoardTrailing()
+                  : const HSpace(16),
+              headerBuilder: (_, groupData) => BlocProvider<BoardBloc>.value(
+                value: context.read<BoardBloc>(),
+                child: GroupCardHeader(
+                  groupData: groupData,
+                ),
+              ),
+              footerBuilder: _buildFooter,
+              cardBuilder: (_, column, columnItem) => _buildCard(
+                context: context,
+                afGroupData: column,
+                afGroupItem: columnItem,
+                cardMargin: config.cardMargin,
+              ),
+            );
           },
         );
       },
-      child: BlocBuilder<BoardBloc, BoardState>(
-        builder: (context, state) {
-          final showCreateGroupButton =
-              context.read<BoardBloc>().groupingFieldType.canCreateNewGroup;
-          final showHiddenGroups = state.hiddenGroups.isNotEmpty;
-          return AppFlowyBoard(
-            boardScrollController: scrollManager,
-            scrollController: scrollController,
-            controller: context.read<BoardBloc>().boardController,
-            groupConstraints: BoxConstraints.tightFor(width: screenWidth * 0.7),
-            config: config,
-            leading: showHiddenGroups
-                ? MobileHiddenGroupsColumn(
-                    padding: config.groupHeaderPadding,
-                  )
-                : const HSpace(16),
-            trailing: showCreateGroupButton
-                ? const MobileBoardTrailing()
-                : const HSpace(16),
-            headerBuilder: (_, groupData) => BlocProvider<BoardBloc>.value(
-              value: context.read<BoardBloc>(),
-              child: GroupCardHeader(
-                groupData: groupData,
-              ),
-            ),
-            footerBuilder: _buildFooter,
-            cardBuilder: (_, column, columnItem) => _buildCard(
-              context: context,
-              afGroupData: column,
-              afGroupItem: columnItem,
-              cardMargin: config.cardMargin,
-            ),
-          );
-        },
-      ),
     );
   }
 
@@ -129,9 +202,14 @@ class _MobileBoardContentState extends State<MobileBoardContent> {
             color: style.colorScheme.onSurface,
           ),
         ),
-        onPressed: () => context
-            .read<BoardBloc>()
-            .add(BoardEvent.createBottomRow(columnData.id)),
+        onPressed: () => context.read<BoardBloc>().add(
+              BoardEvent.createRow(
+                columnData.id,
+                OrderObjectPositionTypePB.End,
+                null,
+                null,
+              ),
+            ),
       ),
     );
   }
@@ -146,16 +224,9 @@ class _MobileBoardContentState extends State<MobileBoardContent> {
     final groupItem = afGroupItem as GroupItem;
     final groupData = afGroupData.customData as GroupData;
     final rowMeta = groupItem.row;
-    final rowCache = boardBloc.getRowCache();
-
-    /// Return placeholder widget if the rowCache is null.
-    if (rowCache == null) return SizedBox.shrink(key: ObjectKey(groupItem));
-    final viewId = boardBloc.viewId;
 
     final cellBuilder =
         CardCellBuilder(databaseController: boardBloc.databaseController);
-    final isEditing = boardBloc.state.isEditingRow &&
-        boardBloc.state.editingRow?.row.id == groupItem.row.id;
 
     final groupItemId = groupItem.row.id + groupData.group.groupId;
 
@@ -166,12 +237,12 @@ class _MobileBoardContentState extends State<MobileBoardContent> {
       child: RowCard(
         fieldController: boardBloc.fieldController,
         rowMeta: rowMeta,
-        viewId: viewId,
-        rowCache: rowCache,
+        viewId: boardBloc.viewId,
+        rowCache: boardBloc.rowCache,
         groupingFieldId: groupItem.fieldInfo.id,
-        isEditing: isEditing,
+        isEditing: false,
         cellBuilder: cellBuilder,
-        openCard: (context) {
+        onTap: (context) {
           context.push(
             MobileRowDetailPage.routeName,
             extra: {
@@ -181,10 +252,8 @@ class _MobileBoardContentState extends State<MobileBoardContent> {
             },
           );
         },
-        onStartEditing: () => boardBloc
-            .add(BoardEvent.startEditingRow(groupData.group, groupItem.row)),
-        onEndEditing: () =>
-            boardBloc.add(BoardEvent.endEditingRow(groupItem.row.id)),
+        onStartEditing: () {},
+        onEndEditing: () {},
         styleConfiguration: RowCardStyleConfiguration(
           cellStyleMap: mobileBoardCardCellStyleMap(context),
           showAccessory: false,
