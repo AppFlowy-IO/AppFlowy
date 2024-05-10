@@ -21,9 +21,8 @@ class NotificationSettingsCubit extends Cubit<NotificationSettingsState> {
   late final NotificationSettingsPB _notificationSettings;
 
   Future<void> _initialize() async {
-    final settings =
+    _notificationSettings =
         await UserSettingsBackendService().getNotificationSettings();
-    _notificationSettings = settings;
 
     final showNotificationSetting = await getIt<KeyValueStorage>()
         .getWithFormat(KVKeys.showNotificationIcon, (v) => bool.parse(v));
