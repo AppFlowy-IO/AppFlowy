@@ -671,7 +671,7 @@ class GroupItem extends AppFlowyGroupItem {
     required this.fieldInfo,
     bool draggable = true,
   }) {
-    super.draggable = draggable;
+    super.draggable.value = draggable;
   }
 
   final RowMetaPB row;

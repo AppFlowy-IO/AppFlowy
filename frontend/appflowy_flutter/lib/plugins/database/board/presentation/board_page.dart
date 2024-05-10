@@ -308,7 +308,11 @@ class _BoardContentState extends State<_BoardContent> {
                 widget.focusScope.focusedGroupedRows = value.groupedRowIds;
               },
               startEditingRow: (value) {
+                widget.boardController.enableGroupDragging(false);
                 widget.focusScope.clear();
+              },
+              endEditingRow: (value) {
+                widget.boardController.enableGroupDragging(true);
               },
               orElse: () {},
             );
@@ -578,8 +582,8 @@ class _BoardCardState extends State<_BoardCard> {
           },
           createRow: (value) {
             if ((_isEditing && value.groupedRowId == null) ||
-                value.groupedRowId?.rowId == widget.groupItem.id ||
-                _isEditing) {
+                (value.groupedRowId?.rowId == widget.groupItem.id &&
+                    value.groupedRowId?.groupId == groupData.group.groupId)) {
               context.read<BoardBloc>().add(
                     BoardEvent.createRow(
                       groupData.group.groupId,
