@@ -16,8 +16,6 @@ import 'package:appflowy/workspace/presentation/settings/shared/setting_action.d
 import 'package:appflowy/workspace/presentation/settings/shared/settings_alert_dialog.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_body.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_category.dart';
-import 'package:appflowy/workspace/presentation/settings/shared/settings_category_spacer.dart';
-import 'package:appflowy/workspace/presentation/settings/shared/settings_header.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/single_setting_action.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/files/settings_export_file_widget.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
@@ -46,12 +44,9 @@ class SettingsManageDataView extends StatelessWidget {
       child: BlocBuilder<SettingsLocationCubit, SettingsLocationState>(
         builder: (context, state) {
           return SettingsBody(
+            title: LocaleKeys.settings_manageDataPage_title.tr(),
+            description: LocaleKeys.settings_manageDataPage_description.tr(),
             children: [
-              SettingsHeader(
-                title: LocaleKeys.settings_manageDataPage_title.tr(),
-                description:
-                    LocaleKeys.settings_manageDataPage_description.tr(),
-              ),
               SettingsCategory(
                 title:
                     LocaleKeys.settings_manageDataPage_dataStorage_title.tr(),
@@ -97,7 +92,6 @@ class SettingsManageDataView extends StatelessWidget {
                     )
                     .toList(),
               ),
-              const SettingsCategorySpacer(),
               SettingsCategory(
                 title: LocaleKeys.settings_manageDataPage_importData_title.tr(),
                 tooltip:
@@ -105,13 +99,11 @@ class SettingsManageDataView extends StatelessWidget {
                 children: const [_ImportDataField()],
               ),
               if (kDebugMode) ...[
-                const SettingsCategorySpacer(),
                 SettingsCategory(
                   title: LocaleKeys.settings_files_exportData.tr(),
                   children: const [SettingsExportFileWidget()],
                 ),
               ],
-              const SettingsCategorySpacer(),
               SettingsCategory(
                 title: LocaleKeys.settings_manageDataPage_cache_title.tr(),
                 children: [
@@ -125,11 +117,9 @@ class SettingsManageDataView extends StatelessWidget {
                       SettingsAlertDialog(
                         title: LocaleKeys
                             .settings_manageDataPage_cache_dialog_title
-                            .tr()
                             .tr(),
                         subtitle: LocaleKeys
                             .settings_manageDataPage_cache_dialog_description
-                            .tr()
                             .tr(),
                         confirm: () async {
                           await getIt<FlowyCacheManager>().clearAllCache();
