@@ -13,32 +13,30 @@ part 'notification_settings_cubit.freezed.dart';
 
 class NotificationSettingsCubit extends Cubit<NotificationSettingsState> {
   NotificationSettingsCubit() : super(NotificationSettingsState.initial()) {
-    UserSettingsBackendService()
-        .getNotificationSettings()
-        .then((notificationSettings) {
-      _notificationSettings = notificationSettings;
-      emit(
-        state.copyWith(
-          isNotificationsEnabled: _notificationSettings.notificationsEnabled,
-        ),
-      );
-      getIt<KeyValueStorage>()
-          .getWithFormat(
-            KVKeys.showNotificationIcon,
-            (value) => bool.parse(value),
-          )
-          .then(
-            (value) => state.copyWith(
-              isShowNotificationsIconEnabled: value ?? true,
-            ),
-          );
-      _initCompleter.complete();
-    });
+    _initialize();
   }
 
   final Completer<void> _initCompleter = Completer();
 
   late final NotificationSettingsPB _notificationSettings;
+
+  Future<void> _initialize() async {
+    final settings =
+        await UserSettingsBackendService().getNotificationSettings();
+    _notificationSettings = settings;
+
+    final showNotificationSetting = await getIt<KeyValueStorage>()
+        .getWithFormat(KVKeys.showNotificationIcon, (v) => bool.parse(v));
+
+    emit(
+      state.copyWith(
+        isNotificationsEnabled: _notificationSettings.notificationsEnabled,
+        isShowNotificationsIconEnabled: showNotificationSetting ?? true,
+      ),
+    );
+
+    _initCompleter.complete();
+  }
 
   Future<void> toggleNotificationsEnabled() async {
     await _initCompleter.future;
