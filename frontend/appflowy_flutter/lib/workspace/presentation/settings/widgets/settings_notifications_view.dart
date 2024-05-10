@@ -45,11 +45,9 @@ class SettingsNotificationsView extends StatelessWidget {
                   value: state.isShowNotificationsIconEnabled,
                   splashRadius: 0,
                   activeColor: Theme.of(context).colorScheme.primary,
-                  onChanged: (value) {
-                    context
-                        .read<NotificationSettingsCubit>()
-                        .toogleShowNotificationIconEnabled();
-                  },
+                  onChanged: (_) =>
+                      context.read<NotificationSettingsCubit>()
+                        .toogleShowNotificationIconEnabled(),
                 ),
               ],
             ),
