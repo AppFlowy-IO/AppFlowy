@@ -72,7 +72,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
             );
           },
           deleteEvent: (String viewId, String rowId) async {
-            final result = await RowBackendService.deleteRow(viewId, rowId);
+            final result = await RowBackendService.deleteRows(viewId, [rowId]);
             result.fold(
               (_) => null,
               (e) => Log.error('Failed to delete event: $e', e),

@@ -78,7 +78,7 @@ pub struct RepeatedRelatedRowDataPB {
 }
 
 #[derive(Debug, Default, Clone, ProtoBuf)]
-pub struct RepeatedRowIdPB {
+pub struct GetRelatedRowDataPB {
   #[pb(index = 1)]
   pub database_id: String,
 

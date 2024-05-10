@@ -255,9 +255,7 @@ class RowCache {
 
   RowInfo buildGridRow(RowMetaPB rowMetaPB) {
     return RowInfo(
-      viewId: viewId,
       fields: _fieldDelegate.fieldInfos,
-      rowId: rowMetaPB.id,
       rowMeta: rowMetaPB,
     );
   }
@@ -285,12 +283,13 @@ class RowChangesetNotifier extends ChangeNotifier {
 
 @unfreezed
 class RowInfo with _$RowInfo {
+  const RowInfo._();
   factory RowInfo({
-    required String rowId,
-    required String viewId,
     required UnmodifiableListView<FieldInfo> fields,
     required RowMetaPB rowMeta,
   }) = _RowInfo;
+
+  String get rowId => rowMeta.id;
 }
 
 typedef InsertedIndexs = List<InsertedIndex>;

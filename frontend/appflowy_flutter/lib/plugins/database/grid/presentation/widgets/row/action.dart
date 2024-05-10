@@ -102,7 +102,7 @@ enum RowAction {
         RowBackendService.duplicateRow(viewId, rowId);
         break;
       case delete:
-        RowBackendService.deleteRow(viewId, rowId);
+        RowBackendService.deleteRows(viewId, [rowId]);
         break;
     }
   }

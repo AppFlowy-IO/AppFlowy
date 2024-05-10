@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/application/base/mobile_view_page_bloc.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/mobile/presentation/base/app_bar/app_bar.dart';
 import 'package:appflowy/mobile/presentation/base/app_bar/app_bar_actions.dart';
@@ -21,13 +22,11 @@ class MobileViewPageImmersiveAppBar extends StatelessWidget
   const MobileViewPageImmersiveAppBar({
     super.key,
     required this.preferredSize,
-    required this.isImmersiveMode,
     required this.appBarOpacity,
     required this.title,
     required this.actions,
   });
 
-  final bool isImmersiveMode;
   final ValueListenable appBarOpacity;
   final Widget title;
   final List<Widget> actions;
@@ -37,13 +36,6 @@ class MobileViewPageImmersiveAppBar extends StatelessWidget
 
   @override
   Widget build(BuildContext context) {
-    if (!isImmersiveMode) {
-      FlowyAppBar(
-        title: title,
-        actions: actions,
-      );
-    }
-
     return ValueListenableBuilder(
       valueListenable: appBarOpacity,
       builder: (_, opacity, __) => FlowyAppBar(
@@ -68,7 +60,8 @@ class MobileViewPageImmersiveAppBar extends StatelessWidget
         icon: FlowySvgs.m_app_bar_back_s,
         dimension: 30.0,
         iconPadding: 6.0,
-        isImmersiveMode: isImmersiveMode,
+        isImmersiveMode:
+            context.read<MobileViewPageBloc>().state.isImmersiveMode,
         appBarOpacity: appBarOpacity,
       ),
     );
