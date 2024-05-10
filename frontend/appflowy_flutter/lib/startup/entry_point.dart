@@ -6,8 +6,6 @@ import 'package:flutter/material.dart';
 class AppFlowyApplication implements EntryPoint {
   @override
   Widget create(LaunchConfiguration config) {
-    return SplashScreen(
-      isAnon: config.isAnon,
-    );
+    return SplashScreen(isAnon: config.isAnon);
   }
 }
