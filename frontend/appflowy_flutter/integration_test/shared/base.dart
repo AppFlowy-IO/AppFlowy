@@ -173,27 +173,39 @@ extension AppFlowyTestBase on WidgetTester {
     int buttons = kPrimaryButton,
     bool warnIfMissed = false,
     int milliseconds = 500,
+    bool pumpAndSettle = true,
   }) async {
     await tap(
       finder,
       buttons: buttons,
       warnIfMissed: warnIfMissed,
     );
-    await pumpAndSettle(
-      Duration(milliseconds: milliseconds),
-      EnginePhase.sendSemanticsUpdate,
-      const Duration(seconds: 5),
-    );
+
+    if (pumpAndSettle) {
+      await this.pumpAndSettle(
+        Duration(milliseconds: milliseconds),
+        EnginePhase.sendSemanticsUpdate,
+        const Duration(seconds: 5),
+      );
+    }
   }
 
-  Future<void> tapButtonWithName(String tr, {int milliseconds = 500}) async {
+  Future<void> tapButtonWithName(
+    String tr, {
+    int milliseconds = 500,
+    bool pumpAndSettle = true,
+  }) async {
     Finder button = find.text(tr, findRichText: true, skipOffstage: false);
     if (button.evaluate().isEmpty) {
       button = find.byWidgetPredicate(
         (widget) => widget is FlowyText && widget.text == tr,
       );
     }
-    await tapButton(button, milliseconds: milliseconds);
+    await tapButton(
+      button,
+      milliseconds: milliseconds,
+      pumpAndSettle: pumpAndSettle,
+    );
   }
 
   Future<void> doubleTapAt(

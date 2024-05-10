@@ -60,9 +60,12 @@ void main() {
 
       Finder success;
 
+      final Finder items = find.byType(WorkspaceMenuItem);
+
       // delete the newly created workspace
       await tester.openCollaborativeWorkspaceMenu();
-      final Finder items = find.byType(WorkspaceMenuItem);
+      await tester.pumpUntilFound(items);
+
       expect(items, findsNWidgets(2));
       expect(
         tester.widget<WorkspaceMenuItem>(items.last).workspace.name,
