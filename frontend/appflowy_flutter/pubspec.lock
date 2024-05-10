@@ -1521,6 +1521,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.27.7"
+  scaled_app:
+    dependency: "direct main"
+    description:
+      name: scaled_app
+      sha256: "3415fad16d1cf283112988985ccd14c4cd28bf48cbe6432d59e158f3b632d58d"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.0"
   screen_retriever:
     dependency: transitive
     description:
