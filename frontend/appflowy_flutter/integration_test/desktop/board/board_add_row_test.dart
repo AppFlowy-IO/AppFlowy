@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/plugins/database/board/presentation/board_page.dart';
 import 'package:appflowy/plugins/database/board/presentation/widgets/board_column_header.dart';
-import 'package:appflowy/plugins/database/widgets/card/container/card_container.dart';
+import 'package:appflowy/plugins/database/widgets/card/card.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_board/appflowy_board.dart';
 import 'package:flutter/material.dart';
@@ -22,13 +23,15 @@ void main() {
 
       await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Board);
 
-      final findFirstCard = find.descendant(
-        of: find.byType(AppFlowyGroupCard),
-        matching: find.byType(Text),
-      );
+      final firstCard = find.byType(RowCard).first;
 
-      Text firstCardText = tester.firstWidget(findFirstCard);
-      expect(firstCardText.data, defaultFirstCardName);
+      expect(
+        find.descendant(
+          of: firstCard,
+          matching: find.text(defaultFirstCardName),
+        ),
+        findsOneWidget,
+      );
 
       await tester.tap(
         find
@@ -45,7 +48,7 @@ void main() {
       const newCardName = 'Card 4';
       await tester.enterText(
         find.descendant(
-          of: find.byType(RowCardContainer),
+          of: firstCard,
           matching: find.byType(TextField),
         ),
         newCardName,
@@ -55,8 +58,13 @@ void main() {
       await tester.tap(find.byType(AppFlowyBoard));
       await tester.pumpAndSettle();
 
-      firstCardText = tester.firstWidget(findFirstCard);
-      expect(firstCardText.data, newCardName);
+      expect(
+        find.descendant(
+          of: find.byType(RowCard).first,
+          matching: find.text(newCardName),
+        ),
+        findsOneWidget,
+      );
     });
 
     testWidgets('from footer', (tester) async {
@@ -65,39 +73,41 @@ void main() {
 
       await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Board);
 
-      final findLastCard = find.descendant(
-        of: find.byType(AppFlowyGroupCard),
-        matching: find.byType(Text),
+      final lastCard = find.byType(RowCard).last;
+
+      expect(
+        find.descendant(
+          of: lastCard,
+          matching: find.text(defaultLastCardName),
+        ),
+        findsOneWidget,
       );
 
-      Text? lastCardText = tester.widgetList(findLastCard).last as Text;
-      expect(lastCardText.data, defaultLastCardName);
-
-      await tester.tap(
-        find
-            .descendant(
-              of: find.byType(AppFlowyGroupFooter),
-              matching: find.byType(FlowySvg),
-            )
-            .at(1),
+      await tester.tapButton(
+        find.byType(BoardColumnFooter).at(1),
       );
-      await tester.pumpAndSettle();
 
       const newCardName = 'Card 4';
       await tester.enterText(
         find.descendant(
-          of: find.byType(RowCardContainer),
+          of: find.byType(BoardColumnFooter),
           matching: find.byType(TextField),
         ),
         newCardName,
       );
+      await tester.testTextInput.receiveAction(TextInputAction.done);
       await tester.pumpAndSettle(const Duration(milliseconds: 500));
 
       await tester.tap(find.byType(AppFlowyBoard));
       await tester.pumpAndSettle();
 
-      lastCardText = tester.widgetList(findLastCard).last as Text;
-      expect(lastCardText.data, newCardName);
+      expect(
+        find.descendant(
+          of: find.byType(RowCard).last,
+          matching: find.text(newCardName),
+        ),
+        findsOneWidget,
+      );
     });
   });
 }

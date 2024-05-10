@@ -101,9 +101,12 @@ impl From<&Filter> for FilterPB {
             .cloned::<CheckboxFilterPB>()
             .unwrap()
             .try_into(),
-
           FieldType::Relation => condition_and_content
             .cloned::<RelationFilterPB>()
+            .unwrap()
+            .try_into(),
+          FieldType::Summary => condition_and_content
+            .cloned::<TextFilterPB>()
             .unwrap()
             .try_into(),
         };
@@ -149,6 +152,9 @@ impl TryFrom<FilterDataPB> for FilterInner {
       },
       FieldType::Relation => {
         BoxAny::new(RelationFilterPB::try_from(bytes).map_err(|_| ErrorCode::ProtobufSerde)?)
+      },
+      FieldType::Summary => {
+        BoxAny::new(TextFilterPB::try_from(bytes).map_err(|_| ErrorCode::ProtobufSerde)?)
       },
     };
 

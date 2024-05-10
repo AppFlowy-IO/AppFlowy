@@ -10,6 +10,9 @@ class TabsEvent with _$TabsEvent {
     required Plugin plugin,
     required ViewPB view,
   }) = _OpenTab;
-  const factory TabsEvent.openPlugin({required Plugin plugin, ViewPB? view}) =
-      _OpenPlugin;
+  const factory TabsEvent.openPlugin({
+    required Plugin plugin,
+    ViewPB? view,
+    @Default(true) bool setLatest,
+  }) = _OpenPlugin;
 }

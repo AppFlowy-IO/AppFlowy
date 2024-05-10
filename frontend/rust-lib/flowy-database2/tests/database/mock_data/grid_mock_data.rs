@@ -2,7 +2,10 @@ use collab_database::database::{gen_database_id, gen_database_view_id, gen_row_i
 use collab_database::views::{DatabaseLayout, DatabaseView};
 use strum::IntoEnumIterator;
 
+use crate::database::mock_data::{COMPLETED, FACEBOOK, GOOGLE, PAUSED, PLANNED, TWITTER};
+use event_integration_test::database_event::TestRowBuilder;
 use flowy_database2::entities::FieldType;
+use flowy_database2::services::field::summary_type_option::summary::SummarizationTypeOption;
 use flowy_database2::services::field::{
   ChecklistTypeOption, DateFormat, DateTypeOption, FieldBuilder, MultiSelectTypeOption,
   NumberFormat, NumberTypeOption, RelationTypeOption, SelectOption, SelectOptionColor,
@@ -10,10 +13,8 @@ use flowy_database2::services::field::{
 };
 use flowy_database2::services::field_settings::default_field_settings_for_fields;
 
-use crate::database::database_editor::TestRowBuilder;
-use crate::database::mock_data::{COMPLETED, FACEBOOK, GOOGLE, PAUSED, PLANNED, TWITTER};
-
 pub fn make_test_grid() -> DatabaseData {
+  let database_id = gen_database_id();
   let mut fields = vec![];
   let mut rows = vec![];
 
@@ -124,13 +125,20 @@ pub fn make_test_grid() -> DatabaseData {
           .build();
         fields.push(relation_field);
       },
+      FieldType::Summary => {
+        let type_option = SummarizationTypeOption { auto_fill: false };
+        let relation_field = FieldBuilder::new(field_type, type_option)
+          .name("AI summary")
+          .build();
+        fields.push(relation_field);
+      },
     }
   }
 
   let field_settings = default_field_settings_for_fields(&fields, DatabaseLayout::Grid);
 
   for i in 0..7 {
-    let mut row_builder = TestRowBuilder::new(gen_row_id(), &fields);
+    let mut row_builder = TestRowBuilder::new(&database_id, gen_row_id(), &fields);
     match i {
       0 => {
         for field_type in FieldType::iter() {
@@ -265,7 +273,6 @@ pub fn make_test_grid() -> DatabaseData {
     rows.push(row);
   }
 
-  let database_id = gen_database_id();
   let inline_view_id = gen_database_view_id();
 
   let view = DatabaseView {
@@ -287,6 +294,7 @@ pub fn make_test_grid() -> DatabaseData {
 }
 
 pub fn make_no_date_test_grid() -> DatabaseData {
+  let database_id = gen_database_id();
   let mut fields = vec![];
   let mut rows = vec![];
 
@@ -317,7 +325,7 @@ pub fn make_no_date_test_grid() -> DatabaseData {
   let field_settings = default_field_settings_for_fields(&fields, DatabaseLayout::Grid);
 
   for i in 0..3 {
-    let mut row_builder = TestRowBuilder::new(gen_row_id(), &fields);
+    let mut row_builder = TestRowBuilder::new(&database_id, gen_row_id(), &fields);
     match i {
       0 => {
         for field_type in FieldType::iter() {
@@ -353,7 +361,6 @@ pub fn make_no_date_test_grid() -> DatabaseData {
     rows.push(row);
   }
 
-  let database_id = gen_database_id();
   let inline_view_id = gen_database_view_id();
 
   let view = DatabaseView {

@@ -29,7 +29,7 @@ class DocumentCollabAdapter {
   ///
   /// Only use in development
   Future<EditorState?> syncV1() async {
-    final result = await _service.getDocument(viewId: docId);
+    final result = await _service.getDocument(documentId: docId);
     final document = result.fold((s) => s.toDocument(), (f) => null);
     if (document == null) {
       return null;
@@ -69,7 +69,7 @@ class DocumentCollabAdapter {
   ///
   /// Diff the local document with the remote document and apply the changes
   Future<void> syncV3({DocEventPB? docEvent}) async {
-    final result = await _service.getDocument(viewId: docId);
+    final result = await _service.getDocument(documentId: docId);
     final document = result.fold((s) => s.toDocument(), (f) => null);
     if (document == null) {
       return;
@@ -104,7 +104,7 @@ class DocumentCollabAdapter {
   }
 
   Future<void> forceReload() async {
-    final result = await _service.getDocument(viewId: docId);
+    final result = await _service.getDocument(documentId: docId);
     final document = result.fold((s) => s.toDocument(), (f) => null);
     if (document == null) {
       return;
@@ -182,14 +182,21 @@ class DocumentCollabAdapter {
         );
     for (final state in values) {
       // the following code is only for version 1
-      if (state.version != 1) {
+      if (state.version != 1 || state.metadata.isEmpty) {
         return;
       }
       final uid = state.user.uid.toString();
       final did = state.user.deviceId;
-      final metadata = DocumentAwarenessMetadata.fromJson(
-        jsonDecode(state.metadata),
-      );
+
+      DocumentAwarenessMetadata metadata;
+      try {
+        metadata = DocumentAwarenessMetadata.fromJson(
+          jsonDecode(state.metadata),
+        );
+      } catch (e) {
+        Log.error('Failed to parse metadata: $e, ${state.metadata}');
+        continue;
+      }
       final selectionColor = metadata.selectionColor.tryToColor();
       final cursorColor = metadata.cursorColor.tryToColor();
       if ((uid == userId && did == deviceId) ||

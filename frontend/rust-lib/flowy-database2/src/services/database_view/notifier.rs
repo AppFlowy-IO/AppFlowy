@@ -86,7 +86,7 @@ impl DatabaseViewChangedReceiverRunner {
               is_new: true,
             };
             let changes = RowsChangePB::from_insert(inserted_row);
-            send_notification(&result.view_id, DatabaseNotification::DidUpdateViewRows)
+            send_notification(&result.view_id, DatabaseNotification::DidUpdateRow)
               .payload(changes)
               .send();
           },

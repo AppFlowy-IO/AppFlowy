@@ -12,6 +12,9 @@ class WindowSizeManager {
   static const double maxWindowHeight = 8192.0;
   static const double maxWindowWidth = 8192.0;
 
+  static const double maxScaleFactor = 2.0;
+  static const double minScaleFactor = 0.5;
+
   static const width = 'width';
   static const height = 'height';
 
@@ -63,5 +66,21 @@ class WindowSizeManager {
     }
     final offset = json.decode(position);
     return Offset(offset[dx], offset[dy]);
+  }
+
+  Future<double> getScaleFactor() async {
+    final scaleFactor = await getIt<KeyValueStorage>().getWithFormat<double>(
+          KVKeys.scaleFactor,
+          (value) => double.tryParse(value) ?? 1.0,
+        ) ??
+        1.0;
+    return scaleFactor.clamp(minScaleFactor, maxScaleFactor);
+  }
+
+  Future<void> setScaleFactor(double scaleFactor) async {
+    await getIt<KeyValueStorage>().set(
+      KVKeys.scaleFactor,
+      '${scaleFactor.clamp(minScaleFactor, maxScaleFactor)}',
+    );
   }
 }

@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/database/widgets/cell/card_cell_skeleton/summary_card_cell.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:flutter/material.dart';
 
@@ -56,7 +57,7 @@ CardCellStyleMap desktopBoardCardCellStyleMap(BuildContext context) {
     FieldType.RichText: TextCardCellStyle(
       padding: padding,
       textStyle: textStyle,
-      maxLines: null,
+      maxLines: 2,
       titleTextStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
             overflow: TextOverflow.ellipsis,
           ),
@@ -77,6 +78,10 @@ CardCellStyleMap desktopBoardCardCellStyleMap(BuildContext context) {
     FieldType.Relation: RelationCardCellStyle(
       padding: padding,
       wrap: true,
+      textStyle: textStyle,
+    ),
+    FieldType.Summary: SummaryCardCellStyle(
+      padding: padding,
       textStyle: textStyle,
     ),
   };

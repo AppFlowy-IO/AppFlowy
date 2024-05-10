@@ -8,8 +8,6 @@ import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flowy_infra/notifier.dart';
 
-typedef GroupConfigurationUpdateValue
-    = FlowyResult<List<GroupSettingPB>, FlowyError>;
 typedef GroupUpdateValue = FlowyResult<GroupChangesPB, FlowyError>;
 typedef GroupByNewFieldValue = FlowyResult<List<GroupPB>, FlowyError>;
 

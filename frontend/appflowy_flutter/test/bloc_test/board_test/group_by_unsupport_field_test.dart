@@ -38,7 +38,6 @@ void main() {
     blocTest<BoardBloc, BoardState>(
       'assert the number of groups is 1',
       build: () => BoardBloc(
-        view: context.gridView,
         databaseController: DatabaseController(view: context.gridView),
       )..add(
           const BoardEvent.initial(),

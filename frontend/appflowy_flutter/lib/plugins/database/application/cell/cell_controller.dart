@@ -68,6 +68,8 @@ class CellController<T, D> {
   Timer? _loadDataOperation;
   Timer? _saveDataOperation;
 
+  Completer? _completer;
+
   RowId get rowId => _cellContext.rowId;
   String get fieldId => _cellContext.fieldId;
   FieldInfo get fieldInfo => _fieldController.getField(_cellContext.fieldId)!;
@@ -192,6 +194,7 @@ class CellController<T, D> {
     _loadDataOperation?.cancel();
     if (debounce) {
       _saveDataOperation?.cancel();
+      _completer = Completer();
       _saveDataOperation = Timer(const Duration(milliseconds: 300), () async {
         final result = await _cellDataPersistence.save(
           viewId: viewId,
@@ -199,6 +202,7 @@ class CellController<T, D> {
           data: data,
         );
         onFinish?.call(result);
+        _completer?.complete();
       });
     } else {
       final result = await _cellDataPersistence.save(
@@ -241,6 +245,7 @@ class CellController<T, D> {
     );
 
     _loadDataOperation?.cancel();
+    await _completer?.future;
     _saveDataOperation?.cancel();
     _cellDataNotifier?.dispose();
     _cellDataNotifier = null;

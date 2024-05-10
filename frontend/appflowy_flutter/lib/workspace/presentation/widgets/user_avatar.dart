@@ -1,15 +1,16 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
+import 'package:appflowy/util/built_in_svgs.dart';
 import 'package:appflowy/util/color_generator/color_generator.dart';
-import 'package:appflowy/workspace/presentation/settings/widgets/settings_user_view.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
-import 'package:flutter/material.dart';
 
 const double _smallSize = 28;
-const double _largeSize = 56;
+const double _largeSize = 64;
 
 class UserAvatar extends StatelessWidget {
   const UserAvatar({
@@ -17,11 +18,15 @@ class UserAvatar extends StatelessWidget {
     required this.iconUrl,
     required this.name,
     this.isLarge = false,
+    this.isHovering = false,
   });
 
   final String iconUrl;
   final String name;
   final bool isLarge;
+
+  // If true, a border will be applied on top of the avatar
+  final bool isHovering;
 
   @override
   Widget build(BuildContext context) {
@@ -47,6 +52,12 @@ class UserAvatar extends StatelessWidget {
         decoration: BoxDecoration(
           color: color,
           shape: BoxShape.circle,
+          border: isHovering
+              ? Border.all(
+                  color: _darken(color),
+                  width: 4,
+                )
+              : null,
         ),
         child: FlowyText.semibold(
           nameInitials,
@@ -64,16 +75,27 @@ class UserAvatar extends StatelessWidget {
 
     return SizedBox.square(
       dimension: size,
-      child: ClipRRect(
-        borderRadius: Corners.s5Border,
-        child: CircleAvatar(
-          backgroundColor: Colors.transparent,
-          child: builtInSVGIcons.contains(iconUrl)
-              ? FlowySvg(
-                  FlowySvgData('emoji/$iconUrl'),
-                  blendMode: null,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: isHovering
+              ? Border.all(
+                  color: Theme.of(context).colorScheme.primary,
+                  width: 4,
                 )
-              : EmojiText(emoji: iconUrl, fontSize: isLarge ? 36 : 18),
+              : null,
+        ),
+        child: ClipRRect(
+          borderRadius: Corners.s5Border,
+          child: CircleAvatar(
+            backgroundColor: Colors.transparent,
+            child: builtInSVGIcons.contains(iconUrl)
+                ? FlowySvg(
+                    FlowySvgData('emoji/$iconUrl'),
+                    blendMode: null,
+                  )
+                : EmojiText(emoji: iconUrl, fontSize: isLarge ? 36 : 18),
+          ),
         ),
       ),
     );
@@ -81,6 +103,15 @@ class UserAvatar extends StatelessWidget {
 
   /// Return the user name, if the user name is empty,
   /// return the default user name.
+  ///
   String _userName(String name) =>
       name.isEmpty ? LocaleKeys.defaultUsername.tr() : name;
+
+  /// Used to darken the generated color for the hover border effect.
+  /// The color is darkened by 15% - Hence the 0.15 value.
+  ///
+  Color _darken(Color color) {
+    final hsl = HSLColor.fromColor(color);
+    return hsl.withLightness((hsl.lightness - 0.15).clamp(0.0, 1.0)).toColor();
+  }
 }

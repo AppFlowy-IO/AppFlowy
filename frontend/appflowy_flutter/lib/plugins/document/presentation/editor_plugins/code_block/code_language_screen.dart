@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/mobile/presentation/base/app_bar.dart';
+import 'package:appflowy/mobile/presentation/base/app_bar/app_bar.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/string_extension.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -16,11 +16,11 @@ class MobileCodeLanguagePickerScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: FlowyAppBar(
-        titleText: LocaleKeys.titleBar_language.tr(),
-      ),
+      appBar: FlowyAppBar(titleText: LocaleKeys.titleBar_language.tr()),
       body: SafeArea(
         child: ListView.separated(
+          separatorBuilder: (_, __) => const Divider(),
+          itemCount: defaultCodeBlockSupportedLanguages.length,
           itemBuilder: (context, index) {
             final language = defaultCodeBlockSupportedLanguages[index];
             return SizedBox(
@@ -35,8 +35,6 @@ class MobileCodeLanguagePickerScreen extends StatelessWidget {
               ),
             );
           },
-          separatorBuilder: (_, __) => const Divider(),
-          itemCount: defaultCodeBlockSupportedLanguages.length,
         ),
       ),
     );

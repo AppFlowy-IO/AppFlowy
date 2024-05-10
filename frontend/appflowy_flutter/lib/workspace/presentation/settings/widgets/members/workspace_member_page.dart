@@ -2,6 +2,9 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/af_role_pb_extension.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
+import 'package:appflowy/workspace/presentation/settings/shared/settings_body.dart';
+import 'package:appflowy/workspace/presentation/settings/shared/settings_category_spacer.dart';
+import 'package:appflowy/workspace/presentation/settings/shared/settings_header.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/members/workspace_member_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
@@ -18,10 +21,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:string_validator/string_validator.dart';
 
 class WorkspaceMembersPage extends StatelessWidget {
-  const WorkspaceMembersPage({
-    super.key,
-    required this.userProfile,
-  });
+  const WorkspaceMembersPage({super.key, required this.userProfile});
 
   final UserProfilePB userProfile;
 
@@ -33,25 +33,22 @@ class WorkspaceMembersPage extends StatelessWidget {
       child: BlocConsumer<WorkspaceMemberBloc, WorkspaceMemberState>(
         listener: _showResultDialog,
         builder: (context, state) {
-          return SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // title
-                FlowyText.semibold(
-                  LocaleKeys.settings_appearance_members_title.tr(),
-                  fontSize: 20,
+          return SettingsBody(
+            children: [
+              // title
+              SettingsHeader(
+                title: LocaleKeys.settings_appearance_members_title.tr(),
+              ),
+              if (state.myRole.canInvite) const _InviteMember(),
+              if (state.myRole.canInvite && state.members.isNotEmpty)
+                const SettingsCategorySpacer(),
+              if (state.members.isNotEmpty)
+                _MemberList(
+                  members: state.members,
+                  userProfile: userProfile,
+                  myRole: state.myRole,
                 ),
-                if (state.myRole.canInvite) const _InviteMember(),
-                if (state.members.isNotEmpty)
-                  _MemberList(
-                    members: state.members,
-                    userProfile: userProfile,
-                    myRole: state.myRole,
-                  ),
-                const VSpace(48.0),
-              ],
-            ),
+            ],
           );
         },
       ),
@@ -77,9 +74,30 @@ class WorkspaceMembersPage extends StatelessWidget {
           );
         },
         (f) {
+          Log.error('add workspace member failed: $f');
           final message = f.code == ErrorCode.WorkspaceMemberLimitExceeded
               ? LocaleKeys.settings_appearance_members_memberLimitExceeded.tr()
               : LocaleKeys.settings_appearance_members_failedToAddMember.tr();
+          showDialog(
+            context: context,
+            builder: (context) => NavigatorOkCancelDialog(message: message),
+          );
+        },
+      );
+    } else if (actionType == WorkspaceMemberActionType.invite) {
+      result.fold(
+        (s) {
+          showSnackBarMessage(
+            context,
+            LocaleKeys.settings_appearance_members_inviteMemberSuccess.tr(),
+          );
+        },
+        (f) {
+          Log.error('invite workspace member failed: $f');
+          final message = f.code == ErrorCode.WorkspaceMemberLimitExceeded
+              ? LocaleKeys.settings_appearance_members_memberLimitExceeded.tr()
+              : LocaleKeys.settings_appearance_members_failedToInviteMember
+                  .tr();
           showDialog(
             context: context,
             builder: (context) => NavigatorOkCancelDialog(message: message),
@@ -117,7 +135,6 @@ class _InviteMemberState extends State<_InviteMember> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const VSpace(12.0),
         FlowyText.semibold(
           LocaleKeys.settings_appearance_members_inviteMembers.tr(),
           fontSize: 16.0,
@@ -151,7 +168,6 @@ class _InviteMemberState extends State<_InviteMember> {
             ),
           ],
         ),
-        const VSpace(16.0),
         /* Enable this when the feature is ready
         PrimaryButton(
           backgroundColor: const Color(0xFFE0E0E0),
@@ -183,10 +199,6 @@ class _InviteMemberState extends State<_InviteMember> {
         ),
         const VSpace(16.0),
         */
-        const Divider(
-          height: 1.0,
-          thickness: 1.0,
-        ),
       ],
     );
   }
@@ -194,15 +206,16 @@ class _InviteMemberState extends State<_InviteMember> {
   void _inviteMember() {
     final email = _emailController.text;
     if (!isEmail(email)) {
-      showSnackBarMessage(
+      return showSnackBarMessage(
         context,
         LocaleKeys.settings_appearance_members_emailInvalidError.tr(),
       );
-      return;
     }
     context
         .read<WorkspaceMemberBloc>()
-        .add(WorkspaceMemberEvent.addWorkspaceMember(email));
+        .add(WorkspaceMemberEvent.inviteWorkspaceMember(email));
+    // clear the email field after inviting
+    _emailController.clear();
   }
 }
 
@@ -219,22 +232,17 @@ class _MemberList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return SeparatedColumn(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      separatorBuilder: () => const Divider(),
       children: [
-        const VSpace(16.0),
-        SeparatedColumn(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          separatorBuilder: () => const Divider(),
-          children: [
-            const _MemberListHeader(),
-            ...members.map(
-              (member) => _MemberItem(
-                member: member,
-                myRole: myRole,
-                userProfile: userProfile,
-              ),
-            ),
-          ],
+        const _MemberListHeader(),
+        ...members.map(
+          (member) => _MemberItem(
+            member: member,
+            myRole: myRole,
+            userProfile: userProfile,
+          ),
         ),
       ],
     );

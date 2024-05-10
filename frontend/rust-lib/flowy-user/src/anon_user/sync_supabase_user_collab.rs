@@ -43,7 +43,7 @@ pub async fn sync_supabase_user_data_to_cloud(
     uid,
     &workspace_id,
     device_id,
-    &new_user_session.user_workspace.workspace_database_object_id,
+    &new_user_session.user_workspace.database_indexer_id,
     collab_db,
     user_service.clone(),
   )

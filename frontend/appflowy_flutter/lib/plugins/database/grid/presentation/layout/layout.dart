@@ -12,11 +12,12 @@ class GridLayout {
               element.visibility != null &&
               element.visibility != FieldVisibility.AlwaysHidden,
         )
-        .map((fieldInfo) => fieldInfo.fieldSettings!.width.toDouble())
+        .map((fieldInfo) => fieldInfo.width!.toDouble())
         .reduce((value, element) => value + element);
 
     return fieldsWidth +
         GridSize.horizontalHeaderPadding +
+        40 +
         GridSize.trailHeaderPadding;
   }
 }

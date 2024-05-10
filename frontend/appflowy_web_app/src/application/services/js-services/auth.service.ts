@@ -1,12 +1,12 @@
 import { AuthService } from '@/application/services/services.type';
-import { ProviderType, SignUpWithEmailPasswordParams, UserProfile } from '@/application/services/user.type';
-import { HttpClient } from '@/application/services/js-services/http/client';
-import { ACCESS_TOKEN_NAME, REFRESH_TOKEN_NAME, TOKEN_TYPE_NAME } from '@/application/services/js-services/http/const';
-import { AFWasmService } from '@/application/services/wasm-services';
+import { ProviderType, SignUpWithEmailPasswordParams } from '@/application/user.type';
+import { APIService } from 'src/application/services/js-services/wasm';
+import { signInSuccess } from '@/application/services/js-services/storage/auth';
+import { invalidToken } from '@/application/services/js-services/storage';
+import { afterSignInDecorator } from '@/application/services/js-services/decorator';
 
 export class JSAuthService implements AuthService {
-
-  constructor (private httpClient: HttpClient, private wasmService: AFWasmService) {
+  constructor() {
     // Do nothing
   }
 
@@ -14,32 +14,26 @@ export class JSAuthService implements AuthService {
     return Promise.reject('Not implemented');
   };
 
-  signInWithOAuth = async ({ uri }: { uri: string }): Promise<UserProfile> => {
-    const params = uri.split('#')[1].split('&');
-    const data: Record<string, string> = {};
+  @afterSignInDecorator(signInSuccess)
+  async signInWithOAuth(_: { uri: string }): Promise<void> {
+    return Promise.reject('Not implemented');
+  }
 
-    params.forEach((param) => {
-      const [key, value] = param.split('=');
-
-      data[key] = value;
-    });
-
-    sessionStorage.setItem(TOKEN_TYPE_NAME, data.token_type);
-    sessionStorage.setItem(ACCESS_TOKEN_NAME, data.access_token);
-    sessionStorage.setItem(REFRESH_TOKEN_NAME, data.refresh_token);
-    return this.httpClient.getUser();
-  };
-  signupWithEmailPassword = async (_params: SignUpWithEmailPasswordParams): Promise<UserProfile> => {
+  signupWithEmailPassword = async (_params: SignUpWithEmailPasswordParams): Promise<void> => {
     return Promise.reject('Not implemented');
   };
 
-  signinWithEmailPassword = async (email: string, password: string): Promise<UserProfile> => {
-    // await this.wasmService.cloudService.signIn(email, password);
-    // return Promise.reject('Not implemented');
-    return this.httpClient.signInWithEmailPassword(email, password);
-  };
+  @afterSignInDecorator(signInSuccess)
+  async signinWithEmailPassword(email: string, password: string): Promise<void> {
+    try {
+      return APIService.signIn(email, password);
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
 
   signOut = async (): Promise<void> => {
-    return this.httpClient.logout();
+    invalidToken();
+    return APIService.logout();
   };
 }

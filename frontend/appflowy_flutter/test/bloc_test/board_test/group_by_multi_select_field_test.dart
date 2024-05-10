@@ -41,7 +41,6 @@ void main() {
 
     // assert only have the 'No status' group
     final boardBloc = BoardBloc(
-      view: context.gridView,
       databaseController: DatabaseController(view: context.gridView),
     )..add(const BoardEvent.initial());
     await boardResponseFuture();
@@ -91,7 +90,6 @@ void main() {
 
     // assert there are only three group
     final boardBloc = BoardBloc(
-      view: context.gridView,
       databaseController: DatabaseController(view: context.gridView),
     )..add(const BoardEvent.initial());
     await boardResponseFuture();

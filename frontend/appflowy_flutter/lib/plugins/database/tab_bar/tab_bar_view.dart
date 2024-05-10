@@ -5,6 +5,7 @@ import 'package:appflowy/plugins/shared/sync_indicator.dart';
 import 'package:appflowy/plugins/util.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
+import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view_info/view_info_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy/workspace/presentation/widgets/favorite_button.dart';
@@ -84,9 +85,17 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<DatabaseTabBarBloc>(
-      create: (context) => DatabaseTabBarBloc(view: widget.view)
-        ..add(const DatabaseTabBarEvent.initial()),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<DatabaseTabBarBloc>(
+          create: (context) => DatabaseTabBarBloc(view: widget.view)
+            ..add(const DatabaseTabBarEvent.initial()),
+        ),
+        BlocProvider<ViewBloc>(
+          create: (context) =>
+              ViewBloc(view: widget.view)..add(const ViewEvent.initial()),
+        ),
+      ],
       child: MultiBlocListener(
         listeners: [
           BlocListener<DatabaseTabBarBloc, DatabaseTabBarState>(
@@ -277,4 +286,7 @@ class DatabasePluginWidgetBuilder extends PluginWidgetBuilder {
       ),
     );
   }
+
+  @override
+  EdgeInsets get contentPadding => const EdgeInsets.only(top: 28);
 }

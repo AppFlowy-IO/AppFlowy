@@ -1,10 +1,11 @@
-import 'package:flowy_infra/utils/color_converter.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flowy_infra/theme.dart';
+import 'package:flowy_infra/utils/color_converter.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'default_colorscheme.dart';
+
 import 'dandelion.dart';
+import 'default_colorscheme.dart';
 import 'lavender.dart';
 import 'lemonade.dart';
 
@@ -14,7 +15,6 @@ part 'colorscheme.g.dart';
 ///
 /// The key is the theme name, and the value is a list of two color schemes:
 /// the first is for light mode, and the second is for dark mode.
-
 const Map<String, List<FlowyColorScheme>> themeMap = {
   BuiltInTheme.defaultTheme: [
     DefaultColorScheme.light(),
@@ -34,65 +34,8 @@ const Map<String, List<FlowyColorScheme>> themeMap = {
   ],
 };
 
-@JsonSerializable(
-  converters: [
-    ColorConverter(),
-  ],
-)
+@JsonSerializable(converters: [ColorConverter()])
 class FlowyColorScheme {
-  final Color surface;
-  final Color hover;
-  final Color selector;
-  final Color red;
-  final Color yellow;
-  final Color green;
-  final Color shader1;
-  final Color shader2;
-  final Color shader3;
-  final Color shader4;
-  final Color shader5;
-  final Color shader6;
-  final Color shader7;
-  final Color bg1;
-  final Color bg2;
-  final Color bg3;
-  final Color bg4;
-  final Color tint1;
-  final Color tint2;
-  final Color tint3;
-  final Color tint4;
-  final Color tint5;
-  final Color tint6;
-  final Color tint7;
-  final Color tint8;
-  final Color tint9;
-  final Color main1;
-  final Color main2;
-  final Color shadow;
-  final Color sidebarBg;
-  final Color divider;
-  final Color topbarBg;
-  final Color icon;
-  final Color text;
-  final Color input;
-  final Color hint;
-  final Color primary;
-  final Color onPrimary;
-  //page title hover effect
-  final Color hoverBG1;
-  //action item hover effect
-  final Color hoverBG2;
-  final Color hoverBG3;
-  //the text color when it is hovered
-  final Color hoverFG;
-  final Color questionBubbleBG;
-  final Color progressBarBGColor;
-  //editor toolbar BG color
-  final Color toolbarColor;
-  final Color toggleButtonBGColor;
-  final Color calendarWeekendBGColor;
-  //grid bottom count color
-  final Color gridRowCountColor;
   const FlowyColorScheme({
     required this.surface,
     required this.hover,
@@ -128,6 +71,7 @@ class FlowyColorScheme {
     required this.topbarBg,
     required this.icon,
     required this.text,
+    required this.secondaryText,
     required this.input,
     required this.hint,
     required this.primary,
@@ -143,6 +87,61 @@ class FlowyColorScheme {
     required this.calendarWeekendBGColor,
     required this.gridRowCountColor,
   });
+
+  final Color surface;
+  final Color hover;
+  final Color selector;
+  final Color red;
+  final Color yellow;
+  final Color green;
+  final Color shader1;
+  final Color shader2;
+  final Color shader3;
+  final Color shader4;
+  final Color shader5;
+  final Color shader6;
+  final Color shader7;
+  final Color bg1;
+  final Color bg2;
+  final Color bg3;
+  final Color bg4;
+  final Color tint1;
+  final Color tint2;
+  final Color tint3;
+  final Color tint4;
+  final Color tint5;
+  final Color tint6;
+  final Color tint7;
+  final Color tint8;
+  final Color tint9;
+  final Color main1;
+  final Color main2;
+  final Color shadow;
+  final Color sidebarBg;
+  final Color divider;
+  final Color topbarBg;
+  final Color icon;
+  final Color text;
+  final Color secondaryText;
+  final Color input;
+  final Color hint;
+  final Color primary;
+  final Color onPrimary;
+  //page title hover effect
+  final Color hoverBG1;
+  //action item hover effect
+  final Color hoverBG2;
+  final Color hoverBG3;
+  //the text color when it is hovered
+  final Color hoverFG;
+  final Color questionBubbleBG;
+  final Color progressBarBGColor;
+  //editor toolbar BG color
+  final Color toolbarColor;
+  final Color toggleButtonBGColor;
+  final Color calendarWeekendBGColor;
+  //grid bottom count color
+  final Color gridRowCountColor;
 
   factory FlowyColorScheme.fromJson(Map<String, dynamic> json) =>
       _$FlowyColorSchemeFromJson(json);

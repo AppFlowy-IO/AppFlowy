@@ -1,9 +1,6 @@
 import 'dart:async';
 import 'dart:ui';
 
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_picker.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_skin_tone.dart';
@@ -17,6 +14,8 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/image/embe
 import 'package:appflowy/plugins/inline_actions/widgets/inline_actions_handler.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_emoji_mart/flutter_emoji_mart.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -31,11 +30,8 @@ class EditorOperations {
 
   final WidgetTester tester;
 
-  EditorState getCurrentEditorState() {
-    return tester
-        .widget<AppFlowyEditor>(find.byType(AppFlowyEditor))
-        .editorState;
-  }
+  EditorState getCurrentEditorState() =>
+      tester.widget<AppFlowyEditor>(find.byType(AppFlowyEditor)).editorState;
 
   /// Tap the line of editor at [index]
   Future<void> tapLineOfEditorAt(int index) async {
@@ -66,7 +62,7 @@ class EditorOperations {
   Future<void> tapGettingStartedIcon() async {
     await tester.tapButton(
       find.descendant(
-        of: find.byType(DocumentHeaderNodeWidget),
+        of: find.byType(DocumentCoverWidget),
         matching: find.findTextInFlowyText('⭐️'),
       ),
     );
@@ -145,16 +141,8 @@ class EditorOperations {
     );
   }
 
-  Future<void> switchNetworkImageCover(String imageUrl) async {
-    final image = find.byWidgetPredicate(
-      (widget) => widget is ImageGridItem,
-    );
-    await tester.tapButton(image);
-  }
-
-  Future<void> tapOnRemoveCover() async {
-    await tester.tapButton(find.byType(DeleteCoverButton));
-  }
+  Future<void> tapOnRemoveCover() async =>
+      tester.tapButton(find.byType(DeleteCoverButton));
 
   /// A cover must be present in the document to function properly since this
   /// catches all cover types collectively

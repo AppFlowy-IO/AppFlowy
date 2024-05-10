@@ -1,15 +1,18 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/startup/tasks/app_window_size_manager.dart';
 import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/sidebar/rename_view/rename_view_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_setting.dart';
+import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
+import 'package:flutter/material.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:provider/provider.dart';
+import 'package:scaled_app/scaled_app.dart';
 
 typedef KeyDownHandler = void Function(HotKey hotKey);
 
@@ -33,13 +36,24 @@ class HotKeyItem {
       hotKeyManager.register(hotKey, keyDownHandler: keyDownHandler);
 }
 
-class HomeHotKeys extends StatelessWidget {
-  const HomeHotKeys({required this.child, super.key});
+class HomeHotKeys extends StatefulWidget {
+  const HomeHotKeys({
+    super.key,
+    required this.userProfile,
+    required this.child,
+  });
 
+  final UserProfilePB userProfile;
   final Widget child;
 
   @override
-  Widget build(BuildContext context) {
+  State<HomeHotKeys> createState() => _HomeHotKeysState();
+}
+
+class _HomeHotKeysState extends State<HomeHotKeys> {
+  final windowSizeManager = WindowSizeManager();
+
+  late final items = [
     // Collapse sidebar menu
     HotKeyItem(
       hotKey: HotKey(
@@ -51,7 +65,7 @@ class HomeHotKeys extends StatelessWidget {
       keyDownHandler: (_) => context
           .read<HomeSettingBloc>()
           .add(const HomeSettingEvent.collapseMenu()),
-    ).register();
+    ),
 
     // Toggle theme mode light/dark
     HotKeyItem(
@@ -65,7 +79,7 @@ class HomeHotKeys extends StatelessWidget {
       ),
       keyDownHandler: (_) =>
           context.read<AppearanceSettingsCubit>().toggleThemeMode(),
-    ).register();
+    ),
 
     // Close current tab
     HotKeyItem(
@@ -76,7 +90,7 @@ class HomeHotKeys extends StatelessWidget {
       ),
       keyDownHandler: (_) =>
           context.read<TabsBloc>().add(const TabsEvent.closeCurrentTab()),
-    ).register();
+    ),
 
     // Go to previous tab
     HotKeyItem(
@@ -86,7 +100,7 @@ class HomeHotKeys extends StatelessWidget {
         scope: HotKeyScope.inapp,
       ),
       keyDownHandler: (_) => _selectTab(context, -1),
-    ).register();
+    ),
 
     // Go to next tab
     HotKeyItem(
@@ -96,7 +110,7 @@ class HomeHotKeys extends StatelessWidget {
         scope: HotKeyScope.inapp,
       ),
       keyDownHandler: (_) => _selectTab(context, 1),
-    ).register();
+    ),
 
     // Rename current view
     HotKeyItem(
@@ -106,19 +120,69 @@ class HomeHotKeys extends StatelessWidget {
       ),
       keyDownHandler: (_) =>
           getIt<RenameViewBloc>().add(const RenameViewEvent.open()),
-    ).register();
+    ),
 
-    _asyncRegistration(context);
+    // Scale up/down the app
+    HotKeyItem(
+      hotKey: HotKey(
+        KeyCode.equal,
+        modifiers: [Platform.isMacOS ? KeyModifier.meta : KeyModifier.control],
+        scope: HotKeyScope.inapp,
+      ),
+      keyDownHandler: (_) => _scaleWithStep(0.1),
+    ),
 
-    return child;
+    HotKeyItem(
+      hotKey: HotKey(
+        KeyCode.minus,
+        modifiers: [Platform.isMacOS ? KeyModifier.meta : KeyModifier.control],
+        scope: HotKeyScope.inapp,
+      ),
+      keyDownHandler: (_) => _scaleWithStep(-0.1),
+    ),
+
+    // Open settings dialog
+    openSettingsHotKey(context, widget.userProfile),
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+
+    _registerHotKeys(context);
   }
 
-  Future<void> _asyncRegistration(BuildContext context) async {
-    (await openSettingsHotKey(context))?.register();
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    _registerHotKeys(context);
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
+
+  void _registerHotKeys(BuildContext context) {
+    for (final element in items) {
+      element.register();
+    }
   }
 
   void _selectTab(BuildContext context, int change) {
     final bloc = context.read<TabsBloc>();
     bloc.add(TabsEvent.selectTab(bloc.state.currentIndex + change));
+  }
+
+  Future<void> _scaleWithStep(double step) async {
+    final currentScaleFactor = await windowSizeManager.getScaleFactor();
+    final textScale = (currentScaleFactor + step).clamp(
+      WindowSizeManager.minScaleFactor,
+      WindowSizeManager.maxScaleFactor,
+    );
+
+    Log.info('scale the app from $currentScaleFactor to $textScale');
+
+    ScaledWidgetsFlutterBinding.instance.scaleFactor = (_) => textScale;
+    await windowSizeManager.setScaleFactor(textScale);
   }
 }

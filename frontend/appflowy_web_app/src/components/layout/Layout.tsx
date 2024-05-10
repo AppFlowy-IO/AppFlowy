@@ -1,25 +1,47 @@
-import React, { useContext } from 'react';
-import { Button } from '@mui/material';
-import { useAuth } from '@/components/auth/auth.hooks';
-import { AFConfigContext } from '@/AppConfig';
+import { YFolder, YjsEditorKey } from '@/application/collab.type';
+import { FolderProvider } from '@/components/_shared/context-provider/FolderProvider';
+import { AFConfigContext } from '@/components/app/AppConfig';
+import Header from '@/components/layout/Header';
+import { AFScroller } from '@/components/_shared/scroller';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import './layout.scss';
 
 function Layout({ children }: { children: React.ReactNode }) {
-  const { logout } = useAuth();
-  const AFConfig = useContext(AFConfigContext);
+  const { workspaceId } = useParams();
+  const folderService = useContext(AFConfigContext)?.service?.folderService;
+  const [folder, setFolder] = useState<YFolder | null>(null);
+  const getFolder = useCallback(
+    async (workspaceId: string) => {
+      const folder = (await folderService?.openWorkspace(workspaceId))
+        ?.getMap(YjsEditorKey.data_section)
+        .get(YjsEditorKey.folder);
 
+      if (!folder) return;
+
+      setFolder(folder);
+    },
+    [folderService]
+  );
+
+  useEffect(() => {
+    if (!workspaceId) return;
+
+    void getFolder(workspaceId);
+  }, [getFolder, workspaceId]);
   return (
-    <div>
-      <div>hello world</div>
-      <Button onClick={logout}>logout</Button>
-      <Button
-        onClick={() => {
-          void AFConfig?.service?.documentService.openDocument('test');
+    <FolderProvider folder={folder}>
+      <Header />
+      <AFScroller
+        overflowXHidden
+        style={{
+          height: 'calc(100vh - 64px)',
         }}
+        className={'appflowy-layout appflowy-scroll-container'}
       >
-        get document
-      </Button>
-      {children}
-    </div>
+        {children}
+      </AFScroller>
+    </FolderProvider>
   );
 }
 

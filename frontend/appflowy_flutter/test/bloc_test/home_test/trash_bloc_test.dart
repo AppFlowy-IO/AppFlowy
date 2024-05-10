@@ -25,7 +25,7 @@ class TrashTestContext {
         section: ViewSectionPB.Public,
       ),
     );
-    await blocResponseFuture();
+    await blocResponseFuture(millisecond: 300);
 
     viewBloc.add(
       const ViewEvent.createView(
@@ -34,7 +34,7 @@ class TrashTestContext {
         section: ViewSectionPB.Public,
       ),
     );
-    await blocResponseFuture();
+    await blocResponseFuture(millisecond: 300);
 
     viewBloc.add(
       const ViewEvent.createView(
@@ -43,7 +43,7 @@ class TrashTestContext {
         section: ViewSectionPB.Public,
       ),
     );
-    await blocResponseFuture();
+    await blocResponseFuture(millisecond: 300);
 
     allViews = [...viewBloc.state.view.childViews];
     assert(allViews.length == 3, 'but receive ${allViews.length}');

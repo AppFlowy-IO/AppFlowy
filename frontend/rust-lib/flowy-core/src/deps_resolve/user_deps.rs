@@ -55,7 +55,7 @@ impl UserWorkspaceService for UserWorkspaceServiceImpl {
   ) -> FlowyResult<()> {
     self
       .database_manager
-      .track_database(ids_by_database_id)
+      .update_database_indexing(ids_by_database_id)
       .await?;
     Ok(())
   }

@@ -1,6 +1,7 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
 
 class MobileQuickActionButton extends StatelessWidget {
   const MobileQuickActionButton({
@@ -25,11 +26,7 @@ class MobileQuickActionButton extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
       child: InkWell(
-        onTap: () {
-          if (enable) {
-            onTap();
-          }
-        },
+        onTap: enable ? onTap : null,
         borderRadius: BorderRadius.circular(12),
         overlayColor:
             enable ? null : const MaterialStatePropertyAll(Colors.transparent),

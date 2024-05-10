@@ -35,7 +35,7 @@ class DocumentExporter {
     DocumentExportType type,
   ) async {
     final documentService = DocumentService();
-    final result = await documentService.openDocument(viewId: view.id);
+    final result = await documentService.openDocument(documentId: view.id);
     return result.fold(
       (r) {
         final document = r.toDocument();

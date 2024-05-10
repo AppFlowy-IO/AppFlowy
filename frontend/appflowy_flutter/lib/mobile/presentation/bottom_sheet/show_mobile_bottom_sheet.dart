@@ -32,6 +32,8 @@ Future<T?> showMobileBottomSheet<T>(
   // this field is only used if showHeader is true
   bool showBackButton = false,
   bool showCloseButton = false,
+  bool showRemoveButton = false,
+  VoidCallback? onRemove,
   // this field is only used if showHeader is true
   String title = '',
   bool isScrollControlled = true,
@@ -46,6 +48,8 @@ Future<T?> showMobileBottomSheet<T>(
   double? elevation,
   bool showDoneButton = false,
   bool enableDraggableScrollable = false,
+  // this field is only used if showDragHandle is true
+  Widget Function(BuildContext, ScrollController)? scrollableWidgetBuilder,
   // only used when enableDraggableScrollable is true
   double minChildSize = 0.5,
   double maxChildSize = 0.8,
@@ -102,7 +106,9 @@ Future<T?> showMobileBottomSheet<T>(
             showCloseButton: showCloseButton,
             showBackButton: showBackButton,
             showDoneButton: showDoneButton,
+            showRemoveButton: showRemoveButton,
             title: title,
+            onRemove: onRemove,
           ),
         );
 
@@ -116,24 +122,30 @@ Future<T?> showMobileBottomSheet<T>(
       // ----- header area -----
 
       if (enableDraggableScrollable) {
+        final keyboardSize =
+            context.bottomSheetPadding() / MediaQuery.of(context).size.height;
         return DraggableScrollableSheet(
           expand: false,
           snap: true,
-          initialChildSize: initialChildSize,
-          minChildSize: minChildSize,
-          maxChildSize: maxChildSize,
+          initialChildSize: (initialChildSize + keyboardSize).clamp(0, 1),
+          minChildSize: (minChildSize + keyboardSize).clamp(0, 1.0),
+          maxChildSize: (maxChildSize + keyboardSize).clamp(0, 1.0),
           builder: (context, scrollController) {
             return Column(
               children: [
                 ...children,
-                Expanded(
-                  child: Scrollbar(
-                    child: SingleChildScrollView(
-                      controller: scrollController,
-                      child: child,
+                scrollableWidgetBuilder?.call(
+                      context,
+                      scrollController,
+                    ) ??
+                    Expanded(
+                      child: Scrollbar(
+                        child: SingleChildScrollView(
+                          controller: scrollController,
+                          child: child,
+                        ),
+                      ),
                     ),
-                  ),
-                ),
               ],
             );
           },
@@ -175,14 +187,18 @@ class BottomSheetHeader extends StatelessWidget {
     super.key,
     required this.showBackButton,
     required this.showCloseButton,
+    required this.showRemoveButton,
     required this.title,
     required this.showDoneButton,
+    this.onRemove,
   });
 
   final bool showBackButton;
   final bool showCloseButton;
+  final bool showRemoveButton;
   final String title;
   final bool showDoneButton;
+  final VoidCallback? onRemove;
 
   @override
   Widget build(BuildContext context) {
@@ -201,6 +217,13 @@ class BottomSheetHeader extends StatelessWidget {
               const Align(
                 alignment: Alignment.centerLeft,
                 child: BottomSheetCloseButton(),
+              ),
+            if (showRemoveButton)
+              Align(
+                alignment: Alignment.centerLeft,
+                child: BottomSheetRemoveButton(
+                  onRemove: () => onRemove?.call(),
+                ),
               ),
             Align(
               child: FlowyText(

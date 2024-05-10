@@ -5,3 +5,5 @@ src-tauri/
 tsconfig.json
 **/backend/**
 vite.config.ts
+**/*.cy.tsx
+*.config.ts
