@@ -1,13 +1,10 @@
 import 'dart:io';
 
-import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
 import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/presentation.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/emoji_picker_button.dart';
 import 'package:appflowy/plugins/document/presentation/share/share_button.dart';
 import 'package:appflowy/shared/feature_flags.dart';
@@ -25,12 +22,15 @@ import 'package:appflowy/workspace/presentation/notifications/widgets/flowy_tab.
 import 'package:appflowy/workspace/presentation/notifications/widgets/notification_button.dart';
 import 'package:appflowy/workspace/presentation/notifications/widgets/notification_tab_bar.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_body.dart';
-import 'package:appflowy/workspace/presentation/settings/widgets/settings_language_view.dart';
 import 'package:appflowy/workspace/presentation/widgets/view_title_bar.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/widget/buttons/primary_button.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'emoji.dart';
@@ -510,8 +510,9 @@ extension CommonOperations on WidgetTester {
 
     final workspace = find.byType(SidebarWorkspace);
     expect(workspace, findsOneWidget);
-    // click it
-    await tapButton(workspace, milliseconds: 2000);
+
+    await tapButton(workspace, pumpAndSettle: false);
+    await pump(const Duration(seconds: 5));
   }
 
   Future<void> createCollaborativeWorkspace(String name) async {
@@ -526,7 +527,8 @@ extension CommonOperations on WidgetTester {
     // click the create button
     final createButton = find.byKey(createWorkspaceButtonKey);
     expect(createButton, findsOneWidget);
-    await tapButton(createButton);
+    await tapButton(createButton, pumpAndSettle: false);
+    await pump(const Duration(seconds: 5));
 
     // see the create workspace dialog
     final createWorkspaceDialog = find.byType(CreateWorkspaceDialog);
@@ -535,7 +537,32 @@ extension CommonOperations on WidgetTester {
     // input the workspace name
     await enterText(find.byType(TextField), name);
 
-    await tapButtonWithName(LocaleKeys.button_ok.tr());
+    await tapButtonWithName(LocaleKeys.button_ok.tr(), pumpAndSettle: false);
+    await pump(const Duration(seconds: 5));
+  }
+
+  // For mobile platform to launch the app in anonymous mode
+  Future<void> launchInAnonymousMode() async {
+    assert(
+      [TargetPlatform.android, TargetPlatform.iOS]
+          .contains(defaultTargetPlatform),
+      'This method is only supported on mobile platforms',
+    );
+
+    await initializeAppFlowy();
+
+    final anonymousSignInButton = find.byType(SignInAnonymousButtonV2);
+    expect(anonymousSignInButton, findsOneWidget);
+    await tapButton(anonymousSignInButton);
+
+    await pumpUntilFound(find.byType(MobileHomeScreen));
+  }
+
+  Future<void> tapSvgButton(FlowySvgData svg) async {
+    final button = find.byWidgetPredicate(
+      (widget) => widget is FlowySvg && widget.svg.path == svg.path,
+    );
+    await tapButton(button);
   }
 }
 

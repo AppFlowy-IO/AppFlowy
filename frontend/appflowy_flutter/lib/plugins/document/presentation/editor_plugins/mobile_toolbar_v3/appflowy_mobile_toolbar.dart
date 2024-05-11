@@ -1,9 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/aa_menu/_close_keyboard_or_menu_button.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/aa_menu/_toolbar_theme.dart';
@@ -12,6 +9,8 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_too
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -76,7 +75,10 @@ class _AppFlowyMobileToolbarState extends State<AppFlowyMobileToolbar> {
           builder: (context, isKeyboardShow, __) {
             return AnimatedContainer(
               duration: const Duration(milliseconds: 110),
-              height: isKeyboardShow ? widget.toolbarHeight : 0,
+              // only adding padding when the keyboard is triggered by editor
+              height: isKeyboardShow && widget.editorState.selection != null
+                  ? widget.toolbarHeight
+                  : 0,
             );
           },
         ),

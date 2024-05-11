@@ -222,7 +222,8 @@
     "dragRow": "Long press to reorder the row",
     "viewDataBase": "View database",
     "referencePage": "This {name} is referenced",
-    "addBlockBelow": "Add a block below"
+    "addBlockBelow": "Add a block below",
+    "genSummary": "Generate summary"
   },
   "sideBar": {
     "closeSidebar": "Close side bar",
@@ -323,7 +324,7 @@
       "description": "Customize your profile, manage account security and AI API keys, or login into your account.",
       "general": {
         "title": "Account name & profile image",
-        "changeProfilePicture": "Change"
+        "changeProfilePicture": "Change profile picture"
       },
       "email": {
         "title": "Email",
@@ -345,6 +346,79 @@
         "loginLabel": "Log in",
         "logoutLabel": "Log out"
       }
+    },
+    "workspacePage": {
+      "menuLabel": "Workspace",
+      "title": "Workspace",
+      "description": "Customize your workspace appearance, theme, font, text layout, date-/time-format, and language.",
+      "workspaceName": {
+        "title": "Workspace name",
+        "savedMessage": "Saved workspace name"
+      },
+      "workspaceIcon": {
+        "title": "Workspace icon",
+        "description": "Customize your workspace appearance, theme, font, text layout, date, time, and language."
+      },
+      "appearance": {
+        "title": "Appearance",
+        "description": "Customize your workspace appearance, theme, font, text layout, date, time, and language.",
+        "options": {
+          "system": "Auto",
+          "light": "Light",
+          "dark": "Dark"
+        }
+      },
+      "theme": {
+        "title": "Theme",
+        "description": "Select a preset theme, or upload your own custom theme."
+      },
+      "workspaceFont": {
+        "title": "Workspace font"
+      },
+      "textDirection": {
+        "title": "Text direction",
+        "leftToRight": "Left to right",
+        "rightToLeft": "Right to left",
+        "auto": "Auto",
+        "enableRTLItems": "Enable RTL toolbar items"
+      },
+      "layoutDirection": {
+        "title": "Layout direction",
+        "leftToRight": "Left to right",
+        "rightToLeft": "Right to left"
+      },
+      "dateTime": {
+        "title": "Date & time",
+        "example": "{} at {} ({})",
+        "24HourTime": "24-hour time",
+        "dateFormat": {
+          "label": "Date format",
+          "local": "Local",
+          "us": "US",
+          "iso": "ISO",
+          "friendly": "Friendly",
+          "dmy": "D/M/Y"
+        }
+      },
+      "language": {
+        "title": "Language"
+      },
+      "deleteWorkspacePrompt": {
+        "title": "Delete workspace",
+        "content": "Are you sure you want to delete this workspace? This action cannot be undone."
+      },
+      "leaveWorkspacePrompt": {
+        "title": "Leave workspace",
+        "content": "Are you sure you want to leave this workspace? You will lose access to all pages and data within it."
+      },
+      "manageWorkspace": {
+        "title": "Manage workspace",
+        "leaveWorkspace": "Leave workspace",
+        "deleteWorkspace": "Delete workspace"
+      }
+    },
+    "common": {
+      "reset": "Reset"
     },
     "menu": {
       "appearance": "Appearance",
@@ -411,7 +485,7 @@
       "fontFamily": {
         "label": "Font Family",
         "search": "Search",
-        "defaultFont": "Default Font"
+        "defaultFont": "System"
       },
       "themeMode": {
         "label": "Theme Mode",
@@ -710,6 +784,7 @@
       "urlFieldName": "URL",
       "checklistFieldName": "Checklist",
       "relationFieldName": "Relation",
+      "summaryFieldName": "AI Summary",
       "numberFormat": "Number format",
       "dateFormat": "Date format",
       "includeTime": "Include time",
@@ -757,7 +832,9 @@
         "one": "Hide {count} hidden field",
         "many": "Hide {count} hidden fields",
         "other": "Hide {count} hidden fields"
-      }
+      },
+      "openAsFullPage": "Open as full page",
+      "moreRowActions": "More row actions"
     },
     "sort": {
       "ascending": "Ascending",
@@ -783,7 +860,8 @@
       "drag": "Drag to move",
       "dragAndClick": "Drag to move, click to open menu",
       "insertRecordAbove": "Insert record above",
-      "insertRecordBelow": "Insert record below"
+      "insertRecordBelow": "Insert record below",
+      "noContent": "No content"
     },
     "selectOption": {
       "create": "Create",
@@ -1530,7 +1608,11 @@
     "photo": "Photo",
     "unsplash": "Unsplash",
     "pageCover": "Page cover",
-    "none": "None"
+    "none": "None",
+    "photoPermissionDescription": "Allow access to the photo library for uploading images.",
+    "openSettings": "Open Settings",
+    "photoPermissionTitle": "AppFlowy Would Like to Access Your Photo Library",
+    "doNotAllow": "Don't Allow"
   },
   "commandPalette": {
     "placeholder": "Type to search for views...",

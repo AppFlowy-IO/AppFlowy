@@ -4,6 +4,7 @@ pub mod date_type_option;
 pub mod number_type_option;
 pub mod relation_type_option;
 pub mod selection_type_option;
+pub mod summary_type_option;
 pub mod text_type_option;
 pub mod timestamp_type_option;
 mod type_option;

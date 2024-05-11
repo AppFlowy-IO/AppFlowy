@@ -9,7 +9,6 @@ import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/settings/cloud_setting_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_body.dart';
-import 'package:appflowy/workspace/presentation/settings/shared/settings_header.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/setting_local_cloud.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -41,10 +40,8 @@ class SettingCloud extends StatelessWidget {
             child: BlocBuilder<CloudSettingBloc, CloudSettingState>(
               builder: (context, state) {
                 return SettingsBody(
+                  title: LocaleKeys.settings_menu_cloudSettings.tr(),
                   children: [
-                    SettingsHeader(
-                      title: LocaleKeys.settings_menu_cloudSettings.tr(),
-                    ),
                     if (Env.enableCustomCloud)
                       Row(
                         children: [
@@ -55,17 +52,12 @@ class SettingCloud extends StatelessWidget {
                           ),
                           CloudTypeSwitcher(
                             cloudType: state.cloudType,
-                            onSelected: (newCloudType) {
-                              context.read<CloudSettingBloc>().add(
-                                    CloudSettingEvent.updateCloudType(
-                                      newCloudType,
-                                    ),
-                                  );
-                            },
+                            onSelected: (type) => context
+                                .read<CloudSettingBloc>()
+                                .add(CloudSettingEvent.updateCloudType(type)),
                           ),
                         ],
                       ),
-                    const VSpace(8),
                     _viewFromCloudType(state.cloudType),
                   ],
                 );
@@ -73,9 +65,7 @@ class SettingCloud extends StatelessWidget {
             ),
           );
         } else {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
+          return const Center(child: CircularProgressIndicator());
         }
       },
     );

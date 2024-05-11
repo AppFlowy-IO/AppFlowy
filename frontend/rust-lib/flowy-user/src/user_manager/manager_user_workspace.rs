@@ -14,7 +14,7 @@ use flowy_user_pub::entities::{
 };
 use lib_dispatch::prelude::af_spawn;
 
-use crate::entities::{RepeatedUserWorkspacePB, ResetWorkspacePB};
+use crate::entities::{RepeatedUserWorkspacePB, ResetWorkspacePB, UserWorkspacePB};
 use crate::migrations::AnonUser;
 use crate::notification::{send_notification, UserNotification};
 use crate::services::data_import::{
@@ -166,6 +166,13 @@ impl UserManager {
       .authenticate_user
       .set_user_workspace(user_workspace.clone())?;
 
+    if let Err(err) = self.try_initial_user_awareness(&self.get_session()?).await {
+      error!(
+        "Failed to initialize user awareness when opening workspace: {:?}",
+        err
+      );
+    }
+
     let uid = self.user_id()?;
     if let Err(err) = self
       .user_status_callback
@@ -232,7 +239,14 @@ impl UserManager {
       user_workspace.icon = new_workspace_icon.to_string();
     }
 
-    save_user_workspaces(uid, conn, &[user_workspace])
+    let _ = save_user_workspace(uid, conn, &user_workspace);
+
+    let payload: UserWorkspacePB = user_workspace.clone().into();
+    send_notification(&uid.to_string(), UserNotification::DidUpdateUserWorkspace)
+      .payload(payload)
+      .send();
+
+    Ok(())
   }
 
   #[instrument(level = "info", skip(self), err)]
@@ -364,7 +378,7 @@ impl UserManager {
         af_spawn(async move {
           if let Ok(new_user_workspaces) = service.get_all_workspace(uid).await {
             if let Ok(conn) = pool.get() {
-              let _ = save_user_workspaces(uid, conn, &new_user_workspaces);
+              let _ = save_all_user_workspaces(uid, conn, &new_user_workspaces);
               let repeated_workspace_pbs = RepeatedUserWorkspacePB::from(new_user_workspaces);
               send_notification(&uid.to_string(), UserNotification::DidUpdateUserWorkspaces)
                 .payload(repeated_workspace_pbs)
@@ -396,7 +410,48 @@ impl UserManager {
   }
 }
 
-pub fn save_user_workspaces(
+/// This method is used to save one user workspace to the SQLite database
+///
+/// If the workspace is already persisted in the database, it will be overridden.
+///
+/// Consider using [save_all_user_workspaces] if you need to override all workspaces of the user.
+///
+pub fn save_user_workspace(
+  uid: i64,
+  mut conn: DBConnection,
+  user_workspace: &UserWorkspace,
+) -> FlowyResult<()> {
+  conn.immediate_transaction(|conn| {
+    let user_workspace = UserWorkspaceTable::try_from((uid, user_workspace))?;
+    let affected_rows = diesel::update(
+      user_workspace_table::dsl::user_workspace_table
+        .filter(user_workspace_table::id.eq(&user_workspace.id)),
+    )
+    .set((
+      user_workspace_table::name.eq(&user_workspace.name),
+      user_workspace_table::created_at.eq(&user_workspace.created_at),
+      user_workspace_table::database_storage_id.eq(&user_workspace.database_storage_id),
+      user_workspace_table::icon.eq(&user_workspace.icon),
+    ))
+    .execute(conn)?;
+
+    if affected_rows == 0 {
+      diesel::insert_into(user_workspace_table::table)
+        .values(user_workspace)
+        .execute(conn)?;
+    }
+
+    Ok::<(), FlowyError>(())
+  })
+}
+
+/// This method is used to save the user workspaces (plural) to the SQLite database
+///
+/// The workspaces provided in [user_workspaces] will override the existing workspaces in the database.
+///
+/// Consider using [save_user_workspace] if you only need to save a single workspace.
+///
+pub fn save_all_user_workspaces(
   uid: i64,
   mut conn: DBConnection,
   user_workspaces: &[UserWorkspace],

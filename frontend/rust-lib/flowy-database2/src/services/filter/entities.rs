@@ -280,6 +280,7 @@ impl FilterInner {
       FieldType::Checklist => BoxAny::new(ChecklistFilterPB::parse(condition as u8, content)),
       FieldType::Checkbox => BoxAny::new(CheckboxFilterPB::parse(condition as u8, content)),
       FieldType::Relation => BoxAny::new(RelationFilterPB::parse(condition as u8, content)),
+      FieldType::Summary => BoxAny::new(TextFilterPB::parse(condition as u8, content)),
     };
 
     FilterInner::Data {
@@ -361,6 +362,10 @@ impl<'a> From<&'a Filter> for FilterMap {
             FieldType::Relation => {
               let filter = condition_and_content.cloned::<RelationFilterPB>()?;
               (filter.condition as u8, "".to_string())
+            },
+            FieldType::Summary => {
+              let filter = condition_and_content.cloned::<TextFilterPB>()?;
+              (filter.condition as u8, filter.content)
             },
           };
           Some((condition, content))

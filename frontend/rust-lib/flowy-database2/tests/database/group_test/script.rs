@@ -148,8 +148,8 @@ impl DatabaseGroupTest {
         row_index,
       } => {
         let row = self.row_at_index(group_index, row_index).await;
-        let row_id = RowId::from(row.id);
-        self.editor.delete_row(&row_id).await;
+        let row_ids = vec![RowId::from(row.id)];
+        self.editor.delete_rows(&row_ids).await;
       },
       GroupScript::UpdateGroupedCell {
         from_group_index,
@@ -192,7 +192,7 @@ impl DatabaseGroupTest {
         let row_id = RowId::from(self.row_at_index(from_group_index, row_index).await.id);
         self
           .editor
-          .update_cell(&self.view_id, row_id, &field_id, cell)
+          .update_cell(&self.view_id, &row_id, &field_id, cell)
           .await
           .unwrap();
       },
@@ -218,7 +218,7 @@ impl DatabaseGroupTest {
         let row_id = RowId::from(self.row_at_index(from_group_index, row_index).await.id);
         self
           .editor
-          .update_cell(&self.view_id, row_id, &field_id, cell)
+          .update_cell(&self.view_id, &row_id, &field_id, cell)
           .await
           .unwrap();
       },

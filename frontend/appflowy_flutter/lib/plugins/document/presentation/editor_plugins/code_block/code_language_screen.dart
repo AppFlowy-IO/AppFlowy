@@ -16,11 +16,11 @@ class MobileCodeLanguagePickerScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: FlowyAppBar(
-        titleText: LocaleKeys.titleBar_language.tr(),
-      ),
+      appBar: FlowyAppBar(titleText: LocaleKeys.titleBar_language.tr()),
       body: SafeArea(
         child: ListView.separated(
+          separatorBuilder: (_, __) => const Divider(),
+          itemCount: defaultCodeBlockSupportedLanguages.length,
           itemBuilder: (context, index) {
             final language = defaultCodeBlockSupportedLanguages[index];
             return SizedBox(
@@ -35,8 +35,6 @@ class MobileCodeLanguagePickerScreen extends StatelessWidget {
               ),
             );
           },
-          separatorBuilder: (_, __) => const Divider(),
-          itemCount: defaultCodeBlockSupportedLanguages.length,
         ),
       ),
     );

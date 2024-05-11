@@ -20,6 +20,7 @@ const List<FieldType> _supportedFieldTypes = [
   FieldType.LastEditedTime,
   FieldType.CreatedTime,
   FieldType.Relation,
+  // FieldType.Summary,
 ];
 
 class FieldTypeList extends StatelessWidget with FlowyOverlayDelegate {

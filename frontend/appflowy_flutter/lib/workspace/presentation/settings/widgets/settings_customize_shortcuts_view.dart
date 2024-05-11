@@ -6,9 +6,9 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/base/strin
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_cubit.dart';
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_service.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_body.dart';
-import 'package:appflowy/workspace/presentation/settings/shared/settings_header.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -21,10 +21,8 @@ class SettingsShortcutsView extends StatelessWidget {
       create: (_) =>
           ShortcutsCubit(SettingsShortcutService())..fetchShortcuts(),
       child: SettingsBody(
+        title: LocaleKeys.settings_shortcuts_shortcutsLabel.tr(),
         children: [
-          SettingsHeader(
-            title: LocaleKeys.settings_shortcuts_shortcutsLabel.tr(),
-          ),
           BlocBuilder<ShortcutsCubit, ShortcutsState>(
             builder: (_, state) => switch (state.status) {
               ShortcutsStatus.initial ||
@@ -75,6 +73,7 @@ class ShortcutsListView extends StatelessWidget {
             const Spacer(),
             FlowyTextButton(
               LocaleKeys.settings_shortcuts_resetToDefault.tr(),
+              fontColor: AFThemeExtension.of(context).textColor,
               onPressed: () => context.read<ShortcutsCubit>().resetToDefault(),
             ),
           ],
@@ -108,10 +107,9 @@ class ShortcutsListTile extends StatelessWidget {
             ),
             FlowyTextButton(
               shortcutEvent.command,
+              fontColor: AFThemeExtension.of(context).textColor,
               fillColor: Colors.transparent,
-              onPressed: () {
-                showKeyListenerDialog(context);
-              },
+              onPressed: () => showKeyListenerDialog(context),
             ),
           ],
         ),

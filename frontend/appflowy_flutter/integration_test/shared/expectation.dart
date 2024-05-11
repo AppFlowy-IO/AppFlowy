@@ -1,6 +1,5 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/page_item/mobile_view_item.dart';
 import 'package:appflowy/plugins/database/widgets/row/row_detail.dart';
 import 'package:appflowy/plugins/document/presentation/banner.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/document_header_node_widget.dart';
@@ -12,8 +11,10 @@ import 'package:appflowy/workspace/presentation/notifications/widgets/notificati
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/reminder_selector.dart';
 import 'package:appflowy/workspace/presentation/widgets/view_title_bar.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'util.dart';
@@ -183,25 +184,35 @@ extension Expectation on WidgetTester {
     String? parentName,
     ViewLayoutPB parentLayout = ViewLayoutPB.Document,
   }) {
-    if (parentName == null) {
-      return find.byWidgetPredicate(
-        (widget) =>
-            widget is SingleInnerViewItem &&
-            widget.view.name == name &&
-            widget.view.layout == layout,
-        skipOffstage: false,
+    if (PlatformExtension.isDesktop) {
+      if (parentName == null) {
+        return find.byWidgetPredicate(
+          (widget) =>
+              widget is SingleInnerViewItem &&
+              widget.view.name == name &&
+              widget.view.layout == layout,
+          skipOffstage: false,
+        );
+      }
+
+      return find.descendant(
+        of: find.byWidgetPredicate(
+          (widget) =>
+              widget is InnerViewItem &&
+              widget.view.name == parentName &&
+              widget.view.layout == parentLayout,
+          skipOffstage: false,
+        ),
+        matching: findPageName(name, layout: layout),
       );
     }
 
-    return find.descendant(
-      of: find.byWidgetPredicate(
-        (widget) =>
-            widget is InnerViewItem &&
-            widget.view.name == parentName &&
-            widget.view.layout == parentLayout,
-        skipOffstage: false,
-      ),
-      matching: findPageName(name, layout: layout),
+    return find.byWidgetPredicate(
+      (widget) =>
+          widget is SingleMobileInnerViewItem &&
+          widget.view.name == name &&
+          widget.view.layout == layout,
+      skipOffstage: false,
     );
   }
 

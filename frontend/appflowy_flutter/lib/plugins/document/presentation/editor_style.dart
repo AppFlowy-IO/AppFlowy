@@ -10,7 +10,8 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/me
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_item/utils.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_menu.dart';
-import 'package:appflowy/util/google_font_family_extension.dart';
+import 'package:appflowy/shared/google_fonts_extension.dart';
+import 'package:appflowy/util/font_family_extension.dart';
 import 'package:appflowy/workspace/application/appearance_defaults.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
@@ -48,9 +49,9 @@ class EditorStyleCustomizer {
     return EditorStyle.desktop(
       padding: padding,
       cursorColor: appearance.cursorColor ??
-          DefaultAppearanceSettings.getDefaultDocumentCursorColor(context),
+          DefaultAppearanceSettings.getDefaultCursorColor(context),
       selectionColor: appearance.selectionColor ??
-          DefaultAppearanceSettings.getDefaultDocumentSelectionColor(context),
+          DefaultAppearanceSettings.getDefaultSelectionColor(context),
       defaultTextDirection: appearance.defaultTextDirection,
       textStyleConfiguration: TextStyleConfiguration(
         text: baseTextStyle(fontFamily).copyWith(
@@ -92,9 +93,11 @@ class EditorStyleCustomizer {
     final theme = Theme.of(context);
     final fontSize = pageStyle.fontLayout.fontSize;
     final lineHeight = pageStyle.lineHeightLayout.lineHeight;
-    final fontFamily = pageStyle.fontFamily ?? builtInFontFamily();
+    final fontFamily = pageStyle.fontFamily ?? defaultFontFamily;
     final defaultTextDirection =
         context.read<DocumentAppearanceCubit>().state.defaultTextDirection;
+    final textScaleFactor =
+        context.read<AppearanceSettingsCubit>().state.textScaleFactor;
     final baseTextStyle = this.baseTextStyle(fontFamily);
     final codeFontSize = max(0.0, fontSize - 2);
     return EditorStyle.mobile(
@@ -131,8 +134,7 @@ class EditorStyleCustomizer {
       textSpanDecorator: customizeAttributeDecorator,
       mobileDragHandleBallSize: const Size.square(12.0),
       magnifierSize: const Size(144, 96),
-      textScaleFactor:
-          context.watch<AppearanceSettingsCubit>().state.textScaleFactor,
+      textScaleFactor: textScaleFactor,
     );
   }
 
@@ -178,7 +180,7 @@ class EditorStyleCustomizer {
   TextStyle outlineBlockPlaceholderStyleBuilder() {
     final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
     return TextStyle(
-      fontFamily: builtInFontFamily(),
+      fontFamily: defaultFontFamily,
       fontSize: fontSize,
       height: 1.5,
       color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
@@ -213,13 +215,14 @@ class EditorStyleCustomizer {
       );
 
   TextStyle baseTextStyle(String? fontFamily, {FontWeight? fontWeight}) {
-    if (fontFamily == null) {
+    if (fontFamily == null || fontFamily == defaultFontFamily) {
       return TextStyle(fontWeight: fontWeight);
     }
     try {
-      return GoogleFonts.getFont(fontFamily, fontWeight: fontWeight);
+      return getGoogleFontSafely(fontFamily, fontWeight: fontWeight);
     } on Exception {
-      if ([builtInFontFamily(), builtInCodeFontFamily].contains(fontFamily)) {
+      if ([defaultFontFamily, fallbackFontFamily, builtInCodeFontFamily]
+          .contains(fontFamily)) {
         return TextStyle(fontFamily: fontFamily, fontWeight: fontWeight);
       }
 
@@ -244,12 +247,12 @@ class EditorStyleCustomizer {
     if (attributes.fontFamily != null) {
       try {
         if (before.text?.contains('_regular') == true) {
-          GoogleFonts.getFont(attributes.fontFamily!.parseFontFamilyName());
+          getGoogleFontSafely(attributes.fontFamily!.parseFontFamilyName());
         } else {
           return TextSpan(
             text: before.text,
             style: after.style?.merge(
-              GoogleFonts.getFont(attributes.fontFamily!),
+              getGoogleFontSafely(attributes.fontFamily!),
             ),
           );
         }

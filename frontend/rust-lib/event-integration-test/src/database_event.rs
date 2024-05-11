@@ -2,8 +2,15 @@ use std::collections::HashMap;
 use std::convert::TryFrom;
 
 use bytes::Bytes;
+use collab_database::database::timestamp;
+use collab_database::fields::Field;
+use collab_database::rows::{Row, RowId};
 use flowy_database2::entities::*;
 use flowy_database2::event_map::DatabaseEvent;
+use flowy_database2::services::cell::CellBuilder;
+use flowy_database2::services::field::{
+  MultiSelectTypeOption, SelectOption, SingleSelectTypeOption,
+};
 use flowy_database2::services::share::csv::CSVFormat;
 use flowy_folder::entities::*;
 use flowy_folder::event_map::FolderEvent;
@@ -25,6 +32,7 @@ impl EventIntegrationTest {
       .unwrap()
   }
 
+  /// The initial data can refer to the [FolderOperationHandler::create_view_with_view_data] method.
   pub async fn create_grid(&self, parent_id: &str, name: String, initial_data: Vec<u8>) -> ViewPB {
     let payload = CreateViewPayloadPB {
       parent_view_id: parent_id.to_string(),
@@ -199,6 +207,13 @@ impl EventIntegrationTest {
       .await
       .parse::<FieldPB>()
   }
+  pub async fn summary_row(&self, data: SummaryRowPB) {
+    EventBuilder::new(self.clone())
+      .event(DatabaseEvent::SummarizeRow)
+      .payload(data)
+      .async_send()
+      .await;
+  }
 
   pub async fn create_row(
     &self,
@@ -221,11 +236,10 @@ impl EventIntegrationTest {
 
   pub async fn delete_row(&self, view_id: &str, row_id: &str) -> Option<FlowyError> {
     EventBuilder::new(self.clone())
-      .event(DatabaseEvent::DeleteRow)
-      .payload(RowIdPB {
+      .event(DatabaseEvent::DeleteRows)
+      .payload(RepeatedRowIdPB {
         view_id: view_id.to_string(),
-        row_id: row_id.to_string(),
-        group_id: None,
+        row_ids: vec![row_id.to_string()],
       })
       .async_send()
       .await
@@ -322,6 +336,11 @@ impl EventIntegrationTest {
       .async_send()
       .await
       .parse::<CellPB>()
+  }
+
+  pub async fn get_text_cell(&self, view_id: &str, row_id: &str, field_id: &str) -> String {
+    let cell = self.get_cell(view_id, row_id, field_id).await;
+    String::from_utf8(cell.data).unwrap()
   }
 
   pub async fn get_date_cell(&self, view_id: &str, row_id: &str, field_id: &str) -> DateCellDataPB {
@@ -509,7 +528,7 @@ impl EventIntegrationTest {
   ) -> Vec<RelatedRowDataPB> {
     EventBuilder::new(self.clone())
       .event(DatabaseEvent::GetRelatedRowDatas)
-      .payload(RepeatedRowIdPB {
+      .payload(GetRelatedRowDataPB {
         database_id,
         row_ids,
       })
@@ -517,5 +536,141 @@ impl EventIntegrationTest {
       .await
       .parse::<RepeatedRelatedRowDataPB>()
       .rows
+  }
+}
+
+pub struct TestRowBuilder<'a> {
+  database_id: &'a str,
+  row_id: RowId,
+  fields: &'a [Field],
+  cell_build: CellBuilder<'a>,
+}
+
+impl<'a> TestRowBuilder<'a> {
+  pub fn new(database_id: &'a str, row_id: RowId, fields: &'a [Field]) -> Self {
+    let cell_build = CellBuilder::with_cells(Default::default(), fields);
+    Self {
+      database_id,
+      row_id,
+      fields,
+      cell_build,
+    }
+  }
+
+  pub fn insert_text_cell(&mut self, data: &str) -> String {
+    let text_field = self.field_with_type(&FieldType::RichText);
+    self
+      .cell_build
+      .insert_text_cell(&text_field.id, data.to_string());
+
+    text_field.id.clone()
+  }
+
+  pub fn insert_number_cell(&mut self, data: &str) -> String {
+    let number_field = self.field_with_type(&FieldType::Number);
+    self
+      .cell_build
+      .insert_text_cell(&number_field.id, data.to_string());
+    number_field.id.clone()
+  }
+
+  pub fn insert_date_cell(
+    &mut self,
+    date: i64,
+    time: Option<String>,
+    include_time: Option<bool>,
+    field_type: &FieldType,
+  ) -> String {
+    let date_field = self.field_with_type(field_type);
+    self
+      .cell_build
+      .insert_date_cell(&date_field.id, date, time, include_time);
+    date_field.id.clone()
+  }
+
+  pub fn insert_checkbox_cell(&mut self, data: &str) -> String {
+    let checkbox_field = self.field_with_type(&FieldType::Checkbox);
+    self
+      .cell_build
+      .insert_text_cell(&checkbox_field.id, data.to_string());
+
+    checkbox_field.id.clone()
+  }
+
+  pub fn insert_url_cell(&mut self, content: &str) -> String {
+    let url_field = self.field_with_type(&FieldType::URL);
+    self
+      .cell_build
+      .insert_url_cell(&url_field.id, content.to_string());
+    url_field.id.clone()
+  }
+
+  pub fn insert_single_select_cell<F>(&mut self, f: F) -> String
+  where
+    F: Fn(Vec<SelectOption>) -> SelectOption,
+  {
+    let single_select_field = self.field_with_type(&FieldType::SingleSelect);
+    let type_option = single_select_field
+      .get_type_option::<SingleSelectTypeOption>(FieldType::SingleSelect)
+      .unwrap();
+    let option = f(type_option.options);
+    self
+      .cell_build
+      .insert_select_option_cell(&single_select_field.id, vec![option.id]);
+
+    single_select_field.id.clone()
+  }
+
+  pub fn insert_multi_select_cell<F>(&mut self, f: F) -> String
+  where
+    F: Fn(Vec<SelectOption>) -> Vec<SelectOption>,
+  {
+    let multi_select_field = self.field_with_type(&FieldType::MultiSelect);
+    let type_option = multi_select_field
+      .get_type_option::<MultiSelectTypeOption>(FieldType::MultiSelect)
+      .unwrap();
+    let options = f(type_option.options);
+    let ops_ids = options
+      .iter()
+      .map(|option| option.id.clone())
+      .collect::<Vec<_>>();
+    self
+      .cell_build
+      .insert_select_option_cell(&multi_select_field.id, ops_ids);
+
+    multi_select_field.id.clone()
+  }
+
+  pub fn insert_checklist_cell(&mut self, options: Vec<(String, bool)>) -> String {
+    let checklist_field = self.field_with_type(&FieldType::Checklist);
+    self
+      .cell_build
+      .insert_checklist_cell(&checklist_field.id, options);
+    checklist_field.id.clone()
+  }
+
+  pub fn field_with_type(&self, field_type: &FieldType) -> Field {
+    self
+      .fields
+      .iter()
+      .find(|field| {
+        let t_field_type = FieldType::from(field.field_type);
+        &t_field_type == field_type
+      })
+      .unwrap()
+      .clone()
+  }
+
+  pub fn build(self) -> Row {
+    let timestamp = timestamp();
+    Row {
+      id: self.row_id,
+      database_id: self.database_id.to_string(),
+      cells: self.cell_build.build(),
+      height: 60,
+      visibility: true,
+      modified_at: timestamp,
+      created_at: timestamp,
+    }
   }
 }

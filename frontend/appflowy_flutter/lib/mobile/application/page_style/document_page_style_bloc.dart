@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
-import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/log.dart';
@@ -179,8 +178,8 @@ class DocumentPageStyleBloc
     );
   }
 
-  String _getSelectedFontFamily(Map layoutObject) {
-    return layoutObject[ViewExtKeys.fontKey] ?? builtInFontFamily();
+  String? _getSelectedFontFamily(Map layoutObject) {
+    return layoutObject[ViewExtKeys.fontKey];
   }
 
   (PageStyleCoverImageType, String colorValue) _getSelectedCover(

@@ -325,24 +325,20 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage> {
     final editorState = widget.editorState;
 
     if (PlatformExtension.isMobile) {
-      return BlocProvider.value(
-        value: documentBloc,
-        child: AppFlowyMobileToolbar(
-          toolbarHeight: 42.0,
+      return AppFlowyMobileToolbar(
+        toolbarHeight: 42.0,
+        editorState: editorState,
+        toolbarItemsBuilder: (sel) => buildMobileToolbarItems(editorState, sel),
+        child: MobileFloatingToolbar(
           editorState: editorState,
-          toolbarItemsBuilder: (selection) =>
-              buildMobileToolbarItems(editorState, selection),
-          child: MobileFloatingToolbar(
+          editorScrollController: editorScrollController,
+          toolbarBuilder: (_, anchor, closeToolbar) =>
+              CustomMobileFloatingToolbar(
             editorState: editorState,
-            editorScrollController: editorScrollController,
-            toolbarBuilder: (_, anchor, closeToolbar) =>
-                CustomMobileFloatingToolbar(
-              editorState: editorState,
-              anchor: anchor,
-              closeToolbar: closeToolbar,
-            ),
-            child: editor,
+            anchor: anchor,
+            closeToolbar: closeToolbar,
           ),
+          child: editor,
         ),
       );
     }

@@ -35,7 +35,7 @@ class GridRow extends StatefulWidget {
   });
 
   final FieldController fieldController;
-  final RowId viewId;
+  final String viewId;
   final RowId rowId;
   final RowController rowController;
   final EditableCellBuilder cellBuilder;

@@ -11,10 +11,7 @@ import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 
 class SettingButton extends StatefulWidget {
-  const SettingButton({
-    super.key,
-    required this.databaseController,
-  });
+  const SettingButton({super.key, required this.databaseController});
 
   final DatabaseController databaseController;
 
@@ -44,9 +41,8 @@ class _SettingButtonState extends State<SettingButton> {
         radius: Corners.s4Border,
         onPressed: _popoverController.show,
       ),
-      popupBuilder: (BuildContext context) => DatabaseSettingsList(
-        databaseController: widget.databaseController,
-      ),
+      popupBuilder: (_) =>
+          DatabaseSettingsList(databaseController: widget.databaseController),
     );
   }
 }

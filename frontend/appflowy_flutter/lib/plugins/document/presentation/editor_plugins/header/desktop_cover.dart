@@ -89,10 +89,14 @@ class _DesktopCoverState extends State<DesktopCover> {
           }
 
           if (type == PageStyleCoverImageType.pureColor) {
+            // try to parse the color from the tint id,
+            //  if it fails, try to parse the color as a hex string
+            final color = FlowyTint.fromId(cover.value)?.color(context) ??
+                cover.value.tryToColor();
             return Container(
               height: height,
               width: double.infinity,
-              color: FlowyTint.fromId(cover.value).color(context),
+              color: color,
             );
           }
 

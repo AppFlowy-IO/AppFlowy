@@ -6,7 +6,6 @@ import 'package:appflowy/shared/af_role_pb_extension.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_body.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_category_spacer.dart';
-import 'package:appflowy/workspace/presentation/settings/shared/settings_header.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/members/workspace_member_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
@@ -35,11 +34,8 @@ class WorkspaceMembersPage extends StatelessWidget {
         listener: _showResultDialog,
         builder: (context, state) {
           return SettingsBody(
+            title: LocaleKeys.settings_appearance_members_title.tr(),
             children: [
-              // title
-              SettingsHeader(
-                title: LocaleKeys.settings_appearance_members_title.tr(),
-              ),
               if (state.myRole.canInvite) const _InviteMember(),
               if (state.myRole.canInvite && state.members.isNotEmpty)
                 const SettingsCategorySpacer(),
@@ -215,6 +211,8 @@ class _InviteMemberState extends State<_InviteMember> {
     context
         .read<WorkspaceMemberBloc>()
         .add(WorkspaceMemberEvent.inviteWorkspaceMember(email));
+    // clear the email field after inviting
+    _emailController.clear();
   }
 }
 
