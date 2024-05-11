@@ -200,3 +200,20 @@ async fn update_updated_at_field_on_other_cell_update() {
     }
   }
 }
+
+#[tokio::test]
+async fn timer_cell_data_test() {
+  let test = DatabaseCellTest::new().await;
+  let timer_field = test.get_first_field(FieldType::Timer);
+  let cells = test
+    .editor
+    .get_cells_for_field(&test.view_id, &timer_field.id)
+    .await;
+
+  if let Some(cell) = cells[0].cell.as_ref() {
+    let cell = TimerCellData::from(cell);
+
+    assert!(cell.0.is_some());
+    assert_eq!(cell.0.unwrap_or_default(), 75);
+  }
+}

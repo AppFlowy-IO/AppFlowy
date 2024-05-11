@@ -91,6 +91,12 @@ class CardCellBuilder {
           databaseController: databaseController,
           cellContext: cellContext,
         ),
+      FieldType.Timer => TimerCardCell(
+          key: key,
+          style: isStyleOrNull(style),
+          databaseController: databaseController,
+          cellContext: cellContext,
+        ),
       _ => throw UnimplementedError,
     };
   }

@@ -710,6 +710,7 @@
       "urlFieldName": "URL",
       "checklistFieldName": "Checklist",
       "relationFieldName": "Relation",
+      "timerFieldName": "Timer",
       "numberFormat": "Number format",
       "dateFormat": "Date format",
       "includeTime": "Include time",

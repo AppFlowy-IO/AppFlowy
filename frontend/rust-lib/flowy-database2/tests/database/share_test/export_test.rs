@@ -35,7 +35,7 @@ async fn export_csv_test() {
   let date_time = DateTime::<Local>::from_naive_utc_and_offset(naive, offset);
   let date_string = format!("{}", date_time.format(format));
   let expected = format!(
-    r#"Name,Price,Time,Status,Platform,is urgent,link,TODO,Last Modified,Created At,Related
+    r#"Name,Price,Time,Status,Platform,is urgent,link,TODO,Last Modified,Created At,Related,Estimated time
 A,$1,2022/03/14,,"Google,Facebook",Yes,AppFlowy website - https://www.appflowy.io,First thing,{},{},
 ,$2,2022/03/14,,"Google,Twitter",Yes,,"Have breakfast,Have lunch,Take a nap,Have dinner,Shower and head to bed",{},{},
 C,$3,2022/03/14,Completed,"Facebook,Google,Twitter",No,,,{},{},
@@ -123,6 +123,7 @@ async fn export_and_then_import_meta_csv_test() {
           FieldType::LastEditedTime => {},
           FieldType::CreatedTime => {},
           FieldType::Relation => {},
+          FieldType::Timer => {},
         }
       } else {
         panic!(
@@ -205,6 +206,7 @@ async fn history_database_import_test() {
           FieldType::LastEditedTime => {},
           FieldType::CreatedTime => {},
           FieldType::Relation => {},
+          FieldType::Timer => {},
         }
       } else {
         panic!(

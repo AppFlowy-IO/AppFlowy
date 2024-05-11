@@ -22,7 +22,9 @@ class FilterMenuItem extends StatelessWidget {
       FieldType.DateTime => DateFilterChoicechip(filterInfo: filterInfo),
       FieldType.MultiSelect =>
         SelectOptionFilterChoicechip(filterInfo: filterInfo),
-      FieldType.Number => NumberFilterChoiceChip(filterInfo: filterInfo),
+      FieldType.Number ||
+      FieldType.Timer =>
+        NumberFilterChoiceChip(filterInfo: filterInfo),
       FieldType.RichText => TextFilterChoicechip(filterInfo: filterInfo),
       FieldType.SingleSelect =>
         SelectOptionFilterChoicechip(filterInfo: filterInfo),

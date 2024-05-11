@@ -12,6 +12,7 @@ use lib_infra::box_any::BoxAny;
 use crate::entities::{
   CheckboxFilterPB, ChecklistFilterPB, DateFilterContent, DateFilterPB, FieldType, FilterType,
   InsertedRowPB, NumberFilterPB, RelationFilterPB, SelectOptionFilterPB, TextFilterPB,
+  TimerFilterPB,
 };
 use crate::services::field::SelectOptionIds;
 
@@ -280,6 +281,7 @@ impl FilterInner {
       FieldType::Checklist => BoxAny::new(ChecklistFilterPB::parse(condition as u8, content)),
       FieldType::Checkbox => BoxAny::new(CheckboxFilterPB::parse(condition as u8, content)),
       FieldType::Relation => BoxAny::new(RelationFilterPB::parse(condition as u8, content)),
+      FieldType::Timer => BoxAny::new(TimerFilterPB::parse(condition as u8, content)),
     };
 
     FilterInner::Data {
@@ -361,6 +363,10 @@ impl<'a> From<&'a Filter> for FilterMap {
             FieldType::Relation => {
               let filter = condition_and_content.cloned::<RelationFilterPB>()?;
               (filter.condition as u8, "".to_string())
+            },
+            FieldType::Timer => {
+              let filter = condition_and_content.cloned::<TimerFilterPB>()?;
+              (filter.condition as u8, filter.content)
             },
           };
           Some((condition, content))

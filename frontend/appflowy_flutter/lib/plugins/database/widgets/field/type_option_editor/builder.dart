@@ -31,6 +31,7 @@ abstract class TypeOptionEditorFactory {
       FieldType.Checkbox => const CheckboxTypeOptionEditorFactory(),
       FieldType.Checklist => const ChecklistTypeOptionEditorFactory(),
       FieldType.Relation => const RelationTypeOptionEditorFactory(),
+      FieldType.Timer => const TimerTypeOptionEditorFactory(),
       _ => throw UnimplementedError(),
     };
   }

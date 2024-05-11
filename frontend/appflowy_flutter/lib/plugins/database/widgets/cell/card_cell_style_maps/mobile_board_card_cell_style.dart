@@ -78,5 +78,9 @@ CardCellStyleMap mobileBoardCardCellStyleMap(BuildContext context) {
       textStyle: textStyle,
       wrap: true,
     ),
+    FieldType.Timer: TimerCardCellStyle(
+      padding: padding,
+      textStyle: textStyle,
+    ),
   };
 }

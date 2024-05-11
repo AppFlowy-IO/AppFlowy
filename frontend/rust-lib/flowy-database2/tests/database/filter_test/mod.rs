@@ -6,3 +6,4 @@ mod number_filter_test;
 mod script;
 mod select_option_filter_test;
 mod text_filter_test;
+mod timer_filter_test;

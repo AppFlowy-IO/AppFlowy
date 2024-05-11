@@ -70,8 +70,16 @@ class FilterBackendService {
     required String fieldId,
     String? filterId,
     required NumberFilterConditionPB condition,
+    required FieldType fieldType,
     String content = "",
   }) {
+    assert(
+      [
+        FieldType.Number,
+        FieldType.Timer,
+      ].contains(fieldType),
+    );
+
     final filter = NumberFilterPB()
       ..condition = condition
       ..content = content;
@@ -85,7 +93,7 @@ class FilterBackendService {
         : updateFilter(
             filterId: filterId,
             fieldId: fieldId,
-            fieldType: FieldType.Number,
+            fieldType: fieldType,
             data: filter.writeToBuffer(),
           );
   }

@@ -40,6 +40,16 @@ async fn grid_create_field() {
     },
   ];
   test.run_scripts(scripts).await;
+
+  let (params, field) = create_timer_field(&test.view_id());
+  let scripts = vec![
+    CreateField { params },
+    AssertFieldTypeOptionEqual {
+      field_index: test.field_count(),
+      expected_type_option_data: field.get_any_type_option(field.field_type).unwrap(),
+    },
+  ];
+  test.run_scripts(scripts).await;
 }
 
 #[tokio::test]

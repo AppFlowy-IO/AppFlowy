@@ -130,3 +130,10 @@ class RelationCellDataParser implements CellDataParser<RelationCellDataPB> {
     return data.isEmpty ? null : RelationCellDataPB.fromBuffer(data);
   }
 }
+
+class TimerCellDataParser implements CellDataParser<TimerCellDataPB> {
+  @override
+  TimerCellDataPB? parserData(List<int> data) {
+    return data.isEmpty ? null : TimerCellDataPB.fromBuffer(data);
+  }
+}

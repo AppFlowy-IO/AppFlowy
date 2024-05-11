@@ -125,6 +125,15 @@ pub fn make_test_grid() -> DatabaseData {
           .build();
         fields.push(relation_field);
       },
+      FieldType::Timer => {
+        let type_option = TimerTypeOption::default();
+
+        let timer_field = FieldBuilder::new(field_type.clone(), type_option)
+          .name("Estimated time")
+          .visibility(true)
+          .build();
+        fields.push(timer_field);
+      },
     }
   }
 
@@ -150,6 +159,7 @@ pub fn make_test_grid() -> DatabaseData {
             FieldType::Checklist => {
               row_builder.insert_checklist_cell(vec![("First thing".to_string(), false)])
             },
+            FieldType::Timer => row_builder.insert_timer_cell(75),
             _ => "".to_owned(),
           };
         }

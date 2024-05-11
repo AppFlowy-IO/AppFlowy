@@ -393,6 +393,12 @@ impl<'a> TestRowBuilder<'a> {
     checklist_field.id.clone()
   }
 
+  pub fn insert_timer_cell(&mut self, minutes: i64) -> String {
+    let timer_field = self.field_with_type(&FieldType::Timer);
+    self.cell_build.insert_number_cell(&timer_field.id, minutes);
+    timer_field.id.clone()
+  }
+
   pub fn field_with_type(&self, field_type: &FieldType) -> Field {
     self
       .fields

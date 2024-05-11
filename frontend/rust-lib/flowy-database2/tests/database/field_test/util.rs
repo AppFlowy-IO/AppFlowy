@@ -98,3 +98,22 @@ pub fn create_timestamp_field(grid_id: &str, field_type: FieldType) -> (CreateFi
   };
   (params, field)
 }
+
+pub fn create_timer_field(grid_id: &str) -> (CreateFieldParams, Field) {
+  let field_type = FieldType::Timer;
+  let type_option = TimerTypeOption::default();
+  let text_field = FieldBuilder::new(field_type.clone(), type_option.clone())
+    .name("Timer field")
+    .visibility(true)
+    .build();
+
+  let type_option_data = type_option_to_pb(type_option.into(), &field_type).to_vec();
+  let params = CreateFieldParams {
+    view_id: grid_id.to_owned(),
+    field_type,
+    type_option_data: Some(type_option_data),
+    field_name: None,
+    position: OrderObjectPosition::default(),
+  };
+  (params, text_field)
+}
