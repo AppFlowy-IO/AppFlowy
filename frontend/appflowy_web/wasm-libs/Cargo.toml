@@ -5,7 +5,6 @@ resolver = "2"
 [workspace.dependencies]
 af-user = { path = "af-user" }
 af-persistence = { path = "af-persistence" }
-
 lib-dispatch = { path = "../../rust-lib/lib-dispatch" }
 parking_lot = { version = "0.12.1" }
 tracing = { version = "0.1.22" }
@@ -23,9 +22,6 @@ flowy-document = { path = "../../rust-lib/flowy-document" }
 flowy-folder = { path = "../../rust-lib/flowy-folder" }
 flowy-storage = { path = "../../rust-lib/flowy-storage" }
 lib-infra = { path = "../../rust-lib/lib-infra" }
-collab = { version = "0.1.0" }
-collab-entity = { version = "0.1.0" }
-collab-user = { version = "0.1.0" }
 bytes = { version = "1.5" }
 protobuf = { version = "2.28.0" }
 thiserror = "1.0"
@@ -36,6 +32,31 @@ tokio-stream = "0.1"
 tokio = { version = "1.35", features = ["sync"] }
 wasm-bindgen-futures = "0.4.40"
 serde-wasm-bindgen = "0.4"
+# Please use the following script to update collab.
+# Working directory: frontend
+#
+# To update the commit ID, run:
+# scripts/tool/update_collab_rev.sh new_rev_id
+#
+# To switch to the local path, run:
+# scripts/tool/update_collab_source.sh
+# ⚠️⚠️⚠️️
+collab = { version = "0.2" }
+collab-entity = { version = "0.2" }
+collab-folder = { version = "0.2" }
+collab-document = { version = "0.2" }
+collab-database = { version = "0.2" }
+collab-plugins = { version = "0.2" }
+collab-user = { version = "0.2" }
+yrs = "0.18.7"
+
+# Please using the following command to update the revision id
+# Current directory: frontend
+# Run the script:
+# scripts/tool/update_client_api_rev.sh  new_rev_id
+# ⚠️⚠️⚠️️
+client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "ef96b42e43c7b929a928f6c334967c7edffc1319" }
+
 
 
 [profile.dev]
@@ -48,27 +69,11 @@ lto = true
 opt-level = 3
 codegen-units = 1
 
-
 [patch.crates-io]
-# Please using the following command to update the revision id
-# Current directory: frontend
-# Run the script:
-# scripts/tool/update_client_api_rev.sh  new_rev_id
-# ⚠️⚠️⚠️️
-client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "af75e8a2c00d9f8f2dd444bb50c30dd5ba490e3d" }
-# Please use the following script to update collab.
-# Working directory: frontend
-#
-# To update the commit ID, run:
-# scripts/tool/update_collab_rev.sh new_rev_id
-#
-# To switch to the local path, run:
-# scripts/tool/update_collab_source.sh
-# ⚠️⚠️⚠️️
-collab = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "29475f0ec00dc06b42da68bc54efa5b7c1bcd0ff" }
-collab-folder = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "29475f0ec00dc06b42da68bc54efa5b7c1bcd0ff" }
-collab-document = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "29475f0ec00dc06b42da68bc54efa5b7c1bcd0ff" }
-collab-database = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "29475f0ec00dc06b42da68bc54efa5b7c1bcd0ff" }
-collab-plugins = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "29475f0ec00dc06b42da68bc54efa5b7c1bcd0ff" }
-collab-user = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "29475f0ec00dc06b42da68bc54efa5b7c1bcd0ff" }
-collab-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "29475f0ec00dc06b42da68bc54efa5b7c1bcd0ff" }
+collab = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "870cd70" }
+collab-entity = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "870cd70" }
+collab-folder = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "870cd70" }
+collab-document = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "870cd70" }
+collab-database = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "870cd70" }
+collab-plugins = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "870cd70" }
+collab-user = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "870cd70" }

@@ -24,13 +24,13 @@ flowy-config = { workspace = true }
 flowy-date = { workspace = true }
 collab-integrate = { workspace = true }
 flowy-search = { workspace = true }
-collab-entity = { version = "0.1.0" }
-collab-plugins = { version = "0.1.0" }
-collab = { version = "0.1.0" }
+collab-entity = { workspace = true }
+collab-plugins = { workspace = true }
+collab = { workspace = true }
 diesel.workspace = true
 uuid.workspace = true
 flowy-storage = { workspace = true }
-client-api = { version = "0.1.0" }
+client-api.workspace = true
 
 tracing.workspace = true
 futures-core = { version = "0.3", default-features = false }

@@ -37,7 +37,7 @@ pub fn init(database_manager: Weak<DatabaseManager>) -> AFPlugin {
         .event(DatabaseEvent::GetRow, get_row_handler)
         .event(DatabaseEvent::GetRowMeta, get_row_meta_handler)
         .event(DatabaseEvent::UpdateRowMeta, update_row_meta_handler)
-        .event(DatabaseEvent::DeleteRow, delete_row_handler)
+        .event(DatabaseEvent::DeleteRows, delete_rows_handler)
         .event(DatabaseEvent::DuplicateRow, duplicate_row_handler)
         .event(DatabaseEvent::MoveRow, move_row_handler)
         // Cell
@@ -84,11 +84,13 @@ pub fn init(database_manager: Weak<DatabaseManager>) -> AFPlugin {
         .event(DatabaseEvent::GetAllCalculations, get_all_calculations_handler)
         .event(DatabaseEvent::UpdateCalculation, update_calculation_handler)
         .event(DatabaseEvent::RemoveCalculation, remove_calculation_handler)
-         // Relation
-         .event(DatabaseEvent::GetRelatedDatabaseIds, get_related_database_ids_handler)
-         .event(DatabaseEvent::UpdateRelationCell, update_relation_cell_handler)
-         .event(DatabaseEvent::GetRelatedRowDatas, get_related_row_datas_handler)
-         .event(DatabaseEvent::GetRelatedDatabaseRows, get_related_database_rows_handler)
+        // Relation
+        .event(DatabaseEvent::GetRelatedDatabaseIds, get_related_database_ids_handler)
+        .event(DatabaseEvent::UpdateRelationCell, update_relation_cell_handler)
+        .event(DatabaseEvent::GetRelatedRowDatas, get_related_row_datas_handler)
+        .event(DatabaseEvent::GetRelatedDatabaseRows, get_related_database_rows_handler)
+        // AI
+        .event(DatabaseEvent::SummarizeRow, summarize_row_handler)
 }
 
 /// [DatabaseEvent] defines events that are used to interact with the Grid. You could check [this](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/backend/protobuf)
@@ -221,8 +223,8 @@ pub enum DatabaseEvent {
   #[event(input = "RowIdPB", output = "OptionalRowPB")]
   GetRow = 51,
 
-  #[event(input = "RowIdPB")]
-  DeleteRow = 52,
+  #[event(input = "RepeatedRowIdPB")]
+  DeleteRows = 52,
 
   #[event(input = "RowIdPB")]
   DuplicateRow = 53,
@@ -362,10 +364,13 @@ pub enum DatabaseEvent {
   UpdateRelationCell = 171,
 
   /// Get the names of the linked rows in a relation cell.
-  #[event(input = "RepeatedRowIdPB", output = "RepeatedRelatedRowDataPB")]
+  #[event(input = "GetRelatedRowDataPB", output = "RepeatedRelatedRowDataPB")]
   GetRelatedRowDatas = 172,
 
   /// Get the names of all the rows in a related database.
   #[event(input = "DatabaseIdPB", output = "RepeatedRelatedRowDataPB")]
   GetRelatedDatabaseRows = 173,
+
+  #[event(input = "SummaryRowPB")]
+  SummarizeRow = 174,
 }

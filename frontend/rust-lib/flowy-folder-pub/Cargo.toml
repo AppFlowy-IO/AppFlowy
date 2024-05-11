@@ -7,9 +7,9 @@ edition = "2021"
 
 [dependencies]
 lib-infra = { workspace = true }
-collab-folder = { version = "0.1.0" }
-collab = { version = "0.1.0" }
-collab-entity = { version = "0.1.0" }
+collab-folder = { workspace = true }
+collab = { workspace = true }
+collab-entity = { workspace = true }
 uuid.workspace = true
 anyhow.workspace = true
 

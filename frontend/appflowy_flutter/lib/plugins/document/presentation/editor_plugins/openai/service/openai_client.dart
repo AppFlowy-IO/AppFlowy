@@ -18,7 +18,7 @@ enum OpenAIRequestType {
       case OpenAIRequestType.textCompletion:
         return Uri.parse('https://api.openai.com/v1/completions');
       case OpenAIRequestType.textEdit:
-        return Uri.parse('https://api.openai.com/v1/v1/chat/completions');
+        return Uri.parse('https://api.openai.com/v1/chat/completions');
       case OpenAIRequestType.imageGenerations:
         return Uri.parse('https://api.openai.com/v1/images/generations');
     }

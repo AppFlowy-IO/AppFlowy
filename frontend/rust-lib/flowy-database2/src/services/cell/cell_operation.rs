@@ -259,6 +259,9 @@ impl<'a> CellBuilder<'a> {
           FieldType::Relation => {
             cells.insert(field_id, (&RelationCellData::from(cell_str)).into());
           },
+          FieldType::Summary => {
+            cells.insert(field_id, insert_text_cell(cell_str, field));
+          },
         }
       }
     }

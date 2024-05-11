@@ -37,6 +37,10 @@ class RecentViewsBloc extends Bloc<RecentViewsEvent, RecentViewsState> {
           fetchRecentViews: (e) async {
             emit(state.copyWith(views: await _service.recentViews()));
           },
+          resetRecentViews: (e) async {
+            await _service.reset();
+            add(const RecentViewsEvent.fetchRecentViews());
+          },
         );
       },
     );
@@ -54,13 +58,13 @@ class RecentViewsEvent with _$RecentViewsEvent {
   const factory RecentViewsEvent.removeRecentViews(List<String> viewIds) =
       RemoveRecentViews;
   const factory RecentViewsEvent.fetchRecentViews() = FetchRecentViews;
+  const factory RecentViewsEvent.resetRecentViews() = ResetRecentViews;
 }
 
 @freezed
 class RecentViewsState with _$RecentViewsState {
-  const factory RecentViewsState({
-    required List<ViewPB> views,
-  }) = _RecentViewsState;
+  const factory RecentViewsState({required List<ViewPB> views}) =
+      _RecentViewsState;
 
   factory RecentViewsState.initial() => const RecentViewsState(views: []);
 }

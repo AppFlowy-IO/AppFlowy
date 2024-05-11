@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
@@ -7,7 +9,9 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/image/unsp
 import 'package:appflowy/plugins/document/presentation/editor_plugins/page_style/_page_cover_bottom_sheet.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/page_style/_page_style_util.dart';
 import 'package:appflowy/shared/feedback_gesture_detector.dart';
+import 'package:appflowy/shared/permission/permission_checker.dart';
 import 'package:appflowy/user/application/user_service.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -114,9 +118,21 @@ class PageStyleCoverImage extends StatelessWidget {
   }
 
   Future<void> _pickImage(BuildContext context) async {
-    final result = await _imagePicker.pickImage(
-      source: ImageSource.gallery,
-    );
+    final photoPermission =
+        await PermissionChecker.checkPhotoPermission(context);
+    if (!photoPermission) {
+      Log.error('Has no permission to access the photo library');
+      return;
+    }
+
+    XFile? result;
+    try {
+      result = await _imagePicker.pickImage(source: ImageSource.gallery);
+    } catch (e) {
+      Log.error('Error while picking image: $e');
+      return;
+    }
+
     final path = result?.path;
     if (path != null && context.mounted) {
       final String? result;

@@ -47,6 +47,12 @@
   </application>
   <uses-permission android:name="android.permission.INTERNET" />
   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+  <!-- Permission to read files from external storage (outside application container).
+  As of Android 12 this permission no longer has any effect. Instead use the
+  READ_MEDIA_IMAGES, READ_MEDIA_VIDEO or READM_MEDIA_AUDIO permissions. -->
+  <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
+  <!-- Permissions to read media files. -->
+  <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
   <queries>
     <intent>
       <action android:name="android.support.customtabs.action.CustomTabsService" />

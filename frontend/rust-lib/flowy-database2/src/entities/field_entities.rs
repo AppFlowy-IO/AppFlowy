@@ -448,7 +448,8 @@ pub enum FieldType {
   LastEditedTime = 8,
   CreatedTime = 9,
   Relation = 10,
-  Timer = 11,
+  Summary = 11,
+  Timer = 12,
 }
 
 impl Display for FieldType {
@@ -488,6 +489,7 @@ impl FieldType {
       FieldType::LastEditedTime => "Last modified",
       FieldType::CreatedTime => "Created time",
       FieldType::Relation => "Relation",
+      FieldType::Summary => "Summarize",
       FieldType::Timer => "Timer",
     };
     s.to_string()

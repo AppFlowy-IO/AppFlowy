@@ -136,9 +136,9 @@ class HomeSideBar extends StatelessWidget {
                                 workspaceSetting.workspaceId,
                           ),
                         );
-                    context.read<FavoriteBloc>().add(
-                          const FavoriteEvent.fetchFavorites(),
-                        );
+                    context
+                        .read<FavoriteBloc>()
+                        .add(const FavoriteEvent.fetchFavorites());
                   }
                 },
               ),
@@ -178,9 +178,7 @@ class HomeSideBar extends StatelessWidget {
 }
 
 class _Sidebar extends StatefulWidget {
-  const _Sidebar({
-    required this.userProfile,
-  });
+  const _Sidebar({required this.userProfile});
 
   final UserProfilePB userProfile;
 
@@ -222,10 +220,7 @@ class _SidebarState extends State<_Sidebar> {
         mainAxisSize: MainAxisSize.min,
         children: [
           // top menu
-          const Padding(
-            padding: menuHorizontalInset,
-            child: SidebarTopMenu(),
-          ),
+          const Padding(padding: menuHorizontalInset, child: SidebarTopMenu()),
           // user or workspace, setting
           Padding(
             padding: menuHorizontalInset,
@@ -245,8 +240,9 @@ class _SidebarState extends State<_Sidebar> {
           // scrollable document list
           Expanded(
             child: Padding(
-              padding: menuHorizontalInset,
+              padding: menuHorizontalInset - const EdgeInsets.only(right: 6),
               child: SingleChildScrollView(
+                padding: const EdgeInsets.only(right: 6),
                 controller: _scrollController,
                 physics: const ClampingScrollPhysics(),
                 child: SidebarFolder(

@@ -3,7 +3,7 @@ use std::time::Duration;
 use flowy_database2::entities::FieldType;
 use flowy_database2::services::field::{
   ChecklistCellChangeset, DateCellChangeset, DateCellData, MultiSelectTypeOption,
-  RelationCellChangeset, SelectOptionCellChangeset, SingleSelectTypeOption, StrCellData,
+  RelationCellChangeset, SelectOptionCellChangeset, SingleSelectTypeOption, StringCellData,
   URLCellData,
 };
 use lib_infra::box_any::BoxAny;
@@ -84,7 +84,7 @@ async fn text_cell_data_test() {
     .await;
 
   for (i, row_cell) in cells.into_iter().enumerate() {
-    let text = StrCellData::from(row_cell.cell.as_ref().unwrap());
+    let text = StringCellData::from(row_cell.cell.as_ref().unwrap());
     match i {
       0 => assert_eq!(text.as_str(), "A"),
       1 => assert_eq!(text.as_str(), ""),

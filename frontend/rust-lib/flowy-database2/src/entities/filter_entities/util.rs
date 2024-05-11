@@ -105,10 +105,12 @@ impl From<&Filter> for FilterPB {
             .cloned::<RelationFilterPB>()
             .unwrap()
             .try_into(),
-          FieldType::Timer => condition_and_content
-            .cloned::<TimerFilterPB>()
+          FieldType::Summary => condition_and_content
+            .cloned::<TextFilterPB>()
             .unwrap()
             .try_into(),
+          FieldType::Timer => condition_and_content
+            .cloned::<TimerFilterPB>()
         };
 
         Self {
@@ -152,6 +154,9 @@ impl TryFrom<FilterDataPB> for FilterInner {
       },
       FieldType::Relation => {
         BoxAny::new(RelationFilterPB::try_from(bytes).map_err(|_| ErrorCode::ProtobufSerde)?)
+      },
+      FieldType::Summary => {
+        BoxAny::new(TextFilterPB::try_from(bytes).map_err(|_| ErrorCode::ProtobufSerde)?)
       },
       FieldType::Timer => {
         BoxAny::new(TimerFilterPB::try_from(bytes).map_err(|_| ErrorCode::ProtobufSerde)?)

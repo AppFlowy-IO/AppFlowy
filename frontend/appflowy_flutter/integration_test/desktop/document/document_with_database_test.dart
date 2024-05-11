@@ -56,7 +56,7 @@ void main() {
       expect(
         find.descendant(
           of: find.byType(AppFlowyEditor),
-          matching: find.byType(BoardPage),
+          matching: find.byType(DesktopBoardPage),
         ),
         findsOneWidget,
       );
@@ -104,7 +104,7 @@ void main() {
       expect(
         find.descendant(
           of: find.byType(AppFlowyEditor),
-          matching: find.byType(BoardPage),
+          matching: find.byType(DesktopBoardPage),
         ),
         findsOneWidget,
       );

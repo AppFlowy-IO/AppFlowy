@@ -1,6 +1,7 @@
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:bloc/bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -12,11 +13,9 @@ class RelationDatabaseListCubit extends Cubit<RelationDatabaseListState> {
   }
 
   void _loadDatabaseMetas() async {
-    final getDatabaseResult = await DatabaseEventGetDatabases().send();
-    final metaPBs = getDatabaseResult.fold<List<DatabaseMetaPB>>(
-      (s) => s.items,
-      (f) => [],
-    );
+    final metaPBs = await DatabaseEventGetDatabases()
+        .send()
+        .fold<List<DatabaseMetaPB>>((s) => s.items, (f) => []);
     final futures = metaPBs.map((meta) {
       return ViewBackendService.getView(meta.inlineViewId).then(
         (result) => result.fold(

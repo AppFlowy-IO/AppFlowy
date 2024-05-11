@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_body.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_category_spacer.dart';
-import 'package:appflowy/workspace/presentation/settings/shared/settings_header.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/files/setting_file_import_appflowy_data_view.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/files/settings_export_file_widget.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/files/settings_file_cache_widget.dart';
@@ -17,16 +16,16 @@ class SettingsFileSystemView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SettingsBody(
-      children: [
-        SettingsHeader(title: LocaleKeys.settings_menu_files.tr()),
-        const SettingsFileLocationCustomizer(),
-        const SettingsCategorySpacer(),
+      title: LocaleKeys.settings_menu_files.tr(),
+      children: const [
+        SettingsFileLocationCustomizer(),
+        SettingsCategorySpacer(),
         if (kDebugMode) ...[
-          const SettingsExportFileWidget(),
+          SettingsExportFileWidget(),
         ],
-        const ImportAppFlowyData(),
-        const SettingsCategorySpacer(),
-        const SettingsFileCacheWidget(),
+        ImportAppFlowyData(),
+        SettingsCategorySpacer(),
+        SettingsFileCacheWidget(),
       ],
     );
   }

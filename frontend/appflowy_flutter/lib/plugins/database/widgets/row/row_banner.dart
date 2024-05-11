@@ -13,6 +13,7 @@ import 'package:appflowy/workspace/presentation/settings/widgets/emoji_picker/em
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -262,11 +263,14 @@ class RowActionButton extends StatelessWidget {
     return AppFlowyPopover(
       direction: PopoverDirection.bottomWithLeftAligned,
       popupBuilder: (context) => RowActionList(rowController: rowController),
-      child: FlowyIconButton(
-        width: 20,
-        height: 20,
-        icon: const FlowySvg(FlowySvgs.details_horizontal_s),
-        iconColorOnHover: Theme.of(context).colorScheme.onSecondary,
+      child: FlowyTooltip(
+        message: LocaleKeys.grid_rowPage_moreRowActions.tr(),
+        child: FlowyIconButton(
+          width: 20,
+          height: 20,
+          icon: const FlowySvg(FlowySvgs.details_horizontal_s),
+          iconColorOnHover: Theme.of(context).colorScheme.onSecondary,
+        ),
       ),
     );
   }
@@ -284,7 +288,6 @@ class _TitleSkin extends IEditableTextCellSkin {
     return TextField(
       controller: textEditingController,
       focusNode: focusNode,
-      maxLines: null,
       autofocus: true,
       style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 28),
       decoration: InputDecoration(

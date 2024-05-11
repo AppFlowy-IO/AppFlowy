@@ -4,6 +4,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/hotkeys.dart';
 import 'package:appflowy/workspace/presentation/settings/settings_dialog.dart';
 import 'package:appflowy_backend/log.dart';
@@ -65,9 +66,14 @@ class UserSettingButton extends StatelessWidget {
 void showSettingsDialog(BuildContext context, UserProfilePB userProfile) =>
     showDialog(
       context: context,
-      builder: (dialogContext) => BlocProvider<DocumentAppearanceCubit>.value(
+      builder: (dialogContext) => MultiBlocProvider(
         key: _settingsDialogKey,
-        value: BlocProvider.of<DocumentAppearanceCubit>(dialogContext),
+        providers: [
+          BlocProvider<DocumentAppearanceCubit>.value(
+            value: BlocProvider.of<DocumentAppearanceCubit>(dialogContext),
+          ),
+          BlocProvider.value(value: context.read<UserWorkspaceBloc>()),
+        ],
         child: SettingsDialog(
           userProfile,
           didLogout: () async {
