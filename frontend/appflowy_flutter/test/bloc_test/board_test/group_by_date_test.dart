@@ -7,6 +7,8 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 import 'util.dart';
 
@@ -58,7 +60,8 @@ void main() {
 
     assert(boardBloc.groupControllers.values.length == 2);
     assert(
-      boardBloc.boardController.groupDatas.last.headerData.groupName == "Today",
+      boardBloc.boardController.groupDatas.last.headerData.groupName ==
+          LocaleKeys.board_dateCondition_today.tr(),
     );
   });
 
