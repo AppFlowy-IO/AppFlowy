@@ -20,7 +20,6 @@ void main() {
   test('group by date field test', () async {
     final context = await boardTest.createTestBoard();
     final boardBloc = BoardBloc(
-      view: context.gridView,
       databaseController: DatabaseController(view: context.gridView),
     )..add(const BoardEvent.initial());
     await boardResponseFuture();
@@ -66,7 +65,6 @@ void main() {
   test('group by date field with condition', () async {
     final context = await boardTest.createTestBoard();
     final boardBloc = BoardBloc(
-      view: context.gridView,
       databaseController: DatabaseController(view: context.gridView),
     )..add(const BoardEvent.initial());
     await boardResponseFuture();
