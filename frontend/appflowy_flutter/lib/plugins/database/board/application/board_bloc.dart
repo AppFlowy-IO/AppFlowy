@@ -16,8 +16,9 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:intl/intl.dart';
 import 'package:protobuf/protobuf.dart' hide FieldInfo;
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 import '../../application/database_controller.dart';
 import '../../application/field/field_controller.dart';
@@ -593,13 +594,13 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
               );
               final diff = targetDateTimeDay.difference(nowDay).inDays;
               return switch (diff) {
-                0 => "Today",
-                -1 => "Yesterday",
-                1 => "Tomorrow",
-                -7 => "Last 7 days",
-                2 => "Next 7 days",
-                -30 => "Last 30 days",
-                8 => "Next 30 days",
+                0 => LocaleKeys.board_dateCondition_today.tr(),
+                -1 => LocaleKeys.board_dateCondition_yesterday.tr(),
+                1 => LocaleKeys.board_dateCondition_tomorrow.tr(),
+                -7 => LocaleKeys.board_dateCondition_lastSevenDays.tr(),
+                2 => LocaleKeys.board_dateCondition_nextSevenDays.tr(),
+                -30 => LocaleKeys.board_dateCondition_lastThirtyDays.tr(),
+                8 => LocaleKeys.board_dateCondition_nextThirtyDays.tr(),
                 _ => DateFormat("MMM y").format(targetDateTimeDay)
               };
             default:

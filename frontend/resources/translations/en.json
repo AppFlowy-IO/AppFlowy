@@ -1206,6 +1206,15 @@
       "showGroup": "Show group",
       "showGroupContent": "Are you sure you want to show this group on the board?",
       "failedToLoad": "Failed to load board view"
+    },
+    "dateCondition": {
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "tomorrow": "Tomorrow",
+      "lastSevenDays": "Last 7 days",
+      "nextSevenDays": "Next 7 days",
+      "lastThirtyDays": "Last 30 days",
+      "nextThirtyDays": "Next 30 days"
     }
   },
   "calendar": {
@@ -1625,3 +1634,4 @@
     "fromTrashHint": "From trash"
   }
 }
+
