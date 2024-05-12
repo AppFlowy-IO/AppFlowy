@@ -55,19 +55,22 @@ class SettingsMenu extends StatelessWidget {
                     changeSelectedPage: changeSelectedPage,
                   ),
                   SettingsMenuElement(
-                    page: SettingsPage.appearance,
+                    page: SettingsPage.workspace,
                     selectedPage: currentPage,
-                    label: LocaleKeys.settings_menu_appearance.tr(),
-                    icon: const Icon(Icons.brightness_4),
+                    label: LocaleKeys.settings_workspacePage_menuLabel.tr(),
+                    icon: const FlowySvg(FlowySvgs.settings_workplace_m),
                     changeSelectedPage: changeSelectedPage,
                   ),
-                  SettingsMenuElement(
-                    page: SettingsPage.language,
-                    selectedPage: currentPage,
-                    label: LocaleKeys.settings_menu_language.tr(),
-                    icon: const Icon(Icons.translate),
-                    changeSelectedPage: changeSelectedPage,
-                  ),
+                  if (FeatureFlag.membersSettings.isOn &&
+                      userProfile.authenticator ==
+                          AuthenticatorPB.AppFlowyCloud)
+                    SettingsMenuElement(
+                      page: SettingsPage.member,
+                      selectedPage: currentPage,
+                      label: LocaleKeys.settings_appearance_members_label.tr(),
+                      icon: const Icon(Icons.people),
+                      changeSelectedPage: changeSelectedPage,
+                    ),
                   SettingsMenuElement(
                     page: SettingsPage.files,
                     selectedPage: currentPage,
@@ -96,16 +99,6 @@ class SettingsMenu extends StatelessWidget {
                     icon: const Icon(Icons.cut),
                     changeSelectedPage: changeSelectedPage,
                   ),
-                  if (FeatureFlag.membersSettings.isOn &&
-                      userProfile.authenticator ==
-                          AuthenticatorPB.AppFlowyCloud)
-                    SettingsMenuElement(
-                      page: SettingsPage.member,
-                      selectedPage: currentPage,
-                      label: LocaleKeys.settings_appearance_members_label.tr(),
-                      icon: const Icon(Icons.people),
-                      changeSelectedPage: changeSelectedPage,
-                    ),
                   if (kDebugMode)
                     SettingsMenuElement(
                       // no need to translate this page

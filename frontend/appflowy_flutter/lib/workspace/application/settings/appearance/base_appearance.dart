@@ -1,8 +1,9 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/shared/google_fonts_extension.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme.dart';
-import 'package:flutter/material.dart';
 
 // the default font family is empty, so we can use the default font family of the platform
 // the system will choose the default font family of the platform

@@ -1,6 +1,7 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:flowy_infra/theme.dart';
-import 'package:flutter/material.dart';
 
 /// A class for the default appearance settings for the app
 class DefaultAppearanceSettings {
@@ -9,11 +10,11 @@ class DefaultAppearanceSettings {
   static const kDefaultThemeName = "Default";
   static const kDefaultTheme = BuiltInTheme.defaultTheme;
 
-  static Color getDefaultDocumentCursorColor(BuildContext context) {
+  static Color getDefaultCursorColor(BuildContext context) {
     return Theme.of(context).colorScheme.primary;
   }
 
-  static Color getDefaultDocumentSelectionColor(BuildContext context) {
+  static Color getDefaultSelectionColor(BuildContext context) {
     return Theme.of(context).colorScheme.primary.withOpacity(0.2);
   }
 }

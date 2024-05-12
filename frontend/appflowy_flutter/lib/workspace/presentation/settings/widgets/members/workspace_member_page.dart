@@ -1,10 +1,11 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/af_role_pb_extension.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_body.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_category_spacer.dart';
-import 'package:appflowy/workspace/presentation/settings/shared/settings_header.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/members/workspace_member_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
@@ -16,7 +17,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:string_validator/string_validator.dart';
 
@@ -34,11 +34,8 @@ class WorkspaceMembersPage extends StatelessWidget {
         listener: _showResultDialog,
         builder: (context, state) {
           return SettingsBody(
+            title: LocaleKeys.settings_appearance_members_title.tr(),
             children: [
-              // title
-              SettingsHeader(
-                title: LocaleKeys.settings_appearance_members_title.tr(),
-              ),
               if (state.myRole.canInvite) const _InviteMember(),
               if (state.myRole.canInvite && state.members.isNotEmpty)
                 const SettingsCategorySpacer(),
