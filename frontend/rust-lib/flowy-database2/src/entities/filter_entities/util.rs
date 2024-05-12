@@ -111,6 +111,8 @@ impl From<&Filter> for FilterPB {
             .try_into(),
           FieldType::Timer => condition_and_content
             .cloned::<TimerFilterPB>()
+            .unwrap()
+            .try_into(),
         };
 
         Self {

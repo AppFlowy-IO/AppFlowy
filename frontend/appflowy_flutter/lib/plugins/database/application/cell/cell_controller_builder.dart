@@ -16,6 +16,7 @@ typedef TimestampCellController = CellController<TimestampCellDataPB, String>;
 typedef URLCellController = CellController<URLCellDataPB, String>;
 typedef RelationCellController = CellController<RelationCellDataPB, String>;
 typedef SummaryCellController = CellController<String, String>;
+typedef TimerCellController = CellController<String, String>;
 
 CellController makeCellController(
   DatabaseController databaseController,

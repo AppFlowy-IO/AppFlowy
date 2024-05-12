@@ -1,4 +1,9 @@
+use collab_database::fields::Field;
+use collab_database::rows::Cell;
+
 use crate::entities::{NumberFilterConditionPB, TimerFilterPB};
+use crate::services::cell::insert_text_cell;
+use crate::services::filter::PreFillCellsWithFilter;
 
 impl TimerFilterPB {
   pub fn is_visible(&self, cell_minutes: Option<i64>) -> bool {
@@ -29,5 +34,39 @@ impl TimerFilterPB {
       NumberFilterConditionPB::LessThanOrEqualTo => minutes <= content_minutes,
       _ => true,
     }
+  }
+}
+
+impl PreFillCellsWithFilter for TimerFilterPB {
+  fn get_compliant_cell(&self, field: &Field) -> (Option<Cell>, bool) {
+    let expected_decimal = || self.content.parse::<i64>().ok();
+
+    let text = match self.condition {
+      NumberFilterConditionPB::Equal
+      | NumberFilterConditionPB::GreaterThanOrEqualTo
+      | NumberFilterConditionPB::LessThanOrEqualTo
+        if !self.content.is_empty() =>
+      {
+        Some(self.content.clone())
+      },
+      NumberFilterConditionPB::GreaterThan if !self.content.is_empty() => {
+        expected_decimal().map(|value| {
+          let answer = value + 1;
+          answer.to_string()
+        })
+      },
+      NumberFilterConditionPB::LessThan if !self.content.is_empty() => {
+        expected_decimal().map(|value| {
+          let answer = value - 1;
+          answer.to_string()
+        })
+      },
+      _ => None,
+    };
+
+    let open_after_create = matches!(self.condition, NumberFilterConditionPB::NumberIsNotEmpty);
+
+    // use `insert_text_cell` because self.content might not be a parsable i64.
+    (text.map(|s| insert_text_cell(s, field)), open_after_create)
   }
 }

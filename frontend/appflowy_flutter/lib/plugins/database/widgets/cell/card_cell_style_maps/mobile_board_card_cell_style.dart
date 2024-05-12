@@ -12,6 +12,7 @@ import '../card_cell_skeleton/select_option_card_cell.dart';
 import '../card_cell_skeleton/text_card_cell.dart';
 import '../card_cell_skeleton/timestamp_card_cell.dart';
 import '../card_cell_skeleton/url_card_cell.dart';
+import '../card_cell_skeleton/timer_card_cell.dart';
 
 CardCellStyleMap mobileBoardCardCellStyleMap(BuildContext context) {
   const EdgeInsetsGeometry padding = EdgeInsets.all(4);

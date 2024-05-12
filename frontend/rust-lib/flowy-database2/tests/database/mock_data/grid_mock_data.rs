@@ -9,7 +9,7 @@ use flowy_database2::services::field::summary_type_option::summary::Summarizatio
 use flowy_database2::services::field::{
   ChecklistTypeOption, DateFormat, DateTypeOption, FieldBuilder, MultiSelectTypeOption,
   NumberFormat, NumberTypeOption, RelationTypeOption, SelectOption, SelectOptionColor,
-  SingleSelectTypeOption, TimeFormat, TimestampTypeOption,
+  SingleSelectTypeOption, TimeFormat, TimerTypeOption, TimestampTypeOption,
 };
 use flowy_database2::services::field_settings::default_field_settings_for_fields;
 
@@ -134,10 +134,8 @@ pub fn make_test_grid() -> DatabaseData {
       },
       FieldType::Timer => {
         let type_option = TimerTypeOption::default();
-
         let timer_field = FieldBuilder::new(field_type.clone(), type_option)
           .name("Estimated time")
-          .visibility(true)
           .build();
         fields.push(timer_field);
       },

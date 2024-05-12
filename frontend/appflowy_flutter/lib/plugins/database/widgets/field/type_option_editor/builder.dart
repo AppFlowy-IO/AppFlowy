@@ -15,6 +15,7 @@ import 'single_select.dart';
 import 'summary.dart';
 import 'timestamp.dart';
 import 'url.dart';
+import 'timer.dart';
 
 typedef TypeOptionDataCallback = void Function(Uint8List typeOptionData);
 

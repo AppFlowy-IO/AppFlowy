@@ -4,7 +4,7 @@ use collab_database::views::OrderObjectPosition;
 use flowy_database2::entities::{CreateFieldParams, FieldType};
 use flowy_database2::services::field::{
   type_option_to_pb, DateFormat, DateTypeOption, FieldBuilder, RichTextTypeOption, SelectOption,
-  SingleSelectTypeOption, TimeFormat, TimestampTypeOption,
+  SingleSelectTypeOption, TimeFormat, TimerTypeOption, TimestampTypeOption,
 };
 
 pub fn create_text_field(grid_id: &str) -> (CreateFieldParams, Field) {
@@ -104,7 +104,6 @@ pub fn create_timer_field(grid_id: &str) -> (CreateFieldParams, Field) {
   let type_option = TimerTypeOption::default();
   let text_field = FieldBuilder::new(field_type.clone(), type_option.clone())
     .name("Timer field")
-    .visibility(true)
     .build();
 
   let type_option_data = type_option_to_pb(type_option.into(), &field_type).to_vec();

@@ -123,11 +123,14 @@ class GridCreateFilterBloc
           condition: ChecklistFilterConditionPB.IsIncomplete,
         );
       case FieldType.Number:
-      case FieldType.Timer:
         return _filterBackendSvc.insertNumberFilter(
           fieldId: fieldId,
           condition: NumberFilterConditionPB.Equal,
-          fieldType: field.fieldType,
+        );
+      case FieldType.Timer:
+        return _filterBackendSvc.insertTimerFilter(
+          fieldId: fieldId,
+          condition: NumberFilterConditionPB.Equal,
         );
       case FieldType.RichText:
         return _filterBackendSvc.insertTextFilter(

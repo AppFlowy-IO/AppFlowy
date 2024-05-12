@@ -4,7 +4,7 @@ use flowy_database2::entities::FieldType;
 use flowy_database2::services::field::{
   ChecklistCellChangeset, DateCellChangeset, DateCellData, MultiSelectTypeOption,
   RelationCellChangeset, SelectOptionCellChangeset, SingleSelectTypeOption, StringCellData,
-  URLCellData,
+  TimerCellData, URLCellData,
 };
 use lib_infra::box_any::BoxAny;
 

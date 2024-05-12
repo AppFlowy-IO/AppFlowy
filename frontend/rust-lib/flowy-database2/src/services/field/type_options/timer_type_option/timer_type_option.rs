@@ -79,7 +79,7 @@ impl CellDataDecoder for TimerTypeOption {
   fn decode_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
     let timer_cell_data = self.parse_cell(cell)?;
     Ok(TimerCellData::from(
-      TimerTypeOption::format_cell_data(&timer_cell_data).to_string(),
+      TimerTypeOption::format_cell_data(timer_cell_data.0.unwrap()).to_string(),
     ))
   }
 
@@ -92,7 +92,7 @@ impl CellDataDecoder for TimerTypeOption {
 
   fn numeric_cell(&self, cell: &Cell) -> Option<f64> {
     let timer_cell_data = self.parse_cell(cell).ok()?;
-    timer_cell_data.0.parse::<f64>().ok()
+    Some(timer_cell_data.0.unwrap() as f64)
   }
 }
 
@@ -117,10 +117,7 @@ impl TypeOptionCellDataFilter for TimerTypeOption {
     filter: &<Self as TypeOption>::CellFilter,
     cell_data: &<Self as TypeOption>::CellData,
   ) -> bool {
-    match self.format_cell_data(cell_data) {
-      Ok(cell_data) => filter.is_visible(&cell_data).unwrap_or(true),
-      Err(_) => true,
-    }
+    filter.is_visible(cell_data.0)
   }
 }
 

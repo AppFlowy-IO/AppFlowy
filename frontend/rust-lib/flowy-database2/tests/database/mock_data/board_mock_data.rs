@@ -137,7 +137,6 @@ pub fn make_test_board() -> DatabaseData {
       FieldType::Timer => {
         let timer_field = FieldBuilder::from_field_type(field_type.clone())
           .name("Estimated time")
-          .visibility(true)
           .build();
         fields.push(timer_field);
       },

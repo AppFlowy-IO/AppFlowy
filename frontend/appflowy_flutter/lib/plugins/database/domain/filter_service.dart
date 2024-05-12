@@ -70,16 +70,8 @@ class FilterBackendService {
     required String fieldId,
     String? filterId,
     required NumberFilterConditionPB condition,
-    required FieldType fieldType,
     String content = "",
   }) {
-    assert(
-      [
-        FieldType.Number,
-        FieldType.Timer,
-      ].contains(fieldType),
-    );
-
     final filter = NumberFilterPB()
       ..condition = condition
       ..content = content;
@@ -93,7 +85,7 @@ class FilterBackendService {
         : updateFilter(
             filterId: filterId,
             fieldId: fieldId,
-            fieldType: fieldType,
+            fieldType: FieldType.Number,
             data: filter.writeToBuffer(),
           );
   }
@@ -234,6 +226,30 @@ class FilterBackendService {
         return FlowyResult.failure(err);
       },
     );
+  }
+
+Future<FlowyResult<void, FlowyError>> insertTimerFilter({
+    required String fieldId,
+    String? filterId,
+    required NumberFilterConditionPB condition,
+    String content = "",
+  }) {
+    final filter = TimerFilterPB()
+      ..condition = condition
+      ..content = content;
+
+    return filterId == null
+        ? insertFilter(
+            fieldId: fieldId,
+            fieldType: FieldType.Timer,
+            data: filter.writeToBuffer(),
+          )
+        : updateFilter(
+            filterId: filterId,
+            fieldId: fieldId,
+            fieldType: FieldType.Timer,
+            data: filter.writeToBuffer(),
+          );
   }
 
   Future<FlowyResult<void, FlowyError>> updateFilter({
