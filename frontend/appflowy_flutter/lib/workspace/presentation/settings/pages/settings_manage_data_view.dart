@@ -57,10 +57,13 @@ class SettingsManageDataView extends StatelessWidget {
                     SettingAction(
                       icon: const FlowySvg(FlowySvgs.restore_s),
                       label: LocaleKeys.settings_common_reset.tr(),
-                      onPressed: () async => SettingsAlertDialog(
-                        title: 'Are you sure?',
-                        subtitle:
-                            'Resetting the path to the default data location will not delete your data. If you want to re-import your current data, you should copy the path of your current location first.',
+                      onPressed: () => SettingsAlertDialog(
+                        title: LocaleKeys
+                            .settings_manageDataPage_dataStorage_resetDialog_title
+                            .tr(),
+                        subtitle: LocaleKeys
+                            .settings_manageDataPage_dataStorage_resetDialog_description
+                            .tr(),
                         implyLeading: true,
                         confirm: () async {
                           final directory =
@@ -236,7 +239,6 @@ class SettingsManageDataView extends StatelessWidget {
 //               ],
 //             );
 //           }
-
 //           // Show encryption secret for copy/save
 //           return const SizedBox.shrink();
 //         },

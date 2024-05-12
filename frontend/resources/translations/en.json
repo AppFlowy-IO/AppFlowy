@@ -430,6 +430,10 @@
           "openTooltip": "Open current data folder location",
           "copy": "Copy path",
           "copiedHint": "Link copied!"
+        },
+        "resetDialog": {
+          "title": "Are you sure?",
+          "description": "Resetting the path to the default data location will not delete your data. If you want to re-import your current data, you should copy the path of your current location first."
         }
       },
       "importData": {
