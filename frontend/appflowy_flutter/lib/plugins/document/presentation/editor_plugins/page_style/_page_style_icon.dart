@@ -11,8 +11,9 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_emoji_mart/flutter_emoji_mart.dart';
+import 'package:go_router/go_router.dart';
 
-class PageStyleIcon extends StatelessWidget {
+class PageStyleIcon extends StatefulWidget {
   const PageStyleIcon({
     super.key,
     required this.view,
@@ -21,9 +22,14 @@ class PageStyleIcon extends StatelessWidget {
   final ViewPB view;
 
   @override
+  State<PageStyleIcon> createState() => _PageStyleIconState();
+}
+
+class _PageStyleIconState extends State<PageStyleIcon> {
+  @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => PageStyleIconBloc(view: view)
+      create: (_) => PageStyleIconBloc(view: widget.view)
         ..add(const PageStyleIconEvent.initial()),
       child: BlocBuilder<PageStyleIconBloc, PageStyleIconState>(
         builder: (context, state) {
@@ -60,6 +66,10 @@ class PageStyleIcon extends StatelessWidget {
   }
 
   void _showIconSelector(BuildContext context, String selectedIcon) {
+    context.pop();
+
+    final pageStyleIconBloc = PageStyleIconBloc(view: widget.view)
+      ..add(const PageStyleIconEvent.initial());
     showMobileBottomSheet(
       context,
       showDragHandle: true,
@@ -75,13 +85,13 @@ class PageStyleIcon extends StatelessWidget {
       initialChildSize: 0.61,
       showRemoveButton: true,
       onRemove: () {
-        context.read<PageStyleIconBloc>().add(
-              const PageStyleIconEvent.updateIcon('', true),
-            );
+        pageStyleIconBloc.add(
+          const PageStyleIconEvent.updateIcon('', true),
+        );
       },
       scrollableWidgetBuilder: (_, controller) {
         return BlocProvider.value(
-          value: context.read<PageStyleIconBloc>(),
+          value: pageStyleIconBloc,
           child: Expanded(
             child: Scrollbar(
               controller: controller,
@@ -112,6 +122,8 @@ class _IconSelectorState extends State<_IconSelector> {
   EmojiData? emojiData;
   List<String> availableEmojis = [];
 
+  PageStyleIconBloc? pageStyleIconBloc;
+
   @override
   void initState() {
     super.initState();
@@ -131,6 +143,14 @@ class _IconSelectorState extends State<_IconSelector> {
         },
       );
     }
+
+    pageStyleIconBloc = context.read<PageStyleIconBloc>();
+  }
+
+  @override
+  void dispose() {
+    pageStyleIconBloc?.close();
+    super.dispose();
   }
 
   @override
