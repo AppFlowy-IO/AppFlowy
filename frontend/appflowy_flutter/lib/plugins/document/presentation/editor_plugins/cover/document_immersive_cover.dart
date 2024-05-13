@@ -152,10 +152,8 @@ class _DocumentImmersiveCoverState extends State<DocumentImmersiveCover> {
         color:
             state.cover.isNone || state.cover.isPresets ? null : Colors.white,
       ),
-      onSubmitted: (value) {
-        scrollController.position.jumpTo(0);
-        context.read<ViewBloc>().add(ViewEvent.rename(value));
-      },
+      onChanged: _rename,
+      onSubmitted: _rename,
     );
   }
 
@@ -248,5 +246,10 @@ class _DocumentImmersiveCoverState extends State<DocumentImmersiveCover> {
     if (selection != null) {
       focusNode.unfocus(disposition: UnfocusDisposition.previouslyFocusedChild);
     }
+  }
+
+  void _rename(String name) {
+    scrollController.position.jumpTo(0);
+    context.read<ViewBloc>().add(ViewEvent.rename(name));
   }
 }
