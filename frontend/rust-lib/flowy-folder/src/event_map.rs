@@ -38,7 +38,6 @@ pub fn init(folder: Weak<FolderManager>) -> AFPlugin {
     .event(FolderEvent::ReadRecentViews, read_recent_views_handler)
     .event(FolderEvent::ToggleFavorite, toggle_favorites_handler)
     .event(FolderEvent::UpdateRecentViews, update_recent_views_handler)
-    .event(FolderEvent::ReloadWorkspace, reload_workspace_handler)
     .event(FolderEvent::ReadPrivateViews, read_private_views_handler)
     .event(FolderEvent::ReadCurrentWorkspaceViews, get_current_workspace_views_handler)
     .event(FolderEvent::UpdateViewVisibilityStatus, update_view_visibility_status_handler)
@@ -162,9 +161,6 @@ pub enum FolderEvent {
   // used for add or remove recent views, like history
   #[event(input = "UpdateRecentViewPayloadPB")]
   UpdateRecentViews = 37,
-
-  #[event()]
-  ReloadWorkspace = 38,
 
   #[event(input = "GetWorkspaceViewPB", output = "RepeatedViewPB")]
   ReadPrivateViews = 39,

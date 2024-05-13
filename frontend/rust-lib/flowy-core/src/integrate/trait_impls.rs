@@ -9,12 +9,14 @@ use collab::preclude::CollabPlugin;
 use collab_entity::CollabType;
 use collab_plugins::cloud_storage::postgres::SupabaseDBPlugin;
 use tokio_stream::wrappers::WatchStream;
-use tracing::{debug, instrument};
+use tracing::debug;
 
 use collab_integrate::collab_builder::{
   CollabCloudPluginProvider, CollabPluginProviderContext, CollabPluginProviderType,
 };
-use flowy_database_pub::cloud::{CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot};
+use flowy_database_pub::cloud::{
+  CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot, SummaryRowContent,
+};
 use flowy_document::deps::DocumentData;
 use flowy_document_pub::cloud::{DocumentCloudService, DocumentSnapshot};
 use flowy_error::FlowyError;
@@ -267,6 +269,23 @@ impl DatabaseCloudService for ServerProvider {
         .await
     })
   }
+
+  fn summary_database_row(
+    &self,
+    workspace_id: &str,
+    object_id: &str,
+    summary_row: SummaryRowContent,
+  ) -> FutureResult<String, Error> {
+    let workspace_id = workspace_id.to_string();
+    let server = self.get_server();
+    let object_id = object_id.to_string();
+    FutureResult::new(async move {
+      server?
+        .database_service()
+        .summary_database_row(&workspace_id, &object_id, summary_row)
+        .await
+    })
+  }
 }
 
 impl DocumentCloudService for ServerProvider {
@@ -325,7 +344,6 @@ impl CollabCloudPluginProvider for ServerProvider {
     self.get_server_type().into()
   }
 
-  #[instrument(level = "debug", skip(self, context), fields(server_type = %self.get_server_type()))]
   fn get_plugins(&self, context: CollabPluginProviderContext) -> Vec<Box<dyn CollabPlugin>> {
     // If the user is local, we don't need to create a sync plugin.
     if self.get_server_type().is_local() {

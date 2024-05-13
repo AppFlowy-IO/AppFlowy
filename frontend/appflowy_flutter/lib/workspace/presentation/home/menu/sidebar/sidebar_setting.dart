@@ -1,8 +1,10 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/user/application/auth/auth_service.dart';
+import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/hotkeys.dart';
 import 'package:appflowy/workspace/presentation/settings/settings_dialog.dart';
 import 'package:appflowy_backend/log.dart';
@@ -11,17 +13,16 @@ import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
 import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
 
 final GlobalKey _settingsDialogKey = GlobalKey();
 
-Future<HotKeyItem?> openSettingsHotKey(BuildContext context) async {
-  final userProfileOrFailure = await getIt<AuthService>().getUser();
-
-  return userProfileOrFailure.fold(
-    (userProfile) => HotKeyItem(
+HotKeyItem openSettingsHotKey(
+  BuildContext context,
+  UserProfilePB userProfile,
+) =>
+    HotKeyItem(
       hotKey: HotKey(
         KeyCode.comma,
         scope: HotKeyScope.inapp,
@@ -37,13 +38,7 @@ Future<HotKeyItem?> openSettingsHotKey(BuildContext context) async {
               .popUntil((route) => route.isFirst);
         }
       },
-    ),
-    (e) {
-      Log.error('Failed to get user $e');
-      return null;
-    },
-  );
-}
+    );
 
 class UserSettingButton extends StatelessWidget {
   const UserSettingButton({required this.userProfile, super.key});
@@ -68,16 +63,17 @@ class UserSettingButton extends StatelessWidget {
   }
 }
 
-void showSettingsDialog(
-  BuildContext context,
-  UserProfilePB userProfile,
-) {
-  showDialog(
-    context: context,
-    builder: (dialogContext) {
-      return BlocProvider<DocumentAppearanceCubit>.value(
+void showSettingsDialog(BuildContext context, UserProfilePB userProfile) =>
+    showDialog(
+      context: context,
+      builder: (dialogContext) => MultiBlocProvider(
         key: _settingsDialogKey,
-        value: BlocProvider.of<DocumentAppearanceCubit>(dialogContext),
+        providers: [
+          BlocProvider<DocumentAppearanceCubit>.value(
+            value: BlocProvider.of<DocumentAppearanceCubit>(dialogContext),
+          ),
+          BlocProvider.value(value: context.read<UserWorkspaceBloc>()),
+        ],
         child: SettingsDialog(
           userProfile,
           didLogout: () async {
@@ -87,10 +83,9 @@ void showSettingsDialog(
           },
           dismissDialog: () {
             if (Navigator.of(dialogContext).canPop()) {
-              Navigator.of(dialogContext).pop();
-            } else {
-              Log.warn("Can't pop dialog context");
+              return Navigator.of(dialogContext).pop();
             }
+            Log.warn("Can't pop dialog context");
           },
           restartApp: () async {
             // Pop the dialog using the dialog context
@@ -98,7 +93,5 @@ void showSettingsDialog(
             await runAppFlowy();
           },
         ),
-      );
-    },
-  );
-}
+      ),
+    );

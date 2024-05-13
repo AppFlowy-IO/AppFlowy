@@ -1,11 +1,13 @@
 import 'dart:io';
 
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar.dart';
 import 'package:appflowy/workspace/presentation/settings/settings_dialog.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -23,31 +25,35 @@ void main() {
       await tester.expectToSeeHomePageWithGetStartedPage();
 
       await tester.openSettings();
-      await tester.openSettingsPage(SettingsPage.appearance);
+      await tester.openSettingsPage(SettingsPage.workspace);
       await tester.pumpAndSettle();
 
-      tester.expectToSeeText(
-        LocaleKeys.settings_appearance_themeMode_system.tr(),
-      );
+      final appFinder = find.byType(MaterialApp).first;
+      ThemeMode? themeMode = tester.widget<MaterialApp>(appFinder).themeMode;
+
+      expect(themeMode, ThemeMode.system);
 
       await tester.tapButton(
         find.bySemanticsLabel(
-          LocaleKeys.settings_appearance_themeMode_system.tr(),
+          LocaleKeys.settings_workspacePage_appearance_options_light.tr(),
         ),
       );
-
       await tester.pumpAndSettle();
+
+      themeMode = tester.widget<MaterialApp>(appFinder).themeMode;
+      expect(themeMode, ThemeMode.light);
 
       await tester.tapButton(
         find.bySemanticsLabel(
-          LocaleKeys.settings_appearance_themeMode_dark.tr(),
+          LocaleKeys.settings_workspacePage_appearance_options_dark.tr(),
         ),
       );
+      await tester.pumpAndSettle();
 
-      await tester.pumpAndSettle(const Duration(seconds: 1));
+      themeMode = tester.widget<MaterialApp>(appFinder).themeMode;
+      expect(themeMode, ThemeMode.dark);
 
       await tester.tap(find.byType(SettingsDialog));
-
       await tester.pumpAndSettle();
 
       await FlowyTestKeyboard.simulateKeyDownEvent(
@@ -60,12 +66,10 @@ void main() {
         ],
         tester: tester,
       );
-
       await tester.pumpAndSettle();
 
-      tester.expectToSeeText(
-        LocaleKeys.settings_appearance_themeMode_light.tr(),
-      );
+      themeMode = tester.widget<MaterialApp>(appFinder).themeMode;
+      expect(themeMode, ThemeMode.light);
     });
 
     testWidgets('show or hide home menu', (tester) async {

@@ -1,10 +1,10 @@
+import 'package:appflowy/plugins/database/widgets/card/card.dart';
 import 'package:appflowy/plugins/database/widgets/cell_editor/extension.dart';
 import 'package:appflowy/plugins/database/widgets/row/row_property.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:appflowy_board/appflowy_board.dart';
 
 import '../../shared/util.dart';
 
@@ -20,7 +20,7 @@ void main() {
       await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Board);
       final card1 = find.ancestor(
         of: find.text(card1Name),
-        matching: find.byType(AppFlowyGroupCard),
+        matching: find.byType(RowCard),
       );
       final doingGroup = find.text('Doing');
       final doingGroupCenter = tester.getCenter(doingGroup);

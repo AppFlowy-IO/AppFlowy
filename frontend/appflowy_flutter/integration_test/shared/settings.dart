@@ -1,14 +1,20 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/sidebar_setting.dart';
+import 'package:appflowy/workspace/presentation/settings/pages/settings_account_view.dart';
+import 'package:appflowy/workspace/presentation/settings/pages/settings_workspace_view.dart';
 import 'package:appflowy/workspace/presentation/settings/settings_dialog.dart';
-import 'package:appflowy/workspace/presentation/settings/widgets/settings_appearance/direction_setting.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_menu_element.dart';
-import 'package:appflowy/workspace/presentation/settings/widgets/settings_user_view.dart';
+import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra_ui/style_widget/text_field.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../desktop/board/board_hide_groups_test.dart';
+
 import 'base.dart';
+import 'common_operations.dart';
 
 extension AppFlowySettings on WidgetTester {
   /// Open settings page
@@ -31,27 +37,16 @@ extension AppFlowySettings on WidgetTester {
     return;
   }
 
-  Future<void> expectNoSettingsPage(SettingsPage page) async {
-    final button = find.byWidgetPredicate(
-      (widget) => widget is SettingsMenuElement && widget.page == page,
-    );
-    expect(button, findsNothing);
-    return;
-  }
-
   /// Restore the AppFlowy data storage location
   Future<void> restoreLocation() async {
-    final button =
-        find.byTooltip(LocaleKeys.settings_files_recoverLocationTooltips.tr());
+    final button = find.text(LocaleKeys.settings_common_reset.tr());
     expect(button, findsOneWidget);
     await tapButton(button);
-    return;
-  }
+    await pumpAndSettle();
 
-  Future<void> tapOpenFolderButton() async {
-    final button = find.text(LocaleKeys.settings_files_open.tr());
-    expect(button, findsOneWidget);
-    await tapButton(button);
+    final confirmButton = find.text(LocaleKeys.button_confirm.tr());
+    expect(confirmButton, findsOneWidget);
+    await tapButton(confirmButton);
     return;
   }
 
@@ -66,24 +61,43 @@ extension AppFlowySettings on WidgetTester {
 
   /// Enter user name
   Future<void> enterUserName(String name) async {
-    final uni = find.byType(UserNameInput);
-    expect(uni, findsOneWidget);
-    await tap(uni);
-    await enterText(uni, name);
-    await wait(300); //
-    await testTextInput.receiveAction(TextInputAction.done);
+    // Enable editing username
+    final editUsernameFinder = find.descendant(
+      of: find.byType(UserProfileSetting),
+      matching: find.byFlowySvg(FlowySvgs.edit_s),
+    );
+    await tap(editUsernameFinder);
+    await pumpAndSettle();
+
+    final userNameFinder = find.descendant(
+      of: find.byType(UserProfileSetting),
+      matching: find.byType(FlowyTextField),
+    );
+    await enterText(userNameFinder, name);
+    await pumpAndSettle();
+
+    await tap(find.text(LocaleKeys.button_save.tr()));
     await pumpAndSettle();
   }
 
   // go to settings page and toggle enable RTL toolbar items
   Future<void> toggleEnableRTLToolbarItems() async {
     await openSettings();
-    await openSettingsPage(SettingsPage.appearance);
+    await openSettingsPage(SettingsPage.workspace);
 
-    final switchButton =
-        find.byKey(EnableRTLToolbarItemsSetting.enableRTLSwitchKey);
-    expect(switchButton, findsOneWidget);
-    await tapButton(switchButton);
+    final scrollable = find.findSettingsScrollable();
+    await scrollUntilVisible(
+      find.byType(EnableRTLItemsSwitcher),
+      0,
+      scrollable: scrollable,
+    );
+
+    final switcher = find.descendant(
+      of: find.byType(EnableRTLItemsSwitcher),
+      matching: find.byType(Toggle),
+    );
+
+    await tap(switcher);
 
     // tap anywhere to close the settings page
     await tapAt(Offset.zero);

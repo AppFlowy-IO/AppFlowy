@@ -11,6 +11,9 @@ pub mod view_operation;
 
 mod manager_init;
 mod manager_observer;
+#[cfg(debug_assertions)]
+pub mod manager_test_util;
+
 pub mod share;
 #[cfg(feature = "test_helper")]
 mod test_helper;

@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flowy_infra_ui/widget/ignore_parent_gesture.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
@@ -146,9 +145,32 @@ class FlowyButton extends StatelessWidget {
 }
 
 class FlowyTextButton extends StatelessWidget {
+  const FlowyTextButton(
+    this.text, {
+    super.key,
+    this.onPressed,
+    this.fontSize,
+    this.fontColor,
+    this.fontHoverColor,
+    this.overflow = TextOverflow.ellipsis,
+    this.fontWeight,
+    this.padding = const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+    this.hoverColor,
+    this.fillColor,
+    this.heading,
+    this.radius,
+    this.mainAxisAlignment = MainAxisAlignment.start,
+    this.tooltip,
+    this.constraints = const BoxConstraints(minWidth: 0.0, minHeight: 0.0),
+    this.decoration,
+    this.fontFamily,
+    this.isDangerous = false,
+  });
+
   final String text;
   final FontWeight? fontWeight;
   final Color? fontColor;
+  final Color? fontHoverColor;
   final double? fontSize;
   final TextOverflow overflow;
 
@@ -165,27 +187,7 @@ class FlowyTextButton extends StatelessWidget {
   final TextDecoration? decoration;
 
   final String? fontFamily;
-
-  // final HoverDisplayConfig? hoverDisplay;
-  const FlowyTextButton(
-    this.text, {
-    super.key,
-    this.onPressed,
-    this.fontSize,
-    this.fontColor,
-    this.overflow = TextOverflow.ellipsis,
-    this.fontWeight,
-    this.padding = const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-    this.hoverColor,
-    this.fillColor,
-    this.heading,
-    this.radius,
-    this.mainAxisAlignment = MainAxisAlignment.start,
-    this.tooltip,
-    this.constraints = const BoxConstraints(minWidth: 0.0, minHeight: 0.0),
-    this.decoration,
-    this.fontFamily,
-  });
+  final bool isDangerous;
 
   @override
   Widget build(BuildContext context) {
@@ -194,18 +196,7 @@ class FlowyTextButton extends StatelessWidget {
       children.add(heading!);
       children.add(const HSpace(8));
     }
-    children.add(
-      FlowyText(
-        text,
-        overflow: overflow,
-        fontWeight: fontWeight,
-        fontSize: fontSize,
-        color: fontColor,
-        textAlign: TextAlign.center,
-        decoration: decoration,
-        fontFamily: fontFamily,
-      ),
-    );
+    children.add(Text(text, overflow: overflow, textAlign: TextAlign.center));
 
     Widget child = Row(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -213,30 +204,67 @@ class FlowyTextButton extends StatelessWidget {
       children: children,
     );
 
-    child = RawMaterialButton(
-      focusNode: FocusNode(skipTraversal: onPressed == null),
-      hoverElevation: 0,
-      highlightElevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: radius ?? Corners.s6Border),
-      fillColor: fillColor ?? Theme.of(context).colorScheme.secondaryContainer,
-      hoverColor:
-          hoverColor ?? Theme.of(context).colorScheme.secondaryContainer,
-      focusColor: Colors.transparent,
-      splashColor: Colors.transparent,
-      highlightColor: Colors.transparent,
-      elevation: 0,
+    child = ConstrainedBox(
       constraints: constraints,
-      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-      padding: padding,
-      onPressed: onPressed,
-      child: child,
+      child: TextButton(
+        onPressed: onPressed ?? () {},
+        focusNode: FocusNode(skipTraversal: onPressed == null),
+        style: ButtonStyle(
+          overlayColor: const MaterialStatePropertyAll(Colors.transparent),
+          splashFactory: NoSplash.splashFactory,
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          padding: MaterialStateProperty.all(padding),
+          elevation: MaterialStateProperty.all(0),
+          shape: MaterialStateProperty.all(
+            RoundedRectangleBorder(
+              side: BorderSide(
+                color: isDangerous
+                    ? Theme.of(context).colorScheme.error
+                    : Colors.transparent,
+              ),
+              borderRadius: radius ?? Corners.s6Border,
+            ),
+          ),
+          textStyle: MaterialStateProperty.all(
+            TextStyle(
+              fontWeight: fontWeight ?? FontWeight.w500,
+              fontSize: fontSize,
+              decoration: decoration,
+              fontFamily: fontFamily,
+            ),
+          ),
+          backgroundColor: MaterialStateProperty.resolveWith(
+            (states) {
+              if (states.contains(MaterialState.hovered)) {
+                return hoverColor ??
+                    (isDangerous
+                        ? Theme.of(context).colorScheme.error
+                        : Theme.of(context).colorScheme.secondary);
+              }
+
+              return fillColor ??
+                  (isDangerous
+                      ? Colors.transparent
+                      : Theme.of(context).colorScheme.secondaryContainer);
+            },
+          ),
+          foregroundColor: MaterialStateProperty.resolveWith(
+            (states) {
+              if (states.contains(MaterialState.hovered)) {
+                return fontHoverColor ??
+                    (fontColor ?? Theme.of(context).colorScheme.onSurface);
+              }
+
+              return fontColor ?? Theme.of(context).colorScheme.onSurface;
+            },
+          ),
+        ),
+        child: child,
+      ),
     );
 
     if (tooltip != null) {
-      child = FlowyTooltip(
-        message: tooltip!,
-        child: child,
-      );
+      child = FlowyTooltip(message: tooltip!, child: child);
     }
 
     if (onPressed == null) {
@@ -248,22 +276,6 @@ class FlowyTextButton extends StatelessWidget {
 }
 
 class FlowyRichTextButton extends StatelessWidget {
-  final InlineSpan text;
-  final TextOverflow overflow;
-
-  final VoidCallback? onPressed;
-  final EdgeInsets padding;
-  final Widget? heading;
-  final Color? hoverColor;
-  final Color? fillColor;
-  final BorderRadius? radius;
-  final MainAxisAlignment mainAxisAlignment;
-  final String? tooltip;
-  final BoxConstraints constraints;
-
-  final TextDecoration? decoration;
-
-  // final HoverDisplayConfig? hoverDisplay;
   const FlowyRichTextButton(
     this.text, {
     super.key,
@@ -280,6 +292,21 @@ class FlowyRichTextButton extends StatelessWidget {
     this.decoration,
   });
 
+  final InlineSpan text;
+  final TextOverflow overflow;
+
+  final VoidCallback? onPressed;
+  final EdgeInsets padding;
+  final Widget? heading;
+  final Color? hoverColor;
+  final Color? fillColor;
+  final BorderRadius? radius;
+  final MainAxisAlignment mainAxisAlignment;
+  final String? tooltip;
+  final BoxConstraints constraints;
+
+  final TextDecoration? decoration;
+
   @override
   Widget build(BuildContext context) {
     List<Widget> children = [];
@@ -288,11 +315,7 @@ class FlowyRichTextButton extends StatelessWidget {
       children.add(const HSpace(6));
     }
     children.add(
-      RichText(
-        text: text,
-        overflow: overflow,
-        textAlign: TextAlign.center,
-      ),
+      RichText(text: text, overflow: overflow, textAlign: TextAlign.center),
     );
 
     Widget child = Padding(
@@ -320,16 +343,10 @@ class FlowyRichTextButton extends StatelessWidget {
       child: child,
     );
 
-    child = IgnoreParentGestureWidget(
-      onPress: onPressed,
-      child: child,
-    );
+    child = IgnoreParentGestureWidget(onPress: onPressed, child: child);
 
     if (tooltip != null) {
-      child = FlowyTooltip(
-        message: tooltip!,
-        child: child,
-      );
+      child = FlowyTooltip(message: tooltip!, child: child);
     }
 
     return child;

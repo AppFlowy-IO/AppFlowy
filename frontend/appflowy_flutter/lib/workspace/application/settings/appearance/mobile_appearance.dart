@@ -1,10 +1,11 @@
+import 'package:flutter/material.dart';
+
 // ThemeData in mobile
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/aa_menu/_toolbar_theme.dart';
 import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra/theme_extension.dart';
-import 'package:flutter/material.dart';
 
 class MobileAppearance extends BaseAppearance {
   static const _primaryColor = Color(0xFF00BCF0); //primary 100
@@ -20,7 +21,6 @@ class MobileAppearance extends BaseAppearance {
     String fontFamily,
     String codeFontFamily,
   ) {
-    assert(fontFamily.isNotEmpty);
     assert(codeFontFamily.isNotEmpty);
 
     final fontStyle = getFontStyle(
@@ -29,9 +29,7 @@ class MobileAppearance extends BaseAppearance {
       fontWeight: FontWeight.w400,
     );
 
-    final codeFontStyle = getFontStyle(
-      fontFamily: codeFontFamily,
-    );
+    final codeFontStyle = getFontStyle(fontFamily: codeFontFamily);
 
     final theme = brightness == Brightness.light
         ? appTheme.lightTheme
@@ -82,9 +80,7 @@ class MobileAppearance extends BaseAppearance {
         : _hintColorInDarkMode;
 
     return ThemeData(
-      // color
       useMaterial3: false,
-
       primaryColor: colorTheme.primary, //primary 100
       primaryColorLight: const Color(0xFF57B5F8), //primary 80
       dividerColor: colorTheme.outline, //caption
@@ -92,6 +88,7 @@ class MobileAppearance extends BaseAppearance {
       disabledColor: colorTheme.outline,
       scaffoldBackgroundColor: colorTheme.background,
       appBarTheme: AppBarTheme(
+        toolbarHeight: 44.0,
         foregroundColor: colorTheme.onBackground,
         backgroundColor: colorTheme.background,
         centerTitle: false,
@@ -124,6 +121,7 @@ class MobileAppearance extends BaseAppearance {
             ),
           ),
           shadowColor: MaterialStateProperty.all(null),
+          foregroundColor: MaterialStateProperty.all(Colors.white),
           backgroundColor: MaterialStateProperty.resolveWith<Color>(
             (Set<MaterialState> states) {
               if (states.contains(MaterialState.disabled)) {
@@ -132,7 +130,6 @@ class MobileAppearance extends BaseAppearance {
               return colorTheme.primary;
             },
           ),
-          foregroundColor: MaterialStateProperty.all(Colors.white),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
@@ -144,20 +141,13 @@ class MobileAppearance extends BaseAppearance {
               fontWeight: FontWeight.w500,
             ),
           ),
-          foregroundColor: MaterialStateProperty.all(
-            colorTheme.onBackground,
-          ),
+          foregroundColor: MaterialStateProperty.all(colorTheme.onBackground),
           backgroundColor: MaterialStateProperty.all(colorTheme.background),
           shape: MaterialStateProperty.all(
-            RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(6),
-            ),
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
           ),
           side: MaterialStateProperty.all(
-            BorderSide(
-              color: colorTheme.outline,
-              width: 0.5,
-            ),
+            BorderSide(color: colorTheme.outline, width: 0.5),
           ),
           padding: MaterialStateProperty.all(
             const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
@@ -166,9 +156,7 @@ class MobileAppearance extends BaseAppearance {
       ),
       textButtonTheme: TextButtonThemeData(
         style: ButtonStyle(
-          textStyle: MaterialStateProperty.all(
-            fontStyle,
-          ),
+          textStyle: MaterialStateProperty.all(fontStyle),
         ),
       ),
       // text
@@ -262,6 +250,7 @@ class MobileAppearance extends BaseAppearance {
           tint8: theme.tint8,
           tint9: theme.tint9,
           textColor: theme.text,
+          secondaryTextColor: theme.secondaryText,
           greyHover: theme.hoverBG1,
           greySelect: theme.bg3,
           lightGreyHover: theme.hoverBG3,

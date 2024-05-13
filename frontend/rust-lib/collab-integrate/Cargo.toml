@@ -8,9 +8,9 @@ edition = "2021"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-collab = { version = "0.1.0", features = ["trace_transact"] }
-collab-plugins = { version = "0.1.0" }
-collab-entity = { version = "0.1.0" }
+collab = { workspace = true }
+collab-plugins = { workspace = true }
+collab-entity = { workspace = true }
 serde.workspace = true
 serde_json.workspace = true
 anyhow.workspace = true

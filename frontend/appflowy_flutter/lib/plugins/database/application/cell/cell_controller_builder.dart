@@ -15,6 +15,7 @@ typedef DateCellController = CellController<DateCellDataPB, String>;
 typedef TimestampCellController = CellController<TimestampCellDataPB, String>;
 typedef URLCellController = CellController<URLCellDataPB, String>;
 typedef RelationCellController = CellController<RelationCellDataPB, String>;
+typedef SummaryCellController = CellController<String, String>;
 
 CellController makeCellController(
   DatabaseController databaseController,
@@ -128,6 +129,18 @@ CellController makeCellController(
         rowCache: rowCache,
         cellDataLoader: CellDataLoader(
           parser: RelationCellDataParser(),
+          reloadOnFieldChange: true,
+        ),
+        cellDataPersistence: TextCellDataPersistence(),
+      );
+    case FieldType.Summary:
+      return SummaryCellController(
+        viewId: viewId,
+        fieldController: fieldController,
+        cellContext: cellContext,
+        rowCache: rowCache,
+        cellDataLoader: CellDataLoader(
+          parser: StringCellDataParser(),
           reloadOnFieldChange: true,
         ),
         cellDataPersistence: TextCellDataPersistence(),

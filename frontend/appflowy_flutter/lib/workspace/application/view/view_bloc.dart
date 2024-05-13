@@ -8,6 +8,7 @@ import 'package:appflowy/workspace/application/recent/cached_recent_service.dart
 import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:collection/collection.dart';
@@ -215,6 +216,12 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
               value.isPublic,
             );
           },
+          updateIcon: (value) async {
+            await ViewBackendService.updateViewIcon(
+              viewId: view.id,
+              viewIcon: value.icon ?? '',
+            );
+          },
         );
       },
     );
@@ -376,8 +383,11 @@ class ViewEvent with _$ViewEvent {
   ) = ViewDidUpdate;
   const factory ViewEvent.viewUpdateChildView(ViewPB result) =
       ViewUpdateChildView;
-  const factory ViewEvent.updateViewVisibility(ViewPB view, bool isPublic) =
-      UpdateViewVisibility;
+  const factory ViewEvent.updateViewVisibility(
+    ViewPB view,
+    bool isPublic,
+  ) = UpdateViewVisibility;
+  const factory ViewEvent.updateIcon(String? icon) = UpdateIcon;
 }
 
 @freezed

@@ -7,7 +7,7 @@ use collab_entity::reminder::Reminder;
 use collab_entity::CollabType;
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
 use collab_user::core::{MutexUserAwareness, UserAwareness};
-use tracing::{error, info, instrument, trace};
+use tracing::{debug, error, info, instrument, trace};
 
 use collab_integrate::CollabKVDB;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
@@ -127,6 +127,12 @@ impl UserManager {
     }
     self.is_loading_awareness.store(true, Ordering::SeqCst);
 
+    if let Some(old_user_awareness) = self.user_awareness.lock().await.take() {
+      debug!("Closing old user awareness");
+      old_user_awareness.lock().close();
+      drop(old_user_awareness);
+    }
+
     let object_id =
       user_awareness_object_id(&session.user_uuid, &session.user_workspace.id).to_string();
     trace!("Initializing user awareness {}", object_id);
@@ -136,6 +142,7 @@ impl UserManager {
     let weak_builder = self.collab_builder.clone();
     let cloned_is_loading = self.is_loading_awareness.clone();
     let session = session.clone();
+    let workspace_id = session.user_workspace.id.clone();
     tokio::spawn(async move {
       if cloned_is_loading.load(Ordering::SeqCst) {
         return Ok(());
@@ -160,6 +167,7 @@ impl UserManager {
           Ok(data) => {
             trace!("Get user awareness collab from remote: {}", data.len());
             let collab = Self::collab_for_user_awareness(
+              &workspace_id,
               &weak_builder,
               session.user_id,
               &object_id,
@@ -173,6 +181,7 @@ impl UserManager {
             if err.is_record_not_found() {
               info!("User awareness not found, creating new");
               let collab = Self::collab_for_user_awareness(
+                &workspace_id,
                 &weak_builder,
                 session.user_id,
                 &object_id,
@@ -206,6 +215,7 @@ impl UserManager {
   /// using a collaboration builder. This instance is specifically geared towards handling
   /// user awareness.
   async fn collab_for_user_awareness(
+    workspace_id: &str,
     collab_builder: &Weak<AppFlowyCollabBuilder>,
     uid: i64,
     object_id: &str,
@@ -218,6 +228,7 @@ impl UserManager {
     ))?;
     let collab = collab_builder
       .build(
+        workspace_id,
         uid,
         object_id,
         CollabType::UserAwareness,

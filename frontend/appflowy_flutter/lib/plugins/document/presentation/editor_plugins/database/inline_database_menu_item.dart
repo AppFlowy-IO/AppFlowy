@@ -19,7 +19,7 @@ SelectionMenuItem inlineGridMenuItem(DocumentBloc documentBloc) =>
       keywords: ['grid', 'database'],
       handler: (editorState, menuService, context) async {
         // create the view inside current page
-        final parentViewId = documentBloc.view.id;
+        final parentViewId = documentBloc.documentId;
         final value = await ViewBackendService.createView(
           parentViewId: parentViewId,
           name: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
@@ -40,7 +40,7 @@ SelectionMenuItem inlineBoardMenuItem(DocumentBloc documentBloc) =>
       keywords: ['board', 'kanban', 'database'],
       handler: (editorState, menuService, context) async {
         // create the view inside current page
-        final parentViewId = documentBloc.view.id;
+        final parentViewId = documentBloc.documentId;
         final value = await ViewBackendService.createView(
           parentViewId: parentViewId,
           name: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
@@ -61,7 +61,7 @@ SelectionMenuItem inlineCalendarMenuItem(DocumentBloc documentBloc) =>
       keywords: ['calendar', 'database'],
       handler: (editorState, menuService, context) async {
         // create the view inside current page
-        final parentViewId = documentBloc.view.id;
+        final parentViewId = documentBloc.documentId;
         final value = await ViewBackendService.createView(
           parentViewId: parentViewId,
           name: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),

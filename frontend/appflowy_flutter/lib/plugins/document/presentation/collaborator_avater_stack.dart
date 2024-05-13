@@ -1,6 +1,7 @@
+import 'package:flutter/material.dart';
+
 import 'package:avatar_stack/avatar_stack.dart';
 import 'package:avatar_stack/positions.dart';
-import 'package:flutter/material.dart';
 
 class CollaboratorAvatarStack extends StatelessWidget {
   const CollaboratorAvatarStack({
@@ -17,21 +18,13 @@ class CollaboratorAvatarStack extends StatelessWidget {
   });
 
   final List<Widget> avatars;
-
   final Positions? settings;
-
   final InfoWidgetBuilder? infoWidgetBuilder;
-
   final double? width;
-
   final double? height;
-
   final double? borderWidth;
-
   final Color? borderColor;
-
   final Color? backgroundColor;
-
   final Widget Function(int value, BorderSide border) plusWidgetBuilder;
 
   @override

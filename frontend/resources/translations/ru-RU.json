@@ -45,10 +45,10 @@
     "unmatchedPasswordError": "Пароли не совпадают",
     "syncPromptMessage": "Синхронизация данных может занять некоторое время. Пожалуйста, не закрывайте эту страницу",
     "or": "или",
+    "signInWith": "Войти с помощью:",
     "LogInWithGoogle": "Войти через Google",
     "LogInWithGithub": "Войти через GitHub",
     "LogInWithDiscord": "Войти через Discord",
-    "signInWith": "Войти с помощью:",
     "loginAsGuestButtonText": "Начать"
   },
   "workspace": {

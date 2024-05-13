@@ -69,24 +69,32 @@ class _PrimaryCellAccessoryState extends State<PrimaryCellAccessory>
     with GridCellAccessoryState {
   @override
   Widget build(BuildContext context) {
-    return FlowyTooltip(
-      message: LocaleKeys.tooltip_openAsPage.tr(),
-      child: Container(
-        width: 26,
-        height: 26,
-        decoration: BoxDecoration(
-          border: Border.fromBorderSide(
-            BorderSide(color: Theme.of(context).dividerColor),
-          ),
-          borderRadius: Corners.s6Border,
-        ),
-        child: Center(
-          child: FlowySvg(
-            FlowySvgs.full_view_s,
-            color: Theme.of(context).colorScheme.primary,
-          ),
-        ),
+    return FlowyHover(
+      style: HoverStyle(
+        hoverColor: AFThemeExtension.of(context).lightGreyHover,
+        backgroundColor: Theme.of(context).cardColor,
       ),
+      builder: (_, onHover) {
+        return FlowyTooltip(
+          message: LocaleKeys.tooltip_openAsPage.tr(),
+          child: Container(
+            width: 26,
+            height: 26,
+            decoration: BoxDecoration(
+              border: Border.fromBorderSide(
+                BorderSide(color: Theme.of(context).dividerColor),
+              ),
+              borderRadius: Corners.s6Border,
+            ),
+            child: Center(
+              child: FlowySvg(
+                FlowySvgs.full_view_s,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -166,17 +174,10 @@ class CellAccessoryContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     final children =
         accessories.where((accessory) => accessory.enable()).map((accessory) {
-      final hover = FlowyHover(
-        style: HoverStyle(
-          hoverColor: AFThemeExtension.of(context).lightGreyHover,
-          backgroundColor: Theme.of(context).cardColor,
-        ),
-        builder: (_, onHover) => accessory.build(),
-      );
       return GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () => accessory.onTap(),
-        child: hover,
+        child: accessory.build(),
       );
     }).toList();
 

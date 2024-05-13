@@ -90,8 +90,8 @@ impl Builder {
         .pretty()
         .with_env_filter(env_filter)
         .finish()
-        .with(JsonStorageLayer)
         .with(FlowyFormattingLayer::new(DebugStdoutWriter))
+        .with(JsonStorageLayer)
         .with(file_layer);
       set_global_default(subscriber).map_err(|e| format!("{:?}", e))?;
     };
@@ -114,12 +114,9 @@ impl<'a> MakeWriter<'a> for DebugStdoutWriter {
   type Writer = Box<dyn Write>;
 
   fn make_writer(&'a self) -> Self::Writer {
-    #[cfg(not(debug_assertions))]
-    {
+    if std::env::var("DISABLE_EVENT_LOG").unwrap_or("false".to_string()) == "true" {
       Box::new(io::sink())
-    }
-    #[cfg(debug_assertions)]
-    {
+    } else {
       Box::new(io::stdout())
     }
   }

@@ -357,7 +357,7 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
     );
 
     // Add new reminder
-    final viewId = rootContext.read<DocumentBloc>().view.id;
+    final viewId = rootContext.read<DocumentBloc>().documentId;
     return rootContext.read<ReminderBloc>().add(
           ReminderEvent.add(
             reminder: ReminderPB(

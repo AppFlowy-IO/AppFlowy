@@ -128,7 +128,7 @@ pub struct DocumentSettingsPB {
 }
 
 pub const APPEARANCE_DEFAULT_THEME: &str = "Default";
-pub const APPEARANCE_DEFAULT_FONT: &str = "Poppins";
+pub const APPEARANCE_DEFAULT_FONT: &str = ""; // Use system default font
 pub const APPEARANCE_DEFAULT_MONOSPACE_FONT: &str = "SF Mono";
 const APPEARANCE_RESET_AS_DEFAULT: bool = true;
 const APPEARANCE_DEFAULT_IS_MENU_COLLAPSED: bool = false;

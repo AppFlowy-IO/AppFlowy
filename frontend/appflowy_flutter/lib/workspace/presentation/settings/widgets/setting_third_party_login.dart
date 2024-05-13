@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -10,7 +12,6 @@ import 'package:appflowy_result/appflowy_result.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/snap_bar.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SettingThirdPartyLogin extends StatelessWidget {
@@ -42,24 +43,12 @@ class SettingThirdPartyLogin extends StatelessWidget {
               : const SizedBox.shrink();
 
           return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  FlowyText.medium(
-                    LocaleKeys.signIn_signInWith.tr(),
-                    fontSize: 16,
-                  ),
-                  const HSpace(6),
-                ],
-              ),
-              const VSpace(6),
               promptMessage,
               const VSpace(6),
               indicator,
               const VSpace(6),
               if (isAuthEnabled) const ThirdPartySignInButtons(),
-              const VSpace(6),
             ],
           );
         },

@@ -113,7 +113,7 @@ void main() {
           section: ViewSectionPB.Public,
         ),
       );
-      await blocResponseFuture();
+      await blocResponseFuture(millisecond: 400);
     }
 
     expect(viewBloc.state.view.childViews.length, 3);
@@ -192,7 +192,7 @@ void main() {
     workspaceSetting.latestView.id == viewBloc.state.lastCreatedView!.id;
 
     // ignore: unused_local_variable
-    final documentBloc = DocumentBloc(view: document)
+    final documentBloc = DocumentBloc(documentId: document.id)
       ..add(
         const DocumentEvent.initial(),
       );

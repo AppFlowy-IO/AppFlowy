@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 use bytes::Bytes;
+
 pub use collab_folder::View;
 use collab_folder::ViewLayout;
 use tokio::sync::RwLock;
@@ -52,7 +53,10 @@ pub trait FolderOperationHandler {
   /// * `view_id`: the view id
   /// * `name`: the name of the view
   /// * `data`: initial data of the view. The data should be parsed by the [FolderOperationHandler]
-  /// implementation. For example, the data of the database will be [DatabaseData].
+  /// implementation.
+  /// For example,
+  /// 1. the data of the database will be [DatabaseData] that is serialized to JSON
+  /// 2. the data of the document will be [DocumentData] that is serialized to JSON
   /// * `layout`: the layout of the view
   /// * `meta`: use to carry extra information. For example, the database view will use this
   /// to carry the reference database id.
@@ -130,5 +134,6 @@ pub(crate) fn create_view(uid: i64, params: CreateViewParams, layout: ViewLayout
     created_by: Some(uid),
     last_edited_time: 0,
     last_edited_by: Some(uid),
+    extra: None,
   }
 }

@@ -15,6 +15,7 @@ macro_rules! impl_into_field_type {
           8 => FieldType::LastEditedTime,
           9 => FieldType::CreatedTime,
           10 => FieldType::Relation,
+          11 => FieldType::Summary,
           _ => {
             tracing::error!("🔴Can't parse FieldType from value: {}", ty);
             FieldType::RichText

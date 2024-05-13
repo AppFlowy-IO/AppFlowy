@@ -1,4 +1,5 @@
 use std::any::Any;
+use std::sync::Arc;
 
 use collab::core::collab::IndexContentReceiver;
 use collab_folder::{View, ViewIcon, ViewLayout};
@@ -23,5 +24,5 @@ pub trait IndexManager: Send + Sync {
 }
 
 pub trait FolderIndexManager: IndexManager {
-  fn index_all_views(&self, views: Vec<View>, workspace_id: String);
+  fn index_all_views(&self, views: Vec<Arc<View>>, workspace_id: String);
 }

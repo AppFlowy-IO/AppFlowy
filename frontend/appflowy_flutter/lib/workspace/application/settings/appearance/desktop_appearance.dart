@@ -12,7 +12,6 @@ class DesktopAppearance extends BaseAppearance {
     String fontFamily,
     String codeFontFamily,
   ) {
-    assert(fontFamily.isNotEmpty);
     assert(codeFontFamily.isNotEmpty);
 
     final theme = brightness == Brightness.light
@@ -119,6 +118,7 @@ class DesktopAppearance extends BaseAppearance {
           tint8: theme.tint8,
           tint9: theme.tint9,
           textColor: theme.text,
+          secondaryTextColor: theme.secondaryText,
           greyHover: theme.hoverBG1,
           greySelect: theme.bg3,
           lightGreyHover: theme.hoverBG3,

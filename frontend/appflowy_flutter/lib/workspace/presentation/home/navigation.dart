@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
@@ -14,8 +15,6 @@ import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:styled_widget/styled_widget.dart';
-
-typedef NaviAction = void Function();
 
 class NavigationNotifier with ChangeNotifier {
   NavigationNotifier({required this.navigationItems});
@@ -65,7 +64,7 @@ class FlowyNavigation extends StatelessWidget {
     return BlocBuilder<HomeSettingBloc, HomeSettingState>(
       buildWhen: (p, c) => p.isMenuCollapsed != c.isMenuCollapsed,
       builder: (context, state) {
-        if (state.isMenuCollapsed) {
+        if (!PlatformExtension.isWindows && state.isMenuCollapsed) {
           return RotationTransition(
             turns: const AlwaysStoppedAnimation(180 / 360),
             child: FlowyTooltip(
@@ -141,19 +140,6 @@ class NaviItemWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: item.leftBarItem.padding(horizontal: 2, vertical: 2),
-    );
-  }
-}
-
-class NaviItemDivider extends StatelessWidget {
-  const NaviItemDivider({super.key, required this.child});
-
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [child, const Text('/')],
     );
   }
 }

@@ -186,7 +186,7 @@ Don't modify the theme file in `frontend/appflowy_web_app/src/styles/variables` 
         // ...
         {
           find: '$client-services',
-          replacement: process.env.TAURI_MODE
+          replacement: !!process.env.TAURI_PLATFORM
             ? `${__dirname}/src/application/services/tauri-services`
             : `${__dirname}/src/application/services/js-services`,
         },
@@ -207,7 +207,7 @@ Use the AppFlowy CI/CD pipeline to deploy the application to the test and produc
     - Enter the options
     - Click on the Run workflow button
 
-#### 📦 Deployment (Self-Hosted)
+#### 📦 Deployment (Self-Hosted EC2)
 
 ##### Pre-requisites
 
@@ -267,6 +267,18 @@ And then follow the steps below:
 
 ### 🧪 Testing
 
-> To be Continued...
+> We use Cypress for end-to-end testing and component testing - [Cypress](https://www.cypress.io/)
+
+#### 🧪 End-to-End Testing
+
+> to be continued
+
+#### 🧪 Component Testing
+
+Run the following command to run the component tests
+
+```bash
+pnpm run test:components
+```
 
 

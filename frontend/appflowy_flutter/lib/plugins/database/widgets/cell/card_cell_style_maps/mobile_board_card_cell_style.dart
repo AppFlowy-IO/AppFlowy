@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/database/widgets/cell/card_cell_skeleton/summary_card_cell.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:flutter/material.dart';
 
@@ -77,6 +78,10 @@ CardCellStyleMap mobileBoardCardCellStyleMap(BuildContext context) {
       padding: padding,
       textStyle: textStyle,
       wrap: true,
+    ),
+    FieldType.Summary: SummaryCardCellStyle(
+      padding: padding,
+      textStyle: textStyle,
     ),
   };
 }

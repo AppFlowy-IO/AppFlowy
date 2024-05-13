@@ -1,35 +1,37 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/database/application/cell/bloc/text_cell_bloc.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
-import 'package:appflowy/plugins/database/application/field/field_controller.dart';
+import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/application/row/row_banner_bloc.dart';
 import 'package:appflowy/plugins/database/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_builder.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/text.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
-import 'package:appflowy/plugins/database/application/cell/bloc/text_cell_bloc.dart';
 import 'package:appflowy/plugins/database/widgets/row/row_action.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/emoji_picker/emoji_picker.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-typedef OnSubmittedEmoji = void Function(String emoji);
 const _kBannerActionHeight = 40.0;
 
 class RowBanner extends StatefulWidget {
   const RowBanner({
     super.key,
-    required this.fieldController,
+    required this.databaseController,
     required this.rowController,
     required this.cellBuilder,
+    this.allowOpenAsFullPage = true,
   });
 
-  final FieldController fieldController;
+  final DatabaseController databaseController;
   final RowController rowController;
   final EditableCellBuilder cellBuilder;
+  final bool allowOpenAsFullPage;
 
   @override
   State<RowBanner> createState() => _RowBannerState();
@@ -50,41 +52,32 @@ class _RowBannerState extends State<RowBanner> {
     return BlocProvider<RowBannerBloc>(
       create: (context) => RowBannerBloc(
         viewId: widget.rowController.viewId,
-        fieldController: widget.fieldController,
+        fieldController: widget.databaseController.fieldController,
         rowMeta: widget.rowController.rowMeta,
       )..add(const RowBannerEvent.initial()),
       child: MouseRegion(
         onEnter: (event) => _isHovering.value = true,
         onExit: (event) => _isHovering.value = false,
-        child: Stack(
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(60, 34, 60, 0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    height: 30,
-                    child: _BannerAction(
-                      isHovering: _isHovering,
-                      popoverController: popoverController,
-                    ),
-                  ),
-                  const VSpace(4),
-                  _BannerTitle(
-                    cellBuilder: widget.cellBuilder,
-                    popoverController: popoverController,
-                    rowController: widget.rowController,
-                  ),
-                ],
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(60, 34, 60, 0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                height: 30,
+                child: _BannerAction(
+                  isHovering: _isHovering,
+                  popoverController: popoverController,
+                ),
               ),
-            ),
-            Positioned(
-              top: 12,
-              right: 12,
-              child: RowActionButton(rowController: widget.rowController),
-            ),
-          ],
+              const VSpace(4),
+              _BannerTitle(
+                cellBuilder: widget.cellBuilder,
+                popoverController: popoverController,
+                rowController: widget.rowController,
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -270,11 +263,14 @@ class RowActionButton extends StatelessWidget {
     return AppFlowyPopover(
       direction: PopoverDirection.bottomWithLeftAligned,
       popupBuilder: (context) => RowActionList(rowController: rowController),
-      child: FlowyIconButton(
-        width: 20,
-        height: 20,
-        icon: const FlowySvg(FlowySvgs.details_horizontal_s),
-        iconColorOnHover: Theme.of(context).colorScheme.onSecondary,
+      child: FlowyTooltip(
+        message: LocaleKeys.grid_rowPage_moreRowActions.tr(),
+        child: FlowyIconButton(
+          width: 20,
+          height: 20,
+          icon: const FlowySvg(FlowySvgs.details_horizontal_s),
+          iconColorOnHover: Theme.of(context).colorScheme.onSecondary,
+        ),
       ),
     );
   }
@@ -292,7 +288,6 @@ class _TitleSkin extends IEditableTextCellSkin {
     return TextField(
       controller: textEditingController,
       focusNode: focusNode,
-      maxLines: null,
       autofocus: true,
       style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 28),
       decoration: InputDecoration(

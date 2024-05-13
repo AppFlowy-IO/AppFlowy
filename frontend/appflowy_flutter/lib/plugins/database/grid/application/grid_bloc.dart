@@ -51,7 +51,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
             emit(state.copyWith(createdRow: null, openRowDetail: false));
           },
           deleteRow: (rowInfo) async {
-            await RowBackendService.deleteRow(rowInfo.viewId, rowInfo.rowId);
+            await RowBackendService.deleteRows(viewId, [rowInfo.rowId]);
           },
           moveRow: (int from, int to) {
             final List<RowInfo> rows = [...state.rowInfos];

@@ -19,10 +19,7 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SidebarWorkspace extends StatefulWidget {
-  const SidebarWorkspace({
-    super.key,
-    required this.userProfile,
-  });
+  const SidebarWorkspace({super.key, required this.userProfile});
 
   final UserProfilePB userProfile;
 
@@ -142,7 +139,6 @@ class _SidebarWorkspaceState extends State<SidebarWorkspace> {
     }
 
     if (message != null) {
-      Log.info('[Workspace] $message');
       showSnackBarMessage(context, message);
     }
   }
@@ -167,6 +163,7 @@ class SidebarSwitchWorkspaceButton extends StatelessWidget {
       onOpen: () => context
           .read<UserWorkspaceBloc>()
           .add(const UserWorkspaceEvent.fetchWorkspaces()),
+      onClose: () => Log.info('close workspace menu'),
       popupBuilder: (_) {
         return BlocProvider<UserWorkspaceBloc>.value(
           value: context.read<UserWorkspaceBloc>(),
@@ -177,6 +174,7 @@ class SidebarSwitchWorkspaceButton extends StatelessWidget {
               if (currentWorkspace == null) {
                 return const SizedBox.shrink();
               }
+              Log.info('open workspace menu');
               return WorkspacesMenu(
                 userProfile: userProfile,
                 currentWorkspace: currentWorkspace,
@@ -197,6 +195,12 @@ class SidebarSwitchWorkspaceButton extends StatelessWidget {
                 workspace: currentWorkspace,
                 iconSize: 20,
                 enableEdit: false,
+                onSelected: (result) => context.read<UserWorkspaceBloc>().add(
+                      UserWorkspaceEvent.updateWorkspaceIcon(
+                        currentWorkspace.workspaceId,
+                        result.emoji,
+                      ),
+                    ),
               ),
             ),
             const HSpace(6),

@@ -1,16 +1,15 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/files/settings_file_exporter_widget.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
 import 'package:styled_widget/styled_widget.dart';
 
 import '../../../../../generated/locale_keys.g.dart';
 
 class SettingsExportFileWidget extends StatefulWidget {
-  const SettingsExportFileWidget({
-    super.key,
-  });
+  const SettingsExportFileWidget({super.key});
 
   @override
   State<SettingsExportFileWidget> createState() =>

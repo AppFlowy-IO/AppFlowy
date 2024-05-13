@@ -91,6 +91,21 @@ class WorkspaceMemberBloc
             add(const WorkspaceMemberEvent.getWorkspaceMembers());
           });
         },
+        inviteWorkspaceMember: (email) async {
+          final result = await _userBackendService.inviteWorkspaceMember(
+            _workspaceId,
+            email,
+            role: AFRolePB.Member,
+          );
+          emit(
+            state.copyWith(
+              actionResult: WorkspaceMemberActionResult(
+                actionType: WorkspaceMemberActionType.invite,
+                result: result,
+              ),
+            ),
+          );
+        },
         removeWorkspaceMember: (email) async {
           final result = await _userBackendService.removeWorkspaceMember(
             _workspaceId,
@@ -186,6 +201,8 @@ class WorkspaceMemberEvent with _$WorkspaceMemberEvent {
       GetWorkspaceMembers;
   const factory WorkspaceMemberEvent.addWorkspaceMember(String email) =
       AddWorkspaceMember;
+  const factory WorkspaceMemberEvent.inviteWorkspaceMember(String email) =
+      InviteWorkspaceMember;
   const factory WorkspaceMemberEvent.removeWorkspaceMember(String email) =
       RemoveWorkspaceMember;
   const factory WorkspaceMemberEvent.updateWorkspaceMember(
@@ -197,6 +214,9 @@ class WorkspaceMemberEvent with _$WorkspaceMemberEvent {
 enum WorkspaceMemberActionType {
   none,
   get,
+  // this event will send an invitation to the member
+  invite,
+  // this event will add the member without sending an invitation
   add,
   remove,
   updateRole,

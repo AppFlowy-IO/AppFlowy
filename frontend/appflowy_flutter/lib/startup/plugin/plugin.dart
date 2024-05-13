@@ -11,17 +11,18 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 export "./src/sandbox.dart";
 
 enum PluginType {
-  editor,
+  document,
   blank,
   trash,
   grid,
   board,
   calendar,
+  databaseDocument,
 }
 
 typedef PluginId = String;
 
-abstract class Plugin<T> {
+abstract class Plugin {
   PluginId get id;
 
   PluginWidgetBuilder get widgetBuilder;

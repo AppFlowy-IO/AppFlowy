@@ -201,6 +201,8 @@ jobs:
         run: cargo make pub_get
 
       - name: Run Flutter unit tests
+        env:
+          DISABLE_EVENT_LOG: true
         working-directory: frontend
         run: |
           if [ "$RUNNER_OS" == "macOS" ]; then
@@ -242,6 +244,8 @@ jobs:
 
       - name: Run Docker-Compose
         working-directory: AppFlowy-Cloud
+        env:
+          BACKEND_VERSION: 0.3.24-amd64
         run: |
           docker compose down -v --remove-orphans
           docker compose pull

@@ -1,4 +1,4 @@
-import 'package:appflowy/workspace/presentation/settings/widgets/settings_appearance/levenshtein.dart';
+import 'package:appflowy/util/levenshtein.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

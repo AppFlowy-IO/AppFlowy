@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 
 import 'package:appflowy/core/frameless_window.dart';
 import 'package:appflowy/plugins/blank/blank.dart';
@@ -110,9 +111,7 @@ class FadingIndexedStack extends StatefulWidget {
     super.key,
     required this.index,
     required this.children,
-    this.duration = const Duration(
-      milliseconds: 250,
-    ),
+    this.duration = const Duration(milliseconds: 250),
   });
 
   final int index;
@@ -135,8 +134,10 @@ class FadingIndexedStackState extends State<FadingIndexedStack> {
   @override
   void didUpdateWidget(FadingIndexedStack oldWidget) {
     if (oldWidget.index == widget.index) return;
-    setState(() => _targetOpacity = 0);
-    Future.delayed(1.milliseconds, () => setState(() => _targetOpacity = 1));
+    _targetOpacity = 0;
+    SchedulerBinding.instance.addPostFrameCallback(
+      (_) => setState(() => _targetOpacity = 1),
+    );
     super.didUpdateWidget(oldWidget);
   }
 
@@ -174,12 +175,14 @@ class PageNotifier extends ChangeNotifier {
 
   /// This is the only place where the plugin is set.
   /// No need compare the old plugin with the new plugin. Just set it.
-  set plugin(Plugin newPlugin) {
+  void setPlugin(Plugin newPlugin, bool setLatest) {
     _plugin.dispose();
     newPlugin.init();
 
-    /// Set the plugin view as the latest view.
-    FolderEventSetLatestView(ViewIdPB(value: newPlugin.id)).send();
+    // Set the plugin view as the latest view.
+    if (setLatest) {
+      FolderEventSetLatestView(ViewIdPB(value: newPlugin.id)).send();
+    }
 
     _plugin = newPlugin;
     notifyListeners();
@@ -202,8 +205,8 @@ class PageManager {
 
   Plugin get plugin => _notifier.plugin;
 
-  void setPlugin(Plugin newPlugin) {
-    _notifier.plugin = newPlugin;
+  void setPlugin(Plugin newPlugin, bool setLatest) {
+    _notifier.setPlugin(newPlugin, setLatest);
   }
 
   void setStackWithId(String id) {
@@ -217,9 +220,10 @@ class PageManager {
       ],
       child: Selector<PageNotifier, Widget>(
         selector: (context, notifier) => notifier.titleWidget,
-        builder: (context, widget, child) {
-          return MoveWindowDetector(child: HomeTopBar(layout: layout));
-        },
+        builder: (_, __, child) => MoveWindowDetector(
+          showTitleBar: true,
+          child: HomeTopBar(layout: layout),
+        ),
       ),
     );
   }

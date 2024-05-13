@@ -3,9 +3,9 @@ use std::collections::HashMap;
 use std::sync::{Arc, Weak};
 
 use collab::core::collab::{DataSource, MutexCollab};
-use collab_database::blocks::BlockEvent;
-use collab_database::database::{DatabaseData, MutexDatabase};
+use collab_database::database::DatabaseData;
 use collab_database::error::DatabaseError;
+use collab_database::rows::RowId;
 use collab_database::views::{CreateDatabaseParams, CreateViewParams, DatabaseLayout};
 use collab_database::workspace_database::{
   CollabDocStateByOid, CollabFuture, DatabaseCollabService, DatabaseMeta, WorkspaceDatabase,
@@ -17,13 +17,13 @@ use tracing::{event, instrument, trace};
 
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
 use collab_integrate::{CollabKVAction, CollabKVDB, CollabPersistenceConfig};
-use flowy_database_pub::cloud::DatabaseCloudService;
+use flowy_database_pub::cloud::{DatabaseCloudService, SummaryRowContent};
 use flowy_error::{internal_error, FlowyError, FlowyResult};
-use lib_dispatch::prelude::af_spawn;
+use lib_infra::box_any::BoxAny;
 use lib_infra::priority_task::TaskDispatcher;
 
-use crate::entities::{DatabaseLayoutPB, DatabaseSnapshotPB, DidFetchRowPB};
-use crate::notification::{send_notification, DatabaseNotification};
+use crate::entities::{DatabaseLayoutPB, DatabaseSnapshotPB};
+use crate::services::cell::stringify_cell;
 use crate::services::database::DatabaseEditor;
 use crate::services::database_view::DatabaseLayoutDepsResolver;
 use crate::services::field_settings::default_field_settings_by_layout_map;
@@ -32,6 +32,8 @@ use crate::services::share::csv::{CSVFormat, CSVImporter, ImportResult};
 pub trait DatabaseUser: Send + Sync {
   fn user_id(&self) -> Result<i64, FlowyError>;
   fn collab_db(&self, uid: i64) -> Result<Weak<CollabKVDB>, FlowyError>;
+  fn workspace_id(&self) -> Result<String, FlowyError>;
+  fn workspace_database_object_id(&self) -> Result<String, FlowyError>;
 }
 
 pub struct DatabaseManager {
@@ -71,12 +73,7 @@ impl DatabaseManager {
   }
 
   /// When initialize with new workspace, all the resources will be cleared.
-  pub async fn initialize(
-    &self,
-    uid: i64,
-    workspace_id: String,
-    workspace_database_object_id: String,
-  ) -> FlowyResult<()> {
+  pub async fn initialize(&self, uid: i64) -> FlowyResult<()> {
     // 1. Clear all existing tasks
     self.task_scheduler.write().await.clear_task();
     // 2. Release all existing editors
@@ -85,16 +82,21 @@ impl DatabaseManager {
     }
     self.editors.lock().await.clear();
     // 3. Clear the workspace database
+    if let Some(old_workspace_database) = self.workspace_database.write().await.take() {
+      old_workspace_database.close();
+    }
     *self.workspace_database.write().await = None;
 
     let collab_db = self.user.collab_db(uid)?;
     let collab_builder = UserDatabaseCollabServiceImpl {
-      workspace_id: workspace_id.clone(),
+      user: self.user.clone(),
       collab_builder: self.collab_builder.clone(),
       cloud_service: self.cloud_service.clone(),
     };
     let config = CollabPersistenceConfig::new().snapshot_per_update(100);
 
+    let workspace_id = self.user.workspace_id()?;
+    let workspace_database_object_id = self.user.workspace_database_object_id()?;
     let mut workspace_database_doc_state = DataSource::Disk;
     // If the workspace database not exist in disk, try to fetch from remote.
     if !self.is_collab_exist(uid, &collab_db, &workspace_database_object_id) {
@@ -151,20 +153,13 @@ impl DatabaseManager {
     skip_all,
     err
   )]
-  pub async fn initialize_with_new_user(
-    &self,
-    user_id: i64,
-    workspace_id: String,
-    workspace_database_object_id: String,
-  ) -> FlowyResult<()> {
-    self
-      .initialize(user_id, workspace_id, workspace_database_object_id)
-      .await?;
+  pub async fn initialize_with_new_user(&self, user_id: i64) -> FlowyResult<()> {
+    self.initialize(user_id).await?;
     Ok(())
   }
 
   pub async fn get_database_inline_view_id(&self, database_id: &str) -> FlowyResult<String> {
-    let wdb = self.get_workspace_database().await?;
+    let wdb = self.get_database_indexer().await?;
     let database_collab = wdb.get_database(database_id).await.ok_or_else(|| {
       FlowyError::record_not_found().with_context(format!("The database:{} not found", database_id))
     })?;
@@ -175,17 +170,17 @@ impl DatabaseManager {
 
   pub async fn get_all_databases_meta(&self) -> Vec<DatabaseMeta> {
     let mut items = vec![];
-    if let Ok(wdb) = self.get_workspace_database().await {
+    if let Ok(wdb) = self.get_database_indexer().await {
       items = wdb.get_all_database_meta()
     }
     items
   }
 
-  pub async fn track_database(
+  pub async fn update_database_indexing(
     &self,
     view_ids_by_database_id: HashMap<String, Vec<String>>,
   ) -> FlowyResult<()> {
-    let wdb = self.get_workspace_database().await?;
+    let wdb = self.get_database_indexer().await?;
     view_ids_by_database_id
       .into_iter()
       .for_each(|(database_id, view_ids)| {
@@ -200,7 +195,7 @@ impl DatabaseManager {
   }
 
   pub async fn get_database_id_with_view_id(&self, view_id: &str) -> FlowyResult<String> {
-    let wdb = self.get_workspace_database().await?;
+    let wdb = self.get_database_indexer().await?;
     wdb.get_database_id_with_view_id(view_id).ok_or_else(|| {
       FlowyError::record_not_found()
         .with_context(format!("The database for view id: {} not found", view_id))
@@ -218,14 +213,11 @@ impl DatabaseManager {
   pub async fn open_database(&self, database_id: &str) -> FlowyResult<Arc<DatabaseEditor>> {
     trace!("open database editor:{}", database_id);
     let database = self
-      .get_workspace_database()
+      .get_database_indexer()
       .await?
       .get_database(database_id)
       .await
-      .ok_or_else(FlowyError::collab_not_sync)?;
-
-    // Subscribe the [BlockEvent]
-    subscribe_block_event(&database);
+      .ok_or_else(|| FlowyError::collab_not_sync().with_context("open database error"))?;
 
     let editor = Arc::new(DatabaseEditor::new(database, self.task_scheduler.clone()).await?);
     self
@@ -238,7 +230,7 @@ impl DatabaseManager {
 
   pub async fn open_database_view<T: AsRef<str>>(&self, view_id: T) -> FlowyResult<()> {
     let view_id = view_id.as_ref();
-    let wdb = self.get_workspace_database().await?;
+    let wdb = self.get_database_indexer().await?;
     if let Some(database_id) = wdb.get_database_id_with_view_id(view_id) {
       if let Some(database) = wdb.open_database(&database_id) {
         if let Some(lock_database) = database.try_lock() {
@@ -254,7 +246,7 @@ impl DatabaseManager {
 
   pub async fn close_database_view<T: AsRef<str>>(&self, view_id: T) -> FlowyResult<()> {
     let view_id = view_id.as_ref();
-    let wdb = self.get_workspace_database().await?;
+    let wdb = self.get_database_indexer().await?;
     let database_id = wdb.get_database_id_with_view_id(view_id);
     if let Some(database_id) = database_id {
       let mut editors = self.editors.lock().await;
@@ -281,7 +273,7 @@ impl DatabaseManager {
   }
 
   pub async fn duplicate_database(&self, view_id: &str) -> FlowyResult<Vec<u8>> {
-    let wdb = self.get_workspace_database().await?;
+    let wdb = self.get_database_indexer().await?;
     let data = wdb.get_database_data(view_id).await?;
     let json_bytes = data.to_json_bytes()?;
     Ok(json_bytes)
@@ -308,13 +300,13 @@ impl DatabaseManager {
       create_view_params.view_id = view_id.to_string();
     }
 
-    let wdb = self.get_workspace_database().await?;
+    let wdb = self.get_database_indexer().await?;
     let _ = wdb.create_database(create_database_params)?;
     Ok(())
   }
 
   pub async fn create_database_with_params(&self, params: CreateDatabaseParams) -> FlowyResult<()> {
-    let wdb = self.get_workspace_database().await?;
+    let wdb = self.get_database_indexer().await?;
     let _ = wdb.create_database(params)?;
     Ok(())
   }
@@ -328,7 +320,7 @@ impl DatabaseManager {
     database_id: String,
     database_view_id: String,
   ) -> FlowyResult<()> {
-    let wdb = self.get_workspace_database().await?;
+    let wdb = self.get_database_indexer().await?;
     let mut params = CreateViewParams::new(database_id.clone(), database_view_id, name, layout);
     if let Some(database) = wdb.get_database(&database_id).await {
       let (field, layout_setting) = DatabaseLayoutDepsResolver::new(database, layout)
@@ -408,12 +400,53 @@ impl DatabaseManager {
     Ok(snapshots)
   }
 
-  async fn get_workspace_database(&self) -> FlowyResult<Arc<WorkspaceDatabase>> {
+  /// Return the database indexer.
+  /// Each workspace has itw own Database indexer that manages all the databases and database views
+  async fn get_database_indexer(&self) -> FlowyResult<Arc<WorkspaceDatabase>> {
     let database = self.workspace_database.read().await;
     match &*database {
       None => Err(FlowyError::internal().with_context("Workspace database not initialized")),
       Some(user_database) => Ok(user_database.clone()),
     }
+  }
+
+  #[instrument(level = "debug", skip_all)]
+  pub async fn summarize_row(
+    &self,
+    view_id: String,
+    row_id: RowId,
+    field_id: String,
+  ) -> FlowyResult<()> {
+    let database = self.get_database_with_view_id(&view_id).await?;
+
+    //
+    let mut summary_row_content = SummaryRowContent::new();
+    if let Some(row) = database.get_row(&view_id, &row_id) {
+      let fields = database.get_fields(&view_id, None);
+      for field in fields {
+        if let Some(cell) = row.cells.get(&field.id) {
+          summary_row_content.insert(field.name.clone(), stringify_cell(cell, &field));
+        }
+      }
+    }
+
+    // Call the cloud service to summarize the row.
+    trace!(
+      "[AI]: summarize row:{}, content:{:?}",
+      row_id,
+      summary_row_content
+    );
+    let response = self
+      .cloud_service
+      .summary_database_row(&self.user.workspace_id()?, &row_id, summary_row_content)
+      .await?;
+    trace!("[AI]:summarize row response: {}", response);
+
+    // Update the cell with the response from the cloud service.
+    database
+      .update_cell_with_changeset(&view_id, &row_id, &field_id, BoxAny::new(response))
+      .await?;
+    Ok(())
   }
 
   /// Only expose this method for testing
@@ -423,29 +456,8 @@ impl DatabaseManager {
   }
 }
 
-/// Send notification to all clients that are listening to the given object.
-fn subscribe_block_event(database: &Arc<MutexDatabase>) {
-  let mut block_event_rx = database.lock().subscribe_block_event();
-  af_spawn(async move {
-    while let Ok(event) = block_event_rx.recv().await {
-      match event {
-        BlockEvent::DidFetchRow(row_details) => {
-          for row_detail in row_details {
-            trace!("Did fetch row: {:?}", row_detail.row.id);
-            let row_id = row_detail.row.id.clone();
-            let pb = DidFetchRowPB::from(row_detail);
-            send_notification(&row_id, DatabaseNotification::DidFetchRow)
-              .payload(pb)
-              .send();
-          }
-        },
-      }
-    }
-  });
-}
-
 struct UserDatabaseCollabServiceImpl {
-  workspace_id: String,
+  user: Arc<dyn DatabaseUser>,
   collab_builder: Arc<AppFlowyCollabBuilder>,
   cloud_service: Arc<dyn DatabaseCloudService>,
 }
@@ -456,7 +468,7 @@ impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
     object_id: &str,
     object_ty: CollabType,
   ) -> CollabFuture<Result<DataSource, DatabaseError>> {
-    let workspace_id = self.workspace_id.clone();
+    let workspace_id = self.user.workspace_id().unwrap();
     let object_id = object_id.to_string();
     let weak_cloud_service = Arc::downgrade(&self.cloud_service);
     Box::pin(async move {
@@ -480,9 +492,12 @@ impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
     object_ids: Vec<String>,
     object_ty: CollabType,
   ) -> CollabFuture<Result<CollabDocStateByOid, DatabaseError>> {
-    let workspace_id = self.workspace_id.clone();
+    let cloned_user = self.user.clone();
     let weak_cloud_service = Arc::downgrade(&self.cloud_service);
     Box::pin(async move {
+      let workspace_id = cloned_user
+        .workspace_id()
+        .map_err(|err| DatabaseError::Internal(err.into()))?;
       match weak_cloud_service.upgrade() {
         None => {
           tracing::warn!("Cloud service is dropped");
@@ -505,15 +520,19 @@ impl DatabaseCollabService for UserDatabaseCollabServiceImpl {
     object_type: CollabType,
     collab_db: Weak<CollabKVDB>,
     collab_raw_data: DataSource,
-    persistence_config: CollabPersistenceConfig,
+    _persistence_config: CollabPersistenceConfig,
   ) -> Result<Arc<MutexCollab>, DatabaseError> {
+    let workspace_id = self
+      .user
+      .workspace_id()
+      .map_err(|err| DatabaseError::Internal(err.into()))?;
     let collab = self.collab_builder.build_with_config(
+      &workspace_id,
       uid,
       object_id,
       object_type.clone(),
       collab_db.clone(),
       collab_raw_data,
-      persistence_config,
       CollabBuilderConfig::default().sync_enable(true),
     )?;
     Ok(collab)
