@@ -145,8 +145,11 @@ class MobileViewPageLayoutButton extends StatelessWidget {
           showHeader: true,
           title: LocaleKeys.pageStyle_title.tr(),
           backgroundColor: Theme.of(context).colorScheme.background,
-          builder: (_) => BlocProvider.value(
-            value: context.read<DocumentPageStyleBloc>(),
+          builder: (_) => MultiBlocProvider(
+            providers: [
+              BlocProvider.value(value: context.read<DocumentPageStyleBloc>()),
+              BlocProvider.value(value: context.read<MobileViewPageBloc>()),
+            ],
             child: PageStyleBottomSheet(
               view: context.read<ViewBloc>().state.view,
             ),

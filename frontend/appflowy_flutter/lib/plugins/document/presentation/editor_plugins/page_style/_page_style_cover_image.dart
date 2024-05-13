@@ -1,16 +1,21 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/application/base/mobile_view_page_bloc.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/image_util.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/unsplash_image_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/page_style/_page_cover_bottom_sheet.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/page_style/_page_style_util.dart';
+import 'package:appflowy/shared/appflowy_network_image.dart';
 import 'package:appflowy/shared/feedback_gesture_detector.dart';
+import 'package:appflowy/shared/flowy_gradient_colors.dart';
 import 'package:appflowy/shared/permission/permission_checker.dart';
 import 'package:appflowy/user/application/user_service.dart';
+import 'package:appflowy/util/string_extension.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_result/appflowy_result.dart';
@@ -33,13 +38,11 @@ class PageStyleCoverImage extends StatelessWidget {
     final backgroundColor = context.pageStyleBackgroundColor;
     return BlocBuilder<DocumentPageStyleBloc, DocumentPageStyleState>(
       builder: (context, state) {
-        return Row(
+        return Column(
           children: [
-            _buildOptionGroup(
-              context,
-              backgroundColor,
-              state,
-            ),
+            _buildOptionGroup(context, backgroundColor, state),
+            const VSpace(16.0),
+            _buildPreview(context, state),
           ],
         );
       },
@@ -51,42 +54,116 @@ class PageStyleCoverImage extends StatelessWidget {
     Color backgroundColor,
     DocumentPageStyleState state,
   ) {
-    return Expanded(
-      child: Container(
-        decoration: BoxDecoration(
-          color: backgroundColor,
-          borderRadius: const BorderRadius.horizontal(
-            left: Radius.circular(12),
-            right: Radius.circular(12),
-          ),
-        ),
-        padding: const EdgeInsets.all(4.0),
-        child: Row(
-          children: [
-            _CoverOptionButton(
-              showLeftCorner: true,
-              showRightCorner: false,
-              selected: state.coverImage.isPresets,
-              onTap: () => _showPresets(context),
-              child: const _PresetCover(),
-            ),
-            _CoverOptionButton(
-              showLeftCorner: false,
-              showRightCorner: false,
-              selected: state.coverImage.isPhoto,
-              onTap: () => _pickImage(context),
-              child: const _PhotoCover(),
-            ),
-            _CoverOptionButton(
-              showLeftCorner: false,
-              showRightCorner: true,
-              selected: state.coverImage.isUnsplashImage,
-              onTap: () => _showUnsplash(context),
-              child: const _UnsplashCover(),
-            ),
-          ],
+    return Container(
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: const BorderRadius.horizontal(
+          left: Radius.circular(12),
+          right: Radius.circular(12),
         ),
       ),
+      padding: const EdgeInsets.all(4.0),
+      child: Row(
+        children: [
+          _CoverOptionButton(
+            showLeftCorner: true,
+            showRightCorner: false,
+            selected: state.coverImage.isPresets,
+            onTap: () => _showPresets(context),
+            child: const _PresetCover(),
+          ),
+          _CoverOptionButton(
+            showLeftCorner: false,
+            showRightCorner: false,
+            selected: state.coverImage.isPhoto,
+            onTap: () => _pickImage(context),
+            child: const _PhotoCover(),
+          ),
+          _CoverOptionButton(
+            showLeftCorner: false,
+            showRightCorner: true,
+            selected: state.coverImage.isUnsplashImage,
+            onTap: () => _showUnsplash(context),
+            child: const _UnsplashCover(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPreview(
+    BuildContext context,
+    DocumentPageStyleState state,
+  ) {
+    final cover = state.coverImage;
+    if (cover.isNone) {
+      return const SizedBox.shrink();
+    }
+
+    final value = cover.value;
+    final type = cover.type;
+
+    Widget preview = const SizedBox.shrink();
+
+    if (type == PageStyleCoverImageType.customImage ||
+        type == PageStyleCoverImageType.unsplashImage) {
+      final userProfilePB =
+          context.read<MobileViewPageBloc>().state.userProfilePB;
+      preview = FlowyNetworkImage(
+        url: value,
+        userProfilePB: userProfilePB,
+      );
+    }
+
+    if (type == PageStyleCoverImageType.builtInImage) {
+      preview = Image.asset(
+        PageStyleCoverImageType.builtInImagePath(value),
+        fit: BoxFit.cover,
+      );
+    }
+
+    if (type == PageStyleCoverImageType.pureColor) {
+      final color = value.coverColor(context);
+      if (color != null) {
+        preview = ColoredBox(
+          color: color,
+        );
+      }
+    }
+
+    if (type == PageStyleCoverImageType.gradientColor) {
+      preview = Container(
+        decoration: BoxDecoration(
+          gradient: FlowyGradientColor.fromId(value).linear,
+        ),
+      );
+    }
+
+    if (type == PageStyleCoverImageType.localImage) {
+      preview = Image.file(
+        File(value),
+        fit: BoxFit.cover,
+      );
+    }
+
+    return Row(
+      children: [
+        FlowyText(LocaleKeys.pageStyle_image.tr()),
+        const Spacer(),
+        Container(
+          width: 40,
+          height: 28,
+          clipBehavior: Clip.hardEdge,
+          decoration: BoxDecoration(
+            borderRadius: const BorderRadius.all(Radius.circular(6.0)),
+            border: Border.all(color: const Color(0x1F222533)),
+          ),
+          child: ClipRRect(
+            borderRadius: const BorderRadius.all(Radius.circular(5.0)),
+            child: preview,
+          ),
+        ),
+      ],
     );
   }
 
