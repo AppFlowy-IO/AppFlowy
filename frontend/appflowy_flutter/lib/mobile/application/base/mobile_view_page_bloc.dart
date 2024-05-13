@@ -71,7 +71,7 @@ class MobileViewPageBloc
     final cover = view.cover;
     if (cover == null || cover.type == PageStyleCoverImageType.none) {
       return false;
-    } else if (view.layout == ViewLayoutPB.Document) {
+    } else if (view.layout == ViewLayoutPB.Document && !cover.isPresets) {
       // only support immersive mode for document layout
       return true;
     }
