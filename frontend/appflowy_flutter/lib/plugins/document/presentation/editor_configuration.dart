@@ -232,7 +232,7 @@ Map<String, BlockComponentBuilder> getEditorBuilderMap({
     VideoBlockKeys.type: VideoBlockComponentBuilder(
       configuration: configuration,
       showMenu: true,
-      menuBuilder: (Node node, VideoBlockComponentState state) => Positioned(
+      menuBuilder: (node, state) => Positioned(
         top: 10,
         right: 10,
         child: VideoMenu(node: node, state: state),

@@ -3,9 +3,14 @@ import 'package:flutter/services.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet_block_action_widget.dart';
+import 'package:appflowy/mobile/presentation/bottom_sheet/show_mobile_bottom_sheet.dart';
+import 'package:appflowy/mobile/presentation/widgets/flowy_option_tile.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/align_toolbar_item/align_toolbar_item.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/block_menu/block_menu_button.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
+import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
@@ -13,6 +18,7 @@ import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/ignore_parent_gesture.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class VideoMenu extends StatefulWidget {
@@ -48,28 +54,34 @@ class _VideoMenuState extends State<VideoMenu> {
           ),
         ],
       ),
-      child: Row(
-        children: [
-          const HSpace(4),
-          MenuBlockButton(
-            tooltip: LocaleKeys.editor_copyLink.tr(),
-            iconData: FlowySvgs.copy_s,
-            onTap: copyVideoLink,
-          ),
-          const HSpace(4),
-          _VideoAlignButton(
-            node: widget.node,
-            state: widget.state,
-          ),
-          const _Divider(),
-          MenuBlockButton(
-            tooltip: LocaleKeys.button_delete.tr(),
-            iconData: FlowySvgs.delete_s,
-            onTap: deleteVideo,
-          ),
-          const HSpace(4),
-        ],
-      ),
+      child: PlatformExtension.isMobile
+          ? MenuBlockButton(
+              tooltip: LocaleKeys.button_edit.tr(),
+              iconData: FlowySvgs.edit_s,
+              onTap: showMobileMenu,
+            )
+          : Row(
+              children: [
+                const HSpace(4),
+                MenuBlockButton(
+                  tooltip: LocaleKeys.editor_copyLink.tr(),
+                  iconData: FlowySvgs.copy_s,
+                  onTap: copyVideoLink,
+                ),
+                const HSpace(4),
+                _VideoAlignButton(
+                  node: widget.node,
+                  state: widget.state,
+                ),
+                const _Divider(),
+                MenuBlockButton(
+                  tooltip: LocaleKeys.button_delete.tr(),
+                  iconData: FlowySvgs.delete_s,
+                  onTap: deleteVideo,
+                ),
+                const HSpace(4),
+              ],
+            ),
     );
   }
 
@@ -81,6 +93,71 @@ class _VideoMenuState extends State<VideoMenu> {
         LocaleKeys.document_plugins_video_copiedToPasteBoard.tr(),
       );
     }
+  }
+
+  void showMobileMenu() {
+    final editorState = context.read<EditorState>()
+      ..updateSelectionWithReason(null, extraInfo: {});
+    final src = widget.node.attributes[VideoBlockKeys.url];
+    showMobileBottomSheet(
+      context,
+      showHeader: true,
+      showCloseButton: true,
+      showDivider: true,
+      showDragHandle: true,
+      title: LocaleKeys.document_plugins_action.tr(),
+      builder: (context) {
+        return BlockActionBottomSheet(
+          extendActionWidgets: [
+            FlowyOptionTile.text(
+              showTopBorder: false,
+              text: LocaleKeys.editor_copyLink.tr(),
+              leftIcon: const FlowySvg(
+                FlowySvgs.m_field_copy_s,
+              ),
+              onTap: () async {
+                context.pop();
+                showSnackBarMessage(
+                  context,
+                  LocaleKeys.document_plugins_video_copiedToPasteBoard.tr(),
+                );
+                await getIt<ClipboardService>().setPlainText(src);
+              },
+            ),
+          ],
+          onAction: (action) async {
+            context.pop();
+
+            final transaction = editorState.transaction;
+            switch (action) {
+              case BlockActionBottomSheetType.delete:
+                transaction.deleteNode(widget.node);
+                break;
+              case BlockActionBottomSheetType.duplicate:
+                transaction.insertNode(
+                  widget.node.path.next,
+                  widget.node.copyWith(),
+                );
+                break;
+              case BlockActionBottomSheetType.insertAbove:
+              case BlockActionBottomSheetType.insertBelow:
+                final path = action == BlockActionBottomSheetType.insertAbove
+                    ? widget.node.path
+                    : widget.node.path.next;
+                transaction
+                  ..insertNode(path, paragraphNode())
+                  ..afterSelection = Selection.collapsed(Position(path: path));
+                break;
+              default:
+            }
+
+            if (transaction.operations.isNotEmpty) {
+              await editorState.apply(transaction);
+            }
+          },
+        );
+      },
+    );
   }
 
   Future<void> deleteVideo() async {
@@ -157,27 +234,17 @@ class _VideoAlignButtonState extends State<_VideoAlignButton> {
     popoverController.close();
 
     final transaction = editorState.transaction;
-    transaction.updateNode(widget.node, {
-      VideoBlockKeys.alignment: align,
-    });
+    transaction.updateNode(widget.node, {VideoBlockKeys.alignment: align});
     editorState.apply(transaction);
 
     allowMenuClose();
   }
 
-  void preventMenuClose() {
-    widget.state.alwaysShowMenu = true;
-    editorState.service.selectionService.registerGestureInterceptor(
-      gestureInterceptor,
-    );
-  }
+  void preventMenuClose() => editorState.service.selectionService
+      .registerGestureInterceptor(gestureInterceptor);
 
-  void allowMenuClose() {
-    widget.state.alwaysShowMenu = false;
-    editorState.service.selectionService.unregisterGestureInterceptor(
-      interceptorKey,
-    );
-  }
+  void allowMenuClose() => editorState.service.selectionService
+      .unregisterGestureInterceptor(interceptorKey);
 
   FlowySvgData iconFor(String alignment) {
     switch (alignment) {

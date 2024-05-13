@@ -96,7 +96,7 @@ class VideoPlaceholderState extends State<VideoPlaceholder> {
     } else {
       showMobileBottomSheet(
         context,
-        title: LocaleKeys.editor_image.tr(),
+        title: LocaleKeys.document_plugins_video_label.tr(),
         showHeader: true,
         showCloseButton: true,
         showDragHandle: true,
