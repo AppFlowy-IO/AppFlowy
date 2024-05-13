@@ -176,19 +176,22 @@ class _IconSelectorState extends State<_IconSelector> {
     );
 
     if (emoji == selectedEmoji) {
-      child = Container(
-        margin: const EdgeInsets.all(11.0),
-        decoration: ShapeDecoration(
-          shape: RoundedRectangleBorder(
-            side: const BorderSide(
-              width: 1.40,
-              strokeAlign: BorderSide.strokeAlignOutside,
-              color: Color(0xFF00BCF0),
+      child = Center(
+        child: Container(
+          width: 40,
+          height: 40,
+          decoration: ShapeDecoration(
+            shape: RoundedRectangleBorder(
+              side: const BorderSide(
+                width: 1.40,
+                strokeAlign: BorderSide.strokeAlignOutside,
+                color: Color(0xFF00BCF0),
+              ),
+              borderRadius: BorderRadius.circular(10),
             ),
-            borderRadius: BorderRadius.circular(10),
           ),
+          child: child,
         ),
-        child: child,
       );
     }
 
