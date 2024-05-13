@@ -1,10 +1,10 @@
-import 'package:flutter/widgets.dart';
-
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/emoji_picker_button.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/style_widget/text_field.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
 class RenameViewPopover extends StatefulWidget {
   const RenameViewPopover({
@@ -51,12 +51,15 @@ class _RenameViewPopoverState extends State<RenameViewPopover> {
       mainAxisSize: MainAxisSize.min,
       children: [
         if (widget.showIconChanger) ...[
-          EmojiPickerButton(
-            emoji: widget.emoji,
-            defaultIcon: widget.icon,
-            direction: PopoverDirection.bottomWithCenterAligned,
-            offset: const Offset(0, 18),
-            onSubmitted: _updateViewIcon,
+          SizedBox(
+            width: 32.0,
+            child: EmojiPickerButton(
+              emoji: widget.emoji,
+              defaultIcon: widget.icon,
+              direction: PopoverDirection.bottomWithCenterAligned,
+              offset: const Offset(0, 18),
+              onSubmitted: _updateViewIcon,
+            ),
           ),
           const HSpace(6),
         ],
