@@ -169,7 +169,6 @@ jobs:
         working-directory: frontend
         run: |
           if [ "$RUNNER_OS" == "Linux" ]; then
-            sudo rm -f /etc/apt/sources.list.d/microsoft-prod.list
             sudo wget -qO /etc/apt/trusted.gpg.d/dart_linux_signing_key.asc https://dl-ssl.google.com/linux/linux_signing_key.pub
             sudo wget -qO /etc/apt/sources.list.d/dart_stable.list https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list
             sudo apt-get update
@@ -270,7 +269,6 @@ jobs:
       - name: Install prerequisites
         working-directory: frontend
         run: |
-          sudo rm -f /etc/apt/sources.list.d/microsoft-prod.list
           sudo wget -qO /etc/apt/trusted.gpg.d/dart_linux_signing_key.asc https://dl-ssl.google.com/linux/linux_signing_key.pub
           sudo wget -qO /etc/apt/sources.list.d/dart_stable.list https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list
           sudo apt-get update
@@ -323,9 +321,8 @@ jobs:
 
       - name: Install video dependency
         run: |
-          sudo rm -f /etc/apt/sources.list.d/microsoft-prod.list
           sudo apt-get update
-          sudo apt-get install libmpv-dev mpv
+          sudo apt-get -y install libmpv-dev mpv
         shell: bash
 
       - name: Flutter Integration Test 1
@@ -354,9 +351,8 @@ jobs:
 
       - name: Install video dependency
         run: |
-          sudo rm -f /etc/apt/sources.list.d/microsoft-prod.list
           sudo apt-get update
-          sudo apt-get install libmpv-dev mpv
+          sudo apt-get -y install libmpv-dev mpv
         shell: bash
 
       - name: Flutter Integration Test 2
@@ -385,9 +381,8 @@ jobs:
 
       - name: Install video dependency
         run: |
-          sudo rm -f /etc/apt/sources.list.d/microsoft-prod.list
           sudo apt-get update
-          sudo apt-get install libmpv-dev mpv
+          sudo apt-get -y install libmpv-dev mpv
         shell: bash
 
       - name: Flutter Integration Test 3
