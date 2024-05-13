@@ -146,7 +146,7 @@ class _IconSelectorState extends State<_IconSelector> {
             _buildSearchBar(context),
             Expanded(
               child: GridView.count(
-                crossAxisCount: _getEmojiPerLine(context),
+                crossAxisCount: 7,
                 controller: widget.scrollController,
                 children: [
                   for (final emoji in availableEmojis)
@@ -165,24 +165,27 @@ class _IconSelectorState extends State<_IconSelector> {
     String emoji,
     String? selectedEmoji,
   ) {
-    Widget child = Center(
-      child: FlowyText.emoji(
-        emoji,
-        fontSize: 24,
+    Widget child = SizedBox.square(
+      dimension: 24.0,
+      child: Center(
+        child: FlowyText.emoji(
+          emoji,
+          fontSize: 24,
+        ),
       ),
     );
 
     if (emoji == selectedEmoji) {
       child = Container(
-        margin: const EdgeInsets.all(8.0),
+        margin: const EdgeInsets.all(11.0),
         decoration: ShapeDecoration(
           shape: RoundedRectangleBorder(
             side: const BorderSide(
-              width: 1.50,
+              width: 1.40,
               strokeAlign: BorderSide.strokeAlignOutside,
               color: Color(0xFF00BCF0),
             ),
-            borderRadius: BorderRadius.circular(9),
+            borderRadius: BorderRadius.circular(10),
           ),
         ),
         child: child,
@@ -206,11 +209,6 @@ class _IconSelectorState extends State<_IconSelector> {
         .expand((e) => e)
         .toList();
     return availableEmojis;
-  }
-
-  int _getEmojiPerLine(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-    return width ~/ 48.0; // the size of the emoji
   }
 
   Widget _buildSearchBar(BuildContext context) {
