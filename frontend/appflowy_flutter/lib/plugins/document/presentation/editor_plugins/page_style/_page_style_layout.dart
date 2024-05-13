@@ -117,6 +117,7 @@ class _OptionGroup<T> extends StatelessWidget {
           duration: Durations.medium1,
           decoration: selected
               ? ShapeDecoration(
+                  color: const Color(0x141AC3F2),
                   shape: RoundedRectangleBorder(
                     side: const BorderSide(
                       width: 1.50,
@@ -180,7 +181,10 @@ class _FontButton extends StatelessWidget {
                 const HSpace(16.0),
                 FlowyText(LocaleKeys.titleBar_font.tr()),
                 const Spacer(),
-                FlowyText(fontFamilyDisplayName),
+                FlowyText(
+                  fontFamilyDisplayName,
+                  color: context.pageStyleTextColor,
+                ),
                 const HSpace(6.0),
                 const FlowySvg(FlowySvgs.m_page_style_arrow_right_s),
                 const HSpace(12.0),

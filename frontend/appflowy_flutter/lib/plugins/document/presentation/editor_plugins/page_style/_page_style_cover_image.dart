@@ -393,6 +393,7 @@ class _CoverOptionButton extends StatelessWidget {
           duration: Durations.medium1,
           decoration: selected
               ? ShapeDecoration(
+                  color: const Color(0x141AC3F2),
                   shape: RoundedRectangleBorder(
                     side: const BorderSide(
                       width: 1.50,
