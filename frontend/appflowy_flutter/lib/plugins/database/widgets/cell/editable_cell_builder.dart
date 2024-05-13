@@ -19,6 +19,7 @@ import 'editable_cell_skeleton/summary.dart';
 import 'editable_cell_skeleton/text.dart';
 import 'editable_cell_skeleton/timestamp.dart';
 import 'editable_cell_skeleton/url.dart';
+import 'editable_cell_skeleton/timer.dart';
 
 enum EditableCellStyle {
   desktopGrid,
@@ -120,6 +121,12 @@ class EditableCellBuilder {
           skin: IEditableSummaryCellSkin.fromStyle(style),
           key: key,
         ),
+      FieldType.Timer => EditableTimerCell(
+          databaseController: databaseController,
+          cellContext: cellContext,
+          skin: IEditableTimerCellSkin.fromStyle(style),
+          key: key,
+        ),
       _ => throw UnimplementedError(),
     };
   }
@@ -204,6 +211,12 @@ class EditableCellBuilder {
           databaseController: databaseController,
           cellContext: cellContext,
           skin: skinMap.relationSkin!,
+          key: key,
+        ),
+      FieldType.Timer => EditableTimerCell(
+          databaseController: databaseController,
+          cellContext: cellContext,
+          skin: skinMap.timerSkin!,
           key: key,
         ),
       _ => throw UnimplementedError(),
@@ -361,6 +374,7 @@ class EditableCellSkinMap {
     this.textSkin,
     this.urlSkin,
     this.relationSkin,
+    this.timerSkin,
   });
 
   final IEditableCheckboxCellSkin? checkboxSkin;
@@ -372,6 +386,7 @@ class EditableCellSkinMap {
   final IEditableTextCellSkin? textSkin;
   final IEditableURLCellSkin? urlSkin;
   final IEditableRelationCellSkin? relationSkin;
+  final IEditableTimerCellSkin? timerSkin;
 
   bool has(FieldType fieldType) {
     return switch (fieldType) {
@@ -387,6 +402,7 @@ class EditableCellSkinMap {
       FieldType.Number => numberSkin != null,
       FieldType.RichText => textSkin != null,
       FieldType.URL => urlSkin != null,
+      FieldType.Timer => timerSkin != null,
       _ => throw UnimplementedError(),
     };
   }

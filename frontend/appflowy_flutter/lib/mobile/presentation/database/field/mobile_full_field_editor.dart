@@ -146,6 +146,8 @@ class FieldOptionValues {
           timeFormat: timeFormat,
           includeTime: includeTime,
         ).writeToBuffer();
+      case FieldType.Timer:
+        return TimerTypeOptionPB().writeToBuffer();
       default:
         throw UnimplementedError();
     }
