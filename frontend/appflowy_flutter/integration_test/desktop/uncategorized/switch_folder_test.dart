@@ -101,7 +101,7 @@ void main() {
 
       // open settings and restore the location
       await tester.openSettings();
-      await tester.openSettingsPage(SettingsPage.files);
+      await tester.openSettingsPage(SettingsPage.manageData);
       await tester.restoreLocation();
 
       expect(
