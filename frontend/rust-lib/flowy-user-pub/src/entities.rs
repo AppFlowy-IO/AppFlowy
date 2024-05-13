@@ -439,3 +439,10 @@ pub struct WorkspaceSubscription {
   pub recurring_interval: RecurringInterval,
   pub is_active: bool,
 }
+
+pub struct WorkspaceUsage {
+  pub member_count: usize,
+  pub member_count_limit: usize,
+  pub total_blob_bytes: usize,
+  pub total_blob_bytes_limit: usize,
+}

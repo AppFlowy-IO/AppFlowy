@@ -75,6 +75,7 @@ pub fn init(user_manager: Weak<UserManager>) -> AFPlugin {
     .event(UserEvent::SubscribeWorkspace, subscribe_workspace_handler)
     .event(UserEvent::GetWorkspaceSubscriptions, get_workspace_subscriptions_handler)
     .event(UserEvent::CancelWorkspaceSubscription, cancel_workspace_subscription_handler)
+    .event(UserEvent::GetWorkspaceUsage, get_workspace_usage_handler)
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
@@ -241,8 +242,11 @@ pub enum UserEvent {
   #[event(output = "RepeatedWorkspaceSubscriptionPB")]
   GetWorkspaceSubscriptions = 52,
 
-  #[event(output = "UserWorkspaceIdPB")]
+  #[event(input = "UserWorkspaceIdPB")]
   CancelWorkspaceSubscription = 53,
+
+  #[event(input = "UserWorkspaceIdPB", output = "WorkspaceUsagePB")]
+  GetWorkspaceUsage = 54,
 }
 
 pub trait UserStatusCallback: Send + Sync + 'static {

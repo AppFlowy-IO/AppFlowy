@@ -810,3 +810,19 @@ pub async fn cancel_workspace_subscription_handler(
   manager.cancel_workspace_subscription(workspace_id).await?;
   Ok(())
 }
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub async fn get_workspace_usage_handler(
+  param: AFPluginData<UserWorkspaceIdPB>,
+  manager: AFPluginState<Weak<UserManager>>,
+) -> DataResult<WorkspaceUsagePB, FlowyError> {
+  let workspace_id = param.into_inner().workspace_id;
+  let manager = upgrade_manager(manager)?;
+  let workspace_usage = manager.get_workspace_usage(workspace_id).await?;
+  data_result_ok(WorkspaceUsagePB {
+    member_count: workspace_usage.member_count as u64,
+    member_count_limit: workspace_usage.member_count_limit as u64,
+    total_blob_bytes: workspace_usage.total_blob_bytes as u64,
+    total_blob_bytes_limit: workspace_usage.total_blob_bytes_limit as u64,
+  })
+}

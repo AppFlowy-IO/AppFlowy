@@ -24,7 +24,7 @@ use flowy_user_pub::cloud::{UserCloudService, UserCollabParams, UserUpdate, User
 use flowy_user_pub::entities::{
   AFCloudOAuthParams, AuthResponse, Role, UpdateUserProfileParams, UserCredentials, UserProfile,
   UserWorkspace, WorkspaceInvitation, WorkspaceInvitationStatus, WorkspaceMember,
-  WorkspaceSubscription,
+  WorkspaceSubscription, WorkspaceUsage,
 };
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
@@ -524,6 +524,21 @@ where
       let client = try_get_client?;
       client.cancel_subscription(&workspace_id).await?;
       Ok(())
+    })
+  }
+
+  fn get_workspace_usage(&self, workspace_id: String) -> FutureResult<WorkspaceUsage, FlowyError> {
+    let try_get_client = self.server.try_get_client();
+    FutureResult::new(async move {
+      let client = try_get_client?;
+      let usage =
+        WorkspaceSubscriptionClient::get_workspace_usage(client.as_ref(), &workspace_id).await?;
+      Ok(WorkspaceUsage {
+        member_count: usage.member_count,
+        member_count_limit: usage.member_count_limit,
+        total_blob_bytes: usage.total_blob_bytes,
+        total_blob_bytes_limit: usage.total_blob_bytes_limit,
+      })
     })
   }
 }

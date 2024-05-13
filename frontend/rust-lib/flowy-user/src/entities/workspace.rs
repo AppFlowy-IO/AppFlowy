@@ -306,3 +306,15 @@ impl From<WorkspaceSubscription> for WorkspaceSubscriptionPB {
     }
   }
 }
+
+#[derive(Debug, ProtoBuf, Default, Clone)]
+pub struct WorkspaceUsagePB {
+  #[pb(index = 1)]
+  pub member_count: u64,
+  #[pb(index = 2)]
+  pub member_count_limit: u64,
+  #[pb(index = 3)]
+  pub total_blob_bytes: u64,
+  #[pb(index = 4)]
+  pub total_blob_bytes_limit: u64,
+}
