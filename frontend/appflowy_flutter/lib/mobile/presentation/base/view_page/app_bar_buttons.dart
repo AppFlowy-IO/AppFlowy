@@ -43,8 +43,9 @@ class MobileViewPageImmersiveAppBar extends StatelessWidget
             AppBarTheme.of(context).backgroundColor?.withOpacity(opacity),
         showDivider: false,
         title: Opacity(opacity: opacity >= 0.99 ? 1.0 : 0, child: title),
+        leadingWidth: 44,
         leading: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 2.0, vertical: 4.0),
+          padding: const EdgeInsets.only(top: 4.0, bottom: 4.0, left: 12.0),
           child: _buildAppBarBackButton(context),
         ),
         actions: actions,
@@ -59,7 +60,7 @@ class MobileViewPageImmersiveAppBar extends StatelessWidget
       child: _ImmersiveAppBarButton(
         icon: FlowySvgs.m_app_bar_back_s,
         dimension: 30.0,
-        iconPadding: 6.0,
+        iconPadding: 3.0,
         isImmersiveMode:
             context.read<MobileViewPageBloc>().state.isImmersiveMode,
         appBarOpacity: appBarOpacity,
@@ -104,7 +105,7 @@ class MobileViewPageMoreButton extends StatelessWidget {
       child: _ImmersiveAppBarButton(
         icon: FlowySvgs.m_app_bar_more_s,
         dimension: 30.0,
-        iconPadding: 5.0,
+        iconPadding: 3.0,
         isImmersiveMode: isImmersiveMode,
         appBarOpacity: appBarOpacity,
       ),
@@ -155,7 +156,7 @@ class MobileViewPageLayoutButton extends StatelessWidget {
       child: _ImmersiveAppBarButton(
         icon: FlowySvgs.m_layout_s,
         dimension: 30.0,
-        iconPadding: 5.0,
+        iconPadding: 3.0,
         isImmersiveMode: isImmersiveMode,
         appBarOpacity: appBarOpacity,
       ),
