@@ -24,6 +24,7 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/snap_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
 class PageStyleCoverImage extends StatelessWidget {
@@ -168,6 +169,10 @@ class PageStyleCoverImage extends StatelessWidget {
   }
 
   void _showPresets(BuildContext context) {
+    final pageStyleBloc = context.read<DocumentPageStyleBloc>();
+
+    context.pop();
+
     showMobileBottomSheet(
       context,
       showDragHandle: true,
@@ -176,18 +181,18 @@ class PageStyleCoverImage extends StatelessWidget {
       showHeader: true,
       showRemoveButton: true,
       onRemove: () {
-        context.read<DocumentPageStyleBloc>().add(
-              DocumentPageStyleEvent.updateCoverImage(
-                PageStyleCover.none(),
-              ),
-            );
+        pageStyleBloc.add(
+          DocumentPageStyleEvent.updateCoverImage(
+            PageStyleCover.none(),
+          ),
+        );
       },
-      title: LocaleKeys.pageStyle_pageCover.tr(),
+      title: LocaleKeys.pageStyle_presets.tr(),
       barrierColor: Colors.transparent,
       backgroundColor: Theme.of(context).colorScheme.background,
       builder: (_) {
         return BlocProvider.value(
-          value: context.read<DocumentPageStyleBloc>(),
+          value: pageStyleBloc,
           child: const PageCoverBottomSheet(),
         );
       },
@@ -251,6 +256,9 @@ class PageStyleCoverImage extends StatelessWidget {
   }
 
   void _showUnsplash(BuildContext context) {
+    final pageStyleBloc = context.read<DocumentPageStyleBloc>();
+    context.pop();
+
     showMobileBottomSheet(
       context,
       showDragHandle: true,
@@ -258,15 +266,15 @@ class PageStyleCoverImage extends StatelessWidget {
       showDoneButton: true,
       showHeader: true,
       showRemoveButton: true,
-      title: LocaleKeys.pageStyle_coverImage.tr(),
+      title: LocaleKeys.pageStyle_unsplash.tr(),
       barrierColor: Colors.transparent,
       backgroundColor: Theme.of(context).colorScheme.background,
       onRemove: () {
-        context.read<DocumentPageStyleBloc>().add(
-              DocumentPageStyleEvent.updateCoverImage(
-                PageStyleCover.none(),
-              ),
-            );
+        pageStyleBloc.add(
+          DocumentPageStyleEvent.updateCoverImage(
+            PageStyleCover.none(),
+          ),
+        );
       },
       builder: (_) {
         return ConstrainedBox(
@@ -281,14 +289,14 @@ class PageStyleCoverImage extends StatelessWidget {
               child: UnsplashImageWidget(
                 type: UnsplashImageType.fullScreen,
                 onSelectUnsplashImage: (url) {
-                  context.read<DocumentPageStyleBloc>().add(
-                        DocumentPageStyleEvent.updateCoverImage(
-                          PageStyleCover(
-                            type: PageStyleCoverImageType.unsplashImage,
-                            value: url,
-                          ),
-                        ),
-                      );
+                  pageStyleBloc.add(
+                    DocumentPageStyleEvent.updateCoverImage(
+                      PageStyleCover(
+                        type: PageStyleCoverImageType.unsplashImage,
+                        value: url,
+                      ),
+                    ),
+                  );
                 },
               ),
             ),
