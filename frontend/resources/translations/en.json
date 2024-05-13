@@ -1611,7 +1611,8 @@
     "photoPermissionDescription": "Allow access to the photo library for uploading images.",
     "openSettings": "Open Settings",
     "photoPermissionTitle": "AppFlowy Would Like to Access Your Photo Library",
-    "doNotAllow": "Don't Allow"
+    "doNotAllow": "Don't Allow",
+    "image": "Image"
   },
   "commandPalette": {
     "placeholder": "Type to search for views...",
